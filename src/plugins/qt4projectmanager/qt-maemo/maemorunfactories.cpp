@@ -169,7 +169,7 @@ bool MaemoRunControlFactory::canRun(RunConfiguration *runConfiguration,
     const int mountDirCount
         = maemoRunConfig->remoteMounts()->validMountSpecificationCount();
     if (mode == ProjectExplorer::Constants::DEBUGMODE)
-        return freePortCount > mountDirCount;
+        return freePortCount > mountDirCount + runConfiguration->useQmlDebugger();
     if (mode == ProjectExplorer::Constants::RUNMODE)
         return freePortCount >= mountDirCount;
     return false;

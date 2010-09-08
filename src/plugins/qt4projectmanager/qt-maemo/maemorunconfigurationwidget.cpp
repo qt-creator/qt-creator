@@ -51,6 +51,7 @@
 #include <qt4projectmanager/qt4target.h>
 #include <utils/detailswidget.h>
 
+#include <QtGui/QCheckBox>
 #include <QtGui/QComboBox>
 #include <QtGui/QFileDialog>
 #include <QtGui/QFormLayout>
@@ -122,12 +123,18 @@ void MaemoRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
     m_argsLineEdit = new QLineEdit(m_runConfiguration->arguments().join(" "));
     formLayout->addRow(tr("Arguments:"), m_argsLineEdit);
 
+    m_qmlCheckBox = new QCheckBox(tr("Also debug QML parts"));
+    m_qmlCheckBox->setChecked(m_runConfiguration->useQmlDebugger());
+    formLayout->addRow(new QLabel(tr("Debugging:")), m_qmlCheckBox);
+
     connect(addDevConfLabel, SIGNAL(linkActivated(QString)), this,
         SLOT(showSettingsDialog(QString)));
     connect(debuggerConfLabel, SIGNAL(linkActivated(QString)), this,
         SLOT(showSettingsDialog(QString)));
     connect(m_argsLineEdit, SIGNAL(textEdited(QString)), this,
         SLOT(argumentsEdited(QString)));
+    connect(m_qmlCheckBox, SIGNAL(toggled(bool)), this,
+        SLOT(handleQmlDebuggingChanged(bool)));
     connect(m_runConfiguration, SIGNAL(targetInformationChanged()), this,
         SLOT(updateTargetInformation()));
     connect(m_runConfiguration->deployStep()->deployables(),
@@ -423,6 +430,12 @@ void MaemoRunConfigurationWidget::handleRemoteMountsChanged()
     updateMountWarning();
 }
 
+void MaemoRunConfigurationWidget::handleQmlDebuggingChanged(bool debugQml)
+{
+    m_runConfiguration->setUseQmlDebugger(debugQml);
+    updateMountWarning();
+}
+
 void MaemoRunConfigurationWidget::updateMountWarning()
 {
     QString mountWarning;
@@ -436,11 +449,16 @@ void MaemoRunConfigurationWidget::updateMountWarning()
                 "your device has only %2 free ports.<br>You will not be able "
                 "to run this configuration.")
             .arg(mountDirCount).arg(availablePortCount);
-        } else if (mountDirCount > 0 && mountDirCount == availablePortCount) {
-            mountWarning = tr("WARNING: The directories you want to mount will "
-                "use all %1 free ports on the device.<br>You will not be able "
-                "to debug your application with this configuration.")
-                .arg(availablePortCount);
+        } else if (mountDirCount > 0) {
+            const int portsLeftByDebuggers
+                = availablePortCount - 1 - m_runConfiguration->useQmlDebugger();
+            if (mountDirCount > portsLeftByDebuggers) {
+                mountWarning = tr("WARNING: You want to mount %1 directories, "
+                    "but only %2 ports on the device will be available "
+                    "in debug mode. <br>You will not be able to debug your "
+                    "application with this configuration.").
+                    arg(mountDirCount).arg(portsLeftByDebuggers);
+            }
         }
     }
     if (mountWarning.isEmpty()) {

@@ -44,6 +44,7 @@
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerrunner.h>
+#include <debugger/qml/qmlcppengine.h>
 #include <debugger/gdb/remotegdbserveradapter.h>
 #include <debugger/gdb/remoteplaingdbadapter.h>
 #include <projectexplorer/toolchain.h>
@@ -63,12 +64,18 @@ RunControl *MaemoDebugSupport::createDebugRunControl(MaemoRunConfiguration *runC
 {
     DebuggerStartParameters params;
     const MaemoDeviceConfig &devConf = runConfig->deviceConfig();
+
+    if (runConfig->useQmlDebugger()) {
+        params.qmlServerAddress = runConfig->deviceConfig().server.host;
+        params.qmlServerPort = qmlServerPort(runConfig);
+    }
+
     if (runConfig->useRemoteGdb()) {
         params.startMode = StartRemoteGdb;
         params.executable = runConfig->remoteExecutableFilePath();
         params.debuggerCommand
             = MaemoGlobal::remoteCommandPrefix(runConfig->remoteExecutableFilePath())
-                + QLatin1String(" /usr/bin/gdb");
+                + environment(runConfig) + QLatin1String(" /usr/bin/gdb");
         params.connParams = devConf.server;
         params.localMountDir = runConfig->localDirToMountForRemoteGdb();
         params.remoteMountPoint = MaemoGlobal::remoteProjectSourcesMountPoint();
@@ -84,9 +91,11 @@ RunControl *MaemoDebugSupport::createDebugRunControl(MaemoRunConfiguration *runC
         params.debuggerCommand = runConfig->gdbCmd();
         params.remoteChannel = devConf.server.host + QLatin1Char(':')
             + QString::number(gdbServerPort(runConfig));
+
         params.useServerStartScript = true;
         params.remoteArchitecture = QLatin1String("arm");
     }
+
     params.processArgs = runConfig->arguments();
     params.sysRoot = runConfig->sysRoot();
     params.toolChainType = ToolChain::GCC_MAEMO;
@@ -106,9 +115,15 @@ MaemoDebugSupport::MaemoDebugSupport(MaemoRunConfiguration *runConfig,
       m_deviceConfig(m_runConfig->deviceConfig()),
       m_runner(new MaemoSshRunner(this, m_runConfig, true))
 {
-    GdbEngine *engine = qobject_cast<GdbEngine *>(m_runControl->engine());
-    Q_ASSERT(engine);
-    m_gdbAdapter = engine->gdbAdapter();
+    GdbEngine *gdbEngine = qobject_cast<GdbEngine *>(m_runControl->engine());
+    if (!gdbEngine) {
+        QmlCppEngine * const qmlEngine
+            = qobject_cast<QmlCppEngine *>(m_runControl->engine());
+        Q_ASSERT(qmlEngine);
+        gdbEngine = qobject_cast<GdbEngine *>(qmlEngine->cppEngine());
+    }
+    Q_ASSERT(gdbEngine);
+    m_gdbAdapter = gdbEngine->gdbAdapter();
     Q_ASSERT(m_gdbAdapter);
     connect(m_gdbAdapter, SIGNAL(requestSetup()), this,
         SLOT(handleAdapterSetupRequested()));
@@ -230,9 +245,9 @@ void MaemoDebugSupport::startDebugging()
         connect(m_runner, SIGNAL(remoteProcessStarted()), this,
             SLOT(handleRemoteProcessStarted()));
         const QString &remoteExe = m_runConfig->remoteExecutableFilePath();
-        m_runner->startExecution(QString::fromLocal8Bit("%1 gdbserver :%2 %3 %4")
+        m_runner->startExecution(QString::fromLocal8Bit("%1 %2 gdbserver :%3 %4 %5")
             .arg(MaemoGlobal::remoteCommandPrefix(remoteExe))
-            .arg(gdbServerPort(m_runConfig))
+            .arg(environment(m_runConfig)).arg(gdbServerPort(m_runConfig))
             .arg(remoteExe).arg(m_runConfig->arguments()
             .join(QLatin1String(" "))).toUtf8());
     }
@@ -297,6 +312,23 @@ void MaemoDebugSupport::handleAdapterSetupDone()
 int MaemoDebugSupport::gdbServerPort(const MaemoRunConfiguration *rc)
 {
     return rc->freePorts().getNext();
+}
+
+int MaemoDebugSupport::qmlServerPort(const MaemoRunConfiguration *rc)
+{
+    MaemoPortList portList = rc->freePorts();
+    portList.getNext();
+    return portList.getNext();
+}
+
+QString MaemoDebugSupport::environment(const MaemoRunConfiguration *rc)
+{
+    QList<EnvironmentItem> env = rc->userEnvironmentChanges();
+    if (rc->useQmlDebugger()) {
+        env << EnvironmentItem(QLatin1String(Debugger::Constants::E_QML_DEBUG_SERVER_PORT),
+            QString::number(qmlServerPort(rc)));
+    }
+    return MaemoGlobal::remoteEnvironment(env);
 }
 
 QString MaemoDebugSupport::uploadDir(const MaemoDeviceConfig &devConf)

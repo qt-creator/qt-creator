@@ -86,6 +86,8 @@ private slots:
 
 private:
     static int gdbServerPort(const MaemoRunConfiguration *rc);
+    static int qmlServerPort(const MaemoRunConfiguration *rc);
+    static QString environment(const MaemoRunConfiguration *rc);
 
     void stopSsh();
     void handleAdapterSetupFailed(const QString &error);
