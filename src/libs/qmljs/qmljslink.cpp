@@ -295,11 +295,10 @@ void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, A
     // check the filesystem
     const QString packagePath = Bind::toString(import->importUri, QDir::separator());
     foreach (const QString &importPath, _importPaths) {
-        QDir dir(importPath);
-        if (!dir.cd(packagePath))
-            continue;
+        QString libraryPath = importPath;
+        libraryPath += QDir::separator();
+        libraryPath += packagePath;
 
-        const QString &libraryPath = dir.path();
         const LibraryInfo libraryInfo = _snapshot.libraryInfo(libraryPath);
         if (!libraryInfo.isValid())
             continue;
@@ -326,7 +325,7 @@ void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, A
                 continue;
 
             importedTypes.insert(component.typeName);
-            if (Document::Ptr importedDoc = _snapshot.document(dir.filePath(component.fileName))) {
+            if (Document::Ptr importedDoc = _snapshot.document(libraryPath + QDir::separator() + component.fileName)) {
                 if (importedDoc->bind()->rootObjectValue())
                     namespaceObject->setProperty(component.typeName, importedDoc->bind()->rootObjectValue());
             }

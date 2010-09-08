@@ -466,7 +466,8 @@ void ModelManager::loadPluginTypes(const QString &libraryPath, const QString &im
 
 void ModelManager::onLoadPluginTypes(const QString &libraryPath, const QString &importPath, const QString &importUri)
 {
-    if (m_runningQmldumps.values().contains(libraryPath))
+    const QString canonicalLibraryPath = QDir::cleanPath(libraryPath);
+    if (m_runningQmldumps.values().contains(canonicalLibraryPath))
         return;
 
     static QString qmldumpPath;
@@ -500,7 +501,7 @@ void ModelManager::onLoadPluginTypes(const QString &libraryPath, const QString &
     args << importPath;
     args << importUri;
     process->start(qmldumpPath, args);
-    m_runningQmldumps.insert(process, libraryPath);
+    m_runningQmldumps.insert(process, canonicalLibraryPath);
 }
 
 void ModelManager::updateImportPaths()
