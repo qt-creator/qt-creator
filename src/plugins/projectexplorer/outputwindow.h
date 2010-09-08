@@ -176,6 +176,9 @@ protected:
     virtual void mouseReleaseEvent(QMouseEvent *e);
     virtual void mouseMoveEvent(QMouseEvent *e);
 
+private slots:
+    void updateWordWrapMode();
+
 private:
     void enableUndoRedo();
     QString doNewlineEnfocement(const QString &out);

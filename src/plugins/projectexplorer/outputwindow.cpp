@@ -482,6 +482,8 @@ OutputWindow::OutputWindow(QWidget *parent)
     //setCenterOnScroll(false);
     setFrameShape(QFrame::NoFrame);
     setMouseTracking(true);
+    if (!ProjectExplorerPlugin::instance()->projectExplorerSettings().wrapAppOutput)
+        setWordWrapMode(QTextOption::NoWrap);
 
     static uint usedIds = 0;
     Core::ICore *core = Core::ICore::instance();
@@ -520,6 +522,9 @@ OutputWindow::OutputWindow(QWidget *parent)
     redoAction->setEnabled(false);
     cutAction->setEnabled(false);
     copyAction->setEnabled(false);
+
+    connect(ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
+            this, SLOT(updateWordWrapMode()));
 }
 
 OutputWindow::~OutputWindow()
@@ -736,6 +741,14 @@ void OutputWindow::enableUndoRedo()
 {
     setMaximumBlockCount(0);
     setUndoRedoEnabled(true);
+}
+
+void OutputWindow::updateWordWrapMode()
+{
+    if (ProjectExplorerPlugin::instance()->projectExplorerSettings().wrapAppOutput)
+        setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
+    else
+        setWordWrapMode(QTextOption::NoWrap);
 }
 
 } // namespace Internal

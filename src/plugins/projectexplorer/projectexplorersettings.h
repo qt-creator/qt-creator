@@ -37,14 +37,16 @@ namespace Internal {
 
 struct ProjectExplorerSettings
 {
-    ProjectExplorerSettings() : buildBeforeDeploy(true), deployBeforeRun(true), saveBeforeBuild(false),
-                                showCompilerOutput(false), cleanOldAppOutput(false), useJom(true) {}
+    ProjectExplorerSettings() : buildBeforeDeploy(true), deployBeforeRun(true),
+                                saveBeforeBuild(false), showCompilerOutput(false),
+                                cleanOldAppOutput(false), wrapAppOutput(true), useJom(true) {}
 
     bool buildBeforeDeploy;
     bool deployBeforeRun;
     bool saveBeforeBuild;
     bool showCompilerOutput;
     bool cleanOldAppOutput;
+    bool wrapAppOutput;
     bool useJom;
     // Add a UUid which is used to identify the development environment.
     // This is used to warn the user when he is trying to open a .user file that was created
@@ -59,6 +61,7 @@ inline bool operator==(const ProjectExplorerSettings &p1, const ProjectExplorerS
             && p1.saveBeforeBuild == p2.saveBeforeBuild
             && p1.showCompilerOutput == p2.showCompilerOutput
             && p1.cleanOldAppOutput == p2.cleanOldAppOutput
+            && p1.wrapAppOutput == p2.wrapAppOutput
             && p1.useJom == p2.useJom;
 }
 

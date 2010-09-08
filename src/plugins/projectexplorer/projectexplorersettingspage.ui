@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>437</width>
-    <height>343</height>
+    <height>389</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -87,6 +87,13 @@
        <widget class="QCheckBox" name="cleanOldAppOutputCheckBox">
         <property name="text">
          <string>Clear old application output on a new run</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="wrapAppOutputCheckBox">
+        <property name="text">
+         <string>Word-wrap application output</string>
         </property>
        </widget>
       </item>
