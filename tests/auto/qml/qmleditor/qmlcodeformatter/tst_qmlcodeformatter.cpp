@@ -237,6 +237,7 @@ void tst_QMLCodeFormatter::arrayBinding()
          << Line("        State {")
          << Line("            y: x")
          << Line("        },")
+         << Line("        State {},")
          << Line("        State")
          << Line("        {")
          << Line("        }")
@@ -882,7 +883,7 @@ void tst_QMLCodeFormatter::expressionContinuation()
     checkIndent(data);
 }
 
-QTEST_APPLESS_MAIN(tst_CodeFormatter)
+QTEST_APPLESS_MAIN(tst_QMLCodeFormatter)
 #include "tst_qmlcodeformatter.moc"
 
 
