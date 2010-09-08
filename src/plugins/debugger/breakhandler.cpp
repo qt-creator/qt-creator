@@ -298,6 +298,15 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
     if (role == BreakpointFunctionNameRole)
         return data->funcName;
 
+    if (role == BreakpointConditionRole)
+        return data->condition;
+
+    if (role == BreakpointIgnoreCountRole)
+        return data->ignoreCount;
+
+    if (role == BreakpointThreadSpecRole)
+        return data->threadSpec;
+
     switch (mi.column()) {
         case 0:
             if (role == Qt::DisplayRole) {

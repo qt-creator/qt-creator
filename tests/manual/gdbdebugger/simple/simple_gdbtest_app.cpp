@@ -1837,8 +1837,20 @@ void testTypedef()
     ++t2;
 };
 
+void testConditional(const QString &str)
+{
+    //
+    QString res = str;
+    res += "x";
+    res += "x";
+    res += "x";
+}
+
 void testStuff()
 {
+    testConditional("foo");
+    testConditional("bar");
+    testConditional("zzz");
     Foo *f1 = new Foo(1);
     X *x = new X();
     Foo *f2 = x;
