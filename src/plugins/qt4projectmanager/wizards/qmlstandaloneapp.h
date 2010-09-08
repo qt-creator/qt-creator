@@ -86,7 +86,8 @@ struct GeneratedFileInfo
         AppViewerCppFile,
         AppViewerHFile,
         SymbianSvgIconFile,
-        MaemoPngIconFile
+        MaemoPngIconFile,
+        DesktopFile
     };
 
     GeneratedFileInfo();
@@ -120,6 +121,8 @@ public:
         AppPro,
         AppProOrigin,
         AppProPath,
+        Desktop,
+        DesktopOrigin,
         AppViewerPri,
         AppViewerPriOrigin,
         AppViewerCpp,
@@ -175,6 +178,7 @@ public:
 private:
     QByteArray generateMainCpp(const QString *errorMessage) const;
     QByteArray generateProFile(const QString *errorMessage) const;
+    QByteArray generateDesktopFile(const QString *errorMessage) const;
     static QString templatesRoot();
     bool addExternalModule(const QString &uri, const QFileInfo &dir,
                            const QFileInfo &contentDir);

@@ -288,6 +288,8 @@ QString QmlStandaloneApp::path(Path path) const
         case AppPro:                        return pathBase + m_projectName + QLatin1String(".pro");
         case AppProOrigin:                  return originsRoot + QLatin1String("app.pro");
         case AppProPath:                    return pathBase;
+        case Desktop:                       return pathBase + m_projectName + QLatin1String(".desktop");
+        case DesktopOrigin:                 return originsRoot + QLatin1String("app.desktop");
         case AppViewerPri:                  return pathBase + appViewerTargetSubDir + appViewerPriFileName;
         case AppViewerPriOrigin:            return originsRoot + appViewerOriginsSubDir + appViewerPriFileName;
         case AppViewerCpp:                  return pathBase + appViewerTargetSubDir + appViewerCppFileName;
@@ -429,6 +431,17 @@ QByteArray QmlStandaloneApp::generateProFile(const QString *errorMessage) const
     return proFileContent;
 }
 
+QByteArray QmlStandaloneApp::generateDesktopFile(const QString *errorMessage) const
+{
+    Q_UNUSED(errorMessage);
+
+    QFile desktopTemplate(path(DesktopOrigin));
+    desktopTemplate.open(QIODevice::ReadOnly);
+    Q_ASSERT(desktopTemplate.isOpen());
+    QByteArray desktopFileContent = desktopTemplate.readAll();
+    return desktopFileContent.replace("thisApp", projectName().toUtf8());
+}
+
 void QmlStandaloneApp::clearModulesAndPlugins()
 {
     qDeleteAll(m_modules);
@@ -530,6 +543,7 @@ Core::GeneratedFiles QmlStandaloneApp::generateFiles(QString *errorMessage) cons
     files.append(file(generateFile(GeneratedFileInfo::MainCppFile, errorMessage), path(MainCpp)));
     files.append(file(generateFile(GeneratedFileInfo::SymbianSvgIconFile, errorMessage), path(SymbianSvgIcon)));
     files.append(file(generateFile(GeneratedFileInfo::MaemoPngIconFile, errorMessage), path(MaemoPngIcon)));
+    files.append(file(generateFile(GeneratedFileInfo::DesktopFile, errorMessage), path(Desktop)));
 
     files.append(file(generateFile(GeneratedFileInfo::AppViewerPriFile, errorMessage), path(AppViewerPri)));
     files.append(file(generateFile(GeneratedFileInfo::AppViewerCppFile, errorMessage), path(AppViewerCpp)));
@@ -583,6 +597,9 @@ QByteArray QmlStandaloneApp::generateFile(GeneratedFileInfo::File file,
         case GeneratedFileInfo::MaemoPngIconFile:
             data = readBlob(path(MaemoPngIconOrigin));
             break;
+        case GeneratedFileInfo::DesktopFile:
+            data = generateDesktopFile(errorMessage);
+            break;
         case GeneratedFileInfo::AppProFile:
             data = generateProFile(errorMessage);
             comment = proFileComment;
@@ -619,7 +636,7 @@ QByteArray QmlStandaloneApp::generateFile(GeneratedFileInfo::File file,
 
 int QmlStandaloneApp::stubVersion()
 {
-    return 2;
+    return 3;
 }
 
 static QList<GeneratedFileInfo> updateableFiles(const QString &mainProFile)
