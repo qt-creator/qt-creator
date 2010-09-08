@@ -184,6 +184,20 @@ void RemoteGdbServerAdapter::setupInferior()
     if (!args.isEmpty())
         m_engine->postCommand("-exec-arguments " + args.toLocal8Bit());
 
+    // This has to be issued before 'target remote'. On pre-7.0 the
+    // command is not present and will result in ' No symbol table is
+    // loaded.  Use the "file" command.' as gdb tries to set the 
+    // value of a variable with name 'target-async'.
+    //
+    // Testing with -list-target-features which was introduced at
+    // the same time would not work either, as this need an existing
+    // target.
+    //
+    // Using it even without a target and having it fail might still
+    // be better as:
+    // Some external comment: '[but] "set target-async on" with a native
+    // windows gdb will work, but then fail when you actually do
+    // "run"/"attach", I think..
     m_engine->postCommand("set target-async on", CB(handleSetTargetAsync));
 
     if (fileName.isEmpty()) {
