@@ -260,6 +260,7 @@ static DebuggerEngineType engineForToolChain(int toolChainType)
         case ProjectExplorer::ToolChain::RVCT_ARMV6:
         case ProjectExplorer::ToolChain::RVCT_ARMV5_GNUPOC:
         case ProjectExplorer::ToolChain::GCCE_GNUPOC:
+        case ProjectExplorer::ToolChain::GCC_MAEMO:
             return GdbEngineType;
 
         case ProjectExplorer::ToolChain::MSVC:

@@ -162,7 +162,9 @@ void QmlEngine::connectionStartupFailed()
 {
     QMessageBox::critical(0,
                           tr("Failed to connect to debugger"),
-                          tr("Could not connect to debugger server.") );
+                          tr("Could not connect to QML debugger server at %1:%2.")
+                          .arg(startParameters().qmlServerAddress)
+                          .arg(startParameters().qmlServerPort));
     notifyEngineRunFailed();
 }
 

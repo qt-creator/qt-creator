@@ -13,7 +13,7 @@ namespace Internal {
 class GdbEngine;
 class QmlEngine;
 
-class QmlCppEngine : public DebuggerEngine
+class DEBUGGER_EXPORT QmlCppEngine : public DebuggerEngine
 {
     Q_OBJECT
 public:
@@ -66,6 +66,8 @@ public:
     QAbstractItemModel *watchersModel() const;
     QAbstractItemModel *returnModel() const;
     QAbstractItemModel *sourceFilesModel() const;
+
+    DebuggerEngine *cppEngine() const { return m_cppEngine; }
 
 protected:
     virtual void detachDebugger();
