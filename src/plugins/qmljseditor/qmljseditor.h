@@ -121,6 +121,7 @@ class SemanticInfo
 public:
     SemanticInfo() {}
 
+    bool isValid() const;
     int revision() const;
 
     // Returns the declaring member

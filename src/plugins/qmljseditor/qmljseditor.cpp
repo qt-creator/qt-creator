@@ -556,6 +556,11 @@ QList<AST::Node *> SemanticInfo::astPath(int cursorPosition) const
 
 LookupContext::Ptr SemanticInfo::lookupContext(const QList<QmlJS::AST::Node *> &path) const
 {
+    Q_ASSERT(! m_context.isNull());
+
+    if (m_context.isNull())
+        return LookupContext::create(document, snapshot, path);
+
     return LookupContext::create(document, snapshot, *m_context, path);
 }
 
@@ -608,6 +613,14 @@ AST::Node *SemanticInfo::nodeUnderCursor(int pos) const
     }
 
     return 0;
+}
+
+bool SemanticInfo::isValid() const
+{
+    if (document && m_context)
+        return true;
+
+    return false;
 }
 
 int SemanticInfo::revision() const
@@ -1360,6 +1373,9 @@ void QmlJSTextEditor::createToolBar(QmlJSEditorEditable *editable)
 TextEditor::BaseTextEditor::Link QmlJSTextEditor::findLinkAt(const QTextCursor &cursor, bool /*resolveTarget*/)
 {
     const SemanticInfo semanticInfo = m_semanticInfo;
+    if (! semanticInfo.isValid())
+        return Link();
+
     const unsigned cursorPosition = cursor.position();
 
     AST::Node *node = semanticInfo.nodeUnderCursor(cursorPosition);

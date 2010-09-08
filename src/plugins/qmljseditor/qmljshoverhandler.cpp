@@ -110,7 +110,7 @@ void HoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
 
     if (!matchDiagnosticMessage(qmlEditor, pos)) {
         const SemanticInfo &semanticInfo = qmlEditor->semanticInfo();
-        if (semanticInfo.revision() != qmlEditor->editorRevision())
+        if (! semanticInfo.isValid() || semanticInfo.revision() != qmlEditor->editorRevision())
             return;
 
         QList<AST::Node *> astPath = semanticInfo.astPath(pos);

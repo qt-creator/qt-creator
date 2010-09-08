@@ -80,7 +80,12 @@ ModelManager::ModelManager(QObject *parent):
 
 void ModelManager::loadQmlTypeDescriptions()
 {
-    const QString resourcePath = Core::ICore::instance()->resourcePath();
+    loadQmlTypeDescriptions(Core::ICore::instance()->resourcePath());
+    loadQmlTypeDescriptions(Core::ICore::instance()->userResourcePath());
+}
+
+void ModelManager::loadQmlTypeDescriptions(const QString &resourcePath)
+{
     const QDir typeFileDir(resourcePath + QLatin1String("/qml-type-descriptions"));
     const QStringList xmlExtensions = QStringList() << QLatin1String("*.xml");
     const QFileInfoList xmlFiles = typeFileDir.entryInfoList(xmlExtensions,

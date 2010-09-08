@@ -101,6 +101,7 @@ protected:
                       bool emitDocChangedOnDisk);
 
     void loadQmlTypeDescriptions();
+    void loadQmlTypeDescriptions(const QString &path);
 
     void updateImportPaths();
 

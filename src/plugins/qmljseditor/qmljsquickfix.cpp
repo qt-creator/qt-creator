@@ -136,7 +136,7 @@ TextEditor::QuickFixState *QmlJSQuickFixCollector::initializeCompletion(TextEdit
     if (QmlJSTextEditor *qmljsEditor = qobject_cast<QmlJSTextEditor *>(editor)) {
         const SemanticInfo info = qmljsEditor->semanticInfo();
 
-        if (qmljsEditor->isOutdated()) {
+        if (! info.isValid() || qmljsEditor->isOutdated()) {
             // outdated
             qWarning() << "TODO: outdated semantic info, force a reparse.";
             return 0;

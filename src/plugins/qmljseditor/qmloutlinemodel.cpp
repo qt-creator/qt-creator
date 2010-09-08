@@ -330,6 +330,8 @@ Document::Ptr QmlOutlineModel::document() const
 void QmlOutlineModel::update(const SemanticInfo &semanticInfo)
 {
     m_semanticInfo = semanticInfo;
+    if (! m_semanticInfo.isValid())
+        return;
 
     m_treePos.clear();
     m_treePos.append(0);

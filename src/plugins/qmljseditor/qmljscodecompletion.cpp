@@ -678,12 +678,11 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     m_completions.clear();
 
     const SemanticInfo semanticInfo = edit->semanticInfo();
-    const QmlJS::Snapshot snapshot = semanticInfo.snapshot;
-    const Document::Ptr document = semanticInfo.document;
 
-    if (!document)
+    if (! semanticInfo.isValid())
         return -1;
 
+    const Document::Ptr document = semanticInfo.document;
     const QFileInfo currentFileInfo(fileName);
 
     bool isQmlFile = false;
