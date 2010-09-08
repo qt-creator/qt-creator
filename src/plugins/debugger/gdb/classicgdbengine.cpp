@@ -708,7 +708,9 @@ bool GdbEngine::checkDebuggingHelpersClassic()
     const QString msg = tr("The debugging helper library was not found at %1.")
             .arg(loc);
     showMessage(msg);
-    showQtDumperLibraryWarning(msg); // This might build the library.
+    // This can happen for remote debugging.
+    if (!locations.isEmpty())
+        showQtDumperLibraryWarning(msg); // This might build the library.
     return QFileInfo(lib).exists();
 }
 
