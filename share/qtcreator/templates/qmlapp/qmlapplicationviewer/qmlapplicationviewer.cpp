@@ -23,10 +23,19 @@ class QmlApplicationViewerPrivate
 
 QString QmlApplicationViewerPrivate::adjustPath(const QString &path)
 {
+#ifdef Q_OS_UNIX
 #ifdef Q_OS_MAC
     if (!QDir::isAbsolutePath(path))
         return QCoreApplication::applicationDirPath()
                 + QLatin1String("/../Resources/") + path;
+#else
+    const QString pathInShareDir = QCoreApplication::applicationDirPath()
+        + QLatin1String("/../share/")
+        + QFileInfo(QCoreApplication::applicationFilePath()).fileName()
+        + QLatin1Char('/') + path;
+    if (QFileInfo(pathInShareDir).exists())
+        return pathInShareDir;
+#endif
 #endif
     return path;
 }

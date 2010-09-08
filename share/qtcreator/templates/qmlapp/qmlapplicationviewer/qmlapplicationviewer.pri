@@ -69,17 +69,18 @@ symbian {
             QMAKE_EXTRA_TARGETS += first copydeploymentfolders
         }
     }
+    installPrefix = /opt
     for(deploymentfolder, DEPLOYMENTFOLDERS) {
         item = item$${deploymentfolder}
         itemfiles = $${item}.files
         $$itemfiles = $$eval($${deploymentfolder}.source)
         itempath = $${item}.path
-        $$itempath = /opt/share/$$eval($${deploymentfolder}.target)
+        $$itempath = $${installPrefix}/share/$${TARGET}/$$eval($${deploymentfolder}.target)
         INSTALLS += $$item
     }
     icon.files = $${TARGET}.png
     icon.path = /usr/share/icons/hicolor/64x64
     desktopfile.files = $${TARGET}.desktop
-    target.path = /opt/bin
+    target.path = $${installPrefix}/bin
     INSTALLS += desktopfile icon target
 }
