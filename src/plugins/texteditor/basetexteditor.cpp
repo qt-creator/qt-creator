@@ -1314,6 +1314,13 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
             handleBlockSelection(diff_row, diff_col);
             e->accept();
             return;
+        } else {
+            // leave block selection mode
+            if (d->m_inBlockSelectionMode) {
+                d->m_inBlockSelectionMode = false;
+                d->m_blockSelection.clear();
+                viewport()->update();
+            }
         }
 #endif
         break;
