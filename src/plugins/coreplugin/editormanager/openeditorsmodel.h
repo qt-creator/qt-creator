@@ -60,7 +60,7 @@ public:
     QModelIndex firstRestoredEditor() const;
 
     struct CORE_EXPORT Entry {
-        Entry():editor(0){}
+        Entry() : editor(0) {}
         IEditor *editor;
         QString fileName() const;
         QString displayName() const;
@@ -71,7 +71,7 @@ public:
     };
     QList<Entry> entries() const { return m_editors; }
 
-    inline IEditor *editorAt(int row) const { return m_editors.at(row).editor; }
+    IEditor *editorAt(int row) const { return m_editors.at(row).editor; }
 
     void removeEditor(IEditor *editor);
     void removeEditor(const QModelIndex &index);
@@ -101,7 +101,7 @@ private:
     const QIcon m_unlockedIcon;
 
     QList<Entry> m_editors;
-    QList<IEditor *>m_duplicateEditors;
+    QList<IEditor *> m_duplicateEditors;
 };
 
 } // namespace Core
