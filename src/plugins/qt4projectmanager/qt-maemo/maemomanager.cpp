@@ -106,13 +106,20 @@ bool MaemoManager::isValidMaemoQtVersion(const QtVersion *version) const
     if (!QFileInfo(madAdminCommand).exists())
         return false;
 
+    QProcess madAdminProc;
     QStringList arguments(QLatin1String("list"));
+
 #ifdef Q_OS_WIN
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    env.insert(QLatin1String("PATH"),
+        QDir::toNativeSeparators(dir.absolutePath() % QLatin1String("/bin"))
+        % QLatin1Char(';') % env.value(QLatin1String("PATH")));
+    madAdminProc.setProcessEnvironment(env);
+
     arguments.prepend(madAdminCommand);
     madAdminCommand = dir.absolutePath() + QLatin1String("/bin/sh.exe");
 #endif
 
-    QProcess madAdminProc;
     madAdminProc.start(madAdminCommand, arguments);
     if (!madAdminProc.waitForStarted() || !madAdminProc.waitForFinished())
         return false;

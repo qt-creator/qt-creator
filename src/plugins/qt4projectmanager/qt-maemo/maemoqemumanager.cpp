@@ -678,6 +678,10 @@ QString MaemoQemuManager::runtimeForQtVersion(const QString &qmakeCommand) const
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     env.insert("HOME",
         QDesktopServices::storageLocation(QDesktopServices::HomeLocation));
+    env.insert(QLatin1String("PATH"),
+        QDir::toNativeSeparators(madRoot % QLatin1String("/bin"))
+        % QLatin1Char(';') % env.value(QLatin1String("PATH")));
+
     madProc.setProcessEnvironment(env);
 
     arguments.prepend(madCommand);
