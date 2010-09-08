@@ -52,12 +52,10 @@ public:
 
 private:
     void sendQueuedTask();
-    Task::TaskType toType(int number);
+    bool processCompileLine(const QString &line);
 
     QRegExp m_compileRegExp;
     QRegExp m_additionalInfoRegExp;
-    QRegExp m_linkRegExp;
-    QRegExp m_nonFileRegExp;
 
     Task m_lastTask;
 };

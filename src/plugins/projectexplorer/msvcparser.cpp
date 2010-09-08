@@ -31,21 +31,22 @@
 #include "projectexplorerconstants.h"
 
 namespace {
-const char * const FILE_POS_PATTERN = "([^\\(]+)\\((\\d+)\\)\\s:";
+const char * const FILE_POS_PATTERN = "(cl|LINK|[^\\(]+)(\\((\\d+)\\))?";
+const char * const ERROR_PATTERN = "[A-Z]+\\d\\d\\d\\d ?:";
 }
 
 using namespace ProjectExplorer;
 
 MsvcParser::MsvcParser()
 {
-    m_compileRegExp.setPattern(QString::fromLatin1("^") + QLatin1String(FILE_POS_PATTERN) + QLatin1String("([^:\\d]+)\\s([A-Z]+(\\d+):.*)$"));
+    m_compileRegExp.setPattern(QString::fromLatin1("^") + QLatin1String(FILE_POS_PATTERN)
+                               + QLatin1String(" : .*(warning|error) (")
+                               + QLatin1String(ERROR_PATTERN) + QLatin1String(".*)$"));
     m_compileRegExp.setMinimal(true);
-    m_additionalInfoRegExp.setPattern(QString::fromLatin1("^        ") + QLatin1String(FILE_POS_PATTERN) + QLatin1String("\\s(.*)$"));
+    m_additionalInfoRegExp.setPattern(QString::fromLatin1("^        ")
+                                      + QLatin1String(FILE_POS_PATTERN)
+                                      + QLatin1String(" : (.*)$"));
     m_additionalInfoRegExp.setMinimal(true);
-    m_linkRegExp.setPattern(QString::fromLatin1("^") + QLatin1String(FILE_POS_PATTERN) + QLatin1String("[^:\\d]+(\\d+):(.*)$"));
-    m_linkRegExp.setMinimal(true);
-    m_nonFileRegExp.setPattern(QLatin1String("(^LINK|cl) : .*(error|warning) (.*)$"));
-    m_nonFileRegExp.setMinimal(true);
 }
 
 MsvcParser::~MsvcParser()
@@ -80,50 +81,15 @@ void MsvcParser::stdOutput(const QString &line)
         }
         return;
     }
-    sendQueuedTask();
 
-    if (m_compileRegExp.indexIn(line) > -1 && m_compileRegExp.numCaptures() == 5) {
+    if (processCompileLine(line))
+        return;
+    if (m_additionalInfoRegExp.indexIn(line) > -1) {
         m_lastTask = Task(Task::Unknown,
-                          m_compileRegExp.cap(4).trimmed() /* description */,
-                          m_compileRegExp.cap(1) /* filename */,
-                          m_compileRegExp.cap(2).toInt() /* linenumber */,
+                          m_additionalInfoRegExp.cap(4).trimmed(), /* description */
+                          m_additionalInfoRegExp.cap(1), /* fileName */
+                          m_additionalInfoRegExp.cap(3).toInt(), /* linenumber */
                           Constants::TASK_CATEGORY_COMPILE);
-        if (m_compileRegExp.cap(3) == QLatin1String(" warning"))
-            m_lastTask.type = Task::Warning;
-        else if (m_compileRegExp.cap(3) == QLatin1String(" error"))
-            m_lastTask.type = Task::Error;
-        else
-            m_lastTask.type = toType(m_compileRegExp.cap(5).toInt());
-        return;
-    }
-    if (m_additionalInfoRegExp.indexIn(line) > -1 && m_additionalInfoRegExp.numCaptures() == 3) {
-        m_lastTask = Task(Task::Unknown,
-                          m_additionalInfoRegExp.cap(3).trimmed(),
-                          m_additionalInfoRegExp.cap(1),
-                          m_additionalInfoRegExp.cap(2).toInt(),
-                          Constants::TASK_CATEGORY_COMPILE);
-        return;
-    }
-    if (m_linkRegExp.indexIn(line) > -1 && m_linkRegExp.numCaptures() == 3) {
-        QString fileName = m_linkRegExp.cap(1);
-        if (fileName.contains(QLatin1String("LINK"), Qt::CaseSensitive))
-            fileName.clear();
-
-        m_lastTask = Task(toType(m_linkRegExp.cap(2).toInt()) /* task type */,
-                          m_linkRegExp.cap(3).trimmed() /* description */,
-                          fileName /* filename */,
-                          -1 /* line number */,
-                          Constants::TASK_CATEGORY_COMPILE);
-        return;
-    }
-    if (m_nonFileRegExp.indexIn(line) > -1) {
-        Task::TaskType type = Task::Unknown;
-        if (m_nonFileRegExp.cap(2) == QLatin1String("warning"))
-            type = Task::Warning;
-        if (m_nonFileRegExp.cap(2) == QLatin1String("error"))
-            type = Task::Error;
-        m_lastTask = Task(type, m_nonFileRegExp.cap(3).trimmed() /* description */,
-                          QString(), -1, Constants::TASK_CATEGORY_COMPILE);
         return;
     }
     IOutputParser::stdOutput(line);
@@ -131,19 +97,34 @@ void MsvcParser::stdOutput(const QString &line)
 
 void MsvcParser::stdError(const QString &line)
 {
+    if (processCompileLine(line))
+        return;
+    IOutputParser::stdError(line);
+}
+
+bool MsvcParser::processCompileLine(const QString &line)
+{
     sendQueuedTask();
 
-    if (m_nonFileRegExp.indexIn(line) > -1) {
-        Task::TaskType type = Task::Unknown;
-        if (m_nonFileRegExp.cap(2) == QLatin1String("warning"))
-            type = Task::Warning;
-        if (m_nonFileRegExp.cap(2) == QLatin1String("error"))
-            type = Task::Error;
-        emit addTask(Task(type, m_nonFileRegExp.cap(3) /* description */,
-                          QString(), -1, Constants::TASK_CATEGORY_COMPILE));
-        return;
+    if (m_compileRegExp.indexIn(line) > -1) {
+        QString fileName = m_compileRegExp.cap(1);
+        if (fileName == QLatin1String("LINK") || fileName == QLatin1String("cl"))
+            fileName.clear();
+        int linenumber = -1;
+        if (!m_compileRegExp.cap(3).isEmpty())
+            linenumber = m_compileRegExp.cap(3).toInt();
+        m_lastTask = Task(Task::Unknown,
+                          m_compileRegExp.cap(5).trimmed() /* description */,
+                          fileName, linenumber,
+                          Constants::TASK_CATEGORY_COMPILE);
+        if (m_compileRegExp.cap(4) == QLatin1String("warning"))
+            m_lastTask.type = Task::Warning;
+        else if (m_compileRegExp.cap(4) == QLatin1String("error"))
+            m_lastTask.type = Task::Error;
+
+        return true;
     }
-    IOutputParser::stdError(line);
+    return false;
 }
 
 void MsvcParser::sendQueuedTask()
@@ -153,18 +134,6 @@ void MsvcParser::sendQueuedTask()
 
     addTask(m_lastTask);
     m_lastTask = Task();
-}
-
-Task::TaskType MsvcParser::toType(int number)
-{
-    // This is unfortunately not true for all possible kinds of errors, but better
-    // than not having a fallback at all!
-    if (number == 0)
-        return Task::Unknown;
-    else if (number > 4000 && number < 5000)
-        return Task::Warning;
-    else
-        return Task::Error;
 }
 
 // Unit tests:
@@ -275,6 +244,27 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
                         QLatin1String("..\\untitled\\main.cpp"), 19,
                         QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
             << QString();
+    QTest::newRow("Linker error 1")
+            << QString::fromLatin1("main.obj : error LNK2019: unresolved external symbol \"public: void __thiscall Data::doit(void)\" (?doit@Data@@QAEXXZ) referenced in function _main")
+            << OutputParserTester::STDOUT
+            << QString() << QString()
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Error,
+                        QLatin1String("LNK2019: unresolved external symbol \"public: void __thiscall Data::doit(void)\" (?doit@Data@@QAEXXZ) referenced in function _main"),
+                        QLatin1String("main.obj"), -1,
+                        QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
+            << QString();
+    QTest::newRow("Linker error 2")
+            << QString::fromLatin1("debug\\Experimentation.exe : fatal error LNK1120: 1 unresolved externals")
+            << OutputParserTester::STDOUT
+            << QString() << QString()
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Error,
+                        QLatin1String("LNK1120: 1 unresolved externals"),
+                        QLatin1String("debug\\Experimentation.exe"), -1,
+                        QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
+            << QString();
+
 }
 
 void ProjectExplorerPlugin::testMsvcOutputParsers()
