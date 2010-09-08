@@ -128,11 +128,31 @@ protected:
     { CPlusPlus::Symbol::visitSymbol(symbol, this); }
 
     QString switchScope(const QString &scope);
-    virtual bool visit(CPlusPlus::Enum *symbol);
-    virtual bool visit(CPlusPlus::Function *symbol);
-    virtual bool visit(CPlusPlus::Namespace *symbol);
-    virtual bool visit(CPlusPlus::Declaration *symbol);
-    virtual bool visit(CPlusPlus::Class *symbol);
+
+    virtual bool visit(CPlusPlus::UsingNamespaceDirective *);
+    virtual bool visit(CPlusPlus::UsingDeclaration *);
+    virtual bool visit(CPlusPlus::NamespaceAlias *);
+    virtual bool visit(CPlusPlus::Declaration *);
+    virtual bool visit(CPlusPlus::Argument *);
+    virtual bool visit(CPlusPlus::TypenameArgument *);
+    virtual bool visit(CPlusPlus::BaseClass *);
+    virtual bool visit(CPlusPlus::Enum *);
+    virtual bool visit(CPlusPlus::Function *);
+    virtual bool visit(CPlusPlus::Namespace *);
+    virtual bool visit(CPlusPlus::Template *);
+    virtual bool visit(CPlusPlus::Class *);
+    virtual bool visit(CPlusPlus::Block *);
+    virtual bool visit(CPlusPlus::ForwardClassDeclaration *);
+
+    // Objective-C
+    virtual bool visit(CPlusPlus::ObjCBaseClass *);
+    virtual bool visit(CPlusPlus::ObjCBaseProtocol *);
+    virtual bool visit(CPlusPlus::ObjCClass *);
+    virtual bool visit(CPlusPlus::ObjCForwardClassDeclaration *);
+    virtual bool visit(CPlusPlus::ObjCProtocol *);
+    virtual bool visit(CPlusPlus::ObjCForwardProtocolDeclaration *);
+    virtual bool visit(CPlusPlus::ObjCMethod *);
+    virtual bool visit(CPlusPlus::ObjCPropertyDeclaration *);
 
     QString scopedSymbolName(const QString &symbolName) const;
     QString scopedSymbolName(const CPlusPlus::Symbol *symbol) const;

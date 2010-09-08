@@ -169,6 +169,91 @@ bool SearchSymbols::visit(Class *symbol)
     return false;
 }
 
+bool SearchSymbols::visit(CPlusPlus::UsingNamespaceDirective *)
+{
+    return false;
+}
+
+bool SearchSymbols::visit(CPlusPlus::UsingDeclaration *)
+{
+    return false;
+}
+
+bool SearchSymbols::visit(CPlusPlus::NamespaceAlias *)
+{
+    return false;
+}
+
+bool SearchSymbols::visit(CPlusPlus::Argument *)
+{
+    return false;
+}
+
+bool SearchSymbols::visit(CPlusPlus::TypenameArgument *)
+{
+    return false;
+}
+
+bool SearchSymbols::visit(CPlusPlus::BaseClass *)
+{
+    return false;
+}
+
+bool SearchSymbols::visit(CPlusPlus::Template *)
+{
+    return true;
+}
+
+bool SearchSymbols::visit(CPlusPlus::Block *)
+{
+    return false;
+}
+
+bool SearchSymbols::visit(CPlusPlus::ForwardClassDeclaration *)
+{
+    return false;
+}
+
+bool SearchSymbols::visit(CPlusPlus::ObjCBaseClass *)
+{
+    return false;
+}
+
+bool SearchSymbols::visit(CPlusPlus::ObjCBaseProtocol *)
+{
+    return false;
+}
+
+bool SearchSymbols::visit(CPlusPlus::ObjCClass *)
+{
+    return false;
+}
+
+bool SearchSymbols::visit(CPlusPlus::ObjCForwardClassDeclaration *)
+{
+    return false;
+}
+
+bool SearchSymbols::visit(CPlusPlus::ObjCProtocol *)
+{
+    return false;
+}
+
+bool SearchSymbols::visit(CPlusPlus::ObjCForwardProtocolDeclaration *)
+{
+    return false;
+}
+
+bool SearchSymbols::visit(CPlusPlus::ObjCMethod *)
+{
+    return false;
+}
+
+bool SearchSymbols::visit(CPlusPlus::ObjCPropertyDeclaration *)
+{
+    return false;
+}
+
 QString SearchSymbols::scopedSymbolName(const QString &symbolName) const
 {
     QString name = _scope;
