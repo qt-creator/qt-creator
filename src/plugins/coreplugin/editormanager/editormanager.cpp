@@ -1600,6 +1600,11 @@ void EditorManager::updateActions()
     m_d->m_openInExternalEditorAction->setEnabled(curEditor != 0);
 }
 
+bool EditorManager::hasSplitter() const
+{
+    return m_d->m_splitter->isSplitter();
+}
+
 QList<IEditor*> EditorManager::openedEditors() const
 {
     return m_d->m_editorModel->editors();

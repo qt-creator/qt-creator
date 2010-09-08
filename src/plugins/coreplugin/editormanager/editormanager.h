@@ -155,6 +155,7 @@ public:
 
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);
+    bool hasSplitter() const;
 
     IEditor *restoreEditor(QString fileName, QString editorId, EditorGroup *group);
 
