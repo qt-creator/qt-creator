@@ -30,7 +30,6 @@
 #include "managedefinitionsdialog.h"
 #include "manager.h"
 
-#include <QtCore>
 #include <QtCore/QUrl>
 #include <QtCore/QIODevice>
 #include <QtCore/QXmlStreamReader>
@@ -42,7 +41,7 @@
 #include <QtCore/QFileInfo>
 #include <QtGui/QMessageBox>
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 using namespace TextEditor;
 using namespace Internal;
