@@ -447,6 +447,7 @@ void GradientLine::setItemNode(const QVariant &itemNode)
     if (!itemNode.value<ModelNode>().isValid())
         return;
     m_itemNode = itemNode.value<ModelNode>();
+    m_useGradient = false;
     setupGradient();
     emit itemNodeChanged();
 }
@@ -454,7 +455,7 @@ void GradientLine::setItemNode(const QVariant &itemNode)
 void GradientLine::setGradient(const QLinearGradient &gradient)
 {
     m_gradient = gradient;
-    m_useGradient = true;
+    m_useGradient = false;
     setupGradient();
     emit gradientChanged();
 
