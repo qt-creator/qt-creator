@@ -1317,8 +1317,6 @@ void ProjectExplorerPlugin::startRunControl(RunControl *runControl, const QStrin
     if (runMode == ProjectExplorer::Constants::RUNMODE)
         d->m_outputPane->popup(false);
     d->m_outputPane->showTabFor(runControl);
-    if (projectExplorerSettings().cleanOldAppOutput)
-        d->m_outputPane->clearContents();
 
     connect(runControl, SIGNAL(addToOutputWindow(ProjectExplorer::RunControl*,QString,bool)),
             d->m_outputPane, SLOT(appendApplicationOutput(ProjectExplorer::RunControl*,QString, bool)));

@@ -164,11 +164,8 @@ public:
 
     void showEvent(QShowEvent *);
 
-    void clear()
-    {
-        m_enforceNewline = false;
-        QPlainTextEdit::clear();
-    }
+    void clear();
+    void handleOldOutput();
 
     void scrollToBottom();
 

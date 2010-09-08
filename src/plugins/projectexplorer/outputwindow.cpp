@@ -254,7 +254,7 @@ void OutputPane::createNewOutputWindow(RunControl *rc)
             // Reuse this tab
             delete tab.runControl;
             tab.runControl = rc;
-            tab.window->grayOutOldContent();
+            tab.window->handleOldOutput();
             tab.window->scrollToBottom();
             tab.window->setFormatter(rc->outputFormatter());
             if (debug)
@@ -311,11 +311,8 @@ void OutputPane::reRunRunControl()
     QTC_ASSERT(index != -1 && !m_runControlTabs.at(index).runControl->isRunning(), return;)
 
     RunControlTab &tab = m_runControlTabs[index];
-    if (ProjectExplorerPlugin::instance()->projectExplorerSettings().cleanOldAppOutput) {
-        tab.window->clear();
-    } else {
-        tab.window->grayOutOldContent();
-    }
+
+    tab.window->handleOldOutput();
     tab.window->scrollToBottom();
     tab.runControl->start();
 }
@@ -691,6 +688,20 @@ bool OutputWindow::isScrollbarAtBottom() const
                 + contentOffset().y() <= viewport()->rect().bottom());
 
     // return verticalScrollBar()->value() == verticalScrollBar()->maximum();
+}
+
+void OutputWindow::clear()
+{
+    m_enforceNewline = false;
+    QPlainTextEdit::clear();
+}
+
+void OutputWindow::handleOldOutput()
+{
+    if (ProjectExplorerPlugin::instance()->projectExplorerSettings().cleanOldAppOutput)
+        clear();
+    else
+        grayOutOldContent();
 }
 
 void OutputWindow::scrollToBottom()
