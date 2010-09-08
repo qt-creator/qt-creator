@@ -743,6 +743,11 @@ bool WatchModel::setData(const QModelIndex &index, const QVariant &value, int ro
             return true;
         }
 
+        case RequestShowInEditorRole: {
+            m_handler->showInEditor();
+            return true;
+        }
+
         case RequestToggleWatchRole: {
             BreakHandler *handler = engine()->breakHandler();
             const quint64 address = value.toULongLong();
@@ -1614,6 +1619,27 @@ QByteArray WatchHandler::individualFormatRequests() const
 void WatchHandler::addTypeFormats(const QByteArray &type, const QStringList &formats)
 {
     m_reportedTypeFormats.insert(type, formats);
+}
+
+void WatchHandler::showInEditor()
+{
+    QString contents;
+    showInEditorHelper(&contents, m_locals->m_root, 0);
+    showInEditorHelper(&contents, m_watchers->m_root, 0);
+    plugin()->openTextEditor(tr("Locals & Watchers"), contents);
+}
+
+void WatchHandler::showInEditorHelper(QString *contents, WatchItem *item, int depth)
+{
+    const QChar tab = QLatin1Char('\t');
+    const QChar nl = QLatin1Char('\n');
+    contents->append(QString(depth, tab));
+    contents->append(item->name);
+    contents->append(tab);
+    contents->append(item->value);
+    contents->append(nl);
+    foreach (WatchItem *child, item->children)
+       showInEditorHelper(contents, child, depth + 1);
 }
 
 } // namespace Internal

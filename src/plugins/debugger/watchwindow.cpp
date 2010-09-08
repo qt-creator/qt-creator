@@ -383,6 +383,10 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     actClearCodeModelSnapshot->setEnabled(actionsEnabled
         && theDebuggerAction(UseCodeModel)->isChecked());
     menu.addAction(actClearCodeModelSnapshot);
+    QAction *actShowInEditor
+        = new QAction(tr("Show View Contents in Editor"), &menu);
+    actShowInEditor->setEnabled(actionsEnabled);
+    menu.addAction(actShowInEditor);
     menu.addSeparator();
     menu.addAction(theDebuggerAction(UseToolTipsInLocalsView));
 
@@ -435,6 +439,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         setModelData(LocalsTypeFormatRole, -1, mi1);
     } else if (act == clearIndividualFormatAction) {
         setModelData(LocalsIndividualFormatRole, -1, mi1);
+    } else if (act == actShowInEditor) {
+        setModelData(RequestShowInEditorRole);
     } else {
         for (int i = 0; i != typeFormatActions.size(); ++i) {
             if (act == typeFormatActions.at(i))

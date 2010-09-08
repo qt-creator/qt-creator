@@ -187,6 +187,8 @@ private:
     void saveTypeFormats();
     void setFormat(const QByteArray &type, int format);
     void updateWatchersWindow();
+    void showInEditor();
+    void showInEditorHelper(QString *contents, WatchItem *item, int level);
 
     bool m_inChange;
 
