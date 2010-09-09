@@ -34,6 +34,7 @@
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
+#include "projectexplorerconstants.h"
 #include "target.h"
 #include "toolchain.h"
 
@@ -50,9 +51,8 @@
 using namespace ProjectExplorer;
 
 namespace {
-const char * const USER_FILE_VERSION  = "ProjectExplorer.Project.Updater.FileVersion";
-const char * const USER_FILE_ENVIRONMENT_ID = "ProjectExplorer.Project.Updater.EnvironmentId";
-const char * const WAS_UPDATED        = "ProjectExplorer.Project.Updater.DidUpdate";
+const char * const USERFILE_ENVIRONMENT_ID_KEY = "ProjectExplorer.Project.Updater.EnvironmentId";
+
 const char * const PROJECT_FILE_POSTFIX(".user");
 
 // Version 0 is used in Qt Creator 1.3.x and
@@ -314,14 +314,14 @@ QVariantMap UserFileAccessor::restoreSettings(Project *project)
     QVariantMap map(reader.restoreValues());
 
     // Get and verify file version:
-    const int fileVersion = map.value(QLatin1String(USER_FILE_VERSION), 0).toInt();
+    const int fileVersion = map.value(QLatin1String(Constants::USERFILE_VERSION_KEY), 0).toInt();
     if (fileVersion < m_firstVersion || fileVersion > m_lastVersion + 1) {
         qWarning() << "File version" << fileVersion << "is not supported.";
         return QVariantMap();
     }
 
     // Verify environment Id:
-    QUuid fileEnvironmentId(map.value(QLatin1String(USER_FILE_ENVIRONMENT_ID)).toString());
+    QUuid fileEnvironmentId(map.value(QLatin1String(USERFILE_ENVIRONMENT_ID_KEY)).toString());
     if (!fileEnvironmentId.isNull()
         && fileEnvironmentId != ProjectExplorerPlugin::instance()->projectExplorerSettings().environmentId) {
         // TODO tr, casing check
@@ -347,17 +347,19 @@ QVariantMap UserFileAccessor::restoreSettings(Project *project)
 
     // Do we need to do a update?
     if (fileVersion != m_lastVersion + 1) {
-        map.insert(QLatin1String(WAS_UPDATED), true);
+        map.insert(QLatin1String(Constants::USERFILE_WAS_UPDATED_KEY), true);
         const QString backupFileName = fileName + '.' + m_handlers.value(fileVersion)->displayUserFileVersion();
+        map.insert(QLatin1String(Constants::USERFILE_BACKUP_FILENAME_KEY), backupFileName);
         QFile::remove(backupFileName);  // Remove because copy doesn't overwrite
         QFile::copy(fileName, backupFileName);
     }
+    map.insert(QLatin1String(Constants::USERFILE_PREVIOUS_VERSION_KEY), fileVersion);
 
     // Update:
     for (int i = fileVersion; i <= m_lastVersion; ++i)
         map = m_handlers.value(i)->update(project, map);
 
-    map.insert(QLatin1String(USER_FILE_VERSION), m_lastVersion + 1);
+    map.insert(QLatin1String(Constants::USERFILE_VERSION_KEY), m_lastVersion + 1);
 
     return map;
 }
@@ -372,8 +374,8 @@ bool UserFileAccessor::saveSettings(Project *project, const QVariantMap &map)
     for (QVariantMap::const_iterator i = map.constBegin(); i != map.constEnd(); ++i)
         writer.saveValue(i.key(), i.value());
 
-    writer.saveValue(QLatin1String(USER_FILE_VERSION), m_lastVersion + 1);
-    writer.saveValue(QLatin1String(USER_FILE_ENVIRONMENT_ID),
+    writer.saveValue(QLatin1String(Constants::USERFILE_VERSION_KEY), m_lastVersion + 1);
+    writer.saveValue(QLatin1String(USERFILE_ENVIRONMENT_ID_KEY),
                      ProjectExplorerPlugin::instance()->projectExplorerSettings().environmentId.toString());
 
     return writer.save(fileNameFor(project->file()->fileName()), "QtCreatorProject");
