@@ -37,6 +37,7 @@
 #include "makestep.h"
 
 #include <utils/qtcassert.h>
+#include <limits>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
@@ -117,6 +118,8 @@ bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
     if (!BuildConfiguration::fromMap(map))
         return false;
 
+    int fileVersion = map.value(ProjectExplorer::Constants::USERFILE_PREVIOUS_VERSION_KEY,
+                                std::numeric_limits<int>::max()).toInt();
     m_shadowBuild = map.value(QLatin1String(USE_SHADOW_BUILD_KEY), true).toBool();
     m_buildDirectory = map.value(QLatin1String(BUILD_DIRECTORY_KEY), qt4Target()->defaultBuildDirectory()).toString();
     m_qtVersionId = map.value(QLatin1String(QT_VERSION_ID_KEY)).toInt();
@@ -124,8 +127,8 @@ bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
     m_qmakeBuildConfiguration = QtVersion::QmakeBuildConfigs(map.value(QLatin1String(BUILD_CONFIGURATION_KEY)).toInt());
 
     // Pick a Qt version if the default version is used:
-    // We assume that the default Qt version as used in earlier versions of Qt creator
-    // was supporting a desktop flavor of Qt.
+    // We assume that the default Qt version was used in earlier versions of Qt creator.
+    // Pick a Qt version that is supporting a desktop.
     if (m_qtVersionId == 0) {
         QList<QtVersion *> versions = QtVersionManager::instance()->versions();
         foreach (QtVersion *v, versions) {
@@ -139,12 +142,20 @@ bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
     }
 
     QtVersion *version = qtVersion();
-    if (!version->isValid() || !version->supportedTargetIds().contains(target()->id())) {
-        qWarning() << "Buildconfiguration" << displayName() << ": Qt" << version->displayName() << "not supported by target" << target()->id();
-        return false;
+    if (fileVersion >= 1) { // we are not upgrading from pre-targets!
+        if (version->isValid() && !version->supportedTargetIds().contains(target()->id())) {
+            qWarning() << "Buildconfiguration" << displayName() << ": Qt" << version->displayName() << "not supported by target" << target()->id();
+            return false;
+        }
+    } else {
+        if (!version->isValid() || !version->supportedTargetIds().contains(target()->id())) {
+            qWarning() << "Buildconfiguration" << displayName() << ": Qt" << version->displayName() << "not supported by target" << target()->id();
+            return false;
+        }
     }
 
-    m_shadowBuild = (m_shadowBuild && version->isValid() && version->supportsShadowBuilds());
+    if (version->isValid())
+        m_shadowBuild = (m_shadowBuild && version->supportsShadowBuilds());
 
     QList<ToolChain::ToolChainType> possibleTcs(qt4Target()->filterToolChainTypes(qtVersion()->possibleToolChainTypes()));
     if (!possibleTcs.contains(toolChainType()))
@@ -324,6 +335,8 @@ void Qt4BuildConfiguration::setQtVersion(QtVersion *version)
         else
             m_toolChainType = candidates.first();
     }
+
+    m_shadowBuild = m_shadowBuild && qtVersion()->supportsShadowBuilds();
 
     emit proFileEvaluateNeeded(this);
     emit qtVersionChanged();

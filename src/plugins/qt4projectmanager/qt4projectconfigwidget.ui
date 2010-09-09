@@ -40,19 +40,6 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="invalidQtWarningLabel">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>This Qt version is invalid.</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QPushButton" name="manageQtVersionPushButtons">
        <property name="text">
         <string>Manage</string>

@@ -32,8 +32,10 @@
 #include "buildconfiguration.h"
 #include "deployconfiguration.h"
 #include "project.h"
+#include "projectexplorerconstants.h"
 #include "runconfiguration.h"
 
+#include <limits>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
@@ -353,6 +355,9 @@ bool Target::fromMap(const QVariantMap &map)
     if (!ProjectConfiguration::fromMap(map))
         return false;
 
+    int fileVersion = map.value(Constants::USERFILE_PREVIOUS_VERSION_KEY,
+                                std::numeric_limits<int>::max()).toInt();
+
     bool ok;
     int bcCount(map.value(QLatin1String(BC_COUNT_KEY), 0).toInt(&ok));
     if (!ok || bcCount < 0)
@@ -367,7 +372,9 @@ bool Target::fromMap(const QVariantMap &map)
         const QString key(QString::fromLatin1(BC_KEY_PREFIX) + QString::number(i));
         if (!map.contains(key))
             return false;
-        BuildConfiguration *bc(buildConfigurationFactory()->restore(this, map.value(key).toMap()));
+        QVariantMap targetMap = map.value(key).toMap();
+        targetMap.insert(Constants::USERFILE_PREVIOUS_VERSION_KEY, fileVersion);
+        BuildConfiguration *bc(buildConfigurationFactory()->restore(this, targetMap));
         if (!bc)
             continue;
         addBuildConfiguration(bc);

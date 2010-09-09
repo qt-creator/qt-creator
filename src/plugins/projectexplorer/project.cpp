@@ -32,12 +32,14 @@
 #include "editorconfiguration.h"
 #include "environment.h"
 #include "projectexplorer.h"
+#include "projectexplorerconstants.h"
 #include "projectnodes.h"
 #include "target.h"
 #include "userfileaccessor.h"
 
 #include <coreplugin/ifile.h>
 #include <extensionsystem/pluginmanager.h>
+#include <limits>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
@@ -247,6 +249,9 @@ bool Project::fromMap(const QVariantMap &map)
         m_editorConfiguration->fromMap(values);
     }
 
+    int previousFileVersion = map.value(QLatin1String(Constants::USERFILE_PREVIOUS_VERSION_KEY),
+                                        std::numeric_limits<int>::max()).toInt();
+
     bool ok;
     int maxI(map.value(QLatin1String(TARGET_COUNT_KEY), 0).toInt(&ok));
     if (!ok || maxI < 0)
@@ -263,7 +268,9 @@ bool Project::fromMap(const QVariantMap &map)
             qWarning() << key << "was not found in data.";
             return false;
         }
-        Target *t(targetFactory()->restore(this, map.value(key).toMap()));
+        QVariantMap targetMap = map.value(key).toMap();
+        targetMap.insert(Constants::USERFILE_PREVIOUS_VERSION_KEY, previousFileVersion);
+        Target *t(targetFactory()->restore(this, targetMap));
         if (!t) {
             qWarning() << "Restoration of a target failed! (Continuing)";
             continue;

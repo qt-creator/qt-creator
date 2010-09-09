@@ -81,7 +81,7 @@ private:
     void updateDetails();
     void updateToolChainCombo();
     void updateShadowBuildUi();
-    void updateInvalidQtVersion();
+
     Ui::Qt4ProjectConfigWidget *m_ui;
     QAbstractButton *m_browseButton;
     Qt4BuildConfiguration *m_buildConfiguration;

@@ -77,7 +77,6 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4Project *project)
 
     m_ui->shadowBuildDirEdit->setPromptDialogTitle(tr("Shadow Build Directory"));
     m_ui->shadowBuildDirEdit->setExpectedKind(Utils::PathChooser::Directory);
-    m_ui->invalidQtWarningLabel->setVisible(false);
 
     connect(m_ui->shadowBuildCheckBox, SIGNAL(clicked(bool)),
             this, SLOT(shadowBuildClicked(bool)));
@@ -149,12 +148,6 @@ void Qt4ProjectConfigWidget::manageQtVersions()
     Core::ICore *core = Core::ICore::instance();
     core->showOptionsDialog(Constants::QT_SETTINGS_CATEGORY, Constants::QTVERSION_SETTINGS_PAGE_ID);
 }
-
-void Qt4ProjectConfigWidget::updateInvalidQtVersion()
-{
-    m_ui->invalidQtWarningLabel->setVisible(!m_buildConfiguration->qtVersion()->isValid());
-}
-
 
 QString Qt4ProjectConfigWidget::displayName() const
 {
@@ -234,16 +227,17 @@ void Qt4ProjectConfigWidget::qtVersionsChanged()
             m_ui->qtVersionComboBox->addItem(validVersions.at(i)->displayName(),
                                              validVersions.at(i)->uniqueId());
 
-            if (validVersions.at(i) == qtVersion) {
+            if (validVersions.at(i) == qtVersion)
                 m_ui->qtVersionComboBox->setCurrentIndex(i);
-                m_ui->invalidQtWarningLabel->setVisible(!validVersions.at(i)->isValid());
-            }
         }
         m_ui->qtVersionComboBox->setEnabled(validVersions.count() > 1);
     }
+    if (!qtVersion->isValid()) {
+        m_ui->qtVersionComboBox->addItem(tr("Invalid Qt version"), -1);
+        m_ui->qtVersionComboBox->setCurrentIndex(m_ui->qtVersionComboBox->count() - 1);
+    }
     m_ignoreChange = false;
 
-    updateInvalidQtVersion();
     updateToolChainCombo();
     updateShadowBuildUi();
     updateDetails();
@@ -440,8 +434,11 @@ void Qt4ProjectConfigWidget::qtVersionSelected(const QString &)
 {
     if (m_ignoreChange)
         return;
-    //Qt Version
+
     int newQtVersionId = m_ui->qtVersionComboBox->itemData(m_ui->qtVersionComboBox->currentIndex()).toInt();
+
+    if (m_ui->qtVersionComboBox->itemData(m_ui->qtVersionComboBox->count() - 1).toInt() == -1)
+        m_ui->qtVersionComboBox->removeItem(m_ui->qtVersionComboBox->count() - 1);
 
     QtVersionManager *vm = QtVersionManager::instance();
     QtVersion *newQtVersion = vm->version(newQtVersionId);
@@ -450,7 +447,6 @@ void Qt4ProjectConfigWidget::qtVersionSelected(const QString &)
     m_buildConfiguration->setQtVersion(newQtVersion);
     m_ignoreChange = false;
 
-    updateInvalidQtVersion();
     updateShadowBuildUi();
     updateToolChainCombo();
     updateImportLabel();

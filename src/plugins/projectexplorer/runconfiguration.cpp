@@ -239,6 +239,7 @@ bool RunConfiguration::fromMap(const QVariantMap &map)
     m_useCppDebugger = map.value(QLatin1String(USE_CPP_DEBUGGER_KEY), true).toBool();
     m_useQmlDebugger = map.value(QLatin1String(USE_QML_DEBUGGER_KEY), false).toBool();
     m_qmlDebugServerPort = map.value(QLatin1String(QML_DEBUG_SERVER_PORT_KEY), Constants::QML_DEFAULT_DEBUG_SERVER_PORT).toUInt();
+
     return ProjectConfiguration::fromMap(map);
 }
 
