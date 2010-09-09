@@ -220,8 +220,10 @@ SymbianUtils::SymbianDevice S60DeployConfigurationWidget::currentDevice() const
 void S60DeployConfigurationWidget::updateTargetInformation()
 {
     QString package;
-    if (m_deployConfiguration->signedPackages().count())
-        package = m_deployConfiguration->signedPackages()[0];
+    for (int i = 0; i < m_deployConfiguration->signedPackages().count(); ++i)
+        package += m_deployConfiguration->signedPackages()[i] + QLatin1String("\n");
+    if (!package.isEmpty())
+        package.remove(package.length()-1, 1);
     m_sisFileLabel->setText(QDir::toNativeSeparators(package));
 }
 
