@@ -33,14 +33,17 @@
 
 using namespace CPlusPlus;
 
-BackwardsScanner::BackwardsScanner(const QTextCursor &cursor, int maxBlockCount, const QString &suffix)
+BackwardsScanner::BackwardsScanner(const QTextCursor &cursor,
+                                   int maxBlockCount,
+                                   const QString &suffix,
+                                   bool skipComments)
     : _offset(0)
     , _blocksTokenized(0)
     , _block(cursor.block())
     , _maxBlockCount(maxBlockCount)
 {
     _tokenize.setQtMocRunEnabled(true);
-    _tokenize.setSkipComments(true);
+    _tokenize.setSkipComments(skipComments);
     _tokenize.setObjCEnabled(true);
     _text = _block.text().left(cursor.position() - cursor.block().position());
 

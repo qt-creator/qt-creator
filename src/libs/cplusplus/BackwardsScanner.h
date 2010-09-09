@@ -43,7 +43,8 @@ class CPLUSPLUS_EXPORT BackwardsScanner
 public:
     explicit BackwardsScanner(const QTextCursor &cursor,
                               int maxBlockCount = MAX_BLOCK_COUNT,
-                              const QString &suffix = QString());
+                              const QString &suffix = QString(),
+                              bool skipComments = true);
 
     int startToken() const;
 
