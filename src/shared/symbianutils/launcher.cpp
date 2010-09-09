@@ -40,6 +40,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QQueue>
 #include <QtCore/QFile>
+#include <QtCore/QFileInfo>
 #include <QtCore/QScopedPointer>
 
 #include <cstdio>
@@ -872,7 +873,8 @@ void Launcher::disconnectTrk()
 
 void Launcher::copyFileToRemote()
 {
-    emit copyingStarted();
+    QFileInfo fileInfo(d->m_copyState.destinationFileNames.at(d->m_copyState.currentFileName));
+    emit copyingStarted(fileInfo.fileName());
     QByteArray ba;
     ba.append(char(10)); //kDSFileOpenWrite | kDSFileOpenBinary
     appendString(&ba, d->m_copyState.destinationFileNames.at(d->m_copyState.currentFileName).toLocal8Bit(), TargetByteOrder, false);
@@ -881,7 +883,8 @@ void Launcher::copyFileToRemote()
 
 void Launcher::copyFileFromRemote()
 {
-    emit copyingStarted();
+    QFileInfo fileInfo(d->m_copyState.destinationFileNames.at(d->m_copyState.currentFileName));
+    emit copyingStarted(fileInfo.fileName());
     QByteArray ba;
     ba.append(char(9)); //kDSFileOpenRead | kDSFileOpenBinary
     appendString(&ba, d->m_downloadState.sourceFileName.toLocal8Bit(), TargetByteOrder, false);
@@ -890,7 +893,7 @@ void Launcher::copyFileFromRemote()
 
 void Launcher::installRemotePackageSilently()
 {
-    emit installingStarted();
+    emit installingStarted(d->m_installFileNames.at(d->m_currentInstallFileName));
     d->m_currentInstallationStep = InstallationModeSilent;
     QByteArray ba;
     ba.append(static_cast<char>(QChar::toUpper((ushort)d->m_installationDrive)));
@@ -900,7 +903,7 @@ void Launcher::installRemotePackageSilently()
 
 void Launcher::installRemotePackageByUser()
 {
-    emit installingStarted();
+    emit installingStarted(d->m_installFileNames.at(d->m_currentInstallFileName));
     d->m_currentInstallationStep = InstallationModeUser;
     QByteArray ba;
     appendString(&ba, d->m_installFileNames.at(d->m_currentInstallFileName).toLocal8Bit(), TargetByteOrder, false);

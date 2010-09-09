@@ -244,11 +244,11 @@ void S60DeployStep::setupConnections()
     connect(m_launcher, SIGNAL(finished()), this, SLOT(launcherFinished()));
 
     connect(m_launcher, SIGNAL(canNotConnect(QString)), this, SLOT(connectFailed(QString)));
-    connect(m_launcher, SIGNAL(copyingStarted()), this, SLOT(printCopyingNotice()));
+    connect(m_launcher, SIGNAL(copyingStarted(QString)), this, SLOT(printCopyingNotice(QString)));
     connect(m_launcher, SIGNAL(canNotCreateFile(QString,QString)), this, SLOT(createFileFailed(QString,QString)));
     connect(m_launcher, SIGNAL(canNotWriteFile(QString,QString)), this, SLOT(writeFileFailed(QString,QString)));
     connect(m_launcher, SIGNAL(canNotCloseFile(QString,QString)), this, SLOT(closeFileFailed(QString,QString)));
-    connect(m_launcher, SIGNAL(installingStarted()), this, SLOT(printInstallingNotice()));
+    connect(m_launcher, SIGNAL(installingStarted(QString)), this, SLOT(printInstallingNotice(QString)));
     connect(m_launcher, SIGNAL(canNotInstall(QString,QString)), this, SLOT(installFailed(QString,QString)));
     connect(m_launcher, SIGNAL(installingFinished()), this, SLOT(printInstallingFinished()));
     connect(m_launcher, SIGNAL(stateChanged(int)), this, SLOT(slotLauncherStateChanged(int)));
@@ -359,14 +359,14 @@ void S60DeployStep::connectFailed(const QString &errorMessage)
     m_deployResult = false;
 }
 
-void S60DeployStep::printCopyingNotice()
+void S60DeployStep::printCopyingNotice(const QString &fileName)
 {
-    appendMessage(tr("Copying installation file..."), false);
+    appendMessage(tr("Copying \"%1\"...").arg(fileName), false);
 }
 
-void S60DeployStep::printInstallingNotice()
+void S60DeployStep::printInstallingNotice(const QString &packageName)
 {
-    appendMessage(tr("Installing application on drive %1:...").arg(m_installationDrive), false);
+    appendMessage(tr("Installing package \"%1\" on drive %2:...").arg(packageName).arg(m_installationDrive), false);
 }
 
 void S60DeployStep::printInstallingFinished()

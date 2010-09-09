@@ -99,11 +99,11 @@ protected slots:
 
 private slots:
     void connectFailed(const QString &errorMessage);
-    void printCopyingNotice();
+    void printCopyingNotice(const QString &fileName);
     void createFileFailed(const QString &filename, const QString &errorMessage);
     void writeFileFailed(const QString &filename, const QString &errorMessage);
     void closeFileFailed(const QString &filename, const QString &errorMessage);
-    void printInstallingNotice();
+    void printInstallingNotice(const QString &packageName);
     void installFailed(const QString &filename, const QString &errorMessage);
     void printInstallingFinished();
     void launcherFinished();

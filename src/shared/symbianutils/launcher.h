@@ -135,14 +135,14 @@ public:
 
 signals:
     void deviceDescriptionReceived(const QString &port, const QString &description);
-    void copyingStarted();
+    void copyingStarted(const QString &fileName);
     void canNotConnect(const QString &errorMessage);
     void canNotCreateFile(const QString &filename, const QString &errorMessage);
     void canNotOpenFile(const QString &filename, const QString &errorMessage);
     void canNotOpenLocalFile(const QString &filename, const QString &errorMessage);
     void canNotWriteFile(const QString &filename, const QString &errorMessage);
     void canNotCloseFile(const QString &filename, const QString &errorMessage);
-    void installingStarted();
+    void installingStarted(const QString &packageName);
     void canNotInstall(const QString &packageFilename, const QString &errorMessage);
     void installingFinished();
     void startingApplication();
