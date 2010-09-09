@@ -50,8 +50,10 @@ symbian {
     }
 } else:unix {
     maemo5 {
+        installPrefix = /opt/usr
         desktopfile.path = /usr/share/applications/hildon       
     } else {
+        installPrefix = /usr/local
         desktopfile.path = /usr/share/applications
         !isEqual(PWD,$$OUT_PWD) {
             copyCommand = @echo Copying application data...
@@ -69,7 +71,6 @@ symbian {
             QMAKE_EXTRA_TARGETS += first copydeploymentfolders
         }
     }
-    installPrefix = /opt
     for(deploymentfolder, DEPLOYMENTFOLDERS) {
         item = item$${deploymentfolder}
         itemfiles = $${item}.files
