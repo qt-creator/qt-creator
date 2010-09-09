@@ -1496,6 +1496,25 @@ def qdump__QSet(d, item):
                 node = hashDataNextNode(node)
 
 
+def qdump__QSharedData(d, item):
+    d.putValue("ref: %s" % item.value["ref"]["_q_value"])
+    d.putNumChild(0)
+
+
+def qdump__QSharedDataPointer(d, item):
+    d_ptr = item.value["d"]
+    if isNull(d_ptr):
+        d.putValue("(null)")
+        d.putNumChild(0)
+    else:
+        # This replaces the pointer by the pointee, making the
+        # pointer transparent.
+        innerType = item.value.type.template_argument(0)
+        value = gdb.Value(d_ptr.cast(innerType.pointer()))
+        d.putType
+        d.putItemHelper(Item(value.dereference(), item.iname, None))
+
+
 def qdump__QSharedPointer(d, item):
     qdump__QWeakPointer(d, item)
 
@@ -1725,7 +1744,7 @@ def qdump__QVariant(d, item):
     val, inner, innert = qdumpHelper__QVariant(d, item.value)
     #warn("VARIANT DATA: '%s' '%s' '%s': " % (val, inner, innert))
 
-    if len(inner): 
+    if len(inner):
         innerType = lookupType(inner)
         # FIXME: Why "shared"?
         if innerType.sizeof > item.value["d"]["data"].type.sizeof:
@@ -1784,7 +1803,7 @@ def qdump__QWeakPointer(d, item):
         d.putValue("(null)")
         d.putNumChild(0)
         return
-    if isNull(value) or isNull(value):
+    if isNull(d_ptr) or isNull(value):
         d.putValue("<invalid>")
         d.putNumChild(0)
         return
