@@ -184,10 +184,9 @@ int CppRefactoringFile::endOf(unsigned index) const
 
 int CppRefactoringFile::endOf(const AST *ast) const
 {
-    if (unsigned end = ast->lastToken())
-        return endOf(end - 1);
-    else
-        return 0;
+    unsigned end = ast->lastToken();
+    Q_ASSERT(end > 0);
+    return endOf(end - 1);
 }
 
 void CppRefactoringFile::startAndEndOf(unsigned index, int *start, int *end) const

@@ -67,7 +67,9 @@ bool ASTPath::preVisit(AST *ast)
     unsigned firstToken = ast->firstToken();
     unsigned lastToken = ast->lastToken();
 
-    if (firstToken > 0 && lastToken > firstToken) {
+    if (firstToken > 0) {
+        Q_ASSERT(lastToken > firstToken);
+
         unsigned startLine, startColumn;
         getTokenStartPosition(firstToken, &startLine, &startColumn);
 

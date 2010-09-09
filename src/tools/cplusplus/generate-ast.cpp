@@ -982,7 +982,7 @@ static QString createConstructor(ClassSpecifierAST *classAST)
 
 bool checkGenerated(const QTextCursor &cursor, int *doxyStart)
 {
-    BackwardsScanner tokens(cursor);
+    BackwardsScanner tokens(cursor, 10, QString(), false);
     Token prevToken = tokens.LA(1);
     if (prevToken.kind() != T_DOXY_COMMENT && prevToken.kind() != T_CPP_DOXY_COMMENT)
         return false;
@@ -1048,7 +1048,7 @@ void generateLastToken(QTextStream &os, const QString &className, const QStringL
         }
     }
 
-    os << "    return 0;" << endl;
+    os << "    return 1;" << endl;
     os << "}" << endl << endl;
 }
 
@@ -1122,6 +1122,7 @@ void generateAST_cpp(const Snapshot &snapshot, const QDir &cplusplusDir)
                 const int start = cpp_document.findBlockByNumber(line - 1).position() + column - 1;
                 cursor.setPosition(start);
                 int doxyStart = start;
+
                 const bool isGenerated = checkGenerated(cursor, &doxyStart);
 
                 AST_cpp_document->translationUnit()->getTokenEndPosition(funDef->lastToken() - 1, &line, &column);
