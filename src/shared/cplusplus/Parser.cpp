@@ -4493,7 +4493,10 @@ bool Parser::parseUnaryExpression(ExpressionAST *&node)
 
         if (LA() == T_LPAREN) {
             unsigned lparen_token = consumeToken();
-            if (parseTypeId(ast->expression) && LA() == T_RPAREN) {
+            const bool blocked = blockErrors(true);
+            const bool hasTypeId = parseTypeId(ast->expression);
+            (void) blockErrors(blocked);
+            if (hasTypeId && LA() == T_RPAREN) {
                 ast->lparen_token = lparen_token;
                 ast->rparen_token = consumeToken();
                 node = ast;
@@ -4503,7 +4506,7 @@ bool Parser::parseUnaryExpression(ExpressionAST *&node)
             }
         }
 
-        parsePrimaryExpression(ast->expression);
+        parseUnaryExpression(ast->expression);
 
         node = ast;
         return true;
