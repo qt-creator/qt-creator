@@ -145,6 +145,7 @@ RegisterWindow::RegisterWindow(QWidget *parent)
   : QTreeView(parent), m_alwaysResizeColumnsToContents(true)
 {
     QAction *act = theDebuggerAction(UseAlternatingRowColors);
+    setFrameStyle(QFrame::NoFrame);
     setWindowTitle(tr("Registers"));
     setAttribute(Qt::WA_MacShowFocusRect, false);
     setAlternatingRowColors(act->isChecked());
