@@ -543,16 +543,16 @@ void OutputWindow::mouseReleaseEvent(QMouseEvent *e)
 {
     m_mousePressed = false;
 
-    if (!m_linksActive) {
-        // Mouse was released, activate links again
-        m_linksActive = true;
-        return;
+    if (m_linksActive) {
+        const QString href = anchorAt(e->pos());
+        if (m_formatter)
+            m_formatter->handleLink(href);
     }
 
-    const QString href = anchorAt(e->pos());
-    if (m_formatter)
-        m_formatter->handleLink(href);
-    QPlainTextEdit::mousePressEvent(e);
+    // Mouse was released, activate links again
+    m_linksActive = true;
+
+    QPlainTextEdit::mouseReleaseEvent(e);
 }
 
 void OutputWindow::mouseMoveEvent(QMouseEvent *e)
