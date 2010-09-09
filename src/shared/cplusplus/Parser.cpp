@@ -2936,8 +2936,14 @@ bool Parser::parseExpressionOrDeclarationStatement(StatementAST *&node)
         const bool blocked = blockErrors(true);
 
         ExpressionAST *expression = 0;
-        if (parseExpression(expression) && LA() == T_SEMICOLON) {
-            const unsigned semicolon_token = consumeToken();
+        const bool hasExpression = parseExpression(expression);
+        const unsigned afterExpression = cursor();
+
+        if (hasExpression/* && LA() == T_SEMICOLON*/) {
+            //const unsigned semicolon_token = consumeToken();
+            unsigned semicolon_token = 0;
+            if (LA() == T_SEMICOLON)
+                semicolon_token = cursor();
 
             ExpressionStatementAST *as_expression = new (_pool) ExpressionStatementAST;
             as_expression->expression = expression;
@@ -2951,6 +2957,7 @@ bool Parser::parseExpressionOrDeclarationStatement(StatementAST *&node)
                     if (! binary->left_expression->asBinaryExpression()) {
                         (void) blockErrors(blocked);
                         node = as_expression;
+                        match(T_SEMICOLON, &as_expression->semicolon_token);
                         return true;
                     } else {
                         invalidAssignment = true;
@@ -2960,6 +2967,7 @@ bool Parser::parseExpressionOrDeclarationStatement(StatementAST *&node)
                 if (call->base_expression->asIdExpression() != 0) {
                     (void) blockErrors(blocked);
                     node = as_expression;
+                    match(T_SEMICOLON, &as_expression->semicolon_token);
                     return true;
                 }
             }
@@ -2968,30 +2976,35 @@ bool Parser::parseExpressionOrDeclarationStatement(StatementAST *&node)
 
             DeclarationAST *declaration = 0;
             if (parseSimpleDeclaration(declaration)) {
+                DeclarationStatementAST *as_declaration = new (_pool) DeclarationStatementAST;
+                as_declaration->declaration = declaration;
+
                 SimpleDeclarationAST *simple = declaration->asSimpleDeclaration();
-                if (simple->semicolon_token == semicolon_token && simple->decl_specifier_list && simple->declarator_list) {
-                    DeclarationStatementAST *as_declaration = new (_pool) DeclarationStatementAST;
-                    as_declaration->declaration = declaration;
-
-                    if (invalidAssignment || (simple->decl_specifier_list != 0 && simple->declarator_list != 0)) {
-                        node = as_declaration;
-                        (void) blockErrors(blocked);
-                        return true;
-                    }
-
-                    ExpressionOrDeclarationStatementAST *ast = new (_pool) ExpressionOrDeclarationStatementAST;
-                    ast->declaration = as_declaration;
-                    ast->expression = as_expression;
-                    node = ast;
+                if (! semicolon_token || invalidAssignment || semicolon_token != simple->semicolon_token ||
+                        (simple->decl_specifier_list != 0 && simple->declarator_list != 0)) {
+                    node = as_declaration;
+                    (void) blockErrors(blocked);
+                    return true;
                 }
+
+                ExpressionOrDeclarationStatementAST *ast = new (_pool) ExpressionOrDeclarationStatementAST;
+                ast->declaration = as_declaration;
+                ast->expression = as_expression;
+                node = ast;
+                (void) blockErrors(blocked);
+                return true;
             }
-            rewind(semicolon_token + 1);
+
             (void) blockErrors(blocked);
+
+            rewind(afterExpression);
+            match(T_SEMICOLON, &as_expression->semicolon_token);
             return true;
         }
 
         rewind(start);
         (void) blockErrors(blocked);
+
         return parseDeclarationStatement(node);
     }
 
