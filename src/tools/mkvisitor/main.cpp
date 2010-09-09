@@ -326,7 +326,7 @@ public:
                                 name += "AST";
 
                                 Control *control = context.thisDocument()->control();
-                                const Name *n = control->nameId(control->identifier(name.toLatin1().constData()));
+                                const Name *n = control->identifier(name.toLatin1().constData());
 
                                 if (ClassOrNamespace *bb = context.lookupType(n, klass)) {
                                     QString retTy;
