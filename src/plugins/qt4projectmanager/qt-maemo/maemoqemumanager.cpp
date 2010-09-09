@@ -369,8 +369,8 @@ void MaemoQemuManager::startRuntime()
 #ifdef Q_OS_WIN
     const QLatin1Char colon(';');
     const QLatin1String key("PATH");
-    env.insert(key, env.value(key) % colon % root % QLatin1String("bin"));
-    env.insert(key, env.value(key) % colon % root % QLatin1String("madlib"));
+    env.insert(key, root % QLatin1String("bin") % colon % env.value(key));
+    env.insert(key, root % QLatin1String("madlib") % colon % env.value(key));
 #elif defined(Q_OS_UNIX)
     const QLatin1String key("LD_LIBRARY_PATH");
     env.insert(key, env.value(key) % QLatin1Char(':') % rt.m_libPath);
