@@ -190,17 +190,18 @@ static QByteArray gccPredefinedMacros(const QString &gcc, const QStringList &env
     cpp.setEnvironment(env);
     cpp.start(gcc, arguments);
     if (!cpp.waitForStarted()) {
-        qWarning("Cannot start '%s': %s", qPrintable(gcc), qPrintable(cpp.errorString()));
+        qWarning("%s: Cannot start '%s': %s", Q_FUNC_INFO, qPrintable(gcc),
+            qPrintable(cpp.errorString()));
         return QByteArray();
     }
     cpp.closeWriteChannel();
     if (!cpp.waitForFinished()) {
         Utils::SynchronousProcess::stopProcess(cpp);
-        qWarning("Timeout running '%s'.", qPrintable(gcc));
+        qWarning("%s: Timeout running '%s'.", Q_FUNC_INFO, qPrintable(gcc));
         return QByteArray();
     }
     if (cpp.exitStatus() != QProcess::NormalExit) {
-        qWarning("'%s' crashed.", qPrintable(gcc));
+        qWarning("%s: '%s' crashed.", Q_FUNC_INFO, qPrintable(gcc));
         return QByteArray();
     }
     QByteArray predefinedMacros = cpp.readAllStandardOutput();
@@ -245,17 +246,18 @@ static QList<HeaderPath> gccSystemHeaderPaths(const QString &gcc, ProjectExplore
     cpp.setReadChannelMode(QProcess::MergedChannels);
     cpp.start(gcc, arguments);
     if (!cpp.waitForStarted()) {
-        qWarning("Cannot start '%s': %s", qPrintable(gcc), qPrintable(cpp.errorString()));
+        qWarning("%s: Cannot start '%s': %s", Q_FUNC_INFO, qPrintable(gcc),
+            qPrintable(cpp.errorString()));
         return systemHeaderPaths;
     }
     cpp.closeWriteChannel();
     if (!cpp.waitForFinished()) {
         Utils::SynchronousProcess::stopProcess(cpp);
-        qWarning("Timeout running '%s'.", qPrintable(gcc));
+        qWarning("%s: Timeout running '%s'.", Q_FUNC_INFO, qPrintable(gcc));
         return systemHeaderPaths;
     }
     if (cpp.exitStatus() != QProcess::NormalExit) {
-        qWarning("'%s' crashed.", qPrintable(gcc));
+        qWarning("%s: '%s' crashed.", Q_FUNC_INFO, qPrintable(gcc));
         return systemHeaderPaths;
     }
     QByteArray line;
@@ -656,17 +658,18 @@ static QByteArray msvcPredefinedMacros(const QStringList &env)
     arguments << QLatin1String("/EP") << QDir::toNativeSeparators(tmpFilePath);
     cpp.start(QLatin1String("cl.exe"), arguments);
     if (!cpp.waitForStarted()) {
-        qWarning("Cannot start '%s': %s", qPrintable(binary), qPrintable(cpp.errorString()));
+        qWarning("%s: Cannot start '%s': %s", Q_FUNC_INFO, qPrintable(binary),
+            qPrintable(cpp.errorString()));
         return predefinedMacros;
     }
     cpp.closeWriteChannel();
     if (!cpp.waitForFinished()) {
         Utils::SynchronousProcess::stopProcess(cpp);
-        qWarning("Timeout running '%s'.", qPrintable(binary));
+        qWarning("%s: Timeout running '%s'.", Q_FUNC_INFO, qPrintable(binary));
         return predefinedMacros;
     }
     if (cpp.exitStatus() != QProcess::NormalExit) {
-        qWarning("'%s' crashed.", qPrintable(binary));
+        qWarning("%s: '%s' crashed.", Q_FUNC_INFO, qPrintable(binary));
         return predefinedMacros;
     }
 
@@ -784,11 +787,12 @@ MSVCToolChain::StringStringPairList MSVCToolChain::readEnvironmentSettingI(const
     const QString cmdPath = QString::fromLocal8Bit(qgetenv("COMSPEC"));
     run.start(cmdPath, QStringList()<< QLatin1String("/c")<<QDir::toNativeSeparators(filename));
     if (!run.waitForStarted()) {
-        qWarning("Unable to run '%s': %s", qPrintable(varsBat), qPrintable(run.errorString()));
+        qWarning("%s: Unable to run '%s': %s", Q_FUNC_INFO, qPrintable(varsBat),
+            qPrintable(run.errorString()));
         return StringStringPairList();
     }
     if (!run.waitForFinished()) {
-        qWarning("Timeout running '%s'", qPrintable(varsBat));
+        qWarning("%s: Timeout running '%s'", Q_FUNC_INFO, qPrintable(varsBat));
         Utils::SynchronousProcess::stopProcess(run);
         return StringStringPairList();
     }
@@ -819,7 +823,7 @@ void MSVCToolChain::addToEnvironment(ProjectExplorer::Environment &env)
     if (debug)
         qDebug() << "MSVCToolChain::addToEnvironment" << m_installation.name;
     if (m_installation.name.isEmpty() || m_installation.varsBat.isEmpty()) {
-        qWarning("Attempt to set up invalid MSVC Toolchain.");
+        qWarning("%s: Attempt to set up invalid MSVC Toolchain.", Q_FUNC_INFO);
         return;
     }
     // We cache the full environment (incoming + modifications by setup script).
