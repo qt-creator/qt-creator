@@ -923,6 +923,7 @@ public slots:
     void enableReverseDebuggingTriggered(const QVariant &value);
     void languagesChanged(const Debugger::DebuggerLanguages &languages);
     void showStatusMessage(const QString &msg, int timeout = -1);
+    void openMemoryEditor();
 
     DebuggerMainWindow *mainWindow()
         { return qobject_cast<DebuggerMainWindow*>
@@ -2346,8 +2347,7 @@ void DebuggerPluginPrivate::gotoLocation(const QString &file, int line, bool set
     bool newEditor = false;
     ITextEditor *editor =
         BaseTextEditor::openEditorAt(file, line, 0, QString(),
-                                     Core::EditorManager::IgnoreNavigationHistory,
-                                     &newEditor);
+            EditorManager::IgnoreNavigationHistory, &newEditor);
     if (!editor)
         return;
     if (newEditor)
@@ -2488,6 +2488,15 @@ void DebuggerPluginPrivate::scriptExpressionEntered(const QString &expression)
     notifyCurrentEngine(RequestExecuteCommandRole, expression);
 }
 
+void DebuggerPluginPrivate::openMemoryEditor()
+{ 
+    AddressDialog dialog;
+    if (dialog.exec() != QDialog::Accepted)
+        return;
+    QTC_ASSERT(m_watchersWindow, return);
+    m_watchersWindow->model()->setData(
+        QModelIndex(), dialog.address(), RequestShowMemoryRole);
+}
 
 
 ///////////////////////////////////////////////////////////////////////
@@ -2704,6 +2713,8 @@ void DebuggerPlugin::extensionsInitialized()
     d->m_uiSwitcher->initialize();
     d->m_watchersWindow->setVisible(false);
     d->m_returnWindow->setVisible(false);
+    connect(d->m_uiSwitcher, SIGNAL(memoryEditorRequested()),
+        d, SLOT(openMemoryEditor()));
 
     // time gdb -i mi -ex 'debuggerplugin.cpp:800' -ex r -ex q bin/qtcreator.bin
     const QByteArray env = qgetenv("QTC_DEBUGGER_TEST");

@@ -61,10 +61,10 @@ namespace ProjectExplorer {
 }
 
 namespace Debugger {
-struct DebuggerUISwitcherPrivate;
 
 namespace Internal {
-    class DebuggerMainWindow;
+class DebuggerUISwitcherPrivate;
+class DebuggerMainWindow;
 };
 
 class DEBUGGER_EXPORT DebuggerUISwitcher : public QObject
@@ -122,8 +122,8 @@ signals:
     // emit when user changes active languages from the menu.
     // Both UI and debugger startup are affected.
     void activeLanguagesChanged(Debugger::DebuggerLanguages activeLanguages);
-
     void dockResetRequested(const Debugger::DebuggerLanguages &activeLanguages);
+    void memoryEditorRequested();
 
 private slots:
     void updateUi();
@@ -156,7 +156,7 @@ private:
     QWidget *createContents(Core::BaseMode *mode);
     QWidget *createMainWindow(Core::BaseMode *mode);
 
-    DebuggerUISwitcherPrivate *d;
+    Internal::DebuggerUISwitcherPrivate *d;
 };
 
 namespace Internal {

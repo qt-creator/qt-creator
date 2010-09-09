@@ -543,6 +543,12 @@ void DebuggerEngine::handleCommand(int role, const QVariant &value)
             d->handleContextMenuRequest(list);
             break;
         }
+
+        case RequestShowMemoryRole: {
+            qDebug() << "CREATING MEMORY VIEW";
+            (void) MemoryViewAgent(this, "0x0");
+            break;
+        }
     }
 }
 

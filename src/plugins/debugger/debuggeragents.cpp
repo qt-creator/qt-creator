@@ -58,6 +58,8 @@
 
 #include <limits.h>
 
+using namespace Core;
+
 namespace Debugger {
 namespace Internal {
 
@@ -95,9 +97,9 @@ MemoryViewAgent::MemoryViewAgent(DebuggerEngine *engine, const QString &addr)
 
 MemoryViewAgent::~MemoryViewAgent()
 {
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
-    QList<Core::IEditor *> editors;
-    foreach (QPointer<Core::IEditor> editor, m_editors)
+    EditorManager *editorManager = EditorManager::instance();
+    QList<IEditor *> editors;
+    foreach (QPointer<IEditor> editor, m_editors)
         if (editor)
             editors.append(editor.data());
     editorManager->closeEditors(editors);
@@ -105,25 +107,29 @@ MemoryViewAgent::~MemoryViewAgent()
 
 void MemoryViewAgent::createBinEditor(quint64 addr)
 {
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
+    EditorManager *editorManager = EditorManager::instance();
     QString titlePattern = tr("Memory $");
-    Core::IEditor *editor = editorManager->openEditorWithContents(
+    IEditor *editor = editorManager->openEditorWithContents(
         Core::Constants::K_DEFAULT_BINARY_EDITOR_ID,
         &titlePattern);
     if (editor) {
-        connect(editor->widget(), SIGNAL(lazyDataRequested(Core::IEditor *, quint64,bool)),
-            this, SLOT(fetchLazyData(Core::IEditor *, quint64,bool)));
-        connect(editor->widget(), SIGNAL(newWindowRequested(quint64)),
-            this, SLOT(createBinEditor(quint64)));
         connect(editor->widget(),
-            SIGNAL(newRangeRequested(Core::IEditor *, quint64)), this,
+            SIGNAL(lazyDataRequested(Core::IEditor *, quint64,bool)),
+            SLOT(fetchLazyData(Core::IEditor *, quint64,bool)));
+        connect(editor->widget(),
+            SIGNAL(newWindowRequested(quint64)),
+            SLOT(createBinEditor(quint64)));
+        connect(editor->widget(),
+            SIGNAL(newRangeRequested(Core::IEditor *, quint64)),
             SLOT(provideNewRange(Core::IEditor*,quint64)));
-        connect(editor->widget(), SIGNAL(startOfFileRequested(Core::IEditor *)),
-            this, SLOT(handleStartOfFileRequested(Core::IEditor*)));
-        connect(editor->widget(), SIGNAL(endOfFileRequested(Core::IEditor *)),
-            this, SLOT(handleEndOfFileRequested(Core::IEditor*)));
+        connect(editor->widget(),
+            SIGNAL(startOfFileRequested(Core::IEditor *)),
+            SLOT(handleStartOfFileRequested(Core::IEditor*)));
+        connect(editor->widget(),
+            SIGNAL(endOfFileRequested(Core::IEditor *)),
+            SLOT(handleEndOfFileRequested(Core::IEditor*)));
         m_editors << editor;
-        editorManager->activateEditor(editor, Core::EditorManager::NoModeSwitch);
+        editorManager->activateEditor(editor, EditorManager::NoModeSwitch);
         QMetaObject::invokeMethod(editor->widget(), "setNewWindowRequestAllowed");
         QMetaObject::invokeMethod(editor->widget(), "setLazyData",
             Q_ARG(quint64, addr), Q_ARG(int, DataRange), Q_ARG(int, BinBlockSize));
@@ -136,7 +142,7 @@ void MemoryViewAgent::createBinEditor(quint64 addr)
     }
 }
 
-void MemoryViewAgent::fetchLazyData(Core::IEditor *editor, quint64 block, bool sync)
+void MemoryViewAgent::fetchLazyData(IEditor *editor, quint64 block, bool sync)
 {
     Q_UNUSED(sync); // FIXME: needed support for incremental searching
     m_engine->fetchMemory(this, editor, BinBlockSize * block, BinBlockSize);
@@ -145,15 +151,15 @@ void MemoryViewAgent::fetchLazyData(Core::IEditor *editor, quint64 block, bool s
 void MemoryViewAgent::addLazyData(QObject *editorToken, quint64 addr,
                                   const QByteArray &ba)
 {
-    Core::IEditor *editor = qobject_cast<Core::IEditor *>(editorToken);
+    IEditor *editor = qobject_cast<IEditor *>(editorToken);
     if (editor && editor->widget()) {
-        Core::EditorManager::instance()->activateEditor(editor, Core::EditorManager::NoModeSwitch);
+        EditorManager::instance()->activateEditor(editor, EditorManager::NoModeSwitch);
         QMetaObject::invokeMethod(editor->widget(), "addLazyData",
             Q_ARG(quint64, addr / BinBlockSize), Q_ARG(QByteArray, ba));
     }
 }
 
-void MemoryViewAgent::provideNewRange(Core::IEditor *editor, quint64 address)
+void MemoryViewAgent::provideNewRange(IEditor *editor, quint64 address)
 {
     QMetaObject::invokeMethod(editor->widget(), "setLazyData",
         Q_ARG(quint64, address), Q_ARG(int, DataRange),
@@ -163,13 +169,13 @@ void MemoryViewAgent::provideNewRange(Core::IEditor *editor, quint64 address)
 // Since we are not dealing with files, we take these signals to mean
 // "move to start/end of range". This seems to make more sense than
 // jumping to the start or end of the address space, respectively.
-void MemoryViewAgent::handleStartOfFileRequested(Core::IEditor *editor)
+void MemoryViewAgent::handleStartOfFileRequested(IEditor *editor)
 {
     QMetaObject::invokeMethod(editor->widget(),
         "setCursorPosition", Q_ARG(int, 0));
 }
 
-void MemoryViewAgent::handleEndOfFileRequested(Core::IEditor *editor)
+void MemoryViewAgent::handleEndOfFileRequested(IEditor *editor)
 {
     QMetaObject::invokeMethod(editor->widget(),
         "setCursorPosition", Q_ARG(int, DataRange - 1));
@@ -234,9 +240,9 @@ DisassemblerViewAgent::DisassemblerViewAgent(DebuggerEngine *engine)
 
 DisassemblerViewAgent::~DisassemblerViewAgent()
 {
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
+    EditorManager *editorManager = EditorManager::instance();
     if (d->editor)
-        editorManager->closeEditors(QList<Core::IEditor *>() << d->editor);
+        editorManager->closeEditors(QList<IEditor *>() << d->editor);
     d->editor = 0;
     delete d->locationMark;
     d->locationMark = 0;
@@ -301,7 +307,7 @@ void DisassemblerViewAgentPrivate::configureMimeType()
     TextEditor::PlainTextEditor *pe = qobject_cast<TextEditor::PlainTextEditor *>(editor->widget());
     QTC_ASSERT(pe, return);
 
-    if (const Core::MimeType mtype = Core::ICore::instance()->mimeDatabase()->findByType(mimeType)) {
+    if (const MimeType mtype = ICore::instance()->mimeDatabase()->findByType(mimeType)) {
         pe->configure(mtype);
     } else {
         qWarning("Assembler mimetype '%s' not found.", qPrintable(mimeType));
@@ -343,7 +349,7 @@ void DisassemblerViewAgent::setContents(const QString &contents)
         d->configureMimeType();
     }
 
-    editorManager->activateEditor(d->editor, Core::EditorManager::NoModeSwitch);
+    editorManager->activateEditor(d->editor, EditorManager::NoModeSwitch);
 
     plainTextEdit = qobject_cast<QPlainTextEdit *>(d->editor->widget());
     if (plainTextEdit) {

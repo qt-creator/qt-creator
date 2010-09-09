@@ -73,15 +73,11 @@
 #include <QtCore/QSettings>
 
 namespace Debugger {
-using namespace Debugger::Internal;
-
-
+namespace Internal {
 
 DockWidgetEventFilter::DockWidgetEventFilter(QObject *parent)
     : QObject(parent)
-{
-
-}
+{}
 
 bool DockWidgetEventFilter::eventFilter(QObject *obj, QEvent *event)
 {
@@ -125,6 +121,7 @@ struct DebuggerUISwitcherPrivate
     DebuggerLanguages m_activeDebugLanguages;
     QAction *m_activateCppAction;
     QAction *m_activateQmlAction;
+    QAction *m_openMemoryEditorAction;
     bool m_qmlEnabled;
 
     Core::ActionContainer *m_viewsMenu;
@@ -154,6 +151,7 @@ DebuggerUISwitcherPrivate::DebuggerUISwitcherPrivate(DebuggerUISwitcher *q)
     , m_activeDebugLanguages(AnyLanguage)
     , m_activateCppAction(0)
     , m_activateQmlAction(0)
+    , m_openMemoryEditorAction(0)
     , m_qmlEnabled(false)
     , m_viewsMenu(0)
     , m_debugMenu(0)
@@ -164,8 +162,12 @@ DebuggerUISwitcherPrivate::DebuggerUISwitcherPrivate(DebuggerUISwitcher *q)
 
 DebuggerUISwitcher *DebuggerUISwitcherPrivate::m_instance = 0;
 
-DebuggerUISwitcher::DebuggerUISwitcher(Core::BaseMode *mode, QObject* parent) :
-    QObject(parent), d(new DebuggerUISwitcherPrivate(this))
+} // namespace Internal
+
+using namespace Internal;
+
+DebuggerUISwitcher::DebuggerUISwitcher(Core::BaseMode *mode, QObject* parent)
+  : QObject(parent), d(new DebuggerUISwitcherPrivate(this))
 {
     mode->setWidget(createContents(mode));
 
@@ -325,13 +327,13 @@ void DebuggerUISwitcher::onModeChanged(Core::IMode *mode)
 
 void DebuggerUISwitcher::hideInactiveWidgets()
 {
+    // Hide all the debugger windows if mode is different.
+    if (d->m_inDebugMode)
+        return;
     // Hide dock widgets manually in case they are floating.
-    if (!d->m_inDebugMode) {
-        // hide all the debugger windows if mode is different
-        foreach(QDockWidget *dockWidget, d->m_dockWidgets) {
-            if (dockWidget->isFloating())
-                dockWidget->hide();
-        }
+    foreach (QDockWidget *dockWidget, d->m_dockWidgets) {
+        if (dockWidget->isFloating())
+            dockWidget->hide();
     }
 }
 
@@ -344,8 +346,17 @@ void DebuggerUISwitcher::createViewsMenuItems()
     d->m_debugMenu->addMenu(d->m_debuggerLanguageMenu, Core::Constants::G_DEFAULT_THREE);
     d->m_debuggerLanguageMenu->menu()->setTitle(tr("&Debug Languages"));
 
+    d->m_openMemoryEditorAction = new QAction(this);
+    d->m_openMemoryEditorAction->setText(tr("Memory..."));
+    connect(d->m_openMemoryEditorAction, SIGNAL(triggered()),
+       SIGNAL(memoryEditorRequested()));
+
     // Add menu items
-    Core::Command *cmd = am->registerAction(d->m_mainWindow->menuSeparator1(),
+    Core::Command *cmd = 0;
+    cmd = am->registerAction(d->m_openMemoryEditorAction,
+        QLatin1String("Debugger.Views.OpenMemoryEditor"), globalcontext);
+    d->m_viewsMenu->addAction(cmd);
+    cmd = am->registerAction(d->m_mainWindow->menuSeparator1(),
         QLatin1String("Debugger.Views.Separator1"), globalcontext);
     d->m_viewsMenu->addAction(cmd);
     cmd = am->registerAction(d->m_mainWindow->toggleLockedAction(),
@@ -742,7 +753,8 @@ void DebuggerUISwitcher::updateDockWidgetSettings()
 
 bool DebuggerUISwitcher::isQmlCppActive() const
 {
-    return (d->m_activeDebugLanguages & CppLanguage) && (d->m_activeDebugLanguages & QmlLanguage);
+    return (d->m_activeDebugLanguages & CppLanguage)
+        && (d->m_activeDebugLanguages & QmlLanguage);
 }
 
 bool DebuggerUISwitcher::isQmlActive() const
