@@ -164,6 +164,11 @@ QString OutlineFactory::displayName() const
     return tr("Outline");
 }
 
+int OutlineFactory::priority() const
+{
+    return 600;
+}
+
 QString OutlineFactory::id() const
 {
     return QLatin1String("Outline");

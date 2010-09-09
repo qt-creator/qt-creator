@@ -87,6 +87,11 @@ QString NavigationWidgetFactory::displayName() const
     return tr("Class View");
 }
 
+int NavigationWidgetFactory::priority() const
+{
+    return Constants::CLASSVIEWNAVIGATION_PRIORITY;
+}
+
 QString NavigationWidgetFactory::id() const
 {
     return QLatin1String(Constants::CLASSVIEWNAVIGATION_ID);

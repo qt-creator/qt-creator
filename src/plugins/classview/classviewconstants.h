@@ -36,6 +36,9 @@ namespace Constants {
 //! Navi Widget Factory id
 const char * const CLASSVIEWNAVIGATION_ID = "Class View";
 
+//! Navi Widget Factory priority
+const int CLASSVIEWNAVIGATION_PRIORITY = 500;
+
 //! Settings' group
 const char * const CLASSVIEW_SETTINGS_GROUP = "ClassView";
 

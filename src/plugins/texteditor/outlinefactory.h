@@ -58,6 +58,7 @@ public:
 
     // from INavigationWidgetFactory
     virtual QString displayName() const;
+    virtual int priority() const;
     virtual QString id() const;
     virtual QKeySequence activationSequence() const;
     virtual Core::NavigationView createWidget();

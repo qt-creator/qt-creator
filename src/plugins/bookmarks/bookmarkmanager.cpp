@@ -778,6 +778,11 @@ QString BookmarkViewFactory::displayName() const
     return BookmarkView::tr("Bookmarks");
 }
 
+int BookmarkViewFactory::priority() const
+{
+    return 300;
+}
+
 QString BookmarkViewFactory::id() const
 {
     return QLatin1String("Bookmarks");

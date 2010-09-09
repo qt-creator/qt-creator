@@ -62,6 +62,9 @@ public:
     //! \implements Core::INavigationWidgetFactory::displayName
     QString displayName() const;
 
+    //! \implements Core::INavigationWidgetFactory::priority
+    int priority() const;
+
     //! \implements Core::INavigationWidgetFactory::id
     QString id() const;
 

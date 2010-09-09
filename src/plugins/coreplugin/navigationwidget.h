@@ -77,7 +77,8 @@ class CORE_EXPORT NavigationWidget : public MiniSplitter
 public:
     enum FactoryModelRoles {
         FactoryObjectRole = Qt::UserRole,
-        FactoryIdRole
+        FactoryIdRole,
+        FactoryPriorityRole
     };
 
 
@@ -168,10 +169,10 @@ private:
     NavigationWidget *m_parentWidget;
     QComboBox *m_navigationComboBox;
     QWidget *m_navigationWidget;
+    INavigationWidgetFactory *m_navigationWidgetFactory;
     Utils::StyledBar *m_toolBar;
     QList<QToolButton *> m_additionalToolBarWidgets;
     int m_position;
-    int m_currentIndex;
 };
 
 class NavComboBox : public QComboBox

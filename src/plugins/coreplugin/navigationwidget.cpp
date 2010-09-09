@@ -143,6 +143,7 @@ NavigationWidget::NavigationWidget(QAction *toggleSideBarAction) :
     m_width(0),
     m_toggleSideBarAction(toggleSideBarAction)
 {
+    m_factoryModel->setSortRole(FactoryPriorityRole);
     setOrientation(Qt::Vertical);
     insertSubItem(0, -1); // we don't have any entry to show yet
     m_instance = this;
@@ -180,8 +181,10 @@ void NavigationWidget::setFactories(const QList<INavigationWidgetFactory *> fact
         QStandardItem *newRow = new QStandardItem(factory->displayName());
         newRow->setData(qVariantFromValue(factory), FactoryObjectRole);
         newRow->setData(factory->id(), FactoryIdRole);
+        newRow->setData(factory->priority(), FactoryPriorityRole);
         m_factoryModel->appendRow(newRow);
     }
+    m_factoryModel->sort(0);
 }
 
 int NavigationWidget::storedWidth()
@@ -403,8 +406,7 @@ int NavigationWidget::factoryIndex(const QString &id)
 
 NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget, int position, int factoryIndex)
     : m_parentWidget(parentWidget),
-      m_position(position),
-      m_currentIndex(-1)
+      m_position(position)
 {
     m_navigationComboBox = new NavComboBox(this);
     m_navigationComboBox->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
@@ -412,6 +414,7 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget, int pos
     m_navigationComboBox->setMinimumContentsLength(0);
     m_navigationComboBox->setModel(parentWidget->factoryModel());
     m_navigationWidget = 0;
+    m_navigationWidgetFactory = 0;
 
     m_toolBar = new Utils::StyledBar(this);
     QHBoxLayout *toolBarLayout = new QHBoxLayout;
@@ -453,27 +456,24 @@ NavigationSubWidget::~NavigationSubWidget()
 
 void NavigationSubWidget::comboBoxIndexChanged(int factoryIndex)
 {
-    if (m_currentIndex == factoryIndex)
-        return;
-
     saveSettings();
-
-    m_currentIndex = factoryIndex;
 
     // Remove toolbutton
     foreach (QWidget *w, m_additionalToolBarWidgets)
         delete w;
+    m_additionalToolBarWidgets.clear();
 
     // Remove old Widget
     delete m_navigationWidget;
+    m_navigationWidget = 0;
+    m_navigationWidgetFactory = 0;
     if (factoryIndex == -1)
         return;
 
     // Get new stuff
-    INavigationWidgetFactory *factory
-            = m_navigationComboBox->itemData(factoryIndex,
-                                             NavigationWidget::FactoryObjectRole).value<INavigationWidgetFactory *>();
-    NavigationView n = factory->createWidget();
+    m_navigationWidgetFactory = m_navigationComboBox->itemData(factoryIndex,
+                           NavigationWidget::FactoryObjectRole).value<INavigationWidgetFactory *>();
+    NavigationView n = m_navigationWidgetFactory->createWidget();
     m_navigationWidget = n.widget;
     layout()->addWidget(m_navigationWidget);
 
@@ -495,10 +495,7 @@ void NavigationSubWidget::setFocusWidget()
 
 INavigationWidgetFactory *NavigationSubWidget::factory()
 {
-    if (m_currentIndex == -1)
-        return 0;
-    return m_navigationComboBox->itemData(m_currentIndex,
-                                          NavigationWidget::FactoryObjectRole).value<INavigationWidgetFactory *>();
+    return m_navigationWidgetFactory;
 }
 
 
@@ -527,7 +524,7 @@ Core::Command *NavigationSubWidget::command(const QString &title) const
 
 int NavigationSubWidget::factoryIndex() const
 {
-    return m_currentIndex;
+    return m_navigationComboBox->currentIndex();
 }
 
 void NavigationSubWidget::setFactoryIndex(int i)

@@ -247,6 +247,11 @@ QString OpenEditorsViewFactory::displayName() const
     return OpenEditorsWidget::tr("Open Documents");
 }
 
+int OpenEditorsViewFactory::priority() const
+{
+    return 200;
+}
+
 QString OpenEditorsViewFactory::id() const
 {
     return QLatin1String("Open Documents");

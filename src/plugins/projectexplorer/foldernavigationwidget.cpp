@@ -466,6 +466,11 @@ QString FolderNavigationWidgetFactory::displayName() const
     return tr("File System");
 }
 
+int FolderNavigationWidgetFactory::priority() const
+{
+    return 400;
+}
+
 QString FolderNavigationWidgetFactory::id() const
 {
     return QLatin1String("File System");

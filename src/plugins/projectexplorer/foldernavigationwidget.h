@@ -102,6 +102,7 @@ public:
     ~FolderNavigationWidgetFactory();
 
     QString displayName() const;
+    int priority() const;
     QString id() const;
     QKeySequence activationSequence() const;
     Core::NavigationView createWidget();

@@ -340,6 +340,11 @@ QString ProjectTreeWidgetFactory::displayName() const
     return tr("Projects");
 }
 
+int ProjectTreeWidgetFactory::priority() const
+{
+    return 100;
+}
+
 QString ProjectTreeWidgetFactory::id() const
 {
     return QLatin1String("Projects");

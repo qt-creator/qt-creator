@@ -56,6 +56,7 @@ public:
     virtual ~INavigationWidgetFactory();
 
     virtual QString displayName() const = 0;
+    virtual int priority() const = 0;
     virtual QString id() const = 0;
     virtual QKeySequence activationSequence() const;
     // This design is not optimal, think about it again once we need to extend it

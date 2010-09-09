@@ -262,6 +262,11 @@ QString CppTypeHierarchyFactory::displayName() const
     return tr("Type Hierarchy");
 }
 
+int CppTypeHierarchyFactory::priority() const
+{
+    return Constants::TYPE_HIERARCHY_PRIORITY;
+}
+
 QString CppTypeHierarchyFactory::id() const
 {
     return QLatin1String(Constants::TYPE_HIERARCHY_ID);
