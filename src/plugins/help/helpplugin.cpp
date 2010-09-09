@@ -567,6 +567,9 @@ void HelpPlugin::createRightPaneContextViewer()
     rightPaneLayout->addWidget(rightPaneStyledBar);
 
     m_helpViewerForSideBar = new HelpViewer(qreal(0.0), rightPaneSideBar);
+#if !defined(QT_NO_WEBKIT)
+    m_helpViewerForSideBar->pageAction(QWebPage::OpenLinkInNewWindow)->setVisible(false);
+#endif
     rightPaneLayout->addWidget(m_helpViewerForSideBar);
     rightPaneLayout->addWidget(new Core::FindToolBarPlaceHolder(rightPaneSideBar));
     rightPaneSideBar->setFocusProxy(m_helpViewerForSideBar);
