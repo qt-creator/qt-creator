@@ -843,6 +843,8 @@
            resolution, select \gui{Embedded Design}.
     \endlist
 
+    To switch between forms and code, use \key Shift+F4.
+
     For more information on \QD, see
     \l{http://doc.qt.nokia.com/4.7-snapshot/designer-manual.html}{Qt Designer Manual}.
 
@@ -3915,6 +3917,22 @@
     After you set up the version control system, use the command line to check
     that everything works (for example, use the status command). If no issues arise,
     you should be ready to use the system also from Qt Creator.
+
+    \section2 Using msysGit on Windows
+
+    If you configure Git for use with \c {git bash}, only, and use SSH
+    authorization, Git looks for the SSH keys in the directory where the
+    \c HOME environment points to. The variable is always set by \c {git bash}.
+
+    However, the variable is typically not set in a Windows command prompt.
+    When you run Git from a Windows command prompt, it looks for the SSH keys in its
+    installation directory, and therefore, the authorization fails.
+
+    You can set the \c HOME environment variable from Qt Creator. Select \gui {Tools >
+    Options... > Version Control > Git}. Select the \gui {Environment Variables}
+    and the \gui {Set "HOME" environment variable} check boxes. \c HOME is set to
+    \c %HOMEDRIVE%%HOMEPATH% when the Git executable is run and authorization works
+    as it would with \c {git bash}.
 
     \section1 Setting Up Common Options
 
