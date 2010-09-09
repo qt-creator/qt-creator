@@ -355,7 +355,8 @@ void DebuggerUISwitcher::createViewsMenuItems()
     // Add menu items
     Command *cmd = 0;
     cmd = am->registerAction(d->m_openMemoryEditorAction,
-        QLatin1String("Debugger.Views.OpenMemoryEditor"), globalcontext);
+        QLatin1String("Debugger.Views.OpenMemoryEditor"),
+            Context(Constants::C_DEBUGMODE));
     d->m_viewsMenu->addAction(cmd);
     cmd = am->registerAction(d->m_mainWindow->menuSeparator1(),
         QLatin1String("Debugger.Views.Separator1"), globalcontext);
