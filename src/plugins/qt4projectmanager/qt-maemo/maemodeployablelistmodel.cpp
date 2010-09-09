@@ -59,20 +59,27 @@ bool MaemoDeployableListModel::buildModel()
 
     const MaemoProFileWrapper::InstallsList &installs = m_proFileWrapper->installs();
     if (installs.targetPath.isEmpty()) {
-        const QString remoteDir = m_proFileNode->projectType() == LibraryTemplate
-            ? QLatin1String("/opt/lib")
-            : QLatin1String("/opt/bin");
+        const QString remoteDirSuffix
+            = QLatin1String(m_proFileNode->projectType() == LibraryTemplate
+                ? "/lib" : "/bin");
+        const QString remoteDirMaemo5
+            = QLatin1String("/opt/usr") + remoteDirSuffix;
+        const QString remoteDirMaemo6
+            = QLatin1String("/usr/local") + remoteDirSuffix;
         m_deployables.prepend(MaemoDeployable(localExecutableFilePath(),
-            remoteDir));
+            remoteDirMaemo5));
         QFile projectFile(m_proFileNode->path());
         if (!projectFile.open(QIODevice::WriteOnly | QIODevice::Append)) {
             qWarning("Error updating .pro file.");
             return false;
         }
-        QString installsString
-            = QLatin1String("\nmaemo5|maemo6 {\n    target.path = ")
-                + remoteDir + QLatin1String("\n    INSTALLS += target\n}\n");
-        if (!projectFile.write(installsString.toLocal8Bit())) {
+        QString proFileTemplate = QLatin1String("\nunix:!symbian {\n"
+            "    maemo5 {\n        target.path = maemo5path\n    } else {\n"
+            "        target.path = maemo6path\n    }\n"
+            "    INSTALLS += target\n}");
+        proFileTemplate.replace(QLatin1String("maemo5path"), remoteDirMaemo5);
+        proFileTemplate.replace(QLatin1String("maemo6path"), remoteDirMaemo6);
+        if (!projectFile.write(proFileTemplate.toLocal8Bit())) {
             qWarning("Error updating .pro file.");
             return false;
         }

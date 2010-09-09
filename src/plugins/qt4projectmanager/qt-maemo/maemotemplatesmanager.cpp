@@ -363,9 +363,12 @@ bool MaemoTemplatesManager::updateDesktopFile(const Qt4Target *target,
             return false;
         }
         QByteArray proFileContents = proFile.readAll();
-        proFileContents += "\nmaemo5|maemp6{\n"
+        proFileContents += "\nunix:!symbian {\n"
             "    desktopfile.files = $${TARGET}.desktop\n"
-            "    desktopfile.path = /usr/share/applications/hildon\n"
+            "    maemo5 {\n"
+            "        desktopfile.path = /usr/share/applications/hildon\n"
+            "    } else {\n"
+            "        desktopfile.path = /usr/share/applications\n    }\n"
             "    INSTALLS += desktopfile\n}\n";
         proFile.resize(0);
         proFile.write(proFileContents);
