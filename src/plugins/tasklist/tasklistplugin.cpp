@@ -191,7 +191,7 @@ bool TaskListPlugin::initialize(const QStringList &arguments, QString *errorMess
     d->hub = pm->getObject<ProjectExplorer::TaskHub>();
 
     //: Category under which tasklist tasks are listed in build issues view
-    d->hub->addCategory(QLatin1String(Constants::TASKLISTTASK_ID), tr("My tasks"));
+    d->hub->addCategory(QLatin1String(Constants::TASKLISTTASK_ID), tr("My Tasks"));
 
     Core::ICore *core = Core::ICore::instance();
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":tasklist/TaskList.mimetypes.xml"), errorMessage))
