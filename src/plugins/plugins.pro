@@ -46,7 +46,6 @@ contains(QT_CONFIG, declarative) {
 
     include(../private_headers.pri)
     exists($${QT_PRIVATE_HEADERS}/QtDeclarative/private/qdeclarativecontext_p.h) {
-        SUBDIRS += plugin_qmldesigner 
     } else {
         warning()
         warning("QmlDesigner plugin have been disabled")

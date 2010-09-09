@@ -49,6 +49,10 @@
 #include <QtGui/QApplication>
 #include <QtGui/QMainWindow>
 
+#ifdef ENABLE_QT_BREAKPAD
+#include <qtsystemexceptionhandler.h>
+#endif
+
 enum { OptionIndent = 4, DescriptionIndent = 24 };
 
 static const char *appNameC = "Qt Creator";
@@ -179,6 +183,10 @@ int main(int argc, char **argv)
 #endif
 
     SharedTools::QtSingleApplication app((QLatin1String(appNameC)), argc, argv);
+
+#ifdef ENABLE_QT_BREAKPAD
+    QtSystemExceptionHandler systemExceptionHandler;
+#endif
 
     QTranslator translator;
     QTranslator qtTranslator;
