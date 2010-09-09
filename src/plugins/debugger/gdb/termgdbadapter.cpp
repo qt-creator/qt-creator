@@ -39,12 +39,9 @@
 #include <QtGui/QMessageBox>
 
 #ifdef Q_OS_WIN
-#    ifdef __GNUC__  // Required for OpenThread under MinGW
-#        define _WIN32_WINNT 0x0502
-#    endif // __GNUC__
-#    include <windows.h>
-#    include <utils/winutils.h>
-#endif // Q_OS_WIN
+#    include "dbgwinutils.h"
+#    include "dbgwinutils.h"
+#endif
 
 namespace Debugger {
 namespace Internal {
@@ -138,42 +135,23 @@ void TermGdbAdapter::setupInferior()
         CB(handleStubAttached));
 }
 
-#ifdef Q_OS_WIN
-static bool resumeThread(DWORD dwThreadId)
-{
-    bool ok = false;
-    HANDLE handle = NULL;
-    do {
-        if (!dwThreadId)
-            break;
-
-        handle = OpenThread(SYNCHRONIZE |THREAD_QUERY_INFORMATION |THREAD_SUSPEND_RESUME,
-                            FALSE, dwThreadId);
-        if (handle==NULL)
-            break;
-
-        ok = ResumeThread(handle) != DWORD(-1);
-    } while (false);
-    if (handle != NULL)
-        CloseHandle(handle);
-    return ok;
-}
-#endif // Q_OS_WIN
-
 void TermGdbAdapter::handleStubAttached(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
+#ifdef Q_OS_WIN
+    QString errorMessage;
+#endif // Q_OS_WIN
     switch (response.resultClass) {
     case GdbResultDone:
     case GdbResultRunning:
 #ifdef Q_OS_WIN
         // Resume thread that was suspended by console stub process (see stub code).
-        if (resumeThread(m_stubProc.applicationMainThreadID())) {
+        if (winResumeThread(m_stubProc.applicationMainThreadID(), &errorMessage)) {
             showMessage(QString::fromLatin1("Inferior attached, thread %1 resumed").
                         arg(m_stubProc.applicationMainThreadID()), LogMisc);
         } else {
             showMessage(QString::fromLatin1("Inferior attached, unable to resume thread %1: %2").
-                        arg(m_stubProc.applicationMainThreadID()).arg(Utils::winErrorMessage(GetLastError())),
+                        arg(m_stubProc.applicationMainThreadID()).arg(errorMessage),
                         LogWarning);
         }
 #else

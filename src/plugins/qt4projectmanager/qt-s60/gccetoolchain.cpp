@@ -31,6 +31,7 @@
 #include "qt4project.h"
 
 #include <utils/qtcassert.h>
+#include <utils/synchronousprocess.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QProcess>
@@ -173,14 +174,23 @@ QString GCCEToolChain::gcceVersion() const
         gxx.setEnvironment(env.toStringList());
         gxx.setReadChannelMode(QProcess::MergedChannels);
         gxx.start(command, arguments);
-        gxx.closeWriteChannel();
-        gxx.waitForFinished();
-
-        QString line;
-        if (gxx.canReadLine()) {
-            line = gxx.readLine();
-            m_gcceVersion = line.trimmed();
+        if (!gxx.waitForStarted()) {
+            qWarning("Cannot start '%s': %s", qPrintable(command), qPrintable(gxx.errorString()));
+            return QString();
         }
+        gxx.closeWriteChannel();
+        if (!gxx.waitForFinished())      {
+            Utils::SynchronousProcess::stopProcess(gxx);
+            qWarning("Timeout running '%s'.", qPrintable(command));
+            return QString();
+        }
+        if (gxx.exitStatus() != QProcess::NormalExit) {
+            qWarning("'%s' crashed.", qPrintable(command));
+            return QString();
+        }
+
+        if (gxx.canReadLine())
+            m_gcceVersion = gxx.readLine().trimmed();
     }
     return m_gcceVersion;
 }

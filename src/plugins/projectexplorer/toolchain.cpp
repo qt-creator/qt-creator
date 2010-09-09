@@ -199,7 +199,10 @@ static QByteArray gccPredefinedMacros(const QString &gcc, const QStringList &env
         qWarning("Timeout running '%s'.", qPrintable(gcc));
         return QByteArray();
     }
-
+    if (cpp.exitStatus() != QProcess::NormalExit) {
+        qWarning("'%s' crashed.", qPrintable(gcc));
+        return QByteArray();
+    }
     QByteArray predefinedMacros = cpp.readAllStandardOutput();
 #ifdef Q_OS_MAC
     // Turn off flag indicating Apple's blocks support
@@ -251,7 +254,10 @@ static QList<HeaderPath> gccSystemHeaderPaths(const QString &gcc, ProjectExplore
         qWarning("Timeout running '%s'.", qPrintable(gcc));
         return systemHeaderPaths;
     }
-
+    if (cpp.exitStatus() != QProcess::NormalExit) {
+        qWarning("'%s' crashed.", qPrintable(gcc));
+        return systemHeaderPaths;
+    }
     QByteArray line;
     while (cpp.canReadLine()) {
         line = cpp.readLine();
@@ -659,6 +665,11 @@ static QByteArray msvcPredefinedMacros(const QStringList &env)
         qWarning("Timeout running '%s'.", qPrintable(binary));
         return predefinedMacros;
     }
+    if (cpp.exitStatus() != QProcess::NormalExit) {
+        qWarning("'%s' crashed.", qPrintable(binary));
+        return predefinedMacros;
+    }
+
     const QList<QByteArray> output = cpp.readAllStandardOutput().split('\n');
     foreach (const QByteArray& line, output) {
         if (line.startsWith('V')) {

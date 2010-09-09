@@ -452,8 +452,7 @@ void MaemoDeployStep::setupMount()
     } else {
 #ifdef Q_OS_WIN
         bool drivesToMount[26];
-        for (int i = 0; i < sizeof drivesToMount / sizeof drivesToMount[0]; ++i)
-            drivesToMount[i] = false;
+        qFill(drivesToMount, drivesToMount + sizeof drivesToMount / sizeof drivesToMount[0], false);
         for (int i = 0; i < m_filesToCopy.count(); ++i) {
             const QString localDir
                 = QFileInfo(m_filesToCopy.at(i).localFilePath).canonicalPath();

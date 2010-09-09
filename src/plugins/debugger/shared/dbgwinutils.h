@@ -32,12 +32,22 @@
 
 #include <QtCore/QList>
 
+QT_FORWARD_DECLARE_CLASS(QString)
+
 namespace Debugger {
 namespace Internal {
 
 struct ProcData; // debuggerdialogs, used by the process listing dialogs
 
 QList<ProcData> winProcessList();
+
+// Resume a suspended thread by id.
+bool winResumeThread(unsigned long dwThreadId, QString *errorMessage);
+
+// Open a process by PID and break into it.
+bool winDebugBreakProcess(unsigned long  pid, QString *errorMessage);
+
+unsigned long winGetCurrentProcessId();
 
 } // namespace Internal
 } // namespace Debugger

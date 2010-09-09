@@ -514,20 +514,6 @@ public:
     TaskHub *m_taskHub;
 };
 
-static QToolButton *createFilterButton(QIcon icon, const QString &toolTip,
-                                       QObject *receiver, const char *slot)
-{
-    QToolButton *button = new QToolButton;
-    button->setIcon(icon);
-    button->setToolTip(toolTip);
-    button->setCheckable(true);
-    button->setChecked(true);
-    button->setAutoRaise(true);
-    button->setEnabled(true);
-    QObject::connect(button, SIGNAL(toggled(bool)), receiver, slot);
-    return button;
-}
-
 TaskWindow::TaskWindow(TaskHub *taskhub) : d(new TaskWindowPrivate)
 {
     d->m_defaultHandler = 0;

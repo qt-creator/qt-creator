@@ -31,6 +31,7 @@
 #include "rvctparser.h"
 
 #include <utils/qtcassert.h>
+#include <utils/synchronousprocess.h>
 
 #include <QtCore/QProcess>
 #include <QtCore/QProcessEnvironment>
@@ -126,7 +127,15 @@ void RVCTToolChain::updateVersion()
         return;
     }
     armcc.closeWriteChannel();
-    armcc.waitForFinished();
+    if (!armcc.waitForFinished()) {
+        Utils::SynchronousProcess::stopProcess(armcc);
+        qWarning("Timeout running rvct binary '%s' trying to determine version.", qPrintable(binary));
+        return;
+    }
+    if (armcc.exitStatus() != QProcess::NormalExit) {
+        qWarning("A crash occurred when running rvct binary '%s' trying to determine version.", qPrintable(binary));
+        return;
+    }
     QString versionLine = QString::fromLocal8Bit(armcc.readAllStandardOutput());
     versionLine += QString::fromLocal8Bit(armcc.readAllStandardError());
     const QRegExp versionRegExp(QLatin1String("RVCT(\\d*)\\.(\\d*).*\\[Build.(\\d*)\\]"),

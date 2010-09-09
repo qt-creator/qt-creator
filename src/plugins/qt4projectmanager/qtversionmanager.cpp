@@ -1096,6 +1096,10 @@ static bool queryQMakeVariables(const QString &binary, QHash<QString, QString> *
         qWarning("Timeout running '%s' (%dms).", qPrintable(binary), timeOutMS);
         return false;
     }
+    if (process.exitStatus() != QProcess::NormalExit) {
+        qWarning("'%s' crashed.", qPrintable(binary));
+        return false;
+    }
     QByteArray output = process.readAllStandardOutput();
     QTextStream stream(&output);
     while (!stream.atEnd()) {

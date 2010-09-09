@@ -52,7 +52,7 @@
 #include <QtNetwork/QTcpSocket>
 
 #ifdef Q_OS_WIN
-#  include <windows.h>
+#  include "dbgwinutils.h"
 #else
 #  include <sys/types.h>
 #  include <unistd.h>
@@ -100,7 +100,7 @@ TrkGdbAdapter::TrkGdbAdapter(GdbEngine *engine) :
     m_gdbConnection = 0;
     m_snapshot.reset();
 #ifdef Q_OS_WIN
-    const DWORD portOffset = GetCurrentProcessId() % 100;
+    const unsigned long portOffset = winGetCurrentProcessId() % 100;
 #else
     const uid_t portOffset = getuid();
 #endif

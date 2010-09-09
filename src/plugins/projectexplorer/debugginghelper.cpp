@@ -258,6 +258,10 @@ QString DebuggingHelperLibrary::qtVersionForQMake(const QString &qmakePath)
         qWarning("Timeout running '%s'.", qPrintable(qmakePath));
         return QString();
     }
+    if (qmake.exitStatus() != QProcess::NormalExit) {
+        qWarning("'%s' crashed.", qPrintable(qmakePath));
+        return QString();
+    }
     const QString output = QString::fromLocal8Bit(qmake.readAllStandardOutput());
     QRegExp regexp(QLatin1String("(QMake version|QMake version:)[\\s]*([\\d.]*)"), Qt::CaseInsensitive);
     regexp.indexIn(output);
