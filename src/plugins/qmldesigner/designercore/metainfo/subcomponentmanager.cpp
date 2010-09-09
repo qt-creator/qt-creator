@@ -315,6 +315,9 @@ void SubComponentManagerPrivate::registerQmlFile(const QFileInfo &fileInfo, cons
         Q_ASSERT(!dynamicProperty.propertyName().isEmpty());
         Q_ASSERT(!dynamicProperty.propertyTypeName().isEmpty());
 
+        if (dynamicProperty.isDefaultProperty())
+            nodeInfo.setDefaultProperty(dynamicProperty.propertyName());
+
         PropertyMetaInfo propertyMetaInfo;
         propertyMetaInfo.setName(dynamicProperty.propertyName());
         propertyMetaInfo.setType(dynamicProperty.propertyTypeName());
