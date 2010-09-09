@@ -712,6 +712,9 @@ bool CheckSymbols::visit(QualifiedNameAST *ast)
             } else {
                 addTypeOrStatic(binding->find(ast->unqualified_name->name), ast->unqualified_name);
             }
+
+            if (TemplateIdAST *template_id = ast->unqualified_name->asTemplateId())
+                accept(template_id->template_argument_list);
         }
     }
 
