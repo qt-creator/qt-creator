@@ -117,7 +117,8 @@ TcfTrkGdbAdapter::TcfTrkGdbAdapter(GdbEngine *engine) :
     m_gdbAckMode(true),
     m_uid(0),
     m_verbose(0),
-    m_firstResumableExeLoadedEvent(false)
+    m_firstResumableExeLoadedEvent(false),
+    m_registerRequestPending(false)
 {
     m_bufferedMemoryRead = true;
     // Disable buffering if gdb's dcache is used.
@@ -174,20 +175,20 @@ void TcfTrkGdbAdapter::setGdbServerName(const QString &name)
     m_gdbServerName = name;
 }
 
-QString TcfTrkGdbAdapter::gdbServerIP() const
+// Split a TCP address specification '<addr>[:<port>]'
+static QPair<QString, unsigned short> splitIpAddressSpec(const QString &addressSpec, unsigned short defaultPort = 0)
 {
-    int pos = m_gdbServerName.indexOf(':');
+    const int pos = addressSpec.indexOf(QLatin1Char(':'));
     if (pos == -1)
-        return m_gdbServerName;
-    return m_gdbServerName.left(pos);
-}
-
-uint TcfTrkGdbAdapter::gdbServerPort() const
-{
-    int pos = m_gdbServerName.indexOf(':');
-    if (pos == -1)
-        return 0;
-    return m_gdbServerName.mid(pos + 1).toUInt();
+        return QPair<QString, unsigned short>(addressSpec, defaultPort);
+    const QString address = addressSpec.left(pos);
+    bool ok;
+    const unsigned short port = addressSpec.mid(pos + 1).toUShort(&ok);
+    if(!ok) {
+        qWarning("Invalid IP address specification: '%s', defaulting to port %hu.", qPrintable(addressSpec), defaultPort);
+        return QPair<QString, unsigned short>(addressSpec, defaultPort);
+    }
+    return QPair<QString, unsigned short>(address, port);
 }
 
 void TcfTrkGdbAdapter::handleTcfTrkRunControlModuleLoadContextSuspendedEvent(const TcfTrkRunControlModuleLoadContextSuspendedEvent &se)
@@ -573,16 +574,17 @@ void TcfTrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
 
     else if (cmd == "g") {
         // Read general registers.
+        logMessage(msgGdbPacket(QLatin1String("Read registers")));
         if (m_snapshot.registersValid(m_session.tid)) {
-            logMessage(msgGdbPacket(QLatin1String("Read registers")));
             sendGdbServerAck();
             reportRegisters();
         } else {
             sendGdbServerAck();
-            m_trkDevice->sendRegistersGetMRangeCommand(
-                TcfTrkCallback(this, &TcfTrkGdbAdapter::handleAndReportReadRegisters),
-                currentThreadContextId(), 0,
-                Symbian::RegisterCount);
+            if (m_trkDevice->registerNames().isEmpty()) {
+                m_registerRequestPending = true;
+            } else {
+                sendRegistersGetMCommand();
+            }
         }
     }
 
@@ -590,10 +592,7 @@ void TcfTrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         // Force re-reading general registers for debugging purpose.
         sendGdbServerAck();
         m_snapshot.setRegistersValid(m_session.tid, false);
-        m_trkDevice->sendRegistersGetMRangeCommand(
-            TcfTrkCallback(this, &TcfTrkGdbAdapter::handleAndReportReadRegisters),
-            currentThreadContextId(), 0,
-            Symbian::RegisterCount);
+        sendRegistersGetMCommand();
     }
 
     else if (cmd.startsWith("salstep,")) {
@@ -946,7 +945,6 @@ void TcfTrkGdbAdapter::interruptInferior()
 
 void TcfTrkGdbAdapter::startAdapter()
 {
-    const ushort tcfTrkPort = 1534;
 
     m_snapshot.fullReset();
     m_session.reset();
@@ -959,7 +957,8 @@ void TcfTrkGdbAdapter::startAdapter()
     m_remoteArguments = parameters.processArgs;
     m_symbolFile = parameters.symbolFileName;
 
-    QString tcfTrkAddress;
+    QPair<QString, unsigned short> tcfTrkAddress;
+
     QSharedPointer<QTcpSocket> tcfTrkSocket(new QTcpSocket);
     m_trkDevice->setDevice(tcfTrkSocket);
     m_trkIODevice = tcfTrkSocket;
@@ -975,7 +974,7 @@ void TcfTrkGdbAdapter::startAdapter()
     m_remoteExecutable = parameters.processArgs.at(1);
     m_uid = parameters.processArgs.at(2).toUInt(0, 16);
     m_symbolFile = parameters.processArgs.at(3);
-    tcfTrkAddress = parameters.processArgs.at(4);
+    tcfTrkAddress = splitIpAddressSpec(parameters.processArgs.at(4), 1534);
     m_remoteArguments.clear();
 
     // Unixish gdbs accept only forward slashes
@@ -989,7 +988,8 @@ void TcfTrkGdbAdapter::startAdapter()
     QTC_ASSERT(m_gdbConnection == 0, m_gdbConnection = 0);
     m_gdbServer = new QTcpServer(this);
 
-    if (!m_gdbServer->listen(QHostAddress(gdbServerIP()), gdbServerPort())) {
+    const QPair<QString, unsigned short> address = splitIpAddressSpec(m_gdbServerName);
+    if (!m_gdbServer->listen(QHostAddress(address.first), address.second)) {
         QString msg = QString("Unable to start the gdb server at %1: %2.")
             .arg(m_gdbServerName).arg(m_gdbServer->errorString());
         logMessage(msg, LogError);
@@ -1004,8 +1004,8 @@ void TcfTrkGdbAdapter::startAdapter()
         this, SLOT(handleGdbConnection()));
 
     logMessage(_("Connecting to TCF TRK on %1:%2")
-               .arg(tcfTrkAddress).arg(tcfTrkPort));
-    tcfTrkSocket->connectToHost(tcfTrkAddress, tcfTrkPort);
+               .arg(tcfTrkAddress.first).arg(tcfTrkAddress.second));
+    tcfTrkSocket->connectToHost(tcfTrkAddress.first, tcfTrkAddress.second);
 }
 
 void TcfTrkGdbAdapter::setupInferior()
@@ -1164,6 +1164,17 @@ void TcfTrkGdbAdapter::handleWriteRegister(const TcfTrkCommandResult &result)
     }
 }
 
+void TcfTrkGdbAdapter::sendRegistersGetMCommand()
+{
+    // Send off a register command, which requires the names to be present.
+    QTC_ASSERT(!m_trkDevice->registerNames().isEmpty(), return )
+
+    m_trkDevice->sendRegistersGetMRangeCommand(
+                TcfTrkCallback(this, &TcfTrkGdbAdapter::handleAndReportReadRegisters),
+                currentThreadContextId(), 0,
+                Symbian::RegisterCount);
+}
+
 void TcfTrkGdbAdapter::reportRegisters()
 {
     const int threadIndex = m_snapshot.indexOfThread(m_session.tid);
@@ -1210,6 +1221,11 @@ void TcfTrkGdbAdapter::handleRegisterChildren(const tcftrk::TcfTrkCommandResult 
     }
     logMessage(msg);
     m_trkDevice->setRegisterNames(registerNames);
+    if (m_registerRequestPending) { // Request already pending?
+qDebug("RR")        ;
+        logMessage(_("Resuming registers request after receiving register names..."));
+        sendRegistersGetMCommand();
+    }
 }
 
 void TcfTrkGdbAdapter::handleReadRegisters(const TcfTrkCommandResult &result)

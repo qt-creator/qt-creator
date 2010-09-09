@@ -79,8 +79,7 @@ public:
     virtual ~TcfTrkGdbAdapter();
     void setGdbServerName(const QString &name);
     QString gdbServerName() const { return m_gdbServerName; }
-    QString gdbServerIP() const;
-    uint gdbServerPort() const;
+
     Q_SLOT void setVerbose(const QVariant &value);
     void setVerbose(int verbose);
     void setBufferedMemoryRead(bool b) { m_bufferedMemoryRead = b; }
@@ -109,6 +108,7 @@ private:
     void interruptInferior();
     void shutdownInferior();
     void shutdownAdapter();
+    void sendRegistersGetMCommand();
     void handleWriteRegister(const tcftrk::TcfTrkCommandResult &result);
     void reportRegisters();
     void handleReadRegisters(const tcftrk::TcfTrkCommandResult &result);
@@ -180,6 +180,8 @@ private:
     int m_verbose;
     bool m_bufferedMemoryRead;
     bool m_firstResumableExeLoadedEvent;
+    // gdb wants registers, but we don't have the names yet. Continue in handler for names
+    bool m_registerRequestPending;
     QByteArray m_tcfProcessId;
     LocalGdbProcess m_gdbProc;
 };
