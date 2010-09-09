@@ -57,6 +57,7 @@
 #include <QtCore/QtConcurrentRun>
 #include <QtCore/QtConcurrentMap>
 #include <QtCore/QUrl>
+#include <QtCore/QSet>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QMessageBox>
 #include <QtXml/QXmlSimpleReader>
@@ -159,11 +160,25 @@ void Manager::registerMimeTypes()
 
 void Manager::gatherDefinitionsMimeTypes(QFutureInterface<Core::MimeType> &future)
 {
+    // Please be aware of the following limitation in the current implementation.
+    // The generic highlighter only register its types after all other plugins
+    // have populated Creator's MIME database (so it does not override anything).
+    // When the generic highlighter settings change only its internal data is cleaned-up
+    // and rebuilt. Creator's MIME database is not touched. So depending on how the
+    // user plays around with the generic highlighter file definitions (changing
+    // duplicated patterns, for example), some changes might not be reflected.
+    // A definitive implementation would require some kind of re-load or update
+    // (considering hierarchies, aliases, etc) of the MIME database whenever there
+    // is a change in the generic highlighter settings.
+
     QStringList definitionsPaths;
     const HighlighterSettings &settings = TextEditorSettings::instance()->highlighterSettings();
     definitionsPaths.append(settings.definitionFilesPath());
     if (settings.useFallbackLocation())
         definitionsPaths.append(settings.fallbackDefinitionFilesPath());
+
+    Core::MimeDatabase *mimeDatabase = Core::ICore::instance()->mimeDatabase();
+    QSet<QString> knownSuffixes = QSet<QString>::fromList(mimeDatabase->suffixes());
 
     foreach (const QString &path, definitionsPaths) {
         if (path.isEmpty())
@@ -181,34 +196,45 @@ void Manager::gatherDefinitionsMimeTypes(QFutureInterface<Core::MimeType> &futur
                 allMetaData.append(metaData);
         }
 
-        // Definitions with high priority need to be added after (and thus replace) definitions
-        // with low priority.
+        // Consider definitions with higher priority first.
         qSort(allMetaData.begin(), allMetaData.end(), PriorityComp());
 
         foreach (const QSharedPointer<HighlightDefinitionMetaData> &metaData, allMetaData) {
             if (m_idByName.contains(metaData->name()))
-                // This is a fallback item, do not consider it. One with this name already exists.
+                // Name already exists... This is a fallback item, do not consider it.
                 continue;
 
             const QString &id = metaData->id();
             m_idByName.insert(metaData->name(), id);
             m_definitionsMetaData.insert(id, metaData);
 
-            // A definition can specify multiple MIME types and file extensions/patterns. However,
-            // each thing is done with a single string. There is no direct way to tell which
-            // patterns belong to which MIME types nor whether a MIME type is just an alias for the
-            // other. Currently, I associate all patterns with all MIME types from a definition.
-
             static const QStringList textPlain(QLatin1String("text/plain"));
 
+            // A definition can specify multiple MIME types and file extensions/patterns.
+            // However, each thing is done with a single string. There is no direct way to
+            // tell which patterns belong to which MIME types nor whether a MIME type is just
+            // an alias for the other. Currently, I associate all patterns with all MIME
+            // types from a definition.
             QList<QRegExp> patterns;
             foreach (const QString &type, metaData->mimeTypes()) {
+                if (m_idByMimeType.contains(type))
+                    continue;
+
                 m_idByMimeType.insert(type, id);
-                Core::MimeType mimeType = Core::ICore::instance()->mimeDatabase()->findByType(type);
+                Core::MimeType mimeType = mimeDatabase->findByType(type);
                 if (mimeType.isNull()) {
                     if (patterns.isEmpty()) {
-                        foreach (const QString &pattern, metaData->patterns())
+                        foreach (const QString &pattern, metaData->patterns()) {
+                            static const QLatin1String mark("*.");
+                            if (pattern.startsWith(mark)) {
+                                const QString &suffix = pattern.right(pattern.length() - 2);
+                                if (!knownSuffixes.contains(suffix))
+                                    knownSuffixes.insert(suffix);
+                                else
+                                    continue;
+                            }
                             patterns.append(QRegExp(pattern, Qt::CaseSensitive, QRegExp::Wildcard));
+                        }
                     }
 
                     mimeType.setType(type);
@@ -216,6 +242,7 @@ void Manager::gatherDefinitionsMimeTypes(QFutureInterface<Core::MimeType> &futur
                     mimeType.setComment(metaData->name());
                     mimeType.setGlobPatterns(patterns);
 
+                    mimeDatabase->addMimeType(mimeType);
                     future.reportResult(mimeType);
                 }
             }
@@ -227,7 +254,6 @@ void Manager::registerMimeType(int index) const
 {
     const Core::MimeType &mimeType = m_mimeTypeWatcher.resultAt(index);
     TextEditorPlugin::instance()->editorFactory()->addMimeType(mimeType.type());
-    Core::ICore::instance()->mimeDatabase()->addMimeType(mimeType);
 }
 
 void Manager::registerMimeTypesFinished()
@@ -244,9 +270,8 @@ void Manager::registerMimeTypesFinished()
 QSharedPointer<HighlightDefinitionMetaData> Manager::parseMetadata(const QFileInfo &fileInfo)
 {
     static const QLatin1Char kSemiColon(';');
-    static const QLatin1Char kSlash('/');
     static const QLatin1String kLanguage("language");
-    static const QLatin1String kArtificial("artificial");
+    static const QLatin1String kArtificial("text/x-artificial-");
 
     QFile definitionFile(fileInfo.absoluteFilePath());
     if (!definitionFile.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -274,7 +299,7 @@ QSharedPointer<HighlightDefinitionMetaData> Manager::parseMetadata(const QFileIn
                 // There are definitions which do not specify a MIME type, but specify file
                 // patterns. Creating an artificial MIME type is a workaround.
                 QString artificialType(kArtificial);
-                artificialType.append(kSlash).append(metaData->name());
+                artificialType.append(metaData->name());
                 mimeTypes.append(artificialType);
             }
             metaData->setMimeTypes(mimeTypes);

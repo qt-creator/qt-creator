@@ -121,7 +121,7 @@ private:
     {
         bool operator()(const QSharedPointer<HighlightDefinitionMetaData> &a,
                         const QSharedPointer<HighlightDefinitionMetaData> &b) {
-            return a->priority() < b->priority();
+            return a->priority() > b->priority();
         }
     };
 
