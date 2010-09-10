@@ -49,6 +49,14 @@ bool winDebugBreakProcess(unsigned long  pid, QString *errorMessage);
 
 unsigned long winGetCurrentProcessId();
 
+/* Helper for (case-)normalizing file names:
+ * Determine normalized case of a Windows file name (camelcase.cpp -> CamelCase.cpp)
+ * as the debugger reports lower case file names.
+ * Restriction: File needs to exist and be non-empty and will be to be opened/mapped.
+ * The result should be cached as the function can be extensive. */
+
+QString winNormalizeFileName(const QString &f);
+
 } // namespace Internal
 } // namespace Debugger
 

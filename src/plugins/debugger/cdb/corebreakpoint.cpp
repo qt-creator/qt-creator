@@ -29,6 +29,7 @@
 
 #include "corebreakpoint.h"
 #include "coreengine.h"
+#include "dbgwinutils.h"
 
 #include <utils/qtcassert.h>
 
@@ -36,8 +37,6 @@
 #include <QtCore/QDir>
 #include <QtCore/QDebug>
 #include <QtCore/QMap>
-
-#include <psapi.h>
 
 enum { debugBP = 0 };
 
@@ -239,83 +238,6 @@ bool BreakPoint::add(CIDebugControl* debugControl,
     return true;
 }
 
-// Helper for normalizing file names:
-// Map the device paths in  a file name to back to drive letters
-// "/Device/HarddiskVolume1/file.cpp" -> "C:/file.cpp"
-
-static bool mapDeviceToDriveLetter(QString *s)
-{
-    enum { bufSize = 512 };
-    // Retrieve drive letters and get their device names.
-    // Do not cache as it may change due to removable/network drives.
-    TCHAR driveLetters[bufSize];
-    if (!GetLogicalDriveStrings(bufSize-1, driveLetters))
-        return false;
-
-    TCHAR driveName[MAX_PATH];
-    TCHAR szDrive[3] = TEXT(" :");
-    for (const TCHAR *driveLetter = driveLetters; *driveLetter; driveLetter++) {
-        szDrive[0] = *driveLetter; // Look up each device name
-        if (QueryDosDevice(szDrive, driveName, MAX_PATH)) {
-            const QString deviceName = QString::fromWCharArray(driveName);
-            if (s->startsWith(deviceName)) {
-                s->replace(0, deviceName.size(), QString::fromWCharArray(szDrive));
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-// Helper for normalizing file names:
-// Determine normalized case of a Windows file name (camelcase.cpp -> CamelCase.cpp)
-// as the debugger reports lower case file names.
-// Restriction: File needs to exists and be non-empty and will be to be opened/mapped.
-// This is the MSDN-recommended way of doing that. The result should be cached.
-
-static inline QString normalizeFileNameCaseHelper(const QString &f)
-{
-    HANDLE hFile = CreateFile((const wchar_t*)f.utf16(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
-    if(hFile == INVALID_HANDLE_VALUE)
-        return f;
-    // Get the file size. We need a non-empty file to map it.
-    DWORD dwFileSizeHi = 0;
-    DWORD dwFileSizeLo = GetFileSize(hFile, &dwFileSizeHi);
-    if (dwFileSizeLo == 0 && dwFileSizeHi == 0) {
-        CloseHandle(hFile);
-        return f;
-    }
-    // Create a file mapping object.
-    HANDLE hFileMap = CreateFileMapping(hFile, NULL, PAGE_READONLY, 0, 1, NULL);
-    if (!hFileMap)  {
-        CloseHandle(hFile);
-        return f;
-    }
-
-    // Create a file mapping to get the file name.
-    void* pMem = MapViewOfFile(hFileMap, FILE_MAP_READ, 0, 0, 1);
-    if (!pMem) {
-        CloseHandle(hFileMap);
-        CloseHandle(hFile);
-        return f;
-    }
-
-    QString rc;
-    WCHAR pszFilename[MAX_PATH];
-    pszFilename[0] = 0;
-    // Get a file name of the form "/Device/HarddiskVolume1/file.cpp"
-    if (GetMappedFileName (GetCurrentProcess(), pMem, pszFilename, MAX_PATH)) {
-        rc = QString::fromWCharArray(pszFilename);
-        if (!mapDeviceToDriveLetter(&rc))
-            rc.clear();
-    }
-
-    UnmapViewOfFile(pMem);
-    CloseHandle(hFileMap);
-    CloseHandle(hFile);
-    return rc.isEmpty() ? f : rc;
-}
-
 // Make sure file can be found in editor manager and text markers
 // Use '/', correct case and capitalize drive letter. Use a cache.
 
@@ -328,7 +250,7 @@ QString BreakPoint::normalizeFileName(const QString &f)
     const NormalizedFileCache::const_iterator it = normalizedFileNameCache()->constFind(f);
     if (it != normalizedFileNameCache()->constEnd())
         return it.value();
-    QString normalizedName = QDir::fromNativeSeparators(normalizeFileNameCaseHelper(f));
+    QString normalizedName = QDir::fromNativeSeparators(Debugger::Internal::winNormalizeFileName(f));
     // Upcase drive letter for consistency even if case mapping fails.
     if (normalizedName.size() > 2 && normalizedName.at(1) == QLatin1Char(':'))
         normalizedName[0] = normalizedName.at(0).toUpper();

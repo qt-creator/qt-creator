@@ -155,4 +155,10 @@ QTCREATOR_UTILS_EXPORT QString getShortPathName(const QString &name, QString *er
     return rc;
 }
 
+unsigned long winQPidToPid(const Q_PID qpid)
+{
+    const PROCESS_INFORMATION *processInfo = reinterpret_cast<const PROCESS_INFORMATION*>(qpid);
+    return processInfo->dwProcessId;
+}
+
 } // namespace Utils

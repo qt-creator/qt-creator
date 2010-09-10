@@ -167,5 +167,80 @@ unsigned long winGetCurrentProcessId()
     return GetCurrentProcessId();
 }
 
+// Helper for normalizing file names:
+// Map the device paths in  a file name to back to drive letters
+// "/Device/HarddiskVolume1/file.cpp" -> "C:/file.cpp"
+
+static bool mapDeviceToDriveLetter(QString *s)
+{
+    enum { bufSize = 512 };
+    // Retrieve drive letters and get their device names.
+    // Do not cache as it may change due to removable/network drives.
+    TCHAR driveLetters[bufSize];
+    if (!GetLogicalDriveStrings(bufSize-1, driveLetters))
+        return false;
+
+    TCHAR driveName[MAX_PATH];
+    TCHAR szDrive[3] = TEXT(" :");
+    for (const TCHAR *driveLetter = driveLetters; *driveLetter; driveLetter++) {
+        szDrive[0] = *driveLetter; // Look up each device name
+        if (QueryDosDevice(szDrive, driveName, MAX_PATH)) {
+            const QString deviceName = QString::fromWCharArray(driveName);
+            if (s->startsWith(deviceName)) {
+                s->replace(0, deviceName.size(), QString::fromWCharArray(szDrive));
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+// Determine normalized case of a Windows file name (camelcase.cpp -> CamelCase.cpp)
+// Restriction: File needs to exists and be non-empty and will be to be opened/mapped.
+// This is the MSDN-recommended way of doing that.
+
+QString winNormalizeFileName(const QString &f)
+{
+    HANDLE hFile = CreateFile((const wchar_t*)f.utf16(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+    if(hFile == INVALID_HANDLE_VALUE)
+        return f;
+    // Get the file size. We need a non-empty file to map it.
+    DWORD dwFileSizeHi = 0;
+    DWORD dwFileSizeLo = GetFileSize(hFile, &dwFileSizeHi);
+    if (dwFileSizeLo == 0 && dwFileSizeHi == 0) {
+        CloseHandle(hFile);
+        return f;
+    }
+    // Create a file mapping object.
+    HANDLE hFileMap = CreateFileMapping(hFile, NULL, PAGE_READONLY, 0, 1, NULL);
+    if (!hFileMap)  {
+        CloseHandle(hFile);
+        return f;
+    }
+
+    // Create a file mapping to get the file name.
+    void* pMem = MapViewOfFile(hFileMap, FILE_MAP_READ, 0, 0, 1);
+    if (!pMem) {
+        CloseHandle(hFileMap);
+        CloseHandle(hFile);
+        return f;
+    }
+
+    QString rc;
+    WCHAR pszFilename[MAX_PATH];
+    pszFilename[0] = 0;
+    // Get a file name of the form "/Device/HarddiskVolume1/file.cpp"
+    if (GetMappedFileName (GetCurrentProcess(), pMem, pszFilename, MAX_PATH)) {
+        rc = QString::fromWCharArray(pszFilename);
+        if (!mapDeviceToDriveLetter(&rc))
+            rc.clear();
+    }
+
+    UnmapViewOfFile(pMem);
+    CloseHandle(hFileMap);
+    CloseHandle(hFile);
+    return rc.isEmpty() ? f : rc;
+}
+
 } // namespace Internal
 } // namespace Debugger

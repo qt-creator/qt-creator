@@ -32,6 +32,8 @@
 
 #include "utils_global.h"
 
+#include <QtCore/QProcess> // Q_PID (is PROCESS_INFORMATION*)
+
 QT_BEGIN_NAMESPACE
 class QString;
 QT_END_NAMESPACE
@@ -51,6 +53,8 @@ QTCREATOR_UTILS_EXPORT QString winGetDLLVersion(WinDLLVersionType t,
 // Return the short (8.3) file name
 QTCREATOR_UTILS_EXPORT QString getShortPathName(const QString &name,
                                                 QString *errorMessage);
+
+QTCREATOR_UTILS_EXPORT unsigned long winQPidToPid(const Q_PID qpid);
 
 } // namespace Utils
 #endif // WINUTILS_H
