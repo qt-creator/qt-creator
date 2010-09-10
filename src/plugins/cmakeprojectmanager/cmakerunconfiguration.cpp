@@ -347,9 +347,17 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
 
     fl->addRow(tr("Working Directory:"), boxlayout);
 
+    QWidget *debuggerLabelWidget = new QWidget(this);
+    QVBoxLayout *debuggerLabelLayout = new QVBoxLayout(debuggerLabelWidget);
+    debuggerLabelLayout->setMargin(0);
+    debuggerLabelLayout->setSpacing(0);
+    debuggerLabelWidget->setLayout(debuggerLabelLayout);
     QLabel *debuggerLabel = new QLabel(tr("Debugger:"), this);
+    debuggerLabelLayout->addWidget(debuggerLabel);
+    debuggerLabelLayout->addStretch(10);
+
     m_debuggerLanguageChooser = new Utils::DebuggerLanguageChooser(this);
-    fl->addRow(debuggerLabel, m_debuggerLanguageChooser);
+    fl->addRow(debuggerLabelWidget, m_debuggerLanguageChooser);
 
     m_debuggerLanguageChooser->setCppChecked(m_cmakeRunConfiguration->useCppDebugger());
     m_debuggerLanguageChooser->setQmlChecked(m_cmakeRunConfiguration->useQmlDebugger());

@@ -177,11 +177,19 @@ QWidget *QmlProjectRunConfiguration::createConfigurationWidget()
     form->addRow(tr("QML Viewer arguments:"), qmlViewerArgs);
     form->addRow(QString(), m_qmlViewerExecutable.data());
 
-    QLabel *debuggerLabel = new QLabel(tr("Debugger:"), config);
+    QWidget *debuggerLabelWidget = new QWidget;
+    QVBoxLayout *debuggerLabelLayout = new QVBoxLayout(debuggerLabelWidget);
+    debuggerLabelLayout->setMargin(0);
+    debuggerLabelLayout->setSpacing(0);
+    debuggerLabelWidget->setLayout(debuggerLabelLayout);
+    QLabel *debuggerLabel = new QLabel(tr("Debugger:"));
+    debuggerLabelLayout->addWidget(debuggerLabel);
+    debuggerLabelLayout->addStretch(10);
+
     Utils::DebuggerLanguageChooser *debuggerLanguageChooser = new Utils::DebuggerLanguageChooser(config);
 
     form->addRow(tr("Main QML File:"), m_fileListCombo.data());
-    form->addRow(debuggerLabel, debuggerLanguageChooser);
+    form->addRow(debuggerLabelWidget, debuggerLanguageChooser);
 
     debuggerLanguageChooser->setCppChecked(useCppDebugger());
     debuggerLanguageChooser->setQmlChecked(useQmlDebugger());
