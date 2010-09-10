@@ -465,12 +465,12 @@ bool DebuggerRunControl::checkDebugConfiguration(int toolChain,
     case ProjectExplorer::ToolChain::RVCT_ARMV6:
         success = checkGdbConfiguration(toolChain, errorMessage, settingsPage);
         if (!success)
-            *errorMessage = msgEngineNotAvailable("Gdb");
+            *errorMessage += msgEngineNotAvailable("Gdb");
         break;
     case ProjectExplorer::ToolChain::MSVC:
         success = checkCdbConfiguration(toolChain, errorMessage, settingsPage);
         if (!success) {
-            *errorMessage = msgEngineNotAvailable("Cdb");
+            *errorMessage += msgEngineNotAvailable("Cdb");
             if (settingsPage)
                 *settingsPage = QLatin1String("Cdb");
         }
