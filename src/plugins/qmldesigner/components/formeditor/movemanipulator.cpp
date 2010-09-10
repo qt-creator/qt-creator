@@ -311,7 +311,10 @@ void MoveManipulator::reparentTo(FormEditorItem *newParent)
     foreach (FormEditorItem* item, m_itemList) {
         QmlItemNode parent(newParent->qmlItemNode());
         if (parent.isValid()) {
-            item->qmlItemNode().setParentProperty(parent.nodeAbstractProperty("data"));
+            if (parent.hasDefaultProperty())
+                item->qmlItemNode().setParentProperty(parent.nodeAbstractProperty(parent.defaultProperty()));
+            else
+                item->qmlItemNode().setParentProperty(parent.nodeAbstractProperty("data"));
         }
     }
 
