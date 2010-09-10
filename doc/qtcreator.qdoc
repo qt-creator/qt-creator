@@ -126,7 +126,7 @@
             \endlist
        \o \l{Using the Maemo Emulator}
        \o \l{Using Version Control Systems}
-
+       \o \l{Creating Task List Files}
        \o \l{Getting Help}
        \o \l{Tips and Tricks}
        \o \l{Keyboard Shortcuts}
@@ -591,6 +591,13 @@
 
     \image qtcreator-build-issues.png
 
+    To view task lists in the \gui{Build Issues} pane, click
+    \inlineimage qtcreator-filter.png
+    and select \gui{My Tasks}. Entries from a task list file (.tasks) are
+    imported to the pane. Press \key F6 and \key Shift+F6 to jump from one issue
+    to the next.
+
+    For more information about creating task files, see \l{Creating Task List Files}.
 
     \section2 Search Results
 
@@ -635,7 +642,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-version-control.html
+    \previouspage creator-task-lists.html
     \page creator-help.html
     \nextpage creator-tips.html
 
@@ -894,7 +901,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-project-managing-sessions.html
+    \previouspage creator-project-wizards.html
     \page creator-editor-using.html
     \nextpage creator-editor-finding.html
 
@@ -1739,7 +1746,7 @@
     \contentspage index.html
     \previouspage creator-project-managing.html
     \page creator-project-creating.html
-    \nextpage creator-project-wizards.html
+    \nextpage creator-project-qmake.html
 
     \title Creating a Project
 
@@ -1828,9 +1835,9 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-project-creating.html
+    \previouspage creator-project-managing-sessions.html
     \page creator-project-wizards.html
-    \nextpage creator-project-qmake.html
+    \nextpage creator-editor-using.html
 
     \title Adding New Custom Wizards
 
@@ -2262,7 +2269,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-project-wizards.html
+    \previouspage creator-project-creating.html
     \page creator-project-qmake.html
     \nextpage creator-project-cmake.html
 
@@ -3873,7 +3880,7 @@
     \contentspage index.html
     \previouspage creator-maemo-emulator.html
     \page creator-version-control.html
-    \nextpage creator-help.html
+    \nextpage creator-task-lists.html
 
     \title Using Version Control Systems
 
@@ -4397,7 +4404,7 @@
 /*!
     \contentspage index.html
     \page creator-project-managing-sessions.html
-    \nextpage creator-editor-using.html
+    \nextpage creator-project-wizards.html
 
     \title Managing Sessions
 
@@ -7280,4 +7287,59 @@
         \o \l{http://qt.gitorious.org/qt-creator/qt-creator/trees/master/src/libs/3rdparty}
         \endlist
      \endlist
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-version-control.html
+    \page creator-task-lists.html
+    \nextpage creator-help.html
+
+    \title Creating Task List Files
+
+    You can load tasks from task lists to the \gui{Build Issues} pane. You can
+    either create the task lists manually or create scripts to generate them from
+    output of static code analysis tools, for example.
+
+    For an example of a script that checks new lines of code and matches them
+    against regular expressions to generate a task list, see \c{scripts\mytasks.pl}
+    in the Qt Creator repository.
+
+    \section1 Task List File Format
+
+    The filename extension must be .tasks for Qt Creator to recognize a file as a
+    task list file.
+
+    Each line in a task list file is treated as a tab-separated list of strings with
+    \c{\t}, \c{\n}, and \c{\\} used as escape characters. The strings are used to create
+    one task per line. The lines can have one of the following formats:
+
+    \list
+
+    \o \c description
+
+    \o \c{type\tdescription}
+
+    \o \c{file\ttype\tdescription}
+
+    \o \c{file\tline\ttype\tdescription}
+
+    \endlist
+
+    The task type can have one of the following values:
+
+    \list
+
+    \o A string starting with \c err, which displays the error icon in the beginning of the line
+    \o A string starting with \c warn, which displays the warning icon
+    \o Any other value, which sets the task type to Unknown and does not
+    display an icon
+
+    \endlist
+
+    The values are not case sensitive.
+
+    Lines starting with the hash mark character (#) in the first column are ignored.
+
 */
