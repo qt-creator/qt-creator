@@ -202,7 +202,7 @@ QWidget *ImageViewer::toolBar()
 
 void ImageViewer::scaleFactorUpdate(qreal factor)
 {
-    QString info = tr("%1%").arg(QString::number(factor * 100, 'f', 2));
+    const QString info = QString::number(factor * 100, 'f', 2) + QLatin1Char('%');
     d_ptr->ui_toolbar.labelInfo->setText(info);
 }
 

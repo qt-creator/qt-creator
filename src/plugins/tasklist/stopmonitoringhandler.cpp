@@ -35,6 +35,7 @@
 #include <projectexplorer/task.h>
 
 #include <QtGui/QAction>
+#include <QtCore/QCoreApplication>
 
 using namespace TaskList;
 using namespace TaskList::Internal;
@@ -63,7 +64,13 @@ void StopMonitoringHandler::handle(const ProjectExplorer::Task &task)
 
 QAction *StopMonitoringHandler::createAction(QObject *parent)
 {
-    QAction *stopMonitoringAction = new QAction(tr("Stop monitoring"), parent);
-    stopMonitoringAction->setToolTip(tr("Stop monitoring task files."));
+    const QString text =
+            QCoreApplication::translate("TaskList::Internal::StopMonitoringHandler",
+                                        "Stop monitoring");
+    const QString toolTip =
+            QCoreApplication::translate("TaskList::Internal::StopMonitoringHandler",
+                                        "Stop monitoring task files.");
+    QAction *stopMonitoringAction = new QAction(text, parent);
+    stopMonitoringAction->setToolTip(toolTip);
     return stopMonitoringAction;
 }

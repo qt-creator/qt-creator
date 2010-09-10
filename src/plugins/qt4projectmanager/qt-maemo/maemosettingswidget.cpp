@@ -481,7 +481,7 @@ void MaemoSettingsWidget::updatePortsWarningLabel()
         m_ui->portsWarningLabel->clear();
     } else {
         m_ui->portsWarningLabel->setText(QLatin1String("<font color=\"red\">")
-            + tr("You'll need at least one port!") + QLatin1String("</font>"));
+            + tr("You will need at least one port.") + QLatin1String("</font>"));
     }
 }
 

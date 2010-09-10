@@ -446,18 +446,18 @@ void MaemoRunConfigurationWidget::updateMountWarning()
             = m_runConfiguration->remoteMounts()->validMountSpecificationCount();
         if (mountDirCount > availablePortCount) {
             mountWarning = tr("WARNING: You want to mount %1 directories, but "
-                "your device has only %2 free ports.<br>You will not be able "
-                "to run this configuration.")
-            .arg(mountDirCount).arg(availablePortCount);
+                "your device has only %n free ports.<br>You will not be able "
+                "to run this configuration.", 0, availablePortCount)
+            .arg(mountDirCount);
         } else if (mountDirCount > 0) {
             const int portsLeftByDebuggers
                 = availablePortCount - 1 - m_runConfiguration->useQmlDebugger();
             if (mountDirCount > portsLeftByDebuggers) {
                 mountWarning = tr("WARNING: You want to mount %1 directories, "
-                    "but only %2 ports on the device will be available "
+                    "but only %n ports on the device will be available "
                     "in debug mode. <br>You will not be able to debug your "
-                    "application with this configuration.").
-                    arg(mountDirCount).arg(portsLeftByDebuggers);
+                    "application with this configuration.", 0, portsLeftByDebuggers).
+                    arg(mountDirCount);
             }
         }
     }

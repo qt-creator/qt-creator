@@ -31,7 +31,6 @@
 #define DEBUGGER_ABSTRACT_GDB_ADAPTER
 
 #include <QtCore/QObject>
-#include <QtCore/QProcess>
 
 #include "gdbengine.h"
 

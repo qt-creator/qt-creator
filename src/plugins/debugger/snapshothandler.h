@@ -30,8 +30,6 @@
 #ifndef DEBUGGER_SNAPSHOTHANDLER_H
 #define DEBUGGER_SNAPSHOTHANDLER_H
 
-#include "stackframe.h"
-
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QPointer>
 

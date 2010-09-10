@@ -60,7 +60,7 @@ PassphraseForKeyDialog::PassphraseForKeyDialog(const QString &keyName, QWidget *
     m_checkBox = new QCheckBox(this);
     m_checkBox->setText(tr("Save passphrase"));
     m_checkBox->setObjectName(QString::fromUtf8("checkBox"));
-    m_checkBox->setToolTip(tr("This is an insecure option. Password will be saved as a plain text!"));
+    m_checkBox->setToolTip(tr("This is an insecure option. The password will be saved as a plain text."));
 
     formLayout->setWidget(1, QFormLayout::LabelRole, m_checkBox);
 

@@ -255,12 +255,14 @@ void ProjectFileWizardExtension::firstExtensionPageShown(
         // Oh we do have someone that deploys it
         // then the best match is NONE
         // We display a label explaining that and rename <None> to
-        // <Implictly Add>
-        m_context->page->setNoneLabel(tr("<Implictly Add>"));
+        // <Implicitly Add>
+        m_context->page->setNoneLabel(tr("<Implicitly Add>"));
 
         QString text = tr("The files are implicitly added to the projects:\n");
-        foreach (ProjectEntry project, deployingProjects)
-            text += project.fileName + "\n";
+        foreach (const ProjectEntry &project, deployingProjects) {
+            text += project.fileName;
+            text += QLatin1Char('\n');
+        }
 
         m_context->page->setAdditionalInfo(text);
         bestProjectIndex = -1;

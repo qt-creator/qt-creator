@@ -50,6 +50,8 @@
 #include <projectexplorer/target.h>
 #include <qt4projectmanagerconstants.h>
 
+#include <QtCore/QCoreApplication>
+
 using ProjectExplorer::BuildStepList;
 using ProjectExplorer::BuildStep;
 
@@ -73,7 +75,8 @@ QStringList MaemoPackageCreationFactory::availableCreationIds(ProjectExplorer::B
 QString MaemoPackageCreationFactory::displayNameForId(const QString &id) const
 {
     if (id == MaemoPackageCreationStep::CreatePackageId)
-        return tr("Create Debian Package");
+        return QCoreApplication::translate("Qt4ProjectManager::Internal::MaemoPackageCreationFactory",
+                                           "Create Debian Package");
     return QString();
 }
 

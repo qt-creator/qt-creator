@@ -58,7 +58,7 @@ FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *pare
             this, SLOT(slotFormWindowRemoved(QDesignerFormWindowInterface*)));
 }
 
-bool FormWindowFile::save(const QString &name /*= QString()*/)
+bool FormWindowFile::save(const QString &name /* = QString() */)
 {
     const QString actualName = name.isEmpty() ? fileName() : name;
 

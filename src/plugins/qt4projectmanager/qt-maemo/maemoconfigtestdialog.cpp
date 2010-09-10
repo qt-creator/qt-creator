@@ -160,7 +160,7 @@ void MaemoConfigTestDialog::handleMadDeveloperTestProcessFinished(int exitStatus
     } else if (m_madDeveloperTestProcess->exitCode() != 0) {
         m_ui->errorLabel->setText(m_ui->errorLabel->text()
             + QLatin1String("<br>") + tr("Mad Developer is not installed.<br>"
-                  "You will not be able to deploy to this device!"));
+                  "You will not be able to deploy to this device."));
     }
     if (m_ui->errorLabel->text().isEmpty()) {
         QPalette palette = m_ui->errorLabel->palette();

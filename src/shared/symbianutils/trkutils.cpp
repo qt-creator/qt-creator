@@ -137,7 +137,6 @@ QString Session::deviceDescription(unsigned verbose) const
                          ? QCoreApplication::translate("trk::Session", "big endian")
                          : QCoreApplication::translate("trk::Session", "little endian");
     msg = msg.arg(formatCpu(cpuMajor, cpuMinor)).arg(endianness);
-    //: The separator in a list of strings
     QString defaultTypeSizeStr;
     QString fpTypeSizeStr;
     if (verbose && defaultTypeSize)

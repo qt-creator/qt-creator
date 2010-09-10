@@ -244,12 +244,16 @@ QString WatchData::toToolTip() const
 
 QString WatchData::msgNotInScope()
 {
+    //: Value of variable in Debugger Locals display for variables out of scope (stopped above initialization).
     static const QString rc = QCoreApplication::translate("Debugger::Internal::WatchData", "<not in scope>");
     return rc;
 }
 
 const QString &WatchData::shadowedNameFormat()
 {
+    //: Display of variables shadowed by variables of the same name
+    //: in nested scopes: Variable %1 is the variable name, %2 is a
+    //: simple count.
     static const QString format = QCoreApplication::translate("Debugger::Internal::WatchData", "%1 <shadowed %2>");
     return format;
 }

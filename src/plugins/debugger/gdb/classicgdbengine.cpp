@@ -441,7 +441,6 @@ void GdbEngine::handleDebuggingHelperValue3Classic(const GdbResponse &response)
             out.chop(1);
         QList<QByteArray> list = out.split(' ');
         if (list.isEmpty()) {
-            //: Value for variable
             data.setError(WatchData::msgNotInScope());
             data.setAllUnneeded();
             insertData(data);
@@ -487,7 +486,6 @@ void GdbEngine::handleDebuggingHelperValue3Classic(const GdbResponse &response)
                 }
             }
         } else {
-            //: Value for variable
             data.setError(WatchData::msgNotInScope());
             data.setAllUnneeded();
             insertData(data);

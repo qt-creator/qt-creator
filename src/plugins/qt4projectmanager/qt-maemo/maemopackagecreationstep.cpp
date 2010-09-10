@@ -222,7 +222,7 @@ bool MaemoPackageCreationStep::copyDebianFiles()
     }
     QDir buildDir(buildDirectory());
     if (!buildDir.mkdir("debian")) {
-        raiseError(tr("Could not create debian directory '%1'.")
+        raiseError(tr("Could not create Debian directory '%1'.")
                    .arg(debianDirPath));
         return false;
     }

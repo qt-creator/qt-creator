@@ -174,7 +174,7 @@ void HighlighterSettingsPage::resetDefinitionsLocation()
     const QString &location = findDefinitionsLocation();
     if (location.isEmpty())
         QMessageBox::information(0, tr("Autodetect Definitions"),
-                                 tr("Existent definitions could not be found."));
+                                 tr("No existing definitions could be found."));
     else
         m_d->m_page.fallbackDefinitionFilesPath->setPath(location);
 }

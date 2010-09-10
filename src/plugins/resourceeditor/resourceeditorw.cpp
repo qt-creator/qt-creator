@@ -107,7 +107,7 @@ bool ResourceEditorW::createNew(const QString &contents)
     return rc;
 }
 
-bool ResourceEditorW::open(const QString &fileName /*= QString()*/)
+bool ResourceEditorW::open(const QString &fileName /* = QString() */)
 {
     if (debugResourceEditorW)
         qDebug() <<  "ResourceEditorW::open: " << fileName;
@@ -133,10 +133,10 @@ bool ResourceEditorW::open(const QString &fileName /*= QString()*/)
     return true;
 }
 
-bool ResourceEditorFile::save(const QString &name /*= QString()*/)
+bool ResourceEditorFile::save(const QString &name /* = QString() */)
 {
     if (debugResourceEditorW)
-        qDebug() <<  ">ResourceEditorW::save: " << name;
+        qDebug(">ResourceEditorW::save: %s", qPrintable(name));
 
     const QString oldFileName = fileName();
     const QString actualName = name.isEmpty() ? oldFileName : name;

@@ -167,7 +167,7 @@ bool S60CreatePackageStep::init()
         // Try to detect command in environment
         const QString tmp = buildConfiguration()->environment().searchInPath(m_makeCmd);
         if (tmp.isEmpty()) {
-            emit addOutput(tr("Could not find make command: %1 in the build environment").arg(m_makeCmd), BuildStep::ErrorOutput);
+            emit addOutput(tr("Could not find make command '%1' in the build environment").arg(m_makeCmd), BuildStep::ErrorOutput);
             return false;
         }
         m_makeCmd = tmp;

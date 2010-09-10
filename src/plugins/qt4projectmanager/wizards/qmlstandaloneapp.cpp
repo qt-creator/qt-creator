@@ -33,6 +33,7 @@
 #include <QtCore/QFile>
 #include <QtCore/QRegExp>
 #include <QtCore/QTextStream>
+#include <QtCore/QCoreApplication>
 
 #ifndef CREATORLESSTEST
 #include <coreplugin/icore.h>
@@ -233,7 +234,9 @@ bool QmlStandaloneApp::setExternalModules(const QStringList &uris,
     m_importPaths.clear();
     foreach (const QFileInfo &importPath, importPaths) {
         if (!importPath.exists()) {
-            m_error = tr("The Qml import path '%1' cannot be found.")
+            m_error = QCoreApplication::translate(
+                        "Qt4ProjectManager::Internal::QmlStandaloneApp",
+                        "The Qml import path '%1' cannot be found.")
                       .arg(QDir::toNativeSeparators(importPath.filePath()));
             return false;
         } else {
@@ -255,7 +258,9 @@ bool QmlStandaloneApp::setExternalModules(const QStringList &uris,
             }
         }
         if (modulesCount == m_modules.count()) { // no module was added
-            m_error = tr("The Qml module '%1' cannot be found.").arg(uri);
+            m_error = QCoreApplication::translate(
+                      "Qt4ProjectManager::Internal::QmlStandaloneApp",
+                      "The Qml module '%1' cannot be found.").arg(uri);
             return false;
         }
     }
@@ -455,7 +460,9 @@ bool QmlStandaloneApp::addCppPlugin(const QString &qmldirLine, QmlModule *module
     const QStringList qmldirLineElements =
             qmldirLine.split(QLatin1Char(' '), QString::SkipEmptyParts);
     if (qmldirLineElements.count() < 2) {
-        m_error = tr("Invalid '%1' entry in '%2' of module '%3'.")
+        m_error = QCoreApplication::translate(
+                      "Qt4ProjectManager::Internal::QmlStandaloneApp",
+                      "Invalid '%1' entry in '%2' of module '%3'.")
                   .arg(qmldir_plugin).arg(qmldir).arg(module->uri);
         return false;
     }
@@ -482,7 +489,9 @@ bool QmlStandaloneApp::addCppPlugin(const QString &qmldirLine, QmlModule *module
     } else if (proFile_guess4.exists()) {
         foundProFile = proFile_guess4.canonicalFilePath();
     } else {
-        m_error = tr("No .pro file for plugin '%1' cannot be found.").arg(name);
+        m_error = QCoreApplication::translate(
+                    "Qt4ProjectManager::Internal::QmlStandaloneApp",
+                    "No .pro file for plugin '%1' cannot be found.").arg(name);
         return false;
     }
     QmlCppPlugin *plugin =
@@ -700,7 +709,10 @@ bool QmlStandaloneApp::updateFiles(const QList<GeneratedFileInfo> &list, QString
             return false;
         QFile file(info.fileInfo.absoluteFilePath());
         if (!file.open(QIODevice::WriteOnly) || file.write(data) == -1) {
-            error = tr("Could not write file '%1'.").arg(QDir::toNativeSeparators(info.fileInfo.canonicalFilePath()));
+            error = QCoreApplication::translate(
+                        "Qt4ProjectManager::Internal::QmlStandaloneApp",
+                        "Could not write file '%1'.").
+                    arg(QDir::toNativeSeparators(info.fileInfo.canonicalFilePath()));
             return false;
         }
     }

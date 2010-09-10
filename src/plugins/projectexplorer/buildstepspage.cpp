@@ -259,7 +259,7 @@ void BuildStepListWidget::stepRemove(int pos)
     } else {
         QMessageBox::warning(Core::ICore::instance()->mainWindow(),
                              tr("Removing Step failed"),
-                             tr("Can't remove build step while building"),
+                             tr("Cannot remove build step while building"),
                              QMessageBox::Ok, QMessageBox::Ok);
     }
 }

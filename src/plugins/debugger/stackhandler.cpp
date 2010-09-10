@@ -130,7 +130,6 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
     if (role == StackFrameAddressRole)
         return frame.address;
 
-    //: Tooltip for variable
     if (role == Qt::ToolTipRole)
         return frame.toToolTip();
 

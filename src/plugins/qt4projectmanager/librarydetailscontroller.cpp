@@ -888,7 +888,7 @@ void InternalLibraryDetailsController::updateProFile()
             if (!configVar.contains(QLatin1String("plugin"))) {
                 const QString relProFilePath = rootDir.relativeFilePath(proFilePath);
                 TargetInformation targetInfo = proFileNode->targetInformation();
-                const QString itemToolTip = tr("%1 (%2)").arg(targetInfo.target).arg(relProFilePath);
+                const QString itemToolTip = QString::fromLatin1("%1 (%2)").arg(targetInfo.target).arg(relProFilePath);
                 m_proFileNodes.append(proFileNode);
                 libraryDetailsWidget()->libraryComboBox->addItem(targetInfo.target);
                 libraryDetailsWidget()->libraryComboBox->setItemData(

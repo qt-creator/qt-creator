@@ -69,6 +69,7 @@ private:
     void updateFilterDescription(const QString &filter);
 
 private:
+    QString msgFilterLabel(const QString &filter) const;
     Ui::FilterSettingsPage m_ui;
 
     FilterMap m_filterMap;

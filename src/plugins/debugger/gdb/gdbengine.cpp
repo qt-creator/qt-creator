@@ -3525,15 +3525,14 @@ WatchData GdbEngine::localVariable(const GdbMi &item,
         WatchData data;
         QString nam = _(name);
         data.iname = "local." + name + QByteArray::number(n + 1);
-        //: Variable %1 is the variable name, %2 is a simple count.
         data.name = WatchData::shadowedName(nam, n);
         if (uninitializedVariables.contains(data.name)) {
             data.setError(WatchData::msgNotInScope());
             return data;
         }
+        setWatchDataValue(data, item);
         //: Type of local variable or parameter shadowed by another
         //: variable of the same name in a nested block.
-        setWatchDataValue(data, item);
         data.setType(GdbEngine::tr("<shadowed>").toUtf8());
         data.setHasChildren(false);
         return data;

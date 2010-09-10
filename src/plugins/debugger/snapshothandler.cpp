@@ -70,9 +70,9 @@ QString SnapshotData::toString() const
 {
     QString res;
     QTextStream str(&res);
-    str << SnapshotHandler::tr("Function:") << ' ' << function() << ' '
+/*    str << SnapshotHandler::tr("Function:") << ' ' << function() << ' '
         << SnapshotHandler::tr("File:") << ' ' << m_location << ' '
-        << SnapshotHandler::tr("Date:") << ' ' << m_date.toString();
+        << SnapshotHandler::tr("Date:") << ' ' << m_date.toString(); */
     return res;
 }
 
@@ -81,11 +81,12 @@ QString SnapshotData::toToolTip() const
     QString res;
     QTextStream str(&res);
     str << "<html><body><table>"
+/*
         << "<tr><td>" << SnapshotHandler::tr("Function:")
             << "</td><td>" << function() << "</td></tr>"
         << "<tr><td>" << SnapshotHandler::tr("File:")
             << "</td><td>" << QDir::toNativeSeparators(m_location) << "</td></tr>"
-        << "</table></body></html>";
+        << "</table></body></html>"; */
     return res;
 }
 
@@ -167,7 +168,8 @@ QVariant SnapshotHandler::data(const QModelIndex &index, int role) const
 
     const DebuggerStartParameters &sp = engine->startParameters();
 
-    if (role == Qt::DisplayRole) {
+    switch (role) {
+    case Qt::DisplayRole:
         switch (index.column()) {
         case 0:
             return sp.displayName;
@@ -175,18 +177,18 @@ QVariant SnapshotHandler::data(const QModelIndex &index, int role) const
             return sp.coreFile.isEmpty() ? sp.executable : sp.coreFile;
         }
         return QVariant();
-    }
 
-    if (role == Qt::ToolTipRole) {
-        //: Tooltip for variable
-        //return snapshot.toToolTip();
-    }
+    case Qt::ToolTipRole:
+        return QVariant();
 
-    if (role == Qt::DecorationRole && index.column() == 0) {
-        // Return icon that indicates whether this is the active stack frame
-        return (index.row() == m_currentIndex) ? m_positionIcon : m_emptyIcon;
-    }
+    case Qt::DecorationRole: // Return icon that indicates whether this is the active stack frame
+        if (index.column() == 0)
+            return (index.row() == m_currentIndex) ? m_positionIcon : m_emptyIcon;
+        break;
 
+    default:
+        break;
+    }
     return QVariant();
 }
 

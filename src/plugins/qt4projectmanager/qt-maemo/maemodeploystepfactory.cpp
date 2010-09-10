@@ -8,6 +8,8 @@
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 
+#include <QtCore/QCoreApplication>
+
 using namespace ProjectExplorer;
 
 namespace Qt4ProjectManager {
@@ -30,7 +32,8 @@ QStringList MaemoDeployStepFactory::availableCreationIds(BuildStepList *parent) 
 QString MaemoDeployStepFactory::displayNameForId(const QString &id) const
 {
     if (id == MaemoDeployStep::Id)
-        return(tr("Deploy to device"));
+        return QCoreApplication::translate("Qt4ProjectManager::Internal::MaemoDeployStepFactory",
+                                           "Deploy to device");
     return QString();
 }
 
