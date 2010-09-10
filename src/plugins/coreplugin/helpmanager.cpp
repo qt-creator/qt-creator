@@ -35,6 +35,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
+#include <QtCore/QFileSystemWatcher>
 #include <QtCore/QStringList>
 
 #include <QtHelp/QHelpEngineCore>
@@ -94,7 +95,8 @@ HelpManager* HelpManager::instance()
 
 QString HelpManager::collectionFilePath()
 {
-    return QDir::cleanPath(Core::ICore::instance()->userResourcePath() + QLatin1String("/helpcollection.qhc"));
+    return QDir::cleanPath(Core::ICore::instance()->userResourcePath()
+        + QLatin1String("/helpcollection.qhc"));
 }
 
 void HelpManager::registerDocumentation(const QStringList &files)
@@ -392,7 +394,7 @@ void HelpManager::setupHelpManager()
 
     // this might come from the installer
     const QLatin1String key("AddedDocs");
-    const QString &addedDocs = m_helpEngine->customValue(key).toString();
+    const QString addedDocs = m_helpEngine->customValue(key).toString();
     if (!addedDocs.isEmpty()) {
         m_helpEngine->removeCustomValue(key);
         m_filesToRegister += addedDocs.split(QLatin1Char(';'));
@@ -407,7 +409,22 @@ void HelpManager::setupHelpManager()
     for (it = m_customValues.constBegin(); it != m_customValues.constEnd(); ++it)
         setCustomValue(it.key(), it.value());
 
+    m_collectionWatcher = new QFileSystemWatcher(QStringList() << collectionFilePath(),
+        this);
+    connect(m_collectionWatcher, SIGNAL(fileChanged(QString)), this,
+        SLOT(collectionFileModified()));
+
     emit setupFinished();
+}
+
+void HelpManager::collectionFileModified()
+{
+    const QLatin1String key("AddedDocs");
+    const QString addedDocs = m_helpEngine->customValue(key).toString();
+    if (!addedDocs.isEmpty()) {
+        m_helpEngine->removeCustomValue(key);
+        registerDocumentation(addedDocs.split(QLatin1Char(';')));
+    }
 }
 
 // -- private

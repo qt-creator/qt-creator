@@ -41,6 +41,7 @@
 #include <QtCore/QVariant>
 #include <QtCore/QByteArray>
 
+QT_FORWARD_DECLARE_CLASS(QFileSystemWatcher)
 QT_FORWARD_DECLARE_CLASS(QHelpEngineCore)
 QT_FORWARD_DECLARE_CLASS(QSqlQuery)
 
@@ -93,6 +94,7 @@ signals:
 
 private slots:
     void setupHelpManager();
+    void collectionFileModified();
 
 private:
     void verifyDocumenation();
@@ -100,6 +102,7 @@ private:
 private:
     bool m_needsSetup;
     QHelpEngineCore *m_helpEngine;
+    QFileSystemWatcher *m_collectionWatcher;
 
     QStringList m_filesToRegister;
     QStringList m_nameSpacesToUnregister;
