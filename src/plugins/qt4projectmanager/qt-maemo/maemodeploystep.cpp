@@ -278,7 +278,7 @@ MaemoDeviceConfig MaemoDeployStep::deviceConfig() const
 void MaemoDeployStep::start()
 {
     if (!m_canStart) {
-        raiseError(tr("Cannot start deployment as the clean-up from the last time has not yet been done."));
+        raiseError(tr("Cannot start deployment, as the clean-up from the last time has not finished yet."));
         return;
     }
     m_cleanupTimer->stop();
