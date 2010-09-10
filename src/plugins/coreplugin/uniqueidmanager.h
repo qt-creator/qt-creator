@@ -37,6 +37,36 @@
 
 namespace Core {
 
+// FIXME: The intention is to use this class instead of the
+// generic QString to identify actions.
+
+class CORE_EXPORT Id
+{
+public:
+    Id() {}
+    Id(const char *name) : m_name(QLatin1String(name)) {}
+    // FIXME: Replace with QByteArray
+    Id(const QString &name) : m_name(name) {}
+    // FIXME: Remove.
+    operator QString() const { return m_name; }
+    // FIXME: Replace with QByteArray
+    QString name() const { return m_name; }
+    bool isValid() const { return !m_name.isEmpty(); }
+    bool operator==(const Id &id) const { return m_name == id.m_name; }
+    bool operator!=(const Id &id) const { return m_name != id.m_name; }
+
+private:
+    // Intentionally unimplemented
+    Id(const QLatin1String &);
+    // FIXME: Replace with QByteArray
+    QString m_name;
+};
+
+inline uint qHash(const Id &id)
+{
+    return qHash(id.name());
+}
+
 class CORE_EXPORT UniqueIDManager
 {
 public:
@@ -45,12 +75,12 @@ public:
 
     static UniqueIDManager *instance() { return m_instance; }
 
-    bool hasUniqueIdentifier(const QString &id) const;
-    int uniqueIdentifier(const QString &id);
+    bool hasUniqueIdentifier(const Id &id) const;
+    int uniqueIdentifier(const Id &id);
     QString stringForUniqueIdentifier(int uid);
 
 private:
-    QHash<QString, int> m_uniqueIdentifiers;
+    QHash<Id, int> m_uniqueIdentifiers;
     static UniqueIDManager *m_instance;
 };
 

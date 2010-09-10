@@ -44,12 +44,12 @@ UniqueIDManager::~UniqueIDManager()
     m_instance = 0;
 }
 
-bool UniqueIDManager::hasUniqueIdentifier(const QString &id) const
+bool UniqueIDManager::hasUniqueIdentifier(const Id &id) const
 {
     return m_uniqueIdentifiers.contains(id);
 }
 
-int UniqueIDManager::uniqueIdentifier(const QString &id)
+int UniqueIDManager::uniqueIdentifier(const Id &id)
 {
     if (hasUniqueIdentifier(id))
         return m_uniqueIdentifiers.value(id);
@@ -69,13 +69,13 @@ QString UniqueIDManager::stringForUniqueIdentifier(int uid)
 
 static int toId(const char *id)
 {
-    return UniqueIDManager::instance()->uniqueIdentifier(QLatin1String(id));
+    return UniqueIDManager::instance()->uniqueIdentifier(id);
 }
 
 Context::Context(const char *id, int offset)
 {
     d.append(UniqueIDManager::instance()
-        -> uniqueIdentifier(QString(id) + QString::number(offset)));
+        -> uniqueIdentifier(Id(QString(id) + QString::number(offset))));
 }
 
 void Context::add(const char *id)
