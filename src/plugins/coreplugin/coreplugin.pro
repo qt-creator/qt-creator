@@ -4,7 +4,6 @@ DEFINES += CORE_LIBRARY
 QT += xml \
     network \
     script \
-    svg \
     sql
 CONFIG += help
 include(../../qtcreatorplugin.pri)
