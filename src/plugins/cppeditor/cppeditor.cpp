@@ -1499,17 +1499,21 @@ void CPPEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedCha
     CppTools::QtStyleCodeFormatter codeFormatter(ts);
 
     codeFormatter.updateStateUntil(block);
-    const int depth = codeFormatter.indentFor(block);
+    int indent;
+    int padding;
+    codeFormatter.indentFor(block, &indent, &padding);
 
     // only reindent the current line when typing electric characters if the
     // indent is the same it would be if the line were empty
     if (isElectricCharacter(typedChar)) {
-        const int newlineIndent = codeFormatter.indentForNewLineAfter(block.previous());
-        if (ts.indentationColumn(block.text()) != newlineIndent)
+        int newlineIndent;
+        int newlinePadding;
+        codeFormatter.indentForNewLineAfter(block.previous(), &newlineIndent, &newlinePadding);
+        if (ts.indentationColumn(block.text()) != newlineIndent + newlinePadding)
             return;
     }
 
-    ts.indentLine(block, depth);
+    ts.indentLine(block, indent + padding, padding);
 }
 
 void CPPEditor::indent(QTextDocument *doc, const QTextCursor &cursor, QChar typedChar)
@@ -1529,7 +1533,10 @@ void CPPEditor::indent(QTextDocument *doc, const QTextCursor &cursor, QChar type
         QTextCursor tc = textCursor();
         tc.beginEditBlock();
         do {
-            ts.indentLine(block, codeFormatter.indentFor(block));
+            int indent;
+            int padding;
+            codeFormatter.indentFor(block, &indent, &padding);
+            ts.indentLine(block, indent + padding, padding);
             codeFormatter.updateLineStateChange(block);
             block = block.next();
         } while (block.isValid() && block != end);

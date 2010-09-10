@@ -52,22 +52,44 @@ private Q_SLOTS:
 struct Line {
     Line(QString l)
         : line(l)
+        , expectedIndent(-1)
+        , expectedPadding(0)
     {
         for (int i = 0; i < l.size(); ++i) {
             if (!l.at(i).isSpace()) {
                 expectedIndent = i;
-                return;
+                break;
             }
         }
-        expectedIndent = l.size();
+        if (expectedIndent == -1)
+            expectedIndent = l.size();
+        if (expectedIndent < l.size() && l.at(expectedIndent) == '~') {
+            line[expectedIndent] = ' ';
+            for (int i = expectedIndent + 1; i < l.size(); ++i) {
+                if (!l.at(i).isSpace()) {
+                    expectedPadding = i - expectedIndent;
+                    break;
+                }
+            }
+        }
     }
 
-    Line(QString l, int expect)
-        : line(l), expectedIndent(expect)
-    {}
+    Line(QString l, int expectIndent, int expectPadding = 0)
+        : line(l), expectedIndent(expectIndent), expectedPadding(expectPadding)
+    {
+        for (int i = 0; i < line.size(); ++i) {
+            if (line.at(i) == '~') {
+                line[i] = ' ';
+                break;
+            }
+            if (!line.at(i).isSpace())
+                break;
+        }
+    }
 
     QString line;
     int expectedIndent;
+    int expectedPadding;
 };
 
 QString concatLines(QList<Line> lines)
@@ -98,10 +120,15 @@ void checkIndent(QList<Line> data, int style = 0)
     foreach (const Line &l, data) {
         QTextBlock b = document.findBlockByLineNumber(i);
         if (l.expectedIndent != -1) {
-            int actualIndent = formatter.indentFor(b);
-            if (actualIndent != l.expectedIndent) {
+            int indent, padding;
+            formatter.indentFor(b, &indent, &padding);
+            if (indent != l.expectedIndent) {
                 QFAIL(QString("Wrong indent in line %1 with text '%2', expected indent %3, got %4").arg(
-                        QString::number(i+1), l.line, QString::number(l.expectedIndent), QString::number(actualIndent)).toLatin1().constData());
+                        QString::number(i+1), l.line, QString::number(l.expectedIndent), QString::number(indent)).toLatin1().constData());
+            }
+            if (padding != l.expectedPadding) {
+                QFAIL(QString("Wrong padding in line %1 with text '%2', expected padding %3, got %4").arg(
+                        QString::number(i+1), l.line, QString::number(l.expectedPadding), QString::number(padding)).toLatin1().constData());
             }
         }
         formatter.updateLineStateChange(b);
@@ -265,11 +292,11 @@ void tst_CodeFormatter::ifStatementLongCondition()
     data << Line("void foo()")
          << Line("{")
          << Line("    if (foo &&")
-         << Line("            bar")
-         << Line("            || (a + b > 4")
-         << Line("                && foo(bar)")
-         << Line("                )")
-         << Line("            ) {")
+         << Line("    ~       bar")
+         << Line("    ~       || (a + b > 4")
+         << Line("    ~           && foo(bar)")
+         << Line("    ~           )")
+         << Line("    ~       ) {")
          << Line("        foo;")
          << Line("    }")
          << Line("}");
@@ -486,31 +513,31 @@ void tst_CodeFormatter::expressionContinuation()
     QList<Line> data;
     data << Line("void foo() {")
          << Line("    return (a <= b &&")
-         << Line("            c <= d);")
+         << Line("    ~       c <= d);")
          << Line("    return (qMax <= qMin() &&")
-         << Line("            qMax(r1.top(), r2.top()) <= qMin(r1.bottom(), r2.bottom()));")
+         << Line("    ~       qMax(r1.top(), r2.top()) <= qMin(r1.bottom(), r2.bottom()));")
          << Line("    return a")
-         << Line("            == b && c == d;")
+         << Line("    ~       == b && c == d;")
          << Line("    return a ==")
-         << Line("            b && c == d;")
+         << Line("    ~       b && c == d;")
          << Line("    return a == b")
-         << Line("            && c == d;")
+         << Line("    ~       && c == d;")
          << Line("    return a == b &&")
-         << Line("            c == d;")
+         << Line("    ~       c == d;")
          << Line("    return a == b && c")
-         << Line("            == d;")
+         << Line("    ~       == d;")
          << Line("    return a == b && c ==")
-         << Line("            d;")
+         << Line("    ~       d;")
          << Line("    return a == b && c == d;")
          << Line("    qDebug() << foo")
-         << Line("             << bar << moose")
-         << Line("             << bar +")
-         << Line("                foo - blah(1)")
-         << Line("             << '?'")
-         << Line("             << \"\\n\";")
+         << Line("    ~        << bar << moose")
+         << Line("    ~        << bar +")
+         << Line("    ~           foo - blah(1)")
+         << Line("    ~        << '?'")
+         << Line("    ~        << \"\\n\";")
          << Line("    i += foo(")
-         << Line("                bar,")
-         << Line("                2);")
+         << Line("    ~           bar,")
+         << Line("    ~           2);")
          << Line("}")
          ;
     checkIndent(data);
@@ -545,15 +572,15 @@ void tst_CodeFormatter::ternary()
     data << Line("void foo() {")
          << Line("    int i = a ? b : c;")
          << Line("    foo += a_bigger_condition ?")
-         << Line("                b")
-         << Line("              : c;")
+         << Line("    ~           b")
+         << Line("    ~         : c;")
          << Line("    int i = a ?")
-         << Line("                b : c;")
+         << Line("    ~           b : c;")
          << Line("    int i = a ? b")
-         << Line("              : c +")
-         << Line("                2;")
+         << Line("    ~         : c +")
+         << Line("    ~           2;")
          << Line("    int i = (a ? b : c) + (foo")
-         << Line("                           bar);")
+         << Line("    ~                      bar);")
          << Line("}")
          ;
     checkIndent(data);
@@ -582,21 +609,21 @@ void tst_CodeFormatter::bug2()
     QList<Line> data;
     data << Line("void foo() {")
          << Line("    const int sourceY = foo(")
-         << Line("                bar(")
-         << Line("                    car(a,")
-         << Line("                        b),")
-         << Line("                    b),")
-         << Line("                foo);")
+         << Line("    ~           bar(")
+         << Line("    ~               car(a,")
+         << Line("    ~                   b),")
+         << Line("    ~               b),")
+         << Line("    ~           foo);")
          << Line("    const int sourceY =")
-         << Line("            foo(")
-         << Line("                bar(a,")
-         << Line("                    b),")
-         << Line("                b);")
+         << Line("    ~       foo(")
+         << Line("    ~           bar(a,")
+         << Line("    ~               b),")
+         << Line("    ~           b);")
          << Line("    int j;")
          << Line("    const int sourceY =")
-         << Line("            (direction == DirectionEast || direction == DirectionWest) ?")
-         << Line("                (sourceRect.top() + (sourceRect.bottom() - sourceRect.top()) / 2)")
-         << Line("              : (direction == DirectionSouth ? sourceRect.bottom() : sourceRect.top());")
+         << Line("    ~       (direction == DirectionEast || direction == DirectionWest) ?")
+         << Line("    ~           (sourceRect.top() + (sourceRect.bottom() - sourceRect.top()) / 2)")
+         << Line("    ~         : (direction == DirectionSouth ? sourceRect.bottom() : sourceRect.top());")
          << Line("}")
          ;
     checkIndent(data);
@@ -610,15 +637,15 @@ void tst_CodeFormatter::braceList()
          << Line("    b,")
          << Line("};")
          << Line("enum Foo { a = 2,")
-         << Line("           a = 3,")
-         << Line("           b = 4")
-         << Line("         };")
+         << Line("    ~      a = 3,")
+         << Line("    ~      b = 4")
+         << Line("~        };")
          << Line("void foo () {")
          << Line("    int a[] = { foo, bar, ")
-         << Line("                car };")
+         << Line("    ~           car };")
          << Line("    int a[] = {")
-         << Line("        a, b,")
-         << Line("        c")
+         << Line("    ~   a, b,")
+         << Line("    ~   c")
          << Line("    };")
          << Line("    int k;")
          ;
@@ -669,23 +696,23 @@ void tst_CodeFormatter::memberInitializer()
 {
     QList<Line> data;
     data << Line("void foo()")
-         << Line("    : baR()")
-         << Line("    , m_member(23)")
+         << Line("~   : baR()")
+         << Line("~   , m_member(23)")
          << Line("{")
          << Line("}")
          << Line("class Foo {")
          << Line("    Foo()")
-         << Line("        : baR(),")
-         << Line("          moodoo(barR + ")
-         << Line("              42),")
-         << Line("          xyz()")
+         << Line("    ~   : baR(),")
+         << Line("    ~     moodoo(barR + ")
+         << Line("    ~         42),")
+         << Line("    ~     xyz()")
          << Line("    {}")
          << Line("};")
          << Line("class Foo {")
          << Line("    Foo() :")
-         << Line("        baR(),")
-         << Line("        moo(barR)")
-         << Line("      , moo(barR)")
+         << Line("    ~   baR(),")
+         << Line("    ~   moo(barR)")
+         << Line("    ~ , moo(barR)")
          << Line("    {}")
          << Line("}")
          ;
@@ -700,11 +727,20 @@ void tst_CodeFormatter::templates()
          << Line("private:")
          << Line("};")
          << Line("template <class T,")
-         << Line("          typename F, int i")
-         << Line("          >")
+         << Line("~         typename F, int i")
+         << Line("~         >")
          << Line("class Foo {")
          << Line("private:")
          << Line("};")
+         << Line("template <template <class F,")
+         << Line("~                   class D>,")
+         << Line("~         typename F>")
+         << Line("class Foo { };")
+         << Line("template <")
+         << Line("~       template <")
+         << Line("~           class F, class D>,")
+         << Line("~       typename F>")
+         << Line("class Foo { };")
          ;
     checkIndent(data);
 }
@@ -806,17 +842,17 @@ void tst_CodeFormatter::streamOp()
     data
          << Line("void foo () {")
          << Line("    qDebug() << foo")
-         << Line("             << bar << moose")
-         << Line("             << bar +")
-         << Line("                foo - blah(1)")
-         << Line("             << '?'")
-         << Line("             << \"\\n\";")
+         << Line("    ~        << bar << moose")
+         << Line("    ~        << bar +")
+         << Line("    ~           foo - blah(1)")
+         << Line("    ~        << '?'")
+         << Line("    ~        << \"\\n\";")
          << Line("    qDebug() << foo")
-         << Line("        << bar << moose", 13)
-         << Line("        << bar +")
-         << Line("           foo - blah(1)")
-         << Line("        << '?'")
-         << Line("        << \"\\n\";")
+         << Line("        << bar << moose", 4, 9)
+         << Line("    ~   << bar +")
+         << Line("    ~      foo - blah(1)")
+         << Line("    ~   << '?'")
+         << Line("    ~   << \"\\n\";")
          ;
     checkIndent(data);
 }
@@ -843,26 +879,26 @@ void tst_CodeFormatter::nestedInitializer()
     QList<Line> data;
     data
          << Line("SomeStruct v[] = {")
-         << Line("    {2}, {3},")
-         << Line("    {4}, {5},")
+         << Line("~   {2}, {3},")
+         << Line("~   {4}, {5},")
          << Line("};")
          << Line("S v[] = {{1}, {2},")
-         << Line("         {3}, {4},")
-         << Line("        };")
+         << Line("~        {3}, {4},")
+         << Line("~       };")
          << Line("SomeStruct v[] = {")
-         << Line("    {")
-         << Line("        {2, 3,")
-         << Line("         4, 5},")
-         << Line("        {1},")
-         << Line("    }")
+         << Line("~   {")
+         << Line("~       {2, 3,")
+         << Line("~        4, 5},")
+         << Line("~       {1},")
+         << Line("~   }")
          << Line("};")
          << Line("SomeStruct v[] = {{{2, 3},")
-         << Line("                   {4, 5}")
-         << Line("                  },")
-         << Line("                  {{2, 3},")
-         << Line("                   {4, 5},")
-         << Line("                  }")
-         << Line("                 };")
+         << Line("~                  {4, 5}")
+         << Line("~                 },")
+         << Line("~                 {{2, 3},")
+         << Line("~                  {4, 5},")
+         << Line("~                 }")
+         << Line("~                };")
          << Line("int i;")
          ;
     checkIndent(data);

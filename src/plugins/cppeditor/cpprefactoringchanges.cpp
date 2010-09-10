@@ -72,7 +72,10 @@ void CppRefactoringChanges::indentSelection(const QTextCursor &selection) const
     codeFormatter.updateStateUntil(block);
 
     do {
-        tabSettings.indentLine(block, codeFormatter.indentFor(block));
+        int indent;
+        int padding;
+        codeFormatter.indentFor(block, &indent, &padding);
+        tabSettings.indentLine(block, indent + padding, padding);
         codeFormatter.updateLineStateChange(block);
         block = block.next();
     } while (block.isValid() && block != end);

@@ -68,16 +68,16 @@ public:
     // calculates the state change introduced by changing a single line
     void updateLineStateChange(const QTextBlock &block);
 
-    int indentFor(const QTextBlock &block);
-    int indentForNewLineAfter(const QTextBlock &block);
+    void indentFor(const QTextBlock &block, int *indent, int *padding);
+    void indentForNewLineAfter(const QTextBlock &block, int *indent, int *padding);
 
     void setTabSize(int tabSize);
 
     void invalidateCache(QTextDocument *document);
 
 protected:
-    virtual void onEnter(int newState, int *indentDepth, int *savedIndentDepth) const = 0;
-    virtual void adjustIndent(const QList<CPlusPlus::Token> &tokens, int lexerState, int *indentDepth) const = 0;
+    virtual void onEnter(int newState, int *indentDepth, int *savedIndentDepth, int *paddingDepth, int *savedPaddingDepth) const = 0;
+    virtual void adjustIndent(const QList<CPlusPlus::Token> &tokens, int lexerState, int *indentDepth, int *paddingDepth) const = 0;
 
     class State;
     class BlockData
@@ -88,6 +88,7 @@ protected:
         QStack<State> m_beginState;
         QStack<State> m_endState;
         int m_indentDepth;
+        int m_paddingDepth;
         int m_blockRevision;
     };
 
@@ -174,20 +175,24 @@ protected:
     public:
         State()
             : savedIndentDepth(0)
+            , savedPaddingDepth(0)
             , type(0)
         {}
 
-        State(quint8 ty, quint16 savedDepth)
-            : savedIndentDepth(savedDepth)
+        State(quint8 ty, quint16 savedIndentDepth, qint16 savedPaddingDepth)
+            : savedIndentDepth(savedIndentDepth)
+            , savedPaddingDepth(savedPaddingDepth)
             , type(ty)
         {}
 
         quint16 savedIndentDepth;
+        quint16 savedPaddingDepth;
         quint8 type;
 
         bool operator==(const State &other) const {
             return type == other.type
-                && savedIndentDepth == other.savedIndentDepth;
+                && savedIndentDepth == other.savedIndentDepth
+                && savedPaddingDepth == other.savedPaddingDepth;
         }
     };
 
@@ -200,6 +205,8 @@ protected:
     int column(int position) const;
 
     bool isBracelessState(int type) const;
+
+    void dump() const;
 
 private:
     void recalculateStateAfter(const QTextBlock &block);
@@ -220,8 +227,6 @@ private:
     void leave(bool statementDone = false);
     void correctIndentation(const QTextBlock &block);
 
-    void dump();
-
 private:
     static QStack<State> initialState();
 
@@ -234,8 +239,8 @@ private:
     CPlusPlus::Token m_currentToken;
     int m_tokenIndex;
 
-    // should store indent level and padding instead
     int m_indentDepth;
+    int m_paddingDepth;
 
     int m_tabSize;
 
@@ -256,14 +261,16 @@ public:
     void setIndentDeclarationMembers(bool onOff);
 
 protected:
-    virtual void onEnter(int newState, int *indentDepth, int *savedIndentDepth) const;
-    virtual void adjustIndent(const QList<CPlusPlus::Token> &tokens, int lexerState, int *indentDepth) const;
+    virtual void onEnter(int newState, int *indentDepth, int *savedIndentDepth, int *paddingDepth, int *savedPaddingDepth) const;
+    virtual void adjustIndent(const QList<CPlusPlus::Token> &tokens, int lexerState, int *indentDepth, int *paddingDepth) const;
 
     virtual void saveBlockData(QTextBlock *block, const BlockData &data) const;
     virtual bool loadBlockData(const QTextBlock &block, BlockData *data) const;
 
     virtual void saveLexerState(QTextBlock *block, int state) const;
     virtual int loadLexerState(const QTextBlock &block) const;
+
+    static bool shouldClearPaddingOnEnter(int state);
 
 private:
     int m_indentSize;
