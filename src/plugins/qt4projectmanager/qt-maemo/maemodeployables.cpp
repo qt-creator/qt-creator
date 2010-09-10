@@ -77,6 +77,7 @@ void MaemoDeployables::createModels()
     m_proFileOption = QSharedPointer<ProFileOption>(new ProFileOption);
     m_proFileOption->properties
         = qt4BuildConfiguration()->qtVersion()->versionInfo();
+    m_proFileOption->target_mode = ProFileOption::TARG_UNIX_MODE;
     createModels(qt4BuildConfiguration()->qt4Target()->qt4Project()
         ->rootProjectNode());
     emit modelsCreated();
