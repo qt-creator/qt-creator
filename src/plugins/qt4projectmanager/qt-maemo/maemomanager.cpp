@@ -127,7 +127,8 @@ bool MaemoManager::isValidMaemoQtVersion(const QtVersion *version) const
     madAdminProc.setReadChannel(QProcess::StandardOutput);
     while (madAdminProc.canReadLine()) {
         const QByteArray &line = madAdminProc.readLine();
-        if (line.contains(target) && line.contains("(installed)"))
+        if (line.contains(target)
+            && (line.contains("(installed)") || line.contains("(default)")))
             return true;
     }
     return false;
