@@ -334,6 +334,8 @@ void SubComponentManagerPrivate::registerQmlFile(const QFileInfo &fileInfo, cons
 
         nodeInfo.addProperty(propertyMetaInfo);
     }
+    if (!nodeInfo.hasDefaultProperty())
+        nodeInfo.setDefaultProperty(nodeInfo.directSuperClass().defaultProperty());
 }
 
 } // namespace Internal
