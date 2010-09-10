@@ -1,3 +1,6 @@
+!isEmpty(QTCREATOR_PRI_INCLUDED):error("qtcreator.pri already included")
+QTCREATOR_PRI_INCLUDED = 1
+
 defineReplace(cleanPath) {
     win32:1 ~= s|\\\\|/|g
     contains(1, ^/.*):pfx = /
