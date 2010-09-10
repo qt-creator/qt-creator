@@ -72,7 +72,7 @@ QMAKE_EXTRA_TARGETS += ts
 
 TEMPLATE = app
 TARGET = phony_target2
-CONFIG -= qt
+CONFIG -= qt separate_debug_info gdb_dwarf_index
 QT =
 LIBS =
 
