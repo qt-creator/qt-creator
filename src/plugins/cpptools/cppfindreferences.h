@@ -30,6 +30,7 @@
 #ifndef CPPFINDREFERENCES_H
 #define CPPFINDREFERENCES_H
 
+#include <QtCore/QMutex>
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
 #include <QtCore/QFuture>
@@ -71,20 +72,25 @@ public:
 
     void findMacroUses(const CPlusPlus::Macro &macro);
 
+    CPlusPlus::DependencyTable updateDependencyTable(CPlusPlus::Snapshot snapshot);
+
 private Q_SLOTS:
     void displayResults(int first, int last);
     void searchFinished();
     void openEditor(const Find::SearchResultItem &item);
     void onReplaceButtonClicked(const QString &text, const QList<Find::SearchResultItem> &items);
-    void updateDependencyTable();
 
 private:
     void findAll_helper(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
+    CPlusPlus::DependencyTable dependencyTable() const;
+    void setDependencyTable(const CPlusPlus::DependencyTable &newTable);
 
 private:
     QPointer<CppModelManagerInterface> _modelManager;
     Find::SearchResultWindow *_resultWindow;
     QFutureWatcher<CPlusPlus::Usage> m_watcher;
+
+    mutable QMutex m_depsLock;
     CPlusPlus::DependencyTable m_deps;
 };
 

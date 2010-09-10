@@ -181,11 +181,13 @@ QList<int> CppFindReferences::references(Symbol *symbol, const LookupContext &co
 static void find_helper(QFutureInterface<Usage> &future,
                         const CppTools::CppModelManagerInterface::WorkingCopy workingCopy,
                         const LookupContext context,
-                        const DependencyTable dependencyTable,
+                        CppFindReferences *findRefs,
                         Symbol *symbol)
 {
     const Identifier *symbolId = symbol->identifier();
     Q_ASSERT(symbolId != 0);
+
+    const Snapshot snapshot = context.snapshot();
 
     const QString sourceFile = QString::fromUtf8(symbol->fileName(), symbol->fileNameLength());
     QStringList files(sourceFile);
@@ -202,33 +204,19 @@ static void find_helper(QFutureInterface<Usage> &future,
                 files.append(doc->fileName());
         }
     } else {
+        DependencyTable dependencyTable = findRefs->updateDependencyTable(snapshot);
         files += dependencyTable.filesDependingOn(sourceFile);
     }
     files.removeDuplicates();
 
     future.setProgressRange(0, files.size());
 
-    ProcessFile process(workingCopy, context.snapshot(), context.thisDocument(), symbol);
+    ProcessFile process(workingCopy, snapshot, context.thisDocument(), symbol);
     UpdateUI reduce(&future);
 
     QtConcurrent::blockingMappedReduced<QList<Usage> > (files, process, reduce);
 
     future.setProgressValue(files.size());
-}
-
-static CPlusPlus::DependencyTable dependencyTable(DependencyTable previous, const CPlusPlus::Snapshot &snapshot)
-{
-    if (previous.isValidFor(snapshot))
-        return previous;
-
-    DependencyTable table;
-    table.build(snapshot);
-    return table;
-}
-
-void CppFindReferences::updateDependencyTable()
-{
-    m_deps = dependencyTable(m_deps, _modelManager->snapshot());
 }
 
 void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context)
@@ -272,11 +260,9 @@ void CppFindReferences::findAll_helper(Symbol *symbol, const LookupContext &cont
 
     Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
 
-    updateDependencyTable(); // ensure the dependency table is updated
-
     QFuture<Usage> result;
 
-    result = QtConcurrent::run(&find_helper, workingCopy, context, m_deps, symbol);
+    result = QtConcurrent::run(&find_helper, workingCopy, context, this, symbol);
     m_watcher.setFuture(result);
 
     Core::FutureProgress *progress = progressManager->addTask(result, tr("Searching"),
@@ -396,14 +382,17 @@ public:
 } // end of anonymous namespace
 
 static void findMacroUses_helper(QFutureInterface<Usage> &future,
-                        const CppTools::CppModelManagerInterface::WorkingCopy workingCopy,
-                        const Snapshot snapshot,
-                        DependencyTable dependencyTable,
-                        const Macro macro)
+                                 const CppTools::CppModelManagerInterface::WorkingCopy workingCopy,
+                                 const Snapshot snapshot,
+                                 CppFindReferences *findRefs,
+                                 const Macro macro)
 {
+    // ensure the dependency table is updated
+    DependencyTable dependencies = findRefs->updateDependencyTable(snapshot);
+
     const QString& sourceFile = macro.fileName();
     QStringList files(sourceFile);
-    files += dependencyTable.filesDependingOn(sourceFile);
+    files += dependencies.filesDependingOn(sourceFile);
     files.removeDuplicates();
 
     future.setProgressRange(0, files.size());
@@ -425,7 +414,7 @@ void CppFindReferences::findMacroUses(const Macro &macro)
             this, SLOT(openEditor(Find::SearchResultItem)));
 
     const Snapshot snapshot = _modelManager->snapshot();
-    const CppTools::CppModelManagerInterface::WorkingCopy workingCopy = _modelManager->workingCopy();
+    const CppModelManagerInterface::WorkingCopy workingCopy = _modelManager->workingCopy();
 
     // add the macro definition itself
     {
@@ -435,10 +424,8 @@ void CppFindReferences::findMacroUses(const Macro &macro)
                                  source.mid(macro.offset(), macro.length()), 0, macro.length());
     }
 
-    updateDependencyTable(); // ensure the dependency table is updated
-
     QFuture<Usage> result;
-    result = QtConcurrent::run(&findMacroUses_helper, workingCopy, snapshot, m_deps, macro);
+    result = QtConcurrent::run(&findMacroUses_helper, workingCopy, snapshot, this, macro);
     m_watcher.setFuture(result);
 
     Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
@@ -447,3 +434,28 @@ void CppFindReferences::findMacroUses(const Macro &macro)
     connect(progress, SIGNAL(clicked()), _resultWindow, SLOT(popup()));
 }
 
+DependencyTable CppFindReferences::updateDependencyTable(CPlusPlus::Snapshot snapshot)
+{
+    DependencyTable oldDeps = dependencyTable();
+    if (oldDeps.isValidFor(snapshot))
+        return oldDeps;
+
+    DependencyTable newDeps;
+    newDeps.build(snapshot);
+    setDependencyTable(newDeps);
+    return newDeps;
+}
+
+DependencyTable CppFindReferences::dependencyTable() const
+{
+    QMutexLocker locker(&m_depsLock);
+    Q_UNUSED(locker);
+    return m_deps;
+}
+
+void CppFindReferences::setDependencyTable(const CPlusPlus::DependencyTable &newTable)
+{
+    QMutexLocker locker(&m_depsLock);
+    Q_UNUSED(locker);
+    m_deps = newTable;
+}
