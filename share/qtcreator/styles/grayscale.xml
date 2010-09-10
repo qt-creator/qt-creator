@@ -7,18 +7,22 @@
   <style name="DiffLocation"/>
   <style name="Doxygen.Comment" foreground="#808080"/>
   <style name="Doxygen.Tag" foreground="#808080" italic="true"/>
+  <style name="Field"/>
   <style name="Keyword" bold="true"/>
   <style name="Label"/>
   <style name="LineNumber" foreground="#c7c4c1" background="#efebe7"/>
   <style name="Link" foreground="#0000ff"/>
+  <style name="Local"/>
   <style name="Number" foreground="#3f3f3f"/>
   <style name="Operator"/>
   <style name="Parentheses" background="#e3e3e3" bold="true"/>
-  <style name="Preprocessor" foreground="#5b5b5b"/>
+  <style name="Preprocessor" foreground="#5b5b5b" bold="true"/>
   <style name="RemovedLine" foreground="#a0a0a4"/>
+  <style name="Static" italic="true"/>
   <style name="String" foreground="#636363"/>
   <style name="Text" foreground="#000000" background="#ffffff"/>
   <style name="Type"/>
+  <style name="VirtualMethod" italic="true"/>
   <!--
   Relying on default colors for:
 

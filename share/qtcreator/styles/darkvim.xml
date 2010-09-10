@@ -13,10 +13,12 @@
   <style name="DisabledCode" foreground="#777777" background="#222222"/>
   <style name="Doxygen.Comment" foreground="#55ffff"/>
   <style name="Doxygen.Tag" foreground="#00a0a0"/>
+  <style name="Field"/>
   <style name="Keyword" foreground="#ffff55"/>
   <style name="Label" foreground="#ffff55"/>
   <style name="LineNumber" foreground="#888888" background="#232323"/>
   <style name="Link" foreground="#0055ff"/>
+  <style name="Local"/>
   <style name="Number" foreground="#ff55ff"/>
   <style name="Occurrences" background="#363636"/>
   <style name="Occurrences.Rename" foreground="#ffaaaa" background="#553636"/>
@@ -26,7 +28,9 @@
   <style name="SearchResult" background="#555500"/>
   <style name="SearchScope" background="#222200"/>
   <style name="Selection" foreground="#000000" background="#aaaaaa"/>
+  <style name="Static" foreground="#55ff55" italic="true"/>
   <style name="String" foreground="#ff55ff"/>
   <style name="Text" foreground="#aaaaaa" background="#000000"/>
   <style name="Type" foreground="#55ff55"/>
+  <style name="VirtualMethod" italic="true"/>
 </style-scheme>
