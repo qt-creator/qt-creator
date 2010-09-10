@@ -36,6 +36,7 @@
 #include "modemanager.h"
 #include "actionmanager/actionmanager.h"
 #include "actionmanager/command.h"
+#include "uniqueidmanager.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -173,8 +174,8 @@ void NavigationWidget::setFactories(const QList<INavigationWidgetFactory *> fact
         connect(shortcut, SIGNAL(activated()), this, SLOT(activateSubWidget()));
         m_shortcutMap.insert(shortcut, id);
 
-        Core::Command *cmd = am->registerShortcut(shortcut,
-            QLatin1String("QtCreator.Sidebar.") + id, navicontext);
+        Command *cmd = am->registerShortcut(shortcut,
+            Id(QLatin1String("QtCreator.Sidebar.") + id), navicontext);
         cmd->setDefaultKeySequence(factory->activationSequence());
         m_commandMap.insert(id, cmd);
 

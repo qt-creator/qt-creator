@@ -48,6 +48,7 @@ namespace Core {
 class ActionManager;
 class ActionContainer;
 class ICore;
+class Id;
 class IVersionControl;
 class IEditorFactory;
 class IEditor;
@@ -140,7 +141,7 @@ private:
     //methods
     void createMenu();
     void createSubmitEditorActions();
-    void createSeparator(const Core::Context &context, const QString &id);
+    void createSeparator(const Core::Context &context, const Core::Id &id);
     void createFileActions(const Core::Context &context);
     void createDirectoryActions(const Core::Context &context);
     void createRepositoryActions(const Core::Context &context);

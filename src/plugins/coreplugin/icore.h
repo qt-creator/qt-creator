@@ -32,6 +32,7 @@
 
 #include "core_global.h"
 #include "dialogs/iwizard.h"
+#include "uniqueidmanager.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QSettings>

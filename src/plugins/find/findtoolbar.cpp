@@ -38,6 +38,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/findplaceholder.h>
+#include <coreplugin/uniqueidmanager.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -151,7 +152,7 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
 
     if (QApplication::clipboard()->supportsFindBuffer()) {
         m_enterFindStringAction = new QAction(tr("Enter Find String"), this);
-        cmd = am->registerAction(m_enterFindStringAction, QLatin1String("Find.EnterFindString"), globalcontext);
+        cmd = am->registerAction(m_enterFindStringAction, "Find.EnterFindString", globalcontext);
         cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+E")));
         mfind->addAction(cmd, Constants::G_FIND_ACTIONS);
         connect(m_enterFindStringAction, SIGNAL(triggered()), this, SLOT(putSelectionToFindClipboard()));

@@ -42,6 +42,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
+#include <coreplugin/uniqueidmanager.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -198,11 +199,11 @@ void FindPlugin::setupMenu()
     QAction *separator;
     separator = new QAction(this);
     separator->setSeparator(true);
-    cmd = am->registerAction(separator, QLatin1String("Find.Sep.Flags"), globalcontext);
+    cmd = am->registerAction(separator, "Find.Sep.Flags", globalcontext);
     mfind->addAction(cmd, Constants::G_FIND_FLAGS);
     separator = new QAction(this);
     separator->setSeparator(true);
-    cmd = am->registerAction(separator, QLatin1String("Find.Sep.Actions"), globalcontext);
+    cmd = am->registerAction(separator, "Find.Sep.Actions", globalcontext);
     mfind->addAction(cmd, Constants::G_FIND_ACTIONS);
 
     Core::ActionContainer *mfindadvanced = am->createMenu(Constants::M_FIND_ADVANCED);
@@ -234,7 +235,7 @@ void FindPlugin::setupFilterMenuItems()
             haveEnabledFilters = true;
         action->setEnabled(isEnabled);
         action->setData(qVariantFromValue(filter));
-        cmd = am->registerAction(action, QLatin1String("FindFilter.")+filter->id(), globalcontext);
+        cmd = am->registerAction(action, QString(QLatin1String("FindFilter.")+filter->id()), globalcontext);
         cmd->setDefaultKeySequence(filter->defaultShortcut());
         mfindadvanced->addAction(cmd);
         d->m_filterActions.insert(filter, action);

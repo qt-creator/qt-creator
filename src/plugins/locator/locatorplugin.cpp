@@ -50,6 +50,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
+#include <coreplugin/uniqueidmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <qtconcurrent/QtConcurrentTools>
 
@@ -109,9 +110,9 @@ bool LocatorPlugin::initialize(const QStringList &, QString *)
     view->setPosition(Core::StatusBarWidget::First);
     addAutoReleasedObject(view);
 
-    const QString actionId = QLatin1String("QtCreator.Locate");
     QAction *action = new QAction(m_locatorWidget->windowIcon(), m_locatorWidget->windowTitle(), this);
-    Core::Command *cmd = core->actionManager()->registerAction(action, actionId, Core::Context(Core::Constants::C_GLOBAL));
+    Core::Command *cmd = core->actionManager()
+        ->registerAction(action, "QtCreator.Locate", Core::Context(Core::Constants::C_GLOBAL));
     cmd->setDefaultKeySequence(QKeySequence("Ctrl+K"));
     connect(action, SIGNAL(triggered()), this, SLOT(openLocator()));
 

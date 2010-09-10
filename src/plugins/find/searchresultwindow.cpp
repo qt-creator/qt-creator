@@ -39,6 +39,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
+#include <coreplugin/uniqueidmanager.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QFile>
@@ -325,7 +326,7 @@ SearchResultWindow::SearchResultWindow() : d(new SearchResultWindowPrivate)
     d->m_expandCollapseAction->setCheckable(true);
     d->m_expandCollapseAction->setIcon(QIcon(QLatin1String(":/find/images/expand.png")));
     Core::Command *cmd = Core::ICore::instance()->actionManager()->registerAction(
-            d->m_expandCollapseAction, QLatin1String("Find.ExpandAll"),
+            d->m_expandCollapseAction, "Find.ExpandAll",
             Core::Context(Core::Constants::C_GLOBAL));
     d->m_expandCollapseButton->setDefaultAction(cmd->action());
 

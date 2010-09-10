@@ -436,31 +436,31 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     sep = new QAction(this);
     sep->setSeparator(true);
-    cmd = am->registerAction(sep, QLatin1String("ProjectExplorer.Build.Sep"), globalcontext);
+    cmd = am->registerAction(sep, Core::Id("ProjectExplorer.Build.Sep"), globalcontext);
     mbuild->addAction(cmd, Constants::G_BUILD_PROJECT);
 
     sep = new QAction(this);
     sep->setSeparator(true);
-    cmd = am->registerAction(sep, QLatin1String("ProjectExplorer.Files.Sep"), globalcontext);
+    cmd = am->registerAction(sep, Core::Id("ProjectExplorer.Files.Sep"), globalcontext);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_FILES);
     mproject->addAction(cmd, Constants::G_PROJECT_FILES);
     msubProject->addAction(cmd, Constants::G_PROJECT_FILES);
 
     sep = new QAction(this);
     sep->setSeparator(true);
-    cmd = am->registerAction(sep, QLatin1String("ProjectExplorer.Config.Sep"), globalcontext);
+    cmd = am->registerAction(sep, Core::Id("ProjectExplorer.Config.Sep"), globalcontext);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_CONFIG);
     mproject->addAction(cmd, Constants::G_PROJECT_CONFIG);
     msubProject->addAction(cmd, Constants::G_PROJECT_CONFIG);
 
     sep = new QAction(this);
     sep->setSeparator(true);
-    cmd = am->registerAction(sep, QLatin1String("ProjectExplorer.Projects.Sep"), globalcontext);
+    cmd = am->registerAction(sep, Core::Id("ProjectExplorer.Projects.Sep"), globalcontext);
     mfile->addAction(cmd, Core::Constants::G_FILE_PROJECT);
 
     sep = new QAction(this);
     sep->setSeparator(true);
-    cmd = am->registerAction(sep, QLatin1String("ProjectExplorer.Other.Sep"), globalcontext);
+    cmd = am->registerAction(sep, Core::Id("ProjectExplorer.Other.Sep"), globalcontext);
     mbuild->addAction(cmd, Constants::G_BUILD_OTHER);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_OTHER);
     mproject->addAction(cmd, Constants::G_PROJECT_OTHER);
@@ -468,13 +468,13 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     sep = new QAction(this);
     sep->setSeparator(true);
-    cmd = am->registerAction(sep, QLatin1String("ProjectExplorer.Run.Sep"), globalcontext);
+    cmd = am->registerAction(sep, Core::Id("ProjectExplorer.Run.Sep"), globalcontext);
     mbuild->addAction(cmd, Constants::G_BUILD_RUN);
     mproject->addAction(cmd, Constants::G_PROJECT_RUN);
 
     sep = new QAction(this);
     sep->setSeparator(true);
-    cmd = am->registerAction(sep, QLatin1String("ProjectExplorer.CancelBuild.Sep"), globalcontext);
+    cmd = am->registerAction(sep, Core::Id("ProjectExplorer.CancelBuild.Sep"), globalcontext);
     mbuild->addAction(cmd, Constants::G_BUILD_CANCEL);
 
     //
@@ -1179,7 +1179,7 @@ void ProjectExplorerPlugin::updateWelcomePage()
 
 void ProjectExplorerPlugin::currentModeChanged(Core::IMode *mode, Core::IMode *oldMode)
 {
-    if (mode && mode->id() == QLatin1String(Core::Constants::MODE_WELCOME))
+    if (mode && mode->id() == Core::Id(Core::Constants::MODE_WELCOME))
         updateWelcomePage();
     if (oldMode == d->m_projectsMode)
         savePersistentSettings();
@@ -1530,7 +1530,7 @@ int ProjectExplorerPlugin::queue(QList<Project *> projects, QStringList stepIds)
             continue;
         foreach (const QString id, stepIds) {
             BuildStepList *bsl = 0;
-            if (id == QLatin1String(Constants::BUILDSTEPS_DEPLOY)
+            if (id == Core::Id(Constants::BUILDSTEPS_DEPLOY)
                 && pro->activeTarget()->activeDeployConfiguration())
                 bsl = pro->activeTarget()->activeDeployConfiguration()->stepList();
             else if (pro->activeTarget()->activeBuildConfiguration())

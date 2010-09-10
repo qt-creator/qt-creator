@@ -182,7 +182,7 @@ DebuggerUISwitcher::DebuggerUISwitcher(BaseMode *mode, QObject* parent)
         SLOT(updateDockWidgetSettings()));
 
     d->m_debugMenu = am->actionContainer(ProjectExplorer::Constants::M_DEBUG);
-    d->m_viewsMenu = am->actionContainer(QLatin1String(Core::Constants::M_WINDOW_VIEWS));
+    d->m_viewsMenu = am->actionContainer(Core::Id(Core::Constants::M_WINDOW_VIEWS));
     QTC_ASSERT(d->m_viewsMenu, return)
     d->m_debuggerLanguageMenu = am->createMenu(Constants::M_DEBUG_DEBUGGING_LANGUAGES);
 
@@ -355,20 +355,20 @@ void DebuggerUISwitcher::createViewsMenuItems()
     // Add menu items
     Command *cmd = 0;
     cmd = am->registerAction(d->m_openMemoryEditorAction,
-        QLatin1String("Debugger.Views.OpenMemoryEditor"),
-            Context(Constants::C_DEBUGMODE));
+        Core::Id("Debugger.Views.OpenMemoryEditor"),
+        Core::Context(Constants::C_DEBUGMODE));
     d->m_viewsMenu->addAction(cmd);
     cmd = am->registerAction(d->m_mainWindow->menuSeparator1(),
-        QLatin1String("Debugger.Views.Separator1"), globalcontext);
+        Core::Id("Debugger.Views.Separator1"), globalcontext);
     d->m_viewsMenu->addAction(cmd);
     cmd = am->registerAction(d->m_mainWindow->toggleLockedAction(),
-        QLatin1String("Debugger.Views.ToggleLocked"), globalcontext);
+        Core::Id("Debugger.Views.ToggleLocked"), globalcontext);
     d->m_viewsMenu->addAction(cmd);
     cmd = am->registerAction(d->m_mainWindow->menuSeparator2(),
-        QLatin1String("Debugger.Views.Separator2"), globalcontext);
+        Core::Id("Debugger.Views.Separator2"), globalcontext);
     d->m_viewsMenu->addAction(cmd);
     cmd = am->registerAction(d->m_mainWindow->resetLayoutAction(),
-        QLatin1String("Debugger.Views.ResetSimple"), globalcontext);
+        Core::Id("Debugger.Views.ResetSimple"), globalcontext);
     d->m_viewsMenu->addAction(cmd);
 }
 
@@ -394,7 +394,7 @@ void DebuggerUISwitcher::addLanguage(const DebuggerLanguage &languageId,
     debuggableLang->setText(languageName);
     d->m_languageActionGroup->addAction(debuggableLang);
     Command *activeDebugLanguageCmd = am->registerAction(debuggableLang,
-                         "Debugger.DebugLanguage." + languageName,
+                         QString("Debugger.DebugLanguage." + languageName),
                           Context(Core::Constants::C_GLOBAL));
     d->m_debuggerLanguageMenu->addAction(activeDebugLanguageCmd);
 
@@ -610,7 +610,7 @@ QDockWidget *DebuggerUISwitcher::createDockWidget(const DebuggerLanguage &langua
     ActionManager *am = ICore::instance()->actionManager();
     QAction *toggleViewAction = dockWidget->toggleViewAction();
     Command *cmd = am->registerAction(toggleViewAction,
-                         "Debugger." + dockWidget->objectName(), globalContext);
+                         QString("Debugger." + dockWidget->objectName()), globalContext);
     cmd->setAttribute(Command::CA_Hide);
     d->m_viewsMenu->addAction(cmd);
 

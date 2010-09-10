@@ -261,7 +261,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
         am->actionContainer(Core::Constants::M_TOOLS);
 
     Core::ActionContainer *mperforce =
-        am->createMenu(QLatin1String(CMD_ID_PERFORCE_MENU));
+        am->createMenu(Core::Id(CMD_ID_PERFORCE_MENU));
     mperforce->menu()->setTitle(tr("&Perforce"));
     mtools->addMenu(mperforce);
     m_menuAction = mperforce->menu()->menuAction();

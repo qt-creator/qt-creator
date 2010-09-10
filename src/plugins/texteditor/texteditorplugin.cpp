@@ -48,6 +48,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/uniqueidmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <find/searchresultwindow.h>
@@ -102,7 +103,6 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
                                   wizardParameters);
     // Add text file wizard
     addAutoReleasedObject(m_wizard);
-
 
     m_settings = new TextEditorSettings(this);
 

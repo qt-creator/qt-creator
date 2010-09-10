@@ -52,6 +52,7 @@
 #include <coreplugin/imode.h>
 #include <coreplugin/settingsdatabase.h>
 #include <coreplugin/variablemanager.h>
+#include <coreplugin/uniqueidmanager.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -295,12 +296,12 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     // Window menu separators
     QAction *tmpaction = new QAction(this);
     tmpaction->setSeparator(true);
-    cmd = am->registerAction(tmpaction, QLatin1String("QtCreator.Window.Sep.Split"), editManagerContext);
+    cmd = am->registerAction(tmpaction, "QtCreator.Window.Sep.Split", editManagerContext);
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
 
     tmpaction = new QAction(this);
     tmpaction->setSeparator(true);
-    cmd = am->registerAction(tmpaction, QLatin1String("QtCreator.Window.Sep.Navigate"), editManagerContext);
+    cmd = am->registerAction(tmpaction, "QtCreator.Window.Sep.Navigate", editManagerContext);
     mwindow->addAction(cmd, Constants::G_WINDOW_NAVIGATE);
 
     // Close Action

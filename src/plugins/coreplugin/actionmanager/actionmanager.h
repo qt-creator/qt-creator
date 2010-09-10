@@ -46,6 +46,7 @@ namespace Core {
 class ActionContainer;
 class Command;
 class Context;
+class Id;
 
 class CORE_EXPORT ActionManager : public QObject
 {
@@ -54,14 +55,14 @@ public:
     ActionManager(QObject *parent = 0) : QObject(parent) {}
     virtual ~ActionManager() {}
 
-    virtual ActionContainer *createMenu(const QString &id) = 0;
-    virtual ActionContainer *createMenuBar(const QString &id) = 0;
+    virtual ActionContainer *createMenu(const Id &id) = 0;
+    virtual ActionContainer *createMenuBar(const Id &id) = 0;
 
-    virtual Command *registerAction(QAction *action, const QString &id, const Context &context) = 0;
-    virtual Command *registerShortcut(QShortcut *shortcut, const QString &id, const Context &context) = 0;
+    virtual Command *registerAction(QAction *action, const Id &id, const Context &context) = 0;
+    virtual Command *registerShortcut(QShortcut *shortcut, const Id &id, const Context &context) = 0;
 
-    virtual Command *command(const QString &id) const = 0;
-    virtual ActionContainer *actionContainer(const QString &id) const = 0;
+    virtual Command *command(const Id &id) const = 0;
+    virtual ActionContainer *actionContainer(const Id &id) const = 0;
 
     virtual QList<Command *> commands() const = 0;
 };

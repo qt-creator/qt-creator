@@ -294,7 +294,7 @@ bool ActionManagerPrivate::hasContext(const Context &context) const
     return false;
 }
 
-ActionContainer *ActionManagerPrivate::createMenu(const QString &id)
+ActionContainer *ActionManagerPrivate::createMenu(const Id &id)
 {
     const int uid = UniqueIDManager::instance()->uniqueIdentifier(id);
     const IdContainerMap::const_iterator it = m_idContainerMap.constFind(uid);
@@ -312,7 +312,7 @@ ActionContainer *ActionManagerPrivate::createMenu(const QString &id)
     return mc;
 }
 
-ActionContainer *ActionManagerPrivate::createMenuBar(const QString &id)
+ActionContainer *ActionManagerPrivate::createMenuBar(const Id &id)
 {
     const int uid = UniqueIDManager::instance()->uniqueIdentifier(id);
     const IdContainerMap::const_iterator it = m_idContainerMap.constFind(uid);
@@ -330,7 +330,7 @@ ActionContainer *ActionManagerPrivate::createMenuBar(const QString &id)
     return mbc;
 }
 
-Command *ActionManagerPrivate::registerAction(QAction *action, const QString &id, const Context &context)
+Command *ActionManagerPrivate::registerAction(QAction *action, const Id &id, const Context &context)
 {
     Action *a = 0;
     Command *c = registerOverridableAction(action, id, false);
@@ -340,7 +340,7 @@ Command *ActionManagerPrivate::registerAction(QAction *action, const QString &id
     return a;
 }
 
-Command *ActionManagerPrivate::registerOverridableAction(QAction *action, const QString &id, bool checkUnique)
+Command *ActionManagerPrivate::registerOverridableAction(QAction *action, const Id &id, bool checkUnique)
 {
     Action *a = 0;
     const int uid = UniqueIDManager::instance()->uniqueIdentifier(id);
@@ -386,7 +386,7 @@ Command *ActionManagerPrivate::registerOverridableAction(QAction *action, const 
     return a;
 }
 
-Command *ActionManagerPrivate::registerShortcut(QShortcut *shortcut, const QString &id, const Context &context)
+Command *ActionManagerPrivate::registerShortcut(QShortcut *shortcut, const Id &id, const Context &context)
 {
     Shortcut *sc = 0;
     int uid = UniqueIDManager::instance()->uniqueIdentifier(id);
@@ -423,7 +423,7 @@ Command *ActionManagerPrivate::registerShortcut(QShortcut *shortcut, const QStri
     return sc;
 }
 
-Command *ActionManagerPrivate::command(const QString &id) const
+Command *ActionManagerPrivate::command(const Id &id) const
 {
     const int uid = UniqueIDManager::instance()->uniqueIdentifier(id);
     const IdCmdMap::const_iterator it = m_idCmdMap.constFind(uid);
@@ -435,7 +435,7 @@ Command *ActionManagerPrivate::command(const QString &id) const
     return it.value();
 }
 
-ActionContainer *ActionManagerPrivate::actionContainer(const QString &id) const
+ActionContainer *ActionManagerPrivate::actionContainer(const Id &id) const
 {
     const int uid = UniqueIDManager::instance()->uniqueIdentifier(id);
     const IdContainerMap::const_iterator it = m_idContainerMap.constFind(uid);

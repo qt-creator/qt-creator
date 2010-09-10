@@ -40,6 +40,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/uniqueidmanager.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -317,7 +318,7 @@ void OutputPaneManager::init()
 
     QAction *sep = new QAction(this);
     sep->setSeparator(true);
-    cmd = am->registerAction(sep, QLatin1String("Coreplugin.OutputPane.Sep"), globalcontext);
+    cmd = am->registerAction(sep, "Coreplugin.OutputPane.Sep", globalcontext);
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
     QList<IOutputPane*> panes = ExtensionSystem::PluginManager::instance()

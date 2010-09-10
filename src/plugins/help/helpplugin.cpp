@@ -183,13 +183,12 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     QAction *action = new QAction(QIcon(QLatin1String(IMAGEPATH "home.png")),
         tr("Home"), this);
     Core::ActionManager *am = m_core->actionManager();
-    Core::Command *cmd = am->registerAction(action, QLatin1String("Help.Home"),
-        globalcontext);
+    Core::Command *cmd = am->registerAction(action, "Help.Home", globalcontext);
     connect(action, SIGNAL(triggered()), m_centralWidget, SLOT(home()));
 
     action = new QAction(QIcon(QLatin1String(IMAGEPATH "previous.png")),
         tr("Previous Page"), this);
-    cmd = am->registerAction(action, QLatin1String("Help.Previous"), modecontext);
+    cmd = am->registerAction(action, Core::Id("Help.Previous"), modecontext);
     cmd->setDefaultKeySequence(QKeySequence::Back);
     action->setEnabled(m_centralWidget->isBackwardAvailable());
     connect(action, SIGNAL(triggered()), m_centralWidget, SLOT(backward()));
@@ -198,7 +197,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
 
     action = new QAction(QIcon(QLatin1String(IMAGEPATH "next.png")), tr("Next Page"),
         this);
-    cmd = am->registerAction(action, QLatin1String("Help.Next"), modecontext);
+    cmd = am->registerAction(action, Core::Id("Help.Next"), modecontext);
     cmd->setDefaultKeySequence(QKeySequence::Forward);
     action->setEnabled(m_centralWidget->isForwardAvailable());
     connect(action, SIGNAL(triggered()), m_centralWidget, SLOT(forward()));
@@ -207,7 +206,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
 
     action = new QAction(QIcon(QLatin1String(IMAGEPATH "bookmark.png")),
         tr("Add Bookmark"), this);
-    cmd = am->registerAction(action, QLatin1String("Help.AddBookmark"),
+    cmd = am->registerAction(action, Core::Id("Help.AddBookmark"),
         modecontext);
     cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::Key_M));
     connect(action, SIGNAL(triggered()), this, SLOT(addBookmark()));
@@ -215,17 +214,17 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     // Add Contents, Index, and Context menu items and a separator to the Help menu
     action = new QAction(QIcon::fromTheme(QLatin1String("help-contents")),
         tr(SB_CONTENTS), this);
-    cmd = am->registerAction(action, QLatin1String("Help.Contents"), globalcontext);
+    cmd = am->registerAction(action, Core::Id("Help.Contents"), globalcontext);
     am->actionContainer(M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     connect(action, SIGNAL(triggered()), this, SLOT(activateContents()));
 
     action = new QAction(tr(SB_INDEX), this);
-    cmd = am->registerAction(action, QLatin1String("Help.Index"), globalcontext);
+    cmd = am->registerAction(action, Core::Id("Help.Index"), globalcontext);
     am->actionContainer(M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     connect(action, SIGNAL(triggered()), this, SLOT(activateIndex()));
 
     action = new QAction(tr("Context Help"), this);
-    cmd = am->registerAction(action, QLatin1String("Help.Context"), globalcontext);
+    cmd = am->registerAction(action, Core::Id("Help.Context"), globalcontext);
     am->actionContainer(M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F1));
     connect(action, SIGNAL(triggered()), this, SLOT(activateContext()));
@@ -233,7 +232,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
 #ifndef Q_WS_MAC
     action = new QAction(this);
     action->setSeparator(true);
-    cmd = am->registerAction(action, QLatin1String("Help.Separator"), globalcontext);
+    cmd = am->registerAction(action, Core::Id("Help.Separator"), globalcontext);
     am->actionContainer(M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
 #endif
 
@@ -410,20 +409,20 @@ void HelpPlugin::setupUi()
     QShortcut *shortcut = new QShortcut(m_splitter);
     shortcut->setWhatsThis(tr("Activate Index in Help mode"));
     Core::Command* cmd = am->registerShortcut(shortcut,
-        QLatin1String("Help.IndexShortcut"), modecontext);
+        Core::Id("Help.IndexShortcut"), modecontext);
     cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_I));
     connect(shortcut, SIGNAL(activated()), this, SLOT(activateIndex()));
     shortcutMap.insert(QLatin1String(SB_INDEX), cmd);
 
     ContentWindow *contentWindow = new ContentWindow();
     contentWindow->setWindowTitle(tr(SB_CONTENTS));
-    m_contentItem = new Core::SideBarItem(contentWindow, QLatin1String(SB_CONTENTS));
+    m_contentItem = new Core::SideBarItem(contentWindow, Core::Id(SB_CONTENTS));
     connect(contentWindow, SIGNAL(linkActivated(QUrl)), m_centralWidget,
         SLOT(setSource(QUrl)));
 
     shortcut = new QShortcut(m_splitter);
     shortcut->setWhatsThis(tr("Activate Contents in Help mode"));
-    cmd = am->registerShortcut(shortcut, QLatin1String("Help.ContentsShortcut"),
+    cmd = am->registerShortcut(shortcut, Core::Id("Help.ContentsShortcut"),
         modecontext);
     cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_C));
     connect(shortcut, SIGNAL(activated()), this, SLOT(activateContents()));
@@ -437,7 +436,7 @@ void HelpPlugin::setupUi()
 
      shortcut = new QShortcut(m_splitter);
      shortcut->setWhatsThis(tr("Activate Search in Help mode"));
-     cmd = am->registerShortcut(shortcut, QLatin1String("Help.SearchShortcut"),
+     cmd = am->registerShortcut(shortcut, Core::Id("Help.SearchShortcut"),
          modecontext);
      cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_Slash));
      connect(shortcut, SIGNAL(activated()), this, SLOT(activateSearch()));
@@ -452,7 +451,7 @@ void HelpPlugin::setupUi()
 
      shortcut = new QShortcut(m_splitter);
      shortcut->setWhatsThis(tr("Activate Bookmarks in Help mode"));
-     cmd = am->registerShortcut(shortcut, QLatin1String("Help.BookmarkShortcut"),
+     cmd = am->registerShortcut(shortcut, Core::Id("Help.BookmarkShortcut"),
          modecontext);
      cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_B));
      connect(shortcut, SIGNAL(activated()), this, SLOT(activateBookmarks()));
@@ -464,7 +463,7 @@ void HelpPlugin::setupUi()
 
     shortcut = new QShortcut(m_splitter);
     shortcut->setWhatsThis(tr("Activate Open Pages in Help mode"));
-    cmd = am->registerShortcut(shortcut, QLatin1String("Help.PagesShortcut"),
+    cmd = am->registerShortcut(shortcut, Core::Id("Help.PagesShortcut"),
         modecontext);
     cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_O));
     connect(shortcut, SIGNAL(activated()), this, SLOT(activateOpenPages()));
@@ -943,10 +942,10 @@ QToolBar *HelpPlugin::createIconToolBar(bool external)
         connect(bookmark, SIGNAL(triggered()), this, SLOT(addBookmark()));
     } else {
         Core::ActionManager *am = m_core->actionManager();
-        home = am->command(QLatin1String("Help.Home"))->action();
-        back = am->command(QLatin1String("Help.Previous"))->action();
-        next = am->command(QLatin1String("Help.Next"))->action();
-        bookmark = am->command(QLatin1String("Help.AddBookmark"))->action();
+        home = am->command(Core::Id("Help.Home"))->action();
+        back = am->command(Core::Id("Help.Previous"))->action();
+        next = am->command(Core::Id("Help.Next"))->action();
+        bookmark = am->command(Core::Id("Help.AddBookmark"))->action();
     }
 
     setupNavigationMenus(back, next, toolBar);

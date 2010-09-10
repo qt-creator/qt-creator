@@ -82,20 +82,20 @@ public:
     void initialize();
 
     //ActionManager Interface
-    ActionContainer *createMenu(const QString &id);
-    ActionContainer *createMenuBar(const QString &id);
+    ActionContainer *createMenu(const Id &id);
+    ActionContainer *createMenuBar(const Id &id);
 
-    Command *registerAction(QAction *action, const QString &id,
+    Command *registerAction(QAction *action, const Id &id,
         const Context &context);
-    Command *registerShortcut(QShortcut *shortcut, const QString &id,
+    Command *registerShortcut(QShortcut *shortcut, const Id &id,
         const Context &context);
 
-    Core::Command *command(const QString &id) const;
-    Core::ActionContainer *actionContainer(const QString &id) const;
+    Core::Command *command(const Id &id) const;
+    Core::ActionContainer *actionContainer(const Id &id) const;
 
 private:
     bool hasContext(const Context &context) const;
-    Command *registerOverridableAction(QAction *action, const QString &id,
+    Command *registerOverridableAction(QAction *action, const Id &id,
         bool checkUnique);
 
     static ActionManagerPrivate *m_instance;

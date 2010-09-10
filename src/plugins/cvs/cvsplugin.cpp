@@ -271,8 +271,7 @@ bool CVSPlugin::initialize(const QStringList & /*arguments */, QString *errorMes
     Core::ActionManager *ami = core->actionManager();
     Core::ActionContainer *toolsContainer = ami->actionContainer(M_TOOLS);
 
-    Core::ActionContainer *cvsMenu =
-        ami->createMenu(QLatin1String(CMD_ID_CVS_MENU));
+    Core::ActionContainer *cvsMenu = ami->createMenu(Core::Id(CMD_ID_CVS_MENU));
     cvsMenu->menu()->setTitle(tr("&CVS"));
     toolsContainer->addMenu(cvsMenu);
     m_menuAction = cvsMenu->menu()->menuAction();

@@ -174,7 +174,7 @@ static const VCSBase::VCSBaseSubmitEditorParameters submitParameters = {
 
 static Core::Command *createSeparator(Core::ActionManager *am,
                                        const Core::Context &context,
-                                       const QString &id,
+                                       const Core::Id &id,
                                        QObject *parent)
 {
     QAction *a = new QAction(parent);
@@ -356,7 +356,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                                tr("Unstage File from Commit"), tr("Unstage \"%1\" from Commit"),
                                QLatin1String("Git.Unstage"), globalcontext, true, SLOT(unstageFile()));
 
-    gitContainer->addAction(createSeparator(actionManager, globalcontext, QLatin1String("Git.Sep.Project"), this));
+    gitContainer->addAction(createSeparator(actionManager, globalcontext, Core::Id("Git.Sep.Project"), this));
 
     parameterActionCommand
             = createProjectAction(actionManager, gitContainer,
@@ -379,7 +379,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                                       QLatin1String("Git.CleanProject"), globalcontext,
                                       true, SLOT(cleanProject()));
 
-    gitContainer->addAction(createSeparator(actionManager, globalcontext, QLatin1String("Git.Sep.Repository"), this));
+    gitContainer->addAction(createSeparator(actionManager, globalcontext, Core::Id("Git.Sep.Repository"), this));
 
     createRepositoryAction(actionManager, gitContainer,
                            tr("Diff Repository"), QLatin1String("Git.DiffRepository"),
@@ -424,7 +424,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                            tr("Launch gitk"), QLatin1String("Git.LaunchGitK"),
                            globalcontext, true, &GitClient::launchGitK);
 
-    gitContainer->addAction(createSeparator(actionManager, globalcontext, QLatin1String("Git.Sep.Global"), this));
+    gitContainer->addAction(createSeparator(actionManager, globalcontext, Core::Id("Git.Sep.Global"), this));
 
     ActionCommandPair actionCommand =
                     createRepositoryAction(actionManager, gitContainer,
@@ -463,7 +463,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                                            tr("Push"), QLatin1String("Git.Push"),
                                            globalcontext, true, SLOT(push()));
 
-    gitContainer->addAction(createSeparator(actionManager, globalcontext, QLatin1String("Git.Sep.Branch"), this));
+    gitContainer->addAction(createSeparator(actionManager, globalcontext, Core::Id("Git.Sep.Branch"), this));
 
     createRepositoryAction(actionManager, gitContainer,
                            tr("Branches..."), QLatin1String("Git.BranchList"),
@@ -479,8 +479,8 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     gitContainer->addAction(showCommitCommand);
 
     // Subversion in a submenu.
-    gitContainer->addAction(createSeparator(actionManager, globalcontext, QLatin1String("Git.Sep.Subversion"), this));
-    Core::ActionContainer *subversionMenu = actionManager->createMenu(QLatin1String("Git.Subversion"));
+    gitContainer->addAction(createSeparator(actionManager, globalcontext, Core::Id("Git.Sep.Subversion"), this));
+    Core::ActionContainer *subversionMenu = actionManager->createMenu(Core::Id("Git.Subversion"));
     subversionMenu->menu()->setTitle(tr("Subversion"));
     gitContainer->addMenu(subversionMenu);
 
@@ -498,7 +498,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
         for (int i = 0; i < count; i++) {
             Core::Command *tCommand
                     = actionManager->registerAction(snapShotActions.at(i),
-                                                    QLatin1String("Git.Snapshot.") + QString::number(i),
+                                                    QString(QLatin1String("Git.Snapshot.") + QString::number(i)),
                                                     globalcontext);
             gitContainer->addAction(tCommand);
         }

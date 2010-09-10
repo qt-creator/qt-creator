@@ -132,7 +132,7 @@ Core::Command *createSeparator(Core::ActionManager *am,
 {
     QAction *separator = new QAction(parent);
     separator->setSeparator(true);
-    return am->registerAction(separator, QLatin1String(id), context);
+    return am->registerAction(separator, Core::Id(id), context);
 }
 
 CppPlugin *CppPlugin::m_instance = 0;
@@ -242,7 +242,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     Core::ActionContainer *contextMenu= am->createMenu(CppEditor::Constants::M_CONTEXT);
 
     Core::Command *cmd;
-    Core::ActionContainer *cppToolsMenu = am->actionContainer(QLatin1String(CppTools::Constants::M_TOOLS_CPP));
+    Core::ActionContainer *cppToolsMenu = am->actionContainer(Core::Id(CppTools::Constants::M_TOOLS_CPP));
 
     QAction *jumpToDefinition = new QAction(tr("Follow Symbol Under Cursor"), this);
     cmd = am->registerAction(jumpToDefinition,
@@ -288,7 +288,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     Core::Context globalContext(Core::Constants::C_GLOBAL);
     cppToolsMenu->addAction(createSeparator(am, this, globalContext, CppEditor::Constants::SEPARATOR2));
     m_updateCodeModelAction = new QAction(tr("Update Code Model"), this);
-    cmd = am->registerAction(m_updateCodeModelAction, QLatin1String(Constants::UPDATE_CODEMODEL), globalContext);
+    cmd = am->registerAction(m_updateCodeModelAction, Core::Id(Constants::UPDATE_CODEMODEL), globalContext);
     CppTools::CppModelManagerInterface *cppModelManager = CppTools::CppModelManagerInterface::instance();
     connect(m_updateCodeModelAction, SIGNAL(triggered()), cppModelManager, SLOT(updateModifiedSourceFiles()));
     cppToolsMenu->addAction(cmd);

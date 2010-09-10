@@ -779,7 +779,7 @@ void MainWindow::registerDefaultActions()
 #ifndef Q_WS_MAC // doesn't have the "About" actions in the Help menu
     tmpaction = new QAction(this);
     tmpaction->setSeparator(true);
-    cmd = am->registerAction(tmpaction, QLatin1String("QtCreator.Help.Sep.About"), globalContext);
+    cmd = am->registerAction(tmpaction, "QtCreator.Help.Sep.About", globalContext);
     mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
 #endif
 }

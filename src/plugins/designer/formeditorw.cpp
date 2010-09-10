@@ -239,7 +239,7 @@ void FormEditorW::setupViewActions()
 {
     // Populate "View" menu of form editor menu
     Core::ActionManager *am = m_core->actionManager();
-    Core::ActionContainer *viewMenu = am->actionContainer(QLatin1String(Core::Constants::M_WINDOW_VIEWS));
+    Core::ActionContainer *viewMenu = am->actionContainer(Core::Id(Core::Constants::M_WINDOW_VIEWS));
     QTC_ASSERT(viewMenu, return)
 
     addDockViewAction(am, viewMenu, WidgetBoxSubWindow, m_contexts,
@@ -441,7 +441,7 @@ void FormEditorW::setupActions()
     //'delete' action. Do not set a shortcut as Designer handles
     // the 'Delete' key by event filter. Setting a shortcut triggers
     // buggy behaviour on Mac (Pressing Delete in QLineEdit removing the widget).
-    command = am->registerAction(m_fwm->actionDelete(), QLatin1String("FormEditor.Edit.Delete"), m_contexts);
+    command = am->registerAction(m_fwm->actionDelete(), Core::Id("FormEditor.Edit.Delete"), m_contexts);
     bindShortcut(command, m_fwm->actionDelete());
     command->setAttribute(Core::Command::CA_Hide);
     medit->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
@@ -452,7 +452,7 @@ void FormEditorW::setupActions()
 
     m_modeActionSeparator = new QAction(this);
     m_modeActionSeparator->setSeparator(true);
-    command = am->registerAction(m_modeActionSeparator, QLatin1String("FormEditor.Sep.ModeActions"), m_contexts);
+    command = am->registerAction(m_modeActionSeparator, Core::Id("FormEditor.Sep.ModeActions"), m_contexts);
     medit->addAction(command, Core::Constants::G_EDIT_OTHER);
 
     m_toolActionIds.push_back(QLatin1String("FormEditor.WidgetEditor"));

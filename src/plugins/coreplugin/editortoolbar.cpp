@@ -34,6 +34,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/sidebar.h>
+#include <coreplugin/uniqueidmanager.h>
 
 #include <coreplugin/editormanager/editorview.h>
 #include <coreplugin/editormanager/editormanager.h>

@@ -71,11 +71,8 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
     Core::Context textcontext(TextEditor::Constants::C_TEXTEDITOR);
     Core::Context globalcontext(Core::Constants::C_GLOBAL);
 
-    Core::ActionContainer *mtools =
-        am->actionContainer(Core::Constants::M_TOOLS);
-
-    Core::ActionContainer *mbm =
-        am->createMenu(QLatin1String(BOOKMARKS_MENU));
+    Core::ActionContainer *mtools = am->actionContainer(Core::Constants::M_TOOLS);
+    Core::ActionContainer *mbm = am->createMenu(Core::Id(BOOKMARKS_MENU));
     mbm->menu()->setTitle(tr("&Bookmarks"));
     mtools->addMenu(mbm);
 
@@ -92,7 +89,7 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
 
     QAction *sep = new QAction(this);
     sep->setSeparator(true);
-    cmd = am->registerAction(sep, QLatin1String("Bookmarks.Sep.Toggle"), textcontext);
+    cmd = am->registerAction(sep, Core::Id("Bookmarks.Sep.Toggle"), textcontext);
     mbm->addAction(cmd);
 
     //Previous
@@ -117,7 +114,7 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
 
     sep = new QAction(this);
     sep->setSeparator(true);
-    cmd = am->registerAction(sep, QLatin1String("Bookmarks.Sep.DirNavigation"), globalcontext);
+    cmd = am->registerAction(sep, Core::Id("Bookmarks.Sep.DirNavigation"), globalcontext);
     mbm->addAction(cmd);
 
     //Previous Doc
