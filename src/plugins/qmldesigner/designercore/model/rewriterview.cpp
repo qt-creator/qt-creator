@@ -430,6 +430,7 @@ void RewriterView::applyChanges()
         const QString content = textModifierContent();
         qDebug() << "RewriterException:" << m_rewritingErrorMessage;
         qDebug() << "Content:" << content;
+        qDebug() << "Error:" << errors().first().description();
         throw RewritingException(__LINE__, __FUNCTION__, __FILE__, m_rewritingErrorMessage, content);
     }
 }
