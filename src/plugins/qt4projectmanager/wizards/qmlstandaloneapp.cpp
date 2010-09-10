@@ -344,12 +344,20 @@ QByteArray QmlStandaloneApp::generateMainCpp(const QString *errorMessage) const
             else
                 line = insertParameter(line, QLatin1Char('"') + path(ModulesDir) + QLatin1Char('"'));
         } else if (line.contains(QLatin1String("// ORIENTATION"))) {
-            if (m_orientation == Auto)
-                continue;
-            else
-                line = insertParameter(line, QLatin1String("QmlApplicationView::")
-                                       + QLatin1String(m_orientation == LockLandscape ?
-                                                       "LockLandscape" : "LockPortrait"));
+            const char *orientationString;
+            switch (m_orientation) {
+            case LockLandscape:
+                orientationString = "LockLandscape";
+                break;
+            case LockPortrait:
+                orientationString = "LockPortrait";
+                break;
+            case Auto:
+                orientationString = "Auto";
+                break;
+            }
+            line = insertParameter(line, QLatin1String("QmlApplicationViewer::")
+                + QLatin1String(orientationString));
         } else if (line.contains(QLatin1String("// LOADDUMMYDATA"))) {
             continue;
         }
@@ -656,8 +664,8 @@ static QList<GeneratedFileInfo> updateableFiles(const QString &mainProFile)
         QString fileName;
     } files[] = {
         {GeneratedFileInfo::AppViewerPriFile, appViewerPriFileName},
-        {GeneratedFileInfo::AppViewerHFile, appViewerCppFileName},
-        {GeneratedFileInfo::AppViewerCppFile, appViewerHFileName}
+        {GeneratedFileInfo::AppViewerHFile, appViewerHFileName},
+        {GeneratedFileInfo::AppViewerCppFile, appViewerCppFileName}
     };
     const QFileInfo mainProFileInfo(mainProFile);
     const int size = sizeof(files) / sizeof(files[0]);

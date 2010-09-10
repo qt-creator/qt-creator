@@ -70,8 +70,8 @@ void QmlApplicationViewer::addImportPath(const QString &path)
 
 void QmlApplicationViewer::setOrientation(Orientation orientation)
 {
+#ifdef Q_OS_SYMBIAN
     if (orientation != Auto) {
-#if defined(Q_OS_SYMBIAN)
 #if defined(ORIENTATIONLOCK)
         const CAknAppUiBase::TAppUiOrientation uiOrientation =
                 (orientation == LockPortrait) ? CAknAppUi::EAppUiOrientationPortrait
@@ -84,8 +84,25 @@ void QmlApplicationViewer::setOrientation(Orientation orientation)
 #else // ORIENTATIONLOCK
         qWarning("'ORIENTATIONLOCK' needs to be defined on Symbian when locking the orientation.");
 #endif // ORIENTATIONLOCK
-#endif // Q_OS_SYMBIAN
     }
+#elif defined(Q_WS_MAEMO_5)
+    Qt::WidgetAttribute attribute;
+    switch (orientation) {
+    case LockPortrait:
+        attribute = Qt::WA_Maemo5PortraitOrientation;
+        break;
+    case LockLandscape:
+        attribute = Qt::WA_Maemo5LandscapeOrientation;
+        break;
+    case Auto:
+    default:
+        attribute = Qt::WA_Maemo5AutoOrientation;
+        break;
+    }
+    setAttribute(attribute, true);
+#else // Q_OS_SYMBIAN
+    Q_UNUSED(orientation);
+#endif // Q_OS_SYMBIAN
 }
 
 void QmlApplicationViewer::setLoadDummyData(bool loadDummyData)
