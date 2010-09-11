@@ -73,6 +73,7 @@ public:
     virtual ~S60DeviceRunConfiguration();
 
     Qt4Target *qt4Target() const;
+    const QtVersion *qtVersion() const;
 
     bool isEnabled(ProjectExplorer::BuildConfiguration *configuration) const;
     QWidget *createConfigurationWidget();
@@ -85,6 +86,14 @@ public:
     QString projectFilePath() const;
 
     ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
+
+    QString targetName() const;
+    QString localExecutableFileName() const;
+    quint32 executableUid() const;
+
+    bool isDebug() const;
+    QString symbianTarget() const;
+    QString symbianPlatform() const;
 
     QVariantMap toMap() const;
 

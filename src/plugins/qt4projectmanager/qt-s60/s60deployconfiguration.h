@@ -57,7 +57,6 @@ public:
 
     ProjectExplorer::DeployConfigurationWidget *configurationWidget() const;
 
-    QString targetName() const;
     const QtVersion *qtVersion() const;
     Qt4Target *qt4Target() const;
     ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
@@ -72,12 +71,10 @@ public:
     void setSilentInstall(bool silent);
 
     QStringList signedPackages() const;
-    QString appSignedPackage() const;
+    QStringList appSignedPackages() const;
     QStringList packageFileNamesWithTargetInfo() const;
     QStringList packageTemplateFileNames() const;
-    QString appPackageTemplateFileName() const;
-    QString localExecutableFileName() const;
-    quint32 executableUid() const;
+    QStringList appPackageTemplateFileNames() const;
 
     QVariantMap toMap() const;
 
@@ -88,7 +85,6 @@ signals:
 private slots:
     void updateActiveBuildConfiguration(ProjectExplorer::BuildConfiguration *buildConfiguration);
     void updateActiveRunConfiguration(ProjectExplorer::RunConfiguration *runConfiguration);
-    void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
 
 protected:
     S60DeployConfiguration(ProjectExplorer::Target *parent, S60DeployConfiguration *source);
@@ -97,7 +93,6 @@ protected:
 
 private:
     void ctor();
-    S60DeviceRunConfiguration* s60DeviceRunConf() const;
     bool runSmartInstaller() const;
     QString symbianPlatform() const;
     QString symbianTarget() const;

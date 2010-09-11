@@ -224,6 +224,121 @@ static inline QString fixBaseNameTarget(const QString &in)
     return in;
 }
 
+QString S60DeviceRunConfiguration::targetName() const
+{
+    TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()->targetInformation(projectFilePath());
+    if (!ti.valid)
+        return QString();
+    return ti.target;
+}
+
+const QtVersion *S60DeviceRunConfiguration::qtVersion() const
+{
+    if (const BuildConfiguration *bc = target()->activeBuildConfiguration())
+        if (const Qt4BuildConfiguration *qt4bc = qobject_cast<const Qt4BuildConfiguration *>(bc))
+            return qt4bc->qtVersion();
+    return 0;
+}
+
+bool S60DeviceRunConfiguration::isDebug() const
+{
+    const Qt4BuildConfiguration *qt4bc = qt4Target()->activeBuildConfiguration();
+    return (qt4bc->qmakeBuildConfiguration() & QtVersion::DebugBuild);
+}
+
+QString S60DeviceRunConfiguration::symbianTarget() const
+{
+    return isDebug() ? QLatin1String("udeb") : QLatin1String("urel");
+}
+
+QString S60DeviceRunConfiguration::symbianPlatform() const
+{
+    const Qt4BuildConfiguration *qt4bc = qt4Target()->activeBuildConfiguration();
+    switch (qt4bc->toolChainType()) {
+    case ToolChain::GCCE:
+    case ToolChain::GCCE_GNUPOC:
+        return QLatin1String("gcce");
+    case ToolChain::RVCT_ARMV5:
+        return QLatin1String("armv5");
+    default: // including ToolChain::RVCT_ARMV6_GNUPOC:
+        return QLatin1String("armv6");
+    }
+}
+
+/* Grep a package file for the '.exe' file. Curently for use on Linux only
+ * as the '.pkg'-files on Windows do not contain drive letters, which is not
+ * handled here. \code
+; Executable and default resource files
+"./foo.exe"    - "!:\sys\bin\foo.exe"
+\endcode  */
+
+static inline QString executableFromPackageUnix(const QString &packageFileName)
+{
+    QFile packageFile(packageFileName);
+    if (!packageFile.open(QIODevice::ReadOnly|QIODevice::Text))
+        return QString();
+    QRegExp pattern(QLatin1String("^\"(.*.exe)\" *- \"!:.*.exe\"$"));
+    QTC_ASSERT(pattern.isValid(), return QString());
+    foreach(const QString &line, QString::fromLocal8Bit(packageFile.readAll()).split(QLatin1Char('\n')))
+        if (pattern.exactMatch(line)) {
+            // Expand relative paths by package file paths
+            QString rc = pattern.cap(1);
+            if (rc.startsWith(QLatin1String("./")))
+                rc.remove(0, 2);
+            const QFileInfo fi(rc);
+            if (fi.isAbsolute())
+                return rc;
+            return QFileInfo(packageFileName).absolutePath() + QLatin1Char('/') + rc;
+        }
+    return QString();
+}
+
+QString S60DeviceRunConfiguration::localExecutableFileName() const
+{
+    QString localExecutable;
+    switch (toolChainType()) {
+    case ToolChain::GCCE_GNUPOC:
+    case ToolChain::RVCT_ARMV5_GNUPOC: {
+        TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()->targetInformation(projectFilePath());
+        if (!ti.valid)
+            return QString();
+        localExecutable = executableFromPackageUnix(ti.buildDir + QLatin1Char('/') + ti.target + QLatin1String("_template.pkg"));
+        }
+        break;
+    default: {
+            const QtVersion *qtv = qtVersion();
+            QTC_ASSERT(qtv, return QString());
+            const S60Devices::Device device = S60Manager::instance()->deviceForQtVersion(qtv);
+            QTextStream(&localExecutable) << device.epocRoot << "/epoc32/release/"
+                    << symbianPlatform() << '/' << symbianTarget() << '/' << targetName()
+                    << ".exe";
+        }
+        break;
+    }
+    return QDir::toNativeSeparators(localExecutable);
+}
+
+quint32 S60DeviceRunConfiguration::executableUid() const
+{
+    quint32 uid = 0;
+    QString executablePath(localExecutableFileName());
+    if (!executablePath.isEmpty()) {
+        QFile file(executablePath);
+        if (file.open(QIODevice::ReadOnly)) {
+            // executable's UID is 4 bytes starting at 8.
+            const QByteArray data = file.read(12);
+            if (data.size() == 12) {
+                const unsigned char *d = reinterpret_cast<const unsigned char*>(data.data() + 8);
+                uid = *d++;
+                uid += *d++ << 8;
+                uid += *d++ << 16;
+                uid += *d++ << 24;
+            }
+        }
+    }
+    return uid;
+}
+
 QString S60DeviceRunConfiguration::projectFilePath() const
 {
     return m_proFilePath;
@@ -343,14 +458,14 @@ S60DeviceRunControl::S60DeviceRunControl(RunConfiguration *runConfiguration, QSt
     m_toolChain = s60runConfig->toolChainType();
     m_serialPortName = activeDeployConf->serialPortName();
     m_serialPortFriendlyName = SymbianUtils::SymbianDeviceManager::instance()->friendlyNameForPort(m_serialPortName);
-    m_targetName = activeDeployConf->targetName();
+    m_targetName = s60runConfig->targetName();
     m_commandLineArguments = s60runConfig->commandLineArguments();
     m_qtDir = activeBuildConf->qtVersion()->versionInfo().value("QT_INSTALL_DATA");
     m_installationDrive = activeDeployConf->installationDrive();
     if (const QtVersion *qtv = activeDeployConf->qtVersion())
         m_qtBinPath = qtv->versionInfo().value(QLatin1String("QT_INSTALL_BINS"));
     QTC_ASSERT(!m_qtBinPath.isEmpty(), return);
-    m_executableFileName = activeDeployConf->localExecutableFileName();
+    m_executableFileName = s60runConfig->localExecutableFileName();
     if (debug)
         qDebug() << "S60DeviceRunControl::CT" << m_targetName << ProjectExplorer::ToolChain::toolChainName(m_toolChain)
                  << m_serialPortName;
@@ -585,8 +700,8 @@ void S60DeviceRunControl::applicationRunFailedNotice(const QString &errorMessage
 
 static inline QString localExecutable(const S60DeviceRunConfiguration *rc)
 {
-    if (const S60DeployConfiguration *activeDeployConf = qobject_cast<S60DeployConfiguration *>(rc->qt4Target()->activeDeployConfiguration()))
-        return activeDeployConf->localExecutableFileName();
+    if (const S60DeviceRunConfiguration *s60runConfig = qobject_cast<const S60DeviceRunConfiguration *>(rc))
+        return s60runConfig->localExecutableFileName();
     return QString();
 }
 
@@ -599,14 +714,14 @@ Debugger::DebuggerStartParameters S60DeviceDebugRunControl::s60DebuggerStartPara
     const S60DeployConfiguration *activeDeployConf = qobject_cast<S60DeployConfiguration *>(rc->qt4Target()->activeDeployConfiguration());
 
     const QString debugFileName = QString::fromLatin1("%1:\\sys\\bin\\%2.exe")
-            .arg(activeDeployConf->installationDrive()).arg(activeDeployConf->targetName());
+            .arg(activeDeployConf->installationDrive()).arg(rc->targetName());
 
     sp.remoteChannel = activeDeployConf->serialPortName();
     sp.processArgs = rc->commandLineArguments();
     sp.startMode = Debugger::StartInternal;
     sp.toolChainType = rc->toolChainType();
     sp.executable = debugFileName;
-    sp.executableUid = activeDeployConf->executableUid();
+    sp.executableUid = rc->executableUid();
 
     QTC_ASSERT(sp.executableUid, return sp);
 

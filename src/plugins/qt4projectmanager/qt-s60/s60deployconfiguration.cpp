@@ -111,7 +111,7 @@ void S60DeployConfiguration::ctor()
 {
     setDefaultDisplayName(defaultDisplayName());
     connect(qt4Target()->qt4Project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
-            this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
+            this, SIGNAL(targetInformationChanged()));
     connect(qt4Target(), SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
             this, SLOT(updateActiveBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
     connect(qt4Target(), SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
@@ -128,13 +128,6 @@ ProjectExplorer::DeployConfigurationWidget *S60DeployConfiguration::configuratio
     return new S60DeployConfigurationWidget();
 }
 
-void S60DeployConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro)
-{
-    S60DeviceRunConfiguration *deviceRunConf = s60DeviceRunConf();
-    if (deviceRunConf && deviceRunConf->projectFilePath() == pro->path())
-        emit targetInformationChanged();
-}
-
 QStringList S60DeployConfiguration::signedPackages() const
 {
     QList<Qt4ProFileNode *> list = qt4Target()->qt4Project()->leafProFiles();
@@ -149,22 +142,23 @@ QStringList S60DeployConfiguration::signedPackages() const
     return result;
 }
 
-QString S60DeployConfiguration::appSignedPackage() const
+QStringList S60DeployConfiguration::appSignedPackages() const
 {
-    S60DeviceRunConfiguration *deviceRunConf = s60DeviceRunConf();
-    Q_ASSERT(deviceRunConf);
-    TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()->targetInformation(deviceRunConf->projectFilePath());
-    if (!ti.valid)
-        return QString();
-    return ti.buildDir + QLatin1Char('/') + ti.target
-            + (runSmartInstaller() ? QLatin1String("_installer") : QLatin1String(""))
-            + QLatin1String(".sis");
+    QList<Qt4ProFileNode *> list = qt4Target()->qt4Project()->leafProFiles();
+    QStringList result;
+    foreach (Qt4ProFileNode *node, list) {
+        TargetInformation ti = node->targetInformation();
+        if (ti.valid)
+            result << ti.buildDir + QLatin1Char('/') + ti.target
+                      + (runSmartInstaller() ? QLatin1String("_installer") : QLatin1String(""))
+                      + QLatin1String(".sis");
+    }
+    return result;
 }
 
 QStringList S60DeployConfiguration::packageFileNamesWithTargetInfo() const
 {
     QList<Qt4ProFileNode *> leafs = qt4Target()->qt4Project()->leafProFiles();
-
     QStringList result;
     foreach (Qt4ProFileNode *qt4ProFileNode, leafs) {
         TargetInformation ti = qt4ProFileNode->targetInformation();
@@ -191,84 +185,16 @@ QStringList S60DeployConfiguration::packageTemplateFileNames() const
     return result;
 }
 
-QString S60DeployConfiguration::appPackageTemplateFileName() const
+QStringList S60DeployConfiguration::appPackageTemplateFileNames() const
 {
-    S60DeviceRunConfiguration *deviceRunConf = s60DeviceRunConf();
-    Q_ASSERT(deviceRunConf);
-    TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()->targetInformation(deviceRunConf->projectFilePath());
-    if (!ti.valid)
-        return QString();
-    return ti.buildDir + QLatin1Char('/') + ti.target + QLatin1String("_template.pkg");
-}
-
-/* Grep a package file for the '.exe' file. Curently for use on Linux only
- * as the '.pkg'-files on Windows do not contain drive letters, which is not
- * handled here. \code
-; Executable and default resource files
-"./foo.exe"    - "!:\sys\bin\foo.exe"
-\endcode  */
-
-static inline QString executableFromPackageUnix(const QString &packageFileName)
-{
-    QFile packageFile(packageFileName);
-    if (!packageFile.open(QIODevice::ReadOnly|QIODevice::Text))
-        return QString();
-    QRegExp pattern(QLatin1String("^\"(.*.exe)\" *- \"!:.*.exe\"$"));
-    QTC_ASSERT(pattern.isValid(), return QString());
-    foreach(const QString &line, QString::fromLocal8Bit(packageFile.readAll()).split(QLatin1Char('\n')))
-        if (pattern.exactMatch(line)) {
-            // Expand relative paths by package file paths
-            QString rc = pattern.cap(1);
-            if (rc.startsWith(QLatin1String("./")))
-                rc.remove(0, 2);
-            const QFileInfo fi(rc);
-            if (fi.isAbsolute())
-                return rc;
-            return QFileInfo(packageFileName).absolutePath() + QLatin1Char('/') + rc;
-        }
-    return QString();
-}
-
-QString S60DeployConfiguration::localExecutableFileName() const
-{
-    QString localExecutable;
-    switch (toolChainType()) {
-    case ToolChain::GCCE_GNUPOC:
-    case ToolChain::RVCT_ARMV5_GNUPOC:
-        localExecutable = executableFromPackageUnix(appPackageTemplateFileName());
-        break;
-    default: {
-            const QtVersion *qtv = qtVersion();
-            QTC_ASSERT(qtv, return QString());
-            const S60Devices::Device device = S60Manager::instance()->deviceForQtVersion(qtv);
-            QTextStream(&localExecutable) << device.epocRoot << "/epoc32/release/"
-                    << symbianPlatform() << '/' << symbianTarget() << '/' << targetName()
-                    << ".exe";
-        }
-        break;
+    QList<Qt4ProFileNode *> list = qt4Target()->qt4Project()->leafProFiles();
+    QStringList result;
+    foreach (Qt4ProFileNode *node, list) {
+        TargetInformation ti = node->targetInformation();
+        if (ti.valid)
+            result << ti.buildDir + QLatin1Char('/') + ti.target + QLatin1String("_template.pkg");
     }
-    return QDir::toNativeSeparators(localExecutable);
-}
-
-quint32 S60DeployConfiguration::executableUid() const
-{
-    quint32 uid = 0;
-    QString executablePath(localExecutableFileName());
-    if (!executablePath.isEmpty()) {
-        QFile file(executablePath);
-        if (file.open(QIODevice::ReadOnly)) {
-            // executable's UID is 4 bytes starting at 8.
-            const QByteArray data = file.read(12);
-            if (data.size() == 12) {
-                const unsigned char *d = reinterpret_cast<const unsigned char*>(data.data() + 8);
-                uid = *d++;
-                uid += *d++ << 8;
-                uid += *d++ << 16;
-                uid += *d++ << 24;
-            }
-        }
-    }
-    return uid;
+    return result;
 }
 
 bool S60DeployConfiguration::runSmartInstaller() const
@@ -291,16 +217,6 @@ ProjectExplorer::ToolChain::ToolChainType S60DeployConfiguration::toolChainType(
     if (Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(target()->activeBuildConfiguration()))
         return bc->toolChainType();
     return ProjectExplorer::ToolChain::INVALID;
-}
-
-QString S60DeployConfiguration::targetName() const
-{
-    S60DeviceRunConfiguration *deviceRunConf = s60DeviceRunConf();
-    Q_ASSERT(deviceRunConf);
-    TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()->targetInformation(deviceRunConf->projectFilePath());
-    if (!ti.valid)
-        return QString();
-    return ti.target;
 }
 
 QString S60DeployConfiguration::symbianPlatform() const
@@ -353,11 +269,6 @@ void S60DeployConfiguration::updateActiveRunConfiguration(ProjectExplorer::RunCo
     setDefaultDisplayName(defaultDisplayName());
 }
 
-S60DeviceRunConfiguration* S60DeployConfiguration::s60DeviceRunConf() const
-{
-    return qobject_cast<S60DeviceRunConfiguration *>(qt4Target()->activeRunConfiguration());
-}
-
 QVariantMap S60DeployConfiguration::toMap() const
 {
     QVariantMap map(ProjectExplorer::DeployConfiguration::toMap());
@@ -370,9 +281,12 @@ QVariantMap S60DeployConfiguration::toMap() const
 
 QString S60DeployConfiguration::defaultDisplayName() const
 {
-    S60DeviceRunConfiguration* runConf = s60DeviceRunConf();
-    if (runConf && !runConf->projectFilePath().isEmpty())
-        return tr("Deploy %1 to Symbian device").arg(QFileInfo(runConf->projectFilePath()).completeBaseName());
+    QList<Qt4ProFileNode *> list = qt4Target()->qt4Project()->leafProFiles();
+    foreach (Qt4ProFileNode *node, list) {
+        TargetInformation ti = node->targetInformation();
+        if (ti.valid && !ti.buildDir.isEmpty())
+            return tr("Deploy %1 to Symbian device").arg(QFileInfo(ti.buildDir).completeBaseName());
+    }
     return tr("Deploy to Symbian device");
 }
 
