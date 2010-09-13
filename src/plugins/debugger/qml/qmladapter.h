@@ -37,12 +37,10 @@
 
 #include <QtNetwork/QAbstractSocket>
 
-QT_BEGIN_NAMESPACE
 namespace QmlJsDebugClient {
 class QDeclarativeEngineDebug;
 class QDeclarativeDebugConnection;
 }
-QT_END_NAMESPACE
 
 namespace Debugger {
 
