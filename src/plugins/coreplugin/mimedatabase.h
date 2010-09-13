@@ -69,23 +69,50 @@ public:
     virtual ~IMagicMatcher() {}
 };
 
-/* Utility class: A standard Magic match rule based on contents. Provides
- * static factory methods for creation (currently only for "string". This can
- * be extended to handle "little16"/"big16", etc.). */
+/* Utility class: A standard Magic match rule based on contents. Currently there are
+ * implementations for "string" and "byte". (Others like little16, big16, etc. can be
+ * created whenever there is a need.) */
 class CORE_EXPORT MagicRule
 {
     Q_DISABLE_COPY(MagicRule)
 public:
-    explicit MagicRule(const QByteArray &pattern, int startPos, int endPos);
-    bool matches(const QByteArray &data) const;
+    MagicRule(int startPos, int endPos);
+    virtual ~MagicRule();
 
-    // Convenience factory methods
-    static MagicRule *createStringRule(const QString &c, int startPos, int endPos);
+    virtual bool matches(const QByteArray &data) const = 0;
+
+protected:
+    int startPos() const;
+    int endPos() const;
+
+private:
+    const int m_startPos;
+    const int m_endPos;
+};
+
+class CORE_EXPORT MagicStringRule : public MagicRule
+{
+public:
+    MagicStringRule(const QString &s, int startPos, int endPos);
+    virtual ~MagicStringRule();
+
+    virtual bool matches(const QByteArray &data) const;
 
 private:
     const QByteArray m_pattern;
-    const int m_startPos;
-    const int m_endPos;
+};
+
+class CORE_EXPORT MagicByteRule : public MagicRule
+{
+public:
+    MagicByteRule(const QString &s, int startPos, int endPos);
+    virtual ~MagicByteRule();
+
+    virtual bool matches(const QByteArray &data) const;
+
+private:
+    QList<int> m_bytes;
+    int m_bytesSize;
 };
 
 /* Utility class: A Magic matcher that checks a number of rules based on
@@ -109,6 +136,23 @@ private:
     int m_priority;
 };
 
+class CORE_EXPORT MimeGlobPattern
+{
+public:
+    static const int MaxWeight = 100;
+    static const int MinWeight = 1;
+
+    explicit MimeGlobPattern(const QRegExp &regExp, int weight = MaxWeight);
+    ~MimeGlobPattern();
+
+    const QRegExp &regExp() const;
+    int weight() const;
+
+private:
+    const QRegExp m_regExp;
+    const int m_weight;
+};
+
 /* Mime type data used in Qt Creator. Contains most information from
  * standard mime type XML database files.
  * Omissions:
@@ -121,9 +165,6 @@ private:
 class CORE_EXPORT MimeType
 {
 public:
-    /* Return value of a glob match, which is higher than magic */
-    enum { GlobMatchPriority = 101 };
-
     MimeType();
     MimeType(const MimeType&);
     MimeType &operator=(const MimeType&);
@@ -147,8 +188,8 @@ public:
     QString localeComment(const QString &locale = QString() /* en, de...*/) const;
     void setLocaleComment(const QString &locale, const QString &comment);
 
-    QList<QRegExp> globPatterns() const;
-    void setGlobPatterns(const QList<QRegExp> &);
+    QList<MimeGlobPattern> globPatterns() const;
+    void setGlobPatterns(const QList<MimeGlobPattern> &);
 
     QStringList subClassesOf() const;
     void setSubClassesOf(const QStringList &);
@@ -163,9 +204,9 @@ public:
 
     // Check for type or one of the aliases
     bool matchesType(const QString &type) const;
-    // Check glob patterns and magic. Returns the match priority (0 no match,
-    // 1..100 indicating a magic match or GlobMatchPriority indicating an
-    // exact glob match).
+
+    // Check glob patterns weights and magic priorities so the highest
+    // value is returned. A 0 (zero) indicates no match.
     unsigned matchesFile(const QFileInfo &file) const;
 
     // Return a filter string usable for a file dialog
@@ -176,7 +217,7 @@ public:
 
     friend QDebug operator<<(QDebug d, const MimeType &mt);
 
-    static QString formatFilterString(const QString &description, const QList<QRegExp> &globs);
+    static QString formatFilterString(const QString &description, const QList<MimeGlobPattern> &globs);
 
 private:
     explicit MimeType(const MimeTypeData &d);

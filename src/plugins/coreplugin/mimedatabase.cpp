@@ -59,6 +59,7 @@ static const char *commentTagC = "comment";
 static const char *globTagC = "glob";
 static const char *aliasTagC = "alias";
 static const char *patternAttributeC = "pattern";
+static const char *weightAttributeC = "weight";
 static const char *localeAttributeC = "xml:lang";
 
 static const char *magicTagC = "magic";
@@ -67,6 +68,7 @@ static const char *matchTagC = "match";
 static const char *matchValueAttributeC = "value";
 static const char *matchTypeAttributeC = "type";
 static const char *matchStringTypeValueC = "string";
+static const char *matchByteTypeValueC = "byte";
 static const char *matchOffsetAttributeC = "offset";
 
 // Types
@@ -78,7 +80,10 @@ static const char bigEndianByteOrderMarkC[] = "\xFE\xFF";
 static const char littleEndianByteOrderMarkC[] = "\xFF\xFE";
 
 // Fallback priorities, must be low.
-enum { BinaryMatchPriority = 1, TextMatchPriority = 2};
+enum {
+    BinaryMatchPriority = Core::MimeGlobPattern::MinWeight + 1,
+    TextMatchPriority
+};
 
 /* Parse sth like (<mime-info> being optional):
  *\code
@@ -87,7 +92,7 @@ enum { BinaryMatchPriority = 1, TextMatchPriority = 2};
   <!-- Mime types must match the desktop file associations -->
   <mime-type type="application/vnd.nokia.qt.qmakeprofile">
     <comment xml:lang="en">Qt qmake Profile</comment>
-    <glob pattern="*.pro"/>
+    <glob pattern="*.pro" weight="50"/>
   </mime-type>
 </mime-info>
  *\endcode
@@ -199,33 +204,92 @@ bool HeuristicTextMagicMatcher::matches(const QByteArray &data) const
 } // namespace Internal
 
 // MagicRule
-MagicRule::MagicRule(const QByteArray &pattern, int startPos, int endPos) :
-    m_pattern(pattern),
-    m_startPos(startPos),
-    m_endPos(endPos)
+MagicRule::MagicRule(int startPos, int endPos) : m_startPos(startPos), m_endPos(endPos)
 {
 }
 
-bool MagicRule::matches(const QByteArray &data) const
+MagicRule::~MagicRule()
+{
+}
+
+int MagicRule::startPos() const
+{
+    return m_startPos;
+}
+
+int MagicRule::endPos() const
+{
+    return m_endPos;
+}
+
+MagicStringRule::MagicStringRule(const QString &s, int startPos, int endPos) :
+    MagicRule(startPos, endPos), m_pattern(s.toUtf8())
+{
+}
+
+MagicStringRule::~MagicStringRule()
+{
+}
+
+bool MagicStringRule::matches(const QByteArray &data) const
 {
     // Quick check
-    const int dataSize = data.size();
-    if ((m_startPos + m_pattern.size()) >= dataSize)
+    if ((startPos() + m_pattern.size()) > data.size())
         return false;
     // Most common: some string at position 0:
-    if (m_startPos == 0 && m_startPos == m_endPos)
+    if (startPos() == 0 && startPos() == endPos())
         return data.startsWith(m_pattern);
     // Range
-    const int index = data.indexOf(m_pattern, m_startPos);
-    const bool rc = index != -1 && index < m_endPos;
+    const int index = data.indexOf(m_pattern, startPos());
+    const bool rc = index != -1 && index <= endPos();
     if (debugMimeDB)
-        qDebug() << "Checking " << m_pattern << m_startPos << m_endPos << " returns " << rc;
+        qDebug() << "Checking " << m_pattern << startPos() << endPos() << " returns " << rc;
     return rc;
 }
 
-MagicRule *MagicRule::createStringRule(const QString &c, int startPos, int endPos)
+MagicByteRule::MagicByteRule(const QString &s, int startPos, int endPos) :
+    MagicRule(startPos, endPos)
 {
-    return new MagicRule(c.toUtf8(), startPos, endPos);
+    // Expect an hex format value like this: \0x7f\0x45\0x4c\0x46
+    const QStringList &bytes = s.split(QLatin1Char('\\'), QString::SkipEmptyParts);
+    foreach (const QString &byte, bytes) {
+        bool ok;
+        const int hex = byte.toInt(&ok, 16);
+        if (ok) {
+            m_bytes.push_back(hex);
+        } else {
+            m_bytes.clear();
+            break;
+        }
+    }
+    m_bytesSize = m_bytes.size();
+}
+
+MagicByteRule::~MagicByteRule()
+{
+}
+
+bool MagicByteRule::matches(const QByteArray &data) const
+{
+    if (m_bytesSize == 0)
+        return false;
+
+    const int dataSize = data.size();
+    for (int start = startPos(); start <= endPos(); ++start) {
+        if ((start + m_bytesSize) > dataSize)
+            return false;
+
+        int matchAt = 0;
+        while (matchAt < m_bytesSize) {
+            if (data.at(start + matchAt) != m_bytes.at(matchAt))
+                break;
+            ++matchAt;
+        }
+        if (matchAt == m_bytesSize)
+            return true;
+    }
+
+    return false;
 }
 
 // List matcher
@@ -258,6 +322,26 @@ void MagicRuleMatcher::setPriority(int p)
     m_priority = p;
 }
 
+// GlobPattern
+MimeGlobPattern::MimeGlobPattern(const QRegExp &regExp, int weight) :
+    m_regExp(regExp), m_weight(weight)
+{
+}
+
+MimeGlobPattern::~MimeGlobPattern()
+{
+}
+
+const QRegExp &MimeGlobPattern::regExp() const
+{
+    return m_regExp;
+}
+
+int MimeGlobPattern::weight() const
+{
+    return m_weight;
+}
+
 // ---------- MimeTypeData
 class MimeTypeData : public QSharedData {
 public:
@@ -270,7 +354,7 @@ public:
 
     LocaleHash localeComments;
     QStringList aliases;
-    QList<QRegExp> globPatterns;
+    QList<MimeGlobPattern> globPatterns;
     QStringList subClassesOf;
     QString preferredSuffix;
     QStringList suffixes;
@@ -305,8 +389,8 @@ void MimeTypeData::debug(QTextStream &str, int indent) const
         str << indentS << "SubClassesOf: " << subClassesOf.join(comma) << '\n';
     if (!globPatterns.empty()) {
         str << indentS << "Glob: ";
-        foreach (const QRegExp &r, globPatterns)
-            str << r.pattern() << ' ';
+        foreach (const MimeGlobPattern &gp, globPatterns)
+            str << gp.regExp().pattern() << ' (' << gp.weight() << ') ';
         str << '\n';
         if (!suffixes.empty()) {
             str <<  indentS << "Suffixes: " << suffixes.join(comma)
@@ -417,12 +501,12 @@ void MimeType::setAliases(const QStringList &a)
      m_d->aliases = a;
 }
 
-QList<QRegExp> MimeType::globPatterns() const
+QList<MimeGlobPattern> MimeType::globPatterns() const
 {
     return m_d->globPatterns;
 }
 
-void MimeType::setGlobPatterns(const QList<QRegExp> &g)
+void MimeType::setGlobPatterns(const QList<MimeGlobPattern> &g)
 {
     m_d->globPatterns = g;
 }
@@ -455,7 +539,7 @@ bool MimeType::setPreferredSuffix(const QString &s)
     return true;
 }
 
-QString MimeType::formatFilterString(const QString &description, const QList<QRegExp> &globs)
+QString MimeType::formatFilterString(const QString &description, const QList<MimeGlobPattern> &globs)
 {
     QString rc;
     if (globs.empty())  // Binary files
@@ -469,7 +553,7 @@ QString MimeType::formatFilterString(const QString &description, const QList<QRe
             for (int i = 0; i < size; i++) {
                 if (i)
                     str << ' ';
-                str << globs.at(i).pattern();
+                str << globs.at(i).regExp().pattern();
             }
             str << ')';
         }
@@ -491,35 +575,41 @@ bool MimeType::matchesType(const QString &type) const
 unsigned MimeType::matchesFile(const QFileInfo &file) const
 {
     Internal::FileMatchContext context(file);
-    if (const unsigned suffixPriority = matchesFileBySuffix(context))
+    const unsigned suffixPriority = matchesFileBySuffix(context);
+    if (suffixPriority >= MimeGlobPattern::MaxWeight)
         return suffixPriority;
-    return matchesFileByContent(context);
+    return qMax(suffixPriority, matchesFileByContent(context));
 }
 
 unsigned MimeType::matchesFileBySuffix(Internal::FileMatchContext &c) const
 {
     // check globs
-    foreach (const QRegExp &pattern, m_d->globPatterns) {
-        if (pattern.exactMatch(c.fileName()))
-            return GlobMatchPriority;
+    foreach (const MimeGlobPattern &gp, m_d->globPatterns) {
+        if (gp.regExp().exactMatch(c.fileName()))
+            return gp.weight();
     }
     return 0;
 }
 
 unsigned MimeType::matchesFileByContent(Internal::FileMatchContext &c) const
 {
+    unsigned priority = 0;
+
     // Nope, try magic matchers on context data
     if (m_d->magicMatchers.isEmpty())
-        return 0;
+        return priority;
 
     const QByteArray data = c.data();
     if (!data.isEmpty()) {
         foreach (const MimeTypeData::IMagicMatcherSharedPointer &matcher, m_d->magicMatchers) {
-            if (matcher->matches(data))
-                return matcher->priority();
+            if (matcher->matches(data)) {
+                const unsigned magicPriority = matcher->priority();
+                if (magicPriority > priority)
+                    priority = magicPriority;
+            }
         }
     }
-    return 0;
+    return priority;
 }
 
 QStringList MimeType::suffixes() const
@@ -564,7 +654,7 @@ private:
     // Overwrite to process the sequence of parsed data
     virtual bool process(const MimeType &t, QString *errorMessage) = 0;
 
-    void addGlobPattern(const QString &pattern, MimeTypeData *d) const;
+    void addGlobPattern(const QString &pattern, const QString &weight, MimeTypeData *d) const;
 
     enum ParseStage { ParseBeginning,
                   ParseMimeInfo,
@@ -591,7 +681,7 @@ BaseMimeTypeParser:: BaseMimeTypeParser() :
     QTC_ASSERT(m_suffixPattern.isValid(), /**/);
 }
 
-void BaseMimeTypeParser::addGlobPattern(const QString &pattern, MimeTypeData *d) const
+void BaseMimeTypeParser::addGlobPattern(const QString &pattern, const QString &weight, MimeTypeData *d) const
 {
     if (pattern.isEmpty())
         return;
@@ -604,7 +694,11 @@ void BaseMimeTypeParser::addGlobPattern(const QString &pattern, MimeTypeData *d)
         return;
     }
 
-    d->globPatterns.push_back(wildCard);
+    if (weight.isEmpty())
+        d->globPatterns.push_back(MimeGlobPattern(wildCard));
+    else
+        d->globPatterns.push_back(MimeGlobPattern(wildCard, weight.toInt()));
+
     if (m_suffixPattern.exactMatch(pattern)) {
         const QString suffix = pattern.right(pattern.size() - 2);
         d->suffixes.push_back(suffix);
@@ -674,7 +768,8 @@ static bool addMagicMatchRule(const QXmlStreamAttributes &atts,
                               QString *errorMessage)
 {
     const QString type = atts.value(QLatin1String(matchTypeAttributeC)).toString();
-    if (type != QLatin1String(matchStringTypeValueC)) {
+    if (type != QLatin1String(matchStringTypeValueC) &&
+        type != QLatin1String(matchByteTypeValueC)) {
         qWarning("%s: match type %s is not supported.", Q_FUNC_INFO, type.toUtf8().constData());
         return true;
     }
@@ -693,7 +788,11 @@ static bool addMagicMatchRule(const QXmlStreamAttributes &atts,
         return false;
     if (debugMimeDB)
         qDebug() << Q_FUNC_INFO << value << startPos << endPos;
-    ruleMatcher->add(QSharedPointer<MagicRule>(MagicRule::createStringRule(value, startPos, endPos)));
+
+    if (type == QLatin1String(matchStringTypeValueC))
+        ruleMatcher->add(QSharedPointer<MagicRule>(new MagicStringRule(value, startPos, endPos)));
+    else
+        ruleMatcher->add(QSharedPointer<MagicRule>(new MagicByteRule(value, startPos, endPos)));
     return true;
 }
 
@@ -703,13 +802,15 @@ bool BaseMimeTypeParser::parse(QIODevice *dev, const QString &fileName, QString 
     MagicRuleMatcherPtr ruleMatcher;
     QXmlStreamReader reader(dev);
     ParseStage ps = ParseBeginning;
+    QXmlStreamAttributes atts;
     while (!reader.atEnd()) {
         switch (reader.readNext()) {
         case QXmlStreamReader::StartElement:
             ps = nextStage(ps, reader.name());
+            atts = reader.attributes();
             switch (ps) {
             case ParseMimeType: { // start parsing a type
-                const QString type = reader.attributes().value(QLatin1String(mimeTypeAttributeC)).toString();
+                const QString type = atts.value(QLatin1String(mimeTypeAttributeC)).toString();
                 if (type.isEmpty()) {
                     reader.raiseError(QString::fromLatin1("Missing 'type'-attribute"));
                 } else {
@@ -718,17 +819,18 @@ bool BaseMimeTypeParser::parse(QIODevice *dev, const QString &fileName, QString 
             }
                 break;
             case ParseGlobPattern:
-                addGlobPattern(reader.attributes().value(QLatin1String(patternAttributeC)).toString(), &data);
+                addGlobPattern(atts.value(QLatin1String(patternAttributeC)).toString(),
+                               atts.value(QLatin1String(weightAttributeC)).toString(), &data);
                 break;
             case ParseSubClass: {
-                const QString inheritsFrom = reader.attributes().value(QLatin1String(mimeTypeAttributeC)).toString();
+                const QString inheritsFrom = atts.value(QLatin1String(mimeTypeAttributeC)).toString();
                 if (!inheritsFrom.isEmpty())
                     data.subClassesOf.push_back(inheritsFrom);
             }
                 break;
             case ParseComment: {
                 // comments have locale attributes. We want the default, English one
-                QString locale = reader.attributes().value(QLatin1String(localeAttributeC)).toString();
+                QString locale = atts.value(QLatin1String(localeAttributeC)).toString();
                 const QString comment = QCoreApplication::translate("MimeType", reader.readElementText().toAscii());
                 if (locale.isEmpty()) {
                     data.comment = comment;
@@ -738,14 +840,14 @@ bool BaseMimeTypeParser::parse(QIODevice *dev, const QString &fileName, QString 
             }
                 break;
             case ParseAlias: {
-                const QString alias = reader.attributes().value(QLatin1String(mimeTypeAttributeC)).toString();
+                const QString alias = atts.value(QLatin1String(mimeTypeAttributeC)).toString();
                 if (!alias.isEmpty())
                     data.aliases.push_back(alias);
             }
                 break;
             case ParseMagic: {
                 int priority = 0;
-                const QString priorityS = reader.attributes().value(QLatin1String(priorityAttributeC)).toString();
+                const QString priorityS = atts.value(QLatin1String(priorityAttributeC)).toString();
                 if (!priorityS.isEmpty()) {
                     if (!parseNumber(priorityS, &priority, errorMessage))
                         return false;
@@ -757,7 +859,7 @@ bool BaseMimeTypeParser::parse(QIODevice *dev, const QString &fileName, QString 
                 break;
             case ParseMagicMatchRule:
                 QTC_ASSERT(!ruleMatcher.isNull(), return false)
-                if (!addMagicMatchRule(reader.attributes(), ruleMatcher, errorMessage))
+                if (!addMagicMatchRule(atts, ruleMatcher, errorMessage))
                     return false;
                 break;
             case ParseError:
@@ -927,7 +1029,7 @@ bool MimeDatabasePrivate::addMimeType(MimeType mt)
         mt.addMagicMatcher(QSharedPointer<IMagicMatcher>(new Internal::HeuristicTextMagicMatcher));
     } else {
         if (type == QLatin1String(binaryTypeC))
-             mt.addMagicMatcher(QSharedPointer<IMagicMatcher>(new Internal::BinaryMatcher));
+            mt.addMagicMatcher(QSharedPointer<IMagicMatcher>(new Internal::BinaryMatcher));
     }
     // insert the type.
     m_typeMimeTypeMap.insert(type, MimeMapEntry(mt));
@@ -1057,35 +1159,44 @@ MimeType MimeDatabasePrivate::findByFile(const QFileInfo &f, unsigned *priorityP
         MimeDatabasePrivate *db = const_cast<MimeDatabasePrivate *>(this);
         db->determineLevels();
     }
-    // Starting from max level (most specific): Try to find a match of
-    // best (max) priority. Return if a glob match triggers.
+
+    // First, glob patterns are evaluated. If there is a match with max weight,
+    // this one is selected and we are done. Otherwise, the file contents are
+    // evaluated and the match with the highest value (either a magic priority or
+    // a glob pattern weight) is selected. Matching starts from max level (most
+    // specific) in both cases, even when there is already a suffix matching candidate.
     *priorityPtr = 0;
+    MimeType candidate;
     Internal::FileMatchContext context(f);
+
     // Pass 1) Try to match on suffix
     const TypeMimeTypeMap::const_iterator cend = m_typeMimeTypeMap.constEnd();
-    for (int level = m_maxLevel; level >= 0; level--)
+    for (int level = m_maxLevel; level >= 0 && candidate.isNull(); level--)
         for (TypeMimeTypeMap::const_iterator it = m_typeMimeTypeMap.constBegin(); it != cend; ++it)
-            if (it.value().level == level)
-                if (const unsigned suffixPriority = it.value().type.matchesFileBySuffix(context)) {
+            if (it.value().level == level) {
+                const unsigned suffixPriority = it.value().type.matchesFileBySuffix(context);
+                if (suffixPriority && suffixPriority > *priorityPtr) {
                     *priorityPtr = suffixPriority;
-                    return it.value().type;
+                    candidate = it.value().type;
+                    if (suffixPriority >= MimeGlobPattern::MaxWeight)
+                        return candidate;
                 }
+            }
+
     // Pass 2) Match on content
-    MimeType rc;
     if (!f.isReadable())
-        return rc;
-    unsigned maxPriority = 0;
+        return candidate;
     for (int level = m_maxLevel; level >= 0; level--)
         for (TypeMimeTypeMap::const_iterator it = m_typeMimeTypeMap.constBegin(); it != cend; ++it)
             if (it.value().level == level) {
-                const unsigned priority = it.value().type.matchesFileByContent(context);
-                if (priority && priority > maxPriority) {
-                    rc = it.value().type;
-                    maxPriority = priority;
+                const unsigned contentPriority = it.value().type.matchesFileByContent(context);
+                if (contentPriority && contentPriority > *priorityPtr) {
+                    *priorityPtr = contentPriority;
+                    candidate = it.value().type;
                 }
             }
-    *priorityPtr = maxPriority;
-    return rc;
+
+    return candidate;
 }
 
 // Return all known suffixes

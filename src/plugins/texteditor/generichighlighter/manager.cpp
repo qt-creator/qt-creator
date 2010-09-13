@@ -215,7 +215,7 @@ void Manager::gatherDefinitionsMimeTypes(QFutureInterface<Core::MimeType> &futur
             // tell which patterns belong to which MIME types nor whether a MIME type is just
             // an alias for the other. Currently, I associate all patterns with all MIME
             // types from a definition.
-            QList<QRegExp> patterns;
+            QList<Core::MimeGlobPattern> globPatterns;
             foreach (const QString &type, metaData->mimeTypes()) {
                 if (m_idByMimeType.contains(type))
                     continue;
@@ -223,7 +223,7 @@ void Manager::gatherDefinitionsMimeTypes(QFutureInterface<Core::MimeType> &futur
                 m_idByMimeType.insert(type, id);
                 Core::MimeType mimeType = mimeDatabase->findByType(type);
                 if (mimeType.isNull()) {
-                    if (patterns.isEmpty()) {
+                    if (globPatterns.isEmpty()) {
                         foreach (const QString &pattern, metaData->patterns()) {
                             static const QLatin1String mark("*.");
                             if (pattern.startsWith(mark)) {
@@ -233,14 +233,15 @@ void Manager::gatherDefinitionsMimeTypes(QFutureInterface<Core::MimeType> &futur
                                 else
                                     continue;
                             }
-                            patterns.append(QRegExp(pattern, Qt::CaseSensitive, QRegExp::Wildcard));
+                            QRegExp regExp(pattern, Qt::CaseSensitive, QRegExp::Wildcard);
+                            globPatterns.append(Core::MimeGlobPattern(regExp, 50));
                         }
                     }
 
                     mimeType.setType(type);
                     mimeType.setSubClassesOf(textPlain);
                     mimeType.setComment(metaData->name());
-                    mimeType.setGlobPatterns(patterns);
+                    mimeType.setGlobPatterns(globPatterns);
 
                     mimeDatabase->addMimeType(mimeType);
                     future.reportResult(mimeType);

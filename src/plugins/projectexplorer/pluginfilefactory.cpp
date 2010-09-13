@@ -87,7 +87,7 @@ QList<ProjectFileFactory *> ProjectFileFactory::createFactories(QString *filterS
     QList<IProjectManager*> projectManagers =
         ExtensionSystem::PluginManager::instance()->getObjects<IProjectManager>();
 
-    QList<QRegExp> allGlobPatterns;
+    QList<Core::MimeGlobPattern> allGlobPatterns;
 
     const QString filterSeparator = QLatin1String(";;");
     filterString->clear();

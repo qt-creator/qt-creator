@@ -244,10 +244,10 @@ static QStringList qmlFilesInDirectory(const QString &path)
     Core::MimeType qmlSourceTy = db->findByType(QmlJSEditor::Constants::QML_MIMETYPE);
 
     QStringList pattern;
-    foreach (const QRegExp &glob, jsSourceTy.globPatterns())
-        pattern << glob.pattern();
-    foreach (const QRegExp &glob, qmlSourceTy.globPatterns())
-        pattern << glob.pattern();
+    foreach (const Core::MimeGlobPattern &glob, jsSourceTy.globPatterns())
+        pattern << glob.regExp().pattern();
+    foreach (const Core::MimeGlobPattern &glob, qmlSourceTy.globPatterns())
+        pattern << glob.regExp().pattern();
 
     QStringList files;
 

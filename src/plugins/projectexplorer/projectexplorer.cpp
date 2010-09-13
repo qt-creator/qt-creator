@@ -2352,8 +2352,8 @@ QStringList ProjectExplorerPlugin::projectFilePatterns()
     const Core::MimeDatabase *mdb = Core::ICore::instance()->mimeDatabase();
     foreach(const IProjectManager *pm, allProjectManagers())
         if (const Core::MimeType mt = mdb->findByType(pm->mimeType()))
-            foreach(const QRegExp &re, mt.globPatterns())
-                patterns += re.pattern();
+            foreach(const Core::MimeGlobPattern &gp, mt.globPatterns())
+                patterns += gp.regExp().pattern();
     return patterns;
 }
 

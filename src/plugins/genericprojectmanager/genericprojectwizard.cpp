@@ -197,8 +197,8 @@ Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
     Core::MimeType headerTy = mimeDatabase->findByType(QLatin1String("text/x-chdr"));
 
     QStringList nameFilters;
-    foreach (const QRegExp &rx, headerTy.globPatterns())
-        nameFilters.append(rx.pattern());
+    foreach (const Core::MimeGlobPattern &gp, headerTy.globPatterns())
+        nameFilters.append(gp.regExp().pattern());
 
     QStringList includePaths;
     foreach (const QString &path, paths) {
