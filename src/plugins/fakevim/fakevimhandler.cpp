@@ -758,6 +758,7 @@ public:
     int m_visualInsertCount;
 
     bool m_fakeEnd;
+    bool m_fakeBlock;
     bool m_anchorPastEnd;
     bool m_positionPastEnd; // '$' & 'l' in visual mode can move past eol
 
@@ -941,6 +942,7 @@ void FakeVimHandler::Private::init()
     m_passing = false;
     m_findPending = false;
     m_fakeEnd = false;
+    m_fakeBlock = false;
     m_positionPastEnd = m_anchorPastEnd = false;
     m_lastSearchForward = true;
     m_register = '"';
@@ -1022,6 +1024,13 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
     // Fake "End of line"
     m_tc = EDITOR(textCursor());
 
+    //bool hasBlock = false;
+    //emit q->requestHasBlockSelection(&hasBlock);
+    //qDebug() << "IMPORT BLOCK 2:" << hasBlock;
+
+    //if (0 && hasBlock) {
+    //    (pos > anc) ? --pos : --anc;
+
     // Position changed externally
     if (m_tc.position() != m_oldPosition) {
         setTargetColumn();
@@ -1042,6 +1051,8 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
 
     if (m_fakeEnd)
         moveRight();
+    if (m_fakeBlock)
+        moveLeft();
 
     //if ((mods & Qt::ControlModifier) != 0) {
     //    if (key >= Key_A && key <= Key_Z)
@@ -1061,13 +1072,15 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
     if (m_textedit || m_plaintextedit) {
         // We fake vi-style end-of-line behaviour
         m_fakeEnd = atEndOfLine() && m_mode == CommandMode && !isVisualBlockMode();
+        m_fakeBlock = position() > anchor() && isVisualBlockMode();
 
         //QTC_ASSERT(m_mode == InsertMode || m_mode == ReplaceMode
         //        || !m_tc.atBlockEnd() || m_tc.block().length() <= 1,
         //    qDebug() << "Cursor at EOL after key handler");
-
         if (m_fakeEnd)
             moveLeft();
+        if (m_fakeBlock)
+            moveRight();
 
         EDITOR(setTextCursor(m_tc));
         m_oldPosition = m_tc.position();
@@ -1115,9 +1128,13 @@ void FakeVimHandler::Private::exportSelection()
     int pos = position();
     int anc = anchor();
     if (m_visualMode == VisualBlockMode) {
-        //tc.setPosition(anc, MoveAnchor);
-        //tc.setPosition(pos, KeepAnchor);
-        //EDITOR(setTextCursor(tc));
+        //(pos > anc) ? ++pos : ++anc;
+        //if (anc > pos)
+        //    ++anc;
+        tc.setPosition(anc, MoveAnchor);
+        tc.setPosition(pos, KeepAnchor);
+        EDITOR(setTextCursor(tc));
+        emit q->requestSetBlockSelection(true);
     } else if (m_visualMode == VisualLineMode) {
         int posLine = lineForPosition(pos);
         int ancLine = lineForPosition(anc);
@@ -1164,11 +1181,11 @@ void FakeVimHandler::Private::importSelection()
         m_visualMode = VisualLineMode;
     else
         m_visualMode = VisualCharMode;
-    m_tc = tc; // needed in updateSelection
-    tc.clearSelection();
-    EDITOR(setTextCursor(tc));
-    updateSelection();
-    exportSelection();
+    //tc.clearSelection();
+    m_tc = tc;
+    //EDITOR(setTextCursor(tc));
+    //updateSelection();
+    //exportSelection();
 }
 
 void FakeVimHandler::Private::updateEditor()
@@ -1508,6 +1525,7 @@ void FakeVimHandler::Private::updateSelection()
         sel.format.setBackground(Qt::black);
         selections.append(sel);
     }
+#if 0
     if (isVisualMode()) {
         QTextEdit::ExtraSelection sel;
         sel.cursor = m_tc;
@@ -1560,6 +1578,7 @@ void FakeVimHandler::Private::updateSelection()
             }
         }
     }
+#endif
     //qDebug() << "SELECTION: " << selections;
     if (hasConfig(ConfigShowMarks)) {
         for (QHashIterator<int, int> it(m_marks); it.hasNext(); ) {

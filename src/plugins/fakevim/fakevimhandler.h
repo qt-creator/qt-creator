@@ -123,6 +123,8 @@ signals:
     void findRequested(bool reverse);
     void findNextRequested(bool reverse);
     void handleExCommandRequested(bool *handled, const ExCommand &cmd);
+    void requestSetBlockSelection(bool on);
+    void requestHasBlockSelection(bool *on);
 
 public:
     class Private;

@@ -501,6 +501,8 @@ private slots:
     void findNext(bool reverse);
     void showSettingsDialog();
     void maybeReadVimRc();
+    void setBlockSelection(bool);
+    void hasBlockSelection(bool*);
 
     void showCommandBuffer(const QString &contents);
     void showExtraInformation(const QString &msg);
@@ -831,6 +833,10 @@ void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
         this, SLOT(indentRegion(int,int,QChar)));
     connect(handler, SIGNAL(checkForElectricCharacter(bool*,QChar)),
         this, SLOT(checkForElectricCharacter(bool*,QChar)));
+    connect(handler, SIGNAL(requestSetBlockSelection(bool)),
+        this, SLOT(setBlockSelection(bool)));
+    connect(handler, SIGNAL(requestHasBlockSelection(bool*)),
+        this, SLOT(hasBlockSelection(bool*)));
     connect(handler, SIGNAL(completionRequested()),
         this, SLOT(triggerCompletions()));
     connect(handler, SIGNAL(windowCommandRequested(int)),
@@ -891,6 +897,24 @@ void FakeVimPluginPrivate::triggerCompletions()
         TextEditor::Internal::CompletionSupport::instance()->
             autoComplete(bt->editableInterface(), false);
    //     bt->triggerCompletions();
+}
+
+void FakeVimPluginPrivate::setBlockSelection(bool on)
+{
+    FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
+    if (!handler)
+        return;
+    if (BaseTextEditor *bt = qobject_cast<BaseTextEditor *>(handler->widget()))
+        bt->setBlockSelection(on);
+}
+
+void FakeVimPluginPrivate::hasBlockSelection(bool *on)
+{
+    FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
+    if (!handler)
+        return;
+    if (BaseTextEditor *bt = qobject_cast<BaseTextEditor *>(handler->widget()))
+        *on = bt->hasBlockSelection();
 }
 
 void FakeVimPluginPrivate::checkForElectricCharacter(bool *result, QChar c)
