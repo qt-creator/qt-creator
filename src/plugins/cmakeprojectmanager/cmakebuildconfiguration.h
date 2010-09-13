@@ -64,6 +64,8 @@ public:
 
     ProjectExplorer::IOutputParser *createOutputParser() const;
 
+    Utils::Environment baseEnvironment() const;
+
 signals:
     void msvcVersionChanged();
 

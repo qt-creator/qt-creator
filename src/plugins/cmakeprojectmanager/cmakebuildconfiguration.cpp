@@ -169,6 +169,14 @@ ProjectExplorer::IOutputParser *CMakeBuildConfiguration::createOutputParser() co
     return 0;
 }
 
+Utils::Environment CMakeBuildConfiguration::baseEnvironment() const
+{
+    Utils::Environment env = BuildConfiguration::baseEnvironment();
+    if (m_toolChain)
+        m_toolChain->addToEnvironment(env);
+    return env;
+}
+
 /*!
   \class CMakeBuildConfigurationFactory
 */
