@@ -59,6 +59,7 @@ struct ThreadData
         FileColumn,
         LineColumn,
         StateColumn,
+        NameColumn,
         CoreColumn,
         ColumnCount = CoreColumn
     };
@@ -77,6 +78,7 @@ struct ThreadData
     QString fileName;
     QString state;
     int lineNumber;
+    QString name;
 };
 
 typedef QVector<ThreadData> Threads;

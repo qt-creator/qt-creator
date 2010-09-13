@@ -2042,6 +2042,7 @@ void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine, bool notify)
     m_stackWindow->setModel(engine->stackModel());
     m_threadsWindow->setModel(engine->threadsModel());
     m_threadBox->setModel(engine->threadsModel());
+    m_threadBox->setModelColumn(ThreadData::NameColumn);
     m_watchersWindow->setModel(engine->watchersModel());
     m_capabilities = engine->debuggerCapabilities();
     if (notify)

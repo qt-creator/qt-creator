@@ -149,6 +149,10 @@ QVariant ThreadsHandler::data(const QModelIndex &index, int role) const
             return thread.core;
         case ThreadData::StateColumn:
             return thread.state;
+        case ThreadData::NameColumn:
+            if (thread.name.isEmpty())
+                return thread.id;
+            return thread.name;
         }
     case Qt::ToolTipRole:
         return threadToolTip(thread);
@@ -183,6 +187,8 @@ QVariant ThreadsHandler::headerData
         return tr("Core");
     case ThreadData::StateColumn:
         return tr("State");
+    case ThreadData::NameColumn:
+        return tr("Name");
     }
     return QVariant();
 }

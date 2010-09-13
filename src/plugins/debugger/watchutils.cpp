@@ -716,6 +716,12 @@ QString decodeData(const QByteArray &ba, int encoding)
             return doubleQuote + QString::fromUtf16(reinterpret_cast<const ushort *>
                 (decodedBa.data()), decodedBa.size() / 2) + doubleQuote;
         }
+        case 12: { //  %04x encoded 16 bit data, Little Endian, without quotes (see 7)
+            const QByteArray decodedBa = QByteArray::fromHex(ba);
+            //qDebug() << quoteUnprintableLatin1(decodedBa) << "\n\n";
+            return QString::fromUtf16(reinterpret_cast<const ushort *>
+                (decodedBa.data()), decodedBa.size() / 2);
+        }
     }
     qDebug() << "ENCODING ERROR: " << encoding;
     return QCoreApplication::translate("Debugger", "<Encoding error>");

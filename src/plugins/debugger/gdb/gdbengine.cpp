@@ -2963,6 +2963,7 @@ void GdbEngine::handleThreadInfo(const GdbResponse &response)
             response.data.findChild("current-thread-id").data().toInt();
         threadsHandler()->setCurrentThreadId(currentThreadId);
         plugin()->updateState(this); // Adjust Threads combobox.
+        postCommand("threadnames " + theDebuggerAction(MaximalStackDepth)->value().toByteArray(), CB(handleThreadNames), id);
     } else {
         // Fall back for older versions: Try to get at least a list
         // of running threads.
@@ -2984,6 +2985,31 @@ void GdbEngine::handleThreadListIds(const GdbResponse &response)
     }
     threadsHandler()->setThreads(threads);
     threadsHandler()->setCurrentThreadId(id);
+}
+
+void GdbEngine::handleThreadNames(const GdbResponse &response)
+{
+    if (response.resultClass == GdbResultDone) {
+        GdbMi contents = response.data.findChild("consolestreamoutput");
+        GdbMi names;
+        names.fromString(contents.data());
+
+        Threads threads = threadsHandler()->threads();
+
+        foreach (const GdbMi &name, names.children()) {
+            int id = name.findChild("id").data().toInt();
+            for (int index = 0, n = threads.size(); index != n; ++index) {
+                ThreadData & thread = threads[index];
+                if (thread.id == id) {
+                    thread.name = decodeData(name.findChild("value").data(), name.findChild("valueencoded").data().toInt());
+                    break;
+                }
+            }
+        }
+        threadsHandler()->setThreads(threads);
+        plugin()->updateState(this);
+    }
+
 }
 
 

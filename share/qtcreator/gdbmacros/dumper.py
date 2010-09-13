@@ -61,8 +61,9 @@ Hex4EncodedLittleEndian, \
 Hex8EncodedLittleEndian, \
 Hex2EncodedUtf8, \
 Hex8EncodedBigEndian, \
-Hex4EncodedBigEndian \
-    = range(12)
+Hex4EncodedBigEndian, \
+Hex4EncodedLittleEndianWithoutQuotes \
+    = range(13)
 
 # Display modes
 StopDisplay, \
@@ -1683,5 +1684,46 @@ class Dumper:
                         self.putType(field.type)
                     with Children(self, 1):
                         self.listAnonymous(child, name, field.type)
+
+#######################################################################
+#
+# ThreadNames Command
+#
+#######################################################################
+
+
+class ThreadNamesCommand(gdb.Command):
+    """Guess Thread names"""
+
+    def __init__(self):
+        super(ThreadNamesCommand, self).__init__("threadnames", gdb.COMMAND_OBSCURE)
+        self.ns = qtNamespace()
+
+    def invoke(self, arg, from_tty):
+        out = '['
+        for thread in gdb.inferiors()[0].threads():
+            maximalStackDepth = int(arg)
+            thread.switch()
+            e = gdb.selected_frame ()
+            while True:
+                maximalStackDepth -= 1
+                if maximalStackDepth < 0:
+                    break
+                e = e.older()
+                if e == None or e.name() == None:
+                    break
+                if e.name() == self.ns + "QThreadPrivate::start":
+                    thrptr = e.read_var("thr").dereference()
+                    d_ptr = thrptr["d_ptr"]["d"].cast(lookupType(self.ns + "QObjectPrivate").pointer()).dereference()
+                    #warn("D_PTR: %s " % d_ptr)
+                    objectName = d_ptr["objectName"]
+                    i = 0
+                    out += '{valueencoded="' + str(Hex4EncodedLittleEndianWithoutQuotes)+'",id="'
+                    out += str(thread.num) + '",value="'
+                    out += encodeString(objectName)
+                    out += '"},'
+        print out[:-1] + ']'
+
+ThreadNamesCommand()
 
 
