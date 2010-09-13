@@ -323,7 +323,7 @@ void MagicRuleMatcher::setPriority(int p)
 }
 
 // GlobPattern
-MimeGlobPattern::MimeGlobPattern(const QRegExp &regExp, int weight) :
+MimeGlobPattern::MimeGlobPattern(const QRegExp &regExp, unsigned weight) :
     m_regExp(regExp), m_weight(weight)
 {
 }
@@ -337,7 +337,7 @@ const QRegExp &MimeGlobPattern::regExp() const
     return m_regExp;
 }
 
-int MimeGlobPattern::weight() const
+unsigned MimeGlobPattern::weight() const
 {
     return m_weight;
 }
@@ -390,7 +390,7 @@ void MimeTypeData::debug(QTextStream &str, int indent) const
     if (!globPatterns.empty()) {
         str << indentS << "Glob: ";
         foreach (const MimeGlobPattern &gp, globPatterns)
-            str << gp.regExp().pattern() << ' (' << gp.weight() << ') ';
+            str << gp.regExp().pattern() << '(' << gp.weight() << ')';
         str << '\n';
         if (!suffixes.empty()) {
             str <<  indentS << "Suffixes: " << suffixes.join(comma)

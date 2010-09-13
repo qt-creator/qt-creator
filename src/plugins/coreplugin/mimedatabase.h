@@ -139,18 +139,18 @@ private:
 class CORE_EXPORT MimeGlobPattern
 {
 public:
-    static const int MaxWeight = 100;
-    static const int MinWeight = 1;
+    static const unsigned MaxWeight = 100;
+    static const unsigned MinWeight = 1;
 
-    explicit MimeGlobPattern(const QRegExp &regExp, int weight = MaxWeight);
+    explicit MimeGlobPattern(const QRegExp &regExp, unsigned weight = MaxWeight);
     ~MimeGlobPattern();
 
     const QRegExp &regExp() const;
-    int weight() const;
+    unsigned weight() const;
 
 private:
-    const QRegExp m_regExp;
-    const int m_weight;
+    QRegExp m_regExp;
+    int m_weight;
 };
 
 /* Mime type data used in Qt Creator. Contains most information from
