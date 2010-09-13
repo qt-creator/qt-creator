@@ -240,7 +240,9 @@ void MaemoRemoteMounter::startUtfsClients()
                   .arg(mountSpec.remoteMountPoint);
         if (mountInfo.mountAsRoot)
             utfsClient.prepend(MaemoGlobal::remoteSudo() + QLatin1Char(' '));
-        remoteCall += andOp + mkdir + andOp + chmod + andOp + utfsClient;
+        QLatin1String seqOp("; ");
+        remoteCall += seqOp + MaemoGlobal::remoteSourceProfilesCommand()
+            + seqOp + mkdir + andOp + chmod + andOp + utfsClient;
     }
 
     emit reportProgress(tr("Starting remote UTFS clients..."));

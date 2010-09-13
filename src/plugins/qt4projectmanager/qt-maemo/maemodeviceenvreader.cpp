@@ -34,6 +34,7 @@
 
 #include "maemodeviceenvreader.h"
 
+#include "maemoglobal.h"
 #include "maemorunconfiguration.h"
 
 #include <coreplugin/ssh/sshconnection.h>
@@ -101,8 +102,7 @@ void MaemoDeviceEnvReader::executeRemoteCall()
     if (m_stop)
         return;
 
-    const QByteArray remoteCall("test -f /etc/profile && source /etc/profile; "
-        "test -f ~/.profile && source ~/.profile; env");
+    const QByteArray remoteCall = MaemoGlobal::remoteSourceProfilesCommand().toUtf8() + "; env";
     m_remoteProcess = m_connection->createRemoteProcess(remoteCall);
 
     connect(m_remoteProcess.data(), SIGNAL(closed(int)), this,

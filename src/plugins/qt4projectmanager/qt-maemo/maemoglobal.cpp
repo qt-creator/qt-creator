@@ -48,8 +48,18 @@ QString MaemoGlobal::remoteSudo()
 
 QString MaemoGlobal::remoteCommandPrefix(const QString &commandFilePath)
 {
-    return QString::fromLocal8Bit("%1 chmod a+x %2 && source /etc/profile; "
-        "source /home/user/.profile; ").arg(remoteSudo(), commandFilePath);
+    return QString::fromLocal8Bit("%1 chmod a+x %2; %3; ")
+        .arg(remoteSudo(), commandFilePath, remoteSourceProfilesCommand());
+}
+
+QString MaemoGlobal::remoteSourceProfilesCommand()
+{
+    const QList<QByteArray> profiles = QList<QByteArray>() << "/etc/profile"
+        << "/home/user/.profile" << "~/.profile";
+    QByteArray remoteCall(":");
+    foreach (const QByteArray &profile, profiles)
+        remoteCall += "; test -f " + profile + " && source " + profile;
+    return QString::fromAscii(remoteCall);
 }
 
 QString MaemoGlobal::remoteEnvironment(const QList<ProjectExplorer::EnvironmentItem> &list)
