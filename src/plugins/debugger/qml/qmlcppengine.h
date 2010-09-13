@@ -24,7 +24,7 @@ public:
 
     virtual void setToolTipExpression(const QPoint & /* mousePos */,
             TextEditor::ITextEditor * /* editor */, int /* cursorPos */);
-    virtual void updateWatchData(const WatchData & /* data */);
+    virtual void updateWatchData(const WatchData & /* data */, const WatchUpdateFlags &flags);
 
     virtual void watchPoint(const QPoint &);
     virtual void fetchMemory(MemoryViewAgent *, QObject *,

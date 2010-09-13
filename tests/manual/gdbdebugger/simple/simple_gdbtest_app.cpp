@@ -793,6 +793,7 @@ public:
 void testQObject(int &argc, char *argv[])
 {
     QApplication app(argc, argv);
+    QString longString = QString(10000, QLatin1Char('A'));
 #if 1
     Names::Bar::TestObject test;
     test.setMyProp1("HELLO");

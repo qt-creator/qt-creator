@@ -476,7 +476,7 @@ void QmlEngine::assignValueInDebugger(const QString &expression,
     }
 }
 
-void QmlEngine::updateWatchData(const WatchData &data)
+void QmlEngine::updateWatchData(const WatchData &data, const WatchUpdateFlags &)
 {
 //    qDebug() << "UPDATE WATCH DATA" << data.toString();
     //watchHandler()->rebuildModel();

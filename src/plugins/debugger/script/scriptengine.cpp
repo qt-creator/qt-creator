@@ -721,7 +721,7 @@ void ScriptEngine::updateLocals()
     notifyInferiorRunOk();
 }
 
-void ScriptEngine::updateWatchData(const WatchData &data)
+void ScriptEngine::updateWatchData(const WatchData &data, const WatchUpdateFlags &flags)
 {
     updateSubItem(data);
 }

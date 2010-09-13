@@ -117,7 +117,7 @@ private:
     void reloadFullStack() {}
 
     bool supportsThreads() const { return false; }
-    void updateWatchData(const WatchData &data);
+    void updateWatchData(const WatchData &data, const WatchUpdateFlags &flags);
     void executeDebuggerCommand(const QString& command);
 
     unsigned int debuggerCapabilities() const;

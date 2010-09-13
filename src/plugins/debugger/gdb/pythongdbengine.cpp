@@ -46,12 +46,11 @@
 namespace Debugger {
 namespace Internal {
 
-void GdbEngine::updateLocalsPython(const QByteArray &varList)
+void GdbEngine::updateLocalsPython(bool tryPartial, const QByteArray &varList)
 {
     PRECONDITION;
     m_processedNames.clear();
-
-    watchHandler()->beginCycle();
+    watchHandler()->beginCycle(!tryPartial);
     //m_toolTipExpression.clear();
     WatchHandler *handler = watchHandler();
 
@@ -84,6 +83,8 @@ void GdbEngine::updateLocalsPython(const QByteArray &varList)
         options += "pe,";
     if (options.isEmpty())
         options += "defaults,";
+    if (tryPartial)
+        options += "partial,";
     options.chop(1);
 
     QByteArray resultVar;
@@ -92,7 +93,7 @@ void GdbEngine::updateLocalsPython(const QByteArray &varList)
 
     postCommand("bb options:" + options + " vars:" + varList + ' '
             + resultVar + expanded + " watchers:" + watchers.toHex(),
-        WatchUpdate, CB(handleStackFramePython));
+        WatchUpdate, CB(handleStackFramePython), QVariant(tryPartial));
 }
 
 void GdbEngine::handleStackListLocalsPython(const GdbResponse &response)
@@ -105,7 +106,7 @@ void GdbEngine::handleStackListLocalsPython(const GdbResponse &response)
             varList.append(',');
             varList.append(child.data());
         }
-        updateLocalsPython(varList);
+        updateLocalsPython(false, varList);
     }
 }
 
@@ -113,6 +114,8 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
 {
     PRECONDITION;
     if (response.resultClass == GdbResultDone) {
+        bool partial = response.cookie.toBool();
+        //qDebug() << "READING " << (partial ? "PARTIAL" : "FULL");
         QByteArray out = response.data.findChild("consolestreamoutput").data();
         while (out.endsWith(' ') || out.endsWith('\n'))
             out.chop(1);

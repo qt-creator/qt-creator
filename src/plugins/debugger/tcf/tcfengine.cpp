@@ -554,7 +554,7 @@ void TcfEngine::updateLocals()
 {
 }
 
-void TcfEngine::updateWatchData(const WatchData &)
+void TcfEngine::updateWatchData(const WatchData &, const WatchUpdateFlags &)
 {
     //qq->watchHandler()->rebuildModel();
     showStatusMessage(tr("Stopped."), 5000);

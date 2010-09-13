@@ -62,7 +62,7 @@ public:
     virtual void shutdownInferior();
     virtual void shutdownEngine();
     virtual void detachDebugger();
-    virtual void updateWatchData(const WatchData &data);
+    virtual void updateWatchData(const WatchData &data, const WatchUpdateFlags &flags);
     virtual unsigned debuggerCapabilities() const;
 
     virtual void executeStep();

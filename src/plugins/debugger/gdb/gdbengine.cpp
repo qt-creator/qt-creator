@@ -3328,7 +3328,7 @@ bool GdbEngine::hasDebuggingHelperForType(const QByteArray &type) const
 }
 
 
-void GdbEngine::updateWatchData(const WatchData &data)
+void GdbEngine::updateWatchData(const WatchData &data, const WatchUpdateFlags &flags)
 {
     if (isSynchronous()) {
         // This should only be called for fresh expanded items, not for
@@ -3358,7 +3358,22 @@ void GdbEngine::updateWatchData(const WatchData &data)
         }
         m_processedNames.insert(processedName);
 
-        updateLocals();
+        // FIXME: Is this sufficient when "external" changes are
+        // triggered e.g. by manually entered command in the gdb console?
+        //qDebug() << "TRY PARTIAL: " << flags.tryIncremental
+        //        << hasPython()
+        //        << (m_pendingWatchRequests == 0)
+        //        << (m_pendingBreakpointRequests == 0);
+
+        bool tryPartial = flags.tryIncremental
+                && hasPython()
+                && m_pendingWatchRequests == 0
+                && m_pendingBreakpointRequests == 0;
+
+        if (tryPartial)
+            updateLocalsPython(true, data.iname);
+        else
+            updateLocals();
 #endif
     } else {
         // Bump requests to avoid model rebuilding during the nested
@@ -3491,7 +3506,7 @@ void GdbEngine::updateLocals(const QVariant &cookie)
     m_pendingWatchRequests = 0;
     m_pendingBreakpointRequests = 0;
     if (hasPython())
-        updateLocalsPython(QByteArray());
+        updateLocalsPython(false, QByteArray());
     else
         updateLocalsClassic(cookie);
 }

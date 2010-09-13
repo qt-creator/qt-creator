@@ -130,6 +130,12 @@ class WatchHandler;
 
 class DebuggerEnginePrivate;
 
+struct WatchUpdateFlags
+{
+    WatchUpdateFlags() : tryIncremental(false) {}
+    bool tryIncremental;
+};
+
 // FIXME: DEBUGGER_EXPORT?
 class DEBUGGER_EXPORT DebuggerEngine : public QObject
 {
@@ -140,10 +146,11 @@ public:
     virtual ~DebuggerEngine();
 
     virtual void setToolTipExpression(const QPoint & /* mousePos */,
-            TextEditor::ITextEditor * /* editor */, int /* cursorPos */) { }
+            TextEditor::ITextEditor * /* editor */, int /* cursorPos */) {}
     void initializeFromTemplate(DebuggerEngine *other);
 
-    virtual void updateWatchData(const WatchData & /* data */) { }
+    virtual void updateWatchData(const WatchData & /* data */,
+        const WatchUpdateFlags & /* flags */ = WatchUpdateFlags()) {}
     void startDebugger(DebuggerRunControl *runControl);
     virtual bool isSessionEngine() const { return false; }
 

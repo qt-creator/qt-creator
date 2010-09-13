@@ -460,7 +460,7 @@ private: ////////// View & Data Stuff //////////
     // FIXME: BaseClass. called to improve situation for a watch item
     void updateSubItemClassic(const WatchData &data);
 
-    void virtual updateWatchData(const WatchData &data);
+    void virtual updateWatchData(const WatchData &data, const WatchUpdateFlags &flags);
     Q_SLOT void updateWatchDataHelper(const WatchData &data);
     void rebuildWatchModel();
     bool showToolTip();
@@ -492,7 +492,7 @@ private: ////////// View & Data Stuff //////////
 
     void updateLocals(const QVariant &cookie = QVariant());
         void updateLocalsClassic(const QVariant &cookie);
-        void updateLocalsPython(const QByteArray &varList);
+        void updateLocalsPython(bool tryPartial, const QByteArray &varList);
             void handleStackFramePython(const GdbResponse &response);
 
     void handleStackListLocalsClassic(const GdbResponse &response);

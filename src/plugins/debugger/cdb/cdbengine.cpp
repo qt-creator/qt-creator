@@ -691,7 +691,7 @@ void CdbEngine::evaluateWatcher(WatchData *wd)
     wd->setHasChildren(false);
 }
 
-void CdbEngine::updateWatchData(const WatchData &incomplete)
+void CdbEngine::updateWatchData(const WatchData &incomplete, const WatchUpdateFlags &flags)
 {
     // Watch item was edited while running
     if (m_d->isDebuggeeRunning())

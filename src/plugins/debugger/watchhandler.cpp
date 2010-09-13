@@ -487,7 +487,9 @@ void WatchModel::fetchMore(const QModelIndex &index)
     if (item->children.isEmpty()) {
         WatchData data = *item;
         data.setChildrenNeeded();
-        engine()->updateWatchData(data);
+        WatchUpdateFlags flags;
+        flags.tryIncremental = true;
+        engine()->updateWatchData(data, flags);
     }
 }
 
@@ -1146,16 +1148,17 @@ WatchHandler::WatchHandler(DebuggerEngine *engine)
         SIGNAL(triggered()), this, SLOT(emitAllChanged()));
 }
 
-void WatchHandler::beginCycle()
+void WatchHandler::beginCycle(bool fullCycle)
 {
-    ++generationCounter;
+    if (fullCycle)
+        ++generationCounter;
     m_return->beginCycle();
     m_locals->beginCycle();
     m_watchers->beginCycle();
     m_tooltips->beginCycle();
 }
 
-void WatchHandler::endCycle()
+void WatchHandler::endCycle(bool /*fullCycle*/)
 {
     m_return->endCycle();
     m_locals->endCycle();

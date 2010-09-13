@@ -103,7 +103,7 @@ private:
 
     bool supportsThreads() const { return true; }
     bool isSynchronous() const { return true; }
-    void updateWatchData(const WatchData &data);
+    void updateWatchData(const WatchData &data, const WatchUpdateFlags &flags);
 
 signals:
     void outputReady(const QByteArray &data);

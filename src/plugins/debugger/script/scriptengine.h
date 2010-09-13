@@ -101,7 +101,7 @@ private:
 
     bool supportsThreads() const { return true; }
     bool checkForBreakCondition(bool byFunction);
-    void updateWatchData(const WatchData &data);
+    void updateWatchData(const WatchData &data, const WatchUpdateFlags &flags);
     void updateLocals();
     void updateSubItem(const WatchData &data);
 

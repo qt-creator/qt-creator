@@ -1047,6 +1047,7 @@ class Dumper:
         self.useFancy = "fancy" in options
         self.passExceptions = "pe" in options
         self.autoDerefPointers = "autoderef" in options
+        self.partialUpdate = "partial" in options
         #self.ns = qqNs
         self.ns = qtNamespace()
 
@@ -1059,9 +1060,29 @@ class Dumper:
         #
         # Locals
         #
-        locals = listOfLocals(varList)
-        if "nolocals" in options:
-            locals = []
+        fullUpdateNeeded = True
+        if self.partialUpdate and len(varList) == 1:
+            #warn("PARTIAL: %s" % varList)
+            parts = varList[0].split('.')
+            #warn("PARTIAL PARTS: %s" % parts)
+            name = parts[1]
+            #warn("PARTIAL VAR: %s" % name)
+            #fullUpdateNeeded = False
+            try:
+                frame = gdb.selected_frame()
+                item = Item(0, "local", name, name)
+                item.value = frame.read_var(name)
+                locals = [item]
+                #warn("PARTIAL LOCALS: %s" % locals)
+                fullUpdateNeeded = False
+            except:
+                pass
+            varList = []
+
+        if fullUpdateNeeded:
+            locals = listOfLocals(varList)
+            if "nolocals" in options:
+                locals = []
 
         # Take care of the return value of the last function call.
         if len(resultVarName) > 0:

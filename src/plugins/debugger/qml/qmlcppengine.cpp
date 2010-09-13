@@ -98,9 +98,9 @@ void QmlCppEngine::setToolTipExpression(const QPoint & mousePos,
     m_activeEngine->setToolTipExpression(mousePos, editor, cursorPos);
 }
 
-void QmlCppEngine::updateWatchData(const WatchData &data)
+void QmlCppEngine::updateWatchData(const WatchData &data, const WatchUpdateFlags &flags)
 {
-    m_activeEngine->updateWatchData(data);
+    m_activeEngine->updateWatchData(data, flags);
 }
 
 void QmlCppEngine::watchPoint(const QPoint &point)

@@ -143,9 +143,9 @@ public:
     void removeWatchExpression(const QString &exp);
     Q_SLOT void emitAllChanged();
 
-    void beginCycle(); // Called at begin of updateLocals() cycle
+    void beginCycle(bool fullCycle = true); // Called at begin of updateLocals() cycle
     void updateWatchers(); // Called after locals are fetched
-    void endCycle(); // Called after all results have been received
+    void endCycle(bool fullCycle = true); // Called after all results have been received
     void showEditValue(const WatchData &data);
 
     void insertData(const WatchData &data);
