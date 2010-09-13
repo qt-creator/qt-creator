@@ -42,6 +42,7 @@
 #include <QtCore/QTranslator>
 #include <QtCore/QSettings>
 #include <QtCore/QVariant>
+#include <QtCore/QThreadPool>
 
 #include <QtNetwork/QNetworkProxyFactory>
 
@@ -183,6 +184,10 @@ int main(int argc, char **argv)
 #endif
 
     SharedTools::QtSingleApplication app((QLatin1String(appNameC)), argc, argv);
+
+    const int threadCount = QThreadPool::globalInstance()->maxThreadCount();
+    QThreadPool::globalInstance()->setMaxThreadCount(qMax(4, 2 * threadCount));
+
 
 #ifdef ENABLE_QT_BREAKPAD
     QtSystemExceptionHandler systemExceptionHandler;
