@@ -34,7 +34,7 @@ for(deploymentfolder, DEPLOYMENTFOLDERS) {
     DEPLOYMENT += $$item
 }
 
-MAINPROFILEPWD = $$PWD/..
+MAINPROFILEPWD = $$PWD
 
 symbian {
     TARGET.EPOCHEAPSIZE = 0x20000 0x2000000
