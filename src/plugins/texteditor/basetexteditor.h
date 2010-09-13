@@ -237,6 +237,8 @@ public:
 
     void insertCodeSnippet(const QTextCursor &cursor, const QString &snippet);
 
+    void setBlockSelection(bool on);
+    bool hasBlockSelection() const;
 
     int verticalBlockSelectionFirstColumn() const;
     int verticalBlockSelectionLastColumn() const;

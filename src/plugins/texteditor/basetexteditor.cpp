@@ -5786,6 +5786,21 @@ bool BaseTextEditor::inFindScope(int selectionStart, int selectionEnd)
     return true;
 }
 
+void BaseTextEditor::setBlockSelection(bool on)
+{
+    if (d->m_inBlockSelectionMode != on) {
+        d->m_inBlockSelectionMode = on;
+        if (on)
+            d->m_blockSelection.fromSelection(tabSettings(), textCursor());
+        viewport()->update();
+    }
+}
+
+bool BaseTextEditor::hasBlockSelection() const
+{
+    return d->m_inBlockSelectionMode;
+}
+
 void BaseTextEditor::handleBlockSelection(int diff_row, int diff_col)
 {
 
