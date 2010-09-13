@@ -657,7 +657,7 @@ QByteArray QmlStandaloneApp::generateFile(QmlAppGeneratedFileInfo::File file,
 
 int QmlStandaloneApp::stubVersion()
 {
-    return 3;
+    return 4;
 }
 
 static QList<QmlAppGeneratedFileInfo> updateableFiles(const QString &mainProFile)
