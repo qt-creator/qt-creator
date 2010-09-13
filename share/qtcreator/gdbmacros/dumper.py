@@ -6,7 +6,6 @@ import base64
 import __builtin__
 import os
 
-
 # Fails on Windows.
 try:
     import curses.ascii
@@ -42,6 +41,11 @@ def removeTempFile(name, file):
         os.remove(name)
     except:
         pass
+
+try:
+    import binascii
+except:
+    pass
 
 verbosity = 0
 verbosity = 1
@@ -750,21 +754,28 @@ def extractByteArray(value):
     if size > 0:
         checkAccess(data, 4)
         checkAccess(data + size) == 0
-    return extractCharArray(data, 100)
+    return extractCharArray(data, 1000, size)
 
 def encodeCharArray(p, maxsize, size = -1):
     t = lookupType("unsigned char").pointer()
     p = p.cast(t)
     if size == -1:
-        i = findFirstZero(p, maxsize)
-    else:
-        i = size
-    limit = select(i < 0, maxsize, i)
+        size = findFirstZero(p, maxsize)
+    if size == -1:
+        size = maxsize
+    limit = size
+    if size > maxsize:
+        limit = maxsize
     s = ""
-    for i in xrange(limit):
-        s += "%02x" % int(p.dereference())
-        p += 1
-    if i == maxsize:
+    try:
+        # gdb.Inferior is new in gdb 7.2
+        inferior = gdb.inferiors()[0]
+        s = binascii.hexlify(inferior.read_memory(p, limit))
+    except:
+        for i in xrange(limit):
+            s += "%02x" % int(p.dereference())
+            p += 1
+    if maxsize < size:
         s += "2e2e2e"
     return s
 
@@ -804,7 +815,7 @@ def encodeByteArray(value):
     if size > 0:
         checkAccess(data, 4)
         checkAccess(data + size) == 0
-    return encodeCharArray(data, size)
+    return encodeCharArray(data, 1000, size)
 
 def encodeString(value):
     d_ptr = value['d'].dereference()
@@ -818,11 +829,16 @@ def encodeString(value):
     checkRef(d_ptr["ref"])
     p = gdb.Value(d_ptr["data"])
     s = ""
-    for i in xrange(size):
-        val = int(p.dereference())
-        s += "%02x" % (val % 256)
-        s += "%02x" % (val / 256)
-        p += 1
+    try:
+        # gdb.Inferior is new in gdb 7.2
+        inferior = gdb.inferiors()[0]
+        s = binascii.hexlify(inferior.read_memory(p, 2 * int(size)))
+    except:
+        for i in xrange(size):
+            val = int(p.dereference())
+            s += "%02x" % (val % 256)
+            s += "%02x" % (val / 256)
+            p += 1
     return s
 
 def stripTypedefs(type):
