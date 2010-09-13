@@ -51,11 +51,10 @@
 //   over a character. FakeVim interprets the QTextCursor to be over the character
 //   to the right of the QTextCursor's position().
 //
-//   There is always a "current" cursor (m_tc). A current "region of interest"
+//   A current "region of interest"
 //   spans between m_anchor (== anchor()), i.e. the character below anchor()), and
-//   m_tc.position() (== position()). The character below position() is not included
+//   m_position(). The character below position() is not included
 //   if the last movement command was exclusive (MoveExclusive).
-//   The value of m_tc.anchor() is not used.
 //
 
 #include "fakevimhandler.h"
@@ -98,7 +97,7 @@
 
 //#define DEBUG_UNDO  1
 #if DEBUG_UNDO
-#   define UNDO_DEBUG(s) qDebug() << << m_tc.document()->availableUndoSteps() << s
+#   define UNDO_DEBUG(s) qDebug() << << document()->availableUndoSteps() << s
 #else
 #   define UNDO_DEBUG(s)
 #endif
@@ -708,8 +707,9 @@ public:
     void updateSelection();
     void updateCursor();
     QWidget *editor() const;
+    QTextDocument *document() const { return EDITOR(document()); }
     QChar characterAtCursor() const
-        { return m_tc.document()->characterAt(m_tc.position()); }
+        { return document()->characterAt(m_tc.position()); }
     void beginEditBlock() { UNDO_DEBUG("BEGIN EDIT BLOCK"); m_tc.beginEditBlock(); }
     void beginEditBlock(int pos) { setUndoPosition(pos); beginEditBlock(); }
     void endEditBlock() { UNDO_DEBUG("END EDIT BLOCK"); m_tc.endEditBlock(); }
@@ -1303,7 +1303,7 @@ void FakeVimHandler::Private::stopIncrementalFind()
 void FakeVimHandler::Private::setUndoPosition(int pos)
 {
     //qDebug() << " CURSOR POS: " << m_undoCursorPosition;
-    m_undoCursorPosition[m_tc.document()->availableUndoSteps()] = pos;
+    m_undoCursorPosition[document()->availableUndoSteps()] = pos;
 }
 
 void FakeVimHandler::Private::setAnchor()
@@ -1323,9 +1323,9 @@ void FakeVimHandler::Private::moveDown(int n)
     m_tc.movePosition(Down, MoveAnchor, n);
 #else
     const int col = m_tc.position() - m_tc.block().position();
-    const int lastLine = m_tc.document()->lastBlock().blockNumber();
+    const int lastLine = document()->lastBlock().blockNumber();
     const int targetLine = qMax(0, qMin(lastLine, m_tc.block().blockNumber() + n));
-    const QTextBlock &block = m_tc.document()->findBlockByNumber(targetLine);
+    const QTextBlock &block = document()->findBlockByNumber(targetLine);
     const int pos = block.position();
     setPosition(pos + qMax(0, qMin(block.length() - 2, col)));
     moveToTargetColumn();
@@ -3606,7 +3606,6 @@ void FakeVimHandler::Private::searchBalanced(bool forward, QChar needle, QChar o
     int level = 1;
     int pos = m_tc.position();
     const int npos = forward ? lastPositionInDocument() : 0;
-    QTextDocument *doc = m_tc.document();
     while (true) {
         if (forward)
             ++pos;
@@ -3614,7 +3613,7 @@ void FakeVimHandler::Private::searchBalanced(bool forward, QChar needle, QChar o
             --pos;
         if (pos == npos)
             return;
-        QChar c = doc->characterAt(pos);
+        QChar c = document()->characterAt(pos);
         if (c == other)
             ++level;
         else if (c == needle)
@@ -3656,10 +3655,10 @@ void FakeVimHandler::Private::search(const SearchData &sd)
 
     m_searchCursor = QTextCursor();
     QRegExp needleExp(needle);
-    QTextCursor tc = m_tc.document()->find(needleExp, startPos, flags);
+    QTextCursor tc = document()->find(needleExp, startPos, flags);
     if (tc.isNull()) {
         int startPos = sd.forward ? 0 : lastPositionInDocument();
-        tc = m_tc.document()->find(needleExp, startPos, flags);
+        tc = document()->find(needleExp, startPos, flags);
         if (tc.isNull()) {
             if (!incSearch) {
                 highlightMatches(QString());
@@ -3733,7 +3732,7 @@ void FakeVimHandler::Private::highlightMatches(const QString &needle0)
 
 void FakeVimHandler::Private::moveToFirstNonBlankOnLine()
 {
-    QTextDocument *doc = m_tc.document();
+    QTextDocument *doc = document();
     const QTextBlock &block = m_tc.block();
     int firstPos = block.position();
     for (int i = firstPos, n = firstPos + block.length(); i < n; ++i) {
@@ -3924,7 +3923,7 @@ void FakeVimHandler::Private::setupCharClass()
 void FakeVimHandler::Private::moveToWordBoundary(bool simple, bool forward, bool changeWord)
 {
     int repeat = count();
-    QTextDocument *doc = m_tc.document();
+    QTextDocument *doc = document();
     int n = forward ? lastPositionInDocument() : 0;
     int lastClass = -1;
     if (changeWord) {
@@ -3960,7 +3959,7 @@ bool FakeVimHandler::Private::handleFfTt(QString key)
     // m_subsubmode \in { 'f', 'F', 't', 'T' }
     bool forward = m_subsubdata.is('f') || m_subsubdata.is('t');
     int repeat = count();
-    QTextDocument *doc = m_tc.document();
+    QTextDocument *doc = document();
     QTextBlock block = m_tc.block();
     int n = block.position();
     if (forward)
@@ -4126,11 +4125,10 @@ int FakeVimHandler::Private::linesInDocument() const
 {
     if (m_tc.isNull())
         return 0;
-    const QTextDocument *doc = m_tc.document();
-    const int count = doc->blockCount();
+    const int count = document()->blockCount();
     // Qt inserts an empty line if the last character is a '\n',
     // but that's not how vi does it.
-    return doc->lastBlock().length() <= 1 ? count - 1 : count;
+    return document()->lastBlock().length() <= 1 ? count - 1 : count;
 }
 
 void FakeVimHandler::Private::scrollToLine(int line)
@@ -4161,7 +4159,7 @@ void FakeVimHandler::Private::scrollUp(int count)
 
 int FakeVimHandler::Private::lastPositionInDocument() const
 {
-    QTextBlock block = m_tc.document()->lastBlock();
+    QTextBlock block = document()->lastBlock();
     return block.position() + block.length() - 1;
 }
 
@@ -4177,7 +4175,7 @@ QString FakeVimHandler::Private::selectText(const Range &range) const
         QTextCursor tc = m_tc;
         int firstPos = firstPositionInLine(lineForPosition(range.beginPos));
         int lastLine = lineForPosition(range.endPos);
-        int lastPos = lastLine == m_tc.document()->lastBlock().blockNumber() + 1
+        int lastPos = lastLine == document()->lastBlock().blockNumber() + 1
             ? lastPositionInDocument() : firstPositionInLine(lastLine + 1);
         tc.setPosition(firstPos, MoveAnchor);
         tc.setPosition(lastPos, KeepAnchor);
@@ -4196,7 +4194,7 @@ QString FakeVimHandler::Private::selectText(const Range &range) const
     }
     int len = endColumn - beginColumn + 1;
     QString contents;
-    QTextBlock block = m_tc.document()->findBlockByNumber(beginLine - 1);
+    QTextBlock block = document()->findBlockByNumber(beginLine - 1);
     for (int i = beginLine; i <= endLine && block.isValid(); ++i) {
         QString line = block.text();
         if (range.rangemode == RangeBlockMode) {
@@ -4281,7 +4279,7 @@ void FakeVimHandler::Private::transformText(const Range &range,
             int endColumn = qMax(column1, column2);
             if (range.rangemode == RangeBlockAndTailMode)
                 endColumn = INT_MAX - 1;
-            QTextBlock block = m_tc.document()->findBlockByNumber(endLine - 1);
+            QTextBlock block = document()->findBlockByNumber(endLine - 1);
             beginEditBlock(range.beginPos);
             for (int i = beginLine; i <= endLine && block.isValid(); ++i) {
                 int bCol = qMin(beginColumn, block.length() - 1);
@@ -4473,12 +4471,12 @@ void FakeVimHandler::Private::fixMarks(int from, int delta)
 
 QString FakeVimHandler::Private::lineContents(int line) const
 {
-    return m_tc.document()->findBlockByNumber(line - 1).text();
+    return document()->findBlockByNumber(line - 1).text();
 }
 
 void FakeVimHandler::Private::setLineContents(int line, const QString &contents)
 {
-    QTextBlock block = m_tc.document()->findBlockByNumber(line - 1);
+    QTextBlock block = document()->findBlockByNumber(line - 1);
     QTextCursor tc = m_tc;
     const int begin = block.position();
     const int len = block.length();
@@ -4491,12 +4489,12 @@ void FakeVimHandler::Private::setLineContents(int line, const QString &contents)
 
 int FakeVimHandler::Private::firstPositionInLine(int line) const
 {
-    return m_tc.document()->findBlockByNumber(line - 1).position();
+    return document()->findBlockByNumber(line - 1).position();
 }
 
 int FakeVimHandler::Private::lastPositionInLine(int line) const
 {
-    QTextBlock block = m_tc.document()->findBlockByNumber(line - 1);
+    QTextBlock block = document()->findBlockByNumber(line - 1);
     return block.position() + block.length() - 1;
 }
 
@@ -4540,16 +4538,15 @@ QWidget *FakeVimHandler::Private::editor() const
 void FakeVimHandler::Private::undo()
 {
     //qDebug() << " CURSOR POS: " << m_undoCursorPosition;
-    QTextDocument *doc = m_tc.document();
     // FIXME: That's only an approximaxtion. The real solution might
     // be to store marks and old userData with QTextBlock setUserData
     // and retrieve them afterward.
-    const int current = doc->availableUndoSteps();
-    const int oldCount = doc->characterCount();
+    const int current = document()->availableUndoSteps();
+    const int oldCount = document()->characterCount();
     EDITOR(undo());
-    const int delta = doc->characterCount() - oldCount;
+    const int delta = document()->characterCount() - oldCount;
     fixMarks(position(), delta);
-    const int rev = doc->availableUndoSteps();
+    const int rev = document()->availableUndoSteps();
     if (current == rev)
         showBlackMessage(FakeVimHandler::tr("Already at oldest change"));
     else
@@ -4564,13 +4561,12 @@ void FakeVimHandler::Private::undo()
 
 void FakeVimHandler::Private::redo()
 {
-    QTextDocument *doc = m_tc.document();
-    const int current = m_tc.document()->availableUndoSteps();
-    const int oldCount = doc->characterCount();
+    const int current = document()->availableUndoSteps();
+    const int oldCount = document()->characterCount();
     EDITOR(redo());
-    const int delta = doc->characterCount() - oldCount;
+    const int delta = document()->characterCount() - oldCount;
     fixMarks(position(), delta);
-    const int rev = doc->availableUndoSteps();
+    const int rev = document()->availableUndoSteps();
     if (rev == current)
         showBlackMessage(FakeVimHandler::tr("Already at newest change"));
     else
@@ -4765,17 +4761,16 @@ void FakeVimHandler::Private::selectParagraphTextObject(bool inner)
 
 void FakeVimHandler::Private::selectBlockTextObject(bool inner, char left, char right)
 {
-    QTextDocument *doc = m_tc.document();
     QString sleft = QString(QLatin1Char(left));
     QString sright = QString(QLatin1Char(right));
-    QTextCursor tc2 = doc->find(sright, m_tc);
+    QTextCursor tc2 = document()->find(sright, m_tc);
     if (tc2.isNull())
         return;
-    QTextCursor tc1 = doc->find(sleft, m_tc, QTextDocument::FindBackward);
+    QTextCursor tc1 = document()->find(sleft, m_tc, QTextDocument::FindBackward);
     if (tc1.isNull())
         return;
     int p1 = tc1.position() + inner - sleft.size();
-    if (inner && m_tc.document()->characterAt(p1) == ParagraphSeparator)
+    if (inner && document()->characterAt(p1) == ParagraphSeparator)
         ++p1;
     const int p2 = tc2.position() - inner - sright.size();
     setMark('>', p1);
