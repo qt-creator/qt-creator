@@ -27,6 +27,10 @@ for(deploymentfolder, DEPLOYMENTFOLDERS) {
     $$itemsources = $$eval($${deploymentfolder}.source)
     itempath = $${item}.path
     $$itempath= $$eval($${deploymentfolder}.target)
+    export($$itemsources)
+    export($$itempath)
+    export(first.depends)
+    export(copydeploymentfolders.commands)
     DEPLOYMENT += $$item
 }
 
@@ -47,6 +51,8 @@ symbian {
         }
         copydeploymentfolders.commands = $$copyCommand
         first.depends = $(first) copydeploymentfolders
+        export(first.depends)
+        export(copydeploymentfolders.commands)
         QMAKE_EXTRA_TARGETS += first copydeploymentfolders
     }
 } else:unix {
@@ -78,12 +84,19 @@ symbian {
         $$itemfiles = $$eval($${deploymentfolder}.source)
         itempath = $${item}.path
         $$itempath = $${installPrefix}/share/$${TARGET}/$$eval($${deploymentfolder}.target)
+        export($$itemfiles)
+        export($$itempath)
         INSTALLS += $$item
     }
     icon.files = $${TARGET}.png
-    icon.path = /usr/share/icons/hicolor/64x64
+    icon.path = /usr/share/icons/hicolor/64x64/apps
     desktopfile.files = $${TARGET}.desktop
     target.path = $${installPrefix}/bin
+    export(icon.files)
+    export(icon.path)
+    export(desktopfile.files)
+    export(desktopfile.path)
+    export(target.path)
     INSTALLS += desktopfile icon target
 }
 
