@@ -141,6 +141,7 @@ void GCCEToolChain::addToEnvironment(ProjectExplorer::Environment &env)
         break;
     }
     QString version = gcceVersion();
+    env.set(QLatin1String("QT_GCCE_VERSION"), version);
     version = version.remove(QLatin1Char('.'));
     env.set(QString::fromLatin1("SBS_GCCE") + version + QLatin1String("BIN"), QDir::toNativeSeparators(m_gcceBinPath));
 }
