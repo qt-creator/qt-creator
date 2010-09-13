@@ -41,12 +41,10 @@
 #include "maemosshrunner.h"
 
 #include <coreplugin/ssh/sftpchannel.h>
-#include <debugger/debuggerengine.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerrunner.h>
-#include <debugger/qml/qmlcppengine.h>
-#include <debugger/gdb/remotegdbserveradapter.h>
-#include <debugger/gdb/remoteplaingdbadapter.h>
+#include <debugger/debuggerengine.h>
+
 #include <projectexplorer/toolchain.h>
 
 #include <QtCore/QDir>
@@ -115,18 +113,7 @@ MaemoDebugSupport::MaemoDebugSupport(MaemoRunConfiguration *runConfig,
       m_deviceConfig(m_runConfig->deviceConfig()),
       m_runner(new MaemoSshRunner(this, m_runConfig, true))
 {
-    GdbEngine *gdbEngine = qobject_cast<GdbEngine *>(m_runControl->engine());
-    if (!gdbEngine) {
-        QmlCppEngine * const qmlEngine
-            = qobject_cast<QmlCppEngine *>(m_runControl->engine());
-        Q_ASSERT(qmlEngine);
-        gdbEngine = qobject_cast<GdbEngine *>(qmlEngine->cppEngine());
-    }
-    Q_ASSERT(gdbEngine);
-    m_gdbAdapter = gdbEngine->gdbAdapter();
-    Q_ASSERT(m_gdbAdapter);
-    connect(m_gdbAdapter, SIGNAL(requestSetup()), this,
-        SLOT(handleAdapterSetupRequested()));
+    connect(m_runControl, SIGNAL(gdbAdapterRequestSetup()), this, SLOT(handleAdapterSetupRequested()));
     connect(m_runControl, SIGNAL(finished()), this,
         SLOT(handleDebuggingFinished()));
 }
@@ -291,11 +278,8 @@ void MaemoDebugSupport::stopSsh()
 
 void MaemoDebugSupport::handleAdapterSetupFailed(const QString &error)
 {
-    const QString msg = tr("Initial setup failed: %1").arg(error);
-    if (useGdb())
-        qobject_cast<RemotePlainGdbAdapter *>(m_gdbAdapter)->handleSetupFailed(msg);
-    else
-        qobject_cast<RemoteGdbServerAdapter*>(m_gdbAdapter)->handleSetupFailed(msg);
+
+    m_runControl->remoteGdbHandleSetupFailed(tr("Initial setup failed: %1").arg(error));
     m_stopped = true;
     stopSsh();
 }
@@ -303,10 +287,7 @@ void MaemoDebugSupport::handleAdapterSetupFailed(const QString &error)
 void MaemoDebugSupport::handleAdapterSetupDone()
 {
     m_adapterStarted = true;
-    if (useGdb())
-        qobject_cast<RemotePlainGdbAdapter *>(m_gdbAdapter)->handleSetupDone();
-    else
-        qobject_cast<RemoteGdbServerAdapter*>(m_gdbAdapter)->handleSetupDone();
+    m_runControl->remoteGdbHandleSetupDone();
 }
 
 int MaemoDebugSupport::gdbServerPort(const MaemoRunConfiguration *rc)

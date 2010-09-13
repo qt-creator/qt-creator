@@ -43,7 +43,7 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-class DEBUGGER_EXPORT RemoteGdbServerAdapter : public AbstractGdbAdapter
+class RemoteGdbServerAdapter : public AbstractGdbAdapter
 {
     Q_OBJECT
 

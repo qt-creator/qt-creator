@@ -48,6 +48,8 @@ class DebuggerStartParameters;
 namespace Internal {
 class DebuggerEngine;
 class QmlEngine;
+class GdbEngine;
+class AbstractGdbAdapter;
 }
 
 //DEBUGGER_EXPORT QDebug operator<<(QDebug str, const DebuggerStartParameters &);
@@ -113,10 +115,16 @@ public:
 
     void showMessage(const QString &msg, int channel);
 
+    void remoteGdbHandleSetupDone();
+    void remoteGdbHandleSetupFailed(const QString &message);
+
     static bool checkDebugConfiguration(int toolChain,
                                  QString *errorMessage,
                                  QString *settingsCategory = 0,
                                  QString *settingsPage = 0);
+
+signals:
+    void gdbAdapterRequestSetup();
 
 private slots:
     void handleFinished();
@@ -127,6 +135,9 @@ protected:
 private:
     DebuggerEngineType engineForExecutable(const QString &executable);
     DebuggerEngineType engineForMode(DebuggerStartMode mode);
+    void initGdbEngine(Internal::GdbEngine *engine);
+    Internal::GdbEngine *gdbEngine() const;
+    Internal::AbstractGdbAdapter *gdbAdapter() const;
 
     Internal::DebuggerEngine *m_engine;
     const QWeakPointer<RunConfiguration> m_myRunConfiguration;

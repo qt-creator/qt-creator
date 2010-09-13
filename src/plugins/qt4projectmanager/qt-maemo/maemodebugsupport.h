@@ -46,9 +46,6 @@ namespace Core { class SftpChannel; }
 
 namespace Debugger {
 class DebuggerRunControl;
-namespace Internal {
-class AbstractGdbAdapter;
-}
 }
 
 namespace ProjectExplorer { class RunControl; }
@@ -99,8 +96,6 @@ private:
     MaemoRunConfiguration * const m_runConfig;
     const MaemoDeviceConfig m_deviceConfig;
     MaemoSshRunner * const m_runner;
-
-    Debugger::Internal::AbstractGdbAdapter *m_gdbAdapter;
 
     QSharedPointer<Core::SftpChannel> m_uploader;
     Core::SftpJobId m_uploadJob;

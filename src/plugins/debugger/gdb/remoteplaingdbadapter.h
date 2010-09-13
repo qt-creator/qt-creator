@@ -36,7 +36,7 @@
 namespace Debugger {
 namespace Internal {
 
-class DEBUGGER_EXPORT RemotePlainGdbAdapter : public AbstractPlainGdbAdapter
+class RemotePlainGdbAdapter : public AbstractPlainGdbAdapter
 {
     Q_OBJECT
 
