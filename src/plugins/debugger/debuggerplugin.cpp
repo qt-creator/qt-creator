@@ -2158,7 +2158,6 @@ void DebuggerPluginPrivate::setSimpleDockWidgetArrangement
     mw->tabifyDockWidget(m_watchDock, m_threadsDock);
     mw->tabifyDockWidget(m_watchDock, m_sourceFilesDock);
     mw->tabifyDockWidget(m_watchDock, m_snapshotDock);
-    mw->tabifyDockWidget(m_watchDock, m_snapshotDock);
     mw->tabifyDockWidget(m_watchDock, m_scriptConsoleDock);
     if (uiSwitcher->qmlInspectorWindow())
         mw->tabifyDockWidget(m_watchDock, uiSwitcher->qmlInspectorWindow());
