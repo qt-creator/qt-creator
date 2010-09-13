@@ -723,6 +723,7 @@ void ScriptEngine::updateLocals()
 
 void ScriptEngine::updateWatchData(const WatchData &data, const WatchUpdateFlags &flags)
 {
+    Q_UNUSED(flags);
     updateSubItem(data);
 }
 
