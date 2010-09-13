@@ -557,8 +557,6 @@ TaskWindow::TaskWindow(TaskHub *taskhub) : d(new TaskWindowPrivate)
 
     connect(d->m_listview, SIGNAL(activated(QModelIndex)),
             this, SLOT(triggerDefaultHandler(QModelIndex)));
-    connect(d->m_listview, SIGNAL(clicked(QModelIndex)),
-            this, SLOT(triggerDefaultHandler(QModelIndex)));
 
     d->m_contextMenu = new QMenu(d->m_listview);
     connect(d->m_contextMenu, SIGNAL(triggered(QAction*)),
