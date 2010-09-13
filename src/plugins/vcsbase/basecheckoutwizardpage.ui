@@ -45,7 +45,7 @@
      <item row="3" column="0">
       <widget class="QLabel" name="branchLabel">
        <property name="text">
-        <string>Branches:</string>
+        <string>Branch:</string>
        </property>
       </widget>
      </item>

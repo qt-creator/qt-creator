@@ -178,7 +178,7 @@ QString MaemoRunConfiguration::defaultDisplayName()
     if (!m_proFilePath.isEmpty())
         return (QFileInfo(m_proFilePath).completeBaseName());
     //: Maemo run configuration default display name
-    return tr("Run on maemo device");
+    return tr("Run on Maemo device");
 }
 
 MaemoDeviceConfig MaemoRunConfiguration::deviceConfig() const

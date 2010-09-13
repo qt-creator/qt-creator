@@ -109,7 +109,7 @@ void SbsV2Parser::parseLogFile(const QString &file)
          if (m_log.name() == QLatin1String("buildlog"))
              readBuildLog();
          else
-             m_log.raiseError(QObject::tr("The file is not SBSv2 log file."));
+             m_log.raiseError(tr("The file '%1' is not a SBSv2 log file.").arg(file));
      }
 }
 

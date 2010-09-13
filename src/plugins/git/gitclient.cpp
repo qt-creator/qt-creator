@@ -1458,7 +1458,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
         args << QLatin1String("--max-count=1") << QLatin1String("--pretty=format:%h@%B");
         const Utils::SynchronousProcessResponse sp = synchronousGit(repoDirectory, args);
         if (sp.result != Utils::SynchronousProcessResponse::Finished) {
-            *errorMessage = tr("Unable to retrieve the last commit data from %1.").arg(repoDirectory);
+            *errorMessage = tr("Unable to retrieve the last commit data of the repository %1.").arg(repoDirectory);
             return false;
         }
         const int separatorPos = sp.stdOut.indexOf(QLatin1Char('@'));

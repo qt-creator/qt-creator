@@ -317,8 +317,8 @@ void BuildSettingsWidget::cloneConfiguration()
 
 void BuildSettingsWidget::deleteConfiguration()
 {
-    QMessageBox msgBox(QMessageBox::Question, tr("Remove Build Configuration?"),
-                       tr("Do you really want to delete build configuration <b>%1</b>.").arg(m_buildConfiguration->displayName()),
+    QMessageBox msgBox(QMessageBox::Question, tr("Remove Build Configuration"),
+                       tr("Do you really want to delete the build configuration <b>%1</b>?").arg(m_buildConfiguration->displayName()),
                        QMessageBox::Yes|QMessageBox::No, this);
     msgBox.setDefaultButton(QMessageBox::No);
     msgBox.setEscapeButton(QMessageBox::No);

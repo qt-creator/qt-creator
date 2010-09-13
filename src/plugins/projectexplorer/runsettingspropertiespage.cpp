@@ -366,7 +366,7 @@ void RunSettingsWidget::removeDeployConfiguration()
 {
     DeployConfiguration *dc = m_target->activeDeployConfiguration();
     QMessageBox msgBox(QMessageBox::Question, tr("Remove Deploy Configuration?"),
-                       tr("Do you really want to delete deploy configuration <b>%1</b>.").arg(dc->displayName()),
+                       tr("Do you really want to delete deploy configuration <b>%1</b>?").arg(dc->displayName()),
                        QMessageBox::Yes|QMessageBox::No, this);
     msgBox.setDefaultButton(QMessageBox::No);
     msgBox.setEscapeButton(QMessageBox::No);

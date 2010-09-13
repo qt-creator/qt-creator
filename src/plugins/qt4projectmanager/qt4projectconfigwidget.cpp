@@ -346,10 +346,12 @@ void Qt4ProjectConfigWidget::updateImportLabel()
             QString type;
             switch (task.type) {
             case ProjectExplorer::Task::Error:
-                type = tr("Error: ");
+                type = tr("Error:");
+                type += QLatin1Char(' ');
                 break;
             case ProjectExplorer::Task::Warning:
-                type = tr("Warning: ");
+                type = tr("Warning:");
+                type += QLatin1Char(' ');
                 break;
             case ProjectExplorer::Task::Unknown:
             default:

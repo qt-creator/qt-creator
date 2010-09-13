@@ -462,9 +462,10 @@ static inline QString formattedValue(const WatchData &data, int format)
             result = WatchHandler::tr("<invalid>");
         else if (result == QLatin1String("<not accessible>"))
             result = WatchHandler::tr("<not accessible>");
-        else if (result.endsWith(" items>"))
-            result = WatchHandler::tr("<%1 items>")
-                .arg(result.mid(1, result.indexOf(' ') - 1));
+        else if (result.endsWith(" items>")) {
+            const int size = result.mid(1, result.indexOf(' ') - 1).toInt();
+            result = WatchHandler::tr("<%n items>", 0, size);
+        }
     }
     return result;
 }

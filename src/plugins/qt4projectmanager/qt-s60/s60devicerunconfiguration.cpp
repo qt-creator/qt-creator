@@ -606,13 +606,11 @@ void S60DeviceRunControl::processStopped(uint pc, uint pid, uint tid, const QStr
 
 QMessageBox *S60DeviceRunControl::createTrkWaitingMessageBox(const QString &port, QWidget *parent)
 {
-    const QString title  = QCoreApplication::translate("Qt4ProjectManager::Internal::S60DeviceRunControlBase",
-                                                       "Waiting for App TRK");
-    const QString text = QCoreApplication::translate("Qt4ProjectManager::Internal::S60DeviceRunControlBase",
-                                                     "Qt creator waiting for the TRK application.<br>"
-                                                     "Please make sure the application is running on "
-                                                     "your mobile phone and the right port is "
-                                                     "configured in the project settings.").arg(port);
+    const QString title  = tr("Waiting for App TRK");
+    const QString text = tr("Qt Creator is waiting for the TRK application to connect.<br>"
+                            "Please make sure the application is running on "
+                            "your mobile phone and the right port is "
+                            "configured in the project settings.").arg(port);
     QMessageBox *rc = new QMessageBox(QMessageBox::Information, title, text,
                                       QMessageBox::Cancel, parent);
     return rc;

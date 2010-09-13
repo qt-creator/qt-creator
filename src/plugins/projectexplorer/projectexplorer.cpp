@@ -719,8 +719,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                        globalcontext);
     mfilec->addAction(cmd, Constants::G_FILE_OTHER);
 
-    // remove project action
-    d->m_removeProjectAction = new QAction(tr("Remove Project"), this);
+    //: Remove project from parent profile (Project explorer view); will not physically delete any files.
+    d->m_removeProjectAction = new QAction(tr("Remove Project..."), this);
     cmd = am->registerAction(d->m_removeProjectAction, ProjectExplorer::Constants::REMOVEPROJECT,
                        globalcontext);
     msubProject->addAction(cmd, Constants::G_PROJECT_FILES);
@@ -2136,7 +2136,7 @@ void ProjectExplorerPlugin::removeFile()
         Q_ASSERT(projectNode);
 
         if (!projectNode->removeFiles(fileNode->fileType(), QStringList(filePath))) {
-            QMessageBox::warning(core->mainWindow(), tr("Remove file failed"),
+            QMessageBox::warning(core->mainWindow(), tr("Remove File Failed"),
                                  tr("Could not remove file %1 from project %2.").arg(filePath).arg(projectNode->displayName()));
             return;
         }
