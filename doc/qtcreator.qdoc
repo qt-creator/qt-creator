@@ -127,6 +127,7 @@
        \o \l{Using the Maemo Emulator}
        \o \l{Using Version Control Systems}
        \o \l{Creating Task List Files}
+       \o \l{Using Command Line Options}
        \o \l{Getting Help}
        \o \l{Tips and Tricks}
        \o \l{Keyboard Shortcuts}
@@ -4403,6 +4404,7 @@
 
 /*!
     \contentspage index.html
+    \previouspage creator-developing-symbian.html
     \page creator-project-managing-sessions.html
     \nextpage creator-project-wizards.html
 
@@ -5571,6 +5573,7 @@
     \contentspage index.html
     \previouspage creator-project-cmake.html
     \page creator-project-generic.html
+    \nextpage creator-developing-maemo.html
 
     \title Setting Up a Generic Project
 
@@ -7294,7 +7297,7 @@
     \contentspage index.html
     \previouspage creator-version-control.html
     \page creator-task-lists.html
-    \nextpage creator-help.html
+    \nextpage creator-cli.html
 
     \title Creating Task List Files
 
@@ -7343,3 +7346,93 @@
     Lines starting with the hash mark character (#) in the first column are ignored.
 
 */
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-task-lists.html
+    \page creator-cli.html
+    \nextpage creator-help.html
+
+    \title Using Command Line Options
+
+    You can start Qt Creator and specify some options from the command line.
+
+    To specify command line options, enter the following command in the Qt Creator
+    installation or build directory:
+
+    \c {qtcreator [option] [filename]}
+
+    For example:
+
+    \c {C:\qtcreator-2.1\bin>qtcreator -help}
+
+    The following table summarizes the available options:
+
+    \table
+        \header
+            \o Option
+            \o Description
+
+        \row
+            \o -help
+            \o Display help on command line options.
+
+        \row
+            \o -version
+            \o Display Qt Creator version.
+
+        \row
+            \o -client
+            \o Attempt to connect to an already running instance of Qt Creator.
+
+        \row
+            \o -noload <plugin>
+            \o Do not load the specified plugin.
+
+        \row
+            \o -profile
+            \o Load profile plugin.
+
+        \row
+            \o -color <color>
+            \o Core plugin: override the selected UI color.
+
+        \row
+            \o -disable-cdb
+            \o Debugger plugin: disable the Microsoft Console Debugger (CDB)
+            engine. For more information, see \l{Debugging}.
+
+        \row
+            \o -disable-gdb
+            \o Debugger plugin: disable the GNU Symbolic Debugger (gdb) engine.
+
+        \row
+            \o -disable-sdb
+            \o Debugger plugin: disable the Qt Script debugger engine.
+
+        \row
+            \o -debug <PID-or-corefile>
+            \o Debugger plugin: attach to process ID or core file.
+
+        \row
+            \o -wincrashevent <event-handle>
+            \o Debugger plugin: Attach to crashed processes by using the specified
+            event handle.
+
+        \row
+            \o -customwizard-verbose
+            \o ProjectExplorer plugin: display additional information when loading
+            custom wizards. For more information about custom wizards, see
+            \l{Adding New Custom Wizards}
+
+        \row
+            \o -lastsession
+            \o ProjectExplorer plugin: load the last session when Qt Creator starts.
+            Open the projects and files that were open when you last exited Qt Creator.
+            For more information about managing sessions, see \l{Managing Sessions}.
+
+    \endtable
+
+
+    */
