@@ -261,6 +261,8 @@ void RVCTToolChain::addToEnvironment(ProjectExplorer::Environment &env)
         m_mixin.addEpocToEnvironment(&env);
         break;
     }
+    // we currently support RVCT v2.2 only:
+    env.set(QLatin1String("QT_RVCT_VERSION"), QLatin1String("2.2"));
 }
 
 QString RVCTToolChain::makeCommand() const
