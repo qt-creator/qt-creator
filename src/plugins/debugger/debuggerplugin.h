@@ -50,13 +50,12 @@ class RunControl;
 }
 
 namespace Debugger {
-
+class DebuggerEngine;
 class DebuggerPluginPrivate;
 class DebuggerRunControl;
 class DebuggerStartParameters;
 
 namespace Internal {
-class DebuggerEngine;
 class DebuggerListener;
 }
 
@@ -74,13 +73,13 @@ public:
         ProjectExplorer::RunConfiguration *rc = 0);
     static void startDebugger(ProjectExplorer::RunControl *runControl);
     static void displayDebugger(ProjectExplorer::RunControl *runControl);
-    static void displayDebugger(Internal::DebuggerEngine *engine, bool updateEngine = true);
+    static void displayDebugger(DebuggerEngine *engine, bool updateEngine = true);
 
     QVariant sessionValue(const QString &name);
     void setSessionValue(const QString &name, const QVariant &value);
     QVariant configValue(const QString &name) const;
     void setConfigValue(const QString &name, const QVariant &value);
-    void updateState(Internal::DebuggerEngine *engine);
+    void updateState(DebuggerEngine *engine);
 
     QIcon locationMarkIcon() const;
     void activateDebugMode();
@@ -99,7 +98,7 @@ public slots:
     void showMessage(const QString &msg, int channel, int timeout = -1);
 
 private:
-    friend class Internal::DebuggerEngine;
+    friend class DebuggerEngine;
     friend class DebuggerPluginPrivate;
     friend class DebuggerRunControl;
 
@@ -116,7 +115,7 @@ private:
 
     // This contains per-session data like breakpoints and watched
     // expression. It serves as a template for new engine instantiations.
-    Internal::DebuggerEngine *sessionTemplate();
+    DebuggerEngine *sessionTemplate();
 
     QMessageBox *showMessageBox(int icon, const QString &title,
         const QString &text, int buttons = 0);

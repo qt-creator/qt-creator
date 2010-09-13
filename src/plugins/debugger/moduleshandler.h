@@ -40,9 +40,11 @@ QT_END_NAMESPACE
 
 
 namespace Debugger {
-namespace Internal {
 
 class DebuggerEngine;
+
+namespace Internal {
+
 class ModulesModel;
 
 //////////////////////////////////////////////////////////////////

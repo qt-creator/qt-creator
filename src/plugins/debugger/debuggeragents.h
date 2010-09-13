@@ -38,9 +38,11 @@ class IEditor;
 }
 
 namespace Debugger {
-namespace Internal {
 
 class DebuggerEngine;
+
+namespace Internal {
+
 class StackFrame;
 
 class MemoryViewAgent : public QObject
@@ -49,8 +51,8 @@ class MemoryViewAgent : public QObject
 
 public:
     // Called from Gui
-    explicit MemoryViewAgent(DebuggerEngine *engine, quint64 startaddr);
-    explicit MemoryViewAgent(DebuggerEngine *engine, const QString &startaddr);
+    explicit MemoryViewAgent(Debugger::DebuggerEngine *engine, quint64 startaddr);
+    explicit MemoryViewAgent(Debugger::DebuggerEngine *engine, const QString &startaddr);
     ~MemoryViewAgent();
 
     enum { BinBlockSize = 1024 };
@@ -67,7 +69,7 @@ private:
     Q_SLOT void handleEndOfFileRequested(Core::IEditor *editor);
 
     QList<QPointer<Core::IEditor> > m_editors;
-    QPointer<DebuggerEngine> m_engine;
+    QPointer<Debugger::DebuggerEngine> m_engine;
 };
 
 struct DisassemblerViewAgentPrivate;
@@ -78,7 +80,7 @@ class DisassemblerViewAgent : public QObject
     Q_PROPERTY(QString mimeType READ mimeType WRITE setMimeType)
 public:
     // Called from Gui
-    explicit DisassemblerViewAgent(DebuggerEngine *engine);
+    explicit DisassemblerViewAgent(Debugger::DebuggerEngine *engine);
     ~DisassemblerViewAgent();
 
     void setFrame(const StackFrame &frame, bool tryMixed = true);

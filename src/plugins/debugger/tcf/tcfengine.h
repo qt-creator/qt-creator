@@ -56,7 +56,7 @@ namespace Internal {
 class ScriptAgent;
 class WatchData;
 
-class TcfEngine : public DebuggerEngine
+class TcfEngine : public Debugger::DebuggerEngine
 {
     Q_OBJECT
 

@@ -34,10 +34,9 @@
 #include <QtCore/QVector>
 
 namespace Debugger {
-namespace Internal {
-
 class DebuggerEngine;
 
+namespace Internal {
 class Register
 {
 public:

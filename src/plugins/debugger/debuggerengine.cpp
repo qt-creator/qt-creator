@@ -152,9 +152,6 @@ QDebug operator<<(QDebug str, const DebuggerStartParameters &sp)
     return str;
 }
 
-
-namespace Internal {
-
 const char *DebuggerEngine::stateName(int s)
 {
 #    define SN(x) case x: return #x;
@@ -1562,7 +1559,160 @@ DebuggerRunControl *DebuggerEngine::runControl() const
     return d->m_runControl;
 }
 
-} // namespace Internal
+void DebuggerEngine::setToolTipExpression(const QPoint &, TextEditor::ITextEditor *, int)
+{
+}
+
+void DebuggerEngine::updateWatchData(const Internal::WatchData &, const Internal::WatchUpdateFlags &)
+{
+}
+
+bool DebuggerEngine::isSessionEngine() const
+{
+    return false;
+}
+
+void DebuggerEngine::watchPoint(const QPoint &)
+{
+}
+
+void DebuggerEngine::fetchDisassembler(Internal::DisassemblerViewAgent *)
+{
+}
+
+void DebuggerEngine::activateFrame(int)
+{
+}
+
+void DebuggerEngine::reloadModules()
+{
+}
+
+void DebuggerEngine::examineModules()
+{
+}
+
+void DebuggerEngine::loadSymbols(const QString &)
+{
+}
+
+void DebuggerEngine::loadAllSymbols()
+{
+}
+
+void DebuggerEngine::requestModuleSymbols(const QString &)
+{
+}
+
+void DebuggerEngine::reloadRegisters()
+{
+}
+
+void DebuggerEngine::reloadSourceFiles()
+{
+}
+
+void DebuggerEngine::reloadFullStack()
+{
+}
+
+void DebuggerEngine::addOptionPages(QList<Core::IOptionsPage*> *) const
+{
+}
+
+unsigned DebuggerEngine::debuggerCapabilities() const
+{
+    return 0;
+}
+
+bool DebuggerEngine::isSynchronous() const
+{
+    return false;
+}
+
+QByteArray DebuggerEngine::qtNamespace() const
+{
+    return QByteArray();
+}
+
+void DebuggerEngine::createSnapshot()
+{
+}
+
+void DebuggerEngine::updateAll()
+{
+}
+
+void DebuggerEngine::attemptBreakpointSynchronization()
+{
+}
+
+void DebuggerEngine::selectThread(int)
+{
+}
+
+void DebuggerEngine::assignValueInDebugger(const QString &, const QString &)
+{
+}
+
+void DebuggerEngine::detachDebugger()
+{
+}
+
+void DebuggerEngine::executeStep()
+{
+}
+
+void DebuggerEngine::executeStepOut()
+{
+}
+
+void DebuggerEngine::executeNext()
+{
+}
+
+void DebuggerEngine::executeStepI()
+{
+}
+
+void DebuggerEngine::executeNextI()
+{
+}
+
+void DebuggerEngine::executeReturn()
+{
+}
+
+void DebuggerEngine::continueInferior()
+{
+}
+
+void DebuggerEngine::interruptInferior()
+{
+}
+
+void DebuggerEngine::executeRunToLine(const QString &, int)
+{
+}
+
+void DebuggerEngine::executeRunToFunction(const QString &)
+{
+}
+
+void DebuggerEngine::executeJumpToLine(const QString &, int)
+{
+}
+
+void DebuggerEngine::executeDebuggerCommand(const QString &)
+{
+
+}
+
+bool DebuggerEngine::isDying() const
+{
+    return targetState() == DebuggerFinished;
+}
+
 } // namespace Debugger
 
 #include "debuggerengine.moc"

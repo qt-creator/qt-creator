@@ -36,9 +36,7 @@
 QT_FORWARD_DECLARE_CLASS(QUrl)
 
 namespace Debugger {
-namespace Internal {
 class QmlAdapter;
-}
 }
 
 namespace QmlJSInspector {
@@ -56,7 +54,7 @@ class ClientProxy : public QObject
     Q_OBJECT
 
 public:
-    explicit ClientProxy(Debugger::Internal::QmlAdapter *adapter, QObject *parent = 0);
+    explicit ClientProxy(Debugger::QmlAdapter *adapter, QObject *parent = 0);
 
     bool setBindingForObject(int objectDebugId,
                              const QString &propertyName,
@@ -82,7 +80,7 @@ public:
 
     QList<QDeclarativeDebugEngineReference> engines() const;
 
-    Debugger::Internal::QmlAdapter *qmlAdapter() const;
+    Debugger::QmlAdapter *qmlAdapter() const;
 
 signals:
     void objectTreeUpdated();
@@ -147,7 +145,7 @@ private:
     Q_DISABLE_COPY(ClientProxy);
     void buildDebugIdHashRecursive(const QDeclarativeDebugObjectReference &ref);
 
-    Debugger::Internal::QmlAdapter *m_adapter;
+    Debugger::QmlAdapter *m_adapter;
     QDeclarativeEngineDebug *m_client;
     QmlJSDesignDebugClient *m_designClient;
 

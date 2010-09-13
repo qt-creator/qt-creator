@@ -36,9 +36,9 @@
 
 
 namespace Debugger {
-namespace Internal {
-
 class DebuggerEngine;
+
+namespace Internal {
 
 class SourceFilesHandler : public QAbstractItemModel
 {

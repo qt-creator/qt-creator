@@ -46,7 +46,7 @@
 
 using namespace QmlJSInspector::Internal;
 
-ClientProxy::ClientProxy(Debugger::Internal::QmlAdapter *adapter, QObject *parent)
+ClientProxy::ClientProxy(Debugger::QmlAdapter *adapter, QObject *parent)
     : QObject(parent)
     , m_adapter(adapter)
     , m_client(m_adapter->client())
@@ -511,7 +511,7 @@ void ClientProxy::updateEngineList()
     emit enginesChanged();
 }
 
-Debugger::Internal::QmlAdapter *ClientProxy::qmlAdapter() const
+Debugger::QmlAdapter *ClientProxy::qmlAdapter() const
 {
     return m_adapter;
 }

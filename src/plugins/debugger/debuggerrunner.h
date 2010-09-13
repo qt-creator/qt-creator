@@ -39,15 +39,13 @@ namespace ProjectExplorer {
 class Environment;
 }
 
-
 namespace Debugger {
-
+class DebuggerEngine;
 class DebuggerRunControl;
+class QmlEngine;
 class DebuggerStartParameters;
 
 namespace Internal {
-class DebuggerEngine;
-class QmlEngine;
 class GdbEngine;
 class AbstractGdbAdapter;
 }
@@ -111,7 +109,7 @@ public:
     RunConfiguration *runConfiguration() const { return m_myRunConfiguration.data(); }
 
     DebuggerState state() const;
-    Internal::DebuggerEngine *engine();
+    DebuggerEngine *engine();
 
     void showMessage(const QString &msg, int channel);
 
@@ -126,6 +124,10 @@ public:
 signals:
     void gdbAdapterRequestSetup();
 
+public slots:
+    void emitAddToOutputWindow(const QString &line, bool onStdErr);
+    void emitAppendMessage(const QString &, bool isError);
+
 private slots:
     void handleFinished();
 
@@ -139,14 +141,13 @@ private:
     Internal::GdbEngine *gdbEngine() const;
     Internal::AbstractGdbAdapter *gdbAdapter() const;
 
-    Internal::DebuggerEngine *m_engine;
+    DebuggerEngine *m_engine;
     const QWeakPointer<RunConfiguration> m_myRunConfiguration;
     bool m_running;
     bool m_started;
     DebuggerEngineType m_enabledEngines;
     QString m_errorMessage;
     QString m_settingsIdHint;
-    friend class Internal::QmlEngine;
 };
 
 } // namespace Debugger

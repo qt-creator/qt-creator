@@ -47,6 +47,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/environment.h>
+#include <projectexplorer/applicationlauncher.h>
 
 #include <utils/qtcassert.h>
 
@@ -96,6 +97,28 @@ QDataStream& operator>>(QDataStream& s, WatchData &data)
     return s;
 }
 
+} // namespace Internal
+
+struct QmlEnginePrivate {
+    explicit QmlEnginePrivate(QmlEngine *q);
+
+    int m_ping;
+    QmlAdapter *m_adapter;
+    ProjectExplorer::ApplicationLauncher m_applicationLauncher;
+    bool m_addedAdapterToObjectPool;
+    bool m_attachToRunningExternalApp;
+    bool m_hasShutdown;
+};
+
+QmlEnginePrivate::QmlEnginePrivate(QmlEngine *q) :
+  m_ping(0)
+, m_adapter(new QmlAdapter(q))
+, m_addedAdapterToObjectPool(false)
+, m_attachToRunningExternalApp(false)
+, m_hasShutdown(false)
+{
+}
+
 ///////////////////////////////////////////////////////////////////////
 //
 // QmlEngine
@@ -103,12 +126,7 @@ QDataStream& operator>>(QDataStream& s, WatchData &data)
 ///////////////////////////////////////////////////////////////////////
 
 QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters)
-    : DebuggerEngine(startParameters)
-    , m_ping(0)
-    , m_adapter(new QmlAdapter(this))
-    , m_addedAdapterToObjectPool(false)
-    , m_attachToRunningExternalApp(false)
-    , m_hasShutdown(false)
+    : DebuggerEngine(startParameters), d(new QmlEnginePrivate(this))
 {
     setObjectName(QLatin1String("QmlEngine"));
 }
@@ -119,12 +137,12 @@ QmlEngine::~QmlEngine()
 
 void QmlEngine::setAttachToRunningExternalApp(bool value)
 {
-    m_attachToRunningExternalApp = value;
+    d->m_attachToRunningExternalApp = value;
 }
 
 void QmlEngine::pauseConnection()
 {
-    m_adapter->pauseConnection();
+    d->m_adapter->pauseConnection();
 }
 
 void QmlEngine::gotoLocation(const QString &fileName, int lineNumber, bool setMarker)
@@ -137,9 +155,9 @@ void QmlEngine::gotoLocation(const QString &fileName, int lineNumber, bool setMa
     DebuggerEngine::gotoLocation(processedFilename, lineNumber, setMarker);
 }
 
-void QmlEngine::gotoLocation(const StackFrame &frame, bool setMarker)
+void QmlEngine::gotoLocation(const Internal::StackFrame &frame, bool setMarker)
 {
-    StackFrame adjustedFrame = frame;
+    Internal::StackFrame adjustedFrame = frame;
     if (isShadowBuildProject())
         adjustedFrame.file = fromShadowBuildFilename(frame.file);
 
@@ -150,17 +168,17 @@ void QmlEngine::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
 
-    connect(&m_applicationLauncher, SIGNAL(processExited(int)),
+    connect(&d->m_applicationLauncher, SIGNAL(processExited(int)),
             this, SLOT(disconnected()));
-    connect(&m_applicationLauncher, SIGNAL(appendMessage(QString,bool)),
-            this, SLOT(slotMessage(QString, bool)));
-    connect(&m_applicationLauncher, SIGNAL(appendOutput(QString, bool)),
-            this, SLOT(slotAddToOutputWindow(QString, bool)));
-    connect(&m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),
+    connect(&d->m_applicationLauncher, SIGNAL(appendMessage(QString,bool)),
+            runControl(), SLOT(emitAppendMessage(QString,bool)));
+    connect(&d->m_applicationLauncher, SIGNAL(appendOutput(QString, bool)),
+            runControl(), SLOT(emitAddToOutputWindow(QString, bool)));
+    connect(&d->m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),
             runControl(), SLOT(bringApplicationToForeground(qint64)));
 
-    m_applicationLauncher.setEnvironment(startParameters().environment);
-    m_applicationLauncher.setWorkingDirectory(startParameters().workingDirectory);
+    d->m_applicationLauncher.setEnvironment(startParameters().environment);
+    d->m_applicationLauncher.setWorkingDirectory(startParameters().workingDirectory);
 
     notifyInferiorSetupOk();
 }
@@ -170,9 +188,9 @@ void QmlEngine::connectionEstablished()
     attemptBreakpointSynchronization();
 
     ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
-    pluginManager->addObject(m_adapter);
+    pluginManager->addObject(d->m_adapter);
     pluginManager->addObject(this);
-    m_addedAdapterToObjectPool = true;
+    d->m_addedAdapterToObjectPool = true;
 
     plugin()->showMessage(tr("QML Debugger connected."), StatusBar);
 
@@ -199,13 +217,13 @@ void QmlEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
 
-    if (!m_attachToRunningExternalApp) {
-        m_applicationLauncher.start(ProjectExplorer::ApplicationLauncher::Gui,
+    if (!d->m_attachToRunningExternalApp) {
+        d->m_applicationLauncher.start(ProjectExplorer::ApplicationLauncher::Gui,
                                     startParameters().executable,
                                     startParameters().processArgs);
     }
 
-    m_adapter->beginConnection();
+    d->m_adapter->beginConnection();
     plugin()->showMessage(tr("QML Debugger connecting..."), StatusBar);
 }
 
@@ -226,45 +244,45 @@ void QmlEngine::shutdownInferiorAsSlave()
 
 void QmlEngine::shutdownEngineAsSlave()
 {
-    if (m_hasShutdown)
+    if (d->m_hasShutdown)
         return;
 
-    disconnect(m_adapter, SIGNAL(connectionStartupFailed()), this, SLOT(connectionStartupFailed()));
-    m_adapter->closeConnection();
+    disconnect(d->m_adapter, SIGNAL(connectionStartupFailed()), this, SLOT(connectionStartupFailed()));
+    d->m_adapter->closeConnection();
 
-    if (m_addedAdapterToObjectPool) {
+    if (d->m_addedAdapterToObjectPool) {
         ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
-        pluginManager->removeObject(m_adapter);
+        pluginManager->removeObject(d->m_adapter);
         pluginManager->removeObject(this);
     }
 
-    if (m_attachToRunningExternalApp) {
+    if (d->m_attachToRunningExternalApp) {
         setState(EngineShutdownRequested, true);
         setState(EngineShutdownOk, true);
         setState(DebuggerFinished, true);
     } else {
-        if (m_applicationLauncher.isRunning()) {
+        if (d->m_applicationLauncher.isRunning()) {
             // should only happen if engine is ill
-            disconnect(&m_applicationLauncher, SIGNAL(processExited(int)), this, SLOT(disconnected()));
-            m_applicationLauncher.stop();
+            disconnect(&d->m_applicationLauncher, SIGNAL(processExited(int)), this, SLOT(disconnected()));
+            d->m_applicationLauncher.stop();
         }
     }
-    m_hasShutdown = true;
+    d->m_hasShutdown = true;
 }
 
 void QmlEngine::shutdownInferior()
 {
     // don't do normal shutdown if running as slave engine
-    if (m_attachToRunningExternalApp)
+    if (d->m_attachToRunningExternalApp)
         return;
 
     QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
-    if (!m_applicationLauncher.isRunning()) {
+    if (!d->m_applicationLauncher.isRunning()) {
         showMessage(tr("Trying to stop while process is no longer running."), LogError);
     } else {
-        disconnect(&m_applicationLauncher, SIGNAL(processExited(int)), this, SLOT(disconnected()));
-        if (!m_attachToRunningExternalApp)
-            m_applicationLauncher.stop();
+        disconnect(&d->m_applicationLauncher, SIGNAL(processExited(int)), this, SLOT(disconnected()));
+        if (!d->m_attachToRunningExternalApp)
+            d->m_applicationLauncher.stop();
     }
     notifyInferiorShutdownOk();
 }
@@ -281,12 +299,12 @@ void QmlEngine::shutdownEngine()
 
 void QmlEngine::setupEngine()
 {
-    m_adapter->setMaxConnectionAttempts(MaxConnectionAttempts);
-    m_adapter->setConnectionAttemptInterval(ConnectionAttemptDefaultInterval);
-    connect(m_adapter, SIGNAL(connectionError(QAbstractSocket::SocketError)),
+    d->m_adapter->setMaxConnectionAttempts(MaxConnectionAttempts);
+    d->m_adapter->setConnectionAttemptInterval(ConnectionAttemptDefaultInterval);
+    connect(d->m_adapter, SIGNAL(connectionError(QAbstractSocket::SocketError)),
             SLOT(connectionError(QAbstractSocket::SocketError)));
-    connect(m_adapter, SIGNAL(connected()), SLOT(connectionEstablished()));
-    connect(m_adapter, SIGNAL(connectionStartupFailed()), SLOT(connectionStartupFailed()));
+    connect(d->m_adapter, SIGNAL(connected()), SLOT(connectionEstablished()));
+    connect(d->m_adapter, SIGNAL(connectionStartupFailed()), SLOT(connectionStartupFailed()));
 
     notifyEngineSetupOk();
 }
@@ -397,11 +415,11 @@ void QmlEngine::selectThread(int index)
 
 void QmlEngine::attemptBreakpointSynchronization()
 {
-    BreakHandler *handler = breakHandler();
+    Internal::BreakHandler *handler = breakHandler();
     //bool updateNeeded = false;
     QSet< QPair<QString, qint32> > breakList;
     for (int index = 0; index != handler->size(); ++index) {
-        BreakpointData *data = handler->at(index);
+        Internal::BreakpointData *data = handler->at(index);
         QString processedFilename = data->fileName;
         if (isShadowBuildProject())
             processedFilename = toShadowBuildFilename(data->fileName);
@@ -442,10 +460,6 @@ void QmlEngine::requestModuleSymbols(const QString &moduleName)
 //
 //////////////////////////////////////////////////////////////////////
 
-static WatchData m_toolTip;
-static QPoint m_toolTipPos;
-static QHash<QString, WatchData> m_toolTipCache;
-
 void QmlEngine::setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos)
 {
     // this is processed by QML inspector, which has deps to qml js editor. Makes life easier.
@@ -476,7 +490,7 @@ void QmlEngine::assignValueInDebugger(const QString &expression,
     }
 }
 
-void QmlEngine::updateWatchData(const WatchData &data, const WatchUpdateFlags &)
+void QmlEngine::updateWatchData(const Internal::WatchData &data, const Internal::WatchUpdateFlags &)
 {
 //    qDebug() << "UPDATE WATCH DATA" << data.toString();
     //watchHandler()->rebuildModel();
@@ -517,18 +531,20 @@ void QmlEngine::expandObject(const QByteArray& iname, quint64 objectId)
 
 void QmlEngine::sendPing()
 {
-    m_ping++;
+    d->m_ping++;
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
     rs << QByteArray("PING");
-    rs << m_ping;
+    rs << d->m_ping;
     sendMessage(reply);
 }
 
+namespace Internal {
 DebuggerEngine *createQmlEngine(const DebuggerStartParameters &sp)
 {
     return new QmlEngine(sp);
 }
+} // namespace Internal
 
 unsigned QmlEngine::debuggerCapabilities() const
 {
@@ -552,21 +568,21 @@ void QmlEngine::messageReceived(const QByteArray &message)
     QByteArray command;
     stream >> command;
 
-    showMessage(_("RECEIVED RESPONSE: ") + quoteUnprintableLatin1(message));
+    showMessage(QLatin1String("RECEIVED RESPONSE: ") + Internal::quoteUnprintableLatin1(message));
     if (command == "STOPPED") {
         if (state() == InferiorRunOk) {
             notifyInferiorSpontaneousStop();
         }
 
         QList<QPair<QString, QPair<QString, qint32> > > backtrace;
-        QList<WatchData> watches;
-        QList<WatchData> locals;
+        QList<Internal::WatchData> watches;
+        QList<Internal::WatchData> locals;
         stream >> backtrace >> watches >> locals;
 
-        StackFrames stackFrames;
+        Internal::StackFrames stackFrames;
         typedef QPair<QString, QPair<QString, qint32> > Iterator;
         foreach (const Iterator &it, backtrace) {
-            StackFrame frame;
+            Internal::StackFrame frame;
             frame.file = it.second.first;
             frame.line = it.second.second;
             frame.function = it.first;
@@ -579,7 +595,7 @@ void QmlEngine::messageReceived(const QByteArray &message)
         watchHandler()->beginCycle();
         bool needPing = false;
 
-        foreach (WatchData data, watches) {
+        foreach (Internal::WatchData data, watches) {
             data.iname = watchHandler()->watcherName(data.exp);
             watchHandler()->insertData(data);
 
@@ -589,7 +605,7 @@ void QmlEngine::messageReceived(const QByteArray &message)
             }
         }
 
-        foreach (WatchData data, locals) {
+        foreach (Internal::WatchData data, locals) {
             data.iname = "local." + data.exp;
             watchHandler()->insertData(data);
 
@@ -618,7 +634,7 @@ void QmlEngine::messageReceived(const QByteArray &message)
 
 
     } else if (command == "RESULT") {
-        WatchData data;
+        Internal::WatchData data;
         QByteArray iname;
         stream >> iname >> data;
         data.iname = iname;
@@ -630,11 +646,11 @@ void QmlEngine::messageReceived(const QByteArray &message)
             qWarning() << "QmlEngine: Unexcpected result: " << iname << data.value;
         }
     } else if (command == "EXPANDED") {
-        QList<WatchData> result;
+        QList<Internal::WatchData> result;
         QByteArray iname;
         stream >> iname >> result;
         bool needPing = false;
-        foreach (WatchData data, result) {
+        foreach (Internal::WatchData data, result) {
             data.iname = iname + '.' + data.exp;
             watchHandler()->insertData(data);
 
@@ -646,12 +662,12 @@ void QmlEngine::messageReceived(const QByteArray &message)
         if (needPing)
             sendPing();
     } else if (command == "LOCALS") {
-        QList<WatchData> locals;
+        QList<Internal::WatchData> locals;
         int frameId;
         stream >> frameId >> locals;
         watchHandler()->beginCycle();
         bool needPing = false;
-        foreach (WatchData data, locals) {
+        foreach (Internal::WatchData data, locals) {
             data.iname = "local." + data.exp;
             watchHandler()->insertData(data);
             if (watchHandler()->expandedINames().contains(data.iname)) {
@@ -667,7 +683,7 @@ void QmlEngine::messageReceived(const QByteArray &message)
     } else if (command == "PONG") {
         int ping;
         stream >> ping;
-        if (ping == m_ping)
+        if (ping == d->m_ping)
             watchHandler()->endCycle();
     } else {
         qDebug() << Q_FUNC_INFO << "Unknown command: " << command;
@@ -680,17 +696,6 @@ void QmlEngine::disconnected()
     plugin()->showMessage(tr("QML Debugger disconnected."), StatusBar);
     notifyInferiorExited();
 }
-
-void QmlEngine::slotAddToOutputWindow(QString line, bool onStdErr)
-{
-    emit runControl()->addToOutputWindowInline(runControl(), line, onStdErr);
-}
-
-void QmlEngine::slotMessage(QString err , bool isError)
-{
-    emit runControl()->appendMessage(runControl(), err, isError);
-}
-
 
 void QmlEngine::executeDebuggerCommand(const QString& command)
 {
@@ -769,6 +774,5 @@ QString QmlEngine::fromShadowBuildFilename(const QString &filename) const
     return newFilename;
 }
 
-} // namespace Internal
 } // namespace Debugger
 

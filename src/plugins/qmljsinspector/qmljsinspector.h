@@ -60,9 +60,7 @@ namespace QmlJS {
 }
 
 namespace Debugger {
-namespace Internal {
     class QmlEngine;
-}
 }
 
 QT_FORWARD_DECLARE_CLASS(QDockWidget)
@@ -107,8 +105,8 @@ public:
     void setupUi();
     void connected(ClientProxy *clientProxy);
     void disconnected();
-    void setDebuggerEngine(Debugger::Internal::QmlEngine *qmlEngine);
-    Debugger::Internal::QmlEngine *debuggerEngine() const;
+    void setDebuggerEngine(Debugger::QmlEngine *qmlEngine);
+    Debugger::QmlEngine *debuggerEngine() const;
 
 signals:
     void statusMessage(const QString &text);
@@ -160,7 +158,7 @@ private:
 
     InspectorSettings *m_settings;
     ClientProxy *m_clientProxy;
-    Debugger::Internal::QmlEngine *m_qmlEngine;
+    Debugger::QmlEngine *m_qmlEngine;
     QDeclarativeDebugExpressionQuery *m_debugQuery;
 
     // Qml/JS integration

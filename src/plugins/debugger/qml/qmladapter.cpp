@@ -33,82 +33,101 @@
 
 #include "debuggerengine.h"
 
-#include <QAbstractSocket>
-#include <QTimer>
-#include <QDebug>
+#include <QtCore/QTimer>
+#include <QtCore/QDebug>
 
 namespace Debugger {
-namespace Internal {
+
+struct QmlAdapterPrivate {
+    explicit QmlAdapterPrivate(DebuggerEngine *engine, QmlAdapter *q);
+
+    QWeakPointer<DebuggerEngine> m_engine;
+    Internal::QmlDebuggerClient *m_qmlClient;
+    QDeclarativeEngineDebug *m_mainClient;
+
+    QTimer *m_connectionTimer;
+    int m_connectionAttempts;
+    int m_maxConnectionAttempts;
+    QDeclarativeDebugConnection *m_conn;
+};
+
+QmlAdapterPrivate::QmlAdapterPrivate(DebuggerEngine *engine, QmlAdapter *q) :
+  m_engine(engine)
+, m_qmlClient(0)
+, m_mainClient(0)
+, m_connectionTimer(new QTimer(q))
+, m_connectionAttempts(0)
+, m_conn(0)
+{
+}
 
 QmlAdapter::QmlAdapter(DebuggerEngine *engine, QObject *parent)
-    : QObject(parent)
-    , m_engine(engine)
-    , m_qmlClient(0)
-    , m_mainClient(0)
-    , m_connectionTimer(new QTimer(this))
-    , m_connectionAttempts(0)
-    , m_conn(0)
-
+    : QObject(parent), d(new QmlAdapterPrivate(engine, this))
 {
-    m_connectionTimer->setInterval(200);
-    connect(m_connectionTimer, SIGNAL(timeout()), SLOT(pollInferior()));
+    d->m_connectionTimer->setInterval(200);
+    connect(d->m_connectionTimer, SIGNAL(timeout()), SLOT(pollInferior()));
+}
+
+QmlAdapter::~QmlAdapter()
+{
 }
 
 void QmlAdapter::beginConnection()
 {
-    m_connectionAttempts = 0;
-    m_connectionTimer->start();
+    d->m_connectionAttempts = 0;
+    d->m_connectionTimer->start();
 }
 
 void QmlAdapter::pauseConnection()
 {
-    m_connectionTimer->stop();
+    d->m_connectionTimer->stop();
 }
 
 void QmlAdapter::closeConnection()
 {
-    if (m_connectionTimer->isActive()) {
-        m_connectionTimer->stop();
+    if (d->m_connectionTimer->isActive()) {
+        d->m_connectionTimer->stop();
     } else {
-        if (m_conn) {
-            m_conn->disconnectFromHost();
+        if (d->m_conn) {
+            d->m_conn->disconnectFromHost();
         }
     }
 }
 
 void QmlAdapter::pollInferior()
 {
-    ++m_connectionAttempts;
+    ++d->m_connectionAttempts;
 
     if (connectToViewer()) {
-        m_connectionTimer->stop();
-        m_connectionAttempts = 0;
-    } else if (m_connectionAttempts == m_maxConnectionAttempts) {
+        d->m_connectionTimer->stop();
+        d->m_connectionAttempts = 0;
+    } else if (d->m_connectionAttempts == d->m_maxConnectionAttempts) {
         emit connectionStartupFailed();
-        m_connectionTimer->stop();
-        m_connectionAttempts = 0;
+        d->m_connectionTimer->stop();
+        d->m_connectionAttempts = 0;
     }
 }
 
 bool QmlAdapter::connectToViewer()
 {
-    if (m_engine.isNull() || (m_conn && m_conn->state() != QAbstractSocket::UnconnectedState))
+    if (d->m_engine.isNull() || (d->m_conn && d->m_conn->state() != QAbstractSocket::UnconnectedState))
         return false;
 
-    m_conn = new QDeclarativeDebugConnection(this);
-    connect(m_conn, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
+    d->m_conn = new QDeclarativeDebugConnection(this);
+    connect(d->m_conn, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
             SLOT(connectionStateChanged()));
-    connect(m_conn, SIGNAL(error(QAbstractSocket::SocketError)),
+    connect(d->m_conn, SIGNAL(error(QAbstractSocket::SocketError)),
             SLOT(connectionErrorOccurred(QAbstractSocket::SocketError)));
 
-    QString address = m_engine.data()->startParameters().qmlServerAddress;
-    QString port = QString::number(m_engine.data()->startParameters().qmlServerPort);
+    QString address = d->m_engine.data()->startParameters().qmlServerAddress;
+    QString port = QString::number(d->m_engine.data()->startParameters().qmlServerPort);
     showConnectionStatusMessage(tr("Connect to debug server %1:%2").arg(address).arg(port));
-    m_conn->connectToHost(m_engine.data()->startParameters().qmlServerAddress,
-                          m_engine.data()->startParameters().qmlServerPort);
+    d->m_conn->connectToHost(d->m_engine.data()->startParameters().qmlServerAddress,
+                          d->m_engine.data()->startParameters().qmlServerPort);
+
 
     // blocks until connected; if no connection is available, will fail immediately
-    if (!m_conn->waitForConnected())
+    if (!d->m_conn->waitForConnected())
         return false;
 
     return true;
@@ -117,7 +136,7 @@ bool QmlAdapter::connectToViewer()
 void QmlAdapter::connectionErrorOccurred(QAbstractSocket::SocketError socketError)
 {
     showConnectionErrorMessage(tr("Error: (%1) %2", "%1=error code, %2=error message")
-                                .arg(m_conn->error()).arg(m_conn->errorString()));
+                                .arg(d->m_conn->error()).arg(d->m_conn->errorString()));
 
     // this is only an error if we are already connected and something goes wrong.
     if (isConnected())
@@ -126,7 +145,7 @@ void QmlAdapter::connectionErrorOccurred(QAbstractSocket::SocketError socketErro
 
 void QmlAdapter::connectionStateChanged()
 {
-    switch (m_conn->state()) {
+    switch (d->m_conn->state()) {
         case QAbstractSocket::UnconnectedState:
         {
             showConnectionStatusMessage(tr("disconnected.\n\n"));
@@ -144,8 +163,8 @@ void QmlAdapter::connectionStateChanged()
         {
             showConnectionStatusMessage(tr("connected.\n"));
 
-            if (!m_mainClient) {
-                m_mainClient = new QDeclarativeEngineDebug(m_conn, this);
+            if (!d->m_mainClient) {
+                d->m_mainClient = new QDeclarativeEngineDebug(d->m_conn, this);
             }
 
             createDebuggerClient();
@@ -164,29 +183,29 @@ void QmlAdapter::connectionStateChanged()
 
 void QmlAdapter::createDebuggerClient()
 {
-    m_qmlClient = new QmlDebuggerClient(m_conn);
+    d->m_qmlClient = new Internal::QmlDebuggerClient(d->m_conn);
 
-    connect(m_engine.data(), SIGNAL(sendMessage(QByteArray)),
-            m_qmlClient, SLOT(slotSendMessage(QByteArray)));
-    connect(m_qmlClient, SIGNAL(messageWasReceived(QByteArray)),
-            m_engine.data(), SLOT(messageReceived(QByteArray)));
+    connect(d->m_engine.data(), SIGNAL(sendMessage(QByteArray)),
+            d->m_qmlClient, SLOT(slotSendMessage(QByteArray)));
+    connect(d->m_qmlClient, SIGNAL(messageWasReceived(QByteArray)),
+            d->m_engine.data(), SLOT(messageReceived(QByteArray)));
 
     //engine->startSuccessful();  // FIXME: AAA: port to new debugger states
 }
 
 bool QmlAdapter::isConnected() const
 {
-    return m_conn && m_qmlClient && m_conn->state() == QAbstractSocket::ConnectedState;
+    return d->m_conn && d->m_qmlClient && d->m_conn->state() == QAbstractSocket::ConnectedState;
 }
 
 bool QmlAdapter::isUnconnected() const
 {
-    return !m_conn || m_conn->state() == QAbstractSocket::UnconnectedState;
+    return !d->m_conn || d->m_conn->state() == QAbstractSocket::UnconnectedState;
 }
 
 QDeclarativeEngineDebug *QmlAdapter::client() const
 {
-    return m_mainClient;
+    return d->m_mainClient;
 }
 
 QDeclarativeDebugConnection *QmlAdapter::connection() const
@@ -194,29 +213,28 @@ QDeclarativeDebugConnection *QmlAdapter::connection() const
     if (!isConnected())
         return 0;
 
-    return m_conn;
+    return d->m_conn;
 }
 
 void QmlAdapter::showConnectionStatusMessage(const QString &message)
 {
-    if (!m_engine.isNull())
-        m_engine.data()->showMessage(QLatin1String("QmlJSDebugger: ") + message, LogStatus);
+    if (!d->m_engine.isNull())
+        d->m_engine.data()->showMessage(QLatin1String("QmlJSDebugger: ") + message, LogStatus);
 }
 
 void QmlAdapter::showConnectionErrorMessage(const QString &message)
 {
-    if (!m_engine.isNull())
-        m_engine.data()->showMessage(QLatin1String("QmlJSDebugger: ") + message, LogError);
+    if (!d->m_engine.isNull())
+        d->m_engine.data()->showMessage(QLatin1String("QmlJSDebugger: ") + message, LogError);
 }
 
 void QmlAdapter::setMaxConnectionAttempts(int maxAttempts)
 {
-    m_maxConnectionAttempts = maxAttempts;
+    d->m_maxConnectionAttempts = maxAttempts;
 }
 void QmlAdapter::setConnectionAttemptInterval(int interval)
 {
-    m_connectionTimer->setInterval(interval);
+    d->m_connectionTimer->setInterval(interval);
 }
 
-} // namespace Internal
 } // namespace Debugger

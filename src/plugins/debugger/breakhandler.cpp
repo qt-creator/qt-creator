@@ -56,7 +56,7 @@ static DebuggerPlugin *plugin() { return DebuggerPlugin::instance(); }
 //
 //////////////////////////////////////////////////////////////////
 
-BreakHandler::BreakHandler(DebuggerEngine *engine)
+BreakHandler::BreakHandler(Debugger::DebuggerEngine *engine)
   : m_breakpointIcon(_(":/debugger/images/breakpoint_16.png")),
     m_disabledBreakpointIcon(_(":/debugger/images/breakpoint_disabled_16.png")),
     m_pendingBreakPointIcon(_(":/debugger/images/breakpoint_pending_16.png")),

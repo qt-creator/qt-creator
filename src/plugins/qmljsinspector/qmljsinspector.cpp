@@ -164,7 +164,7 @@ void InspectorUi::restoreSettings()
     m_settings->restoreSettings(Core::ICore::instance()->settings());
 }
 
-void InspectorUi::setDebuggerEngine(Debugger::Internal::QmlEngine *qmlEngine)
+void InspectorUi::setDebuggerEngine(Debugger::QmlEngine *qmlEngine)
 {
     if (m_qmlEngine && !qmlEngine) {
         disconnect(m_qmlEngine, SIGNAL(tooltipRequested(QPoint, TextEditor::ITextEditor*, int)),
@@ -178,7 +178,7 @@ void InspectorUi::setDebuggerEngine(Debugger::Internal::QmlEngine *qmlEngine)
     }
 }
 
-Debugger::Internal::QmlEngine *InspectorUi::debuggerEngine() const
+Debugger::QmlEngine *InspectorUi::debuggerEngine() const
 {
     return m_qmlEngine;
 }

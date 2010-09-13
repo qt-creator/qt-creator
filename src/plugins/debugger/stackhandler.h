@@ -37,11 +37,11 @@
 
 #include <QtGui/QIcon>
 
-
 namespace Debugger {
+class DebuggerEngine;
+
 namespace Internal {
 
-class DebuggerEngine;
 class DisassemblerViewAgent;
 
 ////////////////////////////////////////////////////////////////////////

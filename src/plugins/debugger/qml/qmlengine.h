@@ -32,32 +32,13 @@
 
 #include "debuggerengine.h"
 
-#include <QtCore/QByteArray>
-#include <QtCore/QHash>
-#include <QtCore/QObject>
-#include <QtCore/QPoint>
-#include <QtCore/QProcess>
-#include <QtCore/QQueue>
-#include <QtCore/QTimer>
-#include <QtCore/QVariant>
-
+#include <QtCore/QScopedPointer>
 #include <QtNetwork/QAbstractSocket>
-#include <QtNetwork/QTcpSocket>
-
-#include <projectexplorer/applicationlauncher.h>
-
-namespace Core {
-    class TextEditor;
-}
 
 namespace Debugger {
-namespace Internal {
-
-class ScriptAgent;
-class WatchData;
 class QmlAdapter;
-class QmlResponse;
-class QmlDebuggerClient;
+
+struct QmlEnginePrivate;
 
 class DEBUGGER_EXPORT QmlEngine : public DebuggerEngine
 {
@@ -65,14 +46,14 @@ class DEBUGGER_EXPORT QmlEngine : public DebuggerEngine
 
 public:
     explicit QmlEngine(const DebuggerStartParameters &startParameters);
-    ~QmlEngine();
+    virtual ~QmlEngine();
 
     void setAttachToRunningExternalApp(bool value);
     void shutdownInferiorAsSlave();
     void shutdownEngineAsSlave();
     void pauseConnection();
     void gotoLocation(const QString &fileName, int lineNumber, bool setMarker);
-    void gotoLocation(const StackFrame &frame, bool setMarker);
+    void gotoLocation(const Internal::StackFrame &frame, bool setMarker);
 
 public slots:
     void messageReceived(const QByteArray &message);
@@ -117,7 +98,7 @@ private:
     void reloadFullStack() {}
 
     bool supportsThreads() const { return false; }
-    void updateWatchData(const WatchData &data, const WatchUpdateFlags &flags);
+    void updateWatchData(const Internal::WatchData &data, const Internal::WatchUpdateFlags &flags);
     void executeDebuggerCommand(const QString& command);
 
     unsigned int debuggerCapabilities() const;
@@ -131,8 +112,6 @@ private slots:
     void connectionStartupFailed();
     void connectionError(QAbstractSocket::SocketError error);
 
-    void slotMessage(QString, bool);
-    void slotAddToOutputWindow(QString, bool);
 private:
     void expandObject(const QByteArray &iname, quint64 objectId);
     void sendPing();
@@ -146,15 +125,9 @@ private:
 private:
     friend class QmlCppEngine;
 
-    int m_ping;
-    QmlAdapter *m_adapter;
-    ProjectExplorer::ApplicationLauncher m_applicationLauncher;
-    bool m_addedAdapterToObjectPool;
-    bool m_attachToRunningExternalApp;
-    bool m_hasShutdown;
+    QScopedPointer<QmlEnginePrivate> d;
 };
 
-} // namespace Internal
 } // namespace Debugger
 
 #endif // DEBUGGER_QMLENGINE_H

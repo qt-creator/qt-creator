@@ -30,24 +30,36 @@
 #ifndef QMLADAPTER_H
 #define QMLADAPTER_H
 
-#include <QObject>
-#include <QWeakPointer>
+#include <QtCore/QObject>
+#include <QtCore/QScopedPointer>
 
-#include "qmljsprivateapi.h"
 #include "debugger_global.h"
 
-QT_FORWARD_DECLARE_CLASS(QTimer)
+#include <QtNetwork/QAbstractSocket>
+
+QT_BEGIN_NAMESPACE
+namespace QmlJsDebugClient {
+class QDeclarativeEngineDebug;
+class QDeclarativeDebugConnection;
+}
+QT_END_NAMESPACE
 
 namespace Debugger {
-namespace Internal {
-class DebuggerEngine;
-class QmlDebuggerClient;
 
+class DebuggerEngine;
+
+namespace Internal {
+class QmlDebuggerClient;
+} // namespace Internal
+
+struct QmlAdapterPrivate;
 class DEBUGGER_EXPORT QmlAdapter : public QObject
 {
     Q_OBJECT
 public:
     explicit QmlAdapter(DebuggerEngine *engine, QObject *parent = 0);
+    virtual ~QmlAdapter();
+
     void beginConnection();
     void pauseConnection();
     void closeConnection();
@@ -55,8 +67,8 @@ public:
     bool isConnected() const;
     bool isUnconnected() const;
 
-    QDeclarativeEngineDebug *client() const;
-    QDeclarativeDebugConnection *connection() const;
+    QmlJsDebugClient::QDeclarativeEngineDebug *client() const;
+    QmlJsDebugClient::QDeclarativeDebugConnection *connection() const;
 
     // TODO move to private API b/w engine and adapter
     void setMaxConnectionAttempts(int maxAttempts);
@@ -81,19 +93,9 @@ private:
     void showConnectionErrorMessage(const QString &message);
 
 private:
-    QWeakPointer<DebuggerEngine> m_engine;
-    QmlDebuggerClient *m_qmlClient;
-    QDeclarativeEngineDebug *m_mainClient;
-
-    QTimer *m_connectionTimer;
-    int m_connectionAttempts;
-    int m_maxConnectionAttempts;
-
-    QDeclarativeDebugConnection *m_conn;
-
+    QScopedPointer<QmlAdapterPrivate> d;
 };
 
-} // namespace Internal
 } // namespace Debugger
 
 #endif // QMLADAPTER_H

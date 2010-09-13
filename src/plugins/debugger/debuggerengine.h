@@ -58,6 +58,8 @@ namespace Debugger {
 
 class DebuggerRunControl;
 class DebuggerPlugin;
+class DebuggerEnginePrivate;
+class QmlCppEngine;
 
 class DEBUGGER_EXPORT DebuggerStartParameters
 {
@@ -128,13 +130,12 @@ class SourceFilesHandler;
 class ThreadsHandler;
 class WatchHandler;
 
-class DebuggerEnginePrivate;
-
 struct WatchUpdateFlags
 {
     WatchUpdateFlags() : tryIncremental(false) {}
     bool tryIncremental;
 };
+} // namespace Internal
 
 // FIXME: DEBUGGER_EXPORT?
 class DEBUGGER_EXPORT DebuggerEngine : public QObject
@@ -142,78 +143,72 @@ class DEBUGGER_EXPORT DebuggerEngine : public QObject
     Q_OBJECT
 
 public:
-    DebuggerEngine(const DebuggerStartParameters &sp);
+    explicit DebuggerEngine(const DebuggerStartParameters &sp);
     virtual ~DebuggerEngine();
 
-    virtual void setToolTipExpression(const QPoint & /* mousePos */,
-            TextEditor::ITextEditor * /* editor */, int /* cursorPos */) {}
+    virtual void setToolTipExpression(const QPoint & mousePos,
+                                      TextEditor::ITextEditor * editor, int cursorPos);
     void initializeFromTemplate(DebuggerEngine *other);
 
-    virtual void updateWatchData(const WatchData & /* data */,
-        const WatchUpdateFlags & /* flags */ = WatchUpdateFlags()) {}
+    virtual void updateWatchData(const Internal::WatchData &data,
+                                 const Internal::WatchUpdateFlags & flags = Internal::WatchUpdateFlags());
     void startDebugger(DebuggerRunControl *runControl);
-    virtual bool isSessionEngine() const { return false; }
+    virtual bool isSessionEngine() const;
 
-    virtual void watchPoint(const QPoint &) {}
-    virtual void fetchMemory(MemoryViewAgent *, QObject *,
-            quint64 addr, quint64 length);
-    virtual void fetchDisassembler(DisassemblerViewAgent *) {}
-    virtual void activateFrame(int index) { Q_UNUSED(index); }
+    virtual void watchPoint(const QPoint &);
+    virtual void fetchMemory(Internal::MemoryViewAgent *, QObject *,
+                             quint64 addr, quint64 length);
+    virtual void fetchDisassembler(Internal::DisassemblerViewAgent *);
+    virtual void activateFrame(int index);
 
-    virtual void reloadModules() {}
-    virtual void examineModules() {}
-    virtual void loadSymbols(const QString &moduleName)
-        { Q_UNUSED(moduleName); }
-    virtual void loadAllSymbols() {}
-    virtual void requestModuleSymbols(const QString &moduleName)
-        { Q_UNUSED(moduleName); }
+    virtual void reloadModules();
+    virtual void examineModules();
+    virtual void loadSymbols(const QString &moduleName);
+    virtual void loadAllSymbols();
+    virtual void requestModuleSymbols(const QString &moduleName);
 
-    virtual void reloadRegisters() {}
-    virtual void reloadSourceFiles() {}
-    virtual void reloadFullStack() {}
+    virtual void reloadRegisters();
+    virtual void reloadSourceFiles();
+    virtual void reloadFullStack();
 
     virtual void setRegisterValue(int regnr, const QString &value);
-    virtual void addOptionPages(QList<Core::IOptionsPage*> *) const {}
-    virtual unsigned debuggerCapabilities() const { return 0; }
+    virtual void addOptionPages(QList<Core::IOptionsPage*> *) const;
+    virtual unsigned debuggerCapabilities() const;
 
-    virtual bool isSynchronous() const { return false; }
-    virtual QByteArray qtNamespace() const { return QByteArray(); }
+    virtual bool isSynchronous() const;
+    virtual QByteArray qtNamespace() const;
 
-    virtual void createSnapshot() {}
-    virtual void updateAll() {}
+    virtual void createSnapshot();
+    virtual void updateAll();
 
-    virtual void attemptBreakpointSynchronization() {}
-    virtual void selectThread(int index) { Q_UNUSED(index); }
+    virtual void attemptBreakpointSynchronization();
+    virtual void selectThread(int index);
 
-    virtual void assignValueInDebugger(const QString &expr, const QString &value)
-        { Q_UNUSED(expr); Q_UNUSED(value); }
+    virtual void assignValueInDebugger(const QString &expr, const QString &value);
 
     // Convenience
     static QMessageBox *showMessageBox
         (int icon, const QString &title, const QString &text, int buttons = 0);
 
 protected:
-    virtual void detachDebugger() {}
-    virtual void executeStep() {}
-    virtual void executeStepOut()  {}
-    virtual void executeNext() {}
-    virtual void executeStepI() {}
-    virtual void executeNextI() {}
-    virtual void executeReturn() {}
+    virtual void detachDebugger();
+    virtual void executeStep();
+    virtual void executeStepOut() ;
+    virtual void executeNext();
+    virtual void executeStepI();
+    virtual void executeNextI();
+    virtual void executeReturn();
 
-    virtual void continueInferior() {}
-    virtual void interruptInferior() {}
+    virtual void continueInferior();
+    virtual void interruptInferior();
 
     virtual void requestInterruptInferior();
 
-    virtual void executeRunToLine(const QString &fileName, int lineNumber)
-        { Q_UNUSED(fileName); Q_UNUSED(lineNumber); }
-    virtual void executeRunToFunction(const QString &functionName)
-        { Q_UNUSED(functionName); }
-    virtual void executeJumpToLine(const QString &fileName, int lineNumber)
-        { Q_UNUSED(fileName); Q_UNUSED(lineNumber); }
-    virtual void executeDebuggerCommand(const QString &command)
-        { Q_UNUSED(command); }
+    virtual void executeRunToLine(const QString &fileName, int lineNumber);
+
+    virtual void executeRunToFunction(const QString &functionName);
+    virtual void executeJumpToLine(const QString &fileName, int lineNumber);
+    virtual void executeDebuggerCommand(const QString &command);
 
     virtual void frameUp();
     virtual void frameDown();
@@ -223,13 +218,13 @@ public:
     const DebuggerStartParameters &startParameters() const;
     DebuggerStartParameters &startParameters();
 
-    ModulesHandler *modulesHandler() const;
-    BreakHandler *breakHandler() const;
-    RegisterHandler *registerHandler() const;
-    StackHandler *stackHandler() const;
-    ThreadsHandler *threadsHandler() const;
-    WatchHandler *watchHandler() const;
-    SourceFilesHandler *sourceFilesHandler() const;
+    Internal::ModulesHandler *modulesHandler() const;
+    Internal::BreakHandler *breakHandler() const;
+    Internal::RegisterHandler *registerHandler() const;
+    Internal::StackHandler *stackHandler() const;
+    Internal::ThreadsHandler *threadsHandler() const;
+    Internal::WatchHandler *watchHandler() const;
+    Internal::SourceFilesHandler *sourceFilesHandler() const;
 
     virtual QAbstractItemModel *commandModel() const;
     virtual QAbstractItemModel *modulesModel() const;
@@ -248,7 +243,7 @@ public:
     void handleStartFailed();
     bool debuggerActionsEnabled() const;
     static bool debuggerActionsEnabled(DebuggerState state);
-    void showModuleSymbols(const QString &moduleName, const Symbols &symbols);
+    void showModuleSymbols(const QString &moduleName, const Internal::Symbols &symbols);
 
     void breakByFunction(const QString &functionName);
     void breakByFunctionMain();
@@ -261,7 +256,7 @@ public:
     DebuggerState state() const;
     DebuggerState lastGoodState() const;
     DebuggerState targetState() const;
-    bool isDying() const { return targetState() == DebuggerFinished; }
+    bool isDying() const;
 
     // Dumper stuff (common to cdb and gdb).
     bool qtDumperLibraryEnabled() const;
@@ -285,7 +280,7 @@ public:
     void resetLocation();
     void openFile(const QString &fileName, int lineNumber = -1);
     virtual void gotoLocation(const QString &fileName, int lineNumber, bool setMarker);
-    virtual void gotoLocation(const StackFrame &frame, bool setMarker);
+    virtual void gotoLocation(const Internal::StackFrame &frame, bool setMarker);
     virtual void quitDebugger(); // called by DebuggerRunControl
 
 signals:
@@ -353,7 +348,6 @@ private:
     DebuggerEnginePrivate *d;
 };
 
-} // namespace Internal
 } // namespace Debugger
 
 #endif // DEBUGGER_DEBUGGERENGINE_H

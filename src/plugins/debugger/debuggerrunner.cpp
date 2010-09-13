@@ -404,22 +404,22 @@ void DebuggerRunControl::createEngine(const DebuggerStartParameters &startParams
             initGdbEngine(qobject_cast<Internal::GdbEngine *>(m_engine));
             break;
         case ScriptEngineType:
-            m_engine = createScriptEngine(sp);
+            m_engine = Internal::createScriptEngine(sp);
             break;
         case CdbEngineType:
-            m_engine = createCdbEngine(sp);
+            m_engine = Internal::createCdbEngine(sp);
             break;
         case PdbEngineType:
-            m_engine = createPdbEngine(sp);
+            m_engine = Internal::createPdbEngine(sp);
             break;
         case TcfEngineType:
-            m_engine = createTcfEngine(sp);
+            m_engine = Internal::createTcfEngine(sp);
             break;
         case QmlEngineType:
-            m_engine = createQmlEngine(sp);
+            m_engine = Internal::createQmlEngine(sp);
             break;
         case QmlCppEngineType:
-            m_engine = createQmlCppEngine(sp);
+            m_engine = Internal::createQmlCppEngine(sp);
             if (Internal::GdbEngine *embeddedGdbEngine = gdbEngine())
                 initGdbEngine(embeddedGdbEngine);
             break;
@@ -608,7 +608,7 @@ DebuggerState DebuggerRunControl::state() const
     return m_engine->state();
 }
 
-Internal::DebuggerEngine *DebuggerRunControl::engine()
+DebuggerEngine *DebuggerRunControl::engine()
 {
     QTC_ASSERT(m_engine, /**/);
     return m_engine;
@@ -620,7 +620,7 @@ Internal::GdbEngine *DebuggerRunControl::gdbEngine() const
     if (GdbEngine *gdbEngine = qobject_cast<GdbEngine *>(m_engine))
         return gdbEngine;
     if (QmlCppEngine * const qmlEngine = qobject_cast<QmlCppEngine *>(m_engine))
-        if (GdbEngine *embeddedGdbEngine = qobject_cast<GdbEngine *>(qmlEngine->cppEngine()))
+        if (Internal::GdbEngine *embeddedGdbEngine = qobject_cast<GdbEngine *>(qmlEngine->cppEngine()))
             return embeddedGdbEngine;
     return 0;
 }
@@ -656,5 +656,15 @@ void DebuggerRunControl::remoteGdbHandleSetupFailed(const QString &message)
     } else {
         QTC_ASSERT(false, /* */ );
     }
+}
+
+void DebuggerRunControl::emitAddToOutputWindow(const QString &line, bool onStdErr)
+{
+    emit addToOutputWindow(this, line, onStdErr);
+}
+
+void DebuggerRunControl::emitAppendMessage(const QString &m, bool isError)
+{
+    emit appendMessage(this, m, isError);
 }
 } // namespace Debugger

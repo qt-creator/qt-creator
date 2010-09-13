@@ -114,7 +114,8 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
 {
     PRECONDITION;
     if (response.resultClass == GdbResultDone) {
-        bool partial = response.cookie.toBool();
+        const bool partial = response.cookie.toBool();
+        Q_UNUSED(partial);
         //qDebug() << "READING " << (partial ? "PARTIAL" : "FULL");
         QByteArray out = response.data.findChild("consolestreamoutput").data();
         while (out.endsWith(' ') || out.endsWith('\n'))

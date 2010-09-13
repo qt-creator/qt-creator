@@ -127,14 +127,14 @@ void InspectorPlugin::extensionsInitialized()
 // so we can immediately init our stuff.
 void InspectorPlugin::objectAdded(QObject *object)
 {
-    Debugger::Internal::QmlAdapter *adapter = qobject_cast<Debugger::Internal::QmlAdapter *>(object);
+    Debugger::QmlAdapter *adapter = qobject_cast<Debugger::QmlAdapter *>(object);
     if (adapter) {
         m_clientProxy = new ClientProxy(adapter);
         m_inspectorUi->connected(m_clientProxy);
         return;
     }
 
-    Debugger::Internal::QmlEngine *engine = qobject_cast<Debugger::Internal::QmlEngine*>(object);
+    Debugger::QmlEngine *engine = qobject_cast<Debugger::QmlEngine*>(object);
     if (engine) {
         m_inspectorUi->setDebuggerEngine(engine);
     }

@@ -37,9 +37,9 @@
 
 
 namespace Debugger {
-namespace Internal {
-
 class DebuggerEngine;
+
+namespace Internal {
 
 ////////////////////////////////////////////////////////////////////////
 //

@@ -52,13 +52,13 @@ class WatchData;
  * processEvents() triggered by QScriptEngine::setProcessEventsInterval().
  * Stopping is emulated by manually calling processEvents() from the debugger engine. */
 
-class ScriptEngine : public DebuggerEngine
+class ScriptEngine : public Debugger::DebuggerEngine
 {
     Q_OBJECT
 
 public:
-    ScriptEngine(const DebuggerStartParameters &startParameters);
-    ~ScriptEngine();
+    explicit ScriptEngine(const DebuggerStartParameters &startParameters);
+    virtual ~ScriptEngine();
 
 private:
     // DebuggerEngine implementation

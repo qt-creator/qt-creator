@@ -79,14 +79,14 @@ namespace Internal {
 
 namespace { const int DataRange = 1024 * 1024; }
 
-MemoryViewAgent::MemoryViewAgent(DebuggerEngine *engine, quint64 addr)
+MemoryViewAgent::MemoryViewAgent(Debugger::DebuggerEngine *engine, quint64 addr)
     : QObject(engine), m_engine(engine)
 {
     QTC_ASSERT(engine, /**/);
     createBinEditor(addr);
 }
 
-MemoryViewAgent::MemoryViewAgent(DebuggerEngine *engine, const QString &addr)
+MemoryViewAgent::MemoryViewAgent(Debugger::DebuggerEngine *engine, const QString &addr)
     : QObject(engine), m_engine(engine)
 {
     QTC_ASSERT(engine, /**/);

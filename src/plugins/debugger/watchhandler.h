@@ -40,9 +40,10 @@
 #include <QtCore/QAbstractItemModel>
 
 namespace Debugger {
+class DebuggerEngine;
+
 namespace Internal {
 
-class DebuggerEngine;
 class WatchItem;
 class WatchHandler;
 class WatchData;

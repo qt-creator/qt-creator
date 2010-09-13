@@ -36,11 +36,9 @@
 namespace Debugger {
 
 class DebuggerRunControl;
-
-namespace Internal {
-
 class DebuggerEngine;
 
+namespace Internal {
 
 ////////////////////////////////////////////////////////////////////////
 //

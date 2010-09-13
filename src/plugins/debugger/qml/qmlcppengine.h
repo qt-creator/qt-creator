@@ -3,33 +3,33 @@
 
 #include "debuggerengine.h"
 
+#include <QtCore/QScopedPointer>
+
 namespace Core {
 class IEditor;
 }
 
 namespace Debugger {
-namespace Internal {
 
-class GdbEngine;
-class QmlEngine;
+struct QmlCppEnginePrivate;
 
 class DEBUGGER_EXPORT QmlCppEngine : public DebuggerEngine
 {
     Q_OBJECT
 public:
-    QmlCppEngine(const DebuggerStartParameters &sp);
+    explicit QmlCppEngine(const DebuggerStartParameters &sp);
     virtual ~QmlCppEngine();
 
     void setActiveEngine(DebuggerLanguage language);
 
     virtual void setToolTipExpression(const QPoint & /* mousePos */,
             TextEditor::ITextEditor * /* editor */, int /* cursorPos */);
-    virtual void updateWatchData(const WatchData & /* data */, const WatchUpdateFlags &flags);
+    virtual void updateWatchData(const Internal::WatchData & /* data */, const Internal::WatchUpdateFlags &flags);
 
     virtual void watchPoint(const QPoint &);
-    virtual void fetchMemory(MemoryViewAgent *, QObject *,
+    virtual void fetchMemory(Internal::MemoryViewAgent *, QObject *,
             quint64 addr, quint64 length);
-    virtual void fetchDisassembler(DisassemblerViewAgent *);
+    virtual void fetchDisassembler(Internal::DisassemblerViewAgent *);
     virtual void activateFrame(int index);
 
     virtual void reloadModules();
@@ -67,7 +67,7 @@ public:
     QAbstractItemModel *returnModel() const;
     QAbstractItemModel *sourceFilesModel() const;
 
-    DebuggerEngine *cppEngine() const { return m_cppEngine; }
+    DebuggerEngine *cppEngine() const;
 
 protected:
     virtual void detachDebugger();
@@ -111,16 +111,9 @@ private:
     void handleSlaveEngineStateChangeAsActive(const DebuggerState &newState);
 
 private:
-    QmlEngine *m_qmlEngine;
-    DebuggerEngine *m_cppEngine;
-    DebuggerEngine *m_activeEngine;
-    bool m_shutdownOk;
-    bool m_shutdownDeferred;
-    bool m_shutdownDone;
-    bool m_isInitialStartup;
+    QScopedPointer<QmlCppEnginePrivate> d;
 };
 
-} // namespace Internal
 } // namespace Debugger
 
 #endif // QMLGDBENGINE_H

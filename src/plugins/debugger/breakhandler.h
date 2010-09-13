@@ -37,11 +37,11 @@
 
 #include <QtGui/QIcon>
 
-
 namespace Debugger {
-namespace Internal {
 
 class DebuggerEngine;
+
+namespace Internal {
 
 //////////////////////////////////////////////////////////////////
 //
@@ -125,7 +125,7 @@ private:
     const QIcon m_emptyIcon;
     const QIcon m_watchpointIcon;
 
-    DebuggerEngine *m_engine; // Not owned.
+    Debugger::DebuggerEngine *m_engine; // Not owned.
     Breakpoints m_bp;
     Breakpoints m_inserted; // Lately inserted breakpoints.
     Breakpoints m_removed; // Lately removed breakpoints.
