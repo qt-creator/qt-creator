@@ -27,7 +27,7 @@ OTHER_FILES += \
     ImageViewer.pluginspec \
     ImageViewer.mimetypes.xml
 
-QT += svg
+contains(QT_CONFIG, svg):QT += svg
 
 FORMS += \
     imageviewertoolbar.ui

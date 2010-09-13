@@ -46,7 +46,9 @@
 #include <QtGui/QMouseEvent>
 #include <QtGui/QGraphicsRectItem>
 #include <QtGui/QPixmap>
+#ifndef QT_NO_SVG
 #include <QtSvg/QGraphicsSvgItem>
+#endif
 #include <QtGui/QImageReader>
 #include <qmath.h>
 
@@ -104,15 +106,19 @@ void ImageView::drawBackground(QPainter *p, const QRectF &)
 
 bool ImageView::openFile(QString fileName)
 {
+#ifndef QT_NO_SVG
     bool isSvg = false;
+#endif
     QByteArray format = QImageReader::imageFormat(fileName);
 
     // if it is impossible to recognize a file format - file will not be open correctly
     if (format.isEmpty())
         return false;
 
+#ifndef QT_NO_SVG
     if (format.startsWith("svg"))
         isSvg = true;
+#endif
 
     QGraphicsScene *s = scene();
 
@@ -123,9 +129,12 @@ bool ImageView::openFile(QString fileName)
     resetTransform();
 
     // image
+#ifndef QT_NO_SVG
     if (isSvg) {
         d_ptr->imageItem = new QGraphicsSvgItem(fileName);
-    } else {
+    } else
+#endif
+    {
         QPixmap pixmap(fileName);
         QGraphicsPixmapItem *pixmapItem = new QGraphicsPixmapItem(pixmap);
         pixmapItem->setTransformationMode(Qt::SmoothTransformation);
