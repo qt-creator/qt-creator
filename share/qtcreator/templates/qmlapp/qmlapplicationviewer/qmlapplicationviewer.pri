@@ -20,6 +20,7 @@ contains(DEFINES, QMLINSPECTOR) {
     }
 }
 
+defineTest(qtcAddDeployment) {
 for(deploymentfolder, DEPLOYMENTFOLDERS) {
     item = item$${deploymentfolder}
     itemsources = $${item}.sources
@@ -84,4 +85,12 @@ symbian {
     desktopfile.files = $${TARGET}.desktop
     target.path = $${installPrefix}/bin
     INSTALLS += desktopfile icon target
+}
+
+export (INSTALLS)
+export (DEPLOYMENT)
+export (TARGET.EPOCHEAPSIZE)
+export (TARGET.CAPABILITY)
+export (LIBS)
+export (QMAKE_EXTRA_TARGETS)
 }

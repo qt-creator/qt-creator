@@ -25,3 +25,5 @@ symbian:ICON = symbianicon.svg
 SOURCES += main.cpp
 
 include(qmlapplicationviewer/qmlapplicationviewer.pri)
+
+qtcAddDeployment(DEPLOYMENTFOLDERS)
