@@ -128,25 +128,23 @@ ProjectExplorer::DeployConfigurationWidget *S60DeployConfiguration::configuratio
     return new S60DeployConfigurationWidget();
 }
 
+bool S60DeployConfiguration::isStaticLibrary(const Qt4ProFileNode &projectNode) const
+{
+    if (projectNode.projectType() == LibraryTemplate) {
+        const QStringList &config(projectNode.variableValue(ConfigVar));
+        if (config.contains(QLatin1String("static")) || config.contains(QLatin1String("staticlib")))
+            return true;
+    }
+    return false;
+}
+
 QStringList S60DeployConfiguration::signedPackages() const
 {
     QList<Qt4ProFileNode *> list = qt4Target()->qt4Project()->leafProFiles();
     QStringList result;
     foreach (Qt4ProFileNode *node, list) {
-        TargetInformation ti = node->targetInformation();
-        if (ti.valid)
-            result << ti.buildDir + QLatin1Char('/') + ti.target
-                      + (runSmartInstaller() ? QLatin1String("_installer") : QLatin1String(""))
-                      + QLatin1String(".sis");
-    }
-    return result;
-}
-
-QStringList S60DeployConfiguration::appSignedPackages() const
-{
-    QList<Qt4ProFileNode *> list = qt4Target()->qt4Project()->leafProFiles();
-    QStringList result;
-    foreach (Qt4ProFileNode *node, list) {
+        if (isStaticLibrary(*node)) //no sis package
+            continue;
         TargetInformation ti = node->targetInformation();
         if (ti.valid)
             result << ti.buildDir + QLatin1Char('/') + ti.target
@@ -161,6 +159,8 @@ QStringList S60DeployConfiguration::packageFileNamesWithTargetInfo() const
     QList<Qt4ProFileNode *> leafs = qt4Target()->qt4Project()->leafProFiles();
     QStringList result;
     foreach (Qt4ProFileNode *qt4ProFileNode, leafs) {
+        if (isStaticLibrary(*qt4ProFileNode)) //no sis package
+            continue;
         TargetInformation ti = qt4ProFileNode->targetInformation();
         if (!ti.valid)
             continue;
@@ -178,6 +178,8 @@ QStringList S60DeployConfiguration::packageTemplateFileNames() const
     QList<Qt4ProFileNode *> list = qt4Target()->qt4Project()->leafProFiles();
     QStringList result;
     foreach (Qt4ProFileNode *node, list) {
+        if (isStaticLibrary(*node)) //no sis package
+            continue;
         TargetInformation ti = node->targetInformation();
         if (ti.valid)
             result << ti.buildDir + QLatin1Char('/') + ti.target + QLatin1String("_template.pkg");
@@ -190,6 +192,8 @@ QStringList S60DeployConfiguration::appPackageTemplateFileNames() const
     QList<Qt4ProFileNode *> list = qt4Target()->qt4Project()->leafProFiles();
     QStringList result;
     foreach (Qt4ProFileNode *node, list) {
+        if (isStaticLibrary(*node)) //no sis package
+            continue;
         TargetInformation ti = node->targetInformation();
         if (ti.valid)
             result << ti.buildDir + QLatin1Char('/') + ti.target + QLatin1String("_template.pkg");

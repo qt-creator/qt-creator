@@ -71,7 +71,6 @@ public:
     void setSilentInstall(bool silent);
 
     QStringList signedPackages() const;
-    QStringList appSignedPackages() const;
     QStringList packageFileNamesWithTargetInfo() const;
     QStringList packageTemplateFileNames() const;
     QStringList appPackageTemplateFileNames() const;
@@ -97,6 +96,7 @@ private:
     QString symbianPlatform() const;
     QString symbianTarget() const;
     bool isDebug() const;
+    bool isStaticLibrary(const Qt4ProFileNode &projectNode) const;
 
 private:
     ProjectExplorer::BuildConfiguration *m_activeBuildConfiguration;
