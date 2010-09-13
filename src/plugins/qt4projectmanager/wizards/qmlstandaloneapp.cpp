@@ -272,8 +272,9 @@ QString QmlStandaloneApp::path(Path path) const
 {
     const QString qmlSubDir = QLatin1String("qml/")
                               + (useExistingMainQml() ? m_mainQmlFile.dir().dirName() : m_projectName)
-                              + QLatin1Char('/');
-    const QString originsRoot = templatesRoot();
+                              + QLatin1Char('/');   
+    const QString originsRootQmlApp = templatesRoot(QLatin1String("qmlapp/"));
+    const QString originsRootShared = templatesRoot(QLatin1String("shared/"));
     const QString appViewerTargetSubDir = appViewerOriginsSubDir;
     const QString qmlExtension = QLatin1String(".qml");
     const QString mainCppFileName = QLatin1String("main.cpp");
@@ -287,26 +288,26 @@ QString QmlStandaloneApp::path(Path path) const
                                                 : pathBase + qmlSubDir + m_projectName + qmlExtension;
         case MainQmlDeployed:               return useExistingMainQml() ? qmlSubDir + m_mainQmlFile.fileName()
                                                 : QString(qmlSubDir + m_projectName + qmlExtension);
-        case MainQmlOrigin:                 return originsRoot + QLatin1String("qml/app/app.qml");
+        case MainQmlOrigin:                 return originsRootQmlApp + QLatin1String("qml/app/app.qml");
         case MainCpp:                       return pathBase + mainCppFileName;
-        case MainCppOrigin:                 return originsRoot + mainCppFileName;
+        case MainCppOrigin:                 return originsRootQmlApp + mainCppFileName;
         case AppPro:                        return pathBase + m_projectName + QLatin1String(".pro");
-        case AppProOrigin:                  return originsRoot + QLatin1String("app.pro");
+        case AppProOrigin:                  return originsRootQmlApp + QLatin1String("app.pro");
         case AppProPath:                    return pathBase;
         case Desktop:                       return pathBase + m_projectName + QLatin1String(".desktop");
-        case DesktopOrigin:                 return originsRoot + QLatin1String("app.desktop");
+        case DesktopOrigin:                 return originsRootShared + QLatin1String("app.desktop");
         case AppViewerPri:                  return pathBase + appViewerTargetSubDir + appViewerPriFileName;
-        case AppViewerPriOrigin:            return originsRoot + appViewerOriginsSubDir + appViewerPriFileName;
+        case AppViewerPriOrigin:            return originsRootQmlApp + appViewerOriginsSubDir + appViewerPriFileName;
         case AppViewerCpp:                  return pathBase + appViewerTargetSubDir + appViewerCppFileName;
-        case AppViewerCppOrigin:            return originsRoot + appViewerOriginsSubDir + appViewerCppFileName;
+        case AppViewerCppOrigin:            return originsRootQmlApp + appViewerOriginsSubDir + appViewerCppFileName;
         case AppViewerH:                    return pathBase + appViewerTargetSubDir + appViewerHFileName;
-        case AppViewerHOrigin:              return originsRoot + appViewerOriginsSubDir + appViewerHFileName;
+        case AppViewerHOrigin:              return originsRootQmlApp + appViewerOriginsSubDir + appViewerHFileName;
         case SymbianSvgIcon:                return pathBase + symbianIconFileName;
         case SymbianSvgIconOrigin:          return !m_symbianSvgIcon.isEmpty() ? m_symbianSvgIcon
-                                                : originsRoot + symbianIconFileName;
+                                                : originsRootShared + symbianIconFileName;
         case MaemoPngIcon:                  return pathBase + projectName() +  QLatin1String(".png");
         case MaemoPngIconOrigin:            return !m_maemoPngIcon.isEmpty() ? m_maemoPngIcon
-                                                : originsRoot + QLatin1String("maemoicon.png");
+                                                : originsRootShared + QLatin1String("maemoicon.png");
         case QmlDir:                        return pathBase + qmlSubDir;
         case QmlDirProFileRelative:         return useExistingMainQml() ? appProFilePath.relativeFilePath(m_mainQmlFile.canonicalPath())
                                                 : QString(qmlSubDir).remove(qmlSubDir.length() - 1, 1);
@@ -533,9 +534,10 @@ bool QmlStandaloneApp::addExternalModule(const QString &name, const QFileInfo &d
 }
 
 #ifndef CREATORLESSTEST
-QString QmlStandaloneApp::templatesRoot()
+QString QmlStandaloneApp::templatesRoot(const QString &dirName)
 {
-    return Core::ICore::instance()->resourcePath() + QLatin1String("/templates/qmlapp/");
+    return Core::ICore::instance()->resourcePath()
+        + QLatin1String("/templates/") + dirName;
 }
 
 static Core::GeneratedFile file(const QByteArray &data, const QString &targetFile)

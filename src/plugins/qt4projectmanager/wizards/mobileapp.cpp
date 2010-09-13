@@ -159,7 +159,8 @@ bool MobileApp::networkEnabled() const
 
 QString MobileApp::path(Path path) const
 {
-    const QString originsRoot = templatesRoot();
+    const QString originsRootMobileApp = templatesRoot(QLatin1String("mobileapp/"));
+    const QString originsRootShared = templatesRoot(QLatin1String("shared/"));
     const QString mainCppFileName = QLatin1String("main.cpp");
     const QString symbianIconFileName = QLatin1String("symbianicon.svg");
     const QString pathBase = m_projectPath.absoluteFilePath() + QLatin1Char('/')
@@ -167,26 +168,26 @@ QString MobileApp::path(Path path) const
 
     switch (path) {
         case MainCpp:                       return pathBase + mainCppFileName;
-        case MainCppOrigin:                 return originsRoot + mainCppFileName;
+        case MainCppOrigin:                 return originsRootMobileApp + mainCppFileName;
         case AppPro:                        return pathBase + m_projectName + QLatin1String(".pro");
-        case AppProOrigin:                  return originsRoot + QLatin1String("app.pro");
+        case AppProOrigin:                  return originsRootMobileApp + QLatin1String("app.pro");
         case AppProPath:                    return pathBase;
         case AppPri:                        return pathBase + m_projectName + QLatin1String(".pri");
-        case AppPriOrigin:                  return originsRoot + QLatin1String("app.pri");
+        case AppPriOrigin:                  return originsRootMobileApp + QLatin1String("app.pri");
         case Desktop:                       return pathBase + m_projectName + QLatin1String(".desktop");
-        case DesktopOrigin:                 return originsRoot + QLatin1String("app.desktop");
+        case DesktopOrigin:                 return originsRootShared + QLatin1String("app.desktop");
         case MainWindowCpp:                 return pathBase + mainWindowCppFileName;
-        case MainWindowCppOrigin:           return originsRoot + mainWindowCppFileName;
+        case MainWindowCppOrigin:           return originsRootMobileApp + mainWindowCppFileName;
         case MainWindowH:                   return pathBase + mainWindowHFileName;
-        case MainWindowHOrigin:             return originsRoot + mainWindowHFileName;
+        case MainWindowHOrigin:             return originsRootMobileApp + mainWindowHFileName;
         case MainWindowUi:                  return pathBase + mainWindowUiFileName;
-        case MainWindowUiOrigin:            return originsRoot + mainWindowUiFileName;
+        case MainWindowUiOrigin:            return originsRootMobileApp + mainWindowUiFileName;
         case SymbianSvgIcon:                return pathBase + symbianIconFileName;
         case SymbianSvgIconOrigin:          return !m_symbianSvgIcon.isEmpty() ? m_symbianSvgIcon
-                                                : originsRoot + symbianIconFileName;
+                                                : originsRootShared + symbianIconFileName;
         case MaemoPngIcon:                  return pathBase + projectName() +  QLatin1String(".png");
         case MaemoPngIconOrigin:            return !m_maemoPngIcon.isEmpty() ? m_maemoPngIcon
-                                                : originsRoot + QLatin1String("maemoicon.png");
+                                                : originsRootShared + QLatin1String("maemoicon.png");
         default:                            qFatal("MobileApp::path() needs more work");
     }
     return QString();
@@ -297,9 +298,10 @@ QByteArray MobileApp::generateDesktopFile(const QString *errorMessage) const
     return desktopFileContent.replace("thisApp", projectName().toUtf8());
 }
 
-QString MobileApp::templatesRoot()
+QString MobileApp::templatesRoot(const QString &dirName)
 {
-    return Core::ICore::instance()->resourcePath() + QLatin1String("/templates/mobileapp/");
+    return Core::ICore::instance()->resourcePath()
+        + QLatin1String("/templates/") + dirName;
 }
 
 static Core::GeneratedFile file(const QByteArray &data, const QString &targetFile)
