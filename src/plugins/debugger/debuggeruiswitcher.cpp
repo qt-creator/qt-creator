@@ -73,23 +73,38 @@
 #include <QtCore/QSettings>
 
 using namespace Core;
-using namespace Debugger::Internal;
 
 namespace Debugger {
 namespace Internal {
 
-DockWidgetEventFilter::DockWidgetEventFilter(QObject *parent)
-    : QObject(parent)
-{}
+class DockWidgetEventFilter : public QObject
+{
+    Q_OBJECT
+
+public:
+    explicit DockWidgetEventFilter(QObject *parent = 0) : QObject(parent) {}
+
+signals:
+    void widgetResized();
+
+protected:
+    virtual bool eventFilter(QObject *obj, QEvent *event);
+};
 
 bool DockWidgetEventFilter::eventFilter(QObject *obj, QEvent *event)
 {
-    if (event->type() == QEvent::Resize || event->type() == QEvent::ZOrderChange)
+    switch (event->type()) {
+    case QEvent::Resize:
+    case QEvent::ZOrderChange:
         emit widgetResized();
-
+        break;
+    default:
+        break;
+    }
     return QObject::eventFilter(obj, event);
 }
 
+}
 // first: language id, second: menu item
 typedef QPair<DebuggerLanguage, QAction *> ViewsMenuItems;
 
@@ -163,8 +178,6 @@ DebuggerUISwitcherPrivate::DebuggerUISwitcherPrivate(DebuggerUISwitcher *q)
 }
 
 DebuggerUISwitcher *DebuggerUISwitcherPrivate::m_instance = 0;
-
-} // namespace Internal
 
 DebuggerUISwitcher::DebuggerUISwitcher(BaseMode *mode, QObject* parent)
   : QObject(parent), d(new DebuggerUISwitcherPrivate(this))
@@ -491,7 +504,7 @@ Utils::FancyMainWindow *DebuggerUISwitcher::mainWindow() const
 
 QWidget *DebuggerUISwitcher::createMainWindow(BaseMode *mode)
 {
-    d->m_mainWindow = new DebuggerMainWindow(this);
+    d->m_mainWindow = new Internal::DebuggerMainWindow(this);
     d->m_mainWindow->setDocumentMode(true);
     d->m_mainWindow->setDockNestingEnabled(true);
     connect(d->m_mainWindow, SIGNAL(resetLayout()),
@@ -770,3 +783,5 @@ QList<QDockWidget* > DebuggerUISwitcher::i_mw_dockWidgets() const
 }
 
 } // namespace Debugger
+
+#include "debuggeruiswitcher.moc"

@@ -34,10 +34,8 @@
 #include "debuggerconstants.h"
 
 #include <QtCore/QObject>
-#include <QtCore/QMultiHash>
 
 QT_BEGIN_NAMESPACE
-class QEvent;
 class QDockWidget;
 QT_END_NAMESPACE
 
@@ -61,9 +59,9 @@ namespace ProjectExplorer {
 }
 
 namespace Debugger {
+struct DebuggerUISwitcherPrivate;
 
 namespace Internal {
-class DebuggerUISwitcherPrivate;
 class DebuggerMainWindow;
 };
 
@@ -156,25 +154,8 @@ private:
     QWidget *createContents(Core::BaseMode *mode);
     QWidget *createMainWindow(Core::BaseMode *mode);
 
-    Internal::DebuggerUISwitcherPrivate *d;
+    DebuggerUISwitcherPrivate *d;
 };
-
-namespace Internal {
-class DockWidgetEventFilter : public QObject
-{
-    Q_OBJECT
-
-public:
-    DockWidgetEventFilter(QObject *parent = 0);
-
-signals:
-    void widgetResized();
-
-protected:
-    bool eventFilter(QObject *obj, QEvent *event);
-};
-
-} // namespace Internal
 
 } // namespace Debugger
 
