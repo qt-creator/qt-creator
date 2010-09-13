@@ -3,6 +3,7 @@
 
 INCLUDEPATH += $$PWD
 
+defineTest(qtcAddDeployment) {
 symbian {
     TARGET.EPOCHEAPSIZE = 0x20000 0x2000000
     contains(DEFINES, ORIENTATIONLOCK):LIBS += -lavkon -leikcore -leiksrv -lcone
@@ -20,4 +21,11 @@ symbian {
     desktopfile.files = $${TARGET}.desktop
     target.path = $${installPrefix}/bin
     INSTALLS += desktopfile icon target
+}
+
+export (INSTALLS)
+export (TARGET.EPOCHEAPSIZE)
+export (TARGET.CAPABILITY)
+export (LIBS)
+
 }

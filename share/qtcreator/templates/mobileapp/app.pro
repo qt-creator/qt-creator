@@ -16,3 +16,5 @@ HEADERS += mainwindow.h
 FORMS += mainwindow.ui
 
 include(app.pri)
+
+qtcAddDeployment(DEPLOYMENTFOLDERS)
