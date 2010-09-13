@@ -29,8 +29,6 @@ for(deploymentfolder, DEPLOYMENTFOLDERS) {
     $$itempath= $$eval($${deploymentfolder}.target)
     export($$itemsources)
     export($$itempath)
-    export(first.depends)
-    export(copydeploymentfolders.commands)
     DEPLOYMENT += $$item
 }
 
@@ -75,6 +73,8 @@ symbian {
             }
             copydeploymentfolders.commands = $$copyCommand
             first.depends = $(first) copydeploymentfolders
+            export(first.depends)
+            export(copydeploymentfolders.commands)
             QMAKE_EXTRA_TARGETS += first copydeploymentfolders
         }
     }
