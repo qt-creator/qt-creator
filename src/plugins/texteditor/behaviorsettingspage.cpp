@@ -158,6 +158,7 @@ void BehaviorSettingsPage::settingsFromUI(TabSettings &tabSettings,
     tabSettings.m_doubleIndentBlocks = m_d->m_page.indentBlocksBehavior->currentIndex() >= 2;
 
     tabSettings.m_tabKeyBehavior = (TabSettings::TabKeyBehavior)m_d->m_page.tabKeyBehavior->currentIndex();
+    tabSettings.m_paddingMode = (TabSettings::PaddingMode)m_d->m_page.paddingMode->currentIndex();
 
     storageSettings.m_cleanWhitespace = m_d->m_page.cleanWhitespace->isChecked();
     storageSettings.m_inEntireDocument = m_d->m_page.inEntireDocument->isChecked();
@@ -181,6 +182,7 @@ void BehaviorSettingsPage::settingsToUI()
                                                       (tabSettings.m_doubleIndentBlocks ? 2 : 1)
                                                         : 0);
     m_d->m_page.tabKeyBehavior->setCurrentIndex(tabSettings.m_tabKeyBehavior);
+    m_d->m_page.paddingMode->setCurrentIndex(tabSettings.m_paddingMode);
 
     const StorageSettings &storageSettings = m_d->m_storageSettings;
     m_d->m_page.cleanWhitespace->setChecked(storageSettings.m_cleanWhitespace);

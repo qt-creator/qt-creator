@@ -52,6 +52,13 @@ public:
         TabLeadingWhitespaceIndents = 2
     };
 
+    // This enum must match the indexes of paddingMode widget
+    enum PaddingMode {
+        DisablePadding = 0,
+        PadWithSpaces = 1,
+        PadWithIndent = 2
+    };
+
     TabSettings();
 
     void toSettings(const QString &category, QSettings *s) const;
@@ -89,6 +96,7 @@ public:
     bool m_indentBraces;
     bool m_doubleIndentBlocks;
     TabKeyBehavior m_tabKeyBehavior;
+    PaddingMode m_paddingMode;
 
     bool equals(const TabSettings &ts) const;
 };

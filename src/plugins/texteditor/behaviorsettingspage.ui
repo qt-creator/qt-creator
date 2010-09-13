@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>550</width>
-    <height>464</height>
+    <width>576</width>
+    <height>538</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -179,14 +179,14 @@
           </item>
          </widget>
         </item>
-        <item row="1" column="0">
+        <item row="2" column="0">
          <widget class="QLabel" name="tabKeyIndentLabel">
           <property name="text">
            <string>Tab key performs auto-indent:</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
+        <item row="2" column="1">
          <widget class="QComboBox" name="tabKeyBehavior">
           <item>
            <property name="text">
@@ -201,6 +201,41 @@
           <item>
            <property name="text">
             <string>In Leading White Space</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="paddingStyleLabel">
+          <property name="text">
+           <string>Padding style:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QComboBox" name="paddingMode">
+          <property name="toolTip">
+           <string>Padding is the part of indentation exceeding logical indentation and is usually used to align consecutive lines of code.
+
+Disable Padding: Do not pad at all. Lines will only be indented to the current logical indentation depth.
+
+Pad With Spaces: Always use spaces for padding, regardless of the choice between tabs and spaces above.
+
+Pad With Indentation: Padding will be part of the indentation and follow the settings above.</string>
+          </property>
+          <item>
+           <property name="text">
+            <string>Disable Padding</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Pad With Spaces</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Pad With Indentation</string>
            </property>
           </item>
          </widget>
@@ -339,10 +374,6 @@
     </spacer>
    </item>
   </layout>
-  <zorder>groupBoxTabAndIndentSettings</zorder>
-  <zorder>groupBoxStorageSettings</zorder>
-  <zorder>groupBoxMouse</zorder>
-  <zorder>indentBlocksLabel</zorder>
  </widget>
  <tabstops>
   <tabstop>insertSpaces</tabstop>
@@ -364,12 +395,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>67</x>
-     <y>252</y>
+     <x>87</x>
+     <y>323</y>
     </hint>
     <hint type="destinationlabel">
-     <x>148</x>
-     <y>281</y>
+     <x>205</x>
+     <y>353</y>
     </hint>
    </hints>
   </connection>
@@ -380,12 +411,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>40</x>
-     <y>251</y>
+     <x>60</x>
+     <y>323</y>
     </hint>
     <hint type="destinationlabel">
-     <x>77</x>
-     <y>310</y>
+     <x>134</x>
+     <y>384</y>
     </hint>
    </hints>
   </connection>

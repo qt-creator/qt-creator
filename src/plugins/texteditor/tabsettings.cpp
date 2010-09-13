@@ -45,6 +45,7 @@ static const char *indentBracesKey = "IndentBraces";
 static const char *doubleIndentBlocksKey = "DoubleIndentBlocks";
 static const char *tabKeyBehaviorKey = "TabKeyBehavior";
 static const char *groupPostfix = "TabSettings";
+static const char *paddingModeKey = "PaddingMode";
 
 namespace TextEditor {
 
@@ -57,7 +58,8 @@ TabSettings::TabSettings() :
     m_indentSize(4),
     m_indentBraces(false),
     m_doubleIndentBlocks(false),
-    m_tabKeyBehavior(TabNeverIndents)
+    m_tabKeyBehavior(TabNeverIndents),
+    m_paddingMode(PadWithSpaces)
 {
 }
 
@@ -76,6 +78,7 @@ void TabSettings::toSettings(const QString &category, QSettings *s) const
     s->setValue(QLatin1String(indentBracesKey), m_indentBraces);
     s->setValue(QLatin1String(doubleIndentBlocksKey), m_doubleIndentBlocks);
     s->setValue(QLatin1String(tabKeyBehaviorKey), m_tabKeyBehavior);
+    s->setValue(QLatin1String(paddingModeKey), m_paddingMode);
     s->endGroup();
 }
 
@@ -99,6 +102,7 @@ void TabSettings::fromSettings(const QString &category, const QSettings *s)
 			= s->value(group + QLatin1String(doubleIndentBlocksKey), m_doubleIndentBlocks).toBool();
 
     m_tabKeyBehavior    = (TabKeyBehavior)s->value(group + QLatin1String(tabKeyBehaviorKey), m_tabKeyBehavior).toInt();
+    m_paddingMode       = (PaddingMode)s->value(group + QLatin1String(paddingModeKey), m_paddingMode).toInt();
 }
 
 
@@ -319,13 +323,20 @@ void TabSettings::indentLine(QTextBlock block, int newIndent, int padding) const
     const QString text = block.text();
     const int oldBlockLength = text.size();
 
+    if (m_paddingMode == DisablePadding) {
+        newIndent -= padding;
+        padding = 0;
+    } else if (m_paddingMode == PadWithIndent) {
+        padding = 0;
+    }
+
     // Quickly check whether indenting is required.
     if (indentationColumn(text) == newIndent)
         return;
 
     QString indentString;
 
-    if (!m_spacesForTabs && m_tabSize == m_indentSize) {
+    if (!m_spacesForTabs) {
         // user likes tabs for spaces and uses tabs for indentation, preserve padding
         indentString = indentationString(0, newIndent - padding, block);
         indentString += QString(padding, QLatin1Char(' '));
@@ -388,7 +399,8 @@ bool TabSettings::equals(const TabSettings &ts) const
         && m_indentSize == ts.m_indentSize
         && m_indentBraces == ts.m_indentBraces
 	&& m_doubleIndentBlocks == ts.m_doubleIndentBlocks
-        && m_tabKeyBehavior == ts.m_tabKeyBehavior;
+        && m_tabKeyBehavior == ts.m_tabKeyBehavior
+        && m_paddingMode == ts.m_paddingMode;
 }
 
 } // namespace TextEditor
