@@ -16,7 +16,9 @@ HEADERS += qt4deployconfiguration.h \
     profilereader.h \
     wizards/qtprojectparameters.h \
     wizards/guiappwizard.h \
-    wizards/mobileguiappwizard.h \
+    wizards/mobileapp.h \
+    wizards/mobileappwizard.h \
+    wizards/mobileappwizardpages.h \
     wizards/consoleappwizard.h \
     wizards/consoleappwizarddialog.h \
     wizards/libraryparameters.h \
@@ -68,7 +70,9 @@ SOURCES += qt4projectmanagerplugin.cpp \
     profilereader.cpp \
     wizards/qtprojectparameters.cpp \
     wizards/guiappwizard.cpp \
-    wizards/mobileguiappwizard.cpp \
+    wizards/mobileapp.cpp \
+    wizards/mobileappwizard.cpp \
+    wizards/mobileappwizardpages.cpp \
     wizards/consoleappwizard.cpp \
     wizards/consoleappwizarddialog.cpp \
     wizards/libraryparameters.cpp \
@@ -116,6 +120,7 @@ FORMS += makestep.ui \
     wizards/targetsetuppage.ui \
     wizards/qmlstandaloneappwizardoptionspage.ui \
     wizards/qmlstandaloneappwizardsourcespage.ui \
+    wizards/mobileappwizardoptionspage.ui \
     librarydetailswidget.ui
 RESOURCES += qt4projectmanager.qrc \
     wizards/wizards.qrc

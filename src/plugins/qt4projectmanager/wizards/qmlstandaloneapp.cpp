@@ -95,7 +95,7 @@ QmlCppPlugin::QmlCppPlugin(const QString &name, const QFileInfo &path,
     , proFile(proFile)
 {}
 
-GeneratedFileInfo::GeneratedFileInfo()
+QmlAppGeneratedFileInfo::QmlAppGeneratedFileInfo()
     : file(MainQmlFile)
     , version(-1)
     , dataChecksum(0)
@@ -103,17 +103,17 @@ GeneratedFileInfo::GeneratedFileInfo()
 {
 }
 
-bool GeneratedFileInfo::isUpToDate() const
+bool QmlAppGeneratedFileInfo::isUpToDate() const
 {
     return !isOutdated() && !wasModified();
 }
 
-bool GeneratedFileInfo::isOutdated() const
+bool QmlAppGeneratedFileInfo::isOutdated() const
 {
     return version < QmlStandaloneApp::stubVersion();
 }
 
-bool GeneratedFileInfo::wasModified() const
+bool QmlAppGeneratedFileInfo::wasModified() const
 {
     return dataChecksum != statedChecksum;
 }
@@ -551,20 +551,20 @@ Core::GeneratedFiles QmlStandaloneApp::generateFiles(QString *errorMessage) cons
     Core::GeneratedFiles files;
 
     if (!useExistingMainQml()) {
-        files.append(file(generateFile(GeneratedFileInfo::MainQmlFile, errorMessage), path(MainQml)));
+        files.append(file(generateFile(QmlAppGeneratedFileInfo::MainQmlFile, errorMessage), path(MainQml)));
         files.last().setAttributes(Core::GeneratedFile::OpenEditorAttribute);
     }
 
-    files.append(file(generateFile(GeneratedFileInfo::AppProFile, errorMessage), path(AppPro)));
+    files.append(file(generateFile(QmlAppGeneratedFileInfo::AppProFile, errorMessage), path(AppPro)));
     files.last().setAttributes(Core::GeneratedFile::OpenProjectAttribute);
-    files.append(file(generateFile(GeneratedFileInfo::MainCppFile, errorMessage), path(MainCpp)));
-    files.append(file(generateFile(GeneratedFileInfo::SymbianSvgIconFile, errorMessage), path(SymbianSvgIcon)));
-    files.append(file(generateFile(GeneratedFileInfo::MaemoPngIconFile, errorMessage), path(MaemoPngIcon)));
-    files.append(file(generateFile(GeneratedFileInfo::DesktopFile, errorMessage), path(Desktop)));
+    files.append(file(generateFile(QmlAppGeneratedFileInfo::MainCppFile, errorMessage), path(MainCpp)));
+    files.append(file(generateFile(QmlAppGeneratedFileInfo::SymbianSvgIconFile, errorMessage), path(SymbianSvgIcon)));
+    files.append(file(generateFile(QmlAppGeneratedFileInfo::MaemoPngIconFile, errorMessage), path(MaemoPngIcon)));
+    files.append(file(generateFile(QmlAppGeneratedFileInfo::DesktopFile, errorMessage), path(Desktop)));
 
-    files.append(file(generateFile(GeneratedFileInfo::AppViewerPriFile, errorMessage), path(AppViewerPri)));
-    files.append(file(generateFile(GeneratedFileInfo::AppViewerCppFile, errorMessage), path(AppViewerCpp)));
-    files.append(file(generateFile(GeneratedFileInfo::AppViewerHFile, errorMessage), path(AppViewerH)));
+    files.append(file(generateFile(QmlAppGeneratedFileInfo::AppViewerPriFile, errorMessage), path(AppViewerPri)));
+    files.append(file(generateFile(QmlAppGeneratedFileInfo::AppViewerCppFile, errorMessage), path(AppViewerCpp)));
+    files.append(file(generateFile(QmlAppGeneratedFileInfo::AppViewerHFile, errorMessage), path(AppViewerH)));
 
     return files;
 }
@@ -593,7 +593,7 @@ static QByteArray readBlob(const QString &source)
     return sourceFile.readAll();
 }
 
-QByteArray QmlStandaloneApp::generateFile(GeneratedFileInfo::File file,
+QByteArray QmlStandaloneApp::generateFile(QmlAppGeneratedFileInfo::File file,
                                           const QString *errorMessage) const
 {
     QByteArray data;
@@ -602,35 +602,35 @@ QByteArray QmlStandaloneApp::generateFile(GeneratedFileInfo::File file,
     QString comment = cFileComment;
     bool versionAndChecksum = false;
     switch (file) {
-        case GeneratedFileInfo::MainQmlFile:
+        case QmlAppGeneratedFileInfo::MainQmlFile:
             data = readBlob(path(MainQmlOrigin));
             break;
-        case GeneratedFileInfo::MainCppFile:
+        case QmlAppGeneratedFileInfo::MainCppFile:
             data = generateMainCpp(errorMessage);
             break;
-        case GeneratedFileInfo::SymbianSvgIconFile:
+        case QmlAppGeneratedFileInfo::SymbianSvgIconFile:
             data = readBlob(path(SymbianSvgIconOrigin));
             break;
-        case GeneratedFileInfo::MaemoPngIconFile:
+        case QmlAppGeneratedFileInfo::MaemoPngIconFile:
             data = readBlob(path(MaemoPngIconOrigin));
             break;
-        case GeneratedFileInfo::DesktopFile:
+        case QmlAppGeneratedFileInfo::DesktopFile:
             data = generateDesktopFile(errorMessage);
             break;
-        case GeneratedFileInfo::AppProFile:
+        case QmlAppGeneratedFileInfo::AppProFile:
             data = generateProFile(errorMessage);
             comment = proFileComment;
             break;
-        case GeneratedFileInfo::AppViewerPriFile:
+        case QmlAppGeneratedFileInfo::AppViewerPriFile:
             data = readBlob(path(AppViewerPriOrigin));
             comment = proFileComment;
             versionAndChecksum = true;
             break;
-        case GeneratedFileInfo::AppViewerCppFile:
+        case QmlAppGeneratedFileInfo::AppViewerCppFile:
             data = readBlob(path(AppViewerCppOrigin));
             versionAndChecksum = true;
             break;
-        case GeneratedFileInfo::AppViewerHFile:
+        case QmlAppGeneratedFileInfo::AppViewerHFile:
         default:
             data = readBlob(path(AppViewerHOrigin));
             versionAndChecksum = true;
@@ -656,16 +656,16 @@ int QmlStandaloneApp::stubVersion()
     return 3;
 }
 
-static QList<GeneratedFileInfo> updateableFiles(const QString &mainProFile)
+static QList<QmlAppGeneratedFileInfo> updateableFiles(const QString &mainProFile)
 {
-    QList<GeneratedFileInfo> result;
+    QList<QmlAppGeneratedFileInfo> result;
     static const struct {
-        GeneratedFileInfo::File file;
+        QmlAppGeneratedFileInfo::File file;
         QString fileName;
     } files[] = {
-        {GeneratedFileInfo::AppViewerPriFile, appViewerPriFileName},
-        {GeneratedFileInfo::AppViewerHFile, appViewerHFileName},
-        {GeneratedFileInfo::AppViewerCppFile, appViewerCppFileName}
+        {QmlAppGeneratedFileInfo::AppViewerPriFile, appViewerPriFileName},
+        {QmlAppGeneratedFileInfo::AppViewerHFile, appViewerHFileName},
+        {QmlAppGeneratedFileInfo::AppViewerCppFile, appViewerCppFileName}
     };
     const QFileInfo mainProFileInfo(mainProFile);
     const int size = sizeof(files) / sizeof(files[0]);
@@ -674,7 +674,7 @@ static QList<GeneratedFileInfo> updateableFiles(const QString &mainProFile)
                 + QLatin1Char('/') + appViewerOriginsSubDir + files[i].fileName;
         if (!QFile::exists(fileName))
             continue;
-        GeneratedFileInfo file;
+        QmlAppGeneratedFileInfo file;
         file.file = files[i].file;
         file.fileInfo = QFileInfo(fileName);
         result.append(file);
@@ -682,11 +682,11 @@ static QList<GeneratedFileInfo> updateableFiles(const QString &mainProFile)
     return result;
 }
 
-QList<GeneratedFileInfo> QmlStandaloneApp::fileUpdates(const QString &mainProFile)
+QList<QmlAppGeneratedFileInfo> QmlStandaloneApp::fileUpdates(const QString &mainProFile)
 {
-    QList<GeneratedFileInfo> result;
-    foreach (const GeneratedFileInfo &file, updateableFiles(mainProFile)) {
-        GeneratedFileInfo newFile = file;
+    QList<QmlAppGeneratedFileInfo> result;
+    foreach (const QmlAppGeneratedFileInfo &file, updateableFiles(mainProFile)) {
+        QmlAppGeneratedFileInfo newFile = file;
         QFile readFile(newFile.fileInfo.absoluteFilePath());
         if (!readFile.open(QIODevice::ReadOnly))
            continue;
@@ -707,11 +707,11 @@ QList<GeneratedFileInfo> QmlStandaloneApp::fileUpdates(const QString &mainProFil
     return result;
 }
 
-bool QmlStandaloneApp::updateFiles(const QList<GeneratedFileInfo> &list, QString &error)
+bool QmlStandaloneApp::updateFiles(const QList<QmlAppGeneratedFileInfo> &list, QString &error)
 {
     error.clear();
     const QmlStandaloneApp app;
-    foreach (const GeneratedFileInfo &info, list) {
+    foreach (const QmlAppGeneratedFileInfo &info, list) {
         const QByteArray data = app.generateFile(info.file, &error);
         if (!error.isEmpty())
             return false;

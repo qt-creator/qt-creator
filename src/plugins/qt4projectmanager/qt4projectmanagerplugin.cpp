@@ -34,7 +34,7 @@
 #include "makestep.h"
 #include "wizards/consoleappwizard.h"
 #include "wizards/guiappwizard.h"
-#include "wizards/mobileguiappwizard.h"
+#include "wizards/mobileappwizard.h"
 #include "wizards/librarywizard.h"
 #include "wizards/testwizard.h"
 #include "wizards/emptyprojectwizard.h"
@@ -137,8 +137,8 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     ConsoleAppWizard *consoleWizard = new ConsoleAppWizard;
     addAutoReleasedObject(consoleWizard);
 
-    MobileGuiAppWizard *mobileGuiWizard = new MobileGuiAppWizard();
-    addAutoReleasedObject(mobileGuiWizard);
+    MobileAppWizard *mobileWizard = new MobileAppWizard;
+    addAutoReleasedObject(mobileWizard);
 
     addAutoReleasedObject(new QmlStandaloneAppWizard(QmlStandaloneAppWizard::NewQmlFile));
     addAutoReleasedObject(new QmlStandaloneAppWizard(QmlStandaloneAppWizard::ImportQmlFile));

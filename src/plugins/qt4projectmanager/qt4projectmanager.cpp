@@ -187,13 +187,13 @@ QString Qt4Manager::mimeType() const
 // When removing this, also remove the inclusions of "wizards/qmlstandaloneapp.h" and QtGui/QMessageBox
 inline void updateQmlApplicationViewerFiles(const QString proFile)
 {
-    const QList<GeneratedFileInfo> updates =
+    const QList<QmlAppGeneratedFileInfo> updates =
             QmlStandaloneApp::fileUpdates(proFile);
     if (!updates.empty()) {
         // TODO Translate the folloing strings when we want to keep the code
         QString message = QLatin1String("The following files are either outdated or have been modified:");
         message.append(QLatin1String("<ul>"));
-        foreach (const GeneratedFileInfo &info, updates) {
+        foreach (const QmlAppGeneratedFileInfo &info, updates) {
             QStringList reasons;
             if (info.wasModified())
                 reasons.append(QLatin1String("modified"));
