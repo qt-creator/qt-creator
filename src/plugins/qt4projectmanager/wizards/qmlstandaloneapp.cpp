@@ -273,8 +273,8 @@ QString QmlStandaloneApp::path(Path path) const
     const QString qmlSubDir = QLatin1String("qml/")
                               + (useExistingMainQml() ? m_mainQmlFile.dir().dirName() : m_projectName)
                               + QLatin1Char('/');   
-    const QString originsRootQmlApp = templatesRoot(QLatin1String("qmlapp/"));
-    const QString originsRootShared = templatesRoot(QLatin1String("shared/"));
+    const QString originsRootQmlApp = templatesRoot() + QLatin1String("qmlapp/");
+    const QString originsRootShared = templatesRoot() + QLatin1String("shared/");
     const QString appViewerTargetSubDir = appViewerOriginsSubDir;
     const QString qmlExtension = QLatin1String(".qml");
     const QString mainCppFileName = QLatin1String("main.cpp");
@@ -534,10 +534,12 @@ bool QmlStandaloneApp::addExternalModule(const QString &name, const QFileInfo &d
 }
 
 #ifndef CREATORLESSTEST
-QString QmlStandaloneApp::templatesRoot(const QString &dirName)
+// The definition of QmlStandaloneApp::templatesRoot() for
+// CREATORLESSTEST is in tests/manual/qmlstandalone/main.cpp
+QString QmlStandaloneApp::templatesRoot()
 {
     return Core::ICore::instance()->resourcePath()
-        + QLatin1String("/templates/") + dirName;
+            + QLatin1String("/templates/");
 }
 
 static Core::GeneratedFile file(const QByteArray &data, const QString &targetFile)
