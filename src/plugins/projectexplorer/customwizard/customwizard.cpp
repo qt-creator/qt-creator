@@ -151,17 +151,30 @@ static inline bool createFile(Internal::CustomWizardFile cwFile,
     const QString targetPath = QDir::toNativeSeparators(targetDirectory + slash + cwFile.target);
     if (CustomWizardPrivate::verbose)
         qDebug() << "generating " << targetPath << sourcePath << fm;
+
+    // Read contents of source file
+    const QFile::OpenMode openMode
+            = cwFile.binary ? QIODevice::ReadOnly : (QIODevice::ReadOnly|QIODevice::Text);
     QFile file(sourcePath);
-    if (!file.open(QIODevice::ReadOnly|QIODevice::Text)) {
+    if (!file.open(openMode)) {
         *errorMessage = QString::fromLatin1("Cannot open %1: %2").arg(sourcePath, file.errorString());
         return false;
     }
-    // Field replacement on contents
-    const QString contentsIn = QString::fromLocal8Bit(file.readAll());
+    const QByteArray contentData = file.readAll();
+    file.close();
 
     Core::GeneratedFile generatedFile;
-    generatedFile.setContents(Internal::CustomWizardContext::processFile(fm, contentsIn));
     generatedFile.setPath(targetPath);
+    if (cwFile.binary) {
+        // Binary file: Set data.
+        generatedFile.setBinary(true);
+        generatedFile.setBinaryContents(contentData);
+    } else {
+        // Template file: Preprocess.
+        const QString contentsIn = QString::fromLocal8Bit(contentData);
+        generatedFile.setContents(Internal::CustomWizardContext::processFile(fm, contentsIn));
+    }
+
     Core::GeneratedFile::Attributes attributes = 0;
     if (cwFile.openEditor)
         attributes |= Core::GeneratedFile::OpenEditorAttribute;

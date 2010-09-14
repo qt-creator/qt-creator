@@ -88,6 +88,7 @@ static const char filesGeneratorScriptAttributeC[] = "generatorscript";
 static const char fileElementC[] = "file";
 static const char fileSourceAttributeC[] = "source";
 static const char fileTargetAttributeC[] = "target";
+static const char fileBinaryAttributeC[] = "binary";
 
 enum ParseState {
     ParseBeginning,
@@ -137,7 +138,7 @@ QString CustomWizardField::comboEntryTextKey(int i)
 }
 
 CustomWizardFile::CustomWizardFile() :
-        openEditor(false), openProject(false)
+        openEditor(false), openProject(false), binary(false)
 {
 }
 
@@ -543,6 +544,7 @@ CustomWizardParameters::ParseResult
                         file.target = attributeValue(reader, fileTargetAttributeC);
                         file.openEditor = booleanAttributeValue(reader, customWizardFileOpenEditorAttributeC, false);
                         file.openProject = booleanAttributeValue(reader, customWizardFileOpenProjectAttributeC, false);
+                        file.binary = booleanAttributeValue(reader, fileBinaryAttributeC, false);
                         if (file.target.isEmpty())
                             file.target = file.source;
                         if (file.source.isEmpty()) {
@@ -644,6 +646,8 @@ QString CustomWizardParameters::toString() const
             str << " [editor]";
         if (f.openProject)
             str << " [project]";
+        if (f.binary)
+            str << " [binary]";
         str << '\n';
     }
     foreach(const CustomWizardField &f, fields) {

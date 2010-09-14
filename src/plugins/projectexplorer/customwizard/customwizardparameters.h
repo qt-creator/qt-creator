@@ -68,6 +68,7 @@ struct CustomWizardFile {
     QString target;
     bool openEditor;
     bool openProject;
+    bool binary;
 };
 
 // Argument to the generator script containing placeholders to
