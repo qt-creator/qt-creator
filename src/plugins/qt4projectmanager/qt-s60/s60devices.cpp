@@ -400,7 +400,7 @@ AutoDetectS60QtDevices::AutoDetectS60QtDevices(QObject *parent) :
 // Detect a Qt version that is installed into a Symbian SDK
 static QString detect_SDK_installedQt(const QString &epocRoot)
 {
-    const QString coreLibDllFileName = epocRoot + QLatin1String("/epoc32/release/armv5/udeb/QtCore.dll");
+    const QString coreLibDllFileName = epocRoot + QLatin1String("/epoc32/release/winscw/udeb/QtCore.dll");
     QFile coreLibDllFile(coreLibDllFileName);
     if (!coreLibDllFile.exists() || !coreLibDllFile.open(QIODevice::ReadOnly))
         return QString();
