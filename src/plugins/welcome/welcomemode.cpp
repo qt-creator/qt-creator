@@ -147,6 +147,11 @@ QString WelcomeMode::id() const
     return QLatin1String(Core::Constants::MODE_WELCOME);
 }
 
+QString WelcomeMode::type() const
+{
+    return QLatin1String(Core::Constants::MODE_WELCOME_TYPE);
+}
+
 Core::Context WelcomeMode::context() const
 {
     static Core::Context contexts(Core::Constants::C_WELCOME_MODE);

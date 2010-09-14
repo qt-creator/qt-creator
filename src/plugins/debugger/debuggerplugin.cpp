@@ -479,6 +479,7 @@ public:
     DebugMode(QObject *parent = 0) : BaseMode(parent)
     {
         setDisplayName(QCoreApplication::translate("Debugger::Internal::DebugMode", "Debug"));
+        setType(Core::Constants::MODE_EDIT_TYPE);
         setId(MODE_DEBUG);
         setIcon(QIcon(__(":/fancyactionbar/images/mode_Debug.png")));
         setPriority(P_MODE_DEBUG);
@@ -2587,7 +2588,7 @@ void DebuggerPlugin::gotoLocation(const QString &file, int line, bool setMarker)
     bool newEditor = false;
     ITextEditor *editor =
         BaseTextEditor::openEditorAt(file, line, 0, QString(),
-            EditorManager::IgnoreNavigationHistory | EditorManager::NoModeSwitch,
+            EditorManager::IgnoreNavigationHistory,
             &newEditor);
     if (!editor)
         return;
@@ -2608,8 +2609,7 @@ void DebuggerPlugin::openTextEditor(const QString &titlePattern0,
     IEditor *editor = editorManager->openEditorWithContents(
         Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &titlePattern, contents);
     QTC_ASSERT(editor, return);
-    editorManager->activateEditor(editor,
-        EditorManager::IgnoreNavigationHistory|EditorManager::NoModeSwitch);
+    editorManager->activateEditor(editor, EditorManager::IgnoreNavigationHistory);
 }
 
 void DebuggerPlugin::writeSettings() const

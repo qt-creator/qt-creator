@@ -68,8 +68,11 @@ const char * const IDE_REVISION_STR      = "";
 
 //modes
 const char * const MODE_WELCOME          = "Welcome";
+const char * const MODE_WELCOME_TYPE     = "Type.Welcome";
 const char * const MODE_EDIT             = "Edit";
+const char * const MODE_EDIT_TYPE        = "Type.Edit";
 const char * const MODE_DESIGN           = "Design";
+const char * const MODE_DESIGN_TYPE      = "Type.Design";
 const int          P_MODE_WELCOME        = 100;
 const int          P_MODE_EDIT           = 90;
 const int          P_MODE_DESIGN         = 89;

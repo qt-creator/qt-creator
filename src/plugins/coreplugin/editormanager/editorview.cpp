@@ -276,9 +276,9 @@ void EditorView::listSelectionActivated(int index)
     EditorManager *em = CoreImpl::instance()->editorManager();
     QAbstractItemModel *model = EditorManager::instance()->openedEditorsModel();
     if (IEditor *editor = model->data(model->index(index, 0), Qt::UserRole).value<IEditor*>()) {
-        em->activateEditor(this, editor);
+        em->activateEditor(this, editor, Core::EditorManager::ModeSwitch);
     } else {
-        em->activateEditor(model->index(index, 0), this);
+        em->activateEditor(model->index(index, 0), this, Core::EditorManager::ModeSwitch);
     }
 }
 
@@ -445,9 +445,11 @@ void EditorView::goBackInNavigationHistory()
         EditLocation location = m_navigationHistory.at(m_currentNavigationHistoryPosition);
         IEditor *editor;
         if (location.file) {
-            editor = em->activateEditor(this, location.file, EditorManager::IgnoreNavigationHistory);
+            editor = em->activateEditor(this, location.file,
+                                        EditorManager::IgnoreNavigationHistory | EditorManager::ModeSwitch);
         } else {
-            editor = em->openEditor(this, location.fileName, location.id, EditorManager::IgnoreNavigationHistory);
+            editor = em->openEditor(this, location.fileName, location.id,
+                                    EditorManager::IgnoreNavigationHistory | EditorManager::ModeSwitch);
             if (!editor) {
                 m_navigationHistory.removeAt(m_currentNavigationHistoryPosition);
                 continue;
@@ -469,7 +471,8 @@ void EditorView::goForwardInNavigationHistory()
     EditLocation location = m_navigationHistory.at(m_currentNavigationHistoryPosition);
     IEditor *editor;
     if (location.file) {
-        editor = em->activateEditor(this, location.file, EditorManager::IgnoreNavigationHistory);
+        editor = em->activateEditor(this, location.file,
+                                    EditorManager::IgnoreNavigationHistory | EditorManager::ModeSwitch);
     } else {
         editor = em->openEditor(this, location.fileName, location.id, EditorManager::IgnoreNavigationHistory);
         if (!editor) {

@@ -164,6 +164,11 @@ QString DesignMode::id() const
     return QLatin1String(Constants::MODE_DESIGN);
 }
 
+QString DesignMode::type() const
+{
+    return QLatin1String(Constants::MODE_DESIGN_TYPE);
+}
+
 QStringList DesignMode::registeredMimeTypes() const
 {
     QStringList rc;

@@ -342,7 +342,7 @@ void CodepasterPlugin::finishFetch(const QString &titleDescription,
     Core::IEditor* editor = EditorManager::instance()->openEditor(fileName);
     QTC_ASSERT(editor, return)
     editor->setDisplayName(titleDescription);
-    EditorManager::instance()->activateEditor(editor);
+    EditorManager::instance()->activateEditor(editor, Core::EditorManager::ModeSwitch);
 }
 
 Q_EXPORT_PLUGIN(CodepasterPlugin)

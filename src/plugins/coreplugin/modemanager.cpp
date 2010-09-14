@@ -149,6 +149,19 @@ IMode *ModeManager::mode(const QString &id) const
     return 0;
 }
 
+void ModeManager::activateModeType(const QString &type)
+{
+    int index = -1;
+    for (int i = 0; i < d->m_modes.count(); ++i) {
+        if (d->m_modes.at(i)->type() == type) {
+            index = i;
+            break;
+        }
+    }
+    if (index != -1)
+        d->m_modeStack->setCurrentIndex(index);
+}
+
 void ModeManager::activateMode(const QString &id)
 {
     const int index = indexOf(id);

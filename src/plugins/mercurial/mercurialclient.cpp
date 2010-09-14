@@ -628,7 +628,7 @@ VCSBase::VCSBaseEditor *MercurialClient::createVCSEditor(const QString &kind, QS
             baseEditor->setCodec(VCSBase::VCSBaseEditor::getCodec(source));
     }
 
-    core->editorManager()->activateEditor(outputEditor);
+    core->editorManager()->activateEditor(outputEditor, Core::EditorManager::ModeSwitch);
     baseEditor->setForceReadOnly(true);
     return baseEditor;
 }

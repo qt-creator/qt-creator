@@ -81,7 +81,7 @@ public:
     QString id() const;
     bool isTemporary() const { return false; }
     virtual bool open(const QString & fileName);
-    virtual QString preferredMode() const;
+    virtual QString preferredModeType() const;
 
 private:
     Core::Context m_context;

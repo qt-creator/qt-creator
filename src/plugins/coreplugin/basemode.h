@@ -58,6 +58,7 @@ public:
     int priority() const { return m_priority; }
     QWidget *widget() { return m_widget; }
     QString id() const { return m_id; }
+    QString type() const { return m_type; }
     Context context() const { return m_context; }
     QString contextHelpId() const { return m_helpId; }
 
@@ -66,6 +67,7 @@ public:
     void setPriority(int priority) { m_priority = priority; }
     void setWidget(QWidget *widget) { m_widget = widget; }
     void setId(const QString &id) { m_id = id; }
+    void setType(const QString &type) { m_type = type; }
     void setContextHelpId(const QString &helpId) { m_helpId = helpId; }
     void setContext(const Context &context) { m_context = context; }
 
@@ -75,6 +77,7 @@ private:
     int m_priority;
     QWidget *m_widget;
     QString m_id;
+    QString m_type;
     QString m_helpId;
     Context m_context;
 };

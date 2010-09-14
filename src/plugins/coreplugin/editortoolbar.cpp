@@ -256,12 +256,12 @@ void EditorToolBar::changeActiveEditor(int row)
 
     if (editor) {
         if (editor != em->currentEditor())
-            em->activateEditor(editor, EditorManager::NoModeSwitch);
+            em->activateEditor(editor);
     } else {
         //em->activateEditor(model->index(index, 0), this);
         QString fileName = model->data(modelIndex, Qt::UserRole + 1).toString();
         QByteArray kind = model->data(modelIndex, Qt::UserRole + 2).toByteArray();
-        editor = em->openEditor(fileName, kind, EditorManager::NoModeSwitch);
+        editor = em->openEditor(fileName, kind);
     }
     if (editor) {
         m_editorList->setCurrentIndex(m_editorsListModel->indexOf(editor).row());

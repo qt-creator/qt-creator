@@ -73,6 +73,7 @@ public:
     QIcon icon() const;
     int priority() const;
     QString id() const;
+    QString type() const;
 
 signals:
     void actionsUpdated(Core::IEditor *editor);

@@ -285,7 +285,8 @@ void CppFileSettingsWidget::slotEdit()
     QString path = licenseTemplatePath();
     // Edit existing file with C++
     if (!path.isEmpty()) {
-        Core::EditorManager::instance()->openEditor(path, QLatin1String(CppEditor::Constants::CPPEDITOR_ID));
+        Core::EditorManager::instance()->openEditor(path, QLatin1String(CppEditor::Constants::CPPEDITOR_ID),
+                                                    Core::EditorManager::ModeSwitch);
         return;
     }
     // Pick a file name and write new template, edit with C++
@@ -301,7 +302,8 @@ void CppFileSettingsWidget::slotEdit()
     file.write(tr(licenseTemplateTemplate).toUtf8());
     file.close();
     setLicenseTemplatePath(path);
-    Core::EditorManager::instance()->openEditor(path, QLatin1String(CppEditor::Constants::CPPEDITOR_ID));
+    Core::EditorManager::instance()->openEditor(path, QLatin1String(CppEditor::Constants::CPPEDITOR_ID),
+                                                Core::EditorManager::ModeSwitch);
 }
 
 // --------------- CppFileSettingsPage

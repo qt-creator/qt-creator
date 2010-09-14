@@ -190,7 +190,8 @@ bool QmlStandaloneAppWizard::postGenerateFiles(const QWizard *wizard, const Core
     const bool success = ProjectExplorer::CustomProjectWizard::postGenerateOpen(l, errorMessage);
     if (success && m_d->type == QmlStandaloneAppWizard::ImportQmlFile) {
         ProjectExplorer::ProjectExplorerPlugin::instance()->setCurrentFile(0, m_d->standaloneApp->mainQmlFile());
-        Core::EditorManager::instance()->openEditor(m_d->standaloneApp->mainQmlFile());
+        Core::EditorManager::instance()->openEditor(m_d->standaloneApp->mainQmlFile(),
+                                                    QString(), Core::EditorManager::ModeSwitch);
     }
     return success;
 }

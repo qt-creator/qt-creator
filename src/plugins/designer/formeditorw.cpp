@@ -903,7 +903,7 @@ void FormEditorW::switchSourceForm()
     Core::EditorManager *em = Core::EditorManager::instance();
     const QString fileToOpen = otherFile(em);
     if (!fileToOpen.isEmpty())
-        em->openEditor(fileToOpen);
+        em->openEditor(fileToOpen, QString(), Core::EditorManager::ModeSwitch);
 }
 
 } // namespace Internal

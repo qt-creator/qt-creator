@@ -88,7 +88,7 @@ public:
 
     virtual QWidget *toolBar();
 
-    virtual  QString preferredMode() const;
+    virtual  QString preferredModeType() const;
 
     // IContext
     virtual Core::Context context() const;

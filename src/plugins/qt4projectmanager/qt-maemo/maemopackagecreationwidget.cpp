@@ -210,7 +210,9 @@ void MaemoPackageCreationWidget::editDebianFile()
     const QString debianFilePath = MaemoTemplatesManager::instance()
         ->debianDirPath(m_step->buildConfiguration()->target()->project())
         + QLatin1Char('/') + m_ui->debianFilesComboBox->currentText();
-    Core::EditorManager::instance()->openEditor(debianFilePath);
+    Core::EditorManager::instance()->openEditor(debianFilePath,
+                                                QString(),
+                                                Core::EditorManager::ModeSwitch);
 }
 
 } // namespace Internal

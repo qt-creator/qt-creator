@@ -114,6 +114,11 @@ QString EditMode::id() const
     return QLatin1String(Constants::MODE_EDIT);
 }
 
+QString EditMode::type() const
+{
+    return QLatin1String(Constants::MODE_EDIT_TYPE);
+}
+
 Context EditMode::context() const
 {
     static Context contexts(Constants::C_EDIT_MODE,

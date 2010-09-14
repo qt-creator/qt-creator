@@ -964,7 +964,7 @@ void MainWindow::openFileWith()
         if (isExternal) {
             editorManager()->openExternalEditor(fileName, editorId);
         } else {
-            editorManager()->openEditor(fileName, editorId);
+            editorManager()->openEditor(fileName, editorId, Core::EditorManager::ModeSwitch);
         }
     }
 }
@@ -1272,7 +1272,7 @@ void MainWindow::openRecentFile()
     if (const QAction *action = qobject_cast<const QAction*>(sender())) {
         const QString fileName = action->data().toString();
         if (!fileName.isEmpty())
-            editorManager()->openEditor(fileName);
+            editorManager()->openEditor(fileName, QString(), Core::EditorManager::ModeSwitch);
     }
 }
 

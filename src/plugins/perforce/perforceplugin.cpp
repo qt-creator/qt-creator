@@ -673,7 +673,8 @@ void PerforcePlugin::startSubmitProject()
 Core::IEditor *PerforcePlugin::openPerforceSubmitEditor(const QString &fileName, const QStringList &depotFileNames)
 {
     Core::EditorManager *editorManager = Core::EditorManager::instance();
-    Core::IEditor *editor = editorManager->openEditor(fileName, Constants::PERFORCE_SUBMIT_EDITOR_ID);
+    Core::IEditor *editor = editorManager->openEditor(fileName, Constants::PERFORCE_SUBMIT_EDITOR_ID,
+                                                      Core::EditorManager::ModeSwitch);
     PerforceSubmitEditor *submitEditor = static_cast<PerforceSubmitEditor*>(editor);
     submitEditor->restrictToProjectFiles(depotFileNames);
     submitEditor->registerActions(m_undoAction, m_redoAction, m_submitCurrentLogAction, m_diffSelectedFiles);
@@ -1198,7 +1199,7 @@ Core::IEditor * PerforcePlugin::showOutputInEditor(const QString& title, const Q
     if (codec)
         e->setCodec(codec);
     Core::IEditor *ie = e->editableInterface();
-    Core::EditorManager::instance()->activateEditor(ie);
+    Core::EditorManager::instance()->activateEditor(ie, Core::EditorManager::ModeSwitch);
     return ie;
 }
 
@@ -1239,7 +1240,7 @@ void PerforcePlugin::p4Diff(const QString &workingDir, const QStringList &files)
 
     if (existingEditor) {
         existingEditor->createNew(result.stdOut);
-        Core::EditorManager::instance()->activateEditor(existingEditor);
+        Core::EditorManager::instance()->activateEditor(existingEditor, Core::EditorManager::ModeSwitch);
     } else {
         Core::IEditor *editor = showOutputInEditor(tr("p4 diff %1").arg(id), result.stdOut, VCSBase::DiffOutput,
                                                    VCSBase::VCSBaseEditor::getSource(workingDir, files),

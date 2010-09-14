@@ -257,9 +257,9 @@ TextEditor::PlainTextEditorEditable *FormWindowEditor::textEditable()
     return &d->m_textEditable;
 }
 
-QString FormWindowEditor::preferredMode() const
+QString FormWindowEditor::preferredModeType() const
 {
-    return QLatin1String(Core::Constants::MODE_DESIGN);
+    return QLatin1String(Core::Constants::MODE_DESIGN_TYPE);
 }
 
 } // namespace Designer

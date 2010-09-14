@@ -557,7 +557,7 @@ void CVSPlugin::cvsDiff(const QString &workingDir, const QStringList &files)
         // Show in the same editor if diff has been executed before
         if (Core::IEditor *editor = locateEditor("originalFileName", id)) {
             editor->createNew(output);
-            Core::EditorManager::instance()->activateEditor(editor);
+            Core::EditorManager::instance()->activateEditor(editor, Core::EditorManager::ModeSwitch);
             setDiffBaseDirectory(editor, workingDir);
             return;
         }
@@ -571,7 +571,8 @@ void CVSPlugin::cvsDiff(const QString &workingDir, const QStringList &files)
 
 CVSSubmitEditor *CVSPlugin::openCVSSubmitEditor(const QString &fileName)
 {
-    Core::IEditor *editor = Core::EditorManager::instance()->openEditor(fileName, QLatin1String(Constants::CVSCOMMITEDITOR_ID));
+    Core::IEditor *editor = Core::EditorManager::instance()->openEditor(fileName, QLatin1String(Constants::CVSCOMMITEDITOR_ID),
+                                                                        Core::EditorManager::ModeSwitch);
     CVSSubmitEditor *submitEditor = qobject_cast<CVSSubmitEditor*>(editor);
     QTC_ASSERT(submitEditor, /**/);
     submitEditor->registerActions(m_submitUndoAction, m_submitRedoAction, m_submitCurrentLogAction, m_submitDiffAction);
@@ -819,7 +820,7 @@ void CVSPlugin::filelog(const QString &workingDir,
     // the common usage pattern of continuously changing and diffing a file
     if (Core::IEditor *editor = locateEditor("logFileName", id)) {
         editor->createNew(response.stdOut);
-        Core::EditorManager::instance()->activateEditor(editor);
+        Core::EditorManager::instance()->activateEditor(editor, Core::EditorManager::ModeSwitch);
     } else {
         const QString title = QString::fromLatin1("cvs log %1").arg(id);
         Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VCSBase::LogOutput, source, codec);
@@ -961,7 +962,7 @@ void CVSPlugin::annotate(const QString &workingDir, const QString &file,
     if (Core::IEditor *editor = locateEditor("annotateFileName", id)) {
         editor->createNew(response.stdOut);
         VCSBase::VCSBaseEditor::gotoLineOfEditor(editor, lineNumber);
-        Core::EditorManager::instance()->activateEditor(editor);
+        Core::EditorManager::instance()->activateEditor(editor, Core::EditorManager::ModeSwitch);
     } else {
         const QString title = QString::fromLatin1("cvs annotate %1").arg(id);
         Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VCSBase::AnnotateOutput, source, codec);
@@ -1156,7 +1157,7 @@ bool CVSPlugin::describe(const QString &repositoryPath,
     const QString commitId = entries.front().revisions.front().commitId;
     if (Core::IEditor *editor = locateEditor("describeChange", commitId)) {
         editor->createNew(output);
-        Core::EditorManager::instance()->activateEditor(editor);
+        Core::EditorManager::instance()->activateEditor(editor, Core::EditorManager::ModeSwitch);
         setDiffBaseDirectory(editor, repositoryPath);
     } else {
         const QString title = QString::fromLatin1("cvs describe %1").arg(commitId);
@@ -1241,7 +1242,7 @@ Core::IEditor * CVSPlugin::showOutputInEditor(const QString& title, const QStrin
     if (codec)
         e->setCodec(codec);
     Core::IEditor *ie = e->editableInterface();
-    Core::EditorManager::instance()->activateEditor(ie);
+    Core::EditorManager::instance()->activateEditor(ie, Core::EditorManager::ModeSwitch);
     return ie;
 }
 

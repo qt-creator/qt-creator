@@ -691,7 +691,7 @@ bool VCSBaseSubmitEditor::raiseSubmitEditor()
     // Try to activate a hidden one
     foreach (Core::IEditor *e, em->openedEditors()) {
         if (qobject_cast<VCSBaseSubmitEditor*>(e)) {
-            em->activateEditor(e, Core::EditorManager::IgnoreNavigationHistory);
+            em->activateEditor(e, Core::EditorManager::IgnoreNavigationHistory | Core::EditorManager::ModeSwitch);
             return true;
         }
     }

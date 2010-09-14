@@ -519,7 +519,7 @@ void InspectorUi::gotoObjectReferenceDefinition(const QDeclarativeDebugObjectRef
     }
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
-    Core::IEditor *editor = editorManager->openEditor(fileName, QString(), Core::EditorManager::NoModeSwitch);
+    Core::IEditor *editor = editorManager->openEditor(fileName);
     TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor);
 
     if (textEditor) {

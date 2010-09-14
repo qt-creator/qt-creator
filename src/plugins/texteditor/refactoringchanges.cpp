@@ -68,7 +68,7 @@ BaseTextEditor *RefactoringChanges::editorForFile(const QString &fileName,
     }
 
     Core::IEditor *editor = editorManager->openEditor(fileName, QString(),
-                                                      Core::EditorManager::NoActivate | Core::EditorManager::IgnoreNavigationHistory | Core::EditorManager::NoModeSwitch);
+                                                      Core::EditorManager::NoActivate | Core::EditorManager::IgnoreNavigationHistory);
     return qobject_cast<BaseTextEditor *>(editor->widget());
 }
 
@@ -161,7 +161,7 @@ BaseTextEditor *RefactoringChanges::activateEditor(const QString &fileName, int 
     BaseTextEditor *editor = openEditor(fileName, pos);
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
-    editorManager->activateEditor(editor->editableInterface());
+    editorManager->activateEditor(editor->editableInterface(), Core::EditorManager::ModeSwitch);
 
     return editor;
 }

@@ -970,7 +970,7 @@ Core::IEditor *EditorManager::activateEditor(Core::Internal::EditorView *view, C
 
     if (!(flags & NoActivate)) {
         setCurrentEditor(editor, (flags & IgnoreNavigationHistory));
-        if (!(flags & NoModeSwitch)) {
+        if (flags & ModeSwitch) {
             switchToPreferedMode();
         }
         if (isVisible())
@@ -1254,13 +1254,14 @@ void EditorManager::switchToPreferedMode()
     QString preferedMode;
     // Figure out prefered mode for editor
     if (m_d->m_currentEditor)
-        preferedMode = m_d->m_currentEditor->preferredMode();
+        preferedMode = m_d->m_currentEditor->preferredModeType();
 
     if (preferedMode.isEmpty())
-        preferedMode = Constants::MODE_EDIT;
+        preferedMode = Constants::MODE_EDIT_TYPE;
 
-    if (m_d->m_core->modeManager()->currentMode()->id() != preferedMode)
-        m_d->m_core->modeManager()->activateMode(preferedMode);
+    if (m_d->m_core->modeManager()->currentMode()->type() != preferedMode) {
+        m_d->m_core->modeManager()->activateModeType(preferedMode);
+    }
 }
 
 IEditor *EditorManager::openEditorWithContents(const QString &editorId,

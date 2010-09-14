@@ -657,14 +657,14 @@ static bool openInDesignMode()
     return bool(QmlDesigner::Constants::QML_OPENDESIGNMODE_DEFAULT);
 }
 
-QString QmlJSEditorEditable::preferredMode() const
+QString QmlJSEditorEditable::preferredModeType() const
 {
     Core::ModeManager *modeManager = Core::ModeManager::instance();
     if (modeManager->currentMode()
-            && (modeManager->currentMode()->id() == Core::Constants::MODE_DESIGN
-                || modeManager->currentMode()->id() == Core::Constants::MODE_EDIT))
+            && (modeManager->currentMode()->type() == Core::Constants::MODE_DESIGN_TYPE
+                || modeManager->currentMode()->type() == Core::Constants::MODE_EDIT_TYPE))
     {
-        return modeManager->currentMode()->id();
+        return modeManager->currentMode()->type();
     }
 
     // if we are in other mode than edit or design, use the hard-coded default.
@@ -672,7 +672,7 @@ QString QmlJSEditorEditable::preferredMode() const
     // have the user also access to this failsafe setting.
     if (editor()->mimeType() == QLatin1String(QmlJSEditor::Constants::QML_MIMETYPE)
         && openInDesignMode())
-        return QLatin1String(Core::Constants::MODE_DESIGN);
+        return QLatin1String(Core::Constants::MODE_DESIGN_TYPE);
     return QString();
 }
 

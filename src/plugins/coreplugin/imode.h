@@ -52,6 +52,7 @@ public:
     virtual QIcon icon() const = 0;
     virtual int priority() const = 0;
     virtual QString id() const = 0;
+    virtual QString type() const = 0;
 
     void setEnabled(bool enabled);
     bool isEnabled() const;
