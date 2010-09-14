@@ -573,15 +573,16 @@ TaskWindow::TaskWindow(TaskHub *taskhub) : d(new TaskWindowPrivate)
                                                    tr("Show Warnings"),
                                                    this, SLOT(setShowWarnings(bool)));
 
-    d->m_categoriesMenu = new QMenu;
-    connect(d->m_categoriesMenu, SIGNAL(aboutToShow()), this, SLOT(updateCategoriesMenu()));
-    connect(d->m_categoriesMenu, SIGNAL(triggered(QAction*)), this, SLOT(filterCategoryTriggered(QAction*)));
-
     d->m_categoriesButton = new QToolButton;
     d->m_categoriesButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_FILTER)));
     d->m_categoriesButton->setToolTip(tr("Filter by categories"));
     d->m_categoriesButton->setAutoRaise(true);
     d->m_categoriesButton->setPopupMode(QToolButton::InstantPopup);
+
+    d->m_categoriesMenu = new QMenu(d->m_categoriesButton);
+    connect(d->m_categoriesMenu, SIGNAL(aboutToShow()), this, SLOT(updateCategoriesMenu()));
+    connect(d->m_categoriesMenu, SIGNAL(triggered(QAction*)), this, SLOT(filterCategoryTriggered(QAction*)));
+
     d->m_categoriesButton->setMenu(d->m_categoriesMenu);
 
     connect(d->m_taskHub, SIGNAL(categoryAdded(QString, QString)),
