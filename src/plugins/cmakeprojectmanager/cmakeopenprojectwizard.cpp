@@ -285,16 +285,16 @@ void CMakeRunPage::initWidgets()
     if (m_cmakeWizard->cmakeManager()->isCMakeExecutableValid()) {
         m_cmakeExecutable = 0;
     } else {
-        QString text = tr("Please specify the path to the cmake executable. No cmake executable was found in the path.");
+        QString text = tr("Please specify the path to the CMake executable. No CMake executable was found in the path.");
         QString cmakeExecutable = m_cmakeWizard->cmakeManager()->cmakeExecutable();
         if (!cmakeExecutable.isEmpty()) {
             QFileInfo fi(cmakeExecutable);
             if (!fi.exists())
-                text += tr(" The cmake executable (%1) does not exist.").arg(cmakeExecutable);
+                text += tr(" The CMake executable (%1) does not exist.").arg(cmakeExecutable);
             else if (!fi.isExecutable())
                 text += tr(" The path %1 is not a executable.").arg(cmakeExecutable);
             else
-                text += tr(" The path %1 is not a valid cmake.").arg(cmakeExecutable);
+                text += tr(" The path %1 is not a valid CMake.").arg(cmakeExecutable);
         }
 
         fl->addRow(new QLabel(text, this));
@@ -340,31 +340,31 @@ void CMakeRunPage::initializePage()
         if (m_cmakeWizard->existsUpToDateXmlFile()) {
             m_descriptionLabel->setText(
                     tr("The directory %1 already contains a cbp file, which is recent enough. "
-                       "You can pass special arguments or change the used toolchain here and rerun cmake. "
-                       "Or simply finish the wizard directly").arg(m_buildDirectory));
+                       "You can pass special arguments or change the used toolchain here and rerun CMake. "
+                       "Or simply finish the wizard directly.").arg(m_buildDirectory));
         } else {
             m_descriptionLabel->setText(
-                    tr("The directory %1 does not contain a cbp file. Qt Creator needs to create this file by running cmake. "
-                       "Some projects require command line arguments to the initial cmake call.").arg(m_buildDirectory));
+                    tr("The directory %1 does not contain a cbp file. Qt Creator needs to create this file by running CMake. "
+                       "Some projects require command line arguments to the initial CMake call.").arg(m_buildDirectory));
         }
     } else if (m_mode == CMakeRunPage::NeedToUpdate) {
         m_descriptionLabel->setText(tr("The directory %1 contains an outdated .cbp file. Qt "
-                                       "Creator needs to update this file by running cmake. "
+                                       "Creator needs to update this file by running CMake. "
                                        "If you want to add additional command line arguments, "
-                                       "add them below. Note that cmake remembers command "
+                                       "add them below. Note that CMake remembers command "
                                        "line arguments from the previous runs.").arg(m_buildDirectory));
     } else if(m_mode == CMakeRunPage::Recreate) {
         m_descriptionLabel->setText(tr("The directory %1 specified in a build-configuration, "
                                        "does not contain a cbp file. Qt Creator needs to "
-                                       "recreate this file, by running cmake. "
+                                       "recreate this file, by running CMake. "
                                        "Some projects require command line arguments to "
-                                       "the initial cmake call. Note that cmake remembers command "
+                                       "the initial CMake call. Note that CMake remembers command "
                                        "line arguments from the previous runs.").arg(m_buildDirectory));
     } else if(m_mode == CMakeRunPage::ChangeDirectory) {
         m_buildDirectory = m_cmakeWizard->buildDirectory();
-        m_descriptionLabel->setText(tr("Qt Creator needs to run cmake in the new build directory. "
+        m_descriptionLabel->setText(tr("Qt Creator needs to run CMake in the new build directory. "
                                        "Some projects require command line arguments to the "
-                                       "initial cmake call."));
+                                       "initial CMake call."));
     } else if (m_mode == CMakeRunPage::WantToUpdate) {
         m_descriptionLabel->setText(tr("Refreshing cbp file in %1.").arg(m_buildDirectory));
     }
@@ -466,7 +466,7 @@ void CMakeRunPage::runCMake()
     } else {
         m_runCMake->setEnabled(true);
         m_argumentsLineEdit->setEnabled(true);
-        m_output->appendPlainText(tr("No valid cmake executable specified."));
+        m_output->appendPlainText(tr("No valid CMake executable specified."));
     }
 }
 

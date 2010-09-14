@@ -345,7 +345,7 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     boxlayout->addWidget(m_workingDirectoryEdit);
     boxlayout->addWidget(resetButton);
 
-    fl->addRow(tr("Working Directory:"), boxlayout);
+    fl->addRow(tr("Working directory:"), boxlayout);
 
     QWidget *debuggerLabelWidget = new QWidget(this);
     QVBoxLayout *debuggerLabelLayout = new QVBoxLayout(debuggerLabelWidget);

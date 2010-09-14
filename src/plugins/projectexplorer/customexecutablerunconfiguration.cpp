@@ -98,7 +98,7 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
 
     m_workingDirectory = new CustomDirectoryPathChooser(this);
     m_workingDirectory->setExpectedKind(Utils::PathChooser::Directory);
-    layout->addRow(tr("Working Directory:"), m_workingDirectory);
+    layout->addRow(tr("Working directory:"), m_workingDirectory);
 
     m_useTerminalCheck = new QCheckBox(tr("Run in &Terminal"), this);
     layout->addRow(QString(), m_useTerminalCheck);

@@ -359,7 +359,7 @@ void BuildSettingsWidget::cloneConfiguration(BuildConfiguration *sourceConfigura
         return;
 
     //: Title of a the cloned BuildConfiguration window, text of the window
-    QString newDisplayName(QInputDialog::getText(this, tr("Clone configuration"), tr("New Configuration Name:")));
+    QString newDisplayName(QInputDialog::getText(this, tr("Clone Configuration"), tr("New configuration name:")));
     if (newDisplayName.isEmpty())
         return;
 

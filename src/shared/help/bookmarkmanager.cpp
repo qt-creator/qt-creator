@@ -692,8 +692,8 @@ void BookmarkManager::removeBookmarkItem(QTreeView *treeView,
         QString data = index.data(Qt::UserRole + 10).toString();
         if (data == QLatin1String("Folder") && item->rowCount() > 0) {
             int value = QMessageBox::question(treeView, tr("Remove"),
-                tr("You are going to delete a Folder which will also<br>"
-                "remove its content. Are you sure you would like to continue?"),
+                tr("Deleting a folder also removes its content.<br>"
+                "Do you want to continue?"),
                 QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
 
             if (value == QMessageBox::Cancel)

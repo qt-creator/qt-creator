@@ -173,8 +173,8 @@ BuildConfiguration *GenericBuildConfigurationFactory::create(ProjectExplorer::Ta
     // wizards will show up, that incorporate choosing the name
     bool ok;
     QString buildConfigurationName = QInputDialog::getText(0,
-                          tr("New configuration"),
-                          tr("New Configuration Name:"),
+                          tr("New Configuration"),
+                          tr("New configuration name:"),
                           QLineEdit::Normal,
                           QString(),
                           &ok);

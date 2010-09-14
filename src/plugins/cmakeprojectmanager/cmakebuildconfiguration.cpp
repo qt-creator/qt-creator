@@ -209,8 +209,8 @@ CMakeBuildConfiguration *CMakeBuildConfigurationFactory::create(ProjectExplorer:
     //TODO configuration name should be part of the cmakeopenprojectwizard
     bool ok;
     QString buildConfigurationName = QInputDialog::getText(0,
-                          tr("New configuration"),
-                          tr("New Configuration Name:"),
+                          tr("New Configuration"),
+                          tr("New configuration name:"),
                           QLineEdit::Normal,
                           QString(),
                           &ok);

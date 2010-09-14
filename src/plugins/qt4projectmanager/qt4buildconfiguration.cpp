@@ -700,8 +700,8 @@ BuildConfiguration *Qt4BuildConfigurationFactory::create(ProjectExplorer::Target
 
     bool ok;
     QString buildConfigurationName = QInputDialog::getText(0,
-                          tr("New configuration"),
-                          tr("New Configuration Name:"),
+                          tr("New Configuration"),
+                          tr("New configuration name:"),
                           QLineEdit::Normal,
                           version->displayName(),
                           &ok);
