@@ -2539,6 +2539,9 @@ DebuggerPlugin::~DebuggerPlugin()
     delete d->m_uiSwitcher;
     d->m_uiSwitcher = 0;
 
+    delete d->m_commandWindow;
+    d->m_commandWindow = 0;
+
     delete d;
 }
 
