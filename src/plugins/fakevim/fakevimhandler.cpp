@@ -2065,6 +2065,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         setUndoPosition(position());
         breakEditBlock();
         moveBehindEndOfLine();
+        setAnchor();
         enterInsertMode();
         setDotCommand(QString(QLatin1Char('A')));
         m_lastInsertion.clear();
