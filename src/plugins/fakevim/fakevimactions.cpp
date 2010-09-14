@@ -135,13 +135,6 @@ FakeVimSettings *theFakeVimSettings()
     item = new SavedAction(instance);
     item->setValue(true);
     item->setDefaultValue(true);
-    item->setSettingsKey(group, _("ExportSelection"));
-    item->setCheckable(true);
-    instance->insertItem(ConfigExportSelection, item);
-
-    item = new SavedAction(instance);
-    item->setValue(true);
-    item->setDefaultValue(true);
     item->setSettingsKey(group, _("StartOfLine"));
     item->setCheckable(true);
     instance->insertItem(ConfigStartOfLine, item, _("startofline"), _("sol"));

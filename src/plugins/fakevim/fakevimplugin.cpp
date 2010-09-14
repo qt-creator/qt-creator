@@ -169,8 +169,6 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
         m_ui.spinBoxShiftWidth);
     m_group.insert(theFakeVimSetting(ConfigShowMarks),
         m_ui.checkBoxShowMarks);
-    m_group.insert(theFakeVimSetting(ConfigExportSelection),
-        m_ui.checkBoxExportSelection);
 
     m_group.insert(theFakeVimSetting(ConfigSmartTab),
         m_ui.checkBoxSmartTab);

@@ -43,7 +43,6 @@ enum FakeVimSettingsCode
 {
     ConfigUseFakeVim,
     ConfigReadVimRc,
-    ConfigExportSelection,
 
     ConfigStartOfLine,
     ConfigHlSearch,

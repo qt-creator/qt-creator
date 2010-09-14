@@ -5792,8 +5792,8 @@ void BaseTextEditor::setBlockSelection(bool on)
         d->m_inBlockSelectionMode = on;
         if (on)
             d->m_blockSelection.fromSelection(tabSettings(), textCursor());
-        viewport()->update();
     }
+    viewport()->update();
 }
 
 bool BaseTextEditor::hasBlockSelection() const
