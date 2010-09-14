@@ -97,6 +97,7 @@ MobileAppWizard::MobileAppWizard()
 MobileAppWizard::~MobileAppWizard()
 {
     delete m_d->mobileApp;
+    delete m_d;
 }
 
 Core::BaseFileWizardParameters MobileAppWizard::parameters()
