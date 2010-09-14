@@ -96,9 +96,9 @@ void TargetSettingsPanelWidget::setupUi()
     m_centralWidget = new QStackedWidget(this);
     m_selector->setCentralWidget(m_centralWidget);
 
-    // no projects label:
+    // no target label:
     m_noTargetLabel = new QWidget;
-    QVBoxLayout *noTargetLayout = new QVBoxLayout;
+    QVBoxLayout *noTargetLayout = new QVBoxLayout(m_noTargetLabel);
     noTargetLayout->setMargin(0);
     QLabel *label = new QLabel(m_noTargetLabel);
     label->setText(tr("No target defined."));
