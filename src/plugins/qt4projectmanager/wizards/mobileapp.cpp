@@ -41,6 +41,8 @@ namespace Internal {
 
 const QString mainWindowBaseName(QLatin1String("mainwindow"));
 
+const QString deploymentPriFileName(QLatin1String("deployment.pri"));
+const QString deploymentPriOrigRelFilePath(QLatin1String("../shared/") + deploymentPriFileName);
 const QString mainWindowCppFileName(mainWindowBaseName + QLatin1String(".cpp"));
 const QString mainWindowHFileName(mainWindowBaseName + QLatin1String(".h"));
 const QString mainWindowUiFileName(mainWindowBaseName + QLatin1String(".ui"));
@@ -172,8 +174,8 @@ QString MobileApp::path(Path path) const
         case AppPro:                        return pathBase + m_projectName + QLatin1String(".pro");
         case AppProOrigin:                  return originsRootMobileApp + QLatin1String("app.pro");
         case AppProPath:                    return pathBase;
-        case AppPri:                        return pathBase + m_projectName + QLatin1String(".pri");
-        case AppPriOrigin:                  return originsRootMobileApp + QLatin1String("app.pri");
+        case DeploymentPri:                 return pathBase + deploymentPriFileName;
+        case DeploymentPriOrigin:           return originsRootMobileApp + deploymentPriOrigRelFilePath;
         case Desktop:                       return pathBase + m_projectName + QLatin1String(".desktop");
         case DesktopOrigin:                 return originsRootShared + QLatin1String("app.desktop");
         case MainWindowCpp:                 return pathBase + mainWindowCppFileName;
@@ -283,8 +285,8 @@ QByteArray MobileApp::generateProFile(const QString *errorMessage) const
         out << line << endl;
     };
 
-    return proFileContent.replace("include(app.pri)", "include("
-        + m_projectName.toLocal8Bit() + ".pri)");
+    return proFileContent.replace(deploymentPriOrigRelFilePath.toAscii(),
+        deploymentPriFileName.toAscii());
 }
 
 QByteArray MobileApp::generateDesktopFile(const QString *errorMessage) const
@@ -322,7 +324,7 @@ Core::GeneratedFiles MobileApp::generateFiles(QString *errorMessage) const
     files.append(file(generateFile(MobileAppGeneratedFileInfo::SymbianSvgIconFile, errorMessage), path(SymbianSvgIcon)));
     files.append(file(generateFile(MobileAppGeneratedFileInfo::MaemoPngIconFile, errorMessage), path(MaemoPngIcon)));
     files.append(file(generateFile(MobileAppGeneratedFileInfo::DesktopFile, errorMessage), path(Desktop)));
-    files.append(file(generateFile(MobileAppGeneratedFileInfo::AppPriFile, errorMessage), path(AppPri)));
+    files.append(file(generateFile(MobileAppGeneratedFileInfo::DeploymentPriFile, errorMessage), path(DeploymentPri)));
     files.append(file(generateFile(MobileAppGeneratedFileInfo::MainWindowCppFile, errorMessage), path(MainWindowCpp)));
     files.append(file(generateFile(MobileAppGeneratedFileInfo::MainWindowHFile, errorMessage), path(MainWindowH)));
     files.append(file(generateFile(MobileAppGeneratedFileInfo::MainWindowUiFile, errorMessage), path(MainWindowUi)));
@@ -369,8 +371,8 @@ QByteArray MobileApp::generateFile(MobileAppGeneratedFileInfo::File file,
             data = generateProFile(errorMessage);
             comment = proFileComment;
             break;
-        case MobileAppGeneratedFileInfo::AppPriFile:
-            data = readBlob(path(AppPriOrigin));
+        case MobileAppGeneratedFileInfo::DeploymentPriFile:
+            data = readBlob(path(DeploymentPriOrigin));
             comment = proFileComment;
             versionAndChecksum = true;
             break;

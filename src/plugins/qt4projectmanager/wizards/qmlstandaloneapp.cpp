@@ -48,6 +48,8 @@ const QString appViewerBaseName(QLatin1String("qmlapplicationviewer"));
 const QString appViewerPriFileName(appViewerBaseName + QLatin1String(".pri"));
 const QString appViewerCppFileName(appViewerBaseName + QLatin1String(".cpp"));
 const QString appViewerHFileName(appViewerBaseName + QLatin1String(".h"));
+const QString deploymentPriFileName(QLatin1String("deployment.pri"));
+const QString deploymentPriOrigRelFilePath(QLatin1String("../shared/") + deploymentPriFileName);
 const QString appViewerOriginsSubDir(appViewerBaseName + QLatin1Char('/'));
 const QString fileChecksum(QLatin1String("checksum"));
 const QString fileStubVersion(QLatin1String("version"));
@@ -298,6 +300,8 @@ QString QmlStandaloneApp::path(Path path) const
         case DesktopOrigin:                 return originsRootShared + QLatin1String("app.desktop");
         case AppViewerPri:                  return pathBase + appViewerTargetSubDir + appViewerPriFileName;
         case AppViewerPriOrigin:            return originsRootQmlApp + appViewerOriginsSubDir + appViewerPriFileName;
+        case DeploymentPri:                 return pathBase + deploymentPriFileName;
+        case DeploymentPriOrigin:           return originsRootQmlApp + deploymentPriOrigRelFilePath;
         case AppViewerCpp:                  return pathBase + appViewerTargetSubDir + appViewerCppFileName;
         case AppViewerCppOrigin:            return originsRootQmlApp + appViewerOriginsSubDir + appViewerCppFileName;
         case AppViewerH:                    return pathBase + appViewerTargetSubDir + appViewerHFileName;
@@ -442,6 +446,9 @@ QByteArray QmlStandaloneApp::generateProFile(const QString *errorMessage) const
         out << line << endl;
     };
 
+    proFileContent.replace(deploymentPriOrigRelFilePath.toAscii(),
+        deploymentPriFileName.toAscii());
+
     return proFileContent;
 }
 
@@ -567,6 +574,7 @@ Core::GeneratedFiles QmlStandaloneApp::generateFiles(QString *errorMessage) cons
     files.append(file(generateFile(QmlAppGeneratedFileInfo::DesktopFile, errorMessage), path(Desktop)));
 
     files.append(file(generateFile(QmlAppGeneratedFileInfo::AppViewerPriFile, errorMessage), path(AppViewerPri)));
+    files.append(file(generateFile(QmlAppGeneratedFileInfo::DeploymentPriFile, errorMessage), path(DeploymentPri)));
     files.append(file(generateFile(QmlAppGeneratedFileInfo::AppViewerCppFile, errorMessage), path(AppViewerCpp)));
     files.append(file(generateFile(QmlAppGeneratedFileInfo::AppViewerHFile, errorMessage), path(AppViewerH)));
 
@@ -630,6 +638,11 @@ QByteArray QmlStandaloneApp::generateFile(QmlAppGeneratedFileInfo::File file,
             comment = proFileComment;
             versionAndChecksum = true;
             break;
+        case QmlAppGeneratedFileInfo::DeploymentPriFile:
+            data = readBlob(path(DeploymentPriOrigin));
+            comment = proFileComment;
+            versionAndChecksum = true;
+            break;
         case QmlAppGeneratedFileInfo::AppViewerCppFile:
             data = readBlob(path(AppViewerCppOrigin));
             versionAndChecksum = true;
@@ -657,7 +670,7 @@ QByteArray QmlStandaloneApp::generateFile(QmlAppGeneratedFileInfo::File file,
 
 int QmlStandaloneApp::stubVersion()
 {
-    return 4;
+    return 5;
 }
 
 static QList<QmlAppGeneratedFileInfo> updateableFiles(const QString &mainProFile)
@@ -669,7 +682,9 @@ static QList<QmlAppGeneratedFileInfo> updateableFiles(const QString &mainProFile
     } files[] = {
         {QmlAppGeneratedFileInfo::AppViewerPriFile, appViewerPriFileName},
         {QmlAppGeneratedFileInfo::AppViewerHFile, appViewerHFileName},
-        {QmlAppGeneratedFileInfo::AppViewerCppFile, appViewerCppFileName}
+        {QmlAppGeneratedFileInfo::AppViewerCppFile, appViewerCppFileName},
+        {QmlAppGeneratedFileInfo::DeploymentPriFile,
+             QLatin1String("../") + deploymentPriFileName}
     };
     const QFileInfo mainProFileInfo(mainProFile);
     const int size = sizeof(files) / sizeof(files[0]);

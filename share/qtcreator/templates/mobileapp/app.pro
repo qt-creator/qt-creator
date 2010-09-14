@@ -1,3 +1,9 @@
+# Add files and directories to ship with the application 
+# by adapting the examples below.
+# file1.source = myfile
+# dir1.source = mydir
+DEPLOYMENTFOLDERS = # file1 dir1
+
 # Avoid auto screen rotation
 # ORIENTATIONLOCK #
 DEFINES += ORIENTATIONLOCK
@@ -15,6 +21,6 @@ SOURCES += main.cpp mainwindow.cpp
 HEADERS += mainwindow.h
 FORMS += mainwindow.ui
 
-include(app.pri)
+include(../shared/deployment.pri)
 
-qtcAddDeployment(DEPLOYMENTFOLDERS)
+qtcAddDeployment()
