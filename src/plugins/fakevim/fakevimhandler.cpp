@@ -2338,6 +2338,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         beginEditBlock(position());
         moveToFirstNonBlankOnLine();
         moveBehindEndOfLine();
+        setAnchor();
         insertText(Register("\n"));
         insertAutomaticIndentation(true);
         endEditBlock();
