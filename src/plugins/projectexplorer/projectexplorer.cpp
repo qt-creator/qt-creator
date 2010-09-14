@@ -260,9 +260,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     d->m_session = new SessionManager(this);
 
-    if (arguments.contains("-lastsession"))
-        d->m_sessionToRestoreAtStartup = d->m_session->lastSession();
-
     connect(d->m_session, SIGNAL(projectAdded(ProjectExplorer::Project *)),
             this, SIGNAL(fileListChanged()));
     connect(d->m_session, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project *)),
@@ -799,6 +796,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         d->m_projectExplorerSettings.cleanOldAppOutput = s->value("ProjectExplorer/Settings/CleanOldAppOutput", false).toBool();
         d->m_projectExplorerSettings.wrapAppOutput = s->value("ProjectExplorer/Settings/WrapAppOutput", true).toBool();
         d->m_projectExplorerSettings.useJom = s->value("ProjectExplorer/Settings/UseJom", true).toBool();
+        d->m_projectExplorerSettings.autorestoreLastSession = s->value("ProjectExplorer/Settings/AutoRestoreLastSession", false).toBool();
         d->m_projectExplorerSettings.environmentId = QUuid(s->value("ProjectExplorer/Settings/EnvironmentId").toString());
         if (d->m_projectExplorerSettings.environmentId.isNull())
             d->m_projectExplorerSettings.environmentId = QUuid::createUuid();
@@ -994,7 +992,9 @@ void ProjectExplorerPlugin::showSessionManager()
         d->m_session->save();
     }
     SessionDialog sessionDialog(d->m_session);
+    sessionDialog.setAutoLoadSession(d->m_projectExplorerSettings.autorestoreLastSession);
     sessionDialog.exec();
+    d->m_projectExplorerSettings.autorestoreLastSession = sessionDialog.autoLoadSession();
 
     updateActions();
 
@@ -1053,6 +1053,7 @@ void ProjectExplorerPlugin::savePersistentSettings()
         s->setValue("ProjectExplorer/Settings/CleanOldAppOutput", d->m_projectExplorerSettings.cleanOldAppOutput);
         s->setValue("ProjectExplorer/Settings/WrapAppOutput", d->m_projectExplorerSettings.wrapAppOutput);
         s->setValue("ProjectExplorer/Settings/UseJom", d->m_projectExplorerSettings.useJom);
+        s->setValue("ProjectExplorer/Settings/AutoRestoreLastSession", d->m_projectExplorerSettings.autorestoreLastSession);
         s->setValue("ProjectExplorer/Settings/EnvironmentId", d->m_projectExplorerSettings.environmentId.toString());
     }
 }
@@ -1187,15 +1188,20 @@ void ProjectExplorerPlugin::currentModeChanged(Core::IMode *mode, Core::IMode *o
 
 void ProjectExplorerPlugin::determineSessionToRestoreAtStartup()
 {
-    QStringList sessions = d->m_session->sessions();
-    // We have command line arguments, try to find a session in them
     QStringList arguments = ExtensionSystem::PluginManager::instance()->arguments();
-    // Default to no session loading
-    foreach (const QString &arg, arguments) {
-        if (sessions.contains(arg)) {
-            // Session argument
-            d->m_sessionToRestoreAtStartup = arg;
-            break;
+    if (arguments.contains("-lastsession")
+            || d->m_projectExplorerSettings.autorestoreLastSession) {
+        d->m_sessionToRestoreAtStartup = d->m_session->lastSession();
+    } else {
+        QStringList sessions = d->m_session->sessions();
+        // We have command line arguments, try to find a session in them
+        // Default to no session loading
+        foreach (const QString &arg, arguments) {
+            if (sessions.contains(arg)) {
+                // Session argument
+                d->m_sessionToRestoreAtStartup = arg;
+                break;
+            }
         }
     }
 

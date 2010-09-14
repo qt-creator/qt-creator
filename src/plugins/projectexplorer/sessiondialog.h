@@ -47,6 +47,9 @@ class SessionDialog : public QDialog
 public:
     SessionDialog(SessionManager *sessionManager);
 
+    void setAutoLoadSession(bool);
+    bool autoLoadSession() const;
+
 private slots:
     void createNew();
     void clone();

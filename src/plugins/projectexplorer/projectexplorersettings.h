@@ -37,9 +37,12 @@ namespace Internal {
 
 struct ProjectExplorerSettings
 {
-    ProjectExplorerSettings() : buildBeforeDeploy(true), deployBeforeRun(true),
-                                saveBeforeBuild(false), showCompilerOutput(false),
-                                cleanOldAppOutput(false), wrapAppOutput(true), useJom(true) {}
+    ProjectExplorerSettings() :
+        buildBeforeDeploy(true), deployBeforeRun(true),
+        saveBeforeBuild(false), showCompilerOutput(false),
+        cleanOldAppOutput(false), wrapAppOutput(true), useJom(true),
+        autorestoreLastSession(false)
+    { }
 
     bool buildBeforeDeploy;
     bool deployBeforeRun;
@@ -48,6 +51,8 @@ struct ProjectExplorerSettings
     bool cleanOldAppOutput;
     bool wrapAppOutput;
     bool useJom;
+    bool autorestoreLastSession; // This option is set in the Session Manager!
+
     // Add a UUid which is used to identify the development environment.
     // This is used to warn the user when he is trying to open a .user file that was created
     // somewhere else (which might lead to unexpected results).
@@ -62,7 +67,8 @@ inline bool operator==(const ProjectExplorerSettings &p1, const ProjectExplorerS
             && p1.showCompilerOutput == p2.showCompilerOutput
             && p1.cleanOldAppOutput == p2.cleanOldAppOutput
             && p1.wrapAppOutput == p2.wrapAppOutput
-            && p1.useJom == p2.useJom;
+            && p1.useJom == p2.useJom
+            && p1.autorestoreLastSession == p2.autorestoreLastSession;
 }
 
 

@@ -149,6 +149,17 @@ SessionDialog::SessionDialog(SessionManager *sessionManager)
     markItems();
 }
 
+void SessionDialog::setAutoLoadSession(bool check)
+{
+    m_ui.autoLoadCheckBox->setChecked(check ? Qt::Checked : Qt::Unchecked);
+}
+
+bool SessionDialog::autoLoadSession() const
+{
+    return m_ui.autoLoadCheckBox->checkState() == Qt::Checked;
+}
+
+
 void SessionDialog::addItems(bool setDefaultSession)
 {
     QStringList sessions = m_sessionManager->sessions();
