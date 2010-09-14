@@ -734,6 +734,17 @@ void TcfTrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         sendGdbServerMessage(Symbian::gdbQSupported);
     }
 
+    // Tracepoint handling as of gdb 7.2 onwards
+    else if (cmd == "qTStatus") { // Tracepoints
+        sendGdbServerAck();
+        sendGdbServerMessage("T0;tnotrun:0", QByteArray("No trace experiment running"));
+    }
+    // Trace variables  as of gdb 7.2 onwards
+    else if (cmd == "qTfV" || cmd == "qTsP" || cmd == "qTfP") {
+        sendGdbServerAck();
+        sendGdbServerMessage("l", QByteArray("No trace points"));
+    }
+
     else if (cmd.startsWith("qThreadExtraInfo")) {
         // $qThreadExtraInfo,1f9#55
         sendGdbServerAck();

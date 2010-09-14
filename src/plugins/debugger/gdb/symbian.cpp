@@ -520,7 +520,8 @@ const char *gdbQSupported =
     "QStartNoAckMode+;"
     "qXfer:libraries:read+;"
     // "qXfer:auxv:read+;"
-    "qXfer:features:read+";
+    "qXfer:features:read+;"
+    "qRelocInsn-"; // Relocate instructions for trace (gdb 7.2+): Not supported.
 
 // Answer to gdb "qXfer:features:read:target.xml:" request
 // "l<target><architecture>symbianelf</architecture></target>"
