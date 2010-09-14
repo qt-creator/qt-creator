@@ -352,9 +352,10 @@ void MaemoRunConfigurationWidget::changeLocalMountDir(const QModelIndex &index)
 void MaemoRunConfigurationWidget::handleDebuggingTypeChanged(bool useGdb)
 {
     m_runConfiguration->setUseRemoteGdb(useGdb);
-    const QString detailsText = useGdb ? tr("Use gdb") : tr("Use gdbserver");
-    m_debugDetailsContainer->setSummaryText(tr("<b>Debugging details:</b> ")
-        + detailsText);
+    const QString detailsText = useGdb ?
+                tr("<b>Debugging details:</b> Use gdb") :
+                tr("<b>Debugging details:</b> Use gdbserver");
+    m_debugDetailsContainer->setSummaryText(detailsText);
 }
 
 void MaemoRunConfigurationWidget::fetchEnvironment()
@@ -421,8 +422,8 @@ void MaemoRunConfigurationWidget::handleRemoteMountsChanged()
         text = tr("One local directory to be mounted on the device.");
         break;
     default:
-        text = tr("%1 local directories to be mounted on the device.")
-            .arg(mountCount);
+        //: Note: Only mountCount>1  will occur here as 0, 1 are handled above.
+        text = tr("%n local directories to be mounted on the device.", 0, mountCount);
         break;
     }
     m_mountDetailsContainer->setSummaryText(QLatin1String("<b>") + text

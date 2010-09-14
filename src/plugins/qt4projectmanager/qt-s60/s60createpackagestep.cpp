@@ -683,12 +683,8 @@ void S60CreatePackageStepConfigWidget::resetPassphrases()
 {
     QMessageBox msgBox(QMessageBox::Question, tr("Reset passwords"),
                        tr("Do you want to reset all saved passwords for used keys?"),
-                       QMessageBox::Yes|QMessageBox::No, this);
-    msgBox.button(QMessageBox::Yes)->setText(tr("Reset"));
-    msgBox.button(QMessageBox::No)->setText(tr("Cancel"));
-    msgBox.setDefaultButton(QMessageBox::No);
-    msgBox.setEscapeButton(QMessageBox::No);
-    if (msgBox.exec() == QMessageBox::Yes)
+                       QMessageBox::Reset|QMessageBox::Cancel, this);
+    if (msgBox.exec() == QMessageBox::Reset)
         m_signStep->resetPassphrases();
 }
 
@@ -699,8 +695,7 @@ QString S60CreatePackageStepConfigWidget::summaryText() const
         text = tr("self-signed");
     } else {
         text = tr("signed with certificate %1 and key file %2")
-               .arg(m_signStep->customSignaturePath())
-               .arg(m_signStep->customKeyPath());
+               .arg(m_signStep->customSignaturePath(), m_signStep->customKeyPath());
     }
     if (m_signStep->createsSmartInstaller())
         return tr("<b>Create SIS Package:</b> %1, using Smart Installer").arg(text);

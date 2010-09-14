@@ -121,7 +121,7 @@ void MaemoPackageCreationWidget::updateVersionInfo(const ProjectExplorer::Projec
     QString error;
     QString versionString = m_step->versionString(&error);
     if (versionString.isEmpty()) {
-        QMessageBox::critical(this, tr("No version available."), error);
+        QMessageBox::critical(this, tr("No Version Available."), error);
         versionString = MaemoPackageCreationStep::DefaultVersionNumber;
     }
     const QStringList list = versionString.split(QLatin1Char('.'),
@@ -153,12 +153,12 @@ void MaemoPackageCreationWidget::setPackageManagerIcon()
         imageFilter += "*." + QString::fromAscii(imageType) + QLatin1Char(' ');
     imageFilter += QLatin1Char(')');
     const QString iconFileName = QFileDialog::getOpenFileName(this,
-        tr("Choose image"), QString(), imageFilter);
+        tr("Choose Image"), QString(), imageFilter);
     if (!iconFileName.isEmpty()) {
         QString error;
         if (!MaemoTemplatesManager::instance()->setPackageManagerIcon(m_step->
             buildConfiguration()->target()->project(), iconFileName, &error))
-            QMessageBox::critical(this, tr("Could not set new icon"), error);
+            QMessageBox::critical(this, tr("Could Not Set New Icon"), error);
     }
 }
 
@@ -202,7 +202,7 @@ void MaemoPackageCreationWidget::versionInfoChanged()
         + QLatin1Char('.') + m_ui->minor->text() + QLatin1Char('.')
         + m_ui->patch->text(), &error);
     if (!success)
-        QMessageBox::critical(this, tr("Could not set version number"), error);
+        QMessageBox::critical(this, tr("Could Not Set Version Number"), error);
 }
 
 void MaemoPackageCreationWidget::editDebianFile()
