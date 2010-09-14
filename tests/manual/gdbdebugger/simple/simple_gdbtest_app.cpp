@@ -1406,6 +1406,8 @@ void testQThread()
 {
     Thread thread1(1);
     Thread thread2(2);
+    thread1.setObjectName("This is the first thread");
+    thread2.setObjectName("This is another thread");
     thread1.start();
     thread2.start();
     thread1.wait();
