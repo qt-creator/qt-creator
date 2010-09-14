@@ -2,8 +2,8 @@
 #define QMLAPPLICATIONVIEWER_H
 
 #ifdef QMLINSPECTOR
-#include <qdeclarativedesignview.h>
-class QmlApplicationViewer : public QmlViewer::QDeclarativeDesignView
+#include <qdeclarativeviewobserver.h>
+class QmlApplicationViewer : public QmlViewer::QDeclarativeViewObserver
 #else // QMLINSPECTOR
 #include <QtDeclarative/QDeclarativeView>
 class QmlApplicationViewer : public QDeclarativeView

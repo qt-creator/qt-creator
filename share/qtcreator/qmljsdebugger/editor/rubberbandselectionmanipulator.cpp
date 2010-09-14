@@ -28,13 +28,13 @@
 **************************************************************************/
 
 #include "rubberbandselectionmanipulator.h"
-#include "qdeclarativedesignview_p.h"
+#include "qdeclarativeviewobserver_p.h"
 
 #include <QDebug>
 
 namespace QmlViewer {
 
-RubberBandSelectionManipulator::RubberBandSelectionManipulator(QGraphicsObject *layerItem, QDeclarativeDesignView *editorView)
+RubberBandSelectionManipulator::RubberBandSelectionManipulator(QGraphicsObject *layerItem, QDeclarativeViewObserver *editorView)
     : m_selectionRectangleElement(layerItem),
     m_editorView(editorView),
     m_beginFormEditorItem(0),
@@ -66,7 +66,7 @@ void RubberBandSelectionManipulator::begin(const QPointF& beginPoint)
     m_selectionRectangleElement.setRect(m_beginPoint, m_beginPoint);
     m_selectionRectangleElement.show();
     m_isActive = true;
-    m_beginFormEditorItem = topFormEditorItem(QDeclarativeDesignViewPrivate::get(m_editorView)->selectableItems(beginPoint));
+    m_beginFormEditorItem = topFormEditorItem(QDeclarativeViewObserverPrivate::get(m_editorView)->selectableItems(beginPoint));
     m_oldSelectionList = m_editorView->selectedItems();
 }
 
@@ -84,7 +84,7 @@ void RubberBandSelectionManipulator::end()
 
 void RubberBandSelectionManipulator::select(SelectionType selectionType)
 {
-    QList<QGraphicsItem*> itemList = QDeclarativeDesignViewPrivate::get(m_editorView)->selectableItems(m_selectionRectangleElement.rect(),
+    QList<QGraphicsItem*> itemList = QDeclarativeViewObserverPrivate::get(m_editorView)->selectableItems(m_selectionRectangleElement.rect(),
                                                                    Qt::IntersectsItemShape);
     QList<QGraphicsItem*> newSelectionList;
 

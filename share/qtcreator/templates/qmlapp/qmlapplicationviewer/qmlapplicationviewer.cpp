@@ -42,7 +42,7 @@ QString QmlApplicationViewerPrivate::adjustPath(const QString &path)
 
 QmlApplicationViewer::QmlApplicationViewer(QWidget *parent) :
 #ifdef QMLINSPECTOR
-    QmlViewer::QDeclarativeDesignView(parent)
+    QmlViewer::QDeclarativeViewObserver(parent)
 #else
     QDeclarativeView(parent)
 #endif

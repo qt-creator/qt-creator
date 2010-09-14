@@ -32,15 +32,14 @@
 
 
 #include "abstractformeditortool.h"
-#include "movemanipulator.h"
 #include "rubberbandselectionmanipulator.h"
 #include "singleselectionmanipulator.h"
 #include "selectionindicator.h"
-#include "resizeindicator.h"
 
 #include <QHash>
 #include <QList>
 #include <QTime>
+#include <QAction>
 
 QT_FORWARD_DECLARE_CLASS(QGraphicsItem);
 QT_FORWARD_DECLARE_CLASS(QMouseEvent);
@@ -53,7 +52,7 @@ class SelectionTool : public AbstractFormEditorTool
     Q_OBJECT
 
 public:
-    SelectionTool(QDeclarativeDesignView* editorView);
+    SelectionTool(QDeclarativeViewObserver* editorView);
     ~SelectionTool();
 
     void mousePressEvent(QMouseEvent *event);

@@ -5,12 +5,12 @@
 
 namespace QmlViewer {
 
-class QDeclarativeDesignView;
+class QDeclarativeViewObserver;
 
 class SubcomponentMaskLayerItem : public QGraphicsPolygonItem
 {
 public:
-    explicit SubcomponentMaskLayerItem(QDeclarativeDesignView *view, QGraphicsItem *parentItem = 0);
+    explicit SubcomponentMaskLayerItem(QDeclarativeViewObserver *observer, QGraphicsItem *parentItem = 0);
     int type() const;
     void setCurrentItem(QGraphicsItem *item);
     void setBoundingBox(const QRectF &boundingBox);
@@ -18,7 +18,7 @@ public:
     QRectF itemRect() const;
 
 private:
-    QDeclarativeDesignView *m_view;
+    QDeclarativeViewObserver *m_observer;
     QGraphicsItem *m_currentItem;
     QGraphicsRectItem *m_borderRect;
     QRectF m_itemPolyRect;

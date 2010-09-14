@@ -28,8 +28,8 @@
 **************************************************************************/
 
 #include "abstractformeditortool.h"
-#include "qdeclarativedesignview.h"
-#include "qdeclarativedesignview_p.h"
+#include "qdeclarativeviewobserver.h"
+#include "qdeclarativeviewobserver_p.h"
 
 #include <QDeclarativeEngine>
 
@@ -39,8 +39,8 @@
 
 namespace QmlViewer {
 
-AbstractFormEditorTool::AbstractFormEditorTool(QDeclarativeDesignView *editorView)
-    : QObject(editorView), m_view(editorView)
+AbstractFormEditorTool::AbstractFormEditorTool(QDeclarativeViewObserver *editorView)
+    : QObject(editorView), m_observer(editorView)
 {
 }
 
@@ -50,9 +50,14 @@ AbstractFormEditorTool::~AbstractFormEditorTool()
 
 }
 
-QDeclarativeDesignView* AbstractFormEditorTool::view() const
+QDeclarativeViewObserver *AbstractFormEditorTool::observer() const
 {
-    return m_view;
+    return m_observer;
+}
+
+QDeclarativeView *AbstractFormEditorTool::view() const
+{
+    return m_observer->declarativeView();
 }
 
 QGraphicsScene* AbstractFormEditorTool::scene() const
@@ -67,12 +72,12 @@ void AbstractFormEditorTool::updateSelectedItems()
 
 QList<QGraphicsItem*> AbstractFormEditorTool::items() const
 {
-    return view()->selectedItems();
+    return observer()->selectedItems();
 }
 
 void AbstractFormEditorTool::enterContext(QGraphicsItem *itemToEnter)
 {
-    view()->data->enterContext(itemToEnter);
+    observer()->data->enterContext(itemToEnter);
 }
 
 bool AbstractFormEditorTool::topItemIsMovable(const QList<QGraphicsItem*> & itemList)
@@ -92,7 +97,7 @@ bool AbstractFormEditorTool::topItemIsMovable(const QList<QGraphicsItem*> & item
 
 bool AbstractFormEditorTool::topSelectedItemIsMovable(const QList<QGraphicsItem*> &itemList)
 {
-    QList<QGraphicsItem*> selectedItems = view()->selectedItems();
+    QList<QGraphicsItem*> selectedItems = observer()->selectedItems();
 
     foreach (QGraphicsItem *item, itemList) {
         QDeclarativeItem *declarativeItem = toQDeclarativeItem(item);
@@ -178,7 +183,7 @@ QString AbstractFormEditorTool::titleForItem(QGraphicsItem *item)
 
         QDeclarativeItem *declarativeItem = qobject_cast<QDeclarativeItem*>(gfxObject);
         if (declarativeItem) {
-            objectStringId = QDeclarativeDesignView::idStringForObject(declarativeItem);
+            objectStringId = QDeclarativeViewObserver::idStringForObject(declarativeItem);
         }
 
         if (!objectStringId.isEmpty()) {

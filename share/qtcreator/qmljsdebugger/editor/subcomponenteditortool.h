@@ -18,7 +18,7 @@ class SubcomponentEditorTool : public AbstractFormEditorTool
     Q_OBJECT
 
 public:
-    SubcomponentEditorTool(QDeclarativeDesignView *view);
+    SubcomponentEditorTool(QDeclarativeViewObserver *view);
     ~SubcomponentEditorTool();
 
     void mousePressEvent(QMouseEvent *event);

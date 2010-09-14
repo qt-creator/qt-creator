@@ -28,13 +28,13 @@
 **************************************************************************/
 
 #include "singleselectionmanipulator.h"
-#include "qdeclarativedesignview.h"
-#include "qdeclarativedesignview_p.h"
+#include "qdeclarativeviewobserver.h"
+#include "qdeclarativeviewobserver_p.h"
 #include <QtDebug>
 
 namespace QmlViewer {
 
-SingleSelectionManipulator::SingleSelectionManipulator(QDeclarativeDesignView *editorView)
+SingleSelectionManipulator::SingleSelectionManipulator(QDeclarativeViewObserver *editorView)
     : m_editorView(editorView),
     m_isActive(false)
 {
@@ -45,7 +45,7 @@ void SingleSelectionManipulator::begin(const QPointF &beginPoint)
 {
     m_beginPoint = beginPoint;
     m_isActive = true;
-    m_oldSelectionList = QDeclarativeDesignViewPrivate::get(m_editorView)->selectedItems();
+    m_oldSelectionList = QDeclarativeViewObserverPrivate::get(m_editorView)->selectedItems();
 }
 
 void SingleSelectionManipulator::update(const QPointF &/*updatePoint*/)
@@ -116,7 +116,7 @@ void SingleSelectionManipulator::select(SelectionType selectionType, const QList
 
 void SingleSelectionManipulator::select(SelectionType selectionType, bool selectOnlyContentItems)
 {
-    QList<QGraphicsItem*> itemList = QDeclarativeDesignViewPrivate::get(m_editorView)->selectableItems(m_beginPoint);
+    QList<QGraphicsItem*> itemList = QDeclarativeViewObserverPrivate::get(m_editorView)->selectableItems(m_beginPoint);
     select(selectionType, itemList, selectOnlyContentItems);
 }
 

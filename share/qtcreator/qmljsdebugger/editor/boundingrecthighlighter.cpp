@@ -1,5 +1,5 @@
 #include "boundingrecthighlighter.h"
-#include "qdeclarativedesignview.h"
+#include "qdeclarativeviewobserver.h"
 #include "qmlviewerconstants.h"
 
 #include <QGraphicsPolygonItem>
@@ -48,8 +48,8 @@ int BoundingBoxPolygonItem::type() const
     return Constants::EditorItemType;
 }
 
-BoundingRectHighlighter::BoundingRectHighlighter(QDeclarativeDesignView *view) :
-    LayerItem(view->scene()),
+BoundingRectHighlighter::BoundingRectHighlighter(QDeclarativeViewObserver *view) :
+    LayerItem(view->declarativeView()->scene()),
     m_view(view),
     m_animFrame(0)
 {

@@ -14,14 +14,14 @@ QT_FORWARD_DECLARE_CLASS(QTimer);
 
 namespace QmlViewer {
 
-class QDeclarativeDesignView;
+class QDeclarativeViewObserver;
 class BoundingBox;
 
 class BoundingRectHighlighter : public LayerItem
 {
     Q_OBJECT
 public:
-    explicit BoundingRectHighlighter(QDeclarativeDesignView *view);
+    explicit BoundingRectHighlighter(QDeclarativeViewObserver *view);
     ~BoundingRectHighlighter();
     void clear();
     void highlight(QList<QGraphicsObject*> items);
@@ -42,7 +42,7 @@ private:
 private:
     Q_DISABLE_COPY(BoundingRectHighlighter);
 
-    QDeclarativeDesignView *m_view;
+    QDeclarativeViewObserver *m_view;
     QList<BoundingBox* > m_boxes;
     QList<BoundingBox* > m_freeBoxes;
     QTimer *m_animTimer;

@@ -13,7 +13,7 @@ class ColorPickerTool : public AbstractFormEditorTool
 {
     Q_OBJECT
 public:
-    explicit ColorPickerTool(QDeclarativeDesignView *view);
+    explicit ColorPickerTool(QDeclarativeViewObserver *view);
 
     virtual ~ColorPickerTool();
 

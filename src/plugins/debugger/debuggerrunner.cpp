@@ -307,11 +307,11 @@ static DebuggerEngineType engineForToolChain(int toolChainType)
 // unless the toolchain provides a hint.
 DebuggerEngineType DebuggerRunControl::engineForExecutable(const QString &executable)
 {
-    if (executable.endsWith(_("qmlviewer"))) {
+    /*if (executable.endsWith(_("qmlviewer"))) {
         if (d->m_enabledEngines & QmlEngineType)
             return QmlEngineType;
         d->m_errorMessage = msgEngineNotAvailable("Qml Engine");
-    }
+    }*/
 
     if (executable.endsWith(_(".js"))) {
         if (d->m_enabledEngines & ScriptEngineType)
@@ -380,13 +380,13 @@ void DebuggerRunControl::createEngine(const DebuggerStartParameters &startParams
     // Figure out engine according to toolchain, executable, attach or default.
     DebuggerEngineType engineType = NoEngineType;
     DebuggerLanguages activeLangs = DebuggerPlugin::instance()->activeLanguages();
-    bool isQmlExecutable = sp.executable.endsWith(_("qmlviewer")) || sp.executable.endsWith(_("qmlobserver"));
+    /*bool isQmlExecutable = sp.executable.endsWith(_("qmlviewer")) || sp.executable.endsWith(_("qmlobserver"));
 #ifdef Q_OS_MAC
     isQmlExecutable = sp.executable.endsWith(_("QMLViewer.app")) || sp.executable.endsWith(_("QMLObserver.app"));
 #endif
-    if (isQmlExecutable)
+    if (isQmlExecutable && sp.startMode != AttachCore)
         engineType = QmlEngineType;
-    else if (sp.executable.endsWith(_(".js")))
+    else */if (sp.executable.endsWith(_(".js")))
         engineType = ScriptEngineType;
     else if (sp.executable.endsWith(_(".py")))
         engineType = PdbEngineType;

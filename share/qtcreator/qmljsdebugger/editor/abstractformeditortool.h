@@ -42,12 +42,12 @@ class QKeyEvent;
 class QGraphicsScene;
 class QGraphicsObject;
 class QWheelEvent;
+class QDeclarativeView;
 QT_END_NAMESPACE
 
 namespace QmlViewer {
 
-class QDeclarativeDesignView;
-
+class QDeclarativeViewObserver;
 
 class FormEditorView;
 
@@ -55,7 +55,7 @@ class AbstractFormEditorTool : public QObject
 {
     Q_OBJECT
 public:
-    AbstractFormEditorTool(QDeclarativeDesignView* view);
+    AbstractFormEditorTool(QDeclarativeViewObserver* observer);
 
     virtual ~AbstractFormEditorTool();
 
@@ -92,11 +92,12 @@ public:
 protected:
     virtual void selectedItemsChanged(const QList<QGraphicsItem*> &objectList) = 0;
 
-    QDeclarativeDesignView *view() const;
+    QDeclarativeViewObserver *observer() const;
+    QDeclarativeView *view() const;
     QGraphicsScene* scene() const;
 
 private:
-    QDeclarativeDesignView *m_view;
+    QDeclarativeViewObserver *m_observer;
     QList<QGraphicsItem*> m_itemList;
 };
 

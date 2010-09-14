@@ -37,12 +37,12 @@ QT_FORWARD_DECLARE_CLASS(QGraphicsItem);
 
 namespace QmlViewer {
 
-class QDeclarativeDesignView;
+class QDeclarativeViewObserver;
 
 class SingleSelectionManipulator
 {
 public:
-    SingleSelectionManipulator(QDeclarativeDesignView *editorView);
+    SingleSelectionManipulator(QDeclarativeViewObserver *editorView);
 
     enum SelectionType {
         ReplaceSelection,
@@ -67,7 +67,7 @@ public:
 private:
     QList<QGraphicsItem*> m_oldSelectionList;
     QPointF m_beginPoint;
-    QDeclarativeDesignView *m_editorView;
+    QDeclarativeViewObserver *m_editorView;
     bool m_isActive;
 };
 

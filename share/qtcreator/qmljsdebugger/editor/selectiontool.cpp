@@ -31,7 +31,7 @@
 #include "layeritem.h"
 
 //#include "resizehandleitem.h"
-#include "qdeclarativedesignview_p.h"
+#include "qdeclarativeviewobserver_p.h"
 
 #include <QDeclarativeEngine>
 
@@ -48,12 +48,12 @@
 
 namespace QmlViewer {
 
-SelectionTool::SelectionTool(QDeclarativeDesignView *editorView)
+SelectionTool::SelectionTool(QDeclarativeViewObserver *editorView)
     : AbstractFormEditorTool(editorView),
     m_rubberbandSelectionMode(false),
-    m_rubberbandSelectionManipulator(QDeclarativeDesignViewPrivate::get(editorView)->manipulatorLayer, editorView),
+    m_rubberbandSelectionManipulator(QDeclarativeViewObserverPrivate::get(editorView)->manipulatorLayer, editorView),
     m_singleSelectionManipulator(editorView),
-    m_selectionIndicator(editorView, QDeclarativeDesignViewPrivate::get(editorView)->manipulatorLayer),
+    m_selectionIndicator(editorView, QDeclarativeViewObserverPrivate::get(editorView)->manipulatorLayer),
     //m_resizeIndicator(editorView->manipulatorLayer()),
     m_selectOnlyContentItems(true)
 {
@@ -82,7 +82,7 @@ SingleSelectionManipulator::SelectionType SelectionTool::getSelectionType(Qt::Ke
 
 bool SelectionTool::alreadySelected(const QList<QGraphicsItem*> &itemList) const
 {
-    const QList<QGraphicsItem*> selectedItems = QDeclarativeDesignViewPrivate::get(view())->selectedItems();
+    const QList<QGraphicsItem*> selectedItems = QDeclarativeViewObserverPrivate::get(observer())->selectedItems();
 
     if (selectedItems.isEmpty())
         return false;
@@ -98,7 +98,7 @@ bool SelectionTool::alreadySelected(const QList<QGraphicsItem*> &itemList) const
 
 void SelectionTool::mousePressEvent(QMouseEvent *event)
 {
-    QList<QGraphicsItem*> itemList = QDeclarativeDesignViewPrivate::get(view())->selectableItems(event->pos());
+    QList<QGraphicsItem*> itemList = QDeclarativeViewObserverPrivate::get(observer())->selectableItems(event->pos());
     SingleSelectionManipulator::SelectionType selectionType = getSelectionType(event->modifiers());
 
     if (event->buttons() & Qt::LeftButton) {
@@ -109,7 +109,7 @@ void SelectionTool::mousePressEvent(QMouseEvent *event)
         } else {
 
             if (itemList.isEmpty()) {
-                QDeclarativeDesignViewPrivate::get(view())->setSelectedItems(itemList);
+                QDeclarativeViewObserverPrivate::get(observer())->setSelectedItems(itemList);
                 return;
             }
 
@@ -130,7 +130,7 @@ void SelectionTool::mousePressEvent(QMouseEvent *event)
                 m_mousePressTimer.start();
 
                 if (itemList.isEmpty()) {
-                    view()->setSelectedItems(itemList);
+                    observer()->setSelectedItems(itemList);
                     return;
                 }
 
@@ -159,7 +159,7 @@ void SelectionTool::mousePressEvent(QMouseEvent *event)
 
 void SelectionTool::createContextMenu(QList<QGraphicsItem*> itemList, QPoint globalPos)
 {
-    if (!QDeclarativeDesignViewPrivate::get(view())->mouseInsideContextItem())
+    if (!QDeclarativeViewObserverPrivate::get(observer())->mouseInsideContextItem())
         return;
 
     QMenu contextMenu;
@@ -177,7 +177,7 @@ void SelectionTool::createContextMenu(QList<QGraphicsItem*> itemList, QPoint glo
         QString itemTitle = titleForItem(item);
         QAction *elementAction = contextMenu.addAction(itemTitle, this, SLOT(contextMenuElementSelected()));
 
-        if (view()->selectedItems().contains(item)) {
+        if (observer()->selectedItems().contains(item)) {
             QFont boldFont = elementAction->font();
             boldFont.setBold(true);
             elementAction->setFont(boldFont);
@@ -224,7 +224,7 @@ void SelectionTool::contextMenuElementHovered(QAction *action)
     int itemListIndex = action->data().toInt();
     if (itemListIndex >= 0 && itemListIndex < m_contextMenuItemList.length()) {
         QGraphicsObject *item = m_contextMenuItemList.at(itemListIndex)->toGraphicsObject();
-        QDeclarativeDesignViewPrivate::get(view())->highlight(item);
+        QDeclarativeViewObserverPrivate::get(observer())->highlight(item);
     }
 }
 
@@ -274,16 +274,16 @@ void SelectionTool::hoverMoveEvent(QMouseEvent * event)
 //        if (topSelectedItemIsMovable(itemList))
 //            view()->changeTool(Constants::MoveToolMode);
 //    }
-    QList<QGraphicsItem*> selectableItemList = QDeclarativeDesignViewPrivate::get(view())->selectableItems(event->pos());
+    QList<QGraphicsItem*> selectableItemList = QDeclarativeViewObserverPrivate::get(observer())->selectableItems(event->pos());
     if (!selectableItemList.isEmpty()) {
         QGraphicsObject *item = selectableItemList.first()->toGraphicsObject();
         if (item)
-            QDeclarativeDesignViewPrivate::get(view())->highlight(item);
+            QDeclarativeViewObserverPrivate::get(observer())->highlight(item);
 
         return;
     }
 
-    QDeclarativeDesignViewPrivate::get(view())->clearHighlight();
+    QDeclarativeViewObserverPrivate::get(observer())->clearHighlight();
 }
 
 void SelectionTool::mouseReleaseEvent(QMouseEvent *event)
@@ -349,11 +349,11 @@ void SelectionTool::wheelEvent(QWheelEvent *event)
     if (event->orientation() == Qt::Horizontal || m_rubberbandSelectionMode)
         return;
 
-    QList<QGraphicsItem*> itemList = QDeclarativeDesignViewPrivate::get(view())->selectableItems(event->pos());
+    QList<QGraphicsItem*> itemList = QDeclarativeViewObserverPrivate::get(observer())->selectableItems(event->pos());
 
     int selectedIdx = 0;
-    if (!view()->selectedItems().isEmpty()) {
-        selectedIdx = itemList.indexOf(view()->selectedItems().first());
+    if (!observer()->selectedItems().isEmpty()) {
+        selectedIdx = itemList.indexOf(observer()->selectedItems().first());
         if (selectedIdx >= 0) {
             if (event->delta() > 0) {
                 selectedIdx++;

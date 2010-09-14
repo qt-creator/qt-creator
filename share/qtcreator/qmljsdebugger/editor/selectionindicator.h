@@ -36,12 +36,12 @@
 
 namespace QmlViewer {
 
-class QDeclarativeDesignView;
+class QDeclarativeViewObserver;
 
 class SelectionIndicator
 {
 public:
-    SelectionIndicator(QDeclarativeDesignView* editorView, QGraphicsObject *layerItem);
+    SelectionIndicator(QDeclarativeViewObserver* editorView, QGraphicsObject *layerItem);
     ~SelectionIndicator();
 
     void show();
@@ -57,7 +57,7 @@ private:
 private:
     QHash<QGraphicsItem*, QGraphicsPolygonItem *> m_indicatorShapeHash;
     QWeakPointer<QGraphicsObject> m_layerItem;
-    QDeclarativeDesignView *m_view;
+    QDeclarativeViewObserver *m_view;
 
 };
 

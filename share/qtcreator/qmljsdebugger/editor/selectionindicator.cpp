@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "selectionindicator.h"
-#include "qdeclarativedesignview_p.h"
+#include "qdeclarativeviewobserver_p.h"
 #include "qmlviewerconstants.h"
 
 #include <QPen>
@@ -38,7 +38,7 @@
 
 namespace QmlViewer {
 
-SelectionIndicator::SelectionIndicator(QDeclarativeDesignView *editorView, QGraphicsObject *layerItem)
+SelectionIndicator::SelectionIndicator(QDeclarativeViewObserver *editorView, QGraphicsObject *layerItem)
     : m_layerItem(layerItem), m_view(editorView)
 {
 }
@@ -85,7 +85,7 @@ QPolygonF SelectionIndicator::addBoundingRectToPolygon(QGraphicsItem *item, QPol
     }
 
     foreach(QGraphicsItem *child, item->childItems()) {
-        if (!QDeclarativeDesignViewPrivate::get(m_view)->isEditorItem(child))
+        if (!QDeclarativeViewObserverPrivate::get(m_view)->isEditorItem(child))
             addBoundingRectToPolygon(child, polygon);
     }
     return polygon;

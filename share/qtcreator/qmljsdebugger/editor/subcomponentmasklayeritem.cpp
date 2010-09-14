@@ -1,13 +1,13 @@
 #include "subcomponentmasklayeritem.h"
 #include "qmlviewerconstants.h"
-#include "qdeclarativedesignview.h"
+#include "qdeclarativeviewobserver.h"
 #include <QPolygonF>
 
 namespace QmlViewer {
 
-SubcomponentMaskLayerItem::SubcomponentMaskLayerItem(QDeclarativeDesignView *view, QGraphicsItem *parentItem) :
+SubcomponentMaskLayerItem::SubcomponentMaskLayerItem(QDeclarativeViewObserver *observer, QGraphicsItem *parentItem) :
     QGraphicsPolygonItem(parentItem),
-    m_view(view),
+    m_observer(observer),
     m_currentItem(0),
     m_borderRect(new QGraphicsRectItem(this))
 {
@@ -51,8 +51,8 @@ void SubcomponentMaskLayerItem::setCurrentItem(QGraphicsItem *item)
     if (!m_currentItem)
         return;
 
-    QPolygonF viewPoly(QRectF(m_view->rect()));
-    viewPoly = m_view->mapToScene(viewPoly.toPolygon());
+    QPolygonF viewPoly(QRectF(m_observer->declarativeView()->rect()));
+    viewPoly = m_observer->declarativeView()->mapToScene(viewPoly.toPolygon());
 
     QRectF itemRect = item->boundingRect() | item->childrenBoundingRect();
     QPolygonF itemPoly(itemRect);

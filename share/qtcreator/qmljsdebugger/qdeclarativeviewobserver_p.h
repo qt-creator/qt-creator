@@ -34,14 +34,14 @@
 #include <QPointF>
 #include <QTimer>
 
-#include "qdeclarativedesignview.h"
+#include "qdeclarativeviewobserver.h"
 #include "qdeclarativedesigndebugserver.h"
 
 QT_FORWARD_DECLARE_CLASS(JSDebuggerAgent)
 
 namespace QmlViewer {
 
-class QDeclarativeDesignView;
+class QDeclarativeViewObserver;
 class SelectionTool;
 class ZoomTool;
 class ColorPickerTool;
@@ -52,7 +52,7 @@ class QmlToolbar;
 class CrumblePath;
 class AbstractFormEditorTool;
 
-class QDeclarativeDesignViewPrivate
+class QDeclarativeViewObserverPrivate
 {
 
 public:
@@ -62,10 +62,11 @@ public:
         ContextSensitive
     };
 
-    QDeclarativeDesignViewPrivate(QDeclarativeDesignView *);
-    ~QDeclarativeDesignViewPrivate();
+    QDeclarativeViewObserverPrivate(QDeclarativeViewObserver *);
+    ~QDeclarativeViewObserverPrivate();
 
-    QDeclarativeDesignView *q;
+    QDeclarativeView *view;
+    QDeclarativeViewObserver *q;
     QDeclarativeDesignDebugServer *debugServer;
 
     QPointF cursorPos;
@@ -134,7 +135,7 @@ public:
     void _q_changeContextPathIndex(int index);
     void _q_clearComponentCache();
 
-    static QDeclarativeDesignViewPrivate *get(QDeclarativeDesignView *v) { return v->d_func(); }
+    static QDeclarativeViewObserverPrivate *get(QDeclarativeViewObserver *v) { return v->d_func(); }
 };
 
 } // namespace QmlViewer

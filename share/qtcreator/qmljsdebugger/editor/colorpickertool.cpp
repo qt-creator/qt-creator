@@ -1,5 +1,5 @@
 #include "colorpickertool.h"
-#include "qdeclarativedesignview.h"
+#include "qdeclarativeviewobserver.h"
 
 #include <QMouseEvent>
 #include <QKeyEvent>
@@ -11,7 +11,7 @@
 
 namespace QmlViewer {
 
-ColorPickerTool::ColorPickerTool(QDeclarativeDesignView *view) :
+ColorPickerTool::ColorPickerTool(QDeclarativeViewObserver *view) :
         AbstractFormEditorTool(view)
 {
     m_selectedColor.setRgb(0,0,0);

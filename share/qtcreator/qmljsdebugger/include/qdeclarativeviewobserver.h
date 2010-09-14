@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef QDECLARATIVEDESIGNVIEW_H
-#define QDECLARATIVEDESIGNVIEW_H
+#ifndef QDECLARATIVEVIEWOBSERVER_H
+#define QDECLARATIVEVIEWOBSERVER_H
 
 #include "qmljsdebugger_global.h"
 #include "qmlviewerconstants.h"
@@ -42,18 +42,20 @@ QT_FORWARD_DECLARE_CLASS(QToolBar);
 namespace QmlViewer {
 
 class CrumblePath;
-class QDeclarativeDesignViewPrivate;
+class QDeclarativeViewObserverPrivate;
 
-class QMLJSDEBUGGER_EXPORT QDeclarativeDesignView : public QDeclarativeView
+class QMLJSDEBUGGER_EXPORT QDeclarativeViewObserver : public QObject
 {
     Q_OBJECT
 public:
 
-    explicit QDeclarativeDesignView(QWidget *parent = 0);
-    ~QDeclarativeDesignView();
+    explicit QDeclarativeViewObserver(QDeclarativeView *view, QObject *parent = 0);
+    ~QDeclarativeViewObserver();
 
     void setSelectedItems(QList<QGraphicsItem *> items);
     QList<QGraphicsItem *> selectedItems();
+
+    QDeclarativeView *declarativeView();
 
     QToolBar *toolbar() const;
     static QString idStringForObject(QObject *obj);
@@ -87,19 +89,21 @@ Q_SIGNALS:
     void inspectorContextPopped();
 
 protected:
-    void leaveEvent(QEvent *);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
-    void keyPressEvent(QKeyEvent *event);
-    void keyReleaseEvent(QKeyEvent *keyEvent);
-    void mouseDoubleClickEvent(QMouseEvent *event);
-    void wheelEvent(QWheelEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event);
+
+    bool leaveEvent(QEvent *);
+    bool mousePressEvent(QMouseEvent *event);
+    bool mouseMoveEvent(QMouseEvent *event);
+    bool mouseReleaseEvent(QMouseEvent *event);
+    bool keyPressEvent(QKeyEvent *event);
+    bool keyReleaseEvent(QKeyEvent *keyEvent);
+    bool mouseDoubleClickEvent(QMouseEvent *event);
+    bool wheelEvent(QWheelEvent *event);
 
     void setSelectedItemsForTools(QList<QGraphicsItem *> items);
 
 private:
-    Q_DISABLE_COPY(QDeclarativeDesignView)
+    Q_DISABLE_COPY(QDeclarativeViewObserver)
     Q_PRIVATE_SLOT(d_func(), void _q_reloadView())
     Q_PRIVATE_SLOT(d_func(), void _q_onStatusChanged(QDeclarativeView::Status))
     Q_PRIVATE_SLOT(d_func(), void _q_onCurrentObjectsChanged(QList<QObject*>))
@@ -113,13 +117,13 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_changeContextPathIndex(int index))
     Q_PRIVATE_SLOT(d_func(), void _q_clearComponentCache());
 
-    inline QDeclarativeDesignViewPrivate *d_func() { return data.data(); }
-    QScopedPointer<QDeclarativeDesignViewPrivate> data;
-    friend class QDeclarativeDesignViewPrivate;
+    inline QDeclarativeViewObserverPrivate *d_func() { return data.data(); }
+    QScopedPointer<QDeclarativeViewObserverPrivate> data;
+    friend class QDeclarativeViewObserverPrivate;
     friend class AbstractFormEditorTool;
 
 };
 
 } //namespace QmlViewer
 
-#endif // QDECLARATIVEDESIGNVIEW_H
+#endif // QDECLARATIVEVIEWOBSERVER_H

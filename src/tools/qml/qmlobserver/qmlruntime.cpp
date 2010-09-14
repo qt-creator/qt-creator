@@ -54,7 +54,7 @@
 #  include "ui_recopts.h"
 #endif
 
-#include <qdeclarativedesignview.h>
+#include <qdeclarativeviewobserver.h>
 #include <qdeclarativedesigndebugserver.h>
 #include <utils/crumblepath.h>
 
@@ -613,13 +613,14 @@ QDeclarativeViewer::QDeclarativeViewer(QWidget *parent, Qt::WindowFlags flags)
         recdlg->warning->hide();
     }
 
-    canvas = new QmlViewer::QDeclarativeDesignView(this);
+    canvas = new QDeclarativeView(this);
+    observer = new QmlViewer::QDeclarativeViewObserver(canvas, this);
     if (!(flags & Qt::FramelessWindowHint)) {
         m_crumblePathWidget = new Utils::CrumblePath(canvas);
 #ifndef Q_WS_MAC
         m_crumblePathWidget->setStyleSheet("QWidget { border-bottom: 1px solid black; }");
 #endif
-        m_crumblePathWidget->setVisible(canvas->designModeBehavior());
+        m_crumblePathWidget->setVisible(observer->designModeBehavior());
 
         // CrumblePath is not in a layout, so that it overlays the central widget
         // The event filter ensures that its width stays in sync nevertheless
@@ -641,15 +642,15 @@ QDeclarativeViewer::QDeclarativeViewer(QWidget *parent, Qt::WindowFlags flags)
 
     canvas->setFocus();
 
-    QObject::connect(canvas, SIGNAL(reloadRequested()), this, SLOT(reload()));
+    QObject::connect(observer, SIGNAL(reloadRequested()), this, SLOT(reload()));
     QObject::connect(canvas, SIGNAL(sceneResized(QSize)), this, SLOT(sceneResized(QSize)));
     QObject::connect(canvas, SIGNAL(statusChanged(QDeclarativeView::Status)), this, SLOT(statusChanged()));
     if (m_crumblePathWidget) {
-        QObject::connect(canvas, SIGNAL(inspectorContextCleared()), m_crumblePathWidget, SLOT(clear()));
-        QObject::connect(canvas, SIGNAL(inspectorContextPushed(QString)), m_crumblePathWidget, SLOT(pushElement(QString)));
-        QObject::connect(canvas, SIGNAL(inspectorContextPopped()), m_crumblePathWidget, SLOT(popElement()));
-        QObject::connect(m_crumblePathWidget, SIGNAL(elementClicked(int)), canvas, SLOT(setInspectorContext(int)));
-        QObject::connect(canvas, SIGNAL(designModeBehaviorChanged(bool)), m_crumblePathWidget, SLOT(setVisible(bool)));
+        QObject::connect(observer, SIGNAL(inspectorContextCleared()), m_crumblePathWidget, SLOT(clear()));
+        QObject::connect(observer, SIGNAL(inspectorContextPushed(QString)), m_crumblePathWidget, SLOT(pushElement(QString)));
+        QObject::connect(observer, SIGNAL(inspectorContextPopped()), m_crumblePathWidget, SLOT(popElement()));
+        QObject::connect(m_crumblePathWidget, SIGNAL(elementClicked(int)), observer, SLOT(setInspectorContext(int)));
+        QObject::connect(observer, SIGNAL(designModeBehaviorChanged(bool)), m_crumblePathWidget, SLOT(setVisible(bool)));
     }
     QObject::connect(canvas->engine(), SIGNAL(quit()), QCoreApplication::instance (), SLOT(quit()));
 
@@ -691,12 +692,12 @@ void QDeclarativeViewer::setDesignModeBehavior(bool value)
 {
     if (designModeBehaviorAction)
         designModeBehaviorAction->setChecked(value);
-    canvas->setDesignModeBehavior(value);
+    observer->setDesignModeBehavior(value);
 }
 
 void QDeclarativeViewer::setDebugMode(bool on)
 {
-    canvas->setDebugMode(on);
+    observer->setDebugMode(on);
 }
 
 void QDeclarativeViewer::enableExperimentalGestures()
@@ -792,10 +793,10 @@ void QDeclarativeViewer::createMenu()
     designModeBehaviorAction = new QAction(tr("&Observer Mode"), this);
     designModeBehaviorAction->setShortcut(QKeySequence("Ctrl+D"));
     designModeBehaviorAction->setCheckable(true);
-    designModeBehaviorAction->setChecked(canvas->designModeBehavior());
+    designModeBehaviorAction->setChecked(observer->designModeBehavior());
     designModeBehaviorAction->setEnabled(QDeclarativeDesignDebugServer::hasDebuggingClient());
     connect(designModeBehaviorAction, SIGNAL(triggered(bool)), this, SLOT(setDesignModeBehavior(bool)));
-    connect(canvas, SIGNAL(designModeBehaviorChanged(bool)), designModeBehaviorAction, SLOT(setChecked(bool)));
+    connect(observer, SIGNAL(designModeBehaviorChanged(bool)), designModeBehaviorAction, SLOT(setChecked(bool)));
     connect(QDeclarativeDesignDebugServer::instance(), SIGNAL(debuggingClientChanged(bool)), designModeBehaviorAction, SLOT(setEnabled(bool)));
 
     QAction *proxyAction = new QAction(tr("HTTP &Proxy..."), this);
@@ -1060,7 +1061,7 @@ void QDeclarativeViewer::addPluginPath(const QString& plugin)
 
 void QDeclarativeViewer::reload()
 {
-    canvas->setDesignModeBehavior(false);
+    observer->setDesignModeBehavior(false);
     open(currentFileOrUrl);
 }
 

@@ -1,5 +1,5 @@
 #include "subcomponenteditortool.h"
-#include "qdeclarativedesignview_p.h"
+#include "qdeclarativeviewobserver_p.h"
 #include "subcomponentmasklayeritem.h"
 #include "layeritem.h"
 
@@ -16,12 +16,12 @@ namespace QmlViewer {
 
 const qreal MaxOpacity = 0.5f;
 
-SubcomponentEditorTool::SubcomponentEditorTool(QDeclarativeDesignView *view)
+SubcomponentEditorTool::SubcomponentEditorTool(QDeclarativeViewObserver *view)
     : AbstractFormEditorTool(view),
     m_animIncrement(0.05f),
     m_animTimer(new QTimer(this))
 {
-    m_mask = new SubcomponentMaskLayerItem(view, QDeclarativeDesignViewPrivate::get(view)->manipulatorLayer);
+    m_mask = new SubcomponentMaskLayerItem(view, QDeclarativeViewObserverPrivate::get(view)->manipulatorLayer);
     connect(m_animTimer, SIGNAL(timeout()), SLOT(animate()));
     m_animTimer->setInterval(20);
 }
@@ -71,7 +71,7 @@ void SubcomponentEditorTool::mouseDoubleClickEvent(QMouseEvent *event)
 void SubcomponentEditorTool::hoverMoveEvent(QMouseEvent *event)
 {
     if (!containsCursor(event->pos()) && m_currentContext.size() > 1) {
-        QDeclarativeDesignViewPrivate::get(view())->clearHighlight();
+        QDeclarativeViewObserverPrivate::get(observer())->clearHighlight();
     }
 }
 
@@ -164,8 +164,8 @@ void SubcomponentEditorTool::setCurrentItem(QGraphicsItem* contextItem)
         m_animIncrement = 0.05f;
         m_animTimer->start();
 
-        QDeclarativeDesignViewPrivate::get(view())->clearHighlight();
-        view()->setSelectedItems(QList<QGraphicsItem*>());
+        QDeclarativeViewObserverPrivate::get(observer())->clearHighlight();
+        observer()->setSelectedItems(QList<QGraphicsItem*>());
 
         pushContext(gfxObject);
     }

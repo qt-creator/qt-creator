@@ -35,7 +35,7 @@
 
 namespace QmlViewer {
 
-class QDeclarativeDesignView;
+class QDeclarativeViewObserver;
 
 class RubberBandSelectionManipulator
 {
@@ -47,7 +47,7 @@ public:
     };
 
 
-    RubberBandSelectionManipulator(QGraphicsObject *layerItem, QDeclarativeDesignView *editorView);
+    RubberBandSelectionManipulator(QGraphicsObject *layerItem, QDeclarativeViewObserver *editorView);
 
     void setItems(const QList<QGraphicsItem*> &itemList);
 
@@ -72,7 +72,7 @@ private:
     QList<QGraphicsItem*> m_oldSelectionList;
     SelectionRectangle m_selectionRectangleElement;
     QPointF m_beginPoint;
-    QDeclarativeDesignView *m_editorView;
+    QDeclarativeViewObserver *m_editorView;
     QGraphicsItem *m_beginFormEditorItem;
     bool m_isActive;
 };

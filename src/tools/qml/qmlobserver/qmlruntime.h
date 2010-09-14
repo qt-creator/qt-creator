@@ -50,7 +50,7 @@
 #include "loggerwidget.h"
 
 namespace QmlViewer {
-    class QDeclarativeDesignView;
+    class QDeclarativeViewObserver;
 }
 namespace Utils {
     class CrumblePath;
@@ -167,7 +167,8 @@ private:
 
     LoggerWidget *loggerWindow;
 
-    QmlViewer::QDeclarativeDesignView *canvas;
+    QDeclarativeView *canvas;
+    QmlViewer::QDeclarativeViewObserver *observer;
     QSize initialSize;
     QString currentFileOrUrl;
     QTimer recordTimer;
