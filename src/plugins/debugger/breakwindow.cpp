@@ -164,7 +164,7 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     deleteAction->setEnabled(si.size() > 0);
 
     QAction *deleteAllAction = new QAction(tr("Delete All Breakpoints"), &menu);
-    deleteAllAction->setEnabled(si.size() > 0);
+    deleteAllAction->setEnabled(model()->rowCount() > 0);
 
     // Delete by file: Find indices of breakpoints of the same file.
     QAction *deleteByFileAction = 0;
