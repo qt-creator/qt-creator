@@ -2542,6 +2542,9 @@ DebuggerPlugin::~DebuggerPlugin()
     delete d->m_commandWindow;
     d->m_commandWindow = 0;
 
+    delete d->m_snapshotHandler;
+    d->m_snapshotHandler = 0;
+
     delete d;
 }
 
