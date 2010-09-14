@@ -757,6 +757,7 @@ public:
         { UNDO_DEBUG("JOIN"); cursor().joinPreviousEditBlock(); }
     void breakEditBlock() {
         QTextCursor tc = cursor();
+        tc.clearSelection();
         tc.beginEditBlock();
         tc.insertText("x");
         tc.deletePreviousChar();
@@ -2063,8 +2064,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
     } else if (input.is('A')) {
         setUndoPosition(position());
         breakEditBlock();
-        enterInsertMode();
         moveBehindEndOfLine();
+        enterInsertMode();
         setDotCommand(QString(QLatin1Char('A')));
         m_lastInsertion.clear();
         updateMiniBuffer();
