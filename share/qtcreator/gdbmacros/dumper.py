@@ -89,6 +89,13 @@ def isGoodGdb():
     #   and gdb.VERSION != "6.8.50.20090630-cvs"
     return 'parse_and_eval' in __builtin__.dir(gdb)
 
+def hasInferiorThreadList():
+    try:
+        a= gdb.inferiors()[0].threads()
+        return True
+    except:
+        return False
+
 typeCache = {}
 
 def lookupType(typestring):
@@ -912,6 +919,7 @@ def bbsetup():
     for key, value in qqFormats.items():
         result += '{type="%s",formats="%s"},' % (key, value)
     result += '],namespace="%s"' % qqNs
+    result += ',hasInferiorThreadList="%s"' % int(hasInferiorThreadList())
     return result
 
 
@@ -1715,7 +1723,6 @@ class ThreadNamesCommand(gdb.Command):
                 if e.name() == self.ns + "QThreadPrivate::start":
                     thrptr = e.read_var("thr").dereference()
                     d_ptr = thrptr["d_ptr"]["d"].cast(lookupType(self.ns + "QObjectPrivate").pointer()).dereference()
-                    #warn("D_PTR: %s " % d_ptr)
                     objectName = d_ptr["objectName"]
                     i = 0
                     out += '{valueencoded="' + str(Hex4EncodedLittleEndianWithoutQuotes)+'",id="'

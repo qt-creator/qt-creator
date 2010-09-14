@@ -1538,6 +1538,8 @@ void GdbEngine::handleHasPython(const GdbResponse &response)
             formats.append(reported.split(_(","), QString::SkipEmptyParts));
             watchHandler()->addTypeFormats(type, formats);
         }
+        const GdbMi hasInferiorThreadList = data.findChild("hasInferiorThreadList");
+        m_hasInferiorThreadList = (hasInferiorThreadList.data().toInt() != 0);
     } else {
         m_hasPython = false;
         if (m_gdbAdapter->dumperHandling()
@@ -2963,7 +2965,8 @@ void GdbEngine::handleThreadInfo(const GdbResponse &response)
             response.data.findChild("current-thread-id").data().toInt();
         threadsHandler()->setCurrentThreadId(currentThreadId);
         plugin()->updateState(this); // Adjust Threads combobox.
-        postCommand("threadnames " + theDebuggerAction(MaximalStackDepth)->value().toByteArray(), CB(handleThreadNames), id);
+        if (m_hasInferiorThreadList)
+            postCommand("threadnames " + theDebuggerAction(MaximalStackDepth)->value().toByteArray(), CB(handleThreadNames), id);
     } else {
         // Fall back for older versions: Try to get at least a list
         // of running threads.

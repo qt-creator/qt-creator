@@ -302,6 +302,7 @@ private: ////////// Gdb Output, State & Capability Handling //////////
     int m_gdbBuildVersion; // MAC only?
     bool m_isMacGdb;
     bool m_hasPython;
+    bool m_hasInferiorThreadList;
 
 private: ////////// Inferior Management //////////
 
