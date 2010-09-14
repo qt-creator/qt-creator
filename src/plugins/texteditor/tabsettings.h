@@ -52,11 +52,11 @@ public:
         TabLeadingWhitespaceIndents = 2
     };
 
-    // This enum must match the indexes of paddingMode widget
-    enum PaddingMode {
-        DisablePadding = 0,
-        PadWithSpaces = 1,
-        PadWithIndent = 2
+    // This enum must match the indexes of continuationAlignBehavior widget
+    enum ContinuationAlignBehavior {
+        NoContinuationAlign = 0,
+        ContinuationAlignWithSpaces = 1,
+        ContinuationAlignWithIndent = 2
     };
 
     TabSettings();
@@ -96,7 +96,7 @@ public:
     bool m_indentBraces;
     bool m_doubleIndentBlocks;
     TabKeyBehavior m_tabKeyBehavior;
-    PaddingMode m_paddingMode;
+    ContinuationAlignBehavior m_continuationAlignBehavior;
 
     bool equals(const TabSettings &ts) const;
 };

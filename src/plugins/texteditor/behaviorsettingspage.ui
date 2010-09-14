@@ -206,36 +206,54 @@
          </widget>
         </item>
         <item row="1" column="0">
-         <widget class="QLabel" name="paddingStyleLabel">
+         <widget class="QLabel" name="continuationAlignLabel">
           <property name="text">
-           <string>Padding style:</string>
+           <string>Align continuation lines:</string>
           </property>
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QComboBox" name="paddingMode">
+         <widget class="QComboBox" name="continuationAlignBehavior">
           <property name="toolTip">
-           <string>Padding is the part of indentation exceeding logical indentation and is usually used to align consecutive lines of code.
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+Influences the indentation of continuation lines.
 
-Disable Padding: Do not pad at all. Lines will only be indented to the current logical indentation depth.
+&lt;ul&gt;
+&lt;li&gt;Not At All: Do not align at all. Lines will only be indented to the current logical indentation depth.
+&lt;pre&gt;
+(tab)int i = foo(a, b
+(tab)c, d);
+&lt;/pre&gt;
+&lt;/li&gt;
 
-Pad With Spaces: Always use spaces for padding, regardless of the choice between tabs and spaces above.
+&lt;li&gt;With Spaces: Always use spaces for alignment, regardless of the other indentation settings.
+&lt;pre&gt;
+(tab)int i = foo(a, b
+(tab)            c, d);
+&lt;/pre&gt;
+&lt;/li&gt;
 
-Pad With Indentation: Padding will be part of the indentation and follow the settings above.</string>
+&lt;li&gt;With Regular Indent: Use tabs and/or spaces for alignment, as configured above.
+&lt;pre&gt;
+(tab)int i = foo(a, b
+(tab)(tab)(tab)  c, d);
+&lt;/pre&gt;
+&lt;/li&gt;
+&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <item>
            <property name="text">
-            <string>Disable Padding</string>
+            <string>Not At All</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>Pad With Spaces</string>
+            <string>With Spaces</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>Pad With Indentation</string>
+            <string>With Regular Indent</string>
            </property>
           </item>
          </widget>

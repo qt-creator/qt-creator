@@ -59,7 +59,7 @@ TabSettings::TabSettings() :
     m_indentBraces(false),
     m_doubleIndentBlocks(false),
     m_tabKeyBehavior(TabNeverIndents),
-    m_paddingMode(PadWithSpaces)
+    m_continuationAlignBehavior(ContinuationAlignWithSpaces)
 {
 }
 
@@ -78,7 +78,7 @@ void TabSettings::toSettings(const QString &category, QSettings *s) const
     s->setValue(QLatin1String(indentBracesKey), m_indentBraces);
     s->setValue(QLatin1String(doubleIndentBlocksKey), m_doubleIndentBlocks);
     s->setValue(QLatin1String(tabKeyBehaviorKey), m_tabKeyBehavior);
-    s->setValue(QLatin1String(paddingModeKey), m_paddingMode);
+    s->setValue(QLatin1String(paddingModeKey), m_continuationAlignBehavior);
     s->endGroup();
 }
 
@@ -102,7 +102,7 @@ void TabSettings::fromSettings(const QString &category, const QSettings *s)
 			= s->value(group + QLatin1String(doubleIndentBlocksKey), m_doubleIndentBlocks).toBool();
 
     m_tabKeyBehavior    = (TabKeyBehavior)s->value(group + QLatin1String(tabKeyBehaviorKey), m_tabKeyBehavior).toInt();
-    m_paddingMode       = (PaddingMode)s->value(group + QLatin1String(paddingModeKey), m_paddingMode).toInt();
+    m_continuationAlignBehavior       = (ContinuationAlignBehavior)s->value(group + QLatin1String(paddingModeKey), m_continuationAlignBehavior).toInt();
 }
 
 
@@ -323,10 +323,10 @@ void TabSettings::indentLine(QTextBlock block, int newIndent, int padding) const
     const QString text = block.text();
     const int oldBlockLength = text.size();
 
-    if (m_paddingMode == DisablePadding) {
+    if (m_continuationAlignBehavior == NoContinuationAlign) {
         newIndent -= padding;
         padding = 0;
-    } else if (m_paddingMode == PadWithIndent) {
+    } else if (m_continuationAlignBehavior == ContinuationAlignWithIndent) {
         padding = 0;
     }
 
@@ -400,7 +400,7 @@ bool TabSettings::equals(const TabSettings &ts) const
         && m_indentBraces == ts.m_indentBraces
 	&& m_doubleIndentBlocks == ts.m_doubleIndentBlocks
         && m_tabKeyBehavior == ts.m_tabKeyBehavior
-        && m_paddingMode == ts.m_paddingMode;
+        && m_continuationAlignBehavior == ts.m_continuationAlignBehavior;
 }
 
 } // namespace TextEditor
