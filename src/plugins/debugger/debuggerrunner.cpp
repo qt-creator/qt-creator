@@ -227,14 +227,32 @@ QWidget *DebuggerRunControlFactory::createConfigurationWidget
 //
 ////////////////////////////////////////////////////////////////////////
 
-DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
-        DebuggerEngineType enabledEngines, const DebuggerStartParameters &sp)
-    : RunControl(runConfiguration, ProjectExplorer::Constants::DEBUGMODE)
-    , m_myRunConfiguration(runConfiguration)
+struct DebuggerRunnerPrivate {
+    explicit DebuggerRunnerPrivate(RunConfiguration *runConfiguration,
+                                   DebuggerEngineType enabledEngines);
+
+    DebuggerEngine *m_engine;
+    const QWeakPointer<RunConfiguration> m_myRunConfiguration;
+    bool m_running;
+    bool m_started;
+    const DebuggerEngineType m_enabledEngines;
+    QString m_errorMessage;
+    QString m_settingsIdHint;
+};
+
+DebuggerRunnerPrivate::DebuggerRunnerPrivate(RunConfiguration *runConfiguration,
+                                             DebuggerEngineType enabledEngines) :
+      m_myRunConfiguration(runConfiguration)
     , m_running(false)
     , m_started(false)
     , m_enabledEngines(enabledEngines)
+{
+}
 
+DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
+        DebuggerEngineType enabledEngines, const DebuggerStartParameters &sp)
+    : RunControl(runConfiguration, ProjectExplorer::Constants::DEBUGMODE),
+      d(new DebuggerRunnerPrivate(runConfiguration, enabledEngines))
 {
     connect(this, SIGNAL(finished()), this, SLOT(handleFinished()));
     DebuggerStartParameters startParams = sp;
@@ -244,16 +262,16 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
 DebuggerRunControl::~DebuggerRunControl()
 {
     disconnect();
-    DebuggerEngine *engine = m_engine;
-    m_engine = 0;
+    DebuggerEngine *engine = d->m_engine;
+    d->m_engine = 0;
     engine->disconnect();
     delete engine;
 }
 
 const DebuggerStartParameters &DebuggerRunControl::startParameters() const
 {
-    QTC_ASSERT(m_engine, return *(new DebuggerStartParameters()));
-    return m_engine->startParameters();
+    QTC_ASSERT(d->m_engine, return *(new DebuggerStartParameters()));
+    return d->m_engine->startParameters();
 }
 
 static DebuggerEngineType engineForToolChain(int toolChainType)
@@ -290,21 +308,21 @@ static DebuggerEngineType engineForToolChain(int toolChainType)
 DebuggerEngineType DebuggerRunControl::engineForExecutable(const QString &executable)
 {
     if (executable.endsWith(_("qmlviewer"))) {
-        if (m_enabledEngines & QmlEngineType)
+        if (d->m_enabledEngines & QmlEngineType)
             return QmlEngineType;
-        m_errorMessage = msgEngineNotAvailable("Qml Engine");
+        d->m_errorMessage = msgEngineNotAvailable("Qml Engine");
     }
 
     if (executable.endsWith(_(".js"))) {
-        if (m_enabledEngines & ScriptEngineType)
+        if (d->m_enabledEngines & ScriptEngineType)
             return ScriptEngineType;
-        m_errorMessage = msgEngineNotAvailable("Script Engine");
+        d->m_errorMessage = msgEngineNotAvailable("Script Engine");
     }
 
     if (executable.endsWith(_(".py"))) {
-        if (m_enabledEngines & PdbEngineType)
+        if (d->m_enabledEngines & PdbEngineType)
             return PdbEngineType;
-        m_errorMessage = msgEngineNotAvailable("Pdb Engine");
+        d->m_errorMessage = msgEngineNotAvailable("Pdb Engine");
     }
 
 #ifdef Q_OS_WIN
@@ -314,9 +332,9 @@ DebuggerEngineType DebuggerRunControl::engineForExecutable(const QString &execut
 
     // If a file has PDB files, it has been compiled by VS.
     QStringList pdbFiles;
-    if (!getPDBFiles(executable, &pdbFiles, &m_errorMessage)) {
+    if (!getPDBFiles(executable, &pdbFiles, &d->m_errorMessage)) {
         qWarning("Cannot determine type of executable %s: %s",
-                 qPrintable(executable), qPrintable(m_errorMessage));
+                 qPrintable(executable), qPrintable(d->m_errorMessage));
         return NoEngineType;
     }
     if (pdbFiles.empty())
@@ -324,12 +342,12 @@ DebuggerEngineType DebuggerRunControl::engineForExecutable(const QString &execut
 
     // We need the CDB debugger in order to be able to debug VS
     // executables
-    if (checkDebugConfiguration(ToolChain::MSVC, &m_errorMessage, 0, &m_settingsIdHint))
+    if (checkDebugConfiguration(ToolChain::MSVC, &d->m_errorMessage, 0, &d->m_settingsIdHint))
         return CdbEngineType;
 #else
-    if (m_enabledEngines & GdbEngineType)
+    if (d->m_enabledEngines & GdbEngineType)
         return GdbEngineType;
-    m_errorMessage = msgEngineNotAvailable("Gdb Engine");
+    d->m_errorMessage = msgEngineNotAvailable("Gdb Engine");
 #endif
 
     return NoEngineType;
@@ -346,11 +364,11 @@ DebuggerEngineType DebuggerRunControl::engineForMode(DebuggerStartMode startMode
     if (startMode != AttachToRemote)
         return CdbEngineType;
     return GdbEngineType;
-    m_errorMessage = msgEngineNotAvailable("Gdb Engine");
+    d->m_errorMessage = msgEngineNotAvailable("Gdb Engine");
     return NoEngineType;
 #else
     Q_UNUSED(startMode)
-    //  m_errorMessage = msgEngineNotAvailable("Gdb Engine");
+    //  d->m_errorMessage = msgEngineNotAvailable("Gdb Engine");
     return GdbEngineType;
 #endif
 }
@@ -400,26 +418,26 @@ void DebuggerRunControl::createEngine(const DebuggerStartParameters &startParams
 
     switch (engineType) {
         case GdbEngineType:
-            m_engine = createGdbEngine(sp);
-            initGdbEngine(qobject_cast<Internal::GdbEngine *>(m_engine));
+            d->m_engine = createGdbEngine(sp);
+            initGdbEngine(qobject_cast<Internal::GdbEngine *>(d->m_engine));
             break;
         case ScriptEngineType:
-            m_engine = Internal::createScriptEngine(sp);
+            d->m_engine = Internal::createScriptEngine(sp);
             break;
         case CdbEngineType:
-            m_engine = Internal::createCdbEngine(sp);
+            d->m_engine = Internal::createCdbEngine(sp);
             break;
         case PdbEngineType:
-            m_engine = Internal::createPdbEngine(sp);
+            d->m_engine = Internal::createPdbEngine(sp);
             break;
         case TcfEngineType:
-            m_engine = Internal::createTcfEngine(sp);
+            d->m_engine = Internal::createTcfEngine(sp);
             break;
         case QmlEngineType:
-            m_engine = Internal::createQmlEngine(sp);
+            d->m_engine = Internal::createQmlEngine(sp);
             break;
         case QmlCppEngineType:
-            m_engine = Internal::createQmlCppEngine(sp);
+            d->m_engine = Internal::createQmlCppEngine(sp);
             if (Internal::GdbEngine *embeddedGdbEngine = gdbEngine())
                 initGdbEngine(embeddedGdbEngine);
             break;
@@ -428,10 +446,10 @@ void DebuggerRunControl::createEngine(const DebuggerStartParameters &startParams
             debuggingFinished();
             // Create Message box with possibility to go to settings
             const QString msg = tr("Cannot debug '%1' (tool chain: '%2'): %3")
-                .arg(sp.executable, toolChainName(sp.toolChainType), m_errorMessage);
+                .arg(sp.executable, toolChainName(sp.toolChainType), d->m_errorMessage);
             Core::ICore::instance()->showWarningWithOptions(tr("Warning"),
                 msg, QString(), QLatin1String(Constants::DEBUGGER_SETTINGS_CATEGORY),
-                m_settingsIdHint);
+                d->m_settingsIdHint);
             break;
         }
     }
@@ -454,13 +472,13 @@ void DebuggerRunControl::initGdbEngine(Internal::GdbEngine *engine)
 
 QString DebuggerRunControl::displayName() const
 {
-    QTC_ASSERT(m_engine, return QString());
-    return m_engine->startParameters().displayName;
+    QTC_ASSERT(d->m_engine, return QString());
+    return d->m_engine->startParameters().displayName;
 }
 
 void DebuggerRunControl::setCustomEnvironment(ProjectExplorer::Environment env)
 {
-    m_engine->startParameters().environment = env.toStringList();
+    d->m_engine->startParameters().environment = env.toStringList();
 }
 
 bool DebuggerRunControl::checkDebugConfiguration(int toolChain,
@@ -506,8 +524,8 @@ bool DebuggerRunControl::checkDebugConfiguration(int toolChain,
 
 void DebuggerRunControl::start()
 {
-    QTC_ASSERT(m_engine, return);
-    const DebuggerStartParameters &sp = m_engine->startParameters();
+    QTC_ASSERT(d->m_engine, return);
+    const DebuggerStartParameters &sp = d->m_engine->startParameters();
 
     QString errorMessage;
     QString settingsCategory;
@@ -526,13 +544,13 @@ void DebuggerRunControl::start()
     DebuggerUISwitcher::instance()->aboutToStartDebugger();
 
     const QString message = tr("Starting debugger '%1' for tool chain '%2'...").
-                  arg(m_engine->objectName(), toolChainName(sp.toolChainType));
+                  arg(d->m_engine->objectName(), toolChainName(sp.toolChainType));
     plugin()->showMessage(message, StatusBar);
     plugin()->showMessage(DebuggerSettings::instance()->dump(), LogDebug);
     plugin()->runControlStarted(this);
 
     engine()->startDebugger(this);
-    m_running = true;
+    d->m_running = true;
     emit addToOutputWindowInline(this, tr("Debugging starts"), false);
     emit addToOutputWindowInline(this, "\n", false);
     emit started();
@@ -541,7 +559,7 @@ void DebuggerRunControl::start()
 void DebuggerRunControl::startFailed()
 {
     emit addToOutputWindowInline(this, tr("Debugging has failed"), false);
-    m_running = false;
+    d->m_running = false;
     emit finished();
     engine()->handleStartFailed();
 }
@@ -586,40 +604,40 @@ bool DebuggerRunControl::aboutToStop() const
 
 RunControl::StopResult DebuggerRunControl::stop()
 {
-    QTC_ASSERT(m_engine, return StoppedSynchronously);
-    m_engine->quitDebugger();
+    QTC_ASSERT(d->m_engine, return StoppedSynchronously);
+    d->m_engine->quitDebugger();
     return AsynchronousStop;
 }
 
 void DebuggerRunControl::debuggingFinished()
 {
-    m_running = false;
+    d->m_running = false;
     emit finished();
 }
 
 bool DebuggerRunControl::isRunning() const
 {
-    return m_running;
+    return d->m_running;
 }
 
 DebuggerState DebuggerRunControl::state() const
 {
-    QTC_ASSERT(m_engine, return DebuggerNotReady);
-    return m_engine->state();
+    QTC_ASSERT(d->m_engine, return DebuggerNotReady);
+    return d->m_engine->state();
 }
 
 DebuggerEngine *DebuggerRunControl::engine()
 {
-    QTC_ASSERT(m_engine, /**/);
-    return m_engine;
+    QTC_ASSERT(d->m_engine, /**/);
+    return d->m_engine;
 }
 
 Internal::GdbEngine *DebuggerRunControl::gdbEngine() const
 {
-    QTC_ASSERT(m_engine, return 0);
-    if (GdbEngine *gdbEngine = qobject_cast<GdbEngine *>(m_engine))
+    QTC_ASSERT(d->m_engine, return 0);
+    if (GdbEngine *gdbEngine = qobject_cast<GdbEngine *>(d->m_engine))
         return gdbEngine;
-    if (QmlCppEngine * const qmlEngine = qobject_cast<QmlCppEngine *>(m_engine))
+    if (QmlCppEngine * const qmlEngine = qobject_cast<QmlCppEngine *>(d->m_engine))
         if (Internal::GdbEngine *embeddedGdbEngine = qobject_cast<GdbEngine *>(qmlEngine->cppEngine()))
             return embeddedGdbEngine;
     return 0;
@@ -666,5 +684,10 @@ void DebuggerRunControl::emitAddToOutputWindow(const QString &line, bool onStdEr
 void DebuggerRunControl::emitAppendMessage(const QString &m, bool isError)
 {
     emit appendMessage(this, m, isError);
+}
+
+RunConfiguration *DebuggerRunControl::runConfiguration() const
+{
+    return d->m_myRunConfiguration.data();
 }
 } // namespace Debugger

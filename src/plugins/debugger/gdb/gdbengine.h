@@ -82,7 +82,7 @@ enum DebuggingHelperState
 };
 
 
-class DEBUGGER_EXPORT GdbEngine : public Debugger::DebuggerEngine
+class GdbEngine : public Debugger::DebuggerEngine
 {
     Q_OBJECT
 

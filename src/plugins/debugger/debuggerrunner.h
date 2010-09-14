@@ -35,6 +35,8 @@
 
 #include <projectexplorer/runconfiguration.h>
 
+#include <QtCore/QScopedPointer>
+
 namespace ProjectExplorer {
 class Environment;
 }
@@ -44,6 +46,7 @@ class DebuggerEngine;
 class DebuggerRunControl;
 class QmlEngine;
 class DebuggerStartParameters;
+struct DebuggerRunnerPrivate;
 
 namespace Internal {
 class GdbEngine;
@@ -106,7 +109,7 @@ public:
 
     void startFailed();
     void debuggingFinished();
-    RunConfiguration *runConfiguration() const { return m_myRunConfiguration.data(); }
+    RunConfiguration *runConfiguration() const;
 
     DebuggerState state() const;
     DebuggerEngine *engine();
@@ -141,13 +144,7 @@ private:
     Internal::GdbEngine *gdbEngine() const;
     Internal::AbstractGdbAdapter *gdbAdapter() const;
 
-    DebuggerEngine *m_engine;
-    const QWeakPointer<RunConfiguration> m_myRunConfiguration;
-    bool m_running;
-    bool m_started;
-    DebuggerEngineType m_enabledEngines;
-    QString m_errorMessage;
-    QString m_settingsIdHint;
+    QScopedPointer<DebuggerRunnerPrivate> d;
 };
 
 } // namespace Debugger
