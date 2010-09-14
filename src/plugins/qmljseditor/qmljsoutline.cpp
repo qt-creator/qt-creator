@@ -10,6 +10,7 @@
 #include <QtCore/QSettings>
 #include <QtGui/QAction>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QTextBlock>
 
 using namespace QmlJS;
 
@@ -163,7 +164,6 @@ void QmlJSOutlineWidget::updateSelectionInText(const QItemSelection &selection)
     if (!syncCursor())
         return;
 
-
     if (!selection.indexes().isEmpty()) {
         QModelIndex index = selection.indexes().first();
         QModelIndex sourceIndex = m_filterModel->mapToSource(index);
@@ -171,6 +171,11 @@ void QmlJSOutlineWidget::updateSelectionInText(const QItemSelection &selection)
         AST::SourceLocation location = m_editor->outlineModel()->sourceLocation(sourceIndex);
 
         if (!location.isValid())
+            return;
+
+        const QTextBlock lastBlock = m_editor->document()->lastBlock();
+        const uint textLength = lastBlock.position() + lastBlock.length();
+        if (location.offset >= textLength)
             return;
 
         Core::EditorManager *editorManager = Core::EditorManager::instance();
