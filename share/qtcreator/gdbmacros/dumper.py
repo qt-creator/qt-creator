@@ -1721,9 +1721,9 @@ class ThreadNamesCommand(gdb.Command):
 
     def __init__(self):
         super(ThreadNamesCommand, self).__init__("threadnames", gdb.COMMAND_OBSCURE)
-        self.ns = qtNamespace()
 
     def invoke(self, arg, from_tty):
+        ns = qtNamespace()
         out = '['
         for thread in gdb.inferiors()[0].threads():
             maximalStackDepth = int(arg)
@@ -1736,12 +1736,13 @@ class ThreadNamesCommand(gdb.Command):
                 e = e.older()
                 if e == None or e.name() == None:
                     break
-                if e.name() == self.ns + "QThreadPrivate::start":
+                if e.name() == ns + "QThreadPrivate::start":
                     thrptr = e.read_var("thr").dereference()
-                    d_ptr = thrptr["d_ptr"]["d"].cast(lookupType(self.ns + "QObjectPrivate").pointer()).dereference()
+                    obtype = lookupType(ns + "QObjectPrivate").pointer()
+                    d_ptr = thrptr["d_ptr"]["d"].cast(obtype).dereference()
                     objectName = d_ptr["objectName"]
-                    i = 0
-                    out += '{valueencoded="' + str(Hex4EncodedLittleEndianWithoutQuotes)+'",id="'
+                    out += '{valueencoded="';
+                    out += str(Hex4EncodedLittleEndianWithoutQuotes)+'",id="'
                     out += str(thread.num) + '",value="'
                     out += encodeString(objectName)
                     out += '"},'
