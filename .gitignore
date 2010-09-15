@@ -76,7 +76,7 @@ bin/qtcreator
 bin/qtcreator_process_stub*
 bin/qtcreator.exe
 share/doc/qtcreator/qtcreator.qch
-tests/manual/cplusplus/cplusplus0
+tests/manual/cplusplus-frontend/cplusplus0
 tests/manual/cplusplus-dump/cplusplus0
 tests/manual/qml-ast2dot/qml-ast2dot
 tests/auto/cplusplus/codegen/tst_codegen
@@ -84,5 +84,5 @@ tests/auto/qml/qmldesigner/bauhaustests/tst_bauhaus
 tests/auto/qml/qmldesigner/coretests/tst_qmldesigner_core
 tests/auto/qml/qmldesigner/propertyeditortests/tst_propertyeditor
 tests/auto/profilewriter/tst_profilewriter
-src/tools/cplusplus/generate-ast
+src/tools/gen-cpp-ast/generate-ast
 src/tools/qml/qmldump/qmldump
