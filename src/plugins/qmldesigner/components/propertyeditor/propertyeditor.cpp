@@ -540,7 +540,7 @@ void PropertyEditor::timerEvent(QTimerEvent *timerEvent)
     }
 }
 
-QString templateGeneration(NodeMetaInfo type, NodeMetaInfo superType)
+QString templateGeneration(NodeMetaInfo type, NodeMetaInfo superType, const QmlObjectNode &objectNode)
 {
     QString qmlTemplate = QLatin1String("import Qt 4.7\nimport Bauhaus 1.0\n");
     qmlTemplate += QLatin1String("GroupBox {\n");
@@ -556,28 +556,33 @@ QString templateGeneration(NodeMetaInfo type, NodeMetaInfo superType)
         QString properName = name;
         properName.replace(".", "_");
 
+        QString typeName = propertyMetaInfo.type();
+        //alias resolution only possible with instance
+            if (typeName == QLatin1String("alias") && objectNode.isValid())
+                typeName = objectNode.instanceType(name);
+
         if (!superType.hasProperty(name, true)) {
-            if (propertyMetaInfo.type() == "int") {
+            if (typeName == "int") {
                 qmlTemplate +=  QString(QLatin1String(
                 "IntEditor { backendValue: backendValues.%2\n caption: \"%1\"\nbaseStateFlag: isBaseState\nslider: false\n}"
                 )).arg(name).arg(properName);
             }
-            if (propertyMetaInfo.type() == "real" || propertyMetaInfo.type() == "double" || propertyMetaInfo.type() == "qreal") {
+            if (typeName == "real" || typeName == "double" || typeName == "qreal") {
                 qmlTemplate +=  QString(QLatin1String(
                 "DoubleSpinBoxAlternate {\ntext: \"%1\"\nbackendValue: backendValues.%2\nbaseStateFlag: isBaseState\n}\n"
                 )).arg(name).arg(properName);
             }
-            if (propertyMetaInfo.type() == "string") {
+            if (typeName == "string") {
                  qmlTemplate +=  QString(QLatin1String(
                 "QWidget {\nlayout: HorizontalLayout {\nLabel {\ntext: \"%1\"\ntoolTip: \"%1\"\n}\nLineEdit {\nbackendValue: backendValues.%2\nbaseStateFlag: isBaseState\n}\n}\n}\n"
                 )).arg(name).arg(properName);
             }
-            if (propertyMetaInfo.type() == "bool") {
+            if (typeName == "bool") {
                  qmlTemplate +=  QString(QLatin1String(
                  "QWidget {\nlayout: HorizontalLayout {\nLabel {\ntext: \"%1\"\ntoolTip: \"%1\"\n}\nCheckBox {text: backendValues.%2.value\nbackendValue: backendValues.%2\nbaseStateFlag: isBaseState\ncheckable: true\n}\n}\n}\n"
                  )).arg(name).arg(properName);
             }
-            if (propertyMetaInfo.type() == "color" || propertyMetaInfo.type() == "QColor") {
+            if (typeName == "color" || typeName == "QColor") {
                 qmlTemplate +=  QString(QLatin1String(
                 "ColorGroupBox {\ncaption: \"%1\"\nfinished: finishedNotify\nbackendColor: backendValues.%2\n}\n\n"
                 )).arg(name).arg(properName);
@@ -616,10 +621,10 @@ void PropertyEditor::resetView()
 
     if (m_selectedNode.isValid() && !QFileInfo(qmlSpecificsFile.toLocalFile()).exists() && m_selectedNode.metaInfo().isValid()) {
         //do magic !!
-        specificQmlData = templateGeneration(m_selectedNode.metaInfo(), model()->metaInfo().nodeMetaInfo(specificsClassName));
+        specificQmlData = templateGeneration(m_selectedNode.metaInfo(), model()->metaInfo().nodeMetaInfo(specificsClassName), m_selectedNode);
     }
 
-    NodeType *type = m_typeHash.value(qmlFile.toString());    
+    NodeType *type = m_typeHash.value(qmlFile.toString());
 
     if (!type) {
         type = new NodeType(this);
