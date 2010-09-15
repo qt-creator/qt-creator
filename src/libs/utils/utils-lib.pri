@@ -46,7 +46,8 @@ SOURCES += $$PWD/reloadpromptutils.cpp \
     $$PWD/htmldocextractor.cpp \
     $$PWD/navigationtreeview.cpp \
     $$PWD/crumblepath.cpp \
-    $$PWD/debuggerlanguagechooser.cpp
+    $$PWD/debuggerlanguagechooser.cpp \
+    $$PWD/historycompleter.cpp
 
 win32 {
     SOURCES += $$PWD/abstractprocess_win.cpp \
@@ -104,7 +105,8 @@ HEADERS += $$PWD/utils_global.h \
     $$PWD/htmldocextractor.h \
     $$PWD/navigationtreeview.h \
     $$PWD/crumblepath.h \
-    $$PWD/debuggerlanguagechooser.h
+    $$PWD/debuggerlanguagechooser.h \
+    $$PWD/historycompleter.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \
