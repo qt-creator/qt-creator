@@ -39,6 +39,7 @@ RvctParser::RvctParser() :
     m_additionalInfo(false),
     m_lastLine(0)
 {
+    setObjectName(QLatin1String("RvctParser"));
     // Start of a error or warning:
     m_warningOrError.setPattern("^\"([^\\(\\)]+[^\\d])\", line (\\d+):(\\s(Warning|Error):)\\s(.+)$");
     m_warningOrError.setMinimal(true);

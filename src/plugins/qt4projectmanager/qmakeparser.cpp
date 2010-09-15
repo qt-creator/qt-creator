@@ -40,6 +40,7 @@ using ProjectExplorer::Task;
 
 QMakeParser::QMakeParser()
 {
+    setObjectName(QLatin1String("QMakeParser"));
 }
 
 void QMakeParser::stdError(const QString &line)

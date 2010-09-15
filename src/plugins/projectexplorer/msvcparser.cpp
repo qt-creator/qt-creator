@@ -39,6 +39,7 @@ using namespace ProjectExplorer;
 
 MsvcParser::MsvcParser()
 {
+    setObjectName(QLatin1String("MavcParser"));
     m_compileRegExp.setPattern(QString::fromLatin1("^") + QLatin1String(FILE_POS_PATTERN)
                                + QLatin1String(" : .*(warning|error) (")
                                + QLatin1String(ERROR_PATTERN) + QLatin1String(".*)$"));

@@ -43,6 +43,7 @@ namespace {
 
 LdParser::LdParser()
 {
+    setObjectName(QLatin1String("LdParser"));
     m_regExpLinker.setPattern(QString::fromLatin1(FILE_PATTERN) + '(' + QLatin1String(POSITION_PATTERN) + ")?\\s(.+)$");
     m_regExpLinker.setMinimal(true);
 

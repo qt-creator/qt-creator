@@ -37,6 +37,7 @@ using namespace ProjectExplorer::Constants;
 
 WinscwParser::WinscwParser()
 {
+    setObjectName(QLatin1String("WinscwParser"));
     // linker problems:
     m_linkerProblem.setPattern("^(\\S*)\\(\\S+\\):\\s(.+)$");
     m_linkerProblem.setMinimal(true);

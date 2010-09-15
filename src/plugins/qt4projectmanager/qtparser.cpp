@@ -45,6 +45,7 @@ namespace {
 
 QtParser::QtParser()
 {
+    setObjectName(QLatin1String("QtParser"));
     m_mocRegExp.setPattern(QString::fromLatin1(FILE_PATTERN) + "(\\d+):\\s(Warning|Error):\\s(.+)$");
     m_mocRegExp.setMinimal(true);
 }
@@ -102,7 +103,21 @@ void Qt4ProjectManagerPlugin::testQtOutputParser_data()
             << QString() << QString::fromLatin1("Sometext")
             << QList<ProjectExplorer::Task>()
             << QString();
-
+    QTest::newRow("pass-through gcc infos")
+            << QString::fromLatin1("/temp/test/untitled8/main.cpp: In function `int main(int, char**)':\n"
+                                   "../../scriptbug/main.cpp: At global scope:\n"
+                                   "../../scriptbug/main.cpp: In instantiation of void bar(i) [with i = double]:\n"
+                                   "../../scriptbug/main.cpp:8: instantiated from void foo(i) [with i = double]\n"
+                                   "../../scriptbug/main.cpp:22: instantiated from here\n")
+            << OutputParserTester::STDERR
+            << QString()
+            << QString::fromLatin1("/temp/test/untitled8/main.cpp: In function `int main(int, char**)':\n"
+                                   "../../scriptbug/main.cpp: At global scope:\n"
+                                   "../../scriptbug/main.cpp: In instantiation of void bar(i) [with i = double]:\n"
+                                   "../../scriptbug/main.cpp:8: instantiated from void foo(i) [with i = double]\n"
+                                   "../../scriptbug/main.cpp:22: instantiated from here\n")
+            << QList<ProjectExplorer::Task>()
+            << QString();
     QTest::newRow("moc warning")
             << QString::fromLatin1("..\\untitled\\errorfile.h:0: Warning: No relevant classes found. No output generated.")
             << OutputParserTester::STDERR

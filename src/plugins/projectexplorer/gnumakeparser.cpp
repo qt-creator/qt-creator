@@ -46,6 +46,7 @@ GnuMakeParser::GnuMakeParser(const QString &dir) :
     m_suppressIssues(false),
     m_fatalErrorCount(0)
 {
+    setObjectName(QLatin1String("GnuMakeParser"));
     m_makeDir.setPattern(QLatin1String(MAKE_PATTERN) +
                          QLatin1String("(\\w+) directory .(.+).$"));
     m_makeDir.setMinimal(true);
@@ -206,6 +207,24 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
             << QList<Task>()
             << QString()
             << QStringList();
+    QTest::newRow("pass-through gcc infos")
+            << QStringList()
+            << QString::fromLatin1("/temp/test/untitled8/main.cpp: In function `int main(int, char**)':\n"
+                                   "../../scriptbug/main.cpp: At global scope:\n"
+                                   "../../scriptbug/main.cpp: In instantiation of void bar(i) [with i = double]:\n"
+                                   "../../scriptbug/main.cpp:8: instantiated from void foo(i) [with i = double]\n"
+                                   "../../scriptbug/main.cpp:22: instantiated from here\n")
+            << OutputParserTester::STDERR
+            << QString()
+            << QString::fromLatin1("/temp/test/untitled8/main.cpp: In function `int main(int, char**)':\n"
+                                   "../../scriptbug/main.cpp: At global scope:\n"
+                                   "../../scriptbug/main.cpp: In instantiation of void bar(i) [with i = double]:\n"
+                                   "../../scriptbug/main.cpp:8: instantiated from void foo(i) [with i = double]\n"
+                                   "../../scriptbug/main.cpp:22: instantiated from here\n")
+            << QList<ProjectExplorer::Task>()
+            << QString()
+            << QStringList();
+
     // make sure adding directories works (once;-)
     QTest::newRow("entering directory")
             << (QStringList() << QString::fromLatin1("/test/dir") )
