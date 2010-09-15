@@ -250,11 +250,15 @@ bool TargetSetupPage::setupProject(Qt4ProjectManager::Qt4Project *project)
                 info.isTemporary = false;
             }
 
+            QString directory = info.directory;
+            if (!info.isShadowBuild)
+                directory = project->projectDirectory();
+
             // we want to havbe two BCs set up, one to build debug, the other to build release.
             targetInfos.append(BuildConfigurationInfo(info.version, info.buildConfig,
-                                                      info.additionalArguments, info.directory));
+                                                      info.additionalArguments, directory));
             targetInfos.append(BuildConfigurationInfo(info.version, info.buildConfig ^ QtVersion::DebugBuild,
-                                                      info.additionalArguments, info.directory));
+                                                      info.additionalArguments, directory));
         }
 
         // create the target:
