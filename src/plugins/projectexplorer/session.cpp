@@ -894,14 +894,14 @@ void SessionManager::handleCurrentEditorChange(Core::IEditor *editor)
 void SessionManager::updateWindowTitle()
 {
     QString windowTitle = tr("Qt Creator");
-    if (!isDefaultSession(m_sessionName)) {
+    if (isDefaultSession(m_sessionName)) {
+        if (Project *currentProject = ProjectExplorerPlugin::instance()->currentProject())
+            windowTitle.prepend(currentProject->displayName() + " - ");
+    } else {
         QString sessionName = m_sessionName;
         if (sessionName.isEmpty())
             sessionName = tr("Untitled");
         windowTitle.prepend(sessionName + " - ");
-    } else {
-        if (Project *currentProject = ProjectExplorerPlugin::instance()->currentProject())
-            windowTitle.prepend(currentProject->displayName() + " - ");
     }
     if (m_core->editorManager()->currentEditor()) {
         QFileInfo fi(m_core->editorManager()->currentEditor()->file()->fileName());
