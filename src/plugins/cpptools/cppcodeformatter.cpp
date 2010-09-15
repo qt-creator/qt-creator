@@ -477,6 +477,11 @@ void CodeFormatter::indentForNewLineAfter(const QTextBlock &block, int *indent, 
     restoreCurrentState(block);
     *indent = m_indentDepth;
     *padding = m_paddingDepth;
+
+    int lexerState = loadLexerState(block);
+    m_tokens.clear();
+    m_currentLine.clear();
+    adjustIndent(m_tokens, lexerState, indent, padding);
 }
 
 void CodeFormatter::updateStateUntil(const QTextBlock &endBlock)
