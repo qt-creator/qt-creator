@@ -2654,7 +2654,8 @@ void GdbEngine::handleModulesList(const GdbResponse &response)
     if (response.resultClass == GdbResultDone) {
         // That's console-based output, likely Linux or Windows,
         // but we can avoid the #ifdef here.
-        QString data = QString::fromLocal8Bit(response.data.findChild("consolestreamoutput").data());
+        QString data = QString::fromLocal8Bit(
+            response.data.findChild("consolestreamoutput").data());
         QTextStream ts(&data, QIODevice::ReadOnly);
         while (!ts.atEnd()) {
             QString line = ts.readLine();
