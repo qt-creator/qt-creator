@@ -35,7 +35,7 @@ using namespace ProjectExplorer;
 
 namespace {
     // opt. drive letter + filename: (2 brackets)
-    const char * const FILE_PATTERN = "^(([A-Za-z]:)?[^:]+\\.[^:]+):";
+    const char * const FILE_PATTERN = "(([A-Za-z]:)?[^:]+\\.[^:]+):";
     // line no. or elf segment + offset: (1 bracket)
     const char * const POSITION_PATTERN = "(\\d+|\\(\\.[a-zA-Z0-9]*.0x[a-fA-F0-9]+\\)):";
     const char * const COMMAND_PATTERN = "^(.*[\\\\/])?([a-z0-9]+-[a-z0-9]+-[a-z0-9]+-)?(ld|gold)(-[0-9\\.]+)?(\\.exe)?: ";
@@ -44,7 +44,10 @@ namespace {
 LdParser::LdParser()
 {
     setObjectName(QLatin1String("LdParser"));
-    m_regExpLinker.setPattern(QString::fromLatin1(FILE_PATTERN) + '(' + QLatin1String(POSITION_PATTERN) + ")?\\s(.+)$");
+    m_regExpLinker.setPattern(QString('^') +
+                              QString::fromLatin1(FILE_PATTERN) + '(' +
+                              QString::fromLatin1(FILE_PATTERN) + ")?(" +
+                              QLatin1String(POSITION_PATTERN) + ")?\\s(.+)$");
     m_regExpLinker.setMinimal(true);
 
     m_regExpGccNames.setPattern(COMMAND_PATTERN);
@@ -87,14 +90,15 @@ void LdParser::stdError(const QString &line)
         return;
     } else if (m_regExpLinker.indexIn(lne) > -1) {
         bool ok;
-        int lineno = m_regExpLinker.cap(4).toInt(&ok);
+        int lineno = m_regExpLinker.cap(7).toInt(&ok);
         if (!ok)
             lineno = -1;
-        QString description = m_regExpLinker.cap(5).trimmed();
-        Task task(Task::Error,
-                  description,
-                  m_regExpLinker.cap(1) /* filename */,
-                  lineno,
+        QString filename = m_regExpLinker.cap(1);
+        if (!m_regExpLinker.cap(4).isEmpty()
+            && !m_regExpLinker.cap(4).startsWith(QLatin1String("(.text+0x")))
+            filename = m_regExpLinker.cap(4);
+        QString description = m_regExpLinker.cap(8).trimmed();
+        Task task(Task::Error, description, filename, lineno,
                   Constants::TASK_CATEGORY_COMPILE);
         if (m_regExpInFunction.indexIn(description) > -1 ||
             description.startsWith(QLatin1String("At global scope")) ||

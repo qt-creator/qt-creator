@@ -606,6 +606,17 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                         Constants::TASK_CATEGORY_COMPILE))
             << QString();
 
+    QTest::newRow("Linker fail (release build)")
+            << QString::fromLatin1("release/main.o:main.cpp:(.text+0x42): undefined reference to `MainWindow::doSomething()'")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << ( QList<ProjectExplorer::Task>()
+                << Task(Task::Error,
+                        QLatin1String("undefined reference to `MainWindow::doSomething()'"),
+                        QLatin1String("main.cpp"), -1,
+                        Constants::TASK_CATEGORY_COMPILE))
+            << QString();
+
 }
 
 void ProjectExplorerPlugin::testGccOutputParsers()
