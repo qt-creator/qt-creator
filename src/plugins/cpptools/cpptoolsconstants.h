@@ -36,6 +36,7 @@ namespace CppTools {
 namespace Constants {
 
 const char * const M_TOOLS_CPP              = "CppTools.Tools.Menu";
+const char * const M_CPP_REFACTORING        = "CppTools.Refactoring.Menu";
 const char * const SWITCH_HEADER_SOURCE     = "CppTools.SwitchHeaderSource";
 const char * const TASK_INDEX               = "CppTools.Task.Index";
 const char * const TASK_SEARCH              = "CppTools.Task.Search";

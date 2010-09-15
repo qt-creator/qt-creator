@@ -63,6 +63,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/mimedatabase.h>
@@ -1576,7 +1577,7 @@ void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
     QMenu *menu = new QMenu;
 
     Core::ActionManager *am = Core::ICore::instance()->actionManager();
-    Core::ActionContainer *mcontext = am->actionContainer(CppEditor::Constants::M_CONTEXT);
+    Core::ActionContainer *mcontext = am->actionContainer(Constants::M_CONTEXT);
     QMenu *contextMenu = mcontext->menu();
 
     CppQuickFixCollector *quickFixCollector = CppPlugin::instance()->quickFixCollector();
@@ -1584,24 +1585,30 @@ void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
     QSignalMapper mapper;
     connect(&mapper, SIGNAL(mapped(int)), this, SLOT(performQuickFix(int)));
 
+    QMenu *quickFixMenu = new QMenu("&Refactor", menu);
+    quickFixMenu->addAction(am->command(Constants::RENAME_SYMBOL_UNDER_CURSOR)->action());
+
     if (! isOutdated()) {
         if (quickFixCollector->startCompletion(editableInterface()) != -1) {
             m_quickFixes = quickFixCollector->quickFixes();
 
+            if (! m_quickFixes.isEmpty())
+                quickFixMenu->addSeparator();
+
             for (int index = 0; index < m_quickFixes.size(); ++index) {
                 TextEditor::QuickFixOperation::Ptr op = m_quickFixes.at(index);
-                QAction *action = menu->addAction(op->description());
+                QAction *action = quickFixMenu->addAction(op->description());
                 mapper.setMapping(action, index);
                 connect(action, SIGNAL(triggered()), &mapper, SLOT(map()));
             }
-
-            if (! m_quickFixes.isEmpty())
-                menu->addSeparator();
         }
     }
 
-    foreach (QAction *action, contextMenu->actions())
+    foreach (QAction *action, contextMenu->actions()) {
         menu->addAction(action);
+        if (action->objectName() == Constants::M_REFACTORING_MENU_INSERTION_POINT)
+            menu->addMenu(quickFixMenu);
+    }
 
     appendStandardContextMenuActions(menu);
 

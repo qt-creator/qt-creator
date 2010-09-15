@@ -269,14 +269,6 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     contextMenu->addAction(cmd);
     cppToolsMenu->addAction(cmd);
 
-    m_renameSymbolUnderCursorAction = new QAction(tr("Rename Symbol Under Cursor"), this);
-    cmd = am->registerAction(m_renameSymbolUnderCursorAction,
-        Constants::RENAME_SYMBOL_UNDER_CURSOR, context);
-    cmd->setDefaultKeySequence(QKeySequence("CTRL+SHIFT+R"));
-    connect(m_renameSymbolUnderCursorAction, SIGNAL(triggered()), this, SLOT(renameSymbolUnderCursor()));
-    contextMenu->addAction(cmd);
-    cppToolsMenu->addAction(cmd);
-
     m_openTypeHierarchyAction = new QAction(tr("Open Type Hierarchy"), this);
     cmd = am->registerAction(m_openTypeHierarchyAction, Constants::OPEN_TYPE_HIERARCHY, context);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+T")));
@@ -284,9 +276,27 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     contextMenu->addAction(cmd);
     cppToolsMenu->addAction(cmd);
 
-    // Update context in global context
+    // Refactoring sub-menu
     Core::Context globalContext(Core::Constants::C_GLOBAL);
-    cppToolsMenu->addAction(createSeparator(am, this, globalContext, CppEditor::Constants::SEPARATOR2));
+    Core::Command *sep = createSeparator(am, this, globalContext,
+                                         Constants::SEPARATOR2);
+    sep->action()->setObjectName(Constants::M_REFACTORING_MENU_INSERTION_POINT);
+    contextMenu->addAction(sep);
+    contextMenu->addAction(createSeparator(am, this, globalContext,
+                                           Constants::SEPARATOR3));
+
+    m_renameSymbolUnderCursorAction = new QAction(tr("Rename Symbol Under Cursor"),
+                                                  this);
+    cmd = am->registerAction(m_renameSymbolUnderCursorAction,
+                             Constants::RENAME_SYMBOL_UNDER_CURSOR,
+                             context);
+    cmd->setDefaultKeySequence(QKeySequence("CTRL+SHIFT+R"));
+    connect(m_renameSymbolUnderCursorAction, SIGNAL(triggered()),
+            this, SLOT(renameSymbolUnderCursor()));
+    cppToolsMenu->addAction(cmd);
+
+    // Update context in global context
+    cppToolsMenu->addAction(createSeparator(am, this, globalContext, CppEditor::Constants::SEPARATOR4));
     m_updateCodeModelAction = new QAction(tr("Update Code Model"), this);
     cmd = am->registerAction(m_updateCodeModelAction, Core::Id(Constants::UPDATE_CODEMODEL), globalContext);
     CppTools::CppModelManagerInterface *cppModelManager = CppTools::CppModelManagerInterface::instance();
