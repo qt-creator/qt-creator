@@ -137,8 +137,7 @@ int main(int argc, char *argv[])
         fseek(envFd, 0, SEEK_END);
         size = ftell(envFd);
         rewind(envFd);
-        envdata = malloc(size + sizeof(char *));
-        envdata[size] = 0;
+        envdata = malloc(size);
         if (fread(envdata, 1, size, envFd) != (size_t)size) {
             perror("Failed to read env file");
             doExit(1);
