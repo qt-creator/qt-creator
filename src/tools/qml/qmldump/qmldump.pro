@@ -6,6 +6,7 @@
 
 TARGET = qmldump
 QT += declarative
+CONFIG += console
 
 TEMPLATE = app
 

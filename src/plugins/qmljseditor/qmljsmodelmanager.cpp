@@ -34,6 +34,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/messagemanager.h>
 #include <coreplugin/mimedatabase.h>
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljsbind.h>
@@ -497,6 +498,7 @@ void ModelManager::onLoadPluginTypes(const QString &libraryPath, const QString &
 
     QProcess *process = new QProcess(this);
     connect(process, SIGNAL(finished(int)), SLOT(qmlPluginTypeDumpDone(int)));
+    connect(process, SIGNAL(error(QProcess::ProcessError)), SLOT(qmlPluginTypeDumpError(QProcess::ProcessError)));
     QStringList args;
     args << importPath;
     args << importUri;
@@ -525,14 +527,25 @@ void ModelManager::updateImportPaths()
     updateSourceFiles(importedFiles, true);
 }
 
+static QString qmldumpErrorMessage(const QString &libraryPath, const QString &error)
+{
+    return ModelManager::tr("Type dump of QML plugin in %0 failed.\nErrors:\n%1\n").arg(libraryPath, error);
+}
+
 void ModelManager::qmlPluginTypeDumpDone(int exitCode)
 {
     QProcess *process = qobject_cast<QProcess *>(sender());
     if (!process)
         return;
     process->deleteLater();
-    if (exitCode != 0)
+
+    const QString libraryPath = m_runningQmldumps.take(process);
+
+    if (exitCode != 0) {
+        Core::MessageManager *messageManager = Core::MessageManager::instance();
+        messageManager->printToOutputPane(qmldumpErrorMessage(libraryPath, process->readAllStandardError()));
         return;
+    }
 
     const QByteArray output = process->readAllStandardOutput();
     QMap<QString, Interpreter::FakeMetaObject *> newObjects;
@@ -548,8 +561,6 @@ void ModelManager::qmlPluginTypeDumpDone(int exitCode)
         objectsList.append(it.value());
     }
 
-    const QString libraryPath = m_runningQmldumps.take(process);
-
     QMutexLocker locker(&m_mutex);
 
     if (!libraryPath.isEmpty()) {
@@ -559,4 +570,17 @@ void ModelManager::qmlPluginTypeDumpDone(int exitCode)
     } else {
         Interpreter::CppQmlTypesLoader::builtinObjects.append(objectsList);
     }
+}
+
+void ModelManager::qmlPluginTypeDumpError(QProcess::ProcessError)
+{
+    QProcess *process = qobject_cast<QProcess *>(sender());
+    if (!process)
+        return;
+    process->deleteLater();
+
+    const QString libraryPath = m_runningQmldumps.take(process);
+
+    Core::MessageManager *messageManager = Core::MessageManager::instance();
+    messageManager->printToOutputPane(qmldumpErrorMessage(libraryPath, process->readAllStandardError()));
 }

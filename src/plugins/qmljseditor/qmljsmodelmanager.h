@@ -81,6 +81,7 @@ private Q_SLOTS:
     void onLibraryInfoUpdated(const QString &path, const QmlJS::LibraryInfo &info);
     void onLoadPluginTypes(const QString &libraryPath, const QString &importPath, const QString &importUri);
     void qmlPluginTypeDumpDone(int exitCode);
+    void qmlPluginTypeDumpError(QProcess::ProcessError error);
 
 protected:
     struct WorkingCopy

@@ -63,11 +63,13 @@ void processObject(QObject *object, QSet<const QMetaObject *> *metas)
         return;
 
     const QMetaObject *meta = object->metaObject();
+    qDebug() << "Processing object" << meta->className();
     processMetaObject(meta, metas);
 
     for (int index = 0; index < meta->propertyCount(); ++index) {
         QMetaProperty prop = meta->property(index);
         if (QDeclarativeMetaType::isQObject(prop.userType())) {
+            qDebug() << "  Processing property" << prop.name();
             QObject *oo = QDeclarativeMetaType::toQObject(prop.read(object));
             if (oo && !metas->contains(oo->metaObject()))
                 processObject(oo, metas);
