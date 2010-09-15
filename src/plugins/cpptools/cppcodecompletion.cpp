@@ -105,6 +105,7 @@ private slots:
 private:
     void updateArgumentHighlight();
     void updateHintText();
+    void placeInsideScreen();
 
     Function *currentFunction() const
     { return m_items.at(m_current); }
@@ -414,8 +415,11 @@ void FunctionArgumentWidget::updateHintText()
 
     m_numberLabel->setText(tr("%1 of %2").arg(m_current + 1).arg(m_items.size()));
 
-    m_popupFrame->setFixedWidth(m_popupFrame->minimumSizeHint().width());
+    placeInsideScreen();
+}
 
+void FunctionArgumentWidget::placeInsideScreen()
+{
     const QDesktopWidget *desktop = QApplication::desktop();
 #ifdef Q_WS_MAC
     const QRect screen = desktop->availableGeometry(desktop->screenNumber(m_editor->widget()));
@@ -423,7 +427,22 @@ void FunctionArgumentWidget::updateHintText()
     const QRect screen = desktop->screenGeometry(desktop->screenNumber(m_editor->widget()));
 #endif
 
-    const QSize sz = m_popupFrame->sizeHint();
+    m_pager->setFixedWidth(m_pager->minimumSizeHint().width());
+
+    setWordWrap(false);
+    const int maxDesiredWidth = screen.width() - 10;
+    const QSize minHint = m_popupFrame->minimumSizeHint();
+    if (minHint.width() > maxDesiredWidth) {
+        setWordWrap(true);
+        m_popupFrame->setFixedWidth(maxDesiredWidth);
+        const int extra =
+            m_popupFrame->contentsMargins().bottom() + m_popupFrame->contentsMargins().top();
+        m_popupFrame->setFixedHeight(heightForWidth(maxDesiredWidth - m_pager->width()) + extra);
+    } else {
+        m_popupFrame->setFixedSize(minHint);
+    }
+
+    const QSize sz = m_popupFrame->size();
     QPoint pos = m_editor->cursorRect(m_startpos).topLeft();
     pos.setY(pos.y() - sz.height() - 1);
 
