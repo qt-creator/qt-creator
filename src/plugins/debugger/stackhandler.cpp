@@ -64,7 +64,7 @@ StackHandler::StackHandler(DebuggerEngine *engine)
 
 StackHandler::~StackHandler()
 {
-    //delete m_disassemblerViewAgent;
+    delete m_disassemblerViewAgent;
 }
 
 int StackHandler::rowCount(const QModelIndex &parent) const
