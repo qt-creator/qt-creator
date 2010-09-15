@@ -1062,7 +1062,7 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
     case if_statement:
     case return_statement:
         if (firstToken)
-            *savedIndentDepth = tokenPosition;
+            *indentDepth = *savedIndentDepth = tokenPosition;
         *paddingDepth = 2*m_indentSize;
         break;
 
@@ -1144,6 +1144,9 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
     }
 
     case substatement_open:
+        // undo parent continuation indent
+        *savedPaddingDepth = 0;
+
         if (firstToken) {
             *savedIndentDepth = tokenPosition;
             *indentDepth = *savedIndentDepth;
@@ -1192,8 +1195,8 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
 
     case substatement:
         // undo the continuation indent of the parent
-        *indentDepth = parentState.savedIndentDepth;
-        *savedIndentDepth = *indentDepth;
+        *savedPaddingDepth = 0;
+
         break;
 
     case maybe_else: {
@@ -1207,7 +1210,7 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
     }   break;
 
     case for_statement_paren_open:
-        *indentDepth = tokenPosition + 1;
+        *paddingDepth = tokenPosition + 1 - *indentDepth;
         break;
 
     case multiline_comment_start:
@@ -1397,6 +1400,7 @@ bool QtStyleCodeFormatter::shouldClearPaddingOnEnter(int state)
     case return_statement:
     case block_open:
     case substatement_open:
+    case substatement:
         return true;
     }
     return false;

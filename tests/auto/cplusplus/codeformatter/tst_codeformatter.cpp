@@ -47,6 +47,7 @@ private Q_SLOTS:
     void streamOp();
     void blockStmtInIf();
     void nestedInitializer();
+    void forStatement();
 };
 
 struct Line {
@@ -900,6 +901,40 @@ void tst_CodeFormatter::nestedInitializer()
          << Line("~                 }")
          << Line("~                };")
          << Line("int i;")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::forStatement()
+{
+    QList<Line> data;
+    data
+         << Line("void foo()")
+         << Line("{")
+         << Line("    for (a; b; c)")
+         << Line("        bar();")
+         << Line("    for (a; b; c) {")
+         << Line("        bar();")
+         << Line("    }")
+         << Line("    for (a; b; c)")
+         << Line("    {")
+         << Line("        bar();")
+         << Line("    }")
+         << Line("    for (a;")
+         << Line("    ~    b;")
+         << Line("    ~    c)")
+         << Line("        bar();")
+         << Line("    for (a;")
+         << Line("    ~    b;")
+         << Line("    ~    c) {")
+         << Line("        bar();")
+         << Line("    }")
+         << Line("    for (a;")
+         << Line("    ~    b;")
+         << Line("    ~    c)")
+         << Line("    {")
+         << Line("        bar();")
+         << Line("    }")
          ;
     checkIndent(data);
 }
