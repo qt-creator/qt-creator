@@ -63,16 +63,6 @@ OpenPagesManager::OpenPagesManager(QObject *parent)
     m_instance = this;
     m_model = new OpenPagesModel(this);
 
-    m_openPagesWidget = new OpenPagesWidget(m_model);
-    m_openPagesWidget->setFrameStyle(QFrame::NoFrame);
-
-    connect(m_openPagesWidget, SIGNAL(setCurrentPage(QModelIndex)), this,
-        SLOT(setCurrentPage(QModelIndex)));
-    connect(m_openPagesWidget, SIGNAL(closePage(QModelIndex)), this,
-        SLOT(closePage(QModelIndex)));
-    connect(m_openPagesWidget, SIGNAL(closePagesExcept(QModelIndex)), this,
-        SLOT(closePagesExcept(QModelIndex)));
-
     m_comboBox = new QComboBox;
     m_comboBox->setModel(m_model);
     m_comboBox->setMinimumContentsLength(40);
@@ -102,6 +92,16 @@ OpenPagesManager &OpenPagesManager::instance()
 
 QWidget *OpenPagesManager::openPagesWidget() const
 {
+    if (!m_openPagesWidget) {
+        m_openPagesWidget = new OpenPagesWidget(m_model);
+        m_openPagesWidget->setFrameStyle(QFrame::NoFrame);
+        connect(m_openPagesWidget, SIGNAL(setCurrentPage(QModelIndex)), this,
+            SLOT(setCurrentPage(QModelIndex)));
+        connect(m_openPagesWidget, SIGNAL(closePage(QModelIndex)), this,
+            SLOT(closePage(QModelIndex)));
+        connect(m_openPagesWidget, SIGNAL(closePagesExcept(QModelIndex)), this,
+            SLOT(closePagesExcept(QModelIndex)));
+    }
     return m_openPagesWidget;
 }
 
@@ -212,7 +212,8 @@ void OpenPagesManager::setCurrentPage(int index)
     CentralWidget::instance()->setCurrentPage(m_model->pageAt(index));
 
     m_comboBox->setCurrentIndex(index);
-    m_openPagesWidget->selectCurrentPage();
+    if (m_openPagesWidget)
+        m_openPagesWidget->selectCurrentPage();
 }
 
 void OpenPagesManager::setCurrentPage(const QModelIndex &index)
@@ -223,6 +224,8 @@ void OpenPagesManager::setCurrentPage(const QModelIndex &index)
 
 void OpenPagesManager::closeCurrentPage()
 {
+    if (!m_openPagesWidget)
+        return;
     QModelIndexList indexes = m_openPagesWidget->selectionModel()->selectedRows();
     if (indexes.isEmpty())
         return;
@@ -283,7 +286,8 @@ void OpenPagesManager::removePage(int index)
     CentralWidget::instance()->removePage(index);
 
     emit pagesChanged();
-    m_openPagesWidget->selectCurrentPage();
+    if (m_openPagesWidget)
+        m_openPagesWidget->selectCurrentPage();
 }
 
 void OpenPagesManager::showTwicherOrSelectPage() const

@@ -92,7 +92,7 @@ private slots:
 private:
     QComboBox *m_comboBox;
     OpenPagesModel *m_model;
-    OpenPagesWidget *m_openPagesWidget;
+    mutable OpenPagesWidget *m_openPagesWidget;
     OpenPagesSwitcher *m_openPagesSwitcher;
 
     static OpenPagesManager *m_instance;
