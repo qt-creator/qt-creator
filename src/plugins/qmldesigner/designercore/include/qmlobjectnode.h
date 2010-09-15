@@ -63,7 +63,7 @@ public:
     NodeListProperty nodeListProperty(const QString &name) const;
 
     QVariant instanceValue(const QString &name) const;
-    QString QmlObjectNode::instanceType(const QString &name) const;
+    QString instanceType(const QString &name) const;
 
     bool hasProperty(const QString &name) const;
     bool hasBindingProperty(const QString &name) const;
