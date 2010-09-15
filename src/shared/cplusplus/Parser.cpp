@@ -1436,7 +1436,7 @@ bool Parser::parseAbstractCoreDeclarator(DeclaratorAST *&node, SpecifierListAST 
 
     unsigned after_ptr_operators = cursor();
 
-    if (LA() == T_LPAREN) {
+    if (LA() == T_LPAREN && LA(2) != T_RPAREN) {
         unsigned lparen_token = consumeToken();
         DeclaratorAST *declarator = 0;
         if (parseAbstractDeclarator(declarator, decl_specifier_list) && LA() == T_RPAREN) {
