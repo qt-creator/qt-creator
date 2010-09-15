@@ -59,6 +59,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QMainWindow>
 #include <QtGui/QMessageBox>
+#include <QtGui/QPushButton>
 #include <QtCore/QTextCodec>
 
 namespace {
@@ -83,6 +84,7 @@ public:
     void setFileName(const QString &fileName);
 
     QStringList failedProjectFileNames() const;
+    void clearFailedProjectFileNames();
 
 public slots:
     void sessionLoadingProgress();
@@ -301,6 +303,11 @@ void SessionFile::setFileName(const QString &fileName)
 QStringList SessionFile::failedProjectFileNames() const
 {
     return m_failedProjects;
+}
+
+void SessionFile::clearFailedProjectFileNames()
+{
+    m_failedProjects.clear();
 }
 
 Internal::SessionNodeImpl::SessionNodeImpl(SessionManager *manager)
@@ -629,6 +636,25 @@ bool SessionManager::loadImpl(const QString &fileName)
         // m_file->load() sets the m_file->startupProject
         // but doesn't emit this signal, so we do it here
         emit startupProjectChanged(m_file->m_startupProject);
+
+        QStringList failedProjects = m_file->failedProjectFileNames();
+        if (!failedProjects.isEmpty()) {
+            QString fileList =
+                QDir::toNativeSeparators(failedProjects.join(QLatin1String("<br>")));
+            QMessageBox * box = new QMessageBox(QMessageBox::Warning,
+                                                tr("Failed to restore project files"),
+                                                tr("Could not restore the following project files:<br><b>%1</b>").
+                                                arg(fileList));
+            QPushButton * keepButton = new QPushButton(tr("Keep projects in Session"), box);
+            QPushButton * removeButton = new QPushButton(tr("Remove projects from Session"), box);
+            box->addButton(keepButton, QMessageBox::AcceptRole);
+            box->addButton(removeButton, QMessageBox::DestructiveRole);
+
+            box->exec();
+
+            if (box->clickedButton() == removeButton)
+                m_file->clearFailedProjectFileNames();
+        }
     }
 
     if (success) {
