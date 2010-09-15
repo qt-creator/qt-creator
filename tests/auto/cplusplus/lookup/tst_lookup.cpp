@@ -347,7 +347,7 @@ void tst_Lookup::iface_impl_scoping()
     const LookupContext context(doc, snapshot);
 
     { // verify if we can resolve "arg" in the body
-        QCOMPARE(method1Impl->argumentCount(), 2U);
+        QCOMPARE(method1Impl->argumentCount(), 1U);
         Argument *arg = method1Impl->argumentAt(0)->asArgument();
         QVERIFY(arg);
         QVERIFY(arg->name());
