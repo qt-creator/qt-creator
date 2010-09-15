@@ -7120,7 +7120,7 @@
     For a list of fixed issues and added features, see the changelog file in
     the \c{qtcreator\dist} folder or the \l{http://bugreports.qt.nokia.com}{Qt Bug Tracker}.
 
-    \section1 General
+    \section1 General Issues
 
     \list
 
@@ -7134,7 +7134,7 @@
 
     \endlist
 
-    \section1 Editing
+    \section1 Editing Issues
 
     \list
 
@@ -7142,7 +7142,7 @@
 
     \endlist
 
-    \section1 Projects
+    \section1 Projects Issues
 
     \list
         \o Paths or file names containing spaces or special characters
@@ -7170,17 +7170,32 @@
 
     \endlist
 
-    \section1 Debugging
+    \section1 Debugging Issues
 
     \list
+
+        \o Debugging large applications on Symbian devices using the Symbian S^3
+           operating system might not work, because the TRK debug agent might not be able to
+           access memory when the operating system starts paging. This causes breakpoint
+           handling and symbol resolution to fail. For more information, see
+           \l{http://bugreports.qt.nokia.com/browse/QTCREATORBUG-2158}{QTCREATORBUG-2158}.
+
+           As a workaround, add the following section to the application .pro file to
+           disable paging:
+
+           \code
+           debug {
+               MMP_RULES -= PAGED
+               MMP_RULES *= UNPAGED
+           }
+           \endcode
+
+           \note You must completely clean and rebuild the project for the setting to
+           take effect.
 
         \o When debugging executables created by the GNU Compiler version 4.5.0
            (all platforms), some data types will not be displayed in the
            \gui{Locals and Watchers} view due to missing debug information.
-
-        \o On Windows, debugging a MinGW-built console application (with \gui{Run in terminal}
-           checked) using gdb does not work due to a bug in gdb related to attaching to
-           stopped processes (see \l{http://bugreports.qt.nokia.com/browse/QTCREATORBUG-1020}).
 
         \o Gdb on Windows may not work if the 'Embassy \reg Security Center' software
            by 'Wave \reg Systems' is installed and active (causing crashes in \c{vxvault.dll)}).
