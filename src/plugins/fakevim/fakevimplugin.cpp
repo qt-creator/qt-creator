@@ -1121,14 +1121,6 @@ void FakeVimPluginPrivate::indentRegion(int beginLine, int endLine,
         block = block.next();
     }
 
-    // Adjust marks.
-    block = startBlock;
-    for (int i = beginLine; i <= endLine; ++i) {
-        const int amount = block.text().length() - lineLengths[i - beginLine];
-        handler->fixMarks(block.position(), amount);
-        block = block.next();
-    }
-
     bt->setTabSettings(oldTabSettings);
 }
 

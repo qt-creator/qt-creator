@@ -107,7 +107,6 @@ public slots:
     int physicalIndentation(const QString &line) const;
     int logicalIndentation(const QString &line) const;
     QString tabExpand(int n) const;
-    void fixMarks(int positionAction, int positionChange);
 
 signals:
     void commandBufferChanged(const QString &msg);

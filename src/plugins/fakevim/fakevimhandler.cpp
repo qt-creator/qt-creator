@@ -593,9 +593,6 @@ public:
     void handleCommand(const QString &cmd); // Sets m_tc + handleExCommand
     void handleExCommand(const QString &cmd);
 
-    // Updates marks positions by the difference in positionChange.
-    void fixMarks(int positionAction, int positionChange);
-
     void installEventFilter();
     void passShortcuts(bool enable);
     void setupWidget();
@@ -886,7 +883,9 @@ public:
     // marks as lines
     int mark(int code) const;
     void setMark(int code, int position);
-    QHash<int, int> m_marks;
+    typedef QHash<int, QTextCursor> Marks;
+    typedef QHashIterator<int, QTextCursor> MarksIterator;
+    Marks m_marks;
 
     // vi style configuration
     QVariant config(int code) const { return theFakeVimSetting(code)->value(); }
@@ -1555,12 +1554,13 @@ void FakeVimHandler::Private::updateSelection()
         selections.append(sel);
     }
     if (hasConfig(ConfigShowMarks)) {
-        for (QHashIterator<int, int> it(m_marks); it.hasNext(); ) {
+        for (MarksIterator it(m_marks); it.hasNext(); ) {
             it.next();
             QTextEdit::ExtraSelection sel;
+            const int pos = it.value().position();
             sel.cursor = cursor();
-            sel.cursor.setPosition(it.value(), MoveAnchor);
-            sel.cursor.setPosition(it.value() + 1, KeepAnchor);
+            sel.cursor.setPosition(pos, MoveAnchor);
+            sel.cursor.setPosition(pos + 1, KeepAnchor);
             sel.format = cursor().blockCharFormat();
             sel.format.setForeground(Qt::blue);
             sel.format.setBackground(Qt::green);
@@ -2729,7 +2729,6 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
                 m_lastInsertion.clear(); // FIXME
             } else {
                 cursor().deletePreviousChar();
-                fixMarks(position(), -1);
                 m_lastInsertion.chop(1);
             }
             setTargetColumn();
@@ -4192,7 +4191,6 @@ void FakeVimHandler::Private::transformText(const Range &range,
             TransformationData td(tc.selectedText(), extra);
             (this->*transformFunc)(&td);
             tc.removeSelectedText();
-            fixMarks(range.beginPos, td.to.size() - td.from.size());
             tc.insertText(td.to);
             endEditBlock();
             return;
@@ -4224,7 +4222,6 @@ void FakeVimHandler::Private::transformText(const Range &range,
             TransformationData td(tc.selectedText(), extra);
             (this->*transformFunc)(&td);
             tc.removeSelectedText();
-            fixMarks(range.beginPos, td.to.size() - td.from.size());
             tc.insertText(td.to);
             endEditBlock();
             return;
@@ -4249,7 +4246,6 @@ void FakeVimHandler::Private::transformText(const Range &range,
                 TransformationData td(tc.selectedText(), extra);
                 (this->*transformFunc)(&td);
                 tc.removeSelectedText();
-                fixMarks(block.position() + bCol, td.to.size() - td.from.size());
                 tc.insertText(td.to);
                 block = block.previous();
             }
@@ -4262,7 +4258,6 @@ void FakeVimHandler::Private::insertText(const Register &reg)
 {
     QTC_ASSERT(reg.rangemode == RangeCharMode,
         qDebug() << "WRONG INSERT MODE: " << reg.rangemode; return);
-    fixMarks(position(), reg.contents.length());
     cursor().insertText(reg.contents);
 }
 
@@ -4370,19 +4365,16 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
                 tc.movePosition(StartOfLine, MoveAnchor);
                 if (col >= block.length()) {
                     tc.movePosition(EndOfLine, MoveAnchor);
-                    fixMarks(position(), col - line.size() + 1);
                     tc.insertText(QString(col - line.size() + 1, QChar(' ')));
                 } else {
                     tc.movePosition(Right, MoveAnchor, col - 1 + afterCursor);
                 }
                 //qDebug() << "INSERT " << line << " AT " << tc.position()
                 //    << "COL: " << col;
-                fixMarks(position(), line.length());
                 tc.insertText(line);
                 tc.movePosition(StartOfLine, MoveAnchor);
                 tc.movePosition(Down, MoveAnchor, 1);
                 if (tc.position() >= lastPositionInDocument() - 1) {
-                    fixMarks(position(), 1);
                     tc.insertText(QString(QChar('\n')));
                     tc.movePosition(Up, MoveAnchor, 1);
                 }
@@ -4391,43 +4383,6 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
             moveLeft();
             endEditBlock();
             break;
-        }
-    }
-}
-
-//FIXME: This needs to called after undo/insert
-// The position 'from' is the cursor position after the change. If 'delta'
-// is positive there was a string of size 'delta' inserted after 'from'
-// and consequently all marks beyond 'from + delta' need to be incremented
-// by 'delta'. If text was removed, 'delta' is negative. All marks between
-// 'from' and 'from - delta' need to be removed, everything behing
-// 'from - delta' adjusted by 'delta'.
-void FakeVimHandler::Private::fixMarks(int from, int delta)
-{
-    //qDebug() << "ADJUSTING MARKS FROM " << from << " BY " << delta;
-    if (delta == 0)
-        return;
-    QHashIterator<int, int> it(m_marks);
-    while (it.hasNext()) {
-        it.next();
-        int pos = it.value();
-        if (delta > 0) {
-            // Inserted text.
-            if (pos >= from) {
-                //qDebug() << "MODIFIED: " << it.key() << pos;
-                setMark(it.key(), pos + delta);
-            }
-        } else {
-            // Removed text.
-            if (pos < from) {
-                // Nothing to do.
-            } else if (pos < from - delta) {
-                //qDebug() << "GONE: " << it.key();
-                m_marks.remove(it.key());
-            } else {
-                //qDebug() << "MODIFIED: " << it.key() << pos;
-                setMark(it.key(), pos + delta);
-             }
         }
     }
 }
@@ -4446,7 +4401,6 @@ void FakeVimHandler::Private::setLineContents(int line, const QString &contents)
     tc.setPosition(begin);
     tc.setPosition(begin + len - 1, KeepAnchor);
     tc.removeSelectedText();
-    fixMarks(begin, contents.size() + 1 - len);
     tc.insertText(contents);
 }
 
@@ -4507,10 +4461,7 @@ void FakeVimHandler::Private::undo()
     // be to store marks and old userData with QTextBlock setUserData
     // and retrieve them afterward.
     const int current = document()->availableUndoSteps();
-    const int oldCount = document()->characterCount();
     EDITOR(undo());
-    const int delta = document()->characterCount() - oldCount;
-    fixMarks(position(), delta);
     const int rev = document()->availableUndoSteps();
     if (current == rev)
         showBlackMessage(FakeVimHandler::tr("Already at oldest change"));
@@ -4527,10 +4478,7 @@ void FakeVimHandler::Private::undo()
 void FakeVimHandler::Private::redo()
 {
     const int current = document()->availableUndoSteps();
-    const int oldCount = document()->characterCount();
     EDITOR(redo());
-    const int delta = document()->characterCount() - oldCount;
-    fixMarks(position(), delta);
     const int rev = document()->availableUndoSteps();
     if (rev == current)
         showBlackMessage(FakeVimHandler::tr("Already at newest change"));
@@ -4665,7 +4613,6 @@ bool FakeVimHandler::Private::removeAutomaticIndentation()
 /*
     m_tc.movePosition(StartOfLine, KeepAnchor);
     m_tc.removeSelectedText();
-    fixMarks(cursor().position(), -m_justAutoIndented);
     m_lastInsertion.chop(m_justAutoIndented);
 */
     m_justAutoIndented = 0;
@@ -4763,13 +4710,16 @@ int FakeVimHandler::Private::mark(int code) const
         if (code == '>')
             return anchor();
     }
-    return m_marks.value(code, -1);
+    QTextCursor tc = m_marks.value(code);
+    return tc.isNull() ? -1 : tc.position();
 }
 
 void FakeVimHandler::Private::setMark(int code, int position)
 {
     // FIXME: distinguish local and global marks.
-    m_marks[code] = position;
+    QTextCursor tc = cursor();
+    tc.setPosition(position, MoveAnchor);
+    m_marks[code] = tc;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -4932,11 +4882,6 @@ int FakeVimHandler::logicalIndentation(const QString &line) const
 QString FakeVimHandler::tabExpand(int n) const
 {
     return d->tabExpand(n);
-}
-
-void FakeVimHandler::fixMarks(int positionAction, int positionChange)
-{
-    d->fixMarks(positionAction, positionChange);
 }
 
 } // namespace Internal
