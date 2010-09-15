@@ -82,6 +82,8 @@ public:
     QString fileName() const;
     void setFileName(const QString &fileName);
 
+    QStringList failedProjectFileNames() const;
+
 public slots:
     void sessionLoadingProgress();
 
@@ -91,6 +93,7 @@ private:
     QString m_fileName;
     QList<Project *> m_projects;
     Project *m_startupProject;
+    QStringList m_failedProjects;
     QMap<QString, QStringList> m_depMap;
 
     QMap<QString, QVariant> m_values;
@@ -167,8 +170,13 @@ bool SessionFile::load(const QString &fileName)
     future.setProgressValue(1);
 
     // indirectly adds projects to session
-    if (!fileList.isEmpty())
-        ProjectExplorerPlugin::instance()->openProjects(fileList);
+    // Keep projects that failed to load in the session!
+    m_failedProjects = fileList;
+    if (!fileList.isEmpty()) {
+        QList<Project *> projects = ProjectExplorerPlugin::instance()->openProjects(fileList);
+        foreach (Project *p, projects)
+            m_failedProjects.removeAll(p->file()->fileName());
+    }
 
     sessionLoadingProgress();
 
@@ -239,6 +247,8 @@ bool SessionFile::save(const QString &fileName)
     foreach (Project *pro, m_projects) {
         projectFiles << pro->file()->fileName();
     }
+    // Restore infromation on projects that failed to load:
+    projectFiles.append(m_failedProjects);
 
     writer.saveValue(QLatin1String("ProjectList"), projectFiles);
 
@@ -286,6 +296,11 @@ QString SessionFile::fileName() const
 void SessionFile::setFileName(const QString &fileName)
 {
     m_fileName = fileName;
+}
+
+QStringList SessionFile::failedProjectFileNames() const
+{
+    return m_failedProjects;
 }
 
 Internal::SessionNodeImpl::SessionNodeImpl(SessionManager *manager)
