@@ -286,6 +286,7 @@ void MaemoRunConfigurationWidget::handleToolchainChanged()
         = m_runConfiguration->toolchain()->allowsRemoteMounts();
     m_debugDetailsContainer->setVisible(remoteMountsAvailable);
     m_mountDetailsContainer->setVisible(remoteMountsAvailable);
+    m_runConfiguration->updateFactoryState();
 }
 
 void MaemoRunConfigurationWidget::showSettingsDialog(const QString &link)

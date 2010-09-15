@@ -39,6 +39,7 @@
 #include "maemoremotemountsmodel.h"
 #include "maemorunconfiguration.h"
 #include "maemoruncontrol.h"
+#include "maemotoolchain.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qt4projectmanager/qt4project.h>
@@ -167,7 +168,9 @@ bool MaemoRunControlFactory::canRun(RunConfiguration *runConfiguration,
     if (freePortCount == 0)
         return false;
     const int mountDirCount
-        = maemoRunConfig->remoteMounts()->validMountSpecificationCount();
+        = maemoRunConfig->toolchain()->allowsRemoteMounts()
+            ? maemoRunConfig->remoteMounts()->validMountSpecificationCount()
+            : 0;
     if (mode == ProjectExplorer::Constants::DEBUGMODE)
         return freePortCount > mountDirCount + runConfiguration->useQmlDebugger();
     if (mode == ProjectExplorer::Constants::RUNMODE)
