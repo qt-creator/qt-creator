@@ -179,7 +179,7 @@ private slots:
 private:
     bool loadImpl(const QString &fileName);
     bool createImpl(const QString &fileName);
-    QString sessionNameToFileName(const QString &session);
+    QString sessionNameToFileName(const QString &session) const;
     bool projectContainsFile(Project *p, const QString &fileName) const;
 
     bool recursiveDependencyCheck(const QString &newDep, const QString &checkDep) const;

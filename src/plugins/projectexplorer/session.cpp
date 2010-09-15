@@ -1024,7 +1024,7 @@ QStringList SessionManager::sessions() const
     return m_sessions;
 }
 
-QString SessionManager::sessionNameToFileName(const QString &session)
+QString SessionManager::sessionNameToFileName(const QString &session) const
 {
     return m_core->userResourcePath() + '/' + session + ".qws";
 }
