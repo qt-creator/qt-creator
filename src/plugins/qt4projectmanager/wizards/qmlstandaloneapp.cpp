@@ -238,7 +238,7 @@ bool QmlStandaloneApp::setExternalModules(const QStringList &uris,
         if (!importPath.exists()) {
             m_error = QCoreApplication::translate(
                         "Qt4ProjectManager::Internal::QmlStandaloneApp",
-                        "The Qml import path '%1' cannot be found.")
+                        "The QML import path '%1' cannot be found.")
                       .arg(QDir::toNativeSeparators(importPath.filePath()));
             return false;
         } else {
@@ -262,7 +262,7 @@ bool QmlStandaloneApp::setExternalModules(const QStringList &uris,
         if (modulesCount == m_modules.count()) { // no module was added
             m_error = QCoreApplication::translate(
                       "Qt4ProjectManager::Internal::QmlStandaloneApp",
-                      "The Qml module '%1' cannot be found.").arg(uri);
+                      "The QML module '%1' cannot be found.").arg(uri);
             return false;
         }
     }

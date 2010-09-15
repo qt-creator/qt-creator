@@ -292,7 +292,7 @@ void SftpChannelPrivate::handleCurrentPacket()
     default:
         throw SshServerException(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Unexpected packet.",
-            tr("Unexpected packet of type %d.").arg(m_incomingPacket.type()));
+            tr("Unexpected packet of type %1.").arg(m_incomingPacket.type()));
     }
 }
 
@@ -546,7 +546,7 @@ void SftpChannelPrivate::handleGetStatus(const JobMap::Iterator &it,
     case SftpDownload::Open:
         if (op->statRequested) {
             reportRequestError(op, errorMessage(response.errorString,
-                tr("Failed to stat remote file.")));
+                tr("Failed retrieve information on the remote file ('stat' failed).")));
             sendTransferCloseHandle(op, response.requestId);
         } else {
             if ((response.status != SSH_FX_EOF || response.requestId != op->eofId)
@@ -746,7 +746,7 @@ void SftpChannelPrivate::handleAttrs()
             if (op->parentJob)
                 op->parentJob->setError();
             reportRequestError(op, tr("Cannot append to remote file: "
-                "Server does not support file size attribute."));
+                "Server does not support the file size attribute."));
             sendTransferCloseHandle(op, op->jobId);
         }
     }

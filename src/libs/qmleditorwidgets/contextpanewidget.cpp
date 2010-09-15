@@ -493,7 +493,8 @@ void ContextPaneWidget::setLineButton()
     m_toolButton->setIcon(style()->standardIcon(QStyle::SP_DockWidgetCloseButton));
     m_toolButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
     m_toolButton->setFixedSize(20, 20);
-    m_toolButton->setToolTip(tr("Hides this toolbar. This toolbar can be permantly disabled in the options or in the context menu."));
+    m_toolButton->setToolTip(tr("Hides this toolbar. This toolbar can be"
+                                " permanently disabled in the options page or in the context menu."));
 
     pinnedChanged(false);
     if (m_resetAction) {

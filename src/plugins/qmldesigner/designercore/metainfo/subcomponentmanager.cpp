@@ -271,7 +271,7 @@ void SubComponentManagerPrivate::parseDirectory(const QString &canonicalDirPath,
     }
 }
 
-void SubComponentManagerPrivate::parseFile(const QString &canonicalFilePath, bool addToLibrary, const QString& qualification)
+void SubComponentManagerPrivate::parseFile(const QString &canonicalFilePath, bool addToLibrary, const QString& /* qualification */)
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << canonicalFilePath;

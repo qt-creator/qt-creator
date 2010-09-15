@@ -71,15 +71,15 @@ QmlStandaloneAppWizardDialog::QmlStandaloneAppWizardDialog(QmlStandaloneAppWizar
     , m_type(type)
 {
     setWindowTitle(m_type == QmlStandaloneAppWizard::NewQmlFile
-                       ? tr("New Standalone QML Project")
-                       : tr("Standalone QML Project from existing QML Project"));
+                       ? tr("New QML Project")
+                       : tr("QML Project from existing, QML Viewer-based Project"));
     setIntroDescription(m_type == QmlStandaloneAppWizard::NewQmlFile
-                       ? tr("This wizard generates a Standalone QML application project.")
-                       : tr("This wizard imports an existing QML application and creates a standalone version of it."));
+                       ? tr("This wizard generates a QML application project.")
+                       : tr("This wizard imports an existing, QML Viewer-based application and creates a standalone version of it."));
 
     m_qmlSourcesPage = new QmlStandaloneAppWizardSourcesPage;
     m_qmlSourcesPage->setMainQmlFileChooserVisible(m_type == QmlStandaloneAppWizard::ImportQmlFile);
-    const QString qmlSourcesTitle = tr("Qml Sources");
+    const QString qmlSourcesTitle = tr("QML Sources");
     if (m_type == QmlStandaloneAppWizard::ImportQmlFile) {
         const int qmlSourcesPagePageId = addPage(m_qmlSourcesPage);
         wizardProgress()->item(qmlSourcesPagePageId)->setTitle(qmlSourcesTitle);
@@ -87,7 +87,7 @@ QmlStandaloneAppWizardDialog::QmlStandaloneAppWizardDialog(QmlStandaloneAppWizar
 
     m_qmlOptionsPage = new QmlStandaloneAppWizardOptionsPage;
     const int qmlOptionsPagePageId = addPage(m_qmlOptionsPage);
-    wizardProgress()->item(qmlOptionsPagePageId)->setTitle(tr("Qml App options"));
+    wizardProgress()->item(qmlOptionsPagePageId)->setTitle(tr("QML Application options"));
     if (m_type == QmlStandaloneAppWizard::NewQmlFile) {
         // In case of NewQmlFile, we show that page at the end. Is that useful? Or irritating?
         const int qmlSourcesPagePageId = addPage(m_qmlSourcesPage);
@@ -122,17 +122,17 @@ Core::BaseFileWizardParameters QmlStandaloneAppWizard::parameters(WizardType typ
     Core::BaseFileWizardParameters parameters(ProjectWizard);
     parameters.setIcon(QIcon(QLatin1String(Constants::ICON_QML_STANDALONE)));
     parameters.setDisplayName(type == QmlStandaloneAppWizard::NewQmlFile
-                              ? tr("Qt QML New Standalone Application")
-                              : tr("Qt QML Imported Standalone Application"));
+                              ? tr("Qt QML New Application")
+                              : tr("Qt QML New Imported Application"));
     parameters.setId(QLatin1String(type == QmlStandaloneAppWizard::NewQmlFile
-                                   ? "QA.QML New Standalone Application"
-                                   : "QA.QML Imported Standalone Application"));
+                                   ? "QA.QMLA New Application"
+                                   : "QA.QMLB Imported Application"));
     parameters.setDescription(type == QmlStandaloneAppWizard::NewQmlFile
-                              ? tr("Creates a standalone, mobile-deployable Qt QML application "
+                              ? tr("Creates a mobile-deployable Qt QML application "
                                    "project. A lightweight Qt/C++ application with a QDeclarativeView "
                                    "and a single QML file will be created.")
-                              : tr("Creates a standalone, mobile-deployable Qt QML application "
-                                   "project. An existing QML project will be imported and a lightweight "
+                              : tr("Creates a mobile-deployable Qt QML application "
+                                   "project. An existing, QML Viewer-based project will be imported and a lightweight "
                                    "Qt/C++ application with a QDeclarativeView will be created for it."));
     parameters.setCategory(QLatin1String(Constants::QT_APP_WIZARD_CATEGORY));
     parameters.setDisplayCategory(QCoreApplication::translate(Constants::QT_APP_WIZARD_TR_SCOPE,

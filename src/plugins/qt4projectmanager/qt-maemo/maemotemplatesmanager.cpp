@@ -147,7 +147,7 @@ bool MaemoTemplatesManager::createDebianTemplatesIfNecessary(const ProjectExplor
     Q_ASSERT_X(qt4Target, Q_FUNC_INFO, "Target ID does not match actual type.");
     const MaemoToolChain * const tc
         = dynamic_cast<MaemoToolChain *>(qt4Target->activeBuildConfiguration()->toolChain());
-    Q_ASSERT_X(tc, Q_FUNC_INFO, "Maemo target has no maemo toolchain.");
+    Q_ASSERT_X(tc, Q_FUNC_INFO, "Maemo target has no Maemo toolchain.");
     if (!MaemoPackageCreationStep::preparePackagingProcess(&dh_makeProc, tc,
         projectDir.path(), &error)) {
         raiseError(error);
@@ -159,7 +159,7 @@ bool MaemoTemplatesManager::createDebianTemplatesIfNecessary(const ProjectExplor
         + MaemoPackageCreationStep::DefaultVersionNumber;
     dh_makeProc.start(MaemoPackageCreationStep::packagingCommand(tc, command));
     if (!dh_makeProc.waitForStarted()) {
-        raiseError(tr("Unable to create debian templates: dh_make failed (%1)")
+        raiseError(tr("Unable to create Debian templates: dh_make failed (%1)")
             .arg(dh_makeProc.errorString()));
         return false;
     }

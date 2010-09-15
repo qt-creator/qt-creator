@@ -69,7 +69,7 @@ void MaemoDeployStepWidget::handleDeviceUpdate()
 
 QString MaemoDeployStepWidget::summaryText() const
 {
-    return tr("<b>Deploy to device</b>: ") + m_step->deviceConfig().name;
+    return tr("<b>Deploy to device</b>: %1").arg(m_step->deviceConfig().name);
 }
 
 QString MaemoDeployStepWidget::displayName() const

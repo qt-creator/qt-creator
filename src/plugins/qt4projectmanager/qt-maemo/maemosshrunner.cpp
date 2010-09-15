@@ -84,7 +84,7 @@ void MaemoSshRunner::start()
 {
     // Should not happen.
     if (m_shuttingDown) {
-        emit error(tr("Can't restart yet, haven't shut down properly."));
+        emit error(tr("Cannot start deployment, as the clean-up from the last time has not finished yet."));
         return;
     }
 

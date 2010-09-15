@@ -17,7 +17,7 @@
    <item>
     <widget class="QGroupBox" name="mainQmlFileGroupBox">
      <property name="title">
-      <string>Main Qml file</string>
+      <string>Main QML file</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
@@ -29,7 +29,7 @@
    <item>
     <widget class="QGroupBox" name="qmlModulesGroupBox">
      <property name="title">
-      <string>Qml Modules</string>
+      <string>QML Modules</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>

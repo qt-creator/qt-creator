@@ -103,7 +103,7 @@ bool CeSdkHandler::parse(const QString &vsdir)
     }
 
     if (xml.error() && xml.error() != QXmlStreamReader::PrematureEndOfDocumentError) {
-        qWarning() << "XML ERROR:" << xml.lineNumber() << ": " << xml.errorString();
+        qWarning("CeSdkHandler::parse(): XML ERROR: %d : %s", int(xml.lineNumber()), qPrintable(xml.errorString()));
         return false;
     }
     return m_list.size() > 0 ? true : false;

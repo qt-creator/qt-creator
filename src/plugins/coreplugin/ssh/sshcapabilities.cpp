@@ -91,7 +91,7 @@ QByteArray SshCapabilities::findBestMatch(const QList<QByteArray> &myCapabilitie
     }
 
     throw SshServerException(SSH_DISCONNECT_KEY_EXCHANGE_FAILED,
-        "Server and client capabilities don't match.",
+        "Server and client capabilities do not match.",
         QCoreApplication::translate("SshConnection",
             "Server and client capabilities don't match. "
             "Client list was: %1.\nServer list was %2.")

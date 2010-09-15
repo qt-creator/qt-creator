@@ -219,6 +219,9 @@ void RSSFetcher::parseXml(QIODevice *device)
         }
     }
     if (xmlReader.error() && xmlReader.error() != QXmlStreamReader::PrematureEndOfDocumentError) {
-        qWarning() << "XML ERROR:" << xmlReader.lineNumber() << ": " << xmlReader.errorString();
+        qWarning("Welcome::Internal::RSSFetcher: XML ERROR: %d: %s (%s)",
+                 int(xmlReader.lineNumber()),
+                 qPrintable(xmlReader.errorString()),
+                 qPrintable(titleString));
     }
 }
