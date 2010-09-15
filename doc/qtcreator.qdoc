@@ -1986,6 +1986,7 @@
         <files>
             <file source="main.cpp" openeditor="true" />
             <file source="project.pro" target="%ProjectName%.pro" openproject="true" />
+            <file source="icon.png" target="%ProjectName%.png" binary="true" />
         \endcode
             \list
 
@@ -1994,6 +1995,10 @@
 
                 \o \c openeditor indicates that the file is to be opened in an editor after
                 the wizard has finished.
+
+                \o \c binary indicates that the file is a binary file (for example, an
+                image file). It is to be copied to the target folder as is. Placeholders
+                are not replaced with values.
 
                 \o \c target specifies the new filename for the file. The \c {%ProjectName%}
                 variable is replaced with the string that users specify in the \gui Name
