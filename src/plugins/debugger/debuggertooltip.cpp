@@ -151,7 +151,6 @@ void ToolTipWidget::run(const QPoint &point, QAbstractItemModel *model,
 {
     move(point);
     setModel(model);
-    setRootIndex(index.parent());
     computeSize();
     setRootIsDecorated(model->hasChildren(index));
     // FIXME: use something more sensible

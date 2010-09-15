@@ -140,8 +140,9 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
 bool StackHandler::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     switch (role) {
+        case RequestReloadFullStackRole:
         case RequestActivateFrameRole:
-            m_engine->activateFrame(value.toInt());
+            m_engine->handleCommand(role, value);
             return true;
 
         case RequestShowMemoryRole:
@@ -153,10 +154,6 @@ bool StackHandler::setData(const QModelIndex &index, const QVariant &value, int 
             m_disassemblerViewAgent->setFrame(frame);
             return true;
         }
-    
-        case RequestReloadFullStackRole:
-            m_engine->reloadFullStack();
-            return true;
     
         default:
             return QAbstractTableModel::setData(index, value, role);

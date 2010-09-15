@@ -185,6 +185,7 @@ public:
     virtual void selectThread(int index);
 
     virtual void assignValueInDebugger(const QString &expr, const QString &value);
+    virtual void removeTooltip();
 
     // Convenience
     static QMessageBox *showMessageBox

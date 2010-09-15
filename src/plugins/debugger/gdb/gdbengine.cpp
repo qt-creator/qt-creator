@@ -3189,9 +3189,6 @@ bool GdbEngine::supportsThreads() const
 //
 //////////////////////////////////////////////////////////////////////
 
-QString GdbEngine::m_toolTipExpression;
-QPoint GdbEngine::m_toolTipPos;
-
 bool GdbEngine::showToolTip()
 {
     QByteArray iname = tooltipIName(m_toolTipExpression);
@@ -4392,6 +4389,13 @@ void GdbEngine::resetCommandQueue()
         m_cookieForToken.clear();
         showMessage(msg);
     }
+}
+
+void GdbEngine::removeTooltip()
+{
+    m_toolTipExpression.clear();
+    m_toolTipPos = QPoint();
+    DebuggerEngine::removeTooltip();
 }
 
 //

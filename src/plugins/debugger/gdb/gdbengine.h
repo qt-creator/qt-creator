@@ -532,9 +532,10 @@ private: ////////// View & Data Stuff //////////
     AbstractGdbProcess *gdbProc() const;
     void showExecutionError(const QString &message);
 
-    static QString m_toolTipExpression;
-    static QPoint m_toolTipPos;
+    void removeTooltip();
     static QByteArray tooltipIName(const QString &exp);
+    QString m_toolTipExpression;
+    QPoint m_toolTipPos;
 
     // HACK:
     StackFrame m_targetFrame;

@@ -156,6 +156,7 @@ public:
 
     void loadSessionData();
     void saveSessionData();
+    void removeTooltip();
 
     void initializeFromTemplate(WatchHandler *other);
     void storeToTemplate(WatchHandler *other);

@@ -1661,5 +1661,11 @@ void WatchHandler::showInEditorHelper(QString *contents, WatchItem *item, int de
        showInEditorHelper(contents, child, depth + 1);
 }
 
+void WatchHandler::removeTooltip()
+{
+    m_tooltips->reinitialize();
+    m_tooltips->emitAllChanged();
+}
+
 } // namespace Internal
 } // namespace Debugger

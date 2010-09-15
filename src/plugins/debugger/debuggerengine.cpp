@@ -35,6 +35,7 @@
 #include "debuggeroutputwindow.h"
 #include "debuggerplugin.h"
 #include "debuggerstringutils.h"
+#include "debuggertooltip.h"
 
 #include "breakhandler.h"
 #include "moduleshandler.h"
@@ -421,11 +422,26 @@ void DebuggerEngine::showStatusMessage(const QString &msg, int timeout) const
     showMessage(msg, StatusBar, timeout);
 }
 
+void DebuggerEngine::removeTooltip()
+{
+    watchHandler()->removeTooltip();
+    hideDebuggerToolTip();
+}
+
 void DebuggerEngine::handleCommand(int role, const QVariant &value)
 {
-    //qDebug() << "COMMAND: " << role << value;
+    if (role != RequestToolTipByExpressionRole)
+        removeTooltip();
 
     switch (role) {
+        case RequestActivateFrameRole:
+            activateFrame(value.toInt());
+            break;
+
+        case RequestReloadFullStackRole:
+            reloadFullStack();
+            break;
+
         case RequestReloadSourceFilesRole:
             reloadSourceFiles();
             break;
