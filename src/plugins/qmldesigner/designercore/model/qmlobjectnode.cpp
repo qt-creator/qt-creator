@@ -387,6 +387,11 @@ QVariant QmlObjectNode::instanceValue(const ModelNode &modelNode, const QString 
     return modelView->instanceForModelNode(modelNode).property(name);
 }
 
+QString QmlObjectNode::instanceType(const QString &name) const
+{
+    return nodeInstance().instanceType(name);
+}
+
 NodeInstance QmlObjectNode::nodeInstance() const
 {
     return qmlModelView()->nodeInstanceView()->instanceForNode(modelNode());

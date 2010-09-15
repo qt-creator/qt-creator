@@ -617,6 +617,14 @@ QVariant ObjectNodeInstance::property(const QString &name) const
     return property.read();
 }
 
+QString ObjectNodeInstance::instanceType(const QString &name) const
+{
+    QDeclarativeProperty property(object(), name, context());
+    if (!property.isValid())
+        return QLatin1String("undefined");
+    return property.propertyTypeName();
+}
+
 
 void ObjectNodeInstance::setDeleteHeldInstance(bool deleteInstance)
 {

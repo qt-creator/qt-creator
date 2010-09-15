@@ -144,6 +144,7 @@ public:
     virtual QVariant property(const QString &name) const;
     virtual void resetProperty(const QString &name);
     virtual void refreshProperty(const QString &name);
+    virtual QString instanceType(const QString &name) const;
 
     void createDynamicProperty(const QString &name, const QString &typeName);
     void setDeleteHeldInstance(bool deleteInstance);

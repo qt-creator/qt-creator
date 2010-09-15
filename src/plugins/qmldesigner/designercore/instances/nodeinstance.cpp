@@ -428,6 +428,14 @@ QVariant NodeInstance::defaultValue(const QString &name) const
 }
 
 /*!
+\brief Returns the type of the property of this NodeInstance.
+*/
+QString NodeInstance::instanceType(const QString &name) const
+{
+    return m_nodeInstance->instanceType(name);
+}
+
+/*!
 \brief Returns if the NodeInstance is valid.
 \returns true if the NodeInstance is valid
 */
