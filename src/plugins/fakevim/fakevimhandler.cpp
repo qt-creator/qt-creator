@@ -1135,12 +1135,11 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
             moveLeft();
 
         //m_oldPosition = position();
+        if (hasConfig(ConfigShowMarks))
+            updateSelection();
+
+        exportSelection();
     }
-
-    if (hasConfig(ConfigShowMarks))
-        updateSelection();
-
-    exportSelection();
 
     return result;
 }
