@@ -1392,8 +1392,21 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specif
             // ### parse ref-qualifiers
             parseExceptionSpecification(ast->exception_specification);
 
-            if (_cxx0xEnabled && ! node->ptr_operator_list && LA() == T_ARROW)
-                parseTrailingReturnType(ast->trailing_return_type);
+            if (_cxx0xEnabled && ! node->ptr_operator_list && LA() == T_ARROW) {
+                // only allow if there is 1 type spec, which has to be 'auto'
+                bool hasAuto = false;
+                for (SpecifierListAST *iter = decl_specifier_list; !hasAuto && iter; iter = iter->next) {
+                    SpecifierAST *spec = iter->value;
+                    if (SimpleSpecifierAST *simpleSpec = spec->asSimpleSpecifier()) {
+                        if (_translationUnit->tokenKind(simpleSpec->specifier_token) == T_AUTO) {
+                            hasAuto = true;
+                        }
+                    }
+                }
+
+                if (hasAuto)
+                    parseTrailingReturnType(ast->trailing_return_type);
+            }
 
             *postfix_ptr = new (_pool) PostfixDeclaratorListAST(ast);
             postfix_ptr = &(*postfix_ptr)->next;
