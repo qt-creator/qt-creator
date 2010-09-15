@@ -76,7 +76,7 @@ MobileAppWizardDialog::MobileAppWizardDialog(QWidget *parent)
     setIntroDescription(Description);
     m_optionsPage = new MobileAppWizardOptionsPage;
     const int optionsPagePageId = addPage(m_optionsPage);
-    wizardProgress()->item(optionsPagePageId)->setTitle(tr("App options"));
+    wizardProgress()->item(optionsPagePageId)->setTitle(tr("Application options"));
 }
 
 class MobileAppWizardPrivate
