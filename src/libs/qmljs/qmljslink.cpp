@@ -43,6 +43,19 @@ using namespace QmlJS;
 using namespace QmlJS::Interpreter;
 using namespace QmlJS::AST;
 
+/*!
+    \class QmlJS::Link
+    \brief Initializes the Context for a Document.
+    \sa QmlJS::Document QmlJS::Interpreter::Context
+
+    Initializes a context by resolving imports and building the root scope
+    chain. Currently, this is a expensive operation.
+
+    It's recommended to use a the \l{LookupContext} returned by
+    \l{QmlJSEditor::SemanticInfo::lookupContext()} instead of building a new
+    \l{Context} with \l{Link}.
+*/
+
 Link::Link(Context *context, const Document::Ptr &doc, const Snapshot &snapshot,
            const QStringList &importPaths)
     : _doc(doc)

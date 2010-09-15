@@ -39,6 +39,47 @@
 using namespace QmlJS;
 using namespace QmlJS::AST;
 
+/*!
+    \class QmlJS::Document
+    \brief A Qml or JavaScript document.
+    \sa QmlJS::Snapshot
+
+    Documents are usually created by the \l{QmlJSEditor::Internal::ModelManager}
+    and stored in a \l{QmlJS::Snapshot}. They allow access to data such as
+    the file path, source code, abstract syntax tree and the \l{QmlJS::Bind}
+    instance for the document.
+
+    To make sure unused and outdated documents are removed correctly, Document
+    instances are usually accessed through a shared pointer, see \l{Document::Ptr}.
+*/
+
+/*!
+    \class QmlJS::LibraryInfo
+    \brief A Qml library.
+    \sa QmlJS::Snapshot
+
+    A LibraryInfo is created when the \l{QmlJSEditor::Internal::ModelManager} finds
+    a Qml library and parses the qmldir file. The instance holds information about
+    which Components the library provides and which plugins to load.
+
+    The ModelManager will try to extract detailed information about the types
+    defined in the plugins this library loads. Once it is done, the data will
+    be available through the metaObjects() function.
+*/
+
+/*!
+    \class QmlJS::Snapshot
+    \brief A set of Document::Ptr and LibraryInfo instances.
+    \sa QmlJS::Document QmlJS::LibraryInfo
+
+    A Snapshot holds and offers access to a set of Document and LibraryInfo instances.
+
+    Usually Snapshots are copies of the snapshot maintained and updated by the
+    \l{QmlJSEditor::Internal::ModelManager} that updates its instance as parsing
+    threads finish and new information becomes available.
+*/
+
+
 Document::Document(const QString &fileName)
     : _engine(0)
     , _pool(0)

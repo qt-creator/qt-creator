@@ -39,6 +39,22 @@ using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace QmlJS::Interpreter;
 
+/*!
+    \class QmlJS::Bind
+    \brief Collected information about a single Document.
+    \sa QmlJS::Document QmlJS::Link
+
+    Each QmlJS::Document owns a instance of Bind. It provides access to data
+    that can be derived by looking at the document in isolation. If you need
+    information that goes beyond that, you need to create a
+    \l{QmlJS::Interpreter::Context} using \l{QmlJS::Link}.
+
+    The document's imports are classified and available through fileImports(),
+    directoryImports() and libraryImports().
+
+    It allows AST to code model lookup through findQmlObject() and findFunctionScope().
+*/
+
 Bind::Bind(Document *doc)
     : _doc(doc),
       _currentObjectValue(0),
