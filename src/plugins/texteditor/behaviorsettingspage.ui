@@ -162,6 +162,48 @@
         </item>
         <item row="0" column="1">
          <widget class="QComboBox" name="indentBlocksBehavior">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+Controls the indentation style of curly brace blocks.
+
+&lt;ul&gt;
+&lt;li&gt;Exclude Braces: The braces are not indented.
+&lt;pre&gt;
+void foo()
+{
+    if (a)
+    {
+        bar();
+    }
+}
+&lt;/pre&gt;
+&lt;/li&gt;
+
+&lt;li&gt;Include Braces: The braces are indented. The contents of the block are on the same level as the braces.
+&lt;pre&gt;
+void foo()
+    {
+    if (a)
+        {
+        bar();
+        }
+    }
+&lt;/pre&gt;
+&lt;/li&gt;
+
+&lt;li&gt;GNU Style: Indent the braces for blocks in statements. The contents are indented twice.
+&lt;pre&gt;
+void foo()
+{
+  if (a)
+    {
+      bar();
+    }
+}
+&lt;/pre&gt;
+&lt;/li&gt;
+&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
           <item>
            <property name="text">
             <string>Exclude Braces</string>
