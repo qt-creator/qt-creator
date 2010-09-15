@@ -1479,10 +1479,12 @@ void GdbEngine::handleStop1(const GdbMi &data)
         if (m_gdbAdapter->isTrkAdapter()) {
             m_gdbAdapter->trkReloadThreads();
         } else if (m_isMacGdb) {
-            postCommand("-thread-list-ids", CB(handleThreadListIds), currentId);
+            postCommand("-thread-list-ids", Discardable,
+                CB(handleThreadListIds), currentId);
         } else {
             // This is only available in gdb 7.1+.
-            postCommand("-thread-info", CB(handleThreadInfo), currentId);
+            postCommand("-thread-info", Discardable,
+                CB(handleThreadInfo), currentId);
         }
     }
 
@@ -2761,7 +2763,8 @@ void GdbEngine::selectThread(int index)
     QTC_ASSERT(index < threads.size(), return);
     const int id = threads.at(index).id;
     showStatusMessage(tr("Retrieving data for stack view thread 0x%1...").arg(id, 0, 16), 10000);
-    postCommand("-thread-select " + QByteArray::number(id), CB(handleStackSelectThread));
+    postCommand("-thread-select " + QByteArray::number(id),
+        CB(handleStackSelectThread));
 }
 
 void GdbEngine::handleStackSelectThread(const GdbResponse &)
@@ -2777,7 +2780,7 @@ void GdbEngine::handleStackSelectThread(const GdbResponse &)
 void GdbEngine::reloadFullStack()
 {
     PENDING_DEBUG("RELOAD FULL STACK");
-    postCommand("-stack-list-frames", CB(handleStackListFrames),
+    postCommand("-stack-list-frames", Discardable, CB(handleStackListFrames),
         QVariant::fromValue<StackCookie>(StackCookie(true, true)));
 }
 
@@ -2797,7 +2800,7 @@ void GdbEngine::reloadStack(bool forceGotoLocation)
     // FIXME: Seems to work with 6.8.
     if (m_gdbAdapter->isTrkAdapter() && m_gdbVersion < 6.8)
         postCommand(cmd);
-    postCommand(cmd, CB(handleStackListFrames),
+    postCommand(cmd, Discardable, CB(handleStackListFrames),
         QVariant::fromValue<StackCookie>(StackCookie(false, forceGotoLocation)));
 }
 
