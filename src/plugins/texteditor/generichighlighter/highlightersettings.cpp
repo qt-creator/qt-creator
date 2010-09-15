@@ -66,15 +66,21 @@ QString findDefinitionsLocation()
 
     if (definitionsLocation.isEmpty()) {
         // Try kde-config.
-        QProcess process;
-        process.start(QLatin1String("kde-config"), QStringList(QLatin1String("--prefix")));
-        if (process.waitForStarted(5000)) {
-            process.waitForFinished(5000);
-            QString output = QString::fromLocal8Bit(process.readAllStandardOutput());
-            output.remove(QLatin1Char('\n'));
-            dir.setPath(output + kateSyntax);
-            if (dir.exists())
-                definitionsLocation = dir.path();
+        QStringList programs;
+        programs << QLatin1String("kde-config") << QLatin1String("kde4-config");
+        foreach (const QString &program, programs) {
+            QProcess process;
+            process.start(program, QStringList(QLatin1String("--prefix")));
+            if (process.waitForStarted(5000)) {
+                process.waitForFinished(5000);
+                QString output = QString::fromLocal8Bit(process.readAllStandardOutput());
+                output.remove(QLatin1Char('\n'));
+                dir.setPath(output + kateSyntax);
+                if (dir.exists()) {
+                    definitionsLocation = dir.path();
+                    break;
+                }
+            }
         }
     }
 #endif
