@@ -358,7 +358,7 @@ static void removeObjectFromList(const QDeclarativeProperty &property, QObject *
 
     for(int i = 0; i < count; i ++) {
         QObject *listItem = listReference.at(i);
-        if (listItem != objectToBeRemoved)
+        if (listItem && listItem != objectToBeRemoved)
             objectList.append(listItem);
     }
 
