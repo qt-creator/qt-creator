@@ -75,7 +75,7 @@ public:
         default: break;
         }
 
-        setDescription(QCoreApplication::tr("Create %1 Declaration from Definition",
+        setDescription(QCoreApplication::tr("Add %1 declaration",
                                             "CppEditor::DeclFromDef").arg(type));
     }
 
