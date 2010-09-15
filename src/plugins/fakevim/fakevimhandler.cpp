@@ -2727,6 +2727,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
                 moveRight(prefix.size());
                 m_lastInsertion.clear(); // FIXME
             } else {
+                setAnchor();
                 cursor().deletePreviousChar();
                 m_lastInsertion.chop(1);
             }
