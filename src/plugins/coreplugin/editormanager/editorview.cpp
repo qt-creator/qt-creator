@@ -95,16 +95,18 @@ EditorView::EditorView(QWidget *parent) :
         tl->addWidget(m_toolBar);
     }
     {
+        QPalette pal = m_infoWidget->palette();
+        pal.setColor(QPalette::Window, QColor(255, 255, 225));
+        pal.setColor(QPalette::WindowText, Qt::black);
+
+        m_infoWidget->setPalette(pal);
         m_infoWidget->setFrameStyle(QFrame::Panel | QFrame::Raised);
         m_infoWidget->setLineWidth(1);
-        m_infoWidget->setForegroundRole(QPalette::ToolTipText);
-        m_infoWidget->setBackgroundRole(QPalette::ToolTipBase);
         m_infoWidget->setAutoFillBackground(true);
 
         QHBoxLayout *hbox = new QHBoxLayout(m_infoWidget);
         hbox->setMargin(2);
         m_infoWidgetLabel = new QLabel("Placeholder");
-        m_infoWidgetLabel->setForegroundRole(QPalette::ToolTipText);
         m_infoWidgetLabel->setWordWrap(true);
         hbox->addWidget(m_infoWidgetLabel);
 
@@ -132,21 +134,17 @@ EditorView::EditorView(QWidget *parent) :
 
         m_statusWidget->setFrameStyle(QFrame::NoFrame);
         m_statusWidget->setLineWidth(0);
-        //m_statusWidget->setForegroundRole(QPalette::ToolTipText);
-        //m_statusWidget->setBackgroundRole(QPalette::ToolTipBase);
         m_statusWidget->setAutoFillBackground(true);
 
         QHBoxLayout *hbox = new QHBoxLayout(m_statusWidget);
         hbox->setContentsMargins(1, 0, 1, 1);
         m_statusWidgetLabel = new QLabel;
-        m_statusWidgetLabel->setForegroundRole(QPalette::ToolTipText);
         m_statusWidgetLabel->setContentsMargins(3, 0, 3, 0);
         hbox->addWidget(m_statusWidgetLabel);
         hbox->addStretch(1);
 
         m_statusWidgetButton = new QToolButton;
         m_statusWidgetButton->setContentsMargins(0, 0, 0, 0);
-        //m_statusWidgetButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_CLEAR)));
         hbox->addWidget(m_statusWidgetButton);
 
         m_statusHLine->setVisible(false);
