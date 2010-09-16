@@ -944,7 +944,6 @@ public:
     {
         GlobalData()
         {
-            inReplay = false;
             inputTimer = -1;
         }
 
@@ -954,7 +953,6 @@ public:
 
         // Repetition.
         QString dotCommand;
-        bool inReplay; // true if we are executing a '.'
 
         // History for searches.
         History searchHistory;
@@ -2801,9 +2799,6 @@ void FakeVimHandler::Private::insertInInsertMode(const QString &text)
             indentText(range, text.at(0));
         }
     }
-
-    if (!g.inReplay)
-        emit q->completionRequested();
     setTargetColumn();
     endEditBlock();
     m_ctrlVActive = false;
@@ -4631,14 +4626,12 @@ void FakeVimHandler::Private::handleStartOfLine()
 void FakeVimHandler::Private::replay(const QString &command, int n)
 {
     //qDebug() << "REPLAY: " << quoteUnprintable(command);
-    g.inReplay = true;
     for (int i = n; --i >= 0; ) {
         foreach (QChar c, command) {
             //qDebug() << "  REPLAY: " << QString(c);
             handleKey(Input(c));
         }
     }
-    g.inReplay = false;
 }
 
 void FakeVimHandler::Private::selectWordTextObject(bool inner)
@@ -4799,6 +4792,8 @@ bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
         QKeyEvent *kev = static_cast<QKeyEvent *>(ev);
         KEY_DEBUG("KEYPRESS" << kev->key() << kev->text() << QChar(kev->key()));
         EventResult res = d->handleEvent(kev);
+        if (d->m_mode == InsertMode)
+            emit completionRequested();
         // returning false core the app see it
         //KEY_DEBUG("HANDLED CODE:" << res);
         //return res != EventPassedToCore;
