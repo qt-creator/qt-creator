@@ -112,7 +112,7 @@ const char * const ICON_WINDOW = ":/qt4projectmanager/images/window.png";
 const char * const ICON_QML_STANDALONE = ":/wizards/images/qml_standalone.png";
 
 // Env variables
-const char * const QMAKEVAR_QMLINSPECTOR_PATH = "QMLINSPECTOR_PATH";
+const char * const QMAKEVAR_QMLOBSERVER_PATH = "QMLOBSERVER_PATH";
 
 } // namespace Constants
 } // namespace Qt4ProjectManager
