@@ -172,7 +172,7 @@ void QDeclarativeObserverService::setCurrentObjects(QList<QObject*> objects)
     sendMessage(message);
 }
 
-void QDeclarativeObserverService::setCurrentTool(QmlViewer::Constants::DesignTool toolId)
+void QDeclarativeObserverService::setCurrentTool(QmlObserver::Constants::DesignTool toolId)
 {
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);

@@ -12,7 +12,7 @@
 #include <QDebug>
 
 
-namespace QmlViewer {
+namespace QmlObserver {
 
 const qreal MaxOpacity = 0.5f;
 
@@ -317,4 +317,4 @@ int SubcomponentEditorTool::contextIndex() const
 }
 
 
-} // namespace QmlViewer
+} // namespace QmlObserver

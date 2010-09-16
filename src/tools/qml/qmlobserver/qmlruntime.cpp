@@ -614,7 +614,7 @@ QDeclarativeViewer::QDeclarativeViewer(QWidget *parent, Qt::WindowFlags flags)
     }
 
     canvas = new QDeclarativeView(this);
-    observer = new QmlViewer::QDeclarativeViewObserver(canvas, this);
+    observer = new QmlObserver::QDeclarativeViewObserver(canvas, this);
     if (!(flags & Qt::FramelessWindowHint)) {
         m_crumblePathWidget = new Utils::CrumblePath(canvas);
 #ifndef Q_WS_MAC

@@ -39,7 +39,7 @@ QT_FORWARD_DECLARE_CLASS(QDeclarativeItem);
 QT_FORWARD_DECLARE_CLASS(QMouseEvent);
 QT_FORWARD_DECLARE_CLASS(QToolBar);
 
-namespace QmlViewer {
+namespace QmlObserver {
 
 class CrumblePath;
 class QDeclarativeViewObserverPrivate;
@@ -124,6 +124,6 @@ private:
 
 };
 
-} //namespace QmlViewer
+} //namespace QmlObserver
 
 #endif // QDECLARATIVEVIEWOBSERVER_H

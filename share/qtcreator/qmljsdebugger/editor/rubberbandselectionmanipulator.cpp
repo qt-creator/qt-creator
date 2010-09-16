@@ -32,7 +32,7 @@
 
 #include <QDebug>
 
-namespace QmlViewer {
+namespace QmlObserver {
 
 RubberBandSelectionManipulator::RubberBandSelectionManipulator(QGraphicsObject *layerItem, QDeclarativeViewObserver *editorView)
     : m_selectionRectangleElement(layerItem),

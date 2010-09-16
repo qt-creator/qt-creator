@@ -49,7 +49,7 @@
 
 #include "loggerwidget.h"
 
-namespace QmlViewer {
+namespace QmlObserver {
     class QDeclarativeViewObserver;
 }
 namespace Utils {
@@ -168,7 +168,7 @@ private:
     LoggerWidget *loggerWindow;
 
     QDeclarativeView *canvas;
-    QmlViewer::QDeclarativeViewObserver *observer;
+    QmlObserver::QDeclarativeViewObserver *observer;
     QSize initialSize;
     QString currentFileOrUrl;
     QTimer recordTimer;

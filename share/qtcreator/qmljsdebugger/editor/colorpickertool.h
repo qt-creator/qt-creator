@@ -7,7 +7,7 @@
 
 QT_FORWARD_DECLARE_CLASS(QPoint);
 
-namespace QmlViewer {
+namespace QmlObserver {
 
 class ColorPickerTool : public AbstractFormEditorTool
 {
@@ -48,6 +48,6 @@ private:
 
 };
 
-} // namespace QmlViewer
+} // namespace QmlObserver
 
 #endif // COLORPICKERTOOL_H

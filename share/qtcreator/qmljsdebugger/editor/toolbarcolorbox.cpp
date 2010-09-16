@@ -14,7 +14,7 @@
 
 #include <QDebug>
 
-namespace QmlViewer {
+namespace QmlObserver {
 
 ToolBarColorBox::ToolBarColorBox(QWidget *parent) :
     QLabel(parent)
@@ -93,4 +93,4 @@ void ToolBarColorBox::copyColorToClipboard()
 }
 
 
-} // namespace QmlViewer
+} // namespace QmlObserver

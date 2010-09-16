@@ -72,6 +72,6 @@ private:
     QScopedPointer<CrumblePathPrivate> d;
 };
 
-} // namespace QmlViewer
+} // namespace Utils
 
 #endif // CRUMBLEPATH_H

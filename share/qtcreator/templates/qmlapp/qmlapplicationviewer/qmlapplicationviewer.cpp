@@ -51,7 +51,7 @@ QmlApplicationViewer::QmlApplicationViewer(QWidget *parent) :
     connect(engine(), SIGNAL(quit()), SLOT(close()));
     setResizeMode(QDeclarativeView::SizeRootObjectToView);
 #ifdef QMLINSPECTOR
-    new QmlViewer::QDeclarativeViewObserver(this, parent);
+    new QmlObserver::QDeclarativeViewObserver(this, parent);
 #endif
 }
 

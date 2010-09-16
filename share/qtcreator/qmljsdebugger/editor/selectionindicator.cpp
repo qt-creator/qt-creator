@@ -36,7 +36,7 @@
 #include <QGraphicsScene>
 #include <QDebug>
 
-namespace QmlViewer {
+namespace QmlObserver {
 
 SelectionIndicator::SelectionIndicator(QDeclarativeViewObserver *editorView, QGraphicsObject *layerItem)
     : m_layerItem(layerItem), m_view(editorView)
@@ -123,5 +123,5 @@ void SelectionIndicator::setItems(const QList<QWeakPointer<QGraphicsObject> > &i
     }
 }
 
-} //namespace QmlViewer
+} //namespace QmlObserver
 

@@ -45,7 +45,7 @@ class QWheelEvent;
 class QDeclarativeView;
 QT_END_NAMESPACE
 
-namespace QmlViewer {
+namespace QmlObserver {
 
 class QDeclarativeViewObserver;
 

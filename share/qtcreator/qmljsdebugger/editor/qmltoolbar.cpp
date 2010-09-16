@@ -8,7 +8,7 @@
 
 #include <QDebug>
 
-namespace QmlViewer {
+namespace QmlObserver {
 
 QmlToolbar::QmlToolbar(QWidget *parent)
     : QToolBar(parent)

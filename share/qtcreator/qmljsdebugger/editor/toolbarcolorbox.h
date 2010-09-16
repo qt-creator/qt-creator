@@ -8,7 +8,7 @@
 QT_FORWARD_DECLARE_CLASS(QContextMenuEvent);
 QT_FORWARD_DECLARE_CLASS(QAction);
 
-namespace QmlViewer {
+namespace QmlObserver {
 
 class ToolBarColorBox : public QLabel
 {
@@ -36,6 +36,6 @@ private:
 
 };
 
-} // namespace QmlViewer
+} // namespace QmlObserver
 
 #endif // ToolBarColorBox_H

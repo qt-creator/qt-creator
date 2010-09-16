@@ -3,7 +3,7 @@
 #include "qdeclarativeviewobserver.h"
 #include <QPolygonF>
 
-namespace QmlViewer {
+namespace QmlObserver {
 
 SubcomponentMaskLayerItem::SubcomponentMaskLayerItem(QDeclarativeViewObserver *observer, QGraphicsItem *parentItem) :
     QGraphicsPolygonItem(parentItem),
@@ -77,4 +77,4 @@ QGraphicsItem *SubcomponentMaskLayerItem::currentItem() const
     return m_currentItem;
 }
 
-} // namespace QmlViewer
+} // namespace QmlObserver

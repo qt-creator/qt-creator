@@ -5,7 +5,7 @@
 #include <QIcon>
 #include "qmlviewerconstants.h"
 
-namespace QmlViewer {
+namespace QmlObserver {
 
 class ToolBarColorBox;
 

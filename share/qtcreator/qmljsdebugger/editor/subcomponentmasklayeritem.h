@@ -3,7 +3,7 @@
 
 #include <QGraphicsPolygonItem>
 
-namespace QmlViewer {
+namespace QmlObserver {
 
 class QDeclarativeViewObserver;
 
@@ -24,6 +24,6 @@ private:
     QRectF m_itemPolyRect;
 };
 
-} // namespace QmlViewer
+} // namespace QmlObserver
 
 #endif // SUBCOMPONENTMASKLAYERITEM_H

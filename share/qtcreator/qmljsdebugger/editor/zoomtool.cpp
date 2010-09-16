@@ -10,7 +10,7 @@
 
 #include <QDebug>
 
-namespace QmlViewer {
+namespace QmlObserver {
 
 ZoomTool::ZoomTool(QDeclarativeViewObserver *view) :
         AbstractFormEditorTool(view),
@@ -284,4 +284,4 @@ qreal ZoomTool::nextZoomScale(ZoomDirection direction) const
     return 1.0f;
 }
 
-} // namespace QmlViewer
+} // namespace QmlObserver

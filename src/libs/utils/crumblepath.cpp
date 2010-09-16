@@ -341,4 +341,4 @@ void CrumblePath::paintEvent(QPaintEvent *event)
     QWidget::paintEvent(event);
 }
 
-} // namespace QmlViewer
+} // namespace Utils

@@ -6,7 +6,7 @@
 
 QT_FORWARD_DECLARE_CLASS(QAction);
 
-namespace QmlViewer {
+namespace QmlObserver {
 
 class ZoomTool : public AbstractFormEditorTool
 {
@@ -60,6 +60,6 @@ private:
 
 };
 
-} // namespace QmlViewer
+} // namespace QmlObserver
 
 #endif // ZOOMTOOL_H

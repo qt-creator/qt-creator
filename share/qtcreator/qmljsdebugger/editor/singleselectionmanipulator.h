@@ -35,7 +35,7 @@
 
 QT_FORWARD_DECLARE_CLASS(QGraphicsItem);
 
-namespace QmlViewer {
+namespace QmlObserver {
 
 class QDeclarativeViewObserver;
 

@@ -39,7 +39,7 @@
 
 QT_FORWARD_DECLARE_CLASS(JSDebuggerAgent)
 
-namespace QmlViewer {
+namespace QmlObserver {
 
 class QDeclarativeViewObserver;
 class SelectionTool;
@@ -138,6 +138,6 @@ public:
     static QDeclarativeViewObserverPrivate *get(QDeclarativeViewObserver *v) { return v->d_func(); }
 };
 
-} // namespace QmlViewer
+} // namespace QmlObserver
 
 #endif // QDECLARATIVEDESIGNVIEW_P_H

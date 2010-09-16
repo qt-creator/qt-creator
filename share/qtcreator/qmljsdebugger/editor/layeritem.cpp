@@ -32,7 +32,7 @@
 
 #include <QGraphicsScene>
 
-namespace QmlViewer {
+namespace QmlObserver {
 
 LayerItem::LayerItem(QGraphicsScene* scene)
             : QGraphicsObject()
@@ -75,4 +75,4 @@ QList<QGraphicsItem*> LayerItem::findAllChildItems(const QGraphicsItem *item) co
     return itemList;
 }
 
-} // namespace QmlViewer
+} // namespace QmlObserver

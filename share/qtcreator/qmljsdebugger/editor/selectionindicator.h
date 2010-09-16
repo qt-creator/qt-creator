@@ -34,7 +34,7 @@
 #include <QGraphicsPolygonItem>
 #include <QGraphicsObject>
 
-namespace QmlViewer {
+namespace QmlObserver {
 
 class QDeclarativeViewObserver;
 

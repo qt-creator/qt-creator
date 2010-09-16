@@ -33,7 +33,7 @@
 #include <QGraphicsObject>
 #include <QWeakPointer>
 
-namespace QmlViewer {
+namespace QmlObserver {
 
 class FormEditorScene;
 

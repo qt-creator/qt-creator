@@ -46,7 +46,7 @@
 
 #include <QDebug>
 
-namespace QmlViewer {
+namespace QmlObserver {
 
 SelectionTool::SelectionTool(QDeclarativeViewObserver *editorView)
     : AbstractFormEditorTool(editorView),

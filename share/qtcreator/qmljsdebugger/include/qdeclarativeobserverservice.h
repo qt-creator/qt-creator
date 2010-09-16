@@ -66,7 +66,7 @@ public:
     void setDesignModeBehavior(bool inDesignMode);
     void setCurrentObjects(QList<QObject*> items);
     void setAnimationSpeed(qreal slowdownFactor);
-    void setCurrentTool(QmlViewer::Constants::DesignTool toolId);
+    void setCurrentTool(QmlObserver::Constants::DesignTool toolId);
     void reloaded();
     QString idStringForObject(QObject *obj) const;
 
