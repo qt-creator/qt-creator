@@ -1952,8 +1952,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         QString needle;
         QTextCursor tc = cursor();
         tc.select(QTextCursor::WordUnderCursor);
-        setCursor(tc);
         needle = "\\<" + tc.selection().toPlainText() + "\\>";
+        setAnchorAndPosition(tc.position(), tc.anchor());
         g.searchHistory.append(needle);
         m_lastSearchForward = input.is('*');
         m_currentMessage.clear();
