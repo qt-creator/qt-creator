@@ -18,7 +18,7 @@ include($$PWD/editor/editor.pri)
 HEADERS += \
     include/jsdebuggeragent.h \
     include/qdeclarativeviewobserver.h \
-    include/qdeclarativedesigndebugserver.h \
+    include/qdeclarativeobserverservice.h \
     include/qmlviewerconstants.h \
     include/qmljsdebugger_global.h \
     qdeclarativeviewobserver_p.h
@@ -26,6 +26,6 @@ HEADERS += \
 SOURCES += \
     jsdebuggeragent.cpp \
     qdeclarativeviewobserver.cpp \
-    qdeclarativedesigndebugserver.cpp
+    qdeclarativeobserverservice.cpp
 
 OTHER_FILES += qmljsdebugger.pri

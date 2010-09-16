@@ -50,7 +50,7 @@ namespace Internal {
 
 QmlJSDesignDebugClient::QmlJSDesignDebugClient(QDeclarativeDebugConnection *client,
                                                              QObject * /*parent*/)
-    : QDeclarativeDebugClient(QLatin1String("QDeclarativeDesignMode"), client) ,
+    : QDeclarativeDebugClient(QLatin1String("QDeclarativeObserverMode"), client) ,
     m_connection(client)
 {
     setEnabled(true);

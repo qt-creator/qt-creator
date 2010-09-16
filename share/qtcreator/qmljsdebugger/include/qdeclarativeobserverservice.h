@@ -56,12 +56,12 @@ class QDeclarativeContext;
 class QDeclarativeWatcher;
 class QDataStream;
 
-class QMLJSDEBUGGER_EXPORT QDeclarativeDesignDebugServer : public QDeclarativeDebugService
+class QMLJSDEBUGGER_EXPORT QDeclarativeObserverService : public QDeclarativeDebugService
 {
     Q_OBJECT
 public:
-    QDeclarativeDesignDebugServer();
-    static QDeclarativeDesignDebugServer *instance();
+    QDeclarativeObserverService();
+    static QDeclarativeObserverService *instance();
 
     void setDesignModeBehavior(bool inDesignMode);
     void setCurrentObjects(QList<QObject*> items);

@@ -35,7 +35,7 @@
 #include <QTimer>
 
 #include "qdeclarativeviewobserver.h"
-#include "qdeclarativedesigndebugserver.h"
+#include "qdeclarativeobserverservice.h"
 
 QT_FORWARD_DECLARE_CLASS(JSDebuggerAgent)
 
@@ -67,7 +67,7 @@ public:
 
     QDeclarativeView *view;
     QDeclarativeViewObserver *q;
-    QDeclarativeDesignDebugServer *debugServer;
+    QDeclarativeObserverService *debugService;
 
     QPointF cursorPos;
     QList<QWeakPointer<QGraphicsObject> > currentSelection;

@@ -39,31 +39,31 @@
 **
 ****************************************************************************/
 
-#include "qdeclarativedesigndebugserver.h"
+#include "qdeclarativeobserverservice.h"
 
 #include <QStringList>
 #include <QColor>
 
 #include <QDebug>
 
-Q_GLOBAL_STATIC(QDeclarativeDesignDebugServer, qmlDesignDebugServer)
+Q_GLOBAL_STATIC(QDeclarativeObserverService, serviceInstance)
 
-QDeclarativeDesignDebugServer::QDeclarativeDesignDebugServer()
-    : QDeclarativeDebugService(QLatin1String("QDeclarativeDesignMode"))
+QDeclarativeObserverService::QDeclarativeObserverService()
+    : QDeclarativeDebugService(QLatin1String("QDeclarativeObserverMode"))
 {
 }
 
-QDeclarativeDesignDebugServer *QDeclarativeDesignDebugServer::instance()
+QDeclarativeObserverService *QDeclarativeObserverService::instance()
 {
-    return qmlDesignDebugServer();
+    return serviceInstance();
 }
 
-void QDeclarativeDesignDebugServer::enabledChanged(bool enabled)
+void QDeclarativeObserverService::enabledChanged(bool enabled)
 {
     emit debuggingClientChanged(enabled);
 }
 
-void QDeclarativeDesignDebugServer::messageReceived(const QByteArray &message)
+void QDeclarativeObserverService::messageReceived(const QByteArray &message)
 {
     QDataStream ds(message);
 
@@ -145,7 +145,7 @@ void QDeclarativeDesignDebugServer::messageReceived(const QByteArray &message)
     }
 }
 
-void QDeclarativeDesignDebugServer::setDesignModeBehavior(bool inDesignMode)
+void QDeclarativeObserverService::setDesignModeBehavior(bool inDesignMode)
 {
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
@@ -156,7 +156,7 @@ void QDeclarativeDesignDebugServer::setDesignModeBehavior(bool inDesignMode)
     sendMessage(message);
 }
 
-void QDeclarativeDesignDebugServer::setCurrentObjects(QList<QObject*> objects)
+void QDeclarativeObserverService::setCurrentObjects(QList<QObject*> objects)
 {
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
@@ -172,7 +172,7 @@ void QDeclarativeDesignDebugServer::setCurrentObjects(QList<QObject*> objects)
     sendMessage(message);
 }
 
-void QDeclarativeDesignDebugServer::setCurrentTool(QmlViewer::Constants::DesignTool toolId)
+void QDeclarativeObserverService::setCurrentTool(QmlViewer::Constants::DesignTool toolId)
 {
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
@@ -183,7 +183,7 @@ void QDeclarativeDesignDebugServer::setCurrentTool(QmlViewer::Constants::DesignT
     sendMessage(message);
 }
 
-void QDeclarativeDesignDebugServer::setAnimationSpeed(qreal slowdownFactor)
+void QDeclarativeObserverService::setAnimationSpeed(qreal slowdownFactor)
 {
 
     QByteArray message;
@@ -195,7 +195,7 @@ void QDeclarativeDesignDebugServer::setAnimationSpeed(qreal slowdownFactor)
     sendMessage(message);
 }
 
-void QDeclarativeDesignDebugServer::reloaded()
+void QDeclarativeObserverService::reloaded()
 {
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
@@ -205,7 +205,7 @@ void QDeclarativeDesignDebugServer::reloaded()
     sendMessage(message);
 }
 
-void QDeclarativeDesignDebugServer::selectedColorChanged(const QColor &color)
+void QDeclarativeObserverService::selectedColorChanged(const QColor &color)
 {
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
@@ -216,7 +216,7 @@ void QDeclarativeDesignDebugServer::selectedColorChanged(const QColor &color)
     sendMessage(message);
 }
 
-void QDeclarativeDesignDebugServer::contextPathUpdated(const QStringList &contextPath)
+void QDeclarativeObserverService::contextPathUpdated(const QStringList &contextPath)
 {
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
@@ -227,7 +227,7 @@ void QDeclarativeDesignDebugServer::contextPathUpdated(const QStringList &contex
     sendMessage(message);
 }
 
-QString QDeclarativeDesignDebugServer::idStringForObject(QObject *obj) const
+QString QDeclarativeObserverService::idStringForObject(QObject *obj) const
 {
     int id = idForObject(obj);
     QString idString = m_stringIdForObjectId.value(id, QString());
