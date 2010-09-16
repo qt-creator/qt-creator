@@ -68,7 +68,7 @@ private slots:
     void showError();
     void ignoreDownloadReply();
     void setFallbackLocationState(bool checked);
-    void setManageDefinitionsState(bool valid);
+    void setDownloadDefinitionsState(bool valid);
 
 private:
     void settingsFromUI();

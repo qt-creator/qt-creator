@@ -92,7 +92,7 @@ QWidget *HighlighterSettingsPage::createPage(QWidget *parent)
     QWidget *w = new QWidget(parent);
     m_d->m_page.setupUi(w);
     m_d->m_page.definitionFilesPath->setExpectedKind(Utils::PathChooser::Directory);
-    m_d->m_page.definitionFilesPath->addButton(tr("Manage"), this,
+    m_d->m_page.definitionFilesPath->addButton(tr("Download Definitions"), this,
                                                SLOT(requestAvailableDefinitionsMetaData()));
     m_d->m_page.fallbackDefinitionFilesPath->setExpectedKind(Utils::PathChooser::Directory);
     m_d->m_page.fallbackDefinitionFilesPath->addButton(tr("Autodetect"), this,
@@ -111,7 +111,7 @@ QWidget *HighlighterSettingsPage::createPage(QWidget *parent)
     connect(m_d->m_page.useFallbackLocation, SIGNAL(clicked(bool)),
             this, SLOT(setFallbackLocationState(bool)));
     connect(m_d->m_page.definitionFilesPath, SIGNAL(validChanged(bool)),
-            this, SLOT(setManageDefinitionsState(bool)));
+            this, SLOT(setDownloadDefinitionsState(bool)));
     connect(w, SIGNAL(destroyed()), this, SLOT(ignoreDownloadReply()));
 
     return w;
@@ -166,7 +166,7 @@ void HighlighterSettingsPage::settingsToUI()
     m_d->m_page.ignoreEdit->setText(m_d->m_settings.ignoredFilesPatterns());
 
     setFallbackLocationState(m_d->m_page.useFallbackLocation->isChecked());
-    setManageDefinitionsState(m_d->m_page.definitionFilesPath->isValid());
+    setDownloadDefinitionsState(m_d->m_page.definitionFilesPath->isValid());
 }
 
 void HighlighterSettingsPage::resetDefinitionsLocation()
@@ -174,14 +174,14 @@ void HighlighterSettingsPage::resetDefinitionsLocation()
     const QString &location = findDefinitionsLocation();
     if (location.isEmpty())
         QMessageBox::information(0, tr("Autodetect Definitions"),
-                                 tr("No existing definitions could be found."));
+                                 tr("No pre-installed definitions could be found."));
     else
         m_d->m_page.fallbackDefinitionFilesPath->setPath(location);
 }
 
 void HighlighterSettingsPage::requestAvailableDefinitionsMetaData()
 {
-    setManageDefinitionsState(false);
+    setDownloadDefinitionsState(false);
 
     connect(Manager::instance(),
             SIGNAL(definitionsMetaDataReady(QList<Internal::HighlightDefinitionMetaData>)),
@@ -210,7 +210,7 @@ void HighlighterSettingsPage::manageDefinitions(const QList<HighlightDefinitionM
                                    m_d->m_page.definitionFilesPath->buttonAtIndex(1)->window());
     if (dialog.exec() && !m_requestMimeTypeRegistration)
         m_requestMimeTypeRegistration = true;
-    setManageDefinitionsState(m_d->m_page.definitionFilesPath->isValid());
+    setDownloadDefinitionsState(m_d->m_page.definitionFilesPath->isValid());
 }
 
 void HighlighterSettingsPage::showError()
@@ -218,7 +218,7 @@ void HighlighterSettingsPage::showError()
     QMessageBox::critical(m_d->m_page.definitionFilesPath->buttonAtIndex(1)->window(),
                           tr("Error connecting to server."),
                           tr("Not possible to retrieve data."));
-    setManageDefinitionsState(m_d->m_page.definitionFilesPath->isValid());
+    setDownloadDefinitionsState(m_d->m_page.definitionFilesPath->isValid());
 }
 
 void HighlighterSettingsPage::setFallbackLocationState(bool checked)
@@ -226,7 +226,7 @@ void HighlighterSettingsPage::setFallbackLocationState(bool checked)
     m_d->m_page.fallbackDefinitionFilesPath->setEnabled(checked);
 }
 
-void HighlighterSettingsPage::setManageDefinitionsState(bool valid)
+void HighlighterSettingsPage::setDownloadDefinitionsState(bool valid)
 {
     m_d->m_page.definitionFilesPath->buttonAtIndex(1)->setEnabled(valid);
 }

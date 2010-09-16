@@ -56,10 +56,10 @@ ManageDefinitionsDialog::ManageDefinitionsDialog(
 {
     ui.setupUi(this);    
     ui.definitionsTable->setHorizontalHeaderLabels(
-        QStringList() << tr("Definition Name") << tr("Installed") << tr("Available"));
+        QStringList() << tr("Name") << tr("Installed") << tr("Available"));
     ui.definitionsTable->horizontalHeader()->setResizeMode(0, QHeaderView::Stretch);
 
-    setWindowTitle(tr("Manage Definitions"));
+    setWindowTitle(tr("Download Definitions"));
 
     populateDefinitionsWidget();
 

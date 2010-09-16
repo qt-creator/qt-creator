@@ -17,7 +17,7 @@
    <item>
     <widget class="QGroupBox" name="definitionsGroupBox">
      <property name="title">
-      <string>Available Definitions</string>
+      <string>Definitions</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
