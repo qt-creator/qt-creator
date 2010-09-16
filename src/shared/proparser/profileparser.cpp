@@ -276,7 +276,8 @@ bool ProFileParser::read(ProFile *pro, const QString &in)
     ushort *buf = (ushort *)xprBuff.constData();
 
     // Parser state
-    m_blockstack.resize(m_blockstack.size() + 1);
+    m_blockstack.clear();
+    m_blockstack.resize(1);
 
     QStack<ParseCtx> xprStack;
     xprStack.reserve(10);
