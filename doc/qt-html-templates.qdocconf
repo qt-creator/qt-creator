@@ -112,9 +112,9 @@ HTML.footer             = "" \
 			  "      </div>\n" \
 			  "    </div>\n" \
 			  "    </div>\n" \
-			  "  </div> \n" \
 			  "    <div class=\"ft\">\n" \
 			  "      <span></span>\n" \
+			  "  </div> \n" \
 			  "  </div> \n" \
 			  "  <div class=\"footer\">\n" \
 			  "    <p>\n" \
