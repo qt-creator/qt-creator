@@ -55,7 +55,6 @@ GroupBox {
                     id: gradientLine;
                     activeColor: colorGroupBox.color
                     itemNode: anchorBackend.itemNode
-                    active: colorGroupBox.gradientButtonChecked
                 }
             }
         }
