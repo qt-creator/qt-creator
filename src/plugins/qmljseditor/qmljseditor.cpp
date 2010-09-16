@@ -32,8 +32,9 @@
 #include "qmljshighlighter.h"
 #include "qmljseditorplugin.h"
 #include "qmljsmodelmanager.h"
-#include "qmloutlinemodel.h"
 #include "qmljseditorcodeformatter.h"
+#include "qmljsquickfix.h"
+#include "qmloutlinemodel.h"
 
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljscheck.h>
@@ -66,6 +67,7 @@
 #include <utils/uncommentselection.h>
 
 #include <QtCore/QFileInfo>
+#include <QtCore/QSignalMapper>
 #include <QtCore/QTimer>
 
 #include <QtGui/QMenu>
@@ -1451,28 +1453,61 @@ void QmlJSTextEditor::showContextPane()
     }
 }
 
+void QmlJSTextEditor::performQuickFix(int index)
+{
+    TextEditor::QuickFixOperation::Ptr op = m_quickFixes.at(index);
+    op->perform();
+}
+
 void QmlJSTextEditor::contextMenuEvent(QContextMenuEvent *e)
 {
     QMenu *menu = new QMenu();
 
-    if (Core::ActionContainer *mcontext = Core::ICore::instance()->actionManager()->actionContainer(QmlJSEditor::Constants::M_CONTEXT)) {
-        QMenu *contextMenu = mcontext->menu();
-        foreach (QAction *action, contextMenu->actions())
-            menu->addAction(action);
-    }
+    QMenu *refactoringMenu = new QMenu(tr("Refactoring"), menu);
 
+    // Conditionally add the rename-id action:
     const QString id = wordUnderCursor();
     const QList<AST::SourceLocation> &locations = m_semanticInfo.idLocations.value(id);
     if (! locations.isEmpty()) {
-        menu->addSeparator();
-        QAction *a = menu->addAction(tr("Rename id '%1'...").arg(id));
+        QAction *a = refactoringMenu->addAction(tr("Rename id '%1'...").arg(id));
         connect(a, SIGNAL(triggered()), this, SLOT(renameIdUnderCursor()));
+    }
+
+    // Add other refactoring actions:
+    QmlJSQuickFixCollector *quickFixCollector = QmlJSEditorPlugin::instance()->quickFixCollector();
+    QSignalMapper mapper;
+    connect(&mapper, SIGNAL(mapped(int)), this, SLOT(performQuickFix(int)));
+
+    if (! isOutdated()) {
+        if (quickFixCollector->startCompletion(editableInterface()) != -1) {
+            m_quickFixes = quickFixCollector->quickFixes();
+
+            for (int index = 0; index < m_quickFixes.size(); ++index) {
+                TextEditor::QuickFixOperation::Ptr op = m_quickFixes.at(index);
+                QAction *action = refactoringMenu->addAction(op->description());
+                mapper.setMapping(action, index);
+                connect(action, SIGNAL(triggered()), &mapper, SLOT(map()));
+            }
+        }
+    }
+
+    refactoringMenu->setEnabled(!refactoringMenu->isEmpty());
+
+    if (Core::ActionContainer *mcontext = Core::ICore::instance()->actionManager()->actionContainer(QmlJSEditor::Constants::M_CONTEXT)) {
+        QMenu *contextMenu = mcontext->menu();
+        foreach (QAction *action, contextMenu->actions()) {
+            menu->addAction(action);
+            if (action->objectName() == QmlJSEditor::Constants::M_REFACTORING_MENU_INSERTION_POINT)
+                menu->addMenu(refactoringMenu);
+        }
     }
 
     appendStandardContextMenuActions(menu);
 
     menu->exec(e->globalPos());
     menu->deleteLater();
+    quickFixCollector->cleanup();
+    m_quickFixes.clear();
 }
 
 bool QmlJSTextEditor::event(QEvent *e)

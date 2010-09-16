@@ -107,6 +107,18 @@ QmlJSEditorPlugin::~QmlJSEditorPlugin()
     m_instance = 0;
 }
 
+/*! Copied from cppplugin.cpp */
+static inline
+Core::Command *createSeparator(Core::ActionManager *am,
+                               QObject *parent,
+                               Core::Context &context,
+                               const char *id)
+{
+    QAction *separator = new QAction(parent);
+    separator->setSeparator(true);
+    return am->registerAction(separator, Core::Id(id), context);
+}
+
 bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *error_message)
 {
     Core::ICore *core = Core::ICore::instance();
@@ -137,6 +149,11 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
 
     Core::ActionManager *am =  core->actionManager();
     Core::ActionContainer *contextMenu = am->createMenu(QmlJSEditor::Constants::M_CONTEXT);
+    Core::ActionContainer *qmlToolsMenu = am->createMenu(Core::Id(Constants::M_TOOLS_QML));
+    QMenu *menu = qmlToolsMenu->menu();
+    menu->setTitle(tr("QML")); //: QML sub-menu in the Tools menu
+    menu->setEnabled(true);
+    am->actionContainer(Core::Constants::M_TOOLS)->addMenu(qmlToolsMenu);
 
     Core::Command *cmd;
     QAction *followSymbolUnderCursorAction = new QAction(tr("Follow Symbol Under Cursor"), this);
@@ -144,12 +161,23 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F2));
     connect(followSymbolUnderCursorAction, SIGNAL(triggered()), this, SLOT(followSymbolUnderCursor()));
     contextMenu->addAction(cmd);
+    qmlToolsMenu->addAction(cmd);
 
     QAction *showQuickToolbar = new QAction(tr("Show Qt Quick Toolbar"), this);
     cmd = am->registerAction(showQuickToolbar, Constants::SHOW_QT_QUICK_HELPER, context);
     cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_Space));
     connect(showQuickToolbar, SIGNAL(triggered()), this, SLOT(showContextPane()));
     contextMenu->addAction(cmd);
+    qmlToolsMenu->addAction(cmd);
+
+    // Insert marker for "Refactoring" menu:
+    Core::Context globalContext(Core::Constants::C_GLOBAL);
+    Core::Command *sep = createSeparator(am, this, globalContext,
+                                         Constants::SEPARATOR1);
+    sep->action()->setObjectName(Constants::M_REFACTORING_MENU_INSERTION_POINT);
+    contextMenu->addAction(sep);
+    contextMenu->addAction(createSeparator(am, this, globalContext,
+                                           Constants::SEPARATOR2));
 
     cmd = am->command(TextEditor::Constants::AUTO_INDENT_SELECTION);
     contextMenu->addAction(cmd);

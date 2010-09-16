@@ -1580,13 +1580,12 @@ void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
     Core::ActionContainer *mcontext = am->actionContainer(Constants::M_CONTEXT);
     QMenu *contextMenu = mcontext->menu();
 
-    CppQuickFixCollector *quickFixCollector = CppPlugin::instance()->quickFixCollector();
-
-    QSignalMapper mapper;
-    connect(&mapper, SIGNAL(mapped(int)), this, SLOT(performQuickFix(int)));
-
     QMenu *quickFixMenu = new QMenu("&Refactor", menu);
     quickFixMenu->addAction(am->command(Constants::RENAME_SYMBOL_UNDER_CURSOR)->action());
+
+    CppQuickFixCollector *quickFixCollector = CppPlugin::instance()->quickFixCollector();
+    QSignalMapper mapper;
+    connect(&mapper, SIGNAL(mapped(int)), this, SLOT(performQuickFix(int)));
 
     if (! isOutdated()) {
         if (quickFixCollector->startCompletion(editableInterface()) != -1) {

@@ -36,6 +36,7 @@
 #include <qmljs/qmljsscanner.h>
 #include <qmljs/qmljsinterpreter.h>
 #include <texteditor/basetexteditor.h>
+#include <texteditor/quickfix.h>
 
 #include <QtCore/QWaitCondition>
 #include <QtCore/QModelIndex>
@@ -275,6 +276,8 @@ private slots:
     void onCursorPositionChanged();
     void onRefactorMarkerClicked(const TextEditor::Internal::RefactorMarker &marker);
 
+    void performQuickFix(int index);
+
 protected:
     void contextMenuEvent(QContextMenuEvent *e);
     bool event(QEvent *e);
@@ -322,6 +325,8 @@ private:
 
     SemanticHighlighter *m_semanticHighlighter;
     SemanticInfo m_semanticInfo;
+
+    QList<TextEditor::QuickFixOperation::Ptr> m_quickFixes;
 
     QmlJS::IContextPane *m_contextPane;
     int m_oldCursorPosition;
