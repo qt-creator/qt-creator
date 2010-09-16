@@ -1400,10 +1400,17 @@
 		.creator .footer
     {
 		border-top:1px solid #E5E5E5;
-        min-height: 100px;
+        height: 50px;
 		margin:0px;
+		padding:10px;
     }
 	
+		.creator .footer p
+		{
+		text-align:justify;
+		max-width:900px;
+    }
+	    
      .creator .wrap
     {
 
