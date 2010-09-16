@@ -1,10 +1,10 @@
 #ifndef PLUGINCOLLECTION_H
 #define PLUGINCOLLECTION_H
 
-#include <QList>
-#include <QString>
 #include "extensionsystem_global.h"
 
+#include <QtCore/QList>
+#include <QtCore/QString>
 
 namespace ExtensionSystem {
 class PluginSpec;
@@ -26,6 +26,6 @@ private:
 
 };
 
-}
+} // namespace ExtensionSystem
 
 #endif // PLUGINCOLLECTION_H

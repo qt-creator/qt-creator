@@ -31,7 +31,8 @@
 #define DESIGNERCONTEXT_H
 
 #include <coreplugin/icontext.h>
-#include <QList>
+
+#include <QtCore/QList>
 
 QT_BEGIN_NAMESPACE
 class QWidget;

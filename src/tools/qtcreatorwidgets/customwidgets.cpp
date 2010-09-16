@@ -269,6 +269,18 @@ WelcomeModeLabel_CW::WelcomeModeLabel_CW(QObject *parent) :
 {
 }
 
+CrumblePath_CW::CrumblePath_CW(QObject *parent) :
+    QObject(parent),
+    CustomWidget<Utils::CrumblePath>
+    (QLatin1String("<utils/crumblepath.h>"),
+    false,
+    QLatin1String(groupC),
+    QIcon(),
+    QLatin1String("Crumble Path"))
+{
+};
+
+
 DetailsWidget_CW::DetailsWidget_CW(QObject *parent) :
     QObject(parent),
     CustomWidget<Utils::DetailsWidget>
@@ -397,6 +409,7 @@ WidgetCollection::WidgetCollection(QObject *parent) :
     m_plugins.push_back(new Wizard_CW(this));
     m_plugins.push_back(new WelcomePageWidget_CW(this));
     m_plugins.push_back(new WelcomeModeLabel_CW(this));
+    m_plugins.push_back(new CrumblePath_CW(this));
 }
 
 QList<QDesignerCustomWidgetInterface*> WidgetCollection::customWidgets() const

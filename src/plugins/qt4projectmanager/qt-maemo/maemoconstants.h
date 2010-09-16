@@ -34,7 +34,7 @@
 #ifndef MAEMOCONSTANTS_H
 #define MAEMOCONSTANTS_H
 
-#include <QLatin1String>
+#include <QtCore/QLatin1String>
 
 namespace Qt4ProjectManager {
 namespace Internal {

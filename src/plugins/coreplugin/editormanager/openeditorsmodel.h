@@ -33,10 +33,13 @@
 #include "../core_global.h"
 
 #include <QtCore/QAbstractItemModel>
-#include <QtGui/QIcon>
+#include <QtCore/QScopedPointer>
+
+QT_FORWARD_DECLARE_CLASS(QIcon)
 
 namespace Core {
 
+struct OpenEditorsModelPrivate;
 class IEditor;
 class IFile;
 
@@ -45,6 +48,7 @@ class CORE_EXPORT OpenEditorsModel : public QAbstractItemModel
     Q_OBJECT
 public:
     explicit OpenEditorsModel(QObject *parent);
+    virtual ~OpenEditorsModel();
 
     QIcon lockedIcon() const;
     QIcon unlockedIcon() const;
@@ -60,7 +64,7 @@ public:
     QModelIndex firstRestoredEditor() const;
 
     struct CORE_EXPORT Entry {
-        Entry() : editor(0) {}
+        Entry();
         IEditor *editor;
         QString fileName() const;
         QString displayName() const;
@@ -69,9 +73,9 @@ public:
         QString m_displayName;
         QString m_id;
     };
-    QList<Entry> entries() const { return m_editors; }
+    QList<Entry> entries() const;
 
-    IEditor *editorAt(int row) const { return m_editors.at(row).editor; }
+    IEditor *editorAt(int row) const;
 
     void removeEditor(IEditor *editor);
     void removeEditor(const QModelIndex &index);
@@ -97,11 +101,7 @@ private:
     int findEditor(IEditor *editor) const;
     int findFileName(const QString &filename) const;
 
-    const QIcon m_lockedIcon;
-    const QIcon m_unlockedIcon;
-
-    QList<Entry> m_editors;
-    QList<IEditor *> m_duplicateEditors;
+    QScopedPointer<OpenEditorsModelPrivate> d;
 };
 
 } // namespace Core

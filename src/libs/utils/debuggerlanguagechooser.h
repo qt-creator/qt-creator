@@ -1,8 +1,9 @@
 #ifndef DEBUGGERLANGUAGECHOOSER_H
 #define DEBUGGERLANGUAGECHOOSER_H
 
-#include <QWidget>
 #include "utils_global.h"
+
+#include <QtGui/QWidget>
 
 QT_FORWARD_DECLARE_CLASS(QCheckBox);
 QT_FORWARD_DECLARE_CLASS(QLabel);

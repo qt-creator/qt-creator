@@ -2,9 +2,9 @@
 #define REFACTOROVERLAY_H
 
 #include "basetexteditor.h"
-#include <QTextCursor>
-#include <QObject>
-#include <QIcon>
+
+#include <QtGui/QTextCursor>
+#include <QtGui/QIcon>
 
 namespace TextEditor {
 namespace Internal {

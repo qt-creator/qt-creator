@@ -30,11 +30,13 @@
 #ifndef CPPTOOLSEDITORSUPPORT_H
 #define CPPTOOLSEDITORSUPPORT_H
 
-#include <QObject>
-#include <QPointer>
-#include <QFuture>
-#include <QSharedPointer>
-#include <QTextCursor>
+#include <QtCore/QObject>
+#include <QtCore/QPointer>
+#include <QtCore/QFuture>
+#include <QtCore/QSharedPointer>
+
+#include <QtGui/QTextCursor>
+
 #include <cplusplus/CppDocument.h>
 
 QT_BEGIN_NAMESPACE

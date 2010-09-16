@@ -31,7 +31,7 @@
 #define TREEWIDGETCOLUMNSTRETCHER_H
 
 #include "utils_global.h"
-#include <QObject>
+#include <QtCore/QObject>
 
 QT_BEGIN_NAMESPACE
 class QTreeWidget;

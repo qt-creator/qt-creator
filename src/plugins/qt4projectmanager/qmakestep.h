@@ -34,7 +34,7 @@
 
 #include <projectexplorer/abstractprocessstep.h>
 
-#include <QStringList>
+#include <QtCore/QStringList>
 
 namespace ProjectExplorer {
 class BuildStep;

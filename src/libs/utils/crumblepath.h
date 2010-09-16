@@ -30,15 +30,15 @@
 #ifndef CRUMBLEPATH_H
 #define CRUMBLEPATH_H
 
-#include <QWidget>
-#include <QList>
 #include "utils_global.h"
+
+#include <QtGui/QWidget>
 
 QT_FORWARD_DECLARE_CLASS(QResizeEvent);
 
 namespace Utils {
 
-class CrumblePathButton;
+struct CrumblePathPrivate;
 
 class QTCREATOR_UTILS_EXPORT CrumblePath : public QWidget
 {
@@ -69,9 +69,7 @@ private:
     void setBackgroundStyle();
 
 private:
-    QColor m_baseColor;
-    QList<CrumblePathButton*> m_buttons;
-    QWidget *m_background;
+    QScopedPointer<CrumblePathPrivate> d;
 };
 
 } // namespace QmlViewer

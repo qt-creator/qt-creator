@@ -48,6 +48,7 @@
 #include <utils/styledbar.h>
 #include <utils/wizard.h>
 #include <utils/welcomemodetreewidget.h>
+#include <utils/crumblepath.h>
 
 #include <QtDesigner/QDesignerCustomWidgetCollectionInterface>
 #include <QtDesigner/QDesignerContainerExtension>
@@ -255,6 +256,15 @@ public:
     explicit WelcomeModeLabel_CW(QObject *parent = 0);
 };
 
+class CrumblePath_CW :
+    public QObject,
+    public CustomWidget<Utils::CrumblePath>
+{
+    Q_OBJECT
+    Q_INTERFACES(QDesignerCustomWidgetInterface)
+public:
+    explicit CrumblePath_CW(QObject *parent = 0);
+};
 
 // Details Widget: plugin + simple, hacky container extension that
 // accepts only one page.

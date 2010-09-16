@@ -3,8 +3,6 @@
 
 #include "targetselector.h"
 
-#include <QWidget>
-
 QT_BEGIN_NAMESPACE
 class QMenu;
 QT_END_NAMESPACE

@@ -35,6 +35,7 @@
 #include "openwithdialog.h"
 #include "filemanager.h"
 #include "icore.h"
+#include "ieditor.h"
 #include "iversioncontrol.h"
 #include "mimedatabase.h"
 #include "tabpositionindicator.h"
@@ -435,11 +436,7 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     connect(m_d->m_openInExternalEditorAction, SIGNAL(triggered()), this, SLOT(openInExternalEditor()));
 
     // Connect to VariableManager for CURRENT_DOCUMENT variable setting
-    VariableManager *vm = VariableManager::instance();
-    connect(this, SIGNAL(currentEditorChanged(Core::IEditor *)),
-            vm, SLOT(updateCurrentDocument(Core::IEditor *)));
-
-
+    VariableManager::initEditorManagerConnections();
     // other setup
     m_d->m_splitter = new SplitterOrView(m_d->m_editorModel);
     m_d->m_view = m_d->m_splitter->view();

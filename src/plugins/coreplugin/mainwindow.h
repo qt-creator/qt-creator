@@ -189,7 +189,7 @@ private:
     MessageManager *m_messageManager;
     ProgressManagerPrivate *m_progressManager;
     ScriptManager *m_scriptManager;
-    VariableManager *m_variableManager;
+    QScopedPointer<VariableManager> m_variableManager;
     VCSManager *m_vcsManager;
     StatusBarManager *m_statusBarManager;
     ModeManager *m_modeManager;

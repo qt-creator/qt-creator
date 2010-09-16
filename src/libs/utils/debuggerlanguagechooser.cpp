@@ -1,9 +1,9 @@
 #include "debuggerlanguagechooser.h"
 
-#include <QHBoxLayout>
-#include <QCheckBox>
-#include <QSpinBox>
-#include <QLabel>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QCheckBox>
+#include <QtGui/QSpinBox>
+#include <QtGui/QLabel>
 
 namespace Utils {
 

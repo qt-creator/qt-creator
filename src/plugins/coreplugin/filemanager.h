@@ -161,10 +161,10 @@ private:
 class CORE_EXPORT FileChangeBlocker
 {
 public:
-    FileChangeBlocker(const QString &fileName);
+    explicit FileChangeBlocker(const QString &fileName);
     ~FileChangeBlocker();
 private:
-    QString m_fileName;
+    const QString m_fileName;
     Q_DISABLE_COPY(FileChangeBlocker)
 };
 

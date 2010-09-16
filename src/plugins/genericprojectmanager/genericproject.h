@@ -41,8 +41,8 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <coreplugin/ifile.h>
-#include <QFuture>
-#include <QtGui/QLineEdit>
+
+#include <QtCore/QFuture>
 
 namespace Utils {
 class PathChooser;

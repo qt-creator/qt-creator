@@ -181,6 +181,11 @@ QToolButton *WelcomeMode::addPageToolButton(Utils::IWelcomePage *plugin, int pos
     return btn;
 }
 
+QString WelcomeMode::contextHelpId() const
+{
+    return QLatin1String("Qt Creator Manual");
+}
+
 void WelcomeMode::initPlugins()
 {
     m_d->buttonLayout = new QHBoxLayout(m_d->ui.navFrame);

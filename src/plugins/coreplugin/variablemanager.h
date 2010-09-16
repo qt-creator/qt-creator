@@ -31,10 +31,8 @@
 #define VARIABLEMANAGER_H
 
 #include "core_global.h"
-#include <coreplugin/editormanager/ieditor.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QMap>
+#include <QtCore/QScopedPointer>
 #include <QtCore/QString>
 
 QT_BEGIN_NAMESPACE
@@ -42,16 +40,17 @@ class QFileInfo;
 QT_END_NAMESPACE
 
 namespace Core {
+class VariableManagerPrivate;
 
-class CORE_EXPORT VariableManager : public QObject
+class CORE_EXPORT VariableManager
 {
-    Q_OBJECT
-
+    Q_DISABLE_COPY(VariableManager)
 public:
-    VariableManager(QObject *parent);
+    VariableManager();
     ~VariableManager();
 
-    static VariableManager* instance() { return m_instance; }
+    static VariableManager* instance();
+    static void initEditorManagerConnections();
 
     void insert(const QString &variable, const QString &value);
     void insertFileInfo(const QString &tag, const QFileInfo &file);
@@ -61,12 +60,8 @@ public:
     bool remove(const QString &variable);
     QString resolve(const QString &stringWithVariables) const;
 
-private slots:
-    void updateCurrentDocument(Core::IEditor *editor);
-
 private:
-    QMap<QString, QString> m_map;
-    static VariableManager *m_instance;
+    QScopedPointer<VariableManagerPrivate> d;
 };
 
 } // namespace Core

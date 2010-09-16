@@ -32,12 +32,28 @@
 #include <utils/qtcassert.h>
 #include <utils/filesearch.h>
 
+#include <QtCore/QPointer>
+
 #include <QtGui/QTextBlock>
 #include <QtGui/QPlainTextEdit>
+#include <QtGui/QTextCursor>
 
-using namespace Find;
+namespace Find {
 
-BaseTextFind::BaseTextFind(QTextEdit *editor)
+struct BaseTextFindPrivate {
+    explicit BaseTextFindPrivate(QPlainTextEdit *editor);
+    explicit BaseTextFindPrivate(QTextEdit *editor);
+
+    QPointer<QTextEdit> m_editor;
+    QPointer<QPlainTextEdit> m_plaineditor;
+    QTextCursor m_findScopeStart;
+    QTextCursor m_findScopeEnd;
+    int m_findScopeVerticalBlockSelectionFirstColumn;
+    int m_findScopeVerticalBlockSelectionLastColumn;
+    int m_incrementalStartPos;
+};
+
+BaseTextFindPrivate::BaseTextFindPrivate(QTextEdit *editor)
     : m_editor(editor)
     , m_findScopeVerticalBlockSelectionFirstColumn(-1)
     , m_findScopeVerticalBlockSelectionLastColumn(-1)
@@ -45,7 +61,7 @@ BaseTextFind::BaseTextFind(QTextEdit *editor)
 {
 }
 
-BaseTextFind::BaseTextFind(QPlainTextEdit *editor)
+BaseTextFindPrivate::BaseTextFindPrivate(QPlainTextEdit *editor)
     : m_plaineditor(editor)
     , m_findScopeVerticalBlockSelectionFirstColumn(-1)
     , m_findScopeVerticalBlockSelectionLastColumn(-1)
@@ -53,29 +69,44 @@ BaseTextFind::BaseTextFind(QPlainTextEdit *editor)
 {
 }
 
+BaseTextFind::BaseTextFind(QTextEdit *editor)
+    : d(new BaseTextFindPrivate(editor))
+{
+}
+
+
+BaseTextFind::BaseTextFind(QPlainTextEdit *editor)
+    : d(new BaseTextFindPrivate(editor))
+{
+}
+
+BaseTextFind::~BaseTextFind()
+{
+}
+
 QTextCursor BaseTextFind::textCursor() const
 {
-    QTC_ASSERT(m_editor || m_plaineditor, return QTextCursor());
-    return m_editor ? m_editor->textCursor() : m_plaineditor->textCursor();
+    QTC_ASSERT(d->m_editor || d->m_plaineditor, return QTextCursor());
+    return d->m_editor ? d->m_editor->textCursor() : d->m_plaineditor->textCursor();
 
 }
 
 void BaseTextFind::setTextCursor(const QTextCursor& cursor)
 {
-    QTC_ASSERT(m_editor || m_plaineditor, return);
-    m_editor ? m_editor->setTextCursor(cursor) : m_plaineditor->setTextCursor(cursor);
+    QTC_ASSERT(d->m_editor || d->m_plaineditor, return);
+    d->m_editor ? d->m_editor->setTextCursor(cursor) : d->m_plaineditor->setTextCursor(cursor);
 }
 
 QTextDocument *BaseTextFind::document() const
 {
-    QTC_ASSERT(m_editor || m_plaineditor, return 0);
-    return m_editor ? m_editor->document() : m_plaineditor->document();
+    QTC_ASSERT(d->m_editor || d->m_plaineditor, return 0);
+    return d->m_editor ? d->m_editor->document() : d->m_plaineditor->document();
 }
 
 bool BaseTextFind::isReadOnly() const
 {
-    QTC_ASSERT(m_editor || m_plaineditor, return true);
-    return m_editor ? m_editor->isReadOnly() : m_plaineditor->isReadOnly();
+    QTC_ASSERT(d->m_editor || d->m_plaineditor, return true);
+    return d->m_editor ? d->m_editor->isReadOnly() : d->m_plaineditor->isReadOnly();
 }
 
 bool BaseTextFind::supportsReplace() const
@@ -91,7 +122,7 @@ Find::FindFlags BaseTextFind::supportedFindFlags() const
 
 void BaseTextFind::resetIncrementalSearch()
 {
-    m_incrementalStartPos = -1;
+    d->m_incrementalStartPos = -1;
 }
 
 void BaseTextFind::clearResults()
@@ -136,9 +167,9 @@ QString BaseTextFind::completedFindString() const
 IFindSupport::Result BaseTextFind::findIncremental(const QString &txt, Find::FindFlags findFlags)
 {
     QTextCursor cursor = textCursor();
-    if (m_incrementalStartPos < 0)
-        m_incrementalStartPos = cursor.selectionStart();
-    cursor.setPosition(m_incrementalStartPos);
+    if (d->m_incrementalStartPos < 0)
+        d->m_incrementalStartPos = cursor.selectionStart();
+    cursor.setPosition(d->m_incrementalStartPos);
     bool found =  find(txt, findFlags, cursor);
     if (found)
         emit highlightAll(txt, findFlags);
@@ -151,7 +182,7 @@ IFindSupport::Result BaseTextFind::findStep(const QString &txt, Find::FindFlags 
 {
     bool found = find(txt, findFlags, textCursor());
     if (found)
-        m_incrementalStartPos = textCursor().selectionStart();
+        d->m_incrementalStartPos = textCursor().selectionStart();
     return found ? Found : NotFound;
 }
 
@@ -192,8 +223,8 @@ int BaseTextFind::replaceAll(const QString &before, const QString &after,
     Find::FindFlags findFlags)
 {
     QTextCursor editCursor = textCursor();
-    if (!m_findScopeStart.isNull())
-        editCursor.setPosition(m_findScopeStart.position());
+    if (!d->m_findScopeStart.isNull())
+        editCursor.setPosition(d->m_findScopeStart.position());
     else
         editCursor.movePosition(QTextCursor::Start);
     editCursor.beginEditBlock();
@@ -230,14 +261,14 @@ bool BaseTextFind::find(const QString &txt,
     regexp.setCaseSensitivity((findFlags&Find::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive);
     QTextCursor found = findOne(regexp, start, Find::textDocumentFlagsForFindFlags(findFlags));
 
-    if (!m_findScopeStart.isNull()) {
+    if (!d->m_findScopeStart.isNull()) {
 
         // scoped
         if (found.isNull() || !inScope(found.selectionStart(), found.selectionEnd())) {
             if ((findFlags&Find::FindBackward) == 0)
-                start.setPosition(m_findScopeStart.position());
+                start.setPosition(d->m_findScopeStart.position());
             else
-                start.setPosition(m_findScopeEnd.position());
+                start.setPosition(d->m_findScopeEnd.position());
             found = findOne(regexp, start, Find::textDocumentFlagsForFindFlags(findFlags));
             if (found.isNull() || !inScope(found.selectionStart(), found.selectionEnd()))
                 return false;
@@ -270,13 +301,13 @@ QTextCursor BaseTextFind::findOne(const QRegExp &expr, const QTextCursor &from, 
     if (candidate.isNull())
         return candidate;
 
-    if (m_findScopeVerticalBlockSelectionFirstColumn < 0)
+    if (d->m_findScopeVerticalBlockSelectionFirstColumn < 0)
         return candidate;
     forever {
         if (!inScope(candidate.selectionStart(), candidate.selectionEnd()))
             return candidate;
         bool inVerticalFindScope = false;
-        QMetaObject::invokeMethod(m_plaineditor, "inFindScope", Qt::DirectConnection,
+        QMetaObject::invokeMethod(d->m_plaineditor, "inFindScope", Qt::DirectConnection,
                                   Q_RETURN_ARG(bool, inVerticalFindScope),
                                   Q_ARG(QTextCursor, candidate));
         if (inVerticalFindScope)
@@ -288,32 +319,32 @@ QTextCursor BaseTextFind::findOne(const QRegExp &expr, const QTextCursor &from, 
 
 bool BaseTextFind::inScope(int startPosition, int endPosition) const
 {
-    if (m_findScopeStart.isNull())
+    if (d->m_findScopeStart.isNull())
         return true;
-    return (m_findScopeStart.position() <= startPosition
-            && m_findScopeEnd.position() >= endPosition);
+    return (d->m_findScopeStart.position() <= startPosition
+            && d->m_findScopeEnd.position() >= endPosition);
 }
 
 void BaseTextFind::defineFindScope()
 {
     QTextCursor cursor = textCursor();
     if (cursor.hasSelection() && cursor.block() != cursor.document()->findBlock(cursor.anchor())) {
-        m_findScopeStart = QTextCursor(document()->docHandle(), qMax(0, cursor.selectionStart()-1));
-        m_findScopeEnd = QTextCursor(document()->docHandle(), cursor.selectionEnd());
-        m_findScopeVerticalBlockSelectionFirstColumn = -1;
-        m_findScopeVerticalBlockSelectionLastColumn = -1;
+        d->m_findScopeStart = QTextCursor(document()->docHandle(), qMax(0, cursor.selectionStart()-1));
+        d->m_findScopeEnd = QTextCursor(document()->docHandle(), cursor.selectionEnd());
+        d->m_findScopeVerticalBlockSelectionFirstColumn = -1;
+        d->m_findScopeVerticalBlockSelectionLastColumn = -1;
 
-        if (m_plaineditor && m_plaineditor->metaObject()->indexOfProperty("verticalBlockSelectionFirstColumn") >= 0) {
-            m_findScopeVerticalBlockSelectionFirstColumn
-                    = m_plaineditor->property("verticalBlockSelectionFirstColumn").toInt();
-            m_findScopeVerticalBlockSelectionLastColumn
-                    = m_plaineditor->property("verticalBlockSelectionLastColumn").toInt();
+        if (d->m_plaineditor && d->m_plaineditor->metaObject()->indexOfProperty("verticalBlockSelectionFirstColumn") >= 0) {
+            d->m_findScopeVerticalBlockSelectionFirstColumn
+                    = d->m_plaineditor->property("verticalBlockSelectionFirstColumn").toInt();
+            d->m_findScopeVerticalBlockSelectionLastColumn
+                    = d->m_plaineditor->property("verticalBlockSelectionLastColumn").toInt();
         }
 
-        emit findScopeChanged(m_findScopeStart, m_findScopeEnd,
-                              m_findScopeVerticalBlockSelectionFirstColumn,
-                              m_findScopeVerticalBlockSelectionLastColumn);
-        cursor.setPosition(m_findScopeStart.position()+1);
+        emit findScopeChanged(d->m_findScopeStart, d->m_findScopeEnd,
+                              d->m_findScopeVerticalBlockSelectionFirstColumn,
+                              d->m_findScopeVerticalBlockSelectionLastColumn);
+        cursor.setPosition(d->m_findScopeStart.position()+1);
         setTextCursor(cursor);
     } else {
         clearFindScope();
@@ -322,11 +353,13 @@ void BaseTextFind::defineFindScope()
 
 void BaseTextFind::clearFindScope()
 {
-    m_findScopeStart = QTextCursor();
-    m_findScopeEnd = QTextCursor();
-    m_findScopeVerticalBlockSelectionFirstColumn = -1;
-    m_findScopeVerticalBlockSelectionLastColumn = -1;
-    emit findScopeChanged(m_findScopeStart, m_findScopeEnd,
-                          m_findScopeVerticalBlockSelectionFirstColumn,
-                          m_findScopeVerticalBlockSelectionLastColumn);
+    d->m_findScopeStart = QTextCursor();
+    d->m_findScopeEnd = QTextCursor();
+    d->m_findScopeVerticalBlockSelectionFirstColumn = -1;
+    d->m_findScopeVerticalBlockSelectionLastColumn = -1;
+    emit findScopeChanged(d->m_findScopeStart, d->m_findScopeEnd,
+                          d->m_findScopeVerticalBlockSelectionFirstColumn,
+                          d->m_findScopeVerticalBlockSelectionLastColumn);
 }
+
+} // namespace Find

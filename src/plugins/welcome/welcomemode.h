@@ -63,7 +63,7 @@ public:
     QString type() const;
     Core::Context context() const;
     void activated();
-    QString contextHelpId() const { return QLatin1String("Qt Creator Manual"); }
+    QString contextHelpId() const;
     void initPlugins();
 
 private slots:

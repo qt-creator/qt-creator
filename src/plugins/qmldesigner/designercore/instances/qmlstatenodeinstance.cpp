@@ -133,7 +133,7 @@ bool QmlStateNodeInstance::updateStateBinding(const NodeInstance &target, const 
     return stateObject()->changeValueInRevertList(target.internalObject(), propertyName.toLatin1(), expression);
 }
 
-bool QmlStateNodeInstance::resetStateProperty(const NodeInstance &target, const QString &propertyName, const QVariant &resetValue)
+bool QmlStateNodeInstance::resetStateProperty(const NodeInstance &target, const QString &propertyName, const QVariant & /* resetValue */)
 {
     return stateObject()->removeEntryFromRevertList(target.internalObject(), propertyName.toLatin1());
 }

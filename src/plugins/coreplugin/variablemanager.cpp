@@ -29,29 +29,61 @@
 
 #include "variablemanager.h"
 #include "ifile.h"
+#include "editormanager/ieditor.h"
+#include "editormanager/editormanager.h"
+
+#include <utils/qtcassert.h>
 
 #include <QtCore/QFileInfo>
+#include <QtCore/QObject>
+#include <QtCore/QMap>
+#include <QtCore/QDebug>
 
-using namespace Core;
+namespace Core {
 
-VariableManager *VariableManager::m_instance = 0;
-
-VariableManager::VariableManager(QObject *parent) : QObject(parent)
+class VariableManagerPrivate : public QObject
 {
-    m_instance = this;
+    Q_OBJECT
+public:
+    void insert(const QString &variable, const QString &value);
+    bool remove(const QString &variable);
+    void insertFileInfo(const QString &tag, const QFileInfo &file);
+    void removeFileInfo(const QString &tag);
+
+public slots:
+    void updateCurrentDocument(Core::IEditor *editor);
+
+public:
+    QMap<QString, QString> m_map;
+    static VariableManager *m_instance;
+};
+
+VariableManager *VariableManagerPrivate::m_instance = 0;
+
+void VariableManagerPrivate::updateCurrentDocument(Core::IEditor *editor)
+{
+    const QString currentDocumentTag = QLatin1String("CURRENT_DOCUMENT");
+    removeFileInfo(currentDocumentTag);
+    if (editor) {
+        if (const Core::IFile *file = editor->file()) {
+            const QString fileName = file->fileName();
+            if (!fileName.isEmpty())
+                insertFileInfo(currentDocumentTag, fileName);
+        }
+    }
 }
 
-VariableManager::~VariableManager()
-{
-    m_instance = 0;
-}
-
-void VariableManager::insert(const QString &variable, const QString &value)
+void VariableManagerPrivate::insert(const QString &variable, const QString &value)
 {
     m_map.insert(variable, value);
 }
 
-void VariableManager::insertFileInfo(const QString &tag, const QFileInfo &file)
+bool VariableManagerPrivate::remove(const QString &variable)
+{
+    return m_map.remove(variable) > 0;
+}
+
+void VariableManagerPrivate::insertFileInfo(const QString &tag, const QFileInfo &file)
 {
     insert(tag, file.filePath());
     insert(tag  + QLatin1String(":absoluteFilePath"), file.absoluteFilePath());
@@ -67,7 +99,7 @@ void VariableManager::insertFileInfo(const QString &tag, const QFileInfo &file)
     insert(tag + QLatin1String(":suffix"), file.suffix());
 }
 
-void VariableManager::removeFileInfo(const QString &tag)
+void VariableManagerPrivate::removeFileInfo(const QString &tag)
 {
     if (remove(tag)) {
         remove(tag + QLatin1String(":absoluteFilePath"));
@@ -84,38 +116,38 @@ void VariableManager::removeFileInfo(const QString &tag)
     }
 }
 
-void VariableManager::updateCurrentDocument(Core::IEditor *editor)
+VariableManager::VariableManager() : d(new VariableManagerPrivate)
 {
-    const QString currentDocumentTag = QLatin1String("CURRENT_DOCUMENT");
-    removeFileInfo(currentDocumentTag);
-    if (editor) {
-        if (const Core::IFile *file = editor->file()) {
-            const QString fileName = file->fileName();
-            if (!fileName.isEmpty())
-                insertFileInfo(currentDocumentTag, fileName);
-        }
-    }
+    VariableManagerPrivate::m_instance = this;
+}
+
+VariableManager::~VariableManager()
+{
+    VariableManagerPrivate::m_instance = 0;
+}
+
+void VariableManager::initEditorManagerConnections()
+{
+    QTC_ASSERT(VariableManagerPrivate::m_instance && Core::EditorManager::instance(), return; )
+
+    QObject::connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
+                     VariableManagerPrivate::m_instance->d.data(), SLOT(updateCurrentDocument(Core::IEditor*)));
 }
 
 QString VariableManager::value(const QString &variable) const
 {
-    return m_map.value(variable);
+    return d->m_map.value(variable);
 }
 
 QString VariableManager::value(const QString &variable, const QString &defaultValue) const
 {
-    return m_map.value(variable, defaultValue);
-}
-
-bool VariableManager::remove(const QString &variable)
-{
-    return m_map.remove(variable) > 0;
+    return d->m_map.value(variable, defaultValue);
 }
 
 QString VariableManager::resolve(const QString &stringWithVariables) const
 {
     QString result = stringWithVariables;
-    QMapIterator<QString, QString> i(m_map);
+    QMapIterator<QString, QString> i(d->m_map);
     while (i.hasNext()) {
         i.next();
         QString key = QLatin1String("${");
@@ -125,3 +157,31 @@ QString VariableManager::resolve(const QString &stringWithVariables) const
     }
     return result;
 }
+
+void VariableManager::insert(const QString &variable, const QString &value)
+{
+    d->insert(variable, value);
+}
+
+void VariableManager::insertFileInfo(const QString &tag, const QFileInfo &file)
+{
+    d->insertFileInfo(tag, file);
+}
+
+void VariableManager::removeFileInfo(const QString &tag)
+{
+    d->removeFileInfo(tag);
+}
+
+bool VariableManager::remove(const QString &variable)
+{
+    return d->remove(variable);
+}
+
+VariableManager* VariableManager::instance()
+{
+    return VariableManagerPrivate::m_instance;
+}
+} // namespace Core
+
+#include "variablemanager.moc"

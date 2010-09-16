@@ -33,23 +33,25 @@
 #include "find_global.h"
 #include "ifindsupport.h"
 
-#include <QtCore/QPointer>
-#include <QtGui/QTextCursor>
+#include <QtCore/QScopedPointer>
 
 QT_BEGIN_NAMESPACE
 class QPlainTextEdit;
 class QTextEdit;
+class QTextCursor;
 QT_END_NAMESPACE
 
 namespace Find {
+struct BaseTextFindPrivate;
 
 class FIND_EXPORT BaseTextFind : public Find::IFindSupport
 {
     Q_OBJECT
 
 public:
-    BaseTextFind(QPlainTextEdit *editor);
-    BaseTextFind(QTextEdit *editor);
+    explicit BaseTextFind(QPlainTextEdit *editor);
+    explicit BaseTextFind(QTextEdit *editor);
+    virtual ~BaseTextFind();
 
     bool supportsReplace() const;
     Find::FindFlags supportedFindFlags() const;
@@ -87,15 +89,10 @@ private:
     void setTextCursor(const QTextCursor&);
     QTextDocument *document() const;
     bool isReadOnly() const;
-    QPointer<QTextEdit> m_editor;
-    QPointer<QPlainTextEdit> m_plaineditor;
-    QTextCursor m_findScopeStart;
-    QTextCursor m_findScopeEnd;
-    int m_findScopeVerticalBlockSelectionFirstColumn;
-    int m_findScopeVerticalBlockSelectionLastColumn;
     bool inScope(int startPosition, int endPosition) const;
     QTextCursor findOne(const QRegExp &expr, const QTextCursor &from, QTextDocument::FindFlags options) const;
-    int m_incrementalStartPos;
+
+    QScopedPointer<BaseTextFindPrivate> d;
 };
 
 } // namespace Find
