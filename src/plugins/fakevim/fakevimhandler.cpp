@@ -2792,6 +2792,7 @@ void FakeVimHandler::Private::insertInInsertMode(const QString &text)
     joinPreviousEditBlock();
     m_justAutoIndented = 0;
     m_lastInsertion.append(text);
+    setAnchor();
     insertText(text);
     if (hasConfig(ConfigSmartIndent) && isElectricCharacter(text.at(0))) {
         const QString leftText = block().text()
