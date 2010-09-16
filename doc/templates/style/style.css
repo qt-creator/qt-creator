@@ -830,7 +830,7 @@
     .wrap .content table p
     {
         line-height: 20px;
-        padding: 0px;
+      /*  padding: 0px;*/
     }	
     .wrap .content ul
     {
@@ -1027,7 +1027,7 @@
 	.generic{
 	}
 	.generic td{
-		padding:5px;
+	/*	padding:5px;*/
 	}
 	.generic .alphaChar{
 	margin-top:5px;
@@ -1450,7 +1450,7 @@
 		max-width:75%;
 	}
 	.creator .generic td{
-		padding:0;
+	/*	padding:0;*/
 	}
     .creator .indexboxbar
     {
