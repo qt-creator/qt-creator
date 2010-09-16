@@ -430,7 +430,7 @@ bool NodeMetaInfo::hasProperty(const QString &propertyName, bool resolveDotSynta
     if (hasLocalProperty(propertyName, resolveDotSyntax))
         return true;
 
-    if (directSuperClass().hasProperty(propertyName, resolveDotSyntax))
+    if (directSuperClass().isValid() && directSuperClass().hasProperty(propertyName, resolveDotSyntax))
         return true;
 
     return false;
