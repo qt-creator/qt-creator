@@ -645,6 +645,11 @@ QObject* NodeInstance::testHandle() const
 {
     return internalObject();
 }
+Internal::ObjectNodeInstance* NodeInstance::internalInstance() const
+{
+    return m_nodeInstance.data();
+}
+
 #endif
 
 } // namespace QmlDesigner

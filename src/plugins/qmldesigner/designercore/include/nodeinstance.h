@@ -140,6 +140,7 @@ public:
 
 #ifdef QTCREATOR_TEST
     QObject* testHandle() const;
+    Internal::ObjectNodeInstance* internalInstance() const;
 #endif
 private: // functions
     NodeInstance(const QSharedPointer<Internal::ObjectNodeInstance> &abstractInstance);

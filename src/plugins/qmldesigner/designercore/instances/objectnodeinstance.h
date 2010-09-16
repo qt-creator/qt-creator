@@ -44,6 +44,7 @@
 QT_BEGIN_NAMESPACE
 class QGraphicsItem;
 class QDeclarativeContext;
+class QDeclarativeEngine;
 class QDeclarativeProperty;
 class QDeclarativeContext;
 class QDeclarativeBinding;
@@ -166,6 +167,7 @@ public:
     bool hasBindingForProperty(const QString &name) const;
 
     QDeclarativeContext *context() const;
+    QDeclarativeEngine *engine() const;
 
     virtual bool updateStateVariant(const NodeInstance &target, const QString &propertyName, const QVariant &value);
     virtual bool updateStateBinding(const NodeInstance &target, const QString &propertyName, const QString &expression);

@@ -696,6 +696,11 @@ QDeclarativeContext *ObjectNodeInstance::context() const
     return 0;
 }
 
+QDeclarativeEngine *ObjectNodeInstance::engine() const
+{
+    return nodeInstanceView()->engine();
+}
+
 void ObjectNodeInstance::paintUpdate()
 {
 }
