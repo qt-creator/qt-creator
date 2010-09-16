@@ -52,14 +52,22 @@ public:
     virtual ~Bind();
 
     struct ImportInfo {
+        enum Type {
+            LibraryImport,
+            FileImport,
+            DirectoryImport,
+            InvalidFileImport // refers a file/directoy that wasn't found
+        };
+
+        Type type;
+        // LibraryImport: uri with '/' separator
+        // Other: absoluteFilePath
         QString name;
         ComponentVersion version;
         AST::UiImport *ast;
     };
 
-    QList<ImportInfo> fileImports() const;
-    QList<ImportInfo> directoryImports() const;
-    QList<ImportInfo> libraryImports() const;
+    QList<ImportInfo> imports() const;
 
     Interpreter::ObjectValue *idEnvironment() const;
     Interpreter::ObjectValue *rootObjectValue() const;
@@ -111,9 +119,7 @@ private:
     QHash<AST::FunctionDeclaration *, Interpreter::ObjectValue *> _functionScopes;
     QStringList _includedScripts;
 
-    QList<ImportInfo> _fileImports;
-    QList<ImportInfo> _directoryImports;
-    QList<ImportInfo> _libraryImports;
+    QList<ImportInfo> _imports;
 };
 
 } // end of namespace Qml

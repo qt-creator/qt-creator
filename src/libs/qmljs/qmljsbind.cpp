@@ -49,8 +49,7 @@ using namespace QmlJS::Interpreter;
     information that goes beyond that, you need to create a
     \l{QmlJS::Interpreter::Context} using \l{QmlJS::Link}.
 
-    The document's imports are classified and available through fileImports(),
-    directoryImports() and libraryImports().
+    The document's imports are classified and available through imports().
 
     It allows AST to code model lookup through findQmlObject() and findFunctionScope().
 */
@@ -69,19 +68,9 @@ Bind::~Bind()
 {
 }
 
-QList<Bind::ImportInfo> Bind::fileImports() const
+QList<Bind::ImportInfo> Bind::imports() const
 {
-    return _fileImports;
-}
-
-QList<Bind::ImportInfo> Bind::directoryImports() const
-{
-    return _directoryImports;
-}
-
-QList<Bind::ImportInfo> Bind::libraryImports() const
-{
-    return _libraryImports;
+    return _imports;
 }
 
 Interpreter::ObjectValue *Bind::idEnvironment() const
@@ -209,18 +198,19 @@ bool Bind::visit(UiImport *ast)
     }
 
     if (ast->importUri) {
+        info.type = ImportInfo::LibraryImport;
         info.name = toString(ast->importUri, QLatin1Char('/'));
-        _libraryImports += info;
     } else if (ast->fileName) {
         const QFileInfo importFileInfo(_doc->path() + QLatin1Char('/') + ast->fileName->asString());
         info.name = importFileInfo.absoluteFilePath();
         if (importFileInfo.isFile())
-            _fileImports += info;
+            info.type = ImportInfo::FileImport;
         else if (importFileInfo.isDir())
-            _directoryImports += info;
-        //else
-        //    error: file or directory does not exist
+            info.type = ImportInfo::DirectoryImport;
+        else
+            info.type = ImportInfo::InvalidFileImport;
     }
+    _imports += info;
 
     return false;
 }
