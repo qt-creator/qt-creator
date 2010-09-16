@@ -196,10 +196,8 @@ BaseTextEditor::BaseTextEditor(QWidget *parent)
     d->m_refactorOverlay = new RefactorOverlay(this);
 
     d->setupDocumentSignals(d->m_document);
-    d->setupDocumentSignals(d->m_document);
 
     d->m_lastScrollPos = -1;
-    setCursorWidth(2);
 
     // from RESEARCH
 
@@ -1987,8 +1985,9 @@ void BaseTextEditorPrivate::setupDocumentSignals(BaseTextDocument *document)
         doc->setDocumentLayout(documentLayout);
     }
 
-
     q->setDocument(doc);
+    q->setCursorWidth(2); // Applies to the document layout
+
     QObject::connect(documentLayout, SIGNAL(updateBlock(QTextBlock)), q, SLOT(slotUpdateBlockNotify(QTextBlock)));
     QObject::connect(q, SIGNAL(requestBlockUpdate(QTextBlock)), documentLayout, SIGNAL(updateBlock(QTextBlock)));
     QObject::connect(doc, SIGNAL(modificationChanged(bool)), q, SIGNAL(changed()));
