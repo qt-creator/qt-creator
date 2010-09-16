@@ -102,7 +102,6 @@ PathChooser::PathChooser(QWidget *parent) :
     QWidget(parent),
     m_d(new PathChooserPrivate(this))
 {
-
     m_d->m_hLayout->setContentsMargins(0, 0, 0, 0);
 
     connect(m_d->m_lineEdit, SIGNAL(validReturnPressed()), this, SIGNAL(returnPressed()));
@@ -166,7 +165,6 @@ void PathChooser::slotBrowse()
     }
 
     // Prompt for a file/dir
-    QString dialogTitle;
     QString newPath;
     switch (m_d->m_acceptingKind) {
     case PathChooser::Directory:
@@ -186,8 +184,10 @@ void PathChooser::slotBrowse()
         QFileInfo fi(predefined);
         if (fi.exists())
             dialog.setDirectory(fi.absolutePath());
-        dialog.setNameFilter(m_d->m_dialogFilter); // fix QFileDialog so that it filters properly: lib*.a
-        if (dialog.exec() == QDialog::Accepted) { // probably loop here until the *.framework dir match
+        // FIXME: fix QFileDialog so that it filters properly: lib*.a
+        dialog.setNameFilter(m_d->m_dialogFilter);
+        if (dialog.exec() == QDialog::Accepted) {
+            // probably loop here until the *.framework dir match
             QStringList paths = dialog.selectedFiles();
             if (!paths.isEmpty())
                 newPath = paths.at(0);
@@ -196,7 +196,7 @@ void PathChooser::slotBrowse()
         }
 
     default:
-        ;
+        break;
     }
 
     // Delete trailing slashes unless it is "/"|"\\", only
@@ -337,6 +337,14 @@ QString PathChooser::makeDialogTitle(const QString &title)
         return title;
     else
         return m_d->m_dialogTitleOverride;
+}
+
+QLineEdit *PathChooser::lineEdit() const
+{
+    // HACK: Make it work with HistoryCompleter.
+    if (m_d->m_lineEdit->objectName().isEmpty())
+        m_d->m_lineEdit->setObjectName(objectName() + QLatin1String("LineEdit"));
+    return m_d->m_lineEdit;
 }
 
 } // namespace Utils

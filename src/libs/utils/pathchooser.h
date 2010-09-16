@@ -34,7 +34,11 @@
 
 #include <QtGui/QWidget>
 
-QT_FORWARD_DECLARE_CLASS(QAbstractButton)
+QT_BEGIN_NAMESPACE
+class QAbstractButton;
+class QLineEdit;
+QT_END_NAMESPACE
+
 
 namespace Utils {
 
@@ -93,6 +97,8 @@ public:
 
     void addButton(const QString &text, QObject *receiver, const char *slotFunc);
     QAbstractButton *buttonAtIndex(int index) const;
+
+    QLineEdit *lineEdit() const;
 
 private:
     // Returns overridden title or the one from <title>
