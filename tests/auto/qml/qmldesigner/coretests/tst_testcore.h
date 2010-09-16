@@ -152,6 +152,10 @@ private slots:
     void testInstancesBindingsInStatesStress();
     void testInstancesPropertyChangeTargets();
     void testInstancesDeletePropertyChanges();
+    void testInstancesChildrenLowLevel();
+    void testInstancesResourcesLowLevel();
+    void testInstancesFlickableLowLevel();
+    void testInstancesReorderChildrenLowLevel();
 
     //
     // integration tests

@@ -55,6 +55,7 @@
 #include <nodelistproperty.h>
 #include <nodeabstractproperty.h>
 #include <componenttextmodifier.h>
+#include <instances/objectnodeinstance.h>
 
 #include <bytearraymodifier.h>
 #include "testrewriterview.h"
@@ -64,6 +65,7 @@
 #include <QPlainTextEdit>
 #include <private/qdeclarativestate_p.h>
 #include <private/qdeclarativemetatype_p.h>
+#include <QDeclarativeItem>
 
 //TESTED_COMPONENT=src/plugins/qmldesigner/designercore
 
@@ -5022,12 +5024,434 @@ void tst_TestCore::testInstancesDeletePropertyChanges()
 
 }
 
+void tst_TestCore::testInstancesChildrenLowLevel()
+{
+    QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
+    QVERIFY(model.data());
+
+    QScopedPointer<NodeInstanceView> view(new NodeInstanceView);
+    QVERIFY(view.data());
+    model->attachView(view.data());
+
+    ModelNode rootModelNode(view->rootModelNode());
+    QVERIFY(rootModelNode.isValid());
+
+    rootModelNode.setId("rootModelNode");
+
+    ModelNode childNode1 = addNodeListChild(rootModelNode, "Qt/Text", 4, 7, "data");
+    QVERIFY(childNode1.isValid());
+    childNode1.setId("childNode1");
+
+    ModelNode childNode2 = addNodeListChild(rootModelNode, "Qt/TextEdit", 4, 7, "data");
+    QVERIFY(childNode2.isValid());
+    childNode2.setId("childNode2");
+
+    NodeInstance rootInstance = view->instanceForNode(rootModelNode);
+    QDeclarativeItem *rootItem = qobject_cast<QDeclarativeItem*>(rootInstance.testHandle());
+    QVERIFY(rootItem);
+    NodeInstance child1Instance = view->instanceForNode(childNode1);
+    QDeclarativeItem *child1Item = qobject_cast<QDeclarativeItem*>(child1Instance.testHandle());
+    QVERIFY(child1Item);
+    NodeInstance child2Instance = view->instanceForNode(childNode2);
+    QDeclarativeItem *child2Item = qobject_cast<QDeclarativeItem*>(child2Instance.testHandle());
+    QVERIFY(child2Item);
+
+     QDeclarativeContext *context = rootInstance.internalInstance()->context();
+     QDeclarativeEngine *engine = rootInstance.internalInstance()->engine();
+     QDeclarativeProperty childrenProperty(rootItem, "children", context);
+     QVERIFY(childrenProperty.isValid());
+     
+     QDeclarativeListReference listReference(childrenProperty.object(), childrenProperty.name().toLatin1(), engine);
+     QVERIFY(listReference.isValid());
+
+     QVERIFY(listReference.canAppend());
+     QVERIFY(listReference.canAt());
+     QVERIFY(listReference.canClear());
+     QVERIFY(listReference.canCount());
+
+     QCOMPARE(listReference.count(), 2);
+
+     QCOMPARE(listReference.at(0), child1Item);
+     QCOMPARE(listReference.at(1), child2Item);
+
+     listReference.clear();
+
+     QCOMPARE(listReference.count(), 0);
+
+     listReference.append(child2Item);
+     listReference.append(child1Item);
+
+     QCOMPARE(listReference.at(0), child2Item);
+     QCOMPARE(listReference.at(1), child1Item);
+
+     QDeclarativeProperty dataProperty(rootItem, "data", context);
+     QDeclarativeListReference listReferenceData(dataProperty.object(), dataProperty.name().toLatin1(), engine);
+
+     QVERIFY(listReferenceData.canAppend());
+     QVERIFY(listReferenceData.canAt());
+     QVERIFY(listReferenceData.canClear());
+     QVERIFY(listReferenceData.canCount());
+
+     QCOMPARE(listReferenceData.count(), 2);
+
+     QCOMPARE(listReferenceData.at(0), child2Item);
+     QCOMPARE(listReferenceData.at(1), child1Item);
+
+     listReferenceData.clear();
+
+     QCOMPARE(listReference.count(), 0);
+     QCOMPARE(listReferenceData.count(), 0);
+
+     listReferenceData.append(child1Item);
+     listReferenceData.append(child2Item);
+
+     QCOMPARE(listReferenceData.count(), 2);
+
+     QCOMPARE(listReference.at(0), child1Item);
+     QCOMPARE(listReference.at(1), child2Item);
+
+     QCOMPARE(listReferenceData.at(0), child1Item);
+     QCOMPARE(listReferenceData.at(1), child2Item);
+}
+
+void tst_TestCore::testInstancesResourcesLowLevel()
+{
+    QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
+    QVERIFY(model.data());
+
+    QScopedPointer<NodeInstanceView> view(new NodeInstanceView);
+    QVERIFY(view.data());
+    model->attachView(view.data());
+
+    ModelNode rootModelNode(view->rootModelNode());
+    QVERIFY(rootModelNode.isValid());
+
+    rootModelNode.setId("rootModelNode");
+
+    ModelNode childNode1 = addNodeListChild(rootModelNode, "Qt/Text", 4, 7, "data");
+    QVERIFY(childNode1.isValid());
+    childNode1.setId("childNode1");
+
+    ModelNode childNode2 = addNodeListChild(rootModelNode, "Qt/TextEdit", 4, 7, "data");
+    QVERIFY(childNode2.isValid());
+    childNode2.setId("childNode2");
+
+    ModelNode listModel = addNodeListChild(rootModelNode, "Qt/ListModel", 4, 7, "data");
+    QVERIFY(listModel.isValid());
+    listModel.setId("listModel");
+
+    NodeInstance rootInstance = view->instanceForNode(rootModelNode);
+    QDeclarativeItem *rootItem = qobject_cast<QDeclarativeItem*>(rootInstance.testHandle());
+    QVERIFY(rootItem);
+    NodeInstance child1Instance = view->instanceForNode(childNode1);
+    QDeclarativeItem *child1Item = qobject_cast<QDeclarativeItem*>(child1Instance.testHandle());
+    QVERIFY(child1Item);
+    NodeInstance child2Instance = view->instanceForNode(childNode2);
+    QDeclarativeItem *child2Item = qobject_cast<QDeclarativeItem*>(child2Instance.testHandle());
+    QVERIFY(child2Item);
+
+    NodeInstance listModelInstance = view->instanceForNode(listModel);
+    QObject *listModelObject = listModelInstance.testHandle();
+    QVERIFY(listModelObject);
+
+    QDeclarativeContext *context = rootInstance.internalInstance()->context();
+    QDeclarativeEngine *engine = rootInstance.internalInstance()->engine();
+    QDeclarativeProperty childrenProperty(rootItem, "children", context);
+    QDeclarativeProperty resourcesProperty(rootItem, "resources", context);
+    QDeclarativeProperty dataProperty(rootItem, "data", context);
+
+    QDeclarativeListReference listReferenceData(dataProperty.object(), dataProperty.name().toLatin1(), engine);
+    QDeclarativeListReference listReferenceChildren(childrenProperty.object(), childrenProperty.name().toLatin1(), engine);
+    QDeclarativeListReference listReferenceResources(resourcesProperty.object(), resourcesProperty.name().toLatin1(), engine);
+
+    QVERIFY(listReferenceData.isValid());
+    QVERIFY(listReferenceChildren.isValid());
+    QVERIFY(listReferenceResources.isValid());
+
+    QCOMPARE(listReferenceData.count(), 3);
+    QCOMPARE(listReferenceChildren.count(), 2);
+    QCOMPARE(listReferenceResources.count(), 1);
+
+    QCOMPARE(listReferenceResources.at(0), listModelObject);
+    QCOMPARE(listReferenceData.at(0), listModelObject);
+
+    listReferenceResources.clear();
+
+    QCOMPARE(listReferenceData.count(), 2);
+    QCOMPARE(listReferenceChildren.count(), 2);
+    QCOMPARE(listReferenceResources.count(), 0);
+
+    listReferenceData.append(listModelObject);
+
+    QCOMPARE(listReferenceData.count(), 3);
+    QCOMPARE(listReferenceChildren.count(), 2);
+    QCOMPARE(listReferenceResources.count(), 1);
+
+    QCOMPARE(listReferenceResources.at(0), listModelObject);
+    QCOMPARE(listReferenceData.at(0), listModelObject);
+    QCOMPARE(listReferenceData.at(1), child1Item);
+    QCOMPARE(listReferenceData.at(2), child2Item);
+
+    listReferenceChildren.clear();
+
+    QCOMPARE(listReferenceData.count(), 1);
+    QCOMPARE(listReferenceChildren.count(), 0);
+    QCOMPARE(listReferenceResources.count(), 1);
+
+    QCOMPARE(listReferenceResources.at(0), listModelObject);
+    QCOMPARE(listReferenceData.at(0), listModelObject);
+
+    listReferenceData.append(child1Item);
+    listReferenceData.append(child2Item);
+
+    QCOMPARE(listReferenceData.count(), 3);
+    QCOMPARE(listReferenceChildren.count(), 2);
+    QCOMPARE(listReferenceResources.count(), 1);
+
+    QCOMPARE(listReferenceResources.at(0), listModelObject);
+    QCOMPARE(listReferenceData.at(0), listModelObject);
+    QCOMPARE(listReferenceData.at(1), child1Item);
+    QCOMPARE(listReferenceData.at(2), child2Item);
+
+    ModelNode listModel2 = addNodeListChild(rootModelNode, "Qt/ListModel", 4, 7, "data");
+    QVERIFY(listModel2.isValid());
+    listModel2.setId("listModel2");
+
+    NodeInstance listModelInstance2 = view->instanceForNode(listModel2);
+    QObject *listModelObject2 = listModelInstance2.testHandle();
+    QVERIFY(listModelObject2);
+
+    QCOMPARE(listReferenceData.count(), 4);
+    QCOMPARE(listReferenceChildren.count(), 2);
+    QCOMPARE(listReferenceResources.count(), 2);
+
+    QCOMPARE(listReferenceResources.at(0), listModelObject);
+    QCOMPARE(listReferenceResources.at(1), listModelObject2);
+    QCOMPARE(listReferenceData.at(0), listModelObject);
+    QCOMPARE(listReferenceData.at(1), listModelObject2);
+    QCOMPARE(listReferenceData.at(2), child1Item);
+    QCOMPARE(listReferenceData.at(3), child2Item);
+
+    listReferenceResources.clear();
+
+    QCOMPARE(listReferenceChildren.count(), 2);
+    QCOMPARE(listReferenceData.count(), 2);
+    QCOMPARE(listReferenceResources.count(), 0);
+
+    listReferenceResources.append(listModelObject2);
+    listReferenceResources.append(listModelObject);
+
+    QCOMPARE(listReferenceData.count(), 4);
+    QCOMPARE(listReferenceChildren.count(), 2);
+    QCOMPARE(listReferenceResources.count(), 2);
+
+    QCOMPARE(listReferenceResources.at(0), listModelObject2);
+    QCOMPARE(listReferenceResources.at(1), listModelObject);
+    QCOMPARE(listReferenceData.at(0), listModelObject2);
+    QCOMPARE(listReferenceData.at(1), listModelObject);
+    QCOMPARE(listReferenceData.at(2), child1Item);
+    QCOMPARE(listReferenceData.at(3), child2Item);
+
+    listReferenceData.clear();
+
+    QCOMPARE(listReferenceChildren.count(), 0);
+    QCOMPARE(listReferenceData.count(), 0);
+    QCOMPARE(listReferenceResources.count(), 0);
+}
+
+void tst_TestCore::testInstancesFlickableLowLevel()
+{
+    QScopedPointer<Model> model(Model::create("Qt/Flickable", 4, 7));
+    QVERIFY(model.data());
+
+    QScopedPointer<NodeInstanceView> view(new NodeInstanceView);
+    QVERIFY(view.data());
+    model->attachView(view.data());
+
+    ModelNode rootModelNode(view->rootModelNode());
+    QVERIFY(rootModelNode.isValid());
+
+    rootModelNode.setId("rootModelNode");
+
+    ModelNode childNode1 = addNodeListChild(rootModelNode, "Qt/Text", 4, 7, "flickableData");
+    QVERIFY(childNode1.isValid());
+    childNode1.setId("childNode1");
+
+    ModelNode childNode2 = addNodeListChild(rootModelNode, "Qt/TextEdit", 4, 7, "flickableData");
+    QVERIFY(childNode2.isValid());
+    childNode2.setId("childNode2");
+
+    ModelNode listModel = addNodeListChild(rootModelNode, "Qt/ListModel", 4, 7, "flickableData");
+    QVERIFY(listModel.isValid());
+    listModel.setId("listModel");
+
+    NodeInstance rootInstance = view->instanceForNode(rootModelNode);
+    QDeclarativeItem *rootItem = qobject_cast<QDeclarativeItem*>(rootInstance.testHandle());
+    QVERIFY(rootItem);
+    NodeInstance child1Instance = view->instanceForNode(childNode1);
+    QDeclarativeItem *child1Item = qobject_cast<QDeclarativeItem*>(child1Instance.testHandle());
+    QVERIFY(child1Item);
+    NodeInstance child2Instance = view->instanceForNode(childNode2);
+    QDeclarativeItem *child2Item = qobject_cast<QDeclarativeItem*>(child2Instance.testHandle());
+    QVERIFY(child2Item);
+
+    NodeInstance listModelInstance = view->instanceForNode(listModel);
+    QObject *listModelObject = listModelInstance.testHandle();
+    QVERIFY(listModelObject);
+
+    QDeclarativeContext *context = rootInstance.internalInstance()->context();
+    QDeclarativeEngine *engine = rootInstance.internalInstance()->engine();
+    QDeclarativeProperty flickableChildrenProperty(rootItem, "flickableChildren", context);
+    QDeclarativeProperty flickableDataProperty(rootItem, "flickableData", context);
+    QDeclarativeProperty dataProperty(rootItem, "data", context);
+    QDeclarativeProperty resourcesProperty(rootItem, "resources", context);
+    QDeclarativeProperty childrenProperty(rootItem, "children", context);
+
+    QDeclarativeListReference listReferenceData(dataProperty.object(), dataProperty.name().toLatin1(), engine);
+    QDeclarativeListReference listReferenceResources(resourcesProperty.object(), resourcesProperty.name().toLatin1(), engine);
+    QDeclarativeListReference listReferenceChildren(childrenProperty.object(), childrenProperty.name().toLatin1(), engine);
+    QDeclarativeListReference listReferenceFlickableData(flickableDataProperty.object(), flickableDataProperty.name().toLatin1(), engine);
+    QDeclarativeListReference listReferenceFlickableChildren(flickableChildrenProperty.object(), flickableChildrenProperty.name().toLatin1(), engine);
+
+    QVERIFY(listReferenceData.isValid());
+    QVERIFY(listReferenceChildren.isValid());
+    QVERIFY(listReferenceResources.isValid());
+    QVERIFY(listReferenceFlickableChildren.isValid());
+    QVERIFY(listReferenceFlickableData.isValid());
+
+    QCOMPARE(listReferenceChildren.count(), 1);
+    QCOMPARE(listReferenceFlickableChildren.count(), 2);
+    QCOMPARE(listReferenceData.count(), listReferenceResources.count() + listReferenceChildren.count());
+    QCOMPARE(listReferenceFlickableData.count(), listReferenceResources.count() + listReferenceFlickableChildren.count());
+    int oldResourcesCount = listReferenceResources.count();
+
+    QCOMPARE(listReferenceFlickableChildren.at(0), child1Item);
+    QCOMPARE(listReferenceFlickableChildren.at(1), child2Item);
+
+    listReferenceFlickableChildren.clear();
+
+    QCOMPARE(listReferenceFlickableChildren.count(), 0);
+    QCOMPARE(listReferenceResources.count(), oldResourcesCount);
+    QCOMPARE(listReferenceData.count(), listReferenceResources.count() + listReferenceChildren.count());
+    QCOMPARE(listReferenceFlickableData.count(), listReferenceResources.count() + listReferenceFlickableChildren.count());
+
+    listReferenceFlickableChildren.append(child2Item);
+    listReferenceFlickableChildren.append(child1Item);
+
+    QCOMPARE(listReferenceFlickableChildren.count(), 2);
+    QCOMPARE(listReferenceResources.count(), oldResourcesCount);
+    QCOMPARE(listReferenceData.count(), listReferenceResources.count() + listReferenceChildren.count());
+    QCOMPARE(listReferenceFlickableData.count(), listReferenceResources.count() + listReferenceFlickableChildren.count());
+
+    QCOMPARE(listReferenceFlickableChildren.at(0), child2Item);
+    QCOMPARE(listReferenceFlickableChildren.at(1), child1Item);
+}
+
+void tst_TestCore::testInstancesReorderChildrenLowLevel()
+{
+    QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
+    QVERIFY(model.data());
+
+    QScopedPointer<NodeInstanceView> view(new NodeInstanceView);
+    QVERIFY(view.data());
+    model->attachView(view.data());
+
+    ModelNode rootModelNode(view->rootModelNode());
+    QVERIFY(rootModelNode.isValid());
+
+    rootModelNode.setId("rootModelNode");
+
+    ModelNode childNode1 = addNodeListChild(rootModelNode, "Qt/Text", 4, 7, "data");
+    QVERIFY(childNode1.isValid());
+    childNode1.setId("childNode1");
+
+    ModelNode childNode2 = addNodeListChild(rootModelNode, "Qt/TextEdit", 4, 7, "data");
+    QVERIFY(childNode2.isValid());
+    childNode2.setId("childNode2");
+
+    ModelNode listModel = addNodeListChild(rootModelNode, "Qt/ListModel", 4, 7, "data");
+    QVERIFY(listModel.isValid());
+    listModel.setId("listModel");
+
+    ModelNode childNode3 = addNodeListChild(rootModelNode, "Qt/TextEdit", 4, 7, "data");
+    QVERIFY(childNode3.isValid());
+    childNode3.setId("childNode3");
+
+    ModelNode childNode4 = addNodeListChild(rootModelNode, "Qt/TextEdit", 4, 7, "data");
+    QVERIFY(childNode4.isValid());
+    childNode4.setId("childNode4");
+
+    NodeInstance rootInstance = view->instanceForNode(rootModelNode);
+    QDeclarativeItem *rootItem = qobject_cast<QDeclarativeItem*>(rootInstance.testHandle());
+    QVERIFY(rootItem);
+    NodeInstance child1Instance = view->instanceForNode(childNode1);
+    QDeclarativeItem *child1Item = qobject_cast<QDeclarativeItem*>(child1Instance.testHandle());
+    QVERIFY(child1Item);
+    NodeInstance child2Instance = view->instanceForNode(childNode2);
+    QDeclarativeItem *child2Item = qobject_cast<QDeclarativeItem*>(child2Instance.testHandle());
+    QVERIFY(child2Item);
+    NodeInstance child3Instance = view->instanceForNode(childNode3);
+    QDeclarativeItem *child3Item = qobject_cast<QDeclarativeItem*>(child3Instance.testHandle());
+    QVERIFY(child3Item);
+    NodeInstance child4Instance = view->instanceForNode(childNode4);
+    QDeclarativeItem *child4Item = qobject_cast<QDeclarativeItem*>(child4Instance.testHandle());
+    QVERIFY(child4Item);
+
+    NodeInstance listModelInstance = view->instanceForNode(listModel);
+    QObject *listModelObject = listModelInstance.testHandle();
+    QVERIFY(listModelObject);
+
+    QDeclarativeContext *context = rootInstance.internalInstance()->context();
+    QDeclarativeEngine *engine = rootInstance.internalInstance()->engine();
+    QDeclarativeProperty childrenProperty(rootItem, "children", context);
+    QDeclarativeProperty resourcesProperty(rootItem, "resources", context);
+    QDeclarativeProperty dataProperty(rootItem, "data", context);
+
+    QDeclarativeListReference listReferenceData(dataProperty.object(), dataProperty.name().toLatin1(), engine);
+    QDeclarativeListReference listReferenceChildren(childrenProperty.object(), childrenProperty.name().toLatin1(), engine);
+    QDeclarativeListReference listReferenceResources(resourcesProperty.object(), resourcesProperty.name().toLatin1(), engine);
+
+    QVERIFY(listReferenceData.isValid());
+    QVERIFY(listReferenceChildren.isValid());
+    QVERIFY(listReferenceResources.isValid());
+
+    QCOMPARE(listReferenceResources.count(), 1);
+    QCOMPARE(listReferenceChildren.count(), 4);
+    QCOMPARE(listReferenceData.count(), 5);
+
+    QCOMPARE(listReferenceChildren.at(0), child1Item);
+    QCOMPARE(listReferenceChildren.at(1), child2Item);
+    QCOMPARE(listReferenceChildren.at(2), child3Item);
+    QCOMPARE(listReferenceChildren.at(3), child4Item);
+
+    listReferenceChildren.clear();
+
+    QCOMPARE(listReferenceResources.count(), 1);
+    QCOMPARE(listReferenceChildren.count(), 0);
+    QCOMPARE(listReferenceData.count(), 1);
+
+    listReferenceChildren.append(child4Item);
+    listReferenceChildren.append(child3Item);
+    listReferenceChildren.append(child2Item);
+    listReferenceChildren.append(child1Item);
+
+
+    QCOMPARE(listReferenceResources.count(), 1);
+    QCOMPARE(listReferenceChildren.count(), 4);
+    QCOMPARE(listReferenceData.count(), 5);
+
+    QCOMPARE(listReferenceChildren.at(0), child4Item);
+    QCOMPARE(listReferenceChildren.at(1), child3Item);
+    QCOMPARE(listReferenceChildren.at(2), child2Item);
+    QCOMPARE(listReferenceChildren.at(3), child1Item);
+}
+
 void tst_TestCore::testQmlModelStatesInvalidForRemovedNodes()
 {
     QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
