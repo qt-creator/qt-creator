@@ -56,6 +56,9 @@ private slots:
     void conditional_1();
     void throw_1();
 
+    // possible declaration-or-expression statements
+    void call_call_1();
+
     // statements
     void if_statement_1();
     void if_statement_2();
@@ -354,6 +357,47 @@ void tst_AST::throw_1()
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
     QVERIFY(ast->asExpressionStatement());
+}
+
+void tst_AST::call_call_1()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement("method()->call();"));
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+
+    ExpressionStatementAST *exprStmt = ast->asExpressionStatement();
+    QVERIFY(exprStmt);
+
+    ExpressionAST *expr = exprStmt->expression;
+    QVERIFY(expr);
+
+    CallAST *memberCall = expr->asCall();
+    QVERIFY(memberCall);
+    QVERIFY(memberCall->base_expression);
+    QVERIFY(!memberCall->expression_list);
+
+    MemberAccessAST *member_xs = memberCall->base_expression->asMemberAccess();
+    QVERIFY(member_xs);
+    QVERIFY(member_xs->member_name);
+    SimpleNameAST *member_name = member_xs->member_name->asSimpleName();
+    QVERIFY(member_name);
+    QVERIFY(member_name->identifier_token);
+    QCOMPARE(unit->spell(member_name->identifier_token), "call");
+
+    QCOMPARE(unit->tokenKind(member_xs->access_token), (int) T_ARROW);
+
+    QVERIFY(member_xs->base_expression);
+    CallAST *method_call = member_xs->base_expression->asCall();
+    QVERIFY(method_call);
+    QVERIFY(!method_call->expression_list);
+    QVERIFY(method_call->base_expression);
+    IdExpressionAST *member_expr = method_call->base_expression->asIdExpression();
+    QVERIFY(member_expr);
+    QVERIFY(member_expr->name);
+    SimpleNameAST *member_name2 = member_expr->name->asSimpleName();
+    QVERIFY(member_name2);
+    QVERIFY(member_name2->identifier_token);
+    QCOMPARE(unit->spell(member_name2->identifier_token), "method");
 }
 
 void tst_AST::function_call_1()
