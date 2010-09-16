@@ -2338,7 +2338,6 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         beginEditBlock(position());
         moveToFirstNonBlankOnLine();
         moveBehindEndOfLine();
-        setAnchor();
         insertText(Register("\n"));
         insertAutomaticIndentation(true);
         endEditBlock();
@@ -2621,6 +2620,7 @@ EventResult FakeVimHandler::Private::handleReplaceMode(const Input &input)
         }
         const QString text = input.text();
         m_lastInsertion += text;
+        setAnchor();
         insertText(text);
         endEditBlock();
     }
@@ -2792,7 +2792,6 @@ void FakeVimHandler::Private::insertInInsertMode(const QString &text)
     joinPreviousEditBlock();
     m_justAutoIndented = 0;
     m_lastInsertion.append(text);
-    setAnchor();
     insertText(text);
     if (hasConfig(ConfigSmartIndent) && isElectricCharacter(text.at(0))) {
         const QString leftText = block().text()
@@ -4260,10 +4259,7 @@ void FakeVimHandler::Private::insertText(const Register &reg)
 {
     QTC_ASSERT(reg.rangemode == RangeCharMode,
         qDebug() << "WRONG INSERT MODE: " << reg.rangemode; return);
-    if (position() != anchor()) {
-        qDebug() << "FAKEVIM CURSOR ASSERT: " << anchor() << position();
-        setAnchor(position());
-    }
+    setAnchor();
     cursor().insertText(reg.contents);
     //dump("AFTER INSERT");
 }
