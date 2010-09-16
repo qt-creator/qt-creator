@@ -1,13 +1,9 @@
 #ifndef QMLAPPLICATIONVIEWER_H
 #define QMLAPPLICATIONVIEWER_H
 
-#ifdef QMLINSPECTOR
-#include <qdeclarativeviewobserver.h>
-class QmlApplicationViewer : public QmlViewer::QDeclarativeViewObserver
-#else // QMLINSPECTOR
 #include <QtDeclarative/QDeclarativeView>
+
 class QmlApplicationViewer : public QDeclarativeView
-#endif // QMLINSPECTOR
 {
 public:
     enum Orientation {

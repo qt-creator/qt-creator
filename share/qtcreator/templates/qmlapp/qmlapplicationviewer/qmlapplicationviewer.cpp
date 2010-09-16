@@ -7,6 +7,10 @@
 #include <QtDeclarative/QDeclarativeEngine>
 #include <QtDeclarative/QDeclarativeContext>
 
+#if defined(QMLINSPECTOR)
+#include <qdeclarativeviewobserver.h>
+#endif
+
 #if defined(Q_OS_SYMBIAN) && defined(ORIENTATIONLOCK)
 #include <eikenv.h>
 #include <eikappui.h>
@@ -41,15 +45,14 @@ QString QmlApplicationViewerPrivate::adjustPath(const QString &path)
 }
 
 QmlApplicationViewer::QmlApplicationViewer(QWidget *parent) :
-#ifdef QMLINSPECTOR
-    QmlViewer::QDeclarativeViewObserver(parent)
-#else
-    QDeclarativeView(parent)
-#endif
-    , m_d(new QmlApplicationViewerPrivate)
+    QDeclarativeView(parent),
+    m_d(new QmlApplicationViewerPrivate)
 {
     connect(engine(), SIGNAL(quit()), SLOT(close()));
     setResizeMode(QDeclarativeView::SizeRootObjectToView);
+#ifdef QMLINSPECTOR
+    new QmlViewer::QDeclarativeViewObserver(this, parent);
+#endif
 }
 
 QmlApplicationViewer::~QmlApplicationViewer()
