@@ -370,8 +370,6 @@ SessionManager::SessionManager(QObject *parent)
             this, SLOT(updateWindowTitle()));
     connect(em, SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(handleCurrentEditorChange(Core::IEditor*)));
-    connect(em, SIGNAL(currentEditorChanged(Core::IEditor*)),
-            this, SLOT(handleCurrentEditorChange(Core::IEditor*)));
     connect(em, SIGNAL(editorOpened(Core::IEditor*)),
             this, SLOT(markSessionFileDirty()));
     connect(em, SIGNAL(editorsClosed(QList<Core::IEditor*>)),
