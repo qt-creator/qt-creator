@@ -33,55 +33,73 @@
 #include <coreplugin/icore.h>
 
 #include <QtCore/QTimer>
+#include <QtCore/QTextCodec>
 
-using namespace ProjectExplorer;
-using namespace Utils;
+namespace ProjectExplorer {
+
+struct ApplicationLauncherPrivate {
+    ApplicationLauncherPrivate();
+
+    QProcess m_guiProcess;
+    Utils::ConsoleProcess m_consoleProcess;
+    ApplicationLauncher::Mode m_currentMode;
+
+    QTextCodec *m_outputCodec;
+    QTextCodec::ConverterState m_outputCodecState;
+    QTextCodec::ConverterState m_errorCodecState;
+};
+
+ApplicationLauncherPrivate::ApplicationLauncherPrivate() :
+    m_currentMode(ApplicationLauncher::Gui),
+    m_outputCodec(QTextCodec::codecForLocale())
+{
+}
 
 ApplicationLauncher::ApplicationLauncher(QObject *parent)
-    : QObject(parent)
+    : QObject(parent), d(new ApplicationLauncherPrivate)
 {
-    m_outputCodec = QTextCodec::codecForLocale();
-    m_currentMode = Gui;
-    m_guiProcess = new QProcess(this);
-    m_guiProcess->setReadChannelMode(QProcess::SeparateChannels);
-    connect(m_guiProcess, SIGNAL(error(QProcess::ProcessError)),
+    d->m_guiProcess.setReadChannelMode(QProcess::SeparateChannels);
+    connect(&d->m_guiProcess, SIGNAL(error(QProcess::ProcessError)),
         this, SLOT(guiProcessError()));
-    connect(m_guiProcess, SIGNAL(readyReadStandardOutput()),
+    connect(&d->m_guiProcess, SIGNAL(readyReadStandardOutput()),
         this, SLOT(readStandardOutput()));
-    connect(m_guiProcess, SIGNAL(readyReadStandardError()),
+    connect(&d->m_guiProcess, SIGNAL(readyReadStandardError()),
         this, SLOT(readStandardError()));
-    connect(m_guiProcess, SIGNAL(finished(int, QProcess::ExitStatus)),
+    connect(&d->m_guiProcess, SIGNAL(finished(int, QProcess::ExitStatus)),
             this, SLOT(processDone(int, QProcess::ExitStatus)));
-    connect(m_guiProcess, SIGNAL(started()),
+    connect(&d->m_guiProcess, SIGNAL(started()),
             this, SLOT(bringToForeground()));
 
-    m_consoleProcess = new ConsoleProcess(this);
-    m_consoleProcess->setSettings(Core::ICore::instance()->settings());
-    connect(m_consoleProcess, SIGNAL(processMessage(QString,bool)),
+    d->m_consoleProcess.setSettings(Core::ICore::instance()->settings());
+    connect(&d->m_consoleProcess, SIGNAL(processMessage(QString,bool)),
             this, SIGNAL(appendMessage(QString,bool)));
-    connect(m_consoleProcess, SIGNAL(processStopped()),
+    connect(&d->m_consoleProcess, SIGNAL(processStopped()),
             this, SLOT(processStopped()));
+}
+
+ApplicationLauncher::~ApplicationLauncher()
+{
 }
 
 void ApplicationLauncher::setWorkingDirectory(const QString &dir)
 {
-    m_guiProcess->setWorkingDirectory(dir);
-    m_consoleProcess->setWorkingDirectory(dir);
+    d->m_guiProcess.setWorkingDirectory(dir);
+    d->m_consoleProcess.setWorkingDirectory(dir);
 }
 
 void ApplicationLauncher::setEnvironment(const QStringList &env)
 {
-    m_guiProcess->setEnvironment(env);
-    m_consoleProcess->setEnvironment(env);
+    d->m_guiProcess.setEnvironment(env);
+    d->m_consoleProcess.setEnvironment(env);
 }
 
 void ApplicationLauncher::start(Mode mode, const QString &program, const QStringList &args)
 {
-    m_currentMode = mode;
+    d->m_currentMode = mode;
     if (mode == Gui) {
-        m_guiProcess->start(program, args);
+        d->m_guiProcess.start(program, args);
     } else {
-        m_consoleProcess->start(program, args);
+        d->m_consoleProcess.start(program, args);
     }
 }
 
@@ -89,24 +107,24 @@ void ApplicationLauncher::stop()
 {
     if (!isRunning())
         return;
-    if (m_currentMode == Gui) {
-        m_guiProcess->terminate();
-        if (!m_guiProcess->waitForFinished(1000)) { // This is blocking, so be fast.
-            m_guiProcess->kill();
-            m_guiProcess->waitForFinished();
+    if (d->m_currentMode == Gui) {
+        d->m_guiProcess.terminate();
+        if (!d->m_guiProcess.waitForFinished(1000)) { // This is blocking, so be fast.
+            d->m_guiProcess.kill();
+            d->m_guiProcess.waitForFinished();
         }
     } else {
-        m_consoleProcess->stop();
+        d->m_consoleProcess.stop();
         processStopped();
     }
 }
 
 bool ApplicationLauncher::isRunning() const
 {
-    if (m_currentMode == Gui)
-        return m_guiProcess->state() != QProcess::NotRunning;
+    if (d->m_currentMode == Gui)
+        return d->m_guiProcess.state() != QProcess::NotRunning;
     else
-        return m_consoleProcess->isRunning();
+        return d->m_consoleProcess.isRunning();
 }
 
 qint64 ApplicationLauncher::applicationPID() const
@@ -115,10 +133,10 @@ qint64 ApplicationLauncher::applicationPID() const
     if (!isRunning())
         return result;
 
-    if (m_currentMode == Console) {
-        result = m_consoleProcess->applicationPID();
+    if (d->m_currentMode == Console) {
+        result = d->m_consoleProcess.applicationPID();
     } else {
-        result = (qint64)m_guiProcess->pid();
+        result = (qint64)d->m_guiProcess.pid();
     }
     return result;
 }
@@ -126,7 +144,7 @@ qint64 ApplicationLauncher::applicationPID() const
 void ApplicationLauncher::guiProcessError()
 {
     QString error;
-    switch (m_guiProcess->error()) {
+    switch (d->m_guiProcess.error()) {
     case QProcess::FailedToStart:
         error = tr("Failed to start program. Path or permissions wrong?");
         break;
@@ -141,17 +159,17 @@ void ApplicationLauncher::guiProcessError()
 
 void ApplicationLauncher::readStandardOutput()
 {
-    QByteArray data = m_guiProcess->readAllStandardOutput();
-    emit appendOutput(m_outputCodec->toUnicode(
-            data.constData(), data.length(), &m_outputCodecState),
+    QByteArray data = d->m_guiProcess.readAllStandardOutput();
+    emit appendOutput(d->m_outputCodec->toUnicode(
+            data.constData(), data.length(), &d->m_outputCodecState),
                       false);
 }
 
 void ApplicationLauncher::readStandardError()
 {
-    QByteArray data = m_guiProcess->readAllStandardError();
-    emit appendOutput(m_outputCodec->toUnicode(
-            data.constData(), data.length(), &m_errorCodecState),
+    QByteArray data = d->m_guiProcess.readAllStandardError();
+    emit appendOutput(d->m_outputCodec->toUnicode(
+            data.constData(), data.length(), &d->m_errorCodecState),
                       true);
 }
 
@@ -169,3 +187,5 @@ void ApplicationLauncher::bringToForeground()
 {
     emit bringToForegroundRequested(applicationPID());
 }
+
+} // namespace ProjectExplorer

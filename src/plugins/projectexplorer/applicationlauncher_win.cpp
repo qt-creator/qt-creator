@@ -31,52 +31,57 @@
 #include "consoleprocess.h"
 #include "winguiprocess.h"
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
-using namespace ProjectExplorer;
-using namespace ProjectExplorer::Internal;
-using namespace Utils;
+namespace ProjectExplorer {
+
+struct ApplicationLauncherPrivate {
+    ApplicationLauncherPrivate() : m_currentMode(ApplicationLauncher::Gui) {}
+
+    Utils::ConsoleProcess m_consoleProcess;
+    ApplicationLauncher::Mode m_currentMode;
+    Internal::WinGuiProcess m_winGuiProcess;
+};
 
 ApplicationLauncher::ApplicationLauncher(QObject *parent)
-    : QObject(parent)
+    : QObject(parent), d(new ApplicationLauncherPrivate)
 {
-    m_currentMode = Gui;
-
-    m_consoleProcess = new ConsoleProcess(this);
-    connect(m_consoleProcess, SIGNAL(processMessage(const QString&, bool)),
+    connect(&d->m_consoleProcess, SIGNAL(processMessage(QString,bool)),
             this, SIGNAL(appendMessage(QString,bool)));
-    connect(m_consoleProcess, SIGNAL(processStopped()),
+    connect(&d->m_consoleProcess, SIGNAL(processStopped()),
             this, SLOT(processStopped()));
 
-    m_winGuiProcess = new WinGuiProcess(this);
-    connect(m_winGuiProcess, SIGNAL(processMessage(const QString &, bool)),
+    connect(&d->m_winGuiProcess, SIGNAL(processMessage(QString, bool)),
         this, SIGNAL(appendMessage(QString,bool)));
-    connect(m_winGuiProcess, SIGNAL(receivedDebugOutput(const QString&, bool)),
-        this, SLOT(readWinDebugOutput(const QString&, bool)));
-    connect(m_winGuiProcess, SIGNAL(processFinished(int)),
+    connect(&d->m_winGuiProcess, SIGNAL(receivedDebugOutput(QString, bool)),
+        this, SLOT(readWinDebugOutput(QString, bool)));
+    connect(&d->m_winGuiProcess, SIGNAL(processFinished(int)),
             this, SLOT(processFinished(int)));
+}
 
+ApplicationLauncher::~ApplicationLauncher()
+{
 }
 
 void ApplicationLauncher::setWorkingDirectory(const QString &dir)
 {
-    m_winGuiProcess->setWorkingDirectory(dir);
-    m_consoleProcess->setWorkingDirectory(dir);
+    d->m_winGuiProcess.setWorkingDirectory(dir);
+    d->m_consoleProcess.setWorkingDirectory(dir);
 }
 
 void ApplicationLauncher::setEnvironment(const QStringList &env)
 {
-    m_winGuiProcess->setEnvironment(env);
-    m_consoleProcess->setEnvironment(env);
+    d->m_winGuiProcess.setEnvironment(env);
+    d->m_consoleProcess.setEnvironment(env);
 }
 
 void ApplicationLauncher::start(Mode mode, const QString &program, const QStringList &args)
 {
-    m_currentMode = mode;
+    d->m_currentMode = mode;
     if (mode == Gui) {
-        m_winGuiProcess->start(program, args);
+        d->m_winGuiProcess.start(program, args);
     } else {
-        m_consoleProcess->start(program, args);
+        d->m_consoleProcess.start(program, args);
     }
 }
 
@@ -84,20 +89,20 @@ void ApplicationLauncher::stop()
 {
     if (!isRunning())
         return;
-    if (m_currentMode == Gui) {
-        m_winGuiProcess->stop();
+    if (d->m_currentMode == Gui) {
+        d->m_winGuiProcess.stop();
     } else {
-        m_consoleProcess->stop();
+        d->m_consoleProcess.stop();
         processStopped();
     }
 }
 
 bool ApplicationLauncher::isRunning() const
 {
-    if (m_currentMode == Gui)
-        return m_winGuiProcess->isRunning();
+    if (d->m_currentMode == Gui)
+        return d->m_winGuiProcess.isRunning();
     else
-        return m_consoleProcess->isRunning();
+        return d->m_consoleProcess.isRunning();
 }
 
 qint64 ApplicationLauncher::applicationPID() const
@@ -106,10 +111,10 @@ qint64 ApplicationLauncher::applicationPID() const
     if (!isRunning())
         return result;
 
-    if (m_currentMode == Console) {
-        result = m_consoleProcess->applicationPID();
+    if (d->m_currentMode == Console) {
+        result = d->m_consoleProcess.applicationPID();
     } else {
-        result = m_winGuiProcess->applicationPID();
+        result = d->m_winGuiProcess.applicationPID();
     }
     return result;
 }
@@ -133,3 +138,5 @@ void ApplicationLauncher::processFinished(int exitCode)
 void ApplicationLauncher::bringToForeground()
 {
 }
+
+} // namespace ProjectExplorer

@@ -35,19 +35,13 @@
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
 #include <QtCore/QProcess>
-#ifndef Q_OS_WIN
-#include <QtCore/QTextCodec>
-#endif
 
 namespace Utils {
 class ConsoleProcess;
 }
 
 namespace ProjectExplorer {
-
-namespace Internal {
-    class WinGuiProcess;
-}
+struct ApplicationLauncherPrivate;
 
 class PROJECTEXPLORER_EXPORT ApplicationLauncher : public QObject
 {
@@ -59,7 +53,9 @@ public:
         Gui
     };
 
-    ApplicationLauncher(QObject *parent = 0);
+    explicit ApplicationLauncher(QObject *parent = 0);
+    ~ApplicationLauncher();
+
     void setWorkingDirectory(const QString &dir);
     void setEnvironment(const QStringList &env);
 
@@ -90,17 +86,7 @@ private slots:
     void bringToForeground();
 
 private:
-    QProcess *m_guiProcess;
-    Utils::ConsoleProcess *m_consoleProcess;
-    Mode m_currentMode;
-
-#ifdef Q_OS_WIN
-    Internal::WinGuiProcess *m_winGuiProcess;
-#else
-    QTextCodec *m_outputCodec;
-    QTextCodec::ConverterState m_outputCodecState;
-    QTextCodec::ConverterState m_errorCodecState;
-#endif
+    QScopedPointer<ApplicationLauncherPrivate> d;
 };
 
 } // namespace ProjectExplorer

@@ -50,8 +50,8 @@ class WinGuiProcess : public QThread, public AbstractProcess
     Q_OBJECT
 
 public:
-    WinGuiProcess(QObject *parent);
-    ~WinGuiProcess();
+    explicit WinGuiProcess(QObject *parent = 0);
+    virtual ~WinGuiProcess();
 
     bool start(const QString &program, const QStringList &args);
     void stop();
