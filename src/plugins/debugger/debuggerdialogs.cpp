@@ -42,6 +42,7 @@
 
 #include <coreplugin/icore.h>
 #include <utils/synchronousprocess.h>
+#include <utils/historycompleter.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QProcess>
@@ -54,6 +55,8 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QProxyModel>
 #include <QtGui/QSortFilterProxyModel>
+
+using namespace Utils;
 
 namespace Debugger {
 namespace Internal {
@@ -71,7 +74,7 @@ public:
     QString processIdAt(const QModelIndex &index) const;
     QString executableForPid(const QString& pid) const;
 
-    void populate(QList<ProcData> processes, const QString &excludePid = QString());
+    void populate(QList<ProcData> processes, const QString &excludePid);
 
 private:
     enum { ProcessImageRole = Qt::UserRole, ProcessNameRole };
@@ -131,7 +134,8 @@ QString ProcessListFilterModel::executableForPid(const QString &pid) const
     return QString();
 }
 
-void ProcessListFilterModel::populate(QList<ProcData> processes, const QString &excludePid)
+void ProcessListFilterModel::populate
+    (QList<ProcData> processes, const QString &excludePid)
 {
     qStableSort(processes);
 
@@ -167,10 +171,10 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
 {
     m_ui->setupUi(this);
 
-    m_ui->execFileName->setExpectedKind(Utils::PathChooser::File);
+    m_ui->execFileName->setExpectedKind(PathChooser::File);
     m_ui->execFileName->setPromptDialogTitle(tr("Select Executable"));
 
-    m_ui->coreFileName->setExpectedKind(Utils::PathChooser::File);
+    m_ui->coreFileName->setExpectedKind(PathChooser::File);
     m_ui->coreFileName->setPromptDialogTitle(tr("Select Core File"));
 
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
@@ -238,7 +242,7 @@ static QList<ProcData> unixProcessListPS()
     if (!psProcess.waitForStarted())
         return rc;
     QByteArray output;
-    if (!Utils::SynchronousProcess::readDataFromProcess(psProcess, 30000, &output, 0, false))
+    if (!SynchronousProcess::readDataFromProcess(psProcess, 30000, &output, 0, false))
         return rc;
     // Split "457 S+   /Users/foo.app"
     const QStringList lines = QString::fromLocal8Bit(output).split(QLatin1Char('\n'));
@@ -433,7 +437,7 @@ AttachTcfDialog::AttachTcfDialog(QWidget *parent)
 {
     m_ui->setupUi(this);
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
-    m_ui->serverStartScript->setExpectedKind(Utils::PathChooser::File);
+    m_ui->serverStartScript->setExpectedKind(PathChooser::File);
     m_ui->serverStartScript->setPromptDialogTitle(tr("Select Executable"));
 
     connect(m_ui->useServerStartScriptCheckBox, SIGNAL(toggled(bool)), 
@@ -520,18 +524,23 @@ StartExternalDialog::StartExternalDialog(QWidget *parent)
   : QDialog(parent), m_ui(new Ui::StartExternalDialog)
 {
     m_ui->setupUi(this);
-    m_ui->execFile->setExpectedKind(Utils::PathChooser::File);
+    m_ui->execFile->setExpectedKind(PathChooser::File);
     m_ui->execFile->setPromptDialogTitle(tr("Select Executable"));
+    m_ui->execFile->lineEdit()->setCompleter(
+        new HistoryCompleter(m_ui->execFile->lineEdit()));
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
-    m_ui->workingDirectory->setExpectedKind(Utils::PathChooser::Directory);
+    m_ui->workingDirectory->setExpectedKind(PathChooser::Directory);
     m_ui->workingDirectory->setPromptDialogTitle(tr("Select Working Directory"));
+    m_ui->workingDirectory->lineEdit()->setCompleter(
+        new HistoryCompleter(m_ui->workingDirectory->lineEdit()));
 
     //execLabel->setHidden(false);
     //execEdit->setHidden(false);
     //browseButton->setHidden(false);
 
     m_ui->execLabel->setText(tr("Executable:"));
-    m_ui->argLabel->setText(tr("Arguments:"));
+    m_ui->argsLabel->setText(tr("Arguments:"));
+    m_ui->argsEdit->setCompleter(new HistoryCompleter(m_ui->argsEdit));
 
     connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
@@ -589,12 +598,12 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent)
 {
     m_ui->setupUi(this);
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
-    m_ui->debuggerPathChooser->setExpectedKind(Utils::PathChooser::File);
+    m_ui->debuggerPathChooser->setExpectedKind(PathChooser::File);
     m_ui->debuggerPathChooser->setPromptDialogTitle(tr("Select Debugger"));
-    m_ui->executablePathChooser->setExpectedKind(Utils::PathChooser::File);
+    m_ui->executablePathChooser->setExpectedKind(PathChooser::File);
     m_ui->executablePathChooser->setPromptDialogTitle(tr("Select Executable"));
     m_ui->sysrootPathChooser->setPromptDialogTitle(tr("Select Sysroot"));
-    m_ui->serverStartScript->setExpectedKind(Utils::PathChooser::File);
+    m_ui->serverStartScript->setExpectedKind(PathChooser::File);
     m_ui->serverStartScript->setPromptDialogTitle(tr("Select Start Script"));
 
     connect(m_ui->useServerStartScriptCheckBox, SIGNAL(toggled(bool)),
