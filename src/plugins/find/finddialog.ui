@@ -170,7 +170,13 @@
  <tabstops>
   <tabstop>filterList</tabstop>
   <tabstop>searchTerm</tabstop>
+  <tabstop>matchCase</tabstop>
+  <tabstop>wholeWords</tabstop>
+  <tabstop>regExp</tabstop>
   <tabstop>searchButton</tabstop>
+  <tabstop>cancelButton</tabstop>
+  <tabstop>closeButton</tabstop>
+  <tabstop>replaceButton</tabstop>
  </tabstops>
  <resources/>
  <connections/>
