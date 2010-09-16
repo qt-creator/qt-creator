@@ -40,10 +40,10 @@ class HistoryListModel : public QAbstractListModel
 public:
     HistoryListModel(HistoryCompleter *parent);
     void fetchHistory();
-    int rowCount(const QModelIndex & parent = QModelIndex()) const;
-    QVariant data( const QModelIndex & index, int role = Qt::DisplayRole) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant data( const QModelIndex &index, int role = Qt::DisplayRole) const;
     void clearHistory();
-    void saveEntry(const QString & str);
+    void saveEntry(const QString &str);
 
     QStringList list;
     HistoryCompleter *q;
@@ -76,7 +76,7 @@ void HistoryListModel::fetchHistory()
     reset();
 }
 
-int HistoryListModel::rowCount(const QModelIndex & parent) const
+int HistoryListModel::rowCount(const QModelIndex &parent) const
 {
     if (lastSeenWidget != q->widget()) {
         if (qobject_cast<QLineEdit *>(lastSeenWidget))
@@ -94,11 +94,13 @@ int HistoryListModel::rowCount(const QModelIndex & parent) const
     return list.count();
 }
 
-QVariant HistoryListModel::data(const QModelIndex & index, int role) const
+QVariant HistoryListModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() >= list.count() || index.column() != 0 || (role != Qt::DisplayRole && role != Qt::EditRole))
+    if (index.row() >= list.count() || index.column() != 0)
         return QVariant();
-    return list.at(index.row());
+    if (role == Qt::DisplayRole || role == Qt::EditRole)
+        return list.at(index.row());
+    return QVariant();
 }
 
 void HistoryListModel::clearHistory()
@@ -107,7 +109,7 @@ void HistoryListModel::clearHistory()
     reset();
 }
 
-void HistoryListModel::saveEntry(const QString & str)
+void HistoryListModel::saveEntry(const QString &str)
 {
     if (list.contains(str))
         return;

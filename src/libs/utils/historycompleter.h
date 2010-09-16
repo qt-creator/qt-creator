@@ -39,20 +39,25 @@ QT_FORWARD_DECLARE_CLASS(QSettings)
 namespace Utils {
 
 class HistoryCompleterPrivate;
+
 class QTCREATOR_UTILS_EXPORT HistoryCompleter : public QCompleter
 {
-Q_OBJECT
+    Q_OBJECT
+
 public:
     HistoryCompleter(QObject *parent = 0);
     QSettings *settings() const;
     int historySize() const;
     int maximalHistorySize() const;
     void setMaximalHistorySize(int numberOfEntries);
+
 public Q_SLOTS:
     void clearHistory();
     void saveHistory();
+
 protected:
     HistoryCompleterPrivate *d_ptr;
+
 private:
     Q_DECLARE_PRIVATE(HistoryCompleter);
 };
