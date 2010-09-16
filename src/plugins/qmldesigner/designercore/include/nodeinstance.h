@@ -120,6 +120,8 @@ public:
     QVariant defaultValue(const QString &name) const;
     QString instanceType(const QString &name) const;
 
+    bool hasBindingForProperty(const QString &name) const;
+
     bool isValid() const;
     void makeInvalid();
     bool hasContent() const;

@@ -229,7 +229,11 @@ void QmlPropertyChangesNodeInstance::resetProperty(const QString &name)
 
 void QmlPropertyChangesNodeInstance::reparent(const NodeInstance &oldParentInstance, const QString &oldParentProperty, const NodeInstance &newParentInstance, const QString &newParentProperty)
 {
+    changesObject()->detachFromState();
+
     ObjectNodeInstance::reparent(oldParentInstance, oldParentProperty, newParentInstance, newParentProperty);
+
+    changesObject()->attachToState();
 }
 
 //QDeclarativeState *QmlPropertyChangesObject::state() const

@@ -47,7 +47,7 @@ void QmlObjectNode::setVariantProperty(const QString &name, const QVariant &valu
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
     if (isInBaseState()) {
-        modelNode().variantProperty(name) = value; //basestate
+        modelNode().variantProperty(name).setValue(value); //basestate
     } else {
         modelNode().validId();
 
@@ -95,7 +95,7 @@ instanciated instance of this object.
 */
 QVariant  QmlObjectNode::instanceValue(const QString &name) const
 {    
-    return instanceValue(modelNode(), name);
+    return nodeInstance().property(name);
 }
 
 
@@ -390,6 +390,15 @@ QVariant QmlObjectNode::instanceValue(const ModelNode &modelNode, const QString 
 QString QmlObjectNode::instanceType(const QString &name) const
 {
     return nodeInstance().instanceType(name);
+}
+
+bool QmlObjectNode::instanceHasBinding(const QString &name) const
+{
+    QmlModelView *modelView = qobject_cast<QmlModelView*>(modelNode().view());
+    if (!modelView)
+        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+
+    return nodeInstance().hasBindingForProperty(name);
 }
 
 NodeInstance QmlObjectNode::nodeInstance() const

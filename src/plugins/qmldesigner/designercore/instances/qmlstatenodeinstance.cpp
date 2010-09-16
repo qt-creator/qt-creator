@@ -100,9 +100,7 @@ QDeclarativeStateGroup *QmlStateNodeInstance::stateGroup() const
 
 bool QmlStateNodeInstance::isStateActive() const
 {
-    Q_ASSERT(stateObject());
-    Q_ASSERT(stateGroup());
-    return (stateGroup()->state() == property("name"));
+    return stateObject() && stateGroup() && stateGroup()->state() == property("name");
 }
 
 void QmlStateNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
@@ -137,7 +135,7 @@ bool QmlStateNodeInstance::updateStateBinding(const NodeInstance &target, const 
 
 bool QmlStateNodeInstance::resetStateProperty(const NodeInstance &target, const QString &propertyName, const QVariant &resetValue)
 {
-    return stateObject()->removeEntryInRevertList(target.internalObject(), propertyName.toLatin1());
+    return stateObject()->removeEntryFromRevertList(target.internalObject(), propertyName.toLatin1());
 }
 
 } // namespace Internal

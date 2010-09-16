@@ -4794,6 +4794,7 @@ void tst_TestCore::testInstancesBindingsInStatesStress()
             }
 
             QmlItemNode(node3).setBindingProperty("width", "parent.x + 30");
+            QVERIFY(QmlItemNode(node3).instanceHasBinding("width"));
             QCOMPARE(QmlItemNode(node3).instanceValue("width").toInt(), 130);
 
             view->setCurrentState(view->baseState());

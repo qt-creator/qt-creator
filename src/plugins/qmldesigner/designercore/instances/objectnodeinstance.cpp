@@ -548,6 +548,13 @@ void ObjectNodeInstance::refreshProperty(const QString &name)
     property.write(oldValue);
 }
 
+bool ObjectNodeInstance::hasBindingForProperty(const QString &name) const
+{
+    QDeclarativeProperty property(object(), name, context());
+
+    return QDeclarativePropertyPrivate::binding(property);
+}
+
 void ObjectNodeInstance::doResetProperty(const QString &propertyName)
 {
     m_modelAbstractPropertyHash.remove(propertyName);

@@ -163,6 +163,8 @@ public:
 
     virtual bool hasContent() const;
 
+    bool hasBindingForProperty(const QString &name) const;
+
     QDeclarativeContext *context() const;
 
     virtual bool updateStateVariant(const NodeInstance &target, const QString &propertyName, const QVariant &value);

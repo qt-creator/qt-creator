@@ -418,6 +418,11 @@ QVariant NodeInstance::property(const QString &name) const
     return m_nodeInstance->property(name);
 }
 
+bool NodeInstance::hasBindingForProperty(const QString &name) const
+{
+    return m_nodeInstance->hasBindingForProperty(name);
+}
+
 /*!
 \brief Returns the property default value of the property of this NodeInstance.
 \returns QVariant default value which is the reset value to
