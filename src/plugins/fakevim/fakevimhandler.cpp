@@ -795,6 +795,7 @@ public:
     int m_oldExternalAnchor;
     int m_oldInternalPosition; // copy from last event to check for external changes
     int m_oldInternalAnchor;
+    int m_oldPosition; // FIXME: Merge with above.
     int m_register;
     QString m_mvcount;
     QString m_opcount;
@@ -1007,6 +1008,7 @@ void FakeVimHandler::Private::init()
     m_oldInternalPosition = -1;
     m_oldExternalAnchor = -1;
     m_oldExternalPosition = -1;
+    m_oldPosition = -1;
 
     setupCharClass();
 }
@@ -1084,11 +1086,10 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
 
     importSelection();
 
-    // Position changed externally
-/*
+    // Position changed externally, e.g. by code completion.
     if (position() != m_oldPosition) {
         setTargetColumn();
-        qDebug() << "POSITION CHANGED EXTERNALLY";
+        //qDebug() << "POSITION CHANGED EXTERNALLY";
         if (m_mode == InsertMode) {
             int dist = position() - m_oldPosition;
             // Try to compensate for code completion
@@ -1101,7 +1102,7 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
                 moveLeft();
         }
     }
-*/
+
     QTextCursor tc = cursor();
     tc.setVisualNavigation(true);
     setCursor(tc);
@@ -1134,7 +1135,7 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
         if (m_fakeEnd)
             moveLeft();
 
-        //m_oldPosition = position();
+        m_oldPosition = position();
         if (hasConfig(ConfigShowMarks))
             updateSelection();
 
@@ -4258,7 +4259,12 @@ void FakeVimHandler::Private::insertText(const Register &reg)
 {
     QTC_ASSERT(reg.rangemode == RangeCharMode,
         qDebug() << "WRONG INSERT MODE: " << reg.rangemode; return);
+    if (position() != anchor()) {
+        qDebug() << "FAKEVIM CURSOR ASSERT: " << anchor() << position();
+        setAnchor(position());
+    }
     cursor().insertText(reg.contents);
+    //dump("AFTER INSERT");
 }
 
 void FakeVimHandler::Private::removeText(const Range &range)
