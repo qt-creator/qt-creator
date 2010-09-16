@@ -193,7 +193,7 @@
 /* font style elements */
     .heading
     {
-        font: normal bold 16px/1.0 Arial;
+        font: normal bold 16px/1.2 Arial;
         padding-bottom: 15px;
     }
     .subtitle
@@ -670,7 +670,7 @@
     .wrap .toolbar .breadcrumb
     {
         font-size: 11px;
-        line-height: 1;
+        line-height: 1.2;
         padding: 0 0 10px 21px;
         height: 10px;
     }
@@ -779,26 +779,27 @@
 
 	.wrap .content ol li {
 	background:none;
-	font:normal 10pt/1 Verdana;
+	font:normal 10pt/1.2 Verdana;
 
 	margin-bottom:10px;
 	margin-left:12px;
 	/*list-style-type:disc;*/
 	}
 	
-    .wrap .content li
-    {
-        background: url(../images/bullet_sq.png) no-repeat 0 5px;
-        font: normal 400 10pt/1 Verdana;
-        margin-bottom: 10px; 
-		padding-left:12px;
-    }
-
     .wrap .content ol li
     {
 	background:none;
     margin-bottom: 10px; 
 	padding-left:0px;
+	margin-left:52px;
+    }
+	
+    .wrap .content li
+    {
+        background: url(../images/bullet_sq.png) no-repeat 0 5px;
+        font: normal 400 10pt/1.2 Verdana;
+        margin-bottom: 10px; 
+		padding-left:12px;
     }
 
     .content li:hover  {}
@@ -858,7 +859,7 @@
         text-decoration: underline;
     }
 	.alphaChar{
-	width:100%;
+	width:95%;
 	background-color:#F6F6F6;
 	border:1px solid #E6E6E6;
 	-moz-border-radius: 7px 7px 7px 7px;
@@ -870,16 +871,39 @@
 	margin-bottom:10px;
 	}
 	.flowList{
-	vertical-align:top;
+	/*vertical-align:top;*/
+	/*margin:20px auto;*/
+	
+	column-count:3; 
+	-webkit-column-count:3;
+	-moz-column-count:3;
+/*
+	column-width:100%;
+	-webkit-column-width:200px;
+	-col-column-width:200px;
+*/
+	column-gap:41px;
+	-webkit-column-gap:41px;
+	-moz-column-gap:41px;
+
+	column-rule: 1px solid #ccc;
+	-webkit-column-rule: 1px solid #ccc;
+	-moz-column-rule: 1px solid #ccc;
 	}	
 
 	.flowList dl{
 	}
 	.flowList dd{
-	display:inline-block;
+	/*display:inline-block;*/
 	margin-left:10px;
-	width:250px;
+	min-width:250px;
+	line-height: 1.2;
+
 	}
+	
+	.flowList dd a{
+	}
+
 	.wrap .content .flowList p{
 	padding:0px;
 	}
@@ -938,7 +962,7 @@
         padding: 5px 5px 0 0;
         margin-bottom: 3px;
         color: #363534;
-        font-weight: 600;
+        font-weight: bold;
         float: right;
         text-decoration: none;
     }
@@ -1330,6 +1354,9 @@
 		background-color: #FAFAFA;
     }
 
+	.wrap .content ol li {
+	
+	}
 
 
     .creator .header, .footer, .wrapper
