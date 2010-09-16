@@ -41,6 +41,7 @@
 #include <coreplugin/filemanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/modemanager.h>
 
@@ -590,6 +591,9 @@ bool SessionManager::createImpl(const QString &fileName)
         m_file = new SessionFile;
         m_file->setFileName(fileName);
         setStartupProject(0);
+
+        m_core->modeManager()->activateMode(Core::Constants::MODE_EDIT);
+        m_core->modeManager()->setFocusToCurrentMode();
     }
 
     m_virginSession = true;
@@ -657,11 +661,12 @@ bool SessionManager::loadImpl(const QString &fileName)
 
     if (success) {
         // restore the active mode
-        const QString &modeIdentifier = value(QLatin1String("ActiveMode")).toString();
-        if (!modeIdentifier.isEmpty()) {
-            m_core->modeManager()->activateMode(modeIdentifier);
-            m_core->modeManager()->setFocusToCurrentMode();
-        }
+        QString modeIdentifier = value(QLatin1String("ActiveMode")).toString();
+        if (modeIdentifier.isEmpty())
+            modeIdentifier = Core::Constants::MODE_EDIT;
+
+        m_core->modeManager()->activateMode(modeIdentifier);
+        m_core->modeManager()->setFocusToCurrentMode();
     }
 
     if (debug)
