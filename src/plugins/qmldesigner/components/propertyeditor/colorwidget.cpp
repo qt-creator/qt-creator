@@ -37,6 +37,7 @@
 #include <qmlitemnode.h>
 #include <QGradient>
 #include <metainfo.h>
+#include <rewritingexception.h>
 
 #include <QHBoxLayout>
 #include <QLabel>
@@ -48,6 +49,7 @@
 #include <QPushButton>
 #include <QDialogButtonBox>
 #include <QGraphicsEffect>
+#include <QMessageBox>
 
 static inline int clamp(int x, int lower, int upper)
 {
@@ -545,8 +547,6 @@ void GradientLine::setupGradient()
             m_stops << 0 << 1;
         }
     }
-
-    updateGradient();
 }
 
 void GradientLine::deleteGradient()
@@ -789,42 +789,52 @@ void GradientLine::updateGradient()
     } else {
         if (!active())
             return;
-        RewriterTransaction transaction = m_itemNode.modelNode().view()->beginRewriterTransaction();
-        if (!m_itemNode.isValid())
-            return;
-
-        if (!m_itemNode.modelNode().metaInfo().hasProperty(m_gradientName))
-            return;
-
-        ModelNode modelNode = m_itemNode.modelNode();
-
-        if (m_itemNode.isInBaseState()) {
-            if (modelNode.hasProperty(m_gradientName)) {
-                modelNode.removeProperty(m_gradientName);
-            }
-
-            ModelNode gradientNode = modelNode.view()->createModelNode("Qt/Gradient", 4, 7);
-
-
-            for (int i = 0;i < m_stops.size(); i++) {
-                ModelNode gradientStopNode = modelNode.view()->createModelNode("Qt/GradientStop", 4, 7);
-                gradientStopNode.variantProperty("position") = roundReal(m_stops.at(i));
-                gradientStopNode.variantProperty("color") = normalizeColor(m_colorList.at(i));
-                gradientNode.nodeListProperty("stops").reparentHere(gradientStopNode);
-            }
-            modelNode.nodeProperty(m_gradientName).reparentHere(gradientNode);
-        } else { //state
-            if  (!modelNode.hasProperty(m_gradientName)) {
-                qWarning(" GradientLine::updateGradient: no gradient in state");
+        try {
+            RewriterTransaction transaction = m_itemNode.modelNode().view()->beginRewriterTransaction();
+            if (!m_itemNode.isValid())
                 return;
+
+            if (!m_itemNode.modelNode().metaInfo().hasProperty(m_gradientName))
+                return;
+
+            ModelNode modelNode = m_itemNode.modelNode();
+
+            QString oldId;
+            if (m_itemNode.isInBaseState()) {
+                if (modelNode.hasProperty(m_gradientName)) {
+                    if (modelNode.nodeProperty(m_gradientName).isValid());
+                    oldId = modelNode.nodeProperty(m_gradientName).modelNode().id();
+                    modelNode.removeProperty(m_gradientName);
+                }
+
+                ModelNode gradientNode = modelNode.view()->createModelNode("Qt/Gradient", 4, 7);
+
+                if (!oldId.isNull())
+                    gradientNode.setId(oldId);
+
+                for (int i = 0;i < m_stops.size(); i++) {
+                    ModelNode gradientStopNode = modelNode.view()->createModelNode("Qt/GradientStop", 4, 7);
+                    gradientStopNode.variantProperty("position") = roundReal(m_stops.at(i));
+                    gradientStopNode.variantProperty("color") = normalizeColor(m_colorList.at(i));
+                    gradientNode.nodeListProperty("stops").reparentHere(gradientStopNode);
+                }
+                modelNode.nodeProperty(m_gradientName).reparentHere(gradientNode);
+            } else { //state
+                if  (!modelNode.hasProperty(m_gradientName)) {
+                    qWarning(" GradientLine::updateGradient: no gradient in state");
+                    return;
+                }
+                ModelNode gradientNode = modelNode.nodeProperty(m_gradientName).modelNode();
+                QList<ModelNode> stopList = gradientNode.nodeListProperty("stops").toModelNodeList();
+                for (int i = 0;i < m_stops.size(); i++) {
+                    QmlObjectNode stopObjectNode = stopList.at(i);
+                    stopObjectNode.setVariantProperty("position", roundReal(m_stops.at(i)));
+                    stopObjectNode.setVariantProperty("color", normalizeColor(m_colorList.at(i)));
+                }
             }
-            ModelNode gradientNode = modelNode.nodeProperty(m_gradientName).modelNode();
-            QList<ModelNode> stopList = gradientNode.nodeListProperty("stops").toModelNodeList();
-            for (int i = 0;i < m_stops.size(); i++) {
-                QmlObjectNode stopObjectNode = stopList.at(i);
-                stopObjectNode.setVariantProperty("position", roundReal(m_stops.at(i)));
-                stopObjectNode.setVariantProperty("color", normalizeColor(m_colorList.at(i)));
-            }
+        }
+        catch (RewritingException &e) {
+            QMessageBox::warning(0, "Error", e.description());
         }
     }
 }
