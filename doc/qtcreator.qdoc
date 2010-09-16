@@ -74,6 +74,7 @@
             \list
                 \o \l{Creating a Project}
                 \o \l{Setting Up a qmake Project}
+                \o \l{Adding Libraries to qmake Projects}
                 \o \l{Setting Up a CMake Project}
                 \o \l{Setting Up a Generic Project}
                 \o \l{Setting Up Development Environment for Maemo}
@@ -1724,20 +1725,22 @@
     the build and run settings, select \gui{Tools} > \gui{Options...} >
     \gui{Projects} > \gui{General}.
 
-    \section1 External Libraries
+    \section1 Adding Libraries
 
-    Through external libraries Qt Creator can support code completion and
-    syntax highlighting for external libraries as if they were a part of the
-    current project or the Qt library.
+    In addition to Qt libraries, you can link your application to other
+    libraries, such as system libraries or your own libraries. Further, your
+    own libraries might link to other libraries. To be able to compile your
+    project, you must add the libraries to your project. This also enables
+    code completion and syntax highlighting for the libraries
 
-    The procedure of adding a library to a project depends on the type of
-    project, which influences the build system used.
+    The procedure of adding a library to a project depends on the the build
+    system that you use:
 
     \list
-       \o For information on adding external libraries to qmake projects, see
-          \l{Adding External Libraries to a qmake Project}.
-       \o For information on adding external libraries to CMake projects, see
-          \l{Adding External Libraries to a CMake Project}.
+       \o For information on adding libraries to qmake projects, see
+          \l{Adding Libraries to qmake Projects}.
+       \o For information on adding libraries to CMake projects, see
+          \l{Adding External Libraries to CMake Projects}.
    \endlist
 
 */
@@ -2277,7 +2280,7 @@
     \contentspage index.html
     \previouspage creator-project-creating.html
     \page creator-project-qmake.html
-    \nextpage creator-project-cmake.html
+    \nextpage creator-project-qmake-libraries.html
 
     \title Setting Up a qmake Project
 
@@ -2426,21 +2429,128 @@
            \image qtcreator-qt4-qtversions.png
     \endlist
 
-    \section1 Adding External Libraries to a qmake Project
+*/
 
-    Through external libraries Qt Creator can support code completion and
-    syntax highlighting as if they were part of the current project or the Qt
-    library.
 
-    To add an external library:
+/*!
+    \contentspage index.html
+    \previouspage creator-project-qmake.html
+    \page creator-project-qmake-libraries.html
+    \nextpage creator-project-cmake.html
+
+    \title Adding Libraries to qmake Projects
+
+    In addition to Qt libraries, you can add other libraries to your projects.
+    The way the library is added depends on whether it is a system library or
+    your own library or a 3rd party library located in the build tree of the
+    current project or in another build tree.
+
+    \image qtcreator-add-library-wizard "Add Library wizard"
+
+    Because system libraries do not typically change and are often found by
+    default, you do not need to specify the path to the library or to its includes
+    when you add it.
+
+    For your own libraries and 3rd party libraries, you need to specify
+    the paths. Qt Creator tries to quess the include path for an external library,
+    but you need to check it and modify it if necessary. Qt Creator automatically
+    adds the include path for an internal library.
+
+    For all libraries, select the target platforms for the application, library,
+    or plugin.
+
+    Specify whether the library is statically or dynamically linked. For a
+    statically linked internal library, Qt Creator adds dependencies
+    (PRE_TARGETDEPS) in the project file.
+
+    Depending on the development platform, some options might be detected
+    automatically. For example, on Mac OS, the library type (\gui Library or
+    \gui Framework) is detected automatically and the option is hidden. However,
+    if you develop on another platform than Mac OS and want to build your
+    project for the Mac OS, you must specify the library type.
+
+    The default convention on Windows is that the debug and release versions
+    of a library have the same name,
+    but are placed in different subdirectories, usually called \e debug and
+    \e release. If the library path does not contain either of these folders,
+    you cannot select the option to place the libraries in separate
+    folders.
+
+    Alternatively, the letter \e d can be added to the library name for the debug
+    version. For example, if the release version is called example.lib, the
+    debug version is called exampled.lib. You can specify that the letter
+    is added for the debug version and removed for the release version.
+    If the library name ends in \e d, deselect the \gui {Remove "d" suffix
+    for release version} option.
+
+    Qt Creator supports code completion and syntax highlighting for the added
+    libraries once your project successfully builds and links to them.
+
+    \section1 To Add Libraries
+
     \list 1
-        \o Open your project file (.pro) using the \gui Projects pane.
-        \o Follow the instructions at \l{http://doc.qt.nokia.com/4.7-snapshot/qmake-project-files.html#declaring-other-libraries}
-           {Declaring other Libraries}.
+
+        \o In the \gui Projects pane, open the project file (.pro).
+
+        \o Right-click in the code editor to open the context menu and select
+        \gui {Add Library...}.
+
+        \o Follow the instructions of the wizard.
+
     \endlist
 
-    Syntax completion and highlighting work once your project successfully
-    builds and links against the external library.
+    For more information about the project file settings, see
+    \l{http://doc.qt.nokia.com/4.7-snapshot/qmake-project-files.html#declaring-other-libraries}{Declaring other Libraries}.
+
+    \section1 Example of Adding Internal Libraries
+
+    The following example describes how to add a statically linked internal
+    library to your project.
+
+    \list 1
+
+        \o Choose \gui {File > New File or Project... > Other Projects >
+        C++ Library} to create the library.
+
+        The \gui {Introduction and Product Location} dialog opens.
+
+        \image qtcreator-add-library-wizard-ex-1.png "Introduction and Product Location dialog"
+
+        \o In the \gui Type field, select \gui {Statically Linked Library}.
+
+        \o In the \gui Name field, give a name for the library. For example,
+        \bold mylib.
+
+        \o Follow the instructions of the wizard until you get to the
+        \gui {Project Management} dialog. In the \gui {Add to project}
+        list, select a project. For example, \bold myapp.
+
+        \o In the \gui Projects pane, open the project file (.pro).
+        For example, \bold myapp.pro.
+
+        \o Right-click in the code editor to open the context menu and select
+        \gui {Add Library... > Internal Library > Next}.
+
+        \o In the \gui Library field, select \bold mylib and click \gui Next.
+
+        \o Click \gui Finish to add the following library declaration to the
+        project file:
+
+        \code
+        win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../../projects/mylib/release/ -lmylib
+        else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../../projects/mylib/debug/ -lmylib
+        else:symbian: LIBS += -lmylib
+        else:unix: LIBS += -L$$OUT_PWD/../../../projects/mylib/ -lmylib
+
+        INCLUDEPATH += $$PWD/../../../projects/mylib
+        DEPENDPATH += $$PWD/../../../projects/mylib
+
+        win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../../../projects/mylib/release/mylib.lib
+        else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../../../projects/mylib/debug/mylib.lib
+        else:unix:!symbian: PRE_TARGETDEPS += $$OUT_PWD/../../../projects/mylib/libmylib.a
+        \endcode
+
+    \endlist
 
 */
 
@@ -5555,7 +5665,7 @@
     \l{Known Issues}{here}.
 
 
-    \section1 Adding External Libraries to a CMake Project
+    \section1 Adding External Libraries to CMake Projects
 
     Through external libraries Qt Creator can support code completion and
     syntax highlighting as if they were part of the current project or the Qt

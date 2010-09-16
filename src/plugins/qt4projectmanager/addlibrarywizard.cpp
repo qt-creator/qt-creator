@@ -67,7 +67,9 @@ AddLibraryWizard::AddLibraryWizard(const QString &fileName, QWidget *parent) :
     setPage(SummaryPageId, m_summaryPage);
 
     Utils::WizardProgress *progress = wizardProgress();
+
     Utils::WizardProgressItem *kindItem = progress->addItem(tr("Type"));
+
     Utils::WizardProgressItem *detailsItem = progress->addItem(tr("Details"));
     Utils::WizardProgressItem *summaryItem = progress->addItem(tr("Summary"));
 
@@ -106,37 +108,43 @@ LibraryTypePage::LibraryTypePage(AddLibraryWizard *parent)
     : QWizardPage(parent)
 {
     setTitle(tr("Library Type"));
-    setSubTitle(tr("Choose the type of the library which you want to link against"));
+    setSubTitle(tr("Choose the type of the library to link to"));
 
     QVBoxLayout *layout = new QVBoxLayout(this);
 
     m_systemRadio = new QRadioButton(tr("System Library"), this);
     m_systemRadio->setChecked(true);
     layout->addWidget(m_systemRadio);
-    QLabel *systemLabel = new QLabel(tr("Adds linkage against a system "
-                                    "library.\nNeither the path to the "
-                                    "selected library nor the path to its "
-                                    "include files is added to the pro file."));
+
+    QLabel *systemLabel = new QLabel(tr("Links to a system library."
+                                    "\nNeither the path to the "
+                                    "library nor the path to its "
+                                    "includes is added to the .pro file."));
+
     systemLabel->setWordWrap(true);
     systemLabel->setAttribute(Qt::WA_MacSmallSize, true);
     layout->addWidget(systemLabel);
 
     m_externalRadio = new QRadioButton(tr("External Library"), this);
     layout->addWidget(m_externalRadio);
-    QLabel *externalLabel = new QLabel(tr("Adds linkage against an external "
-                                    "library which is not a part of your "
-                                    "build tree.\nIt also adds the library "
-                                    "and include paths to the pro file."));
+
+    QLabel *externalLabel = new QLabel(tr("Links to a library "
+                                    "that is not located in your "
+                                    "build tree.\nAdds the library "
+                                    "and include paths to the .pro file."));
+
     externalLabel->setWordWrap(true);
     externalLabel->setAttribute(Qt::WA_MacSmallSize, true);
     layout->addWidget(externalLabel);
 
     m_internalRadio = new QRadioButton(tr("Internal Library"), this);
     layout->addWidget(m_internalRadio);
-    QLabel *internalLabel = new QLabel(tr("Adds linkage against an internal "
-                                    "library which is a part of your build "
-                                    "tree.\nIt also adds the library and "
-                                    "include paths to the pro file."));
+
+    QLabel *internalLabel = new QLabel(tr("Links to a library "
+                                    "that is located in your build "
+                                    "tree.\nAdds the library and "
+                                    "include paths to the .pro file."));
+
     internalLabel->setWordWrap(true);
     internalLabel->setAttribute(Qt::WA_MacSmallSize, true);
     layout->addWidget(internalLabel);
@@ -195,19 +203,19 @@ void DetailsPage::initializePage()
     switch (m_libraryWizard->libraryKind()) {
     case AddLibraryWizard::SystemLibrary:
         title = tr("System Library");
-        subTitle = tr("Specify the library which you want to link against");
+        subTitle = tr("Specify the library to link to");
         m_libraryDetailsController = new SystemLibraryDetailsController(
                 m_libraryDetailsWidget, m_libraryWizard->proFile(), this);
         break;
     case AddLibraryWizard::ExternalLibrary:
         title = tr("External Library");
-        subTitle = tr("Specify the library which you want to link against and its include path");
+        subTitle = tr("Specify the library to link to and the includes path");
         m_libraryDetailsController = new ExternalLibraryDetailsController(
                 m_libraryDetailsWidget, m_libraryWizard->proFile(), this);
         break;
     case AddLibraryWizard::InternalLibrary:
         title = tr("Internal Library");
-        subTitle = tr("Choose the project file of the library which you want to link against");
+        subTitle = tr("Choose the project file of the library to link to");
         m_libraryDetailsController = new InternalLibraryDetailsController(
                 m_libraryDetailsWidget, m_libraryWizard->proFile(), this);
         break;
