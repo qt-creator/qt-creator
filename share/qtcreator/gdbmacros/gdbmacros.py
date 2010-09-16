@@ -1436,6 +1436,11 @@ def qdump__QRegion(d, item):
 # qt_rgn might be 0
 # gdb.parse_and_eval("region")["d"].dereference()["qt_rgn"].dereference()
 
+def qdump__QScopedPointer(d, item):
+    d.putType(d.currentType, d.currentTypePriority + 1)
+    d.putItemHelper(Item(item.value["d"], item.iname, None, None))
+
+
 def qdump__QSet(d, item):
 
     def hashDataFirstNode(value):
@@ -1511,7 +1516,7 @@ def qdump__QSharedDataPointer(d, item):
         # pointer transparent.
         innerType = item.value.type.template_argument(0)
         value = gdb.Value(d_ptr.cast(innerType.pointer()))
-        d.putType
+        d.putType(d.currentType, d.currentTypePriority + 1)
         d.putItemHelper(Item(value.dereference(), item.iname, None))
 
 
@@ -1536,6 +1541,12 @@ def qdump__QSizeF(d, item):
 
 def qdump__QStack(d, item):
     qdump__QVector(d, item)
+
+
+def qdump__QStandardItem(d, item):
+    d.putType(d.currentType, d.currentTypePriority + 1)
+    d.putItemHelper(Item(item.value["d_ptr"], item.iname, None, None))
+
 
 def qform__QString():
     return "Inline,Separate Window"
