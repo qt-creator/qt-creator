@@ -193,7 +193,6 @@ private:
     Internal::SessionFile *m_file;
     Internal::SessionNodeImpl *m_sessionNode;
     QPointer<Core::IEditor> m_currentEditor;
-    QString m_displayName;
     QString m_sessionName;
     bool m_virginSession;
 
