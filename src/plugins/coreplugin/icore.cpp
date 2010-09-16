@@ -53,7 +53,7 @@
 */
 
 /*!
-    \fn QStringList ICore::showNewItemDialog(const QString &title,
+    \fn void ICore::showNewItemDialog(const QString &title,
                                       const QList<IWizard *> &wizards,
                                       const QString &defaultLocation = QString())
     \brief Opens a dialog where the user can choose from a set of \a wizards that

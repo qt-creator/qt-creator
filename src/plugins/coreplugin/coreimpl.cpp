@@ -67,11 +67,11 @@ CoreImpl::~CoreImpl()
     m_instance = 0;
 }
 
-QStringList CoreImpl::showNewItemDialog(const QString &title,
+void CoreImpl::showNewItemDialog(const QString &title,
                                         const QList<IWizard *> &wizards,
                                         const QString &defaultLocation)
 {
-    return m_mainwindow->showNewItemDialog(title, wizards, defaultLocation);
+    m_mainwindow->showNewItemDialog(title, wizards, defaultLocation);
 }
 
 bool CoreImpl::showOptionsDialog(const QString &group, const QString &page, QWidget *parent)

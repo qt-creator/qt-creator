@@ -883,7 +883,7 @@ void MainWindow::setFocusToEditor()
 
 }
 
-QStringList MainWindow::showNewItemDialog(const QString &title,
+void MainWindow::showNewItemDialog(const QString &title,
                                           const QList<IWizard *> &wizards,
                                           const QString &defaultLocation)
 {
@@ -906,7 +906,7 @@ QStringList MainWindow::showNewItemDialog(const QString &title,
     }
 
     if (!wizard)
-        return QStringList();
+        return;
 
     QString path = defaultLocation;
     if (path.isEmpty()) {
@@ -925,7 +925,7 @@ QStringList MainWindow::showNewItemDialog(const QString &title,
             break;
         }
     }
-    return wizard->runWizard(path, this);
+    wizard->runWizard(path, this);
 }
 
 bool MainWindow::showOptionsDialog(const QString &category,

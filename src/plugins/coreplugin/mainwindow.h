@@ -134,9 +134,9 @@ public slots:
     void exit();
     void setFullScreen(bool on);
 
-    QStringList showNewItemDialog(const QString &title,
-                                  const QList<IWizard *> &wizards,
-                                  const QString &defaultLocation = QString());
+    void showNewItemDialog(const QString &title,
+                           const QList<IWizard *> &wizards,
+                           const QString &defaultLocation = QString());
 
     bool showOptionsDialog(const QString &category = QString(),
                            const QString &page = QString(),

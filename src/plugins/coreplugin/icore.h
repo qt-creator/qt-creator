@@ -74,9 +74,9 @@ public:
 
     static ICore *instance();
 
-    virtual QStringList showNewItemDialog(const QString &title,
-                                          const QList<IWizard *> &wizards,
-                                          const QString &defaultLocation = QString()) = 0;
+    virtual void showNewItemDialog(const QString &title,
+                                   const QList<IWizard *> &wizards,
+                                   const QString &defaultLocation = QString()) = 0;
 
     virtual bool showOptionsDialog(const QString &group = QString(),
                                    const QString &page = QString(),

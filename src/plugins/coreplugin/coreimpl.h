@@ -44,7 +44,7 @@ public:
     CoreImpl(MainWindow *mainwindow);
     ~CoreImpl();
 
-    QStringList showNewItemDialog(const QString &title,
+    void showNewItemDialog(const QString &title,
                                   const QList<IWizard *> &wizards,
                                   const QString &defaultLocation = QString());
     bool showOptionsDialog(const QString &group = QString(),
