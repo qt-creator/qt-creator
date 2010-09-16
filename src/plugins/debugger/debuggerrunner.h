@@ -116,8 +116,8 @@ public:
 
     void showMessage(const QString &msg, int channel);
 
-    void remoteGdbHandleSetupDone();
-    void remoteGdbHandleSetupFailed(const QString &message);
+    void handleRemoteSetupDone();
+    void handleRemoteSetupFailed(const QString &message);
 
     static bool checkDebugConfiguration(int toolChain,
                                  QString *errorMessage,
@@ -125,7 +125,7 @@ public:
                                  QString *settingsPage = 0);
 
 signals:
-    void gdbAdapterRequestSetup();
+    void engineRequestSetup();
 
 public slots:
     void emitAddToOutputWindow(const QString &line, bool onStdErr);

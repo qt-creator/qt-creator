@@ -115,6 +115,8 @@ public:
     ProjectExplorer::Environment systemEnvironment() const;
     void setSystemEnvironment(const ProjectExplorer::Environment &environment);
 
+    int portsUsedByDebuggers() const { return useCppDebugger() + useQmlDebugger(); }
+
 signals:
     void deviceConfigurationChanged(ProjectExplorer::Target *target);
     void targetInformationChanged() const;

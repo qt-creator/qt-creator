@@ -51,7 +51,6 @@
 #include <qt4projectmanager/qt4target.h>
 #include <utils/detailswidget.h>
 
-#include <QtGui/QCheckBox>
 #include <QtGui/QComboBox>
 #include <QtGui/QFileDialog>
 #include <QtGui/QFormLayout>
@@ -123,9 +122,22 @@ void MaemoRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
     m_argsLineEdit = new QLineEdit(m_runConfiguration->arguments().join(" "));
     formLayout->addRow(tr("Arguments:"), m_argsLineEdit);
 
-    m_qmlCheckBox = new QCheckBox(tr("Also debug QML parts"));
-    m_qmlCheckBox->setChecked(m_runConfiguration->useQmlDebugger());
-    formLayout->addRow(new QLabel(tr("Debugging:")), m_qmlCheckBox);
+    QHBoxLayout * const debugButtonsLayout = new QHBoxLayout;
+    m_debugCppOnlyButton = new QRadioButton(tr("C++ only"));
+    m_debugQmlOnlyButton = new QRadioButton(tr("QML only"));
+    m_debugCppAndQmlButton = new QRadioButton(tr("C++ and QML"));
+    debugButtonsLayout->addWidget(m_debugCppOnlyButton);
+    debugButtonsLayout->addWidget(m_debugQmlOnlyButton);
+    debugButtonsLayout->addWidget(m_debugCppAndQmlButton);
+    formLayout->addRow(tr("Debugging type:"), debugButtonsLayout);
+    if (m_runConfiguration->useCppDebugger()) {
+        if (m_runConfiguration->useQmlDebugger())
+            m_debugCppAndQmlButton->setChecked(true);
+        else
+            m_debugCppOnlyButton->setChecked(true);
+    } else {
+        m_debugQmlOnlyButton->setChecked(true);
+    }
 
     connect(addDevConfLabel, SIGNAL(linkActivated(QString)), this,
         SLOT(showSettingsDialog(QString)));
@@ -133,8 +145,12 @@ void MaemoRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
         SLOT(showSettingsDialog(QString)));
     connect(m_argsLineEdit, SIGNAL(textEdited(QString)), this,
         SLOT(argumentsEdited(QString)));
-    connect(m_qmlCheckBox, SIGNAL(toggled(bool)), this,
-        SLOT(handleQmlDebuggingChanged(bool)));
+    connect(m_debugCppOnlyButton, SIGNAL(toggled(bool)), this,
+        SLOT(handleDebuggingTypeChanged()));
+    connect(m_debugQmlOnlyButton, SIGNAL(toggled(bool)), this,
+        SLOT(handleDebuggingTypeChanged()));
+    connect(m_debugCppAndQmlButton, SIGNAL(toggled(bool)), this,
+        SLOT(handleDebuggingTypeChanged()));
     connect(m_runConfiguration, SIGNAL(targetInformationChanged()), this,
         SLOT(updateTargetInformation()));
     connect(m_runConfiguration->deployStep()->deployables(),
@@ -432,9 +448,12 @@ void MaemoRunConfigurationWidget::handleRemoteMountsChanged()
     updateMountWarning();
 }
 
-void MaemoRunConfigurationWidget::handleQmlDebuggingChanged(bool debugQml)
+void MaemoRunConfigurationWidget::handleDebuggingTypeChanged()
 {
-    m_runConfiguration->setUseQmlDebugger(debugQml);
+    m_runConfiguration->setUseCppDebugger(m_debugCppOnlyButton->isChecked()
+        || m_debugCppAndQmlButton->isChecked());
+    m_runConfiguration->setUseQmlDebugger(m_debugQmlOnlyButton->isChecked()
+        || m_debugCppAndQmlButton->isChecked());
     updateMountWarning();
 }
 
@@ -452,8 +471,8 @@ void MaemoRunConfigurationWidget::updateMountWarning()
                 "to run this configuration.", 0, availablePortCount)
             .arg(mountDirCount);
         } else if (mountDirCount > 0) {
-            const int portsLeftByDebuggers
-                = availablePortCount - 1 - m_runConfiguration->useQmlDebugger();
+            const int portsLeftByDebuggers = availablePortCount
+                - m_runConfiguration->portsUsedByDebuggers();
             if (mountDirCount > portsLeftByDebuggers) {
                 mountWarning = tr("WARNING: You want to mount %1 directories, "
                     "but only %n ports on the device will be available "

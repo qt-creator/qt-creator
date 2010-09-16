@@ -88,6 +88,8 @@ MaemoRunConfiguration::MaemoRunConfiguration(Qt4Target *parent,
 void MaemoRunConfiguration::init()
 {
     setDefaultDisplayName(defaultDisplayName());
+    setUseCppDebugger(true);
+    setUseQmlDebugger(false);
     m_remoteMounts = new MaemoRemoteMountsModel(this);
 
     connect(target(),

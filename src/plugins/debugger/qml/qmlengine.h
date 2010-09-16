@@ -48,6 +48,9 @@ public:
     explicit QmlEngine(const DebuggerStartParameters &startParameters);
     virtual ~QmlEngine();
 
+    void handleRemoteSetupDone();
+    void handleRemoteSetupFailed(const QString &message);
+
     void setAttachToRunningExternalApp(bool value);
     void shutdownInferiorAsSlave();
     void shutdownEngineAsSlave();
@@ -58,6 +61,9 @@ public:
 public slots:
     void messageReceived(const QByteArray &message);
     void disconnected();
+
+signals:
+    void remoteStartupRequested();
 
 private:
     // DebuggerEngine implementation

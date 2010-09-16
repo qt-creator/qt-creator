@@ -67,39 +67,40 @@ RunControl *MaemoDebugSupport::createDebugRunControl(MaemoRunConfiguration *runC
         params.qmlServerAddress = runConfig->deviceConfig().server.host;
         params.qmlServerPort = qmlServerPort(runConfig);
     }
-
-    if (runConfig->useRemoteGdb()) {
-        params.startMode = StartRemoteGdb;
-        params.executable = runConfig->remoteExecutableFilePath();
-        params.debuggerCommand
-            = MaemoGlobal::remoteCommandPrefix(runConfig->remoteExecutableFilePath())
-                + environment(runConfig) + QLatin1String(" /usr/bin/gdb");
-        params.connParams = devConf.server;
-        params.localMountDir = runConfig->localDirToMountForRemoteGdb();
-        params.remoteMountPoint = MaemoGlobal::remoteProjectSourcesMountPoint();
-        const QString execDirAbs
-            = QDir::fromNativeSeparators(QFileInfo(runConfig->localExecutableFilePath()).path());
-        const QString execDirRel
-            = QDir(params.localMountDir).relativeFilePath(execDirAbs);
-        params.remoteSourcesDir = QString(params.remoteMountPoint
-            + QLatin1Char('/') + execDirRel).toUtf8();
+    if (runConfig->useCppDebugger()) {
+        params.processArgs = runConfig->arguments();
+        params.sysRoot = runConfig->sysRoot();
+        params.toolChainType = ToolChain::GCC_MAEMO;
+        params.dumperLibrary = runConfig->dumperLib();
+        params.remoteDumperLib = uploadDir(devConf).toUtf8() + '/'
+            + QFileInfo(runConfig->dumperLib()).fileName().toUtf8();
+        if (runConfig->useRemoteGdb()) {
+            params.startMode = StartRemoteGdb;
+            params.executable = runConfig->remoteExecutableFilePath();
+            params.debuggerCommand
+                = MaemoGlobal::remoteCommandPrefix(runConfig->remoteExecutableFilePath())
+                    + environment(runConfig) + QLatin1String(" /usr/bin/gdb");
+            params.connParams = devConf.server;
+            params.localMountDir = runConfig->localDirToMountForRemoteGdb();
+            params.remoteMountPoint = MaemoGlobal::remoteProjectSourcesMountPoint();
+            const QString execDirAbs
+                = QDir::fromNativeSeparators(QFileInfo(runConfig->localExecutableFilePath()).path());
+            const QString execDirRel
+                = QDir(params.localMountDir).relativeFilePath(execDirAbs);
+            params.remoteSourcesDir = QString(params.remoteMountPoint
+                + QLatin1Char('/') + execDirRel).toUtf8();
+        } else {
+            params.startMode = AttachToRemote;
+            params.executable = runConfig->localExecutableFilePath();
+            params.debuggerCommand = runConfig->gdbCmd();
+            params.remoteChannel = devConf.server.host + QLatin1Char(':')
+                + QString::number(gdbServerPort(runConfig));
+            params.useServerStartScript = true;
+            params.remoteArchitecture = QLatin1String("arm");
+        }
     } else {
         params.startMode = AttachToRemote;
-        params.executable = runConfig->localExecutableFilePath();
-        params.debuggerCommand = runConfig->gdbCmd();
-        params.remoteChannel = devConf.server.host + QLatin1Char(':')
-            + QString::number(gdbServerPort(runConfig));
-
-        params.useServerStartScript = true;
-        params.remoteArchitecture = QLatin1String("arm");
     }
-
-    params.processArgs = runConfig->arguments();
-    params.sysRoot = runConfig->sysRoot();
-    params.toolChainType = ToolChain::GCC_MAEMO;
-    params.dumperLibrary = runConfig->dumperLib();
-    params.remoteDumperLib = uploadDir(devConf).toUtf8() + '/'
-        + QFileInfo(runConfig->dumperLib()).fileName().toUtf8();
 
     DebuggerRunControl * const debuggerRunControl
         = DebuggerPlugin::createDebugger(params, runConfig);
@@ -111,9 +112,11 @@ MaemoDebugSupport::MaemoDebugSupport(MaemoRunConfiguration *runConfig,
     DebuggerRunControl *runControl)
     : QObject(runControl), m_runControl(runControl), m_runConfig(runConfig),
       m_deviceConfig(m_runConfig->deviceConfig()),
-      m_runner(new MaemoSshRunner(this, m_runConfig, true))
+      m_runner(new MaemoSshRunner(this, m_runConfig, true)),
+      m_qmlOnlyDebugging(m_runConfig->useQmlDebugger() && !m_runConfig->useCppDebugger())
 {
-    connect(m_runControl, SIGNAL(gdbAdapterRequestSetup()), this, SLOT(handleAdapterSetupRequested()));
+    connect(m_runControl, SIGNAL(adapterRequestSetup()), this,
+        SLOT(handleAdapterSetupRequested()));
     connect(m_runControl, SIGNAL(finished()), this,
         SLOT(handleDebuggingFinished()));
 }
@@ -154,7 +157,7 @@ void MaemoDebugSupport::startExecution()
         return;
 
     const QString &dumperLib = m_runConfig->dumperLib();
-    if (!dumperLib.isEmpty()
+    if (!m_qmlOnlyDebugging && !dumperLib.isEmpty()
         && m_runConfig->deployStep()->currentlyNeedsDeployment(m_deviceConfig.server.host,
                MaemoDeployable(dumperLib, uploadDir(m_deviceConfig)))) {
         m_uploader = m_runner->connection()->createSftpChannel();
@@ -232,11 +235,16 @@ void MaemoDebugSupport::startDebugging()
         connect(m_runner, SIGNAL(remoteProcessStarted()), this,
             SLOT(handleRemoteProcessStarted()));
         const QString &remoteExe = m_runConfig->remoteExecutableFilePath();
-        m_runner->startExecution(QString::fromLocal8Bit("%1 %2 gdbserver :%3 %4 %5")
-            .arg(MaemoGlobal::remoteCommandPrefix(remoteExe))
-            .arg(environment(m_runConfig)).arg(gdbServerPort(m_runConfig))
-            .arg(remoteExe).arg(m_runConfig->arguments()
-            .join(QLatin1String(" "))).toUtf8());
+        const QString cmdPrefix = MaemoGlobal::remoteCommandPrefix(remoteExe);
+        const QString env = environment(m_runConfig);
+        const QString args = m_runConfig->arguments().join(QLatin1String(" "));
+        const QString remoteCommandLine = m_qmlOnlyDebugging
+            ? QString::fromLocal8Bit("%1 %2 %3 %4").arg(cmdPrefix).arg(env)
+                  .arg(remoteExe).arg(args)
+            : QString::fromLocal8Bit("%1 %2 gdbserver :%3 %4 %5")
+                  .arg(cmdPrefix).arg(env).arg(gdbServerPort(m_runConfig))
+                  .arg(remoteExe).arg(args);
+        m_runner->startExecution(remoteCommandLine.toUtf8());
     }
 }
 
@@ -278,8 +286,7 @@ void MaemoDebugSupport::stopSsh()
 
 void MaemoDebugSupport::handleAdapterSetupFailed(const QString &error)
 {
-
-    m_runControl->remoteGdbHandleSetupFailed(tr("Initial setup failed: %1").arg(error));
+    m_runControl->handleRemoteSetupFailed(tr("Initial setup failed: %1").arg(error));
     m_stopped = true;
     stopSsh();
 }
@@ -287,7 +294,7 @@ void MaemoDebugSupport::handleAdapterSetupFailed(const QString &error)
 void MaemoDebugSupport::handleAdapterSetupDone()
 {
     m_adapterStarted = true;
-    m_runControl->remoteGdbHandleSetupDone();
+    m_runControl->handleRemoteSetupDone();
 }
 
 int MaemoDebugSupport::gdbServerPort(const MaemoRunConfiguration *rc)
@@ -298,7 +305,8 @@ int MaemoDebugSupport::gdbServerPort(const MaemoRunConfiguration *rc)
 int MaemoDebugSupport::qmlServerPort(const MaemoRunConfiguration *rc)
 {
     MaemoPortList portList = rc->freePorts();
-    portList.getNext();
+    if (rc->useCppDebugger())
+        portList.getNext();
     return portList.getNext();
 }
 
@@ -319,7 +327,8 @@ QString MaemoDebugSupport::uploadDir(const MaemoDeviceConfig &devConf)
 
 bool MaemoDebugSupport::useGdb() const
 {
-    return m_runControl->engine()->startParameters().startMode == StartRemoteGdb;
+    return m_runControl->engine()->startParameters().startMode == StartRemoteGdb
+        && !m_qmlOnlyDebugging;
 }
 
 } // namespace Internal

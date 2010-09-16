@@ -38,12 +38,12 @@
 #include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
-class QCheckBox;
 class QComboBox;
 class QLabel;
 class QLineEdit;
 class QModelIndex;
 class QPushButton;
+class QRadioButton;
 class QTableView;
 class QToolButton;
 class QVBoxLayout;
@@ -88,7 +88,7 @@ private slots:
     void systemEnvironmentChanged();
     void userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &userChanges);
     void handleRemoteMountsChanged();
-    void handleQmlDebuggingChanged(bool debugQml);
+    void handleDebuggingTypeChanged();
     void handleDeploySpecsChanged();
     void handleBuildConfigChanged();
     void handleToolchainChanged();
@@ -104,7 +104,9 @@ private:
     QLabel *m_localExecutableLabel;
     QLabel *m_remoteExecutableLabel;
     QLabel *m_devConfLabel;
-    QCheckBox *m_qmlCheckBox;
+    QRadioButton *m_debugCppOnlyButton;
+    QRadioButton *m_debugQmlOnlyButton;
+    QRadioButton *m_debugCppAndQmlButton;
     QLabel *m_mountWarningLabel;
     QTableView *m_mountView;
     QToolButton *m_removeMountButton;

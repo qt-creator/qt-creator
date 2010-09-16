@@ -192,7 +192,7 @@ void MaemoSshRunner::handleUnmounted()
         m_mounter->resetMountSpecifications();
         MaemoPortList portList = m_devConfig.freePorts();
         if (m_debugging) { // gdbserver and QML inspector need one port each.
-            if (!m_runConfig->useRemoteGdb())
+            if (m_runConfig->useCppDebugger() && !m_runConfig->useRemoteGdb())
                 portList.getNext();
             if (m_runConfig->useQmlDebugger())
                 portList.getNext();

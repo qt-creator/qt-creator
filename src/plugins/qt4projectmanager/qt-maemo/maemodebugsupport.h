@@ -92,10 +92,11 @@ private:
     void startDebugging();
     bool useGdb() const;
 
-    Debugger::DebuggerRunControl *m_runControl;
+    Debugger::DebuggerRunControl * const m_runControl;
     MaemoRunConfiguration * const m_runConfig;
     const MaemoDeviceConfig m_deviceConfig;
     MaemoSshRunner * const m_runner;
+    const bool m_qmlOnlyDebugging;
 
     QSharedPointer<Core::SftpChannel> m_uploader;
     Core::SftpJobId m_uploadJob;

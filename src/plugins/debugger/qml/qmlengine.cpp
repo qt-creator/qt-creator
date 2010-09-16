@@ -168,19 +168,23 @@ void QmlEngine::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
 
-    connect(&d->m_applicationLauncher, SIGNAL(processExited(int)),
-            this, SLOT(disconnected()));
-    connect(&d->m_applicationLauncher, SIGNAL(appendMessage(QString,bool)),
-            runControl(), SLOT(emitAppendMessage(QString,bool)));
-    connect(&d->m_applicationLauncher, SIGNAL(appendOutput(QString, bool)),
-            runControl(), SLOT(emitAddToOutputWindow(QString, bool)));
-    connect(&d->m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),
-            runControl(), SLOT(bringApplicationToForeground(qint64)));
+    if (startParameters().startMode == AttachToRemote) {
+        emit remoteStartupRequested();
+    } else {
+        connect(&d->m_applicationLauncher, SIGNAL(processExited(int)),
+                this, SLOT(disconnected()));
+        connect(&d->m_applicationLauncher, SIGNAL(appendMessage(QString,bool)),
+                runControl(), SLOT(emitAppendMessage(QString,bool)));
+        connect(&d->m_applicationLauncher, SIGNAL(appendOutput(QString, bool)),
+                runControl(), SLOT(emitAddToOutputWindow(QString, bool)));
+        connect(&d->m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),
+                runControl(), SLOT(bringApplicationToForeground(qint64)));
 
-    d->m_applicationLauncher.setEnvironment(startParameters().environment);
-    d->m_applicationLauncher.setWorkingDirectory(startParameters().workingDirectory);
+        d->m_applicationLauncher.setEnvironment(startParameters().environment);
+        d->m_applicationLauncher.setWorkingDirectory(startParameters().workingDirectory);
 
-    notifyInferiorSetupOk();
+        notifyInferiorSetupOk();
+    }
 }
 
 void QmlEngine::connectionEstablished()
@@ -225,6 +229,18 @@ void QmlEngine::runEngine()
 
     d->m_adapter->beginConnection();
     plugin()->showMessage(tr("QML Debugger connecting..."), StatusBar);
+}
+
+void QmlEngine::handleRemoteSetupDone()
+{
+    notifyInferiorSetupOk();
+}
+
+void QmlEngine::handleRemoteSetupFailed(const QString &message)
+{
+    QMessageBox::critical(0,tr("Failed to start application"),
+        tr("Application startup failed: %1").arg(message));
+    notifyInferiorSetupFailed();
 }
 
 void QmlEngine::shutdownInferiorAsSlave()
