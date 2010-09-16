@@ -120,7 +120,6 @@ FORMS += makestep.ui \
     gettingstartedwelcomepagewidget.ui \
     wizards/testwizardpage.ui \
     wizards/targetsetuppage.ui \
-    wizards/qmlstandaloneappwizardoptionspage.ui \
     wizards/qmlstandaloneappwizardsourcespage.ui \
     wizards/mobileappwizardoptionspage.ui \
     librarydetailswidget.ui

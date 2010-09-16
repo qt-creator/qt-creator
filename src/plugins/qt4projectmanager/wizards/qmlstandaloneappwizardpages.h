@@ -66,36 +66,6 @@ private:
     class QmlStandaloneAppWizardSourcesPagePrivate *m_d;
 };
 
-class QmlStandaloneAppWizardOptionsPage : public QWizardPage
-{
-    Q_OBJECT
-    Q_DISABLE_COPY(QmlStandaloneAppWizardOptionsPage)
-
-public:
-    explicit QmlStandaloneAppWizardOptionsPage(QWidget *parent = 0);
-    virtual ~QmlStandaloneAppWizardOptionsPage();
-
-    void setOrientation(QmlStandaloneApp::Orientation orientation);
-    QmlStandaloneApp::Orientation orientation() const;
-    QString symbianSvgIcon() const;
-    void setSymbianSvgIcon(const QString &icon);
-    QString maemoPngIcon() const;
-    void setMaemoPngIcon(const QString &icon);
-    QString symbianUid() const;
-    void setLoadDummyData(bool loadIt);
-    bool loadDummyData() const;
-    void setNetworkEnabled(bool enableIt);
-    bool networkEnabled() const;
-    void setSymbianUid(const QString &uid);
-
-private slots:
-    void openSymbianSvgIcon(); // Via file open dialog
-    void openMaemoPngIcon();
-
-private:
-    class QmlStandaloneAppWizardOptionsPagePrivate *m_d;
-};
-
 } // end of namespace Internal
 } // end of namespace Qt4ProjectManager
 

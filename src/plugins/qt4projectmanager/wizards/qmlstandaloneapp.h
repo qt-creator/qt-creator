@@ -109,8 +109,6 @@ public:
 
     void setMainQmlFile(const QString &qmlFile);
     QString mainQmlFile() const;
-    void setLoadDummyData(bool loadIt);
-    bool loadDummyData() const;
     bool setExternalModules(const QStringList &uris, const QStringList &importPaths);
 
 #ifndef CREATORLESSTEST
@@ -143,7 +141,6 @@ private:
     bool addCppPlugin(const QString &qmldirLine, QmlModule *module);
     void clearModulesAndPlugins();
 
-    bool m_loadDummyData;
     QFileInfo m_mainQmlFile;
     QStringList m_importPaths;
     QList <QmlModule*> m_modules;

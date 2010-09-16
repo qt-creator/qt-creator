@@ -98,8 +98,7 @@ bool QmlAppGeneratedFileInfo::isOutdated() const
     return version < AbstractMobileApp::makeStubVersion(QmlStandaloneApp::StubVersion);
 }
 
-QmlStandaloneApp::QmlStandaloneApp()
-    : AbstractMobileApp(), m_loadDummyData(false)
+QmlStandaloneApp::QmlStandaloneApp() : AbstractMobileApp()
 {
 }
 
@@ -116,16 +115,6 @@ void QmlStandaloneApp::setMainQmlFile(const QString &qmlFile)
 QString QmlStandaloneApp::mainQmlFile() const
 {
     return path(MainQml);
-}
-
-void QmlStandaloneApp::setLoadDummyData(bool loadIt)
-{
-    m_loadDummyData = loadIt;
-}
-
-bool QmlStandaloneApp::loadDummyData() const
-{
-    return m_loadDummyData;
 }
 
 bool QmlStandaloneApp::setExternalModules(const QStringList &uris,

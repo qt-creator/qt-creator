@@ -27,6 +27,7 @@
 **
 **************************************************************************/
 
+#include "mobileappwizardpages.h"
 #include "qmlstandaloneappwizard.h"
 #include "qmlstandaloneappwizardpages.h"
 #include "qmlstandaloneapp.h"
@@ -61,7 +62,7 @@ public:
 private:
     QmlStandaloneAppWizard::WizardType m_type;
     class QmlStandaloneAppWizardSourcesPage *m_qmlSourcesPage;
-    class QmlStandaloneAppWizardOptionsPage *m_qmlOptionsPage;
+    class MobileAppWizardOptionsPage *m_qmlOptionsPage;
     friend class QmlStandaloneAppWizard;
 };
 
@@ -85,7 +86,7 @@ QmlStandaloneAppWizardDialog::QmlStandaloneAppWizardDialog(QmlStandaloneAppWizar
         wizardProgress()->item(qmlSourcesPagePageId)->setTitle(qmlSourcesTitle);
     }
 
-    m_qmlOptionsPage = new QmlStandaloneAppWizardOptionsPage;
+    m_qmlOptionsPage = new MobileAppWizardOptionsPage;
     const int qmlOptionsPagePageId = addPage(m_qmlOptionsPage);
     wizardProgress()->item(qmlOptionsPagePageId)->setTitle(tr("QML Application options"));
     if (m_type == QmlStandaloneAppWizard::NewQmlFile) {
@@ -152,7 +153,6 @@ QWizard *QmlStandaloneAppWizard::createWizardDialog(QWidget *parent,
     m_d->wizardDialog->m_qmlOptionsPage->setMaemoPngIcon(m_d->standaloneApp->maemoPngIcon());
     m_d->wizardDialog->m_qmlOptionsPage->setOrientation(m_d->standaloneApp->orientation());
     m_d->wizardDialog->m_qmlOptionsPage->setNetworkEnabled(m_d->standaloneApp->networkEnabled());
-    m_d->wizardDialog->m_qmlOptionsPage->setLoadDummyData(m_d->standaloneApp->loadDummyData());
     connect(m_d->wizardDialog, SIGNAL(introPageLeft(QString, QString)), SLOT(useProjectPath(QString, QString)));
     connect(m_d->wizardDialog->m_qmlSourcesPage,
             SIGNAL(externalModulesChanged(QStringList, QStringList)), SLOT(handleModulesChange(QStringList, QStringList)));

@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef QMLSTANDALONEAPPWIZARDPAGES_H
-#define QMLSTANDALONEAPPWIZARDPAGES_H
+#ifndef MOBILEAPPWIZARDPAGES_H
+#define MOBILEAPPWIZARDPAGES_H
 
 #include "mobileapp.h"
 
@@ -68,4 +68,4 @@ private:
 } // end of namespace Internal
 } // end of namespace Qt4ProjectManager
 
-#endif // QMLSTANDALONEAPPWIZARDPAGES_H
+#endif // MOBILEAPPWIZARDPAGES_H
