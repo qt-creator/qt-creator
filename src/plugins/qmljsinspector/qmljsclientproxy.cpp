@@ -29,7 +29,7 @@
 
 #include "qmljsclientproxy.h"
 #include "qmljsprivateapi.h"
-#include "qmljsdesigndebugclient.h"
+#include "qmljsobserverclient.h"
 #include "qmljsinspector.h"
 
 #include <debugger/debuggerplugin.h>
@@ -64,7 +64,7 @@ ClientProxy::ClientProxy(Debugger::QmlAdapter *adapter, QObject *parent)
 
 void ClientProxy::connectToServer()
 {
-    m_designClient = new QmlJSDesignDebugClient(m_adapter->connection(), this);
+    m_designClient = new QmlJSObserverClient(m_adapter->connection(), this);
     emit connected();
 
     connect(m_designClient, SIGNAL(currentObjectsChanged(QList<int>)),

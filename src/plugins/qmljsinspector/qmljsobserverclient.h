@@ -47,11 +47,11 @@
 namespace QmlJSInspector {
 namespace Internal {
 
-class QmlJSDesignDebugClient : public QDeclarativeDebugClient
+class QmlJSObserverClient : public QDeclarativeDebugClient
 {
     Q_OBJECT
 public:
-    explicit QmlJSDesignDebugClient(QDeclarativeDebugConnection *client,
+    explicit QmlJSObserverClient(QDeclarativeDebugConnection *client,
                                     QObject *parent = 0);
 
     void setSelectedItemsByObjectId(const QList<QDeclarativeDebugObjectReference> &objects);

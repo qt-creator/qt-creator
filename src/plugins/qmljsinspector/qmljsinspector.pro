@@ -16,7 +16,7 @@ qmljsinspector.h \
 qmlinspectortoolbar.h \
 qmljslivetextpreview.h \
 qmljstoolbarcolorbox.h \
-qmljsdesigndebugclient.h \
+qmljsobserverclient.h \
 qmljscontextcrumblepath.h \
 qmljsinspectorsettings.h \
 qmljsobjecttree.h
@@ -28,7 +28,7 @@ qmljsinspector.cpp \
 qmlinspectortoolbar.cpp \
 qmljslivetextpreview.cpp \
 qmljstoolbarcolorbox.cpp \
-qmljsdesigndebugclient.cpp \
+qmljsobserverclient.cpp \
 qmljscontextcrumblepath.cpp \
 qmljsinspectorsettings.cpp \
 qmljsobjecttree.cpp

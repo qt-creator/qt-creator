@@ -39,7 +39,7 @@
 **
 ****************************************************************************/
 
-#include "qmljsdesigndebugclient.h"
+#include "qmljsobserverclient.h"
 #include "qmljsclientproxy.h"
 #include "qmljsinspectorconstants.h"
 
@@ -48,7 +48,7 @@
 namespace QmlJSInspector {
 namespace Internal {
 
-QmlJSDesignDebugClient::QmlJSDesignDebugClient(QDeclarativeDebugConnection *client,
+QmlJSObserverClient::QmlJSObserverClient(QDeclarativeDebugConnection *client,
                                                              QObject * /*parent*/)
     : QDeclarativeDebugClient(QLatin1String("QDeclarativeObserverMode"), client) ,
     m_connection(client)
@@ -56,7 +56,7 @@ QmlJSDesignDebugClient::QmlJSDesignDebugClient(QDeclarativeDebugConnection *clie
     setEnabled(true);
 }
 
-void QmlJSDesignDebugClient::messageReceived(const QByteArray &message)
+void QmlJSObserverClient::messageReceived(const QByteArray &message)
 {
     QDataStream ds(message);
 
@@ -111,12 +111,12 @@ void QmlJSDesignDebugClient::messageReceived(const QByteArray &message)
     }
 }
 
-QList<int> QmlJSDesignDebugClient::selectedItemIds() const
+QList<int> QmlJSObserverClient::selectedItemIds() const
 {
     return m_selectedItemIds;
 }
 
-void QmlJSDesignDebugClient::setSelectedItemsByObjectId(const QList<QDeclarativeDebugObjectReference> &objects)
+void QmlJSObserverClient::setSelectedItemsByObjectId(const QList<QDeclarativeDebugObjectReference> &objects)
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -143,7 +143,7 @@ void recurseObjectIdList(const QDeclarativeDebugObjectReference &ref, QList<int>
     }
 }
 
-void QmlJSDesignDebugClient::setObjectIdList(const QList<QDeclarativeDebugObjectReference> &objectRoots)
+void QmlJSObserverClient::setObjectIdList(const QList<QDeclarativeDebugObjectReference> &objectRoots)
 {
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
@@ -167,7 +167,7 @@ void QmlJSDesignDebugClient::setObjectIdList(const QList<QDeclarativeDebugObject
     sendMessage(message);
 }
 
-void QmlJSDesignDebugClient::setContextPathIndex(int contextPathIndex)
+void QmlJSObserverClient::setContextPathIndex(int contextPathIndex)
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -180,7 +180,7 @@ void QmlJSDesignDebugClient::setContextPathIndex(int contextPathIndex)
     sendMessage(message);
 }
 
-void QmlJSDesignDebugClient::clearComponentCache()
+void QmlJSObserverClient::clearComponentCache()
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -192,7 +192,7 @@ void QmlJSDesignDebugClient::clearComponentCache()
     sendMessage(message);
 }
 
-void QmlJSDesignDebugClient::reloadViewer()
+void QmlJSObserverClient::reloadViewer()
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -204,7 +204,7 @@ void QmlJSDesignDebugClient::reloadViewer()
     sendMessage(message);
 }
 
-void QmlJSDesignDebugClient::setDesignModeBehavior(bool inDesignMode)
+void QmlJSObserverClient::setDesignModeBehavior(bool inDesignMode)
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -218,7 +218,7 @@ void QmlJSDesignDebugClient::setDesignModeBehavior(bool inDesignMode)
     sendMessage(message);
 }
 
-void QmlJSDesignDebugClient::setAnimationSpeed(qreal slowdownFactor)
+void QmlJSObserverClient::setAnimationSpeed(qreal slowdownFactor)
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -231,7 +231,7 @@ void QmlJSDesignDebugClient::setAnimationSpeed(qreal slowdownFactor)
     sendMessage(message);
 }
 
-void QmlJSDesignDebugClient::changeToColorPickerTool()
+void QmlJSObserverClient::changeToColorPickerTool()
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -244,7 +244,7 @@ void QmlJSDesignDebugClient::changeToColorPickerTool()
     sendMessage(message);
 }
 
-void QmlJSDesignDebugClient::changeToSelectTool()
+void QmlJSObserverClient::changeToSelectTool()
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -257,7 +257,7 @@ void QmlJSDesignDebugClient::changeToSelectTool()
     sendMessage(message);
 }
 
-void QmlJSDesignDebugClient::changeToSelectMarqueeTool()
+void QmlJSObserverClient::changeToSelectMarqueeTool()
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -270,7 +270,7 @@ void QmlJSDesignDebugClient::changeToSelectMarqueeTool()
     sendMessage(message);
 }
 
-void QmlJSDesignDebugClient::changeToZoomTool()
+void QmlJSObserverClient::changeToZoomTool()
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -283,7 +283,7 @@ void QmlJSDesignDebugClient::changeToZoomTool()
     sendMessage(message);
 }
 
-void QmlJSDesignDebugClient::createQmlObject(const QString &qmlText, int parentDebugId,
+void QmlJSObserverClient::createQmlObject(const QString &qmlText, int parentDebugId,
                                              const QStringList &imports, const QString &filename)
 {
     if (!m_connection || !m_connection->isConnected())
@@ -301,7 +301,7 @@ void QmlJSDesignDebugClient::createQmlObject(const QString &qmlText, int parentD
     sendMessage(message);
 }
 
-void QmlJSDesignDebugClient::destroyQmlObject(int debugId)
+void QmlJSObserverClient::destroyQmlObject(int debugId)
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -313,7 +313,7 @@ void QmlJSDesignDebugClient::destroyQmlObject(int debugId)
     sendMessage(message);
 }
 
-void QmlJSDesignDebugClient::reparentQmlObject(int debugId, int newParent)
+void QmlJSObserverClient::reparentQmlObject(int debugId, int newParent)
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -328,7 +328,7 @@ void QmlJSDesignDebugClient::reparentQmlObject(int debugId, int newParent)
 }
 
 
-void QmlJSDesignDebugClient::applyChangesToQmlFile()
+void QmlJSObserverClient::applyChangesToQmlFile()
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -336,7 +336,7 @@ void QmlJSDesignDebugClient::applyChangesToQmlFile()
     // TODO
 }
 
-void QmlJSDesignDebugClient::applyChangesFromQmlFile()
+void QmlJSObserverClient::applyChangesFromQmlFile()
 {
     if (!m_connection || !m_connection->isConnected())
         return;
