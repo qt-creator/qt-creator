@@ -63,7 +63,7 @@ public:
     virtual QString category() const = 0;
     virtual QString displayCategory() const = 0;
 
-    virtual QStringList runWizard(const QString &path, QWidget *parent) = 0;
+    virtual void runWizard(const QString &path, QWidget *parent) = 0;
 
     // Utility to find all registered wizards
     static QList<IWizard*> allWizards();

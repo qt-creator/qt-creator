@@ -181,7 +181,7 @@ public:
     virtual QString category() const;
     virtual QString displayCategory() const;
 
-    virtual QStringList runWizard(const QString &path, QWidget *parent);
+    virtual void runWizard(const QString &path, QWidget *parent);
 
     // Build a file name, adding the extension unless baseName already has one
     static QString buildFileName(const QString &path, const QString &baseName, const QString &extension);

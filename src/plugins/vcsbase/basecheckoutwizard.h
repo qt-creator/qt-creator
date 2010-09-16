@@ -73,7 +73,7 @@ public:
     virtual QString displayCategory() const;
     virtual QString id() const;
 
-    virtual QStringList runWizard(const QString &path, QWidget *parent);
+    virtual void runWizard(const QString &path, QWidget *parent);
 
     static QString openProject(const QString &path, QString *errorMessage);
 

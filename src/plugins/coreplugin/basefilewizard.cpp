@@ -477,9 +477,9 @@ QString BaseFileWizard::displayCategory() const
     return m_d->m_parameters.displayCategory();
 }
 
-QStringList BaseFileWizard::runWizard(const QString &path, QWidget *parent)
+void BaseFileWizard::runWizard(const QString &path, QWidget *parent)
 {
-    QTC_ASSERT(!path.isEmpty(), return QStringList())
+    QTC_ASSERT(!path.isEmpty(), return);
 
     typedef  QList<IFileWizardExtension*> ExtensionList;
 
@@ -508,7 +508,7 @@ QStringList BaseFileWizard::runWizard(const QString &path, QWidget *parent)
     // leaving the func, but not before the IFileWizardExtension::process
     // has been called
     const QScopedPointer<QWizard> wizard(createWizardDialog(parent, path, allExtensionPages));
-    QTC_ASSERT(!wizard.isNull(), return QStringList())
+    QTC_ASSERT(!wizard.isNull(), return);
 
     GeneratedFiles files;
     // Run the wizard: Call generate files on switching to the first extension
@@ -538,7 +538,7 @@ QStringList BaseFileWizard::runWizard(const QString &path, QWidget *parent)
             break;
     }
     if (files.empty())
-        return QStringList();
+        return;
     // Compile result list and prompt for overwrite
     QStringList result;
     foreach (const GeneratedFile &generatedFile, files)
@@ -546,10 +546,10 @@ QStringList BaseFileWizard::runWizard(const QString &path, QWidget *parent)
 
     switch (promptOverwrite(result, &errorMessage)) {
     case OverwriteCanceled:
-        return QStringList();
+        return;
     case OverwriteError:
         QMessageBox::critical(0, tr("Existing files"), errorMessage);
-        return QStringList();
+        return;
     case OverwriteOk:
         break;
     }
@@ -557,7 +557,7 @@ QStringList BaseFileWizard::runWizard(const QString &path, QWidget *parent)
     // Write
     if (!writeFiles(files, &errorMessage)) {
         QMessageBox::critical(parent, tr("File Generation Failure"), errorMessage);
-        return QStringList();
+        return;
     }
 
     bool removeOpenProjectAttribute = false;
@@ -566,7 +566,7 @@ QStringList BaseFileWizard::runWizard(const QString &path, QWidget *parent)
         bool remove;
         if (!ex->process(files, &remove, &errorMessage)) {
             QMessageBox::critical(parent, tr("File Generation Failure"), errorMessage);
-            return QStringList();
+            return;
         }
         removeOpenProjectAttribute |= remove;
     }
@@ -579,12 +579,8 @@ QStringList BaseFileWizard::runWizard(const QString &path, QWidget *parent)
     }
 
     // Post generation handler
-    if (!postGenerateFiles(wizard.data(), files, &errorMessage)) {
+    if (!postGenerateFiles(wizard.data(), files, &errorMessage))
         QMessageBox::critical(0, tr("File Generation Failure"), errorMessage);
-        return QStringList();
-    }
-
-    return result;
 }
 
 // Write

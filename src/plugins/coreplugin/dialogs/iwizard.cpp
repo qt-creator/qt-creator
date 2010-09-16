@@ -125,13 +125,12 @@
 */
 
 /*!
-    \fn QStringList IWizard::runWizard(const QString &path, QWidget *parent)
+    \fn void IWizard::runWizard(const QString &path, QWidget *parent)
     This method is executed when the wizard has been selected by the user
     for execution. Any dialogs the wizard opens should use the given \a parent.
     The \a path argument is a suggestion for the location where files should be
     created. The wizard should fill this in its path selection elements as a
     default path.
-    Returns a list of files (absolute paths) that have been created, if any.
 */
 
 using namespace Core;

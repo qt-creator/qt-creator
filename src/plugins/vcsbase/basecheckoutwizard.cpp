@@ -95,7 +95,7 @@ void BaseCheckoutWizard::setId(const QString &id)
     d->id = id;
 }
 
-QStringList BaseCheckoutWizard::runWizard(const QString &path, QWidget *parent)
+void BaseCheckoutWizard::runWizard(const QString &path, QWidget *parent)
 {
     // Create dialog and launch
     d->parameterPages = createParameterPages(path);
@@ -104,7 +104,7 @@ QStringList BaseCheckoutWizard::runWizard(const QString &path, QWidget *parent)
     connect(&dialog, SIGNAL(progressPageShown()), this, SLOT(slotProgressPageShown()));
     dialog.setWindowTitle(displayName());
     if (dialog.exec() != QDialog::Accepted)
-        return QStringList();
+        return;
     // Now try to find the project file and open
     const QString checkoutPath = d->checkoutPath;
     d->clear();
@@ -115,9 +115,7 @@ QStringList BaseCheckoutWizard::runWizard(const QString &path, QWidget *parent)
                            tr("Failed to open project in '%1'.").arg(QDir::toNativeSeparators(checkoutPath)));
         msgBox.setDetailedText(errorMessage);
         msgBox.exec();
-        return QStringList();
     }
-    return QStringList(projectFile);
 }
 
 static inline QString msgNoProjectFiles(const QDir &dir, const QStringList &patterns)
