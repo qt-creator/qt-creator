@@ -30,111 +30,52 @@
 #ifndef MOBILEAPP_H
 #define MOBILEAPP_H
 
-#include <coreplugin/basefilewizard.h>
-
-#include <QtCore/QStringList>
-#include <QtCore/QFileInfo>
-#include <QtCore/QHash>
+#include "abstractmobileapp.h"
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-struct MobileAppGeneratedFileInfo
+struct MobileAppGeneratedFileInfo : AbstractGeneratedFileInfo
 {
-    enum File {
-        MainCppFile,
-        AppProFile,
-        DeploymentPriFile,
-        MainWindowCppFile,
+    enum ExtendedFileType {
+        MainWindowCppFile = ExtendedFile,
         MainWindowHFile,
         MainWindowUiFile,
-        SymbianSvgIconFile,
-        MaemoPngIconFile,
-        DesktopFile
     };
 
-    MobileAppGeneratedFileInfo();
-
-    bool isUpToDate() const;
-    bool isOutdated() const;
-    bool wasModified() const;
-
-    File file;
-    QFileInfo fileInfo;
-    int version;
-    quint16 dataChecksum;
-    quint16 statedChecksum;
+    MobileAppGeneratedFileInfo() : AbstractGeneratedFileInfo() {}
+    virtual bool isOutdated() const;
 };
 
-class MobileApp: public QObject
+class MobileApp : public AbstractMobileApp
 {
 public:
-    enum Orientation {
-        LockLandscape,
-        LockPortrait,
-        Auto
-    };
-
-    enum Path {
-        MainCpp,
-        MainCppOrigin,
-        AppPro,
-        AppProOrigin,
-        AppProPath,
-        Desktop,
-        DesktopOrigin,
-        DeploymentPri,
-        DeploymentPriOrigin,
-        MainWindowCpp,
+    enum ExtendedFileType {
+        MainWindowCpp = ExtendedFile,
         MainWindowCppOrigin,
         MainWindowH,
         MainWindowHOrigin,
         MainWindowUi,
         MainWindowUiOrigin,
-        SymbianSvgIcon,
-        SymbianSvgIconOrigin,
-        MaemoPngIcon,
-        MaemoPngIconOrigin,
     };
 
     MobileApp();
-    ~MobileApp();
+    virtual ~MobileApp();
 
-    void setOrientation(Orientation orientation);
-    Orientation orientation() const;
-    void setProjectName(const QString &name);
-    QString projectName() const;
-    void setProjectPath(const QString &path);
-    void setSymbianSvgIcon(const QString &icon);
-    QString symbianSvgIcon() const;
-    void setMaemoPngIcon(const QString &icon);
-    QString maemoPngIcon() const;
-    void setSymbianTargetUid(const QString &uid);
-    QString symbianTargetUid() const;
-    void setNetworkEnabled(bool enabled);
-    bool networkEnabled() const;
+    virtual Core::GeneratedFiles generateFiles(QString *errorMessage) const;
 
-    static QString symbianUidForPath(const QString &path);
-    Core::GeneratedFiles generateFiles(QString *errorMessage) const;
-    QString path(Path path) const;
-    QString error() const;
-    QByteArray generateFile(MobileAppGeneratedFileInfo::File file,
-        const QString *errorMessage) const;
-    static int stubVersion();
+    static const int StubVersion;
 private:
-    QByteArray generateMainCpp(const QString *errorMessage) const;
-    QByteArray generateProFile(const QString *errorMessage) const;
-    QByteArray generateDesktopFile(const QString *errorMessage) const;
-    static QString templatesRoot(const QString &dirName);
-
-    QString m_projectName;
-    QFileInfo m_projectPath;
-    QString m_symbianSvgIcon;
-    QString m_maemoPngIcon;
-    QString m_symbianTargetUid;
-    Orientation m_orientation;
-    bool m_networkEnabled;
-    QString m_error;
+    virtual QByteArray generateFileExtended(int fileType,
+        bool *versionAndCheckSum, QString *comment, QString *errorMessage) const;
+    virtual QString pathExtended(int fileType) const;
+    virtual QString originsRoot() const;
+    virtual QString mainWindowClassName() const;
+    virtual int stubVersionMinor() const;
+    virtual bool adaptCurrentMainCppTemplateLine(QString &line) const;
+    virtual void handleCurrentProFileTemplateLine(const QString &line,
+        QTextStream &proFileTemplate, QTextStream &proFile,
+        bool &uncommentNextLine) const;
 };
 
 } // end of namespace Internal

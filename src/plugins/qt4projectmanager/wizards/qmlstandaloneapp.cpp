@@ -48,11 +48,7 @@ const QString appViewerBaseName(QLatin1String("qmlapplicationviewer"));
 const QString appViewerPriFileName(appViewerBaseName + QLatin1String(".pri"));
 const QString appViewerCppFileName(appViewerBaseName + QLatin1String(".cpp"));
 const QString appViewerHFileName(appViewerBaseName + QLatin1String(".h"));
-const QString deploymentPriFileName(QLatin1String("deployment.pri"));
-const QString deploymentPriOrigRelFilePath(QLatin1String("../shared/") + deploymentPriFileName);
 const QString appViewerOriginsSubDir(appViewerBaseName + QLatin1Char('/'));
-const QString fileChecksum(QLatin1String("checksum"));
-const QString fileStubVersion(QLatin1String("version"));
 
 QmlModule::QmlModule(const QString &uri, const QFileInfo &rootDir, const QFileInfo &qmldir,
                      bool isExternal, QmlStandaloneApp *qmlStandaloneApp)
@@ -97,50 +93,19 @@ QmlCppPlugin::QmlCppPlugin(const QString &name, const QFileInfo &path,
     , proFile(proFile)
 {}
 
-QmlAppGeneratedFileInfo::QmlAppGeneratedFileInfo()
-    : file(MainQmlFile)
-    , version(-1)
-    , dataChecksum(0)
-    , statedChecksum(0)
-{
-}
-
-bool QmlAppGeneratedFileInfo::isUpToDate() const
-{
-    return !isOutdated() && !wasModified();
-}
-
 bool QmlAppGeneratedFileInfo::isOutdated() const
 {
-    return version < QmlStandaloneApp::stubVersion();
-}
-
-bool QmlAppGeneratedFileInfo::wasModified() const
-{
-    return dataChecksum != statedChecksum;
+    return version < AbstractMobileApp::makeStubVersion(QmlStandaloneApp::StubVersion);
 }
 
 QmlStandaloneApp::QmlStandaloneApp()
-    : m_loadDummyData(false)
-    , m_orientation(Auto)
-    , m_networkEnabled(false)
+    : AbstractMobileApp(), m_loadDummyData(false)
 {
 }
 
 QmlStandaloneApp::~QmlStandaloneApp()
 {
     clearModulesAndPlugins();
-}
-
-QString QmlStandaloneApp::symbianUidForPath(const QString &path)
-{
-    quint32 hash = 5381;
-    for (int i = 0; i < path.size(); ++i) {
-        const char c = path.at(i).toAscii();
-        hash ^= c + ((c - i) << i % 20) + ((c + i) << (i + 5) % 20) + ((c - 2 * i) << (i + 10) % 20) + ((c + 2 * i) << (i + 15) % 20);
-    }
-    return QString::fromLatin1("0xE")
-            + QString::fromLatin1("%1").arg(hash, 7, 16, QLatin1Char('0')).right(7);
 }
 
 void QmlStandaloneApp::setMainQmlFile(const QString &qmlFile)
@@ -153,62 +118,6 @@ QString QmlStandaloneApp::mainQmlFile() const
     return path(MainQml);
 }
 
-void QmlStandaloneApp::setOrientation(Orientation orientation)
-{
-    m_orientation = orientation;
-}
-
-QmlStandaloneApp::Orientation QmlStandaloneApp::orientation() const
-{
-    return m_orientation;
-}
-
-void QmlStandaloneApp::setProjectName(const QString &name)
-{
-    m_projectName = name;
-}
-
-QString QmlStandaloneApp::projectName() const
-{
-    return m_projectName;
-}
-
-void QmlStandaloneApp::setProjectPath(const QString &path)
-{
-    m_projectPath.setFile(path);
-}
-
-void QmlStandaloneApp::setSymbianSvgIcon(const QString &icon)
-{
-    m_symbianSvgIcon = icon;
-}
-
-QString QmlStandaloneApp::symbianSvgIcon() const
-{
-    return path(SymbianSvgIconOrigin);
-}
-
-void QmlStandaloneApp::setMaemoPngIcon(const QString &icon)
-{
-    m_maemoPngIcon = icon;
-}
-
-QString QmlStandaloneApp::maemoPngIcon() const
-{
-    return path(MaemoPngIconOrigin);
-}
-
-void QmlStandaloneApp::setSymbianTargetUid(const QString &uid)
-{
-    m_symbianTargetUid = uid;
-}
-
-QString QmlStandaloneApp::symbianTargetUid() const
-{
-    return !m_symbianTargetUid.isEmpty() ? m_symbianTargetUid
-        : symbianUidForPath(path(AppPro));
-}
-
 void QmlStandaloneApp::setLoadDummyData(bool loadIt)
 {
     m_loadDummyData = loadIt;
@@ -217,16 +126,6 @@ void QmlStandaloneApp::setLoadDummyData(bool loadIt)
 bool QmlStandaloneApp::loadDummyData() const
 {
     return m_loadDummyData;
-}
-
-void QmlStandaloneApp::setNetworkEnabled(bool enabled)
-{
-    m_networkEnabled = enabled;
-}
-
-bool QmlStandaloneApp::networkEnabled() const
-{
-    return m_networkEnabled;
 }
 
 bool QmlStandaloneApp::setExternalModules(const QStringList &uris,
@@ -270,197 +169,97 @@ bool QmlStandaloneApp::setExternalModules(const QStringList &uris,
     return true;
 }
 
-QString QmlStandaloneApp::path(Path path) const
+QString QmlStandaloneApp::pathExtended(int fileType) const
 {
     const QString qmlSubDir = QLatin1String("qml/")
-                              + (useExistingMainQml() ? m_mainQmlFile.dir().dirName() : m_projectName)
+                              + (useExistingMainQml() ? m_mainQmlFile.dir().dirName() : projectName())
                               + QLatin1Char('/');   
-    const QString originsRootQmlApp = templatesRoot() + QLatin1String("qmlapp/");
-    const QString originsRootShared = templatesRoot() + QLatin1String("shared/");
     const QString appViewerTargetSubDir = appViewerOriginsSubDir;
     const QString qmlExtension = QLatin1String(".qml");
-    const QString mainCppFileName = QLatin1String("main.cpp");
-    const QString symbianIconFileName = QLatin1String("symbianicon.svg");
-    const QString pathBase = m_projectPath.absoluteFilePath() + QLatin1Char('/')
-                             + m_projectName + QLatin1Char('/');
+    const QString pathBase = outputPathBase();
     const QDir appProFilePath(pathBase);
 
-    switch (path) {
+    switch (fileType) {
         case MainQml:                       return useExistingMainQml() ? m_mainQmlFile.canonicalFilePath()
-                                                : pathBase + qmlSubDir + m_projectName + qmlExtension;
+                                                : pathBase + qmlSubDir + projectName() + qmlExtension;
         case MainQmlDeployed:               return useExistingMainQml() ? qmlSubDir + m_mainQmlFile.fileName()
-                                                : QString(qmlSubDir + m_projectName + qmlExtension);
-        case MainQmlOrigin:                 return originsRootQmlApp + QLatin1String("qml/app/app.qml");
-        case MainCpp:                       return pathBase + mainCppFileName;
-        case MainCppOrigin:                 return originsRootQmlApp + mainCppFileName;
-        case AppPro:                        return pathBase + m_projectName + QLatin1String(".pro");
-        case AppProOrigin:                  return originsRootQmlApp + QLatin1String("app.pro");
-        case AppProPath:                    return pathBase;
-        case Desktop:                       return pathBase + m_projectName + QLatin1String(".desktop");
-        case DesktopOrigin:                 return originsRootShared + QLatin1String("app.desktop");
+                                                : QString(qmlSubDir + projectName() + qmlExtension);
+        case MainQmlOrigin:                 return originsRoot() + QLatin1String("qml/app/app.qml");
         case AppViewerPri:                  return pathBase + appViewerTargetSubDir + appViewerPriFileName;
-        case AppViewerPriOrigin:            return originsRootQmlApp + appViewerOriginsSubDir + appViewerPriFileName;
-        case DeploymentPri:                 return pathBase + deploymentPriFileName;
-        case DeploymentPriOrigin:           return originsRootQmlApp + deploymentPriOrigRelFilePath;
+        case AppViewerPriOrigin:            return originsRoot() + appViewerOriginsSubDir + appViewerPriFileName;
         case AppViewerCpp:                  return pathBase + appViewerTargetSubDir + appViewerCppFileName;
-        case AppViewerCppOrigin:            return originsRootQmlApp + appViewerOriginsSubDir + appViewerCppFileName;
+        case AppViewerCppOrigin:            return originsRoot() + appViewerOriginsSubDir + appViewerCppFileName;
         case AppViewerH:                    return pathBase + appViewerTargetSubDir + appViewerHFileName;
-        case AppViewerHOrigin:              return originsRootQmlApp + appViewerOriginsSubDir + appViewerHFileName;
-        case SymbianSvgIcon:                return pathBase + symbianIconFileName;
-        case SymbianSvgIconOrigin:          return !m_symbianSvgIcon.isEmpty() ? m_symbianSvgIcon
-                                                : originsRootShared + symbianIconFileName;
-        case MaemoPngIcon:                  return pathBase + projectName() +  QLatin1String(".png");
-        case MaemoPngIconOrigin:            return !m_maemoPngIcon.isEmpty() ? m_maemoPngIcon
-                                                : originsRootShared + QLatin1String("maemoicon.png");
+        case AppViewerHOrigin:              return originsRoot() + appViewerOriginsSubDir + appViewerHFileName;
         case QmlDir:                        return pathBase + qmlSubDir;
         case QmlDirProFileRelative:         return useExistingMainQml() ? appProFilePath.relativeFilePath(m_mainQmlFile.canonicalPath())
                                                 : QString(qmlSubDir).remove(qmlSubDir.length() - 1, 1);
         case ModulesDir:                    return QLatin1String("modules");
-        default:                            qFatal("QmlStandaloneApp::path() needs more work");
+        default:                            qFatal("QmlStandaloneApp::pathExtended() needs more work");
     }
     return QString();
 }
 
-static QString insertParameter(const QString &line, const QString &parameter)
+QString QmlStandaloneApp::originsRoot() const
 {
-    return QString(line).replace(QRegExp(QLatin1String("\\([^()]+\\)")),
-                                 QLatin1Char('(') + parameter + QLatin1Char(')'));
+    return templatesRoot() + QLatin1String("qmlapp/");
 }
 
-QByteArray QmlStandaloneApp::generateMainCpp(const QString *errorMessage) const
+QString QmlStandaloneApp::mainWindowClassName() const
 {
-    Q_UNUSED(errorMessage)
+    return QLatin1String("QmlApplicationViewer");
+}
 
-    QFile sourceFile(path(MainCppOrigin));
-    sourceFile.open(QIODevice::ReadOnly);
-    Q_ASSERT(sourceFile.isOpen());
-    QTextStream in(&sourceFile);
+bool QmlStandaloneApp::adaptCurrentMainCppTemplateLine(QString &line) const
+{
+    const QLatin1Char quote('"');
+    bool adaptLine = true;
+    if (line.contains(QLatin1String("// MAINQML"))) {
+        insertParameter(line, quote + path(MainQmlDeployed) + quote);
+    } else if (line.contains(QLatin1String("// ADDIMPORTPATH"))) {
+        if (m_modules.isEmpty())
+            adaptLine = false;
+        else
+            insertParameter(line, quote + path(ModulesDir) + quote);
+    } else if (line.contains(QLatin1String("// LOADDUMMYDATA"))) {
+        adaptLine = false;
+    }
+    return adaptLine;
+}
 
-    QByteArray mainCppContent;
-    QTextStream out(&mainCppContent, QIODevice::WriteOnly);
-
-    QString line;
-    while (!(line = in.readLine()).isNull()) {
-        if (line.contains(QLatin1String("// MAINQML"))) {
-            line = insertParameter(line, QLatin1Char('"') + path(MainQmlDeployed) + QLatin1Char('"'));
-        } else if (line.contains(QLatin1String("// ADDIMPORTPATH"))) {
-            if (m_modules.isEmpty())
-                continue;
-            else
-                line = insertParameter(line, QLatin1Char('"') + path(ModulesDir) + QLatin1Char('"'));
-        } else if (line.contains(QLatin1String("// ORIENTATION"))) {
-            const char *orientationString;
-            switch (m_orientation) {
-            case LockLandscape:
-                orientationString = "LockLandscape";
-                break;
-            case LockPortrait:
-                orientationString = "LockPortrait";
-                break;
-            case Auto:
-                orientationString = "Auto";
-                break;
+void QmlStandaloneApp::handleCurrentProFileTemplateLine(const QString &line,
+    QTextStream &proFileTemplate, QTextStream &proFile,
+    bool &uncommentNextLine) const
+{
+    if (line.contains(QLatin1String("# DEPLOYMENTFOLDERS"))) {
+        // Eat lines
+        QString nextLine;
+        while (!(nextLine = proFileTemplate.readLine()).isNull()
+            && !nextLine.contains(QLatin1String("# DEPLOYMENTFOLDERS_END")))
+        { }
+        if (nextLine.isNull())
+            return;
+        QStringList folders;
+        proFile << "folder_01.source = " << path(QmlDirProFileRelative) << endl;
+        proFile << "folder_01.target = qml" << endl;
+        folders.append(QLatin1String("folder_01"));
+        int foldersCount = 1;
+        foreach (const QmlModule *module, m_modules) {
+            if (module->isExternal) {
+                foldersCount ++;
+                const QString folder =
+                    QString::fromLatin1("folder_%1").arg(foldersCount, 2, 10, QLatin1Char('0'));
+                folders.append(folder);
+                proFile << folder << ".source = " << module->path(QmlModule::ContentDir) << endl;
+                proFile << folder << ".target = " << module->path(QmlModule::DeployedContentBase) << endl;
             }
-            line = insertParameter(line, QLatin1String("QmlApplicationViewer::")
-                + QLatin1String(orientationString));
-        } else if (line.contains(QLatin1String("// LOADDUMMYDATA"))) {
-            continue;
         }
-        const int commentIndex = line.indexOf(QLatin1String(" //"));
-        if (commentIndex != -1)
-            line.truncate(commentIndex);
-        out << line << endl;
-    };
-
-    return mainCppContent;
-}
-
-QByteArray QmlStandaloneApp::generateProFile(const QString *errorMessage) const
-{
-    Q_UNUSED(errorMessage)
-
-    const QChar comment = QLatin1Char('#');
-    QFile proFile(path(AppProOrigin));
-    proFile.open(QIODevice::ReadOnly);
-    Q_ASSERT(proFile.isOpen());
-    QTextStream in(&proFile);
-
-    QByteArray proFileContent;
-    QTextStream out(&proFileContent, QIODevice::WriteOnly);
-
-    QString valueOnNextLine;
-    bool uncommentNextLine = false;
-    QString line;
-    while (!(line = in.readLine()).isNull()) {
-        if (line.contains(QLatin1String("# TARGETUID3"))) {
-            valueOnNextLine = symbianTargetUid();
-        } else if (line.contains(QLatin1String("# DEPLOYMENTFOLDERS"))) {
-            // Eat lines
-            while (!(line = in.readLine()).isNull() &&
-                   !line.contains(QLatin1String("# DEPLOYMENTFOLDERS_END")))
-            { }
-            if (line.isNull())
-                break;
-            QStringList folders;
-            out << "folder_01.source = " << path(QmlDirProFileRelative) << endl;
-            out << "folder_01.target = qml" << endl;
-            folders.append(QLatin1String("folder_01"));
-            int foldersCount = 1;
-            foreach (const QmlModule *module, m_modules) {
-                if (module->isExternal) {
-                    foldersCount ++;
-                    const QString folder =
-                            QString::fromLatin1("folder_%1").arg(foldersCount, 2, 10, QLatin1Char('0'));
-                    folders.append(folder);
-                    out << folder << ".source = " << module->path(QmlModule::ContentDir) << endl;
-                    out << folder << ".target = " << module->path(QmlModule::DeployedContentBase) << endl;
-                }
-            }
-            out << "DEPLOYMENTFOLDERS = " << folders.join(QLatin1String(" ")) << endl;
-        } else if (line.contains(QLatin1String("# ORIENTATIONLOCK")) && m_orientation == QmlStandaloneApp::Auto) {
-            uncommentNextLine = true;
-        } else if (line.contains(QLatin1String("# NETWORKACCESS")) && !m_networkEnabled) {
-            uncommentNextLine = true;
-        } else if (line.contains(QLatin1String("# QMLINSPECTOR"))) {
-            // ### disabled for now; figure out the private headers problem first.
-            //uncommentNextLine = true;
-        }
-
-        // Remove all marker comments
-        if (line.trimmed().startsWith(comment)
-            && line.trimmed().endsWith(comment))
-            continue;
-
-        if (!valueOnNextLine.isEmpty()) {
-            out << line.left(line.indexOf(QLatin1Char('=')) + 2)
-                << QDir::fromNativeSeparators(valueOnNextLine) << endl;
-            valueOnNextLine.clear();
-            continue;
-        }
-
-        if (uncommentNextLine) {
-            out << comment << line << endl;
-            uncommentNextLine = false;
-            continue;
-        }
-        out << line << endl;
-    };
-
-    proFileContent.replace(deploymentPriOrigRelFilePath.toAscii(),
-        deploymentPriFileName.toAscii());
-
-    return proFileContent;
-}
-
-QByteArray QmlStandaloneApp::generateDesktopFile(const QString *errorMessage) const
-{
-    Q_UNUSED(errorMessage);
-
-    QFile desktopTemplate(path(DesktopOrigin));
-    desktopTemplate.open(QIODevice::ReadOnly);
-    Q_ASSERT(desktopTemplate.isOpen());
-    QByteArray desktopFileContent = desktopTemplate.readAll();
-    return desktopFileContent.replace("thisApp", projectName().toUtf8());
+        proFile << "DEPLOYMENTFOLDERS = " << folders.join(QLatin1String(" ")) << endl;
+    } else if (line.contains(QLatin1String("# QMLINSPECTOR"))) {
+        // ### disabled for now; figure out the private headers problem first.
+        //uncommentNextLine = true;
+        Q_UNUSED(uncommentNextLine);
+    }
 }
 
 void QmlStandaloneApp::clearModulesAndPlugins()
@@ -541,40 +340,15 @@ bool QmlStandaloneApp::addExternalModule(const QString &name, const QFileInfo &d
 }
 
 #ifndef CREATORLESSTEST
-// The definition of QmlStandaloneApp::templatesRoot() for
-// CREATORLESSTEST is in tests/manual/qmlstandalone/main.cpp
-QString QmlStandaloneApp::templatesRoot()
-{
-    return Core::ICore::instance()->resourcePath()
-            + QLatin1String("/templates/");
-}
-
-static Core::GeneratedFile file(const QByteArray &data, const QString &targetFile)
-{
-    Core::GeneratedFile generatedFile(targetFile);
-    generatedFile.setBinary(true);
-    generatedFile.setBinaryContents(data);
-    return generatedFile;
-}
-
 Core::GeneratedFiles QmlStandaloneApp::generateFiles(QString *errorMessage) const
 {
-    Core::GeneratedFiles files;
-
+    Core::GeneratedFiles files = AbstractMobileApp::generateFiles(errorMessage);
     if (!useExistingMainQml()) {
         files.append(file(generateFile(QmlAppGeneratedFileInfo::MainQmlFile, errorMessage), path(MainQml)));
         files.last().setAttributes(Core::GeneratedFile::OpenEditorAttribute);
     }
 
-    files.append(file(generateFile(QmlAppGeneratedFileInfo::AppProFile, errorMessage), path(AppPro)));
-    files.last().setAttributes(Core::GeneratedFile::OpenProjectAttribute);
-    files.append(file(generateFile(QmlAppGeneratedFileInfo::MainCppFile, errorMessage), path(MainCpp)));
-    files.append(file(generateFile(QmlAppGeneratedFileInfo::SymbianSvgIconFile, errorMessage), path(SymbianSvgIcon)));
-    files.append(file(generateFile(QmlAppGeneratedFileInfo::MaemoPngIconFile, errorMessage), path(MaemoPngIcon)));
-    files.append(file(generateFile(QmlAppGeneratedFileInfo::DesktopFile, errorMessage), path(Desktop)));
-
     files.append(file(generateFile(QmlAppGeneratedFileInfo::AppViewerPriFile, errorMessage), path(AppViewerPri)));
-    files.append(file(generateFile(QmlAppGeneratedFileInfo::DeploymentPriFile, errorMessage), path(DeploymentPri)));
     files.append(file(generateFile(QmlAppGeneratedFileInfo::AppViewerCppFile, errorMessage), path(AppViewerCpp)));
     files.append(file(generateFile(QmlAppGeneratedFileInfo::AppViewerHFile, errorMessage), path(AppViewerH)));
 
@@ -587,104 +361,54 @@ bool QmlStandaloneApp::useExistingMainQml() const
     return !m_mainQmlFile.filePath().isEmpty();
 }
 
-QString QmlStandaloneApp::error() const
-{
-    return m_error;
-}
-
 const QList<QmlModule*> QmlStandaloneApp::modules() const
 {
     return m_modules;
 }
 
-static QByteArray readBlob(const QString &source)
-{
-    QFile sourceFile(source);
-    sourceFile.open(QIODevice::ReadOnly);
-    Q_ASSERT(sourceFile.isOpen());
-    return sourceFile.readAll();
-}
-
-QByteArray QmlStandaloneApp::generateFile(QmlAppGeneratedFileInfo::File file,
-                                          const QString *errorMessage) const
+QByteArray QmlStandaloneApp::generateFileExtended(int fileType,
+    bool *versionAndCheckSum, QString *comment, QString *errorMessage) const
 {
     QByteArray data;
-    const QString cFileComment = QLatin1String("//");
-    const QString proFileComment = QLatin1String("#");
-    QString comment = cFileComment;
-    bool versionAndChecksum = false;
-    switch (file) {
+    switch (fileType) {
         case QmlAppGeneratedFileInfo::MainQmlFile:
-            data = readBlob(path(MainQmlOrigin));
-            break;
-        case QmlAppGeneratedFileInfo::MainCppFile:
-            data = generateMainCpp(errorMessage);
-            break;
-        case QmlAppGeneratedFileInfo::SymbianSvgIconFile:
-            data = readBlob(path(SymbianSvgIconOrigin));
-            break;
-        case QmlAppGeneratedFileInfo::MaemoPngIconFile:
-            data = readBlob(path(MaemoPngIconOrigin));
-            break;
-        case QmlAppGeneratedFileInfo::DesktopFile:
-            data = generateDesktopFile(errorMessage);
-            break;
-        case QmlAppGeneratedFileInfo::AppProFile:
-            data = generateProFile(errorMessage);
-            comment = proFileComment;
+            data = readBlob(path(MainQmlOrigin), errorMessage);
             break;
         case QmlAppGeneratedFileInfo::AppViewerPriFile:
-            data = readBlob(path(AppViewerPriOrigin));
-            comment = proFileComment;
-            versionAndChecksum = true;
-            break;
-        case QmlAppGeneratedFileInfo::DeploymentPriFile:
-            data = readBlob(path(DeploymentPriOrigin));
-            comment = proFileComment;
-            versionAndChecksum = true;
+            data = readBlob(path(AppViewerPriOrigin), errorMessage);
+            *comment = ProFileComment;
+            *versionAndCheckSum = true;
             break;
         case QmlAppGeneratedFileInfo::AppViewerCppFile:
-            data = readBlob(path(AppViewerCppOrigin));
-            versionAndChecksum = true;
+            data = readBlob(path(AppViewerCppOrigin), errorMessage);
+            *versionAndCheckSum = true;
             break;
         case QmlAppGeneratedFileInfo::AppViewerHFile:
         default:
-            data = readBlob(path(AppViewerHOrigin));
-            versionAndChecksum = true;
+            data = readBlob(path(AppViewerHOrigin), errorMessage);
+            *versionAndCheckSum = true;
             break;
     }
-    if (!versionAndChecksum)
-        return data;
-    QByteArray versioned = data;
-    versioned.replace('\x0D', "");
-    versioned.replace('\x0A', "");
-    const quint16 checkSum = qChecksum(versioned.constData(), versioned.length());
-    const QString checkSumString = QString::number(checkSum, 16);
-    const QString versionString = QString::number(stubVersion());
-    const QChar sep = QLatin1Char(' ');
-    const QString versionLine =
-            comment + sep + fileChecksum + sep + QLatin1String("0x") + checkSumString
-            + sep + fileStubVersion + sep + versionString + QLatin1Char('\x0A');
-    return versionLine.toAscii() + data;
+    return data;
 }
 
-int QmlStandaloneApp::stubVersion()
+int QmlStandaloneApp::stubVersionMinor() const
 {
-    return 5;
+    return StubVersion;
 }
 
 static QList<QmlAppGeneratedFileInfo> updateableFiles(const QString &mainProFile)
 {
     QList<QmlAppGeneratedFileInfo> result;
     static const struct {
-        QmlAppGeneratedFileInfo::File file;
+        int fileType;
         QString fileName;
     } files[] = {
         {QmlAppGeneratedFileInfo::AppViewerPriFile, appViewerPriFileName},
         {QmlAppGeneratedFileInfo::AppViewerHFile, appViewerHFileName},
         {QmlAppGeneratedFileInfo::AppViewerCppFile, appViewerCppFileName},
         {QmlAppGeneratedFileInfo::DeploymentPriFile,
-             QLatin1String("../") + deploymentPriFileName}
+             QLatin1String("../") + AbstractMobileApp::DeploymentPriFileName}
     };
     const QFileInfo mainProFileInfo(mainProFile);
     const int size = sizeof(files) / sizeof(files[0]);
@@ -694,7 +418,7 @@ static QList<QmlAppGeneratedFileInfo> updateableFiles(const QString &mainProFile
         if (!QFile::exists(fileName))
             continue;
         QmlAppGeneratedFileInfo file;
-        file.file = files[i].file;
+        file.fileType = files[i].fileType;
         file.fileInfo = QFileInfo(fileName);
         result.append(file);
     }
@@ -711,8 +435,8 @@ QList<QmlAppGeneratedFileInfo> QmlStandaloneApp::fileUpdates(const QString &main
            continue;
         const QString firstLine = readFile.readLine();
         const QStringList elements = firstLine.split(QLatin1Char(' '));
-        if (elements.count() != 5 || elements.at(1) != fileChecksum
-                || elements.at(3) != fileStubVersion)
+        if (elements.count() != 5 || elements.at(1) != FileChecksum
+                || elements.at(3) != FileStubVersion)
             continue;
         newFile.version = elements.at(4).toInt();
         newFile.statedChecksum = elements.at(2).toUShort(0, 16);
@@ -731,7 +455,7 @@ bool QmlStandaloneApp::updateFiles(const QList<QmlAppGeneratedFileInfo> &list, Q
     error.clear();
     const QmlStandaloneApp app;
     foreach (const QmlAppGeneratedFileInfo &info, list) {
-        const QByteArray data = app.generateFile(info.file, &error);
+        const QByteArray data = app.generateFile(info.fileType, &error);
         if (!error.isEmpty())
             return false;
         QFile file(info.fileInfo.absoluteFilePath());
@@ -745,6 +469,8 @@ bool QmlStandaloneApp::updateFiles(const QList<QmlAppGeneratedFileInfo> &list, Q
     }
     return true;
 }
+
+const int QmlStandaloneApp::StubVersion = 5;
 
 } // namespace Internal
 } // namespace Qt4ProjectManager

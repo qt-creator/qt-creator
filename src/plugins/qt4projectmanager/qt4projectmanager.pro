@@ -36,6 +36,7 @@ HEADERS += qt4deployconfiguration.h \
     wizards/targetsetuppage.h \
     wizards/qmlstandaloneappwizard.h \
     wizards/qmlstandaloneappwizardpages.h \
+    wizards/abstractmobileapp.h \
     wizards/qmlstandaloneapp.h \
     qt4projectmanagerconstants.h \
     makestep.h \
@@ -90,6 +91,7 @@ SOURCES += qt4projectmanagerplugin.cpp \
     wizards/targetsetuppage.cpp \
     wizards/qmlstandaloneappwizard.cpp \
     wizards/qmlstandaloneappwizardpages.cpp \
+    wizards/abstractmobileapp.cpp \
     wizards/qmlstandaloneapp.cpp \
     makestep.cpp \
     qmakestep.cpp \

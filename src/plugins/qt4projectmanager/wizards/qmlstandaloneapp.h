@@ -30,13 +30,10 @@
 #ifndef QMLSTANDALONEAPP_H
 #define QMLSTANDALONEAPP_H
 
-#include <QtCore/QStringList>
-#include <QtCore/QFileInfo>
-#include <QtCore/QHash>
+#include "abstractmobileapp.h"
 
-#ifndef CREATORLESSTEST
-#include <coreplugin/basefilewizard.h>
-#endif // CREATORLESSTEST
+#include <QtCore/QHash>
+#include <QtCore/QStringList>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -76,132 +73,81 @@ struct QmlCppPlugin
     const QFileInfo proFile;        // .pro file for the plugin
 };
 
-struct QmlAppGeneratedFileInfo
+struct QmlAppGeneratedFileInfo : public AbstractGeneratedFileInfo
 {
-    enum File {
-        MainQmlFile,
-        MainCppFile,
-        AppProFile,
+    enum ExtendedFileType {
+        MainQmlFile = ExtendedFile,
         AppViewerPriFile,
-        DeploymentPriFile,
         AppViewerCppFile,
         AppViewerHFile,
-        SymbianSvgIconFile,
-        MaemoPngIconFile,
-        DesktopFile
     };
 
-    QmlAppGeneratedFileInfo();
-
-    bool isUpToDate() const;
-    bool isOutdated() const;
-    bool wasModified() const;
-
-    File file;
-    QFileInfo fileInfo;
-    int version;
-    quint16 dataChecksum;
-    quint16 statedChecksum;
+    QmlAppGeneratedFileInfo() : AbstractGeneratedFileInfo() {}
+    virtual bool isOutdated() const;
 };
 
-class QmlStandaloneApp: public QObject
+class QmlStandaloneApp : public AbstractMobileApp
 {
 public:
-    enum Orientation {
-        LockLandscape,
-        LockPortrait,
-        Auto
-    };
-
-    enum Path {
-        MainQml,
+    enum ExtendedFileType {
+        MainQml = ExtendedFile,
         MainQmlDeployed,
         MainQmlOrigin,
-        MainCpp,
-        MainCppOrigin,
-        AppPro,
-        AppProOrigin,
-        AppProPath,
-        Desktop,
-        DesktopOrigin,
         AppViewerPri,
         AppViewerPriOrigin,
-        DeploymentPri,
-        DeploymentPriOrigin,
         AppViewerCpp,
         AppViewerCppOrigin,
         AppViewerH,
         AppViewerHOrigin,
-        SymbianSvgIcon,
-        SymbianSvgIconOrigin,
-        MaemoPngIcon,
-        MaemoPngIconOrigin,
         QmlDir,
         QmlDirProFileRelative,
         ModulesDir
     };
 
     QmlStandaloneApp();
-    ~QmlStandaloneApp();
+    virtual ~QmlStandaloneApp();
 
     void setMainQmlFile(const QString &qmlFile);
     QString mainQmlFile() const;
-    void setOrientation(Orientation orientation);
-    Orientation orientation() const;
-    void setProjectName(const QString &name);
-    QString projectName() const;
-    void setProjectPath(const QString &path);
-    void setSymbianSvgIcon(const QString &icon);
-    QString symbianSvgIcon() const;
-    void setMaemoPngIcon(const QString &icon);
-    QString maemoPngIcon() const;
-    void setSymbianTargetUid(const QString &uid);
-    QString symbianTargetUid() const;
     void setLoadDummyData(bool loadIt);
     bool loadDummyData() const;
-    void setNetworkEnabled(bool enabled);
-    bool networkEnabled() const;
     bool setExternalModules(const QStringList &uris, const QStringList &importPaths);
 
-    static QString symbianUidForPath(const QString &path);
 #ifndef CREATORLESSTEST
-    Core::GeneratedFiles generateFiles(QString *errorMessage) const;
+    virtual Core::GeneratedFiles generateFiles(QString *errorMessage) const;
 #else
     bool generateFiles(QString *errorMessage) const;
 #endif // CREATORLESSTEST
-    QString path(Path path) const;
     bool useExistingMainQml() const;
-    QString error() const;
     const QList<QmlModule*> modules() const;
-    QByteArray generateFile(QmlAppGeneratedFileInfo::File file, const QString *errorMessage) const;
-    static int stubVersion();
     static QList<QmlAppGeneratedFileInfo> fileUpdates(const QString &mainProFile);
     static bool updateFiles(const QList<QmlAppGeneratedFileInfo> &list, QString &error);
 
+    static const int StubVersion;
+
 private:
-    QByteArray generateMainCpp(const QString *errorMessage) const;
-    QByteArray generateProFile(const QString *errorMessage) const;
-    QByteArray generateDesktopFile(const QString *errorMessage) const;
-    static QString templatesRoot();
+    virtual QByteArray generateFileExtended(int fileType,
+        bool *versionAndCheckSum, QString *comment, QString *errorMessage) const;
+    virtual QString pathExtended(int fileType) const;
+    virtual QString originsRoot() const;
+    virtual QString mainWindowClassName() const;
+    virtual int stubVersionMinor() const;
+    virtual bool adaptCurrentMainCppTemplateLine(QString &line) const;
+    virtual void handleCurrentProFileTemplateLine(const QString &line,
+        QTextStream &proFileTemplate, QTextStream &proFile,
+        bool &uncommentNextLine) const;
+
     bool addExternalModule(const QString &uri, const QFileInfo &dir,
                            const QFileInfo &contentDir);
     bool addCppPlugins(QmlModule *module);
     bool addCppPlugin(const QString &qmldirLine, QmlModule *module);
     void clearModulesAndPlugins();
 
-    QString m_projectName;
-    QFileInfo m_projectPath;
-    QString m_symbianSvgIcon;
-    QString m_maemoPngIcon;
-    QString m_symbianTargetUid;
     bool m_loadDummyData;
-    Orientation m_orientation;
-    bool m_networkEnabled;
     QFileInfo m_mainQmlFile;
     QStringList m_importPaths;
     QList <QmlModule*> m_modules;
     QList <QmlCppPlugin*> m_cppPlugins;
-    QString m_error;
 };
 
 } // end of namespace Internal
