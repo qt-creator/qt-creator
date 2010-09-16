@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "sidebar.h"
+#include "sidebarwidget.h"
 #include "imode.h"
 
 #include <coreplugin/coreconstants.h>
@@ -42,35 +43,72 @@
 #include <QtGui/QAction>
 #include <QtGui/QToolButton>
 
-using namespace Core;
-using namespace Core::Internal;
+namespace Core {
+
+SideBarItem::SideBarItem(QWidget *widget, const QString &id) :
+    m_id(id), m_widget(widget)
+{
+}
 
 SideBarItem::~SideBarItem()
 {
     delete m_widget;
 }
 
+QWidget *SideBarItem::widget() const
+{
+    return m_widget;
+}
+
+QString SideBarItem::id() const
+{
+    return m_id;
+}
+
+QString SideBarItem::title() const
+{
+    return m_widget->windowTitle();
+}
+
+QList<QToolButton *> SideBarItem::createToolBarWidgets()
+{
+    return QList<QToolButton *>();
+}
+
+struct SideBarPrivate {
+    SideBarPrivate() :m_closeWhenEmpty(false) {}
+
+    QList<Internal::SideBarWidget*> m_widgets;
+    QMap<QString, QWeakPointer<SideBarItem> > m_itemMap;
+    QStringList m_availableItemIds;
+    QStringList m_availableItemTitles;
+    QStringList m_unavailableItemIds;
+    QStringList m_defaultVisible;
+    QMap<QString, Core::Command*> m_shortcutMap;
+    bool m_closeWhenEmpty;
+};
+
 SideBar::SideBar(QList<SideBarItem*> itemList,
                  QList<SideBarItem*> defaultVisible) :
-    m_closeWhenEmpty(false)
+    d(new SideBarPrivate)
 {
     setOrientation(Qt::Vertical);
     foreach (SideBarItem *item, itemList) {
-        m_itemMap.insert(item->id(), item);
-        m_availableItemIds.append(item->id());
-        m_availableItemTitles.append(item->title());
+        d->m_itemMap.insert(item->id(), item);
+        d->m_availableItemIds.append(item->id());
+        d->m_availableItemTitles.append(item->title());
     }
 
     foreach (SideBarItem *item, defaultVisible) {
         if (!itemList.contains(item))
             continue;
-        m_defaultVisible.append(item->id());
+        d->m_defaultVisible.append(item->id());
     }
 }
 
 SideBar::~SideBar()
 {
-    QMutableMapIterator<QString, QWeakPointer<SideBarItem> > iter(m_itemMap);
+    QMutableMapIterator<QString, QWeakPointer<SideBarItem> > iter(d->m_itemMap);
     while(iter.hasNext()) {
         iter.next();
         if (!iter.value().isNull())
@@ -80,7 +118,7 @@ SideBar::~SideBar()
 
 QString SideBar::idForTitle(const QString &title) const
 {
-    QMapIterator<QString, QWeakPointer<SideBarItem> > iter(m_itemMap);
+    QMapIterator<QString, QWeakPointer<SideBarItem> > iter(d->m_itemMap);
     while(iter.hasNext()) {
         iter.next();
         if (iter.value().data()->title() == title)
@@ -91,37 +129,37 @@ QString SideBar::idForTitle(const QString &title) const
 
 QStringList SideBar::availableItemIds() const
 {
-    return m_availableItemIds;
+    return d->m_availableItemIds;
 }
 
 QStringList SideBar::availableItemTitles() const
 {
-    return m_availableItemTitles;
+    return d->m_availableItemTitles;
 }
 
 QStringList SideBar::unavailableItemIds() const
 {
-    return m_unavailableItemIds;
+    return d->m_unavailableItemIds;
 }
 
 bool SideBar::closeWhenEmpty() const
 {
-    return m_closeWhenEmpty;
+    return d->m_closeWhenEmpty;
 }
 void SideBar::setCloseWhenEmpty(bool value)
 {
-    m_closeWhenEmpty = value;
+    d->m_closeWhenEmpty = value;
 }
 
 void SideBar::makeItemAvailable(SideBarItem *item)
 {
-    QMap<QString, QWeakPointer<SideBarItem> >::const_iterator it = m_itemMap.constBegin();
-    while (it != m_itemMap.constEnd()) {
+    QMap<QString, QWeakPointer<SideBarItem> >::const_iterator it = d->m_itemMap.constBegin();
+    while (it != d->m_itemMap.constEnd()) {
         if (it.value().data() == item) {
-            m_availableItemIds.append(it.key());
-            m_availableItemTitles.append(it.value().data()->title());
-            m_unavailableItemIds.removeAll(it.key());
-            qSort(m_availableItemTitles);
+            d->m_availableItemIds.append(it.key());
+            d->m_availableItemTitles.append(it.value().data()->title());
+            d->m_unavailableItemIds.removeAll(it.key());
+            qSort(d->m_availableItemTitles);
             emit availableItemsChanged();
             //updateWidgets();
             break;
@@ -135,61 +173,61 @@ void SideBar::makeItemAvailable(SideBarItem *item)
 void SideBar::setUnavailableItemIds(const QStringList &itemIds)
 {
     // re-enable previous items
-    foreach(const QString &id, m_unavailableItemIds) {
-        m_availableItemIds.append(id);
-        m_availableItemTitles.append(m_itemMap.value(id).data()->title());
+    foreach(const QString &id, d->m_unavailableItemIds) {
+        d->m_availableItemIds.append(id);
+        d->m_availableItemTitles.append(d->m_itemMap.value(id).data()->title());
     }
 
-    m_unavailableItemIds.clear();
+    d->m_unavailableItemIds.clear();
 
     foreach (const QString &id, itemIds) {
-        if (!m_unavailableItemIds.contains(id))
-            m_unavailableItemIds.append(id);
-        m_availableItemIds.removeAll(id);
-        m_availableItemTitles.removeAll(m_itemMap.value(id).data()->title());
+        if (!d->m_unavailableItemIds.contains(id))
+            d->m_unavailableItemIds.append(id);
+        d->m_availableItemIds.removeAll(id);
+        d->m_availableItemTitles.removeAll(d->m_itemMap.value(id).data()->title());
     }
-    qSort(m_availableItemTitles);
+    qSort(d->m_availableItemTitles);
     updateWidgets();
 }
 
 SideBarItem *SideBar::item(const QString &id)
 {
-    if (m_itemMap.contains(id)) {
-        m_availableItemIds.removeAll(id);
-        m_availableItemTitles.removeAll(m_itemMap.value(id).data()->title());
+    if (d->m_itemMap.contains(id)) {
+        d->m_availableItemIds.removeAll(id);
+        d->m_availableItemTitles.removeAll(d->m_itemMap.value(id).data()->title());
 
-        if (!m_unavailableItemIds.contains(id))
-            m_unavailableItemIds.append(id);
+        if (!d->m_unavailableItemIds.contains(id))
+            d->m_unavailableItemIds.append(id);
 
         emit availableItemsChanged();
-        return m_itemMap.value(id).data();
+        return d->m_itemMap.value(id).data();
     }
     return 0;
 }
 
-SideBarWidget *SideBar::insertSideBarWidget(int position, const QString &id)
+Internal::SideBarWidget *SideBar::insertSideBarWidget(int position, const QString &id)
 {
-    SideBarWidget *item = new SideBarWidget(this, id);
+    Internal::SideBarWidget *item = new Internal::SideBarWidget(this, id);
     connect(item, SIGNAL(splitMe()), this, SLOT(splitSubWidget()));
     connect(item, SIGNAL(closeMe()), this, SLOT(closeSubWidget()));
     connect(item, SIGNAL(currentWidgetChanged()), this, SLOT(updateWidgets()));
     insertWidget(position, item);
-    m_widgets.insert(position, item);
+    d->m_widgets.insert(position, item);
     updateWidgets();
     return item;
 }
 
-void SideBar::removeSideBarWidget(SideBarWidget *widget)
+void SideBar::removeSideBarWidget(Internal::SideBarWidget *widget)
 {
     widget->removeCurrentItem();
-    m_widgets.removeOne(widget);
+    d->m_widgets.removeOne(widget);
     widget->hide();
     widget->deleteLater();
 }
 
 void SideBar::splitSubWidget()
 {
-    SideBarWidget *original = qobject_cast<SideBarWidget*>(sender());
+    Internal::SideBarWidget *original = qobject_cast<Internal::SideBarWidget*>(sender());
     int pos = indexOf(original) + 1;
     insertSideBarWidget(pos);
     updateWidgets();
@@ -197,21 +235,21 @@ void SideBar::splitSubWidget()
 
 void SideBar::closeSubWidget()
 {
-    if (m_widgets.count() != 1) {
-        SideBarWidget *widget = qobject_cast<SideBarWidget*>(sender());
+    if (d->m_widgets.count() != 1) {
+        Internal::SideBarWidget *widget = qobject_cast<Internal::SideBarWidget*>(sender());
         if (!widget)
             return;
         removeSideBarWidget(widget);
         updateWidgets();
     } else {
-        if (m_closeWhenEmpty)
+        if (d->m_closeWhenEmpty)
             setVisible(false);
     }
 }
 
 void SideBar::updateWidgets()
 {
-    foreach (SideBarWidget *i, m_widgets)
+    foreach (Internal::SideBarWidget *i, d->m_widgets)
         i->updateAvailableItems();
 }
 
@@ -220,13 +258,13 @@ void SideBar::saveSettings(QSettings *settings, const QString &name)
     const QString prefix = name.isEmpty() ? name : (name + QLatin1Char('/'));
 
     QStringList views;
-    for (int i = 0; i < m_widgets.count(); ++i) {
-        QString currentItemId = m_widgets.at(i)->currentItemId();
+    for (int i = 0; i < d->m_widgets.count(); ++i) {
+        QString currentItemId = d->m_widgets.at(i)->currentItemId();
         if (!currentItemId.isEmpty())
             views.append(currentItemId);
     }
-    if (views.isEmpty() && m_itemMap.size()) {
-        QMapIterator<QString, QWeakPointer<SideBarItem> > iter(m_itemMap);
+    if (views.isEmpty() && d->m_itemMap.size()) {
+        QMapIterator<QString, QWeakPointer<SideBarItem> > iter(d->m_itemMap);
         iter.next();
         views.append(iter.key());
     }
@@ -239,7 +277,7 @@ void SideBar::saveSettings(QSettings *settings, const QString &name)
 
 void SideBar::closeAllWidgets()
 {
-    foreach (SideBarWidget *widget, m_widgets)
+    foreach (Internal::SideBarWidget *widget, d->m_widgets)
         removeSideBarWidget(widget);
 }
 
@@ -253,14 +291,14 @@ void SideBar::readSettings(QSettings *settings, const QString &name)
         QStringList views = settings->value(prefix + "Views").toStringList();
         if (views.count()) {
             foreach (const QString &id, views)
-                insertSideBarWidget(m_widgets.count(), id);
+                insertSideBarWidget(d->m_widgets.count(), id);
 
         } else {
             insertSideBarWidget(0);
         }
     } else {
-        foreach (const QString &id, m_defaultVisible)
-            insertSideBarWidget(m_widgets.count(), id);
+        foreach (const QString &id, d->m_defaultVisible)
+            insertSideBarWidget(d->m_widgets.count(), id);
     }
 
     if (settings->contains(prefix + "Visible"))
@@ -278,9 +316,9 @@ void SideBar::readSettings(QSettings *settings, const QString &name)
 
 void SideBar::activateItem(SideBarItem *item)
 {
-    QMap<QString, QWeakPointer<SideBarItem> >::const_iterator it = m_itemMap.constBegin();
+    QMap<QString, QWeakPointer<SideBarItem> >::const_iterator it = d->m_itemMap.constBegin();
     QString id;
-    while (it != m_itemMap.constEnd()) {
+    while (it != d->m_itemMap.constEnd()) {
         if (it.value().data() == item) {
             id = it.key();
             break;
@@ -291,14 +329,14 @@ void SideBar::activateItem(SideBarItem *item)
     if (id.isEmpty())
         return;
 
-    for (int i = 0; i < m_widgets.count(); ++i) {
-        if (m_widgets.at(i)->currentItemId() == id) {
+    for (int i = 0; i < d->m_widgets.count(); ++i) {
+        if (d->m_widgets.at(i)->currentItemId() == id) {
             item->widget()->setFocus();
             return;
         }
     }
 
-    SideBarWidget *widget = m_widgets.first();
+    Internal::SideBarWidget *widget = d->m_widgets.first();
     widget->setCurrentItem(id);
     updateWidgets();
     item->widget()->setFocus();
@@ -306,180 +344,12 @@ void SideBar::activateItem(SideBarItem *item)
 
 void SideBar::setShortcutMap(const QMap<QString, Core::Command*> &shortcutMap)
 {
-    m_shortcutMap = shortcutMap;
+    d->m_shortcutMap = shortcutMap;
 }
 
 QMap<QString, Core::Command*> SideBar::shortcutMap() const
 {
-    return m_shortcutMap;
+    return d->m_shortcutMap;
 }
+} // namespace Core
 
-SideBarWidget::SideBarWidget(SideBar *sideBar, const QString &id)
-    : m_currentItem(0)
-    , m_sideBar(sideBar)
-{
-    m_comboBox = new ComboBox(this);
-    m_comboBox->setMinimumContentsLength(15);
-
-    m_toolbar = new QToolBar(this);
-    m_toolbar->setContentsMargins(0, 0, 0, 0);
-    m_toolbar->addWidget(m_comboBox);
-
-    QWidget *spacerItem = new QWidget(this);
-    spacerItem->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-    m_toolbar->addWidget(spacerItem);
-
-    m_splitAction = new QAction(tr("Split"), m_toolbar);
-    m_splitAction->setToolTip(tr("Split"));
-    m_splitAction->setIcon(QIcon(QLatin1String(Constants::ICON_SPLIT_HORIZONTAL)));
-    connect(m_splitAction, SIGNAL(triggered()), this, SIGNAL(splitMe()));
-    m_toolbar->addAction(m_splitAction);
-
-    QAction *closeAction = new QAction(tr("Close"), m_toolbar);
-    closeAction->setToolTip(tr("Close"));
-    closeAction->setIcon(QIcon(QLatin1String(Constants::ICON_CLOSE)));
-    connect(closeAction, SIGNAL(triggered()), this, SIGNAL(closeMe()));
-    m_toolbar->addAction(closeAction);
-
-    QVBoxLayout *lay = new QVBoxLayout();
-    lay->setMargin(0);
-    lay->setSpacing(0);
-    setLayout(lay);
-    lay->addWidget(m_toolbar);
-
-    QStringList titleList = m_sideBar->availableItemTitles();
-    qSort(titleList);
-    QString t = id;
-    if (titleList.count()) {
-        foreach(const QString &itemTitle, titleList)
-            m_comboBox->addItem(itemTitle, m_sideBar->idForTitle(itemTitle));
-
-        m_comboBox->setCurrentIndex(0);
-        if (t.isEmpty())
-            t = m_comboBox->itemData(0, ComboBox::IdRole).toString();
-    }
-    setCurrentItem(t);
-
-    connect(m_comboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(setCurrentIndex(int)));
-}
-
-SideBarWidget::~SideBarWidget()
-{
-}
-
-QString SideBarWidget::currentItemTitle() const
-{
-    return m_comboBox->currentText();
-}
-
-QString SideBarWidget::currentItemId() const
-{
-    if (m_currentItem)
-        return m_currentItem->id();
-    return QString();
-}
-
-void SideBarWidget::setCurrentItem(const QString &id)
-{
-    if (!id.isEmpty()) {
-        int idx = m_comboBox->findData(QVariant(id), ComboBox::IdRole);
-
-        if (idx < 0)
-            idx = 0;
-
-        bool blocked = m_comboBox->blockSignals(true);
-        m_comboBox->setCurrentIndex(idx);
-        m_comboBox->blockSignals(blocked);
-    }
-
-    SideBarItem *item = m_sideBar->item(id);
-    if (!item)
-        return;
-    removeCurrentItem();
-    m_currentItem = item;
-
-    layout()->addWidget(m_currentItem->widget());
-    m_currentItem->widget()->show();
-
-    // Add buttons and remember their actions for later removal
-    foreach (QToolButton *b, m_currentItem->createToolBarWidgets())
-        m_addedToolBarActions.append(m_toolbar->insertWidget(m_splitAction, b));
-}
-
-void SideBarWidget::updateAvailableItems()
-{
-    bool blocked = m_comboBox->blockSignals(true);
-    QString currentTitle = m_comboBox->currentText();
-    m_comboBox->clear();
-    QStringList titleList = m_sideBar->availableItemTitles();
-    if (!currentTitle.isEmpty() && !titleList.contains(currentTitle))
-        titleList.append(currentTitle);
-    qSort(titleList);
-
-    foreach(const QString &itemTitle, titleList)
-        m_comboBox->addItem(itemTitle, m_sideBar->idForTitle(itemTitle));
-
-    int idx = m_comboBox->findText(currentTitle);
-
-    if (idx < 0)
-        idx = 0;
-
-    m_comboBox->setCurrentIndex(idx);
-    m_splitAction->setEnabled(titleList.count() > 1);
-    m_comboBox->blockSignals(blocked);
-}
-
-void SideBarWidget::removeCurrentItem()
-{
-    if (!m_currentItem)
-        return;
-
-    QWidget *w = m_currentItem->widget();
-    w->hide();
-    layout()->removeWidget(w);
-    w->setParent(0);
-    m_sideBar->makeItemAvailable(m_currentItem);
-
-    // Delete custom toolbar widgets
-    qDeleteAll(m_addedToolBarActions);
-    m_addedToolBarActions.clear();
-
-    m_currentItem = 0;
-}
-
-void SideBarWidget::setCurrentIndex(int)
-{
-    setCurrentItem(m_comboBox->itemData(m_comboBox->currentIndex(),
-                                        ComboBox::IdRole).toString());
-    emit currentWidgetChanged();
-}
-
-Core::Command *SideBarWidget::command(const QString &id) const
-{
-    const QMap<QString, Core::Command*> shortcutMap = m_sideBar->shortcutMap();
-    QMap<QString, Core::Command*>::const_iterator r = shortcutMap.find(id);
-    if (r != shortcutMap.end())
-        return r.value();
-    return 0;
-}
-
-ComboBox::ComboBox(SideBarWidget *sideBarWidget)
-    : m_sideBarWidget(sideBarWidget)
-{
-}
-
-bool ComboBox::event(QEvent *e)
-{
-    if (e->type() == QEvent::ToolTip) {
-        QString txt = currentText();
-        Core::Command *cmd = m_sideBarWidget->command(txt);
-        if (cmd) {
-            txt = tr("Activate %1").arg(txt);
-            setToolTip(cmd->stringWithAppendedShortcut(txt));
-        } else {
-            setToolTip(txt);
-        }
-    }
-    return QComboBox::event(e);
-}

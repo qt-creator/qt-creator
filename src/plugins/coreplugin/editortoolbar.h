@@ -31,25 +31,15 @@
 #define FAKETOOLBAR_H
 
 #include "core_global.h"
-#include <QWidget>
-#include <QtCore/QPointer>
+
+#include <QtCore/QScopedPointer>
 
 #include <utils/styledbar.h>
 
-QT_BEGIN_NAMESPACE
-class QComboBox;
-class QToolButton;
-class QToolBar;
-QT_END_NAMESPACE
-
 namespace Core {
     class IEditor;
-    class OpenEditorsModel;
 
-namespace Internal {
-    class EditorView;
-}
-
+struct EditorToolBarPrivate;
 
 /**
   * Fakes an IEditor-like toolbar for design mode widgets such as Qt Designer and Bauhaus.
@@ -61,6 +51,7 @@ class CORE_EXPORT EditorToolBar : public Utils::StyledBar
     Q_DISABLE_COPY(EditorToolBar)
 public:
     explicit EditorToolBar(QWidget *parent = 0);
+    virtual ~EditorToolBar();
 
     enum ToolbarCreationFlags { FlagsNone = 0, FlagsStandalone = 1 };
 
@@ -109,23 +100,10 @@ private slots:
 private:
     void updateToolBar(QWidget *toolBar);
     IEditor *currentEditor() const;
-    Core::OpenEditorsModel *m_editorsListModel;
-    QComboBox *m_editorList;
-    QToolButton *m_closeButton;
-    QToolButton *m_lockButton;
-    QAction *m_goBackAction;
-    QAction *m_goForwardAction;
-    QToolButton *m_backButton;
-    QToolButton *m_forwardButton;
 
-    QWidget *m_activeToolBar;
-    QWidget *m_toolBarPlaceholder;
-    QWidget *m_defaultToolBar;
-
-    bool m_isStandalone;
+    QScopedPointer<EditorToolBarPrivate> d;
 };
 
-}
-
+} // namespace Core
 
 #endif // FAKETOOLBAR_H

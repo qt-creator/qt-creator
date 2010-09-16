@@ -30,6 +30,12 @@
 #include "futureprogress.h"
 #include "progressbar.h"
 
+#include <QtCore/QFutureWatcher>
+#include <QtCore/QTimer>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QPropertyAnimation>
+#include <QtCore/QSequentialAnimationGroup>
+
 #include <QtGui/QColor>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QMenu>
@@ -37,14 +43,7 @@
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QPainter>
 #include <QtGui/QMouseEvent>
-#include <QtCore/QTimer>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QPropertyAnimation>
-#include <QtCore/QSequentialAnimationGroup>
 #include <utils/stylehelper.h>
-
-using namespace Core;
-using namespace Core::Internal;
 
 const int notificationTimeout = 8000;
 const int shortNotificationTimeout = 1000;
@@ -69,9 +68,6 @@ private:
     float m_opacity;
 };
 
-} // namespace Internal
-} // namespace Core
-
 void FadeWidgetHack::paintEvent(QPaintEvent *)
 {
     if (m_opacity == 0)
@@ -81,6 +77,28 @@ void FadeWidgetHack::paintEvent(QPaintEvent *)
     p.setOpacity(m_opacity);
     if (m_opacity > 0)
         Utils::StyleHelper::verticalGradient(&p, rect(), rect());
+}
+
+} // namespace Internal
+
+struct FutureProgressPrivate {
+    explicit FutureProgressPrivate(FutureProgress *q);
+
+    QFutureWatcher<void> m_watcher;
+    Internal::ProgressBar *m_progress;
+    QWidget *m_widget;
+    QHBoxLayout *m_widgetLayout;
+    QString m_type;
+    bool m_keep;
+    bool m_waitingForUserInteraction;
+    Internal::FadeWidgetHack *m_faderWidget;
+};
+
+FutureProgressPrivate::FutureProgressPrivate(FutureProgress *q) :
+    m_progress(new Internal::ProgressBar), m_widget(0), m_widgetLayout(new QHBoxLayout),
+    m_keep(false), m_waitingForUserInteraction(false),
+    m_faderWidget(new Internal::FadeWidgetHack(q))
+{
 }
 
 /*!
@@ -118,32 +136,25 @@ void FadeWidgetHack::paintEvent(QPaintEvent *)
     \fn FutureProgress::FutureProgress(QWidget *parent)
     \internal
 */
-FutureProgress::FutureProgress(QWidget *parent)
-        : QWidget(parent),
-        m_progress(new ProgressBar),
-        m_widget(0),
-        m_widgetLayout(new QHBoxLayout)
+FutureProgress::FutureProgress(QWidget *parent) :
+    QWidget(parent), d(new FutureProgressPrivate(this))
 {
     QVBoxLayout *layout = new QVBoxLayout;
     setLayout(layout);
-    layout->addWidget(m_progress);
+    layout->addWidget(d->m_progress);
     layout->setMargin(0);
     layout->setSpacing(0);
-    layout->addLayout(m_widgetLayout);
-    m_widgetLayout->setContentsMargins(7, 0, 7, 2);
-    m_widgetLayout->setSpacing(0);
+    layout->addLayout(d->m_widgetLayout);
+    d->m_widgetLayout->setContentsMargins(7, 0, 7, 2);
+    d->m_widgetLayout->setSpacing(0);
 
-    connect(&m_watcher, SIGNAL(started()), this, SLOT(setStarted()));
-    connect(&m_watcher, SIGNAL(finished()), this, SLOT(setFinished()));
-    connect(&m_watcher, SIGNAL(progressRangeChanged(int,int)), this, SLOT(setProgressRange(int,int)));
-    connect(&m_watcher, SIGNAL(progressValueChanged(int)), this, SLOT(setProgressValue(int)));
-    connect(&m_watcher, SIGNAL(progressTextChanged(const QString&)),
+    connect(&d->m_watcher, SIGNAL(started()), this, SLOT(setStarted()));
+    connect(&d->m_watcher, SIGNAL(finished()), this, SLOT(setFinished()));
+    connect(&d->m_watcher, SIGNAL(progressRangeChanged(int,int)), this, SLOT(setProgressRange(int,int)));
+    connect(&d->m_watcher, SIGNAL(progressValueChanged(int)), this, SLOT(setProgressValue(int)));
+    connect(&d->m_watcher, SIGNAL(progressTextChanged(const QString&)),
             this, SLOT(setProgressText(const QString&)));
-    connect(m_progress, SIGNAL(clicked()), this, SLOT(cancel()));
-
-    m_keep = false;
-    m_waitingForUserInteraction = false;
-    m_faderWidget = new FadeWidgetHack(this);
+    connect(d->m_progress, SIGNAL(clicked()), this, SLOT(cancel()));    
 }
 
 /*!
@@ -152,8 +163,8 @@ FutureProgress::FutureProgress(QWidget *parent)
 */
 FutureProgress::~FutureProgress()
 {
-    if (m_widget)
-        delete m_widget;
+    if (d->m_widget)
+        delete d->m_widget;
 }
 
 /*!
@@ -164,14 +175,14 @@ FutureProgress::~FutureProgress()
 */
 void FutureProgress::setWidget(QWidget *widget)
 {
-    if (m_widget)
-        delete m_widget;
+    if (d->m_widget)
+        delete d->m_widget;
     QSizePolicy sp = widget->sizePolicy();
     sp.setHorizontalPolicy(QSizePolicy::Ignored);
     widget->setSizePolicy(sp);
-    m_widget = widget;
-    if (m_widget)
-        m_widgetLayout->addWidget(m_widget);
+    d->m_widget = widget;
+    if (d->m_widget)
+        d->m_widgetLayout->addWidget(d->m_widget);
 }
 
 /*!
@@ -180,7 +191,7 @@ void FutureProgress::setWidget(QWidget *widget)
 */
 void FutureProgress::setTitle(const QString &title)
 {
-    m_progress->setTitle(title);
+    d->m_progress->setTitle(title);
 }
 
 /*!
@@ -189,12 +200,12 @@ void FutureProgress::setTitle(const QString &title)
 */
 QString FutureProgress::title() const
 {
-    return m_progress->title();
+    return d->m_progress->title();
 }
 
 void FutureProgress::cancel()
 {
-    m_watcher.future().cancel();
+    d->m_watcher.future().cancel();
 }
 
 void FutureProgress::updateToolTip(const QString &text)
@@ -204,16 +215,16 @@ void FutureProgress::updateToolTip(const QString &text)
 
 void FutureProgress::setStarted()
 {
-    m_progress->reset();
-    m_progress->setError(false);
-    m_progress->setRange(m_watcher.progressMinimum(), m_watcher.progressMaximum());
-    m_progress->setValue(m_watcher.progressValue());
+    d->m_progress->reset();
+    d->m_progress->setError(false);
+    d->m_progress->setRange(d->m_watcher.progressMinimum(), d->m_watcher.progressMaximum());
+    d->m_progress->setValue(d->m_watcher.progressValue());
 }
 
 
 bool FutureProgress::eventFilter(QObject *, QEvent *e)
 {
-    if (m_waitingForUserInteraction
+    if (d->m_waitingForUserInteraction
         && (e->type() == QEvent::MouseMove || e->type() == QEvent::KeyPress)) {
         qApp->removeEventFilter(this);
         QTimer::singleShot(notificationTimeout, this, SLOT(fadeAway()));
@@ -223,36 +234,36 @@ bool FutureProgress::eventFilter(QObject *, QEvent *e)
 
 void FutureProgress::setFinished()
 {
-    updateToolTip(m_watcher.future().progressText());
+    updateToolTip(d->m_watcher.future().progressText());
 
     // Special case for concurrent jobs that don't use QFutureInterface to report progress
-    if (m_watcher.progressMinimum() == 0 && m_watcher.progressMaximum() == 0) {
-        m_progress->setRange(0, 1);
-        m_progress->setValue(1);
+    if (d->m_watcher.progressMinimum() == 0 && d->m_watcher.progressMaximum() == 0) {
+        d->m_progress->setRange(0, 1);
+        d->m_progress->setValue(1);
     }
 
-    if (m_watcher.future().isCanceled()) {
-        m_progress->setError(true);
+    if (d->m_watcher.future().isCanceled()) {
+        d->m_progress->setError(true);
     } else {
-        m_progress->setError(false);
+        d->m_progress->setError(false);
     }
     emit finished();
-    if (m_keep) {
-        m_waitingForUserInteraction = true;
+    if (d->m_keep) {
+        d->m_waitingForUserInteraction = true;
         qApp->installEventFilter(this);
-    } else if (!m_progress->hasError()) {
+    } else if (!d->m_progress->hasError()) {
         QTimer::singleShot(shortNotificationTimeout, this, SLOT(fadeAway()));
     }
 }
 
 void FutureProgress::setProgressRange(int min, int max)
 {
-    m_progress->setRange(min, max);
+    d->m_progress->setRange(min, max);
 }
 
 void FutureProgress::setProgressValue(int val)
 {
-    m_progress->setValue(val);
+    d->m_progress->setValue(val);
 }
 
 void FutureProgress::setProgressText(const QString &text)
@@ -266,7 +277,7 @@ void FutureProgress::setProgressText(const QString &text)
 */
 void FutureProgress::setFuture(const QFuture<void> &future)
 {
-    m_watcher.setFuture(future);
+    d->m_watcher.setFuture(future);
 }
 
 /*!
@@ -275,7 +286,7 @@ void FutureProgress::setFuture(const QFuture<void> &future)
 */
 QFuture<void> FutureProgress::future() const
 {
-    return m_watcher.future();
+    return d->m_watcher.future();
 }
 
 /*!
@@ -291,7 +302,7 @@ void FutureProgress::mousePressEvent(QMouseEvent *event)
 
 void FutureProgress::resizeEvent(QResizeEvent *)
 {
-    m_faderWidget->setGeometry(rect());
+    d->m_faderWidget->setGeometry(rect());
 }
 
 /*!
@@ -300,14 +311,14 @@ void FutureProgress::resizeEvent(QResizeEvent *)
 */
 bool FutureProgress::hasError() const
 {
-    return m_progress->hasError();
+    return d->m_progress->hasError();
 }
 
 void FutureProgress::fadeAway()
 {
-    m_faderWidget->raise();
+    d->m_faderWidget->raise();
     QSequentialAnimationGroup *group = new QSequentialAnimationGroup;
-    QPropertyAnimation *animation = new QPropertyAnimation(m_faderWidget, "opacity");
+    QPropertyAnimation *animation = new QPropertyAnimation(d->m_faderWidget, "opacity");
     animation->setDuration(600);
     animation->setEndValue(1.0);
     group->addAnimation(animation);
@@ -321,5 +332,32 @@ void FutureProgress::fadeAway()
 
     connect(group, SIGNAL(finished()), this, SIGNAL(removeMe()));
 }
+
+void FutureProgress::setType(const QString &type)
+{
+    d->m_type = type;
+}
+
+QString FutureProgress::type() const
+{
+    return d->m_type;
+}
+
+void FutureProgress::setKeepOnFinish(bool keep)
+{
+    d->m_keep = keep;
+}
+
+bool FutureProgress::keepOnFinish() const
+{
+    return d->m_keep;
+}
+
+QWidget *FutureProgress::widget() const
+{
+    return d->m_widget;
+}
+
+} // namespace Core
 
 #include "futureprogress.moc"

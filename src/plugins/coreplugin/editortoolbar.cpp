@@ -50,7 +50,9 @@
 #include <QtCore/QSettings>
 #include <QtCore/QEvent>
 #include <QtCore/QDir>
+#include <QtCore/QPointer>
 #include <QtGui/QApplication>
+#include <QtGui/QComboBox>
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QScrollArea>
@@ -69,79 +71,100 @@ enum {
 
 namespace Core {
 
+struct EditorToolBarPrivate {
+    explicit EditorToolBarPrivate(QWidget *parent, EditorToolBar *q);
+
+    Core::OpenEditorsModel *m_editorsListModel;
+    QComboBox *m_editorList;
+    QToolButton *m_closeButton;
+    QToolButton *m_lockButton;
+    QAction *m_goBackAction;
+    QAction *m_goForwardAction;
+    QToolButton *m_backButton;
+    QToolButton *m_forwardButton;
+
+    QWidget *m_activeToolBar;
+    QWidget *m_toolBarPlaceholder;
+    QWidget *m_defaultToolBar;
+
+    bool m_isStandalone;
+};
+
+EditorToolBarPrivate::EditorToolBarPrivate(QWidget *parent, EditorToolBar *q) :
+    m_editorList(new QComboBox(q)),
+    m_closeButton(new QToolButton),
+    m_lockButton(new QToolButton),
+    m_goBackAction(new QAction(QIcon(QLatin1String(Constants::ICON_PREV)), EditorManager::tr("Go Back"), parent)),
+    m_goForwardAction(new QAction(QIcon(QLatin1String(Constants::ICON_NEXT)), EditorManager::tr("Go Forward"), parent)),
+    m_activeToolBar(0),
+    m_toolBarPlaceholder(new QWidget),
+    m_defaultToolBar(new QWidget(q)),
+    m_isStandalone(false)
+{
+}
+
 /*!
   Mimic the look of the text editor toolbar as defined in e.g. EditorView::EditorView
   */
 EditorToolBar::EditorToolBar(QWidget *parent) :
-        Utils::StyledBar(parent),
-        m_editorList(new QComboBox(this)),
-        m_closeButton(new QToolButton),
-        m_lockButton(new QToolButton),
-
-        m_goBackAction(new QAction(QIcon(QLatin1String(Constants::ICON_PREV)), EditorManager::tr("Go Back"), parent)),
-        m_goForwardAction(new QAction(QIcon(QLatin1String(Constants::ICON_NEXT)), EditorManager::tr("Go Forward"), parent)),
-
-        m_activeToolBar(0),
-        m_toolBarPlaceholder(new QWidget),
-        m_defaultToolBar(new QWidget(this)),
-        m_isStandalone(false)
+        Utils::StyledBar(parent), d(new EditorToolBarPrivate(parent, this))
 {
     QHBoxLayout *toolBarLayout = new QHBoxLayout(this);
     toolBarLayout->setMargin(0);
     toolBarLayout->setSpacing(0);
-    toolBarLayout->addWidget(m_defaultToolBar);
-    m_toolBarPlaceholder->setLayout(toolBarLayout);
-    m_toolBarPlaceholder->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+    toolBarLayout->addWidget(d->m_defaultToolBar);
+    d->m_toolBarPlaceholder->setLayout(toolBarLayout);
+    d->m_toolBarPlaceholder->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
-    m_defaultToolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-    m_activeToolBar = m_defaultToolBar;
+    d->m_defaultToolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+    d->m_activeToolBar = d->m_defaultToolBar;
 
-    m_editorsListModel = EditorManager::instance()->openedEditorsModel();
-    connect(m_goBackAction, SIGNAL(triggered()), this, SIGNAL(goBackClicked()));
-    connect(m_goForwardAction, SIGNAL(triggered()), this, SIGNAL(goForwardClicked()));
+    d->m_editorsListModel = EditorManager::instance()->openedEditorsModel();
+    connect(d->m_goBackAction, SIGNAL(triggered()), this, SIGNAL(goBackClicked()));
+    connect(d->m_goForwardAction, SIGNAL(triggered()), this, SIGNAL(goForwardClicked()));
 
-    m_editorList->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    m_editorList->setMinimumContentsLength(20);
-    m_editorList->setModel(m_editorsListModel);
-    m_editorList->setMaxVisibleItems(40);
-    m_editorList->setContextMenuPolicy(Qt::CustomContextMenu);
+    d->m_editorList->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    d->m_editorList->setMinimumContentsLength(20);
+    d->m_editorList->setModel(d->m_editorsListModel);
+    d->m_editorList->setMaxVisibleItems(40);
+    d->m_editorList->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    m_lockButton->setAutoRaise(true);
-    m_lockButton->setProperty("type", QLatin1String("dockbutton"));
-    m_lockButton->setVisible(false);
+    d->m_lockButton->setAutoRaise(true);
+    d->m_lockButton->setProperty("type", QLatin1String("dockbutton"));
+    d->m_lockButton->setVisible(false);
 
-    m_closeButton->setAutoRaise(true);
-    m_closeButton->setIcon(QIcon(QLatin1String(Constants::ICON_CLOSE)));
-    m_closeButton->setProperty("type", QLatin1String("dockbutton"));
-    m_closeButton->setEnabled(false);
+    d->m_closeButton->setAutoRaise(true);
+    d->m_closeButton->setIcon(QIcon(QLatin1String(Constants::ICON_CLOSE)));
+    d->m_closeButton->setProperty("type", QLatin1String("dockbutton"));
+    d->m_closeButton->setEnabled(false);
 
-    m_toolBarPlaceholder->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+    d->m_toolBarPlaceholder->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
-    m_backButton = new QToolButton(this);
-    m_backButton->setDefaultAction(m_goBackAction);
+    d->m_backButton = new QToolButton(this);
+    d->m_backButton->setDefaultAction(d->m_goBackAction);
 
-    m_forwardButton= new QToolButton(this);
-    m_forwardButton->setDefaultAction(m_goForwardAction);
+    d->m_forwardButton= new QToolButton(this);
+    d->m_forwardButton->setDefaultAction(d->m_goForwardAction);
 
     QHBoxLayout *toplayout = new QHBoxLayout(this);
     toplayout->setSpacing(0);
     toplayout->setMargin(0);
-    toplayout->addWidget(m_backButton);
-    toplayout->addWidget(m_forwardButton);
-    toplayout->addWidget(m_editorList);
-    toplayout->addWidget(m_toolBarPlaceholder, 1); // Custom toolbar stretches
-    toplayout->addWidget(m_lockButton);
-    toplayout->addWidget(m_closeButton);
+    toplayout->addWidget(d->m_backButton);
+    toplayout->addWidget(d->m_forwardButton);
+    toplayout->addWidget(d->m_editorList);
+    toplayout->addWidget(d->m_toolBarPlaceholder, 1); // Custom toolbar stretches
+    toplayout->addWidget(d->m_lockButton);
+    toplayout->addWidget(d->m_closeButton);
 
     setLayout(toplayout);
 
     // this signal is disconnected for standalone toolbars and replaced with
     // a private slot connection
-    connect(m_editorList, SIGNAL(activated(int)), this, SIGNAL(listSelectionActivated(int)));
+    connect(d->m_editorList, SIGNAL(activated(int)), this, SIGNAL(listSelectionActivated(int)));
 
-    connect(m_editorList, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(listContextMenu(QPoint)));
-    connect(m_lockButton, SIGNAL(clicked()), this, SLOT(makeEditorWritable()));
-    connect(m_closeButton, SIGNAL(clicked()), this, SLOT(closeView()), Qt::QueuedConnection);
+    connect(d->m_editorList, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(listContextMenu(QPoint)));
+    connect(d->m_lockButton, SIGNAL(clicked()), this, SLOT(makeEditorWritable()));
+    connect(d->m_closeButton, SIGNAL(clicked()), this, SLOT(closeView()), Qt::QueuedConnection);
 
     ActionManager *am = ICore::instance()->actionManager();
     connect(am->command(Constants::CLOSE), SIGNAL(keySequenceChanged()),
@@ -153,6 +176,10 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
 
 }
 
+EditorToolBar::~EditorToolBar()
+{
+}
+
 void EditorToolBar::removeToolbarForEditor(IEditor *editor)
 {
     QTC_ASSERT(editor, return)
@@ -160,11 +187,11 @@ void EditorToolBar::removeToolbarForEditor(IEditor *editor)
 
     QWidget *toolBar = editor->toolBar();
     if (toolBar != 0) {
-        if (m_activeToolBar == toolBar) {
-            m_activeToolBar = m_defaultToolBar;
-            m_activeToolBar->setVisible(true);
+        if (d->m_activeToolBar == toolBar) {
+            d->m_activeToolBar = d->m_defaultToolBar;
+            d->m_activeToolBar->setVisible(true);
         }
-        m_toolBarPlaceholder->layout()->removeWidget(toolBar);
+        d->m_toolBarPlaceholder->layout()->removeWidget(toolBar);
         toolBar->setVisible(false);
         toolBar->setParent(0);
     }
@@ -175,7 +202,7 @@ void EditorToolBar::closeView()
     if (!currentEditor())
         return;
 
-    if (m_isStandalone) {
+    if (d->m_isStandalone) {
         EditorManager *em = ICore::instance()->editorManager();
         if (IEditor *editor = currentEditor()) {
             em->closeEditor(editor);
@@ -190,7 +217,7 @@ void EditorToolBar::addEditor(IEditor *editor)
     connect(editor, SIGNAL(changed()), this, SLOT(checkEditorStatus()));
     QWidget *toolBar = editor->toolBar();
 
-    if (toolBar && !m_isStandalone)
+    if (toolBar && !d->m_isStandalone)
         addCenterToolBar(toolBar);
 
     updateEditorStatus(editor);
@@ -200,7 +227,7 @@ void EditorToolBar::addCenterToolBar(QWidget *toolBar)
 {
     QTC_ASSERT(toolBar, return)
     toolBar->setVisible(false); // will be made visible in setCurrentEditor
-    m_toolBarPlaceholder->layout()->addWidget(toolBar);
+    d->m_toolBarPlaceholder->layout()->addWidget(toolBar);
 
     updateToolBar(toolBar);
 }
@@ -208,34 +235,34 @@ void EditorToolBar::addCenterToolBar(QWidget *toolBar)
 void EditorToolBar::updateToolBar(QWidget *toolBar)
 {
     if (!toolBar)
-        toolBar = m_defaultToolBar;
-    if (m_activeToolBar == toolBar)
+        toolBar = d->m_defaultToolBar;
+    if (d->m_activeToolBar == toolBar)
         return;
     toolBar->setVisible(true);
-    m_activeToolBar->setVisible(false);
-    m_activeToolBar = toolBar;
+    d->m_activeToolBar->setVisible(false);
+    d->m_activeToolBar = toolBar;
 }
 
 void EditorToolBar::setToolbarCreationFlags(ToolbarCreationFlags flags)
 {
-    m_isStandalone = flags & FlagsStandalone;
-    if (m_isStandalone) {
+    d->m_isStandalone = flags & FlagsStandalone;
+    if (d->m_isStandalone) {
         EditorManager *em = EditorManager::instance();
         connect(em, SIGNAL(currentEditorChanged(Core::IEditor*)), SLOT(updateEditorListSelection(Core::IEditor*)));
 
-        disconnect(m_editorList, SIGNAL(activated(int)), this, SIGNAL(listSelectionActivated(int)));
-        connect(m_editorList, SIGNAL(activated(int)), this, SLOT(changeActiveEditor(int)));
+        disconnect(d->m_editorList, SIGNAL(activated(int)), this, SIGNAL(listSelectionActivated(int)));
+        connect(d->m_editorList, SIGNAL(activated(int)), this, SLOT(changeActiveEditor(int)));
     }
 }
 
 void EditorToolBar::setCurrentEditor(IEditor *editor)
 {
     QTC_ASSERT(editor, return)
-    m_editorList->setCurrentIndex(m_editorsListModel->indexOf(editor).row());
+    d->m_editorList->setCurrentIndex(d->m_editorsListModel->indexOf(editor).row());
 
     // If we never added the toolbar from the editor,  we will never change
     // the editor, so there's no need to update the toolbar either.
-    if (!m_isStandalone)
+    if (!d->m_isStandalone)
         updateToolBar(editor->toolBar());
 
     updateEditorStatus(editor);
@@ -244,13 +271,13 @@ void EditorToolBar::setCurrentEditor(IEditor *editor)
 void EditorToolBar::updateEditorListSelection(IEditor *newSelection)
 {
     if (newSelection)
-        m_editorList->setCurrentIndex(m_editorsListModel->indexOf(newSelection).row());
+        d->m_editorList->setCurrentIndex(d->m_editorsListModel->indexOf(newSelection).row());
 }
 
 void EditorToolBar::changeActiveEditor(int row)
 {
     EditorManager *em = ICore::instance()->editorManager();
-    QAbstractItemModel *model = m_editorList->model();
+    QAbstractItemModel *model = d->m_editorList->model();
     const QModelIndex modelIndex = model->index(row, 0);
     IEditor *editor = model->data(modelIndex, Qt::UserRole).value<IEditor*>();
 
@@ -264,19 +291,19 @@ void EditorToolBar::changeActiveEditor(int row)
         editor = em->openEditor(fileName, kind);
     }
     if (editor) {
-        m_editorList->setCurrentIndex(m_editorsListModel->indexOf(editor).row());
+        d->m_editorList->setCurrentIndex(d->m_editorsListModel->indexOf(editor).row());
     }
 }
 
 void EditorToolBar::listContextMenu(QPoint pos)
 {
-    QModelIndex index = m_editorsListModel->index(m_editorList->currentIndex(), 0);
-    QString fileName = m_editorsListModel->data(index, Qt::UserRole + 1).toString();
+    QModelIndex index = d->m_editorsListModel->index(d->m_editorList->currentIndex(), 0);
+    QString fileName = d->m_editorsListModel->data(index, Qt::UserRole + 1).toString();
     if (fileName.isEmpty())
         return;
     QMenu menu;
     menu.addAction(tr("Copy Full Path to Clipboard"));
-    if (menu.exec(m_editorList->mapToGlobal(pos))) {
+    if (menu.exec(d->m_editorList->mapToGlobal(pos))) {
         QApplication::clipboard()->setText(QDir::toNativeSeparators(fileName));
     }
 }
@@ -289,20 +316,20 @@ void EditorToolBar::makeEditorWritable()
 
 void EditorToolBar::setCanGoBack(bool canGoBack)
 {
-    m_goBackAction->setEnabled(canGoBack);
+    d->m_goBackAction->setEnabled(canGoBack);
 }
 
 void EditorToolBar::setCanGoForward(bool canGoForward)
 {
-    m_goForwardAction->setEnabled(canGoForward);
+    d->m_goForwardAction->setEnabled(canGoForward);
 }
 
 void EditorToolBar::updateActionShortcuts()
 {
     ActionManager *am = ICore::instance()->actionManager();
-    m_closeButton->setToolTip(am->command(Constants::CLOSE)->stringWithAppendedShortcut(EditorManager::tr("Close")));
-    m_goBackAction->setToolTip(am->command(Constants::GO_BACK)->action()->toolTip());
-    m_goForwardAction->setToolTip(am->command(Constants::GO_FORWARD)->action()->toolTip());
+    d->m_closeButton->setToolTip(am->command(Constants::CLOSE)->stringWithAppendedShortcut(EditorManager::tr("Close")));
+    d->m_goBackAction->setToolTip(am->command(Constants::GO_BACK)->action()->toolTip());
+    d->m_goForwardAction->setToolTip(am->command(Constants::GO_FORWARD)->action()->toolTip());
 }
 
 IEditor *EditorToolBar::currentEditor() const
@@ -321,27 +348,27 @@ void EditorToolBar::checkEditorStatus()
 
 void EditorToolBar::updateEditorStatus(IEditor *editor)
 {
-    m_lockButton->setVisible(editor != 0);
-    m_closeButton->setEnabled(editor != 0);
+    d->m_lockButton->setVisible(editor != 0);
+    d->m_closeButton->setEnabled(editor != 0);
 
     if (!editor || !editor->file()) {
-        m_editorList->setToolTip(QString());
+        d->m_editorList->setToolTip(QString());
         return;
     }
 
-    m_editorList->setCurrentIndex(m_editorsListModel->indexOf(editor).row());
+    d->m_editorList->setCurrentIndex(d->m_editorsListModel->indexOf(editor).row());
 
     if (editor->file()->isReadOnly()) {
-        m_lockButton->setIcon(QIcon(m_editorsListModel->lockedIcon()));
-        m_lockButton->setEnabled(!editor->file()->fileName().isEmpty());
-        m_lockButton->setToolTip(tr("Make writable"));
+        d->m_lockButton->setIcon(QIcon(d->m_editorsListModel->lockedIcon()));
+        d->m_lockButton->setEnabled(!editor->file()->fileName().isEmpty());
+        d->m_lockButton->setToolTip(tr("Make writable"));
     } else {
-        m_lockButton->setIcon(QIcon(m_editorsListModel->unlockedIcon()));
-        m_lockButton->setEnabled(false);
-        m_lockButton->setToolTip(tr("File is writable"));
+        d->m_lockButton->setIcon(QIcon(d->m_editorsListModel->unlockedIcon()));
+        d->m_lockButton->setEnabled(false);
+        d->m_lockButton->setToolTip(tr("File is writable"));
     }
     if (editor == currentEditor())
-        m_editorList->setToolTip(
+        d->m_editorList->setToolTip(
                 currentEditor()->file()->fileName().isEmpty()
                 ? currentEditor()->displayName()
                     : QDir::toNativeSeparators(editor->file()->fileName())
@@ -351,10 +378,10 @@ void EditorToolBar::updateEditorStatus(IEditor *editor)
 
 void EditorToolBar::setNavigationVisible(bool isVisible)
 {
-    m_goBackAction->setVisible(isVisible);
-    m_goForwardAction->setVisible(isVisible);
-    m_backButton->setVisible(isVisible);
-    m_forwardButton->setVisible(isVisible);
+    d->m_goBackAction->setVisible(isVisible);
+    d->m_goForwardAction->setVisible(isVisible);
+    d->m_backButton->setVisible(isVisible);
+    d->m_forwardButton->setVisible(isVisible);
 }
 
 } // Core

@@ -32,20 +32,18 @@
 
 #include "core_global.h"
 
-#include <QtCore/QHash>
-#include <QtCore/QMap>
-#include <QtCore/QObject>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-#include <QtCore/QUrl>
-#include <QtCore/QVariant>
-#include <QtCore/QByteArray>
+#include <QtCore/QScopedPointer>
 
-QT_FORWARD_DECLARE_CLASS(QFileSystemWatcher)
-QT_FORWARD_DECLARE_CLASS(QHelpEngineCore)
-QT_FORWARD_DECLARE_CLASS(QSqlQuery)
+#include <QtCore/QObject>
+#include <QtCore/QStringList>
+#include <QtCore/QVariant>
+#include <QtCore/QMap>
+#include <QtCore/QHash>
+
+QT_FORWARD_DECLARE_CLASS(QUrl)
 
 namespace Core {
+struct HelpManagerPrivate;
 
 class CORE_EXPORT HelpManager : public QObject
 {
@@ -54,7 +52,6 @@ class CORE_EXPORT HelpManager : public QObject
 
 public:
     typedef QHash<QString, QStringList> Filters;
-
     explicit HelpManager(QObject *parent = 0);
     virtual ~HelpManager();
 
@@ -99,16 +96,7 @@ private slots:
 private:
     void verifyDocumenation();
 
-private:
-    bool m_needsSetup;
-    QHelpEngineCore *m_helpEngine;
-    QFileSystemWatcher *m_collectionWatcher;
-
-    QStringList m_filesToRegister;
-    QStringList m_nameSpacesToUnregister;
-    QHash<QString, QVariant> m_customValues;
-
-    static HelpManager *m_instance;
+    QScopedPointer<HelpManagerPrivate> d;
 };
 
 }   // Core

@@ -104,7 +104,10 @@ SOURCES += mainwindow.cpp \
     ssh/sftpoperation.cpp \
     ssh/sftpincomingpacket.cpp \
     ssh/sftpdefs.cpp \
-    ssh/sftpchannel.cpp
+    ssh/sftpchannel.cpp \
+    outputpanemanager.cpp \
+    navigationsubwidget.cpp \
+    sidebarwidget.cpp
 
 HEADERS += mainwindow.h \
     editmode.h \
@@ -212,7 +215,10 @@ HEADERS += mainwindow.h \
     ssh/sftpincomingpacket_p.h \
     ssh/sftpdefs.h \
     ssh/sftpchannel.h \
-    ssh/sftpchannel_p.h
+    ssh/sftpchannel_p.h \
+    outputpanemanager.h \
+    navigationsubwidget.h \
+    sidebarwidget.h
 
 FORMS += dialogs/newdialog.ui \
     actionmanager/commandmappings.ui \

@@ -43,6 +43,7 @@
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QWidget>
 #include <QtGui/QSplitter>
+#include <QtGui/QIcon>
 
 using namespace Core;
 using namespace Core::Internal;

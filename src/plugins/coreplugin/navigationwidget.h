@@ -32,24 +32,25 @@
 
 #include <coreplugin/minisplitter.h>
 
-#include <QtGui/QComboBox>
+#include <QtCore/QHash>
+#include <QtCore/QScopedPointer>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
 class QShortcut;
-class QToolButton;
+class QAbstractItemModel;
 class QStandardItemModel;
 QT_END_NAMESPACE
-
-namespace Utils {
-class StyledBar;
-}
 
 namespace Core {
 class INavigationWidgetFactory;
 class IMode;
 class Command;
 class NavigationWidget;
+struct NavigationWidgetPrivate;
+namespace Internal {
+class NavigationSubWidget;
+}
 
 class CORE_EXPORT NavigationWidgetPlaceHolder : public QWidget
 {
@@ -57,19 +58,17 @@ class CORE_EXPORT NavigationWidgetPlaceHolder : public QWidget
     Q_OBJECT
 public:
     explicit NavigationWidgetPlaceHolder(Core::IMode *mode, QWidget *parent = 0);
-    ~NavigationWidgetPlaceHolder();
+    virtual ~NavigationWidgetPlaceHolder();
     static NavigationWidgetPlaceHolder* current();
     void applyStoredSize(int width);
+
 private slots:
     void currentModeAboutToChange(Core::IMode *);
+
 private:
     Core::IMode *m_mode;
     static NavigationWidgetPlaceHolder* m_current;
 };
-
-namespace Internal {
-class NavigationSubWidget;
-}
 
 class CORE_EXPORT NavigationWidget : public MiniSplitter
 {
@@ -81,9 +80,8 @@ public:
         FactoryPriorityRole
     };
 
-
-    NavigationWidget(QAction *toggleSideBarAction);
-    ~NavigationWidget();
+    explicit NavigationWidget(QAction *toggleSideBarAction);
+    virtual ~NavigationWidget();
 
     void setFactories(const QList<INavigationWidgetFactory*> factories);
 
@@ -106,7 +104,7 @@ public:
     // Called from the place holders
     void placeHolderChanged(NavigationWidgetPlaceHolder *holder);
 
-    QHash<QString, Core::Command*> commandMap() const { return m_commandMap; }
+    QHash<QString, Core::Command*> commandMap() const;
     QAbstractItemModel *factoryModel() const;
 
 protected:
@@ -122,74 +120,9 @@ private:
     Internal::NavigationSubWidget *insertSubItem(int position, int index);
     int factoryIndex(const QString &id);
 
-    QList<Internal::NavigationSubWidget *> m_subWidgets;
-    QHash<QShortcut *, QString> m_shortcutMap;
-    QHash<QString, Core::Command*> m_commandMap;
-    QStandardItemModel *m_factoryModel;
-
-    bool m_shown;
-    bool m_suppressed;
-    int m_width;
-    static NavigationWidget* m_instance;
-    QAction *m_toggleSideBarAction;
+    QScopedPointer<NavigationWidgetPrivate> d;
 };
 
-namespace Internal {
-
-class NavigationSubWidget : public QWidget
-{
-    Q_OBJECT
-public:
-    NavigationSubWidget(NavigationWidget *parentWidget, int position, int index);
-    virtual ~NavigationSubWidget();
-
-    INavigationWidgetFactory *factory();
-
-    int factoryIndex() const;
-    void setFactoryIndex(int i);
-
-    void setFocusWidget();
-
-    int position() const;
-    void setPosition(int i);
-
-    void saveSettings();
-    void restoreSettings();
-
-    Core::Command *command(const QString &title) const;
-
-signals:
-    void splitMe();
-    void closeMe();
-
-private slots:
-    void comboBoxIndexChanged(int);
-
-private:
-    NavigationWidget *m_parentWidget;
-    QComboBox *m_navigationComboBox;
-    QWidget *m_navigationWidget;
-    INavigationWidgetFactory *m_navigationWidgetFactory;
-    Utils::StyledBar *m_toolBar;
-    QList<QToolButton *> m_additionalToolBarWidgets;
-    int m_position;
-};
-
-class NavComboBox : public QComboBox
-{
-    Q_OBJECT
-
-public:
-    NavComboBox(NavigationSubWidget *navSubWidget);
-
-protected:
-    bool event(QEvent *event);
-
-private:
-    NavigationSubWidget *m_navSubWidget;
-};
-
-} // namespace Internal
 } // namespace Core
 
 #endif // NAVIGATIONWIDGET_H

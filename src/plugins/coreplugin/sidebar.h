@@ -30,27 +30,25 @@
 #ifndef SIDEBAR_H
 #define SIDEBAR_H
 
-#include <QtCore/QMap>
-#include <QtCore/QPointer>
-#include <QtGui/QWidget>
-#include <QtGui/QComboBox>
+#include "core_global.h"
+#include "minisplitter.h"
 
-#include <coreplugin/minisplitter.h>
+#include <QtCore/QMap>
+#include <QtCore/QList>
+#include <QtCore/QScopedPointer>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
-class QToolBar;
-class QAction;
 class QToolButton;
 QT_END_NAMESPACE
 
 namespace Core {
 
 class Command;
+struct SideBarPrivate;
 
 namespace Internal {
 class SideBarWidget;
-class ComboBox;
 } // namespace Internal
 
 /*
@@ -65,14 +63,12 @@ class CORE_EXPORT SideBarItem : public QObject
     Q_OBJECT
 public:
     // id is non-localized string of the item that's used to store the settings.
-    SideBarItem(QWidget *widget, const QString &id)
-        : m_widget(widget), m_id(id)
-    {}
-
+    explicit SideBarItem(QWidget *widget, const QString &id);
     virtual ~SideBarItem();
-    QWidget *widget() { return m_widget; }
-    QString id() const { return m_id; }
-    QString title() const { return m_widget->windowTitle(); }
+
+    QWidget *widget() const;
+    QString id() const;
+    QString title() const;
 
     /* Should always return a new set of tool buttons.
      *
@@ -80,14 +76,12 @@ public:
      * that have been added to a QToolBar without either not deleting the
      * associated QAction or causing the QToolButton to be deleted.
      */
-    virtual QList<QToolButton *> createToolBarWidgets()
-    {
-        return QList<QToolButton *>();
-    }
+    virtual QList<QToolButton *> createToolBarWidgets();
 
 private:
-    QWidget *m_widget;
-    QString m_id;
+    const QString m_id;
+
+    QWidget *m_widget;    
 };
 
 class CORE_EXPORT SideBar : public MiniSplitter
@@ -99,9 +93,9 @@ public:
      * if you have one SideBar, or shared ownership in case
      * of multiple SideBars.
      */
-    SideBar(QList< SideBarItem*> widgetList,
+    explicit SideBar(QList< SideBarItem*> widgetList,
             QList< SideBarItem*> defaultVisible);
-    ~SideBar();
+    virtual ~SideBar();
 
     QStringList availableItemIds() const;
     QStringList availableItemTitles() const;
@@ -136,70 +130,9 @@ private:
                                                  const QString &title = QString());
     void removeSideBarWidget(Internal::SideBarWidget *widget);
 
-    QList<Internal::SideBarWidget*> m_widgets;
-    QMap<QString, QWeakPointer<SideBarItem> > m_itemMap;
-    QStringList m_availableItemIds;
-    QStringList m_availableItemTitles;
-    QStringList m_unavailableItemIds;
-    QStringList m_defaultVisible;
-    QMap<QString, Core::Command*> m_shortcutMap;
-    bool m_closeWhenEmpty;
+    QScopedPointer<SideBarPrivate> d;
 };
 
-namespace Internal {
-
-class SideBarWidget : public QWidget
-{
-    Q_OBJECT
-public:
-    SideBarWidget(SideBar *sideBar, const QString &title);
-    ~SideBarWidget();
-
-    QString currentItemId() const;
-    QString currentItemTitle() const;
-    void setCurrentItem(const QString &id);
-
-    void updateAvailableItems();
-    void removeCurrentItem();
-
-    Core::Command *command(const QString &id) const;
-
-signals:
-    void splitMe();
-    void closeMe();
-    void currentWidgetChanged();
-
-private slots:
-    void setCurrentIndex(int);
-
-private:
-    ComboBox *m_comboBox;
-    SideBarItem *m_currentItem;
-    QToolBar *m_toolbar;
-    QAction *m_splitAction;
-    QList<QAction *> m_addedToolBarActions;
-    SideBar *m_sideBar;
-};
-
-class ComboBox : public QComboBox
-{
-    Q_OBJECT
-
-public:
-    enum DataRoles {
-        IdRole = Qt::UserRole
-    };
-
-    ComboBox(SideBarWidget *sideBarWidget);
-
-protected:
-    bool event(QEvent *event);
-
-private:
-    SideBarWidget *m_sideBarWidget;
-};
-
-} // namespace Internal
 } // namespace Core
 
 #endif // SIDEBAR_H

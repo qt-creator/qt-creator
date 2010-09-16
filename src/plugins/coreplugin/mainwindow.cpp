@@ -43,6 +43,7 @@
 #include "modemanager.h"
 #include "mimedatabase.h"
 #include "newdialog.h"
+#include "outputpanemanager.h"
 #include "outputpane.h"
 #include "plugindialog.h"
 #include "progressmanager_p.h"

@@ -47,7 +47,22 @@
 
 namespace Core {
 
-HelpManager *HelpManager::m_instance = 0;
+struct HelpManagerPrivate {
+    HelpManagerPrivate() :
+       m_needsSetup(true), m_helpEngine(0), m_collectionWatcher(0) {}
+
+    static HelpManager *m_instance;
+
+    bool m_needsSetup;
+    QHelpEngineCore *m_helpEngine;
+    QFileSystemWatcher *m_collectionWatcher;
+
+    QStringList m_filesToRegister;
+    QStringList m_nameSpacesToUnregister;
+    QHash<QString, QVariant> m_customValues;
+};
+
+HelpManager *HelpManagerPrivate::m_instance = 0;
 
 static const char linksForKeyQuery[] = "SELECT d.Title, f.Name, e.Name, "
     "d.Name, a.Anchor FROM IndexTable a, FileNameTable d, FolderTable e, "
@@ -67,13 +82,11 @@ struct DbCleaner {
 
 // -- HelpManager
 
-HelpManager::HelpManager(QObject *parent)
-    : QObject(parent)
-    , m_needsSetup(true)
-    , m_helpEngine(0)
+HelpManager::HelpManager(QObject *parent) :
+    QObject(parent), d(new HelpManagerPrivate)
 {
-    Q_ASSERT(!m_instance);
-    m_instance = this;
+    Q_ASSERT(!HelpManagerPrivate::m_instance);
+    HelpManagerPrivate::m_instance = this;
 
     connect(Core::ICore::instance(), SIGNAL(coreOpened()), this,
         SLOT(setupHelpManager()));
@@ -81,16 +94,16 @@ HelpManager::HelpManager(QObject *parent)
 
 HelpManager::~HelpManager()
 {
-    delete m_helpEngine;
-    m_helpEngine = 0;
+    delete d->m_helpEngine;
+    d->m_helpEngine = 0;
 
-    m_instance = 0;
+    HelpManagerPrivate::m_instance = 0;
 }
 
 HelpManager* HelpManager::instance()
 {
-    Q_ASSERT(m_instance);
-    return m_instance;
+    Q_ASSERT(HelpManagerPrivate::m_instance);
+    return HelpManagerPrivate::m_instance;
 }
 
 QString HelpManager::collectionFilePath()
@@ -101,33 +114,33 @@ QString HelpManager::collectionFilePath()
 
 void HelpManager::registerDocumentation(const QStringList &files)
 {
-    if (m_needsSetup) {
-        m_filesToRegister.append(files);
+    if (d->m_needsSetup) {
+        d->m_filesToRegister.append(files);
         return;
     }
 
     bool docsChanged = false;
     foreach (const QString &file, files) {
-        const QString &nameSpace = m_helpEngine->namespaceName(file);
+        const QString &nameSpace = d->m_helpEngine->namespaceName(file);
         if (nameSpace.isEmpty())
             continue;
-        if (!m_helpEngine->registeredDocumentations().contains(nameSpace)) {
-            if (m_helpEngine->registerDocumentation(file)) {
+        if (!d->m_helpEngine->registeredDocumentations().contains(nameSpace)) {
+            if (d->m_helpEngine->registerDocumentation(file)) {
                 docsChanged = true;
             } else {
                 qWarning() << "Error registering namespace '" << nameSpace
-                    << "' from file '" << file << "':" << m_helpEngine->error();
+                    << "' from file '" << file << "':" << d->m_helpEngine->error();
             }
         } else {
             const QLatin1String key("CreationDate");
-            const QString &newDate = m_helpEngine->metaData(file, key).toString();
-            const QString &oldDate = m_helpEngine->metaData(
-                m_helpEngine->documentationFileName(nameSpace), key).toString();
+            const QString &newDate = d->m_helpEngine->metaData(file, key).toString();
+            const QString &oldDate = d->m_helpEngine->metaData(
+                d->m_helpEngine->documentationFileName(nameSpace), key).toString();
             if (QDateTime::fromString(newDate, Qt::ISODate)
                 > QDateTime::fromString(oldDate, Qt::ISODate)) {
-                if (m_helpEngine->unregisterDocumentation(nameSpace)) {
+                if (d->m_helpEngine->unregisterDocumentation(nameSpace)) {
                     docsChanged = true;
-                    m_helpEngine->registerDocumentation(file);
+                    d->m_helpEngine->registerDocumentation(file);
                 }
             }
         }
@@ -138,19 +151,19 @@ void HelpManager::registerDocumentation(const QStringList &files)
 
 void HelpManager::unregisterDocumentation(const QStringList &nameSpaces)
 {
-    if (m_needsSetup) {
-        m_nameSpacesToUnregister.append(nameSpaces);
+    if (d->m_needsSetup) {
+        d->m_nameSpacesToUnregister.append(nameSpaces);
         return;
     }
 
     bool docsChanged = false;
     foreach (const QString &nameSpace, nameSpaces) {
-        if (m_helpEngine->unregisterDocumentation(nameSpace)) {
+        if (d->m_helpEngine->unregisterDocumentation(nameSpace)) {
             docsChanged = true;
         } else {
             qWarning() << "Error unregistering namespace '" << nameSpace
-                << "' from file '" << m_helpEngine->documentationFileName(nameSpace)
-                << "': " << m_helpEngine->error();
+                << "' from file '" << d->m_helpEngine->documentationFileName(nameSpace)
+                << "': " << d->m_helpEngine->error();
         }
     }
     if (docsChanged)
@@ -172,7 +185,7 @@ QUrl buildQUrl(const QString &nameSpace, const QString &folder,
 QMap<QString, QUrl> HelpManager::linksForKeyword(const QString &key) const
 {
     QMap<QString, QUrl> links;
-    if (m_needsSetup)
+    if (d->m_needsSetup)
         return links;
 
     const QLatin1String sqlite("QSQLITE");
@@ -181,9 +194,9 @@ QMap<QString, QUrl> HelpManager::linksForKeyword(const QString &key) const
     DbCleaner cleaner(name);
     QSqlDatabase db = QSqlDatabase::addDatabase(sqlite, name);
     if (db.driver() && db.driver()->lastError().type() == QSqlError::NoError) {
-        const QStringList &registeredDocs = m_helpEngine->registeredDocumentations();
+        const QStringList &registeredDocs = d->m_helpEngine->registeredDocumentations();
         foreach (const QString &nameSpace, registeredDocs) {
-            db.setDatabaseName(m_helpEngine->documentationFileName(nameSpace));
+            db.setDatabaseName(d->m_helpEngine->documentationFileName(nameSpace));
             if (db.open()) {
                 QSqlQuery query = QSqlQuery(db);
                 query.setForwardOnly(true);
@@ -204,16 +217,16 @@ QMap<QString, QUrl> HelpManager::linksForKeyword(const QString &key) const
 
 QMap<QString, QUrl> HelpManager::linksForIdentifier(const QString &id) const
 {
-    if (m_needsSetup)
+    if (d->m_needsSetup)
         return QMap<QString, QUrl>();
-    return m_helpEngine->linksForIdentifier(id);
+    return d->m_helpEngine->linksForIdentifier(id);
 }
 
 // This should go into Qt 4.8 once we start using it for Qt Creator
 QStringList HelpManager::findKeywords(const QString &key, int maxHits) const
 {
     QStringList keywords;
-    if (m_needsSetup)
+    if (d->m_needsSetup)
         return keywords;
 
     const QLatin1String sqlite("QSQLITE");
@@ -222,9 +235,9 @@ QStringList HelpManager::findKeywords(const QString &key, int maxHits) const
     DbCleaner cleaner(name);
     QSqlDatabase db = QSqlDatabase::addDatabase(sqlite, name);
     if (db.driver() && db.driver()->lastError().type() == QSqlError::NoError) {
-        const QStringList &registeredDocs = m_helpEngine->registeredDocumentations();
+        const QStringList &registeredDocs = d->m_helpEngine->registeredDocumentations();
         foreach (const QString &nameSpace, registeredDocs) {
-            db.setDatabaseName(m_helpEngine->documentationFileName(nameSpace));
+            db.setDatabaseName(d->m_helpEngine->documentationFileName(nameSpace));
             if (db.open()) {
                 QSqlQuery query = QSqlQuery(db);
                 query.setForwardOnly(true);
@@ -246,16 +259,16 @@ QStringList HelpManager::findKeywords(const QString &key, int maxHits) const
 
 QUrl HelpManager::findFile(const QUrl &url) const
 {
-    if (m_needsSetup)
+    if (d->m_needsSetup)
         return QUrl();
-    return m_helpEngine->findFile(url);
+    return d->m_helpEngine->findFile(url);
 }
 
 QByteArray HelpManager::fileData(const QUrl &url) const
 {
-    if (m_needsSetup)
+    if (d->m_needsSetup)
         return QByteArray();
-    return m_helpEngine->fileData(url);
+    return d->m_helpEngine->fileData(url);
 }
 
 void HelpManager::handleHelpRequest(const QString &url)
@@ -265,58 +278,58 @@ void HelpManager::handleHelpRequest(const QString &url)
 
 QStringList HelpManager::registeredNamespaces() const
 {
-    if (m_needsSetup)
+    if (d->m_needsSetup)
         return QStringList();
-    return m_helpEngine->registeredDocumentations();
+    return d->m_helpEngine->registeredDocumentations();
 }
 
 QString HelpManager::namespaceFromFile(const QString &file) const
 {
-    if (m_needsSetup)
+    if (d->m_needsSetup)
         return QString();
-    return m_helpEngine->namespaceName(file);
+    return d->m_helpEngine->namespaceName(file);
 }
 
 QString HelpManager::fileFromNamespace(const QString &nameSpace) const
 {
-    if (m_needsSetup)
+    if (d->m_needsSetup)
         return QString();
-    return m_helpEngine->documentationFileName(nameSpace);
+    return d->m_helpEngine->documentationFileName(nameSpace);
 }
 
 void HelpManager::setCustomValue(const QString &key, const QVariant &value)
 {
-    if (m_needsSetup) {
-        m_customValues.insert(key, value);
+    if (d->m_needsSetup) {
+        d->m_customValues.insert(key, value);
         return;
     }
-    if (m_helpEngine->setCustomValue(key, value))
+    if (d->m_helpEngine->setCustomValue(key, value))
         emit collectionFileChanged();
 }
 
 QVariant HelpManager::customValue(const QString &key, const QVariant &value) const
 {
-    if (m_needsSetup)
+    if (d->m_needsSetup)
         return QVariant();
-    return m_helpEngine->customValue(key, value);
+    return d->m_helpEngine->customValue(key, value);
 }
 
 HelpManager::Filters HelpManager::filters() const
 {
-    if (m_needsSetup)
+    if (d->m_needsSetup)
         return Filters();
 
     Filters filters;
-    const QStringList &customFilters = m_helpEngine->customFilters();
+    const QStringList &customFilters = d->m_helpEngine->customFilters();
     foreach (const QString &filter, customFilters)
-        filters.insert(filter, m_helpEngine->filterAttributes(filter));
+        filters.insert(filter, d->m_helpEngine->filterAttributes(filter));
     return filters;
 }
 
 HelpManager::Filters HelpManager::fixedFilters() const
 {
     Filters fixedFilters;
-    if (m_needsSetup)
+    if (d->m_needsSetup)
         return fixedFilters;
 
     const QLatin1String sqlite("QSQLITE");
@@ -325,16 +338,16 @@ HelpManager::Filters HelpManager::fixedFilters() const
     DbCleaner cleaner(name);
     QSqlDatabase db = QSqlDatabase::addDatabase(sqlite, name);
     if (db.driver() && db.driver()->lastError().type() == QSqlError::NoError) {
-        const QStringList &registeredDocs = m_helpEngine->registeredDocumentations();
+        const QStringList &registeredDocs = d->m_helpEngine->registeredDocumentations();
         foreach (const QString &nameSpace, registeredDocs) {
-            db.setDatabaseName(m_helpEngine->documentationFileName(nameSpace));
+            db.setDatabaseName(d->m_helpEngine->documentationFileName(nameSpace));
             if (db.open()) {
                 QSqlQuery query = QSqlQuery(db);
                 query.setForwardOnly(true);
                 query.exec(QLatin1String("SELECT Name FROM FilterNameTable"));
                 while (query.next()) {
                     const QString &filter = query.value(0).toString();
-                    fixedFilters.insert(filter, m_helpEngine->filterAttributes(filter));
+                    fixedFilters.insert(filter, d->m_helpEngine->filterAttributes(filter));
                 }
             }
         }
@@ -344,7 +357,7 @@ HelpManager::Filters HelpManager::fixedFilters() const
 
 HelpManager::Filters HelpManager::userDefinedFilters() const
 {
-    if (m_needsSetup)
+    if (d->m_needsSetup)
         return Filters();
 
     Filters all = filters();
@@ -356,19 +369,19 @@ HelpManager::Filters HelpManager::userDefinedFilters() const
 
 void HelpManager::removeUserDefinedFilter(const QString &filter)
 {
-    if (m_needsSetup)
+    if (d->m_needsSetup)
         return;
 
-    if (m_helpEngine->removeCustomFilter(filter))
+    if (d->m_helpEngine->removeCustomFilter(filter))
         emit collectionFileChanged();
 }
 
 void HelpManager::addUserDefinedFilter(const QString &filter, const QStringList &attr)
 {
-    if (m_needsSetup)
+    if (d->m_needsSetup)
         return;
 
-    if (m_helpEngine->addCustomFilter(filter, attr))
+    if (d->m_helpEngine->addCustomFilter(filter, attr))
         emit collectionFileChanged();
 }
 
@@ -376,42 +389,42 @@ void HelpManager::addUserDefinedFilter(const QString &filter, const QStringList 
 
 void HelpManager::setupHelpManager()
 {
-    if (!m_needsSetup)
+    if (!d->m_needsSetup)
         return;
-    m_needsSetup = false;
+    d->m_needsSetup = false;
 
-    m_helpEngine = new QHelpEngineCore(collectionFilePath(), this);
-    m_helpEngine->setAutoSaveFilter(false);
-    m_helpEngine->setCurrentFilter(tr("Unfiltered"));
-    m_helpEngine->setupData();
+    d->m_helpEngine = new QHelpEngineCore(collectionFilePath(), this);
+    d->m_helpEngine->setAutoSaveFilter(false);
+    d->m_helpEngine->setCurrentFilter(tr("Unfiltered"));
+    d->m_helpEngine->setupData();
 
     verifyDocumenation();
 
-    if (!m_nameSpacesToUnregister.isEmpty()) {
-        unregisterDocumentation(m_nameSpacesToUnregister);
-        m_nameSpacesToUnregister.clear();
+    if (!d->m_nameSpacesToUnregister.isEmpty()) {
+        unregisterDocumentation(d->m_nameSpacesToUnregister);
+        d->m_nameSpacesToUnregister.clear();
     }
 
     // this might come from the installer
     const QLatin1String key("AddedDocs");
-    const QString addedDocs = m_helpEngine->customValue(key).toString();
+    const QString addedDocs = d->m_helpEngine->customValue(key).toString();
     if (!addedDocs.isEmpty()) {
-        m_helpEngine->removeCustomValue(key);
-        m_filesToRegister += addedDocs.split(QLatin1Char(';'));
+        d->m_helpEngine->removeCustomValue(key);
+        d->m_filesToRegister += addedDocs.split(QLatin1Char(';'));
     }
 
-    if (!m_filesToRegister.isEmpty()) {
-        registerDocumentation(m_filesToRegister);
-        m_filesToRegister.clear();
+    if (!d->m_filesToRegister.isEmpty()) {
+        registerDocumentation(d->m_filesToRegister);
+        d->m_filesToRegister.clear();
     }
 
     QHash<QString, QVariant>::const_iterator it;
-    for (it = m_customValues.constBegin(); it != m_customValues.constEnd(); ++it)
+    for (it = d->m_customValues.constBegin(); it != d->m_customValues.constEnd(); ++it)
         setCustomValue(it.key(), it.value());
 
-    m_collectionWatcher = new QFileSystemWatcher(QStringList() << collectionFilePath(),
+    d->m_collectionWatcher = new QFileSystemWatcher(QStringList() << collectionFilePath(),
         this);
-    connect(m_collectionWatcher, SIGNAL(fileChanged(QString)), this,
+    connect(d->m_collectionWatcher, SIGNAL(fileChanged(QString)), this,
         SLOT(collectionFileModified()));
 
     emit setupFinished();
@@ -420,9 +433,9 @@ void HelpManager::setupHelpManager()
 void HelpManager::collectionFileModified()
 {
     const QLatin1String key("AddedDocs");
-    const QString addedDocs = m_helpEngine->customValue(key).toString();
+    const QString addedDocs = d->m_helpEngine->customValue(key).toString();
     if (!addedDocs.isEmpty()) {
-        m_helpEngine->removeCustomValue(key);
+        d->m_helpEngine->removeCustomValue(key);
         registerDocumentation(addedDocs.split(QLatin1Char(';')));
     }
 }
@@ -431,10 +444,10 @@ void HelpManager::collectionFileModified()
 
 void HelpManager::verifyDocumenation()
 {
-    const QStringList &registeredDocs = m_helpEngine->registeredDocumentations();
+    const QStringList &registeredDocs = d->m_helpEngine->registeredDocumentations();
     foreach (const QString &nameSpace, registeredDocs) {
-        if (!QFileInfo(m_helpEngine->documentationFileName(nameSpace)).exists())
-            m_nameSpacesToUnregister.append(nameSpace);
+        if (!QFileInfo(d->m_helpEngine->documentationFileName(nameSpace)).exists())
+            d->m_nameSpacesToUnregister.append(nameSpace);
     }
 }
 

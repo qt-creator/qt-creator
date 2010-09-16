@@ -27,70 +27,61 @@
 **
 **************************************************************************/
 
-#ifndef FUTUREPROGRESS_H
-#define FUTUREPROGRESS_H
+#ifndef SIDEBARWIDGET_H
+#define SIDEBARWIDGET_H
 
-#include <coreplugin/core_global.h>
-
-#include <QtCore/QString>
-#include <QtCore/QScopedPointer>
-
-#include <QtCore/QFuture>
+#include <QtCore/QMap>
 #include <QtGui/QWidget>
 
-namespace Core {
-struct FutureProgressPrivate;
+QT_BEGIN_NAMESPACE
+class QSettings;
+class QToolBar;
+class QAction;
+class QToolButton;
+QT_END_NAMESPACE
 
-class CORE_EXPORT FutureProgress : public QWidget
+namespace Core {
+class SideBar;
+class SideBarItem;
+class Command;
+
+namespace Internal {
+class SideBarComboBox;
+
+class SideBarWidget : public QWidget
 {
     Q_OBJECT
-
 public:
-    explicit FutureProgress(QWidget *parent = 0);
-    virtual ~FutureProgress();
+    explicit SideBarWidget(SideBar *sideBar, const QString &title);
+    virtual ~SideBarWidget();
 
-    virtual bool eventFilter(QObject *object, QEvent *);
+    QString currentItemId() const;
+    QString currentItemTitle() const;
+    void setCurrentItem(const QString &id);
 
-    void setFuture(const QFuture<void> &future);
-    QFuture<void> future() const;
+    void updateAvailableItems();
+    void removeCurrentItem();
 
-    void setTitle(const QString &title);
-    QString title() const;
-
-    void setType(const QString &type);
-    QString type() const;
-
-    void setKeepOnFinish(bool keep);
-    bool keepOnFinish() const;
-
-    bool hasError() const;
-
-    void setWidget(QWidget *widget);
-    QWidget *widget() const;
+    Core::Command *command(const QString &id) const;
 
 signals:
-    void clicked();
-    void finished();
-    void removeMe();
-
-protected:
-    void mousePressEvent(QMouseEvent *event);
-    void resizeEvent(QResizeEvent *);
+    void splitMe();
+    void closeMe();
+    void currentWidgetChanged();
 
 private slots:
-    void updateToolTip(const QString &);
-    void cancel();
-    void setStarted();
-    void setFinished();
-    void setProgressRange(int min, int max);
-    void setProgressValue(int val);
-    void setProgressText(const QString &text);
-    void fadeAway();
+    void setCurrentIndex(int);
 
 private:
-    QScopedPointer<FutureProgressPrivate> d;
+    SideBarComboBox *m_comboBox;
+    SideBarItem *m_currentItem;
+    QToolBar *m_toolbar;
+    QAction *m_splitAction;
+    QList<QAction *> m_addedToolBarActions;
+    SideBar *m_sideBar;
 };
 
+} // namespace Internal
 } // namespace Core
 
-#endif // FUTUREPROGRESS_H
+#endif // SIDEBARWIDGET_H
