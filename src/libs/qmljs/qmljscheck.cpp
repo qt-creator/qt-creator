@@ -62,6 +62,20 @@ QColor QmlJS::toQColor(const QString &qmlColorString)
     return color;
 }
 
+SourceLocation QmlJS::locationFromRange(const SourceLocation &start,
+                                        const SourceLocation &end)
+{
+    return SourceLocation(start.offset,
+                          end.end() - start.begin(),
+                          start.startLine,
+                          start.startColumn);
+}
+
+DiagnosticMessage QmlJS::errorMessage(const AST::SourceLocation &loc, const QString &message)
+{
+    return DiagnosticMessage(DiagnosticMessage::Error, loc, message);
+}
+
 namespace {
 
 class AssignmentCheck : public ValueVisitor
@@ -370,13 +384,4 @@ void Check::error(const AST::SourceLocation &loc, const QString &message)
 void Check::warning(const AST::SourceLocation &loc, const QString &message)
 {
     _messages.append(DiagnosticMessage(DiagnosticMessage::Warning, loc, message));
-}
-
-SourceLocation Check::locationFromRange(const SourceLocation &start,
-                                        const SourceLocation &end)
-{
-    return SourceLocation(start.offset,
-                          end.end() - start.begin(),
-                          start.startLine,
-                          start.startColumn);
 }

@@ -37,6 +37,7 @@
 #include <QtCore/QHash>
 #include <QtCore/QStringList>
 #include <QtCore/QSharedPointer>
+#include <QtCore/QCoreApplication>
 
 namespace QmlJS {
 
@@ -46,28 +47,13 @@ class Document;
 class QMLJS_EXPORT Bind: protected AST::Visitor
 {
     Q_DISABLE_COPY(Bind)
+    Q_DECLARE_TR_FUNCTIONS(QmlJS::Bind)
 
 public:
-    Bind(Document *doc);
+    Bind(Document *doc, QList<DiagnosticMessage> *messages);
     virtual ~Bind();
 
-    struct ImportInfo {
-        enum Type {
-            LibraryImport,
-            FileImport,
-            DirectoryImport,
-            InvalidFileImport // refers a file/directoy that wasn't found
-        };
-
-        Type type;
-        // LibraryImport: uri with '/' separator
-        // Other: absoluteFilePath
-        QString name;
-        ComponentVersion version;
-        AST::UiImport *ast;
-    };
-
-    QList<ImportInfo> imports() const;
+    QList<Interpreter::ImportInfo> imports() const;
 
     Interpreter::ObjectValue *idEnvironment() const;
     Interpreter::ObjectValue *rootObjectValue() const;
@@ -119,7 +105,9 @@ private:
     QHash<AST::FunctionDeclaration *, Interpreter::ObjectValue *> _functionScopes;
     QStringList _includedScripts;
 
-    QList<ImportInfo> _imports;
+    QList<Interpreter::ImportInfo> _imports;
+
+    QList<DiagnosticMessage> *_diagnosticMessages;
 };
 
 } // end of namespace Qml

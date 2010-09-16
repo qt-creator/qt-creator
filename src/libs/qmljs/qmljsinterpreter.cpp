@@ -32,7 +32,6 @@
 #include "qmljslink.h"
 #include "qmljsbind.h"
 #include "qmljsscopebuilder.h"
-#include "qmljscomponentversion.h"
 #include "parser/qmljsast_p.h"
 
 #include <QtCore/QFile>
@@ -1448,14 +1447,14 @@ ScopeChain &Context::scopeChain()
     return _scopeChain;
 }
 
-const ObjectValue *Context::typeEnvironment(const QmlJS::Document *doc) const
+const TypeEnvironment *Context::typeEnvironment(const QmlJS::Document *doc) const
 {
     if (!doc)
         return 0;
     return _typeEnvironments.value(doc->fileName(), 0);
 }
 
-void Context::setTypeEnvironment(const QmlJS::Document *doc, const ObjectValue *typeEnvironment)
+void Context::setTypeEnvironment(const QmlJS::Document *doc, const TypeEnvironment *typeEnvironment)
 {
     if (!doc)
         return;
@@ -3096,4 +3095,135 @@ bool ASTSignalReference::getSourceLocation(QString *fileName, int *line, int *co
 const Value *ASTSignalReference::value(const Context *) const
 {
     return engine()->undefinedValue();
+}
+
+ImportInfo::ImportInfo()
+    : _type(InvalidImport)
+    , _ast(0)
+{
+}
+
+ImportInfo::ImportInfo(Type type, const QString &name,
+                       QmlJS::ComponentVersion version, UiImport *ast)
+    : _type(type)
+    , _name(name)
+    , _version(version)
+    , _ast(ast)
+{
+}
+
+bool ImportInfo::isValid() const
+{
+    return _type != InvalidImport;
+}
+
+ImportInfo::Type ImportInfo::type() const
+{
+    return _type;
+}
+
+QString ImportInfo::name() const
+{
+    return _name;
+}
+
+QString ImportInfo::id() const
+{
+    if (_ast && _ast->importId)
+        return _ast->importId->asString();
+    return QString();
+}
+
+QmlJS::ComponentVersion ImportInfo::version() const
+{
+    return _version;
+}
+
+UiImport *ImportInfo::ast() const
+{
+    return _ast;
+}
+
+TypeEnvironment::TypeEnvironment(Engine *engine)
+    : ObjectValue(engine)
+{
+}
+
+const Value *TypeEnvironment::lookupMember(const QString &name, const Context *context, bool) const
+{
+    QHashIterator<const ObjectValue *, ImportInfo> it(_imports);
+    while (it.hasNext()) {
+        it.next();
+        const ObjectValue *import = it.key();
+        const ImportInfo &info = it.value();
+
+        if (!info.id().isEmpty()) {
+            if (info.id() == name)
+                return import;
+            continue;
+        }
+
+        if (info.type() == ImportInfo::FileImport) {
+            if (import->className() == name)
+                return import;
+        } else {
+            if (const Value *v = import->property(name, context))
+                return v;
+        }
+    }
+    return 0;
+}
+
+void TypeEnvironment::processMembers(MemberProcessor *processor) const
+{
+    QHashIterator<const ObjectValue *, ImportInfo> it(_imports);
+    while (it.hasNext()) {
+        it.next();
+        const ObjectValue *import = it.key();
+        const ImportInfo &info = it.value();
+
+        if (!info.id().isEmpty()) {
+            processor->processProperty(info.id(), import);
+        } else {
+            if (info.type() == ImportInfo::FileImport)
+                processor->processProperty(import->className(), import);
+            else
+                import->processMembers(processor);
+        }
+    }
+}
+
+void TypeEnvironment::addImport(const ObjectValue *import, const ImportInfo &info)
+{
+    _imports.insert(import, info);
+}
+
+ImportInfo TypeEnvironment::importInfo(const QString &name, const Context *context) const
+{
+    QString firstId = name;
+    int dotIdx = firstId.indexOf(QLatin1Char('.'));
+    if (dotIdx != -1)
+        firstId = firstId.left(dotIdx);
+
+    QHashIterator<const ObjectValue *, ImportInfo> it(_imports);
+    while (it.hasNext()) {
+        it.next();
+        const ObjectValue *import = it.key();
+        const ImportInfo &info = it.value();
+
+        if (!info.id().isEmpty()) {
+            if (info.id() == firstId)
+                return info;
+            continue;
+        }
+
+        if (info.type() == ImportInfo::FileImport) {
+            if (import->className() == firstId)
+                return info;
+        } else {
+            if (import->property(firstId, context))
+                return info;
+        }
+    }
+    return ImportInfo();
 }

@@ -63,6 +63,7 @@ class FunctionValue;
 class Reference;
 class ColorValue;
 class AnchorLineValue;
+class TypeEnvironment;
 
 typedef QList<const Value *> ValueList;
 
@@ -259,7 +260,7 @@ public:
     const ObjectValue *globalScope;
     QSharedPointer<const QmlComponentChain> qmlComponentScope;
     QList<const ObjectValue *> qmlScopeObjects;
-    const ObjectValue *qmlTypes;
+    const TypeEnvironment *qmlTypes;
     QList<const ObjectValue *> jsScopes;
 
     // rebuilds the flat list of all scopes
@@ -280,8 +281,8 @@ public:
     const ScopeChain &scopeChain() const;
     ScopeChain &scopeChain();
 
-    const ObjectValue *typeEnvironment(const Document *doc) const;
-    void setTypeEnvironment(const Document *doc, const ObjectValue *typeEnvironment);
+    const TypeEnvironment *typeEnvironment(const Document *doc) const;
+    void setTypeEnvironment(const Document *doc, const TypeEnvironment *typeEnvironment);
 
     const Value *lookup(const QString &name) const;
     const ObjectValue *lookupType(const Document *doc, AST::UiQualifiedId *qmlTypeName) const;
@@ -298,7 +299,7 @@ private:
 
     QSharedPointer<Engine> _engine;
     QHash<const ObjectValue *, Properties> _properties;
-    QHash<QString, const ObjectValue *> _typeEnvironments;
+    QHash<QString, const TypeEnvironment *> _typeEnvironments;
     ScopeChain _scopeChain;
     int _qmlScopeObjectIndex;
     bool _qmlScopeObjectSet;
@@ -844,6 +845,57 @@ public:
     virtual void processMembers(MemberProcessor *processor) const;
 
     QString defaultPropertyName() const;
+};
+
+class QMLJS_EXPORT ImportInfo
+{
+public:
+    enum Type {
+        InvalidImport,
+        ImplicitDirectoryImport,
+        LibraryImport,
+        FileImport,
+        DirectoryImport,
+        UnknownFileImport // refers a file/directoy that wasn't found
+    };
+
+    ImportInfo();
+    ImportInfo(Type type, const QString &name,
+               ComponentVersion version = ComponentVersion(),
+               AST::UiImport *ast = 0);
+
+    bool isValid() const;
+    Type type() const;
+
+    // LibraryImport: uri with '/' separator
+    // Other: absoluteFilePath
+    QString name() const;
+
+    // null if the import has no 'as', otherwise the target id
+    QString id() const;
+
+    ComponentVersion version() const;
+    AST::UiImport *ast() const;
+
+private:
+    Type _type;
+    QString _name;
+    ComponentVersion _version;
+    AST::UiImport *_ast;
+};
+
+class QMLJS_EXPORT TypeEnvironment: public ObjectValue
+{
+    QHash<const ObjectValue *, ImportInfo> _imports;
+
+public:
+    TypeEnvironment(Engine *engine);
+
+    virtual const Value *lookupMember(const QString &name, const Context *context, bool examinePrototypes) const;
+    virtual void processMembers(MemberProcessor *processor) const;
+
+    void addImport(const ObjectValue *import, const ImportInfo &info);
+    ImportInfo importInfo(const QString &name, const Context *context) const;
 };
 
 } } // end of namespace QmlJS::Interpreter

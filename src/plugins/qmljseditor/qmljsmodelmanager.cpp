@@ -276,15 +276,16 @@ static void findNewFileImports(const Document::Ptr &doc, const Snapshot &snapsho
                         QStringList *importedFiles, QSet<QString> *scannedPaths)
 {
     // scan files and directories that are explicitly imported
-    foreach (const Bind::ImportInfo &import, doc->bind()->imports()) {
-        if (import.type == Bind::ImportInfo::FileImport) {
-            if (! snapshot.document(import.name))
-                *importedFiles += import.name;
-        } else if (import.type == Bind::ImportInfo::DirectoryImport) {
-            if (snapshot.documentsInDirectory(import.name).isEmpty()) {
-                if (! scannedPaths->contains(import.name)) {
-                    *importedFiles += qmlFilesInDirectory(import.name);
-                    scannedPaths->insert(import.name);
+    foreach (const Interpreter::ImportInfo &import, doc->bind()->imports()) {
+        const QString &importName = import.name();
+        if (import.type() == Interpreter::ImportInfo::FileImport) {
+            if (! snapshot.document(importName))
+                *importedFiles += importName;
+        } else if (import.type() == Interpreter::ImportInfo::DirectoryImport) {
+            if (snapshot.documentsInDirectory(importName).isEmpty()) {
+                if (! scannedPaths->contains(importName)) {
+                    *importedFiles += qmlFilesInDirectory(importName);
+                    scannedPaths->insert(importName);
                 }
             }
         }
@@ -297,12 +298,12 @@ static void findNewLibraryImports(const Document::Ptr &doc, const Snapshot &snap
 {
     // scan library imports
     const QStringList importPaths = modelManager->importPaths();
-    foreach (const Bind::ImportInfo &import, doc->bind()->imports()) {
-        if (import.type != Bind::ImportInfo::LibraryImport)
+    foreach (const Interpreter::ImportInfo &import, doc->bind()->imports()) {
+        if (import.type() != Interpreter::ImportInfo::LibraryImport)
             continue;
         foreach (const QString &importPath, importPaths) {
             QDir dir(importPath);
-            dir.cd(import.name);
+            dir.cd(import.name());
             const QString targetPath = dir.absolutePath();
 
             // if we know there is a library, done

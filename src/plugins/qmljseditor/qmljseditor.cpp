@@ -579,9 +579,9 @@ AST::Node *SemanticInfo::nodeUnderCursor(int pos) const
 
     const unsigned cursorPosition = pos;
 
-    foreach (const Bind::ImportInfo &import, document->bind()->imports()) {
-        if (importContainsCursor(import.ast, cursorPosition))
-            return import.ast;
+    foreach (const Interpreter::ImportInfo &import, document->bind()->imports()) {
+        if (importContainsCursor(import.ast(), cursorPosition))
+            return import.ast();
     }
 
     CollectASTNodes nodes;
@@ -1381,9 +1381,9 @@ TextEditor::BaseTextEditor::Link QmlJSTextEditor::findLinkAt(const QTextCursor &
 
     if (AST::UiImport *importAst = cast<AST::UiImport *>(node)) {
         // if it's a file import, link to the file
-        foreach (const Bind::ImportInfo &import, semanticInfo.document->bind()->imports()) {
-            if (import.ast == importAst && import.type == Bind::ImportInfo::FileImport) {
-                BaseTextEditor::Link link(import.name);
+        foreach (const Interpreter::ImportInfo &import, semanticInfo.document->bind()->imports()) {
+            if (import.ast() == importAst && import.type() == Interpreter::ImportInfo::FileImport) {
+                BaseTextEditor::Link link(import.name());
                 link.begin = importAst->firstSourceLocation().begin();
                 link.end = importAst->lastSourceLocation().end();
                 return link;

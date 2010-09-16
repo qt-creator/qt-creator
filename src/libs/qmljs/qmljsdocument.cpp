@@ -236,7 +236,7 @@ bool Document::parse_helper(int startToken)
     _ast = parser.rootNode();
     _diagnosticMessages = parser.diagnosticMessages();
 
-    _bind = new Bind(this);
+    _bind = new Bind(this, &_diagnosticMessages);
 
     return _parsedCorrectly;
 }

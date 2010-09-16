@@ -29,6 +29,7 @@
 
 #include "parser/qmljsast_p.h"
 #include "qmljsbind.h"
+#include "qmljscheck.h"
 #include "qmljsdocument.h"
 
 #include <QtCore/QDir>
@@ -54,11 +55,12 @@ using namespace QmlJS::Interpreter;
     It allows AST to code model lookup through findQmlObject() and findFunctionScope().
 */
 
-Bind::Bind(Document *doc)
+Bind::Bind(Document *doc, QList<DiagnosticMessage> *messages)
     : _doc(doc),
       _currentObjectValue(0),
       _idEnvironment(0),
-      _rootObjectValue(0)
+      _rootObjectValue(0),
+      _diagnosticMessages(messages)
 {
     if (_doc)
         accept(_doc->ast());
@@ -68,7 +70,7 @@ Bind::~Bind()
 {
 }
 
-QList<Bind::ImportInfo> Bind::imports() const
+QList<ImportInfo> Bind::imports() const
 {
     return _imports;
 }
@@ -185,32 +187,44 @@ bool Bind::visit(AST::Program *)
 
 bool Bind::visit(UiImport *ast)
 {
-    ImportInfo info;
-    info.ast = ast;
+    ComponentVersion version;
+    ImportInfo::Type type = ImportInfo::InvalidImport;
+    QString name;
 
     if (ast->versionToken.isValid()) {
         const QString versionString = _doc->source().mid(ast->versionToken.offset, ast->versionToken.length);
         const int dotIdx = versionString.indexOf(QLatin1Char('.'));
         if (dotIdx != -1) {
-            info.version = ComponentVersion(versionString.left(dotIdx).toInt(),
-                                            versionString.mid(dotIdx + 1).toInt());
+            version = ComponentVersion(versionString.left(dotIdx).toInt(),
+                                       versionString.mid(dotIdx + 1).toInt());
+        } else {
+            _diagnosticMessages->append(
+                        errorMessage(ast->versionToken, tr("expected two numbers separated by a dot")));
         }
     }
 
     if (ast->importUri) {
-        info.type = ImportInfo::LibraryImport;
-        info.name = toString(ast->importUri, QLatin1Char('/'));
+        type = ImportInfo::LibraryImport;
+        name = toString(ast->importUri, QDir::separator());
+
+        if (!version.isValid()) {
+            _diagnosticMessages->append(
+                        errorMessage(ast, tr("package import requires a version number")));
+        }
     } else if (ast->fileName) {
-        const QFileInfo importFileInfo(_doc->path() + QLatin1Char('/') + ast->fileName->asString());
-        info.name = importFileInfo.absoluteFilePath();
+        const QFileInfo importFileInfo(_doc->path() + QDir::separator() + ast->fileName->asString());
+        name = importFileInfo.absoluteFilePath();
         if (importFileInfo.isFile())
-            info.type = ImportInfo::FileImport;
+            type = ImportInfo::FileImport;
         else if (importFileInfo.isDir())
-            info.type = ImportInfo::DirectoryImport;
-        else
-            info.type = ImportInfo::InvalidFileImport;
+            type = ImportInfo::DirectoryImport;
+        else {
+            _diagnosticMessages->append(
+                        errorMessage(ast, tr("file or directory not found")));
+            type = ImportInfo::UnknownFileImport;
+        }
     }
-    _imports += info;
+    _imports += ImportInfo(type, name, version, ast);
 
     return false;
 }

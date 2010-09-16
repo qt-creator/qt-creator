@@ -64,8 +64,6 @@ private:
 
     void warning(const AST::SourceLocation &loc, const QString &message);
     void error(const AST::SourceLocation &loc, const QString &message);
-    static AST::SourceLocation locationFromRange(const AST::SourceLocation &start,
-                                                 const AST::SourceLocation &end);
 
     Document::Ptr _doc;
     Snapshot _snapshot;
@@ -79,6 +77,20 @@ private:
 };
 
 QMLJS_EXPORT QColor toQColor(const QString &qmlColorString);
+
+QMLJS_EXPORT AST::SourceLocation locationFromRange(const AST::SourceLocation &start,
+                                                   const AST::SourceLocation &end);
+QMLJS_EXPORT DiagnosticMessage errorMessage(const AST::SourceLocation &loc,
+                                            const QString &message);
+
+template <class T>
+DiagnosticMessage errorMessage(const T *node, const QString &message)
+{
+    return DiagnosticMessage(DiagnosticMessage::Error,
+                             locationFromRange(node->firstSourceLocation(),
+                                               node->lastSourceLocation()),
+                             message);
+}
 
 } // namespace QmlJS
 

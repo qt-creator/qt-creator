@@ -42,12 +42,14 @@
 namespace QmlJS {
 
 class NameId;
+class LinkPrivate;
 
 /*
     Helper for building a context.
 */
 class QMLJS_EXPORT Link
 {
+    Q_DECLARE_PRIVATE(Link)
     Q_DECLARE_TR_FUNCTIONS(QmlJS::Link)
 
 public:
@@ -73,22 +75,15 @@ private:
     void linkImports();
     void initializeScopeChain();
 
-    void populateImportedTypes(Interpreter::ObjectValue *typeEnv, Document::Ptr doc);
-    void importFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc,
-                    AST::UiImport *import);
-    void importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc,
-                       AST::UiImport *import);
+    void populateImportedTypes(Interpreter::TypeEnvironment *typeEnv, Document::Ptr doc);
+    Interpreter::ObjectValue *importFile(Document::Ptr doc, const Interpreter::ImportInfo &importInfo);
+    Interpreter::ObjectValue *importNonFile(Document::Ptr doc, const Interpreter::ImportInfo &importInfo);
     void importObject(Bind *bind, const QString &name, Interpreter::ObjectValue *object, NameId *targetNamespace);
 
     void error(const Document::Ptr &doc, const AST::SourceLocation &loc, const QString &message);
 
 private:
-    Document::Ptr _doc;
-    Snapshot _snapshot;
-    Interpreter::Context *_context;
-    const QStringList _importPaths;
-
-    QList<DiagnosticMessage> _diagnosticMessages;
+    QScopedPointer<LinkPrivate> d_ptr;
 };
 
 } // namespace QmlJS
