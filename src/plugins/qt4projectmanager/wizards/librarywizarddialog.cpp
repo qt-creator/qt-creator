@@ -112,11 +112,11 @@ LibraryIntroPage::LibraryIntroPage(QWidget *parent) :
     m_typeCombo(new QComboBox)
 {
     m_typeCombo->setEditable(false);
-    m_typeCombo->addItem(LibraryWizardDialog::tr("Shared library"),
+    m_typeCombo->addItem(LibraryWizardDialog::tr("Shared Library"),
                          QVariant(QtProjectParameters::SharedLibrary));
-    m_typeCombo->addItem(LibraryWizardDialog::tr("Statically linked library"),
+    m_typeCombo->addItem(LibraryWizardDialog::tr("Statically Linked Library"),
                          QVariant(QtProjectParameters::StaticLibrary));
-    m_typeCombo->addItem(LibraryWizardDialog::tr("Qt 4 plugin"),
+    m_typeCombo->addItem(LibraryWizardDialog::tr("Qt 4 Plugin"),
                          QVariant(QtProjectParameters::Qt4Plugin));
     insertControl(0, new QLabel(LibraryWizardDialog::tr("Type")), m_typeCombo);
 }

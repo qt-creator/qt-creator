@@ -48,7 +48,7 @@ using namespace Qt4ProjectManager::Internal;
 ModulesPage::ModulesPage(QWidget *parent)
     : QWizardPage(parent)
 {
-    setTitle(tr("Select required modules"));
+    setTitle(tr("Select Required Modules"));
     QLabel *label = new QLabel(tr("Select the modules you want to include in your "
         "project. The recommended modules for this project are selected by default."));
     label->setWordWrap(true);

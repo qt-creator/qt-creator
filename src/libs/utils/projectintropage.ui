@@ -3,7 +3,7 @@
  <class>Utils::ProjectIntroPage</class>
  <widget class="QWizardPage" name="Utils::ProjectIntroPage">
   <property name="title">
-   <string>Introduction and project location</string>
+   <string>Introduction and Project Location</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="sizeConstraint">

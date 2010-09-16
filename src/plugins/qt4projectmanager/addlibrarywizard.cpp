@@ -112,7 +112,7 @@ LibraryTypePage::LibraryTypePage(AddLibraryWizard *parent)
 
     QVBoxLayout *layout = new QVBoxLayout(this);
 
-    m_systemRadio = new QRadioButton(tr("System Library"), this);
+    m_systemRadio = new QRadioButton(tr("System library"), this);
     m_systemRadio->setChecked(true);
     layout->addWidget(m_systemRadio);
 
@@ -125,7 +125,7 @@ LibraryTypePage::LibraryTypePage(AddLibraryWizard *parent)
     systemLabel->setAttribute(Qt::WA_MacSmallSize, true);
     layout->addWidget(systemLabel);
 
-    m_externalRadio = new QRadioButton(tr("External Library"), this);
+    m_externalRadio = new QRadioButton(tr("External library"), this);
     layout->addWidget(m_externalRadio);
 
     QLabel *externalLabel = new QLabel(tr("Links to a library "
@@ -137,7 +137,7 @@ LibraryTypePage::LibraryTypePage(AddLibraryWizard *parent)
     externalLabel->setAttribute(Qt::WA_MacSmallSize, true);
     layout->addWidget(externalLabel);
 
-    m_internalRadio = new QRadioButton(tr("Internal Library"), this);
+    m_internalRadio = new QRadioButton(tr("Internal library"), this);
     layout->addWidget(m_internalRadio);
 
     QLabel *internalLabel = new QLabel(tr("Links to a library "
