@@ -62,13 +62,15 @@
 
 #include "qmljsdebugger_global.h"
 
-QT_BEGIN_NAMESPACE
+QT_FORWARD_DECLARE_CLASS(QScriptContext);
+
+namespace QmlObserver {
 
 class JSAgentWatchData;
-class QScriptContext;
 
 class QMLJSDEBUGGER_EXPORT JSDebuggerAgent : public QDeclarativeDebugService , public QScriptEngineAgent
-{ Q_OBJECT
+{
+    Q_OBJECT
 public:
     JSDebuggerAgent(QScriptEngine *engine);
     ~JSDebuggerAgent();
@@ -135,6 +137,6 @@ private:
     Q_DISABLE_COPY(JSDebuggerAgent)
 };
 
-QT_END_NAMESPACE
+} // namespace QmlObserver
 
 #endif

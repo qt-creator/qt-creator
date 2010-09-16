@@ -794,10 +794,10 @@ void QDeclarativeViewer::createMenu()
     designModeBehaviorAction->setShortcut(QKeySequence("Ctrl+D"));
     designModeBehaviorAction->setCheckable(true);
     designModeBehaviorAction->setChecked(observer->designModeBehavior());
-    designModeBehaviorAction->setEnabled(QDeclarativeObserverService::hasDebuggingClient());
+    designModeBehaviorAction->setEnabled(QmlObserver::QDeclarativeObserverService::hasDebuggingClient());
     connect(designModeBehaviorAction, SIGNAL(triggered(bool)), this, SLOT(setDesignModeBehavior(bool)));
     connect(observer, SIGNAL(designModeBehaviorChanged(bool)), designModeBehaviorAction, SLOT(setChecked(bool)));
-    connect(QDeclarativeObserverService::instance(), SIGNAL(debuggingClientChanged(bool)), designModeBehaviorAction, SLOT(setEnabled(bool)));
+    connect(QmlObserver::QDeclarativeObserverService::instance(), SIGNAL(debuggingClientChanged(bool)), designModeBehaviorAction, SLOT(setEnabled(bool)));
 
     QAction *proxyAction = new QAction(tr("HTTP &Proxy..."), this);
     connect(proxyAction, SIGNAL(triggered()), this, SLOT(showProxySettings()));

@@ -37,10 +37,9 @@
 #include "qdeclarativeviewobserver.h"
 #include "qdeclarativeobserverservice.h"
 
-QT_FORWARD_DECLARE_CLASS(JSDebuggerAgent)
-
 namespace QmlObserver {
 
+class JSDebuggerAgent;
 class QDeclarativeViewObserver;
 class SelectionTool;
 class ZoomTool;
@@ -54,7 +53,6 @@ class AbstractFormEditorTool;
 
 class QDeclarativeViewObserverPrivate
 {
-
 public:
 
     enum ContextFlags {

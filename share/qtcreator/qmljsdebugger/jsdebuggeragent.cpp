@@ -50,7 +50,7 @@
 #include <QtCore/QDateTime>
 #include <QtScript/qscriptvalueiterator.h>
 
-QT_BEGIN_NAMESPACE
+namespace QmlObserver {
 
 class JSDebuggerAgent::SetupExecEnv {
     JSDebuggerAgent* agent;
@@ -510,4 +510,4 @@ void JSDebuggerAgent::enabledChanged(bool on)
     QDeclarativeDebugService::enabledChanged(on);
 }
 
-QT_END_NAMESPACE
+} // namespace QmlObserver

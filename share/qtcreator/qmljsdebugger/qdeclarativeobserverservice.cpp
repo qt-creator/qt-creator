@@ -46,6 +46,8 @@
 
 #include <QDebug>
 
+namespace QmlObserver {
+
 Q_GLOBAL_STATIC(QDeclarativeObserverService, serviceInstance)
 
 QDeclarativeObserverService::QDeclarativeObserverService()
@@ -233,3 +235,5 @@ QString QDeclarativeObserverService::idStringForObject(QObject *obj) const
     QString idString = m_stringIdForObjectId.value(id, QString());
     return idString;
 }
+
+} // namespace QmlObserver

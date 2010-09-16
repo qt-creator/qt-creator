@@ -48,13 +48,13 @@
 
 #include <QHash>
 
-QT_BEGIN_NAMESPACE
+QT_FORWARD_DECLARE_CLASS(QColor)
+QT_FORWARD_DECLARE_CLASS(QDeclarativeEngine)
+QT_FORWARD_DECLARE_CLASS(QDeclarativeContext)
+QT_FORWARD_DECLARE_CLASS(QDeclarativeWatcher)
+QT_FORWARD_DECLARE_CLASS(QDataStream)
 
-class QColor;
-class QDeclarativeEngine;
-class QDeclarativeContext;
-class QDeclarativeWatcher;
-class QDataStream;
+namespace QmlObserver {
 
 class QMLJSDEBUGGER_EXPORT QDeclarativeObserverService : public QDeclarativeDebugService
 {
@@ -105,6 +105,6 @@ private:
     QHash<int, QString> m_stringIdForObjectId;
 };
 
-QT_END_NAMESPACE
+} // namespace QmlObserver
 
 #endif // QDECLARATIVEDESIGNDEBUGSERVER_H
