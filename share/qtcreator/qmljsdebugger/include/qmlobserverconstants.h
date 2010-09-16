@@ -1,5 +1,5 @@
-#ifndef QMLVIEWERCONSTANTS_H
-#define QMLVIEWERCONSTANTS_H
+#ifndef QMLOBSERVERCONSTANTS_H
+#define QMLOBSERVERCONSTANTS_H
 
 namespace QmlObserver {
 namespace Constants {
@@ -36,4 +36,4 @@ enum GraphicsItemTypes {
 } // namespace Constants
 } // namespace QmlObserver
 
-#endif // QMLVIEWERCONSTANTS_H
+#endif // QMLOBSERVERCONSTANTS_H

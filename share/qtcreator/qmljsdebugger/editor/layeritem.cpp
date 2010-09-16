@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "layeritem.h"
-#include "qmlviewerconstants.h"
+#include "qmlobserverconstants.h"
 
 #include <QGraphicsScene>
 

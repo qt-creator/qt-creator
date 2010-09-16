@@ -1,5 +1,5 @@
 #include "toolbarcolorbox.h"
-#include "qmlviewerconstants.h"
+#include "qmlobserverconstants.h"
 
 #include <QPixmap>
 #include <QPainter>

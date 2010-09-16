@@ -29,7 +29,7 @@
 
 #include "selectionindicator.h"
 #include "qdeclarativeviewobserver_p.h"
-#include "qmlviewerconstants.h"
+#include "qmlobserverconstants.h"
 
 #include <QPen>
 #include <cmath>

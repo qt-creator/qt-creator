@@ -43,7 +43,7 @@
 #define QDECLARATIVEDESIGNDEBUGSERVER_H
 
 #include <private/qdeclarativedebugservice_p.h>
-#include "qmlviewerconstants.h"
+#include "qmlobserverconstants.h"
 #include "qmljsdebugger_global.h"
 
 #include <QHash>

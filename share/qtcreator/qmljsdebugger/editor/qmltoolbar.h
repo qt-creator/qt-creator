@@ -3,7 +3,7 @@
 
 #include <QToolBar>
 #include <QIcon>
-#include "qmlviewerconstants.h"
+#include "qmlobserverconstants.h"
 
 namespace QmlObserver {
 

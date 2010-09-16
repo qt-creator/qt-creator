@@ -31,7 +31,7 @@
 #define QDECLARATIVEVIEWOBSERVER_H
 
 #include "qmljsdebugger_global.h"
-#include "qmlviewerconstants.h"
+#include "qmlobserverconstants.h"
 #include <qdeclarativeview.h>
 #include <QWeakPointer>
 

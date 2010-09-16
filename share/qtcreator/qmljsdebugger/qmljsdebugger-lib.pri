@@ -19,7 +19,7 @@ HEADERS += \
     include/jsdebuggeragent.h \
     include/qdeclarativeviewobserver.h \
     include/qdeclarativeobserverservice.h \
-    include/qmlviewerconstants.h \
+    include/qmlobserverconstants.h \
     include/qmljsdebugger_global.h \
     qdeclarativeviewobserver_p.h
 

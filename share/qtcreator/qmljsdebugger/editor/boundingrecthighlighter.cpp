@@ -1,6 +1,6 @@
 #include "boundingrecthighlighter.h"
 #include "qdeclarativeviewobserver.h"
-#include "qmlviewerconstants.h"
+#include "qmlobserverconstants.h"
 
 #include <QGraphicsPolygonItem>
 #include <QTimer>

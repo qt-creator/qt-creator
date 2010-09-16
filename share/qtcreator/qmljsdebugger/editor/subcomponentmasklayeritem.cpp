@@ -1,5 +1,5 @@
 #include "subcomponentmasklayeritem.h"
-#include "qmlviewerconstants.h"
+#include "qmlobserverconstants.h"
 #include "qdeclarativeviewobserver.h"
 #include <QPolygonF>
 

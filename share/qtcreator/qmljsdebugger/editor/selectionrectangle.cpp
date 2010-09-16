@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "selectionrectangle.h"
-#include "qmlviewerconstants.h"
+#include "qmlobserverconstants.h"
 
 #include <QPen>
 #include <QGraphicsScene>
