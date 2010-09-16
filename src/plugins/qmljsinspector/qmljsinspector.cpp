@@ -579,20 +579,20 @@ void InspectorUi::setupDockWidgets()
 
     m_objectTreeWidget = new QmlJSObjectTree;
 
-    QWidget *inspectorWidget = new QWidget;
-    inspectorWidget->setWindowTitle(tr("Inspector"));
+    QWidget *observerWidget = new QWidget;
+    observerWidget->setWindowTitle(tr("QML Observer"));
 
-    QVBoxLayout *wlay = new QVBoxLayout(inspectorWidget);
+    QVBoxLayout *wlay = new QVBoxLayout(observerWidget);
     wlay->setMargin(0);
     wlay->setSpacing(0);
-    inspectorWidget->setLayout(wlay);
+    observerWidget->setLayout(wlay);
     wlay->addWidget(m_toolbar->widget());
     wlay->addWidget(m_objectTreeWidget);
     wlay->addWidget(m_crumblePath);
 
 
     m_inspectorDockWidget = uiSwitcher->createDockWidget(Debugger::QmlLanguage,
-                                                         inspectorWidget, Qt::BottomDockWidgetArea);
+                                                         observerWidget, Qt::BottomDockWidgetArea);
     m_inspectorDockWidget->setObjectName(Debugger::Constants::DOCKWIDGET_QML_INSPECTOR);
     m_inspectorDockWidget->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
     m_inspectorDockWidget->setTitleBarWidget(new QWidget(m_inspectorDockWidget));

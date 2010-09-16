@@ -70,7 +70,7 @@ public Q_SLOTS:
     void continueExecution(qreal slowdownFactor = 1.0f);
     void pauseExecution();
 
-    void setInspectorContext(int contextIndex);
+    void setObserverContext(int contextIndex);
 
 Q_SIGNALS:
     void designModeBehaviorChanged(bool inDesignMode);

@@ -7,7 +7,7 @@
 #include <QtDeclarative/QDeclarativeEngine>
 #include <QtDeclarative/QDeclarativeContext>
 
-#if defined(QMLINSPECTOR)
+#if defined(QMLOBSERVER)
 #include <qdeclarativeviewobserver.h>
 #endif
 
@@ -50,7 +50,7 @@ QmlApplicationViewer::QmlApplicationViewer(QWidget *parent) :
 {
     connect(engine(), SIGNAL(quit()), SLOT(close()));
     setResizeMode(QDeclarativeView::SizeRootObjectToView);
-#ifdef QMLINSPECTOR
+#ifdef QMLOBSERVER
     new QmlObserver::QDeclarativeViewObserver(this, parent);
 #endif
 }

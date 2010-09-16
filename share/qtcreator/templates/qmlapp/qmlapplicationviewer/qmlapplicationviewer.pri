@@ -7,15 +7,15 @@ SOURCES += $$PWD/qmlapplicationviewer.cpp
 HEADERS += $$PWD/qmlapplicationviewer.h
 INCLUDEPATH += $$PWD
 
-contains(DEFINES, QMLINSPECTOR) {
+contains(DEFINES, QMLOBSERVER) {
     CONFIG(debug, debug|release) {
-        isEmpty(QMLINSPECTOR_PATH) {
-            warning(QMLINSPECTOR_PATH was not set. QMLINSPECTOR not activated.)
-            DEFINES -= QMLINSPECTOR
+        isEmpty(QMLOBSERVER_PATH) {
+            warning(QMLOBSERVER_PATH was not set. QMLOBSERVER not activated.)
+            DEFINES -= QMLOBSERVER
         } else {
-            include($$QMLINSPECTOR_PATH/qmljsdebugger-lib.pri)
+            include($$QMLOBSERVER_PATH/qmljsdebugger-lib.pri)
         }
     } else {
-        DEFINES -= QMLINSPECTOR
+        DEFINES -= QMLOBSERVER
     }
 }

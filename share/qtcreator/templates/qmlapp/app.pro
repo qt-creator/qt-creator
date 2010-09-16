@@ -18,9 +18,9 @@ symbian:TARGET.UID3 = 0xE1111234
 
 symbian:ICON = symbianicon.svg
 
-# Define to enable the Qml Inspector in debug mode
-# QMLINSPECTOR #
-#DEFINES += QMLINSPECTOR
+# Define to enable the Qml Observer in debug mode
+# QMLOBSERVER #
+#DEFINES += QMLOBSERVER
 
 SOURCES += main.cpp
 

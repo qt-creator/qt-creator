@@ -127,7 +127,7 @@ QDeclarativeViewObserver::~QDeclarativeViewObserver()
 {
 }
 
-void QDeclarativeViewObserver::setInspectorContext(int contextIndex)
+void QDeclarativeViewObserver::setObserverContext(int contextIndex)
 {
     if (data->subcomponentEditorTool->contextIndex() != contextIndex) {
         QGraphicsObject *object = data->subcomponentEditorTool->setContext(contextIndex);
