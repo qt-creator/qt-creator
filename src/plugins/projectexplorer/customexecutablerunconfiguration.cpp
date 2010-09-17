@@ -35,6 +35,7 @@
 #include <projectexplorer/environmenteditmodel.h>
 #include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/project.h>
 #include <utils/detailswidget.h>
 #include <utils/pathchooser.h>
 #include <utils/debuggerlanguagechooser.h>
@@ -98,6 +99,7 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
 
     m_workingDirectory = new CustomDirectoryPathChooser(this);
     m_workingDirectory->setExpectedKind(Utils::PathChooser::Directory);
+    m_workingDirectory->setBaseDirectory(rc->target()->project()->projectDirectory());
     layout->addRow(tr("Working directory:"), m_workingDirectory);
 
     m_useTerminalCheck = new QCheckBox(tr("Run in &Terminal"), this);
