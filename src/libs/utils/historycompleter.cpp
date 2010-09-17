@@ -158,6 +158,8 @@ void HistoryListModel::clearHistory()
 
 void HistoryListModel::saveEntry(const QString &str)
 {
+    if (str.isEmpty())
+        return;
     if (list.contains(str))
         return;
     if (!q->widget())
