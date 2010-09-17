@@ -988,7 +988,7 @@ void QtVersionManager::parseParts(const QStringList &parts, QList<QMakeAssignmen
         if (ignoreNext) {
             // Ignoring
             ignoreNext = false;
-        } else if (part == "after") {
+        } else if (part == "-after") {
             after = true;
         } else if(part.contains('=')) {
             if (regExp.exactMatch(part)) {
