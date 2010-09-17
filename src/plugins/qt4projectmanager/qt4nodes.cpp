@@ -1042,7 +1042,7 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
                 while (!lines.isEmpty() && lines.last().isEmpty())
                     lines.removeLast();
             } else {
-                m_project->proFileParseError(tr("Error while reading PRO file %1: %2")
+                m_project->proFileParseError(tr("Error while reading .pro file %1: %2")
                                              .arg(m_projectFilePath, qfile.errorString()));
                 return;
             }

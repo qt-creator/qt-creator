@@ -122,7 +122,7 @@
         <item>
          <widget class="QCheckBox" name="regExp">
           <property name="text">
-           <string>Use regular E&amp;xpressions</string>
+           <string>Use regular e&amp;xpressions</string>
           </property>
          </widget>
         </item>

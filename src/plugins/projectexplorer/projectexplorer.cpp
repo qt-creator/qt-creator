@@ -1672,7 +1672,7 @@ bool ProjectExplorerPlugin::coreAboutToClose()
     if (d->m_buildManager->isBuilding()) {
         QMessageBox box;
         QPushButton *closeAnyway = box.addButton(tr("Cancel Build && Close"), QMessageBox::AcceptRole);
-        QPushButton *cancelClose = box.addButton(tr("Do not Close"), QMessageBox::RejectRole);
+        QPushButton *cancelClose = box.addButton(tr("Do Not Close"), QMessageBox::RejectRole);
         box.setDefaultButton(cancelClose);
         box.setWindowTitle(tr("Close Qt Creator?"));
         box.setText(tr("A project is currently being built."));
@@ -2063,7 +2063,7 @@ void ProjectExplorerPlugin::addExistingFiles()
     if (!notAdded.isEmpty()) {
         QString message = tr("Could not add following files to project %1:\n").arg(projectNode->displayName());
         QString files = notAdded.join("\n");
-        QMessageBox::warning(core->mainWindow(), tr("Add files to project failed"),
+        QMessageBox::warning(core->mainWindow(), tr("Adding Files to Project Failed"),
                              message + files);
         foreach (const QString &file, notAdded)
             fileNames.removeOne(file);
@@ -2086,7 +2086,7 @@ void ProjectExplorerPlugin::addExistingFiles()
                 if (!notAddedToVc.isEmpty()) {
                     const QString message = tr("Could not add following files to version control (%1)\n").arg(vcManager->displayName());
                     const QString filesNotAdded = notAddedToVc.join(QString(QLatin1Char('\n')));
-                    QMessageBox::warning(core->mainWindow(), tr("Add files to version control failed"),
+                    QMessageBox::warning(core->mainWindow(), tr("Adding to Version Control Failed"),
                                          message + filesNotAdded);
                 }
             }
@@ -2144,7 +2144,7 @@ void ProjectExplorerPlugin::removeFile()
         Q_ASSERT(projectNode);
 
         if (!projectNode->removeFiles(fileNode->fileType(), QStringList(filePath))) {
-            QMessageBox::warning(core->mainWindow(), tr("Remove File Failed"),
+            QMessageBox::warning(core->mainWindow(), tr("Removing File Failed"),
                                  tr("Could not remove file %1 from project %2.").arg(filePath).arg(projectNode->displayName()));
             return;
         }
@@ -2159,7 +2159,7 @@ void ProjectExplorerPlugin::removeFile()
             if (file.exists()) {
                 // could have been deleted by vc
                 if (!file.remove())
-                    QMessageBox::warning(core->mainWindow(), tr("Delete file failed"),
+                    QMessageBox::warning(core->mainWindow(), tr("Deleting File Failed"),
                                          tr("Could not delete file %1.").arg(filePath));
             }
         }
@@ -2194,7 +2194,7 @@ void ProjectExplorerPlugin::deleteFile()
     QFile file(filePath);
     if (file.exists()) {
         if (!file.remove())
-            QMessageBox::warning(core->mainWindow(), tr("Delete file failed"),
+            QMessageBox::warning(core->mainWindow(), tr("Deleting File Failed"),
                                  tr("Could not delete file %1.").arg(filePath));
     }
 }
