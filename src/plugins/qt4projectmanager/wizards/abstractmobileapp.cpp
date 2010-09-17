@@ -378,7 +378,8 @@ QByteArray AbstractMobileApp::generateFile(int fileType,
     versioned.replace('\x0A', "");
     const quint16 checkSum = qChecksum(versioned.constData(), versioned.length());
     const QString checkSumString = QString::number(checkSum, 16);
-    const QString versionString = QString::number(makeStubVersion(stubVersionMinor()));
+    const QString versionString
+        = QString::number(makeStubVersion(stubVersionMinor()), 16);
     const QChar sep = QLatin1Char(' ');
     const QString versionLine =
             comment + sep + FileChecksum + sep + QLatin1String("0x") + checkSumString
