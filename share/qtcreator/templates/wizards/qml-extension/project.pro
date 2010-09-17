@@ -7,11 +7,11 @@ TARGET = $$qtLibraryTarget($$TARGET)
 
 # Input
 SOURCES += \
-    %ProjectName%.cpp \
-    %ObjectName%.cpp
+    %ProjectName:l%.%CppSourceSuffix% \
+    %ObjectName:l%.%CppSourceSuffix%
 
 OTHER_FILES=qmldir
 
 HEADERS += \
-    %ProjectName%.h \
-    %ObjectName%.h
+    %ProjectName:l%.%CppHeaderSuffix% \
+    %ObjectName:l%.%CppHeaderSuffix%
