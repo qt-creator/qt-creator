@@ -43,7 +43,7 @@
    <item row="2" column="0">
     <widget class="QLabel" name="label_3">
      <property name="text">
-      <string>Compatibility Version:</string>
+      <string>Compatibility version:</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -69,7 +69,7 @@
    <item row="5" column="0">
     <widget class="QLabel" name="label_6">
      <property name="text">
-      <string>Url:</string>
+      <string>URL:</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
