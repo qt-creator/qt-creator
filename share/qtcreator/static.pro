@@ -32,7 +32,8 @@ DATA_DIRS = \
     gdbmacros \
     qmldesigner \
     qmlicons \
-    qml-type-descriptions
+    qml-type-descriptions \
+    qmljsdebugger
 
 !isEmpty(copydata) {
 

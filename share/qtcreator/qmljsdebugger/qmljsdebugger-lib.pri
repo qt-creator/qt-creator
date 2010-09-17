@@ -8,9 +8,7 @@ contains(CONFIG, dll) {
     DEFINES += BUILD_QMLJSDEBUGGER_STATIC_LIB
 }
 
-## Once is not enough
-include($$PWD/../../../src/private_headers.pri)
-include($$PWD/../../../src/private_headers.pri)
+include($$PWD/private_headers.pri)
 
 include($$PWD/editor/editor.pri)
 
