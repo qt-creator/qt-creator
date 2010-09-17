@@ -157,7 +157,7 @@ QString CdbOptionsPage::settingsId()
 
 QString CdbOptionsPage::displayName() const
 {
-    return tr("Cdb");
+    return tr("CDB");
 }
 
 QString CdbOptionsPage::category() const

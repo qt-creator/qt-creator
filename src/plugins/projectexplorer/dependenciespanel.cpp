@@ -128,7 +128,7 @@ bool DependenciesModel::setData(const QModelIndex &index, const QVariant &value,
                 emit dataChanged(index, index);
                 return true;
             } else {
-                QMessageBox::warning(0, QCoreApplication::translate("DependenciesModel", "Unable to add dependency"),
+                QMessageBox::warning(0, QCoreApplication::translate("DependenciesModel", "Unable to Add Dependency"),
                                      QCoreApplication::translate("DependenciesModel", "This would create a circular dependency."));
             }
         } else if (c == Qt::Unchecked) {

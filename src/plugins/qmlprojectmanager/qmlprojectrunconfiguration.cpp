@@ -188,7 +188,7 @@ QWidget *QmlProjectRunConfiguration::createConfigurationWidget()
 
     Utils::DebuggerLanguageChooser *debuggerLanguageChooser = new Utils::DebuggerLanguageChooser(config);
 
-    form->addRow(tr("Main QML File:"), m_fileListCombo.data());
+    form->addRow(tr("Main QML file:"), m_fileListCombo.data());
     form->addRow(debuggerLabelWidget, debuggerLanguageChooser);
 
     debuggerLanguageChooser->setCppChecked(useCppDebugger());

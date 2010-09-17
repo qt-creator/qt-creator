@@ -724,7 +724,7 @@ bool GitPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEdi
     GitSettings settings = m_gitClient->settings();
     const bool wantedPrompt = settings.promptToSubmit;
     const VCSBase::VCSBaseSubmitEditor::PromptSubmitResult answer =
-            editor->promptSubmit(tr("Closing git editor"),
+            editor->promptSubmit(tr("Closing Git Editor"),
                                  tr("Do you want to commit the change?"),
                                  tr("The commit message check failed. Do you want to commit the change?"),
                                  &settings.promptToSubmit, !m_submitActionTriggered);
@@ -844,7 +844,7 @@ void GitPlugin::cleanRepository(const QString &directory)
         return;
     }
     if (files.isEmpty()) {
-        QMessageBox::information(parent, tr("Repository clean"),
+        QMessageBox::information(parent, tr("Repository Clean"),
                                  tr("The repository is clean."));
         return;
     }
@@ -910,7 +910,7 @@ void GitPlugin::applyPatch(const QString &workingDirectory, QString file)
     if (file.isEmpty()) {
         const QString filter = tr("Patches (*.patch *.diff)");
         file =  QFileDialog::getOpenFileName(Core::ICore::instance()->mainWindow(),
-                                             tr("Choose patch"),
+                                             tr("Choose Patch"),
                                              QString(), filter);
         if (file.isEmpty())
             return;

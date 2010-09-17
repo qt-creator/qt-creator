@@ -495,7 +495,7 @@ GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericProject *project)
     }
 
     toolChainChooser->setCurrentIndex(selectedIndex);
-    fl->addRow(tr("Tool Chain:"), toolChainChooser);
+    fl->addRow(tr("Tool chain:"), toolChainChooser);
     connect(toolChainChooser, SIGNAL(activated(int)), this, SLOT(toolChainSelected(int)));
 }
 

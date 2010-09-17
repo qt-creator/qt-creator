@@ -903,7 +903,7 @@ QToolBar *HelpPlugin::createWidgetToolBar()
 
     m_closeButton = new QToolButton();
     m_closeButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_CLOSE)));
-    m_closeButton->setToolTip(tr("Close current Page"));
+    m_closeButton->setToolTip(tr("Close current page"));
     connect(m_closeButton, SIGNAL(clicked()), &OpenPagesManager::instance(),
         SLOT(closeCurrentPage()));
     connect(&OpenPagesManager::instance(), SIGNAL(pagesChanged()), this,
