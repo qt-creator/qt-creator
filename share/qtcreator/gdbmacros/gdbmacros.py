@@ -1849,6 +1849,7 @@ def qdump__std__deque(d, item):
     impl = item.value["_M_impl"]
     start = impl["_M_start"]
     size = impl["_M_finish"]["_M_cur"] - start["_M_cur"]
+    check(0 <= size and size <= 1000 * 1000 * 1000)
     d.putItemCount(size)
     d.putNumChild(size)
     if d.isExpanded(item):
@@ -2076,6 +2077,7 @@ def qdump__wstring(d, item):
 def qdump____gnu_cxx__hash_set(d, item):
     ht = item.value["_M_ht"]
     size = ht["_M_num_elements"]
+    check(0 <= size and size <= 1000 * 1000 * 1000)
     d.putItemCount(size)
     d.putNumChild(size)
     type = item.value.type.template_argument(0)
