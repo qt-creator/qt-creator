@@ -60,7 +60,7 @@ HighlighterSettingsPage::HighlighterSettingsPagePrivate::
 HighlighterSettingsPagePrivate(const QString &id) :
     m_id(id),
     m_displayName(tr("Generic Highlighter")),
-    m_settingsPrefix(QLatin1String("text"))
+    m_settingsPrefix(QLatin1String("Text"))
 {}
 
 HighlighterSettingsPage::HighlighterSettingsPage(const QString &id, QObject *parent) :
