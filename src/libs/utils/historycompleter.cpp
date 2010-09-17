@@ -32,6 +32,7 @@
 #include <QCompleter>
 #include <QAbstractListModel>
 #include <QSettings>
+#include <QKeyEvent>
 
 namespace Utils {
 
@@ -44,6 +45,7 @@ public:
     QVariant data( const QModelIndex &index, int role = Qt::DisplayRole) const;
     void clearHistory();
     void saveEntry(const QString &str);
+    bool eventFilter(QObject *obj, QEvent *event);
 
     QStringList list;
     HistoryCompleter *q;
@@ -79,6 +81,9 @@ void HistoryListModel::fetchHistory()
 int HistoryListModel::rowCount(const QModelIndex &parent) const
 {
     if (lastSeenWidget != q->widget()) {
+        if (lastSeenWidget)
+            const_cast<QWidget*>(lastSeenWidget)->removeEventFilter(const_cast<HistoryListModel *>(this));
+        const_cast<QWidget*>(q->widget())->installEventFilter(const_cast<HistoryListModel *>(this));
         if (qobject_cast<QLineEdit *>(lastSeenWidget))
             // this will result in spamming the history with garbage in some corner cases.
             // not my idea.
@@ -116,6 +121,9 @@ void HistoryListModel::saveEntry(const QString &str)
     if (!q->widget())
         return;
     if (lastSeenWidget != q->widget()) {
+        if (lastSeenWidget)
+            lastSeenWidget->removeEventFilter(this);
+        q->widget()->installEventFilter(this);
         fetchHistory();
         lastSeenWidget = q->widget();
     }
@@ -129,6 +137,15 @@ void HistoryListModel::saveEntry(const QString &str)
     settings->setValue(objectName, list);
 }
 
+bool HistoryListModel::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::KeyPress && static_cast<QKeyEvent *>(event)->key() == Qt::Key_Down) {
+        q->setCompletionPrefix(QString());
+        q->complete();
+    }
+    return QAbstractListModel::eventFilter(obj,event);
+}
+
 
 class HistoryCompleterPrivate
 {
@@ -138,7 +155,6 @@ public:
         , model(new HistoryListModel(parent))
     {
         Q_Q(HistoryCompleter);
-        q->setModel(model);
     }
     HistoryCompleter *q_ptr;
     HistoryListModel *model;
@@ -150,7 +166,18 @@ HistoryCompleter::HistoryCompleter(QObject *parent)
     : QCompleter(parent)
     , d_ptr(new HistoryCompleterPrivate(this))
 {
-
+    // make an assumption to allow pressing of the down
+    // key, before the first model run:
+    // parent is likely the lineedit
+    QWidget *p = qobject_cast<QWidget*>(parent);
+    if (p) {
+        p->installEventFilter(d_ptr->model);
+        QString objectName = p->objectName();
+        if (objectName.isEmpty())
+            return;
+        d_ptr->model->list = d_ptr->model->settings->value(objectName).toStringList();
+    }
+    setModel(d_ptr->model);
 }
 
 QSettings *HistoryCompleter::settings() const
