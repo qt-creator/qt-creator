@@ -2445,7 +2445,7 @@
     your own library or a 3rd party library located in the build tree of the
     current project or in another build tree.
 
-    \image qtcreator-add-library-wizard "Add Library wizard"
+    \image qtcreator-add-library-wizard.png "Add Library wizard"
 
     Because system libraries do not typically change and are often found by
     default, you do not need to specify the path to the library or to its includes
