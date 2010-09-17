@@ -1315,6 +1315,8 @@ void ProjectExplorerPlugin::executeRunConfiguration(RunConfiguration *runConfigu
         emit aboutToExecuteProject(runConfiguration->target()->project(), runMode);
 
         RunControl *control = runControlFactory->create(runConfiguration, runMode);
+        if (!control)
+            return;
         startRunControl(control, runMode);
     }
 }
