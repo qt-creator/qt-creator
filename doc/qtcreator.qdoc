@@ -3542,7 +3542,7 @@
 
     \list 1
 
-        \o On the \gui Welcome page, select \gui {Choose an example... >
+        \o On the \gui Welcome page, select \gui {Choose an Example... >
         Animation Framework > Animated Tiles}.
 
         \image qtcreator-gs-build-example-open.png "Selecting an example"

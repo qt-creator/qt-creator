@@ -128,7 +128,7 @@ void GettingStartedWelcomePageWidget::updateCppExamples(const QString &examplePa
         return;
 
     ui->cppExamplesButton->setEnabled(true);;
-    ui->cppExamplesButton->setText(tr("Choose an example..."));
+    ui->cppExamplesButton->setText(tr("Choose an Example..."));
 
     QMenu *menu = new QMenu(ui->cppExamplesButton);
     ui->cppExamplesButton->setMenu(menu);
@@ -183,7 +183,7 @@ void GettingStartedWelcomePageWidget::updateCppExamples(const QString &examplePa
 void GettingStartedWelcomePageWidget::updateQmlExamples(const QString &examplePath,
                                                         const QString &sourcePath)
 {
-    ui->qmlExamplesButton->setText(tr("Choose an example..."));
+    ui->qmlExamplesButton->setText(tr("Choose an Example..."));
 
     QStringList roots;
     roots << (examplePath + QLatin1String("/declarative"))
