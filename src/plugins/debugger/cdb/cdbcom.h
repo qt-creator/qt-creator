@@ -47,6 +47,7 @@ typedef IDebugDataSpaces4      CIDebugDataSpaces;
 
 typedef IDebugSymbolGroup2     CIDebugSymbolGroup;
 typedef IDebugBreakpoint2      CIDebugBreakpoint;
+typedef IDebugAdvanced2        CIDebugAdvanced;
 
 #else
 

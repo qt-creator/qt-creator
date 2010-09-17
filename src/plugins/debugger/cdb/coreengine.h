@@ -52,6 +52,7 @@ struct ComInterfaces
     CIDebugSymbols*         debugSymbols;
     CIDebugRegisters*       debugRegisters;
     CIDebugDataSpaces*      debugDataSpaces;
+    CIDebugAdvanced*        debugAdvanced;
 };
 
 class CoreEngine : public QObject

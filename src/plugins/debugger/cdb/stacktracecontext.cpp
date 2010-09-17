@@ -84,7 +84,8 @@ QString Thread::toString() const
 {
     QString rc;
     QTextStream str(&rc);
-    str << "Thread id " << id << " System id " << systemId << " Data at 0x";
+    str << "Thread id " << id << " System id " << systemId
+        << " name='" << name <<"' Data at 0x";
     str.setIntegerBase(16);
     str << dataOffset;
     return rc;
@@ -401,13 +402,23 @@ bool StackTraceContext::getThreadList(const CdbCore::ComInterfaces &cif,
         return false;
     }
     // Create entries
+    static WCHAR name[256];
     for (ULONG i= 0; i < threadCount ; i++) {
-        threads->push_back(Thread(ids[i], systemIds[i]));
+        const ULONG id = ids[i];
+        Thread thread(id, systemIds[i]);
         if (ids[i] ==  *currentThreadId) { // More info for current
             ULONG64 offset;
             if (SUCCEEDED(cif.debugSystemObjects->GetCurrentThreadDataOffset(&offset)))
-                threads->back().dataOffset = offset;
+                thread.dataOffset = offset;
         }
+        // Name
+        ULONG bytesReceived = 0;
+        hr = cif.debugAdvanced->GetSystemObjectInformation(DEBUG_SYSOBJINFO_THREAD_NAME_WIDE,
+                                                           0, id, name,
+                                                           sizeof(name), &bytesReceived);
+        if (SUCCEEDED(hr) && bytesReceived)
+            thread.name = QString::fromWCharArray(name);
+        threads->push_back(thread);
     }
     return true;
 }

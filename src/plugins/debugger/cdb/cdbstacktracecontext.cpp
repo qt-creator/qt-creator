@@ -141,6 +141,7 @@ bool CdbStackTraceContext::getThreads(const CdbCore::ComInterfaces &cif,
         const CdbCore::Thread &coreThread = coreThreads.at(i);
         ThreadData data(coreThread.id);
         data.targetId = QLatin1String("0x") + QString::number(coreThread.systemId);
+        data.name = coreThread.name;
         if (stopped) {
             const CdbCore::StackFrame &coreFrame = frames.at(i);
             data.address = coreFrame.address;

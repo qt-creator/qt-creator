@@ -73,6 +73,9 @@ static inline QString threadToolTip(const ThreadData &thread)
     if (!thread.targetId.isEmpty())
         str << tableRowStartC << ThreadsHandler::tr("Target&nbsp;id:")
         << tableRowSeparatorC << thread.targetId << tableRowEndC;
+    if (!thread.name.isEmpty())
+        str << tableRowStartC << ThreadsHandler::tr("Name:")
+        << tableRowSeparatorC << thread.name << tableRowEndC;
     if (!thread.state.isEmpty())
         str << tableRowStartC << ThreadsHandler::tr("State:")
         << tableRowSeparatorC << thread.state << tableRowEndC;

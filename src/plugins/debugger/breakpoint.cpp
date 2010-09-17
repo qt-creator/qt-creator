@@ -43,7 +43,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QTextStream>
 #include <QtCore/QFileInfo>
-
+#include <QtCore/QDir>
 
 //////////////////////////////////////////////////////////////////
 //
@@ -239,7 +239,7 @@ QString BreakpointData::toToolTip() const
     QTextStream str(&rc);
     str << "<html><body><table>"
         << "<tr><td>" << BreakHandler::tr("Marker File:")
-        << "</td><td>" << m_markerFileName << "</td></tr>"
+        << "</td><td>" << QDir::toNativeSeparators(m_markerFileName) << "</td></tr>"
         << "<tr><td>" << BreakHandler::tr("Marker Line:")
         << "</td><td>" << m_markerLineNumber << "</td></tr>"
         << "<tr><td>" << BreakHandler::tr("Breakpoint Number:")
@@ -257,7 +257,7 @@ QString BreakpointData::toToolTip() const
         << "<tr><td>" << BreakHandler::tr("Internal Number:")
         << "</td><td>&mdash;</td><td>" << bpNumber << "</td></tr>"
         << "<tr><td>" << BreakHandler::tr("File Name:")
-        << "</td><td>" << fileName << "</td><td>" << bpFileName << "</td></tr>"
+        << "</td><td>" << fileName << "</td><td>" << QDir::toNativeSeparators(bpFileName) << "</td></tr>"
         << "<tr><td>" << BreakHandler::tr("Function Name:")
         << "</td><td>" << funcName << "</td><td>" << bpFuncName << "</td></tr>"
         << "<tr><td>" << BreakHandler::tr("Line Number:")

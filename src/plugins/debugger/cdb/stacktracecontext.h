@@ -70,6 +70,7 @@ struct Thread {
     unsigned long id;
     unsigned long systemId;
     quint64 dataOffset; // Only for current.
+    QString name;
 };
 
 inline bool operator<(const Thread &t1, const Thread &t2) { return t1.id < t2.id; }

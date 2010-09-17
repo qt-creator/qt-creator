@@ -152,7 +152,8 @@ ComInterfaces::ComInterfaces() :
     debugSystemObjects(0),
     debugSymbols(0),
     debugRegisters(0),
-    debugDataSpaces(0)
+    debugDataSpaces(0),
+    debugAdvanced(0)
 {
 }
 
@@ -250,6 +251,8 @@ CoreEngine::~CoreEngine()
         m_cif.debugRegisters->Release();
     if (m_cif.debugDataSpaces)
         m_cif.debugDataSpaces->Release();
+    if (m_cif.debugAdvanced)
+        m_cif.debugAdvanced->Release();
 }
 
 bool CoreEngine::init(const QString &dllEnginePath, QString *errorMessage)
@@ -307,6 +310,12 @@ bool CoreEngine::init(const QString &dllEnginePath, QString *errorMessage)
     hr = lib.debugCreate( __uuidof(IDebugDataSpaces4), reinterpret_cast<void**>(&m_cif.debugDataSpaces));
     if (FAILED(hr)) {
         *errorMessage = QString::fromLatin1("Creation of IDebugDataSpaces4 failed: %1").arg(msgDebugEngineComResult(hr));
+        return false;
+    }
+
+    hr = lib.debugCreate( __uuidof(IDebugAdvanced2), reinterpret_cast<void**>(&m_cif.debugAdvanced));
+    if (FAILED(hr)) {
+        *errorMessage = QString::fromLatin1("Creation of IDebugAdvanced2 failed: %1").arg(msgDebugEngineComResult(hr));
         return false;
     }
 
