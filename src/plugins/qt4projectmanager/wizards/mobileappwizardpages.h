@@ -30,7 +30,7 @@
 #ifndef MOBILEAPPWIZARDPAGES_H
 #define MOBILEAPPWIZARDPAGES_H
 
-#include "mobileapp.h"
+#include "abstractmobileapp.h"
 
 #include <QtGui/QWizardPage>
 
@@ -46,8 +46,8 @@ public:
     explicit MobileAppWizardOptionsPage(QWidget *parent = 0);
     virtual ~MobileAppWizardOptionsPage();
 
-    void setOrientation(MobileApp::Orientation orientation);
-    MobileApp::Orientation orientation() const;
+    void setOrientation(AbstractMobileApp::Orientation orientation);
+    AbstractMobileApp::Orientation orientation() const;
     QString symbianSvgIcon() const;
     void setSymbianSvgIcon(const QString &icon);
     QString maemoPngIcon() const;

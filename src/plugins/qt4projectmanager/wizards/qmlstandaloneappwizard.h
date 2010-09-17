@@ -30,12 +30,12 @@
 #ifndef QMLSTANDALONEAPPWIZARD_H
 #define QMLSTANDALONEAPPWIZARD_H
 
-#include <coreplugin/basefilewizard.h>
+#include "abstractmobileappwizard.h"
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class QmlStandaloneAppWizard : public Core::BaseFileWizard
+class QmlStandaloneAppWizard : public AbstractMobileAppWizard
 {
     Q_OBJECT
 
@@ -47,21 +47,21 @@ public:
 
     QmlStandaloneAppWizard(WizardType type);
     virtual ~QmlStandaloneAppWizard();
-    static Core::BaseFileWizardParameters parameters(WizardType type);
 
-protected:
-    QWizard *createWizardDialog(QWidget *parent, const QString &defaultPath,
-                                const WizardPageList &extensionPages) const;
-    Core::GeneratedFiles generateFiles(const QWizard *wizard,
-                                       QString *errorMessage) const;
-    bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l,
-                           QString *errorMessage);
-
-protected slots:
-    void useProjectPath(const QString &projectName, const QString &projectPath);
+private slots:
     void handleModulesChange(const QStringList &uris, const QStringList &paths);
 
 private:
+    static Core::BaseFileWizardParameters parameters(WizardType type);
+
+    virtual AbstractMobileApp *app() const;
+    virtual AbstractMobileAppWizardDialog *wizardDialog() const;
+    virtual AbstractMobileAppWizardDialog *createWizardDialogInternal(QWidget *parent) const;
+    virtual void prepareGenerateFiles(const QWizard *wizard,
+        QString *errorMessage) const;
+    virtual bool postGenerateFiles(const QWizard *w,
+        const Core::GeneratedFiles &l, QString *errorMessage);
+
     class QmlStandaloneAppWizardPrivate *m_d;
 };
 

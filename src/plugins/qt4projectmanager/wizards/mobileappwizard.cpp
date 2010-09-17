@@ -33,17 +33,12 @@
 
 #include "qt4projectmanagerconstants.h"
 
-#include <projectexplorer/baseprojectwizarddialog.h>
 #include <projectexplorer/customwizard/customwizard.h>
 #include <projectexplorer/projectexplorer.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <QtGui/QIcon>
-
-#include <QtCore/QTextStream>
 #include <QtCore/QCoreApplication>
-#include <QtCore/QDir>
-#include <QtCore/QFile>
+#include <QtGui/QIcon>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -57,27 +52,17 @@ const QString Description
         "Preselects Qt for Simulator and mobile targets if available.");
 }
 
-class MobileAppWizardDialog : public ProjectExplorer::BaseProjectWizardDialog
+class MobileAppWizardDialog : public AbstractMobileAppWizardDialog
 {
     Q_OBJECT
-
 public:
-    explicit MobileAppWizardDialog(QWidget *parent = 0);
-
-private:
-    class MobileAppWizardOptionsPage *m_optionsPage;
-    friend class MobileAppWizard;
+    explicit MobileAppWizardDialog(QWidget *parent = 0)
+        : AbstractMobileAppWizardDialog(parent)
+    {
+        setWindowTitle(DisplayName);
+        setIntroDescription(Description);
+    }
 };
-
-MobileAppWizardDialog::MobileAppWizardDialog(QWidget *parent)
-    : ProjectExplorer::BaseProjectWizardDialog(parent)
-{
-    setWindowTitle(DisplayName);
-    setIntroDescription(Description);
-    m_optionsPage = new MobileAppWizardOptionsPage;
-    const int optionsPagePageId = addPage(m_optionsPage);
-    wizardProgress()->item(optionsPagePageId)->setTitle(tr("Application options"));
-}
 
 class MobileAppWizardPrivate
 {
@@ -87,7 +72,7 @@ class MobileAppWizardPrivate
 };
 
 MobileAppWizard::MobileAppWizard()
-    : Core::BaseFileWizard(parameters())
+    : AbstractMobileAppWizard(parameters())
     , m_d(new MobileAppWizardPrivate)
 {
     m_d->mobileApp = new MobileApp;
@@ -113,39 +98,17 @@ Core::BaseFileWizardParameters MobileAppWizard::parameters()
     return parameters;
 }
 
-QWizard *MobileAppWizard::createWizardDialog(QWidget *parent,
-    const QString &defaultPath, const WizardPageList &extensionPages) const
+AbstractMobileAppWizardDialog *MobileAppWizard::createWizardDialogInternal(QWidget *parent) const
 {
     m_d->wizardDialog = new MobileAppWizardDialog(parent);
-
-    m_d->wizardDialog->setPath(defaultPath);
-    m_d->wizardDialog->setProjectName(MobileAppWizardDialog::uniqueProjectName(defaultPath));
-    m_d->wizardDialog->m_optionsPage->setSymbianSvgIcon(m_d->mobileApp->symbianSvgIcon());
-    m_d->wizardDialog->m_optionsPage->setMaemoPngIcon(m_d->mobileApp->maemoPngIcon());
-    m_d->wizardDialog->m_optionsPage->setOrientation(m_d->mobileApp->orientation());
-    m_d->wizardDialog->m_optionsPage->setNetworkEnabled(m_d->mobileApp->networkEnabled());
-    connect(m_d->wizardDialog, SIGNAL(introPageLeft(QString, QString)), SLOT(useProjectPath(QString, QString)));
-    foreach (QWizardPage *p, extensionPages)
-        BaseFileWizard::applyExtensionPageShortTitle(m_d->wizardDialog, m_d->wizardDialog->addPage(p));
-
     return m_d->wizardDialog;
 }
 
-Core::GeneratedFiles MobileAppWizard::generateFiles(const QWizard *w,
-                                                           QString *errorMessage) const
+void MobileAppWizard::prepareGenerateFiles(const QWizard *w,
+    QString *errorMessage) const
 {
+    Q_UNUSED(w);
     Q_UNUSED(errorMessage)
-
-    const MobileAppWizardDialog *wizard = qobject_cast<const MobileAppWizardDialog*>(w);
-
-    m_d->mobileApp->setProjectName(wizard->projectName());
-    m_d->mobileApp->setProjectPath(wizard->path());
-    m_d->mobileApp->setSymbianTargetUid(wizard->m_optionsPage->symbianUid());
-    m_d->mobileApp->setSymbianSvgIcon(wizard->m_optionsPage->symbianSvgIcon());
-    m_d->mobileApp->setOrientation(wizard->m_optionsPage->orientation());
-    m_d->mobileApp->setNetworkEnabled(wizard->m_optionsPage->networkEnabled());
-
-    return m_d->mobileApp->generateFiles(errorMessage);
 }
 
 bool MobileAppWizard::postGenerateFiles(const QWizard *wizard, const Core::GeneratedFiles &l, QString *errorMessage)
@@ -154,9 +117,14 @@ bool MobileAppWizard::postGenerateFiles(const QWizard *wizard, const Core::Gener
     return ProjectExplorer::CustomProjectWizard::postGenerateOpen(l, errorMessage);
 }
 
-void MobileAppWizard::useProjectPath(const QString &projectName, const QString &projectPath)
+AbstractMobileApp *MobileAppWizard::app() const
 {
-    m_d->wizardDialog->m_optionsPage->setSymbianUid(MobileApp::symbianUidForPath(projectPath + projectName));
+    return m_d->mobileApp;
+}
+
+AbstractMobileAppWizardDialog *MobileAppWizard::wizardDialog() const
+{
+    return m_d->wizardDialog;
 }
 
 } // namespace Internal

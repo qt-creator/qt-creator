@@ -38,6 +38,7 @@ HEADERS += qt4deployconfiguration.h \
     wizards/qmlstandaloneappwizardpages.h \
     wizards/abstractmobileapp.h \
     wizards/qmlstandaloneapp.h \
+    wizards/abstractmobileappwizard.h \
     qt4projectmanagerconstants.h \
     makestep.h \
     qmakestep.h \
@@ -54,7 +55,7 @@ HEADERS += qt4deployconfiguration.h \
     qt4buildconfiguration.h \
     qt4target.h \
     qmakeparser.h \
-   qtoutputformatter.h \
+    qtoutputformatter.h \
     addlibrarywizard.h \
     librarydetailscontroller.h \
     findqt4profiles.h \
@@ -93,6 +94,7 @@ SOURCES += qt4projectmanagerplugin.cpp \
     wizards/qmlstandaloneappwizardpages.cpp \
     wizards/abstractmobileapp.cpp \
     wizards/qmlstandaloneapp.cpp \
+    wizards/abstractmobileappwizard.cpp \
     makestep.cpp \
     qmakestep.cpp \
     qt4runconfiguration.cpp \

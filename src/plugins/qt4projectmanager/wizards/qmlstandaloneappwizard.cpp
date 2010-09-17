@@ -28,9 +28,9 @@
 **************************************************************************/
 
 #include "mobileappwizardpages.h"
+#include "qmlstandaloneapp.h"
 #include "qmlstandaloneappwizard.h"
 #include "qmlstandaloneappwizardpages.h"
-#include "qmlstandaloneapp.h"
 
 #include "qt4projectmanagerconstants.h"
 
@@ -39,20 +39,13 @@
 #include <projectexplorer/projectexplorer.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <QtGui/QIcon>
-
-#include <QtGui/QPainter>
-#include <QtGui/QPixmap>
-
-#include <QtCore/QTextStream>
 #include <QtCore/QCoreApplication>
-#include <QtCore/QDir>
-#include <QtCore/QFile>
+#include <QtGui/QIcon>
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class QmlStandaloneAppWizardDialog : public ProjectExplorer::BaseProjectWizardDialog
+class QmlStandaloneAppWizardDialog : public AbstractMobileAppWizardDialog
 {
     Q_OBJECT
 
@@ -62,13 +55,12 @@ public:
 private:
     QmlStandaloneAppWizard::WizardType m_type;
     class QmlStandaloneAppWizardSourcesPage *m_qmlSourcesPage;
-    class MobileAppWizardOptionsPage *m_qmlOptionsPage;
     friend class QmlStandaloneAppWizard;
 };
 
 QmlStandaloneAppWizardDialog::QmlStandaloneAppWizardDialog(QmlStandaloneAppWizard::WizardType type,
                                                            QWidget *parent)
-    : ProjectExplorer::BaseProjectWizardDialog(parent)
+    : AbstractMobileAppWizardDialog(parent)
     , m_type(type)
 {
     setWindowTitle(m_type == QmlStandaloneAppWizard::NewQmlFile
@@ -80,20 +72,8 @@ QmlStandaloneAppWizardDialog::QmlStandaloneAppWizardDialog(QmlStandaloneAppWizar
 
     m_qmlSourcesPage = new QmlStandaloneAppWizardSourcesPage;
     m_qmlSourcesPage->setMainQmlFileChooserVisible(m_type == QmlStandaloneAppWizard::ImportQmlFile);
-    const QString qmlSourcesTitle = tr("QML Sources");
-    if (m_type == QmlStandaloneAppWizard::ImportQmlFile) {
-        const int qmlSourcesPagePageId = addPage(m_qmlSourcesPage);
-        wizardProgress()->item(qmlSourcesPagePageId)->setTitle(qmlSourcesTitle);
-    }
-
-    m_qmlOptionsPage = new MobileAppWizardOptionsPage;
-    const int qmlOptionsPagePageId = addPage(m_qmlOptionsPage);
-    wizardProgress()->item(qmlOptionsPagePageId)->setTitle(tr("QML Application options"));
-    if (m_type == QmlStandaloneAppWizard::NewQmlFile) {
-        // In case of NewQmlFile, we show that page at the end. Is that useful? Or irritating?
-        const int qmlSourcesPagePageId = addPage(m_qmlSourcesPage);
-        wizardProgress()->item(qmlSourcesPagePageId)->setTitle(qmlSourcesTitle);
-    }
+    const int qmlSourcesPagePageId = addPage(m_qmlSourcesPage);
+    wizardProgress()->item(qmlSourcesPagePageId)->setTitle(tr("QML Sources"));
 }
 
 class QmlStandaloneAppWizardPrivate
@@ -105,7 +85,7 @@ class QmlStandaloneAppWizardPrivate
 };
 
 QmlStandaloneAppWizard::QmlStandaloneAppWizard(WizardType type)
-    : Core::BaseFileWizard(parameters(type))
+    : AbstractMobileAppWizard(parameters(type))
     , m_d(new QmlStandaloneAppWizardPrivate)
 {
     m_d->type = type;
@@ -116,6 +96,7 @@ QmlStandaloneAppWizard::QmlStandaloneAppWizard(WizardType type)
 QmlStandaloneAppWizard::~QmlStandaloneAppWizard()
 {
     delete m_d->standaloneApp;
+    delete m_d;
 }
 
 Core::BaseFileWizardParameters QmlStandaloneAppWizard::parameters(WizardType type)
@@ -141,47 +122,23 @@ Core::BaseFileWizardParameters QmlStandaloneAppWizard::parameters(WizardType typ
     return parameters;
 }
 
-QWizard *QmlStandaloneAppWizard::createWizardDialog(QWidget *parent,
-                                                    const QString &defaultPath,
-                                                    const WizardPageList &extensionPages) const
+AbstractMobileAppWizardDialog *QmlStandaloneAppWizard::createWizardDialogInternal(QWidget *parent) const
 {
     m_d->wizardDialog = new QmlStandaloneAppWizardDialog(m_d->type, parent);
-
-    m_d->wizardDialog->setPath(defaultPath);
-    m_d->wizardDialog->setProjectName(QmlStandaloneAppWizardDialog::uniqueProjectName(defaultPath));
-    m_d->wizardDialog->m_qmlOptionsPage->setSymbianSvgIcon(m_d->standaloneApp->symbianSvgIcon());
-    m_d->wizardDialog->m_qmlOptionsPage->setMaemoPngIcon(m_d->standaloneApp->maemoPngIcon());
-    m_d->wizardDialog->m_qmlOptionsPage->setOrientation(m_d->standaloneApp->orientation());
-    m_d->wizardDialog->m_qmlOptionsPage->setNetworkEnabled(m_d->standaloneApp->networkEnabled());
-    connect(m_d->wizardDialog, SIGNAL(introPageLeft(QString, QString)), SLOT(useProjectPath(QString, QString)));
     connect(m_d->wizardDialog->m_qmlSourcesPage,
             SIGNAL(externalModulesChanged(QStringList, QStringList)), SLOT(handleModulesChange(QStringList, QStringList)));
-
-    foreach (QWizardPage *p, extensionPages)
-        BaseFileWizard::applyExtensionPageShortTitle(m_d->wizardDialog, m_d->wizardDialog->addPage(p));
-
     return m_d->wizardDialog;
 }
 
-Core::GeneratedFiles QmlStandaloneAppWizard::generateFiles(const QWizard *w,
-                                                           QString *errorMessage) const
+void QmlStandaloneAppWizard::prepareGenerateFiles(const QWizard *w,
+    QString *errorMessage) const
 {
     Q_UNUSED(errorMessage)
-
     const QmlStandaloneAppWizardDialog *wizard = qobject_cast<const QmlStandaloneAppWizardDialog*>(w);
-
-    m_d->standaloneApp->setProjectName(wizard->projectName());
-    m_d->standaloneApp->setProjectPath(wizard->path());
-    m_d->standaloneApp->setSymbianTargetUid(wizard->m_qmlOptionsPage->symbianUid());
-    m_d->standaloneApp->setSymbianSvgIcon(wizard->m_qmlOptionsPage->symbianSvgIcon());
-    m_d->standaloneApp->setOrientation(wizard->m_qmlOptionsPage->orientation());
-    m_d->standaloneApp->setNetworkEnabled(wizard->m_qmlOptionsPage->networkEnabled());
     if (m_d->type == QmlStandaloneAppWizard::ImportQmlFile)
         m_d->standaloneApp->setMainQmlFile(wizard->m_qmlSourcesPage->mainQmlFile());
     m_d->standaloneApp->setExternalModules(
             wizard->m_qmlSourcesPage->moduleUris(), wizard->m_qmlSourcesPage->moduleImportPaths());
-
-    return m_d->standaloneApp->generateFiles(errorMessage);
 }
 
 bool QmlStandaloneAppWizard::postGenerateFiles(const QWizard *wizard, const Core::GeneratedFiles &l, QString *errorMessage)
@@ -196,16 +153,21 @@ bool QmlStandaloneAppWizard::postGenerateFiles(const QWizard *wizard, const Core
     return success;
 }
 
-void QmlStandaloneAppWizard::useProjectPath(const QString &projectName, const QString &projectPath)
-{
-    m_d->wizardDialog->m_qmlOptionsPage->setSymbianUid(QmlStandaloneApp::symbianUidForPath(projectPath + projectName));
-}
-
 void QmlStandaloneAppWizard::handleModulesChange(const QStringList &uris, const QStringList &paths)
 {
     QmlStandaloneApp testApp;
     testApp.setExternalModules(uris, paths);
     m_d->wizardDialog->m_qmlSourcesPage->setModulesError(testApp.error());
+}
+
+AbstractMobileApp *QmlStandaloneAppWizard::app() const
+{
+    return m_d->standaloneApp;
+}
+
+AbstractMobileAppWizardDialog *QmlStandaloneAppWizard::wizardDialog() const
+{
+    return m_d->wizardDialog;
 }
 
 } // namespace Internal

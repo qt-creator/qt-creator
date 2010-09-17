@@ -60,11 +60,11 @@ MobileAppWizardOptionsPage::MobileAppWizardOptionsPage(QWidget *parent)
         SLOT(openMaemoPngIcon()));
 
     m_d->ui.orientationBehaviorComboBox->addItem(tr("Auto rotate orientation"),
-                                                   MobileApp::Auto);
+        AbstractMobileApp::Auto);
     m_d->ui.orientationBehaviorComboBox->addItem(tr("Lock to landscape orientation"),
-                                                   MobileApp::LockLandscape);
+        AbstractMobileApp::LockLandscape);
     m_d->ui.orientationBehaviorComboBox->addItem(tr("Lock to portrait orientation"),
-                                                   MobileApp::LockPortrait);
+        AbstractMobileApp::LockPortrait);
 }
 
 MobileAppWizardOptionsPage::~MobileAppWizardOptionsPage()
@@ -72,7 +72,7 @@ MobileAppWizardOptionsPage::~MobileAppWizardOptionsPage()
     delete m_d;
 }
 
-void MobileAppWizardOptionsPage::setOrientation(MobileApp::Orientation orientation)
+void MobileAppWizardOptionsPage::setOrientation(AbstractMobileApp::Orientation orientation)
 {
     QComboBox *const comboBox = m_d->ui.orientationBehaviorComboBox;
     for (int i = 0; i < comboBox->count(); ++i)
@@ -82,10 +82,10 @@ void MobileAppWizardOptionsPage::setOrientation(MobileApp::Orientation orientati
         }
 }
 
-MobileApp::Orientation MobileAppWizardOptionsPage::orientation() const
+AbstractMobileApp::Orientation MobileAppWizardOptionsPage::orientation() const
 {
     const int index = m_d->ui.orientationBehaviorComboBox->currentIndex();
-    return static_cast<MobileApp::Orientation>(m_d->ui.orientationBehaviorComboBox->itemData(index).toInt());
+    return static_cast<AbstractMobileApp::Orientation>(m_d->ui.orientationBehaviorComboBox->itemData(index).toInt());
 }
 
 QString MobileAppWizardOptionsPage::symbianSvgIcon() const

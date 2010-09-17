@@ -108,11 +108,17 @@ public:
     QString symbianTargetUid() const;
     void setNetworkEnabled(bool enabled);
     bool networkEnabled() const;
+    QString path(int fileType) const;
+    QString error() const;
+
+#ifndef CREATORLESSTEST
+    virtual Core::GeneratedFiles generateFiles(QString *errorMessage) const;
+#else
+    bool generateFiles(QString *errorMessage) const;
+#endif // CREATORLESSTEST
 
     static QString symbianUidForPath(const QString &path);
     static int makeStubVersion(int minor);
-    QString path(int fileType) const;
-    QString error() const;
 
     static const QString DeploymentPriFileName;
 protected:
@@ -122,15 +128,13 @@ protected:
     static void insertParameter(QString &line, const QString &parameter);
 
     QByteArray readBlob(const QString &filePath, QString *errorMsg) const;
-#ifndef CREATORLESSTEST
-    virtual Core::GeneratedFiles generateFiles(QString *errorMessage) const;
-    static Core::GeneratedFile file(const QByteArray &data,
-        const QString &targetFile);
-#else
-    bool generateFiles(QString *errorMessage) const;
-#endif // CREATORLESSTEST
     QByteArray generateFile(int fileType, QString *errorMessage) const;
     QString outputPathBase() const;
+
+#ifndef CREATORLESSTEST
+    static Core::GeneratedFile file(const QByteArray &data,
+        const QString &targetFile);
+#endif // CREATORLESSTEST
 
     static const QString CFileComment;
     static const QString ProFileComment;

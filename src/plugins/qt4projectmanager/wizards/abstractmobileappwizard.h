@@ -27,38 +27,53 @@
 **
 **************************************************************************/
 
-#ifndef MOBILEAPPWIZARD_H
-#define MOBILEAPPWIZARD_H
+#ifndef ABSTRACTMOBILEAPPWIZARD_H
+#define ABSTRACTMOBILEAPPWIZARD_H
 
-#include "abstractmobileappwizard.h"
+#include <coreplugin/basefilewizard.h>
+#include <projectexplorer/baseprojectwizarddialog.h>
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class MobileAppWizard : public AbstractMobileAppWizard
+class AbstractMobileApp;
+
+class AbstractMobileAppWizardDialog  : public ProjectExplorer::BaseProjectWizardDialog
 {
     Q_OBJECT
+    friend class AbstractMobileAppWizard;
 
-public:
-    MobileAppWizard();
-    virtual ~MobileAppWizard();
+protected:
+    explicit AbstractMobileAppWizardDialog(QWidget *parent = 0);
 
 private:
-    static Core::BaseFileWizardParameters parameters();
+    class MobileAppWizardOptionsPage *m_optionsPage;
+};
 
-    bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l,
-                           QString *errorMessage);
+class AbstractMobileAppWizard : public Core::BaseFileWizard
+{
+    Q_OBJECT
+protected:
+    explicit AbstractMobileAppWizard(const Core::BaseFileWizardParameters &params,
+        QObject *parent = 0);
 
-    virtual AbstractMobileApp *app() const;
-    virtual AbstractMobileAppWizardDialog *wizardDialog() const;
-    virtual AbstractMobileAppWizardDialog *createWizardDialogInternal(QWidget *parent) const;
-    virtual void prepareGenerateFiles(const QWizard *wizard,
+private slots:
+    void useProjectPath(const QString &projectName, const QString &projectPath);
+
+private:
+    virtual QWizard *createWizardDialog(QWidget *parent,
+        const QString &defaultPath, const WizardPageList &extensionPages) const;
+    virtual Core::GeneratedFiles generateFiles(const QWizard *wizard,
         QString *errorMessage) const;
 
-    class MobileAppWizardPrivate *m_d;
+    virtual AbstractMobileApp *app() const=0;
+    virtual AbstractMobileAppWizardDialog *wizardDialog() const=0;
+    virtual AbstractMobileAppWizardDialog *createWizardDialogInternal(QWidget *parent) const=0;
+    virtual void prepareGenerateFiles(const QWizard *wizard,
+        QString *errorMessage) const=0;
 };
 
 } // end of namespace Internal
 } // end of namespace Qt4ProjectManager
 
-#endif // MOBILEAPPWIZARD_H
+#endif // ABSTRACTMOBILEAPPWIZARD_H
