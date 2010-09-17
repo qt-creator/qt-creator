@@ -64,6 +64,9 @@ ManageDefinitionsDialog::ManageDefinitionsDialog(
     populateDefinitionsWidget();
 
     connect(ui.downloadButton, SIGNAL(clicked()), this, SLOT(downloadDefinitions()));
+    connect(ui.allButton, SIGNAL(clicked()), this, SLOT(selectAll()));
+    connect(ui.clearButton, SIGNAL(clicked()), this, SLOT(clearSelection()));
+    connect(ui.invertButton, SIGNAL(clicked()), this, SLOT(invertSelection()));
 }
 
 void ManageDefinitionsDialog::populateDefinitionsWidget()
@@ -115,6 +118,28 @@ void ManageDefinitionsDialog::downloadDefinitions()
         urls.append(m_definitionsMetaData.at(index.row()).url());
     Manager::instance()->downloadDefinitions(urls, m_path);
     accept();
+}
+
+void ManageDefinitionsDialog::selectAll()
+{
+    ui.definitionsTable->selectAll();
+    ui.definitionsTable->setFocus();
+}
+
+void ManageDefinitionsDialog::clearSelection()
+{
+    ui.definitionsTable->clearSelection();
+}
+
+void ManageDefinitionsDialog::invertSelection()
+{
+    const QModelIndex &topLeft = ui.definitionsTable->model()->index(0, 0);
+    const QModelIndex &bottomRight =
+        ui.definitionsTable->model()->index(ui.definitionsTable->rowCount() - 1,
+                                            ui.definitionsTable->columnCount() - 1);
+    QItemSelection itemSelection(topLeft, bottomRight);
+    ui.definitionsTable->selectionModel()->select(itemSelection, QItemSelectionModel::Toggle);
+    ui.definitionsTable->setFocus();
 }
 
 void ManageDefinitionsDialog::changeEvent(QEvent *e)

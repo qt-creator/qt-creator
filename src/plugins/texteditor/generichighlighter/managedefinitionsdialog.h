@@ -51,6 +51,9 @@ protected:
 
 private slots:
     void downloadDefinitions();
+    void selectAll();
+    void clearSelection();
+    void invertSelection();
 
 private:
     void populateDefinitionsWidget();
