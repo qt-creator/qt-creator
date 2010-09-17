@@ -5,7 +5,7 @@ Architectural overview
 DebuggerPlugin is the main interface between the Qt Creator "Core" and the
 DebuggerManager who is responsible for "doing the work".
 
-The DebuggerManager creates all DebuggerEngines, and has zero or one 
+The DebuggerManager creates all DebuggerEngines, and has zero or one
 "current" Engine. Engines represent an interface to a "native" debugger.
 Right now there are engines for gdb (used for C++ on Linux, Mac, Windows/MinGW,
 Maemo and Symbian), for cdb (used for C++ on Windows/MSVC) and "script" (used
@@ -19,7 +19,7 @@ for JavaScript on all platforms).
     relevant only when Python is available, parts relevant only when Python is
     not available and "mixed" code.
 
-    TermGdbAdapter is used to debug locally started processes that need a 
+    TermGdbAdapter is used to debug locally started processes that need a
     console.
 
     AttachGdbAdapter is used to debug local processes started outside Creator.
@@ -48,24 +48,26 @@ for JavaScript on all platforms).
 
 
 Per platform the situation for C++ debugging looks like:
+[Helper loading strategy: /i - injected, /p - preload, /- not available]
 
-
-          Symbian    Maemo       Linux          Mac            Windows    
+          Symbian    Maemo       Linux          Mac            Windows
                                                           MinGW       MSVC
-                                               
-Engine:     gdb      gdb          gdb           gdb        gdb        cdb 
-                                                           
+
+Engine:     gdb      gdb          gdb           gdb        gdb        cdb
+
 Python:     yes      yes       yes     no       no         no        (not/appl)
-                                                           
+
 Adapters:   trk     remote    term   term/i     term/i     term       term/i
                               plain  plain/p    plain/i    plain      plain/i
                               attach attach/i   attach/i   attach     attach/i
                               remote attach/-   remote/-   remote
 
-[Helper loading strategy: /i - injected, /p - preload, /- not available]
+Minimum
+supported  FSF       FSF      FSF     FSF       Apple      FSF         -
+version:   7.1       7.1      7.1     6.8       1344       7.2
+                  (no python)
 
+Version    FSF       FSF          FSF           (XCode)    FSF         -
+in SDK:    7.2       7.1          7.2                      7.2
+                  (no python)
 
-
-
-
-             
