@@ -1631,7 +1631,7 @@ class Dumper:
                 child = Item(value, item.iname, None, item.name)
                 self.putFields(child)
 
-    def putFields(self, item, innerType = None):
+    def putFields(self, item):
             value = item.value
             type = stripTypedefs(value.type)
             fields = extractFields(type)
