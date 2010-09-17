@@ -238,7 +238,7 @@ void OutputPaneManager::init()
     begin = sorted.constBegin();
     it = sorted.constEnd();
     int shortcutNumber = 1;
-    do {
+    while (it != begin) {
         --it;
         IOutputPane* outPane = it.value();
         const int idx = m_outputWidgetPane->addWidget(outPane->outputWidget(this));
@@ -283,7 +283,7 @@ void OutputPaneManager::init()
         m_widgetComboBox->addItem(outPane->displayName(), idx);
 
         connect(cmd->action(), SIGNAL(triggered()), this, SLOT(shortcutTriggered()));
-    } while (it != begin);
+    }
 
     changePage();
 }
