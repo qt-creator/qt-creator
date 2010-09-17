@@ -18,7 +18,7 @@ DebuggerLanguageChooser::DebuggerLanguageChooser(QWidget *parent) :
     connect(m_useQmlDebugger, SIGNAL(toggled(bool)),
             this, SLOT(useQmlDebuggerToggled(bool)));
 
-    m_debugServerPortLabel = new QLabel(tr("Debug Port:"), this);
+    m_debugServerPortLabel = new QLabel(tr("Debug port:"), this);
     m_debugServerPort = new QSpinBox(this);
     m_debugServerPort->setMinimum(1);
     m_debugServerPort->setMaximum(65535);

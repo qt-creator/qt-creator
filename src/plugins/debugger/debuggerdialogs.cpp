@@ -713,7 +713,7 @@ AddressDialog::AddressDialog(QWidget *parent) :
         m_lineEdit(new QLineEdit),
         m_box(new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel))
 {
-    setWindowTitle(tr("Select start address"));
+    setWindowTitle(tr("Select Start Address"));
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     QHBoxLayout *hLayout = new QHBoxLayout;
     hLayout->addWidget(new QLabel(tr("Enter an address: ")));

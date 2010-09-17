@@ -1021,21 +1021,21 @@ void DebuggerEngine::showQtDumperLibraryWarning(const QString &details)
 {
     //QMessageBox dialog(d->m_mainWindow); // FIXME
     QMessageBox dialog;
-    QPushButton *qtPref = dialog.addButton(tr("Open Qt preferences"),
+    QPushButton *qtPref = dialog.addButton(tr("Open Qt4 Options"),
         QMessageBox::ActionRole);
-    QPushButton *helperOff = dialog.addButton(tr("Turn off helper usage"),
+    QPushButton *helperOff = dialog.addButton(tr("Turn off Helper Usage"),
         QMessageBox::ActionRole);
-    QPushButton *justContinue = dialog.addButton(tr("Continue anyway"),
+    QPushButton *justContinue = dialog.addButton(tr("Continue Anyway"),
         QMessageBox::AcceptRole);
     dialog.setDefaultButton(justContinue);
-    dialog.setWindowTitle(tr("Debugging helper missing"));
+    dialog.setWindowTitle(tr("Debugging Helper Missing"));
     dialog.setText(tr("The debugger could not load the debugging helper library."));
     dialog.setInformativeText(tr(
         "The debugging helper is used to nicely format the values of some Qt "
         "and Standard Library data types. "
         "It must be compiled for each used Qt version separately. "
-        "This can be done in the Qt preferences page by selecting a Qt installation "
-        "and clicking on 'Rebuild' in the 'Debugging Helper' row."));
+        "On the Qt4 options page, select a Qt installation "
+        "and click Rebuild."));
     if (!details.isEmpty())
         dialog.setDetailedText(details);
     dialog.exec();
