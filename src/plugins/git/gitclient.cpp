@@ -1330,6 +1330,21 @@ void GitClient::launchGitK(const QString &workingDirectory)
         return;
     }
     const QString gitBinDirectory = QFileInfo(fullGitBinary).absolutePath();
+    QDir foundBinDir = gitBinDirectory;
+    const bool foundBinDirIsCmdDir = foundBinDir.dirName() == "cmd";
+    if (!tryLauchingGitK(env, workingDirectory, gitBinDirectory, foundBinDirIsCmdDir)) {
+        if (foundBinDirIsCmdDir) {
+            foundBinDir.cdUp();
+            tryLauchingGitK(env, workingDirectory, foundBinDir.path() + "/bin", false);
+        }
+    }
+}
+
+bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
+                                const QString &workingDirectory,
+                                const QString &gitBinDirectory,
+                                bool silent)
+{
 #ifdef Q_OS_WIN
     // Launch 'wish' shell from git binary directory with the gitk located there
     const QString binary = gitBinDirectory + QLatin1String("/wish");
@@ -1339,6 +1354,7 @@ void GitClient::launchGitK(const QString &workingDirectory)
     const QString binary = gitBinDirectory + QLatin1String("/gitk");
     QStringList arguments;
 #endif
+    VCSBase::VCSBaseOutputWindow *outwin = VCSBase::VCSBaseOutputWindow::instance();
     if (!m_settings.gitkOptions.isEmpty())
         arguments.append(m_settings.gitkOptions.split(QLatin1Char(' ')));
     outwin->appendCommand(workingDirectory, binary, arguments);
@@ -1359,8 +1375,14 @@ void GitClient::launchGitK(const QString &workingDirectory)
     } else {
         success = QProcess::startDetached(binary, arguments, workingDirectory);
     }
-    if (!success)
-        outwin->appendError(tr("Unable to launch %1.").arg(binary));
+    if (!success) {
+        const QString error = tr("Unable to launch %1.").arg(binary);
+        if (silent)
+            outwin->appendSilently(error);
+        else
+            outwin->appendError(error);
+    }
+    return success;
 }
 
 bool GitClient::getCommitData(const QString &workingDirectory,

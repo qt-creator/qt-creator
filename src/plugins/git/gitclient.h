@@ -271,6 +271,10 @@ private:
     void connectRepositoryChanged(const QString & repository, GitCommand *cmd);
     bool synchronousPull(const QString &workingDirectory, bool rebase);
     void syncAbortPullRebase(const QString &workingDir);
+    bool tryLauchingGitK(const QProcessEnvironment &env,
+                         const QString &workingDirectory,
+                         const QString &gitBinDirectory,
+                         bool silent);
 
     const QString m_msgWait;
     GitPlugin     *m_plugin;
