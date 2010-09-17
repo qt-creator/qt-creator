@@ -59,7 +59,7 @@ HistoryListModel::HistoryListModel(HistoryCompleter *parent)
     , settings(new QSettings(parent))
     , maxLines(30)
 {
-    settings->beginGroup(QLatin1String("completerHistory"));
+    settings->beginGroup(QLatin1String("CompleterHistory"));
 }
 
 void HistoryListModel::fetchHistory()
