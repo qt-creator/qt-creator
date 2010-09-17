@@ -89,6 +89,7 @@ struct PathChooserPrivate
     QString m_dialogTitleOverride;
     QString m_dialogFilter;
     QString m_initialBrowsePathOverride;
+    QString m_baseDirectory;
 };
 
 PathChooserPrivate::PathChooserPrivate(PathChooser *chooser) :
@@ -142,9 +143,23 @@ QAbstractButton *PathChooser::buttonAtIndex(int index) const
     return findChildren<QAbstractButton*>().at(index);
 }
 
+QString PathChooser::baseDirectory() const
+{
+    return m_d->m_baseDirectory;
+}
+
+void PathChooser::setBaseDirectory(const QString &directory)
+{
+    m_d->m_baseDirectory = directory;
+}
+
 QString PathChooser::path() const
 {
-    return m_d->m_lineEdit->text();
+    const QString path = m_d->m_lineEdit->text();
+    if (!m_d->m_baseDirectory.isEmpty() && QFileInfo(path).isRelative())
+        return QFileInfo(m_d->m_baseDirectory + QLatin1Char('/') + path).absoluteFilePath();
+    else
+        return QFileInfo(path).absoluteFilePath();
 }
 
 void PathChooser::setPath(const QString &path)
