@@ -87,7 +87,7 @@ RemoteHelpFilter::~RemoteHelpFilter()
 
 QString RemoteHelpFilter::displayName() const
 {
-    return tr("Online documentation");
+    return tr("Online Documentation");
 }
 
 QString RemoteHelpFilter::id() const

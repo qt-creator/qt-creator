@@ -57,7 +57,7 @@ HelpIndexFilter::~HelpIndexFilter()
 
 QString HelpIndexFilter::displayName() const
 {
-    return tr("Help index");
+    return tr("Help Index");
 }
 
 QString HelpIndexFilter::id() const
