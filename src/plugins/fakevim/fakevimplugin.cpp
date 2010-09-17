@@ -32,20 +32,22 @@
 #include "fakevimhandler.h"
 #include "ui_fakevimoptions.h"
 
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/actionmanager/commandmappings.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/openeditorsmodel.h>
 #include <coreplugin/filemanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/ifile.h>
-#include <coreplugin/dialogs/ioptionspage.h>
-#include <coreplugin/actionmanager/commandmappings.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/statusbarwidget.h>
+#include <coreplugin/statusbarmanager.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
@@ -260,6 +262,7 @@ bool FakeVimOptionPage::matches(const QString &s) const
 } // namespace Internal
 } // namespace FakeVim
 
+//const char *FAKEVIM_CONTEXT = "FakeVim";
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -542,6 +545,7 @@ private:
     CommandMap &defaultExCommandMap() { return m_exCommandMap; }
     CommandMap m_exCommandMap;
     CommandMap m_defaultExCommandMap;
+    Core::StatusBarWidget *m_statusBar;
 };
 
 } // namespace Internal
@@ -564,6 +568,7 @@ FakeVimPluginPrivate::FakeVimPluginPrivate(FakeVimPlugin *plugin)
         QRegExp("^pop?$");
     defaultExCommandMap()[_("QtCreator.Locate")] =
         QRegExp("^e$");
+    m_statusBar = 0;
 }
 
 FakeVimPluginPrivate::~FakeVimPluginPrivate()
@@ -870,15 +875,14 @@ void FakeVimPluginPrivate::setUseFakeVim(const QVariant &value)
     if (Find::FindPlugin::instance())
         Find::FindPlugin::instance()->setUseFakeVim(on);
     if (on) {
-        editorManager()->showEditorStatusBar(
-            _(Constants::MINI_BUFFER),
-            "vi emulation mode. Type :q to leave. Use , Ctrl-R to trigger run.",
-            tr("Quit FakeVim"), this, SLOT(quitFakeVim()));
+        //ICore *core = ICore::instance();
+        //core->updateAdditionalContexts(Core::Context(FAKEVIM_CONTEXT), Core::Context());
         foreach (Core::IEditor *editor, m_editorToHandler.keys())
             m_editorToHandler[editor]->setupWidget();
     } else {
-        editorManager()->hideEditorStatusBar(
-            _(Constants::MINI_BUFFER));
+        //ICore *core = ICore::instance();
+        //core->updateAdditionalContexts(Core::Context(), Core::Context(FAKEVIM_CONTEXT));
+        showCommandBuffer(QString());
         TextEditor::TabSettings ts =
             TextEditor::TextEditorSettings::instance()->tabSettings();
         foreach (Core::IEditor *editor, m_editorToHandler.keys())
@@ -1132,9 +1136,8 @@ void FakeVimPluginPrivate::quitFakeVim()
 void FakeVimPluginPrivate::showCommandBuffer(const QString &contents)
 {
     //qDebug() << "SHOW COMMAND BUFFER" << contents;
-    editorManager()->showEditorStatusBar(
-        _(Constants::MINI_BUFFER), contents,
-        tr("Quit FakeVim"), this, SLOT(quitFakeVim()));
+    if (QLabel *label = qobject_cast<QLabel *>(m_statusBar->widget()))
+        label->setText("  " + contents);
 }
 
 void FakeVimPluginPrivate::showExtraInformation(const QString &text)
@@ -1211,6 +1214,11 @@ ExtensionSystem::IPlugin::ShutdownFlag FakeVimPlugin::aboutToShutdown()
 
 void FakeVimPlugin::extensionsInitialized()
 {
+    d->m_statusBar = new Core::StatusBarWidget;
+    d->m_statusBar->setWidget(new QLabel);
+    //d->m_statusBar->setContext(Context(FAKEVIM_CONTEXT));
+    d->m_statusBar->setPosition(StatusBarWidget::Last);
+    addAutoReleasedObject(d->m_statusBar);
 }
 
 #include "fakevimplugin.moc"
