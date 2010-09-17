@@ -33,6 +33,10 @@
 #include <QAbstractListModel>
 #include <QSettings>
 #include <QKeyEvent>
+#include <QItemDelegate>
+#include <QListView>
+#include <QPainter>
+#include <QStyle>
 
 namespace Utils {
 
@@ -41,8 +45,9 @@ class HistoryListModel : public QAbstractListModel
 public:
     HistoryListModel(HistoryCompleter *parent);
     void fetchHistory();
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data( const QModelIndex &index, int role = Qt::DisplayRole) const;
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    virtual bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
     void clearHistory();
     void saveEntry(const QString &str);
     bool eventFilter(QObject *obj, QEvent *event);
@@ -53,6 +58,33 @@ public:
     QSettings *settings;
     int maxLines;
 };
+
+class HistoryCompleterPrivate
+{
+public:
+    HistoryCompleterPrivate(HistoryCompleter *parent);
+    HistoryCompleter *q_ptr;
+    HistoryListModel *model;
+    Q_DECLARE_PUBLIC(HistoryCompleter);
+};
+
+class HistoryLineDelegate : public QItemDelegate
+{
+public:
+    HistoryLineDelegate();
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    QPixmap pixmap;
+};
+
+class HistoryLineView : public QListView
+{
+public:
+    HistoryCompleterPrivate *d;
+    int pixmapWidth;
+    HistoryLineView(HistoryCompleterPrivate *d_, int pixmapWith_);
+    virtual void mousePressEvent(QMouseEvent *event);
+};
+
 
 HistoryListModel::HistoryListModel(HistoryCompleter *parent)
     : QAbstractListModel(parent)
@@ -108,6 +140,16 @@ QVariant HistoryListModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
+bool HistoryListModel::removeRows(int row, int count, const QModelIndex &parent)
+{
+    beginRemoveRows (parent, row, row + count);
+    list.removeAt(row);
+    QString objectName = q->widget()->objectName();
+    settings->setValue(objectName, list);
+    endRemoveRows();
+    return true;
+}
+
 void HistoryListModel::clearHistory()
 {
     list.clear();
@@ -147,20 +189,6 @@ bool HistoryListModel::eventFilter(QObject *obj, QEvent *event)
 }
 
 
-class HistoryCompleterPrivate
-{
-public:
-    HistoryCompleterPrivate(HistoryCompleter *parent)
-        : q_ptr(parent)
-        , model(new HistoryListModel(parent))
-    {
-    }
-    HistoryCompleter *q_ptr;
-    HistoryListModel *model;
-    Q_DECLARE_PUBLIC(HistoryCompleter);
-};
-
-
 HistoryCompleter::HistoryCompleter(QObject *parent)
     : QCompleter(parent)
     , d_ptr(new HistoryCompleterPrivate(this))
@@ -177,6 +205,10 @@ HistoryCompleter::HistoryCompleter(QObject *parent)
         d_ptr->model->list = d_ptr->model->settings->value(objectName).toStringList();
     }
     setModel(d_ptr->model);
+    HistoryLineDelegate *delegate = new HistoryLineDelegate;
+    HistoryLineView *view = new HistoryLineView(d_ptr, delegate->pixmap.width());
+    setPopup(view);
+    view->setItemDelegate(delegate);
 }
 
 QSettings *HistoryCompleter::settings() const
@@ -213,6 +245,45 @@ void HistoryCompleter::saveHistory()
 {
     Q_D(HistoryCompleter);
     d->model->saveEntry(completionPrefix());
+}
+
+
+HistoryCompleterPrivate::HistoryCompleterPrivate(HistoryCompleter *parent)
+     : q_ptr(parent)
+     , model(new HistoryListModel(parent))
+{
+}
+
+
+HistoryLineDelegate::HistoryLineDelegate()
+{
+     pixmap = QPixmap(":/core/images/editclear.png");
+}
+
+void HistoryLineDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    QItemDelegate::paint(painter,option,index);
+    QRect r = QStyle::alignedRect(option.direction, Qt::AlignRight | Qt::AlignVCenter , pixmap.size(), option.rect);
+    painter->drawPixmap(r, pixmap);
+}
+
+
+HistoryLineView::HistoryLineView(HistoryCompleterPrivate *d_, int pixmapWith_)
+  : d(d_)
+  , pixmapWidth(pixmapWith_)
+{
+}
+
+void HistoryLineView::mousePressEvent(QMouseEvent *event)
+{
+    int rr= event->x();
+    if (layoutDirection() == Qt::LeftToRight)
+        rr = viewport()->width() - event->x();
+    if (rr < pixmapWidth) {
+        d->model->removeRow(indexAt(event->pos()).row());
+        return;
+    }
+    QListView::mousePressEvent(event);
 }
 
 } // namespace Utils
