@@ -1658,7 +1658,7 @@ class Dumper:
 
                 #warn("FIELD NAME: %s" % field.name)
                 #warn("FIELD TYPE: %s" % field.type)
-                if field.name == stripClassTag(str(field.type)):
+                if field.is_base_class:
                     # Field is base type. We cannot use field.name as part
                     # of the iname as it might contain spaces and other
                     # strange characters.
