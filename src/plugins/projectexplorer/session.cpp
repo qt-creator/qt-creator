@@ -592,8 +592,10 @@ bool SessionManager::createImpl(const QString &fileName)
         m_file->setFileName(fileName);
         setStartupProject(0);
 
-        m_core->modeManager()->activateMode(Core::Constants::MODE_EDIT);
-        m_core->modeManager()->setFocusToCurrentMode();
+        if (!isDefaultVirgin()) {
+            m_core->modeManager()->activateMode(Core::Constants::MODE_EDIT);
+            m_core->modeManager()->setFocusToCurrentMode();
+        }
     }
 
     m_virginSession = true;
