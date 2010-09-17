@@ -115,7 +115,7 @@ MaemoDebugSupport::MaemoDebugSupport(MaemoRunConfiguration *runConfig,
       m_runner(new MaemoSshRunner(this, m_runConfig, true)),
       m_qmlOnlyDebugging(m_runConfig->useQmlDebugger() && !m_runConfig->useCppDebugger())
 {
-    connect(m_runControl, SIGNAL(adapterRequestSetup()), this,
+    connect(m_runControl, SIGNAL(engineRequestSetup()), this,
         SLOT(handleAdapterSetupRequested()));
     connect(m_runControl, SIGNAL(finished()), this,
         SLOT(handleDebuggingFinished()));
