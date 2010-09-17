@@ -154,7 +154,6 @@ public:
         : q_ptr(parent)
         , model(new HistoryListModel(parent))
     {
-        Q_Q(HistoryCompleter);
     }
     HistoryCompleter *q_ptr;
     HistoryListModel *model;
