@@ -172,6 +172,12 @@ void initOption(QGraphicsItem *item, QStyleOptionGraphicsItem *option, const QTr
 
 void GraphicsObjectNodeInstance::paintRecursively(QGraphicsItem *graphicsItem, QPainter *painter) const
 {
+    QGraphicsObject *graphicsObject = graphicsItem->toGraphicsObject();
+    if (graphicsObject) {
+        if (nodeInstanceView()->hasInstanceForObject(graphicsObject))
+            return; //we already keep track of this object elsewhere
+    }
+
     if (graphicsItem->isVisible()) {
         painter->save();
         painter->setTransform(graphicsItem->itemTransform(graphicsItem->parentItem()), true);
