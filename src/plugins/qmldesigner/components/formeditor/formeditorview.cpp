@@ -116,8 +116,9 @@ void FormEditorView::setupFormEditorItemTree(const QmlItemNode &qmlItemNode)
 {
     m_scene->addFormEditorItem(qmlItemNode);
 
-    foreach (const QmlItemNode &nextNode, qmlItemNode.children()) //TODO instance children
-        setupFormEditorItemTree(nextNode);
+    foreach (const QmlObjectNode &nextNode, qmlItemNode.allDirectSubNodes()) //TODO instance children
+        if (QmlItemNode(nextNode).isValid())
+            setupFormEditorItemTree(nextNode.toQmlItemNode());
 }
 
 void FormEditorView::nodeCreated(const ModelNode &createdNode)
