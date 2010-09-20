@@ -83,6 +83,22 @@ static inline bool isSignalPropertyName(const QString &signalName)
            signalName.at(2).isLetter();
 }
 
+static inline QVariant cleverConvert(const QString &value)
+{
+    if (value == "true")
+        return QVariant(true);
+    if (value == "false")
+        return QVariant(false);
+    bool flag;
+    int i = value.toInt(&flag);
+    if (flag)
+        return QVariant(i);
+    double d = value.toDouble(&flag);
+    if (flag)
+        return QVariant(d);
+    return QVariant(value);
+}
+
 static QString flatten(UiQualifiedId *qualifiedId)
 {
     QString result;
@@ -216,7 +232,7 @@ public:
             typeName = qmlValue->packageName() + QLatin1String("/") + qmlValue->className();
             majorVersion = qmlValue->version().major();
             minorVersion = qmlValue->version().minor();
-        } else if (value) {
+        } else {
             for (UiQualifiedId *iter = astTypeNode; iter; iter = iter->next)
                 if (!iter->next && iter->name)
                     typeName = iter->name->asString();
@@ -344,6 +360,7 @@ public:
 
     QVariant convertToVariant(const QString &astValue, const QString &propertyPrefix, UiQualifiedId *propertyId)
     {
+        const bool hasQuotes = astValue.trimmed().left(1) == QLatin1String("\"") && astValue.trimmed().right(1) == QLatin1String("\"");
         const QString cleanedValue = deEscape(stripQuotes(astValue.trimmed()));
         const Interpreter::Value *property = 0;
         const Interpreter::ObjectValue *containingObject = 0;
@@ -352,7 +369,7 @@ public:
             qWarning() << "Unknown property" << propertyPrefix + QLatin1Char('.') + flatten(propertyId)
                        << "on line" << propertyId->identifierToken.startLine
                        << "column" << propertyId->identifierToken.startColumn;
-            return QVariant(cleanedValue);
+            return hasQuotes ? QVariant(cleanedValue) : cleverConvert(cleanedValue);
         }
 
         for (const Interpreter::ObjectValue *iter = containingObject; iter; iter = iter->prototype(m_context)) {
@@ -385,6 +402,9 @@ public:
             v.convert(QVariant::Double);
         } else if (property->asStringValue()) {
             // nothing to do
+        } else { //property alias et al
+            if (!hasQuotes)
+                return cleverConvert(cleanedValue);
         }
         return v;
     }
