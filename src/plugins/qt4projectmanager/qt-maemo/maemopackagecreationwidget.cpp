@@ -164,6 +164,8 @@ void MaemoPackageCreationWidget::setPackageManagerIcon()
 
 void MaemoPackageCreationWidget::handleToolchainChanged()
 {
+    if (!m_step->maemoToolChain())
+        return;
     m_ui->skipCheckBox
         ->setVisible(m_step->maemoToolChain()->allowsPackagingDisabling());
     m_ui->skipCheckBox->setChecked(!m_step->isPackagingEnabled());

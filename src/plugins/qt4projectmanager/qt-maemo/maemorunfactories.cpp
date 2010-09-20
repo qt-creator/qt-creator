@@ -162,7 +162,8 @@ bool MaemoRunControlFactory::canRun(RunConfiguration *runConfiguration,
 {
     const MaemoRunConfiguration * const maemoRunConfig
         = qobject_cast<MaemoRunConfiguration *>(runConfiguration);
-    if (!maemoRunConfig || !maemoRunConfig->deviceConfig().isValid())
+    if (!maemoRunConfig || !maemoRunConfig->deviceConfig().isValid()
+        || !maemoRunConfig->toolchain())
         return false;
     const int freePortCount = maemoRunConfig->freePorts().count();
     if (freePortCount == 0)

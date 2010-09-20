@@ -298,10 +298,12 @@ void MaemoRunConfigurationWidget::handleBuildConfigChanged()
 
 void MaemoRunConfigurationWidget::handleToolchainChanged()
 {
-    const bool remoteMountsAvailable
-        = m_runConfiguration->toolchain()->allowsRemoteMounts();
-    m_debugDetailsContainer->setVisible(remoteMountsAvailable);
-    m_mountDetailsContainer->setVisible(remoteMountsAvailable);
+    const MaemoToolChain * const toolChain = m_runConfiguration->toolchain();
+    if (toolChain) {
+        const bool remoteMountsAvailable = toolChain->allowsRemoteMounts();
+        m_debugDetailsContainer->setVisible(remoteMountsAvailable);
+        m_mountDetailsContainer->setVisible(remoteMountsAvailable);
+    }
     m_runConfiguration->updateFactoryState();
 }
 
