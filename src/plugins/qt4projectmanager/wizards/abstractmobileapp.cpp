@@ -376,13 +376,14 @@ QByteArray AbstractMobileApp::generateFile(int fileType,
     QByteArray versioned = data;
     versioned.replace('\x0D', "");
     versioned.replace('\x0A', "");
+    const QLatin1String hexPrefix("0x");
     const quint16 checkSum = qChecksum(versioned.constData(), versioned.length());
-    const QString checkSumString = QString::number(checkSum, 16);
+    const QString checkSumString = hexPrefix + QString::number(checkSum, 16);
     const QString versionString
-        = QString::number(makeStubVersion(stubVersionMinor()), 16);
+        = hexPrefix + QString::number(makeStubVersion(stubVersionMinor()), 16);
     const QChar sep = QLatin1Char(' ');
     const QString versionLine =
-            comment + sep + FileChecksum + sep + QLatin1String("0x") + checkSumString
+            comment + sep + FileChecksum + sep + checkSumString
             + sep + FileStubVersion + sep + versionString + QLatin1Char('\x0A');
     return versionLine.toAscii() + data;
 }
