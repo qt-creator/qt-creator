@@ -89,7 +89,7 @@ void MaemoConfigTestDialog::handleConnected()
     if (!m_connection)
         return;
     QLatin1String sysInfoCmd("uname -rsm");
-    QLatin1String qtInfoCmd("dpkg -l |grep libqt "
+    QLatin1String qtInfoCmd("dpkg -l |grep libqt |grep '^ii'"
         "|sed 's/[[:space:]][[:space:]]*/ /g' "
         "|cut -d ' ' -f 2,3 |sed 's/~.*//g'");
     QString command(sysInfoCmd + " && " + qtInfoCmd);
