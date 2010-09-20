@@ -270,7 +270,8 @@ bool PropertyMetaInfo::isListProperty() const
         throw InvalidMetaInfoException(__LINE__, Q_FUNC_INFO, __FILE__);
     }
 
-    return type().contains("QDeclarativeList");
+    return type().contains("QDeclarativeList") ||
+        type().contains("alias"); //### this is a nasty hack - we have to get instances in to resolve this properly
 }
 
 /*!
