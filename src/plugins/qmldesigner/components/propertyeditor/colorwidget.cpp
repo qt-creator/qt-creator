@@ -802,7 +802,6 @@ void GradientLine::updateGradient()
             QString oldId;
             if (m_itemNode.isInBaseState()) {
                 if (modelNode.hasProperty(m_gradientName)) {
-                    if (modelNode.nodeProperty(m_gradientName).isValid());
                     oldId = modelNode.nodeProperty(m_gradientName).modelNode().id();
                     modelNode.removeProperty(m_gradientName);
                 }
