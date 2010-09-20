@@ -121,13 +121,15 @@ QSizeF QmlGraphicsItemNodeInstance::size() const
     if (modelNode().isRootNode()) {
         if (!m_hasWidth) {
             qmlGraphicsItem()->blockSignals(true);
-            qmlGraphicsItem()->setWidth(100.);
+            if (qmlGraphicsItem()->width() < 10.)
+                qmlGraphicsItem()->setWidth(100.);
             qmlGraphicsItem()->blockSignals(false);
         }
 
         if (!m_hasHeight) {
             qmlGraphicsItem()->blockSignals(true);
-            qmlGraphicsItem()->setHeight(100.);
+            if (qmlGraphicsItem()->height() < 10.)
+                qmlGraphicsItem()->setHeight(100.);
             qmlGraphicsItem()->blockSignals(false);
         }
     }
@@ -163,13 +165,15 @@ QRectF QmlGraphicsItemNodeInstance::boundingRect() const
     if (modelNode().isRootNode()) {
         if (!m_hasWidth) {
             qmlGraphicsItem()->blockSignals(true);
-            qmlGraphicsItem()->setWidth(100.);
+            if (qmlGraphicsItem()->width() < 10.)
+                qmlGraphicsItem()->setWidth(100.);
             qmlGraphicsItem()->blockSignals(false);
         }
 
         if (!m_hasHeight) {
             qmlGraphicsItem()->blockSignals(true);
-            qmlGraphicsItem()->setHeight(100.);
+            if (qmlGraphicsItem()->height() < 10.)
+                qmlGraphicsItem()->setHeight(100.);
             qmlGraphicsItem()->blockSignals(false);
         }
     }
