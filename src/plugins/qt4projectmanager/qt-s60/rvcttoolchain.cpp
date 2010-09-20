@@ -275,7 +275,7 @@ ProjectExplorer::IOutputParser *RVCTToolChain::outputParser() const
     return new RvctParser;
 }
 
-bool RVCTToolChain::equals(ToolChain *otherIn) const
+bool RVCTToolChain::equals(const ToolChain *otherIn) const
 {
     if (otherIn->type() != type())
         return false;

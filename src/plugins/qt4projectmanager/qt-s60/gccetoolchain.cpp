@@ -151,7 +151,7 @@ QString GCCEToolChain::makeCommand() const
     return QLatin1String("make");
 }
 
-bool GCCEToolChain::equals(ToolChain *otherIn) const
+bool GCCEToolChain::equals(const ToolChain *otherIn) const
 {
     if (otherIn->type() != type())
                 return false;

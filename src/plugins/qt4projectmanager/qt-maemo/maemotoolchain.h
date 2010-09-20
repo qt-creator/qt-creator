@@ -58,7 +58,7 @@ public:
     bool allowsPackagingDisabling() const { return version() == Maemo5; }
 
 protected:
-    bool equals(ToolChain *other) const;
+    bool equals(const ToolChain *other) const;
 
 private:
     void setMaddeRoot() const;

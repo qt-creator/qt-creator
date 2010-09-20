@@ -55,7 +55,7 @@ public:
     virtual QString makeCommand() const;
 
 protected:
-    virtual bool equals(ToolChain *other) const;
+    virtual bool equals(const ToolChain *other) const;
 
 private:
     QString gcceVersion() const;

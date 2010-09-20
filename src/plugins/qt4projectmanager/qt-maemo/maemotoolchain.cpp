@@ -76,9 +76,9 @@ QString MaemoToolChain::makeCommand() const
     return QLatin1String("make" EXEC_SUFFIX);
 }
 
-bool MaemoToolChain::equals(ToolChain *other) const
+bool MaemoToolChain::equals(const ToolChain *other) const
 {
-    MaemoToolChain *toolChain = static_cast<MaemoToolChain*> (other);
+    const MaemoToolChain *toolChain = static_cast<const MaemoToolChain*> (other);
     return other->type() == type()
         && toolChain->sysrootRoot() == sysrootRoot()
         && toolChain->targetRoot() == targetRoot();

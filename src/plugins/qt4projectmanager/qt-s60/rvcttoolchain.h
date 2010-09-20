@@ -56,7 +56,7 @@ public:
     static QString rvctBinary();
 
 protected:
-    bool equals(ToolChain *other) const;
+    bool equals(const ToolChain *other) const;
 
 private:
     void addToRVCTPathVariable(const QString &postfix, const QStringList &values,

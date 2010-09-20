@@ -37,7 +37,7 @@
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager::Internal;
 
-WINSCWToolChain::WINSCWToolChain(S60Devices::Device device, const QString &mwcDirectory)
+WINSCWToolChain::WINSCWToolChain(const S60Devices::Device &device, const QString &mwcDirectory)
     : m_mixin(device),
     m_carbidePath(mwcDirectory),
     m_deviceId(device.id),
@@ -117,9 +117,9 @@ IOutputParser *WINSCWToolChain::outputParser() const
     return new WinscwParser;
 }
 
-bool WINSCWToolChain::equals(ToolChain *other) const
+bool WINSCWToolChain::equals(const ToolChain *other) const
 {
-    WINSCWToolChain *otherWINSCW = static_cast<WINSCWToolChain *>(other);
+    const WINSCWToolChain *otherWINSCW = static_cast<const WINSCWToolChain *>(other);
     return (other->type() == type()
             && m_deviceId == otherWINSCW->m_deviceId
             && m_deviceName == otherWINSCW->m_deviceName

@@ -58,7 +58,7 @@ static const char MSVC_RegKey[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Mi
 static const char MSVC_RegKey[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7";
 #endif
 
-bool ToolChain::equals(ToolChain *a, ToolChain *b)
+bool ToolChain::equals(const ToolChain *a, const ToolChain *b)
 {
     if (a == b)
         return true;
@@ -322,9 +322,9 @@ IOutputParser *GccToolChain::outputParser() const
     return new GccParser;
 }
 
-bool GccToolChain::equals(ToolChain *other) const
+bool GccToolChain::equals(const ToolChain *other) const
 {
-    return (m_gcc == static_cast<GccToolChain *>(other)->m_gcc);
+    return (m_gcc == static_cast<const GccToolChain *>(other)->m_gcc);
 }
 
 MinGWToolChain::MinGWToolChain(const QString &gcc, const QString &mingwPath)
@@ -338,9 +338,9 @@ ToolChain::ToolChainType MinGWToolChain::type() const
     return ToolChain::MinGW;
 }
 
-bool MinGWToolChain::equals(ToolChain *other) const
+bool MinGWToolChain::equals(const ToolChain *other) const
 {
-    MinGWToolChain *o = static_cast<MinGWToolChain *>(other);
+    const MinGWToolChain *o = static_cast<const MinGWToolChain *>(other);
     return (m_mingwPath == o->m_mingwPath && this->GccToolChain::equals(other));
 }
 
@@ -592,9 +592,9 @@ ToolChain::ToolChainType MSVCToolChain::type() const
     return ToolChain::MSVC;
 }
 
-bool MSVCToolChain::equals(ToolChain *other) const
+bool MSVCToolChain::equals(const ToolChain *other) const
 {
-    MSVCToolChain *o = static_cast<MSVCToolChain *>(other);
+    const MSVCToolChain *o = static_cast<const MSVCToolChain *>(other);
     return (m_installation.name == o->m_installation.name);
 }
 
@@ -875,9 +875,9 @@ ToolChain::ToolChainType WinCEToolChain::type() const
     return ToolChain::WINCE;
 }
 
-bool WinCEToolChain::equals(ToolChain *other) const
+bool WinCEToolChain::equals(const ToolChain *other) const
 {
-    WinCEToolChain *o = static_cast<WinCEToolChain *>(other);
+    const WinCEToolChain *o = static_cast<const WinCEToolChain *>(other);
     return (m_platform == o->m_platform && this->MSVCToolChain::equals(other));
 }
 

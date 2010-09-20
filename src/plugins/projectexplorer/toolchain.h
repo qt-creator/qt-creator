@@ -103,7 +103,7 @@ public:
     ToolChain();
     virtual ~ToolChain();
 
-    static bool equals(ToolChain *, ToolChain *);
+    static bool equals(const ToolChain *, const ToolChain *);
     // Factory methods
     static ToolChain *createGccToolChain(const QString &gcc);
     static ToolChain *createMinGWToolChain(const QString &gcc, const QString &mingwPath);
@@ -117,7 +117,7 @@ public:
     static QString toolChainName(ToolChainType tc);
 
 protected:
-    virtual bool equals(ToolChain *other) const = 0;
+    virtual bool equals(const ToolChain *other) const = 0;
 };
 
 class PROJECTEXPLORER_EXPORT GccToolChain : public ToolChain
@@ -132,7 +132,7 @@ public:
     virtual IOutputParser *outputParser() const;
 
 protected:
-    virtual bool equals(ToolChain *other) const;
+    virtual bool equals(const ToolChain *other) const;
     QByteArray m_predefinedMacros;
     QList<HeaderPath> m_systemHeaderPaths;
     QString gcc() const { return m_gcc; }
@@ -152,7 +152,7 @@ public:
     virtual IOutputParser *outputParser() const;
 
 protected:
-    virtual bool equals(ToolChain *other) const;
+    virtual bool equals(const ToolChain *other) const;
 
 private:
     QString m_mingwPath;
@@ -216,7 +216,7 @@ protected:
     typedef QPair<QString, QString> StringStringPair;
     typedef QList<StringStringPair> StringStringPairList;
 
-    virtual bool equals(ToolChain *other) const;
+    virtual bool equals(const ToolChain *other) const;
     static StringStringPairList readEnvironmentSetting(const QString &varsBat,
                                                        const QStringList &args,
                                                        const ProjectExplorer::Environment &env);
@@ -249,7 +249,7 @@ public:
 
 protected:
     explicit WinCEToolChain(const Installation &in, const QString &platform);
-    virtual bool equals(ToolChain *other) const;
+    virtual bool equals(const ToolChain *other) const;
 
 private:
     const QString m_platform;
