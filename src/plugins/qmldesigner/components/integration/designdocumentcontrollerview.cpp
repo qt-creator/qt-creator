@@ -130,7 +130,10 @@ void DesignDocumentControllerView::fromText(QString text)
     inputModel->setMetaInfo(model()->metaInfo());
     inputModel->setFileUrl(model()->fileUrl());
     QPlainTextEdit textEdit;
-    QString imports("import Qt 4.7;\n");
+    QString imports;
+    foreach (Import import, model()->imports())
+        imports += import.toString() + ";\n";
+    qDebug() << imports;
     textEdit.setPlainText(imports + text);
     NotIndentingTextEditModifier modifier(&textEdit);
 
