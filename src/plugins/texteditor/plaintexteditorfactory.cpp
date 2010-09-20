@@ -83,6 +83,8 @@ Core::IEditor *PlainTextEditorFactory::createEditor(QWidget *parent)
 {
     PlainTextEditor *rc = new PlainTextEditor(parent);
     TextEditorPlugin::instance()->initializeEditor(rc);
+    connect(rc, SIGNAL(configured(Core::IEditor*)),
+            this, SLOT(updateEditorInfoBar(Core::IEditor*)));
     return rc->editableInterface();
 }
 
@@ -95,14 +97,15 @@ void PlainTextEditorFactory::updateEditorInfoBar(Core::IEditor *editor)
             TextEditorSettings::instance()->highlighterSettings().alertWhenNoDefinition()) {
             Core::EditorManager::instance()->showEditorInfoBar(
                 Constants::INFO_SYNTAX_DEFINITION,
-                tr("A highlight definition was not found for this file. Would you like to try to find one?"),
+                tr("A highlight definition was not found for this file. "
+                   "Would you like to try to find one?"),
                 tr("Show highlighter options"),
                 Manager::instance(),
                 SLOT(showGenericHighlighterOptions()));
+            return;
         }
-    } else {
-        Core::EditorManager::instance()->hideEditorInfoBar(Constants::INFO_SYNTAX_DEFINITION);
     }
+    Core::EditorManager::instance()->hideEditorInfoBar(Constants::INFO_SYNTAX_DEFINITION);
 }
 
 void PlainTextEditorFactory::addMimeType(const QString &type)

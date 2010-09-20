@@ -214,6 +214,8 @@ void PlainTextEditor::configure(const Core::MimeType &mimeType)
     // because Kate recommends to configure indentation  through another feature. Maybe we should
     // provide something similar in Creator? For now, only normal indentation is supported.
     m_indenter.reset(new NormalIndenter);
+
+    emit configured(editableInterface());
 }
 
 bool PlainTextEditor::isMissingSyntaxDefinition() const

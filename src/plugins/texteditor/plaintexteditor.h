@@ -81,6 +81,9 @@ public slots:
 private slots:
     void configure();
 
+signals:
+    void configured(Core::IEditor *editor);
+
 protected:
     virtual BaseTextEditorEditable *createEditableInterface() { return new PlainTextEditorEditable(this); }    
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
