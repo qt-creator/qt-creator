@@ -61,16 +61,20 @@ namespace Welcome {
 class ImageWidget : public QWidget
 {
 public:
-    ImageWidget(const QPixmap &bg, QWidget *parent) : QWidget(parent), m_bg(bg) {}
+    ImageWidget(const QImage &bg, QWidget *parent) : QWidget(parent), m_bg(bg) {}
     void paintEvent(QPaintEvent *e) {
-        QPainter painter(this);
-        if (m_stretch.size() != size())
-            m_stretch = m_bg.scaled(size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-        painter.drawPixmap(rect(), m_stretch);
+        if (!m_bg.isNull()) {
+            QPainter painter(this);
+            if (m_stretch.size() != size())
+                m_stretch = QPixmap::fromImage(m_bg.scaled(size(), Qt::IgnoreAspectRatio,
+                                                           Qt::SmoothTransformation));
+            if (!m_stretch.size().isEmpty())
+                painter.drawPixmap(rect(), m_stretch);
+        }
         QWidget::paintEvent(e);
     }
 private:
-    QPixmap m_bg;
+    QImage m_bg;
     QPixmap m_stretch;
 };
 
@@ -97,7 +101,7 @@ WelcomeMode::WelcomeMode() :
     l->setMargin(0);
     l->setSpacing(0);
     l->addWidget(new Utils::StyledBar(m_d->m_widget));
-    m_d->m_welcomePage = new ImageWidget(QPixmap(":/welcome/images/welcomebg.png"), m_d->m_widget);
+    m_d->m_welcomePage = new ImageWidget(QImage(":/welcome/images/welcomebg.png"), m_d->m_widget);
     m_d->ui.setupUi(m_d->m_welcomePage);
     m_d->ui.helpUsLabel->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     m_d->ui.feedbackButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
