@@ -470,49 +470,55 @@ void NavigatorTreeModel::removeSubTree(const ModelNode &node)
 
 void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty parentProperty, const QList<ModelNode> &modelNodes, int targetIndex)
 {
-    QString propertyQmlType = qmlTypeInQtContainer(parentProperty.metaInfo().type());
+    try {
+        QString propertyQmlType = qmlTypeInQtContainer(parentProperty.metaInfo().type());
 
-    RewriterTransaction transaction = m_view->beginRewriterTransaction();
-    foreach (const ModelNode &node, modelNodes) {
-        if (!node.isValid())
-            continue;
+        RewriterTransaction transaction = m_view->beginRewriterTransaction();
+        foreach (const ModelNode &node, modelNodes) {
+            if (!node.isValid())
+                continue;
 
-        if (node != parentProperty.parentModelNode() &&
-            !node.isAncestorOf(parentProperty.parentModelNode()) &&
-            node.metaInfo().isSubclassOf(propertyQmlType, -1, -1)) {
+            if (node != parentProperty.parentModelNode() &&
+                !node.isAncestorOf(parentProperty.parentModelNode()) &&
+                (node.metaInfo().isSubclassOf(propertyQmlType, -1, -1) || propertyQmlType == "alias")) {
+                    //### todo: allowing alias is just a heuristic
+                    //once the MetaInfo is part of instances we can do this right
 
-            if (node.parentProperty() != parentProperty) {
+                    if (node.parentProperty() != parentProperty) {
 
-                if (parentProperty.isNodeProperty()) {
-                    ModelNode propertyNode = parentProperty.toNodeProperty().modelNode();
-                    // Destruction of ancestors is not allowed
-                    if (propertyNode.isAncestorOf(node)) {
-                        continue;
-                    }
-                    if (propertyNode.isValid()) {
-                        QApplication::setOverrideCursor(Qt::ArrowCursor);
-                        if (QMessageBox::warning(0, tr("Warning"), tr("Reparenting the component %1 here will cause the component %2 to be deleted. Do you want to proceed?").arg(node.id(), propertyNode.id()), QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Cancel) {
-                            QApplication::restoreOverrideCursor();
-                            continue;
+                        if (parentProperty.isNodeProperty()) {
+                            ModelNode propertyNode = parentProperty.toNodeProperty().modelNode();
+                            // Destruction of ancestors is not allowed
+                            if (propertyNode.isAncestorOf(node)) {
+                                continue;
+                            }
+                            if (propertyNode.isValid()) {
+                                QApplication::setOverrideCursor(Qt::ArrowCursor);
+                                if (QMessageBox::warning(0, tr("Warning"), tr("Reparenting the component %1 here will cause the component %2 to be deleted. Do you want to proceed?").arg(node.id(), propertyNode.id()), QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Cancel) {
+                                    QApplication::restoreOverrideCursor();
+                                    continue;
+                                }
+                                QApplication::restoreOverrideCursor();
+                                propertyNode.destroy();
+                            }
                         }
-                        QApplication::restoreOverrideCursor();
-                        propertyNode.destroy();
+
+                        parentProperty.reparentHere(node);
                     }
-                }
 
-                parentProperty.reparentHere(node);
-            }
-
-            if (parentProperty.isNodeListProperty()) {
-                int index = parentProperty.toNodeListProperty().toModelNodeList().indexOf(node);
-                if (index < targetIndex) { // item is first removed from oldIndex, then inserted at new index
-                    --targetIndex;
-                }
-                if (index != targetIndex) {
-                    parentProperty.toNodeListProperty().slide(index, targetIndex);
-                }
+                    if (parentProperty.isNodeListProperty()) {
+                        int index = parentProperty.toNodeListProperty().toModelNodeList().indexOf(node);
+                        if (index < targetIndex) { // item is first removed from oldIndex, then inserted at new index
+                            --targetIndex;
+                        }
+                        if (index != targetIndex) {
+                            parentProperty.toNodeListProperty().slide(index, targetIndex);
+                        }
+                    }
             }
         }
+    }  catch (RewritingException &e) { //better safe than sorry! There always might be cases where we fail
+        QMessageBox::warning(0, "Error", e.description());
     }
 }
 
