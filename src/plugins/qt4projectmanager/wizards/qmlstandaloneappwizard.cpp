@@ -104,10 +104,10 @@ Core::BaseFileWizardParameters QmlStandaloneAppWizard::parameters(WizardType typ
     Core::BaseFileWizardParameters parameters(ProjectWizard);
     parameters.setIcon(QIcon(QLatin1String(Constants::ICON_QML_STANDALONE)));
     parameters.setDisplayName(type == QmlStandaloneAppWizard::NewQmlFile
-                              ? tr("Qt QML New Application")
-                              : tr("Qt QML New Imported Application"));
+                              ? tr("Qt QML Application")
+                              : tr("Qt QML Imported Application"));
     parameters.setId(QLatin1String(type == QmlStandaloneAppWizard::NewQmlFile
-                                   ? "QA.QMLA New Application"
+                                   ? "QA.QMLA Application"
                                    : "QA.QMLB Imported Application"));
     parameters.setDescription(type == QmlStandaloneAppWizard::NewQmlFile
                               ? tr("Creates a mobile-deployable Qt QML application "
