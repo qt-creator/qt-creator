@@ -70,8 +70,17 @@ QSizeF GraphicsObjectNodeInstance::size() const
 
 QTransform GraphicsObjectNodeInstance::transform() const
 {
-    if (graphicsObject()->parentItem())
-        return graphicsObject()->itemTransform(graphicsObject()->parentItem());
+    if (!nodeInstanceView()->hasInstanceForNode(modelNode()))
+        return sceneTransform();
+
+    NodeInstance nodeInstanceParent = nodeInstanceView()->instanceForNode(modelNode()).parent();
+
+    if (!nodeInstanceParent.isValid())
+        return sceneTransform();
+
+    QGraphicsObject *graphicsObjectParent = qobject_cast<QGraphicsObject*>(nodeInstanceParent.internalObject());
+    if (graphicsObjectParent)
+        return graphicsObject()->itemTransform(graphicsObjectParent);
     else
         return sceneTransform();
 }
