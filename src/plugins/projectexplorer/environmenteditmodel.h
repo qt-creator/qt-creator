@@ -30,81 +30,29 @@
 #ifndef ENVIRONMENTEDITMODEL_H
 #define ENVIRONMENTEDITMODEL_H
 
-#include "environment.h"
+#include "projectexplorer_export.h"
 
-#include <QtCore/QString>
-#include <QtCore/QAbstractTableModel>
 #include <QtGui/QWidget>
 
-QT_BEGIN_NAMESPACE
-class QTableView;
-class QPushButton;
-QT_END_NAMESPACE
-
-namespace Utils {
-class DetailsWidget;
-}
+QT_FORWARD_DECLARE_CLASS(QModelIndex)
 
 namespace ProjectExplorer {
-
-class EnvironmentModel : public QAbstractTableModel
-{
-    Q_OBJECT
-public:
-    EnvironmentModel();
-    ~EnvironmentModel();
-
-    int rowCount(const QModelIndex &parent) const;
-    int columnCount(const QModelIndex &parent) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
-    Qt::ItemFlags flags(const QModelIndex &index) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-
-    QModelIndex addVariable();
-    QModelIndex addVariable(const EnvironmentItem &item);
-    void resetVariable(const QString &name);
-    void unsetVariable(const QString &name);
-    bool canUnset(const QString &name);
-    bool canReset(const QString &name);
-    QString indexToVariable(const QModelIndex &index) const;
-    QModelIndex variableToIndex(const QString &name) const;
-    bool changes(const QString &key) const;
-    void setBaseEnvironment(const ProjectExplorer::Environment &env);
-    QList<EnvironmentItem> userChanges() const;
-    void setUserChanges(QList<EnvironmentItem> list);
-
-signals:
-    void userChangesChanged();
-    /// Hint to the view where it should make sense to focus on next
-    // This is a hack since there is no way for a model to suggest
-    // the next interesting place to focus on to the view.
-    void focusIndex(const QModelIndex &index);
-
-private:
-    void updateResultEnvironment();
-    int findInChanges(const QString &name) const;
-    int findInResultInsertPosition(const QString &name) const;
-    int findInResult(const QString &name) const;
-
-    ProjectExplorer::Environment m_baseEnvironment;
-    ProjectExplorer::Environment m_resultEnvironment;
-    QList<EnvironmentItem> m_items;
-};
+struct EnvironmentWidgetPrivate;
+class Environment;
+struct EnvironmentItem;
 
 class PROJECTEXPLORER_EXPORT EnvironmentWidget : public QWidget
 {
     Q_OBJECT
 public:
     explicit EnvironmentWidget(QWidget *parent, QWidget *additionalDetailsWidget = 0);
-    ~EnvironmentWidget();
+    virtual ~EnvironmentWidget();
 
     void setBaseEnvironmentText(const QString &text);
     void setBaseEnvironment(const ProjectExplorer::Environment &env);
 
     QList<EnvironmentItem> userChanges() const;
-    void setUserChanges(QList<EnvironmentItem> list);
-
+    void setUserChanges(const QList<EnvironmentItem> &list);
 
 signals:
     void userChangesChanged();
@@ -122,14 +70,7 @@ private slots:
     void updateButtons();
 
 private:
-    EnvironmentModel *m_model;
-    QString m_baseEnvironmentText;
-    Utils::DetailsWidget *m_detailsContainer;
-    QTableView *m_environmentView;
-    QPushButton *m_editButton;
-    QPushButton *m_addButton;
-    QPushButton *m_resetButton;
-    QPushButton *m_unsetButton;
+    QScopedPointer<EnvironmentWidgetPrivate> d;
 };
 
 } // namespace ProjectExplorer

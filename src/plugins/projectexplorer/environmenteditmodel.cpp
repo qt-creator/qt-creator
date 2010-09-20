@@ -28,15 +28,15 @@
 **************************************************************************/
 
 #include "environmenteditmodel.h"
+#include "environment.h"
 
 #include <utils/detailswidget.h>
-
 
 #include <QtGui/QTextDocument>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHeaderView>
 #include <QtGui/QToolButton>
-#include <QtCore/QDebug>
+
 #include <QtGui/QWidget>
 #include <QtGui/QCheckBox>
 #include <QtGui/QTableView>
@@ -44,13 +44,55 @@
 #include <QtGui/QLabel>
 #include <QtGui/QStackedWidget>
 
-using namespace ProjectExplorer;
+#include <QtCore/QString>
+#include <QtCore/QAbstractTableModel>
+#include <QtCore/QDebug>
 
-EnvironmentModel::EnvironmentModel()
-{}
+namespace ProjectExplorer {
 
-EnvironmentModel::~EnvironmentModel()
-{}
+class EnvironmentModel : public QAbstractTableModel
+{
+    Q_OBJECT
+public:
+    EnvironmentModel() {}
+
+    int rowCount(const QModelIndex &parent) const;
+    int columnCount(const QModelIndex &parent) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+    Qt::ItemFlags flags(const QModelIndex &index) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+
+    QModelIndex addVariable();
+    QModelIndex addVariable(const EnvironmentItem &item);
+    void resetVariable(const QString &name);
+    void unsetVariable(const QString &name);
+    bool canUnset(const QString &name);
+    bool canReset(const QString &name);
+    QString indexToVariable(const QModelIndex &index) const;
+    QModelIndex variableToIndex(const QString &name) const;
+    bool changes(const QString &key) const;
+    void setBaseEnvironment(const ProjectExplorer::Environment &env);
+    QList<EnvironmentItem> userChanges() const;
+    void setUserChanges(QList<EnvironmentItem> list);
+
+signals:
+    void userChangesChanged();
+    /// Hint to the view where it should make sense to focus on next
+    // This is a hack since there is no way for a model to suggest
+    // the next interesting place to focus on to the view.
+    void focusIndex(const QModelIndex &index);
+
+private:
+    void updateResultEnvironment();
+    int findInChanges(const QString &name) const;
+    int findInResultInsertPosition(const QString &name) const;
+    int findInResult(const QString &name) const;
+
+    ProjectExplorer::Environment m_baseEnvironment;
+    ProjectExplorer::Environment m_resultEnvironment;
+    QList<EnvironmentItem> m_items;
+};
 
 QString EnvironmentModel::indexToVariable(const QModelIndex &index) const
 {
@@ -365,25 +407,37 @@ void EnvironmentModel::setUserChanges(QList<EnvironmentItem> list)
 // EnvironmentWidget::EnvironmentWidget
 ////
 
+struct EnvironmentWidgetPrivate {
+    EnvironmentModel *m_model;
+
+    QString m_baseEnvironmentText;
+    Utils::DetailsWidget *m_detailsContainer;
+    QTableView *m_environmentView;
+    QPushButton *m_editButton;
+    QPushButton *m_addButton;
+    QPushButton *m_resetButton;
+    QPushButton *m_unsetButton;
+};
+
 EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetailsWidget)
-    : QWidget(parent)
+    : QWidget(parent), d(new EnvironmentWidgetPrivate)
 {
-    m_model = new EnvironmentModel();
-    connect(m_model, SIGNAL(userChangesChanged()),
+    d->m_model = new EnvironmentModel();
+    connect(d->m_model, SIGNAL(userChangesChanged()),
             this, SIGNAL(userChangesChanged()));
-    connect(m_model, SIGNAL(modelReset()),
+    connect(d->m_model, SIGNAL(modelReset()),
             this, SLOT(invalidateCurrentIndex()));
 
-    connect(m_model, SIGNAL(focusIndex(QModelIndex)),
+    connect(d->m_model, SIGNAL(focusIndex(QModelIndex)),
             this, SLOT(focusIndex(QModelIndex)));
 
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setContentsMargins(0, 0, 0, 0);
 
-    m_detailsContainer = new Utils::DetailsWidget(this);
+    d->m_detailsContainer = new Utils::DetailsWidget(this);
 
-    QWidget *details = new QWidget(m_detailsContainer);
-    m_detailsContainer->setWidget(details);
+    QWidget *details = new QWidget(d->m_detailsContainer);
+    d->m_detailsContainer->setWidget(details);
     details->setVisible(false);
 
     QVBoxLayout *vbox2 = new QVBoxLayout(details);
@@ -394,101 +448,101 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
 
     QHBoxLayout *horizontalLayout = new QHBoxLayout();
     horizontalLayout->setMargin(0);
-    m_environmentView = new QTableView(this);
-    m_environmentView->setModel(m_model);
-    m_environmentView->setMinimumHeight(400);
-    m_environmentView->setGridStyle(Qt::NoPen);
-    m_environmentView->horizontalHeader()->setStretchLastSection(true);
-    m_environmentView->horizontalHeader()->setResizeMode(0, QHeaderView::ResizeToContents);
-    m_environmentView->horizontalHeader()->setHighlightSections(false);
-    m_environmentView->verticalHeader()->hide();
+    d->m_environmentView = new QTableView(this);
+    d->m_environmentView->setModel(d->m_model);
+    d->m_environmentView->setMinimumHeight(400);
+    d->m_environmentView->setGridStyle(Qt::NoPen);
+    d->m_environmentView->horizontalHeader()->setStretchLastSection(true);
+    d->m_environmentView->horizontalHeader()->setResizeMode(0, QHeaderView::ResizeToContents);
+    d->m_environmentView->horizontalHeader()->setHighlightSections(false);
+    d->m_environmentView->verticalHeader()->hide();
     QFontMetrics fm(font());
-    m_environmentView->verticalHeader()->setDefaultSectionSize(qMax(static_cast<int>(fm.height() * 1.2), fm.height() + 4));
-    m_environmentView->setSelectionMode(QAbstractItemView::SingleSelection);
-    horizontalLayout->addWidget(m_environmentView);
+    d->m_environmentView->verticalHeader()->setDefaultSectionSize(qMax(static_cast<int>(fm.height() * 1.2), fm.height() + 4));
+    d->m_environmentView->setSelectionMode(QAbstractItemView::SingleSelection);
+    horizontalLayout->addWidget(d->m_environmentView);
 
     QVBoxLayout *buttonLayout = new QVBoxLayout();
 
-    m_editButton = new QPushButton(this);
-    m_editButton->setText(tr("&Edit"));
-    buttonLayout->addWidget(m_editButton);
+    d->m_editButton = new QPushButton(this);
+    d->m_editButton->setText(tr("&Edit"));
+    buttonLayout->addWidget(d->m_editButton);
 
-    m_addButton = new QPushButton(this);
-    m_addButton->setText(tr("&Add"));
-    buttonLayout->addWidget(m_addButton);
+    d->m_addButton = new QPushButton(this);
+    d->m_addButton->setText(tr("&Add"));
+    buttonLayout->addWidget(d->m_addButton);
 
-    m_resetButton = new QPushButton(this);
-    m_resetButton->setEnabled(false);
-    m_resetButton->setText(tr("&Reset"));
-    buttonLayout->addWidget(m_resetButton);
+    d->m_resetButton = new QPushButton(this);
+    d->m_resetButton->setEnabled(false);
+    d->m_resetButton->setText(tr("&Reset"));
+    buttonLayout->addWidget(d->m_resetButton);
 
-    m_unsetButton = new QPushButton(this);
-    m_unsetButton->setEnabled(false);
-    m_unsetButton->setText(tr("&Unset"));
-    buttonLayout->addWidget(m_unsetButton);
+    d->m_unsetButton = new QPushButton(this);
+    d->m_unsetButton->setEnabled(false);
+    d->m_unsetButton->setText(tr("&Unset"));
+    buttonLayout->addWidget(d->m_unsetButton);
 
     QSpacerItem *verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
     buttonLayout->addItem(verticalSpacer);
     horizontalLayout->addLayout(buttonLayout);
     vbox2->addLayout(horizontalLayout);
 
-    vbox->addWidget(m_detailsContainer);
+    vbox->addWidget(d->m_detailsContainer);
 
-    connect(m_model, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
+    connect(d->m_model, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
             this, SLOT(updateButtons()));
 
-    connect(m_editButton, SIGNAL(clicked(bool)),
+    connect(d->m_editButton, SIGNAL(clicked(bool)),
             this, SLOT(editEnvironmentButtonClicked()));
-    connect(m_addButton, SIGNAL(clicked(bool)),
+    connect(d->m_addButton, SIGNAL(clicked(bool)),
             this, SLOT(addEnvironmentButtonClicked()));
-    connect(m_resetButton, SIGNAL(clicked(bool)),
+    connect(d->m_resetButton, SIGNAL(clicked(bool)),
             this, SLOT(removeEnvironmentButtonClicked()));
-    connect(m_unsetButton, SIGNAL(clicked(bool)),
+    connect(d->m_unsetButton, SIGNAL(clicked(bool)),
             this, SLOT(unsetEnvironmentButtonClicked()));
-    connect(m_environmentView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+    connect(d->m_environmentView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this, SLOT(environmentCurrentIndexChanged(QModelIndex)));
 
-    connect(m_model, SIGNAL(userChangesChanged()), this, SLOT(updateSummaryText()));
+    connect(d->m_model, SIGNAL(userChangesChanged()), this, SLOT(updateSummaryText()));
 }
 
 EnvironmentWidget::~EnvironmentWidget()
 {
-    delete m_model;
-    m_model = 0;
+    delete d->m_model;
+    d->m_model = 0;
 }
 
 void EnvironmentWidget::focusIndex(const QModelIndex &index)
 {
-    m_environmentView->setCurrentIndex(index);
-    m_environmentView->setFocus();
+    d->m_environmentView->setCurrentIndex(index);
+    d->m_environmentView->setFocus();
 }
 
 void EnvironmentWidget::setBaseEnvironment(const ProjectExplorer::Environment &env)
 {
-    m_model->setBaseEnvironment(env);
+    d->m_model->setBaseEnvironment(env);
 }
 
 void EnvironmentWidget::setBaseEnvironmentText(const QString &text)
 {
-    m_baseEnvironmentText = text;
+    d->m_baseEnvironmentText = text;
     updateSummaryText();
 }
 
 QList<EnvironmentItem> EnvironmentWidget::userChanges() const
 {
-    return m_model->userChanges();
+    return d->m_model->userChanges();
 }
 
-void EnvironmentWidget::setUserChanges(QList<EnvironmentItem> list)
+void EnvironmentWidget::setUserChanges(const QList<EnvironmentItem> &list)
 {
-    m_model->setUserChanges(list);
+    d->m_model->setUserChanges(list);
     updateSummaryText();
 }
 
 void EnvironmentWidget::updateSummaryText()
 {
     QString text;
-    const QList<EnvironmentItem> &list = m_model->userChanges();
+    const QList<EnvironmentItem> &list = d->m_model->userChanges();
     foreach (const EnvironmentItem &item, list) {
         if (item.name != EnvironmentModel::tr("<VARIABLE>")) {
             text.append("<br>");
@@ -500,60 +554,60 @@ void EnvironmentWidget::updateSummaryText()
     }
 
     if (text.isEmpty())
-        text.prepend(tr("Using <b>%1</b>").arg(m_baseEnvironmentText));
+        text.prepend(tr("Using <b>%1</b>").arg(d->m_baseEnvironmentText));
     else
-        text.prepend(tr("Using <b>%1</b> and").arg(m_baseEnvironmentText));
+        text.prepend(tr("Using <b>%1</b> and").arg(d->m_baseEnvironmentText));
 
-    m_detailsContainer->setSummaryText(text);
+    d->m_detailsContainer->setSummaryText(text);
 }
 
 void EnvironmentWidget::updateButtons()
 {
-    environmentCurrentIndexChanged(m_environmentView->currentIndex());
+    environmentCurrentIndexChanged(d->m_environmentView->currentIndex());
 }
 
 void EnvironmentWidget::editEnvironmentButtonClicked()
 {
-    m_environmentView->edit(m_environmentView->currentIndex());
+    d->m_environmentView->edit(d->m_environmentView->currentIndex());
 }
 
 void EnvironmentWidget::addEnvironmentButtonClicked()
 {
-    QModelIndex index = m_model->addVariable();
-    m_environmentView->setCurrentIndex(index);
-    m_environmentView->edit(index);
+    QModelIndex index = d->m_model->addVariable();
+    d->m_environmentView->setCurrentIndex(index);
+    d->m_environmentView->edit(index);
 }
 
 void EnvironmentWidget::removeEnvironmentButtonClicked()
 {
-    const QString &name = m_model->indexToVariable(m_environmentView->currentIndex());
-    m_model->resetVariable(name);
+    const QString &name = d->m_model->indexToVariable(d->m_environmentView->currentIndex());
+    d->m_model->resetVariable(name);
 }
 
 // unset in Merged Environment Mode means, unset if it comes from the base environment
 // or remove when it is just a change we added
 void EnvironmentWidget::unsetEnvironmentButtonClicked()
 {
-    const QString &name = m_model->indexToVariable(m_environmentView->currentIndex());
-    if (!m_model->canReset(name))
-        m_model->resetVariable(name);
+    const QString &name = d->m_model->indexToVariable(d->m_environmentView->currentIndex());
+    if (!d->m_model->canReset(name))
+        d->m_model->resetVariable(name);
     else
-        m_model->unsetVariable(name);
+        d->m_model->unsetVariable(name);
 }
 
 void EnvironmentWidget::environmentCurrentIndexChanged(const QModelIndex &current)
 {
     if (current.isValid()) {
-        m_editButton->setEnabled(true);
-        const QString &name = m_model->indexToVariable(current);
-        bool modified = m_model->canReset(name) && m_model->changes(name);
-        bool unset = m_model->canUnset(name);
-        m_resetButton->setEnabled(modified || unset);
-        m_unsetButton->setEnabled(!unset);
+        d->m_editButton->setEnabled(true);
+        const QString &name = d->m_model->indexToVariable(current);
+        bool modified = d->m_model->canReset(name) && d->m_model->changes(name);
+        bool unset = d->m_model->canUnset(name);
+        d->m_resetButton->setEnabled(modified || unset);
+        d->m_unsetButton->setEnabled(!unset);
     } else {
-        m_editButton->setEnabled(false);
-        m_resetButton->setEnabled(false);
-        m_unsetButton->setEnabled(false);
+        d->m_editButton->setEnabled(false);
+        d->m_resetButton->setEnabled(false);
+        d->m_unsetButton->setEnabled(false);
     }
 }
 
@@ -561,3 +615,7 @@ void EnvironmentWidget::invalidateCurrentIndex()
 {
     environmentCurrentIndexChanged(QModelIndex());
 }
+
+} // namespace ProjectExplorer
+
+#include "environmenteditmodel.moc"
