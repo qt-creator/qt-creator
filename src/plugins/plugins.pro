@@ -49,9 +49,9 @@ contains(QT_CONFIG, declarative) {
         SUBDIRS += plugin_qmldesigner 
     } else {
         warning()
-        warning("QmlDesigner plugin have been disabled")
-        warning("The plugin depend on on private headers from QtDeclarative module.")
-        warning("To enable them, pass 'QT_PRIVATE_HEADERS=$QTDIR/include' to qmake, where $QTDIR is the source directory of qt.")
+        warning("QmlDesigner plugin has been disabled")
+        warning("The plugin depends on on private headers from QtDeclarative module.")
+        warning("To enable it, pass 'QT_PRIVATE_HEADERS=$QTDIR/include' to qmake, where $QTDIR is the source directory of qt.")
         warning()
     }
 }
