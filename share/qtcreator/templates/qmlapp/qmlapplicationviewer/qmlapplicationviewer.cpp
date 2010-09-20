@@ -128,3 +128,14 @@ void QmlApplicationViewer::setLoadDummyData(bool loadDummyData)
         }
     }
 }
+
+void QmlApplicationViewer::show()
+{
+#ifdef Q_OS_SYMBIAN
+    showFullScreen();
+#elif defined(Q_WS_MAEMO_5) || defined(Q_WS_MAEMO_6)
+    showMaximized();
+#else
+    QDeclarativeView::show();
+#endif
+}
