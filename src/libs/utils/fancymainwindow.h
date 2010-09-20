@@ -92,7 +92,7 @@ public slots:
 protected:
     void hideEvent(QHideEvent *event);
     void showEvent(QShowEvent *event);
-
+    void contextMenuEvent(QContextMenuEvent *event);
 private slots:
     void onDockActionTriggered();
     void onDockVisibilityChange(bool);

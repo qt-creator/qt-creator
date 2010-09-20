@@ -67,7 +67,7 @@ QMenu* DebuggerMainWindow::createPopupMenu()
     const QList<QDockWidget* > dockwidgets = m_uiSwitcher->i_mw_dockWidgets();
 
     if (!dockwidgets.isEmpty()) {
-        menu = new QMenu(this);
+        menu = FancyMainWindow::createPopupMenu();
 
         foreach (QDockWidget *dockWidget, dockwidgets) {
             if (dockWidget->parentWidget() == this)

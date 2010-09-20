@@ -33,6 +33,7 @@
 #include <QtCore/QHash>
 
 #include <QtGui/QAction>
+#include <QtGui/QContextMenuEvent>
 #include <QtGui/QMenu>
 #include <QtGui/QDockWidget>
 #include <QtCore/QSettings>
@@ -177,6 +178,13 @@ void FancyMainWindow::showEvent(QShowEvent *event)
 {
     Q_UNUSED(event)
     handleVisibilityChanged(true);
+}
+
+void FancyMainWindow::contextMenuEvent(QContextMenuEvent *event)
+{
+    QMenu *menu = createPopupMenu();
+    menu->exec(event->globalPos());
+    delete menu;
 }
 
 void FancyMainWindow::handleVisibilityChanged(bool visible)
