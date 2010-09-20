@@ -47,6 +47,7 @@
 #include <componentaction.h>
 #include <qmlobjectnode.h>
 #include <rewriterview.h>
+#include <rewritingexception.h>
 #include <nodelistproperty.h>
 #include <toolbox.h>
 
@@ -462,6 +463,8 @@ void DesignDocumentController::copySelected()
     QScopedPointer<Model> model(Model::create("Qt/Rectangle"));
     model->setMetaInfo(m_d->model->metaInfo());
     model->setFileUrl(m_d->model->fileUrl());
+    foreach (const Import &import, m_d->model->imports())
+        model->addImport(import);
 
     Q_ASSERT(model);
 
@@ -557,6 +560,8 @@ void DesignDocumentController::paste()
     QScopedPointer<Model> model(Model::create("empty"));
     model->setMetaInfo(m_d->model->metaInfo());
     model->setFileUrl(m_d->model->fileUrl());
+    foreach (const Import &import, m_d->model->imports())
+        model->addImport(import);
     Q_ASSERT(model);
 
     if (!m_d->model)
@@ -601,48 +606,56 @@ void DesignDocumentController::paste()
 
         QList<ModelNode> pastedNodeList;
 
-        RewriterTransaction transaction(m_d->formEditorView.data());
+        try {
+            RewriterTransaction transaction(m_d->formEditorView.data());
 
-        int offset = double(qrand()) / RAND_MAX * 20 - 10;
+            int offset = double(qrand()) / RAND_MAX * 20 - 10;
 
-        foreach (const ModelNode &node, selectedNodes) {
-            QString defaultProperty(targetNode.metaInfo().defaultProperty());
-            ModelNode pastedNode(view.insertModel(node));
-            pastedNodeList.append(pastedNode);
-            scatterItem(pastedNode, targetNode, offset);
-            targetNode.nodeListProperty(defaultProperty).reparentHere(pastedNode);
+            foreach (const ModelNode &node, selectedNodes) {
+                QString defaultProperty(targetNode.metaInfo().defaultProperty());
+                ModelNode pastedNode(view.insertModel(node));
+                pastedNodeList.append(pastedNode);
+                scatterItem(pastedNode, targetNode, offset);
+                targetNode.nodeListProperty(defaultProperty).reparentHere(pastedNode);
+            }
+
+            view.setSelectedModelNodes(pastedNodeList);
+        } catch (RewritingException &e) { 
+            qWarning() << e.description(); //silent error
         }
-
-        view.setSelectedModelNodes(pastedNodeList);
     } else {
-        RewriterTransaction transaction(m_d->formEditorView.data());
+        try {
+            RewriterTransaction transaction(m_d->formEditorView.data());
 
-        model->detachView(&view);
-        m_d->model->attachView(&view);
-        ModelNode pastedNode(view.insertModel(rootNode));
-        ModelNode targetNode;
+            model->detachView(&view);
+            m_d->model->attachView(&view);
+            ModelNode pastedNode(view.insertModel(rootNode));
+            ModelNode targetNode;
 
-        if (!view.selectedModelNodes().isEmpty())
-            targetNode = view.selectedModelNodes().first();
+            if (!view.selectedModelNodes().isEmpty())
+                targetNode = view.selectedModelNodes().first();
 
-        if (!targetNode.isValid())
-            targetNode = view.rootModelNode();
+            if (!targetNode.isValid())
+                targetNode = view.rootModelNode();
 
-        if (targetNode.parentProperty().isValid() &&
-            (pastedNode.simplifiedTypeName() == targetNode.simplifiedTypeName()) &&
-            (pastedNode.variantProperty("width").value() == targetNode.variantProperty("width").value()) &&
-            (pastedNode.variantProperty("height").value() == targetNode.variantProperty("height").value()))
+            if (targetNode.parentProperty().isValid() &&
+                (pastedNode.simplifiedTypeName() == targetNode.simplifiedTypeName()) &&
+                (pastedNode.variantProperty("width").value() == targetNode.variantProperty("width").value()) &&
+                (pastedNode.variantProperty("height").value() == targetNode.variantProperty("height").value()))
 
-            targetNode = targetNode.parentProperty().parentModelNode();
+                targetNode = targetNode.parentProperty().parentModelNode();
 
-        QString defaultProperty(targetNode.metaInfo().defaultProperty());
+            QString defaultProperty(targetNode.metaInfo().defaultProperty());
 
-        scatterItem(pastedNode, targetNode);
-        if (targetNode.nodeListProperty(defaultProperty).isValid()) {
-            targetNode.nodeListProperty(defaultProperty).reparentHere(pastedNode);
+            scatterItem(pastedNode, targetNode);
+            if (targetNode.nodeListProperty(defaultProperty).isValid()) {
+                targetNode.nodeListProperty(defaultProperty).reparentHere(pastedNode);
+            }
+
+            view.setSelectedModelNodes(QList<ModelNode>() << pastedNode);
+        } catch (RewritingException &e) { 
+            qWarning() << e.description(); //silent error
         }
-
-        view.setSelectedModelNodes(QList<ModelNode>() << pastedNode);
     }
 }
 
