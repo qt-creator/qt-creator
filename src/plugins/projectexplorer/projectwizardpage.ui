@@ -2,14 +2,6 @@
 <ui version="4.0">
  <class>ProjectExplorer::Internal::WizardPage</class>
  <widget class="QWizardPage" name="ProjectExplorer::Internal::WizardPage">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>226</width>
-    <height>184</height>
-   </rect>
-  </property>
   <property name="title">
    <string>Project Management</string>
   </property>
@@ -37,8 +29,11 @@
        <property name="enabled">
         <bool>false</bool>
        </property>
-       <property name="sizeAdjustPolicy">
-        <enum>QComboBox::AdjustToContents</enum>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
        </property>
       </widget>
      </item>
@@ -53,7 +48,14 @@
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="QComboBox" name="addToVersionControlComboBox"/>
+      <widget class="QComboBox" name="addToVersionControlComboBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
      </item>
      <item row="1" column="1">
       <widget class="QLabel" name="additionalInfo">
