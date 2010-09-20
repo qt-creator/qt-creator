@@ -2824,6 +2824,13 @@ EventResult FakeVimHandler::Private::handleExMode(const Input &input)
             m_commandBuffer.chop(1);
         }
         updateMiniBuffer();
+    } else if (input.isKey(Key_Tab)) {
+        QStringList completions;
+        foreach (const QString &entry, g.commandHistory.items()) {
+            if (entry.startsWith(m_commandBuffer))
+                completions.append(entry);
+        }
+        qDebug() << completions;
     } else if (input.isKey(Key_Left)) {
         // FIXME:
         if (!m_commandBuffer.isEmpty())
