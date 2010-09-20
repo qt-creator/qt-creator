@@ -31,42 +31,24 @@
 #define BUILDMANAGER_H
 
 #include "projectexplorer_export.h"
-#include "task.h"
 #include "buildstep.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
-#include <QtCore/QList>
-#include <QtCore/QHash>
-#include <QtCore/QFutureWatcher>
 
 namespace ProjectExplorer {
-
-namespace Internal {
-    class CompileOutputWindow;
-    class BuildProgressFuture;
-    class TaskWindow;
-}
-
-class BuildStep;
-class BuildStepList;
-class Project;
+class Task;
 class ProjectExplorerPlugin;
-class BuildConfiguration;
-class TaskHub;
+class Project;
 
-class PROJECTEXPLORER_EXPORT BuildManager
-  : public QObject
+struct BuildManagerPrivate;
+
+class PROJECTEXPLORER_EXPORT BuildManager : public QObject
 {
     Q_OBJECT
-
-    //NBS TODO this class has too many different variables which hold state:
-    // m_buildQueue, m_running, m_canceled, m_progress, m_maxProgress, m_activeBuildSteps and ...
-    // I might need to reduce that
-
 public:
-    BuildManager(ProjectExplorerPlugin *parent);
-    ~BuildManager();
+    explicit BuildManager(ProjectExplorerPlugin *parent);
+    virtual ~BuildManager();
 
     void extensionsInitialized();
 
@@ -116,30 +98,8 @@ private:
     void incrementActiveBuildSteps(Project *pro);
     void decrementActiveBuildSteps(Project *pro);
 
-    Internal::CompileOutputWindow *m_outputWindow;
-    TaskHub *m_taskHub;
-    Internal::TaskWindow *m_taskWindow;
-
-    QList<BuildStep *> m_buildQueue;
-    QStringList m_configurations; // the corresponding configuration to the m_buildQueue
-    ProjectExplorerPlugin *m_projectExplorerPlugin;
-    bool m_running;
-    QFutureWatcher<bool> m_watcher;
-    BuildStep *m_currentBuildStep;
-    QString m_currentConfiguration;
-    // used to decide if we are building a project to decide when to emit buildStateChanged(Project *)
-    QHash<Project *, int>  m_activeBuildSteps;
-    Project *m_previousBuildStepProject;
-    // is set to true while canceling, so that nextBuildStep knows that the BuildStep finished because of canceling
-    bool m_canceling;
-
-    // Progress reporting to the progress manager
-    int m_progress;
-    int m_maxProgress;
-    QFutureInterface<void> *m_progressFutureInterface;
-    QFutureWatcher<void> m_progressWatcher;
+    QScopedPointer<BuildManagerPrivate> d;
 };
-
 } // namespace ProjectExplorer
 
 #endif // BUILDMANAGER_H
