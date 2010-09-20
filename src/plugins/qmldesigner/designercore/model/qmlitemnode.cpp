@@ -155,7 +155,6 @@ QList<QmlObjectNode> QmlItemNode::allDirectSubNodes() const
         QList<ModelNode> modelNodeList = modelNode().allDirectSubModelNodes();
 
         foreach (const ModelNode &node, modelNodeList) {
-            if (!QmlItemNode(node).isValid()) //if ModelNode is no FxItem
                 returnList.append(node);
         }
     }
