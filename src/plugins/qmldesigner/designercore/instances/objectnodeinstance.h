@@ -175,6 +175,8 @@ public:
 
     static void removeAnimationsFromComponents(QObject *object, QObjectList &inspectedObjectList);
 
+    NodeInstance nodeInstanceParentForObject(QObject *currentObject) const;
+
 protected:
     static QObject *createInstance(const NodeMetaInfo &metaInfo, QDeclarativeContext *parentContext);
 

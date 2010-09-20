@@ -962,6 +962,30 @@ bool ObjectNodeInstance::resetStateProperty(const NodeInstance &/*target*/, cons
     return false;
 }
 
+
+NodeInstance ObjectNodeInstance::nodeInstanceParentForObject(QObject *currentObject) const
+{
+    if (!currentObject) //this should not happen! warning?
+        return NodeInstance();
+
+    if (nodeInstanceView()->hasInstanceForObject(currentObject))
+        return nodeInstanceView()->instanceForObject(currentObject);
+
+    //Maybe the object has been reparented inside a component and we
+    //do not keep track of the parent?
+    //In this case we iterate until we find a parent we keep track of,
+    //parent() gets 0
+
+    QObject* parentObject;
+    QGraphicsObject *graphicsObject = qobject_cast<QGraphicsObject*>(currentObject);
+    if (graphicsObject)
+        parentObject = graphicsObject->parentItem()->toGraphicsObject();
+    else
+        parentObject = currentObject->parent();
+
+    return nodeInstanceParentForObject(parentObject);
+}
+
 }
 }
 

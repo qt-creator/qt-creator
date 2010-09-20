@@ -251,7 +251,6 @@ void NodeInstance::reparent(const NodeInstance &oldParentInstance, const QString
     m_nodeInstance->reparent(oldParentInstance, oldParentProperty, newParentInstance, newParentProperty);
 }
 
-
 /*!
 \brief Returns the parent NodeInstance of this NodeInstance.
 
@@ -261,7 +260,7 @@ void NodeInstance::reparent(const NodeInstance &oldParentInstance, const QString
 */
 NodeInstance NodeInstance::parent() const
 {
-    return m_nodeInstance->nodeInstanceView()->instanceForObject(m_nodeInstance->parent());
+    return m_nodeInstance->nodeInstanceParentForObject(m_nodeInstance->parent());
 }
 
 bool NodeInstance::hasParent() const

@@ -59,6 +59,7 @@ namespace Internal {
     class ObjectNodeInstance;
     class QmlGraphicsItemNodeInstance;
     class QmlPropertyChangesNodeInstance;
+    class GraphicsObjectNodeInstance;
     class QmlStateNodeInstance;
 }
 
@@ -72,6 +73,7 @@ class CORESHARED_EXPORT NodeInstance
     friend CORESHARED_EXPORT bool operator==(const NodeInstance &first, const NodeInstance &second);
     friend CORESHARED_EXPORT class NodeMetaInfo;
     friend class QmlDesigner::Internal::QmlGraphicsItemNodeInstance;
+    friend class QmlDesigner::Internal::GraphicsObjectNodeInstance;
     friend class QmlDesigner::Internal::ObjectNodeInstance;
     friend class QmlDesigner::Internal::QmlPropertyChangesNodeInstance;
     friend class QmlDesigner::Internal::QmlStateNodeInstance;
