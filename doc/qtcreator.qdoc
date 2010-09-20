@@ -1412,6 +1412,10 @@
     line, indented by 2 spaces, except when they open a function definition, where
     they are not indented.
 
+    You can also specify whether continuation lines are aligned with the previous
+    code or just indented to the logical depth. You can always use spaces for
+    alignment or use spaces or tabs depending on the other options you selected.
+
     The following code snippet illustrates excluding braces from the indented block:
 
     \code
