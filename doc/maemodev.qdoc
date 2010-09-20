@@ -407,15 +407,16 @@
                  \image qtcreator-screenshot-build-settings.png
 
                  \o In the \gui{Run Settings} section, click \gui Add to add a new
-                 run configuration.
+                 deploy configuration. The configuration is named automatically. To
+                 give it a new name, click \gui Rename.
 
-                 \o Set a name and select the device configuration.
-
+                 \o Select the device configuration.
                  \image qtcreator-screenshot-run-settings.png
 
                  \note You can either add separate run settings for both the Maemo
-                  emulator connection and the device connection or select the
-                  \gui {Device configuration} before you run the application.
+                 emulator connection and the device connection or select the
+                 \gui {Device configuration} in the \gui {Deploy Step} before you
+                 run the application.
 
              \endlist
 
