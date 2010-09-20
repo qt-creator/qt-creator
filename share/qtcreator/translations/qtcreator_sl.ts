@@ -92,7 +92,7 @@
     </message>
     <message>
         <source>Delete Folder</source>
-        <translation>Zbriši mapo</translation>
+        <translation>Izbriši mapo</translation>
     </message>
     <message>
         <source>Rename Folder</source>
@@ -111,7 +111,7 @@
     </message>
     <message>
         <source>You are going to delete a Folder which will also&lt;br&gt;remove its content. Are you sure you would like to continue?</source>
-        <translation>Nameravate zbrisati mapo, pri čemer bo zbrisana&lt;br&gt;tudi njena vsebina. Ali res želite nadaljevati?</translation>
+        <translation>Nameravate izbrisati mapo, pri čemer bo zbrisana&lt;br&gt;tudi njena vsebina. Ali res želite nadaljevati?</translation>
     </message>
     <message>
         <source>New Folder</source>
@@ -122,7 +122,7 @@
     <name>BookmarkWidget</name>
     <message>
         <source>Delete Folder</source>
-        <translation>Zbriši mapo</translation>
+        <translation>Izbriši mapo</translation>
     </message>
     <message>
         <source>Rename Folder</source>
@@ -138,7 +138,7 @@
     </message>
     <message>
         <source>Delete Bookmark</source>
-        <translation>Zbriši zaznamek</translation>
+        <translation>Izbriši zaznamek</translation>
     </message>
     <message>
         <source>Rename Bookmark</source>
@@ -481,7 +481,7 @@
     </message>
     <message>
         <source>Paste Snippet...</source>
-        <translation>Prilepi delček ...</translation>
+        <translation>Prilepi delček …</translation>
     </message>
     <message>
         <source>Alt+C,Alt+P</source>
@@ -489,11 +489,11 @@
     </message>
     <message>
         <source>Paste Clipboard...</source>
-        <translation>Prilepi odložišče ...</translation>
+        <translation>Prilepi odložišče …</translation>
     </message>
     <message>
         <source>Fetch Snippet...</source>
-        <translation>Dobi delček ...</translation>
+        <translation>Dobi delček …</translation>
     </message>
     <message>
         <source>Alt+C,Alt+F</source>
@@ -796,7 +796,7 @@ Ali jih želite nadomestiti?</translation>
     </message>
     <message>
         <source>Save %1 &amp;As...</source>
-        <translation>Shrani %1 &amp;kot ...</translation>
+        <translation>Shrani %1 &amp;kot …</translation>
     </message>
     <message>
         <source>&amp;Advanced</source>
@@ -828,7 +828,7 @@ Ali jih želite nadomestiti?</translation>
     </message>
     <message>
         <source>Save as ...</source>
-        <translation>Shrani kot ...</translation>
+        <translation>Shrani kot …</translation>
     </message>
     <message>
         <source>Failed!</source>
@@ -1157,15 +1157,15 @@ Ali jih želite nadomestiti?</translation>
     </message>
     <message>
         <source>&amp;New File or Project...</source>
-        <translation>&amp;Nova datoteka ali projekt ...</translation>
+        <translation>&amp;Nova datoteka ali projekt …</translation>
     </message>
     <message>
         <source>&amp;Open File or Project...</source>
-        <translation>&amp;Odpri datoteko ali projekt ...</translation>
+        <translation>&amp;Odpri datoteko ali projekt …</translation>
     </message>
     <message>
         <source>Open File &amp;With...</source>
-        <translation>Odpri datoteko &amp;v ...</translation>
+        <translation>Odpri datoteko &amp;v …</translation>
     </message>
     <message>
         <source>Recent &amp;Files</source>
@@ -1177,7 +1177,7 @@ Ali jih želite nadomestiti?</translation>
     </message>
     <message>
         <source>Save &amp;As...</source>
-        <translation>Shrani &amp;kot ...</translation>
+        <translation>Shrani &amp;kot …</translation>
     </message>
     <message>
         <source>Ctrl+Shift+S</source>
@@ -1189,7 +1189,7 @@ Ali jih želite nadomestiti?</translation>
     </message>
     <message>
         <source>&amp;Print...</source>
-        <translation>&amp;Natisni ...</translation>
+        <translation>&amp;Natisni …</translation>
     </message>
     <message>
         <source>E&amp;xit</source>
@@ -1225,7 +1225,7 @@ Ali jih želite nadomestiti?</translation>
     </message>
     <message>
         <source>&amp;Go To Line...</source>
-        <translation>Pojdi v &amp;vrstico ...</translation>
+        <translation>Pojdi v &amp;vrstico …</translation>
     </message>
     <message>
         <source>Ctrl+L</source>
@@ -1233,7 +1233,7 @@ Ali jih želite nadomestiti?</translation>
     </message>
     <message>
         <source>&amp;Options...</source>
-        <translation>&amp;Možnosti ...</translation>
+        <translation>&amp;Možnosti …</translation>
     </message>
     <message>
         <source>Minimize</source>
@@ -1261,15 +1261,15 @@ Ali jih želite nadomestiti?</translation>
     </message>
     <message>
         <source>About &amp;Qt Creator...</source>
-        <translation>O &amp;Qt Creatorju ...</translation>
+        <translation>O &amp;Qt Creatorju …</translation>
     </message>
     <message>
         <source>About &amp;Plugins...</source>
-        <translation>O &amp;vstavkih ...</translation>
+        <translation>O &amp;vstavkih …</translation>
     </message>
     <message>
         <source>Settings...</source>
-        <translation>Nastavitve ...</translation>
+        <translation>Nastavitve …</translation>
     </message>
     <message>
         <source>New</source>
@@ -1329,7 +1329,7 @@ Ali jih želite nadomestiti?</translation>
     </message>
     <message>
         <source>&amp;Choose...</source>
-        <translation>&amp;Izbor ...</translation>
+        <translation>&amp;Izbor …</translation>
     </message>
     <message>
         <source>Projects</source>
@@ -1594,7 +1594,7 @@ Ali jih želite nadomestiti?</translation>
     </message>
     <message>
         <source>Configure...</source>
-        <translation>Nastavi ...</translation>
+        <translation>Nastavi …</translation>
     </message>
 </context>
 <context>
@@ -1823,7 +1823,7 @@ Ali jih želite nadomestiti?</translation>
     </message>
     <message>
         <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translation>Potekel je čas za zadnjo funkcijo waitFor...(). Stanje QProcess-a se ni spremenilo. Znova lahko poskusite klicati waitFor...().</translation>
+        <translation>Potekel je čas za zadnjo funkcijo waitFor…(). Stanje QProcess-a se ni spremenilo. Znova lahko poskusite klicati waitFor…().</translation>
     </message>
     <message>
         <source>An error occurred when attempting to write to the upload process. For example, the process may not be running, or it may have closed its input channel.</source>
@@ -2016,19 +2016,19 @@ Ali jih želite nadomestiti?</translation>
     </message>
     <message>
         <source>Delete Breakpoint</source>
-        <translation>Zbriši prekinitveno točko</translation>
+        <translation>Izbriši prekinitveno točko</translation>
     </message>
     <message>
         <source>Delete All Breakpoints</source>
-        <translation>Zbriši vse prekinitvene točke</translation>
+        <translation>Izbriši vse prekinitvene točke</translation>
     </message>
     <message>
         <source>Delete Breakpoints of &quot;%1&quot;</source>
-        <translation>Zbriši prekinitvene točke za »%1«</translation>
+        <translation>Izbriši prekinitvene točke za »%1«</translation>
     </message>
     <message>
         <source>Delete Breakpoints of File</source>
-        <translation>Zbriši prekinitvene točke za datoteko</translation>
+        <translation>Izbriši prekinitvene točke za datoteko</translation>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
@@ -2040,7 +2040,7 @@ Ali jih želite nadomestiti?</translation>
     </message>
     <message>
         <source>Edit Condition...</source>
-        <translation>Urejanje pogoja ...</translation>
+        <translation>Urejanje pogoja …</translation>
     </message>
     <message>
         <source>Synchronize Breakpoints</source>
@@ -2072,7 +2072,7 @@ Ali jih želite nadomestiti?</translation>
     </message>
     <message>
         <source>Set Breakpoint at Function...</source>
-        <translation>Nastavi prekinitveno točko pri funkciji ...</translation>
+        <translation>Nastavi prekinitveno točko pri funkciji …</translation>
     </message>
     <message>
         <source>Set Breakpoint at Function &quot;main&quot;</source>
@@ -2129,7 +2129,7 @@ Ali jih želite nadomestiti?</translation>
     </message>
     <message>
         <source>Continuing with &apos;%1&apos;...</source>
-        <translation>Nadaljevanje z »%1« ...</translation>
+        <translation>Nadaljevanje z »%1« …</translation>
     </message>
     <message>
         <source>Unable to continue: %1</source>
@@ -2149,15 +2149,15 @@ Ali jih želite nadomestiti?</translation>
     </message>
     <message>
         <source>Running requested...</source>
-        <translation>Zaganjanje zahtevanega ...</translation>
+        <translation>Zaganjanje zahtevanega …</translation>
     </message>
     <message>
         <source>Running up to %1:%2...</source>
-        <translation>Zaganjanje do %1:%2 ...</translation>
+        <translation>Zaganjanje do %1:%2 …</translation>
     </message>
     <message>
         <source>Running up to function &apos;%1()&apos;...</source>
-        <translation>Zaganjanje do funkcije »%1()« ...</translation>
+        <translation>Zaganjanje do funkcije »%1()« …</translation>
     </message>
     <message>
         <source>Jump to line is not implemented</source>
@@ -2181,7 +2181,7 @@ Ali jih želite nadomestiti?</translation>
     </message>
     <message>
         <source>Ignoring initial breakpoint...</source>
-        <translation>Preziranje začetne prekinitvene točke ...</translation>
+        <translation>Preziranje začetne prekinitvene točke …</translation>
     </message>
     <message>
         <source>Interrupted in thread %1, current thread: %2</source>
@@ -2228,7 +2228,7 @@ Ali jih želite nadomestiti?</translation>
     </message>
     <message>
         <source>Loading the custom dumper library &apos;%1&apos; (%2) ...</source>
-        <translation>Nalaganje knjižnice odlagalnika po meri »%1« (%2) ...</translation>
+        <translation>Nalaganje knjižnice odlagalnika po meri »%1« (%2) …</translation>
     </message>
     <message>
         <source>Loading of the custom dumper library &apos;%1&apos; (%2) failed: %3</source>
@@ -2244,7 +2244,7 @@ Ali jih želite nadomestiti?</translation>
     </message>
     <message>
         <source>Disabling dumpers due to debuggee crash...</source>
-        <translation>Onemogočanje odlagalnikov, ker se je razhroščevani sesul ...</translation>
+        <translation>Onemogočanje odlagalnikov, ker se je razhroščevani sesul …</translation>
     </message>
     <message>
         <source>The debuggee does not appear to be Qt application.</source>
@@ -2252,7 +2252,7 @@ Ali jih želite nadomestiti?</translation>
     </message>
     <message>
         <source>Initializing dumpers...</source>
-        <translation>Inicializiranje odlagalnikov ...</translation>
+        <translation>Inicializiranje odlagalnikov …</translation>
     </message>
     <message>
         <source>The custom dumper library could not be initialized: %1</source>
@@ -2302,7 +2302,7 @@ Ali jih želite nadomestiti?</translation>
     <name>Debugger::Internal::CdbSymbolPathListEditor</name>
     <message>
         <source>Symbol Server...</source>
-        <translation>Strežnik za simbole ...</translation>
+        <translation>Strežnik za simbole …</translation>
     </message>
     <message>
         <source>Adds the Microsoft symbol server providing symbols for operating system libraries.Requires specifying a local cache directory.</source>
@@ -2331,19 +2331,19 @@ Ali jih želite nadomestiti?</translation>
     <name>Debugger::Internal::DebuggerPlugin</name>
     <message>
         <source>Start and Debug External Application...</source>
-        <translation>Zaženi in razhroščuj zunanji program ...</translation>
+        <translation>Zaženi in razhroščuj zunanji program …</translation>
     </message>
     <message>
         <source>Attach to Running External Application...</source>
-        <translation>Priklopi se na zagnan zunanji program ...</translation>
+        <translation>Priklopi se na zagnan zunanji program …</translation>
     </message>
     <message>
         <source>Attach to Core...</source>
-        <translation>Priklopi se na posnetek ...</translation>
+        <translation>Priklopi se na posnetek …</translation>
     </message>
     <message>
         <source>Start and Attach to Remote Application...</source>
-        <translation>Zaženi in se priklopi na oddaljen program ...</translation>
+        <translation>Zaženi in se priklopi na oddaljen program …</translation>
     </message>
     <message>
         <source>Option &apos;%1&apos; is missing the parameter.</source>
@@ -2439,7 +2439,7 @@ Ali jo žalite končati?</translation>
     </message>
     <message>
         <source>Debugger Properties...</source>
-        <translation>Lastnosti razhroščevalnika ...</translation>
+        <translation>Lastnosti razhroščevalnika …</translation>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
@@ -2645,7 +2645,7 @@ Ali jo žalite končati?</translation>
     </message>
     <message>
         <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translation>Potekel je čas za zadnjo funkcijo waitFor...(). Stanje QProcessa se ni spremenilo. Znova lahko poskusite klicati waitFor...().</translation>
+        <translation>Potekel je čas za zadnjo funkcijo waitFor…(). Stanje QProcessa se ni spremenilo. Znova lahko poskusite klicati waitFor…().</translation>
     </message>
     <message>
         <source>An error occurred when attempting to write to the Gdb process. For example, the process may not be running, or it may have closed its input channel.</source>
@@ -2661,11 +2661,11 @@ Ali jo žalite končati?</translation>
     </message>
     <message>
         <source>Reading %1...</source>
-        <translation>Branje %1 ...</translation>
+        <translation>Branje %1 …</translation>
     </message>
     <message>
         <source>Stop requested...</source>
-        <translation>Zahtevanje ustavitve ...</translation>
+        <translation>Zahtevanje ustavitve …</translation>
     </message>
     <message>
         <source>Executable failed</source>
@@ -2691,51 +2691,51 @@ Ali jo žalite končati?</translation>
     </message>
     <message>
         <source>Continuing after temporary stop...</source>
-        <translation>Nadaljevanje po začasni ustavitvi ...</translation>
+        <translation>Nadaljevanje po začasni ustavitvi …</translation>
     </message>
     <message>
         <source>Running requested...</source>
-        <translation>Zahtevanje zagona ...</translation>
+        <translation>Zahtevanje zagona …</translation>
     </message>
     <message>
         <source>Step requested...</source>
-        <translation>Zahtevanje koraka ...</translation>
+        <translation>Zahtevanje koraka …</translation>
     </message>
     <message>
         <source>Step by instruction requested...</source>
-        <translation>Zahtevanje koraka po ukazu ...</translation>
+        <translation>Zahtevanje koraka po ukazu …</translation>
     </message>
     <message>
         <source>Finish function requested...</source>
-        <translation>Zahtevanje zaključitve funkcije ...</translation>
+        <translation>Zahtevanje zaključitve funkcije …</translation>
     </message>
     <message>
         <source>Step next requested...</source>
-        <translation>Zahtevanje koraka naprej ...</translation>
+        <translation>Zahtevanje koraka naprej …</translation>
     </message>
     <message>
         <source>Step next instruction requested...</source>
-        <translation>Zahtevanje koraka po ukazu naprej ...</translation>
+        <translation>Zahtevanje koraka po ukazu naprej …</translation>
     </message>
     <message>
         <source>Run to line %1 requested...</source>
-        <translation>Zahtevanje zagona do vrstice %1 ...</translation>
+        <translation>Zahtevanje zagona do vrstice %1 …</translation>
     </message>
     <message>
         <source>Run to function %1 requested...</source>
-        <translation>Zahtevanje zagona do funkcije %1 ...</translation>
+        <translation>Zahtevanje zagona do funkcije %1 …</translation>
     </message>
     <message>
         <source>Jumping out of bogus frame...</source>
-        <translation>Skok iz lažnega okvira ...</translation>
+        <translation>Skok iz lažnega okvira …</translation>
     </message>
     <message numerus="yes">
         <source>Retrieving data for watch view (%n requests pending)...</source>
         <translation>
-            <numerusform>Pridobivanje podatkov za prikaz opazovanj (%n čakajoč zahtevek) ...</numerusform>
-            <numerusform>Pridobivanje podatkov za prikaz opazovanj (%n čakajoča zahtevka) ...</numerusform>
-            <numerusform>Pridobivanje podatkov za prikaz opazovanj (%n čakajoči zahtevki) ...</numerusform>
-            <numerusform>Pridobivanje podatkov za prikaz opazovanj (%n čakajočih zahtevkov) ...</numerusform>
+            <numerusform>Pridobivanje podatkov za prikaz opazovanj (%n čakajoč zahtevek) …</numerusform>
+            <numerusform>Pridobivanje podatkov za prikaz opazovanj (%n čakajoča zahtevka) …</numerusform>
+            <numerusform>Pridobivanje podatkov za prikaz opazovanj (%n čakajoči zahtevki) …</numerusform>
+            <numerusform>Pridobivanje podatkov za prikaz opazovanj (%n čakajočih zahtevkov) …</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2880,11 +2880,11 @@ Lahko izberete čakanje ali pa prekličete razhroščevanje.</translation>
     </message>
     <message>
         <source>Immediate return from function requested...</source>
-        <translation>Zahtevana je bila takojšnja vrnitev iz funkcije ...</translation>
+        <translation>Zahtevana je bila takojšnja vrnitev iz funkcije …</translation>
     </message>
     <message>
         <source>ATTEMPT BREAKPOINT SYNC</source>
-        <translation type="unfinished"></translation>
+        <translation>POSKUS USKLADITVE PREKINITVENIH TOČK</translation>
     </message>
     <message>
         <source>&lt;unknown&gt;</source>
@@ -2935,11 +2935,11 @@ Ali želite ustaviti razhroščevani proces in naložiti izbrani posnetek?</tran
     </message>
     <message>
         <source>Starting inferior...</source>
-        <translation>Zaganjanje podrejenega ...</translation>
+        <translation>Zaganjanje podrejenega …</translation>
     </message>
     <message>
         <source>Setting breakpoints...</source>
-        <translation>Nastavljanje prekinitvenih točk ...</translation>
+        <translation>Nastavljanje prekinitvenih točk …</translation>
     </message>
     <message>
         <source>Failed to start application: </source>
@@ -2959,7 +2959,7 @@ Ali želite ustaviti razhroščevani proces in naložiti izbrani posnetek?</tran
     </message>
     <message>
         <source>Loading %1...</source>
-        <translation>Nalaganje %1 ...</translation>
+        <translation>Nalaganje %1 …</translation>
     </message>
     <message>
         <source>&lt;p&gt;The inferior stopped because it received a signal from the Operating System.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Signal name : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Signal meaning : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
@@ -2999,7 +2999,7 @@ Ali želite ustaviti razhroščevani proces in naložiti izbrani posnetek?</tran
     </message>
     <message>
         <source>Retrieving data for stack view...</source>
-        <translation>Pridobivanje podatkov za prikaz sklada ...</translation>
+        <translation>Pridobivanje podatkov za prikaz sklada …</translation>
     </message>
     <message>
         <source>Debugging helpers not found.</source>
@@ -3033,7 +3033,7 @@ Ali želite ustaviti razhroščevani proces in naložiti izbrani posnetek?</tran
     </message>
     <message>
         <source>Running...</source>
-        <translation>Teče ...</translation>
+        <translation>Teče …</translation>
     </message>
 </context>
 <context>
@@ -3214,7 +3214,7 @@ Ali želite ustaviti razhroščevani proces in naložiti izbrani posnetek?</tran
     <name>Debugger::Internal::ScriptEngine</name>
     <message>
         <source>Running requested...</source>
-        <translation>Zahtevanje zagona ...</translation>
+        <translation>Zahtevanje zagona …</translation>
     </message>
     <message>
         <source>&apos;%1&apos; contains no identifier</source>
@@ -3222,7 +3222,7 @@ Ali želite ustaviti razhroščevani proces in naložiti izbrani posnetek?</tran
     </message>
     <message>
         <source>String literal %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Literal niza %1</translation>
     </message>
     <message>
         <source>Cowardly refusing to evaluate expression &apos;%1&apos; with potential side effects</source>
@@ -3260,7 +3260,7 @@ Ali želite ustaviti razhroščevani proces in naložiti izbrani posnetek?</tran
     <name>Debugger::Internal::StackHandler</name>
     <message>
         <source>...</source>
-        <translation>...</translation>
+        <translation>…</translation>
     </message>
     <message>
         <source>&lt;More&gt;</source>
@@ -3449,7 +3449,7 @@ Ali želite ustaviti razhroščevani proces in naložiti izbrani posnetek?</tran
     </message>
     <message>
         <source> ... &lt;cut off&gt;</source>
-        <translation>... &lt;odrezano&gt;</translation>
+        <translation>… &lt;odrezano&gt;</translation>
     </message>
     <message>
         <source>Object Address</source>
@@ -3591,7 +3591,7 @@ Ali želite ustaviti razhroščevani proces in naložiti izbrani posnetek?</tran
     </message>
     <message>
         <source>Open Memory Editor...</source>
-        <translation>Odpri urejevalnik pomnilnika ...</translation>
+        <translation>Odpri urejevalnik pomnilnika …</translation>
     </message>
     <message>
         <source>Open Memory Editor at %1</source>
@@ -3735,7 +3735,7 @@ Morda lahko pomaga ponovna gradnja projekta.</translation>
     </message>
     <message>
         <source>Configure...</source>
-        <translation>Nastavitve ...</translation>
+        <translation>Nastavitve …</translation>
     </message>
     <message>
         <source>Choose a Class Name</source>
@@ -3853,7 +3853,7 @@ Morda lahko pomaga ponovna gradnja projekta.</translation>
     </message>
     <message>
         <source>About Qt Designer plugins....</source>
-        <translation>O vstavkih za Qt Designer ...</translation>
+        <translation>O vstavkih za Qt Designer …</translation>
     </message>
     <message>
         <source>Preview in</source>
@@ -3934,7 +3934,7 @@ Morda lahko pomaga ponovna gradnja projekta.</translation>
     <name>DocSettingsPage</name>
     <message>
         <source>Add...</source>
-        <translation>Dodaj ...</translation>
+        <translation>Dodaj …</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -4201,11 +4201,11 @@ Razlog: %3</translation>
     </message>
     <message numerus="yes">
         <source>%n lines %1ed %2 time</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n vrstica %2-krat %1-ana</numerusform>
+            <numerusform>%n vrstici %2-krat %1-ani</numerusform>
+            <numerusform>%n vrstice %2-krat %1-ane</numerusform>
+            <numerusform>%n vrstic %2-krat %1-anih</numerusform>
         </translation>
     </message>
     <message>
@@ -4404,7 +4404,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     <name>Find::Internal::FindDialog</name>
     <message>
         <source>Search for...</source>
-        <translation>Poišči ...</translation>
+        <translation>Poišči …</translation>
     </message>
     <message>
         <source>Sc&amp;ope:</source>
@@ -4506,7 +4506,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>...</source>
-        <translation>...</translation>
+        <translation>…</translation>
     </message>
 </context>
 <context>
@@ -4723,11 +4723,11 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     <name>Git::Internal::BranchDialog</name>
     <message>
         <source>Checkout</source>
-        <translation type="unfinished"></translation>
+        <translation>Prevzemi</translation>
     </message>
     <message>
         <source>Diff</source>
-        <translation type="unfinished"></translation>
+        <translation>Razlike</translation>
     </message>
     <message>
         <source>Refresh</source>
@@ -4735,15 +4735,15 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Delete...</source>
-        <translation>Zbriši ...</translation>
+        <translation>Izbriši …</translation>
     </message>
     <message>
         <source>Delete Branch</source>
-        <translation>Zbriši vejo</translation>
+        <translation>Izbriši vejo</translation>
     </message>
     <message>
         <source>Would you like to delete the branch &apos;%1&apos;?</source>
-        <translation>Ali želite zbrisati vejo »%1«?</translation>
+        <translation>Ali želite izbrisati vejo »%1«?</translation>
     </message>
     <message>
         <source>Failed to delete branch</source>
@@ -4755,11 +4755,11 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Failed to stash</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapis na stran ni uspel</translation>
     </message>
     <message>
         <source>Checkout failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Prevzem ni uspel</translation>
     </message>
     <message>
         <source>Would you like to create a local branch &apos;%1&apos; tracking the remote branch &apos;%2&apos;?</source>
@@ -4786,7 +4786,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     <name>Git::Internal::ChangeSelectionDialog</name>
     <message>
         <source>Select a Git Commit</source>
-        <translation type="unfinished"></translation>
+        <translation>Izberite zapis Git</translation>
     </message>
     <message>
         <source>Select Git Repository</source>
@@ -4825,45 +4825,45 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Waiting for data...</source>
-        <translation>Čakanje na podatke ...</translation>
+        <translation>Čakanje na podatke …</translation>
     </message>
     <message>
         <source>Git Diff</source>
-        <translation type="unfinished"></translation>
+        <translation>Git – razlike</translation>
     </message>
     <message>
         <source>Git Diff %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Git – razlike v %1</translation>
     </message>
     <message>
         <source>Git Diff Branch %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Git – razlike v veji %1</translation>
     </message>
     <message>
         <source>Git Log</source>
-        <translation type="unfinished"></translation>
+        <translation>Git – dnevnik</translation>
     </message>
     <message>
         <source>Git Log %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Git – dnevnik za %1</translation>
     </message>
     <message>
         <source>Cannot describe &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni moč opisati »%1«.</translation>
     </message>
     <message>
         <source>Git Show %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Git – prikaži %1</translation>
     </message>
     <message>
         <source>Git Blame %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Git – odgovornost za %1</translation>
     </message>
     <message>
         <source>Unable to checkout %1 of %2: %3</source>
         <extracomment>Meaning of the arguments: %1: Branch, %2: Repository, %3: Error message
 </extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ni moč prevzeti %1 iz %2: %3</translation>
     </message>
     <message numerus="yes">
         <source>Unable to add %n file(s) to %1: %2</source>
@@ -4876,16 +4876,16 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message numerus="yes">
         <source>Unable to remove %n file(s) from %1: %2</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n datoteke ni moč odstraniti iz %1: %2</numerusform>
+            <numerusform>%n datotek ni moč odstraniti iz %1: %2</numerusform>
+            <numerusform>%n datotek ni moč odstraniti iz %1: %2</numerusform>
+            <numerusform>%n datotek ni moč odstraniti iz %1: %2</numerusform>
         </translation>
     </message>
     <message>
         <source>Unable to reset %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni moč ponastaviti %1: %2</translation>
     </message>
     <message numerus="yes">
         <source>Unable to reset %n file(s) in %1: %2</source>
@@ -4900,13 +4900,13 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>Unable to checkout %1 of %2 in %3: %4</source>
         <extracomment>Meaning of the arguments: %1: revision, %2: files, %3: repository, %4: Error message
 </extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ni moč prevzeti %1 datoteke %2 iz %3: %4</translation>
     </message>
     <message>
         <source>Unable to find parent revisions of %1 in %2: %3</source>
         <extracomment>Failed to find parent revisions of a SHA1 for &quot;annotate previous&quot;
 </extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ni moč najti starševskih revizij za %1 v %2: %3</translation>
     </message>
     <message>
         <source>Invalid revision</source>
@@ -4914,19 +4914,19 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Unable to retrieve branch of %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni moč pridobiti veje za %1: %2</translation>
     </message>
     <message>
         <source>Unable to retrieve top revision of %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni moč pridobiti vrhnje revizije za %1: %2</translation>
     </message>
     <message>
         <source>Unable to describe revision %1 in %2: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni moč opisati revizije %1 v %2: %3</translation>
     </message>
     <message>
         <source>Stash Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Opis zapisa na stran</translation>
     </message>
     <message>
         <source>Description:</source>
@@ -4936,48 +4936,49 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>Unable to resolve stash message &apos;%1&apos; in %2</source>
         <extracomment>Look-up of a stash via its descriptive message failed.
 </extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ni moč razrešiti sporočila zapisa na stran »%1« v %2</translation>
     </message>
     <message>
         <source>Unable to run a &apos;git branch&apos; command in %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni moč zagnati ukaza »git branch« v %1: %2</translation>
     </message>
     <message>
         <source>Unable to run &apos;git show&apos; in %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni moč zagnati »git show« v %1: %2</translation>
     </message>
     <message>
         <source>Unable to run &apos;git clean&apos; in %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni moč zagnati »git clean« v %1: %2</translation>
     </message>
     <message>
         <source>There were warnings while applying %1 to %2:
 %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Med uveljavljanjem %1 v %2 je prišlo do opozoril:
+%3</translation>
     </message>
     <message>
         <source>Unable apply patch %1 to %2: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni moč uveljaviti popravka %1 v %2: %3</translation>
     </message>
     <message>
         <source>Unable to restore stash %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni moč obnoviti zapisa na stran %1: %2</translation>
     </message>
     <message>
         <source>Unable to restore stash %1 to branch %2: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni moč obnoviti zapisa na stran %1 v vejo %2: %3</translation>
     </message>
     <message>
         <source>Unable to remove stashes of %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni moč odstraniti zapisov na stran za %1: %2</translation>
     </message>
     <message>
         <source>Unable to remove stash %1 of %2: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni moč odstraniti zapisa na stran %1 za %2: %3</translation>
     </message>
     <message>
         <source>Unable retrieve stash list of %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni moč pridobiti seznama zapisov na stran za %1: %2</translation>
     </message>
     <message>
         <source>Unable to determine git version: %1</source>
@@ -4985,7 +4986,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Unable stash in %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni moč zapisati na stran v %1: %2</translation>
     </message>
     <message>
         <source>Changes</source>
@@ -4993,7 +4994,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>You have modified files. Would you like to stash your changes?</source>
-        <translation type="unfinished"></translation>
+        <translation>Imate spremenjene datoteke. Ali želite spremembe zapisati na stran?</translation>
     </message>
     <message>
         <source>Unable to obtain the status: %1</source>
@@ -5005,26 +5006,34 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>You did not checkout a branch.</source>
-        <translation type="unfinished"></translation>
+        <translation>Niste prevzeli veje.</translation>
     </message>
     <message numerus="yes">
         <source>Committed %n file(s).
 </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Zapisana %n datoteka.
+</numerusform>
+            <numerusform>Zapisani %n datoteki.
+</numerusform>
+            <numerusform>Zapisane %n datoteke.
+</numerusform>
+            <numerusform>Zapisanih %n datotek.
+</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>Unable to commit %n file(s): %1
 </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Ni moč zapisati %n datoteke: %1
+</numerusform>
+            <numerusform>Ni moč zapisati %n datotek: %1
+</numerusform>
+            <numerusform>Ni moč zapisati %n datotek: %1
+</numerusform>
+            <numerusform>Ni moč zapisati %n datotek: %1
+</numerusform>
         </translation>
     </message>
     <message>
@@ -5041,11 +5050,11 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>The command &apos;git pull --rebase&apos; failed, aborting rebase.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukaz »git pull --rebase« ni uspel. Ponastavljanje izhodišča preklicano.</translation>
     </message>
     <message>
         <source>Git SVN Log</source>
-        <translation type="unfinished"></translation>
+        <translation>Dnevnik Git SVN</translation>
     </message>
     <message>
         <source>There are no modified files.</source>
@@ -5060,11 +5069,11 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Diff Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>Razlike v trenutni datoteki</translation>
     </message>
     <message>
         <source>Diff &quot;%1&quot;</source>
-        <translation type="unfinished">Diff</translation>
+        <translation>Razlike v »%1«</translation>
     </message>
     <message>
         <source>Alt+G,Alt+D</source>
@@ -5072,7 +5081,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Log File</source>
-        <translation type="unfinished">Dnevniška datoteka</translation>
+        <translation>Dnevniška datoteka</translation>
     </message>
     <message>
         <source>Log of &quot;%1&quot;</source>
@@ -5096,11 +5105,11 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Undo Changes</source>
-        <translation>Razveljavi spremembe</translation>
+        <translation type="obsolete">Razveljavi spremembe</translation>
     </message>
     <message>
         <source>Undo Changes for &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Razveljavi spremembe v »%1«</translation>
     </message>
     <message>
         <source>Alt+G,Alt+U</source>
@@ -5108,11 +5117,11 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Stage File for Commit</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj datoteko na seznam za zapis</translation>
     </message>
     <message>
         <source>Stage &quot;%1&quot; for Commit</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj »%1« na seznam za zapis</translation>
     </message>
     <message>
         <source>Alt+G,Alt+A</source>
@@ -5120,27 +5129,27 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Unstage File from Commit</source>
-        <translation type="unfinished"></translation>
+        <translation>Odstrani datoteko s seznama za zapis</translation>
     </message>
     <message>
         <source>Unstage &quot;%1&quot; from Commit</source>
-        <translation type="unfinished"></translation>
+        <translation>Odstrani »%1« s seznama za zapis</translation>
     </message>
     <message>
         <source>Diff Current Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Razlike v trenutnem projektu</translation>
     </message>
     <message>
         <source>Diff Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Razlike v projektu »%1«</translation>
     </message>
     <message>
         <source>Log Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Dnevnik projekta</translation>
     </message>
     <message>
         <source>Log Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Dnevnik projekta »%1«</translation>
     </message>
     <message>
         <source>Alt+G,Alt+K</source>
@@ -5148,7 +5157,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Stash</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapiši na stran</translation>
     </message>
     <message>
         <source>Saves the current state of your work.</source>
@@ -5156,31 +5165,31 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Undo Unstaged Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Razveljavi spremembe, ki niso na seznamu</translation>
     </message>
     <message>
         <source>Undo Unstaged Changes for &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Razveljavi spremembe v »%1«, ki niso na seznamu</translation>
     </message>
     <message>
         <source>Undo Uncommitted Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Razveljavi nezapisane spremembe</translation>
     </message>
     <message>
         <source>Undo Uncommitted Changes for &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Razveljavi nezapisane spremembe v »%1«</translation>
     </message>
     <message>
         <source>Clean Project...</source>
-        <translation>Počisti projekt ...</translation>
+        <translation>Počisti projekt …</translation>
     </message>
     <message>
         <source>Clean Project &quot;%1&quot;...</source>
-        <translation>Počisti projekt »%1« ...</translation>
+        <translation>Počisti projekt »%1« …</translation>
     </message>
     <message>
         <source>Diff Repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Razlike v skladišču</translation>
     </message>
     <message>
         <source>Repository Status</source>
@@ -5188,7 +5197,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Log Repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Dnevnik skladišča</translation>
     </message>
     <message>
         <source>Apply Patch</source>
@@ -5200,7 +5209,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Apply Patch...</source>
-        <translation>Uveljavi popravek ...</translation>
+        <translation>Uveljavi popravek …</translation>
     </message>
     <message>
         <source>Undo Repository Changes</source>
@@ -5208,19 +5217,19 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Create Repository...</source>
-        <translation>Ustvari skladišče ...</translation>
+        <translation>Ustvari skladišče …</translation>
     </message>
     <message>
         <source>Clean Repository...</source>
-        <translation type="unfinished"></translation>
+        <translation>Počisti skladišče …</translation>
     </message>
     <message>
         <source>Stash Snapshot...</source>
-        <translation type="unfinished"></translation>
+        <translation>Posnetek zapiši na stran ...</translation>
     </message>
     <message>
         <source>Saves the current state of your work and resets the repository.</source>
-        <translation type="unfinished"></translation>
+        <translation>Shrani trenutno stanje dela in ponastavi skladišče.</translation>
     </message>
     <message>
         <source>Pull</source>
@@ -5228,19 +5237,19 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Stash Pop</source>
-        <translation type="unfinished"></translation>
+        <translation>Uveljavi zapis na strani</translation>
     </message>
     <message>
         <source>Restores changes saved to the stash list using &quot;Stash&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Obnovi spremembe, shranjene na seznam zapisov na strani.</translation>
     </message>
     <message>
         <source>Commit...</source>
-        <translation type="unfinished">Uveljavi</translation>
+        <translation>Zapiši …</translation>
     </message>
     <message>
         <source>Alt+G,Alt+C</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+G,Alt+C</translation>
     </message>
     <message>
         <source>Push</source>
@@ -5248,64 +5257,65 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Branches...</source>
-        <translation>Veje ...</translation>
+        <translation>Veje …</translation>
     </message>
     <message>
         <source>Stashes...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisi na strani …</translation>
     </message>
     <message>
         <source>Would you like to revert all pending changes to the repository
 %1?</source>
-        <translation type="unfinished"></translation>
+        <translation>Ali želite povrniti vse čakajoče spremembe skladišča
+%1?</translation>
     </message>
     <message>
         <source>Unable to retrieve file list</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni moč pridobiti seznama datotek</translation>
     </message>
     <message>
         <source>Repository clean</source>
-        <translation type="unfinished"></translation>
+        <translation>Skladišče čisto</translation>
     </message>
     <message>
         <source>The repository is clean.</source>
-        <translation type="unfinished"></translation>
+        <translation>Skladišče je čisto.</translation>
     </message>
     <message>
         <source>Patches (*.patch *.diff)</source>
-        <translation type="unfinished"></translation>
+        <translation>Popravki (*.patch, *.diff)</translation>
     </message>
     <message>
         <source>Choose patch</source>
-        <translation type="unfinished"></translation>
+        <translation>Izberite popravek</translation>
     </message>
     <message>
         <source>Patch %1 successfully applied to %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Popravek %1 je bil uspešno uveljavljen na %2</translation>
     </message>
     <message>
         <source>Show Commit...</source>
-        <translation type="unfinished"></translation>
+        <translation>Prikaži zapis …</translation>
     </message>
     <message>
         <source>Subversion</source>
-        <translation type="unfinished">Subversion</translation>
+        <translation>Subversion</translation>
     </message>
     <message>
         <source>Log</source>
-        <translation type="unfinished">Dnevnik</translation>
+        <translation>Dnevnik</translation>
     </message>
     <message>
         <source>Fetch</source>
-        <translation type="unfinished">Pri&amp;dobi</translation>
+        <translation>Pridobi</translation>
     </message>
     <message>
         <source>Commit</source>
-        <translation type="unfinished">Uveljavi</translation>
+        <translation>Zapiši</translation>
     </message>
     <message>
         <source>Diff Selected Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Razlike v izbranih datotekah</translation>
     </message>
     <message>
         <source>&amp;Undo</source>
@@ -5317,11 +5327,11 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Revert</source>
-        <translation type="unfinished">Povrni</translation>
+        <translation>Povrni</translation>
     </message>
     <message>
         <source>Another submit is currently being executed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Trenutno že teče drugo pošiljanje.</translation>
     </message>
     <message>
         <source>Cannot create temporary file: %1</source>
@@ -5333,11 +5343,11 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Do you want to commit the change?</source>
-        <translation type="unfinished"></translation>
+        <translation>Ali želite zapisati spremembo?</translation>
     </message>
     <message>
         <source>The commit message check failed. Do you want to commit the change?</source>
-        <translation type="unfinished"></translation>
+        <translation>Sporočilo zapisa ni prestalo preverjanja. Ali želite zapisati spremembo?</translation>
     </message>
 </context>
 <context>
@@ -5351,7 +5361,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     <name>Git::Internal::GitSubmitEditor</name>
     <message>
         <source>Git Commit</source>
-        <translation type="unfinished"></translation>
+        <translation>Git – zapis</translation>
     </message>
 </context>
 <context>
@@ -5378,7 +5388,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Commit Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Podatki o zapisu</translation>
     </message>
     <message>
         <source>Author:</source>
@@ -5424,51 +5434,51 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Log commit display count:</source>
-        <translation type="unfinished"></translation>
+        <translation>Število prikazanih dnevniških zapisov:</translation>
     </message>
     <message>
         <source>Note that huge amount of commits might take some time.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vedite, da je za veliko število zapisov morda potrebno veliko časa.</translation>
     </message>
     <message>
         <source>Omit date from annotation output</source>
-        <translation type="unfinished"></translation>
+        <translation>Izpusti datum iz izpisa opomb</translation>
     </message>
     <message>
         <source>Environment Variables</source>
-        <translation type="unfinished">Okoljske spremenljivke</translation>
+        <translation>Okoljske spremenljivke</translation>
     </message>
     <message>
         <source>From System</source>
-        <translation type="unfinished">Od sistema</translation>
+        <translation>Od sistema</translation>
     </message>
     <message>
         <source>Miscellaneous</source>
-        <translation type="unfinished">Razno</translation>
+        <translation>Razno</translation>
     </message>
     <message>
         <source>Timeout:</source>
-        <translation type="unfinished">Zakasnitev:</translation>
+        <translation>Razpoložljivi čas:</translation>
     </message>
     <message>
         <source>s</source>
-        <translation type="unfinished">s</translation>
+        <translation>s</translation>
     </message>
     <message>
         <source>Prompt on submit</source>
-        <translation type="unfinished"></translation>
+        <translation>Vprašaj ob pošiljanju</translation>
     </message>
     <message>
         <source>Ignore whitespace changes in annotation</source>
-        <translation type="unfinished"></translation>
+        <translation>Prezri spremembe presledkov v opombi</translation>
     </message>
     <message>
         <source>Use &quot;patience diff&quot; algorithm</source>
-        <translation type="unfinished"></translation>
+        <translation>Uporabi algoritem za razlike po pasjansi</translation>
     </message>
     <message>
         <source>Pull with rebase</source>
-        <translation type="unfinished"></translation>
+        <translation>Potegni s ponastavitvijo izhodišča</translation>
     </message>
 </context>
 <context>
@@ -5699,7 +5709,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Filtered by:</source>
-        <translation>Filtrirano z:</translation>
+        <translation>Filtrirano po:</translation>
     </message>
 </context>
 <context>
@@ -5710,7 +5720,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Indexing Documentation...</source>
-        <translation>Indeksiranje dokumentacije ...</translation>
+        <translation>Indeksiranje dokumentacije …</translation>
     </message>
     <message>
         <source>Open Link</source>
@@ -5790,7 +5800,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>&amp;New...</source>
-        <translation>&amp;Novo ...</translation>
+        <translation>&amp;Novo …</translation>
     </message>
     <message>
         <source>Ctrl+N</source>
@@ -5798,7 +5808,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>&amp;Open...</source>
-        <translation>&amp;Odpri ...</translation>
+        <translation>&amp;Odpri …</translation>
     </message>
     <message>
         <source>Recent Files</source>
@@ -5814,7 +5824,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Save &amp;As...</source>
-        <translation>Shrani &amp;kot ...</translation>
+        <translation>Shrani &amp;kot …</translation>
     </message>
     <message>
         <source>&amp;Preview</source>
@@ -5870,7 +5880,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation>&amp;Zbriši</translation>
+        <translation>&amp;Izbriši</translation>
     </message>
     <message>
         <source>Del</source>
@@ -5890,7 +5900,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>&amp;About...</source>
-        <translation>&amp;O ...</translation>
+        <translation>&amp;O …</translation>
     </message>
     <message>
         <source>Properties</source>
@@ -5950,7 +5960,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     <name>OpenWithDialog</name>
     <message>
         <source>Open File With...</source>
-        <translation>Odpri datoteko v ...</translation>
+        <translation>Odpri datoteko v …</translation>
     </message>
     <message>
         <source>Open file extension with:</source>
@@ -5976,7 +5986,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Submit</source>
-        <translation type="unfinished">Pošlji</translation>
+        <translation>Pošlji</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -5999,11 +6009,11 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Edit &quot;%1&quot;</source>
-        <translation type="unfinished">&amp;Urejanje</translation>
+        <translation>Uredit »%1«</translation>
     </message>
     <message>
         <source>Alt+P,Alt+E</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+P,Alt+E</translation>
     </message>
     <message>
         <source>Edit File</source>
@@ -6015,11 +6025,11 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Add &quot;%1&quot;</source>
-        <translation type="unfinished">Dodaj</translation>
+        <translation>Dodaj »%1«</translation>
     </message>
     <message>
         <source>Alt+P,Alt+A</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+P,Alt+A</translation>
     </message>
     <message>
         <source>Add File</source>
@@ -6035,11 +6045,11 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Revert &quot;%1&quot;</source>
-        <translation type="unfinished">Povrni</translation>
+        <translation>Povrni »%1«</translation>
     </message>
     <message>
         <source>Alt+P,Alt+R</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+P,Alt+R</translation>
     </message>
     <message>
         <source>Revert File</source>
@@ -6047,95 +6057,95 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Diff Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>Razlike v trenutni datoteki</translation>
     </message>
     <message>
         <source>Diff &quot;%1&quot;</source>
-        <translation type="unfinished">Diff</translation>
+        <translation>Razlike v »%1«</translation>
     </message>
     <message>
         <source>Diff Current Project/Session</source>
-        <translation type="unfinished"></translation>
+        <translation>Razlike v trenutnem projektu/seji</translation>
     </message>
     <message>
         <source>Diff Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Razlike v projektu »%1«</translation>
     </message>
     <message>
         <source>Alt+P,Alt+D</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+P,Alt+D</translation>
     </message>
     <message>
         <source>Diff Opened Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Razlike v odprtih datotekah</translation>
     </message>
     <message>
         <source>Opened</source>
-        <translation>Odprta</translation>
+        <translation>Odprte</translation>
     </message>
     <message>
         <source>Alt+P,Alt+O</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+P,Alt+O</translation>
     </message>
     <message>
         <source>Submit Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Pošlji projekt</translation>
     </message>
     <message>
         <source>Alt+P,Alt+S</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+P,Alt+S</translation>
     </message>
     <message>
         <source>Pending Changes...</source>
-        <translation>Čakajoče spremembe ...</translation>
+        <translation>Čakajoče spremembe …</translation>
     </message>
     <message>
         <source>Update Project &quot;%1&quot;</source>
-        <translation type="unfinished">Posodobi projekt</translation>
+        <translation>Posodobi projekt »%1«</translation>
     </message>
     <message>
         <source>Describe...</source>
-        <translation>Opis ...</translation>
+        <translation>Opiši …</translation>
     </message>
     <message>
         <source>Annotate Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj opombo za trenutno datoteko</translation>
     </message>
     <message>
         <source>Annotate &quot;%1&quot;</source>
-        <translation type="unfinished">Dodaj opombo</translation>
+        <translation>Dodaj opombo za »%1«</translation>
     </message>
     <message>
         <source>Annotate...</source>
-        <translation type="unfinished">Dodaj opombo</translation>
+        <translation>Dodaj opombo …</translation>
     </message>
     <message>
         <source>Filelog Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>Dnevnik za trenutno datoteko</translation>
     </message>
     <message>
         <source>Filelog &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Dnevnik za datoteko »%1«</translation>
     </message>
     <message>
         <source>Alt+P,Alt+F</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+P,Alt+F</translation>
     </message>
     <message>
         <source>Filelog...</source>
-        <translation type="unfinished"></translation>
+        <translation>Dnevnik za datoteko …</translation>
     </message>
     <message>
         <source>Update All</source>
-        <translation type="unfinished">&amp;Posodobi vse</translation>
+        <translation>Posodobi vse</translation>
     </message>
     <message>
         <source>Submit</source>
-        <translation type="unfinished">Pošlji</translation>
+        <translation>Pošlji</translation>
     </message>
     <message>
         <source>Diff Selected Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Razlike v izbranih datotekah</translation>
     </message>
     <message>
         <source>&amp;Undo</source>
@@ -6156,12 +6166,12 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     <message>
         <source>Executing: %1
 </source>
-        <translation type="unfinished">%1 Izvajanje: %2 %3
+        <translation>Izvajanje: %1
 </translation>
     </message>
     <message>
         <source>Another submit is currently executed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Trenutno že teče drugo pošiljanje.</translation>
     </message>
     <message>
         <source>Cannot create temporary file.</source>
@@ -6197,51 +6207,51 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Delete...</source>
-        <translation type="unfinished">&amp;Zbriši</translation>
+        <translation>Izbriši …</translation>
     </message>
     <message>
         <source>Delete &quot;%1&quot;...</source>
-        <translation type="unfinished">&amp;Zbriši</translation>
+        <translation>Izbriši »%1« …</translation>
     </message>
     <message>
         <source>Log Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Dnevnik projekta</translation>
     </message>
     <message>
         <source>Log Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Dnevnik projekta »%1«</translation>
     </message>
     <message>
         <source>Submit Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Pošlji projekt »%1«</translation>
     </message>
     <message>
         <source>Update Current Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Posodobi trenutni projekt</translation>
     </message>
     <message>
         <source>Revert Unchanged</source>
-        <translation type="unfinished"></translation>
+        <translation>Povrni nespremenjene</translation>
     </message>
     <message>
         <source>Revert Unchanged Files of Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Povrni nespremenjene datoteke projekta »%1«</translation>
     </message>
     <message>
         <source>Revert Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Povrni projekt</translation>
     </message>
     <message>
         <source>Revert Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Povrni projekt »%1«</translation>
     </message>
     <message>
         <source>Repository Log</source>
-        <translation type="unfinished"></translation>
+        <translation>Dnevnik skladišča</translation>
     </message>
     <message>
         <source>Do you want to revert all changes to the project &quot;%1&quot;?</source>
-        <translation type="unfinished"></translation>
+        <translation>Ali želite povrniti vse spremembe projekta »%1«?</translation>
     </message>
     <message>
         <source>Could not start perforce &apos;%1&apos;. Please check your settings in the preferences.</source>
@@ -6253,11 +6263,11 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Unable to write input data to process %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni moč zapisati vhodnih podatkov v proces %1: %2</translation>
     </message>
     <message>
         <source>Perforce is not correctly configured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Perforce trenutno ni nastavljen.</translation>
     </message>
     <message>
         <source>p4 diff %1</source>
@@ -6273,15 +6283,15 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Do you want to submit this change list?</source>
-        <translation type="unfinished"></translation>
+        <translation>Ali želite poslati ta seznam sprememb?</translation>
     </message>
     <message>
         <source>The commit message check failed. Do you want to submit this change list</source>
-        <translation type="unfinished"></translation>
+        <translation>Sporočilo zapisa ni prestalo preverjanja. Ali želite poslati ta seznam sprememb?</translation>
     </message>
     <message>
         <source>Cannot open temporary file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni moč odpreti začasne datoteke.</translation>
     </message>
     <message>
         <source>p4 submit failed: %1</source>
@@ -6291,21 +6301,21 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>Error running &quot;where&quot; on %1: %2</source>
         <extracomment>Failed to run p4 &quot;where&quot; to resolve a Perforce file name to a local file system name.
 </extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Napaka pri poganjanju »where« na %1: %2</translation>
     </message>
     <message>
         <source>The file is not mapped</source>
         <extracomment>File is not managed by Perforce
 </extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Datoteka ni preslikana</translation>
     </message>
     <message>
         <source>Perforce repository: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Skladišče Perforce: %1</translation>
     </message>
     <message>
         <source>Perforce: Unable to determine the repository: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Perforce: ni moč določiti skladišča: %1</translation>
     </message>
     <message>
         <source>Pending change</source>
@@ -6313,14 +6323,14 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Could not submit the change, because your workspace was out of date. Created a pending submit instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>Spremembe ni bilo moč poslati, ker vaš delovni prostor ni bil ažuren. Namesto tega se je ustvarilo čakajoče pošiljanje.</translation>
     </message>
 </context>
 <context>
     <name>Perforce::Internal::PerforceSubmitEditor</name>
     <message>
         <source>Perforce Submit</source>
-        <translation type="unfinished"></translation>
+        <translation>Pošiljanje Perforce</translation>
     </message>
 </context>
 <context>
@@ -6342,62 +6352,62 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Test</source>
-        <translation type="unfinished">Preizkus</translation>
+        <translation>Preizkus</translation>
     </message>
     <message>
         <source>Configuration</source>
-        <translation type="unfinished">Nastavitve</translation>
+        <translation>Nastavitve</translation>
     </message>
     <message>
         <source>P4 command:</source>
-        <translation type="unfinished">Ukaz P4:</translation>
+        <translation>Ukaz P4:</translation>
     </message>
     <message>
         <source>Environment Variables</source>
-        <translation type="unfinished">Okoljske spremenljivke</translation>
+        <translation>Okoljske spremenljivke</translation>
     </message>
     <message>
         <source>P4 client:</source>
-        <translation type="unfinished">Odjemalec P4:</translation>
+        <translation>Odjemalec P4:</translation>
     </message>
     <message>
         <source>P4 user:</source>
-        <translation type="unfinished">Uporabnik P4:</translation>
+        <translation>Uporabnik P4:</translation>
     </message>
     <message>
         <source>P4 port:</source>
-        <translation type="unfinished">Vrata P4:</translation>
+        <translation>Vrata P4:</translation>
     </message>
     <message>
         <source>Miscellaneous</source>
-        <translation type="unfinished">Razno</translation>
+        <translation>Razno</translation>
     </message>
     <message>
         <source>Timeout:</source>
-        <translation type="unfinished">Zakasnitev:</translation>
+        <translation>Razpoložljivi čas:</translation>
     </message>
     <message>
         <source>s</source>
-        <translation type="unfinished">s</translation>
+        <translation>s</translation>
     </message>
     <message>
         <source>Prompt on submit</source>
-        <translation type="unfinished"></translation>
+        <translation>Vprašaj ob pošiljanju</translation>
     </message>
     <message>
         <source>Log count:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dolžina dnevnika:</translation>
     </message>
 </context>
 <context>
     <name>Perforce::Internal::SettingsPageWidget</name>
     <message>
         <source>Testing...</source>
-        <translation type="unfinished">Preverjanje ...</translation>
+        <translation>Preizkušanje …</translation>
     </message>
     <message>
         <source>Test succeeded (%1).</source>
-        <translation type="unfinished"></translation>
+        <translation>Preizkus je uspel (%1)</translation>
     </message>
     <message>
         <source>Perforce Command</source>
@@ -6408,7 +6418,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     <name>Perforce::Internal::SubmitPanel</name>
     <message>
         <source>Submit</source>
-        <translation type="unfinished">Pošlji</translation>
+        <translation>Pošiljanje</translation>
     </message>
     <message>
         <source>Change:</source>
@@ -6592,7 +6602,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Running build steps for project %1...</source>
-        <translation>Zaganjanje korakov gradnje za projekt %1 ...</translation>
+        <translation>Zaganjanje korakov gradnje za projekt %1 …</translation>
     </message>
 </context>
 <context>
@@ -6930,7 +6940,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation>&amp;Zbriši</translation>
+        <translation>&amp;Izbriši</translation>
     </message>
     <message>
         <source>&amp;Switch to</source>
@@ -7246,11 +7256,11 @@ No project selected
     </message>
     <message>
         <source>Session Manager...</source>
-        <translation>Upravljalnik sej ...</translation>
+        <translation>Upravljalnik sej …</translation>
     </message>
     <message>
         <source>New Project...</source>
-        <translation>Nov projekt ...</translation>
+        <translation>Nov projekt …</translation>
     </message>
     <message>
         <source>Ctrl+Shift+N</source>
@@ -7258,7 +7268,7 @@ No project selected
     </message>
     <message>
         <source>Load Project...</source>
-        <translation>Naloži projekt ...</translation>
+        <translation>Naloži projekt …</translation>
     </message>
     <message>
         <source>Ctrl+Shift+O</source>
@@ -7362,15 +7372,15 @@ No project selected
     </message>
     <message>
         <source>Add New...</source>
-        <translation>Dodaj novo ...</translation>
+        <translation>Dodaj novo …</translation>
     </message>
     <message>
         <source>Add Existing Files...</source>
-        <translation>Dodaj obstoječo datoteko ...</translation>
+        <translation>Dodaj obstoječo datoteko …</translation>
     </message>
     <message>
         <source>Remove File...</source>
-        <translation>Odstrani datoteko ...</translation>
+        <translation>Odstrani datoteko …</translation>
     </message>
     <message>
         <source>Rename</source>
@@ -7395,7 +7405,7 @@ No project selected
     </message>
     <message>
         <source>Open Build/Run Target Selector...</source>
-        <translation>Odpri izbirnik gradnje/zagona cilja ...</translation>
+        <translation>Odpri izbirnik gradnje/zagona cilja …</translation>
     </message>
     <message>
         <source>Ctrl+T</source>
@@ -7858,8 +7868,16 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>Splošno</translation>
     </message>
     <message>
+        <source>Error: </source>
+        <translation>Napaka: </translation>
+    </message>
+    <message>
+        <source>Warning: </source>
+        <translation>Opozorilo: </translation>
+    </message>
+    <message>
         <source>Building in subdirectories of the source directory is not supported by qmake.</source>
-        <translation>QMake ne podpira gradnje v podmapah mape z izvorno kodo.</translation>
+        <translation type="obsolete">QMake ne podpira gradnje v podmapah mape z izvorno kodo.</translation>
     </message>
     <message>
         <source>An incompatible build exists in %1, which will be overwritten.</source>
@@ -7934,7 +7952,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Qt4 RunConfiguration</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt4 nastavitve za zaganjanje</translation>
     </message>
 </context>
 <context>
@@ -8331,7 +8349,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Enter pattern from code...</source>
-        <translation>Vnesi vzorec iz kode ...</translation>
+        <translation>Vnesi vzorec iz kode …</translation>
     </message>
     <message>
         <source>Clear patterns</source>
@@ -8446,23 +8464,23 @@ p, li { white-space: pre-wrap; }
     <name>SharedTools::ResourceView</name>
     <message>
         <source>Add Files...</source>
-        <translation>Dodaj datoteke ...</translation>
+        <translation>Dodaj datoteke …</translation>
     </message>
     <message>
         <source>Change Alias...</source>
-        <translation>Spremeni drugo ime ...</translation>
+        <translation>Spremeni drugo ime …</translation>
     </message>
     <message>
         <source>Add Prefix...</source>
-        <translation>Dodaj predpono ...</translation>
+        <translation>Dodaj predpono …</translation>
     </message>
     <message>
         <source>Change Prefix...</source>
-        <translation>Spremeni predpono ...</translation>
+        <translation>Spremeni predpono …</translation>
     </message>
     <message>
         <source>Change Language...</source>
-        <translation>Spremeni jezik ...</translation>
+        <translation>Spremeni jezik …</translation>
     </message>
     <message>
         <source>Remove Item</source>
@@ -8616,11 +8634,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Prompt on submit</source>
-        <translation type="unfinished"></translation>
+        <translation>Vprašaj ob pošiljanju</translation>
     </message>
     <message>
         <source>Ignore whitespace changes in annotation</source>
-        <translation type="unfinished"></translation>
+        <translation>Prezri spremembe presledkov v opombi</translation>
     </message>
     <message>
         <source>Log count:</source>
@@ -8654,15 +8672,15 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Diff Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Razlike v projektu</translation>
     </message>
     <message>
         <source>Diff Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>Razlike v trenutni datoteki</translation>
     </message>
     <message>
         <source>Diff &quot;%1&quot;</source>
-        <translation type="unfinished">Diff</translation>
+        <translation>Razlike v »%1«</translation>
     </message>
     <message>
         <source>Alt+S,Alt+D</source>
@@ -8670,15 +8688,15 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Commit All Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapiši vse datoteke</translation>
     </message>
     <message>
         <source>Commit Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapiši trenutno datoteko</translation>
     </message>
     <message>
         <source>Commit &quot;%1&quot;</source>
-        <translation type="unfinished">Uveljavi</translation>
+        <translation>Zapiši »%1«</translation>
     </message>
     <message>
         <source>Alt+S,Alt+C</source>
@@ -8686,23 +8704,23 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Filelog Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>Dnevnik za trenutno datoteko</translation>
     </message>
     <message>
         <source>Filelog &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Dnevnik za datoteko »%1«</translation>
     </message>
     <message>
         <source>Annotate Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj opombo za trenutno datoteko</translation>
     </message>
     <message>
         <source>Annotate &quot;%1&quot;</source>
-        <translation type="unfinished">Dodaj opombo</translation>
+        <translation>Dodaj opombo za »%1«</translation>
     </message>
     <message>
         <source>Describe...</source>
-        <translation>Opis ...</translation>
+        <translation>Opis …</translation>
     </message>
     <message>
         <source>Project Status</source>
@@ -8714,11 +8732,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Commit</source>
-        <translation type="unfinished">Uveljavi</translation>
+        <translation>Zapiši</translation>
     </message>
     <message>
         <source>Diff Selected Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Razlike v izbranih datotekah</translation>
     </message>
     <message>
         <source>&amp;Undo</source>
@@ -8734,16 +8752,16 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Do you want to commit the change?</source>
-        <translation type="unfinished"></translation>
+        <translation>Ali želite zapisati spremembo?</translation>
     </message>
     <message>
         <source>The commit message check failed. Do you want to commit the change?</source>
-        <translation type="unfinished"></translation>
+        <translation>Sporočilo zapisa ni prestalo preverjanja. Ali želite zapisati spremembo?</translation>
     </message>
     <message>
         <source>Executing: %1 %2
 </source>
-        <translation type="unfinished">%1 Izvajanje: %2 %3
+        <translation>Izvajanje: %1 %2
 </translation>
     </message>
     <message>
@@ -8752,83 +8770,83 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Delete...</source>
-        <translation type="unfinished">&amp;Zbriši</translation>
+        <translation>Izbriši …</translation>
     </message>
     <message>
         <source>Delete &quot;%1&quot;...</source>
-        <translation type="unfinished">&amp;Zbriši</translation>
+        <translation>Izbriši »%1« …</translation>
     </message>
     <message>
         <source>Revert...</source>
-        <translation type="unfinished">Povrni ...</translation>
+        <translation>Povrni …</translation>
     </message>
     <message>
         <source>Revert &quot;%1&quot;...</source>
-        <translation type="unfinished">Povrni</translation>
+        <translation>Povrni »%1« …</translation>
     </message>
     <message>
         <source>Diff Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Razlike v projektu »%1«</translation>
     </message>
     <message>
         <source>Status of Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Stanje projekta »%1«</translation>
     </message>
     <message>
         <source>Log Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Dnevnik projekta</translation>
     </message>
     <message>
         <source>Log Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Dnevnik projekta »%1«</translation>
     </message>
     <message>
         <source>Update Project &quot;%1&quot;</source>
-        <translation type="unfinished">Posodobi projekt</translation>
+        <translation>Posodobi projekt »%1«</translation>
     </message>
     <message>
         <source>Commit Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapiši projekt</translation>
     </message>
     <message>
         <source>Commit Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapiši projekt »%1«</translation>
     </message>
     <message>
         <source>Diff Repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Razlike v skladišču</translation>
     </message>
     <message>
         <source>Repository Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Stanje skladišča</translation>
     </message>
     <message>
         <source>Log Repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Dnevnik skladišča</translation>
     </message>
     <message>
         <source>Update Repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Posodobi skladišče</translation>
     </message>
     <message>
         <source>Revert Repository...</source>
-        <translation type="unfinished"></translation>
+        <translation>Povrni skladišče …</translation>
     </message>
     <message>
         <source>Revert repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Povrni skladišče</translation>
     </message>
     <message>
         <source>Would you like to revert all changes to the repository?</source>
-        <translation type="unfinished"></translation>
+        <translation>Ali želite povrniti vse spremembe skladišča?</translation>
     </message>
     <message>
         <source>Revert failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Povrnitev ni uspela: %1</translation>
     </message>
     <message>
         <source>Another commit is currently being executed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Trenutno že teče drugo zapisovanje.</translation>
     </message>
     <message>
         <source>There are no modified files.</source>
@@ -8849,7 +8867,8 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Executing in %1: %2 %3
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Izvajanje v %1: %2 %3
+</translation>
     </message>
     <message>
         <source>No subversion executable specified!</source>
@@ -8876,7 +8895,7 @@ p, li { white-space: pre-wrap; }
     <name>Subversion::Internal::SubversionSubmitEditor</name>
     <message>
         <source>Subversion Submit</source>
-        <translation type="unfinished"></translation>
+        <translation>Pošiljanje Subversion</translation>
     </message>
 </context>
 <context>
@@ -9043,7 +9062,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Enable scroll &amp;wheel zooming</source>
-        <translation>Omogoči povečevanje/zmanjševanje s koleščkom</translation>
+        <translation>Omogoči povečevanje/zmanjševanje s &amp;koleščkom</translation>
     </message>
 </context>
 <context>
@@ -9129,7 +9148,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Are you sure you want to delete this color scheme permanently?</source>
-        <translation>Ali res želite trajno zbrisati to barvno shemo?</translation>
+        <translation>Ali res želite trajno izbrisati to barvno shemo?</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -9220,7 +9239,7 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
     <message>
         <source>Copy...</source>
-        <translation>Skopiraj ...</translation>
+        <translation>Skopiraj …</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -9293,7 +9312,7 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
     <message>
         <source>Select Encoding...</source>
-        <translation>Izbor nabora znakov ...</translation>
+        <translation>Izbor nabora znakov …</translation>
     </message>
     <message>
         <source>Auto-&amp;indent Selection</source>
@@ -9755,7 +9774,7 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     <name>VCSBase::VCSBaseEditor</name>
     <message>
         <source>Annotate &quot;%1&quot;</source>
-        <translation type="unfinished">Dodaj opombo</translation>
+        <translation>Dodaj opombo za »%1«</translation>
     </message>
     <message>
         <source>Copy &quot;%1&quot;</source>
@@ -9774,15 +9793,15 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
     <message>
         <source>Insert name...</source>
-        <translation>Vstavi ime ...</translation>
+        <translation>Vstavi ime …</translation>
     </message>
     <message>
         <source>Prompt to submit</source>
-        <translation type="unfinished"></translation>
+        <translation>Vprašaj o pošiljanju</translation>
     </message>
     <message>
         <source>Submit Message Check failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Sporočilo pošiljanja ni prestalo preverjanja</translation>
     </message>
     <message>
         <source>Executing %1</source>
@@ -10032,7 +10051,7 @@ p, li { white-space: pre-wrap; }
     <name>Utils::SubmitEditorWidget</name>
     <message>
         <source>Subversion Submit</source>
-        <translation type="unfinished"></translation>
+        <translation>Pošiljanje Subversion</translation>
     </message>
     <message>
         <source>Des&amp;cription</source>
@@ -10086,19 +10105,19 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Diff options:</source>
-        <translation type="unfinished"></translation>
+        <translation>Možnosti za razlike:</translation>
     </message>
     <message>
         <source>Prompt on submit</source>
-        <translation type="unfinished"></translation>
+        <translation>Vprašaj ob pošiljanju</translation>
     </message>
     <message>
         <source>When checked, all files touched by a commit will be displayed when clicking on a revision number in the annotation view (retrieved via commit ID). Otherwise, only the respective file will be displayed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ko je omogočeno, bodo ob kliku na številko revizije v prikazu opomb prikazane vse datoteke, ki so del zapisa. V nasprotnem bo prikazana le ustrezna datoteka.</translation>
     </message>
     <message>
         <source>Describe all files matching commit id</source>
-        <translation type="unfinished"></translation>
+        <translation>Opiši vse datoteke, ki se ujemajo v ID-ju zapisa</translation>
     </message>
     <message>
         <source>Timeout:</source>
@@ -10148,7 +10167,7 @@ p, li { white-space: pre-wrap; }
     <name>Gitorious::Internal::GitoriousHostWidget</name>
     <message>
         <source>...</source>
-        <translation>...</translation>
+        <translation>…</translation>
     </message>
     <message>
         <source>&lt;New Host&gt;</source>
@@ -10175,7 +10194,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>...</source>
-        <translation>...</translation>
+        <translation>…</translation>
     </message>
     <message>
         <source>Keep updating</source>
@@ -10289,11 +10308,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Import...</source>
-        <translation>Uvozi ...</translation>
+        <translation>Uvozi …</translation>
     </message>
     <message>
         <source>Export...</source>
-        <translation>Izvozi ...</translation>
+        <translation>Izvozi …</translation>
     </message>
     <message>
         <source>Show Side-by-Side if Possible</source>
@@ -10350,11 +10369,11 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Add...</source>
-        <translation>Dodaj ...</translation>
+        <translation>Dodaj …</translation>
     </message>
     <message>
         <source>Edit...</source>
-        <translation>Urejanje ...</translation>
+        <translation>Urejanje …</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -10439,7 +10458,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>directoryButtonGroup</source>
-        <translation type="unfinished"></translation>
+        <translation>directoryButtonGroup</translation>
     </message>
     <message>
         <source>Directory</source>
@@ -10474,7 +10493,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Manage Sessions...</source>
-        <translation>Upravljanje s sejami ...</translation>
+        <translation>Upravljanje s sejami …</translation>
     </message>
     <message>
         <source>%1 (last session)</source>
@@ -10498,11 +10517,11 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Open Project...</source>
-        <translation>Odpri projekt ...</translation>
+        <translation>Odpri projekt …</translation>
     </message>
     <message>
         <source>Create Project...</source>
-        <translation>Ustvari projekt ...</translation>
+        <translation>Ustvari projekt …</translation>
     </message>
 </context>
 <context>
@@ -10678,7 +10697,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>...</source>
-        <translation>...</translation>
+        <translation>…</translation>
     </message>
 </context>
 <context>
@@ -10717,7 +10736,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Choose an example...</source>
-        <translation>Izberite primer ...</translation>
+        <translation>Izberite primer …</translation>
     </message>
     <message>
         <source>Copy Project to writable Location?</source>
@@ -10771,6 +10790,10 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
         <translation>Če v svoj projekt dodate zunanje knjižnice, bo Qt Creator zanje samodejno ponudil poudarjanje skladnje in dokončevanje kode.</translation>
     </message>
     <message>
+        <source>You can quickly search methods, classes, help and more using the &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-editor-locator.html&quot;&gt;Locator bar&lt;/a&gt; (&lt;tt&gt;%1+K&lt;/tt&gt;).</source>
+        <translation>Metode, razrede, pomoč in ostalo lahko hitro najdete z uporabo &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-editor-locator.html&quot;&gt;Lokatorja&lt;/a&gt; (&lt;tt&gt;%1+K&lt;/tt&gt;).</translation>
+    </message>
+    <message>
         <source>Within a session, you can add &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-dependencies.html&quot;&gt;dependencies&lt;/a&gt; between projects.</source>
         <translation>Znotraj seje lahko dodate &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-dependencies.html&quot;&gt;odvisnosti&lt;/a&gt; med projekti.</translation>
     </message>
@@ -10808,7 +10831,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>You can quickly search methods, classes, help and more using the &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-navigation.html&quot;&gt;Locator bar&lt;/a&gt; (&lt;tt&gt;%1+K&lt;/tt&gt;).</source>
-        <translation>Metode, razrede, pomoč in ostalo lahko hitro najdete z uporabo &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-navigation.html&quot;&gt;Lokatorja&lt;/a&gt; (&lt;tt&gt;%1+K&lt;/tt&gt;).</translation>
+        <translation type="obsolete">Metode, razrede, pomoč in ostalo lahko hitro najdete z uporabo &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-navigation.html&quot;&gt;Lokatorja&lt;/a&gt; (&lt;tt&gt;%1+K&lt;/tt&gt;).</translation>
     </message>
     <message>
         <source>You can add custom build steps in the &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html&quot;&gt;build settings&lt;/a&gt;.</source>
@@ -10828,7 +10851,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Examples not installed...</source>
-        <translation>Primeri niso nameščeni ...</translation>
+        <translation>Primeri niso nameščeni …</translation>
     </message>
     <message>
         <source>Explore Qt Quick Examples</source>
@@ -10836,11 +10859,11 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Open Project...</source>
-        <translation>Odpri projekt ...</translation>
+        <translation>Odpri projekt …</translation>
     </message>
     <message>
         <source>Create Project...</source>
-        <translation>Ustvari projekt ...</translation>
+        <translation>Ustvari projekt …</translation>
     </message>
 </context>
 <context>
@@ -11013,7 +11036,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Press &lt;RETURN&gt; to close this window...</source>
-        <translation>Da zaprete to okno, pritisnite &lt;Vnašalko&gt; ...</translation>
+        <translation>Da zaprete to okno, pritisnite &lt;Vnašalko&gt; …</translation>
     </message>
     <message>
         <source>Cannot create temporary file: %1</source>
@@ -11097,11 +11120,11 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     <name>Utils::PathChooser</name>
     <message>
         <source>Choose...</source>
-        <translation>Izbor ...</translation>
+        <translation>Izbor …</translation>
     </message>
     <message>
         <source>Browse...</source>
-        <translation>Brskanje ...</translation>
+        <translation>Brskanje …</translation>
     </message>
     <message>
         <source>Choose Directory</source>
@@ -11136,11 +11159,11 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     <name>Utils::PathListEditor</name>
     <message>
         <source>Insert...</source>
-        <translation>Vstavi ...</translation>
+        <translation>Vstavi …</translation>
     </message>
     <message>
         <source>Add...</source>
-        <translation>Dodaj ...</translation>
+        <translation>Dodaj …</translation>
     </message>
     <message>
         <source>Delete Line</source>
@@ -11326,7 +11349,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Edit...</source>
-        <translation>Urejanje ...</translation>
+        <translation>Urejanje …</translation>
     </message>
     <message>
         <source>Choose Location for New License Template File</source>
@@ -11359,11 +11382,11 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     <name>CVS::Internal::CheckoutWizard</name>
     <message>
         <source>Checks out a CVS repository and tries to load the contained project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Prevzame skladišče CVS in poskusi naložiti vsebovani projekt.</translation>
     </message>
     <message>
         <source>CVS Checkout</source>
-        <translation type="unfinished">Prevzem iz CVS</translation>
+        <translation>Prevzem iz CVS</translation>
     </message>
 </context>
 <context>
@@ -11374,225 +11397,226 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Specify repository and path.</source>
-        <translation type="unfinished"></translation>
+        <translation>Določite skladišče in pot.</translation>
     </message>
     <message>
         <source>Repository:</source>
-        <translation type="unfinished">Skladišče:</translation>
+        <translation>Skladišče:</translation>
     </message>
 </context>
 <context>
     <name>CVS::Internal::CVSPlugin</name>
     <message>
         <source>Parsing of the log output failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Razčlenjevanje dnevnika ni uspelo.</translation>
     </message>
     <message>
         <source>&amp;CVS</source>
-        <translation type="unfinished">CVS</translation>
+        <translation>&amp;CVS</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation type="unfinished">Dodaj</translation>
+        <translation>Dodaj</translation>
     </message>
     <message>
         <source>Add &quot;%1&quot;</source>
-        <translation type="unfinished">Dodaj</translation>
+        <translation>Dodaj »%1«</translation>
     </message>
     <message>
         <source>Alt+C,Alt+A</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+C,Alt+A</translation>
     </message>
     <message>
         <source>Diff Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Razlike v projektu</translation>
     </message>
     <message>
         <source>Diff Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>Razlike v trenutni datoteki</translation>
     </message>
     <message>
         <source>Diff &quot;%1&quot;</source>
-        <translation type="unfinished">Diff</translation>
+        <translation>Razlike v »%1«</translation>
     </message>
     <message>
         <source>Alt+C,Alt+D</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+C,Alt+D</translation>
     </message>
     <message>
         <source>Commit All Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapiši vse datoteke</translation>
     </message>
     <message>
         <source>Commit Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapiši trenutno datoteko</translation>
     </message>
     <message>
         <source>Commit &quot;%1&quot;</source>
-        <translation type="unfinished">Uveljavi</translation>
+        <translation>Zapiši »%1«</translation>
     </message>
     <message>
         <source>Alt+C,Alt+C</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+C,Alt+C</translation>
     </message>
     <message>
         <source>Filelog Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>Dnevnik za trenutno datoteko</translation>
     </message>
     <message>
         <source>Cannot find repository for &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni moč najti skladišča za »%1«</translation>
     </message>
     <message>
         <source>Filelog &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Dnevnik za datoteko »%1«</translation>
     </message>
     <message>
         <source>Annotate Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj opombo za trenutno datoteko</translation>
     </message>
     <message>
         <source>Annotate &quot;%1&quot;</source>
-        <translation type="unfinished">Dodaj opombo</translation>
+        <translation>Dodaj opombo za »%1«</translation>
     </message>
     <message>
         <source>Delete...</source>
-        <translation type="unfinished">&amp;Zbriši</translation>
+        <translation>Izbriši …</translation>
     </message>
     <message>
         <source>Delete &quot;%1&quot;...</source>
-        <translation type="unfinished">&amp;Zbriši</translation>
+        <translation>Izbriši »%1« …</translation>
     </message>
     <message>
         <source>Revert...</source>
-        <translation type="unfinished">Povrni ...</translation>
+        <translation>Povrni …</translation>
     </message>
     <message>
         <source>Revert &quot;%1&quot;...</source>
-        <translation type="unfinished">Povrni</translation>
+        <translation>Povrni »%1« …</translation>
     </message>
     <message>
         <source>Diff Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Razlike v projektu »%1«</translation>
     </message>
     <message>
         <source>Project Status</source>
-        <translation type="unfinished">Stanje projekta</translation>
+        <translation>Stanje projekta</translation>
     </message>
     <message>
         <source>Status of Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Stanje projekta »%1«</translation>
     </message>
     <message>
         <source>Log Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Dnevnik projekta</translation>
     </message>
     <message>
         <source>Log Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Dnevnik projekta »%1«</translation>
     </message>
     <message>
         <source>Update Project</source>
-        <translation type="unfinished">Posodobi projekt</translation>
+        <translation>Posodobi projekt</translation>
     </message>
     <message>
         <source>Update Project &quot;%1&quot;</source>
-        <translation type="unfinished">Posodobi projekt</translation>
+        <translation>Posodobi projekt »%1«</translation>
     </message>
     <message>
         <source>Repository Log</source>
-        <translation type="unfinished"></translation>
+        <translation>Dnevnik skladišča</translation>
     </message>
     <message>
         <source>Revert Repository...</source>
-        <translation type="unfinished"></translation>
+        <translation>Povrni skladišče …</translation>
     </message>
     <message>
         <source>Commit</source>
-        <translation type="unfinished">Uveljavi</translation>
+        <translation>Zapiši</translation>
     </message>
     <message>
         <source>Diff Selected Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Razlike v izbranih datotekah</translation>
     </message>
     <message>
         <source>&amp;Undo</source>
-        <translation type="unfinished">&amp;Razveljavi</translation>
+        <translation>&amp;Razveljavi</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
-        <translation type="unfinished">&amp;Uveljavi</translation>
+        <translation>&amp;Uveljavi</translation>
     </message>
     <message>
         <source>Closing CVS Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapiranje urejevalnika CVS</translation>
     </message>
     <message>
         <source>Do you want to commit the change?</source>
-        <translation type="unfinished"></translation>
+        <translation>Ali želite zapisati spremembo?</translation>
     </message>
     <message>
         <source>The commit message check failed. Do you want to commit the change?</source>
-        <translation type="unfinished"></translation>
+        <translation>Sporočilo zapisa ni prestalo preverjanja. Ali želite zapisati spremembo?</translation>
     </message>
     <message>
         <source>The files do not differ.</source>
-        <translation type="unfinished"></translation>
+        <translation>Datoteki se ne razlikujeta.</translation>
     </message>
     <message>
         <source>Revert repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Povrni skladišče</translation>
     </message>
     <message>
         <source>Would you like to revert all changes to the repository?</source>
-        <translation type="unfinished"></translation>
+        <translation>Ali želite povrniti vse spremembe skladišča?</translation>
     </message>
     <message>
         <source>Revert failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Povrnitev ni uspela: %1</translation>
     </message>
     <message>
         <source>The file has been changed. Do you want to revert it?</source>
-        <translation type="unfinished">Datoteka je bila spremenjena. Ali jo želite povrniti?</translation>
+        <translation>Datoteka je bila spremenjena. Ali jo želite povrniti?</translation>
     </message>
     <message>
         <source>Another commit is currently being executed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Trenutno že teče drugo zapisovanje.</translation>
     </message>
     <message>
         <source>There are no modified files.</source>
-        <translation type="unfinished">Ni spremenjenih datotek.</translation>
+        <translation>Ni spremenjenih datotek.</translation>
     </message>
     <message>
         <source>Cannot create temporary file: %1</source>
-        <translation type="unfinished">Ni moč ustvariti začasne datoteke: %1</translation>
+        <translation>Ni moč ustvariti začasne datoteke: %1</translation>
     </message>
     <message>
         <source>Project status</source>
-        <translation type="unfinished">Stanje projekta</translation>
+        <translation>Stanje projekta</translation>
     </message>
     <message>
         <source>The initial revision %1 cannot be described.</source>
-        <translation type="unfinished"></translation>
+        <translation>Začetne revizije %1 ni moč opisati.</translation>
     </message>
     <message>
         <source>Could not find commits of id &apos;%1&apos; on %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisov z ID-jem »%1« in datumom %2 ni moč najti.</translation>
     </message>
     <message>
         <source>Executing: %1 %2
 </source>
-        <translation type="unfinished">%1 Izvajanje: %2 %3
+        <translation>Izvajanje: %1 %2
 </translation>
     </message>
     <message>
         <source>Executing in %1: %2 %3
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Izvajanje v %1: %2 %3
+</translation>
     </message>
     <message>
         <source>No cvs executable specified!</source>
-        <translation type="unfinished"></translation>
+        <translation>Določen ni noben program cvs.</translation>
     </message>
     <message>
         <source>The process terminated with exit code %1.</source>
@@ -11604,11 +11628,11 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Could not start cvs &apos;%1&apos;. Please check your settings in the preferences.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni bilo moč zagnati cvs »%1«. Preverite nastavitve.</translation>
     </message>
     <message>
         <source>CVS did not respond within timeout limit (%1 ms).</source>
-        <translation type="unfinished"></translation>
+        <translation>CVS se v za to namenjenem času (%1 ms) ni odzval.</translation>
     </message>
 </context>
 <context>
@@ -11630,7 +11654,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     <name>CVS::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukaz CVS</translation>
     </message>
 </context>
 <context>
@@ -11718,7 +11742,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Running...</source>
-        <translation>Teče ...</translation>
+        <translation>Teče …</translation>
     </message>
     <message>
         <source>Abort Debugging</source>
@@ -11754,7 +11778,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Starting debugger for tool chain &apos;%1&apos;...</source>
-        <translation>Zaganjanje razhroščevalnika za zaporedje orodij »%1« ...</translation>
+        <translation>Zaganjanje razhroščevalnika za zaporedje orodij »%1« …</translation>
     </message>
     <message>
         <source>Cannot debug &apos;%1&apos; (tool chain: &apos;%2&apos;): %3</source>
@@ -11989,7 +12013,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Invalid v-offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Neveljaven v-odmik</translation>
     </message>
     <message>
         <source>Invalid digit</source>
@@ -12191,11 +12215,11 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Configure...</source>
-        <translation>Nastavitve ...</translation>
+        <translation>Nastavitve …</translation>
     </message>
     <message>
         <source>Locate...</source>
-        <translation>Lociraj ...</translation>
+        <translation>Lociraj …</translation>
     </message>
     <message>
         <source>Type to locate</source>
@@ -12250,7 +12274,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     <name>ProjectExplorer::Internal::LocalApplicationRunControl</name>
     <message>
         <source>Starting %1...</source>
-        <translation>Zaganjanje %1 ...</translation>
+        <translation>Zaganjanje %1 …</translation>
     </message>
     <message>
         <source>%1 exited with code %2</source>
@@ -12290,7 +12314,7 @@ Razlog: %2</translation>
     <message>
         <source>Running %1 %2...
 </source>
-        <translation>Zaganjanje %1 %2 ...
+        <translation>Zaganjanje %1 %2 …
 </translation>
     </message>
     <message>
@@ -12302,7 +12326,7 @@ Razlog: %2</translation>
     <message>
         <source>Running %1 ...
 </source>
-        <translation>Zaganjanje %1 ...
+        <translation>Zaganjanje %1 …
 </translation>
     </message>
 </context>
@@ -12540,7 +12564,7 @@ Razlog: %2</translation>
         <source>Package: %1
 Deploying application to &apos;%2&apos;...</source>
         <translation>Paket: %1
-Razmeščanje programa na »%2« ...</translation>
+Razmeščanje programa na »%2« …</translation>
     </message>
     <message>
         <source>Unable to remove existing file &apos;%1&apos;: %2</source>
@@ -12552,7 +12576,7 @@ Razmeščanje programa na »%2« ...</translation>
     </message>
     <message>
         <source>Deploying</source>
-        <translation type="unfinished"></translation>
+        <translation>Razmeščanje</translation>
     </message>
     <message>
         <source>There is no device plugged in.</source>
@@ -12598,7 +12622,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
     <message>
         <source>Copying installation file...</source>
-        <translation>Kopiranje namestitvene datoteke ...</translation>
+        <translation>Kopiranje namestitvene datoteke …</translation>
     </message>
     <message>
         <source>Waiting for App TRK</source>
@@ -12618,7 +12642,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
     <message>
         <source>Installing application...</source>
-        <translation>Nameščanje programa ...</translation>
+        <translation>Nameščanje programa …</translation>
     </message>
     <message>
         <source>Could not install from package %1 on device: %2</source>
@@ -12633,7 +12657,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
     <message>
         <source>Starting application...</source>
-        <translation>Zaganjanje programa ...</translation>
+        <translation>Zaganjanje programa …</translation>
     </message>
     <message>
         <source>Application running with pid %1.</source>
@@ -12652,7 +12676,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
     <message>
         <source>Launching debugger...</source>
-        <translation>Zaganjanje razhroščevalnika ...</translation>
+        <translation>Zaganjanje razhroščevalnika …</translation>
     </message>
     <message>
         <source>Debugging finished.</source>
@@ -12687,7 +12711,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
     <message>
         <source>Connecting...</source>
-        <translation>Povezovanje ...</translation>
+        <translation>Povezovanje …</translation>
     </message>
 </context>
 <context>
@@ -12721,7 +12745,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
     <message>
         <source>Qt Symbian Emulator RunConfiguration</source>
-        <translation type="unfinished"></translation>
+        <translation>Nastavitve za zagon posnemovalnika Qt Symbian</translation>
     </message>
 </context>
 <context>
@@ -12746,7 +12770,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     <name>Qt4ProjectManager::Internal::S60EmulatorRunControl</name>
     <message>
         <source>Starting %1...</source>
-        <translation>Zaganjanje %1 ...</translation>
+        <translation>Zaganjanje %1 …</translation>
     </message>
     <message>
         <source>[Qt Message]</source>
@@ -12854,7 +12878,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     <name>Subversion::Internal::CheckoutWizardPage</name>
     <message>
         <source>Location</source>
-        <translation type="unfinished">Lokacija</translation>
+        <translation>Lokacija</translation>
     </message>
     <message>
         <source>Specify repository URL, checkout directory and path.</source>
@@ -12933,7 +12957,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
     <message>
         <source>Stopping...</source>
-        <translation>Ustavljanje ...</translation>
+        <translation>Ustavljanje …</translation>
     </message>
 </context>
 <context>
@@ -12944,7 +12968,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
     <message>
         <source>Checkout started...</source>
-        <translation>Prevzemanje se je pričelo ...</translation>
+        <translation>Prevzemanje se je pričelo …</translation>
     </message>
     <message>
         <source>Failed.</source>
@@ -12981,11 +13005,11 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     <name>trk::BluetoothListener</name>
     <message>
         <source>%1: Stopping listener %2...</source>
-        <translation>%1: ustavljanje poslušalca %2 ...</translation>
+        <translation>%1: ustavljanje poslušalca %2 …</translation>
     </message>
     <message>
         <source>%1: Starting Bluetooth listener %2...</source>
-        <translation>%1: zaganjanje poslušalca Bluetooth %2 ...</translation>
+        <translation>%1: zaganjanje poslušalca Bluetooth %2 …</translation>
     </message>
     <message>
         <source>Unable to run &apos;%1&apos;: %2</source>
@@ -13020,7 +13044,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
     <message>
         <source>Waiting for App TRK to start on %1...</source>
-        <translation>Čakanje na zagon App TRK na %1 ...</translation>
+        <translation>Čakanje na zagon App TRK na %1 …</translation>
     </message>
     <message>
         <source>Waiting for Bluetooth Connection</source>
@@ -13028,7 +13052,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
     <message>
         <source>Connecting to %1...</source>
-        <translation>Povezovanje z %1 ...</translation>
+        <translation>Povezovanje z %1 …</translation>
     </message>
 </context>
 <context>
@@ -13048,7 +13072,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
     <message>
         <source>%1: Connection attempt %2 failed: %3 (retrying)...</source>
-        <translation>%1: %2. poskus povezovanja ni uspel: %3 (ponovno poskušanje) ...</translation>
+        <translation>%1: %2. poskus povezovanja ni uspel: %3 (ponovno poskušanje) …</translation>
     </message>
 </context>
 <context>
@@ -13105,11 +13129,11 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
     <message>
         <source>Import...</source>
-        <translation>Uvozi ...</translation>
+        <translation>Uvozi …</translation>
     </message>
     <message>
         <source>Export...</source>
-        <translation>Izvozi ...</translation>
+        <translation>Izvozi …</translation>
     </message>
     <message>
         <source>Target Identifier</source>
@@ -13151,243 +13175,244 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     <name>Git::Internal::StashDialog</name>
     <message>
         <source>Stashes</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisi na strani</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Ime</translation>
+        <translation>Ime</translation>
     </message>
     <message>
         <source>Branch</source>
-        <translation type="unfinished">Veja</translation>
+        <translation>Veja</translation>
     </message>
     <message>
         <source>Message</source>
-        <translation type="unfinished">Sporočilo</translation>
+        <translation>Sporočilo</translation>
     </message>
     <message>
         <source>Delete all...</source>
-        <translation type="unfinished">Zbriši vse</translation>
+        <translation>Izbriši vse …</translation>
     </message>
     <message>
         <source>Delete...</source>
-        <translation type="unfinished">&amp;Zbriši</translation>
+        <translation>Izbriši …</translation>
     </message>
     <message>
         <source>Show</source>
-        <translation type="unfinished">Prikaži:</translation>
+        <translation>Prikaži</translation>
     </message>
     <message>
         <source>Restore...</source>
-        <translation type="unfinished">Obnovi ...</translation>
+        <translation>Obnovi …</translation>
     </message>
     <message>
         <source>Restore to branch...</source>
         <extracomment>Restore a git stash to new branch to be created
 </extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Obnovi v vejo …</translation>
     </message>
     <message>
         <source>Refresh</source>
-        <translation type="unfinished">Osveži</translation>
+        <translation>Osveži</translation>
     </message>
     <message>
         <source>&lt;No repository&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;brez skladišča&gt;</translation>
     </message>
     <message>
         <source>Repository: %1</source>
-        <translation type="unfinished">Skladišče:</translation>
+        <translation>Skladišče: %1</translation>
     </message>
     <message>
         <source>Delete stashes</source>
-        <translation type="unfinished"></translation>
+        <translation>Izbriši zapise na strani</translation>
     </message>
     <message>
         <source>Do you want to delete all stashes?</source>
-        <translation type="unfinished"></translation>
+        <translation>Ali želite izbrisati vse zapise na strani?</translation>
     </message>
     <message numerus="yes">
         <source>Do you want to delete %n stash(es)?</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Ali želite izbrisati %n zapis na strani?</numerusform>
+            <numerusform>Ali želite izbrisati %n zapisa na strani?</numerusform>
+            <numerusform>Ali želite izbrisati %n zapise na strani?</numerusform>
+            <numerusform>Ali želite izbrisati %n zapisov na strani?</numerusform>
         </translation>
     </message>
     <message>
         <source>Repository modified</source>
-        <translation type="unfinished"></translation>
+        <translation>Skladišče spremenjeno</translation>
     </message>
     <message>
         <source>%1 cannot be restored since the repository is modified.
 You can choose between stashing the changes or discarding them.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ni moč obnoviti, ker je bilo skladišče spremenjeno.
+Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
     </message>
     <message>
         <source>Stash</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapiši na stran</translation>
     </message>
     <message>
         <source>Discard</source>
-        <translation type="unfinished">Zavrzi</translation>
+        <translation>Zavrzi</translation>
     </message>
     <message>
         <source>Restore Stash to Branch</source>
-        <translation type="unfinished"></translation>
+        <translation>Obnovi zapis na strani v vejo</translation>
     </message>
     <message>
         <source>Branch:</source>
-        <translation type="unfinished">Veja:</translation>
+        <translation>Veja:</translation>
     </message>
     <message>
         <source>Stash Restore</source>
-        <translation type="unfinished"></translation>
+        <translation>Obnova zapisa na strani</translation>
     </message>
     <message>
         <source>Would you like to restore %1?</source>
-        <translation type="unfinished"></translation>
+        <translation>Ali želite obnoviti %1?</translation>
     </message>
     <message>
         <source>Error restoring %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Napaka obnavljanja %1</translation>
     </message>
 </context>
 <context>
     <name>Mercurial::Internal::MercurialCommitPanel</name>
     <message>
         <source>General Information</source>
-        <translation type="unfinished">Splošni podatki</translation>
+        <translation>Splošni podatki</translation>
     </message>
     <message>
         <source>Repository:</source>
-        <translation type="unfinished">Skladišče:</translation>
+        <translation>Skladišče:</translation>
     </message>
     <message>
         <source>repository</source>
-        <translation type="unfinished">skladišče</translation>
+        <translation>skladišče</translation>
     </message>
     <message>
         <source>Branch:</source>
-        <translation type="unfinished">Veja:</translation>
+        <translation>Veja:</translation>
     </message>
     <message>
         <source>branch</source>
-        <translation type="unfinished">veja</translation>
+        <translation>veja</translation>
     </message>
     <message>
         <source>Commit Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Podatki o zapisu</translation>
     </message>
     <message>
         <source>Author:</source>
-        <translation type="unfinished">Avtor:</translation>
+        <translation>Avtor:</translation>
     </message>
     <message>
         <source>Email:</source>
-        <translation type="unfinished">E-pošta:</translation>
+        <translation>E-pošta:</translation>
     </message>
 </context>
 <context>
     <name>Mercurial::Internal::OptionsPage</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished">Obrazec</translation>
+        <translation>Obrazec</translation>
     </message>
     <message>
         <source>Configuration</source>
-        <translation type="unfinished">Nastavitve</translation>
+        <translation>Nastavitve</translation>
     </message>
     <message>
         <source>Command:</source>
-        <translation type="unfinished">Ukaz</translation>
+        <translation>Ukaz</translation>
     </message>
     <message>
         <source>User</source>
-        <translation type="unfinished">Uporabnik</translation>
+        <translation>Uporabnik</translation>
     </message>
     <message>
         <source>Username to use by default on commit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Privzeto uporabljeno uporabniško ime za zapis.</translation>
     </message>
     <message>
         <source>Default username:</source>
-        <translation type="unfinished"></translation>
+        <translation>Privzeto uporabniško ime:</translation>
     </message>
     <message>
         <source>Email to use by default on commit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Privzeto uporabljena e-pošta za zapis.</translation>
     </message>
     <message>
         <source>Default email:</source>
-        <translation type="unfinished"></translation>
+        <translation>Privzeta e-pošta:</translation>
     </message>
     <message>
         <source>Miscellaneous</source>
-        <translation type="unfinished">Razno</translation>
+        <translation>Razno</translation>
     </message>
     <message>
         <source>Log count:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dolžina dnevnika:</translation>
     </message>
     <message>
         <source>The number of recent commit logs to show, choose 0 to see all enteries</source>
-        <translation type="unfinished"></translation>
+        <translation>Število prikazanih najnovejših zapisov, za vse zapise vnesite 0.</translation>
     </message>
     <message>
         <source>Timeout:</source>
-        <translation type="unfinished">Zakasnitev:</translation>
+        <translation>Razpoložljivi čas:</translation>
     </message>
     <message>
         <source>s</source>
-        <translation type="unfinished">s</translation>
+        <translation>s</translation>
     </message>
     <message>
         <source>Prompt on submit</source>
-        <translation type="unfinished"></translation>
+        <translation>Vprašaj ob pošiljanju</translation>
     </message>
     <message>
         <source>Mercurial</source>
-        <translation type="unfinished"></translation>
+        <translation>Mercurial</translation>
     </message>
 </context>
 <context>
     <name>Mercurial::Internal::RevertDialog</name>
     <message>
         <source>Revert</source>
-        <translation type="unfinished">Povrni</translation>
+        <translation>Povrni</translation>
     </message>
     <message>
         <source>Specify a revision other than the default?</source>
-        <translation type="unfinished"></translation>
+        <translation>Določitev revizije, različne od privzete?</translation>
     </message>
     <message>
         <source>Revision:</source>
-        <translation type="unfinished">Različica:</translation>
+        <translation>Revizija:</translation>
     </message>
 </context>
 <context>
     <name>Mercurial::Internal::SrcDestDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Pogovorno okno</translation>
+        <translation>Pogovorno okno</translation>
     </message>
     <message>
         <source>Default Location</source>
-        <translation type="unfinished"></translation>
+        <translation>Privzeta lokacija</translation>
     </message>
     <message>
         <source>Local filesystem:</source>
-        <translation type="unfinished"></translation>
+        <translation>Krajevni datotečni sistem:</translation>
     </message>
     <message>
         <source>e.g. https://[user[:pass]@]host[:port]/[path]</source>
-        <translation type="unfinished"></translation>
+        <translation>npr. https://[uporabnik[:geslo]@]gostitelj[:vrata]/[pot]</translation>
     </message>
     <message>
         <source>Specify Url:</source>
-        <translation type="unfinished"></translation>
+        <translation>URL:</translation>
     </message>
 </context>
 <context>
@@ -13405,14 +13430,14 @@ You can choose between stashing the changes or discarding them.</source>
     <name>ProjectExplorer::Internal::DoubleTabWidget</name>
     <message>
         <source>DoubleTabWidget</source>
-        <translation type="unfinished"></translation>
+        <translation>DoubleTabWidget</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::TargetSettingsWidget</name>
     <message>
         <source>TargetSettingsWidget</source>
-        <translation type="unfinished"></translation>
+        <translation>TargetSettingsWidget</translation>
     </message>
 </context>
 <context>
@@ -13439,7 +13464,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>SpringFollow</source>
-        <translation type="unfinished"></translation>
+        <translation>Vzmet</translation>
     </message>
     <message>
         <source>Settings</source>
@@ -13455,7 +13480,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>easeNone</source>
-        <translation type="unfinished"></translation>
+        <translation>Brez</translation>
     </message>
     <message>
         <source>Source:</source>
@@ -13471,7 +13496,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>Damping:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dušenje:</translation>
     </message>
 </context>
 <context>
@@ -13502,7 +13527,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>...</source>
-        <translation>...</translation>
+        <translation>…</translation>
     </message>
 </context>
 <context>
@@ -13668,7 +13693,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>...</source>
-        <translation>...</translation>
+        <translation>…</translation>
     </message>
     <message>
         <source>Radial Type</source>
@@ -13918,7 +13943,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>...</source>
-        <translation>...</translation>
+        <translation>…</translation>
     </message>
     <message>
         <source>Radial Type</source>
@@ -14013,11 +14038,11 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>New...</source>
-        <translation>Novo ...</translation>
+        <translation>Novo …</translation>
     </message>
     <message>
         <source>Edit...</source>
-        <translation>Urejanje ...</translation>
+        <translation>Urejanje …</translation>
     </message>
     <message>
         <source>Rename</source>
@@ -14120,7 +14145,7 @@ You can choose between stashing the changes or discarding them.</source>
     <name>MaemoPackageCreationWidget</name>
     <message>
         <source>Check this if you want the files below to be deployed directly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Omogočite, če želite, da so spodnje datoteke razmeščene neposredno.</translation>
     </message>
     <message>
         <source>Skip packaging step</source>
@@ -14144,7 +14169,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>Files to deploy:</source>
-        <translation type="unfinished"></translation>
+        <translation>Datoteke za razmestiti:</translation>
     </message>
     <message>
         <source>Add File to Package</source>
@@ -14247,11 +14272,11 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>Generate SSH Key ...</source>
-        <translation>Ustvari ključ SSH ...</translation>
+        <translation>Ustvari ključ SSH …</translation>
     </message>
     <message>
         <source>Deploy Public Key ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Razmesti javni ključ …</translation>
     </message>
 </context>
 <context>
@@ -14290,11 +14315,11 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>Save Public Key...</source>
-        <translation>Shrani javni ključ ...</translation>
+        <translation>Shrani javni ključ …</translation>
     </message>
     <message>
         <source>Save Private Key...</source>
-        <translation>Shrani zasebni ključ ...</translation>
+        <translation>Shrani zasebni ključ …</translation>
     </message>
     <message>
         <source>Close</source>
@@ -14348,7 +14373,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>Import Existing Shadow Build...</source>
-        <translation>Uvozi obstoječo gradnjo ...</translation>
+        <translation>Uvozi obstoječo gradnjo …</translation>
     </message>
     <message>
         <source>Import</source>
@@ -14460,7 +14485,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>Delete...</source>
-        <translation>Izbriši ...</translation>
+        <translation>Izbriši …</translation>
     </message>
     <message>
         <source>Name</source>
@@ -14476,7 +14501,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>Delete</source>
-        <translation>Zbriši</translation>
+        <translation>Izbriši</translation>
     </message>
     <message numerus="yes">
         <source>Do you want to delete %n files?</source>
@@ -14496,7 +14521,7 @@ You can choose between stashing the changes or discarding them.</source>
     <name>CommonSettingsPage</name>
     <message>
         <source>Wrap submit message at:</source>
-        <translation type="unfinished"></translation>
+        <translation>Sporočilo pošiljanja prelomi pri:</translation>
     </message>
     <message>
         <source> characters</source>
@@ -14504,11 +14529,11 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>An executable which is called with the submit message in a temporary file as first argument. It should return with an exit != 0 and a message on standard error to indicate failure.</source>
-        <translation type="unfinished"></translation>
+        <translation>Program, ki naj se kliče s sporočilom pošiljanja v začasni datoteki kot njegovim prvim argumentom. Vrne naj se s z izhodno kodo različno od 0 in sporočilom na izhodu za napake.</translation>
     </message>
     <message>
         <source>Submit message check script:</source>
-        <translation type="unfinished"></translation>
+        <translation>Skript za preverjanje sporočila pošiljanja:</translation>
     </message>
     <message>
         <source>A file listing user names and email addresses in a 4-column mailmap format:
@@ -14522,7 +14547,7 @@ ime &lt;e-pošta&gt; drugo_ime &lt;druga_e-pošta&gt;</translation>
     </message>
     <message>
         <source>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Preprosta datoteka, ki vsebuje vrstice z imeni polj, kot je »Pregledal«, ki bodo dodani na konec urejevalnika pošiljanja.</translation>
     </message>
     <message>
         <source>User fields configuration file:</source>
@@ -14662,11 +14687,11 @@ ime &lt;e-pošta&gt; drugo_ime &lt;druga_e-pošta&gt;</translation>
     </message>
     <message>
         <source>Aliasing</source>
-        <translation type="unfinished"></translation>
+        <translation>Glajenje robov</translation>
     </message>
     <message>
         <source>Smooth</source>
-        <translation>Mehko</translation>
+        <translation>Gladko</translation>
     </message>
     <message>
         <source>Source Size</source>
@@ -14780,19 +14805,23 @@ ime &lt;e-pošta&gt; drugo_ime &lt;druga_e-pošta&gt;</translation>
     </message>
     <message>
         <source>Wrap Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Način prelamljanja</translation>
     </message>
     <message>
         <source>Alignment</source>
         <translation>Poravnava</translation>
     </message>
     <message>
+        <source></source>
+        <translation></translation>
+    </message>
+    <message>
         <source>Aliasing</source>
-        <translation type="unfinished"></translation>
+        <translation>Glajenje robov</translation>
     </message>
     <message>
         <source>Smooth</source>
-        <translation type="unfinished"></translation>
+        <translation>Gladko</translation>
     </message>
 </context>
 <context>
@@ -14950,7 +14979,7 @@ ime &lt;e-pošta&gt; drugo_ime &lt;druga_e-pošta&gt;</translation>
     </message>
     <message>
         <source>Clip</source>
-        <translation type="unfinished"></translation>
+        <translation>Omeji</translation>
     </message>
     <message>
         <source>Opacity</source>
@@ -14994,7 +15023,7 @@ ime &lt;e-pošta&gt; drugo_ime &lt;druga_e-pošta&gt;</translation>
     <name>QmlJS::Check</name>
     <message>
         <source>unknown value for enum</source>
-        <translation type="unfinished"></translation>
+        <translation>neznana vrednost za oštevilčenje</translation>
     </message>
     <message>
         <source>value might be &apos;undefined&apos;</source>
@@ -15002,7 +15031,7 @@ ime &lt;e-pošta&gt; drugo_ime &lt;druga_e-pošta&gt;</translation>
     </message>
     <message>
         <source>enum value is not a string or number</source>
-        <translation type="unfinished"></translation>
+        <translation>vrednost oštevilčenja ni niz ali število</translation>
     </message>
     <message>
         <source>numerical value expected</source>
@@ -15034,7 +15063,7 @@ ime &lt;e-pošta&gt; drugo_ime &lt;druga_e-pošta&gt;</translation>
     </message>
     <message>
         <source>using string literals for ids is discouraged</source>
-        <translation type="unfinished"></translation>
+        <translation>uporaba literalov nizov za ID-je je odsvetovana</translation>
     </message>
     <message>
         <source>ids must be lower case</source>
@@ -15099,7 +15128,7 @@ ime &lt;e-pošta&gt; drugo_ime &lt;druga_e-pošta&gt;</translation>
     <name>Utils::FancyMainWindow</name>
     <message>
         <source>Locked</source>
-        <translation type="unfinished">Zaklenjena</translation>
+        <translation>Zaklenjeno</translation>
     </message>
     <message>
         <source>Reset to Default Layout</source>
@@ -15140,7 +15169,7 @@ ime &lt;e-pošta&gt; drugo_ime &lt;druga_e-pošta&gt;</translation>
     </message>
     <message>
         <source>Save as...</source>
-        <translation>Shrani kot ...</translation>
+        <translation>Shrani kot …</translation>
     </message>
     <message>
         <source>Save</source>
@@ -15158,7 +15187,7 @@ ime &lt;e-pošta&gt; drugo_ime &lt;druga_e-pošta&gt;</translation>
     <name>Utils::LinearProgressWidget</name>
     <message>
         <source>...</source>
-        <translation> ...</translation>
+        <translation> …</translation>
     </message>
 </context>
 <context>
@@ -15434,7 +15463,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>Settings...</source>
-        <translation>Nastavitve ...</translation>
+        <translation>Nastavitve …</translation>
     </message>
 </context>
 <context>
@@ -15476,11 +15505,11 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>Enclose in QLatin1String(...)</source>
-        <translation>Obdaj z QLatin1String(...)</translation>
+        <translation>Obdaj z QLatin1String(…)</translation>
     </message>
     <message>
         <source>Convert to Objective-C String Literal</source>
-        <translation type="unfinished"></translation>
+        <translation>Pretvori v literal niza Objective-C</translation>
     </message>
     <message>
         <source>Use Fast String Concatenation with %</source>
@@ -15491,114 +15520,114 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     <name>VCS</name>
     <message>
         <source>CVS Commit Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Urejevalnik zapisov za CVS</translation>
     </message>
     <message>
         <source>CVS Command Log Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Urejevalnik dnevnika ukazov za CVS</translation>
     </message>
     <message>
         <source>CVS File Log Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Urejevalnik dnevnika datotek za CVS</translation>
     </message>
     <message>
         <source>CVS Annotation Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Urejevalnik opomb za CVS</translation>
     </message>
     <message>
         <source>CVS Diff Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Urejevalnik razlik za CVS</translation>
     </message>
     <message>
         <source>Git Command Log Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Urejevalnik dnevnika ukazov za Git</translation>
     </message>
     <message>
         <source>Git File Log Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Urejevalnik dnevnika datotek za Git</translation>
     </message>
     <message>
         <source>Git Annotation Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Urejevalnik opomb za Git</translation>
     </message>
     <message>
         <source>Git Diff Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Urejevalnik razlik za Git</translation>
     </message>
     <message>
         <source>Git Submit Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Urejevalnik pošiljanj za Git</translation>
     </message>
     <message>
         <source>Mercurial Command Log Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Urejevalnik dnevnika ukazov za Mercurial</translation>
     </message>
     <message>
         <source>Mercurial File Log Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Urejevalnik dnevnika datotek za Mercurial</translation>
     </message>
     <message>
         <source>Mercurial Annotation Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Urejevalnik opomb za Mercurial</translation>
     </message>
     <message>
         <source>Mercurial Diff Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Urejevalnik razlik za Mercurial</translation>
     </message>
     <message>
         <source>Mercurial Commit Log Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Urejevalnik dnevnika zapisov za Mercurial</translation>
     </message>
     <message>
         <source>Perforce.SubmitEditor</source>
-        <translation type="unfinished"></translation>
+        <translation>Urejevalnik pošiljanj za Perforce</translation>
     </message>
     <message>
         <source>Perforce CommandLog Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Urejevalnik dnevnika ukazov za Perforce</translation>
     </message>
     <message>
         <source>Perforce Log Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Urejevalnik dnevnika za Perforce</translation>
     </message>
     <message>
         <source>Perforce Diff Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Urejevalnik razlik za Perforce</translation>
     </message>
     <message>
         <source>Perforce Annotation Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Urejevalnik opomb za Perforce</translation>
     </message>
     <message>
         <source>Subversion Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Urejevalnik za Subversion</translation>
     </message>
     <message>
         <source>Subversion Commit Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Urejevalnik zapisov za Subversion</translation>
     </message>
     <message>
         <source>Subversion Command Log Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Urejevalnik dnevnika ukazov za Subversion</translation>
     </message>
     <message>
         <source>Subversion File Log Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Urejevalnik dnevnika datotek za Subversion</translation>
     </message>
     <message>
         <source>Subversion Annotation Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Urejevalnik opomb za Subversion</translation>
     </message>
     <message>
         <source>Subversion Diff Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Urejevalnik razlik za Subversion</translation>
     </message>
 </context>
 <context>
     <name>CVS::Internal::CVSEditor</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj opombo za revizijo »%1«</translation>
     </message>
 </context>
 <context>
@@ -15721,7 +15750,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     <name>Debugger::Internal::PdbEngine</name>
     <message>
         <source>Running requested...</source>
-        <translation>Zahtevanje zagona ...</translation>
+        <translation>Zahtevanje zagona …</translation>
     </message>
     <message>
         <source>Unable to start pdb &apos;%1&apos;: %2</source>
@@ -15757,7 +15786,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translation>Potekel je čas za zadnjo funkcijo waitFor...(). Stanje QProcessa se ni spremenilo. Znova lahko poskusite klicati waitFor...().</translation>
+        <translation>Potekel je čas za zadnjo funkcijo waitFor…(). Stanje QProcessa se ni spremenilo. Znova lahko poskusite klicati waitFor…().</translation>
     </message>
     <message>
         <source>An error occurred when attempting to write to the Pdb process. For example, the process may not be running, or it may have closed its input channel.</source>
@@ -15788,7 +15817,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>...</source>
-        <translation>...</translation>
+        <translation>…</translation>
     </message>
     <message>
         <source>&lt;More&gt;</source>
@@ -15851,7 +15880,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     <name>FakeVim::Internal::FakeVimExCommandsPage</name>
     <message>
         <source>Ex Command Mapping</source>
-        <translation type="unfinished"></translation>
+        <translation>Preslikava ukazov</translation>
     </message>
     <message>
         <source>FakeVim</source>
@@ -15859,7 +15888,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>Ex Trigger Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprožilni izraz</translation>
     </message>
     <message>
         <source>Regular expression:</source>
@@ -15867,7 +15896,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>Ex Command</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukaz</translation>
     </message>
 </context>
 <context>
@@ -15882,7 +15911,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>Open Advanced Find...</source>
-        <translation>Odpri napredno iskanje ...</translation>
+        <translation>Odpri napredno iskanje …</translation>
     </message>
     <message>
         <source>Ctrl+Shift+F</source>
@@ -15921,7 +15950,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     <name>Git::Internal::GitEditor</name>
     <message>
         <source>Blame %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Odgovornost za %1</translation>
     </message>
 </context>
 <context>
@@ -15936,12 +15965,12 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     <message>
         <source>EditorManager</source>
         <comment>Next Open Document in History</comment>
-        <translation type="unfinished"></translation>
+        <translation>Naslednji</translation>
     </message>
     <message>
         <source>EditorManager</source>
         <comment>Previous Open Document in History</comment>
-        <translation type="unfinished"></translation>
+        <translation>Predhodni</translation>
     </message>
 </context>
 <context>
@@ -16015,14 +16044,14 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     <name>Mercurial::Internal::CommitEditor</name>
     <message>
         <source>Commit Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Urejevalnik zapisov</translation>
     </message>
 </context>
 <context>
     <name>Mercurial::Internal::MercurialClient</name>
     <message>
         <source>Unable to find parent revisions of %1 in %2: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni moč najti starševskih revizij za %1 v %2: %3</translation>
     </message>
     <message>
         <source>Cannot parse output: %1</source>
@@ -16030,27 +16059,27 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>Hg Annotate %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Hg – dodaj opombo za %1</translation>
     </message>
     <message>
         <source>Hg diff %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Hg – razlike v %1</translation>
     </message>
     <message>
         <source>Hg log %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Hg – dnevnik za %1</translation>
     </message>
     <message>
         <source>Hg incoming %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Hg – prejeto v %1</translation>
     </message>
     <message>
         <source>Hg outgoing %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Hg – odhajajoče iz %1</translation>
     </message>
     <message>
         <source>Working...</source>
-        <translation>Delam ...</translation>
+        <translation>Delam …</translation>
     </message>
 </context>
 <context>
@@ -16064,7 +16093,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     <name>Mercurial::Internal::MercurialEditor</name>
     <message>
         <source>Annotate %1</source>
-        <translation type="unfinished">Dodaj opombo za %1</translation>
+        <translation>Dodaj opombo za %1</translation>
     </message>
 </context>
 <context>
@@ -16081,7 +16110,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>Timed out after %1s waiting for mercurial process to finish.</source>
-        <translation type="unfinished"></translation>
+        <translation>Po %1 s čakanja na zaključek procesa mercurial je potekel čas.</translation>
     </message>
 </context>
 <context>
@@ -16092,47 +16121,47 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>Annotate Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj opombo za trenutno datoteko</translation>
     </message>
     <message>
         <source>Annotate &quot;%1&quot;</source>
-        <translation type="unfinished">Dodaj opombo</translation>
+        <translation>Dodaj opombo za »%1«</translation>
     </message>
     <message>
         <source>Diff Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>Razlike v trenutni datoteki</translation>
     </message>
     <message>
         <source>Diff &quot;%1&quot;</source>
-        <translation type="unfinished">Diff</translation>
+        <translation>Razlike v »%1«</translation>
     </message>
     <message>
         <source>Alt+H,Alt+D</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+H,Alt+D</translation>
     </message>
     <message>
         <source>Log Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>Dnevnik trenutne datoteke</translation>
     </message>
     <message>
         <source>Log &quot;%1&quot;</source>
-        <translation type="unfinished">Dnevnik</translation>
+        <translation>Dnevnik za »%1«</translation>
     </message>
     <message>
         <source>Alt+H,Alt+L</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+H,Alt+L</translation>
     </message>
     <message>
         <source>Status Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>Stanje trenutne datoteke</translation>
     </message>
     <message>
         <source>Status &quot;%1&quot;</source>
-        <translation type="unfinished">Stanje</translation>
+        <translation>Stanje »%1«</translation>
     </message>
     <message>
         <source>Alt+H,Alt+S</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+H,Alt+S</translation>
     </message>
     <message>
         <source>Add</source>
@@ -16144,19 +16173,19 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>Delete...</source>
-        <translation>Zbriši ...</translation>
+        <translation>Izbriši …</translation>
     </message>
     <message>
         <source>Delete &quot;%1&quot;...</source>
-        <translation>Zbriši »%1« ...</translation>
+        <translation>Izbriši »%1« …</translation>
     </message>
     <message>
         <source>Revert Current File...</source>
-        <translation>Povrni trenutno datoteko ...</translation>
+        <translation>Povrni trenutno datoteko …</translation>
     </message>
     <message>
         <source>Revert &quot;%1&quot;...</source>
-        <translation>Povrni »%1« ...</translation>
+        <translation>Povrni »%1« …</translation>
     </message>
     <message>
         <source>Diff</source>
@@ -16168,7 +16197,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>Revert...</source>
-        <translation>Povrni ...</translation>
+        <translation>Povrni …</translation>
     </message>
     <message>
         <source>Status</source>
@@ -16176,47 +16205,47 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>Pull...</source>
-        <translation>Potegni ...</translation>
+        <translation>Potegni …</translation>
     </message>
     <message>
         <source>Push...</source>
-        <translation>Potisni ...</translation>
+        <translation>Potisni …</translation>
     </message>
     <message>
         <source>Update...</source>
-        <translation>Posodobi ...</translation>
+        <translation>Posodobi …</translation>
     </message>
     <message>
         <source>Import...</source>
-        <translation>Uvozi ...</translation>
+        <translation>Uvozi …</translation>
     </message>
     <message>
         <source>Incoming...</source>
-        <translation>Prihajajoče ...</translation>
+        <translation>Prihajajoče …</translation>
     </message>
     <message>
         <source>Outgoing...</source>
-        <translation>Odhajajoče ...</translation>
+        <translation>Odhajajoče …</translation>
     </message>
     <message>
         <source>Commit...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapiši ...</translation>
     </message>
     <message>
         <source>Alt+H,Alt+C</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+H,Alt+C</translation>
     </message>
     <message>
         <source>Create Repository...</source>
-        <translation>Ustvari skladišče ...</translation>
+        <translation>Ustvari skladišče …</translation>
     </message>
     <message>
         <source>Pull Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Vir za poteg</translation>
     </message>
     <message>
         <source>Push Destination</source>
-        <translation type="unfinished"></translation>
+        <translation>Cilj za potisk</translation>
     </message>
     <message>
         <source>Update</source>
@@ -16224,15 +16253,15 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>Incoming Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Vir za prejeto</translation>
     </message>
     <message>
         <source>Commit</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapiši</translation>
     </message>
     <message>
         <source>Diff Selected Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Razlike v izbranih datotekah</translation>
     </message>
     <message>
         <source>&amp;Undo</source>
@@ -16244,31 +16273,31 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>There are no changes to commit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni sprememb za zapisati.</translation>
     </message>
     <message>
         <source>Unable to generate a temporary file for the commit editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni moč ustvariti začasne datoteke za urejevalnik zapisov.</translation>
     </message>
     <message>
         <source>Unable to create an editor for the commit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni moč ustvariti urejevalnika za zapis.</translation>
     </message>
     <message>
         <source>Unable to create a commit editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni moč ustvariti urejevalnika za zapise.</translation>
     </message>
     <message>
         <source>Commit changes for &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapiši spremembe za »%1«.</translation>
     </message>
     <message>
         <source>Close commit editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapri urejevalnik za zapise</translation>
     </message>
     <message>
         <source>Do you want to commit the changes?</source>
-        <translation type="unfinished"></translation>
+        <translation>Ali želite zapisati spremembe?</translation>
     </message>
     <message>
         <source>Message check failed. Do you want to proceed?</source>
@@ -16306,13 +16335,13 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>The client does not seem to contain any mapped files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kot kaže odjemalec ne vsebuje nobene preslikane datoteke.</translation>
     </message>
     <message>
         <source>Unable to determine the client root.</source>
         <extracomment>Unable to determine root of the p4 client installation
 </extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ni moč ugotoviti vrhnje mape odjemalca.</translation>
     </message>
     <message>
         <source>The repository &quot;%1&quot; does not exist.</source>
@@ -16323,7 +16352,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     <name>Perforce::Internal::PerforceEditor</name>
     <message>
         <source>Annotate change list &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj opombo za seznam sprememb »%1«</translation>
     </message>
 </context>
 <context>
@@ -16439,7 +16468,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>Example Object Class-name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ime razreda primera razreda:</translation>
     </message>
 </context>
 <context>
@@ -16511,7 +16540,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>Choose folder...</source>
-        <translation>Izbor mape ...</translation>
+        <translation>Izbor mape …</translation>
     </message>
     <message>
         <source>Choose folder</source>
@@ -16519,23 +16548,23 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>Show in Explorer...</source>
-        <translation>Prikaži v Explorerju ...</translation>
+        <translation>Prikaži v Explorerju …</translation>
     </message>
     <message>
         <source>Show in Finder...</source>
-        <translation>Prikaži v Finderju ...</translation>
+        <translation>Prikaži v Finderju …</translation>
     </message>
     <message>
         <source>Show containing folder...</source>
-        <translation>Prikaži vsebujočo mapo ...</translation>
+        <translation>Prikaži vsebujočo mapo …</translation>
     </message>
     <message>
         <source>Open Command Prompt here...</source>
-        <translation>Tu odpri ukazno vrstico ...</translation>
+        <translation>Tu odpri ukazno vrstico …</translation>
     </message>
     <message>
         <source>Open Terminal here...</source>
-        <translation>Tu odpri konzolo ...</translation>
+        <translation>Tu odpri konzolo …</translation>
     </message>
     <message>
         <source>Launching a file browser failed</source>
@@ -16563,7 +16592,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>Settings...</source>
-        <translation>Nastavitve ...</translation>
+        <translation>Nastavitve …</translation>
     </message>
     <message>
         <source>Launching Windows Explorer failed</source>
@@ -17015,7 +17044,7 @@ cilj »%1«?</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation>Zbriši</translation>
+        <translation>Izbriši</translation>
     </message>
     <message>
         <source>Flip All</source>
@@ -17175,11 +17204,11 @@ ID-ji se morajo začeti z malo črko.</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation>Zbriši</translation>
+        <translation>Izbriši</translation>
     </message>
     <message>
         <source>Delete &quot;%1&quot;</source>
-        <translation>&amp;Zbriši »%1«</translation>
+        <translation>Izbriši »%1«</translation>
     </message>
     <message>
         <source>Cu&amp;t</source>
@@ -17250,7 +17279,7 @@ ID-ji se morajo začeti z malo črko.</translation>
     </message>
     <message>
         <source>Save %1 As...</source>
-        <translation>Shrani %1 kot ...</translation>
+        <translation>Shrani %1 kot …</translation>
     </message>
     <message>
         <source>&amp;Save %1</source>
@@ -17335,12 +17364,12 @@ ID-ji se morajo začeti z malo črko.</translation>
     </message>
     <message>
         <source>Expression queries</source>
-        <translation type="unfinished"></translation>
+        <translation>Izrazne poizvedbe</translation>
     </message>
     <message>
         <source>Expression queries (using context for %1)</source>
         <comment>Selected object</comment>
-        <translation type="unfinished"></translation>
+        <translation>Izrazne poizvedbe (z uporabo konteksta za %1)</translation>
     </message>
     <message numerus="yes">
         <source>&lt;%n items&gt;</source>
@@ -17408,7 +17437,7 @@ ID-ji se morajo začeti z malo črko.</translation>
     <name>Qml::Internal::ObjectTree</name>
     <message>
         <source>Add watch expression...</source>
-        <translation>Dodaj opazovalni izraz ...</translation>
+        <translation>Dodaj opazovalni izraz …</translation>
     </message>
     <message>
         <source>Show uninspectable items</source>
@@ -17496,11 +17525,11 @@ ID-ji se morajo začeti z malo črko.</translation>
     </message>
     <message>
         <source>[Inspector] resolving host...</source>
-        <translation>[Preiskovalnik] razreševanje gostitelja ...</translation>
+        <translation>[Preiskovalnik] razreševanje gostitelja …</translation>
     </message>
     <message>
         <source>[Inspector] connecting to debug server...</source>
-        <translation>[Preiskovalnik] povezovanje s strežnikom za razhroščevanje ...</translation>
+        <translation>[Preiskovalnik] povezovanje s strežnikom za razhroščevanje …</translation>
     </message>
     <message>
         <source>[Inspector] connected.
@@ -17510,7 +17539,7 @@ ID-ji se morajo začeti z malo črko.</translation>
     </message>
     <message>
         <source>[Inspector] closing...</source>
-        <translation>[Preiskovalnik] zapiranje ...</translation>
+        <translation>[Preiskovalnik] zapiranje …</translation>
     </message>
     <message>
         <source>[Inspector] error: (%1) %2</source>
@@ -17539,7 +17568,7 @@ ID-ji se morajo začeti z malo črko.</translation>
     </message>
     <message>
         <source>Start Debugging C++ and QML Simultaneously...</source>
-        <translation>Začni istočasno razhroščevanje C++ in QML ...</translation>
+        <translation>Začni istočasno razhroščevanje C++ in QML …</translation>
     </message>
     <message>
         <source>No project was found.</source>
@@ -17575,7 +17604,7 @@ Preverite nastavitve projekta.</translation>
     <name>QmlJSEditor::Internal::QmlJSTextEditor</name>
     <message>
         <source>Rename...</source>
-        <translation>Preimenuj ...</translation>
+        <translation>Preimenuj …</translation>
     </message>
     <message>
         <source>New id:</source>
@@ -17587,7 +17616,7 @@ Preverite nastavitve projekta.</translation>
     </message>
     <message>
         <source>Rename id &apos;%1&apos;...</source>
-        <translation>Preimenuj ID »%1« ...</translation>
+        <translation>Preimenuj ID »%1« …</translation>
     </message>
     <message>
         <source>&lt;Select Symbol&gt;</source>
@@ -17606,11 +17635,11 @@ Preverite nastavitve projekta.</translation>
     </message>
     <message>
         <source>Qt Creator -&gt; About Plugins...</source>
-        <translation>Qt Creator → O vstavkih ...</translation>
+        <translation>Qt Creator → O vstavkih …</translation>
     </message>
     <message>
         <source>Help -&gt; About Plugins...</source>
-        <translation>Pomoč → O vstavkih ...</translation>
+        <translation>Pomoč → O vstavkih …</translation>
     </message>
     <message>
         <source>Enable experimental Qt Quick Designer?</source>
@@ -17645,11 +17674,11 @@ Preverite nastavitve projekta.</translation>
     </message>
     <message>
         <source>Qt Quick</source>
-        <translation>Qt Quick</translation>
+        <translation type="obsolete">Qt Quick</translation>
     </message>
     <message>
         <source>Ctrl+Alt+R</source>
-        <translation>Ctrl+Alt+R</translation>
+        <translation type="obsolete">Ctrl+Alt+R</translation>
     </message>
     <message>
         <source>Follow Symbol Under Cursor</source>
@@ -17667,12 +17696,12 @@ Preverite nastavitve projekta.</translation>
     <name>QmlJSEditor::Internal::QmlJSPreviewRunner</name>
     <message>
         <source>Failed to preview Qt Quick file</source>
-        <translation>Prikaz datoteke Qt Quick ni uspel</translation>
+        <translation type="obsolete">Prikaz datoteke Qt Quick ni uspel</translation>
     </message>
     <message>
         <source>Could not preview Qt Quick (QML) file. Reason: 
 %1</source>
-        <translation>Ni bilo moč prikazati datoteke Qt Quick (QML). Razlog:
+        <translation type="obsolete">Ni bilo moč prikazati datoteke Qt Quick (QML). Razlog:
 %1</translation>
     </message>
 </context>
@@ -17820,11 +17849,11 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
     <message>
         <source>Debugging Address:</source>
-        <translation>Naslov za razhroščevanje:</translation>
+        <translation type="obsolete">Naslov za razhroščevanje:</translation>
     </message>
     <message>
         <source>Debugging Port:</source>
-        <translation>Vrata za razhroščevanje:</translation>
+        <translation type="obsolete">Vrata za razhroščevanje:</translation>
     </message>
 </context>
 <context>
@@ -17870,7 +17899,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     <name>Qt4ProjectManager::Internal::MaemoConfigTestDialog</name>
     <message>
         <source>Testing configuration...</source>
-        <translation>Preizkušanje nastavitve ...</translation>
+        <translation>Preizkušanje nastavitve …</translation>
     </message>
     <message>
         <source>Stop Test</source>
@@ -17944,7 +17973,7 @@ Ali ste zagnali Qemu?</translation>
     <name>Qt4ProjectManager::Internal::MaemoPackageCreationStep</name>
     <message>
         <source>Creating package file ...</source>
-        <translation>Ustvarjanje datoteke paketa ...</translation>
+        <translation>Ustvarjanje datoteke paketa …</translation>
     </message>
     <message>
         <source>Cannot open MADDE config file &apos;%1&apos;.</source>
@@ -18060,7 +18089,7 @@ Ali ste zagnali Qemu?</translation>
     </message>
     <message>
         <source>Cleaning up remote leftovers first ...</source>
-        <translation>Čiščenje oddaljenih ostankov ...</translation>
+        <translation>Čiščenje oddaljenih ostankov …</translation>
     </message>
     <message>
         <source>Initial cleanup canceled by user.</source>
@@ -18076,11 +18105,11 @@ Ali ste zagnali Qemu?</translation>
     </message>
     <message>
         <source>Deploying</source>
-        <translation type="unfinished"></translation>
+        <translation>Razmeščanje</translation>
     </message>
     <message>
         <source>Files to deploy: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Datoteke za razmestiti: %1.</translation>
     </message>
     <message>
         <source>Starting remote application.</source>
@@ -18088,15 +18117,15 @@ Ali ste zagnali Qemu?</translation>
     </message>
     <message>
         <source>Deployment canceled by user.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uporabnik je preklical razmestitev.</translation>
     </message>
     <message>
         <source>Deployment failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Razmestitev ni uspela: %1</translation>
     </message>
     <message>
         <source>Deployment finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>Razmestitev je zaključena.</translation>
     </message>
     <message>
         <source>Remote execution canceled due to user request.</source>
@@ -18153,7 +18182,7 @@ Ali ste zagnali Qemu?</translation>
     </message>
     <message>
         <source>Deployment Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Razmestitev ni uspela</translation>
     </message>
     <message>
         <source>Could not read public key file &apos;%1&apos;.</source>
@@ -18161,23 +18190,23 @@ Ali ste zagnali Qemu?</translation>
     </message>
     <message>
         <source>Stop Deploying</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustavi razmeščanje</translation>
     </message>
     <message>
         <source>Key deployment failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Razmeščanje ključa ni uspelo: %1</translation>
     </message>
     <message>
         <source>Deployment Succeeded</source>
-        <translation type="unfinished"></translation>
+        <translation>Razmeščanje je uspelo</translation>
     </message>
     <message>
         <source>Key was successfully deployed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ključ je bil uspešno razmeščen.</translation>
     </message>
     <message>
         <source>Deploy Public Key ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Razmesti javni ključ …</translation>
     </message>
 </context>
 <context>
@@ -18396,6 +18425,10 @@ Ali ste zagnali Qemu?</translation>
 </extracomment>
         <translation>Ukaza qmake »%1« ni bilo moč najti ali pa ni izvedljiv.</translation>
     </message>
+    <message>
+        <source>Qmake does not support build directories below the source directory.</source>
+        <translation>QMake ne podpira map za gradnjo v mapi z izvorno kodo.</translation>
+    </message>
 </context>
 <context>
     <name>QtVersion</name>
@@ -18472,7 +18505,7 @@ V naprej izbere Qt za simulator in razpoložljive ciljne mobilne naprave.</trans
     <name>Subversion::Internal::SubversionEditor</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj opombo za revizijo »%1«</translation>
     </message>
 </context>
 <context>
@@ -18671,7 +18704,7 @@ V naprej izbere Qt za simulator in razpoložljive ciljne mobilne naprave.</trans
     </message>
     <message>
         <source>CVS submit template</source>
-        <translation type="unfinished"></translation>
+        <translation>Predloga pošiljanja za CVS</translation>
     </message>
     <message>
         <source>Qt Designer file</source>
@@ -18695,7 +18728,7 @@ V naprej izbere Qt za simulator in razpoložljive ciljne mobilne naprave.</trans
     </message>
     <message>
         <source>Perforce submit template</source>
-        <translation type="unfinished"></translation>
+        <translation>Predloga pošiljanja za Perforce</translation>
     </message>
     <message>
         <source>QML file</source>
@@ -18719,7 +18752,7 @@ V naprej izbere Qt za simulator in razpoložljive ciljne mobilne naprave.</trans
     </message>
     <message>
         <source>Qt Project feature file</source>
-        <translation type="unfinished"></translation>
+        <translation>Datoteka zmožnosti za projekt Qt</translation>
     </message>
     <message>
         <source>message catalog</source>
@@ -18731,7 +18764,7 @@ V naprej izbere Qt za simulator in razpoložljive ciljne mobilne naprave.</trans
     </message>
     <message>
         <source>Subversion submit template</source>
-        <translation type="unfinished"></translation>
+        <translation>Predloga pošiljanja za Subversion</translation>
     </message>
     <message>
         <source>Plain text document</source>
@@ -18744,7343 +18777,6 @@ V naprej izbere Qt za simulator in razpoložljive ciljne mobilne naprave.</trans
     <message>
         <source>Differences between files</source>
         <translation>Razlike med datotekami</translation>
-    </message>
-</context>
-<context>
-    <name></name>
-    <message>
-        <source>Couldn&apos;t find &apos;Core.pluginspec&apos; in %1</source>
-        <comment>Application|</comment>
-        <translation type="obsolete">V %1 ni bilo moč najti »Core.pluginspec«</translation>
-    </message>
-    <message>
-        <source>Attach to Process ID:</source>
-        <comment>AttachExternalDialog|</comment>
-        <translation type="obsolete">Priklopi se na ID procesa:</translation>
-    </message>
-    <message>
-        <source>Filter:</source>
-        <comment>AttachExternalDialog|</comment>
-        <translation type="obsolete">Filter:</translation>
-    </message>
-    <message>
-        <source>Clear</source>
-        <comment>AttachExternalDialog|</comment>
-        <translation type="obsolete">Počisti</translation>
-    </message>
-    <message>
-        <source>Bookmark</source>
-        <comment>BookmarkManager|</comment>
-        <translation type="obsolete">Zaznamek</translation>
-    </message>
-    <message>
-        <source>You are going to delete a Folder which will also&lt;br&gt;remove its content. Are you sure to continue?</source>
-        <comment>BookmarkManager|</comment>
-        <translation type="obsolete">Nameravate zbrisati mapo, pri čemer bo zbrisana&lt;br&gt;tudi njena vsebina. Ali res želite nadaljevati?</translation>
-    </message>
-    <message>
-        <source>Filter:</source>
-        <comment>BookmarkWidget|</comment>
-        <translation type="obsolete">Filter:</translation>
-    </message>
-    <message>
-        <source>&amp;Remove Bookmark</source>
-        <comment>Bookmarks::Internal::BookmarkView|</comment>
-        <translation type="obsolete">&amp;Odstrani zaznamek</translation>
-    </message>
-    <message>
-        <source>Remove all Bookmarks</source>
-        <comment>Bookmarks::Internal::BookmarkView|</comment>
-        <translation type="obsolete">Odstrani vse zaznamke</translation>
-    </message>
-    <message>
-        <source>Move Up</source>
-        <comment>Bookmarks::Internal::BookmarksPlugin|</comment>
-        <translation type="obsolete">Premakni gor</translation>
-    </message>
-    <message>
-        <source>Move Down</source>
-        <comment>Bookmarks::Internal::BookmarksPlugin|</comment>
-        <translation type="obsolete">Premakni dol</translation>
-    </message>
-    <message>
-        <source>Previous Bookmark In Document</source>
-        <comment>Bookmarks::Internal::BookmarksPlugin|</comment>
-        <translation type="obsolete">Predhodni zaznamek v dokumentu</translation>
-    </message>
-    <message>
-        <source>Next Bookmark In Document</source>
-        <comment>Bookmarks::Internal::BookmarksPlugin|</comment>
-        <translation type="obsolete">Naslednji zaznamek v dokumentu</translation>
-    </message>
-    <message>
-        <source>Dialog</source>
-        <comment>BreakCondition|</comment>
-        <translation type="obsolete">Pogovorno okno</translation>
-    </message>
-    <message>
-        <source>Create</source>
-        <comment>CMakeProjectManager::Internal::CMakeBuildConfigurationFactory|</comment>
-        <translation type="obsolete">Ustvari</translation>
-    </message>
-    <message>
-        <source>Qt Creator has detected an in-source-build which prevents shadow builds. Qt Creator will not allow you to change the build directory. If you want a shadow build, clean your source directory and re-open the project.</source>
-        <comment>CMakeProjectManager::Internal::InSourceBuildPage|</comment>
-        <translation type="obsolete">Qt Creator je zaznal gradnjo znotraj mape z izvorno kodo, kar preprečuje gradnje izven te mape, zato vam Qt Creator ne bo dovolil spremeniti  mape za gradnjo. Če želite gradnjo izven mape, počistite mapo z izvorno kodo in projekt odprite znova.</translation>
-    </message>
-    <message>
-        <source>Qt Creator has detected an in source build. This prevents shadow builds, Qt Creator won&apos;t allow you to change the build directory. If you want a shadow build, clean your source directory and open the project again.</source>
-        <comment>CMakeProjectManager::Internal::InSourceBuildPage|</comment>
-        <translation type="obsolete">Qt Creator je zaznal gradnjo znotraj mape z izvorno kodo. To preprečuje gradnje izven te mape, zato vam Qt Creator ne bo dovolil spremeniti  mape za gradnjo. Če želite gradnjo izven mape, počistite mapo z izvorno kodo in projekt odprite znova.</translation>
-    </message>
-    <message>
-        <source>The directory %1 contains an outdated .cbp file. Qt Creator needs to update this file by running cmake. If you want to add additional command line arguments, add them in the below. Note, that cmake remembers command line arguments from the former runs.</source>
-        <comment>CMakeProjectManager::Internal::CMakeRunPage|</comment>
-        <translation type="obsolete">Mapa %1 vsebuje zastarelo datoteko *.cbp. Qt Creator mora s pomočjo programa cmake posodobiti to datoteko. Če želite dodati argumente v ukazno vrstico, jih vnesite spodaj. Vedite, da si cmake zapomni argumente iz ukazne vrstice predhodnega zagona.</translation>
-    </message>
-    <message>
-        <source>The directory %1 specified in a buildconfiguration, does not contain a cbp file. Qt Creator needs to recreate this file, by running cmake. Some projects require command line arguments to the initial cmake call. Note, that cmake remembers command line arguments from the former runs.</source>
-        <comment>CMakeProjectManager::Internal::CMakeRunPage|</comment>
-        <translation type="obsolete">V nastavitvah gradnje podana mapa %1 ne vsebuje datoteke *.cbp. Qt Creator mora s pomočjo programa cmake ustvariti to datoteko. Nekateri projekti pri prvem zagonu cmake potrebujejo posebne argumente v ukazni vrstici. Vedite, da si cmake zapomni argumente iz ukazne vrstice predhodnega zagona.</translation>
-    </message>
-    <message>
-        <source>CMake executable</source>
-        <comment>CMakeProjectManager::Internal::CMakeSettingsPage|</comment>
-        <translation type="obsolete">Program CMake</translation>
-    </message>
-    <message>
-        <source>Cdb</source>
-        <comment>CdbOptionsPageWidget|</comment>
-        <extracomment>Placeholder
-</extracomment>
-        <translation type="obsolete">CDB</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Debugging Tools for Windows&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; Restarting Qt Creator is required for these settings to take effect.&lt;/p&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <comment>CdbOptionsPageWidget|</comment>
-        <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.
-</extracomment>
-        <translation type="obsolete">&lt;html&gt;&lt;body&gt;&lt;p&gt;Tu določite pot do &lt;a href=&quot;%1&quot;&gt;Debugging Tools for Windows&lt;/a&gt; (%2).&lt;/p&gt;&lt;p&gt;&lt;b&gt;Vedite:&lt;/b&gt; Da bi te spremembe stopile v veljavo je potreben ponoven zagon Qt Creatorja.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>64-bit version</source>
-        <comment>CdbOptionsPageWidget|</comment>
-        <translation type="obsolete">64-bitna različica</translation>
-    </message>
-    <message>
-        <source>32-bit version</source>
-        <comment>CdbOptionsPageWidget|</comment>
-        <translation type="obsolete">32-bitna različica</translation>
-    </message>
-    <message>
-        <source>Other options</source>
-        <comment>CdbOptionsPageWidget|</comment>
-        <translation type="obsolete">Ostale možnosti</translation>
-    </message>
-    <message>
-        <source>Verbose Symbol Loading</source>
-        <comment>CdbOptionsPageWidget|</comment>
-        <translation type="obsolete">Zgovorno nalaganje simbolov</translation>
-    </message>
-    <message>
-        <source>Path to &quot;Debugging Tools for Windows&quot;:</source>
-        <comment>CdbOptionsPageWidget|</comment>
-        <translation type="obsolete">Pot do »Debugging Tools for Windows«:</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>CdbOptionsPageWidget|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <comment>CdbOptionsPageWidget|</comment>
-        <translation type="obsolete">BesedilaOznaka</translation>
-    </message>
-    <message>
-        <source>Repository Location:</source>
-        <comment>ChangeSelectionDialog|</comment>
-        <translation type="obsolete">Lokacija skladišča:</translation>
-    </message>
-    <message>
-        <source>Dialog</source>
-        <comment>ChangeSelectionDialog|</comment>
-        <translation type="obsolete">Pogovorno okno</translation>
-    </message>
-    <message>
-        <source>This protocol supports no listing</source>
-        <comment>CodePaster::CodepasterPlugin|</comment>
-        <translation type="obsolete">Ta protokol ne podpira izpisa seznama</translation>
-    </message>
-    <message>
-        <source>Waiting for items</source>
-        <comment>CodePaster::CodepasterPlugin|</comment>
-        <translation type="obsolete">Čakanje na delčke</translation>
-    </message>
-    <message>
-        <source>&amp;CodePaster</source>
-        <comment>CodePaster::CodepasterPlugin|</comment>
-        <translation type="obsolete">&amp;CodePaster</translation>
-    </message>
-    <message>
-        <source>Dialog</source>
-        <comment>CodePaster::PasteSelectDialog|</comment>
-        <translation type="obsolete">Pogovorno okno</translation>
-    </message>
-    <message>
-        <source>Copy Paste URL to clipboard</source>
-        <comment>CodePaster::SettingsPage|</comment>
-        <translation type="obsolete">Skopiraj URL na odložišče</translation>
-    </message>
-    <message>
-        <source>Display Output Pane after sending a post</source>
-        <comment>CodePaster::SettingsPage|</comment>
-        <translation type="obsolete">Po objavi prikaži podokno z rezultatom</translation>
-    </message>
-    <message>
-        <source>CodePaster</source>
-        <comment>CodePaster::SettingsPage|</comment>
-        <translation type="obsolete">CodePaster</translation>
-    </message>
-    <message>
-        <source>Default Protocol:</source>
-        <comment>CodePaster::SettingsPage|</comment>
-        <translation type="obsolete">Privzeti protokol:</translation>
-    </message>
-    <message>
-        <source>Pastebin.ca</source>
-        <comment>CodePaster::SettingsPage|</comment>
-        <translation type="obsolete">Pastebin.ca</translation>
-    </message>
-    <message>
-        <source>Pastebin.com</source>
-        <comment>CodePaster::SettingsPage|</comment>
-        <translation type="obsolete">Pastebin.com</translation>
-    </message>
-    <message>
-        <source>Code Pasting</source>
-        <comment>CodePaster::SettingsPage|</comment>
-        <translation type="obsolete">Prilepljanje kode</translation>
-    </message>
-    <message>
-        <source>CodePaster Server:</source>
-        <comment>CodePaster::SettingsPage|</comment>
-        <translation type="obsolete">Strežnik za CodePaster:</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>CodePaster::SettingsPage|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>User interface</source>
-        <comment>CommonOptionsPage|</comment>
-        <translation type="obsolete">Uporabniški vmesnik</translation>
-    </message>
-    <message>
-        <source>When this option is checked, &apos;Step Into&apos; compresses several steps into one in certain situations, leading to &apos;less noisy&apos; debugging. So will, e.g., the atomic
- reference counting code be skipped, and a single &apos;Step Into&apos; for a signal emission will end up directly in the slot connected to it.</source>
-        <comment>CommonOptionsPage|</comment>
-        <translation type="obsolete">Če je omogočena ta možnost, ukaz »Vstopi« v določenih okoliščinah združi več korakov v enega, kar vodi do razhroščevanja z »manj dogajanja«. Tako bo npr. atomično štetje referenc preskočeno,
-enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne prejemne reže.</translation>
-    </message>
-    <message>
-        <source>Skip known frames when stepping</source>
-        <comment>CommonOptionsPage|</comment>
-        <translation type="obsolete">Med stopanjem preskoči znane okvirje</translation>
-    </message>
-    <message>
-        <source>Show a message box when receiving a signal</source>
-        <comment>CommonOptionsPage|</comment>
-        <translation type="obsolete">Ob prejemu signala prikaži okno s sporočilom</translation>
-    </message>
-    <message>
-        <source>Enable reverse debugging</source>
-        <comment>CommonOptionsPage|</comment>
-        <translation type="obsolete">Omogoči obratno razhroščevanje</translation>
-    </message>
-    <message>
-        <source>Use tooltips while debugging</source>
-        <comment>CommonOptionsPage|</comment>
-        <translation type="obsolete">Med razhroščevanjem omogoči namige</translation>
-    </message>
-    <message>
-        <source>Checking this will enable tooltips for variable values during debugging. Since this can slow down debugging and does not provide reliable information as it does not use scope information, it is switched off by default.</source>
-        <comment>CommonOptionsPage|</comment>
-        <translation type="obsolete">Če omogočite to možnost, bodo med razhroščevanjem omogočeni namigi z vrednostmi spremenljivk. Ker to lahko upočasni razhroščevanje in ne ponuja zanesljivih podatkov, saj ne uporablja podatkov o dosegu, je privzeto možnost onemogočena.</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>CommonOptionsPage|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>Checking this will make enable tooltips for variable values during debugging. Since this can slow down debugging and does not provide reliable information as it does not use scope information, it is switched off by default.</source>
-        <comment>CommonOptionsPage|</comment>
-        <translation type="obsolete">Če omogočite to možnost, bodo med razhroščevanjem omogočeni namigi z vrednostmi spremenljivk. Ker to lahko upočasni razhroščevanje in ne ponuja zanesljivih podatkov, saj ne uporablja podatkov o dosegu, je privzeto možnost onemogočena.</translation>
-    </message>
-    <message>
-        <source>Code Completion</source>
-        <comment>CompletionSettingsPage|</comment>
-        <translation type="obsolete">Dokončevanje kode</translation>
-    </message>
-    <message>
-        <source>Do a case-sensitive match for completion items.</source>
-        <comment>CompletionSettingsPage|</comment>
-        <translation type="obsolete">Ujemanje za dokončevanje naj bo občutljivo na velikost črk.</translation>
-    </message>
-    <message>
-        <source>&amp;Case-sensitive completion</source>
-        <comment>CompletionSettingsPage|</comment>
-        <translation type="obsolete">&amp;Dokončevanje občutljivo na velikost črk</translation>
-    </message>
-    <message>
-        <source>&amp;Automatically insert braces</source>
-        <comment>CompletionSettingsPage|</comment>
-        <translation type="obsolete">&amp;Samodejno vstavi oklepaje</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>CompletionSettingsPage|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>Open Link in New Tab</source>
-        <comment>ContentWindow|</comment>
-        <translation type="obsolete">Odpri povezavo v novem zavihku</translation>
-    </message>
-    <message>
-        <source>Goto Other Split</source>
-        <comment>Core::EditorManager|</comment>
-        <translation type="obsolete">Pojdi v drug razdelek</translation>
-    </message>
-    <message>
-        <source>Open File</source>
-        <comment>Core::EditorManager|</comment>
-        <translation type="obsolete">Odpri datoteko</translation>
-    </message>
-    <message>
-        <source>Save %1 As...</source>
-        <comment>Core::EditorManager|</comment>
-        <translation type="obsolete">Shrani %1 kot ...</translation>
-    </message>
-    <message>
-        <source>Next Document in History</source>
-        <comment>Core::EditorManager|</comment>
-        <translation type="obsolete">Naslednji dokument v zgodovini</translation>
-    </message>
-    <message>
-        <source>Previous Document in History</source>
-        <comment>Core::EditorManager|</comment>
-        <translation type="obsolete">Predhodni dokument v zgodovini</translation>
-    </message>
-    <message>
-        <source>Go back</source>
-        <comment>Core::EditorManager|</comment>
-        <translation type="obsolete">Pojdi nazaj</translation>
-    </message>
-    <message>
-        <source>Go forward</source>
-        <comment>Core::EditorManager|</comment>
-        <translation type="obsolete">Pojdi naprej</translation>
-    </message>
-    <message>
-        <source>Could not open the file for edit with SCC.</source>
-        <comment>Core::EditorManager|</comment>
-        <translation type="obsolete">Ni bilo moč odpreti datoteke za urejanje v SCC.</translation>
-    </message>
-    <message>
-        <source>Can&apos;t save file</source>
-        <comment>Core::FileManager|</comment>
-        <translation type="obsolete">Ni moč shraniti datoteke</translation>
-    </message>
-    <message>
-        <source>Can&apos;t save changes to &apos;%1&apos;. Do you want to continue and loose your changes?</source>
-        <comment>Core::FileManager|</comment>
-        <translation type="obsolete">Ni moč shraniti sprememb v »%1«. Ali želite nadaljevati in izgubiti svoje spremembe?</translation>
-    </message>
-    <message>
-        <source>Go Back</source>
-        <comment>Core::Internal::EditorView|</comment>
-        <translation type="obsolete">Pojdi nazaj</translation>
-    </message>
-    <message>
-        <source>Go Forward</source>
-        <comment>Core::Internal::EditorView|</comment>
-        <translation type="obsolete">Pojdi naprej</translation>
-    </message>
-    <message>
-        <source>Make writable</source>
-        <comment>Core::Internal::EditorView|</comment>
-        <translation type="obsolete">Spremeni v zapisljivo</translation>
-    </message>
-    <message>
-        <source>File is writable</source>
-        <comment>Core::Internal::EditorView|</comment>
-        <translation type="obsolete">Datoteka je zapisljiva</translation>
-    </message>
-    <message>
-        <source>Copy full path to clipboard</source>
-        <comment>Core::Internal::EditorView|</comment>
-        <translation type="obsolete">Skopiraj celotno pot na odložišče</translation>
-    </message>
-    <message>
-        <source>Environment</source>
-        <comment>Core::Internal::GeneralSettings|</comment>
-        <translation type="obsolete">Okolje</translation>
-    </message>
-    <message>
-        <source>General settings</source>
-        <comment>Core::Internal::GeneralSettings|</comment>
-        <translation type="obsolete">Splošne nastavitve</translation>
-    </message>
-    <message>
-        <source>User &amp;interface color:</source>
-        <comment>Core::Internal::GeneralSettings|</comment>
-        <translation type="obsolete">Barva &amp;uporabniškega vmesnika:</translation>
-    </message>
-    <message>
-        <source>Always ask</source>
-        <comment>Core::Internal::GeneralSettings|</comment>
-        <translation type="obsolete">Vedno vprašaj</translation>
-    </message>
-    <message>
-        <source>Reload all modified files</source>
-        <comment>Core::Internal::GeneralSettings|</comment>
-        <translation type="obsolete">Znova naloži vse spremenjene datoteke</translation>
-    </message>
-    <message>
-        <source>Ignore modifications</source>
-        <comment>Core::Internal::GeneralSettings|</comment>
-        <translation type="obsolete">Prezri spremembe</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>Core::Internal::GeneralSettings|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>Output</source>
-        <comment>Core::Internal::MainWindow|</comment>
-        <translation type="obsolete">Izhod</translation>
-    </message>
-    <message>
-        <source>&amp;Open File With...</source>
-        <comment>Core::Internal::MainWindow|</comment>
-        <translation type="obsolete">&amp;Odpri datoteko v ...</translation>
-    </message>
-    <message>
-        <source>Recent Files</source>
-        <comment>Core::Internal::MainWindow|</comment>
-        <translation type="obsolete">Nedavne datoteke</translation>
-    </message>
-    <message>
-        <source>New...</source>
-        <comment>Core::Internal::MainWindow|Title of dialog</comment>
-        <translation type="obsolete">Novo ...</translation>
-    </message>
-    <message>
-        <source>&amp;New...</source>
-        <comment>Core::Internal::MainWindow|</comment>
-        <translation type="obsolete">&amp;Novo ...</translation>
-    </message>
-    <message>
-        <source>&amp;Open...</source>
-        <comment>Core::Internal::MainWindow|</comment>
-        <translation type="obsolete">&amp;Odpri ...</translation>
-    </message>
-    <message>
-        <source>&amp;Open With...</source>
-        <comment>Core::Internal::MainWindow|</comment>
-        <translation type="obsolete">&amp;Odpri z ...</translation>
-    </message>
-    <message>
-        <source>General</source>
-        <comment>Core::Internal::MessageOutputWindow|</comment>
-        <translation type="obsolete">Splošno</translation>
-    </message>
-    <message>
-        <source>1</source>
-        <comment>Core::Internal::NewDialog|</comment>
-        <translation type="obsolete">1</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <comment>Core::Internal::NewDialog|</comment>
-        <translation type="obsolete">BesedilaOznaka</translation>
-    </message>
-    <message>
-        <source>Don&apos;t Save</source>
-        <comment>Core::Internal::SaveItemsDialog|</comment>
-        <translation type="obsolete">Ne shrani</translation>
-    </message>
-    <message>
-        <source>Environment</source>
-        <comment>Core::Internal::ShortcutSettings|</comment>
-        <translation type="obsolete">Okolje</translation>
-    </message>
-    <message>
-        <source>&lt;h3&gt;Qt Creator %1&lt;/h3&gt;Based on Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;Built on %4 at %5&lt;br /&gt;&lt;br/&gt;%8&lt;br/&gt;Copyright 2008-%6 %7. All rights reserved.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</source>
-        <comment>Core::Internal::VersionDialog|</comment>
-        <translation type="obsolete">&lt;h3&gt;Qt Creator %1&lt;/h3&gt;Temelji na Qt %2 (%3-biten)&lt;br/&gt;&lt;br/&gt;Zgrajen dne %4 ob %5&lt;br /&gt;&lt;br/&gt;%8&lt;br/&gt;Avtorske pravice 2008-%6 %7. Vse pravice pridržane.&lt;br/&gt;&lt;br/&gt;Program je na voljo KOT TAK, BREZ KAKRŠNEGAKOLI JAMSTVA, niti jamstva USTREZNOSTI ZA PRODAJO niti PRIMERNOSTI ZA UPORABO.&lt;br/&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;h3&gt;Qt Creator %1&lt;/h3&gt;Based on Qt %2&lt;br/&gt;&lt;br/&gt;Built on </source>
-        <comment>Core::Internal::VersionDialog|</comment>
-        <translation type="obsolete">&lt;h3&gt;Qt Creator %1&lt;/h3&gt;Temelji na Qt %2&lt;br/&gt;&lt;br/&gt;Zgrajen </translation>
-    </message>
-    <message>
-        <source>Switch to %1 mode</source>
-        <comment>Core::ModeManager|</comment>
-        <translation type="obsolete">Preklopi v način %1</translation>
-    </message>
-    <message>
-        <source>Sort alphabetically</source>
-        <comment>CppEditor::Internal::CPPEditor|</comment>
-        <translation type="obsolete">Razvrsti po abecedi</translation>
-    </message>
-    <message>
-        <source>Reformat Document</source>
-        <comment>CppEditor::Internal::CPPEditor|</comment>
-        <translation type="obsolete">Preoblikuj dokument</translation>
-    </message>
-    <message>
-        <source>Enter class name</source>
-        <comment>CppEditor::Internal::ClassNamePage|</comment>
-        <translation type="obsolete">Vnesite ime razreda</translation>
-    </message>
-    <message>
-        <source>Unfiltered</source>
-        <comment>CppEditor::Internal::CppHoverHandler|</comment>
-        <translation type="obsolete">Nefiltrirano</translation>
-    </message>
-    <message>
-        <source>C++</source>
-        <comment>CppEditor::Internal::CppPlugin|</comment>
-        <translation type="obsolete">C++</translation>
-    </message>
-    <message>
-        <source>Creates a C++ header file.</source>
-        <comment>CppEditor::Internal::CppPlugin|</comment>
-        <translation type="obsolete">Ustvari datoteko z glavo C++.</translation>
-    </message>
-    <message>
-        <source>Creates a C++ source file.</source>
-        <comment>CppEditor::Internal::CppPlugin|</comment>
-        <translation type="obsolete">Ustvari datoteko z izvorno kodo C++.</translation>
-    </message>
-    <message>
-        <source>Creates a header and a source file for a new class.</source>
-        <comment>CppEditor::Internal::CppPlugin|</comment>
-        <translation type="obsolete">Ustvari datoteki z glavo in izvorno kodo za nov razred.</translation>
-    </message>
-    <message>
-        <source>Follow Symbol under Cursor</source>
-        <comment>CppEditor::Internal::CppPlugin|</comment>
-        <translation type="obsolete">Sledi simbolu pod kazalcem</translation>
-    </message>
-    <message>
-        <source>Switch between Method Declaration/Definition</source>
-        <comment>CppEditor::Internal::CppPlugin|</comment>
-        <translation type="obsolete">Preklopi med deklaracijo in definicijo metode</translation>
-    </message>
-    <message>
-        <source>Rename Symbol under Cursor</source>
-        <comment>CppEditor::Internal::CppPlugin|</comment>
-        <translation type="obsolete">Preimenuj simbol pod kazalcem</translation>
-    </message>
-    <message>
-        <source>Creates a new C++ header file.</source>
-        <comment>CppEditor::Internal::CppPlugin|</comment>
-        <translation type="obsolete">Ustvari novo datoteko z glavo C++.</translation>
-    </message>
-    <message>
-        <source>Creates a new C++ source file.</source>
-        <comment>CppEditor::Internal::CppPlugin|</comment>
-        <translation type="obsolete">Ustvari novo datoteko z izvorno kodo C++</translation>
-    </message>
-    <message>
-        <source>File Naming Conventions</source>
-        <comment>CppFileSettingsPage|</comment>
-        <translation type="obsolete">Pravila poimenovanja datotek</translation>
-    </message>
-    <message>
-        <source>License Template:</source>
-        <comment>CppFileSettingsPage|</comment>
-        <translation type="obsolete">Predloga za licenco:</translation>
-    </message>
-    <message>
-        <source>This determines how the file names of the class wizards are generated (&quot;MyClass.h&quot; versus &quot;myclass.h&quot;).</source>
-        <comment>CppFileSettingsPage|</comment>
-        <translation type="obsolete">To določa, kako so ustvarjena imena datotek v čarovnikih za razrede (»MojRazred.h« ali »mojrazred.h«).</translation>
-    </message>
-    <message>
-        <source>Lower case file names:</source>
-        <comment>CppFileSettingsPage|</comment>
-        <translation type="obsolete">Imena datotek z malimi črkami:</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>CppFileSettingsPage|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>Indexing</source>
-        <comment>CppTools::Internal::CppModelManager|</comment>
-        <translation type="obsolete">Indeksiranje</translation>
-    </message>
-    <message>
-        <source>File Naming Conventions</source>
-        <comment>CppTools|</comment>
-        <translation type="obsolete">Pravila poimenovanja datotek</translation>
-    </message>
-    <message>
-        <source>File naming conventions</source>
-        <comment>CppTools|</comment>
-        <translation type="obsolete">Pravila poimenovanja datotek</translation>
-    </message>
-    <message>
-        <source>Text Editor</source>
-        <comment>CppTools::Internal::CompletionSettingsPage|</comment>
-        <translation type="obsolete">Urejevalnik besedil</translation>
-    </message>
-    <message>
-        <source>Common</source>
-        <comment>Debugger|</comment>
-        <translation type="obsolete">Splošno</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n known types, Qt version: %1, Qt namespace: %2</source>
-        <comment>QtDumperHelper|</comment>
-        <translation type="obsolete">
-            <numerusform>%n znana vrsta, različica Qt: %1, imenski prostor Qt: %2</numerusform>
-            <numerusform>%n znani vrsti, različica Qt: %1, imenski prostor Qt: %2</numerusform>
-            <numerusform>%n znane vrste, različica Qt: %1, imenski prostor Qt: %2</numerusform>
-            <numerusform>%n znanih vrst, različica Qt: %1, imenski prostor Qt: %2</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>Delete breakpoint</source>
-        <comment>Debugger::Internal::BreakWindow|</comment>
-        <translation type="obsolete">Zbriši prekinitveno točko</translation>
-    </message>
-    <message>
-        <source>Delete all breakpoints</source>
-        <comment>Debugger::Internal::BreakWindow|</comment>
-        <translation type="obsolete">Zbriši vse prekinitvene točke</translation>
-    </message>
-    <message>
-        <source>Delete breakpoints of &quot;%1&quot;</source>
-        <comment>Debugger::Internal::BreakWindow|</comment>
-        <translation type="obsolete">Zbriši prekinitvene točke za »%1«</translation>
-    </message>
-    <message>
-        <source>Delete breakpoints of file</source>
-        <comment>Debugger::Internal::BreakWindow|</comment>
-        <translation type="obsolete">Zbriši prekinitvene točke za datoteko</translation>
-    </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <comment>Debugger::Internal::BreakWindow|</comment>
-        <translation type="obsolete">Širine stolpcev prilagodi vsebinam</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <comment>Debugger::Internal::BreakWindow|</comment>
-        <translation type="obsolete">Širine stolpcev vedno prilagodi vsebinam</translation>
-    </message>
-    <message>
-        <source>Edit condition...</source>
-        <comment>Debugger::Internal::BreakWindow|</comment>
-        <translation type="obsolete">Urejanje pogoja ...</translation>
-    </message>
-    <message>
-        <source>Synchronize breakpoints</source>
-        <comment>Debugger::Internal::BreakWindow|</comment>
-        <translation type="obsolete">Uskladi prekinitvene točke</translation>
-    </message>
-    <message>
-        <source>Disable breakpoint</source>
-        <comment>Debugger::Internal::BreakWindow|</comment>
-        <translation type="obsolete">Onemogoči prekinitveno točko</translation>
-    </message>
-    <message>
-        <source>Enable breakpoint</source>
-        <comment>Debugger::Internal::BreakWindow|</comment>
-        <translation type="obsolete">Omogoči prekinitveno točko</translation>
-    </message>
-    <message>
-        <source>Use short path</source>
-        <comment>Debugger::Internal::BreakWindow|</comment>
-        <translation type="obsolete">Uporabi kratko pot</translation>
-    </message>
-    <message>
-        <source>Use full path</source>
-        <comment>Debugger::Internal::BreakWindow|</comment>
-        <translation type="obsolete">Uporabi polno pot</translation>
-    </message>
-    <message>
-        <source>Unable to load the debugger engine library &apos;%1&apos;: %2</source>
-        <comment>Debugger::Internal::CdbDebugEngine|</comment>
-        <translation type="obsolete">Ni moč naložiti knjižnice razhroščevalnega pogona »%1«: %2</translation>
-    </message>
-    <message>
-        <source>Unable to resolve &apos;%1&apos; in the debugger engine library &apos;%2&apos;</source>
-        <comment>Debugger::Internal::CdbDebugEngine|</comment>
-        <translation type="obsolete">Ni moč razrešiti »%1« v knjižnici razhroščevalnega pogona »%2«</translation>
-    </message>
-    <message>
-        <source>Debugger running</source>
-        <comment>Debugger::Internal::CdbDebugEngine|</comment>
-        <translation type="obsolete">Razhroščevalnik je zagnan</translation>
-    </message>
-    <message>
-        <source>Attaching to a process failed for process id %1: %2</source>
-        <comment>Debugger::Internal::CdbDebugEngine|</comment>
-        <translation type="obsolete">Priklapljanje na proces z ID-jem %1 ni uspelo: %2</translation>
-    </message>
-    <message>
-        <source>Unable to set the image path to %1: %2</source>
-        <comment>Debugger::Internal::CdbDebugEngine|</comment>
-        <translation type="obsolete">Ni moč nastaviti poti slike na %1: %2</translation>
-    </message>
-    <message>
-        <source>Unable to create a process &apos;%1&apos;: %2</source>
-        <comment>Debugger::Internal::CdbDebugEngine|</comment>
-        <translation type="obsolete">Ni moč ustvariti procesa »%1«: %2</translation>
-    </message>
-    <message>
-        <source>Running to 0x%1...</source>
-        <comment>Debugger::Internal::CdbDebugEngine|</comment>
-        <translation type="obsolete">Zaganjanje do 0x%1 ...</translation>
-    </message>
-    <message>
-        <source>Thread %1: Missing debug information for top stack frame (%2).</source>
-        <comment>Debugger::Internal::CdbDebugEngine|</comment>
-        <translation type="obsolete">Nit %1: manjkajo razhroščevalni podatki za vrhnji okvir sklada (%2).</translation>
-    </message>
-    <message>
-        <source>Thread %1: No debug information available (%2).</source>
-        <comment>Debugger::Internal::CdbDebugEngine|</comment>
-        <translation type="obsolete">Nit %1: razhroščevalni podatki niso razpoložljivi (%2).</translation>
-    </message>
-    <message>
-        <source>The dumper library &apos;%1&apos; does not exist.</source>
-        <comment>Debugger::Internal::CdbDebugEngine|</comment>
-        <translation type="obsolete">Knjižnica odlagalnika »%1« ne obstaja.</translation>
-    </message>
-    <message>
-        <source>CdbDebugEngine: Attach to core not supported!</source>
-        <comment>Debugger::Internal::CdbDebugEngine|</comment>
-        <translation type="obsolete">CdbDebugEngine: priklapljanje na posnetek ni podprto.</translation>
-    </message>
-    <message>
-        <source>Debugger Running</source>
-        <comment>Debugger::Internal::CdbDebugEngine|</comment>
-        <translation type="obsolete">Razhroščevalnik je zagnan</translation>
-    </message>
-    <message>
-        <source>AttachProcess failed for pid %1: %2</source>
-        <comment>Debugger::Internal::CdbDebugEngine|</comment>
-        <translation type="obsolete">AttachProcess je spodletel za PID %1: %2</translation>
-    </message>
-    <message>
-        <source>CreateProcess2Wide failed for &apos;%1&apos;: %2</source>
-        <comment>Debugger::Internal::CdbDebugEngine|</comment>
-        <translation type="obsolete">CreateProcess2Wide je spodletel za »%1«: %2</translation>
-    </message>
-    <message>
-        <source>Custom dumper library initialized.</source>
-        <comment>Debugger::Internal::CdbDumperHelper|</comment>
-        <translation type="obsolete">Knjižnica odlagalnika po meri je bila inicializirana.</translation>
-    </message>
-    <message>
-        <source>Cdb</source>
-        <comment>Debugger::Internal::CdbOptionsPageWidget|</comment>
-        <translation type="obsolete">CDB</translation>
-    </message>
-    <message>
-        <source>CDB</source>
-        <comment>Debugger::Internal::CdbOptionsPageWidget|</comment>
-        <translation type="obsolete">CDB</translation>
-    </message>
-    <message>
-        <source>Gdb</source>
-        <comment>Debugger::Internal::DebuggerOutputWindow|</comment>
-        <translation type="obsolete">GDB</translation>
-    </message>
-    <message>
-        <source>&amp;Views</source>
-        <comment>Debugger::Internal::DebuggerPlugin|</comment>
-        <translation type="obsolete">&amp;Prikazi</translation>
-    </message>
-    <message>
-        <source>Locked</source>
-        <comment>Debugger::Internal::DebuggerPlugin|</comment>
-        <translation type="obsolete">Zaklenjeno</translation>
-    </message>
-    <message>
-        <source>Reset to default layout</source>
-        <comment>Debugger::Internal::DebuggerPlugin|</comment>
-        <translation type="obsolete">Ponastavi na privzet razpored</translation>
-    </message>
-    <message>
-        <source>Attach to Running Tcf Agent...</source>
-        <comment>Debugger::Internal::DebuggerPlugin|</comment>
-        <translation type="obsolete">Priklopi se na zagnanega posrednika TCF ...</translation>
-    </message>
-    <message>
-        <source>This attaches to a running &apos;Target Communication Framework&apos; agent.</source>
-        <comment>Debugger::Internal::DebuggerPlugin|</comment>
-        <translation type="obsolete">S tem se priklopi na zagnanega posrednika za »Target Communication Framework«.</translation>
-    </message>
-    <message>
-        <source>Detach debugger</source>
-        <comment>Debugger::Internal::DebuggerPlugin|</comment>
-        <translation type="obsolete">Odklopi razhroščevalnik</translation>
-    </message>
-    <message>
-        <source>A debugging session is still in progress. Would you like to terminate it?</source>
-        <comment>Debugger::Internal::DebuggerListener|</comment>
-        <translation type="obsolete">Razhroščevalna seja je še vedno v teku. Ali jo žalite končati?</translation>
-    </message>
-    <message>
-        <source>Debugger properties...</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Lastnosti razhroščevalnika ...</translation>
-    </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Širine stolpcev prilagodi vsebinam</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Širine stolpcev vedno prilagodi vsebinam</translation>
-    </message>
-    <message>
-        <source>Use alternating row colors</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Uporabi izmenjajoči se barvi vrstic</translation>
-    </message>
-    <message>
-        <source>Show a message box when receiving a signal</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Ob prejemu signala prikaži okno s sporočilom</translation>
-    </message>
-    <message>
-        <source>Log time stamps</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Časovne oznake v dnevniku</translation>
-    </message>
-    <message>
-        <source>Operate by instruction</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Deluj po ukazih</translation>
-    </message>
-    <message>
-        <source>Watch expression &quot;%1&quot;</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Opazuj izraz »%1«</translation>
-    </message>
-    <message>
-        <source>Remove watch expression &quot;%1&quot;</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Odstrani opazovanje izraza »%1«</translation>
-    </message>
-    <message>
-        <source>Watch expression &quot;%1&quot; in separate window</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Opazuj izraz »%1« v ločenem oknu</translation>
-    </message>
-    <message>
-        <source>Use tooltips in locals view when debugging</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Med razhroščevanjem v prikazu krajevnih uporabljaj namige</translation>
-    </message>
-    <message>
-        <source>Use tooltips in breakpoints view when debugging</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Med razhroščevanjem v prikazu prekinitvenih točk uporabljaj namige</translation>
-    </message>
-    <message>
-        <source>Show address data in breakpoints view when debugging</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Med razhroščevanjem v prikazu prekinitvenih točk prikaži podatke o naslovih</translation>
-    </message>
-    <message>
-        <source>Show address data in stack view when debugging</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Med razhroščevanjem v prikazu sklada prikaži podatke o naslovih</translation>
-    </message>
-    <message>
-        <source>Use debugging helper</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Uporabi razhroščevalnega pomočnika</translation>
-    </message>
-    <message>
-        <source>Debug debugging helper</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Razhroščuj razhroščevalnega pomočnika</translation>
-    </message>
-    <message>
-        <source>Use code model</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Uporabi model kode</translation>
-    </message>
-    <message>
-        <source>Recheck debugging helper availability</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Znova preveri razpoložljivost razhroščevalnega pomočnika</translation>
-    </message>
-    <message>
-        <source>Synchronize breakpoints</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Uskladi prekinitvene točke</translation>
-    </message>
-    <message>
-        <source>Automatically quit debugger</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Samodejno končaj razhroščevalnik</translation>
-    </message>
-    <message>
-        <source>List source files</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Prikaži seznam datotek z izvorno kodo</translation>
-    </message>
-    <message>
-        <source>Skip known frames</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Preskoči znane okvirje</translation>
-    </message>
-    <message>
-        <source>Enable reverse debugging</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Omogoči obratno razhroščevanje</translation>
-    </message>
-    <message>
-        <source>Reload full stack</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Znova naloži ves sklad</translation>
-    </message>
-    <message>
-        <source>Execute line</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Izvrši vrstico</translation>
-    </message>
-    <message>
-        <source>Expand item</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Razširi postavko</translation>
-    </message>
-    <message>
-        <source>Collapse item</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Skrči postavko</translation>
-    </message>
-    <message>
-        <source>Hexadecimal</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Šestnajstiško</translation>
-    </message>
-    <message>
-        <source>Decimal</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Desetiško</translation>
-    </message>
-    <message>
-        <source>Octal</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Osmiško</translation>
-    </message>
-    <message>
-        <source>Binary</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Dvojiško</translation>
-    </message>
-    <message>
-        <source>Raw</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Surovo</translation>
-    </message>
-    <message>
-        <source>Natural</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Naravno</translation>
-    </message>
-    <message>
-        <source>Use tooltips when debugging</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Med razhroščevanjem omogoči namige</translation>
-    </message>
-    <message>
-        <source>Syncronize breakpoints</source>
-        <comment>Debugger::Internal::DebuggerSettings|</comment>
-        <translation type="obsolete">Uskladi prekinitvene točke</translation>
-    </message>
-    <message>
-        <source>Library %1 loaded.</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Knjižnica %1 je naložena.</translation>
-    </message>
-    <message>
-        <source>Library %1 unloaded.</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Knjižnica %1 je odstranjena.</translation>
-    </message>
-    <message>
-        <source>Thread group %1 created.</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Skupina niti %1 je ustvarjena.</translation>
-    </message>
-    <message>
-        <source>Thread %1 created.</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Nit %1 je ustvarjena.</translation>
-    </message>
-    <message>
-        <source>Thread group %1 exited.</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Skupina niti %1 je končala.</translation>
-    </message>
-    <message>
-        <source>Thread %1 in group %2 exited.</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Nit %1 iz skupine %2 je končala.</translation>
-    </message>
-    <message>
-        <source>Thread %1 selected.</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Nit %1 je izbrana.</translation>
-    </message>
-    <message>
-        <source>Program exited with exit code %1.</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Program se je končal z izhodno kodo %1.</translation>
-    </message>
-    <message>
-        <source>Program exited after receiving signal %1.</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Program se je končal po sprejemu signala %1.</translation>
-    </message>
-    <message>
-        <source>Program exited normally.</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Program se je končal normalno.</translation>
-    </message>
-    <message>
-        <source>Jumped. Stopped.</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Skočil. Ustavljeno.</translation>
-    </message>
-    <message>
-        <source>Stopped at breakpoint.</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Ustavljeno pri prekinitveni točki.</translation>
-    </message>
-    <message>
-        <source> &lt;Unknown&gt; </source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete"> &lt;neznano&gt; </translation>
-    </message>
-    <message>
-        <source>The debugger you are using identifies itself as:</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Uporabljeni razhroščevalnik se predstavlja kot:</translation>
-    </message>
-    <message>
-        <source>This version is not officially supported by Qt Creator.
-Debugging will most likely not work well.
-Using gdb 6.7 or later is strongly recommended.</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Te različice Qt Creator uradno ne podpira.
-Razhroščevanje verjetno ne bo delovalo dobro.
-Močno priporočamo uporabo GDB-ja 6.7, ali novejšega.</translation>
-    </message>
-    <message>
-        <source>Finished retrieving data.</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Pridobivanje podatkov zaključeno.</translation>
-    </message>
-    <message>
-        <source>An unknown error in the Gdb process occurred. This is the default return value of error().</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Prišlo je do neznane napake v procesu GDB. To je privzeta vrnjena vrednost funkcije error().</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Napaka</translation>
-    </message>
-    <message>
-        <source>The upload process failed to start. Either the invoked script &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Proces pošiljanja se ni uspel zagnati. Bodisi manjka klicani skript »%1« bodisi nimate zadosti pravic za klic programa.</translation>
-    </message>
-    <message>
-        <source>The upload process crashed some time after starting successfully.</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Proces pošiljanja se je nekaj časa po uspešnem zagonu sesul.</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to write to the upload process. For example, the process may not be running, or it may have closed its input channel.</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Med pisanjem v proces pošiljanja je prišlo do napake. Proces morda ne teče, ali pa je morda zaprl svoj vhodni kanal.</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to read from the upload process. For example, the process may not be running.</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Med branjem iz procesa pošiljanja je prišlo do napake. Proces morda ne teče.</translation>
-    </message>
-    <message>
-        <source>An unknown error in the upload process occurred. This is the default return value of error().</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Prišlo je do neznane napake v procesu pošiljanja. To je privzeta vrnjena vrednost funkcije error().</translation>
-    </message>
-    <message>
-        <source>Debugger Error</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Napaka razhroščevalnika</translation>
-    </message>
-    <message>
-        <source>Continuing after temporary stop.</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Nadaljevanje po začasni ustavitvi.</translation>
-    </message>
-    <message>
-        <source>Core file loaded.</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Datoteka s posnetkom naložena.</translation>
-    </message>
-    <message>
-        <source>Run to Function finished. Stopped.</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Zaganjanje do funkcije je zaključeno. Ustavljeno.</translation>
-    </message>
-    <message>
-        <source>Program exited with exit code %1</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Program se je končal z izhodno kodo %1</translation>
-    </message>
-    <message>
-        <source>Program exited after receiving signal %1</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Program se je končal po sprejemu signala %1</translation>
-    </message>
-    <message>
-        <source>Program exited normally</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Program se je končal normalno</translation>
-    </message>
-    <message>
-        <source>Starting executable failed:
-</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Zaganjanje izvršljive datoteke ni uspelo:
-</translation>
-    </message>
-    <message>
-        <source>Debugger Startup Failure</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Spodletel zagon razhroščevalnika</translation>
-    </message>
-    <message>
-        <source>Cannot set up communication with child process: %1</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Ni moč vzpostaviti komunikacije s podprocesom: %1</translation>
-    </message>
-    <message>
-        <source>Starting Debugger: </source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Zaganjanje razhroščevalnika: </translation>
-    </message>
-    <message>
-        <source>Cannot start debugger: %1</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Ni moč zagnati razhroščevalnika: %1</translation>
-    </message>
-    <message>
-        <source>Gdb Running...</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">GDB teče ...</translation>
-    </message>
-    <message>
-        <source>Attached to running process. Stopped.</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Priklopljeno na proces, ki teče. Ustavljeno.</translation>
-    </message>
-    <message>
-        <source>Connecting to remote server failed:</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Povezovanje z oddaljenim strežnikom ni uspelo:</translation>
-    </message>
-    <message>
-        <source>Debugger exited.</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Razhroščevalnik se je zaprl.</translation>
-    </message>
-    <message>
-        <source>&lt;could not retreive module information&gt;</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">&lt;ni bilo moč pridobiti podatkov o modulu&gt;</translation>
-    </message>
-    <message>
-        <source>&apos;%1&apos; contains no identifier</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">»%1« ne vsebuje nobenega identifikatorja</translation>
-    </message>
-    <message>
-        <source>Cowardly refusing to evaluate expression &apos;%1&apos; with potential side effects</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Preprečujem ovrednotenje izraza »%1« zaradi možnih stranskih učinkov</translation>
-    </message>
-    <message>
-        <source>&lt;not in scope&gt;</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <extracomment>Variable
-</extracomment>
-        <translation type="obsolete">&lt;ni v dosegu&gt;</translation>
-    </message>
-    <message>
-        <source>Retrieving data for watch view (%1 requests pending)...</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Pridobivanje podatkov za prikaz opazovanj (%1 čakajočih zahtevkov) ...</translation>
-    </message>
-    <message>
-        <source>Cannot evaluate expression: %1</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Ni moč ovrednotiti izraza: %1</translation>
-    </message>
-    <message>
-        <source>%1 custom dumpers found.</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Najdenih %1 odlagalnikov po meri.</translation>
-    </message>
-    <message>
-        <source>&lt;%1 items&gt;</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <extracomment>In string list
-</extracomment>
-        <translation type="obsolete">&lt;%1 postavk&gt;</translation>
-    </message>
-    <message>
-        <source>%1 &lt;shadowed %2&gt;</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <extracomment>Variable %1 &lt;FIXME: does something - bug Andre about it&gt;
-</extracomment>
-        <translation type="obsolete">%1 &lt;zakriva %2&gt;</translation>
-    </message>
-    <message>
-        <source>Unknown error: </source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Neznana napaka: </translation>
-    </message>
-    <message>
-        <source>%1 is a typedef.</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">%1 je definicija vrste.</translation>
-    </message>
-    <message>
-        <source>Retrieving data for tooltip...</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Pridobivanje podatkov za namig ...</translation>
-    </message>
-    <message>
-        <source>The dumper library &apos;%1&apos; does not exist.</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Knjižnica odlagalnika »%1« ne obstaja.</translation>
-    </message>
-    <message>
-        <source>Reading </source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Branje </translation>
-    </message>
-    <message>
-        <source>Temporarily stopped.</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Začasno ustavljeno.</translation>
-    </message>
-    <message>
-        <source>Handling queued commands.</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <translation type="obsolete">Obdelovanje vrste z ukazi.</translation>
-    </message>
-    <message>
-        <source>&lt;unavailable&gt;</source>
-        <comment>Debugger::Internal::GdbEngine|</comment>
-        <extracomment>Value for variable
-----------
-Value for variable
-</extracomment>
-        <translation type="obsolete">&lt;ni na voljo&gt;</translation>
-    </message>
-    <message>
-        <source>Choose Gdb Location</source>
-        <comment>Debugger::Internal::GdbOptionsPage|</comment>
-        <translation type="obsolete">Izberite lokacijo GDB-ja</translation>
-    </message>
-    <message>
-        <source>End addAress</source>
-        <comment>Debugger::Internal::ModulesModel|</comment>
-        <translation type="obsolete">Končni naslov</translation>
-    </message>
-    <message>
-        <source>Update module list</source>
-        <comment>Debugger::Internal::ModulesWindow|</comment>
-        <translation type="obsolete">Posodobi seznam modulov</translation>
-    </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <comment>Debugger::Internal::ModulesWindow|</comment>
-        <translation type="obsolete">Širine stolpcev prilagodi vsebinam</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <comment>Debugger::Internal::ModulesWindow|</comment>
-        <translation type="obsolete">Širine stolpcev vedno prilagodi vsebinam</translation>
-    </message>
-    <message>
-        <source>Show source files for module &quot;%1&quot;</source>
-        <comment>Debugger::Internal::ModulesWindow|</comment>
-        <translation type="obsolete">Prikaži datoteke z izvorno kodo za modul »%1«</translation>
-    </message>
-    <message>
-        <source>Load symbols for all modules</source>
-        <comment>Debugger::Internal::ModulesWindow|</comment>
-        <translation type="obsolete">Naloži simbole za vse module</translation>
-    </message>
-    <message>
-        <source>Load symbols for module</source>
-        <comment>Debugger::Internal::ModulesWindow|</comment>
-        <translation type="obsolete">Naloži simbole za modul</translation>
-    </message>
-    <message>
-        <source>Edit file</source>
-        <comment>Debugger::Internal::ModulesWindow|</comment>
-        <translation type="obsolete">Urejanje datoteke</translation>
-    </message>
-    <message>
-        <source>Show symbols</source>
-        <comment>Debugger::Internal::ModulesWindow|</comment>
-        <translation type="obsolete">Prikaži simbole</translation>
-    </message>
-    <message>
-        <source>Load symbols for module &quot;%1&quot;</source>
-        <comment>Debugger::Internal::ModulesWindow|</comment>
-        <translation type="obsolete">Naloži simbole za modul »%1«</translation>
-    </message>
-    <message>
-        <source>Edit file &quot;%1&quot;</source>
-        <comment>Debugger::Internal::ModulesWindow|</comment>
-        <translation type="obsolete">Urejanje datoteke »%1«</translation>
-    </message>
-    <message>
-        <source>Show symbols in file &quot;%1&quot;</source>
-        <comment>Debugger::Internal::ModulesWindow|</comment>
-        <translation type="obsolete">Prikaži simbole v datoteki »%1«</translation>
-    </message>
-    <message>
-        <source>Cannot create temporary file: %2</source>
-        <comment>Debugger::Internal::OutputCollector|</comment>
-        <translation type="obsolete">Ni moč ustvariti začasne datoteke: %2</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <comment>Debugger::Internal::RegisterHandler|</comment>
-        <translation type="obsolete">Vrednost</translation>
-    </message>
-    <message>
-        <source>Open memory editor</source>
-        <comment>Debugger::Internal::RegisterWindow|</comment>
-        <translation type="obsolete">Odpri urejevalnik pomnilnika</translation>
-    </message>
-    <message>
-        <source>Open memory editor at %1</source>
-        <comment>Debugger::Internal::RegisterWindow|</comment>
-        <translation type="obsolete">Odpri urejevalnik pomnilnika na %1</translation>
-    </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <comment>Debugger::Internal::RegisterWindow|</comment>
-        <translation type="obsolete">Širine stolpcev prilagodi vsebinam</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <comment>Debugger::Internal::RegisterWindow|</comment>
-        <translation type="obsolete">Širine stolpcev vedno prilagodi vsebinam</translation>
-    </message>
-    <message>
-        <source>Reload register listing</source>
-        <comment>Debugger::Internal::RegisterWindow|</comment>
-        <translation type="obsolete">Znova naloži seznam registrov</translation>
-    </message>
-    <message>
-        <source>Always reload register listing</source>
-        <comment>Debugger::Internal::RegisterWindow|</comment>
-        <translation type="obsolete">Vedno znova naloži seznam registrov</translation>
-    </message>
-    <message>
-        <source>Internal name</source>
-        <comment>SourceFilesModel|</comment>
-        <translation type="obsolete">Notranje ime</translation>
-    </message>
-    <message>
-        <source>Full name</source>
-        <comment>SourceFilesModel|</comment>
-        <translation type="obsolete">Polno ime</translation>
-    </message>
-    <message>
-        <source>Reload data</source>
-        <comment>Debugger::Internal::SourceFilesWindow|</comment>
-        <translation type="obsolete">Znova naloži podatke</translation>
-    </message>
-    <message>
-        <source>Open file</source>
-        <comment>Debugger::Internal::SourceFilesWindow|</comment>
-        <translation type="obsolete">Odpri datoteko</translation>
-    </message>
-    <message>
-        <source>Open file &quot;%1&quot;&apos;</source>
-        <comment>Debugger::Internal::SourceFilesWindow|</comment>
-        <translation type="obsolete">Odpri datoteko »%1«</translation>
-    </message>
-    <message>
-        <source>&lt;table&gt;&lt;tr&gt;&lt;td&gt;Address:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Function: &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;File: &lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Line: &lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;From: &lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;tr&gt;&lt;td&gt;To: &lt;/td&gt;&lt;td&gt;%6&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
-        <comment>Debugger::Internal::StackHandler|</comment>
-        <extracomment>Tooltip for variable
-</extracomment>
-        <translation type="obsolete">&lt;table&gt;&lt;tr&gt;&lt;td&gt;Naslov:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Funkcija: &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Datoteka: &lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Vrstica: &lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Od: &lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;tr&gt;&lt;td&gt;Do: &lt;/td&gt;&lt;td&gt;%6&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
-    </message>
-    <message>
-        <source>Copy contents to clipboard</source>
-        <comment>Debugger::Internal::StackWindow|</comment>
-        <translation type="obsolete">Skopiraj vsebino na odložišče</translation>
-    </message>
-    <message>
-        <source>Open memory editor</source>
-        <comment>Debugger::Internal::StackWindow|</comment>
-        <translation type="obsolete">Odpri urejevalnik pomnilnika</translation>
-    </message>
-    <message>
-        <source>Open memory editor at %1</source>
-        <comment>Debugger::Internal::StackWindow|</comment>
-        <translation type="obsolete">Odpri urejevalnik pomnilnika na %1</translation>
-    </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <comment>Debugger::Internal::StackWindow|</comment>
-        <translation type="obsolete">Širine stolpcev prilagodi vsebinam</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <comment>Debugger::Internal::StackWindow|</comment>
-        <translation type="obsolete">Širine stolpcev vedno prilagodi vsebinam</translation>
-    </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <comment>Debugger::Internal::ThreadsWindow|</comment>
-        <translation type="obsolete">Širine stolpcev prilagodi vsebinam</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <comment>Debugger::Internal::ThreadsWindow|</comment>
-        <translation type="obsolete">Širine stolpcev vedno prilagodi vsebinam</translation>
-    </message>
-    <message>
-        <source>Stored Address</source>
-        <comment>Debugger::Internal::WatchHandler|</comment>
-        <translation type="obsolete">Shranjen naslov</translation>
-    </message>
-    <message>
-        <source>&lt;No Locals&gt;</source>
-        <comment>Debugger::Internal::WatchHandler|</comment>
-        <translation type="obsolete">&lt;ni krajevnih&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;No Tooltip&gt;</source>
-        <comment>Debugger::Internal::WatchHandler|</comment>
-        <translation type="obsolete">&lt;ni namigov&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;No Watchers&gt;</source>
-        <comment>Debugger::Internal::WatchHandler|</comment>
-        <translation type="obsolete">&lt;ni opazovalcev&gt;</translation>
-    </message>
-    <message>
-        <source>Change format for type &apos;%1&apos;</source>
-        <comment>Debugger::Internal::WatchWindow|</comment>
-        <translation type="obsolete">Spremeni obliko za vrsto »%1«</translation>
-    </message>
-    <message>
-        <source>Change format for expression &apos;%1&apos;</source>
-        <comment>Debugger::Internal::WatchWindow|</comment>
-        <translation type="obsolete">Spremeni obliko za izraz »%1«</translation>
-    </message>
-    <message>
-        <source>Change format for type</source>
-        <comment>Debugger::Internal::WatchWindow|</comment>
-        <translation type="obsolete">Spremeni obliko za vrsto</translation>
-    </message>
-    <message>
-        <source>Change format for expression</source>
-        <comment>Debugger::Internal::WatchWindow|</comment>
-        <translation type="obsolete">Spremeni obliko za izraz</translation>
-    </message>
-    <message>
-        <source>Select widget to watch</source>
-        <comment>Debugger::Internal::WatchWindow|</comment>
-        <translation type="obsolete">Izberite gradnik za opazovanje</translation>
-    </message>
-    <message>
-        <source>Open memory editor...</source>
-        <comment>Debugger::Internal::WatchWindow|</comment>
-        <translation type="obsolete">Odpri urejevalnik pomnilnika ...</translation>
-    </message>
-    <message>
-        <source>Open memory editor at %1</source>
-        <comment>Debugger::Internal::WatchWindow|</comment>
-        <translation type="obsolete">Odpri urejevalnik pomnilnika na %1</translation>
-    </message>
-    <message>
-        <source>Refresh code model snapshot</source>
-        <comment>Debugger::Internal::WatchWindow|</comment>
-        <translation type="obsolete">Osveži posnetek modela kode</translation>
-    </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <comment>Debugger::Internal::WatchWindow|</comment>
-        <translation type="obsolete">Širine stolpcev prilagodi vsebinam</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <comment>Debugger::Internal::WatchWindow|</comment>
-        <translation type="obsolete">Širine stolpcev vedno prilagodi vsebinam</translation>
-    </message>
-    <message>
-        <source>Insert new watch item</source>
-        <comment>Debugger::Internal::WatchWindow|</comment>
-        <translation type="obsolete">Vstavi novo postavko opazovalca</translation>
-    </message>
-    <message>
-        <source>&lt;Edit&gt;</source>
-        <comment>Debugger::Internal::WatchWindow|</comment>
-        <translation type="obsolete">&lt;urejanje&gt;</translation>
-    </message>
-    <message>
-        <source>Clear contents</source>
-        <comment>DebuggerPane|</comment>
-        <translation type="obsolete">Počisti vsebino</translation>
-    </message>
-    <message>
-        <source>Save contents</source>
-        <comment>DebuggerPane|</comment>
-        <translation type="obsolete">Shrani vsebino</translation>
-    </message>
-    <message>
-        <source>This will enable nice display of Qt and Standard Library objects in the Locals&amp;Watchers view</source>
-        <comment>DebuggingHelperOptionPage|</comment>
-        <translation type="obsolete">To omogoči lep prikaz objektov iz Qt in Standard Library v prikazu Krajevni in opazovalci</translation>
-    </message>
-    <message>
-        <source>Use debugging helper</source>
-        <comment>DebuggingHelperOptionPage|</comment>
-        <translation type="obsolete">Uporabi razhroščevalnega pomočnika</translation>
-    </message>
-    <message>
-        <source>This will load a dumper library</source>
-        <comment>DebuggingHelperOptionPage|</comment>
-        <translation type="obsolete">To naloži knjižnico odlagalnika</translation>
-    </message>
-    <message>
-        <source>Debugging helper</source>
-        <comment>DebuggingHelperOptionPage|</comment>
-        <translation type="obsolete">Razhroščevalni pomočnik</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>DebuggingHelperOptionPage|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>%1 has no dependencies.</source>
-        <comment>ProjectExplorer::Internal::DependenciesWidget|</comment>
-        <translation type="obsolete">%1 nima odvisnosti.</translation>
-    </message>
-    <message>
-        <source>%1 depends on %2.</source>
-        <comment>ProjectExplorer::Internal::DependenciesWidget|</comment>
-        <translation type="obsolete">%1 je odvisen od %2.</translation>
-    </message>
-    <message>
-        <source>%1 depends on: %2.</source>
-        <comment>ProjectExplorer::Internal::DependenciesWidget|</comment>
-        <translation type="obsolete">%1 je odvisen od: %2.</translation>
-    </message>
-    <message>
-        <source>Project Dependencies</source>
-        <comment>ProjectExplorer::Internal::DependenciesWidget|</comment>
-        <translation type="obsolete">Odvisnosti projekta</translation>
-    </message>
-    <message>
-        <source>Project Dependencies:</source>
-        <comment>ProjectExplorer::Internal::DependenciesWidget|</comment>
-        <translation type="obsolete">Odvisnosti projekta:</translation>
-    </message>
-    <message>
-        <source>file name is empty</source>
-        <comment>Designer|</comment>
-        <translation type="obsolete">Ime datoteke je prazno</translation>
-    </message>
-    <message>
-        <source>no &lt;RCC&gt; root element</source>
-        <comment>Designer|</comment>
-        <translation type="obsolete">Ni vrhnjega elementa &lt;RCC&gt;</translation>
-    </message>
-    <message>
-        <source>Choose a class name</source>
-        <comment>Designer::Internal::FormClassWizardPage|</comment>
-        <translation type="obsolete">Izberite ime razreda</translation>
-    </message>
-    <message>
-        <source>More</source>
-        <comment>Designer::Internal::FormClassWizardPage|</comment>
-        <translation type="obsolete">Več</translation>
-    </message>
-    <message>
-        <source>Embedding of the UI class</source>
-        <comment>Designer::Internal::FormClassWizardPage|</comment>
-        <translation type="obsolete">Vgrajevanje razreda uporabniškega vmesnika</translation>
-    </message>
-    <message>
-        <source>Aggregation as a pointer member</source>
-        <comment>Designer::Internal::FormClassWizardPage|</comment>
-        <translation type="obsolete">Združevanje s kazalcem kot članom</translation>
-    </message>
-    <message>
-        <source>Aggregation</source>
-        <comment>Designer::Internal::FormClassWizardPage|</comment>
-        <translation type="obsolete">Združevanje</translation>
-    </message>
-    <message>
-        <source>Multiple Inheritance</source>
-        <comment>Designer::Internal::FormClassWizardPage|</comment>
-        <translation type="obsolete">Dedovanje od večih</translation>
-    </message>
-    <message>
-        <source>Support for changing languages at runtime</source>
-        <comment>Designer::Internal::FormClassWizardPage|</comment>
-        <translation type="obsolete">Podpora za preklapljanje jezikov med tekom</translation>
-    </message>
-    <message>
-        <source>buttonGroup</source>
-        <comment>Designer::Internal::FormClassWizardPage|</comment>
-        <translation type="obsolete">skupinaGumbov</translation>
-    </message>
-    <message>
-        <source>Qt</source>
-        <comment>Designer::Internal::FormEditorPlugin|</comment>
-        <translation type="obsolete">Qt</translation>
-    </message>
-    <message>
-        <source>Creates a Qt Designer form file (.ui).</source>
-        <comment>Designer::Internal::FormEditorPlugin|</comment>
-        <translation type="obsolete">Ustvari datoteko z obrazcem Qt Designer (*.ui)</translation>
-    </message>
-    <message>
-        <source>Creates a Qt Designer form file (.ui) with a matching class.</source>
-        <comment>Designer::Internal::FormEditorPlugin|</comment>
-        <translation type="obsolete">Ustvari datoteko z obrazcem Qt Designer (*.ui) in ustrezen razred.</translation>
-    </message>
-    <message>
-        <source>This creates a new Qt Designer form file.</source>
-        <comment>Designer::Internal::FormEditorPlugin|</comment>
-        <translation type="obsolete">To ustvari novo datoteko obrazca Qt Designer.</translation>
-    </message>
-    <message>
-        <source>This creates a new Qt Designer form class.</source>
-        <comment>Designer::Internal::FormEditorPlugin|</comment>
-        <translation type="obsolete">To ustvari nov razred obrazca Qt Designer.</translation>
-    </message>
-    <message>
-        <source>Signals &amp; Slots Editor</source>
-        <comment>Designer::Internal::FormEditorW|</comment>
-        <translation type="obsolete">Urejevalnik signalov in rež</translation>
-    </message>
-    <message>
-        <source>For&amp;m editor</source>
-        <comment>Designer::Internal::FormEditorW|</comment>
-        <translation type="obsolete">Urejevalnik &amp;obrazcev</translation>
-    </message>
-    <message>
-        <source>Edit widgets</source>
-        <comment>Designer::Internal::FormEditorW|</comment>
-        <translation type="obsolete">Urejanje gradnikov</translation>
-    </message>
-    <message>
-        <source>Edit signals/slots</source>
-        <comment>Designer::Internal::FormEditorW|</comment>
-        <translation type="obsolete">Urejanje signalov in rež</translation>
-    </message>
-    <message>
-        <source>Edit buddies</source>
-        <comment>Designer::Internal::FormEditorW|</comment>
-        <translation type="obsolete">Urejanje povezav</translation>
-    </message>
-    <message>
-        <source>Edit tab order</source>
-        <comment>Designer::Internal::FormEditorW|</comment>
-        <translation type="obsolete">Urejanje vrstnega reda tabulatorja</translation>
-    </message>
-    <message>
-        <source>Views</source>
-        <comment>Designer::Internal::FormEditorW|</comment>
-        <translation type="obsolete">Prikazi</translation>
-    </message>
-    <message>
-        <source>Locked</source>
-        <comment>Designer::Internal::FormEditorW|</comment>
-        <translation type="obsolete">Zaklenjeno</translation>
-    </message>
-    <message>
-        <source>Reset to Default Layout</source>
-        <comment>Designer::Internal::FormEditorW|</comment>
-        <translation type="obsolete">Ponastavi na privzet razpored</translation>
-    </message>
-    <message>
-        <source>Designer widgetbox</source>
-        <comment>Designer::Internal::FormEditorW|</comment>
-        <translation type="obsolete">Okvir z gradniki</translation>
-    </message>
-    <message>
-        <source>Object inspector</source>
-        <comment>Designer::Internal::FormEditorW|</comment>
-        <translation type="obsolete">Preiskovalnik objektov</translation>
-    </message>
-    <message>
-        <source>Property editor</source>
-        <comment>Designer::Internal::FormEditorW|</comment>
-        <translation type="obsolete">Urejevalnik lastnosti</translation>
-    </message>
-    <message>
-        <source>Signals and slots editor</source>
-        <comment>Designer::Internal::FormEditorW|</comment>
-        <translation type="obsolete">Urejevalnik signalov in rež</translation>
-    </message>
-    <message>
-        <source>Action editor</source>
-        <comment>Designer::Internal::FormEditorW|</comment>
-        <translation type="obsolete">Urejevalnik dejanj</translation>
-    </message>
-    <message>
-        <source>The image could not be create: %1</source>
-        <comment>Designer::Internal::FormEditorW|</comment>
-        <translation type="obsolete">Slike ni bilo moč ustvariti: %1</translation>
-    </message>
-    <message>
-        <source>Choose a form template</source>
-        <comment>Designer::Internal::FormTemplateWizardPage|</comment>
-        <translation type="obsolete">Izberite predlogo za obrazec</translation>
-    </message>
-    <message>
-        <source>Registered Documentation:</source>
-        <comment>DocSettingsPage|</comment>
-        <translation type="obsolete">Registrirana dokumentacija:</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>DocSettingsPage|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>Skin:</source>
-        <comment>EmbeddedPropertiesPage|</comment>
-        <translation type="obsolete">Tema:</translation>
-    </message>
-    <message>
-        <source>Use Virtual Box
-Note: This adds the toolchain to the build environment and runs the program inside a virtual machine.
-It also automatically sets the correct Qt version.</source>
-        <comment>EmbeddedPropertiesPage|</comment>
-        <translation type="obsolete">Uporabi Virtual Box
-Pomnite: To doda verigo orodij v okolje za gradnjo in program zažene v navideznem računalniku.
-Prav tako samodejno nastavi pravo različico Qt.</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>EmbeddedPropertiesPage|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>Use Virtual Box
-Note: This adds the toolchain to the build environment and runs the program inside a virtual machine.
-It also automatically sets the correct qt version.</source>
-        <comment>EmbeddedPropertiesPage|</comment>
-        <translation type="obsolete">Uporabi Virtual Box
-Pomnite: To doda verigo orodij v okolje za gradnjo in program zažene v navideznem računalniku.
-Prav tako samodejno nastavi pravo različico Qt.</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>ExtensionSystem::Internal::PluginDetailsView|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <comment>ExtensionSystem::Internal::PluginDetailsView|</comment>
-        <translation type="obsolete">BesedilaOznaka</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>ExtensionSystem::Internal::PluginErrorView|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <comment>ExtensionSystem::Internal::PluginErrorView|</comment>
-        <translation type="obsolete">BesedilaOznaka</translation>
-    </message>
-    <message>
-        <source>State</source>
-        <comment>ExtensionSystem::Internal::PluginView|</comment>
-        <translation type="obsolete">Stanje</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <comment>ExtensionSystem::Internal::PluginView|</comment>
-        <translation type="obsolete">Lokacija</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>ExtensionSystem::Internal::PluginView|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>Plugin ended it&apos;s life cycle and was deleted</source>
-        <comment>ExtensionSystem::PluginErrorView|</comment>
-        <translation type="obsolete">Vstavek je prenehal obstajati in je bil zbrisan</translation>
-    </message>
-    <message>
-        <source>Cannot load plugin because dependencies are not resolved</source>
-        <comment>ExtensionSystem::PluginManager|</comment>
-        <translation type="obsolete">Ni moč naložiti vstavka, ker odvisnosti niso bile razrešene</translation>
-    </message>
-    <message>
-        <source>Toggle vim-style editing</source>
-        <comment>FakeVim::Internal|</comment>
-        <translation type="obsolete">Preklopi urejanje v slogu Vim</translation>
-    </message>
-    <message>
-        <source>FakeVim properties...</source>
-        <comment>FakeVim::Internal|</comment>
-        <translation type="obsolete">Lastnosti FakeVim ...</translation>
-    </message>
-    <message>
-        <source>E20: Mark &apos;%1&apos; not set</source>
-        <comment>FakeVim::Internal::FakeVimHandler|</comment>
-        <translation type="obsolete">E20: oznaka »%1« ni nastavljena</translation>
-    </message>
-    <message>
-        <source>File &apos;%1&apos; exists (add ! to override)</source>
-        <comment>FakeVim::Internal::FakeVimHandler|</comment>
-        <translation type="obsolete">Datoteka »%1« že obstaja (da vsilite, dodajte !)</translation>
-    </message>
-    <message>
-        <source>Cannot open file &apos;%1&apos; for writing</source>
-        <comment>FakeVim::Internal::FakeVimHandler|</comment>
-        <translation type="obsolete">Datoteke »%1« ni moč odpreti za pisanje</translation>
-    </message>
-    <message>
-        <source>Cannot open file &apos;%1&apos; for reading</source>
-        <comment>FakeVim::Internal::FakeVimHandler|</comment>
-        <translation type="obsolete">Ni moč odpreti datoteke »%1« za branje</translation>
-    </message>
-    <message>
-        <source>E512: Unknown option: </source>
-        <comment>FakeVim::Internal::FakeVimHandler|</comment>
-        <translation type="obsolete">E512: Neznana možnost: </translation>
-    </message>
-    <message>
-        <source>%1,%2</source>
-        <comment>FakeVim::Internal::FakeVimHandler|</comment>
-        <translation type="obsolete">%1, %2</translation>
-    </message>
-    <message>
-        <source>%1</source>
-        <comment>FakeVim::Internal::FakeVimHandler|</comment>
-        <translation type="obsolete">%1</translation>
-    </message>
-    <message>
-        <source>%1 lines filtered</source>
-        <comment>FakeVim::Internal::FakeVimHandler|</comment>
-        <translation type="obsolete">filtriranih %1 vrstic</translation>
-    </message>
-    <message>
-        <source>E492: Not an editor command: </source>
-        <comment>FakeVim::Internal::FakeVimHandler|</comment>
-        <translation type="obsolete">E492: Ni ukaz urejevalnika: </translation>
-    </message>
-    <message>
-        <source>E486: Pattern not found: </source>
-        <comment>FakeVim::Internal::FakeVimHandler|</comment>
-        <translation type="obsolete">E486: Vzorec ni najden: </translation>
-    </message>
-    <message>
-        <source>Not an editor command: %1</source>
-        <comment>FakeVim::Internal::FakeVimPluginPrivate|</comment>
-        <translation type="obsolete">Ni ukaz urejevalnika: %1</translation>
-    </message>
-    <message>
-        <source>Vim style settings</source>
-        <comment>FakeVimOptionPage|</comment>
-        <translation type="obsolete">Nastavitve sloga Vim</translation>
-    </message>
-    <message>
-        <source>vim&apos;s &quot;expandtab&quot; option</source>
-        <comment>FakeVimOptionPage|</comment>
-        <translation type="obsolete">Vimova možnost »expandtab«</translation>
-    </message>
-    <message>
-        <source>Expand tabulators:</source>
-        <comment>FakeVimOptionPage|</comment>
-        <translation type="obsolete">Razširi tabulatorje:</translation>
-    </message>
-    <message>
-        <source>Highlight search results:</source>
-        <comment>FakeVimOptionPage|</comment>
-        <translation type="obsolete">Poudari rezultate iskanja:</translation>
-    </message>
-    <message>
-        <source>Smart tabulators:</source>
-        <comment>FakeVimOptionPage|</comment>
-        <translation type="obsolete">Pametni tabulatorji:</translation>
-    </message>
-    <message>
-        <source>Start of line:</source>
-        <comment>FakeVimOptionPage|</comment>
-        <translation type="obsolete">Začetek vrstice:</translation>
-    </message>
-    <message>
-        <source>VIM&apos;s &quot;autoindent&quot; option</source>
-        <comment>FakeVimOptionPage|</comment>
-        <translation type="obsolete">Vimova možnost »autoindent«</translation>
-    </message>
-    <message>
-        <source>Automatic indentation:</source>
-        <comment>FakeVimOptionPage|</comment>
-        <translation type="obsolete">Samodejno zamikanje:</translation>
-    </message>
-    <message>
-        <source>Copy text editor settings</source>
-        <comment>FakeVimOptionPage|</comment>
-        <translation type="obsolete">Skopiraj nastavitve urejevalnika besedil</translation>
-    </message>
-    <message>
-        <source>Set Qt style</source>
-        <comment>FakeVimOptionPage|</comment>
-        <translation type="obsolete">Nastavi slog Qt</translation>
-    </message>
-    <message>
-        <source>Set plain style</source>
-        <comment>FakeVimOptionPage|</comment>
-        <translation type="obsolete">Nastavi navaden slog</translation>
-    </message>
-    <message>
-        <source>Incremental search:</source>
-        <comment>FakeVimOptionPage|</comment>
-        <translation type="obsolete">Postopno iskanje:</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>FakeVimOptionPage|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>Filter:</source>
-        <comment>FilterSettingsPage|</comment>
-        <translation type="obsolete">Filter:</translation>
-    </message>
-    <message>
-        <source>Attributes:</source>
-        <comment>FilterSettingsPage|</comment>
-        <translation type="obsolete">Lastnosti:</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>FilterSettingsPage|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>&amp;Find/Replace</source>
-        <comment>Find::Internal::FindPlugin|</comment>
-        <translation type="obsolete">&amp;Najdi in zamenjaj</translation>
-    </message>
-    <message>
-        <source>Find...</source>
-        <comment>Find::Internal::FindPlugin|</comment>
-        <translation type="obsolete">Najdi ...</translation>
-    </message>
-    <message>
-        <source>Find Dialog</source>
-        <comment>Find::Internal::FindPlugin|</comment>
-        <translation type="obsolete">Pogovorno okno iskanja</translation>
-    </message>
-    <message>
-        <source>Current Document</source>
-        <comment>Find::Internal::FindToolBar|</comment>
-        <translation type="obsolete">Trenutni dokument</translation>
-    </message>
-    <message>
-        <source>Gdb interaction</source>
-        <comment>GdbOptionsPage|</comment>
-        <translation type="obsolete">Interakcija z GDB</translation>
-    </message>
-    <message>
-        <source>Gdb location:</source>
-        <comment>GdbOptionsPage|</comment>
-        <translation type="obsolete">Lokacija GDB-ja:</translation>
-    </message>
-    <message>
-        <source>Behaviour of breakpoint setting in plugins</source>
-        <comment>GdbOptionsPage|</comment>
-        <translation type="obsolete">Obnašanje nastavljanja prekinitvenih točk v vstavkih</translation>
-    </message>
-    <message>
-        <source>This is either a full absolute path leading to the gdb binary you intend to use or the name of a gdb binary that will be searched in your PATH.</source>
-        <comment>GdbOptionsPage|</comment>
-        <translation type="obsolete">To je bodisi polna absolutna pot do programa GDB, ki ga želite uporabiti, bodisi ime izvršljive datoteke programa GDB, ki bo posikana v mapah določenih v spremenljivki PATH.</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>GdbOptionsPage|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>This is either a full abolute path leading to the gdb binary you intend to use or the name of a gdb binary that will be searched in your PATH.</source>
-        <comment>GdbOptionsPage|</comment>
-        <translation type="obsolete">To je bodisi polna absolutna pot do programa GDB, ki ga želite uporabiti, bodisi ime izvršljive datoteke programa GDB, ki bo posikana v mapah določenih v spremenljivki PATH.</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>GenericMakeStep|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>&lt;new&gt;</source>
-        <comment>GenericProject|</comment>
-        <translation type="obsolete">&lt;nov&gt;</translation>
-    </message>
-    <message>
-        <source>Create</source>
-        <comment>GenericProjectManager::Internal::GenericBuildConfigurationFactory|</comment>
-        <translation type="obsolete">Ustvari</translation>
-    </message>
-    <message>
-        <source>Toolchain:</source>
-        <comment>GenericProjectManager::Internal::GenericBuildSettingsWidget|</comment>
-        <translation type="obsolete">Zaporedje orodij:</translation>
-    </message>
-    <message>
-        <source>Tool chain:</source>
-        <comment>GenericProjectManager::Internal::GenericBuildSettingsWidget|</comment>
-        <translation type="obsolete">Veriga orodij:</translation>
-    </message>
-    <message>
-        <source>Import of Makefile-based Project</source>
-        <comment>GenericProjectManager::Internal::GenericProjectWizard|</comment>
-        <translation type="obsolete">Uvoz projekta temelječega na Makefile</translation>
-    </message>
-    <message>
-        <source>Creates a generic project, supporting any build system.</source>
-        <comment>GenericProjectManager::Internal::GenericProjectWizard|</comment>
-        <translation type="obsolete">Ustvari splošen projekt, ki podpira katerikoli sistem za gradnjo.</translation>
-    </message>
-    <message>
-        <source>Projects</source>
-        <comment>GenericProjectManager::Internal::GenericProjectWizard|</comment>
-        <translation type="obsolete">Projekti</translation>
-    </message>
-    <message>
-        <source>The project %1 could not be opened.</source>
-        <comment>GenericProjectManager::Internal::GenericProjectWizard|</comment>
-        <translation type="obsolete">Projekta %1 ni bilo moč odpreti.</translation>
-    </message>
-    <message>
-        <source>Import of Makefile-based Project</source>
-        <comment>GenericProjectManager::Internal::GenericProjectWizardDialog|</comment>
-        <translation type="obsolete">Uvoz projekta temelječega na Makefile</translation>
-    </message>
-    <message>
-        <source>Generic Project</source>
-        <comment>GenericProjectManager::Internal::GenericProjectWizardDialog|</comment>
-        <translation type="obsolete">Splošen projekt</translation>
-    </message>
-    <message>
-        <source>Second Page Title</source>
-        <comment>GenericProjectManager::Internal::GenericProjectWizardDialog|</comment>
-        <translation type="obsolete">Naslov druge strani</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <comment>Git::Internal::BranchDialog|</comment>
-        <translation type="obsolete">Zbriši</translation>
-    </message>
-    <message>
-        <source>Unable to find the repository directory for &apos;%1&apos;.</source>
-        <comment>Git::Internal::BranchDialog|</comment>
-        <translation type="obsolete">Ni moč najti mape skladišča za »%1«.</translation>
-    </message>
-    <message>
-        <source>General information</source>
-        <comment>Git::Internal::BranchDialog|</comment>
-        <translation type="obsolete">Splošni podatki</translation>
-    </message>
-    <message>
-        <source>Repository:</source>
-        <comment>Git::Internal::BranchDialog|</comment>
-        <translation type="obsolete">Skladišče:</translation>
-    </message>
-    <message>
-        <source>Remote branches</source>
-        <comment>Git::Internal::BranchDialog|</comment>
-        <translation type="obsolete">Oddaljene veje</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <comment>Git::Internal::BranchDialog|</comment>
-        <translation type="obsolete">BesedilaOznaka</translation>
-    </message>
-    <message>
-        <source>Select Git repository</source>
-        <comment>Git::Internal::ChangeSelectionDialog|</comment>
-        <translation type="obsolete">Izberite skladišče Git</translation>
-    </message>
-    <message>
-        <source>%1 Executing: %2 %3
-</source>
-        <comment>Git::Internal::GitClient|</comment>
-        <extracomment>&lt;timestamp&gt; Executing: &lt;executable&gt; &lt;arguments&gt;
-</extracomment>
-        <translation type="obsolete">%1 Izvajanje: %2 %3
-</translation>
-    </message>
-    <message>
-        <source>File Status</source>
-        <comment>Git::Internal::GitPlugin|</comment>
-        <translation type="obsolete">Stanje datoteke</translation>
-    </message>
-    <message>
-        <source>Undo Changes</source>
-        <comment>Git::Internal::GitPlugin|</comment>
-        <translation type="obsolete">Razveljavi spremembe</translation>
-    </message>
-    <message>
-        <source>Project Status</source>
-        <comment>Git::Internal::GitPlugin|</comment>
-        <translation type="obsolete">Stanje projekta</translation>
-    </message>
-    <message>
-        <source>Undo Project Changes</source>
-        <comment>Git::Internal::GitPlugin|</comment>
-        <translation type="obsolete">Razveljavi spremembe projekta</translation>
-    </message>
-    <message>
-        <source>Could not find working directory</source>
-        <comment>Git::Internal::GitPlugin|</comment>
-        <translation type="obsolete">Ni bilo moč najti delovne mape</translation>
-    </message>
-    <message>
-        <source>Revert...</source>
-        <comment>Git::Internal::GitPlugin|</comment>
-        <translation type="obsolete">Povrni ...</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <comment>Git::Internal::GitPlugin|</comment>
-        <translation type="obsolete">Datoteka</translation>
-    </message>
-    <message>
-        <source>Status Related to %1</source>
-        <comment>Git::Internal::GitPlugin|</comment>
-        <translation type="obsolete">Stanje preusmerjeno v %1</translation>
-    </message>
-    <message>
-        <source>Log of %1</source>
-        <comment>Git::Internal::GitPlugin|</comment>
-        <translation type="obsolete">Dnevnik za %1</translation>
-    </message>
-    <message>
-        <source>Blame for %1</source>
-        <comment>Git::Internal::GitPlugin|</comment>
-        <translation type="obsolete">Odgovornost za %1</translation>
-    </message>
-    <message>
-        <source>Undo Changes for %1</source>
-        <comment>Git::Internal::GitPlugin|</comment>
-        <translation type="obsolete">Razveljavi spremembe za %1</translation>
-    </message>
-    <message>
-        <source>Revert %1...</source>
-        <comment>Git::Internal::GitPlugin|</comment>
-        <translation type="obsolete">Povrni %1 ...</translation>
-    </message>
-    <message>
-        <source>Status Project</source>
-        <comment>Git::Internal::GitPlugin|</comment>
-        <translation type="obsolete">Stanje projekta</translation>
-    </message>
-    <message>
-        <source>Status Project %1</source>
-        <comment>Git::Internal::GitPlugin|</comment>
-        <translation type="obsolete">Stanje projekta %1</translation>
-    </message>
-    <message>
-        <source>Environment variables</source>
-        <comment>Git::Internal::SettingsPage|</comment>
-        <translation type="obsolete">Okoljske spremenljivke</translation>
-    </message>
-    <message>
-        <source>From system</source>
-        <comment>Git::Internal::SettingsPage|</comment>
-        <translation type="obsolete">Od sistema</translation>
-    </message>
-    <message>
-        <source>Timeout (seconds):</source>
-        <comment>Git::Internal::SettingsPage|</comment>
-        <translation type="obsolete">Časa na voljo (sekund):</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>Git::Internal::SettingsPage|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>Add new page</source>
-        <comment>Help::Internal::CentralWidget|</comment>
-        <translation type="obsolete">Dodaj novo stran</translation>
-    </message>
-    <message>
-        <source>unknown</source>
-        <comment>Help::Internal::CentralWidget|</comment>
-        <translation type="obsolete">neznano</translation>
-    </message>
-    <message>
-        <source>Add New Page</source>
-        <comment>Help::Internal::CentralWidget|</comment>
-        <translation type="obsolete">Dodaj novo stran</translation>
-    </message>
-    <message>
-        <source>Close This Page</source>
-        <comment>Help::Internal::CentralWidget|</comment>
-        <translation type="obsolete">Zapri to stran</translation>
-    </message>
-    <message>
-        <source>Close Other Pages</source>
-        <comment>Help::Internal::CentralWidget|</comment>
-        <translation type="obsolete">Zapri druge strani</translation>
-    </message>
-    <message>
-        <source>Add Bookmark for this Page...</source>
-        <comment>Help::Internal::CentralWidget|</comment>
-        <translation type="obsolete">Dodaj zaznamek za to stran ...</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <comment>Help::Internal::DocSettingsPage|</comment>
-        <translation type="obsolete">Pomoč</translation>
-    </message>
-    <message>
-        <source>The file %1 is not a valid Qt Help file!</source>
-        <comment>Help::Internal::DocSettingsPage|</comment>
-        <translation type="obsolete">Datoteka %1 ni veljavna datoteka s pomočjo za Qt.</translation>
-    </message>
-    <message>
-        <source>Cannot unregister documentation file %1!</source>
-        <comment>Help::Internal::DocSettingsPage|</comment>
-        <translation type="obsolete">Ni moč odregistrirati datoteke z dokumentacijo %1.</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <comment>Help::Internal::FilterSettingsPage|</comment>
-        <translation type="obsolete">Pomoč</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head&gt;&lt;title&gt;No Documentation&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;br/&gt;&lt;br/&gt;&lt;center&gt;No documentation available.&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <comment>Help::Internal::HelpPlugin|</comment>
-        <translation type="obsolete">&lt;html&gt;&lt;head&gt;&lt;title&gt;Ni dokumentacije&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;br/&gt;&lt;br/&gt;&lt;center&gt;Na voljo ni nobene dokumentacije.&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <comment>Help::Internal::SearchWidget|</comment>
-        <translation type="obsolete">S&amp;kopiraj</translation>
-    </message>
-    <message>
-        <source>Copy &amp;Link Location</source>
-        <comment>Help::Internal::SearchWidget|</comment>
-        <translation type="obsolete">Skopiraj &amp;povezavo do lokacije</translation>
-    </message>
-    <message>
-        <source>Open Link in New Tab</source>
-        <comment>Help::Internal::SearchWidget|</comment>
-        <translation type="obsolete">Odpri povezavo v novem zavihku</translation>
-    </message>
-    <message>
-        <source>Select All</source>
-        <comment>Help::Internal::SearchWidget|</comment>
-        <translation type="obsolete">Izberi vse</translation>
-    </message>
-    <message>
-        <source>Open Link in New Tab</source>
-        <comment>HelpViewer|</comment>
-        <translation type="obsolete">Odpri povezavo v novem zavihku</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <comment>HelpViewer|</comment>
-        <translation type="obsolete">Pomoč</translation>
-    </message>
-    <message>
-        <source>Unable to launch external application.
-</source>
-        <comment>HelpViewer|</comment>
-        <translation type="obsolete">Ni moč zagnati zunanjega programa.
-</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <comment>HelpViewer|</comment>
-        <translation type="obsolete">V redu</translation>
-    </message>
-    <message>
-        <source>Copy &amp;Link Location</source>
-        <comment>HelpViewer|</comment>
-        <translation type="obsolete">Skopiraj &amp;povezavo do lokacije</translation>
-    </message>
-    <message>
-        <source>Open Link in New Tab	Ctrl+LMB</source>
-        <comment>HelpViewer|</comment>
-        <translation type="obsolete">Odpri povezavo v novem zavihku	Ctrl+LGM</translation>
-    </message>
-    <message>
-        <source>Open Link in New Tab</source>
-        <comment>IndexWindow|</comment>
-        <translation type="obsolete">Odpri povezavo v novem zavihku</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <comment>MainWindow|</comment>
-        <translation type="obsolete">Datoteka</translation>
-    </message>
-    <message>
-        <source>Open file</source>
-        <comment>MainWindow|</comment>
-        <translation type="obsolete">Odpri datoteko</translation>
-    </message>
-    <message>
-        <source>Quit</source>
-        <comment>MainWindow|</comment>
-        <translation type="obsolete">Končaj</translation>
-    </message>
-    <message>
-        <source>Run to main()</source>
-        <comment>MainWindow|</comment>
-        <translation type="obsolete">Zaženi do main()</translation>
-    </message>
-    <message>
-        <source>Files</source>
-        <comment>MainWindow|</comment>
-        <translation type="obsolete">Datoteke</translation>
-    </message>
-    <message>
-        <source>Debug</source>
-        <comment>MainWindow|</comment>
-        <translation type="obsolete">Razhroščevanje</translation>
-    </message>
-    <message>
-        <source>Not a runnable project</source>
-        <comment>MainWindow|</comment>
-        <translation type="obsolete">Ni zaženljiv projekt</translation>
-    </message>
-    <message>
-        <source>The current startup project can not be run.</source>
-        <comment>MainWindow|</comment>
-        <translation type="obsolete">Trenutnega začetnega projekta ni moč zagnati.</translation>
-    </message>
-    <message>
-        <source>Open File</source>
-        <comment>MainWindow|</comment>
-        <translation type="obsolete">Odpri datoteko</translation>
-    </message>
-    <message>
-        <source>Cannot find special data dumpers</source>
-        <comment>MainWindow|</comment>
-        <translation type="obsolete">Ni moč najti odlagalnikov posebnih podatkov</translation>
-    </message>
-    <message>
-        <source>The debugged binary does not contain information needed for nice display of Qt data types.
-
-Make sure you use something like
-
-SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
-
-in your .pro file.</source>
-        <comment>MainWindow|</comment>
-        <translation type="obsolete">Razhroščevan program ne vsebuje podatkov, ki so potrebni za lep prikaz podatkovnih vrst Qt.
-
-Prepričajte se, da je v datoteki *.pro nekaj podobnega
-
-SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp</translation>
-    </message>
-    <message>
-        <source>Open Executable File</source>
-        <comment>MainWindow|</comment>
-        <translation type="obsolete">Odpri izvršljivo datoteko</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>MakeStep|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>Filter:</source>
-        <comment>NickNameDialog|</comment>
-        <translation type="obsolete">Filter:</translation>
-    </message>
-    <message>
-        <source>Clear</source>
-        <comment>NickNameDialog|</comment>
-        <translation type="obsolete">Počisti</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <comment>Perforce::Internal::PerforcePlugin|</comment>
-        <translation type="obsolete">Izbriši</translation>
-    </message>
-    <message>
-        <source>Timeout waiting for &quot;where&quot; (%1).</source>
-        <comment>Perforce::Internal::PerforcePlugin|</comment>
-        <translation type="obsolete">Čas za čakanje na »where« (%1) je potekel.</translation>
-    </message>
-    <message>
-        <source>Error running &quot;where&quot; on %1: The file is not mapped</source>
-        <comment>Perforce::Internal::PerforcePlugin|</comment>
-        <translation type="obsolete">Napaka poganjanja »where« na %1: datoteka ni preslikana</translation>
-    </message>
-    <message>
-        <source>No p4 executable specified!</source>
-        <comment>Perforce::Internal::PerforcePlugin|</comment>
-        <translation type="obsolete">Določen ni noben program p4.</translation>
-    </message>
-    <message>
-        <source>Edit %1</source>
-        <comment>Perforce::Internal::PerforcePlugin|</comment>
-        <translation type="obsolete">Urejanje %1</translation>
-    </message>
-    <message>
-        <source>Add %1</source>
-        <comment>Perforce::Internal::PerforcePlugin|</comment>
-        <translation type="obsolete">Dodaj %1</translation>
-    </message>
-    <message>
-        <source>Delete %1</source>
-        <comment>Perforce::Internal::PerforcePlugin|</comment>
-        <translation type="obsolete">Izbriši %1</translation>
-    </message>
-    <message>
-        <source>Revert %1</source>
-        <comment>Perforce::Internal::PerforcePlugin|</comment>
-        <translation type="obsolete">Povrni %1</translation>
-    </message>
-    <message>
-        <source>%1 Executing: %2
-</source>
-        <comment>Perforce::Internal::PerforcePlugin|</comment>
-        <translation type="obsolete">%1 Izvajanje: %2
-</translation>
-    </message>
-    <message>
-        <source>Resolve</source>
-        <comment>Perforce::Internal::PerforcePlugin|</comment>
-        <translation type="obsolete">Razreši</translation>
-    </message>
-    <message>
-        <source>P4 Command:</source>
-        <comment>Perforce::Internal::SettingsPage|</comment>
-        <translation type="obsolete">Ukaz P4:</translation>
-    </message>
-    <message>
-        <source>Use default P4 environment variables</source>
-        <comment>Perforce::Internal::SettingsPage|</comment>
-        <translation type="obsolete">Uporabi privzete okoljske spremenljivke za P4</translation>
-    </message>
-    <message>
-        <source>Environment variables</source>
-        <comment>Perforce::Internal::SettingsPage|</comment>
-        <translation type="obsolete">Okoljske spremenljivke</translation>
-    </message>
-    <message>
-        <source>P4 Client:</source>
-        <comment>Perforce::Internal::SettingsPage|</comment>
-        <translation type="obsolete">Odjemalec P4:</translation>
-    </message>
-    <message>
-        <source>P4 User:</source>
-        <comment>Perforce::Internal::SettingsPage|</comment>
-        <translation type="obsolete">Uporabnik P4:</translation>
-    </message>
-    <message>
-        <source>P4 Port:</source>
-        <comment>Perforce::Internal::SettingsPage|</comment>
-        <translation type="obsolete">Vrata P4:</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>Perforce::Internal::SettingsPage|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>
-Library base name: %1</source>
-        <comment>PluginSpec|</comment>
-        <translation type="obsolete">
-Osnovno ime knjižnice: %1</translation>
-    </message>
-    <message>
-        <source>Plugin is not valid (doesn&apos;t derive from IPlugin)</source>
-        <comment>PluginSpec|</comment>
-        <translation type="obsolete">Vstavek ni veljaven (ni izpeljan iz IPlugin)</translation>
-    </message>
-    <message>
-        <source>&lt;font color=&quot;#0000ff&quot;&gt;Starting: %1 %2&lt;/font&gt;
-</source>
-        <comment>ProjectExplorer::AbstractProcessStep|</comment>
-        <translation type="obsolete">&lt;font color=&quot;#0000ff&quot;&gt;Zaganjanje: %1 %2&lt;/font&gt;
-</translation>
-    </message>
-    <message>
-        <source>&lt;font color=&quot;#0000ff&quot;&gt;Exited with code %1.&lt;/font&gt;</source>
-        <comment>ProjectExplorer::AbstractProcessStep|</comment>
-        <translation type="obsolete">&lt;font color=&quot;#0000ff&quot;&gt;Končal s kodo %1.&lt;/font&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;font color=&quot;#ff0000&quot;&gt;&lt;b&gt;Exited with code %1.&lt;/b&gt;&lt;/font&gt;</source>
-        <comment>ProjectExplorer::AbstractProcessStep|</comment>
-        <translation type="obsolete">&lt;font color=&quot;#ff0000&quot;&gt;&lt;b&gt;Končal s kodo %1.&lt;/b&gt;&lt;/font&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;font color=&quot;#ff0000&quot;&gt;Could not start process %1 &lt;/b&gt;&lt;/font&gt;</source>
-        <comment>ProjectExplorer::AbstractProcessStep|</comment>
-        <translation type="obsolete">&lt;font color=&quot;#ff0000&quot;&gt;Ni moč zagnati procesa %1 &lt;/b&gt;&lt;/font&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;font color=&quot;#ff0000&quot;&gt;Canceled build.&lt;/font&gt;</source>
-        <comment>ProjectExplorer::BuildManager|</comment>
-        <translation type="obsolete">&lt;font color=&quot;#ff0000&quot;&gt;Preklicana gradnja.&lt;/font&gt;</translation>
-    </message>
-    <message numerus="yes">
-        <source>Finished %n of %1 build steps</source>
-        <comment>ProjectExplorer::BuildManager|</comment>
-        <translation type="obsolete">
-            <numerusform>Zaključen %n od %1 korakov gradnje</numerusform>
-            <numerusform>Zaključena %n od %1 korakov gradnje</numerusform>
-            <numerusform>Zaključeni %n od %1 korakov gradnje</numerusform>
-            <numerusform>Zaključenih %n od %1 korakov gradnje</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>&lt;font color=&quot;#ff0000&quot;&gt;Error while building project %1&lt;/font&gt;</source>
-        <comment>ProjectExplorer::BuildManager|</comment>
-        <translation type="obsolete">&lt;font color=&quot;#ff0000&quot;&gt;Napaka med gradnjo projekta %1&lt;/font&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;font color=&quot;#ff0000&quot;&gt;When executing build step &apos;%1&apos;&lt;/font&gt;</source>
-        <comment>ProjectExplorer::BuildManager|</comment>
-        <translation type="obsolete">&lt;font color=&quot;#ff0000&quot;&gt;Med izvajanjem koraka »%1«&lt;/font&gt;</translation>
-    </message>
-    <message>
-        <source>Error while building project %1</source>
-        <comment>ProjectExplorer::BuildManager|</comment>
-        <translation type="obsolete">Napaka med gradnjo projekta %1</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Running build steps for project %2...&lt;/b&gt;</source>
-        <comment>ProjectExplorer::BuildManager|</comment>
-        <translation type="obsolete">&lt;b&gt;Poganjanje korakov gradnje za projekt %2 ...&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Finished %1 of %2 build steps</source>
-        <comment>ProjectExplorer::BuildManager|</comment>
-        <translation type="obsolete">Zaključil %1 od %2 korakov gradnje</translation>
-    </message>
-    <message>
-        <source>&lt;VALUE&gt;</source>
-        <comment>ProjectExplorer::EnvironmentModel|</comment>
-        <translation type="obsolete">&lt;vrednost&gt;</translation>
-    </message>
-    <message>
-        <source>Summary: No changes to Environment</source>
-        <comment>ProjectExplorer::EnvironmentWidget|</comment>
-        <translation type="obsolete">Povzetek: brez sprememb okolja</translation>
-    </message>
-    <message>
-        <source>Build Settings</source>
-        <comment>ProjectExplorer::Internal::BuildSettingsPanel|</comment>
-        <translation type="obsolete">Nastavitve za gradnjo</translation>
-    </message>
-    <message>
-        <source>Edit Build Configuration:</source>
-        <comment>ProjectExplorer::Internal::BuildSettingsWidget|</comment>
-        <translation type="obsolete">Urejanje nastavitev za gradnjo:</translation>
-    </message>
-    <message>
-        <source>Create &amp;New</source>
-        <comment>ProjectExplorer::Internal::BuildSettingsWidget|</comment>
-        <translation type="obsolete">Ustvari &amp;novo</translation>
-    </message>
-    <message>
-        <source>%1 - %2</source>
-        <comment>ProjectExplorer::Internal::BuildSettingsWidget|</comment>
-        <translation type="obsolete">%1 - %2</translation>
-    </message>
-    <message>
-        <source>General</source>
-        <comment>ProjectExplorer::Internal::BuildSettingsWidget|</comment>
-        <translation type="obsolete">Splošno</translation>
-    </message>
-    <message>
-        <source>Set as Active</source>
-        <comment>ProjectExplorer::Internal::BuildSettingsWidget|</comment>
-        <translation type="obsolete">Nastavi kot aktivno</translation>
-    </message>
-    <message>
-        <source>Clone</source>
-        <comment>ProjectExplorer::Internal::BuildSettingsWidget|</comment>
-        <translation type="obsolete">Podvoji</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <comment>ProjectExplorer::Internal::BuildSettingsWidget|</comment>
-        <translation type="obsolete">Izbriši</translation>
-    </message>
-    <message>
-        <source>New configuration</source>
-        <comment>ProjectExplorer::Internal::BuildSettingsWidget|</comment>
-        <translation type="obsolete">Nova nastavitev</translation>
-    </message>
-    <message>
-        <source>Add clean step</source>
-        <comment>ProjectExplorer::Internal::BuildStepsPage|</comment>
-        <translation type="obsolete">Dodaj korak čiščenja</translation>
-    </message>
-    <message>
-        <source>Add build step</source>
-        <comment>ProjectExplorer::Internal::BuildStepsPage|</comment>
-        <translation type="obsolete">Dodaj korak gradnje</translation>
-    </message>
-    <message>
-        <source>Remove clean step</source>
-        <comment>ProjectExplorer::Internal::BuildStepsPage|</comment>
-        <translation type="obsolete">Odstrani korak čiščenja</translation>
-    </message>
-    <message>
-        <source>Remove build step</source>
-        <comment>ProjectExplorer::Internal::BuildStepsPage|</comment>
-        <translation type="obsolete">Odstrani korak gradnje</translation>
-    </message>
-    <message>
-        <source>1</source>
-        <comment>ProjectExplorer::Internal::BuildStepsPage|</comment>
-        <translation type="obsolete">1</translation>
-    </message>
-    <message>
-        <source>+</source>
-        <comment>ProjectExplorer::Internal::BuildStepsPage|</comment>
-        <translation type="obsolete">+</translation>
-    </message>
-    <message>
-        <source>-</source>
-        <comment>ProjectExplorer::Internal::BuildStepsPage|</comment>
-        <translation type="obsolete">-</translation>
-    </message>
-    <message>
-        <source>^</source>
-        <comment>ProjectExplorer::Internal::BuildStepsPage|</comment>
-        <translation type="obsolete">↑</translation>
-    </message>
-    <message>
-        <source>v</source>
-        <comment>ProjectExplorer::Internal::BuildStepsPage|</comment>
-        <translation type="obsolete">↓</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>ProjectExplorer::Internal::BuildStepsPage|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>Don&apos;t Close</source>
-        <comment>ProjectExplorer::Internal::CoreListenerCheckingForRunningBuild|</comment>
-        <translation type="obsolete">Ne zapri</translation>
-    </message>
-    <message>
-        <source>Dependencies</source>
-        <comment>ProjectExplorer::Internal::DependenciesPanel|</comment>
-        <translation type="obsolete">Odvisnosti</translation>
-    </message>
-    <message>
-        <source>%1 of project %2</source>
-        <comment>ProjectExplorer::Internal::DetailedModel|</comment>
-        <translation type="obsolete">%1 projekta %2</translation>
-    </message>
-    <message>
-        <source>Could not rename file</source>
-        <comment>ProjectExplorer::Internal::DetailedModel|</comment>
-        <translation type="obsolete">Ni moč preimenovati datoteke</translation>
-    </message>
-    <message>
-        <source>Renaming file %1 to %2 failed.</source>
-        <comment>ProjectExplorer::Internal::DetailedModel|</comment>
-        <translation type="obsolete">Preimenovanje datoteke %1 v %2 ni uspelo.</translation>
-    </message>
-    <message>
-        <source>Editor Settings</source>
-        <comment>ProjectExplorer::Internal::EditorSettingsPanel|</comment>
-        <translation type="obsolete">Nastavitve urejevalnika</translation>
-    </message>
-    <message>
-        <source>Default File Encoding:</source>
-        <comment>ProjectExplorer::Internal::EditorSettingsPropertiesPage|</comment>
-        <translation type="obsolete">Privzeti nabor znakov:</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>ProjectExplorer::Internal::EditorSettingsPropertiesPage|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>New session name</source>
-        <comment>ProjectExplorer::Internal::NewSessionInputDialog|</comment>
-        <translation type="obsolete">Ime nove seje</translation>
-    </message>
-    <message>
-        <source>Enter the name of the new session:</source>
-        <comment>ProjectExplorer::Internal::NewSessionInputDialog|</comment>
-        <translation type="obsolete">Vnesite ime nove seje:</translation>
-    </message>
-    <message>
-        <source>Switch to session</source>
-        <comment>ProjectExplorer::Internal::SessionDialog|</comment>
-        <translation type="obsolete">Preklopi na sejo</translation>
-    </message>
-    <message>
-        <source>Create New Session</source>
-        <comment>ProjectExplorer::Internal::SessionDialog|</comment>
-        <translation type="obsolete">Ustvari novo sejo</translation>
-    </message>
-    <message>
-        <source>Clone Session</source>
-        <comment>ProjectExplorer::Internal::SessionDialog|</comment>
-        <translation type="obsolete">Podvoji sejo</translation>
-    </message>
-    <message>
-        <source>Delete Session</source>
-        <comment>ProjectExplorer::Internal::SessionDialog|</comment>
-        <translation type="obsolete">Izbriši sejo</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <comment>ProjectExplorer::Internal::SessionDialog|</comment>
-        <translation type="obsolete">&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;Kaj je seja?&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>Choose your session</source>
-        <comment>ProjectExplorer::Internal::SessionDialog|</comment>
-        <translation type="obsolete">Izberite sejo</translation>
-    </message>
-    <message>
-        <source>The application is still running. Close it first.</source>
-        <comment>ProjectExplorer::Internal::OutputPane|</comment>
-        <translation type="obsolete">Program še vedno teče. Najprej ga zaprite.</translation>
-    </message>
-    <message>
-        <source>Rerun this runconfiguration</source>
-        <comment>ProjectExplorer::Internal::OutputPane|</comment>
-        <translation type="obsolete">Znova zaženi te nastavitve za zagon</translation>
-    </message>
-    <message>
-        <source>Application Output Window</source>
-        <comment>ProjectExplorer::Internal::OutputWindow|</comment>
-        <translation type="obsolete">Okno z izhodom programa</translation>
-    </message>
-    <message>
-        <source>Custom Process Step</source>
-        <comment>ProjectExplorer::Internal::ProcessStep|</comment>
-        <translation type="obsolete">Korak postopka po meri</translation>
-    </message>
-    <message>
-        <source>Working Directory:</source>
-        <comment>ProjectExplorer::Internal::ProcessStepWidget|</comment>
-        <translation type="obsolete">Delovna mapa:</translation>
-    </message>
-    <message>
-        <source>Command Arguments:</source>
-        <comment>ProjectExplorer::Internal::ProcessStepWidget|</comment>
-        <translation type="obsolete">Argumenti za ukaz:</translation>
-    </message>
-    <message>
-        <source>Enable Custom Process Step</source>
-        <comment>ProjectExplorer::Internal::ProcessStepWidget|</comment>
-        <translation type="obsolete">Omogoči korak postopka po meri</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>ProjectExplorer::Internal::ProcessStepWidget|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>Build and Run</source>
-        <comment>ProjectExplorer::Internal::ProjectExplorerSettingsPage|</comment>
-        <translation type="obsolete">Zgradi in zaženi</translation>
-    </message>
-    <message>
-        <source>Projects</source>
-        <comment>ProjectExplorer::Internal::ProjectExplorerSettingsPage|</comment>
-        <translation type="obsolete">Projekti</translation>
-    </message>
-    <message>
-        <source>Build and Run Settings</source>
-        <comment>ProjectExplorer::Internal::ProjectExplorerSettingsPage|</comment>
-        <translation type="obsolete">Nastavitve za gradnjo in zagon</translation>
-    </message>
-    <message>
-        <source>Projectexplorer</source>
-        <comment>ProjectExplorer::Internal::ProjectExplorerSettingsPage|</comment>
-        <translation type="obsolete">Raziskovalec projektov</translation>
-    </message>
-    <message>
-        <source>Active Build and Run Configurations</source>
-        <comment>ProjectExplorer::Internal::ProjectWindow|</comment>
-        <translation type="obsolete">Aktivne nastavitve gradnje in zagona</translation>
-    </message>
-    <message>
-        <source>No project loaded.</source>
-        <comment>ProjectExplorer::Internal::ProjectWindow|</comment>
-        <translation type="obsolete">Naložen ni noben projekt.</translation>
-    </message>
-    <message>
-        <source>Project Explorer</source>
-        <comment>ProjectExplorer::Internal::ProjectWindow|</comment>
-        <translation type="obsolete">Raziskovalec projektov</translation>
-    </message>
-    <message>
-        <source>Projects</source>
-        <comment>ProjectExplorer::Internal::ProjectWindow|</comment>
-        <translation type="obsolete">Projekti</translation>
-    </message>
-    <message>
-        <source>Startup</source>
-        <comment>ProjectExplorer::Internal::ProjectWindow|</comment>
-        <translation type="obsolete">Zagon</translation>
-    </message>
-    <message>
-        <source>Path</source>
-        <comment>ProjectExplorer::Internal::ProjectWindow|</comment>
-        <translation type="obsolete">Pot</translation>
-    </message>
-    <message>
-        <source>Add to &amp;VCS (%1)</source>
-        <comment>ProjectExplorer::Internal::ProjectWizardPage|</comment>
-        <translation type="obsolete">Dodaj &amp;v sistem za nadzor različic (%1)</translation>
-    </message>
-    <message>
-        <source>Run Settings</source>
-        <comment>ProjectExplorer::Internal::RunSettingsPanel|</comment>
-        <translation type="obsolete">Nastavitve za zagon</translation>
-    </message>
-    <message>
-        <source>Edit run configuration:</source>
-        <comment>ProjectExplorer::Internal::RunSettingsPropertiesPage|</comment>
-        <translation type="obsolete">Urejanje nastavitev za zagon:</translation>
-    </message>
-    <message>
-        <source>Run &amp;configuration:</source>
-        <comment>ProjectExplorer::Internal::RunSettingsPropertiesPage|</comment>
-        <translation type="obsolete">&amp;Nastavitve za zagon:</translation>
-    </message>
-    <message>
-        <source>Settings</source>
-        <comment>ProjectExplorer::Internal::RunSettingsPropertiesPage|</comment>
-        <translation type="obsolete">Nastavitve</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>ProjectExplorer::Internal::RunSettingsPropertiesPage|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>Build Issues</source>
-        <comment>ProjectExplorer::Internal::TaskWindow|</comment>
-        <translation type="obsolete">Težave pri gradnji</translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <comment>ProjectExplorer::Internal::TaskWindow|</comment>
-        <translation type="obsolete">S&amp;kopiraj</translation>
-    </message>
-    <message>
-        <source>Show Warnings</source>
-        <comment>ProjectExplorer::Internal::TaskWindow|</comment>
-        <translation type="obsolete">Prikaži opozorila</translation>
-    </message>
-    <message>
-        <source>&amp;Add to Project</source>
-        <comment>ProjectExplorer::Internal::WizardPage|</comment>
-        <translation type="obsolete">&amp;Dodaj k projektu</translation>
-    </message>
-    <message>
-        <source>&amp;Project</source>
-        <comment>ProjectExplorer::Internal::WizardPage|</comment>
-        <translation type="obsolete">&amp;Projekt</translation>
-    </message>
-    <message>
-        <source>Add to &amp;version control</source>
-        <comment>ProjectExplorer::Internal::WizardPage|</comment>
-        <translation type="obsolete">Dodaj &amp;v sistem za nadzor različic</translation>
-    </message>
-    <message>
-        <source>WizardPage</source>
-        <comment>ProjectExplorer::Internal::WizardPage|</comment>
-        <translation type="obsolete">StranČarovnika</translation>
-    </message>
-    <message>
-        <source>Show in Explorer...</source>
-        <comment>ProjectExplorer::ProjectExplorerPlugin|</comment>
-        <translation type="obsolete">Prikaži v raziskovalcu ...</translation>
-    </message>
-    <message>
-        <source>Show in Finder...</source>
-        <comment>ProjectExplorer::ProjectExplorerPlugin|</comment>
-        <translation type="obsolete">Prikaži v Finderju ...</translation>
-    </message>
-    <message>
-        <source>Show containing folder...</source>
-        <comment>ProjectExplorer::ProjectExplorerPlugin|</comment>
-        <translation type="obsolete">Prikaži vsebujočo mapo ...</translation>
-    </message>
-    <message>
-        <source>Recent Projects</source>
-        <comment>ProjectExplorer::ProjectExplorerPlugin|</comment>
-        <translation type="obsolete">Nedavni projekti</translation>
-    </message>
-    <message>
-        <source>Set Build Configuration</source>
-        <comment>ProjectExplorer::ProjectExplorerPlugin|</comment>
-        <translation type="obsolete">Nastavi nastavitve za gradnjo</translation>
-    </message>
-    <message>
-        <source>Set Run Configuration</source>
-        <comment>ProjectExplorer::ProjectExplorerPlugin|</comment>
-        <translation type="obsolete">Nastavi nastavitve za zagon</translation>
-    </message>
-    <message>
-        <source>Launching Windows Explorer failed</source>
-        <comment>ProjectExplorer::ProjectExplorerPlugin|</comment>
-        <translation type="obsolete">Zaganjanje Windows Explorer ni uspelo</translation>
-    </message>
-    <message>
-        <source>Could not find explorer.exe in path to launch Windows Explorer.</source>
-        <comment>ProjectExplorer::ProjectExplorerPlugin|</comment>
-        <translation type="obsolete">V poti ni bilo moč najti explorer.exe in zato ni bilo moč zagnati Windows Explorer.</translation>
-    </message>
-    <message>
-        <source>Launching a file explorer failed</source>
-        <comment>ProjectExplorer::ProjectExplorerPlugin|</comment>
-        <translation type="obsolete">Zaganjanje upravitelja datotek ni uspelo</translation>
-    </message>
-    <message>
-        <source>Could not find xdg-open to launch the native file explorer.</source>
-        <comment>ProjectExplorer::ProjectExplorerPlugin|</comment>
-        <translation type="obsolete">Ni bilo moč najti xdg-open in zato ni bilo moč zagnati upravitelja datotek.</translation>
-    </message>
-    <message>
-        <source>Project Only</source>
-        <comment>ProjectExplorer::ProjectExplorerPlugin|</comment>
-        <translation type="obsolete">Samo projekt</translation>
-    </message>
-    <message>
-        <source>Build Project Only</source>
-        <comment>ProjectExplorer::ProjectExplorerPlugin|</comment>
-        <translation type="obsolete">Zgradi samo projekt</translation>
-    </message>
-    <message>
-        <source>Rebuild Project only</source>
-        <comment>ProjectExplorer::ProjectExplorerPlugin|</comment>
-        <translation type="obsolete">Znova zgradi samo projekt</translation>
-    </message>
-    <message>
-        <source>Clean Project only</source>
-        <comment>ProjectExplorer::ProjectExplorerPlugin|</comment>
-        <translation type="obsolete">Počisti samo projekt</translation>
-    </message>
-    <message>
-        <source>Go to Task Window</source>
-        <comment>ProjectExplorer::ProjectExplorerPlugin|</comment>
-        <translation type="obsolete">Pojdi v okno z opravili</translation>
-    </message>
-    <message>
-        <source>Project only</source>
-        <comment>ProjectExplorer::ProjectExplorerPlugin|</comment>
-        <translation type="obsolete">Samo projekt</translation>
-    </message>
-    <message>
-        <source>Build Project only</source>
-        <comment>ProjectExplorer::ProjectExplorerPlugin|</comment>
-        <translation type="obsolete">Zgradi samo projekt</translation>
-    </message>
-    <message>
-        <source>Project &quot;%1&quot; only</source>
-        <comment>ProjectExplorer::ProjectExplorerPlugin|</comment>
-        <translation type="obsolete">Samo projekt »%1«</translation>
-    </message>
-    <message>
-        <source>Build Project &quot;%1&quot; only</source>
-        <comment>ProjectExplorer::ProjectExplorerPlugin|</comment>
-        <translation type="obsolete">Zgradi samo projekt »%1«</translation>
-    </message>
-    <message>
-        <source>Rebuild Project &quot;%1&quot; only</source>
-        <comment>ProjectExplorer::ProjectExplorerPlugin|</comment>
-        <translation type="obsolete">Znova zgradi samo projekt »%1«</translation>
-    </message>
-    <message>
-        <source>Clean Project &quot;%1&quot; only</source>
-        <comment>ProjectExplorer::ProjectExplorerPlugin|</comment>
-        <translation type="obsolete">Počisti samo projekt »%1«</translation>
-    </message>
-    <message>
-        <source>Unload Project</source>
-        <comment>ProjectExplorer::ProjectExplorerPlugin|</comment>
-        <translation type="obsolete">Zapri projekt</translation>
-    </message>
-    <message>
-        <source>Unload All Projects</source>
-        <comment>ProjectExplorer::ProjectExplorerPlugin|</comment>
-        <translation type="obsolete">Zapri vse projekte</translation>
-    </message>
-    <message>
-        <source>Unload Project &quot;%1&quot;</source>
-        <comment>ProjectExplorer::ProjectExplorerPlugin|</comment>
-        <translation type="obsolete">Zapri projekt »%1«</translation>
-    </message>
-    <message>
-        <source>Error while loading session</source>
-        <comment>ProjectExplorer::SessionManager|</comment>
-        <translation type="obsolete">Napaka med nalaganjem seje</translation>
-    </message>
-    <message>
-        <source>Could not load session %1</source>
-        <comment>ProjectExplorer::SessionManager|</comment>
-        <translation type="obsolete">Ni bilo moč naložiti seje %1</translation>
-    </message>
-    <message>
-        <source>QMake Build Configuration:</source>
-        <comment>QMakeStep|</comment>
-        <translation type="obsolete">Nastavitev gradnje QMake:</translation>
-    </message>
-    <message>
-        <source>debug</source>
-        <comment>QMakeStep|</comment>
-        <translation type="obsolete">razhroščevanje</translation>
-    </message>
-    <message>
-        <source>release</source>
-        <comment>QMakeStep|</comment>
-        <translation type="obsolete">izdaja</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>QMakeStep|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>File Changed</source>
-        <comment>QObject|</comment>
-        <translation type="obsolete">Datoteka spremenjena</translation>
-    </message>
-    <message>
-        <source>The file %1 has changed outside Qt Creator. Do you want to reload it?</source>
-        <comment>QObject|</comment>
-        <translation type="obsolete">Datoteka %1 je bila spremenjena izven Qt Creatorja. Ali jo želite naložiti znova?</translation>
-    </message>
-    <message>
-        <source>File is Read Only</source>
-        <comment>QObject|</comment>
-        <translation type="obsolete">Datoteka samo za branje</translation>
-    </message>
-    <message>
-        <source>The file %1 is read only.</source>
-        <comment>QObject|</comment>
-        <translation type="obsolete">Datoteka %1 je samo za branje.</translation>
-    </message>
-    <message>
-        <source>Open with VCS (%1)</source>
-        <comment>QObject|</comment>
-        <translation type="obsolete">Odpri v sistemu za nadzor različic (%1)</translation>
-    </message>
-    <message>
-        <source>Make writable</source>
-        <comment>QObject|</comment>
-        <translation type="obsolete">Spremeni v zapisljivo</translation>
-    </message>
-    <message>
-        <source>Save as ...</source>
-        <comment>QObject|</comment>
-        <translation type="obsolete">Shrani kot ...</translation>
-    </message>
-    <message>
-        <source>Toggle vim-style editing</source>
-        <comment>QObject|</comment>
-        <translation type="obsolete">Preklopi urejanje v slogu Vim</translation>
-    </message>
-    <message>
-        <source>FakeVim properties...</source>
-        <comment>QObject|</comment>
-        <translation type="obsolete">Lastnosti FakeVim ...</translation>
-    </message>
-    <message>
-        <source>QML Application</source>
-        <comment>QmlProjectManager::Internal::QmlNewProjectWizard|</comment>
-        <translation type="obsolete">Program QML</translation>
-    </message>
-    <message>
-        <source>Creates a QML application.</source>
-        <comment>QmlProjectManager::Internal::QmlNewProjectWizard|</comment>
-        <translation type="obsolete">Ustvari program QML.</translation>
-    </message>
-    <message>
-        <source>Projects</source>
-        <comment>QmlProjectManager::Internal::QmlNewProjectWizard|</comment>
-        <translation type="obsolete">Projekti</translation>
-    </message>
-    <message>
-        <source>The project %1 could not be opened.</source>
-        <comment>QmlProjectManager::Internal::QmlNewProjectWizard|</comment>
-        <translation type="obsolete">Projekta %1 ni bilo moč odpreti.</translation>
-    </message>
-    <message>
-        <source>New QML Project</source>
-        <comment>QmlProjectManager::Internal::QmlNewProjectWizardDialog|</comment>
-        <translation type="obsolete">Nov projekt QML</translation>
-    </message>
-    <message>
-        <source>This wizard generates a QML application project.</source>
-        <comment>QmlProjectManager::Internal::QmlNewProjectWizardDialog|</comment>
-        <translation type="obsolete">Ta čarovnik ustvari projekt programa QML.</translation>
-    </message>
-    <message>
-        <source>Import of existing QML directory</source>
-        <comment>QmlProjectManager::Internal::QmlProjectWizard|</comment>
-        <translation type="obsolete">Uvoz obstoječe mape s QML</translation>
-    </message>
-    <message>
-        <source>Creates a QML project from an existing directory of QML files.</source>
-        <comment>QmlProjectManager::Internal::QmlProjectWizard|</comment>
-        <translation type="obsolete">Ustvari projekt QML iz obstoječe mape z datotekami QML.</translation>
-    </message>
-    <message>
-        <source>Projects</source>
-        <comment>QmlProjectManager::Internal::QmlProjectWizard|</comment>
-        <translation type="obsolete">Projekti</translation>
-    </message>
-    <message>
-        <source>The project %1 could not be opened.</source>
-        <comment>QmlProjectManager::Internal::QmlProjectWizard|</comment>
-        <translation type="obsolete">Projekta %1 ni bilo moč odpreti.</translation>
-    </message>
-    <message>
-        <source>Import of QML Project</source>
-        <comment>QmlProjectManager::Internal::QmlProjectWizardDialog|</comment>
-        <translation type="obsolete">Uvoz projekta QML</translation>
-    </message>
-    <message>
-        <source>QML Project</source>
-        <comment>QmlProjectManager::Internal::QmlProjectWizardDialog|</comment>
-        <translation type="obsolete">Projekt QML</translation>
-    </message>
-    <message>
-        <source>Project name:</source>
-        <comment>QmlProjectManager::Internal::QmlProjectWizardDialog|</comment>
-        <translation type="obsolete">Ime projekta:</translation>
-    </message>
-    <message>
-        <source>Location:</source>
-        <comment>QmlProjectManager::Internal::QmlProjectWizardDialog|</comment>
-        <translation type="obsolete">Lokacija:</translation>
-    </message>
-    <message>
-        <source>&lt;Current File&gt;</source>
-        <comment>QmlProjectManager::Internal::QmlRunConfiguration|</comment>
-        <translation type="obsolete">&lt;trenutna datoteka&gt;</translation>
-    </message>
-    <message>
-        <source>QML Viewer arguments:</source>
-        <comment>QmlProjectManager::Internal::QmlRunConfiguration|</comment>
-        <translation type="obsolete">Argumenti pregledovalnika QML:</translation>
-    </message>
-    <message>
-        <source>Main QML File:</source>
-        <comment>QmlProjectManager::Internal::QmlRunConfiguration|</comment>
-        <translation type="obsolete">Glavna datoteka QML:</translation>
-    </message>
-    <message>
-        <source>Could not find the qmlviewer executable, please specify one.</source>
-        <comment>QmlProjectManager::Internal::QmlRunConfiguration|</comment>
-        <translation type="obsolete">Ni bilo moč najti izvršljive datoteke qmlviewer. Določite jo.</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>QrcEditor|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>Qt4 Console Application</source>
-        <comment>Qt4ProjectManager::Internal::ConsoleAppWizard|</comment>
-        <translation type="obsolete">Konzolni program Qt 4</translation>
-    </message>
-    <message>
-        <source>Creates a Qt4 console application.</source>
-        <comment>Qt4ProjectManager::Internal::ConsoleAppWizard|</comment>
-        <translation type="obsolete">Ustvari konzolni program Qt 4.</translation>
-    </message>
-    <message>
-        <source>This wizard generates a Qt4 console application project. The application derives from QCoreApplication and does not present a GUI. You can press &apos;Finish&apos; at any point in time.</source>
-        <comment>Qt4ProjectManager::Internal::ConsoleAppWizardDialog|</comment>
-        <translation type="obsolete">Ta čarovnik ustvari projekt konzolnega programa Qt 4. Program je izpeljan iz QCoreApplication in nima grafičnega uporabniškega vmesnika. Gumb »Zaključi« lahko kliknete kadarkoli.</translation>
-    </message>
-    <message>
-        <source>Embedded Linux</source>
-        <comment>Qt4ProjectManager::Internal::EmbeddedPropertiesPanel|</comment>
-        <translation type="obsolete">Vgrajeni Linux</translation>
-    </message>
-    <message>
-        <source>Empty Qt4 Project</source>
-        <comment>Qt4ProjectManager::Internal::EmptyProjectWizard|</comment>
-        <translation type="obsolete">Prazen projekt Qt 4</translation>
-    </message>
-    <message>
-        <source>Creates an empty Qt project.</source>
-        <comment>Qt4ProjectManager::Internal::EmptyProjectWizard|</comment>
-        <translation type="obsolete">Ustvari prazen projekt Qt 4.</translation>
-    </message>
-    <message>
-        <source>This wizard generates an empty Qt4 project. Add files to it later on by using the other wizards. You can press &apos;Finish&apos; at any point in time.</source>
-        <comment>Qt4ProjectManager::Internal::EmptyProjectWizardDialog|</comment>
-        <translation type="obsolete">Ta čarovnik ustvari prazen projekt Qt 4. Datoteke dodajte kasneje z uporabo drugih čarovnikov. Kadarkoli lahko kliknete »Zaključi«.</translation>
-    </message>
-    <message>
-        <source>Qt4 Gui Application</source>
-        <comment>Qt4ProjectManager::Internal::GuiAppWizard|</comment>
-        <translation type="obsolete">Grafični program Qt 4</translation>
-    </message>
-    <message>
-        <source>Creates a Qt4 Gui Application with one form.</source>
-        <comment>Qt4ProjectManager::Internal::GuiAppWizard|</comment>
-        <translation type="obsolete">Ustvari program Qt 4 z grafičnim vmesnikom.</translation>
-    </message>
-    <message>
-        <source>Creates a C++ Library.</source>
-        <comment>Qt4ProjectManager::Internal::LibraryWizard|</comment>
-        <translation type="obsolete">Ustvari knjižnico C++.</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <comment>Qt4ProjectManager::Internal::ProEditor|</comment>
-        <translation type="obsolete">Nova</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <comment>Qt4ProjectManager::Internal::ProEditor|</comment>
-        <translation type="obsolete">Odstrani</translation>
-    </message>
-    <message>
-        <source>Up</source>
-        <comment>Qt4ProjectManager::Internal::ProEditor|</comment>
-        <translation type="obsolete">Gor</translation>
-    </message>
-    <message>
-        <source>Down</source>
-        <comment>Qt4ProjectManager::Internal::ProEditor|</comment>
-        <translation type="obsolete">Dol</translation>
-    </message>
-    <message>
-        <source>Cut</source>
-        <comment>Qt4ProjectManager::Internal::ProEditor|</comment>
-        <translation type="obsolete">Izreži</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <comment>Qt4ProjectManager::Internal::ProEditor|</comment>
-        <translation type="obsolete">Skopiraj</translation>
-    </message>
-    <message>
-        <source>Paste</source>
-        <comment>Qt4ProjectManager::Internal::ProEditor|</comment>
-        <translation type="obsolete">Prilepi</translation>
-    </message>
-    <message>
-        <source>Add Variable</source>
-        <comment>Qt4ProjectManager::Internal::ProEditor|</comment>
-        <translation type="obsolete">Dodaj spremenljivko</translation>
-    </message>
-    <message>
-        <source>Add Scope</source>
-        <comment>Qt4ProjectManager::Internal::ProEditor|</comment>
-        <translation type="obsolete">Dodaj doseg</translation>
-    </message>
-    <message>
-        <source>Add Block</source>
-        <comment>Qt4ProjectManager::Internal::ProEditor|</comment>
-        <translation type="obsolete">Dodaj blok</translation>
-    </message>
-    <message>
-        <source>&lt;Global Scope&gt;</source>
-        <comment>Qt4ProjectManager::Internal::ProEditorModel|</comment>
-        <translation type="obsolete">&lt;globalni doseg&gt;</translation>
-    </message>
-    <message>
-        <source>Change Item</source>
-        <comment>Qt4ProjectManager::Internal::ProEditorModel|</comment>
-        <translation type="obsolete">Spremeni postavko</translation>
-    </message>
-    <message>
-        <source>Change Variable Assignment</source>
-        <comment>Qt4ProjectManager::Internal::ProEditorModel|</comment>
-        <translation type="obsolete">Spremeni dodelitev spremenljivki</translation>
-    </message>
-    <message>
-        <source>Change Variable Type</source>
-        <comment>Qt4ProjectManager::Internal::ProEditorModel|</comment>
-        <translation type="obsolete">Spremeni vrsto spremenljivke</translation>
-    </message>
-    <message>
-        <source>Change Scope Condition</source>
-        <comment>Qt4ProjectManager::Internal::ProEditorModel|</comment>
-        <translation type="obsolete">Spremeni pogoj dosega</translation>
-    </message>
-    <message>
-        <source>Change Expression</source>
-        <comment>Qt4ProjectManager::Internal::ProEditorModel|</comment>
-        <translation type="obsolete">Spremeni izraz</translation>
-    </message>
-    <message>
-        <source>Move Item</source>
-        <comment>Qt4ProjectManager::Internal::ProEditorModel|</comment>
-        <translation type="obsolete">Premakni postavko</translation>
-    </message>
-    <message>
-        <source>Remove Item</source>
-        <comment>Qt4ProjectManager::Internal::ProEditorModel|</comment>
-        <translation type="obsolete">Odstrani postavko</translation>
-    </message>
-    <message>
-        <source>Insert Item</source>
-        <comment>Qt4ProjectManager::Internal::ProEditorModel|</comment>
-        <translation type="obsolete">Vstavi postavko</translation>
-    </message>
-    <message>
-        <source>Import existing build settings</source>
-        <comment>Qt4ProjectManager::Internal::ProjectLoadWizard|</comment>
-        <translation type="obsolete">Uvozi obstoječe nastavitve za gradnjo</translation>
-    </message>
-    <message>
-        <source>Qt Creator has found an already existing build in the source directory.&lt;br&gt;&lt;br&gt;&lt;b&gt;Qt Version:&lt;/b&gt; %1&lt;br&gt;&lt;b&gt;Build configuration:&lt;/b&gt; %2&lt;br&gt;&lt;b&gt;Additional QMake Arguments:&lt;/b&gt;%3</source>
-        <comment>Qt4ProjectManager::Internal::ProjectLoadWizard|</comment>
-        <translation type="obsolete">Qt Creator je v mapi z izvorno kodo našel že obstoječo gradnjo.&lt;br&gt;&lt;br&gt;&lt;b&gt;Različica Qt:&lt;/b&gt; %1&lt;br&gt;&lt;b&gt;Nastavitev gradnje:&lt;/b&gt; %2&lt;br&gt;&lt;b&gt;Dodatni argumenti za QMake:&lt;/b&gt;%3</translation>
-    </message>
-    <message>
-        <source>Import existing build settings.</source>
-        <comment>Qt4ProjectManager::Internal::ProjectLoadWizard|</comment>
-        <translation type="obsolete">Uvozi obstoječe nastavitve za gradnjo.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Note:&lt;/b&gt; Importing the settings will automatically add the Qt Version identified by &lt;br&gt;&lt;b&gt;%1&lt;/b&gt; to the list of Qt versions.</source>
-        <comment>Qt4ProjectManager::Internal::ProjectLoadWizard|</comment>
-        <translation type="obsolete">&lt;b&gt;Opomba:&lt;/b&gt; Uvoz nastavitev bo na seznam različic Qt samodejno dodal različico Qt, ki jo je identificiral &lt;br&gt;&lt;b&gt;%1&lt;/b&gt;.</translation>
-    </message>
-    <message>
-        <source>Import existing settings</source>
-        <comment>Qt4ProjectManager::Internal::ProjectLoadWizard|</comment>
-        <translation type="obsolete">Uvozi obstoječe nastavitve</translation>
-    </message>
-    <message>
-        <source>Qt Creator has found an already existing build in the source directory.&lt;br&gt;&lt;br&gt;&lt;b&gt;Qt Version:&lt;/b&gt; %1&lt;br&gt;&lt;b&gt;Build configuration:&lt;/b&gt; %2&lt;br&gt;</source>
-        <comment>Qt4ProjectManager::Internal::ProjectLoadWizard|</comment>
-        <translation type="obsolete">Qt Creator je v mapi z izvorno kodo našel že obstoječo gradnjo.&lt;br&gt;&lt;br&gt;&lt;b&gt;Različica Qt:&lt;/b&gt; %1&lt;br&gt;&lt;b&gt;Nastavitev gradnje:&lt;/b&gt; %2&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Note:&lt;/b&gt; Importing the settings will automatically add the Qt Version from:&lt;br&gt;&lt;b&gt;%1&lt;/b&gt; to the list of Qt versions.</source>
-        <comment>Qt4ProjectManager::Internal::ProjectLoadWizard|</comment>
-        <translation type="obsolete">&lt;b&gt;Opomba:&lt;/b&gt; Uvoz nastavitev bo na seznam različic Qt samodejno dodal različico Qt iz:&lt;br&gt;&lt;b&gt;%1&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Note:&lt;/b&gt; Importing the settings will automatically add the Qt Version from:&lt;br&gt;&lt;b&gt;%1&lt;/b&gt; to the list of qt versions.</source>
-        <comment>Qt4ProjectManager::Internal::ProjectLoadWizard|</comment>
-        <translation type="obsolete">&lt;b&gt;Opomba:&lt;/b&gt; Uvoz nastavitev bo na seznam različic Qt samodejno dodal različico Qt iz:&lt;br&gt;&lt;b&gt;%1&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Clear system environment</source>
-        <comment>Qt4ProjectManager::Internal::Qt4BuildEnvironmentWidget|</comment>
-        <translation type="obsolete">Počisti sistemsko okolje</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <comment>Qt4ProjectManager::Internal::Qt4BuildEnvironmentWidget|</comment>
-        <translation type="obsolete">Okolje za gradnjo</translation>
-    </message>
-    <message>
-        <source>&amp;Edit</source>
-        <comment>Qt4ProjectManager::Internal::Qt4BuildEnvironmentWidget|</comment>
-        <translation type="obsolete">&amp;Urejanje</translation>
-    </message>
-    <message>
-        <source>&amp;Add</source>
-        <comment>Qt4ProjectManager::Internal::Qt4BuildEnvironmentWidget|</comment>
-        <translation type="obsolete">&amp;Dodaj</translation>
-    </message>
-    <message>
-        <source>&amp;Reset</source>
-        <comment>Qt4ProjectManager::Internal::Qt4BuildEnvironmentWidget|</comment>
-        <translation type="obsolete">&amp;Ponastavi</translation>
-    </message>
-    <message>
-        <source>&amp;Unset</source>
-        <comment>Qt4ProjectManager::Internal::Qt4BuildEnvironmentWidget|</comment>
-        <translation type="obsolete">&amp;Odnastavi</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <comment>Qt4ProjectManager::Internal::Qt4BuildEnvironmentWidget|</comment>
-        <translation type="obsolete">Ponastavi</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <comment>Qt4ProjectManager::Internal::Qt4BuildEnvironmentWidget|</comment>
-        <translation type="obsolete">Odstrani</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>Qt4ProjectManager::Internal::Qt4BuildEnvironmentWidget|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>Error while parsing file %1. Giving up.</source>
-        <comment>Qt4ProjectManager::Internal::Qt4PriFileNode|</comment>
-        <translation type="obsolete">Napaka med razčlenjevanjem datoteke %1.</translation>
-    </message>
-    <message>
-        <source>Error while changing pro file %1.</source>
-        <comment>Qt4ProjectManager::Internal::Qt4PriFileNode|</comment>
-        <translation type="obsolete">Napaka med spreminjanjem datoteke %1.</translation>
-    </message>
-    <message>
-        <source>Configuration Name:</source>
-        <comment>Qt4ProjectManager::Internal::Qt4ProjectConfigWidget|</comment>
-        <translation type="obsolete">Ime nastavitev</translation>
-    </message>
-    <message>
-        <source>Qt Version:</source>
-        <comment>Qt4ProjectManager::Internal::Qt4ProjectConfigWidget|</comment>
-        <translation type="obsolete">Različica Qt:</translation>
-    </message>
-    <message>
-        <source>This Qt-Version is invalid.</source>
-        <comment>Qt4ProjectManager::Internal::Qt4ProjectConfigWidget|</comment>
-        <translation type="obsolete">Različica Qt ni veljavna.</translation>
-    </message>
-    <message>
-        <source>Shadow Build:</source>
-        <comment>Qt4ProjectManager::Internal::Qt4ProjectConfigWidget|</comment>
-        <translation type="obsolete">Izven mape s kodo:</translation>
-    </message>
-    <message>
-        <source>Build Directory:</source>
-        <comment>Qt4ProjectManager::Internal::Qt4ProjectConfigWidget|</comment>
-        <translation type="obsolete">Mapa za gradnjo:</translation>
-    </message>
-    <message>
-        <source>Default Qt Version (%1)</source>
-        <comment>Qt4ProjectManager::Internal::Qt4ProjectConfigWidget|</comment>
-        <translation type="obsolete">Privzeta različica Qt (%1)</translation>
-    </message>
-    <message>
-        <source>No Qt Version set</source>
-        <comment>Qt4ProjectManager::Internal::Qt4ProjectConfigWidget|</comment>
-        <translation type="obsolete">Nastavljena ni nobena različica Qt</translation>
-    </message>
-    <message>
-        <source>Tool Chain:</source>
-        <comment>Qt4ProjectManager::Internal::Qt4ProjectConfigWidget|</comment>
-        <translation type="obsolete">Zaporedje orodij:</translation>
-    </message>
-    <message>
-        <source>Manage Qt Versions</source>
-        <comment>Qt4ProjectManager::Internal::Qt4ProjectConfigWidget|</comment>
-        <translation type="obsolete">Upravljanje različic Qt</translation>
-    </message>
-    <message>
-        <source>Default Qt Version</source>
-        <comment>Qt4ProjectManager::Internal::Qt4ProjectConfigWidget|</comment>
-        <translation type="obsolete">Privzeta različica Qt</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>Qt4ProjectManager::Internal::Qt4ProjectConfigWidget|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>Could not parse %1. The Qt4 run configuration %2 can not be started.</source>
-        <comment>Qt4ProjectManager::Internal::Qt4RunConfiguration|</comment>
-        <translation type="obsolete">Ni bilo moč razčleniti %1. Nastavitev za zagon Qt 4 %2 ni moč zagnati.</translation>
-    </message>
-    <message>
-        <source>Run in Terminal</source>
-        <comment>Qt4ProjectManager::Internal::Qt4RunConfigurationWidget|</comment>
-        <translation type="obsolete">Zaženi v konzoli</translation>
-    </message>
-    <message>
-        <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2 (in terminal)</source>
-        <comment>Qt4ProjectManager::Internal::Qt4RunConfigurationWidget|</comment>
-        <translation type="obsolete">Zaganjanje programa: &lt;b&gt;%1&lt;/b&gt; %2 (v konzoli)</translation>
-    </message>
-    <message>
-        <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2</source>
-        <comment>Qt4ProjectManager::Internal::Qt4RunConfigurationWidget|</comment>
-        <translation type="obsolete">Zaganjanje programa: &lt;b&gt;%1&lt;/b&gt; %2</translation>
-    </message>
-    <message>
-        <source>Select the working directory</source>
-        <comment>Qt4ProjectManager::Internal::Qt4RunConfigurationWidget|</comment>
-        <translation type="obsolete">Izberite delovno mapo</translation>
-    </message>
-    <message>
-        <source>Working Directory:</source>
-        <comment>Qt4ProjectManager::Internal::Qt4RunConfigurationWidget|</comment>
-        <translation type="obsolete">Delovna mapa:</translation>
-    </message>
-    <message>
-        <source>&amp;Arguments:</source>
-        <comment>Qt4ProjectManager::Internal::Qt4RunConfigurationWidget|</comment>
-        <translation type="obsolete">&amp;Argumenti:</translation>
-    </message>
-    <message>
-        <source>Run in &amp;Terminal</source>
-        <comment>Qt4ProjectManager::Internal::Qt4RunConfigurationWidget|</comment>
-        <translation type="obsolete">Zaženi v &amp;konzoli</translation>
-    </message>
-    <message>
-        <source>Select QMake Executable</source>
-        <comment>Qt4ProjectManager::Internal::QtOptionsPageWidget|</comment>
-        <translation type="obsolete">Izberite program QMake</translation>
-    </message>
-    <message>
-        <source>The Qt Version identified by %1 is not installed. Run make install</source>
-        <comment>Qt4ProjectManager::Internal::QtOptionsPageWidget|</comment>
-        <translation type="obsolete">Različica Qt, ki jo je identificiral %1, ni nameščena. Zaženite »make install«</translation>
-    </message>
-    <message>
-        <source>%1 does not specify a valid Qt installation</source>
-        <comment>Qt4ProjectManager::Internal::QtOptionsPageWidget|</comment>
-        <translation type="obsolete">%1 ne določa veljavne namestitve Qt</translation>
-    </message>
-    <message>
-        <source>Found Qt version %1, using mkspec %2</source>
-        <comment>Qt4ProjectManager::Internal::QtOptionsPageWidget|</comment>
-        <translation type="obsolete">Najden je Qt različice %1, uporabljen mkspec %2</translation>
-    </message>
-    <message>
-        <source>&lt;specify a path&gt;</source>
-        <comment>Qt4ProjectManager::Internal::QtOptionsPageWidget|</comment>
-        <translation type="obsolete">&lt;vnesite pot&gt;</translation>
-    </message>
-    <message>
-        <source>Select QTDIR</source>
-        <comment>Qt4ProjectManager::Internal::QtOptionsPageWidget|</comment>
-        <translation type="obsolete">Izberite QTDIR</translation>
-    </message>
-    <message>
-        <source>Select the Qt Directory</source>
-        <comment>Qt4ProjectManager::Internal::QtOptionsPageWidget|</comment>
-        <translation type="obsolete">Izberite mapo s Qt</translation>
-    </message>
-    <message>
-        <source>The Qt Version %1 is not installed. Run make install</source>
-        <comment>Qt4ProjectManager::Internal::QtOptionsPageWidget|</comment>
-        <translation type="obsolete">Qt različice %1 ni nameščen. Zaženite »make install«</translation>
-    </message>
-    <message>
-        <source>%1 is not a valid Qt directory</source>
-        <comment>Qt4ProjectManager::Internal::QtOptionsPageWidget|</comment>
-        <translation type="obsolete">%1 ni veljavna mapa s Qt</translation>
-    </message>
-    <message>
-        <source>%1 is not a valid qt directory</source>
-        <comment>Qt4ProjectManager::Internal::QtOptionsPageWidget|</comment>
-        <translation type="obsolete">%1 ni veljavna mapa s Qt</translation>
-    </message>
-    <message>
-        <source>Qt versions</source>
-        <comment>Qt4ProjectManager::Internal::QtVersionManager|</comment>
-        <translation type="obsolete">Različice Qt</translation>
-    </message>
-    <message>
-        <source>Version Name:</source>
-        <comment>Qt4ProjectManager::Internal::QtVersionManager|</comment>
-        <translation type="obsolete">Ime različice:</translation>
-    </message>
-    <message>
-        <source>MinGW Directory:</source>
-        <comment>Qt4ProjectManager::Internal::QtVersionManager|</comment>
-        <translation type="obsolete">Mapa z MinGW:</translation>
-    </message>
-    <message>
-        <source>Debugging Helper:</source>
-        <comment>Qt4ProjectManager::Internal::QtVersionManager|</comment>
-        <translation type="obsolete">Razhroščevalni pomočnik:</translation>
-    </message>
-    <message>
-        <source>Default Qt Version:</source>
-        <comment>Qt4ProjectManager::Internal::QtVersionManager|</comment>
-        <translation type="obsolete">Privzeta različica Qt:</translation>
-    </message>
-    <message>
-        <source>QMake Location</source>
-        <comment>Qt4ProjectManager::Internal::QtVersionManager|</comment>
-        <translation type="obsolete">Lokacija QMake</translation>
-    </message>
-    <message>
-        <source>QMake Location:</source>
-        <comment>Qt4ProjectManager::Internal::QtVersionManager|</comment>
-        <translation type="obsolete">Lokacija QMake:</translation>
-    </message>
-    <message>
-        <source>MSVC Version:</source>
-        <comment>Qt4ProjectManager::Internal::QtVersionManager|</comment>
-        <translation type="obsolete">Različica MSVC:</translation>
-    </message>
-    <message>
-        <source>Carbide Directory:</source>
-        <comment>Qt4ProjectManager::Internal::QtVersionManager|</comment>
-        <translation type="obsolete">Mapa s Carbide:</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <comment>Qt4ProjectManager::Internal::QtVersionManager|</comment>
-        <translation type="obsolete">Pot:</translation>
-    </message>
-    <message>
-        <source>Path</source>
-        <comment>Qt4ProjectManager::Internal::QtVersionManager|</comment>
-        <translation type="obsolete">Pot</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>Qt4ProjectManager::Internal::QtVersionManager|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>The project %1 could not be opened.</source>
-        <comment>Qt4ProjectManager::Internal::QtWizard|</comment>
-        <translation type="obsolete">Projekta %1 ni bilo moč odpreti.</translation>
-    </message>
-    <message>
-        <source>Edit Variable</source>
-        <comment>Qt4ProjectManager::Internal::ValueEditor|</comment>
-        <translation type="obsolete">Urejanje spremenljivke</translation>
-    </message>
-    <message>
-        <source>Variable Name:</source>
-        <comment>Qt4ProjectManager::Internal::ValueEditor|</comment>
-        <translation type="obsolete">Ime spremenljivke:</translation>
-    </message>
-    <message>
-        <source>Assignment Operator:</source>
-        <comment>Qt4ProjectManager::Internal::ValueEditor|</comment>
-        <translation type="obsolete">Dodelitveni operator:</translation>
-    </message>
-    <message>
-        <source>Variable:</source>
-        <comment>Qt4ProjectManager::Internal::ValueEditor|</comment>
-        <translation type="obsolete">Spremenljivka:</translation>
-    </message>
-    <message>
-        <source>Append (+=)</source>
-        <comment>Qt4ProjectManager::Internal::ValueEditor|</comment>
-        <translation type="obsolete">Dodaj (+=)</translation>
-    </message>
-    <message>
-        <source>Remove (-=)</source>
-        <comment>Qt4ProjectManager::Internal::ValueEditor|</comment>
-        <translation type="obsolete">Odstrani (-=)</translation>
-    </message>
-    <message>
-        <source>Replace (~=)</source>
-        <comment>Qt4ProjectManager::Internal::ValueEditor|</comment>
-        <translation type="obsolete">Nadomesti (~=)</translation>
-    </message>
-    <message>
-        <source>Set (=)</source>
-        <comment>Qt4ProjectManager::Internal::ValueEditor|</comment>
-        <translation type="obsolete">Nastavi (=)</translation>
-    </message>
-    <message>
-        <source>Unique (*=)</source>
-        <comment>Qt4ProjectManager::Internal::ValueEditor|</comment>
-        <translation type="obsolete">Edinstveno (*=)</translation>
-    </message>
-    <message>
-        <source>Select Item</source>
-        <comment>Qt4ProjectManager::Internal::ValueEditor|</comment>
-        <translation type="obsolete">Izberite postavko</translation>
-    </message>
-    <message>
-        <source>Edit Item</source>
-        <comment>Qt4ProjectManager::Internal::ValueEditor|</comment>
-        <translation type="obsolete">Urejanje postavke</translation>
-    </message>
-    <message>
-        <source>Select Items</source>
-        <comment>Qt4ProjectManager::Internal::ValueEditor|</comment>
-        <translation type="obsolete">Izberite postavke</translation>
-    </message>
-    <message>
-        <source>Edit Items</source>
-        <comment>Qt4ProjectManager::Internal::ValueEditor|</comment>
-        <translation type="obsolete">Urejanje postavk</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <comment>Qt4ProjectManager::Internal::ValueEditor|</comment>
-        <translation type="obsolete">Nova</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <comment>Qt4ProjectManager::Internal::ValueEditor|</comment>
-        <translation type="obsolete">Odstrani</translation>
-    </message>
-    <message>
-        <source>Edit Values</source>
-        <comment>Qt4ProjectManager::Internal::ValueEditor|</comment>
-        <translation type="obsolete">Urejanje vrednosti</translation>
-    </message>
-    <message>
-        <source>Edit %1</source>
-        <comment>Qt4ProjectManager::Internal::ValueEditor|</comment>
-        <translation type="obsolete">Urejanje %1</translation>
-    </message>
-    <message>
-        <source>Edit Scope</source>
-        <comment>Qt4ProjectManager::Internal::ValueEditor|</comment>
-        <translation type="obsolete">Urejanje dosega</translation>
-    </message>
-    <message>
-        <source>Edit Advanced Expression</source>
-        <comment>Qt4ProjectManager::Internal::ValueEditor|</comment>
-        <translation type="obsolete">Urejanje naprednega izraza</translation>
-    </message>
-    <message>
-        <source>&lt;font color=&quot;#ff0000&quot;&gt;Could not find make command: %1 in the build environment&lt;/font&gt;</source>
-        <comment>Qt4ProjectManager::MakeStep|</comment>
-        <translation type="obsolete">&lt;font color=&quot;#ff0000&quot;&gt;Ni bilo moč najti ukaza make: %1 v okolju za gradnjo&lt;/font&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;font color=&quot;#0000ff&quot;&gt;&lt;b&gt;No Makefile found, assuming project is clean.&lt;/b&gt;&lt;/font&gt;</source>
-        <comment>Qt4ProjectManager::MakeStep|</comment>
-        <translation type="obsolete">&lt;font color=&quot;#0000ff&quot;&gt;Datoteka Makefile ni bila najdena. Predpostavljam da je projekt čist.&lt;b&gt;&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>
-&lt;font color=&quot;#ff0000&quot;&gt;&lt;b&gt;No valid Qt version set. Set one in Preferences &lt;/b&gt;&lt;/font&gt;
-</source>
-        <comment>Qt4ProjectManager::QMakeStep|</comment>
-        <translation type="obsolete">
-&lt;font color=&quot;#ff0000&quot;&gt;Nastavljene ni veljavne različice Qt. Nastavite jo v nastavitvah.&lt;b&gt;&lt;/b&gt;
-</translation>
-    </message>
-    <message>
-        <source>
-&lt;font color=&quot;#ff0000&quot;&gt;&lt;b&gt;No valid Qt version set. Set one in Tools/Options &lt;/b&gt;&lt;/font&gt;
-</source>
-        <comment>Qt4ProjectManager::QMakeStep|</comment>
-        <translation type="obsolete">
-&lt;font color=&quot;#ff0000&quot;&gt;Nastavljene ni veljavne različice Qt. Nastavite jo v Orodja → Možnosti.&lt;b&gt;&lt;/b&gt;
-</translation>
-    </message>
-    <message>
-        <source>&lt;font color=&quot;#0000ff&quot;&gt;Configuration unchanged, skipping QMake step.&lt;/font&gt;</source>
-        <comment>Qt4ProjectManager::QMakeStep|</comment>
-        <translation type="obsolete">&lt;font color=&quot;#0000ff&quot;&gt;Nastavitev se ni spremenila, izpuščam korak QMake.&lt;/font&gt;</translation>
-    </message>
-    <message>
-        <source>QMAKESPEC from environment (%1) overrides mkspec of selected Qt (%2).</source>
-        <comment>Qt4ProjectManager::QMakeStep|</comment>
-        <translation type="obsolete">QMAKESPEC iz okolja (%1) povozi mkspec izbranega Qt (%2).</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;QMake:&lt;/b&gt; No Qt version set. QMake can not be run.</source>
-        <comment>Qt4ProjectManager::QMakeStepConfigWidget|</comment>
-        <translation type="obsolete">&lt;b&gt;QMake:&lt;/b&gt; Nastavljene ni nobene različice Qt. QMake ni moč zagnati.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;QMake:&lt;/b&gt; %1 %2</source>
-        <comment>Qt4ProjectManager::QMakeStepConfigWidget|</comment>
-        <translation type="obsolete">&lt;b&gt;QMake:&lt;/b&gt; %1 %2</translation>
-    </message>
-    <message>
-        <source>No valid Qt version set.</source>
-        <comment>Qt4ProjectManager::QMakeStepConfigWidget|</comment>
-        <translation type="obsolete">Nastavljene ni nobene veljavne različice Qt.</translation>
-    </message>
-    <message>
-        <source>QMake</source>
-        <comment>Qt4ProjectManager::Internal::QMakeStepFactory|</comment>
-        <translation type="obsolete">QMake</translation>
-    </message>
-    <message>
-        <source>Loading project %1 ...</source>
-        <comment>Qt4ProjectManager::Qt4Manager|</comment>
-        <translation type="obsolete">Nalaganje projekta %1 ...</translation>
-    </message>
-    <message>
-        <source>Failed opening project</source>
-        <comment>Qt4ProjectManager::Qt4Manager|</comment>
-        <translation type="obsolete">Odpiranje projekta ni uspelo</translation>
-    </message>
-    <message>
-        <source>Opening %1 ...</source>
-        <comment>Qt4ProjectManager::Qt4Manager|</comment>
-        <translation type="obsolete">Odpiranje %1 ...</translation>
-    </message>
-    <message>
-        <source>Done opening project</source>
-        <comment>Qt4ProjectManager::Qt4Manager|</comment>
-        <translation type="obsolete">Odpiranje projekta je zaključeno</translation>
-    </message>
-    <message>
-        <source>Compiler:</source>
-        <comment>Qt4ProjectManager::QtVersionManager|</comment>
-        <translation type="obsolete">Prevajalnik:</translation>
-    </message>
-    <message>
-        <source>Auto-detected Qt</source>
-        <comment>Qt4ProjectManager::QtVersionManager|</comment>
-        <translation type="obsolete">Samodejno zaznan Qt</translation>
-    </message>
-    <message>
-        <source>Qt Script Error</source>
-        <comment>QtScriptEditor::Internal::QtScriptEditorActionHandler|</comment>
-        <translation type="obsolete">Napaka Qt Script</translation>
-    </message>
-    <message>
-        <source>Creates a Qt Script file.</source>
-        <comment>QtScriptEditor::Internal::QtScriptEditorPlugin|</comment>
-        <translation type="obsolete">Ustvari datoteko Qt Script.</translation>
-    </message>
-    <message>
-        <source>Qt Script file</source>
-        <comment>QtScriptEditor::Internal::QtScriptEditorPlugin|</comment>
-        <translation type="obsolete">Datoteka Qt Script</translation>
-    </message>
-    <message>
-        <source>Qt</source>
-        <comment>QtScriptEditor::Internal::QtScriptEditorPlugin|</comment>
-        <translation type="obsolete">Qt</translation>
-    </message>
-    <message>
-        <source>Run</source>
-        <comment>QtScriptEditor::Internal::QtScriptEditorPlugin|</comment>
-        <translation type="obsolete">Zaženi</translation>
-    </message>
-    <message>
-        <source>&lt;Select Symbol&gt;</source>
-        <comment>QtScriptEditor::Internal::ScriptEditor|</comment>
-        <translation type="obsolete">&lt;izberite simbol&gt;</translation>
-    </message>
-    <message>
-        <source>Creates a Qt Resource file (.qrc).</source>
-        <comment>ResourceEditor::Internal::ResourceEditorPlugin|</comment>
-        <translation type="obsolete">Ustvari datoteko z viri za Qt (*.qrc).</translation>
-    </message>
-    <message>
-        <source>Qt</source>
-        <comment>ResourceEditor::Internal::ResourceEditorPlugin|</comment>
-        <translation type="obsolete">Qt</translation>
-    </message>
-    <message>
-        <source>Resource file</source>
-        <comment>ResourceEditor::Internal::ResourceEditorPlugin|</comment>
-        <translation type="obsolete">Datoteka z viri</translation>
-    </message>
-    <message>
-        <source>Automatically save all Files before building</source>
-        <comment>SaveItemsDialog|</comment>
-        <translation type="obsolete">Pred gradnjo samodejno shrani vse datoteke</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <comment>SettingsDialog|</comment>
-        <translation type="obsolete">Možnosti</translation>
-    </message>
-    <message>
-        <source>0</source>
-        <comment>SettingsDialog|</comment>
-        <translation type="obsolete">0</translation>
-    </message>
-    <message>
-        <source>Invalid file</source>
-        <comment>SharedTools::QrcEditor|</comment>
-        <translation type="obsolete">Neveljavna datoteka</translation>
-    </message>
-    <message>
-        <source>The file %1 is not in a subdirectory of the resource file. Continuing will result in an invalid resource file.</source>
-        <comment>SharedTools::QrcEditor|</comment>
-        <translation type="obsolete">Datoteka %1 ni podmapa datoteke z viri. Če nadaljujete, bo ustvarjena neveljavna datoteka z viri.</translation>
-    </message>
-    <message>
-        <source>Keyboard Shortcuts</source>
-        <comment>ShortcutSettings|</comment>
-        <translation type="obsolete">Tipkovnične bližnjice</translation>
-    </message>
-    <message>
-        <source>Filter:</source>
-        <comment>ShortcutSettings|</comment>
-        <translation type="obsolete">Filter:</translation>
-    </message>
-    <message>
-        <source>Command</source>
-        <comment>ShortcutSettings|</comment>
-        <translation type="obsolete">Ukaz</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <comment>ShortcutSettings|</comment>
-        <translation type="obsolete">Oznaka</translation>
-    </message>
-    <message>
-        <source>Shortcut</source>
-        <comment>ShortcutSettings|</comment>
-        <translation type="obsolete">Bližnjica</translation>
-    </message>
-    <message>
-        <source>Defaults</source>
-        <comment>ShortcutSettings|</comment>
-        <translation type="obsolete">Privzetosti</translation>
-    </message>
-    <message>
-        <source>Import...</source>
-        <comment>ShortcutSettings|</comment>
-        <translation type="obsolete">Uvozi ...</translation>
-    </message>
-    <message>
-        <source>Export...</source>
-        <comment>ShortcutSettings|</comment>
-        <translation type="obsolete">Izvozi ...</translation>
-    </message>
-    <message>
-        <source>Key Sequence</source>
-        <comment>ShortcutSettings|</comment>
-        <translation type="obsolete">Zaporedje tipk</translation>
-    </message>
-    <message>
-        <source>Shortcut:</source>
-        <comment>ShortcutSettings|</comment>
-        <translation type="obsolete">Bližnjica:</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <comment>ShortcutSettings|</comment>
-        <translation type="obsolete">Ponastavi</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <comment>ShortcutSettings|</comment>
-        <translation type="obsolete">Odstrani</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>ShortcutSettings|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>localhost:5115</source>
-        <comment>StartRemoteDialog|</comment>
-        <translation type="obsolete">localhost:5115</translation>
-    </message>
-    <message>
-        <source>Subversion Command:</source>
-        <comment>Subversion::Internal::SettingsPage|</comment>
-        <translation type="obsolete">Ukaz Subversion:</translation>
-    </message>
-    <message>
-        <source>User name:</source>
-        <comment>Subversion::Internal::SettingsPage|</comment>
-        <translation type="obsolete">Uporabniško ime:</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>Subversion::Internal::SettingsPage|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <comment>Subversion::Internal::SubversionPlugin|</comment>
-        <translation type="obsolete">Izbriši</translation>
-    </message>
-    <message>
-        <source>Revert</source>
-        <comment>Subversion::Internal::SubversionPlugin|</comment>
-        <translation type="obsolete">Povrni</translation>
-    </message>
-    <message>
-        <source>Add %1</source>
-        <comment>Subversion::Internal::SubversionPlugin|</comment>
-        <translation type="obsolete">Dodaj %1</translation>
-    </message>
-    <message>
-        <source>Delete %1</source>
-        <comment>Subversion::Internal::SubversionPlugin|</comment>
-        <translation type="obsolete">Izbriši %1</translation>
-    </message>
-    <message>
-        <source>Revert %1</source>
-        <comment>Subversion::Internal::SubversionPlugin|</comment>
-        <translation type="obsolete">Povrni %1</translation>
-    </message>
-    <message>
-        <source>%1 Executing: %2 %3
-</source>
-        <comment>Subversion::Internal::SubversionPlugin|</comment>
-        <extracomment>&lt;timestamp&gt; Executing: &lt;executable&gt; &lt;arguments&gt;
-</extracomment>
-        <translation type="obsolete">%1 Izvajanje: %2 %3
-</translation>
-    </message>
-    <message>
-        <source>Use Regular E&amp;xpressions</source>
-        <comment>TextEditor::BaseFileFind|</comment>
-        <translation type="obsolete">Uporabi &amp;regularne izraze</translation>
-    </message>
-    <message>
-        <source>In leading white space</source>
-        <comment>TextEditor::BehaviorSettingsPage|</comment>
-        <translation type="obsolete">V praznini na začetku</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>TextEditor::BehaviorSettingsPage|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>Animate matching parentheses</source>
-        <comment>TextEditor::DisplaySettingsPage|</comment>
-        <translation type="obsolete">Animiraj ujemanje oklepajev</translation>
-    </message>
-    <message>
-        <source>Navigation</source>
-        <comment>TextEditor::DisplaySettingsPage|</comment>
-        <translation type="obsolete">Navigacija</translation>
-    </message>
-    <message>
-        <source>Enable &amp;mouse navigation</source>
-        <comment>TextEditor::DisplaySettingsPage|</comment>
-        <translation type="obsolete">Omogoči navigacijo z &amp;miško</translation>
-    </message>
-    <message>
-        <source>Mark text changes</source>
-        <comment>TextEditor::DisplaySettingsPage|</comment>
-        <translation type="obsolete">Označi spremembe besedila</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>TextEditor::DisplaySettingsPage|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>Use fancy style</source>
-        <comment>TextEditor::DisplaySettingsPage|</comment>
-        <translation type="obsolete">Uporabi razkošen slog</translation>
-    </message>
-    <message>
-        <source>Font &amp; Colors</source>
-        <comment>TextEditor::FontSettingsPage|</comment>
-        <translation type="obsolete">Pisave in barve</translation>
-    </message>
-    <message>
-        <source>Color Scheme name:</source>
-        <comment>TextEditor::FontSettingsPage|</comment>
-        <translation type="obsolete">Ime barvne sheme:</translation>
-    </message>
-    <message>
-        <source>
-	This is only an example.</source>
-        <comment>TextEditor::FontSettingsPage|</comment>
-        <translation type="obsolete">
-	To je samo primer.</translation>
-    </message>
-    <message>
-        <source>Files on Disk</source>
-        <comment>TextEditor::Internal::FindInFiles|</comment>
-        <translation type="obsolete">Datoteke na disku</translation>
-    </message>
-    <message>
-        <source>Bold</source>
-        <comment>TextEditor::Internal::FontSettingsPage|</comment>
-        <translation type="obsolete">Polkrepko</translation>
-    </message>
-    <message>
-        <source>Italic</source>
-        <comment>TextEditor::Internal::FontSettingsPage|</comment>
-        <translation type="obsolete">Ležeče</translation>
-    </message>
-    <message>
-        <source>Background:</source>
-        <comment>TextEditor::Internal::FontSettingsPage|</comment>
-        <translation type="obsolete">Ozadje:</translation>
-    </message>
-    <message>
-        <source>Foreground:</source>
-        <comment>TextEditor::Internal::FontSettingsPage|</comment>
-        <translation type="obsolete">Ospredje:</translation>
-    </message>
-    <message>
-        <source>Erase background</source>
-        <comment>TextEditor::Internal::FontSettingsPage|</comment>
-        <translation type="obsolete">Počisti ozadje</translation>
-    </message>
-    <message>
-        <source>x</source>
-        <comment>TextEditor::Internal::FontSettingsPage|</comment>
-        <translation type="obsolete">x</translation>
-    </message>
-    <message>
-        <source>Preview:</source>
-        <comment>TextEditor::Internal::FontSettingsPage|</comment>
-        <translation type="obsolete">Ogled:</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>TextEditor::Internal::FontSettingsPage|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>Creates a text file (.txt).</source>
-        <comment>TextEditor::Internal::TextEditorPlugin|</comment>
-        <translation type="obsolete">Ustvari besedilno datoteko (*.txt).</translation>
-    </message>
-    <message>
-        <source>This creates a new text file (.txt)</source>
-        <comment>TextEditor::Internal::TextEditorPlugin|</comment>
-        <translation type="obsolete">To ustvari novo datoteko z besedilom (*.txt)</translation>
-    </message>
-    <message>
-        <source>Goto Block Start</source>
-        <comment>TextEditor::TextEditorActionHandler|</comment>
-        <translation type="obsolete">Pojdi na začetek bloka</translation>
-    </message>
-    <message>
-        <source>Goto Block End</source>
-        <comment>TextEditor::TextEditorActionHandler|</comment>
-        <translation type="obsolete">Pojdi na konec bloka</translation>
-    </message>
-    <message>
-        <source>Goto Block Start With Selection</source>
-        <comment>TextEditor::TextEditorActionHandler|</comment>
-        <translation type="obsolete">Izberi do začetka bloka</translation>
-    </message>
-    <message>
-        <source>Goto Block End With Selection</source>
-        <comment>TextEditor::TextEditorActionHandler|</comment>
-        <translation type="obsolete">Izberi do konca bloka</translation>
-    </message>
-    <message>
-        <source>Text Editor</source>
-        <comment>TextEditor::TextEditorSettings|</comment>
-        <translation type="obsolete">Urejevalnik besedil</translation>
-    </message>
-    <message>
-        <source>The check script &apos;%1&apos; could not be run: %2</source>
-        <comment>VCSBase::VCSBaseSubmitEditor|</comment>
-        <translation type="obsolete">Ni bilo moč zagnati skripta za preverjanje »%1«: %2</translation>
-    </message>
-    <message>
-        <source>A file listing user names and email addresses in a 4-column mailmap format:
-name &lt;email&gt; alias &lt;email&gt;</source>
-        <comment>VCSBaseSettingsPage|</comment>
-        <translation type="obsolete">Datoteka s seznamom imen in e-poštnih naslovov v formatu mailmap s 4 stolpci:
-ime &lt;e-pošta&gt; drugo_ime &lt;druga_e-pošta&gt;</translation>
-    </message>
-    <message>
-        <source>User/alias configuration file:</source>
-        <comment>VCSBaseSettingsPage|</comment>
-        <translation type="obsolete">Nastavitvena datoteka:</translation>
-    </message>
-    <message>
-        <source>User fields configuration file:</source>
-        <comment>VCSBaseSettingsPage|</comment>
-        <translation type="obsolete">Nastavitvena datoteka s polji po meri:</translation>
-    </message>
-    <message>
-        <source>Common</source>
-        <comment>VCSBaseSettingsPage|</comment>
-        <translation type="obsolete">Splošno</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>VCSBaseSettingsPage|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt;&quot;&gt;&amp;lt;Comment&amp;gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <comment>ViewDialog|</comment>
-        <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt;&quot;&gt;&amp;lt;komentar&amp;gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Parts to send to server</source>
-        <comment>ViewDialog|</comment>
-        <translation type="obsolete">Deli, ki bodo poslani na strežnik</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;lt;Comment&amp;gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <comment>ViewDialog|</comment>
-        <translation type="obsolete">&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;lt;komentar&amp;gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Parts to send to codepaster</source>
-        <comment>ViewDialog|</comment>
-        <translation type="obsolete">Deli, ki bodo poslani na CodePaster</translation>
-    </message>
-    <message>
-        <source>Choose the location</source>
-        <comment>Utils::WizardPage|</comment>
-        <translation type="obsolete">Izberite lokacijo</translation>
-    </message>
-    <message>
-        <source>Class name:</source>
-        <comment>Utils::NewClassWidget|</comment>
-        <translation type="obsolete">Ime razreda:</translation>
-    </message>
-    <message>
-        <source>Base class:</source>
-        <comment>Utils::NewClassWidget|</comment>
-        <translation type="obsolete">Osnovni razred:</translation>
-    </message>
-    <message>
-        <source>Header file:</source>
-        <comment>Utils::NewClassWidget|</comment>
-        <translation type="obsolete">Datoteka z glavo:</translation>
-    </message>
-    <message>
-        <source>Source file:</source>
-        <comment>Utils::NewClassWidget|</comment>
-        <translation type="obsolete">Datoteka z izvorno kodo:</translation>
-    </message>
-    <message>
-        <source>Generate form:</source>
-        <comment>Utils::NewClassWidget|</comment>
-        <translation type="obsolete">Ustvari obrazec:</translation>
-    </message>
-    <message>
-        <source>Form file:</source>
-        <comment>Utils::NewClassWidget|</comment>
-        <translation type="obsolete">Datoteka z obrazcem:</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <comment>Utils::NewClassWidget|</comment>
-        <translation type="obsolete">Pot:</translation>
-    </message>
-    <message>
-        <source>Server Prefix:</source>
-        <comment>PasteBinComSettingsWidget|</comment>
-        <translation type="obsolete">Predpona strežnika:</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://pastebin.com&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;pastebin.com&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; allows to send posts to custom subdomains (eg. qtcreator.pastebin.com). Fill in the desired prefix.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Note that the plugin will use this for posting as well as fetching.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <comment>PasteBinComSettingsWidget|</comment>
-        <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://pastebin.com&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;pastebin.com&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; omogoča pošiljati na poddomene po meri (npr. qtcreator.pastebin.com). Vnesite želeno predpono.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Vedite, da bo vstavek to uporabil tako za pošiljanje kot tudi za pridobivanje.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>Debugger::Internal::TrkOptionsWidget|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>Gdb</source>
-        <comment>Debugger::Internal::TrkOptionsWidget|</comment>
-        <translation type="obsolete">GDB</translation>
-    </message>
-    <message>
-        <source>Symbian ARM gdb location:</source>
-        <comment>Debugger::Internal::TrkOptionsWidget|</comment>
-        <translation type="obsolete">Lokacija GDB-ja za Symbian ARM:</translation>
-    </message>
-    <message>
-        <source>Communication</source>
-        <comment>Debugger::Internal::TrkOptionsWidget|</comment>
-        <translation type="obsolete">Komunikacija</translation>
-    </message>
-    <message>
-        <source>Serial Port</source>
-        <comment>Debugger::Internal::TrkOptionsWidget|</comment>
-        <translation type="obsolete">Zaporedna vrata</translation>
-    </message>
-    <message>
-        <source>Bluetooth</source>
-        <comment>Debugger::Internal::TrkOptionsWidget|</comment>
-        <translation type="obsolete">Bluetooth</translation>
-    </message>
-    <message>
-        <source>Port:</source>
-        <comment>Debugger::Internal::TrkOptionsWidget|</comment>
-        <translation type="obsolete">Vrata:</translation>
-    </message>
-    <message>
-        <source>Device:</source>
-        <comment>Debugger::Internal::TrkOptionsWidget|</comment>
-        <translation type="obsolete">Naprava:</translation>
-    </message>
-    <message>
-        <source>Multiple Inheritance</source>
-        <comment>Designer::Internal::CppSettingsPageWidget|</comment>
-        <translation type="obsolete">Dedovanje od večih</translation>
-    </message>
-    <message>
-        <source>Filter:</source>
-        <comment>Gitorious::Internal::GitoriousProjectWidget|</comment>
-        <translation type="obsolete">Filter:</translation>
-    </message>
-    <message>
-        <source>Filter:</source>
-        <comment>Gitorious::Internal::GitoriousRepositoryWizardPage|</comment>
-        <translation type="obsolete">Filter:</translation>
-    </message>
-    <message>
-        <source>...</source>
-        <comment>Gitorious::Internal::GitoriousRepositoryWizardPage|</comment>
-        <translation type="obsolete">...</translation>
-    </message>
-    <message>
-        <source>Show side-by-side if possible</source>
-        <comment>GeneralSettingsPage|</comment>
-        <translation type="obsolete">Prikaži ob strani, če je možno</translation>
-    </message>
-    <message>
-        <source>Always show side-by-side</source>
-        <comment>GeneralSettingsPage|</comment>
-        <translation type="obsolete">Vedno prikaži ob strani</translation>
-    </message>
-    <message>
-        <source>Always start full help</source>
-        <comment>GeneralSettingsPage|</comment>
-        <translation type="obsolete">Vedno zaženi polno pomoč</translation>
-    </message>
-    <message>
-        <source>Show my home page</source>
-        <comment>GeneralSettingsPage|</comment>
-        <translation type="obsolete">Prikaži mojo domačo stran</translation>
-    </message>
-    <message>
-        <source>Show a blank page</source>
-        <comment>GeneralSettingsPage|</comment>
-        <translation type="obsolete">Prikaži prazno stran</translation>
-    </message>
-    <message>
-        <source>Show my tabs from last session</source>
-        <comment>GeneralSettingsPage|</comment>
-        <translation type="obsolete">Prikaži moje zavihke iz zadnje seje</translation>
-    </message>
-    <message>
-        <source>Home Page:</source>
-        <comment>GeneralSettingsPage|</comment>
-        <translation type="obsolete">Domača stran:</translation>
-    </message>
-    <message>
-        <source>File Types:</source>
-        <comment>Locator::Internal::DirectoryFilterOptions|</comment>
-        <translation type="obsolete">Vrste datotek:</translation>
-    </message>
-    <message>
-        <source>Refresh Interval:</source>
-        <comment>Locator::Internal::SettingsWidget|</comment>
-        <translation type="obsolete">Čas med osvežitvami:</translation>
-    </message>
-    <message>
-        <source>Save all files before Build</source>
-        <comment>ProjectExplorer::Internal::ProjectExplorerSettingsPageUi|</comment>
-        <translation type="obsolete">Pred gradnjo shrani vse datoteke</translation>
-    </message>
-    <message>
-        <source>Always build Project before Running</source>
-        <comment>ProjectExplorer::Internal::ProjectExplorerSettingsPageUi|</comment>
-        <translation type="obsolete">Pred zagonom vedno zgradi projekt</translation>
-    </message>
-    <message>
-        <source>Show Compiler Output on building</source>
-        <comment>ProjectExplorer::Internal::ProjectExplorerSettingsPageUi|</comment>
-        <translation type="obsolete">Pri gradnji prikaži izhod prevajalnika</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;jom&lt;/i&gt; is a drop-in replacement for &lt;i&gt;nmake&lt;/i&gt; which distributes the compilation process to multiple CPU cores. For more details, see the &lt;a href=&quot;http://qt.gitorious.org/qt-labs/jom/&quot;&gt;jom Homepage&lt;/a&gt;. Disable it if you experience problems with your builds.</source>
-        <comment>ProjectExplorer::Internal::ProjectExplorerSettingsPageUi|</comment>
-        <translation type="obsolete">&lt;i&gt;jom&lt;/i&gt; je nadomestek za &lt;i&gt;nmake&lt;/i&gt;, ki prevajanje porazdeli med več jedri CPE-ja. Za podrobnosti si oglejte &lt;a href=&quot;http://qt.gitorious.org/qt-labs/jom/&quot;&gt;domačo stran jom-a&lt;/a&gt;. Onemogočite ga, če se med gradnjami pojavljajo težave.</translation>
-    </message>
-    <message>
-        <source>Create New Project...</source>
-        <comment>ProjectExplorer::Internal::ProjectWelcomePageWidget|</comment>
-        <translation type="obsolete">Ustvari nov projekt ...</translation>
-    </message>
-    <message>
-        <source>Open Recent Project</source>
-        <comment>ProjectExplorer::Internal::ProjectWelcomePageWidget|</comment>
-        <translation type="obsolete">Odpri nedavni projekt</translation>
-    </message>
-    <message>
-        <source>Resume Session</source>
-        <comment>ProjectExplorer::Internal::ProjectWelcomePageWidget|</comment>
-        <translation type="obsolete">Nadaljuj sejo</translation>
-    </message>
-    <message>
-        <source>New Project...</source>
-        <comment>ProjectExplorer::Internal::ProjectWelcomePageWidget|</comment>
-        <translation type="obsolete">Nov projekt ...</translation>
-    </message>
-    <message>
-        <source>Examples not installed</source>
-        <comment>Qt4ProjectManager::Internal::GettingStartedWelcomePageWidget|</comment>
-        <translation type="obsolete">Primeri niso nameščeni</translation>
-    </message>
-    <message>
-        <source>Open</source>
-        <comment>Qt4ProjectManager::Internal::GettingStartedWelcomePageWidget|</comment>
-        <translation type="obsolete">Odpri</translation>
-    </message>
-    <message>
-        <source>Explore Qt Examples</source>
-        <comment>Qt4ProjectManager::Internal::GettingStartedWelcomePageWidget|</comment>
-        <translation type="obsolete">Raziščite primere za Qt</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Qt Creator - A quick tour&lt;/b&gt;</source>
-        <comment>Qt4ProjectManager::Internal::GettingStartedWelcomePageWidget|</comment>
-        <translation type="obsolete">&lt;b&gt;Qt Creator - hitri vodič&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Creating an address book</source>
-        <comment>Qt4ProjectManager::Internal::GettingStartedWelcomePageWidget|</comment>
-        <translation type="obsolete">Ustvarjanje adresarja</translation>
-    </message>
-    <message>
-        <source>Understanding widgets</source>
-        <comment>Qt4ProjectManager::Internal::GettingStartedWelcomePageWidget|</comment>
-        <translation type="obsolete">Razumevanje gradnikov</translation>
-    </message>
-    <message>
-        <source>Building with qmake</source>
-        <comment>Qt4ProjectManager::Internal::GettingStartedWelcomePageWidget|</comment>
-        <translation type="obsolete">Grajenje s qmake</translation>
-    </message>
-    <message>
-        <source>Writing test cases</source>
-        <comment>Qt4ProjectManager::Internal::GettingStartedWelcomePageWidget|</comment>
-        <translation type="obsolete">Pisanje preizkusnih primerov</translation>
-    </message>
-    <message>
-        <source>You can switch between Qt Creator&apos;s modes using &lt;tt&gt;Ctrl+number&lt;/tt&gt;:&lt;ul&gt;&lt;li&gt;1 - Welcome&lt;/li&gt;&lt;li&gt;2 - Edit&lt;/li&gt;&lt;li&gt;3 - Debug&lt;/li&gt;&lt;li&gt;4 - Projects&lt;/li&gt;&lt;li&gt;5 - Help&lt;/li&gt;&lt;li&gt;&lt;/li&gt;&lt;li&gt;6 - Output&lt;/li&gt;&lt;/ul&gt;</source>
-        <comment>Qt4ProjectManager::Internal::GettingStartedWelcomePageWidget|</comment>
-        <translation type="obsolete">Med Qt Creatorjevimi načini lahko preklapljate s &lt;tt&gt;Ctrl+številka&lt;/tt&gt;:&lt;ul&gt;&lt;li&gt;1 - Dobrodošli&lt;/li&gt;&lt;li&gt;2 - Urejanje&lt;/li&gt;&lt;li&gt;3 - Razhroščevanje&lt;/li&gt;&lt;li&gt;4 - Projekti&lt;/li&gt;&lt;li&gt;5 - Pomoč&lt;/li&gt;&lt;li&gt;&lt;/li&gt;&lt;li&gt;6 - Izhod&lt;/li&gt;&lt;/ul&gt;</translation>
-    </message>
-    <message>
-        <source>If you add &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;external libraries&lt;/a&gt;, Qt Creator will automatically offer syntax highlighting and code completion.</source>
-        <comment>Qt4ProjectManager::Internal::GettingStartedWelcomePageWidget|</comment>
-        <translation type="obsolete">Če dodate &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;zunanje knjižnice&lt;/a&gt;, bo Qt Creator zanje samodejno ponudil poudarjanje skladnje in dokončevanje kode.</translation>
-    </message>
-    <message>
-        <source>Within a session, you can add &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html#dependencies&quot;&gt;dependencies&lt;/a&gt; between projects.</source>
-        <comment>Qt4ProjectManager::Internal::GettingStartedWelcomePageWidget|</comment>
-        <translation type="obsolete">Znotraj seje lahko dodate &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html#dependencies&quot;&gt;odvisnosti&lt;/a&gt; med projekti.</translation>
-    </message>
-    <message>
-        <source>You can modify the binary that is being executed when you press the &lt;tt&gt;Run&lt;/tt&gt; button: Add a &lt;tt&gt;Custom Executable&lt;/tt&gt; by clicking the &lt;tt&gt;+&lt;/tt&gt; button in &lt;tt&gt;Projects -&gt; Run Settings -&gt; Run Configuration&lt;/tt&gt; and then select the new target in the combo box.</source>
-        <comment>Qt4ProjectManager::Internal::GettingStartedWelcomePageWidget|</comment>
-        <translation type="obsolete">Program, ki se zažene pri pritisku gumba &lt;tt&gt;Zaženi&lt;/tt&gt;, lahko spremenite: Dodajte &lt;tt&gt;Izvršljivo datoteko po meri&lt;/tt&gt;, tako da v &lt;tt&gt;Projekti → Nastavitve za zagon → Urejanje nastavitev za zagon&lt;/tt&gt; kliknete gumb &lt;tt&gt;Dodaj&lt;/tt&gt; in nato novi program izberete s spustnega seznama.</translation>
-    </message>
-    <message>
-        <source>In the editor, &lt;tt&gt;F2&lt;/tt&gt; toggles declaration and definition while &lt;tt&gt;F4&lt;/tt&gt; toggles header file and source file.</source>
-        <comment>Qt4ProjectManager::Internal::GettingStartedWelcomePageWidget|</comment>
-        <translation type="obsolete">V urejevalniku &lt;tt&gt;F2&lt;/tt&gt; preklopi med deklaracijo in definicijo, medtem ko &lt;tt&gt;F4&lt;/tt&gt; preklopi med datoteko z glavo in datoteko z izvorno kodo.</translation>
-    </message>
-    <message>
-        <source>Installed S60 SDKs:</source>
-        <comment>Qt4ProjectManager::Internal::S60DevicesPreferencePane|</comment>
-        <translation type="obsolete">Nameščeni S60 SDK-ji:</translation>
-    </message>
-    <message>
-        <source>SDK Location</source>
-        <comment>Qt4ProjectManager::Internal::S60DevicesPreferencePane|</comment>
-        <translation type="obsolete">Lokacija SDK-ja</translation>
-    </message>
-    <message>
-        <source>Qt Location</source>
-        <comment>Qt4ProjectManager::Internal::S60DevicesPreferencePane|</comment>
-        <translation type="obsolete">Lokacija Qt</translation>
-    </message>
-    <message>
-        <source>Qt Websites</source>
-        <comment>Welcome::Internal::CommunityWelcomePageWidget|</comment>
-        <translation type="obsolete">Spletne strani o Qt</translation>
-    </message>
-    <message>
-        <source>Qt Home</source>
-        <comment>Welcome::Internal::CommunityWelcomePageWidget|</comment>
-        <translation type="obsolete">Domača stran Qt</translation>
-    </message>
-    <message>
-        <source>Qt Labs</source>
-        <comment>Welcome::Internal::CommunityWelcomePageWidget|</comment>
-        <translation type="obsolete">Qt Labs</translation>
-    </message>
-    <message>
-        <source>Qt Git Hosting</source>
-        <comment>Welcome::Internal::CommunityWelcomePageWidget|</comment>
-        <translation type="obsolete">Gostovanje Git za Qt</translation>
-    </message>
-    <message>
-        <source>Qt Centre</source>
-        <comment>Welcome::Internal::CommunityWelcomePageWidget|</comment>
-        <translation type="obsolete">Qt Centre</translation>
-    </message>
-    <message>
-        <source>Qt Apps</source>
-        <comment>Welcome::Internal::CommunityWelcomePageWidget|</comment>
-        <translation type="obsolete">Qt Apps</translation>
-    </message>
-    <message>
-        <source>Qt for Symbian at Forum Nokia</source>
-        <comment>Welcome::Internal::CommunityWelcomePageWidget|</comment>
-        <translation type="obsolete">Qt za Symbian na Forum Nokia</translation>
-    </message>
-    <message>
-        <source>#gradientWidget {
-  background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(247, 247, 247, 255), stop:1 rgba(215, 215, 215, 255));
-}</source>
-        <comment>Welcome::WelcomeMode|</comment>
-        <translation type="obsolete">#gradientWidget {
-  background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(247, 247, 247, 255), stop:1 rgba(215, 215, 215, 255));
-}</translation>
-    </message>
-    <message>
-        <source>Show Details</source>
-        <comment>Utils::DetailsButton|</comment>
-        <translation type="obsolete">Prikaži podrobnosti</translation>
-    </message>
-    <message>
-        <source>The name must not be empty</source>
-        <comment>Utils::FileNameValidatingLineEdit|</comment>
-        <translation type="obsolete">Ime ne sme biti prazno</translation>
-    </message>
-    <message>
-        <source>The name must not contain any of the characters &apos;%1&apos;.</source>
-        <comment>Utils::FileNameValidatingLineEdit|</comment>
-        <translation type="obsolete">Ime ne sme vsebovati nobenega izmed znakov »%1«.</translation>
-    </message>
-    <message>
-        <source>The name must not contain &apos;%1&apos;.</source>
-        <comment>Utils::FileNameValidatingLineEdit|</comment>
-        <translation type="obsolete">Ime ne sme vsebovati »%1«.</translation>
-    </message>
-    <message>
-        <source>The name must not match that of a MS Windows device. (%1).</source>
-        <comment>Utils::FileNameValidatingLineEdit|</comment>
-        <translation type="obsolete">Ime se ne sme ujemati z imenom diska v MS Windows. (%1).</translation>
-    </message>
-    <message>
-        <source>Choose a directory</source>
-        <comment>Utils::PathChooser|</comment>
-        <translation type="obsolete">Izberite mapo</translation>
-    </message>
-    <message>
-        <source>Choose a file</source>
-        <comment>Utils::PathChooser|</comment>
-        <translation type="obsolete">Izberite datoteko</translation>
-    </message>
-    <message>
-        <source>Delete line</source>
-        <comment>Utils::PathListEditor|</comment>
-        <translation type="obsolete">Izbriši vrstico</translation>
-    </message>
-    <message>
-        <source>The name must not contain the &apos;.&apos;-character.</source>
-        <comment>Utils::ProjectNameValidatingLineEdit|</comment>
-        <translation type="obsolete">Ime ne sme vsebovati znaka ».«.</translation>
-    </message>
-    <message>
-        <source>The unsaved file %1 has been changed outside Qt Creator. Do you want to reload it and discard your changes?</source>
-        <comment>Utils::reloadPrompt|</comment>
-        <translation type="obsolete">Neshranjena datoteka %1 je bila spremenjena izven Qt Creatorja. Ali jo želite naložiti znova in zavreči vse svoje spremembe?</translation>
-    </message>
-    <message>
-        <source>The file %1 has changed outside Qt Creator. Do you want to reload it?</source>
-        <comment>Utils::reloadPrompt|</comment>
-        <translation type="obsolete">Datoteka %1 je bila spremenjena izven Qt Creatorja. Ali jo želite naložiti znova?</translation>
-    </message>
-    <message>
-        <source>Clear system environment</source>
-        <comment>CMakeProjectManager::Internal::CMakeBuildEnvironmentWidget|</comment>
-        <translation type="obsolete">Počisti sistemsko okolje</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <comment>CMakeProjectManager::Internal::CMakeBuildEnvironmentWidget|</comment>
-        <translation type="obsolete">Okolje za gradnjo</translation>
-    </message>
-    <message>
-        <source>Select the working directory</source>
-        <comment>CMakeProjectManager::Internal::CMakeRunConfigurationWidget|</comment>
-        <translation type="obsolete">Izberite delovno mapo</translation>
-    </message>
-    <message>
-        <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2</source>
-        <comment>CMakeProjectManager::Internal::CMakeRunConfigurationWidget|</comment>
-        <translation type="obsolete">Zaganjanje programa: &lt;b&gt;%1&lt;/b&gt; %2</translation>
-    </message>
-    <message>
-        <source>No Server defined in the CodePaster preferences!</source>
-        <comment>CodePaster::CodePasterProtocol|</comment>
-        <translation type="obsolete">V nastavitvah za CodePaster ni določenega nobenega strežnika.</translation>
-    </message>
-    <message>
-        <source>No Server defined in the CodePaster options!</source>
-        <comment>CodePaster::CodePasterProtocol|</comment>
-        <translation type="obsolete">V možnostih za CodePaster ni določenega nobenega strežnika.</translation>
-    </message>
-    <message>
-        <source>Code Pasting</source>
-        <comment>CodePaster::CodePasterSettingsPage|</comment>
-        <translation type="obsolete">Prilepljanje kode</translation>
-    </message>
-    <message>
-        <source>Error during paste</source>
-        <comment>PasteBinDotComProtocol|</comment>
-        <translation type="obsolete">Napaka med prilepljanjem</translation>
-    </message>
-    <message>
-        <source>Pastebin.com</source>
-        <comment>PasteBinDotComSettings|</comment>
-        <translation type="obsolete">Pastebin.com</translation>
-    </message>
-    <message>
-        <source>Code Pasting</source>
-        <comment>PasteBinDotComSettings|</comment>
-        <translation type="obsolete">Prilepljanje kode</translation>
-    </message>
-    <message>
-        <source>Paste</source>
-        <comment>PasteView|</comment>
-        <translation type="obsolete">Prilepi</translation>
-    </message>
-    <message>
-        <source>&lt;Username&gt;</source>
-        <comment>PasteView|</comment>
-        <translation type="obsolete">&lt;uporabniško ime&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;Description&gt;</source>
-        <comment>PasteView|</comment>
-        <translation type="obsolete">&lt;opis&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;Comment&gt;</source>
-        <comment>PasteView|</comment>
-        <translation type="obsolete">&lt;komentar&gt;</translation>
-    </message>
-    <message>
-        <source>Choose a location for the new license template file</source>
-        <comment>CppTools::Internal::CppFileSettingsWidget|</comment>
-        <translation type="obsolete">Izberite lokacijo za novo datoteko s predlogo licence</translation>
-    </message>
-    <message>
-        <source>Searching...</source>
-        <comment>CppTools::Internal::CppFindReferences|</comment>
-        <translation type="obsolete">Iskanje ...</translation>
-    </message>
-    <message>
-        <source>Revert</source>
-        <comment>CVS::Internal::CVSPlugin|</comment>
-        <translation type="obsolete">Povrni</translation>
-    </message>
-    <message>
-        <source>Reset Debugger</source>
-        <comment>Debugger::DebuggerManager|</comment>
-        <translation type="obsolete">Ponastavi razhroščevalnik</translation>
-    </message>
-    <message>
-        <source>Stopped.</source>
-        <comment>Debugger::DebuggerManager|</comment>
-        <translation type="obsolete">Ustavljeno.</translation>
-    </message>
-    <message>
-        <source>Exited.</source>
-        <comment>Debugger::DebuggerManager|</comment>
-        <translation type="obsolete">Končano.</translation>
-    </message>
-    <message>
-        <source>Error Loading Symbols</source>
-        <comment>Debugger::Internal::CoreGdbAdapter|</comment>
-        <translation type="obsolete">Napaka pri nalaganju simbolov</translation>
-    </message>
-    <message>
-        <source>No executable to load symbols from specified.</source>
-        <comment>Debugger::Internal::CoreGdbAdapter|</comment>
-        <translation type="obsolete">Določenega ni nobenega programa za nalaganje simbolov.</translation>
-    </message>
-    <message>
-        <source>Symbols found.</source>
-        <comment>Debugger::Internal::CoreGdbAdapter|</comment>
-        <translation type="obsolete">Simboli najdeni.</translation>
-    </message>
-    <message>
-        <source>Loading symbols from &quot;%1&quot; failed:
-</source>
-        <comment>Debugger::Internal::CoreGdbAdapter|</comment>
-        <translation type="obsolete">Nalaganje simbolov iz »%1« ni uspelo:
-</translation>
-    </message>
-    <message>
-        <source>Attached to core temporarily.</source>
-        <comment>Debugger::Internal::CoreGdbAdapter|</comment>
-        <translation type="obsolete">Začasno priklopljen na jedro.</translation>
-    </message>
-    <message>
-        <source>Unable to determine executable from core file.</source>
-        <comment>Debugger::Internal::CoreGdbAdapter|</comment>
-        <translation type="obsolete">Iz posnetka ni moč ugotoviti izvršljive datoteke.</translation>
-    </message>
-    <message>
-        <source>Attached to core.</source>
-        <comment>Debugger::Internal::CoreGdbAdapter|</comment>
-        <translation type="obsolete">Priklopljen na posnetek.</translation>
-    </message>
-    <message>
-        <source>Attach to core &quot;%1&quot; failed:
-</source>
-        <comment>Debugger::Internal::CoreGdbAdapter|</comment>
-        <translation type="obsolete">Priklop na posnetek »%1« ni uspel:
-</translation>
-    </message>
-    <message>
-        <source>Cannot set up communication with child process: %1</source>
-        <comment>Debugger::Internal::PlainGdbAdapter|</comment>
-        <translation type="obsolete">Ni moč vzpostaviti komunikacije s podprocesom: %1</translation>
-    </message>
-    <message>
-        <source>Starting executable failed:
-</source>
-        <comment>Debugger::Internal::PlainGdbAdapter|</comment>
-        <translation type="obsolete">Zaganjanje izvršljive datoteke ni uspelo:
-</translation>
-    </message>
-    <message>
-        <source>The upload process failed to start. Shell missing?</source>
-        <comment>Debugger::Internal::RemoteGdbAdapter|</comment>
-        <translation type="obsolete">Proces pošiljanja se ni uspel zagnati. Morda manjka lupina?</translation>
-    </message>
-    <message>
-        <source>The upload process crashed some time after starting successfully.</source>
-        <comment>Debugger::Internal::RemoteGdbAdapter|</comment>
-        <translation type="obsolete">Proces pošiljanja se je nekaj časa po uspešnem zagonu sesul.</translation>
-    </message>
-    <message>
-        <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <comment>Debugger::Internal::RemoteGdbAdapter|</comment>
-        <translation type="obsolete">Potekel je čas za zadnjo funkcijo waitFor...(). Stanje QProcessa se ni spremenilo. Znova lahko poskusite klicati waitFor...().</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to write to the upload process. For example, the process may not be running, or it may have closed its input channel.</source>
-        <comment>Debugger::Internal::RemoteGdbAdapter|</comment>
-        <translation type="obsolete">Med pisanjem v proces pošiljanja je prišlo do napake. Proces morda ne teče, ali pa je morda zaprl svoj vhodni kanal.</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to read from the upload process. For example, the process may not be running.</source>
-        <comment>Debugger::Internal::RemoteGdbAdapter|</comment>
-        <translation type="obsolete">Med branjem iz procesa pošiljanja je prišlo do napake. Proces morda ne teče.</translation>
-    </message>
-    <message>
-        <source>An unknown error in the upload process occurred. This is the default return value of error().</source>
-        <comment>Debugger::Internal::RemoteGdbAdapter|</comment>
-        <translation type="obsolete">Prišlo je do neznane napake v procesu pošiljanja. To je privzeta vrnjena vrednost funkcije error().</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <comment>Debugger::Internal::RemoteGdbAdapter|</comment>
-        <translation type="obsolete">Napaka</translation>
-    </message>
-    <message>
-        <source>Adapter too old: does not support asynchronous mode.</source>
-        <comment>Debugger::Internal::RemoteGdbAdapter|</comment>
-        <translation type="obsolete">Prilagojevalnik je prestar: ne podpira asinhronega načina.</translation>
-    </message>
-    <message>
-        <source>Starting remote executable failed:
-</source>
-        <comment>Debugger::Internal::RemoteGdbAdapter|</comment>
-        <translation type="obsolete">Zaganjanje oddaljene izvršljive datoteke ni uspelo:
-</translation>
-    </message>
-    <message>
-        <source>Debugger Error</source>
-        <comment>Debugger::Internal::TermGdbAdapter|</comment>
-        <translation type="obsolete">Napaka razhroščevalnika</translation>
-    </message>
-    <message>
-        <source>No Symbian gdb executable specified.</source>
-        <comment>TrkOptions|</comment>
-        <translation type="obsolete">Določenega ni nobenega programa GDB za Symbian.</translation>
-    </message>
-    <message>
-        <source>The Symbian gdb executable &apos;%1&apos; could not be found in the search path.</source>
-        <comment>TrkOptions|</comment>
-        <translation type="obsolete">Programa GDB za Symbian »%1« ni bilo moč najti v poti iskanja.</translation>
-    </message>
-    <message>
-        <source>Symbian Trk</source>
-        <comment>Debugger::Internal::TrkOptionsPage|</comment>
-        <translation type="obsolete">Symbian Trk</translation>
-    </message>
-    <message>
-        <source>Clones a project from a git repository.</source>
-        <comment>Git::Internal::CloneWizard|</comment>
-        <translation type="obsolete">Klonira projekt iz skladišča Git.</translation>
-    </message>
-    <message>
-        <source>Clones a project from a Gitorious repository.</source>
-        <comment>Gitorious::Internal::GitoriousCloneWizard|</comment>
-        <translation type="obsolete">Klonira projekt iz skladišča Gitorious.</translation>
-    </message>
-    <message>
-        <source>General settings</source>
-        <comment>Help::Internal::GeneralSettingsPage|</comment>
-        <translation type="obsolete">Splošne nastavitve</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <comment>Help::Internal::GeneralSettingsPage|</comment>
-        <translation type="obsolete">Pomoč</translation>
-    </message>
-    <message>
-        <source>Choose a directory to add</source>
-        <comment>Locator::Internal::DirectoryFilter|</comment>
-        <translation type="obsolete">Izberite mapo za dodati</translation>
-    </message>
-    <message>
-        <source>%1 (Prefix: %2)</source>
-        <comment>Locator::Internal::SettingsPage|</comment>
-        <translation type="obsolete">%1 (predpona: %2)</translation>
-    </message>
-    <message>
-        <source>Active run configuration</source>
-        <comment>ProjectExplorer::Internal::ActiveConfigurationWidget|</comment>
-        <translation type="obsolete">Aktivne nastavitve za zagon</translation>
-    </message>
-    <message>
-        <source>Edit Project Settings for Project &lt;b&gt;%1&lt;/b&gt;</source>
-        <comment>ProjectExplorer::Internal::ProjectLabel|</comment>
-        <translation type="obsolete">Urejanje projektnih nastavitev za projekt &lt;b&gt;%1&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>No Project loaded</source>
-        <comment>ProjectExplorer::Internal::ProjectLabel|</comment>
-        <translation type="obsolete">Naložen ni noben projekt</translation>
-    </message>
-    <message>
-        <source>Select Project</source>
-        <comment>ProjectExplorer::Internal::ProjectPushButton|</comment>
-        <translation type="obsolete">Izberite projekt</translation>
-    </message>
-    <message>
-        <source>&lt;Select Symbol&gt;</source>
-        <comment>QmlEditor::Internal::ScriptEditor|</comment>
-        <translation type="obsolete">&lt;izberite simbol&gt;</translation>
-    </message>
-    <message>
-        <source>Rename...</source>
-        <comment>QmlEditor::Internal::ScriptEditor|</comment>
-        <translation type="obsolete">Preimenuj ...</translation>
-    </message>
-    <message>
-        <source>New id:</source>
-        <comment>QmlEditor::Internal::ScriptEditor|</comment>
-        <translation type="obsolete">Novi ID:</translation>
-    </message>
-    <message>
-        <source>Rename id &apos;%1&apos;...</source>
-        <comment>QmlEditor::Internal::ScriptEditor|</comment>
-        <translation type="obsolete">Preimenuj ID »%1« ...</translation>
-    </message>
-    <message>
-        <source>Qt</source>
-        <comment>QmlEditor::Internal::QmlEditorPlugin|</comment>
-        <translation type="obsolete">Qt</translation>
-    </message>
-    <message>
-        <source>Creates a Qt QML file.</source>
-        <comment>QmlEditor::Internal::QmlEditorPlugin|</comment>
-        <translation type="obsolete">Ustvari datoteko Qt QML.</translation>
-    </message>
-    <message>
-        <source>Qt QML File</source>
-        <comment>QmlEditor::Internal::QmlEditorPlugin|</comment>
-        <translation type="obsolete">Datoteka Qt QML</translation>
-    </message>
-    <message>
-        <source>Indexing</source>
-        <comment>QmlEditor::Internal::QmlModelManager|</comment>
-        <translation type="obsolete">Indeksiranje</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;QML Make&lt;/b&gt;</source>
-        <comment>QmlProjectManager::Internal::QmlMakeStepConfigWidget|</comment>
-        <translation type="obsolete">&lt;b&gt;QML Make&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Qt4 Designer Custom Widget</source>
-        <comment>Qt4ProjectManager::Internal::CustomWidgetWizard|</comment>
-        <translation type="obsolete">Gradnik po meri za Qt Designer</translation>
-    </message>
-    <message>
-        <source>Creates a Qt4 Designer Custom Widget or a Custom Widget Collection.</source>
-        <comment>Qt4ProjectManager::Internal::CustomWidgetWizard|</comment>
-        <translation type="obsolete">Ustvari projekt gradnika po meri ali pa zbirke gradnikov po meri za Qt Designer.</translation>
-    </message>
-    <message>
-        <source>Could not parse %1. The QtS60 Device run configuration %2 can not be started.</source>
-        <comment>Qt4ProjectManager::Internal::S60DeviceRunConfiguration|</comment>
-        <translation type="obsolete">Ni bilo moč razčleniti %1. Nastavitev za zagon na napravi QtS60 %2 ni moč zagnati.</translation>
-    </message>
-    <message>
-        <source>Creating %1.sisx ...</source>
-        <comment>Qt4ProjectManager::Internal::S60DeviceRunControlBase|</comment>
-        <translation type="obsolete">Ustvarjanje %1.sisx ...</translation>
-    </message>
-    <message>
-        <source>%1 %2</source>
-        <comment>Qt4ProjectManager::Internal::S60DeviceRunControlBase|</comment>
-        <translation type="obsolete">%1 %2</translation>
-    </message>
-    <message>
-        <source>Could not read template package file &apos;%1&apos;</source>
-        <comment>Qt4ProjectManager::Internal::S60DeviceRunControlBase|</comment>
-        <translation type="obsolete">Ni bilo moč prebrati datoteke s predlogo paketa »%1«</translation>
-    </message>
-    <message>
-        <source>Could not write package file &apos;%1&apos;</source>
-        <comment>Qt4ProjectManager::Internal::S60DeviceRunControlBase|</comment>
-        <translation type="obsolete">Ni bilo moč zapisati datoteke paketa »%1«</translation>
-    </message>
-    <message>
-        <source>An error occurred while creating the package.</source>
-        <comment>Qt4ProjectManager::Internal::S60DeviceRunControlBase|</comment>
-        <translation type="obsolete">Med ustvarjanjem paketa je prišlo do napake.</translation>
-    </message>
-    <message>
-        <source>Could not connect to phone on port &apos;%1&apos;: %2
-Check if the phone is connected and the TRK application is running.</source>
-        <comment>Qt4ProjectManager::Internal::S60DeviceRunControlBase|</comment>
-        <translation type="obsolete">Ni se bilo moč povezati s telefonom na vratih »%1«: %2
-Preverite, ali je telefon povezan in ali program TRK teče.</translation>
-    </message>
-    <message>
-        <source>Copying install file...</source>
-        <comment>Qt4ProjectManager::Internal::S60DeviceRunControlBase|</comment>
-        <translation type="obsolete">Kopiranje namestitvene datoteke ...</translation>
-    </message>
-    <message>
-        <source>%1% copied.</source>
-        <comment>Qt4ProjectManager::Internal::S60DeviceRunControlBase|</comment>
-        <translation type="obsolete">%1 % skopirano.</translation>
-    </message>
-    <message>
-        <source>Failed to start %1.</source>
-        <comment>Qt4ProjectManager::Internal::S60DeviceRunControlBase|</comment>
-        <translation type="obsolete">Zagon %1 ni uspel.</translation>
-    </message>
-    <message>
-        <source>%1 has unexpectedly finished.</source>
-        <comment>Qt4ProjectManager::Internal::S60DeviceRunControlBase|</comment>
-        <translation type="obsolete">%1 je nepričakovano končal.</translation>
-    </message>
-    <message>
-        <source>An error has occurred while running %1.</source>
-        <comment>Qt4ProjectManager::Internal::S60DeviceRunControlBase|</comment>
-        <translation type="obsolete">Pri zaganjanju %1 je prišlo do napake.</translation>
-    </message>
-    <message>
-        <source>Install File:</source>
-        <comment>Qt4ProjectManager::Internal::S60DeviceRunConfigurationWidget|</comment>
-        <translation type="obsolete">Namesti datoteko:</translation>
-    </message>
-    <message>
-        <source>Device on Serial Port:</source>
-        <comment>Qt4ProjectManager::Internal::S60DeviceRunConfigurationWidget|</comment>
-        <translation type="obsolete">Naprava na zaporednih vratih:</translation>
-    </message>
-    <message>
-        <source>Self-signed certificate</source>
-        <comment>Qt4ProjectManager::Internal::S60DeviceRunConfigurationWidget|</comment>
-        <translation type="obsolete">Samo-podpisano potrdilo</translation>
-    </message>
-    <message>
-        <source>Choose certificate file (.cer)</source>
-        <comment>Qt4ProjectManager::Internal::S60DeviceRunConfigurationWidget|</comment>
-        <translation type="obsolete">Izberite datoteko s potrdilom (*.cer)</translation>
-    </message>
-    <message>
-        <source>Custom certificate:</source>
-        <comment>Qt4ProjectManager::Internal::S60DeviceRunConfigurationWidget|</comment>
-        <translation type="obsolete">Potrdilo po meri:</translation>
-    </message>
-    <message>
-        <source>Choose key file (.key / .pem)</source>
-        <comment>Qt4ProjectManager::Internal::S60DeviceRunConfigurationWidget|</comment>
-        <translation type="obsolete">Izberite datoteko s ključem (*.key / *.pem)</translation>
-    </message>
-    <message>
-        <source>Key file:</source>
-        <comment>Qt4ProjectManager::Internal::S60DeviceRunConfigurationWidget|</comment>
-        <translation type="obsolete">Datoteka s ključem:</translation>
-    </message>
-    <message>
-        <source>&lt;No Device&gt;</source>
-        <comment>Qt4ProjectManager::Internal::S60DeviceRunConfigurationWidget|</comment>
-        <extracomment>Summary text of S60 device run configuration
-</extracomment>
-        <translation type="obsolete">&lt;brez naprave&gt;</translation>
-    </message>
-    <message>
-        <source>(custom certificate)</source>
-        <comment>Qt4ProjectManager::Internal::S60DeviceRunConfigurationWidget|</comment>
-        <translation type="obsolete">(potrdilo po meri)</translation>
-    </message>
-    <message>
-        <source>(self-signed certificate)</source>
-        <comment>Qt4ProjectManager::Internal::S60DeviceRunConfigurationWidget|</comment>
-        <translation type="obsolete">(samo-podpisano potrdilo)</translation>
-    </message>
-    <message>
-        <source>Summary: Run on &apos;%1&apos; %2</source>
-        <comment>Qt4ProjectManager::Internal::S60DeviceRunConfigurationWidget|</comment>
-        <translation type="obsolete">Povzetek: zaženi na »%1« %2</translation>
-    </message>
-    <message>
-        <source>A timeout occurred while querying the device. Check whether Trk is running</source>
-        <comment>Qt4ProjectManager::Internal::S60DeviceRunConfigurationWidget|</comment>
-        <translation type="obsolete">Med poizvedovanjem pri napravi je potekel čas. Preverite, ali Trk teče.</translation>
-    </message>
-    <message>
-        <source>No Qt installed</source>
-        <comment>Qt4ProjectManager::Internal::S60DevicesWidget|</comment>
-        <translation type="obsolete">Nameščen ni noben Qt</translation>
-    </message>
-    <message>
-        <source>Could not parse %1. The Qt for Symbian emulator run configuration %2 can not be started.</source>
-        <comment>Qt4ProjectManager::Internal::S60EmulatorRunConfiguration|</comment>
-        <translation type="obsolete">Ni bilo moč razčleniti %1. Nastavitev za zagon Qt za emulator Symbian %2 ni moč zagnati.</translation>
-    </message>
-    <message>
-        <source>Summary: Run %1 in emulator</source>
-        <comment>Qt4ProjectManager::Internal::S60EmulatorRunConfigurationWidget|</comment>
-        <translation type="obsolete">Povzetek: zaženi %1 v emulatorju</translation>
-    </message>
-    <message>
-        <source>Using Default Qt Version</source>
-        <comment>Qt4ProjectManager::Qt4BuildConfigurationFactory|</comment>
-        <translation type="obsolete">Uporablja privzeto različico Qt</translation>
-    </message>
-    <message>
-        <source>Using Qt Version &quot;%1&quot;</source>
-        <comment>Qt4ProjectManager::Qt4BuildConfigurationFactory|</comment>
-        <translation type="obsolete">Uporablja Qt različice »%1«</translation>
-    </message>
-    <message>
-        <source>New configuration</source>
-        <comment>Qt4ProjectManager::Qt4BuildConfigurationFactory|</comment>
-        <translation type="obsolete">Nova nastavitev</translation>
-    </message>
-    <message>
-        <source>New Configuration Name:</source>
-        <comment>Qt4ProjectManager::Qt4BuildConfigurationFactory|</comment>
-        <translation type="obsolete">Ime nove nastavitve:</translation>
-    </message>
-    <message>
-        <source>%1 Debug</source>
-        <comment>Qt4ProjectManager::Qt4BuildConfigurationFactory|</comment>
-        <translation type="obsolete">%1, za razhroščevanje</translation>
-    </message>
-    <message>
-        <source>%1 Release</source>
-        <comment>Qt4ProjectManager::Qt4BuildConfigurationFactory|</comment>
-        <translation type="obsolete">%1, za izdajo</translation>
-    </message>
-    <message>
-        <source>QtCore Module</source>
-        <comment>QtModulesInfo|</comment>
-        <translation type="obsolete">Modul QtCore</translation>
-    </message>
-    <message>
-        <source>QtGui Module</source>
-        <comment>QtModulesInfo|</comment>
-        <translation type="obsolete">Modul QtGui</translation>
-    </message>
-    <message>
-        <source>QtNetwork Module</source>
-        <comment>QtModulesInfo|</comment>
-        <translation type="obsolete">Modul QtNetwork</translation>
-    </message>
-    <message>
-        <source>QtOpenGL Module</source>
-        <comment>QtModulesInfo|</comment>
-        <translation type="obsolete">Modul QtOpenGL</translation>
-    </message>
-    <message>
-        <source>QtSql Module</source>
-        <comment>QtModulesInfo|</comment>
-        <translation type="obsolete">Modul QtSql</translation>
-    </message>
-    <message>
-        <source>QtScript Module</source>
-        <comment>QtModulesInfo|</comment>
-        <translation type="obsolete">Modul QtScript</translation>
-    </message>
-    <message>
-        <source>QtScriptTools Module</source>
-        <comment>QtModulesInfo|</comment>
-        <translation type="obsolete">Modul QtScriptTools</translation>
-    </message>
-    <message>
-        <source>QtSvg Module</source>
-        <comment>QtModulesInfo|</comment>
-        <translation type="obsolete">Modul QtSvg</translation>
-    </message>
-    <message>
-        <source>QtWebKit Module</source>
-        <comment>QtModulesInfo|</comment>
-        <translation type="obsolete">Modul QtWebKit</translation>
-    </message>
-    <message>
-        <source>QtXml Module</source>
-        <comment>QtModulesInfo|</comment>
-        <translation type="obsolete">Modul QtXml</translation>
-    </message>
-    <message>
-        <source>QtXmlPatterns Module</source>
-        <comment>QtModulesInfo|</comment>
-        <translation type="obsolete">Modul QtXmlPatterns</translation>
-    </message>
-    <message>
-        <source>Phonon Module</source>
-        <comment>QtModulesInfo|</comment>
-        <translation type="obsolete">Modul Phonon</translation>
-    </message>
-    <message>
-        <source>QtMultimedia Module</source>
-        <comment>QtModulesInfo|</comment>
-        <translation type="obsolete">Modul QtMultimedia</translation>
-    </message>
-    <message>
-        <source>Qt3Support Module</source>
-        <comment>QtModulesInfo|</comment>
-        <translation type="obsolete">Modul Qt3Support</translation>
-    </message>
-    <message>
-        <source>QtTest Module</source>
-        <comment>QtModulesInfo|</comment>
-        <translation type="obsolete">Modul QtTest</translation>
-    </message>
-    <message>
-        <source>QtDBus Module</source>
-        <comment>QtModulesInfo|</comment>
-        <translation type="obsolete">Modul QtDBus</translation>
-    </message>
-    <message>
-        <source>Community</source>
-        <comment>Welcome::Internal::CommunityWelcomePage|</comment>
-        <translation type="obsolete">Skupnost</translation>
-    </message>
-    <message>
-        <source>Waiting for TRK</source>
-        <comment>trk::promptStartCommunication|</comment>
-        <translation type="obsolete">Čakanje na TRK</translation>
-    </message>
-    <message>
-        <source>Waiting for TRK to start on %1...</source>
-        <comment>trk::promptStartCommunication|</comment>
-        <translation type="obsolete">Čakanje na zagon TRK na %1 ...</translation>
-    </message>
-    <message>
-        <source>Start Debugger</source>
-        <comment>AttachTcfDialog|</comment>
-        <translation type="obsolete">Zaženi razhroščevalnik</translation>
-    </message>
-    <message>
-        <source>Host and port:</source>
-        <comment>AttachTcfDialog|</comment>
-        <translation type="obsolete">Gostitelj in vrata:</translation>
-    </message>
-    <message>
-        <source>Architecture:</source>
-        <comment>AttachTcfDialog|</comment>
-        <translation type="obsolete">Arhitektura:</translation>
-    </message>
-    <message>
-        <source>Use server start script:</source>
-        <comment>AttachTcfDialog|</comment>
-        <translation type="obsolete">Uporabi skript za zagon strežnika:</translation>
-    </message>
-    <message>
-        <source>Server start script:</source>
-        <comment>AttachTcfDialog|</comment>
-        <translation type="obsolete">Skript za zagon strežnika:</translation>
-    </message>
-    <message>
-        <source>localhost:5115</source>
-        <comment>AttachTcfDialog|</comment>
-        <translation type="obsolete">localhost:5115</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <comment>CMakeProjectManager::Internal::CMakeRunConfiguration|</comment>
-        <translation type="obsolete">Argumenti:</translation>
-    </message>
-    <message>
-        <source>Qt Creator has found a recent cbp file, which Qt Creator will parse to gather information about the project. You can change the command line arguments used to create this file in the project mode. Click finish to load the project.</source>
-        <comment>CMakeProjectManager::Internal::XmlFileUpToDatePage|</comment>
-        <translation type="obsolete">Qt Creator je našel datoteko *.cbp in jo bo razčlenil, da zbere podatke o projektu. Argumente za ukazno vrstico, ki se uporabi za ustvaritev te datoteke, lahko spremenite v projektnem načinu. Da naložite projekt, kliknite »Zaključi«.</translation>
-    </message>
-    <message>
-        <source>Qt Creator has found a recent cbp file, which Qt Creator will parse to gather information about the project. You can change the command line arguments used to create this file in the project mode. Click finish to load the project</source>
-        <comment>CMakeProjectManager::Internal::XmlFileUpToDatePage|</comment>
-        <translation type="obsolete">Qt Creator je našel datoteko *.cbp in jo bo razčlenil, da zbere podatke o projektu. Argumente za ukazno vrstico, ki se uporabi za ustvaritev te datoteke, lahko spremenite v projektnem načinu. Da naložite projekt, kliknite »Zaključi«.</translation>
-    </message>
-    <message>
-        <source>CodePaster Error</source>
-        <comment>CodePaster::CustomFetcher|</comment>
-        <translation type="obsolete">Napaka CodePasterja</translation>
-    </message>
-    <message>
-        <source>Could not fetch code</source>
-        <comment>CodePaster::CustomFetcher|</comment>
-        <translation type="obsolete">Ni bilo moč dobiti kode</translation>
-    </message>
-    <message>
-        <source>CodePaster Error</source>
-        <comment>CodePaster::CustomPoster|</comment>
-        <translation type="obsolete">Napaka CodePasterja</translation>
-    </message>
-    <message>
-        <source>Some error occured while posting</source>
-        <comment>CodePaster::CustomPoster|</comment>
-        <translation type="obsolete">Med objavljanjem je prišlo do napake</translation>
-    </message>
-    <message>
-        <source>http://labs.trolltech.com/blogs/feed</source>
-        <comment>Core::Internal::WelcomeMode|</comment>
-        <extracomment>Add localized feed here only if one exists
-</extracomment>
-        <translation type="obsolete">http://labs.trolltech.com/blogs/feed</translation>
-    </message>
-    <message>
-        <source>Qt Labs</source>
-        <comment>Core::Internal::WelcomeMode|</comment>
-        <translation type="obsolete">Qt Labs</translation>
-    </message>
-    <message>
-        <source>Qt Git Hosting</source>
-        <comment>Core::Internal::WelcomeMode|</comment>
-        <translation type="obsolete">Gostovanje Git za Qt</translation>
-    </message>
-    <message>
-        <source>Qt Centre</source>
-        <comment>Core::Internal::WelcomeMode|</comment>
-        <translation type="obsolete">Qt Centre</translation>
-    </message>
-    <message>
-        <source>Qt/S60 at Forum Nokia</source>
-        <comment>Core::Internal::WelcomeMode|</comment>
-        <translation type="obsolete">Qt/S60 na Forum Nokia</translation>
-    </message>
-    <message>
-        <source>Qt Creator - A quick tour</source>
-        <comment>Core::Internal::WelcomeMode|</comment>
-        <translation type="obsolete">Qt Creator - hitri vodič</translation>
-    </message>
-    <message>
-        <source>Understanding widgets</source>
-        <comment>Core::Internal::WelcomeMode|</comment>
-        <translation type="obsolete">Razumevanje gradnikov</translation>
-    </message>
-    <message>
-        <source>Creating an address book</source>
-        <comment>Core::Internal::WelcomeMode|</comment>
-        <translation type="obsolete">Ustvarjanje adresarja</translation>
-    </message>
-    <message>
-        <source>Building with qmake</source>
-        <comment>Core::Internal::WelcomeMode|</comment>
-        <translation type="obsolete">Grajenje s qmake</translation>
-    </message>
-    <message>
-        <source>Writing test cases</source>
-        <comment>Core::Internal::WelcomeMode|</comment>
-        <translation type="obsolete">Pisanje preizkusnih primerov</translation>
-    </message>
-    <message>
-        <source>Welcome</source>
-        <comment>Core::Internal::WelcomeMode|</comment>
-        <translation type="obsolete">Dobrodošli</translation>
-    </message>
-    <message>
-        <source>%1 (last session)</source>
-        <comment>Core::Internal::WelcomeMode|</comment>
-        <translation type="obsolete">%1 (zadnja seja)</translation>
-    </message>
-    <message>
-        <source>You can switch between Qt Creator&apos;s modes using &lt;tt&gt;Ctrl+number&lt;/tt&gt;:&lt;ol&gt;&lt;li&gt; - Welcome&lt;/li&gt;&lt;li&gt; - Edit&lt;/li&gt;&lt;li&gt;- Debug&lt;/li&gt;&lt;li&gt;- Projects&lt;/li&gt;&lt;li&gt;- Help&lt;/li&gt;&lt;li&gt;&lt;/li&gt;&lt;li&gt;- Output&lt;/li&gt;&lt;/ol&gt;</source>
-        <comment>Core::Internal::WelcomeMode|</comment>
-        <translation type="obsolete">Med Qt Creatorjevimi načini čahko preklapljate s &lt;tt&gt;Ctrl+številka&lt;/tt&gt;:&lt;ol&gt;&lt;li&gt; - Dobrodošli&lt;/li&gt;&lt;li&gt; - Urejanje&lt;/li&gt;&lt;li&gt; - Razhroščevanje&lt;/li&gt;&lt;li&gt; - Projekti&lt;/li&gt;&lt;li&gt; - Pomoč&lt;/li&gt;&lt;li&gt;&lt;/li&gt;&lt;li&gt; - Izhod&lt;/li&gt;&lt;/ol&gt;</translation>
-    </message>
-    <message>
-        <source>You can show and hide the side bar using &lt;tt&gt;Alt+0&lt;tt&gt;.</source>
-        <comment>Core::Internal::WelcomeMode|</comment>
-        <translation type="obsolete">Stranski pas lahko prikažete in skrijete z &lt;tt&gt;Alt+0&lt;tt&gt;.</translation>
-    </message>
-    <message>
-        <source>You can fine tune the &lt;tt&gt;Find&lt;/tt&gt; function by selecting &amp;quot;Whole Words&amp;quot; or &amp;quot;Case Sensitive&amp;quot;. Simply click on the icons on the right end of the line edit.</source>
-        <comment>Core::Internal::WelcomeMode|</comment>
-        <translation type="obsolete">&lt;tt&gt;Iskanje&lt;/tt&gt; lahko nastavljate z izbiro možnosti &amp;quot;Cele besede&amp;quot; ali &amp;quot;Občutljivo na velikost&amp;quot;. Za to kliknite na ikono, ki je na desni strani iskalnega polja.</translation>
-    </message>
-    <message>
-        <source>If you add &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;external libraries&lt;/a&gt;, Qt Creator will automatically offer syntax highlighting and code completion.</source>
-        <comment>Core::Internal::WelcomeMode|</comment>
-        <translation type="obsolete">Če dodate &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;zunanje knjižnice&lt;/a&gt;, bo Qt Creator zanje samodejno ponudil poudarjanje skladnje in dokončevanje kode.</translation>
-    </message>
-    <message>
-        <source>* {
-    border-image: url(:/core/images/welcomemode/btn_26.png) 7;
-    border-width: 7;
-    padding: -2px 0;
-    font-size: 12px;
-    font-family: lucida sans, dejavu sans, sans serif;
-    color: black;
-}
-
-*:hover {
-    border-image: url(:/core/images/welcomemode/btn_26_hover.png) 7;
-    color: white;
-}
-</source>
-        <comment>Core::Internal::WelcomePage|</comment>
-        <translation type="obsolete">* {
-    border-image: url(:/core/images/welcomemode/btn_26.png) 7;
-    border-width: 7;
-    padding: -2px 0;
-    font-size: 12px;
-    font-family: lucida sans, dejavu sans, sans serif;
-    color: black;
-}
-
-*:hover {
-    border-image: url(:/core/images/welcomemode/btn_26_hover.png) 7;
-    color: white;
-}
-</translation>
-    </message>
-    <message>
-        <source>&lt;qt&gt;Restore Last Session &amp;gt;&amp;gt;</source>
-        <comment>Core::Internal::WelcomePage|</comment>
-        <translation type="obsolete">&lt;qt&gt;Obnovi zadnjo sejo &amp;gt;&amp;gt;</translation>
-    </message>
-    <message>
-        <source>* {
-    border-image: url(:/core/images/welcomemode/btn_26.png) 7;
-    border-width: 7;
-    padding: -2px 2px;
-    font-size: 12px;
-    font-family: lucida sans, dejavu sans, sans serif;
-}
-
-*:hover {
-    border-image: url(:/core/images/welcomemode/btn_26_hover.png) 7;
-    color: white;
-}
-</source>
-        <comment>Core::Internal::WelcomePage|</comment>
-        <translation type="obsolete">* {
-    border-image: url(:/core/images/welcomemode/btn_26.png) 7;
-    border-width: 7;
-    padding: -2px 2px;
-    font-size: 12px;
-    font-family: lucida sans, dejavu sans, sans serif;
-}
-
-*:hover {
-    border-image: url(:/core/images/welcomemode/btn_26_hover.png) 7;
-    color: white;
-}
-</translation>
-    </message>
-    <message>
-        <source>&lt;qt&gt;Feedback&amp;nbsp;&amp;nbsp;&lt;img src=&quot;:/core/images/welcomemode/feedback_arrow.png&quot; /&gt;</source>
-        <comment>Core::Internal::WelcomePage|</comment>
-        <translation type="obsolete">&lt;qt&gt;Komentarji &amp;nbsp;&amp;nbsp;&lt;img src=&quot;:/core/images/welcomemode/feedback_arrow.png&quot; /&gt;</translation>
-    </message>
-    <message>
-        <source>Help us make Qt Creator even better</source>
-        <comment>Core::Internal::WelcomePage|</comment>
-        <translation type="obsolete">Pomagajte nam še izboljšati Qt Creatorja</translation>
-    </message>
-    <message>
-        <source>#Core--Internal--WelcomePage {
-background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(247, 247, 247, 255), stop:1 rgba(215, 215, 215, 255));
-}</source>
-        <comment>Core::Internal::WelcomePage|</comment>
-        <translation type="obsolete">#Core--Internal--WelcomePage {
-background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(247, 247, 247, 255), stop:1 rgba(215, 215, 215, 255));
-}</translation>
-    </message>
-    <message>
-        <source>#gradientWidget {
-  background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(247, 247, 247, 255), stop:1 rgba(215, 215, 215, 255));
-}</source>
-        <comment>Core::Internal::WelcomePage|</comment>
-        <translation type="obsolete">#gradientWidget {
-  background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(247, 247, 247, 255), stop:1 rgba(215, 215, 215, 255));
-}</translation>
-    </message>
-    <message>
-        <source>#headerFrame {
-    border-image: url(:/core/images/welcomemode/center_frame_header.png) 0;
-    border-width: 0;
-}
-</source>
-        <comment>Core::Internal::WelcomePage|</comment>
-        <translation type="obsolete">#headerFrame {
-    border-image: url(:/core/images/welcomemode/center_frame_header.png) 0;
-    border-width: 0;
-}
-</translation>
-    </message>
-    <message>
-        <source>Getting Started</source>
-        <comment>Core::Internal::WelcomePage|</comment>
-        <translation type="obsolete">Kako začeti</translation>
-    </message>
-    <message>
-        <source>Develop</source>
-        <comment>Core::Internal::WelcomePage|</comment>
-        <translation type="obsolete">Razvoj</translation>
-    </message>
-    <message>
-        <source>Community</source>
-        <comment>Core::Internal::WelcomePage|</comment>
-        <translation type="obsolete">Skupnost</translation>
-    </message>
-    <message>
-        <source>Open</source>
-        <comment>Core::Internal::WelcomePage|</comment>
-        <translation type="obsolete">Odpri</translation>
-    </message>
-    <message>
-        <source>&lt;</source>
-        <comment>Core::Internal::WelcomePage|</comment>
-        <translation type="obsolete">&lt;</translation>
-    </message>
-    <message>
-        <source>&gt;</source>
-        <comment>Core::Internal::WelcomePage|</comment>
-        <translation type="obsolete">&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;style&gt;
-h1 {
-    font-size: 24px;
-    font-weight: normal;
-    color: #4d4d4d;
-    margin-top: 0px;
-    margin-bottom: 20px;
-}
-
-p {
-    margin-top: 0px;
-    margin-bottom: 7px;
-}
-&lt;/style&gt;
-
-&lt;p&gt;&amp;nbsp;&lt;/p&gt;
-&lt;h1&gt;Welcome&lt;/h1&gt;
-&lt;!-- QTextDocument does not support line-height, so wrap the lines manually ... --&gt;
-&lt;p&gt;Qt Creator is an intuitive, modern cross platform IDE that&lt;/p&gt; &lt;p&gt;enables developers to create graphically appealing applications&lt;/p&gt;
-&lt;p&gt;for desktop, embedded, and mobile devices. Click on &lt;strong&gt;Getting&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Started&lt;/strong&gt; to begin developing with Qt Creator.&lt;/p&gt;
-&lt;hr style=&quot;margin-top:15px&quot;/&gt;
-</source>
-        <comment>Core::Internal::WelcomePage|</comment>
-        <translation type="obsolete">&lt;style&gt;
-h1 {
-    font-size: 24px;
-    font-weight: normal;
-    color: #4d4d4d;
-    margin-top: 0px;
-    margin-bottom: 20px;
-}
-
-p {
-    margin-top: 0px;
-    margin-bottom: 7px;
-}
-&lt;/style&gt;
-
-&lt;p&gt;&amp;nbsp;&lt;/p&gt;
-&lt;h1&gt;Dobrodošli&lt;/h1&gt;
-&lt;!-- QTextDocument does not support line-height, so wrap the lines manually ... --&gt;
-&lt;p&gt;Qt Creator je inovativno, moderno razvojno okolje za več platform,&lt;/p&gt;&lt;p&gt;ki omogoča razvijalcem ustvarjati grafično privlačne programe&lt;/p&gt;
-&lt;p&gt;za namizje ter vgrajene in mobilne naprave. Kliknite na &lt;strong&gt;Začetek&lt;/strong&gt;,&lt;/p&gt;
-&lt;p&gt;da začnete razvijati s pomočjo Qt Creatorja.&lt;/p&gt;
-&lt;hr style=&quot;margin-top:15px&quot;/&gt;
-</translation>
-    </message>
-    <message>
-        <source>* {
-    border-image: url(:/core/images/welcomemode/btn_27.png) 7;
-    border-width: 7;
-    padding: -2px 0;
-    font-size: 12px;
-    font-family: lucida sans, dejavu sans, sans serif;
-    color: black;
-}
-
-*:hover {
-    border-image: url(:/core/images/welcomemode/btn_27_hover.png) 7;
-    color: white;
-}
-</source>
-        <comment>Core::Internal::WelcomePage|</comment>
-        <translation type="obsolete">* {
-    border-image: url(:/core/images/welcomemode/btn_27.png) 7;
-    border-width: 7;
-    padding: -2px 0;
-    font-size: 12px;
-    font-family: lucida sans, dejavu sans, sans serif;
-    color: black;
-}
-
-*:hover {
-    border-image: url(:/core/images/welcomemode/btn_27_hover.png) 7;
-    color: white;
-}
-</translation>
-    </message>
-    <message>
-        <source>&lt;qt&gt;Getting Started &amp;gt;&amp;gt;</source>
-        <comment>Core::Internal::WelcomePage|</comment>
-        <translation type="obsolete">&lt;qt&gt;Začetek &amp;gt;&amp;gt;</translation>
-    </message>
-    <message>
-        <source>#recentSessionsFrame {
-    border-image: url(:/core/images/welcomemode/rc_combined.png) 8;
-    border-width: 8;
-}
-</source>
-        <comment>Core::Internal::WelcomePage|</comment>
-        <translation type="obsolete">#recentSessionsFrame {
-    border-image: url(:/core/images/welcomemode/rc_combined.png) 8;
-    border-width: 8;
-}
-</translation>
-    </message>
-    <message>
-        <source>#bottomWidget {
-    background-image: url(:/core/images/welcomemode/feedback-bar-background.png);
-}
-</source>
-        <comment>Core::Internal::WelcomePage|</comment>
-        <translation type="obsolete">#bottomWidget {
-    background-image: url(:/core/images/welcomemode/feedback-bar-background.png);
-}
-</translation>
-    </message>
-    <message>
-        <source>The class name must not contain namespace delimiters.</source>
-        <comment>Core::Utils::ClassNameValidatingLineEdit|</comment>
-        <translation type="obsolete">Ime razreda ne sme vsebovati ločiteljev imenskega prostora.</translation>
-    </message>
-    <message>
-        <source>Please enter a class name.</source>
-        <comment>Core::Utils::ClassNameValidatingLineEdit|</comment>
-        <translation type="obsolete">Vnesite ime razreda.</translation>
-    </message>
-    <message>
-        <source>The class name contains invalid characters.</source>
-        <comment>Core::Utils::ClassNameValidatingLineEdit|</comment>
-        <translation type="obsolete">Ime razreda vsebuje neveljavne znake.</translation>
-    </message>
-    <message>
-        <source>Cannot set up communication channel: %1</source>
-        <comment>Core::Utils::ConsoleProcess|</comment>
-        <translation type="obsolete">Ni moč vzpostaviti komunikacijskega kanala: %1</translation>
-    </message>
-    <message>
-        <source>Cannot create temporary file: %1</source>
-        <comment>Core::Utils::ConsoleProcess|</comment>
-        <translation type="obsolete">Ni moč ustvariti začasne datoteke: %1</translation>
-    </message>
-    <message>
-        <source>Press &lt;RETURN&gt; to close this window...</source>
-        <comment>Core::Utils::ConsoleProcess|</comment>
-        <translation type="obsolete">Da zaprete to okno, pritisnite &lt;Vnašalko&gt; ...</translation>
-    </message>
-    <message>
-        <source>Cannot start the terminal emulator &apos;%1&apos;.</source>
-        <comment>Core::Utils::ConsoleProcess|</comment>
-        <translation type="obsolete">Ni moč zagnati emulatorja konzole »%1«.</translation>
-    </message>
-    <message>
-        <source>Cannot create temporary directory &apos;%1&apos;: %2</source>
-        <comment>Core::Utils::ConsoleProcess|</comment>
-        <translation type="obsolete">Ni moč ustvariti začasne mape »%1«: %2</translation>
-    </message>
-    <message>
-        <source>Cannot create socket &apos;%1&apos;: %2</source>
-        <comment>Core::Utils::ConsoleProcess|</comment>
-        <translation type="obsolete">Ni moč ustvariti vtičnice »%1«: %2</translation>
-    </message>
-    <message>
-        <source>Cannot change to working directory &apos;%1&apos;: %2</source>
-        <comment>Core::Utils::ConsoleProcess|</comment>
-        <translation type="obsolete">Ni se moč premakniti v delovno mapo »%1«: %2</translation>
-    </message>
-    <message>
-        <source>Cannot execute &apos;%1&apos;: %2</source>
-        <comment>Core::Utils::ConsoleProcess|</comment>
-        <translation type="obsolete">Ni moč zagnati »%1«: %2</translation>
-    </message>
-    <message>
-        <source>Unexpected output from helper program.</source>
-        <comment>Core::Utils::ConsoleProcess|</comment>
-        <translation type="obsolete">Nepričakovan izhod od pomožnega programa.</translation>
-    </message>
-    <message>
-        <source>The process &apos;%1&apos; could not be started: %2</source>
-        <comment>Core::Utils::ConsoleProcess|</comment>
-        <translation type="obsolete">Procesa »%1« ni bilo moč zagnati: %2</translation>
-    </message>
-    <message>
-        <source>Cannot obtain a handle to the inferior: %1</source>
-        <comment>Core::Utils::ConsoleProcess|</comment>
-        <translation type="obsolete">Ni moč dobiti reference za podproces: %1</translation>
-    </message>
-    <message>
-        <source>Cannot obtain exit status from inferior: %1</source>
-        <comment>Core::Utils::ConsoleProcess|</comment>
-        <translation type="obsolete">Ni moč dobiti izhodnega stanja od podprocesa: %1</translation>
-    </message>
-    <message>
-        <source>The name must not be empty</source>
-        <comment>Core::Utils::FileNameValidatingLineEdit|</comment>
-        <translation type="obsolete">Ime ne sme biti prazno</translation>
-    </message>
-    <message>
-        <source>The name must not contain any of the characters &apos;%1&apos;.</source>
-        <comment>Core::Utils::FileNameValidatingLineEdit|</comment>
-        <translation type="obsolete">Ime ne sme vsebovati nobenega izmed znakov »%1«.</translation>
-    </message>
-    <message>
-        <source>The name must not contain &apos;%1&apos;.</source>
-        <comment>Core::Utils::FileNameValidatingLineEdit|</comment>
-        <translation type="obsolete">Ime ne sme vsebovati »%1«.</translation>
-    </message>
-    <message>
-        <source>The name must not match that of a MS Windows device. (%1).</source>
-        <comment>Core::Utils::FileNameValidatingLineEdit|</comment>
-        <translation type="obsolete">Ime se ne sme ujemati z imenom diska v MS Windows. (%1).</translation>
-    </message>
-    <message numerus="yes">
-        <source>%1: canceled. %n occurrences found in %2 files.</source>
-        <comment>Core::Utils::FileSearch|</comment>
-        <translation type="obsolete">
-            <numerusform>%1: preklicano. Najdena %n pojavitev v %2 datotekah.</numerusform>
-            <numerusform>%1: preklicano. Najdeni %n pojavitvi v %2 datotekah.</numerusform>
-            <numerusform>%1: preklicano. Najdene %n pojavitve v %2 datotekah.</numerusform>
-            <numerusform>%1: preklicano. Najdenih %n pojavitev v %2 datotekah.</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1: %n occurrences found in %2 files.</source>
-        <comment>Core::Utils::FileSearch|</comment>
-        <translation type="obsolete">
-            <numerusform>%1: najdena %n pojavitev v %2 datotekah.</numerusform>
-            <numerusform>%1: najdeni %n pojavitvi v %2 datotekah.</numerusform>
-            <numerusform>%1: najdene %n pojavitve v %2 datotekah.</numerusform>
-            <numerusform>%1: najdenih %n pojavitev v %2 datotekah.</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1: %n occurrences found in %2 of %3 files.</source>
-        <comment>Core::Utils::FileSearch|</comment>
-        <translation type="obsolete">
-            <numerusform>%1: najdena %n pojavitev v %2 od %3 datotek.</numerusform>
-            <numerusform>%1: najdeni %n pojavitvi v %2 od %3 datotek.</numerusform>
-            <numerusform>%1: najdene %n pojavitve v %2 od %3 datotek.</numerusform>
-            <numerusform>%1: najdenih %n pojavitev v %2 od %3 datotek.</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>Invalid base class name</source>
-        <comment>Core::Utils::NewClassWidget|</comment>
-        <translation type="obsolete">Neveljavno ime osnovnega razreda</translation>
-    </message>
-    <message>
-        <source>Invalid header file name: &apos;%1&apos;</source>
-        <comment>Core::Utils::NewClassWidget|</comment>
-        <translation type="obsolete">Neveljavno ime datoteke z glavo: »%1«</translation>
-    </message>
-    <message>
-        <source>Invalid source file name: &apos;%1&apos;</source>
-        <comment>Core::Utils::NewClassWidget|</comment>
-        <translation type="obsolete">Neveljavno ime datoteke z izvorno kodo: »%1«</translation>
-    </message>
-    <message>
-        <source>Invalid form file name: &apos;%1&apos;</source>
-        <comment>Core::Utils::NewClassWidget|</comment>
-        <translation type="obsolete">Neveljavno ime datoteke z obrazcem: »%1«</translation>
-    </message>
-    <message>
-        <source>Class name:</source>
-        <comment>Core::Utils::NewClassWidget|</comment>
-        <translation type="obsolete">Ime razreda:</translation>
-    </message>
-    <message>
-        <source>Base class:</source>
-        <comment>Core::Utils::NewClassWidget|</comment>
-        <translation type="obsolete">Osnovni razred:</translation>
-    </message>
-    <message>
-        <source>Header file:</source>
-        <comment>Core::Utils::NewClassWidget|</comment>
-        <translation type="obsolete">Datoteka z glavo:</translation>
-    </message>
-    <message>
-        <source>Source file:</source>
-        <comment>Core::Utils::NewClassWidget|</comment>
-        <translation type="obsolete">Datoteka z izvorno kodo:</translation>
-    </message>
-    <message>
-        <source>Generate form:</source>
-        <comment>Core::Utils::NewClassWidget|</comment>
-        <translation type="obsolete">Ustvari iz:</translation>
-    </message>
-    <message>
-        <source>Form file:</source>
-        <comment>Core::Utils::NewClassWidget|</comment>
-        <translation type="obsolete">Datoteka z obrazcem:</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <comment>Core::Utils::NewClassWidget|</comment>
-        <translation type="obsolete">Pot:</translation>
-    </message>
-    <message>
-        <source>Dialog</source>
-        <comment>Core::Utils::NewClassWidget|</comment>
-        <translation type="obsolete">Pogovorno okno</translation>
-    </message>
-    <message>
-        <source>Choose...</source>
-        <comment>Core::Utils::PathChooser|</comment>
-        <translation type="obsolete">Izbor ...</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <comment>Core::Utils::PathChooser|</comment>
-        <translation type="obsolete">Brskanje ...</translation>
-    </message>
-    <message>
-        <source>Choose a directory</source>
-        <comment>Core::Utils::PathChooser|</comment>
-        <translation type="obsolete">Izberite mapo</translation>
-    </message>
-    <message>
-        <source>Choose a file</source>
-        <comment>Core::Utils::PathChooser|</comment>
-        <translation type="obsolete">Izberite datoteko</translation>
-    </message>
-    <message>
-        <source>The path must not be empty.</source>
-        <comment>Core::Utils::PathChooser|</comment>
-        <translation type="obsolete">Pot ne sme biti prazna.</translation>
-    </message>
-    <message>
-        <source>The path &apos;%1&apos; does not exist.</source>
-        <comment>Core::Utils::PathChooser|</comment>
-        <translation type="obsolete">Pot »%1« ne obstaja.</translation>
-    </message>
-    <message>
-        <source>The path &apos;%1&apos; is not a directory.</source>
-        <comment>Core::Utils::PathChooser|</comment>
-        <translation type="obsolete">Pot »%1« ni mapa.</translation>
-    </message>
-    <message>
-        <source>The path &apos;%1&apos; is not a file.</source>
-        <comment>Core::Utils::PathChooser|</comment>
-        <translation type="obsolete">Pot »%1« ni datoteka.</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <comment>Core::Utils::PathChooser|</comment>
-        <translation type="obsolete">Pot:</translation>
-    </message>
-    <message>
-        <source>Insert...</source>
-        <comment>Core::Utils::PathListEditor|</comment>
-        <translation type="obsolete">Vstavi ...</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <comment>Core::Utils::PathListEditor|</comment>
-        <translation type="obsolete">Dodaj ...</translation>
-    </message>
-    <message>
-        <source>Delete line</source>
-        <comment>Core::Utils::PathListEditor|</comment>
-        <translation type="obsolete">Izbriši vrstico</translation>
-    </message>
-    <message>
-        <source>Clear</source>
-        <comment>Core::Utils::PathListEditor|</comment>
-        <translation type="obsolete">Počisti</translation>
-    </message>
-    <message>
-        <source>From &quot;%1&quot;</source>
-        <comment>Core::Utils::PathListEditor|</comment>
-        <translation type="obsolete">Iz »%1«</translation>
-    </message>
-    <message>
-        <source>&lt;Enter_Name&gt;</source>
-        <comment>Core::Utils::ProjectIntroPage|</comment>
-        <translation type="obsolete">&lt;vnesite ime&gt;</translation>
-    </message>
-    <message>
-        <source>The project already exists.</source>
-        <comment>Core::Utils::ProjectIntroPage|</comment>
-        <translation type="obsolete">Projekt že obstaja.</translation>
-    </message>
-    <message>
-        <source>A file with that name already exists.</source>
-        <comment>Core::Utils::ProjectIntroPage|</comment>
-        <translation type="obsolete">Datoteka s tem imenom že obstaja.</translation>
-    </message>
-    <message>
-        <source>Introduction and project location</source>
-        <comment>Core::Utils::ProjectIntroPage|</comment>
-        <translation type="obsolete">Uvod in lokacija projekta</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <comment>Core::Utils::ProjectIntroPage|</comment>
-        <translation type="obsolete">Ime:</translation>
-    </message>
-    <message>
-        <source>Create in:</source>
-        <comment>Core::Utils::ProjectIntroPage|</comment>
-        <translation type="obsolete">Ustvari v:</translation>
-    </message>
-    <message>
-        <source>WizardPage</source>
-        <comment>Core::Utils::ProjectIntroPage|</comment>
-        <translation type="obsolete">StranČarovnika</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <comment>Core::Utils::ProjectIntroPage|</comment>
-        <translation type="obsolete">BesedilaOznaka</translation>
-    </message>
-    <message>
-        <source>The name must not contain the &apos;.&apos;-character.</source>
-        <comment>Core::Utils::ProjectNameValidatingLineEdit|</comment>
-        <translation type="obsolete">Ime ne sme vsebovati znaka ».«.</translation>
-    </message>
-    <message>
-        <source>Des&amp;cription</source>
-        <comment>Core::Utils::SubmitEditorWidget|</comment>
-        <translation type="obsolete">&amp;Opis</translation>
-    </message>
-    <message>
-        <source>F&amp;iles</source>
-        <comment>Core::Utils::SubmitEditorWidget|</comment>
-        <translation type="obsolete">&amp;Datoteke</translation>
-    </message>
-    <message>
-        <source>Choose the location</source>
-        <comment>Core::Utils::WizardPage|</comment>
-        <translation type="obsolete">Izberite lokacijo</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <comment>Core::Utils::WizardPage|</comment>
-        <translation type="obsolete">Ime:</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <comment>Core::Utils::WizardPage|</comment>
-        <translation type="obsolete">Pot:</translation>
-    </message>
-    <message>
-        <source>WizardPage</source>
-        <comment>Core::Utils::WizardPage|</comment>
-        <translation type="obsolete">StranČarovnika</translation>
-    </message>
-    <message>
-        <source>File Changed</source>
-        <comment>Core::Utils::reloadPrompt|</comment>
-        <translation type="obsolete">Datoteka spremenjena</translation>
-    </message>
-    <message>
-        <source>The file %1 has changed outside Qt Creator. Do you want to reload it?</source>
-        <comment>Core::Utils::reloadPrompt|</comment>
-        <translation type="obsolete">Datoteka %1 je bila spremenjena izven Qt Creatorja. Ali jo želite naložiti znova?</translation>
-    </message>
-    <message>
-        <source>Classes and Methods</source>
-        <comment>CppTools::Internal::CppQuickOpenFilter|</comment>
-        <translation type="obsolete">Razredi in metode</translation>
-    </message>
-    <message>
-        <source>Select Executable</source>
-        <comment>Debugger::Internal::AttachTcfDialog|</comment>
-        <translation type="obsolete">Izberite izvršljivo datoteko</translation>
-    </message>
-    <message>
-        <source>Continue</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Nadaljuj</translation>
-    </message>
-    <message>
-        <source>Interrupt</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Prekini</translation>
-    </message>
-    <message>
-        <source>Reset Debugger</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Ponastavi razhroščevalnik</translation>
-    </message>
-    <message>
-        <source>Step Over</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Preskoči</translation>
-    </message>
-    <message>
-        <source>Step Into</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Vstopi</translation>
-    </message>
-    <message>
-        <source>Step Over Instruction</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Preskoči ukaz</translation>
-    </message>
-    <message>
-        <source>Step One Instruction</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Stopi za en ukaz naprej</translation>
-    </message>
-    <message>
-        <source>Step Out</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Izstopi</translation>
-    </message>
-    <message>
-        <source>Run to Line</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Zaženi do vrstice</translation>
-    </message>
-    <message>
-        <source>Run to Outermost Function</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Zaženi do najbolj zunanje funkcije</translation>
-    </message>
-    <message>
-        <source>Jump to Line</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Skoči do vrstice</translation>
-    </message>
-    <message>
-        <source>Toggle Breakpoint</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Preklopi prekinitveno točko</translation>
-    </message>
-    <message>
-        <source>Set Breakpoint at Function...</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Nastavi prekinitveno točko pri funkciji ...</translation>
-    </message>
-    <message>
-        <source>Set Breakpoint at Function &quot;main&quot;</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Nastavi prekinitveno točko pri funkciji »main«</translation>
-    </message>
-    <message>
-        <source>Add to Watch Window</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Dodaj v opazovalno okno</translation>
-    </message>
-    <message>
-        <source>Stop requested...</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Zahtevanje ustavitve ...</translation>
-    </message>
-    <message>
-        <source>Stopped.</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Ustavljen.</translation>
-    </message>
-    <message>
-        <source>Running requested...</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Zahtevanje zagona ...</translation>
-    </message>
-    <message>
-        <source>Running...</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Teče ...</translation>
-    </message>
-    <message>
-        <source>Changing breakpoint state requires either a fully running or fully stopped application.</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Za spreminjanje stanja prekinitvene točke je potreben bodisi povsem zagnan bodisi povsem ustavljen program.</translation>
-    </message>
-    <message>
-        <source>Debugging VS executables is not supported.</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Razhroščevanje izvršljivih datotek zgrajenih z Visual Studio ni podprto.</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Opozorilo</translation>
-    </message>
-    <message>
-        <source>Cannot attach to PID 0</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Ni se moč priklopiti na PID 0</translation>
-    </message>
-    <message>
-        <source>Cannot debug &apos;%1&apos;: %2</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Ni moč razhroščevati »%1«: %2</translation>
-    </message>
-    <message>
-        <source>Save Debugger Log</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Shrani dnevnik razhroščevalnika</translation>
-    </message>
-    <message>
-        <source>Stop Debugger</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Ustavi razhroščevalnik</translation>
-    </message>
-    <message>
-        <source>Open Qt preferences</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Odpri nastavitve Qt</translation>
-    </message>
-    <message>
-        <source>Turn helper usage off</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Izklopi uporabo pomočnika</translation>
-    </message>
-    <message>
-        <source>Continue anyway</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Vseeno nadaljuj</translation>
-    </message>
-    <message>
-        <source>Debugging helper missing</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Razhroščevalni pomočnik manjka</translation>
-    </message>
-    <message>
-        <source>The debugger did not find the debugging helper library.</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Razhroščevalnik ni našel knjižnice razhroščevalnega pomočnika.</translation>
-    </message>
-    <message>
-        <source>The debugging helper is used to nicely format the values of Qt data types and some STL data types. It must be compiled for each Qt version which you can do in the Qt preferences page by selecting a Qt installation and clicking on &apos;Rebuild&apos; for the debugging helper.</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Razhroščevalni pomočnik se uporablja za lepo oblikovanje vrednosti podatkovnih vrst Qt in nekaterih podatkovnih vrst STL. Preveden mora biti za vsako različico Qt posebaj. To lahko storite iz nastavitev Qt, kjer izberete namestitev Qt in za razhroščevalnega pomočnika kliknete »Znova zgradi«.</translation>
-    </message>
-    <message>
-        <source>Start and Debug External Application...</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Zaženi in razhroščuj zunanji program ...</translation>
-    </message>
-    <message>
-        <source>Attach to Running External Application...</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Priklopi se na zagnan zunanji program ...</translation>
-    </message>
-    <message>
-        <source>Attach to Core...</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Priklopi se na posnetek ...</translation>
-    </message>
-    <message>
-        <source>The debugging helper is used to nicely format the values of Qt data types and some STL data types. It must be compiled for each Qt version, you can do this in the Qt preferences page by selecting a Qt installation and clicking on &apos;Rebuild&apos; for the debugging helper.</source>
-        <comment>Debugger::Internal::DebuggerManager|</comment>
-        <translation type="obsolete">Razhroščevalni pomočnik se uporablja za lepo oblikovanje vrednosti podatkovnih vrst Qt in nekaterih podatkovnih vrst STL. Preveden mora biti za vsako različico Qt posebaj. To lahko storite iz nastavitev Qt, kjer izberete namestitev Qt in za razhroščevalnega pomočnika kliknete »Znova zgradi«.</translation>
-    </message>
-    <message>
-        <source>Debug</source>
-        <comment>Debugger::Internal::DebuggerRunner|</comment>
-        <translation type="obsolete">Razhroščevanje</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <comment>Debugger::Internal::DisassemblerHandler|</comment>
-        <translation type="obsolete">Naslov</translation>
-    </message>
-    <message>
-        <source>Symbol</source>
-        <comment>Debugger::Internal::DisassemblerHandler|</comment>
-        <translation type="obsolete">Simbol</translation>
-    </message>
-    <message>
-        <source>Mnemonic</source>
-        <comment>Debugger::Internal::DisassemblerHandler|</comment>
-        <translation type="obsolete">Mnemonik</translation>
-    </message>
-    <message>
-        <source>Disassembler</source>
-        <comment>Debugger::Internal::DisassemblerWindow|</comment>
-        <translation type="obsolete">Razstavljalnik</translation>
-    </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <comment>Debugger::Internal::DisassemblerWindow|</comment>
-        <translation type="obsolete">Širine stolpcev prilagodi vsebinam</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <comment>Debugger::Internal::DisassemblerWindow|</comment>
-        <translation type="obsolete">Širine stolpcev vedno prilagodi vsebinam</translation>
-    </message>
-    <message>
-        <source>Reload disassembler listing</source>
-        <comment>Debugger::Internal::DisassemblerWindow|</comment>
-        <translation type="obsolete">Znova naloži seznam razstavljalnika</translation>
-    </message>
-    <message>
-        <source>Always reload disassembler listing</source>
-        <comment>Debugger::Internal::DisassemblerWindow|</comment>
-        <translation type="obsolete">Vedno znova naloži seznam razstavljalnika</translation>
-    </message>
-    <message>
-        <source>%1.</source>
-        <comment>Debugger::Internal::TcfEngine|</comment>
-        <translation type="obsolete">%1.</translation>
-    </message>
-    <message>
-        <source>Stopped.</source>
-        <comment>Debugger::Internal::TcfEngine|</comment>
-        <translation type="obsolete">Ustavljeno.</translation>
-    </message>
-    <message>
-        <source>Socket error: %1</source>
-        <comment>Debugger::Internal::TcfEngine|</comment>
-        <translation type="obsolete">Napaka vtičnice: %1</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <comment>Debugger::Internal::TcfEngine|</comment>
-        <translation type="obsolete">Napaka</translation>
-    </message>
-    <message>
-        <source>Action editor</source>
-        <comment>Designer::Internal::EditorWidget|</comment>
-        <translation type="obsolete">Urejevalnik dejanj</translation>
-    </message>
-    <message>
-        <source>Signals and slots editor</source>
-        <comment>Designer::Internal::EditorWidget|</comment>
-        <translation type="obsolete">Urejevalnik signalov in rež</translation>
-    </message>
-    <message>
-        <source>untitled</source>
-        <comment>Designer::Internal::FormWindowEditor|</comment>
-        <translation type="obsolete">neimenovano</translation>
-    </message>
-    <message>
-        <source>Designer</source>
-        <comment>Designer::Internal::SettingsPage|</comment>
-        <translation type="obsolete">Snovalnik</translation>
-    </message>
-    <message>
-        <source>Qt QML File</source>
-        <comment>DuiEditor::Internal::DuiEditorPlugin|</comment>
-        <translation type="obsolete">Datoteka Qt QML</translation>
-    </message>
-    <message>
-        <source>Qt</source>
-        <comment>DuiEditor::Internal::DuiEditorPlugin|</comment>
-        <translation type="obsolete">Qt</translation>
-    </message>
-    <message>
-        <source>&lt;Select Symbol&gt;</source>
-        <comment>DuiEditor::Internal::ScriptEditor|</comment>
-        <translation type="obsolete">&lt;izberite simbol&gt;</translation>
-    </message>
-    <message>
-        <source>Rename...</source>
-        <comment>DuiEditor::Internal::ScriptEditor|</comment>
-        <translation type="obsolete">Preimenuj ...</translation>
-    </message>
-    <message>
-        <source>New id:</source>
-        <comment>DuiEditor::Internal::ScriptEditor|</comment>
-        <translation type="obsolete">Nov ID:</translation>
-    </message>
-    <message>
-        <source>Rename id &apos;%1&apos;...</source>
-        <comment>DuiEditor::Internal::ScriptEditor|</comment>
-        <translation type="obsolete">Preimenuj ID »%1« ...</translation>
-    </message>
-    <message>
-        <source>Git Output</source>
-        <comment>Git::Internal::GitOutputWindow|</comment>
-        <translation type="obsolete">Izhod Git</translation>
-    </message>
-    <message>
-        <source>Git</source>
-        <comment>Git::Internal::GitOutputWindow|</comment>
-        <translation type="obsolete">Git</translation>
-    </message>
-    <message>
-        <source>Contents</source>
-        <comment>Help::Internal::ContentsToolWidget|</comment>
-        <translation type="obsolete">Vsebina</translation>
-    </message>
-    <message>
-        <source>Failed to load keyword index file!</source>
-        <comment>Help::Internal::IndexThread|</comment>
-        <translation type="obsolete">Nalaganje datoteke s kazalom ključnih besed ni uspelo.</translation>
-    </message>
-    <message>
-        <source>Cannot open the index file %1</source>
-        <comment>Help::Internal::IndexThread|</comment>
-        <translation type="obsolete">Ni moč odpreti datoteke s kazalom %1</translation>
-    </message>
-    <message>
-        <source>Documentation file %1 does not exist!
-Skipping file.</source>
-        <comment>Help::Internal::IndexThread|</comment>
-        <translation type="obsolete">Datoteka z dokumentacijo %1 ne obstaja.
-Datoteka ne bo uporabljena.</translation>
-    </message>
-    <message>
-        <source>Look for:</source>
-        <comment>Help::Internal::IndexToolWidget|</comment>
-        <translation type="obsolete">Išči:</translation>
-    </message>
-    <message>
-        <source>Index</source>
-        <comment>Help::Internal::IndexToolWidget|</comment>
-        <translation type="obsolete">Kazalo</translation>
-    </message>
-    <message>
-        <source>Documentation file %1 does not exist!
-Skipping file.</source>
-        <comment>Help::Internal::TitleMapThread|</comment>
-        <translation type="obsolete">Datoteka z dokumentacijo %1 ne obstaja.
-Datoteka ne bo uporabljena.</translation>
-    </message>
-    <message>
-        <source>Documentation file %1 is not compatible!
-Skipping file.</source>
-        <comment>Help::Internal::TitleMapThread|</comment>
-        <translation type="obsolete">Datoteka z dokumentacijo %1 ni združljiva.
-Datoteka ne bo uporabljena.</translation>
-    </message>
-    <message>
-        <source>Perforce Output</source>
-        <comment>Perforce::Internal::PerforceOutputWindow|</comment>
-        <translation type="obsolete">Izhod Perforce</translation>
-    </message>
-    <message>
-        <source>Perforce</source>
-        <comment>Perforce::Internal::PerforceOutputWindow|</comment>
-        <translation type="obsolete">Perforce</translation>
-    </message>
-    <message>
-        <source>Advanced Mode</source>
-        <comment>ProEditorContainer|</comment>
-        <translation type="obsolete">Napreden način</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>ProEditorContainer|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>Failed to start program. Path or permissions wrong?</source>
-        <comment>ProjectExplorer::Internal::ApplicationLauncher|</comment>
-        <translation type="obsolete">Zagon programa ni uspel. Morda je napačna pot ali pa dovoljenja.</translation>
-    </message>
-    <message>
-        <source>The program has unexpectedly finished.</source>
-        <comment>ProjectExplorer::Internal::ApplicationLauncher|</comment>
-        <translation type="obsolete">Program je nepričakovano končal.</translation>
-    </message>
-    <message>
-        <source>Some error has occurred while running the program.</source>
-        <comment>ProjectExplorer::Internal::ApplicationLauncher|</comment>
-        <translation type="obsolete">Med poganjanjem programa je prišlo do neke napake.</translation>
-    </message>
-    <message>
-        <source>Run</source>
-        <comment>ProjectExplorer::Internal::ApplicationRunConfigurationRunner|</comment>
-        <translation type="obsolete">Zaženi</translation>
-    </message>
-    <message>
-        <source>Starting %1...</source>
-        <comment>ProjectExplorer::Internal::ApplicationRunControl|</comment>
-        <translation type="obsolete">Zaganjanje %1 ...</translation>
-    </message>
-    <message>
-        <source>%1 exited with code %2</source>
-        <comment>ProjectExplorer::Internal::ApplicationRunControl|</comment>
-        <translation type="obsolete">%1 je končal s kodo %2</translation>
-    </message>
-    <message>
-        <source>Configurations</source>
-        <comment>ProjectExplorer::Internal::BuildSettingsPropertiesPage|</comment>
-        <translation type="obsolete">Nastavitve</translation>
-    </message>
-    <message>
-        <source>+</source>
-        <comment>ProjectExplorer::Internal::BuildSettingsPropertiesPage|</comment>
-        <translation type="obsolete">+</translation>
-    </message>
-    <message>
-        <source>-</source>
-        <comment>ProjectExplorer::Internal::BuildSettingsPropertiesPage|</comment>
-        <translation type="obsolete">-</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>ProjectExplorer::Internal::BuildSettingsPropertiesPage|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <comment>ProjectExplorer::Internal::BuildSettingsPropertiesPage|</comment>
-        <translation type="obsolete">BesedilaOznaka</translation>
-    </message>
-    <message>
-        <source>Build Settings</source>
-        <comment>ProjectExplorer::Internal::ProjetExplorerSettingsPageUi|</comment>
-        <translation type="obsolete">Nastavitve za gradnjo</translation>
-    </message>
-    <message>
-        <source>Save all files before Build</source>
-        <comment>ProjectExplorer::Internal::ProjetExplorerSettingsPageUi|</comment>
-        <translation type="obsolete">Pred gradnjo shrani vse datoteke</translation>
-    </message>
-    <message>
-        <source>Run Settings</source>
-        <comment>ProjectExplorer::Internal::ProjetExplorerSettingsPageUi|</comment>
-        <translation type="obsolete">Nastavitve za zagon</translation>
-    </message>
-    <message>
-        <source>Always build Project before Running</source>
-        <comment>ProjectExplorer::Internal::ProjetExplorerSettingsPageUi|</comment>
-        <translation type="obsolete">Pred zagonom vedno zgradi projekt</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>ProjectExplorer::Internal::ProjetExplorerSettingsPageUi|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>Could not mmap &apos;%1&apos;: %2</source>
-        <comment>QLibrary|</comment>
-        <translation type="obsolete">Ni bilo moč izvesti funkcije mmap za »%1«: %2</translation>
-    </message>
-    <message>
-        <source>Plugin verification data mismatch in &apos;%1&apos;</source>
-        <comment>QLibrary|</comment>
-        <translation type="obsolete">Neujemanje podatkov za potrjevanje vstavkov v »%1«</translation>
-    </message>
-    <message>
-        <source>Could not unmap &apos;%1&apos;: %2</source>
-        <comment>QLibrary|</comment>
-        <translation type="obsolete">Ni bilo moč izvesti funkcije unmap za »%1«: %2</translation>
-    </message>
-    <message>
-        <source>The shared library was not found.</source>
-        <comment>QLibrary|</comment>
-        <translation type="obsolete">Deljena knjižnica ni bila najdena.</translation>
-    </message>
-    <message>
-        <source>The file &apos;%1&apos; is not a valid Qt plugin.</source>
-        <comment>QLibrary|</comment>
-        <translation type="obsolete">Datoteka »%1« ni veljaven vstavek Qt.</translation>
-    </message>
-    <message>
-        <source>The plugin &apos;%1&apos; uses incompatible Qt library. (%2.%3.%4) [%5]</source>
-        <comment>QLibrary|</comment>
-        <translation type="obsolete">Vstavek »%1« uporablja nezdružljivo knjižnico Qt. (%2.%3.%4) [%5]</translation>
-    </message>
-    <message>
-        <source>The plugin &apos;%1&apos; uses incompatible Qt library. Expected build key &quot;%2&quot;, got &quot;%3&quot;</source>
-        <comment>QLibrary|</comment>
-        <translation type="obsolete">Vstavek »%1« uporablja nezdružljivo knjižnico Qt. Pričakovan je bil ključ gradnje »%2«, dobljen je bil »%3«</translation>
-    </message>
-    <message>
-        <source>The plugin &apos;%1&apos; uses incompatible Qt library. (Cannot mix debug and release libraries.)</source>
-        <comment>QLibrary|</comment>
-        <translation type="obsolete">Vstavek »%1« uporablja nezdružljivo knjižnico Qt. (Ni moč mešati knjižnic za razhroščevanje in izdajo.)</translation>
-    </message>
-    <message>
-        <source>The plugin was not loaded.</source>
-        <comment>QLibrary|</comment>
-        <translation type="obsolete">Vstavek ni bil naložen.</translation>
-    </message>
-    <message>
-        <source>Unknown error</source>
-        <comment>QLibrary|</comment>
-        <translation type="obsolete">Neznana napaka</translation>
-    </message>
-    <message>
-        <source>Cannot load library %1: %2</source>
-        <comment>QLibrary|</comment>
-        <translation type="obsolete">Ni moč naložiti knjižnice %1: %2</translation>
-    </message>
-    <message>
-        <source>Cannot unload library %1: %2</source>
-        <comment>QLibrary|</comment>
-        <translation type="obsolete">Ni moč odstraniti knjižnice %1: %2</translation>
-    </message>
-    <message>
-        <source>Cannot resolve symbol &quot;%1&quot; in %2: %3</source>
-        <comment>QLibrary|</comment>
-        <translation type="obsolete">Ni moč razrešiti simbola »%1« v %2: %3</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <comment>Qt4ProjectManager::Internal::EnvEditDialog|</comment>
-        <translation type="obsolete">Okolje za gradnjo</translation>
-    </message>
-    <message>
-        <source>Make Command:</source>
-        <comment>Qt4ProjectManager::Internal::EnvEditDialog|</comment>
-        <translation type="obsolete">Ukaz Make:</translation>
-    </message>
-    <message>
-        <source>Build Environment:</source>
-        <comment>Qt4ProjectManager::Internal::EnvEditDialog|</comment>
-        <translation type="obsolete">Okolje za gradnjo:</translation>
-    </message>
-    <message>
-        <source>mkspec:</source>
-        <comment>Qt4ProjectManager::Internal::EnvEditDialog|</comment>
-        <translation type="obsolete">mkspec:</translation>
-    </message>
-    <message>
-        <source>0</source>
-        <comment>Qt4ProjectManager::Internal::EnvEditDialog|</comment>
-        <translation type="obsolete">0</translation>
-    </message>
-    <message>
-        <source>1</source>
-        <comment>Qt4ProjectManager::Internal::EnvEditDialog|</comment>
-        <translation type="obsolete">1</translation>
-    </message>
-    <message>
-        <source>Values:</source>
-        <comment>Qt4ProjectManager::Internal::EnvEditDialog|</comment>
-        <translation type="obsolete">Vrednosti:</translation>
-    </message>
-    <message>
-        <source>Variable:</source>
-        <comment>Qt4ProjectManager::Internal::EnvEditDialog|</comment>
-        <translation type="obsolete">Spremenljivka:</translation>
-    </message>
-    <message>
-        <source>Import</source>
-        <comment>Qt4ProjectManager::Internal::EnvEditDialog|</comment>
-        <translation type="obsolete">Uvozi</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <comment>Qt4ProjectManager::Internal::EnvEditDialog|</comment>
-        <translation type="obsolete">V redu</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <comment>Qt4ProjectManager::Internal::EnvEditDialog|</comment>
-        <translation type="obsolete">Prekliči</translation>
-    </message>
-    <message>
-        <source>Build Environments</source>
-        <comment>Qt4ProjectManager::Internal::EnvVariablesPage|</comment>
-        <translation type="obsolete">Okolja za gradnjo</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <comment>Qt4ProjectManager::Internal::EnvVariablesPage|</comment>
-        <translation type="obsolete">Dodaj ...</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <comment>Qt4ProjectManager::Internal::EnvVariablesPage|</comment>
-        <translation type="obsolete">Urejanje ...</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <comment>Qt4ProjectManager::Internal::EnvVariablesPage|</comment>
-        <translation type="obsolete">Izbriši</translation>
-    </message>
-    <message>
-        <source>Default mkspec:</source>
-        <comment>Qt4ProjectManager::Internal::EnvVariablesPage|</comment>
-        <translation type="obsolete">Privzeti mkspec:</translation>
-    </message>
-    <message>
-        <source>Default make command:</source>
-        <comment>Qt4ProjectManager::Internal::EnvVariablesPage|</comment>
-        <translation type="obsolete">Privzeti ukaz make:</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>Qt4ProjectManager::Internal::EnvVariablesPage|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>Filter Configuration</source>
-        <comment>QuickOpen::IQuickOpenFilter|</comment>
-        <translation type="obsolete">Nastavitev filtrov</translation>
-    </message>
-    <message>
-        <source>Limit to prefix</source>
-        <comment>QuickOpen::IQuickOpenFilter|</comment>
-        <translation type="obsolete">Omeji na predpono</translation>
-    </message>
-    <message>
-        <source>Prefix:</source>
-        <comment>QuickOpen::IQuickOpenFilter|</comment>
-        <translation type="obsolete">Predpona:</translation>
-    </message>
-    <message>
-        <source>Generic Directory Filter</source>
-        <comment>QuickOpen::Internal::DirectoryFilter|</comment>
-        <translation type="obsolete">Splošen filter map</translation>
-    </message>
-    <message>
-        <source>Filter Configuration</source>
-        <comment>QuickOpen::Internal::DirectoryFilter|</comment>
-        <translation type="obsolete">Nastavitev filtrov</translation>
-    </message>
-    <message>
-        <source>Choose a directory to add</source>
-        <comment>QuickOpen::Internal::DirectoryFilter|</comment>
-        <translation type="obsolete">Izberite mapo za dodati</translation>
-    </message>
-    <message>
-        <source>%1 filter update: 0 files</source>
-        <comment>QuickOpen::Internal::DirectoryFilter|</comment>
-        <translation type="obsolete">Posodobitev filtra %1: 0 datotek</translation>
-    </message>
-    <message numerus="yes">
-        <source>%1 filter update: %n files</source>
-        <comment>QuickOpen::Internal::DirectoryFilter|</comment>
-        <translation type="obsolete">
-            <numerusform>Posodobitev filtra %1: %n datoteka</numerusform>
-            <numerusform>Posodobitev filtra %1: %n datoteki</numerusform>
-            <numerusform>Posodobitev filtra %1: %n datoteke</numerusform>
-            <numerusform>Posodobitev filtra %1: %n datotek</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>%1 filter update: canceled</source>
-        <comment>QuickOpen::Internal::DirectoryFilter|</comment>
-        <translation type="obsolete">Posodobitev filtra %1: preklicana</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <comment>QuickOpen::Internal::DirectoryFilterOptions|</comment>
-        <translation type="obsolete">Ime:</translation>
-    </message>
-    <message>
-        <source>File Types:</source>
-        <comment>QuickOpen::Internal::DirectoryFilterOptions|</comment>
-        <translation type="obsolete">Vrste datotek:</translation>
-    </message>
-    <message>
-        <source>Specify file name filters, separated by comma. Filters may contain wildcards.</source>
-        <comment>QuickOpen::Internal::DirectoryFilterOptions|</comment>
-        <translation type="obsolete">Določite filtre imen datotek, ločenih z vejico. Filtri lahko vsebujejo nadomestitelje.</translation>
-    </message>
-    <message>
-        <source>Prefix:</source>
-        <comment>QuickOpen::Internal::DirectoryFilterOptions|</comment>
-        <translation type="obsolete">Predpona:</translation>
-    </message>
-    <message>
-        <source>Limit to prefix</source>
-        <comment>QuickOpen::Internal::DirectoryFilterOptions|</comment>
-        <translation type="obsolete">Omeji na predpono</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <comment>QuickOpen::Internal::DirectoryFilterOptions|</comment>
-        <translation type="obsolete">Dodaj ...</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <comment>QuickOpen::Internal::DirectoryFilterOptions|</comment>
-        <translation type="obsolete">Urejanje ...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <comment>QuickOpen::Internal::DirectoryFilterOptions|</comment>
-        <translation type="obsolete">Odstrani</translation>
-    </message>
-    <message>
-        <source>Directories:</source>
-        <comment>QuickOpen::Internal::DirectoryFilterOptions|</comment>
-        <translation type="obsolete">Mape:</translation>
-    </message>
-    <message>
-        <source>Specify a short word/abbreviation that can be used to restrict completions to files from this directory tree.
-To do this, you type this shortcut and a space in the Locator entry field, and then the word to search for.</source>
-        <comment>QuickOpen::Internal::DirectoryFilterOptions|</comment>
-        <translation type="obsolete">Določite kratko besedo ali okrajšavo, ki se lahko uporabi za omejitev dokončevanja za datoteke iz tega drevesa map.
-Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskano besedo.</translation>
-    </message>
-    <message>
-        <source>Dialog</source>
-        <comment>QuickOpen::Internal::DirectoryFilterOptions|</comment>
-        <translation type="obsolete">Pogovorno okno</translation>
-    </message>
-    <message>
-        <source>Files in file system</source>
-        <comment>QuickOpen::Internal::FileSystemFilter|</comment>
-        <translation type="obsolete">Datoteke v datotečnem sistemu</translation>
-    </message>
-    <message>
-        <source>Filter configuration</source>
-        <comment>QuickOpen::Internal::FileSystemFilterOptions|</comment>
-        <translation type="obsolete">Nastavitev filtrov</translation>
-    </message>
-    <message>
-        <source>Prefix:</source>
-        <comment>QuickOpen::Internal::FileSystemFilterOptions|</comment>
-        <translation type="obsolete">Predpona:</translation>
-    </message>
-    <message>
-        <source>Limit to prefix</source>
-        <comment>QuickOpen::Internal::FileSystemFilterOptions|</comment>
-        <translation type="obsolete">Omeji na predpono</translation>
-    </message>
-    <message>
-        <source>Include hidden files</source>
-        <comment>QuickOpen::Internal::FileSystemFilterOptions|</comment>
-        <translation type="obsolete">Vključi skrite datoteke</translation>
-    </message>
-    <message>
-        <source>Filter:</source>
-        <comment>QuickOpen::Internal::FileSystemFilterOptions|</comment>
-        <translation type="obsolete">Filter:</translation>
-    </message>
-    <message>
-        <source>Open documents</source>
-        <comment>QuickOpen::Internal::OpenDocumentsFilter|</comment>
-        <translation type="obsolete">Odprti dokumenti</translation>
-    </message>
-    <message>
-        <source>Available filters</source>
-        <comment>QuickOpen::Internal::QuickOpenFiltersFilter|</comment>
-        <translation type="obsolete">Razpoložljivi filtri</translation>
-    </message>
-    <message>
-        <source>Indexing</source>
-        <comment>QuickOpen::Internal::QuickOpenPlugin|</comment>
-        <translation type="obsolete">Indeksiranje</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <comment>QuickOpen::Internal::QuickOpenToolWindow|</comment>
-        <translation type="obsolete">Osveži</translation>
-    </message>
-    <message>
-        <source>Configure...</source>
-        <comment>QuickOpen::Internal::QuickOpenToolWindow|</comment>
-        <translation type="obsolete">Nastavitve ...</translation>
-    </message>
-    <message>
-        <source>Locate...</source>
-        <comment>QuickOpen::Internal::QuickOpenToolWindow|</comment>
-        <translation type="obsolete">Lociraj ...</translation>
-    </message>
-    <message>
-        <source>Type to locate</source>
-        <comment>QuickOpen::Internal::QuickOpenToolWindow|</comment>
-        <translation type="obsolete">Tipkajte za lociranje</translation>
-    </message>
-    <message>
-        <source>&lt;type here&gt;</source>
-        <comment>QuickOpen::Internal::QuickOpenToolWindow|</comment>
-        <translation type="obsolete">&lt;tipkajte sem&gt;</translation>
-    </message>
-    <message>
-        <source>Configure Filters</source>
-        <comment>QuickOpen::Internal::SettingsDialog|</comment>
-        <translation type="obsolete">Nastavitev filtrov</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <comment>QuickOpen::Internal::SettingsDialog|</comment>
-        <translation type="obsolete">Dodaj</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <comment>QuickOpen::Internal::SettingsDialog|</comment>
-        <translation type="obsolete">Odstrani</translation>
-    </message>
-    <message>
-        <source> min</source>
-        <comment>QuickOpen::Internal::SettingsDialog|</comment>
-        <translation type="obsolete"> min</translation>
-    </message>
-    <message>
-        <source>Refresh now!</source>
-        <comment>QuickOpen::Internal::SettingsDialog|</comment>
-        <translation type="obsolete">Osveži sedaj</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <comment>QuickOpen::Internal::SettingsDialog|</comment>
-        <translation type="obsolete">Urejanje ...</translation>
-    </message>
-    <message>
-        <source>Refresh Interval:</source>
-        <comment>QuickOpen::Internal::SettingsDialog|</comment>
-        <translation type="obsolete">Čas med osvežitvami:</translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <comment>QuickOpen::Internal::SettingsDialog|</comment>
-        <translation type="obsolete">Urejanje</translation>
-    </message>
-    <message>
-        <source>Refresh Intervall:</source>
-        <comment>QuickOpen::Internal::SettingsDialog|</comment>
-        <translation type="obsolete">Čas med osvežitvami:</translation>
-    </message>
-    <message>
-        <source>%1 (Prefix: %2)</source>
-        <comment>QuickOpen::Internal::SettingsPage|</comment>
-        <translation type="obsolete">%1 (predpona: %2)</translation>
-    </message>
-    <message>
-        <source>Configure Filters</source>
-        <comment>QuickOpen::Internal::SettingsWidget|</comment>
-        <translation type="obsolete">Nastavitev filtrov</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <comment>QuickOpen::Internal::SettingsWidget|</comment>
-        <translation type="obsolete">Dodaj</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <comment>QuickOpen::Internal::SettingsWidget|</comment>
-        <translation type="obsolete">Odstrani</translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <comment>QuickOpen::Internal::SettingsWidget|</comment>
-        <translation type="obsolete">Urejanje</translation>
-    </message>
-    <message>
-        <source>Refresh Interval:</source>
-        <comment>QuickOpen::Internal::SettingsWidget|</comment>
-        <translation type="obsolete">Čas med osvežitvami:</translation>
-    </message>
-    <message>
-        <source> min</source>
-        <comment>QuickOpen::Internal::SettingsWidget|</comment>
-        <translation type="obsolete"> min</translation>
-    </message>
-    <message>
-        <source>Debug and Release</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Razhroščevanje in izdaja</translation>
-    </message>
-    <message>
-        <source>Debug specific</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Samo za razhroščevanje</translation>
-    </message>
-    <message>
-        <source>Release specific</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Samo za izdajo</translation>
-    </message>
-    <message>
-        <source>All platforms</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Vse platforme</translation>
-    </message>
-    <message>
-        <source>MS Windows specific</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Samo za Windows</translation>
-    </message>
-    <message>
-        <source>Linux/Unix specific</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Samo za Linux ali Unix</translation>
-    </message>
-    <message>
-        <source>Mac OSX specific</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Samo za Mac OS X</translation>
-    </message>
-    <message>
-        <source>Target Options</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Možnosti cilja</translation>
-    </message>
-    <message>
-        <source>Type and name of the target.</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Vrsta in ime cilja.</translation>
-    </message>
-    <message>
-        <source>Preprocessor Definitions</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Definicije za predprocesor</translation>
-    </message>
-    <message>
-        <source>Setting of the preprocessor definitions.</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Nastavljanje definicij za predprocesor.</translation>
-    </message>
-    <message>
-        <source>Include path</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Pot za vključevanje</translation>
-    </message>
-    <message>
-        <source>Setting of the pathes where the header files are located.</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Nastavljanje poti, kjer se nahajajo datoteke z glavami.</translation>
-    </message>
-    <message>
-        <source>Libraries</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Knjižnice</translation>
-    </message>
-    <message>
-        <source>Defining the libraries to link the target against and the pathes where these are located.</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Določanje knjižnic s katerimi bo povezan cilj in poti v katerih se knjižnice nahajajo.</translation>
-    </message>
-    <message>
-        <source>Source Files</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Datoteke z izvorno kodo</translation>
-    </message>
-    <message>
-        <source>Header Files</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Datoteke z glavo</translation>
-    </message>
-    <message>
-        <source>Forms</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Obrazci</translation>
-    </message>
-    <message>
-        <source>Qt Modules</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Moduli Qt</translation>
-    </message>
-    <message>
-        <source>Setting up which of the Qt modules will be used in the target application.</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Nastavljanje modulov Qt, ki bodo uporabljeni v ciljnem programu.</translation>
-    </message>
-    <message>
-        <source>Resource files</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Datoteke z viri</translation>
-    </message>
-    <message>
-        <source>Target name</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Ime cilja</translation>
-    </message>
-    <message>
-        <source>The name of the resulting target.</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Ime končnega cilja.</translation>
-    </message>
-    <message>
-        <source>Configuration</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Nastavitev</translation>
-    </message>
-    <message>
-        <source>Configuration.</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Nastavitev.</translation>
-    </message>
-    <message>
-        <source>Destination directory</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Ciljna mapa</translation>
-    </message>
-    <message>
-        <source>Where the resulting target will be created.</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Kje bo ustvarjen končni cilj.</translation>
-    </message>
-    <message>
-        <source>QtCore Module</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Modul QtCore</translation>
-    </message>
-    <message>
-        <source>Core non-GUI classes used by other modules</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Osrednji razredi, ki niso za grafični vmesnik in jih uporabljajo drugi moduli</translation>
-    </message>
-    <message>
-        <source>QtGui Module</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Modul QtGui</translation>
-    </message>
-    <message>
-        <source>Graphical user interface components</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Komponente za grafični uporabniški vmesnik</translation>
-    </message>
-    <message>
-        <source>QtNetwork Module</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Modul QtNetwork</translation>
-    </message>
-    <message>
-        <source>Classes for network programming</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Razredi za omrežno programiranje</translation>
-    </message>
-    <message>
-        <source>QtOpenGL Module</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Modul QtOpenGL</translation>
-    </message>
-    <message>
-        <source>OpenGL support classes</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Razredi za podporo OpenGL</translation>
-    </message>
-    <message>
-        <source>QtSql Module</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Modul QtSql</translation>
-    </message>
-    <message>
-        <source>Classes for database integration using SQL</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Razredi za integracijo s podatkovnimi zbirkami z uporabo SQL</translation>
-    </message>
-    <message>
-        <source>QtScript Module</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Modul QtScript</translation>
-    </message>
-    <message>
-        <source>Classes for evaluating Qt Scripts</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Razredi za ovrednotenje skript Qt Script</translation>
-    </message>
-    <message>
-        <source>QtSvg Module</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Modul QtSvg</translation>
-    </message>
-    <message>
-        <source>Classes for displaying the contents of SVG files</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Razredi za prikaz datotek z raztegljivo vektorsko grafiko SVG</translation>
-    </message>
-    <message>
-        <source>QtWebKit Module</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Modul QtWebKit</translation>
-    </message>
-    <message>
-        <source>Classes for displaying and editing Web content</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Razredi za prikaz in urejanje spletnih vsebin</translation>
-    </message>
-    <message>
-        <source>QtXml Module</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Modul QtXml</translation>
-    </message>
-    <message>
-        <source>Classes for handling XML</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Razredi za delo z XML</translation>
-    </message>
-    <message>
-        <source>QtXmlPatterns Module</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Modul QtXmlPatterns</translation>
-    </message>
-    <message>
-        <source>An XQuery/XPath engine for XML and custom data models</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Pogon in lastni podatkovni modeli za XQuery in XPath</translation>
-    </message>
-    <message>
-        <source>Phonon Module</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Modul Phonon</translation>
-    </message>
-    <message>
-        <source>Multimedia framework classes</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Razredi za večpredstavnostno ogrodje</translation>
-    </message>
-    <message>
-        <source>Qt3Support Module</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Modul Qt3Support</translation>
-    </message>
-    <message>
-        <source>Classes that ease porting from Qt 3 to Qt 4</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Razredi, ki olajšajo prenos s Qt 3 na Qt 4</translation>
-    </message>
-    <message>
-        <source>QtTest Module</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Modul QtTest</translation>
-    </message>
-    <message>
-        <source>Tool classes for unit testing</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Orodni razredi za preizkušanje enot</translation>
-    </message>
-    <message>
-        <source>QtDBus module</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Modul QtDBus</translation>
-    </message>
-    <message>
-        <source>Classes for Inter-Process Communication using the D-Bus</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Razredi za medprocesno komunikacijo z uporabo D-Busa</translation>
-    </message>
-    <message>
-        <source>Application</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Program</translation>
-    </message>
-    <message>
-        <source>Create a standalone application</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Ustvari samostojen program</translation>
-    </message>
-    <message>
-        <source>Dynamic Library</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Dinamična knjižnica</translation>
-    </message>
-    <message>
-        <source>Create a dynamic library for usage in other applications</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Ustvari dinamično knjižnico za uporabo v drugih programih</translation>
-    </message>
-    <message>
-        <source>Static Library</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Statična knjižnica</translation>
-    </message>
-    <message>
-        <source>Create a static library for usage in other applications</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Ustvari statično knjižnico za uporabo v drugih programih</translation>
-    </message>
-    <message>
-        <source>Add Operator</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Dodaj operator</translation>
-    </message>
-    <message>
-        <source>Remove Operator</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Odstrani operator</translation>
-    </message>
-    <message>
-        <source>Replace Operator</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Nadomesti operator</translation>
-    </message>
-    <message>
-        <source>Set Operator</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Nastavi operator</translation>
-    </message>
-    <message>
-        <source>Unique Add Operator</source>
-        <comment>SimpleProEditor|</comment>
-        <translation type="obsolete">Operator edinstvenega dodajanja</translation>
-    </message>
-    <message>
-        <source>Subversion Output</source>
-        <comment>Subversion::Internal::SubversionOutputWindow|</comment>
-        <translation type="obsolete">Izhod Subversion</translation>
-    </message>
-    <message>
-        <source>Subversion</source>
-        <comment>Subversion::Internal::SubversionOutputWindow|</comment>
-        <translation type="obsolete">Subversion</translation>
-    </message>
-    <message>
-        <source>Paste</source>
-        <comment>View|</comment>
-        <translation type="obsolete">Prilepi</translation>
-    </message>
-    <message>
-        <source>&lt;Username&gt;</source>
-        <comment>View|</comment>
-        <translation type="obsolete">&lt;uporabniško ime&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;Description&gt;</source>
-        <comment>View|</comment>
-        <translation type="obsolete">&lt;opis&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;Comment&gt;</source>
-        <comment>View|</comment>
-        <translation type="obsolete">&lt;komentar&gt;</translation>
-    </message>
-    <message>
-        <source>Start Debugger</source>
-        <comment>AttachRemoteDialog|</comment>
-        <translation type="obsolete">Zaženi razhroščevalnik</translation>
-    </message>
-    <message>
-        <source>Attach to Process ID:</source>
-        <comment>AttachRemoteDialog|</comment>
-        <translation type="obsolete">Priklopi se na ID procesa:</translation>
-    </message>
-    <message>
-        <source>Filter:</source>
-        <comment>AttachRemoteDialog|</comment>
-        <translation type="obsolete">Filter:</translation>
-    </message>
-    <message>
-        <source>...</source>
-        <comment>AttachRemoteDialog|</comment>
-        <translation type="obsolete">...</translation>
-    </message>
-    <message>
-        <source>Loading dumpers...</source>
-        <comment>CdbDumperHelper|</comment>
-        <translation type="obsolete">Nalaganje odlagalnikov ...</translation>
-    </message>
-    <message>
-        <source>The debugger does not appear to be Qt application.</source>
-        <comment>CdbDumperHelper|</comment>
-        <translation type="obsolete">Kot kaže razhroščevalnik ni program napisan s Qt.</translation>
-    </message>
-    <message>
-        <source>The dumper module appears to be already loaded.</source>
-        <comment>CdbDumperHelper|</comment>
-        <translation type="obsolete">Kot kaže je modul odlagalnika že naložen.</translation>
-    </message>
-    <message>
-        <source>Dumper library &apos;%1&apos; loaded.</source>
-        <comment>CdbDumperHelper|</comment>
-        <translation type="obsolete">Odlagalna knjižnica »%1« je naložena.</translation>
-    </message>
-    <message>
-        <source>The dumper library &apos;%1&apos; could not be loaded:
-%2</source>
-        <comment>CdbDumperHelper|</comment>
-        <translation type="obsolete">Odlagalne knjižnice »%1« ni bilo moč naložiti:
-%2</translation>
-    </message>
-    <message>
-        <source>Querying dumpers for &apos;%1&apos;/&apos;%2&apos; (%3)</source>
-        <comment>CdbDumperHelper|</comment>
-        <translation type="obsolete">Pri odlagalnikih poizvedujem po »%1«/»%2« (%3)</translation>
-    </message>
-    <message>
-        <source>Add new page</source>
-        <comment>CentralWidget|</comment>
-        <translation type="obsolete">Dodaj novo stran</translation>
-    </message>
-    <message>
-        <source>Print Document</source>
-        <comment>CentralWidget|</comment>
-        <translation type="obsolete">Natisni dokument</translation>
-    </message>
-    <message>
-        <source>unknown</source>
-        <comment>CentralWidget|</comment>
-        <translation type="obsolete">neznano</translation>
-    </message>
-    <message>
-        <source>Add New Page</source>
-        <comment>CentralWidget|</comment>
-        <translation type="obsolete">Dodaj novo stran</translation>
-    </message>
-    <message>
-        <source>Close This Page</source>
-        <comment>CentralWidget|</comment>
-        <translation type="obsolete">Zapri to stran</translation>
-    </message>
-    <message>
-        <source>Close Other Pages</source>
-        <comment>CentralWidget|</comment>
-        <translation type="obsolete">Zapri druge strani</translation>
-    </message>
-    <message>
-        <source>Add Bookmark for this Page...</source>
-        <comment>CentralWidget|</comment>
-        <translation type="obsolete">Dodaj zaznamek za to stran ...</translation>
-    </message>
-    <message>
-        <source>Other</source>
-        <comment>Core::Internal::CommandPrivate|</comment>
-        <translation type="obsolete">Drugo</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <comment>Debugger::Internal::AttachRemoteDialog|</comment>
-        <translation type="obsolete">Osveži</translation>
-    </message>
-    <message>
-        <source>Internal error: FormClassWizard::generateFiles: empty template contents</source>
-        <comment>Designer::Internal::FormClassWizard|</comment>
-        <translation type="obsolete">Notranja napaka: FormClassWizard::generateFiles: prazna vsebina predloge</translation>
-    </message>
-    <message>
-        <source>The class definition of &apos;%1&apos; could not be found in %2.</source>
-        <comment>Designer::Internal::WorkbenchIntegration|</comment>
-        <translation type="obsolete">Definicije razreda »%1« ni bilo moč najti v %2.</translation>
-    </message>
-    <message>
-        <source>Error finding/adding a slot.</source>
-        <comment>Designer::Internal::WorkbenchIntegration|</comment>
-        <translation type="obsolete">Napaka iskanja ali dodajanja reže.</translation>
-    </message>
-    <message>
-        <source>No documents matching &apos;%1&apos; could be found.
-Rebuilding the project might help.</source>
-        <comment>Designer::Internal::WorkbenchIntegration|</comment>
-        <translation type="obsolete">Ni bilo moč najti nobenega dokumenta, ki se ujema z »%1«.
-Morda lahko pomaga ponovna gradnja projekta.</translation>
-    </message>
-    <message>
-        <source>Unable to add the method definition.</source>
-        <comment>Designer::Internal::WorkbenchIntegration|</comment>
-        <translation type="obsolete">Ni moč dodati definicije metode.</translation>
-    </message>
-    <message>
-        <source>Not a number &apos;%1&apos;.</source>
-        <comment>MimeDatabase|</comment>
-        <translation type="obsolete">Ni številka »%1«</translation>
-    </message>
-    <message>
-        <source>Empty match value detected.</source>
-        <comment>MimeDatabase|</comment>
-        <translation type="obsolete">Zaznana ja prazna ujemajoča vrednost</translation>
-    </message>
-    <message>
-        <source>Missing &apos;type&apos;-attribute</source>
-        <comment>MimeDatabase|</comment>
-        <translation type="obsolete">Manjka lastnost »type«</translation>
-    </message>
-    <message>
-        <source>Unexpected element &lt;%1&gt;</source>
-        <comment>MimeDatabase|</comment>
-        <translation type="obsolete">Nepričakovan element &lt;%1&gt;</translation>
-    </message>
-    <message>
-        <source>An error has been encountered at line %1 of %2: %3:</source>
-        <comment>MimeDatabase|</comment>
-        <translation type="obsolete">Prišlo je do napake v vrstici %1 datoteke %2: %3</translation>
-    </message>
-    <message>
-        <source>Cannot open %1: %2</source>
-        <comment>MimeDatabase|</comment>
-        <translation type="obsolete">Ni moč odpreti %1: %2</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <comment>OpenEditorsView|</comment>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>Perforce Error</source>
-        <comment>Perforce::Internal::WorkbenchClientUser|</comment>
-        <translation type="obsolete">Napaka Perforce</translation>
-    </message>
-    <message>
-        <source>Closing p4 Editor</source>
-        <comment>Perforce::Internal::WorkbenchClientUser|</comment>
-        <translation type="obsolete">Zapiranje urejevalnika p4</translation>
     </message>
 </context>
 </TS>
