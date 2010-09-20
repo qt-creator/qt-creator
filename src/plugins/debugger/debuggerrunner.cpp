@@ -165,8 +165,7 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
         if (runConfiguration->target()->activeBuildConfiguration())
             sp.projectBuildDir = runConfiguration->target()->activeBuildConfiguration()->buildDirectory();
 
-        sp.environment << QString(Constants::E_QML_DEBUG_SERVER_PORT)
-                        + QLatin1Char('=') + QString::number(sp.qmlServerPort);
+        sp.processArgs.append(QLatin1String("-qmljsdebugger=port:") + QString::number(sp.qmlServerPort));
     }
 
     // FIXME: If it's not yet build this will be empty and not filled

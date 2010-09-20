@@ -174,13 +174,13 @@ QWidget *QmlRunControlFactory::createConfigurationWidget(RunConfiguration *runCo
 ProjectExplorer::RunControl *QmlRunControlFactory::createDebugRunControl(QmlProjectRunConfiguration *runConfig)
 {
     ProjectExplorer::Environment environment = ProjectExplorer::Environment::systemEnvironment();
-    environment.set(Debugger::Constants::E_QML_DEBUG_SERVER_PORT, QString::number(runConfig->qmlDebugServerPort()));
     Debugger::DebuggerStartParameters params;
     params.startMode = Debugger::StartInternal;
     params.executable = runConfig->viewerPath();
     params.qmlServerAddress = "127.0.0.1";
     params.qmlServerPort = runConfig->qmlDebugServerPort();
     params.processArgs = runConfig->viewerArguments();
+    params.processArgs.append(QLatin1String("-qmljsdebugger=port:") + QString::number(runConfig->qmlDebugServerPort()));
     params.workingDirectory = runConfig->workingDirectory();
     params.environment = environment.toStringList();
     params.displayName = runConfig->displayName();

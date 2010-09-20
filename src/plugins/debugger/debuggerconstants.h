@@ -62,8 +62,6 @@ const char * const DEBUGGER_SETTINGS_TR_CATEGORY =
 const char * const DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON =
     ":/core/images/category_debug.png";
 
-const char * const E_QML_DEBUG_SERVER_PORT = "QML_DEBUG_SERVER_PORT";
-
 // dock widget names
 const char * const DOCKWIDGET_BREAK = "Debugger.Docks.Break";
 const char * const DOCKWIDGET_MODULES = "Debugger.Docks.Modules";
