@@ -76,6 +76,8 @@ public:
 
         out << "digraph AST { ordering=out;" << std::endl;
         // std::cout << "rankdir = \"LR\";" << std::endl;
+
+        generateTokens();
         accept(ast);
 
         typedef QPair<QByteArray, QByteArray> Pair;
@@ -113,17 +115,35 @@ protected:
         return name;
     }
 
-    void terminal(unsigned token, AST *node) {
-        static int count = 1;
-        QByteArray id = 't' + QByteArray::number(count++);
-        _connections.append(qMakePair(_id[node], id));
+    QByteArray terminalId(unsigned token)
+    { return 't' + QByteArray::number(token); }
 
-        QByteArray t;
-        t.append(id);
-        t.append(" [label = \"");
-        t.append(spell(token));
-        t.append("\" shape=rect]");
-        _terminalShapes.append(t);
+    void terminal(unsigned token, AST *node) {
+        _connections.append(qMakePair(_id[node], terminalId(token)));
+    }
+
+    void generateTokens() {
+        for (unsigned token = 1; token < translationUnit()->tokenCount(); ++token) {
+            if (translationUnit()->tokenKind(token) == T_EOF_SYMBOL)
+                break;
+
+            QByteArray t;
+
+            t.append(terminalId(token));
+            t.append(" [shape=rect label = \"");
+            t.append(spell(token));
+            t.append("\"]");
+
+            if (token > 1) {
+                t.append("; ");
+                t.append(terminalId(token - 1));
+                t.append(" -> ");
+                t.append(terminalId(token));
+                t.append(" [arrowhead=\"vee\" color=\"transparent\"]");
+            }
+
+            _terminalShapes.append(t);
+        }
     }
 
     virtual void nonterminal(AST *ast) {
