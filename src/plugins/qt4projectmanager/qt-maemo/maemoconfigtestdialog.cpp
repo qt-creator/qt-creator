@@ -89,9 +89,8 @@ void MaemoConfigTestDialog::handleConnected()
     if (!m_connection)
         return;
     QLatin1String sysInfoCmd("uname -rsm");
-    QLatin1String qtInfoCmd("dpkg -l |grep libqt |grep '^ii'"
-        "|sed 's/[[:space:]][[:space:]]*/ /g' "
-        "|cut -d ' ' -f 2,3 |sed 's/~.*//g'");
+    QLatin1String qtInfoCmd("dpkg-query -W -f '${Package} ${Version} ${Status}\n' 'libqt*' "
+        "|grep ' installed$'");
     QString command(sysInfoCmd + " && " + qtInfoCmd);
     m_infoProcess = m_connection->createRemoteProcess(command.toUtf8());
     connect(m_infoProcess.data(), SIGNAL(closed(int)), this,
@@ -205,7 +204,7 @@ QString MaemoConfigTestDialog::parseTestOutput()
 
     output = tr("Hardware architecture: %1\n").arg(unamePattern.cap(2));
     output.append(tr("Kernel version: %1\n").arg(unamePattern.cap(1)));
-    const QRegExp dkpgPattern(QLatin1String("libqt\\S+\\s+(?:\\d:)?(\\d)\\.(\\d)\\.(\\d)"));
+    const QRegExp dkpgPattern(QLatin1String("(\\S+) (\\S*(\\d+)\\.(\\d+)\\.(\\d+)\\S*) \\S+ \\S+ \\S+"));
     index = dkpgPattern.indexIn(m_deviceTestOutput);
     if (index == -1) {
         output.append(tr("No Qt packages installed."));
@@ -214,11 +213,12 @@ QString MaemoConfigTestDialog::parseTestOutput()
 
     output.append(tr("List of installed Qt packages:") + QLatin1Char('\n'));
     do {
-        output.append(QLatin1Char('\t') + dkpgPattern.cap(0)
-            + QLatin1Char('\n'));
-        index = dkpgPattern.indexIn(m_deviceTestOutput, index + 1);
-        if (!m_qtVersionOk && QT_VERSION_CHECK(dkpgPattern.cap(1).toInt(),
-            dkpgPattern.cap(2).toInt(), dkpgPattern.cap(3).toInt()) >= 0x040602) {
+        output.append(QLatin1Char('\t') + dkpgPattern.cap(1) + QLatin1Char(' ')
+            + dkpgPattern.cap(2) + QLatin1Char('\n'));
+        index = dkpgPattern.indexIn(m_deviceTestOutput, index
+            + dkpgPattern.cap(0).length());
+        if (!m_qtVersionOk && QT_VERSION_CHECK(dkpgPattern.cap(3).toInt(),
+            dkpgPattern.cap(4).toInt(), dkpgPattern.cap(5).toInt()) >= 0x040602) {
             m_qtVersionOk = true;
         }
     } while (index != -1);
