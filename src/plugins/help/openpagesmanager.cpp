@@ -45,6 +45,10 @@
 
 #include <QtHelp/QHelpEngine>
 
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/helpmanager.h>
+#include <coreplugin/modemanager.h>
+
 using namespace Help::Internal;
 
 OpenPagesManager *OpenPagesManager::m_instance = 0;
@@ -226,11 +230,22 @@ void OpenPagesManager::closeCurrentPage()
 {
     if (!m_openPagesWidget)
         return;
+
     QModelIndexList indexes = m_openPagesWidget->selectionModel()->selectedRows();
     if (indexes.isEmpty())
         return;
-    Q_ASSERT(indexes.count() == 1);
-    removePage(indexes.first().row());
+
+    Core::HelpManager *manager = Core::HelpManager::instance();
+    const bool closeOnReturn = manager->customValue(QLatin1String("ReturnOnClose"),
+        false).toBool();
+
+    if (m_model->rowCount() == 1 && closeOnReturn) {
+        Core::ModeManager *modeManager = Core::ModeManager::instance();
+        modeManager->activateMode(Core::Constants::MODE_EDIT);
+    } else {
+        Q_ASSERT(indexes.count() == 1);
+        removePage(indexes.first().row());
+    }
 }
 
 void OpenPagesManager::closePage(const QModelIndex &index)

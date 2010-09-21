@@ -59,6 +59,7 @@ public:
 signals:
     void fontChanged();
     void startOptionChanged();
+    void returnOnCloseChanged();
     void contextHelpOptionChanged();
 
 private slots:
@@ -80,6 +81,8 @@ private:
 
     QString m_homePage;
     int m_contextOption;
+
+    bool m_returnOnClose;
 
     QString m_searchKeywords;
     Ui::GeneralSettingsPage m_ui;

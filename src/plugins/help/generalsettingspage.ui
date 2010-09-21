@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>498</width>
-    <height>304</height>
+    <width>491</width>
+    <height>360</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -350,6 +350,25 @@
            </colorrole>
           </disabled>
          </palette>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="behaviourGroupBox">
+     <property name="title">
+      <string>Behaviour</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_4">
+      <item>
+       <widget class="QCheckBox" name="m_returnOnClose">
+        <property name="toolTip">
+         <string>Switch to editor context after last help page is closed.</string>
+        </property>
+        <property name="text">
+         <string>Return to editor on close last page</string>
         </property>
        </widget>
       </item>

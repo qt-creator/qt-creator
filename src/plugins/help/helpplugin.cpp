@@ -164,6 +164,8 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
         SLOT(fontChanged()));
     connect(m_generalSettingsPage, SIGNAL(contextHelpOptionChanged()), this,
         SLOT(contextHelpOptionChanged()));
+    connect(m_generalSettingsPage, SIGNAL(returnOnCloseChanged()), this,
+        SLOT(updateCloseButton()));
     connect(Core::HelpManager::instance(), SIGNAL(helpRequested(QUrl)), this,
         SLOT(handleHelpRequest(QUrl)));
 
@@ -670,7 +672,11 @@ void HelpPlugin::updateSideBarSource(const QUrl &newUrl)
 
 void HelpPlugin::updateCloseButton()
 {
-    m_closeButton->setEnabled(OpenPagesManager::instance().pageCount() > 1);
+    Core::HelpManager *manager = Core::HelpManager::instance();
+    const bool closeOnReturn = manager->customValue(QLatin1String("ReturnOnClose"),
+        false).toBool();
+    m_closeButton->setEnabled((OpenPagesManager::instance().pageCount() > 1)
+        | closeOnReturn);
 }
 
 void HelpPlugin::fontChanged()

@@ -137,6 +137,11 @@ QWidget *GeneralSettingsPage::createPage(QWidget *parent)
            << ' ' << m_ui.bookmarkGroupBox->title();
         m_searchKeywords.remove(QLatin1Char('&'));
     }
+
+    m_returnOnClose = manager->customValue(QLatin1String("ReturnOnClose"),
+        false).toBool();
+    m_ui.m_returnOnClose->setChecked(m_returnOnClose);
+
     return widget;
 }
 
@@ -194,6 +199,13 @@ void GeneralSettingsPage::apply()
         settings->endGroup();
 
         emit contextHelpOptionChanged();
+    }
+
+    const bool close = m_ui.m_returnOnClose->isChecked();
+    if (m_returnOnClose != close) {
+        m_returnOnClose = close;
+        manager->setCustomValue(QLatin1String("ReturnOnClose"), close);
+        emit returnOnCloseChanged();
     }
 }
 
