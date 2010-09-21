@@ -427,7 +427,9 @@ QList<QmlAppGeneratedFileInfo> QmlStandaloneApp::fileUpdates(const QString &main
         if (elements.count() != 5 || elements.at(1) != FileChecksum
                 || elements.at(3) != FileStubVersion)
             continue;
-        newFile.version = elements.at(4).toInt();
+        const QString versionString = elements.at(4);
+        newFile.version = versionString.startsWith(QLatin1String("0x"))
+            ? versionString.toInt(0, 16) : 0;
         newFile.statedChecksum = elements.at(2).toUShort(0, 16);
         QByteArray data = readFile.readAll();
         data.replace('\x0D', "");
