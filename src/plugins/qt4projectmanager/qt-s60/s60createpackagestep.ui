@@ -98,7 +98,7 @@
         <string>Resets saved passphrases for all used keys</string>
        </property>
        <property name="text">
-        <string>Reset passphrases</string>
+        <string>Reset Passphrases</string>
        </property>
       </widget>
      </item>

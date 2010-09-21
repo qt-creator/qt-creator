@@ -295,7 +295,7 @@ static inline QString actionOpenText(const QFileSystemModel *model,
         return FolderNavigationWidget::tr("Open");
     const QString fileName = model->fileName(index);
     if (fileName == QLatin1String(".."))
-        return FolderNavigationWidget::tr("Open parent folder");
+        return FolderNavigationWidget::tr("Open Parent Folder");
     return FolderNavigationWidget::tr("Open \"%1\"").arg(fileName);
 }
 
@@ -321,7 +321,7 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     }
 
     // Open file dialog to choose a path starting from current
-    QAction *actionChooseFolder = menu.addAction(tr("Choose folder..."));
+    QAction *actionChooseFolder = menu.addAction(tr("Choose Folder..."));
 
     QAction *action = menu.exec(ev->globalPos());
     if (!action)
@@ -333,7 +333,7 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
         return;
     }
     if (action == actionChooseFolder) { // Open file dialog
-        const QString newPath = QFileDialog::getExistingDirectory(this, tr("Choose folder"), currentDirectory());
+        const QString newPath = QFileDialog::getExistingDirectory(this, tr("Choose Folder"), currentDirectory());
         if (!newPath.isEmpty())
             setCurrentDirectory(newPath);
         return;
@@ -357,16 +357,16 @@ QString FolderNavigationWidget::msgGraphicalShellAction()
 #elif defined(Q_OS_MAC)
     return tr("Show in Finder...");
 #else
-    return tr("Show containing folder...");
+    return tr("Show Containing Folder...");
 #endif
 }
 
 QString FolderNavigationWidget::msgTerminalAction()
 {
 #ifdef Q_OS_WIN
-    return tr("Open Command Prompt here...");
+    return tr("Open Command Prompt Here...");
 #else
-    return tr("Open Terminal here...");
+    return tr("Open Terminal Here...");
 #endif
 }
 
@@ -394,7 +394,7 @@ void FolderNavigationWidget::showInGraphicalShell(QWidget *parent, const QString
     const QString explorer = Environment::systemEnvironment().searchInPath(QLatin1String("explorer.exe"));
     if (explorer.isEmpty()) {
         QMessageBox::warning(parent,
-                             tr("Launching Windows Explorer failed"),
+                             tr("Launching Windows Explorer Failed"),
                              tr("Could not find explorer.exe in path to launch Windows Explorer."));
         return;
     }

@@ -581,11 +581,11 @@ void VCSBasePlugin::createRepository()
     const bool rc = d->m_versionControl->vcsCreateRepository(directory);
     const QString nativeDir = QDir::toNativeSeparators(directory);
     if (rc) {
-        QMessageBox::information(mw, tr("Repository created"),
+        QMessageBox::information(mw, tr("Repository Created"),
                                  tr("A version control repository has been created in %1.").
                                  arg(nativeDir));
     } else {
-        QMessageBox::warning(mw, tr("Repository creation failed"),
+        QMessageBox::warning(mw, tr("Repository Creation Failed"),
                                  tr("A version control repository could not be created in %1.").
                                  arg(nativeDir));
     }

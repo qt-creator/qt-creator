@@ -647,7 +647,7 @@ bool MercurialPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *sub
 
     bool dummyPrompt = mercurialSettings.prompt();
     const VCSBase::VCSBaseSubmitEditor::PromptSubmitResult response =
-            commitEditor->promptSubmit(tr("Close commit editor"), tr("Do you want to commit the changes?"),
+            commitEditor->promptSubmit(tr("Close Commit Editor"), tr("Do you want to commit the changes?"),
                                        tr("Message check failed. Do you want to proceed?"),
                                        &dummyPrompt, mercurialSettings.prompt());
 

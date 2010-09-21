@@ -62,7 +62,7 @@ qlineargradient(spread:pad, x1:0.585, y1:0.0284091, x2:0.517, y2:1, stop:0 rgba(
       </font>
      </property>
      <property name="text">
-      <string>Id:</string>
+      <string>ID:</string>
      </property>
     </widget>
    </item>
@@ -82,7 +82,7 @@ qlineargradient(spread:pad, x1:0.585, y1:0.0284091, x2:0.517, y2:1, stop:0 rgba(
       </font>
      </property>
      <property name="text">
-      <string>Property Name:</string>
+      <string>Property name:</string>
      </property>
     </widget>
    </item>

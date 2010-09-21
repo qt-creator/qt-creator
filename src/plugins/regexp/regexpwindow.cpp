@@ -44,17 +44,17 @@ using namespace RegExp::Internal;
 RegExpWindow::RegExpWindow(QWidget *parent) :
    QWidget(parent),
    patternLabel(new QLabel(tr("&Pattern:"))),
-   escapedPatternLabel(new QLabel(tr("&Escaped Pattern:"))),
-   syntaxLabel(new QLabel(tr("&Pattern Syntax:"))),
+   escapedPatternLabel(new QLabel(tr("&Escaped pattern:"))),
+   syntaxLabel(new QLabel(tr("&Pattern syntax:"))),
    textLabel(new QLabel(tr("&Text:"))),
    patternComboBox (new QComboBox),
    escapedPatternLineEdit(new QLineEdit),
    textComboBox(new QComboBox),
-   caseSensitiveCheckBox(new QCheckBox(tr("Case &Sensitive"))),
+   caseSensitiveCheckBox(new QCheckBox(tr("Case &sensitive"))),
    minimalCheckBox(new QCheckBox(tr("&Minimal"))),
    syntaxComboBox(new QComboBox),
-   indexLabel(new QLabel(tr("Index of Match:"))),
-   matchedLengthLabel(new QLabel(tr("Matched Length:"))),
+   indexLabel(new QLabel(tr("Index of match:"))),
+   matchedLengthLabel(new QLabel(tr("Matched length:"))),
    indexEdit(new QLineEdit),
    matchedLengthEdit(new QLineEdit)
 {
@@ -79,10 +79,10 @@ RegExpWindow::RegExpWindow(QWidget *parent) :
     mainLayout->addWidget(escapedPatternLabel, 1, 0);
     mainLayout->addWidget(escapedPatternLineEdit, 1, 1);
 
-    syntaxComboBox->addItem(tr("Regular expression v1"), QRegExp::RegExp);
-    syntaxComboBox->addItem(tr("Regular expression v2"), QRegExp::RegExp2);
+    syntaxComboBox->addItem(tr("Regular Expression v1"), QRegExp::RegExp);
+    syntaxComboBox->addItem(tr("Regular Expression v2"), QRegExp::RegExp2);
     syntaxComboBox->addItem(tr("Wildcard"), QRegExp::Wildcard);
-    syntaxComboBox->addItem(tr("Fixed string"), QRegExp::FixedString);
+    syntaxComboBox->addItem(tr("Fixed String"), QRegExp::FixedString);
 
     syntaxLabel->setBuddy(syntaxComboBox);
 
@@ -267,14 +267,14 @@ void RegExpWindow::contextMenuEvent(QContextMenuEvent *event)
 {
     QMenu menu(this);
 
-    QAction *enterQuotedAction = menu.addAction(tr("Enter pattern from code..."));
+    QAction *enterQuotedAction = menu.addAction(tr("Enter Pattern from Code..."));
     connect(enterQuotedAction, SIGNAL(triggered()), this, SLOT(enterEscaped()));
     menu.addSeparator();
 
-    QAction *clearPatternsAction = menu.addAction(tr("Clear patterns"));
+    QAction *clearPatternsAction = menu.addAction(tr("Clear Patterns"));
     connect(clearPatternsAction, SIGNAL(triggered()), patternComboBox, SLOT(clear()));
 
-    QAction *clearTextsAction = menu.addAction(tr("Clear texts"));
+    QAction *clearTextsAction = menu.addAction(tr("Clear Text"));
     connect(clearTextsAction, SIGNAL(triggered()), textComboBox, SLOT(clear()));
 
     event->accept();
@@ -283,7 +283,7 @@ void RegExpWindow::contextMenuEvent(QContextMenuEvent *event)
 
 void  RegExpWindow::enterEscaped()
 {
-    const QString escapedPattern = QInputDialog::getText (this, tr("Enter pattern from code"), tr("Pattern"));
+    const QString escapedPattern = QInputDialog::getText (this, tr("Enter Pattern from Code"), tr("Pattern"));
     if ( escapedPattern.isEmpty())
         return;
     patternComboBox->lineEdit()->setText(unescapePattern(escapedPattern));

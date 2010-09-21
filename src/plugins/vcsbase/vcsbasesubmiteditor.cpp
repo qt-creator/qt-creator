@@ -139,13 +139,13 @@ VCSBaseSubmitEditor::VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *pa
         m_d->m_widget->addDescriptionEditContextMenuAction(sep);
         // Run check action
         if (!settings.submitMessageCheckScript.isEmpty()) {
-            QAction *checkAction = new QAction(tr("Check message"), this);
+            QAction *checkAction = new QAction(tr("Check Message"), this);
             connect(checkAction, SIGNAL(triggered()), this, SLOT(slotCheckSubmitMessage()));
             m_d->m_widget->addDescriptionEditContextMenuAction(checkAction);
         }
         // Insert nick
         if (!settings.nickNameMailMap.isEmpty()) {
-            QAction *insertAction = new QAction(tr("Insert name..."), this);
+            QAction *insertAction = new QAction(tr("Insert Name..."), this);
             connect(insertAction, SIGNAL(triggered()), this, SLOT(slotInsertNickName()));
             m_d->m_widget->addDescriptionEditContextMenuAction(insertAction);
         }
@@ -540,7 +540,7 @@ void VCSBaseSubmitEditor::slotCheckSubmitMessage()
 {
     QString errorMessage;
     if (!checkSubmitMessage(&errorMessage)) {
-        QMessageBox msgBox(QMessageBox::Warning, tr("Submit Message Check failed"),
+        QMessageBox msgBox(QMessageBox::Warning, tr("Submit Message Check Failed"),
                            errorMessage, QMessageBox::Ok, m_d->m_widget);
         msgBox.setMinimumWidth(checkDialogMinimumWidth);
         msgBox.exec();

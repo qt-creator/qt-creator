@@ -681,8 +681,8 @@ void S60CreatePackageStepConfigWidget::updateFromUi()
 
 void S60CreatePackageStepConfigWidget::resetPassphrases()
 {
-    QMessageBox msgBox(QMessageBox::Question, tr("Reset passwords"),
-                       tr("Do you want to reset all saved passwords for used keys?"),
+    QMessageBox msgBox(QMessageBox::Question, tr("Reset Passphrases"),
+                       tr("Do you want to reset all passphrases saved for keys used?"),
                        QMessageBox::Reset|QMessageBox::Cancel, this);
     if (msgBox.exec() == QMessageBox::Reset)
         m_signStep->resetPassphrases();

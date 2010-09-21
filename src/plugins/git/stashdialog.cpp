@@ -104,12 +104,12 @@ StashDialog::StashDialog(QWidget *parent) :
     ui(new Ui::StashDialog),
     m_model(new StashModel),
     m_proxyModel(new QSortFilterProxyModel),
-    m_deleteAllButton(new QPushButton(tr("Delete all..."))),
+    m_deleteAllButton(new QPushButton(tr("Delete All..."))),
     m_deleteSelectionButton(new QPushButton(tr("Delete..."))),
     m_showCurrentButton(new QPushButton(tr("Show"))),
     m_restoreCurrentButton(new QPushButton(tr("Restore..."))),
     //: Restore a git stash to new branch to be created
-    m_restoreCurrentInBranchButton(new QPushButton(tr("Restore to branch..."))),
+    m_restoreCurrentInBranchButton(new QPushButton(tr("Restore to Branch..."))),
     m_refreshButton(new QPushButton(tr("Refresh")))
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -193,7 +193,7 @@ void StashDialog::refresh(const QString &repository, bool force)
 
 void StashDialog::deleteAll()
 {
-    const QString title = tr("Delete stashes");
+    const QString title = tr("Delete Stashes");
     if (!ask(title, tr("Do you want to delete all stashes?")))
         return;
     QString errorMessage;
@@ -208,7 +208,7 @@ void StashDialog::deleteSelection()
 {
     const QList<int> rows = selectedRows();
     QTC_ASSERT(!rows.isEmpty(), return)
-    const QString title = tr("Delete stashes");
+    const QString title = tr("Delete Stashes");
     if (!ask(title, tr("Do you want to delete %n stash(es)?", 0, rows.size())))
         return;
     QString errorMessage;
@@ -262,7 +262,7 @@ static inline QString nextStash(const QString &stash)
 StashDialog::ModifiedRepositoryAction StashDialog::promptModifiedRepository(const QString &stash)
 {
     QMessageBox box(QMessageBox::Question,
-                    tr("Repository modified"),
+                    tr("Repository Modified"),
                     tr("%1 cannot be restored since the repository is modified.\n"
                        "You can choose between stashing the changes or discarding them.").arg(stash),
                     QMessageBox::Cancel, this);
