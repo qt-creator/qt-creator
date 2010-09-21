@@ -214,6 +214,7 @@ enum ModelRoles
     RequestSynchronizeBreakpointsRole,
     RequestBreakByFunctionRole,
     RequestBreakByFunctionMainRole,
+    RequestBreakpointRole,
     RequestToggleBreakpointRole,
     RequestToggleBreakpointEnabledRole,
     RequestContextMenuRole,

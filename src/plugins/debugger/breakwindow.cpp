@@ -31,6 +31,7 @@
 
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
+#include "ui_breakpoint.h"
 #include "ui_breakcondition.h"
 #include "ui_breakbyfunction.h"
 
@@ -52,6 +53,48 @@
 
 namespace Debugger {
 namespace Internal {
+
+///////////////////////////////////////////////////////////////////////
+//
+// BreakpointDialog
+//
+///////////////////////////////////////////////////////////////////////
+
+class BreakpointDialog : public QDialog, public Ui::BreakpointDialog
+{
+    Q_OBJECT
+public:
+    explicit BreakpointDialog(QWidget *parent)
+      : QDialog(parent)
+    {
+        setupUi(this);
+        comboBoxType->insertItem(0, tr("File and Line Number"));
+        comboBoxType->insertItem(1, tr("Function Name"));
+        comboBoxType->insertItem(2, tr("Function \"main()\""));
+        comboBoxType->insertItem(3, tr("Address"));
+        connect(comboBoxType, SIGNAL(activated(int)),
+                SLOT(typeChanged(int)));
+    }
+
+public slots:
+    void typeChanged(int index)
+    {
+        const bool isLineVisible = index == 0;
+        const bool isFunctionVisible = index == 1;
+        const bool isAddressVisible = index == 3;
+        labelFileName->setEnabled(isLineVisible);
+        lineEditFileName->setEnabled(isLineVisible);
+        labelLineNumber->setEnabled(isLineVisible);
+        lineEditLineNumber->setEnabled(isLineVisible);
+        labelFunction->setEnabled(isFunctionVisible);
+        lineEditFunction->setEnabled(isFunctionVisible);
+        labelAddress->setEnabled(isAddressVisible);
+        lineEditAddress->setEnabled(isAddressVisible);
+        if (index == 2)
+            lineEditFunction->setText("main");
+    }
+
+};
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -142,7 +185,7 @@ void BreakWindow::mouseDoubleClickEvent(QMouseEvent *ev)
 {
     QModelIndex indexUnderMouse = indexAt(ev->pos());
     if (indexUnderMouse.isValid() && indexUnderMouse.column() >= 4)
-        editBreakpoint(QModelIndexList() << indexUnderMouse);
+        editBreakpoints(QModelIndexList() << indexUnderMouse);
     QTreeView::mouseDoubleClickEvent(ev);
 }
 
@@ -235,10 +278,12 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *pathAction = new QAction(str6, &menu);
     pathAction->setEnabled(si.size() > 0);
 
-    QAction *breakAtFunctionAction =
-        new QAction(tr("Set Breakpoint at Function..."), this);
-    QAction *breakAtMainAction =
-        new QAction(tr("Set Breakpoint at Function \"main\""), this);
+    QAction *addBreakpointAction =
+        new QAction(tr("Set Breakpoint..."), this);
+    //QAction *breakAtFunctionAction =
+    //    new QAction(tr("Set Breakpoint at Function..."), this);
+    //QAction *breakAtMainAction =
+    //    new QAction(tr("Set Breakpoint at Function \"main\""), this);
     QAction *breakAtThrowAction =
         new QAction(tr("Set Breakpoint at \"throw\""), this);
     QAction *breakAtCatchAction =
@@ -255,8 +300,9 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addSeparator();
     menu.addAction(synchronizeAction);
     menu.addSeparator();
-    menu.addAction(breakAtFunctionAction);
-    menu.addAction(breakAtMainAction);
+    //menu.addAction(breakAtFunctionAction);
+    //menu.addAction(breakAtMainAction);
+    menu.addAction(addBreakpointAction);
     if (engineCapabilities & BreakOnThrowAndCatchCapability) {
         menu.addAction(breakAtThrowAction);
         menu.addAction(breakAtCatchAction);
@@ -285,7 +331,7 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     else if (act == alwaysAdjustAction)
         setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
     else if (act == editBreakpointAction)
-        editBreakpoint(si);
+        editBreakpoints(si);
     else if (act == associateBreakpointAction)
         associateBreakpoint(si, threadId);
     else if (act == synchronizeAction)
@@ -294,12 +340,14 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
         setBreakpointsEnabled(si, !enabled);
     else if (act == pathAction)
         setBreakpointsFullPath(si, !fullpath);
-    else if (act == breakAtFunctionAction) {
-        BreakByFunctionDialog dlg(this);
-        if (dlg.exec())
-            setModelData(RequestBreakByFunctionRole, dlg.functionName());
-    } else if (act == breakAtMainAction)
-        setModelData(RequestBreakByFunctionMainRole);
+    else if (act == addBreakpointAction)
+        addBreakpoint();
+    //else if (act == breakAtFunctionAction) {
+    //    BreakByFunctionDialog dlg(this);
+    //    if (dlg.exec())
+    //        setModelData(RequestBreakByFunctionRole, dlg.functionName());
+    //} else if (act == breakAtMainAction)
+    //    setModelData(RequestBreakByFunctionMainRole);
      else if (act == breakAtThrowAction)
         setModelData(RequestBreakByFunctionRole, "__cxa_throw");
      else if (act == breakAtCatchAction)
@@ -344,7 +392,32 @@ void BreakWindow::deleteBreakpoints(QList<int> list)
     setModelData(RequestSynchronizeBreakpointsRole);
 }
 
-void BreakWindow::editBreakpoint(const QModelIndexList &list)
+void BreakWindow::addBreakpoint()
+{
+    BreakpointDialog dialog(this);
+    if (dialog.exec() == QDialog::Rejected)
+        return;
+    BreakpointData *data = new BreakpointData();
+    if (!dialog.lineEditAddress->text().isEmpty()) {
+        bool ok = false;
+        data->address = dialog.lineEditAddress->text().toULongLong(&ok, 0);
+    }
+    if (!dialog.lineEditFunction->text().isEmpty())
+        data->funcName = dialog.lineEditFunction->text();
+    if (!dialog.lineEditFileName->text().isEmpty())
+        data->fileName = dialog.lineEditFileName->text();
+    if (!dialog.lineEditFileName->text().isEmpty())
+        data->fileName = dialog.lineEditFileName->text();
+    if (!dialog.lineEditCondition->text().isEmpty())
+        data->condition = dialog.lineEditCondition->text().toUtf8();
+    if (!dialog.lineEditIgnoreCount->text().isEmpty())
+        data->ignoreCount = dialog.lineEditIgnoreCount->text().toInt();
+    if (!dialog.lineEditThreadSpec->text().isEmpty())
+        data->threadSpec = dialog.lineEditThreadSpec->text().toUtf8();
+    setModelData(RequestBreakpointRole, QVariant::fromValue(data));
+}
+
+void BreakWindow::editBreakpoints(const QModelIndexList &list)
 {
     QDialog dlg(this);
     Ui::BreakCondition ui;
@@ -423,3 +496,5 @@ void BreakWindow::setModelData
 
 } // namespace Internal
 } // namespace Debugger
+
+#include "breakwindow.moc"

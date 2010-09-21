@@ -11,9 +11,11 @@ include(debugger_dependencies.pri)
 DEFINES += DEBUGGER_LIBRARY
 
 INCLUDEPATH += $$PWD/../../libs/utils
+
 QT += gui \
     network \
     script
+
 HEADERS += breakhandler.h \
     breakwindow.h \
     breakpoint.h \
@@ -91,11 +93,14 @@ FORMS += attachexternaldialog.ui \
     attachtcfdialog.ui \
     breakbyfunction.ui \
     breakcondition.ui \
+    breakpoint.ui \
     dumperoptionpage.ui \
     commonoptionspage.ui \
     startexternaldialog.ui \
     startremotedialog.ui
+
 RESOURCES += debugger.qrc
+
 false {
     SOURCES += $$PWD/modeltest.cpp
     HEADERS += $$PWD/modeltest.h

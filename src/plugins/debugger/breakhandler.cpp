@@ -444,6 +444,17 @@ bool BreakHandler::setData(const QModelIndex &index, const QVariant &value, int 
             QTC_ASSERT(m_engine, return false);
             m_engine->breakByFunctionMain();
             return true;
+
+        case RequestBreakpointRole:
+            QTC_ASSERT(m_engine, return false);
+            BreakpointData *data = value.value<BreakpointData *>();
+            if (data->funcName == "main") {
+                m_engine->breakByFunctionMain();
+            } else {
+                appendBreakpoint(data);
+                m_engine->attemptBreakpointSynchronization();
+            }
+            return true;
     }
 
     BreakpointData *data = at(index.row());
@@ -676,7 +687,6 @@ bool BreakHandler::isActive() const
 
 void BreakHandler::initializeFromTemplate(BreakHandler *other)
 {
-    //qDebug() << "COPYING BREAKPOINTS INTO NEW SESSION";
     QTC_ASSERT(m_bp.isEmpty(), /**/);
     foreach (BreakpointData *data, other->m_bp) {
         append(data->clone());
