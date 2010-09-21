@@ -85,6 +85,9 @@ void SelectionIndicator::setItems(const QList<FormEditorItem*> &itemList)
     clear();
 
     foreach (FormEditorItem *item, itemList) {
+        if (item->qmlItemNode().isValid())
+            continue;
+
         QGraphicsPolygonItem *newSelectionIndicatorGraphicsItem = new QGraphicsPolygonItem(m_layerItem.data());
         m_indicatorShapeHash.insert(item, newSelectionIndicatorGraphicsItem);
         QPolygonF boundingRectInSceneSpace(item->mapToScene(item->qmlItemNode().instanceBoundingRect()));

@@ -101,6 +101,7 @@ void RubberBandSelectionManipulator::select(SelectionType selectionType)
         FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
 
         if (formEditorItem
+           && formEditorItem->qmlItemNode().isValid()
            && m_beginFormEditorItem->childItems().contains(formEditorItem)
            && !formEditorItem->qmlItemNode().isRootNode())
         {
@@ -108,7 +109,9 @@ void RubberBandSelectionManipulator::select(SelectionType selectionType)
         }
     }
 
-    if (newNodeList.isEmpty() && !m_beginFormEditorItem->qmlItemNode().isRootNode())
+    if (newNodeList.isEmpty()
+        && m_beginFormEditorItem->qmlItemNode().isValid()
+        && !m_beginFormEditorItem->qmlItemNode().isRootNode())
          newNodeList.append(m_beginFormEditorItem->qmlItemNode());
 
     QList<QmlItemNode> nodeList;

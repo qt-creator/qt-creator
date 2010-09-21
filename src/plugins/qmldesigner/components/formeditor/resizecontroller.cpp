@@ -136,7 +136,7 @@ ResizeController::ResizeController(LayerItem *layerItem, FormEditorItem *formEdi
 
 bool ResizeController::isValid() const
 {
-    return m_data->formEditorItem != 0;
+    return m_data->formEditorItem && m_data->formEditorItem->qmlItemNode().isValid();
 }
 
 void ResizeController::show()
@@ -186,36 +186,39 @@ static QPointF bottomCenter(const QRectF &rect)
 
 void ResizeController::updatePosition()
 {
-    QRectF boundingRect = m_data->formEditorItem->qmlItemNode().instanceBoundingRect();
-    QPointF topLeftPointInLayerSpace(m_data->formEditorItem->mapToItem(m_data->layerItem.data(),
-                                                                       boundingRect.topLeft()));
-    QPointF topRightPointInLayerSpace(m_data->formEditorItem->mapToItem(m_data->layerItem.data(),
-                                                                        boundingRect.topRight()));
-    QPointF bottomLeftPointInLayerSpace(m_data->formEditorItem->mapToItem(m_data->layerItem.data(),
-                                                                          boundingRect.bottomLeft()));
-    QPointF bottomRightPointInLayerSpace(m_data->formEditorItem->mapToItem(m_data->layerItem.data(),
-                                                                           boundingRect.bottomRight()));
+    if (isValid()) {
 
-    QPointF topPointInLayerSpace(m_data->formEditorItem->mapToItem(m_data->layerItem.data(),
-                                                                   topCenter(boundingRect)));
-    QPointF leftPointInLayerSpace(m_data->formEditorItem->mapToItem(m_data->layerItem.data(),
-                                                                    leftCenter(boundingRect)));
+        QRectF boundingRect = m_data->formEditorItem->qmlItemNode().instanceBoundingRect();
+        QPointF topLeftPointInLayerSpace(m_data->formEditorItem->mapToItem(m_data->layerItem.data(),
+                                                                           boundingRect.topLeft()));
+        QPointF topRightPointInLayerSpace(m_data->formEditorItem->mapToItem(m_data->layerItem.data(),
+                                                                            boundingRect.topRight()));
+        QPointF bottomLeftPointInLayerSpace(m_data->formEditorItem->mapToItem(m_data->layerItem.data(),
+                                                                              boundingRect.bottomLeft()));
+        QPointF bottomRightPointInLayerSpace(m_data->formEditorItem->mapToItem(m_data->layerItem.data(),
+                                                                               boundingRect.bottomRight()));
 
-    QPointF rightPointInLayerSpace(m_data->formEditorItem->mapToItem(m_data->layerItem.data(),
-                                                                     rightCenter(boundingRect)));
-    QPointF bottomPointInLayerSpace(m_data->formEditorItem->mapToItem(m_data->layerItem.data(),
-                                                                      bottomCenter(boundingRect)));
+        QPointF topPointInLayerSpace(m_data->formEditorItem->mapToItem(m_data->layerItem.data(),
+                                                                       topCenter(boundingRect)));
+        QPointF leftPointInLayerSpace(m_data->formEditorItem->mapToItem(m_data->layerItem.data(),
+                                                                        leftCenter(boundingRect)));
+
+        QPointF rightPointInLayerSpace(m_data->formEditorItem->mapToItem(m_data->layerItem.data(),
+                                                                         rightCenter(boundingRect)));
+        QPointF bottomPointInLayerSpace(m_data->formEditorItem->mapToItem(m_data->layerItem.data(),
+                                                                          bottomCenter(boundingRect)));
 
 
 
-    m_data->topRightItem->setHandlePosition(topRightPointInLayerSpace, boundingRect.topRight());
-    m_data->topLeftItem->setHandlePosition(topLeftPointInLayerSpace, boundingRect.topLeft());
-    m_data->bottomLeftItem->setHandlePosition(bottomLeftPointInLayerSpace, boundingRect.bottomLeft());
-    m_data->bottomRightItem->setHandlePosition(bottomRightPointInLayerSpace, boundingRect.bottomRight());
-    m_data->topItem->setHandlePosition(topPointInLayerSpace, topCenter(boundingRect));
-    m_data->leftItem->setHandlePosition(leftPointInLayerSpace, leftCenter(boundingRect));
-    m_data->rightItem->setHandlePosition(rightPointInLayerSpace, rightCenter(boundingRect));
-    m_data->bottomItem->setHandlePosition(bottomPointInLayerSpace, bottomCenter(boundingRect));
+        m_data->topRightItem->setHandlePosition(topRightPointInLayerSpace, boundingRect.topRight());
+        m_data->topLeftItem->setHandlePosition(topLeftPointInLayerSpace, boundingRect.topLeft());
+        m_data->bottomLeftItem->setHandlePosition(bottomLeftPointInLayerSpace, boundingRect.bottomLeft());
+        m_data->bottomRightItem->setHandlePosition(bottomRightPointInLayerSpace, boundingRect.bottomRight());
+        m_data->topItem->setHandlePosition(topPointInLayerSpace, topCenter(boundingRect));
+        m_data->leftItem->setHandlePosition(leftPointInLayerSpace, leftCenter(boundingRect));
+        m_data->rightItem->setHandlePosition(rightPointInLayerSpace, rightCenter(boundingRect));
+        m_data->bottomItem->setHandlePosition(bottomPointInLayerSpace, bottomCenter(boundingRect));
+    }
 }
 
 

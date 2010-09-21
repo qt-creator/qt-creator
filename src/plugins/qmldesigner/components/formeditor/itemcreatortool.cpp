@@ -160,6 +160,9 @@ void ItemCreatorTool::createAtItem(const QRectF &rect)
     QPointF pos = rect.topLeft();
 
     QmlItemNode parentNode = view()->rootQmlItemNode();
+    if (!parentNode.isValid())
+        return;
+
     FormEditorItem *parentItem = calculateContainer(pos);
     if (parentItem) {
         parentNode = parentItem->qmlItemNode();

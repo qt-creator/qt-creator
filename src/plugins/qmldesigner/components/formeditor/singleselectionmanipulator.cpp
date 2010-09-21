@@ -80,6 +80,7 @@ void SingleSelectionManipulator::select(SelectionType selectionType, bool select
         FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
 
         if (formEditorItem
+           && formEditorItem->qmlItemNode().isValid()
            && !formEditorItem->qmlItemNode().isRootNode()
            && (formEditorItem->qmlItemNode().hasShowContent() || !selectOnlyContentItems))
         {

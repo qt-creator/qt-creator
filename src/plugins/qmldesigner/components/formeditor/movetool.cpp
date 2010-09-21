@@ -296,7 +296,9 @@ void MoveTool::beginWithPoint(const QPointF &beginPoint)
 static bool isNotAncestorOfItemInList(FormEditorItem *formEditorItem, const QList<FormEditorItem*> &itemList)
 {
     foreach (FormEditorItem *item, itemList) {
-        if (item->qmlItemNode().isAncestorOf(formEditorItem->qmlItemNode()))
+        if (item
+            && item->qmlItemNode().isValid()
+            && item->qmlItemNode().isAncestorOf(formEditorItem->qmlItemNode()))
             return false;
     }
 

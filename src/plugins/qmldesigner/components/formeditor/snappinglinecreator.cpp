@@ -88,6 +88,9 @@ void SnappingLineCreator::addOffsets(const QRectF &rectInSceneSpace, FormEditorI
 void SnappingLineCreator::generateLines(const QList<FormEditorItem*> &exceptionList,
                                         FormEditorItem *transformationSpaceItem)
 {
+    if (!m_formEditorItem->qmlItemNode().isValid())
+        return;
+
     Q_ASSERT(transformationSpaceItem);
     {
         QRectF containerBoundingRectInTransformationSpace = m_formEditorItem->mapRectToItem(transformationSpaceItem,
@@ -99,6 +102,10 @@ void SnappingLineCreator::generateLines(const QList<FormEditorItem*> &exceptionL
     }
 
     foreach (FormEditorItem *item, m_formEditorItem->childFormEditorItems()) {
+
+        if (!item || !item->qmlItemNode().isValid())
+            continue;
+
         if (exceptionList.contains(item))
             continue;
         QRectF boundingRectInContainerSpace;

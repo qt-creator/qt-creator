@@ -396,7 +396,7 @@ void ResizeManipulator::end()
 
 void ResizeManipulator::moveBy(double deltaX, double deltaY)
 {
-    if (resizeHandle()) {
+    if (resizeHandle() && m_resizeController.isValid()) {
         QmlItemNode qmlItemNode(m_resizeController.formEditorItem()->qmlItemNode());
         QmlAnchors anchors(qmlItemNode.anchors());
 

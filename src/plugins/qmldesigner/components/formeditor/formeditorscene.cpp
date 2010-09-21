@@ -128,12 +128,15 @@ AbstractFormEditorTool* FormEditorScene::currentTool() const
 //This method calculates the possible parent for reparent
 FormEditorItem* FormEditorScene::calulateNewParent(FormEditorItem *formEditorItem)
 {
-    QList<QGraphicsItem *> list = items(formEditorItem->qmlItemNode().instanceBoundingRect().center());
-    foreach (QGraphicsItem *graphicsItem, list) {
-        if (qgraphicsitem_cast<FormEditorItem*>(graphicsItem) &&
-            graphicsItem->collidesWithItem(formEditorItem, Qt::ContainsItemShape))
-            return qgraphicsitem_cast<FormEditorItem*>(graphicsItem);
+    if (formEditorItem->qmlItemNode().isValid()) {
+        QList<QGraphicsItem *> list = items(formEditorItem->qmlItemNode().instanceBoundingRect().center());
+        foreach (QGraphicsItem *graphicsItem, list) {
+            if (qgraphicsitem_cast<FormEditorItem*>(graphicsItem) &&
+                graphicsItem->collidesWithItem(formEditorItem, Qt::ContainsItemShape))
+                return qgraphicsitem_cast<FormEditorItem*>(graphicsItem);
+        }
     }
+
     return 0;
 }
 

@@ -65,7 +65,9 @@ void SelectionTool::mousePressEvent(const QList<QGraphicsItem*> &itemList,
 {
     m_mousePressTimer.start();
     FormEditorItem* formEditorItem = topFormEditorItem(itemList);
-    if (formEditorItem && !formEditorItem->qmlItemNode().hasChildren()) {
+    if (formEditorItem
+        && formEditorItem->qmlItemNode().isValid()
+        && !formEditorItem->qmlItemNode().hasChildren()) {
         m_singleSelectionManipulator.begin(event->scenePos());
 
         if (event->modifiers().testFlag(Qt::ControlModifier))
