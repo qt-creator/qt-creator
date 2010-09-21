@@ -204,6 +204,8 @@ FormEditorItem *FormEditorScene::addFormEditorItem(const QmlItemNode &qmlItemNod
        manipulatorLayerItem()->update();
     }
 
+
+
     return formEditorItem;
 }
 
@@ -342,6 +344,12 @@ void FormEditorScene::reparentItem(const QmlItemNode &node, const QmlItemNode &n
 
     if (item->parentItem() != parentItem) {
         item->setParentItem(parentItem);
+        if (parentItem) {
+            item->setVisible(true);
+        } else {
+            item->setVisible(false);
+        }
+
         item->update();
     }
 }
@@ -370,8 +378,10 @@ void FormEditorScene::clearFormEditorItems()
     QList<QGraphicsItem*> itemList(items());
 
     foreach (QGraphicsItem *item, itemList) {
-        if (qgraphicsitem_cast<FormEditorItem* >(item))
+        if (qgraphicsitem_cast<FormEditorItem* >(item)) {
             item->setParentItem(0);
+            item->setVisible(false);
+        }
     }
 
     foreach (QGraphicsItem *item, itemList) {
