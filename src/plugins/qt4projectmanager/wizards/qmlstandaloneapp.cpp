@@ -248,6 +248,21 @@ void QmlStandaloneApp::handleCurrentProFileTemplateLine(const QString &line,
         // ### disabled for now; figure out the private headers problem first.
         //uncommentNextLine = true;
         Q_UNUSED(uncommentNextLine);
+    } else if (line.contains(QLatin1String("# QML_IMPORT_PATH"))) {
+        QString nextLine = proFileTemplate.readLine(); // eats 'QML_IMPORT_PATH ='
+        if (!nextLine.startsWith(QLatin1String("QML_IMPORT_PATH =")))
+            return;
+
+        proFile << nextLine;
+
+        const QLatin1String separator(" \\\n    ");
+        const QDir proPath(path(AppProPath));
+        foreach (const QString &importPath, m_importPaths) {
+            const QString relativePath = proPath.relativeFilePath(importPath);
+            proFile << separator << relativePath;
+        }
+
+        proFile << endl;
     }
 }
 
