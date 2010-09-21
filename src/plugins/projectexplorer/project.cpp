@@ -42,9 +42,6 @@
 #include <limits>
 #include <utils/qtcassert.h>
 
-using namespace ProjectExplorer;
-using namespace ProjectExplorer::Internal;
-
 namespace {
 const char * const ACTIVE_TARGET_KEY("ProjectExplorer.Project.ActiveTarget");
 const char * const TARGET_KEY_PREFIX("ProjectExplorer.Project.Target.");
@@ -54,20 +51,34 @@ const char * const EDITOR_SETTINGS_KEY("ProjectExplorer.Project.EditorSettings")
 
 } // namespace
 
+namespace ProjectExplorer {
 // -------------------------------------------------------------------------
 // Project
 // -------------------------------------------------------------------------
 
-Project::Project() :
+class ProjectPrivate {
+public:
+    ProjectPrivate();
+    QSet<QString> m_supportedTargetIds;
+    QList<Target *> m_targets;
+    Target *m_activeTarget;
+    EditorConfiguration *m_editorConfiguration;
+};
+
+ProjectPrivate::ProjectPrivate() :
     m_activeTarget(0),
     m_editorConfiguration(new EditorConfiguration())
 {
 }
 
+Project::Project() : d(new ProjectPrivate)
+{
+}
+
 Project::~Project()
 {
-    qDeleteAll(m_targets);
-    delete m_editorConfiguration;
+    qDeleteAll(d->m_targets);
+    delete d->m_editorConfiguration;
 }
 
 bool Project::hasActiveBuildSettings() const
@@ -89,12 +100,12 @@ QString Project::makeUnique(const QString &preferredName, const QStringList &use
 
 QSet<QString> Project::supportedTargetIds() const
 {
-    return m_supportedTargetIds;
+    return d->m_supportedTargetIds;
 }
 
 QSet<QString> Project::possibleTargetIds() const
 {
-    QSet<QString> result(m_supportedTargetIds);
+    QSet<QString> result(d->m_supportedTargetIds);
     foreach (ProjectExplorer::Target *t, targets())
         result.remove(t->id());
 
@@ -108,10 +119,10 @@ bool Project::canAddTarget(const QString &id) const
 
 void Project::setSupportedTargetIds(const QSet<QString> &ids)
 {
-    if (ids == m_supportedTargetIds)
+    if (ids == d->m_supportedTargetIds)
         return;
 
-    m_supportedTargetIds = ids;
+    d->m_supportedTargetIds = ids;
     emit supportedTargetIdsChanged();
 }
 
@@ -125,20 +136,20 @@ void Project::changeEnvironment()
 
 void Project::addTarget(Target *t)
 {
-    QTC_ASSERT(t && !m_targets.contains(t), return);
+    QTC_ASSERT(t && !d->m_targets.contains(t), return);
     QTC_ASSERT(!target(t->id()), return);
     Q_ASSERT(t->project() == this);
 
     // Check that we don't have a configuration with the same displayName
     QString targetDisplayName = t->displayName();
     QStringList displayNames;
-    foreach (const Target *target, m_targets)
+    foreach (const Target *target, d->m_targets)
         displayNames << target->displayName();
     targetDisplayName = makeUnique(targetDisplayName, displayNames);
     t->setDefaultDisplayName(targetDisplayName);
 
     // add it
-    m_targets.push_back(t);
+    d->m_targets.push_back(t);
     connect(t, SIGNAL(environmentChanged()),
             SLOT(changeEnvironment()));
     emit addedTarget(t);
@@ -150,45 +161,45 @@ void Project::addTarget(Target *t)
 
 void Project::removeTarget(Target *target)
 {
-    QTC_ASSERT(target && m_targets.contains(target), return);
+    QTC_ASSERT(target && d->m_targets.contains(target), return);
 
     emit aboutToRemoveTarget(target);
 
-    m_targets.removeOne(target);
+    d->m_targets.removeOne(target);
 
     emit removedTarget(target);
     if (target == activeTarget()) {
-        if (m_targets.isEmpty())
+        if (d->m_targets.isEmpty())
             setActiveTarget(0);
         else
-            setActiveTarget(m_targets.at(0));
+            setActiveTarget(d->m_targets.at(0));
     }
     delete target;
 }
 
 QList<Target *> Project::targets() const
 {
-    return m_targets;
+    return d->m_targets;
 }
 
 Target *Project::activeTarget() const
 {
-    return m_activeTarget;
+    return d->m_activeTarget;
 }
 
 void Project::setActiveTarget(Target *target)
 {
-    if ((!target && !m_targets.isEmpty()) ||
-        (target && m_targets.contains(target) && m_activeTarget != target)) {
-        m_activeTarget = target;
-        emit activeTargetChanged(m_activeTarget);
+    if ((!target && !d->m_targets.isEmpty()) ||
+        (target && d->m_targets.contains(target) && d->m_activeTarget != target)) {
+        d->m_activeTarget = target;
+        emit activeTargetChanged(d->m_activeTarget);
         emit environmentChanged();
     }
 }
 
 Target *Project::target(const QString &id) const
 {
-    foreach (Target * target, m_targets) {
+    foreach (Target * target, d->m_targets) {
         if (target->id() == id)
             return target;
     }
@@ -218,12 +229,12 @@ QVariantMap Project::toMap() const
     const QList<Target *> ts = targets();
 
     QVariantMap map;
-    map.insert(QLatin1String(ACTIVE_TARGET_KEY), ts.indexOf(m_activeTarget));
+    map.insert(QLatin1String(ACTIVE_TARGET_KEY), ts.indexOf(d->m_activeTarget));
     map.insert(QLatin1String(TARGET_COUNT_KEY), ts.size());
     for (int i = 0; i < ts.size(); ++i)
         map.insert(QString::fromLatin1(TARGET_KEY_PREFIX) + QString::number(i), ts.at(i)->toMap());
 
-    map.insert(QLatin1String(EDITOR_SETTINGS_KEY), m_editorConfiguration->toMap());
+    map.insert(QLatin1String(EDITOR_SETTINGS_KEY), d->m_editorConfiguration->toMap());
 
     return map;
 }
@@ -246,7 +257,7 @@ bool Project::fromMap(const QVariantMap &map)
 {
     if (map.contains(QLatin1String(EDITOR_SETTINGS_KEY))) {
         QVariantMap values(map.value(QLatin1String(EDITOR_SETTINGS_KEY)).toMap());
-        m_editorConfiguration->fromMap(values);
+        d->m_editorConfiguration->fromMap(values);
     }
 
     int previousFileVersion = map.value(QLatin1String(Constants::USERFILE_PREVIOUS_VERSION_KEY),
@@ -284,7 +295,7 @@ bool Project::fromMap(const QVariantMap &map)
 
 EditorConfiguration *Project::editorConfiguration() const
 {
-    return m_editorConfiguration;
+    return d->m_editorConfiguration;
 }
 
 QByteArray Project::predefinedMacros(const QString &) const
@@ -306,3 +317,5 @@ QString Project::generatedUiHeader(const QString & /* formFile */) const
 {
     return QString();
 }
+
+} // namespace ProjectExplorer

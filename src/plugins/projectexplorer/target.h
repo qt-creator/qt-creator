@@ -33,7 +33,7 @@
 #include "projectconfiguration.h"
 #include "projectexplorer_export.h"
 
-#include <QtGui/QIcon>
+QT_FORWARD_DECLARE_CLASS(QIcon)
 
 namespace ProjectExplorer {
 
@@ -45,6 +45,8 @@ class IBuildConfigurationFactory;
 class DeployConfigurationFactory;
 class IRunConfigurationFactory;
 class Project;
+
+class TargetPrivate;
 
 class PROJECTEXPLORER_EXPORT Target : public ProjectConfiguration
 {
@@ -136,17 +138,7 @@ private slots:
     void changeEnvironment();
 
 private:
-    bool m_isEnabled;
-    QIcon m_icon;
-    QIcon m_overlayIcon;
-    QString m_toolTip;
-
-    QList<BuildConfiguration *> m_buildConfigurations;
-    BuildConfiguration *m_activeBuildConfiguration;
-    QList<DeployConfiguration *> m_deployConfigurations;
-    DeployConfiguration *m_activeDeployConfiguration;
-    QList<RunConfiguration *> m_runConfigurations;
-    RunConfiguration* m_activeRunConfiguration;
+    QScopedPointer<TargetPrivate> d;
 };
 
 class PROJECTEXPLORER_EXPORT ITargetFactory :

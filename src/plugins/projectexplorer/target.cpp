@@ -38,7 +38,7 @@
 #include <limits>
 #include <utils/qtcassert.h>
 
-using namespace ProjectExplorer;
+#include <QtGui/QIcon>
 
 namespace {
 const char * const ACTIVE_BC_KEY("ProjectExplorer.Target.ActiveBuildConfiguration");
@@ -59,8 +59,25 @@ const char * const RC_COUNT_KEY("ProjectExplorer.Target.RunConfigurationCount");
 // Target
 // -------------------------------------------------------------------------
 
-Target::Target(Project *project, const QString &id) :
-    ProjectConfiguration(project, id),
+namespace ProjectExplorer {
+
+class TargetPrivate {
+public:
+    TargetPrivate();
+    bool m_isEnabled;
+    QIcon m_icon;
+    QIcon m_overlayIcon;
+    QString m_toolTip;
+
+    QList<BuildConfiguration *> m_buildConfigurations;
+    BuildConfiguration *m_activeBuildConfiguration;
+    QList<DeployConfiguration *> m_deployConfigurations;
+    DeployConfiguration *m_activeDeployConfiguration;
+    QList<RunConfiguration *> m_runConfigurations;
+    RunConfiguration* m_activeRunConfiguration;
+};
+
+TargetPrivate::TargetPrivate() :
     m_isEnabled(true),
     m_activeBuildConfiguration(0),
     m_activeDeployConfiguration(0),
@@ -68,10 +85,16 @@ Target::Target(Project *project, const QString &id) :
 {
 }
 
+
+Target::Target(Project *project, const QString &id) :
+    ProjectConfiguration(project, id), d(new TargetPrivate)
+{
+}
+
 Target::~Target()
 {
-    qDeleteAll(m_buildConfigurations);
-    qDeleteAll(m_runConfigurations);
+    qDeleteAll(d->m_buildConfigurations);
+    qDeleteAll(d->m_runConfigurations);
 }
 
 void Target::changeEnvironment()
@@ -88,7 +111,7 @@ Project *Target::project() const
 
 void Target::addBuildConfiguration(BuildConfiguration *configuration)
 {
-    QTC_ASSERT(configuration && !m_buildConfigurations.contains(configuration), return);
+    QTC_ASSERT(configuration && !d->m_buildConfigurations.contains(configuration), return);
     Q_ASSERT(configuration->target() == this);
 
     if (!buildConfigurationFactory())
@@ -97,13 +120,13 @@ void Target::addBuildConfiguration(BuildConfiguration *configuration)
     // Check that we don't have a configuration with the same displayName
     QString configurationDisplayName = configuration->displayName();
     QStringList displayNames;
-    foreach (const BuildConfiguration *bc, m_buildConfigurations)
+    foreach (const BuildConfiguration *bc, d->m_buildConfigurations)
         displayNames << bc->displayName();
     configurationDisplayName = Project::makeUnique(configurationDisplayName, displayNames);
     configuration->setDisplayName(configurationDisplayName);
 
     // add it
-    m_buildConfigurations.push_back(configuration);
+    d->m_buildConfigurations.push_back(configuration);
 
     emit addedBuildConfiguration(configuration);
 
@@ -117,18 +140,18 @@ void Target::addBuildConfiguration(BuildConfiguration *configuration)
 void Target::removeBuildConfiguration(BuildConfiguration *configuration)
 {
     //todo: this might be error prone
-    if (!m_buildConfigurations.contains(configuration))
+    if (!d->m_buildConfigurations.contains(configuration))
         return;
 
-    m_buildConfigurations.removeOne(configuration);
+    d->m_buildConfigurations.removeOne(configuration);
 
     emit removedBuildConfiguration(configuration);
 
     if (activeBuildConfiguration() == configuration) {
-        if (m_buildConfigurations.isEmpty())
+        if (d->m_buildConfigurations.isEmpty())
             setActiveBuildConfiguration(0);
         else
-            setActiveBuildConfiguration(m_buildConfigurations.at(0));
+            setActiveBuildConfiguration(d->m_buildConfigurations.at(0));
     }
 
     delete configuration;
@@ -136,28 +159,28 @@ void Target::removeBuildConfiguration(BuildConfiguration *configuration)
 
 QList<BuildConfiguration *> Target::buildConfigurations() const
 {
-    return m_buildConfigurations;
+    return d->m_buildConfigurations;
 }
 
 BuildConfiguration *Target::activeBuildConfiguration() const
 {
-    return m_activeBuildConfiguration;
+    return d->m_activeBuildConfiguration;
 }
 
 void Target::setActiveBuildConfiguration(BuildConfiguration *configuration)
 {
-    if ((!configuration && m_buildConfigurations.isEmpty()) ||
-        (configuration && m_buildConfigurations.contains(configuration) &&
-         configuration != m_activeBuildConfiguration)) {
-        m_activeBuildConfiguration = configuration;
-        emit activeBuildConfigurationChanged(m_activeBuildConfiguration);
+    if ((!configuration && d->m_buildConfigurations.isEmpty()) ||
+        (configuration && d->m_buildConfigurations.contains(configuration) &&
+         configuration != d->m_activeBuildConfiguration)) {
+        d->m_activeBuildConfiguration = configuration;
+        emit activeBuildConfigurationChanged(d->m_activeBuildConfiguration);
         emit environmentChanged();
     }
 }
 
 void Target::addDeployConfiguration(DeployConfiguration *dc)
 {
-    QTC_ASSERT(dc && !m_deployConfigurations.contains(dc), return);
+    QTC_ASSERT(dc && !d->m_deployConfigurations.contains(dc), return);
     Q_ASSERT(dc->target() == this);
 
     if (!deployConfigurationFactory())
@@ -166,17 +189,17 @@ void Target::addDeployConfiguration(DeployConfiguration *dc)
     // Check that we don't have a configuration with the same displayName
     QString configurationDisplayName = dc->displayName();
     QStringList displayNames;
-    foreach (const DeployConfiguration *current, m_deployConfigurations)
+    foreach (const DeployConfiguration *current, d->m_deployConfigurations)
         displayNames << current->displayName();
     configurationDisplayName = Project::makeUnique(configurationDisplayName, displayNames);
     dc->setDisplayName(configurationDisplayName);
 
     // add it
-    m_deployConfigurations.push_back(dc);
+    d->m_deployConfigurations.push_back(dc);
 
     emit addedDeployConfiguration(dc);
 
-    if (!m_activeDeployConfiguration)
+    if (!d->m_activeDeployConfiguration)
         setActiveDeployConfiguration(dc);
     Q_ASSERT(activeDeployConfiguration());
 }
@@ -184,18 +207,18 @@ void Target::addDeployConfiguration(DeployConfiguration *dc)
 void Target::removeDeployConfiguration(DeployConfiguration *dc)
 {
     //todo: this might be error prone
-    if (!m_deployConfigurations.contains(dc))
+    if (!d->m_deployConfigurations.contains(dc))
         return;
 
-    m_deployConfigurations.removeOne(dc);
+    d->m_deployConfigurations.removeOne(dc);
 
     emit removedDeployConfiguration(dc);
 
     if (activeDeployConfiguration() == dc) {
-        if (m_deployConfigurations.isEmpty())
+        if (d->m_deployConfigurations.isEmpty())
             setActiveDeployConfiguration(0);
         else
-            setActiveDeployConfiguration(m_deployConfigurations.at(0));
+            setActiveDeployConfiguration(d->m_deployConfigurations.at(0));
     }
 
     delete dc;
@@ -203,43 +226,43 @@ void Target::removeDeployConfiguration(DeployConfiguration *dc)
 
 QList<DeployConfiguration *> Target::deployConfigurations() const
 {
-    return m_deployConfigurations;
+    return d->m_deployConfigurations;
 }
 
 DeployConfiguration *Target::activeDeployConfiguration() const
 {
-    return m_activeDeployConfiguration;
+    return d->m_activeDeployConfiguration;
 }
 
 void Target::setActiveDeployConfiguration(DeployConfiguration *dc)
 {
-    if ((!dc && m_deployConfigurations.isEmpty()) ||
-        (dc && m_deployConfigurations.contains(dc) &&
-         dc != m_activeDeployConfiguration)) {
-        m_activeDeployConfiguration = dc;
-        emit activeDeployConfigurationChanged(m_activeDeployConfiguration);
+    if ((!dc && d->m_deployConfigurations.isEmpty()) ||
+        (dc && d->m_deployConfigurations.contains(dc) &&
+         dc != d->m_activeDeployConfiguration)) {
+        d->m_activeDeployConfiguration = dc;
+        emit activeDeployConfigurationChanged(d->m_activeDeployConfiguration);
     }
 }
 
 QList<RunConfiguration *> Target::runConfigurations() const
 {
-    return m_runConfigurations;
+    return d->m_runConfigurations;
 }
 
 void Target::addRunConfiguration(RunConfiguration* runConfiguration)
 {
-    QTC_ASSERT(runConfiguration && !m_runConfigurations.contains(runConfiguration), return);
+    QTC_ASSERT(runConfiguration && !d->m_runConfigurations.contains(runConfiguration), return);
     Q_ASSERT(runConfiguration->target() == this);
 
     // Check that we don't have a configuration with the same displayName
     QString configurationDisplayName = runConfiguration->displayName();
     QStringList displayNames;
-    foreach (const RunConfiguration *rc, m_runConfigurations)
+    foreach (const RunConfiguration *rc, d->m_runConfigurations)
         displayNames << rc->displayName();
     configurationDisplayName = Project::makeUnique(configurationDisplayName, displayNames);
     runConfiguration->setDisplayName(configurationDisplayName);
 
-    m_runConfigurations.push_back(runConfiguration);
+    d->m_runConfigurations.push_back(runConfiguration);
     emit addedRunConfiguration(runConfiguration);
 
     if (!activeRunConfiguration())
@@ -248,15 +271,15 @@ void Target::addRunConfiguration(RunConfiguration* runConfiguration)
 
 void Target::removeRunConfiguration(RunConfiguration* runConfiguration)
 {
-    QTC_ASSERT(runConfiguration && m_runConfigurations.contains(runConfiguration), return);
+    QTC_ASSERT(runConfiguration && d->m_runConfigurations.contains(runConfiguration), return);
 
-    m_runConfigurations.removeOne(runConfiguration);
+    d->m_runConfigurations.removeOne(runConfiguration);
 
     if (activeRunConfiguration() == runConfiguration) {
-        if (m_runConfigurations.isEmpty())
+        if (d->m_runConfigurations.isEmpty())
             setActiveRunConfiguration(0);
         else
-            setActiveRunConfiguration(m_runConfigurations.at(0));
+            setActiveRunConfiguration(d->m_runConfigurations.at(0));
     }
 
     emit removedRunConfiguration(runConfiguration);
@@ -265,54 +288,54 @@ void Target::removeRunConfiguration(RunConfiguration* runConfiguration)
 
 RunConfiguration* Target::activeRunConfiguration() const
 {
-    return m_activeRunConfiguration;
+    return d->m_activeRunConfiguration;
 }
 
 void Target::setActiveRunConfiguration(RunConfiguration* configuration)
 {
-    if ((!configuration && m_runConfigurations.isEmpty()) ||
-        (configuration && m_runConfigurations.contains(configuration) &&
-         configuration != m_activeRunConfiguration)) {
-        m_activeRunConfiguration = configuration;
-        emit activeRunConfigurationChanged(m_activeRunConfiguration);
+    if ((!configuration && d->m_runConfigurations.isEmpty()) ||
+        (configuration && d->m_runConfigurations.contains(configuration) &&
+         configuration != d->m_activeRunConfiguration)) {
+        d->m_activeRunConfiguration = configuration;
+        emit activeRunConfigurationChanged(d->m_activeRunConfiguration);
     }
 }
 
 bool Target::isEnabled() const
 {
-    return m_isEnabled;
+    return d->m_isEnabled;
 }
 
 QIcon Target::icon() const
 {
-    return m_icon;
+    return d->m_icon;
 }
 
 void Target::setIcon(QIcon icon)
 {
-    m_icon = icon;
+    d->m_icon = icon;
     emit iconChanged();
 }
 
 QIcon Target::overlayIcon() const
 {
-    return m_overlayIcon;
+    return d->m_overlayIcon;
 }
 
 void Target::setOverlayIcon(QIcon icon)
 {
-    m_overlayIcon = icon;
+    d->m_overlayIcon = icon;
     emit overlayIconChanged();
 }
 
 QString Target::toolTip() const
 {
-    return m_toolTip;
+    return d->m_toolTip;
 }
 
 void Target::setToolTip(const QString &text)
 {
-    m_toolTip = text;
+    d->m_toolTip = text;
     emit toolTipChanged();
 }
 
@@ -321,19 +344,19 @@ QVariantMap Target::toMap() const
     const QList<BuildConfiguration *> bcs = buildConfigurations();
 
     QVariantMap map(ProjectConfiguration::toMap());
-    map.insert(QLatin1String(ACTIVE_BC_KEY), bcs.indexOf(m_activeBuildConfiguration));
+    map.insert(QLatin1String(ACTIVE_BC_KEY), bcs.indexOf(d->m_activeBuildConfiguration));
     map.insert(QLatin1String(BC_COUNT_KEY), bcs.size());
     for (int i = 0; i < bcs.size(); ++i)
         map.insert(QString::fromLatin1(BC_KEY_PREFIX) + QString::number(i), bcs.at(i)->toMap());
 
     const QList<DeployConfiguration *> dcs = deployConfigurations();
-    map.insert(QLatin1String(ACTIVE_DC_KEY), dcs.indexOf(m_activeDeployConfiguration));
+    map.insert(QLatin1String(ACTIVE_DC_KEY), dcs.indexOf(d->m_activeDeployConfiguration));
     map.insert(QLatin1String(DC_COUNT_KEY), dcs.size());
     for (int i = 0; i < dcs.size(); ++i)
         map.insert(QString::fromLatin1(DC_KEY_PREFIX) + QString::number(i), dcs.at(i)->toMap());
 
     const QList<RunConfiguration *> rcs = runConfigurations();
-    map.insert(QLatin1String(ACTIVE_RC_KEY), rcs.indexOf(m_activeRunConfiguration));
+    map.insert(QLatin1String(ACTIVE_RC_KEY), rcs.indexOf(d->m_activeRunConfiguration));
     map.insert(QLatin1String(RC_COUNT_KEY), rcs.size());
     for (int i = 0; i < rcs.size(); ++i)
         map.insert(QString::fromLatin1(RC_KEY_PREFIX) + QString::number(i), rcs.at(i)->toMap());
@@ -343,11 +366,11 @@ QVariantMap Target::toMap() const
 
 void Target::setEnabled(bool enabled)
 {
-    if (enabled == m_isEnabled)
+    if (enabled == d->m_isEnabled)
         return;
 
-    m_isEnabled = enabled;
-    emit targetEnabled(m_isEnabled);
+    d->m_isEnabled = enabled;
+    emit targetEnabled(d->m_isEnabled);
 }
 
 bool Target::fromMap(const QVariantMap &map)
@@ -451,3 +474,5 @@ ITargetFactory::ITargetFactory(QObject *parent) :
 
 ITargetFactory::~ITargetFactory()
 { }
+
+} // namespace ProjectExplorer

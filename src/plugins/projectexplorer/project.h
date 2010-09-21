@@ -48,6 +48,7 @@ class EditorConfiguration;
 class ProjectNode;
 class Target;
 class ITargetFactory;
+class ProjectPrivate;
 
 class PROJECTEXPLORER_EXPORT Project
     : public QObject
@@ -159,10 +160,7 @@ private slots:
     void changeEnvironment();
 
 private:
-    QSet<QString> m_supportedTargetIds;
-    QList<Target *> m_targets;
-    Target *m_activeTarget;
-    EditorConfiguration *m_editorConfiguration;
+    QScopedPointer<ProjectPrivate> d;
 };
 
 } // namespace ProjectExplorer
