@@ -605,17 +605,16 @@ void ModelPrivate::notifyNodeAboutToBeRemoved(const InternalNode::Pointer &nodeP
         resetModel = true;
     }
 
-    if (nodeInstanceView()) {
-        ModelNode node(nodePointer, model(), nodeInstanceView());
-        nodeInstanceView()->nodeAboutToBeRemoved(node);
-    }
-
     foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
         Q_ASSERT(view != 0);
         ModelNode node(nodePointer, model(), view.data());
         view->nodeAboutToBeRemoved(node);
     }
 
+    if (nodeInstanceView()) {
+        ModelNode node(nodePointer, model(), nodeInstanceView());
+        nodeInstanceView()->nodeAboutToBeRemoved(node);
+    }
 
     if (resetModel) {
         resetModelByRewriter(description);
