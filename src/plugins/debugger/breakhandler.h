@@ -73,7 +73,7 @@ public:
     // Find a breakpoint matching approximately the data in needle.
     BreakpointData *findSimilarBreakpoint(const BreakpointData *needle) const;
     BreakpointData *findBreakpointByNumber(int bpNumber) const;
-    int findWatchPointIndexByAddress(const QByteArray &a) const;
+    int findWatchPointIndexByAddress(quint64 address) const;
     bool watchPointAt(quint64 address) const;
     void updateMarkers();
     bool isActive() const;
@@ -91,10 +91,11 @@ public:
 
     void initializeFromTemplate(BreakHandler *other);
     void storeToTemplate(BreakHandler *other);
-    void toggleBreakpoint(const QString &fileName, int lineNumber);
+    void toggleBreakpoint(const QString &fileName, int lineNumber, quint64 address = 0);
     void toggleBreakpointEnabled(const QString &fileName, int lineNumber);
     BreakpointData *findBreakpoint(const QString &fileName, int lineNumber,
         bool useMarkerPosition = true);
+    BreakpointData *findBreakpoint(quint64 address) const;
 
 public slots:
     void appendBreakpoint(BreakpointData *data);

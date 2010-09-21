@@ -332,14 +332,14 @@ static QByteArray breakpointLocation(const BreakpointData *data)
     if (!data->funcName.isEmpty())
         return data->funcName.toLatin1();
     // In this case, data->funcName is something like '*0xdeadbeef'
-    if (data->lineNumber.toInt() == 0)
+    if (data->lineNumber == 0)
         return data->funcName.toLatin1();
     //QString loc = data->useFullPath ? data->fileName : breakLocation(data->fileName);
     // The argument is simply a C-quoted version of the argument to the
     // non-MI "break" command, including the "original" quoting it wants.
     //return "\"\\\"" + GdbMi::escapeCString(data->fileName).toLocal8Bit() + "\\\":"
     //    + data->lineNumber + '"';
-    return data->fileName.toLocal8Bit() + ":" + data->lineNumber;
+    return data->fileName.toLocal8Bit() + ':' + QByteArray::number(data->lineNumber);
 }
 
 void PdbEngine::attemptBreakpointSynchronization()
@@ -388,7 +388,7 @@ void PdbEngine::handleBreakInsert(const PdbResponse &response)
     QByteArray line = response.data.mid(pos2 + 1);
     data->bpNumber = bpnr;
     data->bpFileName = _(file);
-    data->bpLineNumber = line;
+    data->bpLineNumber = line.toInt();
     handler->updateMarkers();
 }
 

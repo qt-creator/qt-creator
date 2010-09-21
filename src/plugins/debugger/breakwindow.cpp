@@ -47,6 +47,7 @@
 #include <QtGui/QItemSelectionModel>
 #include <QtGui/QToolButton>
 #include <QtGui/QTreeView>
+#include <QtGui/QIntValidator>
 
 
 namespace Debugger {
@@ -362,6 +363,7 @@ void BreakWindow::editBreakpoint(const QModelIndexList &list)
     QAbstractItemModel *m = model();
     ui.lineEditCondition->setText(
         m->data(idx, BreakpointConditionRole).toString());
+    ui.lineEditIgnoreCount->setValidator(new QIntValidator(0, 2147483647, ui.lineEditIgnoreCount));
     ui.lineEditIgnoreCount->setText(
         m->data(idx, BreakpointIgnoreCountRole).toString());
     ui.lineEditThreadSpec->setText(

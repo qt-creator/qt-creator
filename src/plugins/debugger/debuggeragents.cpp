@@ -394,5 +394,19 @@ QString DisassemblerViewAgent::address() const
     return d->frame.address;
 }
 
+// Return address of an assembly line "0x0dfd  bla"
+quint64 DisassemblerViewAgent::addressFromDisassemblyLine(const QString &line)
+{
+    const int pos = line.indexOf(QLatin1Char(' '));
+    if (pos < 0)
+        return 0;
+    QString addressS = line.left(pos);
+    if (addressS.startsWith(QLatin1String("0x")))
+        addressS.remove(0, 2);
+    bool ok;
+    const quint64 address = addressS.toULongLong(&ok, 16);
+    return ok ? address : quint64(0);
+}
+
 } // namespace Internal
 } // namespace Debugger

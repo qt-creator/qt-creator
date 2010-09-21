@@ -44,26 +44,18 @@ CdbCore::BreakPoint breakPointFromBreakPointData(const Debugger::Internal::Break
     rc.type = bpd.type == Debugger::Internal::BreakpointData::BreakpointType ?
               CdbCore::BreakPoint::Code : CdbCore::BreakPoint::Data;
 
-    if (rc.type == CdbCore::BreakPoint::Data) {
-        QByteArray addressBA = bpd.address;
-        if (addressBA.startsWith("0x"))
-            addressBA.remove(0, 2);
-        bool ok;
-        rc.address = addressBA.toULongLong(&ok, 16);
-        if (!ok)
-            qWarning("Cdb: Cannot convert watchpoint address '%s'", bpd.address.constData());
-    }
+    rc.address = bpd.address;
     if (!bpd.threadSpec.isEmpty()) {
         bool ok;
         rc.threadId = bpd.threadSpec.toInt(&ok);
         if (!ok)
-            qWarning("Cdb: Cannot convert breakpoint thread specification '%s'", bpd.address.constData());
+            qWarning("Cdb: Cannot convert breakpoint thread specification '%s'", bpd.threadSpec.constData());
     }
     rc.fileName = QDir::toNativeSeparators(bpd.fileName);
     rc.condition = bpd.condition;
     rc.funcName = bpd.funcName;
-    rc.ignoreCount = bpd.ignoreCount.isEmpty() ? 0  : bpd.ignoreCount.toInt();
-    rc.lineNumber  = bpd.lineNumber.isEmpty()  ? -1 : bpd.lineNumber.toInt();
+    rc.ignoreCount = bpd.ignoreCount;
+    rc.lineNumber  = bpd.lineNumber;
     rc.oneShot = false;
     rc.enabled = bpd.enabled;
     return rc;
@@ -129,7 +121,7 @@ bool synchronizeBreakPoints(CIDebugControl* debugControl,
                 updateMarkers = true;
                 nbd->pending = false;
                 nbd->bpNumber = QByteArray::number(uint(id));
-                nbd->bpAddress = "0x" + QByteArray::number(address, 16);
+                nbd->bpAddress = address;
                 // Take over rest as is
                 nbd->bpCondition = nbd->condition;
                 nbd->bpIgnoreCount = nbd->ignoreCount;

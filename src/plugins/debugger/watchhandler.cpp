@@ -769,13 +769,11 @@ bool WatchModel::setData(const QModelIndex &index, const QVariant &value, int ro
         case RequestToggleWatchRole: {
             BreakHandler *handler = engine()->breakHandler();
             const quint64 address = value.toULongLong();
-            const QByteArray addressBA =
-                QByteArray("0x") + QByteArray::number(address, 16);
-            const int index = handler->findWatchPointIndexByAddress(addressBA);
+            const int index = handler->findWatchPointIndexByAddress(address);
             if (index == -1) {
                 BreakpointData *data = new BreakpointData;
                 data->type = BreakpointData::WatchpointType;
-                data->address = addressBA;
+                data->address = address;
                 handler->appendBreakpoint(data);
             } else {
                 handler->removeBreakpoint(index);

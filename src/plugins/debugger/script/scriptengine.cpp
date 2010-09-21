@@ -462,7 +462,7 @@ void ScriptEngine::attemptBreakpointSynchronization()
         }
         if (!data->fileName.isEmpty() && data->markerFileName().isEmpty()) {
             data->setMarkerFileName(data->fileName);
-            data->setMarkerLineNumber(data->lineNumber.toInt());
+            data->setMarkerLineNumber(data->lineNumber);
             updateNeeded = true;
         }
     }
@@ -608,7 +608,7 @@ static BreakpointData *findBreakPointByFileName(BreakHandler *handler,
     const int count = handler->size();
     for (int b = 0; b < count; b++) {
         BreakpointData *data = handler->at(b);
-        if (lineNumber == data->lineNumber.toInt() && fileName == data->fileName)
+        if (lineNumber == data->lineNumber && fileName == data->fileName)
             return data;
     }
     return 0;
@@ -649,7 +649,7 @@ bool ScriptEngine::checkForBreakCondition(bool byFunction)
 
         // We just run into a breakpoint.
         //SDEBUG("RESOLVING BREAKPOINT AT " << fileName << lineNumber);
-        data->bpLineNumber = QByteArray::number(lineNumber);
+        data->bpLineNumber = lineNumber;
         data->bpFileName = fileName;
         data->bpFuncName = functionName;
         data->setMarkerLineNumber(lineNumber);

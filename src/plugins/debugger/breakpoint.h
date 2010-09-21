@@ -55,7 +55,6 @@ public:
     void removeMarker();
     void updateMarker();
     QString toToolTip() const;
-    QString toString() const;
     BreakHandler *handler() { return m_handler; }
 
     bool isLocatedAt(const QString &fileName, int lineNumber,
@@ -86,9 +85,9 @@ public:
     // This "user requested information" will get stored in the session.
     QString fileName;        // Short name of source file.
     QByteArray condition;    // Condition associated with breakpoint.
-    QByteArray ignoreCount;  // Ignore count associated with breakpoint.
-    QByteArray lineNumber;   // Line in source file.
-    QByteArray address;      // Address for watchpoints.
+    int ignoreCount;         // Ignore count associated with breakpoint.
+    int lineNumber;          // Line in source file.
+    quint64 address;         // Address for watchpoints.
     QByteArray threadSpec;   // Thread specification.
     QString funcName;        // Name of containing function.
     bool useFullPath;        // Should we use the full path when setting the bp?
@@ -96,16 +95,17 @@ public:
     // This is what gdb produced in response.
     QByteArray bpNumber;     // Breakpoint number assigned by the debugger engine.
     QByteArray bpCondition;  // Condition acknowledged by the debugger engine.
-    QByteArray bpIgnoreCount;// Ignore count acknowledged by the debugger engine.
+    int bpIgnoreCount;       // Ignore count acknowledged by the debugger engine.
     QString bpFileName;      // File name acknowledged by the debugger engine.
     QString bpFullName;      // Full file name acknowledged by the debugger engine.
-    QByteArray bpLineNumber; // Line number acknowledged by the debugger engine.
-    QByteArray bpCorrectedLineNumber; // Acknowledged by the debugger engine.
+    int bpLineNumber; // Line number acknowledged by the debugger engine.
+    int bpCorrectedLineNumber; // Acknowledged by the debugger engine.
     QByteArray bpThreadSpec; // Thread spec acknowledged by the debugger engine.
     QString bpFuncName;      // Function name acknowledged by the debugger engine.
-    QByteArray bpAddress;    // Address acknowledged by the debugger engine.
+    quint64 bpAddress;       // Address acknowledged by the debugger engine.
     bool bpMultiple;         // Happens in constructors/gdb.
     bool bpEnabled;          // Enable/disable command sent.
+    QByteArray bpState;      // gdb: <PENDING>, <MULTIPLE>
 
     void setMarkerFileName(const QString &fileName);
     QString markerFileName() const { return m_markerFileName; }

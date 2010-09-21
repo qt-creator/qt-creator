@@ -439,7 +439,7 @@ void QmlEngine::attemptBreakpointSynchronization()
         QString processedFilename = data->fileName;
         if (isShadowBuildProject())
             processedFilename = toShadowBuildFilename(data->fileName);
-        breakList << qMakePair(processedFilename, data->lineNumber.toInt());
+        breakList << qMakePair(processedFilename, data->lineNumber);
     }
 
     {

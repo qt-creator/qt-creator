@@ -2061,18 +2061,23 @@ void GdbEngine::setBreakpointDataFromOutput(BreakpointData *data, const GdbMi &b
         } else if (child.hasName("addr")) {
             // <MULTIPLE> happens in constructors. In this case there are
             // _two_ fields named "addr" in the response. On Linux that is...
-            if (child.data() == "<MULTIPLE>")
-                data->bpMultiple = true;
-            else
-                data->bpAddress = child.data();
+            if (child.data().startsWith("0x")) {
+                data->bpAddress = child.data().mid(2).toULongLong(0, 16);
+            } else {
+                data->bpState = child.data();
+                if (child.data() == "<MULTIPLE>")
+                    data->bpMultiple = true;
+            }
         } else if (child.hasName("file")) {
             file = child.data();
         } else if (child.hasName("fullname")) {
             fullName = child.data();
         } else if (child.hasName("line")) {
-            data->bpLineNumber = child.data();
-            if (child.data().toInt() && data->bpCorrectedLineNumber.isEmpty())
-                data->setMarkerLineNumber(child.data().toInt());
+            bool ok;
+            const int lineNumber = child.data().toInt(&ok);
+            data->bpLineNumber = lineNumber;
+            if (ok && data->bpCorrectedLineNumber <= 0)
+                data->setMarkerLineNumber(lineNumber);
         } else if (child.hasName("cond")) {
             data->bpCondition = child.data();
             // gdb 6.3 likes to "rewrite" conditions. Just accept that fact.
@@ -2127,18 +2132,25 @@ QString GdbEngine::breakLocation(const QString &file) const
     return where;
 }
 
+static inline QByteArray bpAddressSpec(quint64 address)
+{
+    return "*0x" + QByteArray::number(address, 16);
+}
+
 QByteArray GdbEngine::breakpointLocation(const BreakpointData *data)
 {
     if (!data->funcName.isEmpty())
         return data->funcName.toLatin1();
+    if (data->address)
+        return bpAddressSpec(data->address);
     // In this case, data->funcName is something like '*0xdeadbeef'
-    if (data->lineNumber.toInt() == 0)
+    if (data->lineNumber == 0)
         return data->funcName.toLatin1();
     QString loc = data->useFullPath ? data->fileName : breakLocation(data->fileName);
     // The argument is simply a C-quoted version of the argument to the
     // non-MI "break" command, including the "original" quoting it wants.
     return "\"\\\"" + GdbMi::escapeCString(loc).toLocal8Bit() + "\\\":"
-        + data->lineNumber + '"';
+        + QByteArray::number(data->lineNumber) + '"';
 }
 
 void GdbEngine::sendInsertBreakpoint(int index)
@@ -2147,7 +2159,7 @@ void GdbEngine::sendInsertBreakpoint(int index)
     // Set up fallback in case of pending breakpoints which aren't handled
     // by the MI interface.
     if (data->type == BreakpointData::WatchpointType) {
-        postCommand("watch *" + data->address,
+        postCommand("watch " + bpAddressSpec(data->address),
             NeedsStop | RebuildBreakpointModel,
             CB(handleWatchInsert), index);
         return;
@@ -2367,9 +2379,9 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointData *
     re.setMinimal(true);
 
     if (re.indexIn(output) != -1) {
-        data->bpAddress = re.cap(1).toLatin1();
+        data->bpAddress = re.cap(1).toULongLong(0, 16);
         data->bpFuncName = re.cap(2).trimmed();
-        data->bpLineNumber = re.cap(4).toLatin1();
+        data->bpLineNumber = re.cap(4).toInt();
         QString full = fullName(re.cap(3));
         if (full.isEmpty()) {
             // FIXME: This happens without UsePreciseBreakpoints regularly.
@@ -2388,7 +2400,7 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointData *
         // the marker in more cases.
         if (data->fileName.endsWith(full))
             full = data->fileName;
-        data->setMarkerLineNumber(data->bpLineNumber.toInt());
+        data->setMarkerLineNumber(data->bpLineNumber);
         if (data->markerFileName().isEmpty()) {
             qDebug() << "111";
             data->setMarkerFileName(full);
@@ -2428,9 +2440,9 @@ void GdbEngine::handleInfoLine(const GdbResponse &response)
         QByteArray ba = response.data.findChild("consolestreamoutput").data();
         const int pos = ba.indexOf(' ', 5);
         if (ba.startsWith("Line ") && pos != -1) {
-            const QByteArray line = ba.mid(5, pos - 5);
+            const int line = ba.mid(5, pos - 5).toInt();
             data->bpCorrectedLineNumber = line;
-            data->setMarkerLineNumber(line.toInt());
+            data->setMarkerLineNumber(line);
         }
     }
 }
@@ -2542,7 +2554,7 @@ void GdbEngine::attemptBreakpointSynchronization()
             else // Because gdb won't do both changes at a time anyway.
             if (data->ignoreCount != data->bpIgnoreCount) {
                 // Update ignorecount if needed.
-                QByteArray ic = QByteArray::number(data->ignoreCount.toInt());
+                QByteArray ic = QByteArray::number(data->ignoreCount);
                 postCommand("ignore " + data->bpNumber + ' ' + ic,
                     NeedsStop | RebuildBreakpointModel,
                     CB(handleBreakIgnore), data->bpNumber.toInt());
@@ -2564,11 +2576,10 @@ void GdbEngine::attemptBreakpointSynchronization()
                 sendInsertBreakpoint(index);
                 continue;
             }
-            if (data->bpAddress.startsWith("0x")
-                    && data->bpCorrectedLineNumber.isEmpty()) {
+            if (data->bpAddress && data->bpCorrectedLineNumber == 0) {
                 // Prevent endless loop.
-                data->bpCorrectedLineNumber = " ";
-                postCommand("info line *" + data->bpAddress,
+                data->bpCorrectedLineNumber = -1;
+                postCommand("info line *0x" + QByteArray::number(data->bpAddress, 16),
                     NeedsStop | RebuildBreakpointModel,
                     CB(handleInfoLine), data->bpNumber.toInt());
             }

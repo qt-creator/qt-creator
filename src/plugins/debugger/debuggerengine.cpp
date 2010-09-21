@@ -325,10 +325,11 @@ void DebuggerEnginePrivate::breakpointSetRemoveMarginActionTriggered()
     QAction *act = qobject_cast<QAction *>(sender());
     QTC_ASSERT(act, return);
     QList<QVariant> list = act->data().toList();
-    QTC_ASSERT(list.size() == 2, return);
+    QTC_ASSERT(list.size() >= 3, return);
     const QString fileName = list.at(0).toString();
     const int lineNumber = list.at(1).toInt();
-    m_breakHandler.toggleBreakpoint(fileName, lineNumber);
+    const quint64 address = list.at(2).toULongLong();
+    m_breakHandler.toggleBreakpoint(fileName, lineNumber, address);
 }
 
 void DebuggerEnginePrivate::breakpointEnableDisableMarginActionTriggered()
@@ -352,30 +353,30 @@ void DebuggerEnginePrivate::handleContextMenuRequest(const QVariant &parameters)
     QMenu *menu = (QMenu *)(list.at(2).value<quint64>());
 
     BreakpointData *data = 0;
-    QString position;
     QString fileName;
+    quint64 address = 0;
     if (editor->property("DisassemblerView").toBool()) {
         fileName = editor->file()->fileName();
         QString line = editor->contents()
             .section('\n', lineNumber - 1, lineNumber - 1);
-        position = _("*") + fileName;
         BreakpointData needle;
-        needle.bpAddress = line.left(line.indexOf(QLatin1Char(' '))).toLatin1();
-        needle.bpLineNumber = "-1";
+        address = needle.address = DisassemblerViewAgent::addressFromDisassemblyLine(line);
+        needle.bpLineNumber = -1;
         data = m_breakHandler.findSimilarBreakpoint(&needle);
     } else {
         fileName = editor->file()->fileName();
-        position = fileName + QString(":%1").arg(lineNumber);
         data = m_breakHandler.findBreakpoint(fileName, lineNumber);
     }
 
     QList<QVariant> args;
     args.append(fileName);
     args.append(lineNumber);
+    args.append(address);
 
     if (data) {
         // existing breakpoint
-        QAction *act = new QAction(tr("Remove Breakpoint"), menu);
+        const QString number = QString::fromAscii(data->bpNumber);
+        QAction *act = new QAction(tr("Remove Breakpoint %1").arg(number), menu);
         act->setData(args);
         connect(act, SIGNAL(triggered()),
             this, SLOT(breakpointSetRemoveMarginActionTriggered()));
@@ -383,16 +384,19 @@ void DebuggerEnginePrivate::handleContextMenuRequest(const QVariant &parameters)
 
         QAction *act2;
         if (data->enabled)
-            act2 = new QAction(tr("Disable Breakpoint"), menu);
+            act2 = new QAction(tr("Disable Breakpoint %1").arg(number), menu);
         else
-            act2 = new QAction(tr("Enable Breakpoint"), menu);
+            act2 = new QAction(tr("Enable Breakpoint %1").arg(number), menu);
         act2->setData(args);
         connect(act2, SIGNAL(triggered()),
             this, SLOT(breakpointEnableDisableMarginActionTriggered()));
         menu->addAction(act2);
     } else {
         // non-existing
-        QAction *act = new QAction(tr("Set Breakpoint"), menu);
+        const QString text = address ?
+                    tr("Set Breakpoint at 0x%1").arg(address, 0, 16) :
+                    tr("Set Breakpoint at line %1").arg(lineNumber);
+        QAction *act = new QAction(text, menu);
         act->setData(args);
         connect(act, SIGNAL(triggered()),
             this, SLOT(breakpointSetRemoveMarginActionTriggered()));

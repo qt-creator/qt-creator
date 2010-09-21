@@ -139,11 +139,11 @@ BreakpointData *BreakHandler::findBreakpointByNumber(int bpNumber) const
     return 0;
 }
 
-int BreakHandler::findWatchPointIndexByAddress(const QByteArray &a) const
+int BreakHandler::findWatchPointIndexByAddress(quint64 address) const
 {
     for (int index = size() - 1; index >= 0; --index) {
         BreakpointData *bd = at(index);
-        if (bd->type == BreakpointData::WatchpointType && bd->address == a)
+        if (bd->type == BreakpointData::WatchpointType && bd->address == address)
             return index;
     }
     return -1;
@@ -151,8 +151,7 @@ int BreakHandler::findWatchPointIndexByAddress(const QByteArray &a) const
 
 bool BreakHandler::watchPointAt(quint64 address) const
 {
-    const QByteArray addressBA = QByteArray("0x") + QByteArray::number(address, 16);
-    return findWatchPointIndexByAddress(addressBA) != -1;
+    return findWatchPointIndexByAddress(address) != -1;
 }
 
 void BreakHandler::saveBreakpoints()
@@ -170,16 +169,16 @@ void BreakHandler::saveBreakpoints()
             map.insert(_("type"), data->type);
         if (!data->fileName.isEmpty())
             map.insert(_("filename"), data->fileName);
-        if (!data->lineNumber.isEmpty())
-            map.insert(_("linenumber"), data->lineNumber);
+        if (data->lineNumber)
+            map.insert(_("linenumber"), QVariant(data->lineNumber));
         if (!data->funcName.isEmpty())
             map.insert(_("funcname"), data->funcName);
-        if (!data->address.isEmpty())
+        if (data->address)
             map.insert(_("address"), data->address);
         if (!data->condition.isEmpty())
             map.insert(_("condition"), data->condition);
-        if (!data->ignoreCount.isEmpty())
-            map.insert(_("ignorecount"), data->ignoreCount);
+        if (data->ignoreCount)
+            map.insert(_("ignorecount"), QVariant(data->ignoreCount));
         if (!data->threadSpec.isEmpty())
             map.insert(_("threadspec"), data->threadSpec);
         if (!data->enabled)
@@ -207,16 +206,16 @@ void BreakHandler::loadBreakpoints()
             data->fileName = v.toString();
         v = map.value(_("linenumber"));
         if (v.isValid())
-            data->lineNumber = v.toString().toLatin1();
+            data->lineNumber = v.toString().toInt();
         v = map.value(_("condition"));
         if (v.isValid())
             data->condition = v.toString().toLatin1();
         v = map.value(_("address"));
         if (v.isValid())
-            data->address = v.toString().toLatin1();
+            data->address = v.toString().toULongLong();
         v = map.value(_("ignorecount"));
         if (v.isValid())
-            data->ignoreCount = v.toString().toLatin1();
+            data->ignoreCount = v.toString().toInt();
         v = map.value(_("threadspec"));
         if (v.isValid())
             data->threadSpec = v.toString().toLatin1();
@@ -233,7 +232,7 @@ void BreakHandler::loadBreakpoints()
         if (v.isValid())
             data->type = BreakpointData::Type(v.toInt());
         data->setMarkerFileName(data->fileName);
-        data->setMarkerLineNumber(data->lineNumber.toInt());
+        data->setMarkerLineNumber(data->lineNumber);
         append(data);
     }
     //qDebug() << "LOADED BREAKPOINTS" << this << list.size();
@@ -302,7 +301,7 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
         return data->condition;
 
     if (role == BreakpointIgnoreCountRole)
-        return data->ignoreCount;
+        return data->ignoreCount ? QVariant(data->ignoreCount) : QVariant(QString());
 
     if (role == BreakpointThreadSpecRole)
         return data->threadSpec;
@@ -345,8 +344,8 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                 // FIXME: better?
                 //if (data->bpMultiple && str.isEmpty() && !data->markerFileName.isEmpty())
                 //    str = data->markerLineNumber;
-                const QString str = data->pending ? data->lineNumber : data->bpLineNumber;
-                return str.isEmpty() ? empty : str;
+                const int nr = data->pending ? data->lineNumber : data->bpLineNumber;
+                return nr ? QString::number(nr) : empty;
             }
             if (role == Qt::UserRole + 1)
                 return data->lineNumber;
@@ -360,8 +359,10 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                 return data->condition;
             break;
         case 5:
-            if (role == Qt::DisplayRole)
-                return data->pending ? data->ignoreCount : data->bpIgnoreCount;
+            if (role == Qt::DisplayRole) {
+                const int ignoreCount = data->pending ? data->ignoreCount : data->bpIgnoreCount;
+                return ignoreCount ? QVariant(ignoreCount) : QVariant(QString());
+            }
             if (role == Qt::ToolTipRole)
                 return tr("Breakpoint will only be hit after being ignored so many times.");
             if (role == Qt::UserRole + 1)
@@ -381,9 +382,17 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
             break;
         case 7:
             if (role == Qt::DisplayRole) {
-                if (data->type == BreakpointData::WatchpointType)
-                    return data->address;
-                return data->bpAddress;
+                QString displayValue;
+                const quint64 effectiveAddress = data->type == BreakpointData::WatchpointType ?
+                              data->address : data->bpAddress;
+                if (effectiveAddress)
+                    displayValue += QString::fromAscii("0x%1").arg(effectiveAddress, 0, 16);
+                if (!data->bpState.isEmpty()) {
+                    if (!displayValue.isEmpty())
+                        displayValue += QLatin1Char(' ');
+                    displayValue += QString::fromAscii(data->bpState);
+                }
+                return displayValue;
             }
             break;
     }
@@ -462,9 +471,9 @@ bool BreakHandler::setData(const QModelIndex &index, const QVariant &value, int 
             return true;
 
         case BreakpointIgnoreCountRole: {
-                QByteArray val = value.toString().toLatin1();
-                if (val != data->ignoreCount) {
-                    data->ignoreCount = val;
+                const int ignoreCount = value.toInt();
+                if (ignoreCount != data->ignoreCount) {
+                    data->ignoreCount = ignoreCount;
                     emit layoutChanged();
                 }
             }
@@ -580,6 +589,14 @@ void BreakHandler::removeAllBreakpoints()
     updateMarkers();
 }
 
+BreakpointData *BreakHandler::findBreakpoint(quint64 address) const
+{
+    foreach (BreakpointData *data, m_bp)
+        if (data->address == address)
+            return data;
+    return 0;
+}
+
 BreakpointData *BreakHandler::findBreakpoint(const QString &fileName,
     int lineNumber, bool useMarkerPosition)
 {
@@ -589,17 +606,30 @@ BreakpointData *BreakHandler::findBreakpoint(const QString &fileName,
     return 0;
 }
 
-void BreakHandler::toggleBreakpoint(const QString &fileName, int lineNumber)
+void BreakHandler::toggleBreakpoint(const QString &fileName, int lineNumber,
+                                    quint64 address /* = 0 */)
 {
-    BreakpointData *data = findBreakpoint(fileName, lineNumber, true);
-    if (!data)
-        data = findBreakpoint(fileName, lineNumber, false);
+    BreakpointData *data = 0;
+    do {
+        if (address) {
+            data = findBreakpoint(address);
+            break;
+        }
+        data = findBreakpoint(fileName, lineNumber, true);
+        if (!data)
+            data = findBreakpoint(fileName, lineNumber, false);
+    } while (false);
+
     if (data) {
         removeBreakpoint(data);
     } else {
         data = new BreakpointData;
-        data->fileName = fileName;
-        data->lineNumber = QByteArray::number(lineNumber);
+        if (address) {
+            data->address = address;
+        } else {
+            data->fileName = fileName;
+            data->lineNumber = lineNumber;
+        }
         data->pending = true;
         data->setMarkerFileName(fileName);
         data->setMarkerLineNumber(lineNumber);
@@ -629,7 +659,7 @@ void BreakHandler::breakByFunction(const QString &functionName)
         const BreakpointData *data = at(index);
         QTC_ASSERT(data, break);
         if (data->funcName == functionName && data->condition.isEmpty()
-                && data->ignoreCount.isEmpty())
+                && data->ignoreCount == 0)
             return;
     }
     BreakpointData *data = new BreakpointData;
@@ -658,7 +688,7 @@ void BreakHandler::initializeFromTemplate(BreakHandler *other)
 void BreakHandler::storeToTemplate(BreakHandler *other)
 {
     other->removeAllBreakpoints();
-    foreach (BreakpointData *data, m_bp)
+    foreach (const BreakpointData *data, m_bp)
         other->append(data->clone());
     removeAllBreakpoints();
     other->updateMarkers();

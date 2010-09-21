@@ -130,7 +130,7 @@ public:
             // FIXME: Should we tell gdb about the change?
             // Ignore it for now, as we would require re-compilation
             // and debugger re-start anyway.
-            if (0 && !m_data->bpLineNumber.isEmpty()) {
+            if (0 && m_data->bpLineNumber) {
                 if (!m_data->bpNumber.trimmed().isEmpty()) {
                     m_data->pending = true;
                 }
@@ -141,7 +141,7 @@ public:
         // the next line that generated code.
         // FIXME: Do we need yet another data member?
         if (m_data->bpNumber.trimmed().isEmpty()) {
-            m_data->lineNumber = QByteArray::number(lineNumber);
+            m_data->lineNumber = lineNumber;
             m_data->handler()->updateMarkers();
         }
     }
@@ -159,17 +159,16 @@ private:
 //
 //////////////////////////////////////////////////////////////////
 
-BreakpointData::BreakpointData()
+BreakpointData::BreakpointData() :
+    m_handler(0), enabled(true),
+    pending(true), type(BreakpointType),
+    ignoreCount(0), lineNumber(0), address(0),
+    useFullPath(false),
+    bpIgnoreCount(0), bpLineNumber(0),
+    bpCorrectedLineNumber(0), bpAddress(0),
+    bpMultiple(false), bpEnabled(true),
+    m_markerLineNumber(0), marker(0)
 {
-    m_handler = 0;
-    enabled = true;
-    pending = true;
-    type = BreakpointType;
-    marker = 0;
-    m_markerLineNumber = 0;
-    bpMultiple = false;
-    bpEnabled = true;
-    useFullPath = false;
 }
 
 BreakpointData *BreakpointData::clone() const
@@ -193,7 +192,7 @@ BreakpointData *BreakpointData::clone() const
         data->m_markerLineNumber = m_markerLineNumber;
     } else {
         data->m_markerFileName = fileName;
-        data->m_markerLineNumber = lineNumber.toInt();
+        data->m_markerLineNumber = lineNumber;
     }
     return data;
 }
@@ -233,6 +232,16 @@ void BreakpointData::setMarkerLineNumber(int lineNumber)
     m_markerLineNumber = lineNumber;
 }
 
+static inline void formatAddress(QTextStream &str, quint64 address)
+{
+    if (address) {
+        str << "0x";
+        str.setIntegerBase(16);
+        str << address;
+        str.setIntegerBase(10);
+    }
+}
+
 QString BreakpointData::toToolTip() const
 {
     QString rc;
@@ -250,6 +259,8 @@ QString BreakpointData::toToolTip() const
             : type == WatchpointType ? BreakHandler::tr("Watchpoint")
             : BreakHandler::tr("Unknown breakpoint type"))
         << "</td></tr>"
+        << "<tr><td>" << BreakHandler::tr("State:")
+        << "</td><td>" << bpState << "</td></tr>"
         << "</table><br><hr><table>"
         << "<tr><th>" << BreakHandler::tr("Property")
         << "</th><th>" << BreakHandler::tr("Requested")
@@ -260,54 +271,46 @@ QString BreakpointData::toToolTip() const
         << "</td><td>" << fileName << "</td><td>" << QDir::toNativeSeparators(bpFileName) << "</td></tr>"
         << "<tr><td>" << BreakHandler::tr("Function Name:")
         << "</td><td>" << funcName << "</td><td>" << bpFuncName << "</td></tr>"
-        << "<tr><td>" << BreakHandler::tr("Line Number:")
-        << "</td><td>" << lineNumber << "</td><td>" << bpLineNumber << "</td></tr>"
+        << "<tr><td>" << BreakHandler::tr("Line Number:") << "</td><td>";
+    if (lineNumber)
+        str << lineNumber;
+    str << "</td><td>";
+    if (bpLineNumber)
+        str << bpLineNumber;
+    str << "</td></tr>"
         << "<tr><td>" << BreakHandler::tr("Breakpoint Address:")
-        << "</td><td>" << address << "</td><td>" << bpAddress << "</td></tr>"
+        << "</td><td>";
+    formatAddress(str, address);
+    str << "</td><td>";
+    formatAddress(str, bpAddress);
+    str <<  "</td></tr>"
         << "<tr><td>" << BreakHandler::tr("Corrected Line Number:")
-        << "</td><td>-</td><td>" << bpCorrectedLineNumber << "</td></tr>"
+        << "</td><td>-</td><td>";
+    if (bpCorrectedLineNumber > 0) {
+        str << bpCorrectedLineNumber;
+    } else {
+        str << '-';
+    }
+    str << "</td></tr>"
         << "<tr><td>" << BreakHandler::tr("Condition:")
         << "</td><td>" << condition << "</td><td>" << bpCondition << "</td></tr>"
-        << "<tr><td>" << BreakHandler::tr("Ignore Count:")
-        << "</td><td>" << ignoreCount << "</td><td>" << bpIgnoreCount << "</td></tr>"
+        << "<tr><td>" << BreakHandler::tr("Ignore Count:") << "</td><td>";
+    if (ignoreCount)
+        str << ignoreCount;
+    str << "</td><td>";
+    if (bpIgnoreCount)
+        str << bpIgnoreCount;
+    str << "</td></tr>"
         << "<tr><td>" << BreakHandler::tr("Thread Specification:")
         << "</td><td>" << threadSpec << "</td><td>" << bpThreadSpec << "</td></tr>"
         << "</table></body></html>";
     return rc;
 }
 
-QString BreakpointData::toString() const
-{
-    QString rc;
-    QTextStream str(&rc);
-    str << BreakHandler::tr("Marker File:") << ' ' <<  m_markerFileName << '\n'
-        << BreakHandler::tr("Marker Line:") <<  ' ' << m_markerLineNumber << '\n'
-        << BreakHandler::tr("Breakpoint Number:") <<  ' ' << bpNumber << '\n'
-        << BreakHandler::tr("Breakpoint Type:") << ' '
-        << (type == BreakpointType ? BreakHandler::tr("Breakpoint")
-            : type == WatchpointType ? BreakHandler::tr("Watchpoint")
-            : BreakHandler::tr("Unknown breakpoint type")) << '\n'
-        << BreakHandler::tr("File Name:") << ' '
-        << fileName << " -- " << bpFileName << '\n'
-        << BreakHandler::tr("Function Name:") << ' '
-        << funcName << " -- " << bpFuncName << '\n'
-        << BreakHandler::tr("Line Number:") << ' '
-        << lineNumber << " -- " << bpLineNumber << '\n'
-        << BreakHandler::tr("Breakpoint Address:") << ' '
-        << address << " -- " << bpAddress << '\n'
-        << BreakHandler::tr("Condition:") << ' '
-        << condition << " -- " << bpCondition << '\n'
-        << BreakHandler::tr("Ignore Count:") << ' '
-        << ignoreCount << " -- " << bpIgnoreCount << '\n'
-        << BreakHandler::tr("Thread Specification:") << ' '
-        << threadSpec << " -- " << bpThreadSpec << '\n';
-    return rc;
-}
-
 bool BreakpointData::isLocatedAt(const QString &fileName_, int lineNumber_, 
     bool useMarkerPosition) const
 {
-    int line = useMarkerPosition ? m_markerLineNumber : lineNumber.toInt();
+    int line = useMarkerPosition ? m_markerLineNumber : lineNumber;
     return lineNumber_ == line && fileNameMatch(fileName_, m_markerFileName);
 }
 
@@ -330,6 +333,9 @@ bool BreakpointData::isSimilarTo(const BreakpointData *needle) const
             && !bpNumber.startsWith(needle->bpNumber)
             && !needle->bpNumber.startsWith(bpNumber))
         return false;
+
+    if (address && needle->address && address == needle->address)
+        return true;
 
     // At least at a position we were looking for.
     // FIXME: breaks multiple breakpoints at the same location
