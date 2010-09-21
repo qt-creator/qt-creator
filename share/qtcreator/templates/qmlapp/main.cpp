@@ -9,7 +9,6 @@ int main(int argc, char *argv[])
     viewer.addImportPath(QLatin1String("modules")); // ADDIMPORTPATH
     viewer.setOrientation(QmlApplicationViewer::Auto); // ORIENTATION
     viewer.setMainQmlFile(QLatin1String("qml/app/app.qml")); // MAINQML
-    viewer.setLoadDummyData(false); // LOADDUMMYDATA
     viewer.show();
 
     return app.exec();

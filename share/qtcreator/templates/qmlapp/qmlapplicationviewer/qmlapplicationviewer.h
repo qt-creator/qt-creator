@@ -18,7 +18,6 @@ public:
     void setMainQmlFile(const QString &file);
     void addImportPath(const QString &path);
     void setOrientation(Orientation orientation);
-    void setLoadDummyData(bool loadDummyData);
     void show();
 
 private:

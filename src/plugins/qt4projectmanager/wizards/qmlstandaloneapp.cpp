@@ -210,8 +210,6 @@ bool QmlStandaloneApp::adaptCurrentMainCppTemplateLine(QString &line) const
             adaptLine = false;
         else
             insertParameter(line, quote + path(ModulesDir) + quote);
-    } else if (line.contains(QLatin1String("// LOADDUMMYDATA"))) {
-        adaptLine = false;
     }
     return adaptLine;
 }

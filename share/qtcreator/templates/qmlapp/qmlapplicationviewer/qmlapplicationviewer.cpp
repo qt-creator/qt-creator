@@ -108,27 +108,6 @@ void QmlApplicationViewer::setOrientation(Orientation orientation)
 #endif // Q_OS_SYMBIAN
 }
 
-void QmlApplicationViewer::setLoadDummyData(bool loadDummyData)
-{
-    if (loadDummyData) {
-        const QFileInfo mainQmlFileInfo(m_d->mainQmlFile);
-        const QDir dir(mainQmlFileInfo.absolutePath() + QLatin1String("/dummydata"),
-                 QLatin1String("*.qml"));
-        foreach (const QFileInfo &qmlFile, dir.entryInfoList()) {
-            QFile f(qmlFile.absoluteFilePath());
-            if (f.open(QIODevice::ReadOnly)) {
-                QDeclarativeComponent comp(engine());
-                comp.setData(f.readAll(), QUrl());
-                QObject *dummyData = comp.create();
-                if (dummyData) {
-                    rootContext()->setContextProperty(qmlFile.baseName(), dummyData);
-                    dummyData->setParent(this);
-                }
-            }
-        }
-    }
-}
-
 void QmlApplicationViewer::show()
 {
 #ifdef Q_OS_SYMBIAN
