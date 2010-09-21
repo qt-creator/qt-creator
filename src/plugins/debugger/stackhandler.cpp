@@ -117,7 +117,9 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
         case 3: // Line number
             return frame.line;
         case 4: // Address
-            return frame.address;
+            if (frame.address)
+                return QString::fromAscii("0x%1").arg(frame.address, 0, 16);
+            return QString();
         }
         return QVariant();
     }
@@ -225,7 +227,7 @@ void StackHandler::setFrames(const StackFrames &frames, bool canExpand)
     reset();
 }
 
-StackFrames StackHandler::frames() const
+const StackFrames &StackHandler::frames() const
 {
     return m_stackFrames;
 }

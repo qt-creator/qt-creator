@@ -98,7 +98,7 @@ void StackWindow::rowActivated(const QModelIndex &index)
 void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
     const QModelIndex index = indexAt(ev->pos());
-    const QString address = modelData(StackFrameAddressRole, index).toString();
+    const quint64 address = modelData(StackFrameAddressRole, index).toULongLong();
     const unsigned engineCapabilities = modelData(EngineCapabilitiesRole).toUInt();
 
     QMenu menu;
@@ -111,20 +111,20 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
         menu.addAction(theDebuggerAction(CreateFullBacktrace));
 
     QAction *actShowMemory = menu.addAction(QString());
-    if (address.isEmpty()) {
+    if (address == 0) {
         actShowMemory->setText(tr("Open Memory Editor"));
         actShowMemory->setEnabled(false);
     } else {
-        actShowMemory->setText(tr("Open Memory Editor at %1").arg(address));
+        actShowMemory->setText(tr("Open Memory Editor at 0x%1").arg(address, 0, 16));
         actShowMemory->setEnabled(engineCapabilities & ShowMemoryCapability);
     }
 
     QAction *actShowDisassembler = menu.addAction(QString());
-    if (address.isEmpty()) {
+    if (address == 0) {
         actShowDisassembler->setText(tr("Open Disassembler"));
         actShowDisassembler->setEnabled(false);
     } else {
-        actShowDisassembler->setText(tr("Open Disassembler at %1").arg(address));
+        actShowDisassembler->setText(tr("Open Disassembler at 0x%1").arg(address, 0, 16));
         actShowDisassembler->setEnabled(engineCapabilities & DisassemblerCapability);
     }
 

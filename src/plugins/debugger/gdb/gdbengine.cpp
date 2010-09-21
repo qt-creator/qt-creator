@@ -1830,7 +1830,7 @@ void GdbEngine::executeStep()
     notifyInferiorRunRequested();
     showStatusMessage(tr("Step requested..."), 5000);
     if (m_gdbAdapter->isTrkAdapter() && stackHandler()->stackSize() > 0)
-        postCommand("sal step," + stackHandler()->topAddress().toLatin1());
+        postCommand("sal step,0x" + QByteArray::number(stackHandler()->topAddress(), 16));
     if (isReverseDebugging())
         postCommand("reverse-step", RunRequest, CB(handleExecuteStep));
     else
@@ -1887,7 +1887,7 @@ void GdbEngine::executeNext()
     notifyInferiorRunRequested();
     showStatusMessage(tr("Step next requested..."), 5000);
     if (m_gdbAdapter->isTrkAdapter() && stackHandler()->stackSize() > 0)
-        postCommand("sal next," + stackHandler()->topAddress().toLatin1());
+        postCommand("sal next,0x" + QByteArray::number(stackHandler()->topAddress(), 16));
     if (isReverseDebugging())
         postCommand("reverse-next", RunRequest, CB(handleExecuteNext));
     else
@@ -2829,7 +2829,7 @@ StackFrame GdbEngine::parseStackFrame(const GdbMi &frameMi, int level)
     frame.function = _(frameMi.findChild("func").data());
     frame.from = _(frameMi.findChild("from").data());
     frame.line = frameMi.findChild("line").data().toInt();
-    frame.address = _(frameMi.findChild("addr").data());
+    frame.address = frameMi.findChild("addr").data().toULongLong(0, 16);
     return frame;
 }
 
@@ -3760,9 +3760,7 @@ void GdbEngine::fetchDisassemblerByAddress(const DisassemblerAgentCookie &ac0,
 {
     DisassemblerAgentCookie ac = ac0;
     QTC_ASSERT(ac.agent, return);
-    bool ok = true;
-    quint64 address = ac.agent->address().toULongLong(&ok, 0);
-    QTC_ASSERT(ok, qDebug() << "ADDRESS: " << ac.agent->address() << address; return);
+    const quint64 address = ac.agent->address();
     QByteArray start = QByteArray::number(address - 20, 16);
     QByteArray end = QByteArray::number(address + 100, 16);
     // -data-disassemble [ -s start-addr -e end-addr ]
@@ -3783,8 +3781,7 @@ void GdbEngine::fetchDisassemblerByCli(const DisassemblerAgentCookie &ac0,
 {
     DisassemblerAgentCookie ac = ac0;
     QTC_ASSERT(ac.agent, return);
-    bool ok = false;
-    quint64 address = ac.agent->address().toULongLong(&ok, 0);
+    const quint64 address = ac.agent->address();
     QByteArray cmd = "disassemble ";
     if (useMixedMode && m_gdbVersion >= 60850)
         cmd += "/m ";
@@ -3799,8 +3796,7 @@ void GdbEngine::fetchDisassemblerByAddressCli(const DisassemblerAgentCookie &ac0
 {
     DisassemblerAgentCookie ac = ac0;
     QTC_ASSERT(ac.agent, return);
-    bool ok = false;
-    quint64 address = ac.agent->address().toULongLong(&ok, 0);
+    const quint64 address = ac.agent->address();
     QByteArray start = QByteArray::number(address - 20, 16);
     QByteArray end = QByteArray::number(address + 100, 16);
     // There have been changes to the syntax sometime between 7.0 and 7.1.

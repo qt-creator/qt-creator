@@ -328,6 +328,29 @@ void DisassemblerViewAgent::setMimeType(const QString &mt)
        d->configureMimeType();
 }
 
+// Return a pair of <linenumber [1..n], character position> of an address
+// in assembly code, assuming lines start with a sane hex address.
+static QPair<int, int> lineNumberOfAddress(const QString &disassembly, quint64 address)
+{
+    if (disassembly.isEmpty())
+        return QPair<int, int>(-1, -1);
+
+    int pos = 0;
+    const QChar newLine = QLatin1Char('\n');
+
+    const int size = disassembly.size();
+    for (int lineNumber = 1; pos < size; lineNumber++) {
+        int endOfLinePos = disassembly.indexOf(newLine, pos + 1);
+        if (endOfLinePos == -1)
+            endOfLinePos = size;
+        const QString line = disassembly.mid(pos, endOfLinePos - pos);
+        if (DisassemblerViewAgent::addressFromDisassemblyLine(line) == address)
+            return QPair<int, int>(lineNumber, pos);
+        pos = endOfLinePos;
+    }
+    return QPair<int, int>(-1, -1);;
+}
+
 void DisassemblerViewAgent::setContents(const QString &contents)
 {
     QTC_ASSERT(d, return);
@@ -360,36 +383,25 @@ void DisassemblerViewAgent::setContents(const QString &contents)
     d->editor->markableInterface()->removeMark(d->locationMark);
     d->editor->setDisplayName(_("Disassembler (%1)").arg(d->frame.function));
 
-    for (int pos = 0, line = 0; ; ++line, ++pos) {
-        if (contents.midRef(pos, d->frame.address.size()) == d->frame.address) {
-            d->editor->markableInterface()->addMark(d->locationMark, line + 1);
-            if (plainTextEdit) {
-                QTextCursor tc = plainTextEdit->textCursor();
-                tc.setPosition(pos);
-                plainTextEdit->setTextCursor(tc);
-            }
-            break;
+    const QPair<int, int> lineNumberPos = lineNumberOfAddress(contents, d->frame.address);
+    if (lineNumberPos.first > 0) {
+        d->editor->markableInterface()->addMark(d->locationMark, lineNumberPos.first);
+        if (plainTextEdit) {
+            QTextCursor tc = plainTextEdit->textCursor();
+            tc.setPosition(lineNumberPos.second);
+            plainTextEdit->setTextCursor(tc);
         }
-        pos = contents.indexOf('\n', pos + 1);
-        if (pos == -1)
-            break;
     }
 }
 
 bool DisassemblerViewAgent::contentsCoversAddress(const QString &contents) const
 {
     QTC_ASSERT(d, return false);
-    for (int pos = 0, line = 0; ; ++line, ++pos) {
-        if (contents.midRef(pos, d->frame.address.size()) == d->frame.address)
-            return true;
-        pos = contents.indexOf('\n', pos + 1);
-        if (pos == -1)
-            break;
-    }
-    return false;
+
+    return lineNumberOfAddress(contents, d->frame.address).first > 0;
 }
 
-QString DisassemblerViewAgent::address() const
+quint64 DisassemblerViewAgent::address() const
 {
     return d->frame.address;
 }

@@ -36,28 +36,6 @@
 
 #include <QtCore/QVector>
 
-// Format a hex address with a given field width if possible. Convert
-// to number to ensure it is not truncated should it be larger than the
-// field width. Check the 64 bit address format '00000001`40002c84'
-static inline void formatAddress(QTextStream &str, QString hexAddressS, int fieldWidth)
-{
-    if (hexAddressS.size() > 9) {
-        const int sepPos = hexAddressS.size() - 9;
-        if (hexAddressS.at(sepPos) == QLatin1Char('`'))
-            hexAddressS.remove(sepPos, 1);
-    }
-    const QChar oldPadChar = str.padChar();
-    const int oldFieldWidth = str.fieldWidth();
-    const int oldIntegerBase = str.integerBase();
-    str.setFieldWidth(fieldWidth);
-    str.setPadChar(QLatin1Char('0'));
-    str.setIntegerBase(16);
-    str << hexAddressS.toULongLong(0, 16);
-    str.setFieldWidth(oldFieldWidth);
-    str.setPadChar(oldPadChar);
-    str.setIntegerBase(oldIntegerBase);
-}
-
 namespace Debugger {
 namespace Internal {
 
@@ -101,10 +79,25 @@ Registers getRegisters(CIDebugControl *ctl,
     return registers;
 }
 
-// Output parser for disassembler lines.
-// It uses the source file lines as symbol until it encounters
-// a C++ symbol (function entered), from which then on
-// it uses that symbol.
+/* Output parser for disassembler lines: Parse a disassembler line:
+ * \code
+module!class::foo:
+                        004017cf cc int 3
+77 mainwindow.cpp       004018ff 8d4da8           lea     ecx,[ebp-0x58]
+\endcode
+ * and reformat to something like:
+ * \code
+00000001400043c9 mainwindow.cpp+296 90 nop
+00000001400043ca mainwindow.cpp+296 488d8c24d8020000 lea rcx,[rsp+2D8h]
+00000001400043d2 mainwindow.cpp+296 ff1500640300 call qword ptr [gitgui!_imp_??1QStringQEAAXZ (00000001`4003a7d8)]
+\endcode
+ * Reformatting brings address to the front for disassembler agent's extracting
+ * the address for location marker to work.
+ * Moves symbol information to the 2nd column, using the source file lines as
+ * symbol until it encounters a C++ symbol (function entered), from which then on
+ * it uses that symbol, indicating the offset.
+ */
+
 class DisassemblerOutputParser
 {
     Q_DISABLE_COPY(DisassemblerOutputParser)
@@ -129,13 +122,6 @@ DisassemblerOutputParser::DisassemblerOutputParser(QTextStream &str, int address
     m_sourceSymbolOffset(0)
 {
 }
-
-/* Parse a disassembler line:
- * \code
-module!class::foo:
-                        004017cf cc int 3
-77 mainwindow.cpp       004018ff 8d4da8           lea     ecx,[ebp-0x58]
-\endcode */
 
 DisassemblerOutputParser::ParseResult
     DisassemblerOutputParser::parseDisassembled(const QString &in)
@@ -167,16 +153,13 @@ DisassemblerOutputParser::ParseResult
         return ParseIgnore;
     if (tokenCount < 3)
         return ParseFailed;
-    // Format line. Start with address with the field width given,
-    // which is important for setting the marker.
-    const int addressToken = hasSourceFile ? 2 : 0;
-    m_str << "0x";
-    if (m_str.fieldWidth() == m_addressFieldWidth) {
-        m_str << tokens.at(addressToken);
-    } else {
-        formatAddress(m_str, tokens.at(addressToken), m_addressFieldWidth);
-    }
-    m_str << ' ';
+    // Format line. Start with address which is important for setting the marker.
+    // Fix CDB word separator for location marker hex conversion to work.
+    const int addressTokenPos = hasSourceFile ? 2 : 0;
+    QString addressToken = tokens.at(addressTokenPos);
+    if (addressToken.size() > 9 && addressToken.at(8) == QLatin1Char('`'))
+        addressToken.remove(8, 1);
+    m_str << addressToken << ' ';
     // Symbol display: Do we know a symbol? -> Display with offset.
     // Else default to source file information.
     if (m_sourceSymbol.isEmpty()) {
@@ -189,7 +172,7 @@ DisassemblerOutputParser::ParseResult
         m_str << '>';
         m_sourceSymbolOffset++;
     }
-    for (int i = addressToken + 1; i < tokenCount; i++)
+    for (int i = addressTokenPos + 1; i < tokenCount; i++)
         m_str << ' ' << tokens.at(i);
     m_str << '\n';
     return ParseOk;
@@ -213,7 +196,6 @@ bool dissassemble(CdbCore::CoreEngine *engine,
                   ULONG64 offset,
                   unsigned long beforeLines,
                   unsigned long afterLines,
-                  int addressFieldWidth,
                   QTextStream &str,
                   QString *errorMessage)
 {
@@ -222,7 +204,7 @@ bool dissassemble(CdbCore::CoreEngine *engine,
     QString lines;
     if (!engine->dissassemble(offset, beforeLines, afterLines, &lines, errorMessage))
         return false;
-    DisassemblerOutputParser parser(str, addressFieldWidth);
+    DisassemblerOutputParser parser(str);
     parser.parse(lines.split(QLatin1Char('\n')));
     return true;
 }

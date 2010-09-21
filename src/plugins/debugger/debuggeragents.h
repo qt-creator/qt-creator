@@ -92,7 +92,7 @@ public:
     QString mimeType() const;
     Q_SLOT void setMimeType(const QString &mt);
 
-    QString address() const;
+    quint64 address() const;
     bool contentsCoversAddress(const QString &contents) const;
     void cleanup();
     bool isMixed() const;

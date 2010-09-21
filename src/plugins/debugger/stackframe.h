@@ -57,7 +57,7 @@ public:
     QString from;  // Sometimes something like "/usr/lib/libstdc++.so.6"
     QString to;    // Used in ScriptEngine only.
     int line;
-    QString address;
+    quint64 address;
 };
 
 QDebug operator<<(QDebug d, const StackFrame &frame);

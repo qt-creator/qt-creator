@@ -58,7 +58,6 @@ bool dissassemble(CdbCore::CoreEngine *engine,
                   ULONG64 offset,
                   unsigned long beforeLines,
                   unsigned long afterLines,
-                  int addressFieldWidth /* = 0*/,
                   QTextStream &str,
                   QString *errorMessage);
 

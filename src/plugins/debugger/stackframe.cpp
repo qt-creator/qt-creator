@@ -48,7 +48,7 @@ namespace Internal {
 ////////////////////////////////////////////////////////////////////////
 
 StackFrame::StackFrame()
-  : level(0), line(0)
+  : level(0), line(0), address(0)
 {}
 
 void StackFrame::clear()
@@ -58,7 +58,7 @@ void StackFrame::clear()
     file.clear();
     from.clear();
     to.clear();
-    address.clear();
+    address = 0;
 }
 
 bool StackFrame::isUsable() const
@@ -70,7 +70,11 @@ QString StackFrame::toString() const
 {
     QString res;
     QTextStream str(&res);
-    str << StackHandler::tr("Address:") << ' ' << address << ' '
+    str << StackHandler::tr("Address:") << ' ';
+    str.setIntegerBase(16);
+    str << address;
+    str.setIntegerBase(10);
+    str << ' '
         << StackHandler::tr("Function:") << ' ' << function << ' '
         << StackHandler::tr("File:") << ' ' << file << ' '
         << StackHandler::tr("Line:") << ' ' << line << ' '
@@ -85,7 +89,11 @@ QString StackFrame::toToolTip() const
     QString res;
     QTextStream str(&res);
     str << "<html><body><table>"
-        << "<tr><td>" << StackHandler::tr("Address:") << "</td><td>" <<  address << "</td></tr>"
+        << "<tr><td>" << StackHandler::tr("Address:") << "</td><td>0x";
+    str.setIntegerBase(16);
+    str <<  address;
+    str.setIntegerBase(10);
+    str << "</td></tr>"
         << "<tr><td>" << StackHandler::tr("Function:") << "</td><td>" << function << "</td></tr>"
         << "<tr><td>" << StackHandler::tr("File:") << "</td><td width="
         << QFontMetrics(QToolTip::font()).width(filePath) << ">" << filePath << "</td></tr>"

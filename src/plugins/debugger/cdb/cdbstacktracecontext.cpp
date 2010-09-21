@@ -108,7 +108,7 @@ QList<StackFrame> CdbStackTraceContext::stackFrames() const
         frame.line = coreFrame.line;
         frame.function =coreFrame.function;
         frame.from = coreFrame.module;
-        frame.address = hexPrefix + QString::number(coreFrame.address, 16);
+        frame.address = coreFrame.address;
         rc.push_back(frame);
     }
     return rc;

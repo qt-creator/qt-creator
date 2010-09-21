@@ -75,12 +75,12 @@ public:
     ~StackHandler();
 
     void setFrames(const StackFrames &frames, bool canExpand = false);
-    StackFrames frames() const;
+    const StackFrames &frames() const;
     void setCurrentIndex(int index);
     int currentIndex() const { return m_currentIndex; }
     StackFrame currentFrame() const;
     int stackSize() const { return m_stackFrames.size(); }
-    QString topAddress() const { return m_stackFrames.at(0).address; }
+    quint64 topAddress() const { return m_stackFrames.at(0).address; }
 
     // Called from StackHandler after a new stack list has been received
     void removeAll();

@@ -1169,45 +1169,23 @@ bool CdbEnginePrivate::attemptBreakpointSynchronization(QString *errorMessage)
 
 void CdbEngine::fetchDisassembler(DisassemblerViewAgent *agent)
 {
-    StackFrame frame = agent->frame();
     enum { ContextLines = 40 };
-    bool ok = false;
     QString errorMessage;
-    do {
-        // get address
-        QString address;
-        if (!frame.file.isEmpty())
-            address = frame.address;
-        if (address.isEmpty())
-            address = agent->address();
-        if (debugCDB)
-            qDebug() << "fetchDisassembler" << address << " Agent: " << agent->address()
-            << " Frame" << frame.file << frame.line << frame.address;
-        if (address.isEmpty()) { // Clear window
-            agent->setContents(QString());
-            ok = true;
-            break;
-        }
-        if (address.startsWith(QLatin1String("0x")))
-            address.remove(0, 2);
-        const int addressFieldWith = address.size(); // For the Marker
+    const quint64 address = agent->address();
+    if (debugCDB)
+        qDebug() << "fetchDisassembler" << address << " Agent: " << agent->address();
 
-        const ULONG64 offset = address.toULongLong(&ok, 16);
-        if (!ok) {
-            errorMessage = QString::fromLatin1("Internal error: Invalid address for disassembly: '%1'.").arg(agent->address());
-            break;
-        }
-        QString disassembly;
-        QApplication::setOverrideCursor(Qt::WaitCursor);
-        ok = dissassemble(m_d, offset, ContextLines, ContextLines, addressFieldWith, QTextStream(&disassembly), &errorMessage);
-        QApplication::restoreOverrideCursor();
-        if (!ok)
-            break;
+    if (address == 0) { // Clear window
+        agent->setContents(QString());
+        return;
+    }
+    QString disassembly;
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    const bool ok = dissassemble(m_d, address, ContextLines, ContextLines, QTextStream(&disassembly), &errorMessage);
+    QApplication::restoreOverrideCursor();
+    if (ok) {
         agent->setContents(disassembly);
-
-    } while (false);
-
-    if (!ok) {
+    } else {
         agent->setContents(QString());
         warning(errorMessage);
     }
