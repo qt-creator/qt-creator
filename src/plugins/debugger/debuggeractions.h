@@ -137,6 +137,7 @@ enum DebuggerActionCode
     SynchronizeBreakpoints,
     AllPluginBreakpoints,
     SelectedPluginBreakpoints,
+    AdjustBreakpointLocations,
     NoPluginBreakpoints,
     SelectedPluginBreakpointsPattern,
     UsePreciseBreakpoints,

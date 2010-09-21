@@ -129,6 +129,13 @@ name in different directories.</string>
         </property>
        </widget>
       </item>
+      <item row="8" column="0" colspan="2">
+       <widget class="QCheckBox" name="checkBoxAdjustBreakpointLocations">
+        <property name="text">
+         <string>Adjust Breakpoint Locationss</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>

@@ -2579,9 +2579,12 @@ void GdbEngine::attemptBreakpointSynchronization()
             if (data->bpAddress && data->bpCorrectedLineNumber == 0) {
                 // Prevent endless loop.
                 data->bpCorrectedLineNumber = -1;
-                postCommand("info line *0x" + QByteArray::number(data->bpAddress, 16),
-                    NeedsStop | RebuildBreakpointModel,
-                    CB(handleInfoLine), data->bpNumber.toInt());
+                if (theDebuggerBoolSetting(AdjustBreakpointLocations)) {
+                    postCommand(
+                        "info line *0x" + QByteArray::number(data->bpAddress, 16),
+                        NeedsStop | RebuildBreakpointModel,
+                        CB(handleInfoLine), data->bpNumber.toInt());
+                }
             }
         }
     }

@@ -333,6 +333,20 @@ DebuggerSettings *DebuggerSettings::instance()
     instance->insertItem(UsePreciseBreakpoints, item);
 
     item = new SavedAction(instance);
+    item->setText(tr("Adjust Breakpoint Locations"));
+    item->setToolTip(tr("Not all source code lines generate "
+      "executable code. Putting a breakpoint on such a line acts as "
+      "if the breakpoint was set on the next line that generated code. "
+      "Selecting 'Adjust Breakpoint Locations' shifts the red "
+      "breakpoint markers in such cases to the location of the true "
+      "breakpoint."));
+    item->setCheckable(true);
+    item->setDefaultValue(true);
+    item->setValue(true);
+    item->setSettingsKey(debugModeGroup, QLatin1String("AdjustBreakpointLocations"));
+    instance->insertItem(AdjustBreakpointLocations, item);
+
+    item = new SavedAction(instance);
     item->setText(tr("Break on \"throw\""));
     item->setCheckable(true);
     item->setDefaultValue(false);
