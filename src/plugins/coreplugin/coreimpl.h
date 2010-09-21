@@ -88,7 +88,7 @@ public:
     void addContextObject(IContext *context);
     void removeContextObject(IContext *context);
 
-    void openFiles(const QStringList &fileNames);
+    void openFiles(const QStringList &fileNames, bool switchMode);
 
     void emitNewItemsDialogRequested();
 

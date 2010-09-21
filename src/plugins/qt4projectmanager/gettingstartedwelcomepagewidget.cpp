@@ -335,7 +335,7 @@ void GettingStartedWelcomePageWidget::slotOpenExample()
         tryFile = proFileInfo.path() + '/' + proFileInfo.baseName() + ".qml";
     if(QFile::exists(tryFile))
         files << tryFile;
-    Core::ICore::instance()->openFiles(files);
+    Core::ICore::instance()->openFiles(files, true);
     if (!helpFile.isEmpty())
         slotOpenContextHelpPage(helpFile);
 }

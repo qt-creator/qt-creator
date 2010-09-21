@@ -97,7 +97,7 @@ public:
     void removeContextObject(IContext *contex);
     void resetContext();
 
-    void openFiles(const QStringList &fileNames);
+    void openFiles(const QStringList &fileNames, bool switchMode);
 
     Core::ActionManager *actionManager() const;
     Core::FileManager *fileManager() const;

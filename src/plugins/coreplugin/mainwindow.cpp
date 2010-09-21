@@ -416,7 +416,7 @@ void MainWindow::dropEvent(QDropEvent *event)
     QStringList files;
     if (isDesktopFileManagerDrop(event->mimeData(), &files)) {
         event->accept();
-        openFiles(files);
+        openFiles(files, true);
     } else {
         event->ignore();
     }
@@ -793,7 +793,7 @@ void MainWindow::newFile()
 
 void MainWindow::openFile()
 {
-    openFiles(editorManager()->getOpenFileNames());
+    openFiles(editorManager()->getOpenFileNames(), true);
 }
 
 static QList<IFileFactory*> getNonEditorFileFactories()
@@ -823,7 +823,7 @@ static IFileFactory *findFileFactory(const QList<IFileFactory*> &fileFactories,
 }
 
 // opens either an editor or loads a project
-void MainWindow::openFiles(const QStringList &fileNames)
+void MainWindow::openFiles(const QStringList &fileNames, bool switchMode)
 {
     QList<IFileFactory*> nonEditorFileFactories = getNonEditorFileFactories();
 
@@ -832,8 +832,13 @@ void MainWindow::openFiles(const QStringList &fileNames)
         const QString absoluteFilePath = fi.absoluteFilePath();
         if (IFileFactory *fileFactory = findFileFactory(nonEditorFileFactories, mimeDatabase(), fi)) {
             fileFactory->open(absoluteFilePath);
+            if (switchMode)
+                Core::ModeManager::instance()->activateMode(Core::Constants::MODE_EDIT);
         } else {
-            editorManager()->openEditor(absoluteFilePath);
+            EditorManager::OpenEditorFlag flags;
+            if (switchMode)
+                flags = EditorManager::ModeSwitch;
+            editorManager()->openEditor(absoluteFilePath, QString(), flags);
         }
     }
 }

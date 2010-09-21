@@ -228,9 +228,9 @@ void CoreImpl::removeContextObject(IContext *context)
     m_mainwindow->removeContextObject(context);
 }
 
-void CoreImpl::openFiles(const QStringList &arguments)
+void CoreImpl::openFiles(const QStringList &arguments, bool switchMode)
 {
-    m_mainwindow->openFiles(arguments);
+    m_mainwindow->openFiles(arguments, switchMode);
 }
 
 void CoreImpl::emitNewItemsDialogRequested()

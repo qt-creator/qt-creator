@@ -119,7 +119,7 @@ public:
     virtual void addContextObject(IContext *context) = 0;
     virtual void removeContextObject(IContext *context) = 0;
 
-    virtual void openFiles(const QStringList &fileNames) = 0;
+    virtual void openFiles(const QStringList &fileNames, bool switchMode) = 0;
 
 signals:
     void coreAboutToOpen();

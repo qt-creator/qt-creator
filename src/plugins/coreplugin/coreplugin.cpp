@@ -100,7 +100,7 @@ void CorePlugin::extensionsInitialized()
 
 void CorePlugin::remoteCommand(const QStringList & /* options */, const QStringList &args)
 {
-    m_mainWindow->openFiles(args);
+    m_mainWindow->openFiles(args, true);
     m_mainWindow->activateWindow();
 }
 

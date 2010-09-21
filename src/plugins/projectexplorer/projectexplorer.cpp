@@ -1240,7 +1240,7 @@ void ProjectExplorerPlugin::restoreSession()
     connect(d->m_welcomePage, SIGNAL(requestSession(QString)), this, SLOT(loadSession(QString)));
     connect(d->m_welcomePage, SIGNAL(requestProject(QString)), this, SLOT(loadProject(QString)));
 
-    Core::ICore::instance()->openFiles(arguments);
+    Core::ICore::instance()->openFiles(arguments, false);
     updateActions();
 
 }
@@ -2375,7 +2375,7 @@ void ProjectExplorerPlugin::openOpenProjectDialog()
     const QString path = fileMananger->useProjectsDirectory() ? fileMananger->projectsDirectory() : QString();
     const QStringList files = fileMananger->getOpenFileNames(filters, path, &projectFilesFilter);
     if (!files.isEmpty())
-        Core::ICore::instance()->openFiles(files);
+        Core::ICore::instance()->openFiles(files, true);
 }
 
 Q_EXPORT_PLUGIN(ProjectExplorerPlugin)
