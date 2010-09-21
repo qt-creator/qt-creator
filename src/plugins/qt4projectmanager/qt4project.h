@@ -217,7 +217,9 @@ private:
     void scheduleAsyncUpdate();
 
     void createApplicationProjects();
-    void updateCodeModel();
+    void updateCodeModels();
+    void updateCppCodeModel();
+    void updateQmlJSCodeModel();
     void updateFileList();
 
     static void collectLeafProFiles(QList<Internal::Qt4ProFileNode *> &list, Internal::Qt4ProFileNode *node);

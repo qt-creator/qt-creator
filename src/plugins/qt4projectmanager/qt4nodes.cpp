@@ -1591,6 +1591,8 @@ void Qt4ProFileNode::applyEvaluate(bool parseResult, bool async)
                                               0);
     newVarValues[LibDirectoriesVar] = libDirectories(m_readerExact);
     newVarValues[ConfigVar] = m_readerExact->values(QLatin1String("CONFIG"));
+    newVarValues[QmlImportPathVar] = m_readerExact->absolutePathValues(
+                QLatin1String("QML_IMPORT_PATH"), m_projectDir);
 
     if (m_varValues != newVarValues) {
         m_varValues = newVarValues;

@@ -47,6 +47,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <cpptools/cppmodelmanagerinterface.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
 #include <utils/qtcassert.h>
@@ -318,7 +319,7 @@ bool Qt4Project::fromMap(const QVariantMap &map)
     update();
     updateFileList();
     // This might be incorrect, need a full update
-    updateCodeModel();
+    updateCodeModels();
 
     createApplicationProjects();
 
@@ -395,7 +396,7 @@ bool Qt4Project::equalFileList(const QStringList &a, const QStringList &b)
     return (ait == aend && bit == bend);
 }
 
-void Qt4Project::updateCodeModel()
+void Qt4Project::updateCodeModels()
 {
     if (debug)
         qDebug()<<"Qt4Project::updateCodeModel()";
@@ -403,6 +404,12 @@ void Qt4Project::updateCodeModel()
     if (!activeTarget() || !activeTarget()->activeBuildConfiguration())
         return;
 
+    updateCppCodeModel();
+    updateQmlJSCodeModel();
+}
+
+void Qt4Project::updateCppCodeModel()
+{
     Qt4BuildConfiguration *activeBC = activeTarget()->activeBuildConfiguration();
 
     CppTools::CppModelManagerInterface *modelmanager =
@@ -573,6 +580,28 @@ void Qt4Project::updateCodeModel()
         modelmanager->updateProjectInfo(pinfo);
         m_codeModelFuture = modelmanager->updateSourceFiles(pinfo.sourceFiles);
     }
+}
+
+void Qt4Project::updateQmlJSCodeModel()
+{
+    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
+    if (!modelManager)
+        return;
+
+    QmlJS::ModelManagerInterface::ProjectInfo projectInfo = modelManager->projectInfo(this);
+
+    // Not essential since the QmlJS engine parses required files on demand.
+    //projectInfo.sourceFiles = ...
+
+    FindQt4ProFiles findQt4ProFiles;
+    QList<Qt4ProFileNode *> proFiles = findQt4ProFiles(rootProjectNode());
+
+    foreach (Qt4ProFileNode *node, proFiles) {
+        projectInfo.importPaths.append(node->variableValue(QmlImportPathVar));
+    }
+    projectInfo.importPaths.removeDuplicates();
+
+    modelManager->updateProjectInfo(projectInfo);
 }
 
 void Qt4Project::qtVersionsChanged()
@@ -751,7 +780,7 @@ void Qt4Project::decrementPendingEvaluateFutures()
         } else  if (m_asyncUpdateState != ShuttingDown){
             // After beeing done, we need to call:
             updateFileList();
-            updateCodeModel();
+            updateCodeModels();
             if (debug)
                 qDebug()<<"  Setting state to Base";
             m_asyncUpdateState = Base;

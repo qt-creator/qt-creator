@@ -94,7 +94,8 @@ enum Qt4Variable {
     PkgConfigVar,
     PrecompiledHeaderVar,
     LibDirectoriesVar,
-    ConfigVar
+    ConfigVar,
+    QmlImportPathVar
 };
 
 class Qt4PriFileNode;
