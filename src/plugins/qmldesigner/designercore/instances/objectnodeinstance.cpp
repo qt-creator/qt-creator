@@ -689,6 +689,9 @@ static void stopAnimation(QObject *object, QObjectList &inspectedObjectList)
     }
 
     ObjectNodeInstance::removeAnimationsFromComponents(object, inspectedObjectList);
+#else
+    Q_UNUSED(object);
+    Q_UNUSED(inspectedObjectList);
 #endif
 }
 
