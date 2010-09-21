@@ -566,8 +566,9 @@ QDeclarativeDebugObjectQuery *QDeclarativeEngineDebug::queryObjectRecursive(cons
         QByteArray message;
         QDataStream ds(&message, QIODevice::WriteOnly);
         ds << QByteArray("FETCH_OBJECT") << queryId << object.debugId() 
-           << true << false; //Note: this is different from the QDeclarativeEngineDebug in Qt,
-                             // dumping all the properties is slow, and make noticable lags
+           << true << true; // Note: dumping all the properties is slow, and make noticable lags.
+                            // TODO: Find an alternative to this when they are needed by the live preview
+
         d->client->sendMessage(message);
     } else {
         query->m_state = QDeclarativeDebugQuery::Error;
