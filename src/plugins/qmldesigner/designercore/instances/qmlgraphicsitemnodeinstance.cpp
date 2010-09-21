@@ -613,9 +613,6 @@ bool QmlGraphicsItemNodeInstance::isAnchoredBySibling() const
             if (siblingItem) {
                 if (isAnchoredTo(siblingItem, qmlGraphicsItem()))
                     return true;
-
-                if (areChildrenAnchoredTo(siblingItem, qmlGraphicsItem()))
-                    return true;
             }
         }
     }
