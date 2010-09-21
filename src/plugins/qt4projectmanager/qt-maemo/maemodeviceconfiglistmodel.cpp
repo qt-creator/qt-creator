@@ -66,9 +66,10 @@ void MaemoDeviceConfigListModel::setupList()
 
 void MaemoDeviceConfigListModel::setCurrentIndex(int index)
 {
-    if (index != m_currentIndex) {
+    const quint64 idForIndex = m_devConfigs.at(index).internalId;
+    if (idForIndex != m_currentId) {
+        m_currentId = idForIndex;
         m_currentIndex = index;
-        m_currentId = m_devConfigs.at(m_currentIndex).internalId;
         emit currentChanged();
     }
 }

@@ -202,6 +202,7 @@ void MaemoSettingsWidget::display(const MaemoDeviceConfig &devConfig)
     otherConfig->server.timeout = devConfig.server.timeout;
     otherConfig->server.pwd = devConfig.server.pwd;
     otherConfig->server.privateKeyFile = devConfig.server.privateKeyFile;
+    otherConfig->internalId = devConfig.internalId;
 
     if (devConfig.server.authType == Core::SshConnectionParameters::AuthByPwd)
         m_ui->passwordButton->setChecked(true);
