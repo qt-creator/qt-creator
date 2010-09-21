@@ -85,6 +85,8 @@ void MaemoDeployables::createModels()
 
 void MaemoDeployables::createModels(const Qt4ProFileNode *proFileNode)
 {
+    if (!proFileNode) // Happens on project creation by wizard.
+        return;
     const Qt4ProjectType type = proFileNode->projectType() ;
     switch (type) {
     case ApplicationTemplate:

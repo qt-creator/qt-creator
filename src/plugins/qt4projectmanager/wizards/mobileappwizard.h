@@ -46,14 +46,13 @@ public:
 private:
     static Core::BaseFileWizardParameters parameters();
 
-    bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l,
-                           QString *errorMessage);
-
     virtual AbstractMobileApp *app() const;
     virtual AbstractMobileAppWizardDialog *wizardDialog() const;
     virtual AbstractMobileAppWizardDialog *createWizardDialogInternal(QWidget *parent) const;
     virtual void prepareGenerateFiles(const QWizard *wizard,
         QString *errorMessage) const;
+    virtual bool postGenerateFilesInternal(const Core::GeneratedFiles &l,
+        QString *errorMessage);
 
     class MobileAppWizardPrivate *m_d;
 };

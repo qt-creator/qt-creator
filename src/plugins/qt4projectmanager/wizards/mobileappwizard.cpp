@@ -28,8 +28,10 @@
 **************************************************************************/
 
 #include "mobileappwizard.h"
+
 #include "mobileappwizardpages.h"
 #include "mobileapp.h"
+#include "targetsetuppage.h"
 
 #include "qt4projectmanagerconstants.h"
 
@@ -101,6 +103,8 @@ Core::BaseFileWizardParameters MobileAppWizard::parameters()
 AbstractMobileAppWizardDialog *MobileAppWizard::createWizardDialogInternal(QWidget *parent) const
 {
     m_d->wizardDialog = new MobileAppWizardDialog(parent);
+    m_d->wizardDialog->m_targetsPage->setImportInfos(TargetSetupPage::importInfosForKnownQtVersions());
+    m_d->wizardDialog->m_targetsPage->setPreferMobile(true);
     return m_d->wizardDialog;
 }
 
@@ -111,9 +115,9 @@ void MobileAppWizard::prepareGenerateFiles(const QWizard *w,
     Q_UNUSED(errorMessage)
 }
 
-bool MobileAppWizard::postGenerateFiles(const QWizard *wizard, const Core::GeneratedFiles &l, QString *errorMessage)
+bool MobileAppWizard::postGenerateFilesInternal(const Core::GeneratedFiles &l,
+    QString *errorMessage)
 {
-    Q_UNUSED(wizard)
     return ProjectExplorer::CustomProjectWizard::postGenerateOpen(l, errorMessage);
 }
 

@@ -41,13 +41,12 @@ class AbstractMobileApp;
 class AbstractMobileAppWizardDialog  : public ProjectExplorer::BaseProjectWizardDialog
 {
     Q_OBJECT
-    friend class AbstractMobileAppWizard;
-
 protected:
     explicit AbstractMobileAppWizardDialog(QWidget *parent = 0);
 
-private:
+public:
     class MobileAppWizardOptionsPage *m_optionsPage;
+    class TargetSetupPage *m_targetsPage;
 };
 
 class AbstractMobileAppWizard : public Core::BaseFileWizard
@@ -65,12 +64,16 @@ private:
         const QString &defaultPath, const WizardPageList &extensionPages) const;
     virtual Core::GeneratedFiles generateFiles(const QWizard *wizard,
         QString *errorMessage) const;
+    virtual bool postGenerateFiles(const QWizard *w,
+        const Core::GeneratedFiles &l, QString *errorMessage);
 
     virtual AbstractMobileApp *app() const=0;
     virtual AbstractMobileAppWizardDialog *wizardDialog() const=0;
     virtual AbstractMobileAppWizardDialog *createWizardDialogInternal(QWidget *parent) const=0;
     virtual void prepareGenerateFiles(const QWizard *wizard,
         QString *errorMessage) const=0;
+    virtual bool postGenerateFilesInternal(const Core::GeneratedFiles &l,
+        QString *errorMessage)=0;
 };
 
 } // end of namespace Internal

@@ -31,6 +31,11 @@
 
 #include "abstractmobileapp.h"
 #include "mobileappwizardpages.h"
+#include "targetsetuppage.h"
+
+#include <extensionsystem/pluginmanager.h>
+#include <qt4projectmanager/qt4project.h>
+#include <qt4projectmanager/qt4projectmanager.h>
 
 #include <QtGui/QIcon>
 
@@ -40,10 +45,15 @@ namespace Internal {
 AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent)
     : ProjectExplorer::BaseProjectWizardDialog(parent)
 {
+    m_targetsPage = new TargetSetupPage;
+    m_targetsPage->setImportDirectoryBrowsingEnabled(false);
+    int pageId = addPage(m_targetsPage);
+    wizardProgress()->item(pageId)->setTitle(tr("Qt versions"));
     m_optionsPage = new MobileAppWizardOptionsPage;
-    const int pageId = addPage(m_optionsPage);
+    pageId = addPage(m_optionsPage);
     wizardProgress()->item(pageId)->setTitle(tr("Application options"));
 }
+
 
 AbstractMobileAppWizard::AbstractMobileAppWizard(const Core::BaseFileWizardParameters &params,
     QObject *parent) : Core::BaseFileWizard(params, parent)
@@ -74,8 +84,6 @@ Core::GeneratedFiles AbstractMobileAppWizard::generateFiles(const QWizard *wizar
     prepareGenerateFiles(wizard, errorMessage);
     const AbstractMobileAppWizardDialog *wdlg
         = qobject_cast<const AbstractMobileAppWizardDialog*>(wizard);
-    app()->setProjectName(wdlg->projectName());
-    app()->setProjectPath(wdlg->path());
     app()->setSymbianTargetUid(wdlg->m_optionsPage->symbianUid());
     app()->setSymbianSvgIcon(wdlg->m_optionsPage->symbianSvgIcon());
     app()->setOrientation(wdlg->m_optionsPage->orientation());
@@ -83,10 +91,29 @@ Core::GeneratedFiles AbstractMobileAppWizard::generateFiles(const QWizard *wizar
     return app()->generateFiles(errorMessage);
 }
 
+bool AbstractMobileAppWizard::postGenerateFiles(const QWizard *w,
+    const Core::GeneratedFiles &l, QString *errorMessage)
+{
+    Q_UNUSED(w);
+    Qt4Manager * const manager
+        = ExtensionSystem::PluginManager::instance()->getObject<Qt4Manager>();
+    Q_ASSERT(manager);
+    Qt4Project project(manager, app()->path(AbstractMobileApp::AppPro));
+    bool success = wizardDialog()->m_targetsPage->setupProject(&project);
+    if (success) {
+        project.saveSettings();
+        success = postGenerateFilesInternal(l, errorMessage);
+    }
+    return success;
+}
+
 void AbstractMobileAppWizard::useProjectPath(const QString &projectName,
     const QString &projectPath)
 {
     wizardDialog()->m_optionsPage->setSymbianUid(app()->symbianUidForPath(projectPath + projectName));
+    app()->setProjectName(projectName);
+    app()->setProjectPath(projectPath);
+    wizardDialog()->m_targetsPage->setProFilePath(app()->path(AbstractMobileApp::AppPro));
 }
 
 } // end of namespace Internal

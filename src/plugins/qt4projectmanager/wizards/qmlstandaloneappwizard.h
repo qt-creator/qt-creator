@@ -59,8 +59,8 @@ private:
     virtual AbstractMobileAppWizardDialog *createWizardDialogInternal(QWidget *parent) const;
     virtual void prepareGenerateFiles(const QWizard *wizard,
         QString *errorMessage) const;
-    virtual bool postGenerateFiles(const QWizard *w,
-        const Core::GeneratedFiles &l, QString *errorMessage);
+    virtual bool postGenerateFilesInternal(const Core::GeneratedFiles &l,
+        QString *errorMessage);
 
     class QmlStandaloneAppWizardPrivate *m_d;
 };

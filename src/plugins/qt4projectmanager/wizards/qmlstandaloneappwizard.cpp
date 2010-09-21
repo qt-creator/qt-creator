@@ -28,9 +28,11 @@
 **************************************************************************/
 
 #include "mobileappwizardpages.h"
+
 #include "qmlstandaloneapp.h"
 #include "qmlstandaloneappwizard.h"
 #include "qmlstandaloneappwizardpages.h"
+#include "targetsetuppage.h"
 
 #include "qt4projectmanagerconstants.h"
 
@@ -127,6 +129,23 @@ AbstractMobileAppWizardDialog *QmlStandaloneAppWizard::createWizardDialogInterna
     m_d->wizardDialog = new QmlStandaloneAppWizardDialog(m_d->type, parent);
     connect(m_d->wizardDialog->m_qmlSourcesPage,
             SIGNAL(externalModulesChanged(QStringList, QStringList)), SLOT(handleModulesChange(QStringList, QStringList)));
+
+    const QList<TargetSetupPage::ImportInfo> &qtVersions
+        = TargetSetupPage::importInfosForKnownQtVersions();
+    QList<TargetSetupPage::ImportInfo> qmlQtVersions;
+    foreach (const TargetSetupPage::ImportInfo &qtVersion, qtVersions) {
+        const QString versionString = qtVersion.version->qtVersionString();
+        bool isNumber;
+        const int majorVersion = versionString.mid(0, 1).toInt(&isNumber);
+        if (!isNumber || majorVersion < 4)
+            continue;
+        const int minorVersion = versionString.mid(2, 1).toInt(&isNumber);
+        if (!isNumber || minorVersion < 7)
+            continue;
+        qmlQtVersions << qtVersion;
+    }
+    m_d->wizardDialog->m_targetsPage->setImportInfos(qmlQtVersions);
+
     return m_d->wizardDialog;
 }
 
@@ -141,9 +160,9 @@ void QmlStandaloneAppWizard::prepareGenerateFiles(const QWizard *w,
             wizard->m_qmlSourcesPage->moduleUris(), wizard->m_qmlSourcesPage->moduleImportPaths());
 }
 
-bool QmlStandaloneAppWizard::postGenerateFiles(const QWizard *wizard, const Core::GeneratedFiles &l, QString *errorMessage)
+bool QmlStandaloneAppWizard::postGenerateFilesInternal(const Core::GeneratedFiles &l,
+    QString *errorMessage)
 {
-    Q_UNUSED(wizard)
     const bool success = ProjectExplorer::CustomProjectWizard::postGenerateOpen(l, errorMessage);
     if (success && m_d->type == QmlStandaloneAppWizard::ImportQmlFile) {
         ProjectExplorer::ProjectExplorerPlugin::instance()->setCurrentFile(0, m_d->standaloneApp->mainQmlFile());
