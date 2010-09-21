@@ -205,7 +205,7 @@ QString MaemoConfigTestDialog::parseTestOutput()
 
     output = tr("Hardware architecture: %1\n").arg(unamePattern.cap(2));
     output.append(tr("Kernel version: %1\n").arg(unamePattern.cap(1)));
-    const QRegExp dkpgPattern(QLatin1String("libqt\\S+ (\\d)\\.(\\d)\\.(\\d)"));
+    const QRegExp dkpgPattern(QLatin1String("libqt\\S+\\s+(?:\\d:)?(\\d)\\.(\\d)\\.(\\d)"));
     index = dkpgPattern.indexIn(m_deviceTestOutput);
     if (index == -1) {
         output.append(tr("No Qt packages installed."));
