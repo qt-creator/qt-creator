@@ -86,7 +86,7 @@ public:
     void addMenuAction(Core::Command *command, const DebuggerLanguage &language,
                        const QString &group = QString());
 
-    // all supported languagess
+    // all supported languages
     DebuggerLanguages supportedLanguages() const;
 
     // active languages to be debugged.
