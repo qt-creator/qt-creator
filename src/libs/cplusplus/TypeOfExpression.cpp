@@ -96,7 +96,12 @@ QList<LookupItem> TypeOfExpression::operator()(ExpressionAST *expression,
     m_lookupContext.setBindings(m_bindings);
 
     ResolveExpression resolve(m_lookupContext);
-    return resolve(m_ast, scope);
+    const QList<LookupItem> items = resolve(m_ast, scope);
+
+    if (! m_bindings)
+        m_lookupContext = resolve.context();
+
+    return items;
 }
 
 QString TypeOfExpression::preprocess(const QString &expression) const
