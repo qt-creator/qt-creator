@@ -19,6 +19,7 @@ QT += gui \
 HEADERS += breakhandler.h \
     breakwindow.h \
     breakpoint.h \
+    consolewindow.h \
     debuggeragents.h \
     debuggeractions.h \
     debuggerconstants.h \
@@ -56,6 +57,7 @@ HEADERS += breakhandler.h \
 SOURCES += breakhandler.cpp \
     breakwindow.cpp \
     breakpoint.cpp \
+    consolewindow.cpp \
     debuggeragents.cpp \
     debuggeractions.cpp \
     debuggerdialogs.cpp \

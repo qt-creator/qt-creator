@@ -43,6 +43,7 @@
 #include "debuggeruiswitcher.h"
 
 #include "breakwindow.h"
+#include "consolewindow.h"
 #include "moduleswindow.h"
 #include "registerwindow.h"
 #include "snapshotwindow.h"
@@ -993,6 +994,7 @@ public:
     QComboBox *m_threadBox;
 
     QDockWidget *m_breakDock;
+    QDockWidget *m_consoleDock;
     QDockWidget *m_modulesDock;
     QDockWidget *m_outputDock;
     QDockWidget *m_registerDock;
@@ -1006,6 +1008,7 @@ public:
     DebuggerActions m_actions;
 
     BreakWindow *m_breakWindow;
+    ConsoleWindow *m_consoleWindow;
     QTreeView *m_returnWindow;
     QTreeView *m_localsWindow;
     QTreeView *m_watchersWindow;
@@ -1039,6 +1042,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
     m_threadBox = 0;
 
     m_breakDock = 0;
+    m_consoleDock = 0;
     m_modulesDock = 0;
     m_outputDock = 0;
     m_registerDock = 0;
@@ -1104,6 +1108,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
 
     m_breakWindow = new BreakWindow;
     m_breakWindow->setObjectName(QLatin1String("CppDebugBreakpoints"));
+    m_consoleWindow = new ConsoleWindow;
+    m_consoleWindow->setObjectName(QLatin1String("CppDebugConsole"));
     m_modulesWindow = new ModulesWindow;
     m_modulesWindow->setObjectName(QLatin1String("CppDebugModules"));
     m_outputWindow = new DebuggerOutputWindow;
@@ -1266,6 +1272,11 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     // Dock widgets
     m_breakDock = m_uiSwitcher->createDockWidget(CppLanguage, m_breakWindow);
     m_breakDock->setObjectName(QString(DOCKWIDGET_BREAK));
+
+    m_consoleDock = m_uiSwitcher->createDockWidget(CppLanguage, m_consoleWindow,
+        Qt::TopDockWidgetArea);
+    m_consoleDock->setObjectName(QString(DOCKWIDGET_OUTPUT));
+
     m_modulesDock = m_uiSwitcher->createDockWidget(CppLanguage, m_modulesWindow,
                                                     Qt::TopDockWidgetArea);
     m_modulesDock->setObjectName(QString(DOCKWIDGET_MODULES));
@@ -1281,6 +1292,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     m_outputDock = m_uiSwitcher->createDockWidget(AnyLanguage, m_outputWindow,
         Qt::TopDockWidgetArea);
     m_outputDock->setObjectName(QString(DOCKWIDGET_OUTPUT));
+
     m_snapshotDock = m_uiSwitcher->createDockWidget(CppLanguage, m_snapshotWindow);
     m_snapshotDock->setObjectName(QString(DOCKWIDGET_SNAPSHOTS));
 
@@ -2065,9 +2077,10 @@ void DebuggerPluginPrivate::fontSettingsChanged
 {
     int size = settings.fontZoom() * settings.fontSize() / 100;
     changeFontSize(m_breakWindow, size);
+    changeFontSize(m_outputWindow, size);
     changeFontSize(m_localsWindow, size);
     changeFontSize(m_modulesWindow, size);
-    changeFontSize(m_outputWindow, size);
+    changeFontSize(m_consoleWindow, size);
     changeFontSize(m_registerWindow, size);
     changeFontSize(m_returnWindow, size);
     changeFontSize(m_sourceFilesWindow, size);
@@ -2104,6 +2117,7 @@ void DebuggerPluginPrivate::setBusyCursor(bool busy)
     m_busy = busy;
     QCursor cursor(busy ? Qt::BusyCursor : Qt::ArrowCursor);
     m_breakWindow->setCursor(cursor);
+    m_consoleWindow->setCursor(cursor);
     m_localsWindow->setCursor(cursor);
     m_modulesWindow->setCursor(cursor);
     m_outputWindow->setCursor(cursor);
@@ -2131,7 +2145,7 @@ void DebuggerPluginPrivate::setSimpleDockWidgetArrangement
     }
 
     foreach (QDockWidget *dockWidget, dockWidgets) {
-        if (dockWidget == m_outputDock) {
+        if (dockWidget == m_outputDock || dockWidget == m_consoleDock) {
             mw->addDockWidget(Qt::TopDockWidgetArea, dockWidget);
         } else {
             mw->addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
@@ -2660,6 +2674,7 @@ void DebuggerPlugin::showMessage(const QString &msg, int channel, int timeout)
 {
     //qDebug() << "PLUGIN OUTPUT: " << channel << msg;
     DebuggerOutputWindow *ow = d->m_outputWindow;
+    ConsoleWindow *cw = d->m_consoleWindow;
     QTC_ASSERT(ow, return);
     switch (channel) {
         case StatusBar:
@@ -2679,6 +2694,7 @@ void DebuggerPlugin::showMessage(const QString &msg, int channel, int timeout)
             break;
         default:
             ow->showOutput(channel, msg);
+            cw->showOutput(channel, msg);
             break;
     }
 }
