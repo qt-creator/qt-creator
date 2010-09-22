@@ -223,6 +223,8 @@ void RegisterHandler::calculateWidth()
     foreach(const Register &reg, m_registers)
         if (reg.value.size() > m_strlen)
             m_strlen = reg.value.size();
+    if (m_strlen > 40) // Allow for 128bit, but restrict overly ling CDB register arrays.
+        m_strlen = 40;
 }
 
 void RegisterHandler::setNumberBase(int base)
