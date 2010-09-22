@@ -68,6 +68,19 @@ int RegisterHandler::columnCount(const QModelIndex &parent) const
     return parent.isValid() ? 0 : 2;
 }
 
+inline QString RegisterHandler::value(const Register &reg, bool padded) const
+{
+    bool ok = true;
+    // Try to convert to number?
+    const qulonglong value = reg.value.toULongLong(&ok, 0); // Autodetect format
+    if (ok)
+        return QString::fromAscii("%1").arg(value, (padded ? m_strlen : 0), m_base);
+    // Cannot convert, return raw string.
+    if (padded && reg.value.size() < m_strlen)
+        return QString(m_strlen - reg.value.size(), QLatin1Char(' ')) + reg.value;
+    return reg.value;
+}
+
 QVariant RegisterHandler::data(const QModelIndex &index, int role) const
 {
     switch (role) {
@@ -89,32 +102,33 @@ QVariant RegisterHandler::data(const QModelIndex &index, int role) const
 
     const Register &reg = m_registers.at(index.row());
 
-    if (role == RegisterAddressRole) {
-        // Return some address associated with the register.
+    switch (role) {
+    case RegisterAddressRole: {
+        // Return some address associated with the register. Autodetect format
         bool ok = true;
         qulonglong value = reg.value.toULongLong(&ok, 0);
         return ok ? QVariant(QString::fromLatin1("0x") + QString::number(value, 16)) : QVariant();
     }
+        break;
 
-    const QString padding = "  ";
-    if (role == Qt::DisplayRole) {
+    case Qt::DisplayRole:
         switch (index.column()) {
-            case 0: return QVariant(padding + reg.name + padding);
-            case 1: {
-                bool ok = true;
-                qulonglong value = reg.value.toULongLong(&ok, 0);
-                QString res = ok ? QString::number(value, m_base) : reg.value;
-                return QVariant(QString(m_strlen - res.size(), QLatin1Char(' ')) + res);
-            }
+        case 0: {
+            const QString padding = QLatin1String("  ");
+            return QVariant(padding + reg.name + padding);
         }
+        case 1: // Display: Pad value for alignment
+            return value(reg, true);
+        } // switch column
+    case Qt::EditRole: // Edit: Unpadded for editing
+        return value(reg, false);
+    case Qt::TextAlignmentRole:
+        return index.column() == 1 ? QVariant(Qt::AlignRight) : QVariant();
+    case RegisterChangedRole:
+        return QVariant(reg.changed);
+    default:
+        break;
     }
-
-    if (role == Qt::TextAlignmentRole && index.column() == 1)
-        return Qt::AlignRight;
-
-    if (role == RegisterChangedRole)
-        return reg.changed;
-
     return QVariant();
 }
 
@@ -184,6 +198,7 @@ bool RegisterHandler::isEmpty() const
 void RegisterHandler::setRegisters(const Registers &registers)
 {
     m_registers = registers;
+    calculateWidth();
     reset();
 }
 
@@ -193,6 +208,7 @@ void RegisterHandler::setAndMarkRegisters(const Registers &registers)
     m_registers = registers;
     for (int i = qMin(m_registers.size(), old.size()); --i >= 0; )
         m_registers[i].changed = m_registers[i].value != old[i].value;
+    calculateWidth();
     reset();
 }
 
@@ -201,9 +217,19 @@ Registers RegisterHandler::registers() const
     return m_registers;
 }
 
+void RegisterHandler::calculateWidth()
+{
+    m_strlen = (m_base == 2 ? 64 : m_base == 8 ? 32 : m_base == 10 ? 26 : 16);
+    foreach(const Register &reg, m_registers)
+        if (reg.value.size() > m_strlen)
+            m_strlen = reg.value.size();
+}
+
 void RegisterHandler::setNumberBase(int base)
 {
-    m_base = base;
-    m_strlen = (base == 2 ? 64 : base == 8 ? 32 : base == 10 ? 26 : 16);
-    emit reset();
+    if (m_base != base) {
+        m_base = base;
+        calculateWidth();
+        emit reset();
+    }
 }

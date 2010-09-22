@@ -45,6 +45,10 @@ public:
 
 public:
     QByteArray name;
+    /* Value should be an integer for which autodetection by passing
+     * base=0 to QString::toULongLong() should work (C-language conventions).
+     * Values that cannot be converted (such as 128bit MMX-registers) are
+     * passed through. */
     QString value;
     bool changed;
 };
@@ -68,6 +72,8 @@ public:
     Q_SLOT void setNumberBase(int base);
 
 private:
+    void calculateWidth();
+    inline QString value(const Register &reg, bool padded) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;

@@ -77,7 +77,7 @@ public:
     {
         QLineEdit *lineEdit = qobject_cast<QLineEdit *>(editor);
         QTC_ASSERT(lineEdit, return);
-        lineEdit->setText(index.data(Qt::DisplayRole).toString());
+        lineEdit->setText(index.data(Qt::EditRole).toString());
     }
 
     void setModelData(QWidget *editor, QAbstractItemModel *model,
