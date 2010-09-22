@@ -581,6 +581,7 @@ void InspectorUi::setupDockWidgets()
 
     QWidget *observerWidget = new QWidget;
     observerWidget->setWindowTitle(tr("QML Observer"));
+    observerWidget->setObjectName(QLatin1String("QMLObserver"));
 
     QVBoxLayout *wlay = new QVBoxLayout(observerWidget);
     wlay->setMargin(0);

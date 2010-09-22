@@ -1127,6 +1127,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     m_commandWindow = new QTreeView;
     m_scriptConsoleWindow = new ScriptConsole;
     m_scriptConsoleWindow->setWindowTitle(tr("QML Script Console"));
+    m_scriptConsoleWindow->setObjectName(QLatin1String("QMLScriptConsole"));
     connect(m_scriptConsoleWindow, SIGNAL(expressionEntered(QString)),
         SLOT(scriptExpressionEntered(QString)));
 

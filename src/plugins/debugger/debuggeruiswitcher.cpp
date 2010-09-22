@@ -609,8 +609,8 @@ QDockWidget *DebuggerUISwitcher::dockWidget(const QString &objectName) const
 QDockWidget *DebuggerUISwitcher::createDockWidget(const DebuggerLanguage &language,
     QWidget *widget, Qt::DockWidgetArea area)
 {
-    //qDebug() << "CREATE DOCK" << widget->objectName() << langName
-    //    << d->m_activeLanguage << "VISIBLE BY DEFAULT: " << visibleByDefault;
+//    qDebug() << "CREATE DOCK" << widget->objectName() << "LANGUAGE ID" << language
+//             << "VISIBLE BY DEFAULT" << ((d->m_activeDebugLanguages & language) ? "true" : "false");
     QDockWidget *dockWidget = d->m_mainWindow->addDockForWidget(widget);
     d->m_mainWindow->addDockWidget(area, dockWidget);
     d->m_dockWidgets.append(dockWidget);
