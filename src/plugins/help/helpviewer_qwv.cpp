@@ -232,6 +232,8 @@ HelpViewer::HelpViewer(qreal zoom, QWidget *parent)
     : QWebView(parent)
 {
     setAcceptDrops(false);
+    installEventFilter(this);
+
     settings()->setAttribute(QWebSettings::JavaEnabled, false);
     settings()->setAttribute(QWebSettings::PluginsEnabled, false);
 
@@ -439,6 +441,12 @@ void HelpViewer::setLoadFinished(bool ok)
 
 bool HelpViewer::eventFilter(QObject *obj, QEvent *event)
 {
+    if (event->type() == QEvent::KeyPress) {
+        if (QKeyEvent *keyEvent = static_cast<QKeyEvent*> (event)) {
+            if (keyEvent->key() == Qt::Key_Slash)
+                emit openFindToolBar();
+        }
+    }
     return QWebView::eventFilter(obj, event);
 }
 

@@ -320,6 +320,13 @@ bool HelpViewer::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::FontChange && !d->forceFont)
         return true;
+
+    if (event->type() == QEvent::KeyPress) {
+        if (QKeyEvent *keyEvent = static_cast<QKeyEvent*> (event)) {
+            if (keyEvent->key() == Qt::Key_Slash)
+                emit openFindToolBar();
+        }
+    }
     return QTextBrowser::eventFilter(obj, event);
 }
 

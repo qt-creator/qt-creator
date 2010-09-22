@@ -110,6 +110,8 @@ private slots:
     void slotAboutToShowNextMenu();
     void slotOpenActionUrl(QAction *action);
 
+    void openFindToolBar();
+
 private:
     void setupUi();
     void resetFilter();

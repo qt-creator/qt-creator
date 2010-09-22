@@ -105,6 +105,7 @@ public slots:
 signals:
     void titleChanged();
     void printRequested();
+    void openFindToolBar();
 
 #if !defined(QT_NO_WEBKIT)
     void sourceChanged(const QUrl &);

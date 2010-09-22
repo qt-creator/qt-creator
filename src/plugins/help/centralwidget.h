@@ -97,6 +97,7 @@ protected:
     void focusInEvent(QFocusEvent *event);
 
 signals:
+    void openFindToolBar();
     void currentViewerChanged();
     void sourceChanged(const QUrl &url);
     void forwardAvailable(bool available);

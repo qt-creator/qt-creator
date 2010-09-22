@@ -369,6 +369,7 @@ void CentralWidget::connectSignals(HelpViewer *page)
     connect(page, SIGNAL(forwardAvailable(bool)), this, SIGNAL(forwardAvailable(bool)));
     connect(page, SIGNAL(backwardAvailable(bool)), this, SIGNAL(backwardAvailable(bool)));
     connect(page, SIGNAL(printRequested()), this, SLOT(print()));
+    connect(page, SIGNAL(openFindToolBar()), this, SIGNAL(openFindToolBar()));
 }
 
 bool CentralWidget::eventFilter(QObject *object, QEvent *e)

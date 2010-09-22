@@ -62,6 +62,7 @@
 #include <coreplugin/rightpane.h>
 #include <coreplugin/sidebar.h>
 #include <extensionsystem/pluginmanager.h>
+#include <find/findplugin.h>
 #include <texteditor/texteditorconstants.h>
 #include <utils/styledbar.h>
 #include <welcome/welcomemode.h>
@@ -180,6 +181,8 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     m_centralWidget = new Help::Internal::CentralWidget();
     connect(m_centralWidget, SIGNAL(sourceChanged(QUrl)), this,
         SLOT(updateSideBarSource(QUrl)));
+    connect(m_centralWidget, SIGNAL(openFindToolBar()), this,
+        SLOT(openFindToolBar()));
 
     // Add Home, Previous and Next actions (used in the toolbar)
     QAction *action = new QAction(QIcon(QLatin1String(IMAGEPATH "home.png")),
@@ -568,6 +571,8 @@ void HelpPlugin::createRightPaneContextViewer()
     rightPaneLayout->addWidget(rightPaneStyledBar);
 
     m_helpViewerForSideBar = new HelpViewer(qreal(0.0), rightPaneSideBar);
+    connect(m_helpViewerForSideBar, SIGNAL(openFindToolBar()), this,
+        SLOT(openFindToolBar()));
 #if !defined(QT_NO_WEBKIT)
     m_helpViewerForSideBar->pageAction(QWebPage::OpenLinkInNewWindow)->setVisible(false);
 #endif
@@ -1117,6 +1122,12 @@ void HelpPlugin::slotOpenActionUrl(QAction *action)
 #else
     Q_UNUSED(action)
 #endif
+}
+
+void HelpPlugin::openFindToolBar()
+{
+    if (Find::FindPlugin::instance())
+        Find::FindPlugin::instance()->openFindToolBar(Find::FindPlugin::FindForward);
 }
 
 void HelpPlugin::doSetupIfNeeded()
