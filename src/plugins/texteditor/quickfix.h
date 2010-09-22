@@ -106,7 +106,6 @@ public:
     virtual void perform() = 0;
 
 private:
-    TextEditor::BaseTextEditor *_editor;
     int _priority;
     QString _description;
 };
