@@ -68,9 +68,8 @@ protected:
     };
 
     void initFormats();
-    void append(const QString &text, Format format);
-    void append(const QString &text, const QTextCharFormat &format);
     void clearLastLine();
+    QTextCharFormat format(Format format);
 
 private:
     QPlainTextEdit *m_plainTextEdit;

@@ -54,6 +54,7 @@ LinkResult QtOutputFormatter::matchLine(const QString &line) const
     LinkResult lr;
     lr.start = -1;
     lr.end = -1;
+
     if (m_qmlError.indexIn(line) != -1) {
         lr.href = m_qmlError.cap(1);
         lr.start = m_qmlError.pos(1);
@@ -84,8 +85,14 @@ void QtOutputFormatter::appendApplicationOutput(const QString &txt, bool onStdEr
         m_linkFormat.setAnchor(true);
     }
 
+    QTextCursor cursor(plainTextEdit()->document());
+    cursor.movePosition(QTextCursor::End);
+    cursor.beginEditBlock();
+
     QString text = txt;
     text.remove(QLatin1Char('\r'));
+
+    QString deferedText;
 
     int start = 0;
     int pos = txt.indexOf(QLatin1Char('\n'));
@@ -98,11 +105,13 @@ void QtOutputFormatter::appendApplicationOutput(const QString &txt, bool onStdEr
             LinkResult lr = matchLine(line);
             if (!lr.href.isEmpty()) {
                 // Found something && line continuation
+                cursor.insertText(deferedText, format(onStdErr ? StdErrFormat : StdOutFormat));
+                deferedText.clear();
                 clearLastLine();
-                appendLine(lr, line, onStdErr);
+                appendLine(cursor, lr, line, onStdErr);
             } else {
                 // Found nothing, just emit the new part
-                append(newPart, onStdErr ? StdErrFormat : StdOutFormat);
+                deferedText += newPart;
             }
             // Handled line continuation
             m_lastLine.clear();
@@ -110,11 +119,12 @@ void QtOutputFormatter::appendApplicationOutput(const QString &txt, bool onStdEr
             const QString line = txt.mid(start, pos - start + 1);
             LinkResult lr = matchLine(line);
             if (!lr.href.isEmpty()) {
-                appendLine(lr, line, onStdErr);
+                cursor.insertText(deferedText, format(onStdErr ? StdErrFormat : StdOutFormat));
+                deferedText.clear();
+                appendLine(cursor, lr, line, onStdErr);
             } else {
-                append(line, onStdErr ? StdErrFormat : StdOutFormat);
+                deferedText += line;
             }
-
         }
         start = pos + 1;
         pos = txt.indexOf(QLatin1Char('\n'), start);
@@ -129,30 +139,37 @@ void QtOutputFormatter::appendApplicationOutput(const QString &txt, bool onStdEr
             LinkResult lr = matchLine(m_lastLine);
             if (!lr.href.isEmpty()) {
                 // Found something && line continuation
+                cursor.insertText(deferedText, format(onStdErr ? StdErrFormat : StdOutFormat));
+                deferedText.clear();
                 clearLastLine();
-                appendLine(lr, m_lastLine, onStdErr);
+                appendLine(cursor, lr, m_lastLine, onStdErr);
             } else {
                 // Found nothing, just emit the new part
-                append(newPart, onStdErr ? StdErrFormat : StdOutFormat);
+                deferedText += newPart;
             }
         } else {
             m_lastLine = txt.mid(start);
             LinkResult lr = matchLine(m_lastLine);
             if (!lr.href.isEmpty()) {
-                appendLine(lr, m_lastLine, onStdErr);
+                cursor.insertText(deferedText, format(onStdErr ? StdErrFormat : StdOutFormat));
+                deferedText.clear();
+                appendLine(cursor, lr, m_lastLine, onStdErr);
             } else {
-                append(m_lastLine, onStdErr ? StdErrFormat : StdOutFormat);
+                deferedText += m_lastLine;
             }
         }
     }
+    cursor.insertText(deferedText, format(onStdErr ? StdErrFormat : StdOutFormat));
+    // deferedText.clear();
+    cursor.endEditBlock();
 }
 
-void QtOutputFormatter::appendLine(LinkResult lr, const QString &line, bool onStdErr)
+void QtOutputFormatter::appendLine(QTextCursor &cursor, LinkResult lr, const QString &line, bool onStdErr)
 {
-    append(line.left(lr.start), onStdErr ? StdErrFormat : StdOutFormat);
+    cursor.insertText(line.left(lr.start), format(onStdErr ? StdErrFormat : StdOutFormat));
     m_linkFormat.setAnchorHref(lr.href);
-    append(line.mid(lr.start, lr.end - lr.start), m_linkFormat);
-    append(line.mid(lr.end), onStdErr ? StdErrFormat : StdOutFormat);
+    cursor.insertText(line.mid(lr.start, lr.end - lr.start), m_linkFormat);
+    cursor.insertText(line.mid(lr.end), format(onStdErr ? StdErrFormat : StdOutFormat));
 }
 
 void QtOutputFormatter::handleLink(const QString &href)

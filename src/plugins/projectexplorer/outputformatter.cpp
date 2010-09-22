@@ -63,24 +63,21 @@ void OutputFormatter::setPlainTextEdit(QPlainTextEdit *plainText)
 
 void OutputFormatter::appendApplicationOutput(const QString &text, bool onStdErr)
 {
-    append(text, onStdErr ? StdErrFormat : StdOutFormat);
+    QTextCursor cursor(m_plainTextEdit->document());
+    cursor.movePosition(QTextCursor::End);
+    cursor.insertText(text, format(onStdErr ? StdErrFormat : StdOutFormat));
 }
 
 void OutputFormatter::appendMessage(const QString &text, bool isError)
 {
-    append(text, isError ? ErrorMessageFormat : NormalMessageFormat);
-}
-
-void OutputFormatter::append(const QString &text, Format format)
-{
-    append(text, m_formats[format]);
-}
-
-void OutputFormatter::append(const QString &text, const QTextCharFormat &format)
-{
     QTextCursor cursor(m_plainTextEdit->document());
     cursor.movePosition(QTextCursor::End);
-    cursor.insertText(text, format);
+    cursor.insertText(text, format(isError ? ErrorMessageFormat : NormalMessageFormat));
+}
+
+QTextCharFormat OutputFormatter::format(Format format)
+{
+    return m_formats[format];
 }
 
 void OutputFormatter::clearLastLine()

@@ -57,7 +57,7 @@ public:
 
 private:
     LinkResult matchLine(const QString &line) const;
-    void appendLine(LinkResult lr, const QString &line, bool onStdError);
+    void appendLine(QTextCursor & cursor, LinkResult lr, const QString &line, bool onStdError);
 
     QRegExp m_qmlError;
     QRegExp m_qtError;
@@ -66,6 +66,7 @@ private:
     QWeakPointer<Qt4Project> m_project;
     QTextCharFormat m_linkFormat;
     QString m_lastLine;
+    QString m_deferedText;
 };
 
 
