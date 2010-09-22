@@ -568,6 +568,8 @@ void NodeInstanceView::notifyPropertyChange(const ModelNode &node, const QString
 {
     if (m_blockStatePropertyChanges)
         return;
+    if (!node.isValid())
+        return;
 
     emitInstancePropertyChange(QList<QPair<ModelNode, QString> >() << qMakePair(node, propertyName));
 }
