@@ -165,6 +165,7 @@ bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
         qWarning() << "No toolchain available for" << qtVersion()->displayName() << "used in" << target()->id() << "!";
         return false;
     }
+
     return true;
 }
 
@@ -197,6 +198,8 @@ ProjectExplorer::Environment Qt4BuildConfiguration::baseEnvironment() const
 {
     Environment env = BuildConfiguration::baseEnvironment();
     qtVersion()->addToEnvironment(env);
+    env.set(QLatin1String("BUILDDIR"), QDir::toNativeSeparators(buildDirectory()));
+
     ToolChain *tc = toolChain();
     if (tc)
         tc->addToEnvironment(env);
@@ -265,6 +268,8 @@ void Qt4BuildConfiguration::setShadowBuildAndDirectory(bool shadowBuild, const Q
 
     m_shadowBuild = toSet;
     m_buildDirectory = directoryToSet;
+
+    emit environmentChanged();
     emit buildDirectoryChanged();
     emit proFileEvaluateNeeded(this);
 }

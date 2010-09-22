@@ -34,6 +34,7 @@
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "target.h"
+#include "project.h"
 
 #include <QtCore/QProcess>
 
@@ -144,9 +145,14 @@ Target *BuildConfiguration::target() const
 
 Environment BuildConfiguration::baseEnvironment() const
 {
+    Environment result;
     if (useSystemEnvironment())
-        return Environment(QProcess::systemEnvironment());
-    return Environment();
+        result = Environment(QProcess::systemEnvironment());
+
+    result.set(QLatin1String("BUILDDIR"), QDir::toNativeSeparators(target()->project()->projectDirectory()));
+    result.set(QLatin1String("SOURCEDIR"), QDir::toNativeSeparators(target()->project()->projectDirectory()));
+
+    return result;
 }
 
 QString BuildConfiguration::baseEnvironmentText() const
