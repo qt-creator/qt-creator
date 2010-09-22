@@ -302,13 +302,11 @@ CppMacro::~CppMacro()
 // CppDeclarableElement
 CppDeclarableElement::CppDeclarableElement(Symbol *declaration) : CppElement()
 {
-    const FullySpecifiedType &type = declaration->type();
+    m_icon = Icons().iconForSymbol(declaration);
 
     Overview overview;
     overview.setShowArgumentNames(true);
     overview.setShowReturnTypes(true);
-
-    m_icon = Icons().iconForSymbol(declaration);
     m_name = overview.prettyName(declaration->name());
     if (declaration->enclosingScope()->isClass() ||
         declaration->enclosingScope()->isNamespace() ||
@@ -318,16 +316,7 @@ CppDeclarableElement::CppDeclarableElement(Symbol *declaration) : CppElement()
         m_qualifiedName = m_name;
     }
 
-    if (declaration->isClass() ||
-        declaration->isNamespace() ||
-        declaration->isForwardClassDeclaration() ||
-        declaration->isEnum()) {
-        m_type = m_qualifiedName;
-    } else {
-        m_type = overview.prettyType(type, m_qualifiedName);
-    }
-
-    setTooltip(m_type);
+    setTooltip(overview.prettyType(declaration->type(), m_qualifiedName));
     setLink(CPPEditor::linkToSymbol(declaration));
 
     QStringList helpIds;
@@ -367,6 +356,7 @@ const QIcon &CppDeclarableElement::icon() const
 CppNamespace::CppNamespace(Symbol *declaration) : CppDeclarableElement(declaration)
 {
     setHelpCategory(TextEditor::HelpItem::ClassOrNamespace);
+    setTooltip(qualifiedName());
 }
 
 CppNamespace::~CppNamespace()
@@ -376,6 +366,7 @@ CppNamespace::~CppNamespace()
 CppClass::CppClass(Symbol *declaration) : CppDeclarableElement(declaration)
 {
     setHelpCategory(TextEditor::HelpItem::ClassOrNamespace);
+    setTooltip(qualifiedName());
 }
 
 CppClass::~CppClass()
@@ -445,6 +436,8 @@ CppEnum::CppEnum(Symbol *declaration) : CppDeclarableElement(declaration)
         Overview overview;
         setHelpMark(overview.prettyName(enumSymbol->name()));
         setTooltip(overview.prettyName(LookupContext::fullyQualifiedName(enumSymbol)));
+    } else {
+        setTooltip(qualifiedName());
     }
 }
 
@@ -452,10 +445,10 @@ CppEnum::~CppEnum()
 {}
 
 // CppTypedef
-CppTypedef::CppTypedef(Symbol *declaration) :
-    CppDeclarableElement(declaration)
+CppTypedef::CppTypedef(Symbol *declaration) : CppDeclarableElement(declaration)
 {
     setHelpCategory(TextEditor::HelpItem::Typedef);
+    setTooltip(Overview().prettyType(declaration->type(), qualifiedName()));
 }
 
 CppTypedef::~CppTypedef()
