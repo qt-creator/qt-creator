@@ -36,7 +36,7 @@
 #include <cmath>
 #include <QGraphicsScene>
 
-namespace QmlObserver {
+namespace QmlJSDebugger {
 
 class SelectionRectShape : public QGraphicsRectItem
 {

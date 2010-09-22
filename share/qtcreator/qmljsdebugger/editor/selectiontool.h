@@ -45,7 +45,7 @@ QT_FORWARD_DECLARE_CLASS(QGraphicsItem);
 QT_FORWARD_DECLARE_CLASS(QMouseEvent);
 QT_FORWARD_DECLARE_CLASS(QKeyEvent);
 
-namespace QmlObserver {
+namespace QmlJSDebugger {
 
 class SelectionTool : public AbstractFormEditorTool
 {

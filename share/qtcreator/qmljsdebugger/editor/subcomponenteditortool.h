@@ -9,7 +9,7 @@ QT_FORWARD_DECLARE_CLASS(QGraphicsObject)
 QT_FORWARD_DECLARE_CLASS(QPoint)
 QT_FORWARD_DECLARE_CLASS(QTimer)
 
-namespace QmlObserver {
+namespace QmlJSDebugger {
 
 class SubcomponentMaskLayerItem;
 
@@ -78,6 +78,6 @@ private:
     QTimer *m_animTimer;
 };
 
-} // namespace QmlObserver
+} // namespace QmlJSDebugger
 
 #endif // SUBCOMPONENTEDITORTOOL_H

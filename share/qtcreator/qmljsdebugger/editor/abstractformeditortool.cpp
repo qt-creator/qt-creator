@@ -37,7 +37,7 @@
 #include <QGraphicsItem>
 #include <QDeclarativeItem>
 
-namespace QmlObserver {
+namespace QmlJSDebugger {
 
 AbstractFormEditorTool::AbstractFormEditorTool(QDeclarativeViewObserver *editorView)
     : QObject(editorView), m_observer(editorView)

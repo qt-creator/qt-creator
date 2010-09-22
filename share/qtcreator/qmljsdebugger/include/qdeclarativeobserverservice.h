@@ -54,7 +54,7 @@ QT_FORWARD_DECLARE_CLASS(QDeclarativeContext)
 QT_FORWARD_DECLARE_CLASS(QDeclarativeWatcher)
 QT_FORWARD_DECLARE_CLASS(QDataStream)
 
-namespace QmlObserver {
+namespace QmlJSDebugger {
 
 class QMLJSDEBUGGER_EXPORT QDeclarativeObserverService : public QDeclarativeDebugService
 {
@@ -66,7 +66,7 @@ public:
     void setDesignModeBehavior(bool inDesignMode);
     void setCurrentObjects(QList<QObject*> items);
     void setAnimationSpeed(qreal slowdownFactor);
-    void setCurrentTool(QmlObserver::Constants::DesignTool toolId);
+    void setCurrentTool(QmlJSDebugger::Constants::DesignTool toolId);
     void reloaded();
     QString idStringForObject(QObject *obj) const;
 
@@ -105,6 +105,6 @@ private:
     QHash<int, QString> m_stringIdForObjectId;
 };
 
-} // namespace QmlObserver
+} // namespace QmlJSDebugger
 
 #endif // QDECLARATIVEDESIGNDEBUGSERVER_H

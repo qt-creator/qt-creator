@@ -37,7 +37,7 @@
 #include "qdeclarativeviewobserver.h"
 #include "qdeclarativeobserverservice.h"
 
-namespace QmlObserver {
+namespace QmlJSDebugger {
 
 class JSDebuggerAgent;
 class QDeclarativeViewObserver;
@@ -136,6 +136,6 @@ public:
     static QDeclarativeViewObserverPrivate *get(QDeclarativeViewObserver *v) { return v->d_func(); }
 };
 
-} // namespace QmlObserver
+} // namespace QmlJSDebugger
 
 #endif // QDECLARATIVEDESIGNVIEW_P_H

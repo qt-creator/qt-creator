@@ -64,7 +64,7 @@
 
 QT_FORWARD_DECLARE_CLASS(QScriptContext);
 
-namespace QmlObserver {
+namespace QmlJSDebugger {
 
 class JSAgentWatchData;
 
@@ -137,6 +137,6 @@ private:
     Q_DISABLE_COPY(JSDebuggerAgent)
 };
 
-} // namespace QmlObserver
+} // namespace QmlJSDebugger
 
 #endif

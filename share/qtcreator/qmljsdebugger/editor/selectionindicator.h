@@ -34,7 +34,7 @@
 #include <QGraphicsPolygonItem>
 #include <QGraphicsObject>
 
-namespace QmlObserver {
+namespace QmlJSDebugger {
 
 class QDeclarativeViewObserver;
 

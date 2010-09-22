@@ -614,7 +614,7 @@ QDeclarativeViewer::QDeclarativeViewer(QWidget *parent, Qt::WindowFlags flags)
     }
 
     canvas = new QDeclarativeView(this);
-    observer = new QmlObserver::QDeclarativeViewObserver(canvas, this);
+    observer = new QmlJSDebugger::QDeclarativeViewObserver(canvas, this);
     if (!(flags & Qt::FramelessWindowHint)) {
         m_crumblePathWidget = new Utils::CrumblePath(canvas);
 #ifndef Q_WS_MAC
@@ -794,10 +794,10 @@ void QDeclarativeViewer::createMenu()
     designModeBehaviorAction->setShortcut(QKeySequence("Ctrl+D"));
     designModeBehaviorAction->setCheckable(true);
     designModeBehaviorAction->setChecked(observer->designModeBehavior());
-    designModeBehaviorAction->setEnabled(QmlObserver::QDeclarativeObserverService::hasDebuggingClient());
+    designModeBehaviorAction->setEnabled(QmlJSDebugger::QDeclarativeObserverService::hasDebuggingClient());
     connect(designModeBehaviorAction, SIGNAL(triggered(bool)), this, SLOT(setDesignModeBehavior(bool)));
     connect(observer, SIGNAL(designModeBehaviorChanged(bool)), designModeBehaviorAction, SLOT(setChecked(bool)));
-    connect(QmlObserver::QDeclarativeObserverService::instance(), SIGNAL(debuggingClientChanged(bool)), designModeBehaviorAction, SLOT(setEnabled(bool)));
+    connect(QmlJSDebugger::QDeclarativeObserverService::instance(), SIGNAL(debuggingClientChanged(bool)), designModeBehaviorAction, SLOT(setEnabled(bool)));
 
     QAction *proxyAction = new QAction(tr("HTTP &Proxy..."), this);
     connect(proxyAction, SIGNAL(triggered()), this, SLOT(showProxySettings()));

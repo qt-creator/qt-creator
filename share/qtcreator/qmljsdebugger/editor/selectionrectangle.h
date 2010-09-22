@@ -34,7 +34,7 @@
 #include <QGraphicsRectItem>
 #include <QGraphicsObject>
 
-namespace QmlObserver {
+namespace QmlJSDebugger {
 
 class SelectionRectangle
 {

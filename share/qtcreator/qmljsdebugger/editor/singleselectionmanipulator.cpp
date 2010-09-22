@@ -32,7 +32,7 @@
 #include "qdeclarativeviewobserver_p.h"
 #include <QtDebug>
 
-namespace QmlObserver {
+namespace QmlJSDebugger {
 
 SingleSelectionManipulator::SingleSelectionManipulator(QDeclarativeViewObserver *editorView)
     : m_editorView(editorView),

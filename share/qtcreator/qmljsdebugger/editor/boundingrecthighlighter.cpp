@@ -8,7 +8,7 @@
 
 #include <QDebug>
 
-namespace QmlObserver {
+namespace QmlJSDebugger {
 
 const qreal AnimDelta = 0.025f;
 const int AnimInterval = 30;
@@ -238,4 +238,4 @@ void BoundingRectHighlighter::refresh()
 }
 
 
-} // namespace QmlObserver
+} // namespace QmlJSDebugger

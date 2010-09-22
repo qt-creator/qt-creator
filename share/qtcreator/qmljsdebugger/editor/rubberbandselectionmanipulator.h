@@ -33,7 +33,7 @@
 
 #include "selectionrectangle.h"
 
-namespace QmlObserver {
+namespace QmlJSDebugger {
 
 class QDeclarativeViewObserver;
 

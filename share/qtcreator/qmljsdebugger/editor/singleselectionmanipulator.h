@@ -35,7 +35,7 @@
 
 QT_FORWARD_DECLARE_CLASS(QGraphicsItem);
 
-namespace QmlObserver {
+namespace QmlJSDebugger {
 
 class QDeclarativeViewObserver;
 

@@ -5,7 +5,7 @@
 #include <QIcon>
 #include "qmlobserverconstants.h"
 
-namespace QmlObserver {
+namespace QmlJSDebugger {
 
 class ToolBarColorBox;
 

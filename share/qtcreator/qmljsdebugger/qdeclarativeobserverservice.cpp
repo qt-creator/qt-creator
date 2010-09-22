@@ -46,7 +46,7 @@
 
 #include <QDebug>
 
-namespace QmlObserver {
+namespace QmlJSDebugger {
 
 Q_GLOBAL_STATIC(QDeclarativeObserverService, serviceInstance)
 
@@ -174,7 +174,7 @@ void QDeclarativeObserverService::setCurrentObjects(QList<QObject*> objects)
     sendMessage(message);
 }
 
-void QDeclarativeObserverService::setCurrentTool(QmlObserver::Constants::DesignTool toolId)
+void QDeclarativeObserverService::setCurrentTool(QmlJSDebugger::Constants::DesignTool toolId)
 {
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
@@ -236,4 +236,4 @@ QString QDeclarativeObserverService::idStringForObject(QObject *obj) const
     return idString;
 }
 
-} // namespace QmlObserver
+} // namespace QmlJSDebugger

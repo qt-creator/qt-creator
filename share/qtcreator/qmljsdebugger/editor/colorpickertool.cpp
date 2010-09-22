@@ -9,7 +9,7 @@
 #include <QApplication>
 #include <QPalette>
 
-namespace QmlObserver {
+namespace QmlJSDebugger {
 
 ColorPickerTool::ColorPickerTool(QDeclarativeViewObserver *view) :
         AbstractFormEditorTool(view)
@@ -86,4 +86,4 @@ void ColorPickerTool::pickColor(const QPoint &pos)
     emit selectedColorChanged(m_selectedColor);
 }
 
-} // namespace QmlObserver
+} // namespace QmlJSDebugger

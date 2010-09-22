@@ -52,7 +52,7 @@
 #include <private/qdeclarativeengine_p.h>
 #include <private/qabstractanimation_p.h>
 
-namespace QmlObserver {
+namespace QmlJSDebugger {
 
 const int SceneChangeUpdateInterval = 5000;
 
@@ -799,6 +799,6 @@ void QDeclarativeViewObserver::setDebugMode(bool isDebugMode)
         data->jsDebuggerAgent = new JSDebuggerAgent(QDeclarativeEnginePrivate::getScriptEngine(data->view->engine()));
 }
 
-} //namespace QmlObserver
+} //namespace QmlJSDebugger
 
 #include <moc_qdeclarativeviewobserver.cpp>

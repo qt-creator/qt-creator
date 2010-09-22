@@ -1,7 +1,7 @@
 #ifndef QMLOBSERVERCONSTANTS_H
 #define QMLOBSERVERCONSTANTS_H
 
-namespace QmlObserver {
+namespace QmlJSDebugger {
 namespace Constants {
 
 enum DesignTool {
@@ -34,6 +34,6 @@ enum GraphicsItemTypes {
 
 
 } // namespace Constants
-} // namespace QmlObserver
+} // namespace QmlJSDebugger
 
 #endif // QMLOBSERVERCONSTANTS_H

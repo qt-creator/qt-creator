@@ -12,7 +12,7 @@ QT_FORWARD_DECLARE_CLASS(QWidget);
 QT_FORWARD_DECLARE_CLASS(QStyleOptionGraphicsItem);
 QT_FORWARD_DECLARE_CLASS(QTimer);
 
-namespace QmlObserver {
+namespace QmlJSDebugger {
 
 class QDeclarativeViewObserver;
 class BoundingBox;
@@ -73,6 +73,6 @@ public:
     int type() const;
 };
 
-} // namespace QmlObserver
+} // namespace QmlJSDebugger
 
 #endif // BOUNDINGRECTHIGHLIGHTER_H
