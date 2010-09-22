@@ -183,8 +183,8 @@ void GdbEngine::runDebuggingHelperClassic(const WatchData &data0, bool dumpChild
     //int protocol = isDisplayedIName(data.iname) ? 3 : 2;
 
     QByteArray addr;
-    if (data.addr.startsWith("0x"))
-        addr = "(void*)" + data.addr;
+    if (data.address)
+        addr = "(void*)" + data.hexAddress();
     else if (data.exp.isEmpty()) // happens e.g. for QAbstractItem
         addr = QByteArray(1, '0');
     else
@@ -220,8 +220,8 @@ void GdbEngine::createGdbVariableClassic(const WatchData &data)
     }
     postCommand("-var-delete \"" + data.iname + '"', WatchUpdate);
     QByteArray exp = data.exp;
-    if (exp.isEmpty() && data.addr.startsWith("0x"))
-        exp = "*(" + gdbQuoteTypes(data.type) + "*)" + data.addr;
+    if (exp.isEmpty() && data.address)
+        exp = "*(" + gdbQuoteTypes(data.type) + "*)" + data.hexAddress();
     QVariant val = QVariant::fromValue<WatchData>(data);
     postCommand("-var-create \"" + data.iname + "\" * \"" + exp + '"',
         WatchUpdate, CB(handleVarCreate), val);
@@ -474,8 +474,13 @@ void GdbEngine::handleDebuggingHelperValue3Classic(const GdbResponse &response)
                     data1.name = _("[%1]").arg(i);
                     data1.type = data.type.left(data.type.size() - 4);
                     data1.iname = data.iname + '.' + QByteArray::number(i);
-                    data1.addr = list.at(i);
-                    data1.exp = "((" + gdbQuoteTypes(data1.type) + "*)" + data1.addr + ')';
+                    const QByteArray &addressSpec = list.at(i);
+                    if (addressSpec.startsWith("0x")) {
+                        data.setHexAddress(addressSpec);
+                    } else {
+                        data.dumperFlags = addressSpec; // Item model dumpers pull tricks
+                    }
+                    data1.exp = "((" + gdbQuoteTypes(data1.type) + "*)" + addressSpec + ')';
                     data1.setHasChildren(false);
                     data1.setValueNeeded();
                     QByteArray cmd = "qdumpqstring (" + data1.exp + ')';

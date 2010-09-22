@@ -198,7 +198,7 @@ static inline void fixDumperResult(const WatchData &source,
             it->source |= CdbSymbolGroupContext::ChildrenKnownBit;
         // Cannot dump items with missing addresses or missing types
         const bool typeFixed = fixDumperType(&wd); // Order of evaluation!
-        if ((wd.addr.isEmpty() && wd.isSomethingNeeded()) || typeFixed) {
+        if ((wd.address == 0 && wd.isSomethingNeeded()) || typeFixed) {
             wd.setHasChildren(false);
             wd.setAllUnneeded();
         } else {
@@ -239,7 +239,7 @@ bool WatchHandleDumperInserter::expandPointerToDumpable(const WatchData &wd, QSt
         const QByteArray type = stripPointerType(wd.type);
         WatchData derefedWd;
         derefedWd.setType(type);
-        derefedWd.setAddress(hexAddrS.toLatin1());
+        derefedWd.setHexAddress(hexAddrS.toAscii());
         derefedWd.name = QString(QLatin1Char('*'));
         derefedWd.iname = wd.iname + ".*";
         derefedWd.source = OwnerDumper | CdbSymbolGroupContext::ChildrenKnownBit;
@@ -373,7 +373,7 @@ unsigned CdbSymbolGroupContext::watchDataAt(unsigned long index, WatchData *wd)
     const unsigned rc = dumpValue(index, &iname, &(wd->name), &address,
                                   &typeId, &type, &value);
     wd->exp = wd->iname = iname.toLatin1();
-    wd->setAddress("0x" + QByteArray::number(address, 16));
+    wd->setAddress(address);
     wd->setType(type.toUtf8(), false);
     if (rc & OutOfScope) {
         wd->setError(WatchData::msgNotInScope());

@@ -668,16 +668,14 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
         case LocalsExpressionRole: {
             if (!data.exp.isEmpty())
                 return data.exp;
-            if (!data.addr.isEmpty() && !data.type.isEmpty()) {
-                bool ok;
-                const quint64 addr = data.addr.toULongLong(&ok, 16);
-                if (ok && addr)
-                    return QString("*(%1*)%2").arg(QLatin1String(data.type)).arg(addr);
+            if (data.address && !data.type.isEmpty()) {
+                return QString::fromAscii("*(%1*)%2").
+                        arg(QLatin1String(data.type), QLatin1String(data.hexAddress()));
             }
             WatchItem *parent = item->parent;
             if (parent && !parent->exp.isEmpty())
-                return QString("(%1).%2")
-                    .arg(QString::fromLatin1(parent->exp)).arg(data.name);
+                return QString::fromAscii("(%1).%2")
+                    .arg(QString::fromLatin1(parent->exp), data.name);
             return QVariant();
         }
 
@@ -1314,7 +1312,7 @@ static void swapEndian(char *d, int nchar)
 
 void WatchHandler::showEditValue(const WatchData &data)
 {
-    const QByteArray key  = data.addr.isEmpty() ? data.iname : data.addr;
+    const QByteArray key  = data.address ? data.hexAddress() : data.iname;
     QObject *w = m_editHandlers.value(key);
     if (data.editformat == 0x0) {
         m_editHandlers.remove(data.iname);
@@ -1325,10 +1323,10 @@ void WatchHandler::showEditValue(const WatchData &data)
         if (!l) {
             delete w;
             l = new QLabel;
-            QString addr = tr("unknown address");
-            if (!data.addr.isEmpty())
-                addr =  QString::fromLatin1(data.addr);
-            l->setWindowTitle(tr("%1 object at %2").arg(data.type, addr));
+            const QString title = data.address ?
+                        tr("%1 Object at %2").arg(QLatin1String(data.type), QLatin1String(data.hexAddress())) :
+                        tr("%1 Object at Unknown Address").arg(QLatin1String(data.type));
+            l->setWindowTitle(title);
             m_editHandlers[key] = l;
         }
         int width, height, format;

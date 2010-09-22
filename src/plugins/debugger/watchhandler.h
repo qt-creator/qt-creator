@@ -46,7 +46,6 @@ namespace Internal {
 
 class WatchItem;
 class WatchHandler;
-class WatchData;
 
 enum WatchType
 {

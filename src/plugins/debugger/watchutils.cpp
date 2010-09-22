@@ -1201,7 +1201,11 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
     // in rare cases we need more or less:
     switch (td.type) {
     case QAbstractItemType:
-        inner = data.addr.mid(1);
+        if (data.dumperFlags.isEmpty()) {
+            qWarning("Internal error: empty dumper state '%s'.", data.iname.constData());
+        } else {
+            inner = data.dumperFlags.mid(1);
+        }
         break;
     case QObjectSlotType:
     case QObjectSignalType: {
@@ -1226,12 +1230,12 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
             //qDebug() << "OUTERTYPE: " << outertype << " NODETYPE: " << nodetype
             //    << "QT VERSION" << m_qtVersion << ((4 << 16) + (5 << 8) + 0);
             extraArgs[2] = evaluationSizeofTypeExpression(nodetype, debugger);
-            extraArgs[3] = qMapNodeValueOffsetExpression(nodetype, data.addr, debugger);
+            extraArgs[3] = qMapNodeValueOffsetExpression(nodetype, data.hexAddress(), debugger);
         }
         break;
     case QMapNodeType:
         extraArgs[2] = evaluationSizeofTypeExpression(data.type, debugger);
-        extraArgs[3] = qMapNodeValueOffsetExpression(data.type, data.addr, debugger);
+        extraArgs[3] = qMapNodeValueOffsetExpression(data.type, data.hexAddress(), debugger);
         break;
     case StdVectorType:
         //qDebug() << "EXTRACT TEMPLATE: " << outertype << inners;
@@ -1280,7 +1284,9 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
                 // occasionally fails for complex types (std::string).
                 // We need an address as CDB cannot do the 0-trick.
                 // Use data address or try at least cache if missing.
-                const QByteArray address = data.addr.isEmpty() ? "DUMMY_ADDRESS" : data.addr;
+                const QByteArray address = data.address ?
+                                           data.hexAddress() :
+                                           "DUMMY_ADDRESS";
                 QByteArray offsetExpr = "(size_t)&(((" + pairType + " *)" + address
                         + ")->second)" + '-' + address;
                 extraArgs[2] = lookupCdbDummyAddressExpression(offsetExpr, address);
@@ -1495,7 +1501,13 @@ static void gbdMiToWatchData(const GdbMi &root,
         w.editvalue = b;
     if (gdbMiGetByteArrayValue(&b, root, "exp"))
         w.exp = b;
-    gdbMiGetByteArrayValue(&w.addr, root, "addr");
+    QByteArray addressBA;
+    gdbMiGetByteArrayValue(&addressBA, root, "addr");
+    if (addressBA.startsWith("0x")) { // Item model dumper pulls tricks
+        w.setHexAddress(addressBA);
+    } else {
+        w.dumperFlags = addressBA;
+    }
     gdbMiGetBoolValue(&w.valueEnabled, root, "valueenabled");
     gdbMiGetBoolValue(&w.valueEditable, root, "valueeditable");
     if (gdbMiGetStringValue(&v, root, "valuetooltip", "valuetooltipencoded"))
@@ -1622,9 +1634,13 @@ void setWatchDataAddress(WatchData &data, const GdbMi &mi)
 
 void setWatchDataAddressHelper(WatchData &data, const QByteArray &addr)
 {
-    data.addr = addr;
-    if (data.exp.isEmpty() && !data.addr.startsWith("$"))
-        data.exp = "*(" + gdbQuoteTypes(data.type) + "*)" + data.addr;
+    if (addr.startsWith("0x")) { // Item model dumpers pull tricks
+       data.setHexAddress(addr);
+    } else {
+        data.dumperFlags = addr;
+    }
+    if (data.exp.isEmpty() && !data.dumperFlags.startsWith('$'))
+        data.exp = "*(" + gdbQuoteTypes(data.type) + "*)" +data.hexAddress();
 }
 
 // Find the "type" and "displayedtype" children of root and set up type.

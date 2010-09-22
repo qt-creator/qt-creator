@@ -623,7 +623,7 @@ CdbDumperHelper::DumpResult CdbDumperHelper::dumpTypeI(const WatchData &wd, bool
         *errorMessage = msgNotHandled(wd.type);
         return DumpNotHandled;
     }
-    if (wd.addr.isEmpty()) {
+    if (wd.address == 0) {
         *errorMessage = QString::fromLatin1("Address is missing for '%1' (%2).")
             .arg(QString::fromUtf8(wd.exp)).arg(QString::fromUtf8(wd.type));
         return DumpNotHandled;
@@ -690,7 +690,7 @@ CdbDumperHelper::DumpExecuteResult
     m_helper.evaluationParameters(wd, td, QtDumperHelper::CdbDebugger, &inBuffer, &extraParameters);
     QString callCmd;
     QTextStream str(&callCmd);
-    str << ".call " << m_dumpObjectSymbol << "(2,0," << wd.addr << ',' << (dumpChildren ? 1 : 0);
+    str << ".call " << m_dumpObjectSymbol << "(2,0," << wd.hexAddress() << ',' << (dumpChildren ? 1 : 0);
     foreach(const QByteArray &e, extraParameters)
         str << ',' << QString::fromUtf8(e);
     str << ')';

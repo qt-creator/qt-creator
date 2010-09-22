@@ -66,7 +66,8 @@ public:
     void setType(const QByteArray &, bool guessChildrenFromType = true);
     void setValueToolTip(const QString &);
     void setError(const QString &);
-    void setAddress(const QByteArray &);
+    void setAddress(const quint64 &);
+    void setHexAddress(const QByteArray &a);
 
     bool isSomethingNeeded() const { return state & NeededMask; }
     void setAllNeeded() { state = NeededMask; }
@@ -102,6 +103,7 @@ public:
 
     bool isEqual(const WatchData &other) const;
     quint64 coreAddress() const;
+    QByteArray hexAddress() const;
 
     static QString msgNotInScope();
     static QString shadowedName(const QString &name, int seen);
@@ -119,7 +121,7 @@ public:
     QByteArray type;         // Type for further processing
     QString displayedType;// Displayed type (optional)
     QByteArray variable;  // Name of internal Gdb variable if created
-    QByteArray addr;      // Displayed address
+    quint64 address;      // Displayed address
     QString framekey;     // Key for type cache
     QScriptValue scriptValue; // If needed...
     bool hasChildren;
@@ -127,6 +129,7 @@ public:
     bool valueEnabled;    // Value will be greyed out or not
     bool valueEditable;   // Value will be editable
     bool error;
+    QByteArray dumperFlags;
 
 public:
     int source;  // Originated from dumper or symbol evaluation? (CDB only)

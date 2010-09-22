@@ -19,6 +19,7 @@ namespace Internal {
 
 WatchData::WatchData() :
     editformat(0),
+    address(0),
     hasChildren(false),
     generation(-1),
     valueEnabled(true),
@@ -42,7 +43,7 @@ bool WatchData::isEqual(const WatchData &other) const
       && type == other.type
       && displayedType == other.displayedType
       && variable == other.variable
-      && addr == other.addr
+      && address == other.address
       && framekey == other.framekey
       && hasChildren == other.hasChildren
       && valueEnabled == other.valueEnabled
@@ -145,9 +146,22 @@ void WatchData::setType(const QByteArray &str, bool guessChildrenFromType)
     }
 }
 
-void WatchData::setAddress(const QByteArray &a)
+void WatchData::setAddress(const quint64 &a)
 {
-    addr = a;
+    address = a;
+}
+
+void WatchData::setHexAddress(const QByteArray &a)
+{
+    bool ok;
+    const qint64 av = a.toULongLong(&ok, 16);
+    if (ok) {
+        address = av;
+    } else {
+        qWarning("WatchData::setHexAddress(): Failed to parse address value '%s' for '%s', '%s'",
+                 a.constData(), iname.constData(), type.constData());
+        address = 0;
+    }
 }
 
 QString WatchData::toString() const
@@ -162,8 +176,11 @@ QString WatchData::toString() const
         str << "name=\"" << name << doubleQuoteComma;
     if (error)
         str << "error,";
-    if (!addr.isEmpty())
-        str << "addr=\"" << addr << doubleQuoteComma;
+    if (address) {
+        str.setIntegerBase(16);
+        str << "addr=\"0x" << address << doubleQuoteComma;
+        str.setIntegerBase(10);
+    }
     if (!exp.isEmpty())
         str << "exp=\"" << exp << doubleQuoteComma;
 
@@ -178,6 +195,9 @@ QString WatchData::toString() const
     if (!editvalue.isEmpty())
         str << "editvalue=\"<...>\",";
     //    str << "editvalue=\"" << editvalue << doubleQuoteComma;
+
+    if (!dumperFlags.isEmpty())
+        str << "dumperFlags=\"" << dumperFlags << doubleQuoteComma;
 
     if (isTypeNeeded())
         str << "type=<needed>,";
@@ -234,7 +254,8 @@ QString WatchData::toToolTip() const
         val += QCoreApplication::translate("Debugger::Internal::WatchHandler", " ... <cut off>");
     }
     formatToolTipRow(str, QCoreApplication::translate("Debugger::Internal::WatchHandler", "Value"), val);
-    formatToolTipRow(str, QCoreApplication::translate("Debugger::Internal::WatchHandler", "Object Address"), addr);
+    formatToolTipRow(str, QCoreApplication::translate("Debugger::Internal::WatchHandler", "Object Address"),
+                     QString::fromAscii(hexAddress()));
     formatToolTipRow(str, QCoreApplication::translate("Debugger::Internal::WatchHandler", "Internal ID"), iname);
     formatToolTipRow(str, QCoreApplication::translate("Debugger::Internal::WatchHandler", "Generation"),
         QString::number(generation));
@@ -267,13 +288,12 @@ QString WatchData::shadowedName(const QString &name, int seen)
 
 quint64 WatchData::coreAddress() const
 {
-    if (!addr.isEmpty()) {
-        bool ok;
-        const quint64 address = addr.toULongLong(&ok, 16);
-        if (ok)
-            return address;
-    }
-    return quint64(0);
+    return address;
+}
+
+QByteArray WatchData::hexAddress() const
+{
+    return address ? (QByteArray("0x") + QByteArray::number(address, 16)) : QByteArray();
 }
 
 } // namespace Internal
