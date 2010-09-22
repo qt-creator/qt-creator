@@ -164,16 +164,16 @@ QString QmlStandaloneApp::pathExtended(int fileType) const
                               + (useExistingMainQml() ? m_mainQmlFile.dir().dirName() : projectName())
                               + QLatin1Char('/');   
     const QString appViewerTargetSubDir = appViewerOriginsSubDir;
-    const QString qmlExtension = QLatin1String(".qml");
+    const QString mainQml = QLatin1String("main.qml");
     const QString pathBase = outputPathBase();
     const QDir appProFilePath(pathBase);
 
     switch (fileType) {
         case MainQml:                       return useExistingMainQml() ? m_mainQmlFile.canonicalFilePath()
-                                                : pathBase + qmlSubDir + projectName() + qmlExtension;
+                                                : pathBase + qmlSubDir + mainQml;
         case MainQmlDeployed:               return useExistingMainQml() ? qmlSubDir + m_mainQmlFile.fileName()
-                                                : QString(qmlSubDir + projectName() + qmlExtension);
-        case MainQmlOrigin:                 return originsRoot() + QLatin1String("qml/app/app.qml");
+                                                : QString(qmlSubDir + mainQml);
+        case MainQmlOrigin:                 return originsRoot() + QLatin1String("qml/app/") + mainQml;
         case AppViewerPri:                  return pathBase + appViewerTargetSubDir + appViewerPriFileName;
         case AppViewerPriOrigin:            return originsRoot() + appViewerOriginsSubDir + appViewerPriFileName;
         case AppViewerCpp:                  return pathBase + appViewerTargetSubDir + appViewerCppFileName;
