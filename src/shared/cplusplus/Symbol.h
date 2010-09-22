@@ -168,7 +168,7 @@ public:
     /// Returns true if this Symbol is a Namespace.
     bool isNamespace() const;
 
-    /// Returns true if this Symbol is a Namespace.
+    /// Returns true if this Symbol is a Template.
     bool isTemplate() const;
 
     /// Returns true if this Symbol is a Class.
