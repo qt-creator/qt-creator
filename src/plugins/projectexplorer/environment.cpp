@@ -32,7 +32,6 @@
 #include <QtCore/QProcess>
 #include <QtCore/QDir>
 #include <QtCore/QString>
-#include <QtCore/QDebug>
 
 using namespace ProjectExplorer;
 
@@ -362,5 +361,83 @@ QString Environment::joinArgumentList(const QStringList &arguments)
     return result;
 }
 
+enum State { BASE, VARIABLE, OPTIONALVARIABLEBRACE, STRING, STRING_ESCAPE, ESCAPE };
 
+/** Expand environment variables in a string.
+ *
+ * Environment variables are accepted in the following forms:
+ * $SOMEVAR, ${SOMEVAR} and %SOMEVAR%.
+ *
+ * The following escape sequences are supported:
+ * "\$", "\\" and "\"" which will be replaced by '$', '\' and '%'
+ * respectively.
+ *
+ * Strings enclosed in '"' characters do not get varaibles
+ * substituted. Escape codes are processed though.
+ *
+ */
+QString Environment::expandVariables(const QString &input) const
+{
+    QString result;
+    QString variable;
+    QChar endVariable;
+    State state = BASE;
 
+    int length = input.count();
+    for (int i = 0; i < length; ++i) {
+        QChar c = input.at(i);
+        if (state == BASE) {
+            if (c == '\\') {
+                state = ESCAPE;
+            } else if (c == '$') {
+                state = OPTIONALVARIABLEBRACE;
+                variable.clear();
+                endVariable = QChar(0);
+            } else if (c == '%') {
+                state = VARIABLE;
+                variable.clear();
+                endVariable = '%';
+            } else if (c == '\"') {
+                state = STRING;
+                result += c;
+            } else {
+                result += c;
+            }
+        } else if (state == VARIABLE) {
+            if (c == endVariable) {
+                result += value(variable);
+                state = BASE;
+            } else if (c.isLetterOrNumber() || c == '_') {
+                variable += c;
+            } else {
+                result += value(variable);
+                result += c;
+                state = BASE;
+            }
+        } else if (state == OPTIONALVARIABLEBRACE) {
+            if (c == '{')
+                endVariable = '}';
+            else
+                variable = c;
+            state = VARIABLE;
+        } else if (state == STRING) {
+            if (c == '\\') {
+                state = STRING_ESCAPE;
+            } else if (c == '\"') {
+                state = BASE;
+                result += c;
+            } else {
+                result += c;
+            }
+        } else if (state == STRING_ESCAPE) {
+            result += c;
+            state = STRING;
+        } else if (state == ESCAPE){
+            result += c;
+            state = BASE;
+        }
+    }
+    if (state == VARIABLE)
+        result += value(variable);
+    return result;
+}

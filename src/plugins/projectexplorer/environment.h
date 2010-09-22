@@ -95,6 +95,8 @@ public:
     static QStringList parseCombinedArgString(const QString &program);
     static QString joinArgumentList(const QStringList &arguments);
 
+    QString expandVariables(const QString &) const;
+
     bool operator!=(const Environment &other) const;
     bool operator==(const Environment &other) const;
 private:
