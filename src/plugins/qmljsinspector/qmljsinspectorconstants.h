@@ -35,7 +35,6 @@ namespace Constants {
 const char * const RUN = "QmlInspector.Run";
 const char * const STOP = "QmlInspector.Stop";
 
-const char * const C_INSPECTOR = "QmlInspector";
 const char * const COMPLETE_THIS = "QmlInspector.CompleteThis";
 
 const char * const M_DEBUG_SIMULTANEOUSLY = "QmlInspector.Menu.SimultaneousDebug";

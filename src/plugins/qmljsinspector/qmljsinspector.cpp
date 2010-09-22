@@ -569,7 +569,7 @@ void InspectorUi::setupDockWidgets()
 {
     Debugger::DebuggerUISwitcher *uiSwitcher = Debugger::DebuggerUISwitcher::instance();
 
-    m_toolbar->createActions(Core::Context(Constants::C_INSPECTOR));
+    m_toolbar->createActions(Core::Context(Debugger::Constants::C_QMLDEBUGGER));
     m_toolbar->setObjectName("QmlInspectorToolbar");
 
     m_crumblePath = new ContextCrumblePath;

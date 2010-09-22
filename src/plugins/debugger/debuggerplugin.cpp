@@ -1088,6 +1088,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
 
     const Core::Context globalcontext(CC::C_GLOBAL);
     const Core::Context cppDebuggercontext(C_CPPDEBUGGER);
+    const Core::Context qmlDebuggerContext(C_QMLDEBUGGER);
     const Core::Context cppeditorcontext(CppEditor::Constants::C_CPPEDITOR);
 
     m_stopIcon = QIcon(_(":/debugger/images/debugger_stop_small.png"));
@@ -1260,6 +1261,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     m_uiSwitcher = new DebuggerUISwitcher(m_debugMode, this);
     ExtensionSystem::PluginManager::instance()->addObject(m_uiSwitcher);
     m_uiSwitcher->addLanguage(CppLanguage, tr("C++"), cppDebuggercontext);
+    m_uiSwitcher->addLanguage(QmlLanguage, tr("QML/JavaScript"), qmlDebuggerContext);
 
     // Dock widgets
     m_breakDock = m_uiSwitcher->createDockWidget(CppLanguage, m_breakWindow);
