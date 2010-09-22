@@ -760,6 +760,8 @@ QObject *ObjectNodeInstance::createInstance(const NodeMetaInfo &metaInfo, QDecla
             QDeclarativeEngine::setContextForObject(object, context);
     }
 
+    QDeclarativeEngine::setObjectOwnership(object, QDeclarativeEngine::CppOwnership);
+
     return object;
 }
 
