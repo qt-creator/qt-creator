@@ -46,13 +46,18 @@ contains(QT_CONFIG, declarative) {
 
     include(../private_headers.pri)
     exists($${QT_PRIVATE_HEADERS}/QtDeclarative/private/qdeclarativecontext_p.h) {
-        SUBDIRS += plugin_qmldesigner 
+        isEqual(QT_MINOR_VERSION, 7):greaterThan(QT_PATCH_VERSION, 0) {
+            SUBDIRS += plugin_qmldesigner 
+        } else {
+            warning()
+            warning("QmlDesigner plugin has been disabled.")
+            warning("Qt Version has to be 4.7.x with x > 0")
+        }
     } else {
         warning()
-        warning("QmlDesigner plugin has been disabled")
-        warning("The plugin depends on on private headers from QtDeclarative module.")
+        warning("QmlDesigner plugin has been disabled.")
+        warning("The plugin depends on private headers from QtDeclarative module.")
         warning("To enable it, pass 'QT_PRIVATE_HEADERS=$QTDIR/include' to qmake, where $QTDIR is the source directory of qt.")
-        warning()
     }
 }
 
