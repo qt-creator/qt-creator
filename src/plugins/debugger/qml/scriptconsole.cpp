@@ -235,22 +235,5 @@ void ScriptConsole::appendResult(const QString& result)
     m_expr.clear();
 }
 
-
-ScriptConsole* ScriptConsole::setupDockWidget()
-{
-    ScriptConsole *console = new ScriptConsole;
-    console->setWindowTitle(tr("ECMAScript Console"));
-
-    Debugger::DebuggerUISwitcher *uiSwitcher = Debugger::DebuggerUISwitcher::instance();
-    QDockWidget* dockWidget = uiSwitcher->createDockWidget(Debugger::QmlLanguage,
-                                                                      console, Qt::BottomDockWidgetArea);
-    dockWidget->setObjectName(Debugger::Constants::DOCKWIDGET_QML_SCRIPTCONSOLE);
-    dockWidget->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
-    //m_inspectorDockWidget->setTitleBarWidget(new QWidget(m_inspectorDockWidget));
-
-    return console;
-}
-
-
 }
 }

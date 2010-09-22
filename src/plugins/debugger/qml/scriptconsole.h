@@ -49,8 +49,6 @@ class ScriptConsole : public QWidget
 public:
     ScriptConsole(QWidget *parent = 0);
 
-    static ScriptConsole *setupDockWidget();
-
 public slots:
     void appendResult(const QString &result);
 signals:
