@@ -76,21 +76,14 @@ public:
      * ask the user if none is specified
      */
     QString executable() const;
+    QString rawExecutable() const;
 
     /** Returns whether this runconfiguration ever was configured with a executable
      */
     bool isConfigured() const;
 
-    /**
-     * Returns only what is stored in the internal variable, not what we might
-     * get after extending it with a path or asking the user. This value is
-     * needed for the configuration widget.
-     */
-    QString baseExecutable() const;
-
     LocalApplicationRunConfiguration::RunMode runMode() const;
     QString workingDirectory() const;
-    QString baseWorkingDirectory() const;
     QStringList commandLineArguments() const;
     Utils::Environment environment() const;
 
@@ -134,6 +127,7 @@ private:
     void setWorkingDirectory(const QString &workingDirectory);
     void setUserName(const QString &name);
     void setRunMode(RunMode runMode);
+
     QString m_executable;
     QString m_workingDirectory;
     QStringList m_cmdArguments;

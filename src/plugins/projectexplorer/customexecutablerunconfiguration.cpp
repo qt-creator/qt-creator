@@ -90,6 +90,7 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     layout->setMargin(0);
 
     m_executableChooser = new Utils::PathChooser(this);
+    m_executableChooser->setEnvironment(rc->environment());
     m_executableChooser->setExpectedKind(Utils::PathChooser::Command);
     layout->addRow(tr("Executable:"), m_executableChooser);
 
@@ -100,6 +101,7 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     m_workingDirectory = new CustomDirectoryPathChooser(this);
     m_workingDirectory->setExpectedKind(Utils::PathChooser::Directory);
     m_workingDirectory->setBaseDirectory(rc->target()->project()->projectDirectory());
+    m_workingDirectory->setEnvironment(rc->environment());
     layout->addRow(tr("Working directory:"), m_workingDirectory);
 
     m_useTerminalCheck = new QCheckBox(tr("Run in &Terminal"), this);
@@ -242,7 +244,7 @@ void CustomExecutableConfigurationWidget::userEnvironmentChangesChanged()
 void CustomExecutableConfigurationWidget::executableEdited()
 {
     m_ignoreChange = true;
-    m_runConfiguration->setExecutable(QDir::fromNativeSeparators(m_executableChooser->path()));
+    m_runConfiguration->setExecutable(m_executableChooser->rawPath());
     m_ignoreChange = false;
 }
 void CustomExecutableConfigurationWidget::argumentsEdited(const QString &arguments)
@@ -254,7 +256,7 @@ void CustomExecutableConfigurationWidget::argumentsEdited(const QString &argumen
 void CustomExecutableConfigurationWidget::workingDirectoryEdited()
 {
     m_ignoreChange = true;
-    m_runConfiguration->setWorkingDirectory(m_workingDirectory->path());
+    m_runConfiguration->setWorkingDirectory(m_workingDirectory->rawPath());
     m_ignoreChange = false;
 }
 
@@ -268,18 +270,19 @@ void CustomExecutableConfigurationWidget::termToggled(bool on)
 
 void CustomExecutableConfigurationWidget::changed()
 {
-    const QString &executable = m_runConfiguration->baseExecutable();
+    const QString &executable = m_runConfiguration->rawExecutable();
     QString text = tr("No Executable specified.");
     if (!executable.isEmpty())
         text = tr("Running executable: <b>%1</b> %2").
                arg(executable,
                    Utils::Environment::joinArgumentList(m_runConfiguration->commandLineArguments()));
+
     // We triggered the change, don't update us
     if (m_ignoreChange)
         return;
     m_executableChooser->setPath(executable);
     m_commandLineArgumentsLineEdit->setText(Utils::Environment::joinArgumentList(m_runConfiguration->commandLineArguments()));
-    m_workingDirectory->setPath(m_runConfiguration->baseWorkingDirectory());
+    m_workingDirectory->setPath(m_runConfiguration->workingDirectory());
     m_useTerminalCheck->setChecked(m_runConfiguration->runMode() == LocalApplicationRunConfiguration::Console);
 }
 
@@ -337,24 +340,12 @@ void CustomExecutableRunConfiguration::activeBuildConfigurationChanged()
     }
 }
 
-QString CustomExecutableRunConfiguration::baseExecutable() const
-{
-    return m_executable;
-}
-
 QString CustomExecutableRunConfiguration::executable() const
 {
-    QString exec;
-    if (!m_executable.isEmpty() && QDir::isRelativePath(m_executable)) {
-        Utils::Environment env = environment();
-        exec = env.searchInPath(m_executable);
-        if (exec.isEmpty())
-            exec = QDir::cleanPath(workingDirectory() + QLatin1Char('/') + m_executable);
-    } else {
-        exec = m_executable;
-    }
+    Utils::Environment env = environment();
+    QString exec = env.searchInPath(m_executable, QStringList() << env.expandVariables(workingDirectory()));
 
-    if (m_executable.isEmpty() || !QFileInfo(exec).exists()) {
+    if (exec.isEmpty() || !QFileInfo(exec).exists()) {
         // Oh the executable doesn't exists, ask the user.
         QWidget *confWidget = const_cast<CustomExecutableRunConfiguration *>(this)->createConfigurationWidget();
         confWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
@@ -385,7 +376,12 @@ QString CustomExecutableRunConfiguration::executable() const
             return QString();
         }
     }
-    return exec;
+    return m_executable;
+}
+
+QString CustomExecutableRunConfiguration::rawExecutable() const
+{
+    return m_executable;
 }
 
 bool CustomExecutableRunConfiguration::isConfigured() const
@@ -398,19 +394,9 @@ LocalApplicationRunConfiguration::RunMode CustomExecutableRunConfiguration::runM
     return m_runMode;
 }
 
-QString CustomExecutableRunConfiguration::baseWorkingDirectory() const
-{
-    return m_workingDirectory;
-}
-
 QString CustomExecutableRunConfiguration::workingDirectory() const
 {
-    QString wd = m_workingDirectory;
-    if (activeBuildConfiguration()) {
-        QString bd = activeBuildConfiguration()->buildDirectory();
-        wd.replace("$BUILDDIR", QDir::cleanPath(bd));
-    }
-    return wd;
+    return m_workingDirectory;
 }
 
 QStringList CustomExecutableRunConfiguration::commandLineArguments() const
