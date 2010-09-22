@@ -64,6 +64,7 @@ QmlStandaloneAppWizardDialog::QmlStandaloneAppWizardDialog(QmlStandaloneAppWizar
                                                            QWidget *parent)
     : AbstractMobileAppWizardDialog(parent)
     , m_type(type)
+    , m_qmlSourcesPage(0)
 {
     setWindowTitle(m_type == QmlStandaloneAppWizard::NewQmlFile
                        ? tr("New QML Project")
@@ -72,10 +73,12 @@ QmlStandaloneAppWizardDialog::QmlStandaloneAppWizardDialog(QmlStandaloneAppWizar
                        ? tr("This wizard generates a QML application project.")
                        : tr("This wizard imports an existing, QML Viewer-based application and creates a standalone version of it."));
 
-    m_qmlSourcesPage = new QmlStandaloneAppWizardSourcesPage;
-    m_qmlSourcesPage->setMainQmlFileChooserVisible(m_type == QmlStandaloneAppWizard::ImportQmlFile);
-    const int qmlSourcesPagePageId = addPage(m_qmlSourcesPage);
-    wizardProgress()->item(qmlSourcesPagePageId)->setTitle(tr("QML Sources"));
+    if (m_type == QmlStandaloneAppWizard::ImportQmlFile) {
+        m_qmlSourcesPage = new QmlStandaloneAppWizardSourcesPage;
+        m_qmlSourcesPage->setMainQmlFileChooserVisible(true);
+        const int qmlSourcesPagePageId = addPage(m_qmlSourcesPage);
+        wizardProgress()->item(qmlSourcesPagePageId)->setTitle(tr("QML Sources"));
+    }
 }
 
 class QmlStandaloneAppWizardPrivate
@@ -127,9 +130,11 @@ Core::BaseFileWizardParameters QmlStandaloneAppWizard::parameters(WizardType typ
 AbstractMobileAppWizardDialog *QmlStandaloneAppWizard::createWizardDialogInternal(QWidget *parent) const
 {
     m_d->wizardDialog = new QmlStandaloneAppWizardDialog(m_d->type, parent);
-    connect(m_d->wizardDialog->m_qmlSourcesPage,
-            SIGNAL(externalModulesChanged(QStringList, QStringList)), SLOT(handleModulesChange(QStringList, QStringList)));
-
+    if (m_d->wizardDialog->m_qmlSourcesPage) {
+        connect(m_d->wizardDialog->m_qmlSourcesPage,
+                SIGNAL(externalModulesChanged(QStringList, QStringList)),
+                SLOT(handleModulesChange(QStringList, QStringList)));
+    }
     const QList<TargetSetupPage::ImportInfo> &qtVersions
         = TargetSetupPage::importInfosForKnownQtVersions();
     QList<TargetSetupPage::ImportInfo> qmlQtVersions;
@@ -154,10 +159,12 @@ void QmlStandaloneAppWizard::prepareGenerateFiles(const QWizard *w,
 {
     Q_UNUSED(errorMessage)
     const QmlStandaloneAppWizardDialog *wizard = qobject_cast<const QmlStandaloneAppWizardDialog*>(w);
-    if (m_d->type == QmlStandaloneAppWizard::ImportQmlFile)
+    if (wizard->m_qmlSourcesPage) {
         m_d->standaloneApp->setMainQmlFile(wizard->m_qmlSourcesPage->mainQmlFile());
-    m_d->standaloneApp->setExternalModules(
-            wizard->m_qmlSourcesPage->moduleUris(), wizard->m_qmlSourcesPage->moduleImportPaths());
+        m_d->standaloneApp->setExternalModules(
+                wizard->m_qmlSourcesPage->moduleUris(),
+                wizard->m_qmlSourcesPage->moduleImportPaths());
+    }
 }
 
 bool QmlStandaloneAppWizard::postGenerateFilesInternal(const Core::GeneratedFiles &l,
@@ -174,6 +181,7 @@ bool QmlStandaloneAppWizard::postGenerateFilesInternal(const Core::GeneratedFile
 
 void QmlStandaloneAppWizard::handleModulesChange(const QStringList &uris, const QStringList &paths)
 {
+    Q_ASSERT(m_d->wizardDialog->m_qmlSourcesPage);
     QmlStandaloneApp testApp;
     testApp.setExternalModules(uris, paths);
     m_d->wizardDialog->m_qmlSourcesPage->setModulesError(testApp.error());
