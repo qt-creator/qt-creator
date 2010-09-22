@@ -733,7 +733,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
         case LocalsIsWatchpointAtPointerValueRole:
             if (isPointerType(data.type))
                 return engine()->breakHandler()
-                    ->watchPointAt(pointerValue(data.addr));
+                    ->watchPointAt(pointerValue(data.value));
             return false;
 
         default:

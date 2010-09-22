@@ -230,7 +230,10 @@ bool WatchHandleDumperInserter::expandPointerToDumpable(const WatchData &wd, QSt
         const int classPos = wd.value.indexOf(" class ");
         if (classPos == -1)
             break;
-        const QString hexAddrS = wd.value.mid(0, classPos);
+        // Fix CDB word separator '0x00000000`0012fe10'.
+        QString hexAddrS = wd.value.mid(0, classPos);
+        if (hexAddrS.size() > 11 && hexAddrS.at(10) == QLatin1Char('`'))
+            hexAddrS.remove(10, 1);
         if (m_hexNullPattern.exactMatch(hexAddrS))
             break;
         const QByteArray type = stripPointerType(wd.type);
