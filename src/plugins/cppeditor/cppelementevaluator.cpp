@@ -331,7 +331,7 @@ CppDeclarableElement::CppDeclarableElement(Symbol *declaration) : CppElement()
     setLink(CPPEditor::linkToSymbol(declaration));
 
     QStringList helpIds;
-    helpIds << m_name << m_qualifiedName;
+    helpIds << m_qualifiedName << m_name;
     setHelpIdCandidates(helpIds);
     setHelpMark(m_name);
 }
