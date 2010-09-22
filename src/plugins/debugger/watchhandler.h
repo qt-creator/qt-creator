@@ -122,6 +122,7 @@ private:
     QByteArray niceType(const QByteArray &typeIn) const;
     void formatRequests(QByteArray *out, const WatchItem *item) const;
     DebuggerEngine *engine() const;
+    int itemFormat(const WatchData &data) const;
 
     WatchHandler *m_handler;
     WatchType m_type;

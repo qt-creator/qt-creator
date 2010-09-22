@@ -223,6 +223,8 @@ enum ModelRoles
 
     // Locals and Watchers
     LocalsINameRole,
+    LocalsEditTypeRole,     // A QVariant::type describing the item
+    LocalsIntegerBaseRole,  // Number base 16, 10, 8, 2
     LocalsExpressionRole,
     LocalsExpandedRole,     // The preferred expanded state to the view
     LocalsTypeFormatListRole,
@@ -265,6 +267,7 @@ enum ModelRoles
     RegisterNumberBaseRole,  // Currently used number base
     RegisterAddressRole,     // Start value for opening memory view
     RegisterChangedRole,     // Used for painting changed values
+    RegisterBigNumberRole,   // Register is a big integer that cannot be handled as quint64.
     RequestSetRegisterRole,
     RequestReloadRegistersRole,
 

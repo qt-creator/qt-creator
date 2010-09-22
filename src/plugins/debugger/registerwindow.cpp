@@ -32,6 +32,8 @@
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
 
+#include "watchdelegatewidgets.h"
+
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
@@ -66,31 +68,31 @@ public:
     {}
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &,
-        const QModelIndex &) const
+        const QModelIndex &index) const
     {
-        QLineEdit *lineEdit = new QLineEdit(parent);
+        IntegerWatchLineEdit *lineEdit = new IntegerWatchLineEdit(parent);
+        lineEdit->setBase(index.data(RegisterNumberBaseRole).toInt());
+        lineEdit->setBigInt(index.data(RegisterBigNumberRole).toBool());
+        lineEdit->setSigned(false);
+
         lineEdit->setAlignment(Qt::AlignRight);
         return lineEdit;
     }
 
     void setEditorData(QWidget *editor, const QModelIndex &index) const
     {
-        QLineEdit *lineEdit = qobject_cast<QLineEdit *>(editor);
+        IntegerWatchLineEdit *lineEdit = qobject_cast<IntegerWatchLineEdit *>(editor);
         QTC_ASSERT(lineEdit, return);
-        lineEdit->setText(index.data(Qt::EditRole).toString());
+        lineEdit->setModelData(index.data(Qt::EditRole));
     }
 
-    void setModelData(QWidget *editor, QAbstractItemModel *model,
-        const QModelIndex &index) const
+    void setModelData(QWidget *editor, QAbstractItemModel *, const QModelIndex &index) const
     {
-        Q_UNUSED(model);
-        //qDebug() << "SET MODEL DATA";
-        QLineEdit *lineEdit = qobject_cast<QLineEdit*>(editor);
+        if (index.column() != 1)
+            return;
+        IntegerWatchLineEdit *lineEdit = qobject_cast<IntegerWatchLineEdit*>(editor);
         QTC_ASSERT(lineEdit, return);
-        QString value = lineEdit->text();
-        //model->setData(index, value, Qt::EditRole);
-        if (index.column() == 1)
-            m_owner->model()->setData(index, value, RequestSetRegisterRole);
+        m_owner->model()->setData(index, lineEdit->modelData(), RequestSetRegisterRole);
     }
 
     void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,

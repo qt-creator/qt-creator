@@ -580,9 +580,14 @@ bool isSymbianIntType(const QByteArray &type)
     return type == "TInt" || type == "TBool";
 }
 
+bool isFloatType(const QByteArray &type)
+{
+   return type == "float" || type == "double" || type == "qreal";
+}
+
 bool isIntOrFloatType(const QByteArray &type)
 {
-    return isIntType(type) || type == "float" || type == "double";
+    return isIntType(type) || isFloatType(type);
 }
 
 GuessChildrenResult guessChildren(const QByteArray &type)

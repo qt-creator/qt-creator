@@ -392,6 +392,23 @@ QByteArray WatchModel::niceType(const QByteArray &typeIn) const
     return type;
 }
 
+static inline int formatToIntegerBase(int format)
+{
+    switch (format) {
+    case Debugger::Internal::HexadecimalFormat:
+        return 16;
+        break;
+    case Debugger::Internal::BinaryFormat:
+        return 2;
+        break;
+    case Debugger::Internal::OctalFormat:
+        return 8;
+    default:
+        break;
+    }
+    return 10;
+}
+
 template <class IntType> QString reformatInteger(IntType value, int format)
 {
     switch (format) {
@@ -468,6 +485,41 @@ static inline QString formattedValue(const WatchData &data, int format)
         }
     }
     return result;
+}
+
+// Return the type used for editing
+static inline int editType(const WatchData &d)
+{
+    if (d.type == "bool")
+        return QVariant::Bool;
+    if (isIntType(d.type))
+        return d.type.contains('u') ? QVariant::ULongLong : QVariant::LongLong;
+    if (isFloatType(d.type))
+        return QVariant::Double;
+   return QVariant::String;
+}
+
+// Convert to editable (see above)
+static inline QVariant editValue(const WatchData &d)
+{
+    switch (editType(d)) {
+    case QVariant::Bool:
+        return d.value != QLatin1String("0") && d.value != QLatin1String("false");
+    case QVariant::ULongLong:
+        return QVariant(d.value.toULongLong());
+        break;
+    case QVariant::LongLong:
+        return QVariant(d.value.toLongLong());
+        break;
+    case QVariant::Double:
+        return QVariant(d.value.toDouble());
+    default:
+        break;
+    }
+    // Replace newlines, which will cause line edit troubles.
+    QString stringValue;
+    stringValue.replace(QLatin1String("\n"), QLatin1String("\\n"));
+    return QVariant(stringValue);
 }
 
 bool WatchModel::canFetchMore(const QModelIndex &index) const
@@ -612,6 +664,14 @@ static inline quint64 pointerValue(QString data)
     return ok ? address : quint64(0);
 }
 
+int WatchModel::itemFormat(const WatchData &data) const
+{
+    const int individualFormat = m_handler->m_individualFormats.value(data.iname, -1);
+    if (individualFormat != -1)
+        return individualFormat;
+    return m_handler->m_typeFormats.value(data.type, -1);
+}
+
 QVariant WatchModel::data(const QModelIndex &idx, int role) const
 {
     switch (role) {
@@ -626,6 +686,10 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
     const WatchItem &data = *item;
 
     switch (role) {
+        case  LocalsEditTypeRole:
+            return QVariant(editType(data));
+       case LocalsIntegerBaseRole:
+            return QVariant(formatToIntegerBase(itemFormat(data)));
         case Qt::EditRole:
         case Qt::DisplayRole: {
             switch (idx.column()) {
@@ -635,13 +699,12 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
                     if (data.name == QLatin1String("*") && item->parent)
                         return QVariant(QLatin1Char('*') + item->parent->name);
                     return data.name;
-                case 1: {
-                    int format =
-                        m_handler->m_individualFormats.value(data.iname, -1);
-                    if (format == -1)
-                        format = m_handler->m_typeFormats.value(data.type, -1);
-                    return truncateValue(formattedValue(data, format));
-                }
+                case 1:
+                    if (role == Qt::DisplayRole) {
+                        return truncateValue(formattedValue(data, itemFormat(data)));
+                    } else {
+                        return editValue(data);
+                    }
                 case 2: {
                     if (!data.displayedType.isEmpty())
                         return data.displayedType;

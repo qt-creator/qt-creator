@@ -52,7 +52,8 @@ HEADERS += breakhandler.h \
     watchhandler.h \
     watchutils.h \
     watchwindow.h \
-    threadshandler.h
+    threadshandler.h \
+    watchdelegatewidgets.h
 
 SOURCES += breakhandler.cpp \
     breakpoint.cpp \
@@ -88,7 +89,8 @@ SOURCES += breakhandler.cpp \
     watchhandler.cpp \
     watchutils.cpp \
     watchwindow.cpp \
-    stackframe.cpp
+    stackframe.cpp \
+    watchdelegatewidgets.cpp
 
 FORMS += attachexternaldialog.ui \
     attachcoredialog.ui \

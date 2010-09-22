@@ -34,12 +34,14 @@
 #include "debuggerengine.h"
 #include "debuggerdialogs.h"
 #include "watchhandler.h"
+#include "watchdelegatewidgets.h"
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QTimer>
+#include <QtCore/QVariant>
 
 #include <QtGui/QAction>
 #include <QtGui/QContextMenuEvent>
@@ -67,34 +69,54 @@ public:
     WatchDelegate(QObject *parent) : QItemDelegate(parent) {}
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &,
-        const QModelIndex &) const
+        const QModelIndex &index) const
     {
+        // Value column: Custom editor. Apply integer-specific settings.
+        if (index.column() == 1) {
+            const QVariant::Type type = static_cast<QVariant::Type>(index.data(LocalsEditTypeRole).toInt());
+            switch (type) {
+            case QVariant::Bool:
+                return new BooleanComboBox(parent);
+            default:
+                break;
+            }
+            WatchLineEdit *edit = WatchLineEdit::create(type, parent);
+            if (IntegerWatchLineEdit *intEdit = qobject_cast<IntegerWatchLineEdit *>(edit))
+                intEdit->setBase(index.data(LocalsIntegerBaseRole).toInt());
+            return edit;
+        }
+        // Standard line edits for the rest
         return new QLineEdit(parent);
     }
 
     void setEditorData(QWidget *editor, const QModelIndex &index) const
     {
-        QLineEdit *lineEdit = qobject_cast<QLineEdit *>(editor);
-        QTC_ASSERT(lineEdit, return);
-        if (index.column() == 1)
-            lineEdit->setText(index.data(Qt::DisplayRole).toString());
-        else
+        if (index.column() == 1) {
+            editor->setProperty("modelData", index.data(Qt::EditRole));
+        } else {
+            QLineEdit *lineEdit = qobject_cast<QLineEdit *>(editor);
+            QTC_ASSERT(lineEdit, return);
             lineEdit->setText(index.data(LocalsExpressionRole).toString());
+        }
     }
 
     void setModelData(QWidget *editor, QAbstractItemModel *model,
         const QModelIndex &index) const
     {
+        const QString exp = index.data(LocalsExpressionRole).toString();
+        if (index.column() == 1) { // The value column.
+            const QVariant value = editor->property("modelData");
+            QTC_ASSERT(value.isValid(), return);
+            const QString command = exp + QLatin1Char('=') + value.toString();
+            model->setData(index, QVariant(command), RequestAssignValueRole);
+            return;
+        }
         //qDebug() << "SET MODEL DATA";
         QLineEdit *lineEdit = qobject_cast<QLineEdit*>(editor);
         QTC_ASSERT(lineEdit, return);
         const QString value = lineEdit->text();
-        const QString exp = index.data(LocalsExpressionRole).toString();
         model->setData(index, value, Qt::EditRole);
-        if (index.column() == 1) {
-            // The value column.
-            model->setData(index, QString(exp + '=' + value), RequestAssignValueRole);
-        } else if (index.column() == 2) {
+        if (index.column() == 2) {
             // The type column.
             model->setData(index, QString(exp + '=' + value), RequestAssignTypeRole);
         } else if (index.column() == 0) {

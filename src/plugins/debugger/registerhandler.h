@@ -73,7 +73,8 @@ public:
 
 private:
     void calculateWidth();
-    inline QString value(const Register &reg, bool padded) const;
+    inline QString displayValue(const Register &reg) const;
+    static QVariant editValue(const Register &reg);
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;

@@ -77,6 +77,7 @@ QByteArray stripPointerType(QByteArray type);
 QByteArray gdbQuoteTypes(const QByteArray &type);
 bool extractTemplate(const QString &type, QString *tmplate, QString *inner);
 QString extractTypeFromPTypeOutput(const QString &str);
+bool isFloatType(const QByteArray &type);
 bool isIntOrFloatType(const QByteArray &type);
 bool isIntType(const QByteArray &type);
 bool isSymbianIntType(const QByteArray &type);
