@@ -178,7 +178,10 @@ QRectF QmlGraphicsItemNodeInstance::boundingRect() const
         }
     }
 
-    return qmlGraphicsItem()->boundingRect();
+    if (qmlGraphicsItem())
+        return qmlGraphicsItem()->boundingRect();
+
+    return QRectF();
 }
 
 //QVariant anchorLineFor(QDeclarativeItem *item, const AnchorLine &anchorLine)

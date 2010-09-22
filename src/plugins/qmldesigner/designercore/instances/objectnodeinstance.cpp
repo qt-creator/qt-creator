@@ -782,7 +782,9 @@ QObject* ObjectNodeInstance::createObject(const NodeMetaInfo &metaInfo, QDeclara
 
 QObject *ObjectNodeInstance::object() const
 {
-    return m_object.data();
+        if (!m_object.isNull() && !QObjectPrivate::get(m_object.data())->wasDeleted)
+            return m_object.data();
+        return 0;
 }
 
 bool ObjectNodeInstance::hasContent() const
