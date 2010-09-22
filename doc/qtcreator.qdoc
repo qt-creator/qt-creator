@@ -238,7 +238,7 @@
     phones, media players, set-top boxes, and netbooks.
 
     \QMLD allows you to easily develop animations by using a declarative programming
-    language called \l {http://doc.qt.nokia.com/4.7-snapshot/declarativeui.html}{QML}.
+    language called \l {http://doc.qt.nokia.com/4.7/qtquick.html}{QML}.
     In QML, a user interface is specified as a tree of objects with properties.
 
     You use a visual editor to create items, screens, and applications, as well as define changes
@@ -250,7 +250,7 @@
       \section1 Languages
 
     You can use the code editor to write code in Qt C++ or in the
-    \l {http://doc.qt.nokia.com/4.7-snapshot/declarativeui.html}{QML} declarative
+    \l {http://doc.qt.nokia.com/4.7/qtquick.html}{QML} declarative
     programming language.
 
     \section2 QML
@@ -722,7 +722,7 @@
 
            For information on how to prepare your documentation and create a
            .qch file, see
-           \l{http://doc.qt.nokia.com/4.6/qthelp-framework.html}{The Qt Help Framework}.
+           \l{http://doc.qt.nokia.com/4.7/qthelp-framework.html}{The Qt Help Framework}.
         \o To add the .qch file to Qt Creator, select \gui Tools >
            \gui Options... > \gui Help > \gui Documentation > \gui Add.
     \endlist
@@ -811,7 +811,7 @@
     phones, media players, set-top boxes, and netbooks.
 
     You can easily develop animations by using a declarative programming
-    language called \l {http://doc.qt.nokia.com/4.7-snapshot/declarativeui.html}{QML}.
+    language called \l {http://doc.qt.nokia.com/4.7/qtquick.html}{QML}.
     In QML, a user interface is specified as a tree of objects with properties.
     You can edit QML code in the code editor. You
     can use Qt or JavaScript to implement the application logic.
@@ -855,7 +855,7 @@
     To switch between forms and code, use \key Shift+F4.
 
     For more information on \QD, see
-    \l{http://doc.qt.nokia.com/4.7-snapshot/designer-manual.html}{Qt Designer Manual}.
+    \l{http://doc.qt.nokia.com/4.7/designer-manual.html}{Qt Designer Manual}.
 
     \section1 Using Qt Quick Designer
 
@@ -1496,7 +1496,7 @@
            .
            Regular expressions used in Qt Creator are modeled on Perl regular
            expressions. For more information on using regular expressions, see
-           \l {http://doc.qt.nokia.com/4.6/qregexp.html#details}
+           \l {http://doc.qt.nokia.com/4.7/qregexp.html#details}
            {Detailed Description} in the QRegExp Class Reference.
     \endlist
 
@@ -2299,7 +2299,7 @@
     (GCC) in Linux and Mac OS X.
 
     For more information about qmake, see the
-    \l{http://qt.nokia.com/doc/4.2/qmake-manual.html}{qmake Manual}.
+    \l{http://qt.nokia.com/doc/4.7/qmake-manual.html}{qmake Manual}.
 
     \section1 Selecting the Qt Version
 
@@ -2504,7 +2504,7 @@
     \endlist
 
     For more information about the project file settings, see
-    \l{http://doc.qt.nokia.com/4.7-snapshot/qmake-project-files.html#declaring-other-libraries}{Declaring other Libraries}.
+    \l{http://doc.qt.nokia.com/4.7/qmake-project-files.html#declaring-other-libraries}{Declaring other Libraries}.
 
     \section1 Example of Adding Internal Libraries
 
@@ -3069,10 +3069,10 @@
     need, see
     \l{http://developer.symbian.org/wiki/index.php/Capabilities_(Symbian_Signed)}{Capabilities (Symbian Signed)}
     and
-    \l{http://doc.qt.nokia.com/4.7-snapshot/platform-notes-symbian.html#required-capabilities}{Required Capabilities for Qt Applications}.
+    \l{http://doc.qt.nokia.com/4.7/platform-notes-symbian.html#required-capabilities}{Required Capabilities for Qt Applications}.
 
     For more information on how to define capabilities for a project, see
-    \l{http://doc.qt.nokia.com/4.7-snapshot/qmake-platform-notes.html#capabilities}{Capabilities}.
+    \l{http://doc.qt.nokia.com/4.7/qmake-platform-notes.html#capabilities}{Capabilities}.
 
     \section3 Creating Smart Installer for Symbian Packages
 
@@ -3113,7 +3113,7 @@
 
     Replace the testing UID with the distribution UID in the .pro file before you
     build the final installation package. For more information, see
-    \l{http://doc.qt.nokia.com/4.7-snapshot/qmake-platform-notes.html#unique-identifiers}{Unique Identifiers}.
+    \l{http://doc.qt.nokia.com/4.7/qmake-platform-notes.html#unique-identifiers}{Unique Identifiers}.
 
     \section2 Specifying Run Settings for Maemo Devices
 
@@ -3414,7 +3414,7 @@
         \o In the \gui{Editor} mode, double-click the batteryindicator.ui
         file in the \gui{Projects} view to launch the integrated \QD.
 
-        \o Drag and drop a \gui{Progress Bar} (\l{http://doc.qt.nokia.com/4.7-snapshot/qprogressbar.html}{QProgressBar})
+        \o Drag and drop a \gui{Progress Bar} (\l{http://doc.qt.nokia.com/4.7/qprogressbar.html}{QProgressBar})
         widget to the form.
 
         \image qtcreator-mobile-project-widgets.png "Adding widgets to the UI"
@@ -3603,7 +3603,7 @@
 
     \title Creating a Qt Quick Application
 
-    \note This tutorial assumes that you are familiar with the \l {http://doc.qt.nokia.com/4.7-snapshot/declarativeui.html}
+    \note This tutorial assumes that you are familiar with the \l {http://doc.qt.nokia.com/4.7/qtquick.html}
     {QML declarative language}.
 
     This tutorial describes how to use Qt Creator to create a small
@@ -3729,7 +3729,7 @@
 
     This tutorial describes how to use Qt Creator
     to create a small Qt application, Text Finder. It is a simplified version of the
-    QtUiTools \l{http://doc.qt.nokia.com/4.7-snapshot/uitools-textfinder.html}{Text Finder}
+    QtUiTools \l{http://doc.qt.nokia.com/4.7/uitools-textfinder.html}{Text Finder}
     example.
 
     \image qtcreator-textfinder-screenshot.png
@@ -3823,9 +3823,9 @@
     \o Drag and drop the following widgets to the form:
 
     \list
-    \o \gui{Label} (\l{http://doc.qt.nokia.com/4.7-snapshot/qlabel.html}{QLabel})
-    \o \gui{Line Edit} (\l{http://doc.qt.nokia.com/4.7-snapshot/qlineedit.html}{QLineEdit})
-    \o \gui{Push Button} (\l{http://doc.qt.nokia.com/4.7-snapshot/qpushbutton.html}{QPushButton})
+    \o \gui{Label} (QLabel)
+    \o \gui{Line Edit} (QLineEdit)
+    \o \gui{Push Button} (QPushButton)
 
     \endlist
 
@@ -3847,15 +3847,15 @@
 
     \o Press \key {Ctrl+A} to select the widgets and click \gui{Lay out Horizontally}
     (or press \gui{Ctrl+H}) to apply a horizontal layout
-    (\l{http://doc.qt.nokia.com/4.7-snapshot/qhboxlayout.html}{QHBoxLayout}).
+    (QHBoxLayout).
 
     \image qtcreator-texfinder-ui-horizontal-layout.png "Applying horizontal layout"
 
-    \o Drag and drop a \gui{Text Edit} widget (\l{http://doc.qt.nokia.com/4.7-snapshot/qtextedit.html}{QTextEdit})
+    \o Drag and drop a \gui{Text Edit} widget (QTextEdit)
     to the form.
 
     \o Select the screen area and click \gui{Lay out Vertically} (or press \gui{Ctrl+L})
-    to apply a vertical layout (\l{http://doc.qt.nokia.com/4.7-snapshot/qvboxlayout.html}{QVBoxLayout}).
+    to apply a vertical layout (QVBoxLayout).
 
     \image qtcreator-textfinder-ui.png "Text Finder UI"
 
@@ -3883,7 +3883,7 @@
     \endlist
 
     For more information about designing forms with \QD, see the
-    \l{http://doc.qt.nokia.com/4.7-snapshot/designer-manual.html}{Qt Designer Manual}.
+    \l{http://doc.qt.nokia.com/4.7/designer-manual.html}{Qt Designer Manual}.
 
     \section2 Completing the Header File
 
@@ -3891,7 +3891,7 @@
     constructor, a destructor, and the \c{Ui} object. You need to add a private
     function, \c{loadTextFile()}, to read and display the
     contents of the input text file in the
-    \l{http://doc.qt.nokia.com/4.7-snapshot/qtextedit.html}{QTextEdit}.
+    QTextEdit.
 
     \list 1
 
@@ -3917,22 +3917,20 @@
     to open it for editing.
 
     \o Add code to load a text file using
-    \l{http://doc.qt.nokia.com/4.7-snapshot/qfile.html}{QFile}, read it with
-    \l{http://doc.qt.nokia.com/4.7-snapshot/qtextstream.html}{QTextStream}, and
+    QFile, read it with QTextStream, and
     then display it on \c{textEdit} with
-    \l{http://doc.qt.nokia.com/4.7-snapshot/qtextedit.html#plainText-prop}{setPlainText()}.
+    \l{http://doc.qt.nokia.com/4.7/qtextedit.html#plainText-prop}{setPlainText()}.
     This is illustrated by the following code snippet:
 
     \snippet examples/textfinder/textfinder.cpp 0
 
-    \o To use \l{http://doc.qt.nokia.com/4.7-snapshot/qfile.html}{QFile} and
-    \l{http://doc.qt.nokia.com/4.7-snapshot/qtextstream.html}{QTextStream}, add the
+    \o To use QFile and QTextStream, add the
     following #includes to textfinder.cpp:
 
     \snippet examples/textfinder/textfinder.cpp 1
 
     \o For the \c{on_findButton_clicked()} slot, add code to extract the search string and
-    use the \l{http://doc.qt.nokia.com/4.7-snapshot/qtextedit.html#find}{find()} function
+    use the \l{http://doc.qt.nokia.com/4.7/qtextedit.html#find}{find()} function
     to look for the search string within the text file. This is illustrated by
     the following code snippet:
 
@@ -4404,7 +4402,7 @@
     \key Space. The prefix is usually a single character.
 
     For example, to locate symbols matching
-    \l{http://doc.qt.nokia.com/4.7-snapshot/qdatastream.html}{QDataStream:}
+    QDataStream:
     \list 1
         \o Activate the locator.
         \o Enter \tt{\bold{: QDataStream}} (: (colon) followed by a
@@ -5208,7 +5206,7 @@
 
     \list 1
         \o Click in between the line number and the window border on the line
-        where we invoke \l{http://doc.qt.nokia.com/4.7-snapshot/qtextedit.html#plainText-prop}{setPlainText()}
+        where we invoke \l{http://doc.qt.nokia.com/4.7/qtextedit.html#plainText-prop}{setPlainText()}
         to set a breakpoint.
 
         \image qtcreator-setting-breakpoint1.png
@@ -5808,7 +5806,7 @@
 
     You can either create Qt Quick projects from scratch or import them to
     Qt Creator. For example, you can import and run the
-    \l {http://doc.qt.nokia.com/4.7-snapshot/qdeclarativeexamples.html} {QML examples and demos}
+    \l {http://doc.qt.nokia.com/4.7/qdeclarativeexamples.html} {QML examples and demos}
     to learn how to use various aspects of QML.
 
     You can use the code editor (\l{Using the Editor}{Edit mode}) or the visual editor
@@ -5864,7 +5862,7 @@
     \endlist
 
     The \c import statement in the beginning of the .qml file specifies the
-    \l {http://doc.qt.nokia.com/4.7-snapshot/qdeclarativemodules.html} {Qt modules}
+    \l {http://doc.qt.nokia.com/4.7/qdeclarativemodules.html} {Qt modules}
     to import. Each Qt module contains a set of default elements.
     Specify a version to get the features you want.
 
@@ -5895,22 +5893,22 @@
 
     \list
 
-        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-borderimage.html}{Border Image}
+        \o \l{http://doc.qt.nokia.com/4.7/qml-borderimage.html}{Border Image}
         uses an image as a border or background.
-        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-image.html}{Image}
+        \o \l{http://doc.qt.nokia.com/4.7/qml-image.html}{Image}
         adds a bitmap to the scene. You can stretch and tile images.
-        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-item.html}{Item}
+        \o \l{http://doc.qt.nokia.com/4.7/qml-item.html}{Item}
         is the most basic of all visual items in QML. Even though it has no visual appearance,
         it defines all the properties that are common across visual items, such as the x and
         y position, width and height, anchoring, and key handling.
-        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-rectangle.html}{Rectangle}
+        \o \l{http://doc.qt.nokia.com/4.7/qml-rectangle.html}{Rectangle}
         adds a rectangle that is painted with a solid fill color and an optional border.
         You can also use the radius property to create rounded rectangles.
-        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-text.html}{Text}
+        \o \l{http://doc.qt.nokia.com/4.7/qml-text.html}{Text}
         adds formatted read-only text.
-        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-textedit.html}{Text Edit}
+        \o \l{http://doc.qt.nokia.com/4.7/qml-textedit.html}{Text Edit}
         adds a single line of editable formatted text that can be validated.
-        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-textinput.html}{Text Input}
+        \o \l{http://doc.qt.nokia.com/4.7/qml-textinput.html}{Text Input}
         adds a single line of editable plain text that can be validated.
 
     \endlist
@@ -5930,13 +5928,13 @@
     You can use predefined QML elements and your own components to create screens.
 
     You can create the following types of views to organize items provided by
-    \l{http://doc.qt.nokia.com/4.7-snapshot/qdeclarativemodels.html}{data models}:
+    \l{http://doc.qt.nokia.com/4.7/qdeclarativemodels.html}{data models}:
 
     \list
 
-        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-gridview.html}{Grid View}
-        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-listview.html}{List View}
-        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-pathview.html}{Path View}
+        \o \l{http://doc.qt.nokia.com/4.7/qml-gridview.html}{Grid View}
+        \o \l{http://doc.qt.nokia.com/4.7/qml-listview.html}{List View}
+        \o \l{http://doc.qt.nokia.com/4.7/qml-pathview.html}{Path View}
 
     \endlist
 
@@ -5965,13 +5963,13 @@
     You can use different types of animated transitions. For example, you can animate changes
     to property values and colors. You can use rotation animation to control the direction of
     rotation. For more information, see
-    \l{http://doc.qt.nokia.com/4.7-snapshot/qdeclarativeanimation.html}{QML Animation}.
+    \l{http://doc.qt.nokia.com/4.7/qdeclarativeanimation.html}{QML Animation}.
 
     You can use the \c ParallelAnimation element to start several animations at the same time.
     Or use the \c SequentialAnimation element to run them one after another.
 
     You can use the code editor to specify transitions. For more information, see
-    \l{http://doc.qt.nokia.com/4.7-snapshot/qml-transition.html}{QML Transition Element}.
+    \l{http://doc.qt.nokia.com/4.7/qml-transition.html}{QML Transition Element}.
 
 */
 
@@ -5990,14 +5988,14 @@
 
     \list
 
-        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-flickable.html}{Flickable}
+        \o \l{http://doc.qt.nokia.com/4.7/qml-flickable.html}{Flickable}
         items can be flicked horizontally or vertically.
-        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-flipable.html}{Flipable}
+        \o \l{http://doc.qt.nokia.com/4.7/qml-flipable.html}{Flipable}
         items can be flipped between their front and back sides by using rotation,
         state, and transition.
-        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-focusscope.html}{Focus Scope}
+        \o \l{http://doc.qt.nokia.com/4.7/qml-focusscope.html}{Focus Scope}
         assists in keyboard focus handling when building reusable QML components.
-        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-mousearea.html}{Mouse Area}
+        \o \l{http://doc.qt.nokia.com/4.7/qml-mousearea.html}{Mouse Area}
         enables simple mouse handling.
 
     \endlist
@@ -6017,10 +6015,10 @@
     A user interface is only a part of an application, and not really useful by itself.
     You can use Qt or JavaScript to implement the application logic. For more information on
     using JavaScript, see
-    \l {http://doc.qt.nokia.com/4.7-snapshot/qdeclarativejavascript.html} {Integrating JavaScript}.
+    \l {http://doc.qt.nokia.com/4.7/qdeclarativejavascript.html} {Integrating JavaScript}.
 
     For an example of how to use JavaScript to develop a game, see the
-    \l {http://doc.qt.nokia.com/4.7-snapshot/qml-advtutorial.html} {QML Advanced Tutorial}.
+    \l {http://doc.qt.nokia.com/4.7/qml-advtutorial.html} {QML Advanced Tutorial}.
 
  */
 
@@ -6088,7 +6086,7 @@
     \section1 Previewing Animation
 
     The Qt Quick Toolbar for animation allows you to edit the properties of
-    \l{http://doc.qt.nokia.com/4.7-snapshot/qml-propertyanimation.html}{PropertyAnimation}
+    \l{http://doc.qt.nokia.com/4.7/qml-propertyanimation.html}{PropertyAnimation}
     components and the components that inherit it. You can change the easing curve
     type and duration. For some curves, you can also specify amplitude, period,
     and overshoot values.
@@ -6100,7 +6098,7 @@
     \section1 Editing Rectangles
 
     The Qt Quick Toolbar for rectangles allows you to edit the properties of
-    \l{http://doc.qt.nokia.com/4.7-snapshot/qml-rectangle.html}{Rectangle}
+    \l{http://doc.qt.nokia.com/4.7/qml-rectangle.html}{Rectangle}
     components. You can change the fill and border colors and add
     gradients.
 
@@ -6267,7 +6265,7 @@
      change the default plugin path, see \l{How to Create Qt Plugins}.
 
      For more information about how to create plugins for \QD, see
-     \l{http://doc.qt.nokia.com/4.7-snapshot/designer-using-custom-widgets.html}{Creating and Using Components for Qt Designer}.
+     \l{http://doc.qt.nokia.com/4.7/designer-using-custom-widgets.html}{Creating and Using Components for Qt Designer}.
 
     \section1 Locating Qt Designer Plugins
 
@@ -6300,7 +6298,7 @@
      Qt Creator uses its own set of Qt Libraries located in the bundle, and therefore,
      you need to configure the \QD plugins that you want to use with Qt Creator.
      Fore more information about how to deploy applications on Mac OS, see
-     \l{http://doc.qt.nokia.com/4.6/deployment-mac.html}{Deploying an Application on Mac OS X}.
+     \l{http://doc.qt.nokia.com/4.7/deployment-mac.html}{Deploying an Application on Mac OS X}.
 
      The following example illustrates how to configure version 5.2.1 of the
      \l{http://qwt.sourceforge.net/}{Qwt - Qt Widgets for Technical Applications} library
