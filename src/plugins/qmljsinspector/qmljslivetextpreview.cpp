@@ -426,7 +426,7 @@ protected:
                                   const QString& methodName, const QString& methodBody)
     {
         Q_UNUSED(scriptBinding);
-        checkUnsyncronizableElementChanges(parentDefinition);
+        Q_UNUSED(parentDefinition);
         appliedChangesToViewer = true;
         m_clientProxy->setMethodBodyForObject(debugId, methodName, methodBody);
     }
@@ -442,7 +442,6 @@ protected:
                 unsyncronizableChangeLine = parentDefinition->firstSourceLocation().startLine;
                 unsyncronizableChangeColumn = parentDefinition->firstSourceLocation().startColumn;
             }
-            checkUnsyncronizableElementChanges(parentDefinition);
         }
 
         QVariant expr = scriptCode;
@@ -479,38 +478,15 @@ protected:
         m_clientProxy->reparentQmlObject(debugId, newParent);
     }
 
-    void checkUnsyncronizableElementChanges(UiObjectMember *parent)
+    void notifyUnsyncronizableElementChange(UiObjectMember *parent)
     {
-        UiObjectDefinition *parentDefinition = cast<UiObjectDefinition *>(parent);
-        if (parentDefinition &&
-            unsyncronizableChanges == QmlJSLiveTextPreview::NoUnsyncronizableChanges) {
-
-            if (parentDefinition->qualifiedTypeNameId
+        if (unsyncronizableChanges == QmlJSLiveTextPreview::NoUnsyncronizableChanges) {
+            UiObjectDefinition *parentDefinition = cast<UiObjectDefinition *>(parent);
+            if (parentDefinition && parentDefinition->qualifiedTypeNameId
                        && parentDefinition->qualifiedTypeNameId->name)
             {
-                QString elementName = parentDefinition->qualifiedTypeNameId->name->asString();
-                if (elementName == QLatin1String("PropertyChanges")
-                 // State element can be changed, but not its contents like PropertyChanges.
-                 || elementName == QLatin1String("StateGroup")
-                 || elementName == QLatin1String("StateChangeScript")
-                 || elementName == QLatin1String("ParentChange")
-                 || elementName == QLatin1String("AnchorChanges")
-                 || elementName == QLatin1String("Connections")
-                 || elementName == QLatin1String("Binding")
-                 || elementName == QLatin1String("ListModel")
-                 || elementName == QLatin1String("ListElement")
-                 || elementName == QLatin1String("VisualItemModel")
-                 || elementName == QLatin1String("VisualDataModel")
-                 || elementName == QLatin1String("Package")
-                 // XmlListModel properties *can* be edited but XmlRole doesn't refresh the model when changed
-                 || elementName == QLatin1String("XmlRole"))
-                {
-                    unsyncronizableElementName = elementName;
-                    unsyncronizableChanges = QmlJSLiveTextPreview::ElementChangeWarning;
-                }
-            }
-
-            if (unsyncronizableChanges != QmlJSLiveTextPreview::NoUnsyncronizableChanges) {
+                unsyncronizableElementName = parentDefinition->qualifiedTypeNameId->name->asString();
+                unsyncronizableChanges = QmlJSLiveTextPreview::ElementChangeWarning;
                 unsyncronizableChangeLine = parentDefinition->firstSourceLocation().startLine;
                 unsyncronizableChangeColumn = parentDefinition->firstSourceLocation().startColumn;
             }

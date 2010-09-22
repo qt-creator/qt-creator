@@ -390,6 +390,9 @@ void Delta::update(UiObjectMember* oldObject, const QmlJS::Document::Ptr& oldDoc
             const QString scriptCode = _scriptCode(script, newDoc);
             UiScriptBinding *previousScript = cast<UiScriptBinding *>(oldMember);
             if (!previousScript || _scriptCode(previousScript, oldDoc) != scriptCode) {
+                if (debugReferences.count()==0) {
+                    notifyUnsyncronizableElementChange(newObject);
+                }
                 foreach (DebugId ref, debugReferences) {
                     if (ref != -1)
                         updateScriptBinding(ref, newObject, script, property, scriptCode);
@@ -401,6 +404,9 @@ void Delta::update(UiObjectMember* oldObject, const QmlJS::Document::Ptr& oldDoc
             UiSourceElement *previousSource = cast<UiSourceElement*>(oldMember);
 
             if (!previousSource || _methodCode(previousSource, oldDoc) != methodCode) {
+                if (debugReferences.count()==0) {
+                    notifyUnsyncronizableElementChange(newObject);
+                }
                 foreach (DebugId ref, debugReferences) {
                     if (ref != -1)
                         updateMethodBody(ref, newObject, script, methodName, methodCode);
@@ -476,10 +482,13 @@ Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::P
         UiObjectMember *x = M.way2[y];
         Q_ASSERT(cast<UiObjectDefinition *>(x) || cast<UiObjectBinding *>(x) );
 
-        if (debugIds.contains(x)) {
-            QList<DebugId> ids = debugIds[x];
-            newDebuggIds[y] = ids;
-            update(x, doc1, y, doc2, ids);
+        {
+            QList<DebugId> updateIds;
+            if (debugIds.contains(x)) {
+                updateIds = debugIds[x];
+                newDebuggIds[y] = updateIds;
+            }
+            update(x, doc1, y, doc2, updateIds);
         }
         //qDebug() << "Delta::operator():  match "<< label(x, doc1) << "with parent " << label(parents1.parent.value(x), doc1)
         //     << " to "<< label(y, doc2) << "with parent " << label(parents2.parent.value(y), doc2);
@@ -531,6 +540,9 @@ void Delta::updateMethodBody(DebugId, UiObjectMember *, UiScriptBinding *, const
 {}
 
 void Delta::updateScriptBinding(DebugId, UiObjectMember *, UiScriptBinding *, const QString &, const QString &)
+{}
+
+void Delta::notifyUnsyncronizableElementChange(UiObjectMember *)
 {}
 
 } //namespace QmlJs
