@@ -116,10 +116,22 @@ QList<CppQuickFixOperation::Ptr> DeclFromDef::match(const CppQuickFixState &stat
     int idx = 0;
     for (; idx < path.size(); ++idx) {
         AST *node = path.at(idx);
-        if (FunctionDefinitionAST *candidate = node->asFunctionDefinition()) {
-            if (!funDef && file.isCursorOn(candidate) && !file.isCursorOn(candidate->function_body))
-                funDef = candidate;
-        } else if (node->asClassSpecifier()) {
+        if (idx > 1) {
+            if (DeclaratorIdAST *declId = node->asDeclaratorId()) {
+                if (file.isCursorOn(declId)) {
+                    if (FunctionDefinitionAST *candidate = path.at(idx - 2)->asFunctionDefinition()) {
+                        if (funDef) {
+                            return noResult();
+                        } else {
+                            funDef = candidate;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (node->asClassSpecifier()) {
             return noResult();
         }
     }
@@ -156,7 +168,7 @@ QList<CppQuickFixOperation::Ptr> DeclFromDef::match(const CppQuickFixState &stat
                                                           InsertionPointLocator::PrivateSlot,
                                                           decl)));
                 return results;
-            } //! \todo support insertion into namespaces
+            } //! \todo support insertion of non-methods into namespaces
         }
     }
 
