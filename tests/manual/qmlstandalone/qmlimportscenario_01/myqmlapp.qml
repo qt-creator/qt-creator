@@ -17,13 +17,11 @@ Rectangle {
         anchors.margins: title.height + 2
 
         QmlProject01 {
-            anchors.top: parent.top
             height: parent.height / 2
             width: parent.width
         }
 
         QmlProject02 {
-            anchors.bottom: parent.bottom
             height: parent.height / 2
             width: parent.width
         }
