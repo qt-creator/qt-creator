@@ -525,7 +525,7 @@ QStringList Qt4BuildConfiguration::removeQMLInspectorFromArgumentList(const QStr
 {
     QStringList result;
     foreach (const QString &str, old)
-        if (!str.startsWith(QLatin1String(Constants::QMAKEVAR_QMLOBSERVER_PATH)))
+        if (!str.startsWith(QLatin1String(Constants::QMAKEVAR_QMLJSDEBUGGER_PATH)))
             result << str;
     return result;
 }

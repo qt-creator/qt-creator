@@ -63,6 +63,7 @@
 #include "qmljsdebugger_global.h"
 
 QT_FORWARD_DECLARE_CLASS(QScriptContext);
+QT_FORWARD_DECLARE_CLASS(QDeclarativeEngine);
 
 namespace QmlJSDebugger {
 
@@ -73,6 +74,7 @@ class QMLJSDEBUGGER_EXPORT JSDebuggerAgent : public QDeclarativeDebugService , p
     Q_OBJECT
 public:
     JSDebuggerAgent(QScriptEngine *engine);
+    JSDebuggerAgent(QDeclarativeEngine *engine);
     ~JSDebuggerAgent();
 
     // reimplemented

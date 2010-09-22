@@ -8,14 +8,17 @@ HEADERS += $$PWD/qmlapplicationviewer.h
 INCLUDEPATH += $$PWD
 
 contains(DEFINES, QMLOBSERVER) {
+    DEFINES *= QMLJSDEBUGGER
+}
+contains(DEFINES, QMLJSDEBUGGER) {
     CONFIG(debug, debug|release) {
-        isEmpty(QMLOBSERVER_PATH) {
-            warning(QMLOBSERVER_PATH was not set. QMLOBSERVER not activated.)
-            DEFINES -= QMLOBSERVER
+        isEmpty(QMLJSDEBUGGER_PATH) {
+            warning(QMLJSDEBUGGER_PATH was not set. QMLJSDEBUGGER not activated.)
+            DEFINES -= QMLJSDEBUGGER
         } else {
-            include($$QMLOBSERVER_PATH/qmljsdebugger-lib.pri)
+            include($$QMLJSDEBUGGER_PATH/qmljsdebugger-lib.pri)
         }
     } else {
-        DEFINES -= QMLOBSERVER
+        DEFINES -= QMLJSDEBUGGER
     }
 }

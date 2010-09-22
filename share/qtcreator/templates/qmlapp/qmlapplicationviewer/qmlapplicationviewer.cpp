@@ -7,6 +7,9 @@
 #include <QtDeclarative/QDeclarativeEngine>
 #include <QtDeclarative/QDeclarativeContext>
 
+#if defined(QMLJSDEBUGGER)
+#include <jsdebuggeragent.h>
+#endif
 #if defined(QMLOBSERVER)
 #include <qdeclarativeviewobserver.h>
 #endif
@@ -50,6 +53,9 @@ QmlApplicationViewer::QmlApplicationViewer(QWidget *parent) :
 {
     connect(engine(), SIGNAL(quit()), SLOT(close()));
     setResizeMode(QDeclarativeView::SizeRootObjectToView);
+#ifdef QMLJSDEBUGGER
+    new QmlJSDebugger::JSDebuggerAgent(engine());
+#endif
 #ifdef QMLOBSERVER
     new QmlJSDebugger::QDeclarativeViewObserver(this, parent);
 #endif

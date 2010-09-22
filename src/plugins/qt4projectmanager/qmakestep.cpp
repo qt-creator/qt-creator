@@ -128,7 +128,7 @@ QStringList QMakeStep::allArguments()
 /// moreArguments,
 /// -unix for Maemo
 /// -after OBJECTS_DIR, MOC_DIR, UI_DIR, RCC_DIR
-/// QMAKE_VAR_QMLOBSERVER_PATH
+/// QMAKE_VAR_QMLJSDEBUGGER_PATH
 QStringList QMakeStep::moreArguments()
 {
     Qt4BuildConfiguration *bc = qt4BuildConfiguration();
@@ -152,7 +152,7 @@ QStringList QMakeStep::moreArguments()
                   << QLatin1String("RCC_DIR=rcc");
     }
 
-    arguments << QLatin1String(Constants::QMAKEVAR_QMLOBSERVER_PATH) + QLatin1Char('=') +
+    arguments << QLatin1String(Constants::QMAKEVAR_QMLJSDEBUGGER_PATH) + QLatin1Char('=') +
             Core::ICore::instance()->resourcePath() + QLatin1String("/qmljsdebugger");
     return arguments;
 }

@@ -49,6 +49,7 @@
 #include <QtCore/QUrl>
 #include <QtCore/QDateTime>
 #include <QtScript/qscriptvalueiterator.h>
+#include <private/qdeclarativeengine_p.h>
 
 namespace QmlJSDebugger {
 
@@ -187,6 +188,12 @@ QList<JSAgentWatchData> JSDebuggerAgent::getLocals(QScriptContext *ctx)
 */
 JSDebuggerAgent::JSDebuggerAgent(QScriptEngine *engine)
     : QDeclarativeDebugService("JSDebugger"), QScriptEngineAgent(engine)
+    , state(NoState)
+{}
+
+JSDebuggerAgent::JSDebuggerAgent(QDeclarativeEngine *engine)
+    : QDeclarativeDebugService("JSDebugger")
+    , QScriptEngineAgent(QDeclarativeEnginePrivate::getScriptEngine(engine))
     , state(NoState)
 {}
 

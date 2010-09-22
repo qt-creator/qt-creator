@@ -242,7 +242,7 @@ void QmlStandaloneApp::handleCurrentProFileTemplateLine(const QString &line,
             }
         }
         proFile << "DEPLOYMENTFOLDERS = " << folders.join(QLatin1String(" ")) << endl;
-    } else if (line.contains(QLatin1String("# QMLOBSERVER"))) {
+    } else if (line.contains(QLatin1String("# QMLJSDEBUGGER"))) {
         // ### disabled for now; figure out the private headers problem first.
         //uncommentNextLine = true;
         Q_UNUSED(uncommentNextLine);

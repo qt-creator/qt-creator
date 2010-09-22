@@ -10,20 +10,26 @@ contains(CONFIG, dll) {
 
 include($$PWD/private_headers.pri)
 
-include($$PWD/editor/editor.pri)
-
 ## Input
 HEADERS += \
     include/jsdebuggeragent.h \
-    include/qdeclarativeviewobserver.h \
-    include/qdeclarativeobserverservice.h \
-    include/qmlobserverconstants.h \
-    include/qmljsdebugger_global.h \
-    qdeclarativeviewobserver_p.h
+    include/qmljsdebugger_global.h
 
 SOURCES += \
-    jsdebuggeragent.cpp \
-    qdeclarativeviewobserver.cpp \
-    qdeclarativeobserverservice.cpp
+    jsdebuggeragent.cpp
+
+contains(DEFINES, QMLOBSERVER) {
+    include($$PWD/editor/editor.pri)
+
+    HEADERS += \
+        include/qdeclarativeviewobserver.h \
+        include/qdeclarativeobserverservice.h \
+        include/qmlobserverconstants.h \
+        qdeclarativeviewobserver_p.h
+
+    SOURCES += \
+        qdeclarativeviewobserver.cpp \
+        qdeclarativeobserverservice.cpp
+}
 
 OTHER_FILES += qmljsdebugger.pri
