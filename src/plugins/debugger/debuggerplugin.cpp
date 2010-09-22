@@ -35,7 +35,6 @@
 #include "debuggerdialogs.h"
 #include "debuggerengine.h"
 #include "debuggermainwindow.h"
-#include "debuggeroutputwindow.h"
 #include "debuggerplugin.h"
 #include "debuggerrunner.h"
 #include "debuggerstringutils.h"
@@ -44,6 +43,7 @@
 
 #include "breakwindow.h"
 #include "consolewindow.h"
+#include "logwindow.h"
 #include "moduleswindow.h"
 #include "registerwindow.h"
 #include "snapshotwindow.h"
@@ -1019,7 +1019,7 @@ public:
     SourceFilesWindow *m_sourceFilesWindow;
     QAbstractItemView *m_stackWindow;
     QAbstractItemView *m_threadsWindow;
-    DebuggerOutputWindow *m_outputWindow;
+    LogWindow *m_logWindow;
     ScriptConsole *m_scriptConsoleWindow;
 
     SessionEngine *m_sessionEngine;
@@ -1062,7 +1062,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
     m_sourceFilesWindow = 0;
     m_stackWindow = 0;
     m_threadsWindow = 0;
-    m_outputWindow = 0;
+    m_logWindow = 0;
     m_scriptConsoleWindow = 0;
 
     m_sessionEngine = 0;
@@ -1112,8 +1112,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     m_consoleWindow->setObjectName(QLatin1String("CppDebugConsole"));
     m_modulesWindow = new ModulesWindow;
     m_modulesWindow->setObjectName(QLatin1String("CppDebugModules"));
-    m_outputWindow = new DebuggerOutputWindow;
-    m_outputWindow->setObjectName(QLatin1String("CppDebugOutput"));
+    m_logWindow = new LogWindow;
+    m_logWindow->setObjectName(QLatin1String("CppDebugOutput"));
 
     m_registerWindow = new RegisterWindow;
     m_registerWindow->setObjectName(QLatin1String("CppDebugRegisters"));
@@ -1289,7 +1289,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     connect(m_registerDock->toggleViewAction(), SIGNAL(toggled(bool)),
         SLOT(registerDockToggled(bool)), Qt::QueuedConnection);
 
-    m_outputDock = m_uiSwitcher->createDockWidget(AnyLanguage, m_outputWindow,
+    m_outputDock = m_uiSwitcher->createDockWidget(AnyLanguage, m_logWindow,
         Qt::TopDockWidgetArea);
     m_outputDock->setObjectName(QString(DOCKWIDGET_OUTPUT));
 
@@ -2077,7 +2077,7 @@ void DebuggerPluginPrivate::fontSettingsChanged
 {
     int size = settings.fontZoom() * settings.fontSize() / 100;
     changeFontSize(m_breakWindow, size);
-    changeFontSize(m_outputWindow, size);
+    changeFontSize(m_logWindow, size);
     changeFontSize(m_localsWindow, size);
     changeFontSize(m_modulesWindow, size);
     changeFontSize(m_consoleWindow, size);
@@ -2120,7 +2120,7 @@ void DebuggerPluginPrivate::setBusyCursor(bool busy)
     m_consoleWindow->setCursor(cursor);
     m_localsWindow->setCursor(cursor);
     m_modulesWindow->setCursor(cursor);
-    m_outputWindow->setCursor(cursor);
+    m_logWindow->setCursor(cursor);
     m_registerWindow->setCursor(cursor);
     m_returnWindow->setCursor(cursor);
     m_sourceFilesWindow->setCursor(cursor);
@@ -2409,9 +2409,9 @@ void DebuggerPluginPrivate::dumpLog()
     if (!file.open(QIODevice::WriteOnly))
         return;
     QTextStream ts(&file);
-    ts << m_outputWindow->inputContents();
+    ts << m_logWindow->inputContents();
     ts << "\n\n=======================================\n\n";
-    ts << m_outputWindow->combinedContents();
+    ts << m_logWindow->combinedContents();
 }
 
 void DebuggerPluginPrivate::clearStatusMessage()
@@ -2673,7 +2673,7 @@ ExtensionSystem::IPlugin::ShutdownFlag DebuggerPlugin::aboutToShutdown()
 void DebuggerPlugin::showMessage(const QString &msg, int channel, int timeout)
 {
     //qDebug() << "PLUGIN OUTPUT: " << channel << msg;
-    DebuggerOutputWindow *ow = d->m_outputWindow;
+    LogWindow *ow = d->m_logWindow;
     ConsoleWindow *cw = d->m_consoleWindow;
     QTC_ASSERT(ow, return);
     switch (channel) {

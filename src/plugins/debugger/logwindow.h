@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_OUTPUTWINDOW_H
-#define DEBUGGER_OUTPUTWINDOW_H
+#ifndef DEBUGGER_LOGWINDOW_H
+#define DEBUGGER_LOGWINDOW_H
 
 #include <QtGui/QWidget>
 
@@ -41,12 +41,12 @@ QT_END_NAMESPACE
 namespace Debugger {
 namespace Internal {
 
-class DebuggerOutputWindow : public QWidget
+class LogWindow : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit DebuggerOutputWindow(QWidget *parent = 0);
+    explicit LogWindow(QWidget *parent = 0);
 
     void setCursor(const QCursor &cursor);
 
@@ -74,5 +74,5 @@ private:
 } // namespace Internal
 } // namespace Debugger
 
-#endif // DEBUGGER_OUTPUTWINDOW_H
+#endif // DEBUGGER_LOGWINDOW_H
 

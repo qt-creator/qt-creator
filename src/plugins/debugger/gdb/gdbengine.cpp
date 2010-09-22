@@ -66,7 +66,7 @@
 #include "sourcefileswindow.h"
 
 #include "debuggerdialogs.h"
-#include "debuggeroutputwindow.h"
+#include "logwindow.h"
 
 #include <utils/qtcassert.h>
 #include <utils/fancymainwindow.h>
@@ -2031,7 +2031,7 @@ void GdbEngine::setTokenBarrier()
     PENDING_DEBUG("\n--- token barrier ---\n");
     showMessage(_("--- token barrier ---"), LogMiscInput);
     if (theDebuggerBoolSetting(LogTimeStamps))
-        showMessage(DebuggerOutputWindow::logTimeStamp(), LogMiscInput);
+        showMessage(LogWindow::logTimeStamp(), LogMiscInput);
     m_oldestAcceptableToken = currentToken();
 }
 
@@ -3459,7 +3459,7 @@ void GdbEngine::rebuildWatchModel()
         m_processedNames.clear();
     PENDING_DEBUG("REBUILDING MODEL" << count);
     if (theDebuggerBoolSetting(LogTimeStamps))
-        showMessage(DebuggerOutputWindow::logTimeStamp(), LogMiscInput);
+        showMessage(LogWindow::logTimeStamp(), LogMiscInput);
     showMessage(_("<Rebuild Watchmodel %1>").arg(count), LogMiscInput);
     showStatusMessage(tr("Finished retrieving data"), 400);
     watchHandler()->endCycle();

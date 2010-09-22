@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "debuggeroutputwindow.h"
+#include "logwindow.h"
 
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
@@ -58,9 +58,8 @@
 
 #include <utils/savedaction.h>
 
-using namespace Debugger;
-using namespace Debugger::Internal;
-using namespace Find;
+namespace Debugger {
+namespace Internal {
 
 static QChar charForChannel(int channel)
 {
@@ -360,7 +359,7 @@ public slots:
 //
 /////////////////////////////////////////////////////////////////////
 
-DebuggerOutputWindow::DebuggerOutputWindow(QWidget *parent)
+LogWindow::LogWindow(QWidget *parent)
   : QWidget(parent)
 {
     setWindowTitle(tr("Debugger"));
@@ -392,11 +391,11 @@ DebuggerOutputWindow::DebuggerOutputWindow(QWidget *parent)
 
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
     aggregate->add(m_combinedText);
-    aggregate->add(new BaseTextFind(m_combinedText));
+    aggregate->add(new Find::BaseTextFind(m_combinedText));
 
     aggregate = new Aggregation::Aggregate;
     aggregate->add(m_inputText);
-    aggregate->add(new BaseTextFind(m_inputText));
+    aggregate->add(new Find::BaseTextFind(m_inputText));
 
     connect(m_inputText, SIGNAL(statusMessageRequested(QString,int)),
        this, SIGNAL(statusMessageRequested(QString,int)));
@@ -404,7 +403,7 @@ DebuggerOutputWindow::DebuggerOutputWindow(QWidget *parent)
        m_combinedText, SLOT(gotoResult(int)));
 };
 
-void DebuggerOutputWindow::showOutput(int channel, const QString &output)
+void LogWindow::showOutput(int channel, const QString &output)
 {
     if (output.isEmpty())
         return;
@@ -432,7 +431,7 @@ void DebuggerOutputWindow::showOutput(int channel, const QString &output)
     }
 }
 
-void DebuggerOutputWindow::showInput(int channel, const QString &input)
+void LogWindow::showInput(int channel, const QString &input)
 {
     Q_UNUSED(channel)
     if (theDebuggerBoolSetting(LogTimeStamps))
@@ -444,30 +443,30 @@ void DebuggerOutputWindow::showInput(int channel, const QString &input)
     m_inputText->ensureCursorVisible();
 }
 
-void DebuggerOutputWindow::clearContents()
+void LogWindow::clearContents()
 {
     m_combinedText->clear();
     m_inputText->clear();
 }
 
-void DebuggerOutputWindow::setCursor(const QCursor &cursor)
+void LogWindow::setCursor(const QCursor &cursor)
 {
     m_combinedText->viewport()->setCursor(cursor);
     m_inputText->viewport()->setCursor(cursor);
     QWidget::setCursor(cursor);
 }
 
-QString DebuggerOutputWindow::combinedContents() const
+QString LogWindow::combinedContents() const
 {
     return m_combinedText->toPlainText();
 }
 
-QString DebuggerOutputWindow::inputContents() const
+QString LogWindow::inputContents() const
 {
     return m_inputText->toPlainText();
 }
 
-QString DebuggerOutputWindow::logTimeStamp()
+QString LogWindow::logTimeStamp()
 {
     // Cache the last log time entry by ms. If time progresses,
     // report the difference to the last time stamp in ms.
@@ -490,4 +489,7 @@ QString DebuggerOutputWindow::logTimeStamp()
     return lastTimeStamp;
 }
 
-#include "debuggeroutputwindow.moc"
+} // namespace Internal
+} // namespace Debugger
+
+#include "logwindow.moc"

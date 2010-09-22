@@ -32,10 +32,10 @@
 #include "debuggeractions.h"
 #include "debuggeragents.h"
 #include "debuggerrunner.h"
-#include "debuggeroutputwindow.h"
 #include "debuggerplugin.h"
 #include "debuggerstringutils.h"
 #include "debuggertooltip.h"
+#include "logwindow.h"
 
 #include "breakhandler.h"
 #include "moduleshandler.h"

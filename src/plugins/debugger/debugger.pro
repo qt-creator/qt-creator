@@ -17,77 +17,77 @@ QT += gui \
     script
 
 HEADERS += breakhandler.h \
-    breakwindow.h \
     breakpoint.h \
+    breakwindow.h \
     consolewindow.h \
-    debuggeragents.h \
+    debugger_global.h \
     debuggeractions.h \
+    debuggeragents.h \
     debuggerconstants.h \
     debuggerdialogs.h \
     debuggerengine.h \
-    debugger_global.h \
-    debuggeroutputwindow.h \
+    debuggermainwindow.h \
     debuggerplugin.h \
     debuggerrunner.h \
-    debuggertooltip.h \
     debuggerstringutils.h \
+    debuggertooltip.h \
+    debuggeruiswitcher.h \
+    logwindow.h \
     moduleshandler.h \
     moduleswindow.h \
+    name_demangler.h \
     outputcollector.h \
     procinterrupt.h \
     registerhandler.h \
     registerwindow.h \
     sessionengine.h \
-    stackframe.h \
-    stackhandler.h \
-    stackwindow.h \
     snapshothandler.h \
     snapshotwindow.h \
     sourcefileshandler.h \
     sourcefileswindow.h \
+    stackframe.h \
+    stackhandler.h \
+    stackwindow.h \
     threadswindow.h \
     watchhandler.h \
     watchutils.h \
     watchwindow.h \
-    name_demangler.h \
-    debuggeruiswitcher.h \
-    debuggermainwindow.h \
     threadshandler.h
 
 SOURCES += breakhandler.cpp \
-    breakwindow.cpp \
     breakpoint.cpp \
+    breakwindow.cpp \
     consolewindow.cpp \
-    debuggeragents.cpp \
     debuggeractions.cpp \
+    debuggeragents.cpp \
     debuggerdialogs.cpp \
     debuggerengine.cpp \
-    debuggeroutputwindow.cpp \
+    debuggermainwindow.cpp \
     debuggerplugin.cpp \
     debuggerrunner.cpp \
     debuggertooltip.cpp \
+    debuggeruiswitcher.cpp \
+    logwindow.cpp \
     moduleshandler.cpp \
     moduleswindow.cpp \
+    name_demangler.cpp \
     outputcollector.cpp \
     procinterrupt.cpp \
     registerhandler.cpp \
     registerwindow.cpp \
+    sessionengine.cpp \
     snapshothandler.cpp \
     snapshotwindow.cpp \
-    stackhandler.cpp \
-    stackwindow.cpp \
     sourcefileshandler.cpp \
     sourcefileswindow.cpp \
+    stackhandler.cpp \
+    stackwindow.cpp \
+    threadshandler.cpp \
     threadswindow.cpp \
     watchdata.cpp \
     watchhandler.cpp \
-    watchwindow.cpp \
     watchutils.cpp \
-    name_demangler.cpp \
-    debuggeruiswitcher.cpp \
-    debuggermainwindow.cpp \
-    threadshandler.cpp \
-    sessionengine.cpp \
+    watchwindow.cpp \
     stackframe.cpp
 
 FORMS += attachexternaldialog.ui \
