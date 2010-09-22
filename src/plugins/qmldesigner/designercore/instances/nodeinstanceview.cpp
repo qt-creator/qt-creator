@@ -417,6 +417,11 @@ void NodeInstanceView::removeAllInstanceNodeRelationships()
 {
     // prevent destroyed() signals calling back
 
+    foreach (NodeInstance instance, m_objectInstanceHash.values()) {
+        if (instance.isValid())
+            instance.setId(QString());
+    }
+
     //first  the root object
     if (rootNodeInstance().internalObject())
         rootNodeInstance().internalObject()->disconnect();
@@ -552,7 +557,8 @@ void NodeInstanceView::removeInstanceNodeRelationship(const ModelNode &node)
 {
     Q_ASSERT(m_nodeInstanceHash.contains(node));
     NodeInstance instance = instanceForNode(node);
-    removeIdFromContext(instance.internalObject());
+    if (instance.isValid())
+        instance.setId(QString());
     m_objectInstanceHash.remove(instanceForNode(node).internalObject());
     m_nodeInstanceHash.remove(node);
     instance.makeInvalid();
@@ -627,6 +633,10 @@ void NodeInstanceView::activateBaseState()
 
 void NodeInstanceView::removeRecursiveChildRelationship(const ModelNode &removedNode)
 {
+    if (hasInstanceForNode(removedNode)) {
+        instanceForNode(removedNode).setId(QString());
+    }
+
     foreach (const ModelNode &childNode, removedNode.allDirectSubModelNodes())
         removeRecursiveChildRelationship(childNode);
 
@@ -691,18 +701,6 @@ void NodeInstanceView::refreshLocalFileProperty(const QString &path)
             if (hasInstanceForObject(object)) {
                 instanceForObject(object).refreshProperty(propertyName);
             }
-        }
-    }
-}
-
-void NodeInstanceView::removeIdFromContext(QObject *object)
-{
-    if (hasInstanceForObject(object)) {
-        NodeInstance instance = instanceForObject(object);
-        if (instance.isValid()) {
-            QString id = instance.id();
-            if (!id.isEmpty())
-                engine()->rootContext()->setContextProperty(id, 0);
         }
     }
 }

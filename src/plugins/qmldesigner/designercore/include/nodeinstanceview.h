@@ -111,7 +111,6 @@ public:
 private slots:
     void emitParentChanged(QObject *child);
     void refreshLocalFileProperty(const QString &path);
-    void removeIdFromContext(QObject *object);
 
 private: // functions
     NodeInstance rootNodeInstance() const;
