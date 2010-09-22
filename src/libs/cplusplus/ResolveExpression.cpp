@@ -739,3 +739,7 @@ bool ResolveExpression::visit(ObjCMessageExpressionAST *ast)
     return false;
 }
 
+const LookupContext &ResolveExpression::context() const
+{
+    return _context;
+}

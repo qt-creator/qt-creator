@@ -51,6 +51,8 @@ public:
                                      int accessOp,
                                      bool *replacedDotOperator = 0) const;
 
+    const LookupContext &context() const;
+
 protected:
     ClassOrNamespace *findClass(const FullySpecifiedType &ty, Scope *scope) const;
 
