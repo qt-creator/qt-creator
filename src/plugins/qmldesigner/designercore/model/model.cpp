@@ -431,8 +431,6 @@ void ModelPrivate::notifyPropertiesRemoved(const QList<PropertyPair> &propertyPa
     bool resetModel = false;
     QString description;
 
-
-
     try {
         if (rewriterView()) {
             QList<AbstractProperty> propertyList;
@@ -579,16 +577,15 @@ void ModelPrivate::notifyNodeCreated(const InternalNode::Pointer &newInternalNod
         resetModel = true;
     }
 
+    if (nodeInstanceView()) {
+        ModelNode createdNode(newInternalNodePointer, model(), nodeInstanceView());
+        nodeInstanceView()->nodeCreated(createdNode);
+    }
+
     foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
         Q_ASSERT(view != 0);
         ModelNode createdNode(newInternalNodePointer, model(), view.data());
         view->nodeCreated(createdNode);
-    }
-
-
-    if (nodeInstanceView()) {
-        ModelNode createdNode(newInternalNodePointer, model(), nodeInstanceView());
-        nodeInstanceView()->nodeCreated(createdNode);
     }
 
     if (resetModel) {
