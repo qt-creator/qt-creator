@@ -922,10 +922,10 @@ Qt::ItemFlags WatchModel::flags(const QModelIndex &idx) const
 
     const WatchData &data = *watchItem(idx);
 
-    if (idx.column() == 0)
-        return editable; // Watcher names are editable.
-
     if (data.isWatcher()) {
+        if (idx.column() == 0 && data.iname.count('.') == 1)
+            return editable; // Watcher names are editable.
+
         if (!data.name.isEmpty()) {
             // FIXME: Forcing types is not implemented yet.
             //if (idx.column() == 2)
@@ -1054,7 +1054,7 @@ void WatchModel::insertBulkData(const QList<WatchData> &list)
     return;
 #endif
     // This method does not properly insert items in proper "iname sort
-    // order", leading to random removal of items in removeOutDated();
+    // order", leading to random removal of items in removeOutdated();
 
     //qDebug() << "WMI:" << list.toString();
     //static int bulk = 0;
