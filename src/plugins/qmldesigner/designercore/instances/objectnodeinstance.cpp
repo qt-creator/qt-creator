@@ -199,6 +199,11 @@ void ObjectNodeInstance::setId(const QString &id)
     m_id = id;
 }
 
+QString ObjectNodeInstance::id() const
+{
+    return m_id;
+}
+
 bool ObjectNodeInstance::isQmlGraphicsItem() const
 {
     return false;

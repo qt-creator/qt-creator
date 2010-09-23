@@ -106,6 +106,7 @@ public:
     virtual void reparent(const NodeInstance &oldParentInstance, const QString &oldParentProperty, const NodeInstance &newParentInstance, const QString &newParentProperty);
 
     void setId(const QString &id);
+    QString id() const;
 
     virtual bool isQmlGraphicsItem() const;
     virtual bool isGraphicsScene() const;
