@@ -4161,9 +4161,8 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
             "dyld \".*CFDataFormatters.*\" all "
             "dyld \".*libobjc.*\" all "
             "dyld \".*CarbonDataFormatters.*\" all");
-        // We know that we don't have Python on Mac.
-        pythonDumpersFailed();
     } else {
+        // We know that we don't have Python on Mac.
         loadPythonDumpers();
     }
 
