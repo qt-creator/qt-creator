@@ -139,12 +139,17 @@ void HighlighterSettings::fromSettings(const QString &category, QSettings *s)
                                 QLatin1String("/generic-highlighter");
     else
         m_definitionFilesPath = s->value(kDefinitionFilesPath).toString();
-    if (!s->contains(kFallbackDefinitionFilesPath))
+    if (!s->contains(kFallbackDefinitionFilesPath)) {
         m_fallbackDefinitionFilesPath = findDefinitionsLocation();
-    else
+        if (m_fallbackDefinitionFilesPath.isEmpty())
+            m_useFallbackLocation = false;
+        else
+            m_useFallbackLocation = true;
+    } else {
         m_fallbackDefinitionFilesPath = s->value(kFallbackDefinitionFilesPath).toString();
+        m_useFallbackLocation = s->value(kUseFallbackLocation, true).toBool();
+    }
     m_alertWhenNoDefinition = s->value(kAlertWhenDefinitionIsNotFound, true).toBool();
-    m_useFallbackLocation = s->value(kUseFallbackLocation, true).toBool();
     if (!s->contains(kIgnoredFilesPatterns))
         assignInitialIgnoredPatterns();
     else
