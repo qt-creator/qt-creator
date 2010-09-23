@@ -58,8 +58,6 @@
 
 #include <utils/savedaction.h>
 
-using namespace Find;
-
 namespace Debugger {
 namespace Internal {
 
@@ -299,6 +297,7 @@ ConsoleWindow::ConsoleWindow(QWidget *parent)
   : QWidget(parent)
 {
     setWindowTitle(tr("Console"));
+    setObjectName("Console");
 
     m_console = new Console(this);
     m_console->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
@@ -312,7 +311,7 @@ ConsoleWindow::ConsoleWindow(QWidget *parent)
 
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
     aggregate->add(m_console);
-    aggregate->add(new BaseTextFind(m_console));
+    aggregate->add(new Find::BaseTextFind(m_console));
 
     //connect(m_console, SIGNAL(statusMessageRequested(QString,int)),
     //   this, SIGNAL(statusMessageRequested(QString,int)));

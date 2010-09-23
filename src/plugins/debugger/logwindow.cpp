@@ -363,6 +363,7 @@ LogWindow::LogWindow(QWidget *parent)
   : QWidget(parent)
 {
     setWindowTitle(tr("Log"));
+    setObjectName("Log");
 
     QSplitter *m_splitter = new  Core::MiniSplitter(Qt::Horizontal);
     m_splitter->setParent(this);
