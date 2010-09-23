@@ -2251,7 +2251,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     //    resetLocation();
     //qDebug() << "PLUGIN SET STATE: " << m_state;
 
-    if (m_state == DebuggerNotReady) {
+    if (m_state == DebuggerFinished) {
         setBusyCursor(false);
         cleanupViews();
     }
