@@ -152,8 +152,10 @@ void BaseHoverHandler::decorateToolTip()
 
     if (lastHelpItemIdentified().isValid()) {
         const QString &contents = lastHelpItemIdentified().extractContent(false);
-        if (!contents.isEmpty())
+        if (!contents.isEmpty()) {
+            setToolTip(Qt::escape(toolTip()));
             appendToolTip(contents);
+        }
         addF1ToToolTip();
     }
 }

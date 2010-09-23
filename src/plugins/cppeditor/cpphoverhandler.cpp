@@ -116,10 +116,12 @@ void CppHoverHandler::decorateToolTip()
     if (help.isValid()) {
         const QString &contents = help.extractContent(false);
         if (!contents.isEmpty()) {
-            if (help.category() == TextEditor::HelpItem::ClassOrNamespace)
+            if (help.category() == TextEditor::HelpItem::ClassOrNamespace) {
+                setToolTip(Qt::escape(toolTip()));
                 appendToolTip(contents);
-            else
+            } else {
                 setToolTip(contents);
+            }
         }
         addF1ToToolTip();
     }
