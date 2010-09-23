@@ -2275,7 +2275,10 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
 
     const bool starting = m_state == EngineSetupRequested;
 
-    m_startExternalAction->setEnabled(!started && !starting);
+    const bool canStartOrContinue = m_state == DebuggerNotReady
+        || m_state == InferiorStopOk;
+
+    m_startExternalAction->setEnabled(canStartOrContinue);
     m_attachExternalAction->setEnabled(true);
 #ifdef Q_OS_WIN
     m_attachCoreAction->setEnabled(false);
