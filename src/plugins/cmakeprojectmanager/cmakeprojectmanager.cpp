@@ -280,7 +280,7 @@ QWidget *CMakeSettingsPage::createPage(QWidget *parent)
     QWidget *outerWidget = new QWidget(parent);
     QFormLayout *formLayout = new QFormLayout(outerWidget);
     m_pathchooser = new Utils::PathChooser;
-    m_pathchooser->setExpectedKind(Utils::PathChooser::Command);
+    m_pathchooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     formLayout->addRow(tr("Executable:"), m_pathchooser);
     formLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
     m_pathchooser->setPath(cmakeExecutable());

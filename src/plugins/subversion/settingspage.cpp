@@ -47,7 +47,7 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
     QWidget(parent)
 {
     m_ui.setupUi(this);
-    m_ui.pathChooser->setExpectedKind(PathChooser::Command);
+    m_ui.pathChooser->setExpectedKind(PathChooser::ExistingCommand);
     m_ui.pathChooser->setPromptDialogTitle(tr("Subversion Command"));
 }
 

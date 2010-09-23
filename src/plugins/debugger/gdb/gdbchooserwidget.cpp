@@ -521,7 +521,7 @@ BinaryToolChainDialog::BinaryToolChainDialog(QWidget *parent) :
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowTitle(tr("Select binary and toolchains"));
 
-    m_pathChooser->setExpectedKind(Utils::PathChooser::Command);
+    m_pathChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_pathChooser->setPromptDialogTitle(tr("Gdb binary"));
     connect(m_pathChooser, SIGNAL(validChanged()), this, SLOT(slotValidChanged()));
     m_mainLayout->addRow(tr("Path:"), m_pathChooser);

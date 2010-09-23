@@ -300,7 +300,7 @@ void CMakeRunPage::initWidgets()
         fl->addRow(new QLabel(text, this));
         // Show a field for the user to enter
         m_cmakeExecutable = new Utils::PathChooser(this);
-        m_cmakeExecutable->setExpectedKind(Utils::PathChooser::Command);
+        m_cmakeExecutable->setExpectedKind(Utils::PathChooser::ExistingCommand);
         fl->addRow("CMake Executable", m_cmakeExecutable);
     }
 

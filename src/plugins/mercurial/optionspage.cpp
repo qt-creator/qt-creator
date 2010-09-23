@@ -44,7 +44,7 @@ OptionsPageWidget::OptionsPageWidget(QWidget *parent) :
         QWidget(parent)
 {
     m_ui.setupUi(this);
-    m_ui.commandChooser->setExpectedKind(Utils::PathChooser::Command);
+    m_ui.commandChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_ui.commandChooser->setPromptDialogTitle(tr("Mercurial Command"));
 }
 

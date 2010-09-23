@@ -161,7 +161,7 @@ QWidget *QmlProjectRunConfiguration::createConfigurationWidget()
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(fileListChanged()), SLOT(updateFileComboBox()));
 
     Utils::PathChooser *qmlViewer = new Utils::PathChooser;
-    qmlViewer->setExpectedKind(Utils::PathChooser::Command);
+    qmlViewer->setExpectedKind(Utils::PathChooser::ExistingCommand);
     qmlViewer->setPath(m_qmlViewerCustomPath);
 
     connect(qmlViewer, SIGNAL(changed(QString)), this, SLOT(onViewerChanged()));

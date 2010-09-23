@@ -50,10 +50,10 @@ CommonSettingsWidget::CommonSettingsWidget(QWidget *parent) :
     m_ui(new Ui::CommonSettingsPage)
 {
     m_ui->setupUi(this);
-    m_ui->submitMessageCheckScriptChooser->setExpectedKind(Utils::PathChooser::Command);
+    m_ui->submitMessageCheckScriptChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_ui->nickNameFieldsFileChooser->setExpectedKind(Utils::PathChooser::File);
     m_ui->nickNameMailMapChooser->setExpectedKind(Utils::PathChooser::File);
-    m_ui->sshPromptChooser->setExpectedKind(Utils::PathChooser::Command);
+    m_ui->sshPromptChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
 }
 
 CommonSettingsWidget::~CommonSettingsWidget()
