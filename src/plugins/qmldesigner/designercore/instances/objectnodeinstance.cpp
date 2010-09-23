@@ -108,20 +108,6 @@ ObjectNodeInstance::~ObjectNodeInstance()
     destroy();
 }
 
-static bool isChildrenProperty(const QString &name)
-{
-    return name == "data" || name == "children" || name == "resources";
-}
-
-static void specialRemoveParentForQmlGraphicsItemChildren(QObject *object)
-{
-    QDeclarativeItem *item = qobject_cast<QDeclarativeItem*>(object);
-    if (item && item->scene())
-        item->scene()->removeItem(item);
-
-    object->setParent(0);
-}
-
 void ObjectNodeInstance::destroy()
 {
     if (deleteHeldInstance()) {
@@ -385,8 +371,6 @@ void ObjectNodeInstance::removeFromOldProperty(QObject *object, QObject *oldPare
             nodeInstanceView()->instanceForObject(oldParent).resetProperty(oldParentProperty);
         }
     }
-
-    object->setParent(0);
 }
 
 void ObjectNodeInstance::addToNewProperty(QObject *object, QObject *newParent, const QString &newParentProperty)
@@ -406,34 +390,17 @@ void ObjectNodeInstance::addToNewProperty(QObject *object, QObject *newParent, c
         property.write(objectToVariant(object));
     }
 
-    object->setParent(newParent);
-
     Q_ASSERT(objectToVariant(object).isValid());
-}
-
-static void specialSetParentForQmlGraphicsItemChildren(QObject *object, QDeclarativeItem *parent)
-{
-    QDeclarativeItem *item = qobject_cast<QDeclarativeItem*>(object);
-    if (item)
-        item->setParentItem(parent);
-    else
-        object->setParent(parent);
 }
 
 void ObjectNodeInstance::reparent(const NodeInstance &oldParentInstance, const QString &oldParentProperty, const NodeInstance &newParentInstance, const QString &newParentProperty)
 {
     if (oldParentInstance.isValid()) {
-        if (oldParentInstance.isQmlGraphicsItem() && isChildrenProperty(oldParentProperty))
-            specialRemoveParentForQmlGraphicsItemChildren(object());
-        else
-            removeFromOldProperty(object(), oldParentInstance.internalObject(), oldParentProperty);
+        removeFromOldProperty(object(), oldParentInstance.internalObject(), oldParentProperty);
     }
 
     if (newParentInstance.isValid()) {
-        if (newParentInstance.isQmlGraphicsItem() && isChildrenProperty(newParentProperty))
-            specialSetParentForQmlGraphicsItemChildren(object(), qobject_cast<QDeclarativeItem*>(newParentInstance.internalObject()));
-        else
-            addToNewProperty(object(), newParentInstance.internalObject(), newParentProperty);
+        addToNewProperty(object(), newParentInstance.internalObject(), newParentProperty);
     }
 
     refreshBindings(context()->engine()->rootContext());
