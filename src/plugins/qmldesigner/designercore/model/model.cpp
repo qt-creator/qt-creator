@@ -532,13 +532,10 @@ void ModelPrivate::setAuxiliaryData(const InternalNode::Pointer& node, const QSt
 
 void ModelPrivate::resetModelByRewriter(const QString &description)
 {
-    RewriterView* rewriterView = 0;
-    foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
-        if (!rewriterView)
-            rewriterView = qobject_cast<RewriterView*>(view.data());
+    if (rewriterView()) {
+        rewriterView()->resetToLastCorrectQml();
     }
-    Q_ASSERT(rewriterView);
-    rewriterView->resetToLastCorrectQml();
+
     throw RewritingException(__LINE__, __FUNCTION__, __FILE__, description, rewriterView->textModifierContent());
 }
 
