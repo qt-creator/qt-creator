@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = Qt4ProjectManager
-DEFINES +=  QT4PROJECTMANAGER_LIBRARY
+DEFINES += QT_CREATOR QT4PROJECTMANAGER_LIBRARY
 QT += network
 include(../../qtcreatorplugin.pri)
 include(qt4projectmanager_dependencies.pri)
