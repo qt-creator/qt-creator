@@ -46,8 +46,23 @@ using namespace QmlJSEditor::Internal;
 
 namespace {
 
+static QString toString(Statement *statement)
+{
+    ExpressionStatement *expStmt = cast<ExpressionStatement *>(statement);
+    if (!expStmt)
+        return QString::null;
+    if (IdentifierExpression *idExp = cast<IdentifierExpression *>(expStmt->expression)) {
+        return idExp->name->asString();
+    } else if (StringLiteral *strExp = cast<StringLiteral *>(expStmt->expression)) {
+        return strExp->value->asString();
+    }
+    return QString::null;
+}
+
 static QString getIdProperty(UiObjectDefinition *def)
 {
+    QString objectName;
+
     if (def && def->initializer) {
         for (UiObjectMemberList *iter = def->initializer->members; iter; iter = iter->next) {
             if (UiScriptBinding *script = cast<UiScriptBinding*>(iter->member)) {
@@ -56,22 +71,16 @@ static QString getIdProperty(UiObjectDefinition *def)
                 if (script->qualifiedId->next)
                     continue;
                 if (script->qualifiedId->name) {
-                    if (script->qualifiedId->name->asString() == QLatin1String("id")) {
-                        ExpressionStatement *expStmt = cast<ExpressionStatement *>(script->statement);
-                        if (!expStmt)
-                            continue;
-                        if (IdentifierExpression *idExp = cast<IdentifierExpression *>(expStmt->expression)) {
-                            return idExp->name->asString();
-                        } else if (StringLiteral *strExp = cast<StringLiteral *>(expStmt->expression)) {
-                            return strExp->value->asString();
-                        }
-                    }
+                    if (script->qualifiedId->name->asString() == QLatin1String("id"))
+                        return toString(script->statement);
+                    if (script->qualifiedId->name->asString() == QLatin1String("objectName"))
+                        objectName = toString(script->statement);
                 }
             }
         }
     }
 
-    return QString();
+    return objectName;
 }
 
 class Operation: public QmlJSQuickFixOperation
@@ -90,7 +99,7 @@ public:
 
         if (m_componentName.isEmpty()) {
             setDescription(QCoreApplication::translate("QmlJSEditor::ComponentFromObjectDef",
-                                                       "Move Component into separate file'"));
+                                                       "Move Component into separate file"));
         } else {
             m_componentName[0] = m_componentName.at(0).toUpper();
             setDescription(QCoreApplication::translate("QmlJSEditor::ComponentFromObjectDef",
