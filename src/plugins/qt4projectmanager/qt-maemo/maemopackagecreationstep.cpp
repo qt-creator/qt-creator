@@ -230,6 +230,8 @@ bool MaemoPackageCreationStep::copyDebianFiles()
         ->debianDirPath(buildConfiguration()->target()->project());
     QDir templatesDir(templatesDirPath);
     const QStringList &files = templatesDir.entryList(QDir::Files);
+    const bool isHarmattanDevice
+        = maemoToolChain()->version() == MaemoToolChain::Maemo6;
     foreach (const QString &fileName, files) {
         const QString srcFile
                 = templatesDirPath + QLatin1Char('/') + fileName;
@@ -241,6 +243,10 @@ bool MaemoPackageCreationStep::copyDebianFiles()
                             QDir::toNativeSeparators(destFile)));
             return false;
         }
+
+        // Workaround for Harmattan icon bug
+        if (isHarmattanDevice && fileName == QLatin1String("rules"))
+            addWorkaroundForHarmattanBug(destFile);
     }
     return true;
 }
@@ -524,6 +530,41 @@ QString MaemoPackageCreationStep::packageFileName(const ProjectExplorer::Project
 {
     return packageName(project) % QLatin1Char('_') % version
         % QLatin1String("_armel.deb");
+}
+
+void MaemoPackageCreationStep::addWorkaroundForHarmattanBug(const QString &rulesFilePath)
+{
+    QFile rulesFile(rulesFilePath);
+    if (!rulesFile.open(QIODevice::ReadWrite)) {
+        qWarning("Cannot open rules file for Maemo6 icon path adaptation.");
+        return;
+    }
+    QByteArray content = rulesFile.readAll();
+    const int makeInstallLine = content.indexOf("\t$(MAKE) INSTALL_ROOT");
+    if (makeInstallLine == -1)
+        return;
+    const int makeInstallEol = content.indexOf('\n', makeInstallLine);
+    if (makeInstallEol == -1)
+        return;
+    const QByteArray lineBefore("Icon=" + projectName().toUtf8());
+    const QByteArray lineAfter("Icon=/usr/share/icons/hicolor/64x64/apps/"
+        + projectName().toUtf8() + ".png");
+    QString desktopFilePath = QFileInfo(rulesFile).dir().path()
+        + QLatin1Char('/') + projectName()
+        + QLatin1String("/usr/share/applications/") + projectName()
+        + QLatin1String(".desktop");
+#ifdef Q_OS_WIN
+    desktopFilePath.remove(QLatin1Char(':'));
+    desktopFilePath.prepend(QLatin1Char('/'));
+#endif
+    const QByteArray tmpFile = desktopFilePath.toUtf8() + ".sed";
+    const QByteArray sedCmd = "\tsed 's:" + lineBefore + ':'
+        + lineAfter + ":' " + desktopFilePath.toLocal8Bit() + " > " + tmpFile;
+    content.insert(makeInstallEol + 1, sedCmd);
+    content.insert(makeInstallEol + 1 + sedCmd.length() + 1, 
+        "\tmv " + tmpFile + ' ' + desktopFilePath.toUtf8());
+    rulesFile.resize(0);
+    rulesFile.write(content);
 }
 
 const QLatin1String MaemoPackageCreationStep::CreatePackageId("Qt4ProjectManager.MaemoPackageCreationStep");

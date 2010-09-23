@@ -119,6 +119,7 @@ private:
     const Qt4BuildConfiguration *qt4BuildConfiguration() const;
     MaemoDeployStep * deployStep() const;
     void checkProjectName();
+    void addWorkaroundForHarmattanBug(const QString &rulesFilePath);
 
     static const QLatin1String CreatePackageId;
 
