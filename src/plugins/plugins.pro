@@ -120,6 +120,7 @@ plugin_projectexplorer.depends = plugin_locator
 plugin_projectexplorer.depends += plugin_find
 plugin_projectexplorer.depends += plugin_coreplugin
 plugin_projectexplorer.depends += plugin_texteditor
+plugin_projectexplorer.depends += plugin_cpptools
 
 plugin_qt4projectmanager.subdir = qt4projectmanager
 plugin_qt4projectmanager.depends = plugin_texteditor

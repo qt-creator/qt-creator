@@ -25,7 +25,8 @@ HEADERS += completionsettingspage.h \
     cppfilesettingspage.h \
     cppfindreferences.h \
     cppcodeformatter.h \
-    symbolsfindfilter.h
+    symbolsfindfilter.h \
+    uicodecompletionsupport.h
 
 SOURCES += completionsettingspage.cpp \
     cppclassesfilter.cpp \
@@ -42,7 +43,8 @@ SOURCES += completionsettingspage.cpp \
     abstracteditorsupport.cpp \
     cppfindreferences.cpp \
     cppcodeformatter.cpp \
-    symbolsfindfilter.cpp
+    symbolsfindfilter.cpp \
+    uicodecompletionsupport.cpp
 
 FORMS += completionsettingspage.ui \
     cppfilesettingspage.ui

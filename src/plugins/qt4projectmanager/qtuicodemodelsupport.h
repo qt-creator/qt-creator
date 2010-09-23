@@ -31,6 +31,7 @@
 #define QTUICODEMODELSUPPORT_H
 
 #include <cpptools/cppmodelmanagerinterface.h>
+#include <projectexplorer/uicodecompletionsupport.h>
 
 #include <QtCore/QDateTime>
 
@@ -38,7 +39,7 @@ namespace Qt4ProjectManager {
 class Qt4Project;
 namespace Internal {
 
-class Qt4UiCodeModelSupport : public CppTools::AbstractEditorSupport
+class Qt4UiCodeModelSupport : public ProjectExplorer::UiCodeModelSupport
 {
 public:
     Qt4UiCodeModelSupport(CppTools::CppModelManagerInterface *modelmanager,
@@ -46,21 +47,11 @@ public:
                           const QString &sourceFile,
                           const QString &uiHeaderFile);
     ~Qt4UiCodeModelSupport();
-    void setFileName(const QString &name);
-    void setSourceName(const QString &name);
-    virtual QByteArray contents() const;
-    virtual QString fileName() const;
-    void updateFromEditor(const QString &formEditorContents);
-    void updateFromBuild();
+protected:
+    virtual QString uicCommand() const;
+    virtual QStringList environment() const;
 private:
-    void init();
-    bool runUic(const QString &ui) const;
     Qt4Project *m_project;
-    QString m_sourceName;
-    QString m_fileName;
-    mutable bool m_updateIncludingFiles;
-    mutable QByteArray m_contents;
-    mutable QDateTime m_cacheTime;
 };
 
 

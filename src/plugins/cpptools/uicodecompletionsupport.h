@@ -27,42 +27,43 @@
 **
 **************************************************************************/
 
-#include "qtuicodemodelsupport.h"
-#include "qt4buildconfiguration.h"
 
-#include "qt4project.h"
-#include "qt4target.h"
+#ifndef UICODECOMPLETIONSUPPORT_H
+#define UICODECOMPLETIONSUPPORT_H
 
-#include <QtCore/QProcess>
+#include "cppmodelmanagerinterface.h"
+#include "cpptools_global.h"
 
-using namespace Qt4ProjectManager;
-using namespace Internal;
+#include <QtCore/QDateTime>
 
-enum { debug = 0 };
+namespace CppTools {
 
-Qt4UiCodeModelSupport::Qt4UiCodeModelSupport(CppTools::CppModelManagerInterface *modelmanager,
-                                             Qt4Project *project,
-                                             const QString &source,
-                                             const QString &uiHeaderFile)
-    : UiCodeModelSupport(modelmanager, source, uiHeaderFile),
-      m_project(project)
+class CPPTOOLS_EXPORT UiCodeModelSupport : public CppTools::AbstractEditorSupport
 {
+public:
+    UiCodeModelSupport(CppTools::CppModelManagerInterface *modelmanager,
+                       const QString &sourceFile,
+                       const QString &uiHeaderFile);
+    ~UiCodeModelSupport();
+    void setFileName(const QString &name);
+    void setSourceName(const QString &name);
+    virtual QByteArray contents() const;
+    virtual QString fileName() const;
+    void updateFromEditor(const QString &formEditorContents);
+    void updateFromBuild();
+protected:
+    virtual QString uicCommand() const = 0;
+    virtual QStringList environment() const = 0;
+private:
+    void init();
+    bool runUic(const QString &ui) const;
+    QString m_sourceName;
+    QString m_fileName;
+    mutable bool m_updateIncludingFiles;
+    mutable QByteArray m_contents;
+    mutable QDateTime m_cacheTime;
+};
 
-}
+} // CppTools
 
-Qt4UiCodeModelSupport::~Qt4UiCodeModelSupport()
-{
-
-}
-
-QString Qt4UiCodeModelSupport::uicCommand() const
-{
-    Qt4BuildConfiguration *qt4bc = m_project->activeTarget()->activeBuildConfiguration();
-    return qt4bc->qtVersion()->uicCommand();
-}
-
-QStringList Qt4UiCodeModelSupport::environment() const
-{
-    Qt4BuildConfiguration *qt4bc = m_project->activeTarget()->activeBuildConfiguration();
-    return qt4bc->environment().toStringList();
-}
+#endif // UICODECOMPLETIONSUPPORT_H
