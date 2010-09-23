@@ -80,6 +80,8 @@ QmlGraphicsItemNodeInstance::Pointer QmlGraphicsItemNodeInstance::create(const N
 
     Pointer instance(new QmlGraphicsItemNodeInstance(qmlGraphicsItem, objectPair.second));
 
+    static_cast<QDeclarativeParserStatus*>(qmlGraphicsItem)->classBegin();
+
     if (objectToBeWrapped)
         instance->setDeleteHeldInstance(false); // the object isn't owned
 
@@ -288,8 +290,11 @@ void QmlGraphicsItemNodeInstance::resetVertical()
 
 void QmlGraphicsItemNodeInstance::doComponentComplete()
 {
-    if (qmlGraphicsItem())
+    if (qmlGraphicsItem()) {
+        if (static_cast<QDeclarativeItemPrivate*>(QGraphicsItemPrivate::get(qmlGraphicsItem()))->componentComplete)
+            return;
         static_cast<QDeclarativeParserStatus*>(qmlGraphicsItem())->componentComplete();
+    }
 }
 
 int QmlGraphicsItemNodeInstance::penWidth() const

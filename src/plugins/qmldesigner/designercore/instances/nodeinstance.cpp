@@ -646,7 +646,7 @@ void NodeInstance::registerDeclarativeTypes()
 
 void NodeInstance::doComponentComplete()
 {
-
+    m_nodeInstance->doComponentComplete();
 }
 
 QString NodeInstance::id() const
