@@ -60,7 +60,7 @@ public:
     virtual void removeFiles(const QStringList &files);
 
     virtual QList<ProjectInfo> projectInfos() const;
-    virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const;
+    virtual QmlJS::ModelManagerInterface::ProjectInfo projectInfo(ProjectExplorer::Project *project) const;
     virtual void updateProjectInfo(const ProjectInfo &pinfo);
 
     void emitDocumentUpdated(QmlJS::Document::Ptr doc);

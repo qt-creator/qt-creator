@@ -44,6 +44,8 @@ namespace ProjectExplorer {
 
 namespace QmlJS {
 
+const char *const MODELMANAGERINTERFACE_OBJECTNAME = "QmlJS::ModelManagerInterface";
+
 class Snapshot;
 
 class QMLJS_EXPORT ModelManagerInterface: public QObject
@@ -89,8 +91,8 @@ public:
     virtual void removeFiles(const QStringList &files) = 0;
 
     virtual QList<ProjectInfo> projectInfos() const = 0;
-    virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const = 0;
-    virtual void updateProjectInfo(const ProjectInfo &pinfo) = 0;
+    Q_INVOKABLE virtual QmlJS::ModelManagerInterface::ProjectInfo projectInfo(ProjectExplorer::Project *project) const = 0;
+    Q_INVOKABLE virtual void updateProjectInfo(const QmlJS::ModelManagerInterface::ProjectInfo &pinfo) = 0;
 
     virtual QStringList importPaths() const = 0;
 

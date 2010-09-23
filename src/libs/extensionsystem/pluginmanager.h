@@ -90,6 +90,17 @@ public:
         return result;
     }
 
+    QObject *getObjectByName(const QString &name) const
+    {
+        QReadLocker lock(&m_lock);
+        QList<QObject *> all = allObjects();
+        foreach (QObject *obj, all) {
+            if (obj->objectName() == name)
+                return obj;
+        }
+        return 0;
+    }
+
     // Plugin operations
     QList<PluginSpec *> loadQueue();
     void loadPlugins();
