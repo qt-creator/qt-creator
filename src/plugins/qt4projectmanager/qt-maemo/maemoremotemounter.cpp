@@ -357,7 +357,7 @@ void MaemoRemoteMounter::handleUmountStderr(const QByteArray &output)
 
 QString MaemoRemoteMounter::utfsClientOnDevice() const
 {
-    return MaemoGlobal::homeDirOnDevice(QLatin1String("developer"))
+    return MaemoGlobal::homeDirOnDevice(m_connection->connectionParameters().uname)
         + QLatin1String("/utfs-client");
 }
 
