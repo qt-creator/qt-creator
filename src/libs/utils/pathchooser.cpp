@@ -156,10 +156,12 @@ void PathChooser::setBaseDirectory(const QString &directory)
 QString PathChooser::path() const
 {
     const QString path = m_d->m_lineEdit->text();
-    if (!m_d->m_baseDirectory.isEmpty() && QFileInfo(path).isRelative())
+    if (!m_d->m_baseDirectory.isEmpty()
+            && QFileInfo(path).isRelative()
+            && !path.isEmpty())
         return QFileInfo(m_d->m_baseDirectory + QLatin1Char('/') + path).absoluteFilePath();
     else
-        return QFileInfo(path).absoluteFilePath();
+        return QDir::fromNativeSeparators(path);
 }
 
 void PathChooser::setPath(const QString &path)
