@@ -257,7 +257,7 @@ void setWatchDataType(WatchData &data, const GdbMi &mi);
 void setWatchDataDisplayedType(WatchData &data, const GdbMi &mi);
 
 void parseWatchData(const QSet<QByteArray> &expandedINames,
-    const WatchData &parent, const GdbMi &child,
+    const WatchData &parent, const GdbMi &child, bool sortMembers,
     QList<WatchData> *insertions);
 
 } // namespace Internal

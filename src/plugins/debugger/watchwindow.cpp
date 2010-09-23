@@ -415,6 +415,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(theDebuggerAction(AutoDerefPointers));
     menu.addAction(theDebuggerAction(ShowStdNamespace));
     menu.addAction(theDebuggerAction(ShowQtNamespace));
+    menu.addAction(theDebuggerAction(SortStructMembers));
 
     QAction *actAdjustColumnWidths =
         menu.addAction(tr("Adjust Column Widths to Contents"));

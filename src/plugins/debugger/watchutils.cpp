@@ -1498,7 +1498,9 @@ static void gbdMiToWatchData(const GdbMi &root,
         }
     }
     if (w.name.isEmpty()) {
-        const QString msg = QString::fromLatin1("Internal error: Unable to determine name at level %1/%2 for %3").arg(ctx.recursionLevel).arg(w.iname, QLatin1String(root.toString(true, 2)));
+        const QString msg = QString::fromLatin1(
+            "Internal error: Unable to determine name at level %1/%2 for %3")
+            .arg(ctx.recursionLevel).arg(w.iname, QLatin1String(root.toString(true, 2)));
         qWarning("%s\n", qPrintable(msg));
     }
     gdbMiGetStringValue(&w.displayedType, root, "displayedtype");
@@ -1551,14 +1553,13 @@ static void gbdMiToWatchData(const GdbMi &root,
     gdbMiGetStringValue(&nextLevelContext.childType, root, "childtype");
     if (!gdbMiGetIntValue(&nextLevelContext.childNumChild, root, "childnumchild"))
         nextLevelContext.childNumChild = -1;
-    foreach(const GdbMi &child, children) {
+    foreach (const GdbMi &child, children) {
         gbdMiToWatchData(child, nextLevelContext, wl);
         nextLevelContext.childIndex++;
     }
 }
 
-bool QtDumperHelper::parseValue(const char *data,
-                                QList<WatchData> *l)
+bool QtDumperHelper::parseValue(const char *data, QList<WatchData> *l)
 {
     l->clear();
     GdbMi root;
@@ -1664,7 +1665,8 @@ void setWatchDataDisplayedType(WatchData &data, const GdbMi &item)
 }
 
 void parseWatchData(const QSet<QByteArray> &expandedINames,
-    const WatchData &data0, const GdbMi &item, QList<WatchData> *list)
+    const WatchData &data0, const GdbMi &item,
+    bool sortMembers, QList<WatchData> *list)
 {
     //qDebug() << "HANDLE CHILDREN: " << data0.toString() << item.toString();
     WatchData data = data0;
@@ -1715,10 +1717,18 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
         else
             data1.name = QString::number(i);
         GdbMi iname = child.findChild("iname");
-        if (iname.isValid())
+        if (iname.isValid()) {
             data1.iname = iname.data();
-        else
-            data1.iname = data.iname + '.' + data1.name.toLatin1();
+        } else {
+            data1.iname = data.iname;
+            data1.iname += '.';
+            if (!sortMembers) {
+                char buf[10];
+                qsnprintf(buf, sizeof(buf) - 1, "%04d", i);
+                data1.iname += buf;
+            }
+            data1.iname += data1.name.toLatin1();
+        }
         if (!data1.name.isEmpty() && data1.name.at(0).isDigit())
             data1.name = _c('[') + data1.name + _c(']');
         if (addressStep) {
@@ -1737,7 +1747,7 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
             //data1.name += " (" + skey + ")";
             data1.name = skey;
         }
-        parseWatchData(expandedINames, data1, child, list);
+        parseWatchData(expandedINames, data1, child, sortMembers, list);
         ++i;
     }
 }

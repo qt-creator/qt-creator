@@ -191,9 +191,11 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters)
     m_gdbAdapter = createAdapter();
 
     connect(theDebuggerAction(AutoDerefPointers), SIGNAL(valueChanged(QVariant)),
-            this, SLOT(setAutoDerefPointers(QVariant)));
+            SLOT(reloadLocals()));
+    connect(theDebuggerAction(SortStructMembers), SIGNAL(valueChanged(QVariant)),
+            SLOT(reloadLocals()));
     connect(theDebuggerAction(CreateFullBacktrace), SIGNAL(triggered()),
-            this, SLOT(createFullBacktrace()));
+            SLOT(createFullBacktrace()));
 }
 
 DebuggerStartMode GdbEngine::startMode() const
@@ -3342,9 +3344,8 @@ void GdbEngine::setToolTipExpression(const QPoint &mousePos,
 //
 //////////////////////////////////////////////////////////////////////
 
-void GdbEngine::setAutoDerefPointers(const QVariant &on)
+void GdbEngine::reloadLocals()
 {
-    Q_UNUSED(on)
     setTokenBarrier();
     updateLocals();
 }

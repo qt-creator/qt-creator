@@ -122,7 +122,7 @@ private: ////////// General State //////////
 
     void initializeVariables();
     DebuggerStartMode startMode() const;
-    Q_SLOT void setAutoDerefPointers(const QVariant &on);
+    Q_SLOT void reloadLocals();
 
     bool m_registerNamesListed;
 

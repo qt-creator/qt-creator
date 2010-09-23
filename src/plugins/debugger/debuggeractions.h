@@ -125,6 +125,7 @@ enum DebuggerActionCode
     // Watchers & Locals
     ShowStdNamespace,
     ShowQtNamespace,
+    SortStructMembers,
 
     // Source List
     ListSourceFiles,

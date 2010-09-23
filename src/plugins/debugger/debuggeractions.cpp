@@ -265,6 +265,14 @@ DebuggerSettings *DebuggerSettings::instance()
     item->setValue(true);
     instance->insertItem(ShowQtNamespace, item);
 
+    item = new SavedAction(instance);
+    item->setSettingsKey(debugModeGroup, QLatin1String("SortStructMembers"));
+    item->setText(tr("Sort Members of Classes and Structs Alphabetically"));
+    item->setCheckable(true);
+    item->setDefaultValue(true);
+    item->setValue(true);
+    instance->insertItem(SortStructMembers, item);
+
     //
     // DebuggingHelper
     //

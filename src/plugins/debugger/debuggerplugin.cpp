@@ -569,6 +569,7 @@ QWidget *CommonOptionsPage::createPage(QWidget *parent)
         m_ui.spinBoxMaximalStackDepth);
     m_group.insert(theDebuggerAction(ShowStdNamespace), 0);
     m_group.insert(theDebuggerAction(ShowQtNamespace), 0);
+    m_group.insert(theDebuggerAction(SortStructMembers), 0);
     m_group.insert(theDebuggerAction(LogTimeStamps), 0);
     m_group.insert(theDebuggerAction(VerboseLog), 0);
     m_group.insert(theDebuggerAction(UsePreciseBreakpoints), 0);
@@ -2347,6 +2348,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     const bool canDeref = actionsEnabled
         && (m_capabilities & AutoDerefPointersCapability);
     theDebuggerAction(AutoDerefPointers)->setEnabled(canDeref);
+    theDebuggerAction(AutoDerefPointers)->setEnabled(true);
     theDebuggerAction(ExpandStack)->setEnabled(actionsEnabled);
     theDebuggerAction(ExecuteCommand)->setEnabled(m_state == InferiorStopOk);
 

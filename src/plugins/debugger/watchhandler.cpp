@@ -1206,6 +1206,8 @@ WatchHandler::WatchHandler(DebuggerEngine *engine)
         SIGNAL(triggered()), this, SLOT(emitAllChanged()));
     connect(theDebuggerAction(ShowQtNamespace),
         SIGNAL(triggered()), this, SLOT(emitAllChanged()));
+    connect(theDebuggerAction(SortStructMembers),
+        SIGNAL(triggered()), this, SLOT(emitAllChanged()));
 }
 
 void WatchHandler::beginCycle(bool fullCycle)
