@@ -1545,19 +1545,24 @@ void GdbEngine::handleHasPython(const GdbResponse &response)
         const GdbMi hasInferiorThreadList = data.findChild("hasInferiorThreadList");
         m_hasInferiorThreadList = (hasInferiorThreadList.data().toInt() != 0);
     } else {
-        m_hasPython = false;
-        if (m_gdbAdapter->dumperHandling()
-                    == AbstractGdbAdapter::DumperLoadedByGdbPreload
-                && checkDebuggingHelpersClassic()) {
-            QByteArray cmd = "set environment ";
-            cmd += Debugger::Constants::Internal::LD_PRELOAD_ENV_VAR;
-            cmd += ' ';
-            cmd += startParameters().startMode == StartRemoteGdb
-               ? startParameters().remoteDumperLib
-               : qtDumperLibraryName().toLocal8Bit();
-            postCommand(cmd);
-            m_debuggingHelperState = DebuggingHelperLoadTried;
-        }
+        pythonDumpersFailed();
+    }
+}
+
+void GdbEngine::pythonDumpersFailed()
+{
+    m_hasPython = false;
+    if (m_gdbAdapter->dumperHandling()
+                == AbstractGdbAdapter::DumperLoadedByGdbPreload
+            && checkDebuggingHelpersClassic()) {
+        QByteArray cmd = "set environment ";
+        cmd += Debugger::Constants::Internal::LD_PRELOAD_ENV_VAR;
+        cmd += ' ';
+        cmd += startParameters().startMode == StartRemoteGdb
+           ? startParameters().remoteDumperLib
+           : qtDumperLibraryName().toLocal8Bit();
+        postCommand(cmd);
+        m_debuggingHelperState = DebuggingHelperLoadTried;
     }
 }
 
@@ -4156,9 +4161,11 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
             "dyld \".*CFDataFormatters.*\" all "
             "dyld \".*libobjc.*\" all "
             "dyld \".*CarbonDataFormatters.*\" all");
+        // We know that we don't have Python on Mac.
+        pythonDumpersFailed();
+    } else {
+        loadPythonDumpers();
     }
-
-    loadPythonDumpers();
 
     QString scriptFileName = theDebuggerStringSetting(GdbScriptFile);
     if (!scriptFileName.isEmpty()) {
@@ -4188,11 +4195,6 @@ void GdbEngine::loadPythonDumpers()
         ConsoleCommand|NonCriticalResponse);
     postCommand("bbsetup",
         ConsoleCommand, CB(handleHasPython));
-}
-
-bool GdbEngine::checkDebuggingHelpers()
-{
-    return !hasPython() && checkDebuggingHelpersClassic();
 }
 
 void GdbEngine::handleGdbError(QProcess::ProcessError error)

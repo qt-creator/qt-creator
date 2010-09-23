@@ -138,6 +138,7 @@ private: ////////// Gdb Process Management //////////
     void handleAdapterStarted();
     void defaultInferiorShutdown(const char *cmd);
     void loadPythonDumpers();
+    void pythonDumpersFailed();
 
     // Something went wrong with the adapter *before* adapterStarted() was emitted.
     // Make sure to clean up everything before emitting this signal.
@@ -511,8 +512,7 @@ private: ////////// View & Data Stuff //////////
     //
     // Dumper Management
     //
-    bool checkDebuggingHelpers();
-        bool checkDebuggingHelpersClassic();
+    bool checkDebuggingHelpersClassic();
     void setDebuggingHelperStateClassic(DebuggingHelperState);
     void tryLoadDebuggingHelpersClassic();
     void tryQueryDebuggingHelpersClassic();
