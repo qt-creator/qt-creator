@@ -247,7 +247,7 @@ void GenericMakeStepConfigWidget::init()
     m_ui->makeLineEdit->setText(makeCommand);
 
     const QStringList &makeArguments = m_makeStep->m_makeArguments;
-    m_ui->makeArgumentsLineEdit->setText(ProjectExplorer::Environment::joinArgumentList(makeArguments));
+    m_ui->makeArgumentsLineEdit->setText(Utils::Environment::joinArgumentList(makeArguments));
 
     // Disconnect to make the changes to the items
     disconnect(m_ui->targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
@@ -267,7 +267,7 @@ void GenericMakeStepConfigWidget::updateDetails()
 {
     m_summaryText = tr("<b>Make:</b> %1 %2")
                     .arg(m_makeStep->makeCommand(),
-                         ProjectExplorer::Environment::joinArgumentList(m_makeStep->replacedArguments()));
+                         Utils::Environment::joinArgumentList(m_makeStep->replacedArguments()));
     emit updateSummary();
 }
 
@@ -291,7 +291,7 @@ void GenericMakeStepConfigWidget::makeLineEditTextEdited()
 void GenericMakeStepConfigWidget::makeArgumentsLineEditTextEdited()
 {
     m_makeStep->m_makeArguments =
-            ProjectExplorer::Environment::parseCombinedArgString(m_ui->makeArgumentsLineEdit->text());
+            Utils::Environment::parseCombinedArgString(m_ui->makeArgumentsLineEdit->text());
     updateDetails();
 }
 

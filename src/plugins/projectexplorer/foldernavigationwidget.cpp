@@ -30,7 +30,6 @@
 #include "foldernavigationwidget.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
-#include "environment.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/fileiconprovider.h>
@@ -38,6 +37,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/coreconstants.h>
 
+#include <utils/environment.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/unixutils.h>
@@ -391,7 +391,7 @@ void FolderNavigationWidget::showInGraphicalShell(QWidget *parent, const QString
 {
     // Mac, Windows support folder or file.
 #if defined(Q_OS_WIN)
-    const QString explorer = Environment::systemEnvironment().searchInPath(QLatin1String("explorer.exe"));
+    const QString explorer = Utils::Environment::systemEnvironment().searchInPath(QLatin1String("explorer.exe"));
     if (explorer.isEmpty()) {
         QMessageBox::warning(parent,
                              tr("Launching Windows Explorer Failed"),

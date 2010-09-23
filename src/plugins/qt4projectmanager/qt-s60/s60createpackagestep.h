@@ -141,7 +141,7 @@ private:
     QStringList m_workingDirectories;
 
     QString m_makeCmd;
-    ProjectExplorer::Environment m_environment;
+    Utils::Environment m_environment;
     QStringList m_args;
 
     void ctor_package();

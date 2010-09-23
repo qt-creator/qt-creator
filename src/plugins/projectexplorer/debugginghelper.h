@@ -30,8 +30,9 @@
 #ifndef DEBUGGINGHELPER_H
 #define DEBUGGINGHELPER_H
 
-#include "environment.h"
 #include "projectexplorer_export.h"
+
+#include <utils/environment.h>
 
 #include <QtCore/QString>
 #include <QtCore/QStringList>
@@ -42,7 +43,7 @@ class PROJECTEXPLORER_EXPORT DebuggingHelperLibrary
 public:
     // returns the full path to the first qmake, qmake-qt4, qmake4 that has
     // at least version 2.0.0 and thus is a qt4 qmake
-    static QString findSystemQt(const Environment &env);
+    static QString findSystemQt(const Utils::Environment &env);
     // returns something like qmake4, qmake, qmake-qt4 or whatever distributions have chosen (used by QtVersion)
     static QStringList possibleQMakeCommands();
     // return true if the qmake at qmakePath is qt4 (used by QtVersion)
@@ -53,7 +54,7 @@ public:
 
     // Build the helpers and return the output log/errormessage.
     static QString buildDebuggingHelperLibrary(const QString &directory, const QString &makeCommand,
-        const QString &qmakeCommand, const QString &mkspec, const Environment &env, const QString &targetMode);
+        const QString &qmakeCommand, const QString &mkspec, const Utils::Environment &env, const QString &targetMode);
 
     // Copy the source files to a target location and return the chosen target location.
     static QString copyDebuggingHelperLibrary(const QString &qtInstallData, QString *errorMessage);

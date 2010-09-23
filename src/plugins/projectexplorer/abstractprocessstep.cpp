@@ -124,7 +124,7 @@ void AbstractProcessStep::setIgnoreReturnValue(bool b)
     m_ignoreReturnValue = b;
 }
 
-void AbstractProcessStep::setEnvironment(Environment env)
+void AbstractProcessStep::setEnvironment(Utils::Environment env)
 {
     m_environment = env;
 }

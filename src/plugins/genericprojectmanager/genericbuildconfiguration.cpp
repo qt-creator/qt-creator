@@ -84,9 +84,9 @@ bool GenericBuildConfiguration::fromMap(const QVariantMap &map)
     return BuildConfiguration::fromMap(map);
 }
 
-ProjectExplorer::Environment GenericBuildConfiguration::environment() const
+Utils::Environment GenericBuildConfiguration::environment() const
 {
-    return ProjectExplorer::Environment::systemEnvironment();
+    return Utils::Environment::systemEnvironment();
 }
 
 QString GenericBuildConfiguration::buildDirectory() const

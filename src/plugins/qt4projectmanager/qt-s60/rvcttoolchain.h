@@ -44,7 +44,7 @@ public:
                            ProjectExplorer::ToolChain::ToolChainType type);
     virtual QByteArray predefinedMacros();
     QList<ProjectExplorer::HeaderPath> systemHeaderPaths();
-    void addToEnvironment(ProjectExplorer::Environment &env);
+    void addToEnvironment(Utils::Environment &env);
     ProjectExplorer::ToolChain::ToolChainType type() const;
     QString makeCommand() const;
     ProjectExplorer::IOutputParser *outputParser() const;
@@ -60,7 +60,7 @@ protected:
 
 private:
     void addToRVCTPathVariable(const QString &postfix, const QStringList &values,
-                               ProjectExplorer::Environment &env) const;
+                               Utils::Environment &env) const;
     static QStringList libPaths();
     void updateVersion();
 

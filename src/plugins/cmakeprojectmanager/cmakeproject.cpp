@@ -56,8 +56,6 @@
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
 using namespace ProjectExplorer;
-using ProjectExplorer::Environment;
-using ProjectExplorer::EnvironmentItem;
 
 // QtCreator CMake Generator wishlist:
 // Which make targets we need to build to get all executables
@@ -478,7 +476,7 @@ bool CMakeProject::fromMap(const QVariantMap &map)
         // Ask the user for where he wants to build it
         // and the cmake command line
 
-        CMakeOpenProjectWizard copw(m_manager, projectDirectory(), ProjectExplorer::Environment::systemEnvironment());
+        CMakeOpenProjectWizard copw(m_manager, projectDirectory(), Utils::Environment::systemEnvironment());
         if (copw.exec() != QDialog::Accepted)
             return false;
 

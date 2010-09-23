@@ -42,7 +42,7 @@ public:
     MaemoToolChain(const QString &targetRoot);
     virtual ~MaemoToolChain();
 
-    void addToEnvironment(ProjectExplorer::Environment &env);
+    void addToEnvironment(Utils::Environment &env);
     ProjectExplorer::ToolChain::ToolChainType type() const;
     QString makeCommand() const;
 

@@ -56,7 +56,7 @@ public:
 
     Qt4Target *qt4Target() const;
 
-    virtual ProjectExplorer::Environment baseEnvironment() const;
+    virtual Utils::Environment baseEnvironment() const;
 
     virtual QString buildDirectory() const;
     bool shadowBuild() const;

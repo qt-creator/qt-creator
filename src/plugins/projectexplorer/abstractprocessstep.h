@@ -31,7 +31,8 @@
 #define ABSTRACTPROCESSSTEP_H
 
 #include "buildstep.h"
-#include "environment.h"
+
+#include <utils/environment.h>
 
 #include <QtCore/QString>
 #include <QtCore/QProcess>
@@ -104,7 +105,7 @@ public:
     void setIgnoreReturnValue(bool b);
     /// Set the Environment for running the command
     /// should be called from init()
-    void setEnvironment(Environment env);
+    void setEnvironment(Utils::Environment env);
 
     QString workingDirectory() const;
 
@@ -159,7 +160,7 @@ private:
     bool m_ignoreReturnValue;
     QProcess *m_process;
     QEventLoop *m_eventLoop;
-    ProjectExplorer::Environment m_environment;
+    Utils::Environment m_environment;
     ProjectExplorer::IOutputParser *m_outputParserChain;
 };
 

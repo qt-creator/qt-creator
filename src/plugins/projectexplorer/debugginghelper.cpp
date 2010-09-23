@@ -43,7 +43,7 @@
 
 using namespace ProjectExplorer;
 
-QString DebuggingHelperLibrary::findSystemQt(const Environment &env)
+QString DebuggingHelperLibrary::findSystemQt(const Utils::Environment &env)
 {
     QStringList paths = env.path();
     foreach (const QString &path, paths) {
@@ -194,7 +194,7 @@ QString DebuggingHelperLibrary::copyDebuggingHelperLibrary(const QString &qtInst
 
 QString DebuggingHelperLibrary::buildDebuggingHelperLibrary(const QString &directory, const QString &makeCommand,
                                                             const QString &qmakeCommand, const QString &mkspec,
-                                                            const Environment &env, const QString &targetMode)
+                                                            const Utils::Environment &env, const QString &targetMode)
 {
     QString output;
     const QChar newline = QLatin1Char('\n');

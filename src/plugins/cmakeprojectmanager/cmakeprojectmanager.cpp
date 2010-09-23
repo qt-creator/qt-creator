@@ -36,7 +36,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/environment.h>
 #include <qtconcurrent/QtConcurrentTools>
 #include <QtCore/QtConcurrentRun>
 #include <QtCore/QCoreApplication>
@@ -103,7 +102,9 @@ bool CMakeManager::hasCodeBlocksMsvcGenerator() const
 // we probably want the process instead of this function
 // cmakeproject then could even run the cmake process in the background, adding the files afterwards
 // sounds like a plan
-void CMakeManager::createXmlFile(QProcess *proc, const QStringList &arguments, const QString &sourceDirectory, const QDir &buildDirectory, const ProjectExplorer::Environment &env, const QString &generator)
+void CMakeManager::createXmlFile(QProcess *proc, const QStringList &arguments,
+                                 const QString &sourceDirectory, const QDir &buildDirectory,
+                                 const Utils::Environment &env, const QString &generator)
 {
     // We create a cbp file, only if we didn't find a cbp file in the base directory
     // Yet that can still override cbp files in subdirectories
@@ -119,7 +120,8 @@ void CMakeManager::createXmlFile(QProcess *proc, const QStringList &arguments, c
     proc->setProcessChannelMode(QProcess::MergedChannels);
     proc->setEnvironment(env.toStringList());
 
-    const QString srcdir = buildDirectory.exists(QLatin1String("CMakeCache.txt")) ? QString(QLatin1Char('.')) : sourceDirectory;
+    const QString srcdir = buildDirectory.exists(QLatin1String("CMakeCache.txt")) ?
+                QString(QLatin1Char('.')) : sourceDirectory;
     proc->start(cmakeExecutable(), QStringList() << srcdir << arguments << generator);
 }
 
@@ -243,7 +245,7 @@ CMakeSettingsPage::~CMakeSettingsPage()
 
 QString CMakeSettingsPage::findCmakeExecutable() const
 {
-    ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+    Utils::Environment env = Utils::Environment::systemEnvironment();
     return env.searchInPath(QLatin1String("cmake"));
 }
 

@@ -34,7 +34,8 @@
 #include "maemodeviceconfigurations.h"
 #include "maemodeployable.h"
 
-#include <projectexplorer/environment.h>
+#include <utils/environment.h>
+
 #include <projectexplorer/runconfiguration.h>
 
 #include <QtCore/QDateTime>
@@ -106,14 +107,14 @@ public:
     BaseEnvironmentBase baseEnvironmentBase() const;
     void setBaseEnvironmentBase(BaseEnvironmentBase env);
 
-    ProjectExplorer::Environment environment() const;
-    ProjectExplorer::Environment baseEnvironment() const;
+    Utils::Environment environment() const;
+    Utils::Environment baseEnvironment() const;
 
-    QList<ProjectExplorer::EnvironmentItem> userEnvironmentChanges() const;
-    void setUserEnvironmentChanges(const QList<ProjectExplorer::EnvironmentItem> &diff);
+    QList<Utils::EnvironmentItem> userEnvironmentChanges() const;
+    void setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff);
 
-    ProjectExplorer::Environment systemEnvironment() const;
-    void setSystemEnvironment(const ProjectExplorer::Environment &environment);
+    Utils::Environment systemEnvironment() const;
+    void setSystemEnvironment(const Utils::Environment &environment);
 
     int portsUsedByDebuggers() const { return useCppDebugger() + useQmlDebugger(); }
 
@@ -123,7 +124,7 @@ signals:
 
     void baseEnvironmentChanged();
     void systemEnvironmentChanged();
-    void userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &diff);
+    void userEnvironmentChangesChanged(const QList<Utils::EnvironmentItem> &diff);
 
 protected:
     MaemoRunConfiguration(Qt4Target *parent, MaemoRunConfiguration *source);
@@ -146,8 +147,8 @@ private:
     bool m_useRemoteGdb;
 
     BaseEnvironmentBase m_baseEnvironmentBase;
-    ProjectExplorer::Environment m_systemEnvironment;
-    QList<ProjectExplorer::EnvironmentItem> m_userEnvironmentChanges;
+    Utils::Environment m_systemEnvironment;
+    QList<Utils::EnvironmentItem> m_userEnvironmentChanges;
 };
 
     } // namespace Internal

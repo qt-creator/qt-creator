@@ -31,7 +31,8 @@
 #define BUILDCONFIGURATION_H
 
 #include "projectexplorer_export.h"
-#include "environment.h"
+
+#include <utils/environment.h>
 
 #include <QtCore/QString>
 #include <QtCore/QStringList>
@@ -57,11 +58,11 @@ public:
     virtual QString buildDirectory() const = 0;
 
     // TODO: Maybe the BuildConfiguration is not the best place for the environment
-    virtual Environment baseEnvironment() const;
+    virtual Utils::Environment baseEnvironment() const;
     QString baseEnvironmentText() const;
-    Environment environment() const;
-    void setUserEnvironmentChanges(const QList<EnvironmentItem> &diff);
-    QList<EnvironmentItem> userEnvironmentChanges() const;
+    Utils::Environment environment() const;
+    void setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff);
+    QList<Utils::EnvironmentItem> userEnvironmentChanges() const;
     bool useSystemEnvironment() const;
     void setUseSystemEnvironment(bool b);
 
@@ -93,7 +94,7 @@ protected:
 
 private:
     bool m_clearSystemEnvironment;
-    QList<EnvironmentItem> m_userEnvironmentChanges;
+    QList<Utils::EnvironmentItem> m_userEnvironmentChanges;
     QList<BuildStepList *> m_stepLists;
 };
 

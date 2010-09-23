@@ -6,7 +6,8 @@ dll {
 
 INCLUDEPATH += $$PWD
 
-SOURCES += $$PWD/reloadpromptutils.cpp \
+SOURCES += $$PWD/environment.cpp \
+    $$PWD/reloadpromptutils.cpp \
     $$PWD/stringutils.cpp \
     $$PWD/filesearch.cpp \
     $$PWD/pathchooser.cpp \
@@ -61,7 +62,8 @@ unix:!macx {
     HEADERS += $$PWD/unixutils.h
     SOURCES += $$PWD/unixutils.cpp
 }
-HEADERS += $$PWD/utils_global.h \
+HEADERS += $$PWD/environment.h \
+    $$PWD/utils_global.h \
     $$PWD/reloadpromptutils.h \
     $$PWD/stringutils.h \
     $$PWD/filesearch.h \

@@ -33,7 +33,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QString>
 
-using namespace ProjectExplorer;
+using namespace Utils;
 
 QList<EnvironmentItem> EnvironmentItem::fromStringList(QStringList list)
 {

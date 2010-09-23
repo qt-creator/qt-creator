@@ -238,7 +238,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
 void MakeStepConfigWidget::additionalArgumentsEdited()
 {
-    m_makeStep->setAdditionalArguments(Environment::parseCombinedArgString(m_additionalArguments->text()));
+    m_makeStep->setAdditionalArguments(Utils::Environment::parseCombinedArgString(m_additionalArguments->text()));
     updateDetails();
 }
 
@@ -265,7 +265,7 @@ void MakeStepConfigWidget::init()
     // and connect again
     connect(m_buildTargetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
 
-    m_additionalArguments->setText(Environment::joinArgumentList(m_makeStep->additionalArguments()));
+    m_additionalArguments->setText(Utils::Environment::joinArgumentList(m_makeStep->additionalArguments()));
     updateDetails();
 
     CMakeProject *pro = m_makeStep->cmakeBuildConfiguration()->cmakeTarget()->cmakeProject();

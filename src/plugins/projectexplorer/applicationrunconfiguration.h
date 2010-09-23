@@ -35,9 +35,11 @@
 #include "runconfiguration.h"
 #include "applicationlauncher.h"
 
-namespace ProjectExplorer {
-
+namespace Utils {
 class Environment;
+}
+
+namespace ProjectExplorer {
 
 class PROJECTEXPLORER_EXPORT LocalApplicationRunConfiguration : public RunConfiguration
 {
@@ -53,7 +55,7 @@ public:
     virtual RunMode runMode() const = 0;
     virtual QString workingDirectory() const = 0;
     virtual QStringList commandLineArguments() const = 0;
-    virtual Environment environment() const = 0;
+    virtual Utils::Environment environment() const = 0;
     virtual QString dumperLibrary() const = 0;
     virtual QStringList dumperLibraryLocations() const = 0;
     virtual ProjectExplorer::ToolChain::ToolChainType toolChainType() const = 0;

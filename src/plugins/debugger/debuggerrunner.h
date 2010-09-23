@@ -37,7 +37,7 @@
 
 #include <QtCore/QScopedPointer>
 
-namespace ProjectExplorer {
+namespace Utils {
 class Environment;
 }
 
@@ -104,7 +104,7 @@ public:
 
     void createEngine(const DebuggerStartParameters &startParameters);
 
-    void setCustomEnvironment(ProjectExplorer::Environment env);
+    void setCustomEnvironment(Utils::Environment env);
     void setEnabledEngines(DebuggerEngineType enabledEngines);
 
     void startFailed();

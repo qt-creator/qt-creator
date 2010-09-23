@@ -31,15 +31,14 @@
 #define PROJECTEXPLORER_DEPLOYCONFIGURATION_H
 
 #include "projectexplorer_export.h"
-#include "environment.h"
+
+#include "projectconfiguration.h"
 #include "namedwidget.h"
 
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QList>
 #include <QtCore/QObject>
-
-#include "projectconfiguration.h"
 
 namespace ProjectExplorer {
 

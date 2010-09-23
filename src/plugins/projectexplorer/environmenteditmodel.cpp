@@ -28,9 +28,9 @@
 **************************************************************************/
 
 #include "environmenteditmodel.h"
-#include "environment.h"
 
 #include <utils/detailswidget.h>
+#include <utils/environment.h>
 
 #include <QtGui/QTextDocument>
 #include <QtGui/QVBoxLayout>
@@ -64,7 +64,7 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
     QModelIndex addVariable();
-    QModelIndex addVariable(const EnvironmentItem &item);
+    QModelIndex addVariable(const Utils::EnvironmentItem &item);
     void resetVariable(const QString &name);
     void unsetVariable(const QString &name);
     bool canUnset(const QString &name);
@@ -72,9 +72,9 @@ public:
     QString indexToVariable(const QModelIndex &index) const;
     QModelIndex variableToIndex(const QString &name) const;
     bool changes(const QString &key) const;
-    void setBaseEnvironment(const ProjectExplorer::Environment &env);
-    QList<EnvironmentItem> userChanges() const;
-    void setUserChanges(QList<EnvironmentItem> list);
+    void setBaseEnvironment(const Utils::Environment &env);
+    QList<Utils::EnvironmentItem> userChanges() const;
+    void setUserChanges(QList<Utils::EnvironmentItem> list);
 
 signals:
     void userChangesChanged();
@@ -89,9 +89,9 @@ private:
     int findInResultInsertPosition(const QString &name) const;
     int findInResult(const QString &name) const;
 
-    ProjectExplorer::Environment m_baseEnvironment;
-    ProjectExplorer::Environment m_resultEnvironment;
-    QList<EnvironmentItem> m_items;
+    Utils::Environment m_baseEnvironment;
+    Utils::Environment m_resultEnvironment;
+    QList<Utils::EnvironmentItem> m_items;
 };
 
 QString EnvironmentModel::indexToVariable(const QModelIndex &index) const
@@ -105,14 +105,14 @@ void EnvironmentModel::updateResultEnvironment()
     m_resultEnvironment.modify(m_items);
     // Add removed variables again and mark them as "<UNSET>" so
     // that the user can actually see those removals:
-    foreach (const EnvironmentItem &item, m_items) {
+    foreach (const Utils::EnvironmentItem &item, m_items) {
         if (item.unset) {
             m_resultEnvironment.set(item.name, tr("<UNSET>"));
         }
     }
 }
 
-void EnvironmentModel::setBaseEnvironment(const ProjectExplorer::Environment &env)
+void EnvironmentModel::setBaseEnvironment(const Utils::Environment &env)
 {
     if (m_baseEnvironment == env)
         return;
@@ -206,7 +206,7 @@ QModelIndex EnvironmentModel::variableToIndex(const QString &name) const
 
 int EnvironmentModel::findInResult(const QString &name) const
 {
-    Environment::const_iterator it;
+    Utils::Environment::const_iterator it;
     int i = 0;
     for (it = m_resultEnvironment.constBegin(); it != m_resultEnvironment.constEnd(); ++it, ++i)
         if (m_resultEnvironment.key(it) == name)
@@ -216,7 +216,7 @@ int EnvironmentModel::findInResult(const QString &name) const
 
 int EnvironmentModel::findInResultInsertPosition(const QString &name) const
 {
-    Environment::const_iterator it;
+    Utils::Environment::const_iterator it;
     int i = 0;
     for (it = m_resultEnvironment.constBegin(); it != m_resultEnvironment.constEnd(); ++it, ++i)
         if (m_resultEnvironment.key(it) > name)
@@ -248,7 +248,7 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
         if (m_resultEnvironment.hasKey(newName))
             return false;
 
-        EnvironmentItem newVariable(newName, oldValue);
+        Utils::EnvironmentItem newVariable(newName, oldValue);
 
         if (changesPos != -1)
             resetVariable(oldName); // restore the original base variable again
@@ -271,7 +271,7 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
             }
         } else {
             // Add a new change item:
-            m_items.append(EnvironmentItem(oldName, stringValue));
+            m_items.append(Utils::EnvironmentItem(oldName, stringValue));
         }
         updateResultEnvironment();
         emit dataChanged(index, index);
@@ -283,13 +283,13 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
 
 QModelIndex EnvironmentModel::addVariable()
 {
-    return addVariable(EnvironmentItem(tr("<VARIABLE>",
-                                          "Name when inserting a new variable"),
-                                       tr("<VALUE>",
-                                          "Value when inserting a new variable")));
+    //: Name when inserting a new variable
+    return addVariable(Utils::EnvironmentItem(tr("<VARIABLE>"),
+                                              //: Value when inserting a new variable
+                                              tr("<VALUE>")));
 }
 
-QModelIndex EnvironmentModel::addVariable(const EnvironmentItem &item)
+QModelIndex EnvironmentModel::addVariable(const Utils::EnvironmentItem &item)
 {
     int insertPos = findInResultInsertPosition(item.name);
 
@@ -365,7 +365,7 @@ void EnvironmentModel::unsetVariable(const QString &name)
         emit userChangesChanged();
         return;
     }
-    EnvironmentItem item(name, QString());
+    Utils::EnvironmentItem item(name, QString());
     item.unset = true;
     m_items.append(item);
     updateResultEnvironment();
@@ -387,12 +387,12 @@ bool EnvironmentModel::canReset(const QString &name)
     return m_baseEnvironment.hasKey(name);
 }
 
-QList<EnvironmentItem> EnvironmentModel::userChanges() const
+QList<Utils::EnvironmentItem> EnvironmentModel::userChanges() const
 {
     return m_items;
 }
 
-void EnvironmentModel::setUserChanges(QList<EnvironmentItem> list)
+void EnvironmentModel::setUserChanges(QList<Utils::EnvironmentItem> list)
 {
     // We assume nobody is reordering the items here.
     if (list == m_items)
@@ -517,7 +517,7 @@ void EnvironmentWidget::focusIndex(const QModelIndex &index)
     d->m_environmentView->setFocus();
 }
 
-void EnvironmentWidget::setBaseEnvironment(const ProjectExplorer::Environment &env)
+void EnvironmentWidget::setBaseEnvironment(const Utils::Environment &env)
 {
     d->m_model->setBaseEnvironment(env);
 }
@@ -528,12 +528,12 @@ void EnvironmentWidget::setBaseEnvironmentText(const QString &text)
     updateSummaryText();
 }
 
-QList<EnvironmentItem> EnvironmentWidget::userChanges() const
+QList<Utils::EnvironmentItem> EnvironmentWidget::userChanges() const
 {
     return d->m_model->userChanges();
 }
 
-void EnvironmentWidget::setUserChanges(const QList<EnvironmentItem> &list)
+void EnvironmentWidget::setUserChanges(const QList<Utils::EnvironmentItem> &list)
 {
     d->m_model->setUserChanges(list);
     updateSummaryText();
@@ -542,8 +542,8 @@ void EnvironmentWidget::setUserChanges(const QList<EnvironmentItem> &list)
 void EnvironmentWidget::updateSummaryText()
 {
     QString text;
-    const QList<EnvironmentItem> &list = d->m_model->userChanges();
-    foreach (const EnvironmentItem &item, list) {
+    const QList<Utils::EnvironmentItem> &list = d->m_model->userChanges();
+    foreach (const Utils::EnvironmentItem &item, list) {
         if (item.name != EnvironmentModel::tr("<VARIABLE>")) {
             text.append("<br>");
             if (item.unset)

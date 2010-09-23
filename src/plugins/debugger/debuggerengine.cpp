@@ -53,7 +53,6 @@
 #include <coreplugin/progressmanager/futureprogress.h>
 
 #include <projectexplorer/debugginghelper.h>
-#include <projectexplorer/environment.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
@@ -64,6 +63,7 @@
 
 #include <texteditor/itexteditor.h>
 
+#include <utils/environment.h>
 #include <utils/savedaction.h>
 #include <utils/qtcassert.h>
 
@@ -772,7 +772,7 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
         ? d->m_startParameters.attachPID : 0;
 
     if (d->m_startParameters.environment.empty())
-        d->m_startParameters.environment = Environment().toStringList();
+        d->m_startParameters.environment = Utils::Environment().toStringList();
 
     if (d->m_startParameters.breakAtMain)
         breakByFunctionMain();

@@ -45,7 +45,7 @@ using namespace Qt4ProjectManager::Internal;
 // Locate the compiler via path.
 static QString gcceCommand(const QString &dir)
 {
-    ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+    Utils::Environment env = Utils::Environment::systemEnvironment();
     if (!dir.isEmpty()) {
         env.prependOrSetPath(dir + QLatin1String("/bin"));
         env.prependOrSetPath(dir);
@@ -123,7 +123,7 @@ QList<HeaderPath> GCCEToolChain::systemHeaderPaths()
     return m_systemHeaderPaths;
 }
 
-void GCCEToolChain::addToEnvironment(ProjectExplorer::Environment &env)
+void GCCEToolChain::addToEnvironment(Utils::Environment &env)
 {
     if (debug)
         qDebug() << "GCCEToolChain::addToEnvironment" << m_type << gcc() << m_gcceBinPath<< m_mixin.device();
@@ -170,7 +170,7 @@ QString GCCEToolChain::gcceVersion() const
         QProcess gxx;
         QStringList arguments;
         arguments << QLatin1String("-dumpversion");
-        ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+        Utils::Environment env = Utils::Environment::systemEnvironment();
         env.set(QLatin1String("LC_ALL"), QLatin1String("C"));   //override current locale settings
         gxx.setEnvironment(env.toStringList());
         gxx.setReadChannelMode(QProcess::MergedChannels);

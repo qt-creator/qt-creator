@@ -46,7 +46,6 @@
 #endif
 
 #include <projectexplorer/debugginghelper.h>
-#include <projectexplorer/environment.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -54,6 +53,7 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/applicationrunconfiguration.h> // For LocalApplication*
 
+#include <utils/environment.h>
 #include <utils/qtcassert.h>
 #include <utils/fancymainwindow.h>
 #include <coreplugin/icore.h>
@@ -479,7 +479,7 @@ QString DebuggerRunControl::displayName() const
     return d->m_engine->startParameters().displayName;
 }
 
-void DebuggerRunControl::setCustomEnvironment(ProjectExplorer::Environment env)
+void DebuggerRunControl::setCustomEnvironment(Utils::Environment env)
 {
     d->m_engine->startParameters().environment = env.toStringList();
 }

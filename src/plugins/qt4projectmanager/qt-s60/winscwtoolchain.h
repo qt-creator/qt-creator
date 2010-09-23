@@ -43,7 +43,7 @@ public:
     explicit WINSCWToolChain(const S60Devices::Device &device, const QString &mwcDirectory);
     QByteArray predefinedMacros();
     QList<ProjectExplorer::HeaderPath> systemHeaderPaths();
-    void addToEnvironment(ProjectExplorer::Environment &env);
+    void addToEnvironment(Utils::Environment &env);
     ProjectExplorer::ToolChain::ToolChainType type() const;
     QString makeCommand() const;
     ProjectExplorer::IOutputParser *outputParser() const;

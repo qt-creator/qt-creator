@@ -329,7 +329,7 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
 
 void QMakeStepConfigWidget::init()
 {
-    QString qmakeArgs = ProjectExplorer::Environment::joinArgumentList(m_step->userArguments());
+    QString qmakeArgs = Utils::Environment::joinArgumentList(m_step->userArguments());
     m_ui.qmakeAdditonalArgumentsLineEdit->setText(qmakeArgs);
 
     qmakeBuildConfigChanged();
@@ -373,7 +373,7 @@ void QMakeStepConfigWidget::userArgumentsChanged()
 {
     if (m_ignoreChange)
         return;
-    QString qmakeArgs = ProjectExplorer::Environment::joinArgumentList(m_step->userArguments());
+    QString qmakeArgs = Utils::Environment::joinArgumentList(m_step->userArguments());
     m_ui.qmakeAdditonalArgumentsLineEdit->setText(qmakeArgs);
     updateSummaryLabel();
     updateEffectiveQMakeCall();
@@ -383,7 +383,7 @@ void QMakeStepConfigWidget::qmakeArgumentsLineEdited()
 {
     m_ignoreChange = true;
     m_step->setUserArguments(
-            ProjectExplorer::Environment::parseCombinedArgString(m_ui.qmakeAdditonalArgumentsLineEdit->text()));
+            Utils::Environment::parseCombinedArgString(m_ui.qmakeAdditonalArgumentsLineEdit->text()));
     m_ignoreChange = false;
 
     updateSummaryLabel();
@@ -445,7 +445,7 @@ void QMakeStepConfigWidget::updateEffectiveQMakeCall()
     Qt4BuildConfiguration *qt4bc = m_step->qt4BuildConfiguration();
     const QtVersion *qtVersion = qt4bc->qtVersion();
     QString program = QFileInfo(qtVersion->qmakeCommand()).fileName();
-    m_ui.qmakeArgumentsEdit->setPlainText(program + QLatin1Char(' ') + ProjectExplorer::Environment::joinArgumentList(m_step->allArguments()));
+    m_ui.qmakeArgumentsEdit->setPlainText(program + QLatin1Char(' ') + Utils::Environment::joinArgumentList(m_step->allArguments()));
 }
 
 ////

@@ -47,7 +47,6 @@ HEADERS += projectexplorer.h \
     allprojectsfind.h \
     buildstep.h \
     buildconfiguration.h \
-    environment.h \
     iprojectproperties.h \
     buildsettingspropertiespage.h \
     environmenteditmodel.h \
@@ -126,7 +125,6 @@ SOURCES += projectexplorer.cpp \
     pluginfilefactory.cpp \
     buildstep.cpp \
     buildconfiguration.cpp \
-    environment.cpp \
     buildsettingspropertiespage.cpp \
     environmenteditmodel.cpp \
     processstep.cpp \

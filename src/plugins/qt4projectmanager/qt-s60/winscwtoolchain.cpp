@@ -71,7 +71,7 @@ QList<HeaderPath> WINSCWToolChain::systemHeaderPaths()
 QStringList WINSCWToolChain::systemIncludes() const
 {
     if (m_carbidePath.isEmpty()) {
-        ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+        Utils::Environment env = Utils::Environment::systemEnvironment();
         QString symIncludesValue = env.value("MWCSYM2INCLUDES");
         if (!symIncludesValue.isEmpty())
             return symIncludesValue.split(QLatin1Char(';'));
@@ -91,7 +91,7 @@ QStringList WINSCWToolChain::systemIncludes() const
     return QStringList();
 }
 
-void WINSCWToolChain::addToEnvironment(ProjectExplorer::Environment &env)
+void WINSCWToolChain::addToEnvironment(Utils::Environment &env)
 {
     if (!m_carbidePath.isEmpty()) {
         env.set("MWCSYM2INCLUDES", systemIncludes().join(QString(QLatin1Char(';'))));

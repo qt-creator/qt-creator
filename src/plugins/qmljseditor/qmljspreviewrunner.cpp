@@ -29,7 +29,7 @@
 
 #include "qmljspreviewrunner.h"
 
-#include <projectexplorer/environment.h>
+#include <utils/environment.h>
 #include <utils/synchronousprocess.h>
 
 #include <QtGui/QMessageBox>
@@ -49,7 +49,7 @@ QmlJSPreviewRunner::QmlJSPreviewRunner(QObject *parent) :
                                + QString(qgetenv("PATH"));
     m_qmlViewerDefaultPath = Utils::SynchronousProcess::locateBinary(searchPath, QLatin1String("qmlviewer"));
 
-    ProjectExplorer::Environment environment = ProjectExplorer::Environment::systemEnvironment();
+    Utils::Environment environment = Utils::Environment::systemEnvironment();
     m_applicationLauncher.setEnvironment(environment.toStringList());
 }
 

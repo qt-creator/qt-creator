@@ -312,10 +312,10 @@ int MaemoDebugSupport::qmlServerPort(const MaemoRunConfiguration *rc)
 
 QString MaemoDebugSupport::environment(const MaemoRunConfiguration *rc)
 {
-    QList<EnvironmentItem> env = rc->userEnvironmentChanges();
+    QList<Utils::EnvironmentItem> env = rc->userEnvironmentChanges();
     // FIXME: this must use command line argument instead: -qmljsdebugger=port:1234.
     if (rc->useQmlDebugger()) {
-//        env << EnvironmentItem(QLatin1String(Debugger::Constants::E_QML_DEBUG_SERVER_PORT),
+//        env << Utils::EnvironmentItem(QLatin1String(Debugger::Constants::E_QML_DEBUG_SERVER_PORT),
 //            QString::number(qmlServerPort(rc)));
     }
     return MaemoGlobal::remoteEnvironment(env);

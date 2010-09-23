@@ -93,7 +93,7 @@ void MaemoDeviceEnvReader::setEnvironment()
 {
     if (m_remoteOutput.isEmpty())
         return;
-    m_env = ProjectExplorer::Environment(m_remoteOutput.split(QLatin1Char('\n'),
+    m_env = Utils::Environment(m_remoteOutput.split(QLatin1Char('\n'),
         QString::SkipEmptyParts));
 }
 

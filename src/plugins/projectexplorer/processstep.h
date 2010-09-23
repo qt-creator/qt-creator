@@ -96,7 +96,7 @@ private:
     QString m_command;
     QStringList m_arguments;
     QString m_workingDirectory;
-    Environment m_env;
+    Utils::Environment m_env;
     bool m_enabled;
 };
 

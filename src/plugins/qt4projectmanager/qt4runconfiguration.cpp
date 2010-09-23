@@ -201,7 +201,7 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     toplayout->addRow(tr("Executable:"), m_executableLineEdit);
 
     QLabel *argumentsLabel = new QLabel(tr("Arguments:"), this);
-    m_argumentsLineEdit = new QLineEdit(ProjectExplorer::Environment::joinArgumentList(qt4RunConfiguration->commandLineArguments()), this);
+    m_argumentsLineEdit = new QLineEdit(Utils::Environment::joinArgumentList(qt4RunConfiguration->commandLineArguments()), this);
     argumentsLabel->setBuddy(m_argumentsLineEdit);
     toplayout->addRow(argumentsLabel, m_argumentsLineEdit);
 
@@ -313,8 +313,8 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     connect(qt4RunConfiguration, SIGNAL(effectiveTargetInformationChanged()),
             this, SLOT(effectiveTargetInformationChanged()), Qt::QueuedConnection);
 
-    connect(qt4RunConfiguration, SIGNAL(userEnvironmentChangesChanged(QList<ProjectExplorer::EnvironmentItem>)),
-            this, SLOT(userEnvironmentChangesChanged(QList<ProjectExplorer::EnvironmentItem>)));
+    connect(qt4RunConfiguration, SIGNAL(userEnvironmentChangesChanged(QList<Utils::EnvironmentItem>)),
+            this, SLOT(userEnvironmentChangesChanged(QList<Utils::EnvironmentItem>)));
 
     connect(qt4RunConfiguration, SIGNAL(baseEnvironmentChanged()),
             this, SLOT(baseEnvironmentChanged()));
@@ -359,7 +359,7 @@ void Qt4RunConfigurationWidget::baseEnvironmentChanged()
     m_environmentWidget->setBaseEnvironmentText(m_qt4RunConfiguration->baseEnvironmentText());
 }
 
-void Qt4RunConfigurationWidget::userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &userChanges)
+void Qt4RunConfigurationWidget::userEnvironmentChangesChanged(const QList<Utils::EnvironmentItem> &userChanges)
 {
     if (m_ignoreChange)
         return;
@@ -473,7 +473,7 @@ QVariantMap Qt4RunConfiguration::toMap() const
     map.insert(QLatin1String(PRO_FILE_KEY), projectDir.relativeFilePath(m_proFilePath));
     map.insert(QLatin1String(USE_TERMINAL_KEY), m_runMode == Console);
     map.insert(QLatin1String(USE_DYLD_IMAGE_SUFFIX_KEY), m_isUsingDyldImageSuffix);
-    map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY), ProjectExplorer::EnvironmentItem::toStringList(m_userEnvironmentChanges));
+    map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY), Utils::EnvironmentItem::toStringList(m_userEnvironmentChanges));
     map.insert(QLatin1String(BASE_ENVIRONMENT_BASE_KEY), m_baseEnvironmentBase);
     map.insert(QLatin1String(USER_SET_WORKING_DIRECTORY_KEY), m_userSetWokingDirectory);
     map.insert(QLatin1String(USER_WORKING_DIRECTORY_KEY), m_userWorkingDirectory);
@@ -491,7 +491,7 @@ bool Qt4RunConfiguration::fromMap(const QVariantMap &map)
     m_userSetWokingDirectory = map.value(QLatin1String(USER_SET_WORKING_DIRECTORY_KEY), false).toBool();
     m_userWorkingDirectory = map.value(QLatin1String(USER_WORKING_DIRECTORY_KEY)).toString();
 
-    m_userEnvironmentChanges = ProjectExplorer::EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
+    m_userEnvironmentChanges = Utils::EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
     m_baseEnvironmentBase = static_cast<BaseEnvironmentBase>(map.value(QLatin1String(BASE_ENVIRONMENT_BASE_KEY), static_cast<int>(Qt4RunConfiguration::BuildEnvironmentBase)).toInt());
 
     return RunConfiguration::fromMap(map);
@@ -552,13 +552,13 @@ QString Qt4RunConfiguration::baseEnvironmentText() const
     return QString();
 }
 
-ProjectExplorer::Environment Qt4RunConfiguration::baseEnvironment() const
+Utils::Environment Qt4RunConfiguration::baseEnvironment() const
 {
-    ProjectExplorer::Environment env;
+    Utils::Environment env;
     if (m_baseEnvironmentBase == Qt4RunConfiguration::CleanEnvironmentBase) {
         // Nothing
     } else  if (m_baseEnvironmentBase == Qt4RunConfiguration::SystemEnvironmentBase) {
-        env = ProjectExplorer::Environment::systemEnvironment();
+        env = Utils::Environment::systemEnvironment();
     } else  if (m_baseEnvironmentBase == Qt4RunConfiguration::BuildEnvironmentBase) {
         env = target()->activeBuildConfiguration()->environment();
     }
@@ -578,19 +578,19 @@ ProjectExplorer::Environment Qt4RunConfiguration::baseEnvironment() const
     return env;
 }
 
-ProjectExplorer::Environment Qt4RunConfiguration::environment() const
+Utils::Environment Qt4RunConfiguration::environment() const
 {
-    ProjectExplorer::Environment env = baseEnvironment();
+    Utils::Environment env = baseEnvironment();
     env.modify(userEnvironmentChanges());
     return env;
 }
 
-QList<ProjectExplorer::EnvironmentItem> Qt4RunConfiguration::userEnvironmentChanges() const
+QList<Utils::EnvironmentItem> Qt4RunConfiguration::userEnvironmentChanges() const
 {
     return m_userEnvironmentChanges;
 }
 
-void Qt4RunConfiguration::setUserEnvironmentChanges(const QList<ProjectExplorer::EnvironmentItem> &diff)
+void Qt4RunConfiguration::setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff)
 {
     if (m_userEnvironmentChanges != diff) {
         m_userEnvironmentChanges = diff;
@@ -613,7 +613,7 @@ void Qt4RunConfiguration::setWorkingDirectory(const QString &wd)
 
 void Qt4RunConfiguration::setArguments(const QString &argumentsString)
 {
-    m_commandLineArguments = ProjectExplorer::Environment::parseCombinedArgString(argumentsString);
+    m_commandLineArguments = Utils::Environment::parseCombinedArgString(argumentsString);
     emit commandLineArgumentsChanged(argumentsString);
 }
 

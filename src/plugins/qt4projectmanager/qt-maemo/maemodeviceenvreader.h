@@ -37,7 +37,7 @@
 
 #include "maemodeviceconfigurations.h"
 
-#include <projectexplorer/environment.h>
+#include <utils/environment.h>
 
 #include <QtCore/QObject>
 
@@ -61,7 +61,7 @@ public:
     void start();
     void stop();
 
-    ProjectExplorer::Environment deviceEnvironment() const { return m_env; }
+    Utils::Environment deviceEnvironment() const { return m_env; }
 
 signals:
     void finished();
@@ -81,7 +81,7 @@ private slots:
 private:
     bool m_stop;
     QString m_remoteOutput;
-    ProjectExplorer::Environment m_env;
+    Utils::Environment m_env;
     MaemoDeviceConfig m_devConfig;
     QSharedPointer<Core::SshConnection> m_connection;
     QSharedPointer<Core::SshRemoteProcess> m_remoteProcess;

@@ -38,8 +38,11 @@
 #define VCINSTALL_MACRO "$(VCInstallDir)"
 #define VSINSTALL_MACRO "$(VSInstallDir)"
 
-namespace ProjectExplorer {
+namespace Utils {
 class Environment;
+}
+
+namespace ProjectExplorer {
 
 class PROJECTEXPLORER_EXPORT CeSdkInfo
 {
@@ -49,7 +52,7 @@ public:
     inline QString                  binPath();
     inline QString                  includePath();
     inline QString                  libPath();
-    void                            addToEnvironment(ProjectExplorer::Environment &env);
+    void                            addToEnvironment(Utils::Environment &env);
     inline bool                     isValid();
     inline int                      majorVersion();
     inline int                      minorVersion();

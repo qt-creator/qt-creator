@@ -28,7 +28,8 @@
 **************************************************************************/
 
 #include "cesdkhandler.h"
-#include "environment.h"
+
+#include <utils/environment.h>
 
 #include <QtCore/QFile>
 #include <QtCore/QDebug>
@@ -36,7 +37,7 @@
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
-using ProjectExplorer::Environment;
+using Utils::Environment;
 
 CeSdkInfo::CeSdkInfo()
     : m_major(0), m_minor(0)

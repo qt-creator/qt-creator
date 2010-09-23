@@ -92,7 +92,7 @@ public:
     QString workingDirectory() const;
     QString baseWorkingDirectory() const;
     QStringList commandLineArguments() const;
-    Environment environment() const;
+    Utils::Environment environment() const;
 
     QWidget *createConfigurationWidget();
     QString dumperLibrary() const;
@@ -106,7 +106,7 @@ signals:
     void changed();
 
     void baseEnvironmentChanged();
-    void userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &diff);
+    void userEnvironmentChangesChanged(const QList<Utils::EnvironmentItem> &diff);
 
 private slots:
     void activeBuildConfigurationChanged();
@@ -124,10 +124,10 @@ private:
                                BuildEnvironmentBase = 2};
     void setBaseEnvironmentBase(BaseEnvironmentBase env);
     BaseEnvironmentBase baseEnvironmentBase() const;
-    ProjectExplorer::Environment baseEnvironment() const;
+    Utils::Environment baseEnvironment() const;
     QString baseEnvironmentText() const;
-    void setUserEnvironmentChanges(const QList<ProjectExplorer::EnvironmentItem> &diff);
-    QList<ProjectExplorer::EnvironmentItem> userEnvironmentChanges() const;
+    void setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff);
+    QList<Utils::EnvironmentItem> userEnvironmentChanges() const;
 
     void setExecutable(const QString &executable);
     void setCommandLineArguments(const QString &commandLineArguments);
@@ -140,7 +140,7 @@ private:
     RunMode m_runMode;
     bool m_userSetName;
     QString m_userName;
-    QList<ProjectExplorer::EnvironmentItem> m_userEnvironmentChanges;
+    QList<Utils::EnvironmentItem> m_userEnvironmentChanges;
     BaseEnvironmentBase m_baseEnvironmentBase;
     ProjectExplorer::BuildConfiguration *m_lastActiveBuildConfiguration;
 };

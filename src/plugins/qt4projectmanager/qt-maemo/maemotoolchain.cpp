@@ -54,7 +54,7 @@ ToolChain::ToolChainType MaemoToolChain::type() const
     return ToolChain::GCC_MAEMO;
 }
 
-void MaemoToolChain::addToEnvironment(ProjectExplorer::Environment &env)
+void MaemoToolChain::addToEnvironment(Utils::Environment &env)
 {
     env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/bin")
         .arg(maddeRoot())));

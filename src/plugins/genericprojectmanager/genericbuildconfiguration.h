@@ -49,7 +49,7 @@ public:
 
     GenericTarget *genericTarget() const;
 
-    virtual ProjectExplorer::Environment environment() const;
+    virtual Utils::Environment environment() const;
     virtual QString buildDirectory() const;
 
     QString rawBuildDirectory() const;

@@ -81,7 +81,7 @@ public:
     virtual RunMode runMode() const;
     virtual QString workingDirectory() const;
     virtual QStringList commandLineArguments() const;
-    virtual ProjectExplorer::Environment environment() const;
+    virtual Utils::Environment environment() const;
     virtual QString dumperLibrary() const;
     virtual QStringList dumperLibraryLocations() const;
     virtual ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
@@ -102,7 +102,7 @@ signals:
     void runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode runMode);
     void usingDyldImageSuffixChanged(bool);
     void baseEnvironmentChanged();
-    void userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &diff);
+    void userEnvironmentChangesChanged(const QList<Utils::EnvironmentItem> &diff);
 
     // Note: These signals might not get emitted for every change!
     void effectiveTargetInformationChanged();
@@ -127,10 +127,10 @@ private:
 
     void ctor();
 
-    ProjectExplorer::Environment baseEnvironment() const;
+    Utils::Environment baseEnvironment() const;
     QString baseEnvironmentText() const;
-    void setUserEnvironmentChanges(const QList<ProjectExplorer::EnvironmentItem> &diff);
-    QList<ProjectExplorer::EnvironmentItem> userEnvironmentChanges() const;
+    void setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff);
+    QList<Utils::EnvironmentItem> userEnvironmentChanges() const;
 
     void updateTarget();
     QStringList m_commandLineArguments;
@@ -142,7 +142,7 @@ private:
     bool m_isUsingDyldImageSuffix;
     bool m_userSetWokingDirectory;
     QString m_userWorkingDirectory;
-    QList<ProjectExplorer::EnvironmentItem> m_userEnvironmentChanges;
+    QList<Utils::EnvironmentItem> m_userEnvironmentChanges;
     BaseEnvironmentBase m_baseEnvironmentBase;
 };
 
@@ -166,7 +166,7 @@ private slots:
     void workingDirectoryChanged(const QString &workingDirectory);
     void commandLineArgumentsChanged(const QString &args);
     void runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode runMode);
-    void userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &userChanges);
+    void userEnvironmentChangesChanged(const QList<Utils::EnvironmentItem> &userChanges);
     void baseEnvironmentChanged();
 
     void effectiveTargetInformationChanged();

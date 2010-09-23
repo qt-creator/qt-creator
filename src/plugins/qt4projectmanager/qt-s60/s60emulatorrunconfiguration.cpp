@@ -296,7 +296,7 @@ S60EmulatorRunControl::S60EmulatorRunControl(S60EmulatorRunConfiguration *runCon
     : RunControl(runConfiguration, mode)
 {
     // stuff like the EPOCROOT and EPOCDEVICE env variable
-    Environment env = Environment::systemEnvironment();
+    Utils::Environment env = Utils::Environment::systemEnvironment();
     runConfiguration->qt4Target()->activeBuildConfiguration()->toolChain()->addToEnvironment(env);
     m_applicationLauncher.setEnvironment(env.toStringList());
 

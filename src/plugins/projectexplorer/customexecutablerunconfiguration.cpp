@@ -28,7 +28,6 @@
 **************************************************************************/
 
 #include "customexecutablerunconfiguration.h"
-#include "environment.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -37,6 +36,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
 #include <utils/detailswidget.h>
+#include <utils/environment.h>
 #include <utils/pathchooser.h>
 #include <utils/debuggerlanguagechooser.h>
 
@@ -187,7 +187,7 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
 
     connect(m_runConfiguration, SIGNAL(baseEnvironmentChanged()),
             this, SLOT(baseEnvironmentChanged()));
-    connect(m_runConfiguration, SIGNAL(userEnvironmentChangesChanged(QList<ProjectExplorer::EnvironmentItem>)),
+    connect(m_runConfiguration, SIGNAL(userEnvironmentChangesChanged(QList<Utils::EnvironmentItem>)),
             this, SLOT(userEnvironmentChangesChanged()));
 }
 
@@ -273,13 +273,12 @@ void CustomExecutableConfigurationWidget::changed()
     if (!executable.isEmpty())
         text = tr("Running executable: <b>%1</b> %2").
                arg(executable,
-                   ProjectExplorer::Environment::joinArgumentList(m_runConfiguration->commandLineArguments()));
-
+                   Utils::Environment::joinArgumentList(m_runConfiguration->commandLineArguments()));
     // We triggered the change, don't update us
     if (m_ignoreChange)
         return;
     m_executableChooser->setPath(executable);
-    m_commandLineArgumentsLineEdit->setText(ProjectExplorer::Environment::joinArgumentList(m_runConfiguration->commandLineArguments()));
+    m_commandLineArgumentsLineEdit->setText(Utils::Environment::joinArgumentList(m_runConfiguration->commandLineArguments()));
     m_workingDirectory->setPath(m_runConfiguration->baseWorkingDirectory());
     m_useTerminalCheck->setChecked(m_runConfiguration->runMode() == LocalApplicationRunConfiguration::Console);
 }
@@ -347,7 +346,7 @@ QString CustomExecutableRunConfiguration::executable() const
 {
     QString exec;
     if (!m_executable.isEmpty() && QDir::isRelativePath(m_executable)) {
-        Environment env = environment();
+        Utils::Environment env = environment();
         exec = env.searchInPath(m_executable);
         if (exec.isEmpty())
             exec = QDir::cleanPath(workingDirectory() + QLatin1Char('/') + m_executable);
@@ -431,13 +430,13 @@ QString CustomExecutableRunConfiguration::baseEnvironmentText() const
     return QString();
 }
 
-ProjectExplorer::Environment CustomExecutableRunConfiguration::baseEnvironment() const
+Utils::Environment CustomExecutableRunConfiguration::baseEnvironment() const
 {
-    ProjectExplorer::Environment env;
+    Utils::Environment env;
     if (m_baseEnvironmentBase == CustomExecutableRunConfiguration::CleanEnvironmentBase) {
         // Nothing
     } else  if (m_baseEnvironmentBase == CustomExecutableRunConfiguration::SystemEnvironmentBase) {
-        env = ProjectExplorer::Environment::systemEnvironment();
+        env = Utils::Environment::systemEnvironment();
     } else  if (m_baseEnvironmentBase == CustomExecutableRunConfiguration::BuildEnvironmentBase) {
         if (activeBuildConfiguration())
             env = activeBuildConfiguration()->environment();
@@ -458,19 +457,19 @@ CustomExecutableRunConfiguration::BaseEnvironmentBase CustomExecutableRunConfigu
     return m_baseEnvironmentBase;
 }
 
-ProjectExplorer::Environment CustomExecutableRunConfiguration::environment() const
+Utils::Environment CustomExecutableRunConfiguration::environment() const
 {
-    ProjectExplorer::Environment env = baseEnvironment();
+    Utils::Environment env = baseEnvironment();
     env.modify(userEnvironmentChanges());
     return env;
 }
 
-QList<ProjectExplorer::EnvironmentItem> CustomExecutableRunConfiguration::userEnvironmentChanges() const
+QList<Utils::EnvironmentItem> CustomExecutableRunConfiguration::userEnvironmentChanges() const
 {
     return m_userEnvironmentChanges;
 }
 
-void CustomExecutableRunConfiguration::setUserEnvironmentChanges(const QList<ProjectExplorer::EnvironmentItem> &diff)
+void CustomExecutableRunConfiguration::setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff)
 {
     if (m_userEnvironmentChanges != diff) {
         m_userEnvironmentChanges = diff;
@@ -493,7 +492,7 @@ QVariantMap CustomExecutableRunConfiguration::toMap() const
     map.insert(QLatin1String(ARGUMENTS_KEY), m_cmdArguments);
     map.insert(QLatin1String(WORKING_DIRECTORY_KEY), m_workingDirectory);
     map.insert(QLatin1String(USE_TERMINAL_KEY), m_runMode == Console);
-    map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY), ProjectExplorer::EnvironmentItem::toStringList(m_userEnvironmentChanges));
+    map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY), Utils::EnvironmentItem::toStringList(m_userEnvironmentChanges));
     map.insert(QLatin1String(BASE_ENVIRONMENT_BASE_KEY), static_cast<int>(m_baseEnvironmentBase));
     return map;
 }
@@ -504,7 +503,7 @@ bool CustomExecutableRunConfiguration::fromMap(const QVariantMap &map)
     m_cmdArguments = map.value(QLatin1String(ARGUMENTS_KEY)).toStringList();
     m_workingDirectory = map.value(QLatin1String(WORKING_DIRECTORY_KEY)).toString();
     m_runMode = map.value(QLatin1String(USE_TERMINAL_KEY)).toBool() ? Console : Gui;
-    m_userEnvironmentChanges = ProjectExplorer::EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
+    m_userEnvironmentChanges = Utils::EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
     m_baseEnvironmentBase = static_cast<BaseEnvironmentBase>(map.value(QLatin1String(BASE_ENVIRONMENT_BASE_KEY), static_cast<int>(CustomExecutableRunConfiguration::BuildEnvironmentBase)).toInt());
 
     setDefaultDisplayName(defaultDisplayName());
@@ -522,7 +521,7 @@ void CustomExecutableRunConfiguration::setExecutable(const QString &executable)
 
 void CustomExecutableRunConfiguration::setCommandLineArguments(const QString &commandLineArguments)
 {
-    m_cmdArguments = ProjectExplorer::Environment::parseCombinedArgString(commandLineArguments);
+    m_cmdArguments = Utils::Environment::parseCombinedArgString(commandLineArguments);
     emit changed();
 }
 

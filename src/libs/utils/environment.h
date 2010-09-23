@@ -27,20 +27,21 @@
 **
 **************************************************************************/
 
-#ifndef ENVIRONMENT_H
-#define ENVIRONMENT_H
+#ifndef UTILS_ENVIRONMENT_H
+#define UTILS_ENVIRONMENT_H
 
-#include "projectexplorer_export.h"
+#include "utils_global.h"
 
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QMap>
 #include <QtCore/QList>
 
-namespace ProjectExplorer {
+namespace Utils {
 
-struct PROJECTEXPLORER_EXPORT EnvironmentItem
+class QTCREATOR_UTILS_EXPORT EnvironmentItem
 {
+public:
     EnvironmentItem(QString n, QString v)
             : name(n), value(v), unset(false)
     {}
@@ -58,7 +59,7 @@ struct PROJECTEXPLORER_EXPORT EnvironmentItem
     static QStringList toStringList(QList<EnvironmentItem> list);
 };
 
-class PROJECTEXPLORER_EXPORT Environment {
+class QTCREATOR_UTILS_EXPORT Environment {
 public:
     typedef QMap<QString, QString>::const_iterator const_iterator;
 
@@ -103,6 +104,6 @@ private:
     QMap<QString, QString> m_values;
 };
 
-} // namespace ProjectExplorer
+} // namespace Utils
 
-#endif // ENVIRONMENT_H
+#endif // UTILS_ENVIRONMENT_H

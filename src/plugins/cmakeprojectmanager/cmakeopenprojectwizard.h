@@ -30,7 +30,7 @@
 #ifndef CMAKEOPENPROJECTWIZARD_H
 #define CMAKEOPENPROJECTWIZARD_H
 
-#include <projectexplorer/environment.h>
+#include <utils/environment.h>
 #include <utils/wizard.h>
 
 #include <QtCore/QProcess>
@@ -67,14 +67,14 @@ public:
     };
 
     // used at importing a project without a .user file
-    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const ProjectExplorer::Environment &env);
+    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const Utils::Environment &env);
     /// used to update if we have already a .user file
     /// recreates or updates the cbp file
-    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const QString &buildDirectory, Mode mode, const ProjectExplorer::Environment &env);
+    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const QString &buildDirectory, Mode mode, const Utils::Environment &env);
     /// used to change the build directory of one buildconfiguration
     /// shows a page for selecting a directory
     /// then the run cmake page
-    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const QString &oldBuildDirectory, const ProjectExplorer::Environment &env);
+    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const QString &oldBuildDirectory, const Utils::Environment &env);
 
     virtual int nextId() const;
     QString buildDirectory() const;
@@ -83,7 +83,7 @@ public:
     CMakeManager *cmakeManager() const;
     QStringList arguments() const;
     void setArguments(const QStringList &args);
-    ProjectExplorer::Environment environment() const;
+    Utils::Environment environment() const;
     QString msvcVersion() const;
     void setMsvcVersion(const QString &version);
     bool existsUpToDateXmlFile() const;
@@ -96,7 +96,7 @@ private:
     QStringList m_arguments;
     QString m_msvcVersion;
     bool m_creatingCbpFiles;
-    ProjectExplorer::Environment m_environment;
+    Utils::Environment m_environment;
 };
 
 class InSourceBuildPage : public QWizardPage

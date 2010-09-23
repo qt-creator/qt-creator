@@ -40,7 +40,6 @@
 #include "cmakeprojectmanager.h"
 
 #include <utils/pathchooser.h>
-#include <projectexplorer/environment.h>
 #include <projectexplorer/toolchain.h>
 
 #include <QtGui/QVBoxLayout>
@@ -65,7 +64,7 @@ using namespace CMakeProjectManager::Internal;
 //                                   |--> Already existing cbp file (and new enough) --> Page: Ready to load the project
 //                                   |--> Page: Ask for cmd options, run generator
 
-CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const ProjectExplorer::Environment &env)
+CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const Utils::Environment &env)
     : m_cmakeManager(cmakeManager),
       m_sourceDirectory(sourceDirectory),
       m_creatingCbpFiles(false),
@@ -99,7 +98,7 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
 
 CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory,
                                                const QString &buildDirectory, CMakeOpenProjectWizard::Mode mode,
-                                               const ProjectExplorer::Environment &env)
+                                               const Utils::Environment &env)
     : m_cmakeManager(cmakeManager),
       m_sourceDirectory(sourceDirectory),
       m_creatingCbpFiles(true),
@@ -119,7 +118,7 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
 
 CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory,
                                                const QString &oldBuildDirectory,
-                                               const ProjectExplorer::Environment &env)
+                                               const Utils::Environment &env)
     : m_cmakeManager(cmakeManager),
       m_sourceDirectory(sourceDirectory),
       m_creatingCbpFiles(true),
@@ -213,7 +212,7 @@ void CMakeOpenProjectWizard::setArguments(const QStringList &args)
     m_arguments = args;
 }
 
-ProjectExplorer::Environment CMakeOpenProjectWizard::environment() const
+Utils::Environment CMakeOpenProjectWizard::environment() const
 {
     return m_environment;
 }
@@ -422,7 +421,7 @@ void CMakeRunPage::runCMake()
 {
     m_runCMake->setEnabled(false);
     m_argumentsLineEdit->setEnabled(false);
-    QStringList arguments = ProjectExplorer::Environment::parseCombinedArgString(m_argumentsLineEdit->text());
+    QStringList arguments = Utils::Environment::parseCombinedArgString(m_argumentsLineEdit->text());
     CMakeManager *cmakeManager = m_cmakeWizard->cmakeManager();
 
 #ifdef Q_OS_WIN
@@ -444,7 +443,7 @@ void CMakeRunPage::runCMake()
 #else // Q_OS_WIN
     QString generator = QLatin1String("-GCodeBlocks - Unix Makefiles");
 #endif
-    ProjectExplorer::Environment env = m_cmakeWizard->environment();
+    Utils::Environment env = m_cmakeWizard->environment();
     if (!m_cmakeWizard->msvcVersion().isEmpty()) {
         // Add the environment of that msvc version to environment
         ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChain::createMSVCToolChain(m_cmakeWizard->msvcVersion(), false);
@@ -482,7 +481,7 @@ void CMakeRunPage::cmakeFinished()
     m_argumentsLineEdit->setEnabled(true);
     m_cmakeProcess->deleteLater();
     m_cmakeProcess = 0;
-    m_cmakeWizard->setArguments(ProjectExplorer::Environment::parseCombinedArgString(m_argumentsLineEdit->text()));
+    m_cmakeWizard->setArguments(Utils::Environment::parseCombinedArgString(m_argumentsLineEdit->text()));
     //TODO Actually test that running cmake was finished, for setting this bool
     m_complete = true;
     emit completeChanged();

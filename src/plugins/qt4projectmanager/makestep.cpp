@@ -46,7 +46,6 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 
-using ProjectExplorer::Environment;
 using ExtensionSystem::PluginManager;
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
@@ -122,7 +121,7 @@ bool MakeStep::fromMap(const QVariantMap &map)
 bool MakeStep::init()
 {
     Qt4BuildConfiguration *bc = qt4BuildConfiguration();
-    Environment environment = bc->environment();
+    Utils::Environment environment = bc->environment();
     setEnvironment(environment);
 
     QString workingDirectory;
@@ -284,7 +283,7 @@ void MakeStepConfigWidget::updateDetails()
     if (!m_makeStep->m_makeCmd.isEmpty())
         makeCmd = m_makeStep->m_makeCmd;
     if (!QFileInfo(makeCmd).isAbsolute()) {
-        Environment environment = bc->environment();
+        Utils::Environment environment = bc->environment();
         // Try to detect command in environment
         const QString tmp = environment.searchInPath(makeCmd);
         if (tmp.isEmpty()) {
@@ -328,7 +327,7 @@ void MakeStepConfigWidget::userArgumentsChanged()
     if (m_ignoreChange)
         return;
     const QStringList &makeArguments = m_makeStep->userArguments();
-    m_ui->makeArgumentsLineEdit->setText(ProjectExplorer::Environment::joinArgumentList(makeArguments));
+    m_ui->makeArgumentsLineEdit->setText(Utils::Environment::joinArgumentList(makeArguments));
     updateDetails();
 }
 
@@ -340,7 +339,7 @@ void MakeStepConfigWidget::init()
     m_ui->makeLineEdit->setText(makeCmd);
 
     const QStringList &makeArguments = m_makeStep->userArguments();
-    m_ui->makeArgumentsLineEdit->setText(ProjectExplorer::Environment::joinArgumentList(makeArguments));
+    m_ui->makeArgumentsLineEdit->setText(Utils::Environment::joinArgumentList(makeArguments));
     updateDetails();
 }
 
@@ -354,7 +353,7 @@ void MakeStepConfigWidget::makeArgumentsLineEdited()
 {
     m_ignoreChange = true;
     m_makeStep->setUserArguments(
-            ProjectExplorer::Environment::parseCombinedArgString(m_ui->makeArgumentsLineEdit->text()));
+            Utils::Environment::parseCombinedArgString(m_ui->makeArgumentsLineEdit->text()));
     m_ignoreChange = false;
     updateDetails();
 }

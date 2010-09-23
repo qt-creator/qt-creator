@@ -32,9 +32,9 @@
 #include "qmlprojectconstants.h"
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
-#include <projectexplorer/environment.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/applicationlauncher.h>
+#include <utils/environment.h>
 #include <utils/qtcassert.h>
 
 #include <debugger/debuggerrunner.h>
@@ -56,7 +56,7 @@ namespace Internal {
 QmlRunControl::QmlRunControl(QmlProjectRunConfiguration *runConfiguration, QString mode)
     : RunControl(runConfiguration, mode)
 {
-    ProjectExplorer::Environment environment = ProjectExplorer::Environment::systemEnvironment();
+    Utils::Environment environment = Utils::Environment::systemEnvironment();
 
     m_applicationLauncher.setEnvironment(environment.toStringList());
     m_applicationLauncher.setWorkingDirectory(runConfiguration->workingDirectory());
@@ -173,7 +173,7 @@ QWidget *QmlRunControlFactory::createConfigurationWidget(RunConfiguration *runCo
 
 ProjectExplorer::RunControl *QmlRunControlFactory::createDebugRunControl(QmlProjectRunConfiguration *runConfig)
 {
-    ProjectExplorer::Environment environment = ProjectExplorer::Environment::systemEnvironment();
+    Utils::Environment environment = Utils::Environment::systemEnvironment();
     Debugger::DebuggerStartParameters params;
     params.startMode = Debugger::StartInternal;
     params.executable = runConfig->viewerPath();

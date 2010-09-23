@@ -31,7 +31,8 @@
 #define TOOLCHAIN_H
 
 #include "projectexplorer_export.h"
-#include "environment.h"
+
+#include <utils/environment.h>
 
 #include <QtCore/QString>
 #include <QtCore/QPair>
@@ -39,7 +40,6 @@
 
 namespace ProjectExplorer {
 
-class Environment;
 class IOutputParser;
 class Project;
 
@@ -95,7 +95,7 @@ public:
 
     virtual QByteArray predefinedMacros() = 0;
     virtual QList<HeaderPath> systemHeaderPaths() = 0;
-    virtual void addToEnvironment(ProjectExplorer::Environment &env) = 0;
+    virtual void addToEnvironment(Utils::Environment &env) = 0;
     virtual ToolChainType type() const = 0;
     virtual QString makeCommand() const = 0;
     virtual IOutputParser *outputParser() const = 0;
@@ -126,7 +126,7 @@ public:
     GccToolChain(const QString &gcc);
     virtual QByteArray predefinedMacros();
     virtual QList<HeaderPath> systemHeaderPaths();
-    virtual void addToEnvironment(ProjectExplorer::Environment &env);
+    virtual void addToEnvironment(Utils::Environment &env);
     virtual ToolChainType type() const;
     virtual QString makeCommand() const;
     virtual IOutputParser *outputParser() const;
@@ -146,7 +146,7 @@ class PROJECTEXPLORER_EXPORT MinGWToolChain : public GccToolChain
 {
 public:
     MinGWToolChain(const QString &gcc, const QString &mingwPath);
-    virtual void addToEnvironment(ProjectExplorer::Environment &env);
+    virtual void addToEnvironment(Utils::Environment &env);
     virtual ToolChainType type() const;
     virtual QString makeCommand() const;
     virtual IOutputParser *outputParser() const;
@@ -205,7 +205,7 @@ public:
                                  bool amd64 = false);
     virtual QByteArray predefinedMacros();
     virtual QList<HeaderPath> systemHeaderPaths();
-    virtual void addToEnvironment(ProjectExplorer::Environment &env);
+    virtual void addToEnvironment(Utils::Environment &env);
     virtual ToolChainType type() const;
     virtual QString makeCommand() const;
     virtual IOutputParser *outputParser() const;
@@ -219,7 +219,7 @@ protected:
     virtual bool equals(const ToolChain *other) const;
     static StringStringPairList readEnvironmentSetting(const QString &varsBat,
                                                        const QStringList &args,
-                                                       const ProjectExplorer::Environment &env);
+                                                       const Utils::Environment &env);
 
     QByteArray m_predefinedMacros;
     const Installation m_installation;
@@ -227,11 +227,11 @@ protected:
 private:
     static StringStringPairList readEnvironmentSettingI(const QString &varsBat,
                                                         const QStringList &args,
-                                                        const ProjectExplorer::Environment &env);
+                                                        const Utils::Environment &env);
 
     mutable StringStringPairList m_values;
     mutable bool m_valuesSet;
-    mutable ProjectExplorer::Environment m_lastEnvironment;
+    mutable Utils::Environment m_lastEnvironment;
 };
 
 PROJECTEXPLORER_EXPORT QDebug operator<<(QDebug in, const MSVCToolChain::Installation &i);
@@ -244,7 +244,7 @@ public:
 
     virtual QByteArray predefinedMacros();
     virtual QList<HeaderPath> systemHeaderPaths();
-    virtual void addToEnvironment(ProjectExplorer::Environment &env);
+    virtual void addToEnvironment(Utils::Environment &env);
     virtual ToolChainType type() const;
 
 protected:

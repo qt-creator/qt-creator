@@ -107,7 +107,7 @@ public:
     void setMingwDirectory(const QString &directory);
     QString msvcVersion() const;
     void setMsvcVersion(const QString &version);
-    void addToEnvironment(ProjectExplorer::Environment &env) const;
+    void addToEnvironment(Utils::Environment &env) const;
 
     bool hasDebuggingHelper() const;
     QString debuggingHelperLibrary() const;

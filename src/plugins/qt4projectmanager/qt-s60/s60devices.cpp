@@ -30,7 +30,8 @@
 #include "s60devices.h"
 #include "gccetoolchain.h"
 
-#include <projectexplorer/environment.h>
+#include <utils/environment.h>
+
 #include <coreplugin/icore.h>
 
 #include <QtCore/QSettings>
@@ -563,7 +564,7 @@ QList<ProjectExplorer::HeaderPath> S60ToolChainMixin::epocHeaderPaths() const
     return rc;
 }
 
-void S60ToolChainMixin::addEpocToEnvironment(ProjectExplorer::Environment *env) const
+void S60ToolChainMixin::addEpocToEnvironment(Utils::Environment *env) const
 {
     QString epocRootPath(m_device.epocRoot);
     if (!epocRootPath.endsWith(QChar('/')))
@@ -615,7 +616,7 @@ QList<ProjectExplorer::HeaderPath> S60ToolChainMixin::gnuPocRvctHeaderPaths(int 
     return rc;
 }
 
-void S60ToolChainMixin::addGnuPocToEnvironment(ProjectExplorer::Environment *env) const
+void S60ToolChainMixin::addGnuPocToEnvironment(Utils::Environment *env) const
 {
     env->prependOrSetPath(QDir::toNativeSeparators(m_device.toolsRoot + QLatin1String("/epoc32/tools")));
     const QString epocRootVar = QLatin1String("EPOCROOT");

@@ -149,7 +149,7 @@ QVariantMap MaemoRunConfiguration::toMap() const
     map.insert(UseRemoteGdbKey, useRemoteGdb());
     map.insert(BaseEnvironmentBaseKey, m_baseEnvironmentBase);
     map.insert(UserEnvironmentChangesKey,
-        ProjectExplorer::EnvironmentItem::toStringList(m_userEnvironmentChanges));
+        Utils::EnvironmentItem::toStringList(m_userEnvironmentChanges));
     map.unite(m_remoteMounts->toMap());
     return map;
 }
@@ -164,7 +164,7 @@ bool MaemoRunConfiguration::fromMap(const QVariantMap &map)
     m_proFilePath = dir.filePath(map.value(ProFileKey).toString());
     m_useRemoteGdb = map.value(UseRemoteGdbKey, DefaultUseRemoteGdbValue).toBool();
     m_userEnvironmentChanges =
-        ProjectExplorer::EnvironmentItem::fromStringList(map.value(UserEnvironmentChangesKey)
+        Utils::EnvironmentItem::fromStringList(map.value(UserEnvironmentChangesKey)
         .toStringList());
     m_baseEnvironmentBase = static_cast<BaseEnvironmentBase> (map.value(BaseEnvironmentBaseKey,
         SystemEnvironmentBase).toInt());
@@ -355,26 +355,26 @@ void MaemoRunConfiguration::setBaseEnvironmentBase(BaseEnvironmentBase env)
     }
 }
 
-ProjectExplorer::Environment MaemoRunConfiguration::environment() const
+Utils::Environment MaemoRunConfiguration::environment() const
 {
-    ProjectExplorer::Environment env = baseEnvironment();
+    Utils::Environment env = baseEnvironment();
     env.modify(userEnvironmentChanges());
     return env;
 }
 
-ProjectExplorer::Environment MaemoRunConfiguration::baseEnvironment() const
+Utils::Environment MaemoRunConfiguration::baseEnvironment() const
 {
     return (m_baseEnvironmentBase == SystemEnvironmentBase ? systemEnvironment()
-        : ProjectExplorer::Environment());
+        : Utils::Environment());
 }
 
-QList<ProjectExplorer::EnvironmentItem> MaemoRunConfiguration::userEnvironmentChanges() const
+QList<Utils::EnvironmentItem> MaemoRunConfiguration::userEnvironmentChanges() const
 {
     return m_userEnvironmentChanges;
 }
 
 void MaemoRunConfiguration::setUserEnvironmentChanges(
-    const QList<ProjectExplorer::EnvironmentItem> &diff)
+    const QList<Utils::EnvironmentItem> &diff)
 {
     if (m_userEnvironmentChanges != diff) {
         m_userEnvironmentChanges = diff;
@@ -382,12 +382,12 @@ void MaemoRunConfiguration::setUserEnvironmentChanges(
     }
 }
 
-ProjectExplorer::Environment MaemoRunConfiguration::systemEnvironment() const
+Utils::Environment MaemoRunConfiguration::systemEnvironment() const
 {
     return m_systemEnvironment;
 }
 
-void MaemoRunConfiguration::setSystemEnvironment(const ProjectExplorer::Environment &environment)
+void MaemoRunConfiguration::setSystemEnvironment(const Utils::Environment &environment)
 {
     if (m_systemEnvironment.size() == 0 || m_systemEnvironment != environment) {
         m_systemEnvironment = environment;

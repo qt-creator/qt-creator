@@ -31,9 +31,9 @@
 #define CMAKERUNCONFIGURATION_H
 
 #include <projectexplorer/applicationrunconfiguration.h>
-#include <projectexplorer/environment.h>
 #include <projectexplorer/persistentsettings.h>
 #include <projectexplorer/environmenteditmodel.h>
+#include <utils/environment.h>
 #include <utils/pathchooser.h>
 #include <utils/detailswidget.h>
 
@@ -69,7 +69,7 @@ public:
     RunMode runMode() const;
     QString workingDirectory() const;
     QStringList commandLineArguments() const;
-    ProjectExplorer::Environment environment() const;
+    Utils::Environment environment() const;
     QWidget *createConfigurationWidget();
 
     void setExecutable(const QString &executable);
@@ -92,7 +92,7 @@ public:
 
 signals:
     void baseEnvironmentChanged();
-    void userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &diff);
+    void userEnvironmentChangesChanged(const QList<Utils::EnvironmentItem> &diff);
     void workingDirectoryChanged(const QString&);
 
 private slots:
@@ -111,11 +111,11 @@ private:
                                BuildEnvironmentBase = 2};
     void setBaseEnvironmentBase(BaseEnvironmentBase env);
     BaseEnvironmentBase baseEnvironmentBase() const;
-    ProjectExplorer::Environment baseEnvironment() const;
+    Utils::Environment baseEnvironment() const;
     QString baseEnvironmentText() const;
 
-    void setUserEnvironmentChanges(const QList<ProjectExplorer::EnvironmentItem> &diff);
-    QList<ProjectExplorer::EnvironmentItem> userEnvironmentChanges() const;
+    void setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff);
+    QList<Utils::EnvironmentItem> userEnvironmentChanges() const;
 
     RunMode m_runMode;
     QString m_buildTarget;
@@ -123,7 +123,7 @@ private:
     QString m_userWorkingDirectory;
     QString m_title;
     QString m_arguments;
-    QList<ProjectExplorer::EnvironmentItem> m_userEnvironmentChanges;
+    QList<Utils::EnvironmentItem> m_userEnvironmentChanges;
     BaseEnvironmentBase m_baseEnvironmentBase;
     bool m_enabled;
 };

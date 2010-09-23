@@ -35,10 +35,12 @@
 
 QT_FORWARD_DECLARE_CLASS(QIcon)
 
-namespace ProjectExplorer {
-
-class RunConfiguration;
+namespace Utils {
 class Environment;
+}
+
+namespace ProjectExplorer {
+class RunConfiguration;
 class BuildConfiguration;
 class DeployConfiguration;
 class IBuildConfigurationFactory;

@@ -98,7 +98,7 @@ QVariantMap BuildConfiguration::toMap() const
 {
     QVariantMap map(ProjectConfiguration::toMap());
     map.insert(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY), m_clearSystemEnvironment);
-    map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY), EnvironmentItem::toStringList(m_userEnvironmentChanges));
+    map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY), Utils::EnvironmentItem::toStringList(m_userEnvironmentChanges));
 
     map.insert(QLatin1String(BUILD_STEP_LIST_COUNT), m_stepLists.count());
     for (int i = 0; i < m_stepLists.count(); ++i)
@@ -110,7 +110,7 @@ QVariantMap BuildConfiguration::toMap() const
 bool BuildConfiguration::fromMap(const QVariantMap &map)
 {
     m_clearSystemEnvironment = map.value(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY)).toBool();
-    m_userEnvironmentChanges = EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
+    m_userEnvironmentChanges = Utils::EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
 
     qDeleteAll(m_stepLists);
     m_stepLists.clear();
@@ -143,11 +143,11 @@ Target *BuildConfiguration::target() const
     return static_cast<Target *>(parent());
 }
 
-Environment BuildConfiguration::baseEnvironment() const
+Utils::Environment BuildConfiguration::baseEnvironment() const
 {
-    Environment result;
+    Utils::Environment result;
     if (useSystemEnvironment())
-        result = Environment(QProcess::systemEnvironment());
+        result = Utils::Environment(QProcess::systemEnvironment());
 
     result.set(QLatin1String("BUILDDIR"), QDir::toNativeSeparators(target()->project()->projectDirectory()));
     result.set(QLatin1String("SOURCEDIR"), QDir::toNativeSeparators(target()->project()->projectDirectory()));
@@ -163,9 +163,9 @@ QString BuildConfiguration::baseEnvironmentText() const
         return tr("Clean Environment");
 }
 
-Environment BuildConfiguration::environment() const
+Utils::Environment BuildConfiguration::environment() const
 {
-    Environment env = baseEnvironment();
+    Utils::Environment env = baseEnvironment();
     env.modify(userEnvironmentChanges());
     return env;
 }
@@ -183,12 +183,12 @@ bool BuildConfiguration::useSystemEnvironment() const
     return !m_clearSystemEnvironment;
 }
 
-QList<EnvironmentItem> BuildConfiguration::userEnvironmentChanges() const
+QList<Utils::EnvironmentItem> BuildConfiguration::userEnvironmentChanges() const
 {
     return m_userEnvironmentChanges;
 }
 
-void BuildConfiguration::setUserEnvironmentChanges(const QList<ProjectExplorer::EnvironmentItem> &diff)
+void BuildConfiguration::setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff)
 {
     if (m_userEnvironmentChanges == diff)
         return;

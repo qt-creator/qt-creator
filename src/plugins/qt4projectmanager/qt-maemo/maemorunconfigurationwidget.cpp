@@ -263,8 +263,8 @@ void MaemoRunConfigurationWidget::addEnvironmentWidgets(QVBoxLayout *mainLayout)
     connect(m_runConfiguration, SIGNAL(systemEnvironmentChanged()),
         this, SLOT(systemEnvironmentChanged()));
     connect(m_runConfiguration,
-        SIGNAL(userEnvironmentChangesChanged(QList<ProjectExplorer::EnvironmentItem>)),
-        this, SLOT(userEnvironmentChangesChanged(QList<ProjectExplorer::EnvironmentItem>)));
+        SIGNAL(userEnvironmentChangesChanged(QList<Utils::EnvironmentItem>)),
+        this, SLOT(userEnvironmentChangesChanged(QList<Utils::EnvironmentItem>)));
     connect(m_fetchEnv, SIGNAL(pressed()), this, SLOT(fetchEnvironment()));
     connect(m_deviceEnvReader, SIGNAL(finished()), this, SLOT(fetchEnvironmentFinished()));
 }
@@ -421,7 +421,7 @@ void MaemoRunConfigurationWidget::systemEnvironmentChanged()
     m_environmentWidget->setBaseEnvironment(m_runConfiguration->systemEnvironment());
 }
 
-void MaemoRunConfigurationWidget::userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &userChanges)
+void MaemoRunConfigurationWidget::userEnvironmentChangesChanged(const QList<Utils::EnvironmentItem> &userChanges)
 {
     if (m_ignoreChange)
         return;

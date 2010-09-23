@@ -224,14 +224,14 @@ static QByteArray gccPredefinedMacros(const QString &gcc, const QStringList &env
 QByteArray GccToolChain::predefinedMacros()
 {
     if (m_predefinedMacros.isEmpty()) {
-        ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+        Utils::Environment env = Utils::Environment::systemEnvironment();
         addToEnvironment(env);
         m_predefinedMacros = gccPredefinedMacros(m_gcc, env.toStringList());
     }
     return m_predefinedMacros;
 }
 
-static QList<HeaderPath> gccSystemHeaderPaths(const QString &gcc, ProjectExplorer::Environment env)
+static QList<HeaderPath> gccSystemHeaderPaths(const QString &gcc, Utils::Environment env)
 {
     QList<HeaderPath> systemHeaderPaths;
     QStringList arguments;
@@ -300,14 +300,14 @@ static QList<HeaderPath> gccSystemHeaderPaths(const QString &gcc, ProjectExplore
 QList<HeaderPath> GccToolChain::systemHeaderPaths()
 {
     if (m_systemHeaderPaths.isEmpty()) {
-        ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+        Utils::Environment env = Utils::Environment::systemEnvironment();
         addToEnvironment(env);
         m_systemHeaderPaths = gccSystemHeaderPaths(m_gcc, env);
     }
     return m_systemHeaderPaths;
 }
 
-void GccToolChain::addToEnvironment(ProjectExplorer::Environment &env)
+void GccToolChain::addToEnvironment(Utils::Environment &env)
 {
     Q_UNUSED(env)
 }
@@ -344,7 +344,7 @@ bool MinGWToolChain::equals(const ToolChain *other) const
     return (m_mingwPath == o->m_mingwPath && this->GccToolChain::equals(other));
 }
 
-void MinGWToolChain::addToEnvironment(ProjectExplorer::Environment &env)
+void MinGWToolChain::addToEnvironment(Utils::Environment &env)
 {
     if (debug)
         qDebug() << "MinGWToolChain::addToEnvironment" << m_mingwPath;
@@ -696,7 +696,7 @@ static QByteArray msvcPredefinedMacros(const QStringList &env)
 QByteArray MSVCToolChain::predefinedMacros()
 {
     if (m_predefinedMacros.isEmpty()) {
-        ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+        Utils::Environment env = Utils::Environment::systemEnvironment();
         addToEnvironment(env);
         m_predefinedMacros = msvcPredefinedMacros(env.toStringList());
     }
@@ -706,7 +706,7 @@ QByteArray MSVCToolChain::predefinedMacros()
 QList<HeaderPath> MSVCToolChain::systemHeaderPaths()
 {
     //TODO fix this code
-    ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+    Utils::Environment env = Utils::Environment::systemEnvironment();
     addToEnvironment(env);
     QList<HeaderPath> headerPaths;
     foreach(const QString &path, env.value("INCLUDE").split(QLatin1Char(';'))) {
@@ -717,7 +717,7 @@ QList<HeaderPath> MSVCToolChain::systemHeaderPaths()
 
 MSVCToolChain::StringStringPairList MSVCToolChain::readEnvironmentSetting(const QString &varsBat,
                                                                           const QStringList &args,
-                                                                          const ProjectExplorer::Environment &env)
+                                                                          const Utils::Environment &env)
 {
     const StringStringPairList rc = readEnvironmentSettingI(varsBat, args, env);
     if (debug) {
@@ -736,7 +736,7 @@ MSVCToolChain::StringStringPairList MSVCToolChain::readEnvironmentSetting(const 
 // Windows: Expand the delayed evaluation references returned by the
 // SDK setup scripts: "PATH=!Path!;foo". Some values might expand
 // to empty and should not be added
-static inline QString winExpandDelayedEnvReferences(QString in, const ProjectExplorer::Environment &env)
+static inline QString winExpandDelayedEnvReferences(QString in, const Utils::Environment &env)
 {
     const QChar exclamationMark = QLatin1Char('!');
     for (int pos = 0; pos < in.size(); ) {
@@ -757,7 +757,7 @@ static inline QString winExpandDelayedEnvReferences(QString in, const ProjectExp
 
 MSVCToolChain::StringStringPairList MSVCToolChain::readEnvironmentSettingI(const QString &varsBat,
                                                                            const QStringList &args,
-                                                                           const ProjectExplorer::Environment &env)
+                                                                           const Utils::Environment &env)
 {
     // Run the setup script and extract the variables
     if (!QFileInfo(varsBat).exists())
@@ -818,7 +818,7 @@ MSVCToolChain::StringStringPairList MSVCToolChain::readEnvironmentSettingI(const
     return rc;
 }
 
-void MSVCToolChain::addToEnvironment(ProjectExplorer::Environment &env)
+void MSVCToolChain::addToEnvironment(Utils::Environment &env)
 {
     if (debug)
         qDebug() << "MSVCToolChain::addToEnvironment" << m_installation.name;
@@ -890,7 +890,7 @@ QByteArray WinCEToolChain::predefinedMacros()
 QList<HeaderPath> WinCEToolChain::systemHeaderPaths()
 {
     //TODO fix this code
-    ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+    Utils::Environment env = Utils::Environment::systemEnvironment();
     addToEnvironment(env);
 
     QList<HeaderPath> headerPaths;
@@ -905,7 +905,7 @@ QList<HeaderPath> WinCEToolChain::systemHeaderPaths()
     return headerPaths;
 }
 
-void WinCEToolChain::addToEnvironment(ProjectExplorer::Environment &env)
+void WinCEToolChain::addToEnvironment(Utils::Environment &env)
 {
     MSVCToolChain::addToEnvironment(env);
     QSettings registry(MSVC_RegKey, QSettings::NativeFormat);

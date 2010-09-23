@@ -194,9 +194,9 @@ Qt4Target *Qt4BuildConfiguration::qt4Target() const
     return static_cast<Qt4Target *>(target());
 }
 
-ProjectExplorer::Environment Qt4BuildConfiguration::baseEnvironment() const
+Utils::Environment Qt4BuildConfiguration::baseEnvironment() const
 {
-    Environment env = BuildConfiguration::baseEnvironment();
+    Utils::Environment env = BuildConfiguration::baseEnvironment();
     qtVersion()->addToEnvironment(env);
     env.set(QLatin1String("BUILDDIR"), QDir::toNativeSeparators(buildDirectory()));
 

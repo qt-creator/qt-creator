@@ -49,9 +49,12 @@ class QToolButton;
 class QVBoxLayout;
 QT_END_NAMESPACE
 
+namespace Utils {
+class EnvironmentItem;
+}
+
 namespace ProjectExplorer {
-    struct EnvironmentItem;
-    class EnvironmentWidget;
+class EnvironmentWidget;
 }
 
 namespace Utils { class DetailsWidget; }
@@ -86,7 +89,7 @@ private slots:
     void baseEnvironmentSelected(int index);
     void baseEnvironmentChanged();
     void systemEnvironmentChanged();
-    void userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &userChanges);
+    void userEnvironmentChangesChanged(const QList<Utils::EnvironmentItem> &userChanges);
     void handleRemoteMountsChanged();
     void handleDebuggingTypeChanged();
     void handleDeploySpecsChanged();

@@ -50,7 +50,7 @@ public:
 
     QByteArray predefinedMacros();
     virtual QList<ProjectExplorer::HeaderPath> systemHeaderPaths();
-    virtual void addToEnvironment(ProjectExplorer::Environment &env);
+    virtual void addToEnvironment(Utils::Environment &env);
     virtual ProjectExplorer::ToolChain::ToolChainType type() const;
     virtual QString makeCommand() const;
 

@@ -117,7 +117,7 @@ void RVCTToolChain::updateVersion()
     m_minor = 0;
     m_build = 0;
     QProcess armcc;
-    ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+    Utils::Environment env = Utils::Environment::systemEnvironment();
     addToEnvironment(env);
     armcc.setEnvironment(env.toStringList());
     const QString binary = rvctBinary();
@@ -180,7 +180,7 @@ QList<HeaderPath> RVCTToolChain::systemHeaderPaths()
 {
     if (m_systemHeaderPaths.isEmpty()) {
         updateVersion();
-        ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+        Utils::Environment env = Utils::Environment::systemEnvironment();
         QString rvctInclude = env.value(QString::fromLatin1("RVCT%1%2INC").arg(m_major).arg(m_minor));
         if (!rvctInclude.isEmpty())
             m_systemHeaderPaths.append(HeaderPath(rvctInclude, HeaderPath::GlobalHeaderPath));
@@ -206,7 +206,7 @@ static inline QStringList headerPathToStringList(const QList<ProjectExplorer::He
 
 // Expand an RVCT variable, such as RVCT22BIN, by some new values
 void RVCTToolChain::addToRVCTPathVariable(const QString &postfix, const QStringList &values,
-                                  ProjectExplorer::Environment &env) const
+                                  Utils::Environment &env) const
 {
     // get old values
     const QChar separator = QLatin1Char(',');
@@ -237,7 +237,7 @@ QStringList RVCTToolChain::libPaths()
     return rc;
 }
 
-void RVCTToolChain::addToEnvironment(ProjectExplorer::Environment &env)
+void RVCTToolChain::addToEnvironment(Utils::Environment &env)
 {
     updateVersion();
     switch (m_type) {

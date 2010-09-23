@@ -35,7 +35,6 @@
 #include "cmaketarget.h"
 
 #include <coreplugin/coreconstants.h>
-#include <projectexplorer/environment.h>
 #include <projectexplorer/debugginghelper.h>
 #include <utils/qtcassert.h>
 #include <utils/debuggerlanguagechooser.h>
@@ -141,7 +140,7 @@ QString CMakeRunConfiguration::workingDirectory() const
 
 QStringList CMakeRunConfiguration::commandLineArguments() const
 {
-    return ProjectExplorer::Environment::parseCombinedArgString(m_arguments);
+    return Utils::Environment::parseCombinedArgString(m_arguments);
 }
 
 QString CMakeRunConfiguration::title() const
@@ -186,7 +185,7 @@ QVariantMap CMakeRunConfiguration::toMap() const
     map.insert(QLatin1String(USE_TERMINAL_KEY), m_runMode == Console);
     map.insert(QLatin1String(TITLE_KEY), m_title);
     map.insert(QLatin1String(ARGUMENTS_KEY), m_arguments);
-    map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY), ProjectExplorer::EnvironmentItem::toStringList(m_userEnvironmentChanges));
+    map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY), Utils::EnvironmentItem::toStringList(m_userEnvironmentChanges));
     map.insert(QLatin1String(BASE_ENVIRONMENT_BASE_KEY), m_baseEnvironmentBase);
 
     return map;
@@ -200,7 +199,7 @@ bool CMakeRunConfiguration::fromMap(const QVariantMap &map)
     m_runMode = map.value(QLatin1String(USE_TERMINAL_KEY)).toBool() ? Console : Gui;
     m_title = map.value(QLatin1String(TITLE_KEY)).toString();
     m_arguments = map.value(QLatin1String(ARGUMENTS_KEY)).toString();
-    m_userEnvironmentChanges = ProjectExplorer::EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
+    m_userEnvironmentChanges = Utils::EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
     m_baseEnvironmentBase = static_cast<BaseEnvironmentBase>(map.value(QLatin1String(BASE_ENVIRONMENT_BASE_KEY), static_cast<int>(CMakeRunConfiguration::BuildEnvironmentBase)).toInt());
 
     return RunConfiguration::fromMap(map);
@@ -238,13 +237,13 @@ QStringList CMakeRunConfiguration::dumperLibraryLocations() const
     return ProjectExplorer::DebuggingHelperLibrary::debuggingHelperLibraryLocationsByInstallData(qtInstallData);
 }
 
-ProjectExplorer::Environment CMakeRunConfiguration::baseEnvironment() const
+Utils::Environment CMakeRunConfiguration::baseEnvironment() const
 {
-    ProjectExplorer::Environment env;
+    Utils::Environment env;
     if (m_baseEnvironmentBase == CMakeRunConfiguration::CleanEnvironmentBase) {
         // Nothing
     } else  if (m_baseEnvironmentBase == CMakeRunConfiguration::SystemEnvironmentBase) {
-        env = ProjectExplorer::Environment::systemEnvironment();
+        env = Utils::Environment::systemEnvironment();
     } else  if (m_baseEnvironmentBase == CMakeRunConfiguration::BuildEnvironmentBase) {
         env = activeBuildConfiguration()->environment();
     }
@@ -276,19 +275,19 @@ CMakeRunConfiguration::BaseEnvironmentBase CMakeRunConfiguration::baseEnvironmen
     return m_baseEnvironmentBase;
 }
 
-ProjectExplorer::Environment CMakeRunConfiguration::environment() const
+Utils::Environment CMakeRunConfiguration::environment() const
 {
-    ProjectExplorer::Environment env = baseEnvironment();
+    Utils::Environment env = baseEnvironment();
     env.modify(userEnvironmentChanges());
     return env;
 }
 
-QList<ProjectExplorer::EnvironmentItem> CMakeRunConfiguration::userEnvironmentChanges() const
+QList<Utils::EnvironmentItem> CMakeRunConfiguration::userEnvironmentChanges() const
 {
     return m_userEnvironmentChanges;
 }
 
-void CMakeRunConfiguration::setUserEnvironmentChanges(const QList<ProjectExplorer::EnvironmentItem> &diff)
+void CMakeRunConfiguration::setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff)
 {
     if (m_userEnvironmentChanges != diff) {
         m_userEnvironmentChanges = diff;
@@ -327,7 +326,7 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     fl->setMargin(0);
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     QLineEdit *argumentsLineEdit = new QLineEdit();
-    argumentsLineEdit->setText(ProjectExplorer::Environment::joinArgumentList(cmakeRunConfiguration->commandLineArguments()));
+    argumentsLineEdit->setText(Utils::Environment::joinArgumentList(cmakeRunConfiguration->commandLineArguments()));
     connect(argumentsLineEdit, SIGNAL(textChanged(QString)),
             this, SLOT(setArguments(QString)));
     fl->addRow(tr("Arguments:"), argumentsLineEdit);
@@ -426,7 +425,7 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
             this, SLOT(workingDirectoryChanged(QString)));
     connect(m_cmakeRunConfiguration, SIGNAL(baseEnvironmentChanged()),
             this, SLOT(baseEnvironmentChanged()));
-    connect(m_cmakeRunConfiguration, SIGNAL(userEnvironmentChangesChanged(QList<ProjectExplorer::EnvironmentItem>)),
+    connect(m_cmakeRunConfiguration, SIGNAL(userEnvironmentChangesChanged(QList<Utils::EnvironmentItem>)),
             this, SLOT(userEnvironmentChangesChanged()));
 
 }

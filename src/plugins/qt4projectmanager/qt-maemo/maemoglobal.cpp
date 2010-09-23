@@ -62,11 +62,11 @@ QString MaemoGlobal::remoteSourceProfilesCommand()
     return QString::fromAscii(remoteCall);
 }
 
-QString MaemoGlobal::remoteEnvironment(const QList<ProjectExplorer::EnvironmentItem> &list)
+QString MaemoGlobal::remoteEnvironment(const QList<Utils::EnvironmentItem> &list)
 {
     QString env;
     QString placeHolder = QLatin1String("%1=%2 ");
-    foreach (const ProjectExplorer::EnvironmentItem &item, list)
+    foreach (const Utils::EnvironmentItem &item, list)
         env.append(placeHolder.arg(item.name).arg(item.value));
     return env.mid(0, env.size() - 1);
 }

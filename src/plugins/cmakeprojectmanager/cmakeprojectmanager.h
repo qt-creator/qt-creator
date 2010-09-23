@@ -32,7 +32,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <projectexplorer/iprojectmanager.h>
-#include <projectexplorer/environment.h>
+#include <utils/environment.h>
 #include <utils/pathchooser.h>
 #include <QtCore/QFuture>
 #include <QtCore/QStringList>
@@ -67,15 +67,15 @@ public:
                        const QStringList &arguments,
                        const QString &sourceDirectory,
                        const QDir &buildDirectory,
-                       const ProjectExplorer::Environment &env,
+                       const Utils::Environment &env,
                        const QString &generator);
     bool hasCodeBlocksMsvcGenerator() const;
     static QString findCbpFile(const QDir &);
 
-    static QString findDumperLibrary(const ProjectExplorer::Environment &env);
+    static QString findDumperLibrary(const Utils::Environment &env);
 private:
     static QString qtVersionForQMake(const QString &qmakePath);
-    static QPair<QString, QString> findQtDir(const ProjectExplorer::Environment &env);
+    static QPair<QString, QString> findQtDir(const Utils::Environment &env);
     Core::Context m_projectContext;
     Core::Context m_projectLanguage;
     CMakeSettingsPage *m_settingsPage;

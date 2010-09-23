@@ -36,10 +36,13 @@
 
 QT_FORWARD_DECLARE_CLASS(QModelIndex)
 
+namespace Utils {
+class Environment;
+class EnvironmentItem;
+}
+
 namespace ProjectExplorer {
 struct EnvironmentWidgetPrivate;
-class Environment;
-struct EnvironmentItem;
 
 class PROJECTEXPLORER_EXPORT EnvironmentWidget : public QWidget
 {
@@ -49,10 +52,10 @@ public:
     virtual ~EnvironmentWidget();
 
     void setBaseEnvironmentText(const QString &text);
-    void setBaseEnvironment(const ProjectExplorer::Environment &env);
+    void setBaseEnvironment(const Utils::Environment &env);
 
-    QList<EnvironmentItem> userChanges() const;
-    void setUserChanges(const QList<EnvironmentItem> &list);
+    QList<Utils::EnvironmentItem> userChanges() const;
+    void setUserChanges(const QList<Utils::EnvironmentItem> &list);
 
 signals:
     void userChangesChanged();

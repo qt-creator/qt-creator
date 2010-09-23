@@ -391,7 +391,7 @@ void QtVersionManager::addNewVersionsFromInstaller()
 void QtVersionManager::updateSystemVersion()
 {
     bool haveSystemVersion = false;
-    QString systemQMakePath = DebuggingHelperLibrary::findSystemQt(ProjectExplorer::Environment::systemEnvironment());
+    QString systemQMakePath = DebuggingHelperLibrary::findSystemQt(Utils::Environment::systemEnvironment());
     if (systemQMakePath.isNull())
         systemQMakePath = tr("<not found>");
 
@@ -1452,7 +1452,7 @@ void QtVersion::updateToolChainAndMkspec() const
                 ProjectExplorer::ToolChain::createMSVCToolChain(m_msvcVersion, isQt64Bit()));
         m_targetIds.insert(QLatin1String(Constants::DESKTOP_TARGET_ID));
     } else if (qmakeCXX == "g++" && makefileGenerator == "MINGW") {
-        ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+        Utils::Environment env = Utils::Environment::systemEnvironment();
         //addToEnvironment(env);
         env.prependOrSetPath(mingwDirectory() + "/bin");
         qmakeCXX = env.searchInPath(qmakeCXX);
@@ -1461,7 +1461,7 @@ void QtVersion::updateToolChainAndMkspec() const
         m_targetIds.insert(QLatin1String(Constants::DESKTOP_TARGET_ID));
     } else if (qmakeCXX.contains("g++")) { // All g++ variants are treated as desktop g++
                                            // we should try to do a better job, but for now that's good enough
-        ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+        Utils::Environment env = Utils::Environment::systemEnvironment();
         //addToEnvironment(env);
         qmakeCXX = env.searchInPath(qmakeCXX);
         m_toolChains << ToolChainPtr(ProjectExplorer::ToolChain::createGccToolChain(qmakeCXX));
@@ -1549,7 +1549,7 @@ void QtVersion::setMsvcVersion(const QString &version)
     m_toolChainUpToDate = false;
 }
 
-void QtVersion::addToEnvironment(ProjectExplorer::Environment &env) const
+void QtVersion::addToEnvironment(Utils::Environment &env) const
 {
     env.set("QTDIR", QDir::toNativeSeparators(versionInfo().value("QT_INSTALL_DATA")));
     env.prependOrSetPath(versionInfo().value("QT_INSTALL_BINS"));
@@ -1707,7 +1707,7 @@ QString QtVersion::buildDebuggingHelperLibrary()
     QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");
     if (qtInstallData.isEmpty())
         return QString();
-    ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+    Utils::Environment env = Utils::Environment::systemEnvironment();
     addToEnvironment(env);
 
     // TODO: the debugging helper doesn't comply to actual tool chain yet

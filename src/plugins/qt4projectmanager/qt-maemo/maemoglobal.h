@@ -30,8 +30,9 @@
 #ifndef MAEMOGLOBAL_H
 #define MAEMOGLOBAL_H
 
+#include <utils/environment.h>
+
 #include <projectexplorer/deployconfiguration.h>
-#include <projectexplorer/environment.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
@@ -50,7 +51,7 @@ public:
     static QString homeDirOnDevice(const QString &uname);
     static QString remoteSudo();
     static QString remoteCommandPrefix(const QString &commandFilePath);
-    static QString remoteEnvironment(const QList<ProjectExplorer::EnvironmentItem> &list);
+    static QString remoteEnvironment(const QList<Utils::EnvironmentItem> &list);
     static QString remoteProjectSourcesMountPoint();
     static QString remoteSourceProfilesCommand();
 
