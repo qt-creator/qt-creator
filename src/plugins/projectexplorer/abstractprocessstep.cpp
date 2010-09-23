@@ -71,6 +71,11 @@ void AbstractProcessStep::setCommand(const QString &cmd)
     m_command = cmd;
 }
 
+QString AbstractProcessStep::command() const
+{
+    return m_command;
+}
+
 QString AbstractProcessStep::workingDirectory() const
 {
     return m_workingDirectory;
@@ -114,6 +119,11 @@ void AbstractProcessStep::setArguments(const QStringList &arguments)
     m_arguments = arguments;
 }
 
+QStringList AbstractProcessStep::arguments() const
+{
+    return m_arguments;
+}
+
 void AbstractProcessStep::setEnabled(bool b)
 {
     m_enabled = b;
@@ -131,11 +141,6 @@ void AbstractProcessStep::setEnvironment(Utils::Environment env)
 
 bool AbstractProcessStep::init()
 {
-    if (QFileInfo(m_command).isRelative()) {
-        QString searchInPath = m_environment.searchInPath(m_command);
-        if (!searchInPath.isEmpty())
-            m_command = searchInPath;
-    }
     return true;
 }
 
@@ -146,12 +151,13 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
         fi.reportResult(true);
         return;
     }
-    QDir wd(m_workingDirectory);
+    QString workDir = m_environment.expandVariables(m_workingDirectory);
+    QDir wd(workDir);
     if (!wd.exists())
         wd.mkpath(wd.absolutePath());
 
     m_process = new QProcess();
-    m_process->setWorkingDirectory(m_workingDirectory);
+    m_process->setWorkingDirectory(workDir);
     m_process->setEnvironment(m_environment.toStringList());
 
     connect(m_process, SIGNAL(readyReadStandardOutput()),
@@ -165,7 +171,7 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
             this, SLOT(slotProcessFinished(int, QProcess::ExitStatus)),
             Qt::DirectConnection);
 
-    m_process->start(m_command, m_arguments);
+    m_process->start(expandedCommand(), m_environment.expandVariables(m_arguments));
     if (!m_process->waitForStarted()) {
         processStartupFailed();
         delete m_process;
@@ -205,27 +211,34 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
 
 void AbstractProcessStep::processStarted()
 {
-    emit addOutput(tr("Starting: \"%1\" %2\n").arg(QDir::toNativeSeparators(m_command), m_arguments.join(" ")), BuildStep::MessageOutput);
+    emit addOutput(tr("Starting: \"%1\" %2\n")
+                   .arg(QDir::toNativeSeparators(expandedCommand()),
+                        m_environment.expandVariables(m_arguments).join(QChar(' '))),
+                   BuildStep::MessageOutput);
 }
 
 void AbstractProcessStep::processFinished(int exitCode, QProcess::ExitStatus status)
 {
+    QString command = expandedCommand();
     if (status == QProcess::NormalExit && exitCode == 0) {
         emit addOutput(tr("The process \"%1\" exited normally.")
-                       .arg(QDir::toNativeSeparators(m_command)),
+                       .arg(QDir::toNativeSeparators(command)),
                        BuildStep::MessageOutput);
     } else if (status == QProcess::NormalExit) {
         emit addOutput(tr("The process \"%1\" exited with code %2.")
-                       .arg(QDir::toNativeSeparators(m_command), QString::number(m_process->exitCode())),
+                       .arg(QDir::toNativeSeparators(command), QString::number(m_process->exitCode())),
                        BuildStep::ErrorMessageOutput);
     } else {
-        emit addOutput(tr("The process \"%1\" crashed.").arg(QDir::toNativeSeparators(m_command)), BuildStep::ErrorMessageOutput);
+        emit addOutput(tr("The process \"%1\" crashed.").arg(QDir::toNativeSeparators(command)), BuildStep::ErrorMessageOutput);
     }
 }
 
 void AbstractProcessStep::processStartupFailed()
 {
-    emit addOutput(tr("Could not start process \"%1\"").arg(QDir::toNativeSeparators(m_command)), BuildStep::ErrorMessageOutput);
+    emit addOutput(tr("Could not start process \"%1\" %2").
+                   arg(QDir::toNativeSeparators(expandedCommand()),
+                       m_environment.expandVariables(m_arguments).join(QChar(' '))),
+                   BuildStep::ErrorMessageOutput);
 }
 
 bool AbstractProcessStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
@@ -339,4 +352,12 @@ void AbstractProcessStep::slotProcessFinished(int, QProcess::ExitStatus)
         stdOutput(line);
 
     m_eventLoop->exit(0);
+}
+
+QString AbstractProcessStep::expandedCommand() const
+{
+    QString command = m_environment.searchInPath(m_command, QStringList() << workingDirectory());
+    if (command.isEmpty())
+        command = m_command;
+    return command;
 }

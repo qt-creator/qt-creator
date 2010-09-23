@@ -85,6 +85,7 @@ public:
     /// setCommand() sets the executable to run in the \p buildConfiguration
     /// should be called from init()
     void setCommand(const QString &cmd);
+    QString command() const;
 
     /// sets the workingDirectory for the process for a buildConfiguration
     /// should be called from init()
@@ -93,6 +94,7 @@ public:
     /// sets the command line arguments used by the process for a \p buildConfiguration
     /// should be called from init()
     void setArguments(const QStringList &arguments);
+    QStringList arguments() const;
 
     /// enables or disables a BuildStep
     /// Disabled BuildSteps immediately return true from their run method
@@ -120,6 +122,9 @@ public:
 protected:
     AbstractProcessStep(BuildStepList *bsl, const QString &id);
     AbstractProcessStep(BuildStepList *bsl, AbstractProcessStep *bs);
+
+    /// Get the fully expanded command name to run:
+    QString expandedCommand() const;
 
     /// Called after the process is started
     /// the default implementation adds a process started message to the output message
@@ -151,6 +156,7 @@ private slots:
 
     void outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format);
 private:
+
     QTimer *m_timer;
     QFutureInterface<bool> *m_futureInterface;
     QString m_workingDirectory;

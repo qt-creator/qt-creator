@@ -77,6 +77,8 @@ void ProcessStep::ctor()
 {
     //: Default ProcessStep display name
     setDefaultDisplayName(tr("Custom Process Step"));
+    if (m_workingDirectory.isEmpty())
+        m_workingDirectory = QLatin1String("$BUILDDIR");
 }
 
 ProcessStep::~ProcessStep()
@@ -87,11 +89,8 @@ bool ProcessStep::init()
 {
     BuildConfiguration *bc = buildConfiguration();
     setEnvironment(bc->environment());
-    QString wd = workingDirectory();
-    if (wd.isEmpty())
-        wd = "$BUILDDIR";
 
-    AbstractProcessStep::setWorkingDirectory(wd.replace("$BUILDDIR", bc->buildDirectory()));
+    AbstractProcessStep::setWorkingDirectory(workingDirectory());
     AbstractProcessStep::setCommand(m_command);
     AbstractProcessStep::setEnabled(m_enabled);
     AbstractProcessStep::setArguments(m_arguments);
@@ -151,7 +150,10 @@ void ProcessStep::setEnabled(bool enabled)
 
 void ProcessStep::setWorkingDirectory(const QString &workingDirectory)
 {
-    m_workingDirectory = workingDirectory;
+    if (workingDirectory.isEmpty())
+        m_workingDirectory = QLatin1String("$BUILDDIR");
+    else
+        m_workingDirectory = workingDirectory;
 }
 
 QVariantMap ProcessStep::toMap() const
@@ -249,7 +251,7 @@ ProcessStepConfigWidget::ProcessStepConfigWidget(ProcessStep *step)
         : m_step(step)
 {
     m_ui.setupUi(this);
-    m_ui.command->setExpectedKind(Utils::PathChooser::Command);
+    m_ui.command->setExpectedKind(Utils::PathChooser::ExistingCommand);
     connect(m_ui.command, SIGNAL(changed(QString)),
             this, SLOT(commandLineEditTextEdited()));
     connect(m_ui.workingDirectory, SIGNAL(changed(QString)),
@@ -281,12 +283,11 @@ QString ProcessStepConfigWidget::displayName() const
 
 void ProcessStepConfigWidget::init()
 {
+    m_ui.command->setEnvironment(m_step->buildConfiguration()->environment());
     m_ui.command->setPath(m_step->command());
 
-    QString workingDirectory = m_step->workingDirectory();
-    if (workingDirectory.isEmpty())
-        workingDirectory = "$BUILDDIR";
-    m_ui.workingDirectory->setPath(workingDirectory);
+    m_ui.workingDirectory->setEnvironment(m_step->buildConfiguration()->environment());
+    m_ui.workingDirectory->setPath(m_step->workingDirectory());
 
     m_ui.commandArgumentsLineEdit->setText(m_step->arguments().join(QString(QLatin1Char(' '))));
     m_ui.enabledCheckBox->setChecked(m_step->enabled());
@@ -301,13 +302,13 @@ QString ProcessStepConfigWidget::summaryText() const
 
 void ProcessStepConfigWidget::commandLineEditTextEdited()
 {
-    m_step->setCommand(m_ui.command->path());
+    m_step->setCommand(m_ui.command->rawPath());
     updateDetails();
 }
 
 void ProcessStepConfigWidget::workingDirectoryLineEditTextEdited()
 {
-    m_step->setWorkingDirectory(m_ui.workingDirectory->path());
+    m_step->setWorkingDirectory(m_ui.workingDirectory->rawPath());
 }
 
 void ProcessStepConfigWidget::commandArgumentsLineEditTextEdited()
