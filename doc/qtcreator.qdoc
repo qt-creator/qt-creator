@@ -4778,32 +4778,32 @@
             \o Linux
             \o gcc
             \o gdb
-            \o Optional
-            \o Term, Plain, Attach (with Python, only), Remote
+            \o Yes
+            \o Plain, Terminal, Attach, Remote, Core
         \row
             \o Unix
             \o gcc
             \o gdb
             \o Yes
-            \o Term, Plain, Attach, Remote
+            \o Plain, Terminal, Attach, Remote, Core
         \row
             \o Mac OS
             \o gcc
             \o gdb
             \o No
-            \o Term, Plain, Attach
+            \o Plain, Terminal, Attach, Core
         \row
             \o Windows/MinGW
             \o gcc
             \o gdb
-            \o No
-            \o Term, Plain, Attach, Remote
+            \o Yes
+            \o Plain, Terminal, Attach, Remote, Core
         \row
             \o Windows/MSVC
             \o Microsoft Visual C++ Compiler
             \o Debugging Tools for Windows/CDB
             \o Not applicable
-            \o Term, Plain, Attach, Post-Mortem
+            \o Plain, Terminal, Attach, Post-Mortem
         \row
             \o Symbian
             \o gcc
@@ -4817,6 +4817,8 @@
             \o Yes
             \o Remote
     \endtable
+
+    For more information on the the debugger modes, see \l{Debugger Modes of Operation}.
 
     \omit
 
