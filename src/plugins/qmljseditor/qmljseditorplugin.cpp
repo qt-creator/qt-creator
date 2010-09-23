@@ -151,7 +151,8 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     Core::ActionContainer *contextMenu = am->createMenu(QmlJSEditor::Constants::M_CONTEXT);
     Core::ActionContainer *qmlToolsMenu = am->createMenu(Core::Id(Constants::M_TOOLS_QML));
     QMenu *menu = qmlToolsMenu->menu();
-    menu->setTitle(tr("QML")); //: QML sub-menu in the Tools menu
+    //: QML sub-menu in the Tools menu
+    menu->setTitle(tr("QML"));
     menu->setEnabled(true);
     am->actionContainer(Core::Constants::M_TOOLS)->addMenu(qmlToolsMenu);
 

@@ -368,7 +368,7 @@
          <string>Switch to editor context after last help page is closed.</string>
         </property>
         <property name="text">
-         <string>Return to editor on close last page</string>
+         <string>Return to editor on closing the  last page</string>
         </property>
        </widget>
       </item>

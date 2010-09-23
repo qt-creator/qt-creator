@@ -182,7 +182,7 @@ QByteArray AbstractMobileApp::generateDesktopFile(QString *errorMessage) const
 {
     QFile desktopTemplate(path(DesktopOrigin));
     if (!desktopTemplate.open(QIODevice::ReadOnly)) {
-        *errorMessage = QCoreApplication::translate("AbstractMobileApp",
+        *errorMessage = QCoreApplication::translate("Qt4ProjectManager::AbstractMobileApp",
             "Could not open desktop file template");
         return QByteArray();
     }
@@ -194,7 +194,8 @@ QByteArray AbstractMobileApp::generateMainCpp(QString *errorMessage) const
 {
     QFile sourceFile(path(MainCppOrigin));
     if (!sourceFile.open(QIODevice::ReadOnly)) {
-        *errorMessage = tr("Could not open main.cpp template '%1'.")
+        *errorMessage = QCoreApplication::translate("Qt4ProjectManager::AbstractMobileApp",
+                                                    "Could not open main.cpp template '%1'.")
             .arg(sourceFile.fileName());
         return QByteArray();
     }
@@ -240,7 +241,8 @@ QByteArray AbstractMobileApp::generateProFile(QString *errorMessage) const
     const QChar comment = QLatin1Char('#');
     QFile proFile(path(AppProOrigin));
     if (!proFile.open(QIODevice::ReadOnly)) {
-        *errorMessage = tr("Could not open project file template '%1'.")
+        *errorMessage = QCoreApplication::translate("Qt4ProjectManager::AbstractMobileApp",
+                                                    "Could not open project file template '%1'.")
             .arg(proFile.fileName());
         return QByteArray();
     }
@@ -332,7 +334,7 @@ QByteArray AbstractMobileApp::readBlob(const QString &filePath,
 {
     QFile sourceFile(filePath);
     if (!sourceFile.open(QIODevice::ReadOnly)) {
-        *errorMsg = QCoreApplication::translate("AbstractMobileApp",
+        *errorMsg = QCoreApplication::translate("Qt4ProjectManager::AbstractMobileApp",
             "Could not open template file '%1'.").arg(filePath);
         return QByteArray();
     }

@@ -1023,6 +1023,7 @@ void CdbEngine::assignValueInDebugger(const WatchData *w, const QString &expr, c
     const QString iname = QLatin1String(w->iname);
     const QString type = QLatin1String(w->type);
     const QString newValue = valueV.toString();
+    //: Arguments: New value, name, (type)
     showMessage(tr("Assigning '%1' to '%2' (%3)...").arg(newValue, iname, type), LogMisc);
     do {
         // Value must be scalar
@@ -1030,7 +1031,7 @@ void CdbEngine::assignValueInDebugger(const WatchData *w, const QString &expr, c
         if (type != QVariant::Double && type != QVariant::Bool
             && type != QVariant::Int && type != QVariant::LongLong
             && type != QVariant::UInt&& type != QVariant::ULongLong) {
-            errorMessage = tr("Cannot assign only scalar values.");
+            errorMessage = tr("Can assign only scalar values.");
             break;
         }
         // Check the assigneable type
@@ -1066,6 +1067,7 @@ void CdbEngine::assignValueInDebugger(const WatchData *w, const QString &expr, c
     } while (false);
     QApplication::restoreOverrideCursor();
     if (!success) {
+        //: Arguments: New value, name, (type): Error
         const QString msg = tr("Unable to assign the value '%1' to '%2' (%3): %4").
                 arg(newValue, expr, type, errorMessage);
         warning(msg);
