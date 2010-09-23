@@ -105,11 +105,12 @@ public:
 
     BaseTextEditor *openEditor(const QString &fileName, int pos = -1);
 
-    /**
-     * \param fileName the file to activate the editor for
-     * \param pos, 0-based offset to put the cursor on, -1 means don't move
+    /*!
+       \param fileName the file to activate the editor for
+       \param line the line to put the cursor on (1-based)
+       \param column the column to put the cursor on (1-based)
      */
-    BaseTextEditor *activateEditor(const QString &fileName, int pos = -1);
+    void activateEditor(const QString &fileName, int line, int column);
 
 
 private:
@@ -121,6 +122,11 @@ private:
     virtual void fileChanged(const QString &fileName) = 0;
 
     friend class RefactoringFile;
+
+private:
+    QString m_fileToOpen;
+    int m_lineToOpen;
+    int m_columnToOpen;
 };
 
 } // namespace TextEditor

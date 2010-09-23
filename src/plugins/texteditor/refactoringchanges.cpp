@@ -43,7 +43,16 @@ RefactoringChanges::RefactoringChanges()
 {}
 
 RefactoringChanges::~RefactoringChanges()
-{}
+{
+    if (!m_fileToOpen.isEmpty()) {
+        BaseTextEditor *editor = editorForFile(m_fileToOpen, true);
+        editor->gotoLine(m_lineToOpen, m_columnToOpen);
+
+        Core::EditorManager *editorManager = Core::EditorManager::instance();
+        editorManager->activateEditor(editor->editableInterface(),
+                                      Core::EditorManager::ModeSwitch);
+    }
+}
 
 BaseTextEditor *RefactoringChanges::editorForFile(const QString &fileName,
                                                   bool openIfClosed)
@@ -156,14 +165,11 @@ BaseTextEditor *RefactoringChanges::openEditor(const QString &fileName, int pos)
     return editor;
 }
 
-BaseTextEditor *RefactoringChanges::activateEditor(const QString &fileName, int pos)
+void RefactoringChanges::activateEditor(const QString &fileName, int line, int column)
 {
-    BaseTextEditor *editor = openEditor(fileName, pos);
-
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
-    editorManager->activateEditor(editor->editableInterface(), Core::EditorManager::ModeSwitch);
-
-    return editor;
+    m_fileToOpen = fileName;
+    m_lineToOpen = line;
+    m_columnToOpen = column;
 }
 
 

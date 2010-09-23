@@ -95,7 +95,9 @@ public:
         targetFile.change(target);
         targetFile.indent(Utils::ChangeSet::Range(targetPosition2, targetPosition1));
 
-        refactoring->activateEditor(m_targetFileName, targetPosition1);
+        const int prefixLineCount = loc.prefix().count(QLatin1Char('\n'));
+        refactoring->activateEditor(m_targetFileName, loc.line() + prefixLineCount,
+                                    qMax(((int) loc.column()) - 1, 0));
     }
 
 private:
