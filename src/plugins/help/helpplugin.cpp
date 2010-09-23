@@ -858,8 +858,8 @@ void HelpPlugin::activateContext()
                 viewer->page()->mainFrame()->scrollToAnchor(source.fragment());
 #endif
             }
+            viewer->setFocus();
         }
-        viewer->setFocus();
     }
 }
 
