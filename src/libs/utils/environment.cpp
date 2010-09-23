@@ -181,30 +181,42 @@ void Environment::clear()
     m_values.clear();
 }
 
-QString Environment::searchInPath(QString executable) const
+QString Environment::searchInPath(const QString &executable,
+                                  const QStringList & additionalDirs) const
 {
-//    qDebug()<<"looking for "<<executable<< "in PATH: "<<m_values.value("PATH");
-    if (executable.isEmpty())
+    QString exec = expandVariables(executable);
+
+    if (exec.isEmpty() || QFileInfo(exec).isAbsolute())
+        return QDir::toNativeSeparators(exec);
+
+    // Check in directories:
+    foreach (const QString &dir, additionalDirs) {
+        if (dir.isEmpty())
+            continue;
+        QFileInfo fi(dir + QLatin1Char('/') + exec);
+        if (fi.isFile() && fi.isExecutable())
+            return fi.absoluteFilePath();
+    }
+
+    // Check in path:
+    if (exec.indexOf(QChar('/')) != -1)
         return QString();
-    QFileInfo fi(executable);
-    if (fi.isAbsolute() && fi.exists())
-        return executable;
-#ifdef Q_OS_WIN
-    if (!executable.endsWith(QLatin1String(".exe")))
-        executable.append(QLatin1String(".exe"));
-#endif
     const QChar slash = QLatin1Char('/');
     foreach (const QString &p, path()) {
-//        qDebug()<<"trying"<<p + '/' + executable;
         QString fp = p;
         fp += slash;
-        fp += executable;
+        fp += exec;
         const QFileInfo fi(fp);
-        if (fi.exists()) {
-//            qDebug()<<"returning "<<fi.absoluteFilePath();
+        if (fi.exists())
             return fi.absoluteFilePath();
-        }
     }
+
+#ifdef Q_OS_WIN
+    if (!exec.endsWith(QLatin1String(".exe"))) {
+        exec.append(QLatin1String(".exe"));
+        return searchInPath(exec, additionalDirs);
+    }
+#endif
     return QString();
 }
 
@@ -440,4 +452,12 @@ QString Environment::expandVariables(const QString &input) const
     if (state == VARIABLE)
         result += value(variable);
     return result;
+}
+
+QStringList Environment::expandVariables(const QStringList &variables) const
+{
+    QStringList results;
+    foreach (const QString & i, variables)
+        results << expandVariables(i);
+    return results;
 }
