@@ -886,17 +886,28 @@ void ModelPrivate::notifyNodeOrderChanged(const InternalNodeListPropertyPointer 
     bool resetModel = false;
     QString description;
 
+    try {
+        if (rewriterView())
+            rewriterView()->nodeOrderChanged(NodeListProperty(internalListPropertyPointer, model(), rewriterView()),
+                               ModelNode(internalNodePointer, model(), rewriterView()),
+                               oldIndex);
+    } catch (RewritingException &e) {
+        description = e.description();
+        resetModel = true;
+    }
+
     foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
         Q_ASSERT(!view.isNull());
-        try {
-            view->nodeOrderChanged(NodeListProperty(internalListPropertyPointer, model(), view.data()),
+        view->nodeOrderChanged(NodeListProperty(internalListPropertyPointer, model(), view.data()),
                                    ModelNode(internalNodePointer, model(), view.data()),
                                    oldIndex);
-        } catch (RewritingException &e) {
-            description = e.description();
-            resetModel = true;
-        }
     }
+
+    if (nodeInstanceView())
+        nodeInstanceView()->nodeOrderChanged(NodeListProperty(internalListPropertyPointer, model(), nodeInstanceView()),
+                           ModelNode(internalNodePointer, model(), nodeInstanceView()),
+                           oldIndex);
+
     if (resetModel) {
         resetModelByRewriter(description);
     }
