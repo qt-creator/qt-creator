@@ -192,6 +192,8 @@ void CppElementEvaluator::handleLookupItemMatch(const Snapshot &snapshot,
         } else if (declaration->isDeclaration() && type.isValid()) {
             m_element = QSharedPointer<CppElement>(
                 new CppVariable(declaration, context, lookupItem.scope()));
+        } else if (declaration->isTemplate() && declaration->asTemplate()->declaration()) {
+            m_element = QSharedPointer<CppElement>(new CppTemplate(declaration));
         } else {
             m_element = QSharedPointer<CppElement>(new CppDeclarableElement(declaration));
         }
@@ -491,3 +493,31 @@ CppVariable::CppVariable(Symbol *declaration, const LookupContext &context, Scop
 
 CppVariable::~CppVariable()
 {}
+
+// CppTemplate
+CppTemplate::CppTemplate(CPlusPlus::Symbol *declaration) : CppDeclarableElement(declaration)
+{
+    Template *templateSymbol = declaration->asTemplate();
+    if (templateSymbol->declaration()->isClass() ||
+        templateSymbol->declaration()->isForwardClassDeclaration()) {
+        m_isClassTemplate = true;
+        setHelpCategory(TextEditor::HelpItem::ClassOrNamespace);
+        setTooltip(qualifiedName());
+    } else {
+        m_isClassTemplate = false;
+        setHelpCategory(TextEditor::HelpItem::Function);
+    }
+}
+
+CppTemplate::~CppTemplate()
+{}
+
+bool CppTemplate::isClassTemplate() const
+{
+    return m_isClassTemplate;
+}
+
+bool CppTemplate::isFunctionTemplate() const
+{
+    return !m_isClassTemplate;
+}

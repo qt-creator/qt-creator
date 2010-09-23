@@ -233,6 +233,19 @@ public:
     virtual ~CppVariable();
 };
 
+class CppTemplate : public CppDeclarableElement
+{
+public:
+    CppTemplate(CPlusPlus::Symbol *declaration);
+    virtual ~CppTemplate();
+
+    bool isClassTemplate() const;
+    bool isFunctionTemplate() const;
+
+private:
+    bool m_isClassTemplate;
+};
+
 } // namespace Internal
 } // namespace CppEditor
 
