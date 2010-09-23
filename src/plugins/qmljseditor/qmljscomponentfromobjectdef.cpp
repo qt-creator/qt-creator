@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "qmljscomponentfromobjectdef.h"
+#include "qmljscomponentnamedialog.h"
 #include "qmljsrefactoringchanges.h"
 
 #include <coreplugin/ifile.h>
@@ -86,16 +87,30 @@ public:
         Q_ASSERT(m_objDef != 0);
 
         m_componentName = getIdProperty(m_objDef);
-        m_componentName[0] = m_componentName.at(0).toUpper();
 
-        setDescription(QCoreApplication::translate("QmlJSEditor::ComponentFromObjectDef",
-                                                   "Move Component into '%1.qml'").arg(m_componentName));
+        if (m_componentName.isEmpty()) {
+            setDescription(QCoreApplication::translate("QmlJSEditor::ComponentFromObjectDef",
+                                                       "Move Component into separate file'"));
+        } else {
+            m_componentName[0] = m_componentName.at(0).toUpper();
+            setDescription(QCoreApplication::translate("QmlJSEditor::ComponentFromObjectDef",
+                                                       "Move Component into '%1.qml'").arg(m_componentName));
+        }
     }
 
     virtual void performChanges(QmlJSRefactoringFile *currentFile, QmlJSRefactoringChanges *refactoring)
     {
-        const QString newFileName = QFileInfo(fileName()).path()
-                + QDir::separator() + m_componentName + QLatin1String(".qml");
+        QString componentName = m_componentName;
+        QString path = QFileInfo(fileName()).path();
+        if (componentName.isEmpty()) {
+            ComponentNameDialog::go(&componentName, &path, state().editor());
+        }
+
+        if (componentName.isEmpty() || path.isEmpty())
+            return;
+
+        const QString newFileName = path + QDir::separator() + componentName
+                + QLatin1String(".qml");
 
         QString imports;
         UiProgram *prog = currentFile->qmljsDocument()->qmlProgram();
@@ -115,7 +130,7 @@ public:
             return;
 
         Utils::ChangeSet changes;
-        changes.replace(start, end, m_componentName + QLatin1String(" {\n"));
+        changes.replace(start, end, componentName + QLatin1String(" {\n"));
         currentFile->change(changes);
         currentFile->indent(Range(start, end + 1));
     }
@@ -134,10 +149,8 @@ QList<QmlJSQuickFixOperation::Ptr> ComponentFromObjectDef::match(const QmlJSQuic
         if (UiObjectDefinition *objDef = cast<UiObjectDefinition *>(node)) {
              // check that the node is not the root node
             if (i > 0 && !cast<UiProgram*>(path.at(i - 1))) {
-                if (!getIdProperty(objDef).isEmpty()) {
-                    result.append(QmlJSQuickFixOperation::Ptr(new Operation(state, objDef)));
-                    return result;
-                }
+                result.append(QmlJSQuickFixOperation::Ptr(new Operation(state, objDef)));
+                return result;
             }
         }
     }

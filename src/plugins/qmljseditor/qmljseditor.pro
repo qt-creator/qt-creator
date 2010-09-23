@@ -30,7 +30,8 @@ HEADERS += \
     qmljseditorcodeformatter.h \
     qmljsoutlinetreeview.h \
     quicktoolbarsettingspage.h \
-    quicktoolbar.h
+    quicktoolbar.h \
+    qmljscomponentnamedialog.h
 
 SOURCES += \
     qmljscodecompletion.cpp \
@@ -54,10 +55,12 @@ SOURCES += \
     qmljseditorcodeformatter.cpp \
     qmljsoutlinetreeview.cpp \
     quicktoolbarsettingspage.cpp \
-    quicktoolbar.cpp
+    quicktoolbar.cpp \
+    qmljscomponentnamedialog.cpp
 
 RESOURCES += qmljseditor.qrc
 OTHER_FILES += QmlJSEditor.pluginspec QmlJSEditor.mimetypes.xml
 
 FORMS += \
-    quicktoolbarsettingspage.ui
+    quicktoolbarsettingspage.ui \
+    qmljscomponentnamedialog.ui
