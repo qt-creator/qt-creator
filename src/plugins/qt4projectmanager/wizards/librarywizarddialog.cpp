@@ -31,6 +31,10 @@
 #include "filespage.h"
 #include "libraryparameters.h"
 #include "modulespage.h"
+#include "mobilelibrarywizardoptionpage.h"
+#include "mobilelibraryparameters.h"
+#include "abstractmobileapp.h"
+#include "qt4projectmanagerconstants.h"
 
 #include <utils/projectintropage.h>
 
@@ -134,8 +138,10 @@ LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
                                          QWidget *parent) :
     BaseQt4ProjectWizardDialog(showModulesPage, new LibraryIntroPage, -1, parent),
     m_filesPage(new FilesPage),
+    m_mobilePage(new MobileLibraryWizardOptionPage),
     m_pluginBaseClassesInitialized(false),
-    m_filesPageId(-1), m_modulesPageId(-1), m_targetPageId(-1)
+    m_filesPageId(-1), m_modulesPageId(-1), m_targetPageId(-1),
+    m_mobilePageId(-1)
 {
     setWindowIcon(icon);
     setWindowTitle(templateName);
@@ -155,6 +161,9 @@ LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
     m_filesPageId = addPage(m_filesPage);
     wizardProgress()->item(m_filesPageId)->setTitle(tr("Details"));
 
+    m_mobilePageId = addPage(m_mobilePage);
+    wizardProgress()->item(m_mobilePageId)->setTitle(tr("Symbian specific"));
+
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotCurrentIdChanged(int)));
 
     foreach (QWizardPage *p, extensionPages)
@@ -171,6 +180,11 @@ void LibraryWizardDialog::setLowerCaseFiles(bool l)
     m_filesPage->setLowerCaseFiles(l);
 }
 
+void LibraryWizardDialog::setSymbianUid(const QString &uid)
+{
+    m_mobilePage->setSymbianUid(uid);
+}
+
 QtProjectParameters::Type  LibraryWizardDialog::type() const
 {
     return static_cast<const LibraryIntroPage*>(introPage())->type();
@@ -178,6 +192,18 @@ QtProjectParameters::Type  LibraryWizardDialog::type() const
 
 int LibraryWizardDialog::nextId() const
 {
+    //if there was no Symbian target defined we omit "Symbian specific" step
+    //we omit this step if the library type is not dll
+    if (currentId() == m_filesPageId) {
+        bool symbianTargetEnabled = isTargetSelected(QLatin1String(Constants::S60_DEVICE_TARGET_ID))
+                || isTargetSelected(QLatin1String(Constants::S60_EMULATOR_TARGET_ID));
+        if (!symbianTargetEnabled || type() != QtProjectParameters::SharedLibrary) {
+            QList<int> ids = pageIds();
+            int mobileIndex = ids.lastIndexOf(m_mobilePageId);
+            if (mobileIndex>=0)
+                return ids[mobileIndex+1];
+        }
+    }
     // When leaving the intro or target page, the modules page is skipped
     // in the case of a plugin since it knows its dependencies by itself.
     const int m_beforeModulesPageId = m_targetPageId != -1 ? m_targetPageId : 0;
@@ -215,13 +241,19 @@ void LibraryWizardDialog::slotCurrentIdChanged(int id)
 {
     if (debugLibWizard)
         qDebug() << Q_FUNC_INFO << id;
-    // Switching to files page: Set up base class accordingly (plugin)
-    if (id != m_filesPageId)
-        return;
+    if (id == m_filesPageId)
+        setupFilesPage();// Switching to files page: Set up base class accordingly (plugin)
+    else if (id == m_mobilePageId
+             || m_mobilePage->symbianUid().isEmpty() && currentPage()->isFinalPage())
+        setupMobilePage();
+}
+
+void LibraryWizardDialog::setupFilesPage()
+{
     switch (type()) {
     case QtProjectParameters::Qt4Plugin:
         if (!m_pluginBaseClassesInitialized) {
-             if (debugLibWizard)
+            if (debugLibWizard)
                 qDebug("initializing for plugins");
             QStringList baseClasses;
             const int pluginBaseClassCount = sizeof(pluginBaseClasses)/sizeof(PluginBaseClasses);
@@ -246,6 +278,12 @@ void LibraryWizardDialog::slotCurrentIdChanged(int id)
     }
 }
 
+void LibraryWizardDialog::setupMobilePage()
+{
+    m_mobilePage->setSymbianUid(AbstractMobileApp::symbianUidForPath(path()+projectName()));
+    m_mobilePage->setLibraryType(type());
+}
+
 LibraryParameters LibraryWizardDialog::libraryParameters() const
 {
     LibraryParameters rc;
@@ -258,6 +296,26 @@ LibraryParameters LibraryWizardDialog::libraryParameters() const
             rc.baseClassModule = QLatin1String(plb->module);
         }
     return rc;
+}
+
+MobileLibraryParameters LibraryWizardDialog::mobileLibraryParameters() const
+{
+    MobileLibraryParameters mlp;
+    mlp.libraryType = type();
+    mlp.fileName = projectName();
+
+    //Symbian and Maemo stuff should always be added to pro file. Even if no mobile target is specified
+    mlp.type |= MobileLibraryParameters::Symbian|MobileLibraryParameters::Maemo;
+
+    if (mlp.type & MobileLibraryParameters::Symbian) {
+        mlp.symbianUid = m_mobilePage->symbianUid();
+        mlp.symbianCapabilities |= m_mobilePage->networkEnabled()?MobileLibraryParameters::NetworkServices:0;
+    }
+
+    if (mlp.type & MobileLibraryParameters::Maemo) {
+        //TODO fill this for Maemo
+    }
+    return mlp;
 }
 
 } // namespace Internal

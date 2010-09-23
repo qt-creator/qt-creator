@@ -31,6 +31,7 @@
 #include "librarywizarddialog.h"
 #include "qt4projectmanager.h"
 #include "qt4projectmanagerconstants.h"
+#include "mobilelibraryparameters.h"
 
 #include <utils/codegeneration.h>
 #include <cpptools/cppmodelmanagerinterface.h>
@@ -82,6 +83,7 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
     const QtProjectParameters projectParams = dialog->parameters();
     const QString projectPath = projectParams.projectPath();
     const LibraryParameters params = dialog->libraryParameters();
+    const MobileLibraryParameters mobileParams = dialog->mobileLibraryParameters();
 
     const QString sharedLibExportMacro = QtProjectParameters::exportMacro(projectParams.fileName);
 
@@ -131,6 +133,8 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
                << "\n\nHEADERS += " << headerFileName;
         if (!globalHeaderFileName.isEmpty())
             proStr << "\\\n        " << globalHeaderFileName << '\n';
+        if (mobileParams.type)
+            mobileParams.writeProFile(proStr);
     }
     profile.setContents(profileContents);
     rc.push_back(profile);

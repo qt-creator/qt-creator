@@ -27,61 +27,63 @@
 **
 **************************************************************************/
 
-#ifndef LIBRARYWIZARDDIALOG_H
-#define LIBRARYWIZARDDIALOG_H
-
-#include "qtwizard.h"
+#include "MobileLibraryWizardOptionPage.h"
+#include "ui_mobilelibrarywizardoptionpage.h"
 #include "qtprojectparameters.h"
+
+#include <coreplugin/coreconstants.h>
+
+#include <QtGui/QDesktopServices>
+#include <QtGui/QFileDialog>
+#include <QtGui/QMessageBox>
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-struct QtProjectParameters;
-class FilesPage;
-class MobileLibraryWizardOptionPage;
-struct LibraryParameters;
-struct MobileLibraryParameters;
-
-// Library wizard dialog.
-class LibraryWizardDialog : public BaseQt4ProjectWizardDialog
+class MobileLibraryWizardOptionPagePrivate
 {
-    Q_OBJECT
+    Ui::MobileLibraryWizardOptionPage ui;
+    friend class MobileLibraryWizardOptionPage;
 
-public:
-    LibraryWizardDialog(const QString &templateName,
-                        const QIcon &icon,
-                        const QList<QWizardPage*> &extensionPages,
-                        bool showModulesPage,
-                        QWidget *parent = 0);
-
-    void setSuffixes(const QString &header, const QString &source,  const QString &form= QString());
-    void setLowerCaseFiles(bool);
-    void setSymbianUid(const QString &uid);
-
-    QtProjectParameters parameters() const;
-    LibraryParameters libraryParameters() const;
-    MobileLibraryParameters mobileLibraryParameters() const;
-
-    virtual int nextId() const;
-
-private slots:
-    void slotCurrentIdChanged(int);
-
-private:
-    QtProjectParameters::Type type() const;
-    void setupFilesPage();
-    void setupMobilePage();
-
-    FilesPage *m_filesPage;
-    MobileLibraryWizardOptionPage *m_mobilePage;
-    bool m_pluginBaseClassesInitialized;
-    int m_filesPageId;
-    int m_modulesPageId;
-    int m_targetPageId;
-    int m_mobilePageId;
+    QtProjectParameters::Type libraryType;
 };
+
+MobileLibraryWizardOptionPage::MobileLibraryWizardOptionPage(QWidget *parent)
+    : QWizardPage(parent)
+    , m_d(new MobileLibraryWizardOptionPagePrivate)
+{
+    m_d->ui.setupUi(this);
+}
+
+MobileLibraryWizardOptionPage::~MobileLibraryWizardOptionPage()
+{
+    delete m_d;
+}
+
+QString MobileLibraryWizardOptionPage::symbianUid() const
+{
+    return m_d->ui.symbianTargetUid3LineEdit->text();
+}
+
+void MobileLibraryWizardOptionPage::setSymbianUid(const QString &uid)
+{
+    m_d->ui.symbianTargetUid3LineEdit->setText(uid);
+}
+
+void MobileLibraryWizardOptionPage::setNetworkEnabled(bool enableIt)
+{
+    m_d->ui.symbianEnableNetworkChackBox->setChecked(enableIt);
+}
+
+bool MobileLibraryWizardOptionPage::networkEnabled() const
+{
+    return m_d->ui.symbianEnableNetworkChackBox->isChecked();
+}
+
+void MobileLibraryWizardOptionPage::setLibraryType(int type)
+{
+    m_d->libraryType = static_cast<QtProjectParameters::Type>(type);
+}
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
-
-#endif // LIBRARYWIZARDDIALOG_H
