@@ -133,7 +133,8 @@ public:
 
     virtual bool hasAnchor(const QString &name) const;
     virtual QPair<QString, NodeInstance> anchor(const QString &name) const;
-    virtual bool isAnchoredBy() const;
+    virtual bool isAnchoredBySibling() const;
+    virtual bool isAnchoredByChildren() const;
 
     virtual double rotation() const;
     virtual double scale() const;

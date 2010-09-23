@@ -591,8 +591,8 @@ bool isAnchoredTo(QDeclarativeItem *fromItem, QDeclarativeItem *toItem)
 
 bool areChildrenAnchoredTo(QDeclarativeItem *fromItem, QDeclarativeItem *toItem)
 {
-    foreach(QObject *childObject, fromItem->children()) {
-        QDeclarativeItem *childItem = qobject_cast<QDeclarativeItem*>(childObject);
+    foreach(QGraphicsItem *childGraphicsItem, fromItem->childItems()) {
+        QDeclarativeItem *childItem = qobject_cast<QDeclarativeItem*>(childGraphicsItem->toGraphicsObject());
         if (childItem) {
             if (isAnchoredTo(childItem, toItem))
                 return true;
@@ -605,14 +605,11 @@ bool areChildrenAnchoredTo(QDeclarativeItem *fromItem, QDeclarativeItem *toItem)
     return false;
 }
 
-bool QmlGraphicsItemNodeInstance::isAnchoredBy() const
+bool QmlGraphicsItemNodeInstance::isAnchoredBySibling() const
 {
-    if (areChildrenAnchoredTo(qmlGraphicsItem(), qmlGraphicsItem())) // search in children for a anchor to this item
-        return true;
-
-    if (qmlGraphicsItem()->parent()) {
-        foreach(QObject *siblingObject, qmlGraphicsItem()->parent()->children()) { // search in siblings for a anchor to this item
-            QDeclarativeItem *siblingItem = qobject_cast<QDeclarativeItem*>(siblingObject);
+    if (qmlGraphicsItem()->parentItem()) {
+        foreach(QGraphicsItem *siblingGraphicsItem, qmlGraphicsItem()->parentItem()->childItems()) { // search in siblings for a anchor to this item
+            QDeclarativeItem *siblingItem = qobject_cast<QDeclarativeItem*>(siblingGraphicsItem->toGraphicsObject());
             if (siblingItem) {
                 if (isAnchoredTo(siblingItem, qmlGraphicsItem()))
                     return true;
@@ -622,6 +619,14 @@ bool QmlGraphicsItemNodeInstance::isAnchoredBy() const
             }
         }
     }
+
+    return false;
+}
+
+bool QmlGraphicsItemNodeInstance::isAnchoredByChildren() const
+{
+    if (areChildrenAnchoredTo(qmlGraphicsItem(), qmlGraphicsItem())) // search in children for a anchor to this item
+        return true;
 
     return false;
 }

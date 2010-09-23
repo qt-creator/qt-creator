@@ -64,7 +64,9 @@ public:
 
     bool hasAnchor(const QString &name) const;
     QPair<QString, NodeInstance> anchor(const QString &name) const;
-    bool isAnchoredBy() const;
+    bool isAnchoredBySibling() const;
+    bool isAnchoredByChildren() const;
+
 protected:
     QmlGraphicsItemNodeInstance(QDeclarativeItem *item, bool hasContent);
     QDeclarativeItem *qmlGraphicsItem() const;

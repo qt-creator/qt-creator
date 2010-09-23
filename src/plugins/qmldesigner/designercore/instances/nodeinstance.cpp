@@ -470,9 +470,14 @@ int NodeInstance::penWidth() const
     return m_nodeInstance->penWidth();
 }
 
-bool NodeInstance::isAnchoredBy() const
+bool NodeInstance::isAnchoredBySibling() const
 {
-    return m_nodeInstance->isAnchoredBy();
+    return m_nodeInstance->isAnchoredBySibling();
+}
+
+bool NodeInstance::isAnchoredByChildren() const
+{
+    return m_nodeInstance->isAnchoredByChildren();
 }
 
 QPair<QString, NodeInstance> NodeInstance::anchor(const QString &name) const

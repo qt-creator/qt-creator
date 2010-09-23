@@ -306,7 +306,12 @@ bool ObjectNodeInstance::hasAnchor(const QString &/*name*/) const
     return false;
 }
 
-bool ObjectNodeInstance::isAnchoredBy() const
+bool ObjectNodeInstance::isAnchoredBySibling() const
+{
+    return false;
+}
+
+bool ObjectNodeInstance::isAnchoredByChildren() const
 {
     return false;
 }

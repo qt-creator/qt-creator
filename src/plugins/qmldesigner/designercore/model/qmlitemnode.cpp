@@ -188,12 +188,17 @@ bool QmlItemNode::hasShowContent() const
 
 bool QmlItemNode::canReparent() const
 {
-    return QmlObjectNode::canReparent() && !anchors().instanceHasAnchors() && !instanceIsAnchoredBy();
+    return QmlObjectNode::canReparent() && !anchors().instanceHasAnchors() && !instanceIsAnchoredBySibling();
 }
 
-bool QmlItemNode::instanceIsAnchoredBy() const
+bool QmlItemNode::instanceIsAnchoredBySibling() const
 {
-    return nodeInstance().isAnchoredBy();
+    return nodeInstance().isAnchoredBySibling();
+}
+
+bool QmlItemNode::instanceIsAnchoredByChildren() const
+{
+    return nodeInstance().isAnchoredByChildren();
 }
 
 QRectF  QmlItemNode::instanceBoundingRect() const

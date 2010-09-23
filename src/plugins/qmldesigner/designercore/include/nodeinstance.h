@@ -133,7 +133,8 @@ public:
     QVariant resetVariant(const QString &name) const;
 
     bool hasAnchor(const QString &name) const;
-    bool isAnchoredBy() const;
+    bool isAnchoredBySibling() const;
+    bool isAnchoredByChildren() const;
     QPair<QString, NodeInstance> anchor(const QString &name) const;
 
     int penWidth() const;

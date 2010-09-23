@@ -66,7 +66,8 @@ public:
     bool hasShowContent() const;
 
     bool canReparent() const;
-    bool instanceIsAnchoredBy() const;
+    bool instanceIsAnchoredBySibling() const;
+    bool instanceIsAnchoredByChildren() const;
 
     QRectF instanceBoundingRect() const;
     QTransform instanceTransform() const;
