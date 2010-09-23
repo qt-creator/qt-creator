@@ -46,6 +46,7 @@ AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent)
     : ProjectExplorer::BaseProjectWizardDialog(parent)
 {
     m_targetsPage = new TargetSetupPage;
+    resize(900, 450);
     m_targetsPage->setImportDirectoryBrowsingEnabled(false);
     int pageId = addPage(m_targetsPage);
     wizardProgress()->item(pageId)->setTitle(tr("Qt versions"));
