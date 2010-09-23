@@ -1369,15 +1369,15 @@
         \o In the \gui Location field, specify the path to the primary location for
         highlight definition files.
 
-        \o Click \gui Manage to open a list of highlight definition files available for
+        \o Click \gui {Download Definitions} to open a list of highlight definition files available for
         download.
 
-        \image qtcreator-manage-definitions.png "Manage Definitions dialog"
+        \image qtcreator-manage-definitions.png "Download Definitions dialog"
 
         \o Select highlight definition files in the list and click \gui{Download Selected
         Definitions}.
 
-        \o Select the \gui {Use fallback location} to specify the secondary location
+        \o Select the \gui {Use fallback location} check box to specify the secondary location
         where the editor will look for highlight definition files.
 
         \o Click \gui Autodetect to allow Qt Creator to look for highlight definition
