@@ -99,8 +99,6 @@ public:
 
     virtual int find(const QString &string) const = 0;
 
-    virtual void gotoLine(int line, int column = 0) = 0;
-
     virtual int position(PositionOperation posOp = Current, int at = -1) const = 0;
     virtual void convertPosition(int pos, int *line, int *column) const = 0;
     virtual QRect cursorRect(int pos = -1) const = 0;

@@ -1240,7 +1240,18 @@ void ProjectExplorerPlugin::restoreSession()
     connect(d->m_welcomePage, SIGNAL(requestSession(QString)), this, SLOT(loadSession(QString)));
     connect(d->m_welcomePage, SIGNAL(requestProject(QString)), this, SLOT(loadProject(QString)));
 
-    Core::ICore::instance()->openFiles(arguments, false);
+    QStringList combinedList;
+    // Converts "filename" "+45" or "filename" ":23"
+    // into     "filename+45"   and "filename:23"
+    foreach (const QString &str, arguments) {
+        if (!combinedList.isEmpty() && (str.startsWith("+") || str.startsWith(":"))) {
+            combinedList.last().append(str);
+        } else {
+            combinedList << str;
+        }
+    }
+
+    Core::ICore::instance()->openFiles(combinedList, Core::ICore::CanContainLineNumbers);
     updateActions();
 
 }
@@ -2375,7 +2386,7 @@ void ProjectExplorerPlugin::openOpenProjectDialog()
     const QString path = fileMananger->useProjectsDirectory() ? fileMananger->projectsDirectory() : QString();
     const QStringList files = fileMananger->getOpenFileNames(filters, path, &projectFilesFilter);
     if (!files.isEmpty())
-        Core::ICore::instance()->openFiles(files, true);
+        Core::ICore::instance()->openFiles(files, Core::ICore::SwitchMode);
 }
 
 Q_EXPORT_PLUGIN(ProjectExplorerPlugin)

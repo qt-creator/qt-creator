@@ -1179,31 +1179,53 @@ IEditor *EditorManager::openEditor(const QString &fileName, const QString &edito
     return openEditor(0, fileName, editorId, flags, newEditor);
 }
 
+int extractLineNumber(QString *fileName)
+{
+    int i = fileName->length() - 1;
+    for (; i >= 0; --i) {
+        if (!fileName->at(i).isNumber())
+            break;
+    }
+    if (i == -1)
+        return -1;
+    if (fileName->at(i) == ':' || fileName->at(i) == '+') {
+        int result = fileName->mid(i+1).toInt();
+        *fileName = fileName->left(i);
+        return result;
+    }
+    return -1;
+}
+
 IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QString &fileName,
                         const QString &editorId, OpenEditorFlags flags, bool *newEditor)
 {
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO << fileName << editorId;
 
-    if (fileName.isEmpty())
+    QString fn = fileName;
+    int lineNumber = -1;
+    if (flags && EditorManager::CanContainLineNumber)
+        lineNumber = extractLineNumber(&fn);
+
+    if (fn.isEmpty())
         return 0;
 
     if (newEditor)
         *newEditor = false;
 
-    const QList<IEditor *> editors = editorsForFileName(fileName);
+    const QList<IEditor *> editors = editorsForFileName(fn);
     if (!editors.isEmpty())
         return activateEditor(view, editors.first(), flags);
 
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    IEditor *editor = createEditor(editorId, fileName);
+    IEditor *editor = createEditor(editorId, fn);
     // If we could not open the file in the requested editor, fall
     // back to the default editor:
     if (!editor)
-        editor = createEditor(QString(), fileName);
-    if (!editor || !editor->open(fileName)) {
+        editor = createEditor(QString(), fn);
+    if (!editor || !editor->open(fn)) {
         QApplication::restoreOverrideCursor();
-        QMessageBox::critical(m_d->m_core->mainWindow(), tr("Opening File"), tr("Cannot open file %1!").arg(QDir::toNativeSeparators(fileName)));
+        QMessageBox::critical(m_d->m_core->mainWindow(), tr("Opening File"), tr("Cannot open file %1!").arg(QDir::toNativeSeparators(fn)));
         delete editor;
         editor = 0;
         return 0;
@@ -1216,6 +1238,10 @@ IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QStri
     IEditor *result = activateEditor(view, editor, flags);
     if (editor == result)
         restoreEditorState(editor);
+
+    if (flags && EditorManager::CanContainLineNumber)
+        editor->gotoLine(lineNumber, -1);
+
     QApplication::restoreOverrideCursor();
     return result;
 }

@@ -32,6 +32,7 @@
 
 #include "core_global.h"
 #include "icontext.h"
+#include "icore.h"
 #include "dialogs/iwizard.h"
 
 #include "eventfilteringmainwindow.h"
@@ -97,7 +98,7 @@ public:
     void removeContextObject(IContext *contex);
     void resetContext();
 
-    void openFiles(const QStringList &fileNames, bool switchMode);
+    void openFiles(const QStringList &fileNames, ICore::OpenFilesFlags flags);
 
     Core::ActionManager *actionManager() const;
     Core::FileManager *fileManager() const;
