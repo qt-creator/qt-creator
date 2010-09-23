@@ -142,6 +142,7 @@ void SelectionTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
         FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
 
         if (formEditorItem
+            && formEditorItem->qmlItemNode().isValid()
             && !formEditorItem->qmlItemNode().isRootNode()
             && (formEditorItem->qmlItemNode().hasShowContent() || !m_selectOnlyContentItems))
         {
