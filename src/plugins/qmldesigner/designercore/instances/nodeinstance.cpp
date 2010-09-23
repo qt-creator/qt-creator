@@ -644,6 +644,11 @@ void NodeInstance::registerDeclarativeTypes()
 //    qmlRegisterType<QmlDesigner::Internal::QmlPropertyChangesObject>();
 }
 
+QString NodeInstance::id() const
+{
+    return m_nodeInstance->id();
+}
+
 #ifdef QTCREATOR_TEST
 QObject* NodeInstance::testHandle() const
 {

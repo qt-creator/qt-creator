@@ -699,8 +699,8 @@ void NodeInstanceView::removeIdFromContext(QObject *object)
 {
     if (hasInstanceForObject(object)) {
         NodeInstance instance = instanceForObject(object);
-        if (instance.internalInstance()) {
-            QString id = instance.internalInstance()->id();
+        if (instance.isValid()) {
+            QString id = instance.id();
             if (!id.isEmpty())
                 engine()->rootContext()->setContextProperty(id, 0);
         }

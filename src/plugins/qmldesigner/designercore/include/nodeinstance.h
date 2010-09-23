@@ -141,6 +141,8 @@ public:
 
     static void registerDeclarativeTypes();
 
+    QString id() const;
+
 #ifdef QTCREATOR_TEST
     QObject* testHandle() const;
     Internal::ObjectNodeInstance* internalInstance() const;
