@@ -50,6 +50,7 @@
 #include <rewritingexception.h>
 #include <nodelistproperty.h>
 #include <toolbox.h>
+#include <variantproperty.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
@@ -87,6 +88,7 @@ public:
     QWeakPointer<AllPropertiesBox> allPropertiesBox;
     QWeakPointer<StatesEditorWidget> statesEditorWidget;
     QWeakPointer<QStackedWidget> stackedWidget;
+    QWeakPointer<NodeInstanceView> nodeInstanceView;
 
     QWeakPointer<QmlDesigner::Model> model;
     QWeakPointer<QmlDesigner::Model> subComponentModel;
@@ -210,6 +212,11 @@ void DesignDocumentController::setStatesEditorWidget(StatesEditorWidget* statesE
 void DesignDocumentController::setFormEditorView(FormEditorView *formEditorView)
 {
     m_d->formEditorView = formEditorView;
+}
+
+void DesignDocumentController::setNodeInstanceView(NodeInstanceView *nodeInstanceView)
+{
+    m_d->nodeInstanceView = nodeInstanceView;
 }
 
 QString DesignDocumentController::displayName() const
@@ -344,6 +351,7 @@ void DesignDocumentController::loadCurrentModel()
     Q_ASSERT(m_d->model);
     m_d->model->setMasterModel(m_d->masterModel.data());
 
+    m_d->model->attachView(m_d->nodeInstanceView.data());
     m_d->model->attachView(m_d->navigator.data());
     m_d->itemLibrary->setItemLibraryInfo(m_d->model->metaInfo().itemLibraryInfo());
     m_d->itemLibrary->setResourcePath(QFileInfo(m_d->fileName).absolutePath());

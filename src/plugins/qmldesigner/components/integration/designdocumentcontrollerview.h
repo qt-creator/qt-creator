@@ -58,6 +58,8 @@ public:
 
     virtual void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex);
     virtual void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
+    void instancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList);
+
 
     ModelNode insertModel(const ModelNode &modelNode)
     { return m_modelMerger.insertModel(modelNode); }

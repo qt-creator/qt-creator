@@ -33,6 +33,7 @@
 #include <variantproperty.h>
 #include <metainfo.h>
 #include <invalidmodelnodeexception.h>
+#include "bindingproperty.h"
 
 
 namespace QmlDesigner {

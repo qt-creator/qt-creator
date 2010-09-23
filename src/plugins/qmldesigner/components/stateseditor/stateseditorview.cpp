@@ -36,6 +36,9 @@
 #include <QDebug>
 #include <math.h>
 
+#include <variantproperty.h>
+#include <nodelistproperty.h>
+
 enum {
     debug = false
 };
@@ -432,6 +435,21 @@ void StatesEditorView::scriptFunctionsChanged(const ModelNode &node, const QStri
         qDebug() << __FUNCTION__;
 
     QmlModelView::scriptFunctionsChanged(node, scriptFunctionList);
+}
+
+void StatesEditorView::nodeIdChanged(const ModelNode &/*node*/, const QString &/*newId*/, const QString &/*oldId*/)
+{
+
+}
+
+void StatesEditorView::bindingPropertiesChanged(const QList<BindingProperty> &/*propertyList*/, PropertyChangeFlags /*propertyChange*/)
+{
+
+}
+
+void StatesEditorView::selectedNodesChanged(const QList<ModelNode> &/*selectedNodeList*/, const QList<ModelNode> &/*lastSelectedNodeList*/)
+{
+
 }
 
 

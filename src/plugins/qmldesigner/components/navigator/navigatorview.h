@@ -81,7 +81,7 @@ public:
                                       const QList<ModelNode> &lastSelectedNodeList);
     void auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data);
     void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
-
+    void instancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList);
 
 private slots:
 //    void handleChangedItem(QStandardItem * item);

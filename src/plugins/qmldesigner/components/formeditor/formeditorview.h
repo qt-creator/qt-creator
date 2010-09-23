@@ -78,6 +78,7 @@ public:
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList);
     void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
+    void propertiesRemoved(const QList<AbstractProperty> &propertyList);
 
     // FormEditorView
     FormEditorWidget *widget() const;

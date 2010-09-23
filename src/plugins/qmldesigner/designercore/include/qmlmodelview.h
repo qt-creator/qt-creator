@@ -31,7 +31,6 @@
 #define QMLMODELVIEW_H
 
 #include <corelib_global.h>
-#include <forwardview.h>
 #include <abstractview.h>
 #include "qmlitemnode.h"
 #include "qmlstate.h"
@@ -42,7 +41,7 @@ namespace QmlDesigner {
 
 class ItemLibraryEntry;
 
-class CORESHARED_EXPORT QmlModelView : public ForwardView<NodeInstanceView>
+class CORESHARED_EXPORT QmlModelView : public AbstractView
 {
     Q_OBJECT
     friend CORESHARED_EXPORT class QmlObjectNode;
@@ -90,10 +89,26 @@ public:
 
     virtual void nodeInstancePropertyChanged(const ModelNode &node, const QString &propertyName);
 
+    void instancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList);
+
+    void nodeCreated(const ModelNode &createdNode);
+    void nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty, PropertyChangeFlags propertyChange);
+    void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange);
+    void propertiesAboutToBeRemoved(const QList<AbstractProperty> &propertyList);
+    void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion);
+    void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex);
+    void nodeAboutToBeRemoved(const ModelNode &removedNode);
+    void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId);
+    void propertiesRemoved(const QList<AbstractProperty>& propertyList);
+    void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange);
+    void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange);
+    void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
+    void selectedNodesChanged(const QList<ModelNode> &selectedNodeList, const QList<ModelNode> &lastSelectedNodeList);
+
+
 protected:
     NodeInstance instanceForModelNode(const ModelNode &modelNode);
     bool hasInstanceForModelNode(const ModelNode &modelNode);
-    NodeInstanceView *nodeInstanceView() const;
     virtual void transformChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName) ;
     virtual void parentChanged(const QmlObjectNode &qmlObjectNode);
     virtual void otherPropertyChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName);

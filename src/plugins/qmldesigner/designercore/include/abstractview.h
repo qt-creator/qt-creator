@@ -54,6 +54,7 @@ namespace QmlDesigner {
 namespace QmlDesigner {
 
 class QmlModelView;
+class NodeInstanceView;
 
 class CORESHARED_EXPORT AbstractView : public QObject
 {
@@ -101,6 +102,8 @@ public:
     void emitCustomNotification(const QString &identifier, const QList<ModelNode> &nodeList);
     void emitCustomNotification(const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
 
+    void emitInstancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList);
+
     virtual void modelAttached(Model *model);
     virtual void modelAboutToBeDetached(Model *model);
 
@@ -114,6 +117,8 @@ public:
     virtual void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange) = 0;
     virtual void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange) = 0;
     virtual void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion) = 0;
+
+    virtual void instancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList) = 0;
 
     virtual void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                                       const QList<ModelNode> &lastSelectedNodeList) = 0;
@@ -134,6 +139,8 @@ public:
     QmlModelView *toQmlModelView();
 
     void changeRootNodeType(const QString &type, int majorVersion, int minorVersion);
+
+    NodeInstanceView *nodeInstanceView() const;
 
 protected:
     void setModel(Model * model);

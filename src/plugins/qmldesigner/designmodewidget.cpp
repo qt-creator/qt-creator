@@ -259,11 +259,13 @@ void DesignModeWidget::showEditor(Core::IEditor *editor)
         } else {
             DesignDocumentController *newDocument = new DesignDocumentController(this);
 
+            newDocument->setNodeInstanceView(m_nodeInstanceView.data());
             newDocument->setAllPropertiesBox(m_allPropertiesBox.data());
             newDocument->setNavigator(m_navigator.data());
             newDocument->setStatesEditorWidget(m_statesEditorWidget.data());
             newDocument->setItemLibrary(m_itemLibrary.data());
             newDocument->setFormEditorView(m_formEditorView.data());
+
 
             newDocument->setFileName(fileName);
 
@@ -620,6 +622,7 @@ void DesignModeWidget::setup()
         }
     }
 
+    m_nodeInstanceView = new NodeInstanceView(this);
      // Sidebar takes ownership
     m_navigator = new NavigatorView;
     m_allPropertiesBox = new AllPropertiesBox;

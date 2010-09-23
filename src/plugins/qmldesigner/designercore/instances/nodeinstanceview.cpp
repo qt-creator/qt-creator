@@ -379,6 +379,12 @@ void NodeInstanceView::scriptFunctionsChanged(const ModelNode &/*node*/, const Q
 
 }
 
+void NodeInstanceView::instancePropertyChange(const QList<QPair<ModelNode, QString> > &/*propertyList*/)
+{
+
+}
+
+
 //\}
 
 void NodeInstanceView::loadNodes(const QList<ModelNode> &nodeList)
@@ -557,21 +563,9 @@ void NodeInstanceView::notifyPropertyChange(const ModelNode &node, const QString
     if (m_blockStatePropertyChanges)
         return;
 
-    if (qmlModelView()) {
-        qmlModelView()->nodeInstancePropertyChanged(ModelNode(node,qmlModelView()), propertyName);
-    }
+    emitInstancePropertyChange(QList<QPair<ModelNode, QString> >() << qMakePair(node, propertyName));
 }
 
-
-void NodeInstanceView::setQmlModelView(QmlModelView *qmlModelView)
-{
-    m_qmlModelView = qmlModelView;
-}
-
-QmlModelView *NodeInstanceView::qmlModelView() const
-{
-    return m_qmlModelView.data();
-}
 
 void NodeInstanceView::setBlockStatePropertyChanges(bool block)
 {

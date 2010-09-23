@@ -190,6 +190,9 @@ void NavigatorView::scriptFunctionsChanged(const ModelNode &/*node*/, const QStr
 {
 }
 
+void NavigatorView::instancePropertyChange(const QList<QPair<ModelNode, QString> > &/*propertyList*/)
+{
+}
 
 void NavigatorView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &node, int oldIndex)
 {

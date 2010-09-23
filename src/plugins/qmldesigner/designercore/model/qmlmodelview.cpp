@@ -38,6 +38,8 @@
 #include <QFileInfo>
 #include <QDebug>
 #include <QMessageBox>
+#include "nodeabstractproperty.h"
+#include "variantproperty.h"
 
 enum {
     debug = false
@@ -47,11 +49,8 @@ enum {
 namespace QmlDesigner {
 
 QmlModelView::QmlModelView(QObject *parent)
-    : ForwardView<NodeInstanceView>(parent)
+    : AbstractView(parent)
 {
-    NodeInstanceView *nodeInstanceView = new NodeInstanceView(this);
-    nodeInstanceView->setQmlModelView(this);
-    appendView(nodeInstanceView);
 }
 
 void QmlModelView::setCurrentState(const QmlModelState &state)
@@ -302,23 +301,18 @@ bool QmlModelView::hasInstanceForModelNode(const ModelNode &modelNode)
     return nodeInstanceView()->hasInstanceForNode(modelNode);
 }
 
-NodeInstanceView *QmlModelView::nodeInstanceView() const
-{
-    return firstView();
-}
-
 void QmlModelView::modelAttached(Model *model)
 {
+    AbstractView::modelAttached(model);
     m_state = QmlModelState();
-    ForwardView<NodeInstanceView>::modelAttached(model);
     m_state = baseState();
     Q_ASSERT(m_state.isBaseState());
 }
 
 void QmlModelView::modelAboutToBeDetached(Model *model)
 {
-    ForwardView<NodeInstanceView>::modelAboutToBeDetached(model);
     m_state = QmlModelState();
+    AbstractView::modelAboutToBeDetached(model);
 }
 
 static bool isTransformProperty(const QString &name)
@@ -333,6 +327,32 @@ static bool isTransformProperty(const QString &name)
                                                          << "transformOrigin");
 
     return transformProperties.contains(name);
+}
+
+void QmlModelView::nodeOrderChanged(const NodeListProperty &/*listProperty*/, const ModelNode &/*movedNode*/, int /*oldIndex*/)
+{
+
+}
+
+void QmlModelView::nodeCreated(const ModelNode &/*createdNode*/) {}
+void QmlModelView::nodeAboutToBeRemoved(const ModelNode &/*removedNode*/) {}
+void QmlModelView::nodeRemoved(const ModelNode &/*removedNode*/, const NodeAbstractProperty &/*parentProperty*/, PropertyChangeFlags /*propertyChange*/) {}
+void QmlModelView::nodeReparented(const ModelNode &/*node*/, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/) {}
+void QmlModelView::nodeIdChanged(const ModelNode& /*node*/, const QString& /*newId*/, const QString& /*oldId*/) {}
+void QmlModelView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& /*propertyList*/) {}
+void QmlModelView::propertiesRemoved(const QList<AbstractProperty>& /*propertyList*/) {}
+void QmlModelView::variantPropertiesChanged(const QList<VariantProperty>& /*propertyList*/, PropertyChangeFlags /*propertyChange*/) {}
+void QmlModelView::bindingPropertiesChanged(const QList<BindingProperty>& /*propertyList*/, PropertyChangeFlags /*propertyChange*/) {}
+void QmlModelView::rootNodeTypeChanged(const QString &/*type*/, int, int /*minorVersion*/) {}
+void QmlModelView::scriptFunctionsChanged(const ModelNode &/*node*/, const QStringList &/*scriptFunctionList*/) {}
+void QmlModelView::selectedNodesChanged(const QList<ModelNode> &/*selectedNodeList*/, const QList<ModelNode> &/*lastSelectedNodeList*/) {}
+
+void QmlModelView::instancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList)
+{
+    typedef QPair<ModelNode, QString> ModelNodePropertyPair;
+    foreach (const ModelNodePropertyPair &propertyPair, propertyList) {
+        nodeInstancePropertyChanged(propertyPair.first, propertyPair.second);
+    }
 }
 
 void QmlModelView::nodeInstancePropertyChanged(const ModelNode &node, const QString &propertyName)

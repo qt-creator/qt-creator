@@ -195,7 +195,15 @@ void ViewLogger::customNotification(const AbstractView *view, const QString &ide
 void ViewLogger::scriptFunctionsChanged(const ModelNode &node, const QStringList &/*scriptFunctionList*/)
 {
     m_output << time() << indent("function scripts changed:") << node << endl;
+}
 
+void ViewLogger::instancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList)
+{
+    typedef QPair<ModelNode, QString> PropertyPair;
+    m_output << time() << indent("instancePropertyChange:") << endl;
+
+    foreach(const PropertyPair &propertyPair, propertyList)
+        m_output << time() << indent("property: ") << propertyPair.first << propertyPair.second << endl;
 }
 
 

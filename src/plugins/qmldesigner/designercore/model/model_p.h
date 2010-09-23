@@ -48,7 +48,8 @@ QT_END_NAMESPACE
 namespace QmlDesigner {
 
 class AbstractProperty;
-
+class RewriterView;
+class NodeInstanceView;
 
 namespace Internal {
 
@@ -140,6 +141,7 @@ public:
     void notifyRootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion);
 
     void notifyCustomNotification(const AbstractView *senderView, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
+    void notifyInstancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList);
 
 
 
@@ -160,8 +162,8 @@ public:
     QList<Import> imports() const { return m_imports; }
     void addImport(const Import &import);
     void removeImport(const Import &import);
-    void notifyImportAdded(const Import &import) const;
-    void notifyImportRemoved(const Import &import) const;
+    void notifyImportAdded(const Import &import);
+    void notifyImportRemoved(const Import &import);
 
 
     //node state property manipulation
@@ -190,6 +192,11 @@ public:
 
     WriteLocker createWriteLocker() const;
 
+    void setRewriterView(RewriterView *rewriterView);
+    RewriterView *rewriterView() const;
+    void setNodeInstanceView(NodeInstanceView *nodeInstanceView);
+    NodeInstanceView *nodeInstanceView() const;
+
 private: //functions
     void removePropertyWithoutNotification(const InternalPropertyPointer &property);
     void removeAllSubNodes(const InternalNodePointer &node);
@@ -212,8 +219,9 @@ private:
     QUrl m_fileUrl;
 
     QWeakPointer<Model> m_masterModel;
-
-    bool m_writeLock;
+    QWeakPointer<RewriterView> m_rewriterView;
+    QWeakPointer<NodeInstanceView> m_nodeInstanceView;
+    bool m_writeLock;  
 };
 
 }

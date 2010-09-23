@@ -94,6 +94,7 @@ public:
     void setAllPropertiesBox(AllPropertiesBox* allPropertiesBox);
     void setStatesEditorWidget(StatesEditorWidget* statesEditorWidget);
     void setFormEditorView(FormEditorView *formEditorView);
+    void setNodeInstanceView(NodeInstanceView *nodeInstanceView);
 
 signals:
     void displayNameChanged(const QString &newFileName);

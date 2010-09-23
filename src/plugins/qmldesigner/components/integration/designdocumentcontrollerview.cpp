@@ -60,6 +60,9 @@ void DesignDocumentControllerView::scriptFunctionsChanged(const ModelNode &/*nod
 {
 }
 
+void DesignDocumentControllerView::instancePropertyChange(const QList<QPair<ModelNode, QString> > &/*propertyList*/)
+{
+}
 
 static QStringList arrayToStringList(const QByteArray &byteArray)
 {

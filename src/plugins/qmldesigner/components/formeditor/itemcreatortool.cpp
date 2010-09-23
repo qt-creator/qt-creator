@@ -38,6 +38,7 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QtDebug>
 #include <QClipboard>
+#include <variantproperty.h>
 
 namespace QmlDesigner {
 

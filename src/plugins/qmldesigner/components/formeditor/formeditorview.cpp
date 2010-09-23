@@ -51,6 +51,9 @@
 #include <QDir>
 #include <QAction>
 #include <zoomaction.h>
+#include <nodeabstractproperty.h>
+#include <nodelistproperty.h>
+
 
 namespace QmlDesigner {
 
@@ -264,6 +267,9 @@ void FormEditorView::scriptFunctionsChanged(const ModelNode &node, const QString
     QmlModelView::scriptFunctionsChanged(node, scriptFunctionList);
 }
 
+void FormEditorView::propertiesRemoved(const QList<AbstractProperty> &/*propertyList*/)
+{
+}
 
 AbstractFormEditorTool* FormEditorView::currentTool() const
 {

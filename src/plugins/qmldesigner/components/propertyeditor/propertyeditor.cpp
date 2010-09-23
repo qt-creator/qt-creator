@@ -40,6 +40,10 @@
 #include <variantproperty.h>
 #include <propertymetainfo.h>
 
+#include <bindingproperty.h>
+
+#include <nodeabstractproperty.h>
+
 #include "propertyeditorvalue.h"
 #include "basiclayouts.h"
 #include "basicwidgets.h"

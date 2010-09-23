@@ -339,6 +339,15 @@ QmlModelView *AbstractView::toQmlModelView()
     return qobject_cast<QmlModelView*>(this);
 }
 
+NodeInstanceView *AbstractView::nodeInstanceView() const
+{
+    if (model()) {
+        return model()->m_d->nodeInstanceView();
+    } else {
+        return 0;
+    }
+}
+
 QList<ModelNode> AbstractView::allModelNodes()
 {
    return toModelNodeList(model()->m_d->allNodes());
@@ -357,6 +366,12 @@ void AbstractView::emitCustomNotification(const QString &identifier, const QList
 void AbstractView::emitCustomNotification(const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data)
 {
     model()->m_d->notifyCustomNotification(this, identifier, nodeList, data);
+}
+
+void AbstractView::emitInstancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList)
+{
+    if (model())
+        model()->m_d->notifyInstancePropertyChange(propertyList);
 }
 
 void AbstractView::changeRootNodeType(const QString &type, int majorVersion, int minorVersion)

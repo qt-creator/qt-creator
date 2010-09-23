@@ -177,6 +177,7 @@ private:
     QWeakPointer<AllPropertiesBox> m_allPropertiesBox;
     QWeakPointer<StatesEditorWidget> m_statesEditorWidget;
     QWeakPointer<FormEditorView> m_formEditorView;
+    QWeakPointer<NodeInstanceView> m_nodeInstanceView;
 
     bool m_syncWithTextEdit;
 

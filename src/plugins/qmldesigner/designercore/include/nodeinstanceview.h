@@ -85,6 +85,7 @@ public:
     void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex);
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList, const QList<ModelNode> &lastSelectedNodeList);
     void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
+    void instancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList);
 
 
     QList<NodeInstance> instances() const;
@@ -99,9 +100,6 @@ public:
     QRectF sceneRect() const;
 
     void notifyPropertyChange(const ModelNode &modelNode, const QString &propertyName);
-
-    void setQmlModelView(QmlModelView *qmlModelView);
-    QmlModelView *qmlModelView() const ;
 
     void setBlockStatePropertyChanges(bool block);
 

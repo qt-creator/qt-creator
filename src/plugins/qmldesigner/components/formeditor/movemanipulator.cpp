@@ -42,6 +42,8 @@
 #include <limits>
 #include <model.h>
 #include <qmlanchors.h>
+#include <variantproperty.h>
+#include <nodeabstractproperty.h>
 
 
 namespace QmlDesigner {

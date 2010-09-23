@@ -71,6 +71,7 @@ public:
 
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
     void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
+    void instancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList);
 
 protected:
     QString time() const;
