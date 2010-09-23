@@ -39,6 +39,8 @@
 #include "parser/qmljsengine_p.h"
 #include "qmljs_global.h"
 
+QT_QML_BEGIN_NAMESPACE
+
 namespace QmlJS {
 
 class Bind;
@@ -171,6 +173,8 @@ public:
                                      const QString &fileName) const;
 };
 
-} // end of namespace Qml
+} // namespace QmlJS
+
+QT_QML_END_NAMESPACE
 
 #endif // QMLDOCUMENT_H

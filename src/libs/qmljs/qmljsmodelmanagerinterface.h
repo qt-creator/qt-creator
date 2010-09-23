@@ -42,6 +42,8 @@ namespace ProjectExplorer {
     class Project;
 }
 
+QT_QML_BEGIN_NAMESPACE
+
 namespace QmlJS {
 
 const char *const MODELMANAGERINTERFACE_OBJECTNAME = "QmlJS::ModelManagerInterface";
@@ -105,5 +107,7 @@ signals:
 };
 
 } // namespace QmlJS
+
+QT_QML_END_NAMESPACE
 
 #endif // QMLJSMODELMANAGERINTERFACE_H
