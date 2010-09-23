@@ -1012,30 +1012,62 @@ void CdbEngine::executeJumpToLine(const QString & /* fileName */, int /*lineNumb
     warning(tr("Jump to line is not implemented"));
 }
 
-void CdbEngine::assignValueInDebugger(const QString &expr, const QString &value)
+void CdbEngine::assignValueInDebugger(const WatchData *w, const QString &expr, const QVariant &valueV)
 {
     if (debugCDB)
-        qDebug() << Q_FUNC_INFO << expr << value;
+        qDebug() << Q_FUNC_INFO << w->iname << expr << valueV;
     const int frameIndex = stackHandler()->currentIndex();
     QString errorMessage;
     bool success = false;
+    QApplication::setOverrideCursor(Qt::BusyCursor);
+    const QString iname = QLatin1String(w->iname);
+    const QString type = QLatin1String(w->type);
+    const QString newValue = valueV.toString();
+    showMessage(tr("Assigning '%1' to '%2' (%3)...").arg(newValue, iname, type), LogMisc);
     do {
-        QString newValue;
+        // Value must be scalar
+        const QVariant::Type type = valueV.type();
+        if (type != QVariant::Double && type != QVariant::Bool
+            && type != QVariant::Int && type != QVariant::LongLong
+            && type != QVariant::UInt&& type != QVariant::ULongLong) {
+            errorMessage = tr("Cannot assign only scalar values.");
+            break;
+        }
+        // Check the assigneable type
+        const bool isInt = isIntType(w->type);
+        const bool isFloat = !isInt && isFloatType(w->type);
+        const bool isPointer = !isInt && !isFloat && isPointerType(w->type);
+        if (!isInt && !isFloat & !isPointer) {
+            errorMessage = tr("Cannot assign values of type '%1'. Only POD-types can be assigned.").arg(type);
+            break;
+        }
         CdbSymbolGroupContext *sg = m_d->getSymbolGroupContext(frameIndex, &errorMessage);
         if (!sg)
             break;
-        if (!sg->assignValue(expr, value, &newValue, &errorMessage))
+        QString newValueObtained;
+        if (!sg->assignValue(w->iname, newValue, &newValueObtained, &errorMessage))
             break;
+        // Fix the crappy values returned by the symbol group (0n<Decimal>, etc).
+        // Return pointers as hex
+        if (isInt || isPointer) {
+            const QVariant v = CdbCore::SymbolGroupContext::getIntValue(newValueObtained);
+            if (v.isValid())
+                newValueObtained = isPointer ?
+                                   (QLatin1String("0x") + QString::number(v.toULongLong(), 16)):
+                                   v.toString();
+        }
         // Update view
-        if (WatchData *fwd = watchHandler()->findItem(expr.toLatin1())) {
-            fwd->setValue(newValue);
+        if (WatchData *fwd = watchHandler()->findItem(w->iname)) {
+            fwd->setValue(newValueObtained);
             watchHandler()->insertData(*fwd);
             watchHandler()->updateWatchers();
         }
         success = true;
     } while (false);
+    QApplication::restoreOverrideCursor();
     if (!success) {
-        const QString msg = tr("Unable to assign the value '%1' to '%2': %3").arg(value, expr, errorMessage);
+        const QString msg = tr("Unable to assign the value '%1' to '%2' (%3): %4").
+                arg(newValue, expr, type, errorMessage);
         warning(msg);
     }
 }

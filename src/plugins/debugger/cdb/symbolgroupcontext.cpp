@@ -440,21 +440,25 @@ QString SymbolGroupContext::symbolINameAt(unsigned long index) const
 // Return hexadecimal pointer value from a CDB pointer value
 // which look like "0x000032a" or "0x00000000`0250124a" or
 // "0x1`0250124a" on 64-bit systems.
-bool SymbolGroupContext::getUnsignedHexValue(QString stringValue, quint64 *value)
+bool SymbolGroupContext::getUnsignedHexValue(QString stringValue, quint64 *value,
+                                             int *endPos /* = 0 */)
 {
+    if (endPos)
+        *endPos = -1;
     *value = 0;
     if (!stringValue.startsWith(QLatin1String("0x")))
         return false;
-    stringValue.remove(0, 2);
-    // Chop off character values (0x76 'a')
+    // Chop off character values (0x76 'a') and return right end position
     const int blankPos = stringValue.indexOf(QLatin1Char(' '));
+    if (endPos)
+        *endPos = blankPos != -1 ? blankPos : stringValue.size();
     if (blankPos != -1)
         stringValue.truncate(blankPos);
+    stringValue.remove(0, 2); // Remove '0x', as checked above
     // Remove 64bit separator
     if (stringValue.size() > 9) {
-        const int sepPos = stringValue.size() - 9;
-        if (stringValue.at(sepPos) == QLatin1Char('`'))
-            stringValue.remove(sepPos, 1);
+        if (stringValue.at(8) == QLatin1Char('`'))
+            stringValue.remove(8, 1);
     }
     bool ok;
     *value = stringValue.toULongLong(&ok, 16);

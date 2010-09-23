@@ -93,36 +93,42 @@ public:
     {
         if (index.column() == 1) {
             editor->setProperty("modelData", index.data(Qt::EditRole));
-        } else {
-            QLineEdit *lineEdit = qobject_cast<QLineEdit *>(editor);
-            QTC_ASSERT(lineEdit, return);
+            return;
+        }
+        QLineEdit *lineEdit = qobject_cast<QLineEdit *>(editor);
+        QTC_ASSERT(lineEdit, return);
+        if (index.column() == 0) {
+            // Watch window: Edit expression in name column.
             lineEdit->setText(index.data(LocalsExpressionRole).toString());
+        } else {
+            // To be implemented: Edit type (of a pointer, say).
+            lineEdit->setText(index.data(Qt::EditRole).toString());
         }
     }
 
     void setModelData(QWidget *editor, QAbstractItemModel *model,
         const QModelIndex &index) const
     {
-        const QString exp = index.data(LocalsExpressionRole).toString();
         if (index.column() == 1) { // The value column.
             const QVariant value = editor->property("modelData");
             QTC_ASSERT(value.isValid(), return);
-            const QString command = exp + QLatin1Char('=') + value.toString();
-            model->setData(index, QVariant(command), RequestAssignValueRole);
+            model->setData(index, value, RequestAssignValueRole);
             return;
         }
         //qDebug() << "SET MODEL DATA";
-        QLineEdit *lineEdit = qobject_cast<QLineEdit*>(editor);
+        const QLineEdit *lineEdit = qobject_cast<const QLineEdit*>(editor);
         QTC_ASSERT(lineEdit, return);
         const QString value = lineEdit->text();
-        model->setData(index, value, Qt::EditRole);
         if (index.column() == 2) {
             // The type column.
-            model->setData(index, QString(exp + '=' + value), RequestAssignTypeRole);
+            model->setData(index, QVariant(value), RequestAssignTypeRole);
         } else if (index.column() == 0) {
-            // The watcher name column.
-            model->setData(index, exp, RequestRemoveWatchExpressionRole);
-            model->setData(index, value, RequestWatchExpressionRole);
+            // The watcher name column: Change the expression.
+            const QString exp = index.data(LocalsExpressionRole).toString();
+            if (exp != value ) {
+                model->setData(index, exp, RequestRemoveWatchExpressionRole);
+                model->setData(index, value, RequestWatchExpressionRole);
+            }
         }
     }
 

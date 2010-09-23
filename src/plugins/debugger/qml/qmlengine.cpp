@@ -488,8 +488,8 @@ void QmlEngine::setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEd
 //
 //////////////////////////////////////////////////////////////////////
 
-void QmlEngine::assignValueInDebugger(const QString &expression,
-    const QString &value)
+void QmlEngine::assignValueInDebugger(const Internal::WatchData *,
+                                      const QString &expression, const QVariant &valueV)
 {
     QRegExp inObject("@([0-9a-fA-F]+)->(.+)");
     if (inObject.exactMatch(expression)) {
@@ -500,7 +500,7 @@ void QmlEngine::assignValueInDebugger(const QString &expression,
             QByteArray reply;
             QDataStream rs(&reply, QIODevice::WriteOnly);
             rs << QByteArray("SET_PROPERTY");
-            rs << expression.toUtf8() << objectId << property << value;
+            rs << expression.toUtf8() << objectId << property << valueV.toString();
             sendMessage(reply);
         }
     }

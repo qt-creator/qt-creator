@@ -550,7 +550,7 @@ bool isIntType(const QByteArray &type)
         case 'c':
             return type == "char";
         case 'i':
-            return type == "int";
+            return type == "int" || type == "int64";
         case 'l':
             return type == "long"
                 || type == "long long";

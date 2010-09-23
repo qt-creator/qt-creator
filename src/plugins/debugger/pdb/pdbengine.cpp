@@ -543,14 +543,13 @@ void PdbEngine::setToolTipExpression(const QPoint &mousePos,
 //
 //////////////////////////////////////////////////////////////////////
 
-void PdbEngine::assignValueInDebugger(const QString &expression,
-    const QString &value)
+void PdbEngine::assignValueInDebugger(const Internal::WatchData *, const QString &expression, const QVariant &value)
 {
     Q_UNUSED(expression);
     Q_UNUSED(value);
-    SDEBUG("ASSIGNING: " << (expression + QLatin1Char('=') + value));
+    SDEBUG("ASSIGNING: " << (expression + QLatin1Char('=') + value.toString()));
 #if 0
-    m_scriptEngine->evaluate(expression + QLatin1Char('=') + value);
+    m_scriptEngine->evaluate(expression + QLatin1Char('=') + value.toString());
     updateLocals();
 #endif
 }

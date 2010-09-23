@@ -77,7 +77,7 @@ public:
     virtual void executeRunToLine(const QString &fileName, int lineNumber);
     virtual void executeRunToFunction(const QString &functionName);
     virtual void executeJumpToLine(const QString &fileName, int lineNumber);
-    virtual void assignValueInDebugger(const QString &expr, const QString &value);
+    virtual void assignValueInDebugger(const WatchData *w, const QString &expr, const QVariant &value);
     virtual void executeDebuggerCommand(const QString &command);
 
     virtual void activateFrame(int index);

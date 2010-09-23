@@ -3647,11 +3647,11 @@ void GdbEngine::insertData(const WatchData &data0)
     watchHandler()->insertData(data);
 }
 
-void GdbEngine::assignValueInDebugger(const QString &expression, const QString &value)
+void GdbEngine::assignValueInDebugger(const Internal::WatchData *, const QString &expression, const QVariant &value)
 {
     postCommand("-var-delete assign");
     postCommand("-var-create assign * " + expression.toLatin1());
-    postCommand("-var-assign assign " + GdbMi::escapeCString(value.toLatin1()),
+    postCommand("-var-assign assign " + GdbMi::escapeCString(value.toString().toLatin1()),
         Discardable, CB(handleVarAssign));
 }
 

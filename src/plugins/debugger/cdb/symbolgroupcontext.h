@@ -115,7 +115,7 @@ public:
     // For 64bit values (returned as dec), potentially '0n..'.
     static bool getDecimalIntValue(QString stringValue, qint64 *value);
     // For pointers and 64bit values (returned as hex)
-    static bool getUnsignedHexValue(QString stringValue, quint64 *value);
+    static bool getUnsignedHexValue(QString stringValue, quint64 *value, int *endPos = 0);
     // Convenience to return an integer (hex/decimal) as matching variant (signed/unsigned).
     static QVariant getIntValue(const QString &stringValue);
 

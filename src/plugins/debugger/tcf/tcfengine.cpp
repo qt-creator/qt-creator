@@ -543,10 +543,9 @@ void TcfEngine::setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEd
 //
 //////////////////////////////////////////////////////////////////////
 
-void TcfEngine::assignValueInDebugger(const QString &expression,
-    const QString &value)
+void TcfEngine::assignValueInDebugger(const Internal::WatchData *, const QString &expression, const QVariant &value)
 {
-    XSDEBUG("ASSIGNING: " << expression + '=' + value);
+    XSDEBUG("ASSIGNING: " << expression + '=' + value.toString());
     updateLocals();
 }
 

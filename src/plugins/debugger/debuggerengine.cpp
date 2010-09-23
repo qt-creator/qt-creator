@@ -1671,7 +1671,7 @@ void DebuggerEngine::selectThread(int)
 {
 }
 
-void DebuggerEngine::assignValueInDebugger(const QString &, const QString &)
+void DebuggerEngine::assignValueInDebugger(const Internal::WatchData *, const QString &, const QVariant &)
 {
 }
 

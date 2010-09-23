@@ -94,7 +94,7 @@ private:
 
     void attemptBreakpointSynchronization();
 
-    void assignValueInDebugger(const QString &expr, const QString &value);
+    void assignValueInDebugger(const Internal::WatchData *w, const QString &expr, const QVariant &value);
     void loadSymbols(const QString &moduleName);
     void loadAllSymbols();
     void requestModuleSymbols(const QString &moduleName);

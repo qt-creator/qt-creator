@@ -54,7 +54,7 @@ using namespace Debugger::Constants;
 //////////////////////////////////////////////////////////////////
 
 RegisterHandler::RegisterHandler(DebuggerEngine *engine)
-  : m_engine(engine)
+  : m_engine(engine), m_base(15)
 {
     setNumberBase(16);
 }

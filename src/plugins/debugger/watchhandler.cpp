@@ -59,7 +59,7 @@
 #include <QtGui/QTextEdit>
 
 #include <ctype.h>
-
+#include <utils/qtcassert.h>
 
 // creates debug output for accesses to the model
 //#define DEBUG_MODEL 1
@@ -487,6 +487,23 @@ static inline QString formattedValue(const WatchData &data, int format)
     return result;
 }
 
+// Get a pointer address from pointer values reported by the debugger.
+// Fix CDB formatting of pointers "0x00000000`000003fd class foo *", or
+// "0x00000000`000003fd "Hallo"", or check gdb formatting of characters.
+static inline quint64 pointerValue(QString data)
+{
+    if (data.isEmpty() || !data.startsWith(QLatin1String("0x")))
+        return 0;
+    data.remove(0, 2);
+    const int blankPos = data.indexOf(QLatin1Char(' '));
+    if (blankPos != -1)
+        data.truncate(blankPos);
+    data.remove(QLatin1Char('`'));
+    bool ok;
+    const quint64 address = data.toULongLong(&ok, 16);
+    return ok ? address : quint64(0);
+}
+
 // Return the type used for editing
 static inline int editType(const WatchData &d)
 {
@@ -496,6 +513,9 @@ static inline int editType(const WatchData &d)
         return d.type.contains('u') ? QVariant::ULongLong : QVariant::LongLong;
     if (isFloatType(d.type))
         return QVariant::Double;
+    // Check for pointers using hex values (0xAD00 "Hallo")
+    if (isPointerType(d.type) && d.value.startsWith(QLatin1String("0x")))
+        return QVariant::ULongLong;
    return QVariant::String;
 }
 
@@ -506,11 +526,11 @@ static inline QVariant editValue(const WatchData &d)
     case QVariant::Bool:
         return d.value != QLatin1String("0") && d.value != QLatin1String("false");
     case QVariant::ULongLong:
+        if (isPointerType(d.type)) // Fix pointer values (0xAD00 "Hallo" -> 0xAD00)
+            return QVariant(pointerValue(d.value));
         return QVariant(d.value.toULongLong());
-        break;
     case QVariant::LongLong:
         return QVariant(d.value.toLongLong());
-        break;
     case QVariant::Double:
         return QVariant(d.value.toDouble());
     default:
@@ -647,29 +667,28 @@ static inline QString truncateValue(QString v)
     return v;
 }
 
-// Get a pointer address from pointer values reported by the debugger.
-// Fix CDB formatting of pointers "0x00000000`000003fd class foo *",
-// check gdb formatting of characters.
-static inline quint64 pointerValue(QString data)
-{
-    if (data.isEmpty() || !data.startsWith(QLatin1String("0x")))
-        return 0;
-    data.remove(0, 2);
-    const int blankPos = data.indexOf(QLatin1Char(' '));
-    if (blankPos != -1)
-        data.truncate(blankPos);
-    data.remove(QLatin1Char('`'));
-    bool ok;
-    const quint64 address = data.toULongLong(&ok, 16);
-    return ok ? address : quint64(0);
-}
-
 int WatchModel::itemFormat(const WatchData &data) const
 {
     const int individualFormat = m_handler->m_individualFormats.value(data.iname, -1);
     if (individualFormat != -1)
         return individualFormat;
     return m_handler->m_typeFormats.value(data.type, -1);
+}
+
+static inline QString expression(const WatchItem *item)
+{
+    if (!item->exp.isEmpty())
+         return QString::fromAscii(item->exp);
+     if (item->address && !item->type.isEmpty()) {
+         return QString::fromAscii("*(%1*)%2").
+                 arg(QLatin1String(item->type), QLatin1String(item->hexAddress()));
+     }
+     if (const WatchItem *parent = item->parent) {
+         if (!parent->exp.isEmpty())
+            return QString::fromAscii("(%1).%2")
+             .arg(QString::fromLatin1(parent->exp), item->name);
+     }
+     return QString();
 }
 
 QVariant WatchModel::data(const QModelIndex &idx, int role) const
@@ -689,6 +708,8 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
         case  LocalsEditTypeRole:
             return QVariant(editType(data));
        case LocalsIntegerBaseRole:
+            if (isPointerType(data.type)) // Pointers using 0x-convention
+                return QVariant(16);
             return QVariant(formatToIntegerBase(itemFormat(data)));
         case Qt::EditRole:
         case Qt::DisplayRole: {
@@ -728,20 +749,8 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             break;
         }
 
-        case LocalsExpressionRole: {
-            if (!data.exp.isEmpty())
-                return data.exp;
-            if (data.address && !data.type.isEmpty()) {
-                return QString::fromAscii("*(%1*)%2").
-                        arg(QLatin1String(data.type), QLatin1String(data.hexAddress()));
-            }
-            WatchItem *parent = item->parent;
-            if (parent && !parent->exp.isEmpty())
-                return QString::fromAscii("(%1).%2")
-                    .arg(QString::fromLatin1(parent->exp), data.name);
-            return QVariant();
-        }
-
+        case LocalsExpressionRole:
+            return QVariant(expression(item));
         case LocalsINameRole:
             return data.iname;
 
@@ -806,22 +815,6 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
 bool WatchModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     switch (role) {
-        case RequestAssignValueRole: {
-            QString str = value.toString();
-            int i = str.indexOf('=');
-            if (i != -1)
-                engine()->assignValueInDebugger(str.left(i), str.mid(i + 1));
-            return true;
-        }
-
-        case RequestAssignTypeRole: {
-            QString str = value.toString();
-            int i = str.indexOf('=');
-            if (i != -1)
-                engine()->assignValueInDebugger(str.left(i), str.mid(i + 1));
-            return true;
-        }
-
         case RequestShowInEditorRole: {
             m_handler->showInEditor();
             return true;
@@ -895,33 +888,36 @@ bool WatchModel::setData(const QModelIndex &index, const QVariant &value, int ro
         case RequestWatchExpressionRole:
             m_handler->watchExpression(value.toString());
             break;
+
+        case RequestAssignValueRole:
+            engine()->assignValueInDebugger(&data, expression(&data), value);
+            return true;
+        case RequestAssignTypeRole: // TODO: Implement.
+            engine()->assignValueInDebugger(&data, expression(&data), value);
+            return true;
     }
+
     emit dataChanged(index, index);
     return true;
 }
 
 Qt::ItemFlags WatchModel::flags(const QModelIndex &idx) const
 {
-    using namespace Qt;
-
     if (!idx.isValid())
-        return ItemFlags();
+        return Qt::ItemFlags();
 
     // enabled, editable, selectable, checkable, and can be used both as the
     // source of a drag and drop operation and as a drop target.
 
-    static const ItemFlags notEditable =
-          ItemIsSelectable
-        // | ItemIsDragEnabled
-        // | ItemIsDropEnabled
-        // | ItemIsUserCheckable
-        // | ItemIsTristate
-        | ItemIsEnabled;
+    static const Qt::ItemFlags notEditable = Qt::ItemIsSelectable| Qt::ItemIsEnabled;
+    static const Qt::ItemFlags editable = notEditable | Qt::ItemIsEditable;
 
-    static const ItemFlags editable = notEditable | ItemIsEditable;
+    // Disable editing if debuggee is positively running.
+    const bool isRunning = engine() && engine()->state() == InferiorRunOk;
+    if (isRunning)
+        return notEditable;
 
     const WatchData &data = *watchItem(idx);
-
     if (data.isWatcher()) {
         if (idx.column() == 0 && data.iname.count('.') == 1)
             return editable; // Watcher names are editable.
@@ -1341,6 +1337,7 @@ QByteArray WatchHandler::watcherName(const QByteArray &exp)
 
 void WatchHandler::watchExpression(const QString &exp)
 {
+    QTC_ASSERT(m_engine && (m_engine->debuggerCapabilities() & AddWatcherCapability), return ; );
     // Do not insert multiple placeholders.
     if (exp.isEmpty() && m_watcherNames.contains(QByteArray()))
         return;
@@ -1727,6 +1724,5 @@ void WatchHandler::removeTooltip()
     m_tooltips->reinitialize();
     m_tooltips->emitAllChanged();
 }
-
 } // namespace Internal
 } // namespace Debugger

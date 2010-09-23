@@ -225,21 +225,17 @@ bool WatchHandleDumperInserter::expandPointerToDumpable(const WatchData &wd, QSt
 
     bool handled = false;
     do {
-        if (wd.error || !isPointerType(wd.type))
+        // Must be a clas pointer item and a non-null-pointer.
+        if (wd.error ||  !(wd.source & CdbSymbolGroupContext::ClassPointerBit)
+            || !isPointerType(wd.type))
             break;
-        const int classPos = wd.value.indexOf(" class ");
-        if (classPos == -1)
-            break;
-        // Fix CDB word separator '0x00000000`0012fe10'.
-        QString hexAddrS = wd.value.mid(0, classPos);
-        if (hexAddrS.size() > 11 && hexAddrS.at(10) == QLatin1Char('`'))
-            hexAddrS.remove(10, 1);
-        if (m_hexNullPattern.exactMatch(hexAddrS))
+        quint64 address = 0;
+        if (!CdbCore::SymbolGroupContext::getUnsignedHexValue(wd.value, &address) || address == 0)
             break;
         const QByteArray type = stripPointerType(wd.type);
         WatchData derefedWd;
         derefedWd.setType(type);
-        derefedWd.setHexAddress(hexAddrS.toAscii());
+        derefedWd.address = address;
         derefedWd.name = QString(QLatin1Char('*'));
         derefedWd.iname = wd.iname + ".*";
         derefedWd.source = OwnerDumper | CdbSymbolGroupContext::ChildrenKnownBit;
@@ -348,19 +344,42 @@ CdbSymbolGroupContext *CdbSymbolGroupContext::create(const QString &prefix,
 // Fix display values: Pass through strings, convert unsigned integers
 // to decimal ('0x5454`fedf'), remove inner templates from
 // "0x4343 class list<>".
-static inline QString fixValue(const QString &value, const QByteArray &type)
+static inline QString fixValue(const QString &value, const QByteArray &type, bool *isClassPointer)
 {
-    // Pass through strings
-    if (value.endsWith(QLatin1Char('"')))
+    *isClassPointer = false;
+    // Pass through complete strings. Note that char pointers
+    // (0x00A "hallo") will be reformatted below.
+    const QChar doubleQuote = QLatin1Char('"');
+    if (value.startsWith(doubleQuote) && value.endsWith(doubleQuote))
         return value;
-    const int size = value.size();
     // Real Integer numbers Unsigned hex numbers (0x)/decimal numbers (0n)
     if (type != "bool" && isIntType(type)) {
         const QVariant intValue = CdbCore::SymbolGroupContext::getIntValue(value);
         if (intValue.isValid())
             return intValue.toString();
     }
-    return size < 20 ? value : CdbCore::SymbolGroupContext::removeInnerTemplateType(value);
+    /* Pointers: Fix the address and strip off lengthy class type specifications
+     * "0x00000000`000045AA "hallo"                 -> "0x45AA "hallo"
+     * "0x00000000`000045AA class Bla<std::....> *" -> "0x45AA" */
+    if (isPointerType(type)) {
+        quint64 ptrValue;
+        int endPos;
+        if (CdbCore::SymbolGroupContext::getUnsignedHexValue(value, &ptrValue, &endPos)) {
+            QString fixedValue = QString::fromAscii("0x%1").arg(ptrValue, 0, 16);
+            // What is the second token...
+            if (endPos < value.size() - 1) {
+                const QString token = value.mid(endPos + 1);
+                if (token.startsWith(QLatin1String("class")) || token.startsWith(QLatin1String("struct"))) {
+                    *isClassPointer = true;
+                } else {
+                    fixedValue += QLatin1Char(' ');
+                    fixedValue += token;
+                }
+            } // has token
+            return fixedValue;
+        } // pointer value conversion ok
+    }
+    return value;
 }
 
 unsigned CdbSymbolGroupContext::watchDataAt(unsigned long index, WatchData *wd)
@@ -378,8 +397,10 @@ unsigned CdbSymbolGroupContext::watchDataAt(unsigned long index, WatchData *wd)
     if (rc & OutOfScope) {
         wd->setError(WatchData::msgNotInScope());
     } else {
-        wd->setValue(fixValue(value, type.toUtf8()));
-
+        bool isClassPointer;
+        wd->setValue(fixValue(value, type.toUtf8(), &isClassPointer));
+        if (isClassPointer)
+            wd->source |= CdbSymbolGroupContext::ClassPointerBit;
         const bool hasChildren = rc & HasChildren;
         wd->setHasChildren(hasChildren);
         if (hasChildren)

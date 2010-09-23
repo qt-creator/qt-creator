@@ -227,9 +227,9 @@ void QmlCppEngine::selectThread(int index)
     d->m_cppEngine->selectThread(index);
 }
 
-void QmlCppEngine::assignValueInDebugger(const QString &expr, const QString &value)
+void QmlCppEngine::assignValueInDebugger(const Internal::WatchData *w, const QString &expr, const QVariant &value)
 {
-    d->m_activeEngine->assignValueInDebugger(expr, value);
+    d->m_activeEngine->assignValueInDebugger(w, expr, value);
 }
 
 QAbstractItemModel *QmlCppEngine::commandModel() const

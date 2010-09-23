@@ -65,7 +65,11 @@ class CdbSymbolGroupContext : public CdbCore::SymbolGroupContext
 
 public:
      // Mask bits for the source field of watch data.
-     enum { SourceMask = 0xFF, ChildrenKnownBit = 0x0100 };
+     enum { SourceMask = 0xFF,
+            // We know the children although the WatchModel does not believe us.
+            ChildrenKnownBit = 0x0100,
+            // Is a pointer to a potentially dumpeable class.
+            ClassPointerBit = 0x0200 };
 
      static CdbSymbolGroupContext *create(const QString &prefix,
                                           CIDebugSymbolGroup *symbolGroup,

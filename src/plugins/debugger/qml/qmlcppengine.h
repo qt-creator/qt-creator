@@ -54,7 +54,7 @@ public:
     virtual void attemptBreakpointSynchronization();
     virtual void selectThread(int index);
 
-    virtual void assignValueInDebugger(const QString &expr, const QString &value);
+    virtual void assignValueInDebugger(const Internal::WatchData *w, const QString &expr, const QVariant &value);
 
     QAbstractItemModel *commandModel() const;
     QAbstractItemModel *modulesModel() const;
