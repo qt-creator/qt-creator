@@ -33,6 +33,7 @@
 #include "maemoconstants.h"
 #include "maemodeviceconfigurations.h"
 
+#include <QtCore/QHash>
 #include <QtCore/QMap>
 #include <QtCore/QObject>
 #include <QtCore/QProcess>
@@ -67,9 +68,9 @@ struct Runtime
     QString m_bin;
     QString m_root;
     QString m_args;
-    QString m_libPath;
     QString m_sshPort;
     QString m_watchPath;
+    QHash<QString, QString> m_environment;
     MaemoPortList m_freePorts;
 };
 
@@ -134,6 +135,7 @@ private:
     QString targetRoot(const QString &qmake) const;
 
     bool fillRuntimeInformation(Runtime *runtime) const;
+    void setEnvironment(Runtime *runTime, const QString &envSpec) const;
     QString runtimeForQtVersion(const QString &qmakeCommand) const;
 
     void notify(const QList<int> uniqueIds);

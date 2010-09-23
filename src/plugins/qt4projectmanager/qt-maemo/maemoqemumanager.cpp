@@ -371,10 +371,10 @@ void MaemoQemuManager::startRuntime()
     const QLatin1String key("PATH");
     env.insert(key, root % QLatin1String("bin") % colon % env.value(key));
     env.insert(key, root % QLatin1String("madlib") % colon % env.value(key));
-#elif defined(Q_OS_UNIX)
-    const QLatin1String key("LD_LIBRARY_PATH");
-    env.insert(key, env.value(key) % QLatin1Char(':') % rt.m_libPath);
 #endif
+    for (QHash<QString, QString>::ConstIterator it = rt.m_environment.constBegin();
+        it != rt.m_environment.constEnd(); ++it)
+        env.insert(it.key(), it.value());
     m_qemuProcess->setProcessEnvironment(env);
     m_qemuProcess->setWorkingDirectory(rt.m_root);
 
@@ -643,9 +643,7 @@ bool MaemoQemuManager::fillRuntimeInformation(Runtime *runtime) const
 
             runtime->m_bin = map.value(QLatin1String("qemu"));
             runtime->m_args = map.value(QLatin1String("qemu_args"));
-            const QString &libPathSpec = map.value(QLatin1String("libpath"));
-            runtime->m_libPath =
-                libPathSpec.mid(libPathSpec.indexOf(QLatin1Char('=')) + 1);
+            setEnvironment(runtime, map.value(QLatin1String("libpath")));
             runtime->m_sshPort = map.value(QLatin1String("sshport"));
             runtime->m_freePorts = MaemoPortList();
             int i = 2;
@@ -660,6 +658,35 @@ bool MaemoQemuManager::fillRuntimeInformation(Runtime *runtime) const
         }
     }
     return false;
+}
+
+void MaemoQemuManager::setEnvironment(Runtime *runTime,
+    const QString &envSpec) const
+{
+    QString remainingEnvSpec = envSpec;
+    QString currentKey;
+    while (true) {
+        const int nextEqualsSignPos
+            = remainingEnvSpec.indexOf(QLatin1Char('='));
+        if (nextEqualsSignPos == -1) {
+            if (!currentKey.isEmpty())
+                runTime->m_environment.insert(currentKey, remainingEnvSpec);
+            break;
+        }
+        const int keyStartPos
+            = remainingEnvSpec.lastIndexOf(QRegExp(QLatin1String("\\s")),
+                nextEqualsSignPos) + 1;
+        if (!currentKey.isEmpty()) {
+            const int valueEndPos
+                = remainingEnvSpec.lastIndexOf(QRegExp(QLatin1String("\\S")),
+                    qMax(0, keyStartPos - 1)) + 1;
+            runTime->m_environment.insert(currentKey,
+                remainingEnvSpec.left(valueEndPos));
+        }
+        currentKey = remainingEnvSpec.mid(keyStartPos,
+            nextEqualsSignPos - keyStartPos);
+        remainingEnvSpec.remove(0, nextEqualsSignPos + 1);
+    }
 }
 
 QString MaemoQemuManager::runtimeForQtVersion(const QString &qmakeCommand) const
