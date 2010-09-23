@@ -124,14 +124,10 @@ void tst_TestCore::testModelCreateCoreModel()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> testView(new TestView);
+    QScopedPointer<TestView> testView(new TestView(model.data()));
     QVERIFY(testView.data());
     model->attachView(testView.data());
 
-    QVERIFY(testView->rootModelNode().isValid());
-    NodeInstanceView *nodeInstanceView = new NodeInstanceView(model.data());
-    model->attachView(nodeInstanceView);
-    model->detachView(nodeInstanceView);
 }
 
 // TODO: this need to e updated for states
@@ -173,7 +169,7 @@ void tst_TestCore::testRewriterView()
         QScopedPointer<Model> model(Model::create("Qt/Item"));
         QVERIFY(model.data());
 
-        QScopedPointer<TestView> view(new TestView);
+        QScopedPointer<TestView> view(new TestView(model.data()));
         QVERIFY(view.data());
         model->attachView(view.data());
 
@@ -243,7 +239,7 @@ void tst_TestCore::testRewriterErrors()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -375,7 +371,7 @@ void tst_TestCore::testModelCreateRect()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -955,7 +951,7 @@ void tst_TestCore::testRewriterForGradientMagic()
     QScopedPointer<Model> model1(Model::create("Qt/Item", 4, 7));
     QVERIFY(model1.data());
 
-    QScopedPointer<TestView> view1(new TestView);
+    QScopedPointer<TestView> view1(new TestView(model1.data()));
     model1->attachView(view1.data());
 
     QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
@@ -1007,7 +1003,7 @@ void tst_TestCore::testModelCreateSubNode()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -1053,7 +1049,7 @@ void tst_TestCore::testTypicalRewriterOperations()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -1141,7 +1137,7 @@ void tst_TestCore::testBasicStates()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -1253,7 +1249,7 @@ void tst_TestCore::testModelBasicOperations()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -1313,7 +1309,7 @@ void tst_TestCore::testModelResolveIds()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -1371,7 +1367,7 @@ void tst_TestCore::testModelNodeListProperty()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -1428,7 +1424,7 @@ void tst_TestCore::testBasicOperationsWithView()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -1660,7 +1656,7 @@ void tst_TestCore::testModelRemoveNode()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -1725,7 +1721,7 @@ void tst_TestCore::reparentingNode()
 
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -1799,7 +1795,7 @@ void tst_TestCore::reparentingNodeLikeDragAndDrop()
     testRewriterView->setTextModifier(&textModifier);
     model->attachView(testRewriterView.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -1908,7 +1904,7 @@ void tst_TestCore::testModelReorderSiblings()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -1959,7 +1955,7 @@ void tst_TestCore::testModelRootNode()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -1990,7 +1986,7 @@ void tst_TestCore::reparentingNodeInModificationGroup()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -2040,7 +2036,7 @@ void tst_TestCore::testModelAddAndRemoveProperty()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -2081,10 +2077,10 @@ void tst_TestCore::testModelViewNotification()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view1(new TestView);
+    QScopedPointer<TestView> view1(new TestView(model.data()));
     QVERIFY(view1.data());
 
-    QScopedPointer<TestView> view2(new TestView);
+    QScopedPointer<TestView> view2(new TestView(model.data()));
     QVERIFY(view2.data());
 
     model->attachView(view2.data());
@@ -2153,7 +2149,7 @@ void tst_TestCore::testRewriterTransaction()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -2208,7 +2204,7 @@ void tst_TestCore::testRewriterId()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -2252,7 +2248,7 @@ void tst_TestCore::testRewriterNodeReparentingTransaction1()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -2297,7 +2293,7 @@ void tst_TestCore::testRewriterNodeReparentingTransaction2()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -2363,7 +2359,7 @@ void tst_TestCore::testRewriterNodeReparentingTransaction3()
    QScopedPointer<Model> model(Model::create("Qt/Item"));
    QVERIFY(model.data());
 
-   QScopedPointer<TestView> view(new TestView);
+   QScopedPointer<TestView> view(new TestView(model.data()));
    QVERIFY(view.data());
    model->attachView(view.data());
 
@@ -2413,7 +2409,7 @@ void tst_TestCore::testRewriterNodeReparentingTransaction4()
    QScopedPointer<Model> model(Model::create("Qt/Item"));
    QVERIFY(model.data());
 
-   QScopedPointer<TestView> view(new TestView);
+   QScopedPointer<TestView> view(new TestView(model.data()));
    QVERIFY(view.data());
    model->attachView(view.data());
 
@@ -2464,7 +2460,7 @@ void tst_TestCore::testRewriterAddNodeTransaction()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -2511,7 +2507,7 @@ void tst_TestCore::testRewriterComponentId()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -2542,7 +2538,7 @@ void tst_TestCore::testRewriterTransactionRewriter()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -2614,7 +2610,7 @@ void tst_TestCore::testRewriterPropertyDeclarations()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -2676,7 +2672,7 @@ void tst_TestCore::testRewriterPropertyAliases()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -2736,7 +2732,7 @@ void tst_TestCore::testRewriterPositionAndOffset()
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     model->attachView(view.data());
 
     // read in
@@ -2838,7 +2834,7 @@ void tst_TestCore::testRewriterComponentTextModifier()
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     model->attachView(view.data());
 
     // read in
@@ -2908,7 +2904,7 @@ void tst_TestCore::testRewriterPreserveType()
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     model->attachView(view.data());
 
     // read in
@@ -2953,7 +2949,7 @@ void tst_TestCore::testRewriterForArrayMagic()
         QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
         QVERIFY(model.data());
 
-        QScopedPointer<TestView> view(new TestView);
+        QScopedPointer<TestView> view(new TestView(model.data()));
         model->attachView(view.data());
 
         // read in
@@ -3005,7 +3001,7 @@ void tst_TestCore::testRewriterWithSignals()
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     model->attachView(view.data());
 
     // read in
@@ -3048,7 +3044,7 @@ void tst_TestCore::testRewriterNodeSliding()
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     model->attachView(view.data());
 
     // read in
@@ -3088,7 +3084,7 @@ void tst_TestCore::testRewriterExceptionHandling()
     QScopedPointer<Model> model(Model::create("Qt/Text", 4, 7));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     model->attachView(view.data());
 
     // read in
@@ -3144,7 +3140,7 @@ void tst_TestCore::testRewriterFirstDefinitionInside()
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     model->attachView(view.data());
 
     // read in
@@ -3214,7 +3210,7 @@ void tst_TestCore::testCopyModelRewriter1()
     QScopedPointer<Model> model1(Model::create("Qt/Item", 4, 7));
     QVERIFY(model1.data());
 
-    QScopedPointer<TestView> view1(new TestView);
+    QScopedPointer<TestView> view1(new TestView(model1.data()));
     model1->attachView(view1.data());
 
     // read in 1
@@ -3233,7 +3229,7 @@ void tst_TestCore::testCopyModelRewriter1()
     QScopedPointer<Model> model2(Model::create("Qt/Item", 4, 7));
     QVERIFY(model2.data());
 
-    QScopedPointer<TestView> view2(new TestView);
+    QScopedPointer<TestView> view2(new TestView(model2.data()));
     model2->attachView(view2.data());
 
     // read in 2
@@ -3395,7 +3391,7 @@ void tst_TestCore::testCopyModelRewriter2()
     QScopedPointer<Model> model1(Model::create("Qt/Item", 4, 7));
     QVERIFY(model1.data());
 
-    QScopedPointer<TestView> view1(new TestView);
+    QScopedPointer<TestView> view1(new TestView(model1.data()));
     model1->attachView(view1.data());
 
     // read in 1
@@ -3417,7 +3413,7 @@ void tst_TestCore::testCopyModelRewriter2()
     QScopedPointer<Model> model2(Model::create("Qt/Item", 4, 7));
     QVERIFY(model2.data());
 
-    QScopedPointer<TestView> view2(new TestView);
+    QScopedPointer<TestView> view2(new TestView(model2.data()));
     model2->attachView(view2.data());
 
     QScopedPointer<TestRewriterView> testRewriterView2(new TestRewriterView());
@@ -3501,7 +3497,7 @@ void tst_TestCore::testAnchorsAndRewriting()
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     model->attachView(view.data());
 
     // read in
@@ -3562,7 +3558,7 @@ void tst_TestCore::testAnchorsAndRewritingCenter()
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     model->attachView(view.data());
 
     // read in
@@ -3630,7 +3626,7 @@ char qmlString[] = "import Qt 4.7\n"
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -3854,7 +3850,7 @@ void tst_TestCore::testMetaInfoEnums()
     QScopedPointer<Model> model(Model::create("Qt/Text"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -3898,7 +3894,7 @@ void tst_TestCore::testMetaInfoDotProperties()
     QScopedPointer<Model> model(Model::create("Qt/Text"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -3940,7 +3936,7 @@ void tst_TestCore::testMetaInfoListProperties()
      QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -3974,7 +3970,7 @@ void tst_TestCore::testStatesRewriter()
 
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -4021,7 +4017,7 @@ void tst_TestCore::testGradientsRewriter()
 
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -4175,7 +4171,7 @@ void tst_TestCore::testQmlModelStates()
 {
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -4236,7 +4232,7 @@ void tst_TestCore::testInstancesStates()
 
     QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
     QVERIFY(model.data());
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -4467,7 +4463,7 @@ void tst_TestCore::testStates()
 
     QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
     QVERIFY(model.data());
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -4563,7 +4559,7 @@ void tst_TestCore::testStatesBaseState()
 
     QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
     QVERIFY(model.data());
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -4620,7 +4616,7 @@ void tst_TestCore::testInstancesIdResolution()
 {
     QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
     QVERIFY(model.data());
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -4707,7 +4703,7 @@ void tst_TestCore::testInstancesNotInScene()
 
     QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
     QVERIFY(model.data());
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -4728,7 +4724,7 @@ void tst_TestCore::testInstancesBindingsInStatesStress()
     for (int j=0;j<20;j++) {
         QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
         QVERIFY(model.data());
-        QScopedPointer<TestView> view(new TestView);
+        QScopedPointer<TestView> view(new TestView(model.data()));
         QVERIFY(view.data());
         model->attachView(view.data());
 
@@ -4833,7 +4829,7 @@ void tst_TestCore::testInstancesPropertyChangeTargets()
 
         QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
         QVERIFY(model.data());
-        QScopedPointer<TestView> view(new TestView);
+        QScopedPointer<TestView> view(new TestView(model.data()));
         QVERIFY(view.data());
         model->attachView(view.data());
 
@@ -4939,7 +4935,7 @@ void tst_TestCore::testInstancesDeletePropertyChanges()
 {
     QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
         QVERIFY(model.data());
-        QScopedPointer<TestView> view(new TestView);
+        QScopedPointer<TestView> view(new TestView(model.data()));
         QVERIFY(view.data());
         model->attachView(view.data());
 
@@ -5492,7 +5488,7 @@ void tst_TestCore::testInstancesAttachToExistingModel()
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -5525,7 +5521,7 @@ void tst_TestCore::testQmlModelAddMultipleStates()
     QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -5555,7 +5551,7 @@ void tst_TestCore::testQmlModelRemoveStates()
 {
     QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -5651,7 +5647,7 @@ void tst_TestCore::defaultPropertyValues()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -5696,7 +5692,7 @@ void tst_TestCore::testModelNodeInHierarchy()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -5731,7 +5727,7 @@ void tst_TestCore::testModelNodeIsAncestorOf()
     //    }
     //  }
     //
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -5756,7 +5752,7 @@ void tst_TestCore::testModelDefaultProperties()
     QScopedPointer<Model> model(Model::create("Qt/Rectangle"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -6178,7 +6174,7 @@ void tst_TestCore::testModelSliding()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -6252,7 +6248,7 @@ void tst_TestCore::testRewriterChangeId()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -6289,7 +6285,7 @@ void tst_TestCore::testRewriterRemoveId()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -6321,7 +6317,7 @@ void tst_TestCore::testRewriterChangeValueProperty()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -6361,7 +6357,7 @@ void tst_TestCore::testRewriterRemoveValueProperty()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -6403,7 +6399,7 @@ void tst_TestCore::testRewriterSignalProperty()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -6429,7 +6425,7 @@ void tst_TestCore::testRewriterObjectTypeProperty()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
@@ -6477,7 +6473,7 @@ void tst_TestCore::testRewriterPropertyChanges()
         QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
         QVERIFY(model.data());
 
-        QScopedPointer<TestView> view(new TestView);
+        QScopedPointer<TestView> view(new TestView(model.data()));
         model->attachView(view.data());
 
         // read in
@@ -6538,7 +6534,7 @@ void tst_TestCore::testRewriterListModel()
         testRewriterView->setTextModifier(&textModifier);
         model->attachView(testRewriterView.data());
 
-        QScopedPointer<TestView> view(new TestView);
+        QScopedPointer<TestView> view(new TestView(model.data()));
         model->attachView(view.data());
 
         ModelNode listModelNode = view->rootModelNode();
@@ -6571,7 +6567,7 @@ void tst_TestCore::testRewriterAddProperty()
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     model->attachView(view.data());
 
     // read in
@@ -6615,7 +6611,7 @@ void tst_TestCore::testRewriterAddPropertyInNestedObject()
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     model->attachView(view.data());
 
     // read in
@@ -6661,7 +6657,7 @@ void tst_TestCore::testRewriterAddObjectDefinition()
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     model->attachView(view.data());
 
     // read in
@@ -6695,7 +6691,7 @@ void tst_TestCore::testRewriterAddStatesArray()
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     model->attachView(view.data());
 
     QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
@@ -6757,7 +6753,7 @@ void tst_TestCore::testRewriterRemoveStates()
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     model->attachView(view.data());
 
     QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
@@ -6815,7 +6811,7 @@ void tst_TestCore::testRewriterRemoveObjectDefinition()
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     model->attachView(view.data());
 
     // read in
@@ -6874,7 +6870,7 @@ void tst_TestCore::testRewriterRemoveScriptBinding()
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     model->attachView(view.data());
 
     // read in
@@ -6927,7 +6923,7 @@ void tst_TestCore::testRewriterNodeReparenting()
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     model->attachView(view.data());
 
     // read in
@@ -7035,7 +7031,7 @@ void tst_TestCore::testRewriterNodeReparentingWithTransaction()
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     model->attachView(view.data());
 
     // read in
@@ -7096,7 +7092,7 @@ void tst_TestCore::testRewriterMovingInOut()
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     model->attachView(view.data());
 
     // read in
@@ -7152,7 +7148,7 @@ void tst_TestCore::testRewriterMovingInOutWithTransaction()
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     model->attachView(view.data());
 
     // read in
@@ -7205,7 +7201,7 @@ void tst_TestCore::testRewriterComplexMovingInOut()
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     model->attachView(view.data());
 
     // read in
@@ -7347,7 +7343,7 @@ void tst_TestCore::changePropertyBinding()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
+    QScopedPointer<TestView> view(new TestView(model.data()));
     model->attachView(view.data());
 
     ModelNode rootModelNode(view->rootModelNode());

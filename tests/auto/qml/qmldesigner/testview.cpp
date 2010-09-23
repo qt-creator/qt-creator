@@ -35,10 +35,15 @@
 #include <bindingproperty.h>
 #include <variantproperty.h>
 #include <nodelistproperty.h>
+#include <nodeinstanceview.h>
+#include <model.h>
 
-TestView::TestView(QObject *parent)
-    : QmlDesigner::QmlModelView(parent)
+TestView::TestView(QmlDesigner::Model *model)
+    : QmlDesigner::QmlModelView(model)
 {
+    QmlDesigner::NodeInstanceView *nodeInstanceView = new QmlDesigner::NodeInstanceView(model);
+
+    model->attachView(nodeInstanceView);
 }
 
 void TestView::modelAttached(QmlDesigner::Model *model)

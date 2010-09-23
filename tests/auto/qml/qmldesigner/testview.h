@@ -33,6 +33,7 @@
 #include <qmlmodelview.h>
 #include <QVariant>
 #include <QStringList>
+#include <model.h>
 
 class TestView : public QmlDesigner::QmlModelView
 {
@@ -48,7 +49,7 @@ public:
         QStringList arguments;
     };
 
-    TestView(QObject *parent = 0);
+    TestView(QmlDesigner::Model *model);
 
     void modelAttached(QmlDesigner::Model *model);
     void modelAboutToBeDetached(QmlDesigner::Model *model);
