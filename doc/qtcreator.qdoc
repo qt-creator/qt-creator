@@ -123,6 +123,7 @@
                 \o \l{Debugging the Example Application}
                 \o \l{Interacting with the Debugger}
                 \o \l{Setting Up Debugger}
+                \o \l{Debugger Modes of Operation}
                 \o \l{Using Debugging Helpers}
             \endlist
        \o \l{Using the Maemo Emulator}
@@ -334,10 +335,42 @@
 
     \endlist
 
+    You can use the Qt Creator \gui Debug mode to inspect the state of your
+    application while debugging. You can interact with the debugger in several
+    ways, including the following:
+
+    \list
+        \o Go through a program line-by-line or instruction-by-instruction.
+        \o Interrupt running programs.
+        \o Set breakpoints.
+        \o Examine the contents of the call stack.
+        \o Examine and modify registers and memory contents of
+           the debugged program.
+        \o Examine and modify registers and memory contents of
+           local and global variables.
+        \o Examine the list of loaded shared libraries.
+        \o Create snapshots of the current state of the debugged program
+           and re-examine them later.
+    \endlist
+
     Qt Creator displays the raw information provided by the native debuggers
     in a clear and concise manner with the goal to simplify the debugging process
     as much as possible without losing the power of the native debuggers.
-    You can use the native debuggers to debug C++ applications.
+
+    In addition to the generic IDE functionality provided by stack view, views for
+    locals and watchers, registers, and so on, Qt Creator includes
+    features to make debugging Qt-based applications easy. The debugger
+    plugin understands the internal layout of several Qt classes, for
+    example, QString, the Qt containers, and most importantly QObject
+    (and classes derived from it), as well as most containers of the C++
+    Standard Library and some gcc and Symbian extensions. This
+    deeper understanding is used to present objects of such classes in
+    a useful way.
+
+    If you install Qt Creator as part of a Qt SDK, the GNU Symbolic Debugger
+    is installed automatically and you should be ready to start debugging after
+    you create a new project. However, you can change the setup to use debugging
+    tools for Windows, for example.
 
     You can connect mobile devices to your development PC and debug processes
     running on the devices.
@@ -4574,55 +4607,37 @@
     and an internal Java Script debugger. You can use the native debuggers to
     debug the C++ language.
 
-    You can use the Qt Creator \gui Debug mode to inspect the state of your
-    Qt projects while debugging.
-
-    \image qtcreator-debugger-views.png "Native debugger views"
-
-    In the \gui Debug mode you can interact with the debugger in several ways, including
-    the following:
+    The following sections describe debugging with Qt Creator:
 
     \list
-        \o Go through a program line-by-line or instruction-by-instruction.
-        \o Interrupt running programs.
-        \o Set breakpoints.
-        \o Examine the contents of the call stack.
-        \o Examine and modify registers and memory contents of
-           the debugged program.
-        \o Examine and modify registers and memory contents of
-           local and global variables.
-        \o Examine the list of loaded shared libraries.
-        \o Create snapshots of the current state of the debugged program
-           and re-examine them later.
+
+        \o \l{Debugging the Example Application} uses an example application to illustrate
+        how to debug applications in the \gui Debug mode.
+
+        \o \l{Interacting with the Debugger} describes the views and functions available
+        in the \gui Debug mode.
+
+        \o \l{Setting Up Debugger} summarizes the support for debugging C++ code and
+        requirements for installation. Typically, the interaction between Qt Creator
+        and the native debugger is set up automatically and you do not need to do anything.
+
+        \o \l{Debugger Modes of Operation} describes the operating modes in which the
+        debugger plugin runs, depending on where and how the process is started and run.
+
+        \o \l{Using Debugging Helpers} describes how to get more detailed data
+        on complex data.
+
     \endlist
 
-    Qt Creator displays the raw information provided by the native debuggers
-    in a clear and concise manner with the goal to simplify the debugging process
-    as much as possible without losing the power of the native debuggers.
+*/
 
-    In addition to the generic IDE functionality provided by stack view, views for
-    locals and watchers, registers, and so on, Qt Creator includes
-    features to make debugging Qt-based applications easy. The debugger
-    plugin understands the internal layout of several Qt classes, for
-    example, QString, the Qt containers, and most importantly QObject
-    (and classes derived from it), as well as most containers of the C++
-    Standard Library and some gcc and Symbian extensions. This
-    deeper understanding is used to present objects of such classes in
-    a useful way.
+/*!
+    \contentspage index.html
+    \previouspage creator-debugger-engines.html
+    \page creator-debugger-operating-modes.html
+    \nextpage creator-debugging-helpers.html
 
-    For an example of how to debug applications in the \gui Debug mode, see
-    \l{Debugging the Example Application}.
-
-    For more information about the functions available in the \gui Debug mode,
-    see \l{Interacting with the Debugger}.
-
-    If you install Qt Creator as part of a Qt SDK, the GNU Symbolic Debugger
-    is installed automatically and you should be ready to start debugging after
-    you create a new
-    project. If you want a special setup, such as using debugging tools for Windows,
-    see \l {Setting Up Debugger}.
-
-    \section1 Modes of Operation
+    \title Debugger Modes of Operation
 
     The debugger plugin runs in different operating modes depending on where and
     how the process is started and run. Some of the modes are only available for
@@ -4729,7 +4744,7 @@
     \contentspage index.html
     \previouspage creator-debug-mode.html
     \page creator-debugger-engines.html
-    \nextpage creator-debugging-helpers.html
+    \nextpage creator-debugger-operating-modes.html
 
     \title Setting Up Debugger
 
@@ -4976,6 +4991,11 @@
     \note Starting a program in the debugger can take a considerable amount of
     time, typically in the range of several seconds to minutes if complex
     features (like QtWebKit) are used.
+
+    The debugger is launched in the appropriate operating mode (plain, terminal,
+    or TRK), based on the build and run settings for the active project.
+    Select \gui Debug menu options to launch the debugger in other modes.
+    For more information, see \l{Debugger Modes of Operation}.
 
     Once the program starts running, it behaves and performs as usual.
     You can interrupt a running program by selecting \gui{Debug} >
@@ -5275,7 +5295,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-debugger-engines.html
+    \previouspage creator-debugger-operating-modes.html
     \page creator-debugging-helpers.html
     \nextpage creator-maemo-emulator.html
 
