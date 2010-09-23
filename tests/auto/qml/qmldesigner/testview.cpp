@@ -31,6 +31,10 @@
 
 #include <QtDebug>
 #include <qtestcase.h>
+#include <abstractproperty.h>
+#include <bindingproperty.h>
+#include <variantproperty.h>
+#include <nodelistproperty.h>
 
 TestView::TestView(QObject *parent)
     : QmlDesigner::QmlModelView(parent)
