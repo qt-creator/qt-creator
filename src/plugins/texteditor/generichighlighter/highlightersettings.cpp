@@ -45,47 +45,48 @@ namespace Internal {
 
 QString findDefinitionsLocation()
 {
-    QString definitionsLocation;
-
 #ifdef Q_OS_UNIX
-    static const QLatin1String kateSyntax("/share/apps/katepart/syntax");
+    static const QLatin1String kateSyntax[] = {
+        QLatin1String("/share/apps/katepart/syntax"),
+        QLatin1String("/share/kde4/apps/katepart/syntax")
+    };
+    static const int kateSyntaxCount =
+        sizeof(kateSyntax) / sizeof(kateSyntax[0]);
 
     // Some wild guesses.
     QDir dir;
-    QStringList paths;
-    paths << QLatin1String("/usr") + kateSyntax
-          << QLatin1String("/usr/local") + kateSyntax
-          << QLatin1String("/opt") + kateSyntax;
-    foreach (const QString &path, paths) {
-        dir.setPath(path);
-        if (dir.exists()) {
-            definitionsLocation = path;
-            break;
+    for (unsigned i = 0; i < kateSyntaxCount; ++i) {
+        QStringList paths;
+        paths << QLatin1String("/usr") + kateSyntax[i]
+              << QLatin1String("/usr/local") + kateSyntax[i]
+              << QLatin1String("/opt") + kateSyntax[i];
+        foreach (const QString &path, paths) {
+            dir.setPath(path);
+            if (dir.exists())
+                return dir.path();
         }
     }
 
-    if (definitionsLocation.isEmpty()) {
-        // Try kde-config.
-        QStringList programs;
-        programs << QLatin1String("kde-config") << QLatin1String("kde4-config");
-        foreach (const QString &program, programs) {
-            QProcess process;
-            process.start(program, QStringList(QLatin1String("--prefix")));
-            if (process.waitForStarted(5000)) {
-                process.waitForFinished(5000);
-                QString output = QString::fromLocal8Bit(process.readAllStandardOutput());
-                output.remove(QLatin1Char('\n'));
-                dir.setPath(output + kateSyntax);
-                if (dir.exists()) {
-                    definitionsLocation = dir.path();
-                    break;
-                }
+    // Try kde-config.
+    QStringList programs;
+    programs << QLatin1String("kde-config") << QLatin1String("kde4-config");
+    foreach (const QString &program, programs) {
+        QProcess process;
+        process.start(program, QStringList(QLatin1String("--prefix")));
+        if (process.waitForStarted(5000)) {
+            process.waitForFinished(5000);
+            QString output = QString::fromLocal8Bit(process.readAllStandardOutput());
+            output.remove(QLatin1Char('\n'));
+            for (unsigned i = 0; i < kateSyntaxCount; ++i) {
+                dir.setPath(output + kateSyntax[i]);
+                if (dir.exists())
+                    return dir.path();
             }
         }
     }
 #endif
 
-    return definitionsLocation;
+    return QString();
 }
 
 } // namespace Internal
