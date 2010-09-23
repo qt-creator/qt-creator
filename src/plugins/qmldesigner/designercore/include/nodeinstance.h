@@ -141,6 +141,8 @@ public:
 
     static void registerDeclarativeTypes();
 
+    void doComponentComplete();
+
     QString id() const;
 
 #ifdef QTCREATOR_TEST

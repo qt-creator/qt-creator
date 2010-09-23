@@ -286,6 +286,12 @@ void QmlGraphicsItemNodeInstance::resetVertical()
        setPropertyVariant("height", qmlGraphicsItem()->implicitHeight());
 }
 
+void QmlGraphicsItemNodeInstance::doComponentComplete()
+{
+    if (qmlGraphicsItem())
+        static_cast<QDeclarativeParserStatus*>(qmlGraphicsItem())->componentComplete();
+}
+
 int QmlGraphicsItemNodeInstance::penWidth() const
 {
     QDeclarativeRectangle *rectangle = qobject_cast<QDeclarativeRectangle*>(object());
@@ -335,6 +341,11 @@ void QmlGraphicsItemNodeInstance::resetProperty(const QString &name)
         anchors()->resetBaseline();
         resetVertical();
     }
+}
+
+void QmlGraphicsItemNodeInstance::reparent(const NodeInstance &oldParentInstance, const QString &oldParentProperty, const NodeInstance &newParentInstance, const QString &newParentProperty)
+{
+    GraphicsObjectNodeInstance::reparent(oldParentInstance, oldParentProperty, newParentInstance, newParentProperty);
 }
 
 //void  QmlGraphicsItemNodeInstance::updateAnchors()

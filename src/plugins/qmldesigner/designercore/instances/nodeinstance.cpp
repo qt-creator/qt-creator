@@ -644,6 +644,11 @@ void NodeInstance::registerDeclarativeTypes()
 //    qmlRegisterType<QmlDesigner::Internal::QmlPropertyChangesObject>();
 }
 
+void NodeInstance::doComponentComplete()
+{
+
+}
+
 QString NodeInstance::id() const
 {
     return m_nodeInstance->id();

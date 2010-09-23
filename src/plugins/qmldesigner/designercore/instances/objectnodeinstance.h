@@ -179,6 +179,9 @@ public:
 
     NodeInstance nodeInstanceParentForObject(QObject *currentObject) const;
 
+
+    virtual void doComponentComplete();
+
 protected:
     static QObject *createInstance(const NodeMetaInfo &metaInfo, QDeclarativeContext *parentContext);
 

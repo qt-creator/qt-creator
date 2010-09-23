@@ -60,19 +60,22 @@ public:
     QVariant property(const QString &name) const;
     void resetProperty(const QString &name);
 
+    void reparent(const NodeInstance &oldParentInstance, const QString &oldParentProperty, const NodeInstance &newParentInstance, const QString &newParentProperty);
+
     int penWidth() const;
 
     bool hasAnchor(const QString &name) const;
     QPair<QString, NodeInstance> anchor(const QString &name) const;
     bool isAnchoredBySibling() const;
     bool isAnchoredByChildren() const;
+    void doComponentComplete();
 
 protected:
     QmlGraphicsItemNodeInstance(QDeclarativeItem *item, bool hasContent);
     QDeclarativeItem *qmlGraphicsItem() const;
     QDeclarativeAnchors *anchors() const;
     void resetHorizontal();
-    void resetVertical();
+    void resetVertical(); 
 
 private: //variables
     bool m_hasHeight;

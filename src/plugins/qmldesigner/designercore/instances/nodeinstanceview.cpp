@@ -140,7 +140,10 @@ void NodeInstanceView::modelAboutToBeDetached(Model * model)
 */
 void NodeInstanceView::nodeCreated(const ModelNode &createdNode)
 {
-    loadNode(createdNode);
+    NodeInstance instance = loadNode(createdNode);
+
+    if (instance.isValid())
+        instance.doComponentComplete();
 }
 
 /*! \brief Notifing the view that a node was created.
@@ -401,6 +404,9 @@ void NodeInstanceView::loadNodes(const QList<ModelNode> &nodeList)
         foreach (const BindingProperty &property, node.bindingProperties())
             instanceForNode(node).setPropertyBinding(property.name(), property.expression());
     }
+
+    foreach(NodeInstance instance, m_objectInstanceHash.values())
+        instance.doComponentComplete();
 }
 
 // TODO: Set base state as current model state

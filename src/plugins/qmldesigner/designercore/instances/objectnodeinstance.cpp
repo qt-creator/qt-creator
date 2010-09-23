@@ -381,6 +381,9 @@ void ObjectNodeInstance::removeFromOldProperty(QObject *object, QObject *oldPare
             nodeInstanceView()->instanceForObject(oldParent).resetProperty(oldParentProperty);
         }
     }
+
+    if (object && object->parent())
+        object->setParent(0);
 }
 
 void ObjectNodeInstance::addToNewProperty(QObject *object, QObject *newParent, const QString &newParentProperty)
@@ -399,6 +402,11 @@ void ObjectNodeInstance::addToNewProperty(QObject *object, QObject *newParent, c
     } else if (isObject(property)) {
         property.write(objectToVariant(object));
     }
+
+    QGraphicsObject *graphicsObject = qobject_cast<QGraphicsObject*>(object);
+
+    if (object && !(graphicsObject && graphicsObject->parentItem()))
+        object->setParent(newParent);
 
     Q_ASSERT(objectToVariant(object).isValid());
 }
@@ -970,6 +978,11 @@ NodeInstance ObjectNodeInstance::nodeInstanceParentForObject(QObject *currentObj
         parentObject = currentObject->parent();
 
     return nodeInstanceParentForObject(parentObject);
+}
+
+void ObjectNodeInstance::doComponentComplete()
+{
+
 }
 
 }
