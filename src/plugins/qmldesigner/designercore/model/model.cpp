@@ -417,7 +417,7 @@ void ModelPrivate::notifyCustomNotification(const AbstractView *senderView, cons
     }
 
     if (nodeInstanceView()) {
-        rewriterView()->customNotification(senderView, identifier, toModelNodeList(internalList, nodeInstanceView()), data);
+        nodeInstanceView()->customNotification(senderView, identifier, toModelNodeList(internalList, nodeInstanceView()), data);
     }
 
     if (resetModel) {
@@ -1192,14 +1192,14 @@ void ModelPrivate::setNodeInstanceView(NodeInstanceView *nodeInstanceView)
     if (nodeInstanceView == m_nodeInstanceView.data())
         return;
 
-    Q_ASSERT(!(nodeInstanceView && m_nodeInstanceView));
+    if (m_nodeInstanceView)
+        m_nodeInstanceView->modelAboutToBeDetached(m_q);
 
     m_nodeInstanceView = nodeInstanceView;
 
     if (nodeInstanceView)
         nodeInstanceView->modelAttached(m_q);
-    else if (m_nodeInstanceView)
-        m_nodeInstanceView->modelAttached(m_q);
+
 }
 
 NodeInstanceView *ModelPrivate::nodeInstanceView() const
