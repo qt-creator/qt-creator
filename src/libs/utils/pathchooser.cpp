@@ -30,6 +30,7 @@
 #include "pathchooser.h"
 
 #include "basevalidatinglineedit.h"
+#include "environment.h"
 #include "qtcassert.h"
 
 #include <QtCore/QDebug>
@@ -54,6 +55,7 @@
 namespace Utils {
 
 // ------------------ PathValidatingLineEdit
+
 class PathValidatingLineEdit : public BaseValidatingLineEdit
 {
 public:
@@ -79,9 +81,13 @@ bool PathValidatingLineEdit::validate(const QString &value, QString *errorMessag
 }
 
 // ------------------ PathChooserPrivate
-struct PathChooserPrivate
+
+class PathChooserPrivate
 {
+public:
     PathChooserPrivate(PathChooser *chooser);
+
+    QString expandedPath(const QString &path) const;
 
     QHBoxLayout *m_hLayout;
     PathValidatingLineEdit *m_lineEdit;
@@ -90,6 +96,7 @@ struct PathChooserPrivate
     QString m_dialogFilter;
     QString m_initialBrowsePathOverride;
     QString m_baseDirectory;
+    Environment m_environment;
 };
 
 PathChooserPrivate::PathChooserPrivate(PathChooser *chooser) :
@@ -97,6 +104,24 @@ PathChooserPrivate::PathChooserPrivate(PathChooser *chooser) :
     m_lineEdit(new PathValidatingLineEdit(chooser)),
     m_acceptingKind(PathChooser::Directory)
 {
+}
+
+QString PathChooserPrivate::expandedPath(const QString &input) const
+{
+    QString path = QDir::fromNativeSeparators(input);
+    if (m_environment.size() > 0)
+        return m_environment.expandVariables(path);
+
+    if (path.isEmpty() || m_acceptingKind == PathChooser::Command)
+        return path;
+
+    if (m_acceptingKind == PathChooser::ExistingCommand)
+        return m_environment.searchInPath(path, QStringList() << m_baseDirectory);
+
+    if (!m_baseDirectory.isEmpty() && QFileInfo(path).isRelative())
+        return QFileInfo(m_baseDirectory + QLatin1Char('/') + path).absoluteFilePath();
+
+    return path;
 }
 
 PathChooser::PathChooser(QWidget *parent) :
@@ -119,6 +144,8 @@ PathChooser::PathChooser(QWidget *parent) :
 
     setLayout(m_d->m_hLayout);
     setFocusProxy(m_d->m_lineEdit);
+
+    setEnvironment(Environment::systemEnvironment());
 }
 
 PathChooser::~PathChooser()
@@ -153,15 +180,20 @@ void PathChooser::setBaseDirectory(const QString &directory)
     m_d->m_baseDirectory = directory;
 }
 
+void PathChooser::setEnvironment(const Utils::Environment &env)
+{
+    m_d->m_environment = env;
+}
+
+
 QString PathChooser::path() const
 {
-    const QString path = m_d->m_lineEdit->text();
-    if (!m_d->m_baseDirectory.isEmpty()
-            && QFileInfo(path).isRelative()
-            && !path.isEmpty())
-        return QFileInfo(m_d->m_baseDirectory + QLatin1Char('/') + path).absoluteFilePath();
-    else
-        return QDir::fromNativeSeparators(path);
+    return m_d->expandedPath(QDir::fromNativeSeparators(m_d->m_lineEdit->text()));
+}
+
+QString PathChooser::rawPath() const
+{
+    return QDir::fromNativeSeparators(m_d->m_lineEdit->text());
 }
 
 void PathChooser::setPath(const QString &path)
@@ -188,8 +220,13 @@ void PathChooser::slotBrowse()
         newPath = QFileDialog::getExistingDirectory(this,
                 makeDialogTitle(tr("Choose Directory")), predefined);
         break;
-    case PathChooser::File: // fall through
+    case PathChooser::ExistingCommand:
     case PathChooser::Command:
+        newPath = QFileDialog::getOpenFileName(this,
+                makeDialogTitle(tr("Choose Executable")), predefined,
+                m_d->m_dialogFilter);
+        break;
+    case PathChooser::File: // fall through
         newPath = QFileDialog::getOpenFileName(this,
                 makeDialogTitle(tr("Choose File")), predefined,
                 m_d->m_dialogFilter);
@@ -239,21 +276,31 @@ QString PathChooser::errorMessage() const
 
 bool PathChooser::validatePath(const QString &path, QString *errorMessage)
 {
-    if (path.isEmpty()) {
+    QString expandedPath = m_d->expandedPath(path);
+
+    QString displayPath = expandedPath;
+    if (expandedPath.isEmpty())
+        //: Selected path is not valid:
+        displayPath = tr("<not valid>");
+
+    *errorMessage = tr("Full path: <b>%1</b>").arg(QDir::toNativeSeparators(expandedPath));
+
+    if (expandedPath.isEmpty()) {
         if (errorMessage)
             *errorMessage = tr("The path must not be empty.");
         return false;
     }
 
-    const QFileInfo fi(path);
+    const QFileInfo fi(expandedPath);
 
     // Check if existing
     switch (m_d->m_acceptingKind) {
     case PathChooser::Directory: // fall through
-    case PathChooser::File:
+    case PathChooser::File: // fall through
+    case PathChooser::ExistingCommand:
         if (!fi.exists()) {
             if (errorMessage)
-                *errorMessage = tr("The path '%1' does not exist.").arg(path);
+                *errorMessage = tr("The path '%1' does not exist.").arg(QDir::toNativeSeparators(expandedPath));
             return false;
         }
         break;
@@ -268,7 +315,7 @@ bool PathChooser::validatePath(const QString &path, QString *errorMessage)
     case PathChooser::Directory:
         if (!fi.isDir()) {
             if (errorMessage)
-                *errorMessage = tr("The path '%1' is not a directory.").arg(path);
+                *errorMessage = tr("The path <b>%1</b> is not a directory.").arg(QDir::toNativeSeparators(expandedPath));
             return false;
         }
         break;
@@ -276,14 +323,19 @@ bool PathChooser::validatePath(const QString &path, QString *errorMessage)
     case PathChooser::File:
         if (!fi.isFile()) {
             if (errorMessage)
-                *errorMessage = tr("The path '%1' is not a file.").arg(path);
+                *errorMessage = tr("The path <b>%1</b> is not a file.").arg(QDir::toNativeSeparators(expandedPath));
             return false;
         }
         break;
 
+    case PathChooser::ExistingCommand:
+        if (!fi.isFile() || !fi.isExecutable()) {
+            if (errorMessage)
+                *errorMessage = tr("The path <b>%1</b> is not a executable file.").arg(QDir::toNativeSeparators(expandedPath));
+            return false;
+        }
+
     case PathChooser::Command:
-        // TODO do proper command validation
-        // i.e. search $PATH for a matching file
         break;
 
     case PathChooser::Any:

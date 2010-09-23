@@ -42,7 +42,8 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
-struct PathChooserPrivate;
+class Environment;
+class PathChooserPrivate;
 
 /**
  * A control that let's the user choose a path, consisting of a QLineEdit and
@@ -67,7 +68,8 @@ public:
     enum Kind {
         Directory,
         File,
-        Command,
+        ExistingCommand, // A command that must exist at the time of selection
+        Command, // A command that may or may not exist at the time of selection (e.g. result of a build)
         Any
     };
 
@@ -87,9 +89,12 @@ public:
     QString errorMessage() const;
 
     QString path() const;
+    QString rawPath() const; // The raw unexpanded input.
 
     QString baseDirectory() const;
     void setBaseDirectory(const QString &directory);
+
+    void setEnvironment(const Utils::Environment &env);
 
     /** Returns the suggested label title when used in a form layout. */
     static QString label();
