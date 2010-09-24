@@ -178,6 +178,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             if (tryExpression())
                 break;
             switch (kind) {
+            case T_RBRACE:      leave(true); continue;
             case T_SEMICOLON:   leave(); continue;
             case T_LBRACE:
             case T_COLON:
@@ -193,6 +194,8 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             if (tryExpression())
                 break;
             switch (kind) {
+            case T_SEMICOLON:   leave(true); break;
+            case T_RBRACE:      leave(true); continue;
             case T_RPAREN:      leave(); break;
             } break;
 
@@ -256,6 +259,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
         case if_statement:
             switch (kind) {
             case T_LPAREN:      enter(condition_open); break;
+            default:            leave(true); continue;
             } break;
 
         case maybe_else:
@@ -286,6 +290,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
 
         case return_statement:
             switch (kind) {
+            case T_RBRACE:      leave(true); continue;
             case T_SEMICOLON:   leave(true); break;
             } break;
 
@@ -296,11 +301,13 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             switch (kind) {
             case T_LBRACE:      turnInto(substatement_open); break;
             case T_SEMICOLON:   leave(true); break;
+            case T_RBRACE:      leave(true); continue;
             } break;
 
         case for_statement:
             switch (kind) {
             case T_LPAREN:      enter(for_statement_paren_open); break;
+            default:            leave(true); continue;
             } break;
 
         case for_statement_paren_open:
