@@ -244,7 +244,7 @@ class QMLJS_EXPORT ScopeChain
 public:
     ScopeChain();
 
-    class QmlComponentChain
+    class QMLJS_EXPORT QmlComponentChain
     {
         Q_DISABLE_COPY(QmlComponentChain)
     public:
