@@ -271,9 +271,6 @@ public:
 
     QPointer<BaseTextEditorAnimator> m_animator;
     int m_cursorBlockNumber;
-
-    bool m_inKeyPressEvent;
-    bool m_nextChangeIsSnippetSafe;
 };
 
 } // namespace Internal

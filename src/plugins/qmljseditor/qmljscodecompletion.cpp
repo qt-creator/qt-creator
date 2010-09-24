@@ -904,8 +904,6 @@ void CodeCompletion::complete(const TextEditor::CompletionItem &item, QChar type
     QString toInsert = item.text;
 
     if (QmlJSTextEditor *edit = qobject_cast<QmlJSTextEditor *>(m_editor->widget())) {
-        edit->setNextChangeIsSnippetSafe();
-
         if (item.data.isValid()) {
             QTextCursor tc = edit->textCursor();
             tc.setPosition(m_startPosition, QTextCursor::KeepAnchor);

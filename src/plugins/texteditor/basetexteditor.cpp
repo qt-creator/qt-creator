@@ -89,17 +89,6 @@
 using namespace TextEditor;
 using namespace TextEditor::Internal;
 
-namespace {
-    class Locker {
-        bool *m_bool;
-    public:
-        inline Locker(bool *b):m_bool(b){ *m_bool = true; }
-        inline ~Locker() { *m_bool = false; }
-    };
-}
-
-
-
 namespace TextEditor {
 namespace Internal {
 
@@ -258,10 +247,7 @@ BaseTextEditor::BaseTextEditor(QWidget *parent)
     connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(currentEditorChanged(Core::IEditor*)));
 
-    d->m_inKeyPressEvent = false;
     d->m_moveLineUndoHack = false;
-
-    d->m_nextChangeIsSnippetSafe = false;
 }
 
 BaseTextEditor::~BaseTextEditor()
@@ -495,37 +481,12 @@ ITextMarkable *BaseTextEditor::markableInterface() const
     return baseTextDocument()->documentMarker();
 }
 
-void BaseTextEditor::maybeEmitContentsChangedBecauseOfUndo()
-{
-    if (!d->m_inKeyPressEvent && !d->m_nextChangeIsSnippetSafe) {
-        d->m_nextChangeIsSnippetSafe = false;
-
-        // i.e. the document was changed outside key press event
-        // Possible with undo, cut, paste, etc.
-        if (d->m_snippetOverlay->isVisible()) {
-
-            d->m_snippetOverlay->hide();
-            d->m_snippetOverlay->clear();
-            QTextCursor cursor = textCursor();
-            cursor.clearSelection();
-            setTextCursor(cursor);
-            return;
-        }
-
-    }
-    if (document()->isRedoAvailable()) {
-        emit editableInterface()->contentsChangedBecauseOfUndo();
-    }
-}
-
 BaseTextEditorEditable *BaseTextEditor::editableInterface() const
 {
     if (!d->m_editable) {
         d->m_editable = const_cast<BaseTextEditor*>(this)->createEditableInterface();
         connect(this, SIGNAL(textChanged()),
                 d->m_editable, SIGNAL(contentsChanged()));
-        connect(this, SIGNAL(textChanged()),
-                this, SLOT(maybeEmitContentsChangedBecauseOfUndo()));
         connect(this, SIGNAL(changed()),
                 d->m_editable, SIGNAL(changed()));
     }
@@ -683,7 +644,6 @@ void BaseTextEditor::editorContentsChange(int position, int charsRemoved, int ch
     if (d->m_animator)
         d->m_animator->finish();
 
-
     d->m_contentsChanged = true;
     QTextDocument *doc = document();
 
@@ -703,10 +663,18 @@ void BaseTextEditor::editorContentsChange(int position, int charsRemoved, int ch
         }
     }
 
+    if (d->m_snippetOverlay->isVisible()) {
+        QTextCursor cursor = textCursor();
+        cursor.setPosition(position);
+        if (!d->m_snippetOverlay->hasCursorInSelection(cursor)) {
+            d->m_snippetOverlay->hide();
+            d->m_snippetOverlay->clear();
+        }
+    }
+
     if (doc->isRedoAvailable())
         emit editableInterface()->contentsChangedBecauseOfUndo();
 }
-
 
 void BaseTextEditor::slotSelectionChanged()
 {
@@ -1108,8 +1076,6 @@ void BaseTextEditor::cleanWhitespace()
 
 void BaseTextEditor::keyPressEvent(QKeyEvent *e)
 {
-    Locker inKeyPressEvent(&d->m_inKeyPressEvent);
-
     viewport()->setCursor(Qt::BlankCursor);
     ToolTip::instance()->hide();
 
@@ -1958,8 +1924,7 @@ BaseTextEditorPrivate::BaseTextEditorPrivate()
     m_requestAutoCompletionRevision(0),
     m_requestAutoCompletionPosition(0),
     m_requestAutoCompletionTimer(0),
-    m_cursorBlockNumber(-1),
-    m_inKeyPressEvent(false)
+    m_cursorBlockNumber(-1)
 {
 }
 
@@ -4084,11 +4049,6 @@ QString BaseTextEditor::insertParagraphSeparator(const QTextCursor &tc) const
     return QString();
 }
 
-void BaseTextEditor::setNextChangeIsSnippetSafe()
-{
-    d->m_nextChangeIsSnippetSafe = true;
-}
-
 QString BaseTextEditor::autoComplete(QTextCursor &cursor, const QString &textToInsert) const
 {
     const bool checkBlockEnd = d->m_allowSkippingOfBlockEnd;
@@ -5441,6 +5401,12 @@ void BaseTextEditor::insertFromMimeData(const QMimeData *source)
         cursor.endEditBlock();
         setTextCursor(cursor);
         ensureCursorVisible();
+
+        if (d->m_snippetOverlay->isVisible() && lines.count() > 1) {
+            d->m_snippetOverlay->hide();
+            d->m_snippetOverlay->clear();
+        }
+
         return;
     }
 
@@ -5451,8 +5417,11 @@ void BaseTextEditor::insertFromMimeData(const QMimeData *source)
     if (CompletionSupport::instance()->isActive())
         setFocus();
 
-    if (!text.contains(QLatin1Char('\n')) && !text.contains(QLatin1Char('\t')))
-        setNextChangeIsSnippetSafe();
+    if (d->m_snippetOverlay->isVisible() && (text.contains(QLatin1Char('\n'))
+                                             || text.contains(QLatin1Char('\t')))) {
+        d->m_snippetOverlay->hide();
+        d->m_snippetOverlay->clear();
+    }
 
     const TabSettings &ts = d->m_document->tabSettings();
     QTextCursor cursor = textCursor();
