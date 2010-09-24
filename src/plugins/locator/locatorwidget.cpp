@@ -371,7 +371,7 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
 #endif
             m_completionList->hide();
     } else if (obj == m_fileLineEdit && event->type() == QEvent::FocusIn) {
-        showPopup();
+        showPopupNow();
     } else if (obj == this && event->type() == QEvent::ShortcutOverride) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
         if (ke->key() == Qt::Key_Escape && !ke->modifiers()) {
@@ -493,7 +493,7 @@ void LocatorWidget::show(const QString &text, int selectionStart, int selectionL
     if (!m_fileLineEdit->hasFocus())
         m_fileLineEdit->setFocus();
     else
-        showPopup();
+        showPopupNow();
 
     if (selectionStart >= 0) {
         m_fileLineEdit->setSelection(selectionStart, selectionLength);
