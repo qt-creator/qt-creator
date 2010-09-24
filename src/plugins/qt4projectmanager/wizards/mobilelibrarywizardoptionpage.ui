@@ -26,7 +26,7 @@
       <item>
        <layout class="QFormLayout" name="formLayout">
         <item row="1" column="0">
-         <widget class="QCheckBox" name="symbianEnableNetworkChackBox">
+         <widget class="QCheckBox" name="symbianEnableNetworkCheckBox">
           <property name="text">
            <string>Enable network access</string>
           </property>

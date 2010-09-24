@@ -162,7 +162,7 @@ LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
     wizardProgress()->item(m_filesPageId)->setTitle(tr("Details"));
 
     m_mobilePageId = addPage(m_mobilePage);
-    wizardProgress()->item(m_mobilePageId)->setTitle(tr("Symbian specific"));
+    wizardProgress()->item(m_mobilePageId)->setTitle(tr("Symbian Specific"));
 
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotCurrentIdChanged(int)));
 

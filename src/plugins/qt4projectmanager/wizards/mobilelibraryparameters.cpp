@@ -67,9 +67,9 @@ static const SymbianCapability symbianCapability[] =
 
 QString generateCapabilitySet(uint capabilities)
 {
-    const int symbianCapabilityCount = sizeof(symbianCapability)/sizeof(SymbianCapability);
+    const int capabilityCount = sizeof(symbianCapability)/sizeof(symbianCapability[0]);
     QString capabilitySet;
-    for(int i = 0; i < symbianCapabilityCount; ++i)
+    for(int i = 0; i < capabilityCount; ++i)
         if (capabilities&symbianCapability[i].value)
             capabilitySet += QLatin1String(symbianCapability[i].name) + " ";
     return capabilitySet;

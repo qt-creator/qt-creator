@@ -72,12 +72,12 @@ void MobileLibraryWizardOptionPage::setSymbianUid(const QString &uid)
 
 void MobileLibraryWizardOptionPage::setNetworkEnabled(bool enableIt)
 {
-    m_d->ui.symbianEnableNetworkChackBox->setChecked(enableIt);
+    m_d->ui.symbianEnableNetworkCheckBox->setChecked(enableIt);
 }
 
 bool MobileLibraryWizardOptionPage::networkEnabled() const
 {
-    return m_d->ui.symbianEnableNetworkChackBox->isChecked();
+    return m_d->ui.symbianEnableNetworkCheckBox->isChecked();
 }
 
 void MobileLibraryWizardOptionPage::setLibraryType(int type)
