@@ -3209,10 +3209,10 @@
 
     \list
 
-        \o \gui {QML Viewer} is the path to the \QQV executable.
+        \o \gui {Custom QML Viewer} is the path to the \QQV executable.
         Qt Creator ships with a specific version of \QQV and imported
-        modules, which is used by default. If you develop applications
-        that use both C++ and QML, you must select the \QQV version
+        modules, which is used by default. If you develop Qt Quick applications
+        that contain C++ plugins, you must select the \QQV version
         shipped with your Qt version here.
 
         \o \gui {QML Viewer arguments} sets arguments for running \QQV.
@@ -3222,10 +3222,9 @@
 
         \o \gui {Main QML file} is the Qt Quick project file.
 
-        \o \gui {Debugging address} is the IP address to access \QQV.
-
-        \o \gui {Debugging port} is the port to access \QQV. You can use any
-        free port in the registered port range.
+        \o \gui Debugger allows you to select the languages to debug:
+        \gui{C++} and \gui QML. \gui {Debug port} is the port to access \QQV.
+        You can use any free port in the registered port range.
 
     \endlist
 
