@@ -70,6 +70,7 @@ QmlProject::~QmlProject()
 {
     m_manager->unregisterProject(this);
 
+    delete m_projectItem.data();
     delete m_rootNode;
 }
 
