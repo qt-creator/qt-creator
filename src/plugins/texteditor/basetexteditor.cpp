@@ -260,6 +260,8 @@ BaseTextEditor::BaseTextEditor(QWidget *parent)
 
     d->m_inKeyPressEvent = false;
     d->m_moveLineUndoHack = false;
+
+    d->m_nextChangeIsSnippetSafe = false;
 }
 
 BaseTextEditor::~BaseTextEditor()
@@ -495,7 +497,8 @@ ITextMarkable *BaseTextEditor::markableInterface() const
 
 void BaseTextEditor::maybeEmitContentsChangedBecauseOfUndo()
 {
-    if (!d->m_inKeyPressEvent) {
+    if (!d->m_inKeyPressEvent && !d->m_nextChangeIsSnippetSafe) {
+        d->m_nextChangeIsSnippetSafe = false;
 
         // i.e. the document was changed outside key press event
         // Possible with undo, cut, paste, etc.
@@ -4081,6 +4084,11 @@ QString BaseTextEditor::insertParagraphSeparator(const QTextCursor &tc) const
     return QString();
 }
 
+void BaseTextEditor::setNextChangeIsSnippetSafe()
+{
+    d->m_nextChangeIsSnippetSafe = true;
+}
+
 QString BaseTextEditor::autoComplete(QTextCursor &cursor, const QString &textToInsert) const
 {
     const bool checkBlockEnd = d->m_allowSkippingOfBlockEnd;
@@ -5432,11 +5440,12 @@ void BaseTextEditor::insertFromMimeData(const QMimeData *source)
         return;
     }
 
-
-
     QString text = source->text();
     if (text.isEmpty())
         return;
+
+    if (!text.contains(QLatin1Char('\n')) && !text.contains(QLatin1Char('\t')))
+        setNextChangeIsSnippetSafe();
 
     const TabSettings &ts = d->m_document->tabSettings();
     QTextCursor cursor = textCursor();

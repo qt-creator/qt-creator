@@ -1822,6 +1822,9 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item, QChar t
 
     Symbol *symbol = 0;
 
+    if (TextEditor::BaseTextEditor *edit = qobject_cast<TextEditor::BaseTextEditor *>(m_editor->widget()))
+        edit->setNextChangeIsSnippetSafe();
+
     if (item.data.isValid()) {
         if (item.data.canConvert<QString>()) {
             TextEditor::BaseTextEditor *edit = qobject_cast<TextEditor::BaseTextEditor *>(m_editor->widget());

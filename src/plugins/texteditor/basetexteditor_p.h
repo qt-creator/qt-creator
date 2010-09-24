@@ -273,6 +273,7 @@ public:
     int m_cursorBlockNumber;
 
     bool m_inKeyPressEvent;
+    bool m_nextChangeIsSnippetSafe;
 };
 
 } // namespace Internal
