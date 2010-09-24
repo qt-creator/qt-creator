@@ -147,10 +147,10 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
     QTC_ASSERT(rc, return sp);
 
     sp.startMode = StartInternal;
-    sp.executable = rc->executable();
     sp.environment = rc->environment().toStringList();
-    sp.workingDirectory = rc->workingDirectory();
-    sp.processArgs = rc->commandLineArguments();
+    sp.workingDirectory = rc->environment().expandVariables(rc->workingDirectory());
+    sp.executable = rc->environment().searchInPath(rc->executable(), QStringList() << sp.workingDirectory);
+    sp.processArgs = rc->environment().expandVariables(rc->commandLineArguments());
     sp.toolChainType = rc->toolChainType();
     sp.useTerminal = rc->runMode() == LocalApplicationRunConfiguration::Console;
     sp.dumperLibrary = rc->dumperLibrary();

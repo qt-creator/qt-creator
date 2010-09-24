@@ -91,15 +91,17 @@ QWidget *LocalApplicationRunControlFactory::createConfigurationWidget(RunConfigu
 
 // ApplicationRunControl
 
-LocalApplicationRunControl::LocalApplicationRunControl(LocalApplicationRunConfiguration *runConfiguration, QString mode)
-    : RunControl(runConfiguration, mode)
+LocalApplicationRunControl::LocalApplicationRunControl(LocalApplicationRunConfiguration *rc, QString mode)
+    : RunControl(rc, mode)
 {
-    m_applicationLauncher.setEnvironment(runConfiguration->environment().toStringList());
-    m_applicationLauncher.setWorkingDirectory(runConfiguration->workingDirectory());
+    Utils::Environment env = rc->environment();
+    QString dir = env.expandVariables(rc->workingDirectory());
+    m_applicationLauncher.setEnvironment(env.toStringList());
+    m_applicationLauncher.setWorkingDirectory(dir);
 
-    m_executable = runConfiguration->executable();
-    m_runMode = static_cast<ApplicationLauncher::Mode>(runConfiguration->runMode());
-    m_commandLineArguments = runConfiguration->commandLineArguments();
+    m_executable = env.searchInPath(rc->executable(), QStringList() << dir);
+    m_runMode = static_cast<ApplicationLauncher::Mode>(rc->runMode());
+    m_commandLineArguments = env.expandVariables(rc->commandLineArguments());
 
     connect(&m_applicationLauncher, SIGNAL(appendMessage(QString,bool)),
             this, SLOT(slotAppendMessage(QString,bool)));
