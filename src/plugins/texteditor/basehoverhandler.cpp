@@ -52,6 +52,9 @@ BaseHoverHandler::BaseHoverHandler(QObject *parent) : QObject(parent)
             this, SLOT(editorOpened(Core::IEditor *)));
 }
 
+BaseHoverHandler::~BaseHoverHandler()
+{}
+
 void BaseHoverHandler::editorOpened(Core::IEditor *editor)
 {
     if (acceptEditor(editor)) {

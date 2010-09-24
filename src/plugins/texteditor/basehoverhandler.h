@@ -54,6 +54,7 @@ class TEXTEDITOR_EXPORT BaseHoverHandler : public QObject
     Q_OBJECT
 public:
     BaseHoverHandler(QObject *parent = 0);
+    virtual ~BaseHoverHandler();
 
 private slots:
     void editorOpened(Core::IEditor *editor);
