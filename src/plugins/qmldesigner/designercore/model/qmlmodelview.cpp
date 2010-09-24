@@ -199,7 +199,8 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
             parentNode.nodeAbstractProperty(parentNode.defaultProperty()).reparentHere(newNode);
         }
 
-        Q_ASSERT(newNode.isValid());
+        if (!newNode.isValid())
+            return newNode;
 
         QString id;
         int i = 1;

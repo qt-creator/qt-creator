@@ -35,12 +35,14 @@
 #include "itemutilfunctions.h"
 #include <customdraganddrop.h>
 #include <metainfo.h>
+#include <rewritingexception.h>
 
 #include "resizehandleitem.h"
 
 #include <QApplication>
 #include <QGraphicsSceneMouseEvent>
 #include <QtDebug>
+#include <QMessageBox>
 
 namespace QmlDesigner {
 
@@ -143,7 +145,6 @@ void DragTool::createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry, QmlIt
     m_dragNode = view()->createQmlItemNode(itemLibraryEntry, pos, parentNode);
 
     Q_ASSERT(m_dragNode.modelNode().isValid());
-    Q_ASSERT(m_dragNode.isValid());
 
     QList<QmlItemNode> nodeList;
     nodeList.append(m_dragNode);
@@ -205,7 +206,11 @@ void DragTool::dropEvent(QGraphicsSceneDragDropEvent * event)
         event->accept();
         end(event->scenePos());
         //Q_ASSERT(m_token.isValid());
-        m_rewriterTransaction.commit();
+        try {
+            m_rewriterTransaction.commit();
+        } catch (RewritingException &e) {
+            QMessageBox::warning(0, "Error", e.description());
+        }
         m_dragNode = ModelNode();
         view()->changeToSelectionTool();
     }
@@ -230,7 +235,13 @@ void DragTool::dragLeaveEvent(QGraphicsSceneDragDropEvent * event)
         if (m_dragNode.isValid())
             m_dragNode.destroy();
         end(event->scenePos());
-        m_rewriterTransaction.commit();
+
+        try {
+            m_rewriterTransaction.commit();
+        } catch (RewritingException &e) {
+            QMessageBox::warning(0, "Error", e.description());
+        }
+
         QmlDesignerItemLibraryDragAndDrop::CustomDragAndDrop::show();
         QList<QmlItemNode> nodeList;
         view()->setSelectedQmlItemNodes(nodeList);
@@ -267,6 +278,8 @@ void DragTool::dragMoveEvent(QGraphicsSceneDragDropEvent * event)
             move(event->scenePos());
         } else {
             //create new node  if container
+            if (m_dragNode.modelNode().isValid())
+                return;
 
             FormEditorItem *parentItem = calculateContainer(event->scenePos());
             if (!parentItem)
@@ -284,7 +297,8 @@ void DragTool::dragMoveEvent(QGraphicsSceneDragDropEvent * event)
                 QString imageName = QString::fromLatin1((event->mimeData()->data("application/vnd.bauhaus.libraryresource")));
                 createQmlItemNodeFromImage(imageName, parentNode, event->scenePos());
             } else Q_ASSERT(false);
-            beginWithPoint(event->scenePos());
+            if  (m_dragNode.isValid())
+                beginWithPoint(event->scenePos());
         }
     }
     if (event->mimeData()->hasFormat("application/vnd.bauhaus.libraryresource")) {
