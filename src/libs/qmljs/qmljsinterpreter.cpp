@@ -2528,6 +2528,7 @@ const ObjectValue *Engine::qtObject() const
 
 void Engine::registerValue(Value *value)
 {
+    QMutexLocker locker(&_mutex);
     _registeredValues.append(value);
 }
 

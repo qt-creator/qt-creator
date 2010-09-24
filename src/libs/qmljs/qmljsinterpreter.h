@@ -40,6 +40,7 @@
 #include <QtCore/QString>
 #include <QtCore/QHash>
 #include <QtCore/QSet>
+#include <QtCore/QMutex>
 
 namespace QmlJS {
 
@@ -735,6 +736,8 @@ private:
     TypeId _typeId;
 
     CppQmlTypes _cppQmlTypes;
+
+    QMutex _mutex;
 };
 
 
