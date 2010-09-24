@@ -103,6 +103,24 @@ void ModelManager::loadQmlTypeDescriptions(const QString &resourcePath)
     //loadQmlPluginTypes(QString());
 }
 
+ModelManagerInterface::WorkingCopy ModelManager::workingCopy() const
+{
+    WorkingCopy workingCopy;
+    Core::EditorManager *editorManager = m_core->editorManager();
+
+    foreach (Core::IEditor *editor, editorManager->openedEditors()) {
+        const QString key = editor->file()->fileName();
+
+        if (TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor)) {
+            if (QmlJSTextEditor *ed = qobject_cast<QmlJSTextEditor *>(textEditor->widget())) {
+                workingCopy.insert(key, ed->toPlainText(), ed->document()->revision());
+            }
+        }
+    }
+
+    return workingCopy;
+}
+
 Snapshot ModelManager::snapshot() const
 {
     QMutexLocker locker(&m_mutex);
@@ -123,10 +141,8 @@ QFuture<void> ModelManager::refreshSourceFiles(const QStringList &sourceFiles,
         return QFuture<void>();
     }
 
-    const QMap<QString, WorkingCopy> workingCopy = buildWorkingCopyList();
-
     QFuture<void> result = QtConcurrent::run(&ModelManager::parse,
-                                              workingCopy, sourceFiles,
+                                              workingCopy(), sourceFiles,
                                               this,
                                               emitDocumentOnDiskChanged);
 
@@ -151,29 +167,10 @@ QFuture<void> ModelManager::refreshSourceFiles(const QStringList &sourceFiles,
     return result;
 }
 
-QMap<QString, ModelManager::WorkingCopy> ModelManager::buildWorkingCopyList()
-{
-    QMap<QString, WorkingCopy> workingCopy;
-    Core::EditorManager *editorManager = m_core->editorManager();
-
-    foreach (Core::IEditor *editor, editorManager->openedEditors()) {
-        const QString key = editor->file()->fileName();
-
-        if (TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor)) {
-            if (QmlJSTextEditor *ed = qobject_cast<QmlJSTextEditor *>(textEditor->widget())) {
-                workingCopy[key].contents = ed->toPlainText();
-                workingCopy[key].documentRevision = ed->document()->revision();
-            }
-        }
-    }
-
-    return workingCopy;
-}
-
 void ModelManager::fileChangedOnDisk(const QString &path)
 {
     QtConcurrent::run(&ModelManager::parse,
-                      buildWorkingCopyList(), QStringList() << path,
+                      workingCopy(), QStringList() << path,
                       this, true);
 }
 
@@ -340,7 +337,7 @@ static void findNewLibraryImports(const Document::Ptr &doc, const Snapshot &snap
 }
 
 void ModelManager::parse(QFutureInterface<void> &future,
-                            QMap<QString, WorkingCopy> workingCopy,
+                            WorkingCopy workingCopy,
                             QStringList files,
                             ModelManager *modelManager,
                             bool emitDocChangedOnDisk)
@@ -377,9 +374,9 @@ void ModelManager::parse(QFutureInterface<void> &future,
         int documentRevision = 0;
 
         if (workingCopy.contains(fileName)) {
-            WorkingCopy wc = workingCopy.value(fileName);
-            contents = wc.contents;
-            documentRevision = wc.documentRevision;
+            QPair<QString, int> entry = workingCopy.get(fileName);
+            contents = entry.first;
+            documentRevision = entry.second;
         } else {
             QFile inFile(fileName);
 

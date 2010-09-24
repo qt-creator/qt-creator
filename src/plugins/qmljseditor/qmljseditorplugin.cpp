@@ -164,6 +164,13 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     contextMenu->addAction(cmd);
     qmlToolsMenu->addAction(cmd);
 
+    QAction *findUsagesAction = new QAction(tr("Find Usages"), this);
+    cmd = am->registerAction(findUsagesAction, Constants::FIND_USAGES, context);
+    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+U")));
+    connect(findUsagesAction, SIGNAL(triggered()), this, SLOT(findUsages()));
+    contextMenu->addAction(cmd);
+    qmlToolsMenu->addAction(cmd);
+
     QAction *showQuickToolbar = new QAction(tr("Show Qt Quick Toolbar"), this);
     cmd = am->registerAction(showQuickToolbar, Constants::SHOW_QT_QUICK_HELPER, context);
     cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_Space));
@@ -259,6 +266,13 @@ void QmlJSEditorPlugin::followSymbolUnderCursor()
 
     if (QmlJSTextEditor *editor = qobject_cast<QmlJSTextEditor*>(em->currentEditor()->widget()))
         editor->followSymbolUnderCursor();
+}
+
+void QmlJSEditorPlugin::findUsages()
+{
+    Core::EditorManager *em = Core::EditorManager::instance();
+    if (QmlJSTextEditor *editor = qobject_cast<QmlJSTextEditor*>(em->currentEditor()->widget()))
+        editor->findUsages();
 }
 
 void QmlJSEditorPlugin::showContextPane()

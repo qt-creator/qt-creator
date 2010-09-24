@@ -285,7 +285,7 @@ public:
     const TypeEnvironment *typeEnvironment(const Document *doc) const;
     void setTypeEnvironment(const Document *doc, const TypeEnvironment *typeEnvironment);
 
-    const Value *lookup(const QString &name) const;
+    const Value *lookup(const QString &name, const ObjectValue **foundInScope = 0) const;
     const ObjectValue *lookupType(const Document *doc, AST::UiQualifiedId *qmlTypeName) const;
     const ObjectValue *lookupType(const Document *doc, const QStringList &qmlTypeName) const;
     const Value *lookupReference(const Reference *reference) const;

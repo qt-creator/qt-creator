@@ -114,7 +114,6 @@ Link::Link(Context *context, const Document::Ptr &doc, const Snapshot &snapshot,
     d->importPaths = importPaths;
 
     linkImports();
-    initializeScopeChain();
 }
 
 Link::~Link()
@@ -131,86 +130,6 @@ QList<DiagnosticMessage> Link::diagnosticMessages() const
 {
     Q_D(const Link);
     return d->diagnosticMessages;
-}
-
-void Link::initializeScopeChain()
-{
-    Q_D(Link);
-
-    ScopeChain &scopeChain = d->context->scopeChain();
-
-    // ### TODO: This object ought to contain the global namespace additions by QML.
-    scopeChain.globalScope = engine()->globalObject();
-
-    if (! d->doc) {
-        scopeChain.update();
-        return;
-    }
-
-    Bind *bind = d->doc->bind();
-    QHash<Document *, ScopeChain::QmlComponentChain *> componentScopes;
-
-    ScopeChain::QmlComponentChain *chain = new ScopeChain::QmlComponentChain;
-    scopeChain.qmlComponentScope = QSharedPointer<const ScopeChain::QmlComponentChain>(chain);
-    if (d->doc->qmlProgram()) {
-        componentScopes.insert(d->doc.data(), chain);
-        makeComponentChain(d->doc, chain, &componentScopes);
-
-        if (const TypeEnvironment *typeEnvironment = d->context->typeEnvironment(d->doc.data()))
-            scopeChain.qmlTypes = typeEnvironment;
-    } else {
-        // add scope chains for all components that import this file
-        foreach (Document::Ptr otherDoc, d->snapshot) {
-            foreach (const ImportInfo &import, otherDoc->bind()->imports()) {
-                if (import.type() == ImportInfo::FileImport && d->doc->fileName() == import.name()) {
-                    ScopeChain::QmlComponentChain *component = new ScopeChain::QmlComponentChain;
-                    componentScopes.insert(otherDoc.data(), component);
-                    chain->instantiatingComponents += component;
-                    makeComponentChain(otherDoc, component, &componentScopes);
-                }
-            }
-        }
-
-        // ### TODO: Which type environment do scripts see?
-
-        if (bind->rootObjectValue())
-            scopeChain.jsScopes += bind->rootObjectValue();
-    }
-
-    scopeChain.update();
-}
-
-void Link::makeComponentChain(
-        Document::Ptr doc,
-        ScopeChain::QmlComponentChain *target,
-        QHash<Document *, ScopeChain::QmlComponentChain *> *components)
-{
-    Q_D(Link);
-
-    if (!doc->qmlProgram())
-        return;
-
-    Bind *bind = doc->bind();
-
-    // add scopes for all components instantiating this one
-    foreach (Document::Ptr otherDoc, d->snapshot) {
-        if (otherDoc == doc)
-            continue;
-        if (otherDoc->bind()->usesQmlPrototype(bind->rootObjectValue(), d->context)) {
-            if (components->contains(otherDoc.data())) {
-//                target->instantiatingComponents += components->value(otherDoc.data());
-            } else {
-                ScopeChain::QmlComponentChain *component = new ScopeChain::QmlComponentChain;
-                components->insert(otherDoc.data(), component);
-                target->instantiatingComponents += component;
-
-                makeComponentChain(otherDoc, component, components);
-            }
-        }
-    }
-
-    // build this component scope
-    target->document = doc;
 }
 
 void Link::linkImports()

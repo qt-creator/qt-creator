@@ -63,17 +63,9 @@ public:
 private:
     Interpreter::Engine *engine();
 
-    void makeComponentChain(
-            Document::Ptr doc,
-            Interpreter::ScopeChain::QmlComponentChain *target,
-            QHash<Document *, Interpreter::ScopeChain::QmlComponentChain *> *components);
-
-    static QList<Document::Ptr> reachableDocuments(Document::Ptr startDoc, const Snapshot &snapshot,
-                                                   const QStringList &importPaths);
     static AST::UiQualifiedId *qualifiedTypeNameId(AST::Node *node);
 
     void linkImports();
-    void initializeScopeChain();
 
     void populateImportedTypes(Interpreter::TypeEnvironment *typeEnv, Document::Ptr doc);
     Interpreter::ObjectValue *importFile(Document::Ptr doc, const Interpreter::ImportInfo &importInfo);

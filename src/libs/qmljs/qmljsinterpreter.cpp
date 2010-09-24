@@ -1424,17 +1424,21 @@ void Context::setTypeEnvironment(const QmlJS::Document *doc, const TypeEnvironme
     _typeEnvironments[doc->fileName()] = typeEnvironment;
 }
 
-const Value *Context::lookup(const QString &name) const
+const Value *Context::lookup(const QString &name, const ObjectValue **foundInScope) const
 {
     QList<const ObjectValue *> scopes = _scopeChain.all();
     for (int index = scopes.size() - 1; index != -1; --index) {
         const ObjectValue *scope = scopes.at(index);
 
         if (const Value *member = scope->lookupMember(name, this)) {
+            if (foundInScope)
+                *foundInScope = scope;
             return member;
         }
     }
 
+    if (foundInScope)
+        *foundInScope = 0;
     return _engine->undefinedValue();
 }
 

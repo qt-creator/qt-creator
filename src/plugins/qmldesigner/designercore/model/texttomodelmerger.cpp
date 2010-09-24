@@ -205,7 +205,7 @@ public:
         , m_doc(doc)
         , m_context(new Interpreter::Context)
         , m_link(m_context, doc, snapshot, importPaths)
-        , m_scopeBuilder(doc, m_context)
+        , m_scopeBuilder(m_context, doc, snapshot)
     {
     }
 

@@ -38,10 +38,12 @@ using namespace QmlJS;
 using namespace QmlJS::Interpreter;
 using namespace QmlJS::AST;
 
-ScopeBuilder::ScopeBuilder(Document::Ptr doc, Interpreter::Context *context)
+ScopeBuilder::ScopeBuilder(Context *context, Document::Ptr doc, const Snapshot &snapshot)
     : _doc(doc)
+    , _snapshot(snapshot)
     , _context(context)
 {
+    initializeScopeChain();
 }
 
 ScopeBuilder::~ScopeBuilder()
@@ -90,6 +92,85 @@ void ScopeBuilder::pop()
         setQmlScopeObject(_nodes.last());
 
     _context->scopeChain().update();
+}
+
+void ScopeBuilder::initializeScopeChain()
+{
+    ScopeChain &scopeChain = _context->scopeChain();
+    scopeChain = ScopeChain(); // reset
+
+    Interpreter::Engine *engine = _context->engine();
+
+    // ### TODO: This object ought to contain the global namespace additions by QML.
+    scopeChain.globalScope = engine->globalObject();
+
+    if (! _doc) {
+        scopeChain.update();
+        return;
+    }
+
+    Bind *bind = _doc->bind();
+    QHash<Document *, ScopeChain::QmlComponentChain *> componentScopes;
+
+    ScopeChain::QmlComponentChain *chain = new ScopeChain::QmlComponentChain;
+    scopeChain.qmlComponentScope = QSharedPointer<const ScopeChain::QmlComponentChain>(chain);
+    if (_doc->qmlProgram()) {
+        componentScopes.insert(_doc.data(), chain);
+        makeComponentChain(_doc, chain, &componentScopes);
+
+        if (const TypeEnvironment *typeEnvironment = _context->typeEnvironment(_doc.data()))
+            scopeChain.qmlTypes = typeEnvironment;
+    } else {
+        // add scope chains for all components that import this file
+        foreach (Document::Ptr otherDoc, _snapshot) {
+            foreach (const ImportInfo &import, otherDoc->bind()->imports()) {
+                if (import.type() == ImportInfo::FileImport && _doc->fileName() == import.name()) {
+                    ScopeChain::QmlComponentChain *component = new ScopeChain::QmlComponentChain;
+                    componentScopes.insert(otherDoc.data(), component);
+                    chain->instantiatingComponents += component;
+                    makeComponentChain(otherDoc, component, &componentScopes);
+                }
+            }
+        }
+
+        // ### TODO: Which type environment do scripts see?
+
+        if (bind->rootObjectValue())
+            scopeChain.jsScopes += bind->rootObjectValue();
+    }
+
+    scopeChain.update();
+}
+
+void ScopeBuilder::makeComponentChain(
+        Document::Ptr doc,
+        ScopeChain::QmlComponentChain *target,
+        QHash<Document *, ScopeChain::QmlComponentChain *> *components)
+{
+    if (!doc->qmlProgram())
+        return;
+
+    Bind *bind = doc->bind();
+
+    // add scopes for all components instantiating this one
+    foreach (Document::Ptr otherDoc, _snapshot) {
+        if (otherDoc == doc)
+            continue;
+        if (otherDoc->bind()->usesQmlPrototype(bind->rootObjectValue(), _context)) {
+            if (components->contains(otherDoc.data())) {
+//                target->instantiatingComponents += components->value(otherDoc.data());
+            } else {
+                ScopeChain::QmlComponentChain *component = new ScopeChain::QmlComponentChain;
+                components->insert(otherDoc.data(), component);
+                target->instantiatingComponents += component;
+
+                makeComponentChain(otherDoc, component, components);
+            }
+        }
+    }
+
+    // build this component scope
+    target->document = doc;
 }
 
 void ScopeBuilder::setQmlScopeObject(Node *node)

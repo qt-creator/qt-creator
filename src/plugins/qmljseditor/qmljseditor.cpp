@@ -35,6 +35,7 @@
 #include "qmljseditorcodeformatter.h"
 #include "qmljsquickfix.h"
 #include "qmloutlinemodel.h"
+#include "qmljsfindreferences.h"
 
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljscheck.h>
@@ -676,7 +677,8 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     m_outlineModel(new QmlOutlineModel(this)),
     m_modelManager(0),
     m_contextPane(0),
-    m_updateSelectedElements(false)
+    m_updateSelectedElements(false),
+    m_findReferences(new FindReferences(this))
 {
     qRegisterMetaType<QmlJSEditor::Internal::SemanticInfo>("QmlJSEditor::Internal::SemanticInfo");
 
@@ -1432,6 +1434,11 @@ TextEditor::BaseTextEditor::Link QmlJSTextEditor::findLinkAt(const QTextCursor &
 void QmlJSTextEditor::followSymbolUnderCursor()
 {
     openLink(findLinkAt(textCursor()));
+}
+
+void QmlJSTextEditor::findUsages()
+{
+    m_findReferences->findUsages(file()->fileName(), textCursor().position());
 }
 
 void QmlJSTextEditor::showContextPane()

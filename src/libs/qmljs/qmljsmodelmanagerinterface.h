@@ -80,13 +80,39 @@ public:
         QStringList importPaths;
     };
 
+    class WorkingCopy
+    {
+    public:
+        typedef QHash<QString, QPair<QString, int> > Table;
+
+        void insert(const QString &fileName, const QString &source, int revision = 0)
+        { _elements.insert(fileName, qMakePair(source, revision)); }
+
+        bool contains(const QString &fileName) const
+        { return _elements.contains(fileName); }
+
+        QString source(const QString &fileName) const
+        { return _elements.value(fileName).first; }
+
+        QPair<QString, int> get(const QString &fileName) const
+        { return _elements.value(fileName); }
+
+        Table all() const
+        { return _elements; }
+
+    private:
+        Table _elements;
+    };
+
 public:
     ModelManagerInterface(QObject *parent = 0);
     virtual ~ModelManagerInterface();
 
     static ModelManagerInterface *instance();
 
+    virtual WorkingCopy workingCopy() const = 0;
     virtual QmlJS::Snapshot snapshot() const = 0;
+
     virtual void updateSourceFiles(const QStringList &files,
                                    bool emitDocumentOnDiskChanged) = 0;
     virtual void fileChangedOnDisk(const QString &path) = 0;

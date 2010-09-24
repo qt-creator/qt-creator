@@ -46,7 +46,7 @@ public:
         // since we keep the document and snapshot around, we don't need to keep the Link instance
         Link link(&context, doc, snapshot, ModelManagerInterface::instance()->importPaths());
 
-        ScopeBuilder scopeBuilder(doc, &context);
+        ScopeBuilder scopeBuilder(&context, doc, snapshot);
         scopeBuilder.push(path);
     }
 
@@ -57,7 +57,7 @@ public:
           doc(doc),
           snapshot(snapshot)
     {
-        ScopeBuilder scopeBuilder(doc, &context);
+        ScopeBuilder scopeBuilder(&context, doc, snapshot);
         scopeBuilder.push(path);
     }
 

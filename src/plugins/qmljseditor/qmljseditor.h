@@ -63,6 +63,7 @@ namespace QmlJS {
  */
 namespace QmlJSEditor {
 class Highlighter;
+class FindReferences;
 
 namespace Internal {
 
@@ -244,6 +245,7 @@ public:
 
 public slots:
     void followSymbolUnderCursor();
+    void findUsages();
     void showContextPane();
     virtual void setFontSettings(const TextEditor::FontSettings &);
 
@@ -331,6 +333,8 @@ private:
     QmlJS::IContextPane *m_contextPane;
     int m_oldCursorPosition;
     bool m_updateSelectedElements;
+
+    FindReferences *m_findReferences;
 };
 
 } // namespace Internal

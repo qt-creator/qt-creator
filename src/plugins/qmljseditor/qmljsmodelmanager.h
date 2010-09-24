@@ -53,7 +53,9 @@ class ModelManager: public QmlJS::ModelManagerInterface
 public:
     ModelManager(QObject *parent = 0);
 
+    virtual WorkingCopy workingCopy() const;
     virtual QmlJS::Snapshot snapshot() const;
+
     virtual void updateSourceFiles(const QStringList &files,
                                    bool emitDocumentOnDiskChanged);
     virtual void fileChangedOnDisk(const QString &path);
@@ -84,19 +86,11 @@ private Q_SLOTS:
     void qmlPluginTypeDumpError(QProcess::ProcessError error);
 
 protected:
-    struct WorkingCopy
-    {
-        WorkingCopy(int revision = 0): documentRevision(revision) {}
-        int documentRevision;
-        QString contents;
-    };
-
     QFuture<void> refreshSourceFiles(const QStringList &sourceFiles,
                                      bool emitDocumentOnDiskChanged);
-    QMap<QString, WorkingCopy> buildWorkingCopyList();
 
     static void parse(QFutureInterface<void> &future,
-                      QMap<QString, WorkingCopy> workingCopy,
+                      WorkingCopy workingCopy,
                       QStringList files,
                       ModelManager *modelManager,
                       bool emitDocChangedOnDisk);

@@ -172,7 +172,7 @@ Check::Check(Document::Ptr doc, const Snapshot &snapshot, const Context *linkedC
     : _doc(doc)
     , _snapshot(snapshot)
     , _context(*linkedContextNoScope)
-    , _scopeBuilder(doc, &_context)
+    , _scopeBuilder(&_context, doc, snapshot)
     , _ignoreTypeErrors(false)
 {
 }
