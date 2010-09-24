@@ -244,7 +244,8 @@ void LibraryWizardDialog::slotCurrentIdChanged(int id)
     if (id == m_filesPageId)
         setupFilesPage();// Switching to files page: Set up base class accordingly (plugin)
     else if (id == m_mobilePageId
-             || m_mobilePage->symbianUid().isEmpty() && currentPage()->isFinalPage())
+             || (m_mobilePage->symbianUid().isEmpty()
+             && currentPage() && currentPage()->isFinalPage()))
         setupMobilePage();
 }
 
