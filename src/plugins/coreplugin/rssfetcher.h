@@ -30,28 +30,41 @@
 #ifndef RSSFETCHER_H
 #define RSSFETCHER_H
 
+#include "core_global.h"
+
 #include <QtCore/QThread>
+#include <QtCore/QUrl>
 
 QT_BEGIN_NAMESPACE
 class QNetworkReply;
 class QNetworkAccessManager;
-class QUrl;
 class QIODevice;
 QT_END_NAMESPACE
 
-namespace Welcome {
+namespace Core {
 namespace Internal {
 
-class RSSFetcher : public QThread
+class CORE_EXPORT RssItem
+{
+public:
+    QString title;
+    QString description;
+    QString category;
+    QString url;
+    QString imagePath;
+};
+
+class CORE_EXPORT RssFetcher : public QThread
 {
     Q_OBJECT
 public:
-    explicit RSSFetcher(int maxItems);
+    explicit RssFetcher(int maxItems = -1);
     virtual void run();
-    virtual ~RSSFetcher();
+    virtual ~RssFetcher();
 
 signals:
     void newsItemReady(const QString& title, const QString& desciption, const QString& url);
+    void rssItemReady(const RssItem& item);
     void finished(bool error);
 
 public slots:
@@ -59,17 +72,19 @@ public slots:
     void fetch(const QUrl &url);
 
 private:
-    enum  TagElement { itemElement, titleElement, descriptionElement, linkElement, otherElement };
-    static TagElement tagElement(const QStringRef &);
+    enum  TagElement { itemElement, titleElement, descriptionElement, linkElement,
+                       imageElement, imageLinkElement, categoryElement, otherElement };
+    static TagElement tagElement(const QStringRef &, TagElement prev);
     void parseXml(QIODevice *);
 
     const int m_maxItems;
     int m_items;
+    int m_requestCount;
 
     QNetworkAccessManager* m_networkAccessManager;
 };
 
-} // namespace Welcome
+} // namespace Core
 } // namespace Internal
 
 #endif // RSSFETCHER_H

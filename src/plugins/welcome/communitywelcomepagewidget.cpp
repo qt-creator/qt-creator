@@ -30,12 +30,14 @@
 #include "communitywelcomepagewidget.h"
 #include "ui_communitywelcomepagewidget.h"
 
-#include "rssfetcher.h"
+#include <coreplugin/rssfetcher.h>
 
 #include <QtCore/QMap>
 #include <QtCore/QUrl>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QTreeWidgetItem>
+
+using namespace Core::Internal;
 
 struct Site {
     const char *description;
@@ -80,7 +82,7 @@ static inline void populateWelcomeTreeWidget(const Site *sites, int count, Utils
 
 CommunityWelcomePageWidget::CommunityWelcomePageWidget(QWidget *parent) :
     QWidget(parent),
-    m_rssFetcher(new RSSFetcher(7)),
+    m_rssFetcher(new RssFetcher(7)),
     ui(new Ui::CommunityWelcomePageWidget)
 {
     ui->setupUi(this);

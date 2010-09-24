@@ -107,7 +107,8 @@ SOURCES += mainwindow.cpp \
     ssh/sftpchannel.cpp \
     outputpanemanager.cpp \
     navigationsubwidget.cpp \
-    sidebarwidget.cpp
+    sidebarwidget.cpp \
+    rssfetcher.cpp
 
 HEADERS += mainwindow.h \
     editmode.h \
@@ -218,7 +219,8 @@ HEADERS += mainwindow.h \
     ssh/sftpchannel_p.h \
     outputpanemanager.h \
     navigationsubwidget.h \
-    sidebarwidget.h
+    sidebarwidget.h \
+    rssfetcher.h
 
 FORMS += dialogs/newdialog.ui \
     actionmanager/commandmappings.ui \

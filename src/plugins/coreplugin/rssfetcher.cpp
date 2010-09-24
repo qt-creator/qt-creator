@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "rssfetcher.h"
-#include <coreplugin/coreconstants.h>
+#include "coreconstants.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QSysInfo>
@@ -47,7 +47,7 @@
 #include <sys/utsname.h>
 #endif
 
-using namespace Welcome::Internal;
+using namespace Core::Internal;
 
 static const QString getOsString()
 {
@@ -114,23 +114,25 @@ static const QString getOsString()
     return osString;
 }
 
-RSSFetcher::RSSFetcher(int maxItems)
-    : QThread(0), m_maxItems(maxItems), m_items(0), m_networkAccessManager(0)
+RssFetcher::RssFetcher(int maxItems)
+    : QThread(0), m_maxItems(maxItems), m_items(0),
+       m_requestCount(0), m_networkAccessManager(0)
 {
+    qRegisterMetaType<RssItem>("RssItem");
     moveToThread(this);
 }
 
-RSSFetcher::~RSSFetcher()
+RssFetcher::~RssFetcher()
 {
 }
 
-void RSSFetcher::run()
+void RssFetcher::run()
 {
     exec();
     delete m_networkAccessManager;
 }
 
-void RSSFetcher::fetch(const QUrl &url)
+void RssFetcher::fetch(const QUrl &url)
 {
     QString agentStr = QString::fromLatin1("Qt-Creator/%1 (QHttp %2; %3; %4; %5 bit)")
                     .arg(Core::Constants::IDE_VERSION_LONG).arg(qVersion())
@@ -143,71 +145,83 @@ void RSSFetcher::fetch(const QUrl &url)
         connect(m_networkAccessManager, SIGNAL(finished(QNetworkReply*)),
                 SLOT(fetchingFinished(QNetworkReply*)));
     }
+    m_requestCount++;
     m_networkAccessManager->get(req);
 }
 
-void RSSFetcher::fetchingFinished(QNetworkReply *reply)
+void RssFetcher::fetchingFinished(QNetworkReply *reply)
 {
     const bool error = (reply->error() != QNetworkReply::NoError);
     if (!error) {
         parseXml(reply);
         m_items = 0;
     }
-    emit finished(error);
+    if (--m_requestCount == 0)
+        emit finished(error);
     reply->deleteLater();
 }
 
-RSSFetcher::TagElement RSSFetcher::tagElement(const QStringRef &r)
+RssFetcher::TagElement RssFetcher::tagElement(const QStringRef &r, TagElement prev)
 {
     if (r == QLatin1String("item"))
         return itemElement;
     if (r == QLatin1String("title"))
         return titleElement;
+    if (r == QLatin1String("category"))
+        return categoryElement;
     if (r == QLatin1String("description"))
         return descriptionElement;
-    if (r == QLatin1String("link"))
-        return linkElement;
+    if (r == QLatin1String("image"))
+        return imageElement;
+    if (r == QLatin1String("link")) {
+        if (prev == imageElement)
+            return imageLinkElement;
+        else
+            return linkElement;
+    }
     return otherElement;
 }
 
-void RSSFetcher::parseXml(QIODevice *device)
+void RssFetcher::parseXml(QIODevice *device)
 {
     QXmlStreamReader xmlReader(device);
 
     TagElement currentTag = otherElement;
-    QString linkString;
-    QString descriptionString;
-    QString titleString;
-
+    RssItem item;
     while (!xmlReader.atEnd()) {
         switch (xmlReader.readNext()) {
         case QXmlStreamReader::StartElement:
-            currentTag = tagElement(xmlReader.name());
+            currentTag = tagElement(xmlReader.name(), currentTag);
             if (currentTag == itemElement) {
-                titleString.clear();
-                descriptionString.clear();
-                linkString.clear();
+                item = RssItem();
             }
             break;
             case QXmlStreamReader::EndElement:
             if (xmlReader.name() == QLatin1String("item")) {
                 m_items++;
-                if (m_items > m_maxItems)
+                if ((uint)m_items > (uint)m_maxItems)
                     return;
-                emit newsItemReady(titleString, descriptionString, linkString);
+                emit newsItemReady(item.title, item.description, item.url);
+                emit rssItemReady(item);
             }
             break;
             case QXmlStreamReader::Characters:
             if (!xmlReader.isWhitespace()) {
                 switch (currentTag) {
                 case titleElement:
-                    titleString += xmlReader.text().toString();
+                    item.title += xmlReader.text().toString();
                     break;
                 case descriptionElement:
-                    descriptionString += xmlReader.text().toString();
+                    item.description += xmlReader.text().toString();
+                    break;
+                case categoryElement:
+                    item.category += xmlReader.text().toString();
                     break;
                 case linkElement:
-                    linkString += xmlReader.text().toString();
+                    item.url += xmlReader.text().toString();
+                    break;
+                case imageLinkElement:
+                    item.imagePath += xmlReader.text().toString();
                     break;
                 default:
                     break;
@@ -222,6 +236,6 @@ void RSSFetcher::parseXml(QIODevice *device)
         qWarning("Welcome::Internal::RSSFetcher: XML ERROR: %d: %s (%s)",
                  int(xmlReader.lineNumber()),
                  qPrintable(xmlReader.errorString()),
-                 qPrintable(titleString));
+                 qPrintable(item.title));
     }
 }

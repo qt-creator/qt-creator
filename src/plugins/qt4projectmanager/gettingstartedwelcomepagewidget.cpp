@@ -34,6 +34,7 @@
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/mainwindow.h>
+#include <coreplugin/rssfetcher.h>
 #include <projectexplorer/projectexplorer.h>
 
 #include <utils/pathchooser.h>
@@ -54,6 +55,9 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QPushButton>
 #include <QtGui/QMenu>
+#include <QtGui/QDesktopServices>
+
+using namespace Core::Internal;
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -61,13 +65,21 @@ namespace Internal {
 const char ExamplePathPropertyName[] = "__qt_ExamplePath";
 const char HelpPathPropertyName[] = "__qt_HelpPath";
 
+void PixmapDownloader::populatePixmap(QNetworkReply *reply) {
+    QImage image;
+    image.loadFromData(reply->readAll());
+    m_label->setScaledContents(false);
+    m_label->setPixmap(QPixmap::fromImage(image));
+    deleteLater();
+}
+
 GettingStartedWelcomePageWidget::GettingStartedWelcomePageWidget(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::GettingStartedWelcomePageWidget)
+    QWidget(parent), ui(new Ui::GettingStartedWelcomePageWidget), m_rssFetcher(0)
 {
     ui->setupUi(this);
 
     ui->didYouKnowTextBrowser->viewport()->setAutoFillBackground(false);
+    ui->detailsLabel->hide();
 
     connect(ui->tutorialTreeWidget, SIGNAL(activated(QString)), SLOT(slotOpenHelpPage(const QString&)));
 
@@ -102,11 +114,27 @@ GettingStartedWelcomePageWidget::GettingStartedWelcomePageWidget(QWidget *parent
             QIcon::fromTheme(QLatin1String("document-new"), ui->createNewProjectButton->icon()));
     ui->openProjectButton->setIcon(
             QIcon::fromTheme(QLatin1String("document-open"), ui->openProjectButton->icon()));
+
+    m_rssFetcher = new RssFetcher;
+    connect (m_rssFetcher, SIGNAL(rssItemReady(const RssItem&)), SLOT(addToFeatures(const RssItem&)));
+    connect (m_rssFetcher, SIGNAL(finished(bool)), SLOT(showFeature()), Qt::QueuedConnection);
+    connect(this, SIGNAL(startRssFetching(QUrl)), m_rssFetcher, SLOT(fetch(QUrl)), Qt::QueuedConnection);
+    m_rssFetcher->start(QThread::LowestPriority);
+    const QString featureRssFile = Core::ICore::instance()->resourcePath()+QLatin1String("/rss/featured.rss");
+    emit startRssFetching(QUrl::fromLocalFile(featureRssFile));
+
+    connect(ui->nextFeatureBtn, SIGNAL(clicked()), this, SLOT(slotNextFeature()));
+    connect(ui->prevFeatureBtn, SIGNAL(clicked()), this, SLOT(slotPrevFeature()));
+
+
     QTimer::singleShot(0, this, SLOT(slotSetPrivateQmlExamples()));
 }
 
 GettingStartedWelcomePageWidget::~GettingStartedWelcomePageWidget()
 {
+    m_rssFetcher->exit();
+    m_rssFetcher->wait();
+    delete m_rssFetcher;
     delete ui;
 }
 
@@ -421,6 +449,56 @@ QStringList GettingStartedWelcomePageWidget::tipsOfTheDay()
     }
     return tips;
 }
+
+void GettingStartedWelcomePageWidget::addToFeatures(const RssItem &feature)
+{
+    m_featuredItems.append(feature);
+}
+
+void GettingStartedWelcomePageWidget::showFeature(int feature)
+{
+    if (feature == -1) {
+        srand(QDateTime::currentDateTime().toTime_t());
+        m_currentTip = rand()%m_featuredItems.count();
+    }
+
+    RssItem item = m_featuredItems.at(m_currentFeature);
+    ui->featuredTextLabel->setTextFormat(Qt::RichText);
+    QString text = QString::fromLatin1("<b style='color: rgb(85, 85, 85);'>%1</b><br><b>%2</b><br/><br/>%3").arg(item.category).arg(item.title).arg(item.description);
+    ui->featuredTextLabel->setText(text);
+    QString imagePath = item.imagePath;
+    if (!imagePath.startsWith("http")) {
+        imagePath = Core::ICore::instance()->resourcePath() + "/rss/" + item.imagePath;
+        ui->featuredImage->setPixmap(QPixmap(imagePath));
+    } else {
+        new PixmapDownloader(QUrl(imagePath), ui->featuredImage);
+    }
+
+    if (item.category == QLatin1String("Event")) {
+        ui->detailsLabel->setText(QString::fromLatin1("<a href='%1'>Details...</a>").arg(item.url));
+        ui->detailsLabel->show();
+        ui->detailsLabel->setOpenExternalLinks(true);
+    }
+    else if (item.category == QLatin1String("Tutorial")) {
+        ui->detailsLabel->setText(QString::fromLatin1("<a href='%1'>Take Tutorial</a>").arg(item.url+"?view=split"));
+        ui->detailsLabel->show();
+        ui->detailsLabel->setOpenExternalLinks(true);
+    }
+    ui->featuredImage->setScaledContents(true);
+}
+
+void GettingStartedWelcomePageWidget::slotNextFeature()
+{
+    m_currentFeature = ((m_currentFeature+1)%m_featuredItems.count());
+    showFeature(m_currentFeature);
+}
+
+void GettingStartedWelcomePageWidget::slotPrevFeature()
+{
+    m_currentFeature = ((m_currentFeature-1)+m_featuredItems.count())%m_featuredItems.count();
+    showFeature(m_currentFeature);
+}
+
 
 
 } // namespace Internal

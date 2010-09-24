@@ -31,6 +31,22 @@
 #define GETTINGSTARTEDWELCOMEPAGEWIDGET_H
 
 #include <QtGui/QWidget>
+#include <QtNetwork/QNetworkAccessManager>
+#include <QtNetwork/QNetworkReply>
+
+QT_BEGIN_NAMESPACE
+class QUrl;
+class QLabel;
+QT_END_NAMESPACE
+
+namespace Core {
+    namespace Internal {
+    class RssFetcher;
+    class RssItem;
+    }
+}
+
+using namespace Core::Internal;
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -38,6 +54,24 @@ namespace Internal {
 namespace Ui {
     class GettingStartedWelcomePageWidget;
 }
+
+class PixmapDownloader : public QNetworkAccessManager {
+    Q_OBJECT
+public:
+    PixmapDownloader(const QUrl& url, QLabel* label, QObject *parent = 0)
+        : QNetworkAccessManager(parent), m_url(url), m_label(label)
+    {
+        connect(this, SIGNAL(finished(QNetworkReply*)), SLOT(populatePixmap(QNetworkReply*)));
+        get(QNetworkRequest(url));
+    }
+public slots:
+    void populatePixmap(QNetworkReply* reply);
+
+private:
+    QUrl m_url;
+    QLabel *m_label;
+
+};
 
 class GettingStartedWelcomePageWidget : public QWidget
 {
@@ -57,8 +91,15 @@ private slots:
     void slotOpenExample();
     void slotNextTip();
     void slotPrevTip();
+    void slotNextFeature();
+    void slotPrevFeature();
     void slotCreateNewProject();
     void slotSetPrivateQmlExamples();
+    void addToFeatures(const RssItem&);
+    void showFeature(int feature = -1);
+
+signals:
+    void startRssFetching(const QUrl&);
 
 private:
     QStringList tipsOfTheDay();
@@ -69,6 +110,9 @@ private:
                            const QString &sourcePath);
     Ui::GettingStartedWelcomePageWidget *ui;
     int m_currentTip;
+    int m_currentFeature;
+    QList<Core::Internal::RssItem> m_featuredItems;
+    Core::Internal::RssFetcher *m_rssFetcher;
 };
 
 } // namespace Internal
