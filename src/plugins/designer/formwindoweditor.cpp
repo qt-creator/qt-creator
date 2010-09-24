@@ -49,6 +49,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
 #include <QtCore/QFile>
+#include <QtGui/QApplication>
 
 namespace Designer {
 
@@ -103,7 +104,20 @@ bool FormWindowEditor::createNew(const QString &contents)
     if (contents.isEmpty())
         return false;
 
+    // If we have an override cursor, reset it over Designer loading,
+    // should it pop up messages about missing resources or such.
+    const bool hasOverrideCursor = QApplication::overrideCursor();
+    QCursor overrideCursor;
+    if (hasOverrideCursor) {
+        overrideCursor = QCursor(*QApplication::overrideCursor());
+        QApplication::restoreOverrideCursor();
+    }
+
     form->setContents(contents);
+
+    if (hasOverrideCursor)
+        QApplication::setOverrideCursor(overrideCursor);
+
     if (form->mainContainer() == 0)
         return false;
 
