@@ -1040,16 +1040,18 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
 
     switch (newState) {
     case namespace_start:
-        if (firstToken)
+        if (firstToken) {
             *savedIndentDepth = tokenPosition;
-        *indentDepth = tokenPosition;
+            *indentDepth = tokenPosition;
+        }
         break;
 
     case enum_start:
     case class_start:
-        if (firstToken)
+        if (firstToken) {
             *savedIndentDepth = tokenPosition;
-        *indentDepth = tokenPosition;
+            *indentDepth = tokenPosition;
+        }
         *paddingDepth = 2*m_indentSize;
         break;
 
@@ -1075,9 +1077,10 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
         break;
 
     case declaration_start:
-        if (firstToken)
+        if (firstToken) {
             *savedIndentDepth = tokenPosition;
-        *indentDepth = *savedIndentDepth;
+            *indentDepth = *savedIndentDepth;
+        }
         // continuation indent in function bodies only, to not indent
         // after the return type in "void\nfoo() {}"
         for (int i = 0; state(i).type != topmost_intro; ++i) {

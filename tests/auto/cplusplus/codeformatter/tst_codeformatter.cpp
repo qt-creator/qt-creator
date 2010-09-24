@@ -48,6 +48,7 @@ private Q_SLOTS:
     void blockStmtInIf();
     void nestedInitializer();
     void forStatement();
+    void templateSingleline();
 };
 
 struct Line {
@@ -935,6 +936,18 @@ void tst_CodeFormatter::forStatement()
          << Line("    {")
          << Line("        bar();")
          << Line("    }")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::templateSingleline()
+{
+    QList<Line> data;
+    data
+         << Line("template <typename T> class Foo")
+         << Line("{")
+         << Line("    T t;")
+         << Line("}")
          ;
     checkIndent(data);
 }
