@@ -12,6 +12,7 @@ SOURCES += \
     $$SRCDIR/plugins/texteditor/basetextdocumentlayout.cpp
 
 HEADERS += \
+    $$SRCDIR/plugins/cpptools/cppcodeformatter.h \
     $$SRCDIR/plugins/texteditor/basetextdocumentlayout.h
 
 INCLUDEPATH += $$SRCDIR/plugins $$SRCDIR/libs

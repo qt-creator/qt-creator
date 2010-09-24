@@ -36,6 +36,7 @@
 #include <texteditor/tabsettings.h>
 
 #include <QtCore/QDebug>
+#include <QtCore/QMetaEnum>
 #include <QtGui/QTextDocument>
 #include <QtGui/QTextCursor>
 #include <QtGui/QTextBlock>
@@ -907,10 +908,12 @@ int CodeFormatter::tokenizeBlock(const QTextBlock &block, bool *endedJoined)
 
 void CodeFormatter::dump() const
 {
+    QMetaEnum metaEnum = staticMetaObject.enumerator(staticMetaObject.indexOfEnumerator("StateType"));
+
     qDebug() << "Current token index" << m_tokenIndex;
     qDebug() << "Current state:";
     foreach (State s, m_currentState) {
-        qDebug() << s.type << s.savedIndentDepth << s.savedPaddingDepth;
+        qDebug() << metaEnum.valueToKey(s.type) << s.savedIndentDepth << s.savedPaddingDepth;
     }
     qDebug() << "Current indent depth:" << m_indentDepth;
     qDebug() << "Current padding depth:" << m_paddingDepth;

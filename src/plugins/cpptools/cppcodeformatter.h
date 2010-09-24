@@ -57,6 +57,7 @@ class CppCodeFormatterData;
 
 class CPPTOOLS_EXPORT CodeFormatter
 {
+    Q_GADGET
 public:
     CodeFormatter();
     virtual ~CodeFormatter();
@@ -98,7 +99,7 @@ protected:
     virtual void saveLexerState(QTextBlock *block, int state) const = 0;
     virtual int loadLexerState(const QTextBlock &block) const = 0;
 
-protected:
+public: // must be public to make Q_GADGET introspection work
     enum StateType {
         invalid = 0,
 
@@ -170,7 +171,9 @@ protected:
         expression, // after a '=' in a declaration_start once we're sure it's not '= {'
         initializer, // after a '=' in a declaration start
     };
+    Q_ENUMS(StateType)
 
+protected:
     class State {
     public:
         State()
