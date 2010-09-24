@@ -29,6 +29,7 @@ DATA_DIRS = \
     designer \
     schemes \
     styles \
+    rss \
     gdbmacros \
     qmldesigner \
     qmlicons \
