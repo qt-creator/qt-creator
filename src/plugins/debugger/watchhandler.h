@@ -119,7 +119,7 @@ signals:
     void enableUpdates(bool);
 
 private:
-    QByteArray niceType(const QByteArray &typeIn) const;
+    QString displayType(const WatchData &typeIn) const;
     void formatRequests(QByteArray *out, const WatchItem *item) const;
     DebuggerEngine *engine() const;
     int itemFormat(const WatchData &data) const;

@@ -240,8 +240,6 @@ enum ModelRoles
     RequestToggleWatchRole,
     RequestToolTipByExpressionRole,
     RequestClearCppCodeModelSnapshotRole,
-    RequestAssignValueRole,
-    RequestAssignTypeRole,
     RequestWatchExpressionRole,
     RequestRemoveWatchExpressionRole,
 

@@ -279,10 +279,11 @@ static inline QRegExp stdStringRegExp(const QString &charType)
     return re;
 }
 
-static QByteArray niceTypeHelper(const QByteArray typeIn)
+static QString niceTypeHelper(const QByteArray &typeIn)
 {
-    static QMap<QByteArray, QByteArray> cache;
-    const QMap<QByteArray, QByteArray>::const_iterator it = cache.constFind(typeIn);
+    typedef QMap<QByteArray, QString> Cache;
+    static Cache cache;
+    const Cache::const_iterator it = cache.constFind(typeIn);
     if (it != cache.constEnd())
         return it.value();
 
@@ -375,20 +376,24 @@ static QByteArray niceTypeHelper(const QByteArray typeIn)
             }
         }
     }
-    QByteArray typeOut = type.toUtf8();
-    typeOut.replace('@', '*');
-    typeOut.replace(" >", ">");
-    cache.insert(typeIn, typeOut); // For simplicity, also cache unmodified types
-    return typeOut;
+    type.replace(QLatin1Char('@'), QLatin1Char('*'));
+    type.replace(QLatin1String(" >"), QLatin1String(">"));
+    cache.insert(typeIn, type); // For simplicity, also cache unmodified types
+    return type;
 }
 
-QByteArray WatchModel::niceType(const QByteArray &typeIn) const
+QString WatchModel::displayType(const WatchData &data) const
 {
-    QByteArray type = niceTypeHelper(typeIn);
+    if (!data.displayedType.isEmpty())
+        return data.displayedType;
+    QString type = niceTypeHelper(data.type);
     if (!theDebuggerBoolSetting(ShowStdNamespace))
-        type.replace("std::", "");
-    if (!theDebuggerBoolSetting(ShowQtNamespace))
-        type.replace(engine()->qtNamespace(), "");
+        type.remove(QLatin1String("std::"));
+    if (!theDebuggerBoolSetting(ShowQtNamespace)) {
+        const QString qtNamespace = QString::fromLatin1(engine()->qtNamespace());
+        if (!qtNamespace.isEmpty())
+            type.remove(qtNamespace);
+    }
     return type;
 }
 
@@ -712,30 +717,31 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
                 return QVariant(16);
             return QVariant(formatToIntegerBase(itemFormat(data)));
         case Qt::EditRole:
-        case Qt::DisplayRole: {
+            switch (idx.column()) {
+            case 0:
+                return QVariant(expression(item));
+            case 1:
+                return editValue(data);
+            case 2:
+                if (!data.displayedType.isEmpty()) // To be tested: Can debuggers handle those?
+                    return data.displayedType;
+                return QString::fromUtf8(data.type);
+            default: break;
+            } // switch editrole column
+        case Qt::DisplayRole:
             switch (idx.column()) {
                 case 0:
-                    if (data.name.isEmpty() && role == Qt::DisplayRole)
+                    if (data.name.isEmpty())
                         return tr("<Edit>");
                     if (data.name == QLatin1String("*") && item->parent)
                         return QVariant(QLatin1Char('*') + item->parent->name);
                     return data.name;
                 case 1:
-                    if (role == Qt::DisplayRole) {
-                        return truncateValue(formattedValue(data, itemFormat(data)));
-                    } else {
-                        return editValue(data);
-                    }
-                case 2: {
-                    if (!data.displayedType.isEmpty())
-                        return data.displayedType;
-                    return QString::fromUtf8(niceType(data.type));
-                }
+                    return truncateValue(formattedValue(data, itemFormat(data)));
+                case 2:
+                    return displayType(data);
                 default: break;
-            }
-            break;
-        }
-
+            }  // switch editrole column
         case Qt::ToolTipRole:
             return theDebuggerBoolSetting(UseToolTipsInLocalsView)
                 ? data.toToolTip() : QVariant();
@@ -855,6 +861,17 @@ bool WatchModel::setData(const QModelIndex &index, const QVariant &value, int ro
     WatchItem &data = *watchItem(index);
 
     switch (role) {
+        case Qt::EditRole:
+            switch (index.column()) {
+            case 0: // Watch expression: See delegate.
+                break;
+            case 1: // Change value
+                engine()->assignValueInDebugger(&data, expression(&data), value);
+                break;
+            case 2: // TODO: Implement change type.
+                engine()->assignValueInDebugger(&data, expression(&data), value);
+                break;
+            }
         case LocalsExpandedRole:
             if (value.toBool()) {
                 // Should already have been triggered by fetchMore()
@@ -888,13 +905,6 @@ bool WatchModel::setData(const QModelIndex &index, const QVariant &value, int ro
         case RequestWatchExpressionRole:
             m_handler->watchExpression(value.toString());
             break;
-
-        case RequestAssignValueRole:
-            engine()->assignValueInDebugger(&data, expression(&data), value);
-            return true;
-        case RequestAssignTypeRole: // TODO: Implement.
-            engine()->assignValueInDebugger(&data, expression(&data), value);
-            return true;
     }
 
     emit dataChanged(index, index);

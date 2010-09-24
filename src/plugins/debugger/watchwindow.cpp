@@ -40,17 +40,13 @@
 #include <utils/savedaction.h>
 
 #include <QtCore/QDebug>
-#include <QtCore/QTimer>
 #include <QtCore/QVariant>
+#include <QtCore/QMetaProperty>
+#include <QtCore/QMetaObject>
 
-#include <QtGui/QAction>
 #include <QtGui/QContextMenuEvent>
-#include <QtGui/QDialog>
-#include <QtGui/QHBoxLayout>
 #include <QtGui/QHeaderView>
 #include <QtGui/QItemDelegate>
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
 #include <QtGui/QMenu>
 #include <QtGui/QResizeEvent>
 
@@ -66,7 +62,7 @@ using namespace Debugger::Internal;
 class WatchDelegate : public QItemDelegate
 {
 public:
-    WatchDelegate(QObject *parent) : QItemDelegate(parent) {}
+    explicit WatchDelegate(QObject *parent) : QItemDelegate(parent) {}
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &,
         const QModelIndex &index) const
@@ -89,46 +85,23 @@ public:
         return new QLineEdit(parent);
     }
 
-    void setEditorData(QWidget *editor, const QModelIndex &index) const
-    {
-        if (index.column() == 1) {
-            editor->setProperty("modelData", index.data(Qt::EditRole));
-            return;
-        }
-        QLineEdit *lineEdit = qobject_cast<QLineEdit *>(editor);
-        QTC_ASSERT(lineEdit, return);
-        if (index.column() == 0) {
-            // Watch window: Edit expression in name column.
-            lineEdit->setText(index.data(LocalsExpressionRole).toString());
-        } else {
-            // To be implemented: Edit type (of a pointer, say).
-            lineEdit->setText(index.data(Qt::EditRole).toString());
-        }
-    }
-
     void setModelData(QWidget *editor, QAbstractItemModel *model,
-        const QModelIndex &index) const
+                      const QModelIndex &index) const
     {
-        if (index.column() == 1) { // The value column.
-            const QVariant value = editor->property("modelData");
-            QTC_ASSERT(value.isValid(), return);
-            model->setData(index, value, RequestAssignValueRole);
+        // Standard handling for anything but the watcher name column (change
+        // expression), which removes/recreates a row, which cannot be done
+        // in model->setData().
+        if (index.column() != 0) {
+            QItemDelegate::setModelData(editor, model, index);
             return;
         }
-        //qDebug() << "SET MODEL DATA";
-        const QLineEdit *lineEdit = qobject_cast<const QLineEdit*>(editor);
-        QTC_ASSERT(lineEdit, return);
-        const QString value = lineEdit->text();
-        if (index.column() == 2) {
-            // The type column.
-            model->setData(index, QVariant(value), RequestAssignTypeRole);
-        } else if (index.column() == 0) {
-            // The watcher name column: Change the expression.
-            const QString exp = index.data(LocalsExpressionRole).toString();
-            if (exp != value ) {
-                model->setData(index, exp, RequestRemoveWatchExpressionRole);
-                model->setData(index, value, RequestWatchExpressionRole);
-            }
+        const QMetaProperty userProperty = editor->metaObject()->userProperty();
+        QTC_ASSERT(userProperty.isValid(), return);
+        const QVariant value = editor->property(userProperty.name());
+        const QString exp = index.data(LocalsExpressionRole).toString();
+        if (exp != value.toString()) {
+            model->setData(index, exp, RequestRemoveWatchExpressionRole);
+            model->setData(index, value, RequestWatchExpressionRole);
         }
     }
 
@@ -138,7 +111,6 @@ public:
         editor->setGeometry(option.rect);
     }
 };
-
 
 /////////////////////////////////////////////////////////////////////
 //
