@@ -27,44 +27,35 @@
 **
 **************************************************************************/
 
+#ifndef CMAKEUICODEMODELSUPPORT_H
+#define CMAKEUICODEMODELSUPPORT_H
 
-#ifndef UICODECOMPLETIONSUPPORT_H
-#define UICODECOMPLETIONSUPPORT_H
-
-#include "cppmodelmanagerinterface.h"
-#include "cpptools_global.h"
+#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/uicodecompletionsupport.h>
 
 #include <QtCore/QDateTime>
 
-namespace CppTools {
+namespace CMakeProjectManager {
+namespace Internal {
 
-class CPPTOOLS_EXPORT UiCodeModelSupport : public CppTools::AbstractEditorSupport
+class CMakeProject;
+
+class CMakeUiCodeModelSupport : public CppTools::UiCodeModelSupport
 {
 public:
-    UiCodeModelSupport(CppTools::CppModelManagerInterface *modelmanager,
-                       const QString &sourceFile,
-                       const QString &uiHeaderFile);
-    ~UiCodeModelSupport();
-    void setFileName(const QString &name);
-    void setSourceName(const QString &name);
-    virtual QByteArray contents() const;
-    virtual QString fileName() const;
-    void updateFromEditor(const QString &formEditorContents);
-    void updateFromBuild();
+    CMakeUiCodeModelSupport(CppTools::CppModelManagerInterface *modelmanager,
+                          CMakeProject *project,
+                          const QString &sourceFile,
+                          const QString &uiHeaderFile);
+    ~CMakeUiCodeModelSupport();
 protected:
-    virtual QString uicCommand() const = 0;
-    virtual QStringList environment() const = 0;
+    virtual QString uicCommand() const;
+    virtual QStringList environment() const;
 private:
-    void init() const;
-    bool runUic(const QString &ui) const;
-    QString m_sourceName;
-    QString m_fileName;
-    mutable bool m_updateIncludingFiles;
-    mutable bool m_initialized;
-    mutable QByteArray m_contents;
-    mutable QDateTime m_cacheTime;
+    CMakeProject *m_project;
 };
 
-} // CppTools
 
-#endif // UICODECOMPLETIONSUPPORT_H
+} // Internal
+} // Qt4ProjectManager
+#endif // CMAKEUICODEMODELSUPPORT_H

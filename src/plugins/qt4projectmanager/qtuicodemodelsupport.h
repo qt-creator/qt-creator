@@ -31,7 +31,7 @@
 #define QTUICODEMODELSUPPORT_H
 
 #include <cpptools/cppmodelmanagerinterface.h>
-#include <projectexplorer/uicodecompletionsupport.h>
+#include <cpptools/uicodecompletionsupport.h>
 
 #include <QtCore/QDateTime>
 
@@ -39,7 +39,7 @@ namespace Qt4ProjectManager {
 class Qt4Project;
 namespace Internal {
 
-class Qt4UiCodeModelSupport : public ProjectExplorer::UiCodeModelSupport
+class Qt4UiCodeModelSupport : public CppTools::UiCodeModelSupport
 {
 public:
     Qt4UiCodeModelSupport(CppTools::CppModelManagerInterface *modelmanager,

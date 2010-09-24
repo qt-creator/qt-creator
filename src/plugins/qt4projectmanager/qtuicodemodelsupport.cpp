@@ -44,7 +44,7 @@ Qt4UiCodeModelSupport::Qt4UiCodeModelSupport(CppTools::CppModelManagerInterface 
                                              Qt4Project *project,
                                              const QString &source,
                                              const QString &uiHeaderFile)
-    : UiCodeModelSupport(modelmanager, source, uiHeaderFile),
+    : CppTools::UiCodeModelSupport(modelmanager, source, uiHeaderFile),
       m_project(project)
 {
 

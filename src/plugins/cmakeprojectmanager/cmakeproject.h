@@ -43,6 +43,7 @@
 #include <projectexplorer/filewatcher.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <coreplugin/ifile.h>
+#include <coreplugin/editormanager/ieditor.h>
 
 #include <QtCore/QXmlStreamReader>
 #include <QtGui/QPushButton>
@@ -53,6 +54,7 @@ namespace Internal {
 
 class CMakeFile;
 class CMakeBuildSettingsWidget;
+class CMakeUiCodeModelSupport;
 
 struct CMakeBuildTarget
 {
@@ -100,6 +102,8 @@ public:
 
     bool parseCMakeLists();
 
+    QString uicCommand() const;
+
 signals:
     /// emitted after parsing
     void buildTargetsChanged();
@@ -115,15 +119,23 @@ private slots:
     void changeActiveBuildConfiguration(ProjectExplorer::BuildConfiguration*);
     void targetAdded(ProjectExplorer::Target *);
 
+    void editorChanged(Core::IEditor *editor);
+    void editorAboutToClose(Core::IEditor *editor);
+    void uiEditorContentsChanged();
+    void buildStateChanged(ProjectExplorer::Project *project);
 private:
     void buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::FileNode *> list);
     void gatherFileNodes(ProjectExplorer::FolderNode *parent, QList<ProjectExplorer::FileNode *> &list);
     ProjectExplorer::FolderNode *findOrCreateFolder(CMakeProjectNode *rootNode, QString directory);
+    void updateCodeModelSupportFromEditor(const QString &uiFileName, const QString &contents);
+    void createUiCodeModelSupport();
+    QString uiHeaderFile(const QString &uiFile);
 
     CMakeManager *m_manager;
     QString m_fileName;
     CMakeFile *m_file;
     QString m_projectName;
+    QString m_uicCommand;
 
     // TODO probably need a CMake specific node structure
     CMakeProjectNode *m_rootNode;
@@ -134,6 +146,10 @@ private:
     QSet<QString> m_watchedFiles;
     CMakeTargetFactory *m_targetFactory;
     QFuture<void> m_codeModelFuture;
+
+    QMap<QString, CMakeUiCodeModelSupport *> m_uiCodeModelSupport;
+    Core::IEditor *m_lastEditor;
+    bool m_dirtyUic;
 };
 
 class CMakeCbpParser : public QXmlStreamReader

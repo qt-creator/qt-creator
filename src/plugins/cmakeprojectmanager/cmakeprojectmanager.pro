@@ -14,7 +14,8 @@ HEADERS = cmakeproject.h \
     cmakebuildconfiguration.h \
     cmakeeditorfactory.h \
     cmakeeditor.h \
-    cmakehighlighter.h
+    cmakehighlighter.h \
+    cmakeuicodemodelsupport.h
 SOURCES = cmakeproject.cpp \
     cmakeprojectplugin.cpp \
     cmakeprojectmanager.cpp \
@@ -26,7 +27,8 @@ SOURCES = cmakeproject.cpp \
     cmakebuildconfiguration.cpp \
     cmakeeditorfactory.cpp \
     cmakeeditor.cpp \
-    cmakehighlighter.cpp
+    cmakehighlighter.cpp \
+    cmakeuicodemodelsupport.cpp
 RESOURCES += cmakeproject.qrc
 FORMS +=
 

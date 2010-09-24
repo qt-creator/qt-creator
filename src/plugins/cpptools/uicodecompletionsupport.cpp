@@ -40,11 +40,11 @@ UiCodeModelSupport::UiCodeModelSupport(CppTools::CppModelManagerInterface *model
     : CppTools::AbstractEditorSupport(modelmanager),
       m_sourceName(source),
       m_fileName(uiHeaderFile),
-      m_updateIncludingFiles(false)
+      m_updateIncludingFiles(false),
+      m_initialized(false)
 {
     if (debug)
         qDebug()<<"ctor UiCodeModelSupport for"<<m_sourceName<<uiHeaderFile;
-    init();
 }
 
 UiCodeModelSupport::~UiCodeModelSupport()
@@ -53,8 +53,9 @@ UiCodeModelSupport::~UiCodeModelSupport()
         qDebug()<<"dtor ~UiCodeModelSupport for"<<m_sourceName;
 }
 
-void UiCodeModelSupport::init()
+void UiCodeModelSupport::init() const
 {
+    m_initialized = true;
     QDateTime sourceTime = QFileInfo(m_sourceName).lastModified();
     QFileInfo uiHeaderFileInfo(m_fileName);
     QDateTime uiHeaderTime = uiHeaderFileInfo.exists() ? uiHeaderFileInfo.lastModified() : QDateTime();
@@ -84,7 +85,7 @@ void UiCodeModelSupport::init()
             // uic run was unsuccesfull
             if (debug)
                 qDebug()<<"uic run wasn't succesfull";
-            m_cacheTime = QDateTime();
+            m_cacheTime = QDateTime ();
             m_contents = QByteArray();
             // and if the header file wasn't there, next time we need to update
             // all of the files that include this header
@@ -101,6 +102,9 @@ void UiCodeModelSupport::init()
 
 QByteArray UiCodeModelSupport::contents() const
 {
+    if (!m_initialized)
+        init();
+
     return m_contents;
 }
 

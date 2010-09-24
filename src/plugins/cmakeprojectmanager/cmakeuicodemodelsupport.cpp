@@ -27,44 +27,38 @@
 **
 **************************************************************************/
 
+#include "cmakeuicodemodelsupport.h"
+#include "cmakeproject.h"
+#include "cmaketarget.h"
+#include "cmakebuildconfiguration.h"
 
-#ifndef UICODECOMPLETIONSUPPORT_H
-#define UICODECOMPLETIONSUPPORT_H
+#include <QtCore/QProcess>
 
-#include "cppmodelmanagerinterface.h"
-#include "cpptools_global.h"
+using namespace CMakeProjectManager;
+using namespace Internal;
 
-#include <QtCore/QDateTime>
-
-namespace CppTools {
-
-class CPPTOOLS_EXPORT UiCodeModelSupport : public CppTools::AbstractEditorSupport
+CMakeUiCodeModelSupport::CMakeUiCodeModelSupport(CppTools::CppModelManagerInterface *modelmanager,
+                                             CMakeProject *project,
+                                             const QString &source,
+                                             const QString &uiHeaderFile)
+    : CppTools::UiCodeModelSupport(modelmanager, source, uiHeaderFile),
+      m_project(project)
 {
-public:
-    UiCodeModelSupport(CppTools::CppModelManagerInterface *modelmanager,
-                       const QString &sourceFile,
-                       const QString &uiHeaderFile);
-    ~UiCodeModelSupport();
-    void setFileName(const QString &name);
-    void setSourceName(const QString &name);
-    virtual QByteArray contents() const;
-    virtual QString fileName() const;
-    void updateFromEditor(const QString &formEditorContents);
-    void updateFromBuild();
-protected:
-    virtual QString uicCommand() const = 0;
-    virtual QStringList environment() const = 0;
-private:
-    void init() const;
-    bool runUic(const QString &ui) const;
-    QString m_sourceName;
-    QString m_fileName;
-    mutable bool m_updateIncludingFiles;
-    mutable bool m_initialized;
-    mutable QByteArray m_contents;
-    mutable QDateTime m_cacheTime;
-};
 
-} // CppTools
+}
 
-#endif // UICODECOMPLETIONSUPPORT_H
+CMakeUiCodeModelSupport::~CMakeUiCodeModelSupport()
+{
+
+}
+
+QString CMakeUiCodeModelSupport::uicCommand() const
+{
+    return m_project->uicCommand();
+}
+
+QStringList CMakeUiCodeModelSupport::environment() const
+{
+    CMakeBuildConfiguration *bc = m_project->activeTarget()->activeBuildConfiguration();
+    return bc->environment().toStringList();
+}
