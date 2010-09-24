@@ -146,7 +146,7 @@
       <item row="0" column="0">
        <widget class="QRadioButton" name="horizontalStretchRadioButton">
         <property name="toolTip">
-         <string>Scale the image to fit to the available area.</string>
+         <string>Stretch vertically. Scales the image to fit to the available area.</string>
         </property>
         <property name="text">
          <string/>
@@ -166,7 +166,7 @@
       <item row="0" column="1">
        <widget class="QRadioButton" name="horizontalTileRadioButton">
         <property name="toolTip">
-         <string>Tile the image until there is no more space. May crop the last image.</string>
+         <string>Repeat vertically. Tiles the image until there is no more space. May crop the last image.</string>
         </property>
         <property name="text">
          <string/>
@@ -186,7 +186,7 @@
       <item row="0" column="2">
        <widget class="QRadioButton" name="horizontalTileRadioButtonNoCrop">
         <property name="toolTip">
-         <string>Like Repeat, but scales the images down to ensure that the last image is not cropped.</string>
+         <string>Round. Like Repeat, but scales the images down to ensure that the last image is not cropped.</string>
         </property>
         <property name="text">
          <string/>
@@ -218,7 +218,7 @@
       <item row="0" column="1">
        <widget class="QRadioButton" name="verticalTileRadioButton">
         <property name="toolTip">
-         <string>Tile the image until there is no more space. May crop the last image.</string>
+         <string>Repeat horizontally. Tiles the image until there is no more space. May crop the last image.</string>
         </property>
         <property name="text">
          <string/>
@@ -238,7 +238,7 @@
       <item row="0" column="0">
        <widget class="QRadioButton" name="verticalStretchRadioButton">
         <property name="toolTip">
-         <string>Scale the image to fit to the available area.</string>
+         <string>Strech horizontally. Scales the image to fit to the available area.</string>
         </property>
         <property name="text">
          <string/>
@@ -258,7 +258,7 @@
       <item row="0" column="2">
        <widget class="QRadioButton" name="verticalTileRadioButtonNoCrop">
         <property name="toolTip">
-         <string>Like Repeat, but scales the images down to ensure that the last image is not cropped.</string>
+         <string>Round. Like Repeat, but scales the images down to ensure that the last image is not cropped.</string>
         </property>
         <property name="text">
          <string/>

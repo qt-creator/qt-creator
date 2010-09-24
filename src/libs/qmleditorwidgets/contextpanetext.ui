@@ -316,22 +316,22 @@
      </property>
      <item>
       <property name="text">
-       <string>Normal</string>
+       <string notr="true">Normal</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Outline</string>
+       <string notr="true">Outline</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Raised</string>
+       <string notr="true">Raised</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Sunken</string>
+       <string notr="true">Sunken</string>
       </property>
      </item>
     </widget>

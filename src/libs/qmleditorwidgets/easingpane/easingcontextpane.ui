@@ -54,7 +54,7 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>play simulation</string>
+      <string>Play simulation</string>
      </property>
     </widget>
    </item>
@@ -83,61 +83,61 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>easing type</string>
+      <string>Type of easing curve</string>
      </property>
      <item>
       <property name="text">
-       <string>Linear</string>
+       <string notr="true">Linear</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Quad</string>
+       <string notr="true">Quad</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Cubic</string>
+       <string notr="true">Cubic</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Quart</string>
+       <string notr="true">Quart</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Quint</string>
+       <string notr="true">Quint</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Sine</string>
+       <string notr="true">Sine</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Expo</string>
+       <string notr="true">Expo</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Circ</string>
+       <string notr="true">Circ</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Elastic</string>
+       <string notr="true">Elastic</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Back</string>
+       <string notr="true">Back</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Bounce</string>
+       <string notr="true">Bounce</string>
       </property>
      </item>
     </widget>
@@ -164,26 +164,26 @@
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>easing subtype</string>
+      <string>Acceleration or deceleration of easing curve</string>
      </property>
      <item>
       <property name="text">
-       <string>In</string>
+       <string notr="true">In</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Out</string>
+       <string notr="true">Out</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>InOut</string>
+       <string notr="true">InOut</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>OutIn</string>
+       <string notr="true">OutIn</string>
       </property>
      </item>
     </widget>
@@ -207,7 +207,7 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>duration</string>
+      <string>Duration of animation</string>
      </property>
      <property name="specialValueText">
       <string>INVALID</string>
@@ -251,7 +251,7 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>easing amplitude (only for Elastic and Bounce curves)</string>
+      <string>Amplitude of elastic and bounce easing curves</string>
      </property>
      <property name="specialValueText">
       <string>INVALID</string>
@@ -292,7 +292,7 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>easing period (only for Elastic curve)</string>
+      <string>Easing period of an elastic curve</string>
      </property>
      <property name="specialValueText">
       <string>INVALID</string>
@@ -333,7 +333,7 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>easing overshoot (only for Back curve)</string>
+      <string>Easing overshoot for a back curve</string>
      </property>
      <property name="specialValueText">
       <string>INVALID</string>
