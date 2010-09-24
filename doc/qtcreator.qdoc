@@ -4989,6 +4989,28 @@
     \gui {Interrupt}. The program is automatically interrupted as soon as a
     breakpoint is hit.
 
+    \section2 Starting the Debugger from the Command Line
+
+    You can use the Qt Creator debugger interface from the command line. To
+    attach it to a running process, specify the process ID as a parameter for
+    the \c {-debug} option. To examine a core file, specify the file name.
+    Qt Creator executes all the necessary steps, such as searching for
+    the binary that belongs to a core file.
+
+    For example:
+
+    \list
+
+        \o \c {C:\qtcreator-2.1\bin>qtcreator -debug 2000}
+
+        \o \c {C:\qtcreator-2.1\bin>qtcreator -debug core.2000}
+
+    \endlist
+
+    For more information, see \l{Using Command Line Options}.
+
+    \section1 Using the Debugger
+
     Once the program stops, Qt Creator:
 
     \list
