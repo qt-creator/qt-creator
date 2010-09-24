@@ -31,6 +31,7 @@
 #include "undocommands_p.h"
 
 #include <QtCore/QDebug>
+#include <QtCore/QScopedPointer>
 #include <QtGui/QMenu>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
@@ -173,13 +174,105 @@ void QrcEditor::updateHistoryControls()
     emit undoStackChanged(m_history.canUndo(), m_history.canRedo());
 }
 
+// Helper for resolveLocationIssues():
+// For code clarity, a context with convenience functions to execute
+// the dialogs required for checking the image file paths
+// (and keep them around for file dialog execution speed).
+// Basically, resolveLocationIssues() checks the paths of the images
+// and asks the user to copy them into the resource file location.
+// When the user does a multiselection of files, this requires popping
+// up the dialog several times in a row.
+struct ResolveLocationContext {
+    ResolveLocationContext() : copyButton(0), skipButton(0), abortButton(0) {}
+
+    QAbstractButton *execLocationMessageBox(QWidget *parent,
+                                        const QString &file,
+                                        bool wantSkipButton);
+    QString execCopyFileDialog(QWidget *parent,
+                               const QDir &dir,
+                               const QString &targetPath);
+
+    QScopedPointer<QMessageBox> messageBox;
+    QScopedPointer<QFileDialog> copyFileDialog;
+
+    QPushButton *copyButton;
+    QPushButton *skipButton;
+    QPushButton *abortButton;
+};
+
+QAbstractButton *ResolveLocationContext::execLocationMessageBox(QWidget *parent,
+                                                            const QString &file,
+                                                            bool wantSkipButton)
+{
+    if (messageBox.isNull()) {
+        messageBox.reset(new QMessageBox(QMessageBox::Warning,
+                                         QrcEditor::tr("Invalid file location"),
+                                         QString(), QMessageBox::NoButton, parent));
+        copyButton = messageBox->addButton(QrcEditor::tr("Copy"), QMessageBox::ActionRole);
+        abortButton = messageBox->addButton(QrcEditor::tr("Abort"), QMessageBox::RejectRole);
+        messageBox->setDefaultButton(copyButton);
+    }
+    if (wantSkipButton && !skipButton) {
+        skipButton = messageBox->addButton(QrcEditor::tr("Skip"), QMessageBox::DestructiveRole);
+        messageBox->setEscapeButton(skipButton);
+    }
+    messageBox->setText(QrcEditor::tr("The file %1 is not in a subdirectory of the resource file. You now have the option to copy this file to a valid location.")
+                    .arg(QDir::toNativeSeparators(file)));
+    messageBox->exec();
+    return messageBox->clickedButton();
+}
+
+QString ResolveLocationContext::execCopyFileDialog(QWidget *parent, const QDir &dir, const QString &targetPath)
+{
+    // Delayed creation of file dialog.
+    if (copyFileDialog.isNull()) {
+        copyFileDialog.reset(new QFileDialog(parent, QrcEditor::tr("Choose Copy Location")));
+        copyFileDialog->setFileMode(QFileDialog::AnyFile);
+        copyFileDialog->setAcceptMode(QFileDialog::AcceptSave);
+    }
+    copyFileDialog->selectFile(targetPath);
+    // Repeat until the path entered is no longer above 'dir'
+    // (relative is not "../").
+    while (true) {
+        if (copyFileDialog->exec() != QDialog::Accepted)
+            return QString();
+        const QStringList files = copyFileDialog->selectedFiles();
+        if (files.isEmpty())
+            return QString();
+        const QString relPath = dir.relativeFilePath(files.front());
+        if (!relPath.startsWith(QLatin1String("../")))
+            return files.front();
+    }
+    return QString();
+}
+
+// Helper to copy a file with message boxes
+static inline bool copyFile(const QString &file, const QString &copyName, QWidget *parent)
+{
+    if (QFile::exists(copyName)) {
+        if (!QFile::remove(copyName)) {
+            QMessageBox::critical(parent, QrcEditor::tr("Overwriting Failed"),
+                                  QrcEditor::tr("Could not overwrite file %1.")
+                                  .arg(QDir::toNativeSeparators(copyName)));
+            return false;
+        }
+    }
+    if (!QFile::copy(file, copyName)) {
+        QMessageBox::critical(parent, QrcEditor::tr("Copying Failed"),
+                              QrcEditor::tr("Could not copy the file to %1.")
+                              .arg(QDir::toNativeSeparators(copyName)));
+        return false;
+    }
+    return true;
+}
+
 void QrcEditor::resolveLocationIssues(QStringList &files)
 {
     const QDir dir = QFileInfo(m_treeview->fileName()).absoluteDir();
     const QString dotdotSlash = QLatin1String("../");
     int i = 0;
-    int count = files.count();
-    int initialCount = files.count();
+    const int count = files.count();
+    const int initialCount = files.count();
 
     // Find first troublesome file
     for (; i < count; i++) {
@@ -195,43 +288,21 @@ void QrcEditor::resolveLocationIssues(QStringList &files)
     }
 
     // Interact with user from now on
+    ResolveLocationContext context;
     bool abort = false;
-    for (; i < count; i++) {
+    for (QStringList::iterator it = files.begin(); it != files.end(); ) {
         // Path fine -> skip file
-        QString const &file = files.at(i);
+        QString const &file = *it;
         QString const relativePath = dir.relativeFilePath(file);
         if (!relativePath.startsWith(dotdotSlash)) {
             continue;
         }
-
         // Path troublesome and aborted -> remove file
-        if (abort) {
-            files.removeAt(i);
-            count--;
-            i--;
-            continue;
-        } else {
-            // Path troublesome -> query user
-            QMessageBox message(this);
-            message.setWindowTitle(tr("Invalid file location"));
-            message.setIcon(QMessageBox::Warning);
-            QPushButton * const copyButton = message.addButton(tr("Copy"), QMessageBox::ActionRole);
-            QPushButton * skipButton = NULL;
-            if (initialCount > 1)
-            {
-                skipButton = message.addButton(tr("Skip"), QMessageBox::DestructiveRole);
-                message.setEscapeButton(skipButton);
-            }
-            QPushButton * const abortButton = message.addButton(tr("Abort"), QMessageBox::RejectRole);
-            message.setDefaultButton(copyButton);
-            message.setText(tr("The file %1 is not in a subdirectory of the resource file. You now have the option to copy this file to a valid location.")
-                            .arg(QDir::toNativeSeparators(file)));
-            message.exec();
-            if (message.clickedButton() == skipButton) {
-                files.removeAt(i);
-                count--;
-                i--; // Compensate i++
-            } else if (message.clickedButton() == copyButton) {
+        bool ok = false;
+        if (!abort) {
+            // Path troublesome -> query user "Do you want copy/abort/skip".
+            QAbstractButton *clickedButton = context.execLocationMessageBox(this, file, initialCount > 1);
+            if (clickedButton == context.copyButton) {
                 const QFileInfo fi(file);
                 QFileInfo suggestion;
                 QDir tmpTarget(dir.path() + QString(QDir::separator()) + QString("Resources"));;
@@ -239,52 +310,21 @@ void QrcEditor::resolveLocationIssues(QStringList &files)
                     suggestion.setFile(tmpTarget, fi.fileName());
                 else
                     suggestion.setFile(dir, fi.fileName());
-                const QString copyName = QFileDialog::getSaveFileName(this, tr("Choose copy location"),
-                                                                suggestion.absoluteFilePath());
-                if (!copyName.isEmpty()) {
-                    QString relPath = dir.relativeFilePath(copyName);
-                    if (relPath.startsWith(dotdotSlash)) {   // directory is still invalid
-                        i--; // Compensate i++ and try again
-                        continue;
-                    }
-                    if (QFile::exists(copyName)) {
-                        if (!QFile::remove(copyName)) {
-                            QMessageBox::critical(this, tr("Overwriting Failed"),
-                                                  tr("Could not overwrite file %1.")
-                                                  .arg(QDir::toNativeSeparators(copyName)));
-                            // Remove file
-                            files.removeAt(i);
-                            count--;
-                            i--; // Compensate i++
-                            continue;
-                        }
-                    }
-                    if (!QFile::copy(file, copyName)) {
-                        QMessageBox::critical(this, tr("Copying Failed"),
-                                              tr("Could not copy the file to %1.")
-                                              .arg(QDir::toNativeSeparators(copyName)));
-                        // Remove file
-                        files.removeAt(i);
-                        count--;
-                        i--; // Compensate i++
-                        continue;
-                    }
-                    files[i] = copyName;
-                } else {
-                    // Remove file
-                    files.removeAt(i);
-                    count--;
-                    i--; // Compensate i++
-                }
-            } else if (message.clickedButton() == abortButton) {
+                // Prompt for copy location, copy and replace name.
+                const QString copyName = context.execCopyFileDialog(this, dir, suggestion.absoluteFilePath());
+                ok = !copyName.isEmpty() && copyFile(file, copyName, this);
+                if (ok)
+                    *it = copyName;
+            } else if (clickedButton == context.abortButton) {
                 abort = true;
-
-                files.removeAt(i);
-                count--;
-                i--; // Compensate i++
             }
+        } // !abort
+        if (ok) { // Remove files where user canceled or failures occurred.
+            ++it;
+        } else {
+            it = files.erase(it);
         }
-    }
+    } // for files
 }
 
 void QrcEditor::setResourceDragEnabled(bool e)
