@@ -68,19 +68,17 @@ GitCommand::Job::Job(const QStringList &a, int t) :
     Q_UNUSED(qvMetaId)
 }
 
-GitCommand::GitCommand(const QStringList &binary,
-                        const QString &workingDirectory,
-                        const QProcessEnvironment&environment,
-                        const QVariant &cookie)  :
-    m_binaryPath(binary.front()),
-    m_basicArguments(binary),
+GitCommand::GitCommand(const QString &binary,
+                       const QString &workingDirectory,
+                       const QProcessEnvironment&environment,
+                       const QVariant &cookie)  :
+    m_binaryPath(binary),
     m_workingDirectory(workingDirectory),
     m_environment(environment),
     m_cookie(cookie),
     m_unixTerminalDisabled(false),
     m_reportTerminationMode(NoReport)
 {
-    m_basicArguments.pop_front();
 }
 
 GitCommand::TerminationReportMode GitCommand::reportTerminationMode() const
@@ -156,7 +154,7 @@ void GitCommand::run()
         if (Git::Constants::debug)
             qDebug() << "GitCommand::run" << j << '/' << count << m_jobs.at(j).arguments;
 
-        process->start(m_binaryPath, m_basicArguments + m_jobs.at(j).arguments);
+        process->start(m_binaryPath, m_jobs.at(j).arguments);
         if(!process->waitForStarted()) {
             ok = false;
             error += QString::fromLatin1("Error: \"%1\" could not be started: %2").arg(m_binaryPath, process->errorString());

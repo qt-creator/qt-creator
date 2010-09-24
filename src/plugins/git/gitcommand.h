@@ -54,11 +54,10 @@ public:
                                  ReportStdout,  // This assumes UTF8
                                  ReportStderr };
 
-    explicit GitCommand(const QStringList &binary,
-                        const QString &workingDirectory,
-                        const QProcessEnvironment &environment,
-                        const QVariant &cookie = QVariant());
-
+    GitCommand(const QString &binary,
+               const QString &workingDirectory,
+               const QProcessEnvironment &environment,
+               const QVariant &cookie = QVariant());
 
     void addJob(const QStringList &arguments, int timeout);
     void execute();
@@ -98,7 +97,6 @@ private:
     };
 
     const QString m_binaryPath;
-    QStringList m_basicArguments;
     const QString m_workingDirectory;
     const QProcessEnvironment m_environment;
     QVariant m_cookie;

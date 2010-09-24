@@ -1083,15 +1083,9 @@ GitCommand *GitClient::executeGit(const QString &workingDirectory,
 }
 
 // Return fixed arguments required to run
-QStringList GitClient::binary() const
+QString GitClient::binary() const
 {
-#ifdef Q_OS_WIN
-        QStringList args;
-        args << QLatin1String("cmd.exe") << QLatin1String("/c") << m_binaryPath;
-        return args;
-#else
-        return QStringList(m_binaryPath);
-#endif
+    return m_binaryPath;
 }
 
 // Determine a value for the HOME variable on Windows
@@ -1135,21 +1129,17 @@ Utils::SynchronousProcessResponse
 {
     if (Git::Constants::debug)
         qDebug() << "synchronousGit" << workingDirectory << gitArguments;
-    QStringList args = binary(); // "cmd /c git" on Windows
-    const QString executable = args.front();
-    args.pop_front();
-    args.append(gitArguments);
-    return VCSBase::VCSBasePlugin::runVCS(workingDirectory, executable, args,
+    return VCSBase::VCSBasePlugin::runVCS(workingDirectory, binary(), gitArguments,
                                           m_settings.timeoutSeconds * 1000,
                                           processEnvironment(),
                                           flags, stdOutCodec);
 }
 
 bool GitClient::fullySynchronousGit(const QString &workingDirectory,
-                               const QStringList &gitArguments,
-                               QByteArray* outputText,
-                               QByteArray* errorText,
-                               bool logCommandToWindow)
+                                    const QStringList &gitArguments,
+                                    QByteArray* outputText,
+                                    QByteArray* errorText,
+                                    bool logCommandToWindow)
 {
     if (Git::Constants::debug)
         qDebug() << "fullySynchronousGit" << workingDirectory << gitArguments;
@@ -1161,16 +1151,12 @@ bool GitClient::fullySynchronousGit(const QString &workingDirectory,
     process.setWorkingDirectory(workingDirectory);
     process.setProcessEnvironment(processEnvironment());
 
-    QStringList args = binary(); // "cmd /c git" on Windows
-    const QString executable = args.front();
-    args.pop_front();
-    args.append(gitArguments);
-    process.start(executable, args);
+    process.start(binary(), gitArguments);
     process.closeWriteChannel();
     if (!process.waitForStarted()) {
         if (errorText) {
             const QString msg = QString::fromLatin1("Unable to execute '%1': %2:")
-                                .arg(binary().join(QString(QLatin1Char(' '))), process.errorString());
+                                .arg(binary(), process.errorString());
             *errorText = msg.toLocal8Bit();
         }
         return false;

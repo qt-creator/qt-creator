@@ -212,7 +212,7 @@ public:
     GitSettings  settings() const;
     void setSettings(const GitSettings &s);
 
-    QStringList binary() const; // Executable + basic arguments
+    QString binary() const; // Executable + basic arguments
     QProcessEnvironment processEnvironment() const;
     static QString fakeWinHome(const QProcessEnvironment &e);
 

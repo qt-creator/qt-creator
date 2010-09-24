@@ -126,9 +126,7 @@ QSharedPointer<VCSBase::AbstractCheckoutJob> CloneWizardPage::createCheckoutJob(
      const QString checkoutDir = directory();
      *checkoutPath = workingDirectory + QLatin1Char('/') + checkoutDir;
 
-     QStringList baseArgs = client->binary();
-     const QString binary = baseArgs.front();
-     baseArgs.pop_front();
+     const QString binary = client->binary();
 
      QStringList args;
      args << QLatin1String("clone") << repository() << checkoutDir;
@@ -136,7 +134,7 @@ QSharedPointer<VCSBase::AbstractCheckoutJob> CloneWizardPage::createCheckoutJob(
      VCSBase::ProcessCheckoutJob *job = new VCSBase::ProcessCheckoutJob;
      const QProcessEnvironment env = client->processEnvironment();
      // 1) Basic checkout step
-     job->addStep(binary, baseArgs + args, workingDirectory, env);
+     job->addStep(binary, args, workingDirectory, env);
      const QString checkoutBranch = branch();
 
      // 2) Checkout branch, change to checkoutDir
@@ -146,16 +144,16 @@ QSharedPointer<VCSBase::AbstractCheckoutJob> CloneWizardPage::createCheckoutJob(
          args.clear();
          args << QLatin1String("branch") << QLatin1String("--track")
                  << checkoutBranch << (QLatin1String("origin/")  + checkoutBranch);
-         job->addStep(binary, baseArgs + args, *checkoutPath, env);
+         job->addStep(binary, args, *checkoutPath, env);
          // Checkout branch
          args.clear();
          args << QLatin1String("checkout") << checkoutBranch;
-         job->addStep(binary, baseArgs + args, *checkoutPath, env);
+         job->addStep(binary, args, *checkoutPath, env);
          // Delete master if desired
          if (deleteMasterBranch()) {
              args.clear();
              args << QLatin1String("branch") << QLatin1String("-D") << masterBranch;
-             job->addStep(binary, baseArgs + args, *checkoutPath, env);
+             job->addStep(binary, args, *checkoutPath, env);
          }
      }
 
