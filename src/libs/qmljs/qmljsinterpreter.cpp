@@ -804,56 +804,19 @@ const Value *QmlObjectValue::propertyValue(const FakeMetaProperty &prop) const
             ) {
         value = engine()->numberValue();
     } else if (typeName == QLatin1String("QFont")) {
-        ObjectValue *object = engine()->newObject(/*prototype =*/ 0);
-        object->setClassName(QLatin1String("Font"));
-        object->setProperty("family", engine()->stringValue());
-        object->setProperty("weight", engine()->undefinedValue()); // ### make me an object
-        object->setProperty("capitalization", engine()->undefinedValue()); // ### make me an object
-        object->setProperty("bold", engine()->booleanValue());
-        object->setProperty("italic", engine()->booleanValue());
-        object->setProperty("underline", engine()->booleanValue());
-        object->setProperty("overline", engine()->booleanValue());
-        object->setProperty("strikeout", engine()->booleanValue());
-        object->setProperty("pointSize", engine()->numberValue());
-        object->setProperty("pixelSize", engine()->numberValue());
-        object->setProperty("letterSpacing", engine()->numberValue());
-        object->setProperty("wordSpacing", engine()->numberValue());
-        value = object;
+        value = engine()->qmlFontObject();
     } else if (typeName == QLatin1String("QPoint")
             || typeName == QLatin1String("QPointF")
             || typeName == QLatin1String("QVector2D")) {
-        // ### cache
-        ObjectValue *object = engine()->newObject(/*prototype =*/ 0);
-        object->setClassName(QLatin1String("Point"));
-        object->setProperty("x", engine()->numberValue());
-        object->setProperty("y", engine()->numberValue());
-        value = object;
+        value = engine()->qmlPointObject();
     } else if (typeName == QLatin1String("QSize")
             || typeName == QLatin1String("QSizeF")) {
-        // ### cache
-        ObjectValue *object = engine()->newObject(/*prototype =*/ 0);
-        object->setClassName(QLatin1String("Size"));
-        object->setProperty("width", engine()->numberValue());
-        object->setProperty("height", engine()->numberValue());
-        value = object;
+        value = engine()->qmlSizeObject();
     } else if (typeName == QLatin1String("QRect")
             || typeName == QLatin1String("QRectF")) {
-        // ### cache
-        ObjectValue *object = engine()->newObject(/*prototype =*/ 0);
-        object->setClassName("Rect");
-        object->setProperty("x", engine()->numberValue());
-        object->setProperty("y", engine()->numberValue());
-        object->setProperty("width", engine()->numberValue());
-        object->setProperty("height", engine()->numberValue());
-        value = object;
+        value = engine()->qmlRectObject();
     } else if (typeName == QLatin1String("QVector3D")) {
-        // ### cache
-        ObjectValue *object = engine()->newObject(/*prototype =*/ 0);
-        object->setClassName(QLatin1String("Vector3D"));
-        object->setProperty("x", engine()->numberValue());
-        object->setProperty("y", engine()->numberValue());
-        object->setProperty("z", engine()->numberValue());
-        value = object;
+        value = engine()->qmlVector3DObject();
     } else if (typeName == QLatin1String("QColor")) {
         value = engine()->colorValue();
     } else if (typeName == QLatin1String("QDeclarativeAnchorLine")) {
@@ -2358,6 +2321,11 @@ Engine::Engine()
       _mathObject(0),
       _qtObject(0),
       _qmlKeysObject(0),
+      _qmlFontObject(0),
+      _qmlPointObject(0),
+      _qmlSizeObject(0),
+      _qmlRectObject(0),
+      _qmlVector3DObject(0),
       _convertToNumber(this),
       _convertToString(this),
       _convertToObject(this)
@@ -2859,11 +2827,75 @@ void Engine::initializePrototypes()
     _globalObject->setProperty(QLatin1String("console"), consoleObject);
 
     _globalObject->setProperty(QLatin1String("Qt"), _qtObject);
+
+    // QML objects
+    _qmlFontObject = newObject(/*prototype =*/ 0);
+    _qmlFontObject->setClassName(QLatin1String("Font"));
+    _qmlFontObject->setProperty("family", stringValue());
+    _qmlFontObject->setProperty("weight", undefinedValue()); // ### make me an object
+    _qmlFontObject->setProperty("capitalization", undefinedValue()); // ### make me an object
+    _qmlFontObject->setProperty("bold", booleanValue());
+    _qmlFontObject->setProperty("italic", booleanValue());
+    _qmlFontObject->setProperty("underline", booleanValue());
+    _qmlFontObject->setProperty("overline", booleanValue());
+    _qmlFontObject->setProperty("strikeout", booleanValue());
+    _qmlFontObject->setProperty("pointSize", numberValue());
+    _qmlFontObject->setProperty("pixelSize", numberValue());
+    _qmlFontObject->setProperty("letterSpacing", numberValue());
+    _qmlFontObject->setProperty("wordSpacing", numberValue());
+
+    _qmlPointObject = newObject(/*prototype =*/ 0);
+    _qmlPointObject->setClassName(QLatin1String("Point"));
+    _qmlPointObject->setProperty("x", numberValue());
+    _qmlPointObject->setProperty("y", numberValue());
+
+    _qmlSizeObject = newObject(/*prototype =*/ 0);
+    _qmlSizeObject->setClassName(QLatin1String("Size"));
+    _qmlSizeObject->setProperty("width", numberValue());
+    _qmlSizeObject->setProperty("height", numberValue());
+
+    _qmlRectObject = newObject(/*prototype =*/ 0);
+    _qmlRectObject->setClassName("Rect");
+    _qmlRectObject->setProperty("x", numberValue());
+    _qmlRectObject->setProperty("y", numberValue());
+    _qmlRectObject->setProperty("width", numberValue());
+    _qmlRectObject->setProperty("height", numberValue());
+
+    _qmlVector3DObject = newObject(/*prototype =*/ 0);
+    _qmlVector3DObject->setClassName(QLatin1String("Vector3D"));
+    _qmlVector3DObject->setProperty("x", numberValue());
+    _qmlVector3DObject->setProperty("y", numberValue());
+    _qmlVector3DObject->setProperty("z", numberValue());
 }
 
 const ObjectValue *Engine::qmlKeysObject()
 {
     return _qmlKeysObject;
+}
+
+const ObjectValue *Engine::qmlFontObject()
+{
+    return _qmlFontObject;
+}
+
+const ObjectValue *Engine::qmlPointObject()
+{
+    return _qmlPointObject;
+}
+
+const ObjectValue *Engine::qmlSizeObject()
+{
+    return _qmlSizeObject;
+}
+
+const ObjectValue *Engine::qmlRectObject()
+{
+    return _qmlRectObject;
+}
+
+const ObjectValue *Engine::qmlVector3DObject()
+{
+    return _qmlVector3DObject;
 }
 
 const Value *Engine::defaultValueForBuiltinType(const QString &typeName) const

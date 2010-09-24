@@ -649,6 +649,12 @@ public:
 
     // QML objects
     const ObjectValue *qmlKeysObject();
+    const ObjectValue *qmlFontObject();
+    const ObjectValue *qmlPointObject();
+    const ObjectValue *qmlSizeObject();
+    const ObjectValue *qmlRectObject();
+    const ObjectValue *qmlVector3DObject();
+
     const Value *defaultValueForBuiltinType(const QString &typeName) const;
 
     // global object
@@ -720,6 +726,11 @@ private:
     ObjectValue *_mathObject;
     ObjectValue *_qtObject;
     ObjectValue *_qmlKeysObject;
+    ObjectValue *_qmlFontObject;
+    ObjectValue *_qmlPointObject;
+    ObjectValue *_qmlSizeObject;
+    ObjectValue *_qmlRectObject;
+    ObjectValue *_qmlVector3DObject;
 
     NullValue _nullValue;
     UndefinedValue _undefinedValue;
