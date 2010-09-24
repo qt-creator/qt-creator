@@ -1027,8 +1027,9 @@ bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
         return true;
     }
 
-    // We are interested in overriding  most Ctrl key combinations
+    // We are interested in overriding most Ctrl key combinations
     if (mods == Qt::ControlModifier
+            && !config(ConfigPassControlKey).toBool()
             && ((key >= Key_A && key <= Key_Z && key != Key_K)
                 || key == Key_BracketLeft || key == Key_BracketRight)) {
         // Ctrl-K is special as it is the Core's default notion of Locator

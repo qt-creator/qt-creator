@@ -183,6 +183,8 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
     m_group.insert(theFakeVimSetting(ConfigIsKeyword),
         m_ui.lineEditIsKeyword);
 
+    m_group.insert(theFakeVimSetting(ConfigPassControlKey),
+        m_ui.checkBoxPassControlKey);
     m_group.insert(theFakeVimSetting(ConfigAutoIndent),
         m_ui.checkBoxAutoIndent);
     m_group.insert(theFakeVimSetting(ConfigSmartIndent),
@@ -204,6 +206,7 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
             << ' ' << m_ui.checkBoxExpandTab->text()
             << ' ' << m_ui.checkBoxShowMarks->text()
             << ' ' << m_ui.checkBoxSmartIndent->text()
+            << ' ' << m_ui.checkBoxPassControlKey->text()
             << ' ' << m_ui.checkBoxHlSearch->text()
             << ' ' << m_ui.checkBoxIncSearch->text()
             << ' ' << m_ui.checkBoxSmartTab->text()

@@ -66,6 +66,7 @@ enum FakeVimSettingsCode
 
     // other actions
     ConfigShowMarks,
+    ConfigPassControlKey
 };
 
 class FakeVimSettings : public QObject

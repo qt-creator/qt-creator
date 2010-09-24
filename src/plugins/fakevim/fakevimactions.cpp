@@ -217,6 +217,13 @@ FakeVimSettings *theFakeVimSettings()
     item->setCheckable(true);
     instance->insertItem(ConfigShowMarks, item, _("showmarks"), _("sm"));
 
+    item = new SavedAction(instance);
+    item->setDefaultValue(false);
+    item->setValue(false);
+    item->setSettingsKey(group, _("PassControlKey"));
+    item->setCheckable(true);
+    instance->insertItem(ConfigPassControlKey, item, _("passcontrolkey"), _("pck"));
+
     return instance;
 }
 
