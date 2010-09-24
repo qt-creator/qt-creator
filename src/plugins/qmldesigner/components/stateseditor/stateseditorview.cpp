@@ -205,6 +205,8 @@ void StatesEditorView::modelAttached(Model *model)
         insertModelState(i, state);
     }
 
+    for (int i = 0; i < m_modelStates.count(); ++i)
+        m_editorModel->updateState(i); //refres all states
 }
 
 void StatesEditorView::modelAboutToBeDetached(Model *model)

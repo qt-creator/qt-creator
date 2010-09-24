@@ -88,6 +88,7 @@ public:
 public slots:
     void parseDirectory(const QString &canonicalDirPath,  bool addToLibrary = true, const QString& qualification = QString());
     void parseFile(const QString &canonicalFilePath,  bool addToLibrary, const QString&);
+    void parseFile(const QString &canonicalFilePath);
 
 public:
     QList<QFileInfo> watchedFiles(const QString &canonicalDirPath);
@@ -294,6 +295,11 @@ void SubComponentManagerPrivate::parseFile(const QString &canonicalFilePath, boo
     }
 }
 
+void SubComponentManagerPrivate::parseFile(const QString &canonicalFilePath)
+{
+    parseFile(canonicalFilePath, true, QString());
+}
+
 // dirInfo must already contain a canonical path
 QList<QFileInfo> SubComponentManagerPrivate::watchedFiles(const QString &canonicalDirPath)
 {
@@ -368,9 +374,6 @@ void SubComponentManagerPrivate::registerQmlFile(const QFileInfo &fileInfo, cons
 
         if (dynamicProperty.isDefaultProperty())
             nodeInfo.setDefaultProperty(dynamicProperty.propertyName());
-
-        if (dynamicProperty.isAlias())
-            qDebug() << dynamicProperty.propertyName();
 
         PropertyMetaInfo propertyMetaInfo;
         propertyMetaInfo.setName(dynamicProperty.propertyName());

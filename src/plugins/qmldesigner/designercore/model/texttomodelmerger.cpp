@@ -554,6 +554,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 
     { // Have the QML engine check if the document is valid:
         QDeclarativeEngine engine;
+        engine.setOutputWarningsToStandardError(false);
         foreach (const QString &importPath, importPaths)
             engine.addImportPath(importPath);
         QDeclarativeComponent comp(&engine);
