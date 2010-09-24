@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "MobileLibraryWizardOptionPage.h"
+#include "mobilelibrarywizardoptionpage.h"
 #include "ui_mobilelibrarywizardoptionpage.h"
 #include "qtprojectparameters.h"
 
