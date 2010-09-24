@@ -183,9 +183,6 @@ int main(int argc, char **argv)
     setrlimit(RLIMIT_NOFILE, &rl);
 #endif
 
-#ifdef Q_WS_X11
-    SharedTools::QtSingleApplication::setGraphicsSystem("raster");
-#endif
     SharedTools::QtSingleApplication app((QLatin1String(appNameC)), argc, argv);
 
     const int threadCount = QThreadPool::globalInstance()->maxThreadCount();
