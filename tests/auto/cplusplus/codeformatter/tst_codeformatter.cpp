@@ -49,6 +49,7 @@ private Q_SLOTS:
     void nestedInitializer();
     void forStatement();
     void templateSingleline();
+    void macrosNoSemicolon2();
 };
 
 struct Line {
@@ -948,6 +949,19 @@ void tst_CodeFormatter::templateSingleline()
          << Line("{")
          << Line("    T t;")
          << Line("}")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::macrosNoSemicolon2()
+{
+    QList<Line> data;
+    data
+         << Line("FOO(ABC)")
+         << Line("{")
+         << Line("    BAR(FOO)")
+         << Line("}")
+         << Line("int i;")
          ;
     checkIndent(data);
 }

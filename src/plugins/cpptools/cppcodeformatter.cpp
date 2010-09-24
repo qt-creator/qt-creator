@@ -160,7 +160,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             if (tryExpression(true))
                 break;
             switch (kind) {
-            case T_RBRACE:
+            case T_RBRACE:      leave(true); continue;
             case T_SEMICOLON:   leave(true); break;
             case T_EQUAL:       enter(initializer); break;
             case T_LBRACE:      enter(defun_open); break;
@@ -251,7 +251,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             if (tryStatement())
                 break;
             switch (kind) {
-            case T_RBRACE:      leave(); continue; // always nested in declaration_start
+            case T_RBRACE:      leave(); leave(); break; // always nested in declaration_start
             } break;
 
         case switch_statement:
