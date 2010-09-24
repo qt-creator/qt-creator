@@ -75,6 +75,7 @@
 #include <QtGui/QTextDocument> // Qt::escape()
 #include <QtGui/QToolButton>
 #include <QtGui/QVBoxLayout>
+#include <QtAlgorithms>
 
 namespace {
     const bool debug = ! qgetenv("CPLUSPLUS_DEBUG").isEmpty();
@@ -460,7 +461,8 @@ CppCodeCompletion::CppCodeCompletion(CppModelManager *manager)
       m_shouldRestartCompletion(false),
       m_automaticCompletion(false),
       m_completionOperator(T_EOF_SYMBOL),
-      m_objcEnabled(true)
+      m_objcEnabled(true),
+      m_snippetsParser(Core::ICore::instance()->resourcePath() + QLatin1String("/snippets/cpp.xml"))
 {
 }
 
@@ -1123,7 +1125,10 @@ void CppCodeCompletion::globalCompletion(Scope *currentScope)
     foreach (ClassOrNamespace *b, usingBindings)
         completeNamespace(b);
 
+    addSnippets();
     addKeywords();
+    qStableSort(m_completions.begin(), m_completions.end(), completionItemLessThan);
+
     addMacros(QLatin1String("<configuration>"), context.snapshot());
     addMacros(context.thisDocument()->fileName(), context.snapshot());
 }
@@ -1759,18 +1764,19 @@ void CppCodeCompletion::completions(QList<TextEditor::CompletionItem> *completio
 
 QList<TextEditor::CompletionItem> CppCodeCompletion::removeDuplicates(const QList<TextEditor::CompletionItem> &items)
 {
-    // Remove duplicates
+    // Duplicates are kept only if they are snippets.
     QList<TextEditor::CompletionItem> uniquelist;
     QSet<QString> processed;
-
     foreach (const TextEditor::CompletionItem &item, items) {
-        if (! processed.contains(item.text)) {
-            processed.insert(item.text);
+        if (!processed.contains(item.text) || item.isSnippet) {
             uniquelist.append(item);
-            if (Symbol *symbol = qvariant_cast<Symbol *>(item.data)) {
-                if (Function *funTy = symbol->type()->asFunctionType()) {
-                    if (funTy->hasArguments())
-                        ++uniquelist.back().duplicateCount;
+            if (!item.isSnippet) {
+                processed.insert(item.text);
+                if (Symbol *symbol = qvariant_cast<Symbol *>(item.data)) {
+                    if (Function *funTy = symbol->type()->asFunctionType()) {
+                        if (funTy->hasArguments())
+                            ++uniquelist.back().duplicateCount;
+                    }
                 }
             }
         }
@@ -2016,6 +2022,12 @@ bool CppCodeCompletion::objcKeywordsWanted() const
 
     const Core::MimeDatabase *mdb = Core::ICore::instance()->mimeDatabase();
     return mdb->findByFile(fileName).type() == CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE;
+}
+
+void CppCodeCompletion::addSnippets()
+{
+    static const QIcon icon(QLatin1String(":/texteditor/images/snippet.png"));
+    m_completions.append(m_snippetsParser.execute(this, icon));
 }
 
 #include "cppcodecompletion.moc"

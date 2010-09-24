@@ -50,7 +50,6 @@
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
-#include <QtCore/QXmlStreamReader>
 #include <QtCore/QDebug>
 
 #include <QtGui/QApplication>
@@ -485,7 +484,8 @@ CodeCompletion::CodeCompletion(ModelManagerInterface *modelManager, QObject *par
       m_modelManager(modelManager),
       m_editor(0),
       m_startPosition(0),
-      m_restartCompletion(false)
+      m_restartCompletion(false),
+      m_snippetsParser(Core::ICore::instance()->resourcePath() + QLatin1String("/snippets/qml.xml"))
 {
     Q_ASSERT(modelManager);
 }
@@ -860,8 +860,7 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     }
 
     if (isQmlFile && (completionOperator.isNull() || completionOperator.isSpace() || isDelimiter(completionOperator))) {
-        updateSnippets();
-        m_completions.append(m_snippets);
+        m_completions.append(m_snippetsParser.execute(this, iconForColor(Qt::red), SnippetOrder));
     }
 
     if (! m_completions.isEmpty())
@@ -958,103 +957,6 @@ void CodeCompletion::cleanup()
     m_editor = 0;
     m_startPosition = 0;
     m_completions.clear();
-}
-
-
-void CodeCompletion::updateSnippets()
-{
-    QString qmlsnippets = Core::ICore::instance()->resourcePath() + QLatin1String("/snippets/qml.xml");
-    if (!QFile::exists(qmlsnippets))
-        return;
-
-    QDateTime lastModified = QFileInfo(qmlsnippets).lastModified();
-    if (!m_snippetFileLastModified.isNull() &&  lastModified == m_snippetFileLastModified)
-        return;
-
-    const QIcon icon = iconForColor(Qt::red);
-
-    m_snippetFileLastModified = lastModified;
-    QFile file(qmlsnippets);
-    file.open(QIODevice::ReadOnly);
-    QXmlStreamReader xml(&file);
-    if (xml.readNextStartElement()) {
-        if (xml.name() == QLatin1String("snippets")) {
-            while (xml.readNextStartElement()) {
-                if (xml.name() == QLatin1String("snippet")) {
-                    TextEditor::CompletionItem item(this);
-                    QString title, data;
-                    QString description = xml.attributes().value("description").toString();
-
-                    while (!xml.atEnd()) {
-                        xml.readNext();
-                        if (xml.isEndElement()) {
-                            int i = 0;
-                            while (i < data.size() && data.at(i).isLetterOrNumber())
-                                ++i;
-                            title = data.left(i);
-                            item.text = title;
-                            if (!description.isEmpty()) {
-                                item.text +=  QLatin1Char(' ');
-                                item.text += description;
-                            }
-                            item.data = QVariant::fromValue(data);
-
-
-                            QString infotip = data;
-                            while (infotip.size() && infotip.at(infotip.size()-1).isSpace())
-                                infotip.chop(1);
-                            infotip.replace(QLatin1Char('\n'), QLatin1String("<br>"));
-                            infotip.replace(QLatin1Char(' '), QLatin1String("&nbsp;"));
-                            {
-                                QString s = QLatin1String("<nobr>");
-                                int count = 0;
-                                for (int i = 0; i < infotip.count(); ++i) {
-                                    if (infotip.at(i) != QChar::ObjectReplacementCharacter) {
-                                        s += infotip.at(i);
-                                        continue;
-                                    }
-                                    if (++count % 2) {
-                                        s += QLatin1String("<b>");
-                                    } else {
-                                        if (infotip.at(i-1) == QChar::ObjectReplacementCharacter)
-                                            s += QLatin1String("...");
-                                        s += QLatin1String("</b>");
-                                    }
-                                }
-                                infotip = s;
-                            }
-
-                            item.details = infotip;
-
-                            item.icon = icon;
-                            item.order = SnippetOrder;
-                            m_snippets.append(item);
-                            break;
-                        }
-
-                        if (xml.isCharacters())
-                            data += xml.text();
-                        else if (xml.isStartElement()) {
-                            if (xml.name() != QLatin1String("tab"))
-                                xml.raiseError(QLatin1String("invalid snippets file"));
-                            else {
-                                data += QChar::ObjectReplacementCharacter;
-                                data += xml.readElementText();
-                                data += QChar::ObjectReplacementCharacter;
-                            }
-                        }
-                    }
-                } else {
-                    xml.skipCurrentElement();
-                }
-            }
-        } else {
-            xml.skipCurrentElement();
-        }
-    }
-    if (xml.hasError())
-        qWarning() << qmlsnippets << xml.errorString() << xml.lineNumber() << xml.columnNumber();
-    file.close();
 }
 
 static bool qmlCompletionItemLessThan(const TextEditor::CompletionItem &l, const TextEditor::CompletionItem &r)

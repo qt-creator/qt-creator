@@ -37,6 +37,7 @@
 #include <cplusplus/TypeOfExpression.h>
 
 #include <texteditor/icompletioncollector.h>
+#include <texteditor/snippetsparser.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
@@ -87,6 +88,7 @@ public:
     QIcon iconForSymbol(CPlusPlus::Symbol *symbol) const;
 
 private:
+    void addSnippets();
     void addKeywords();
     void addMacros(const QString &fileName, const CPlusPlus::Snapshot &snapshot);
     void addMacros_helper(const CPlusPlus::Snapshot &snapshot,
@@ -150,6 +152,8 @@ private:
     bool m_automaticCompletion;
     unsigned m_completionOperator;
     bool m_objcEnabled;
+
+    TextEditor::SnippetsParser m_snippetsParser;
 
     CPlusPlus::Icons m_icons;
     CPlusPlus::Overview overview;

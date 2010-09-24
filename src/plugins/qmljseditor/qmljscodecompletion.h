@@ -32,6 +32,7 @@
 
 #include <qmljs/qmljsdocument.h>
 #include <texteditor/icompletioncollector.h>
+#include <texteditor/snippetsparser.h>
 #include <QtCore/QDateTime>
 #include <QtCore/QPointer>
 
@@ -76,7 +77,6 @@ public:
     virtual void cleanup();
 
 private:
-    void updateSnippets();
 
     bool maybeTriggersCompletion(TextEditor::ITextEditable *editor);
     bool isDelimiter(QChar ch) const;
@@ -92,12 +92,10 @@ private:
     QmlJS::ModelManagerInterface *m_modelManager;
     TextEditor::ITextEditable *m_editor;
     int m_startPosition;
-    QList<TextEditor::CompletionItem> m_completions;
-
-    QList<TextEditor::CompletionItem> m_snippets;
-    QDateTime m_snippetFileLastModified;
-    QPointer<FunctionArgumentWidget> m_functionArgumentWidget;
     bool m_restartCompletion;
+    TextEditor::SnippetsParser m_snippetsParser;
+    QList<TextEditor::CompletionItem> m_completions;
+    QPointer<FunctionArgumentWidget> m_functionArgumentWidget;
 };
 
 

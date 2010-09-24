@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<snippets>
+<snippet>for (int <tab>var</tab> = 0; <tab>var</tab> &lt; <tab>total</tab>; ++<tab>var</tab>) {
+}
+</snippet>
+<snippet>for (<tab>var</tab>; <tab>var</tab> &lt; <tab>total</tab>; ++<tab>var</tab>) {
+}
+</snippet>
+</snippets>

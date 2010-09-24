@@ -69,7 +69,8 @@ SOURCES += texteditorplugin.cpp \
     tooltip/tipcontents.cpp \
     tooltip/tipfactory.cpp \
     basehoverhandler.cpp \
-    helpitem.cpp
+    helpitem.cpp \
+    snippetsparser.cpp
 
 HEADERS += texteditorplugin.h \
     textfilewizard.h \
@@ -142,7 +143,8 @@ HEADERS += texteditorplugin.h \
     tooltip/effects.h \
     tooltip/tipfactory.h \
     basehoverhandler.h \
-    helpitem.h
+    helpitem.h \
+    snippetsparser.h
 
 FORMS += behaviorsettingspage.ui \
     displaysettingspage.ui \

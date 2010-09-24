@@ -54,7 +54,8 @@ public:
           duplicateCount(0),
           order(0),
           originalIndex(0),
-          collector(collector)
+          collector(collector),
+          isSnippet(false)
     { }
 
     bool isValid() const
@@ -69,6 +70,7 @@ public:
     int order;
     int originalIndex;
     ICompletionCollector *collector;
+    bool isSnippet;
 };
 
 /* Defines the interface to completion collectors. A completion collector tells

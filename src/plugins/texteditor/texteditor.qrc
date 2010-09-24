@@ -4,5 +4,6 @@
         <file>images/finddirectory.png</file>
         <file>TextEditor.mimetypes.xml</file>
         <file>images/refactormarker.png</file>
+        <file>images/snippet.png</file>
     </qresource>
 </RCC>
