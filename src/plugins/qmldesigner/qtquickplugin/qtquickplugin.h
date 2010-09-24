@@ -27,32 +27,32 @@
 **
 **************************************************************************/
 
-#include "fxplugin.h"
-#include <widgetplugin_helper.h>
-#include <QtCore/QtPlugin>
-#include <private/qdeclarativerectangle_p.h>
-#include <private/qdeclarativescalegrid_p_p.h>
+#ifndef QTQUICKPLUGIN_H
+#define QTQUICKPLUGIN_H
+
+#include <iwidgetplugin.h>
+#include <QtDeclarative/qdeclarative.h>
+
+QT_BEGIN_NAMESPACE
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-
-FxPlugin::FxPlugin()
+class QtQuickPlugin : public QObject, QmlDesigner::IWidgetPlugin
 {
-    qmlRegisterType<QDeclarativePen>("Qt", 4, 7, "Pen");
-    qmlRegisterType<QDeclarativeScaleGrid>("Qt", 4, 7, "ScaleGrid");
-}
+    Q_OBJECT
+    Q_DISABLE_COPY(QtQuickPlugin)
+    Q_INTERFACES(QmlDesigner::IWidgetPlugin)
+public:
+    QtQuickPlugin();
+    ~QtQuickPlugin() {}
 
-QString FxPlugin::pluginName()
-{
-    return ("FxPlugin");
-}
+    QString metaInfo();
+    QString pluginName();
 
-QString FxPlugin::metaInfo()
-{
-    return QString(":/fxplugin/fx.metainfo");
-}
+};
 
-}
+} // namespace QmlDesigner
 
-Q_EXPORT_PLUGIN(QmlDesigner::FxPlugin)
 
+#endif // QTQUICKPLUGIN_H

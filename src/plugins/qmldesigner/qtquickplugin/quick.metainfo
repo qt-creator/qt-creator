@@ -1,120 +1,120 @@
 <metainfo>
-  <node name="Qt/Item" isContainer="true" icon=":/fxplugin/images/item-icon16.png">
+  <node name="Qt/Item" isContainer="true" icon=":/qtquickplugin/images/item-icon16.png">
     <propertyDefaultValue name="width" type="int" defaultValue="600"/>
     <propertyDefaultValue name="height" type="int" defaultValue="400"/>
-    <itemlibraryentry name="Item"  category="Qt - Basic" icon=":/fxplugin/images/item-icon.png">
+    <itemlibraryentry name="Item"  category="Qt - Basic" icon=":/qtquickplugin/images/item-icon.png">
       <property name="width" type="int" value="200"/>
       <property name="height" type="int" value="200"/>
     </itemlibraryentry>
   </node>
-  <node name="Qt/Rectangle" category="Qt - Basic" isContainer="true" icon=":/fxplugin/images/rect-icon16.png">
-    <itemlibraryentry name="Rectangle"  category="Qt - Basic" icon=":/fxplugin/images/rect-icon.png">
+  <node name="Qt/Rectangle" category="Qt - Basic" isContainer="true" icon=":/qtquickplugin/images/rect-icon16.png">
+    <itemlibraryentry name="Rectangle"  category="Qt - Basic" icon=":/qtquickplugin/images/rect-icon.png">
       <property name="width" type="int" value="100"/>
       <property name="height" type="int" value="100"/>
       <property name="color" type="QColor" value="#ffffff"/>
     </itemlibraryentry>
   </node>
-  <node name="Qt/Text" icon=":/fxplugin/images/text-icon16.png">
+  <node name="Qt/Text" icon=":/qtquickplugin/images/text-icon16.png">
     <propertyDefaultValue name="width" type="int" defaultValue="80"/>
     <propertyDefaultValue name="height" type="int" defaultValue="20"/>
-    <itemlibraryentry name="Text" category="Qt - Basic" icon=":/fxplugin/images/text-icon.png">
+    <itemlibraryentry name="Text" category="Qt - Basic" icon=":/qtquickplugin/images/text-icon.png">
       <property name="width" type="int" value="80"/>
       <property name="height" type="int" value="20"/>
       <property name="text" type="QString" value="text"/>
     </itemlibraryentry>
   </node>
-  <node name="Qt/TextEdit" isContainer="false" icon=":/fxplugin/images/text-edit-icon16.png">
+  <node name="Qt/TextEdit" isContainer="false" icon=":/qtquickplugin/images/text-edit-icon16.png">
     <propertyDefaultValue name="width" type="int" defaultValue="80"/>
     <propertyDefaultValue name="height" type="int" defaultValue="20"/>
-    <itemlibraryentry name="Text Edit" category="Qt - Basic" icon=":/fxplugin/images/text-edit-icon.png">
+    <itemlibraryentry name="Text Edit" category="Qt - Basic" icon=":/qtquickplugin/images/text-edit-icon.png">
       <property name="width" type="int" value="80"/>
       <property name="height" type="int" value="20"/>
       <property name="text" type="QString" value="textEdit"/>
     </itemlibraryentry>
   </node>
-  <node name="Qt/TextInput" isContainer="false" icon=":/fxplugin/images/text-input-icon16.png">
+  <node name="Qt/TextInput" isContainer="false" icon=":/qtquickplugin/images/text-input-icon16.png">
     <propertyDefaultValue name="width" type="int" defaultValue="80"/>
     <propertyDefaultValue name="height" type="int" defaultValue="20"/>
-    <itemlibraryentry name="Text Input" category="Qt - Basic" icon=":/fxplugin/images/text-input-icon.png">
+    <itemlibraryentry name="Text Input" category="Qt - Basic" icon=":/qtquickplugin/images/text-input-icon.png">
       <property name="width" type="int" value="80"/>
       <property name="height" type="int" value="20"/>
       <property name="text" type="QString" value="textInput"/>
     </itemlibraryentry>
   </node>
-  <node name="Qt/MouseArea" icon=":/fxplugin/images/mouse-area-icon16.png">
-    <itemlibraryentry name="Mouse Area" category="Qt - Interaction" icon=":/fxplugin/images/mouse-area-icon.png">
+  <node name="Qt/MouseArea" icon=":/qtquickplugin/images/mouse-area-icon16.png">
+    <itemlibraryentry name="Mouse Area" category="Qt - Interaction" icon=":/qtquickplugin/images/mouse-area-icon.png">
       <property name="width" type="int" value="100"/>
       <property name="height" type="int" value="100"/>
     </itemlibraryentry>
   </node>
-  <node name="Qt/Image" isContainer="true" icon=":/fxplugin/images/image-icon16.png">
+  <node name="Qt/Image" isContainer="true" icon=":/qtquickplugin/images/image-icon16.png">
     <propertyDefaultValue name="width" type="int" defaultValue="200"/>
     <propertyDefaultValue name="height" type="int" defaultValue="200"/>
-    <itemlibraryentry name="Image" category="Qt - Basic" icon=":/fxplugin/images/image-icon.png">
+    <itemlibraryentry name="Image" category="Qt - Basic" icon=":/qtquickplugin/images/image-icon.png">
       <property name="width" type="int" value="100"/>
       <property name="height" type="int" value="100"/>
-      <property name="source" type="QUrl" value="qrc:/fxplugin/images/template_image.png"/>
+      <property name="source" type="QUrl" value="qrc:/qtquickplugin/images/template_image.png"/>
     </itemlibraryentry>
   </node>
-  <node name="Qt/BorderImage" icon=":/fxplugin/images/border-image-icon16.png">
+  <node name="Qt/BorderImage" icon=":/qtquickplugin/images/border-image-icon16.png">
     <propertyDefaultValue name="width" type="int" defaultValue="200"/>
     <propertyDefaultValue name="height" type="int" defaultValue="200"/>
-    <itemlibraryentry name="Border Image" category="Qt - Basic" icon=":/fxplugin/images/border-image-icon.png">
+    <itemlibraryentry name="Border Image" category="Qt - Basic" icon=":/qtquickplugin/images/border-image-icon.png">
       <property name="width" type="int" value="100"/>
       <property name="height" type="int" value="100"/>
-      <property name="source" type="QUrl" value="qrc:/fxplugin/images/template_image.png"/>
+      <property name="source" type="QUrl" value="qrc:/qtquickplugin/images/template_image.png"/>
     </itemlibraryentry>
   </node>
-  <node name="Qt/Flickable" icon=":/fxplugin/images/flickable-icon16.png">
+  <node name="Qt/Flickable" icon=":/qtquickplugin/images/flickable-icon16.png">
     <propertyDefaultValue name="width" type="int" defaultValue="300"/>
     <propertyDefaultValue name="height" type="int" defaultValue="300"/>
-    <itemlibraryentry name="Flickable" category="Qt - Widgets" icon=":/fxplugin/images/flickable-icon.png">
+    <itemlibraryentry name="Flickable" category="Qt - Widgets" icon=":/qtquickplugin/images/flickable-icon.png">
       <property name="width" type="int" value="300"/>
       <property name="height" type="int" value="300"/>
     </itemlibraryentry>
   </node>
-  <node name="Qt/Flipable" icon=":/fxplugin/images/flipable-icon16.png">
+  <node name="Qt/Flipable" icon=":/qtquickplugin/images/flipable-icon16.png">
     <propertyDefaultValue name="width" type="int" defaultValue="300"/>
     <propertyDefaultValue name="height" type="int" defaultValue="300"/>
-    <itemlibraryentry name="Flipable" category="Qt - Widgets" icon=":/fxplugin/images/flipable-icon.png">
+    <itemlibraryentry name="Flipable" category="Qt - Widgets" icon=":/qtquickplugin/images/flipable-icon.png">
       <property name="width" type="int" value="300"/>
       <property name="height" type="int" value="300"/>
     </itemlibraryentry>
   </node>
-  <node name="Qt/GridView" icon=":/fxplugin/images/gridview-icon16.png">
-    <itemlibraryentry name="Grid View" category="Qt - Views" icon=":/fxplugin/images/gridview-icon.png">
-      <property name="width" type="int" value="300"/>
-      <property name="height" type="int" value="300"/>
-    </itemlibraryentry>
-  </node>
-
-  <node name="Qt/ListView" icon=":/fxplugin/images/listview-icon16.png">
-    <itemlibraryentry name="List View" category="Qt - Views" icon=":/fxplugin/images/listview-icon.png">
+  <node name="Qt/GridView" icon=":/qtquickplugin/images/gridview-icon16.png">
+    <itemlibraryentry name="Grid View" category="Qt - Views" icon=":/qtquickplugin/images/gridview-icon.png">
       <property name="width" type="int" value="300"/>
       <property name="height" type="int" value="300"/>
     </itemlibraryentry>
   </node>
 
-  <node name="Qt/PathView" icon=":/fxplugin/images/pathview-icon16.png">
-    <itemlibraryentry name="Path View" category="Qt - Views" icon=":/fxplugin/images/pathview-icon.png">
+  <node name="Qt/ListView" icon=":/qtquickplugin/images/listview-icon16.png">
+    <itemlibraryentry name="List View" category="Qt - Views" icon=":/qtquickplugin/images/listview-icon.png">
       <property name="width" type="int" value="300"/>
       <property name="height" type="int" value="300"/>
     </itemlibraryentry>
   </node>
 
-  <node name="Qt/FocusScope" icon=":/fxplugin/images/focusscope-icon16.png">
+  <node name="Qt/PathView" icon=":/qtquickplugin/images/pathview-icon16.png">
+    <itemlibraryentry name="Path View" category="Qt - Views" icon=":/qtquickplugin/images/pathview-icon.png">
+      <property name="width" type="int" value="300"/>
+      <property name="height" type="int" value="300"/>
+    </itemlibraryentry>
+  </node>
+
+  <node name="Qt/FocusScope" icon=":/qtquickplugin/images/focusscope-icon16.png">
     <propertyDefaultValue name="width" type="int" defaultValue="100"/>
     <propertyDefaultValue name="height" type="int" defaultValue="100"/>
-    <itemlibraryentry name="Focus Scope" category="Qt - Interaction" icon=":/fxplugin/images/focusscope-icon.png">
+    <itemlibraryentry name="Focus Scope" category="Qt - Interaction" icon=":/qtquickplugin/images/focusscope-icon.png">
       <property name="width" type="int" value="100"/>
       <property name="height" type="int" value="100"/>
     </itemlibraryentry>
   </node>
 
-  <node name="QtWebKit/WebView" icon=":/fxplugin/images/webview-icon16.png">
+  <node name="QtWebKit/WebView" icon=":/qtquickplugin/images/webview-icon16.png">
     <propertyDefaultValue name="width" type="int" defaultValue="300"/>
     <propertyDefaultValue name="height" type="int" defaultValue="300"/>
-    <itemlibraryentry name="Web View" category="Qt - Widgets" icon=":/fxplugin/images/webview-icon.png">
+    <itemlibraryentry name="Web View" category="Qt - Widgets" icon=":/qtquickplugin/images/webview-icon.png">
       <property name="width" type="int" value="300"/>
       <property name="height" type="int" value="300"/>
       <property name="url" type="QString" value="http://qt.nokia.com"/>
