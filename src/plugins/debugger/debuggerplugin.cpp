@@ -2228,6 +2228,8 @@ void DebuggerPluginPrivate::setInitialState()
     theDebuggerAction(ExpandStack)->setEnabled(false);
     theDebuggerAction(ExecuteCommand)->setEnabled(m_state == InferiorStopOk);
 
+    m_scriptConsoleWindow->setEnabled(false);
+
     //emit m_plugin->stateChanged(m_state);
 }
 
@@ -2357,6 +2359,8 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         || m_state == DebuggerFinished
         || m_state == InferiorUnrunnable;
     setBusyCursor(!notbusy);
+
+    m_scriptConsoleWindow->setEnabled(stopped);
 }
 
 void DebuggerPluginPrivate::resetLocation()
