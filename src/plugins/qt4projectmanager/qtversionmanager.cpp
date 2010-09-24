@@ -594,7 +594,7 @@ QString QtVersion::toHtml() const
 {
     QString rc;
     QTextStream str(&rc);
-    str << "<html></head><body><table>";
+    str << "<html><body><table>";
     str << "<tr><td><b>" << QtVersionManager::tr("Name:")
         << "</b></td><td>" << displayName() << "</td></tr>";
     str << "<tr><td><b>" << QtVersionManager::tr("Source:")
@@ -622,7 +622,7 @@ QString QtVersion::toHtml() const
         for (QHash<QString,QString>::const_iterator it = vInfo.constBegin(); it != vcend; ++it)
             str << "<tr><td><pre>" << it.key() <<  "</pre></td><td>" << it.value() << "</td></tr>";
     }
-    str << "<table></body></html>";
+    str << "</table></body></html>";
     return rc;
 }
 
