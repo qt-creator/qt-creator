@@ -514,7 +514,7 @@ void GenericBuildSettingsWidget::init(BuildConfiguration *bc)
 
 void GenericBuildSettingsWidget::buildDirectoryChanged()
 {
-    m_buildConfiguration->setBuildDirectory(m_pathChooser->path());
+    m_buildConfiguration->setBuildDirectory(m_pathChooser->rawPath());
 }
 
 void GenericBuildSettingsWidget::toolChainSelected(int index)

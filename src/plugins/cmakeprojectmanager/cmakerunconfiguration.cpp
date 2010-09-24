@@ -435,7 +435,7 @@ void CMakeRunConfigurationWidget::setWorkingDirectory()
     if (m_ignoreChange)
         return;
     m_ignoreChange = true;
-    m_cmakeRunConfiguration->setUserWorkingDirectory(m_workingDirectoryEdit->path());
+    m_cmakeRunConfiguration->setUserWorkingDirectory(m_workingDirectoryEdit->rawPath());
     m_ignoreChange = false;
 }
 
@@ -449,7 +449,7 @@ void CMakeRunConfigurationWidget::resetWorkingDirectory()
 {
     // This emits a signal connected to workingDirectoryChanged()
     // that sets the m_workingDirectoryEdit
-    m_cmakeRunConfiguration->setUserWorkingDirectory("");
+    m_cmakeRunConfiguration->setUserWorkingDirectory(QString());
 }
 
 void CMakeRunConfigurationWidget::useCppDebuggerToggled(bool toggled)
