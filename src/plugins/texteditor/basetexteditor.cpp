@@ -5407,6 +5407,10 @@ void BaseTextEditor::insertFromMimeData(const QMimeData *source)
         QString text = QString::fromUtf8(source->data(QLatin1String("application/vnd.nokia.qtcreator.vblocktext")));
         if (text.isEmpty())
             return;
+
+        if (CompletionSupport::instance()->isActive())
+            setFocus();
+
         QStringList lines = text.split(QLatin1Char('\n'));
         QTextCursor cursor = textCursor();
         cursor.beginEditBlock();
@@ -5443,6 +5447,9 @@ void BaseTextEditor::insertFromMimeData(const QMimeData *source)
     QString text = source->text();
     if (text.isEmpty())
         return;
+
+    if (CompletionSupport::instance()->isActive())
+        setFocus();
 
     if (!text.contains(QLatin1Char('\n')) && !text.contains(QLatin1Char('\t')))
         setNextChangeIsSnippetSafe();
