@@ -82,7 +82,7 @@ QString AbstractMobileApp::symbianUidForPath(const QString &path)
         hash ^= c + ((c - i) << i % 20) + ((c + i) << (i + 5) % 20) + ((c - 2 * i) << (i + 10) % 20) + ((c + 2 * i) << (i + 15) % 20);
     }
     return QString::fromLatin1("0xE")
-            + QString::fromLatin1("%1").arg(hash, 7, 16, QLatin1Char('0')).right(7);
+            + QString::fromLatin1("%1").arg(hash, 7, 16, QLatin1Char('0')).right(7).toUpper();
 }
 
 void AbstractMobileApp::setOrientation(Orientation orientation)
