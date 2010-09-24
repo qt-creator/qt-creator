@@ -301,7 +301,8 @@ ObjectValue *Link::importFile(Document::Ptr, const ImportInfo &importInfo)
         }
     } else if (importInfo.type() == ImportInfo::FileImport) {
         Document::Ptr importedDoc = d->snapshot.document(path);
-        import = importedDoc->bind()->rootObjectValue();
+        if (importedDoc)
+            import = importedDoc->bind()->rootObjectValue();
     }
 
     return import;
