@@ -5342,7 +5342,7 @@
     On platforms featuring a Python-enabled version of the gdb debugger,
     the data extraction is done by a Python script. This is more robust
     as the script execution is separated from the debugged process. It
-    is also easier to extend as the script is less dependend on the
+    is also easier to extend as the script is less dependent on the
     actual Qt version and does not need compilation.
 
     To extend the shipped Python based debugging helpers for custom types,
