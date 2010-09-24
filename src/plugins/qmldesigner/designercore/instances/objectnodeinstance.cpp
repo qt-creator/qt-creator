@@ -651,7 +651,6 @@ ObjectNodeInstance::Pointer ObjectNodeInstance::create(const NodeMetaInfo &nodeM
 
 static void stopAnimation(QObject *object, QObjectList &inspectedObjectList)
 {
-#if 0
     if (object == 0)
         return;
 
@@ -674,10 +673,6 @@ static void stopAnimation(QObject *object, QObjectList &inspectedObjectList)
     }
 
     ObjectNodeInstance::removeAnimationsFromComponents(object, inspectedObjectList);
-#else
-    Q_UNUSED(object);
-    Q_UNUSED(inspectedObjectList);
-#endif
 }
 
 void ObjectNodeInstance::removeAnimationsFromComponents(QObject *object, QObjectList &inspectedObjectList)
