@@ -2002,7 +2002,7 @@ void DebuggerPluginPrivate::showToolTip(ITextEditor *editor, const QPoint &point
         return;
     if (!theDebuggerBoolSetting(UseToolTipsInMainEditor))
         return;
-    if (state() == DebuggerNotReady)
+    if (state() != InferiorStopOk)
         return;
 
     QList<QVariant> list;
@@ -2271,13 +2271,6 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         core->updateAdditionalContexts(m_interruptibleContext, Core::Context());
     }
 
-    const bool started = m_state == InferiorRunOk
-        || m_state == InferiorRunRequested
-        || m_state == InferiorStopRequested
-        || m_state == InferiorStopOk;
-
-    const bool starting = m_state == EngineSetupRequested;
-
     const bool canStartOrContinue = m_state == DebuggerNotReady
         || m_state == InferiorStopOk;
 
@@ -2286,10 +2279,11 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
 #ifdef Q_OS_WIN
     m_attachCoreAction->setEnabled(false);
 #else
-    m_attachCoreAction->setEnabled(!started && !starting);
+    m_attachCoreAction->setEnabled(true);
 #endif
-    m_startRemoteAction->setEnabled(!started && !starting);
+    m_startRemoteAction->setEnabled(true);
 
+    const bool stopped = m_state == InferiorStopOk;
     const bool detachable = m_state == InferiorStopOk
         && engine->startParameters().startMode != AttachCore;
     m_detachAction->setEnabled(detachable);
@@ -2297,9 +2291,6 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     const bool stoppable = m_state == InferiorRunOk
         || m_state == InferiorStopOk
         || m_state == InferiorUnrunnable;
-
-    const bool running = m_state == InferiorRunOk;
-    const bool stopped = m_state == InferiorStopOk;
 
     if (stopped)
         QApplication::alert(mainWindow(), 3000);
@@ -2310,11 +2301,12 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     m_actions.snapshotAction->
         setEnabled(stopped && (m_capabilities & SnapshotCapability));
 
-    theDebuggerAction(OperateByInstruction)->setEnabled(!running);
+    theDebuggerAction(OperateByInstruction)->setEnabled(m_state == InferiorStopOk);
 
     m_actions.stopAction->setEnabled(stopped);
     m_actions.interruptAction->setEnabled(stoppable);
-    m_actions.resetAction->setEnabled(m_state != DebuggerNotReady);
+    m_actions.resetAction->setEnabled(m_state != DebuggerNotReady
+                                      && m_state != DebuggerFinished);
 
 #if 1
     // This is only needed when we insist on using Shift-F5 for Interrupt.
