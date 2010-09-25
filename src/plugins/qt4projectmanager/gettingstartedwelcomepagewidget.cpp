@@ -459,7 +459,7 @@ void GettingStartedWelcomePageWidget::showFeature(int feature)
 {
     if (feature == -1) {
         srand(QDateTime::currentDateTime().toTime_t());
-        m_currentTip = rand()%m_featuredItems.count();
+        m_currentFeature = rand()%m_featuredItems.count();
     }
 
     RssItem item = m_featuredItems.at(m_currentFeature);
