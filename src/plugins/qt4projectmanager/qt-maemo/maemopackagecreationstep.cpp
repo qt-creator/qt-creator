@@ -230,8 +230,10 @@ bool MaemoPackageCreationStep::copyDebianFiles()
         ->debianDirPath(buildConfiguration()->target()->project());
     QDir templatesDir(templatesDirPath);
     const QStringList &files = templatesDir.entryList(QDir::Files);
-    const bool isHarmattanDevice
-        = maemoToolChain()->version() == MaemoToolChain::Maemo6;
+    const bool harmattanWorkaroundNeeded
+        = maemoToolChain()->version() == MaemoToolChain::Maemo6
+            && !qt4BuildConfiguration()->qt4Target()->qt4Project()
+                   ->applicationProFiles().isEmpty();
     foreach (const QString &fileName, files) {
         const QString srcFile
                 = templatesDirPath + QLatin1Char('/') + fileName;
@@ -245,7 +247,7 @@ bool MaemoPackageCreationStep::copyDebianFiles()
         }
 
         // Workaround for Harmattan icon bug
-        if (isHarmattanDevice && fileName == QLatin1String("rules"))
+        if (harmattanWorkaroundNeeded && fileName == QLatin1String("rules"))
             addWorkaroundForHarmattanBug(destFile);
     }
     return true;
@@ -549,20 +551,32 @@ void MaemoPackageCreationStep::addWorkaroundForHarmattanBug(const QString &rules
     const QByteArray lineBefore("Icon=" + projectName().toUtf8());
     const QByteArray lineAfter("Icon=/usr/share/icons/hicolor/64x64/apps/"
         + projectName().toUtf8() + ".png");
-    QString desktopFilePath = QFileInfo(rulesFile).dir().path()
+    QString desktopFileDir = QFileInfo(rulesFile).dir().path()
         + QLatin1Char('/') + projectName()
-        + QLatin1String("/usr/share/applications/") + projectName()
-        + QLatin1String(".desktop");
+        + QLatin1String("/usr/share/applications/");
 #ifdef Q_OS_WIN
-    desktopFilePath.remove(QLatin1Char(':'));
-    desktopFilePath.prepend(QLatin1Char('/'));
+    desktopFileDir.remove(QLatin1Char(':'));
+    desktopFileDir.prepend(QLatin1Char('/'));
 #endif
-    const QByteArray tmpFile = desktopFilePath.toUtf8() + ".sed";
-    const QByteArray sedCmd = "\tsed 's:" + lineBefore + ':'
-        + lineAfter + ":' " + desktopFilePath.toLocal8Bit() + " > " + tmpFile;
-    content.insert(makeInstallEol + 1, sedCmd);
-    content.insert(makeInstallEol + 1 + sedCmd.length() + 1, 
-        "\tmv " + tmpFile + ' ' + desktopFilePath.toUtf8());
+    const QList<Qt4ProFileNode *> &proFiles = qt4BuildConfiguration()
+        ->qt4Target()->qt4Project()->applicationProFiles();
+    int insertPos = makeInstallEol + 1;
+    foreach (const Qt4ProFileNode * const proFile, proFiles) {
+        const QString appName = proFile->targetInformation().target;
+        const QString desktopFilePath
+            = desktopFileDir +  appName + QLatin1String(".desktop");
+        const QString tmpFile
+            = desktopFileDir + appName + QLatin1String(".sed");
+        const QByteArray sedCmd = "\tsed 's:" + lineBefore + ':' + lineAfter
+            + ":' " + desktopFilePath.toLocal8Bit() + " > " + tmpFile.toUtf8()
+            + '\n';
+        const QByteArray mvCmd = "\tmv " + tmpFile.toUtf8() + ' '
+            + desktopFilePath.toUtf8() + '\n';
+        content.insert(insertPos, sedCmd);
+        insertPos += sedCmd.length();
+        content.insert(insertPos, mvCmd);
+        insertPos += mvCmd.length();
+    }
     rulesFile.resize(0);
     rulesFile.write(content);
 }
