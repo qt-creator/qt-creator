@@ -98,7 +98,7 @@ Q_SIGNALS:
     void clearComponentCacheRequested();
 
 protected:
-    virtual void enabledChanged(bool enabled);
+    virtual void statusChanged(Status status);
     virtual void messageReceived(const QByteArray &);
 
 private:

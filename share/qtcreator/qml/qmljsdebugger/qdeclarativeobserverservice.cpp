@@ -60,9 +60,9 @@ QDeclarativeObserverService *QDeclarativeObserverService::instance()
     return serviceInstance();
 }
 
-void QDeclarativeObserverService::enabledChanged(bool enabled)
+void QDeclarativeObserverService::statusChanged(Status status)
 {
-    emit debuggingClientChanged(enabled);
+    emit debuggingClientChanged((status == Enabled));
 }
 
 void QDeclarativeObserverService::messageReceived(const QByteArray &message)
