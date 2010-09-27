@@ -291,18 +291,13 @@ InsertionLocation InsertionPointLocator::methodDeclarationInClass(
     }
 }
 
+/// Currently, we return the end of fileName.cpp
 QList<InsertionLocation> InsertionPointLocator::methodDefinition(
-    const QString &fileName, DeclarationAST *prevDecl, DeclarationAST *nextDecl) const
+    const QString &/*fileName*/) const
 {
     QList<InsertionLocation> result;
 
-    // option 1: after the prevDecl
 
-    // option 2: before the nextDecl
-
-    // option 3: inline in fileName (if fileName is a .h file)
-
-    // option 4: at the end of fileName.cpp (if fileName is not a .cpp file)
 
     return result;
 }

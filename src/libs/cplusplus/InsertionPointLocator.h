@@ -95,9 +95,7 @@ public:
                                                const Class *clazz,
                                                AccessSpec xsSpec) const;
 
-    QList<InsertionLocation> methodDefinition(const QString &fileName,
-                                              CPlusPlus::DeclarationAST *prevDecl,
-                                              CPlusPlus::DeclarationAST *nextDecl) const;
+    QList<InsertionLocation> methodDefinition(const QString &fileName) const;
 
 private:
     Snapshot m_snapshot;
