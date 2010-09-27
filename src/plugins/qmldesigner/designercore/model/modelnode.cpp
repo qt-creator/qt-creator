@@ -160,6 +160,15 @@ QString ModelNode::validId()
     return id();
 }
 
+static bool idIsQmlKeyWord(const QString& id)
+{
+    QStringList keywords;
+    keywords << "import" << "property" << "signal"
+             << "as" << "on" << "list";
+
+    return keywords.contains(id);
+}
+
 static bool idContainsWrongLetter(const QString& id)
 {
     static QRegExp idExpr(QLatin1String("[a-z][a-zA-Z0-9_]*"));
@@ -168,7 +177,7 @@ static bool idContainsWrongLetter(const QString& id)
 
 bool ModelNode::isValidId(const QString &id)
 {
-    return id.isEmpty() || !idContainsWrongLetter(id);
+    return id.isEmpty() || (!idContainsWrongLetter(id) && !idIsQmlKeyWord(id));
 }
 
 void ModelNode::setId(const QString& id)
