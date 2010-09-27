@@ -2779,7 +2779,8 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
     } else if (!input.text().isEmpty()) {
         insertInInsertMode(input.text());
     } else {
-        return EventUnhandled;
+        // We don't want fancy stuff in insert mode.
+        return EventHandled;
     }
     updateMiniBuffer();
     return EventHandled;
@@ -3591,10 +3592,6 @@ void FakeVimHandler::Private::searchBalanced(bool forward, QChar needle, QChar o
             --level;
         if (level == 0) {
             const int oldLine = cursorLine() - cursorLineOnScreen();
-            QTextCursor tc = cursor();
-            tc.setPosition(pos, MoveAnchor);
-            tc.clearSelection();
-            setCursor(tc);
             // Making this unconditional feels better, but is not "vim like".
             if (oldLine != cursorLine() - cursorLineOnScreen())
                 scrollToLine(cursorLine() - linesOnScreen() / 2);
