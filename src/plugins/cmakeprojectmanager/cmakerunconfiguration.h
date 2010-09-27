@@ -73,9 +73,7 @@ public:
     QWidget *createConfigurationWidget();
 
     void setExecutable(const QString &executable);
-    void setWorkingDirectory(const QString &workingDirectory);
-
-    void setUserWorkingDirectory(const QString &workingDirectory);
+    void setBaseWorkingDirectory(const QString &workingDirectory);
 
     QString title() const;
 
@@ -93,10 +91,10 @@ public:
 signals:
     void baseEnvironmentChanged();
     void userEnvironmentChangesChanged(const QList<Utils::EnvironmentItem> &diff);
-    void workingDirectoryChanged(const QString&);
+    void baseWorkingDirectoryChanged(const QString&);
 
 private slots:
-    void setArguments(const QString &newText);
+    void setCommandLineArguments(const QString &newText);
 
 protected:
     CMakeRunConfiguration(CMakeTarget *parent, CMakeRunConfiguration *source);
@@ -104,6 +102,7 @@ protected:
     QString defaultDisplayName() const;
 
 private:
+    void setUserWorkingDirectory(const QString &workingDirectory);
     QString baseWorkingDirectory() const;
     QStringList baseCommandLineArguments() const;
     void ctor();

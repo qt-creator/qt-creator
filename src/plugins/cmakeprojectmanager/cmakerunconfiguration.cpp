@@ -163,7 +163,7 @@ void CMakeRunConfiguration::setExecutable(const QString &executable)
     m_buildTarget = executable;
 }
 
-void CMakeRunConfiguration::setWorkingDirectory(const QString &wd)
+void CMakeRunConfiguration::setBaseWorkingDirectory(const QString &wd)
 {
     const QString &oldWorkingDirectory = workingDirectory();
 
@@ -171,7 +171,7 @@ void CMakeRunConfiguration::setWorkingDirectory(const QString &wd)
 
     const QString &newWorkingDirectory = workingDirectory();
     if (oldWorkingDirectory != newWorkingDirectory)
-        emit workingDirectoryChanged(newWorkingDirectory);
+        emit baseWorkingDirectoryChanged(newWorkingDirectory);
 }
 
 void CMakeRunConfiguration::setUserWorkingDirectory(const QString &wd)
@@ -182,7 +182,7 @@ void CMakeRunConfiguration::setUserWorkingDirectory(const QString &wd)
 
     const QString &newWorkingDirectory = workingDirectory();
     if (oldWorkingDirectory != newWorkingDirectory)
-        emit workingDirectoryChanged(newWorkingDirectory);
+        emit baseWorkingDirectoryChanged(newWorkingDirectory);
 }
 
 QVariantMap CMakeRunConfiguration::toMap() const
@@ -227,7 +227,7 @@ QWidget *CMakeRunConfiguration::createConfigurationWidget()
     return new CMakeRunConfigurationWidget(this);
 }
 
-void CMakeRunConfiguration::setArguments(const QString &newText)
+void CMakeRunConfiguration::setCommandLineArguments(const QString &newText)
 {
     m_arguments = newText;
 }
@@ -509,7 +509,7 @@ void CMakeRunConfigurationWidget::userEnvironmentChangesChanged()
 
 void CMakeRunConfigurationWidget::setArguments(const QString &args)
 {
-    m_cmakeRunConfiguration->setArguments(args);
+    m_cmakeRunConfiguration->setCommandLineArguments(args);
 }
 
 // Factory

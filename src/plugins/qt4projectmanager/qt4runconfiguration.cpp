@@ -379,7 +379,7 @@ void Qt4RunConfigurationWidget::workDirectoryEdited()
     if (m_ignoreChange)
         return;
     m_ignoreChange = true;
-    m_qt4RunConfiguration->setWorkingDirectory(m_workingDirectoryEdit->rawPath());
+    m_qt4RunConfiguration->setBaseWorkingDirectory(m_workingDirectoryEdit->rawPath());
     m_ignoreChange = false;
 }
 
@@ -387,13 +387,13 @@ void Qt4RunConfigurationWidget::workingDirectoryReseted()
 {
     // This emits a signal connected to workingDirectoryChanged()
     // that sets the m_workingDirectoryEdit
-    m_qt4RunConfiguration->setWorkingDirectory("");
+    m_qt4RunConfiguration->setBaseWorkingDirectory("");
 }
 
 void Qt4RunConfigurationWidget::argumentsEdited(const QString &args)
 {
     m_ignoreChange = true;
-    m_qt4RunConfiguration->setArguments(args);
+    m_qt4RunConfiguration->setBaseCommandLineArguments(args);
     m_ignoreChange = false;
 }
 
@@ -610,23 +610,23 @@ void Qt4RunConfiguration::setUserEnvironmentChanges(const QList<Utils::Environme
     }
 }
 
-void Qt4RunConfiguration::setWorkingDirectory(const QString &wd)
+void Qt4RunConfiguration::setBaseWorkingDirectory(const QString &wd)
 {
     if (wd.isEmpty()) {
         m_userSetWokingDirectory = false;
         m_userWorkingDirectory.clear();
-        emit workingDirectoryChanged(workingDirectory());
+        emit baseWorkingDirectoryChanged(workingDirectory());
     } else {
         m_userSetWokingDirectory = true;
         m_userWorkingDirectory = wd;
-        emit workingDirectoryChanged(m_userWorkingDirectory);
+        emit baseWorkingDirectoryChanged(m_userWorkingDirectory);
     }
 }
 
-void Qt4RunConfiguration::setArguments(const QString &argumentsString)
+void Qt4RunConfiguration::setBaseCommandLineArguments(const QString &argumentsString)
 {
     m_commandLineArguments = Utils::Environment::parseCombinedArgString(argumentsString);
-    emit commandLineArgumentsChanged(argumentsString);
+    emit baseCommandLineArgumentsChanged(argumentsString);
 }
 
 void Qt4RunConfiguration::setRunMode(RunMode runMode)

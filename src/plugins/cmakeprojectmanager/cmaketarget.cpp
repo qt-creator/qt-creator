@@ -129,7 +129,7 @@ void CMakeTarget::updateRunConfigurations()
             // Already exists, so override the settings...
             foreach (CMakeRunConfiguration *rc, list) {
                 rc->setExecutable(ct.executable);
-                rc->setWorkingDirectory(ct.workingDirectory);
+                rc->setBaseWorkingDirectory(ct.workingDirectory);
                 rc->setEnabled(true);
             }
             existingRunConfigurations.remove(ct.title);

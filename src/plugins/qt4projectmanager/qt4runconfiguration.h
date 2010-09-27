@@ -97,8 +97,8 @@ public:
     ProjectExplorer::OutputFormatter *createOutputFormatter() const;
 
 signals:
-    void commandLineArgumentsChanged(const QString&);
-    void workingDirectoryChanged(const QString&);
+    void baseCommandLineArgumentsChanged(const QString&);
+    void baseWorkingDirectoryChanged(const QString&);
     void runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode runMode);
     void usingDyldImageSuffixChanged(bool);
     void baseEnvironmentChanged();
@@ -116,9 +116,9 @@ protected:
 
 private:
     void setRunMode(RunMode runMode);
-    void setWorkingDirectory(const QString &workingDirectory);
+    void setBaseWorkingDirectory(const QString &workingDirectory);
     QString baseWorkingDirectory() const;
-    void setArguments(const QString &argumentsString);
+    void setBaseCommandLineArguments(const QString &argumentsString);
     QStringList baseCommandLineArguments() const;
     enum BaseEnvironmentBase { CleanEnvironmentBase = 0,
                                SystemEnvironmentBase = 1,
