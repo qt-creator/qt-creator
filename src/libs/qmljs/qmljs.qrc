@@ -3,5 +3,6 @@
         <file>images/element.png</file>
         <file>images/property.png</file>
 	<file>images/publicmember.png</file>
+	<file>images/func.png</file>
     </qresource>
 </RCC>
