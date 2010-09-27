@@ -194,10 +194,11 @@ Symbol *SymbolTable::lookat(OperatorNameId::Kind operatorId) const
     const unsigned h = operatorId % _hashSize;
     Symbol *symbol = _hash[h];
     for (; symbol; symbol = symbol->_next) {
-        const Name *identity = symbol->unqualifiedName();
-        if (const OperatorNameId *op = identity->asOperatorNameId()) {
-            if (op->kind() == operatorId)
-                break;
+        if (const Name *identity = symbol->unqualifiedName()) {
+            if (const OperatorNameId *op = identity->asOperatorNameId()) {
+                if (op->kind() == operatorId)
+                    break;
+            }
         }
     }
     return symbol;
