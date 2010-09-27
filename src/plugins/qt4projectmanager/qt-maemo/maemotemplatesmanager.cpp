@@ -147,7 +147,10 @@ bool MaemoTemplatesManager::createDebianTemplatesIfNecessary(const ProjectExplor
     Q_ASSERT_X(qt4Target, Q_FUNC_INFO, "Target ID does not match actual type.");
     const MaemoToolChain * const tc
         = dynamic_cast<MaemoToolChain *>(qt4Target->activeBuildConfiguration()->toolChain());
-    Q_ASSERT_X(tc, Q_FUNC_INFO, "Maemo target has no Maemo toolchain.");
+    if (!tc) {
+        qDebug("Maemo target has no Maemo toolchain.");
+        return false;
+    }
     if (!MaemoPackageCreationStep::preparePackagingProcess(&dh_makeProc, tc,
         projectDir.path(), &error)) {
         raiseError(error);
