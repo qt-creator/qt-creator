@@ -156,6 +156,7 @@ public: // must be public to make Q_GADGET introspection work
         substatement_open, // The brace that opens a substatement block.
 
         return_statement, // After 'return'
+        throw_statement, // After 'throw'
 
         statement_with_condition, // After the 'for', 'while', 'catch', ... token
         statement_with_condition_paren_open, // While inside the (...)

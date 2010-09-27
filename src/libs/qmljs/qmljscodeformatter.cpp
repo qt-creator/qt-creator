@@ -643,6 +643,14 @@ bool CodeFormatter::tryStatement()
         enter(empty_statement);
         leave(true);
         return true;
+    case Break:
+    case Continue:
+        leave(true);
+        return true;
+    case Throw:
+        enter(throw_statement);
+        enter(expression);
+        return true;
     case Return:
         enter(return_statement);
         enter(expression);

@@ -50,6 +50,7 @@ private Q_SLOTS:
 //    void whitesmithsStyle();
     void expressionContinuation();
     void objectLiteral();
+    void keywordStatement();
 };
 
 struct Line {
@@ -891,6 +892,26 @@ void tst_QMLCodeFormatter::objectLiteral()
          << Line("    for (var i = 0; i < 10; ++i) {")
          << Line("        x[i] = { index: i }")
          << Line("    }")
+         << Line("}")
+         ;
+    checkIndent(data);
+}
+
+void tst_QMLCodeFormatter::keywordStatement()
+{
+    QList<Line> data;
+    data << Line("function shuffle() {")
+         << Line("    if (1)")
+         << Line("        break")
+         << Line("    if (1)")
+         << Line("        continue")
+         << Line("    if (1)")
+         << Line("        throw 1")
+         << Line("    if (1)")
+         << Line("        return")
+         << Line("    if (1)")
+         << Line("        return 1")
+         << Line("    var x = 2")
          << Line("}")
          ;
     checkIndent(data);
