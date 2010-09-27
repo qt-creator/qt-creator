@@ -262,7 +262,6 @@ void PluginManager::shutdown()
     d->shutdown();
 }
 
-
 /*!
     \fn QStringList PluginManager::pluginPaths() const
     The list of paths were the plugin manager searches for plugins.

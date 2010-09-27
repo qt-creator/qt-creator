@@ -93,7 +93,6 @@ public:
     // Plugin operations
     QList<PluginSpec *> loadQueue();
     void loadPlugins();
-    void shutdown();
     QStringList pluginPaths() const;
     void setPluginPaths(const QStringList &paths);
     QList<PluginSpec *> plugins() const;
@@ -130,6 +129,7 @@ signals:
 
 public slots:
     void remoteArguments(const QString &serializedArguments);
+    void shutdown();
 
 private slots:
     void startTests();

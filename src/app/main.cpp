@@ -317,11 +317,12 @@ int main(int argc, char **argv)
     }
     QObject::connect(&app, SIGNAL(fileOpenRequest(QString)), coreplugin->plugin(), SLOT(fileOpenRequest(QString)));
 
+    // shutdown plugin manager on the exit
+    QObject::connect(&app, SIGNAL(aboutToQuit()), &pluginManager, SLOT(shutdown()));
+
     // Do this after the event loop has started
     QTimer::singleShot(100, &pluginManager, SLOT(startTests()));
 
-    int ret = app.exec();
-    pluginManager.shutdown();
-    return ret;
+    return app.exec();
 }
 
