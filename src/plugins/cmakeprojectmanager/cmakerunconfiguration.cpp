@@ -431,7 +431,7 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     connect(m_environmentWidget, SIGNAL(userChangesChanged()),
             this, SLOT(userChangesChanged()));
 
-    connect(m_cmakeRunConfiguration, SIGNAL(workingDirectoryChanged(QString)),
+    connect(m_cmakeRunConfiguration, SIGNAL(baseWorkingDirectoryChanged(QString)),
             this, SLOT(workingDirectoryChanged(QString)));
     connect(m_cmakeRunConfiguration, SIGNAL(baseEnvironmentChanged()),
             this, SLOT(baseEnvironmentChanged()));
