@@ -465,10 +465,11 @@ void ContextPaneWidgetImage::setPixmap(const QString &fileName)
         if (QFile(fileName).exists()) {
             if (fileName.endsWith(QLatin1String("sci"))) {
                 QString pixmapFileName;
-                int left = -1;
-                int right = -1;
-                int top = -1;
-                int bottom = -1;
+                int left = 0;
+                int right = 0;
+                int top = 0;
+                int bottom = 0;
+
                 Qt::TileRule horizontalTileRule;
                 Qt::TileRule verticalTileRule;
                 if (parseSciFile(fileName, pixmapFileName, left, right, top, bottom, horizontalTileRule, verticalTileRule)) {
