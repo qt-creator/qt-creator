@@ -155,6 +155,7 @@ void MaemoRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
         SLOT(updateTargetInformation()));
     connect(m_runConfiguration->deployStep()->deployables(),
         SIGNAL(modelsCreated()), this, SLOT(handleDeploySpecsChanged()));
+    handleDeploySpecsChanged();
 }
 
 void MaemoRunConfigurationWidget::addDebuggingWidgets(QVBoxLayout *mainLayout)
