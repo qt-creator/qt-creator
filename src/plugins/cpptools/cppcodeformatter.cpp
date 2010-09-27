@@ -1282,7 +1282,7 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
     case T_COLON:
         // ### ok for constructor initializer lists - what about ? and bitfields?
         if (topState.type == expression && previousState.type == declaration_start) {
-            *paddingDepth = 4;
+            *paddingDepth = m_indentSize;
         } else if (topState.type == ternary_op) {
             *paddingDepth -= 2;
         }
