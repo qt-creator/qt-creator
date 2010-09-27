@@ -1,9 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <snippets>
-<snippet>for (int <tab>var</tab> = 0; <tab>var</tab> &lt; <tab>total</tab>; ++<tab>var</tab>) {
+<snippet>class <tab>name</tab>
+{
+public:
+    <tab>name</tab>() {}
+};
+</snippet>
+<snippet description="derived from QObject">class <tab>name</tab> : public QObject
+{
+    Q_OBJECT
+public:
+    <tab>name</tab>() {}
+    virtual ~<tab>name</tab>() {}
+};
+</snippet>
+<snippet description="derived from QWidget">class <tab>name</tab> : public QWidget
+{
+    Q_OBJECT
+public:
+    <tab>name</tab>() {}
+    virtual ~<tab>name</tab>() {}
+};
+</snippet>
+<snippet>do {
+
+} while (<tab>condition</tab>);
+</snippet>
+<snippet>else {
+
 }
 </snippet>
-<snippet>for (<tab>var</tab>; <tab>var</tab> &lt; <tab>total</tab>; ++<tab>var</tab>) {
+<snippet description="with if">else if (<tab>condition</tab>) {
+
+}
+</snippet>
+<snippet>for (int <tab>var</tab> = 0; <tab>var</tab> &lt; <tab>total</tab>; ++<tab>var</tab>) {
+
+}
+</snippet>
+<snippet>foreach (<tab>var</tab>, <tab>container</tab>) {
+
+}
+</snippet>
+<snippet>if (<tab>condition</tab>) {
+
+}
+</snippet>
+<snippet description="and else">if (<tab>condition</tab>) {
+
+} else {
+
+}
+</snippet>
+<snippet>namespace <tab>name</tab> {
+
+}
+</snippet>
+<snippet>template &lt;typename <tab>T</tab>&gt;
+class <tab>name</tab>
+{
+public:
+    <tab>name</tab>() {}
+};
+</snippet>
+<snippet>try {
+
+} catch (...) {
+
+}
+</snippet>
+<snippet>using namespace <tab>name</tab>;
+</snippet>
+<snippet>while (<tab>condition</tab>) {
+
 }
 </snippet>
 </snippets>
