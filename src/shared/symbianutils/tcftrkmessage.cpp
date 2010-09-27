@@ -383,14 +383,20 @@ TcfTrkEvent *TcfTrkEvent::parseEvent(Services s, const QByteArray &nameBA, const
             const QByteArray idBA = values.at(0).data();
             const quint64 pc = values.at(1).data().toULongLong();
             const QByteArray reasonBA = values.at(2).data();
+            QByteArray messageBA;
             // Module load: Special
             if (reasonBA == sharedLibrarySuspendReasonC) {
                 ModuleLoadEventInfo info;
                 if (!info.parse(values.at(3)))
                     return 0;
                 return new TcfTrkRunControlModuleLoadContextSuspendedEvent(idBA, reasonBA, pc, info);
+            } else {
+                // hash containing a 'message'-key with a verbose crash message.
+                if (values.at(3).type() == JsonValue::Object && values.at(3).childCount()
+                    && values.at(3).children().at(0).type() == JsonValue::String)
+                    messageBA = values.at(3).children().at(0).data();
             }
-            return new TcfTrkRunControlContextSuspendedEvent(idBA, reasonBA, pc);
+            return new TcfTrkRunControlContextSuspendedEvent(idBA, reasonBA, messageBA, pc);
         } // "contextSuspended"
         if (nameBA == "contextAdded")
             return TcfTrkRunControlContextAddedEvent::parseEvent(values);
@@ -505,8 +511,9 @@ QString TcfTrkRunControlContextRemovedEvent::toString() const
 // --------------- TcfTrkRunControlContextSuspendedEvent
 TcfTrkRunControlContextSuspendedEvent::TcfTrkRunControlContextSuspendedEvent(const QByteArray &id,
                                                                              const QByteArray &reason,
+                                                                             const QByteArray &message,
                                                                              quint64 pc) :
-        TcfTrkIdEvent(RunControlSuspended, id), m_pc(pc), m_reason(reason)
+        TcfTrkIdEvent(RunControlSuspended, id), m_pc(pc), m_reason(reason), m_message(message)
 {
 }
 
@@ -524,6 +531,8 @@ void TcfTrkRunControlContextSuspendedEvent::format(QTextStream &str) const
     str << "RunControl: '" << idString()  << "' suspended at 0x"
             << m_pc << ": '" << m_reason << "'.";
     str.setIntegerBase(10);
+    if (!m_message.isEmpty())
+        str << " (" <<m_message << ')';
 }
 
 QString TcfTrkRunControlContextSuspendedEvent::toString() const

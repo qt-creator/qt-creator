@@ -315,8 +315,9 @@ void TcfTrkGdbAdapter::tcftrkEvent(const TcfTrkEvent &e)
                 static_cast<const TcfTrkRunControlContextSuspendedEvent &>(e);
             const unsigned threadId = RunControlContext::threadIdFromTcdfId(se.id());
             const QString reason = QString::fromUtf8(se.reasonID());
-            showMessage(_("Reset snapshot (Thread 0x%1 stopped: '%2')").
-                        arg(threadId, 0, 16).arg(reason));
+            const QString message = QString::fromUtf8(se.message()).replace(QLatin1String("\n"), QLatin1String(", "));
+            showMessage(_("Thread %1 stopped: '%2': %3").
+                        arg(threadId).arg(reason, message), LogMisc);
             // Stopped in a new thread: Add.
             m_snapshot.reset();
             m_session.tid = threadId;
@@ -1037,6 +1038,7 @@ void TcfTrkGdbAdapter::setupInferior()
 
 void TcfTrkGdbAdapter::addThread(unsigned id)
 {
+    showMessage(QString::fromLatin1("Thread %1 reported").arg(id), LogMisc);
     // Make thread known, register as main if it is the first one.
     if (m_snapshot.indexOfThread(id) == -1) {
         m_snapshot.addThread(id);

@@ -262,12 +262,14 @@ public:
 
     explicit TcfTrkRunControlContextSuspendedEvent(const QByteArray &id,
                                                    const QByteArray &reason,
+                                                   const QByteArray &message,
                                                    quint64 pc = 0);
     virtual QString toString() const;
 
     quint64 pc() const { return m_pc; }
     QByteArray reasonID() const { return m_reason; }
     Reason reason() const;
+    QByteArray message() const { return m_message; }
 
 protected:
     explicit TcfTrkRunControlContextSuspendedEvent(Type t,
@@ -279,6 +281,7 @@ protected:
 private:
     const quint64 m_pc;
     const QByteArray m_reason;
+    const QByteArray m_message;
 };
 
 // RunControlContextSuspended due to module load

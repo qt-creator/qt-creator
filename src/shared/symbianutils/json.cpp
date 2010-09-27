@@ -88,6 +88,7 @@ QByteArray JsonValue::parseNumber(const char *&from, const char *to)
 QByteArray JsonValue::parseCString(const char *&from, const char *to)
 {
     QByteArray result;
+    const char * const fromSaved = from;
     JDEBUG("parseCString: " << QByteArray(from, to - from));
     if (*from != '"') {
         qDebug() << "JSON Parse Error, double quote expected";
@@ -105,7 +106,8 @@ QByteArray JsonValue::parseCString(const char *&from, const char *to)
         if (*ptr == '\\') {
             ++ptr;
             if (ptr == to) {
-                qDebug() << "JSON Parse Error, unterminated backslash escape";
+                qWarning("JSON Parse Error, unterminated backslash escape in '%s'",
+                         QByteArray(fromSaved, to - fromSaved).constData());
                 from = ptr; // So we don't hang
                 return QByteArray();
             }
@@ -130,8 +132,24 @@ QByteArray JsonValue::parseCString(const char *&from, const char *to)
                 case 'v': *dst++ = '\v'; break;
                 case '"': *dst++ = '"'; break;
                 case '\\': *dst++ = '\\'; break;
-                default:
-                    {
+                case 'u':  { // 4 digit hex escape as in '\u000a'
+                    if (end - src < 4) {
+                        qWarning("JSON Parse Error, too few hex digits in \\u-escape in '%s' obtained from '%s'",
+                                 result.constData(), QByteArray(fromSaved, to - fromSaved).constData());
+                        return QByteArray();
+                    }
+                    bool ok;
+                    const uchar prod = QByteArray(src, 4).toUInt(&ok, 16);
+                    if (!ok) {
+                        qWarning("JSON Parse Error, invalid hex digits in \\u-escape in '%s' obtained from '%s'",
+                                  result.constData(), QByteArray(fromSaved, to - fromSaved).constData());
+                         return QByteArray();
+                    }
+                    *dst++ = prod;
+                    src += 4;
+            }
+                    break;
+                default: { // Up to 3 decimal digits: Not sure if this is supported in JSON?
                         int chars = 0;
                         uchar prod = 0;
                         forever {
@@ -145,7 +163,8 @@ QByteArray JsonValue::parseCString(const char *&from, const char *to)
                             c = *src++;
                         }
                         if (!chars) {
-                            qDebug() << "JSON Parse Error, unrecognized backslash escape";
+                            qWarning("JSON Parse Error, unrecognized backslash escape in string '%s' obtained from '%s'",
+                                     result.constData(), QByteArray(fromSaved, to - fromSaved).constData());
                             return QByteArray();
                         }
                         *dst++ = prod;
