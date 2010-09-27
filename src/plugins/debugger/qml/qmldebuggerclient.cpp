@@ -37,7 +37,6 @@ namespace Internal {
 QmlDebuggerClient::QmlDebuggerClient(QmlJsDebugClient::QDeclarativeDebugConnection* client)
     : QDeclarativeDebugClient(QLatin1String("JSDebugger"), client)
 {
-    setEnabled(true);
 }
 
 QmlDebuggerClient::~QmlDebuggerClient()

@@ -63,14 +63,17 @@ class QDeclarativeDebugObjectReference;
 class QDeclarativeDebugFileReference;
 class QDeclarativeDebugEngineReference;
 class QDeclarativeEngineDebugPrivate;
-class QDeclarativeEngineDebug;
 
 class QDeclarativeEngineDebug : public QObject
 {
 Q_OBJECT
 public:
+    enum Status { NotConnected, Unavailable, Enabled };
+
     explicit QDeclarativeEngineDebug(QDeclarativeDebugConnection *, QObject * = 0);
     ~QDeclarativeEngineDebug();
+
+    Status status() const;
 
     QDeclarativeDebugPropertyWatch *addWatch(const QDeclarativeDebugPropertyReference &,
                             QObject *parent = 0);
@@ -100,15 +103,14 @@ public:
     bool resetBindingForObject(int objectDebugId, const QString &propertyName);
     bool setMethodBody(int objectDebugId, const QString &methodName, const QString &methodBody);
 
-signals:
+Q_SIGNALS:
     void newObjects();
+    void statusChanged(Status status);
 
 private:
     Q_DECLARE_PRIVATE(QDeclarativeEngineDebug)
-    Q_DISABLE_COPY(QDeclarativeEngineDebug)
     QScopedPointer<QDeclarativeEngineDebugPrivate> d_ptr;
 };
-
 
 class QDeclarativeDebugWatch : public QObject
 {
@@ -368,7 +370,6 @@ private:
     int m_queryId;
     QVariant m_expr;
     QVariant m_result;
-
 };
 
 }
@@ -378,6 +379,5 @@ Q_DECLARE_METATYPE(QmlJsDebugClient::QDeclarativeDebugObjectReference)
 Q_DECLARE_METATYPE(QmlJsDebugClient::QDeclarativeDebugContextReference)
 Q_DECLARE_METATYPE(QmlJsDebugClient::QDeclarativeDebugPropertyReference)
 
-QT_END_HEADER
 
 #endif // QDECLARATIVEDEBUG_H
