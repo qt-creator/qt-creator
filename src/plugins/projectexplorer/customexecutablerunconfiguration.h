@@ -124,6 +124,8 @@ private:
 
     void setExecutable(const QString &executable);
     void setCommandLineArguments(const QString &commandLineArguments);
+    QStringList baseCommandLineArguments() const;
+    QString baseWorkingDirectory() const;
     void setWorkingDirectory(const QString &workingDirectory);
     void setUserName(const QString &name);
     void setRunMode(RunMode runMode);

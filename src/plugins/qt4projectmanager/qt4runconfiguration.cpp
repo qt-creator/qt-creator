@@ -201,12 +201,12 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     toplayout->addRow(tr("Executable:"), m_executableLineEdit);
 
     QLabel *argumentsLabel = new QLabel(tr("Arguments:"), this);
-    m_argumentsLineEdit = new QLineEdit(Utils::Environment::joinArgumentList(qt4RunConfiguration->commandLineArguments()), this);
+    m_argumentsLineEdit = new QLineEdit(Utils::Environment::joinArgumentList(qt4RunConfiguration->baseCommandLineArguments()), this);
     argumentsLabel->setBuddy(m_argumentsLineEdit);
     toplayout->addRow(argumentsLabel, m_argumentsLineEdit);
 
     m_workingDirectoryEdit = new Utils::PathChooser(this);
-    m_workingDirectoryEdit->setPath(m_qt4RunConfiguration->workingDirectory());
+    m_workingDirectoryEdit->setPath(m_qt4RunConfiguration->baseWorkingDirectory());
     m_workingDirectoryEdit->setBaseDirectory(m_qt4RunConfiguration->target()->project()->projectDirectory());
     m_workingDirectoryEdit->setExpectedKind(Utils::PathChooser::Directory);
     m_workingDirectoryEdit->setEnvironment(m_qt4RunConfiguration->environment());
@@ -442,7 +442,7 @@ void Qt4RunConfigurationWidget::effectiveTargetInformationChanged()
     if (m_isShown) {
         m_executableLineEdit->setText(QDir::toNativeSeparators(m_qt4RunConfiguration->executable()));
         m_ignoreChange = true;
-        m_workingDirectoryEdit->setPath(QDir::toNativeSeparators(m_qt4RunConfiguration->workingDirectory()));
+        m_workingDirectoryEdit->setPath(QDir::toNativeSeparators(m_qt4RunConfiguration->baseWorkingDirectory()));
         m_ignoreChange = false;
     }
 }
@@ -525,6 +525,11 @@ void Qt4RunConfiguration::setUsingDyldImageSuffix(bool state)
 
 QString Qt4RunConfiguration::workingDirectory() const
 {
+    return environment().expandVariables(baseWorkingDirectory());
+}
+
+QString Qt4RunConfiguration::baseWorkingDirectory() const
+{
     // if the user overrode us, then return his working directory
     if (m_userSetWokingDirectory)
         return m_userWorkingDirectory;
@@ -535,6 +540,12 @@ QString Qt4RunConfiguration::workingDirectory() const
     if(!ti.valid)
         return QString();
     return ti.workingDir;
+}
+
+
+QStringList Qt4RunConfiguration::baseCommandLineArguments() const
+{
+    return environment().expandVariables(commandLineArguments());
 }
 
 QStringList Qt4RunConfiguration::commandLineArguments() const

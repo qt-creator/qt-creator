@@ -118,6 +118,8 @@ protected:
     virtual bool fromMap(const QVariantMap &map);
 
 private:
+    QString baseWorkingDirectory() const;
+    QStringList baseCommandLineArguments() const;
     enum BaseEnvironmentBase { CleanEnvironmentBase = 0,
                                SystemEnvironmentBase = 1,
                                BuildEnvironmentBase  = 2 };

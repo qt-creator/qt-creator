@@ -133,12 +133,22 @@ ProjectExplorer::LocalApplicationRunConfiguration::RunMode CMakeRunConfiguration
 
 QString CMakeRunConfiguration::workingDirectory() const
 {
+    return environment().expandVariables(baseWorkingDirectory());
+}
+
+QString CMakeRunConfiguration::baseWorkingDirectory() const
+{
     if (!m_userWorkingDirectory.isEmpty())
         return m_userWorkingDirectory;
     return m_workingDirectory;
 }
 
 QStringList CMakeRunConfiguration::commandLineArguments() const
+{
+    return environment().expandVariables(baseCommandLineArguments());
+}
+
+QStringList CMakeRunConfiguration::baseCommandLineArguments() const
 {
     return Utils::Environment::parseCombinedArgString(m_arguments);
 }
@@ -155,7 +165,7 @@ void CMakeRunConfiguration::setExecutable(const QString &executable)
 
 void CMakeRunConfiguration::setWorkingDirectory(const QString &wd)
 {
-    const QString & oldWorkingDirectory = workingDirectory();
+    const QString &oldWorkingDirectory = workingDirectory();
 
     m_workingDirectory = wd;
 
@@ -326,14 +336,14 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     fl->setMargin(0);
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     QLineEdit *argumentsLineEdit = new QLineEdit();
-    argumentsLineEdit->setText(Utils::Environment::joinArgumentList(cmakeRunConfiguration->commandLineArguments()));
+    argumentsLineEdit->setText(Utils::Environment::joinArgumentList(cmakeRunConfiguration->baseCommandLineArguments()));
     connect(argumentsLineEdit, SIGNAL(textChanged(QString)),
             this, SLOT(setArguments(QString)));
     fl->addRow(tr("Arguments:"), argumentsLineEdit);
 
     m_workingDirectoryEdit = new Utils::PathChooser();
     m_workingDirectoryEdit->setBaseDirectory(m_cmakeRunConfiguration->target()->project()->projectDirectory());
-    m_workingDirectoryEdit->setPath(m_cmakeRunConfiguration->workingDirectory());
+    m_workingDirectoryEdit->setPath(m_cmakeRunConfiguration->baseWorkingDirectory());
     m_workingDirectoryEdit->setExpectedKind(Utils::PathChooser::Directory);
     m_workingDirectoryEdit->setPromptDialogTitle(tr("Select Working Directory"));
 

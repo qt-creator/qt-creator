@@ -104,6 +104,8 @@ protected:
     QString defaultDisplayName() const;
 
 private:
+    QString baseWorkingDirectory() const;
+    QStringList baseCommandLineArguments() const;
     void ctor();
 
     enum BaseEnvironmentBase { CleanEnvironmentBase = 0,

@@ -148,9 +148,9 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
 
     sp.startMode = StartInternal;
     sp.environment = rc->environment().toStringList();
-    sp.workingDirectory = rc->environment().expandVariables(rc->workingDirectory());
-    sp.executable = rc->environment().searchInPath(rc->executable(), QStringList() << sp.workingDirectory);
-    sp.processArgs = rc->environment().expandVariables(rc->commandLineArguments());
+    sp.workingDirectory = rc->workingDirectory();
+    sp.executable = rc->executable();
+    sp.processArgs = rc->commandLineArguments();
     sp.toolChainType = rc->toolChainType();
     sp.useTerminal = rc->runMode() == LocalApplicationRunConfiguration::Console;
     sp.dumperLibrary = rc->dumperLibrary();

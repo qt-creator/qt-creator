@@ -281,8 +281,8 @@ void CustomExecutableConfigurationWidget::changed()
     if (m_ignoreChange)
         return;
     m_executableChooser->setPath(executable);
-    m_commandLineArgumentsLineEdit->setText(Utils::Environment::joinArgumentList(m_runConfiguration->commandLineArguments()));
-    m_workingDirectory->setPath(m_runConfiguration->workingDirectory());
+    m_commandLineArgumentsLineEdit->setText(Utils::Environment::joinArgumentList(m_runConfiguration->baseCommandLineArguments()));
+    m_workingDirectory->setPath(m_runConfiguration->baseWorkingDirectory());
     m_useTerminalCheck->setChecked(m_runConfiguration->runMode() == LocalApplicationRunConfiguration::Console);
 }
 
@@ -343,7 +343,7 @@ void CustomExecutableRunConfiguration::activeBuildConfigurationChanged()
 QString CustomExecutableRunConfiguration::executable() const
 {
     Utils::Environment env = environment();
-    QString exec = env.searchInPath(m_executable, QStringList() << env.expandVariables(workingDirectory()));
+    QString exec = env.searchInPath(m_executable, QStringList() << workingDirectory());
 
     if (exec.isEmpty() || !QFileInfo(exec).exists()) {
         // Oh the executable doesn't exists, ask the user.
@@ -396,10 +396,21 @@ LocalApplicationRunConfiguration::RunMode CustomExecutableRunConfiguration::runM
 
 QString CustomExecutableRunConfiguration::workingDirectory() const
 {
+    return environment().expandVariables(baseWorkingDirectory());
+}
+
+QString CustomExecutableRunConfiguration::baseWorkingDirectory() const
+{
     return m_workingDirectory;
 }
 
+
 QStringList CustomExecutableRunConfiguration::commandLineArguments() const
+{
+    return environment().expandVariables(baseCommandLineArguments());
+}
+
+QStringList CustomExecutableRunConfiguration::baseCommandLineArguments() const
 {
     return m_cmdArguments;
 }

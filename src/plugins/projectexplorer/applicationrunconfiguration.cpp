@@ -95,13 +95,13 @@ LocalApplicationRunControl::LocalApplicationRunControl(LocalApplicationRunConfig
     : RunControl(rc, mode)
 {
     Utils::Environment env = rc->environment();
-    QString dir = env.expandVariables(rc->workingDirectory());
+    QString dir = rc->workingDirectory();
     m_applicationLauncher.setEnvironment(env.toStringList());
     m_applicationLauncher.setWorkingDirectory(dir);
 
-    m_executable = env.searchInPath(rc->executable(), QStringList() << dir);
+    m_executable = rc->executable();
     m_runMode = static_cast<ApplicationLauncher::Mode>(rc->runMode());
-    m_commandLineArguments = env.expandVariables(rc->commandLineArguments());
+    m_commandLineArguments = rc->commandLineArguments();
 
     connect(&m_applicationLauncher, SIGNAL(appendMessage(QString,bool)),
             this, SLOT(slotAppendMessage(QString,bool)));
