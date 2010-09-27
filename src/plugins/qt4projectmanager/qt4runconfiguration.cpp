@@ -302,10 +302,10 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     connect(m_environmentWidget, SIGNAL(userChangesChanged()),
             this, SLOT(userChangesEdited()));
 
-    connect(qt4RunConfiguration, SIGNAL(workingDirectoryChanged(QString)),
+    connect(qt4RunConfiguration, SIGNAL(baseWorkingDirectoryChanged(QString)),
             this, SLOT(workingDirectoryChanged(QString)));
 
-    connect(qt4RunConfiguration, SIGNAL(commandLineArgumentsChanged(QString)),
+    connect(qt4RunConfiguration, SIGNAL(baseCommandLineArgumentsChanged(QString)),
             this, SLOT(commandLineArgumentsChanged(QString)));
     connect(qt4RunConfiguration, SIGNAL(runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode)),
             this, SLOT(runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode)));
