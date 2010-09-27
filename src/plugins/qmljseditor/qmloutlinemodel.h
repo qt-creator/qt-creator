@@ -89,6 +89,9 @@ private:
     QModelIndex enterPublicMember(QmlJS::AST::UiPublicMember *publicMember);
     void leavePublicMember();
 
+    QModelIndex enterFunctionDeclaration(QmlJS::AST::FunctionDeclaration *functionDeclaration);
+    void leaveFunctionDeclaration();
+
 private:
     QmlOutlineItem *enterNode(QMap<int, QVariant> data, QmlJS::AST::Node *node, QmlJS::AST::UiQualifiedId *idNode, const QIcon &icon);
     void leaveNode();
@@ -102,6 +105,7 @@ private:
 
     static QString asString(QmlJS::AST::UiQualifiedId *id);
     static QmlJS::AST::SourceLocation getLocation(QmlJS::AST::UiObjectMember *objMember);
+    static QmlJS::AST::SourceLocation getLocation(QmlJS::AST::ExpressionNode *exprNode);
     QIcon getIcon(QmlJS::AST::UiQualifiedId *objDef);
 
     QString getAnnotation(QmlJS::AST::UiObjectInitializer *objInitializer);

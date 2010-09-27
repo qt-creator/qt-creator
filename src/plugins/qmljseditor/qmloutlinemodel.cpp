@@ -223,6 +223,19 @@ private:
         m_model->leavePublicMember();
     }
 
+    bool visit(AST::FunctionDeclaration *functionDeclaration)
+    {
+        QModelIndex index = m_model->enterFunctionDeclaration(functionDeclaration);
+        m_nodeToIndex.insert(functionDeclaration, index);
+
+        return true;
+    }
+
+    void endVisit(AST::FunctionDeclaration * /*functionDeclaration*/)
+    {
+        m_model->leaveFunctionDeclaration();
+    }
+
     QmlOutlineModel *m_model;
 
     QHash<AST::Node*, QModelIndex> m_nodeToIndex;
@@ -474,6 +487,23 @@ void QmlOutlineModel::leavePublicMember()
     leaveNode();
 }
 
+QModelIndex QmlOutlineModel::enterFunctionDeclaration(AST::FunctionDeclaration *functionDeclaration)
+{
+    QMap<int, QVariant> objectData;
+
+    objectData.insert(Qt::DisplayRole, functionDeclaration->name->asString());
+    objectData.insert(ItemTypeRole, ElementBindingType);
+
+    QmlOutlineItem *item = enterNode(objectData, functionDeclaration, 0, m_icons->functionDeclarationIcon());
+
+    return item->index();
+}
+
+void QmlOutlineModel::leaveFunctionDeclaration()
+{
+    leaveNode();
+}
+
 AST::Node *QmlOutlineModel::nodeForIndex(const QModelIndex &index) const
 {
     QTC_ASSERT(index.isValid() && (index.model() == this), return 0);
@@ -491,8 +521,11 @@ AST::SourceLocation QmlOutlineModel::sourceLocation(const QModelIndex &index) co
     QTC_ASSERT(index.isValid() && (index.model() == this), return location);
     AST::Node *node = nodeForIndex(index);
     if (node) {
-        if (AST::UiObjectMember *member = node->uiObjectMemberCast())
+        if (AST::UiObjectMember *member = node->uiObjectMemberCast()) {
             location = getLocation(member);
+        } else if (AST::ExpressionNode *expression = node->expressionCast()) {
+            location = getLocation(expression);
+        }
     }
     return location;
 }
@@ -752,6 +785,15 @@ AST::SourceLocation QmlOutlineModel::getLocation(AST::UiObjectMember *objMember)
     location.length = objMember->lastSourceLocation().offset
             - objMember->firstSourceLocation().offset
             + objMember->lastSourceLocation().length;
+    return location;
+}
+
+AST::SourceLocation QmlOutlineModel::getLocation(AST::ExpressionNode *exprNode) {
+    AST::SourceLocation location;
+    location.offset = exprNode->firstSourceLocation().offset;
+    location.length = exprNode->lastSourceLocation().offset
+            - exprNode->firstSourceLocation().offset
+            + exprNode->lastSourceLocation().length;
     return location;
 }
 

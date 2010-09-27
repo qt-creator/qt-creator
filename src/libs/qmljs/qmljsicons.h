@@ -53,6 +53,7 @@ public:
     QIcon objectDefinitionIcon() const;
     QIcon scriptBindingIcon() const;
     QIcon publicMemberIcon() const;
+    QIcon functionDeclarationIcon() const;
 
 private:
     Icons();
