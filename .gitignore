@@ -76,15 +76,21 @@ bin/qtcreator
 bin/qtcreator_process_stub*
 bin/qtcreator.exe
 share/doc/qtcreator/qtcreator.qch
+src/tools/gen-cpp-ast/generate-ast
+src/tools/mkvisitor/cplusplus0
+src/tools/qml/qmldump/qmldump
+
+# Tests
+#------
 tests/manual/cplusplus-frontend/cplusplus0
 tests/manual/cplusplus-dump/cplusplus0
 tests/manual/qml-ast2dot/qml-ast2dot
+tests/manual/gdbdebugger/simple/libsimple_gdbtest_plugin.*dylib
+tests/manual/plain-cplusplus/plain-c++
+tests/manual/preprocessor/pp
 tests/auto/cplusplus/codegen/tst_codegen
 tests/auto/qml/qmldesigner/bauhaustests/tst_bauhaus
 tests/auto/qml/qmldesigner/coretests/tst_qmldesigner_core
 tests/auto/qml/qmldesigner/propertyeditortests/tst_propertyeditor
 tests/auto/profilewriter/tst_profilewriter
-tests/manual/gdbdebugger/simple/libsimple_gdbtest_plugin.*dylib
-src/tools/gen-cpp-ast/generate-ast
-src/tools/mkvisitor/cplusplus0
-src/tools/qml/qmldump/qmldump
+
