@@ -415,7 +415,27 @@ int testCatchThrow()
     return gotit;
 }
 
-QDateTime testQDateTime()
+void testQDate()
+{
+    QDate date;
+    date = QDate::currentDate();
+    date = date.addDays(5);
+    date = date.addDays(5);
+    date = date.addDays(5);
+    date = date.addDays(5);
+}
+
+void testQTime()
+{
+    QTime time;
+    time = QTime::currentTime();
+    time = time.addSecs(5);
+    time = time.addSecs(5);
+    time = time.addSecs(5);
+    time = time.addSecs(5);
+}
+
+void testQDateTime()
 {
     QDateTime date;
     date = QDateTime::currentDateTime();
@@ -423,7 +443,6 @@ QDateTime testQDateTime()
     date = date.addSecs(5);
     date = date.addSecs(5);
     date = date.addSecs(5);
-    return date;
 }
 
 QFileInfo testQFileInfo()
@@ -1980,7 +1999,9 @@ int main(int argc, char *argv[])
     testQStack();
     testUninitialized();
     testPointer();
+    testQDate();
     testQDateTime();
+    testQTime();
     testQFileInfo();
     testObject1();
     testVector1();
