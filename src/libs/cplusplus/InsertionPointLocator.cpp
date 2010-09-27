@@ -206,19 +206,23 @@ protected:
             if (AccessDeclarationAST *xsDecl = decl->asAccessDeclaration()) {
                 const unsigned token = xsDecl->access_specifier_token;
                 int newXsSpec = initialXs;
-                bool isSlot = xsDecl->slots_token && tokenKind(xsDecl->slots_token) == T_Q_SLOTS;
+                bool isSlot = xsDecl->slots_token
+                        && tokenKind(xsDecl->slots_token) == T_Q_SLOTS;
 
                 switch (tokenKind(token)) {
                 case T_PUBLIC:
-                    newXsSpec = isSlot ? InsertionPointLocator::PublicSlot : InsertionPointLocator::Public;
+                    newXsSpec = isSlot ? InsertionPointLocator::PublicSlot
+                                       : InsertionPointLocator::Public;
                     break;
 
                 case T_PROTECTED:
-                    newXsSpec = isSlot ? InsertionPointLocator::ProtectedSlot : InsertionPointLocator::Protected;
+                    newXsSpec = isSlot ? InsertionPointLocator::ProtectedSlot
+                                       : InsertionPointLocator::Protected;
                     break;
 
                 case T_PRIVATE:
-                    newXsSpec = isSlot ? InsertionPointLocator::PrivateSlot: InsertionPointLocator::Private;
+                    newXsSpec = isSlot ? InsertionPointLocator::PrivateSlot
+                                       : InsertionPointLocator::Private;
                     break;
 
                 case T_Q_SIGNALS:
@@ -268,13 +272,37 @@ InsertionLocation::InsertionLocation(const QString &prefix, const QString &suffi
     , m_column(column)
 {}
 
-InsertionPointLocator::InsertionPointLocator(const Document::Ptr &doc)
-    : m_doc(doc)
+InsertionPointLocator::InsertionPointLocator(const Snapshot &snapshot)
+    : m_snapshot(snapshot)
 {
 }
 
-InsertionLocation InsertionPointLocator::methodDeclarationInClass(const Class *clazz, AccessSpec xsSpec) const
+InsertionLocation InsertionPointLocator::methodDeclarationInClass(
+    const QString &fileName,
+    const Class *clazz,
+    AccessSpec xsSpec) const
 {
-    FindInClass find(m_doc, clazz, xsSpec);
-    return find();
+    const Document::Ptr doc = m_snapshot.document(fileName);
+    if (doc) {
+        FindInClass find(doc, clazz, xsSpec);
+        return find();
+    } else {
+        return InsertionLocation();
+    }
+}
+
+QList<InsertionLocation> InsertionPointLocator::methodDefinition(
+    const QString &fileName, DeclarationAST *prevDecl, DeclarationAST *nextDecl) const
+{
+    QList<InsertionLocation> result;
+
+    // option 1: after the prevDecl
+
+    // option 2: before the nextDecl
+
+    // option 3: inline in fileName (if fileName is a .h file)
+
+    // option 4: at the end of fileName.cpp (if fileName is not a .cpp file)
+
+    return result;
 }

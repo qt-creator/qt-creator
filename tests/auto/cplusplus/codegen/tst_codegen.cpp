@@ -54,14 +54,17 @@ void tst_Codegen::public_in_empty_class()
     QCOMPARE(doc->diagnosticMessages().size(), 0);
     QCOMPARE(doc->globalSymbolCount(), 1U);
 
-    Class *mainWindow = doc->globalSymbolAt(0)->asClass();
-    QVERIFY(mainWindow);
-    QCOMPARE(mainWindow->line(), 1U);
-    QCOMPARE(mainWindow->column(), 7U);
+    Class *foo = doc->globalSymbolAt(0)->asClass();
+    QVERIFY(foo);
+    QCOMPARE(foo->line(), 1U);
+    QCOMPARE(foo->column(), 7U);
 
-    InsertionPointLocator find(doc);
+    Snapshot snapshot;
+    snapshot.insert(doc);
+    InsertionPointLocator find(snapshot);
     InsertionLocation loc = find.methodDeclarationInClass(
-                mainWindow,
+                doc->fileName(),
+                foo,
                 InsertionPointLocator::Public);
     QVERIFY(loc.isValid());
     QCOMPARE(loc.prefix(), QLatin1String("public:\n"));
@@ -90,14 +93,17 @@ void tst_Codegen::public_in_nonempty_class()
     QCOMPARE(doc->diagnosticMessages().size(), 0);
     QCOMPARE(doc->globalSymbolCount(), 1U);
 
-    Class *mainWindow = doc->globalSymbolAt(0)->asClass();
-    QVERIFY(mainWindow);
-    QCOMPARE(mainWindow->line(), 1U);
-    QCOMPARE(mainWindow->column(), 7U);
+    Class *foo = doc->globalSymbolAt(0)->asClass();
+    QVERIFY(foo);
+    QCOMPARE(foo->line(), 1U);
+    QCOMPARE(foo->column(), 7U);
 
-    InsertionPointLocator find(doc);
+    Snapshot snapshot;
+    snapshot.insert(doc);
+    InsertionPointLocator find(snapshot);
     InsertionLocation loc = find.methodDeclarationInClass(
-                mainWindow,
+                doc->fileName(),
+                foo,
                 InsertionPointLocator::Public);
     QVERIFY(loc.isValid());
     QVERIFY(loc.prefix().isEmpty());
@@ -126,14 +132,17 @@ void tst_Codegen::public_before_protected()
     QCOMPARE(doc->diagnosticMessages().size(), 0);
     QCOMPARE(doc->globalSymbolCount(), 1U);
 
-    Class *mainWindow = doc->globalSymbolAt(0)->asClass();
-    QVERIFY(mainWindow);
-    QCOMPARE(mainWindow->line(), 1U);
-    QCOMPARE(mainWindow->column(), 7U);
+    Class *foo = doc->globalSymbolAt(0)->asClass();
+    QVERIFY(foo);
+    QCOMPARE(foo->line(), 1U);
+    QCOMPARE(foo->column(), 7U);
 
-    InsertionPointLocator find(doc);
+    Snapshot snapshot;
+    snapshot.insert(doc);
+    InsertionPointLocator find(snapshot);
     InsertionLocation loc = find.methodDeclarationInClass(
-                mainWindow,
+                doc->fileName(),
+                foo,
                 InsertionPointLocator::Public);
     QVERIFY(loc.isValid());
     QCOMPARE(loc.prefix(), QLatin1String("public:\n"));
@@ -163,14 +172,17 @@ void tst_Codegen::private_after_protected()
     QCOMPARE(doc->diagnosticMessages().size(), 0);
     QCOMPARE(doc->globalSymbolCount(), 1U);
 
-    Class *mainWindow = doc->globalSymbolAt(0)->asClass();
-    QVERIFY(mainWindow);
-    QCOMPARE(mainWindow->line(), 1U);
-    QCOMPARE(mainWindow->column(), 7U);
+    Class *foo = doc->globalSymbolAt(0)->asClass();
+    QVERIFY(foo);
+    QCOMPARE(foo->line(), 1U);
+    QCOMPARE(foo->column(), 7U);
 
-    InsertionPointLocator find(doc);
+    Snapshot snapshot;
+    snapshot.insert(doc);
+    InsertionPointLocator find(snapshot);
     InsertionLocation loc = find.methodDeclarationInClass(
-                mainWindow,
+                doc->fileName(),
+                foo,
                 InsertionPointLocator::Private);
     QVERIFY(loc.isValid());
     QCOMPARE(loc.prefix(), QLatin1String("private:\n"));
@@ -200,14 +212,17 @@ void tst_Codegen::protected_in_nonempty_class()
     QCOMPARE(doc->diagnosticMessages().size(), 0);
     QCOMPARE(doc->globalSymbolCount(), 1U);
 
-    Class *mainWindow = doc->globalSymbolAt(0)->asClass();
-    QVERIFY(mainWindow);
-    QCOMPARE(mainWindow->line(), 1U);
-    QCOMPARE(mainWindow->column(), 7U);
+    Class *foo = doc->globalSymbolAt(0)->asClass();
+    QVERIFY(foo);
+    QCOMPARE(foo->line(), 1U);
+    QCOMPARE(foo->column(), 7U);
 
-    InsertionPointLocator find(doc);
+    Snapshot snapshot;
+    snapshot.insert(doc);
+    InsertionPointLocator find(snapshot);
     InsertionLocation loc = find.methodDeclarationInClass(
-                mainWindow,
+                doc->fileName(),
+                foo,
                 InsertionPointLocator::Protected);
     QVERIFY(loc.isValid());
     QCOMPARE(loc.prefix(), QLatin1String("protected:\n"));
@@ -237,14 +252,17 @@ void tst_Codegen::protected_betwee_public_and_private()
     QCOMPARE(doc->diagnosticMessages().size(), 0);
     QCOMPARE(doc->globalSymbolCount(), 1U);
 
-    Class *mainWindow = doc->globalSymbolAt(0)->asClass();
-    QVERIFY(mainWindow);
-    QCOMPARE(mainWindow->line(), 1U);
-    QCOMPARE(mainWindow->column(), 7U);
+    Class *foo = doc->globalSymbolAt(0)->asClass();
+    QVERIFY(foo);
+    QCOMPARE(foo->line(), 1U);
+    QCOMPARE(foo->column(), 7U);
 
-    InsertionPointLocator find(doc);
+    Snapshot snapshot;
+    snapshot.insert(doc);
+    InsertionPointLocator find(snapshot);
     InsertionLocation loc = find.methodDeclarationInClass(
-                mainWindow,
+                doc->fileName(),
+                foo,
                 InsertionPointLocator::Protected);
     QVERIFY(loc.isValid());
     QCOMPARE(loc.prefix(), QLatin1String("protected:\n"));
@@ -294,14 +312,17 @@ void tst_Codegen::qtdesigner_integration()
     QCOMPARE(doc->diagnosticMessages().size(), 0);
     QCOMPARE(doc->globalSymbolCount(), 2U);
 
-    Class *mainWindow = doc->globalSymbolAt(1)->asClass();
-    QVERIFY(mainWindow);
-    QCOMPARE(mainWindow->line(), 10U);
-    QCOMPARE(mainWindow->column(), 7U);
+    Class *foo = doc->globalSymbolAt(1)->asClass();
+    QVERIFY(foo);
+    QCOMPARE(foo->line(), 10U);
+    QCOMPARE(foo->column(), 7U);
 
-    InsertionPointLocator find(doc);
+    Snapshot snapshot;
+    snapshot.insert(doc);
+    InsertionPointLocator find(snapshot);
     InsertionLocation loc = find.methodDeclarationInClass(
-                mainWindow,
+                doc->fileName(),
+                foo,
                 InsertionPointLocator::PrivateSlot);
     QVERIFY(loc.isValid());
     QCOMPARE(loc.prefix(), QLatin1String("private slots:\n"));
