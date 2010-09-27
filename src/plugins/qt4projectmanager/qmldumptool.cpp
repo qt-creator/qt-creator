@@ -55,9 +55,8 @@ bool QmlDumpTool::canBuild(const QString &installHeadersDir)
     return QFile::exists(qDeclHeader);
 }
 
-QString QmlDumpTool::qmlDumpToolForProject(ProjectExplorer::Project *project)
+QString QmlDumpTool::toolForProject(ProjectExplorer::Project *project)
 {
-    qDebug() << "current project:" << project;
     if (project->id() == Qt4ProjectManager::Constants::QT4PROJECT_ID) {
         Qt4Project *qt4Project = static_cast<Qt4Project*>(project);
         if (qt4Project && qt4Project->activeTarget()
@@ -65,16 +64,15 @@ QString QmlDumpTool::qmlDumpToolForProject(ProjectExplorer::Project *project)
             QtVersion *version = qt4Project->activeTarget()->activeBuildConfiguration()->qtVersion();
             if (version->isValid()) {
                 QString qtInstallData = version->versionInfo().value("QT_INSTALL_DATA");
-                QString toolByInstallData = qmlDumpToolByInstallData(qtInstallData);
-                qDebug () << toolByInstallData;
-                return toolByInstallData;
+                QString toolPath = toolByInstallData(qtInstallData);
+                return toolPath;
             }
         }
     }
     return QString();
 }
 
-QString QmlDumpTool::qmlDumpToolByInstallData(const QString &qtInstallData)
+QString QmlDumpTool::toolByInstallData(const QString &qtInstallData)
 {
     if (!Core::ICore::instance())
         return QString();
@@ -123,8 +121,8 @@ QString QmlDumpTool::copy(const QString &qtInstallData, QString *errorMessage)
             errorMessage->clear();
             return directory;
         }
-    *errorMessage = QCoreApplication::tr("ProjectExplorer::QmlDumpTool",
-                                         "The debugger helpers could not be built in any of the directories:\n- %1\n\nReason: %2")
+    *errorMessage = QCoreApplication::translate("ProjectExplorer::QmlDumpTool",
+                                                "qmldump could not be built in any of the directories:\n- %1\n\nReason: %2")
                     .arg(directories.join(QLatin1String("\n- ")), *errorMessage);
     return QString();
 }

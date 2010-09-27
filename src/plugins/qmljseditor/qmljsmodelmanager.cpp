@@ -42,7 +42,6 @@
 #include <texteditor/itexteditor.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
-#include <qt4projectmanager/qmldumptool.h>
 
 #include <QDir>
 #include <QFile>
@@ -474,25 +473,13 @@ void ModelManager::onLoadPluginTypes(const QString &libraryPath, const QString &
     if (m_runningQmldumps.values().contains(canonicalLibraryPath))
         return;
 
-    // TODO shouldn't be static - instead, if project changes, qmldump should probably change too.
-    static QString qmldumpPath;
-    if (qmldumpPath.isNull()) {
+    ProjectExplorer::Project *activeProject = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
+    if (!activeProject)
+        return;
 
-        ProjectExplorer::Project *activeProject = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
-        qmldumpPath = Qt4ProjectManager::QmlDumpTool::qmlDumpToolForProject(activeProject);
-        // ### no support for .qmlproject projects or cmake projects.
+    ProjectInfo info = projectInfo(activeProject);
 
-        QFileInfo qmldumpFileInfo(qmldumpPath);
-        if (!qmldumpFileInfo.exists()) {
-            qWarning() << "ModelManager::loadQmlPluginTypes: qmldump executable does not exist at" << qmldumpPath;
-            qmldumpPath.clear();
-        } else if (!qmldumpFileInfo.isFile()) {
-            qWarning() << "ModelManager::loadQmlPluginTypes: " << qmldumpPath << " is not a file";
-            qmldumpPath.clear();
-        }
-
-    }
-    if (qmldumpPath.isEmpty())
+    if (info.qmlDumpPath.isEmpty())
         return;
 
     QProcess *process = new QProcess(this);
@@ -501,7 +488,7 @@ void ModelManager::onLoadPluginTypes(const QString &libraryPath, const QString &
     QStringList args;
     args << importPath;
     args << importUri;
-    process->start(qmldumpPath, args);
+    process->start(info.qmlDumpPath, args);
     m_runningQmldumps.insert(process, canonicalLibraryPath);
 }
 

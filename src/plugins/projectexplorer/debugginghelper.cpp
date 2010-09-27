@@ -110,7 +110,8 @@ QString DebuggingHelperLibrary::copy(const QString &qtInstallData,
             errorMessage->clear();
             return directory;
         }
-    *errorMessage = QCoreApplication::translate("ProjectExplorer::DebuggingHelperLibrary", "The debugger helpers could not be built in any of the directories:\n- %1\n\nReason: %2")
+    *errorMessage = QCoreApplication::translate("ProjectExplorer::DebuggingHelperLibrary",
+                                                "The debugger helpers could not be built in any of the directories:\n- %1\n\nReason: %2")
                     .arg(directories.join(QLatin1String("\n- ")), *errorMessage);
     return QString();
 }

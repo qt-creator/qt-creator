@@ -70,10 +70,9 @@ DebuggingHelperBuildTask::~DebuggingHelperBuildTask()
 
 void DebuggingHelperBuildTask::run(QFutureInterface<void> &future)
 {
-    future.setProgressRange(0, 4);
+    future.setProgressRange(0, 5);
     future.setProgressValue(1);
-    const QString output = m_version->buildDebuggingHelperLibrary();
-    future.setProgressValue(1);
+    const QString output = m_version->buildDebuggingHelperLibrary(future);
     emit finished(m_version->displayName(), output);
     deleteLater();
 }
@@ -145,8 +144,10 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
     : QWidget(parent)
     , m_debuggingHelperOkPixmap(QLatin1String(":/extensionsystem/images/ok.png"))
     , m_debuggingHelperErrorPixmap(QLatin1String(":/extensionsystem/images/error.png"))
+    , m_debuggingHelperIntermediatePixmap(QLatin1String(":/extensionsystem/images/notloaded.png"))
     , m_debuggingHelperOkIcon(m_debuggingHelperOkPixmap)
     , m_debuggingHelperErrorIcon(m_debuggingHelperErrorPixmap)
+    , m_debuggingHelperIntermediateIcon(m_debuggingHelperIntermediatePixmap)
     , m_specifyNameString(tr("<specify a name>"))
     , m_specifyPathString(tr("<specify a qmake location>"))
     , m_ui(new Internal::Ui::QtVersionManager())
@@ -190,7 +191,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
         item->setData(0, Qt::UserRole, version->uniqueId());
 
         if (version->isValid() && version->supportsBinaryDebuggingHelper())
-            item->setData(2, Qt::DecorationRole, version->hasDebuggingHelper() ? m_debuggingHelperOkIcon : m_debuggingHelperErrorIcon);
+            item->setData(2, Qt::DecorationRole, debuggerHelperIconForQtVersion(version));
         else
             item->setData(2, Qt::DecorationRole, QIcon());
     }
@@ -233,6 +234,26 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
 
     showEnvironmentPage(0);
     updateState();
+}
+
+QIcon QtOptionsPageWidget::debuggerHelperIconForQtVersion(const QtVersion *version)
+{
+    if (version->hasDebuggingHelper() && version->hasQmlDump() && version->hasQmlObserver()) {
+        return m_debuggingHelperOkIcon;
+    } else if (!version->hasDebuggingHelper() && !version->hasQmlDump() && !version->hasQmlObserver()) {
+        return m_debuggingHelperErrorIcon;
+    }
+    return m_debuggingHelperIntermediateIcon;
+}
+
+QPixmap QtOptionsPageWidget::debuggerHelperPixmapForQtVersion(const QtVersion *version)
+{
+    if (version->hasDebuggingHelper() && version->hasQmlDump() && version->hasQmlObserver()) {
+        return m_debuggingHelperOkPixmap;
+    } else if (!version->hasDebuggingHelper() && !version->hasQmlDump() && !version->hasQmlObserver()) {
+        return m_debuggingHelperErrorPixmap;
+    }
+    return m_debuggingHelperIntermediatePixmap;
 }
 
 bool QtOptionsPageWidget::eventFilter(QObject *o, QEvent *e)
@@ -289,8 +310,9 @@ void QtOptionsPageWidget::debuggingHelperBuildFinished(const QString &name, cons
     QTreeWidgetItem *item = treeItemForIndex(index);
     QTC_ASSERT(item, return)
     item->setData(2, Qt::UserRole, output);
-    const bool success = m_versions.at(index)->hasDebuggingHelper();
-    item->setData(2, Qt::DecorationRole, success ? m_debuggingHelperOkIcon : m_debuggingHelperErrorIcon);
+    QSharedPointerQtVersion qtVersion = m_versions.at(index);
+    const bool success = qtVersion->hasDebuggingHelper() && qtVersion->hasQmlDump() && qtVersion->hasQmlObserver();
+    item->setData(2, Qt::DecorationRole, debuggerHelperIconForQtVersion(qtVersion.data()));
 
     // Update bottom control if the selection is still the same
     if (index == currentIndex()) {
@@ -373,15 +395,35 @@ void QtOptionsPageWidget::removeQtDir()
 }
 
 // Format html table tooltip about helpers
-static inline QString msgHtmlHelperToolTip(const QFileInfo &fi)
+static inline QString msgHtmlHelperToolTip(const QString &gdbHelperPath, const QString &qmlDumpPath, const QString &qmlObserverPath)
 {
+    QFileInfo gdbHelperFI(gdbHelperPath);
+    QFileInfo qmlDumpFI(qmlDumpPath);
+    QFileInfo qmlObserverFI(qmlObserverPath);
+
+    QString notFound = QtOptionsPageWidget::tr("Binary not found");
+
     //: Tooltip showing the debugging helper library file.
     return QtOptionsPageWidget::tr("<html><body><table><tr><td>File:</td><td><pre>%1</pre></td></tr>"
                                    "<tr><td>Last&nbsp;modified:</td><td>%2</td></tr>"
-                                   "<tr><td>Size:</td><td>%3 Bytes</td></tr></table></body></html>").
-                      arg(QDir::toNativeSeparators(fi.absoluteFilePath())).
-                      arg(fi.lastModified().toString(Qt::SystemLocaleLongDate)).
-                      arg(fi.size());
+                                   "<tr><td>Size:</td><td>%3 Bytes</td></tr>"
+                                   "<tr><td>File:</td><td><pre>%4</pre></td></tr>"
+                                   "<tr><td>Last&nbsp;modified:</td><td>%5</td></tr>"
+                                   "<tr><td>Size:</td><td>%6 Bytes</td></tr>"
+                                   "<tr><td>File:</td><td><pre>%7</pre></td></tr>"
+                                   "<tr><td>Last&nbsp;modified:</td><td>%8</td></tr>"
+                                   "<tr><td>Size:</td><td>%9 Bytes</td></tr>"
+                                   "</table></body></html>"
+                                   ).
+                      arg(gdbHelperPath.isEmpty() ? notFound : QDir::toNativeSeparators(gdbHelperFI.absoluteFilePath())).
+                      arg(gdbHelperFI.lastModified().toString(Qt::SystemLocaleLongDate)).
+                      arg(gdbHelperFI.size()).
+                      arg(qmlDumpPath.isEmpty() ? notFound : QDir::toNativeSeparators(qmlDumpFI.absoluteFilePath())).
+                      arg(qmlDumpFI.lastModified().toString(Qt::SystemLocaleLongDate)).
+                      arg(qmlDumpFI.size()).
+                      arg(qmlObserverPath.isEmpty() ? notFound : QDir::toNativeSeparators(qmlObserverFI.absoluteFilePath())).
+                      arg(qmlObserverFI.lastModified().toString(Qt::SystemLocaleLongDate)).
+                      arg(qmlObserverFI.size());
 }
 
 // Update the state label with a pixmap and set a tooltip describing
@@ -390,10 +432,12 @@ void QtOptionsPageWidget::updateDebuggingHelperStateLabel(const QtVersion *versi
 {
     QString tooltip;
     if (version && version->isValid()) {
-        const bool hasHelper = version->hasDebuggingHelper();
-        m_ui->debuggingHelperStateLabel->setPixmap(hasHelper ? m_debuggingHelperOkPixmap : m_debuggingHelperErrorPixmap);
-        if (hasHelper)
-            tooltip = msgHtmlHelperToolTip(QFileInfo(version->debuggingHelperLibrary()));
+        const bool hasHelpers = version->hasDebuggingHelper() && version->hasQmlDump() && version->hasQmlObserver();
+        m_ui->debuggingHelperStateLabel->setPixmap(debuggerHelperPixmapForQtVersion(version));
+        if (hasHelpers)
+            tooltip = msgHtmlHelperToolTip(version->debuggingHelperLibrary(),
+                                           version->qmlDumpTool(),
+                                           version->qmlObserverTool());
     } else {
         m_ui->debuggingHelperStateLabel->setPixmap(QPixmap());
     }
@@ -679,7 +723,7 @@ void QtOptionsPageWidget::updateCurrentQMakeLocation()
 
     if (version->isValid() && version->supportsBinaryDebuggingHelper()) {
         const bool hasLog = !currentItem->data(2, Qt::UserRole).toString().isEmpty();
-        currentItem->setData(2, Qt::DecorationRole, version->hasDebuggingHelper() ? m_debuggingHelperOkIcon : m_debuggingHelperErrorIcon);
+        currentItem->setData(2, Qt::DecorationRole, debuggerHelperIconForQtVersion(version));
         m_ui->showLogButton->setEnabled(hasLog);
         m_ui->rebuildButton->setEnabled(true);
     } else {

@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef QMLDUMPTOOL_H
-#define QMLDUMPTOOL_H
+#ifndef QMLOBSERVERTOOL_H
+#define QMLOBSERVERTOOL_H
 
 #include <utils/buildablehelperlibrary.h>
 #include "qt4projectmanager_global.h"
@@ -43,7 +43,7 @@ namespace ProjectExplorer {
 
 namespace Qt4ProjectManager {
 
-class QT4PROJECTMANAGER_EXPORT QmlDumpTool : public Utils::BuildableHelperLibrary
+class QT4PROJECTMANAGER_EXPORT QmlObserverTool : public Utils::BuildableHelperLibrary
 {
 public:
     static bool canBuild(const QString &installHeadersDir);
@@ -66,4 +66,4 @@ private:
 
 } // namespace
 
-#endif // QMLDUMPTOOL_H
+#endif // QMLOBSERVERTOOL_H

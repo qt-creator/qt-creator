@@ -90,11 +90,15 @@ private:
     QtVersion *currentVersion() const;
     int currentIndex() const;
     void updateDebuggingHelperStateLabel(const QtVersion *version = 0);
+    QIcon debuggerHelperIconForQtVersion(const QtVersion *version);
+    QPixmap debuggerHelperPixmapForQtVersion(const QtVersion *version);
 
     const QPixmap m_debuggingHelperOkPixmap;
     const QPixmap m_debuggingHelperErrorPixmap;
+    const QPixmap m_debuggingHelperIntermediatePixmap;
     const QIcon m_debuggingHelperOkIcon;
     const QIcon m_debuggingHelperErrorIcon;
+    const QIcon m_debuggingHelperIntermediateIcon;
     const QString m_specifyNameString;
     const QString m_specifyPathString;
 
