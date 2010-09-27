@@ -1,4 +1,4 @@
-<plugin name="QmlProjectManager" version="2.0.90" compatVersion="2.0.90">
+<plugin name="QmlProjectManager" version="2.0.91" compatVersion="2.0.91">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2010 Nokia Corporation</copyright>
     <license>
@@ -14,10 +14,10 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <description>Qt Quick support</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name="ProjectExplorer" version="2.0.90"/>
-        <dependency name="TextEditor" version="2.0.90"/>
-        <dependency name="QmlJSEditor" version="2.0.90"/>
-        <dependency name="Debugger" version="2.0.90" />
-        <dependency name="Qt4ProjectManager" version="2.0.90" />
+        <dependency name="ProjectExplorer" version="2.0.91"/>
+        <dependency name="TextEditor" version="2.0.91"/>
+        <dependency name="QmlJSEditor" version="2.0.91"/>
+        <dependency name="Debugger" version="2.0.91" />
+        <dependency name="Qt4ProjectManager" version="2.0.91" />
     </dependencyList>
 </plugin>

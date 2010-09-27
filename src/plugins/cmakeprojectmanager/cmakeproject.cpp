@@ -264,6 +264,7 @@ bool CMakeProject::parseCMakeLists()
     }
 
     emit buildTargetsChanged();
+    emit fileListChanged();
     return true;
 }
 

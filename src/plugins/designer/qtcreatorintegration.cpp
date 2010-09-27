@@ -273,21 +273,24 @@ static inline ITextEditable *editableAt(const QString &fileName, int line, int c
     return qobject_cast<ITextEditable *>(TextEditor::BaseTextEditor::openEditorAt(fileName, line, column));
 }
 
-static void addDeclaration(Document::Ptr doc, const Class *cl, const QString &functionName)
+static void addDeclaration(const Snapshot &snapshot,
+                           const QString &fileName,
+                           const Class *cl,
+                           const QString &functionName)
 {
-    const QString docFileName = doc->fileName();
     QString declaration = QLatin1String("void ");
     declaration += functionName;
     declaration += QLatin1String(";\n");
 
-    InsertionPointLocator find(doc);
-    const InsertionLocation loc = find.methodDeclarationInClass(cl, InsertionPointLocator::PrivateSlot);
+    InsertionPointLocator find(snapshot);
+    const InsertionLocation loc = find.methodDeclarationInClass(
+                fileName, cl, InsertionPointLocator::PrivateSlot);
 
     //
     //! \todo change this to use the Refactoring changes.
     //
 
-    if (ITextEditable *editable = editableAt(docFileName, loc.line(), loc.column() - 1)) {
+    if (ITextEditable *editable = editableAt(fileName, loc.line(), loc.column() - 1)) {
         BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(editable->widget());
         if (editor) {
             QTextCursor tc = editor->textCursor();
@@ -302,8 +305,10 @@ static void addDeclaration(Document::Ptr doc, const Class *cl, const QString &fu
 }
 
 static Document::Ptr addDefinition(const CPlusPlus::Snapshot &docTable,
-                                   const QString &headerFileName, const QString &className,
-                                   const QString &functionName, int *line)
+                                   const QString &headerFileName,
+                                   const QString &className,
+                                   const QString &functionName,
+                                   int *line)
 {
     QString definition = QLatin1String("\nvoid ");
     definition += className;
@@ -440,6 +445,7 @@ static Document::Ptr getParsedDocument(const QString &fileName, CppTools::CppMod
 
     Document::Ptr doc = snapshot.documentFromSource(source, fileName);
     doc->check();
+    snapshot.insert(doc);
     return doc;
 }
 
@@ -541,11 +547,12 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     } else {
         // add function declaration to cl
         CppTools::CppModelManagerInterface::WorkingCopy workingCopy = cppModelManagerInstance()->workingCopy();
-        Document::Ptr tmpDoc = getParsedDocument(doc->fileName(), workingCopy, docTable);
-        addDeclaration(tmpDoc, cl, functionNameWithParameterNames);
+        const QString fileName = doc->fileName();
+        getParsedDocument(fileName, workingCopy, docTable);
+        addDeclaration(docTable, fileName, cl, functionNameWithParameterNames);
 
         // add function definition to cpp file
-        sourceDoc = addDefinition(docTable, doc->fileName(), className, functionNameWithParameterNames, &line);
+        sourceDoc = addDefinition(docTable, fileName, className, functionNameWithParameterNames, &line);
     }
 
     if (!sourceDoc) {

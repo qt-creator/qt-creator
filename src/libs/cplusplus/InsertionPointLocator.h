@@ -30,6 +30,7 @@
 #ifndef INSERTIONPOINTLOCATOR_H
 #define INSERTIONPOINTLOCATOR_H
 
+#include <ASTfwd.h>
 #include <CPlusPlusForwardDeclarations.h>
 #include <Symbols.h>
 
@@ -82,19 +83,22 @@ public:
 
         SlotBit = 1 << 2,
 
-        PublicSlot = Public | SlotBit,
+        PublicSlot    = Public    | SlotBit,
         ProtectedSlot = Protected | SlotBit,
-        PrivateSlot = Private | SlotBit,
+        PrivateSlot   = Private   | SlotBit,
     };
 
 public:
-    InsertionPointLocator(const Document::Ptr &doc);
+    InsertionPointLocator(const Snapshot &snapshot);
 
-    InsertionLocation methodDeclarationInClass(const Class *clazz,
+    InsertionLocation methodDeclarationInClass(const QString &fileName,
+                                               const Class *clazz,
                                                AccessSpec xsSpec) const;
 
+    QList<InsertionLocation> methodDefinition(const QString &fileName) const;
+
 private:
-    Document::Ptr m_doc;
+    Snapshot m_snapshot;
 };
 
 } // namespace CPlusPlus

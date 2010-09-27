@@ -1231,7 +1231,7 @@ class Dumper:
     def handleWatch(self, exp, iname):
         exp = str(exp)
         escapedExp = exp.replace('"', '\\"')
-        escapedExp = escapedExp.replace('\', '\\\\')
+        escapedExp = escapedExp.replace('\\', '\\\\')
         #warn("HANDLING WATCH %s, INAME: '%s'" % (exp, iname))
         if exp.startswith("[") and exp.endswith("]"):
             #warn("EVAL: EXP: %s" % exp)

@@ -1,4 +1,4 @@
-<plugin name="FakeVim" version="2.0.90" compatVersion="2.0.90">
+<plugin name="FakeVim" version="2.0.91" compatVersion="2.0.91">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2010 Nokia Corporation</copyright>
     <license>
@@ -13,9 +13,9 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <description>VI-style keyboard navigation.</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name="CppEditor" version="2.0.90"/><!-- Plugin adds items to the editor's context menu -->
-        <dependency name="TextEditor" version="2.0.90"/>
-        <dependency name="ProjectExplorer" version="2.0.90"/>
-        <dependency name="Core" version="2.0.90"/>
+        <dependency name="CppEditor" version="2.0.91"/><!-- Plugin adds items to the editor's context menu -->
+        <dependency name="TextEditor" version="2.0.91"/>
+        <dependency name="ProjectExplorer" version="2.0.91"/>
+        <dependency name="Core" version="2.0.91"/>
     </dependencyList>
 </plugin>
