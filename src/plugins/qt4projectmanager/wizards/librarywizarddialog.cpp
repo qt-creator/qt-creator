@@ -313,9 +313,6 @@ MobileLibraryParameters LibraryWizardDialog::mobileLibraryParameters() const
         mlp.symbianCapabilities |= m_mobilePage->networkEnabled()?MobileLibraryParameters::NetworkServices:0;
     }
 
-    if (mlp.type & MobileLibraryParameters::Maemo) {
-        //TODO fill this for Maemo
-    }
     return mlp;
 }
 
