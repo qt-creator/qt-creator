@@ -100,8 +100,6 @@ void MobileLibraryParameters::writeSymbianProFile(QTextStream &str) const
            "    TARGET.UID3 = " + symbianUid + "\n"
            "    TARGET.CAPABILITY = " + generateCapabilitySet(symbianCapabilities).toAscii() + "\n"
            "    TARGET.EPOCALLOWDLLDATA = 1\n"
-           "    BLD_INF_RULES.prj_exports += \"" + fileName + ".h\"\n"
-           "    BLD_INF_RULES.prj_exports += \"" + fileName + "_global.h\"\n"
            "    addFiles.sources = " + fileName + ".dll\n"
            "    addFiles.path = !:/sys/bin\n"
            "    DEPLOYMENT += addFiles\n"
