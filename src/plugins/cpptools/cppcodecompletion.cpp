@@ -1125,8 +1125,8 @@ void CppCodeCompletion::globalCompletion(Scope *currentScope)
     foreach (ClassOrNamespace *b, usingBindings)
         completeNamespace(b);
 
-    addSnippets();
     addKeywords();
+    addSnippets();
     qStableSort(m_completions.begin(), m_completions.end(), completionItemLessThan);
 
     addMacros(QLatin1String("<configuration>"), context.snapshot());
