@@ -49,7 +49,8 @@ class SshConnectionPrivate;
 
 struct CORE_EXPORT SshConnectionParameters
 {
-    SshConnectionParameters();
+    enum ProxyType { DefaultProxy, NoProxy };
+    SshConnectionParameters(ProxyType proxyType);
 
     QString host;
     QString uname;
@@ -58,6 +59,7 @@ struct CORE_EXPORT SshConnectionParameters
     int timeout;
     enum AuthType { AuthByPwd, AuthByKey } authType;
     quint16 port;
+    ProxyType proxyType;
 };
 
 CORE_EXPORT bool operator==(const SshConnectionParameters &p1, const SshConnectionParameters &p2);

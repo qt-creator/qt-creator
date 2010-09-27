@@ -114,6 +114,7 @@ DebuggerStartParameters::DebuggerStartParameters() :
     qmlServerAddress("127.0.0.1"),
     qmlServerPort(0),
     useServerStartScript(false),
+    connParams(SshConnectionParameters::NoProxy),
     toolChainType(ToolChain::UNKNOWN),
     startMode(NoStartMode),
     executableUid(0)
