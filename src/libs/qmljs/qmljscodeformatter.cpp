@@ -70,8 +70,9 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
     for (; m_tokenIndex < m_tokens.size(); ) {
         m_currentToken = tokenAt(m_tokenIndex);
         const int kind = extendedTokenKind(m_currentToken);
-        //dump();
+
         //qDebug() << "Token" << m_currentLine.mid(m_currentToken.begin(), m_currentToken.length) << m_tokenIndex << "in line" << block.blockNumber() + 1;
+        //dump();
 
         if (kind == Comment
                 && state().type != multiline_comment_cont
@@ -283,6 +284,13 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             switch (kind) {
             case Comma:             enter(bracket_element_start); break;
             case RightBracket:      leave(); break;
+            } break;
+
+        case objectliteral_open:
+            if (tryInsideExpression())
+                break;
+            switch (kind) {
+            case RightBrace:        leave(); break;
             } break;
 
         case bracket_element_start:
@@ -612,6 +620,7 @@ bool CodeFormatter::tryInsideExpression(bool alsoExpression)
     switch (kind) {
     case LeftParenthesis:   newState = paren_open; break;
     case LeftBracket:       newState = bracket_open; break;
+    case LeftBrace:         newState = objectliteral_open; break;
     case Function:          newState = function_start; break;
     case Question:          newState = ternary_op; break;
     }

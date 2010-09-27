@@ -49,6 +49,7 @@ private Q_SLOTS:
 //    void gnuStyle();
 //    void whitesmithsStyle();
     void expressionContinuation();
+    void objectLiteral();
 };
 
 struct Line {
@@ -879,6 +880,18 @@ void tst_QMLCodeFormatter::expressionContinuation()
          << Line("x +=")
          << Line("        y++")
          << Line("var z")
+         ;
+    checkIndent(data);
+}
+
+void tst_QMLCodeFormatter::objectLiteral()
+{
+    QList<Line> data;
+    data << Line("function shuffle() {")
+         << Line("    for (var i = 0; i < 10; ++i) {")
+         << Line("        x[i] = { index: i }")
+         << Line("    }")
+         << Line("}")
          ;
     checkIndent(data);
 }
