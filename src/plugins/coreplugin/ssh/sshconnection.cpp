@@ -42,6 +42,7 @@
 
 #include <QtCore/QFile>
 #include <QtCore/QMutex>
+#include <QtNetwork/QNetworkProxy>
 #include <QtNetwork/QTcpSocket>
 
 namespace Core {
@@ -68,8 +69,8 @@ namespace {
 } // anonymous namespace
 
 
-SshConnectionParameters::SshConnectionParameters() :
-    timeout(0),  authType(AuthByKey), port(0)
+SshConnectionParameters::SshConnectionParameters(ProxyType proxyType) :
+    timeout(0),  authType(AuthByKey), port(0), proxyType(proxyType)
 {
 }
 
@@ -176,6 +177,7 @@ SshConnectionPrivate::SshConnectionPrivate(SshConnection *conn)
     : m_socket(new QTcpSocket(this)), m_state(SocketUnconnected),
       m_sendFacility(m_socket),
       m_channelManager(new SshChannelManager(m_sendFacility, this)),
+      m_connParams(SshConnectionParameters::DefaultProxy),
       m_error(SshNoError), m_ignoreNextPacket(false), m_conn(conn)
 {
     setupPacketHandlers();
@@ -551,6 +553,8 @@ void SshConnectionPrivate::connectToHost(const SshConnectionParameters &serverIn
     this->m_connParams = serverInfo;
     m_state = SocketConnecting;
     m_timeoutTimer.start(m_connParams.timeout * 1000);
+    m_socket->setProxy(m_connParams.proxyType == SshConnectionParameters::DefaultProxy
+        ? QNetworkProxy::DefaultProxy : QNetworkProxy::NoProxy);
     m_socket->connectToHost(serverInfo.host, serverInfo.port);
 }
 

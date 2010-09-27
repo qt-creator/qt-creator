@@ -175,7 +175,8 @@ private:
 };
 
 MaemoDeviceConfig::MaemoDeviceConfig(const QString &name, MaemoDeviceConfig::DeviceType devType)
-    : name(name),
+    : server(Core::SshConnectionParameters::NoProxy),
+      name(name),
       type(devType),
       portsSpec(defaultPortsSpec(type)),
       internalId(MaemoDeviceConfigurations::instance().m_nextId++)
@@ -190,7 +191,8 @@ MaemoDeviceConfig::MaemoDeviceConfig(const QString &name, MaemoDeviceConfig::Dev
 
 MaemoDeviceConfig::MaemoDeviceConfig(const QSettings &settings,
                                      quint64 &nextId)
-    : name(settings.value(NameKey).toString()),
+    : server(Core::SshConnectionParameters::NoProxy),
+      name(settings.value(NameKey).toString()),
       type(static_cast<DeviceType>(settings.value(TypeKey, DefaultDeviceType).toInt())),
       portsSpec(settings.value(PortsSpecKey, defaultPortsSpec(type)).toString()),
       internalId(settings.value(InternalIdKey, nextId).toULongLong())
@@ -209,7 +211,8 @@ MaemoDeviceConfig::MaemoDeviceConfig(const QSettings &settings,
 }
 
 MaemoDeviceConfig::MaemoDeviceConfig()
-    : name(QCoreApplication::translate("MaemoDeviceConfig", "(Invalid device)")),
+    : server(Core::SshConnectionParameters::NoProxy),
+      name(QCoreApplication::translate("MaemoDeviceConfig", "(Invalid device)")),
       internalId(InvalidId)
 {
 }
