@@ -298,21 +298,6 @@ EditorConfiguration *Project::editorConfiguration() const
     return d->m_editorConfiguration;
 }
 
-QByteArray Project::predefinedMacros(const QString &) const
-{
-    return QByteArray();
-}
-
-QStringList Project::includePaths(const QString &) const
-{
-    return QStringList();
-}
-
-QStringList Project::frameworkPaths(const QString &) const
-{
-    return QStringList();
-}
-
 QString Project::generatedUiHeader(const QString & /* formFile */) const
 {
     return QString();

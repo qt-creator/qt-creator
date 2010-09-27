@@ -111,12 +111,6 @@ public:
 
     static QString makeUnique(const QString &preferedName, const QStringList &usedNames);
 
-    // C++ specific
-    // TODO do a C++ project as a base ?
-    virtual QByteArray predefinedMacros(const QString &fileName) const;
-    virtual QStringList includePaths(const QString &fileName) const;
-    virtual QStringList frameworkPaths(const QString &fileName) const;
-
     // Serialize all data into a QVariantMap. This map is then saved
     // in the .user file of the project.
     //

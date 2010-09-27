@@ -169,10 +169,6 @@ public:
 
     void notifyChanged(const QString &name);
 
-    virtual QByteArray predefinedMacros(const QString &fileName) const;
-    virtual QStringList includePaths(const QString &fileName) const;
-    virtual QStringList frameworkPaths(const QString &fileName) const;
-
     /// \internal
     Internal::ProFileReader *createProFileReader(Internal::Qt4ProFileNode *qt4ProFileNode);
     /// \internal
@@ -259,7 +255,6 @@ private:
     bool m_cancelEvaluate;
     QList<Internal::Qt4ProFileNode *> m_partialEvaluate;
 
-    QMap<QString, Internal::CodeModelInfo> m_codeModelInfo;
     QFuture<void> m_codeModelFuture;
 
     Internal::CentralizedFolderWatcher m_centralizedFolderWatcher;

@@ -450,7 +450,6 @@ void Qt4Project::updateCppCodeModel()
     QStringList allPrecompileHeaders;
 
     // Collect per .pro file information
-    m_codeModelInfo.clear();
     foreach (Qt4ProFileNode *pro, proFiles) {
         Internal::CodeModelInfo info;
         info.defines = predefinedMacros;
@@ -519,22 +518,6 @@ void Qt4Project::updateCppCodeModel()
 //        qDebug()<<info.includes;
 //        qDebug()<<info.frameworkPaths;
 //        qDebug()<<"\n";
-
-#if 0
-        //Disable for now, we need better .pro file parsing first, and code model
-        //support to access this information
-
-        // TODO this is wastefull
-        // only save it per .pro file, and on being asked
-        // search for the .pro file that has that file
-        foreach (FileNode *fileNode, pro->fileNodes()) {
-            const QString path = fileNode->path();
-            const int type = fileNode->fileType();
-            if (type == HeaderType || type == SourceType) {
-                m_codeModelInfo.insert(path, info);
-            }
-        }
-#endif
     }
 
     // Add mkspec directory
@@ -616,33 +599,6 @@ void Qt4Project::updateQmlJSCodeModel()
 void Qt4Project::qtVersionsChanged()
 {
     setSupportedTargetIds(QtVersionManager::instance()->supportedTargetIds());
-}
-
-QByteArray Qt4Project::predefinedMacros(const QString &fileName) const
-{
-    QMap<QString, CodeModelInfo>::const_iterator it = m_codeModelInfo.constFind(fileName);
-    if (it == m_codeModelInfo.constEnd())
-        return QByteArray();
-    else
-        return (*it).defines;
-}
-
-QStringList Qt4Project::includePaths(const QString &fileName) const
-{
-    QMap<QString, CodeModelInfo>::const_iterator it = m_codeModelInfo.constFind(fileName);
-    if (it == m_codeModelInfo.constEnd())
-        return QStringList();
-    else
-        return (*it).includes;
-}
-
-QStringList Qt4Project::frameworkPaths(const QString &fileName) const
-{
-    QMap<QString, CodeModelInfo>::const_iterator it = m_codeModelInfo.constFind(fileName);
-    if (it == m_codeModelInfo.constEnd())
-        return QStringList();
-    else
-        return (*it).frameworkPaths;
 }
 
 ///*!
