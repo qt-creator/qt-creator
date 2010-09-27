@@ -109,16 +109,16 @@ signals:
 
 private slots:
     void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
-    void setArguments(const QString &argumentsString);
-    void setWorkingDirectory(const QString &workingDirectory);
-    void setRunMode(RunMode runMode);
 
 protected:
     Qt4RunConfiguration(Qt4Target *parent, Qt4RunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
 
 private:
+    void setRunMode(RunMode runMode);
+    void setWorkingDirectory(const QString &workingDirectory);
     QString baseWorkingDirectory() const;
+    void setArguments(const QString &argumentsString);
     QStringList baseCommandLineArguments() const;
     enum BaseEnvironmentBase { CleanEnvironmentBase = 0,
                                SystemEnvironmentBase = 1,
