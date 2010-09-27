@@ -84,6 +84,7 @@ tests/auto/qml/qmldesigner/bauhaustests/tst_bauhaus
 tests/auto/qml/qmldesigner/coretests/tst_qmldesigner_core
 tests/auto/qml/qmldesigner/propertyeditortests/tst_propertyeditor
 tests/auto/profilewriter/tst_profilewriter
+tests/manual/gdbdebugger/simple/libsimple_gdbtest_plugin.*dylib
 src/tools/gen-cpp-ast/generate-ast
 src/tools/mkvisitor/cplusplus0
 src/tools/qml/qmldump/qmldump
