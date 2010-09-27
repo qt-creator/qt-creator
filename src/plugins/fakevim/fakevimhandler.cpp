@@ -2048,7 +2048,6 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         endEditBlock();
         leaveVisualMode();
     } else if (input.is('%')) {
-        setAnchor();
         moveToMatchingParanthesis();
         finishMovement();
     } else if ((!isVisualMode() && input.is('a')) || (isVisualMode() && input.is('A'))) {
@@ -3994,11 +3993,12 @@ void FakeVimHandler::Private::moveToMatchingParanthesis()
     bool moved = false;
     bool forward = false;
 
+    const int anc = anchor();
     QTextCursor tc = cursor();
     emit q->moveToMatchingParenthesis(&moved, &forward, &tc);
     if (moved && forward)
         tc.movePosition(Left, KeepAnchor, 1);
-    setCursor(tc);
+    setAnchorAndPosition(anc, tc.position());
     setTargetColumn();
 }
 
