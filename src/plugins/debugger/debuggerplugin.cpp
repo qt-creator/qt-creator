@@ -2283,10 +2283,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         core->updateAdditionalContexts(m_interruptibleContext, Core::Context());
     }
 
-    const bool canStartOrContinue = m_state == DebuggerNotReady
-        || m_state == InferiorStopOk;
-
-    m_startExternalAction->setEnabled(canStartOrContinue);
+    m_startExternalAction->setEnabled(true);
     m_attachExternalAction->setEnabled(true);
 #ifdef Q_OS_WIN
     m_attachCoreAction->setEnabled(false);
