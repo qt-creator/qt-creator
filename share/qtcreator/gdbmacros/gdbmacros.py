@@ -158,13 +158,16 @@ def qdump__QModelIndex(d, item):
     #gdb.execute("call free($mi)")
 
 
-
-def qdump__QDateTime(d, item):
+def qdump__QDate(d, item):
+    if int(item.value["jd"]) == 0:
+        d.putValue("(null)")
+        d.putNumChild(0)
+        return
     d.putStringValue(call(item.value, "toString('%sQt::TextDate')" % d.ns))
-    d.putNumChild(3)
+    d.putNumChild(1)
     if d.isExpanded(item):
+        # FIXME: This improperly uses complex return values.
         with Children(d, 8):
-            d.putCallItem("isNull", item, "isNull()")
             d.putCallItem("toTime_t", item, "toTime_t()")
             d.putCallItem("toString",
                 item, "toString('%sQt::TextDate')" % d.ns)
@@ -178,6 +181,55 @@ def qdump__QDateTime(d, item):
                 item, "toTimeSpec('%sQt::UTC')" % d.ns)
             d.putCallItem("toLocalTime",
                 item, "toTimeSpec('%sQt::LocalTime')" % d.ns)
+
+
+def qdump__QTime(d, item):
+    if int(item.value["mds"]) == -1:
+        d.putValue("(null)")
+        d.putNumChild(0)
+        return
+    d.putStringValue(call(item.value, "toString('%sQt::TextDate')" % d.ns))
+    d.putNumChild(1)
+    if d.isExpanded(item):
+        # FIXME: This improperly uses complex return values.
+        with Children(d, 8):
+            d.putCallItem("toString",
+                item, "toString('%sQt::TextDate')" % d.ns)
+            d.putCallItem("(ISO)",
+                item, "toString('%sQt::ISODate')" % d.ns)
+            d.putCallItem("(SystemLocale)",
+                item, "toString('%sQt::SystemLocaleDate')" % d.ns)
+            d.putCallItem("(Locale)",
+                item, "toString('%sQt::LocaleDate')" % d.ns)
+            d.putCallItem("toUTC",
+                item, "toTimeSpec('%sQt::UTC')" % d.ns)
+            #d.putCallItem("toLocalTime",
+            #    item, "toTimeSpec('%sQt::LocalTime')" % d.ns)
+
+
+def qdump__QDateTime(d, item):
+    if int(item.value["d"]["d"].dereference()["time"]["mds"]) == -1:
+        d.putValue("(null)")
+        d.putNumChild(0)
+        return
+    d.putStringValue(call(item.value, "toString('%sQt::TextDate')" % d.ns))
+    d.putNumChild(1)
+    if d.isExpanded(item):
+        # FIXME: This improperly uses complex return values.
+        with Children(d, 8):
+            d.putCallItem("toTime_t", item, "toTime_t()")
+            d.putCallItem("toString",
+                item, "toString('%sQt::TextDate')" % d.ns)
+            d.putCallItem("(ISO)",
+                item, "toString('%sQt::ISODate')" % d.ns)
+            d.putCallItem("(SystemLocale)",
+                item, "toString('%sQt::SystemLocaleDate')" % d.ns)
+            d.putCallItem("(Locale)",
+                item, "toString('%sQt::LocaleDate')" % d.ns)
+            d.putCallItem("toUTC",
+                item, "toTimeSpec('%sQt::UTC')" % d.ns)
+            #d.putCallItem("toLocalTime",
+            #    item, "toTimeSpec('%sQt::LocalTime')" % d.ns)
 
 
 def qdump__QDir(d, item):

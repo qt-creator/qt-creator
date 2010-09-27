@@ -1227,6 +1227,64 @@ static void qDumpQChar(QDumper &d)
     d.disarm();
 }
 
+static void qDumpQDate(QDumper &d)
+{
+#ifdef QT_NO_DATESTRING
+    qDumpUnknown(d);
+#else
+    const QDate &date = *reinterpret_cast<const QDate *>(d.data);
+    if (date.isNull()) {
+        d.putItem("value", "(null)");
+    } else {
+        d.putItem("value", date.toString());
+        d.putItem("valueencoded", "2");
+    }
+    d.putItem("type", NS"QDate");
+    d.putItem("numchild", "1");
+    if (d.dumpChildren) {
+        d.beginChildren();
+        d.putHash("isNull", date.isNull());
+        d.putHash("toString", date.toString());
+#        if QT_VERSION >= 0x040500
+        d.putHash("toString_(ISO)", date.toString(Qt::ISODate));
+        d.putHash("toString_(SystemLocale)", date.toString(Qt::SystemLocaleDate));
+        d.putHash("toString_(Locale)", date.toString(Qt::LocaleDate));
+#        endif
+        d.endChildren();
+    }
+    d.disarm();
+#endif // ifdef QT_NO_DATESTRING
+}
+
+static void qDumpQTime(QDumper &d)
+{
+#ifdef QT_NO_DATESTRING
+    qDumpUnknown(d);
+#else
+    const QTime &date = *reinterpret_cast<const QTime *>(d.data);
+    if (date.isNull()) {
+        d.putItem("value", "(null)");
+    } else {
+        d.putItem("value", date.toString());
+        d.putItem("valueencoded", "2");
+    }
+    d.putItem("type", NS"QTime");
+    d.putItem("numchild", "1");
+    if (d.dumpChildren) {
+        d.beginChildren();
+        d.putHash("isNull", date.isNull());
+        d.putHash("toString", date.toString());
+#        if QT_VERSION >= 0x040500
+        d.putHash("toString_(ISO)", date.toString(Qt::ISODate));
+        d.putHash("toString_(SystemLocale)", date.toString(Qt::SystemLocaleDate));
+        d.putHash("toString_(Locale)", date.toString(Qt::LocaleDate));
+#        endif
+        d.endChildren();
+    }
+    d.disarm();
+#endif // ifdef QT_NO_DATESTRING
+}
+
 static void qDumpQDateTime(QDumper &d)
 {
 #ifdef QT_NO_DATESTRING
@@ -1240,10 +1298,9 @@ static void qDumpQDateTime(QDumper &d)
         d.putItem("valueencoded", "2");
     }
     d.putItem("type", NS"QDateTime");
-    d.putItem("numchild", "3");
+    d.putItem("numchild", "1");
     if (d.dumpChildren) {
         d.beginChildren();
-        d.putHash("isNull", date.isNull());
         d.putHash("toTime_t", (long)date.toTime_t());
         d.putHash("toString", date.toString());
 #        if QT_VERSION >= 0x040500
@@ -3492,7 +3549,9 @@ static void handleProtocolVersion2and3(QDumper &d)
                 qDumpQChar(d);
             break;
         case 'D':
-            if (isEqual(type, "QDateTime"))
+            if (isEqual(type, "QDate"))
+                qDumpQDate(d);
+            else if (isEqual(type, "QDateTime"))
                 qDumpQDateTime(d);
             else if (isEqual(type, "QDir"))
                 qDumpQDir(d);
@@ -3638,6 +3697,8 @@ static void handleProtocolVersion2and3(QDumper &d)
             if (isEqual(type, "QTextCodec"))
                 qDumpQTextCodec(d);
 #            endif
+            if (isEqual(type, "QTime"))
+                qDumpQTime(d);
             break;
         case 'V':
 #            ifndef QT_BOOTSTRAPPED
