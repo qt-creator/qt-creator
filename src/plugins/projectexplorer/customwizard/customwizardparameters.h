@@ -40,6 +40,7 @@ QT_BEGIN_NAMESPACE
 class QIODevice;
 class QDebug;
 class QTemporaryFile;
+class QScriptEngine;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -69,6 +70,22 @@ struct CustomWizardFile {
     bool openEditor;
     bool openProject;
     bool binary;
+};
+
+// A validation rule based on Javascript-expressions over the field placeholders.
+// Placeholder replacement is performed on the condition and it is evaluated
+// using Javascript. So, for example '"%ProjectName%" != "untitled" would block
+// default names. On failure, the message is displayed in a red warning label
+// in the wizard page. Placeholder replacement is also performed on the message
+// prior to displaying.
+struct CustomWizardValidationRule {
+    // Validate a set of rules and return false + message on the first failing one.
+    static bool validateRules(const QList<CustomWizardValidationRule> &rules,
+                              const QMap<QString, QString> &replacementMap,
+                              QString *errorMessage);
+    bool validate(QScriptEngine &, const QMap<QString, QString> &replacementMap) const;
+    QString condition;
+    QString message;
 };
 
 // Argument to the generator script containing placeholders to
@@ -110,6 +127,7 @@ public:
 
     QString fieldPageTitle;
     QList<CustomWizardField> fields;
+    QList<CustomWizardValidationRule> rules;
     int firstPageId;
 };
 

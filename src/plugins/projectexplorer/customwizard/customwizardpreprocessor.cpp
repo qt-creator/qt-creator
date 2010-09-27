@@ -81,7 +81,6 @@ public:
 
 private:
     void reset();
-    bool evaluateExpression(const QString &expression, bool *result, QString *errorMessage);
     PreprocessorSection preprocessorLine(const QString & in, QString *ifExpression) const;
 
     mutable QRegExp m_ifPattern;
@@ -134,17 +133,15 @@ PreprocessorSection PreprocessContext::preprocessorLine(const QString &in,
 }
 
 // Evaluate an expression within an 'if'/'elsif' to a bool via QScript
-bool PreprocessContext::evaluateExpression(const QString &expression,
-                                           bool *result,
-                                           QString *errorMessage)
+bool evaluateBooleanJavaScriptExpression(QScriptEngine &engine, const QString &expression, bool *result, QString *errorMessage)
 {
     errorMessage->clear();
     *result = false;
-    m_scriptEngine.clearExceptions();
-    const QScriptValue value = m_scriptEngine.evaluate(expression);
-    if (m_scriptEngine.hasUncaughtException()) {
+    engine.clearExceptions();
+    const QScriptValue value = engine.evaluate(expression);
+    if (engine.hasUncaughtException()) {
         *errorMessage = QString::fromLatin1("Error in '%1': %2").
-                        arg(expression, m_scriptEngine.uncaughtException().toString());
+                        arg(expression, engine.uncaughtException().toString());
         return false;
     }
     // Try to convert to bool, be that an int or whatever.
@@ -196,7 +193,7 @@ bool PreprocessContext::process(const QString &in, QString *out, QString *errorM
         case IfSection:
             // '@If': Push new section
             if (top.parentEnabled) {
-                if (!evaluateExpression(expression, &expressionValue, errorMessage)) {
+                if (!evaluateBooleanJavaScriptExpression(m_scriptEngine, expression, &expressionValue, errorMessage)) {
                     *errorMessage = QString::fromLatin1("Error in @if at %1: %2").
                             arg(l + 1).arg(*errorMessage);
                     return false;
@@ -214,7 +211,7 @@ bool PreprocessContext::process(const QString &in, QString *out, QString *errorM
                 return false;
             }
             if (top.parentEnabled) {
-                if (!evaluateExpression(expression, &expressionValue, errorMessage)) {
+                if (!evaluateBooleanJavaScriptExpression(m_scriptEngine, expression, &expressionValue, errorMessage)) {
                     *errorMessage = QString::fromLatin1("Error in @elsif at %1: %2").
                             arg(l + 1).arg(*errorMessage);
                     return false;

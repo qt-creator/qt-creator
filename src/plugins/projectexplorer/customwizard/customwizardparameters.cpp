@@ -46,6 +46,7 @@
 #include <QtCore/QXmlStreamReader>
 #include <QtCore/QXmlStreamAttribute>
 #include <QtCore/QTemporaryFile>
+#include <QtScript/QScriptEngine>
 
 #include <QtGui/QIcon>
 
@@ -90,6 +91,11 @@ static const char fileSourceAttributeC[] = "source";
 static const char fileTargetAttributeC[] = "target";
 static const char fileBinaryAttributeC[] = "binary";
 
+static const char rulesElementC[] = "validationrules";
+static const char ruleElementC[] = "validationrule";
+static const char ruleConditionAttributeC[] = "condition";
+static const char ruleMessageElementC[] = "message";
+
 enum ParseState {
     ParseBeginning,
     ParseWithinWizard,
@@ -104,6 +110,9 @@ enum ParseState {
     ParseWithinFile,
     ParseWithinScript,
     ParseWithinScriptArguments,
+    ParseWithinValidationRules,
+    ParseWithinValidationRule,
+    ParseWithinValidationRuleMessage,
     ParseError
 };
 
@@ -142,6 +151,38 @@ CustomWizardFile::CustomWizardFile() :
 {
 }
 
+bool CustomWizardValidationRule::validateRules(const QList<CustomWizardValidationRule> &rules,
+                                               const QMap<QString, QString> &replacementMap,
+                                               QString *errorMessage)
+{
+    errorMessage->clear();
+    if (rules.isEmpty())
+        return true;
+    QScriptEngine engine;
+    foreach(const CustomWizardValidationRule &rule, rules)
+    if (!rule.validate(engine, replacementMap)) {
+        *errorMessage = rule.message;
+        CustomWizardContext::replaceFields(replacementMap, errorMessage);
+        return false;
+    }
+    return true;
+}
+
+bool CustomWizardValidationRule::validate(QScriptEngine &engine, const QMap<QString, QString> &replacementMap) const
+{
+    // Apply parameters and evaluate using JavaScript
+    QString cond = condition;
+    CustomWizardContext::replaceFields(replacementMap, &cond);
+    bool valid = false;
+    QString errorMessage;
+    if (!evaluateBooleanJavaScriptExpression(engine, cond, &valid, &errorMessage)) {
+        qWarning("Error in custom wizard validation expression '%s': %s",
+                 qPrintable(cond), qPrintable(errorMessage));
+        return false;
+    }
+    return valid;
+}
+
 CustomWizardParameters::CustomWizardParameters() :
         firstPageId(-1)
 {
@@ -155,6 +196,7 @@ void CustomWizardParameters::clear()
     filesGeneratorScript.clear();
     filesGeneratorScriptArguments.clear();
     firstPageId = -1;
+    rules.clear();
 }
 
 // Resolve icon file path relative to config file directory.
@@ -296,6 +338,8 @@ static ParseState nextOpeningState(ParseState in, const QStringRef &name)
             return ParseWithinFiles;
         if (name == QLatin1String(generatorScriptElementC))
             return ParseWithinScript;
+        if (name == QLatin1String(rulesElementC))
+            return ParseWithinValidationRules;
         break;
     case ParseWithinFields:
         if (name == QLatin1String(fieldElementC))
@@ -327,11 +371,20 @@ static ParseState nextOpeningState(ParseState in, const QStringRef &name)
         if (name == QLatin1String(generatorScriptArgumentElementC))
             return ParseWithinScriptArguments;
         break;
+    case ParseWithinValidationRules:
+        if (name == QLatin1String(ruleElementC))
+            return ParseWithinValidationRule;
+        break;
+    case ParseWithinValidationRule:
+        if (name == QLatin1String(ruleMessageElementC))
+            return ParseWithinValidationRuleMessage;
+        break;
     case ParseWithinFieldDescription: // No subelements
     case ParseWithinComboEntryText:
     case ParseWithinFile:
     case ParseError:
     case ParseWithinScriptArguments:
+    case ParseWithinValidationRuleMessage:
         break;
     }
     return ParseError;
@@ -391,6 +444,12 @@ static ParseState nextClosingState(ParseState in, const QStringRef &name)
         if (name == QLatin1String(generatorScriptArgumentElementC))
             return ParseWithinScript;
         break;
+    case ParseWithinValidationRuleMessage:
+        return ParseWithinValidationRule;
+    case ParseWithinValidationRule:
+        return ParseWithinValidationRules;
+    case ParseWithinValidationRules:
+        return ParseWithinWizard;
     case ParseError:
         break;
     }
@@ -575,6 +634,18 @@ CustomWizardParameters::ParseResult
                     filesGeneratorScriptArguments.push_back(argument);
                 }
                     break;
+                case ParseWithinValidationRule: {
+                    CustomWizardValidationRule rule;
+                    rule.condition = reader.attributes().value(QLatin1String(ruleConditionAttributeC)).toString();
+                    rules.push_back(rule);
+                }
+                    break;
+                case ParseWithinValidationRuleMessage:
+                    QTC_ASSERT(!rules.isEmpty(), return ParseFailed; )
+                    // This reads away the end tag, set state here.
+                    assignLanguageElementText(reader, language, &(rules.back().message));
+                    state = ParseWithinValidationRule;
+                    break;
                 default:
                     break;
                 }
@@ -664,6 +735,8 @@ QString CustomWizardParameters::toString() const
         }
         str << '\n';
     }
+    foreach(const CustomWizardValidationRule &r, rules)
+            str << "  Rule: '" << r.condition << "'->'" << r.message << '\n';
     return rc;
 }
 

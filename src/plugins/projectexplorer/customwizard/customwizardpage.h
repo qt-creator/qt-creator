@@ -39,6 +39,7 @@ QT_BEGIN_NAMESPACE
 class QFormLayout;
 class QLineEdit;
 class QTextEdit;
+class QLabel;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -110,23 +111,30 @@ private:
 // as page 2 of a BaseProjectWizardDialog if there are any fields.
 // Uses the 'field' functionality of QWizard.
 // Implements validatePage() as the field logic cannot be tied up
-// with additional validation.
+// with additional validation. Performs checking of the Javascript-based
+// validation rules of the parameters and displays error messages in a red
+// warning label.
 class CustomWizardFieldPage : public QWizardPage {
     Q_OBJECT
 public:
     typedef QList<CustomWizardField> FieldList;
 
     explicit CustomWizardFieldPage(const QSharedPointer<CustomWizardContext> &ctx,
-                                   const FieldList &f,
+                                   const QSharedPointer<CustomWizardParameters> &parameters,
                                    QWidget *parent = 0);
     virtual ~CustomWizardFieldPage();
 
     virtual bool validatePage();
     virtual void initializePage();
 
+    static QMap<QString, QString> replacementMap(const QWizard *w,
+                                                 const QSharedPointer<CustomWizardContext> &ctx,
+                                                 const FieldList &f);
+
 protected:
     inline void addRow(const QString &name, QWidget *w);
-
+    void showError(const QString &);
+    void clearError();
 private:
     struct LineEditData {
         explicit LineEditData(QLineEdit* le = 0, const QString &defText = QString());
@@ -150,10 +158,12 @@ private:
                               const CustomWizardField &field);
     void addField(const CustomWizardField &f);
 
+    const QSharedPointer<CustomWizardParameters> m_parameters;
     const QSharedPointer<CustomWizardContext> m_context;
     QFormLayout *m_formLayout;
     LineEditDataList m_lineEdits;
     TextEditDataList m_textEdits;
+    QLabel *m_errorLabel;
 };
 
 // A custom wizard page presenting the fields to be used and a path chooser
@@ -164,7 +174,7 @@ class CustomWizardPage : public CustomWizardFieldPage {
     Q_OBJECT
 public:
     explicit CustomWizardPage(const QSharedPointer<CustomWizardContext> &ctx,
-                              const FieldList &f,
+                              const QSharedPointer<CustomWizardParameters> &parameters,
                               QWidget *parent = 0);
 
     QString path() const;

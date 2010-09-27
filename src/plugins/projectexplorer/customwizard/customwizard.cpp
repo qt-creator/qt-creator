@@ -114,7 +114,7 @@ void CustomWizard::initWizardDialog(Utils::Wizard *wizard, const QString &defaul
     QTC_ASSERT(!parameters().isNull(), return);
 
     d->m_context->reset();
-    Internal::CustomWizardPage *customPage = new Internal::CustomWizardPage(d->m_context, parameters()->fields);
+    Internal::CustomWizardPage *customPage = new Internal::CustomWizardPage(d->m_context, parameters());
     customPage->setPath(defaultPath);
     addWizardPage(wizard, customPage, parameters()->firstPageId);
     if (!parameters()->fieldPageTitle.isEmpty())
@@ -298,15 +298,7 @@ Core::GeneratedFiles CustomWizard::generateWizardFiles(QString *errorMessage) co
 // Create a replacement map of static base fields + wizard dialog fields
 CustomWizard::FieldReplacementMap CustomWizard::replacementMap(const QWizard *w) const
 {
-    FieldReplacementMap fieldReplacementMap = d->m_context->baseReplacements;
-    foreach(const Internal::CustomWizardField &field, d->m_parameters->fields) {
-        const QString value = w->field(field.name).toString();
-        fieldReplacementMap.insert(field.name, value);
-    }
-    // Insert paths for generator scripts.
-    fieldReplacementMap.insert(QLatin1String("Path"), QDir::toNativeSeparators(context()->path));
-    fieldReplacementMap.insert(QLatin1String("TargetPath"), QDir::toNativeSeparators(context()->targetPath));
-    return fieldReplacementMap;
+    return Internal::CustomWizardFieldPage::replacementMap(w, context(), d->m_parameters->fields);
 }
 
 CustomWizard::CustomWizardParametersPtr CustomWizard::parameters() const
@@ -501,7 +493,7 @@ void CustomProjectWizard::initProjectWizardDialog(BaseProjectWizardDialog *w,
         w->setWindowTitle(displayName());
 
     if (!pa->fields.isEmpty()) {
-        Internal::CustomWizardFieldPage *cp = new Internal::CustomWizardFieldPage(ctx, pa->fields);
+        Internal::CustomWizardFieldPage *cp = new Internal::CustomWizardFieldPage(ctx, pa);
         addWizardPage(w, cp, parameters()->firstPageId);
         if (!pa->fieldPageTitle.isEmpty())
             cp->setTitle(pa->fieldPageTitle);

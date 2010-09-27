@@ -67,4 +67,11 @@ Custom class wizard example configuration file. -->
             <fielddescription xml:lang="de">Datentyp:</fielddescription>
         </field>
     </fields>
+    <!-- Example of a validation rule -->
+    <validationrules>
+        <validationrule condition='"%ClassName%" != "QAbstractListModel"'>
+            <message>%ClassName% cannot be used as class name.</message>
+            <message xml:lang="de">%ClassName% kann nicht als Klassenname verwendet werden.</message>
+        </validationrule>
+    </validationrules>
 </wizard>

@@ -32,6 +32,8 @@
 
 #include <QtCore/QString>
 
+QT_FORWARD_DECLARE_CLASS(QScriptEngine)
+
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -51,7 +53,8 @@ Blup
 */
 
 bool customWizardPreprocess(const QString &in, QString *out, QString *errorMessage);
-
+/* Helper to evaluate an expression. */
+bool evaluateBooleanJavaScriptExpression(QScriptEngine &engine, const QString &expression, bool *result, QString *errorMessage);
 } // namespace Internal
 } // namespace ProjectExplorer
 

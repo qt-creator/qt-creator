@@ -35,14 +35,17 @@
 
 #include <QtCore/QRegExp>
 #include <QtCore/QDebug>
+#include <QtCore/QDir>
 
 #include <QtGui/QWizardPage>
 #include <QtGui/QFormLayout>
+#include <QtGui/QVBoxLayout>
 #include <QtGui/QLineEdit>
 #include <QtGui/QLabel>
 #include <QtGui/QRegExpValidator>
 #include <QtGui/QComboBox>
 #include <QtGui/QTextEdit>
+#include <QtGui/QSpacerItem>
 
 enum { debug = 0 };
 
@@ -127,18 +130,26 @@ CustomWizardFieldPage::TextEditData::TextEditData(QTextEdit* le, const QString &
 }
 
 CustomWizardFieldPage::CustomWizardFieldPage(const QSharedPointer<CustomWizardContext> &ctx,
-                                             const FieldList &fields,
+                                             const QSharedPointer<CustomWizardParameters> &parameters,
                                              QWidget *parent) :
     QWizardPage(parent),
+    m_parameters(parameters),
     m_context(ctx),
-    m_formLayout(new QFormLayout)
+    m_formLayout(new QFormLayout),
+    m_errorLabel(new QLabel)
 {
+    QVBoxLayout *vLayout = new QVBoxLayout;
     m_formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     if (debug)
-        qDebug() << Q_FUNC_INFO << fields.size();
-    foreach(const CustomWizardField &f, fields)
+        qDebug() << Q_FUNC_INFO << parameters->fields.size();
+    foreach(const CustomWizardField &f, parameters->fields)
         addField(f);
-    setLayout(m_formLayout);
+    vLayout->addLayout(m_formLayout);
+    m_errorLabel->setVisible(false);
+    m_errorLabel->setStyleSheet(QLatin1String("background: red"));
+    vLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
+    vLayout->addWidget(m_errorLabel);
+    setLayout(vLayout);
 }
 
 CustomWizardFieldPage::~CustomWizardFieldPage()
@@ -148,6 +159,18 @@ CustomWizardFieldPage::~CustomWizardFieldPage()
 void CustomWizardFieldPage::addRow(const QString &name, QWidget *w)
 {
     m_formLayout->addRow(name, w);
+}
+
+void CustomWizardFieldPage::showError(const QString &m)
+{
+    m_errorLabel->setText(m);
+    m_errorLabel->setVisible(true);
+}
+
+void CustomWizardFieldPage::clearError()
+{
+    m_errorLabel->setText(QString());
+    m_errorLabel->setVisible(false);
 }
 
 // Create widget a control based  on the control attributes map
@@ -294,6 +317,7 @@ QWidget *CustomWizardFieldPage::registerLineEdit(const QString &fieldName,
 void CustomWizardFieldPage::initializePage()
 {
     QWizardPage::initializePage();
+    clearError();
     // Note that the field mechanism will always restore the value
     // set on it when entering the page, so, there is no point in
     // trying to preserve user modifications of the text.
@@ -315,6 +339,7 @@ void CustomWizardFieldPage::initializePage()
 
 bool CustomWizardFieldPage::validatePage()
 {
+    clearError();
     // Check line edits with validators
     foreach(const LineEditData &led, m_lineEdits) {
         if (const QValidator *val = led.lineEdit->validator()) {
@@ -326,15 +351,40 @@ bool CustomWizardFieldPage::validatePage()
             }
         }
     }
+    // Any user validation rules -> Check all and display messages with
+    // place holders applied.
+    if (!m_parameters->rules.isEmpty()) {
+        const QMap<QString, QString> values = replacementMap(wizard(), m_context, m_parameters->fields);
+        QString message;
+        if (!CustomWizardValidationRule::validateRules(m_parameters->rules, values, &message)) {
+            showError(message);
+            return false;
+        }
+    }
     return QWizardPage::validatePage();
+}
+
+QMap<QString, QString> CustomWizardFieldPage::replacementMap(const QWizard *w,
+                                                             const QSharedPointer<CustomWizardContext> &ctx,
+                                                             const FieldList &f)
+{
+    QMap<QString, QString> fieldReplacementMap = ctx->baseReplacements;
+    foreach(const Internal::CustomWizardField &field, f) {
+        const QString value = w->field(field.name).toString();
+        fieldReplacementMap.insert(field.name, value);
+    }
+    // Insert paths for generator scripts.
+    fieldReplacementMap.insert(QLatin1String("Path"), QDir::toNativeSeparators(ctx->path));
+    fieldReplacementMap.insert(QLatin1String("TargetPath"), QDir::toNativeSeparators(ctx->targetPath));
+    return fieldReplacementMap;
 }
 
 // --------------- CustomWizardPage
 
 CustomWizardPage::CustomWizardPage(const QSharedPointer<CustomWizardContext> &ctx,
-                                   const FieldList &f,
+                                   const QSharedPointer<CustomWizardParameters> &parameters,
                                    QWidget *parent) :
-    CustomWizardFieldPage(ctx, f, parent),
+    CustomWizardFieldPage(ctx, parameters, parent),
     m_pathChooser(new Utils::PathChooser)
 {
     addRow(tr("Path:"), m_pathChooser);
