@@ -39,6 +39,8 @@
 #include "qmltoolbar.h"
 #include "jsdebuggeragent.h"
 
+#include "qt_private/qdeclarativedebughelper_p.h"
+
 #include <QDeclarativeItem>
 #include <QDeclarativeEngine>
 #include <QDeclarativeContext>
@@ -47,10 +49,7 @@
 #include <QMouseEvent>
 #include <QGraphicsObject>
 #include <QApplication>
-
 #include <QAbstractAnimation>
-#include <private/qdeclarativeengine_p.h>
-#include <private/qabstractanimation_p.h>
 
 namespace QmlJSDebugger {
 
@@ -626,11 +625,13 @@ void QDeclarativeViewObserver::continueExecution(qreal slowdownFactor)
 
     data->slowdownFactor = slowdownFactor;
     static const qreal animSpeedSnapDelta = 0.01f;
-    bool useStandardSpeed = (qAbs(1.0f - data->slowdownFactor) < animSpeedSnapDelta);
 
-    QUnifiedTimer *timer = QUnifiedTimer::instance();
-    timer->setSlowdownFactor(data->slowdownFactor);
-    timer->setSlowModeEnabled(!useStandardSpeed);
+    qreal slowDownFactor = data->slowdownFactor;
+    if (qAbs(1.0f - slowDownFactor) < animSpeedSnapDelta) {
+        slowDownFactor = 1.0f;
+    }
+
+    QDeclarativeDebugHelper::setAnimationSlowDownFactor(slowDownFactor);
     data->executionPaused = false;
 
     emit executionStarted(data->slowdownFactor);
@@ -639,9 +640,7 @@ void QDeclarativeViewObserver::continueExecution(qreal slowdownFactor)
 
 void QDeclarativeViewObserver::pauseExecution()
 {
-    QUnifiedTimer *timer = QUnifiedTimer::instance();
-    timer->setSlowdownFactor(0);
-    timer->setSlowModeEnabled(true);
+    QDeclarativeDebugHelper::setAnimationSlowDownFactor(0.0f);
     data->executionPaused = true;
 
     emit executionPaused();
@@ -796,7 +795,7 @@ void QDeclarativeViewObserverPrivate::createToolbar()
 void QDeclarativeViewObserver::setDebugMode(bool isDebugMode)
 {
     if (isDebugMode && !data->jsDebuggerAgent)
-        data->jsDebuggerAgent = new JSDebuggerAgent(QDeclarativeEnginePrivate::getScriptEngine(data->view->engine()));
+        data->jsDebuggerAgent = new JSDebuggerAgent(data->view->engine());
 }
 
 } //namespace QmlJSDebugger

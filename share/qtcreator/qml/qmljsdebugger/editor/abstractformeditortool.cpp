@@ -29,7 +29,7 @@
 
 #include "abstractformeditortool.h"
 #include "qdeclarativeviewobserver.h"
-#include "qdeclarativeviewobserver_p.h"
+#include "../qdeclarativeviewobserver_p.h"
 
 #include <QDeclarativeEngine>
 

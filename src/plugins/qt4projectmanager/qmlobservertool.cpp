@@ -139,13 +139,15 @@ QString QmlObserverTool::copy(const QString &qtInstallData, QString *errorMessag
           << QLatin1String("LICENSE.LGPL") << QLatin1String("LGPL_EXCEPTION.TXT");
 
     QStringList debuggerLibFiles;
-    debuggerLibFiles << QLatin1String("jsdebuggeragent.cpp") << QLatin1String("private_headers.pri")
+    debuggerLibFiles << QLatin1String("jsdebuggeragent.cpp")
           << QLatin1String("qdeclarativeobserverservice.cpp") << QLatin1String("qdeclarativeviewobserver.cpp")
           << QLatin1String("qdeclarativeviewobserver_p.h") << QLatin1String("qmljsdebugger.pri")
           << QLatin1String("qmljsdebugger.pro") << QLatin1String("qmljsdebugger-lib.pri")
           << QLatin1String("include/jsdebuggeragent.h") << QLatin1String("include/qdeclarativeobserverservice.h")
           << QLatin1String("include/qdeclarativeviewobserver.h") << QLatin1String("include/qmljsdebugger_global.h")
-          << QLatin1String("include/qmlobserverconstants.h");
+          << QLatin1String("include/qmlobserverconstants.h")
+          << QLatin1String("include/qt_private/qdeclarativedebughelper_p.h")
+          << QLatin1String("include/qt_private/qdeclarativedebugservice_p.h");
 
     QStringList debuggerLibEditorFiles;
     debuggerLibEditorFiles << QLatin1String("abstractformeditortool.cpp") << QLatin1String("abstractformeditortool.h")
@@ -183,7 +185,8 @@ QString QmlObserverTool::copy(const QString &qtInstallData, QString *errorMessag
     foreach(const QString &directory, directories) {
         if (!mkpath(directory + QLatin1String("/content/images"), errorMessage)
             || !mkpath(directory + QLatin1String("/qmljsdebugger/editor/images"), errorMessage)
-            || !mkpath(directory + QLatin1String("/qmljsdebugger/include"), errorMessage))
+            || !mkpath(directory + QLatin1String("/qmljsdebugger/include"), errorMessage)
+            || !mkpath(directory + QLatin1String("/qmljsdebugger/include/qt_private"), errorMessage))
         {
             continue;
         } else {

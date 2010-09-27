@@ -42,7 +42,7 @@
 #ifndef QDECLARATIVEDESIGNDEBUGSERVER_H
 #define QDECLARATIVEDESIGNDEBUGSERVER_H
 
-#include <private/qdeclarativedebugservice_p.h>
+#include "qt_private/qdeclarativedebugservice_p.h"
 #include "qmlobserverconstants.h"
 #include "qmljsdebugger_global.h"
 

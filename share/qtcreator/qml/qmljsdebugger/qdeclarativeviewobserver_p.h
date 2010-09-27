@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef QDECLARATIVEDESIGNVIEW_P_H
-#define QDECLARATIVEDESIGNVIEW_P_H
+#ifndef QDECLARATIVEVIEWOBSERVER_P_H
+#define QDECLARATIVEVIEWOBSERVER_P_H
 
 #include <QWeakPointer>
 #include <QPointF>
@@ -138,4 +138,4 @@ public:
 
 } // namespace QmlJSDebugger
 
-#endif // QDECLARATIVEDESIGNVIEW_P_H
+#endif // QDECLARATIVEVIEWOBSERVER_P_H

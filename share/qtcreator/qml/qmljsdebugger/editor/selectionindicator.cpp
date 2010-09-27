@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "selectionindicator.h"
-#include "qdeclarativeviewobserver_p.h"
+#include "../qdeclarativeviewobserver_p.h"
 #include "qmlobserverconstants.h"
 
 #include <QPen>
