@@ -932,10 +932,8 @@ public slots:
         { return qobject_cast<DebuggerMainWindow*>
             (DebuggerUISwitcher::instance()->mainWindow()); }
 
-    void setConfigValue(const QString &name, const QVariant &value)
-        { settings()->setValue(name, value); }
-    QVariant configValue(const QString &name) const
-        { return settings()->value(name); }
+    inline void setConfigValue(const QString &name, const QVariant &value);
+    inline QVariant configValue(const QString &name) const;
 
     DebuggerRunControl *createDebugger(const DebuggerStartParameters &sp,
         RunConfiguration *rc = 0);
@@ -1674,6 +1672,20 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
         SLOT(onCurrentProjectChanged(ProjectExplorer::Project*)));
 
     return true;
+}
+
+void DebuggerPluginPrivate::setConfigValue(const QString &name, const QVariant &value)
+{
+    settings()->setValue(_("DebugMode/") + name, value);
+}
+
+QVariant DebuggerPluginPrivate::configValue(const QString &name) const
+{
+    const QVariant value = settings()->value(_("DebugMode/") + name);
+    if (value.isValid())
+        return value;
+    // Legacy (pre-2.1): Check old un-namespaced-settings.
+    return settings()->value(name);
 }
 
 void DebuggerPluginPrivate::onCurrentProjectChanged(Project *project)
