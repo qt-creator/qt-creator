@@ -1235,10 +1235,12 @@ static void qDumpQDate(QDumper &d)
     const QDate &date = *reinterpret_cast<const QDate *>(d.data);
     if (date.isNull()) {
         d.putItem("value", "(null)");
-    } else {
-        d.putItem("value", date.toString());
-        d.putItem("valueencoded", "2");
+        d.putItem("type", NS"QDate");
+        d.putItem("numchild", "0");
+        return;
     }
+    d.putItem("value", date.toString());
+    d.putItem("valueencoded", "2");
     d.putItem("type", NS"QDate");
     d.putItem("numchild", "1");
     if (d.dumpChildren) {
@@ -1264,10 +1266,12 @@ static void qDumpQTime(QDumper &d)
     const QTime &date = *reinterpret_cast<const QTime *>(d.data);
     if (date.isNull()) {
         d.putItem("value", "(null)");
-    } else {
-        d.putItem("value", date.toString());
-        d.putItem("valueencoded", "2");
+        d.putItem("type", NS"QTime");
+        d.putItem("numchild", "0");
+        return;
     }
+    d.putItem("value", date.toString());
+    d.putItem("valueencoded", "2");
     d.putItem("type", NS"QTime");
     d.putItem("numchild", "1");
     if (d.dumpChildren) {
@@ -1293,10 +1297,12 @@ static void qDumpQDateTime(QDumper &d)
     const QDateTime &date = *reinterpret_cast<const QDateTime *>(d.data);
     if (date.isNull()) {
         d.putItem("value", "(null)");
-    } else {
-        d.putItem("value", date.toString());
-        d.putItem("valueencoded", "2");
+        d.putItem("type", NS"QDateTime");
+        d.putItem("numchild", "0");
+        return;
     }
+    d.putItem("value", date.toString());
+    d.putItem("valueencoded", "2");
     d.putItem("type", NS"QDateTime");
     d.putItem("numchild", "1");
     if (d.dumpChildren) {
@@ -3889,6 +3895,7 @@ void *qDumpObjectData440(
             "\""NS"QAbstractItemModel\","
             "\""NS"QByteArray\","
             "\""NS"QChar\","
+            "\""NS"QDate\","
             "\""NS"QDateTime\","
             "\""NS"QDir\","
             "\""NS"QFile\","
@@ -3924,6 +3931,7 @@ void *qDumpObjectData440(
             "\""NS"QString\","
             "\""NS"QStringList\","
             "\""NS"QTextCodec\","
+            "\""NS"QTime\","
             "\""NS"QVariant\","
             "\""NS"QVariantList\","
             "\""NS"QVector\","
