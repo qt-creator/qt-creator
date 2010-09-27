@@ -1338,6 +1338,13 @@ protected:
         const QList<LookupItem> results = typeOfExpression(statement->condition,
                                                            state.document(),
                                                            scope);
+
+        ///
+        /// \note FIXME: the lookup has at least two problems: the result.declaration()
+        ///       will often be null, (i.e. when the condition is a function call)
+        ///       and the lookups will not look through typedefs.
+        ///
+
         foreach (LookupItem result, results) {
             FullySpecifiedType fst = result.type();
             if (! result.declaration())
@@ -1741,9 +1748,11 @@ void CppQuickFixCollector::registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
     plugIn->addAutoReleasedObject(new TranslateStringLiteral);
     plugIn->addAutoReleasedObject(new CStringToNSString);
     plugIn->addAutoReleasedObject(new ConvertNumericLiteral);
-    plugIn->addAutoReleasedObject(new CompleteSwitchCaseStatement);
+// Disabled for now: see the CompleteSwitchCaseStatement class for the reason.
+//    plugIn->addAutoReleasedObject(new CompleteSwitchCaseStatement);
     plugIn->addAutoReleasedObject(new FixForwardDeclarationOp);
     plugIn->addAutoReleasedObject(new AddLocalDeclarationOp);
     plugIn->addAutoReleasedObject(new ToCamelCaseConverter);
     plugIn->addAutoReleasedObject(new Internal::DeclFromDef);
+    plugIn->addAutoReleasedObject(new Internal::DefFromDecl);
 }
