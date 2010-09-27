@@ -27,23 +27,28 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGINGHELPER_H
-#define DEBUGGINGHELPER_H
+#ifndef QMLDUMPTOOL_H
+#define QMLDUMPTOOL_H
 
-#include "projectexplorer_export.h"
-
-#include <utils/environment.h>
 #include <utils/buildablehelperlibrary.h>
+#include "qt4projectmanager_global.h"
 
-#include <QtCore/QString>
-#include <QtCore/QStringList>
+namespace Utils {
+    class Environment;
+}
 
 namespace ProjectExplorer {
+    class Project;
+}
 
-class PROJECTEXPLORER_EXPORT DebuggingHelperLibrary : public Utils::BuildableHelperLibrary
+namespace Qt4ProjectManager {
+
+class QT4PROJECTMANAGER_EXPORT QmlDumpTool : public Utils::BuildableHelperLibrary
 {
 public:
-    static QString debuggingHelperLibraryByInstallData(const QString &qtInstallData);
+    static bool canBuild(const QString &installHeadersDir);
+    static QString qmlDumpToolForProject(ProjectExplorer::Project *project);
+    static QString qmlDumpToolByInstallData(const QString &qtInstallData);
     static QStringList locationsByInstallData(const QString &qtInstallData);
 
     // Build the helpers and return the output log/errormessage.
@@ -55,8 +60,10 @@ public:
     static QString copy(const QString &qtInstallData, QString *errorMessage);
 
 private:
-    static QStringList debuggingHelperLibraryDirectories(const QString &qtInstallData);
-};
-} // namespace ProjectExplorer
+    static QStringList installDirectories(const QString &qtInstallData);
 
-#endif // DEBUGGINGHELPER_H
+};
+
+} // namespace
+
+#endif // QMLDUMPTOOL_H

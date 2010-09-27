@@ -61,7 +61,8 @@ HEADERS += qt4deployconfiguration.h \
     addlibrarywizard.h \
     librarydetailscontroller.h \
     findqt4profiles.h \
-    qt4projectmanager_global.h
+    qt4projectmanager_global.h \
+    qmldumptool.h
 SOURCES += qt4projectmanagerplugin.cpp \
     qt4deployconfiguration.cpp \
     qtparser.cpp \
@@ -117,7 +118,8 @@ SOURCES += qt4projectmanagerplugin.cpp \
     qtoutputformatter.cpp \
     addlibrarywizard.cpp \
     librarydetailscontroller.cpp \
-    findqt4profiles.cpp
+    findqt4profiles.cpp \
+    qmldumptool.cpp
 FORMS += makestep.ui \
     qmakestep.ui \
     qt4projectconfigwidget.ui \

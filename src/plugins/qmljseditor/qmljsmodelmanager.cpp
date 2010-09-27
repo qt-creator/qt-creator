@@ -41,6 +41,8 @@
 #include <qmljs/parser/qmldirparser_p.h>
 #include <texteditor/itexteditor.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
+#include <qt4projectmanager/qmldumptool.h>
 
 #include <QDir>
 #include <QFile>
@@ -472,18 +474,14 @@ void ModelManager::onLoadPluginTypes(const QString &libraryPath, const QString &
     if (m_runningQmldumps.values().contains(canonicalLibraryPath))
         return;
 
+    // TODO shouldn't be static - instead, if project changes, qmldump should probably change too.
     static QString qmldumpPath;
     if (qmldumpPath.isNull()) {
-        QDir qmldumpExecutable(QCoreApplication::applicationDirPath());
-#ifdef Q_OS_WIN
-        qmldumpPath = qmldumpExecutable.absoluteFilePath(QLatin1String("qmldump.exe"));
-#else // !Q_OS_WIN
-#  ifdef Q_OS_MAC
-        qmldumpPath = qmldumpExecutable.absoluteFilePath(QLatin1String("qmldump.app/Contents/MacOS/qmldump"));
-#  else // !Q_OS_MAC
-        qmldumpPath = qmldumpExecutable.absoluteFilePath(QLatin1String("qmldump"));
-#  endif // Q_OS_MAC
-#endif // Q_OS_WIN
+
+        ProjectExplorer::Project *activeProject = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
+        qmldumpPath = Qt4ProjectManager::QmlDumpTool::qmlDumpToolForProject(activeProject);
+        // ### no support for .qmlproject projects or cmake projects.
+
         QFileInfo qmldumpFileInfo(qmldumpPath);
         if (!qmldumpFileInfo.exists()) {
             qWarning() << "ModelManager::loadQmlPluginTypes: qmldump executable does not exist at" << qmldumpPath;

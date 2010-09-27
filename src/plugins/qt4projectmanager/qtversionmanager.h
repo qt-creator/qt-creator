@@ -114,6 +114,8 @@ public:
     QStringList debuggingHelperLibraryLocations() const;
     bool supportsBinaryDebuggingHelper() const;
 
+    bool hasQmlDump() const;
+
     // Builds a debugging library
     // returns the output of the commands
     QString buildDebuggingHelperLibrary();
@@ -169,6 +171,7 @@ private:
     bool m_isAutodetected;
     QString m_autodetectionSource;
     mutable bool m_hasDebuggingHelper; // controlled by m_versionInfoUpToDate
+    mutable bool m_hasQmlDump;         // controlled by m_versionInfoUpToDate
 
     QString m_mwcDirectory;
     QString m_s60SDKDirectory;
