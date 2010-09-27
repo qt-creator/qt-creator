@@ -32,6 +32,8 @@
 #include "ui_contextpanewidgetborderimage.h"
 #include <qmljs/qmljspropertyreader.h>
 #include <QFile>
+#include <QFileInfo>
+#include <QDir>
 #include <QPixmap>
 #include <QPainter>
 #include <QGraphicsEffect>
@@ -390,6 +392,68 @@ void ContextPaneWidgetImage::onBottomMarginsChanged()
 
 }
 
+static inline Qt::TileRule stringToRule(const QString &s)
+{
+    if (s == QLatin1String("Stretch"))
+        return  Qt::StretchTile;
+    if (s == QLatin1String("Repeat"))
+        return  Qt::RepeatTile;
+    if (s == QLatin1String("Round"))
+        return Qt::RoundTile;
+
+    qWarning("QDeclarativeGridScaledImage: Invalid tile rule specified. Using Stretch.");
+    return  Qt::StretchTile;
+}
+
+static inline bool parseSciFile(const QString &fileName, QString &pixmapFileName, int &left, int &right, int &top, int &bottom, Qt::TileRule &horizontalTileRule, Qt::TileRule &verticalTileRule)
+{
+    int l = -1;
+    int r = -1;
+    int t = -1;
+    int b = -1;
+    QString imgFile;
+
+    QFile data(fileName);
+    data.open(QIODevice::ReadOnly);
+
+    QByteArray raw;
+    while(raw = data.readLine(), !raw.isEmpty()) {
+        QString line = QString::fromUtf8(raw.trimmed());
+        if (line.isEmpty() || line.startsWith(QLatin1Char('#')))
+            continue;
+
+        QStringList list = line.split(QLatin1Char(':'));
+        if (list.count() != 2)
+            return false;
+
+        list[0] = list[0].trimmed();
+        list[1] = list[1].trimmed();
+
+        if (list[0] == QLatin1String("border.left"))
+            l = list[1].toInt();
+        else if (list[0] == QLatin1String("border.right"))
+            r = list[1].toInt();
+        else if (list[0] == QLatin1String("border.top"))
+            t = list[1].toInt();
+        else if (list[0] == QLatin1String("border.bottom"))
+            b = list[1].toInt();
+        else if (list[0] == QLatin1String("source"))
+            imgFile = list[1];
+        else if (list[0] == QLatin1String("horizontalTileRule"))
+            horizontalTileRule = stringToRule(list[1]);
+        else if (list[0] == QLatin1String("verticalTileRule"))
+           verticalTileRule = stringToRule(list[1]);
+    }
+
+    if (l < 0 || r < 0 || t < 0 || b < 0 || imgFile.isEmpty())
+        return false;
+
+    left = l; right = r; top = t; bottom = b;
+
+    pixmapFileName = imgFile;
+
+    return true;
+}
 
 void ContextPaneWidgetImage::setPixmap(const QString &fileName)
 {
@@ -397,8 +461,25 @@ void ContextPaneWidgetImage::setPixmap(const QString &fileName)
     pix.fill(Qt::black);
 
     if (m_borderImage) {
+        QString localFileName(fileName);
         if (QFile(fileName).exists()) {
-            QPixmap source(fileName);
+            if (fileName.endsWith(QLatin1String("sci"))) {
+                QString pixmapFileName;
+                int left;
+                int right;
+                int top;
+                int bottom;
+                Qt::TileRule horizontalTileRule;
+                Qt::TileRule verticalTileRule;
+                if (parseSciFile(fileName, pixmapFileName, left, right, top, bottom, horizontalTileRule, verticalTileRule)) {
+                    localFileName = QFileInfo(fileName).absoluteDir().absolutePath() + '/' + pixmapFileName;
+                    previewDialog()->previewLabel()->setMargins(left, top, right, bottom);
+                } else { // sci file not parsed correctly
+                    uiBorderImage->sizeLabel->setText("");
+                    return;
+                }
+            }
+            QPixmap source(localFileName);
             if (source.isNull())
                 source = pix;
             previewDialog()->setPixmap(source, previewDialog()->zoom());
