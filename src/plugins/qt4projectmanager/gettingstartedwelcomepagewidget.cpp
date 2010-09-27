@@ -38,6 +38,7 @@
 #include <projectexplorer/projectexplorer.h>
 
 #include <utils/pathchooser.h>
+#include <utils/qtcassert.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -74,7 +75,8 @@ void PixmapDownloader::populatePixmap(QNetworkReply *reply) {
 }
 
 GettingStartedWelcomePageWidget::GettingStartedWelcomePageWidget(QWidget *parent) :
-    QWidget(parent), ui(new Ui::GettingStartedWelcomePageWidget), m_rssFetcher(0)
+    QWidget(parent), ui(new Ui::GettingStartedWelcomePageWidget),
+    m_currentFeature(0), m_rssFetcher(0)
 {
     ui->setupUi(this);
 
@@ -123,10 +125,10 @@ GettingStartedWelcomePageWidget::GettingStartedWelcomePageWidget(QWidget *parent
     const QString featureRssFile = Core::ICore::instance()->resourcePath()+QLatin1String("/rss/featured.rss");
     emit startRssFetching(QUrl::fromLocalFile(featureRssFile));
 
+    ui->nextFeatureBtn->setEnabled(false);
+    ui->prevFeatureBtn->setEnabled(false);
     connect(ui->nextFeatureBtn, SIGNAL(clicked()), this, SLOT(slotNextFeature()));
     connect(ui->prevFeatureBtn, SIGNAL(clicked()), this, SLOT(slotPrevFeature()));
-
-
     QTimer::singleShot(0, this, SLOT(slotSetPrivateQmlExamples()));
 }
 
@@ -453,10 +455,15 @@ QStringList GettingStartedWelcomePageWidget::tipsOfTheDay()
 void GettingStartedWelcomePageWidget::addToFeatures(const RssItem &feature)
 {
     m_featuredItems.append(feature);
+    ui->nextFeatureBtn->setEnabled(true);
+    ui->prevFeatureBtn->setEnabled(true);
 }
 
 void GettingStartedWelcomePageWidget::showFeature(int feature)
 {
+    if (m_featuredItems.isEmpty())
+        return;
+
     if (feature == -1) {
         srand(QDateTime::currentDateTime().toTime_t());
         m_currentFeature = rand()%m_featuredItems.count();
@@ -489,17 +496,17 @@ void GettingStartedWelcomePageWidget::showFeature(int feature)
 
 void GettingStartedWelcomePageWidget::slotNextFeature()
 {
-    m_currentFeature = ((m_currentFeature+1)%m_featuredItems.count());
+    QTC_ASSERT(!m_featuredItems.isEmpty(), return);
+    m_currentFeature = (m_currentFeature+1) % m_featuredItems.count();
     showFeature(m_currentFeature);
 }
 
 void GettingStartedWelcomePageWidget::slotPrevFeature()
 {
-    m_currentFeature = ((m_currentFeature-1)+m_featuredItems.count())%m_featuredItems.count();
+    QTC_ASSERT(!m_featuredItems.isEmpty(), return);
+    m_currentFeature = ((m_currentFeature-1)+m_featuredItems.count()) % m_featuredItems.count();
     showFeature(m_currentFeature);
 }
-
-
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
