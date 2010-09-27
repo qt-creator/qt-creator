@@ -567,17 +567,11 @@ void Qt4Project::updateCppCodeModel()
 
 void Qt4Project::updateQmlJSCodeModel()
 {
-    QObject *modelManager =
-            ExtensionSystem::PluginManager::instance()->getObjectByName(QmlJS::MODELMANAGERINTERFACE_OBJECTNAME);
+    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
     if (!modelManager)
         return;
 
-    QmlJS::ModelManagerInterface::ProjectInfo projectInfo;
-    bool success = QMetaObject::invokeMethod(
-                modelManager, "projectInfo", Qt::DirectConnection,
-                Q_RETURN_ARG(QmlJS::ModelManagerInterface::ProjectInfo, projectInfo),
-                Q_ARG(ProjectExplorer::Project *, this));
-    QTC_ASSERT(success, return);
+    QmlJS::ModelManagerInterface::ProjectInfo projectInfo = modelManager->projectInfo(this);
 
     // Not essential since the QmlJS engine parses required files on demand.
     //projectInfo.sourceFiles = ...
@@ -590,10 +584,7 @@ void Qt4Project::updateQmlJSCodeModel()
     }
     projectInfo.importPaths.removeDuplicates();
 
-    success = QMetaObject::invokeMethod(
-                modelManager, "updateProjectInfo", Qt::DirectConnection,
-                Q_ARG(QmlJS::ModelManagerInterface::ProjectInfo, projectInfo));
-    QTC_ASSERT(success, return);
+    modelManager->updateProjectInfo(projectInfo);
 }
 
 void Qt4Project::qtVersionsChanged()

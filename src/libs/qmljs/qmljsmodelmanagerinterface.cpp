@@ -38,7 +38,6 @@ ModelManagerInterface::ModelManagerInterface(QObject *parent)
 {
     Q_ASSERT(! g_instance);
     g_instance = this;
-    setObjectName(MODELMANAGERINTERFACE_OBJECTNAME);
 }
 
 ModelManagerInterface::~ModelManagerInterface()
