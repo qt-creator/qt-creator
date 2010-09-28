@@ -145,7 +145,7 @@ AbstractMobileAppWizardDialog *QmlStandaloneAppWizard::createWizardDialogInterna
         if (!isNumber || majorVersion < 4)
             continue;
         const int minorVersion = versionString.mid(2, 1).toInt(&isNumber);
-        if (!isNumber || minorVersion < 7)
+        if (!isNumber || (majorVersion == 4 && minorVersion < 7))
             continue;
         qmlQtVersions << qtVersion;
     }
