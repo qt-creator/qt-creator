@@ -102,12 +102,13 @@ void MobileLibraryParameters::writeSymbianProFile(QTextStream &str) const
            "    addFiles.sources = " + fileName + ".dll\n"
            "    addFiles.path = !:/sys/bin\n"
            "    DEPLOYMENT += addFiles\n"
-           "}";
+           "}\n";
 }
 
 void MobileLibraryParameters::writeMaemoProFile(QTextStream &str) const
 {
-    str << " else:unix {\n"
+    str << "\n"
+           "unix:!symbian {\n"
            "    maemo5 {\n"
            "        target.path = /opt/usr/lib\n"
            "    } else {\n"
