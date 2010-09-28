@@ -15,6 +15,11 @@ DEFINES += NETWORKACCESS
 # TARGETUID3 #
 symbian:TARGET.UID3 = 0xE1111234
 
+# Smart Installer package's UID
+# This UID is from the protected range 
+# and therefore the package will fail to install if self-signed
+symbian:DEPLOYMENT.installer_header = 0x2002CCCF
+
 symbian:ICON = symbianicon.svg
 
 SOURCES += main.cpp mainwindow.cpp
