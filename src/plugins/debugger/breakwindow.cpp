@@ -385,20 +385,12 @@ bool BreakWindow::editBreakpoint(BreakpointData *data)
     bool ok = false;
     data->lineNumber = dialog.lineEditLineNumber->text().toInt();
     data->useFullPath = dialog.checkBoxUseFullPath->isChecked();
-    if (!dialog.lineEditAddress->text().isEmpty())
-        data->address = dialog.lineEditAddress->text().toULongLong(&ok, 0);
-    if (!dialog.lineEditFunction->text().isEmpty())
-        data->funcName = dialog.lineEditFunction->text();
-    if (!dialog.lineEditFunction->text().isEmpty())
-        data->funcName = dialog.lineEditFunction->text();
-    if (!dialog.pathChooserFileName->path().isEmpty())
-        data->fileName = dialog.pathChooserFileName->lineEdit()->text();
-    if (!dialog.lineEditCondition->text().isEmpty())
-        data->condition = dialog.lineEditCondition->text().toUtf8();
-    if (!dialog.lineEditIgnoreCount->text().isEmpty())
-        data->ignoreCount = dialog.lineEditIgnoreCount->text().toInt();
-    if (!dialog.lineEditThreadSpec->text().isEmpty())
-        data->threadSpec = dialog.lineEditThreadSpec->text().toUtf8();
+    data->address = dialog.lineEditAddress->text().toULongLong(&ok, 0);
+    data->funcName = dialog.lineEditFunction->text();
+    data->fileName = dialog.pathChooserFileName->lineEdit()->text();
+    data->condition = dialog.lineEditCondition->text().toUtf8();
+    data->ignoreCount = dialog.lineEditIgnoreCount->text().toInt();
+    data->threadSpec = dialog.lineEditThreadSpec->text().toUtf8();
     return true;
 }
 
