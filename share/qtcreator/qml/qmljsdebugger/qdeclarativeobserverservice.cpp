@@ -236,4 +236,12 @@ QString QDeclarativeObserverService::idStringForObject(QObject *obj) const
     return idString;
 }
 
+void QDeclarativeObserverService::sendMessage(const QByteArray &message)
+{
+    if (status() != Enabled)
+        return;
+
+    QDeclarativeDebugService::sendMessage(message);
+}
+
 } // namespace QmlJSDebugger

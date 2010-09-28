@@ -70,6 +70,8 @@ public:
     void reloaded();
     QString idStringForObject(QObject *obj) const;
 
+    void sendMessage(const QByteArray &message);
+
 public Q_SLOTS:
     void selectedColorChanged(const QColor &color);
     void contextPathUpdated(const QStringList &contextPath);
