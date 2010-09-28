@@ -137,7 +137,7 @@ QList<QToolButton *> NavigationWidget::createToolButtons()
         d_ptr->fullProjectsModeButton->setIcon(
                 QIcon(QLatin1String(":/classview/images/hierarchicalmode.png")));
         d_ptr->fullProjectsModeButton->setCheckable(true);
-        d_ptr->fullProjectsModeButton->setToolTip(tr("Show subprojects"));
+        d_ptr->fullProjectsModeButton->setToolTip(tr("Show Subprojects"));
 
         // by default - not a flat mode
         setFlatMode(false);
