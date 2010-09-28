@@ -329,7 +329,7 @@ void BaseTextFind::defineFindScope()
 {
     QTextCursor cursor = textCursor();
     if (cursor.hasSelection() && cursor.block() != cursor.document()->findBlock(cursor.anchor())) {
-        d->m_findScopeStart = QTextCursor(document()->docHandle(), qMax(0, cursor.selectionStart()-1));
+        d->m_findScopeStart = QTextCursor(document()->docHandle(), qMax(0, cursor.selectionStart()));
         d->m_findScopeEnd = QTextCursor(document()->docHandle(), cursor.selectionEnd());
         d->m_findScopeVerticalBlockSelectionFirstColumn = -1;
         d->m_findScopeVerticalBlockSelectionLastColumn = -1;
@@ -344,7 +344,7 @@ void BaseTextFind::defineFindScope()
         emit findScopeChanged(d->m_findScopeStart, d->m_findScopeEnd,
                               d->m_findScopeVerticalBlockSelectionFirstColumn,
                               d->m_findScopeVerticalBlockSelectionLastColumn);
-        cursor.setPosition(d->m_findScopeStart.position()+1);
+        cursor.setPosition(d->m_findScopeStart.position());
         setTextCursor(cursor);
     } else {
         clearFindScope();
