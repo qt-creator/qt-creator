@@ -2168,8 +2168,7 @@ void DebuggerPluginPrivate::setSimpleDockWidgetArrangement
 
     if ((activeLanguages.testFlag(CppLanguage)
                 && !activeLanguages.testFlag(QmlLanguage))
-            || activeLanguages == AnyLanguage
-            || !uiSwitcher->qmlInspectorWindow()) {
+            || activeLanguages == AnyLanguage) {
         m_stackDock->show();
         m_breakDock->show();
         m_watchDock->show();
@@ -2180,7 +2179,8 @@ void DebuggerPluginPrivate::setSimpleDockWidgetArrangement
         m_breakDock->show();
         m_watchDock->show();
         m_scriptConsoleDock->show();
-        uiSwitcher->qmlInspectorWindow()->show();
+        if (uiSwitcher->qmlInspectorWindow())
+            uiSwitcher->qmlInspectorWindow()->show();
     }
     mw->splitDockWidget(mw->toolBarDockWidget(), m_stackDock, Qt::Vertical);
     mw->splitDockWidget(m_stackDock, m_watchDock, Qt::Horizontal);
