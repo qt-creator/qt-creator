@@ -285,6 +285,9 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
 
     const BreakpointData *data = at(mi.row());
 
+    if (role == BreakpointRole)
+        return qulonglong(data);
+
     if (role == BreakpointUseFullPathRole)
         return data->useFullPath;
 
@@ -500,6 +503,15 @@ bool BreakHandler::setData(const QModelIndex &index, const QVariant &value, int 
             return true;
     }
     return false;
+}
+
+void BreakHandler::reinsertBreakpoint(BreakpointData *data)
+{
+    // FIXME: Use some more direct method?
+    appendBreakpoint(data->clone());
+    removeBreakpoint(data);
+    m_engine->attemptBreakpointSynchronization();
+    emit layoutChanged();
 }
 
 void BreakHandler::append(BreakpointData *data)

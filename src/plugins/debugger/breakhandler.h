@@ -66,7 +66,6 @@ public:
     BreakpointData *at(int index) const;
     int size() const { return m_bp.size(); }
     bool hasPendingBreakpoints() const;
-    void append(BreakpointData *data);
     void removeAt(int index); // This also deletes the marker.
     void clear(); // This also deletes all the marker.
     int indexOf(BreakpointData *data) { return m_bp.indexOf(data); }
@@ -99,6 +98,7 @@ public:
 
 public slots:
     void appendBreakpoint(BreakpointData *data);
+    void reinsertBreakpoint(BreakpointData *data);
     void toggleBreakpointEnabled(BreakpointData *data);
     void breakByFunction(const QString &functionName);
     void removeBreakpoint(int index);
@@ -119,6 +119,7 @@ private:
     void loadBreakpoints();
     void saveBreakpoints();
     void removeBreakpointHelper(int index);
+    void append(BreakpointData *data);
 
     const QIcon m_breakpointIcon;
     const QIcon m_disabledBreakpointIcon;

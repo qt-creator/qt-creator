@@ -204,6 +204,7 @@ enum ModelRoles
     RequestExecuteCommandRole,
 
     // Breakpoints
+    BreakpointRole,
     BreakpointEnabledRole,
     BreakpointUseFullPathRole,
     BreakpointFunctionNameRole,
