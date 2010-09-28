@@ -15462,13 +15462,13 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
         <location line="+113"/>
         <source>Check All</source>
         <extracomment>Check all for submit</extracomment>
-        <translation>Haken für alle setzen</translation>
+        <translation>Alle markieren</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Uncheck All</source>
         <extracomment>Uncheck all for submit</extracomment>
-        <translation>Alle Haken entfernen</translation>
+        <translation>Alle Markierungen entfernen</translation>
     </message>
 </context>
 <context>
@@ -21253,27 +21253,27 @@ Haben Sie Qemu gestartet?</translation>
     <message>
         <location line="+29"/>
         <source>Check All</source>
-        <translation>Haken für alle setzen</translation>
+        <translation>Alle markieren</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Check all Qt versions</source>
-        <translation>Alle Qt-Versionen setzen</translation>
+        <translation>Alle Qt-Versionen markieren</translation>
     </message>
     <message>
         <location line="+47"/>
         <source>Check only this version</source>
-        <translation>Haken nur für diese Qt-Version setzen</translation>
+        <translation>Nur diese Qt-Version markieren</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Check all versions</source>
-        <translation>Haken für alle Qt-Versionen setzen</translation>
+        <translation>Alle Qt-Versionen markieren</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Uncheck all versions</source>
-        <translation>Haken bei allen Qt-Versionen entfernen</translation>
+        <translation>Alle Markierungen von Qt-Versionen entfernen</translation>
     </message>
     <message>
         <location line="+39"/>
@@ -21342,13 +21342,13 @@ Haben Sie Qemu gestartet?</translation>
         <location/>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/targetsetuppage.cpp" line="-155"/>
         <source>Uncheck all Qt versions</source>
-        <translation>Haken bei allen Qt-Versionen entfernen</translation>
+        <translation>Alle Markierungen von Qt-Versionen entfernen</translation>
     </message>
     <message>
         <location/>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/targetsetuppage.cpp" line="-2"/>
         <source>Uncheck All</source>
-        <translation>Alle Haken entfernen</translation>
+        <translation>Alle Markierungen entfernen</translation>
     </message>
 </context>
 <context>
