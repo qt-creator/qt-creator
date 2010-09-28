@@ -569,17 +569,6 @@ void GdbEngine::tryQueryDebuggingHelpersClassic()
         CB(handleQueryDebuggingHelperClassic));
 }
 
-void GdbEngine::recheckDebuggingHelperAvailabilityClassic()
-{
-    PRECONDITION;
-    if (m_gdbAdapter->dumperHandling() != AbstractGdbAdapter::DumperNotAvailable) {
-        // Retrieve list of dumpable classes.
-        postCommand("call (void*)qDumpObjectData440(1,0,0,0,0,0,0,0)");
-        postCommand("p (char*)&qDumpOutBuffer",
-            CB(handleQueryDebuggingHelperClassic));
-    }
-}
-
 // Called from CoreAdapter and AttachAdapter
 void GdbEngine::updateAllClassic()
 {

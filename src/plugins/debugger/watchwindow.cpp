@@ -376,20 +376,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         menu.addAction(actSetWatchPointAtPointerValue);
     menu.addSeparator();
 
-    menu.addAction(theDebuggerAction(RecheckDebuggingHelpers));
     menu.addAction(theDebuggerAction(UseDebuggingHelpers));
-    QAction *actClearCodeModelSnapshot
-        = new QAction(tr("Refresh Code Model Snapshot"), &menu);
-    actClearCodeModelSnapshot->setEnabled(actionsEnabled
-        && theDebuggerAction(UseCodeModel)->isChecked());
-    menu.addAction(actClearCodeModelSnapshot);
-    QAction *actShowInEditor
-        = new QAction(tr("Show View Contents in Editor"), &menu);
-    actShowInEditor->setEnabled(actionsEnabled);
-    menu.addAction(actShowInEditor);
-    menu.addSeparator();
     menu.addAction(theDebuggerAction(UseToolTipsInLocalsView));
-
     menu.addAction(theDebuggerAction(AutoDerefPointers));
     menu.addAction(theDebuggerAction(ShowStdNamespace));
     menu.addAction(theDebuggerAction(ShowQtNamespace));
@@ -403,6 +391,15 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     actAlwaysAdjustColumnWidth->setChecked(m_alwaysResizeColumnsToContents);
 
     menu.addSeparator();
+    QAction *actClearCodeModelSnapshot
+        = new QAction(tr("Refresh Code Model Snapshot"), &menu);
+    actClearCodeModelSnapshot->setEnabled(actionsEnabled
+        && theDebuggerAction(UseCodeModel)->isChecked());
+    menu.addAction(actClearCodeModelSnapshot);
+    QAction *actShowInEditor
+        = new QAction(tr("Show View Contents in Editor"), &menu);
+    actShowInEditor->setEnabled(actionsEnabled);
+    menu.addAction(actShowInEditor);
     menu.addAction(theDebuggerAction(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());

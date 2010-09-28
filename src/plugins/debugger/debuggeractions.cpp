@@ -317,9 +317,6 @@ DebuggerSettings *DebuggerSettings::instance()
     item->setValue(true);
     instance->insertItem(UseCodeModel, item);
 
-    item = new SavedAction(instance);
-    item->setText(tr("Recheck Debugging Helper Availability"));
-    instance->insertItem(RecheckDebuggingHelpers, item);
 
     //
     // Breakpoints

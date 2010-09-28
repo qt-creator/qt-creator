@@ -2235,7 +2235,6 @@ void DebuggerPluginPrivate::setInitialState()
     m_actions.jumpToLineAction2->setEnabled(false);
     m_actions.nextAction->setEnabled(false);
 
-    theDebuggerAction(RecheckDebuggingHelpers)->setEnabled(false);
     theDebuggerAction(AutoDerefPointers)->setEnabled(true);
     theDebuggerAction(ExpandStack)->setEnabled(false);
     theDebuggerAction(ExecuteCommand)->setEnabled(m_state == InferiorStopOk);
@@ -2347,7 +2346,6 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
 
     m_actions.nextAction->setEnabled(stopped);
 
-    theDebuggerAction(RecheckDebuggingHelpers)->setEnabled(actionsEnabled);
     const bool canDeref = actionsEnabled
         && (m_capabilities & AutoDerefPointersCapability);
     theDebuggerAction(AutoDerefPointers)->setEnabled(canDeref);
