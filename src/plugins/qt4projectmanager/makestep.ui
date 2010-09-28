@@ -11,18 +11,14 @@
    </rect>
   </property>
   <layout class="QFormLayout" name="formLayout">
+   <property name="fieldGrowthPolicy">
+    <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+   </property>
    <property name="margin">
     <number>0</number>
    </property>
-   <item row="0" column="0">
-    <widget class="QLabel" name="makeLabel">
-     <property name="text">
-      <string>Override %1:</string>
-     </property>
-    </widget>
-   </item>
    <item row="0" column="1">
-    <widget class="QLineEdit" name="makeLineEdit"/>
+    <widget class="Utils::PathChooser" name="makePathChooser"/>
    </item>
    <item row="1" column="0">
     <widget class="QLabel" name="makeArgumentsLabel">
@@ -34,8 +30,22 @@
    <item row="1" column="1">
     <widget class="QLineEdit" name="makeArgumentsLineEdit"/>
    </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="makeLabel">
+     <property name="text">
+      <string>Override %1:</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::PathChooser</class>
+   <extends>QLineEdit</extends>
+   <header>utils/pathchooser.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
