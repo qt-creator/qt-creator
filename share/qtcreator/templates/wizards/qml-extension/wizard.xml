@@ -43,8 +43,8 @@ leave room for the Qt 4 target page.
     <displaycategory>QML Extension Plugin</displaycategory>
     <files>
         <file source="qmldir" target="qmldir"/>
-        <file source="plugin.h" target="%ProjectName:l%.%CppHeaderSuffix%"/>
-        <file source="plugin.cpp" target="%ProjectName:l%.%CppSourceSuffix%"/>
+        <file source="plugin.h" target="%ProjectName:l%_plugin.%CppHeaderSuffix%"/>
+        <file source="plugin.cpp" target="%ProjectName:l%_plugin.%CppSourceSuffix%"/>
         <file source="object.h" target="%ObjectName:l%.%CppHeaderSuffix%"/>
         <file source="object.cpp" target="%ObjectName:l%.%CppSourceSuffix%" openeditor="true"/>
         <file source="project.pro" target="%ProjectName:l%.pro" openproject="true"/>
@@ -53,14 +53,13 @@ leave room for the Qt 4 target page.
     <fieldpagetitle>Custom QML Extension  Plugin Parameters</fieldpagetitle>
     <fields>
         <field mandatory="false" name="ObjectName">
-            <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9_]+$'  defaulttext="ExampleObject"/>
+            <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9_]+$'  defaulttext="MyItem"/>
             <fielddescription>Object Class-name:</fielddescription>
         </field>
     </fields>
     <validationrules>
-        <validationrule condition='"%ObjectName%" != "%ProjectName%"'>
+        <validationrule condition='"%ObjectName%" != "%ProjectName%_plugin"'>
             <message>The project name and the object class-name cannot be the same.</message>
-            <message xml:lang='nl'>De naam voor het project en de naam voor de klasse kunnen niet hetzelfde zijn.</message>
         </validationrule>
     </validationrules>
 </wizard>

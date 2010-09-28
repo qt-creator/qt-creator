@@ -1,5 +1,5 @@
 TEMPLATE = lib
-TARGET  = %ProjectName%
+TARGET = %ProjectName%
 QT += declarative
 CONFIG += qt plugin
 
@@ -7,11 +7,11 @@ TARGET = $$qtLibraryTarget($$TARGET)
 
 # Input
 SOURCES += \
-    %ProjectName:l%.%CppSourceSuffix% \
+    %ProjectName:l%_plugin.%CppSourceSuffix% \
     %ObjectName:l%.%CppSourceSuffix%
 
-OTHER_FILES=qmldir
-
 HEADERS += \
-    %ProjectName:l%.%CppHeaderSuffix% \
+    %ProjectName:l%_plugin.%CppHeaderSuffix% \
     %ObjectName:l%.%CppHeaderSuffix%
+
+OTHER_FILES = qmldir

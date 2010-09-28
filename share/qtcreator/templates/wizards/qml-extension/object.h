@@ -1,17 +1,18 @@
 #ifndef %ObjectName:u%_H
 #define %ObjectName:u%_H
 
-#include <QtCore/QObject>
-#include <QtCore/QString>
-#include <QtCore/QTimer>
+#include <QtDeclarative/QDeclarativeItem>
 
-class %ObjectName% : public QObject
+class %ObjectName% : public QDeclarativeItem
 {
     Q_OBJECT
     Q_DISABLE_COPY(%ObjectName%)
 
 public:
-    %ObjectName%(QObject *parent = 0);
+    %ObjectName%(QDeclarativeItem *parent = 0);
+    ~%ObjectName%();
 };
+
+QML_DECLARE_TYPE(%ObjectName%)
 
 #endif // %ObjectName:u%_H
