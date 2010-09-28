@@ -1265,8 +1265,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     // Cpp/Qml ui setup
     m_uiSwitcher = new DebuggerUISwitcher(m_debugMode, this);
     ExtensionSystem::PluginManager::instance()->addObject(m_uiSwitcher);
-    m_uiSwitcher->addLanguage(CppLanguage, tr("C++"), cppDebuggercontext);
-    m_uiSwitcher->addLanguage(QmlLanguage, tr("QML/JavaScript"), qmlDebuggerContext);
+    m_uiSwitcher->addLanguage(CppLanguage, cppDebuggercontext);
+    m_uiSwitcher->addLanguage(QmlLanguage, qmlDebuggerContext);
 
     // Dock widgets
     m_breakDock = m_uiSwitcher->createDockWidget(CppLanguage, m_breakWindow);
