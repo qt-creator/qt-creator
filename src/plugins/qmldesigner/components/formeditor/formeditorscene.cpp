@@ -200,8 +200,8 @@ FormEditorItem *FormEditorScene::addFormEditorItem(const QmlItemNode &qmlItemNod
         QRectF sceneRect(qmlItemNode.instanceBoundingRect());
 
         setSceneRect(sceneRect);
-       formLayerItem()->update();
-       manipulatorLayerItem()->update();
+        formLayerItem()->update();
+        manipulatorLayerItem()->update();
     }
 
 

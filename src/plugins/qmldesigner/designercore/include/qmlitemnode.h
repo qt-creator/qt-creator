@@ -68,6 +68,9 @@ public:
     bool canReparent() const;
     bool instanceIsAnchoredBySibling() const;
     bool instanceIsAnchoredByChildren() const;
+    bool instanceIsMovable() const;
+    bool instanceIsResizable() const;
+    bool instanceIsInPositioner() const;
 
     QRectF instanceBoundingRect() const;
     QTransform instanceTransform() const;

@@ -94,7 +94,8 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/exceptions/rewritingexception.cpp \
     $$PWD/instances/nodeinstancemetaobject.cpp \
     $$PWD/instances/behaviornodeinstance.cpp \
-    $$PWD/instances/nodeinstancesignalspy.cpp
+    $$PWD/instances/nodeinstancesignalspy.cpp \
+    $$PWD/instances/positionernodeinstance.cpp
 
 HEADERS += $$PWD/include/corelib_global.h \
     $$PWD/include/abstractview.h \
@@ -187,7 +188,8 @@ HEADERS += $$PWD/include/corelib_global.h \
     $$PWD/include/rewritingexception.h \
     $$PWD/instances/nodeinstancemetaobject.h \
     $$PWD/instances/behaviornodeinstance.h \
-    $$PWD/instances/nodeinstancesignalspy.h
+    $$PWD/instances/nodeinstancesignalspy.h \
+    $$PWD/instances/positionernodeinstance.h
 
 contains(CONFIG, plugin) {
   # If core.pri has been included in the qmldesigner plugin

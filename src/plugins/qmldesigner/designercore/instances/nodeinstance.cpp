@@ -42,6 +42,7 @@
 #include "componentnodeinstance.h"
 #include "qmltransitionnodeinstance.h"
 #include "qmlpropertychangesnodeinstance.h"
+#include "positionernodeinstance.h"
 #include "behaviornodeinstance.h"
 #include "qmlstatenodeinstance.h"
 #include "nodeabstractproperty.h"
@@ -144,6 +145,8 @@ Internal::ObjectNodeInstance::Pointer NodeInstance::createInstance(const NodeMet
         instance = Internal::QDeclarativeViewNodeInstance::create(metaInfo, context, objectToBeWrapped);
     else if (metaInfo.isSubclassOf("Qt/QGraphicsWidget", 4, 7))
         instance = Internal::GraphicsWidgetNodeInstance::create(metaInfo, context, objectToBeWrapped);
+    else if (metaInfo.isSubclassOf("QDeclarativeBasePositioner", 4, 7))
+        instance = Internal::PositionerNodeInstance::create(metaInfo, context, objectToBeWrapped);
     else if (metaInfo.isSubclassOf("Qt/Item", 4, 7))
         instance = Internal::QmlGraphicsItemNodeInstance::create(metaInfo, context, objectToBeWrapped);
     else if (metaInfo.isSubclassOf("Qt/QGraphicsScene", 4, 7))
@@ -341,6 +344,11 @@ bool NodeInstance::isTransition() const
     return m_nodeInstance->isTransition();
 }
 
+bool NodeInstance::isPositioner() const
+{
+    return m_nodeInstance->isPositioner();
+}
+
 /*!
 \brief Returns if the NodeInstance is a QGraphicsItem.
 \returns true if this NodeInstance is a QGraphicsItem
@@ -458,6 +466,21 @@ void NodeInstance::makeInvalid()
 bool NodeInstance::hasContent() const
 {
     return m_nodeInstance->hasContent();
+}
+
+bool NodeInstance::isResizable() const
+{
+    return m_nodeInstance->isResizable();
+}
+
+bool NodeInstance::isMovable() const
+{
+    return m_nodeInstance->isMovable();
+}
+
+bool NodeInstance::isInPositioner() const
+{
+    return m_nodeInstance->isInPositioner();
 }
 
 bool NodeInstance::hasAnchor(const QString &name) const

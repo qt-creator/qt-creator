@@ -117,6 +117,8 @@ public:
     virtual bool isQDeclarativeView() const;
     virtual bool isGraphicsObject() const;
     virtual bool isTransition() const;
+    virtual bool isPositioner() const;
+
 
     virtual bool equalGraphicsItem(QGraphicsItem *item) const;
 
@@ -165,6 +167,10 @@ public:
     QObject *object() const;
 
     virtual bool hasContent() const;
+    virtual bool isResizable() const;
+    virtual bool isMovable() const;
+    bool isInPositioner() const;
+    void setInPositioner(bool isInPositioner);
 
     bool hasBindingForProperty(const QString &name) const;
 
@@ -207,6 +213,7 @@ private:
     QWeakPointer<QObject> m_object;
     NodeInstanceMetaObject *m_metaObject;
     NodeInstanceSignalSpy m_signalSpy;
+    bool m_isInPositioner;
 };
 
 

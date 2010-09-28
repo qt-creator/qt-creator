@@ -201,6 +201,21 @@ bool QmlItemNode::instanceIsAnchoredByChildren() const
     return nodeInstance().isAnchoredByChildren();
 }
 
+bool QmlItemNode::instanceIsMovable() const
+{
+    return nodeInstance().isMovable();
+}
+
+bool QmlItemNode::instanceIsResizable() const
+{
+    return nodeInstance().isResizable();
+}
+
+bool QmlItemNode::instanceIsInPositioner() const
+{
+    return nodeInstance().isInPositioner();
+}
+
 QRectF  QmlItemNode::instanceBoundingRect() const
 {
     return nodeInstance().boundingRect();

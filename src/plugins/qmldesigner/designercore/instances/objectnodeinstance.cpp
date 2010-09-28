@@ -98,7 +98,8 @@ bool ChildrenChangeEventFilter::eventFilter(QObject * /*object*/, QEvent *event)
 ObjectNodeInstance::ObjectNodeInstance(QObject *object)
     : m_deleteHeldInstance(true),
     m_object(object),
-    m_metaObject(0)
+    m_metaObject(0),
+    m_isInPositioner(false)
 {
 
 }
@@ -245,6 +246,11 @@ bool ObjectNodeInstance::isGraphicsObject() const
 }
 
 bool ObjectNodeInstance::isTransition() const
+{
+    return false;
+}
+
+bool ObjectNodeInstance::isPositioner() const
 {
     return false;
 }
@@ -793,6 +799,26 @@ QObject *ObjectNodeInstance::object() const
 bool ObjectNodeInstance::hasContent() const
 {
     return false;
+}
+
+bool ObjectNodeInstance::isResizable() const
+{
+    return false;
+}
+
+bool ObjectNodeInstance::isMovable() const
+{
+    return false;
+}
+
+bool ObjectNodeInstance::isInPositioner() const
+{
+    return m_isInPositioner;
+}
+
+void ObjectNodeInstance::setInPositioner(bool isInPositioner)
+{
+    m_isInPositioner = isInPositioner;
 }
 
 void ObjectNodeInstance::updateAnchors()
