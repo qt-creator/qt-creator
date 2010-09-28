@@ -91,11 +91,10 @@ void MobileLibraryParameters::writeProFile(QTextStream &str) const
 void MobileLibraryParameters::writeSymbianProFile(QTextStream &str) const
 {
     if (libraryType != QtProjectParameters::SharedLibrary)
-        return; //nothing to do when the library is not shared library
+        return; //nothing to do when the library is not a shared library
 
     str << "\n"
            "symbian {\n"
-           "    #Symbian specific definitions\n"
            "    MMP_RULES += EXPORTUNFROZEN\n"
            "    TARGET.UID3 = " + symbianUid + "\n"
            "    TARGET.CAPABILITY = " + generateCapabilitySet(symbianCapabilities).toAscii() + "\n"
