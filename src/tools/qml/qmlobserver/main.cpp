@@ -179,7 +179,7 @@ int main(int argc, char ** argv)
 
 #if defined (Q_OS_WIN)
     // Debugging output is not visible by default on Windows -
-    // therefore show modal dialog with errors instad.
+    // therefore show modal dialog with errors instead.
     atexit(showWarnings);
 #endif
 
