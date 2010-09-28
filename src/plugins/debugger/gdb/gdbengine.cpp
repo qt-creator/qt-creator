@@ -1781,8 +1781,6 @@ void GdbEngine::setupEngine()
                 this, SLOT(setUseDebuggingHelpers(QVariant)));
         connect(theDebuggerAction(DebugDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
                 this, SLOT(setDebugDebuggingHelpersClassic(QVariant)));
-        connect(theDebuggerAction(RecheckDebuggingHelpers), SIGNAL(triggered()),
-                this, SLOT(recheckDebuggingHelperAvailabilityClassic()));
     }
 
     QTC_ASSERT(state() == EngineSetupRequested, /**/);

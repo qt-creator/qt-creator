@@ -56,6 +56,7 @@ public:
     void updateMarker();
     QString toToolTip() const;
     BreakHandler *handler() { return m_handler; }
+    void reinsertBreakpoint();
 
     bool isLocatedAt(const QString &fileName, int lineNumber,
         bool useMarkerPosition) const;

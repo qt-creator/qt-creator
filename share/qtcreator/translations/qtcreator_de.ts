@@ -9791,7 +9791,7 @@ Fehler: %2</translation>
     <message>
         <location line="+1"/>
         <source>Do you really want to delete the build configuration &lt;b&gt;%1&lt;/b&gt;?</source>
-        <translation>Möchten Sie die Build-Konfiguration&lt;b&gt;%1&lt;/b&gt; löschen?</translation>
+        <translation>Möchten Sie die Build-Konfiguration &lt;b&gt;%1&lt;/b&gt; löschen?</translation>
     </message>
     <message>
         <location line="+41"/>

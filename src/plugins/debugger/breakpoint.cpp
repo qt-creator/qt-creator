@@ -364,6 +364,12 @@ bool BreakpointData::conditionsMatch() const
     return s1 == s2;
 }
 
+void BreakpointData::reinsertBreakpoint()
+{
+    QTC_ASSERT(m_handler, return);
+    m_handler->reinsertBreakpoint(this);
+}
+
 } // namespace Internal
 } // namespace Debugger
 
