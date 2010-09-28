@@ -54,7 +54,13 @@ leave room for the Qt 4 target page.
     <fields>
         <field mandatory="false" name="ObjectName">
             <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9_]+$'  defaulttext="ExampleObject"/>
-            <fielddescription>Example Object Class-name:</fielddescription>
+            <fielddescription>Object Class-name:</fielddescription>
         </field>
     </fields>
+    <validationrules>
+        <validationrule condition='"%ObjectName%" != "%ProjectName%"'>
+            <message>The project name and the object class-name cannot be the same.</message>
+            <message xml:lang='nl'>De naam voor het project en de naam voor de klasse kunnen niet hetzelfde zijn.</message>
+        </validationrule>
+    </validationrules>
 </wizard>
