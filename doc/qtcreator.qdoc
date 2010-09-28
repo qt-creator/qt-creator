@@ -2251,6 +2251,27 @@
 
     \endlist
 
+    \section1 Validating User Input
+
+    You can specify validation rules for user input. The rules consist of a Boolean
+    JavaScript expression and an error message. The placeholders in them are
+    replaced with values before they are evaluated or displayed.
+
+    Consider the following rule used in the \l{Creating Class Wizards} example:
+
+    \code
+    <validationrules>
+        <validationrule condition='"%ClassName%" != "QAbstractListModel"'>
+            <message>%ClassName% cannot be used as class name.</message>
+            <message xml:lang="de">%ClassName% kann nicht als Klassenname verwendet werden.</message>
+        </validationrule>
+    </validationrules>
+    \endcode
+
+    It ensures that the class name entered by the user does not match the name of
+    the base class. If the validation fails, a red label displaying the message appears
+    at the bottom of the wizard page.
+
     \section1 Using Generator Scripts
 
     The values entered in the wizard page are passed to the script
