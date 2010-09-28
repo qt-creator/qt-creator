@@ -116,10 +116,11 @@ QStringList QMakeStep::allArguments()
 
     // Find out what flags we pass on to qmake
     arguments << bc->configCommandLineArguments();
-    arguments << moreArguments();
 
     if (!additonalArguments.isEmpty())
         arguments << additonalArguments;
+
+    arguments << moreArguments();
 
     return arguments;
 }
