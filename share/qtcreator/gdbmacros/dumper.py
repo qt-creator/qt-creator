@@ -1480,12 +1480,12 @@ class Dumper:
             #warn("IS DUMPABLE: %s " % type)
             #self.putAddress(value.address)
             self.putType(realtype)
-            if isQObjectDerived:
+            if nsStrippedType in qqDumpers:
+                qqDumpers[nsStrippedType](self, item)
+            elif isQObjectDerived:
                 # value has references stripped off item.value.
                 item1 = Item(value, item.iname)
                 qdump__QObject(self, item1)
-            else:
-                qqDumpers[nsStrippedType](self, item)
             #warn(" RESULT: %s " % self.output)
             return
 
