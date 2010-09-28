@@ -1218,7 +1218,18 @@ bool ModelPrivate::hasId(const QString &id) const
 
 QList<InternalNodePointer> ModelPrivate::allNodes() const
 {
-    return m_nodeSet.toList();
+    // the item must be ordered!
+
+    QList<InternalNodePointer> nodeList;
+
+    if (m_rootInternalNode.isNull() || !m_rootInternalNode->isValid())
+        return nodeList;
+
+    nodeList.append(m_rootInternalNode);
+    nodeList.append(m_rootInternalNode->allSubNodes());
+
+
+    return nodeList;
 }
 
 bool ModelPrivate::isWriteLocked() const

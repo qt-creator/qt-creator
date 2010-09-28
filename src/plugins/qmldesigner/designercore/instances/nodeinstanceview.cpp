@@ -390,6 +390,7 @@ void NodeInstanceView::instancePropertyChange(const QList<QPair<ModelNode, QStri
 
 //\}
 
+
 void NodeInstanceView::loadNodes(const QList<ModelNode> &nodeList)
 {
     foreach (const ModelNode &node, nodeList)
@@ -405,8 +406,11 @@ void NodeInstanceView::loadNodes(const QList<ModelNode> &nodeList)
             instanceForNode(node).setPropertyBinding(property.name(), property.expression());
     }
 
-    foreach(NodeInstance instance, m_objectInstanceHash.values())
-        instance.doComponentComplete();
+    QListIterator<ModelNode> listIterator(nodeList);
+    listIterator.toBack();
+
+    while (listIterator.hasPrevious())
+        instanceForNode(listIterator.previous()).doComponentComplete();
 }
 
 // TODO: Set base state as current model state
