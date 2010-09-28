@@ -47,6 +47,7 @@ struct GitSettings
     void fromSettings(QSettings *);
     void toSettings(QSettings *) const;
 
+    /** Return the full path to the git executable */
     QString gitBinaryPath(bool *ok = 0, QString *errorMessage = 0) const;
 
     bool equals(const GitSettings &s) const;
