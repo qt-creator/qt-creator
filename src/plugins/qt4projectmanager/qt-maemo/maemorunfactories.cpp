@@ -163,7 +163,8 @@ bool MaemoRunControlFactory::canRun(RunConfiguration *runConfiguration,
     const MaemoRunConfiguration * const maemoRunConfig
         = qobject_cast<MaemoRunConfiguration *>(runConfiguration);
     if (!maemoRunConfig || !maemoRunConfig->deviceConfig().isValid()
-        || !maemoRunConfig->toolchain())
+        || !maemoRunConfig->toolchain()
+        || maemoRunConfig->remoteExecutableFilePath().isEmpty())
         return false;
     const int freePortCount = maemoRunConfig->freePorts().count();
     if (freePortCount == 0)
@@ -182,10 +183,11 @@ bool MaemoRunControlFactory::canRun(RunConfiguration *runConfiguration,
 RunControl* MaemoRunControlFactory::create(RunConfiguration *runConfig,
     const QString &mode)
 {
-    MaemoRunConfiguration *rc = qobject_cast<MaemoRunConfiguration *>(runConfig);
-    Q_ASSERT(rc);
     Q_ASSERT(mode == ProjectExplorer::Constants::RUNMODE
         || mode == ProjectExplorer::Constants::DEBUGMODE);
+    Q_ASSERT(canRun(runConfig, mode));
+    MaemoRunConfiguration *rc = qobject_cast<MaemoRunConfiguration *>(runConfig);
+    Q_ASSERT(rc);
     if (mode == ProjectExplorer::Constants::RUNMODE)
         return new MaemoRunControl(rc);
     return MaemoDebugSupport::createDebugRunControl(rc);
