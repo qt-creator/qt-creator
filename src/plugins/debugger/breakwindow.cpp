@@ -33,7 +33,6 @@
 #include "debuggerconstants.h"
 #include "ui_breakpoint.h"
 #include "ui_breakcondition.h"
-#include "ui_breakbyfunction.h"
 
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
