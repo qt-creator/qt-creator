@@ -383,14 +383,14 @@ void FontSettingsPage::updatePointSizes()
         d_ptr->ui.sizeComboBox->clear();
     }
     const QList<int> sizeLst = pointSizesForSelectedFont();
-    int idx = 0;
+    int idx = -1;
     int i = 0;
     for (; i < sizeLst.count(); ++i) {
-        if (idx == 0 && sizeLst.at(i) >= oldSize)
+        if (idx == -1 && sizeLst.at(i) >= oldSize)
             idx = i;
         d_ptr->ui.sizeComboBox->addItem(QString::number(sizeLst.at(i)));
     }
-    if (d_ptr->ui.sizeComboBox->count())
+    if (idx != -1)
         d_ptr->ui.sizeComboBox->setCurrentIndex(idx);
 }
 
