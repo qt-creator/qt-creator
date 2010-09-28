@@ -143,11 +143,15 @@ void MaemoSshRunner::cleanup(bool initialCleanup)
 
     emit reportProgress(tr("Killing remote process(es)..."));
     m_shuttingDown = !initialCleanup;
+
+    // pkill behaves differently on Fremantle and Harmattan.
+    const char *const killTemplate = "pkill -%2 '^%1$'; pkill -%2 '/%1$';";
+
     QString niceKill;
     QString brutalKill;
     foreach (const QString &proc, m_procsToKill) {
-        niceKill += QString::fromLocal8Bit("pkill %1\\$;").arg(proc);
-        brutalKill += QString::fromLocal8Bit("pkill -9 %1\\$;").arg(proc);
+        niceKill += QString::fromLocal8Bit(killTemplate).arg(proc).arg("SIGTERM");
+        brutalKill += QString::fromLocal8Bit(killTemplate).arg(proc).arg("SIGKILL");
     }
     QString remoteCall = niceKill + QLatin1String("sleep 1; ") + brutalKill;
     remoteCall.remove(remoteCall.count() - 1, 1); // Get rid of trailing semicolon.
