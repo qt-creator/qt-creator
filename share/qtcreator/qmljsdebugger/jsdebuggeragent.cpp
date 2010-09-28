@@ -514,7 +514,6 @@ void JSDebuggerAgent::continueExec()
 void JSDebuggerAgent::enabledChanged(bool on)
 {
     engine()->setAgent(on ? this : 0);
-    QDeclarativeDebugService::enabledChanged(on);
 }
 
 } // namespace QmlJSDebugger
