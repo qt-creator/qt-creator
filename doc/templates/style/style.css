@@ -837,6 +837,9 @@
         padding-left: 25px;
         padding-top: 10px;
     }
+	.wrap .content ul img {
+		vertical-align:middle;
+	}	
     a:hover
     {
         color: #4c0033;
@@ -886,9 +889,9 @@
 	-webkit-column-gap:41px;
 	-moz-column-gap:41px;
 
-	column-rule: 1px solid #ccc;
-	-webkit-column-rule: 1px solid #ccc;
-	-moz-column-rule: 1px solid #ccc;
+	column-rule: 1px dashed #ccc;
+	-webkit-column-rule: 1px dashed #ccc;
+	-moz-column-rule: 1px dashed #ccc;
 	}	
 
 	.flowList dl{
@@ -898,6 +901,7 @@
 	margin-left:10px;
 	min-width:250px;
 	line-height: 1.2;
+	min-width:100%;
 
 	}
 	
