@@ -35,6 +35,7 @@
 #include "ui_breakcondition.h"
 #include "ui_breakbyfunction.h"
 
+#include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
@@ -72,7 +73,8 @@ public:
         comboBoxType->insertItem(1, tr("Function Name"));
         comboBoxType->insertItem(2, tr("Function \"main()\""));
         comboBoxType->insertItem(3, tr("Address"));
-        lineEditFileName->setText(data->fileName);
+        pathChooserFileName->lineEdit()->setText(data->fileName);
+        pathChooserFileName->setExpectedKind(Utils::PathChooser::File);
         lineEditLineNumber->setText(QByteArray::number(data->lineNumber));
         lineEditFunction->setText(data->funcName);
         lineEditCondition->setText(data->condition);
@@ -96,7 +98,7 @@ public slots:
         const bool isFunctionVisible = index == 1;
         const bool isAddressVisible = index == 3;
         labelFileName->setEnabled(isLineVisible);
-        lineEditFileName->setEnabled(isLineVisible);
+        pathChooserFileName->setEnabled(isLineVisible);
         labelLineNumber->setEnabled(isLineVisible);
         lineEditLineNumber->setEnabled(isLineVisible);
         labelUseFullPath->setEnabled(isLineVisible);
@@ -381,16 +383,16 @@ bool BreakWindow::editBreakpoint(BreakpointData *data)
     if (dialog.exec() == QDialog::Rejected)
         return false;
     bool ok = false;
+    data->lineNumber = dialog.lineEditLineNumber->text().toInt();
+    data->useFullPath = dialog.checkBoxUseFullPath->isChecked();
     if (!dialog.lineEditAddress->text().isEmpty())
         data->address = dialog.lineEditAddress->text().toULongLong(&ok, 0);
     if (!dialog.lineEditFunction->text().isEmpty())
         data->funcName = dialog.lineEditFunction->text();
     if (!dialog.lineEditFunction->text().isEmpty())
         data->funcName = dialog.lineEditFunction->text();
-    if (!dialog.lineEditFileName->text().isEmpty())
-        data->fileName = dialog.lineEditFileName->text();
-    data->lineNumber = dialog.lineEditLineNumber->text().toInt();
-    data->useFullPath = dialog.checkBoxUseFullPath->isChecked();
+    if (!dialog.pathChooserFileName->path().isEmpty())
+        data->fileName = dialog.pathChooserFileName->lineEdit()->text();
     if (!dialog.lineEditCondition->text().isEmpty())
         data->condition = dialog.lineEditCondition->text().toUtf8();
     if (!dialog.lineEditIgnoreCount->text().isEmpty())
@@ -429,10 +431,6 @@ void BreakWindow::editBreakpoints(const QModelIndexList &list)
     dlg.setWindowTitle(tr("Edit Breakpoint Properties"));
     ui.lineEditFunction->hide();
     ui.labelFunction->hide();
-    ui.lineEditFileName->hide();
-    ui.labelFileName->hide();
-    ui.lineEditLineNumber->hide();
-    ui.labelLineNumber->hide();
     QAbstractItemModel *m = model();
     ui.lineEditCondition->setText(
         m->data(idx, BreakpointConditionRole).toString());
@@ -448,7 +446,7 @@ void BreakWindow::editBreakpoints(const QModelIndexList &list)
 
     foreach (const QModelIndex &idx, list) {
         //m->setData(idx.sibling(idx.row(), 1), ui.lineEditFunction->text());
-        //m->setData(idx.sibling(idx.row(), 2), ui.lineEditFileName->text());
+        //m->setData(idx.sibling(idx.row(), 2), ui.pathChooserFileName->text());
         //m->setData(idx.sibling(idx.row(), 3), ui.lineEditLineNumber->text());
         m->setData(idx, ui.lineEditCondition->text(), BreakpointConditionRole);
         m->setData(idx, ui.lineEditIgnoreCount->text(), BreakpointIgnoreCountRole);
