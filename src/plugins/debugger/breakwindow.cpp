@@ -113,26 +113,6 @@ public slots:
 
 ///////////////////////////////////////////////////////////////////////
 //
-// BreakByFunctionDialog
-//
-///////////////////////////////////////////////////////////////////////
-
-class BreakByFunctionDialog : public QDialog, Ui::BreakByFunctionDialog
-{
-public:
-    explicit BreakByFunctionDialog(QWidget *parent)
-      : QDialog(parent)
-    {
-        setupUi(this);
-        connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-        connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-    }
-    QString functionName() const { return functionLineEdit->text(); }
-};
-
-
-///////////////////////////////////////////////////////////////////////
-//
 // BreakWindow
 //
 ///////////////////////////////////////////////////////////////////////
@@ -351,15 +331,9 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
         setBreakpointsFullPath(si, !fullpath);
     else if (act == addBreakpointAction)
         addBreakpoint();
-    //else if (act == breakAtFunctionAction) {
-    //    BreakByFunctionDialog dlg(this);
-    //    if (dlg.exec())
-    //        setModelData(RequestBreakByFunctionRole, dlg.functionName());
-    //} else if (act == breakAtMainAction)
-    //    setModelData(RequestBreakByFunctionMainRole);
-     else if (act == breakAtThrowAction)
+    else if (act == breakAtThrowAction)
         setModelData(RequestBreakByFunctionRole, "__cxa_throw");
-     else if (act == breakAtCatchAction)
+    else if (act == breakAtCatchAction)
         setModelData(RequestBreakByFunctionRole, "__cxa_begin_catch");
 }
 
