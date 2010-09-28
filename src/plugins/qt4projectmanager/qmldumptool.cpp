@@ -57,7 +57,7 @@ bool QmlDumpTool::canBuild(const QString &installHeadersDir)
 
 QString QmlDumpTool::toolForProject(ProjectExplorer::Project *project)
 {
-    if (project->id() == Qt4ProjectManager::Constants::QT4PROJECT_ID) {
+    if (project && project->id() == Qt4ProjectManager::Constants::QT4PROJECT_ID) {
         Qt4Project *qt4Project = static_cast<Qt4Project*>(project);
         if (qt4Project && qt4Project->activeTarget()
          && qt4Project->activeTarget()->activeBuildConfiguration()) {

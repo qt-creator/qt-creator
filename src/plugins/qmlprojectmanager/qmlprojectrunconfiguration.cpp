@@ -110,6 +110,11 @@ Internal::QmlProjectTarget *QmlProjectRunConfiguration::qmlTarget() const
     return static_cast<Internal::QmlProjectTarget *>(target());
 }
 
+bool QmlProjectRunConfiguration::qmlObserverAvailable() const
+{
+    return m_qmlObserverAvailable;
+}
+
 QString QmlProjectRunConfiguration::viewerPath() const
 {
     if (!m_qmlViewerCustomPath.isEmpty())
@@ -376,9 +381,9 @@ QString QmlProjectRunConfiguration::viewerDefaultPath() const
     foreach (Qt4ProjectManager::QtVersion *version, qtVersions->validVersions()) {
         if (version->supportsTargetId(Qt4ProjectManager::Constants::DESKTOP_TARGET_ID)) {
             // Search for QmlObserver
-
             const QString qtInstallData = version->versionInfo().value("QT_INSTALL_DATA");
             path = Qt4ProjectManager::QmlObserverTool::toolByInstallData(qtInstallData);
+            m_qmlObserverAvailable = !path.isEmpty();
 
             if (path.isEmpty() && !version->qmlviewerCommand().isEmpty()) {
                 path = version->qmlviewerCommand();
