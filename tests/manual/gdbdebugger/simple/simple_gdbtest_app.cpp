@@ -61,6 +61,8 @@
 #include <QtGui/QPainterPath>
 #include <QtGui/QRegion>
 #include <QtGui/QStandardItemModel>
+#include <QtGui/QTextCursor>
+#include <QtGui/QTextDocument>
 
 #include <QtNetwork/QHostAddress>
 
@@ -1421,6 +1423,20 @@ private:
     int m_id;
 };
 
+void testQTextCursor()
+{
+    //int argc = 0;
+    //char *argv[] = { "xxx", 0 };
+    //QApplication app(argc, argv);
+    QTextDocument doc;
+    doc.setPlainText("Hallo\nWorld");
+    QTextCursor tc = doc.find("all");
+    int pos = tc.position();
+    int anc = tc.anchor();
+    Q_UNUSED(pos);
+    Q_UNUSED(anc);
+}
+
 void testQThread()
 {
     Thread thread1(1);
@@ -2023,6 +2039,7 @@ int main(int argc, char *argv[])
     testFunction();
     testQImage();
     testNoArgumentName(1, 2, 3);
+    testQTextCursor();
     testInput();
     testOutput();
     testHidden();
