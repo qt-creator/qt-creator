@@ -67,11 +67,11 @@ QmlStandaloneAppWizardDialog::QmlStandaloneAppWizardDialog(QmlStandaloneAppWizar
     , m_qmlSourcesPage(0)
 {
     setWindowTitle(m_type == QmlStandaloneAppWizard::NewQmlFile
-                       ? tr("New QML Project")
-                       : tr("QML Project from existing, QML Viewer-based Project"));
+                       ? tr("New Qt Quick Application")
+                       : tr("Qt Quick Application from Existing QML Directory"));
     setIntroDescription(m_type == QmlStandaloneAppWizard::NewQmlFile
-                       ? tr("This wizard generates a QML application project.")
-                       : tr("This wizard imports an existing, QML Viewer-based application and creates a standalone version of it."));
+                       ? tr("This wizard generates a Qt Quick application project.")
+                       : tr("This wizard imports an existing QML directory and creates a Qt Quick application project from it."));
 
     if (m_type == QmlStandaloneAppWizard::ImportQmlFile) {
         m_qmlSourcesPage = new QmlStandaloneAppWizardSourcesPage;
@@ -109,18 +109,16 @@ Core::BaseFileWizardParameters QmlStandaloneAppWizard::parameters(WizardType typ
     Core::BaseFileWizardParameters parameters(ProjectWizard);
     parameters.setIcon(QIcon(QLatin1String(Constants::ICON_QML_STANDALONE)));
     parameters.setDisplayName(type == QmlStandaloneAppWizard::NewQmlFile
-                              ? tr("Qt QML Application")
-                              : tr("Qt QML Imported Application"));
+                              ? tr("Qt Quick Application")
+                              : tr("Import Existing QML Directory"));
     parameters.setId(QLatin1String(type == QmlStandaloneAppWizard::NewQmlFile
                                    ? "QA.QMLA Application"
                                    : "QA.QMLB Imported Application"));
     parameters.setDescription(type == QmlStandaloneAppWizard::NewQmlFile
-                              ? tr("Creates a mobile-deployable Qt QML application "
-                                   "project. A lightweight Qt/C++ application with a QDeclarativeView "
-                                   "and a single QML file will be created.")
-                              : tr("Creates a mobile-deployable Qt QML application "
-                                   "project. An existing, QML Viewer-based project will be imported and a lightweight "
-                                   "Qt/C++ application with a QDeclarativeView will be created for it."));
+        ? tr("Creates a Qt Quick application that you can deploy to mobile devices.")
+        : tr("Imports an existing QML directory and converts it into a "
+             "Qt Quick application project. "
+             "You can deploy the application to mobile devices."));
     parameters.setCategory(QLatin1String(Constants::QT_APP_WIZARD_CATEGORY));
     parameters.setDisplayCategory(QCoreApplication::translate(Constants::QT_APP_WIZARD_TR_SCOPE,
                                                               Constants::QT_APP_WIZARD_TR_CATEGORY));

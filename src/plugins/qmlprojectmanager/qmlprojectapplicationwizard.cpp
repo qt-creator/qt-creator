@@ -47,8 +47,8 @@ namespace Internal {
 QmlProjectApplicationWizardDialog::QmlProjectApplicationWizardDialog(QWidget *parent) :
     ProjectExplorer::BaseProjectWizardDialog(parent)
 {
-    setWindowTitle(tr("New QML Project"));
-    setIntroDescription(tr("This wizard generates a QML application project."));
+    setWindowTitle(tr("New Qt Quick UI Project"));
+    setIntroDescription(tr("This wizard generates a Qt Quick UI project."));
 }
 
 QmlProjectApplicationWizard::QmlProjectApplicationWizard()
@@ -62,11 +62,14 @@ Core::BaseFileWizardParameters QmlProjectApplicationWizard::parameters()
 {
     Core::BaseFileWizardParameters parameters(ProjectWizard);
     parameters.setIcon(QIcon(QLatin1String(Constants::QML_WIZARD_ICON)));
-    parameters.setDisplayName(tr("Qt QML Application"));
-    parameters.setDisplayName(tr("QML Application"));
+    parameters.setDisplayName(tr("Qt Quick UI"));
     parameters.setId(QLatin1String("QA.QML Application"));
-    parameters.setDescription(tr("Creates a QML application project with a single QML file containing the main view.\n\n"
-                                 "QML application projects are executed by the Qt QML Viewer and do not need to be built."));
+
+    parameters.setDescription(tr("Creates a  Qt Quick UI project with a single "
+        "QML file that contains the main view.\n\n"
+        "You can review Qt Quick UI projects in the QML Viewer and you need not build them. "
+        "You do not need to have the development environment installed "
+        "on your computer to create and run this type of projects."));
     parameters.setCategory(QLatin1String(Constants::QML_WIZARD_CATEGORY));
     parameters.setDisplayCategory(QCoreApplication::translate(Constants::QML_WIZARD_TR_SCOPE,
                                                               Constants::QML_WIZARD_TR_CATEGORY));
