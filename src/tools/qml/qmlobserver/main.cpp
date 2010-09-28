@@ -85,6 +85,9 @@ QString warnings;
 void showWarnings()
 {
     if (!warnings.isEmpty()) {
+        int argc = 0; char **argv = 0;
+        QApplication application(argc, argv); // QApplication() in main has been destroyed already.
+        Q_UNUSED(application)
         QMessageBox::warning(0, QApplication::tr("Qt QML Viewer"), warnings);
     }
 }
