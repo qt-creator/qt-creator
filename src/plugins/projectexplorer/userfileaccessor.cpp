@@ -161,7 +161,7 @@ public:
 
     QString displayUserFileVersion() const
     {
-        return QLatin1String("2.2pre1");
+        return QLatin1String("2.1pre1");
     }
 
     QVariantMap update(Project *project, const QVariantMap &map);
@@ -178,13 +178,13 @@ public:
 
     QString displayUserFileVersion() const
     {
-        return QLatin1String("2.2pre2");
+        return QLatin1String("2.1pre2");
     }
 
     QVariantMap update(Project *project, const QVariantMap &map);
 };
 
-// Version 5 reflects the introduction of new deploy steps for Symbian/Maemo
+// Version 6 reflects the introduction of new deploy steps for Symbian/Maemo
 class Version6Handler : public UserFileVersionHandler
 {
 public:
@@ -195,13 +195,13 @@ public:
 
     QString displayUserFileVersion() const
     {
-        return QLatin1String("2.2pre3");
+        return QLatin1String("2.1pre3");
     }
 
     QVariantMap update(Project *project, const QVariantMap &map);
 };
 
-// Version 5 reflects the introduction of new deploy configuration for Symbian
+// Version 7 reflects the introduction of new deploy configuration for Symbian
 class Version7Handler : public UserFileVersionHandler
 {
 public:
@@ -212,7 +212,7 @@ public:
 
     QString displayUserFileVersion() const
     {
-        return QLatin1String("2.2pre4");
+        return QLatin1String("2.1pre4");
     }
 
     QVariantMap update(Project *project, const QVariantMap &map);
