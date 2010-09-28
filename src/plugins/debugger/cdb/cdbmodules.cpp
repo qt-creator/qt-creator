@@ -30,6 +30,7 @@
 #include "cdbmodules.h"
 #include "moduleshandler.h"
 #include "cdbengine_p.h"
+#include "breakpoint.h"
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QRegExp>
@@ -180,14 +181,35 @@ static ResolveSymbolResult resolveSymbol(CIDebugSymbols *syms, QString *symbol,
     // Is it an incomplete symbol?
     if (symbol->contains(QLatin1Char('!')))
         return ResolveSymbolOk;
-    // 'main' is a #define for gdb, but not for VS
-    if (*symbol == QLatin1String("qMain"))
+    // Throw and catch
+    bool withinMSVCRunTime = false;
+    if (*symbol == QLatin1String(BreakpointData::throwFunction)) {
+        *symbol = QLatin1String("CxxThrowException");
+        withinMSVCRunTime = true;
+    } else if (*symbol == QLatin1String(BreakpointData::catchFunction)) {
+        *symbol = QLatin1String("__CxxCallCatchBlock");
+        withinMSVCRunTime = true;
+    } else if (*symbol == QLatin1String("qMain")) // 'main' is a #define for gdb, but not for VS
         *symbol = QLatin1String("main");
     // resolve
     if (!searchSymbols(syms, *symbol, matches, errorMessage))
         return ResolveSymbolError;
-    if (matches->empty())
+    // Exception functions sometimes show up ambiguously as'QtGuid4!CxxThrowException',
+    // 'MSVCR100D!CxxThrowException', QtCored4!CxxThrowException',
+    // 'MSVCP100D!CxxThrowException' and 'msvcrt!CxxThrowException',
+    // 'OLEAUT32!CxxThrowException'...restrict to MSVC-RunTime (any MSVC version).
+    if (withinMSVCRunTime && matches->size() > 1) {
+        for (QStringList::iterator it = matches->begin(); it != matches->end(); )
+            if (it->startsWith(QLatin1String("MSVCR"))) {
+                ++it;
+            } else {
+                it = matches->erase(it);
+            }
+    }
+    if (matches->empty()) {
+        *errorMessage = QString::fromLatin1("No match for '%1' found").arg(*symbol);
         return ResolveSymbolNotFound;
+    }
     *symbol = matches->front();
     if (matches->size() > 1) {
         *errorMessage = QString::fromLatin1("Ambiguous symbol '%1': %2").

@@ -192,6 +192,9 @@ bool BreakPoint::apply(CIDebugBreakpoint *ibp, QString *errorMessage) const
         *errorMessage = msgCannotSetBreakpoint(expr, msg);
         return false;
     }
+    hr = ibp->GetFlags(&flags);
+    if (SUCCEEDED(hr))
+        qDebug("BP %s Flags %x", qPrintable(expr), flags);
     return true;
 }
 

@@ -53,7 +53,8 @@ CdbCore::BreakPoint breakPointFromBreakPointData(const Debugger::Internal::Break
     }
     rc.fileName = QDir::toNativeSeparators(bpd.fileName);
     rc.condition = bpd.condition;
-    rc.funcName = bpd.funcName;
+    // Resolved function goes to bpd.bpFuncName.
+    rc.funcName = bpd.bpFuncName.isEmpty() ? bpd.funcName : bpd.bpFuncName;
     rc.ignoreCount = bpd.ignoreCount;
     rc.lineNumber  = bpd.lineNumber;
     rc.oneShot = false;
@@ -92,7 +93,8 @@ bool synchronizeBreakPoints(CIDebugControl* debugControl,
         if (nbd->funcName.isEmpty()) {
             breakPointOk = true;
         } else {
-            switch (resolveSymbol(syms, &nbd->funcName, &warning)) {
+            nbd->bpFuncName = nbd->funcName;
+            switch (resolveSymbol(syms, &nbd->bpFuncName, &warning)) {
             case ResolveSymbolOk:
                 breakPointOk = true;
                 break;
@@ -128,7 +130,6 @@ bool synchronizeBreakPoints(CIDebugControl* debugControl,
                 nbd->bpThreadSpec = nbd->threadSpec;
                 nbd->bpFileName = nbd->fileName;
                 nbd->bpLineNumber = nbd->lineNumber;
-                nbd->bpFuncName = nbd->funcName;
             }
         } // had symbol
         if (!breakPointOk && !warning.isEmpty())

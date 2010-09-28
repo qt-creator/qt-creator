@@ -159,6 +159,9 @@ private:
 //
 //////////////////////////////////////////////////////////////////
 
+const char *BreakpointData::throwFunction = "throw";
+const char *BreakpointData::catchFunction = "catch";
+
 BreakpointData::BreakpointData() :
     m_handler(0), enabled(true),
     pending(true), type(BreakpointType),

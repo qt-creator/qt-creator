@@ -66,6 +66,10 @@ public:
     // This copies only the static data.
     BreakpointData *clone() const;
 
+    // Generic name for function to break on 'throw'
+    static const char *throwFunction;
+    static const char *catchFunction;
+
 private:
     // Intentionally unimplemented.
     // Making it copyable is tricky because of the markers.
@@ -90,7 +94,9 @@ public:
     int lineNumber;          // Line in source file.
     quint64 address;         // Address for watchpoints.
     QByteArray threadSpec;   // Thread specification.
-    QString funcName;        // Name of containing function.
+    // Name of containing function, special values:
+    // BreakpointData::throwFunction, BreakpointData::catchFunction
+    QString funcName;
     bool useFullPath;        // Should we use the full path when setting the bp?
 
     // This is what gdb produced in response.

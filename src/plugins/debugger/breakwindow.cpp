@@ -334,9 +334,9 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     else if (act == addBreakpointAction)
         addBreakpoint();
     else if (act == breakAtThrowAction)
-        setModelData(RequestBreakByFunctionRole, "__cxa_throw");
+        setModelData(RequestBreakByFunctionRole, QLatin1String(BreakpointData::throwFunction));
     else if (act == breakAtCatchAction)
-        setModelData(RequestBreakByFunctionRole, "__cxa_begin_catch");
+        setModelData(RequestBreakByFunctionRole, QLatin1String(BreakpointData::catchFunction));
 }
 
 void BreakWindow::setBreakpointsEnabled(const QModelIndexList &list, bool enabled)
