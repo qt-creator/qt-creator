@@ -81,7 +81,9 @@ public:
 
     void performChanges(CppRefactoringFile *, CppRefactoringChanges *refactoring)
     {
-        InsertionPointLocator locator(state().snapshot());
+        Snapshot snapshot = state().snapshot();
+        snapshot.insert(refactoring->file(m_targetFileName).cppDocument());
+        InsertionPointLocator locator(snapshot);
         const InsertionLocation loc = locator.methodDeclarationInClass(
                     m_targetFileName, m_targetSymbol, m_xsSpec);
         Q_ASSERT(loc.isValid());
