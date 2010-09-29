@@ -50,10 +50,9 @@ static inline QStringList validBinaryFilenames()
             << QLatin1String("qmldump.app/Contents/MacOS/qmldump");
 }
 
-bool QmlDumpTool::canBuild(const QString &installHeadersDir)
+bool QmlDumpTool::canBuild(QtVersion *qtVersion)
 {
-    QString qDeclHeader = installHeadersDir + QLatin1String("/QtDeclarative/private/qdeclarativemetatype_p.h");
-    return QFile::exists(qDeclHeader);
+    return checkMinimumQtVersion(qtVersion->qtVersionString(), 4, 7, 0);
 }
 
 QString QmlDumpTool::toolForProject(ProjectExplorer::Project *project)

@@ -32,6 +32,7 @@
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
 #include <coreplugin/icore.h>
+#include <utils/qtcassert.h>
 
 #include <projectexplorer/project.h>
 #include <QDesktopServices>
@@ -50,10 +51,9 @@ static inline QStringList validBinaryFilenames()
             << QLatin1String("QMLObserver.app/Contents/MacOS/QMLObserver");
 }
 
-bool QmlObserverTool::canBuild(const QString &installHeadersDir)
+bool QmlObserverTool::canBuild(QtVersion *qtVersion)
 {
-    QString qDeclHeader = installHeadersDir + QLatin1String("/QtDeclarative/private/qdeclarativemetatype_p.h");
-    return QFile::exists(qDeclHeader);
+    return checkMinimumQtVersion(qtVersion->qtVersionString(), 4, 7, 1);
 }
 
 QString QmlObserverTool::toolForProject(ProjectExplorer::Project *project)

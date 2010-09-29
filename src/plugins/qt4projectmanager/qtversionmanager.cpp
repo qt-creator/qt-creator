@@ -1770,7 +1770,7 @@ QString QtVersion::buildDebuggingHelperLibrary(QFutureInterface<void> &future)
     }
     future.setProgressValue(2);
 
-    if (QmlDumpTool::canBuild(qtInstallHeaders)) {
+    if (QmlDumpTool::canBuild(this)) {
         QString toolDirectory = QmlDumpTool::copy(qtInstallData, &output);
         if (!toolDirectory.isEmpty()) {
             output += QmlDumpTool::build(toolDirectory, tc->makeCommand(),
@@ -1782,7 +1782,7 @@ QString QtVersion::buildDebuggingHelperLibrary(QFutureInterface<void> &future)
     }
     future.setProgressValue(3);
 
-    if (QmlObserverTool::canBuild(qtInstallHeaders)) {
+    if (QmlObserverTool::canBuild(this)) {
         QString toolDirectory = QmlObserverTool::copy(qtInstallData, &output);
         if (!toolDirectory.isEmpty()) {
             output += QmlObserverTool::build(toolDirectory, tc->makeCommand(),
