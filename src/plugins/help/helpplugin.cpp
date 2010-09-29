@@ -73,6 +73,7 @@
 #include <QtCore/QTimer>
 #include <QtCore/QTranslator>
 #include <QtCore/qplugin.h>
+#include <QtCore/QRegExp>
 
 #include <QtGui/QAction>
 #include <QtGui/QComboBox>
@@ -839,7 +840,21 @@ void HelpPlugin::activateContext()
                 "available.</center></body></html>").arg(m_idFromContext));
             viewer->setSource(QUrl());
         } else {
-            const QUrl &source = *links.begin();
+            int version = 0;
+            const QRegExp exp("(\\d+)");
+            QUrl source = *links.begin();
+            foreach (const QUrl &tmp, links) {
+                const QString &authority = tmp.authority();
+                if (authority.startsWith(QLatin1String("com.trolltech.qt"))) {
+                    if (exp.indexIn(authority) >= 0) {
+                        const int tmpVersion = exp.cap(1).toInt();
+                        if (tmpVersion > version) {
+                            source = tmp;
+                            version = tmpVersion;
+                        }
+                    }
+                }
+            }
             const QUrl &oldSource = viewer->source();
             if (source != oldSource) {
 #if !defined(QT_NO_WEBKIT)
