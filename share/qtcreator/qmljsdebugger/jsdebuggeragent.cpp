@@ -511,10 +511,10 @@ void JSDebuggerAgent::continueExec()
     loop.quit();
 }
 
-void JSDebuggerAgent::statusChanged(Status status)
+void JSDebuggerAgent::enabledChanged(bool on)
 {
-    engine()->setAgent(status == Enabled ? this : 0);
-    QDeclarativeDebugService::statusChanged(status);
+    engine()->setAgent(on ? this : 0);
+    QDeclarativeDebugService::enabledChanged(on);
 }
 
 } // namespace QmlJSDebugger
