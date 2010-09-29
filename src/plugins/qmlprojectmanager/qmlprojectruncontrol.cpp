@@ -46,6 +46,7 @@
 
 #include <QDir>
 #include <QLabel>
+#include <QMessageBox>
 
 using ProjectExplorer::RunConfiguration;
 using ProjectExplorer::RunControl;
@@ -179,6 +180,7 @@ ProjectExplorer::RunControl *QmlRunControlFactory::createDebugRunControl(QmlProj
     params.executable = runConfig->viewerPath();
     params.qmlServerAddress = "127.0.0.1";
     params.qmlServerPort = runConfig->qmlDebugServerPort();
+    params.qmlObserverAvailable = runConfig->qmlObserverAvailable();
     params.processArgs = runConfig->viewerArguments();
     params.processArgs.append(QLatin1String("-qmljsdebugger=port:") + QString::number(runConfig->qmlDebugServerPort()));
     params.workingDirectory = runConfig->workingDirectory();

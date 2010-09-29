@@ -11,13 +11,15 @@ HEADERS += $$PWD/qmlruntime.h \
            $$PWD/proxysettings.h \
            $$PWD/qdeclarativetester.h \
            $$PWD/deviceorientation.h \
-           $$PWD/loggerwidget.h
+           $$PWD/loggerwidget.h \
+           $$PWD/crumblepath.h
 
 
 SOURCES += $$PWD/qmlruntime.cpp \
            $$PWD/proxysettings.cpp \
            $$PWD/qdeclarativetester.cpp \
-           $$PWD/loggerwidget.cpp
+           $$PWD/loggerwidget.cpp \
+           $$PWD/crumblepath.cpp
 
 RESOURCES += $$PWD/qmlruntime.qrc
 

@@ -550,7 +550,7 @@ QStringList CustomExecutableRunConfiguration::dumperLibraryLocations() const
 {
     QString qmakePath = ProjectExplorer::DebuggingHelperLibrary::findSystemQt(environment());
     QString qtInstallData = ProjectExplorer::DebuggingHelperLibrary::qtInstallDataDir(qmakePath);
-    return ProjectExplorer::DebuggingHelperLibrary::debuggingHelperLibraryLocationsByInstallData(qtInstallData);
+    return ProjectExplorer::DebuggingHelperLibrary::locationsByInstallData(qtInstallData);
 }
 
 ProjectExplorer::ToolChain::ToolChainType CustomExecutableRunConfiguration::toolChainType() const

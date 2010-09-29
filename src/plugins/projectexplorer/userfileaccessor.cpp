@@ -1127,6 +1127,29 @@ QVariantMap Version4Handler::update(Project *, const QVariantMap &map)
         while (targetIt.hasNext()) {
             targetIt.next();
             const QString &targetKey = targetIt.key();
+
+            if (targetKey.startsWith(QLatin1String("ProjectExplorer.Target.RunConfiguration."))) {
+                const QVariantMap &runConfigMap = targetIt.value().toMap();
+                const QLatin1String maemoRcId("Qt4ProjectManager.MaemoRunConfiguration");
+                if (runConfigMap.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id")).toString()
+                    == maemoRcId) {
+                    QVariantMap newRunConfigMap;
+                    for (QVariantMap::ConstIterator rcMapIt = runConfigMap.constBegin();
+                         rcMapIt != runConfigMap.constEnd(); ++rcMapIt) {
+                        const QLatin1String oldProFileKey(".ProFile");
+                        if (rcMapIt.key() == oldProFileKey) {
+                            newRunConfigMap.insert(maemoRcId + oldProFileKey,
+                                rcMapIt.value());
+                        } else {
+                            newRunConfigMap.insert(rcMapIt.key(),
+                                rcMapIt.value());
+                        }
+                    }
+                    newTarget.insert(targetKey, newRunConfigMap);
+                    continue;
+                }
+            }
+
             if (!targetKey.startsWith(QLatin1String("ProjectExplorer.Target.BuildConfiguration."))) {
                 newTarget.insert(targetKey, targetIt.value());
                 continue;

@@ -52,8 +52,8 @@ class DeviceOrientation : public QObject
     Q_OBJECT
     Q_ENUMS(Orientation)
 public:
-    enum Orientation { 
-        UnknownOrientation, 
+    enum Orientation {
+        UnknownOrientation,
         Portrait,
         Landscape,
         PortraitInverted,

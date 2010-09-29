@@ -53,9 +53,9 @@
 QT_BEGIN_NAMESPACE
 
 
-QDeclarativeTester::QDeclarativeTester(const QString &script, QDeclarativeViewer::ScriptOptions opts, 
+QDeclarativeTester::QDeclarativeTester(const QString &script, QDeclarativeViewer::ScriptOptions opts,
                      QDeclarativeView *parent)
-: QAbstractAnimation(parent), m_script(script), m_view(parent), filterEvents(true), options(opts), 
+: QAbstractAnimation(parent), m_script(script), m_view(parent), filterEvents(true), options(opts),
   testscript(0), hasCompleted(false), hasFailed(false)
 {
     parent->viewport()->installEventFilter(this);
@@ -68,7 +68,7 @@ QDeclarativeTester::QDeclarativeTester(const QString &script, QDeclarativeViewer
 
 QDeclarativeTester::~QDeclarativeTester()
 {
-    if (!hasFailed && 
+    if (!hasFailed &&
         options & QDeclarativeViewer::Record && 
         options & QDeclarativeViewer::SaveOnExit)
         save();

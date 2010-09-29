@@ -154,7 +154,7 @@ QStringList QMakeStep::moreArguments()
     }
 
     arguments << QLatin1String(Constants::QMAKEVAR_QMLJSDEBUGGER_PATH) + QLatin1Char('=') +
-            Core::ICore::instance()->resourcePath() + QLatin1String("/qmljsdebugger");
+            Core::ICore::instance()->resourcePath() + QLatin1String("/qml/qmljsdebugger");
     return arguments;
 }
 

@@ -242,7 +242,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     m_ui->makePathChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_ui->makePathChooser->setBaseDirectory(Utils::PathChooser::homePath());
 
-    connect(m_ui->makePathChooser, SIGNAL(editingFinished()),
+    connect(m_ui->makePathChooser, SIGNAL(changed(QString)),
             this, SLOT(makeEdited()));
     connect(m_ui->makeArgumentsLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(makeArgumentsLineEdited()));

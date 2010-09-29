@@ -270,8 +270,8 @@ QString GdbEngine::errorMessage(QProcess::ProcessError error)
         case QProcess::FailedToStart:
             return tr("The Gdb process failed to start. Either the "
                 "invoked program '%1' is missing, or you may have insufficient "
-                "permissions to invoke the program.")
-                .arg(m_gdb);
+                "permissions to invoke the program.\n%2")
+                .arg(m_gdb, gdbProc()->errorString());
         case QProcess::Crashed:
             return tr("The Gdb process crashed some time after starting "
                 "successfully.");
@@ -793,7 +793,7 @@ void GdbEngine::flushCommand(const GdbCommand &cmd0)
         return;
     }
 
-    QTC_ASSERT(gdbProc()->state() == QProcess::Running, /**/);
+    QTC_ASSERT(gdbProc()->state() == QProcess::Running, return;)
 
     ++currentToken();
     GdbCommand cmd = cmd0;
@@ -1678,12 +1678,18 @@ void GdbEngine::notifyAdapterShutdownOk()
     showMessage(_("INITIATE GDBENGINE SHUTDOWN IN STATE %1, PROC: %2")
         .arg(lastGoodState()).arg(gdbProc()->state()));
     m_commandsDoneCallback = 0;
-    if (gdbProc()->state() == QProcess::Running) {
+    switch (gdbProc()->state()) {
+    case QProcess::Running:
         postCommand("-gdb-exit", GdbEngine::ExitRequest, CB(handleGdbExit));
-    } else {
+        break;
+    case QProcess::NotRunning: // Cannot find executable
+        notifyEngineShutdownOk();
+        break;
+    case QProcess::Starting:
         showMessage(_("GDB NOT REALLY RUNNING; KILLING IT"));
         gdbProc()->kill();
         notifyEngineShutdownFailed();
+        break;
     }
 }
 

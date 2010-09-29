@@ -76,6 +76,7 @@ public:
         QPointer<ProjectExplorer::Project> project;
         QStringList sourceFiles;
         QStringList importPaths;
+        QString qmlDumpPath;
     };
 
     class WorkingCopy

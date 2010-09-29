@@ -27,36 +27,44 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGINGHELPER_H
-#define DEBUGGINGHELPER_H
+#ifndef CRUMBLEPATH_H
+#define CRUMBLEPATH_H
 
-#include "projectexplorer_export.h"
+#include <QtGui/QWidget>
 
-#include <utils/environment.h>
-#include <utils/buildablehelperlibrary.h>
+QT_FORWARD_DECLARE_CLASS(QResizeEvent);
 
-#include <QtCore/QString>
-#include <QtCore/QStringList>
+struct CrumblePathPrivate;
 
-namespace ProjectExplorer {
-
-class PROJECTEXPLORER_EXPORT DebuggingHelperLibrary : public Utils::BuildableHelperLibrary
+class CrumblePath : public QWidget
 {
+    Q_OBJECT
 public:
-    static QString debuggingHelperLibraryByInstallData(const QString &qtInstallData);
-    static QStringList locationsByInstallData(const QString &qtInstallData);
+    explicit CrumblePath(QWidget *parent = 0);
+    ~CrumblePath();
 
-    // Build the helpers and return the output log/errormessage.
-    static QString build(const QString &directory, const QString &makeCommand,
-                         const QString &qmakeCommand, const QString &mkspec,
-                         const Utils::Environment &env, const QString &targetMode);
+public slots:
+    void pushElement(const QString &title);
+    void popElement();
+    void clear();
 
-    // Copy the source files to a target location and return the chosen target location.
-    static QString copy(const QString &qtInstallData, QString *errorMessage);
+signals:
+    void elementClicked(int index);
+    void elementContextMenuRequested(int index);
+
+protected:
+    void resizeEvent(QResizeEvent *);
+
+private slots:
+    void mapClickToIndex();
+    void mapContextMenuRequestToIndex();
 
 private:
-    static QStringList debuggingHelperLibraryDirectories(const QString &qtInstallData);
-};
-} // namespace ProjectExplorer
+    void resizeButtons();
+    void setBackgroundStyle();
 
-#endif // DEBUGGINGHELPER_H
+private:
+    QScopedPointer<CrumblePathPrivate> d;
+};
+
+#endif // CRUMBLEPATH_H

@@ -67,6 +67,7 @@ public:
 
     bool isEnabled(ProjectExplorer::BuildConfiguration *bc) const;
 
+    bool qmlObserverAvailable() const;
     QString viewerPath() const;
     QStringList viewerArguments() const;
     QString workingDirectory() const;
@@ -120,6 +121,7 @@ private:
 
     bool m_usingCurrentFile;
     bool m_isEnabled;
+    mutable bool m_qmlObserverAvailable;
 
 };
 

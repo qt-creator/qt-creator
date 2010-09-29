@@ -56,8 +56,8 @@
 
 #include <qdeclarativeviewobserver.h>
 #include <qdeclarativeobserverservice.h>
-#include <utils/crumblepath.h>
 
+#include "crumblepath.h"
 #include "qmlruntime.h"
 #include <qdeclarativecontext.h>
 #include <qdeclarativeengine.h>
@@ -537,7 +537,7 @@ class CrumblePathResizer : public QObject
 {
     Q_OBJECT
 public:
-    CrumblePathResizer(Utils::CrumblePath *crumblePathWidget, QObject *parent = 0) :
+    CrumblePathResizer(CrumblePath *crumblePathWidget, QObject *parent = 0) :
         QObject(parent),
         m_crumblePathWidget(crumblePathWidget)
     {
@@ -616,7 +616,7 @@ QDeclarativeViewer::QDeclarativeViewer(QWidget *parent, Qt::WindowFlags flags)
     canvas = new QDeclarativeView(this);
     observer = new QmlJSDebugger::QDeclarativeViewObserver(canvas, this);
     if (!(flags & Qt::FramelessWindowHint)) {
-        m_crumblePathWidget = new Utils::CrumblePath(canvas);
+        m_crumblePathWidget = new CrumblePath(canvas);
 #ifndef Q_WS_MAC
         m_crumblePathWidget->setStyleSheet("QWidget { border-bottom: 1px solid black; }");
 #endif

@@ -1024,8 +1024,7 @@ QStringList DebuggerEngine::qtDumperLibraryLocations() const
 
 void DebuggerEngine::showQtDumperLibraryWarning(const QString &details)
 {
-    //QMessageBox dialog(d->m_mainWindow); // FIXME
-    QMessageBox dialog;
+    QMessageBox dialog(plugin()->mainWindow());
     QPushButton *qtPref = dialog.addButton(tr("Open Qt4 Options"),
         QMessageBox::ActionRole);
     QPushButton *helperOff = dialog.addButton(tr("Turn off Helper Usage"),
@@ -1050,6 +1049,35 @@ void DebuggerEngine::showQtDumperLibraryWarning(const QString &details)
             _(Qt4ProjectManager::Constants::QTVERSION_SETTINGS_PAGE_ID));
     } else if (dialog.clickedButton() == helperOff) {
         theDebuggerAction(UseDebuggingHelpers)
+            ->setValue(qVariantFromValue(false), false);
+    }
+}
+
+void DebuggerEngine::showQmlObserverToolWarning()
+{
+    QMessageBox dialog(plugin()->mainWindow());
+    QPushButton *qtPref = dialog.addButton(tr("Open Qt4 Options"),
+        QMessageBox::ActionRole);
+    QPushButton *helperOff = dialog.addButton(tr("Turn off QML Observer Usage"),
+        QMessageBox::ActionRole);
+    QPushButton *justContinue = dialog.addButton(tr("Continue Anyway"),
+        QMessageBox::AcceptRole);
+    dialog.setDefaultButton(justContinue);
+    dialog.setWindowTitle(tr("QML Observer Missing"));
+    dialog.setText(tr("QML Observer could not be found."));
+    dialog.setInformativeText(tr(
+        "QML Observer is used to offer additional debugging features for "
+        "QML applications, such as interactive debugging and inspection tools."
+        "It must be compiled for each used Qt version separately. "
+        "On the Qt4 options page, select a Qt installation "
+        "and click Rebuild."));
+    dialog.exec();
+    if (dialog.clickedButton() == qtPref) {
+        Core::ICore::instance()->showOptionsDialog(
+            _(Qt4ProjectManager::Constants::QT_SETTINGS_CATEGORY),
+            _(Qt4ProjectManager::Constants::QTVERSION_SETTINGS_PAGE_ID));
+    } else if (dialog.clickedButton() == helperOff) {
+        theDebuggerAction(UseQmlObserver)
             ->setValue(qVariantFromValue(false), false);
     }
 }

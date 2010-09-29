@@ -565,7 +565,7 @@ void BinaryToolChainDialog::setPath(const QString &p)
 
 QString BinaryToolChainDialog::path() const
 {
-    return m_pathChooser->path();
+    return m_pathChooser->rawPath();
 }
 
 void BinaryToolChainDialog::slotValidChanged()

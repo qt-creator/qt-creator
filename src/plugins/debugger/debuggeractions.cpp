@@ -307,6 +307,14 @@ DebuggerSettings *DebuggerSettings::instance()
     instance->insertItem(DebugDebuggingHelpers, item);
 
     item = new SavedAction(instance);
+    item->setSettingsKey(debugModeGroup, QLatin1String("UseQmlObserver"));
+    item->setText(tr("Use QML Observer"));
+    item->setCheckable(true);
+    item->setDefaultValue(true);
+    item->setValue(true);
+    instance->insertItem(UseQmlObserver, item);
+
+    item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseCodeModel"));
     item->setText(tr("Use Code Model"));
     item->setToolTip(tr("Selecting this causes the C++ Code Model being asked "

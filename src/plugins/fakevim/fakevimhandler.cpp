@@ -896,7 +896,6 @@ public:
 
     int m_targetColumn; // -1 if past end of line
     int m_visualTargetColumn; // 'l' can move past eol in visual mode only
-    int m_cursorWidth;
 
     // auto-indent
     QString tabExpand(int len) const;
@@ -998,7 +997,6 @@ void FakeVimHandler::Private::init()
     m_targetColumn = 0;
     m_visualTargetColumn = 0;
     m_movetype = MoveInclusive;
-    m_cursorWidth = EDITOR(cursorWidth());
     m_justAutoIndented = 0;
     m_rangemode = RangeCharMode;
     m_ctrlVActive = false;
@@ -1139,6 +1137,7 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
             updateSelection();
 
         exportSelection();
+        updateCursorShape();
     }
 
     return result;
@@ -1168,7 +1167,6 @@ void FakeVimHandler::Private::setupWidget()
 
 void FakeVimHandler::Private::exportSelection()
 {
-    updateCursorShape();
     int pos = position();
     int anc = anchor();
     m_oldInternalPosition = pos;
@@ -1402,7 +1400,6 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         m_commandBuffer = QString(".,+%1!").arg(qAbs(endLine - beginLine));
         //g.commandHistory.append(QString());
         updateMiniBuffer();
-        updateCursorShape();
         return;
     }
 
@@ -1527,7 +1524,6 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
     resetCommandMode();
     updateSelection();
     updateMiniBuffer();
-    updateCursorShape();
 }
 
 void FakeVimHandler::Private::resetCommandMode()
@@ -1940,7 +1936,6 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
             m_subsubmode = SearchSubSubMode;
             m_commandPrefix = QLatin1Char(m_lastSearchForward ? '/' : '?');
             m_commandBuffer = QString();
-            updateCursorShape();
             updateMiniBuffer();
         }
     } else if (input.is('`')) {
@@ -2673,7 +2668,6 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
             m_mode = InsertMode;
         else
             m_mode = ReplaceMode;
-        updateCursorShape();
     } else if (input.isKey(Key_Left)) {
         moveLeft(count());
         setTargetColumn();
@@ -4495,16 +4489,12 @@ void FakeVimHandler::Private::redo()
 
 void FakeVimHandler::Private::updateCursorShape()
 {
-    if (m_mode == ExMode || m_subsubmode == SearchSubSubMode) {
-        EDITOR(setCursorWidth(0));
-        EDITOR(setOverwriteMode(false));
-    } else if (m_mode == InsertMode || isVisualMode()) {
-        EDITOR(setCursorWidth(m_cursorWidth));
-        EDITOR(setOverwriteMode(false));
-    } else {
-        EDITOR(setCursorWidth(m_cursorWidth));
-        EDITOR(setOverwriteMode(true));
-    }
+    bool thinCursor = m_mode == ExMode
+            || m_subsubmode == SearchSubSubMode
+            || m_mode == InsertMode
+            || isVisualMode()
+            || cursor().hasSelection();
+    EDITOR(setOverwriteMode(!thinCursor));
 }
 
 void FakeVimHandler::Private::enterReplaceMode()
@@ -4515,7 +4505,6 @@ void FakeVimHandler::Private::enterReplaceMode()
     m_commandPrefix.clear();
     m_lastInsertion.clear();
     m_lastDeletion.clear();
-    updateCursorShape();
 }
 
 void FakeVimHandler::Private::enterInsertMode()
@@ -4526,7 +4515,6 @@ void FakeVimHandler::Private::enterInsertMode()
     m_commandPrefix.clear();
     m_lastInsertion.clear();
     m_lastDeletion.clear();
-    updateCursorShape();
 }
 
 void FakeVimHandler::Private::enterCommandMode()
@@ -4537,7 +4525,6 @@ void FakeVimHandler::Private::enterCommandMode()
     m_submode = NoSubMode;
     m_subsubmode = NoSubSubMode;
     m_commandPrefix.clear();
-    updateCursorShape();
 }
 
 void FakeVimHandler::Private::enterExMode()
@@ -4546,7 +4533,6 @@ void FakeVimHandler::Private::enterExMode()
     m_submode = NoSubMode;
     m_subsubmode = NoSubSubMode;
     m_commandPrefix = ":";
-    updateCursorShape();
 }
 
 void FakeVimHandler::Private::recordJump()
