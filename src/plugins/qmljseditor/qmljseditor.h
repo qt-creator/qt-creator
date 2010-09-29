@@ -318,8 +318,8 @@ private:
     QTimer *m_semanticRehighlightTimer;
     QTimer *m_updateOutlineTimer;
     QTimer *m_updateOutlineIndexTimer;
-    QTimer *m_cursorPositionTimer;
     QTimer *m_toolTipTimer;
+    QTimer *m_cursorPositionTimer;
     QComboBox *m_outlineCombo;
     QmlOutlineModel *m_outlineModel;
     QModelIndex m_outlineModelIndex;

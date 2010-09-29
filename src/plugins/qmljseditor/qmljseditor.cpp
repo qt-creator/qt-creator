@@ -680,8 +680,8 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     m_modelManager(0),
     m_contextPane(0),
     m_updateSelectedElements(false),
-    m_findReferences(new FindReferences(this)),
-    m_toolTipPosition(0)
+    m_toolTipPosition(0),
+    m_findReferences(new FindReferences(this))
 {
     qRegisterMetaType<QmlJSEditor::Internal::SemanticInfo>("QmlJSEditor::Internal::SemanticInfo");
 
@@ -728,10 +728,10 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     m_cursorPositionTimer->setSingleShot(true);
     connect(m_cursorPositionTimer, SIGNAL(timeout()), this, SLOT(updateCursorPositionNow()));
 
-    m_ToolTipTimer  = new QTimer(this);
-    m_ToolTipTimer->setInterval(TOOLTIP_TIMER_INTERVAL);
-    m_ToolTipTimer->setSingleShot(true);
-    connect(m_ToolTipTimer, SIGNAL(timeout()), this, SLOT(updateToolTipNow()));
+    m_toolTipTimer  = new QTimer(this);
+    m_toolTipTimer->setInterval(TOOLTIP_TIMER_INTERVAL);
+    m_toolTipTimer->setSingleShot(true);
+    connect(m_toolTipTimer, SIGNAL(timeout()), this, SLOT(updateToolTipNow()));
 
     baseTextDocument()->setSyntaxHighlighter(new Highlighter(document()));
 
@@ -1473,7 +1473,7 @@ void QmlJSTextEditor::onTooltipRequested(TextEditor::ITextEditor* /* editor */, 
 {
     m_toolTipPosition = position;
     if (m_contextPane) {
-        m_ToolTipTimer->start();
+        m_toolTipTimer->start();
     }
 }
 
