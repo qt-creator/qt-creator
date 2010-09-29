@@ -1024,8 +1024,7 @@ QStringList DebuggerEngine::qtDumperLibraryLocations() const
 
 void DebuggerEngine::showQtDumperLibraryWarning(const QString &details)
 {
-    //QMessageBox dialog(d->m_mainWindow); // FIXME
-    QMessageBox dialog;
+    QMessageBox dialog(plugin()->mainWindow());
     QPushButton *qtPref = dialog.addButton(tr("Open Qt4 Options"),
         QMessageBox::ActionRole);
     QPushButton *helperOff = dialog.addButton(tr("Turn off Helper Usage"),
@@ -1056,7 +1055,7 @@ void DebuggerEngine::showQtDumperLibraryWarning(const QString &details)
 
 void DebuggerEngine::showQmlObserverToolWarning()
 {
-    QMessageBox dialog;
+    QMessageBox dialog(plugin()->mainWindow());
     QPushButton *qtPref = dialog.addButton(tr("Open Qt4 Options"),
         QMessageBox::ActionRole);
     QPushButton *helperOff = dialog.addButton(tr("Turn off QML Observer Usage"),
