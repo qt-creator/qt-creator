@@ -50,6 +50,7 @@
 #include <texteditor/itexteditor.h>
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
+#include <utils/environment.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
 #include <vcsbase/vcsbaseplugin.h>
@@ -1920,6 +1921,61 @@ QString GitClient::readConfig(const QString &workingDirectory, const QStringList
 QString GitClient::readConfigValue(const QString &workingDirectory, const QString &configVar)
 {
     return readConfig(workingDirectory, QStringList(configVar)).remove(QLatin1Char('\n'));
+}
+
+bool GitClient::cloneRepository(const QString &directory,const QByteArray &url)
+{
+    QDir workingDirectory(directory);
+    const unsigned flags =  VCSBase::VCSBasePlugin::SshPasswordPrompt
+                           |VCSBase::VCSBasePlugin::ShowStdOutInLogWindow
+                           |VCSBase::VCSBasePlugin::ShowSuccessMessage;
+
+    if (workingDirectory.exists()) {
+        if (!synchronousInit(workingDirectory.path()))
+            return false;
+
+        QStringList arguments(QLatin1String("remote"));
+        arguments << QLatin1String("add") << QLatin1String("origin") << url;
+        if (!fullySynchronousGit(workingDirectory.path(),arguments,0,0,true))
+            return false;        
+
+        arguments.clear();
+        arguments << QLatin1String("fetch");
+        const Utils::SynchronousProcessResponse resp = synchronousGit(workingDirectory.path(),arguments,flags);
+        if (resp.result != Utils::SynchronousProcessResponse::Finished)
+            return false;
+
+        arguments.clear();
+        arguments << QLatin1String("config") <<  QLatin1String("branch.master.remote") <<  QLatin1String("origin");
+        if (!fullySynchronousGit(workingDirectory.path(),arguments,0,0,true))
+            return false;
+
+        arguments.clear();
+        arguments << QLatin1String("config") <<  QLatin1String("branch.master.merge") <<  QLatin1String("refs/heads/master");
+        if (!fullySynchronousGit(workingDirectory.path(),arguments,0,0,true))
+            return false;
+
+        return true;
+    } else {
+        QStringList arguments(QLatin1String("clone"));
+        arguments << url << workingDirectory.dirName();
+        workingDirectory.cdUp();
+        const Utils::SynchronousProcessResponse resp = synchronousGit(workingDirectory.path(),arguments,flags);
+        return resp.result == Utils::SynchronousProcessResponse::Finished;
+    }
+}
+
+QString GitClient::vcsGetRepositoryURL(const QString &directory)
+{
+    QStringList arguments(QLatin1String("config"));
+    QByteArray outputText;
+
+    arguments << QLatin1String("remote.origin.url");
+
+    if (fullySynchronousGit(directory,arguments,&outputText,0,false)) {
+        return commandOutputFromLocal8Bit(outputText);
+    }
+    return QString();
 }
 
 GitSettings GitClient::settings() const

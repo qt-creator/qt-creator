@@ -52,7 +52,9 @@ public:
         AddOperation, DeleteOperation, OpenOperation, MoveOperation,
         CreateRepositoryOperation,
         SnapshotOperations,
-        AnnotateOperation
+        AnnotateOperation,
+        CheckoutOperation,
+        GetRepositoryRootOperation
         };
 
     explicit IVersionControl(QObject *parent = 0) : QObject(parent) {}
@@ -115,6 +117,16 @@ public:
      * Called to initialize the version control system in a directory.
      */
     virtual bool vcsCreateRepository(const QString &directory) = 0;
+
+    /*!
+     * Called to clone/checkout the version control system in a directory.
+     */
+    virtual bool vcsCheckout(const QString &directory,const QByteArray &url) = 0;
+
+    /*!
+     * Called to get the version control repository root.
+     */
+    virtual QString vcsGetRepositoryURL(const QString &director) = 0;
 
     /*!
      * Create a snapshot of the current state and return an identifier or

@@ -158,6 +158,8 @@ public:
     unsigned gitVersion(bool silent, QString *errorMessage = 0);
     QString gitVersionString(bool silent, QString *errorMessage = 0);
 
+    bool cloneRepository(const QString &directory,const QByteArray &url);
+    QString vcsGetRepositoryURL(const QString &directory);
     bool synchronousFetch(const QString &workingDirectory);
     bool synchronousPull(const QString &workingDirectory);
     bool synchronousPush(const QString &workingDirectory);

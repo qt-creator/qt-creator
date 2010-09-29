@@ -96,6 +96,8 @@ public:
     bool vcsDelete(const QString &workingDir, const QString &fileName);
     bool vcsMove(const QString &workingDir, const QString &from, const QString &to);
     bool managesDirectory(const QString &directory, QString *topLevel = 0) const;
+    virtual bool vcsCheckout(const QString &directory, const QByteArray &url);
+    virtual QString vcsGetRepositoryURL(const QString &directory);
 
     static SubversionPlugin *subversionPluginInstance();
 

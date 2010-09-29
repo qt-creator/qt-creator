@@ -69,12 +69,14 @@ public:
     QString editorId;
     bool binary;
     GeneratedFile::Attributes attributes;
+    bool writeAccess;
 };
 
 GeneratedFilePrivate::GeneratedFilePrivate(const QString &p) :
     path(p),
     binary(false),
-    attributes(0)
+    attributes(0),
+    writeAccess(true)
 {
 }
 
@@ -102,6 +104,11 @@ GeneratedFile &GeneratedFile::operator=(const GeneratedFile &rhs)
 
 GeneratedFile::~GeneratedFile()
 {
+}
+
+void GeneratedFile::writeAccess(bool access)
+{
+   m_d->writeAccess = access;
 }
 
 QString GeneratedFile::path() const
@@ -156,6 +163,9 @@ void GeneratedFile::setEditorId(const QString &k)
 
 bool GeneratedFile::write(QString *errorMessage) const
 {
+    if (!m_d->writeAccess)
+      return true;
+
     // Ensure the directory
     const QFileInfo info(m_d->path);
     const QDir dir = info.absoluteDir();

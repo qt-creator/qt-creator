@@ -497,6 +497,63 @@ bool MercurialClient::pushSync(const QString &repositoryRoot, const QString &rep
     return resp.result == Utils::SynchronousProcessResponse::Finished;
 }
 
+bool MercurialClient::clone(const QString &directory, const QString &url)
+{
+    QDir workingDirectory(directory);
+    QByteArray output;
+    const unsigned flags = VCSBase::VCSBasePlugin::SshPasswordPrompt|VCSBase::VCSBasePlugin::ShowStdOutInLogWindow
+                           |VCSBase::VCSBasePlugin::ShowSuccessMessage;
+
+    if (workingDirectory.exists()) {
+        // Let's make first init
+        QStringList arguments(QLatin1String("init"));
+        if (!executeHgFullySynchronously(workingDirectory.path(), arguments, &output)) {
+            return false;
+        }
+
+        // Then pull remote repository
+        arguments.clear();
+        arguments << QLatin1String("pull") << url;
+        const Utils::SynchronousProcessResponse resp1 =
+                executeHgSynchronously(workingDirectory.path(), arguments, flags);
+        if (resp1.result != Utils::SynchronousProcessResponse::Finished) {
+            return false;
+        }
+
+        // By now, there is no hgrc file -> create it
+        QFile hgrc(workingDirectory.path()+"/.hg/hgrc");
+        hgrc.open(QIODevice::WriteOnly);
+        hgrc.write(QString("[paths]\ndefault = %1\n").arg(QString(url)).toUtf8());
+        hgrc.close();
+
+        // And last update repository
+        arguments.clear();
+        arguments << QLatin1String("update");
+        const Utils::SynchronousProcessResponse resp2 =
+                executeHgSynchronously(workingDirectory.path(), arguments, flags);
+        return resp2.result == Utils::SynchronousProcessResponse::Finished;
+    } else {
+        QStringList arguments(QLatin1String("clone"));
+        arguments << url << workingDirectory.dirName();
+        workingDirectory.cdUp();
+        const Utils::SynchronousProcessResponse resp =
+                executeHgSynchronously(workingDirectory.path(), arguments, flags);
+        return resp.result == Utils::SynchronousProcessResponse::Finished;
+    }
+}
+
+QString MercurialClient::vcsGetRepositoryURL(const QString &directory)
+{
+    QByteArray output;
+
+    QStringList arguments(QLatin1String("showconfig"));
+    arguments << QLatin1String("paths.default");
+
+    if (executeHgFullySynchronously(directory, arguments, &output))
+        return QString::fromLocal8Bit(output);;
+    return QString();
+}
+
 void MercurialClient::incoming(const QString &repositoryRoot, const QString &repository)
 {
     QStringList args;

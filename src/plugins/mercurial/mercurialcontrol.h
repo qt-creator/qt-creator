@@ -57,6 +57,8 @@ public:
     bool vcsDelete(const QString &filename);
     bool vcsMove(const QString &from, const QString &to);
     bool vcsCreateRepository(const QString &directory);
+    bool vcsCheckout(const QString &directory, const QByteArray &url);
+    QString vcsGetRepositoryURL(const QString &directory);
     QString vcsCreateSnapshot(const QString &topLevel);
     QStringList vcsSnapshots(const QString &topLevel);
     bool vcsRestoreSnapshot(const QString &topLevel, const QString &name);
