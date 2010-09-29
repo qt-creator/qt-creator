@@ -78,7 +78,12 @@ void StatesEditorView::setCurrentStateSilent(int index)
         m_settingSilentState = false;
         return;
     }
+
+    nodeInstanceView()->setBlockStatePropertyChanges(true);
+
     QmlModelView::activateState(state);
+
+    nodeInstanceView()->setBlockStatePropertyChanges(false);
 
     m_settingSilentState = false;
 }
