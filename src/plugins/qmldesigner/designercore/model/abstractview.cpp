@@ -370,7 +370,7 @@ void AbstractView::emitCustomNotification(const QString &identifier, const QList
 
 void AbstractView::emitInstancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList)
 {
-    if (model())
+    if (model() && nodeInstanceView() == this)
         model()->m_d->notifyInstancePropertyChange(propertyList);
 }
 

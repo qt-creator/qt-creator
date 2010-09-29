@@ -35,6 +35,7 @@
 #include "nodelistproperty.h"
 #include "qmltextgenerator.h"
 #include "variantproperty.h"
+#include <propertymetainfo.h>
 #include "model.h"
 
 using namespace QmlDesigner;
