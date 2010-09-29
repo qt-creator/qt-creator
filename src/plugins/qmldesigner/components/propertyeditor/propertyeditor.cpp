@@ -576,7 +576,7 @@ QString templateGeneration(NodeMetaInfo type, NodeMetaInfo superType, const QmlO
                 "DoubleSpinBoxAlternate {\ntext: \"%1\"\nbackendValue: backendValues.%2\nbaseStateFlag: isBaseState\n}\n"
                 )).arg(name).arg(properName);
             }
-            if (typeName == "string") {
+            if (typeName == "string" || typeName == "QString") {
                  qmlTemplate +=  QString(QLatin1String(
                 "QWidget {\nlayout: HorizontalLayout {\nLabel {\ntext: \"%1\"\ntoolTip: \"%1\"\n}\nLineEdit {\nbackendValue: backendValues.%2\nbaseStateFlag: isBaseState\n}\n}\n}\n"
                 )).arg(name).arg(properName);
