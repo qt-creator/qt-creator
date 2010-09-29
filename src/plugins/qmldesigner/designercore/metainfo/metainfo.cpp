@@ -144,6 +144,14 @@ void MetaInfoPrivate::loadPlugins(QDeclarativeEngine *engine)
     pluginComponent.setData(componentString.toLatin1(), QUrl());
 }
 
+QString static inline stripPrefix(const QString &typeName)
+{
+    QStringList list = typeName.split('/');
+    if (list.count() == 2)
+        return list.last();
+    return typeName;
+}
+
 void MetaInfoPrivate::parseProperties(NodeMetaInfo &nodeMetaInfo, const QMetaObject *qMetaObject) const
 {
     Q_ASSERT_X(qMetaObject, Q_FUNC_INFO, "invalid QMetaObject");
@@ -181,7 +189,11 @@ void MetaInfoPrivate::parseProperties(NodeMetaInfo &nodeMetaInfo, const QMetaObj
 
             enumerator.setValid(qEnumerator.isValid());
             enumerator.setIsFlagType(qEnumerator.isFlag());
-            enumerator.setScope(qEnumerator.scope());
+            QString scope = qEnumerator.scope();
+            if (m_QtTypesToQmlTypes.contains(scope))
+                scope = stripPrefix(m_QtTypesToQmlTypes.value(scope));
+
+            enumerator.setScope(scope);
             enumerator.setName(qEnumerator.name());
             for (int i = 0 ;i < qEnumerator.keyCount(); i++)
             {
