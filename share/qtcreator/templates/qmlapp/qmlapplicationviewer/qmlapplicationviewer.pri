@@ -16,7 +16,7 @@ contains(DEFINES, QMLJSDEBUGGER) {
             warning()
             warning(Debugging QML requires the qmljsdebugger library that ships with Qt Creator.)
             warning(Please specify its location on the qmake command line, e.g.)
-            warning(  qmake -r QMLJSDEBUGGER_PATH=$CREATORDIR/share/qtcreator/qmljsdebugger)
+            warning(  qmake -r QMLJSDEBUGGER_PATH=$CREATORDIR/share/qtcreator/qml/qmljsdebugger)
             warning()
 
             error(QMLJSDEBUGGER defined, but no QMLJSDEBUGGER_PATH set on command line. Aborting.)
