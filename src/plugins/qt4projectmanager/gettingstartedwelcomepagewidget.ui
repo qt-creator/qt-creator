@@ -457,14 +457,14 @@ border-bottom: 1px solid &quot;#C9C9C9&quot;;
          </size>
         </property>
         <property name="text">
-         <string>Image</string>
+         <string notr="true">Image</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QLabel" name="featuredTextLabel">
         <property name="text">
-         <string>Text</string>
+         <string notr="true">Text</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
@@ -489,7 +489,7 @@ border-bottom: 1px solid &quot;#C9C9C9&quot;;
         <item>
          <widget class="QLabel" name="detailsLabel">
           <property name="text">
-           <string>Link</string>
+           <string notr="true">Link</string>
           </property>
          </widget>
         </item>

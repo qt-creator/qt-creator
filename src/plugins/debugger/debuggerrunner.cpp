@@ -613,7 +613,7 @@ bool DebuggerRunControl::aboutToStop() const
 {
     QTC_ASSERT(isRunning(), return true;)
 
-    const QString question = tr("A debugging session are still in progress. "
+    const QString question = tr("A debugging session is still in progress. "
             "Terminating the session in the current"
             " state can leave the target in an inconsistent state."
             " Would you still like to terminate it?");

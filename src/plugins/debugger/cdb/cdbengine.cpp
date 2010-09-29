@@ -481,7 +481,7 @@ void CdbEngine::runEngine()
         }
         break;
     case AttachCore:
-        errorMessage = tr("Attaching to core files is not supported!");
+        errorMessage = tr("Attaching to core files is not supported.");
         break;
     }
     if (rc) {

@@ -240,7 +240,7 @@ DebuggerSettings *DebuggerSettings::instance()
     item->setCheckable(true);
     item->setDefaultValue(true);
     item->setSettingsKey(debugModeGroup, QLatin1String("AutoDerefPointers"));
-    item->setToolTip(tr("This switches the Locals&Watchers view to "
+    item->setToolTip(tr("This switches the Locals&&Watchers view to "
         "automatically dereference pointers. This saves a level in the "
         "tree view, but also loses data for the now-missing intermediate "
         "level."));
