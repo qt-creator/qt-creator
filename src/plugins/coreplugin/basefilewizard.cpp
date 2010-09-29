@@ -106,7 +106,7 @@ GeneratedFile::~GeneratedFile()
 {
 }
 
-void GeneratedFile::writeAccess(bool access)
+void GeneratedFile::setWriteAccess(bool access)
 {
    m_d->writeAccess = access;
 }
