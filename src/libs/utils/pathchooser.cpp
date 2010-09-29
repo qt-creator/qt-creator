@@ -108,19 +108,26 @@ PathChooserPrivate::PathChooserPrivate(PathChooser *chooser) :
 
 QString PathChooserPrivate::expandedPath(const QString &input) const
 {
-    QString path = QDir::fromNativeSeparators(input);
-    if (m_environment.size() > 0)
-        return m_environment.expandVariables(path);
-
-    if (path.isEmpty() || m_acceptingKind == PathChooser::Command)
+    if (input.isEmpty())
+        return input;
+    const QString path = QDir::fromNativeSeparators(m_environment.expandVariables(input));
+    if (path.isEmpty())
         return path;
 
-    if (m_acceptingKind == PathChooser::ExistingCommand)
-        return m_environment.searchInPath(path, QStringList() << m_baseDirectory);
-
-    if (!m_baseDirectory.isEmpty() && QFileInfo(path).isRelative())
-        return QFileInfo(m_baseDirectory + QLatin1Char('/') + path).absoluteFilePath();
-
+    switch (m_acceptingKind) {
+    case PathChooser::Command:
+    case PathChooser::ExistingCommand: {
+        const QString expanded = m_environment.searchInPath(path, QStringList(m_baseDirectory));
+        return expanded.isEmpty() && m_acceptingKind == PathChooser::Command ? path : expanded;
+    }
+    case PathChooser::Any:
+        break;
+    case PathChooser::Directory:
+    case PathChooser::File:
+        if (!m_baseDirectory.isEmpty() && QFileInfo(path).isRelative())
+            return QFileInfo(m_baseDirectory + QLatin1Char('/') + path).absoluteFilePath();
+        break;
+    }
     return path;
 }
 
@@ -144,7 +151,6 @@ PathChooser::PathChooser(QWidget *parent) :
 
     setLayout(m_d->m_hLayout);
     setFocusProxy(m_d->m_lineEdit);
-
     setEnvironment(Environment::systemEnvironment());
 }
 
