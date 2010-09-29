@@ -63,6 +63,7 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/refactoroverlay.h>
+#include <texteditor/tooltip/tooltip.h>
 #include <qmldesigner/qmldesignerconstants.h>
 #include <utils/changeset.h>
 #include <utils/uncommentselection.h>
@@ -82,7 +83,8 @@
 enum {
     UPDATE_DOCUMENT_DEFAULT_INTERVAL = 100,
     UPDATE_USES_DEFAULT_INTERVAL = 150,
-    UPDATE_OUTLINE_INTERVAL = 500 // msecs after new semantic info has been arrived / cursor has moved
+    UPDATE_OUTLINE_INTERVAL = 500, // msecs after new semantic info has been arrived / cursor has moved
+    TOOLTIP_TIMER_INTERVAL = 1000 // delay after we show the Quick ToolBar after a tooltip
 };
 
 using namespace QmlJS;
@@ -678,7 +680,8 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     m_modelManager(0),
     m_contextPane(0),
     m_updateSelectedElements(false),
-    m_findReferences(new FindReferences(this))
+    m_findReferences(new FindReferences(this)),
+    m_toolTipPosition(0)
 {
     qRegisterMetaType<QmlJSEditor::Internal::SemanticInfo>("QmlJSEditor::Internal::SemanticInfo");
 
@@ -725,6 +728,11 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     m_cursorPositionTimer->setSingleShot(true);
     connect(m_cursorPositionTimer, SIGNAL(timeout()), this, SLOT(updateCursorPositionNow()));
 
+    m_ToolTipTimer  = new QTimer(this);
+    m_ToolTipTimer->setInterval(TOOLTIP_TIMER_INTERVAL);
+    m_ToolTipTimer->setSingleShot(true);
+    connect(m_ToolTipTimer, SIGNAL(timeout()), this, SLOT(updateToolTipNow()));
+
     baseTextDocument()->setSyntaxHighlighter(new Highlighter(document()));
 
     m_modelManager = ExtensionSystem::PluginManager::instance()->getObject<ModelManagerInterface>();
@@ -749,6 +757,9 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
 
     connect(this, SIGNAL(refactorMarkerClicked(TextEditor::Internal::RefactorMarker)),
             SLOT(onRefactorMarkerClicked(TextEditor::Internal::RefactorMarker)));
+
+    connect(editableInterface(), SIGNAL(tooltipRequested(TextEditor::ITextEditor*, QPoint, int)),
+            SLOT(onTooltipRequested(TextEditor::ITextEditor*, QPoint, int)));
 
     setRequestMarkEnabled(true);
 }
@@ -1456,6 +1467,28 @@ void QmlJSTextEditor::performQuickFix(int index)
 {
     TextEditor::QuickFixOperation::Ptr op = m_quickFixes.at(index);
     op->perform();
+}
+
+void QmlJSTextEditor::onTooltipRequested(TextEditor::ITextEditor* /* editor */, QPoint /* point */, int position)
+{
+    m_toolTipPosition = position;
+    if (m_contextPane) {
+        m_ToolTipTimer->start();
+    }
+}
+
+void QmlJSTextEditor::updateToolTipNow()
+{
+    if (!TextEditor::ToolTip::instance()->isVisible())
+        return;
+
+    if (m_contextPane) {
+        Node *newNode = m_semanticInfo.declaringMemberNoProperties(m_toolTipPosition);
+        m_contextPane->apply(editableInterface(), m_semanticInfo.lookupContext(), newNode, false, true);
+        m_oldCursorPosition = m_toolTipPosition;
+        QList<TextEditor::Internal::RefactorMarker> markers;
+        setRefactorMarkers(markers);
+    }
 }
 
 void QmlJSTextEditor::contextMenuEvent(QContextMenuEvent *e)
