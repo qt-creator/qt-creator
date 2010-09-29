@@ -110,7 +110,9 @@ QString PathChooserPrivate::expandedPath(const QString &input) const
 {
     if (input.isEmpty())
         return input;
-    const QString path = QDir::fromNativeSeparators(m_environment.expandVariables(input));
+    // Environment does \-expansion, too.
+    const QString nativeInput = QDir::fromNativeSeparators(input);
+    const QString path = QDir::fromNativeSeparators(m_environment.expandVariables(nativeInput));
     if (path.isEmpty())
         return path;
 
@@ -289,8 +291,6 @@ bool PathChooser::validatePath(const QString &path, QString *errorMessage)
         //: Selected path is not valid:
         displayPath = tr("<not valid>");
 
-    *errorMessage = tr("Full path: <b>%1</b>").arg(QDir::toNativeSeparators(expandedPath));
-
     if (expandedPath.isEmpty()) {
         if (errorMessage)
             *errorMessage = tr("The path must not be empty.");
@@ -350,7 +350,8 @@ bool PathChooser::validatePath(const QString &path, QString *errorMessage)
     default:
         ;
     }
-
+    if (errorMessage)
+        *errorMessage = tr("Full path: <b>%1</b>").arg(QDir::toNativeSeparators(expandedPath));
     return true;
 }
 
