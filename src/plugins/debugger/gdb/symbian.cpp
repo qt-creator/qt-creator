@@ -418,9 +418,9 @@ static void gdbAppendRegister(QByteArray *ba, uint regno, uint value)
     ba->append(';');
 }
 
-QByteArray Snapshot::gdbStopMessage(uint threadId, bool reportThreadId) const
+QByteArray Snapshot::gdbStopMessage(uint threadId, int signalNumber, bool reportThreadId) const
 {
-    QByteArray ba = "T05";
+    QByteArray ba = ('T' + trk::hexNumber(signalNumber, 2));
     if (reportThreadId) {
         ba += "thread:";
         ba += trk::hexNumber(threadId, 3);

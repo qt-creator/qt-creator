@@ -963,10 +963,12 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
 #            if 1
             // We almost always need register values, so get them
             // now before informing gdb about the stop.s
-            //qDebug() << "Auto-fetching registers";
+            const int signalNumber = reason.contains(QLatin1String("exception"), Qt::CaseInsensitive)
+                                     || reason.contains(QLatin1String("panic"), Qt::CaseInsensitive) ?
+                        gdbServerSignalSegfault : gdbServerSignalTrap;
             sendTrkMessage(0x12,
                 TrkCB(handleAndReportReadRegistersAfterStop),
-                Launcher::readRegistersMessage(m_session.pid, m_session.tid));
+                Launcher::readRegistersMessage(m_session.pid, m_session.tid), signalNumber);
 #            else
             // As a source-line step typically consists of
             // several instruction steps, better avoid the multiple
@@ -1181,7 +1183,8 @@ void TrkGdbAdapter::handleAndReportReadRegistersAfterStop(const TrkResult &resul
 {
     handleReadRegisters(result);
     const bool reportThread = m_session.tid != m_session.mainTid;
-    sendGdbServerMessage(m_snapshot.gdbStopMessage(m_session.tid, reportThread),
+    const int signalNumber = result.cookie.isValid() ? result.cookie.toInt() : int(gdbServerSignalTrap);
+    sendGdbServerMessage(m_snapshot.gdbStopMessage(m_session.tid, signalNumber, reportThread),
                          "Stopped with registers in thread " + QByteArray::number(m_session.tid, 16));
 }
 
