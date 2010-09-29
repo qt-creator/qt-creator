@@ -137,7 +137,7 @@ QString MobileApp::mainWindowClassName() const
 
 int MobileApp::stubVersionMinor() const { return StubVersion; }
 
-const int MobileApp::StubVersion = 1;
+const int MobileApp::StubVersion = 2;
 
 } // namespace Internal
 } // namespace Qt4ProjectManager

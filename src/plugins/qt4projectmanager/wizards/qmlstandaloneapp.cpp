@@ -474,7 +474,7 @@ bool QmlStandaloneApp::updateFiles(const QList<QmlAppGeneratedFileInfo> &list, Q
     return true;
 }
 
-const int QmlStandaloneApp::StubVersion = 7;
+const int QmlStandaloneApp::StubVersion = 8;
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
