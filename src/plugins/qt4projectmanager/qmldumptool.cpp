@@ -33,6 +33,7 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
 #include <QDesktopServices>
 #include <QCoreApplication>
 #include <QDir>
@@ -137,6 +138,40 @@ QStringList QmlDumpTool::installDirectories(const QString &qtInstallData)
             << QDir::cleanPath((QCoreApplication::applicationDirPath() + QLatin1String("/../qtc-qmldump/") + QString::number(hash))) + slash
             << (QDesktopServices::storageLocation(QDesktopServices::DataLocation) + QLatin1String("/qtc-qmldump/") + QString::number(hash)) + slash;
     return directories;
+}
+
+QString QmlDumpTool::qmlDumpPath()
+{
+    QString path;
+
+    ProjectExplorer::Project *activeProject = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
+    path = Qt4ProjectManager::QmlDumpTool::toolForProject(activeProject);
+
+    // ### this is needed for qmlproject and cmake project support, but may not work in all cases.
+    if (path.isEmpty()) {
+        // Try to locate default path in Qt Versions
+        QtVersionManager *qtVersions = QtVersionManager::instance();
+        foreach (QtVersion *version, qtVersions->validVersions()) {
+            if (version->supportsTargetId(Constants::DESKTOP_TARGET_ID)) {
+                const QString qtInstallData = version->versionInfo().value("QT_INSTALL_DATA");
+                path = QmlDumpTool::toolByInstallData(qtInstallData);
+
+                if (!path.isEmpty()) {
+                    break;
+                }
+            }
+        }
+    }
+    QFileInfo qmldumpFileInfo(path);
+    if (!qmldumpFileInfo.exists()) {
+        qWarning() << "QmlDumpTool::qmlDumpPath: qmldump executable does not exist at" << path;
+        path.clear();
+    } else if (!qmldumpFileInfo.isFile()) {
+        qWarning() << "QmlDumpTool::qmlDumpPath: " << path << " is not a file";
+        path.clear();
+    }
+
+    return path;
 }
 
 } // namespace

@@ -37,6 +37,7 @@
 #include <coreplugin/messagemanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/filewatcher.h>
+#include <qt4projectmanager/qmldumptool.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <QTextStream>
@@ -129,6 +130,11 @@ void QmlProject::refresh(RefreshOptions options)
     QmlJS::ModelManagerInterface::ProjectInfo pinfo(this);
     pinfo.sourceFiles = files();
     pinfo.importPaths = importPaths();
+
+    if (pinfo.qmlDumpPath.isNull()) {
+        pinfo.qmlDumpPath = Qt4ProjectManager::QmlDumpTool::qmlDumpPath();
+    }
+
     m_modelManager->updateProjectInfo(pinfo);
 }
 

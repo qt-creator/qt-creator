@@ -59,6 +59,8 @@ public:
     // Copy the source files to a target location and return the chosen target location.
     static QString copy(const QString &qtInstallData, QString *errorMessage);
 
+    static QString qmlDumpPath();
+
 private:
     static QStringList installDirectories(const QString &qtInstallData);
 

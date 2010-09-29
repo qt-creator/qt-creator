@@ -586,34 +586,8 @@ void Qt4Project::updateQmlJSCodeModel()
     }
     projectInfo.importPaths.removeDuplicates();
 
-
     if (projectInfo.qmlDumpPath.isNull()) {
-        ProjectExplorer::Project *activeProject = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
-        projectInfo.qmlDumpPath = Qt4ProjectManager::QmlDumpTool::toolForProject(activeProject);
-
-        // ### this is needed for qmlproject and cmake project support, but may not work in all cases.
-        if (projectInfo.qmlDumpPath.isEmpty()) {
-            // Try to locate default path in Qt Versions
-            QtVersionManager *qtVersions = QtVersionManager::instance();
-            foreach (QtVersion *version, qtVersions->validVersions()) {
-                if (version->supportsTargetId(Constants::DESKTOP_TARGET_ID)) {
-                    const QString qtInstallData = version->versionInfo().value("QT_INSTALL_DATA");
-                    projectInfo.qmlDumpPath = QmlDumpTool::toolByInstallData(qtInstallData);
-
-                    if (!projectInfo.qmlDumpPath.isEmpty()) {
-                        break;
-                    }
-                }
-            }
-        }
-        QFileInfo qmldumpFileInfo(projectInfo.qmlDumpPath);
-        if (!qmldumpFileInfo.exists()) {
-            qWarning() << "Qt4Project::loadQmlPluginTypes: qmldump executable does not exist at" << projectInfo.qmlDumpPath;
-            projectInfo.qmlDumpPath.clear();
-        } else if (!qmldumpFileInfo.isFile()) {
-            qWarning() << "Qt4Project::loadQmlPluginTypes: " << projectInfo.qmlDumpPath << " is not a file";
-            projectInfo.qmlDumpPath.clear();
-        }
+        projectInfo.qmlDumpPath = QmlDumpTool::qmlDumpPath();
     }
 
     modelManager->updateProjectInfo(projectInfo);
