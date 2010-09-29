@@ -13,10 +13,28 @@ PropertyFrame {
         leftMargin: 0;
         rightMargin: 0;
         spacing: 0;
+
+        Type {
+        }
+
+        Geometry {
+        }
+
+        Visibility {
+
+        }
+
+        HorizontalWhiteLine {
+            maximumHeight: 4;
+            styleSheet: "QLineEdit {border: 2px solid #707070; min-height: 0px; max-height: 0px;}";
+        }
+
         Switches {
         }
+
         HorizontalWhiteLine {
         }
+
         ScrollArea {
             styleSheetFile: ":/qmldesigner/scrollbar.css";
             widgetResizable: true;
@@ -35,8 +53,6 @@ PropertyFrame {
                     leftMargin: 0;
                     rightMargin: 0;
                     spacing: 0;
-                    Type {
-                    }
 
                     WidgetLoader {
                         id: specificsOne;

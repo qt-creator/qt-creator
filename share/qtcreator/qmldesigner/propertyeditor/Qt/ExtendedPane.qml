@@ -16,9 +16,8 @@ QScrollArea {
             leftMargin: 0;
             rightMargin: 0;
             spacing: 0;            
-			
-			Visibility {}
-			Transformation {}					
+						
+            Transformation {}
 			
             QScrollArea {
             }

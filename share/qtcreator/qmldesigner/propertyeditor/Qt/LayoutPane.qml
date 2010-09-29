@@ -15,10 +15,7 @@ QScrollArea {
             bottomMargin: 0;
             leftMargin: 0;
             rightMargin: 0;
-            spacing: 0
-
-            Geometry {
-            }
+            spacing: 0;
 
             Layout {
                 id: layoutBox;
