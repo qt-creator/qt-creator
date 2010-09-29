@@ -103,7 +103,7 @@ public:
                        const QVariant &argument = QVariant());
 
     void messageReceived(const QByteArray &);
-    void enabledChanged(bool);
+    void statusChanged(Status);
 
 public slots:
 //    void pauses();
