@@ -542,19 +542,12 @@ QList<ProjectExplorer::HeaderPath> S60ToolChainMixin::epocHeaderPaths() const
 
 void S60ToolChainMixin::addEpocToEnvironment(Utils::Environment *env) const
 {
-    QString epocRootPath(m_device.epocRoot);
-    if (!epocRootPath.endsWith(QChar('/')))
-        epocRootPath.append(QChar('/'));
+    QDir epocDir(m_device.epocRoot);
+    env->prependOrSetPath(epocDir.filePath(QLatin1String("epoc32/tools"))); // e.g. make.exe
+    env->prependOrSetPath(epocDir.filePath(QLatin1String("epoc32/gcc/bin"))); // e.g. gcc.exe
+    env->prependOrSetPath(epocDir.filePath(QLatin1String("perl/bin"))); // e.g. perl.exe (special SDK version)
 
-    env->prependOrSetPath(QDir::toNativeSeparators(epocRootPath + QLatin1String("epoc32/tools"))); // e.g. make.exe
-    env->prependOrSetPath(QDir::toNativeSeparators(epocRootPath + QLatin1String("epoc32/gcc/bin"))); // e.g. gcc.exe
-    env->prependOrSetPath(QDir::toNativeSeparators(epocRootPath + QLatin1String("perl/bin"))); // e.g. perl.exe (special SDK version)
-
-    QString sbsHome(env->value(QLatin1String("SBS_HOME"))); // Do we use Raptor/SBSv2?
-    if (!sbsHome.isEmpty())
-        env->prependOrSetPath(sbsHome + QDir::separator() + QLatin1String("bin"));
-    // No longer set EPOCDEVICE as it conflicts with packaging
-    env->set(QLatin1String("EPOCROOT"), QDir::toNativeSeparators(S60Devices::cleanedRootPath(epocRootPath)));
+    addBaseToEnvironment(env);
 }
 
 static const char *gnuPocHeaderPathsC[] = {
@@ -595,11 +588,19 @@ QList<ProjectExplorer::HeaderPath> S60ToolChainMixin::gnuPocRvctHeaderPaths(int 
 void S60ToolChainMixin::addGnuPocToEnvironment(Utils::Environment *env) const
 {
     env->prependOrSetPath(QDir::toNativeSeparators(m_device.toolsRoot + QLatin1String("/epoc32/tools")));
-    const QString epocRootVar = QLatin1String("EPOCROOT");
-    // No trailing slash is required here, so, do not perform path cleaning.
-    // The variable also should be set since it is currently used for autodetection.
-    if (env->find(epocRootVar) == env->constEnd())
-        env->set(epocRootVar, m_device.epocRoot);
+    addBaseToEnvironment(env);
+}
+
+void S60ToolChainMixin::addBaseToEnvironment(Utils::Environment *env) const
+{
+    QString sbsHome(env->value(QLatin1String("SBS_HOME"))); // Do we use Raptor/SBSv2?
+    if (!sbsHome.isEmpty())
+        env->prependOrSetPath(sbsHome + QDir::separator() + QLatin1String("bin"));
+
+    QString epocRootPath(m_device.epocRoot);
+    if (!epocRootPath.endsWith(QChar('/')))
+        epocRootPath.append(QChar('/'));
+    env->set(QLatin1String("EPOCROOT"), QDir::toNativeSeparators(S60Devices::cleanedRootPath(epocRootPath)));
 }
 
 QDebug operator<<(QDebug db, const S60Devices::Device &d)

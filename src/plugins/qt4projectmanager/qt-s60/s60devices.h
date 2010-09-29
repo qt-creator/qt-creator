@@ -184,6 +184,8 @@ public:
     QStringList gnuPocRvctLibPaths(int armver, bool debug) const;
     void addGnuPocToEnvironment(Utils::Environment *env) const;
 
+    void addBaseToEnvironment(Utils::Environment *env) const;
+
     bool equals(const S60ToolChainMixin &rhs) const;
 
 private:
