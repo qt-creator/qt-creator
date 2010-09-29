@@ -354,6 +354,8 @@ QList<CppQuickFixOperation::Ptr> DefFromDecl::match(const CppQuickFixState &stat
 //        }
 //    }
 
+    Q_UNUSED(findSurroundingDeclarations)
+    Q_UNUSED(state)
     return noResult();
 }
 

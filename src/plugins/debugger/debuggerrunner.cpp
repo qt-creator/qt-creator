@@ -54,6 +54,7 @@
 #include <projectexplorer/applicationrunconfiguration.h> // For LocalApplication*
 
 #include <utils/environment.h>
+#include <utils/synchronousprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/fancymainwindow.h>
 #include <coreplugin/icore.h>
@@ -138,6 +139,36 @@ QString DebuggerRunControlFactory::displayName() const
     return tr("Debug");
 }
 
+// Find Qt installation by running qmake
+static inline QString findQtInstallPath(const QString &qmakePath)
+{
+    QProcess proc;
+    QStringList args;
+    args.append(QLatin1String("-query"));
+    args.append(QLatin1String("QT_INSTALL_HEADERS"));
+    proc.start(qmakePath, args);
+    if (!proc.waitForStarted()) {
+        qWarning("%s: Cannot start '%s': %s", Q_FUNC_INFO, qPrintable(qmakePath),
+           qPrintable(proc.errorString()));
+        return QString();
+    }
+    proc.closeWriteChannel();
+    if (!proc.waitForFinished()) {
+        Utils::SynchronousProcess::stopProcess(proc);
+        qWarning("%s: Timeout running '%s'.", Q_FUNC_INFO, qPrintable(qmakePath));
+        return QString();
+    }
+    if (proc.exitStatus() != QProcess::NormalExit) {
+        qWarning("%s: '%s' crashed.", Q_FUNC_INFO, qPrintable(qmakePath));
+        return QString();
+    }
+    const QByteArray ba = proc.readAllStandardOutput().trimmed();
+    QDir dir(QString::fromLocal8Bit(ba));
+    if (dir.exists() && dir.cdUp())
+        return dir.absolutePath();
+    return QString();
+}
+
 static DebuggerStartParameters localStartParameters(RunConfiguration *runConfiguration)
 {
     DebuggerStartParameters sp;
@@ -176,17 +207,8 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
 
     // Find qtInstallPath.
     QString qmakePath = DebuggingHelperLibrary::findSystemQt(rc->environment());
-    if (!qmakePath.isEmpty()) {
-        QProcess proc;
-        QStringList args;
-        args.append(QLatin1String("-query"));
-        args.append(QLatin1String("QT_INSTALL_HEADERS"));
-        proc.start(qmakePath, args);
-        proc.waitForFinished();
-        QByteArray ba = proc.readAllStandardOutput().trimmed();
-        QFileInfo fi(QString::fromLocal8Bit(ba) + "/..");
-        sp.qtInstallPath = fi.absoluteFilePath();
-    }
+    if (!qmakePath.isEmpty())
+        sp.qtInstallPath = findQtInstallPath(qmakePath);
     return sp;
 }
 
@@ -234,7 +256,6 @@ struct DebuggerRunnerPrivate {
     DebuggerEngine *m_engine;
     const QWeakPointer<RunConfiguration> m_myRunConfiguration;
     bool m_running;
-    bool m_started;
     const DebuggerEngineType m_enabledEngines;
     QString m_errorMessage;
     QString m_settingsIdHint;
@@ -244,7 +265,6 @@ DebuggerRunnerPrivate::DebuggerRunnerPrivate(RunConfiguration *runConfiguration,
                                              DebuggerEngineType enabledEngines) :
       m_myRunConfiguration(runConfiguration)
     , m_running(false)
-    , m_started(false)
     , m_enabledEngines(enabledEngines)
 {
 }
@@ -546,11 +566,17 @@ void DebuggerRunControl::start()
     plugin()->showMessage(DebuggerSettings::instance()->dump(), LogDebug);
     plugin()->runControlStarted(this);
 
-    engine()->startDebugger(this);
-    d->m_running = true;
-    emit addToOutputWindowInline(this, tr("Debugging starts"), false);
-    emit addToOutputWindowInline(this, "\n", false);
+    // We might get a synchronous startFailed() notification on Windows,
+    // when launching the process fails. Emit a proper finished() sequence.
     emit started();
+    d->m_running = true;
+
+    engine()->startDebugger(this);
+
+    if (d->m_running) {
+        emit addToOutputWindowInline(this, tr("Debugging starts"), false);
+        emit addToOutputWindowInline(this, "\n", false);
+    }
 }
 
 void DebuggerRunControl::startFailed()
