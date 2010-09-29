@@ -8,6 +8,10 @@ TARGET = qmldump
 QT += declarative
 CONFIG += console
 
+### FIXME: only debug plugins are now supported.
+CONFIG -= release
+CONFIG += debug
+
 TEMPLATE = app
 
 SOURCES += main.cpp
