@@ -130,12 +130,12 @@ bool PerforceVersionControl::vcsAnnotate(const QString &file, int line)
     return true;
 }
 
-bool PerforceVersionControl::vcsCheckout(const QString &/*directory*/,const QByteArray&/*url*/)
+bool PerforceVersionControl::vcsCheckout(const QString &,const QByteArray &)
 {
     return false;
 }
 
-QString PerforceVersionControl::vcsGetRepositoryURL(const QString &/*directory*/)
+QString PerforceVersionControl::vcsGetRepositoryURL(const QString &)
 {
     return QString();
 }

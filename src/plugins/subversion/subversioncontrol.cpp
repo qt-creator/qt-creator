@@ -91,9 +91,9 @@ bool SubversionControl::vcsMove(const QString &from, const QString &to)
     return m_plugin->vcsMove(fromInfo.absolutePath(), fromInfo.absoluteFilePath(), toInfo.absoluteFilePath());
 }
 
-bool SubversionControl::vcsCheckout(const QString &directory,const QByteArray &url)
+bool SubversionControl::vcsCheckout(const QString &directory, const QByteArray &url)
 {
-    return m_plugin->vcsCheckout(directory,url);
+    return m_plugin->vcsCheckout(directory, url);
 }
 
 QString SubversionControl::vcsGetRepositoryURL(const QString &directory)

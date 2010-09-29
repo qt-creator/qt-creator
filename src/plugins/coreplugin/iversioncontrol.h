@@ -121,7 +121,7 @@ public:
     /*!
      * Called to clone/checkout the version control system in a directory.
      */
-    virtual bool vcsCheckout(const QString &directory,const QByteArray &url) = 0;
+    virtual bool vcsCheckout(const QString &directory, const QByteArray &url) = 0;
 
     /*!
      * Called to get the version control repository root.

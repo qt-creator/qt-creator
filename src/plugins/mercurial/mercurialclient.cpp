@@ -501,8 +501,9 @@ bool MercurialClient::clone(const QString &directory, const QString &url)
 {
     QDir workingDirectory(directory);
     QByteArray output;
-    const unsigned flags = VCSBase::VCSBasePlugin::SshPasswordPrompt|VCSBase::VCSBasePlugin::ShowStdOutInLogWindow
-                           |VCSBase::VCSBasePlugin::ShowSuccessMessage;
+    const unsigned flags = VCSBase::VCSBasePlugin::SshPasswordPrompt |
+            VCSBase::VCSBasePlugin::ShowStdOutInLogWindow |
+            VCSBase::VCSBasePlugin::ShowSuccessMessage;
 
     if (workingDirectory.exists()) {
         // Let's make first init

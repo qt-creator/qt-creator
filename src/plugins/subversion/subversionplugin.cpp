@@ -1243,13 +1243,14 @@ bool SubversionPlugin::vcsCheckout(const QString &directory, const QByteArray &u
         // be a bug in subversion, so this might get fixed in the future.
         tempUrl.setUserInfo("");
         args << tempUrl.toEncoded() << directory;
-        const SubversionResponse response = runSvn(directory, username, password, args, m_settings.longTimeOutMS(),
-                                                  VCSBase::VCSBasePlugin::SshPasswordPrompt);
+        const SubversionResponse response = runSvn(directory, username, password, args,
+                                                   m_settings.longTimeOutMS(),
+                                                   VCSBase::VCSBasePlugin::SshPasswordPrompt);
         return !response.error;
     } else {
         args << url << directory;
         const SubversionResponse response = runSvn(directory, args, m_settings.longTimeOutMS(),
-                                               VCSBase::VCSBasePlugin::SshPasswordPrompt);
+                                                   VCSBase::VCSBasePlugin::SshPasswordPrompt);
         return !response.error;
     }
 }

@@ -126,13 +126,13 @@ bool GitVersionControl::vcsCreateRepository(const QString &directory)
     return gitClient()->synchronousInit(directory);
 }
 
-bool GitVersionControl::vcsCheckout(const QString &directory,const QByteArray &url)
-{    
+bool GitVersionControl::vcsCheckout(const QString &directory, const QByteArray &url)
+{
     return gitClient()->cloneRepository(directory,url);
 }
 
 QString GitVersionControl::vcsGetRepositoryURL(const QString &directory)
-{    
+{
     return gitClient()->vcsGetRepositoryURL(directory);
 }
 

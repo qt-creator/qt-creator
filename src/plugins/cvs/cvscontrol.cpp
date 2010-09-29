@@ -101,7 +101,7 @@ QString CVSControl::vcsGetRepositoryURL(const QString &)
     return QString();
 }
 
-bool CVSControl::vcsCheckout(const QString &/*directory*/, const QByteArray &/*url*/)
+bool CVSControl::vcsCheckout(const QString &, const QByteArray &)
 {
     return false;
 }

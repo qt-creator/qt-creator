@@ -167,14 +167,14 @@ bool VCSManager::promptToDelete(const QString &fileName)
     return true;
 }
 
-IVersionControl* VCSManager::checkout(const QString &versionControlType,
+IVersionControl *VCSManager::checkout(const QString &versionControlType,
                                       const QString &directory,
                                       const QByteArray &url)
 {
-    foreach (IVersionControl * versionControl, allVersionControls()) {
-        if (versionControl->displayName() == versionControlType &&
-            versionControl->supportsOperation(Core::IVersionControl::CheckoutOperation)) {
-            if (versionControl->vcsCheckout(directory,url)) {
+    foreach (IVersionControl *versionControl, allVersionControls()) {
+        if (versionControl->displayName() == versionControlType
+            && versionControl->supportsOperation(Core::IVersionControl::CheckoutOperation)) {
+            if (versionControl->vcsCheckout(directory, url)) {
                 m_d->m_cachedMatches.insert(directory, versionControl);
                 return versionControl;
             }
@@ -187,9 +187,8 @@ IVersionControl* VCSManager::checkout(const QString &versionControlType,
 bool VCSManager::findVersionControl(const QString &versionControlType)
 {
     foreach (IVersionControl * versionControl, allVersionControls()) {
-        if (versionControl->displayName() == versionControlType) {
+        if (versionControl->displayName() == versionControlType)
             return true;
-        }
     }
     return false;
 }
