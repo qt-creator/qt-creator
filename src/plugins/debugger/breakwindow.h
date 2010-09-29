@@ -62,6 +62,7 @@ private:
     void deleteBreakpoints(const QModelIndexList &list);
     void deleteBreakpoints(QList<int> rows);
     void addBreakpoint();
+    bool editBreakpoint(BreakpointData *data); // Returns 'Accept'.
     void editBreakpoints(const QModelIndexList &list);
     void associateBreakpoint(const QModelIndexList &list, int thread);
     void setBreakpointsEnabled(const QModelIndexList &list, bool enabled);

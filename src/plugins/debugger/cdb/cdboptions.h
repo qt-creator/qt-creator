@@ -52,7 +52,9 @@ public:
     enum ChangeFlags { InitializationOptionsChanged = 0x1,
                        DebuggerPathsChanged = 0x2,
                        SymbolOptionsChanged = 0x4,
-                       FastLoadDebuggingHelpersChanged = 0x8 };
+                       FastLoadDebuggingHelpersChanged = 0x8,
+                       OtherOptionsChanged = 0x100
+                     };
     unsigned compare(const CdbOptions &s) const;
 
     // Format a symbol server specification with a cache directory
@@ -67,6 +69,7 @@ public:
     QString path;
     QStringList symbolPaths;
     QStringList sourcePaths;
+    bool breakOnException;
     bool verboseSymbolLoading;
     bool fastLoadDebuggingHelpers;
 };

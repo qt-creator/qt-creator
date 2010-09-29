@@ -649,7 +649,7 @@ QDeclarativeViewer::QDeclarativeViewer(QWidget *parent, Qt::WindowFlags flags)
         QObject::connect(observer, SIGNAL(inspectorContextCleared()), m_crumblePathWidget, SLOT(clear()));
         QObject::connect(observer, SIGNAL(inspectorContextPushed(QString)), m_crumblePathWidget, SLOT(pushElement(QString)));
         QObject::connect(observer, SIGNAL(inspectorContextPopped()), m_crumblePathWidget, SLOT(popElement()));
-        QObject::connect(m_crumblePathWidget, SIGNAL(elementClicked(int)), observer, SLOT(setInspectorContext(int)));
+        QObject::connect(m_crumblePathWidget, SIGNAL(elementClicked(int)), observer, SLOT(setObserverContext(int)));
         QObject::connect(observer, SIGNAL(designModeBehaviorChanged(bool)), m_crumblePathWidget, SLOT(setVisible(bool)));
     }
     QObject::connect(canvas->engine(), SIGNAL(quit()), QCoreApplication::instance (), SLOT(quit()));

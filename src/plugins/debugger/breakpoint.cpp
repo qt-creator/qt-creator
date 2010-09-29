@@ -159,6 +159,9 @@ private:
 //
 //////////////////////////////////////////////////////////////////
 
+const char *BreakpointData::throwFunction = "throw";
+const char *BreakpointData::catchFunction = "catch";
+
 BreakpointData::BreakpointData() :
     m_handler(0), enabled(true),
     pending(true), type(BreakpointType),
@@ -362,6 +365,12 @@ bool BreakpointData::conditionsMatch() const
     QString s2 = bpCondition;
     s2.remove(QChar(' '));
     return s1 == s2;
+}
+
+void BreakpointData::reinsertBreakpoint()
+{
+    QTC_ASSERT(m_handler, return);
+    m_handler->reinsertBreakpoint(this);
 }
 
 } // namespace Internal

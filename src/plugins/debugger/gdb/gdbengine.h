@@ -516,7 +516,6 @@ private: ////////// View & Data Stuff //////////
     void setDebuggingHelperStateClassic(DebuggingHelperState);
     void tryLoadDebuggingHelpersClassic();
     void tryQueryDebuggingHelpersClassic();
-    Q_SLOT void recheckDebuggingHelperAvailabilityClassic();
     Q_SLOT void setDebugDebuggingHelpersClassic(const QVariant &on);
     Q_SLOT void setUseDebuggingHelpers(const QVariant &on);
 

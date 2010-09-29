@@ -42,6 +42,7 @@
 #include <utils/synchronousprocess.h>
 #include <utils/pathchooser.h>
 #include <utils/debuggerlanguagechooser.h>
+#include <utils/detailswidget.h>
 #include <qt4projectmanager/qtversionmanager.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 
@@ -150,8 +151,13 @@ static bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
 
 QWidget *QmlProjectRunConfiguration::createConfigurationWidget()
 {
-    QWidget *config = new QWidget;
-    QFormLayout *form = new QFormLayout(config);
+    Utils::DetailsWidget *detailsWidget = new Utils::DetailsWidget();
+    detailsWidget->setState(Utils::DetailsWidget::NoSummary);
+
+    QWidget *formWidget = new QWidget(detailsWidget);
+    detailsWidget->setWidget(formWidget);
+    QFormLayout *form = new QFormLayout(formWidget);
+    form->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
     m_fileListCombo = new QComboBox;
     m_fileListCombo.data()->setModel(m_fileListModel);
@@ -174,7 +180,7 @@ QWidget *QmlProjectRunConfiguration::createConfigurationWidget()
     connect(qmlViewerArgs, SIGNAL(textChanged(QString)), this, SLOT(onViewerArgsChanged()));
 
     form->addRow(tr("Custom QML Viewer:"), qmlViewer);
-    form->addRow(tr("QML Viewer arguments:"), qmlViewerArgs);
+    form->addRow(tr("Arguments:"), qmlViewerArgs);
     form->addRow(QString(), m_qmlViewerExecutable.data());
 
     QWidget *debuggerLabelWidget = new QWidget;
@@ -186,7 +192,7 @@ QWidget *QmlProjectRunConfiguration::createConfigurationWidget()
     debuggerLabelLayout->addWidget(debuggerLabel);
     debuggerLabelLayout->addStretch(10);
 
-    Utils::DebuggerLanguageChooser *debuggerLanguageChooser = new Utils::DebuggerLanguageChooser(config);
+    Utils::DebuggerLanguageChooser *debuggerLanguageChooser = new Utils::DebuggerLanguageChooser(formWidget);
 
     form->addRow(tr("Main QML file:"), m_fileListCombo.data());
     form->addRow(debuggerLabelWidget, debuggerLanguageChooser);
@@ -202,7 +208,7 @@ QWidget *QmlProjectRunConfiguration::createConfigurationWidget()
     connect(debuggerLanguageChooser, SIGNAL(qmlDebugServerPortChanged(uint)),
             this, SLOT(qmlDebugServerPortChanged(uint)));
 
-    return config;
+    return detailsWidget;
 }
 
 

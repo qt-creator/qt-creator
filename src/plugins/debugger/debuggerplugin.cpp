@@ -1265,8 +1265,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     // Cpp/Qml ui setup
     m_uiSwitcher = new DebuggerUISwitcher(m_debugMode, this);
     ExtensionSystem::PluginManager::instance()->addObject(m_uiSwitcher);
-    m_uiSwitcher->addLanguage(CppLanguage, tr("C++"), cppDebuggercontext);
-    m_uiSwitcher->addLanguage(QmlLanguage, tr("QML/JavaScript"), qmlDebuggerContext);
+    m_uiSwitcher->addLanguage(CppLanguage, cppDebuggercontext);
+    m_uiSwitcher->addLanguage(QmlLanguage, qmlDebuggerContext);
 
     // Dock widgets
     m_breakDock = m_uiSwitcher->createDockWidget(CppLanguage, m_breakWindow);
@@ -2168,8 +2168,7 @@ void DebuggerPluginPrivate::setSimpleDockWidgetArrangement
 
     if ((activeLanguages.testFlag(CppLanguage)
                 && !activeLanguages.testFlag(QmlLanguage))
-            || activeLanguages == AnyLanguage
-            || !uiSwitcher->qmlInspectorWindow()) {
+            || activeLanguages == AnyLanguage) {
         m_stackDock->show();
         m_breakDock->show();
         m_watchDock->show();
@@ -2180,7 +2179,8 @@ void DebuggerPluginPrivate::setSimpleDockWidgetArrangement
         m_breakDock->show();
         m_watchDock->show();
         m_scriptConsoleDock->show();
-        uiSwitcher->qmlInspectorWindow()->show();
+        if (uiSwitcher->qmlInspectorWindow())
+            uiSwitcher->qmlInspectorWindow()->show();
     }
     mw->splitDockWidget(mw->toolBarDockWidget(), m_stackDock, Qt::Vertical);
     mw->splitDockWidget(m_stackDock, m_watchDock, Qt::Horizontal);
@@ -2235,7 +2235,6 @@ void DebuggerPluginPrivate::setInitialState()
     m_actions.jumpToLineAction2->setEnabled(false);
     m_actions.nextAction->setEnabled(false);
 
-    theDebuggerAction(RecheckDebuggingHelpers)->setEnabled(false);
     theDebuggerAction(AutoDerefPointers)->setEnabled(true);
     theDebuggerAction(ExpandStack)->setEnabled(false);
     theDebuggerAction(ExecuteCommand)->setEnabled(m_state == InferiorStopOk);
@@ -2347,7 +2346,6 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
 
     m_actions.nextAction->setEnabled(stopped);
 
-    theDebuggerAction(RecheckDebuggingHelpers)->setEnabled(actionsEnabled);
     const bool canDeref = actionsEnabled
         && (m_capabilities & AutoDerefPointersCapability);
     theDebuggerAction(AutoDerefPointers)->setEnabled(canDeref);

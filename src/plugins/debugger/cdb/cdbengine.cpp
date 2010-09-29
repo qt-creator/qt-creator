@@ -409,7 +409,7 @@ void CdbEngine::setupEngine()
     m_d->m_inferiorStartupComplete = false;
     // Options
     QString errorMessage;
-    if (!m_d->setBreakOnThrow(theDebuggerBoolSetting(BreakOnThrow), &errorMessage))
+    if (!m_d->setBreakOnThrow(m_d->m_options->breakOnException, &errorMessage))
         showMessage(errorMessage, LogWarning);
     m_d->setVerboseSymbolLoading(m_d->m_options->verboseSymbolLoading);
     // Figure out dumper. @TODO: same in gdb...

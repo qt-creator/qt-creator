@@ -95,7 +95,6 @@ SOURCES += breakhandler.cpp \
 FORMS += attachexternaldialog.ui \
     attachcoredialog.ui \
     attachtcfdialog.ui \
-    breakbyfunction.ui \
     breakcondition.ui \
     breakpoint.ui \
     dumperoptionpage.ui \

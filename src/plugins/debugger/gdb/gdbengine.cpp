@@ -1781,8 +1781,6 @@ void GdbEngine::setupEngine()
                 this, SLOT(setUseDebuggingHelpers(QVariant)));
         connect(theDebuggerAction(DebugDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
                 this, SLOT(setDebugDebuggingHelpersClassic(QVariant)));
-        connect(theDebuggerAction(RecheckDebuggingHelpers), SIGNAL(triggered()),
-                this, SLOT(recheckDebuggingHelperAvailabilityClassic()));
     }
 
     QTC_ASSERT(state() == EngineSetupRequested, /**/);
@@ -2146,8 +2144,13 @@ static inline QByteArray bpAddressSpec(quint64 address)
 
 QByteArray GdbEngine::breakpointLocation(const BreakpointData *data)
 {
-    if (!data->funcName.isEmpty())
+    if (!data->funcName.isEmpty()) {
+        if (data->funcName == QLatin1String(BreakpointData::throwFunction))
+            return QByteArray("__cxa_throw");
+        if (data->funcName == QLatin1String(BreakpointData::catchFunction))
+            return QByteArray("__cxa_begin_catch");
         return data->funcName.toLatin1();
+    }
     if (data->address)
         return bpAddressSpec(data->address);
     // In this case, data->funcName is something like '*0xdeadbeef'

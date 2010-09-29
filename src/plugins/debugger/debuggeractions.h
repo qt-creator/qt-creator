@@ -94,7 +94,6 @@ enum DebuggerActionCode
     OperateByInstruction,
     AutoDerefPointers,
 
-    RecheckDebuggingHelpers,
     UseDebuggingHelpers,
     UseCustomDebuggingHelperLocation,
     CustomDebuggingHelperLocation,
