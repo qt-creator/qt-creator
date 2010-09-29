@@ -1227,7 +1227,7 @@ QList<InternalNodePointer> ModelPrivate::allNodes() const
 
     nodeList.append(m_rootInternalNode);
     nodeList.append(m_rootInternalNode->allSubNodes());
-
+    nodeList.append((m_nodeSet - nodeList.toSet()).toList());
 
     return nodeList;
 }
