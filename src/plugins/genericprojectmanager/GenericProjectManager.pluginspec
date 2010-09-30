@@ -17,6 +17,5 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
         <dependency name="TextEditor" version="2.1.81"/>
         <dependency name="ProjectExplorer" version="2.1.81"/>
         <dependency name="CppTools" version="2.1.81"/>
-        <dependency name="CppEditor" version="2.1.81"/>
     </dependencyList>
 </plugin>
