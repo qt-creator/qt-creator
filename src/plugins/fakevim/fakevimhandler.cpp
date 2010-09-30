@@ -400,9 +400,7 @@ public:
 
     bool is(int c) const
     {
-        return m_xkey == c && (m_modifiers == 0
-                || m_modifiers == Qt::ShiftModifier
-                || m_modifiers == Qt::GroupSwitchModifier);
+        return m_xkey == c && m_modifiers != Qt::ControlModifier;
     }
 
     bool isControl(int c) const
