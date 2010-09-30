@@ -53,11 +53,7 @@
 #include <coreplugin/progressmanager/futureprogress.h>
 
 #include <projectexplorer/debugginghelper.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/target.h>
-#include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/applicationrunconfiguration.h> // For LocalApplication*
+#include <projectexplorer/toolchain.h>
 
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 
