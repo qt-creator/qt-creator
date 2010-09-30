@@ -75,11 +75,6 @@ MaemoSshRunner::MaemoSshRunner(QObject *parent,
 
 MaemoSshRunner::~MaemoSshRunner() {}
 
-void MaemoSshRunner::setConnection(const QSharedPointer<Core::SshConnection> &connection)
-{
-    m_connection = connection;
-}
-
 void MaemoSshRunner::start()
 {
     // Should not happen.

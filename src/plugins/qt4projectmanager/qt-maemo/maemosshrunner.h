@@ -60,8 +60,6 @@ public:
         bool debugging);
     ~MaemoSshRunner();
 
-    void setConnection(const QSharedPointer<Core::SshConnection> &connection);
-
     void start();
     void stop();
 
