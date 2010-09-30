@@ -1794,9 +1794,14 @@ QString QtVersion::buildDebuggingHelperLibrary(QFutureInterface<void> &future)
     }
     future.setProgressValue(4);
 
+    // invalidate version before updating version info
+    m_versionInfoUpToDate = false;
+    updateVersionInfo();
+
     m_hasDebuggingHelper = !debuggingHelperLibrary().isEmpty();
     m_hasQmlDump = !qmlDumpTool().isEmpty();
     m_hasQmlObserver = !qmlObserverTool().isEmpty();
+
     return output;
 }
 
