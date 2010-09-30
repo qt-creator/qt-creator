@@ -4666,17 +4666,21 @@
     \title Managing Sessions
 
     When you exit Qt Creator, a snapshot of your current workspace is stored
-    as a session.
-    A session is a collection of:
+    as a \e session. A session is an arbitrary collection of:
 
     \list
-        \o Open projects with their dependencies
+        \o Open projects with their dependencies (including SUBDIRS projects)
         \o Open editors
         \o Breakpoints and watches
         \o Bookmarks
     \endlist
 
-    If you work on a project and need to switch to another project for a
+    A session is  personal, that is, not meant to be shared. It is not
+    supposed to reflect the project structure. It contains personal data, such as
+    bookmarks and breakpoints that are usually not of interest to other developers
+    working on the same projects.
+
+    For example, if you work on a project and need to switch to another project for a
     while, you can save your workspace as a session. This makes it easier
     to return to working on the first project later.
 
