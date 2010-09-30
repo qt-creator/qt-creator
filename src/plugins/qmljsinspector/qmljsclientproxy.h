@@ -125,6 +125,7 @@ public slots:
 private slots:
     void disconnectFromServer();
     void connectToServer();
+    void clientStatusChanged(QDeclarativeDebugClient::Status status);
 
     void contextChanged();
 
@@ -135,7 +136,6 @@ private slots:
     void newObjects();
 
 private:
-    bool isDesignClientConnected() const;
     void reloadEngines();
 
     QList<QDeclarativeDebugObjectReference> objectReferences(const QDeclarativeDebugObjectReference &objectRef) const;

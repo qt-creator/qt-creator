@@ -218,6 +218,12 @@ void QmlEngine::connectionError(QAbstractSocket::SocketError socketError)
         plugin()->showMessage(tr("QML Debugger: Remote host closed connection."), StatusBar);
 }
 
+
+void QmlEngine::serviceConnectionError(const QString &serviceName)
+{
+    plugin()->showMessage(tr("QML Debugger: Couldn't connect to service '%1'.").arg(serviceName), StatusBar);
+}
+
 void QmlEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
@@ -327,6 +333,7 @@ void QmlEngine::setupEngine()
     d->m_adapter->setConnectionAttemptInterval(ConnectionAttemptDefaultInterval);
     connect(d->m_adapter, SIGNAL(connectionError(QAbstractSocket::SocketError)),
             SLOT(connectionError(QAbstractSocket::SocketError)));
+    connect(d->m_adapter, SIGNAL(serviceConnectionError(QString)), SLOT(serviceConnectionError(QString)));
     connect(d->m_adapter, SIGNAL(connected()), SLOT(connectionEstablished()));
     connect(d->m_adapter, SIGNAL(connectionStartupFailed()), SLOT(connectionStartupFailed()));
 

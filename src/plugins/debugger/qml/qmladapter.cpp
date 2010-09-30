@@ -143,6 +143,16 @@ void QmlAdapter::connectionErrorOccurred(QAbstractSocket::SocketError socketErro
         emit connectionError(socketError);
 }
 
+void QmlAdapter::clientStatusChanged(QDeclarativeDebugClient::Status status)
+{
+    QString serviceName;
+    if (QDeclarativeDebugClient *client = qobject_cast<QDeclarativeDebugClient*>(sender())) {
+        serviceName = client->name();
+    }
+
+    logServiceStatusChange(serviceName, status);
+}
+
 void QmlAdapter::connectionStateChanged()
 {
     switch (d->m_conn->state()) {
@@ -165,6 +175,7 @@ void QmlAdapter::connectionStateChanged()
 
             if (!d->m_mainClient) {
                 d->m_mainClient = new QDeclarativeEngineDebug(d->m_conn, this);
+                logServiceStatusChange(QLatin1String("QmlObserver"), static_cast<QDeclarativeDebugClient::Status>(d->m_mainClient->status()));
             }
 
             createDebuggerClient();
@@ -185,10 +196,14 @@ void QmlAdapter::createDebuggerClient()
 {
     d->m_qmlClient = new Internal::QmlDebuggerClient(d->m_conn);
 
+    connect(d->m_qmlClient, SIGNAL(newStatus(QDeclarativeDebugClient::Status)),
+            this, SLOT(clientStatusChanged(QDeclarativeDebugClient::Status)));
     connect(d->m_engine.data(), SIGNAL(sendMessage(QByteArray)),
             d->m_qmlClient, SLOT(slotSendMessage(QByteArray)));
     connect(d->m_qmlClient, SIGNAL(messageWasReceived(QByteArray)),
             d->m_engine.data(), SLOT(messageReceived(QByteArray)));
+
+    logServiceStatusChange(d->m_qmlClient->name(), d->m_qmlClient->status());
 
     //engine->startSuccessful();  // FIXME: AAA: port to new debugger states
 }
@@ -235,6 +250,26 @@ void QmlAdapter::setMaxConnectionAttempts(int maxAttempts)
 void QmlAdapter::setConnectionAttemptInterval(int interval)
 {
     d->m_connectionTimer->setInterval(interval);
+}
+
+void QmlAdapter::logServiceStatusChange(const QString &service, QDeclarativeDebugClient::Status newStatus)
+{
+    switch (newStatus) {
+    case QDeclarativeDebugClient::Unavailable: {
+        showConnectionErrorMessage(tr("Error: Cannot connect to debug service '%1'. Debugging functionality will be limited.").arg(service));
+        emit serviceConnectionError(service);
+        break;
+    }
+    case QDeclarativeDebugClient::Enabled: {
+        showConnectionStatusMessage(tr("Connected to debug service '%1'.").arg(service));
+        break;
+    }
+
+    case QDeclarativeDebugClient::NotConnected: {
+        showConnectionStatusMessage(tr("Not connected to debug service '%1'.").arg(service));
+        break;
+    }
+    }
 }
 
 } // namespace Debugger

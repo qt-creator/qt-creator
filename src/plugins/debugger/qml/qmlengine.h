@@ -117,6 +117,7 @@ private slots:
     void connectionEstablished();
     void connectionStartupFailed();
     void connectionError(QAbstractSocket::SocketError error);
+    void serviceConnectionError(const QString &service);
 
 private:
     void expandObject(const QByteArray &iname, quint64 objectId);

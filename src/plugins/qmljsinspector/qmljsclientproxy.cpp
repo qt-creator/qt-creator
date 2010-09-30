@@ -65,8 +65,14 @@ ClientProxy::ClientProxy(Debugger::QmlAdapter *adapter, QObject *parent)
 void ClientProxy::connectToServer()
 {
     m_designClient = new QmlJSObserverClient(m_adapter->connection(), this);
-    emit connected();
 
+    if (m_designClient->status() == QDeclarativeDebugClient::Enabled)
+        emit connected();
+
+    m_adapter->logServiceStatusChange(m_designClient->name(), m_designClient->status());
+
+    connect(m_designClient, SIGNAL(connectedStatusChanged(QDeclarativeDebugClient::Status)),
+             this, SLOT(clientStatusChanged(QDeclarativeDebugClient::Status)));
     connect(m_designClient, SIGNAL(currentObjectsChanged(QList<int>)),
         SLOT(onCurrentObjectsChanged(QList<int>)));
     connect(m_designClient, SIGNAL(colorPickerActivated()),
@@ -90,9 +96,24 @@ void ClientProxy::connectToServer()
     reloadEngines();
 }
 
+void ClientProxy::clientStatusChanged(QDeclarativeDebugClient::Status status)
+{
+    QString serviceName;
+    if (QDeclarativeDebugClient *client = qobject_cast<QDeclarativeDebugClient*>(sender())) {
+        serviceName = client->name();
+    }
+
+    m_adapter->logServiceStatusChange(serviceName, status);
+
+    if (status == QDeclarativeDebugClient::Enabled)
+        emit connected();
+}
+
 void ClientProxy::disconnectFromServer()
 {
     if (m_designClient) {
+        disconnect(m_designClient, SIGNAL(connectedStatusChanged(QDeclarativeDebugClient::Status)),
+                 this, SLOT(clientStatusChanged(QDeclarativeDebugClient::Status)));
         disconnect(m_designClient, SIGNAL(currentObjectsChanged(QList<int>)),
             this, SLOT(onCurrentObjectsChanged(QList<int>)));
         disconnect(m_designClient, SIGNAL(colorPickerActivated()),
@@ -164,7 +185,7 @@ void ClientProxy::onCurrentObjectsChanged(const QList< int >& debugIds, bool req
 
 void ClientProxy::setSelectedItemsByObjectId(const QList<QDeclarativeDebugObjectReference> &objectRefs)
 {
-    if (isConnected() && m_designClient)
+    if (isConnected())
         m_designClient->setSelectedItemsByObjectId(objectRefs);
 }
 
@@ -285,7 +306,7 @@ QDeclarativeDebugExpressionQuery *ClientProxy::queryExpressionResult(int objectD
 
 void ClientProxy::clearComponentCache()
 {
-    if (isDesignClientConnected())
+    if (isConnected())
         m_designClient->clearComponentCache();
 }
 
@@ -365,7 +386,7 @@ void ClientProxy::objectTreeFetched(QDeclarativeDebugQuery::State state)
             buildDebugIdHashRecursive(it);
         emit objectTreeUpdated();
 
-        if (isDesignClientConnected()) {
+        if (isConnected()) {
             if (!m_designClient->selectedItemIds().isEmpty())
                 onCurrentObjectsChanged(m_designClient->selectedItemIds(), false);
 
@@ -410,74 +431,68 @@ void ClientProxy::buildDebugIdHashRecursive(const QDeclarativeDebugObjectReferen
 
 void ClientProxy::reloadQmlViewer()
 {
-    if (isDesignClientConnected())
+    if (isConnected())
         m_designClient->reloadViewer();
 }
 
 void ClientProxy::setDesignModeBehavior(bool inDesignMode)
 {
-    if (isDesignClientConnected())
+    if (isConnected())
         m_designClient->setDesignModeBehavior(inDesignMode);
 }
 
 void ClientProxy::setAnimationSpeed(qreal slowdownFactor)
 {
-    if (isDesignClientConnected())
+    if (isConnected())
         m_designClient->setAnimationSpeed(slowdownFactor);
 }
 
 void ClientProxy::changeToColorPickerTool()
 {
-    if (isDesignClientConnected())
+    if (isConnected())
         m_designClient->changeToColorPickerTool();
 }
 
 void ClientProxy::changeToZoomTool()
 {
-    if (isDesignClientConnected())
+    if (isConnected())
         m_designClient->changeToZoomTool();
 }
 void ClientProxy::changeToSelectTool()
 {
-    if (isDesignClientConnected())
+    if (isConnected())
         m_designClient->changeToSelectTool();
 }
 
 void ClientProxy::changeToSelectMarqueeTool()
 {
-    if (isDesignClientConnected())
+    if (isConnected())
         m_designClient->changeToSelectMarqueeTool();
 }
 
 void ClientProxy::createQmlObject(const QString &qmlText, int parentDebugId,
                                   const QStringList &imports, const QString &filename)
 {
-    if (isDesignClientConnected())
+    if (isConnected())
         m_designClient->createQmlObject(qmlText, parentDebugId, imports, filename);
 }
 
 void ClientProxy::destroyQmlObject(int debugId)
 {
-    if (isDesignClientConnected())
+    if (isConnected())
         m_designClient->destroyQmlObject(debugId);
 }
 
 void ClientProxy::reparentQmlObject(int debugId, int newParent)
 {
-    if (isDesignClientConnected())
+    if (isConnected())
         m_designClient->reparentQmlObject(debugId, newParent);
 }
 
 void ClientProxy::setContextPathIndex(int contextIndex)
 {
-    if (isDesignClientConnected())
+    if (isConnected())
         m_designClient->setContextPathIndex(contextIndex);
-}
-
-
-bool ClientProxy::isDesignClientConnected() const
-{
-    return (m_designClient && m_adapter->isConnected());
 }
 
 void ClientProxy::reloadEngines()
@@ -518,7 +533,8 @@ Debugger::QmlAdapter *ClientProxy::qmlAdapter() const
 
 bool ClientProxy::isConnected() const
 {
-    return m_adapter->isConnected();
+    return m_designClient && m_designClient->status() == QDeclarativeDebugClient::Enabled
+            && m_client && m_client->status() == QDeclarativeEngineDebug::Enabled;
 }
 
 void ClientProxy::newObjects()

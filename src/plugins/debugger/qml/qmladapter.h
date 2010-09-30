@@ -36,6 +36,7 @@
 #include "debugger_global.h"
 
 #include <QtNetwork/QAbstractSocket>
+#include "qmldebuggerclient.h"
 
 namespace QmlJsDebugClient {
 class QDeclarativeEngineDebug;
@@ -72,15 +73,19 @@ public:
     void setMaxConnectionAttempts(int maxAttempts);
     void setConnectionAttemptInterval(int interval);
 
+    void logServiceStatusChange(const QString &service, QDeclarativeDebugClient::Status newStatus);
+
 signals:
     void aboutToDisconnect();
     void connected();
     void disconnected();
     void connectionStartupFailed();
     void connectionError(QAbstractSocket::SocketError socketError);
+    void serviceConnectionError(const QString serviceName);
 
 private slots:
     void connectionErrorOccurred(QAbstractSocket::SocketError socketError);
+    void clientStatusChanged(QDeclarativeDebugClient::Status status);
     void connectionStateChanged();
     void pollInferior();
 

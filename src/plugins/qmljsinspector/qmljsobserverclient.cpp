@@ -55,6 +55,11 @@ QmlJSObserverClient::QmlJSObserverClient(QDeclarativeDebugConnection *client,
 {
 }
 
+void QmlJSObserverClient::statusChanged(Status status)
+{
+    emit connectedStatusChanged(status);
+}
+
 void QmlJSObserverClient::messageReceived(const QByteArray &message)
 {
     QDataStream ds(message);

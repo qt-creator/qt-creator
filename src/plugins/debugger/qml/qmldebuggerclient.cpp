@@ -43,6 +43,11 @@ QmlDebuggerClient::~QmlDebuggerClient()
 {
 }
 
+void QmlDebuggerClient::statusChanged(Status status)
+{
+    emit newStatus(status);
+}
+
 void QmlDebuggerClient::messageReceived(const QByteArray &data)
 {
     emit messageWasReceived(data);
