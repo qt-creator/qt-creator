@@ -132,6 +132,9 @@ public:
         QmlJSQuickFixOperation objects.
      */
     virtual QList<QmlJSQuickFixOperation::Ptr> match(const QmlJSQuickFixState &state) = 0;
+
+    static QList<QmlJSQuickFixOperation::Ptr> noResult();
+    static QList<QmlJSQuickFixOperation::Ptr> singleResult(QmlJSQuickFixOperation *operation);
 };
 
 namespace Internal {
