@@ -74,7 +74,8 @@ class S60CreatePackageStep : public ProjectExplorer::BuildStep
 public:
     enum SigningMode {
         SignSelf = 0,
-        SignCustom = 1
+        SignCustom = 1,
+        NotSigned = 2
     };
 
     explicit S60CreatePackageStep(ProjectExplorer::BuildStepList *bsl);
