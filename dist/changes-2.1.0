@@ -15,6 +15,8 @@ Editing
 
 C++ Support
    * Add new %FILENAME%, %CLASS% placeholders to license template
+   * Semantic (type) highlighting is disabled when compiling against Qt 4.7.0
+   * for performance reasons. For full highlighting, use 4.7.1 or later.
 
 Project Support
    * Add option for adding subprojects to projects in the New wizard
