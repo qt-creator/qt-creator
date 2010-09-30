@@ -84,6 +84,7 @@ signals:
     void serviceConnectionError(const QString serviceName);
 
 private slots:
+    void sendMessage(const QByteArray &msg);
     void connectionErrorOccurred(QAbstractSocket::SocketError socketError);
     void clientStatusChanged(QDeclarativeDebugClient::Status status);
     void connectionStateChanged();
@@ -94,6 +95,7 @@ private:
     void createDebuggerClient();
     void showConnectionStatusMessage(const QString &message);
     void showConnectionErrorMessage(const QString &message);
+    void flushSendBuffer();
 
 private:
     QScopedPointer<QmlAdapterPrivate> d;

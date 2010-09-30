@@ -53,10 +53,5 @@ void QmlDebuggerClient::messageReceived(const QByteArray &data)
     emit messageWasReceived(data);
 }
 
-void QmlDebuggerClient::slotSendMessage(const QByteArray &message)
-{
-    QDeclarativeDebugClient::sendMessage(message);
-}
-
 } // Internal
 } // Debugger
