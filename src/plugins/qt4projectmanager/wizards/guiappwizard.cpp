@@ -172,13 +172,13 @@ Core::GeneratedFiles GuiAppWizard::generateFiles(const QWizard *w,
     const QString formHeaderName = buildFileName(projectPath, params.headerFileName, headerSuffix());
     Core::GeneratedFile formSource(formSourceFileName);
     Core::GeneratedFile formHeader(formHeaderName);
+    formSource.setAttributes(Core::GeneratedFile::OpenEditorAttribute);
 
     QSharedPointer<Core::GeneratedFile> form;
     if (params.designerForm) {
         // Create files: form
         const QString formName = buildFileName(projectPath, params.formFileName, formSuffix());
         form = QSharedPointer<Core::GeneratedFile>(new Core::GeneratedFile(formName));
-        form->setAttributes(Core::GeneratedFile::OpenEditorAttribute);
         if (!parametrizeTemplate(templatePath, QLatin1String("widget.ui"), params, &contents, errorMessage))
             return Core::GeneratedFiles();
         form->setContents(contents);
@@ -190,7 +190,6 @@ Core::GeneratedFiles GuiAppWizard::generateFiles(const QWizard *w,
             return Core::GeneratedFiles();
         formSource.setContents(CppTools::AbstractEditorSupport::licenseTemplate(formSourceFileName)
                                + contents);
-        formSource.setAttributes(Core::GeneratedFile::OpenEditorAttribute);
         // Create files: form header
         const QString formHeaderTemplate = QLatin1String("mywidget.h");
         if (!parametrizeTemplate(templatePath, formHeaderTemplate, params, &contents, errorMessage))
