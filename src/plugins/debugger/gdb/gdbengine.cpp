@@ -230,6 +230,7 @@ void GdbEngine::initializeVariables()
     m_isMacGdb = false;
     m_hasPython = false;
     m_registerNamesListed = false;
+    m_hasInferiorThreadList = false;
 
     m_fullToShortName.clear();
     m_shortToFullName.clear();
