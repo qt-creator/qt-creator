@@ -181,11 +181,11 @@ bool S60CreatePackageStep::init()
             m_args << QLatin1String("unsigned_installer_sis");
         else
             m_args << QLatin1String("installer_sis");
-
     } else if (signingMode() == NotSigned)
         m_args << QLatin1String("unsigned_sis");
     else
         m_args << QLatin1String("sis");
+
     if (signingMode() == SignCustom) {
         m_args << QLatin1String(MAKE_CERTIFICATE_ARGUMENT) + QDir::toNativeSeparators(customSignaturePath())
                << QLatin1String(MAKE_KEY_ARGUMENT) + QDir::toNativeSeparators(customKeyPath());
