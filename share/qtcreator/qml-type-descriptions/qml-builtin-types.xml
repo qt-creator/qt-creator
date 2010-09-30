@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module>
-    <type name="QAbstractItemModel" extends="Qt.QtObject">
+    <type name="QAbstractItemModel" extends="QObject">
         <signal name="dataChanged">
             <param name="topLeft" type="QModelIndex"/>
             <param name="bottomRight" type="QModelIndex"/>
@@ -86,7 +86,7 @@
         <method name="revert"/>
     </type>
     <type name="QAbstractListModel" extends="QAbstractItemModel"/>
-    <type name="QAction" extends="Qt.QtObject">
+    <type name="QAction" extends="QObject">
         <enum name="MenuRole">
             <enumerator name="NoRole" value="0"/>
             <enumerator name="TextHeuristicRole" value="1"/>
@@ -134,13 +134,6 @@
         <signal name="toggled">
             <param type="bool"/>
         </signal>
-        <signal name="activated">
-            <param type="int"/>
-        </signal>
-        <signal name="activated"/>
-        <method name="setOn">
-            <param name="b" type="bool"/>
-        </method>
         <method name="trigger"/>
         <method name="hover"/>
         <method name="setChecked">
@@ -157,7 +150,63 @@
             <param type="bool"/>
         </method>
     </type>
-    <type name="QDeclarativeAnchorSet" extends="Qt.QtObject">
+    <type name="QDeclarativeAbstractAnimation" extends="QObject">
+        <exports>
+            <export module="Qt" version="4.7" type="Animation"/>
+            <export module="QtQuick" version="1.0" type="Animation"/>
+        </exports>
+        <enum name="Loops">
+            <enumerator name="Infinite" value="-2"/>
+        </enum>
+        <property name="running" type="bool"/>
+        <property name="paused" type="bool"/>
+        <property name="alwaysRunToEnd" type="bool"/>
+        <property name="loops" type="int"/>
+        <signal name="started"/>
+        <signal name="completed"/>
+        <signal name="runningChanged">
+            <param type="bool"/>
+        </signal>
+        <signal name="pausedChanged">
+            <param type="bool"/>
+        </signal>
+        <signal name="alwaysRunToEndChanged">
+            <param type="bool"/>
+        </signal>
+        <signal name="loopCountChanged">
+            <param type="int"/>
+        </signal>
+        <method name="restart"/>
+        <method name="start"/>
+        <method name="pause"/>
+        <method name="resume"/>
+        <method name="stop"/>
+        <method name="complete"/>
+    </type>
+    <type name="QDeclarativeAnchorAnimation" extends="QDeclarativeAbstractAnimation">
+        <exports>
+            <export module="QtQuick" version="1.0" type="AnchorAnimation"/>
+            <export module="Qt" version="4.7" type="AnchorAnimation"/>
+        </exports>
+        <property name="targets" type="QDeclarativeItem" isList="true"/>
+        <property name="duration" type="int"/>
+        <property name="easing" type="QEasingCurve"/>
+        <signal name="durationChanged">
+            <param type="int"/>
+        </signal>
+        <signal name="easingChanged">
+            <param type="QEasingCurve"/>
+        </signal>
+    </type>
+    <type name="QDeclarativeAnchorChanges" extends="QDeclarativeStateOperation">
+        <exports>
+            <export module="Qt" version="4.7" type="AnchorChanges"/>
+            <export module="QtQuick" version="1.0" type="AnchorChanges"/>
+        </exports>
+        <property name="target" type="QDeclarativeItem"/>
+        <property name="anchors" type="QDeclarativeAnchorSet"/>
+    </type>
+    <type name="QDeclarativeAnchorSet" extends="QObject">
         <property name="left" type="QDeclarativeScriptString"/>
         <property name="right" type="QDeclarativeScriptString"/>
         <property name="horizontalCenter" type="QDeclarativeScriptString"/>
@@ -166,7 +215,7 @@
         <property name="verticalCenter" type="QDeclarativeScriptString"/>
         <property name="baseline" type="QDeclarativeScriptString"/>
     </type>
-    <type name="QDeclarativeAnchors" extends="Qt.QtObject">
+    <type name="QDeclarativeAnchors" extends="QObject">
         <property name="left" type="QDeclarativeAnchorLine"/>
         <property name="right" type="QDeclarativeAnchorLine"/>
         <property name="horizontalCenter" type="QDeclarativeAnchorLine"/>
@@ -202,16 +251,113 @@
         <signal name="horizontalCenterOffsetChanged"/>
         <signal name="baselineOffsetChanged"/>
     </type>
-    <type name="QDeclarativeAnimationGroup" defaultProperty="animations" extends="Qt.Animation">
-        <property name="animations" type="Qt.Animation" isList="true"/>
+    <type name="QDeclarativeAnimatedImage" defaultProperty="data" extends="QDeclarativeImage">
+        <exports>
+            <export module="Qt" version="4.7" type="AnimatedImage"/>
+            <export module="QtQuick" version="1.0" type="AnimatedImage"/>
+        </exports>
+        <property name="playing" type="bool"/>
+        <property name="paused" type="bool"/>
+        <property name="currentFrame" type="int"/>
+        <property name="frameCount" type="int"/>
+        <property name="sourceSize" type="QSize"/>
+        <signal name="playingChanged"/>
+        <signal name="pausedChanged"/>
+        <signal name="frameChanged"/>
+        <signal name="sourceSizeChanged"/>
     </type>
-    <type name="QDeclarativeBasePositioner" defaultProperty="data" extends="Qt.Item">
+    <type name="QDeclarativeAnimationGroup" defaultProperty="animations" extends="QDeclarativeAbstractAnimation">
+        <property name="animations" type="QDeclarativeAbstractAnimation" isList="true"/>
+    </type>
+    <type name="QDeclarativeBasePositioner" defaultProperty="data" extends="QDeclarativeItem">
         <property name="spacing" type="int"/>
-        <property name="move" type="Qt.Transition"/>
-        <property name="add" type="Qt.Transition"/>
+        <property name="move" type="QDeclarativeTransition"/>
+        <property name="add" type="QDeclarativeTransition"/>
         <signal name="spacingChanged"/>
         <signal name="moveChanged"/>
         <signal name="addChanged"/>
+    </type>
+    <type name="QDeclarativeBehavior" defaultProperty="animation" extends="QObject">
+        <exports>
+            <export module="QtQuick" version="1.0" type="Behavior"/>
+            <export module="Qt" version="4.7" type="Behavior"/>
+        </exports>
+        <property name="animation" type="QDeclarativeAbstractAnimation"/>
+        <property name="enabled" type="bool"/>
+        <signal name="enabledChanged"/>
+    </type>
+    <type name="QDeclarativeBind" extends="QObject">
+        <exports>
+            <export module="QtQuick" version="1.0" type="Binding"/>
+            <export module="Qt" version="4.7" type="Binding"/>
+        </exports>
+        <property name="target" type="QObject"/>
+        <property name="property" type="string"/>
+        <property name="value" type="QVariant"/>
+        <property name="when" type="bool"/>
+    </type>
+    <type name="QDeclarativeBorderImage" defaultProperty="data" extends="QDeclarativeImageBase">
+        <exports>
+            <export module="QtQuick" version="1.0" type="BorderImage"/>
+            <export module="Qt" version="4.7" type="BorderImage"/>
+        </exports>
+        <enum name="TileMode">
+            <enumerator name="Stretch" value="0"/>
+            <enumerator name="Repeat" value="1"/>
+            <enumerator name="Round" value="2"/>
+        </enum>
+        <property name="border" type="QDeclarativeScaleGrid"/>
+        <property name="horizontalTileMode" type="TileMode"/>
+        <property name="verticalTileMode" type="TileMode"/>
+        <signal name="horizontalTileModeChanged"/>
+        <signal name="verticalTileModeChanged"/>
+    </type>
+    <type name="QDeclarativeColorAnimation" extends="QDeclarativePropertyAnimation">
+        <exports>
+            <export module="Qt" version="4.7" type="ColorAnimation"/>
+            <export module="QtQuick" version="1.0" type="ColorAnimation"/>
+        </exports>
+        <property name="from" type="QColor"/>
+        <property name="to" type="QColor"/>
+    </type>
+    <type name="QDeclarativeColumn" defaultProperty="data" extends="QDeclarativeBasePositioner">
+        <exports>
+            <export module="QtQuick" version="1.0" type="Column"/>
+            <export module="Qt" version="4.7" type="Column"/>
+        </exports>
+    </type>
+    <type name="QDeclarativeComponent" extends="QObject">
+        <exports>
+            <export module="QtQuick" version="1.0" type="Component"/>
+            <export module="Qt" version="4.7" type="Component"/>
+        </exports>
+        <enum name="Status">
+            <enumerator name="Null" value="0"/>
+            <enumerator name="Ready" value="1"/>
+            <enumerator name="Loading" value="2"/>
+            <enumerator name="Error" value="3"/>
+        </enum>
+        <property name="progress" type="qreal"/>
+        <property name="status" type="Status"/>
+        <property name="url" type="QUrl"/>
+        <signal name="statusChanged">
+            <param type="QDeclarativeComponent.Status"/>
+        </signal>
+        <signal name="progressChanged">
+            <param type="qreal"/>
+        </signal>
+        <method name="errorString" type="string"/>
+    </type>
+    <type name="QDeclarativeConnections" extends="QObject">
+        <exports>
+            <export module="Qt" version="4.7" type="Connections"/>
+            <export module="Qt" version="4.7" type="Connections"/>
+            <export module="QtQuick" version="1.0" type="Connections"/>
+            <export module="QtQuick" version="1.0" type="Connections"/>
+        </exports>
+        <property name="target" type="QObject"/>
+        <property name="ignoreUnknownSignals" type="bool"/>
+        <signal name="targetChanged"/>
     </type>
     <type name="QDeclarativeCurve" extends="QDeclarativePathElement">
         <property name="x" type="qreal"/>
@@ -219,14 +365,414 @@
         <signal name="xChanged"/>
         <signal name="yChanged"/>
     </type>
-    <type name="QDeclarativeFlickableVisibleArea" extends="Qt.QtObject">
+    <type name="QDeclarativeDrag" extends="QObject">
+        <exports>
+            <export module="Qt" version="4.7" type="Drag"/>
+            <export module="QtQuick" version="1.0" type="Drag"/>
+        </exports>
+        <enum name="Axis">
+            <enumerator name="XAxis" value="1"/>
+            <enumerator name="YAxis" value="2"/>
+            <enumerator name="XandYAxis" value="3"/>
+        </enum>
+        <property name="target" type="QGraphicsObject"/>
+        <property name="axis" type="Axis"/>
+        <property name="minimumX" type="qreal"/>
+        <property name="maximumX" type="qreal"/>
+        <property name="minimumY" type="qreal"/>
+        <property name="maximumY" type="qreal"/>
+        <property name="active" type="bool"/>
+        <property name="filterChildren" type="bool"/>
+        <signal name="targetChanged"/>
+        <signal name="axisChanged"/>
+        <signal name="minimumXChanged"/>
+        <signal name="maximumXChanged"/>
+        <signal name="minimumYChanged"/>
+        <signal name="maximumYChanged"/>
+        <signal name="activeChanged"/>
+        <signal name="filterChildrenChanged"/>
+    </type>
+    <type name="QDeclarativeEasingValueType" extends="QDeclarativeValueType">
+        <exports>
+            <export module="Qt" version="4.7" type="Easing"/>
+            <export module="QtQuick" version="1.0" type="Easing"/>
+        </exports>
+        <enum name="Type">
+            <enumerator name="Linear" value="0"/>
+            <enumerator name="InQuad" value="1"/>
+            <enumerator name="OutQuad" value="2"/>
+            <enumerator name="InOutQuad" value="3"/>
+            <enumerator name="OutInQuad" value="4"/>
+            <enumerator name="InCubic" value="5"/>
+            <enumerator name="OutCubic" value="6"/>
+            <enumerator name="InOutCubic" value="7"/>
+            <enumerator name="OutInCubic" value="8"/>
+            <enumerator name="InQuart" value="9"/>
+            <enumerator name="OutQuart" value="10"/>
+            <enumerator name="InOutQuart" value="11"/>
+            <enumerator name="OutInQuart" value="12"/>
+            <enumerator name="InQuint" value="13"/>
+            <enumerator name="OutQuint" value="14"/>
+            <enumerator name="InOutQuint" value="15"/>
+            <enumerator name="OutInQuint" value="16"/>
+            <enumerator name="InSine" value="17"/>
+            <enumerator name="OutSine" value="18"/>
+            <enumerator name="InOutSine" value="19"/>
+            <enumerator name="OutInSine" value="20"/>
+            <enumerator name="InExpo" value="21"/>
+            <enumerator name="OutExpo" value="22"/>
+            <enumerator name="InOutExpo" value="23"/>
+            <enumerator name="OutInExpo" value="24"/>
+            <enumerator name="InCirc" value="25"/>
+            <enumerator name="OutCirc" value="26"/>
+            <enumerator name="InOutCirc" value="27"/>
+            <enumerator name="OutInCirc" value="28"/>
+            <enumerator name="InElastic" value="29"/>
+            <enumerator name="OutElastic" value="30"/>
+            <enumerator name="InOutElastic" value="31"/>
+            <enumerator name="OutInElastic" value="32"/>
+            <enumerator name="InBack" value="33"/>
+            <enumerator name="OutBack" value="34"/>
+            <enumerator name="InOutBack" value="35"/>
+            <enumerator name="OutInBack" value="36"/>
+            <enumerator name="InBounce" value="37"/>
+            <enumerator name="OutBounce" value="38"/>
+            <enumerator name="InOutBounce" value="39"/>
+            <enumerator name="OutInBounce" value="40"/>
+            <enumerator name="InCurve" value="41"/>
+            <enumerator name="OutCurve" value="42"/>
+            <enumerator name="SineCurve" value="43"/>
+            <enumerator name="CosineCurve" value="44"/>
+        </enum>
+        <property name="type" type="Type"/>
+        <property name="amplitude" type="qreal"/>
+        <property name="overshoot" type="qreal"/>
+        <property name="period" type="qreal"/>
+    </type>
+    <type name="QDeclarativeFlickable" defaultProperty="flickableData" extends="QDeclarativeItem">
+        <exports>
+            <export module="Qt" version="4.7" type="Flickable"/>
+            <export module="QtQuick" version="1.0" type="Flickable"/>
+        </exports>
+        <enum name="BoundsBehavior">
+            <enumerator name="StopAtBounds" value="0"/>
+            <enumerator name="DragOverBounds" value="1"/>
+            <enumerator name="DragAndOvershootBounds" value="2"/>
+        </enum>
+        <enum name="FlickableDirection">
+            <enumerator name="AutoFlickDirection" value="0"/>
+            <enumerator name="HorizontalFlick" value="1"/>
+            <enumerator name="VerticalFlick" value="2"/>
+            <enumerator name="HorizontalAndVerticalFlick" value="3"/>
+        </enum>
+        <property name="contentWidth" type="qreal"/>
+        <property name="contentHeight" type="qreal"/>
+        <property name="contentX" type="qreal"/>
+        <property name="contentY" type="qreal"/>
+        <property name="contentItem" type="QDeclarativeItem"/>
+        <property name="horizontalVelocity" type="qreal"/>
+        <property name="verticalVelocity" type="qreal"/>
+        <property name="boundsBehavior" type="BoundsBehavior"/>
+        <property name="maximumFlickVelocity" type="qreal"/>
+        <property name="flickDeceleration" type="qreal"/>
+        <property name="moving" type="bool"/>
+        <property name="movingHorizontally" type="bool"/>
+        <property name="movingVertically" type="bool"/>
+        <property name="flicking" type="bool"/>
+        <property name="flickingHorizontally" type="bool"/>
+        <property name="flickingVertically" type="bool"/>
+        <property name="flickableDirection" type="FlickableDirection"/>
+        <property name="interactive" type="bool"/>
+        <property name="pressDelay" type="int"/>
+        <property name="atXEnd" type="bool"/>
+        <property name="atYEnd" type="bool"/>
+        <property name="atXBeginning" type="bool"/>
+        <property name="atYBeginning" type="bool"/>
+        <property name="visibleArea" type="QDeclarativeFlickableVisibleArea"/>
+        <property name="flickableData" type="QObject" isList="true"/>
+        <property name="flickableChildren" type="QGraphicsObject" isList="true"/>
+        <signal name="contentWidthChanged"/>
+        <signal name="contentHeightChanged"/>
+        <signal name="contentXChanged"/>
+        <signal name="contentYChanged"/>
+        <signal name="movingChanged"/>
+        <signal name="movingHorizontallyChanged"/>
+        <signal name="movingVerticallyChanged"/>
+        <signal name="flickingChanged"/>
+        <signal name="flickingHorizontallyChanged"/>
+        <signal name="flickingVerticallyChanged"/>
+        <signal name="horizontalVelocityChanged"/>
+        <signal name="verticalVelocityChanged"/>
+        <signal name="isAtBoundaryChanged"/>
+        <signal name="pageChanged"/>
+        <signal name="flickableDirectionChanged"/>
+        <signal name="interactiveChanged"/>
+        <signal name="boundsBehaviorChanged"/>
+        <signal name="maximumFlickVelocityChanged"/>
+        <signal name="flickDecelerationChanged"/>
+        <signal name="pressDelayChanged"/>
+        <signal name="movementStarted"/>
+        <signal name="movementEnded"/>
+        <signal name="flickStarted"/>
+        <signal name="flickEnded"/>
+    </type>
+    <type name="QDeclarativeFlickableVisibleArea" extends="QObject">
         <property name="xPosition" type="qreal"/>
         <property name="yPosition" type="qreal"/>
         <property name="widthRatio" type="qreal"/>
         <property name="heightRatio" type="qreal"/>
         <signal name="pageChanged"/>
     </type>
-    <type name="QDeclarativeImageBase" defaultProperty="data" extends="Qt.Item">
+    <type name="QDeclarativeFlipable" defaultProperty="data" extends="QDeclarativeItem">
+        <exports>
+            <export module="Qt" version="4.7" type="Flipable"/>
+            <export module="QtQuick" version="1.0" type="Flipable"/>
+        </exports>
+        <enum name="Side">
+            <enumerator name="Front" value="0"/>
+            <enumerator name="Back" value="1"/>
+        </enum>
+        <property name="front" type="QGraphicsObject"/>
+        <property name="back" type="QGraphicsObject"/>
+        <property name="side" type="Side"/>
+        <signal name="sideChanged"/>
+    </type>
+    <type name="QDeclarativeFlow" defaultProperty="data" extends="QDeclarativeBasePositioner">
+        <exports>
+            <export module="Qt" version="4.7" type="Flow"/>
+            <export module="QtQuick" version="1.0" type="Flow"/>
+        </exports>
+        <enum name="Flow">
+            <enumerator name="LeftToRight" value="0"/>
+            <enumerator name="TopToBottom" value="1"/>
+        </enum>
+        <property name="flow" type="Flow"/>
+        <signal name="flowChanged"/>
+    </type>
+    <type name="QDeclarativeFocusPanel" defaultProperty="data" extends="QDeclarativeItem">
+        <exports>
+            <export module="Qt" version="4.7" type="FocusPanel"/>
+            <export module="QtQuick" version="1.0" type="FocusPanel"/>
+        </exports>
+        <property name="active" type="bool"/>
+        <signal name="activeChanged"/>
+    </type>
+    <type name="QDeclarativeFocusScope" defaultProperty="data" extends="QDeclarativeItem">
+        <exports>
+            <export module="QtQuick" version="1.0" type="FocusScope"/>
+            <export module="Qt" version="4.7" type="FocusScope"/>
+        </exports>
+    </type>
+    <type name="QDeclarativeFolderListModel" extends="QAbstractListModel">
+        <exports>
+            <export module="Qt.labs.folderlistmodel" version="1.0" type="FolderListModel"/>
+        </exports>
+        <enum name="SortField">
+            <enumerator name="Unsorted" value="0"/>
+            <enumerator name="Name" value="1"/>
+            <enumerator name="Time" value="2"/>
+            <enumerator name="Size" value="3"/>
+            <enumerator name="Type" value="4"/>
+        </enum>
+        <property name="folder" type="QUrl"/>
+        <property name="parentFolder" type="QUrl"/>
+        <property name="nameFilters" type="QStringList"/>
+        <property name="sortField" type="SortField"/>
+        <property name="sortReversed" type="bool"/>
+        <property name="showDirs" type="bool"/>
+        <property name="showDotAndDotDot" type="bool"/>
+        <property name="showOnlyReadable" type="bool"/>
+        <property name="count" type="int"/>
+        <signal name="folderChanged"/>
+        <method name="isFolder" type="bool">
+            <param name="index" type="int"/>
+        </method>
+    </type>
+    <type name="QDeclarativeFontLoader" extends="QObject">
+        <exports>
+            <export module="QtQuick" version="1.0" type="FontLoader"/>
+            <export module="Qt" version="4.7" type="FontLoader"/>
+        </exports>
+        <enum name="Status">
+            <enumerator name="Null" value="0"/>
+            <enumerator name="Ready" value="1"/>
+            <enumerator name="Loading" value="2"/>
+            <enumerator name="Error" value="3"/>
+        </enum>
+        <property name="source" type="QUrl"/>
+        <property name="name" type="string"/>
+        <property name="status" type="Status"/>
+        <signal name="sourceChanged"/>
+        <signal name="nameChanged"/>
+        <signal name="statusChanged"/>
+    </type>
+    <type name="QDeclarativeFontValueType" extends="QDeclarativeValueType">
+        <exports>
+            <export module="Qt" version="4.7" type="Font"/>
+            <export module="QtQuick" version="1.0" type="Font"/>
+        </exports>
+        <enum name="FontWeight">
+            <enumerator name="Light" value="25"/>
+            <enumerator name="Normal" value="50"/>
+            <enumerator name="DemiBold" value="63"/>
+            <enumerator name="Bold" value="75"/>
+            <enumerator name="Black" value="87"/>
+        </enum>
+        <enum name="Capitalization">
+            <enumerator name="MixedCase" value="0"/>
+            <enumerator name="AllUppercase" value="1"/>
+            <enumerator name="AllLowercase" value="2"/>
+            <enumerator name="SmallCaps" value="3"/>
+            <enumerator name="Capitalize" value="4"/>
+        </enum>
+        <property name="family" type="string"/>
+        <property name="bold" type="bool"/>
+        <property name="weight" type="FontWeight"/>
+        <property name="italic" type="bool"/>
+        <property name="underline" type="bool"/>
+        <property name="overline" type="bool"/>
+        <property name="strikeout" type="bool"/>
+        <property name="pointSize" type="qreal"/>
+        <property name="pixelSize" type="int"/>
+        <property name="capitalization" type="Capitalization"/>
+        <property name="letterSpacing" type="qreal"/>
+        <property name="wordSpacing" type="qreal"/>
+    </type>
+    <type name="QDeclarativeGestureArea" defaultProperty="data" extends="QDeclarativeItem">
+        <exports>
+            <export module="Qt.labs.gestures" version="1.0" type="GestureArea"/>
+        </exports>
+        <property name="gesture" type="QGesture"/>
+    </type>
+    <type name="QDeclarativeGradient" defaultProperty="stops" extends="QObject">
+        <exports>
+            <export module="QtQuick" version="1.0" type="Gradient"/>
+            <export module="Qt" version="4.7" type="Gradient"/>
+        </exports>
+        <property name="stops" type="QDeclarativeGradientStop" isList="true"/>
+        <signal name="updated"/>
+    </type>
+    <type name="QDeclarativeGradientStop" extends="QObject">
+        <exports>
+            <export module="QtQuick" version="1.0" type="GradientStop"/>
+            <export module="Qt" version="4.7" type="GradientStop"/>
+        </exports>
+        <property name="position" type="qreal"/>
+        <property name="color" type="QColor"/>
+    </type>
+    <type name="QDeclarativeGrid" defaultProperty="data" extends="QDeclarativeBasePositioner">
+        <exports>
+            <export module="QtQuick" version="1.0" type="Grid"/>
+            <export module="Qt" version="4.7" type="Grid"/>
+        </exports>
+        <enum name="Flow">
+            <enumerator name="LeftToRight" value="0"/>
+            <enumerator name="TopToBottom" value="1"/>
+        </enum>
+        <property name="rows" type="int"/>
+        <property name="columns" type="int"/>
+        <property name="flow" type="Flow"/>
+        <signal name="rowsChanged"/>
+        <signal name="columnsChanged"/>
+        <signal name="flowChanged"/>
+    </type>
+    <type name="QDeclarativeGridView" defaultProperty="data" extends="QDeclarativeFlickable">
+        <exports>
+            <export module="QtQuick" version="1.0" type="GridView"/>
+            <export module="Qt" version="4.7" type="GridView"/>
+        </exports>
+        <enum name="HighlightRangeMode">
+            <enumerator name="NoHighlightRange" value="0"/>
+            <enumerator name="ApplyRange" value="1"/>
+            <enumerator name="StrictlyEnforceRange" value="2"/>
+        </enum>
+        <enum name="Flow">
+            <enumerator name="LeftToRight" value="0"/>
+            <enumerator name="TopToBottom" value="1"/>
+        </enum>
+        <enum name="SnapMode">
+            <enumerator name="NoSnap" value="0"/>
+            <enumerator name="SnapToRow" value="1"/>
+            <enumerator name="SnapOneRow" value="2"/>
+        </enum>
+        <enum name="PositionMode">
+            <enumerator name="Beginning" value="0"/>
+            <enumerator name="Center" value="1"/>
+            <enumerator name="End" value="2"/>
+            <enumerator name="Visible" value="3"/>
+            <enumerator name="Contain" value="4"/>
+        </enum>
+        <property name="model" type="QVariant"/>
+        <property name="delegate" type="QDeclarativeComponent"/>
+        <property name="currentIndex" type="int"/>
+        <property name="currentItem" type="QDeclarativeItem"/>
+        <property name="count" type="int"/>
+        <property name="highlight" type="QDeclarativeComponent"/>
+        <property name="highlightItem" type="QDeclarativeItem"/>
+        <property name="highlightFollowsCurrentItem" type="bool"/>
+        <property name="highlightMoveDuration" type="int"/>
+        <property name="preferredHighlightBegin" type="qreal"/>
+        <property name="preferredHighlightEnd" type="qreal"/>
+        <property name="highlightRangeMode" type="HighlightRangeMode"/>
+        <property name="flow" type="Flow"/>
+        <property name="keyNavigationWraps" type="bool"/>
+        <property name="cacheBuffer" type="int"/>
+        <property name="cellWidth" type="int"/>
+        <property name="cellHeight" type="int"/>
+        <property name="snapMode" type="SnapMode"/>
+        <property name="header" type="QDeclarativeComponent"/>
+        <property name="footer" type="QDeclarativeComponent"/>
+        <signal name="countChanged"/>
+        <signal name="currentIndexChanged"/>
+        <signal name="cellWidthChanged"/>
+        <signal name="cellHeightChanged"/>
+        <signal name="highlightChanged"/>
+        <signal name="highlightItemChanged"/>
+        <signal name="preferredHighlightBeginChanged"/>
+        <signal name="preferredHighlightEndChanged"/>
+        <signal name="highlightRangeModeChanged"/>
+        <signal name="highlightMoveDurationChanged"/>
+        <signal name="modelChanged"/>
+        <signal name="delegateChanged"/>
+        <signal name="flowChanged"/>
+        <signal name="keyNavigationWrapsChanged"/>
+        <signal name="cacheBufferChanged"/>
+        <signal name="snapModeChanged"/>
+        <signal name="headerChanged"/>
+        <signal name="footerChanged"/>
+        <method name="moveCurrentIndexUp"/>
+        <method name="moveCurrentIndexDown"/>
+        <method name="moveCurrentIndexLeft"/>
+        <method name="moveCurrentIndexRight"/>
+        <method name="positionViewAtIndex">
+            <param name="index" type="int"/>
+            <param name="mode" type="int"/>
+        </method>
+        <method name="indexAt" type="int">
+            <param name="x" type="int"/>
+            <param name="y" type="int"/>
+        </method>
+    </type>
+    <type name="QDeclarativeImage" defaultProperty="data" extends="QDeclarativeImageBase">
+        <exports>
+            <export module="QtQuick" version="1.0" type="Image"/>
+            <export module="Qt" version="4.7" type="Image"/>
+        </exports>
+        <enum name="FillMode">
+            <enumerator name="Stretch" value="0"/>
+            <enumerator name="PreserveAspectFit" value="1"/>
+            <enumerator name="PreserveAspectCrop" value="2"/>
+            <enumerator name="Tile" value="3"/>
+            <enumerator name="TileVertically" value="4"/>
+            <enumerator name="TileHorizontally" value="5"/>
+        </enum>
+        <property name="fillMode" type="FillMode"/>
+        <property name="paintedWidth" type="qreal"/>
+        <property name="paintedHeight" type="qreal"/>
+        <signal name="fillModeChanged"/>
+        <signal name="paintedGeometryChanged"/>
+    </type>
+    <type name="QDeclarativeImageBase" defaultProperty="data" extends="QDeclarativeItem">
         <enum name="Status">
             <enumerator name="Null" value="0"/>
             <enumerator name="Ready" value="1"/>
@@ -243,14 +789,474 @@
         </signal>
         <signal name="sourceSizeChanged"/>
         <signal name="statusChanged">
-            <param type="Status"/>
+            <param type="QDeclarativeImageBase.Status"/>
         </signal>
         <signal name="progressChanged">
             <param name="progress" type="qreal"/>
         </signal>
         <signal name="asynchronousChanged"/>
     </type>
-    <type name="QDeclarativePaintedItem" defaultProperty="data" extends="Qt.Item">
+    <type name="QDeclarativeItem" defaultProperty="data" extends="QGraphicsObject">
+        <exports>
+            <export module="QtQuick" version="1.0" type="Item"/>
+            <export module="Qt" version="4.7" type="Item"/>
+        </exports>
+        <enum name="TransformOrigin">
+            <enumerator name="TopLeft" value="0"/>
+            <enumerator name="Top" value="1"/>
+            <enumerator name="TopRight" value="2"/>
+            <enumerator name="Left" value="3"/>
+            <enumerator name="Center" value="4"/>
+            <enumerator name="Right" value="5"/>
+            <enumerator name="BottomLeft" value="6"/>
+            <enumerator name="Bottom" value="7"/>
+            <enumerator name="BottomRight" value="8"/>
+        </enum>
+        <property name="parent" type="QDeclarativeItem"/>
+        <property name="data" type="QObject" isList="true"/>
+        <property name="resources" type="QObject" isList="true"/>
+        <property name="states" type="QDeclarativeState" isList="true"/>
+        <property name="transitions" type="QDeclarativeTransition" isList="true"/>
+        <property name="state" type="string"/>
+        <property name="childrenRect" type="QRectF"/>
+        <property name="anchors" type="QDeclarativeAnchors"/>
+        <property name="left" type="QDeclarativeAnchorLine"/>
+        <property name="right" type="QDeclarativeAnchorLine"/>
+        <property name="horizontalCenter" type="QDeclarativeAnchorLine"/>
+        <property name="top" type="QDeclarativeAnchorLine"/>
+        <property name="bottom" type="QDeclarativeAnchorLine"/>
+        <property name="verticalCenter" type="QDeclarativeAnchorLine"/>
+        <property name="baseline" type="QDeclarativeAnchorLine"/>
+        <property name="baselineOffset" type="qreal"/>
+        <property name="clip" type="bool"/>
+        <property name="focus" type="bool"/>
+        <property name="activeFocus" type="bool"/>
+        <property name="transform" type="QGraphicsTransform" isList="true"/>
+        <property name="transformOrigin" type="TransformOrigin"/>
+        <property name="transformOriginPoint" type="QPointF"/>
+        <property name="smooth" type="bool"/>
+        <signal name="childrenRectChanged">
+            <param type="QRectF"/>
+        </signal>
+        <signal name="baselineOffsetChanged">
+            <param type="qreal"/>
+        </signal>
+        <signal name="stateChanged">
+            <param type="string"/>
+        </signal>
+        <signal name="focusChanged">
+            <param type="bool"/>
+        </signal>
+        <signal name="activeFocusChanged">
+            <param type="bool"/>
+        </signal>
+        <signal name="parentChanged">
+            <param type="QDeclarativeItem"/>
+        </signal>
+        <signal name="transformOriginChanged">
+            <param type="TransformOrigin"/>
+        </signal>
+        <signal name="smoothChanged">
+            <param type="bool"/>
+        </signal>
+        <signal name="clipChanged">
+            <param type="bool"/>
+        </signal>
+        <method name="mapFromItem" type="QScriptValue">
+            <param name="item" type="QScriptValue"/>
+            <param name="x" type="qreal"/>
+            <param name="y" type="qreal"/>
+        </method>
+        <method name="mapToItem" type="QScriptValue">
+            <param name="item" type="QScriptValue"/>
+            <param name="x" type="qreal"/>
+            <param name="y" type="qreal"/>
+        </method>
+        <method name="forceActiveFocus"/>
+        <method name="childAt" type="QDeclarativeItem*">
+            <param name="x" type="qreal"/>
+            <param name="y" type="qreal"/>
+        </method>
+    </type>
+    <type name="QDeclarativeKeyNavigationAttached" extends="QObject">
+        <exports>
+            <export module="QtQuick" version="1.0" type="KeyNavigation"/>
+            <export module="Qt" version="4.7" type="KeyNavigation"/>
+        </exports>
+        <enum name="Priority">
+            <enumerator name="BeforeItem" value="0"/>
+            <enumerator name="AfterItem" value="1"/>
+        </enum>
+        <property name="left" type="QDeclarativeItem"/>
+        <property name="right" type="QDeclarativeItem"/>
+        <property name="up" type="QDeclarativeItem"/>
+        <property name="down" type="QDeclarativeItem"/>
+        <property name="tab" type="QDeclarativeItem"/>
+        <property name="backtab" type="QDeclarativeItem"/>
+        <property name="priority" type="Priority"/>
+        <signal name="leftChanged"/>
+        <signal name="rightChanged"/>
+        <signal name="upChanged"/>
+        <signal name="downChanged"/>
+        <signal name="tabChanged"/>
+        <signal name="backtabChanged"/>
+        <signal name="priorityChanged"/>
+    </type>
+    <type name="QDeclarativeKeysAttached" extends="QObject">
+        <exports>
+            <export module="QtQuick" version="1.0" type="Keys"/>
+            <export module="Qt" version="4.7" type="Keys"/>
+        </exports>
+        <enum name="Priority">
+            <enumerator name="BeforeItem" value="0"/>
+            <enumerator name="AfterItem" value="1"/>
+        </enum>
+        <property name="enabled" type="bool"/>
+        <property name="forwardTo" type="QDeclarativeItem" isList="true"/>
+        <property name="priority" type="Priority"/>
+        <signal name="enabledChanged"/>
+        <signal name="priorityChanged"/>
+        <signal name="pressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="released">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="digit0Pressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="digit1Pressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="digit2Pressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="digit3Pressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="digit4Pressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="digit5Pressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="digit6Pressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="digit7Pressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="digit8Pressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="digit9Pressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="leftPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="rightPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="upPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="downPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="tabPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="backtabPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="asteriskPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="numberSignPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="escapePressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="returnPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="enterPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="deletePressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="spacePressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="backPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="cancelPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="selectPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="yesPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="noPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="context1Pressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="context2Pressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="context3Pressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="context4Pressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="callPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="hangupPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="flipPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="menuPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="volumeUpPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="volumeDownPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+    </type>
+    <type name="QDeclarativeLayoutItem" defaultProperty="data" extends="QDeclarativeItem">
+        <exports>
+            <export module="Qt" version="4.7" type="LayoutItem"/>
+            <export module="QtQuick" version="1.0" type="LayoutItem"/>
+        </exports>
+        <property name="maximumSize" type="QSizeF"/>
+        <property name="minimumSize" type="QSizeF"/>
+        <property name="preferredSize" type="QSizeF"/>
+        <signal name="maximumSizeChanged"/>
+        <signal name="minimumSizeChanged"/>
+        <signal name="preferredSizeChanged"/>
+    </type>
+    <type name="QDeclarativeListElement" extends="QObject">
+        <exports>
+            <export module="QtQuick" version="1.0" type="ListElement"/>
+            <export module="Qt" version="4.7" type="ListElement"/>
+        </exports>
+    </type>
+    <type name="QDeclarativeListModel" extends="QListModelInterface">
+        <exports>
+            <export module="Qt" version="4.7" type="ListModel"/>
+            <export module="QtQuick" version="1.0" type="ListModel"/>
+        </exports>
+        <property name="count" type="int"/>
+        <signal name="countChanged"/>
+        <method name="clear"/>
+        <method name="remove">
+            <param name="index" type="int"/>
+        </method>
+        <method name="append">
+            <param type="QScriptValue"/>
+        </method>
+        <method name="insert">
+            <param name="index" type="int"/>
+            <param type="QScriptValue"/>
+        </method>
+        <method name="get" type="QScriptValue">
+            <param name="index" type="int"/>
+        </method>
+        <method name="set">
+            <param name="index" type="int"/>
+            <param type="QScriptValue"/>
+        </method>
+        <method name="setProperty">
+            <param name="index" type="int"/>
+            <param name="property" type="string"/>
+            <param name="value" type="QVariant"/>
+        </method>
+        <method name="move">
+            <param name="from" type="int"/>
+            <param name="to" type="int"/>
+            <param name="count" type="int"/>
+        </method>
+        <method name="sync"/>
+    </type>
+    <type name="QDeclarativeListView" defaultProperty="data" extends="QDeclarativeFlickable">
+        <exports>
+            <export module="Qt" version="4.7" type="ListView"/>
+            <export module="QtQuick" version="1.0" type="ListView"/>
+        </exports>
+        <enum name="HighlightRangeMode">
+            <enumerator name="NoHighlightRange" value="0"/>
+            <enumerator name="ApplyRange" value="1"/>
+            <enumerator name="StrictlyEnforceRange" value="2"/>
+        </enum>
+        <enum name="Orientation">
+            <enumerator name="Horizontal" value="1"/>
+            <enumerator name="Vertical" value="2"/>
+        </enum>
+        <enum name="SnapMode">
+            <enumerator name="NoSnap" value="0"/>
+            <enumerator name="SnapToItem" value="1"/>
+            <enumerator name="SnapOneItem" value="2"/>
+        </enum>
+        <enum name="PositionMode">
+            <enumerator name="Beginning" value="0"/>
+            <enumerator name="Center" value="1"/>
+            <enumerator name="End" value="2"/>
+            <enumerator name="Visible" value="3"/>
+            <enumerator name="Contain" value="4"/>
+        </enum>
+        <property name="model" type="QVariant"/>
+        <property name="delegate" type="QDeclarativeComponent"/>
+        <property name="currentIndex" type="int"/>
+        <property name="currentItem" type="QDeclarativeItem"/>
+        <property name="count" type="int"/>
+        <property name="highlight" type="QDeclarativeComponent"/>
+        <property name="highlightItem" type="QDeclarativeItem"/>
+        <property name="highlightFollowsCurrentItem" type="bool"/>
+        <property name="highlightMoveSpeed" type="qreal"/>
+        <property name="highlightMoveDuration" type="int"/>
+        <property name="highlightResizeSpeed" type="qreal"/>
+        <property name="highlightResizeDuration" type="int"/>
+        <property name="preferredHighlightBegin" type="qreal"/>
+        <property name="preferredHighlightEnd" type="qreal"/>
+        <property name="highlightRangeMode" type="HighlightRangeMode"/>
+        <property name="spacing" type="qreal"/>
+        <property name="orientation" type="Orientation"/>
+        <property name="keyNavigationWraps" type="bool"/>
+        <property name="cacheBuffer" type="int"/>
+        <property name="section" type="QDeclarativeViewSection"/>
+        <property name="currentSection" type="string"/>
+        <property name="snapMode" type="SnapMode"/>
+        <property name="header" type="QDeclarativeComponent"/>
+        <property name="footer" type="QDeclarativeComponent"/>
+        <signal name="countChanged"/>
+        <signal name="spacingChanged"/>
+        <signal name="orientationChanged"/>
+        <signal name="currentIndexChanged"/>
+        <signal name="currentSectionChanged"/>
+        <signal name="highlightMoveSpeedChanged"/>
+        <signal name="highlightMoveDurationChanged"/>
+        <signal name="highlightResizeSpeedChanged"/>
+        <signal name="highlightResizeDurationChanged"/>
+        <signal name="highlightChanged"/>
+        <signal name="highlightItemChanged"/>
+        <signal name="modelChanged"/>
+        <signal name="delegateChanged"/>
+        <signal name="highlightFollowsCurrentItemChanged"/>
+        <signal name="preferredHighlightBeginChanged"/>
+        <signal name="preferredHighlightEndChanged"/>
+        <signal name="highlightRangeModeChanged"/>
+        <signal name="keyNavigationWrapsChanged"/>
+        <signal name="cacheBufferChanged"/>
+        <signal name="snapModeChanged"/>
+        <signal name="headerChanged"/>
+        <signal name="footerChanged"/>
+        <method name="incrementCurrentIndex"/>
+        <method name="decrementCurrentIndex"/>
+        <method name="positionViewAtIndex">
+            <param name="index" type="int"/>
+            <param name="mode" type="int"/>
+        </method>
+        <method name="indexAt" type="int">
+            <param name="x" type="int"/>
+            <param name="y" type="int"/>
+        </method>
+    </type>
+    <type name="QDeclarativeLoader" defaultProperty="data" extends="QDeclarativeItem">
+        <exports>
+            <export module="Qt" version="4.7" type="Loader"/>
+            <export module="QtQuick" version="1.0" type="Loader"/>
+        </exports>
+        <enum name="Status">
+            <enumerator name="Null" value="0"/>
+            <enumerator name="Ready" value="1"/>
+            <enumerator name="Loading" value="2"/>
+            <enumerator name="Error" value="3"/>
+        </enum>
+        <property name="source" type="QUrl"/>
+        <property name="sourceComponent" type="QDeclarativeComponent"/>
+        <property name="item" type="QGraphicsObject"/>
+        <property name="status" type="Status"/>
+        <property name="progress" type="qreal"/>
+        <signal name="itemChanged"/>
+        <signal name="sourceChanged"/>
+        <signal name="statusChanged"/>
+        <signal name="progressChanged"/>
+        <signal name="loaded"/>
+    </type>
+    <type name="QDeclarativeMouseArea" defaultProperty="data" extends="QDeclarativeItem">
+        <exports>
+            <export module="Qt" version="4.7" type="MouseArea"/>
+            <export module="QtQuick" version="1.0" type="MouseArea"/>
+        </exports>
+        <property name="mouseX" type="qreal"/>
+        <property name="mouseY" type="qreal"/>
+        <property name="containsMouse" type="bool"/>
+        <property name="pressed" type="bool"/>
+        <property name="enabled" type="bool"/>
+        <property name="pressedButtons" type="Qt.MouseButtons"/>
+        <property name="acceptedButtons" type="Qt.MouseButtons"/>
+        <property name="hoverEnabled" type="bool"/>
+        <property name="drag" type="QDeclarativeDrag"/>
+        <signal name="hoveredChanged"/>
+        <signal name="pressedChanged"/>
+        <signal name="enabledChanged"/>
+        <signal name="acceptedButtonsChanged"/>
+        <signal name="hoverEnabledChanged"/>
+        <signal name="positionChanged">
+            <param name="mouse" type="QDeclarativeMouseEvent"/>
+        </signal>
+        <signal name="mousePositionChanged">
+            <param name="mouse" type="QDeclarativeMouseEvent"/>
+        </signal>
+        <signal name="pressed">
+            <param name="mouse" type="QDeclarativeMouseEvent"/>
+        </signal>
+        <signal name="pressAndHold">
+            <param name="mouse" type="QDeclarativeMouseEvent"/>
+        </signal>
+        <signal name="released">
+            <param name="mouse" type="QDeclarativeMouseEvent"/>
+        </signal>
+        <signal name="clicked">
+            <param name="mouse" type="QDeclarativeMouseEvent"/>
+        </signal>
+        <signal name="doubleClicked">
+            <param name="mouse" type="QDeclarativeMouseEvent"/>
+        </signal>
+        <signal name="entered"/>
+        <signal name="exited"/>
+        <signal name="canceled"/>
+    </type>
+    <type name="QDeclarativeNumberAnimation" extends="QDeclarativePropertyAnimation">
+        <exports>
+            <export module="QtQuick" version="1.0" type="NumberAnimation"/>
+            <export module="Qt" version="4.7" type="NumberAnimation"/>
+        </exports>
+        <property name="from" type="qreal"/>
+        <property name="to" type="qreal"/>
+    </type>
+    <type name="QDeclarativePackage" defaultProperty="data" extends="QObject">
+        <exports>
+            <export module="Qt" version="4.7" type="Package"/>
+            <export module="QtQuick" version="1.0" type="Package"/>
+        </exports>
+        <property name="data" type="QObject" isList="true"/>
+    </type>
+    <type name="QDeclarativePaintedItem" defaultProperty="data" extends="QDeclarativeItem">
         <property name="contentsSize" type="QSize"/>
         <property name="fillColor" type="QColor"/>
         <property name="pixelCacheSize" type="int"/>
@@ -260,25 +1266,881 @@
         <signal name="contentsSizeChanged"/>
         <signal name="contentsScaleChanged"/>
     </type>
-    <type name="QDeclarativePathElement" extends="Qt.QtObject">
+    <type name="QDeclarativeParallelAnimation" defaultProperty="animations" extends="QDeclarativeAnimationGroup">
+        <exports>
+            <export module="Qt" version="4.7" type="ParallelAnimation"/>
+            <export module="QtQuick" version="1.0" type="ParallelAnimation"/>
+        </exports>
+    </type>
+    <type name="QDeclarativeParentAnimation" defaultProperty="animations" extends="QDeclarativeAnimationGroup">
+        <exports>
+            <export module="QtQuick" version="1.0" type="ParentAnimation"/>
+            <export module="Qt" version="4.7" type="ParentAnimation"/>
+        </exports>
+        <property name="target" type="QDeclarativeItem"/>
+        <property name="newParent" type="QDeclarativeItem"/>
+        <property name="via" type="QDeclarativeItem"/>
+        <signal name="targetChanged"/>
+        <signal name="newParentChanged"/>
+        <signal name="viaChanged"/>
+    </type>
+    <type name="QDeclarativeParentChange" extends="QDeclarativeStateOperation">
+        <exports>
+            <export module="QtQuick" version="1.0" type="ParentChange"/>
+            <export module="Qt" version="4.7" type="ParentChange"/>
+        </exports>
+        <property name="target" type="QDeclarativeItem"/>
+        <property name="parent" type="QDeclarativeItem"/>
+        <property name="x" type="QDeclarativeScriptString"/>
+        <property name="y" type="QDeclarativeScriptString"/>
+        <property name="width" type="QDeclarativeScriptString"/>
+        <property name="height" type="QDeclarativeScriptString"/>
+        <property name="scale" type="QDeclarativeScriptString"/>
+        <property name="rotation" type="QDeclarativeScriptString"/>
+    </type>
+    <type name="QDeclarativeParticleMotion" extends="QObject">
+        <exports>
+            <export module="Qt.labs.particles" version="1.0" type="ParticleMotion"/>
+        </exports>
+    </type>
+    <type name="QDeclarativeParticleMotionGravity" extends="QDeclarativeParticleMotion">
+        <exports>
+            <export module="Qt.labs.particles" version="1.0" type="ParticleMotionGravity"/>
+        </exports>
+        <property name="xattractor" type="qreal"/>
+        <property name="yattractor" type="qreal"/>
+        <property name="acceleration" type="qreal"/>
+        <signal name="xattractorChanged"/>
+        <signal name="yattractorChanged"/>
+        <signal name="accelerationChanged"/>
+    </type>
+    <type name="QDeclarativeParticleMotionLinear" extends="QDeclarativeParticleMotion">
+        <exports>
+            <export module="Qt.labs.particles" version="1.0" type="ParticleMotionLinear"/>
+        </exports>
+    </type>
+    <type name="QDeclarativeParticleMotionWander" extends="QDeclarativeParticleMotion">
+        <exports>
+            <export module="Qt.labs.particles" version="1.0" type="ParticleMotionWander"/>
+        </exports>
+        <property name="xvariance" type="qreal"/>
+        <property name="yvariance" type="qreal"/>
+        <property name="pace" type="qreal"/>
+        <signal name="xvarianceChanged"/>
+        <signal name="yvarianceChanged"/>
+        <signal name="paceChanged"/>
+    </type>
+    <type name="QDeclarativeParticles" defaultProperty="motion" extends="QDeclarativeItem">
+        <exports>
+            <export module="Qt.labs.particles" version="1.0" type="Particles"/>
+        </exports>
+        <property name="source" type="QUrl"/>
+        <property name="count" type="int"/>
+        <property name="emissionRate" type="int"/>
+        <property name="emissionVariance" type="qreal"/>
+        <property name="lifeSpan" type="int"/>
+        <property name="lifeSpanDeviation" type="int"/>
+        <property name="fadeInDuration" type="int"/>
+        <property name="fadeOutDuration" type="int"/>
+        <property name="angle" type="qreal"/>
+        <property name="angleDeviation" type="qreal"/>
+        <property name="velocity" type="qreal"/>
+        <property name="velocityDeviation" type="qreal"/>
+        <property name="motion" type="QDeclarativeParticleMotion"/>
+        <signal name="sourceChanged"/>
+        <signal name="countChanged"/>
+        <signal name="emissionRateChanged"/>
+        <signal name="emissionVarianceChanged"/>
+        <signal name="lifeSpanChanged"/>
+        <signal name="lifeSpanDeviationChanged"/>
+        <signal name="fadeInDurationChanged"/>
+        <signal name="fadeOutDurationChanged"/>
+        <signal name="angleChanged"/>
+        <signal name="angleDeviationChanged"/>
+        <signal name="velocityChanged"/>
+        <signal name="velocityDeviationChanged"/>
+        <signal name="emittingChanged"/>
+        <signal name="motionChanged"/>
+        <method name="burst">
+            <param name="count" type="int"/>
+            <param name="emissionRate" type="int"/>
+        </method>
+        <method name="burst">
+            <param name="count" type="int"/>
+        </method>
+    </type>
+    <type name="QDeclarativePath" defaultProperty="pathElements" extends="QObject">
+        <exports>
+            <export module="Qt" version="4.7" type="Path"/>
+            <export module="QtQuick" version="1.0" type="Path"/>
+        </exports>
+        <property name="pathElements" type="QDeclarativePathElement" isList="true"/>
+        <property name="startX" type="qreal"/>
+        <property name="startY" type="qreal"/>
+        <property name="closed" type="bool"/>
+        <signal name="changed"/>
+        <signal name="startXChanged"/>
+        <signal name="startYChanged"/>
+    </type>
+    <type name="QDeclarativePathAttribute" extends="QDeclarativePathElement">
+        <exports>
+            <export module="Qt" version="4.7" type="PathAttribute"/>
+            <export module="QtQuick" version="1.0" type="PathAttribute"/>
+        </exports>
+        <property name="name" type="string"/>
+        <property name="value" type="qreal"/>
+        <signal name="nameChanged"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativePathCubic" extends="QDeclarativeCurve">
+        <exports>
+            <export module="QtQuick" version="1.0" type="PathCubic"/>
+            <export module="Qt" version="4.7" type="PathCubic"/>
+        </exports>
+        <property name="control1X" type="qreal"/>
+        <property name="control1Y" type="qreal"/>
+        <property name="control2X" type="qreal"/>
+        <property name="control2Y" type="qreal"/>
+        <signal name="control1XChanged"/>
+        <signal name="control1YChanged"/>
+        <signal name="control2XChanged"/>
+        <signal name="control2YChanged"/>
+    </type>
+    <type name="QDeclarativePathElement" extends="QObject">
         <signal name="changed"/>
     </type>
-    <type name="QDeclarativePen" extends="Qt.QtObject">
+    <type name="QDeclarativePathLine" extends="QDeclarativeCurve">
+        <exports>
+            <export module="QtQuick" version="1.0" type="PathLine"/>
+            <export module="Qt" version="4.7" type="PathLine"/>
+        </exports>
+    </type>
+    <type name="QDeclarativePathPercent" extends="QDeclarativePathElement">
+        <exports>
+            <export module="Qt" version="4.7" type="PathPercent"/>
+            <export module="QtQuick" version="1.0" type="PathPercent"/>
+        </exports>
+        <property name="value" type="qreal"/>
+        <signal name="valueChanged"/>
+    </type>
+    <type name="QDeclarativePathQuad" extends="QDeclarativeCurve">
+        <exports>
+            <export module="Qt" version="4.7" type="PathQuad"/>
+            <export module="QtQuick" version="1.0" type="PathQuad"/>
+        </exports>
+        <property name="controlX" type="qreal"/>
+        <property name="controlY" type="qreal"/>
+        <signal name="controlXChanged"/>
+        <signal name="controlYChanged"/>
+    </type>
+    <type name="QDeclarativePathView" defaultProperty="data" extends="QDeclarativeItem">
+        <exports>
+            <export module="QtQuick" version="1.0" type="PathView"/>
+            <export module="Qt" version="4.7" type="PathView"/>
+        </exports>
+        <enum name="HighlightRangeMode">
+            <enumerator name="NoHighlightRange" value="0"/>
+            <enumerator name="ApplyRange" value="1"/>
+            <enumerator name="StrictlyEnforceRange" value="2"/>
+        </enum>
+        <property name="model" type="QVariant"/>
+        <property name="path" type="QDeclarativePath"/>
+        <property name="currentIndex" type="int"/>
+        <property name="offset" type="qreal"/>
+        <property name="highlight" type="QDeclarativeComponent"/>
+        <property name="highlightItem" type="QDeclarativeItem"/>
+        <property name="preferredHighlightBegin" type="qreal"/>
+        <property name="preferredHighlightEnd" type="qreal"/>
+        <property name="highlightRangeMode" type="HighlightRangeMode"/>
+        <property name="highlightMoveDuration" type="int"/>
+        <property name="dragMargin" type="qreal"/>
+        <property name="flickDeceleration" type="qreal"/>
+        <property name="interactive" type="bool"/>
+        <property name="moving" type="bool"/>
+        <property name="flicking" type="bool"/>
+        <property name="count" type="int"/>
+        <property name="delegate" type="QDeclarativeComponent"/>
+        <property name="pathItemCount" type="int"/>
+        <signal name="currentIndexChanged"/>
+        <signal name="offsetChanged"/>
+        <signal name="modelChanged"/>
+        <signal name="countChanged"/>
+        <signal name="pathChanged"/>
+        <signal name="preferredHighlightBeginChanged"/>
+        <signal name="preferredHighlightEndChanged"/>
+        <signal name="highlightRangeModeChanged"/>
+        <signal name="dragMarginChanged"/>
+        <signal name="snapPositionChanged"/>
+        <signal name="delegateChanged"/>
+        <signal name="pathItemCountChanged"/>
+        <signal name="flickDecelerationChanged"/>
+        <signal name="interactiveChanged"/>
+        <signal name="movingChanged"/>
+        <signal name="flickingChanged"/>
+        <signal name="highlightChanged"/>
+        <signal name="highlightItemChanged"/>
+        <signal name="highlightMoveDurationChanged"/>
+        <signal name="movementStarted"/>
+        <signal name="movementEnded"/>
+        <signal name="flickStarted"/>
+        <signal name="flickEnded"/>
+        <method name="incrementCurrentIndex"/>
+        <method name="decrementCurrentIndex"/>
+    </type>
+    <type name="QDeclarativePauseAnimation" extends="QDeclarativeAbstractAnimation">
+        <exports>
+            <export module="Qt" version="4.7" type="PauseAnimation"/>
+            <export module="QtQuick" version="1.0" type="PauseAnimation"/>
+        </exports>
+        <property name="duration" type="int"/>
+        <signal name="durationChanged">
+            <param type="int"/>
+        </signal>
+    </type>
+    <type name="QDeclarativePen" extends="QObject">
         <property name="width" type="int"/>
         <property name="color" type="QColor"/>
         <signal name="penChanged"/>
     </type>
-    <type name="QDeclarativeScaleGrid" extends="Qt.QtObject">
+    <type name="QDeclarativePropertyAction" extends="QDeclarativeAbstractAnimation">
+        <exports>
+            <export module="QtQuick" version="1.0" type="PropertyAction"/>
+            <export module="Qt" version="4.7" type="PropertyAction"/>
+        </exports>
+        <property name="target" type="QObject"/>
+        <property name="property" type="string"/>
+        <property name="properties" type="string"/>
+        <property name="targets" type="QObject" isList="true"/>
+        <property name="exclude" type="QObject" isList="true"/>
+        <property name="value" type="QVariant"/>
+        <signal name="valueChanged">
+            <param type="QVariant"/>
+        </signal>
+        <signal name="propertiesChanged">
+            <param type="string"/>
+        </signal>
+        <signal name="targetChanged"/>
+        <signal name="propertyChanged"/>
+    </type>
+    <type name="QDeclarativePropertyAnimation" extends="QDeclarativeAbstractAnimation">
+        <exports>
+            <export module="QtQuick" version="1.0" type="PropertyAnimation"/>
+            <export module="Qt" version="4.7" type="PropertyAnimation"/>
+        </exports>
+        <property name="duration" type="int"/>
+        <property name="from" type="QVariant"/>
+        <property name="to" type="QVariant"/>
+        <property name="easing" type="QEasingCurve"/>
+        <property name="target" type="QObject"/>
+        <property name="property" type="string"/>
+        <property name="properties" type="string"/>
+        <property name="targets" type="QObject" isList="true"/>
+        <property name="exclude" type="QObject" isList="true"/>
+        <signal name="durationChanged">
+            <param type="int"/>
+        </signal>
+        <signal name="fromChanged">
+            <param type="QVariant"/>
+        </signal>
+        <signal name="toChanged">
+            <param type="QVariant"/>
+        </signal>
+        <signal name="easingChanged">
+            <param type="QEasingCurve"/>
+        </signal>
+        <signal name="propertiesChanged">
+            <param type="string"/>
+        </signal>
+        <signal name="targetChanged"/>
+        <signal name="propertyChanged"/>
+    </type>
+    <type name="QDeclarativePropertyChanges" extends="QDeclarativeStateOperation">
+        <exports>
+            <export module="QtQuick" version="1.0" type="PropertyChanges"/>
+            <export module="Qt" version="4.7" type="PropertyChanges"/>
+        </exports>
+        <property name="target" type="QObject"/>
+        <property name="restoreEntryValues" type="bool"/>
+        <property name="explicit" type="bool"/>
+    </type>
+    <type name="QDeclarativeRectangle" defaultProperty="data" extends="QDeclarativeItem">
+        <exports>
+            <export module="Qt" version="4.7" type="Rectangle"/>
+            <export module="QtQuick" version="1.0" type="Rectangle"/>
+        </exports>
+        <property name="color" type="QColor"/>
+        <property name="gradient" type="QDeclarativeGradient"/>
+        <property name="border" type="QDeclarativePen"/>
+        <property name="radius" type="qreal"/>
+        <signal name="colorChanged"/>
+        <signal name="radiusChanged"/>
+    </type>
+    <type name="QDeclarativeRepeater" defaultProperty="delegate" extends="QDeclarativeItem">
+        <exports>
+            <export module="Qt" version="4.7" type="Repeater"/>
+            <export module="QtQuick" version="1.0" type="Repeater"/>
+        </exports>
+        <property name="model" type="QVariant"/>
+        <property name="delegate" type="QDeclarativeComponent"/>
+        <property name="count" type="int"/>
+        <signal name="modelChanged"/>
+        <signal name="delegateChanged"/>
+        <signal name="countChanged"/>
+    </type>
+    <type name="QDeclarativeRotationAnimation" extends="QDeclarativePropertyAnimation">
+        <exports>
+            <export module="QtQuick" version="1.0" type="RotationAnimation"/>
+            <export module="Qt" version="4.7" type="RotationAnimation"/>
+        </exports>
+        <enum name="RotationDirection">
+            <enumerator name="Numerical" value="0"/>
+            <enumerator name="Shortest" value="1"/>
+            <enumerator name="Clockwise" value="2"/>
+            <enumerator name="Counterclockwise" value="3"/>
+        </enum>
+        <property name="from" type="qreal"/>
+        <property name="to" type="qreal"/>
+        <property name="direction" type="RotationDirection"/>
+        <signal name="directionChanged"/>
+    </type>
+    <type name="QDeclarativeRow" defaultProperty="data" extends="QDeclarativeBasePositioner">
+        <exports>
+            <export module="Qt" version="4.7" type="Row"/>
+            <export module="QtQuick" version="1.0" type="Row"/>
+        </exports>
+    </type>
+    <type name="QDeclarativeScaleGrid" extends="QObject">
         <property name="left" type="int"/>
         <property name="top" type="int"/>
         <property name="right" type="int"/>
         <property name="bottom" type="int"/>
         <signal name="borderChanged"/>
     </type>
-    <type name="QDeclarativeStateOperation" extends="Qt.QtObject"/>
-    <type name="QDeclarativeValueType" extends="Qt.QtObject"/>
-    <type name="QDeclarativeVisualDataModelParts" extends="Qt.QtObject"/>
-    <type name="QDeclarativeVisualModel" extends="Qt.QtObject">
+    <type name="QDeclarativeScriptAction" extends="QDeclarativeAbstractAnimation">
+        <exports>
+            <export module="QtQuick" version="1.0" type="ScriptAction"/>
+            <export module="Qt" version="4.7" type="ScriptAction"/>
+        </exports>
+        <property name="script" type="QDeclarativeScriptString"/>
+        <property name="scriptName" type="string"/>
+    </type>
+    <type name="QDeclarativeSequentialAnimation" defaultProperty="animations" extends="QDeclarativeAnimationGroup">
+        <exports>
+            <export module="QtQuick" version="1.0" type="SequentialAnimation"/>
+            <export module="Qt" version="4.7" type="SequentialAnimation"/>
+        </exports>
+    </type>
+    <type name="QDeclarativeSmoothedAnimation" extends="QDeclarativeNumberAnimation">
+        <exports>
+            <export module="Qt" version="4.7" type="SmoothedAnimation"/>
+            <export module="QtQuick" version="1.0" type="SmoothedAnimation"/>
+        </exports>
+        <enum name="ReversingMode">
+            <enumerator name="Eased" value="0"/>
+            <enumerator name="Immediate" value="1"/>
+            <enumerator name="Sync" value="2"/>
+        </enum>
+        <property name="velocity" type="qreal"/>
+        <property name="reversingMode" type="ReversingMode"/>
+        <property name="maximumEasingTime" type="qreal"/>
+        <signal name="velocityChanged"/>
+        <signal name="reversingModeChanged"/>
+        <signal name="maximumEasingTimeChanged"/>
+    </type>
+    <type name="QDeclarativeSpringAnimation" extends="QDeclarativeNumberAnimation">
+        <exports>
+            <export module="QtQuick" version="1.0" type="SpringAnimation"/>
+            <export module="Qt" version="4.7" type="SpringAnimation"/>
+        </exports>
+        <property name="velocity" type="qreal"/>
+        <property name="spring" type="qreal"/>
+        <property name="damping" type="qreal"/>
+        <property name="epsilon" type="qreal"/>
+        <property name="modulus" type="qreal"/>
+        <property name="mass" type="qreal"/>
+        <signal name="modulusChanged"/>
+        <signal name="massChanged"/>
+        <signal name="syncChanged"/>
+    </type>
+    <type name="QDeclarativeState" defaultProperty="changes" extends="QObject">
+        <exports>
+            <export module="Qt" version="4.7" type="State"/>
+            <export module="QtQuick" version="1.0" type="State"/>
+        </exports>
+        <property name="name" type="string"/>
+        <property name="when" type="QDeclarativeBinding"/>
+        <property name="extend" type="string"/>
+        <property name="changes" type="QDeclarativeStateOperation" isList="true"/>
+        <signal name="completed"/>
+    </type>
+    <type name="QDeclarativeStateChangeScript" extends="QDeclarativeStateOperation">
+        <exports>
+            <export module="QtQuick" version="1.0" type="StateChangeScript"/>
+            <export module="Qt" version="4.7" type="StateChangeScript"/>
+        </exports>
+        <property name="script" type="QDeclarativeScriptString"/>
+        <property name="name" type="string"/>
+    </type>
+    <type name="QDeclarativeStateGroup" extends="QObject">
+        <exports>
+            <export module="Qt" version="4.7" type="StateGroup"/>
+            <export module="QtQuick" version="1.0" type="StateGroup"/>
+        </exports>
+        <property name="state" type="string"/>
+        <property name="states" type="QDeclarativeState" isList="true"/>
+        <property name="transitions" type="QDeclarativeTransition" isList="true"/>
+        <signal name="stateChanged">
+            <param type="string"/>
+        </signal>
+    </type>
+    <type name="QDeclarativeStateOperation" extends="QObject"/>
+    <type name="QDeclarativeSystemPalette" extends="QObject">
+        <exports>
+            <export module="QtQuick" version="1.0" type="SystemPalette"/>
+            <export module="Qt" version="4.7" type="SystemPalette"/>
+        </exports>
+        <enum name="ColorGroup">
+            <enumerator name="Active" value="0"/>
+            <enumerator name="Inactive" value="2"/>
+            <enumerator name="Disabled" value="1"/>
+        </enum>
+        <property name="colorGroup" type="QDeclarativeSystemPalette.ColorGroup"/>
+        <property name="window" type="QColor"/>
+        <property name="windowText" type="QColor"/>
+        <property name="base" type="QColor"/>
+        <property name="text" type="QColor"/>
+        <property name="alternateBase" type="QColor"/>
+        <property name="button" type="QColor"/>
+        <property name="buttonText" type="QColor"/>
+        <property name="light" type="QColor"/>
+        <property name="midlight" type="QColor"/>
+        <property name="dark" type="QColor"/>
+        <property name="mid" type="QColor"/>
+        <property name="shadow" type="QColor"/>
+        <property name="highlight" type="QColor"/>
+        <property name="highlightedText" type="QColor"/>
+        <signal name="paletteChanged"/>
+    </type>
+    <type name="QDeclarativeText" defaultProperty="data" extends="QDeclarativeItem">
+        <exports>
+            <export module="Qt" version="4.7" type="Text"/>
+            <export module="QtQuick" version="1.0" type="Text"/>
+        </exports>
+        <enum name="HAlignment">
+            <enumerator name="AlignLeft" value="1"/>
+            <enumerator name="AlignRight" value="2"/>
+            <enumerator name="AlignHCenter" value="4"/>
+        </enum>
+        <enum name="VAlignment">
+            <enumerator name="AlignTop" value="32"/>
+            <enumerator name="AlignBottom" value="64"/>
+            <enumerator name="AlignVCenter" value="128"/>
+        </enum>
+        <enum name="TextStyle">
+            <enumerator name="Normal" value="0"/>
+            <enumerator name="Outline" value="1"/>
+            <enumerator name="Raised" value="2"/>
+            <enumerator name="Sunken" value="3"/>
+        </enum>
+        <enum name="TextFormat">
+            <enumerator name="PlainText" value="0"/>
+            <enumerator name="RichText" value="1"/>
+            <enumerator name="AutoText" value="2"/>
+            <enumerator name="StyledText" value="4"/>
+        </enum>
+        <enum name="TextElideMode">
+            <enumerator name="ElideLeft" value="0"/>
+            <enumerator name="ElideRight" value="1"/>
+            <enumerator name="ElideMiddle" value="2"/>
+            <enumerator name="ElideNone" value="3"/>
+        </enum>
+        <enum name="WrapMode">
+            <enumerator name="NoWrap" value="0"/>
+            <enumerator name="WordWrap" value="1"/>
+            <enumerator name="WrapAnywhere" value="3"/>
+            <enumerator name="WrapAtWordBoundaryOrAnywhere" value="4"/>
+            <enumerator name="Wrap" value="4"/>
+        </enum>
+        <property name="text" type="string"/>
+        <property name="font" type="QFont"/>
+        <property name="color" type="QColor"/>
+        <property name="style" type="TextStyle"/>
+        <property name="styleColor" type="QColor"/>
+        <property name="horizontalAlignment" type="HAlignment"/>
+        <property name="verticalAlignment" type="VAlignment"/>
+        <property name="wrapMode" type="WrapMode"/>
+        <property name="textFormat" type="TextFormat"/>
+        <property name="elide" type="TextElideMode"/>
+        <property name="paintedWidth" type="qreal"/>
+        <property name="paintedHeight" type="qreal"/>
+        <signal name="textChanged">
+            <param name="text" type="string"/>
+        </signal>
+        <signal name="linkActivated">
+            <param name="link" type="string"/>
+        </signal>
+        <signal name="fontChanged">
+            <param name="font" type="QFont"/>
+        </signal>
+        <signal name="colorChanged">
+            <param name="color" type="QColor"/>
+        </signal>
+        <signal name="styleChanged">
+            <param name="style" type="TextStyle"/>
+        </signal>
+        <signal name="styleColorChanged">
+            <param name="color" type="QColor"/>
+        </signal>
+        <signal name="horizontalAlignmentChanged">
+            <param name="alignment" type="HAlignment"/>
+        </signal>
+        <signal name="verticalAlignmentChanged">
+            <param name="alignment" type="VAlignment"/>
+        </signal>
+        <signal name="wrapModeChanged"/>
+        <signal name="textFormatChanged">
+            <param name="textFormat" type="TextFormat"/>
+        </signal>
+        <signal name="elideModeChanged">
+            <param name="mode" type="TextElideMode"/>
+        </signal>
+        <signal name="paintedSizeChanged"/>
+    </type>
+    <type name="QDeclarativeTextEdit" defaultProperty="data" extends="QDeclarativePaintedItem">
+        <exports>
+            <export module="QtQuick" version="1.0" type="TextEdit"/>
+            <export module="Qt" version="4.7" type="TextEdit"/>
+        </exports>
+        <enum name="HAlignment">
+            <enumerator name="AlignLeft" value="1"/>
+            <enumerator name="AlignRight" value="2"/>
+            <enumerator name="AlignHCenter" value="4"/>
+        </enum>
+        <enum name="VAlignment">
+            <enumerator name="AlignTop" value="32"/>
+            <enumerator name="AlignBottom" value="64"/>
+            <enumerator name="AlignVCenter" value="128"/>
+        </enum>
+        <enum name="TextFormat">
+            <enumerator name="PlainText" value="0"/>
+            <enumerator name="RichText" value="1"/>
+            <enumerator name="AutoText" value="2"/>
+        </enum>
+        <enum name="WrapMode">
+            <enumerator name="NoWrap" value="0"/>
+            <enumerator name="WordWrap" value="1"/>
+            <enumerator name="WrapAnywhere" value="3"/>
+            <enumerator name="WrapAtWordBoundaryOrAnywhere" value="4"/>
+            <enumerator name="Wrap" value="4"/>
+        </enum>
+        <property name="text" type="string"/>
+        <property name="color" type="QColor"/>
+        <property name="selectionColor" type="QColor"/>
+        <property name="selectedTextColor" type="QColor"/>
+        <property name="font" type="QFont"/>
+        <property name="horizontalAlignment" type="HAlignment"/>
+        <property name="verticalAlignment" type="VAlignment"/>
+        <property name="wrapMode" type="WrapMode"/>
+        <property name="paintedWidth" type="qreal"/>
+        <property name="paintedHeight" type="qreal"/>
+        <property name="textFormat" type="TextFormat"/>
+        <property name="readOnly" type="bool"/>
+        <property name="cursorVisible" type="bool"/>
+        <property name="cursorPosition" type="int"/>
+        <property name="cursorRectangle" type="QRect"/>
+        <property name="cursorDelegate" type="QDeclarativeComponent"/>
+        <property name="selectionStart" type="int"/>
+        <property name="selectionEnd" type="int"/>
+        <property name="selectedText" type="string"/>
+        <property name="activeFocusOnPress" type="bool"/>
+        <property name="persistentSelection" type="bool"/>
+        <property name="textMargin" type="qreal"/>
+        <property name="inputMethodHints" type="Qt.InputMethodHints"/>
+        <property name="selectByMouse" type="bool"/>
+        <signal name="textChanged">
+            <param type="string"/>
+        </signal>
+        <signal name="paintedSizeChanged"/>
+        <signal name="cursorPositionChanged"/>
+        <signal name="cursorRectangleChanged"/>
+        <signal name="selectionStartChanged"/>
+        <signal name="selectionEndChanged"/>
+        <signal name="selectionChanged"/>
+        <signal name="colorChanged">
+            <param name="color" type="QColor"/>
+        </signal>
+        <signal name="selectionColorChanged">
+            <param name="color" type="QColor"/>
+        </signal>
+        <signal name="selectedTextColorChanged">
+            <param name="color" type="QColor"/>
+        </signal>
+        <signal name="fontChanged">
+            <param name="font" type="QFont"/>
+        </signal>
+        <signal name="horizontalAlignmentChanged">
+            <param name="alignment" type="HAlignment"/>
+        </signal>
+        <signal name="verticalAlignmentChanged">
+            <param name="alignment" type="VAlignment"/>
+        </signal>
+        <signal name="wrapModeChanged"/>
+        <signal name="textFormatChanged">
+            <param name="textFormat" type="TextFormat"/>
+        </signal>
+        <signal name="readOnlyChanged">
+            <param name="isReadOnly" type="bool"/>
+        </signal>
+        <signal name="cursorVisibleChanged">
+            <param name="isCursorVisible" type="bool"/>
+        </signal>
+        <signal name="cursorDelegateChanged"/>
+        <signal name="activeFocusOnPressChanged">
+            <param name="activeFocusOnPressed" type="bool"/>
+        </signal>
+        <signal name="persistentSelectionChanged">
+            <param name="isPersistentSelection" type="bool"/>
+        </signal>
+        <signal name="textMarginChanged">
+            <param name="textMargin" type="qreal"/>
+        </signal>
+        <signal name="selectByMouseChanged">
+            <param name="selectByMouse" type="bool"/>
+        </signal>
+        <method name="selectAll"/>
+        <method name="selectWord"/>
+        <method name="select">
+            <param name="start" type="int"/>
+            <param name="end" type="int"/>
+        </method>
+        <method name="cut"/>
+        <method name="copy"/>
+        <method name="paste"/>
+        <method name="openSoftwareInputPanel"/>
+        <method name="closeSoftwareInputPanel"/>
+        <method name="positionToRectangle" type="QRectF">
+            <param type="int"/>
+        </method>
+        <method name="positionAt" type="int">
+            <param name="x" type="int"/>
+            <param name="y" type="int"/>
+        </method>
+        <method name="moveCursorSelection">
+            <param name="pos" type="int"/>
+        </method>
+    </type>
+    <type name="QDeclarativeTextInput" defaultProperty="data" extends="QDeclarativePaintedItem">
+        <exports>
+            <export module="Qt" version="4.7" type="TextInput"/>
+            <export module="QtQuick" version="1.0" type="TextInput"/>
+        </exports>
+        <enum name="EchoMode">
+            <enumerator name="Normal" value="0"/>
+            <enumerator name="NoEcho" value="1"/>
+            <enumerator name="Password" value="2"/>
+            <enumerator name="PasswordEchoOnEdit" value="3"/>
+        </enum>
+        <enum name="HAlignment">
+            <enumerator name="AlignLeft" value="1"/>
+            <enumerator name="AlignRight" value="2"/>
+            <enumerator name="AlignHCenter" value="4"/>
+        </enum>
+        <property name="text" type="string"/>
+        <property name="color" type="QColor"/>
+        <property name="selectionColor" type="QColor"/>
+        <property name="selectedTextColor" type="QColor"/>
+        <property name="font" type="QFont"/>
+        <property name="horizontalAlignment" type="HAlignment"/>
+        <property name="readOnly" type="bool"/>
+        <property name="cursorVisible" type="bool"/>
+        <property name="cursorPosition" type="int"/>
+        <property name="cursorRectangle" type="QRect"/>
+        <property name="cursorDelegate" type="QDeclarativeComponent"/>
+        <property name="selectionStart" type="int"/>
+        <property name="selectionEnd" type="int"/>
+        <property name="selectedText" type="string"/>
+        <property name="maximumLength" type="int"/>
+        <property name="validator" type="QValidator"/>
+        <property name="inputMask" type="string"/>
+        <property name="inputMethodHints" type="Qt.InputMethodHints"/>
+        <property name="acceptableInput" type="bool"/>
+        <property name="echoMode" type="EchoMode"/>
+        <property name="activeFocusOnPress" type="bool"/>
+        <property name="passwordCharacter" type="string"/>
+        <property name="displayText" type="string"/>
+        <property name="autoScroll" type="bool"/>
+        <property name="selectByMouse" type="bool"/>
+        <signal name="textChanged"/>
+        <signal name="cursorPositionChanged"/>
+        <signal name="selectionStartChanged"/>
+        <signal name="selectionEndChanged"/>
+        <signal name="selectedTextChanged"/>
+        <signal name="accepted"/>
+        <signal name="acceptableInputChanged"/>
+        <signal name="colorChanged">
+            <param name="color" type="QColor"/>
+        </signal>
+        <signal name="selectionColorChanged">
+            <param name="color" type="QColor"/>
+        </signal>
+        <signal name="selectedTextColorChanged">
+            <param name="color" type="QColor"/>
+        </signal>
+        <signal name="fontChanged">
+            <param name="font" type="QFont"/>
+        </signal>
+        <signal name="horizontalAlignmentChanged">
+            <param name="alignment" type="HAlignment"/>
+        </signal>
+        <signal name="readOnlyChanged">
+            <param name="isReadOnly" type="bool"/>
+        </signal>
+        <signal name="cursorVisibleChanged">
+            <param name="isCursorVisible" type="bool"/>
+        </signal>
+        <signal name="cursorDelegateChanged"/>
+        <signal name="maximumLengthChanged">
+            <param name="maximumLength" type="int"/>
+        </signal>
+        <signal name="validatorChanged"/>
+        <signal name="inputMaskChanged">
+            <param name="inputMask" type="string"/>
+        </signal>
+        <signal name="echoModeChanged">
+            <param name="echoMode" type="EchoMode"/>
+        </signal>
+        <signal name="passwordCharacterChanged"/>
+        <signal name="displayTextChanged"/>
+        <signal name="activeFocusOnPressChanged">
+            <param name="activeFocusOnPress" type="bool"/>
+        </signal>
+        <signal name="autoScrollChanged">
+            <param name="autoScroll" type="bool"/>
+        </signal>
+        <signal name="selectByMouseChanged">
+            <param name="selectByMouse" type="bool"/>
+        </signal>
+        <method name="selectAll"/>
+        <method name="selectWord"/>
+        <method name="select">
+            <param name="start" type="int"/>
+            <param name="end" type="int"/>
+        </method>
+        <method name="cut"/>
+        <method name="copy"/>
+        <method name="paste"/>
+        <method name="positionAt" type="int">
+            <param name="x" type="int"/>
+        </method>
+        <method name="positionToRectangle" type="QRectF">
+            <param name="pos" type="int"/>
+        </method>
+        <method name="moveCursorSelection">
+            <param name="pos" type="int"/>
+        </method>
+        <method name="openSoftwareInputPanel"/>
+        <method name="closeSoftwareInputPanel"/>
+    </type>
+    <type name="QDeclarativeTimer" extends="QObject">
+        <exports>
+            <export module="QtQuick" version="1.0" type="Timer"/>
+            <export module="Qt" version="4.7" type="Timer"/>
+        </exports>
+        <property name="interval" type="int"/>
+        <property name="running" type="bool"/>
+        <property name="repeat" type="bool"/>
+        <property name="triggeredOnStart" type="bool"/>
+        <property name="parent" type="QObject"/>
+        <signal name="triggered"/>
+        <signal name="runningChanged"/>
+        <signal name="intervalChanged"/>
+        <signal name="repeatChanged"/>
+        <signal name="triggeredOnStartChanged"/>
+        <method name="start"/>
+        <method name="stop"/>
+        <method name="restart"/>
+    </type>
+    <type name="QDeclarativeTransition" defaultProperty="animations" extends="QObject">
+        <exports>
+            <export module="Qt" version="4.7" type="Transition"/>
+            <export module="QtQuick" version="1.0" type="Transition"/>
+        </exports>
+        <property name="from" type="string"/>
+        <property name="to" type="string"/>
+        <property name="reversible" type="bool"/>
+        <property name="animations" type="QDeclarativeAbstractAnimation" isList="true"/>
+        <signal name="fromChanged"/>
+        <signal name="toChanged"/>
+        <signal name="reversibleChanged"/>
+    </type>
+    <type name="QDeclarativeTranslate" extends="QGraphicsTransform">
+        <exports>
+            <export module="Qt" version="4.7" type="Translate"/>
+            <export module="QtQuick" version="1.0" type="Translate"/>
+        </exports>
+        <property name="x" type="qreal"/>
+        <property name="y" type="qreal"/>
+        <signal name="xChanged"/>
+        <signal name="yChanged"/>
+    </type>
+    <type name="QDeclarativeValueType" extends="QObject"/>
+    <type name="QDeclarativeVector3dAnimation" extends="QDeclarativePropertyAnimation">
+        <exports>
+            <export module="QtQuick" version="1.0" type="Vector3dAnimation"/>
+            <export module="Qt" version="4.7" type="Vector3dAnimation"/>
+        </exports>
+        <property name="from" type="QVector3D"/>
+        <property name="to" type="QVector3D"/>
+    </type>
+    <type name="QDeclarativeViewSection" extends="QObject">
+        <exports>
+            <export module="QtQuick" version="1.0" type="ViewSection"/>
+            <export module="Qt" version="4.7" type="ViewSection"/>
+        </exports>
+        <enum name="SectionCriteria">
+            <enumerator name="FullString" value="0"/>
+            <enumerator name="FirstCharacter" value="1"/>
+        </enum>
+        <property name="property" type="string"/>
+        <property name="criteria" type="SectionCriteria"/>
+        <property name="delegate" type="QDeclarativeComponent"/>
+        <signal name="propertyChanged"/>
+        <signal name="criteriaChanged"/>
+        <signal name="delegateChanged"/>
+    </type>
+    <type name="QDeclarativeVisualDataModel" defaultProperty="delegate" extends="QDeclarativeVisualModel">
+        <exports>
+            <export module="QtQuick" version="1.0" type="VisualDataModel"/>
+            <export module="Qt" version="4.7" type="VisualDataModel"/>
+        </exports>
+        <property name="model" type="QVariant"/>
+        <property name="delegate" type="QDeclarativeComponent"/>
+        <property name="part" type="string"/>
+        <property name="parts" type="QObject"/>
+        <property name="rootIndex" type="QVariant"/>
+        <signal name="createdPackage">
+            <param name="index" type="int"/>
+            <param name="package" type="QDeclarativePackage"/>
+        </signal>
+        <signal name="destroyingPackage">
+            <param name="package" type="QDeclarativePackage"/>
+        </signal>
+        <signal name="rootIndexChanged"/>
+        <method name="modelIndex" type="QVariant">
+            <param name="idx" type="int"/>
+        </method>
+        <method name="parentModelIndex" type="QVariant"/>
+    </type>
+    <type name="QDeclarativeVisualDataModelParts" extends="QObject"/>
+    <type name="QDeclarativeVisualItemModel" defaultProperty="children" extends="QDeclarativeVisualModel">
+        <exports>
+            <export module="Qt" version="4.7" type="VisualItemModel"/>
+            <export module="QtQuick" version="1.0" type="VisualItemModel"/>
+        </exports>
+        <property name="children" type="QDeclarativeItem" isList="true"/>
+        <signal name="childrenChanged"/>
+    </type>
+    <type name="QDeclarativeVisualModel" extends="QObject">
         <property name="count" type="int"/>
         <signal name="countChanged"/>
         <signal name="itemsInserted">
@@ -297,13 +2159,13 @@
         <signal name="modelReset"/>
         <signal name="createdItem">
             <param name="index" type="int"/>
-            <param name="item" type="Qt.Item"/>
+            <param name="item" type="QDeclarativeItem"/>
         </signal>
         <signal name="destroyingItem">
-            <param name="item" type="Qt.Item"/>
+            <param name="item" type="QDeclarativeItem"/>
         </signal>
     </type>
-    <type name="QDeclarativeWebSettings" extends="Qt.QtObject">
+    <type name="QDeclarativeWebSettings" extends="QObject">
         <property name="standardFontFamily" type="string"/>
         <property name="fixedFontFamily" type="string"/>
         <property name="serifFontFamily" type="string"/>
@@ -330,7 +2192,169 @@
         <property name="localStorageDatabaseEnabled" type="bool"/>
         <property name="localContentCanAccessRemoteUrls" type="bool"/>
     </type>
-    <type name="QGraphicsObject" defaultProperty="children" extends="Qt.QtObject">
+    <type name="QDeclarativeWebView" defaultProperty="data" extends="QDeclarativeItem">
+        <exports>
+            <export module="QtWebKit" version="1.0" type="WebView"/>
+        </exports>
+        <enum name="Status">
+            <enumerator name="Null" value="0"/>
+            <enumerator name="Ready" value="1"/>
+            <enumerator name="Loading" value="2"/>
+            <enumerator name="Error" value="3"/>
+        </enum>
+        <property name="title" type="string"/>
+        <property name="icon" type="QPixmap"/>
+        <property name="statusText" type="string"/>
+        <property name="html" type="string"/>
+        <property name="pressGrabTime" type="int"/>
+        <property name="preferredWidth" type="int"/>
+        <property name="preferredHeight" type="int"/>
+        <property name="url" type="QUrl"/>
+        <property name="progress" type="qreal"/>
+        <property name="status" type="Status"/>
+        <property name="reload" type="QAction"/>
+        <property name="back" type="QAction"/>
+        <property name="forward" type="QAction"/>
+        <property name="stop" type="QAction"/>
+        <property name="settings" type="QDeclarativeWebSettings"/>
+        <property name="javaScriptWindowObjects" type="QObject" isList="true"/>
+        <property name="newWindowComponent" type="QDeclarativeComponent"/>
+        <property name="newWindowParent" type="QDeclarativeItem"/>
+        <property name="renderingEnabled" type="bool"/>
+        <property name="contentsSize" type="QSize"/>
+        <property name="contentsScale" type="qreal"/>
+        <signal name="preferredWidthChanged"/>
+        <signal name="preferredHeightChanged"/>
+        <signal name="urlChanged"/>
+        <signal name="progressChanged"/>
+        <signal name="statusChanged">
+            <param type="Status"/>
+        </signal>
+        <signal name="titleChanged">
+            <param type="string"/>
+        </signal>
+        <signal name="iconChanged"/>
+        <signal name="statusTextChanged"/>
+        <signal name="htmlChanged"/>
+        <signal name="pressGrabTimeChanged"/>
+        <signal name="newWindowComponentChanged"/>
+        <signal name="newWindowParentChanged"/>
+        <signal name="renderingEnabledChanged"/>
+        <signal name="contentsSizeChanged">
+            <param type="QSize"/>
+        </signal>
+        <signal name="contentsScaleChanged"/>
+        <signal name="loadStarted"/>
+        <signal name="loadFinished"/>
+        <signal name="loadFailed"/>
+        <signal name="doubleClick">
+            <param name="clickX" type="int"/>
+            <param name="clickY" type="int"/>
+        </signal>
+        <signal name="zoomTo">
+            <param name="zoom" type="qreal"/>
+            <param name="centerX" type="int"/>
+            <param name="centerY" type="int"/>
+        </signal>
+        <signal name="alert">
+            <param name="message" type="string"/>
+        </signal>
+        <method name="evaluateJavaScript" type="QVariant">
+            <param type="string"/>
+        </method>
+        <method name="heuristicZoom" type="bool">
+            <param name="clickX" type="int"/>
+            <param name="clickY" type="int"/>
+            <param name="maxzoom" type="qreal"/>
+        </method>
+    </type>
+    <type name="QDeclarativeWorkerScript" extends="QObject">
+        <exports>
+            <export module="QtQuick" version="1.0" type="WorkerScript"/>
+            <export module="Qt" version="4.7" type="WorkerScript"/>
+        </exports>
+        <property name="source" type="QUrl"/>
+        <signal name="sourceChanged"/>
+        <signal name="message">
+            <param name="messageObject" type="QScriptValue"/>
+        </signal>
+        <method name="sendMessage">
+            <param type="QScriptValue"/>
+        </method>
+    </type>
+    <type name="QDeclarativeXmlListModel" defaultProperty="roles" extends="QListModelInterface">
+        <exports>
+            <export module="QtQuick" version="1.0" type="XmlListModel"/>
+            <export module="Qt" version="4.7" type="XmlListModel"/>
+        </exports>
+        <enum name="Status">
+            <enumerator name="Null" value="0"/>
+            <enumerator name="Ready" value="1"/>
+            <enumerator name="Loading" value="2"/>
+            <enumerator name="Error" value="3"/>
+        </enum>
+        <property name="status" type="Status"/>
+        <property name="progress" type="qreal"/>
+        <property name="source" type="QUrl"/>
+        <property name="xml" type="string"/>
+        <property name="query" type="string"/>
+        <property name="namespaceDeclarations" type="string"/>
+        <property name="roles" type="QDeclarativeXmlListModelRole" isList="true"/>
+        <property name="count" type="int"/>
+        <signal name="statusChanged">
+            <param type="QDeclarativeXmlListModel.Status"/>
+        </signal>
+        <signal name="progressChanged">
+            <param name="progress" type="qreal"/>
+        </signal>
+        <signal name="countChanged"/>
+        <signal name="sourceChanged"/>
+        <signal name="xmlChanged"/>
+        <signal name="queryChanged"/>
+        <signal name="namespaceDeclarationsChanged"/>
+        <method name="reload"/>
+        <method name="get" type="QScriptValue">
+            <param name="index" type="int"/>
+        </method>
+        <method name="errorString" type="string"/>
+    </type>
+    <type name="QDeclarativeXmlListModelRole" extends="QObject">
+        <exports>
+            <export module="Qt" version="4.7" type="XmlRole"/>
+            <export module="QtQuick" version="1.0" type="XmlRole"/>
+        </exports>
+        <property name="name" type="string"/>
+        <property name="query" type="string"/>
+        <property name="isKey" type="bool"/>
+        <signal name="nameChanged"/>
+        <signal name="queryChanged"/>
+        <signal name="isKeyChanged"/>
+    </type>
+    <type name="QDoubleValidator" extends="QValidator">
+        <exports>
+            <export module="QtQuick" version="1.0" type="DoubleValidator"/>
+            <export module="Qt" version="4.7" type="DoubleValidator"/>
+        </exports>
+        <enum name="Notation">
+            <enumerator name="StandardNotation" value="0"/>
+            <enumerator name="ScientificNotation" value="1"/>
+        </enum>
+        <property name="bottom" type="double"/>
+        <property name="top" type="double"/>
+        <property name="decimals" type="int"/>
+        <property name="notation" type="Notation"/>
+    </type>
+    <type name="QGesture" extends="QObject">
+        <exports>
+            <export module="Qt.labs.gestures" version="1.0" type="Gesture"/>
+        </exports>
+        <property name="state" type="Qt.GestureState"/>
+        <property name="gestureType" type="Qt.GestureType"/>
+        <property name="gestureCancelPolicy" type="QGesture.GestureCancelPolicy"/>
+        <property name="hotSpot" type="QPointF"/>
+        <property name="hasHotSpot" type="bool"/>
+    </type>
+    <type name="QGraphicsObject" defaultProperty="children" extends="QObject">
         <property name="parent" type="QGraphicsObject"/>
         <property name="opacity" type="qreal"/>
         <property name="enabled" type="bool"/>
@@ -359,8 +2383,56 @@
         <signal name="widthChanged"/>
         <signal name="heightChanged"/>
     </type>
-    <type name="QGraphicsTransform" extends="Qt.QtObject"/>
-    <type name="QListModelInterface" extends="Qt.QtObject">
+    <type name="QGraphicsRotation" extends="QGraphicsTransform">
+        <exports>
+            <export module="Qt" version="4.7" type="Rotation"/>
+            <export module="QtQuick" version="1.0" type="Rotation"/>
+        </exports>
+        <property name="origin" type="QVector3D"/>
+        <property name="angle" type="qreal"/>
+        <property name="axis" type="QVector3D"/>
+        <signal name="originChanged"/>
+        <signal name="angleChanged"/>
+        <signal name="axisChanged"/>
+    </type>
+    <type name="QGraphicsScale" extends="QGraphicsTransform">
+        <exports>
+            <export module="Qt" version="4.7" type="Scale"/>
+            <export module="QtQuick" version="1.0" type="Scale"/>
+        </exports>
+        <property name="origin" type="QVector3D"/>
+        <property name="xScale" type="qreal"/>
+        <property name="yScale" type="qreal"/>
+        <property name="zScale" type="qreal"/>
+        <signal name="originChanged"/>
+        <signal name="xScaleChanged"/>
+        <signal name="yScaleChanged"/>
+        <signal name="zScaleChanged"/>
+        <signal name="scaleChanged"/>
+    </type>
+    <type name="QGraphicsTransform" extends="QObject"/>
+    <type name="QGraphicsWidget" defaultProperty="children" extends="__extended__.QGraphicsWidget">
+        <exports>
+            <export module="Qt" version="4.7" type="QGraphicsWidget"/>
+            <export module="QtQuick" version="1.0" type="QGraphicsWidget"/>
+        </exports>
+        <property name="anchors" type="QDeclarativeAnchors"/>
+        <property name="left" type="QDeclarativeAnchorLine"/>
+        <property name="right" type="QDeclarativeAnchorLine"/>
+        <property name="horizontalCenter" type="QDeclarativeAnchorLine"/>
+        <property name="top" type="QDeclarativeAnchorLine"/>
+        <property name="bottom" type="QDeclarativeAnchorLine"/>
+        <property name="verticalCenter" type="QDeclarativeAnchorLine"/>
+    </type>
+    <type name="QIntValidator" extends="QValidator">
+        <exports>
+            <export module="Qt" version="4.7" type="IntValidator"/>
+            <export module="QtQuick" version="1.0" type="IntValidator"/>
+        </exports>
+        <property name="bottom" type="int"/>
+        <property name="top" type="int"/>
+    </type>
+    <type name="QListModelInterface" extends="QObject">
         <signal name="itemsInserted">
             <param name="index" type="int"/>
             <param name="count" type="int"/>
@@ -380,7 +2452,91 @@
             <param name="roles" type="QList&lt;int&gt;"/>
         </signal>
     </type>
-    <type name="QValidator" extends="Qt.QtObject"/>
+    <type name="QObject">
+        <exports>
+            <export module="QtQuick" version="1.0" type="QtObject"/>
+            <export module="Qt" version="4.7" type="QtObject"/>
+        </exports>
+        <property name="objectName" type="string"/>
+        <signal name="destroyed">
+            <param type="QObject"/>
+        </signal>
+        <signal name="destroyed"/>
+        <method name="deleteLater"/>
+    </type>
+    <type name="QPanGesture" extends="QGesture">
+        <exports>
+            <export module="Qt.labs.gestures" version="1.0" type="PanGesture"/>
+        </exports>
+        <property name="lastOffset" type="QPointF"/>
+        <property name="offset" type="QPointF"/>
+        <property name="delta" type="QPointF"/>
+        <property name="acceleration" type="qreal"/>
+        <property name="horizontalVelocity" type="qreal"/>
+        <property name="verticalVelocity" type="qreal"/>
+    </type>
+    <type name="QPinchGesture" extends="QGesture">
+        <exports>
+            <export module="Qt.labs.gestures" version="1.0" type="PinchGesture"/>
+        </exports>
+        <enum name="ChangeFlag">
+            <enumerator name="ScaleFactorChanged" value="1"/>
+            <enumerator name="RotationAngleChanged" value="2"/>
+            <enumerator name="CenterPointChanged" value="4"/>
+        </enum>
+        <enum name="ChangeFlags">
+            <enumerator name="ScaleFactorChanged" value="1"/>
+            <enumerator name="RotationAngleChanged" value="2"/>
+            <enumerator name="CenterPointChanged" value="4"/>
+        </enum>
+        <property name="totalChangeFlags" type="ChangeFlags"/>
+        <property name="changeFlags" type="ChangeFlags"/>
+        <property name="totalScaleFactor" type="qreal"/>
+        <property name="lastScaleFactor" type="qreal"/>
+        <property name="scaleFactor" type="qreal"/>
+        <property name="totalRotationAngle" type="qreal"/>
+        <property name="lastRotationAngle" type="qreal"/>
+        <property name="rotationAngle" type="qreal"/>
+        <property name="startCenterPoint" type="QPointF"/>
+        <property name="lastCenterPoint" type="QPointF"/>
+        <property name="centerPoint" type="QPointF"/>
+    </type>
+    <type name="QRegExpValidator" extends="QValidator">
+        <exports>
+            <export module="QtQuick" version="1.0" type="RegExpValidator"/>
+            <export module="Qt" version="4.7" type="RegExpValidator"/>
+        </exports>
+        <property name="regExp" type="QRegExp"/>
+    </type>
+    <type name="QSwipeGesture" extends="QGesture">
+        <exports>
+            <export module="Qt.labs.gestures" version="1.0" type="SwipeGesture"/>
+        </exports>
+        <enum name="SwipeDirection">
+            <enumerator name="NoDirection" value="0"/>
+            <enumerator name="Left" value="1"/>
+            <enumerator name="Right" value="2"/>
+            <enumerator name="Up" value="3"/>
+            <enumerator name="Down" value="4"/>
+        </enum>
+        <property name="horizontalDirection" type="SwipeDirection"/>
+        <property name="verticalDirection" type="SwipeDirection"/>
+        <property name="swipeAngle" type="qreal"/>
+        <property name="velocity" type="qreal"/>
+    </type>
+    <type name="QTapAndHoldGesture" extends="QGesture">
+        <exports>
+            <export module="Qt.labs.gestures" version="1.0" type="TapAndHoldGesture"/>
+        </exports>
+        <property name="position" type="QPointF"/>
+    </type>
+    <type name="QTapGesture" extends="QGesture">
+        <exports>
+            <export module="Qt.labs.gestures" version="1.0" type="TapGesture"/>
+        </exports>
+        <property name="position" type="QPointF"/>
+    </type>
+    <type name="QValidator" extends="QObject"/>
     <type name="Qt">
         <enum name="GlobalColor">
             <enumerator name="color0" value="0"/>
@@ -498,44 +2654,6 @@
             <enumerator name="WindowCancelButtonHint" value="1048576"/>
             <enumerator name="WindowSoftkeysVisibleHint" value="1073741824"/>
             <enumerator name="WindowSoftkeysRespondHint" value="-2147483648"/>
-            <enumerator name="WMouseNoMask" value="524288"/>
-            <enumerator name="WDestructiveClose" value="1048576"/>
-            <enumerator name="WStaticContents" value="2097152"/>
-            <enumerator name="WGroupLeader" value="4194304"/>
-            <enumerator name="WShowModal" value="8388608"/>
-            <enumerator name="WNoMousePropagation" value="16777216"/>
-            <enumerator name="WType_TopLevel" value="1"/>
-            <enumerator name="WType_Dialog" value="3"/>
-            <enumerator name="WType_Popup" value="9"/>
-            <enumerator name="WType_Desktop" value="17"/>
-            <enumerator name="WType_Mask" value="255"/>
-            <enumerator name="WStyle_Customize" value="0"/>
-            <enumerator name="WStyle_NormalBorder" value="0"/>
-            <enumerator name="WStyle_DialogBorder" value="256"/>
-            <enumerator name="WStyle_NoBorder" value="2048"/>
-            <enumerator name="WStyle_Title" value="4096"/>
-            <enumerator name="WStyle_SysMenu" value="8192"/>
-            <enumerator name="WStyle_Minimize" value="16384"/>
-            <enumerator name="WStyle_Maximize" value="32768"/>
-            <enumerator name="WStyle_MinMax" value="49152"/>
-            <enumerator name="WStyle_Tool" value="11"/>
-            <enumerator name="WStyle_StaysOnTop" value="262144"/>
-            <enumerator name="WStyle_ContextHelp" value="65536"/>
-            <enumerator name="WPaintDesktop" value="0"/>
-            <enumerator name="WPaintClever" value="0"/>
-            <enumerator name="WX11BypassWM" value="1024"/>
-            <enumerator name="WWinOwnDC" value="512"/>
-            <enumerator name="WMacSheet" value="5"/>
-            <enumerator name="WMacDrawer" value="7"/>
-            <enumerator name="WStyle_Splash" value="15"/>
-            <enumerator name="WNoAutoErase" value="0"/>
-            <enumerator name="WRepaintNoErase" value="0"/>
-            <enumerator name="WNorthWestGravity" value="2097152"/>
-            <enumerator name="WType_Modal" value="8388611"/>
-            <enumerator name="WStyle_Dialog" value="3"/>
-            <enumerator name="WStyle_NoBorderEx" value="2048"/>
-            <enumerator name="WResizeNoErase" value="0"/>
-            <enumerator name="WMacNoSheet" value="0"/>
         </enum>
         <enum name="WindowFlags">
             <enumerator name="Widget" value="0"/>
@@ -571,44 +2689,6 @@
             <enumerator name="WindowCancelButtonHint" value="1048576"/>
             <enumerator name="WindowSoftkeysVisibleHint" value="1073741824"/>
             <enumerator name="WindowSoftkeysRespondHint" value="-2147483648"/>
-            <enumerator name="WMouseNoMask" value="524288"/>
-            <enumerator name="WDestructiveClose" value="1048576"/>
-            <enumerator name="WStaticContents" value="2097152"/>
-            <enumerator name="WGroupLeader" value="4194304"/>
-            <enumerator name="WShowModal" value="8388608"/>
-            <enumerator name="WNoMousePropagation" value="16777216"/>
-            <enumerator name="WType_TopLevel" value="1"/>
-            <enumerator name="WType_Dialog" value="3"/>
-            <enumerator name="WType_Popup" value="9"/>
-            <enumerator name="WType_Desktop" value="17"/>
-            <enumerator name="WType_Mask" value="255"/>
-            <enumerator name="WStyle_Customize" value="0"/>
-            <enumerator name="WStyle_NormalBorder" value="0"/>
-            <enumerator name="WStyle_DialogBorder" value="256"/>
-            <enumerator name="WStyle_NoBorder" value="2048"/>
-            <enumerator name="WStyle_Title" value="4096"/>
-            <enumerator name="WStyle_SysMenu" value="8192"/>
-            <enumerator name="WStyle_Minimize" value="16384"/>
-            <enumerator name="WStyle_Maximize" value="32768"/>
-            <enumerator name="WStyle_MinMax" value="49152"/>
-            <enumerator name="WStyle_Tool" value="11"/>
-            <enumerator name="WStyle_StaysOnTop" value="262144"/>
-            <enumerator name="WStyle_ContextHelp" value="65536"/>
-            <enumerator name="WPaintDesktop" value="0"/>
-            <enumerator name="WPaintClever" value="0"/>
-            <enumerator name="WX11BypassWM" value="1024"/>
-            <enumerator name="WWinOwnDC" value="512"/>
-            <enumerator name="WMacSheet" value="5"/>
-            <enumerator name="WMacDrawer" value="7"/>
-            <enumerator name="WStyle_Splash" value="15"/>
-            <enumerator name="WNoAutoErase" value="0"/>
-            <enumerator name="WRepaintNoErase" value="0"/>
-            <enumerator name="WNorthWestGravity" value="2097152"/>
-            <enumerator name="WType_Modal" value="8388611"/>
-            <enumerator name="WStyle_Dialog" value="3"/>
-            <enumerator name="WStyle_NoBorderEx" value="2048"/>
-            <enumerator name="WResizeNoErase" value="0"/>
-            <enumerator name="WMacNoSheet" value="0"/>
         </enum>
         <enum name="WindowState">
             <enumerator name="WindowNoState" value="0"/>
@@ -1353,28 +3433,6 @@
             <enumerator name="ScrollBarAlwaysOff" value="1"/>
             <enumerator name="ScrollBarAlwaysOn" value="2"/>
         </enum>
-        <enum name="BackgroundMode">
-            <enumerator name="FixedColor" value="0"/>
-            <enumerator name="FixedPixmap" value="1"/>
-            <enumerator name="NoBackground" value="2"/>
-            <enumerator name="PaletteForeground" value="3"/>
-            <enumerator name="PaletteButton" value="4"/>
-            <enumerator name="PaletteLight" value="5"/>
-            <enumerator name="PaletteMidlight" value="6"/>
-            <enumerator name="PaletteDark" value="7"/>
-            <enumerator name="PaletteMid" value="8"/>
-            <enumerator name="PaletteText" value="9"/>
-            <enumerator name="PaletteBrightText" value="10"/>
-            <enumerator name="PaletteBase" value="11"/>
-            <enumerator name="PaletteBackground" value="12"/>
-            <enumerator name="PaletteShadow" value="13"/>
-            <enumerator name="PaletteHighlight" value="14"/>
-            <enumerator name="PaletteHighlightedText" value="15"/>
-            <enumerator name="PaletteButtonText" value="16"/>
-            <enumerator name="PaletteLink" value="17"/>
-            <enumerator name="PaletteLinkVisited" value="18"/>
-            <enumerator name="X11ParentRelative" value="19"/>
-        </enum>
         <enum name="CaseSensitivity">
             <enumerator name="CaseInsensitive" value="0"/>
             <enumerator name="CaseSensitive" value="1"/>
@@ -1556,1732 +3614,24 @@
             <enumerator name="MinimumDescent" value="3"/>
             <enumerator name="NSizeHints" value="4"/>
         </enum>
-    </type>
-    <type name="Qt.AnchorAnimation" version="4.7" extends="Qt.Animation">
-        <property name="targets" type="Qt.Item" isList="true"/>
-        <property name="duration" type="int"/>
-        <property name="easing" type="QEasingCurve"/>
-        <signal name="durationChanged">
-            <param type="int"/>
-        </signal>
-        <signal name="easingChanged">
-            <param type="QEasingCurve"/>
-        </signal>
-    </type>
-    <type name="Qt.AnchorChanges" version="4.7" extends="QDeclarativeStateOperation">
-        <property name="target" type="Qt.Item"/>
-        <property name="anchors" type="QDeclarativeAnchorSet"/>
-    </type>
-    <type name="Qt.AnimatedImage" version="4.7" defaultProperty="data" extends="Qt.Image">
-        <property name="playing" type="bool"/>
-        <property name="paused" type="bool"/>
-        <property name="currentFrame" type="int"/>
-        <property name="frameCount" type="int"/>
-        <property name="sourceSize" type="QSize"/>
-        <signal name="playingChanged"/>
-        <signal name="pausedChanged"/>
-        <signal name="frameChanged"/>
-        <signal name="sourceSizeChanged"/>
-    </type>
-    <type name="Qt.Animation" version="4.7" extends="Qt.QtObject">
-        <enum name="Loops">
-            <enumerator name="Infinite" value="-2"/>
+        <enum name="GestureState">
+            <enumerator name="NoGesture" value="0"/>
+            <enumerator name="GestureStarted" value="1"/>
+            <enumerator name="GestureUpdated" value="2"/>
+            <enumerator name="GestureFinished" value="3"/>
+            <enumerator name="GestureCanceled" value="4"/>
         </enum>
-        <property name="running" type="bool"/>
-        <property name="paused" type="bool"/>
-        <property name="alwaysRunToEnd" type="bool"/>
-        <property name="loops" type="int"/>
-        <signal name="started"/>
-        <signal name="completed"/>
-        <signal name="runningChanged">
-            <param type="bool"/>
-        </signal>
-        <signal name="pausedChanged">
-            <param type="bool"/>
-        </signal>
-        <signal name="alwaysRunToEndChanged">
-            <param type="bool"/>
-        </signal>
-        <signal name="loopCountChanged">
-            <param type="int"/>
-        </signal>
-        <method name="restart"/>
-        <method name="start"/>
-        <method name="pause"/>
-        <method name="resume"/>
-        <method name="stop"/>
-        <method name="complete"/>
-    </type>
-    <type name="Qt.Behavior" version="4.7" defaultProperty="animation" extends="Qt.QtObject">
-        <property name="animation" type="Qt.Animation"/>
-        <property name="enabled" type="bool"/>
-        <signal name="enabledChanged"/>
-    </type>
-    <type name="Qt.Binding" version="4.7" extends="Qt.QtObject">
-        <property name="target" type="Qt.QtObject"/>
-        <property name="property" type="string"/>
-        <property name="value" type="QVariant"/>
-        <property name="when" type="bool"/>
-    </type>
-    <type name="Qt.BorderImage" version="4.7" defaultProperty="data" extends="QDeclarativeImageBase">
-        <enum name="TileMode">
-            <enumerator name="Stretch" value="0"/>
-            <enumerator name="Repeat" value="1"/>
-            <enumerator name="Round" value="2"/>
+        <enum name="GestureType">
+            <enumerator name="TapGesture" value="1"/>
+            <enumerator name="TapAndHoldGesture" value="2"/>
+            <enumerator name="PanGesture" value="3"/>
+            <enumerator name="PinchGesture" value="4"/>
+            <enumerator name="SwipeGesture" value="5"/>
+            <enumerator name="CustomGesture" value="256"/>
+            <enumerator name="LastGestureType" value="-1"/>
         </enum>
-        <property name="border" type="QDeclarativeScaleGrid"/>
-        <property name="horizontalTileMode" type="TileMode"/>
-        <property name="verticalTileMode" type="TileMode"/>
-        <signal name="horizontalTileModeChanged"/>
-        <signal name="verticalTileModeChanged"/>
     </type>
-    <type name="Qt.ColorAnimation" version="4.7" extends="Qt.PropertyAnimation">
-        <property name="from" type="QColor"/>
-        <property name="to" type="QColor"/>
-    </type>
-    <type name="Qt.Column" version="4.7" defaultProperty="data" extends="QDeclarativeBasePositioner"/>
-    <type name="Qt.Component" version="4.7" extends="Qt.QtObject">
-        <enum name="Status">
-            <enumerator name="Null" value="0"/>
-            <enumerator name="Ready" value="1"/>
-            <enumerator name="Loading" value="2"/>
-            <enumerator name="Error" value="3"/>
-        </enum>
-        <property name="progress" type="qreal"/>
-        <property name="status" type="Status"/>
-        <property name="url" type="QUrl"/>
-        <signal name="statusChanged">
-            <param type="QDeclarativeComponent.Status"/>
-        </signal>
-        <signal name="progressChanged">
-            <param type="qreal"/>
-        </signal>
-        <method name="errorString" type="string"/>
-    </type>
-    <type name="Qt.Connections" version="4.7" extends="Qt.QtObject">
-        <property name="target" type="Qt.QtObject"/>
-        <property name="ignoreUnknownSignals" type="bool"/>
-        <signal name="targetChanged"/>
-    </type>
-    <type name="Qt.DoubleValidator" version="4.7" extends="QValidator">
-        <enum name="Notation">
-            <enumerator name="StandardNotation" value="0"/>
-            <enumerator name="ScientificNotation" value="1"/>
-        </enum>
-        <property name="bottom" type="double"/>
-        <property name="top" type="double"/>
-        <property name="decimals" type="int"/>
-        <property name="notation" type="Notation"/>
-    </type>
-    <type name="Qt.Drag" version="4.7" extends="Qt.QtObject">
-        <enum name="Axis">
-            <enumerator name="XAxis" value="1"/>
-            <enumerator name="YAxis" value="2"/>
-            <enumerator name="XandYAxis" value="3"/>
-        </enum>
-        <property name="target" type="QGraphicsObject"/>
-        <property name="axis" type="Axis"/>
-        <property name="minimumX" type="qreal"/>
-        <property name="maximumX" type="qreal"/>
-        <property name="minimumY" type="qreal"/>
-        <property name="maximumY" type="qreal"/>
-        <property name="active" type="bool"/>
-        <property name="filterChildren" type="bool"/>
-        <signal name="targetChanged"/>
-        <signal name="axisChanged"/>
-        <signal name="minimumXChanged"/>
-        <signal name="maximumXChanged"/>
-        <signal name="minimumYChanged"/>
-        <signal name="maximumYChanged"/>
-        <signal name="activeChanged"/>
-        <signal name="filterChildrenChanged"/>
-    </type>
-    <type name="Qt.Easing" version="4.7" extends="QDeclarativeValueType">
-        <enum name="Type">
-            <enumerator name="Linear" value="0"/>
-            <enumerator name="InQuad" value="1"/>
-            <enumerator name="OutQuad" value="2"/>
-            <enumerator name="InOutQuad" value="3"/>
-            <enumerator name="OutInQuad" value="4"/>
-            <enumerator name="InCubic" value="5"/>
-            <enumerator name="OutCubic" value="6"/>
-            <enumerator name="InOutCubic" value="7"/>
-            <enumerator name="OutInCubic" value="8"/>
-            <enumerator name="InQuart" value="9"/>
-            <enumerator name="OutQuart" value="10"/>
-            <enumerator name="InOutQuart" value="11"/>
-            <enumerator name="OutInQuart" value="12"/>
-            <enumerator name="InQuint" value="13"/>
-            <enumerator name="OutQuint" value="14"/>
-            <enumerator name="InOutQuint" value="15"/>
-            <enumerator name="OutInQuint" value="16"/>
-            <enumerator name="InSine" value="17"/>
-            <enumerator name="OutSine" value="18"/>
-            <enumerator name="InOutSine" value="19"/>
-            <enumerator name="OutInSine" value="20"/>
-            <enumerator name="InExpo" value="21"/>
-            <enumerator name="OutExpo" value="22"/>
-            <enumerator name="InOutExpo" value="23"/>
-            <enumerator name="OutInExpo" value="24"/>
-            <enumerator name="InCirc" value="25"/>
-            <enumerator name="OutCirc" value="26"/>
-            <enumerator name="InOutCirc" value="27"/>
-            <enumerator name="OutInCirc" value="28"/>
-            <enumerator name="InElastic" value="29"/>
-            <enumerator name="OutElastic" value="30"/>
-            <enumerator name="InOutElastic" value="31"/>
-            <enumerator name="OutInElastic" value="32"/>
-            <enumerator name="InBack" value="33"/>
-            <enumerator name="OutBack" value="34"/>
-            <enumerator name="InOutBack" value="35"/>
-            <enumerator name="OutInBack" value="36"/>
-            <enumerator name="InBounce" value="37"/>
-            <enumerator name="OutBounce" value="38"/>
-            <enumerator name="InOutBounce" value="39"/>
-            <enumerator name="OutInBounce" value="40"/>
-            <enumerator name="InCurve" value="41"/>
-            <enumerator name="OutCurve" value="42"/>
-            <enumerator name="SineCurve" value="43"/>
-            <enumerator name="CosineCurve" value="44"/>
-        </enum>
-        <property name="type" type="Type"/>
-        <property name="amplitude" type="qreal"/>
-        <property name="overshoot" type="qreal"/>
-        <property name="period" type="qreal"/>
-    </type>
-    <type name="Qt.Flickable" version="4.7" defaultProperty="flickableData" extends="Qt.Item">
-        <enum name="BoundsBehavior">
-            <enumerator name="StopAtBounds" value="0"/>
-            <enumerator name="DragOverBounds" value="1"/>
-            <enumerator name="DragAndOvershootBounds" value="2"/>
-        </enum>
-        <enum name="FlickableDirection">
-            <enumerator name="AutoFlickDirection" value="0"/>
-            <enumerator name="HorizontalFlick" value="1"/>
-            <enumerator name="VerticalFlick" value="2"/>
-            <enumerator name="HorizontalAndVerticalFlick" value="3"/>
-        </enum>
-        <property name="contentWidth" type="qreal"/>
-        <property name="contentHeight" type="qreal"/>
-        <property name="contentX" type="qreal"/>
-        <property name="contentY" type="qreal"/>
-        <property name="contentItem" type="Qt.Item"/>
-        <property name="horizontalVelocity" type="qreal"/>
-        <property name="verticalVelocity" type="qreal"/>
-        <property name="boundsBehavior" type="BoundsBehavior"/>
-        <property name="maximumFlickVelocity" type="qreal"/>
-        <property name="flickDeceleration" type="qreal"/>
-        <property name="moving" type="bool"/>
-        <property name="movingHorizontally" type="bool"/>
-        <property name="movingVertically" type="bool"/>
-        <property name="flicking" type="bool"/>
-        <property name="flickingHorizontally" type="bool"/>
-        <property name="flickingVertically" type="bool"/>
-        <property name="flickableDirection" type="FlickableDirection"/>
-        <property name="interactive" type="bool"/>
-        <property name="pressDelay" type="int"/>
-        <property name="atXEnd" type="bool"/>
-        <property name="atYEnd" type="bool"/>
-        <property name="atXBeginning" type="bool"/>
-        <property name="atYBeginning" type="bool"/>
-        <property name="visibleArea" type="QDeclarativeFlickableVisibleArea"/>
-        <property name="flickableData" type="Qt.QtObject" isList="true"/>
-        <property name="flickableChildren" type="QGraphicsObject" isList="true"/>
-        <signal name="contentWidthChanged"/>
-        <signal name="contentHeightChanged"/>
-        <signal name="contentXChanged"/>
-        <signal name="contentYChanged"/>
-        <signal name="movingChanged"/>
-        <signal name="movingHorizontallyChanged"/>
-        <signal name="movingVerticallyChanged"/>
-        <signal name="flickingChanged"/>
-        <signal name="flickingHorizontallyChanged"/>
-        <signal name="flickingVerticallyChanged"/>
-        <signal name="horizontalVelocityChanged"/>
-        <signal name="verticalVelocityChanged"/>
-        <signal name="isAtBoundaryChanged"/>
-        <signal name="pageChanged"/>
-        <signal name="flickableDirectionChanged"/>
-        <signal name="interactiveChanged"/>
-        <signal name="boundsBehaviorChanged"/>
-        <signal name="maximumFlickVelocityChanged"/>
-        <signal name="flickDecelerationChanged"/>
-        <signal name="pressDelayChanged"/>
-        <signal name="movementStarted"/>
-        <signal name="movementEnded"/>
-        <signal name="flickStarted"/>
-        <signal name="flickEnded"/>
-    </type>
-    <type name="Qt.Flipable" version="4.7" defaultProperty="data" extends="Qt.Item">
-        <enum name="Side">
-            <enumerator name="Front" value="0"/>
-            <enumerator name="Back" value="1"/>
-        </enum>
-        <property name="front" type="QGraphicsObject"/>
-        <property name="back" type="QGraphicsObject"/>
-        <property name="side" type="Side"/>
-        <signal name="sideChanged"/>
-    </type>
-    <type name="Qt.Flow" version="4.7" defaultProperty="data" extends="QDeclarativeBasePositioner">
-        <enum name="Flow">
-            <enumerator name="LeftToRight" value="0"/>
-            <enumerator name="TopToBottom" value="1"/>
-        </enum>
-        <property name="flow" type="Flow"/>
-        <signal name="flowChanged"/>
-    </type>
-    <type name="Qt.FocusPanel" version="4.7" defaultProperty="data" extends="Qt.Item">
-        <property name="active" type="bool"/>
-        <signal name="activeChanged"/>
-    </type>
-    <type name="Qt.FocusScope" version="4.7" defaultProperty="data" extends="Qt.Item"/>
-    <type name="Qt.Font" version="4.7" extends="QDeclarativeValueType">
-        <enum name="FontWeight">
-            <enumerator name="Light" value="25"/>
-            <enumerator name="Normal" value="50"/>
-            <enumerator name="DemiBold" value="63"/>
-            <enumerator name="Bold" value="75"/>
-            <enumerator name="Black" value="87"/>
-        </enum>
-        <enum name="Capitalization">
-            <enumerator name="MixedCase" value="0"/>
-            <enumerator name="AllUppercase" value="1"/>
-            <enumerator name="AllLowercase" value="2"/>
-            <enumerator name="SmallCaps" value="3"/>
-            <enumerator name="Capitalize" value="4"/>
-        </enum>
-        <property name="family" type="string"/>
-        <property name="bold" type="bool"/>
-        <property name="weight" type="FontWeight"/>
-        <property name="italic" type="bool"/>
-        <property name="underline" type="bool"/>
-        <property name="overline" type="bool"/>
-        <property name="strikeout" type="bool"/>
-        <property name="pointSize" type="qreal"/>
-        <property name="pixelSize" type="int"/>
-        <property name="capitalization" type="Capitalization"/>
-        <property name="letterSpacing" type="qreal"/>
-        <property name="wordSpacing" type="qreal"/>
-    </type>
-    <type name="Qt.FontLoader" version="4.7" extends="Qt.QtObject">
-        <enum name="Status">
-            <enumerator name="Null" value="0"/>
-            <enumerator name="Ready" value="1"/>
-            <enumerator name="Loading" value="2"/>
-            <enumerator name="Error" value="3"/>
-        </enum>
-        <property name="source" type="QUrl"/>
-        <property name="name" type="string"/>
-        <property name="status" type="Status"/>
-        <signal name="nameChanged"/>
-        <signal name="statusChanged"/>
-    </type>
-    <type name="Qt.Gradient" version="4.7" defaultProperty="stops" extends="Qt.QtObject">
-        <property name="stops" type="Qt.GradientStop" isList="true"/>
-        <signal name="updated"/>
-    </type>
-    <type name="Qt.GradientStop" version="4.7" extends="Qt.QtObject">
-        <property name="position" type="qreal"/>
-        <property name="color" type="QColor"/>
-    </type>
-    <type name="Qt.Grid" version="4.7" defaultProperty="data" extends="QDeclarativeBasePositioner">
-        <enum name="Flow">
-            <enumerator name="LeftToRight" value="0"/>
-            <enumerator name="TopToBottom" value="1"/>
-        </enum>
-        <property name="rows" type="int"/>
-        <property name="columns" type="int"/>
-        <property name="flow" type="Flow"/>
-        <signal name="rowsChanged"/>
-        <signal name="columnsChanged"/>
-        <signal name="flowChanged"/>
-    </type>
-    <type name="Qt.GridView" version="4.7" defaultProperty="data" extends="Qt.Flickable">
-        <enum name="HighlightRangeMode">
-            <enumerator name="NoHighlightRange" value="0"/>
-            <enumerator name="ApplyRange" value="1"/>
-            <enumerator name="StrictlyEnforceRange" value="2"/>
-        </enum>
-        <enum name="Flow">
-            <enumerator name="LeftToRight" value="0"/>
-            <enumerator name="TopToBottom" value="1"/>
-        </enum>
-        <enum name="SnapMode">
-            <enumerator name="NoSnap" value="0"/>
-            <enumerator name="SnapToRow" value="1"/>
-            <enumerator name="SnapOneRow" value="2"/>
-        </enum>
-        <enum name="PositionMode">
-            <enumerator name="Beginning" value="0"/>
-            <enumerator name="Center" value="1"/>
-            <enumerator name="End" value="2"/>
-            <enumerator name="Visible" value="3"/>
-            <enumerator name="Contain" value="4"/>
-        </enum>
-        <property name="model" type="QVariant"/>
-        <property name="delegate" type="Qt.Component"/>
-        <property name="currentIndex" type="int"/>
-        <property name="currentItem" type="Qt.Item"/>
-        <property name="count" type="int"/>
-        <property name="highlight" type="Qt.Component"/>
-        <property name="highlightItem" type="Qt.Item"/>
-        <property name="highlightFollowsCurrentItem" type="bool"/>
-        <property name="highlightMoveDuration" type="int"/>
-        <property name="preferredHighlightBegin" type="qreal"/>
-        <property name="preferredHighlightEnd" type="qreal"/>
-        <property name="highlightRangeMode" type="HighlightRangeMode"/>
-        <property name="flow" type="Flow"/>
-        <property name="keyNavigationWraps" type="bool"/>
-        <property name="cacheBuffer" type="int"/>
-        <property name="cellWidth" type="int"/>
-        <property name="cellHeight" type="int"/>
-        <property name="snapMode" type="SnapMode"/>
-        <property name="header" type="Qt.Component"/>
-        <property name="footer" type="Qt.Component"/>
-        <signal name="countChanged"/>
-        <signal name="currentIndexChanged"/>
-        <signal name="cellWidthChanged"/>
-        <signal name="cellHeightChanged"/>
-        <signal name="highlightChanged"/>
-        <signal name="highlightItemChanged"/>
-        <signal name="preferredHighlightBeginChanged"/>
-        <signal name="preferredHighlightEndChanged"/>
-        <signal name="highlightRangeModeChanged"/>
-        <signal name="highlightMoveDurationChanged"/>
-        <signal name="modelChanged"/>
-        <signal name="delegateChanged"/>
-        <signal name="flowChanged"/>
-        <signal name="keyNavigationWrapsChanged"/>
-        <signal name="cacheBufferChanged"/>
-        <signal name="snapModeChanged"/>
-        <signal name="headerChanged"/>
-        <signal name="footerChanged"/>
-        <method name="moveCurrentIndexUp"/>
-        <method name="moveCurrentIndexDown"/>
-        <method name="moveCurrentIndexLeft"/>
-        <method name="moveCurrentIndexRight"/>
-        <method name="positionViewAtIndex">
-            <param name="index" type="int"/>
-            <param name="mode" type="int"/>
-        </method>
-        <method name="indexAt" type="int">
-            <param name="x" type="int"/>
-            <param name="y" type="int"/>
-        </method>
-    </type>
-    <type name="Qt.Image" version="4.7" defaultProperty="data" extends="QDeclarativeImageBase">
-        <enum name="FillMode">
-            <enumerator name="Stretch" value="0"/>
-            <enumerator name="PreserveAspectFit" value="1"/>
-            <enumerator name="PreserveAspectCrop" value="2"/>
-            <enumerator name="Tile" value="3"/>
-            <enumerator name="TileVertically" value="4"/>
-            <enumerator name="TileHorizontally" value="5"/>
-        </enum>
-        <property name="fillMode" type="FillMode"/>
-        <property name="paintedWidth" type="qreal"/>
-        <property name="paintedHeight" type="qreal"/>
-        <signal name="fillModeChanged"/>
-        <signal name="paintedGeometryChanged"/>
-    </type>
-    <type name="Qt.IntValidator" version="4.7" extends="QValidator">
-        <property name="bottom" type="int"/>
-        <property name="top" type="int"/>
-    </type>
-    <type name="Qt.Item" version="4.7" defaultProperty="data" extends="QGraphicsObject">
-        <enum name="TransformOrigin">
-            <enumerator name="TopLeft" value="0"/>
-            <enumerator name="Top" value="1"/>
-            <enumerator name="TopRight" value="2"/>
-            <enumerator name="Left" value="3"/>
-            <enumerator name="Center" value="4"/>
-            <enumerator name="Right" value="5"/>
-            <enumerator name="BottomLeft" value="6"/>
-            <enumerator name="Bottom" value="7"/>
-            <enumerator name="BottomRight" value="8"/>
-        </enum>
-        <property name="parent" type="Qt.Item"/>
-        <property name="data" type="Qt.QtObject" isList="true"/>
-        <property name="resources" type="Qt.QtObject" isList="true"/>
-        <property name="states" type="Qt.State" isList="true"/>
-        <property name="transitions" type="Qt.Transition" isList="true"/>
-        <property name="state" type="string"/>
-        <property name="childrenRect" type="QRectF"/>
-        <property name="anchors" type="QDeclarativeAnchors"/>
-        <property name="left" type="QDeclarativeAnchorLine"/>
-        <property name="right" type="QDeclarativeAnchorLine"/>
-        <property name="horizontalCenter" type="QDeclarativeAnchorLine"/>
-        <property name="top" type="QDeclarativeAnchorLine"/>
-        <property name="bottom" type="QDeclarativeAnchorLine"/>
-        <property name="verticalCenter" type="QDeclarativeAnchorLine"/>
-        <property name="baseline" type="QDeclarativeAnchorLine"/>
-        <property name="baselineOffset" type="qreal"/>
-        <property name="clip" type="bool"/>
-        <property name="focus" type="bool"/>
-        <property name="activeFocus" type="bool"/>
-        <property name="transform" type="QGraphicsTransform" isList="true"/>
-        <property name="transformOrigin" type="TransformOrigin"/>
-        <property name="transformOriginPoint" type="QPointF"/>
-        <property name="smooth" type="bool"/>
-        <signal name="childrenRectChanged">
-            <param type="QRectF"/>
-        </signal>
-        <signal name="baselineOffsetChanged">
-            <param type="qreal"/>
-        </signal>
-        <signal name="stateChanged">
-            <param type="string"/>
-        </signal>
-        <signal name="focusChanged">
-            <param type="bool"/>
-        </signal>
-        <signal name="activeFocusChanged">
-            <param type="bool"/>
-        </signal>
-        <signal name="parentChanged">
-            <param type="Qt.Item"/>
-        </signal>
-        <signal name="transformOriginChanged">
-            <param type="TransformOrigin"/>
-        </signal>
-        <signal name="smoothChanged">
-            <param type="bool"/>
-        </signal>
-        <signal name="clipChanged">
-            <param type="bool"/>
-        </signal>
-        <method name="mapFromItem" type="QScriptValue">
-            <param name="item" type="QScriptValue"/>
-            <param name="x" type="qreal"/>
-            <param name="y" type="qreal"/>
-        </method>
-        <method name="mapToItem" type="QScriptValue">
-            <param name="item" type="QScriptValue"/>
-            <param name="x" type="qreal"/>
-            <param name="y" type="qreal"/>
-        </method>
-        <method name="forceActiveFocus"/>
-        <method name="childAt" type="QDeclarativeItem*">
-            <param name="x" type="qreal"/>
-            <param name="y" type="qreal"/>
-        </method>
-    </type>
-    <type name="Qt.KeyNavigation" version="4.7" extends="Qt.QtObject">
-        <enum name="Priority">
-            <enumerator name="BeforeItem" value="0"/>
-            <enumerator name="AfterItem" value="1"/>
-        </enum>
-        <property name="left" type="Qt.Item"/>
-        <property name="right" type="Qt.Item"/>
-        <property name="up" type="Qt.Item"/>
-        <property name="down" type="Qt.Item"/>
-        <property name="tab" type="Qt.Item"/>
-        <property name="backtab" type="Qt.Item"/>
-        <property name="priority" type="Priority"/>
-        <signal name="leftChanged"/>
-        <signal name="rightChanged"/>
-        <signal name="upChanged"/>
-        <signal name="downChanged"/>
-        <signal name="tabChanged"/>
-        <signal name="backtabChanged"/>
-        <signal name="priorityChanged"/>
-    </type>
-    <type name="Qt.Keys" version="4.7" extends="Qt.QtObject">
-        <enum name="Priority">
-            <enumerator name="BeforeItem" value="0"/>
-            <enumerator name="AfterItem" value="1"/>
-        </enum>
-        <property name="enabled" type="bool"/>
-        <property name="forwardTo" type="Qt.Item" isList="true"/>
-        <property name="priority" type="Priority"/>
-        <signal name="enabledChanged"/>
-        <signal name="priorityChanged"/>
-        <signal name="pressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="released">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="digit0Pressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="digit1Pressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="digit2Pressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="digit3Pressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="digit4Pressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="digit5Pressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="digit6Pressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="digit7Pressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="digit8Pressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="digit9Pressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="leftPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="rightPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="upPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="downPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="tabPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="backtabPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="asteriskPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="numberSignPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="escapePressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="returnPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="enterPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="deletePressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="spacePressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="backPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="cancelPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="selectPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="yesPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="noPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="context1Pressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="context2Pressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="context3Pressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="context4Pressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="callPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="hangupPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="flipPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="menuPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="volumeUpPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-        <signal name="volumeDownPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
-        </signal>
-    </type>
-    <type name="Qt.LayoutItem" version="4.7" defaultProperty="data" extends="Qt.Item">
-        <property name="maximumSize" type="QSizeF"/>
-        <property name="minimumSize" type="QSizeF"/>
-        <property name="preferredSize" type="QSizeF"/>
-        <signal name="maximumSizeChanged"/>
-        <signal name="minimumSizeChanged"/>
-        <signal name="preferredSizeChanged"/>
-    </type>
-    <type name="Qt.ListElement" version="4.7" extends="Qt.QtObject"/>
-    <type name="Qt.ListModel" version="4.7" extends="QListModelInterface">
-        <property name="count" type="int"/>
-        <signal name="countChanged"/>
-        <method name="clear"/>
-        <method name="remove">
-            <param name="index" type="int"/>
-        </method>
-        <method name="append">
-            <param type="QScriptValue"/>
-        </method>
-        <method name="insert">
-            <param name="index" type="int"/>
-            <param type="QScriptValue"/>
-        </method>
-        <method name="get" type="QScriptValue">
-            <param name="index" type="int"/>
-        </method>
-        <method name="set">
-            <param name="index" type="int"/>
-            <param type="QScriptValue"/>
-        </method>
-        <method name="setProperty">
-            <param name="index" type="int"/>
-            <param name="property" type="string"/>
-            <param name="value" type="QVariant"/>
-        </method>
-        <method name="move">
-            <param name="from" type="int"/>
-            <param name="to" type="int"/>
-            <param name="count" type="int"/>
-        </method>
-        <method name="sync"/>
-    </type>
-    <type name="Qt.ListView" version="4.7" defaultProperty="data" extends="Qt.Flickable">
-        <enum name="HighlightRangeMode">
-            <enumerator name="NoHighlightRange" value="0"/>
-            <enumerator name="ApplyRange" value="1"/>
-            <enumerator name="StrictlyEnforceRange" value="2"/>
-        </enum>
-        <enum name="Orientation">
-            <enumerator name="Horizontal" value="1"/>
-            <enumerator name="Vertical" value="2"/>
-        </enum>
-        <enum name="SnapMode">
-            <enumerator name="NoSnap" value="0"/>
-            <enumerator name="SnapToItem" value="1"/>
-            <enumerator name="SnapOneItem" value="2"/>
-        </enum>
-        <enum name="PositionMode">
-            <enumerator name="Beginning" value="0"/>
-            <enumerator name="Center" value="1"/>
-            <enumerator name="End" value="2"/>
-            <enumerator name="Visible" value="3"/>
-            <enumerator name="Contain" value="4"/>
-        </enum>
-        <property name="model" type="QVariant"/>
-        <property name="delegate" type="Qt.Component"/>
-        <property name="currentIndex" type="int"/>
-        <property name="currentItem" type="Qt.Item"/>
-        <property name="count" type="int"/>
-        <property name="highlight" type="Qt.Component"/>
-        <property name="highlightItem" type="Qt.Item"/>
-        <property name="highlightFollowsCurrentItem" type="bool"/>
-        <property name="highlightMoveSpeed" type="qreal"/>
-        <property name="highlightMoveDuration" type="int"/>
-        <property name="highlightResizeSpeed" type="qreal"/>
-        <property name="highlightResizeDuration" type="int"/>
-        <property name="preferredHighlightBegin" type="qreal"/>
-        <property name="preferredHighlightEnd" type="qreal"/>
-        <property name="highlightRangeMode" type="HighlightRangeMode"/>
-        <property name="spacing" type="qreal"/>
-        <property name="orientation" type="Orientation"/>
-        <property name="keyNavigationWraps" type="bool"/>
-        <property name="cacheBuffer" type="int"/>
-        <property name="section" type="Qt.ViewSection"/>
-        <property name="currentSection" type="string"/>
-        <property name="snapMode" type="SnapMode"/>
-        <property name="header" type="Qt.Component"/>
-        <property name="footer" type="Qt.Component"/>
-        <signal name="countChanged"/>
-        <signal name="spacingChanged"/>
-        <signal name="orientationChanged"/>
-        <signal name="currentIndexChanged"/>
-        <signal name="currentSectionChanged"/>
-        <signal name="highlightMoveSpeedChanged"/>
-        <signal name="highlightMoveDurationChanged"/>
-        <signal name="highlightResizeSpeedChanged"/>
-        <signal name="highlightResizeDurationChanged"/>
-        <signal name="highlightChanged"/>
-        <signal name="highlightItemChanged"/>
-        <signal name="modelChanged"/>
-        <signal name="delegateChanged"/>
-        <signal name="highlightFollowsCurrentItemChanged"/>
-        <signal name="preferredHighlightBeginChanged"/>
-        <signal name="preferredHighlightEndChanged"/>
-        <signal name="highlightRangeModeChanged"/>
-        <signal name="keyNavigationWrapsChanged"/>
-        <signal name="cacheBufferChanged"/>
-        <signal name="snapModeChanged"/>
-        <signal name="headerChanged"/>
-        <signal name="footerChanged"/>
-        <method name="incrementCurrentIndex"/>
-        <method name="decrementCurrentIndex"/>
-        <method name="positionViewAtIndex">
-            <param name="index" type="int"/>
-            <param name="mode" type="int"/>
-        </method>
-        <method name="indexAt" type="int">
-            <param name="x" type="int"/>
-            <param name="y" type="int"/>
-        </method>
-    </type>
-    <type name="Qt.Loader" version="4.7" defaultProperty="data" extends="Qt.Item">
-        <enum name="Status">
-            <enumerator name="Null" value="0"/>
-            <enumerator name="Ready" value="1"/>
-            <enumerator name="Loading" value="2"/>
-            <enumerator name="Error" value="3"/>
-        </enum>
-        <property name="source" type="QUrl"/>
-        <property name="sourceComponent" type="Qt.Component"/>
-        <property name="item" type="QGraphicsObject"/>
-        <property name="status" type="Status"/>
-        <property name="progress" type="qreal"/>
-        <signal name="itemChanged"/>
-        <signal name="sourceChanged"/>
-        <signal name="statusChanged"/>
-        <signal name="progressChanged"/>
-        <signal name="loaded"/>
-    </type>
-    <type name="Qt.MouseArea" version="4.7" defaultProperty="data" extends="Qt.Item">
-        <property name="mouseX" type="qreal"/>
-        <property name="mouseY" type="qreal"/>
-        <property name="containsMouse" type="bool"/>
-        <property name="pressed" type="bool"/>
-        <property name="enabled" type="bool"/>
-        <property name="pressedButtons" type="Qt.MouseButtons"/>
-        <property name="acceptedButtons" type="Qt.MouseButtons"/>
-        <property name="hoverEnabled" type="bool"/>
-        <property name="drag" type="Qt.Drag"/>
-        <signal name="hoveredChanged"/>
-        <signal name="pressedChanged"/>
-        <signal name="enabledChanged"/>
-        <signal name="acceptedButtonsChanged"/>
-        <signal name="hoverEnabledChanged"/>
-        <signal name="positionChanged">
-            <param name="mouse" type="QDeclarativeMouseEvent"/>
-        </signal>
-        <signal name="mousePositionChanged">
-            <param name="mouse" type="QDeclarativeMouseEvent"/>
-        </signal>
-        <signal name="pressed">
-            <param name="mouse" type="QDeclarativeMouseEvent"/>
-        </signal>
-        <signal name="pressAndHold">
-            <param name="mouse" type="QDeclarativeMouseEvent"/>
-        </signal>
-        <signal name="released">
-            <param name="mouse" type="QDeclarativeMouseEvent"/>
-        </signal>
-        <signal name="clicked">
-            <param name="mouse" type="QDeclarativeMouseEvent"/>
-        </signal>
-        <signal name="doubleClicked">
-            <param name="mouse" type="QDeclarativeMouseEvent"/>
-        </signal>
-        <signal name="entered"/>
-        <signal name="exited"/>
-        <signal name="canceled"/>
-    </type>
-    <type name="Qt.NumberAnimation" version="4.7" extends="Qt.PropertyAnimation">
-        <property name="from" type="qreal"/>
-        <property name="to" type="qreal"/>
-    </type>
-    <type name="Qt.Package" version="4.7" defaultProperty="data" extends="Qt.QtObject">
-        <property name="data" type="Qt.QtObject" isList="true"/>
-    </type>
-    <type name="Qt.ParallelAnimation" version="4.7" defaultProperty="animations" extends="QDeclarativeAnimationGroup"/>
-    <type name="Qt.ParentAnimation" version="4.7" defaultProperty="animations" extends="QDeclarativeAnimationGroup">
-        <property name="target" type="Qt.Item"/>
-        <property name="newParent" type="Qt.Item"/>
-        <property name="via" type="Qt.Item"/>
-        <signal name="targetChanged"/>
-        <signal name="newParentChanged"/>
-        <signal name="viaChanged"/>
-    </type>
-    <type name="Qt.ParentChange" version="4.7" extends="QDeclarativeStateOperation">
-        <property name="target" type="Qt.Item"/>
-        <property name="parent" type="Qt.Item"/>
-        <property name="x" type="QDeclarativeScriptString"/>
-        <property name="y" type="QDeclarativeScriptString"/>
-        <property name="width" type="QDeclarativeScriptString"/>
-        <property name="height" type="QDeclarativeScriptString"/>
-        <property name="scale" type="QDeclarativeScriptString"/>
-        <property name="rotation" type="QDeclarativeScriptString"/>
-    </type>
-    <type name="Qt.Path" version="4.7" defaultProperty="pathElements" extends="Qt.QtObject">
-        <property name="pathElements" type="QDeclarativePathElement" isList="true"/>
-        <property name="startX" type="qreal"/>
-        <property name="startY" type="qreal"/>
-        <property name="closed" type="bool"/>
-        <signal name="changed"/>
-        <signal name="startXChanged"/>
-        <signal name="startYChanged"/>
-    </type>
-    <type name="Qt.PathAttribute" version="4.7" extends="QDeclarativePathElement">
-        <property name="name" type="string"/>
-        <property name="value" type="qreal"/>
-        <signal name="nameChanged"/>
-        <signal name="valueChanged"/>
-    </type>
-    <type name="Qt.PathCubic" version="4.7" extends="QDeclarativeCurve">
-        <property name="control1X" type="qreal"/>
-        <property name="control1Y" type="qreal"/>
-        <property name="control2X" type="qreal"/>
-        <property name="control2Y" type="qreal"/>
-        <signal name="control1XChanged"/>
-        <signal name="control1YChanged"/>
-        <signal name="control2XChanged"/>
-        <signal name="control2YChanged"/>
-    </type>
-    <type name="Qt.PathLine" version="4.7" extends="QDeclarativeCurve"/>
-    <type name="Qt.PathPercent" version="4.7" extends="QDeclarativePathElement">
-        <property name="value" type="qreal"/>
-    </type>
-    <type name="Qt.PathQuad" version="4.7" extends="QDeclarativeCurve">
-        <property name="controlX" type="qreal"/>
-        <property name="controlY" type="qreal"/>
-        <signal name="controlXChanged"/>
-        <signal name="controlYChanged"/>
-    </type>
-    <type name="Qt.PathView" version="4.7" defaultProperty="data" extends="Qt.Item">
-        <enum name="HighlightRangeMode">
-            <enumerator name="NoHighlightRange" value="0"/>
-            <enumerator name="ApplyRange" value="1"/>
-            <enumerator name="StrictlyEnforceRange" value="2"/>
-        </enum>
-        <property name="model" type="QVariant"/>
-        <property name="path" type="Qt.Path"/>
-        <property name="currentIndex" type="int"/>
-        <property name="offset" type="qreal"/>
-        <property name="highlight" type="Qt.Component"/>
-        <property name="highlightItem" type="Qt.Item"/>
-        <property name="preferredHighlightBegin" type="qreal"/>
-        <property name="preferredHighlightEnd" type="qreal"/>
-        <property name="highlightRangeMode" type="HighlightRangeMode"/>
-        <property name="highlightMoveDuration" type="int"/>
-        <property name="dragMargin" type="qreal"/>
-        <property name="flickDeceleration" type="qreal"/>
-        <property name="interactive" type="bool"/>
-        <property name="moving" type="bool"/>
-        <property name="flicking" type="bool"/>
-        <property name="count" type="int"/>
-        <property name="delegate" type="Qt.Component"/>
-        <property name="pathItemCount" type="int"/>
-        <signal name="currentIndexChanged"/>
-        <signal name="offsetChanged"/>
-        <signal name="modelChanged"/>
-        <signal name="countChanged"/>
-        <signal name="pathChanged"/>
-        <signal name="preferredHighlightBeginChanged"/>
-        <signal name="preferredHighlightEndChanged"/>
-        <signal name="highlightRangeModeChanged"/>
-        <signal name="dragMarginChanged"/>
-        <signal name="snapPositionChanged"/>
-        <signal name="delegateChanged"/>
-        <signal name="pathItemCountChanged"/>
-        <signal name="flickDecelerationChanged"/>
-        <signal name="interactiveChanged"/>
-        <signal name="movingChanged"/>
-        <signal name="flickingChanged"/>
-        <signal name="highlightChanged"/>
-        <signal name="highlightItemChanged"/>
-        <signal name="highlightMoveDurationChanged"/>
-        <signal name="movementStarted"/>
-        <signal name="movementEnded"/>
-        <signal name="flickStarted"/>
-        <signal name="flickEnded"/>
-        <method name="incrementCurrentIndex"/>
-        <method name="decrementCurrentIndex"/>
-    </type>
-    <type name="Qt.PauseAnimation" version="4.7" extends="Qt.Animation">
-        <property name="duration" type="int"/>
-        <signal name="durationChanged">
-            <param type="int"/>
-        </signal>
-    </type>
-    <type name="Qt.PropertyAction" version="4.7" extends="Qt.Animation">
-        <property name="target" type="Qt.QtObject"/>
-        <property name="property" type="string"/>
-        <property name="properties" type="string"/>
-        <property name="targets" type="Qt.QtObject" isList="true"/>
-        <property name="exclude" type="Qt.QtObject" isList="true"/>
-        <property name="value" type="QVariant"/>
-        <signal name="valueChanged">
-            <param type="QVariant"/>
-        </signal>
-        <signal name="propertiesChanged">
-            <param type="string"/>
-        </signal>
-        <signal name="targetChanged"/>
-        <signal name="propertyChanged"/>
-    </type>
-    <type name="Qt.PropertyAnimation" version="4.7" extends="Qt.Animation">
-        <property name="duration" type="int"/>
-        <property name="from" type="QVariant"/>
-        <property name="to" type="QVariant"/>
-        <property name="easing" type="QEasingCurve"/>
-        <property name="target" type="Qt.QtObject"/>
-        <property name="property" type="string"/>
-        <property name="properties" type="string"/>
-        <property name="targets" type="Qt.QtObject" isList="true"/>
-        <property name="exclude" type="Qt.QtObject" isList="true"/>
-        <signal name="durationChanged">
-            <param type="int"/>
-        </signal>
-        <signal name="fromChanged">
-            <param type="QVariant"/>
-        </signal>
-        <signal name="toChanged">
-            <param type="QVariant"/>
-        </signal>
-        <signal name="easingChanged">
-            <param type="QEasingCurve"/>
-        </signal>
-        <signal name="propertiesChanged">
-            <param type="string"/>
-        </signal>
-        <signal name="targetChanged"/>
-        <signal name="propertyChanged"/>
-    </type>
-    <type name="Qt.PropertyChanges" version="4.7" extends="QDeclarativeStateOperation">
-        <property name="target" type="Qt.QtObject"/>
-        <property name="restoreEntryValues" type="bool"/>
-        <property name="explicit" type="bool"/>
-    </type>
-    <type name="Qt.QGraphicsWidget" version="4.7" defaultProperty="children" extends="__extended__.Qt.QGraphicsWidget">
-        <property name="anchors" type="QDeclarativeAnchors"/>
-        <property name="left" type="QDeclarativeAnchorLine"/>
-        <property name="right" type="QDeclarativeAnchorLine"/>
-        <property name="horizontalCenter" type="QDeclarativeAnchorLine"/>
-        <property name="top" type="QDeclarativeAnchorLine"/>
-        <property name="bottom" type="QDeclarativeAnchorLine"/>
-        <property name="verticalCenter" type="QDeclarativeAnchorLine"/>
-    </type>
-    <type name="Qt.QtObject" version="4.7">
-        <property name="objectName" type="string"/>
-        <signal name="destroyed">
-            <param type="Qt.QtObject"/>
-        </signal>
-        <signal name="destroyed"/>
-        <method name="deleteLater"/>
-    </type>
-    <type name="Qt.Rectangle" version="4.7" defaultProperty="data" extends="Qt.Item">
-        <property name="color" type="QColor"/>
-        <property name="gradient" type="Qt.Gradient"/>
-        <property name="border" type="QDeclarativePen"/>
-        <property name="radius" type="qreal"/>
-        <signal name="colorChanged"/>
-        <signal name="radiusChanged"/>
-    </type>
-    <type name="Qt.RegExpValidator" version="4.7" extends="QValidator">
-        <property name="regExp" type="QRegExp"/>
-    </type>
-    <type name="Qt.Repeater" version="4.7" defaultProperty="delegate" extends="Qt.Item">
-        <property name="model" type="QVariant"/>
-        <property name="delegate" type="Qt.Component"/>
-        <property name="count" type="int"/>
-        <signal name="modelChanged"/>
-        <signal name="delegateChanged"/>
-        <signal name="countChanged"/>
-    </type>
-    <type name="Qt.Rotation" version="4.7" extends="QGraphicsTransform">
-        <property name="origin" type="QVector3D"/>
-        <property name="angle" type="qreal"/>
-        <property name="axis" type="QVector3D"/>
-        <signal name="originChanged"/>
-        <signal name="angleChanged"/>
-        <signal name="axisChanged"/>
-    </type>
-    <type name="Qt.RotationAnimation" version="4.7" extends="Qt.PropertyAnimation">
-        <enum name="RotationDirection">
-            <enumerator name="Numerical" value="0"/>
-            <enumerator name="Shortest" value="1"/>
-            <enumerator name="Clockwise" value="2"/>
-            <enumerator name="Counterclockwise" value="3"/>
-        </enum>
-        <property name="from" type="qreal"/>
-        <property name="to" type="qreal"/>
-        <property name="direction" type="RotationDirection"/>
-        <signal name="directionChanged"/>
-    </type>
-    <type name="Qt.Row" version="4.7" defaultProperty="data" extends="QDeclarativeBasePositioner"/>
-    <type name="Qt.Scale" version="4.7" extends="QGraphicsTransform">
-        <property name="origin" type="QVector3D"/>
-        <property name="xScale" type="qreal"/>
-        <property name="yScale" type="qreal"/>
-        <property name="zScale" type="qreal"/>
-        <signal name="originChanged"/>
-        <signal name="xScaleChanged"/>
-        <signal name="yScaleChanged"/>
-        <signal name="zScaleChanged"/>
-        <signal name="scaleChanged"/>
-    </type>
-    <type name="Qt.ScriptAction" version="4.7" extends="Qt.Animation">
-        <property name="script" type="QDeclarativeScriptString"/>
-        <property name="scriptName" type="string"/>
-    </type>
-    <type name="Qt.SequentialAnimation" version="4.7" defaultProperty="animations" extends="QDeclarativeAnimationGroup"/>
-    <type name="Qt.SmoothedAnimation" version="4.7" extends="Qt.NumberAnimation">
-        <enum name="ReversingMode">
-            <enumerator name="Eased" value="0"/>
-            <enumerator name="Immediate" value="1"/>
-            <enumerator name="Sync" value="2"/>
-        </enum>
-        <property name="velocity" type="qreal"/>
-        <property name="reversingMode" type="ReversingMode"/>
-        <property name="maximumEasingTime" type="qreal"/>
-        <signal name="velocityChanged"/>
-        <signal name="reversingModeChanged"/>
-        <signal name="maximumEasingTimeChanged"/>
-    </type>
-    <type name="Qt.SpringAnimation" version="4.7" extends="Qt.NumberAnimation">
-        <property name="velocity" type="qreal"/>
-        <property name="spring" type="qreal"/>
-        <property name="damping" type="qreal"/>
-        <property name="epsilon" type="qreal"/>
-        <property name="modulus" type="qreal"/>
-        <property name="mass" type="qreal"/>
-        <signal name="modulusChanged"/>
-        <signal name="massChanged"/>
-        <signal name="syncChanged"/>
-    </type>
-    <type name="Qt.State" version="4.7" defaultProperty="changes" extends="Qt.QtObject">
-        <property name="name" type="string"/>
-        <property name="when" type="QDeclarativeBinding"/>
-        <property name="extend" type="string"/>
-        <property name="changes" type="QDeclarativeStateOperation" isList="true"/>
-        <signal name="completed"/>
-    </type>
-    <type name="Qt.StateChangeScript" version="4.7" extends="QDeclarativeStateOperation">
-        <property name="script" type="QDeclarativeScriptString"/>
-        <property name="name" type="string"/>
-    </type>
-    <type name="Qt.StateGroup" version="4.7" extends="Qt.QtObject">
-        <property name="state" type="string"/>
-        <property name="states" type="Qt.State" isList="true"/>
-        <property name="transitions" type="Qt.Transition" isList="true"/>
-        <signal name="stateChanged">
-            <param type="string"/>
-        </signal>
-    </type>
-    <type name="Qt.SystemPalette" version="4.7" extends="Qt.QtObject">
-        <enum name="ColorGroup">
-            <enumerator name="Active" value="0"/>
-            <enumerator name="Inactive" value="2"/>
-            <enumerator name="Disabled" value="1"/>
-        </enum>
-        <property name="colorGroup" type="QDeclarativeSystemPalette.ColorGroup"/>
-        <property name="window" type="QColor"/>
-        <property name="windowText" type="QColor"/>
-        <property name="base" type="QColor"/>
-        <property name="text" type="QColor"/>
-        <property name="alternateBase" type="QColor"/>
-        <property name="button" type="QColor"/>
-        <property name="buttonText" type="QColor"/>
-        <property name="light" type="QColor"/>
-        <property name="midlight" type="QColor"/>
-        <property name="dark" type="QColor"/>
-        <property name="mid" type="QColor"/>
-        <property name="shadow" type="QColor"/>
-        <property name="highlight" type="QColor"/>
-        <property name="highlightedText" type="QColor"/>
-        <signal name="paletteChanged"/>
-    </type>
-    <type name="Qt.Text" version="4.7" defaultProperty="data" extends="Qt.Item">
-        <enum name="HAlignment">
-            <enumerator name="AlignLeft" value="1"/>
-            <enumerator name="AlignRight" value="2"/>
-            <enumerator name="AlignHCenter" value="4"/>
-        </enum>
-        <enum name="VAlignment">
-            <enumerator name="AlignTop" value="32"/>
-            <enumerator name="AlignBottom" value="64"/>
-            <enumerator name="AlignVCenter" value="128"/>
-        </enum>
-        <enum name="TextStyle">
-            <enumerator name="Normal" value="0"/>
-            <enumerator name="Outline" value="1"/>
-            <enumerator name="Raised" value="2"/>
-            <enumerator name="Sunken" value="3"/>
-        </enum>
-        <enum name="TextFormat">
-            <enumerator name="PlainText" value="0"/>
-            <enumerator name="RichText" value="1"/>
-            <enumerator name="AutoText" value="2"/>
-            <enumerator name="StyledText" value="4"/>
-        </enum>
-        <enum name="TextElideMode">
-            <enumerator name="ElideLeft" value="0"/>
-            <enumerator name="ElideRight" value="1"/>
-            <enumerator name="ElideMiddle" value="2"/>
-            <enumerator name="ElideNone" value="3"/>
-        </enum>
-        <enum name="WrapMode">
-            <enumerator name="NoWrap" value="0"/>
-            <enumerator name="WordWrap" value="1"/>
-            <enumerator name="WrapAnywhere" value="3"/>
-            <enumerator name="WrapAtWordBoundaryOrAnywhere" value="4"/>
-            <enumerator name="Wrap" value="4"/>
-        </enum>
-        <property name="text" type="string"/>
-        <property name="font" type="QFont"/>
-        <property name="color" type="QColor"/>
-        <property name="style" type="TextStyle"/>
-        <property name="styleColor" type="QColor"/>
-        <property name="horizontalAlignment" type="HAlignment"/>
-        <property name="verticalAlignment" type="VAlignment"/>
-        <property name="wrapMode" type="WrapMode"/>
-        <property name="textFormat" type="TextFormat"/>
-        <property name="elide" type="TextElideMode"/>
-        <property name="paintedWidth" type="qreal"/>
-        <property name="paintedHeight" type="qreal"/>
-        <signal name="textChanged">
-            <param name="text" type="string"/>
-        </signal>
-        <signal name="linkActivated">
-            <param name="link" type="string"/>
-        </signal>
-        <signal name="fontChanged">
-            <param name="font" type="QFont"/>
-        </signal>
-        <signal name="colorChanged">
-            <param name="color" type="QColor"/>
-        </signal>
-        <signal name="styleChanged">
-            <param name="style" type="TextStyle"/>
-        </signal>
-        <signal name="styleColorChanged">
-            <param name="color" type="QColor"/>
-        </signal>
-        <signal name="horizontalAlignmentChanged">
-            <param name="alignment" type="HAlignment"/>
-        </signal>
-        <signal name="verticalAlignmentChanged">
-            <param name="alignment" type="VAlignment"/>
-        </signal>
-        <signal name="wrapModeChanged"/>
-        <signal name="textFormatChanged">
-            <param name="textFormat" type="TextFormat"/>
-        </signal>
-        <signal name="elideModeChanged">
-            <param name="mode" type="TextElideMode"/>
-        </signal>
-        <signal name="paintedSizeChanged"/>
-    </type>
-    <type name="Qt.TextEdit" version="4.7" defaultProperty="data" extends="QDeclarativePaintedItem">
-        <enum name="HAlignment">
-            <enumerator name="AlignLeft" value="1"/>
-            <enumerator name="AlignRight" value="2"/>
-            <enumerator name="AlignHCenter" value="4"/>
-        </enum>
-        <enum name="VAlignment">
-            <enumerator name="AlignTop" value="32"/>
-            <enumerator name="AlignBottom" value="64"/>
-            <enumerator name="AlignVCenter" value="128"/>
-        </enum>
-        <enum name="TextFormat">
-            <enumerator name="PlainText" value="0"/>
-            <enumerator name="RichText" value="1"/>
-            <enumerator name="AutoText" value="2"/>
-        </enum>
-        <enum name="WrapMode">
-            <enumerator name="NoWrap" value="0"/>
-            <enumerator name="WordWrap" value="1"/>
-            <enumerator name="WrapAnywhere" value="3"/>
-            <enumerator name="WrapAtWordBoundaryOrAnywhere" value="4"/>
-            <enumerator name="Wrap" value="4"/>
-        </enum>
-        <property name="text" type="string"/>
-        <property name="color" type="QColor"/>
-        <property name="selectionColor" type="QColor"/>
-        <property name="selectedTextColor" type="QColor"/>
-        <property name="font" type="QFont"/>
-        <property name="horizontalAlignment" type="HAlignment"/>
-        <property name="verticalAlignment" type="VAlignment"/>
-        <property name="wrapMode" type="WrapMode"/>
-        <property name="paintedWidth" type="qreal"/>
-        <property name="paintedHeight" type="qreal"/>
-        <property name="textFormat" type="TextFormat"/>
-        <property name="readOnly" type="bool"/>
-        <property name="cursorVisible" type="bool"/>
-        <property name="cursorPosition" type="int"/>
-        <property name="cursorRectangle" type="QRect"/>
-        <property name="cursorDelegate" type="Qt.Component"/>
-        <property name="selectionStart" type="int"/>
-        <property name="selectionEnd" type="int"/>
-        <property name="selectedText" type="string"/>
-        <property name="activeFocusOnPress" type="bool"/>
-        <property name="persistentSelection" type="bool"/>
-        <property name="textMargin" type="qreal"/>
-        <property name="inputMethodHints" type="Qt.InputMethodHints"/>
-        <property name="selectByMouse" type="bool"/>
-        <signal name="textChanged">
-            <param type="string"/>
-        </signal>
-        <signal name="paintedSizeChanged"/>
-        <signal name="cursorPositionChanged"/>
-        <signal name="cursorRectangleChanged"/>
-        <signal name="selectionStartChanged"/>
-        <signal name="selectionEndChanged"/>
-        <signal name="selectionChanged"/>
-        <signal name="colorChanged">
-            <param name="color" type="QColor"/>
-        </signal>
-        <signal name="selectionColorChanged">
-            <param name="color" type="QColor"/>
-        </signal>
-        <signal name="selectedTextColorChanged">
-            <param name="color" type="QColor"/>
-        </signal>
-        <signal name="fontChanged">
-            <param name="font" type="QFont"/>
-        </signal>
-        <signal name="horizontalAlignmentChanged">
-            <param name="alignment" type="HAlignment"/>
-        </signal>
-        <signal name="verticalAlignmentChanged">
-            <param name="alignment" type="VAlignment"/>
-        </signal>
-        <signal name="wrapModeChanged"/>
-        <signal name="textFormatChanged">
-            <param name="textFormat" type="TextFormat"/>
-        </signal>
-        <signal name="readOnlyChanged">
-            <param name="isReadOnly" type="bool"/>
-        </signal>
-        <signal name="cursorVisibleChanged">
-            <param name="isCursorVisible" type="bool"/>
-        </signal>
-        <signal name="cursorDelegateChanged"/>
-        <signal name="activeFocusOnPressChanged">
-            <param name="activeFocusOnPressed" type="bool"/>
-        </signal>
-        <signal name="persistentSelectionChanged">
-            <param name="isPersistentSelection" type="bool"/>
-        </signal>
-        <signal name="textMarginChanged">
-            <param name="textMargin" type="qreal"/>
-        </signal>
-        <signal name="selectByMouseChanged">
-            <param name="selectByMouse" type="bool"/>
-        </signal>
-        <method name="selectAll"/>
-        <method name="selectWord"/>
-        <method name="select">
-            <param name="start" type="int"/>
-            <param name="end" type="int"/>
-        </method>
-        <method name="cut"/>
-        <method name="copy"/>
-        <method name="paste"/>
-        <method name="openSoftwareInputPanel"/>
-        <method name="closeSoftwareInputPanel"/>
-        <method name="positionToRectangle" type="QRectF">
-            <param type="int"/>
-        </method>
-        <method name="positionAt" type="int">
-            <param name="x" type="int"/>
-            <param name="y" type="int"/>
-        </method>
-        <method name="moveCursorSelection">
-            <param name="pos" type="int"/>
-        </method>
-    </type>
-    <type name="Qt.TextInput" version="4.7" defaultProperty="data" extends="QDeclarativePaintedItem">
-        <enum name="EchoMode">
-            <enumerator name="Normal" value="0"/>
-            <enumerator name="NoEcho" value="1"/>
-            <enumerator name="Password" value="2"/>
-            <enumerator name="PasswordEchoOnEdit" value="3"/>
-        </enum>
-        <enum name="HAlignment">
-            <enumerator name="AlignLeft" value="1"/>
-            <enumerator name="AlignRight" value="2"/>
-            <enumerator name="AlignHCenter" value="4"/>
-        </enum>
-        <property name="text" type="string"/>
-        <property name="color" type="QColor"/>
-        <property name="selectionColor" type="QColor"/>
-        <property name="selectedTextColor" type="QColor"/>
-        <property name="font" type="QFont"/>
-        <property name="horizontalAlignment" type="HAlignment"/>
-        <property name="readOnly" type="bool"/>
-        <property name="cursorVisible" type="bool"/>
-        <property name="cursorPosition" type="int"/>
-        <property name="cursorRectangle" type="QRect"/>
-        <property name="cursorDelegate" type="Qt.Component"/>
-        <property name="selectionStart" type="int"/>
-        <property name="selectionEnd" type="int"/>
-        <property name="selectedText" type="string"/>
-        <property name="maximumLength" type="int"/>
-        <property name="validator" type="QValidator"/>
-        <property name="inputMask" type="string"/>
-        <property name="inputMethodHints" type="Qt.InputMethodHints"/>
-        <property name="acceptableInput" type="bool"/>
-        <property name="echoMode" type="EchoMode"/>
-        <property name="activeFocusOnPress" type="bool"/>
-        <property name="passwordCharacter" type="string"/>
-        <property name="displayText" type="string"/>
-        <property name="autoScroll" type="bool"/>
-        <property name="selectByMouse" type="bool"/>
-        <signal name="textChanged"/>
-        <signal name="cursorPositionChanged"/>
-        <signal name="selectionStartChanged"/>
-        <signal name="selectionEndChanged"/>
-        <signal name="selectedTextChanged"/>
-        <signal name="accepted"/>
-        <signal name="acceptableInputChanged"/>
-        <signal name="colorChanged">
-            <param name="color" type="QColor"/>
-        </signal>
-        <signal name="selectionColorChanged">
-            <param name="color" type="QColor"/>
-        </signal>
-        <signal name="selectedTextColorChanged">
-            <param name="color" type="QColor"/>
-        </signal>
-        <signal name="fontChanged">
-            <param name="font" type="QFont"/>
-        </signal>
-        <signal name="horizontalAlignmentChanged">
-            <param name="alignment" type="HAlignment"/>
-        </signal>
-        <signal name="readOnlyChanged">
-            <param name="isReadOnly" type="bool"/>
-        </signal>
-        <signal name="cursorVisibleChanged">
-            <param name="isCursorVisible" type="bool"/>
-        </signal>
-        <signal name="cursorDelegateChanged"/>
-        <signal name="maximumLengthChanged">
-            <param name="maximumLength" type="int"/>
-        </signal>
-        <signal name="validatorChanged"/>
-        <signal name="inputMaskChanged">
-            <param name="inputMask" type="string"/>
-        </signal>
-        <signal name="echoModeChanged">
-            <param name="echoMode" type="EchoMode"/>
-        </signal>
-        <signal name="passwordCharacterChanged"/>
-        <signal name="displayTextChanged"/>
-        <signal name="activeFocusOnPressChanged">
-            <param name="activeFocusOnPress" type="bool"/>
-        </signal>
-        <signal name="autoScrollChanged">
-            <param name="autoScroll" type="bool"/>
-        </signal>
-        <signal name="selectByMouseChanged">
-            <param name="selectByMouse" type="bool"/>
-        </signal>
-        <method name="selectAll"/>
-        <method name="selectWord"/>
-        <method name="select">
-            <param name="start" type="int"/>
-            <param name="end" type="int"/>
-        </method>
-        <method name="cut"/>
-        <method name="copy"/>
-        <method name="paste"/>
-        <method name="positionAt" type="int">
-            <param name="x" type="int"/>
-        </method>
-        <method name="positionToRectangle" type="QRectF">
-            <param name="pos" type="int"/>
-        </method>
-        <method name="moveCursorSelection">
-            <param name="pos" type="int"/>
-        </method>
-        <method name="openSoftwareInputPanel"/>
-        <method name="closeSoftwareInputPanel"/>
-    </type>
-    <type name="Qt.Timer" version="4.7" extends="Qt.QtObject">
-        <property name="interval" type="int"/>
-        <property name="running" type="bool"/>
-        <property name="repeat" type="bool"/>
-        <property name="triggeredOnStart" type="bool"/>
-        <property name="parent" type="Qt.QtObject"/>
-        <signal name="triggered"/>
-        <signal name="runningChanged"/>
-        <signal name="intervalChanged"/>
-        <signal name="repeatChanged"/>
-        <signal name="triggeredOnStartChanged"/>
-        <method name="start"/>
-        <method name="stop"/>
-        <method name="restart"/>
-    </type>
-    <type name="Qt.Transition" version="4.7" defaultProperty="animations" extends="Qt.QtObject">
-        <property name="from" type="string"/>
-        <property name="to" type="string"/>
-        <property name="reversible" type="bool"/>
-        <property name="animations" type="Qt.Animation" isList="true"/>
-        <signal name="fromChanged"/>
-        <signal name="toChanged"/>
-        <signal name="reversibleChanged"/>
-    </type>
-    <type name="Qt.Translate" version="4.7" extends="QGraphicsTransform">
-        <property name="x" type="qreal"/>
-        <property name="y" type="qreal"/>
-        <signal name="xChanged"/>
-        <signal name="yChanged"/>
-    </type>
-    <type name="Qt.Vector3dAnimation" version="4.7" extends="Qt.PropertyAnimation">
-        <property name="from" type="QVector3D"/>
-        <property name="to" type="QVector3D"/>
-    </type>
-    <type name="Qt.ViewSection" version="4.7" extends="Qt.QtObject">
-        <enum name="SectionCriteria">
-            <enumerator name="FullString" value="0"/>
-            <enumerator name="FirstCharacter" value="1"/>
-        </enum>
-        <property name="property" type="string"/>
-        <property name="criteria" type="SectionCriteria"/>
-        <property name="delegate" type="Qt.Component"/>
-        <signal name="propertyChanged"/>
-        <signal name="criteriaChanged"/>
-        <signal name="delegateChanged"/>
-    </type>
-    <type name="Qt.VisualDataModel" version="4.7" defaultProperty="delegate" extends="QDeclarativeVisualModel">
-        <property name="model" type="QVariant"/>
-        <property name="delegate" type="Qt.Component"/>
-        <property name="part" type="string"/>
-        <property name="parts" type="Qt.QtObject"/>
-        <property name="rootIndex" type="QVariant"/>
-        <signal name="createdPackage">
-            <param name="index" type="int"/>
-            <param name="package" type="Qt.Package"/>
-        </signal>
-        <signal name="destroyingPackage">
-            <param name="package" type="Qt.Package"/>
-        </signal>
-        <signal name="rootIndexChanged"/>
-        <method name="modelIndex" type="QVariant">
-            <param name="idx" type="int"/>
-        </method>
-        <method name="parentModelIndex" type="QVariant"/>
-    </type>
-    <type name="Qt.VisualItemModel" version="4.7" defaultProperty="children" extends="QDeclarativeVisualModel">
-        <property name="children" type="Qt.Item" isList="true"/>
-        <signal name="childrenChanged"/>
-    </type>
-    <type name="Qt.WorkerScript" version="4.7" extends="Qt.QtObject">
-        <property name="source" type="QUrl"/>
-        <signal name="sourceChanged"/>
-        <signal name="message">
-            <param name="messageObject" type="QScriptValue"/>
-        </signal>
-        <method name="sendMessage">
-            <param type="QScriptValue"/>
-        </method>
-    </type>
-    <type name="Qt.XmlListModel" version="4.7" defaultProperty="roles" extends="QListModelInterface">
-        <enum name="Status">
-            <enumerator name="Null" value="0"/>
-            <enumerator name="Ready" value="1"/>
-            <enumerator name="Loading" value="2"/>
-            <enumerator name="Error" value="3"/>
-        </enum>
-        <property name="status" type="Status"/>
-        <property name="progress" type="qreal"/>
-        <property name="source" type="QUrl"/>
-        <property name="xml" type="string"/>
-        <property name="query" type="string"/>
-        <property name="namespaceDeclarations" type="string"/>
-        <property name="roles" type="Qt.XmlRole" isList="true"/>
-        <property name="count" type="int"/>
-        <signal name="statusChanged">
-            <param type="QDeclarativeXmlListModel.Status"/>
-        </signal>
-        <signal name="progressChanged">
-            <param name="progress" type="qreal"/>
-        </signal>
-        <signal name="countChanged"/>
-        <signal name="sourceChanged"/>
-        <signal name="xmlChanged"/>
-        <signal name="queryChanged"/>
-        <signal name="namespaceDeclarationsChanged"/>
-        <method name="reload"/>
-        <method name="get" type="QScriptValue">
-            <param name="index" type="int"/>
-        </method>
-        <method name="errorString" type="string"/>
-    </type>
-    <type name="Qt.XmlRole" version="4.7" extends="Qt.QtObject">
-        <property name="name" type="string"/>
-        <property name="query" type="string"/>
-        <property name="isKey" type="bool"/>
-        <signal name="nameChanged"/>
-        <signal name="queryChanged"/>
-        <signal name="isKeyChanged"/>
-    </type>
-    <type name="Qt.labs.folderlistmodel.FolderListModel" version="1.0" extends="QAbstractListModel">
-        <enum name="SortField">
-            <enumerator name="Unsorted" value="0"/>
-            <enumerator name="Name" value="1"/>
-            <enumerator name="Time" value="2"/>
-            <enumerator name="Size" value="3"/>
-            <enumerator name="Type" value="4"/>
-        </enum>
-        <property name="folder" type="QUrl"/>
-        <property name="parentFolder" type="QUrl"/>
-        <property name="nameFilters" type="QStringList"/>
-        <property name="sortField" type="SortField"/>
-        <property name="sortReversed" type="bool"/>
-        <property name="showDirs" type="bool"/>
-        <property name="showDotAndDotDot" type="bool"/>
-        <property name="showOnlyReadable" type="bool"/>
-        <property name="count" type="int"/>
-        <signal name="folderChanged"/>
-        <method name="isFolder" type="bool">
-            <param name="index" type="int"/>
-        </method>
-    </type>
-    <type name="Qt.labs.gestures.GestureArea" version="1.0" defaultProperty="data" extends="Qt.Item">
-        <property name="gesture" type="QGesture"/>
-    </type>
-    <type name="Qt.labs.particles.ParticleMotion" version="1.0" extends="Qt.QtObject"/>
-    <type name="Qt.labs.particles.ParticleMotionGravity" version="1.0" extends="Qt.labs.particles.ParticleMotion">
-        <property name="xattractor" type="qreal"/>
-        <property name="yattractor" type="qreal"/>
-        <property name="acceleration" type="qreal"/>
-        <signal name="xattractorChanged"/>
-        <signal name="yattractorChanged"/>
-        <signal name="accelerationChanged"/>
-    </type>
-    <type name="Qt.labs.particles.ParticleMotionLinear" version="1.0" extends="Qt.labs.particles.ParticleMotion"/>
-    <type name="Qt.labs.particles.ParticleMotionWander" version="1.0" extends="Qt.labs.particles.ParticleMotion">
-        <property name="xvariance" type="qreal"/>
-        <property name="yvariance" type="qreal"/>
-        <property name="pace" type="qreal"/>
-        <signal name="xvarianceChanged"/>
-        <signal name="yvarianceChanged"/>
-        <signal name="paceChanged"/>
-    </type>
-    <type name="Qt.labs.particles.Particles" version="1.0" defaultProperty="motion" extends="Qt.Item">
-        <property name="source" type="QUrl"/>
-        <property name="count" type="int"/>
-        <property name="emissionRate" type="int"/>
-        <property name="emissionVariance" type="qreal"/>
-        <property name="lifeSpan" type="int"/>
-        <property name="lifeSpanDeviation" type="int"/>
-        <property name="fadeInDuration" type="int"/>
-        <property name="fadeOutDuration" type="int"/>
-        <property name="angle" type="qreal"/>
-        <property name="angleDeviation" type="qreal"/>
-        <property name="velocity" type="qreal"/>
-        <property name="velocityDeviation" type="qreal"/>
-        <property name="motion" type="Qt.labs.particles.ParticleMotion"/>
-        <signal name="sourceChanged"/>
-        <signal name="countChanged"/>
-        <signal name="emissionRateChanged"/>
-        <signal name="emissionVarianceChanged"/>
-        <signal name="lifeSpanChanged"/>
-        <signal name="lifeSpanDeviationChanged"/>
-        <signal name="fadeInDurationChanged"/>
-        <signal name="fadeOutDurationChanged"/>
-        <signal name="angleChanged"/>
-        <signal name="angleDeviationChanged"/>
-        <signal name="velocityChanged"/>
-        <signal name="velocityDeviationChanged"/>
-        <signal name="emittingChanged"/>
-        <signal name="motionChanged"/>
-        <method name="burst">
-            <param name="count" type="int"/>
-            <param name="emissionRate" type="int"/>
-        </method>
-        <method name="burst">
-            <param name="count" type="int"/>
-        </method>
-    </type>
-    <type name="QtWebKit.WebView" version="1.0" defaultProperty="data" extends="Qt.Item">
-        <enum name="Status">
-            <enumerator name="Null" value="0"/>
-            <enumerator name="Ready" value="1"/>
-            <enumerator name="Loading" value="2"/>
-            <enumerator name="Error" value="3"/>
-        </enum>
-        <property name="title" type="string"/>
-        <property name="icon" type="QPixmap"/>
-        <property name="statusText" type="string"/>
-        <property name="html" type="string"/>
-        <property name="pressGrabTime" type="int"/>
-        <property name="preferredWidth" type="int"/>
-        <property name="preferredHeight" type="int"/>
-        <property name="url" type="QUrl"/>
-        <property name="progress" type="qreal"/>
-        <property name="status" type="Status"/>
-        <property name="reload" type="QAction"/>
-        <property name="back" type="QAction"/>
-        <property name="forward" type="QAction"/>
-        <property name="stop" type="QAction"/>
-        <property name="settings" type="QDeclarativeWebSettings"/>
-        <property name="javaScriptWindowObjects" type="Qt.QtObject" isList="true"/>
-        <property name="newWindowComponent" type="Qt.Component"/>
-        <property name="newWindowParent" type="Qt.Item"/>
-        <property name="renderingEnabled" type="bool"/>
-        <property name="contentsSize" type="QSize"/>
-        <property name="contentsScale" type="qreal"/>
-        <signal name="preferredWidthChanged"/>
-        <signal name="preferredHeightChanged"/>
-        <signal name="urlChanged"/>
-        <signal name="progressChanged"/>
-        <signal name="statusChanged">
-            <param type="Status"/>
-        </signal>
-        <signal name="titleChanged">
-            <param type="string"/>
-        </signal>
-        <signal name="iconChanged"/>
-        <signal name="statusTextChanged"/>
-        <signal name="htmlChanged"/>
-        <signal name="pressGrabTimeChanged"/>
-        <signal name="newWindowComponentChanged"/>
-        <signal name="newWindowParentChanged"/>
-        <signal name="renderingEnabledChanged"/>
-        <signal name="contentsSizeChanged">
-            <param type="QSize"/>
-        </signal>
-        <signal name="contentsScaleChanged"/>
-        <signal name="loadStarted"/>
-        <signal name="loadFinished"/>
-        <signal name="loadFailed"/>
-        <signal name="doubleClick">
-            <param name="clickX" type="int"/>
-            <param name="clickY" type="int"/>
-        </signal>
-        <signal name="zoomTo">
-            <param name="zoom" type="qreal"/>
-            <param name="centerX" type="int"/>
-            <param name="centerY" type="int"/>
-        </signal>
-        <signal name="alert">
-            <param name="message" type="string"/>
-        </signal>
-        <method name="evaluateJavaScript" type="QVariant">
-            <param type="string"/>
-        </method>
-        <method name="heuristicZoom" type="bool">
-            <param name="clickX" type="int"/>
-            <param name="clickY" type="int"/>
-            <param name="maxzoom" type="qreal"/>
-        </method>
-    </type>
-    <type name="QEasingCurve" extends="Qt.Easing"/>
-    <type name="__extended__.Qt.QGraphicsWidget" version="4.7" defaultProperty="children" extends="QGraphicsObject">
+    <type name="__extended__.QGraphicsWidget" defaultProperty="children" extends="QGraphicsObject">
         <property name="palette" type="QPalette"/>
         <property name="font" type="QFont"/>
         <property name="layoutDirection" type="Qt.LayoutDirection"/>
@@ -3300,4 +3650,5 @@
         <signal name="layoutChanged"/>
         <method name="close" type="bool"/>
     </type>
+    <type name="QEasingCurve" extends="QDeclarativeEasingValueType"/>
 </module>

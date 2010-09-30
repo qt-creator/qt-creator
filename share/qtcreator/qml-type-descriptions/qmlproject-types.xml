@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module>
     <type name="QmlProject.Project">
+        <exports>
+            <export module="QmlProject" version="1.0" type="Project"/>
+        </exports>
         <property name="sourceDirectory" type="string"/>
         <property name="importPaths" type="string" isList="true"/>
         <property name="content" type="QmlProjectItem" isList="true"/>
@@ -14,14 +17,26 @@
         <property name="files" type="string" isList="true"/>
     </type>
     <type name="QmlProject.QmlFiles" extends="FileFilterBaseItem">
+        <exports>
+            <export module="QmlProject" version="1.0" type="QmlFiles"/>
+        </exports>
     </type>
     <type name="QmlProject.JavaScriptFiles" extends="FileFilterBaseItem">
+        <exports>
+            <export module="QmlProject" version="1.0" type="JavaScriptFiles"/>
+        </exports>
 	<property name="filter" type="string"/>
     </type>
     <type name="QmlProject.ImageFiles" extends="FileFilterBaseItem">
+        <exports>
+            <export module="QmlProject" version="1.0" type="ImageFiles"/>
+        </exports>
 	<property name="filter" type="string"/>
     </type>
     <type name="QmlProject.CssFiles" extends="FileFilterBaseItem">
+        <exports>
+            <export module="QmlProject" version="1.0" type="CssFiles"/>
+        </exports>
 	<property name="filter" type="string"/>
     </type>
 </module>
