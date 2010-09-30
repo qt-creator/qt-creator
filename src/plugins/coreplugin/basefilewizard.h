@@ -101,7 +101,6 @@ public:
     void setEditorId(const QString &k);
 
     bool write(QString *errorMessage) const;
-    void setWriteAccess(bool access = true);
 
     Attributes attributes() const;
     void setAttributes(Attributes a);
