@@ -39,7 +39,7 @@
 #include <cplusplus/CppRewriter.h>
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Overview.h>
-#include <cpptools/InsertionPointLocator.h>
+#include <cpptools/insertionpointlocator.h>
 
 #include <QtCore/QCoreApplication>
 

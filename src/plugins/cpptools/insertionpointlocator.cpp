@@ -27,9 +27,9 @@
 **
 **************************************************************************/
 
-#include "CppToolsPlugin.h"
+#include "cpptoolsplugin.h"
 #include "cpprefactoringchanges.h"
-#include "InsertionPointLocator.h"
+#include "insertionpointlocator.h"
 
 #include <AST.h>
 #include <ASTVisitor.h>
