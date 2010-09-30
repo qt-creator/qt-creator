@@ -179,7 +179,6 @@ plugin_regexp.depends = plugin_coreplugin
 plugin_cpaster.subdir = cpaster
 plugin_cpaster.depends = plugin_texteditor
 plugin_cpaster.depends += plugin_coreplugin
-plugin_cpaster.depends += plugin_projectexplorer
 
 plugin_cmakeprojectmanager.subdir = cmakeprojectmanager
 plugin_cmakeprojectmanager.depends = plugin_texteditor

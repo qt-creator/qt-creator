@@ -14,7 +14,6 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <url>http://qt.nokia.com</url>
     <dependencyList>
         <dependency name="TextEditor" version="2.1.81"/>
-        <dependency name="ProjectExplorer" version="2.1.81"/>
         <dependency name="Core" version="2.1.81"/>
     </dependencyList>
 </plugin>
