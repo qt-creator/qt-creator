@@ -128,7 +128,9 @@ static inline QStringList validBinaryFilenames()
 
 bool QmlDumpTool::canBuild(QtVersion *qtVersion)
 {
-    return checkMinimumQtVersion(qtVersion->qtVersionString(), 4, 7, 0);
+    const QString installHeaders = qtVersion->versionInfo().value("QT_INSTALL_HEADERS");
+    const QString header = installHeaders + QLatin1String("/QtDeclarative/private/qdeclarativemetatype_p.h");
+    return checkMinimumQtVersion(qtVersion->qtVersionString(), 4, 7, 1) || QFile::exists(header);
 }
 
 static QtVersion *qtVersionForProject(ProjectExplorer::Project *project)
