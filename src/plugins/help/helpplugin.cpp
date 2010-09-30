@@ -843,9 +843,12 @@ void HelpPlugin::activateContext()
             int version = 0;
             const QRegExp exp("(\\d+)");
             QUrl source = *links.begin();
+            const QLatin1String qtRefDoc = QLatin1String("com.trolltech.qt");
+
+            // workaround to show the latest qt version
             foreach (const QUrl &tmp, links) {
                 const QString &authority = tmp.authority();
-                if (authority.startsWith(QLatin1String("com.trolltech.qt"))) {
+                if (authority.startsWith(qtRefDoc)) {
                     if (exp.indexIn(authority) >= 0) {
                         const int tmpVersion = exp.cap(1).toInt();
                         if (tmpVersion > version) {
@@ -855,18 +858,31 @@ void HelpPlugin::activateContext()
                     }
                 }
             }
+
             const QUrl &oldSource = viewer->source();
             if (source != oldSource) {
 #if !defined(QT_NO_WEBKIT)
                 viewer->stop();
 #endif
-                viewer->setSource(source);
-                connect(viewer, SIGNAL(loadFinished(bool)), this,
-                    SLOT(highlightSearchTerms()));
+                const QString &fragment = source.fragment();
+                const bool isQtRefDoc = source.authority().startsWith(qtRefDoc);
+                if (isQtRefDoc) {
+                    // workaround for qt properties
+                    m_idFromContext = fragment;
 
-                if (source.toString().remove(source.fragment())
-                    == oldSource.toString().remove(oldSource.fragment())) {
+                    if (!m_idFromContext.isEmpty()) {
+                        connect(viewer, SIGNAL(loadFinished(bool)), this,
+                            SLOT(highlightSearchTerms()));
+                    }
+                }
+
+                viewer->setSource(source);
+
+                if (isQtRefDoc && !m_idFromContext.isEmpty()) {
+                    if (source.toString().remove(fragment)
+                        == oldSource.toString().remove(oldSource.fragment())) {
                         highlightSearchTerms();
+                    }
                 }
             } else {
 #if !defined(QT_NO_WEBKIT)
@@ -1026,11 +1042,6 @@ void HelpPlugin::highlightSearchTerms()
             SLOT(highlightSearchTerms()));
 
 #if !defined(QT_NO_WEBKIT)
-        const QString &attrValue = m_idFromContext.mid(m_idFromContext
-            .lastIndexOf(QChar(':')) + 1);
-        if (attrValue.isEmpty())
-            return;
-
         const QWebElement &document = viewer->page()->mainFrame()->documentElement();
         const QWebElementCollection &collection = document.findAll(QLatin1String("h3.fn a"));
 
@@ -1046,14 +1057,15 @@ void HelpPlugin::highlightSearchTerms()
                 parent.setStyleProperty(property, m_styleProperty);
             }
 
-            if (attrValue == name || name.startsWith(attrValue + QLatin1Char('-'))) {
+            if (m_idFromContext == name
+                || name.startsWith(m_idFromContext + QLatin1Char('-'))) {
                 QWebElement parent = element.parent();
                 m_styleProperty = parent.styleProperty(property,
                     QWebElement::ComputedStyle);
                 parent.setStyleProperty(property, QLatin1String("yellow"));
             }
         }
-        m_oldAttrValue = attrValue;
+        m_oldAttrValue = m_idFromContext;
 #endif
     }
 }
