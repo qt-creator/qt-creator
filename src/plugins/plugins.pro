@@ -184,7 +184,6 @@ plugin_cmakeprojectmanager.subdir = cmakeprojectmanager
 plugin_cmakeprojectmanager.depends = plugin_texteditor
 plugin_cmakeprojectmanager.depends += plugin_projectexplorer
 plugin_cmakeprojectmanager.depends += plugin_cpptools
-plugin_cmakeprojectmanager.depends += plugin_cppeditor
 plugin_cmakeprojectmanager.depends += plugin_designer
 
 plugin_genericprojectmanager.subdir = genericprojectmanager
