@@ -32,7 +32,9 @@
              example, STL ones like <string>. Those can have a big initial
              comment exceeding 1000 chars, though. -->
         <magic priority="50">
-           <match value="#ifndef" type="string" offset="0:2000"/>
+           <match value="#ifndef " type="string" offset="0:2000"/>
+           <match value="#if " type="string" offset="0:2000"/>
+           <match value="#include " type="string" offset="0:2000"/>
         </magic>
     </mime-type>
 
