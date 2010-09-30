@@ -101,7 +101,7 @@ struct ProjectEntry {
     int compare(const ProjectEntry &rhs) const;
 
     ProjectNode *node;
-    QString nativeDirectory; // For matching against wizards' files, which are native.
+    QString directory; // For matching against wizards' files, which are native.
     QString fileName;
     QString baseName;
     Type type;
@@ -116,13 +116,13 @@ ProjectEntry::ProjectEntry(ProjectNode *n) :
     baseName = fi.baseName();
     if (fi.suffix() != QLatin1String("pro"))
         type = PriFile;
-    nativeDirectory = QDir::toNativeSeparators(fi.absolutePath());
+    directory = fi.absolutePath();
 }
 
 // Sort helper that sorts by base name and puts '*.pro' before '*.pri'
 int ProjectEntry::compare(const ProjectEntry &rhs) const
 {
-    if (const int drc = nativeDirectory.compare(rhs.nativeDirectory))
+    if (const int drc = directory.compare(rhs.directory))
         return drc;
     if (const int brc = baseName.compare(rhs.baseName))
         return brc;
@@ -140,7 +140,7 @@ inline bool operator<(const ProjectEntry &pe1, const ProjectEntry &pe2)
 
 QDebug operator<<(QDebug d, const ProjectEntry &e)
 {
-    d.nospace() << e.nativeDirectory << ' ' << e.fileName << ' ' << e.type;
+    d.nospace() << e.directory << ' ' << e.fileName << ' ' << e.type;
     return d;
 }
 
@@ -212,7 +212,7 @@ static int findMatchingProject(const QList<ProjectEntry> &projects,
     const int count = projects.size();
     for (int p = 0; p < count; p++) {
         // Direct match or better match? (note that the wizards' files are native).
-        const QString &projectDirectory = projects.at(p).nativeDirectory;
+        const QString &projectDirectory = projects.at(p).directory;
         if (projectDirectory == commonPath)
             return p;
         if (projectDirectory.size() > bestMatchLength
@@ -357,7 +357,7 @@ void ProjectFileWizardExtension::initProjectChoices(const QString &generatedProj
     for (ProjectEntryMap::const_iterator it = entryMap.constBegin(); it != cend; ++it) {
         m_context->projects.push_back(it.key());
         projectChoices.push_back(it.key().fileName);
-        projectToolTips.push_back(it.key().nativeDirectory);
+        projectToolTips.push_back(QDir::toNativeSeparators(it.key().directory));
     }
 
     m_context->page->setProjects(projectChoices);
