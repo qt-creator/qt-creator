@@ -3,7 +3,9 @@
 
 #include "qmlgraphicsitemnodeinstance.h"
 
+QT_BEGIN_NAMESPACE
 class QDeclarativeBasePositioner;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 namespace Internal {
