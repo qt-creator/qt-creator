@@ -1818,21 +1818,7 @@
 
     You use wizards to create and import several types of projects and files, such
     as Qt GUI or console applications and Qt Quick applications.
-    You can also use
-    wizards to add individual files to your projects. For example, you can create
-    the following types of files:
-
-    \list
-
-        \o Qt resource files, which allow you to store binary files in the
-        application executable
-
-        \o \QD forms and Qt QML files, which specify parts of application user
-        interfaces
-
-        \o C++ class, source, or header files
-
-    \endlist
+    You can use wizards also to add individual files to your projects.
 
     The wizards prompt you to enter the settings needed
     for that particular type of project and create the necessary files for you.
@@ -1863,6 +1849,14 @@
            path.
 
            \image qtcreator-intro-and-location.png
+
+        \o Select the Qt versions to use as build targets for your project, and click
+           \gui{Next}.
+
+           \image qtcreator-new-project-qt-versions.png "Target setting dialog"
+
+           \note If you have only one Qt version installed, this dialog is skipped.
+
         \o Specify the name of the class you want to create and using the
            drop-down menu select its base class type.
 
@@ -1878,10 +1872,43 @@
            \image qtcreator-new-project-summary.png
     \endlist
 
+    \section1 Adding Files to Projects
+
+    You can create the following types of files:
+
+    \list
+
+        \o Qt resource files, which allow you to store binary files in the
+        application executable
+
+        \o \QD forms and Qt QML files, which specify parts of application user
+        interfaces
+
+        \o C++ class, source, or header files
+
+        \o Text files
+
+    \endlist
+
+    \section2 Creating C++ Classes
+
+    The \gui {C++ Class Wizard} allows you to create a C++ header and source file for
+    a new class that you can add to a C++ project. Specify the class name, base
+    class, and header and source files for the class.
+
+    The  wizard supports namespaces. To use a namespace, enter a qualified
+    class name in the \gui {Class name} field. For example:
+    MyNamespace::MySubNamespace::MyClass.
+
+    \image qtcreator-cpp-class-wizard.png "Enter Class Name dialog"
+
+    The names of the header and source file are based on the class name. To change the
+    default suffix of a file, click \gui Configure.
+
     You can create your own project and class wizards. For more information,
     see \l{Adding New Custom Wizards}.
 
-    \section1 Displaying Additional File Types in Projects Pane
+    \section2 Displaying Additional File Types in Projects Pane
 
     Qt Creator determines whether to display files from the project folder
     in the \gui Projects pane depending on the file type (.pro, .pri, .cpp,
