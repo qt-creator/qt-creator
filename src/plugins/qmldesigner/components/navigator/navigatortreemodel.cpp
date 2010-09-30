@@ -36,6 +36,7 @@
 #include <propertymetainfo.h>
 #include <qgraphicswidget.h>
 #include <abstractview.h>
+#include <rewriterview.h>
 #include <invalididexception.h>
 #include <rewritingexception.h>
 
@@ -297,10 +298,11 @@ void NavigatorTreeModel::handleChangedItem(QStandardItem *item)
 
     ItemRow itemRow = itemRowForNode(node);
     if (item == itemRow.idItem) {
-        try {
-            node.setId(item->text());
-        } catch (InvalidIdException &e) {
-            QMessageBox::warning(0, tr("Invalid Id"), e.description());
+         if (node.isValidId(item->text())) {
+             if (node.view()->rewriterView())
+                node.view()->rewriterView()->renameId(node.id(), item->text());
+        } else {
+            QMessageBox::warning(0, tr("Invalid Id"), item->text() + tr(" is an invalid id"));
             item->setText(node.id());
         }
     } else if (item == itemRow.visibilityItem) {

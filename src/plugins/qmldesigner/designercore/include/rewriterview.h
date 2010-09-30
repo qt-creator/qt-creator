@@ -159,6 +159,8 @@ public:
     int firstDefinitionInsideLength(const ModelNode &node) const;
     bool modificationGroupActive();
 
+    bool renameId(const QString& oldId, const QString& newId);
+
 signals:
     void errorsChanged(const QList<RewriterView::Error> &errors);
 

@@ -243,6 +243,8 @@ public:
     bool updateSelectedElements() const;
     void setUpdateSelectedElements(bool value);
 
+    void renameId(const QString &oldId, const QString &newId);
+
 public slots:
     void followSymbolUnderCursor();
     void findUsages();

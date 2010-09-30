@@ -348,6 +348,15 @@ NodeInstanceView *AbstractView::nodeInstanceView() const
     }
 }
 
+RewriterView *AbstractView::rewriterView() const
+{
+    if (model()) {
+        return model()->m_d->rewriterView();
+    } else {
+        return 0;
+    }
+}
+
 QList<ModelNode> AbstractView::allModelNodes()
 {
    return toModelNodeList(model()->m_d->allNodes());

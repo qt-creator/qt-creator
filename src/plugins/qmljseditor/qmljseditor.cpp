@@ -1045,6 +1045,18 @@ void QmlJSTextEditor::setUpdateSelectedElements(bool value)
     m_updateSelectedElements = value;
 }
 
+void QmlJSTextEditor::renameId(const QString &oldId, const QString &newId)
+{
+    Utils::ChangeSet changeSet;
+
+    foreach (const AST::SourceLocation &loc, m_semanticInfo.idLocations.value(oldId)) {
+        changeSet.replace(loc.begin(), loc.end(), newId);
+    }
+
+    QTextCursor tc = textCursor();
+    changeSet.apply(&tc);
+}
+
 void QmlJSTextEditor::updateUsesNow()
 {
     if (document()->revision() != m_semanticInfo.revision()) {
@@ -1242,14 +1254,7 @@ void QmlJSTextEditor::renameIdUnderCursor()
                                                 QLineEdit::Normal,
                                                 id, &ok);
     if (ok) {
-        Utils::ChangeSet changeSet;
-
-        foreach (const AST::SourceLocation &loc, m_semanticInfo.idLocations.value(id)) {
-            changeSet.replace(loc.begin(), loc.end(), newId);
-        }
-
-        QTextCursor tc = textCursor();
-        changeSet.apply(&tc);
+        renameId(id, newId);
     }
 }
 

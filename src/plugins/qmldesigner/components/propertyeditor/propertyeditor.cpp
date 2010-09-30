@@ -43,6 +43,7 @@
 #include <bindingproperty.h>
 
 #include <nodeabstractproperty.h>
+#include <rewriterview.h>
 
 #include "propertyeditorvalue.h"
 #include "basiclayouts.h"
@@ -354,13 +355,13 @@ void PropertyEditor::changeValue(const QString &propertyName)
         PropertyEditorValue *value = qobject_cast<PropertyEditorValue*>(QDeclarativeMetaType::toQObject(m_currentType->m_backendValuesPropertyMap.value(propertyName)));
         const QString newId = value->value().toString();
 
-        try {
-            m_selectedNode.setId(newId);
-        } catch (InvalidIdException &e) {
+        if (m_selectedNode.isValidId(newId)) {
+            if (rewriterView())
+                rewriterView()->renameId(m_selectedNode.id(), newId);
+        } else {
             value->setValue(m_selectedNode.id());
-            QMessageBox::warning(0, tr("Invalid Id"), e.description());
+            QMessageBox::warning(0, tr("Invalid Id"), newId + tr(" is an invalid id"));
         }
-
         return;
     }
 

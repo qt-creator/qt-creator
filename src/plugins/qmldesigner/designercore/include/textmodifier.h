@@ -87,6 +87,8 @@ public:
     virtual QmlJS::Snapshot getSnapshot() const = 0;
     virtual QStringList importPaths() const = 0;
 
+    virtual bool renameId(const QString &oldId, const QString &newId) = 0;
+
 signals:
     void textChanged();
 

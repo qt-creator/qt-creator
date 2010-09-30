@@ -55,6 +55,7 @@ namespace QmlDesigner {
 
 class QmlModelView;
 class NodeInstanceView;
+class RewriterView;
 
 class CORESHARED_EXPORT AbstractView : public QObject
 {
@@ -141,6 +142,7 @@ public:
     void changeRootNodeType(const QString &type, int majorVersion, int minorVersion);
 
     NodeInstanceView *nodeInstanceView() const;
+    RewriterView *rewriterView() const;
 
 protected:
     void setModel(Model * model);

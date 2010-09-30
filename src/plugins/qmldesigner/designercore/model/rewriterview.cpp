@@ -539,6 +539,14 @@ bool RewriterView::modificationGroupActive()
     return m_modificationGroupActive;
 }
 
+bool RewriterView::renameId(const QString& oldId, const QString& newId)
+{
+    if (textModifier())
+        return textModifier()->renameId(oldId, newId);
+
+    return false;
+}
+
 void RewriterView::qmlTextChanged()
 {
     if (inErrorState())
