@@ -117,9 +117,6 @@ QDeclarativeViewObserver::QDeclarativeViewObserver(QDeclarativeView *view, QObje
     data->createToolbar();
 
     data->_q_changeToSingleSelectTool();
-
-    // always start debug mode - that's what this design view is for.
-    setDebugMode(true);
 }
 
 QDeclarativeViewObserver::~QDeclarativeViewObserver()
