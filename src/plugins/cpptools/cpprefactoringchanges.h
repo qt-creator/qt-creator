@@ -35,15 +35,15 @@
 #include <cplusplus/LookupContext.h>
 
 #include <cpptools/cppmodelmanagerinterface.h>
-#include <cppeditor/cppeditor_global.h>
+#include <cpptools/cpptools_global.h>
 
 #include <texteditor/refactoringchanges.h>
 
-namespace CppEditor {
+namespace CppTools {
 
 class CppRefactoringChanges;
 
-class CPPEDITOR_EXPORT CppRefactoringFile: public TextEditor::RefactoringFile
+class CPPTOOLS_EXPORT CppRefactoringFile: public TextEditor::RefactoringFile
 {
 public:
     CppRefactoringFile();
@@ -79,7 +79,7 @@ private:
     mutable CPlusPlus::Document::Ptr m_cppDocument;
 };
 
-class CPPEDITOR_EXPORT CppRefactoringChanges: public TextEditor::RefactoringChanges
+class CPPTOOLS_EXPORT CppRefactoringChanges: public TextEditor::RefactoringChanges
 {
 public:
     CppRefactoringChanges(const CPlusPlus::Snapshot &snapshot);
@@ -99,6 +99,6 @@ private:
     CppTools::CppModelManagerInterface::WorkingCopy m_workingCopy;
 };
 
-} // namespace CppEditor
+} // namespace CppTools
 
 #endif // CPPREFACTORINGCHANGES_H

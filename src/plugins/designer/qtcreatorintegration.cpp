@@ -37,8 +37,9 @@
 #include <widgethost.h>
 
 #include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cpprefactoringchanges.h>
 #include <cpptools/cpptoolsconstants.h>
-#include <cplusplus/InsertionPointLocator.h>
+#include <cpptools/insertionpointlocator.h>
 #include <cplusplus/Symbols.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/CoreTypes.h>
@@ -282,9 +283,10 @@ static void addDeclaration(const Snapshot &snapshot,
     declaration += functionName;
     declaration += QLatin1String(";\n");
 
-    InsertionPointLocator find(snapshot);
-    const InsertionLocation loc = find.methodDeclarationInClass(
-                fileName, cl, InsertionPointLocator::PrivateSlot);
+    CppTools::CppRefactoringChanges refactoring(snapshot);
+    CppTools::InsertionPointLocator find(&refactoring);
+    const CppTools::InsertionLocation loc = find.methodDeclarationInClass(
+                fileName, cl, CppTools::InsertionPointLocator::PrivateSlot);
 
     //
     //! \todo change this to use the Refactoring changes.

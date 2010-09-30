@@ -30,19 +30,27 @@
 #ifndef INSERTIONPOINTLOCATOR_H
 #define INSERTIONPOINTLOCATOR_H
 
+#include "cpptools_global.h"
+
 #include <ASTfwd.h>
 #include <CPlusPlusForwardDeclarations.h>
 #include <Symbols.h>
 
-#include "CppDocument.h"
+#include <cplusplus/CppDocument.h>
 
-namespace CPlusPlus {
+namespace CppTools {
 
-class CPLUSPLUS_EXPORT InsertionLocation
+class CppRefactoringChanges;
+
+class CPPTOOLS_EXPORT InsertionLocation
 {
 public:
     InsertionLocation();
-    InsertionLocation(const QString &prefix, const QString &suffix, unsigned line, unsigned column);
+    InsertionLocation(const QString &fileName, const QString &prefix,
+                      const QString &suffix, unsigned line, unsigned column);
+
+    QString fileName() const
+    { return m_fileName; }
 
     /// \returns The prefix to insert before any other text.
     QString prefix() const
@@ -61,16 +69,17 @@ public:
     { return m_column; }
 
     bool isValid() const
-    { return m_line > 0 && m_column > 0; }
+    { return !m_fileName.isEmpty() && m_line > 0 && m_column > 0; }
 
 private:
+    QString m_fileName;
     QString m_prefix;
     QString m_suffix;
     unsigned m_line;
     unsigned m_column;
 };
 
-class CPLUSPLUS_EXPORT InsertionPointLocator
+class CPPTOOLS_EXPORT InsertionPointLocator
 {
 public:
     enum AccessSpec {
@@ -89,18 +98,18 @@ public:
     };
 
 public:
-    InsertionPointLocator(const Snapshot &snapshot);
+    InsertionPointLocator(CppRefactoringChanges *refactoringChanges);
 
     InsertionLocation methodDeclarationInClass(const QString &fileName,
-                                               const Class *clazz,
+                                               const CPlusPlus::Class *clazz,
                                                AccessSpec xsSpec) const;
 
-    QList<InsertionLocation> methodDefinition(const QString &fileName) const;
+    QList<InsertionLocation> methodDefinition(CPlusPlus::Declaration *declaration) const;
 
 private:
-    Snapshot m_snapshot;
+    CppRefactoringChanges *m_refactoringChanges;
 };
 
-} // namespace CPlusPlus
+} // namespace CppTools
 
 #endif // INSERTIONPOINTLOCATOR_H
