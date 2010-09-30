@@ -87,7 +87,7 @@ plugin_imageviewer.subdir = imageviewer
 plugin_imageviewer.depends = plugin_coreplugin
 
 plugin_designer.subdir = designer
-plugin_designer.depends = plugin_coreplugin plugin_cppeditor plugin_projectexplorer
+plugin_designer.depends = plugin_coreplugin plugin_cpptools plugin_projectexplorer plugin_texteditor
 
 plugin_vcsbase.subdir = vcsbase
 plugin_vcsbase.depends = plugin_find

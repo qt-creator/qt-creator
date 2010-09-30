@@ -34,7 +34,6 @@
 
 #ifdef CPP_ENABLED
 #  include "formclasswizard.h"
-#  include <cppeditor/cppeditorconstants.h>
 #  include "cppsettingspage.h"
 #endif
 
