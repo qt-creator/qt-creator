@@ -31,6 +31,7 @@ private Q_SLOTS:
     void ifStatementWithoutBraces2();
     void ifStatementWithBraces1();
     void ifStatementWithBraces2();
+    void ifStatementWithBraces3();
     void ifStatementMixed();
     void ifStatementAndComments();
     void ifStatementLongCondition();
@@ -539,6 +540,18 @@ void tst_QMLCodeFormatter::ifStatementWithBraces2()
          << Line("    {")
          << Line("        foo")
          << Line("    }")
+         << Line("}");
+    checkIndent(data);
+}
+
+void tst_QMLCodeFormatter::ifStatementWithBraces3()
+{
+    QList<Line> data;
+    data << Line("function foo() {")
+         << Line("    if (a) {")
+         << Line("        continue")
+         << Line("    }")
+         << Line("    var foo")
          << Line("}");
     checkIndent(data);
 }
