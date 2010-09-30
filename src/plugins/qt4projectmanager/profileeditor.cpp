@@ -140,7 +140,8 @@ void ProFileEditor::setFontSettings(const TextEditor::FontSettings &fs)
     if (categories.isEmpty()) {
         categories << QLatin1String(TextEditor::Constants::C_TYPE)
                    << QLatin1String(TextEditor::Constants::C_KEYWORD)
-                   << QLatin1String(TextEditor::Constants::C_COMMENT);
+                   << QLatin1String(TextEditor::Constants::C_COMMENT)
+                   << QLatin1String(TextEditor::Constants::C_VISUAL_WHITESPACE);
     }
 
     const QVector<QTextCharFormat> formats = fs.toTextCharFormats(categories);

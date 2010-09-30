@@ -123,7 +123,6 @@ private:
                      int count,
                      const QString &itemDataName,
                      const QSharedPointer<HighlightDefinition> &definition);
-    void applyVisualWhitespaceFormat(const QString &text);
 
     void applyRegionBasedFolding() const;
     void applyIndentationBasedFolding(const QString &text) const;

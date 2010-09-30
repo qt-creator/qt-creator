@@ -46,6 +46,7 @@ public:
         ProfileVariableFormat,
         ProfileFunctionFormat,
         ProfileCommentFormat,
+        ProfileVisualWhitespaceFormat,
         NumProfileFormats
     };
 

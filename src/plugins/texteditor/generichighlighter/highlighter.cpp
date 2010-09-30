@@ -140,7 +140,7 @@ void Highlighter::highlightBlock(const QString &text)
         }
     }
 
-    applyVisualWhitespaceFormat(text);
+    applyFormatToSpaces(text, m_creatorFormats.value(VisualWhitespace));
 }
 
 void Highlighter::setupDataForBlock(const QString &text)
@@ -405,22 +405,6 @@ void Highlighter::applyFormat(int offset,
         }
 
         setFormat(offset, count, format);
-    }
-}
-
-void Highlighter::applyVisualWhitespaceFormat(const QString &text)
-{
-    int offset = 0;
-    const int length = text.length();
-    while (offset < length) {
-        if (text.at(offset).isSpace()) {
-            int start = offset++;
-            while (offset < length && text.at(offset).isSpace())
-                ++offset;
-            setFormat(start, offset - start, m_creatorFormats.value(VisualWhitespace));
-        } else {
-            ++offset;
-        }
     }
 }
 
