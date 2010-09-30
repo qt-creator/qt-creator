@@ -569,6 +569,9 @@ void Qt4Project::updateCppCodeModel()
 
 void Qt4Project::updateQmlJSCodeModel()
 {
+    if (m_projectFiles->files[QMLType].isEmpty())
+        return;
+
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
     if (!modelManager)
         return;
@@ -587,7 +590,7 @@ void Qt4Project::updateQmlJSCodeModel()
     projectInfo.importPaths.removeDuplicates();
 
     if (projectInfo.qmlDumpPath.isNull()) {
-        projectInfo.qmlDumpPath = QmlDumpTool::qmlDumpPath();
+        projectInfo.qmlDumpPath = QmlDumpTool::qmlDumpPath(this);
     }
 
     modelManager->updateProjectInfo(projectInfo);

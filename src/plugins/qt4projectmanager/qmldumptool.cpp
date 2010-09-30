@@ -30,14 +30,90 @@
 #include "qmldumptool.h"
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
+#include "qtversionmanager.h"
 #include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
+#include <qtconcurrent/runextensions.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <QDesktopServices>
 #include <QCoreApplication>
 #include <QDir>
 #include <QDebug>
+#include <QHash>
+
+namespace {
+using namespace Qt4ProjectManager;
+
+class QmlDumpBuildTask;
+
+typedef QHash<int, QmlDumpBuildTask *> QmlDumpByVersion;
+Q_GLOBAL_STATIC(QmlDumpByVersion, runningQmlDumpBuilds);
+
+// A task suitable to be run by QtConcurrent to build qmldump.
+class QmlDumpBuildTask : public QObject {
+    Q_DISABLE_COPY(QmlDumpBuildTask)
+    Q_OBJECT
+public:
+    explicit QmlDumpBuildTask(QtVersion *version)
+        : m_version(*version)
+    {
+        runningQmlDumpBuilds()->insert(m_version.uniqueId(), this);
+    }
+
+    void run(QFutureInterface<void> &future)
+    {
+        future.setProgressRange(0, 5);
+        future.setProgressValue(1);
+        const QString output = m_version.buildDebuggingHelperLibrary(future, true);
+
+        const QString qtInstallData = m_version.versionInfo().value("QT_INSTALL_DATA");
+        QString path = QmlDumpTool::toolByInstallData(qtInstallData);
+        if (path.isEmpty()) {
+            qWarning() << "Could not build QML plugin dumping helper for " << m_version.displayName()
+                       << "\nOutput:\n" << output;
+        }
+
+        // proceed in gui thread
+        metaObject()->invokeMethod(this, "finish", Qt::QueuedConnection, Q_ARG(QString, path));
+    }
+
+    void updateProjectWhenDone(ProjectExplorer::Project *project)
+    {
+        m_projectsToUpdate.insert(project);
+    }
+
+public slots:
+    void finish(QString qmldumpPath)
+    {
+        deleteLater();
+        runningQmlDumpBuilds()->remove(m_version.uniqueId());
+
+        if (qmldumpPath.isEmpty())
+            return;
+
+        // update qmldump path for all the project
+        QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
+        if (!modelManager)
+            return;
+
+        foreach (ProjectExplorer::Project *project, m_projectsToUpdate) {
+            QmlJS::ModelManagerInterface::ProjectInfo projectInfo = modelManager->projectInfo(project);
+            if (projectInfo.qmlDumpPath.isEmpty()) {
+                projectInfo.qmlDumpPath = qmldumpPath;
+                modelManager->updateProjectInfo(projectInfo);
+            }
+        }
+    }
+
+private:
+    QSet<ProjectExplorer::Project *> m_projectsToUpdate;
+    QtVersion m_version;
+};
+} // end of anonymous namespace
+
 
 namespace Qt4ProjectManager {
 
@@ -55,20 +131,48 @@ bool QmlDumpTool::canBuild(QtVersion *qtVersion)
     return checkMinimumQtVersion(qtVersion->qtVersionString(), 4, 7, 0);
 }
 
-QString QmlDumpTool::toolForProject(ProjectExplorer::Project *project)
+static QtVersion *qtVersionForProject(ProjectExplorer::Project *project)
 {
     if (project && project->id() == Qt4ProjectManager::Constants::QT4PROJECT_ID) {
         Qt4Project *qt4Project = static_cast<Qt4Project*>(project);
         if (qt4Project && qt4Project->activeTarget()
-         && qt4Project->activeTarget()->activeBuildConfiguration()) {
+                && qt4Project->activeTarget()->activeBuildConfiguration()) {
             QtVersion *version = qt4Project->activeTarget()->activeBuildConfiguration()->qtVersion();
-            if (version->isValid()) {
-                QString qtInstallData = version->versionInfo().value("QT_INSTALL_DATA");
-                QString toolPath = toolByInstallData(qtInstallData);
-                return toolPath;
+            if (version->isValid())
+                return version;
+        }
+        return 0;
+    }
+
+    // else, find any desktop Qt version that has qmldump, or - if there isn't any -
+    // one that could build it
+    QtVersion *desktopQt = 0;
+    QtVersionManager *qtVersions = QtVersionManager::instance();
+    foreach (QtVersion *version, qtVersions->validVersions()) {
+        if (version->supportsTargetId(Constants::DESKTOP_TARGET_ID)) {
+            const QString qtInstallData = version->versionInfo().value("QT_INSTALL_DATA");
+            const QString path = QmlDumpTool::toolByInstallData(qtInstallData);
+            if (!path.isEmpty())
+                return version;
+
+            if (!desktopQt && QmlDumpTool::canBuild(version)) {
+                desktopQt = version;
             }
         }
     }
+
+    return desktopQt;
+}
+
+QString QmlDumpTool::toolForProject(ProjectExplorer::Project *project)
+{
+    QtVersion *version = qtVersionForProject(project);
+    if (version) {
+        QString qtInstallData = version->versionInfo().value("QT_INSTALL_DATA");
+        QString toolPath = toolByInstallData(qtInstallData);
+        return toolPath;
+    }
+
     return QString();
 }
 
@@ -139,38 +243,41 @@ QStringList QmlDumpTool::installDirectories(const QString &qtInstallData)
     return directories;
 }
 
-QString QmlDumpTool::qmlDumpPath()
+QString QmlDumpTool::qmlDumpPath(ProjectExplorer::Project *project)
 {
     QString path;
 
-    ProjectExplorer::Project *activeProject = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
-    path = Qt4ProjectManager::QmlDumpTool::toolForProject(activeProject);
+    path = Qt4ProjectManager::QmlDumpTool::toolForProject(project);
 
-    // ### this is needed for qmlproject and cmake project support, but may not work in all cases.
-    if (path.isEmpty()) {
-        // Try to locate default path in Qt Versions
-        QtVersionManager *qtVersions = QtVersionManager::instance();
-        foreach (QtVersion *version, qtVersions->validVersions()) {
-            if (version->supportsTargetId(Constants::DESKTOP_TARGET_ID)) {
-                const QString qtInstallData = version->versionInfo().value("QT_INSTALL_DATA");
-                path = QmlDumpTool::toolByInstallData(qtInstallData);
-
-                if (!path.isEmpty()) {
-                    break;
-                }
-            }
+    QtVersion *version = qtVersionForProject(project);
+    if (version && path.isEmpty()) {
+        if (runningQmlDumpBuilds()->contains(version->uniqueId())) {
+            runningQmlDumpBuilds()->value(version->uniqueId())->updateProjectWhenDone(project);
+        } else {
+            QmlDumpBuildTask *buildTask = new QmlDumpBuildTask(version);
+            buildTask->updateProjectWhenDone(project);
+            QFuture<void> task = QtConcurrent::run(&QmlDumpBuildTask::run, buildTask);
+            const QString taskName = QmlDumpBuildTask::tr("Building helper");
+            Core::ICore::instance()->progressManager()->addTask(task, taskName,
+                                                                QLatin1String("Qt4ProjectManager::BuildHelpers"));
         }
+        return path;
     }
-    QFileInfo qmldumpFileInfo(path);
-    if (!qmldumpFileInfo.exists()) {
-        //qWarning() << "QmlDumpTool::qmlDumpPath: qmldump executable does not exist at" << path;
-        path.clear();
-    } else if (!qmldumpFileInfo.isFile()) {
-        qWarning() << "QmlDumpTool::qmlDumpPath: " << path << " is not a file";
-        path.clear();
+
+    if (!path.isEmpty()) {
+        QFileInfo qmldumpFileInfo(path);
+        if (!qmldumpFileInfo.exists()) {
+            qWarning() << "QmlDumpTool::qmlDumpPath: qmldump executable does not exist at" << path;
+            path.clear();
+        } else if (!qmldumpFileInfo.isFile()) {
+            qWarning() << "QmlDumpTool::qmlDumpPath: " << path << " is not a file";
+            path.clear();
+        }
     }
 
     return path;
 }
 
-} // namespace
+} // namespace Qt4ProjectManager
+
+#include "qmldumptool.moc"

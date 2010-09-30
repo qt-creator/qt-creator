@@ -122,7 +122,7 @@ public:
 
     // Builds a debugging library
     // returns the output of the commands
-    QString buildDebuggingHelperLibrary(QFutureInterface<void> &future);
+    QString buildDebuggingHelperLibrary(QFutureInterface<void> &future, bool onlyQmlDump = false);
 
     bool hasExamples() const;
     QString examplesPath() const;
