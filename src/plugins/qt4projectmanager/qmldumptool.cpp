@@ -164,7 +164,7 @@ QString QmlDumpTool::qmlDumpPath()
     }
     QFileInfo qmldumpFileInfo(path);
     if (!qmldumpFileInfo.exists()) {
-        qWarning() << "QmlDumpTool::qmlDumpPath: qmldump executable does not exist at" << path;
+        //qWarning() << "QmlDumpTool::qmlDumpPath: qmldump executable does not exist at" << path;
         path.clear();
     } else if (!qmldumpFileInfo.isFile()) {
         qWarning() << "QmlDumpTool::qmlDumpPath: " << path << " is not a file";
