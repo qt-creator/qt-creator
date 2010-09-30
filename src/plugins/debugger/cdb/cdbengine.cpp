@@ -563,6 +563,8 @@ void CdbEngine::processTerminated(unsigned long exitCode)
 
 bool CdbEnginePrivate::endInferior(bool detachOnly, QString *errorMessage)
 {
+    if (debugCDBExecution)
+        qDebug("endInferior detach=%d, %s", detachOnly, DebuggerEngine::stateName(m_engine->state()));
     // Are we running
     switch (m_engine->state()) {
     case InferiorRunRequested:
@@ -572,6 +574,7 @@ bool CdbEnginePrivate::endInferior(bool detachOnly, QString *errorMessage)
     case InferiorStopOk:
     case InferiorStopFailed:
     case InferiorShutdownRequested:
+    case EngineShutdownRequested: // Forwarded when choosing 'Abort...' an attached process.
         break;
     default:
         return true;
