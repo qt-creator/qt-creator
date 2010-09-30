@@ -314,16 +314,23 @@ CppDeclarableElement::CppDeclarableElement(Symbol *declaration) : CppElement()
         declaration->enclosingScope()->isNamespace() ||
         declaration->enclosingScope()->isEnum()) {
         m_qualifiedName = overview.prettyName(LookupContext::fullyQualifiedName(declaration));
+
+        QStringList helpIds;
+        helpIds << m_qualifiedName;
+        int colonColon = 0;
+        const int size = m_qualifiedName.size();
+        while ((colonColon = m_qualifiedName.indexOf(QLatin1String("::"), colonColon)) != -1) {
+            helpIds << m_qualifiedName.right(size - colonColon - 2);
+            colonColon += 2;
+        }
+        setHelpIdCandidates(helpIds);
     } else {
         m_qualifiedName = m_name;
+        setHelpIdCandidates(QStringList(m_name));
     }
 
     setTooltip(overview.prettyType(declaration->type(), m_qualifiedName));
     setLink(CPPEditor::linkToSymbol(declaration));
-
-    QStringList helpIds;
-    helpIds << m_qualifiedName << m_name;
-    setHelpIdCandidates(helpIds);
     setHelpMark(m_name);
 }
 
