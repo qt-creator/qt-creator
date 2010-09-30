@@ -29,9 +29,10 @@
         <glob pattern="*.hpp"/>
         <glob pattern="*.hp"/>
         <!-- Find include guards of header files without extension, for
-             example, STL ones like <string> -->
+             example, STL ones like <string>. Those can have a big initial
+             comment exceeding 1000 chars, though. -->
         <magic priority="50">
-           <match value="#ifndef" type="string" offset="0:1000"/>
+           <match value="#ifndef" type="string" offset="0:2000"/>
         </magic>
     </mime-type>
 
