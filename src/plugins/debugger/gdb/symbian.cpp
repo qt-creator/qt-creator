@@ -548,7 +548,7 @@ QVector<QByteArray> gdbStartupSequence()
 } // namespace Symbian
 
 // Generic gdb server helpers: Read address/length off a memory
-// command like 'm845,455','X845,455'
+// command like 'm845,455','X845,455:'
 QPair<quint64, unsigned> parseGdbReadMemoryRequest(const QByteArray &cmd)
 {
     QPair<quint64, unsigned> rc(0, 0);
@@ -559,7 +559,11 @@ QPair<quint64, unsigned> parseGdbReadMemoryRequest(const QByteArray &cmd)
     rc.first = cmd.mid(1, pos - 1).toULongLong(&ok, 16);
     if (!ok)
         return rc;
-    rc.second = cmd.mid(pos + 1).toUInt(&ok, 16);
+    const int colonPos = cmd.indexOf(':');
+    if (colonPos == -1)
+        rc.second = cmd.mid(pos + 1).toUInt(&ok, 16);
+    else
+        rc.second = cmd.mid(pos + 1, colonPos - pos - 1 ).toUInt(&ok, 16);
     if (!ok)
         rc.first = 0;
     return rc;

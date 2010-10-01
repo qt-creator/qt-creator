@@ -162,12 +162,14 @@ private:
     void handleStep(const TrkResult &result);
     void handleReadRegisters(const TrkResult &result);
     void handleWriteRegister(const TrkResult &result);
+    void handleWriteMemory(const TrkResult &result);
     void reportToGdb(const TrkResult &result);
     void gdbSetCurrentThread(const QByteArray &cmd, const char *why);
     //void reportReadMemoryBuffered(const TrkResult &result);
     //void reportReadMemoryUnbuffered(const TrkResult &result);
 
     void readMemory(uint addr, uint len, bool buffered);
+    void writeMemory(uint addr, const QByteArray &data);
 
     void handleDirectTrk(const TrkResult &response);
     void directStep(uint addr);
