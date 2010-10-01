@@ -2659,6 +2659,8 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         enterCommandMode();
         m_submode = NoSubMode;
         m_ctrlVActive = false;
+        m_opcount.clear();
+        m_mvcount.clear();
     } else if (m_ctrlVActive) {
         insertInInsertMode(input.raw());
     } else if (input.isControl('v')) {
