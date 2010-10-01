@@ -95,6 +95,15 @@ private slots:
     void startUtfsServers();
 
 private:
+    enum State {
+        Inactive, Unmounting, UploaderInitializing, UploadRunning,
+        UtfsClientsStarting, UtfsClientsStarted, UtfsServersStarted
+    };
+
+    void assertState(State expectedState, const char *func);
+    void assertState(const QList<State> &expectedStates, const char *func);
+    void setState(State newState);
+
     void deployUtfsClient();
     void startUtfsClients();
     void killUtfsServer(QProcess *proc);
@@ -127,12 +136,6 @@ private:
     QByteArray m_umountStderr;
     MaemoPortList m_portList;
 
-    enum State {
-        Inactive, Unmounting, UploaderInitializing, UploadRunning,
-        UtfsClientsStarting, UtfsClientsStarted, UtfsServersStarted
-    };
-    void assertState(State expectedState, const char *func);
-    void assertState(const QList<State> &expectedStates, const char *func);
     State m_state;
 };
 
