@@ -76,7 +76,7 @@
     </message>
     <message>
         <source>URL:</source>
-        <translation type="unfinished"></translation>
+        <translation>URL:</translation>
     </message>
 </context>
 <context>
@@ -278,7 +278,7 @@
     <message>
         <source>Check All</source>
         <extracomment>Check all for submit</extracomment>
-        <translation type="unfinished">Zaznacz wszystko</translation>
+        <translation>Zaznacz wszystko</translation>
     </message>
     <message>
         <source>Uncheck All</source>
@@ -781,7 +781,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Break on exception</source>
-        <translation type="unfinished"></translation>
+        <translation>Przerwij w wyjątku</translation>
     </message>
 </context>
 <context>
@@ -877,7 +877,7 @@ It is not strictly necessary for debugging with Qt Creator.</source>
     </message>
     <message>
         <source>Use QML Observer</source>
-        <translation type="unfinished"></translation>
+        <translation>Użyj QML Observera</translation>
     </message>
 </context>
 <context>
@@ -1734,7 +1734,7 @@ Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokum
     </message>
     <message>
         <source>Return to editor on closing the last page</source>
-        <translation type="unfinished"></translation>
+        <translation>Powracaj do edytora po zamknięciu ostatniej strony</translation>
     </message>
 </context>
 <context>
@@ -2736,7 +2736,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Debugging helpers:</source>
-        <translation type="unfinished"></translation>
+        <translation>Asystenci debuggera:</translation>
     </message>
 </context>
 <context>
@@ -5640,7 +5640,7 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     </message>
     <message>
         <source>Repository status</source>
-        <translation type="unfinished"></translation>
+        <translation>Stan składnicy</translation>
     </message>
     <message>
         <source>The initial revision %1 cannot be described.</source>
@@ -5880,11 +5880,11 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     </message>
     <message>
         <source>Add Breakpoint...</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj pułapkę...</translation>
     </message>
     <message>
         <source>Edit Breakpoint Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmodyfikuj właściwości pułapki</translation>
     </message>
     <message>
         <source>Set Breakpoint...</source>
@@ -6099,11 +6099,11 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     </message>
     <message>
         <source>Initializing dumpers...</source>
-        <translation type="unfinished"></translation>
+        <translation>Inicjalizacja zrzutów...</translation>
     </message>
     <message>
         <source>Disabling dumpers due to debuggee crash...</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyłączanie zrzutów z powodu zakończenia pracy debugowanego programu...</translation>
     </message>
     <message>
         <source>Querying dumpers for &apos;%1&apos;/&apos;%2&apos; (%3)</source>
@@ -6277,11 +6277,11 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     </message>
     <message>
         <source>This switches the Locals&amp;&amp;Watchers view to automatically dereference pointers. This saves a level in the tree view, but also loses data for the now-missing intermediate level.</source>
-        <translation type="unfinished"></translation>
+        <translation>Włącza automatyczne wyłuskiwanie wskaźników w widoku ze zmiennymi lokalnymi i obserwowanymi. Brak jednego poziomu w widoku upraszcza go, ale jednocześnie powoduje utratę danych w brakującym poziomie pośrednim.</translation>
     </message>
     <message>
         <source>Use QML Observer</source>
-        <translation type="unfinished"></translation>
+        <translation>Użyj QML Observera</translation>
     </message>
     <message>
         <source>Synchronize Breakpoints</source>
@@ -8208,7 +8208,7 @@ Zaleca się użycie gdb wersji 7.1 lub późniejszej.</translation>
     </message>
     <message>
         <source>Raw pointer</source>
-        <translation type="unfinished"></translation>
+        <translation>Wskaźnik</translation>
     </message>
     <message>
         <source>Latin1 string</source>
@@ -8251,10 +8251,10 @@ Zaleca się użycie gdb wersji 7.1 lub późniejszej.</translation>
     </message>
     <message numerus="yes">
         <source>%n known types, Qt version: %1, Qt namespace: %2 Dumper version: %3</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n znany typ, wersja Qt: %1, przestrzeń nazw Qt: %2, wersja zrzutu: %3</numerusform>
+            <numerusform>%n znane typy, wersja Qt: %1, przestrzeń nazw Qt: %2, wersja zrzutu: %3</numerusform>
+            <numerusform>%n znanych typów, wersja Qt: %1, przestrzeń nazw Qt: %2, wersja zrzutu: %3</numerusform>
         </translation>
     </message>
 </context>
@@ -11434,11 +11434,11 @@ do projektu &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Simplify Tree</source>
-        <translation type="unfinished"></translation>
+        <translation>Uprość drzewo</translation>
     </message>
     <message>
         <source>Hide Generated Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukryj wygenerowane pliki</translation>
     </message>
     <message>
         <source>Synchronize with Editor</source>
@@ -11453,7 +11453,7 @@ do projektu &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Filter Tree</source>
-        <translation type="unfinished"></translation>
+        <translation>Przefiltruj drzewo</translation>
     </message>
     <message>
         <source>Filter tree</source>
@@ -12243,7 +12243,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
     <message>
         <source>Clean</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyczyść</translation>
     </message>
     <message>
         <source>Add Library...</source>
@@ -12447,12 +12447,12 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
     <message>
         <source>Binary not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono pliku binarnego</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;File:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%1&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Last&amp;nbsp;modified:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Size:&lt;/td&gt;&lt;td&gt;%3 Bytes&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;File:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%4&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Last&amp;nbsp;modified:&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Size:&lt;/td&gt;&lt;td&gt;%6 Bytes&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;File:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%7&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Last&amp;nbsp;modified:&lt;/td&gt;&lt;td&gt;%8&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Size:&lt;/td&gt;&lt;td&gt;%9 Bytes&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <extracomment>Tooltip showing the debugging helper library file.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Plik:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%1&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Ostatnio&amp;nbsp;zmodyfikowany:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Rozmiar:&lt;/td&gt;&lt;td&gt;%3 Bajtów&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Plik:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%4&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Ostatnio&amp;nbsp;zmodyfikowany:&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Rozmiar:&lt;/td&gt;&lt;td&gt;%6 Bajtów&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Plik:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%7&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Ostatnio&amp;nbsp;zmodyfikowany:&lt;/td&gt;&lt;td&gt;%8&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Rozmiar:&lt;/td&gt;&lt;td&gt;%9 Bajtów&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;File:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%1&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Last&amp;nbsp;modified:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Size:&lt;/td&gt;&lt;td&gt;%3 Bytes&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -13822,7 +13822,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     </message>
     <message>
         <source>Local</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmienna lokalna</translation>
     </message>
     <message>
         <source>Field</source>
@@ -13830,7 +13830,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     </message>
     <message>
         <source>Static</source>
-        <translation type="unfinished">Statyczne</translation>
+        <translation>Statyczna</translation>
     </message>
     <message>
         <source>Virtual Method</source>
@@ -16835,7 +16835,7 @@ Wartość dziesiętna ze znakiem (big endian): %4</translation>
     </message>
     <message>
         <source>Memory...</source>
-        <translation type="unfinished"></translation>
+        <translation>Pamięć...</translation>
     </message>
     <message>
         <source>Alt+L</source>
@@ -18708,11 +18708,11 @@ Errors:
     </message>
     <message>
         <source>New Qt Quick UI Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Nowy Qt Quick UI projekt</translation>
     </message>
     <message>
         <source>This wizard generates a Qt Quick UI project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ten kreator generuje Qt Quick UI projekt.</translation>
     </message>
 </context>
 <context>
@@ -18743,7 +18743,7 @@ Projekty aplikacji QML są uruchamiane przez przeglądarkę QML i nie muszą by�
     </message>
     <message>
         <source>Qt Quick UI</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Quick UI</translation>
     </message>
     <message>
         <source>Creates a  Qt Quick UI project with a single QML file that contains the main view.
@@ -18857,7 +18857,7 @@ You can review Qt Quick UI projects in the QML Viewer and you need not build the
     </message>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished">Argumenty:</translation>
+        <translation>Argumenty:</translation>
     </message>
     <message>
         <source>Debugger:</source>
@@ -20721,7 +20721,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Packaging for Maemo</source>
-        <translation type="unfinished"></translation>
+        <translation>Pakowanie dla Maemo</translation>
     </message>
     <message>
         <source>Package up to date.</source>
@@ -20755,7 +20755,9 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Your project name contains characters not allowed in Debian packages.
 They must only use lower-case letters, numbers, &apos;-&apos;, &apos;+&apos; and &apos;.&apos;.
 We will try to work around that, but you may experience problems.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa projektu zawiera znaki które są niedozwolone w pakietach Debiana.
+Dozwolonymi znakami są tylko małe litery, liczby, &apos;-&apos;, &apos;+&apos; oraz &apos;.&apos;.
+Przy obecnej nazwie możesz spodziewać się problemów.</translation>
     </message>
     <message>
         <source>Packaging Error: Command &apos;%1&apos; failed.</source>
@@ -20933,11 +20935,11 @@ We will try to work around that, but you may experience problems.</source>
     </message>
     <message>
         <source>Qmake does not support build directories below the source directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Qmake nie obsługuje budowania w katalogach poniżej katalogu ze źródłami.</translation>
     </message>
     <message>
         <source>The build directory needs to be at the same level as the source directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalog przeznaczony do budowania musi być na tym samym poziomie co katalog ze źródłami.</translation>
     </message>
 </context>
 <context>
@@ -21202,7 +21204,7 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     <name>ContextPaneWidgetBorderImage</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished">Formularz</translation>
+        <translation>Formularz</translation>
     </message>
     <message>
         <source>Stretch vertically. Scales the image to fit to the available area.</source>
@@ -21233,7 +21235,7 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     <name>ContextPaneWidgetImage</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished">Formularz</translation>
+        <translation>Formularz</translation>
     </message>
     <message>
         <source>The image is scaled to fit</source>
@@ -21261,7 +21263,7 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     </message>
     <message>
         <source>10 x 10</source>
-        <translation type="unfinished">10 x 10</translation>
+        <translation>10 x 10</translation>
     </message>
 </context>
 <context>
@@ -21295,7 +21297,7 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     </message>
     <message>
         <source>Play simulation</source>
-        <translation type="unfinished"></translation>
+        <translation>Odtwórz symulację</translation>
     </message>
     <message>
         <source>Easing</source>
@@ -21307,7 +21309,7 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     </message>
     <message>
         <source>Subtype</source>
-        <translation type="unfinished"></translation>
+        <translation>Podtyp</translation>
     </message>
     <message>
         <source>Acceleration or deceleration of easing curve</source>
@@ -21315,23 +21317,23 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     </message>
     <message>
         <source>Duration</source>
-        <translation type="unfinished"></translation>
+        <translation>Czas trwania</translation>
     </message>
     <message>
         <source>Duration of animation</source>
-        <translation type="unfinished"></translation>
+        <translation>Czas trwania animacji</translation>
     </message>
     <message>
         <source>INVALID</source>
-        <translation type="unfinished"></translation>
+        <translation>NIEPOPRAWNA WARTOŚĆ</translation>
     </message>
     <message>
         <source> ms</source>
-        <translation type="unfinished"></translation>
+        <translation> ms</translation>
     </message>
     <message>
         <source>Amplitude</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplituda</translation>
     </message>
     <message>
         <source>Amplitude of elastic and bounce easing curves</source>
@@ -21339,7 +21341,7 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     </message>
     <message>
         <source>Period</source>
-        <translation type="unfinished"></translation>
+        <translation>Okres</translation>
     </message>
     <message>
         <source>Easing period of an elastic curve</source>
@@ -21347,7 +21349,7 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     </message>
     <message>
         <source>Overshoot</source>
-        <translation type="unfinished"></translation>
+        <translation>Przestrzał</translation>
     </message>
     <message>
         <source>Easing overshoot for a back curve</source>
@@ -21366,7 +21368,7 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     </message>
     <message>
         <source>Show Subprojects</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż podprojekty</translation>
     </message>
 </context>
 <context>
@@ -21432,11 +21434,11 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     </message>
     <message>
         <source>Edit Breakpoint Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmodyfikuj właściwości pułapki</translation>
     </message>
     <message>
         <source>Use full path:</source>
-        <translation type="unfinished"></translation>
+        <translation>Użyj pełnej ścieżki:</translation>
     </message>
 </context>
 <context>
