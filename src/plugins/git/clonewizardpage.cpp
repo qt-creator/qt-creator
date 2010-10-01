@@ -89,7 +89,8 @@ QString CloneWizardPage::directoryFromRepository(const QString &urlIn) const
      * 'user@host:qt/qt.git', 'http://host/qt/qt.git' 'local repo'
      * ------> 'qt' .  */
 
-    QString url = urlIn.trimmed();
+    QString url = urlIn.trimmed().replace(QChar('\\'), QChar('/'));
+
     const QChar slash = QLatin1Char('/');
     // remove host
     const int protocolDelimiterPos = url.indexOf(d->protocolDelimiter); // "://"
@@ -115,8 +116,9 @@ QString CloneWizardPage::directoryFromRepository(const QString &urlIn) const
     }
     // fix invalid characters
     const QChar dash = QLatin1Char('-');
-    url.replace(slash, dash);
-    url.replace(QLatin1Char('.'), dash);
+    url.replace(QRegExp(QLatin1String("[^0-9a-zA-Z_-]")), dash);
+    // trim leading dashes (they are annoying and get created when using local pathes)
+    url.replace(QRegExp(QLatin1String("^-+")), QString());
     return url;
 }
 
