@@ -46,16 +46,6 @@
 using namespace CppEditor::Internal;
 using namespace Core;
 
-namespace {
-    QString removeClassNameQualification(const QString &name) {
-        const int index = name.lastIndexOf(QLatin1Char(':'));
-        if (index == -1)
-            return name;
-        else
-            return name.right(name.length() - index - 1);
-    }
-}
-
 CppHoverHandler::CppHoverHandler(QObject *parent) : BaseHoverHandler(parent)
 {}
 
@@ -87,16 +77,8 @@ void CppHoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
         QSharedPointer<CppElement> cppElement = evaluator.identifyCppElement();
         if (!cppElement.isNull()) {
             setToolTip(cppElement->tooltip());
-            foreach (QString helpId, cppElement->helpIdCandidates()) {
-                bool found = false;
+            foreach (const QString &helpId, cppElement->helpIdCandidates()) {
                 if (!Core::HelpManager::instance()->linksForIdentifier(helpId).isEmpty()) {
-                    found = true;
-                } else {
-                    helpId = removeClassNameQualification(helpId);
-                    if (!Core::HelpManager::instance()->linksForIdentifier(helpId).isEmpty())
-                        found = true;
-                }
-                if (found) {
                     setLastHelpItemIdentified(TextEditor::HelpItem(helpId,
                                                                    cppElement->helpMark(),
                                                                    cppElement->helpCategory()));
