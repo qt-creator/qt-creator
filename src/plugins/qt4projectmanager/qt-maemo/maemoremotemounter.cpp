@@ -308,7 +308,6 @@ void MaemoRemoteMounter::handleUtfsClientsFinished(int exitStatus)
     setState(Inactive);
     if (exitStatus == SshRemoteProcess::ExitedNormally
             && m_mountProcess->exitCode() == 0) {
-        m_utfsServerTimer->stop();
         emit reportProgress(tr("Mount operation succeeded."));
         emit mounted();
     } else {
@@ -377,6 +376,7 @@ void MaemoRemoteMounter::handleUtfsServerError(QProcess::ProcessError)
             .arg(QString::fromLocal8Bit(errorOutput));
     }
     killAllUtfsServers();
+    killUtfsClients();
     emit error(tr("Error running UTFS server: %1").arg(errorString));
 
     setState(Inactive);
@@ -434,8 +434,8 @@ void MaemoRemoteMounter::handleUtfsServerTimeout()
         return;
 
     killAllUtfsServers();
+    killUtfsClients();
     emit error(tr("Timeout waiting for UTFS servers to connect."));
-    // TODO: utfs clients are still waiting; kill them here
 
     setState(Inactive);
 }
@@ -457,6 +457,14 @@ void MaemoRemoteMounter::setState(State newState)
     if (newState == Inactive)
         m_utfsServerTimer->stop();
     m_state = newState;
+}
+
+void MaemoRemoteMounter::killUtfsClients()
+{
+    const SshRemoteProcess::Ptr utfsClientKiller
+        = m_connection->createRemoteProcess("pkill utfs-client; sleep 1; "
+            "pkill -9 utfs-client");
+    utfsClientKiller->start();
 }
 
 } // namespace Internal

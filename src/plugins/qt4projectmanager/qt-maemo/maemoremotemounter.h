@@ -108,6 +108,7 @@ private:
     void startUtfsClients();
     void killUtfsServer(QProcess *proc);
     void killAllUtfsServers();
+    void killUtfsClients();
     QString utfsClientOnDevice() const;
     QString utfsServer() const;
 
