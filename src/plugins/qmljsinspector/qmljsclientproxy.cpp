@@ -92,7 +92,6 @@ void ClientProxy::connectToServer()
     connect(m_designClient, SIGNAL(contextPathUpdated(QStringList)),
         SIGNAL(contextPathUpdated(QStringList)));
 
-    reloadEngines();
     updateConnected();
 }
 
@@ -504,6 +503,7 @@ void ClientProxy::updateConnected()
         m_isConnected = isConnected;
         if (isConnected) {
             emit connected();
+            reloadEngines();
         } else {
             emit disconnected();
         }
