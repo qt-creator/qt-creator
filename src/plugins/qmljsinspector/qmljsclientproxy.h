@@ -92,7 +92,6 @@ signals:
     void selectedItemsChanged(const QList<QDeclarativeDebugObjectReference> &selectedItems);
 
     void connected();
-    void aboutToDisconnect();
     void disconnected();
 
     void colorPickerActivated();
@@ -136,6 +135,7 @@ private slots:
     void newObjects();
 
 private:
+    void updateConnected();
     void reloadEngines();
 
     QList<QDeclarativeDebugObjectReference> objectReferences(const QDeclarativeDebugObjectReference &objectRef) const;
@@ -157,6 +157,8 @@ private:
     QList<QDeclarativeDebugEngineReference> m_engines;
     QTimer m_requestObjectsTimer;
     DebugIdHash m_debugIdHash;
+
+    bool m_isConnected;
 };
 
 } // namespace Internal

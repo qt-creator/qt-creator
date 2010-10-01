@@ -501,6 +501,20 @@ void InspectorUi::setSelectedItemsByObjectReference(QList<QDeclarativeDebugObjec
         gotoObjectReferenceDefinition(objectReferences.first());
 }
 
+void InspectorUi::enable()
+{
+    m_toolbar->enable();
+    m_crumblePath->setEnabled(true);
+    m_objectTreeWidget->setEnabled(true);
+}
+
+void InspectorUi::disable()
+{
+    m_toolbar->disable();
+    m_crumblePath->setEnabled(false);
+    m_objectTreeWidget->setEnabled(false);
+}
+
 void InspectorUi::gotoObjectReferenceDefinition(const QDeclarativeDebugObjectReference &obj)
 {
     Q_UNUSED(obj);
@@ -686,8 +700,8 @@ void InspectorUi::disableLivePreview()
 void InspectorUi::setupToolbar(bool doConnect)
 {
     if (doConnect) {
-        connect(m_clientProxy, SIGNAL(connected()), m_toolbar, SLOT(enable()));
-        connect(m_clientProxy, SIGNAL(disconnected()), m_toolbar, SLOT(disable()));
+        connect(m_clientProxy, SIGNAL(connected()), this, SLOT(enable()));
+        connect(m_clientProxy, SIGNAL(disconnected()), this, SLOT(disable()));
 
         connect(m_toolbar, SIGNAL(designModeSelected(bool)), m_clientProxy, SLOT(setDesignModeBehavior(bool)));
         connect(m_toolbar, SIGNAL(reloadSelected()), m_clientProxy, SLOT(reloadQmlViewer()));
@@ -705,10 +719,9 @@ void InspectorUi::setupToolbar(bool doConnect)
         connect(m_clientProxy, SIGNAL(selectedColorChanged(QColor)), m_toolbar, SLOT(setSelectedColor(QColor)));
 
         connect(m_clientProxy, SIGNAL(animationSpeedChanged(qreal)), m_toolbar, SLOT(setAnimationSpeed(qreal)));
-        m_toolbar->enable();
     } else {
-        disconnect(m_clientProxy, SIGNAL(connected()), m_toolbar, SLOT(enable()));
-        disconnect(m_clientProxy, SIGNAL(disconnected()), m_toolbar, SLOT(disable()));
+        disconnect(m_clientProxy, SIGNAL(connected()), this, SLOT(enable()));
+        disconnect(m_clientProxy, SIGNAL(disconnected()), this, SLOT(disable()));
 
         disconnect(m_toolbar, SIGNAL(designModeSelected(bool)), m_clientProxy, SLOT(setDesignModeBehavior(bool)));
         disconnect(m_toolbar, SIGNAL(reloadSelected()), m_clientProxy, SLOT(reloadQmlViewer()));
@@ -726,6 +739,11 @@ void InspectorUi::setupToolbar(bool doConnect)
         disconnect(m_clientProxy, SIGNAL(selectedColorChanged(QColor)), m_toolbar, SLOT(setSelectedColor(QColor)));
 
         disconnect(m_clientProxy, SIGNAL(animationSpeedChanged(qreal)), m_toolbar, SLOT(setAnimationSpeed(qreal)));
-        m_toolbar->disable();
+    }
+
+    if (m_clientProxy && m_clientProxy->isConnected()) {
+        enable();
+    } else {
+        disable();
     }
 }

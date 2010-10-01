@@ -76,7 +76,6 @@ public:
     void logServiceStatusChange(const QString &service, QDeclarativeDebugClient::Status newStatus);
 
 signals:
-    void aboutToDisconnect();
     void connected();
     void disconnected();
     void connectionStartupFailed();

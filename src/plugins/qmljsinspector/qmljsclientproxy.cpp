@@ -53,10 +53,10 @@ ClientProxy::ClientProxy(Debugger::QmlAdapter *adapter, QObject *parent)
     , m_designClient(0)
     , m_engineQuery(0)
     , m_contextQuery(0)
+    , m_isConnected(false)
 {
     m_requestObjectsTimer.setSingleShot(true);
     m_requestObjectsTimer.setInterval(3000);
-    connect(m_adapter, SIGNAL(aboutToDisconnect()), SLOT(disconnectFromServer()));
     connect(m_client, SIGNAL(newObjects()), this, SLOT(newObjects()));
     connect(&m_requestObjectsTimer, SIGNAL(timeout()), this, SLOT(refreshObjectTree()));
     connectToServer();
@@ -66,8 +66,6 @@ void ClientProxy::connectToServer()
 {
     m_designClient = new QmlJSObserverClient(m_adapter->connection(), this);
 
-    if (m_designClient->status() == QDeclarativeDebugClient::Enabled)
-        emit connected();
 
     m_adapter->logServiceStatusChange(m_designClient->name(), m_designClient->status());
 
@@ -93,7 +91,9 @@ void ClientProxy::connectToServer()
         SIGNAL(selectedColorChanged(QColor)));
     connect(m_designClient, SIGNAL(contextPathUpdated(QStringList)),
         SIGNAL(contextPathUpdated(QStringList)));
+
     reloadEngines();
+    updateConnected();
 }
 
 void ClientProxy::clientStatusChanged(QDeclarativeDebugClient::Status status)
@@ -105,8 +105,7 @@ void ClientProxy::clientStatusChanged(QDeclarativeDebugClient::Status status)
 
     m_adapter->logServiceStatusChange(serviceName, status);
 
-    if (status == QDeclarativeDebugClient::Enabled)
-        emit connected();
+    updateConnected();
 }
 
 void ClientProxy::disconnectFromServer()
@@ -147,6 +146,8 @@ void ClientProxy::disconnectFromServer()
 
     qDeleteAll(m_objectTreeQuery);
     m_objectTreeQuery.clear();
+
+    updateConnected();
 }
 
 void ClientProxy::refreshObjectTree()
@@ -494,6 +495,21 @@ void ClientProxy::setContextPathIndex(int contextIndex)
         m_designClient->setContextPathIndex(contextIndex);
 }
 
+void ClientProxy::updateConnected()
+{
+    bool isConnected = m_designClient && m_designClient->status() == QDeclarativeDebugClient::Enabled
+            && m_client && m_client->status() == QDeclarativeEngineDebug::Enabled;
+
+    if (isConnected != m_isConnected) {
+        m_isConnected = isConnected;
+        if (isConnected) {
+            emit connected();
+        } else {
+            emit disconnected();
+        }
+    }
+}
+
 void ClientProxy::reloadEngines()
 {
     if (m_engineQuery) {
@@ -532,8 +548,7 @@ Debugger::QmlAdapter *ClientProxy::qmlAdapter() const
 
 bool ClientProxy::isConnected() const
 {
-    return m_designClient && m_designClient->status() == QDeclarativeDebugClient::Enabled
-            && m_client && m_client->status() == QDeclarativeEngineDebug::Enabled;
+    return m_isConnected;
 }
 
 void ClientProxy::newObjects()
