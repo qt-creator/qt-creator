@@ -132,8 +132,6 @@ void ClientProxy::disconnectFromServer()
             this, SIGNAL(selectedColorChanged(QColor)));
         disconnect(m_designClient, SIGNAL(contextPathUpdated(QStringList)),
             this, SIGNAL(contextPathUpdated(QStringList)));
-        disconnect(m_designClient, SIGNAL(treeRefreshRequested()),
-            this, SLOT(refreshObjectTree()));
 
         delete m_designClient;
         m_designClient = 0;
@@ -165,6 +163,7 @@ void ClientProxy::onCurrentObjectsChanged(const QList< int >& debugIds, bool req
 {
     QList<QDeclarativeDebugObjectReference> selectedItems;
 
+    qDebug() << __FUNCTION__ << debugIds;
     foreach (int debugId, debugIds) {
         QDeclarativeDebugObjectReference ref = objectReferenceForId(debugId);
         if (ref.debugId() != -1) {
