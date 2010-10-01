@@ -17,7 +17,7 @@
    <item>
     <widget class="QGroupBox" name="mainQmlFileGroupBox">
      <property name="title">
-      <string>Main QML file</string>
+      <string>Main QML File</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
@@ -78,7 +78,7 @@
           <item row="0" column="0" colspan="2">
            <widget class="QLabel" name="label_2">
             <property name="text">
-             <string>URIs (e.g. 'org.mydomain.MyQmlModule')</string>
+             <string>URIs (e.g. 'org.mydomain.MyQmlModule'):</string>
             </property>
            </widget>
           </item>
@@ -122,7 +122,7 @@
           <item row="0" column="0" colspan="2">
            <widget class="QLabel" name="label">
             <property name="text">
-             <string>Import Paths</string>
+             <string>Import paths:</string>
             </property>
            </widget>
           </item>

@@ -53,7 +53,7 @@ QmlStandaloneAppWizardSourcesPage::QmlStandaloneAppWizardSourcesPage(QWidget *pa
     m_d->ui.setupUi(this);
     m_d->ui.mainQmlFileLineEdit->setExpectedKind(Utils::PathChooser::File);
     m_d->ui.mainQmlFileLineEdit->setPromptDialogFilter(QLatin1String("*.qml"));
-    m_d->ui.mainQmlFileLineEdit->setPromptDialogTitle(tr("Select the main QML file of the application."));
+    m_d->ui.mainQmlFileLineEdit->setPromptDialogTitle(tr("Select QML File"));
     m_d->ui.addModuleUriButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_PLUS)));
     m_d->ui.removeModuleUriButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_MINUS)));
     m_d->ui.addImportPathButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_PLUS)));
