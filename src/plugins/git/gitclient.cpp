@@ -216,6 +216,8 @@ void GitClient::diff(const QString &workingDirectory,
     commonDiffArgs << QLatin1String("diff") << QLatin1String(noColorOption);
     if (m_settings.diffPatience)
         commonDiffArgs << QLatin1String("--patience");
+    if (m_settings.ignoreSpaceChanges)
+        commonDiffArgs << QLatin1String("--ignore-space-change");
     if (unstagedFileNames.empty() && stagedFileNames.empty()) {
        QStringList arguments(commonDiffArgs);
        arguments << diffArgs;
@@ -396,7 +398,7 @@ void GitClient::blame(const QString &workingDirectory,
         qDebug() << "blame" << workingDirectory << fileName << lineNumber;
     QStringList arguments(QLatin1String("blame"));
     arguments << QLatin1String("--root");
-    if (m_plugin->settings().spaceIgnorantBlame)
+    if (m_plugin->settings().ignoreSpaceChanges)
         arguments << QLatin1String("-w");
     arguments << QLatin1String("--") << fileName;
     if (!revision.isEmpty())

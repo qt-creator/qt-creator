@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>Git::Internal::SettingsPage</class>
  <widget class="QWidget" name="Git::Internal::SettingsPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>361</width>
+    <height>444</height>
+   </rect>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="environmentGroupBox">
@@ -130,7 +138,7 @@
       <item row="6" column="0" colspan="2">
        <widget class="QCheckBox" name="spaceIgnorantBlameCheckBox">
         <property name="text">
-         <string>Ignore whitespace changes in annotation</string>
+         <string>Ignore whitespace changes in annotation and diff</string>
         </property>
        </widget>
       </item>
