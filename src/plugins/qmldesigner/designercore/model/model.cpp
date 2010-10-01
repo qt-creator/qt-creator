@@ -90,7 +90,7 @@ ModelPrivate::ModelPrivate(Model *model) :
         m_q(model),
         m_writeLock(false)
 {
-    m_rootInternalNode = createNode("Qt/Item", 4, 7, PropertyListType());
+    m_rootInternalNode = createNode("QtQuick/Item", 1, 0, PropertyListType());
 }
 
 ModelPrivate::~ModelPrivate()

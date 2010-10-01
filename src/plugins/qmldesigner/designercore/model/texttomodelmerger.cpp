@@ -667,7 +667,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
 
         if (UiArrayBinding *array = cast<UiArrayBinding *>(member)) {
             const QString astPropertyName = flatten(array->qualifiedId);
-            if (typeName == QLatin1String("Qt/PropertyChanges") || context->lookupProperty(QString(), array->qualifiedId)) {
+            if (typeName == QLatin1String("QtQuick/PropertyChanges") || context->lookupProperty(QString(), array->qualifiedId)) {
                 AbstractProperty modelProperty = modelNode.property(astPropertyName);
                 QList<UiObjectMember *> arrayMembers;
                 for (UiArrayMemberList *iter = array->members; iter; iter = iter->next)
@@ -701,7 +701,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                 const Interpreter::Value *propertyType = 0;
                 const Interpreter::ObjectValue *containingObject = 0;
                 QString name;
-                if (context->lookupProperty(QString(), binding->qualifiedId, &propertyType, &containingObject, &name) || typeName == QLatin1String("Qt/PropertyChanges")) {
+                if (context->lookupProperty(QString(), binding->qualifiedId, &propertyType, &containingObject, &name) || typeName == QLatin1String("QtQuick/PropertyChanges")) {
                     AbstractProperty modelProperty = modelNode.property(astPropertyName);
                     if (context->isArrayProperty(propertyType, containingObject, name)) {
                         syncArrayProperty(modelProperty, QList<QmlJS::AST::UiObjectMember*>() << member, context, differenceHandler);
@@ -745,7 +745,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
 
     if (!defaultPropertyItems.isEmpty()) {
         if (defaultPropertyName.isEmpty()) {
-            if (modelNode.type() != QLatin1String("Qt/Component"))
+            if (modelNode.type() != QLatin1String("QtQuick/Component"))
                 qWarning() << "No default property for node type" << modelNode.type() << ", ignoring child items.";
         } else {
             AbstractProperty modelProperty = modelNode.property(defaultPropertyName);
@@ -805,7 +805,7 @@ QString TextToModelMerger::syncScriptBinding(ModelNode &modelNode,
         return QString();
 
     if (isLiteralValue(script)) {
-        if (modelNode.type() == QLatin1String("Qt/PropertyChanges")) {
+        if (modelNode.type() == QLatin1String("QtQuick/PropertyChanges")) {
             AbstractProperty modelProperty = modelNode.property(astPropertyName);
             const QVariant variantValue(deEscape(stripQuotes(astValue)));
             syncVariantProperty(modelProperty, variantValue, QString(), differenceHandler);
@@ -830,7 +830,7 @@ QString TextToModelMerger::syncScriptBinding(ModelNode &modelNode,
         syncVariantProperty(modelProperty, enumValue, QString(), differenceHandler);
         return astPropertyName;
     } else { // Not an enum, so:
-        if (modelNode.type() == QLatin1String("Qt/PropertyChanges") || context->lookupProperty(prefix, script->qualifiedId)) {
+        if (modelNode.type() == QLatin1String("QtQuick/PropertyChanges") || context->lookupProperty(prefix, script->qualifiedId)) {
             AbstractProperty modelProperty = modelNode.property(astPropertyName);
             syncExpressionProperty(modelProperty, astValue, differenceHandler);
             return astPropertyName;
@@ -959,7 +959,7 @@ void TextToModelMerger::syncNodeListProperty(NodeListProperty &modelListProperty
         QString name;
         if (UiObjectDefinition *definition = cast<UiObjectDefinition *>(arrayMember))
             name = flatten(definition->qualifiedTypeNameId);
-        if (name == QLatin1String("Qt/Component"))
+        if (name == QLatin1String("QtQuick/Component"))
             setupComponent(newNode);
     }
 
@@ -1273,7 +1273,7 @@ void ModelAmender::idsDiffer(ModelNode &modelNode, const QString &qmlId)
 
 void TextToModelMerger::setupComponent(const ModelNode &node)
 {
-    Q_ASSERT(node.type() == QLatin1String("Qt/Component"));
+    Q_ASSERT(node.type() == QLatin1String("QtQuick/Component"));
 
     QString componentText = m_rewriterView->extractText(QList<ModelNode>() << node).value(node);
 

@@ -9,8 +9,8 @@ QWidget {
 
     property variant caption;
 
-    property variant maximumValue: 99
-    property variant minimumValue: 0
+    property variant maximumValue: 1000
+    property variant minimumValue: -1000
     property variant step: 1
     property bool slider: true
     property alias alignment: label.alignment

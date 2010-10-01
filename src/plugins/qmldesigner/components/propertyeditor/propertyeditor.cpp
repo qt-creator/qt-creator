@@ -310,7 +310,7 @@ PropertyEditor::~PropertyEditor()
 void PropertyEditor::setupPane(const QString &typeName)
 {
 
-    QUrl qmlFile = fileToUrl(locateQmlFile(QLatin1String("Qt/ItemPane.qml")));
+    QUrl qmlFile = fileToUrl(locateQmlFile(QLatin1String("QtQuick/ItemPane.qml")));
     QUrl qmlSpecificsFile;
 
     qmlSpecificsFile = fileToUrl(locateQmlFile(typeName + "Specifics.qml"));
@@ -577,7 +577,7 @@ QString templateGeneration(NodeMetaInfo type, NodeMetaInfo superType, const QmlO
                 "DoubleSpinBoxAlternate {\ntext: \"%1\"\nbackendValue: backendValues.%2\nbaseStateFlag: isBaseState\n}\n"
                 )).arg(name).arg(properName);
             }
-            if (typeName == "string" || typeName == "QString") {
+            if (typeName == "string" || typeName == "QString" || typeName =="url" || typeName =="QUrl") {
                  qmlTemplate +=  QString(QLatin1String(
                 "QWidget {\nlayout: HorizontalLayout {\nLabel {\ntext: \"%1\"\ntoolTip: \"%1\"\n}\nLineEdit {\nbackendValue: backendValues.%2\nbaseStateFlag: isBaseState\n}\n}\n}\n"
                 )).arg(name).arg(properName);

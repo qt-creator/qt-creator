@@ -38,8 +38,8 @@ namespace QmlDesigner {
 
 QtQuickPlugin::QtQuickPlugin()
 {
-    qmlRegisterType<QDeclarativePen>("Qt", 4, 7, "Pen");
-    qmlRegisterType<QDeclarativeScaleGrid>("Qt", 4, 7, "ScaleGrid");
+    qmlRegisterType<QDeclarativePen>("QtQuick", 1, 0, "Pen");
+    qmlRegisterType<QDeclarativeScaleGrid>("QtQuick", 1, 0, "ScaleGrid");
 }
 
 QString QtQuickPlugin::pluginName()

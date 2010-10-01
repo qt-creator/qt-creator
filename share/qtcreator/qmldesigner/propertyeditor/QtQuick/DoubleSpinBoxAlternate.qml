@@ -80,6 +80,8 @@ QWidget { //This is a special doubleSpinBox that does color coding for states
             decimals: 1;
             keyboardTracking: false;
             enabled: !backendValue.isBound && doubleSpinBox.enabled;
+            minimum: -1000
+            maximum: 1000
 
             property bool readingFromBackend: false;
             property real valueFromBackend: doubleSpinBox.backendValue.value;
