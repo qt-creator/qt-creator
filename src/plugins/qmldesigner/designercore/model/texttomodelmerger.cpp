@@ -587,6 +587,16 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 
         setupImports(doc, differenceHandler);
 
+        foreach (const Import &import, m_rewriterView->model()->imports()) {
+            if (import.url() == "Qt") {
+                QList<RewriterView::Error> errors;
+                RewriterView::Error error(QObject::tr("Deprecated import: import Qt 4.7 use import QtQuick 1.0 instead"));
+                errors.append(error);
+                m_rewriterView->setErrors(errors);
+                return false;
+            }
+        }
+
         UiObjectMember *astRootNode = 0;
         if (UiProgram *program = doc->qmlProgram())
             if (program->members)

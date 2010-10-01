@@ -78,6 +78,7 @@ public:
     public:
         Error();
         Error(const QDeclarativeError &qmlError);
+        Error(const QString &shortDescription);
         Error(Exception *exception);
 
         Type type() const
