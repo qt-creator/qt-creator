@@ -163,7 +163,6 @@ void ClientProxy::onCurrentObjectsChanged(const QList< int >& debugIds, bool req
 {
     QList<QDeclarativeDebugObjectReference> selectedItems;
 
-    qDebug() << __FUNCTION__ << debugIds;
     foreach (int debugId, debugIds) {
         QDeclarativeDebugObjectReference ref = objectReferenceForId(debugId);
         if (ref.debugId() != -1) {
