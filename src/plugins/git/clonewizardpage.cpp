@@ -63,7 +63,8 @@ CloneWizardPage::CloneWizardPage(QWidget *parent) :
     setSubTitle(tr("Specify repository URL, checkout directory and path."));
     setRepositoryLabel(tr("Clone URL:"));
     d->deleteMasterCheckBox = new QCheckBox(tr("Delete master branch"));
-    addControl(d->deleteMasterCheckBox);
+    d->deleteMasterCheckBox->setToolTip(tr("Delete the master branch after checking out the repository."));
+    addLocalControl(d->deleteMasterCheckBox);
     setDeleteMasterBranch(true);
 }
 

@@ -13,64 +13,129 @@
   <property name="windowTitle">
    <string>WizardPage</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QFormLayout" name="formLayout">
-     <item row="0" column="0">
-      <widget class="QLabel" name="repositoryLabel"/>
-     </item>
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="repositoryLineEdit"/>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="checkoutDirectoryLabel">
-       <property name="text">
-        <string>Checkout Directory:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="Utils::ProjectNameValidatingLineEdit" name="checkoutDirectoryLineEdit"/>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="pathLabel">
-       <property name="text">
-        <string>Path:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="Utils::PathChooser" name="pathChooser" native="true"/>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="branchLabel">
-       <property name="text">
-        <string>Branch:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <layout class="QHBoxLayout" name="branchHorizontalLayout">
-       <item>
-        <widget class="QComboBox" name="branchComboBox">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QToolButton" name="branchRefreshToolButton">
-         <property name="text">
-          <string>...</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-    </layout>
+    <widget class="QGroupBox" name="repositoryGroupBox">
+     <property name="title">
+      <string>Repository</string>
+     </property>
+     <property name="flat">
+      <bool>true</bool>
+     </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+     <layout class="QFormLayout" name="repositoryLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="repositoryLabel"/>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="repositoryLineEdit">
+        <property name="toolTip">
+         <string>The remote repository to check out.</string>
+        </property>
+        <property name="whatsThis">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="branchLabel">
+        <property name="text">
+         <string>Branch:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <layout class="QHBoxLayout" name="branchHorizontalLayout">
+        <item>
+         <widget class="QComboBox" name="branchComboBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>The development branch in the remote repository to check out.</string>
+          </property>
+          <property name="whatsThis">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="branchRefreshToolButton">
+          <property name="toolTip">
+           <string>Retrieve list of branches in repository.</string>
+          </property>
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="localGroupBox">
+     <property name="title">
+      <string>Working Copy</string>
+     </property>
+     <property name="flat">
+      <bool>true</bool>
+     </property>
+     <layout class="QFormLayout" name="localLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="pathLabel">
+        <property name="toolTip">
+         <string>The path in which the directory containing the checkout will be created.</string>
+        </property>
+        <property name="text">
+         <string>Checkout Path:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="Utils::PathChooser" name="pathChooser"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="checkoutDirectoryLabel">
+        <property name="toolTip">
+         <string>The local directory that will contain the code after the checkout.</string>
+        </property>
+        <property name="text">
+         <string>Checkout Directory:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="Utils::ProjectNameValidatingLineEdit" name="checkoutDirectoryLineEdit">
+        <property name="toolTip">
+         <string>The local directory that will contain the code after the checkout.</string>
+        </property>
+        <property name="whatsThis">
+         <string/>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
  </widget>
@@ -82,9 +147,8 @@
   </customwidget>
   <customwidget>
    <class>Utils::PathChooser</class>
-   <extends>QWidget</extends>
-   <header location="global">utils/pathchooser.h</header>
-   <container>1</container>
+   <extends>QLineEdit</extends>
+   <header>utils/pathchooser.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
