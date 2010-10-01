@@ -5,6 +5,7 @@ dll {
 }
 
 INCLUDEPATH += $$PWD
+QT += network
 
 SOURCES += $$PWD/environment.cpp \
     $$PWD/reloadpromptutils.cpp \
