@@ -66,6 +66,18 @@ namespace {
             ch = doc->characterAt(tc->position());
         }
     }
+
+    QStringList stripName(const QString &name) {
+        QStringList all;
+        all << name;
+        int colonColon = 0;
+        const int size = name.size();
+        while ((colonColon = name.indexOf(QLatin1String("::"), colonColon)) != -1) {
+            all << name.right(size - colonColon - 2);
+            colonColon += 2;
+        }
+        return all;
+    }
 }
 
 CppElementEvaluator::CppElementEvaluator(CPPEditor *editor) :
@@ -314,16 +326,7 @@ CppDeclarableElement::CppDeclarableElement(Symbol *declaration) : CppElement()
         declaration->enclosingScope()->isNamespace() ||
         declaration->enclosingScope()->isEnum()) {
         m_qualifiedName = overview.prettyName(LookupContext::fullyQualifiedName(declaration));
-
-        QStringList helpIds;
-        helpIds << m_qualifiedName;
-        int colonColon = 0;
-        const int size = m_qualifiedName.size();
-        while ((colonColon = m_qualifiedName.indexOf(QLatin1String("::"), colonColon)) != -1) {
-            helpIds << m_qualifiedName.right(size - colonColon - 2);
-            colonColon += 2;
-        }
-        setHelpIdCandidates(helpIds);
+        setHelpIdCandidates(stripName(m_qualifiedName));
     } else {
         m_qualifiedName = m_name;
         setHelpIdCandidates(QStringList(m_name));
@@ -489,10 +492,15 @@ CppVariable::CppVariable(Symbol *declaration, const LookupContext &context, Scop
                 Symbol *symbol = clazz->symbols().at(0);
                 const QString &name =
                     overview.prettyName(LookupContext::fullyQualifiedName(symbol));
-                setTooltip(name);
-                setHelpCategory(TextEditor::HelpItem::ClassOrNamespace);
-                setHelpMark(name);
-                setHelpIdCandidates(QStringList(name));
+                if (!name.isEmpty()) {
+                    setTooltip(name);
+                    setHelpCategory(TextEditor::HelpItem::ClassOrNamespace);
+                    const QStringList &allNames = stripName(name);
+                    if (!allNames.isEmpty()) {
+                        setHelpMark(allNames.last());
+                        setHelpIdCandidates(allNames);
+                    }
+                }
             }
         }
     }

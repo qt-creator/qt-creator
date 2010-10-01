@@ -114,14 +114,26 @@ void CppHoverHandler::decorateToolTip()
 
     const TextEditor::HelpItem &help = lastHelpItemIdentified();
     if (help.isValid()) {
+        // If Qt is built with a namespace, we still show the tip without it, as
+        // it is in the docs and for consistency with the doc extraction mechanism.
+        const TextEditor::HelpItem::Category category = help.category();
         const QString &contents = help.extractContent(false);
         if (!contents.isEmpty()) {
-            if (help.category() == TextEditor::HelpItem::ClassOrNamespace) {
-                setToolTip(Qt::escape(toolTip()));
-                appendToolTip(contents);
-            } else {
+            if (category == TextEditor::HelpItem::ClassOrNamespace)
+                setToolTip(help.helpId() + contents);
+            else
                 setToolTip(contents);
-            }
+        } else if (category == TextEditor::HelpItem::Typedef ||
+                   category == TextEditor::HelpItem::Enum ||
+                   category == TextEditor::HelpItem::ClassOrNamespace) {
+            // This approach is a bit limited since it cannot be used for functions
+            // because the help id doesn't really help in that case.
+            QString prefix;
+            if (category == TextEditor::HelpItem::Typedef)
+                prefix = QLatin1String("typedef ");
+            else if (category == TextEditor::HelpItem::Enum)
+                prefix = QLatin1String("enum ");
+            setToolTip(prefix + help.helpId());
         }
         addF1ToToolTip();
     }
