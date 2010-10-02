@@ -16,6 +16,7 @@ for(deploymentfolder, DEPLOYMENTFOLDERS) {
 MAINPROFILEPWD = $$PWD
 
 symbian {
+    ICON = $${TARGET}.svg
     TARGET.EPOCHEAPSIZE = 0x20000 0x2000000
     contains(DEFINES, ORIENTATIONLOCK):LIBS += -lavkon -leikcore -leiksrv -lcone
     contains(DEFINES, NETWORKACCESS):TARGET.CAPABILITY += NetworkServices
@@ -81,6 +82,7 @@ symbian {
     INSTALLS += desktopfile icon target
 }
 
+export (ICON)
 export (INSTALLS)
 export (DEPLOYMENT)
 export (TARGET.EPOCHEAPSIZE)

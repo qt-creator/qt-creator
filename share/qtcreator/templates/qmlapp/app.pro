@@ -20,8 +20,6 @@ DEFINES += NETWORKACCESS
 # TARGETUID3 #
 symbian:TARGET.UID3 = 0xE1111234
 
-symbian:ICON = symbianicon.svg
-
 # Define QMLJSDEBUGGER to enable basic debugging (setting breakpoints etc)
 # Define QMLOBSERVER for advanced features (requires experimental QmlInspector plugin!)
 #DEFINES += QMLJSDEBUGGER
