@@ -27,9 +27,10 @@ symbian:ICON = symbianicon.svg
 #DEFINES += QMLJSDEBUGGER
 #DEFINES += QMLOBSERVER
 
+# The .cpp file which was generated for your project. Feel free to hack it.
 SOURCES += main.cpp
 
+# Please do not modify the following three lines. Required for deployment.
 include(qmlapplicationviewer/qmlapplicationviewer.pri)
 include(../shared/deployment.pri)
-
 qtcAddDeployment()

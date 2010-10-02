@@ -1,5 +1,5 @@
 # This file should not be edited.
-# Following versions of Qt Creator might offer new version.
+# Future versions of Qt Creator might offer updated versions of this file.
 
 defineTest(qtcAddDeployment) {
 for(deploymentfolder, DEPLOYMENTFOLDERS) {
