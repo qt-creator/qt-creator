@@ -140,8 +140,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     MobileAppWizard *mobileWizard = new MobileAppWizard;
     addAutoReleasedObject(mobileWizard);
 
-    addAutoReleasedObject(new QmlStandaloneAppWizard(QmlStandaloneAppWizard::NewQmlFile));
-    addAutoReleasedObject(new QmlStandaloneAppWizard(QmlStandaloneAppWizard::ImportQmlFile));
+    addAutoReleasedObject(new QmlStandaloneAppWizard());
 
     LibraryWizard *libWizard = new LibraryWizard;
     addAutoReleasedObject(libWizard);
