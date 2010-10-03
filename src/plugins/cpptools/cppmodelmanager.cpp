@@ -1231,6 +1231,9 @@ void CppModelManager::updateIncludesInPaths(QFutureInterface<void> &future,
 
         const QString path = paths.takeFirst();
 
+        if (path == QLatin1String("/"))
+            continue;
+
         // Skip non-existing paths
         if (!QFile::exists(path))
             continue;
