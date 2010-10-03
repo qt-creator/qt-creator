@@ -21,6 +21,6 @@ SOURCES += main.cpp mainwindow.cpp
 HEADERS += mainwindow.h
 FORMS += mainwindow.ui
 
+# Please do not modify the following two lines. Required for deployment.
 include(../shared/deployment.pri)
-
 qtcAddDeployment()
