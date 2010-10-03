@@ -361,6 +361,12 @@ QString CppPreprocessor::tryIncludeFile(QString &fileName, IncludeType type, uns
     return contents;
 }
 
+static inline void appendDirSeparatorIfNeeded(QString &path)
+{
+    if (!path.endsWith(QLatin1Char('/'), Qt::CaseInsensitive))
+        path += QLatin1Char('/');
+}
+
 QString CppPreprocessor::tryIncludeFile_helper(QString &fileName, IncludeType type, unsigned *revision)
 {
     QFileInfo fileInfo(fileName);
@@ -373,7 +379,7 @@ QString CppPreprocessor::tryIncludeFile_helper(QString &fileName, IncludeType ty
     if (type == IncludeLocal && m_currentDoc) {
         QFileInfo currentFileInfo(m_currentDoc->fileName());
         QString path = currentFileInfo.absolutePath();
-        path += QLatin1Char('/');
+        appendDirSeparatorIfNeeded(path);
         path += fileName;
         path = QDir::cleanPath(path);
         QString contents;
@@ -385,7 +391,7 @@ QString CppPreprocessor::tryIncludeFile_helper(QString &fileName, IncludeType ty
 
     foreach (const QString &includePath, m_includePaths) {
         QString path = includePath;
-        path += QLatin1Char('/');
+        appendDirSeparatorIfNeeded(path);
         path += fileName;
         path = QDir::cleanPath(path);
         QString contents;
@@ -398,7 +404,7 @@ QString CppPreprocessor::tryIncludeFile_helper(QString &fileName, IncludeType ty
     // look in the system include paths
     foreach (const QString &includePath, m_systemIncludePaths) {
         QString path = includePath;
-        path += QLatin1Char('/');
+        appendDirSeparatorIfNeeded(path);
         path += fileName;
         path = QDir::cleanPath(path);
         QString contents;
@@ -415,7 +421,7 @@ QString CppPreprocessor::tryIncludeFile_helper(QString &fileName, IncludeType ty
 
         foreach (const QString &frameworkPath, m_frameworkPaths) {
             QString path = frameworkPath;
-            path += QLatin1Char('/');
+            appendDirSeparatorIfNeeded(path);
             path += frameworkName;
             path += QLatin1String(".framework/Headers/");
             path += name;
