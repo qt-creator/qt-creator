@@ -360,7 +360,7 @@ void PropertyEditor::changeValue(const QString &propertyName)
                 rewriterView()->renameId(m_selectedNode.id(), newId);
         } else {
             value->setValue(m_selectedNode.id());
-            QMessageBox::warning(0, tr("Invalid Id"), newId + tr(" is an invalid id"));
+            QMessageBox::warning(0, tr("Invalid Id"),  tr("%1 is an invalid id").arg(newId));
         }
         return;
     }

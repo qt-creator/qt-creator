@@ -302,7 +302,7 @@ void NavigatorTreeModel::handleChangedItem(QStandardItem *item)
              if (node.view()->rewriterView())
                 node.view()->rewriterView()->renameId(node.id(), item->text());
         } else {
-            QMessageBox::warning(0, tr("Invalid Id"), item->text() + tr(" is an invalid id"));
+            QMessageBox::warning(0, tr("Invalid Id"),  tr("%1 is an invalid id").arg(item->text()));
             item->setText(node.id());
         }
     } else if (item == itemRow.visibilityItem) {
