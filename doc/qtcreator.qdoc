@@ -3022,7 +3022,7 @@
                \note Shadow building is not supported by the Symbian build system.
                Also, shadow building on Windows is not supported for Maemo.
                If you only build for one target platform, you can deselect
-               the \gui{Shadow Build} checkbox.
+               the \gui{Shadow build} checkbox.
         \endlist
     \endlist
 
@@ -3035,6 +3035,23 @@
 
     \image qtcreator-build-steps.png "Build steps"
 
+    \section2 Adding Custom Build Steps
+
+    To add custom steps to the build settings, select \gui {Add Build Step >
+    Custom Process Step}.
+
+    By default, custom steps are disabled. To activate a custom step, select
+    the \gui{Enable custom process step} check-box.
+
+    \image qtcreator-build-steps-custom.png "Custom Process Step"
+
+    You can use any environment variables as values in the fields. For a list
+    of variable names, click \gui {Build Environment > Details}. You can specify
+    variables as ${VARNAME} or %VARNAME%. For example, ${BUILDDIR} or %BUILDDIR%.
+
+    \note Qt Creator sets SOURCEDIR and BUILDDIR as part of the build environment.
+    For more information, see \l{Build Environment}.
+
     \section1 Clean Steps
 
     You can use the cleaning process to remove intermediate files. This process
@@ -3046,10 +3063,10 @@
     You can define the cleaning steps for your builds in the \gui{Clean Steps}:
     \list
         \o To add a clean step using make or a custom process, click
-           \gui{Add clean step} and select the type of step you want to add.
+           \gui{Add Clean Step} and select the type of step you want to add.
 
-           By default, custom steps are disabled. Activate custom steps by
-           checking the \gui{Enable custom process step} check-box.
+           By default, custom steps are disabled. To activate a custom step,
+           select the \gui{Enable custom process step} check-box.
         \o To remove a clean step, click \gui{Remove Item}.
         \o To change the order of steps, click
            \inlineimage qtcreator-movestep.png
@@ -3065,6 +3082,8 @@
     necessary environment variables. You can edit existing environment
     variables or add, reset and unset new variables based on your project
     requirements.
+
+    \image qtcreator-build-environment.png "Build Environment"
 
 */
 
