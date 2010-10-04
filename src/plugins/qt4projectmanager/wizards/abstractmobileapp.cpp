@@ -319,7 +319,6 @@ Core::GeneratedFiles AbstractMobileApp::generateFiles(QString *errorMessage) con
     files << file(generateFile(AbstractGeneratedFileInfo::SymbianSvgIconFile, errorMessage), path(SymbianSvgIcon));
     files << file(generateFile(AbstractGeneratedFileInfo::MaemoPngIconFile, errorMessage), path(MaemoPngIcon));
     files << file(generateFile(AbstractGeneratedFileInfo::DesktopFile, errorMessage), path(Desktop));
-    files << file(generateFile(AbstractGeneratedFileInfo::DeploymentPriFile, errorMessage), path(DeploymentPri));
     return files;
 }
 #endif // CREATORLESSTEST

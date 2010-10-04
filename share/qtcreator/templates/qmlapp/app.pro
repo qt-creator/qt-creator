@@ -28,7 +28,8 @@ symbian:TARGET.UID3 = 0xE1111234
 # The .cpp file which was generated for your project. Feel free to hack it.
 SOURCES += main.cpp
 
-# Please do not modify the following three lines. Required for deployment.
+# Please do not modify the following two lines. Required for deployment.
 include(qmlapplicationviewer/qmlapplicationviewer.pri)
+# INCLUDE_DEPLOYMENT_PRI (wizard will remove the include and append deployment.pri to qmlapplicationviewer.pri, instead) #
 include(../shared/deployment.pri)
 qtcAddDeployment()
