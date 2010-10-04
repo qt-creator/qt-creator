@@ -133,7 +133,8 @@ public:
 private slots:
     void runCMake();
     void cmakeFinished();
-    void cmakeReadyRead();
+    void cmakeReadyReadStandardOutput();
+    void cmakeReadyReadStandardError();
 private:
     void initWidgets();
     CMakeOpenProjectWizard *m_cmakeWizard;
@@ -144,6 +145,7 @@ private:
     Utils::PathChooser *m_cmakeExecutable;
     QComboBox *m_generatorComboBox;
     QLabel *m_descriptionLabel;
+    QLabel *m_exitCodeLabel;
     bool m_complete;
     Mode m_mode;
     QString m_buildDirectory;
