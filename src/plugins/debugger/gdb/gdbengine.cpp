@@ -2608,6 +2608,11 @@ void GdbEngine::attemptBreakpointSynchronization()
     handler->updateMarkers();
 }
 
+bool GdbEngine::acceptsBreakpoint(const Internal::BreakpointData *br)
+{
+    return !( br->fileName.endsWith(QLatin1String("js")) || br->fileName.endsWith(QLatin1String("qml")) );
+}
+
 
 //////////////////////////////////////////////////////////////////////
 //

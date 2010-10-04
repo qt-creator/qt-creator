@@ -460,6 +460,11 @@ void QmlEngine::attemptBreakpointSynchronization()
     }
 }
 
+bool QmlEngine::acceptsBreakpoint(const Internal::BreakpointData *br)
+{
+    return (br->fileName.endsWith(QLatin1String("qml")) || br->fileName.endsWith(QLatin1String("js")));
+}
+
 void QmlEngine::loadSymbols(const QString &moduleName)
 {
     Q_UNUSED(moduleName)
