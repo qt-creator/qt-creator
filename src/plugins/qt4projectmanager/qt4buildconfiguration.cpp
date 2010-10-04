@@ -710,6 +710,7 @@ BuildConfiguration *Qt4BuildConfigurationFactory::create(ProjectExplorer::Target
                           QLineEdit::Normal,
                           version->displayName(),
                           &ok);
+    buildConfigurationName = buildConfigurationName.trimmed();
     if (!ok || buildConfigurationName.isEmpty())
         return 0;
 

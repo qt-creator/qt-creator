@@ -104,7 +104,10 @@ private slots:
     void renameDeployConfiguration();
 
 private:
+    QString uniqueDCName(const QString &name);
+    QString uniqueRCName(const QString &name);
     void updateDeployConfiguration(DeployConfiguration *);
+
     Target *m_target;
     RunConfigurationModel *m_runConfigurationsModel;
     DeployConfigurationModel *m_deployConfigurationModel;

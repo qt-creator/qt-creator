@@ -293,15 +293,10 @@ void RunSettingsWidget::renameRunConfiguration()
     if (!ok || !this)
         return;
 
-    if (!name.isEmpty()) {
-        QStringList rcNames;
-        foreach (RunConfiguration *rc, m_target->runConfigurations()) {
-            if (rc == m_target->activeRunConfiguration())
-                continue;
-            rcNames.append(rc->displayName());
-        }
-        name = Project::makeUnique(name, rcNames);
-    }
+    name = uniqueRCName(name);
+    if (name.isEmpty())
+        return;
+
     m_target->activeRunConfiguration()->setDisplayName(name);
 }
 
@@ -393,15 +388,9 @@ void RunSettingsWidget::renameDeployConfiguration()
     if (!ok || !this)
         return;
 
-    if (!name.isEmpty()) {
-        QStringList dcNames;
-        foreach (DeployConfiguration *dc, m_target->deployConfigurations()) {
-            if (dc == m_target->activeDeployConfiguration())
-                continue;
-            dcNames.append(dc->displayName());
-        }
-        name = Project::makeUnique(name, dcNames);
-    }
+    name = uniqueDCName(name);
+    if (name.isEmpty())
+        return;
     m_target->activeDeployConfiguration()->setDisplayName(name);
 }
 
@@ -429,4 +418,34 @@ void RunSettingsWidget::updateDeployConfiguration(DeployConfiguration *dc)
     m_deploySteps = new BuildStepListWidget;
     m_deploySteps->init(dc->stepList());
     m_deployLayout->addWidget(m_deploySteps);
+}
+
+QString RunSettingsWidget::uniqueDCName(const QString &name)
+{
+    QString result = name.trimmed();
+    if (!result.isEmpty()) {
+        QStringList dcNames;
+        foreach (DeployConfiguration *dc, m_target->deployConfigurations()) {
+            if (dc == m_target->activeDeployConfiguration())
+                continue;
+            dcNames.append(dc->displayName());
+        }
+        result = Project::makeUnique(result, dcNames);
+    }
+    return result;
+}
+
+QString RunSettingsWidget::uniqueRCName(const QString &name)
+{
+    QString result = name.trimmed();
+    if (!result.isEmpty()) {
+        QStringList rcNames;
+        foreach (RunConfiguration *rc, m_target->runConfigurations()) {
+            if (rc == m_target->activeRunConfiguration())
+                continue;
+            rcNames.append(rc->displayName());
+        }
+        result = Project::makeUnique(result, rcNames);
+    }
+    return result;
 }
