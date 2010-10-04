@@ -31,6 +31,8 @@
 #include "bindingproperty.h"
 #include "filemanager/firstdefinitionfinder.h"
 #include "filemanager/objectlengthcalculator.h"
+#include "filemanager/qmlrefactoring.h"
+#include "rewriteaction.h"
 #include "nodeproperty.h"
 #include "propertyparser.h"
 #include "textmodifier.h"
@@ -47,6 +49,7 @@
 #include <QtDeclarative/QDeclarativeComponent>
 #include <QtDeclarative/QDeclarativeEngine>
 #include <QtCore/QSet>
+#include <QtGui/QMessageBox.h>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
@@ -587,6 +590,40 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 
         setupImports(doc, differenceHandler);
 
+        foreach (const Import &import, m_rewriterView->model()->imports()) {
+            if (import.url() == "Qt") {
+                if (QMessageBox::question (0, QObject::tr("Deprecated import: import Qt 4.7", "QmlDesigner::TextToModelMerger"),
+                    QObject::tr("Deprecated import: import Qt 4.7\nuse import QtQuick 1.0 instead.\n\nDo you want to automatically fix the import?",
+                                "QmlDesigner::TextToModelMerger"),
+                    QMessageBox::Ok |  QMessageBox::Cancel, QMessageBox::Ok) == QMessageBox::Ok) {
+                        QmlDesigner::QmlRefactoring refactoring(doc, *m_rewriterView->textModifier(), QStringList());
+                        RemoveImportRewriteAction removeImportRewriteAction(import);
+
+                        m_rewriterView->textModifier()->startGroup();
+
+                        Import qtQuickImport = Import::createLibraryImport("QtQuick", "1.0");
+                        AddImportRewriteAction addImportRewriteAction(qtQuickImport);
+                        bool success = addImportRewriteAction.execute(refactoring, *m_rewriterView->positionStorage());
+
+                        if (success) {
+                            success = refactoring.reparseDocument();
+                        }
+                        success = removeImportRewriteAction.execute(refactoring, *m_rewriterView->positionStorage());
+
+                        m_rewriterView->textModifier()->commitGroup();
+
+                        return false;
+            } else {
+                QList<RewriterView::Error> errors;
+                RewriterView::Error error(QObject::tr("Deprecated import: import Qt 4.7 use import QtQuick 1.0 instead",
+                                                      "QmlDesigner::TextToModelMerger"));
+                errors.append(error);
+                m_rewriterView->setErrors(errors);
+                return false;
+            }
+        }
+    }
+
         UiObjectMember *astRootNode = 0;
         if (UiProgram *program = doc->qmlProgram())
             if (program->members)
@@ -667,7 +704,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
 
         if (UiArrayBinding *array = cast<UiArrayBinding *>(member)) {
             const QString astPropertyName = flatten(array->qualifiedId);
-            if (typeName == QLatin1String("Qt/PropertyChanges") || context->lookupProperty(QString(), array->qualifiedId)) {
+            if (typeName == QLatin1String("QtQuick/PropertyChanges") || context->lookupProperty(QString(), array->qualifiedId)) {
                 AbstractProperty modelProperty = modelNode.property(astPropertyName);
                 QList<UiObjectMember *> arrayMembers;
                 for (UiArrayMemberList *iter = array->members; iter; iter = iter->next)
@@ -701,7 +738,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                 const Interpreter::Value *propertyType = 0;
                 const Interpreter::ObjectValue *containingObject = 0;
                 QString name;
-                if (context->lookupProperty(QString(), binding->qualifiedId, &propertyType, &containingObject, &name) || typeName == QLatin1String("Qt/PropertyChanges")) {
+                if (context->lookupProperty(QString(), binding->qualifiedId, &propertyType, &containingObject, &name) || typeName == QLatin1String("QtQuick/PropertyChanges")) {
                     AbstractProperty modelProperty = modelNode.property(astPropertyName);
                     if (context->isArrayProperty(propertyType, containingObject, name)) {
                         syncArrayProperty(modelProperty, QList<QmlJS::AST::UiObjectMember*>() << member, context, differenceHandler);
@@ -745,7 +782,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
 
     if (!defaultPropertyItems.isEmpty()) {
         if (defaultPropertyName.isEmpty()) {
-            if (modelNode.type() != QLatin1String("Qt/Component"))
+            if (modelNode.type() != QLatin1String("QtQuick/Component"))
                 qWarning() << "No default property for node type" << modelNode.type() << ", ignoring child items.";
         } else {
             AbstractProperty modelProperty = modelNode.property(defaultPropertyName);
@@ -805,7 +842,7 @@ QString TextToModelMerger::syncScriptBinding(ModelNode &modelNode,
         return QString();
 
     if (isLiteralValue(script)) {
-        if (modelNode.type() == QLatin1String("Qt/PropertyChanges")) {
+        if (modelNode.type() == QLatin1String("QtQuick/PropertyChanges")) {
             AbstractProperty modelProperty = modelNode.property(astPropertyName);
             const QVariant variantValue(deEscape(stripQuotes(astValue)));
             syncVariantProperty(modelProperty, variantValue, QString(), differenceHandler);
@@ -830,7 +867,7 @@ QString TextToModelMerger::syncScriptBinding(ModelNode &modelNode,
         syncVariantProperty(modelProperty, enumValue, QString(), differenceHandler);
         return astPropertyName;
     } else { // Not an enum, so:
-        if (modelNode.type() == QLatin1String("Qt/PropertyChanges") || context->lookupProperty(prefix, script->qualifiedId)) {
+        if (modelNode.type() == QLatin1String("QtQuick/PropertyChanges") || context->lookupProperty(prefix, script->qualifiedId)) {
             AbstractProperty modelProperty = modelNode.property(astPropertyName);
             syncExpressionProperty(modelProperty, astValue, differenceHandler);
             return astPropertyName;
@@ -959,7 +996,7 @@ void TextToModelMerger::syncNodeListProperty(NodeListProperty &modelListProperty
         QString name;
         if (UiObjectDefinition *definition = cast<UiObjectDefinition *>(arrayMember))
             name = flatten(definition->qualifiedTypeNameId);
-        if (name == QLatin1String("Qt/Component"))
+        if (name == QLatin1String("QtQuick/Component"))
             setupComponent(newNode);
     }
 
@@ -1273,7 +1310,7 @@ void ModelAmender::idsDiffer(ModelNode &modelNode, const QString &qmlId)
 
 void TextToModelMerger::setupComponent(const ModelNode &node)
 {
-    Q_ASSERT(node.type() == QLatin1String("Qt/Component"));
+    Q_ASSERT(node.type() == QLatin1String("QtQuick/Component"));
 
     QString componentText = m_rewriterView->extractText(QList<ModelNode>() << node).value(node);
 

@@ -77,6 +77,7 @@ QmlRunControl::QmlRunControl(QmlProjectRunConfiguration *runConfiguration, QStri
 
 QmlRunControl::~QmlRunControl()
 {
+    stop();
 }
 
 void QmlRunControl::start()

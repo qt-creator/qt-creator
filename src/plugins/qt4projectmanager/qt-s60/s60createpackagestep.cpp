@@ -176,10 +176,16 @@ bool S60CreatePackageStep::init()
     m_environment = qt4BuildConfiguration()->environment();
 
     m_args.clear();
-    if (m_createSmartInstaller)
-        m_args << QLatin1String("installer_sis");
+    if (m_createSmartInstaller) {
+        if(signingMode() == NotSigned)
+            m_args << QLatin1String("unsigned_installer_sis");
+        else
+            m_args << QLatin1String("installer_sis");
+    } else if (signingMode() == NotSigned)
+        m_args << QLatin1String("unsigned_sis");
     else
         m_args << QLatin1String("sis");
+
     if (signingMode() == SignCustom) {
         m_args << QLatin1String(MAKE_CERTIFICATE_ARGUMENT) + QDir::toNativeSeparators(customSignaturePath())
                << QLatin1String(MAKE_KEY_ARGUMENT) + QDir::toNativeSeparators(customKeyPath());
@@ -645,6 +651,8 @@ S60CreatePackageStepConfigWidget::S60CreatePackageStepConfigWidget(S60CreatePack
             this, SLOT(updateFromUi()));
     connect(m_ui.selfSignedButton, SIGNAL(clicked()),
             this, SLOT(updateFromUi()));
+    connect(m_ui.notSignedButton, SIGNAL(clicked()),
+            this, SLOT(updateFromUi()));
     connect(m_ui.signaturePath, SIGNAL(changed(QString)),
             this, SLOT(updateFromUi()));
     connect(m_ui.keyFilePath, SIGNAL(changed(QString)),
@@ -657,11 +665,27 @@ S60CreatePackageStepConfigWidget::S60CreatePackageStepConfigWidget(S60CreatePack
 
 void S60CreatePackageStepConfigWidget::updateUi()
 {
-    bool selfSigned = m_signStep->signingMode() == S60CreatePackageStep::SignSelf;
-    m_ui.selfSignedButton->setChecked(selfSigned);
-    m_ui.customCertificateButton->setChecked(!selfSigned);
-    m_ui.signaturePath->setEnabled(!selfSigned);
-    m_ui.keyFilePath->setEnabled(!selfSigned);
+
+    switch(m_signStep->signingMode()) {
+    case S60CreatePackageStep::SignCustom:
+        m_ui.selfSignedButton->setChecked(false);
+        m_ui.customCertificateButton->setChecked(true);
+        m_ui.notSignedButton->setChecked(false);
+        break;
+    case S60CreatePackageStep::NotSigned:
+        m_ui.selfSignedButton->setChecked(false);
+        m_ui.customCertificateButton->setChecked(false);
+        m_ui.notSignedButton->setChecked(true);
+        break;
+    default:
+        m_ui.selfSignedButton->setChecked(true);
+        m_ui.customCertificateButton->setChecked(false);
+        m_ui.notSignedButton->setChecked(false);
+        break;
+    }
+    bool customSigned = m_signStep->signingMode() == S60CreatePackageStep::SignCustom;
+    m_ui.signaturePath->setEnabled(customSigned);
+    m_ui.keyFilePath->setEnabled(customSigned);
     m_ui.signaturePath->setPath(m_signStep->customSignaturePath());
     m_ui.keyFilePath->setPath(m_signStep->customKeyPath());
     m_ui.smartInstaller->setChecked(m_signStep->createsSmartInstaller());
@@ -670,9 +694,15 @@ void S60CreatePackageStepConfigWidget::updateUi()
 
 void S60CreatePackageStepConfigWidget::updateFromUi()
 {
-    bool selfSigned = m_ui.selfSignedButton->isChecked();
-    m_signStep->setSigningMode(selfSigned ? S60CreatePackageStep::SignSelf
-        : S60CreatePackageStep::SignCustom);
+    S60CreatePackageStep::SigningMode signingMode(S60CreatePackageStep::SignSelf);
+    if (m_ui.selfSignedButton->isChecked())
+        signingMode = S60CreatePackageStep::SignSelf;
+    else if (m_ui.customCertificateButton->isChecked())
+        signingMode = S60CreatePackageStep::SignCustom;
+    else if (m_ui.notSignedButton->isChecked())
+        signingMode = S60CreatePackageStep::NotSigned;
+
+    m_signStep->setSigningMode(signingMode);
     m_signStep->setCustomSignaturePath(m_ui.signaturePath->path());
     m_signStep->setCustomKeyPath(m_ui.keyFilePath->path());
     m_signStep->setCreatesSmartInstaller(m_ui.smartInstaller->isChecked());
@@ -691,11 +721,17 @@ void S60CreatePackageStepConfigWidget::resetPassphrases()
 QString S60CreatePackageStepConfigWidget::summaryText() const
 {
     QString text;
-    if (m_signStep->signingMode() == S60CreatePackageStep::SignSelf) {
-        text = tr("self-signed");
-    } else {
+    switch(m_signStep->signingMode()) {
+    case S60CreatePackageStep::SignCustom:
         text = tr("signed with certificate %1 and key file %2")
                .arg(m_signStep->customSignaturePath(), m_signStep->customKeyPath());
+        break;
+    case S60CreatePackageStep::NotSigned:
+        text = tr("not signed");
+        break;
+    default:
+        text = tr("self-signed");
+        break;
     }
     if (m_signStep->createsSmartInstaller())
         return tr("<b>Create SIS Package:</b> %1, using Smart Installer").arg(text);

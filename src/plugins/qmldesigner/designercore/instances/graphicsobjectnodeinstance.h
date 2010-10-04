@@ -74,12 +74,16 @@ public:
 
     void paintUpdate();
 
+    bool isMovable() const;
+    void setMovable(bool movable);
+
 protected:
     QGraphicsObject *graphicsObject() const;
     void paintRecursively(QGraphicsItem *graphicsItem, QPainter *painter) const;
     static QPair<QGraphicsObject*, bool> createGraphicsObject(const NodeMetaInfo &metaInfo, QDeclarativeContext *context);
 private: // variables
     bool m_hasContent;
+    bool m_isMovable;
 };
 
 } // namespace Internal

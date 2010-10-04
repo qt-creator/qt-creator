@@ -40,7 +40,8 @@ namespace Internal {
 
 GraphicsObjectNodeInstance::GraphicsObjectNodeInstance(QGraphicsObject *graphicsObject, bool hasContent)
    : ObjectNodeInstance(graphicsObject),
-   m_hasContent(hasContent)
+   m_hasContent(hasContent),
+   m_isMovable(true)
 {
 }
 
@@ -232,5 +233,16 @@ void GraphicsObjectNodeInstance::paintUpdate()
 {
     graphicsObject()->update();
 }
+
+bool GraphicsObjectNodeInstance::isMovable() const
+{
+    return m_isMovable && graphicsObject() && graphicsObject()->parentItem();
+}
+
+void GraphicsObjectNodeInstance::setMovable(bool movable)
+{
+    m_isMovable = movable;
+}
+
 } // namespace Internal
 } // namespace QmlDesigner

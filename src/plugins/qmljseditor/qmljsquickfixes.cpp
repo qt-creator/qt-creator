@@ -52,8 +52,6 @@ class SplitInitializerOp: public QmlJSQuickFixFactory
 public:
     virtual QList<QmlJSQuickFixOperation::Ptr> match(const QmlJSQuickFixState &state)
     {
-        QList<QmlJSQuickFixOperation::Ptr> result;
-
         UiObjectInitializer *objectInitializer = 0;
 
         const int pos = state.currentFile().cursor().position();
@@ -70,8 +68,9 @@ public:
         }
 
         if (objectInitializer)
-            result.append(QSharedPointer<QmlJSQuickFixOperation>(new Operation(state, objectInitializer)));
-        return result;
+            return singleResult(new Operation(state, objectInitializer));
+        else
+            return noResult();
     }
 
 private:

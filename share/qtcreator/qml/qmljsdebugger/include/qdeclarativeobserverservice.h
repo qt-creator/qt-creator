@@ -42,7 +42,7 @@
 #ifndef QDECLARATIVEDESIGNDEBUGSERVER_H
 #define QDECLARATIVEDESIGNDEBUGSERVER_H
 
-#include <private/qdeclarativedebugservice_p.h>
+#include "qt_private/qdeclarativedebugservice_p.h"
 #include "qmlobserverconstants.h"
 #include "qmljsdebugger_global.h"
 
@@ -69,6 +69,8 @@ public:
     void setCurrentTool(QmlJSDebugger::Constants::DesignTool toolId);
     void reloaded();
     QString idStringForObject(QObject *obj) const;
+
+    void sendMessage(const QByteArray &message);
 
 public Q_SLOTS:
     void selectedColorChanged(const QColor &color);
@@ -98,7 +100,7 @@ Q_SIGNALS:
     void clearComponentCacheRequested();
 
 protected:
-    virtual void enabledChanged(bool enabled);
+    virtual void statusChanged(Status status);
     virtual void messageReceived(const QByteArray &);
 
 private:

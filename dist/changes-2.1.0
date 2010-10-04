@@ -14,13 +14,16 @@ General
 Editing
 
 C++ Support
+   * Added semantic highlighting of types, virtual methods, locals, statics and
+     member variables (only enabled when running against Qt 4.7.1 and up, for
+     performance reasons)
    * Add new %FILENAME%, %CLASS% placeholders to license template
 
 Project Support
    * Add option for adding subprojects to projects in the New wizard
    * Add context-menu command for removing subprojects in the Edit mode,
      Projects view
-   * Add a wizard for adding other than Qt libraries to project files   
+   * Add a wizard for adding other than Qt libraries to project files
 
 Debugging
    * Fix console debugging with MinGW/gdb

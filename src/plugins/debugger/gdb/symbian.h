@@ -73,6 +73,12 @@ struct MemoryRange
 
 QDebug operator<<(QDebug d, const MemoryRange &range);
 
+// Signals to be passed to gdb server as stop reason (2 digit hex)
+enum GdbServerStopReason {
+    gdbServerSignalTrap = 5,     // Trap/Breakpoint, etc.
+    gdbServerSignalSegfault = 11 // Segfault
+};
+
 namespace Symbian {
 
 enum CodeMode
@@ -135,7 +141,7 @@ struct Snapshot
     QByteArray gdbQsThreadInfo() const;
     QByteArray gdbQThreadExtraInfo(const QByteArray &cmd) const;
     // Format a gdb T05 stop message with thread and register set
-    QByteArray gdbStopMessage(uint threadId, bool reportThreadId) const;
+    QByteArray gdbStopMessage(uint threadId, int signalNumber, bool reportThreadId) const;
     // Format a log message for memory access with some smartness about registers
     QByteArray memoryReadLogMessage(uint addr, uint threadId, bool verbose, const QByteArray &ba) const;
     // Gdb command parse helpers: 'salnext'

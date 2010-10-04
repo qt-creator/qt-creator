@@ -184,7 +184,7 @@ Core::GeneratedFiles
                             fileInfo.isAbsolute() ?
                             token :
                             (targetPath + QLatin1Char('/') + token);
-                    file.setPath(QDir::toNativeSeparators(fullPath));
+                    file.setPath(fullPath);
                 }
             }
             file.setAttributes(attributes);

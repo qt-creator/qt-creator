@@ -42,7 +42,6 @@ namespace Internal {
 class QmlStandaloneAppWizardSourcesPagePrivate
 {
     Ui::QmlStandaloneAppWizardSourcesPage ui;
-    bool mainQmlFileChooserVisible;
     friend class QmlStandaloneAppWizardSourcesPage;
 };
 
@@ -53,16 +52,13 @@ QmlStandaloneAppWizardSourcesPage::QmlStandaloneAppWizardSourcesPage(QWidget *pa
     m_d->ui.setupUi(this);
     m_d->ui.mainQmlFileLineEdit->setExpectedKind(Utils::PathChooser::File);
     m_d->ui.mainQmlFileLineEdit->setPromptDialogFilter(QLatin1String("*.qml"));
-    m_d->ui.mainQmlFileLineEdit->setPromptDialogTitle(tr("Select the main QML file of the application."));
-    m_d->ui.addModuleUriButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_PLUS)));
-    m_d->ui.removeModuleUriButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_MINUS)));
-    m_d->ui.addImportPathButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_PLUS)));
-    m_d->ui.removeImportPathButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_MINUS)));
-    setMainQmlFileChooserVisible(true);
-    setModulesError(QString());
+    m_d->ui.mainQmlFileLineEdit->setPromptDialogTitle(tr("Select QML File"));
     connect(m_d->ui.mainQmlFileLineEdit, SIGNAL(changed(QString)), SIGNAL(completeChanged()));
-    connect(m_d->ui.urisListWidget, SIGNAL(itemChanged(QListWidgetItem*)), SLOT(handleModulesChanged()));
-    connect(m_d->ui.importPathsListWidget, SIGNAL(itemChanged(QListWidgetItem*)), SLOT(handleModulesChanged()));
+    connect(m_d->ui.importExistingQmlRadioButton,
+            SIGNAL(toggled(bool)), SIGNAL(completeChanged()));
+    connect(m_d->ui.newQmlRadioButton, SIGNAL(toggled(bool)),
+            m_d->ui.mainQmlFileLineEdit, SLOT(setDisabled(bool)));
+    m_d->ui.newQmlRadioButton->setChecked(true);
 }
 
 QmlStandaloneAppWizardSourcesPage::~QmlStandaloneAppWizardSourcesPage()
@@ -72,95 +68,14 @@ QmlStandaloneAppWizardSourcesPage::~QmlStandaloneAppWizardSourcesPage()
 
 QString QmlStandaloneAppWizardSourcesPage::mainQmlFile() const
 {
-    return m_d->ui.mainQmlFileLineEdit->path();
+    return m_d->ui.importExistingQmlRadioButton->isChecked() ?
+                m_d->ui.mainQmlFileLineEdit->path() : QString();
 }
 
 bool QmlStandaloneAppWizardSourcesPage::isComplete() const
 {
-    return (!m_d->mainQmlFileChooserVisible || m_d->ui.mainQmlFileLineEdit->isValid())
-            && m_d->ui.errorLabel->text().isEmpty();
-}
-
-void QmlStandaloneAppWizardSourcesPage::setMainQmlFileChooserVisible(bool visible)
-{
-    m_d->mainQmlFileChooserVisible = visible;
-    m_d->ui.mainQmlFileGroupBox->setVisible(m_d->mainQmlFileChooserVisible);
-}
-
-void QmlStandaloneAppWizardSourcesPage::setModulesError(const QString &error)
-{
-    m_d->ui.errorLabel->setText(error);
-    m_d->ui.errorLabel->setVisible(!error.isEmpty());
-}
-
-void QmlStandaloneAppWizardSourcesPage::on_addModuleUriButton_clicked()
-{
-    QListWidgetItem *item = new QListWidgetItem(m_d->ui.urisListWidget);
-    item->setFlags(item->flags() | Qt::ItemIsEditable);
-    m_d->ui.urisListWidget->setCurrentItem(item);
-    m_d->ui.urisListWidget->editItem(item);
-}
-
-static bool removeListWidgetItem(QListWidget *list)
-{
-    const int currentRow = list->currentRow();
-    if (currentRow >= 0) {
-        list->takeItem(currentRow);
-        return true;
-    }
-    return false;
-}
-
-void QmlStandaloneAppWizardSourcesPage::on_removeModuleUriButton_clicked()
-{
-    if (removeListWidgetItem(m_d->ui.urisListWidget))
-        handleModulesChanged();
-}
-
-void QmlStandaloneAppWizardSourcesPage::on_addImportPathButton_clicked()
-{
-    const QString path = QFileDialog::getExistingDirectory(this,
-        tr("Select an import path for QML modules."), mainQmlFile());
-    if (!path.isEmpty()) {
-        QListWidgetItem *item = new QListWidgetItem(QDir::toNativeSeparators(path), m_d->ui.importPathsListWidget);
-        item->setFlags(item->flags() | Qt::ItemIsEditable);
-        m_d->ui.importPathsListWidget->setCurrentItem(item);
-    }
-}
-
-void QmlStandaloneAppWizardSourcesPage::on_removeImportPathButton_clicked()
-{
-    if (removeListWidgetItem(m_d->ui.importPathsListWidget))
-        handleModulesChanged();
-}
-
-static inline QStringList ertriesFromListWidget(const QListWidget &listWidget)
-{
-    QStringList result;
-    for (int i = 0; i < listWidget.count(); ++i) {
-        const QString text = listWidget.item(i)->text().trimmed();
-        if (!text.isEmpty())
-            result.append(text);
-    }
-    return result;
-}
-
-void QmlStandaloneAppWizardSourcesPage::handleModulesChanged()
-{
-    const QStringList uris = ertriesFromListWidget(*m_d->ui.urisListWidget);
-    const QStringList paths = ertriesFromListWidget(*m_d->ui.importPathsListWidget);
-    emit externalModulesChanged(uris, paths);
-    emit completeChanged();
-}
-
-QStringList QmlStandaloneAppWizardSourcesPage::moduleUris() const
-{
-    return ertriesFromListWidget(*m_d->ui.urisListWidget);
-}
-
-QStringList QmlStandaloneAppWizardSourcesPage::moduleImportPaths() const
-{
-    return ertriesFromListWidget(*m_d->ui.importPathsListWidget);
+    return !m_d->ui.importExistingQmlRadioButton->isChecked()
+            || m_d->ui.mainQmlFileLineEdit->isValid();
 }
 
 } // namespace Internal

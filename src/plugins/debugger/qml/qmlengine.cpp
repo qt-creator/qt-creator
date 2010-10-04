@@ -218,6 +218,12 @@ void QmlEngine::connectionError(QAbstractSocket::SocketError socketError)
         plugin()->showMessage(tr("QML Debugger: Remote host closed connection."), StatusBar);
 }
 
+
+void QmlEngine::serviceConnectionError(const QString &serviceName)
+{
+    plugin()->showMessage(tr("QML Debugger: Couldn't connect to service '%1'.").arg(serviceName), StatusBar);
+}
+
 void QmlEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
@@ -327,6 +333,7 @@ void QmlEngine::setupEngine()
     d->m_adapter->setConnectionAttemptInterval(ConnectionAttemptDefaultInterval);
     connect(d->m_adapter, SIGNAL(connectionError(QAbstractSocket::SocketError)),
             SLOT(connectionError(QAbstractSocket::SocketError)));
+    connect(d->m_adapter, SIGNAL(serviceConnectionError(QString)), SLOT(serviceConnectionError(QString)));
     connect(d->m_adapter, SIGNAL(connected()), SLOT(connectionEstablished()));
     connect(d->m_adapter, SIGNAL(connectionStartupFailed()), SLOT(connectionStartupFailed()));
 
@@ -659,9 +666,34 @@ void QmlEngine::messageReceived(const QByteArray &message)
                 tr("<p>An Uncaught Exception occured in <i>%1</i>:</p><p>%2</p>")
                     .arg(stackFrames.value(0).file, Qt::escape(error));
             showMessageBox(QMessageBox::Information, tr("Uncaught Exception"), msg);
+        } else {
+            //
+            // Make breakpoint non-pending
+            //
+            QString file;
+            int line = -1;
+
+            if (!stackFrames.isEmpty()) {
+                file = stackFrames.at(0).file;
+                line = stackFrames.at(0).line;
+
+                if (isShadowBuildProject()) {
+                    file = fromShadowBuildFilename(file);
+                }
+            }
+
+            Internal::BreakHandler *handler = breakHandler();
+            for (int index = 0; index != handler->size(); ++index) {
+                Internal::BreakpointData *data = handler->at(index);
+                QString processedFilename = data->fileName;
+
+                if (processedFilename == file
+                        && data->lineNumber == line) {
+                    data->pending = false;
+                    data->updateMarker();
+                }
+            }
         }
-
-
     } else if (command == "RESULT") {
         Internal::WatchData data;
         QByteArray iname;

@@ -30,11 +30,12 @@
 #ifndef CPPQUICKFIX_H
 #define CPPQUICKFIX_H
 
-#include "cpprefactoringchanges.h"
+#include "cppeditor_global.h"
 #include "cppsemanticinfo.h"
 
 #include <ASTfwd.h>
 #include <cplusplus/CppDocument.h>
+#include <cpptools/cpprefactoringchanges.h>
 #include <texteditor/icompletioncollector.h>
 #include <texteditor/quickfix.h>
 #include <utils/changeset.h>
@@ -69,7 +70,7 @@ public:
     CppEditor::Internal::SemanticInfo semanticInfo() const;
     const CPlusPlus::LookupContext &context() const;
 
-    const CppRefactoringFile currentFile() const;
+    const CppTools::CppRefactoringFile currentFile() const;
 
     bool isCursorOn(unsigned tokenIndex) const
     { return currentFile().isCursorOn(tokenIndex); }
@@ -94,7 +95,8 @@ public:
     virtual void perform();
 
 protected:
-    virtual void performChanges(CppRefactoringFile *currentFile, CppRefactoringChanges *refactoring) = 0;
+    virtual void performChanges(CppTools::CppRefactoringFile *currentFile,
+                                CppTools::CppRefactoringChanges *refactoring) = 0;
 
     QString fileName() const;
 

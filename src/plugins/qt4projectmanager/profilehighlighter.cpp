@@ -201,5 +201,6 @@ void ProFileHighlighter::highlightBlock(const QString &text)
         if (i >= text.length())
             break;
     }
-}
 
+    applyFormatToSpaces(text, m_formats[ProfileVisualWhitespaceFormat]);
+}

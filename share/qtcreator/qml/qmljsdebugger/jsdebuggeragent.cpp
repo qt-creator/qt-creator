@@ -40,6 +40,7 @@
 ****************************************************************************/
 
 #include "jsdebuggeragent.h"
+#include "qt_private/qdeclarativedebughelper_p.h"
 
 #include <QtCore/qcoreapplication.h>
 #include <QtCore/qset.h>
@@ -49,7 +50,6 @@
 #include <QtCore/QUrl>
 #include <QtCore/QDateTime>
 #include <QtScript/qscriptvalueiterator.h>
-#include <private/qdeclarativeengine_p.h>
 
 namespace QmlJSDebugger {
 
@@ -193,7 +193,7 @@ JSDebuggerAgent::JSDebuggerAgent(QScriptEngine *engine)
 
 JSDebuggerAgent::JSDebuggerAgent(QDeclarativeEngine *engine)
     : QDeclarativeDebugService("JSDebugger")
-    , QScriptEngineAgent(QDeclarativeEnginePrivate::getScriptEngine(engine))
+    , QScriptEngineAgent(QDeclarativeDebugHelper::getScriptEngine(engine))
     , state(NoState)
 {}
 
@@ -511,9 +511,9 @@ void JSDebuggerAgent::continueExec()
     loop.quit();
 }
 
-void JSDebuggerAgent::enabledChanged(bool on)
+void JSDebuggerAgent::statusChanged(Status status)
 {
-    engine()->setAgent(on ? this : 0);
+    engine()->setAgent((status == QDeclarativeDebugService::Enabled) ? this : 0);
 }
 
 } // namespace QmlJSDebugger

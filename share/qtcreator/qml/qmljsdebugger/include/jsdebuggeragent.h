@@ -57,8 +57,9 @@
 #include <QtScript/QScriptValue>
 #include <QtCore/QEventLoop>
 #include <QtCore/QSet>
-#include <private/qdeclarativedebugservice_p.h>
 #include <QtCore/QStringList>
+
+#include "qt_private/qdeclarativedebugservice_p.h"
 
 #include "qmljsdebugger_global.h"
 
@@ -103,7 +104,7 @@ public:
                        const QVariant &argument = QVariant());
 
     void messageReceived(const QByteArray &);
-    void enabledChanged(bool);
+    void statusChanged(Status status);
 
 public slots:
 //    void pauses();

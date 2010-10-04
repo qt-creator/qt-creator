@@ -937,13 +937,13 @@ void testPlugin()
     QLibrary lib(dir + "/libsimple_gdbtest_plugin.dylib");
 #endif
 #ifdef Q_OS_WIN
-    QLibrary lib(dir + "/libsimple_gdbtest_plugin.dll");
+    QLibrary lib(dir + "/debug/simple_gdbtest_plugin.dll");
 #endif
 #ifdef Q_OS_SYMBIAN
     QLibrary lib(dir + "/libsimple_gdbtest_plugin.dll");
 #endif
     int (*foo)() = (int(*)()) lib.resolve("pluginTest");
-    qDebug() << "library resolve: " << foo;
+    qDebug() << "library resolve: " << foo << lib.fileName();
     if (foo) {
         int res = foo();
         res += 1;
@@ -2093,6 +2093,7 @@ int main(int argc, char *argv[])
 
     Q_UNUSED(s);
     Q_UNUSED(w);
+    return 0;
 }
 
 QT_BEGIN_NAMESPACE

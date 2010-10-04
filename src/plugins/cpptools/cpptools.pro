@@ -26,7 +26,9 @@ HEADERS += completionsettingspage.h \
     cppfindreferences.h \
     cppcodeformatter.h \
     symbolsfindfilter.h \
-    uicodecompletionsupport.h
+    uicodecompletionsupport.h \
+    insertionpointlocator.h \
+    cpprefactoringchanges.h
 
 SOURCES += completionsettingspage.cpp \
     cppclassesfilter.cpp \
@@ -44,7 +46,9 @@ SOURCES += completionsettingspage.cpp \
     cppfindreferences.cpp \
     cppcodeformatter.cpp \
     symbolsfindfilter.cpp \
-    uicodecompletionsupport.cpp
+    uicodecompletionsupport.cpp \
+    insertionpointlocator.cpp \
+    cpprefactoringchanges.cpp
 
 FORMS += completionsettingspage.ui \
     cppfilesettingspage.ui

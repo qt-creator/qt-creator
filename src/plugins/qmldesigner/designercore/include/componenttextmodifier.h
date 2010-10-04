@@ -61,6 +61,8 @@ public:
     virtual QmlJS::Snapshot getSnapshot() const;
     virtual QStringList importPaths() const;
 
+    virtual bool renameId(const QString & /* oldId */, const QString & /* newId */) { return false; }
+
 public slots:
     void contentsChange(int position, int charsRemoved, int charsAdded);
 

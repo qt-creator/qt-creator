@@ -72,11 +72,12 @@ void ResizeIndicator::setItems(const QList<FormEditorItem*> &itemList)
 
     foreach (FormEditorItem* item, itemList) {
         if (item
-            && item->qmlItemNode().isValid()
-            && item->qmlItemNode().isRootNode())
-            continue;
-        ResizeController controller(m_layerItem, item);
-        m_itemControllerHash.insert(item, controller);
+                && item->qmlItemNode().isValid()
+                && item->qmlItemNode().instanceIsResizable()
+                && !item->qmlItemNode().instanceIsInPositioner()) {
+            ResizeController controller(m_layerItem, item);
+            m_itemControllerHash.insert(item, controller);
+        }
     }
 }
 

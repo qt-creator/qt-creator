@@ -35,7 +35,7 @@ DATA_DIRS = \
     qmlicons \
     qml \
     qml-type-descriptions \
-    generic-highlighter
+    qmljsdebugger
 
 !isEmpty(copydata) {
 

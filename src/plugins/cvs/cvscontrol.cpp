@@ -58,6 +58,8 @@ bool CVSControl::supportsOperation(Operation operation) const
     case MoveOperation:
     case CreateRepositoryOperation:
     case SnapshotOperations:
+    case CheckoutOperation:
+    case GetRepositoryRootOperation:
         rc = false;
         break;
     }
@@ -90,6 +92,16 @@ bool CVSControl::vcsMove(const QString &from, const QString &to)
 }
 
 bool CVSControl::vcsCreateRepository(const QString &)
+{
+    return false;
+}
+
+QString CVSControl::vcsGetRepositoryURL(const QString &)
+{
+    return QString();
+}
+
+bool CVSControl::vcsCheckout(const QString &, const QByteArray &)
 {
     return false;
 }

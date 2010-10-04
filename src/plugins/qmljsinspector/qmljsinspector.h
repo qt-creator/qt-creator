@@ -119,6 +119,8 @@ public slots:
     void setApplyChangesToQmlObserver(bool applyChanges);
 
 private slots:
+    void enable();
+    void disable();
     void gotoObjectReferenceDefinition(const QDeclarativeDebugObjectReference &obj);
 
     void setSelectedItemsByObjectReference(QList<QDeclarativeDebugObjectReference> objectReferences);

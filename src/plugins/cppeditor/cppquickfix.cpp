@@ -43,7 +43,7 @@
 #include <cplusplus/CppRewriter.h>
 
 #include <cppeditor/cppeditor.h>
-#include <cppeditor/cpprefactoringchanges.h>
+#include <cpptools/cpprefactoringchanges.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <extensionsystem/pluginmanager.h>
@@ -52,6 +52,7 @@
 
 using namespace CppEditor;
 using namespace CppEditor::Internal;
+using namespace CppTools;
 using namespace TextEditor;
 using namespace CPlusPlus;
 using namespace Utils;

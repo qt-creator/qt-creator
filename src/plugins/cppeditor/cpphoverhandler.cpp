@@ -46,16 +46,6 @@
 using namespace CppEditor::Internal;
 using namespace Core;
 
-namespace {
-    QString removeClassNameQualification(const QString &name) {
-        const int index = name.lastIndexOf(QLatin1Char(':'));
-        if (index == -1)
-            return name;
-        else
-            return name.right(name.length() - index - 1);
-    }
-}
-
 CppHoverHandler::CppHoverHandler(QObject *parent) : BaseHoverHandler(parent)
 {}
 
@@ -87,16 +77,8 @@ void CppHoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
         QSharedPointer<CppElement> cppElement = evaluator.identifyCppElement();
         if (!cppElement.isNull()) {
             setToolTip(cppElement->tooltip());
-            foreach (QString helpId, cppElement->helpIdCandidates()) {
-                bool found = false;
+            foreach (const QString &helpId, cppElement->helpIdCandidates()) {
                 if (!Core::HelpManager::instance()->linksForIdentifier(helpId).isEmpty()) {
-                    found = true;
-                } else {
-                    helpId = removeClassNameQualification(helpId);
-                    if (!Core::HelpManager::instance()->linksForIdentifier(helpId).isEmpty())
-                        found = true;
-                }
-                if (found) {
                     setLastHelpItemIdentified(TextEditor::HelpItem(helpId,
                                                                    cppElement->helpMark(),
                                                                    cppElement->helpCategory()));
@@ -114,14 +96,26 @@ void CppHoverHandler::decorateToolTip()
 
     const TextEditor::HelpItem &help = lastHelpItemIdentified();
     if (help.isValid()) {
+        // If Qt is built with a namespace, we still show the tip without it, as
+        // it is in the docs and for consistency with the doc extraction mechanism.
+        const TextEditor::HelpItem::Category category = help.category();
         const QString &contents = help.extractContent(false);
         if (!contents.isEmpty()) {
-            if (help.category() == TextEditor::HelpItem::ClassOrNamespace) {
-                setToolTip(Qt::escape(toolTip()));
-                appendToolTip(contents);
-            } else {
+            if (category == TextEditor::HelpItem::ClassOrNamespace)
+                setToolTip(help.helpId() + contents);
+            else
                 setToolTip(contents);
-            }
+        } else if (category == TextEditor::HelpItem::Typedef ||
+                   category == TextEditor::HelpItem::Enum ||
+                   category == TextEditor::HelpItem::ClassOrNamespace) {
+            // This approach is a bit limited since it cannot be used for functions
+            // because the help id doesn't really help in that case.
+            QString prefix;
+            if (category == TextEditor::HelpItem::Typedef)
+                prefix = QLatin1String("typedef ");
+            else if (category == TextEditor::HelpItem::Enum)
+                prefix = QLatin1String("enum ");
+            setToolTip(prefix + help.helpId());
         }
         addF1ToToolTip();
     }

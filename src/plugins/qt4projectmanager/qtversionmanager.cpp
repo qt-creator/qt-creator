@@ -1746,7 +1746,7 @@ bool QtVersion::isQt64Bit() const
 #endif
 }
 
-QString QtVersion::buildDebuggingHelperLibrary(QFutureInterface<void> &future)
+QString QtVersion::buildDebuggingHelperLibrary(QFutureInterface<void> &future, bool onlyQmlDump)
 {
     QString qtInstallHeaders = versionInfo().value("QT_INSTALL_HEADERS");
     QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");
@@ -1762,15 +1762,30 @@ QString QtVersion::buildDebuggingHelperLibrary(QFutureInterface<void> &future)
         return QCoreApplication::translate("QtVersion", "The Qt Version has no toolchain.");
     tc->addToEnvironment(env);
     QString output;
-    QString gdbHelperDirectory = DebuggingHelperLibrary::copy(qtInstallData, &output);
-    if (!gdbHelperDirectory.isEmpty()) {
-        output += DebuggingHelperLibrary::build(gdbHelperDirectory, tc->makeCommand(),
-            qmakeCommand(), mkspec(), env,
-            (tc->type() == ToolChain::GCC_MAEMO ? QLatin1String("-unix") : QLatin1String("")));
-    }
-    future.setProgressValue(2);
 
-    if (QmlDumpTool::canBuild(qtInstallHeaders)) {
+    if (!onlyQmlDump) {
+        QString gdbHelperDirectory = DebuggingHelperLibrary::copy(qtInstallData, &output);
+        if (!gdbHelperDirectory.isEmpty()) {
+            output += DebuggingHelperLibrary::build(gdbHelperDirectory, tc->makeCommand(),
+                                                    qmakeCommand(), mkspec(), env,
+                                                    (tc->type() == ToolChain::GCC_MAEMO ? QLatin1String("-unix") : QLatin1String("")));
+        }
+        future.setProgressValue(2);
+
+        if (QmlObserverTool::canBuild(this)) {
+            QString toolDirectory = QmlObserverTool::copy(qtInstallData, &output);
+            if (!toolDirectory.isEmpty()) {
+                output += QmlObserverTool::build(toolDirectory, tc->makeCommand(),
+                    qmakeCommand(), mkspec(), env,
+                    (tc->type() == ToolChain::GCC_MAEMO ? QLatin1String("-unix") : QLatin1String("")));
+            }
+        } else {
+            output += QCoreApplication::tr("Cannot build QMLObserver; Qt version must be 4.7.1 or higher.");
+        }
+        future.setProgressValue(3);
+    }
+
+    if (QmlDumpTool::canBuild(this)) {
         QString toolDirectory = QmlDumpTool::copy(qtInstallData, &output);
         if (!toolDirectory.isEmpty()) {
             output += QmlDumpTool::build(toolDirectory, tc->makeCommand(),
@@ -1780,23 +1795,17 @@ QString QtVersion::buildDebuggingHelperLibrary(QFutureInterface<void> &future)
     } else {
         output += QCoreApplication::tr("Cannot build qmldump; Qt version must be 4.7.1 or higher.");
     }
-    future.setProgressValue(3);
-
-    if (QmlObserverTool::canBuild(qtInstallHeaders)) {
-        QString toolDirectory = QmlObserverTool::copy(qtInstallData, &output);
-        if (!toolDirectory.isEmpty()) {
-            output += QmlObserverTool::build(toolDirectory, tc->makeCommand(),
-                qmakeCommand(), mkspec(), env,
-                (tc->type() == ToolChain::GCC_MAEMO ? QLatin1String("-unix") : QLatin1String("")));
-        }
-    } else {
-        output += QCoreApplication::tr("Cannot build QMLObserver; Qt version must be 4.7.1 or higher.");
-    }
     future.setProgressValue(4);
 
-    m_hasDebuggingHelper = !debuggingHelperLibrary().isEmpty();
+    // invalidate version before updating version info
+    m_versionInfoUpToDate = false;
+    updateVersionInfo();
+
+    if (!onlyQmlDump) {
+        m_hasDebuggingHelper = !debuggingHelperLibrary().isEmpty();
+        m_hasQmlObserver = !qmlObserverTool().isEmpty();
+    }
     m_hasQmlDump = !qmlDumpTool().isEmpty();
-    m_hasQmlObserver = !qmlObserverTool().isEmpty();
+
     return output;
 }
-

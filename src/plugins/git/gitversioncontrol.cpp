@@ -87,6 +87,10 @@ bool GitVersionControl::supportsOperation(Operation operation) const
     case AnnotateOperation:
         rc = true;
         break;
+    case CheckoutOperation:
+    case GetRepositoryRootOperation:
+        rc = true;
+        break;
     }
     return rc;
 }
@@ -121,6 +125,17 @@ bool GitVersionControl::vcsCreateRepository(const QString &directory)
 {
     return gitClient()->synchronousInit(directory);
 }
+
+bool GitVersionControl::vcsCheckout(const QString &directory, const QByteArray &url)
+{
+    return gitClient()->cloneRepository(directory,url);
+}
+
+QString GitVersionControl::vcsGetRepositoryURL(const QString &directory)
+{
+    return gitClient()->vcsGetRepositoryURL(directory);
+}
+
 /* Snapshots are implement using stashes, relying on stash messages for
  * naming as the actual stash names (stash{n}) are rotated as one adds stashes.
  * Note that the snapshot interface does not care whether we have an unmodified

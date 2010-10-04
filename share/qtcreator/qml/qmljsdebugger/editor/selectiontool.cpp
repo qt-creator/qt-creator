@@ -31,7 +31,7 @@
 #include "layeritem.h"
 
 //#include "resizehandleitem.h"
-#include "qdeclarativeviewobserver_p.h"
+#include "../qdeclarativeviewobserver_p.h"
 
 #include <QDeclarativeEngine>
 

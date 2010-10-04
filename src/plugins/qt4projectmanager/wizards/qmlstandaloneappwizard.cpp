@@ -52,48 +52,36 @@ class QmlStandaloneAppWizardDialog : public AbstractMobileAppWizardDialog
     Q_OBJECT
 
 public:
-    explicit QmlStandaloneAppWizardDialog(QmlStandaloneAppWizard::WizardType type, QWidget *parent = 0);
+    explicit QmlStandaloneAppWizardDialog(QWidget *parent = 0);
 
 private:
-    QmlStandaloneAppWizard::WizardType m_type;
     class QmlStandaloneAppWizardSourcesPage *m_qmlSourcesPage;
     friend class QmlStandaloneAppWizard;
 };
 
-QmlStandaloneAppWizardDialog::QmlStandaloneAppWizardDialog(QmlStandaloneAppWizard::WizardType type,
-                                                           QWidget *parent)
+QmlStandaloneAppWizardDialog::QmlStandaloneAppWizardDialog(QWidget *parent)
     : AbstractMobileAppWizardDialog(parent)
-    , m_type(type)
     , m_qmlSourcesPage(0)
 {
-    setWindowTitle(m_type == QmlStandaloneAppWizard::NewQmlFile
-                       ? tr("New Qt Quick Application")
-                       : tr("Qt Quick Application from Existing QML Directory"));
-    setIntroDescription(m_type == QmlStandaloneAppWizard::NewQmlFile
-                       ? tr("This wizard generates a Qt Quick application project.")
-                       : tr("This wizard imports an existing QML directory and creates a Qt Quick application project from it."));
+    setWindowTitle(tr("New Qt Quick Application"));
+    setIntroDescription(tr("This wizard generates a Qt Quick application project."));
 
-    if (m_type == QmlStandaloneAppWizard::ImportQmlFile) {
-        m_qmlSourcesPage = new QmlStandaloneAppWizardSourcesPage;
-        m_qmlSourcesPage->setMainQmlFileChooserVisible(true);
-        const int qmlSourcesPagePageId = addPage(m_qmlSourcesPage);
-        wizardProgress()->item(qmlSourcesPagePageId)->setTitle(tr("QML Sources"));
-    }
+    m_qmlSourcesPage = new QmlStandaloneAppWizardSourcesPage;
+    const int qmlSourcesPagePageId = addPage(m_qmlSourcesPage);
+    wizardProgress()->item(qmlSourcesPagePageId)->setTitle(tr("QML Sources"));
 }
 
 class QmlStandaloneAppWizardPrivate
 {
-    QmlStandaloneAppWizard::WizardType type;
     class QmlStandaloneApp *standaloneApp;
     class QmlStandaloneAppWizardDialog *wizardDialog;
     friend class QmlStandaloneAppWizard;
 };
 
-QmlStandaloneAppWizard::QmlStandaloneAppWizard(WizardType type)
-    : AbstractMobileAppWizard(parameters(type))
+QmlStandaloneAppWizard::QmlStandaloneAppWizard()
+    : AbstractMobileAppWizard(parameters())
     , m_d(new QmlStandaloneAppWizardPrivate)
 {
-    m_d->type = type;
     m_d->standaloneApp = new QmlStandaloneApp;
     m_d->wizardDialog = 0;
 }
@@ -104,35 +92,22 @@ QmlStandaloneAppWizard::~QmlStandaloneAppWizard()
     delete m_d;
 }
 
-Core::BaseFileWizardParameters QmlStandaloneAppWizard::parameters(WizardType type)
+Core::BaseFileWizardParameters QmlStandaloneAppWizard::parameters()
 {
     Core::BaseFileWizardParameters parameters(ProjectWizard);
     parameters.setIcon(QIcon(QLatin1String(Constants::ICON_QML_STANDALONE)));
-    parameters.setDisplayName(type == QmlStandaloneAppWizard::NewQmlFile
-                              ? tr("Qt Quick Application")
-                              : tr("Import Existing QML Directory"));
-    parameters.setId(QLatin1String(type == QmlStandaloneAppWizard::NewQmlFile
-                                   ? "QA.QMLA Application"
-                                   : "QA.QMLB Imported Application"));
-    parameters.setDescription(type == QmlStandaloneAppWizard::NewQmlFile
-        ? tr("Creates a Qt Quick application that you can deploy to mobile devices.")
-        : tr("Imports an existing QML directory and converts it into a "
-             "Qt Quick application project. "
-             "You can deploy the application to mobile devices."));
-    parameters.setCategory(QLatin1String(Constants::QT_APP_WIZARD_CATEGORY));
-    parameters.setDisplayCategory(QCoreApplication::translate(Constants::QT_APP_WIZARD_TR_SCOPE,
-                                                              Constants::QT_APP_WIZARD_TR_CATEGORY));
+    parameters.setDisplayName(tr("Qt Quick Application"));
+    parameters.setId(QLatin1String("QA.QMLA Application"));
+    parameters.setDescription(tr("Creates a Qt Quick application that you can deploy to mobile devices."));
+    parameters.setCategory(QLatin1String(Constants::QML_WIZARD_CATEGORY));
+    parameters.setDisplayCategory(QCoreApplication::translate(Constants::QML_WIZARD_TR_SCOPE,
+                                                              Constants::QML_WIZARD_TR_CATEGORY));
     return parameters;
 }
 
 AbstractMobileAppWizardDialog *QmlStandaloneAppWizard::createWizardDialogInternal(QWidget *parent) const
 {
-    m_d->wizardDialog = new QmlStandaloneAppWizardDialog(m_d->type, parent);
-    if (m_d->wizardDialog->m_qmlSourcesPage) {
-        connect(m_d->wizardDialog->m_qmlSourcesPage,
-                SIGNAL(externalModulesChanged(QStringList, QStringList)),
-                SLOT(handleModulesChange(QStringList, QStringList)));
-    }
+    m_d->wizardDialog = new QmlStandaloneAppWizardDialog(parent);
     const QList<TargetSetupPage::ImportInfo> &qtVersions
         = TargetSetupPage::importInfosForKnownQtVersions();
     QList<TargetSetupPage::ImportInfo> qmlQtVersions;
@@ -157,32 +132,21 @@ void QmlStandaloneAppWizard::prepareGenerateFiles(const QWizard *w,
 {
     Q_UNUSED(errorMessage)
     const QmlStandaloneAppWizardDialog *wizard = qobject_cast<const QmlStandaloneAppWizardDialog*>(w);
-    if (wizard->m_qmlSourcesPage) {
-        m_d->standaloneApp->setMainQmlFile(wizard->m_qmlSourcesPage->mainQmlFile());
-        m_d->standaloneApp->setExternalModules(
-                wizard->m_qmlSourcesPage->moduleUris(),
-                wizard->m_qmlSourcesPage->moduleImportPaths());
-    }
+    const QString mainQmlFile = wizard->m_qmlSourcesPage->mainQmlFile();
+    if (!mainQmlFile.isEmpty())
+        m_d->standaloneApp->setMainQmlFile(mainQmlFile);
 }
 
 bool QmlStandaloneAppWizard::postGenerateFilesInternal(const Core::GeneratedFiles &l,
     QString *errorMessage)
 {
     const bool success = ProjectExplorer::CustomProjectWizard::postGenerateOpen(l, errorMessage);
-    if (success && m_d->type == QmlStandaloneAppWizard::ImportQmlFile) {
+    if (success && !m_d->standaloneApp->mainQmlFile().isEmpty()) {
         ProjectExplorer::ProjectExplorerPlugin::instance()->setCurrentFile(0, m_d->standaloneApp->mainQmlFile());
         Core::EditorManager::instance()->openEditor(m_d->standaloneApp->mainQmlFile(),
                                                     QString(), Core::EditorManager::ModeSwitch);
     }
     return success;
-}
-
-void QmlStandaloneAppWizard::handleModulesChange(const QStringList &uris, const QStringList &paths)
-{
-    Q_ASSERT(m_d->wizardDialog->m_qmlSourcesPage);
-    QmlStandaloneApp testApp;
-    testApp.setExternalModules(uris, paths);
-    m_d->wizardDialog->m_qmlSourcesPage->setModulesError(testApp.error());
 }
 
 AbstractMobileApp *QmlStandaloneAppWizard::app() const

@@ -75,7 +75,7 @@ signals:
     void mounted();
     void unmounted();
     void error(const QString &reason);
-    void reportProgress(const QString &progressOutput);
+    void reportProgress(const QString &progressOutput); // TODO: No progress output when there's nothingt to mount
     void debugOutput(const QString &output);
 
 private slots:
@@ -95,10 +95,20 @@ private slots:
     void startUtfsServers();
 
 private:
+    enum State {
+        Inactive, Unmounting, UploaderInitializing, UploadRunning,
+        UtfsClientsStarting, UtfsClientsStarted, UtfsServersStarted
+    };
+
+    void assertState(State expectedState, const char *func);
+    void assertState(const QList<State> &expectedStates, const char *func);
+    void setState(State newState);
+
     void deployUtfsClient();
     void startUtfsClients();
     void killUtfsServer(QProcess *proc);
     void killAllUtfsServers();
+    void killUtfsClients();
     QString utfsClientOnDevice() const;
     QString utfsServer() const;
 
@@ -123,10 +133,11 @@ private:
     typedef QSharedPointer<QProcess> ProcPtr;
     QList<ProcPtr> m_utfsServers;
 
-    bool m_stop;
     QByteArray m_utfsClientStderr;
     QByteArray m_umountStderr;
     MaemoPortList m_portList;
+
+    State m_state;
 };
 
 } // namespace Internal

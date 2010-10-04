@@ -44,12 +44,11 @@ public:
     virtual ~QmlDebuggerClient();
 
 signals:
+    void newStatus(QDeclarativeDebugClient::Status status);
     void messageWasReceived(const QByteArray &data);
 
-private Q_SLOTS:
-    void slotSendMessage(const QByteArray &message);
-
 protected:
+    virtual void statusChanged(Status status);
     virtual void messageReceived(const QByteArray &data);
 };
 

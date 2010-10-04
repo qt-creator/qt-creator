@@ -38,20 +38,22 @@ SUBDIRS   = plugin_coreplugin \
             plugin_tasklist \
             debugger/dumper.pro
 
-contains(QT_CONFIG, declarative) {
+include(../../qtcreator.pri)
 
+contains(QT_CONFIG, declarative) {
     SUBDIRS += \
             plugin_qmlprojectmanager \
             plugin_qmljsinspector
 
     include(../private_headers.pri)
     exists($${QT_PRIVATE_HEADERS}/QtDeclarative/private/qdeclarativecontext_p.h) {
-        isEqual(QT_MINOR_VERSION, 7):greaterThan(QT_PATCH_VERSION, 0) {
+
+        minQtVersion(4, 7, 1) {
             SUBDIRS += plugin_qmldesigner 
         } else {
             warning()
             warning("QmlDesigner plugin has been disabled.")
-            warning("Qt Version has to be 4.7.x with x > 0")
+            warning("QmlDesigner requires Qt 4.7.1 or later.")
         }
     } else {
         warning()

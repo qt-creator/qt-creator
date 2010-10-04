@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "selectionindicator.h"
-#include "qdeclarativeviewobserver_p.h"
+#include "../qdeclarativeviewobserver_p.h"
 #include "qmlobserverconstants.h"
 
 #include <QPen>
@@ -97,11 +97,11 @@ void SelectionIndicator::setItems(const QList<QWeakPointer<QGraphicsObject> > &i
 
     // set selections to also all children if they are not editor items
 
-    foreach (QWeakPointer<QGraphicsObject> obj, itemList) {
-        if (obj.isNull())
+    foreach (QWeakPointer<QGraphicsObject> object, itemList) {
+        if (object.isNull())
             continue;
 
-        QGraphicsItem *item = obj.data();
+        QGraphicsItem *item = object.data();
 
         QGraphicsPolygonItem *newSelectionIndicatorGraphicsItem = new QGraphicsPolygonItem(m_layerItem.data());
         if (!m_indicatorShapeHash.contains(item)) {

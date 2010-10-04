@@ -129,7 +129,7 @@ void MetaInfoPrivate::loadPlugins(QDeclarativeEngine *engine)
     QDeclarativeComponent pluginComponent(engine, 0);
 
     QStringList pluginList;
-    pluginList += "import Qt 4.7";
+    pluginList += "import QtQuick 1.0";
     pluginList += "import QtWebKit 1.0";
 
     // load maybe useful plugins
@@ -142,6 +142,14 @@ void MetaInfoPrivate::loadPlugins(QDeclarativeEngine *engine)
 
 
     pluginComponent.setData(componentString.toLatin1(), QUrl());
+}
+
+QString static inline stripPrefix(const QString &typeName)
+{
+    QStringList list = typeName.split('/');
+    if (list.count() == 2)
+        return list.last();
+    return typeName;
 }
 
 void MetaInfoPrivate::parseProperties(NodeMetaInfo &nodeMetaInfo, const QMetaObject *qMetaObject) const
@@ -181,7 +189,11 @@ void MetaInfoPrivate::parseProperties(NodeMetaInfo &nodeMetaInfo, const QMetaObj
 
             enumerator.setValid(qEnumerator.isValid());
             enumerator.setIsFlagType(qEnumerator.isFlag());
-            enumerator.setScope(qEnumerator.scope());
+            QString scope = qEnumerator.scope();
+            if (m_QtTypesToQmlTypes.contains(scope))
+                scope = stripPrefix(m_QtTypesToQmlTypes.value(scope));
+
+            enumerator.setScope(scope);
             enumerator.setName(qEnumerator.name());
             for (int i = 0 ;i < qEnumerator.keyCount(); i++)
             {
@@ -264,6 +276,15 @@ QList<QDeclarativeType*> MetaInfoPrivate::qmlTypes()
     return list;
 }
 
+
+static inline bool isDepricatedQtType(const QString &typeName)
+{
+    if (typeName.length() < 3)
+        return false;
+
+    return (typeName.at(0) == 'Q' && typeName.at(1) == 't' && typeName.at(2) == '/');
+}
+
 void MetaInfoPrivate::typeInfo(const QMetaObject *qMetaObject, QString *typeName, int *majorVersion, int *minorVersion) const
 {
     Q_ASSERT(typeName);
@@ -280,6 +301,13 @@ void MetaInfoPrivate::typeInfo(const QMetaObject *qMetaObject, QString *typeName
             *typeName = qmlType->qmlTypeName();
             majVersion = qmlType->majorVersion();
             minVersion = qmlType->minorVersion();
+        }
+        if (isDepricatedQtType(qmlType->qmlTypeName())) { //### todo there has to be an alternative
+            QString properTypeName = qmlType->qmlTypeName();
+            properTypeName.replace("Qt/", "QtQuick/");
+            *typeName = properTypeName;
+            majVersion = 1;
+            minVersion = 0;
         }
     }
     if (majorVersion)
@@ -351,13 +379,19 @@ void MetaInfoPrivate::parseQmlTypes()
     foreach (QDeclarativeType *qmlType, qmlTypes()) {
         const QString qtTypeName(qmlType->typeName());
         const QString qmlTypeName(qmlType->qmlTypeName());
-        m_QtTypesToQmlTypes.insert(qtTypeName, qmlTypeName);
+        
+        if (!isDepricatedQtType(qmlType->qmlTypeName()))
+            m_QtTypesToQmlTypes.insert(qtTypeName, qmlTypeName);
     }
     foreach (QDeclarativeType *qmlType, qmlTypes()) {
         const QMetaObject *qMetaObject = qmlType->metaObject();
 
         // parseQmlTypes is called iteratively e.g. when plugins are loaded
         if (m_q->hasNodeMetaInfo(qmlType->qmlTypeName(), qmlType->majorVersion(), qmlType->minorVersion()))
+            continue;
+
+        // we ignore the depricated Qt/ namespace
+        if (isDepricatedQtType(qmlType->qmlTypeName()))
             continue;
 
         NodeMetaInfo nodeMetaInfo(*m_q);

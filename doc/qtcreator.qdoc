@@ -1818,21 +1818,7 @@
 
     You use wizards to create and import several types of projects and files, such
     as Qt GUI or console applications and Qt Quick applications.
-    You can also use
-    wizards to add individual files to your projects. For example, you can create
-    the following types of files:
-
-    \list
-
-        \o Qt resource files, which allow you to store binary files in the
-        application executable
-
-        \o \QD forms and Qt QML files, which specify parts of application user
-        interfaces
-
-        \o C++ class, source, or header files
-
-    \endlist
+    You can use wizards also to add individual files to your projects.
 
     The wizards prompt you to enter the settings needed
     for that particular type of project and create the necessary files for you.
@@ -1863,6 +1849,14 @@
            path.
 
            \image qtcreator-intro-and-location.png
+
+        \o Select the Qt versions to use as build targets for your project, and click
+           \gui{Next}.
+
+           \image qtcreator-new-project-qt-versions.png "Target setting dialog"
+
+           \note If you have only one Qt version installed, this dialog is skipped.
+
         \o Specify the name of the class you want to create and using the
            drop-down menu select its base class type.
 
@@ -1878,10 +1872,43 @@
            \image qtcreator-new-project-summary.png
     \endlist
 
+    \section1 Adding Files to Projects
+
+    You can create the following types of files:
+
+    \list
+
+        \o Qt resource files, which allow you to store binary files in the
+        application executable
+
+        \o \QD forms and Qt QML files, which specify parts of application user
+        interfaces
+
+        \o C++ class, source, or header files
+
+        \o Text files
+
+    \endlist
+
+    \section2 Creating C++ Classes
+
+    The \gui {C++ Class Wizard} allows you to create a C++ header and source file for
+    a new class that you can add to a C++ project. Specify the class name, base
+    class, and header and source files for the class.
+
+    The  wizard supports namespaces. To use a namespace, enter a qualified
+    class name in the \gui {Class name} field. For example:
+    MyNamespace::MySubNamespace::MyClass.
+
+    \image qtcreator-cpp-class-wizard.png "Enter Class Name dialog"
+
+    The names of the header and source file are based on the class name. To change the
+    default suffix of a file, click \gui Configure.
+
     You can create your own project and class wizards. For more information,
     see \l{Adding New Custom Wizards}.
 
-    \section1 Displaying Additional File Types in Projects Pane
+    \section2 Displaying Additional File Types in Projects Pane
 
     Qt Creator determines whether to display files from the project folder
     in the \gui Projects pane depending on the file type (.pro, .pri, .cpp,
@@ -1899,6 +1926,35 @@
     \endcode
 
     This also makes the files available in the \gui Locator.
+
+    \section1 Adding Subprojects to Projects
+
+    When you create a new project, you can add it to another project as a subproject
+    in the \gui{Project Management} dialog. However, you first have to edit the
+    .pro file of the parent project to specify that qmake uses the \c subdirs template
+    to build the project.
+
+    The \c subdirs template creates a Makefile for building subprojects. They can be
+    located either in subdirectories of the project directory or in any other directory.
+    The location of the targets is specified using the SUBDIRS variable. If the project file
+    has the same name as the directory, you can just specify the directory name. If the project
+    name and directory name are different, you must specify the project file name (.pro).
+
+    For more information on the SUBDIRS variable, see the
+    \l{http://doc.qt.nokia.com/4.7/qmake-variable-reference.html#subdirs}{qmake Variable Reference}.
+
+    For example, the following code specifies that plugin_coreplugin/plugin_coreplugin.pro
+    and mylogin.pro belong to the project:
+
+    \code
+    TEMPLATE  = subdirs
+
+    SUBDIRS = plugin_coreplugin \
+    ../another/plugin/myplugin.pro
+    \endcode
+
+    To specify dependencies, use the \gui{Add Library} wizard. For more information,
+    see \l{Adding Libraries to qmake Projects}.
 
 */
 
@@ -2966,7 +3022,7 @@
                \note Shadow building is not supported by the Symbian build system.
                Also, shadow building on Windows is not supported for Maemo.
                If you only build for one target platform, you can deselect
-               the \gui{Shadow Build} checkbox.
+               the \gui{Shadow build} checkbox.
         \endlist
     \endlist
 
@@ -2979,6 +3035,23 @@
 
     \image qtcreator-build-steps.png "Build steps"
 
+    \section2 Adding Custom Build Steps
+
+    To add custom steps to the build settings, select \gui {Add Build Step >
+    Custom Process Step}.
+
+    By default, custom steps are disabled. To activate a custom step, select
+    the \gui{Enable custom process step} check-box.
+
+    \image qtcreator-build-steps-custom.png "Custom Process Step"
+
+    You can use any environment variables as values in the fields. For a list
+    of variable names, click \gui {Build Environment > Details}. You can specify
+    variables as ${VARNAME} or %VARNAME%. For example, ${BUILDDIR} or %BUILDDIR%.
+
+    \note Qt Creator sets SOURCEDIR and BUILDDIR as part of the build environment.
+    For more information, see \l{Build Environment}.
+
     \section1 Clean Steps
 
     You can use the cleaning process to remove intermediate files. This process
@@ -2990,10 +3063,10 @@
     You can define the cleaning steps for your builds in the \gui{Clean Steps}:
     \list
         \o To add a clean step using make or a custom process, click
-           \gui{Add clean step} and select the type of step you want to add.
+           \gui{Add Clean Step} and select the type of step you want to add.
 
-           By default, custom steps are disabled. Activate custom steps by
-           checking the \gui{Enable custom process step} check-box.
+           By default, custom steps are disabled. To activate a custom step,
+           select the \gui{Enable custom process step} check-box.
         \o To remove a clean step, click \gui{Remove Item}.
         \o To change the order of steps, click
            \inlineimage qtcreator-movestep.png
@@ -3009,6 +3082,8 @@
     necessary environment variables. You can edit existing environment
     variables or add, reset and unset new variables based on your project
     requirements.
+
+    \image qtcreator-build-environment.png "Build Environment"
 
 */
 
@@ -4610,17 +4685,21 @@
     \title Managing Sessions
 
     When you exit Qt Creator, a snapshot of your current workspace is stored
-    as a session.
-    A session is a collection of:
+    as a \e session. A session is an arbitrary collection of:
 
     \list
-        \o Open projects with their dependencies
+        \o Open projects with their dependencies (including SUBDIRS projects)
         \o Open editors
         \o Breakpoints and watches
         \o Bookmarks
     \endlist
 
-    If you work on a project and need to switch to another project for a
+    A session is  personal, that is, not meant to be shared. It is not
+    supposed to reflect the project structure. It contains personal data, such as
+    bookmarks and breakpoints that are usually not of interest to other developers
+    working on the same projects.
+
+    For example, if you work on a project and need to switch to another project for a
     while, you can save your workspace as a session. This makes it easier
     to return to working on the first project later.
 

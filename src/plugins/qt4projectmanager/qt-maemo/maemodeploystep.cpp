@@ -486,6 +486,11 @@ void MaemoDeployStep::setupMount()
 
 void MaemoDeployStep::prepareSftpConnection()
 {
+        // TODO: Close channel when upload has finished/failed/etc.
+    if (m_uploader) {
+        disconnect(m_uploader.data(), 0, this, 0);
+        m_uploader->closeChannel();
+    }
     m_uploader = m_connection->createSftpChannel();
     connect(m_uploader.data(), SIGNAL(initialized()), this,
         SLOT(handleSftpChannelInitialized()));

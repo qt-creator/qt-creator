@@ -102,6 +102,7 @@ public:
     bool isQDeclarativeView() const;
     bool isGraphicsObject() const;
     bool isTransition() const;
+    bool isPositioner() const;
 
     bool equalGraphicsItem(QGraphicsItem *item) const;
 
@@ -127,6 +128,9 @@ public:
     bool isValid() const;
     void makeInvalid();
     bool hasContent() const;
+    bool isResizable() const;
+    bool isMovable() const;
+    bool isInPositioner() const;
 
     bool isWrappingThisObject(QObject *object) const;
 

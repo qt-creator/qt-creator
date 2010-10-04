@@ -1,6 +1,6 @@
 QT += declarative script
-INCLUDEPATH += $$PWD $$PWD/include editor
-DEPENDPATH += $$PWD $$PWD/include editor
+INCLUDEPATH += $$PWD/include
+DEPENDPATH += $$PWD $$PWD/include editor $$PWD/qt-private
 
 contains(CONFIG, dll) {
     DEFINES += BUILD_QMLJSDEBUGGER_LIB
@@ -8,28 +8,28 @@ contains(CONFIG, dll) {
     DEFINES += BUILD_QMLJSDEBUGGER_STATIC_LIB
 }
 
-include($$PWD/private_headers.pri)
-
 ## Input
 HEADERS += \
-    $$PWD/include/jsdebuggeragent.h \
-    $$PWD/include/qmljsdebugger_global.h
+    include/jsdebuggeragent.h \
+    include/qmljsdebugger_global.h \
+    include/qt_private/qdeclarativedebughelper_p.h \
+    include/qt_private/qdeclarativedebugservice_p.h
 
 SOURCES += \
-    $$PWD/jsdebuggeragent.cpp
+    jsdebuggeragent.cpp
 
 contains(DEFINES, QMLOBSERVER) {
     include($$PWD/editor/editor.pri)
 
     HEADERS += \
-        $$PWD/include/qdeclarativeviewobserver.h \
-        $$PWD/include/qdeclarativeobserverservice.h \
-        $$PWD/include/qmlobserverconstants.h \
-        $$PWD/qdeclarativeviewobserver_p.h
+        include/qdeclarativeviewobserver.h \
+        include/qdeclarativeobserverservice.h \
+        include/qmlobserverconstants.h \
+        qdeclarativeviewobserver_p.h
 
     SOURCES += \
-        $$PWD/qdeclarativeviewobserver.cpp \
-        $$PWD/qdeclarativeobserverservice.cpp
+        qdeclarativeviewobserver.cpp \
+        qdeclarativeobserverservice.cpp
 }
 
-OTHER_FILES += $$PWD/qmljsdebugger.pri
+OTHER_FILES += qmljsdebugger.pri

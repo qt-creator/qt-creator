@@ -516,13 +516,13 @@ void TargetSetupPage::handleDoubleClicks(QTreeWidgetItem *item, int column)
     }
 }
 
-void TargetSetupPage::contextMenuRequested(const QPoint & position)
+void TargetSetupPage::contextMenuRequested(const QPoint &position)
 {
     m_contextMenu->clear();
 
     QTreeWidgetItem *item = m_ui->versionTree->itemAt(position);
     m_contextMenu = new QMenu(this);
-    if (item->parent()) {
+    if (item && item->parent()) {
         // Qt version item
         QAction *onlyThisAction = new QAction(tr("Check only this version"), m_contextMenu);
         connect(onlyThisAction, SIGNAL(triggered()), this, SLOT(checkOneTriggered()));

@@ -90,7 +90,7 @@ ModelPrivate::ModelPrivate(Model *model) :
         m_q(model),
         m_writeLock(false)
 {
-    m_rootInternalNode = createNode("Qt/Item", 4, 7, PropertyListType());
+    m_rootInternalNode = createNode("QtQuick/Item", 1, 0, PropertyListType());
 }
 
 ModelPrivate::~ModelPrivate()
@@ -1218,7 +1218,18 @@ bool ModelPrivate::hasId(const QString &id) const
 
 QList<InternalNodePointer> ModelPrivate::allNodes() const
 {
-    return m_nodeSet.toList();
+    // the item must be ordered!
+
+    QList<InternalNodePointer> nodeList;
+
+    if (m_rootInternalNode.isNull() || !m_rootInternalNode->isValid())
+        return nodeList;
+
+    nodeList.append(m_rootInternalNode);
+    nodeList.append(m_rootInternalNode->allSubNodes());
+    nodeList.append((m_nodeSet - nodeList.toSet()).toList());
+
+    return nodeList;
 }
 
 bool ModelPrivate::isWriteLocked() const

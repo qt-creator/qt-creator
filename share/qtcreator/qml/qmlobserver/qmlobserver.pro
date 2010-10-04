@@ -16,8 +16,6 @@ exists($$PWD/qmljsdebugger/qmljsdebugger-lib.pri) {
     include($$PWD/../qmljsdebugger/qmljsdebugger-lib.pri)
 }
 
-DESTDIR = $$IDE_BIN_PATH
-
 mac {
     QMAKE_INFO_PLIST=Info_mac.plist
     TARGET=QMLObserver

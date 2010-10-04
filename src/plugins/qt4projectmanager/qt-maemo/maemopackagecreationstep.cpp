@@ -128,6 +128,7 @@ void MaemoPackageCreationStep::run(QFutureInterface<bool> &fi)
 {
     bool success;
     if (m_packagingEnabled) {
+        // TODO: Make the build process asynchronous; i.e. no waitFor()-functions etc.
         QProcess * const buildProc = new QProcess;
         connect(buildProc, SIGNAL(readyReadStandardOutput()), this,
             SLOT(handleBuildOutput()));
@@ -548,9 +549,6 @@ void MaemoPackageCreationStep::addWorkaroundForHarmattanBug(const QString &rules
     const int makeInstallEol = content.indexOf('\n', makeInstallLine);
     if (makeInstallEol == -1)
         return;
-    const QByteArray lineBefore("Icon=" + projectName().toUtf8());
-    const QByteArray lineAfter("Icon=/usr/share/icons/hicolor/64x64/apps/"
-        + projectName().toUtf8() + ".png");
     QString desktopFileDir = QFileInfo(rulesFile).dir().path()
         + QLatin1Char('/') + projectName()
         + QLatin1String("/usr/share/applications/");
@@ -563,15 +561,18 @@ void MaemoPackageCreationStep::addWorkaroundForHarmattanBug(const QString &rules
     int insertPos = makeInstallEol + 1;
     foreach (const Qt4ProFileNode * const proFile, proFiles) {
         const QString appName = proFile->targetInformation().target;
+        const QByteArray lineBefore("Icon=" + appName.toUtf8());
+        const QByteArray lineAfter("Icon=/usr/share/icons/hicolor/64x64/apps/"
+            + appName.toUtf8() + ".png");
         const QString desktopFilePath
-            = desktopFileDir +  appName + QLatin1String(".desktop");
+            = desktopFileDir + appName + QLatin1String(".desktop");
         const QString tmpFile
             = desktopFileDir + appName + QLatin1String(".sed");
         const QByteArray sedCmd = "\tsed 's:" + lineBefore + ':' + lineAfter
-            + ":' " + desktopFilePath.toLocal8Bit() + " > " + tmpFile.toUtf8()
-            + '\n';
-        const QByteArray mvCmd = "\tmv " + tmpFile.toUtf8() + ' '
-            + desktopFilePath.toUtf8() + '\n';
+            + ":' " + desktopFilePath.toLocal8Bit() + " > "
+            + tmpFile.toLocal8Bit() + " || echo -n\n";
+        const QByteArray mvCmd = "\tmv " + tmpFile.toLocal8Bit() + ' '
+            + desktopFilePath.toLocal8Bit() + " || echo -n\n";
         content.insert(insertPos, sedCmd);
         insertPos += sedCmd.length();
         content.insert(insertPos, mvCmd);

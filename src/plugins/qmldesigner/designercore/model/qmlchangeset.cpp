@@ -51,12 +51,12 @@ void QmlModelStateOperation::setTarget(const ModelNode &target)
 
 bool QmlPropertyChanges::isValid() const
 {
-    return QmlModelNodeFacade::isValid() && modelNode().metaInfo().isSubclassOf("Qt/PropertyChanges", 4, 7);
+    return QmlModelNodeFacade::isValid() && modelNode().metaInfo().isSubclassOf("QtQuick/PropertyChanges", 1, 0);
 }
 
 bool QmlModelStateOperation::isValid() const
 {
-    return QmlModelNodeFacade::isValid() && modelNode().metaInfo().isSubclassOf("QDeclarativeStateOperation", 4, 7);
+    return QmlModelNodeFacade::isValid() && modelNode().metaInfo().isSubclassOf("QDeclarativeStateOperation", 1, 0);
 }
 
 void QmlPropertyChanges::removeProperty(const QString &name)

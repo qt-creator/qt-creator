@@ -99,13 +99,24 @@ void CodePasterProtocol::fetch(const QString &id)
     QTC_ASSERT(!m_fetchReply, return; )
 
     QString hostName = m_page->hostName();
-    QString link = "http://";
-    link.append(hostName);
-    link.append("/?format=raw&id=");
-    link.append(id);
+    const QString httpPrefix = "http://";
+    QString link;
+    // Did the user enter a complete URL instead of an id?
+    if (id.startsWith(httpPrefix)) {
+        // Append 'raw' format option
+        link = id;
+        link += QLatin1String("&format=raw");
+        const int idPos = id.lastIndexOf(QLatin1Char('='));
+        m_fetchId = idPos != -1 ? id.mid(idPos + 1) : id;
+    } else {
+        link = httpPrefix;
+        link.append(hostName);
+        link.append("/?format=raw&id=");
+        link.append(id);
+        m_fetchId = id;
+    }
     m_fetchReply = httpGet(link);
     connect(m_fetchReply, SIGNAL(finished()), this, SLOT(fetchFinished()));
-    m_fetchId = id;
 }
 
 void CodePasterProtocol::list()

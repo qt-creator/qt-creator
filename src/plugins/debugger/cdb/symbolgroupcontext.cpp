@@ -373,11 +373,22 @@ static inline QString msgExpandFailed(const QString &prefix, unsigned long index
     return QString::fromLatin1("Unable to expand '%1' %2: %3").arg(prefix).arg(index).arg(why);
 }
 
+bool SymbolGroupContext::expandSymbol(unsigned long index, QString *errorMessage)
+{
+    return expandSymbol(m_inameIndexMap.key(index), index, errorMessage);
+}
+
 // Expand a symbol using the symbol group interface.
 bool SymbolGroupContext::expandSymbol(const QString &prefix, unsigned long index, QString *errorMessage)
 {
     if (debug)
         qDebug() << '>' << Q_FUNC_INFO << '\n' << prefix << index;
+
+    if (index >= unsigned(m_symbolParameters.size())) {
+        *errorMessage = QString::fromLatin1("Index %1 (%2) out of range 0..%3.").
+                        arg(index).arg(prefix).arg(m_symbolParameters.size());
+        return false;
+    }
 
     switch (symbolState(index)) {
     case LeafSymbol:
@@ -556,7 +567,7 @@ unsigned SymbolGroupContext::dumpValueRaw(unsigned long index,
         name.truncate(shadowedPos);
     }
     // For class hierarchies, we get sometimes complicated std::template types here.
-    // (std::map extends std::tree<>... Remove them for display only.    
+    // (std::map extends std::tree<>... Remove them for display only.
     *nameIn = formatShadowedName(removeInnerTemplateType(name), shadowedNumber);
     *typeNameIn = getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolTypeNameWide, index);
     // Check for uninitialized variables at level 0 only.
@@ -616,7 +627,7 @@ unsigned SymbolGroupContext::dumpValue(unsigned long index,
                      ULONG *typeIdIn,
                      QString *typeNameIn,
                      QString *valueIn)
-{    
+{
     unsigned rc = dumpValueRaw(index, inameIn, nameIn, addrIn, typeIdIn,
                          typeNameIn, valueIn);
     do {
@@ -714,7 +725,7 @@ int SymbolGroupContext::dumpQString(unsigned long index,
     if (!expandSymbol(iname, index, &errorMessage))
         return 2;
     const unsigned long dIndex = index + 4;
-    if (!expandSymbol(iname, dIndex, &errorMessage))
+    if (!expandSymbol(dIndex, &errorMessage))
         return 3;
     const unsigned long sizeIndex = dIndex + 3;
     const unsigned long arrayIndex = dIndex + 4;
@@ -760,27 +771,49 @@ int SymbolGroupContext::dumpStdString(unsigned long index,
 
 {
     QString errorMessage;
-
     // Expand string ->string_val->_bx.
     if (!expandSymbol(inameIn,  index, &errorMessage))
         return 1;
-    const unsigned long bxIndex =  index + 3;
-    if (!expandSymbol(inameIn, bxIndex, &errorMessage))
-        return 2;
-    // Check if size is something sane
-    const int sizeIndex =  index + 6;
+    int sizeIndex = -1;
+    int bufIndex = -1;
+    if (m_symbolParameters.at(index).SubElements >= 3
+        && m_inameIndexMap.key(index + 3).endsWith(QLatin1String("Bx"))) {
+        // Up to MSVC 2008
+        const int bxIndex = index + 3;
+        if (m_symbolParameters.at(bxIndex).SubElements < 2
+            || !expandSymbol(index + 3, &errorMessage))
+            return 2;
+        // Check if size is something sane
+        sizeIndex =  index + 6;
+        bufIndex =  index + 4;
+    } else {
+        // MSVC10 onwards: Large nested string_val structure containing Bx
+        if (m_symbolParameters.at(index + 1).SubElements < 5
+            || !expandSymbol(index + 1, &errorMessage))
+            return 3;
+        const int bxIndex = index + 3;
+        if (m_symbolParameters.at(bxIndex).SubElements < 3
+            || !m_inameIndexMap.key(bxIndex).endsWith(QLatin1String("Bx"))
+            || !expandSymbol(bxIndex, &errorMessage))
+            return 4;
+        sizeIndex = index + 7;
+        bufIndex = index + 4;
+    }
+    if (sizeIndex < 0 || bufIndex < 0
+        || sizeIndex >= m_symbolParameters.size() || bufIndex >= m_symbolParameters.size())
+        return 5;
+    // Extract size and buffer
     qint64 size;
     if (!getSG_DecimalIntValue(m_symbolGroup, sizeIndex, &size))
-        return 3;
+        return 6;
     if (size < 0)
         return 1;
     // Just copy over the value of the buf[]-array, which should be the string
-    const QChar doubleQuote = QLatin1Char('"');
-    const int bufIndex =  index + 4;
     *valueIn = getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolValueTextWide, bufIndex);
+    const QChar doubleQuote = QLatin1Char('"');
     const int quotePos = valueIn->indexOf(doubleQuote);
     if (quotePos == -1)
-        return 1;
+        return 7;
     valueIn->remove(0, quotePos);
     if (valueIn->size() > maxStringLength) {
         valueIn->truncate(maxStringLength);

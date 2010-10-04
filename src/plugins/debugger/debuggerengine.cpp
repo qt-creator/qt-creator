@@ -322,7 +322,7 @@ void DebuggerEnginePrivate::breakpointSetRemoveMarginActionTriggered()
     QAction *act = qobject_cast<QAction *>(sender());
     QTC_ASSERT(act, return);
     QList<QVariant> list = act->data().toList();
-    QTC_ASSERT(list.size() >= 3, return);
+    QTC_ASSERT(list.size() >= 3, qDebug() << list; return);
     const QString fileName = list.at(0).toString();
     const int lineNumber = list.at(1).toInt();
     const quint64 address = list.at(2).toULongLong();
@@ -334,7 +334,7 @@ void DebuggerEnginePrivate::breakpointEnableDisableMarginActionTriggered()
     QAction *act = qobject_cast<QAction *>(sender());
     QTC_ASSERT(act, return);
     QList<QVariant> list = act->data().toList();
-    QTC_ASSERT(list.size() == 2, return);
+    QTC_ASSERT(list.size() == 3, qDebug() << list; return);
     const QString fileName = list.at(0).toString();
     const int lineNumber = list.at(1).toInt();
     m_breakHandler.toggleBreakpointEnabled(fileName, lineNumber);
@@ -343,7 +343,7 @@ void DebuggerEnginePrivate::breakpointEnableDisableMarginActionTriggered()
 void DebuggerEnginePrivate::handleContextMenuRequest(const QVariant &parameters)
 {
     const QList<QVariant> list = parameters.toList();
-    QTC_ASSERT(list.size() == 3, return);
+    QTC_ASSERT(list.size() == 3, qDebug() << list; return);
     TextEditor::ITextEditor *editor =
         (TextEditor::ITextEditor *)(list.at(0).value<quint64>());
     int lineNumber = list.at(1).toInt();

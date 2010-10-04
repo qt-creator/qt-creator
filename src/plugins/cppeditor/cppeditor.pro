@@ -15,7 +15,6 @@ HEADERS += cppplugin.h \
     cppeditor_global.h \
     cppclasswizard.h \
     cppquickfix.h \
-    cpprefactoringchanges.h \
     cppchecksymbols.h \
     cppsemanticinfo.h \
     cppoutline.h \
@@ -31,7 +30,6 @@ SOURCES += cppplugin.cpp \
     cppclasswizard.cpp \
     cppquickfix.cpp \
     cppquickfixes.cpp \
-    cpprefactoringchanges.cpp \
     cppchecksymbols.cpp \
     cppsemanticinfo.cpp \
     cppoutline.cpp \

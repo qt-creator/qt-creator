@@ -137,6 +137,7 @@ private:
 
     QString m_gdbServerName; // 127.0.0.1:(2222+uid)
     bool m_running;
+    int m_stopReason;
     tcftrk::TcfTrkDevice *m_trkDevice;
     QSharedPointer<QIODevice> m_trkIODevice;
 

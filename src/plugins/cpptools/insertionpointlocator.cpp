@@ -27,13 +27,16 @@
 **
 **************************************************************************/
 
-#include "InsertionPointLocator.h"
+#include "cpptoolsplugin.h"
+#include "cpprefactoringchanges.h"
+#include "insertionpointlocator.h"
 
 #include <AST.h>
 #include <ASTVisitor.h>
 #include <TranslationUnit.h>
 
 using namespace CPlusPlus;
+using namespace CppTools;
 
 namespace {
 
@@ -150,7 +153,8 @@ protected:
         if (needsSuffix)
             suffix = QLatin1Char('\n');
 
-        _result = InsertionLocation(prefix, suffix, line, column);
+        _result = InsertionLocation(_doc->fileName(), prefix, suffix,
+                                    line, column);
         return false;
     }
 
@@ -264,16 +268,19 @@ InsertionLocation::InsertionLocation()
     , m_column(0)
 {}
 
-InsertionLocation::InsertionLocation(const QString &prefix, const QString &suffix,
+InsertionLocation::InsertionLocation(const QString &fileName,
+                                     const QString &prefix,
+                                     const QString &suffix,
                                      unsigned line, unsigned column)
-    : m_prefix(prefix)
+    : m_fileName(fileName)
+    , m_prefix(prefix)
     , m_suffix(suffix)
     , m_line(line)
     , m_column(column)
 {}
 
-InsertionPointLocator::InsertionPointLocator(const Snapshot &snapshot)
-    : m_snapshot(snapshot)
+InsertionPointLocator::InsertionPointLocator(CppRefactoringChanges *refactoringChanges)
+    : m_refactoringChanges(refactoringChanges)
 {
 }
 
@@ -282,7 +289,7 @@ InsertionLocation InsertionPointLocator::methodDeclarationInClass(
     const Class *clazz,
     AccessSpec xsSpec) const
 {
-    const Document::Ptr doc = m_snapshot.document(fileName);
+    const Document::Ptr doc = m_refactoringChanges->file(fileName).cppDocument();
     if (doc) {
         FindInClass find(doc, clazz, xsSpec);
         return find();
@@ -293,11 +300,30 @@ InsertionLocation InsertionPointLocator::methodDeclarationInClass(
 
 /// Currently, we return the end of fileName.cpp
 QList<InsertionLocation> InsertionPointLocator::methodDefinition(
-    const QString &/*fileName*/) const
+    Declaration *declaration) const
 {
     QList<InsertionLocation> result;
+    if (!declaration)
+        return result;
 
+    Internal::CppToolsPlugin *cpptools = Internal::CppToolsPlugin::instance();
 
+    const QString declFileName = QLatin1String(declaration->fileName());
+    QString target = cpptools->correspondingHeaderOrSource(declFileName);
+    Document::Ptr doc = m_refactoringChanges->file(target).cppDocument();
+    if (doc.isNull())
+        return result;
+
+    TranslationUnit *xUnit = doc->translationUnit();
+    unsigned tokenCount = xUnit->tokenCount();
+    if (tokenCount < 2) // no tokens available
+        return result;
+
+    unsigned line = 0, column = 0;
+    xUnit->getTokenEndPosition(xUnit->tokenCount() - 2, &line, &column);
+
+    const QLatin1String prefix("\n\n");
+    result.append(InsertionLocation(target, prefix, QString(), line, column));
 
     return result;
 }

@@ -35,8 +35,8 @@ QFrame {
             id: layoutMode;
             checkable: true;
             checked: false;
-            toolTip: qsTr("layout and geometry");
-            text: qsTr("Geometry");
+            toolTip: qsTr("layout");
+            text: qsTr("Layout");
             onClicked: {
                 extendedMode.checked = false;
                 standardMode.checked = false;

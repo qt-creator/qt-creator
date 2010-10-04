@@ -383,7 +383,7 @@ private:
 class QMLJS_EXPORT QmlObjectValue: public ObjectValue
 {
 public:
-    QmlObjectValue(const FakeMetaObject *metaObject, Engine *engine);
+    QmlObjectValue(const FakeMetaObject *metaObject, int exportIndex, Engine *engine);
     virtual ~QmlObjectValue();
 
     virtual void processMembers(MemberProcessor *processor) const;
@@ -404,6 +404,7 @@ protected:
 
 private:
     const FakeMetaObject *_metaObject;
+    const int _exportIndex;
     mutable QHash<int, const Value *> _metaSignature;
 };
 

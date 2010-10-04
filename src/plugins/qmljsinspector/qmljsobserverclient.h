@@ -80,6 +80,8 @@ public:
     void clearComponentCache();
 
 signals:
+    void connectedStatusChanged(QDeclarativeDebugClient::Status status);
+
     void currentObjectsChanged(const QList<int> &debugIds);
     void selectedColorChanged(const QColor &color);
     void colorPickerActivated();
@@ -92,6 +94,7 @@ signals:
     void contextPathUpdated(const QStringList &path);
 
 protected:
+    virtual void statusChanged(Status);
     virtual void messageReceived(const QByteArray &);
 
 private:

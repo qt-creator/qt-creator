@@ -30,9 +30,11 @@
 #include "stateseditorview.h"
 #include "stateseditormodel.h"
 #include <customnotifications.h>
+#include <rewritingexception.h>
 
 #include <QPainter>
 #include <QTimerEvent>
+#include <QMessageBox>
 #include <QDebug>
 #include <math.h>
 
@@ -78,7 +80,12 @@ void StatesEditorView::setCurrentStateSilent(int index)
         m_settingSilentState = false;
         return;
     }
+
+    nodeInstanceView()->setBlockStatePropertyChanges(true);
+
     QmlModelView::activateState(state);
+
+    nodeInstanceView()->setBlockStatePropertyChanges(false);
 
     m_settingSilentState = false;
 }
@@ -109,7 +116,12 @@ void StatesEditorView::createState(const QString &name)
     if (debug)
         qDebug() << __FUNCTION__ << name;
 
-    stateRootNode().states().addState(name);
+    try {
+        model()->addImport(Import::createLibraryImport("QtQuick", "1.0"));
+        stateRootNode().states().addState(name);
+    }  catch (RewritingException &e) {
+        QMessageBox::warning(0, "Error", e.description());
+    }
 }
 
 void StatesEditorView::removeState(int index)
@@ -123,14 +135,18 @@ void StatesEditorView::removeState(int index)
 
     setCurrentState(0);
 
-    m_thumbnailsToUpdate.removeAt(index);
-    m_modelStates.removeAll(state);
-    state.destroy();
+    try {
+        m_modelStates.removeAll(state);
+        state.destroy();
+        m_thumbnailsToUpdate.removeAt(index);        
 
-    m_editorModel->removeState(index);
+        m_editorModel->removeState(index);
 
-    int newIndex = (index < m_modelStates.count()) ? index : m_modelStates.count() - 1;
-    setCurrentState(newIndex);
+        int newIndex = (index < m_modelStates.count()) ? index : m_modelStates.count() - 1;
+        setCurrentState(newIndex);
+    }  catch (RewritingException &e) {
+        QMessageBox::warning(0, "Error", e.description());
+    }
 }
 
 void StatesEditorView::renameState(int index, const QString &newName)
@@ -141,12 +157,17 @@ void StatesEditorView::renameState(int index, const QString &newName)
     Q_ASSERT(index > 0 && index < m_modelStates.size());
     QmlModelState state = m_modelStates.at(index);
     Q_ASSERT(state.isValid());
-    if (state.name() != newName) {
-        // Jump to base state for the change
-        QmlModelState oldState = currentState();
-        setCurrentStateSilent(0);
-        state.setName(newName);
-        setCurrentState(m_modelStates.indexOf(oldState));
+
+    try {
+        if (state.name() != newName) {
+            // Jump to base state for the change
+            QmlModelState oldState = currentState();
+            setCurrentStateSilent(0);
+            state.setName(newName);
+            setCurrentState(m_modelStates.indexOf(oldState));
+        }
+    }  catch (RewritingException &e) {
+        QMessageBox::warning(0, "Error", e.description());
     }
 }
 

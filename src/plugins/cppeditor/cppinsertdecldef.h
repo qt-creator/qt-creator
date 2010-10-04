@@ -56,11 +56,6 @@ class DefFromDecl: public CppQuickFixFactory
 {
 public:
     virtual QList<CppQuickFixOperation::Ptr> match(const CppQuickFixState &state);
-
-protected:
-    static QString generateDefinition(const CppQuickFixState &state,
-                                      CPlusPlus::Function *method,
-                                      CPlusPlus::ClassOrNamespace *targetBinding);
 };
 
 } // namespace Internal

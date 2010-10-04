@@ -29,7 +29,7 @@
 
 #include "singleselectionmanipulator.h"
 #include "qdeclarativeviewobserver.h"
-#include "qdeclarativeviewobserver_p.h"
+#include "../qdeclarativeviewobserver_p.h"
 #include <QtDebug>
 
 namespace QmlJSDebugger {

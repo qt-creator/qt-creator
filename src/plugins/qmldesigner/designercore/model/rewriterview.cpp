@@ -71,6 +71,16 @@ RewriterView::Error::Error(const QDeclarativeError &qmlError):
 {
 }
 
+RewriterView::Error::Error(const QString &shortDescription) :
+    m_type(ParseError),
+    m_line(1),
+    m_column(0),
+    m_description(shortDescription),
+    m_url()
+{
+}
+
+
 QString RewriterView::Error::toString() const
 {
     QString str;
@@ -537,6 +547,14 @@ int RewriterView::firstDefinitionInsideLength(const ModelNode &node) const
 bool RewriterView::modificationGroupActive()
 {
     return m_modificationGroupActive;
+}
+
+bool RewriterView::renameId(const QString& oldId, const QString& newId)
+{
+    if (textModifier())
+        return textModifier()->renameId(oldId, newId);
+
+    return false;
 }
 
 void RewriterView::qmlTextChanged()

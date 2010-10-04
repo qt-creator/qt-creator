@@ -60,9 +60,9 @@ QDeclarativeObserverService *QDeclarativeObserverService::instance()
     return serviceInstance();
 }
 
-void QDeclarativeObserverService::enabledChanged(bool enabled)
+void QDeclarativeObserverService::statusChanged(Status status)
 {
-    emit debuggingClientChanged(enabled);
+    emit debuggingClientChanged((status == Enabled));
 }
 
 void QDeclarativeObserverService::messageReceived(const QByteArray &message)
@@ -234,6 +234,14 @@ QString QDeclarativeObserverService::idStringForObject(QObject *obj) const
     int id = idForObject(obj);
     QString idString = m_stringIdForObjectId.value(id, QString());
     return idString;
+}
+
+void QDeclarativeObserverService::sendMessage(const QByteArray &message)
+{
+    if (status() != Enabled)
+        return;
+
+    QDeclarativeDebugService::sendMessage(message);
 }
 
 } // namespace QmlJSDebugger

@@ -1,5 +1,5 @@
 #include "subcomponenteditortool.h"
-#include "qdeclarativeviewobserver_p.h"
+#include "../qdeclarativeviewobserver_p.h"
 #include "subcomponentmasklayeritem.h"
 #include "layeritem.h"
 

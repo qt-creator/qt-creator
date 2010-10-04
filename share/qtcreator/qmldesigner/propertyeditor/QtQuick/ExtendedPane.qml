@@ -5,24 +5,20 @@ QScrollArea {
     widgetResizable: true;
     styleSheetFile: ":/qmldesigner/scrollbar.css";
     horizontalScrollBarPolicy: "Qt::ScrollBarAlwaysOff";
-    id: layoutPane;
+    id: extendedPane;
     visible: false;
-    content: properyEditorLayout;
+    content: properyEditorExtended;
     QFrame {
-        id: properyEditorLayout;
+        id: properyEditorExtended
         layout: QVBoxLayout {
             topMargin: 0;
             bottomMargin: 0;
             leftMargin: 0;
             rightMargin: 0;
-            spacing: 0
-
-            Geometry {
-            }
-
-            Layout {
-                id: layoutBox;
-            }
+            spacing: 0;            
+						
+            Transformation {}
+			
             QScrollArea {
             }
         }

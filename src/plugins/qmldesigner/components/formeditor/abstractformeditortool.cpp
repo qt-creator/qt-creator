@@ -93,7 +93,8 @@ bool AbstractFormEditorTool::topSelectedItemIsMovable(const QList<QGraphicsItem*
         FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
         if (formEditorItem
             && selectedNodes.contains(formEditorItem->qmlItemNode())
-            && !formEditorItem->qmlItemNode().isRootNode()
+            && formEditorItem->qmlItemNode().instanceIsMovable()
+            && !formEditorItem->qmlItemNode().instanceIsInPositioner()
             && (formEditorItem->qmlItemNode().hasShowContent()))
             return true;
     }
@@ -101,7 +102,8 @@ bool AbstractFormEditorTool::topSelectedItemIsMovable(const QList<QGraphicsItem*
     foreach (QGraphicsItem *item, itemList) {
         FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
         if (formEditorItem
-            && !formEditorItem->qmlItemNode().isRootNode()
+            && formEditorItem->qmlItemNode().instanceIsMovable()
+            && !formEditorItem->qmlItemNode().instanceIsInPositioner()
             && selectedNodes.contains(formEditorItem->qmlItemNode()))
             return true;
     }

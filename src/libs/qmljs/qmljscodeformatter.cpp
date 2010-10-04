@@ -645,6 +645,7 @@ bool CodeFormatter::tryStatement()
         return true;
     case Break:
     case Continue:
+        enter(breakcontinue_statement);
         leave(true);
         return true;
     case Throw:

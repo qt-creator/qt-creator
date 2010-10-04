@@ -829,6 +829,17 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
             sendGdbServerMessage("E20", msg.toLatin1());
         }
     } // qPart/qXfer
+
+    else if (cmd.startsWith("X")) {
+        logMessage(msgGdbPacket(QLatin1String("Write memory")));
+        // X addr,length
+        sendGdbServerAck();
+        const QPair<quint64, unsigned> addrLength = parseGdbReadMemoryRequest(cmd);
+        int pos = cmd.indexOf(':');
+        m_snapshot.resetMemory();
+        writeMemory(addrLength.first, cmd.mid(pos + 1, addrLength.second));
+    }
+
     else {
         logMessage(msgGdbPacket(QLatin1String("FIXME unknown: ")
             + QString::fromAscii(cmd)), LogWarning);
@@ -963,10 +974,12 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
 #            if 1
             // We almost always need register values, so get them
             // now before informing gdb about the stop.s
-            //qDebug() << "Auto-fetching registers";
+            const int signalNumber = reason.contains(QLatin1String("exception"), Qt::CaseInsensitive)
+                                     || reason.contains(QLatin1String("panic"), Qt::CaseInsensitive) ?
+                        gdbServerSignalSegfault : gdbServerSignalTrap;
             sendTrkMessage(0x12,
                 TrkCB(handleAndReportReadRegistersAfterStop),
-                Launcher::readRegistersMessage(m_session.pid, m_session.tid));
+                Launcher::readRegistersMessage(m_session.pid, m_session.tid), signalNumber);
 #            else
             // As a source-line step typically consists of
             // several instruction steps, better avoid the multiple
@@ -1181,7 +1194,8 @@ void TrkGdbAdapter::handleAndReportReadRegistersAfterStop(const TrkResult &resul
 {
     handleReadRegisters(result);
     const bool reportThread = m_session.tid != m_session.mainTid;
-    sendGdbServerMessage(m_snapshot.gdbStopMessage(m_session.tid, reportThread),
+    const int signalNumber = result.cookie.isValid() ? result.cookie.toInt() : int(gdbServerSignalTrap);
+    sendGdbServerMessage(m_snapshot.gdbStopMessage(m_session.tid, signalNumber, reportThread),
                          "Stopped with registers in thread " + QByteArray::number(m_session.tid, 16));
 }
 
@@ -1439,6 +1453,29 @@ void TrkGdbAdapter::readMemory(uint addr, uint len, bool buffered)
 
     m_snapshot.wantedMemory = MemoryRange(addr, addr + len);
     tryAnswerGdbMemoryRequest(buffered);
+}
+
+void TrkGdbAdapter::writeMemory(uint addr, const QByteArray &data)
+{
+    Q_ASSERT(data.size() < (2 << 16));
+    if (m_verbose > 2) {
+        logMessage(_("writeMemory %1 bytes from 0x%2 blocksize=%3 data=%4")
+            .arg(data.size()).arg(addr, 0, 16).arg(MemoryChunkSize).arg(QString::fromLatin1(data.toHex())));
+    }
+
+    sendTrkMessage(0x11, TrkCB(handleWriteMemory),
+        trkWriteMemoryMessage(addr, data));
+}
+
+void TrkGdbAdapter::handleWriteMemory(const TrkResult &result)
+{
+    logMessage("       RESULT: " + result.toString() + result.cookie.toString());
+    if (result.errorCode()) {
+        logMessage("ERROR: " + result.errorString(), LogError);
+        sendGdbServerMessage("E01");
+        return;
+    }
+    sendGdbServerMessage("OK");
 }
 
 void TrkGdbAdapter::interruptInferior()

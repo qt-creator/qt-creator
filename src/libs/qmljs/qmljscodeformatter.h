@@ -143,7 +143,8 @@ public: // must be public to make Q_GADGET introspection work
 
         jsblock_open,
 
-        empty_statement, // for a ';', will never linger
+        empty_statement, // for a ';', will be popped directly
+        breakcontinue_statement, // for continue/break, will be popped directly
 
         if_statement, // After 'if'
         maybe_else, // after the first substatement in an if

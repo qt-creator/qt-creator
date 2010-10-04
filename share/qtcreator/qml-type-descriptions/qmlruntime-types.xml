@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module>
     <type name="QDeclarativeViewer.Screen">
+        <exports>
+            <export module="QDeclarativeViewer" version="1.0" type="Screen"/>
+        </exports>
         <enum name="Orientation">
             <enumerator name="UnknownOrientation" value="0"/>
             <enumerator name="Portrait" value="1"/>

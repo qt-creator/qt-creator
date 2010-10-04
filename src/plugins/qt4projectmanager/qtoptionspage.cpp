@@ -33,6 +33,8 @@
 #include "qt4projectmanagerconstants.h"
 #include "qt4target.h"
 #include "qtversionmanager.h"
+#include "qmldumptool.h"
+#include "qmlobservertool.h"
 
 #include <projectexplorer/debugginghelper.h>
 #include <coreplugin/coreconstants.h>
@@ -238,7 +240,9 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
 
 QIcon QtOptionsPageWidget::debuggerHelperIconForQtVersion(const QtVersion *version)
 {
-    if (version->hasDebuggingHelper() && version->hasQmlDump() && version->hasQmlObserver()) {
+    if (version->hasDebuggingHelper()
+            && (!QmlDumpTool::canBuild(version) || version->hasQmlDump())
+            && (!QmlObserverTool::canBuild(version) || version->hasQmlObserver())) {
         return m_debuggingHelperOkIcon;
     } else if (!version->hasDebuggingHelper() && !version->hasQmlDump() && !version->hasQmlObserver()) {
         return m_debuggingHelperErrorIcon;
@@ -248,7 +252,9 @@ QIcon QtOptionsPageWidget::debuggerHelperIconForQtVersion(const QtVersion *versi
 
 QPixmap QtOptionsPageWidget::debuggerHelperPixmapForQtVersion(const QtVersion *version)
 {
-    if (version->hasDebuggingHelper() && version->hasQmlDump() && version->hasQmlObserver()) {
+    if (version->hasDebuggingHelper()
+            && (!QmlDumpTool::canBuild(version) || version->hasQmlDump())
+            && (!QmlObserverTool::canBuild(version) || version->hasQmlObserver())) {
         return m_debuggingHelperOkPixmap;
     } else if (!version->hasDebuggingHelper() && !version->hasQmlDump() && !version->hasQmlObserver()) {
         return m_debuggingHelperErrorPixmap;
@@ -311,7 +317,9 @@ void QtOptionsPageWidget::debuggingHelperBuildFinished(const QString &name, cons
     QTC_ASSERT(item, return)
     item->setData(2, Qt::UserRole, output);
     QSharedPointerQtVersion qtVersion = m_versions.at(index);
-    const bool success = qtVersion->hasDebuggingHelper() && qtVersion->hasQmlDump() && qtVersion->hasQmlObserver();
+    const bool success = qtVersion->hasDebuggingHelper()
+            && (!QmlDumpTool::canBuild(qtVersion.data()) || qtVersion->hasQmlDump())
+            && (!QmlObserverTool::canBuild(qtVersion.data()) || qtVersion->hasQmlObserver());
     item->setData(2, Qt::DecorationRole, debuggerHelperIconForQtVersion(qtVersion.data()));
 
     // Update bottom control if the selection is still the same
@@ -404,12 +412,16 @@ static inline QString msgHtmlHelperToolTip(const QString &gdbHelperPath, const Q
     QString notFound = QtOptionsPageWidget::tr("Binary not found");
 
     //: Tooltip showing the debugging helper library file.
-    return QtOptionsPageWidget::tr("<html><body><table><tr><td>File:</td><td><pre>%1</pre></td></tr>"
+    return QtOptionsPageWidget::tr("<html><body><table>"
+                                   "<tr><td colspan=\"2\"><b>GDB debugging helpers</b></td></tr>"
+                                   "<tr><td>File:</td><td><pre>%1</pre></td></tr>"
                                    "<tr><td>Last&nbsp;modified:</td><td>%2</td></tr>"
                                    "<tr><td>Size:</td><td>%3 Bytes</td></tr>"
+                                   "<tr><td colspan=\"2\"><b>QML type dumper</b></td></tr>"
                                    "<tr><td>File:</td><td><pre>%4</pre></td></tr>"
                                    "<tr><td>Last&nbsp;modified:</td><td>%5</td></tr>"
                                    "<tr><td>Size:</td><td>%6 Bytes</td></tr>"
+                                   "<tr><td colspan=\"2\"><b>QML observer</b></td></tr>"
                                    "<tr><td>File:</td><td><pre>%7</pre></td></tr>"
                                    "<tr><td>Last&nbsp;modified:</td><td>%8</td></tr>"
                                    "<tr><td>Size:</td><td>%9 Bytes</td></tr>"
@@ -432,12 +444,10 @@ void QtOptionsPageWidget::updateDebuggingHelperStateLabel(const QtVersion *versi
 {
     QString tooltip;
     if (version && version->isValid()) {
-        const bool hasHelpers = version->hasDebuggingHelper() && version->hasQmlDump() && version->hasQmlObserver();
         m_ui->debuggingHelperStateLabel->setPixmap(debuggerHelperPixmapForQtVersion(version));
-        if (hasHelpers)
-            tooltip = msgHtmlHelperToolTip(version->debuggingHelperLibrary(),
-                                           version->qmlDumpTool(),
-                                           version->qmlObserverTool());
+        tooltip = msgHtmlHelperToolTip(version->debuggingHelperLibrary(),
+                                       version->qmlDumpTool(),
+                                       version->qmlObserverTool());
     } else {
         m_ui->debuggingHelperStateLabel->setPixmap(QPixmap());
     }

@@ -37,8 +37,8 @@
 
 #include <QtGui/QTextBlock>
 
-using namespace CppEditor;
 using namespace CPlusPlus;
+using namespace CppTools;
 using namespace Utils;
 
 CppRefactoringChanges::CppRefactoringChanges(const Snapshot &snapshot)

@@ -149,20 +149,20 @@ public:
 
 QList<QmlJSQuickFixOperation::Ptr> ComponentFromObjectDef::match(const QmlJSQuickFixState &state)
 {
-    QList<QmlJSQuickFixOperation::Ptr> result;
     const int pos = state.currentFile().cursor().position();
 
     QList<Node *> path = state.semanticInfo().astPath(pos);
     for (int i = path.size() - 1; i >= 0; --i) {
         Node *node = path.at(i);
         if (UiObjectDefinition *objDef = cast<UiObjectDefinition *>(node)) {
+            if (!state.currentFile().isCursorOn(objDef->qualifiedTypeNameId))
+                return noResult();
              // check that the node is not the root node
             if (i > 0 && !cast<UiProgram*>(path.at(i - 1))) {
-                result.append(QmlJSQuickFixOperation::Ptr(new Operation(state, objDef)));
-                return result;
+                return singleResult(new Operation(state, objDef));
             }
         }
     }
 
-    return result;
+    return noResult();
 }

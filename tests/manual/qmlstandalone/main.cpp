@@ -52,8 +52,7 @@ bool QmlStandaloneApp::generateFiles(QString *errorMessage) const
             && writeFile(generateFile(QmlAppGeneratedFileInfo::AppViewerHFile, errorMessage), path(AppViewerH))
             && writeFile(generateFile(QmlAppGeneratedFileInfo::SymbianSvgIconFile, errorMessage), path(SymbianSvgIcon))
             && writeFile(generateFile(QmlAppGeneratedFileInfo::MaemoPngIconFile, errorMessage), path(MaemoPngIcon))
-            && writeFile(generateFile(QmlAppGeneratedFileInfo::DesktopFile, errorMessage), path(Desktop))
-            && writeFile(generateFile(QmlAppGeneratedFileInfo::DeploymentPriFile, errorMessage), path(DeploymentPri));
+            && writeFile(generateFile(QmlAppGeneratedFileInfo::DesktopFile, errorMessage), path(Desktop));
 }
 
 QString AbstractMobileApp::templatesRoot()

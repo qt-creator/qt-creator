@@ -1,5 +1,5 @@
 #include "zoomtool.h"
-#include "qdeclarativeviewobserver_p.h"
+#include "../qdeclarativeviewobserver_p.h"
 
 #include <QMouseEvent>
 #include <QWheelEvent>

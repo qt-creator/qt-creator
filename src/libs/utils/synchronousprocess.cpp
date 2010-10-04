@@ -365,7 +365,7 @@ static inline bool askToKill(const QString &binary = QString())
                   SynchronousProcess::tr("The process is not responding.") :
                   SynchronousProcess::tr("The process '%1' is not responding.").arg(binary);
     msg += QLatin1Char(' ');
-    msg += SynchronousProcess::tr(" Would you like to terminate it?");
+    msg += SynchronousProcess::tr("Would you like to terminate it?");
     // Restore the cursor that is set to wait while running.
     const bool hasOverrideCursor = QApplication::overrideCursor() != 0;
     if (hasOverrideCursor)

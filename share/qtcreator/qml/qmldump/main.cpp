@@ -15,15 +15,15 @@
 #include <QtDeclarative/private/qdeclarativeopenmetaobject_p.h>
 #include <QtDeclarative/QDeclarativeView>
 
-static QHash<QByteArray, const QDeclarativeType *> qmlTypeByCppName;
-static QHash<QByteArray, QByteArray> cppToQml;
+static QHash<QByteArray, QList<const QDeclarativeType *> > qmlTypesByCppName;
+static QHash<QByteArray, QByteArray> cppToId;
 
-QByteArray convertToQmlType(const QByteArray &cppName)
+QByteArray convertToId(const QByteArray &cppName)
 {
-    QByteArray qmlName = cppToQml.value(cppName, cppName);
-    qmlName.replace("::", ".");
-    qmlName.replace("/", ".");
-    return qmlName;
+    QByteArray idName = cppToId.value(cppName, cppName);
+    idName.replace("::", ".");
+    idName.replace("/", ".");
+    return idName;
 }
 
 void erasure(QByteArray *typeName, bool *isList, bool *isPointer)
@@ -41,7 +41,7 @@ void erasure(QByteArray *typeName, bool *isList, bool *isPointer)
         erasure(typeName, isList, isPointer);
     }
 
-    *typeName = convertToQmlType(*typeName);
+    *typeName = convertToId(*typeName);
 }
 
 void processMetaObject(const QMetaObject *meta, QSet<const QMetaObject *> *metas)
@@ -132,7 +132,7 @@ void dump(const QMetaMethod &meth, QXmlStreamWriter *xml)
 
     attributes.append(QXmlStreamAttribute("name", name));
 
-    const QString typeName = convertToQmlType(meth.typeName());
+    const QString typeName = convertToId(meth.typeName());
     if (! typeName.isEmpty())
         attributes.append(QXmlStreamAttribute("type", typeName));
 
@@ -187,16 +187,12 @@ public:
 
 void dump(const QMetaObject *meta, QXmlStreamWriter *xml)
 {
-    QByteArray qmlTypeName = convertToQmlType(meta->className());
+    QByteArray id = convertToId(meta->className());
 
     xml->writeStartElement("type");
 
     QXmlStreamAttributes attributes;
-    attributes.append(QXmlStreamAttribute("name", qmlTypeName));
-
-    if (const QDeclarativeType *qmlTy = qmlTypeByCppName.value(meta->className())) {
-        attributes.append(QXmlStreamAttribute("version", QString("%1.%2").arg(qmlTy->majorVersion()).arg(qmlTy->minorVersion())));
-    }
+    attributes.append(QXmlStreamAttribute("name", id));
 
     for (int index = meta->classInfoCount() - 1 ; index >= 0 ; --index) {
         QMetaClassInfo classInfo = meta->classInfo(index);
@@ -206,15 +202,30 @@ void dump(const QMetaObject *meta, QXmlStreamWriter *xml)
         }
     }
 
-    QString version;
-
     if (meta->superClass())
-        attributes.append(QXmlStreamAttribute("extends", convertToQmlType(meta->superClass()->className())));
-
-    if (! version.isEmpty())
-        attributes.append(QXmlStreamAttribute("version", version));
+        attributes.append(QXmlStreamAttribute("extends", convertToId(meta->superClass()->className())));
 
     xml->writeAttributes(attributes);
+
+    QList<const QDeclarativeType *> qmlTypes = qmlTypesByCppName.value(id);
+    if (!qmlTypes.isEmpty()) {
+        xml->writeStartElement("exports");
+        foreach (const QDeclarativeType *qmlTy, qmlTypes) {
+            QXmlStreamAttributes moduleAttributes;
+            const QString qmlTyName = qmlTy->qmlTypeName();
+            int slashIdx = qmlTyName.lastIndexOf(QLatin1Char('/'));
+            if (slashIdx == -1)
+                continue;
+            const QString moduleName = qmlTyName.left(slashIdx);
+            const QString typeName = qmlTyName.mid(slashIdx + 1);
+            moduleAttributes.append(QXmlStreamAttribute("module", moduleName));
+            moduleAttributes.append(QXmlStreamAttribute("version", QString("%1.%2").arg(qmlTy->majorVersion()).arg(qmlTy->minorVersion())));
+            moduleAttributes.append(QXmlStreamAttribute("type", typeName));
+            xml->writeEmptyElement("export");
+            xml->writeAttributes(moduleAttributes);
+        }
+        xml->writeEndElement();
+    }
 
     for (int index = meta->enumeratorOffset(); index < meta->enumeratorCount(); ++index)
         dump(meta->enumerator(index), xml);
@@ -234,7 +245,7 @@ void writeEasingCurve(QXmlStreamWriter *xml)
     {
         QXmlStreamAttributes attributes;
         attributes.append(QXmlStreamAttribute("name", "QEasingCurve"));
-        attributes.append(QXmlStreamAttribute("extends", "Qt.Easing"));
+        attributes.append(QXmlStreamAttribute("extends", "QDeclarativeEasingValueType"));
         xml->writeAttributes(attributes);
     }
 
@@ -262,8 +273,22 @@ int main(int argc, char *argv[])
     if (!pluginImportPath.isEmpty())
         engine->addImportPath(pluginImportPath);
 
+    bool hasQtQuickModule = false;
+    {
+        QByteArray code = "import QtQuick 1.0; Item {}";
+        QDeclarativeComponent c(engine);
+        c.setData(code, QUrl("xxx"));
+        c.create();
+        if (c.errors().isEmpty()) {
+            hasQtQuickModule = true;
+        }
+    }
+
     QByteArray importCode;
     importCode += "import Qt 4.7;\n";
+    if (hasQtQuickModule) {
+        importCode += "import QtQuick 1.0;\n";
+    }
     if (pluginImportName.isEmpty()) {
         importCode += "import Qt.labs.particles 4.7;\n";
         importCode += "import Qt.labs.gestures 4.7;\n";
@@ -284,25 +309,25 @@ int main(int argc, char *argv[])
             qDebug() << c.errorString();
     }
 
-    cppToQml.insert("QString", "string");
-    cppToQml.insert("QDeclarativeEasingValueType::Type", "Type");
+    cppToId.insert("QString", "string");
+    cppToId.insert("QDeclarativeEasingValueType::Type", "Type");
 
     QSet<const QMetaObject *> metas;
 
     metas.insert(FriendlyQObject::qtMeta());
 
-    QMultiHash<QByteArray, QByteArray> extensions;
+    QHash<QByteArray, QSet<QByteArray> > extensions;
     foreach (const QDeclarativeType *ty, QDeclarativeMetaType::qmlTypes()) {
-        qmlTypeByCppName.insert(ty->metaObject()->className(), ty);
+        qmlTypesByCppName[ty->metaObject()->className()].append(ty);
         if (ty->isExtendedType()) {
-            extensions.insert(ty->typeName(), ty->metaObject()->className());
+            extensions[ty->typeName()].insert(ty->metaObject()->className());
         } else {
-            cppToQml.insert(ty->metaObject()->className(), ty->qmlTypeName());
+            cppToId.insert(ty->metaObject()->className(), ty->metaObject()->className());
         }
         processDeclarativeType(ty, &metas);
     }
 
-    // Adjust qml names of extended objects.
+    // Adjust ids of extended objects.
     // The chain ends up being:
     // __extended__.originalname - the base object
     // __extension_0_.originalname - first extension
@@ -310,14 +335,19 @@ int main(int argc, char *argv[])
     // __extension_n-2_.originalname - second to last extension
     // originalname - last extension
     foreach (const QByteArray &extendedCpp, extensions.keys()) {
-        const QByteArray extendedQml = cppToQml.value(extendedCpp);
-        cppToQml.insert(extendedCpp, "__extended__." + extendedQml);
-        QList<QByteArray> extensionCppNames = extensions.values(extendedCpp);
-        for (int i = 0; i < extensionCppNames.size() - 1; ++i) {
-            QByteArray adjustedName = QString("__extension__%1.%2").arg(QString::number(i), QString(extendedQml)).toAscii();
-            cppToQml.insert(extensionCppNames.value(i), adjustedName);
+        const QByteArray extendedId = cppToId.value(extendedCpp);
+        cppToId.insert(extendedCpp, "__extended__." + extendedId);
+        QSet<QByteArray> extensionCppNames = extensions.value(extendedCpp);
+        int c = 0;
+        foreach (const QByteArray &extensionCppName, extensionCppNames) {
+            if (c != extensionCppNames.size() - 1) {
+                QByteArray adjustedName = QString("__extension__%1.%2").arg(QString::number(c), QString(extendedId)).toAscii();
+                cppToId.insert(extensionCppName, adjustedName);
+            } else {
+                cppToId.insert(extensionCppName, extendedId);
+            }
+            ++c;
         }
-        cppToQml.insert(extensionCppNames.last(), extendedQml);
     }
 
     foreach (const QDeclarativeType *ty, QDeclarativeMetaType::qmlTypes()) {
@@ -350,13 +380,13 @@ int main(int argc, char *argv[])
 
     QMap<QString, const QMetaObject *> nameToMeta;
     foreach (const QMetaObject *meta, metas) {
-        nameToMeta.insert(convertToQmlType(meta->className()), meta);
+        nameToMeta.insert(convertToId(meta->className()), meta);
     }
     foreach (const QMetaObject *meta, nameToMeta) {
         dump(meta, &xml);
     }
 
-    // define QEasingCurve as an extension of Qt.Easing
+    // define QEasingCurve as an extension of QDeclarativeEasingValueType
     writeEasingCurve(&xml);
 
     xml.writeEndElement();

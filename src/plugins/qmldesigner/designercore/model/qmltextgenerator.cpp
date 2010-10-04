@@ -35,6 +35,7 @@
 #include "nodelistproperty.h"
 #include "qmltextgenerator.h"
 #include "variantproperty.h"
+#include <propertymetainfo.h>
 #include "model.h"
 
 using namespace QmlDesigner;
@@ -94,25 +95,30 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
         if (property.name() == QLatin1String("id"))
             return stringValue;
 
-        switch (value.type()) {
-        case QVariant::Bool:
-            if (value.value<bool>())
-                return QLatin1String("true");
-            else
-                return QLatin1String("false");
+        if (variantProperty.metaInfo().isValid() && variantProperty.metaInfo().isEnumType()) {
+            return variantProperty.metaInfo().enumerator().scope() + '.' + stringValue;
+        } else {
 
-        case QVariant::Color:
-            return QString(QLatin1String("\"%1\"")).arg(properColorName(value.value<QColor>()));
+            switch (value.type()) {
+            case QVariant::Bool:
+                if (value.value<bool>())
+                    return QLatin1String("true");
+                else
+                    return QLatin1String("false");
 
-        case QVariant::Double:
-        case QVariant::Int:
-        case QVariant::LongLong:
-        case QVariant::UInt:
-        case QVariant::ULongLong:
-            return stringValue;
+            case QVariant::Color:
+                return QString(QLatin1String("\"%1\"")).arg(properColorName(value.value<QColor>()));
 
-        default:
-            return QString(QLatin1String("\"%1\"")).arg(escape(stringValue));
+            case QVariant::Double:
+            case QVariant::Int:
+            case QVariant::LongLong:
+            case QVariant::UInt:
+            case QVariant::ULongLong:
+                return stringValue;
+
+            default:
+                return QString(QLatin1String("\"%1\"")).arg(escape(stringValue));
+            }
         }
     } else {
         Q_ASSERT("Unknown property type");

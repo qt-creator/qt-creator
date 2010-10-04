@@ -59,11 +59,11 @@ MobileAppWizardOptionsPage::MobileAppWizardOptionsPage(QWidget *parent)
     connect(m_d->ui.maemoPngIconButton, SIGNAL(clicked()), this,
         SLOT(openMaemoPngIcon()));
 
-    m_d->ui.orientationBehaviorComboBox->addItem(tr("Auto rotate orientation"),
+    m_d->ui.orientationBehaviorComboBox->addItem(tr("Automatically Rotate Orientation"),
         AbstractMobileApp::Auto);
-    m_d->ui.orientationBehaviorComboBox->addItem(tr("Lock to landscape orientation"),
+    m_d->ui.orientationBehaviorComboBox->addItem(tr("Lock to Landscape Orientation"),
         AbstractMobileApp::LockLandscape);
-    m_d->ui.orientationBehaviorComboBox->addItem(tr("Lock to portrait orientation"),
+    m_d->ui.orientationBehaviorComboBox->addItem(tr("Lock to Portrait Orientation"),
         AbstractMobileApp::LockPortrait);
 }
 

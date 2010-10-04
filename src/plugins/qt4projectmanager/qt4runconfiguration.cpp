@@ -542,13 +542,12 @@ QString Qt4RunConfiguration::baseWorkingDirectory() const
     return ti.workingDir;
 }
 
-
-QStringList Qt4RunConfiguration::baseCommandLineArguments() const
+QStringList Qt4RunConfiguration::commandLineArguments() const
 {
-    return environment().expandVariables(commandLineArguments());
+    return environment().expandVariables(baseCommandLineArguments());
 }
 
-QStringList Qt4RunConfiguration::commandLineArguments() const
+QStringList Qt4RunConfiguration::baseCommandLineArguments() const
 {
     return m_commandLineArguments;
 }

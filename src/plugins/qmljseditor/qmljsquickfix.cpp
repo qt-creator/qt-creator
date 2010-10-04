@@ -117,6 +117,17 @@ QList<QuickFixOperation::Ptr> QmlJSQuickFixFactory::matchingOperations(QuickFixS
         return QList<TextEditor::QuickFixOperation::Ptr>();
 }
 
+QList<QmlJSQuickFixOperation::Ptr> QmlJSQuickFixFactory::noResult()
+{
+    return QList<QmlJSQuickFixOperation::Ptr>();
+}
+
+QList<QmlJSQuickFixOperation::Ptr> QmlJSQuickFixFactory::singleResult(QmlJSQuickFixOperation *operation)
+{
+    QList<QmlJSQuickFixOperation::Ptr> result;
+    result.append(QmlJSQuickFixOperation::Ptr(operation));
+    return result;
+}
 
 QmlJSQuickFixCollector::QmlJSQuickFixCollector()
 {

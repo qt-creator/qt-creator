@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "rubberbandselectionmanipulator.h"
-#include "qdeclarativeviewobserver_p.h"
+#include "../qdeclarativeviewobserver_p.h"
 
 #include <QDebug>
 

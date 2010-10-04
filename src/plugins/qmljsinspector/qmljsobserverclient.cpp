@@ -53,7 +53,11 @@ QmlJSObserverClient::QmlJSObserverClient(QDeclarativeDebugConnection *client,
     : QDeclarativeDebugClient(QLatin1String("QDeclarativeObserverMode"), client) ,
     m_connection(client)
 {
-    setEnabled(true);
+}
+
+void QmlJSObserverClient::statusChanged(Status status)
+{
+    emit connectedStatusChanged(status);
 }
 
 void QmlJSObserverClient::messageReceived(const QByteArray &message)

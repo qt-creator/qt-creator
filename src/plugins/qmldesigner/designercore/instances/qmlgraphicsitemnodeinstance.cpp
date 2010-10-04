@@ -45,6 +45,8 @@
 #include <private/qdeclarativeitem_p.h>
 #include <private/qdeclarativeproperty_p.h>
 #include <private/qdeclarativerectangle_p.h>
+#include <private/qdeclarativepositioners_p.h>
+
 
 #include <cmath>
 
@@ -56,7 +58,8 @@ namespace Internal {
 QmlGraphicsItemNodeInstance::QmlGraphicsItemNodeInstance(QDeclarativeItem *item, bool hasContent)
    : GraphicsObjectNodeInstance(item, hasContent),
      m_hasHeight(false),
-     m_hasWidth(false)
+     m_hasWidth(false),
+     m_isResizable(true)
 {
 }
 
@@ -79,6 +82,9 @@ QmlGraphicsItemNodeInstance::Pointer QmlGraphicsItemNodeInstance::create(const N
         throw InvalidNodeInstanceException(__LINE__, __FUNCTION__, __FILE__);
 
     Pointer instance(new QmlGraphicsItemNodeInstance(qmlGraphicsItem, objectPair.second));
+
+    if (qmlGraphicsItem->inherits("QDeclarativeText"))
+        instance->setResizable(false);
 
     static_cast<QDeclarativeParserStatus*>(qmlGraphicsItem)->classBegin();
 
@@ -223,6 +229,8 @@ void QmlGraphicsItemNodeInstance::setPropertyVariant(const QString &name, const 
     }
 
     GraphicsObjectNodeInstance::setPropertyVariant(name, value);
+
+    refresh();
 }
 
 void QmlGraphicsItemNodeInstance::setPropertyBinding(const QString &name, const QString &expression)
@@ -288,6 +296,24 @@ void QmlGraphicsItemNodeInstance::resetVertical()
        setPropertyVariant("height", qmlGraphicsItem()->implicitHeight());
 }
 
+static void repositioning(QDeclarativeItem *item)
+{
+    if (!item)
+        return;
+
+//    QDeclarativeBasePositioner *positioner = qobject_cast<QDeclarativeBasePositioner*>(item);
+//    if (positioner)
+//        positioner->rePositioning();
+
+    if (item->parentObject())
+        repositioning(qobject_cast<QDeclarativeItem*>(item->parentObject()));
+}
+
+void QmlGraphicsItemNodeInstance::refresh()
+{
+    repositioning(qmlGraphicsItem());
+}
+
 void QmlGraphicsItemNodeInstance::doComponentComplete()
 {
     if (qmlGraphicsItem()) {
@@ -295,6 +321,16 @@ void QmlGraphicsItemNodeInstance::doComponentComplete()
             return;
         static_cast<QDeclarativeParserStatus*>(qmlGraphicsItem())->componentComplete();
     }
+}
+
+bool QmlGraphicsItemNodeInstance::isResizable() const
+{
+    return m_isResizable && qmlGraphicsItem() && qmlGraphicsItem()->parentItem();
+}
+
+void QmlGraphicsItemNodeInstance::setResizable(bool resizeable)
+{
+    m_isResizable = resizeable;
 }
 
 int QmlGraphicsItemNodeInstance::penWidth() const
@@ -350,7 +386,19 @@ void QmlGraphicsItemNodeInstance::resetProperty(const QString &name)
 
 void QmlGraphicsItemNodeInstance::reparent(const NodeInstance &oldParentInstance, const QString &oldParentProperty, const NodeInstance &newParentInstance, const QString &newParentProperty)
 {
+    if (oldParentInstance.isValid() && oldParentInstance.isPositioner()) {
+        setInPositioner(false);
+        setMovable(true);
+    }
+
     GraphicsObjectNodeInstance::reparent(oldParentInstance, oldParentProperty, newParentInstance, newParentProperty);
+
+    if (newParentInstance.isValid() && newParentInstance.isPositioner()) {
+        setInPositioner(true);
+        setMovable(false);
+    }
+
+    refresh();
 }
 
 //void  QmlGraphicsItemNodeInstance::updateAnchors()
