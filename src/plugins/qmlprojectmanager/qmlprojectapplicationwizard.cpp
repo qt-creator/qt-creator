@@ -32,6 +32,7 @@
 #include "qmlprojectconstants.h"
 
 #include <projectexplorer/customwizard/customwizard.h>
+#include <qt4projectmanager/qt4projectmanagerconstants.h>
 
 #include <QtGui/QIcon>
 
@@ -61,7 +62,7 @@ QmlProjectApplicationWizard::~QmlProjectApplicationWizard()
 Core::BaseFileWizardParameters QmlProjectApplicationWizard::parameters()
 {
     Core::BaseFileWizardParameters parameters(ProjectWizard);
-    parameters.setIcon(QIcon(QLatin1String(Constants::QML_WIZARD_ICON)));
+    parameters.setIcon(QIcon(QLatin1String(Qt4ProjectManager::Constants::QML_WIZARD_ICON)));
     parameters.setDisplayName(tr("Qt Quick UI"));
     parameters.setId(QLatin1String("QA.QML Application"));
 
@@ -70,9 +71,9 @@ Core::BaseFileWizardParameters QmlProjectApplicationWizard::parameters()
         "You can review Qt Quick UI projects in the QML Viewer and you need not build them. "
         "You do not need to have the development environment installed "
         "on your computer to create and run this type of projects."));
-    parameters.setCategory(QLatin1String(Constants::QML_WIZARD_CATEGORY));
-    parameters.setDisplayCategory(QCoreApplication::translate(Constants::QML_WIZARD_TR_SCOPE,
-                                                              Constants::QML_WIZARD_TR_CATEGORY));
+    parameters.setCategory(QLatin1String(Qt4ProjectManager::Constants::QML_WIZARD_CATEGORY));
+    parameters.setDisplayCategory(QCoreApplication::translate(Qt4ProjectManager::Constants::QML_WIZARD_TR_SCOPE,
+                                                              Qt4ProjectManager::Constants::QML_WIZARD_TR_CATEGORY));
     return parameters;
 }
 

@@ -99,9 +99,9 @@ Core::BaseFileWizardParameters QmlStandaloneAppWizard::parameters()
     parameters.setDisplayName(tr("Qt Quick Application"));
     parameters.setId(QLatin1String("QA.QMLA Application"));
     parameters.setDescription(tr("Creates a Qt Quick application that you can deploy to mobile devices."));
-    parameters.setCategory(QLatin1String(Constants::QT_APP_WIZARD_CATEGORY));
-    parameters.setDisplayCategory(QCoreApplication::translate(Constants::QT_APP_WIZARD_TR_SCOPE,
-                                                              Constants::QT_APP_WIZARD_TR_CATEGORY));
+    parameters.setCategory(QLatin1String(Constants::QML_WIZARD_CATEGORY));
+    parameters.setDisplayCategory(QCoreApplication::translate(Constants::QML_WIZARD_TR_SCOPE,
+                                                              Constants::QML_WIZARD_TR_CATEGORY));
     return parameters;
 }
 
