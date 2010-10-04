@@ -223,11 +223,11 @@ QString QmlDumpTool::copy(const QString &qtInstallData, QString *errorMessage)
     QString sourcePath = Core::ICore::instance()->resourcePath() + QLatin1String("/qml/qmldump/");
 
     // Try to find a writeable directory.
-    foreach(const QString &directory, directories)
+    foreach(const QString &directory, directories) {
         if (copyFiles(sourcePath, files, directory, errorMessage)) {
-            errorMessage->clear();
             return directory;
         }
+    }
     *errorMessage = QCoreApplication::translate("ProjectExplorer::QmlDumpTool",
                                                 "qmldump could not be built in any of the directories:\n- %1\n\nReason: %2")
                     .arg(directories.join(QLatin1String("\n- ")), *errorMessage);
