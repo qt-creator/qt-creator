@@ -13,7 +13,6 @@ HEADERS += qmlproject.h \
     qmlprojectmanager.h \
     qmlprojectconstants.h \
     qmlprojectnodes.h \
-    qmlprojectimportwizard.h \
     qmlprojectfile.h \
     qmlprojectruncontrol.h \
     qmlprojectrunconfiguration.h \
@@ -27,7 +26,6 @@ SOURCES += qmlproject.cpp \
     qmlprojectplugin.cpp \
     qmlprojectmanager.cpp \
     qmlprojectnodes.cpp \
-    qmlprojectimportwizard.cpp \
     qmlprojectfile.cpp \
     qmlprojectruncontrol.cpp \
     qmlprojectrunconfiguration.cpp \
