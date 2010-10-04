@@ -46,6 +46,10 @@
 
 #include <QtCore/QFileInfo>
 
+#include <limits>
+
+#define ASSERT_STATE(state) assertState(state, Q_FUNC_INFO)
+
 using namespace Core;
 
 namespace Qt4ProjectManager {
@@ -55,8 +59,8 @@ MaemoSshRunner::MaemoSshRunner(QObject *parent,
     MaemoRunConfiguration *runConfig, bool debugging)
     : QObject(parent), m_runConfig(runConfig),
       m_mounter(new MaemoRemoteMounter(this)),
-      m_devConfig(runConfig->deviceConfig()), m_shuttingDown(false),
-      m_debugging(debugging)
+      m_devConfig(runConfig->deviceConfig()),
+      m_debugging(debugging), m_state(Inactive)
 {
     m_procsToKill
         << QFileInfo(m_runConfig->localExecutableFilePath()).fileName()
@@ -77,27 +81,21 @@ MaemoSshRunner::~MaemoSshRunner() {}
 
 void MaemoSshRunner::start()
 {
-    // Should not happen.
-    if (m_shuttingDown) {
-        emit error(tr("Cannot start deployment, as the clean-up from the last time has not finished yet."));
-        return;
-    }
+    ASSERT_STATE(QList<State>() << Inactive << StopRequested);
 
-    m_stop = false;
+    setState(Connecting);
     m_exitStatus = -1;
     if (m_connection)
         disconnect(m_connection.data(), 0, this, 0);
-    bool reUse = isConnectionUsable();
-    if (!reUse)
-        m_connection = m_runConfig->deployStep()->sshConnection();
-    reUse = isConnectionUsable();
+    m_connection = m_runConfig->deployStep()->sshConnection();
+    const bool reUse = isConnectionUsable();
     if (!reUse)
         m_connection = SshConnection::create();
     connect(m_connection.data(), SIGNAL(connected()), this,
         SLOT(handleConnected()));
     connect(m_connection.data(), SIGNAL(error(SshError)), this,
         SLOT(handleConnectionFailure()));
-    if (reUse) {
+    if (reUse) {        
         handleConnected();
     } else {
         emit reportProgress(tr("Connecting to device..."));
@@ -107,41 +105,44 @@ void MaemoSshRunner::start()
 
 void MaemoSshRunner::stop()
 {
-    if (m_shuttingDown)
+    if (m_state == PostRunCleaning || m_state == StopRequested
+        || m_state == Inactive)
         return;
 
-    m_stop = true;
-    m_mounter->stop();
-    if (m_cleaner)
-        disconnect(m_cleaner.data(), 0, this, 0);
-    cleanup(false);
+    setState(StopRequested);
+    cleanup();
 }
 
 void MaemoSshRunner::handleConnected()
 {
-    if (m_stop)
-        return;
-
-    cleanup(true);
+    ASSERT_STATE(QList<State>() << Connecting << StopRequested);
+    if (m_state == StopRequested) {
+        setState(Inactive);
+    } else {
+        setState(PreRunCleaning);
+        cleanup();
+    }
 }
 
 void MaemoSshRunner::handleConnectionFailure()
 {
-    emit error(tr("Could not connect to host: %1")
-        .arg(m_connection->errorString()));
+    if (m_state != Inactive)
+        qWarning("Unexpected state %d in %s.", m_state, Q_FUNC_INFO);
+
+    const QString errorTemplate = m_state == Connecting
+        ? tr("Could not connect to host: %1") : tr("Connection failed: %1");
+    emitError(errorTemplate.arg(m_connection->errorString()));
 }
 
-void MaemoSshRunner::cleanup(bool initialCleanup)
+void MaemoSshRunner::cleanup()
 {
-    if (!isConnectionUsable())
-        return;
+    ASSERT_STATE(QList<State>() << PreRunCleaning << PostRunCleaning
+        << StopRequested);
 
     emit reportProgress(tr("Killing remote process(es)..."));
-    m_shuttingDown = !initialCleanup;
 
     // pkill behaves differently on Fremantle and Harmattan.
     const char *const killTemplate = "pkill -%2 '^%1$'; pkill -%2 '/%1$';";
-
     QString niceKill;
     QString brutalKill;
     foreach (const QString &proc, m_procsToKill) {
@@ -163,31 +164,30 @@ void MaemoSshRunner::handleCleanupFinished(int exitStatus)
         || exitStatus == SshRemoteProcess::KilledBySignal
         || exitStatus == SshRemoteProcess::ExitedNormally);
 
-    if (m_shuttingDown) {
-        m_unmountState = ShutdownUnmount;
+    ASSERT_STATE(QList<State>() << PreRunCleaning << PostRunCleaning
+        << StopRequested);
+
+    if (m_state == StopRequested || m_state == PostRunCleaning) {
         m_mounter->unmount();
         return;
     }
 
-    if (m_stop)
-        return;
-
     if (exitStatus != SshRemoteProcess::ExitedNormally) {
-        emit error(tr("Initial cleanup failed: %1")
+        emitError(tr("Initial cleanup failed: %1")
             .arg(m_cleaner->errorString()));
     } else {
         m_mounter->setConnection(m_connection);
-        m_unmountState = InitialUnmount;
         m_mounter->unmount();
     }
 }
 
 void MaemoSshRunner::handleUnmounted()
 {
-    switch (m_unmountState) {
-    case InitialUnmount: {
-        if (m_stop)
-            return;
+    ASSERT_STATE(QList<State>() << PreRunCleaning << PreMountUnmounting
+        << PostRunCleaning << StopRequested);
+
+    switch (m_state) {
+    case PreRunCleaning: {
         m_mounter->resetMountSpecifications();
         MaemoPortList portList = m_devConfig.freePorts();
         if (m_debugging) { // gdbserver and QML inspector need one port each.
@@ -210,49 +210,55 @@ void MaemoSshRunner::handleUnmounted()
                 MaemoGlobal::remoteProjectSourcesMountPoint())))
                 return;
         }
-        m_unmountState = PreMountUnmount;
+        setState(PreMountUnmounting);
         m_mounter->unmount();
         break;
     }
-    case PreMountUnmount:
-        if (m_stop)
-            return;
+    case PreMountUnmounting:
+        setState(Mounting);
         m_mounter->mount();
         break;
-    case ShutdownUnmount:
-        Q_ASSERT(m_shuttingDown);
+    case PostRunCleaning:
+    case StopRequested:
         m_mounter->resetMountSpecifications();
-        m_shuttingDown = false;
-        if (m_exitStatus == SshRemoteProcess::ExitedNormally) {
+        if (m_state == StopRequested) {
+            emit remoteProcessFinished(InvalidExitCode);
+        } else if (m_exitStatus == SshRemoteProcess::ExitedNormally) {
             emit remoteProcessFinished(m_runner->exitCode());
-        } else if (m_exitStatus == -1) {
-            emit remoteProcessFinished(-1);
         } else {
             emit error(tr("Error running remote process: %1")
                 .arg(m_runner->errorString()));
         }
-        m_exitStatus = -1;
+        setState(Inactive);
         break;
+    default: ;
     }
 }
 
 void MaemoSshRunner::handleMounted()
 {
-    if (!m_stop)
+    ASSERT_STATE(QList<State>() << Mounting << StopRequested);
+
+    if (m_state == Mounting) {
+        setState(ReadyForExecution);
         emit readyForExecution();
+    }
 }
 
 void MaemoSshRunner::handleMounterError(const QString &errorMsg)
 {
-    if (m_shuttingDown)
-        m_shuttingDown = false;
-    emit error(errorMsg);
+    ASSERT_STATE(QList<State>() << PreRunCleaning << PostRunCleaning
+        << PreMountUnmounting << Mounting << StopRequested);
+
+    emitError(errorMsg);
 }
 
 void MaemoSshRunner::startExecution(const QByteArray &remoteCall)
 {
+    ASSERT_STATE(ReadyForExecution);
+
     if (m_runConfig->remoteExecutableFilePath().isEmpty()) {
-        emit error(tr("Cannot run: No remote executable set."));
+        emitError(tr("Cannot run: No remote executable set."));
         return;
     }
 
@@ -265,6 +271,7 @@ void MaemoSshRunner::startExecution(const QByteArray &remoteCall)
         SIGNAL(remoteOutput(QByteArray)));
     connect(m_runner.data(), SIGNAL(errorOutputAvailable(QByteArray)), this,
         SIGNAL(remoteErrorOutput(QByteArray)));
+    setState(ProcessStarting);
     m_runner->start();
 }
 
@@ -273,15 +280,19 @@ void MaemoSshRunner::handleRemoteProcessFinished(int exitStatus)
     Q_ASSERT(exitStatus == SshRemoteProcess::FailedToStart
         || exitStatus == SshRemoteProcess::KilledBySignal
         || exitStatus == SshRemoteProcess::ExitedNormally);
+    ASSERT_STATE(QList<State>() << ProcessStarting << StopRequested);
 
     m_exitStatus = exitStatus;
-    cleanup(false);
+    if (m_state != StopRequested) {
+        setState(PostRunCleaning);
+        cleanup();
+    }
 }
 
 bool MaemoSshRunner::addMountSpecification(const MaemoMountSpecification &mountSpec)
 {
     if (!m_mounter->addMountSpecification(mountSpec, false)) {
-        emit error(tr("The device does not have enough free ports "
+        emitError(tr("The device does not have enough free ports "
             "for this run configuration."));
         return false;
     }
@@ -293,6 +304,42 @@ bool MaemoSshRunner::isConnectionUsable() const
     return m_connection && m_connection->state() == SshConnection::Connected
         && m_connection->connectionParameters() == m_devConfig.server;
 }
+
+void MaemoSshRunner::assertState(State expectedState, const char *func)
+{
+    assertState(QList<State>() << expectedState, func);
+}
+
+void MaemoSshRunner::assertState(const QList<State> &expectedStates,
+    const char *func)
+{
+    if (!expectedStates.contains(m_state))
+        qWarning("Unexpected state %d at %s.", m_state, func);
+}
+
+void MaemoSshRunner::setState(State newState)
+{
+    if (newState == Inactive) {
+        m_mounter->setConnection(SshConnection::Ptr());
+        if (m_connection) {
+            disconnect(m_connection.data(), 0, this, 0);
+            m_connection = SshConnection::Ptr();
+        }
+        if (m_cleaner)
+            disconnect(m_cleaner.data(), 0, this, 0);
+    }
+    m_state = newState;
+}
+
+void MaemoSshRunner::emitError(const QString &errorMsg)
+{
+    emit error(errorMsg);
+    setState(Inactive);
+}
+
+
+const qint64 MaemoSshRunner::InvalidExitCode
+    = std::numeric_limits<qint64>::min();
 
 } // namespace Internal
 } // namespace Qt4ProjectManager

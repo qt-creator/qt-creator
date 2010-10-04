@@ -61,7 +61,7 @@ private slots:
     void startExecution();
     void handleSshError(const QString &error);
     void handleRemoteProcessStarted() {}
-    void handleRemoteProcessFinished(int exitCode);
+    void handleRemoteProcessFinished(qint64 exitCode);
     void handleRemoteOutput(const QByteArray &output);
     void handleRemoteErrorOutput(const QByteArray &output);
     void handleProgressReport(const QString &progressString);
