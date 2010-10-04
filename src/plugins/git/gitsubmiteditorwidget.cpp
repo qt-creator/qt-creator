@@ -171,8 +171,8 @@ void GitSubmitEditorWidget::authorInformationChanged()
 bool GitSubmitEditorWidget::emailIsValid() const
 {
     int pos = m_gitSubmitPanelUi.emailLineEdit->cursorPosition();
-    return m_emailValidator->validate(m_gitSubmitPanelUi.emailLineEdit->text(), pos)
-            == QValidator::Acceptable;
+    QString text = m_gitSubmitPanelUi.emailLineEdit->text();
+    return m_emailValidator->validate(text, pos) == QValidator::Acceptable;
 }
 
 } // namespace Internal
