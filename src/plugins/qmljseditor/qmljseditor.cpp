@@ -984,8 +984,8 @@ static UiQualifiedId *qualifiedTypeNameId(UiObjectMember *m)
 
 void QmlJSTextEditor::updateCursorPositionNow()
 {
-    if (m_contextPane && document() && !semanticInfo().document.isNull() &&
-        document()->revision() == semanticInfo().document->editorRevision())
+    if (m_contextPane && document() && semanticInfo().isValid()
+            && document()->revision() == semanticInfo().document->editorRevision())
     {
         Node *oldNode = m_semanticInfo.declaringMemberNoProperties(m_oldCursorPosition);
         Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
@@ -1225,7 +1225,7 @@ void QmlJSTextEditor::setSelectedElements()
         endPos = textCursor().position();
     }
 
-    if (m_semanticInfo.document) {
+    if (m_semanticInfo.isValid()) {
         SelectedElement selectedMembers;
         QList<UiObjectMember *> members = selectedMembers(m_semanticInfo.lookupContext(),
                                                           startPos, endPos);
@@ -1459,7 +1459,7 @@ void QmlJSTextEditor::findUsages()
 
 void QmlJSTextEditor::showContextPane()
 {
-    if (m_contextPane) {
+    if (m_contextPane && m_semanticInfo.isValid()) {
         Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
         m_contextPane->apply(editableInterface(), m_semanticInfo.lookupContext(), newNode, false, true);
         m_oldCursorPosition = position();
@@ -1487,7 +1487,7 @@ void QmlJSTextEditor::updateToolTipNow()
     if (!TextEditor::ToolTip::instance()->isVisible())
         return;
 
-    if (m_contextPane) {
+    if (m_contextPane && m_semanticInfo.isValid()) {
         Node *newNode = m_semanticInfo.declaringMemberNoProperties(m_toolTipPosition);
         m_contextPane->apply(editableInterface(), m_semanticInfo.lookupContext(), newNode, false, true);
         m_oldCursorPosition = m_toolTipPosition;
@@ -1574,8 +1574,12 @@ void QmlJSTextEditor::wheelEvent(QWheelEvent *event)
 
     BaseTextEditor::wheelEvent(event);
 
-    if (visible)
-        m_contextPane->apply(editableInterface(),  m_semanticInfo.lookupContext(), m_semanticInfo.declaringMemberNoProperties(position()), false, true);
+    if (visible) {
+        LookupContext::Ptr lookupContext;
+        if (m_semanticInfo.isValid())
+            lookupContext = m_semanticInfo.lookupContext();
+        m_contextPane->apply(editableInterface(),  lookupContext, m_semanticInfo.declaringMemberNoProperties(position()), false, true);
+    }
 }
 
 void QmlJSTextEditor::resizeEvent(QResizeEvent *event)
@@ -1876,8 +1880,12 @@ QModelIndex QmlJSTextEditor::indexForPosition(unsigned cursorPosition, const QMo
 bool QmlJSTextEditor::hideContextPane()
 {
     bool b = (m_contextPane) && m_contextPane->widget()->isVisible();
-    if (b)
-        m_contextPane->apply(editableInterface(),  m_semanticInfo.lookupContext(), 0, false);
+    if (b) {
+        LookupContext::Ptr lookupContext;
+        if (m_semanticInfo.isValid())
+            lookupContext = m_semanticInfo.lookupContext();
+        m_contextPane->apply(editableInterface(), lookupContext, 0, false);
+    }
     return b;
 }
 

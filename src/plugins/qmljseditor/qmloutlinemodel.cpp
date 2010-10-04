@@ -38,7 +38,7 @@ QVariant QmlOutlineItem::data(int role) const
     if (role == Qt::ToolTipRole) {
         AST::SourceLocation location = m_outlineModel->sourceLocation(index());
         AST::UiQualifiedId *uiQualifiedId = m_outlineModel->idNode(index());
-        if (!uiQualifiedId || !location.isValid())
+        if (!uiQualifiedId || !location.isValid() || !m_outlineModel->m_semanticInfo.isValid())
             return QVariant();
 
         QList<AST::Node *> astPath = m_outlineModel->m_semanticInfo.astPath(location.begin());
