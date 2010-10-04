@@ -81,6 +81,8 @@ MaemoTemplatesManager::MaemoTemplatesManager(QObject *parent) : QObject(parent)
         = ProjectExplorerPlugin::instance()->session();
     connect(session, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
         this, SLOT(handleActiveProjectChanged(ProjectExplorer::Project*)));
+    connect(session, SIGNAL(projectAdded(ProjectExplorer::Project*)), this,
+        SLOT(handleActiveProjectChanged(ProjectExplorer::Project*)));
     connect(session, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
         this, SLOT(handleProjectToBeRemoved(ProjectExplorer::Project*)));
     handleActiveProjectChanged(session->startupProject());    
