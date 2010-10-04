@@ -238,8 +238,21 @@ ClassOrNamespace *LookupContext::globalNamespace() const
 
 ClassOrNamespace *LookupContext::lookupType(const Name *name, Scope *scope) const
 {
-    if (ClassOrNamespace *b = bindings()->lookupType(scope))
+    if (! scope) {
+        return 0;
+    } else if (Block *block = scope->asBlock()) {
+        for (unsigned i = 0; i < block->memberCount(); ++i) {
+            if (UsingNamespaceDirective *u = block->memberAt(i)->asUsingNamespaceDirective()) {
+                if (ClassOrNamespace *uu = lookupType(u->name(), scope->enclosingNamespace())) {
+                    if (ClassOrNamespace *r = uu->lookupType(name))
+                        return r;
+                }
+            }
+        }
+        return lookupType(name, scope->enclosingScope());
+    } else if (ClassOrNamespace *b = bindings()->lookupType(scope)) {
         return b->lookupType(name);
+    }
 
     return 0;
 }
@@ -257,25 +270,19 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
         return candidates;
 
     for (; scope; scope = scope->enclosingScope()) {
-        if ((name->isNameId() || name->isTemplateNameId()) && scope->isBlock()) {
+        if (name->identifier() != 0 && scope->isBlock()) {
             bindings()->lookupInScope(name, scope, &candidates, /*templateId = */ 0, /*binding=*/ 0);
 
             if (! candidates.isEmpty())
                 break; // it's a local.
 
-            for (unsigned index = 0; index < scope->memberCount(); ++index) {
-                Symbol *member = scope->memberAt(index);
+            for (unsigned i = 0; i < scope->memberCount(); ++i) {
+                if (UsingNamespaceDirective *u = scope->memberAt(i)->asUsingNamespaceDirective()) {
+                    if (ClassOrNamespace *uu = lookupType(u->name(), scope->enclosingNamespace())) {
+                        candidates = uu->find(name);
 
-                if (UsingNamespaceDirective *u = member->asUsingNamespaceDirective()) {
-                    if (Namespace *enclosingNamespace = u->enclosingNamespace()->asNamespace()) {
-                        if (ClassOrNamespace *b = bindings()->lookupType(enclosingNamespace)) {
-                            if (ClassOrNamespace *uu = b->lookupType(u->name())) {
-                                candidates = uu->find(name);
-
-                                if (! candidates.isEmpty())
-                                    return candidates;
-                            }
-                        }
+                        if (! candidates.isEmpty())
+                            return candidates;
                     }
                 }
             }
