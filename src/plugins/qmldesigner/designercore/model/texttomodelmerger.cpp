@@ -592,9 +592,8 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 
         foreach (const Import &import, m_rewriterView->model()->imports()) {
             if (import.url() == "Qt") {
-                if (QMessageBox::question (0, QObject::tr("Deprecated import: import Qt 4.7", "QmlDesigner::TextToModelMerger"),
-                    QObject::tr("Deprecated import: import Qt 4.7\nuse import QtQuick 1.0 instead.\n\nDo you want to automatically fix the import?",
-                                "QmlDesigner::TextToModelMerger"),
+                if (QMessageBox::question (0, QCoreApplication::translate("QmlDesigner::TextToModelMerger", "Deprecated import: import Qt 4.7"),
+                    QCoreApplication::translate("QmlDesigner::TextToModelMerger", "Deprecated import: import Qt 4.7\nuse import QtQuick 1.0 instead.\n\nDo you want to automatically fix the import?"),
                     QMessageBox::Ok |  QMessageBox::Cancel, QMessageBox::Ok) == QMessageBox::Ok) {
                         QmlDesigner::QmlRefactoring refactoring(doc, *m_rewriterView->textModifier(), QStringList());
                         RemoveImportRewriteAction removeImportRewriteAction(import);
@@ -615,8 +614,8 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
                         return false;
             } else {
                 QList<RewriterView::Error> errors;
-                RewriterView::Error error(QObject::tr("Deprecated import: import Qt 4.7 use import QtQuick 1.0 instead",
-                                                      "QmlDesigner::TextToModelMerger"));
+                RewriterView::Error error(QCoreApplication::translate("QmlDesigner::TextToModelMerger",
+                                                                      "Deprecated import: import Qt 4.7 use import QtQuick 1.0 instead"));
                 errors.append(error);
                 m_rewriterView->setErrors(errors);
                 return false;
