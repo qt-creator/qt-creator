@@ -291,10 +291,10 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
     if (mi.row() >= size())
         return QVariant();
 
-    const BreakpointData *data = at(mi.row());
+    BreakpointData *data = at(mi.row());
 
     if (role == BreakpointRole)
-        return qulonglong(data);
+        return qVariantFromValue(data);
 
     if (role == BreakpointUseFullPathRole)
         return data->useFullPath;

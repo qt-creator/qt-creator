@@ -2,14 +2,6 @@
 <ui version="4.0">
  <class>GdbOptionsPage</class>
  <widget class="QWidget" name="GdbOptionsPage">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>480</width>
-    <height>475</height>
-   </rect>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="groupBoxLocations">
@@ -92,26 +84,13 @@ on slow machines. In this case, the value should be increased.</string>
        </widget>
       </item>
       <item row="4" column="0" colspan="2">
-       <widget class="QCheckBox" name="checkBoxUsePreciseBreakpoints">
-        <property name="toolTip">
-         <string>When this option is checked, the debugger plugin attempts
-to extract full path information for all source files from gdb. This is a
-slow process but enables setting breakpoints in files with the same file
-name in different directories.</string>
-        </property>
-        <property name="text">
-         <string>Use full path information to set breakpoints</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxEnableReverseDebugging">
         <property name="text">
          <string>Enable reverse debugging</string>
         </property>
        </widget>
       </item>
-      <item row="6" column="0" colspan="2">
+      <item row="5" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxSkipKnownFrames">
         <property name="toolTip">
          <string>When this option is checked, 'Step Into' compresses several steps into one in certain situations, leading to 'less noisy' debugging. So will, e.g., the atomic
@@ -122,14 +101,14 @@ name in different directories.</string>
         </property>
        </widget>
       </item>
-      <item row="7" column="0" colspan="2">
+      <item row="6" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxUseMessageBoxForSignals">
         <property name="text">
          <string>Show a message box when receiving a signal</string>
         </property>
        </widget>
       </item>
-      <item row="8" column="0" colspan="2">
+      <item row="7" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxAdjustBreakpointLocations">
         <property name="text">
          <string>Adjust Breakpoint Locations</string>

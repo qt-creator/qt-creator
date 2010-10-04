@@ -142,7 +142,6 @@ enum DebuggerActionCode
     AdjustBreakpointLocations,
     NoPluginBreakpoints,
     SelectedPluginBreakpointsPattern,
-    UsePreciseBreakpoints,
     BreakOnThrow,
     BreakOnCatch
 };
