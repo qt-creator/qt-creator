@@ -31,6 +31,8 @@
 #include "bindingproperty.h"
 #include "filemanager/firstdefinitionfinder.h"
 #include "filemanager/objectlengthcalculator.h"
+#include "filemanager/qmlrefactoring.h"
+#include "rewriteaction.h"
 #include "nodeproperty.h"
 #include "propertyparser.h"
 #include "textmodifier.h"
@@ -47,6 +49,7 @@
 #include <QtDeclarative/QDeclarativeComponent>
 #include <QtDeclarative/QDeclarativeEngine>
 #include <QtCore/QSet>
+#include <QtGui/QMessageBox.h>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
@@ -589,13 +592,37 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 
         foreach (const Import &import, m_rewriterView->model()->imports()) {
             if (import.url() == "Qt") {
+                if (QMessageBox::question (0, QObject::tr("Deprecated import: import Qt 4.7", "QmlDesigner::TextToModelMerger"),
+                    QObject::tr("Deprecated import: import Qt 4.7\nuse import QtQuick 1.0 instead.\n\nDo you want to automatically fix the import?",
+                                "QmlDesigner::TextToModelMerger"),
+                    QMessageBox::Ok |  QMessageBox::Cancel, QMessageBox::Ok) == QMessageBox::Ok) {
+                        QmlDesigner::QmlRefactoring refactoring(doc, *m_rewriterView->textModifier(), QStringList());
+                        RemoveImportRewriteAction removeImportRewriteAction(import);
+
+                        m_rewriterView->textModifier()->startGroup();
+
+                        Import qtQuickImport = Import::createLibraryImport("QtQuick", "1.0");
+                        AddImportRewriteAction addImportRewriteAction(qtQuickImport);
+                        bool success = addImportRewriteAction.execute(refactoring, *m_rewriterView->positionStorage());
+
+                        if (success) {
+                            success = refactoring.reparseDocument();
+                        }
+                        success = removeImportRewriteAction.execute(refactoring, *m_rewriterView->positionStorage());
+
+                        m_rewriterView->textModifier()->commitGroup();
+
+                        return false;
+            } else {
                 QList<RewriterView::Error> errors;
-                RewriterView::Error error(QObject::tr("Deprecated import: import Qt 4.7 use import QtQuick 1.0 instead"));
+                RewriterView::Error error(QObject::tr("Deprecated import: import Qt 4.7 use import QtQuick 1.0 instead",
+                                                      "QmlDesigner::TextToModelMerger"));
                 errors.append(error);
                 m_rewriterView->setErrors(errors);
                 return false;
             }
         }
+    }
 
         UiObjectMember *astRootNode = 0;
         if (UiProgram *program = doc->qmlProgram())
