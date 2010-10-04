@@ -130,7 +130,8 @@ bool QmlDumpTool::canBuild(const QtVersion *qtVersion)
 {
     const QString installHeaders = qtVersion->versionInfo().value("QT_INSTALL_HEADERS");
     const QString header = installHeaders + QLatin1String("/QtDeclarative/private/qdeclarativemetatype_p.h");
-    return checkMinimumQtVersion(qtVersion->qtVersionString(), 4, 7, 1) || QFile::exists(header);
+    return qtVersion->supportsTargetId(Constants::DESKTOP_TARGET_ID)
+            && (checkMinimumQtVersion(qtVersion->qtVersionString(), 4, 7, 1) || QFile::exists(header));
 }
 
 static QtVersion *qtVersionForProject(ProjectExplorer::Project *project)

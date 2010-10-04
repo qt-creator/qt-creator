@@ -53,7 +53,8 @@ static inline QStringList validBinaryFilenames()
 
 bool QmlObserverTool::canBuild(const QtVersion *qtVersion)
 {
-    return checkMinimumQtVersion(qtVersion->qtVersionString(), 4, 7, 1);
+    return qtVersion->supportsTargetId(Constants::DESKTOP_TARGET_ID)
+            && checkMinimumQtVersion(qtVersion->qtVersionString(), 4, 7, 1);
 }
 
 QString QmlObserverTool::toolForProject(ProjectExplorer::Project *project)
