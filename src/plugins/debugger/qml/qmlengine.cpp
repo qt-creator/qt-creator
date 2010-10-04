@@ -322,13 +322,6 @@ void QmlEngine::shutdownEngine()
 
 void QmlEngine::setupEngine()
 {
-    if (!d->m_attachToRunningExternalApp
-     && !startParameters().qmlObserverAvailable
-     && Internal::theDebuggerBoolSetting(Internal::UseQmlObserver))
-    {
-        showQmlObserverToolWarning();
-    }
-
     d->m_adapter->setMaxConnectionAttempts(MaxConnectionAttempts);
     d->m_adapter->setConnectionAttemptInterval(ConnectionAttemptDefaultInterval);
     connect(d->m_adapter, SIGNAL(connectionError(QAbstractSocket::SocketError)),

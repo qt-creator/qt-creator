@@ -43,10 +43,13 @@
 #include <debugger/debuggeruiswitcher.h>
 #include <debugger/debuggerengine.h>
 #include <qmljsinspector/qmljsinspectorconstants.h>
+#include <qt4projectmanager/qt4projectmanagerconstants.h>
 
+#include <QApplication>
 #include <QDir>
 #include <QLabel>
 #include <QMessageBox>
+#include <QPushButton>
 
 using ProjectExplorer::RunConfiguration;
 using ProjectExplorer::RunControl;
@@ -62,7 +65,11 @@ QmlRunControl::QmlRunControl(QmlProjectRunConfiguration *runConfiguration, QStri
     m_applicationLauncher.setEnvironment(environment.toStringList());
     m_applicationLauncher.setWorkingDirectory(runConfiguration->workingDirectory());
 
-    m_executable = runConfiguration->viewerPath();
+    if (mode == ProjectExplorer::Constants::RUNMODE) {
+        m_executable = runConfiguration->viewerPath();
+    } else {
+        m_executable = runConfiguration->observerPath();
+    }
     m_commandLineArguments = runConfiguration->viewerArguments();
 
     connect(&m_applicationLauncher, SIGNAL(appendMessage(QString,bool)),
@@ -137,10 +144,12 @@ bool QmlRunControlFactory::canRun(RunConfiguration *runConfiguration,
 {
     QmlProjectRunConfiguration *config = qobject_cast<QmlProjectRunConfiguration*>(runConfiguration);
     if (mode == ProjectExplorer::Constants::RUNMODE) {
-        return config != 0;
-    } else if (mode == ProjectExplorer::Constants::DEBUGMODE) {
+        return config != 0 && !config->viewerPath().isEmpty();
+    } else {
         bool qmlDebugSupportInstalled = Debugger::DebuggerUISwitcher::instance()->supportedLanguages()
                                         & Debugger::QmlLanguage;
+        // don't check for qmlobserver already here because we can't update the run buttons
+        // if it has been built in the meantime
         return (config != 0) && qmlDebugSupportInstalled;
     }
 
@@ -156,7 +165,7 @@ RunControl *QmlRunControlFactory::create(RunConfiguration *runConfiguration,
     RunControl *runControl = 0;
     if (mode == ProjectExplorer::Constants::RUNMODE) {
        runControl = new QmlRunControl(config, mode);
-    } else {
+    } else if (mode == ProjectExplorer::Constants::DEBUGMODE) {
         runControl = createDebugRunControl(config);
     }
     return runControl;
@@ -178,18 +187,44 @@ ProjectExplorer::RunControl *QmlRunControlFactory::createDebugRunControl(QmlProj
     Utils::Environment environment = Utils::Environment::systemEnvironment();
     Debugger::DebuggerStartParameters params;
     params.startMode = Debugger::StartInternal;
-    params.executable = runConfig->viewerPath();
+    params.executable = runConfig->observerPath();
     params.qmlServerAddress = "127.0.0.1";
     params.qmlServerPort = runConfig->qmlDebugServerPort();
-    params.qmlObserverAvailable = runConfig->qmlObserverAvailable();
     params.processArgs = runConfig->viewerArguments();
     params.processArgs.append(QLatin1String("-qmljsdebugger=port:") + QString::number(runConfig->qmlDebugServerPort()));
     params.workingDirectory = runConfig->workingDirectory();
     params.environment = environment.toStringList();
     params.displayName = runConfig->displayName();
 
+    if (params.executable.isEmpty()) {
+        showQmlObserverToolWarning();
+        return 0;
+    }
+
     Debugger::DebuggerRunControl *debuggerRunControl = Debugger::DebuggerPlugin::createDebugger(params, runConfig);
     return debuggerRunControl;
+}
+
+void QmlRunControlFactory::showQmlObserverToolWarning() {
+    QMessageBox dialog(QApplication::activeWindow());
+    QPushButton *qtPref = dialog.addButton(tr("Open Qt4 Options"),
+                                           QMessageBox::ActionRole);
+    dialog.addButton(tr("Cancel"), QMessageBox::ActionRole);
+    dialog.setDefaultButton(qtPref);
+    dialog.setWindowTitle(tr("QML Observer Missing"));
+    dialog.setText(tr("QML Observer could not be found."));
+    dialog.setInformativeText(tr(
+                                  "QML Observer is used to offer debugging features for "
+                                  "QML applications, such as interactive debugging and inspection tools."
+                                  "It must be compiled for each used Qt version separately. "
+                                  "On the Qt4 options page, select the current Qt installation "
+                                  "and click Rebuild."));
+    dialog.exec();
+    if (dialog.clickedButton() == qtPref) {
+        Core::ICore::instance()->showOptionsDialog(
+                    Qt4ProjectManager::Constants::QT_SETTINGS_CATEGORY,
+                    Qt4ProjectManager::Constants::QTVERSION_SETTINGS_PAGE_ID);
+    }
 }
 
 } // namespace Internal

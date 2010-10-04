@@ -668,9 +668,6 @@ QWidget *DebuggingHelperOptionPage::createPage(QWidget *parent)
     m_group.insert(theDebuggerAction(UseCodeModel),
         m_ui.checkBoxUseCodeModel);
 
-    m_group.insert(theDebuggerAction(UseQmlObserver),
-        m_ui.checkBoxUseQmlObserver);
-
 #ifdef QT_DEBUG
     m_group.insert(theDebuggerAction(DebugDebuggingHelpers),
         m_ui.checkBoxDebugDebuggingHelpers);
@@ -694,8 +691,7 @@ QWidget *DebuggingHelperOptionPage::createPage(QWidget *parent)
                 << ' ' << m_ui.customLocationGroupBox->title()
                 << ' ' << m_ui.dumperLocationLabel->text()
                 << ' ' << m_ui.checkBoxUseCodeModel->text()
-                << ' ' << m_ui.checkBoxDebugDebuggingHelpers->text()
-                << ' ' << m_ui.checkBoxUseQmlObserver->text();
+                << ' ' << m_ui.checkBoxDebugDebuggingHelpers->text();
         m_searchKeywords.remove(QLatin1Char('&'));
     }
     return w;

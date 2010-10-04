@@ -78,6 +78,7 @@ public:
 
 private:
     ProjectExplorer::RunControl *createDebugRunControl(QmlProjectRunConfiguration *runConfig);
+    static void showQmlObserverToolWarning();
 };
 
 } // namespace Internal

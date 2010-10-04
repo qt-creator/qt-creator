@@ -99,8 +99,6 @@ enum DebuggerActionCode
     CustomDebuggingHelperLocation,
     DebugDebuggingHelpers,
 
-    UseQmlObserver,
-
     UseCodeModel,
 
     UseToolTipsInMainEditor,
