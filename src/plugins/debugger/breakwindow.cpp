@@ -64,53 +64,75 @@ class BreakpointDialog : public QDialog, public Ui::BreakpointDialog
 {
     Q_OBJECT
 public:
-    explicit BreakpointDialog(QWidget *parent, BreakpointData *data)
-      : QDialog(parent)
-    {
-        setupUi(this);
-        comboBoxType->insertItem(0, tr("File and Line Number"));
-        comboBoxType->insertItem(1, tr("Function Name"));
-        comboBoxType->insertItem(2, tr("Function \"main()\""));
-        comboBoxType->insertItem(3, tr("Address"));
-        pathChooserFileName->lineEdit()->setText(data->fileName);
-        pathChooserFileName->setExpectedKind(Utils::PathChooser::File);
-        lineEditLineNumber->setText(QByteArray::number(data->lineNumber));
-        lineEditFunction->setText(data->funcName);
-        lineEditCondition->setText(data->condition);
-        lineEditIgnoreCount->setText(QByteArray::number(data->ignoreCount));
-        checkBoxUseFullPath->setChecked(data->useFullPath);
-        if (data->address)
-            lineEditAddress->setText("0x" + QByteArray::number(data->address, 16));
-        int initialType = 0;
-        if (!data->funcName.isEmpty())
-            initialType = lineEditFunction->text() == "main" ? 2 : 1;
-        if (data->address)
-            initialType = 3;
-        typeChanged(initialType);
-        connect(comboBoxType, SIGNAL(activated(int)), SLOT(typeChanged(int)));
-    }
+    explicit BreakpointDialog(QWidget *parent);
+    bool showDialog(BreakpointData *data);
 
 public slots:
-    void typeChanged(int index)
-    {
-        const bool isLineVisible = index == 0;
-        const bool isFunctionVisible = index == 1;
-        const bool isAddressVisible = index == 3;
-        labelFileName->setEnabled(isLineVisible);
-        pathChooserFileName->setEnabled(isLineVisible);
-        labelLineNumber->setEnabled(isLineVisible);
-        lineEditLineNumber->setEnabled(isLineVisible);
-        labelUseFullPath->setEnabled(isLineVisible);
-        checkBoxUseFullPath->setEnabled(isLineVisible);
-        labelFunction->setEnabled(isFunctionVisible);
-        lineEditFunction->setEnabled(isFunctionVisible);
-        labelAddress->setEnabled(isAddressVisible);
-        lineEditAddress->setEnabled(isAddressVisible);
-        if (index == 2)
-            lineEditFunction->setText("main");
-    }
-
+    void typeChanged(int index);
 };
+
+BreakpointDialog::BreakpointDialog(QWidget *parent) : QDialog(parent)
+{
+    setupUi(this);
+    comboBoxType->insertItem(0, tr("File and Line Number"));
+    comboBoxType->insertItem(1, tr("Function Name"));
+    comboBoxType->insertItem(2, tr("Function \"main()\""));
+    comboBoxType->insertItem(3, tr("Address"));
+    pathChooserFileName->setExpectedKind(Utils::PathChooser::File);
+    connect(comboBoxType, SIGNAL(activated(int)), SLOT(typeChanged(int)));
+    lineEditIgnoreCount->setValidator(new QIntValidator(0, 2147483647, lineEditIgnoreCount));
+}
+
+bool BreakpointDialog::showDialog(BreakpointData *data)
+{
+    pathChooserFileName->setPath(data->fileName);
+    lineEditLineNumber->setText(QString::number(data->lineNumber));
+    lineEditFunction->setText(data->funcName);
+    lineEditCondition->setText(QString::fromUtf8(data->condition));
+    lineEditIgnoreCount->setText(QString::number(data->ignoreCount));
+    checkBoxUseFullPath->setChecked(data->useFullPath);
+    lineEditThreadSpec->setText(QString::fromUtf8(data->threadSpec));
+    if (data->address)
+        lineEditAddress->setText(QString::fromAscii("0x%1").arg(data->address, 0, 16));
+    int initialType = 0;
+    if (!data->funcName.isEmpty())
+        initialType = data->funcName == QLatin1String("main") ? 2 : 1;
+    if (data->address)
+        initialType = 3;
+    typeChanged(initialType);
+
+    if (exec() != QDialog::Accepted)
+        return false;
+
+    data->lineNumber = lineEditLineNumber->text().toInt();
+    data->useFullPath = checkBoxUseFullPath->isChecked();
+    data->address = lineEditAddress->text().toULongLong(0, 0);
+    data->funcName = lineEditFunction->text();
+    data->fileName = pathChooserFileName->path();
+    data->condition = lineEditCondition->text().toUtf8();
+    data->ignoreCount = lineEditIgnoreCount->text().toInt();
+    data->threadSpec = lineEditThreadSpec->text().toUtf8();
+    return true;
+}
+
+void BreakpointDialog::typeChanged(int index)
+{
+    const bool isLineVisible = index == 0;
+    const bool isFunctionVisible = index == 1;
+    const bool isAddressVisible = index == 3;
+    labelFileName->setEnabled(isLineVisible);
+    pathChooserFileName->setEnabled(isLineVisible);
+    labelLineNumber->setEnabled(isLineVisible);
+    lineEditLineNumber->setEnabled(isLineVisible);
+    labelUseFullPath->setEnabled(isLineVisible);
+    checkBoxUseFullPath->setEnabled(isLineVisible);
+    labelFunction->setEnabled(isFunctionVisible);
+    lineEditFunction->setEnabled(isFunctionVisible);
+    labelAddress->setEnabled(isAddressVisible);
+    lineEditAddress->setEnabled(isAddressVisible);
+    if (index == 2)
+        lineEditFunction->setText(QLatin1String("main"));
+}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -268,12 +290,6 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *toggleEnabledAction = new QAction(str5, &menu);
     toggleEnabledAction->setEnabled(si.size() > 0);
 
-    const bool fullpath = si.isEmpty()
-        || idx2.data(BreakpointEnabledRole).toBool();
-    const QString str6 = fullpath ? tr("Use Short Path") : tr("Use Full Path");
-    QAction *pathAction = new QAction(str6, &menu);
-    pathAction->setEnabled(si.size() > 0);
-
     QAction *addBreakpointAction =
         new QAction(tr("Add Breakpoint..."), this);
     QAction *breakAtThrowAction =
@@ -286,7 +302,6 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(editBreakpointAction);
     menu.addAction(associateBreakpointAction);
     menu.addAction(toggleEnabledAction);
-    menu.addAction(pathAction);
     menu.addSeparator();
     menu.addAction(deleteAllAction);
     menu.addAction(deleteByFileAction);
@@ -328,8 +343,6 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
         setModelData(RequestSynchronizeBreakpointsRole);
     else if (act == toggleEnabledAction)
         setBreakpointsEnabled(si, !enabled);
-    else if (act == pathAction)
-        setBreakpointsFullPath(si, !fullpath);
     else if (act == addBreakpointAction)
         addBreakpoint();
     else if (act == breakAtThrowAction)
@@ -378,19 +391,8 @@ void BreakWindow::deleteBreakpoints(QList<int> list)
 
 bool BreakWindow::editBreakpoint(BreakpointData *data)
 {
-    BreakpointDialog dialog(this, data);
-    if (dialog.exec() == QDialog::Rejected)
-        return false;
-    bool ok = false;
-    data->lineNumber = dialog.lineEditLineNumber->text().toInt();
-    data->useFullPath = dialog.checkBoxUseFullPath->isChecked();
-    data->address = dialog.lineEditAddress->text().toULongLong(&ok, 0);
-    data->funcName = dialog.lineEditFunction->text();
-    data->fileName = dialog.pathChooserFileName->lineEdit()->text();
-    data->condition = dialog.lineEditCondition->text().toUtf8();
-    data->ignoreCount = dialog.lineEditIgnoreCount->text().toInt();
-    data->threadSpec = dialog.lineEditThreadSpec->text().toUtf8();
-    return true;
+    BreakpointDialog dialog(this);
+    return dialog.showDialog(data);
 }
 
 void BreakWindow::addBreakpoint()
@@ -405,8 +407,9 @@ void BreakWindow::addBreakpoint()
 void BreakWindow::editBreakpoints(const QModelIndexList &list)
 {
     if (list.size() == 1) {
-        QVariant var = model()->data(list.at(0), BreakpointRole);
-        BreakpointData *data = (BreakpointData *)var.toULongLong();
+        const QVariant dataV = model()->data(list.at(0), BreakpointRole);
+        QTC_ASSERT(qVariantCanConvert<BreakpointData *>(dataV), return );
+        BreakpointData *data = qvariant_cast<BreakpointData *>(dataV);
         if (editBreakpoint(data))
             data->reinsertBreakpoint();
         return;
@@ -420,8 +423,6 @@ void BreakWindow::editBreakpoints(const QModelIndexList &list)
     QTC_ASSERT(!list.isEmpty(), return);
     QModelIndex idx = list.front();
     dlg.setWindowTitle(tr("Edit Breakpoint Properties"));
-    ui.lineEditFunction->hide();
-    ui.labelFunction->hide();
     QAbstractItemModel *m = model();
     ui.lineEditCondition->setText(
         m->data(idx, BreakpointConditionRole).toString());

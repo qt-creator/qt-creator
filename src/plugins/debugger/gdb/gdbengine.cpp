@@ -1396,10 +1396,6 @@ void GdbEngine::handleStop1(const GdbMi &data)
     if (m_modulesListOutdated)
         reloadModulesInternal();
 
-    // This needs to be done before fullName() may need it.
-    if (m_sourcesListOutdated && theDebuggerBoolSetting(UsePreciseBreakpoints))
-        reloadSourceFilesInternal();
-
     if (m_breakListOutdated) {
         reloadBreakListInternal();
     } else {
@@ -2484,31 +2480,6 @@ void GdbEngine::attemptBreakpointSynchronization()
     default:
         //qDebug() << "attempted breakpoint sync in state" << state();
         showMessage(_("... NOT POSSIBLE IN CURRENT STATE"));
-        return;
-    }
-
-    // For best results, we rely on an up-to-date fullname mapping.
-    // The listing completion will retrigger us, so no futher action is needed.
-    if (m_sourcesListOutdated && theDebuggerBoolSetting(UsePreciseBreakpoints)) {
-        if (state() == InferiorRunOk) {
-            // FIXME: this is a hack
-            // The hack solves the problem that we want both commands
-            // (reloadSourceFiles and reloadBreakList) to be executed
-            // within the same stop-executecommand-continue cycle.
-            // Just calling reloadSourceFiles and reloadBreakList doesn't work
-            // in this case, because a) stopping the executable is asynchronous,
-            // b) we wouldn't want to stop-exec-continue twice
-            m_sourcesListUpdating = true;
-            GdbCommand cmd;
-            cmd.command = "-file-list-exec-source-files";
-            cmd.flags = NoFlags;
-            cmd.callback = &GdbEngine::handleQuerySources;
-            cmd.callbackName = "";
-            m_commandsToRunOnTemporaryBreak.append(cmd);
-        } else {
-            reloadSourceFilesInternal();
-        }
-        reloadBreakListInternal();
         return;
     }
 

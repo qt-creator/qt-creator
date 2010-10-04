@@ -572,7 +572,6 @@ QWidget *CommonOptionsPage::createPage(QWidget *parent)
     m_group.insert(theDebuggerAction(SortStructMembers), 0);
     m_group.insert(theDebuggerAction(LogTimeStamps), 0);
     m_group.insert(theDebuggerAction(VerboseLog), 0);
-    m_group.insert(theDebuggerAction(UsePreciseBreakpoints), 0);
     m_group.insert(theDebuggerAction(BreakOnThrow), 0);
     m_group.insert(theDebuggerAction(BreakOnCatch), 0);
 #ifdef Q_OS_WIN

@@ -334,18 +334,6 @@ DebuggerSettings *DebuggerSettings::instance()
     instance->insertItem(SynchronizeBreakpoints, item);
 
     item = new SavedAction(instance);
-    item->setText(tr("Use Precise Breakpoints"));
-    item->setToolTip(tr("Selecting this causes breakpoint synchronization "
-      "being done after each step. This results in up-to-date breakpoint "
-      "information on whether a breakpoint has been resolved after "
-      "loading shared libraries, but slows down stepping."));
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    item->setValue(false);
-    item->setSettingsKey(debugModeGroup, QLatin1String("UsePreciseBreakpoints"));
-    instance->insertItem(UsePreciseBreakpoints, item);
-
-    item = new SavedAction(instance);
     item->setText(tr("Adjust Breakpoint Locations"));
     item->setToolTip(tr("Not all source code lines generate "
       "executable code. Putting a breakpoint on such a line acts as "
