@@ -716,10 +716,10 @@ void PropertyEditor::modelAttached(Model *model)
 
     m_locked = true;
 
-    setupPane("Qt/Rectangle");
-    setupPane("Qt/Text");
-    setupPane("Qt/TextInput");
-    setupPane("Qt/TextEdit");
+    setupPane("QtQuick/Rectangle");
+    setupPane("QtQuick/Text");
+    setupPane("QtQuick/TextInput");
+    setupPane("QtQuick/TextEdit");
     resetView();
 
     m_locked = false;
@@ -895,7 +895,7 @@ QUrl PropertyEditor::qmlForNode(const ModelNode &modelNode, QString &className) 
             }
         }
     }
-    return fileToUrl(QDir(m_qmlDir).filePath("Qt/emptyPane.qml"));
+    return fileToUrl(QDir(m_qmlDir).filePath("QtQuick/emptyPane.qml"));
 }
 
 QString PropertyEditor::locateQmlFile(const QString &relativePath) const
