@@ -49,7 +49,7 @@
 #include <QtDeclarative/QDeclarativeComponent>
 #include <QtDeclarative/QDeclarativeEngine>
 #include <QtCore/QSet>
-#include <QtGui/QMessageBox.h>
+#include <QtGui/QMessageBox>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
