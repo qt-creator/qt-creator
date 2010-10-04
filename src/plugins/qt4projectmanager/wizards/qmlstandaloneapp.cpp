@@ -425,6 +425,8 @@ static QList<QmlAppGeneratedFileInfo> updateableFiles(const QString &mainProFile
         file.fileInfo = QFileInfo(fileName);
         result.append(file);
     }
+    if (result.count() != size)
+        result.clear(); // All files must be found. No wrong/partial updates, please.
     return result;
 }
 
