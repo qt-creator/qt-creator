@@ -34,10 +34,13 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorconstants.h>
 
+#include <QtGui/QLineEdit>
+#include <QtGui/QRegExpValidator>
 #include <QtGui/QSyntaxHighlighter>
 #include <QtGui/QTextEdit>
 
 #include <QtCore/QDebug>
+#include <QtCore/QDir>
 #include <QtCore/QRegExp>
 
 namespace Git {
@@ -116,11 +119,19 @@ GitSubmitEditorWidget::GitSubmitEditorWidget(QWidget *parent) :
     m_gitSubmitPanelUi.setupUi(m_gitSubmitPanel);
     insertTopWidget(m_gitSubmitPanel);
     new GitSubmitHighlighter(descriptionEdit());
+
+    m_emailValidator = new QRegExpValidator(QRegExp(QLatin1String("[^@ ]+@[^@ ]+\\.[a-zA-Z]+")), this);
+
+    m_gitSubmitPanelUi.emailLineEdit->setValidator(m_emailValidator);
+    connect(m_gitSubmitPanelUi.authorLineEdit, SIGNAL(textChanged(QString)),
+            this, SLOT(authorInformationChanged()));
+    connect(m_gitSubmitPanelUi.emailLineEdit, SIGNAL(textChanged(QString)),
+            this, SLOT(authorInformationChanged()));
 }
 
 void GitSubmitEditorWidget::setPanelInfo(const GitSubmitEditorPanelInfo &info)
 {
-    m_gitSubmitPanelUi.repositoryLabel->setText(info.repository);
+    m_gitSubmitPanelUi.repositoryLabel->setText(QDir::toNativeSeparators(info.repository));
     m_gitSubmitPanelUi.branchLabel->setText(info.branch);
 }
 
@@ -136,6 +147,32 @@ void GitSubmitEditorWidget::setPanelData(const GitSubmitEditorPanelData &data)
 {
     m_gitSubmitPanelUi.authorLineEdit->setText(data.author);
     m_gitSubmitPanelUi.emailLineEdit->setText(data.email);
+    authorInformationChanged();
+}
+
+bool GitSubmitEditorWidget::canSubmit() const
+{
+    if (m_gitSubmitPanelUi.authorLineEdit->text().isEmpty()
+        || !emailIsValid())
+        return false;
+    return SubmitEditorWidget::canSubmit();
+}
+
+void GitSubmitEditorWidget::authorInformationChanged()
+{
+    m_gitSubmitPanelUi.invalidAuthorLabel->
+            setVisible(m_gitSubmitPanelUi.authorLineEdit->text().isEmpty());
+    m_gitSubmitPanelUi.invalidEmailLabel->
+            setVisible(!emailIsValid());
+
+   updateSubmitAction();
+}
+
+bool GitSubmitEditorWidget::emailIsValid() const
+{
+    int pos = m_gitSubmitPanelUi.emailLineEdit->cursorPosition();
+    return m_emailValidator->validate(m_gitSubmitPanelUi.emailLineEdit->text(), pos)
+            == QValidator::Acceptable;
 }
 
 } // namespace Internal
