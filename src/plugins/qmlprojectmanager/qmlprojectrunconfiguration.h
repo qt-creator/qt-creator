@@ -42,12 +42,15 @@ namespace Core {
     class IEditor;
 }
 
+namespace Qt4ProjectManager {
+class QtVersion;
+}
+
 namespace QmlProjectManager {
 
 namespace Internal {
 class QmlProjectTarget;
 class QmlProjectRunConfigurationFactory;
-
 }
 
 const char * const CURRENT_FILE  = QT_TRANSLATE_NOOP("QmlManager", "<Current File>");
@@ -67,8 +70,8 @@ public:
 
     bool isEnabled(ProjectExplorer::BuildConfiguration *bc) const;
 
-    bool qmlObserverAvailable() const;
     QString viewerPath() const;
+    QString observerPath() const;
     QStringList viewerArguments() const;
     QString workingDirectory() const;
 
@@ -87,42 +90,42 @@ private slots:
 
     void updateEnabled();
 
-    void onViewerChanged();
+    void onQtVersionSelectionChanged();
     void onViewerArgsChanged();
     void useCppDebuggerToggled(bool toggled);
     void useQmlDebuggerToggled(bool toggled);
     void qmlDebugServerPortChanged(uint port);
+    void updateQtVersions();
+    void manageQtVersions();
 
 protected:
-    QString viewerDefaultPath() const;
     QmlProjectRunConfiguration(Internal::QmlProjectTarget *parent, QmlProjectRunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
     void setEnabled(bool value);
 
 private:
     void ctor();
+    static bool isValidVersion(Qt4ProjectManager::QtVersion *version);
 
     // absolute path to current file (if being used)
     QString m_currentFileFilename;
     // absolute path to selected main script (if being used)
     QString m_mainScriptFilename;
 
+    int m_qtVersionId;
     QString m_scriptFile;
-    QString m_qmlViewerCustomPath;
     QString m_qmlViewerArgs;
 
     QStringListModel *m_fileListModel;
     // weakpointer is used to make sure we don't try to manipulate
     // widget which was deleted already, as can be the case here.
-    QWeakPointer<QLabel> m_qmlViewerExecutable;
+    QWeakPointer<QComboBox> m_qtVersionComboBox;
     QWeakPointer<QComboBox> m_fileListCombo;
 
     Internal::QmlProjectTarget *m_projectTarget;
 
     bool m_usingCurrentFile;
     bool m_isEnabled;
-    mutable bool m_qmlObserverAvailable;
-
 };
 
 } // namespace QmlProjectManager
