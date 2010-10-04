@@ -126,7 +126,7 @@ static inline QStringList validBinaryFilenames()
             << QLatin1String("qmldump.app/Contents/MacOS/qmldump");
 }
 
-bool QmlDumpTool::canBuild(QtVersion *qtVersion)
+bool QmlDumpTool::canBuild(const QtVersion *qtVersion)
 {
     const QString installHeaders = qtVersion->versionInfo().value("QT_INSTALL_HEADERS");
     const QString header = installHeaders + QLatin1String("/QtDeclarative/private/qdeclarativemetatype_p.h");

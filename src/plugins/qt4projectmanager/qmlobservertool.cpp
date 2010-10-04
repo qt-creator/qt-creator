@@ -51,7 +51,7 @@ static inline QStringList validBinaryFilenames()
             << QLatin1String("QMLObserver.app/Contents/MacOS/QMLObserver");
 }
 
-bool QmlObserverTool::canBuild(QtVersion *qtVersion)
+bool QmlObserverTool::canBuild(const QtVersion *qtVersion)
 {
     return checkMinimumQtVersion(qtVersion->qtVersionString(), 4, 7, 1);
 }

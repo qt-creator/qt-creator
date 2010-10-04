@@ -47,7 +47,7 @@ class QtVersion;
 class QT4PROJECTMANAGER_EXPORT QmlDumpTool : public Utils::BuildableHelperLibrary
 {
 public:
-    static bool canBuild(QtVersion *qtVersion);
+    static bool canBuild(const QtVersion *qtVersion);
     static QString toolForProject(ProjectExplorer::Project *project);
     static QString toolByInstallData(const QString &qtInstallData);
     static QStringList locationsByInstallData(const QString &qtInstallData);
