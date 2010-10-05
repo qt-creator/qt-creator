@@ -218,7 +218,8 @@ QString QmlDumpTool::copy(const QString &qtInstallData, QString *errorMessage)
 
     QStringList files;
     files << QLatin1String("main.cpp") << QLatin1String("qmldump.pro")
-          << QLatin1String("LICENSE.LGPL") << QLatin1String("LGPL_EXCEPTION.TXT");
+          << QLatin1String("LICENSE.LGPL") << QLatin1String("LGPL_EXCEPTION.TXT")
+          << QLatin1String("Info.plist");
 
     QString sourcePath = Core::ICore::instance()->resourcePath() + QLatin1String("/qml/qmldump/");
 
