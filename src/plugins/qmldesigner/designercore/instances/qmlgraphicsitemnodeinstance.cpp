@@ -320,6 +320,7 @@ void QmlGraphicsItemNodeInstance::doComponentComplete()
         if (static_cast<QDeclarativeItemPrivate*>(QGraphicsItemPrivate::get(qmlGraphicsItem()))->componentComplete)
             return;
         static_cast<QDeclarativeParserStatus*>(qmlGraphicsItem())->componentComplete();
+        QGraphicsItemPrivate::get(qmlGraphicsItem())->sendParentChangeNotification = 1;
     }
 }
 
