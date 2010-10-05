@@ -482,12 +482,12 @@ void GettingStartedWelcomePageWidget::showFeature(int feature)
     }
 
     if (item.category == QLatin1String("Event")) {
-        ui->detailsLabel->setText(QString::fromLatin1("<a href='%1'>Details...</a>").arg(item.url));
+        ui->detailsLabel->setText(tr("<a href='%1'>Details...</a>").arg(item.url));
         ui->detailsLabel->show();
         ui->detailsLabel->setOpenExternalLinks(true);
     }
     else if (item.category == QLatin1String("Tutorial")) {
-        ui->detailsLabel->setText(QString::fromLatin1("<a href='%1'>Take Tutorial</a>").arg(item.url+"?view=split"));
+        ui->detailsLabel->setText(tr("<a href='%1'>Take Tutorial</a>").arg(item.url+"?view=split"));
         ui->detailsLabel->show();
         ui->detailsLabel->setOpenExternalLinks(true);
     }
