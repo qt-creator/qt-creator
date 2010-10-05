@@ -309,6 +309,7 @@ private: ////////// Inferior Management //////////
 
     // This should be always the last call in a function.
     Q_SLOT virtual void attemptBreakpointSynchronization();
+    bool acceptsBreakpoint(const Internal::BreakpointData *br);
 
     virtual void executeStep();
     virtual void executeStepOut();

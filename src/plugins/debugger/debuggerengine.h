@@ -129,6 +129,7 @@ class StackFrame;
 class SourceFilesHandler;
 class ThreadsHandler;
 class WatchHandler;
+class BreakpointData;
 
 struct WatchUpdateFlags
 {
@@ -182,6 +183,7 @@ public:
     virtual void updateAll();
 
     virtual void attemptBreakpointSynchronization();
+    virtual bool acceptsBreakpoint(const Internal::BreakpointData *);
     virtual void selectThread(int index);
 
     virtual void assignValueInDebugger(const Internal::WatchData *w, const QString &expr, const QVariant &value);

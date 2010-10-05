@@ -1667,6 +1667,11 @@ void DebuggerEngine::attemptBreakpointSynchronization()
 {
 }
 
+bool DebuggerEngine::acceptsBreakpoint(const BreakpointData *)
+{
+    return true;
+}
+
 void DebuggerEngine::selectThread(int)
 {
 }

@@ -65,6 +65,8 @@ BreakHandler::BreakHandler(Debugger::DebuggerEngine *engine)
     //m_emptyIcon(_(":/debugger/images/debugger_empty_14.png")),
     m_watchpointIcon(_(":/debugger/images/watchpoint.png")),
     m_engine(engine),
+    m_bp(0),
+    m_masterList(false),
     m_lastFound(0),
     m_lastFoundQueried(false)
 {
@@ -73,6 +75,11 @@ BreakHandler::BreakHandler(Debugger::DebuggerEngine *engine)
 
 BreakHandler::~BreakHandler()
 {
+    if (m_bp && m_masterList) {
+        qDeleteAll(*m_bp);
+        m_bp->clear();
+        delete m_bp;
+    }
     clear();
 }
 
@@ -97,20 +104,20 @@ bool BreakHandler::hasPendingBreakpoints() const
 BreakpointData *BreakHandler::at(int index) const
 {
     QTC_ASSERT(index < size(), return 0);
-    return m_bp.at(index);
+    QTC_ASSERT(m_bp,/**/);
+    return m_bp->at(index);
 }
 
 void BreakHandler::removeAt(int index)
 {
+    QTC_ASSERT(m_bp,/**/);
     BreakpointData *data = at(index);
-    m_bp.removeAt(index);
+    m_bp->removeAt(index);
     delete data;
 }
 
 void BreakHandler::clear()
 {
-    qDeleteAll(m_bp);
-    m_bp.clear();
     m_enabled.clear();
     m_disabled.clear();
     m_removed.clear();
@@ -119,9 +126,10 @@ void BreakHandler::clear()
 
 BreakpointData *BreakHandler::findSimilarBreakpoint(const BreakpointData *needle) const
 {
+    QTC_ASSERT(m_bp, /**/);
     // Search a breakpoint we might refer to.
     for (int index = 0; index != size(); ++index) {
-        BreakpointData *data = m_bp[index];
+        BreakpointData *data = (*m_bp)[index];
         if (data->isSimilarTo(needle))
             return data;
     }
@@ -516,8 +524,9 @@ void BreakHandler::reinsertBreakpoint(BreakpointData *data)
 
 void BreakHandler::append(BreakpointData *data)
 {
+    QTC_ASSERT(m_bp,/**/);
     data->m_handler = this;
-    m_bp.append(data);
+    m_bp->append(data);
     m_inserted.append(data);
 }
 
@@ -554,8 +563,9 @@ Breakpoints BreakHandler::takeDisabledBreakpoints()
 
 void BreakHandler::removeBreakpointHelper(int index)
 {
-    BreakpointData *data = m_bp.at(index);
-    m_bp.removeAt(index);
+    QTC_ASSERT(m_bp,/**/);
+    BreakpointData *data = m_bp->at(index);
+    m_bp->removeAt(index);
     data->removeMarker();
     m_removed.append(data);
 }
@@ -570,7 +580,8 @@ void BreakHandler::removeBreakpoint(int index)
 
 void BreakHandler::removeBreakpoint(BreakpointData *data)
 {
-    removeBreakpointHelper(m_bp.indexOf(data));
+    QTC_ASSERT(m_bp,/**/);
+    removeBreakpointHelper(m_bp->indexOf(data));
     emit layoutChanged();
 }
 
@@ -614,7 +625,8 @@ void BreakHandler::removeAllBreakpoints()
 
 BreakpointData *BreakHandler::findBreakpoint(quint64 address) const
 {
-    foreach (BreakpointData *data, m_bp)
+    QTC_ASSERT(m_bp,/**/);
+    foreach (BreakpointData *data, *m_bp)
         if (data->address == address)
             return data;
     return 0;
@@ -623,7 +635,8 @@ BreakpointData *BreakHandler::findBreakpoint(quint64 address) const
 BreakpointData *BreakHandler::findBreakpoint(const QString &fileName,
     int lineNumber, bool useMarkerPosition)
 {
-    foreach (BreakpointData *data, m_bp)
+    QTC_ASSERT(m_bp,/**/);
+    foreach (BreakpointData *data, *m_bp)
         if (data->isLocatedAt(fileName, lineNumber, useMarkerPosition))
             return data;
     return 0;
@@ -633,15 +646,14 @@ void BreakHandler::toggleBreakpoint(const QString &fileName, int lineNumber,
                                     quint64 address /* = 0 */)
 {
     BreakpointData *data = 0;
-    do {
-        if (address) {
-            data = findBreakpoint(address);
-            break;
-        }
+
+    if (address) {
+        data = findBreakpoint(address);
+    } else {
         data = findBreakpoint(fileName, lineNumber, true);
         if (!data)
             data = findBreakpoint(fileName, lineNumber, false);
-    } while (false);
+    }
 
     if (data) {
         removeBreakpoint(data);
@@ -667,9 +679,19 @@ void BreakHandler::saveSessionData()
     saveBreakpoints();
 }
 
+void BreakHandler::initMasterList()
+{
+    if (m_bp) {
+        delete m_bp;
+    }
+    m_masterList = true;
+    m_bp = new Breakpoints;
+}
+
 void BreakHandler::loadSessionData()
 {
     QTC_ASSERT(m_engine->isSessionEngine(), return);
+    initMasterList();
     loadBreakpoints();
     updateMarkers();
 }
@@ -697,23 +719,33 @@ bool BreakHandler::isActive() const
     return m_engine->isActive();
 }
 
+bool BreakHandler::isMasterList() const
+{
+    return m_masterList;
+}
+
 void BreakHandler::initializeFromTemplate(BreakHandler *other)
 {
-    QTC_ASSERT(m_bp.isEmpty(), /**/);
-    foreach (BreakpointData *data, other->m_bp) {
-        append(data->clone());
-        data->removeMarker();
+    QTC_ASSERT(other->isMasterList(), /**/);
+    QTC_ASSERT(!isMasterList(), /**/);
+    QTC_ASSERT(other->m_bp,/**/);
+
+    m_bp = other->m_bp;
+    foreach(BreakpointData *data, *m_bp) {
+        if (m_engine->acceptsBreakpoint(data))
+            data->m_handler = this;
     }
-    updateMarkers();
+
 }
 
 void BreakHandler::storeToTemplate(BreakHandler *other)
 {
-    other->removeAllBreakpoints();
-    foreach (const BreakpointData *data, m_bp)
-        other->append(data->clone());
-    removeAllBreakpoints();
-    other->updateMarkers();
+    QTC_ASSERT(m_bp,/**/);
+    foreach (BreakpointData *data, *m_bp) {
+            data->m_handler = other;
+    }
+    m_bp = 0;
+
     other->saveSessionData();
 }
 
