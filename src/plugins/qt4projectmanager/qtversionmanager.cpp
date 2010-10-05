@@ -1780,7 +1780,7 @@ QString QtVersion::buildDebuggingHelperLibrary(QFutureInterface<void> &future, b
                     (tc->type() == ToolChain::GCC_MAEMO ? QLatin1String("-unix") : QLatin1String("")));
             }
         } else {
-            output += QCoreApplication::tr("Cannot build QMLObserver; Qt version must be 4.7.1 or higher.");
+            output += QCoreApplication::translate("Qt4ProjectManager::QtVersion", "Cannot build QMLObserver; Qt version must be 4.7.1 or higher.");
         }
         future.setProgressValue(3);
     }
@@ -1793,7 +1793,7 @@ QString QtVersion::buildDebuggingHelperLibrary(QFutureInterface<void> &future, b
                 (tc->type() == ToolChain::GCC_MAEMO ? QLatin1String("-unix") : QLatin1String("")));
         }
     } else {
-        output += QCoreApplication::tr("Cannot build qmldump; Qt version must be 4.7.1 or higher.");
+        output += QCoreApplication::translate("Qt4ProjectManager::QtVersion", "Cannot build qmldump; Qt version must be 4.7.1 or higher.");
     }
     future.setProgressValue(4);
 

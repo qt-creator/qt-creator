@@ -65,7 +65,7 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>Note: All files and directories which reside in the same directory as the Main QML File will be deployed. You can anytime modify the contents of that directory before deploying.</string>
+      <string>Note: All files and directories which reside in the same directory as the Main QML File will be deployed. You can modify the contents of that directory anytime before deploying.</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>

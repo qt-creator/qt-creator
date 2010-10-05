@@ -208,7 +208,7 @@ QString QmlDumpTool::build(const QString &directory, const QString &makeCommand,
                      const QString &qmakeCommand, const QString &mkspec,
                      const Utils::Environment &env, const QString &targetMode)
 {
-    return buildHelper(QCoreApplication::tr("qmldump"), QLatin1String("qmldump.pro"),
+    return buildHelper(QCoreApplication::translate("Qt4ProjectManager::QmlDumpTool", "qmldump"), QLatin1String("qmldump.pro"),
                        directory, makeCommand, qmakeCommand, mkspec, env, targetMode);
 }
 

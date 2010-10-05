@@ -120,6 +120,7 @@ QString DebuggingHelperLibrary::build(const QString &directory, const QString &m
                                       const QString &qmakeCommand, const QString &mkspec,
                                       const Utils::Environment &env, const QString &targetMode)
 {
-    return buildHelper(QCoreApplication::tr("GDB helper"), QLatin1String("gdbmacros.pro"), directory,
+    return buildHelper(QCoreApplication::translate("ProjectExplorer::DebuggingHelperLibrary",
+                                                   "GDB helper"), QLatin1String("gdbmacros.pro"), directory,
                        makeCommand, qmakeCommand, mkspec, env, targetMode);
 }

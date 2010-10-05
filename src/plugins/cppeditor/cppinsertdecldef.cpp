@@ -74,8 +74,8 @@ public:
         default: break;
         }
 
-        setDescription(QCoreApplication::tr("Add %1 declaration",
-                                            "CppEditor::DeclFromDef").arg(type));
+        setDescription(QCoreApplication::translate("CppEditor::InsertDeclOperation",
+                                                   "Add %1 declaration").arg(type));
     }
 
     void performChanges(CppRefactoringFile *, CppRefactoringChanges *refactoring)
@@ -217,8 +217,8 @@ public:
         , m_decl(decl)
         , m_loc(loc)
     {
-        setDescription(QCoreApplication::tr("Add definition in %1",
-                                            "CppEditor::DefFromDecl")
+        setDescription(QCoreApplication::translate("CppEditor::InsertDefOperation",
+                                                   "Add definition in %1")
                        .arg(m_loc.fileName()));
     }
 

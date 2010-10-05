@@ -221,7 +221,7 @@ void QmlEngine::connectionError(QAbstractSocket::SocketError socketError)
 
 void QmlEngine::serviceConnectionError(const QString &serviceName)
 {
-    plugin()->showMessage(tr("QML Debugger: Couldn't connect to service '%1'.").arg(serviceName), StatusBar);
+    plugin()->showMessage(tr("QML Debugger: Could not connect to service '%1'.").arg(serviceName), StatusBar);
 }
 
 void QmlEngine::runEngine()

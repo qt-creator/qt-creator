@@ -103,7 +103,8 @@ QString QmlObserverTool::build(const QString &directory, const QString &makeComm
                      const QString &qmakeCommand, const QString &mkspec,
                      const Utils::Environment &env, const QString &targetMode)
 {
-    return buildHelper(QCoreApplication::tr("QMLObserver"), QLatin1String("qmlobserver.pro"),
+    return buildHelper(QCoreApplication::translate("Qt4ProjectManager::QmlObserverTool", "QMLObserver"),
+                       QLatin1String("qmlobserver.pro"),
                        directory, makeCommand, qmakeCommand, mkspec, env, targetMode);
 }
 

@@ -238,7 +238,7 @@
       <item row="0" column="0">
        <widget class="QRadioButton" name="verticalStretchRadioButton">
         <property name="toolTip">
-         <string>Strech horizontally. Scales the image to fit to the available area.</string>
+         <string>Stretch horizontally. Scales the image to fit to the available area.</string>
         </property>
         <property name="text">
          <string/>
