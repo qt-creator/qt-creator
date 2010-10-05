@@ -60,16 +60,14 @@ QML/JS Support
      by plugins
 
 FakeVim:
-   * Fix mark interpretion for d'a etc, Delete key in command mode, ~
-   * Fix indentation of first line after >iB and >ib, undo after cjaaa<Esc> etc
+   * Fix indentation of first line after >iB and >ib, undo after cjaaa<Esc>, ~ etc
    * Implement :mak, :nohlsearch, :only, :reg[isters], Ctrl-J, Ctrl-N, Ctrl-P,
    * Implement [(, ]), [{, ]}, some of the :bn/bp commands
    * Implement {}/[]/<>-block text objects
    * Make :q after :sp more vim-ish, make <C-.> etc work in mappings
-   * Make Ctrl-V <Tab> and Ctrl-V <Return> work in Insert and Ex mode
    * Make Searching a 'sub-sub-mode' to allow d/
    * Make recognition of ex command names similar to vi's
-   * move "status line" to the main statusbar
+   * Move "status line" to the main statusbar
    * Refactor searching for less random jumps and more speed
    * Rework line ranges and support for marks
    * Use basetext cursor handling and indentation support for better integration
