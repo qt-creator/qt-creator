@@ -115,7 +115,7 @@ NodeInstance &NodeInstance::operator=(const NodeInstance &other)
 \brief Paints the NodeInstance with this painter.
 \param painter used QPainter
 */
-void NodeInstance::paint(QPainter *painter) const
+void NodeInstance::paint(QPainter *painter)
 {
     m_nodeInstance->paint(painter);
 }
@@ -459,6 +459,11 @@ void NodeInstance::makeInvalid()
     if (m_nodeInstance)
         m_nodeInstance->destroy();
     m_nodeInstance.clear();
+}
+
+void NodeInstance::renderPixmapNextPaint()
+{
+    m_nodeInstance->renderPixmapNextPaint();
 }
 
 bool NodeInstance::hasContent() const

@@ -84,7 +84,7 @@ public:
     NodeInstance(const NodeInstance &other);
     NodeInstance& operator=(const NodeInstance &other);
 
-    void paint(QPainter *painter) const;
+    void paint(QPainter *painter);
 
     NodeInstance parent() const;
     bool hasParent() const;
@@ -127,6 +127,7 @@ public:
 
     bool isValid() const;
     void makeInvalid();
+    void renderPixmapNextPaint();
     bool hasContent() const;
     bool isResizable() const;
     bool isMovable() const;

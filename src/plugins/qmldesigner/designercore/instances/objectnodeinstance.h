@@ -97,7 +97,7 @@ public:
     NodeInstanceView *nodeInstanceView() const;
     void setNodeInstanceView(NodeInstanceView *view);
     virtual void initializePropertyWatcher(const Pointer &objectNodeInstance);
-    virtual void paint(QPainter *painter) const;
+    virtual void paint(QPainter *painter);
 
     virtual bool isTopLevel() const;
 
@@ -187,6 +187,8 @@ public:
 
 
     virtual void doComponentComplete();
+
+    virtual void renderPixmapNextPaint();
 
 protected:
     static QObject *createInstance(const NodeMetaInfo &metaInfo, QDeclarativeContext *parentContext);

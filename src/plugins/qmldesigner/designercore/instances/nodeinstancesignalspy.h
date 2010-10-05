@@ -27,8 +27,9 @@ protected:
 private:
     int methodeOffset;
     QHash<int, QString> m_indexPropertyHash;
-    QObjectList registeredObjectList;
+    QObjectList m_registeredObjectList;
     ObjectNodeInstanceWeakPointer m_objectNodeInstance;
+    QMetaObject m_metaObject;
 };
 
 } // namespace Internal

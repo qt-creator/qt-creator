@@ -26,10 +26,10 @@ void NodeInstanceSignalSpy::setObjectNodeInstance(const ObjectNodeInstance::Poin
 
 void NodeInstanceSignalSpy::registerObject(QObject *spiedObject, const QString &prefix)
 {
-    if (registeredObjectList.contains(spiedObject)) // prevent cycles
+    if (m_registeredObjectList.contains(spiedObject)) // prevent cycles
         return;
 
-    registeredObjectList.append(spiedObject);
+    m_registeredObjectList.append(spiedObject);
     for (int index = QObject::staticMetaObject.propertyOffset();
          index < spiedObject->metaObject()->propertyCount();
          index++) {

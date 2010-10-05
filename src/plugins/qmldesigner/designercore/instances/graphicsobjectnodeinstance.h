@@ -44,7 +44,7 @@ class GraphicsObjectNodeInstance : public ObjectNodeInstance
 public:
     GraphicsObjectNodeInstance(QGraphicsObject *graphicsObject, bool hasContent);
 
-    void paint(QPainter *painter) const;
+    void paint(QPainter *painter);
 
     bool isTopLevel() const;
     bool isGraphicsObject() const;
@@ -77,13 +77,18 @@ public:
     bool isMovable() const;
     void setMovable(bool movable);
 
+    void renderPixmapNextPaint();
+
 protected:
+    void renderPixmap();
     QGraphicsObject *graphicsObject() const;
     void paintRecursively(QGraphicsItem *graphicsItem, QPainter *painter) const;
     static QPair<QGraphicsObject*, bool> createGraphicsObject(const NodeMetaInfo &metaInfo, QDeclarativeContext *context);
 private: // variables
     bool m_hasContent;
     bool m_isMovable;
+    QPixmap m_renderPixmap;
+    bool m_renderPixmapIsDirty;
 };
 
 } // namespace Internal

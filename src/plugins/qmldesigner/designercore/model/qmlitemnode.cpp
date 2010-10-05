@@ -246,7 +246,7 @@ int QmlItemNode::instancePenWidth() const
     return nodeInstance().penWidth();
 }
 
-void QmlItemNode::paintInstance(QPainter *painter) const
+void QmlItemNode::paintInstance(QPainter *painter)
 {
     if (nodeInstance().isValid())
         nodeInstance().paint(painter);

@@ -327,7 +327,8 @@ static bool isTransformProperty(const QString &name)
                                                          << "scale"
                                                          << "transformOrigin"
                                                          << "paintedWidth"
-                                                         << "paintedHeight");
+                                                         << "paintedHeight"
+                                                         << "border.width");
 
     return transformProperties.contains(name);
 }

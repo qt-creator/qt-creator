@@ -34,6 +34,8 @@
 #include "private/qgraphicsitem_p.h"
 #include <QStyleOptionGraphicsItem>
 #include "nodemetainfo.h"
+#include <QPixmap>
+#include <QSizeF>
 
 namespace QmlDesigner {
 namespace Internal {
@@ -41,7 +43,8 @@ namespace Internal {
 GraphicsObjectNodeInstance::GraphicsObjectNodeInstance(QGraphicsObject *graphicsObject, bool hasContent)
    : ObjectNodeInstance(graphicsObject),
    m_hasContent(hasContent),
-   m_isMovable(true)
+   m_isMovable(true),
+   m_renderPixmapIsDirty(true)
 {
 }
 
@@ -171,6 +174,34 @@ void initOption(QGraphicsItem *item, QStyleOptionGraphicsItem *option, const QTr
     privateItem->initStyleOption(option, transform, QRegion());
 }
 
+void GraphicsObjectNodeInstance::renderPixmap()
+{
+    QRectF boundingRect = graphicsObject()->boundingRect();
+    QSize boundingSize = boundingRect.size().toSize();
+
+    if (m_renderPixmap.size() != boundingSize) {
+        m_renderPixmap = QPixmap(boundingSize);
+    }
+
+    if (m_renderPixmap.isNull())
+        return;
+
+    m_renderPixmap.fill(Qt::transparent);
+
+    QPainter painter(&m_renderPixmap);
+    painter.translate(-boundingRect.topLeft());
+
+    if (hasContent()) {
+        QStyleOptionGraphicsItem option;
+        initOption(graphicsObject(), &option, painter.transform());
+        graphicsObject()->paint(&painter, &option);
+
+    }
+
+    foreach(QGraphicsItem *graphicsItem, graphicsObject()->childItems())
+        paintRecursively(graphicsItem, &painter);
+}
+
 void GraphicsObjectNodeInstance::paintRecursively(QGraphicsItem *graphicsItem, QPainter *painter) const
 {
     QGraphicsObject *graphicsObject = graphicsItem->toGraphicsObject();
@@ -193,21 +224,13 @@ void GraphicsObjectNodeInstance::paintRecursively(QGraphicsItem *graphicsItem, Q
     }
 }
 
-void GraphicsObjectNodeInstance::paint(QPainter *painter) const
+void GraphicsObjectNodeInstance::paint(QPainter *painter)
 {
     if (graphicsObject()) {
-        painter->save();
-        if (hasContent()) {
-            QStyleOptionGraphicsItem option;
-            initOption(graphicsObject(), &option, painter->transform());
-            graphicsObject()->paint(painter, &option);
-
-        }
-
-        foreach(QGraphicsItem *graphicsItem, graphicsObject()->childItems())
-            paintRecursively(graphicsItem, painter);
-
-        painter->restore();
+        if (m_renderPixmapIsDirty)
+            renderPixmap();
+        if (!m_renderPixmap.isNull())
+            painter->drawPixmap(graphicsObject()->boundingRect().topLeft(), m_renderPixmap);
     }
 }
 
@@ -239,6 +262,12 @@ bool GraphicsObjectNodeInstance::isMovable() const
 void GraphicsObjectNodeInstance::setMovable(bool movable)
 {
     m_isMovable = movable;
+}
+
+void GraphicsObjectNodeInstance::renderPixmapNextPaint()
+{
+    if (graphicsObject() && QGraphicsItemPrivate::get(graphicsObject())->dirty /*|| QGraphicsItemPrivate::get(graphicsObject())->dirtyChildren*/)
+        m_renderPixmapIsDirty = true;
 }
 
 } // namespace Internal

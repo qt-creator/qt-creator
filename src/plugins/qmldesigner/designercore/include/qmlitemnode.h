@@ -80,7 +80,7 @@ public:
     int instancePenWidth() const;
 
 
-    void paintInstance(QPainter *painter) const;
+    void paintInstance(QPainter *painter);
 
     void selectNode();
     void deselectNode();
