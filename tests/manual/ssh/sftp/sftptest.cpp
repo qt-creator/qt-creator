@@ -80,7 +80,7 @@ void SftpTest::handleDisconnected()
 
 void SftpTest::handleError()
 {
-    std::cerr << "Encountered SSH error "
+    std::cerr << "Encountered SSH error: "
         << qPrintable(m_connection->errorString()) << "." << std::endl;
     qApp->quit();
 }
@@ -103,7 +103,7 @@ void SftpTest::handleChannelInitialized()
         const FilePtr file(new QFile(QDir::tempPath() + QLatin1Char('/')
             + fileName));
         bool success = true;
-        if (!file->open(QIODevice::ReadWrite | QIODevice::Truncate))
+        if (!file->open(QIODevice::WriteOnly | QIODevice::Truncate))
             success = false;
         if (success) {
             int content[1024/sizeof(int)];
@@ -153,16 +153,12 @@ void SftpTest::handleChannelClosed()
         std::cerr << "Unexpected state " << m_state << " in function "
             << Q_FUNC_INFO << "." << std::endl;
     } else {
-        std::cout << "SFTP channel closed. Now disconnecting." << std::endl;
+        std::cout << "SFTP channel closed. Now disconnecting..." << std::endl;
     }
     m_state = Disconnecting;
     m_connection->disconnectFromHost();
 }
 
-// compare the original to the downloaded files
-// remove local files
-// remove remote files
-// then the same for a big N GB file
 void SftpTest::handleJobFinished(Core::SftpJobId job, const QString &error)
 {
     switch (m_state) {
@@ -170,7 +166,7 @@ void SftpTest::handleJobFinished(Core::SftpJobId job, const QString &error)
         if (!handleJobFinished(job, m_smallFilesUploadJobs, error, "uploading"))
             return;
         if (m_smallFilesUploadJobs.isEmpty()) {
-            std::cout << "Uploading finished, now downloading for comparison."
+            std::cout << "Uploading finished, now downloading for comparison..."
                 << std::endl;
             foreach (const FilePtr &file, m_localSmallFiles) {
                 const QString localFilePath = file->fileName();
@@ -195,7 +191,7 @@ void SftpTest::handleJobFinished(Core::SftpJobId job, const QString &error)
         if (!handleJobFinished(job, m_smallFilesDownloadJobs, error, "downloading"))
             return;
         if (m_smallFilesDownloadJobs.isEmpty()) {
-            std::cout << "Downloading finished, now comparing." << std::endl;
+            std::cout << "Downloading finished, now comparing..." << std::endl;
             foreach (const FilePtr &ptr, m_localSmallFiles) {
                 if (!ptr->open(QIODevice::ReadOnly)) {
                     std::cerr << "Error opening local file "
@@ -215,7 +211,7 @@ void SftpTest::handleJobFinished(Core::SftpJobId job, const QString &error)
                     return;
             }
 
-            std::cout << "Comparisons successful, now removing files."
+            std::cout << "Comparisons successful, now removing files..."
                 << std::endl;
             QList<QString> remoteFilePaths;
             foreach (const FilePtr &ptr, m_localSmallFiles) {
@@ -245,22 +241,135 @@ void SftpTest::handleJobFinished(Core::SftpJobId job, const QString &error)
         if (!handleJobFinished(job, m_smallFilesRemovalJobs, error, "removing"))
             return;
         if (m_smallFilesRemovalJobs.isEmpty()) {
-            // TODO: create and upload big file
-            std::cout << "Files successfully removed. "
-                << "Now closing the SFTP channel." << std::endl;
-            m_channel->closeChannel();
-            m_state = ChannelClosing;
+            std::cout << "Small files successfully removed. "
+                << "Now creating big file..." << std::endl;
+            const QLatin1String bigFileName("sftpbigfile");
+            m_localBigFile = FilePtr(new QFile(QDir::tempPath()
+                + QLatin1Char('/') + bigFileName));
+            bool success = m_localBigFile->open(QIODevice::WriteOnly);
+            const int blockSize = 8192;
+            const int blockCount = m_parameters.bigFileSize*1024*1024/blockSize;
+            for (int block = 0; block < blockCount; ++block) {
+                int content[blockSize/sizeof(int)];
+                for (size_t j = 0; j < sizeof content / sizeof content[0]; ++j)
+                    content[j] = qrand();
+                m_localBigFile->write(reinterpret_cast<char *>(content),
+                    sizeof content);
+            }
+            m_localBigFile->close();
+            success = success && m_localBigFile->error() == QFile::NoError;
+            if (!success) {
+                std::cerr << "Error trying to create big file '"
+                    << qPrintable(m_localBigFile->fileName()) << "'."
+                    << std::endl;
+                earlyDisconnectFromHost();
+                return;
+            }
+
+            std::cout << "Big file created. Now uploading ..." << std::endl;
+            m_bigJobTimer.start();
+            m_bigFileUploadJob
+                = m_channel->uploadFile(m_localBigFile->fileName(),
+                      remoteFilePath(bigFileName), SftpOverwriteExisting);
+            if (m_bigFileUploadJob == SftpInvalidJob) {
+                std::cerr << "Error uploading file '" << bigFileName.latin1()
+                    << "'." << std::endl;
+                earlyDisconnectFromHost();
+                return;
+            }
+            m_state = UploadingBig;
         }
         break;
+    case UploadingBig: {
+        if (!handleBigJobFinished(job, m_bigFileUploadJob, error, "uploading"))
+            return;
+        const qint64 msecs = m_bigJobTimer.elapsed();
+        std::cout << "Successfully uploaded big file. Took " << (msecs/1000)
+            << " seconds for " << m_parameters.bigFileSize << " MB."
+            << std::endl;
+        const QString localFilePath = m_localBigFile->fileName();
+        const QString downloadedFilePath = cmpFileName(localFilePath);
+        const QString remoteFp
+            = remoteFilePath(QFileInfo(localFilePath).fileName());
+        std::cout << "Now downloading big file for comparison..." << std::endl;
+        m_bigJobTimer.start();
+        m_bigFileDownloadJob = m_channel->downloadFile(remoteFp,
+            downloadedFilePath, SftpOverwriteExisting);
+        if (m_bigFileDownloadJob == SftpInvalidJob) {
+            std::cerr << "Error downloading remote file '"
+                << qPrintable(remoteFp) << "' to local file '"
+                << qPrintable(downloadedFilePath) << "'." << std::endl;
+            earlyDisconnectFromHost();
+            return;
+        }
+        m_state = DownloadingBig;
+        break;
+    }
+    case DownloadingBig: {
+        if (!handleBigJobFinished(job, m_bigFileDownloadJob, error, "downloading"))
+            return;
+        const qint64 msecs = m_bigJobTimer.elapsed();
+        std::cout << "Successfully downloaded big file. Took " << (msecs/1000)
+            << " seconds for " << m_parameters.bigFileSize << " MB."
+            << std::endl;
+        std::cout << "Now comparing big files..." << std::endl;
+        QFile downloadedFile(cmpFileName(m_localBigFile->fileName()));
+        if (!downloadedFile.open(QIODevice::ReadOnly)) {
+            std::cerr << "Error opening downloaded file '"
+                << qPrintable(downloadedFile.fileName()) << "': "
+                << qPrintable(downloadedFile.errorString()) << "." << std::endl;
+            earlyDisconnectFromHost();
+            return;
+        }
+        if (!m_localBigFile->open(QIODevice::ReadOnly)) {
+            std::cerr << "Error opening big file '"
+                << qPrintable(m_localBigFile->fileName()) << "': "
+                << qPrintable(m_localBigFile->errorString()) << "."
+                << std::endl;
+            earlyDisconnectFromHost();
+            return;
+        }
+        if (!compareFiles(m_localBigFile.data(), &downloadedFile))
+            return;
+        std::cout << "Comparison successful. Now removing big files..."
+            << std::endl;
+        if (!m_localBigFile->remove()) {
+            std::cerr << "Error: Could not remove file '"
+                << qPrintable(m_localBigFile->fileName()) << "'." << std::endl;
+            earlyDisconnectFromHost();
+            return;
+        }
+        if (!downloadedFile.remove()) {
+            std::cerr << "Error: Could not remove file '"
+                << qPrintable(downloadedFile.fileName()) << "'." << std::endl;
+            earlyDisconnectFromHost();
+            return;
+        }
+        const QString remoteFp
+            = remoteFilePath(QFileInfo(m_localBigFile->fileName()).fileName());
+        m_bigFileRemovalJob = m_channel->removeFile(remoteFp);
+        m_state = RemovingBig;
+        break;
+    }
+    case RemovingBig: {
+        if (!handleBigJobFinished(job, m_bigFileRemovalJob, error, "removing"))
+            return;
+        const QString remoteFp
+            = remoteFilePath(QFileInfo(m_localBigFile->fileName()).fileName());
+        std::cout << "Big files successfully removed. "
+            << "Now closing the SFTP channel..." << std::endl;
+        m_state = ChannelClosing;
+        m_channel->closeChannel();
+        break;
+    }
     case Disconnecting:
         break;
-    case UploadingBig:
-    case DownloadingBig:
-    case RemovingBig:
     default:
-        std::cerr << "Unexpected state " << m_state << " in function "
-            << Q_FUNC_INFO << "." << std::endl;
-        earlyDisconnectFromHost();
+        if (!m_error) {
+            std::cerr << "Unexpected state " << m_state << " in function "
+                << Q_FUNC_INFO << "." << std::endl;
+            earlyDisconnectFromHost();
+        }
     }
 }
 
@@ -324,13 +433,34 @@ bool SftpTest::handleJobFinished(SftpJobId job, JobMap &jobMap,
     return true;
 }
 
+bool SftpTest::handleBigJobFinished(SftpJobId job, SftpJobId expectedJob,
+    const QString &error, const char *activity)
+{
+    if (job != expectedJob) {
+        std::cerr << "Error " << activity << " file '"
+           << qPrintable(m_localBigFile->fileName())
+           << "': Expected job id " << expectedJob
+           << ", got job id " << job << '.' << std::endl;
+        earlyDisconnectFromHost();
+        return false;
+    }
+    if (!error.isEmpty()) {
+        std::cerr << "Error " << activity << " file '"
+            << qPrintable(m_localBigFile->fileName()) << "': "
+            << qPrintable(error) << std::endl;
+        earlyDisconnectFromHost();
+        return false;
+    }
+    return true;
+}
+
 bool SftpTest::compareFiles(QFile *orig, QFile *copy)
 {
     bool success = orig->size() == copy->size();
     qint64 bytesLeft = orig->size();
     orig->seek(0);
     while (success && bytesLeft > 0) {
-        const qint64 bytesToRead = qMin(bytesLeft, Q_INT64_C(64*1024));
+        const qint64 bytesToRead = qMin(bytesLeft, Q_INT64_C(1024*1024));
         const QByteArray origBlock = orig->read(bytesToRead);
         const QByteArray copyBlock = copy->read(bytesToRead);
         if (origBlock.size() != bytesToRead || origBlock != copyBlock)

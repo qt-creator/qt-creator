@@ -160,12 +160,16 @@ SshConnection::~SshConnection()
 
 QSharedPointer<SshRemoteProcess> SshConnection::createRemoteProcess(const QByteArray &command)
 {
+    // TODO: Is this conditonal return value really a good idea?
+    // Get rid of this IF we can prove that no harm is done by returning
+    // a non-working (but non-null) process pointer.
     return state() == Connected
         ? d->createRemoteProcess(command) : QSharedPointer<SshRemoteProcess>();
 }
 
 QSharedPointer<SftpChannel> SshConnection::createSftpChannel()
 {
+    // TODO: See above
     return state() == Connected
         ? d->createSftpChannel() : QSharedPointer<SftpChannel>();
 }

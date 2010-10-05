@@ -6,6 +6,7 @@
 #include <coreplugin/ssh/sftpchannel.h>
 #include <coreplugin/ssh/sshconnection.h>
 
+#include <QtCore/QElapsedTimer>
 #include <QtCore/QHash>
 #include <QtCore/QList>
 #include <QtCore/QObject>
@@ -45,6 +46,8 @@ private:
     void earlyDisconnectFromHost();
     bool handleJobFinished(Core::SftpJobId job, JobMap &jobMap,
         const QString &error, const char *activity);
+    bool handleBigJobFinished(Core::SftpJobId job, Core::SftpJobId expectedJob,
+        const QString &error, const char *activity);
     bool compareFiles(QFile *orig, QFile *copy);
 
     const Parameters m_parameters;
@@ -60,6 +63,7 @@ private:
     Core::SftpJobId m_bigFileUploadJob;
     Core::SftpJobId m_bigFileDownloadJob;
     Core::SftpJobId m_bigFileRemovalJob;
+    QElapsedTimer m_bigJobTimer;
 };
 
 
