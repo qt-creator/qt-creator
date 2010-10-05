@@ -1279,22 +1279,37 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory,
 }
 
 // Quietly retrieve branch list of remote repository URL
+//
+// The branch HEAD is pointing to is always returned first.
 QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryURL)
 {
     QStringList arguments(QLatin1String("ls-remote"));
-    arguments << QLatin1String("--heads") << repositoryURL;
+    arguments << repositoryURL << QLatin1String("HEAD") << QLatin1String("refs/heads/*");
     const unsigned flags =
             VCSBase::VCSBasePlugin::SshPasswordPrompt|
             VCSBase::VCSBasePlugin::SuppressStdErrInLogWindow|
             VCSBase::VCSBasePlugin::SuppressFailMessageInLogWindow;
     const Utils::SynchronousProcessResponse resp = synchronousGit(QString(), arguments, flags);
     QStringList branches;
+    branches << "<detached HEAD>";
+    QString headSha;
     if (resp.result == Utils::SynchronousProcessResponse::Finished) {
         // split "82bfad2f51d34e98b18982211c82220b8db049b<tab>refs/heads/master"
         foreach(const QString &line, resp.stdOut.split(QLatin1Char('\n'))) {
+            if (line.endsWith("\tHEAD")) {
+                Q_ASSERT(headSha.isNull());
+                headSha = line.left(line.indexOf(QChar('\t')));
+                continue;
+            }
+
             const int slashPos = line.lastIndexOf(QLatin1Char('/'));
-            if (slashPos != -1)
-                branches.push_back(line.mid(slashPos + 1));
+            const QString branchName = line.mid(slashPos + 1);
+            if (slashPos != -1) {
+                if (line.startsWith(headSha))
+                    branches[0] = branchName;
+                else
+                    branches.push_back(branchName);
+            }
         }
     }
     return branches;
