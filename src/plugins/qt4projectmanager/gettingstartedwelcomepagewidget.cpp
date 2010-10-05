@@ -101,7 +101,7 @@ GettingStartedWelcomePageWidget::GettingStartedWelcomePageWidget(QWidget *parent
     m_currentTip = rand()%tips.count();
 
     QTextDocument *doc = ui->didYouKnowTextBrowser->document();
-    doc->setDefaultStyleSheet("a:link {color:black;}");
+    doc->setDefaultStyleSheet("* {color:black;};");
     ui->didYouKnowTextBrowser->setDocument(doc);
     ui->didYouKnowTextBrowser->setText(tips.at(m_currentTip));
 
