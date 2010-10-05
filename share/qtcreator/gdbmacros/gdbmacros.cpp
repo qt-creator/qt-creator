@@ -3457,7 +3457,11 @@ static void qDumpStdVector(QDumper &d)
 #ifdef Q_CC_MSVC
     // Pointers are at end of the structure
     const char * vcp = static_cast<const char *>(d.data);
+#    if _MSC_VER >= 1600 // VS2010 onwards: Beginning of structure + base class containing pointer
+    const VectorImpl *v = reinterpret_cast<const VectorImpl *>(vcp + sizeof(void*));
+#    else                // pre VS2010: End of structure
     const VectorImpl *v = reinterpret_cast<const VectorImpl *>(vcp + sizeof(std::vector<int>) - sizeof(VectorImpl));
+#    endif // _MSC_VER
 #else
     const VectorImpl *v = static_cast<const VectorImpl *>(d.data);
 #endif
