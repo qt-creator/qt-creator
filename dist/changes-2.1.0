@@ -17,6 +17,7 @@ C++ Support
    * Added semantic highlighting of types, virtual methods, locals, statics and
      member variables (only enabled when running against Qt 4.7.1 and up, for
      performance reasons)
+   * Add new indenter along with a new option to control alignment indents
    * Add new %FILENAME%, %CLASS% placeholders to license template
 
 Project Support
@@ -32,6 +33,11 @@ Debugging
 Help
 
 QML/JS Support
+   * Add 'Find usages' action that works on ids, properties, functions and
+     variables
+   * Add new indenter
+   * Add experimental support for code completion of components defined
+     by plugins
 
 Platform Specific
 
