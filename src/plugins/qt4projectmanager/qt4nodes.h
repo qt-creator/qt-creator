@@ -95,7 +95,8 @@ enum Qt4Variable {
     PrecompiledHeaderVar,
     LibDirectoriesVar,
     ConfigVar,
-    QmlImportPathVar
+    QmlImportPathVar,
+    Makefile
 };
 
 class Qt4PriFileNode;
@@ -277,6 +278,8 @@ public:
     const Qt4ProFileNode *findProFileFor(const QString &string) const;
     TargetInformation targetInformation(const QString &fileName) const;
     TargetInformation targetInformation() const;
+
+    QString makefile() const;
 
     void update();
     void scheduleUpdate();

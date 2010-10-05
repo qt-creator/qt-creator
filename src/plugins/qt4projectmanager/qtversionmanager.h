@@ -250,10 +250,10 @@ public:
     QSet<QString> supportedTargetIds() const;
 
     // Static Methods
-    static bool makefileIsFor(const QString &directory, const QString &proFile);
-    static QPair<QtVersion::QmakeBuildConfigs, QStringList> scanMakeFile(const QString &directory,
+    static bool makefileIsFor(const QString &makefile, const QString &proFile);
+    static QPair<QtVersion::QmakeBuildConfigs, QStringList> scanMakeFile(const QString &makefile,
                                                                          QtVersion::QmakeBuildConfigs defaultBuildConfig);
-    static QString findQMakeBinaryFromMakefile(const QString &directory);
+    static QString findQMakeBinaryFromMakefile(const QString &makefile);
     bool isValidId(int id) const;
 
 signals:

@@ -1208,6 +1208,13 @@ TargetInformation Qt4ProFileNode::targetInformation(const QString &fileName) con
     return qt4ProFileNode->targetInformation();
 }
 
+QString Qt4ProFileNode::makefile() const
+{
+    if (m_varValues[Makefile].isEmpty())
+        return QString();
+    return m_varValues[Makefile].first();
+}
+
 /*!
   \class Qt4ProFileNode
   Implements abstract ProjectNode class
@@ -1593,6 +1600,7 @@ void Qt4ProFileNode::applyEvaluate(bool parseResult, bool async)
     newVarValues[ConfigVar] = m_readerExact->values(QLatin1String("CONFIG"));
     newVarValues[QmlImportPathVar] = m_readerExact->absolutePathValues(
                 QLatin1String("QML_IMPORT_PATH"), m_projectDir);
+    newVarValues[Makefile] = m_readerExact->values("MAKEFILE");
 
     if (m_varValues != newVarValues) {
         m_varValues = newVarValues;

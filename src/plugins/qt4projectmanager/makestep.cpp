@@ -149,7 +149,19 @@ bool MakeStep::init()
     // we should stop the clean queue
     // That is mostly so that rebuild works on a already clean project
     setIgnoreReturnValue(m_clean);
-    QStringList args = m_userArgs;
+    QStringList args;
+
+    ProjectExplorer::ToolChain *toolchain = bc->toolChain();
+
+    if (bc->subNodeBuild()){
+        if(!bc->subNodeBuild()->makefile().isEmpty()) {
+            args << "-f" << bc->subNodeBuild()->makefile();
+        }
+    } else if (!bc->makefile().isEmpty()) {
+        args << "-f" << bc->makefile();
+    }
+
+    args.append(m_userArgs);
     if (!m_clean) {
         if (!bc->defaultMakeTarget().isEmpty())
             args << bc->defaultMakeTarget();
@@ -159,7 +171,6 @@ bool MakeStep::init()
     // FIXME doing this without the user having a way to override this is rather bad
     // so we only do it for unix and if the user didn't override the make command
     // but for now this is the least invasive change
-    ProjectExplorer::ToolChain *toolchain = bc->toolChain();
 
     if (toolchain) {
         if (toolchain->type() != ProjectExplorer::ToolChain::MSVC &&

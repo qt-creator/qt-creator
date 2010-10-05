@@ -299,7 +299,13 @@ void Qt4ProjectConfigWidget::updateImportLabel()
     QtVersionManager *vm = QtVersionManager::instance();
     // we only show if we actually have a qmake and makestep
     if (m_buildConfiguration->qmakeStep() && m_buildConfiguration->makeStep()) {
-        QString qmakePath = QtVersionManager::findQMakeBinaryFromMakefile(m_buildConfiguration->buildDirectory());
+        QString makefile = m_buildConfiguration->buildDirectory();
+        if (m_buildConfiguration->makefile().isEmpty())
+            makefile.append("/Makefile");
+        else
+            makefile.append(m_buildConfiguration->makefile());
+
+        QString qmakePath = QtVersionManager::findQMakeBinaryFromMakefile(makefile);
         QtVersion *version = m_buildConfiguration->qtVersion();
         // check that there's a makefile
         if (!qmakePath.isEmpty()) {
@@ -318,7 +324,7 @@ void Qt4ProjectConfigWidget::updateImportLabel()
                     delete newVersion;
             } else {
                 // check that the qmake flags, arguments match
-                visible = !m_buildConfiguration->compareToImportFrom(m_buildConfiguration->buildDirectory());
+                visible = !m_buildConfiguration->compareToImportFrom(makefile);
                 targetMatches = true;
             }
         } else {
@@ -377,7 +383,13 @@ void Qt4ProjectConfigWidget::importLabelClicked()
         return;
     QString directory = m_buildConfiguration->buildDirectory();
     if (!directory.isEmpty()) {
-        QString qmakePath = QtVersionManager::findQMakeBinaryFromMakefile(directory);
+        QString makefile = directory;
+        if (m_buildConfiguration->makefile().isEmpty())
+            makefile.append("/Makefile");
+        else
+            makefile.append(m_buildConfiguration->makefile());
+
+        QString qmakePath = QtVersionManager::findQMakeBinaryFromMakefile(makefile);
         if (!qmakePath.isEmpty()) {
             QtVersionManager *vm = QtVersionManager::instance();
             QtVersion *version = vm->qtVersionForQMakeBinary(qmakePath);
