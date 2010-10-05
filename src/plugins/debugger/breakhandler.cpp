@@ -731,11 +731,13 @@ void BreakHandler::initializeFromTemplate(BreakHandler *other)
     QTC_ASSERT(other->m_bp,/**/);
 
     m_bp = other->m_bp;
+    m_inserted.clear();
     foreach(BreakpointData *data, *m_bp) {
-        if (m_engine->acceptsBreakpoint(data))
+        if (m_engine->acceptsBreakpoint(data)) {
             data->m_handler = this;
+            m_inserted.append(data);
+        }
     }
-
 }
 
 void BreakHandler::storeToTemplate(BreakHandler *other)
