@@ -41,6 +41,8 @@ namespace Git {
 struct CloneWizardPagePrivate {
     CloneWizardPagePrivate();
 
+    bool urlIsLocal(const QString &url);
+
     const QString mainLinePostfix;
     const QString gitPostFix;
     const QString protocolDelimiter;
@@ -54,6 +56,15 @@ CloneWizardPagePrivate::CloneWizardPagePrivate() :
     protocolDelimiter(QLatin1String("://")),
     deleteMasterCheckBox(0)
 {
+}
+
+bool CloneWizardPagePrivate::urlIsLocal(const QString &url)
+{
+    if (url.startsWith(QLatin1String("file://"))
+        || url.startsWith(QLatin1Char('/'))
+        || url.at(0).isLetter() && url.at(1) == QChar(':') && url.at(2) == QChar('\\'))
+        return true;
+    return false;
 }
 
 CloneWizardPage::CloneWizardPage(QWidget *parent) :
@@ -144,10 +155,12 @@ QSharedPointer<VCSBase::AbstractCheckoutJob> CloneWizardPage::createCheckoutJob(
      // 2) Checkout branch, change to checkoutDir
      if (!checkoutBranch.isEmpty() && checkoutBranch != d->headBranch) {
          // Create branch
-         args.clear();
-         args << QLatin1String("branch") << QLatin1String("--track")
-              << checkoutBranch << (QLatin1String("origin/")  + checkoutBranch);
-         job->addStep(binary, args, *checkoutPath, env);
+         if (!d->urlIsLocal(repository())) {
+             args.clear();
+             args << QLatin1String("branch") << QLatin1String("--track")
+                  << checkoutBranch << (QLatin1String("origin/")  + checkoutBranch);
+             job->addStep(binary, args, *checkoutPath, env);
+         }
          // Checkout branch
          args.clear();
          args << QLatin1String("checkout") << checkoutBranch;
