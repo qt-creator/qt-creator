@@ -9375,7 +9375,7 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     </message>
     <message>
         <source>The application &quot;%1&quot; could not be found.</source>
-        <translation>Die Anwendung &quot;%&quot; konnte nicht gefunden werden.</translation>
+        <translation>Die Anwendung &quot;%1&quot; konnte nicht gefunden werden.</translation>
     </message>
 </context>
 <context>
@@ -19914,7 +19914,7 @@ Server: %2.</translation>
     <message>
         <source>Assigning &apos;%1&apos; to &apos;%2&apos; (%3)...</source>
         <extracomment>Arguments: New value, name, (type)</extracomment>
-        <translation>Weise &apos;%&apos; an &apos;%2&apos; (%3) zu...</translation>
+        <translation>Weise &apos;%1&apos; an &apos;%2&apos; (%3) zu...</translation>
     </message>
     <message>
         <source>Can assign only scalar values.</source>
@@ -22373,7 +22373,7 @@ Wählt Qt-Versionen für Simulator und mobile Ziele aus, sofern sie verfügbar s
     </message>
     <message>
         <source>Name matches MS Windows device. (%1).</source>
-        <translation>Der Name entspricht dem eines Standardgerätes unter MS Windows. (1%)</translation>
+        <translation>Der Name entspricht dem eines Standardgerätes unter MS Windows. (%1)</translation>
     </message>
 </context>
 <context>
