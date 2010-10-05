@@ -517,50 +517,26 @@ bool S60ToolChainMixin::equals(const  S60ToolChainMixin &rhs) const
            && m_device.name == rhs.m_device.name;
 }
 
+static const char *epocHeaderPathsC[] = {
+    "include", "mkspecs/common/symbian", "epoc32/include",
+    "epoc32/include/osextensions/stdapis", "epoc32/include/osextensions/stdapis/sys",
+    "epoc32/include/stdapis", "epoc32/include/stdapis/sys",
+    "epoc32/include/osextensions/stdapis/stlport", "epoc32/include/stdapis/stlport",
+    "epoc32/include/oem", "epoc32/include/middleware", "epoc32/include/domain/middleware",
+    "epoc32/include/osextensions", "epoc32/include/domain/osextensions",
+    "epoc32/include/domain/osextensions/loc", "epoc32/include/domain/middleware/loc",
+    "epoc32/include/domain/osextensions/loc/sc", "epoc32/include/domain/middleware/loc/sc"
+};
+
 QList<ProjectExplorer::HeaderPath> S60ToolChainMixin::epocHeaderPaths() const
 {
     QList<ProjectExplorer::HeaderPath> rc;
 
-    const QString epocRootPath(S60Devices::cleanedRootPath(m_device.epocRoot));
-
-    rc << ProjectExplorer::HeaderPath(epocRootPath,
-                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
-       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("include"),
-                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
-       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("mkspecs/common/symbian"),
-                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
-       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include"),
-                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
-       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/osextensions/stdapis"),
-                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
-       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/osextensions/stdapis/sys"),
-                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
-       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/stdapis"),
-                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
-       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/stdapis/sys"),
-                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
-       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/osextensions/stdapis/stlport"),
-                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
-       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/stdapis/stlport"),
-                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
-       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/oem"),
-                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
-       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/middleware"),
-                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
-       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/domain/middleware"),
-                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
-       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/osextensions"),
-                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
-       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/domain/osextensions"),
-                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
-       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/domain/osextensions/loc"),
-                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
-       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/domain/middleware/loc"),
-                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
-       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/domain/osextensions/loc/sc"),
-                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
-       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/domain/middleware/loc/sc"),
-                     ProjectExplorer::HeaderPath::GlobalHeaderPath);
+    QString root = m_device.epocRoot + QLatin1Char('/');
+    const int count = sizeof(epocHeaderPathsC) / sizeof(const char *);
+    for (int i = 0; i < count; ++i)
+        rc << ProjectExplorer::HeaderPath(root + QLatin1String(epocHeaderPathsC[i]),
+                                          ProjectExplorer::HeaderPath::GlobalHeaderPath);
     return rc;
 }
 
@@ -582,7 +558,7 @@ void S60ToolChainMixin::addEpocToEnvironment(Utils::Environment *env) const
 }
 
 static const char *gnuPocHeaderPathsC[] = {
-    "epoc32/include", "epoc32/include/variant",  "epoc32/include/stdapis",
+    "epoc32/include", "epoc32/include/variant", "epoc32/include/stdapis",
     "epoc32/include/stdapis/stlport" };
 
 QList<ProjectExplorer::HeaderPath> S60ToolChainMixin::gnuPocHeaderPaths() const
