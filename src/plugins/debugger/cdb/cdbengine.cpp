@@ -1690,16 +1690,21 @@ unsigned CdbEngine::debuggerCapabilities() const
 }
 
 // Accessed by RunControlFactory
-DebuggerEngine *createCdbEngine(const DebuggerStartParameters &sp)
+bool isCdbEngineEnabled()
+{
+    return theOptionsPage && theOptionsPage->options()->enabled;
+}
+
+// Accessed by RunControlFactory
+DebuggerEngine *createCdbEngine(const DebuggerStartParameters &sp, QString *errorMessage)
 {
     // Create engine
-    QString errorMessage;
-    DebuggerEngine *engine = CdbEngine::create(sp, &errorMessage);
+    DebuggerEngine *engine = CdbEngine::create(sp, errorMessage);
     if (engine) {
         QObject::connect(theOptionsPage, SIGNAL(debuggerPathsChanged()), engine, SLOT(syncDebuggerPaths()));
     } else {
-        theOptionsPage->setFailureMessage(errorMessage);
-        qWarning("%s\n" ,qPrintable(errorMessage));
+        theOptionsPage->setFailureMessage(*errorMessage);
+        qWarning("%s\n" ,qPrintable(*errorMessage));
     }
     return engine;
 }

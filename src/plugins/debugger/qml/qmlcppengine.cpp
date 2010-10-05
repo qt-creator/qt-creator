@@ -14,7 +14,7 @@ namespace Debugger {
 const int ConnectionWaitTimeMs = 5000;
 
 namespace Internal {
-DebuggerEngine *createCdbEngine(const DebuggerStartParameters &);
+DebuggerEngine *createCdbEngine(const DebuggerStartParameters &, QString *);
 DebuggerEngine *createGdbEngine(const DebuggerStartParameters &);
 DebuggerEngine *createQmlEngine(const DebuggerStartParameters &);
 
@@ -56,7 +56,10 @@ QmlCppEngine::QmlCppEngine(const DebuggerStartParameters &sp)
     if (startParameters().cppEngineType == GdbEngineType) {
         d->m_cppEngine = Internal::createGdbEngine(sp);
     } else {
-        d->m_cppEngine = Internal::createCdbEngine(sp);
+        QString errorMessage;
+        d->m_cppEngine = Internal::createCdbEngine(sp, &errorMessage);
+        if (!d->m_cppEngine)
+            qWarning("%s", qPrintable(errorMessage));
     }
 
     d->m_cppEngine->setRunInWrapperEngine(true);
