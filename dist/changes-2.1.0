@@ -84,6 +84,14 @@ Windows
 Symbian Target
 
 Maemo Target
+   * Improved support for Debian packaging:
+       - Automatic creation of Debian files in project directory
+       - Debian files adaptable by users
+   * Deployment information is taken from .pro file's INSTALLS variable
+   * Support for "subdirs" and library project types
+   * Projects created by mobile wizards are now usable for Maemo development
+   * Automatic creation and deployment of Desktop files for application projects
+   * Fremantle: Support for exporting host directories to the device (also employed for zero-copy deployment)
 
 Designer
    * Added switching between code and forms using Shift-F4
