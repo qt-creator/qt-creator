@@ -42,6 +42,7 @@
 #ifndef QDECLARATIVEDEBUGSERVICE_H
 #define QDECLARATIVEDEBUGSERVICE_H
 
+#include "../qmljsdebugger_global.h"
 #include <QtCore/qobject.h>
 
 QT_BEGIN_HEADER
@@ -51,7 +52,7 @@ QT_BEGIN_NAMESPACE
 QT_MODULE(Declarative)
 
 class QDeclarativeDebugServicePrivate;
-class Q_DECLARATIVE_EXPORT QDeclarativeDebugService : public QObject
+class QMLJSDEBUGGER_EXTERN QDeclarativeDebugService : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QDeclarativeDebugService)
