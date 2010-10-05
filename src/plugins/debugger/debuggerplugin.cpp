@@ -1435,28 +1435,21 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
 
     cmd = am->registerAction(m_actions.stopAction,
         Constants::STOP, globalcontext);
-    cmd->setAttribute(Command::CA_UpdateText);
-    cmd->setAttribute(Command::CA_UpdateIcon);
     //cmd->setDefaultKeySequence(QKeySequence(Constants::STOP_KEY));
     cmd->setDefaultText(tr("Stop Debugger"));
     m_uiSwitcher->addMenuAction(cmd, AnyLanguage, CC::G_DEFAULT_ONE);
 
     cmd = am->registerAction(m_actions.interruptAction,
         PE::DEBUG, m_interruptibleContext);
-    cmd->setAttribute(Command::CA_UpdateText);
-    cmd->setAttribute(Command::CA_UpdateIcon);
     cmd->setDefaultKeySequence(QKeySequence(Constants::STOP_KEY));
     cmd->setDefaultText(tr("Interrupt Debugger"));
 
     cmd = am->registerAction(m_actions.undisturbableAction,
         PE::DEBUG, m_undisturbableContext);
-    cmd->setAttribute(Command::CA_UpdateText);
-    cmd->setAttribute(Command::CA_UpdateIcon);
     cmd->setDefaultText(tr("Debugger is Busy"));
 
     cmd = am->registerAction(m_actions.resetAction,
         Constants::RESET, globalcontext);
-    cmd->setAttribute(Core::Command::CA_UpdateText);
     //cmd->setDefaultKeySequence(QKeySequence(Constants::RESET_KEY));
     cmd->setDefaultText(tr("Reset Debugger"));
     m_uiSwitcher->addMenuAction(cmd, AnyLanguage, CC::G_DEFAULT_ONE);
