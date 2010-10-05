@@ -383,6 +383,7 @@ const char * const ADD_TO_WATCH2        = "Debugger.AddToWatch2";
 const char * const OPERATE_BY_INSTRUCTION  = "Debugger.OperateByInstruction";
 const char * const FRAME_UP             = "Debugger.FrameUp";
 const char * const FRAME_DOWN           = "Debugger.FrameDown";
+const char * const DEBUG_KEY                = "F5";
 
 #ifdef Q_WS_MAC
 const char * const STOP_KEY                 = "Shift+F5";
@@ -835,8 +836,9 @@ static TextEditor::ITextEditor *currentTextEditor()
 struct DebuggerActions
 {
     QAction *continueAction;
-    QAction *stopAction;
-    QAction *interruptAction; // on the fat debug button
+    QAction *stopAction; // on the application output button if "Stop" is possible
+    QAction *interruptAction; // on the fat debug button if "Pause" is possible
+    QAction *undisturbableAction; // on the fat debug button if nothing can be done
     QAction *resetAction; // FIXME: Should not be needed in a stable release
     QAction *stepAction;
     QAction *stepOutAction;
@@ -919,9 +921,6 @@ public slots:
     void attachRemote(const QString &spec);
     void attachRemoteTcf();
 
-    void interruptDebuggingRequest();
-    void exitDebugger();
-
     void enableReverseDebuggingTriggered(const QVariant &value);
     void languagesChanged(const Debugger::DebuggerLanguages &languages);
     void showStatusMessage(const QString &msg, int timeout = -1);
@@ -963,7 +962,6 @@ public slots:
 
 public:
     DebuggerState m_state;
-    uint m_capabilities;
     DebuggerUISwitcher *m_uiSwitcher;
     DebuggerPlugin *m_manager;
     DebugMode *m_debugMode;
@@ -973,6 +971,9 @@ public:
     TextEditor::BaseTextMark *m_locationMark;
     Core::Context m_continuableContext;
     Core::Context m_interruptibleContext;
+    Core::Context m_undisturbableContext;
+    Core::Context m_finishedContext;
+    Core::Context m_anyContext;
     AttachRemoteParameters m_attachRemoteParameters;
 
     QAction *m_startExternalAction;
@@ -984,7 +985,9 @@ public:
     QComboBox *m_langBox;
     QToolButton *m_reverseToolButton;
 
+    QIcon m_startIcon;
     QIcon m_stopIcon;
+    QIcon m_continueIcon;
     QIcon m_interruptIcon;
     QIcon m_locationMarkIcon;
 
@@ -1069,6 +1072,9 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
 
     m_continuableContext = Core::Context(0);
     m_interruptibleContext = Core::Context(0);
+    m_undisturbableContext = Core::Context(0);
+    m_finishedContext = Core::Context(0);
+    m_anyContext = Core::Context(0);
 
     m_debugMode = 0;
     m_uiSwitcher = 0;
@@ -1080,6 +1086,12 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
 {
     m_continuableContext = Core::Context("Gdb.Continuable");
     m_interruptibleContext = Core::Context("Gdb.Interruptible");
+    m_undisturbableContext = Core::Context("Gdb.Undisturbable");
+    m_finishedContext = Core::Context("Gdb.Finished");
+    m_anyContext.add(m_continuableContext);
+    m_anyContext.add(m_interruptibleContext);
+    m_anyContext.add(m_undisturbableContext);
+    m_anyContext.add(m_finishedContext);
 
     // FIXME: Move part of this to extensionsInitialized()?
     ICore *core = ICore::instance();
@@ -1093,8 +1105,12 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     const Core::Context qmlDebuggerContext(C_QMLDEBUGGER);
     const Core::Context cppeditorcontext(CppEditor::Constants::C_CPPEDITOR);
 
+    m_startIcon = QIcon(_(":/debugger/images/debugger_start_small.png"));
+    m_startIcon.addFile(__(":/debugger/images/debugger_start.png"));
     m_stopIcon = QIcon(_(":/debugger/images/debugger_stop_small.png"));
     m_stopIcon.addFile(__(":/debugger/images/debugger_stop.png"));
+    m_continueIcon = QIcon(__(":/debugger/images/debugger_continue_small.png"));
+    m_continueIcon.addFile(__(":/debugger/images/debugger_continue.png"));
     m_interruptIcon = QIcon(_(":/debugger/images/debugger_interrupt_small.png"));
     m_interruptIcon.addFile(__(":/debugger/images/debugger_interrupt.png"));
     m_locationMarkIcon = QIcon(_(":/debugger/images/location_16.png"));
@@ -1151,10 +1167,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
         this, SLOT(updateWatchersHeader(int,int,int)), Qt::QueuedConnection);
 
     m_actions.continueAction = new QAction(tr("Continue"), this);
-    QIcon continueIcon = QIcon(__(":/debugger/images/debugger_continue_small.png"));
-    continueIcon.addFile(__(":/debugger/images/debugger_continue.png"));
-    m_actions.continueAction->setIcon(continueIcon);
     m_actions.continueAction->setProperty(Role, RequestExecContinueRole);
+    m_actions.continueAction->setIcon(m_continueIcon);
 
     m_actions.stopAction = new QAction(tr("Stop Debugger"), this);
     m_actions.stopAction->setProperty(Role, RequestExecExitRole);
@@ -1163,6 +1177,11 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     m_actions.interruptAction = new QAction(tr("Interrupt"), this);
     m_actions.interruptAction->setIcon(m_interruptIcon);
     m_actions.interruptAction->setProperty(Role, RequestExecInterruptRole);
+
+    m_actions.undisturbableAction = new QAction(tr("Debugger is Busy"), this);
+    // A "disabled pause" seems to be a good choice.
+    m_actions.undisturbableAction->setIcon(m_interruptIcon);
+    m_actions.undisturbableAction->setEnabled(false);
 
     m_actions.resetAction = new QAction(tr("Abort Debugging"), this);
     m_actions.resetAction->setProperty(Role, RequestExecResetRole);
@@ -1249,7 +1268,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     connect(m_actions.frameDownAction, SIGNAL(triggered()), SLOT(onAction()));
     connect(m_actions.frameUpAction, SIGNAL(triggered()), SLOT(onAction()));
     connect(m_actions.stopAction, SIGNAL(triggered()), SLOT(onAction()));
-    connect(m_actions.interruptAction, SIGNAL(triggered()), SLOT(interruptDebuggingRequest()));
+    connect(m_actions.interruptAction, SIGNAL(triggered()), SLOT(onAction()));
     connect(m_actions.resetAction, SIGNAL(triggered()), SLOT(onAction()));
     connect(&m_statusTimer, SIGNAL(timeout()), SLOT(clearStatusMessage()));
 
@@ -1428,6 +1447,12 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     cmd->setAttribute(Command::CA_UpdateIcon);
     cmd->setDefaultKeySequence(QKeySequence(Constants::STOP_KEY));
     cmd->setDefaultText(tr("Interrupt Debugger"));
+
+    cmd = am->registerAction(m_actions.undisturbableAction,
+        PE::DEBUG, m_undisturbableContext);
+    cmd->setAttribute(Command::CA_UpdateText);
+    cmd->setAttribute(Command::CA_UpdateIcon);
+    cmd->setDefaultText(tr("Debugger is Busy"));
 
     cmd = am->registerAction(m_actions.resetAction,
         Constants::RESET, globalcontext);
@@ -1710,8 +1735,7 @@ void DebuggerPluginPrivate::onCurrentProjectChanged(Project *project)
     }
     // No corresponding debugger found. So we are ready to start one.
     ICore *core = ICore::instance();
-    core->updateAdditionalContexts(m_continuableContext, Core::Context());
-    core->updateAdditionalContexts(m_interruptibleContext, Core::Context());
+    core->updateAdditionalContexts(m_anyContext, Context());
 }
 
 void DebuggerPluginPrivate::onAction()
@@ -2023,9 +2047,8 @@ void DebuggerPluginPrivate::showToolTip(ITextEditor *editor, const QPoint &point
     notifyCurrentEngine(RequestToolTipByExpressionRole, list);
 }
 
-DebuggerRunControl *
-DebuggerPluginPrivate::createDebugger(const DebuggerStartParameters &sp,
-    RunConfiguration *rc)
+DebuggerRunControl *DebuggerPluginPrivate::createDebugger
+    (const DebuggerStartParameters &sp, RunConfiguration *rc)
 {
     return m_debuggerRunControlFactory->create(sp, rc);
 }
@@ -2072,7 +2095,6 @@ void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine, bool notify)
     m_threadBox->setModel(engine->threadsModel());
     m_threadBox->setModelColumn(ThreadData::NameColumn);
     m_watchersWindow->setModel(engine->watchersModel());
-    m_capabilities = engine->debuggerCapabilities();
     if (notify)
         notifyCurrentEngine(RequestActivationRole, true);
 }
@@ -2259,26 +2281,63 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     m_state = engine->state();
     bool actionsEnabled = DebuggerEngine::debuggerActionsEnabled(m_state);
 
-    //if (m_state == InferiorStopOk)
-    //    resetLocation();
     //qDebug() << "PLUGIN SET STATE: " << m_state;
 
-    if (m_state == DebuggerFinished) {
+    ICore *core = ICore::instance();
+    ActionManager *am = core->actionManager();
+    if (m_state == DebuggerNotReady) {
+        QTC_ASSERT(false, /* We use the Core m_debugAction here */);
+        // F5 starts debugging. It is "startable".
+        m_actions.interruptAction->setEnabled(false);
+        m_actions.continueAction->setEnabled(false);
+        m_actions.stopAction->setEnabled(false);
+        am->command(Constants::STOP)->setKeySequence(QKeySequence());
+        am->command(PE::DEBUG)->setKeySequence(QKeySequence(DEBUG_KEY));
+        core->updateAdditionalContexts(m_anyContext, Context());
+    } else if (m_state == InferiorStopOk) {
+        // F5 continues, Shift-F5 kills. It is "continuable".
+        m_actions.interruptAction->setEnabled(false);
+        m_actions.continueAction->setEnabled(true);
+        m_actions.stopAction->setEnabled(true);
+        am->command(Constants::STOP)->setKeySequence(QKeySequence(STOP_KEY));
+        am->command(PE::DEBUG)->setKeySequence(QKeySequence(DEBUG_KEY));
+        core->updateAdditionalContexts(m_anyContext, m_continuableContext);
+    } else if (m_state == InferiorRunOk) {
+        // Shift-F5 interrupts. It is also "interruptible".
+        m_actions.interruptAction->setEnabled(true);
+        m_actions.continueAction->setEnabled(false);
+        m_actions.stopAction->setEnabled(false);
+        am->command(Constants::STOP)->setKeySequence(QKeySequence());
+        am->command(PE::DEBUG)->setKeySequence(QKeySequence(STOP_KEY));
+        core->updateAdditionalContexts(m_anyContext, m_interruptibleContext);
+    } else if (m_state == DebuggerFinished) {
+        // We don't want to do anything anymore.
+        m_actions.interruptAction->setEnabled(false);
+        m_actions.continueAction->setEnabled(false);
+        m_actions.stopAction->setEnabled(false);
+        am->command(Constants::STOP)->setKeySequence(QKeySequence());
+        am->command(PE::DEBUG)->setKeySequence(QKeySequence(DEBUG_KEY));
+        //core->updateAdditionalContexts(m_anyContext, m_finishedContext);
+        m_codeModelSnapshot = CPlusPlus::Snapshot();
+        core->updateAdditionalContexts(m_anyContext, Context());
         setBusyCursor(false);
         cleanupViews();
-    }
-
-    const bool isContinuable = (engine->state() == InferiorStopOk);
-    const bool isInterruptible = (engine->state() == InferiorRunOk);
-    ICore *core = ICore::instance();
-
-    if (isContinuable) {
-        core->updateAdditionalContexts(m_interruptibleContext, m_continuableContext);
-    } else if (isInterruptible) {
-        core->updateAdditionalContexts(m_continuableContext, m_interruptibleContext);
+    } else if (m_state == InferiorUnrunnable) {
+        // We don't want to do anything anymore.
+        m_actions.interruptAction->setEnabled(false);
+        m_actions.continueAction->setEnabled(false);
+        m_actions.stopAction->setEnabled(true);
+        am->command(Constants::STOP)->setKeySequence(QKeySequence(STOP_KEY));
+        am->command(PE::DEBUG)->setKeySequence(QKeySequence(STOP_KEY));
+        core->updateAdditionalContexts(m_anyContext, m_finishedContext);
     } else {
-        core->updateAdditionalContexts(m_continuableContext, Core::Context());
-        core->updateAdditionalContexts(m_interruptibleContext, Core::Context());
+        // Everything else is "undisturbable".
+        m_actions.interruptAction->setEnabled(false);
+        m_actions.continueAction->setEnabled(false);
+        m_actions.stopAction->setEnabled(false);
+        am->command(Constants::STOP)->setKeySequence(QKeySequence());
+        am->command(PE::DEBUG)->setKeySequence(QKeySequence());
+        core->updateAdditionalContexts(m_anyContext, m_undisturbableContext);
     }
 
     m_startExternalAction->setEnabled(true);
@@ -2291,45 +2350,27 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     m_startRemoteAction->setEnabled(true);
 
     const bool stopped = m_state == InferiorStopOk;
-    const bool detachable = m_state == InferiorStopOk
+    const bool detachable = stopped
         && engine->startParameters().startMode != AttachCore;
     m_detachAction->setEnabled(detachable);
-
-    const bool stoppable = m_state == InferiorRunOk
-        || m_state == InferiorStopOk
-        || m_state == InferiorUnrunnable;
 
     if (stopped)
         QApplication::alert(mainWindow(), 3000);
 
+    const uint caps = engine->debuggerCapabilities();
+    const bool canReverse = (caps & ReverseSteppingCapability)
+                && theDebuggerBoolSetting(EnableReverseDebugging);
+    m_actions.reverseDirectionAction->setEnabled(canReverse);
+
     m_actions.watchAction1->setEnabled(true);
     m_actions.watchAction2->setEnabled(true);
     m_actions.breakAction->setEnabled(true);
-    m_actions.snapshotAction->
-        setEnabled(stopped && (m_capabilities & SnapshotCapability));
+    m_actions.snapshotAction->setEnabled(stopped && (caps & SnapshotCapability));
 
-    theDebuggerAction(OperateByInstruction)->setEnabled(m_state == InferiorStopOk);
+    theDebuggerAction(OperateByInstruction)->setEnabled(stopped);
 
-    m_actions.stopAction->setEnabled(stopped);
-    m_actions.interruptAction->setEnabled(stoppable);
     m_actions.resetAction->setEnabled(m_state != DebuggerNotReady
                                       && m_state != DebuggerFinished);
-
-#if 1
-    // This is only needed when we insist on using Shift-F5 for Interrupt.
-    // Removing the block makes F5 interrupt when running and continue when stopped.
-    Core::ActionManager *am = core->actionManager();
-    bool stopIsKill = m_state == InferiorStopOk
-        || m_state == InferiorUnrunnable
-        || m_state == DebuggerFinished;
-    if (stopIsKill) {
-        am->command(Constants::STOP)->setKeySequence(QKeySequence(STOP_KEY));
-        am->command(PE::DEBUG)->setKeySequence(QKeySequence("F5"));
-    } else {
-        am->command(Constants::STOP)->setKeySequence(QKeySequence());
-        am->command(PE::DEBUG)->setKeySequence(QKeySequence(STOP_KEY));
-    }
-#endif
 
     m_actions.stepAction->setEnabled(stopped);
     m_actions.stepOutAction->setEnabled(stopped);
@@ -2337,16 +2378,15 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     m_actions.runToLineAction2->setEnabled(stopped);
     m_actions.runToFunctionAction->setEnabled(stopped);
     m_actions.returnFromFunctionAction->
-        setEnabled(stopped && (m_capabilities & ReturnFromFunctionCapability));
+        setEnabled(stopped && (caps & ReturnFromFunctionCapability));
 
-    const bool canJump = stopped && (m_capabilities & JumpToLineCapability);
+    const bool canJump = stopped && (caps & JumpToLineCapability);
     m_actions.jumpToLineAction1->setEnabled(canJump);
     m_actions.jumpToLineAction2->setEnabled(canJump);
 
     m_actions.nextAction->setEnabled(stopped);
 
-    const bool canDeref = actionsEnabled
-        && (m_capabilities & AutoDerefPointersCapability);
+    const bool canDeref = actionsEnabled && (caps & AutoDerefPointersCapability);
     theDebuggerAction(AutoDerefPointers)->setEnabled(canDeref);
     theDebuggerAction(AutoDerefPointers)->setEnabled(true);
     theDebuggerAction(ExpandStack)->setEnabled(actionsEnabled);
@@ -2440,10 +2480,7 @@ void DebuggerPluginPrivate::activatePreviousMode()
 
 void DebuggerPluginPrivate::activateDebugMode()
 {
-    const bool canReverse = (m_capabilities & ReverseSteppingCapability)
-                && theDebuggerBoolSetting(EnableReverseDebugging);
     m_actions.reverseDirectionAction->setChecked(false);
-    m_actions.reverseDirectionAction->setEnabled(canReverse);
     m_actions.reverseDirectionAction->setEnabled(false);
     ModeManager *modeManager = ModeManager::instance();
     m_previousMode = modeManager->currentMode()->id();
@@ -2469,22 +2506,6 @@ void DebuggerPluginPrivate::aboutToUnloadSession()
 void DebuggerPluginPrivate::aboutToSaveSession()
 {
     m_sessionEngine->saveSessionData();
-}
-
-void DebuggerPluginPrivate::interruptDebuggingRequest()
-{
-    if (state() == InferiorRunOk)
-        notifyCurrentEngine(RequestExecInterruptRole);
-    else
-        exitDebugger();
-}
-
-void DebuggerPluginPrivate::exitDebugger()
-{
-    // The engine will finally call setState(DebuggerFinished) which
-    // in turn will handle the cleanup.
-    notifyCurrentEngine(RequestExecExitRole);
-    m_codeModelSnapshot = CPlusPlus::Snapshot();
 }
 
 void DebuggerPluginPrivate::executeDebuggerCommand()
@@ -2763,9 +2784,8 @@ QWidget *DebuggerPlugin::mainWindow() const
     return d->m_uiSwitcher->mainWindow();
 }
 
-DebuggerRunControl *
-DebuggerPlugin::createDebugger(const DebuggerStartParameters &sp,
-    RunConfiguration *rc)
+DebuggerRunControl *DebuggerPlugin::createDebugger
+    (const DebuggerStartParameters &sp, RunConfiguration *rc)
 {
     return instance()->d->createDebugger(sp, rc);
 }
