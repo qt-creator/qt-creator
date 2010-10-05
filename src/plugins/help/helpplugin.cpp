@@ -82,7 +82,6 @@
 #include <QtGui/QShortcut>
 #include <QtGui/QStackedLayout>
 #include <QtGui/QSplitter>
-#include <QtGui/QToolBar>
 
 #include <QtHelp/QHelpEngine>
 
@@ -109,6 +108,16 @@ const char * const SB_OPENPAGES = "OpenPages";
 #else
 #   define DOCPATH "/../share/doc/qtcreator/"
 #endif
+
+namespace {
+    QToolButton* toolButton(QAction *action)
+    {
+        QToolButton *button = new QToolButton;
+        button->setDefaultAction(action);
+        button->setPopupMode(QToolButton::DelayedPopup);
+        return button;
+    }
+}
 
 HelpPlugin::HelpPlugin()
     : m_mode(0),
@@ -528,48 +537,32 @@ void HelpPlugin::createRightPaneContextViewer()
     if (m_helpViewerForSideBar)
         return;
 
-    QAction *switchToHelp = new QAction(tr("Go to Help Mode"), this);
+    Utils::StyledBar *toolBar = new Utils::StyledBar();
+
+    QAction *switchToHelp = new QAction(tr("Go to Help Mode"), toolBar);
     connect(switchToHelp, SIGNAL(triggered()), this, SLOT(switchToHelpMode()));
-
     QAction *back = new QAction(QIcon(QLatin1String(IMAGEPATH "previous.png")),
-        tr("Previous"), this);
+        tr("Previous"), toolBar);
     QAction *next = new QAction(QIcon(QLatin1String(IMAGEPATH "next.png")),
-        tr("Next"), this);
+        tr("Next"), toolBar);
+    QAction *close = new QAction(QIcon(QLatin1String(Core::Constants::ICON_CLOSE)),
+        QLatin1String(""), toolBar);
+    connect(close, SIGNAL(triggered()), this, SLOT(slotHideRightPane()));
 
-    // Dummy layout to align the close button to the right
-    QHBoxLayout *hboxLayout = new QHBoxLayout();
-    hboxLayout->setSpacing(0);
-    hboxLayout->setMargin(0);
+    setupNavigationMenus(back, next, toolBar);
 
-    // left side actions
-    QToolBar *rightPaneToolBar = new QToolBar();
-    setupNavigationMenus(back, next, rightPaneToolBar);
+    QHBoxLayout *layout = new QHBoxLayout(toolBar);
+    layout->setSpacing(0);
+    layout->setMargin(0);
 
-    rightPaneToolBar->addAction(switchToHelp);
-    rightPaneToolBar->addAction(back);
-    rightPaneToolBar->addAction(next);
-
-    hboxLayout->addWidget(rightPaneToolBar);
-    hboxLayout->addStretch();
-
-    QToolButton *closeButton = new QToolButton();
-    closeButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_CLOSE)));
-    connect(closeButton, SIGNAL(clicked()), this, SLOT(slotHideRightPane()));
-
-    // close button to the right
-    hboxLayout->addWidget(closeButton);
-
-    QVBoxLayout *rightPaneLayout = new QVBoxLayout;
-    rightPaneLayout->setMargin(0);
-    rightPaneLayout->setSpacing(0);
+    layout->addWidget(toolButton(switchToHelp));
+    layout->addWidget(toolButton(back));
+    layout->addWidget(toolButton(next));
+    layout->addStretch();
+    layout->addWidget(toolButton(close));
 
     QWidget *rightPaneSideBar = new QWidget;
-    rightPaneSideBar->setLayout(rightPaneLayout);
     addAutoReleasedObject(new Core::BaseRightPaneWidget(rightPaneSideBar));
-
-    Utils::StyledBar *rightPaneStyledBar = new Utils::StyledBar;
-    rightPaneStyledBar->setLayout(hboxLayout);
-    rightPaneLayout->addWidget(rightPaneStyledBar);
 
     m_helpViewerForSideBar = new HelpViewer(qreal(0.0), rightPaneSideBar);
     connect(m_helpViewerForSideBar, SIGNAL(openFindToolBar()), this,
@@ -577,6 +570,11 @@ void HelpPlugin::createRightPaneContextViewer()
 #if !defined(QT_NO_WEBKIT)
     m_helpViewerForSideBar->pageAction(QWebPage::OpenLinkInNewWindow)->setVisible(false);
 #endif
+
+    QVBoxLayout *rightPaneLayout = new QVBoxLayout(rightPaneSideBar);
+    rightPaneLayout->setMargin(0);
+    rightPaneLayout->setSpacing(0);
+    rightPaneLayout->addWidget(toolBar);
     rightPaneLayout->addWidget(m_helpViewerForSideBar);
     rightPaneLayout->addWidget(new Core::FindToolBarPlaceHolder(rightPaneSideBar));
     rightPaneSideBar->setFocusProxy(m_helpViewerForSideBar);
@@ -594,12 +592,12 @@ void HelpPlugin::createRightPaneContextViewer()
     copy->setIcon(cmd->action()->icon());
 
     connect(copy, SIGNAL(triggered()), m_helpViewerForSideBar, SLOT(copy()));
-    
+
     next->setEnabled(m_helpViewerForSideBar->isForwardAvailable());
     connect(next, SIGNAL(triggered()), m_helpViewerForSideBar, SLOT(forward()));
     connect(m_helpViewerForSideBar, SIGNAL(forwardAvailable(bool)), next,
         SLOT(setEnabled(bool)));
-    
+
     back->setEnabled(m_helpViewerForSideBar->isBackwardAvailable());
     connect(back, SIGNAL(triggered()), m_helpViewerForSideBar, SLOT(backward()));
     connect(m_helpViewerForSideBar, SIGNAL(backwardAvailable(bool)), back,
@@ -924,24 +922,14 @@ void HelpPlugin::activateBookmarks()
     m_sideBar->activateItem(m_bookmarkItem);
 }
 
-QToolBar *HelpPlugin::createWidgetToolBar()
+Utils::StyledBar *HelpPlugin::createWidgetToolBar()
 {
-    QToolBar *toolBar = new QToolBar;
-    toolBar->addWidget(OpenPagesManager::instance().openPagesComboBox());
-
-    toolBar->addWidget(new QLabel(tr("Filtered by:")));
     m_filterComboBox = new QComboBox;
-    m_filterComboBox->setMinimumContentsLength(20);
-    toolBar->addWidget(m_filterComboBox);
+    m_filterComboBox->setMinimumContentsLength(15);
     connect(m_filterComboBox, SIGNAL(activated(QString)), this,
         SLOT(filterDocumentation(QString)));
     connect(m_filterComboBox, SIGNAL(currentIndexChanged(int)), this,
         SLOT(updateSideBarSource()));
-
-    QWidget *dummy = new QWidget;
-    QHBoxLayout *layout = new QHBoxLayout(dummy);
-    layout->addStretch();
-    toolBar->addWidget(dummy);
 
     m_closeButton = new QToolButton();
     m_closeButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_CLOSE)));
@@ -950,14 +938,26 @@ QToolBar *HelpPlugin::createWidgetToolBar()
         SLOT(closeCurrentPage()));
     connect(&OpenPagesManager::instance(), SIGNAL(pagesChanged()), this,
         SLOT(updateCloseButton()));
-    toolBar->addWidget(m_closeButton);
+
+    Utils::StyledBar *toolBar = new Utils::StyledBar;
+
+    QHBoxLayout *layout = new QHBoxLayout(toolBar);
+    layout->setMargin(0);
+    layout->setSpacing(0);
+    layout->addWidget(OpenPagesManager::instance().openPagesComboBox(), 10);
+    layout->addSpacing(5);
+    layout->addWidget(new QLabel(tr("Filtered by:")));
+    layout->addWidget(m_filterComboBox);
+    layout->addStretch();
+    layout->addWidget(m_closeButton);
 
     return toolBar;
 }
 
-QToolBar *HelpPlugin::createIconToolBar(bool external)
+Utils::StyledBar *HelpPlugin::createIconToolBar(bool external)
 {
-    QToolBar *toolBar = new QToolBar;
+    Utils::StyledBar *toolBar = new Utils::StyledBar;
+    toolBar->setVisible(false);
 
     QAction *home, *back, *next, *bookmark;
     if (external) {
@@ -992,14 +992,15 @@ QToolBar *HelpPlugin::createIconToolBar(bool external)
 
     setupNavigationMenus(back, next, toolBar);
 
-    toolBar->addAction(home);
-    toolBar->addAction(back);
-    toolBar->addAction(next);
-    toolBar->addSeparator();
-    toolBar->addAction(bookmark);
-    toolBar->setMovable(false);
-    toolBar->addSeparator();
-    toolBar->setVisible(false);
+    QHBoxLayout *layout = new QHBoxLayout(toolBar);
+    layout->setMargin(0);
+    layout->setSpacing(0);
+    layout->addWidget(toolButton(home));
+    layout->addWidget(toolButton(back));
+    layout->addWidget(toolButton(next));
+    layout->addWidget(new Utils::StyledSeparator(toolBar));
+    layout->addWidget(toolButton(bookmark));
+    layout->addWidget(new Utils::StyledSeparator(toolBar));
 
     return toolBar;
 }
