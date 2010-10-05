@@ -482,7 +482,8 @@ VCSBaseSubmitEditor::PromptSubmitResult
                 const QDialogButtonBox::StandardButton danswer =
                         Utils::CheckableMessageBox::question(parent, title, question,
                                                                    tr("Prompt to submit"), promptSetting,
-                                                                   QDialogButtonBox::Yes|QDialogButtonBox::No|QDialogButtonBox::Cancel,
+                                                                   QDialogButtonBox::Yes|QDialogButtonBox::No|
+                                                                   QDialogButtonBox::Cancel,
                                                                    QDialogButtonBox::Yes);
                 answer = Utils::CheckableMessageBox::dialogButtonBoxToMessageBoxButton(danswer);
             } else {
@@ -501,14 +502,14 @@ VCSBaseSubmitEditor::PromptSubmitResult
         answer = static_cast<QMessageBox::StandardButton>(msgBox.exec());
     }
     switch (answer) {
-    case QMessageBox::Cancel:
-        return SubmitCanceled;
     case QMessageBox::No:
         return SubmitDiscarded;
+    case QMessageBox::Yes:
+        return SubmitConfirmed;
     default:
         break;
     }
-    return SubmitConfirmed;
+    return SubmitCanceled;
 }
 
 QString VCSBaseSubmitEditor::promptForNickName()
