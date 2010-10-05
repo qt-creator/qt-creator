@@ -194,10 +194,13 @@ bool QMakeStep::init()
 
     setOutputParser(new QMakeParser);
 
-    Qt4Project *pro = qt4BuildConfiguration()->qt4Target()->qt4Project();
-    QString proFile = pro->file()->fileName();
+    Qt4ProFileNode *node = qt4bc->qt4Target()->qt4Project()->rootProjectNode();
+    if (qt4bc->subNodeBuild())
+        node = qt4bc->subNodeBuild();
+    QString proFile = node->path();
+
     m_tasks = qt4BuildConfiguration()->qtVersion()->reportIssues(proFile, workingDirectory);
-    m_scriptTemplate = pro->rootProjectNode()->projectType() == ScriptTemplate;
+    m_scriptTemplate = node->projectType() == ScriptTemplate;
 
     return AbstractProcessStep::init();
 }
