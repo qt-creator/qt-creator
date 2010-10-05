@@ -114,26 +114,22 @@ Internal::QmlProjectTarget *QmlProjectRunConfiguration::qmlTarget() const
 
 QString QmlProjectRunConfiguration::viewerPath() const
 {
-    if (m_qtVersionId == -1)
+    Qt4ProjectManager::QtVersion *version = qtVersion();
+    if (!version) {
         return QString();
-
-    Qt4ProjectManager::QtVersionManager *versionManager = Qt4ProjectManager::QtVersionManager::instance();
-    Qt4ProjectManager::QtVersion *version = versionManager->version(m_qtVersionId);
-    QTC_ASSERT(version, return QString());
-
-    return version->qmlviewerCommand();
+    } else {
+        return version->qmlviewerCommand();
+    }
 }
 
 QString QmlProjectRunConfiguration::observerPath() const
 {
-    if (m_qtVersionId == -1)
+    Qt4ProjectManager::QtVersion *version = qtVersion();
+    if (!version) {
         return QString();
-
-    Qt4ProjectManager::QtVersionManager *versionManager = Qt4ProjectManager::QtVersionManager::instance();
-    Qt4ProjectManager::QtVersion *version = versionManager->version(m_qtVersionId);
-    QTC_ASSERT(version, return QString());
-
-    return version->qmlObserverTool();
+    } else {
+        return version->qmlObserverTool();
+    }
 }
 
 QStringList QmlProjectRunConfiguration::viewerArguments() const
@@ -160,6 +156,18 @@ QString QmlProjectRunConfiguration::workingDirectory() const
 {
     QFileInfo projectFile(qmlTarget()->qmlProject()->file()->fileName());
     return projectFile.absolutePath();
+}
+
+Qt4ProjectManager::QtVersion *QmlProjectRunConfiguration::qtVersion() const
+{
+    if (m_qtVersionId == -1)
+        return 0;
+
+    Qt4ProjectManager::QtVersionManager *versionManager = Qt4ProjectManager::QtVersionManager::instance();
+    Qt4ProjectManager::QtVersion *version = versionManager->version(m_qtVersionId);
+    QTC_ASSERT(version, return 0);
+
+    return version;
 }
 
 static bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
@@ -381,10 +389,10 @@ void QmlProjectRunConfiguration::updateEnabled()
     bool newValue = (QFileInfo(viewerPath()).exists()
                     || QFileInfo(observerPath()).exists()) && qmlFileFound;
 
-    if (m_isEnabled != newValue) {
-        m_isEnabled = newValue;
-        emit isEnabledChanged(m_isEnabled);
-    }
+
+    // Always emit change signal to force reevaluation of run/debug buttons
+    m_isEnabled = newValue;
+    emit isEnabledChanged(m_isEnabled);
 }
 
 void QmlProjectRunConfiguration::updateQtVersions()

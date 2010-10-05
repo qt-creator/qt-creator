@@ -43,6 +43,8 @@
 #include <debugger/debuggeruiswitcher.h>
 #include <debugger/debuggerengine.h>
 #include <qmljsinspector/qmljsinspectorconstants.h>
+#include <qt4projectmanager/qtversionmanager.h>
+#include <qt4projectmanager/qmlobservertool.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 
 #include <QApplication>
@@ -148,9 +150,18 @@ bool QmlRunControlFactory::canRun(RunConfiguration *runConfiguration,
     } else {
         bool qmlDebugSupportInstalled = Debugger::DebuggerUISwitcher::instance()->supportedLanguages()
                                         & Debugger::QmlLanguage;
-        // don't check for qmlobserver already here because we can't update the run buttons
-        // if it has been built in the meantime
-        return (config != 0) && qmlDebugSupportInstalled;
+
+        if (config && qmlDebugSupportInstalled) {
+            if (!config->observerPath().isEmpty()) {
+                return true;
+            }
+
+            if (config->qtVersion() && Qt4ProjectManager::QmlObserverTool::canBuild(config->qtVersion())) {
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 
     return false;

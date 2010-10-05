@@ -74,6 +74,7 @@ public:
     QString observerPath() const;
     QStringList viewerArguments() const;
     QString workingDirectory() const;
+    Qt4ProjectManager::QtVersion *qtVersion() const;
 
     // RunConfiguration
     virtual QWidget *createConfigurationWidget();
