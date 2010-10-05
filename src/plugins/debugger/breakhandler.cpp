@@ -750,6 +750,7 @@ void BreakHandler::storeToTemplate(BreakHandler *other)
     m_bp = 0;
 
     other->saveSessionData();
+    updateMarkers();
 }
 
 } // namespace Internal

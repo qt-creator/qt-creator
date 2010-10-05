@@ -208,6 +208,7 @@ BreakpointData::~BreakpointData()
 void BreakpointData::clear()
 {
     removeMarker();
+    pending = true;
     bpNumber.clear();
     bpCondition.clear();
     bpIgnoreCount = 0;
