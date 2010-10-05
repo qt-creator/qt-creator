@@ -1679,6 +1679,10 @@
             \o To go to an occurrence, double-click it.
            \endlist
     \endlist
+
+    \note You can use \gui{Advanced Find} also to search for symbols. For more
+    information, see \l{Finding Symbols}.
+
 */
 
 
@@ -1715,6 +1719,14 @@
                files)
             \o Header files of used frameworks and libraries
            \endlist
+
+        \note You can also select \gui{Edit > Find/Replace > Advanced Find >
+        C++ Symbols} to search for classes, methods, enums, and declarations
+        either from files listed as part of the project or from all files that
+        are used by the code, such as include files.
+
+        \image qtcreator-search-cpp-symbols.png
+
         \o The \gui{Search Results} pane opens and shows the location and
            number of instances of the symbol in the current project.
 
