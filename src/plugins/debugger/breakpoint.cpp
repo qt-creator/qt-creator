@@ -205,6 +205,26 @@ BreakpointData::~BreakpointData()
     removeMarker();
 }
 
+void BreakpointData::clear()
+{
+    removeMarker();
+    bpNumber.clear();
+    bpCondition.clear();
+    bpIgnoreCount = 0;
+    bpFileName.clear();
+    bpFullName.clear();
+    bpLineNumber = 0;
+    bpCorrectedLineNumber = 0;
+    bpThreadSpec.clear();
+    bpFuncName.clear();
+    bpAddress = 0;
+    bpMultiple = false;
+    bpEnabled = true;
+    bpState.clear();
+    m_markerFileName.clear();
+    m_markerLineNumber = 0;
+}
+
 void BreakpointData::removeMarker()
 {
     BreakpointMarker *m = marker;

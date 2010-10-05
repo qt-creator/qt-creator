@@ -742,7 +742,8 @@ void BreakHandler::storeToTemplate(BreakHandler *other)
 {
     QTC_ASSERT(m_bp,/**/);
     foreach (BreakpointData *data, *m_bp) {
-            data->m_handler = other;
+        data->m_handler = other;
+        data->clear();
     }
     m_bp = 0;
 
