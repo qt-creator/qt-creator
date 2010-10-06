@@ -1165,14 +1165,8 @@
 
     \section1 Completing Code
 
-    Qt Creator understands the code as code, not just as plain text. This
-    allows it to help you to write well formatted code and to anticipate
-    what you are going to write and complete the code.
-    The code completion differs somewhat depending on whether you write Qt code or QML code.
-
-    \section2 Completing Qt Code
-
-    As you write code, Qt Creator provides a list of context-sensitive
+    As you write code, Qt Creator suggests properties, IDs, and code
+    snippets to complete the code. It provides a list of context-sensitive
     suggestions to the statement currently under your cursor.
 
     \image qtcreator-codecompletion.png
@@ -1189,6 +1183,8 @@
     By default, code completion considers only the first letter case-sensitive.
     To apply full or no case-sensitivity, select the option in the
     \gui {Case-sensitivity} field.
+
+    \section2 Summary of Available Types
 
     The following table lists available types for code completion and icon
     used for each.
@@ -1238,7 +1234,16 @@
             \i  A protected slot
         \row
             \i  \inlineimage completion/keyword.png
-            \i  A keyword
+            \i  A C++ keyword
+        \row
+            \i  \inlineimage completion/snippet.png
+            \i  A C++ code snippet
+        \row
+            \i  \inlineimage completion/element.png
+            \i  A QML element
+        \row
+            \i  \inlineimage completion/qmlsnippet.png
+            \i  A QML code snippet
         \row
             \i  \inlineimage completion/macro.png
             \i  A macro
@@ -1247,10 +1252,9 @@
             \i  A namespace
     \endtable
 
-    \section2 Completing QML Code
+    \section2 Completing Code Snippets
 
-    As you write QML code, Qt Creator suggests properties, IDs, and code
-    snippets to complete the code. The snippets can consist of multiple
+    Code snippets can consist of multiple
     fields that you specify values for. Select an item in the list and press
     \key Tab or \key Enter to complete the code. Press \key Tab to
     move between the fields and specify values for them.
