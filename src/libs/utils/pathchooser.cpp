@@ -110,9 +110,7 @@ QString PathChooserPrivate::expandedPath(const QString &input) const
 {
     if (input.isEmpty())
         return input;
-    // Environment does \-expansion, too.
-    const QString nativeInput = QDir::fromNativeSeparators(input);
-    const QString path = QDir::fromNativeSeparators(m_environment.expandVariables(nativeInput));
+    const QString path = QDir::fromNativeSeparators(m_environment.expandVariables(input));
     if (path.isEmpty())
         return path;
 
