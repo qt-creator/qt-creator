@@ -1484,6 +1484,8 @@ void QmlJSTextEditor::onTooltipRequested(TextEditor::ITextEditor* /* editor */, 
 
 void QmlJSTextEditor::updateToolTipNow()
 {
+    return; 
+
     if (!TextEditor::ToolTip::instance()->isVisible())
         return;
 
