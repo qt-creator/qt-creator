@@ -315,6 +315,7 @@ static bool isSourceFile(const QString &fileName)
 }
 
 /// Currently, we return the end of fileName.cpp
+/// \todo take the definitions of the surrounding declarations into account
 QList<InsertionLocation> InsertionPointLocator::methodDefinition(
     Declaration *declaration) const
 {
@@ -333,6 +334,15 @@ QList<InsertionLocation> InsertionPointLocator::methodDefinition(
     Document::Ptr doc = m_refactoringChanges->file(target).cppDocument();
     if (doc.isNull())
         return result;
+
+    Snapshot simplified = m_refactoringChanges->snapshot().simplified(doc);
+    if (Symbol *s = simplified.findMatchingDefinition(declaration)) {
+        if (Function *f = s->asFunction()) {
+            if (f->isConst() == declaration->type().isConst()
+                    && f->isVolatile() == declaration->type().isVolatile())
+                return result;
+        }
+    }
 
     TranslationUnit *xUnit = doc->translationUnit();
     unsigned tokenCount = xUnit->tokenCount();
