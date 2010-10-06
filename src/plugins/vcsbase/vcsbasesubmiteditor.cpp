@@ -466,6 +466,8 @@ VCSBaseSubmitEditor::PromptSubmitResult
                                           bool *promptSetting,
                                           bool forcePrompt) const
 {
+    raiseSubmitEditor();
+
     QString errorMessage;
     QMessageBox::StandardButton answer = QMessageBox::Yes;
 
