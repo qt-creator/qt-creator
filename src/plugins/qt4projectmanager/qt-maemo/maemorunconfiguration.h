@@ -71,6 +71,8 @@ public:
         SystemEnvironmentBase = 1
     };
 
+    enum DebuggingType { DebugCppOnly, DebugQmlOnly, DebugCppAndQml };
+
     MaemoRunConfiguration(Qt4Target *parent, const QString &proFilePath);
     virtual ~MaemoRunConfiguration();
 
@@ -96,6 +98,7 @@ public:
     bool useRemoteGdb() const;
     void setUseRemoteGdb(bool useRemoteGdb) { m_useRemoteGdb = useRemoteGdb; }
     void updateFactoryState() { emit isEnabledChanged(true); }
+    DebuggingType debuggingType() const;
 
     const QString gdbCmd() const;
     const QString dumperLib() const;
@@ -116,7 +119,7 @@ public:
     Utils::Environment systemEnvironment() const;
     void setSystemEnvironment(const Utils::Environment &environment);
 
-    int portsUsedByDebuggers() const { return useCppDebugger() + useQmlDebugger(); }
+    int portsUsedByDebuggers() const;
 
 signals:
     void deviceConfigurationChanged(ProjectExplorer::Target *target);
