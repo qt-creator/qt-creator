@@ -1814,6 +1814,57 @@
 
         \o In the \gui {Rename id} field, enter the new ID.
 
+    \endlist
+
+    \section1 Applying Refactoring Actions
+
+    Qt Creator allows you to quickly and conveniently apply actions to refactor
+    your code by selecting them in a context menu. The actions available depend on
+    the position of the cursor in the code editor and on whether you are writing
+    C++ or QML code.
+
+    To apply refactoring actions to C++ code, right-click an operand, conditional
+    statement, string, or name to open a context menu. In QML code, click an element
+    ID or name.
+
+    In the context menu, select \gui {Refactoring} and then select a refactoring action.
+
+    You can also press \gui {Alt+Enter} to open a context menu that contains refactoring
+    actions.
+
+   \section2 Refactoring C++ Code
+
+   You can apply the following types of refactoring actions to C++ code:
+
+   \list
+
+        \o Change binary operands
+
+        \o Simplify if and when conditions (for example, move declarations out of
+        if conditions)
+
+        \o Modify strings (for example, set the encoding for a string to Latin-1, mark
+         strings translatable, and convert strings to camel case)
+
+        \o Create variable declarations
+
+        \o Create method declarations and definitions
+
+   \endlist
+
+   \section2 Refactoring QML Code
+
+   You can apply the following types of refactoring actions to QML code:
+
+   \list
+
+        \o Rename IDs
+
+        \o Split initializers
+
+        \o Move a QML element into a separate file to reuse it in other
+        .qml files
+
    \endlist
 
 */
