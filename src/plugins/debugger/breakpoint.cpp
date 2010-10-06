@@ -207,7 +207,6 @@ BreakpointData::~BreakpointData()
 
 void BreakpointData::clear()
 {
-    removeMarker();
     pending = true;
     bpNumber.clear();
     bpCondition.clear();
@@ -222,8 +221,9 @@ void BreakpointData::clear()
     bpMultiple = false;
     bpEnabled = true;
     bpState.clear();
-    m_markerFileName.clear();
-    m_markerLineNumber = 0;
+    m_markerFileName = fileName;
+    m_markerLineNumber = lineNumber;
+    updateMarker();
 }
 
 void BreakpointData::removeMarker()
