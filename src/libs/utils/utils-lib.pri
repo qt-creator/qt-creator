@@ -50,7 +50,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/crumblepath.cpp \
     $$PWD/debuggerlanguagechooser.cpp \
     $$PWD/historycompleter.cpp \
-    $$PWD/buildablehelperlibrary.cpp
+    $$PWD/buildablehelperlibrary.cpp \
+    $$PWD/annotateditemdelegate.cpp
 
 win32 {
     SOURCES += $$PWD/abstractprocess_win.cpp \
@@ -111,7 +112,8 @@ HEADERS += $$PWD/environment.h \
     $$PWD/crumblepath.h \
     $$PWD/debuggerlanguagechooser.h \
     $$PWD/historycompleter.h \
-    $$PWD/buildablehelperlibrary.h
+    $$PWD/buildablehelperlibrary.h \
+    $$PWD/annotateditemdelegate.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

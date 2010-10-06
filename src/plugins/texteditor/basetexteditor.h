@@ -648,4 +648,6 @@ private:
 
 } // namespace TextEditor
 
+Q_DECLARE_METATYPE(TextEditor::BaseTextEditor::Link);
+
 #endif // BASETEXTEDITOR_H

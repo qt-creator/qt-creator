@@ -35,97 +35,19 @@
 
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/coreconstants.h>
 #include <utils/navigationtreeview.h>
+#include <utils/annotateditemdelegate.h>
 
 #include <QtCore/QLatin1Char>
 #include <QtCore/QLatin1String>
 #include <QtCore/QModelIndex>
-#include <QtCore/QSettings>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QStandardItemModel>
-#include <QtGui/QFontMetrics>
-#include <QtGui/QApplication>
-#include <QtGui/QPainter>
 #include <QtGui/QLabel>
 
 using namespace CppEditor;
 using namespace Internal;
-
-// CppTypeHierarchyItem
-CppTypeHierarchyItem::CppTypeHierarchyItem(const CppClass &cppClass) :
-    QStandardItem(), m_cppClass(cppClass)
-{}
-
-CppTypeHierarchyItem::~CppTypeHierarchyItem()
-{}
-
-int CppTypeHierarchyItem::type() const
-{ return UserType; }
-
-const CppClass &CppTypeHierarchyItem::cppClass() const
-{ return m_cppClass; }
-
-// CppTypeHierarchyDelegate
-CppTypeHierarchyDelegate::CppTypeHierarchyDelegate(QObject *parent) : QStyledItemDelegate(parent)
-{}
-
-CppTypeHierarchyDelegate::~CppTypeHierarchyDelegate()
-{}
-
-void CppTypeHierarchyDelegate::paint(QPainter *painter,
-                                     const QStyleOptionViewItem &option,
-                                     const QModelIndex &index) const
-{
-    if (const QStyleOptionViewItemV3 *v3 =
-            qstyleoption_cast<const QStyleOptionViewItemV3 *>(&option)) {
-        QApplication::style()->drawPrimitive(QStyle::PE_PanelItemViewItem, v3, painter, v3->widget);
-
-        QStyleOptionViewItemV4 opt = option;
-        initStyleOption(&opt, index);
-
-        const QStandardItemModel *model = static_cast<const QStandardItemModel *>(index.model());
-        CppTypeHierarchyItem *item =
-            static_cast<CppTypeHierarchyItem *>(model->itemFromIndex(index));
-
-        painter->save();
-        const QIcon &icon = item->cppClass().icon();
-        const QSize &iconSize = icon.actualSize(opt.decorationSize);
-        QRect workingRect(opt.rect);
-        QRect decorationRect(workingRect.topLeft(), iconSize);
-        icon.paint(painter, decorationRect, opt.decorationAlignment);
-        workingRect.setX(workingRect.x() + iconSize.width() + 4);
-
-        QRect boundingRect;
-        const QString &name = item->cppClass().name() + QLatin1Char(' ');
-        painter->drawText(workingRect, Qt::AlignLeft, name, &boundingRect);
-        if (item->cppClass().name() != item->cppClass().qualifiedName()) {
-            QFont font(painter->font());
-            if (font.pointSize() > 2)
-                font.setPointSize(font.pointSize() - 2);
-            else if (font.pointSize() > 1)
-                font.setPointSize(font.pointSize() - 1);
-            font.setItalic(true);
-            painter->setFont(font);
-
-            QFontMetrics metrics(font);
-            workingRect.setX(boundingRect.x() + boundingRect.width());
-            workingRect.setY(boundingRect.y() + boundingRect.height() - metrics.height());
-            painter->drawText(workingRect, Qt::AlignLeft, item->cppClass().qualifiedName());
-        }
-        painter->restore();
-    } else {
-        QStyledItemDelegate::paint(painter, option, index);
-    }
-}
-
-QSize CppTypeHierarchyDelegate::sizeHint(const QStyleOptionViewItem &option,
-                                        const QModelIndex &index) const
-{
-    QSize size = QStyledItemDelegate::sizeHint(option, index);
-    size.rwidth() += 5; // Extend a bit because of the font processing.
-    return size;
-}
+using namespace Utils;
 
 // CppTypeHierarchyWidget
 CppTypeHierarchyWidget::CppTypeHierarchyWidget(Core::IEditor *editor) :
@@ -144,7 +66,9 @@ CppTypeHierarchyWidget::CppTypeHierarchyWidget(Core::IEditor *editor) :
 
         m_model = new QStandardItemModel;
         m_treeView = new Utils::NavigationTreeView;
-        m_delegate = new CppTypeHierarchyDelegate;
+        m_delegate = new AnnotatedItemDelegate;
+        m_delegate->setDelimiter(QLatin1String(" "));
+        m_delegate->setAnnotationRole(AnnotationRole);
         m_treeView->setModel(m_model);
         m_treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
         m_treeView->setItemDelegate(m_delegate);
@@ -200,13 +124,16 @@ void CppTypeHierarchyWidget::perform()
 
 void CppTypeHierarchyWidget::buildModel(const CppClass &cppClass, QStandardItem *parent)
 {
-    CppTypeHierarchyItem *item = new CppTypeHierarchyItem(cppClass);
+    QStandardItem *item = new QStandardItem;
     parent->appendRow(item);
 
-    // The delegate retrieves data from the item directly. This is to help size hint.
-    const QString &display = cppClass.name() + cppClass.qualifiedName();
-    m_model->setData(m_model->indexFromItem(item), display, Qt::DisplayRole);
+    m_model->setData(m_model->indexFromItem(item), cppClass.name(), Qt::DisplayRole);
+    if (cppClass.name() != cppClass.qualifiedName())
+        m_model->setData(m_model->indexFromItem(item), cppClass.qualifiedName(), AnnotationRole);
     m_model->setData(m_model->indexFromItem(item), cppClass.icon(), Qt::DecorationRole);
+    QVariant link;
+    link.setValue(CPPEditor::Link(cppClass.link()));
+    m_model->setData(m_model->indexFromItem(item), link, LinkRole);
 
     foreach (const CppClass &cppBase, cppClass.bases())
         buildModel(cppBase, item);
@@ -216,10 +143,7 @@ void CppTypeHierarchyWidget::buildModel(const CppClass &cppClass, QStandardItem 
 
 void CppTypeHierarchyWidget::onItemClicked(const QModelIndex &index)
 {
-    if (QStandardItem *item = m_model->itemFromIndex(index)) {
-        CppTypeHierarchyItem *cppItem = static_cast<CppTypeHierarchyItem *>(item);
-        m_cppEditor->openLink(cppItem->cppClass().link());
-    }
+    m_cppEditor->openLink(index.data(LinkRole).value<CPPEditor::Link>());
 }
 
 // CppTypeHierarchyStackedWidget
