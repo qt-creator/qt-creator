@@ -71,7 +71,7 @@ public:
         }
 
         setDescription(QCoreApplication::translate("CppEditor::InsertDeclOperation",
-                                                   "Add %1 declaration").arg(type));
+                                                   "Add %1 Declaration").arg(type));
     }
 
     void performChanges(CppRefactoringFile *, CppRefactoringChanges *refactoring)
@@ -219,7 +219,7 @@ public:
         const QString declFile = QString::fromUtf8(decl->fileName(), decl->fileNameLength());
         const QDir dir = QFileInfo(declFile).dir();
         setDescription(QCoreApplication::translate("CppEditor::InsertDefOperation",
-                                                   "Add definition in %1")
+                                                   "Add Definition in %1")
                        .arg(dir.relativeFilePath(m_loc.fileName())));
     }
 

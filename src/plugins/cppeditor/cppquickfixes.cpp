@@ -1029,7 +1029,7 @@ private:
             , m_option(option)
             , m_context(context)
         {
-            setDescription(QApplication::translate("CppTools::QuickFix", "Mark as translatable"));
+            setDescription(QApplication::translate("CppTools::QuickFix", "Mark as Translatable"));
         }
 
         virtual void performChanges(CppRefactoringFile *currentFile, CppRefactoringChanges *)
@@ -1501,7 +1501,7 @@ private:
             , fwdClass(fwdClass)
         {
             setDescription(QApplication::translate("CppTools::QuickFix",
-                                                   "#include header file"));
+                                                   "#include Header File"));
         }
 
         virtual void performChanges(CppRefactoringFile *currentFile, CppRefactoringChanges *)
@@ -1616,7 +1616,7 @@ private:
             : CppQuickFixOperation(state, priority)
             , binaryAST(binaryAST)
         {
-            setDescription(QApplication::translate("CppTools::QuickFix", "Add local declaration"));
+            setDescription(QApplication::translate("CppTools::QuickFix", "Add local Declaration"));
         }
 
         virtual void performChanges(CppRefactoringFile *currentFile, CppRefactoringChanges *)

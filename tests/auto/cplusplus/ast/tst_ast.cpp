@@ -850,11 +850,6 @@ void tst_AST::objc_selector_error_recovery_1()
                                                           ));
     AST *ast = unit->ast();
     QVERIFY(ast);
-    ObjCClassDeclarationAST *zoo = ast->asObjCClassDeclaration();
-    QVERIFY(zoo);
-    QVERIFY(zoo->interface_token); QVERIFY(! (zoo->implementation_token));
-    QVERIFY(zoo->class_name); QVERIFY(zoo->class_name->asSimpleName());
-    QCOMPARE(unit->spell(zoo->class_name->asSimpleName()->identifier_token), "Zoo");
 }
 
 void tst_AST::objc_selector_error_recovery_2()
@@ -866,11 +861,6 @@ void tst_AST::objc_selector_error_recovery_2()
                                                           ));
     AST *ast = unit->ast();
     QVERIFY(ast);
-    ObjCClassDeclarationAST *zoo = ast->asObjCClassDeclaration();
-    QVERIFY(zoo);
-    QVERIFY(zoo->interface_token); QVERIFY(! (zoo->implementation_token));
-    QVERIFY(zoo->class_name); QVERIFY(zoo->class_name->asSimpleName());
-    QCOMPARE(unit->spell(zoo->class_name->asSimpleName()->identifier_token), "Zoo");
 }
 
 void tst_AST::normal_array_access()
