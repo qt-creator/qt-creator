@@ -1093,6 +1093,29 @@
     \key{Ctrl+E, 0}. To remove all but the currently selected split view,
     select \gui Window > \gui{Remove All Splits} or press \key{Ctrl+E, 1}.
 
+    \section1 Semantic Highlighting
+
+    Qt Creator understands the C++ and QML languages as code, not as plain text.
+    It reads the source code, analyzes it, and highlights it based on the
+    semantic checks that it does for the following code elements:
+
+    \list
+
+        \o Types (such as classes, structs, and type definitions)
+
+        \o Local variables
+
+        \o Class fields
+
+        \o Virtual methods
+
+    \endlist
+
+    To specify the color scheme to use for semantic highlighting, select
+    \gui {Tools > Options... > Text Editor > Fonts & Color}.
+
+    Qt Creator supports syntax highlighting also for other types of files than
+    C++ or QML. For more information, see \l{Generic Highlighting}.
 
     \section1 Highlighting and Folding Blocks
 
