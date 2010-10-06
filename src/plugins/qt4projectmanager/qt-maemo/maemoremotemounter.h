@@ -63,6 +63,7 @@ public:
     void setPortList(const MaemoPortList &portList) { m_portList = portList; }
     bool addMountSpecification(const MaemoMountSpecification &mountSpec,
         bool mountAsRoot);
+    bool hasValidMountSpecifications() const;
     void resetMountSpecifications() { m_mountSpecs.clear(); }
     void mount();
     void unmount();

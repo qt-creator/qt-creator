@@ -47,7 +47,7 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 MaemoRemoteMounter::MaemoRemoteMounter(QObject *parent)
-    : QObject(parent), m_utfsServerTimer(new QTimer(this)),
+    : QObject(parent), m_toolChain(0), m_utfsServerTimer(new QTimer(this)),
       m_uploadJobId(SftpInvalidJob), m_state(Inactive)
 {
     connect(m_utfsServerTimer, SIGNAL(timeout()), this,
@@ -69,9 +69,10 @@ void MaemoRemoteMounter::setConnection(const Core::SshConnection::Ptr &connectio
 bool MaemoRemoteMounter::addMountSpecification(const MaemoMountSpecification &mountSpec,
     bool mountAsRoot)
 {
+    Q_ASSERT(m_toolChain);
     ASSERT_STATE(Inactive);
 
-    if (mountSpec.isValid()) {
+    if (m_toolChain->allowsRemoteMounts() && mountSpec.isValid()) {
         if (!m_portList.hasMore())
             return false;
         else
@@ -80,14 +81,17 @@ bool MaemoRemoteMounter::addMountSpecification(const MaemoMountSpecification &mo
     return true;
 }
 
+bool MaemoRemoteMounter::hasValidMountSpecifications() const
+{
+    return !m_mountSpecs.isEmpty();
+}
+
 void MaemoRemoteMounter::mount()
 {
     ASSERT_STATE(Inactive);
     Q_ASSERT(m_utfsServers.isEmpty());
     Q_ASSERT(m_connection);
 
-    if (!m_toolChain->allowsRemoteMounts())
-        m_mountSpecs.clear();
     if (m_mountSpecs.isEmpty()) {
         setState(Inactive);
         emit reportProgress(tr("No directories to mount"));
@@ -114,7 +118,6 @@ void MaemoRemoteMounter::unmount()
                 m_mountSpecs.at(i).mountSpec.remoteMountPoint);
     }
 
-    emit reportProgress(tr("Unmounting remote mount points..."));
     m_umountStderr.clear();
     m_unmountProcess = m_connection->createRemoteProcess(remoteCall.toUtf8());
     connect(m_unmountProcess.data(), SIGNAL(closed(int)), this,
@@ -458,6 +461,8 @@ void MaemoRemoteMounter::setState(State newState)
     m_state = newState;
 }
 
+// TODO: Perhaps remove this one again, since it might interfere with
+// an unrelated application
 void MaemoRemoteMounter::killUtfsClients()
 {
     const SshRemoteProcess::Ptr utfsClientKiller

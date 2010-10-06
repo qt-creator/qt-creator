@@ -102,6 +102,8 @@ private:
     void cleanup();
     bool addMountSpecification(const MaemoMountSpecification &mountSpec);
     bool isConnectionUsable() const;
+    void mount();
+    void unmount();
 
     MaemoRunConfiguration * const m_runConfig; // TODO this pointer can be invalid
     MaemoRemoteMounter * const m_mounter;

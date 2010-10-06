@@ -168,7 +168,7 @@ void MaemoSshRunner::handleCleanupFinished(int exitStatus)
         << StopRequested);
 
     if (m_state == StopRequested || m_state == PostRunCleaning) {
-        m_mounter->unmount();
+        unmount();
         return;
     }
 
@@ -177,7 +177,7 @@ void MaemoSshRunner::handleCleanupFinished(int exitStatus)
             .arg(m_cleaner->errorString()));
     } else {
         m_mounter->setConnection(m_connection);
-        m_mounter->unmount();
+        unmount();
     }
 }
 
@@ -211,12 +211,11 @@ void MaemoSshRunner::handleUnmounted()
                 return;
         }
         setState(PreMountUnmounting);
-        m_mounter->unmount();
+        unmount();
         break;
     }
     case PreMountUnmounting:
-        setState(Mounting);
-        m_mounter->mount();
+        mount();
         break;
     case PostRunCleaning:
     case StopRequested:
@@ -333,8 +332,46 @@ void MaemoSshRunner::setState(State newState)
 
 void MaemoSshRunner::emitError(const QString &errorMsg)
 {
-    emit error(errorMsg);
-    setState(Inactive);
+    if (m_state != Inactive) {
+        emit error(errorMsg);
+        setState(Inactive);
+    }
+}
+
+void MaemoSshRunner::mount()
+{
+    setState(Mounting);
+    if (m_mounter->hasValidMountSpecifications()) {
+        emit reportProgress(tr("Mounting host directories..."));
+        m_mounter->mount();
+    } else {
+        handleMounted();
+    }
+}
+
+void MaemoSshRunner::unmount()
+{
+    ASSERT_STATE(QList<State>() << PreRunCleaning << PreMountUnmounting
+        << PostRunCleaning << StopRequested);
+    if (m_mounter->hasValidMountSpecifications()) {
+        QString message;
+        switch (m_state) {
+        case PreRunCleaning:
+            message = tr("Unmounting left-over host directory mounts...");
+            break;
+        case PreMountUnmounting:
+            message = tr("Potentially unmounting left-over host directory mounts...");
+        case StopRequested: case PostRunCleaning:
+            message = tr("Unmounting host directories...");
+            break;
+        default:
+            break;
+        }
+        emit reportProgress(message);
+        m_mounter->unmount();
+    } else {
+        handleUnmounted();
+    }
 }
 
 
