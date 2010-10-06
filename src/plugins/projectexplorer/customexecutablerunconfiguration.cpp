@@ -270,17 +270,11 @@ void CustomExecutableConfigurationWidget::termToggled(bool on)
 
 void CustomExecutableConfigurationWidget::changed()
 {
-    const QString &executable = m_runConfiguration->rawExecutable();
-    QString text = tr("No Executable specified.");
-    if (!executable.isEmpty())
-        text = tr("Running executable: <b>%1</b> %2").
-               arg(executable,
-                   Utils::Environment::joinArgumentList(m_runConfiguration->commandLineArguments()));
-
     // We triggered the change, don't update us
     if (m_ignoreChange)
         return;
-    m_executableChooser->setPath(executable);
+
+    m_executableChooser->setPath(m_runConfiguration->rawExecutable());
     m_commandLineArgumentsLineEdit->setText(Utils::Environment::joinArgumentList(m_runConfiguration->baseCommandLineArguments()));
     m_workingDirectory->setPath(m_runConfiguration->baseWorkingDirectory());
     m_useTerminalCheck->setChecked(m_runConfiguration->runMode() == LocalApplicationRunConfiguration::Console);
