@@ -94,6 +94,7 @@ private:
     QStackedWidget *m_centralWidget;
     QWidget *m_currentWidget;
     QList<ProjectExplorer::Project *> m_tabIndexToProject;
+    int m_previousTargetSubIndex;
 };
 
 } // namespace Internal

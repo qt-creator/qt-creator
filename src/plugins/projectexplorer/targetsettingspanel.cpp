@@ -285,3 +285,13 @@ void TargetSettingsPanelWidget::updateTargetAddAndRemoveButtons()
     m_selector->setAddButtonEnabled(!m_addMenu->actions().isEmpty());
     m_selector->setRemoveButtonEnabled(m_project->targets().count() > 1);
 }
+
+int TargetSettingsPanelWidget::currentSubIndex() const
+{
+    return m_selector->currentSubIndex();
+}
+
+void TargetSettingsPanelWidget::setCurrentSubIndex(int subIndex)
+{
+    m_selector->setCurrentSubIndex(subIndex);
+}

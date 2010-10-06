@@ -57,6 +57,9 @@ public:
 
     void setupUi();
 
+    int currentSubIndex() const;
+    void setCurrentSubIndex(int subIndex);
+
 private slots:
     void currentTargetChanged(int targetIndex, int subIndex);
     void removeTarget();
