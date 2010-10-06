@@ -188,7 +188,10 @@ void PathChooser::setBaseDirectory(const QString &directory)
 
 void PathChooser::setEnvironment(const Utils::Environment &env)
 {
+    QString oldExpand = path();
     m_d->m_environment = env;
+    if (path() != oldExpand)
+        emit changed(rawPath());
 }
 
 
