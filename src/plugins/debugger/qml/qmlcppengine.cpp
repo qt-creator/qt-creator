@@ -20,7 +20,13 @@ DebuggerEngine *createQmlEngine(const DebuggerStartParameters &);
 
 DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &sp)
 {
-    return new QmlCppEngine(sp);
+    QmlCppEngine *newEngine = new QmlCppEngine(sp);
+    if (newEngine->cppEngine()) {
+        return newEngine;
+    } else {
+        delete newEngine;
+        return 0;
+    }
 }
 } // namespace Internal
 
@@ -58,8 +64,10 @@ QmlCppEngine::QmlCppEngine(const DebuggerStartParameters &sp)
     } else {
         QString errorMessage;
         d->m_cppEngine = Internal::createCdbEngine(sp, &errorMessage);
-        if (!d->m_cppEngine)
+        if (!d->m_cppEngine) {
             qWarning("%s", qPrintable(errorMessage));
+            return;
+        }
     }
 
     d->m_cppEngine->setRunInWrapperEngine(true);
