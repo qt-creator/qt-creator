@@ -25,7 +25,8 @@ SOURCES += $$PWD/qmlruntime.cpp \
            $$PWD/loggerwidget.cpp \
            $$PWD/crumblepath.cpp
 
-RESOURCES += $$PWD/qmlruntime.qrc
+RESOURCES += $$PWD/qmlruntime.qrc \
+    crumblepath.qrc
 
 OTHER_FILES += toolbarstyle.css
 

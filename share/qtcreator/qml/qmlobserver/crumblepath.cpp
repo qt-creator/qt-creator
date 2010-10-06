@@ -150,12 +150,12 @@ CrumblePathButton::CrumblePathButton(const QString &title, QWidget *parent)
     m_textPos.setY(height());
     m_baseColor = QColor(0x666666);
 
-    m_segment = QImage(":/utils/images/crumblepath-segment.png");
-    m_segmentSelected = QImage(":/utils/images/crumblepath-segment-selected.png");
-    m_segmentHover = QImage(":/utils/images/crumblepath-segment-hover.png");
-    m_segmentEnd = QImage(":/utils/images/crumblepath-segment-end.png");
-    m_segmentSelectedEnd = QImage(":/utils/images/crumblepath-segment-selected-end.png");
-    m_segmentHoverEnd = QImage(":/utils/images/crumblepath-segment-hover-end.png");
+    m_segment = QImage(":/crumblepath/images/crumblepath-segment.png");
+    m_segmentSelected = QImage(":/crumblepath/images/crumblepath-segment-selected.png");
+    m_segmentHover = QImage(":/crumblepath/images/crumblepath-segment-hover.png");
+    m_segmentEnd = QImage(":/crumblepath/images/crumblepath-segment-end.png");
+    m_segmentSelectedEnd = QImage(":/crumblepath/images/crumblepath-segment-selected-end.png");
+    m_segmentHoverEnd = QImage(":/crumblepath/images/crumblepath-segment-hover-end.png");
 
     tintImages();
 }
