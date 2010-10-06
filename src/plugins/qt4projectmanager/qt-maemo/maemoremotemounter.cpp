@@ -240,9 +240,8 @@ void MaemoRemoteMounter::handleUploadFinished(Core::SftpJobId jobId,
 
     m_uploadJobId = SftpInvalidJob;
     if (!errorMsg.isEmpty()) {
-        emit error(tr("Could not upload UTFS client: %1").arg(errorMsg));
-        setState(Inactive);
-        return;
+        emit reportProgress(tr("Could not upload UTFS client (%1), continuing anyway.")
+            .arg(errorMsg));
     }
 
     startUtfsClients();
