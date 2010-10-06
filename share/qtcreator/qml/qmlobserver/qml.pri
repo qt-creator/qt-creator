@@ -5,6 +5,10 @@ contains(QT_CONFIG, opengl) {
     DEFINES += GL_SUPPORTED
 }
 
+!exists($$[QT_INSTALL_HEADERS]/QtCore/private/qabstractanimation_p.h) {
+    DEFINES += NO_PRIVATE_HEADERS
+}
+
 INCLUDEPATH += $$PWD
 
 HEADERS += $$PWD/qmlruntime.h \
