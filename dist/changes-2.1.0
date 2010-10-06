@@ -19,6 +19,7 @@ C++ Support
    * Add new indenter along with a new option to control alignment indents
    * Add new %FILENAME%, %CLASS% placeholders to license template
    * Added searching for symbols that match a pattern to advanced find
+   * Made 'Follow symbol' for classes skip forward declarations
 
 Project Support
    * Added option for adding subprojects to projects in the New wizard
@@ -55,9 +56,12 @@ Help
 QML/JS Support
    * Added 'Find usages' action that works on ids, properties, functions and
      variables
+   * Improved 'Follow symbol' to also work on file imports and JS functions
+   * Completion: Sort completion items by relevance
+   * Completion: Automatically complete trailing : or .
    * Added new indenter
-   * Added experimental support for code completion of components defined
-     by plugins
+   * Added code folding for multiline comments
+   * Improved performance of the code model significantly
 
 FakeVim:
    * Fix indentation of first line after >iB and >ib, undo after cjaaa<Esc>, ~ etc
