@@ -146,7 +146,7 @@ QList<CppQuickFixOperation::Ptr> DeclFromDef::match(const CppQuickFixState &stat
         foreach (Symbol *s, targetBinding->symbols()) {
             if (Class *clazz = s->asClass()) {
                 QList<CppQuickFixOperation::Ptr> results;
-                const QLatin1String fn(clazz->fileName());
+                const QString fn = QString::fromUtf8(clazz->fileName(), clazz->fileNameLength());
                 const QString decl = generateDeclaration(state,
                                                          method,
                                                          targetBinding);

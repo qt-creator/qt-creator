@@ -35,6 +35,9 @@
 #include <ASTVisitor.h>
 #include <TranslationUnit.h>
 
+#include <coreplugin/icore.h>
+#include <coreplugin/mimedatabase.h>
+
 using namespace CPlusPlus;
 using namespace CppTools;
 
@@ -298,6 +301,19 @@ InsertionLocation InsertionPointLocator::methodDeclarationInClass(
     }
 }
 
+static bool isSourceFile(const QString &fileName)
+{
+    const Core::MimeDatabase *mimeDb = Core::ICore::instance()->mimeDatabase();
+    Core::MimeType cSourceTy = mimeDb->findByType(QLatin1String("text/x-csrc"));
+    Core::MimeType cppSourceTy = mimeDb->findByType(QLatin1String("text/x-c++src"));
+    Core::MimeType mSourceTy = mimeDb->findByType(QLatin1String("text/x-objcsrc"));
+    QStringList suffixes = cSourceTy.suffixes();
+    suffixes += cppSourceTy.suffixes();
+    suffixes += mSourceTy.suffixes();
+    QFileInfo fileInfo(fileName);
+    return suffixes.contains(fileInfo.suffix());
+}
+
 /// Currently, we return the end of fileName.cpp
 QList<InsertionLocation> InsertionPointLocator::methodDefinition(
     Declaration *declaration) const
@@ -306,10 +322,14 @@ QList<InsertionLocation> InsertionPointLocator::methodDefinition(
     if (!declaration)
         return result;
 
-    Internal::CppToolsPlugin *cpptools = Internal::CppToolsPlugin::instance();
+    const QString declFileName = QString::fromUtf8(declaration->fileName(),
+                                                   declaration->fileNameLength());
+    QString target = declFileName;
+    if (!isSourceFile(declFileName)) {
+        Internal::CppToolsPlugin *cpptools = Internal::CppToolsPlugin::instance();
+        target = cpptools->correspondingHeaderOrSource(declFileName);
+    }
 
-    const QString declFileName = QLatin1String(declaration->fileName());
-    QString target = cpptools->correspondingHeaderOrSource(declFileName);
     Document::Ptr doc = m_refactoringChanges->file(target).cppDocument();
     if (doc.isNull())
         return result;

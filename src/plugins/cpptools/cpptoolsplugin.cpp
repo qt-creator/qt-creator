@@ -264,7 +264,6 @@ QString CppToolsPlugin::correspondingHeaderOrSourceI(const QString &fileName) co
 
     const QString privateHeaderSuffix = QLatin1String("_p");
     const QChar dot = QLatin1Char('.');
-    QStringList candidates;
     // Check base matches 'source.h'-> 'source.cpp' and vice versa
     const QStringList::const_iterator scend = suffixes.constEnd();
     for (QStringList::const_iterator it = suffixes.constBegin(); it != scend; ++it) {
