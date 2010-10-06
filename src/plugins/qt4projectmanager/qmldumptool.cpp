@@ -52,7 +52,7 @@ using namespace Qt4ProjectManager;
 class QmlDumpBuildTask;
 
 typedef QHash<int, QmlDumpBuildTask *> QmlDumpByVersion;
-Q_GLOBAL_STATIC(QmlDumpByVersion, runningQmlDumpBuilds);
+Q_GLOBAL_STATIC(QmlDumpByVersion, qmlDumpBuilds);
 
 // A task suitable to be run by QtConcurrent to build qmldump.
 class QmlDumpBuildTask : public QObject {
@@ -61,8 +61,9 @@ class QmlDumpBuildTask : public QObject {
 public:
     explicit QmlDumpBuildTask(QtVersion *version)
         : m_version(*version)
+        , m_failed(false)
     {
-        runningQmlDumpBuilds()->insert(m_version.uniqueId(), this);
+        qmlDumpBuilds()->insert(m_version.uniqueId(), this);
     }
 
     void run(QFutureInterface<void> &future)
@@ -76,10 +77,11 @@ public:
         if (path.isEmpty()) {
             qWarning() << "Could not build QML plugin dumping helper for " << m_version.displayName()
                        << "\nOutput:\n" << output;
+            m_failed = true;
+        } else {
+            // proceed in gui thread
+            metaObject()->invokeMethod(this, "finish", Qt::QueuedConnection, Q_ARG(QString, path));
         }
-
-        // proceed in gui thread
-        metaObject()->invokeMethod(this, "finish", Qt::QueuedConnection, Q_ARG(QString, path));
     }
 
     void updateProjectWhenDone(ProjectExplorer::Project *project)
@@ -87,14 +89,16 @@ public:
         m_projectsToUpdate.insert(project);
     }
 
+    bool hasFailed() const
+    {
+        return m_failed;
+    }
+
 public slots:
     void finish(QString qmldumpPath)
     {
         deleteLater();
-        runningQmlDumpBuilds()->remove(m_version.uniqueId());
-
-        if (qmldumpPath.isEmpty())
-            return;
+        qmlDumpBuilds()->remove(m_version.uniqueId());
 
         // update qmldump path for all the project
         QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
@@ -113,6 +117,7 @@ public slots:
 private:
     QSet<ProjectExplorer::Project *> m_projectsToUpdate;
     QtVersion m_version;
+    bool m_failed;
 };
 } // end of anonymous namespace
 
@@ -268,8 +273,10 @@ QString QmlDumpTool::qmlDumpPath(ProjectExplorer::Project *project)
 
     QtVersion *version = qtVersionForProject(project);
     if (version && path.isEmpty()) {
-        if (runningQmlDumpBuilds()->contains(version->uniqueId())) {
-            runningQmlDumpBuilds()->value(version->uniqueId())->updateProjectWhenDone(project);
+        QmlDumpBuildTask *qmlDumpBuildTask = qmlDumpBuilds()->value(version->uniqueId());
+        if (qmlDumpBuildTask) {
+            if (!qmlDumpBuildTask->hasFailed())
+                qmlDumpBuildTask->updateProjectWhenDone(project);
         } else {
             QmlDumpBuildTask *buildTask = new QmlDumpBuildTask(version);
             buildTask->updateProjectWhenDone(project);
