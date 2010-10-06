@@ -282,7 +282,10 @@ QList<CppQuickFixOperation::Ptr> DefFromDecl::match(const CppQuickFixState &stat
             if (simpleDecl->symbols && ! simpleDecl->symbols->next) {
                 if (Symbol *symbol = simpleDecl->symbols->value) {
                     if (Declaration *decl = symbol->asDeclaration()) {
-                        if (decl->type()->isFunctionType() && decl->enclosingScope() && decl->enclosingScope()->isClass()) {
+                        if (decl->type()->isFunctionType()
+                                && !decl->type()->asFunctionType()->isPureVirtual()
+                                && decl->enclosingScope()
+                                && decl->enclosingScope()->isClass()) {
                             DeclaratorAST *declarator = simpleDecl->declarator_list->value;
                             if (file.isCursorOn(declarator->core_declarator)) {
                                 CppRefactoringChanges refactoring(state.snapshot());
