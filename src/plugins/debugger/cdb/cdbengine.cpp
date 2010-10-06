@@ -1171,6 +1171,11 @@ bool CdbEnginePrivate::attemptBreakpointSynchronization(QString *errorMessage)
         *errorMessage = QLatin1String("attemptBreakpointSynchronization() called while debugger is not running");
         return false;
     }
+    // Might be called nested while attempting to stop.
+    if (m_breakEventMode == BreakEventSyncBreakPoints) {
+        *errorMessage = QLatin1String("Nested invocation of attemptBreakpointSynchronization.");
+        return false;
+    }
     // This is called from
     // 1) CreateProcessEvent with the halted engine
     // 2) from the break handler, potentially while the debuggee is running

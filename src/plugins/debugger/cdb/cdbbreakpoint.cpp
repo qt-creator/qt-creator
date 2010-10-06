@@ -67,6 +67,47 @@ static inline QString msgCannotSetBreakAtFunction(const QString &func, const QSt
     return QString::fromLatin1("Cannot set a breakpoint at '%1': %2").arg(func, why);
 }
 
+static bool addBreakpoint(CIDebugControl* debugControl,
+                          CIDebugSymbols *syms,
+                          BreakpointData *nbd,
+                          QString *warning)
+{
+    warning->clear();
+    // Function breakpoints: Are the module names specified?
+    if (!nbd->funcName.isEmpty()) {
+        nbd->bpFuncName = nbd->funcName;
+        switch (resolveSymbol(syms, &nbd->bpFuncName, warning)) {
+        case ResolveSymbolOk:
+            break;
+        case ResolveSymbolAmbiguous:
+            *warning = msgCannotSetBreakAtFunction(nbd->funcName, *warning);
+            break;
+        case ResolveSymbolNotFound:
+        case ResolveSymbolError:
+            *warning = msgCannotSetBreakAtFunction(nbd->funcName, *warning);
+            return false;
+        };
+    } // function breakpoint
+    // Now add...
+    quint64 address;
+    unsigned long id;
+    const CdbCore::BreakPoint ncdbbp = breakPointFromBreakPointData(*nbd);
+    if (!ncdbbp.add(debugControl, warning, &id, &address))
+        return false;
+    if (debugBP)
+        qDebug("Added %lu at 0x%lx %s", id, address, qPrintable(ncdbbp.toString()));
+    nbd->pending = false;
+    nbd->bpNumber = QByteArray::number(uint(id));
+    nbd->bpAddress = address;
+    // Take over rest as is
+    nbd->bpCondition = nbd->condition;
+    nbd->bpIgnoreCount = nbd->ignoreCount;
+    nbd->bpThreadSpec = nbd->threadSpec;
+    nbd->bpFileName = nbd->fileName;
+    nbd->bpLineNumber = nbd->lineNumber;
+    return true;
+}
+
 // Synchronize (halted) engine breakpoints with those of the BreakHandler.
 bool synchronizeBreakPoints(CIDebugControl* debugControl,
                             CIDebugSymbols *syms,
@@ -83,82 +124,35 @@ bool synchronizeBreakPoints(CIDebugControl* debugControl,
         *errorMessage = QString::fromLatin1("Cannot modify breakpoints: %1").arg(*errorMessage);
         return false;
     }
+    // Delete all breakpoints and re-insert all enabled breakpoints. This is the simplest
+    // way to apply changes since CDB ids shift when removing breakpoints and there is no
+    // easy way to re-match them.
+    if (engineCount) {
+        for (int b = engineCount - 1; b >= 0 ; b--)
+            if (!CdbCore::BreakPoint::removeBreakPointById(debugControl, b, errorMessage))
+                return false;
+    }
+    qDeleteAll(handler->takeRemovedBreakpoints());
+    // Mark disabled ones
+    foreach(BreakpointData *dbd, handler->takeDisabledBreakpoints())
+        dbd->bpEnabled = false;
+
+    // Insert all enabled ones as new
     QString warning;
-    // Insert new ones
     bool updateMarkers = false;
-    foreach (BreakpointData *nbd, handler->insertedBreakpoints()) {
-        warning.clear();
-        // Function breakpoints: Are the module names specified?
-        bool breakPointOk = false;
-        if (nbd->funcName.isEmpty()) {
-            breakPointOk = true;
-        } else {
-            nbd->bpFuncName = nbd->funcName;
-            switch (resolveSymbol(syms, &nbd->bpFuncName, &warning)) {
-            case ResolveSymbolOk:
-                breakPointOk = true;
-                break;
-            case ResolveSymbolAmbiguous:
-                warnings->push_back(msgCannotSetBreakAtFunction(nbd->funcName, warning));
-                warning.clear();
-                breakPointOk = true;
-                break;
-            case ResolveSymbolNotFound:
-            case ResolveSymbolError:
-                warnings->push_back(msgCannotSetBreakAtFunction(nbd->funcName, warning));
-                warning.clear();
-                break;
-            };
-        } // function breakpoint
-        // Now add...
-        if (breakPointOk) {
-            quint64 address;
-            unsigned long id;
-            const CdbCore::BreakPoint ncdbbp = breakPointFromBreakPointData(*nbd);
-            breakPointOk = ncdbbp.add(debugControl, &warning, &id, &address);
-            if (breakPointOk) {
-                if (debugBP)
-                    qDebug("Added %lu at 0x%lx %s", id, address, qPrintable(ncdbbp.toString()));
-                handler->takeInsertedBreakPoint(nbd);
+    const int size = handler->size();
+    for (int i = 0; i < size; i++) {
+        BreakpointData *breakpoint = handler->at(i);
+        if (breakpoint->enabled)
+            if (addBreakpoint(debugControl, syms, breakpoint, &warning)) {
                 updateMarkers = true;
-                nbd->pending = false;
-                nbd->bpNumber = QByteArray::number(uint(id));
-                nbd->bpAddress = address;
-                // Take over rest as is
-                nbd->bpCondition = nbd->condition;
-                nbd->bpIgnoreCount = nbd->ignoreCount;
-                nbd->bpThreadSpec = nbd->threadSpec;
-                nbd->bpFileName = nbd->fileName;
-                nbd->bpLineNumber = nbd->lineNumber;
-            }
-        } // had symbol
-        if (!breakPointOk && !warning.isEmpty())
-            warnings->push_back(warning);    }
-    // Delete
-    foreach (BreakpointData *rbd, handler->takeRemovedBreakpoints()) {
-        if (!CdbCore::BreakPoint::removeBreakPointById(debugControl, rbd->bpNumber.toUInt(), &warning))
-            warnings->push_back(warning);
-        delete rbd;
-    }
-    // Enable/Disable
-    foreach (BreakpointData *ebd, handler->takeEnabledBreakpoints())
-        if (!CdbCore::BreakPoint::setBreakPointEnabledById(debugControl, ebd->bpNumber.toUInt(), true, &warning))
-            warnings->push_back(warning);
-    foreach (BreakpointData *dbd, handler->takeDisabledBreakpoints())
-        if (!CdbCore::BreakPoint::setBreakPointEnabledById(debugControl, dbd->bpNumber.toUInt(), false, &warning))
-            warnings->push_back(warning);
-    // Check for modified thread ids.
-    for (int i = handler->size() - 1; i >= 0; i--) {
-        BreakpointData *bpd = handler->at(i);
-        if (bpd->threadSpec != bpd->bpThreadSpec) {
-            const int newThreadSpec = bpd->threadSpec.isEmpty() ? -1 : bpd->threadSpec.toInt();
-            if (CdbCore::BreakPoint::setBreakPointThreadById(debugControl, bpd->bpNumber.toUInt(), newThreadSpec, errorMessage)) {
-                bpd->bpThreadSpec = bpd->threadSpec;
             } else {
-                qWarning("%s", qPrintable(*errorMessage));
+                warnings->push_back(warning);
             }
-        }
     }
+    // Mark enabled ones
+    foreach(BreakpointData *ebd, handler->takeEnabledBreakpoints())
+        ebd->bpEnabled = true;
 
     if (updateMarkers)
         handler->updateMarkers();

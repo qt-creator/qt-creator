@@ -121,7 +121,6 @@ void BreakHandler::clear()
     m_enabled.clear();
     m_disabled.clear();
     m_removed.clear();
-    m_inserted.clear();
 }
 
 BreakpointData *BreakHandler::findSimilarBreakpoint(const BreakpointData *needle) const
@@ -527,17 +526,6 @@ void BreakHandler::append(BreakpointData *data)
     QTC_ASSERT(m_bp,/**/);
     data->m_handler = this;
     m_bp->append(data);
-    m_inserted.append(data);
-}
-
-Breakpoints BreakHandler::insertedBreakpoints() const
-{
-    return m_inserted;
-}
-
-void BreakHandler::takeInsertedBreakPoint(BreakpointData *d)
-{
-    m_inserted.removeAll(d);
 }
 
 Breakpoints BreakHandler::takeRemovedBreakpoints()

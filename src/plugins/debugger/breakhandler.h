@@ -78,8 +78,6 @@ public:
     bool isActive() const;
     bool isMasterList() const;
 
-    Breakpoints insertedBreakpoints() const;
-    void takeInsertedBreakPoint(BreakpointData *);
     Breakpoints takeRemovedBreakpoints(); // Owned.
     Breakpoints takeEnabledBreakpoints(); // Not owned.
     Breakpoints takeDisabledBreakpoints(); // Not owned.
