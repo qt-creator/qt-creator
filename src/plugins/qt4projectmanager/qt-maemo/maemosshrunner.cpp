@@ -126,7 +126,7 @@ void MaemoSshRunner::handleConnected()
 
 void MaemoSshRunner::handleConnectionFailure()
 {
-    if (m_state != Inactive)
+    if (m_state == Inactive)
         qWarning("Unexpected state %d in %s.", m_state, Q_FUNC_INFO);
 
     const QString errorTemplate = m_state == Connecting
@@ -165,8 +165,10 @@ void MaemoSshRunner::handleCleanupFinished(int exitStatus)
         || exitStatus == SshRemoteProcess::ExitedNormally);
 
     ASSERT_STATE(QList<State>() << PreRunCleaning << PostRunCleaning
-        << StopRequested);
+        << StopRequested << Inactive);
 
+    if (m_state == Inactive)
+        return;
     if (m_state == StopRequested || m_state == PostRunCleaning) {
         unmount();
         return;
@@ -247,7 +249,7 @@ void MaemoSshRunner::handleMounted()
 void MaemoSshRunner::handleMounterError(const QString &errorMsg)
 {
     ASSERT_STATE(QList<State>() << PreRunCleaning << PostRunCleaning
-        << PreMountUnmounting << Mounting << StopRequested);
+        << PreMountUnmounting << Mounting << StopRequested << Inactive);
 
     emitError(errorMsg);
 }
@@ -279,10 +281,10 @@ void MaemoSshRunner::handleRemoteProcessFinished(int exitStatus)
     Q_ASSERT(exitStatus == SshRemoteProcess::FailedToStart
         || exitStatus == SshRemoteProcess::KilledBySignal
         || exitStatus == SshRemoteProcess::ExitedNormally);
-    ASSERT_STATE(QList<State>() << ProcessStarting << StopRequested);
+    ASSERT_STATE(QList<State>() << ProcessStarting << StopRequested << Inactive);
 
     m_exitStatus = exitStatus;
-    if (m_state != StopRequested) {
+    if (m_state != StopRequested && m_state != Inactive) {
         setState(PostRunCleaning);
         cleanup();
     }
