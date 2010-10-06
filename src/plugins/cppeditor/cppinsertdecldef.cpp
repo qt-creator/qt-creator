@@ -155,31 +155,31 @@ QList<CppQuickFixOperation::Ptr> DeclFromDef::match(const CppQuickFixState &stat
                                 new InsertDeclOperation(state, idx, fn, clazz,
                                                         InsertionPointLocator::Public,
                                                         decl)));
-                results.append(
-                            singleResult(
-                                new InsertDeclOperation(state, idx, fn, clazz,
-                                                        InsertionPointLocator::Protected,
-                                                        decl)));
-                results.append(
-                            singleResult(
-                                new InsertDeclOperation(state, idx, fn, clazz,
-                                                        InsertionPointLocator::Private,
-                                                        decl)));
-                results.append(
-                            singleResult(
-                                new InsertDeclOperation(state, idx, fn, clazz,
-                                                        InsertionPointLocator::PublicSlot,
-                                                        decl)));
-                results.append(
-                            singleResult(
-                                new InsertDeclOperation(state, idx, fn, clazz,
-                                                        InsertionPointLocator::ProtectedSlot,
-                                                        decl)));
-                results.append(
-                            singleResult(
-                                new InsertDeclOperation(state, idx, fn, clazz,
-                                                        InsertionPointLocator::PrivateSlot,
-                                                        decl)));
+//                results.append(
+//                            singleResult(
+//                                new InsertDeclOperation(state, idx, fn, clazz,
+//                                                        InsertionPointLocator::Protected,
+//                                                        decl)));
+//                results.append(
+//                            singleResult(
+//                                new InsertDeclOperation(state, idx, fn, clazz,
+//                                                        InsertionPointLocator::Private,
+//                                                        decl)));
+//                results.append(
+//                            singleResult(
+//                                new InsertDeclOperation(state, idx, fn, clazz,
+//                                                        InsertionPointLocator::PublicSlot,
+//                                                        decl)));
+//                results.append(
+//                            singleResult(
+//                                new InsertDeclOperation(state, idx, fn, clazz,
+//                                                        InsertionPointLocator::ProtectedSlot,
+//                                                        decl)));
+//                results.append(
+//                            singleResult(
+//                                new InsertDeclOperation(state, idx, fn, clazz,
+//                                                        InsertionPointLocator::PrivateSlot,
+//                                                        decl)));
                 return results;
             } //! \todo support insertion of non-methods into namespaces
         }
