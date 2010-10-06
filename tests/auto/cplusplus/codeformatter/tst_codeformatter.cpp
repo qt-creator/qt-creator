@@ -33,6 +33,7 @@ private Q_SLOTS:
     void classAccess();
     void ternary();
     void objcAtDeclarations();
+    void objcCallAndFor();
     void braceList();
     void bug1();
     void bug2();
@@ -662,6 +663,24 @@ void tst_CodeFormatter::objcAtDeclarations()
     data << Line("@class Forwarded;")
          << Line("@protocol Forwarded;")
          << Line("int i;")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::objcCallAndFor()
+{
+    QList<Line> data;
+    data << Line("void foo() {")
+         << Line("    NSArray *windows = [NSApp windows];")
+         << Line("    for (NSWindow *window in windows) {")
+         << Line("        NSArray *drawers = [window drawers];")
+         << Line("        for (NSDrawer *drawer in drawers) {")
+         << Line("            NSArray *views = [[drawer contentView] subviews];")
+         << Line("            int x;")
+         << Line("        }")
+         << Line("    }")
+         << Line("}")
+         << Line("int y;")
          ;
     checkIndent(data);
 }

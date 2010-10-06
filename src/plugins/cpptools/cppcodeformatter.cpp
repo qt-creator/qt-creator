@@ -317,12 +317,14 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             switch (kind) {
             case T_SEMICOLON:   turnInto(for_statement_condition); break;
             case T_LPAREN:      enter(condition_paren_open); break;
+            case T_RPAREN:      turnInto(for_statement_expression); continue;
             } break;
 
         case for_statement_condition:
             switch (kind) {
             case T_SEMICOLON:   turnInto(for_statement_expression); break;
             case T_LPAREN:      enter(condition_paren_open); break;
+            case T_RPAREN:      turnInto(for_statement_expression); continue;
             } break;
 
         case for_statement_expression:
