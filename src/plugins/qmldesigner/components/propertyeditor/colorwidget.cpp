@@ -806,13 +806,13 @@ void GradientLine::updateGradient()
                     modelNode.removeProperty(m_gradientName);
                 }
 
-                ModelNode gradientNode = modelNode.view()->createModelNode("QtQuick/Gradient", 4, 7);
+                ModelNode gradientNode = modelNode.view()->createModelNode("Qt/Gradient", 4, 7);
 
                 if (!oldId.isNull())
                     gradientNode.setId(oldId);
 
                 for (int i = 0;i < m_stops.size(); i++) {
-                    ModelNode gradientStopNode = modelNode.view()->createModelNode("QtQuick/GradientStop", 4, 7);
+                    ModelNode gradientStopNode = modelNode.view()->createModelNode("Qt/GradientStop", 4, 7);
                     gradientStopNode.variantProperty("position") = roundReal(m_stops.at(i));
                     gradientStopNode.variantProperty("color") = normalizeColor(m_colorList.at(i));
                     gradientNode.nodeListProperty("stops").reparentHere(gradientStopNode);

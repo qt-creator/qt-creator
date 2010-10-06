@@ -1,6 +1,6 @@
 import Qt 4.7
 import Bauhaus 1.0
-import "../QtQuick/"
+import "../Qt/"
 
 QWidget {
     layout: QVBoxLayout {

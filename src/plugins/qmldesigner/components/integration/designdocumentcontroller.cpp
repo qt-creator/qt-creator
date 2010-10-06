@@ -269,7 +269,7 @@ QList<RewriterView::Error> DesignDocumentController::loadMaster(QPlainTextEdit *
 
     //m_d->masterModel = Model::create(m_d->textModifier, m_d->searchPath, errors);
 
-    m_d->masterModel = Model::create("QtQick/Rectangle", 4, 7);
+    m_d->masterModel = Model::create("Qt/Rectangle", 4, 7);
 
 #if defined(VIEWLOGGER)
     m_d->viewLogger = new Internal::ViewLogger(m_d->model.data());
@@ -278,7 +278,7 @@ QList<RewriterView::Error> DesignDocumentController::loadMaster(QPlainTextEdit *
 
     m_d->masterModel->setFileUrl(m_d->searchPath);
 
-    m_d->subComponentModel = Model::create("QtQuick/Rectangle", 4, 7);
+    m_d->subComponentModel = Model::create("Qt/Rectangle", 4, 7);
     m_d->subComponentModel->setFileUrl(m_d->searchPath);
 
     m_d->subComponentManager = new SubComponentManager(m_d->masterModel->metaInfo(), this);
@@ -468,7 +468,7 @@ void DesignDocumentController::deleteSelected()
 
 void DesignDocumentController::copySelected()
 {
-    QScopedPointer<Model> model(Model::create("QtQuick/Rectangle"));
+    QScopedPointer<Model> model(Model::create("Qt/Rectangle"));
     model->setMetaInfo(m_d->model->metaInfo());
     model->setFileUrl(m_d->model->fileUrl());
     foreach (const Import &import, m_d->model->imports())
@@ -514,7 +514,7 @@ void DesignDocumentController::copySelected()
         foreach (ModelNode node, view.rootModelNode().allDirectSubModelNodes()) {
             node.destroy();
         }
-        view.changeRootNodeType("QtQuick/Rectangle", 4, 7);
+        view.changeRootNodeType("Qt/Rectangle", 4, 7);
         view.rootModelNode().setId("designer__Selection");
 
         foreach (const ModelNode &selectedNode, selectedNodes) {
@@ -766,7 +766,7 @@ QString DesignDocumentController::contextHelpId() const
     QString helpId;
     if (!nodes.isEmpty()) {
         helpId = nodes.first().type();
-        helpId.replace("QtQuick/", "QML.");
+        helpId.replace("Qt/", "QML.");
     }
 
     return helpId;
