@@ -104,14 +104,29 @@ bool BreakpointDialog::showDialog(BreakpointData *data)
     if (exec() != QDialog::Accepted)
         return false;
 
-    data->lineNumber = lineEditLineNumber->text().toInt();
-    data->useFullPath = checkBoxUseFullPath->isChecked();
-    data->address = lineEditAddress->text().toULongLong(0, 0);
-    data->funcName = lineEditFunction->text();
-    data->fileName = pathChooserFileName->path();
-    data->condition = lineEditCondition->text().toUtf8();
-    data->ignoreCount = lineEditIgnoreCount->text().toInt();
-    data->threadSpec = lineEditThreadSpec->text().toUtf8();
+    // Check if changed.
+    const int newLineNumber = lineEditLineNumber->text().toInt();
+    const bool newUseFullPath  = checkBoxUseFullPath->isChecked();
+    const quint64 newAddress = lineEditAddress->text().toULongLong(0, 0);
+    const QString newFunc = lineEditFunction->text();
+    const QString newFileName = pathChooserFileName->path();
+    const QByteArray newCondition = lineEditCondition->text().toUtf8();
+    const int newIgnoreCount = lineEditIgnoreCount->text().toInt();
+    const QByteArray newThreadSpec = lineEditThreadSpec->text().toUtf8();
+    if (newLineNumber == data->lineNumber && newUseFullPath == data->useFullPath
+        && newAddress == data->address && newFunc == data->funcName
+        && newFileName == data->fileName && newCondition == data->condition
+        && newIgnoreCount == data->ignoreCount && newThreadSpec == data->threadSpec)
+        return false; // Unchanged -> Cancel.
+
+    data->address = newAddress;
+    data->funcName = newFunc;
+    data->useFullPath = newUseFullPath;
+    data->fileName = newFileName;
+    data->lineNumber = newLineNumber;
+    data->condition = newCondition;
+    data->ignoreCount = newIgnoreCount;
+    data->threadSpec = newThreadSpec;
     return true;
 }
 
@@ -389,16 +404,16 @@ void BreakWindow::deleteBreakpoints(QList<int> list)
     setModelData(RequestSynchronizeBreakpointsRole);
 }
 
-bool BreakWindow::editBreakpoint(BreakpointData *data)
+bool BreakWindow::editBreakpoint(BreakpointData *data, QWidget *parent)
 {
-    BreakpointDialog dialog(this);
+    BreakpointDialog dialog(parent);
     return dialog.showDialog(data);
 }
 
 void BreakWindow::addBreakpoint()
 {
     BreakpointData *data = new BreakpointData();
-    if (editBreakpoint(data))
+    if (editBreakpoint(data, this))
         setModelData(RequestBreakpointRole, QVariant::fromValue(data));
     else
         delete data;
@@ -406,11 +421,12 @@ void BreakWindow::addBreakpoint()
 
 void BreakWindow::editBreakpoints(const QModelIndexList &list)
 {
+    QTC_ASSERT(!list.isEmpty(), return);
     if (list.size() == 1) {
         const QVariant dataV = model()->data(list.at(0), BreakpointRole);
         QTC_ASSERT(qVariantCanConvert<BreakpointData *>(dataV), return );
         BreakpointData *data = qvariant_cast<BreakpointData *>(dataV);
-        if (editBreakpoint(data))
+        if (editBreakpoint(data, this))
             data->reinsertBreakpoint();
         return;
     }
@@ -419,30 +435,36 @@ void BreakWindow::editBreakpoints(const QModelIndexList &list)
     QDialog dlg(this);
     Ui::BreakCondition ui;
     ui.setupUi(&dlg);
-
-    QTC_ASSERT(!list.isEmpty(), return);
-    QModelIndex idx = list.front();
     dlg.setWindowTitle(tr("Edit Breakpoint Properties"));
+    ui.lineEditIgnoreCount->setValidator(new QIntValidator(0, 2147483647, ui.lineEditIgnoreCount));
+
+    const QModelIndex idx = list.front();
     QAbstractItemModel *m = model();
-    ui.lineEditCondition->setText(
-        m->data(idx, BreakpointConditionRole).toString());
-    ui.lineEditIgnoreCount->setValidator(
-        new QIntValidator(0, 2147483647, ui.lineEditIgnoreCount));
-    ui.lineEditIgnoreCount->setText(
-        m->data(idx, BreakpointIgnoreCountRole).toString());
-    ui.lineEditThreadSpec->setText(
-        m->data(idx, BreakpointThreadSpecRole).toString());
+
+    const QString oldCondition = m->data(idx, BreakpointConditionRole).toString();
+    const QString oldIgnoreCount = m->data(idx, BreakpointIgnoreCountRole).toString();
+    const QString oldThreadSpec = m->data(idx, BreakpointThreadSpecRole).toString();
+
+    ui.lineEditCondition->setText(oldCondition);
+    ui.lineEditIgnoreCount->setText(oldIgnoreCount);
+    ui.lineEditThreadSpec->setText(oldThreadSpec);
 
     if (dlg.exec() == QDialog::Rejected)
         return;
 
+    const QString newCondition = ui.lineEditCondition->text();
+    const QString newIgnoreCount = ui.lineEditIgnoreCount->text();
+    const QString newThreadSpec = ui.lineEditThreadSpec->text();
+
+    // Unchanged -> cancel
+    if (newCondition == oldCondition && newIgnoreCount == oldIgnoreCount
+            && newThreadSpec == oldThreadSpec)
+        return;
+
     foreach (const QModelIndex &idx, list) {
-        //m->setData(idx.sibling(idx.row(), 1), ui.lineEditFunction->text());
-        //m->setData(idx.sibling(idx.row(), 2), ui.pathChooserFileName->text());
-        //m->setData(idx.sibling(idx.row(), 3), ui.lineEditLineNumber->text());
-        m->setData(idx, ui.lineEditCondition->text(), BreakpointConditionRole);
-        m->setData(idx, ui.lineEditIgnoreCount->text(), BreakpointIgnoreCountRole);
-        m->setData(idx, ui.lineEditThreadSpec->text(), BreakpointThreadSpecRole);
+        m->setData(idx, newCondition, BreakpointConditionRole);
+        m->setData(idx, newIgnoreCount, BreakpointIgnoreCountRole);
+        m->setData(idx, newThreadSpec, BreakpointThreadSpecRole);
     }
     setModelData(RequestSynchronizeBreakpointsRole);
 }
