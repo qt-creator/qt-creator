@@ -67,6 +67,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Internal::QmlProjectTarge
     m_isEnabled(false)
 {
     ctor();
+    updateQtVersions();
 }
 
 QmlProjectRunConfiguration::QmlProjectRunConfiguration(Internal::QmlProjectTarget *parent, QmlProjectRunConfiguration *source) :
@@ -78,6 +79,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Internal::QmlProjectTarge
 {
     ctor();
     setMainScript(source->m_scriptFile);
+    updateQtVersions();
 }
 
 bool QmlProjectRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *bc) const
@@ -156,6 +158,11 @@ QString QmlProjectRunConfiguration::workingDirectory() const
 {
     QFileInfo projectFile(qmlTarget()->qmlProject()->file()->fileName());
     return projectFile.absolutePath();
+}
+
+int QmlProjectRunConfiguration::qtVersionId() const
+{
+    return m_qtVersionId;
 }
 
 Qt4ProjectManager::QtVersion *QmlProjectRunConfiguration::qtVersion() const

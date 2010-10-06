@@ -62,6 +62,9 @@ class QMLPROJECTMANAGER_EXPORT QmlProjectRunConfiguration : public ProjectExplor
     Q_OBJECT
     friend class Internal::QmlProjectRunConfigurationFactory;
 
+    // used in qmldumptool.cpp
+    Q_PROPERTY(int qtVersionId READ qtVersionId)
+
 public:
     QmlProjectRunConfiguration(Internal::QmlProjectTarget *parent);
     virtual ~QmlProjectRunConfiguration();
@@ -74,6 +77,7 @@ public:
     QString observerPath() const;
     QStringList viewerArguments() const;
     QString workingDirectory() const;
+    int qtVersionId() const;
     Qt4ProjectManager::QtVersion *qtVersion() const;
 
     // RunConfiguration
