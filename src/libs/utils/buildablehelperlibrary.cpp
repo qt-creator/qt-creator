@@ -217,7 +217,7 @@ QString BuildableHelperLibrary::buildHelper(const QString &helperName, const QSt
     if (!makeFullPath.isEmpty()) {
         output += QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary", "Running %1 ...\n").arg(makeFullPath);
         proc.start(makeFullPath, QStringList());
-        proc.waitForFinished();
+        proc.waitForFinished(80000);
         output += proc.readAll();
     } else {
         output += QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary", "%1 not found in PATH\n").arg(makeCommand);
