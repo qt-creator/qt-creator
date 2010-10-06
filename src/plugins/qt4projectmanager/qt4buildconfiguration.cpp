@@ -175,9 +175,22 @@ void Qt4BuildConfiguration::ctor()
     if (m_buildDirectory == target()->project()->projectDirectory())
         m_shadowBuild = false;
 
+    m_lastEmmitedBuildDirectory = buildDirectory();
+
+    connect(this, SIGNAL(environmentChanged()),
+            this, SLOT(emitBuildDirectoryChanged()));
+
     QtVersionManager *vm = QtVersionManager::instance();
     connect(vm, SIGNAL(qtVersionsChanged(QList<int>)),
             this, SLOT(qtVersionsChanged(QList<int>)));
+}
+
+void Qt4BuildConfiguration::emitBuildDirectoryChanged()
+{
+    if (buildDirectory() != m_lastEmmitedBuildDirectory) {
+        m_lastEmmitedBuildDirectory = buildDirectory();
+        emit buildDirectoryChanged();
+    }
 }
 
 void Qt4BuildConfiguration::pickValidQtVersion()
@@ -198,7 +211,10 @@ Utils::Environment Qt4BuildConfiguration::baseEnvironment() const
 {
     Utils::Environment env = BuildConfiguration::baseEnvironment();
     qtVersion()->addToEnvironment(env);
-    env.set(QLatin1String("BUILDDIR"), QDir::toNativeSeparators(buildDirectory()));
+
+    // We can't call buildDirectory() since that uses environment() to expand,
+    // thus calling baseEnvironment() again
+    env.set(QLatin1String("BUILDDIR"), QDir::toNativeSeparators(env.expandVariables(rawBuildDirectory())));
 
     ToolChain *tc = toolChain();
     if (tc)
@@ -206,8 +222,8 @@ Utils::Environment Qt4BuildConfiguration::baseEnvironment() const
     return env;
 }
 
-/// returns the build directory
-QString Qt4BuildConfiguration::buildDirectory() const
+/// returns the unexpanded build directory
+QString Qt4BuildConfiguration::rawBuildDirectory() const
 {
     QString workingDirectory;
     if (m_shadowBuild) {
@@ -219,6 +235,12 @@ QString Qt4BuildConfiguration::buildDirectory() const
     if (workingDirectory.isEmpty())
         workingDirectory = target()->project()->projectDirectory();
     return workingDirectory;
+}
+
+/// returns the build directory
+QString Qt4BuildConfiguration::buildDirectory() const
+{
+    return QDir::cleanPath(environment().expandVariables(rawBuildDirectory()));
 }
 
 /// If only a sub tree should be build this function returns which sub node
@@ -261,7 +283,7 @@ QString Qt4BuildConfiguration::shadowBuildDirectory() const
 void Qt4BuildConfiguration::setShadowBuildAndDirectory(bool shadowBuild, const QString &buildDirectory)
 {
     QtVersion *version = qtVersion();
-    QString directoryToSet = QDir::fromNativeSeparators(buildDirectory);
+    QString directoryToSet = buildDirectory;
     bool toSet = (shadowBuild && version->isValid() && version->supportsShadowBuilds());
     if (m_shadowBuild == toSet && m_buildDirectory == directoryToSet)
         return;
@@ -270,7 +292,7 @@ void Qt4BuildConfiguration::setShadowBuildAndDirectory(bool shadowBuild, const Q
     m_buildDirectory = directoryToSet;
 
     emit environmentChanged();
-    emit buildDirectoryChanged();
+    emitBuildDirectoryChanged();
     emit proFileEvaluateNeeded(this);
 }
 
@@ -346,6 +368,7 @@ void Qt4BuildConfiguration::setQtVersion(QtVersion *version)
     emit proFileEvaluateNeeded(this);
     emit qtVersionChanged();
     emit environmentChanged();
+    emitBuildDirectoryChanged();
 }
 
 void Qt4BuildConfiguration::setToolChainType(ProjectExplorer::ToolChain::ToolChainType type)
@@ -359,6 +382,7 @@ void Qt4BuildConfiguration::setToolChainType(ProjectExplorer::ToolChain::ToolCha
     emit proFileEvaluateNeeded(this);
     emit toolChainTypeChanged();
     emit environmentChanged();
+    emitBuildDirectoryChanged();
 }
 
 ProjectExplorer::ToolChain::ToolChainType Qt4BuildConfiguration::toolChainType() const
