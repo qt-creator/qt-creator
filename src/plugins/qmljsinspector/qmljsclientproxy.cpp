@@ -44,6 +44,10 @@
 #include <QAbstractSocket>
 #include <QDebug>
 
+enum {
+    debug = false
+};
+
 using namespace QmlJSInspector::Internal;
 
 ClientProxy::ClientProxy(Debugger::QmlAdapter *adapter, QObject *parent)
@@ -266,7 +270,8 @@ bool ClientProxy::setBindingForObject(int objectDebugId,
                                       const QVariant &value,
                                       bool isLiteralValue)
 {
-    qDebug() << "setBindingForObject():" << objectDebugId << propertyName << value;
+    if (debug)
+        qDebug() << "setBindingForObject():" << objectDebugId << propertyName << value;
     if (objectDebugId == -1)
         return false;
 
@@ -280,7 +285,8 @@ bool ClientProxy::setBindingForObject(int objectDebugId,
 
 bool ClientProxy::setMethodBodyForObject(int objectDebugId, const QString &methodName, const QString &methodBody)
 {
-    qDebug() << "setMethodBodyForObject():" << objectDebugId << methodName << methodBody;
+    if (debug)
+        qDebug() << "setMethodBodyForObject():" << objectDebugId << methodName << methodBody;
     if (objectDebugId == -1)
         return 0;
     return m_client->setMethodBody(objectDebugId, methodName, methodBody);
@@ -288,7 +294,8 @@ bool ClientProxy::setMethodBodyForObject(int objectDebugId, const QString &metho
 
 bool ClientProxy::resetBindingForObject(int objectDebugId, const QString& propertyName)
 {
-    qDebug() << "resetBindingForObject():" << objectDebugId << propertyName;
+    if (debug)
+        qDebug() << "resetBindingForObject():" << objectDebugId << propertyName;
     if (objectDebugId == -1)
         return false;
     //    if (propertyName == QLatin1String("id"))  return false;
@@ -297,6 +304,8 @@ bool ClientProxy::resetBindingForObject(int objectDebugId, const QString& proper
 
 QDeclarativeDebugExpressionQuery *ClientProxy::queryExpressionResult(int objectDebugId, const QString &expr, QObject *parent)
 {
+    if (debug)
+        qDebug() << "queryExpressionResult():" << objectDebugId << expr << parent;
     if (objectDebugId != -1)
         return m_client->queryExpressionResult(objectDebugId,expr,parent);
     return 0;
