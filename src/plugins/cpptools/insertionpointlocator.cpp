@@ -328,7 +328,9 @@ QList<InsertionLocation> InsertionPointLocator::methodDefinition(
     QString target = declFileName;
     if (!isSourceFile(declFileName)) {
         Internal::CppToolsPlugin *cpptools = Internal::CppToolsPlugin::instance();
-        target = cpptools->correspondingHeaderOrSource(declFileName);
+        QString candidate = cpptools->correspondingHeaderOrSource(declFileName);
+        if (!candidate.isEmpty())
+            target = candidate;
     }
 
     Document::Ptr doc = m_refactoringChanges->file(target).cppDocument();
