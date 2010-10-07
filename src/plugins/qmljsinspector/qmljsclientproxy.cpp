@@ -408,7 +408,7 @@ void ClientProxy::buildDebugIdHashRecursive(const QDeclarativeDebugObjectReferen
         lineNum += rx.cap(3).toInt() - 1;
     }
 
-    //convert the filename to a canonical filename in case of febug build.
+    //convert the filename to a canonical filename in case of shadow build.
     bool isShadowBuild = InspectorUi::instance()->isShadowBuildProject();
     if (isShadowBuild && rev == 0) {
         QString shadowBuildDir = InspectorUi::instance()->debugProjectBuildDirectory();
