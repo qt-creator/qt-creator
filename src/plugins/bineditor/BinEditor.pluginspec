@@ -1,4 +1,4 @@
-<plugin name="BinEditor" version="2.0.92" compatVersion="2.0.92">
+<plugin name="BinEditor" version="2.0.93" compatVersion="2.0.93">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2010 Nokia Corporation</copyright>
     <license>
@@ -14,7 +14,7 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <description>Binary editor component.</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name="Core" version="2.0.92"/>
-        <dependency name="TextEditor" version="2.0.92"/>
+        <dependency name="Core" version="2.0.93"/>
+        <dependency name="TextEditor" version="2.0.93"/>
     </dependencyList>
 </plugin>
