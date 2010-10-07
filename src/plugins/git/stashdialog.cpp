@@ -37,6 +37,7 @@
 #include <vcsbase/vcsbaseoutputwindow.h>
 
 #include <QtCore/QDebug>
+#include <QtCore/QDir>
 #include <QtCore/QModelIndex>
 #include <QtCore/QDateTime>
 #include <QtGui/QStandardItemModel>
@@ -167,7 +168,7 @@ QString StashDialog::msgRepositoryLabel(const QString &repository)
 {
     return repository.isEmpty() ?
             tr("<No repository>")  :
-            tr("Repository: %1").arg(repository);
+            tr("Repository: %1").arg(QDir::toNativeSeparators(repository));
 }
 
 void StashDialog::refresh(const QString &repository, bool force)
