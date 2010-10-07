@@ -2048,6 +2048,11 @@ def qdump__std__set(d, item):
                         node = node["_M_left"]
 
 
+def qdump__std__stack(d, item):
+    data = item.value["c"]
+    qdump__std__deque(d, Item(data, item.iname))
+
+
 def qdump__std__string(d, item):
     data = item.value["_M_dataplus"]["_M_p"]
     baseType = item.value.type.unqualified().strip_typedefs()
