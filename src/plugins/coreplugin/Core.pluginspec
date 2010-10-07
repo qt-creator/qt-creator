@@ -1,4 +1,4 @@
-<plugin name="Core" version="2.0.91" compatVersion="2.0.91">
+<plugin name="Core" version="2.0.92" compatVersion="2.0.92">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2010 Nokia Corporation</copyright>
     <license>

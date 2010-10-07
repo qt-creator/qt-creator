@@ -1,4 +1,4 @@
-<plugin name="TaskList" version="2.0.91" compatVersion="2.0.91">
+<plugin name="TaskList" version="2.0.92" compatVersion="2.0.92">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2010 Nokia Corporation</copyright>
     <license>
@@ -13,7 +13,7 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <description>Use .tasks-files to populate the build issues view.</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name="Core" version="2.0.91"/>
-	<dependency name="ProjectExplorer" version="2.0.91"/>
+        <dependency name="Core" version="2.0.92"/>
+	<dependency name="ProjectExplorer" version="2.0.92"/>
     </dependencyList>
 </plugin>
