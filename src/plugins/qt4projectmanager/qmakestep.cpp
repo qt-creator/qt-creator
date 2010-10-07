@@ -106,9 +106,9 @@ QStringList QMakeStep::allArguments()
     Qt4BuildConfiguration *bc = qt4BuildConfiguration();
     QStringList arguments;
     if (bc->subNodeBuild())
-        arguments << bc->subNodeBuild()->path();
+        arguments << QDir::toNativeSeparators(bc->subNodeBuild()->path());
     else
-        arguments << buildConfiguration()->target()->project()->file()->fileName();
+        arguments << QDir::toNativeSeparators(buildConfiguration()->target()->project()->file()->fileName());
     arguments << "-r";
 
     if (!additonalArguments.contains("-spec"))
@@ -153,6 +153,7 @@ QStringList QMakeStep::moreArguments()
                   << QLatin1String("RCC_DIR=rcc");
     }
 
+    // Do not turn debugger path into native path separators: Qmake does not like that!
     arguments << QLatin1String(Constants::QMAKEVAR_QMLJSDEBUGGER_PATH) + QLatin1Char('=') +
             Core::ICore::instance()->resourcePath() + QLatin1String("/qml/qmljsdebugger");
     return arguments;
