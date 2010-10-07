@@ -410,7 +410,7 @@ void ClientProxy::buildDebugIdHashRecursive(const QDeclarativeDebugObjectReferen
     int rev = 0;
 
     // handle the case where the url contains the revision number encoded. (for object created by the debugger)
-    static QRegExp rx("^(.*)_(\\d+):(\\d+)$");
+    static QRegExp rx("^file://(.*)_(\\d+):(\\d+)$");
     if (rx.exactMatch(filename)) {
         filename = rx.cap(1);
         rev = rx.cap(2).toInt();

@@ -363,7 +363,8 @@ void Delta::insert(UiObjectMember *member, UiObjectMember *parentMember, const Q
             importList << doc->source().mid(importBegin, importEnd - importBegin);
         }
 
-        QString filename = doc->fileName() + QLatin1Char('_') + QString::number(doc->editorRevision())
+        // encode editorRevision, lineNumber in URL. See ClientProxy::buildDebugIdHashRecursive
+        QString filename = QLatin1String("file://") + doc->fileName() + QLatin1Char('_') + QString::number(doc->editorRevision())
                          + QLatin1Char(':') + QString::number(uiObjectDef->firstSourceLocation().startLine-importList.count());
         foreach(DebugId debugId, debugReferences) {
             if (debugId != -1) {
