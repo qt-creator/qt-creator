@@ -452,7 +452,9 @@ QFileInfo testQFileInfo()
     s = fi.bundleName();
     s = fi.bundleName();
     s = fi.bundleName();
-    return fi;
+
+    QFileInfo result("/tmp/t");
+    return result;
 }
 
 QHash<int, float> testQHash()
@@ -507,7 +509,8 @@ QHash<int, float> testQHash()
     hash.insert("Welt", QPointer<QObject>(&ob));
     hash.insert(".", QPointer<QObject>(&ob));
 #endif
-    return hgg0;
+    QHash<int, float> result;
+    return result;
 }
 
 void testQImage()
@@ -1116,7 +1119,8 @@ std::list<int> testStdList()
     vec.push_back(true);
     vec.push_back(false);
 #endif
-    return big;
+    std::list<int> result;
+    return result;
 }
 
 void testStdMap()
@@ -1191,7 +1195,8 @@ std::set<int> testStdSet()
     std::set<QPointer<QObject> > hash;
     QPointer<QObject> ptr(&ob);
 #endif
-    return hgg0;
+    std::set<int> result;
+    return result;
 }
 
 std::stack<int> testStdStack()
@@ -1217,7 +1222,8 @@ std::stack<int> testStdStack()
     flist.push(1);
     flist.push(2);
 
-    return flist2;
+    std::stack<int> result;
+    return result;
 }
 
 std::string testStdString()
@@ -1257,7 +1263,8 @@ std::string testStdString()
     v.push_back(str);
     v.push_back(str);
 
-    return str;
+    std::string result = "hi";
+    return result;
 }
 
 void testStdVector()
@@ -1341,7 +1348,8 @@ QStack<int> testQStack()
     QStack<bool> vec;
     vec.append(true);
     vec.append(false);
-    return big;
+    QStack<int> result;
+    return result;
 }
 
 void testQString()
@@ -1384,7 +1392,8 @@ QStringList testQStringList()
     l << " fat ";
     l.takeFirst();
     l << " World ";
-    return l;
+    QStringList result;
+    return result;
 }
 
 Foo testStruct()
@@ -1488,7 +1497,8 @@ QVariant testQVariant2()
     var.setValue(my);
     var.setValue(my);
 #endif
-    return QVariant("sss");
+    QVariant result("sss");
+    return result;
 }
 
 QVariant testQVariant3()
@@ -1506,7 +1516,9 @@ QVariant testQVariant3()
     QVariant variant = qVariantFromValue(list);
     list.clear();
     list = qVariantValue<QList<int> >(variant);
-    return QVariant("xxx");
+
+    QVariant result("xxx");
+    return result;
 }
 
 void testQVector()
