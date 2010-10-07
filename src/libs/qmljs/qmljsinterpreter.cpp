@@ -457,9 +457,7 @@ private:
                 unexpectedElement(_xml.name(), tag);
         }
 
-        if (metaObject->exports().isEmpty()) {
-            metaObject->addExport(id, QString(), QmlJS::ComponentVersion());
-        }
+        metaObject->addExport(id, QString(), QmlJS::ComponentVersion());
 
         if (doInsert) {
             _objects->insert(id, metaObject);
