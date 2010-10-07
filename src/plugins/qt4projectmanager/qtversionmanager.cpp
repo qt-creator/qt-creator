@@ -1671,15 +1671,26 @@ QStringList QtVersion::debuggingHelperLibraryLocations() const
 
 bool QtVersion::supportsBinaryDebuggingHelper() const
 {
-    QList<ProjectExplorer::ToolChain::ToolChainType> types = possibleToolChainTypes();
-    if (types.contains(ProjectExplorer::ToolChain::GCC)
-            || types.contains(ProjectExplorer::ToolChain::LINUX_ICC)
-            || types.contains(ProjectExplorer::ToolChain::MSVC)
-            || types.contains(ProjectExplorer::ToolChain::WINCE)
-            || types.contains(ProjectExplorer::ToolChain::GCC_MAEMO)
-            || types.contains(ProjectExplorer::ToolChain::OTHER)
-            || types.contains(ProjectExplorer::ToolChain::UNKNOWN))
-        return true;
+    foreach (ProjectExplorer::ToolChain::ToolChainType type, possibleToolChainTypes())
+        switch (type) {
+        case ProjectExplorer::ToolChain::GCC:
+        case ProjectExplorer::ToolChain::LINUX_ICC:
+        case ProjectExplorer::ToolChain::MinGW:
+        case ProjectExplorer::ToolChain::MSVC:
+        case ProjectExplorer::ToolChain::WINCE:
+        case ProjectExplorer::ToolChain::GCC_MAEMO:
+        case ProjectExplorer::ToolChain::OTHER:
+        case ProjectExplorer::ToolChain::UNKNOWN:
+            return true;
+        case ProjectExplorer::ToolChain::WINSCW:
+        case ProjectExplorer::ToolChain::GCCE :
+        case ProjectExplorer::ToolChain::RVCT_ARMV5:
+        case ProjectExplorer::ToolChain::RVCT_ARMV6:
+        case ProjectExplorer::ToolChain::GCCE_GNUPOC:
+        case ProjectExplorer::ToolChain::RVCT_ARMV5_GNUPOC:
+        case ProjectExplorer::ToolChain::INVALID:
+            break;
+        }
     return false;
 }
 
