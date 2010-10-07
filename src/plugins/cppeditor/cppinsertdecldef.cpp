@@ -287,8 +287,10 @@ QList<CppQuickFixOperation::Ptr> DefFromDecl::match(const CppQuickFixState &stat
                                 CppRefactoringChanges refactoring(state.snapshot());
                                 InsertionPointLocator locator(&refactoring);
                                 QList<CppQuickFixOperation::Ptr> results;
-                                foreach (const InsertionLocation &loc, locator.methodDefinition(decl))
-                                    results.append(CppQuickFixOperation::Ptr(new InsertDefOperation(state, idx, decl, loc)));
+                                foreach (const InsertionLocation &loc, locator.methodDefinition(decl)) {
+                                    if (loc.isValid())
+                                        results.append(CppQuickFixOperation::Ptr(new InsertDefOperation(state, idx, decl, loc)));
+                                }
                                 return results;
                             }
                         }

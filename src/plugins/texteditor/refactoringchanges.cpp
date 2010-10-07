@@ -202,7 +202,7 @@ RefactoringFile::RefactoringFile(const RefactoringFile &other)
 
 RefactoringFile::~RefactoringFile()
 {
-    if (m_refactoringChanges && m_openEditor)
+    if (m_refactoringChanges && m_openEditor && !m_fileName.isEmpty())
         m_editor = m_refactoringChanges->openEditor(m_fileName, -1);
 
     // apply changes, if any
@@ -227,14 +227,15 @@ RefactoringFile::~RefactoringFile()
         }
 
         // if this document doesn't have an editor, write the result to a file
-        if (!m_editor) {
+        if (!m_editor && !m_fileName.isEmpty()) {
             const QByteArray &newContents = doc->toPlainText().toUtf8();
             QFile file(m_fileName);
             file.open(QFile::WriteOnly);
             file.write(newContents);
         }
 
-        m_refactoringChanges->fileChanged(m_fileName);
+        if (!m_fileName.isEmpty())
+            m_refactoringChanges->fileChanged(m_fileName);
     }
 
     delete m_document;
@@ -254,9 +255,9 @@ QTextDocument *RefactoringFile::mutableDocument() const
 {
     if (m_editor)
         return m_editor->document();
-    else if (!m_document && !m_fileName.isEmpty()) {
+    else if (!m_document) {
         QString fileContents;
-        {
+        if (!m_fileName.isEmpty()) {
             QFile file(m_fileName);
             if (file.open(QIODevice::ReadOnly))
                 fileContents = file.readAll();
