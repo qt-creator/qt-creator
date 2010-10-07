@@ -6106,9 +6106,58 @@
 
     \title Creating Qt Quick Projects
 
-    Select \gui {File > New File or Project > Qt Quick Project > Qt QML Application}.
+        \image qmldesigner-new-project.png "New File or Project dialog"
 
-    \image qmldesigner-new-project.png "New File or Project dialog"
+    When you create a new Qt Quick project from scratch, you have the following options:
+
+    \list
+
+        \o \gui {Qt Quick UI} creates a Qt Quick UI project with a single QML file that
+        contains the main view. You can review Qt Quick UI projects in the QML Viewer and you
+        need not build them. You do not need to have the development environment installed on your
+        computer to create and run this type of projects.
+
+        \o \gui {Qt Quick Application} creates a Qt Quick application project that can
+        contain both QML and C++ code. The project includes a QDeclarativeView. You can build
+        the application and deploy it on desktop and mobile target platforms. For example, you
+        can create signed Symbian Installation System (SIS) packages for this type of projects.
+
+        \o \gui {Custom QML Extension Plugin} creates a C++ plugin that makes it possible
+        to offer extensions that can be loaded dynamically into applications by using the
+        QDeclarativeEngine class.
+
+    \endlist
+
+    If you have existing QML applications that you want to run in Qt Creator or deploy
+    to mobile devices, use the \gui {Qt Quick Application} wizard to convert them
+    to Qt Quick applications.
+
+    \section1 Creating Qt Quick UI Projects
+
+    \list 1
+
+        \o Select \gui {File > New File or Project > Qt Quick Project > Qt Quick UI
+        > Choose...}.
+
+        The \gui{Introduction and Project Location} dialog opens.
+
+        \image qmldesigner-new-project-location.png "Introduction and Project Location dialog"
+
+        \o In the \gui Name field, give a name to the project.
+
+        Do not use spaces and special characters in the project name and path.
+
+        \o In the \gui {Create in} field, enter the path for the project files. For example,
+        \c {C:\Qt\examples}. To select the path from a directory tree, click \gui Browse.
+
+        \o Click \gui{Next}.
+
+        \image qmldesigner-new-ui-project-summary.png "Project Management dialog"
+
+        \o Review the project settings, and click \gui{Finish} to create the project.
+
+
+    \endlist
 
     Qt Creator creates the following files:
 
@@ -6131,8 +6180,122 @@
     To use JavaScript and image files in the application, copy them to the
     project folder.
 
-    To import a QML project to Qt Creator, select
-    \gui {File > New File or Project > Qt Quick Project > Import Existing Qt QML Directory}.
+    \section1 Creating Qt Quick Applications
+
+    \list 1
+
+        \o Select \gui {File > New File or Project > Qt Quick Project > Qt Quick Application
+        > Choose...}.
+
+        The \gui{Introduction and Project Location} dialog opens.
+
+        \image qmldesigner-new-project-location.png "Introduction and Project Location dialog"
+
+        \o In the \gui Name field, give a name to the project.
+
+        Do not use spaces and special characters in the project name and path.
+
+        \o In the \gui {Create in} field, enter the path for the project files. For example,
+        \c {C:\Qt\examples}. To select the path from a directory tree, click \gui Browse.
+
+        \o Click \gui{Next}.
+
+        The \gui {Qt Versions} dialog opens.
+
+        \image qmldesigner-new-project-qt-versions.png "Qt Versions dialog"
+
+        \o Select the Qt versions to use as build targets for your project,
+        and then click \gui{Next}.
+
+        \note Qt Quick is supported since Qt 4.7, and therefore, only Qt 4.7 and later
+        versions are displayed. Further, if you have only one supported Qt version installed,
+        this dialog is skipped.
+
+        The \gui{Application Options} dialog opens.
+
+        \image qtcreator-mobile-project-app-options.png "Application Options dialog"
+
+        \o In the \gui {Orientation behavior} field, determine how the application
+        behaves when the orientation of the device display rotates between portrait
+        and landscape.
+
+        \o In the \gui {Application icon} field, select an application icon.
+
+        \o In the \gui {Target UID3} field, specify the \l{Application UID}.
+
+        \note Qt Creator generates a UID for testing the application on a device.
+        You need to change the UID when you deliver the application for public
+        use.
+
+        \o If the application needs network connectivity, select the
+        \gui {Enable network access} check box, and then click \gui{Next}.
+
+        The \gui {QML Sources} dialog opens.
+
+        \image qmldesigner-new-project-qml-sources.png "QML Sources" dialog
+
+        \o In the \gui {QML Main File} group, select \gui {Generate a .qml file},
+        and then click \gui{Next}.
+
+        The \gui {Project Management} dialog opens.
+
+        \image qmldesigner-new-project-summary.png "Project Management" dialog
+
+        \o In the \gui {Add to project} field, you can add this project to another
+        project as a subproject.
+
+        \o In the \gui {Add to version control} field, you can add the project to
+        a version control system.
+
+        \o Click \gui Finish to create the project.
+
+    \endlist
+
+    Qt Creator creates the necessary boilerplate files. Some of the files are
+    specific to the Symbian or Maemo platform.
+
+    \section1 Importing QML Applications
+
+    If you have existing QML applications that you want to run in Qt Creator or deploy
+    to mobile devices, use the \gui {Qt Quick Application} wizard and select the main
+    .qml file in your project. All the other files in the project are automatically added
+    to the application project.
+
+    For example, you can open and run the
+    \l {http://doc.qt.nokia.com/4.7/qdeclarativeexamples.html} {QML examples and demos}
+    to learn how to use various aspects of QML. To run the examples in the QML Viewer
+    on the desktop, open them in the \gui Welcome mode. To view the examples on
+    mobile devices, use the \gui {Qt Quick Application} wizard to convert them into
+    Qt Quick Applications.
+
+    To import QML applications:
+
+    \list 1
+
+        \o Select \gui {File > New File or Project > Qt Quick Project > Qt Quick Application
+        > Choose...}.
+
+        \o Name the project and set its path, and then click \gui Next.
+
+        \o Select the Qt versions to use as build targets for your project, and click
+        \gui{Next}.
+
+        \o Specify options for deploying the application to mobile device targets, and
+        click \gui{Next}.
+
+        \o In the \gui {QML Sources} dialog, select the \gui {Import an existing .qml file}
+        option and specify the main .qml file of the project you want to import.
+
+        \image qmldesigner-import-project.png "QML Sources" dialog
+
+        \o Click \gui Next.
+
+        \o Review the project settings, and click \gui{Finish} to create the project.
+
+    \endlist
+
+    Qt Creator adds references to the QML files to a project and creates the additional files
+    necessary for deploying applications on mobile devices.
 
 */
 

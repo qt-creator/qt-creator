@@ -98,7 +98,12 @@ Core::BaseFileWizardParameters QmlStandaloneAppWizard::parameters()
     parameters.setIcon(QIcon(QLatin1String(Constants::ICON_QML_STANDALONE)));
     parameters.setDisplayName(tr("Qt Quick Application"));
     parameters.setId(QLatin1String("QA.QMLA Application"));
-    parameters.setDescription(tr("Creates a Qt Quick application that you can deploy to mobile devices."));
+    parameters.setDescription(tr("Creates a Qt Quick application project that can contain "
+                                 "both QML and C++ code and includes a QDeclarativeView.\n\n"
+                                 "You can build the application and deploy it on desktop and "
+                                 "mobile target platforms. For example, you can create signed "
+                                 "Symbian Installation System (SIS) packages for this type of "
+                                 "projects."));
     parameters.setCategory(QLatin1String(Constants::QML_WIZARD_CATEGORY));
     parameters.setDisplayCategory(QCoreApplication::translate(Constants::QML_WIZARD_TR_SCOPE,
                                                               Constants::QML_WIZARD_TR_CATEGORY));
