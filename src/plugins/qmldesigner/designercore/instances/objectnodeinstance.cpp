@@ -58,7 +58,9 @@
 #include <QFileInfo>
 #include <QFileSystemWatcher>
 #include <QPixmapCache>
+#ifndef QT_NO_WEBKIT
 #include <QGraphicsWebView>
+#endif
 
 #include <QTextDocument>
 
@@ -733,9 +735,13 @@ void allSubObject(QObject *object, QObjectList &objectList)
 
 static void disableTiledBackingStore(QObject *object)
 {
+#ifndef QT_NO_WEBKIT
     QGraphicsWebView *webView = qobject_cast<QGraphicsWebView*>(object);
     if (webView)
         webView->settings()->setAttribute(QWebSettings::TiledBackingStoreEnabled, false);
+#else
+    Q_UNUSED(object);
+#endif
 }
 
 void ObjectNodeInstance::tweakObjects(QObject *object)
