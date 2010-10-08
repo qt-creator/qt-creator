@@ -129,8 +129,8 @@ public:
 signals:
     void diffSelected(const QStringList &);
     void fileSelectionChanged(bool someFileSelected);
-    void fileCheckStateChanged(bool someFileChecked);
     void submitActionTextChanged(const QString &);
+    void submitActionEnabledChanged(const bool);
 
 public slots:
     void checkAll();
@@ -139,13 +139,16 @@ public slots:
 protected:
     virtual void changeEvent(QEvent *e);
     void insertTopWidget(QWidget *w);
+    virtual bool canSubmit() const;
+
+protected slots:
+    void updateSubmitAction();
 
 private slots:
     void triggerDiffSelected();
     void diffActivated(const QModelIndex &index);
     void diffActivatedDelayed();
     void updateActions();
-    void updateSubmitAction();
     void updateDiffAction();
     void editorCustomContextMenuRequested(const QPoint &);
     void fileListCustomContextMenuRequested(const QPoint & pos);

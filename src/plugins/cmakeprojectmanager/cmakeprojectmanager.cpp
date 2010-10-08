@@ -117,7 +117,6 @@ void CMakeManager::createXmlFile(QProcess *proc, const QStringList &arguments,
     QString buildDirectoryPath = buildDirectory.absolutePath();
     buildDirectory.mkpath(buildDirectoryPath);
     proc->setWorkingDirectory(buildDirectoryPath);
-    proc->setProcessChannelMode(QProcess::MergedChannels);
     proc->setEnvironment(env.toStringList());
 
     const QString srcdir = buildDirectory.exists(QLatin1String("CMakeCache.txt")) ?

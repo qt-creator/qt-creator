@@ -76,8 +76,7 @@ public:
     static DebuggerUISwitcher *instance();
 
     // debuggable languages are registered with this function.
-    void addLanguage(const DebuggerLanguage &language, const QString &languageName,
-                     const Core::Context &context);
+    void addLanguage(const DebuggerLanguage &language, const Core::Context &context);
 
     // debugger toolbars are registered  with this function
     void setToolbar(const DebuggerLanguage &language, QWidget *widget);

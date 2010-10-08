@@ -118,14 +118,16 @@ void InspectorPlugin::extensionsInitialized()
     m_inspectorUi->setupUi();
 }
 
-// The adapter object is only added to the pool with a succesful connection,
-// so we can immediately init our stuff.
 void InspectorPlugin::objectAdded(QObject *object)
 {
     Debugger::QmlAdapter *adapter = qobject_cast<Debugger::QmlAdapter *>(object);
     if (adapter) {
         m_clientProxy = new ClientProxy(adapter);
-        m_inspectorUi->connected(m_clientProxy);
+        if (m_clientProxy->isConnected()) {
+            clientProxyConnected();
+        } else {
+            connect(m_clientProxy, SIGNAL(connected()), this, SLOT(clientProxyConnected()));
+        }
         return;
     }
 
@@ -146,6 +148,11 @@ void InspectorPlugin::aboutToRemoveObject(QObject *obj)
     if (m_inspectorUi->debuggerEngine() == obj) {
         m_inspectorUi->setDebuggerEngine(0);
     }
+}
+
+void InspectorPlugin::clientProxyConnected()
+{
+    m_inspectorUi->connected(m_clientProxy);
 }
 
 Q_EXPORT_PLUGIN(InspectorPlugin)

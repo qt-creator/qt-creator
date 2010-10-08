@@ -379,11 +379,11 @@ TargetSetupPage::recursivelyCheckDirectoryForBuild(const QString &directory, con
         return results;
 
     // Check for in-source builds first:
-    QString qmakeBinary = QtVersionManager::findQMakeBinaryFromMakefile(directory);
+    QString qmakeBinary = QtVersionManager::findQMakeBinaryFromMakefile(directory + "/Makefile");
     QDir dir(directory);
 
     // Recurse into subdirectories:
-    if (qmakeBinary.isNull() || !QtVersionManager::makefileIsFor(directory, proFile)) {
+    if (qmakeBinary.isNull() || !QtVersionManager::makefileIsFor(directory + "/Makefile", proFile)) {
         QStringList subDirs = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
         foreach (QString subDir, subDirs)
             results.append(recursivelyCheckDirectoryForBuild(dir.absoluteFilePath(subDir),
@@ -409,7 +409,7 @@ TargetSetupPage::recursivelyCheckDirectoryForBuild(const QString &directory, con
     }
 
     QPair<QtVersion::QmakeBuildConfigs, QStringList> result =
-            QtVersionManager::scanMakeFile(directory, info.version->defaultBuildConfig());
+            QtVersionManager::scanMakeFile(directory + "/Makefile", info.version->defaultBuildConfig());
     info.buildConfig = result.first;
     info.additionalArguments = Qt4BuildConfiguration::removeSpecFromArgumentList(result.second);
 
@@ -516,13 +516,13 @@ void TargetSetupPage::handleDoubleClicks(QTreeWidgetItem *item, int column)
     }
 }
 
-void TargetSetupPage::contextMenuRequested(const QPoint & position)
+void TargetSetupPage::contextMenuRequested(const QPoint &position)
 {
     m_contextMenu->clear();
 
     QTreeWidgetItem *item = m_ui->versionTree->itemAt(position);
     m_contextMenu = new QMenu(this);
-    if (item->parent()) {
+    if (item && item->parent()) {
         // Qt version item
         QAction *onlyThisAction = new QAction(tr("Check only this version"), m_contextMenu);
         connect(onlyThisAction, SIGNAL(triggered()), this, SLOT(checkOneTriggered()));

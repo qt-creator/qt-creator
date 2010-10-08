@@ -57,6 +57,9 @@ public:
      */
     unsigned startOf(const QmlJS::AST::SourceLocation &loc) const;
 
+    bool isCursorOn(QmlJS::AST::UiObjectMember *ast) const;
+    bool isCursorOn(QmlJS::AST::UiQualifiedId *ast) const;
+
 private:
     QmlJSRefactoringChanges *refactoringChanges() const;
 

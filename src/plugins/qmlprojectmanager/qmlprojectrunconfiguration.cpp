@@ -32,7 +32,6 @@
 #include "qmlprojectmanagerconstants.h"
 #include "qmlprojecttarget.h"
 #include "projectexplorer/projectexplorer.h"
-
 #include <coreplugin/mimedatabase.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -42,8 +41,10 @@
 #include <utils/synchronousprocess.h>
 #include <utils/pathchooser.h>
 #include <utils/debuggerlanguagechooser.h>
+#include <utils/detailswidget.h>
 #include <qt4projectmanager/qtversionmanager.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
+#include <qt4projectmanager/qmlobservertool.h>
 
 #include <QFormLayout>
 #include <QComboBox>
@@ -109,6 +110,11 @@ Internal::QmlProjectTarget *QmlProjectRunConfiguration::qmlTarget() const
     return static_cast<Internal::QmlProjectTarget *>(target());
 }
 
+bool QmlProjectRunConfiguration::qmlObserverAvailable() const
+{
+    return m_qmlObserverAvailable;
+}
+
 QString QmlProjectRunConfiguration::viewerPath() const
 {
     if (!m_qmlViewerCustomPath.isEmpty())
@@ -150,8 +156,13 @@ static bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
 
 QWidget *QmlProjectRunConfiguration::createConfigurationWidget()
 {
-    QWidget *config = new QWidget;
-    QFormLayout *form = new QFormLayout(config);
+    Utils::DetailsWidget *detailsWidget = new Utils::DetailsWidget();
+    detailsWidget->setState(Utils::DetailsWidget::NoSummary);
+
+    QWidget *formWidget = new QWidget(detailsWidget);
+    detailsWidget->setWidget(formWidget);
+    QFormLayout *form = new QFormLayout(formWidget);
+    form->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
     m_fileListCombo = new QComboBox;
     m_fileListCombo.data()->setModel(m_fileListModel);
@@ -174,7 +185,7 @@ QWidget *QmlProjectRunConfiguration::createConfigurationWidget()
     connect(qmlViewerArgs, SIGNAL(textChanged(QString)), this, SLOT(onViewerArgsChanged()));
 
     form->addRow(tr("Custom QML Viewer:"), qmlViewer);
-    form->addRow(tr("QML Viewer arguments:"), qmlViewerArgs);
+    form->addRow(tr("Arguments:"), qmlViewerArgs);
     form->addRow(QString(), m_qmlViewerExecutable.data());
 
     QWidget *debuggerLabelWidget = new QWidget;
@@ -186,7 +197,7 @@ QWidget *QmlProjectRunConfiguration::createConfigurationWidget()
     debuggerLabelLayout->addWidget(debuggerLabel);
     debuggerLabelLayout->addStretch(10);
 
-    Utils::DebuggerLanguageChooser *debuggerLanguageChooser = new Utils::DebuggerLanguageChooser(config);
+    Utils::DebuggerLanguageChooser *debuggerLanguageChooser = new Utils::DebuggerLanguageChooser(formWidget);
 
     form->addRow(tr("Main QML file:"), m_fileListCombo.data());
     form->addRow(debuggerLabelWidget, debuggerLanguageChooser);
@@ -202,7 +213,7 @@ QWidget *QmlProjectRunConfiguration::createConfigurationWidget()
     connect(debuggerLanguageChooser, SIGNAL(qmlDebugServerPortChanged(uint)),
             this, SLOT(qmlDebugServerPortChanged(uint)));
 
-    return config;
+    return detailsWidget;
 }
 
 
@@ -365,47 +376,19 @@ QString QmlProjectRunConfiguration::viewerDefaultPath() const
 {
     QString path;
 
-    // Search for QmlObserver
-#ifdef Q_OS_MAC
-    const QString qmlObserverName = QLatin1String("QMLObserver.app");
-#else
-    const QString qmlObserverName = QLatin1String("qmlobserver");
-#endif
-
-    QDir appDir(QCoreApplication::applicationDirPath());
-    QString qmlObserverPath;
-#ifdef Q_OS_WIN
-    qmlObserverPath = appDir.absoluteFilePath(qmlObserverName + QLatin1String(".exe"));
-#else
-    qmlObserverPath = appDir.absoluteFilePath(qmlObserverName);
-#endif
-    if (QFileInfo(qmlObserverPath).exists()) {
-        return qmlObserverPath;
-    }
-
-    // Search for QmlViewer
-
-    // prepend creator/bin dir to search path (only useful for special creator-qml package)
-    const QString searchPath = QCoreApplication::applicationDirPath()
-            + Utils::SynchronousProcess::pathSeparator()
-            + QString::fromLocal8Bit(qgetenv("PATH"));
-
-#ifdef Q_OS_MAC
-    const QString qmlViewerName = QLatin1String("QMLViewer");
-#else
-    const QString qmlViewerName = QLatin1String("qmlviewer");
-#endif
-
-    path = Utils::SynchronousProcess::locateBinary(searchPath, qmlViewerName);
-    if (!path.isEmpty())
-        return path;
-
     // Try to locate default path in Qt Versions
     Qt4ProjectManager::QtVersionManager *qtVersions = Qt4ProjectManager::QtVersionManager::instance();
     foreach (Qt4ProjectManager::QtVersion *version, qtVersions->validVersions()) {
-        if (!version->qmlviewerCommand().isEmpty()
-                && version->supportsTargetId(Qt4ProjectManager::Constants::DESKTOP_TARGET_ID)) {
-            return version->qmlviewerCommand();
+        if (version->supportsTargetId(Qt4ProjectManager::Constants::DESKTOP_TARGET_ID)) {
+            // Search for QmlObserver
+            const QString qtInstallData = version->versionInfo().value("QT_INSTALL_DATA");
+            path = Qt4ProjectManager::QmlObserverTool::toolByInstallData(qtInstallData);
+            m_qmlObserverAvailable = !path.isEmpty();
+
+            if (path.isEmpty() && !version->qmlviewerCommand().isEmpty()) {
+                path = version->qmlviewerCommand();
+                break;
+            }
         }
     }
 

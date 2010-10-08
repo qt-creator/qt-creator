@@ -129,17 +129,12 @@ struct DebuggerUISwitcherPrivate
 
     QHash<DebuggerLanguage, Context> m_contextsForLanguage;
 
-    QActionGroup *m_languageActionGroup;
     bool m_inDebugMode;
     bool m_changingUI;
 
-    ActionContainer *m_debuggerLanguageMenu;
     DebuggerLanguages m_previousDebugLanguages;
     DebuggerLanguages m_activeDebugLanguages;
-    QAction *m_activateCppAction;
-    QAction *m_activateQmlAction;
     QAction *m_openMemoryEditorAction;
-    bool m_qmlEnabled;
 
     ActionContainer *m_viewsMenu;
     ActionContainer *m_debugMenu;
@@ -160,21 +155,15 @@ DebuggerUISwitcherPrivate::DebuggerUISwitcherPrivate(DebuggerUISwitcher *q)
     , m_supportedLanguages(AnyLanguage)
     , m_languageCount(0)
     , m_toolbarStack(new QStackedWidget)
-    , m_languageActionGroup(new QActionGroup(q))
     , m_inDebugMode(false)
     , m_changingUI(false)
-    , m_debuggerLanguageMenu(0)
     , m_previousDebugLanguages(AnyLanguage)
     , m_activeDebugLanguages(AnyLanguage)
-    , m_activateCppAction(0)
-    , m_activateQmlAction(0)
     , m_openMemoryEditorAction(0)
-    , m_qmlEnabled(false)
     , m_viewsMenu(0)
     , m_debugMenu(0)
     , m_initialized(false)
 {
-    m_languageActionGroup->setExclusive(false);
 }
 
 DebuggerUISwitcher *DebuggerUISwitcherPrivate::m_instance = 0;
@@ -197,7 +186,6 @@ DebuggerUISwitcher::DebuggerUISwitcher(BaseMode *mode, QObject* parent)
     d->m_debugMenu = am->actionContainer(ProjectExplorer::Constants::M_DEBUG);
     d->m_viewsMenu = am->actionContainer(Core::Id(Core::Constants::M_WINDOW_VIEWS));
     QTC_ASSERT(d->m_viewsMenu, return)
-    d->m_debuggerLanguageMenu = am->createMenu(Constants::M_DEBUG_DEBUGGING_LANGUAGES);
 
     DebuggerUISwitcherPrivate::m_instance = this;
 }
@@ -268,43 +256,24 @@ void DebuggerUISwitcher::updateUiForRunConfiguration(ProjectExplorer::RunConfigu
 
 void DebuggerUISwitcher::updateUiForCurrentRunConfiguration()
 {
-    if (d->m_previousRunConfiguration) {
-        ProjectExplorer::RunConfiguration *rc = d->m_previousRunConfiguration.data();
-
-        if (d->m_activateCppAction)
-            d->m_activateCppAction->setChecked(rc->useCppDebugger());
-        if (d->m_activateQmlAction)
-            d->m_activateQmlAction->setChecked(rc->useQmlDebugger());
-    }
-
     updateActiveLanguages();
 }
 
 void DebuggerUISwitcher::updateActiveLanguages()
 {
-    DebuggerLanguages prevLanguages = d->m_activeDebugLanguages;
+    DebuggerLanguages newLanguages = AnyLanguage;
 
-    d->m_activeDebugLanguages = AnyLanguage;
-
-    if (d->m_activateCppAction->isChecked())
-        d->m_activeDebugLanguages = CppLanguage;
-
-    if (d->m_qmlEnabled && d->m_activateQmlAction->isChecked())
-        d->m_activeDebugLanguages |= QmlLanguage;
-
-    if (d->m_activeDebugLanguages == AnyLanguage) {
-        // do mutual exclusive selection if qml is enabled. Otherwise, just keep
-        // cpp language selected.
-        if (prevLanguages & CppLanguage && d->m_qmlEnabled) {
-            d->m_activeDebugLanguages = QmlLanguage;
-            d->m_activateQmlAction->setChecked(true);
-        } else {
-            d->m_activateCppAction->setChecked(true);
-            d->m_activeDebugLanguages = CppLanguage;
-        }
+    if (d->m_previousRunConfiguration) {
+        if (d->m_previousRunConfiguration.data()->useCppDebugger())
+            newLanguages = CppLanguage;
+        if (d->m_previousRunConfiguration.data()->useQmlDebugger())
+            newLanguages |= QmlLanguage;
     }
 
-    emit activeLanguagesChanged(d->m_activeDebugLanguages);
+    if (newLanguages != d->m_activeDebugLanguages) {
+        d->m_activeDebugLanguages = newLanguages;
+        emit activeLanguagesChanged(d->m_activeDebugLanguages);
+    }
 
     updateUi();
 }
@@ -357,9 +326,6 @@ void DebuggerUISwitcher::createViewsMenuItems()
     ActionManager *am = core->actionManager();
     Context globalcontext(Core::Constants::C_GLOBAL);
 
-    d->m_debugMenu->addMenu(d->m_debuggerLanguageMenu, Core::Constants::G_DEFAULT_THREE);
-    d->m_debuggerLanguageMenu->menu()->setTitle(tr("&Debug Languages"));
-
     d->m_openMemoryEditorAction = new QAction(this);
     d->m_openMemoryEditorAction->setText(tr("Memory..."));
     connect(d->m_openMemoryEditorAction, SIGNAL(triggered()),
@@ -390,8 +356,7 @@ DebuggerUISwitcher *DebuggerUISwitcher::instance()
     return DebuggerUISwitcherPrivate::m_instance;
 }
 
-void DebuggerUISwitcher::addLanguage(const DebuggerLanguage &languageId,
-    const QString &languageName, const Context &context)
+void DebuggerUISwitcher::addLanguage(const DebuggerLanguage &languageId, const Context &context)
 {
     bool activate = (d->m_supportedLanguages == AnyLanguage);
     d->m_supportedLanguages = d->m_supportedLanguages | languageId;
@@ -399,30 +364,6 @@ void DebuggerUISwitcher::addLanguage(const DebuggerLanguage &languageId,
 
     d->m_toolBars.insert(languageId, 0);
     d->m_contextsForLanguage.insert(languageId, context);
-
-    ActionManager *am = ICore::instance()->actionManager();
-
-    QAction *debuggableLang = new QAction(languageName, this);
-    debuggableLang->setCheckable(true);
-    debuggableLang->setText(languageName);
-    d->m_languageActionGroup->addAction(debuggableLang);
-    Command *activeDebugLanguageCmd = am->registerAction(debuggableLang,
-                         QString("Debugger.DebugLanguage." + languageName),
-                          Context(Core::Constants::C_GLOBAL));
-    d->m_debuggerLanguageMenu->addAction(activeDebugLanguageCmd);
-
-    QString shortcutPrefix = tr("Alt+L");
-    QString shortcutIndex = QString::number(d->m_languageCount);
-    activeDebugLanguageCmd->setDefaultKeySequence(QKeySequence(
-                            QString("%1,%2").arg(shortcutPrefix).arg(shortcutIndex)));
-
-    if (languageId == QmlLanguage) {
-        d->m_qmlEnabled = true;
-        d->m_activateQmlAction = debuggableLang;
-    } else if (!d->m_activateCppAction) {
-        d->m_activateCppAction = debuggableLang;
-    }
-    connect(debuggableLang, SIGNAL(triggered()), SLOT(updateActiveLanguages()));
 
     updateUiForRunConfiguration(0);
 
@@ -683,7 +624,7 @@ void DebuggerUISwitcher::writeSettings() const
         }
         settings->endGroup();
     }
-    if (d->m_qmlEnabled) {
+    {
         settings->beginGroup(QLatin1String("DebugMode.CppQmlMode"));
         QHashIterator<QString, QVariant> it(d->m_dockWidgetActiveStateQmlCpp);
         while (it.hasNext()) {
@@ -706,13 +647,11 @@ void DebuggerUISwitcher::readSettings()
     }
     settings->endGroup();
 
-    if (d->m_qmlEnabled) {
-        settings->beginGroup(QLatin1String("DebugMode.CppQmlMode"));
-        foreach (const QString &key, settings->childKeys()) {
-            d->m_dockWidgetActiveStateQmlCpp.insert(key, settings->value(key));
-        }
-        settings->endGroup();
+    settings->beginGroup(QLatin1String("DebugMode.CppQmlMode"));
+    foreach (const QString &key, settings->childKeys()) {
+        d->m_dockWidgetActiveStateQmlCpp.insert(key, settings->value(key));
     }
+    settings->endGroup();
 
     // reset initial settings when there are none yet
     DebuggerLanguages langs = d->m_activeDebugLanguages;
@@ -720,7 +659,7 @@ void DebuggerUISwitcher::readSettings()
         d->m_activeDebugLanguages = CppLanguage;
         resetDebuggerLayout();
     }
-    if (d->m_qmlEnabled && d->m_dockWidgetActiveStateQmlCpp.isEmpty()) {
+    if (d->m_dockWidgetActiveStateQmlCpp.isEmpty()) {
         d->m_activeDebugLanguages = QmlLanguage;
         resetDebuggerLayout();
     }

@@ -148,7 +148,7 @@ static inline bool createFile(Internal::CustomWizardFile cwFile,
     const QString sourcePath = sourceDirectory + slash + cwFile.source;
     // Field replacement on target path
     Internal::CustomWizardContext::replaceFields(fm, &cwFile.target);
-    const QString targetPath = QDir::toNativeSeparators(targetDirectory + slash + cwFile.target);
+    const QString targetPath = targetDirectory + slash + cwFile.target;
     if (CustomWizardPrivate::verbose)
         qDebug() << "generating " << targetPath << sourcePath << fm;
 
@@ -533,7 +533,8 @@ bool CustomProjectWizard::postGenerateOpen(const Core::GeneratedFiles &l, QStrin
         if (file.attributes() & Core::GeneratedFile::OpenProjectAttribute) {
             if (!ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(file.path())) {
                 if (errorMessage)
-                    *errorMessage = tr("The project %1 could not be opened.").arg(file.path());
+                    *errorMessage = tr("The project %1 could not be opened.").
+                                    arg(QDir::toNativeSeparators(file.path()));
                 return false;
             }
         }

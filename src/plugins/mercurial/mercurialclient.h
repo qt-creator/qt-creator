@@ -100,6 +100,8 @@ public:
                 const QString &commiterInfo,
                 const QString &commitMessageFile,
                 bool autoAddRemove = false);
+    bool clone(const QString &directory, const QString &url);
+    QString vcsGetRepositoryURL(const QString &directory);
 
     static QString findTopLevelForFile(const QFileInfo &file);
 

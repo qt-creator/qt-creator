@@ -72,7 +72,7 @@ public:
 };
 
 GeneratedFilePrivate::GeneratedFilePrivate(const QString &p) :
-    path(p),
+    path(QDir::cleanPath(p)),
     binary(false),
     attributes(0)
 {
@@ -111,7 +111,7 @@ QString GeneratedFile::path() const
 
 void GeneratedFile::setPath(const QString &p)
 {
-    m_d->path = p;
+    m_d->path = QDir::cleanPath(p);
 }
 
 QString GeneratedFile::contents() const
@@ -628,7 +628,7 @@ bool BaseFileWizard::postGenerateOpenEditors(const GeneratedFiles &l, QString *e
         if (file.attributes() & Core::GeneratedFile::OpenEditorAttribute) {
             if (!em->openEditor(file.path(), file.editorId(), Core::EditorManager::ModeSwitch )) {
                 if (errorMessage)
-                    *errorMessage = tr("Failed to open an editor for '%1'.").arg(file.path());
+                    *errorMessage = tr("Failed to open an editor for '%1'.").arg(QDir::toNativeSeparators(file.path()));
                 return false;
             }
         }
@@ -663,7 +663,7 @@ BaseFileWizard::OverwriteResult BaseFileWizard::promptOverwrite(const QStringLis
         if (fi.exists()) {
             if (!fileNamesMsgPart.isEmpty())
                 fileNamesMsgPart += QLatin1String(", ");
-            fileNamesMsgPart += fileName.mid(commonExistingPath.size() + 1);
+            fileNamesMsgPart += QDir::toNativeSeparators(fileName.mid(commonExistingPath.size() + 1));
             do {
                 if (fi.isDir()) {
                     oddStuffFound = true;
@@ -687,13 +687,14 @@ BaseFileWizard::OverwriteResult BaseFileWizard::promptOverwrite(const QStringLis
         return OverwriteOk;
 
     if (oddStuffFound) {
-        *errorMessage = tr("The project directory %1 contains files which cannot be overwritten:\n%2.").arg(commonExistingPath).arg(fileNamesMsgPart);
+        *errorMessage = tr("The project directory %1 contains files which cannot be overwritten:\n%2.")
+                .arg(QDir::toNativeSeparators(commonExistingPath)).arg(fileNamesMsgPart);
         return OverwriteError;
     }
 
     const QString messageFormat = tr("The following files already exist in the directory %1:\n"
                                      "%2.\nWould you like to overwrite them?");
-    const QString message = messageFormat.arg(commonExistingPath).arg(fileNamesMsgPart);
+    const QString message = messageFormat.arg(QDir::toNativeSeparators(commonExistingPath)).arg(fileNamesMsgPart);
     const bool yes = (QMessageBox::question(Core::ICore::instance()->mainWindow(),
                                             tr("Existing files"), message,
                                             QMessageBox::Yes | QMessageBox::No,

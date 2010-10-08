@@ -37,21 +37,20 @@ namespace Internal {
 QmlDebuggerClient::QmlDebuggerClient(QmlJsDebugClient::QDeclarativeDebugConnection* client)
     : QDeclarativeDebugClient(QLatin1String("JSDebugger"), client)
 {
-    setEnabled(true);
 }
 
 QmlDebuggerClient::~QmlDebuggerClient()
 {
 }
 
+void QmlDebuggerClient::statusChanged(Status status)
+{
+    emit newStatus(status);
+}
+
 void QmlDebuggerClient::messageReceived(const QByteArray &data)
 {
     emit messageWasReceived(data);
-}
-
-void QmlDebuggerClient::slotSendMessage(const QByteArray &message)
-{
-    QDeclarativeDebugClient::sendMessage(message);
 }
 
 } // Internal

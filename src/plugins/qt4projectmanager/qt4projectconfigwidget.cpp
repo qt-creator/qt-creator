@@ -295,16 +295,26 @@ void Qt4ProjectConfigWidget::updateImportLabel()
 {
     bool visible = false;
     bool targetMatches = false;
+    bool incompatibleBuild = false;
 
     QtVersionManager *vm = QtVersionManager::instance();
     // we only show if we actually have a qmake and makestep
     if (m_buildConfiguration->qmakeStep() && m_buildConfiguration->makeStep()) {
-        QString qmakePath = QtVersionManager::findQMakeBinaryFromMakefile(m_buildConfiguration->buildDirectory());
+        QString makefile = m_buildConfiguration->buildDirectory();
+        if (m_buildConfiguration->makefile().isEmpty())
+            makefile.append("/Makefile");
+        else
+            makefile.append(m_buildConfiguration->makefile());
+
+        QString qmakePath = QtVersionManager::findQMakeBinaryFromMakefile(makefile);
         QtVersion *version = m_buildConfiguration->qtVersion();
         // check that there's a makefile
         if (!qmakePath.isEmpty()) {
-            // and that the qmake path is different from the current version
-            if (qmakePath != (version ? version->qmakeCommand() : QString())) {
+            // Is it from the same build?
+            if (!QtVersionManager::makefileIsFor(makefile, m_buildConfiguration->target()->project()->file()->fileName())) {
+                incompatibleBuild = true;
+            } else if (qmakePath != (version ? version->qmakeCommand() : QString())) {
+                // and that the qmake path is different from the current version
                 // import enable
                 visible = true;
                 QtVersion *newVersion = vm->qtVersionForQMakeBinary(qmakePath);
@@ -318,11 +328,9 @@ void Qt4ProjectConfigWidget::updateImportLabel()
                     delete newVersion;
             } else {
                 // check that the qmake flags, arguments match
-                visible = !m_buildConfiguration->compareToImportFrom(m_buildConfiguration->buildDirectory());
+                visible = !m_buildConfiguration->compareToImportFrom(makefile);
                 targetMatches = true;
             }
-        } else {
-            visible = false;
         }
     }
 
@@ -332,7 +340,14 @@ void Qt4ProjectConfigWidget::updateImportLabel()
     QList<ProjectExplorer::Task> issues = m_buildConfiguration->qtVersion()->reportIssues(m_buildConfiguration->target()->project()->file()->fileName(),
                                                                                           buildDirectory);
 
-    if (!issues.isEmpty()) {
+    if (incompatibleBuild) {
+        m_ui->problemLabel->setVisible(true);
+        m_ui->warningLabel->setVisible(true);
+        m_ui->importLabel->setVisible(false);
+        m_ui->problemLabel->setText(tr("An build for a different project exists in %1, which will be overwritten.",
+                                       "%1 build directory").
+                                    arg(m_ui->shadowBuildDirEdit->path()));
+    } else if (!issues.isEmpty()) {
         m_ui->problemLabel->setVisible(true);
         m_ui->warningLabel->setVisible(true);
         m_ui->importLabel->setVisible(visible);
@@ -377,7 +392,13 @@ void Qt4ProjectConfigWidget::importLabelClicked()
         return;
     QString directory = m_buildConfiguration->buildDirectory();
     if (!directory.isEmpty()) {
-        QString qmakePath = QtVersionManager::findQMakeBinaryFromMakefile(directory);
+        QString makefile = directory;
+        if (m_buildConfiguration->makefile().isEmpty())
+            makefile.append("/Makefile");
+        else
+            makefile.append(m_buildConfiguration->makefile());
+
+        QString qmakePath = QtVersionManager::findQMakeBinaryFromMakefile(makefile);
         if (!qmakePath.isEmpty()) {
             QtVersionManager *vm = QtVersionManager::instance();
             QtVersion *version = vm->qtVersionForQMakeBinary(qmakePath);

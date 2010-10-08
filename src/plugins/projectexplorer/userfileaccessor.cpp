@@ -161,7 +161,7 @@ public:
 
     QString displayUserFileVersion() const
     {
-        return QLatin1String("2.2pre1");
+        return QLatin1String("2.1pre1");
     }
 
     QVariantMap update(Project *project, const QVariantMap &map);
@@ -178,13 +178,13 @@ public:
 
     QString displayUserFileVersion() const
     {
-        return QLatin1String("2.2pre2");
+        return QLatin1String("2.1pre2");
     }
 
     QVariantMap update(Project *project, const QVariantMap &map);
 };
 
-// Version 5 reflects the introduction of new deploy steps for Symbian/Maemo
+// Version 6 reflects the introduction of new deploy steps for Symbian/Maemo
 class Version6Handler : public UserFileVersionHandler
 {
 public:
@@ -195,13 +195,13 @@ public:
 
     QString displayUserFileVersion() const
     {
-        return QLatin1String("2.2pre3");
+        return QLatin1String("2.1pre3");
     }
 
     QVariantMap update(Project *project, const QVariantMap &map);
 };
 
-// Version 5 reflects the introduction of new deploy configuration for Symbian
+// Version 7 reflects the introduction of new deploy configuration for Symbian
 class Version7Handler : public UserFileVersionHandler
 {
 public:
@@ -212,7 +212,7 @@ public:
 
     QString displayUserFileVersion() const
     {
-        return QLatin1String("2.2pre4");
+        return QLatin1String("2.1pre4");
     }
 
     QVariantMap update(Project *project, const QVariantMap &map);
@@ -1127,6 +1127,29 @@ QVariantMap Version4Handler::update(Project *, const QVariantMap &map)
         while (targetIt.hasNext()) {
             targetIt.next();
             const QString &targetKey = targetIt.key();
+
+            if (targetKey.startsWith(QLatin1String("ProjectExplorer.Target.RunConfiguration."))) {
+                const QVariantMap &runConfigMap = targetIt.value().toMap();
+                const QLatin1String maemoRcId("Qt4ProjectManager.MaemoRunConfiguration");
+                if (runConfigMap.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id")).toString()
+                    == maemoRcId) {
+                    QVariantMap newRunConfigMap;
+                    for (QVariantMap::ConstIterator rcMapIt = runConfigMap.constBegin();
+                         rcMapIt != runConfigMap.constEnd(); ++rcMapIt) {
+                        const QLatin1String oldProFileKey(".ProFile");
+                        if (rcMapIt.key() == oldProFileKey) {
+                            newRunConfigMap.insert(maemoRcId + oldProFileKey,
+                                rcMapIt.value());
+                        } else {
+                            newRunConfigMap.insert(rcMapIt.key(),
+                                rcMapIt.value());
+                        }
+                    }
+                    newTarget.insert(targetKey, newRunConfigMap);
+                    continue;
+                }
+            }
+
             if (!targetKey.startsWith(QLatin1String("ProjectExplorer.Target.BuildConfiguration."))) {
                 newTarget.insert(targetKey, targetIt.value());
                 continue;

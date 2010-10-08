@@ -693,7 +693,8 @@ def makeValue(type, init):
     type = stripClassTag(type)
     if type.find(":") >= 0:
         type = "'" + type + "'"
-    gdb.execute("set $d = (%s*)malloc(sizeof(%s))" % (type, type))
+    # Avoid malloc symbol clash with QVector
+    gdb.execute("set $d = (%s*)calloc(sizeof(%s), 1)" % (type, type))
     gdb.execute("set *$d = {%s}" % init)
     value = parseAndEvaluate("$d").dereference()
     #warn("  TYPE: %s" % value.type)

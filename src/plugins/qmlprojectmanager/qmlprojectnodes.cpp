@@ -177,6 +177,8 @@ QList<ProjectExplorer::ProjectNode::ProjectAction> QmlProjectNode::supportedActi
     Q_UNUSED(node);
     QList<ProjectAction> actions;
     actions.append(AddNewFile);
+    actions.append(EraseFile);
+    actions.append(Rename);
     return actions;
 }
 
@@ -213,14 +215,13 @@ bool QmlProjectNode::removeFiles(const ProjectExplorer::FileType /*fileType*/,
 bool QmlProjectNode::deleteFiles(const ProjectExplorer::FileType /*fileType*/,
                                  const QStringList & /*filePaths*/)
 {
-    return false;
+    return true;
 }
-
 
 bool QmlProjectNode::renameFile(const ProjectExplorer::FileType /*fileType*/,
                                     const QString & /*filePath*/, const QString & /*newFilePath*/)
 {
-    return false;
+    return true;
 }
 
 } // namespace Internal

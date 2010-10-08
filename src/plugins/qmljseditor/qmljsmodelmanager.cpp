@@ -41,6 +41,7 @@
 #include <qmljs/parser/qmldirparser_p.h>
 #include <texteditor/itexteditor.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
 
 #include <QDir>
 #include <QFile>
@@ -472,29 +473,13 @@ void ModelManager::onLoadPluginTypes(const QString &libraryPath, const QString &
     if (m_runningQmldumps.values().contains(canonicalLibraryPath))
         return;
 
-    static QString qmldumpPath;
-    if (qmldumpPath.isNull()) {
-        QDir qmldumpExecutable(QCoreApplication::applicationDirPath());
-#ifdef Q_OS_WIN
-        qmldumpPath = qmldumpExecutable.absoluteFilePath(QLatin1String("qmldump.exe"));
-#else // !Q_OS_WIN
-#  ifdef Q_OS_MAC
-        qmldumpPath = qmldumpExecutable.absoluteFilePath(QLatin1String("qmldump.app/Contents/MacOS/qmldump"));
-#  else // !Q_OS_MAC
-        qmldumpPath = qmldumpExecutable.absoluteFilePath(QLatin1String("qmldump"));
-#  endif // Q_OS_MAC
-#endif // Q_OS_WIN
-        QFileInfo qmldumpFileInfo(qmldumpPath);
-        if (!qmldumpFileInfo.exists()) {
-            qWarning() << "ModelManager::loadQmlPluginTypes: qmldump executable does not exist at" << qmldumpPath;
-            qmldumpPath.clear();
-        } else if (!qmldumpFileInfo.isFile()) {
-            qWarning() << "ModelManager::loadQmlPluginTypes: " << qmldumpPath << " is not a file";
-            qmldumpPath.clear();
-        }
+    ProjectExplorer::Project *activeProject = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
+    if (!activeProject)
+        return;
 
-    }
-    if (qmldumpPath.isEmpty())
+    ProjectInfo info = projectInfo(activeProject);
+
+    if (info.qmlDumpPath.isEmpty())
         return;
 
     QProcess *process = new QProcess(this);
@@ -503,7 +488,7 @@ void ModelManager::onLoadPluginTypes(const QString &libraryPath, const QString &
     QStringList args;
     args << importPath;
     args << importUri;
-    process->start(qmldumpPath, args);
+    process->start(info.qmlDumpPath, args);
     m_runningQmldumps.insert(process, canonicalLibraryPath);
 }
 

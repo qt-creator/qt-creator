@@ -84,6 +84,7 @@ public:
     quint16 qmlServerPort;
     QString projectBuildDir;
     QString projectDir;
+    bool qmlObserverAvailable;
     // for cpp+qml debugging
     DebuggerEngineType cppEngineType;
 
@@ -129,6 +130,7 @@ class StackFrame;
 class SourceFilesHandler;
 class ThreadsHandler;
 class WatchHandler;
+class BreakpointData;
 
 struct WatchUpdateFlags
 {
@@ -182,6 +184,7 @@ public:
     virtual void updateAll();
 
     virtual void attemptBreakpointSynchronization();
+    virtual bool acceptsBreakpoint(const Internal::BreakpointData *);
     virtual void selectThread(int index);
 
     virtual void assignValueInDebugger(const Internal::WatchData *w, const QString &expr, const QVariant &value);
@@ -264,6 +267,7 @@ public:
     QString qtDumperLibraryName() const;
     QStringList qtDumperLibraryLocations() const;
     void showQtDumperLibraryWarning(const QString &details);
+    void showQmlObserverToolWarning();
 
     static const char *stateName(int s);
 

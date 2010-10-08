@@ -37,13 +37,11 @@
 #include <QtCore/QString>
 #include <QtGui/QWidget>
 #include <QtGui/QStackedWidget>
-#include <QtGui/QStandardItem>
-#include <QtGui/QStyledItemDelegate>
 
 QT_BEGIN_NAMESPACE
 class QStandardItemModel;
+class QStandardItem;
 class QModelIndex;
-class QPainter;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -52,38 +50,13 @@ class IEditor;
 
 namespace Utils {
 class NavigationTreeView;
+class AnnotatedItemDelegate;
 }
 
 namespace CppEditor {
 namespace Internal {
 
 class CPPEditor;
-
-class CppTypeHierarchyItem : public QStandardItem
-{
-public:
-    CppTypeHierarchyItem(const CppClass &cppClass);
-    virtual ~CppTypeHierarchyItem();
-
-    virtual int type() const;
-
-    const CppClass &cppClass() const;
-
-private:
-    CppClass m_cppClass;
-};
-
-class CppTypeHierarchyDelegate : public QStyledItemDelegate
-{
-public:
-    CppTypeHierarchyDelegate(QObject *parent = 0);
-    virtual ~CppTypeHierarchyDelegate();
-
-    virtual void paint(QPainter *painter,
-                       const QStyleOptionViewItem &option,
-                       const QModelIndex &index) const;
-    virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
-};
 
 class CppTypeHierarchyWidget : public QWidget
 {
@@ -101,12 +74,17 @@ private slots:
     void onItemClicked(const QModelIndex &index);
 
 private:
+    enum ItemRole {
+        AnnotationRole = Qt::UserRole + 1,
+        LinkRole
+    };
+
     void buildModel(const CppClass &cppClass, QStandardItem *item);
 
     CPPEditor *m_cppEditor;
     Utils::NavigationTreeView *m_treeView;
     QStandardItemModel *m_model;
-    CppTypeHierarchyDelegate *m_delegate;
+    Utils::AnnotatedItemDelegate *m_delegate;
 };
 
 // @todo: Pretty much the same design as the OutlineWidgetStack. Maybe we can generalize the

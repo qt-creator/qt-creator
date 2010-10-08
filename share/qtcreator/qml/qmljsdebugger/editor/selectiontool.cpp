@@ -1,0 +1,447 @@
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+** Commercial Usage
+**
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
+**
+** GNU Lesser General Public License Usage
+**
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at http://qt.nokia.com/contact.
+**
+**************************************************************************/
+
+#include "selectiontool.h"
+#include "layeritem.h"
+
+//#include "resizehandleitem.h"
+#include "../qdeclarativeviewobserver_p.h"
+
+#include <QDeclarativeEngine>
+
+#include <QApplication>
+#include <QWheelEvent>
+#include <QMouseEvent>
+#include <QClipboard>
+#include <QMenu>
+#include <QAction>
+#include <QDeclarativeItem>
+#include <QGraphicsObject>
+
+#include <QDebug>
+
+namespace QmlJSDebugger {
+
+SelectionTool::SelectionTool(QDeclarativeViewObserver *editorView)
+    : AbstractFormEditorTool(editorView),
+    m_rubberbandSelectionMode(false),
+    m_rubberbandSelectionManipulator(QDeclarativeViewObserverPrivate::get(editorView)->manipulatorLayer, editorView),
+    m_singleSelectionManipulator(editorView),
+    m_selectionIndicator(editorView, QDeclarativeViewObserverPrivate::get(editorView)->manipulatorLayer),
+    //m_resizeIndicator(editorView->manipulatorLayer()),
+    m_selectOnlyContentItems(true)
+{
+
+}
+
+SelectionTool::~SelectionTool()
+{
+}
+
+void SelectionTool::setRubberbandSelectionMode(bool value)
+{
+    m_rubberbandSelectionMode = value;
+}
+
+SingleSelectionManipulator::SelectionType SelectionTool::getSelectionType(Qt::KeyboardModifiers modifiers)
+{
+    SingleSelectionManipulator::SelectionType selectionType = SingleSelectionManipulator::ReplaceSelection;
+    if (modifiers.testFlag(Qt::ControlModifier)) {
+        selectionType = SingleSelectionManipulator::RemoveFromSelection;
+    } else if (modifiers.testFlag(Qt::ShiftModifier)) {
+        selectionType = SingleSelectionManipulator::AddToSelection;
+    }
+    return selectionType;
+}
+
+bool SelectionTool::alreadySelected(const QList<QGraphicsItem*> &itemList) const
+{
+    const QList<QGraphicsItem*> selectedItems = QDeclarativeViewObserverPrivate::get(observer())->selectedItems();
+
+    if (selectedItems.isEmpty())
+        return false;
+
+    foreach(QGraphicsItem *item, itemList) {
+        if (selectedItems.contains(item)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void SelectionTool::mousePressEvent(QMouseEvent *event)
+{
+    QList<QGraphicsItem*> itemList = QDeclarativeViewObserverPrivate::get(observer())->selectableItems(event->pos());
+    SingleSelectionManipulator::SelectionType selectionType = getSelectionType(event->modifiers());
+
+    if (event->buttons() & Qt::LeftButton) {
+        m_mousePressTimer.start();
+
+        if (m_rubberbandSelectionMode) {
+            m_rubberbandSelectionManipulator.begin(event->pos());
+        } else {
+
+            if (itemList.isEmpty()) {
+                QDeclarativeViewObserverPrivate::get(observer())->setSelectedItems(itemList);
+                return;
+            }
+
+            if ((selectionType == SingleSelectionManipulator::InvertSelection
+                 || selectionType == SingleSelectionManipulator::ReplaceSelection)
+                && alreadySelected(itemList))
+            {
+                //view()->changeToMoveTool(event->pos());
+                return;
+            }
+
+            QGraphicsItem* item = itemList.first();
+
+            if (item->children().isEmpty()) {
+                m_singleSelectionManipulator.begin(event->pos());
+                m_singleSelectionManipulator.select(selectionType, m_selectOnlyContentItems);
+            } else {
+                m_mousePressTimer.start();
+
+                if (itemList.isEmpty()) {
+                    observer()->setSelectedItems(itemList);
+                    return;
+                }
+
+                if (item->children().isEmpty()) {
+                    m_singleSelectionManipulator.begin(event->pos());
+                    m_singleSelectionManipulator.select(selectionType, m_selectOnlyContentItems);
+                } else {
+                    m_singleSelectionManipulator.begin(event->pos());
+                    m_singleSelectionManipulator.select(selectionType, m_selectOnlyContentItems);
+                    m_singleSelectionManipulator.end(event->pos());
+                    //view()->changeToMoveTool(event->pos());
+                }
+
+                m_singleSelectionManipulator.begin(event->pos());
+                m_singleSelectionManipulator.select(selectionType, m_selectOnlyContentItems);
+                m_singleSelectionManipulator.end(event->pos());
+                //view()->changeToMoveTool(event->pos());
+
+            }
+        }
+
+    } else if (event->buttons() & Qt::RightButton) {
+        createContextMenu(itemList, event->globalPos());
+    }
+}
+
+void SelectionTool::createContextMenu(QList<QGraphicsItem*> itemList, QPoint globalPos)
+{
+    if (!QDeclarativeViewObserverPrivate::get(observer())->mouseInsideContextItem())
+        return;
+
+    QMenu contextMenu;
+    connect(&contextMenu, SIGNAL(hovered(QAction*)), this, SLOT(contextMenuElementHovered(QAction*)));
+
+    m_contextMenuItemList = itemList;
+
+    contextMenu.addAction("Items");
+    contextMenu.addSeparator();
+    int shortcutKey = Qt::Key_1;
+    bool addKeySequence = true;
+    int i = 0;
+
+    foreach(QGraphicsItem * const item, itemList) {
+        QString itemTitle = titleForItem(item);
+        QAction *elementAction = contextMenu.addAction(itemTitle, this, SLOT(contextMenuElementSelected()));
+
+        if (observer()->selectedItems().contains(item)) {
+            QFont boldFont = elementAction->font();
+            boldFont.setBold(true);
+            elementAction->setFont(boldFont);
+        }
+
+        elementAction->setData(i);
+        if (addKeySequence)
+            elementAction->setShortcut(QKeySequence(shortcutKey));
+
+        shortcutKey++;
+        if (shortcutKey > Qt::Key_9)
+            addKeySequence = false;
+
+        ++i;
+    }
+    // add root item separately
+//    QString itemTitle = QString(tr("%1")).arg(titleForItem(view()->currentRootItem()));
+//    contextMenu.addAction(itemTitle, this, SLOT(contextMenuElementSelected()));
+//    m_contextMenuItemList.append(view()->currentRootItem());
+
+    contextMenu.exec(globalPos);
+    m_contextMenuItemList.clear();
+}
+
+void SelectionTool::contextMenuElementSelected()
+{
+    QAction *senderAction = static_cast<QAction*>(sender());
+    int itemListIndex = senderAction->data().toInt();
+    if (itemListIndex >= 0 && itemListIndex < m_contextMenuItemList.length()) {
+
+        QPointF updatePt(0, 0);
+        QGraphicsItem *item = m_contextMenuItemList.at(itemListIndex);
+        m_singleSelectionManipulator.begin(updatePt);
+        m_singleSelectionManipulator.select(SingleSelectionManipulator::InvertSelection,
+                                            QList<QGraphicsItem*>() << item,
+                                            false);
+        m_singleSelectionManipulator.end(updatePt);
+        enterContext(item);
+    }
+}
+
+void SelectionTool::contextMenuElementHovered(QAction *action)
+{
+    int itemListIndex = action->data().toInt();
+    if (itemListIndex >= 0 && itemListIndex < m_contextMenuItemList.length()) {
+        QGraphicsObject *item = m_contextMenuItemList.at(itemListIndex)->toGraphicsObject();
+        QDeclarativeViewObserverPrivate::get(observer())->highlight(item);
+    }
+}
+
+void SelectionTool::mouseMoveEvent(QMouseEvent *event)
+{
+    if (m_singleSelectionManipulator.isActive()) {
+        QPointF mouseMovementVector = m_singleSelectionManipulator.beginPoint() - event->pos();
+
+        if ((mouseMovementVector.toPoint().manhattanLength() > Constants::DragStartDistance)
+            && (m_mousePressTimer.elapsed() > Constants::DragStartTime))
+        {
+            m_singleSelectionManipulator.end(event->pos());
+            //view()->changeToMoveTool(m_singleSelectionManipulator.beginPoint());
+            return;
+        }
+    } else if (m_rubberbandSelectionManipulator.isActive()) {
+        QPointF mouseMovementVector = m_rubberbandSelectionManipulator.beginPoint() - event->pos();
+
+        if ((mouseMovementVector.toPoint().manhattanLength() > Constants::DragStartDistance)
+            && (m_mousePressTimer.elapsed() > Constants::DragStartTime)) {
+            m_rubberbandSelectionManipulator.update(event->pos());
+
+            if (event->modifiers().testFlag(Qt::ControlModifier))
+                m_rubberbandSelectionManipulator.select(RubberBandSelectionManipulator::RemoveFromSelection);
+            else if (event->modifiers().testFlag(Qt::ShiftModifier))
+                m_rubberbandSelectionManipulator.select(RubberBandSelectionManipulator::AddToSelection);
+            else
+                m_rubberbandSelectionManipulator.select(RubberBandSelectionManipulator::ReplaceSelection);
+        }
+    }
+}
+
+void SelectionTool::hoverMoveEvent(QMouseEvent * event)
+{
+// ### commented out until move tool is re-enabled
+//    QList<QGraphicsItem*> itemList = view()->items(event->pos());
+//    if (!itemList.isEmpty() && !m_rubberbandSelectionMode) {
+//
+//        foreach(QGraphicsItem *item, itemList) {
+//            if (item->type() == Constants::ResizeHandleItemType) {
+//                ResizeHandleItem* resizeHandle = ResizeHandleItem::fromGraphicsItem(item);
+//                if (resizeHandle)
+//                    view()->changeTool(Constants::ResizeToolMode);
+//                return;
+//            }
+//        }
+//        if (topSelectedItemIsMovable(itemList))
+//            view()->changeTool(Constants::MoveToolMode);
+//    }
+    QList<QGraphicsItem*> selectableItemList = QDeclarativeViewObserverPrivate::get(observer())->selectableItems(event->pos());
+    if (!selectableItemList.isEmpty()) {
+        QGraphicsObject *item = selectableItemList.first()->toGraphicsObject();
+        if (item)
+            QDeclarativeViewObserverPrivate::get(observer())->highlight(item);
+
+        return;
+    }
+
+    QDeclarativeViewObserverPrivate::get(observer())->clearHighlight();
+}
+
+void SelectionTool::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (m_singleSelectionManipulator.isActive()) {
+        m_singleSelectionManipulator.end(event->pos());
+    }
+    else if (m_rubberbandSelectionManipulator.isActive()) {
+
+        QPointF mouseMovementVector = m_rubberbandSelectionManipulator.beginPoint() - event->pos();
+        if (mouseMovementVector.toPoint().manhattanLength() < Constants::DragStartDistance) {
+            m_singleSelectionManipulator.begin(event->pos());
+
+            if (event->modifiers().testFlag(Qt::ControlModifier))
+                m_singleSelectionManipulator.select(SingleSelectionManipulator::RemoveFromSelection, m_selectOnlyContentItems);
+            else if (event->modifiers().testFlag(Qt::ShiftModifier))
+                m_singleSelectionManipulator.select(SingleSelectionManipulator::AddToSelection, m_selectOnlyContentItems);
+            else
+                m_singleSelectionManipulator.select(SingleSelectionManipulator::InvertSelection, m_selectOnlyContentItems);
+
+            m_singleSelectionManipulator.end(event->pos());
+        } else {
+            m_rubberbandSelectionManipulator.update(event->pos());
+
+            if (event->modifiers().testFlag(Qt::ControlModifier))
+                m_rubberbandSelectionManipulator.select(RubberBandSelectionManipulator::RemoveFromSelection);
+            else if (event->modifiers().testFlag(Qt::ShiftModifier))
+                m_rubberbandSelectionManipulator.select(RubberBandSelectionManipulator::AddToSelection);
+            else
+                m_rubberbandSelectionManipulator.select(RubberBandSelectionManipulator::ReplaceSelection);
+
+            m_rubberbandSelectionManipulator.end();
+        }
+    }
+}
+
+void SelectionTool::mouseDoubleClickEvent(QMouseEvent * /*event*/)
+{
+
+}
+
+void SelectionTool::keyPressEvent(QKeyEvent *event)
+{
+    switch(event->key()) {
+        case Qt::Key_Left:
+        case Qt::Key_Right:
+        case Qt::Key_Up:
+        case Qt::Key_Down:
+            // disabled for now, cannot move stuff yet.
+            //view()->changeTool(Constants::MoveToolMode);
+            //view()->currentTool()->keyPressEvent(event);
+            break;
+    }
+}
+
+void SelectionTool::keyReleaseEvent(QKeyEvent * /*keyEvent*/)
+{
+
+}
+
+void SelectionTool::wheelEvent(QWheelEvent *event)
+{
+    if (event->orientation() == Qt::Horizontal || m_rubberbandSelectionMode)
+        return;
+
+    QList<QGraphicsItem*> itemList = QDeclarativeViewObserverPrivate::get(observer())->selectableItems(event->pos());
+
+    int selectedIdx = 0;
+    if (!observer()->selectedItems().isEmpty()) {
+        selectedIdx = itemList.indexOf(observer()->selectedItems().first());
+        if (selectedIdx >= 0) {
+            if (event->delta() > 0) {
+                selectedIdx++;
+                if (selectedIdx == itemList.length())
+                    selectedIdx = 0;
+            } else if (event->delta() < 0) {
+                selectedIdx--;
+                if (selectedIdx == -1)
+                    selectedIdx = itemList.length() - 1;
+            }
+        } else {
+            selectedIdx = 0;
+        }
+    }
+
+    QPointF updatePt(0, 0);
+    m_singleSelectionManipulator.begin(updatePt);
+    m_singleSelectionManipulator.select(SingleSelectionManipulator::ReplaceSelection,
+                                        QList<QGraphicsItem*>() << itemList.at(selectedIdx),
+                                        false);
+    m_singleSelectionManipulator.end(updatePt);
+
+}
+
+void SelectionTool::setSelectOnlyContentItems(bool selectOnlyContentItems)
+{
+    m_selectOnlyContentItems = selectOnlyContentItems;
+}
+
+void SelectionTool::itemsAboutToRemoved(const QList<QGraphicsItem*> &/*itemList*/)
+{
+
+}
+
+void SelectionTool::clear()
+{
+    view()->setCursor(Qt::ArrowCursor);
+    m_rubberbandSelectionManipulator.clear(),
+    m_singleSelectionManipulator.clear();
+    m_selectionIndicator.clear();
+    //m_resizeIndicator.clear();
+}
+
+void SelectionTool::selectedItemsChanged(const QList<QGraphicsItem*> &itemList)
+{
+    foreach(QWeakPointer<QGraphicsObject> obj, m_selectedItemList) {
+        if (!obj.isNull()) {
+            disconnect(obj.data(), SIGNAL(xChanged()), this, SLOT(repaintBoundingRects()));
+            disconnect(obj.data(), SIGNAL(yChanged()), this, SLOT(repaintBoundingRects()));
+            disconnect(obj.data(), SIGNAL(widthChanged()), this, SLOT(repaintBoundingRects()));
+            disconnect(obj.data(), SIGNAL(heightChanged()), this, SLOT(repaintBoundingRects()));
+            disconnect(obj.data(), SIGNAL(rotationChanged()), this, SLOT(repaintBoundingRects()));
+        }
+    }
+
+    QList<QGraphicsObject*> objects = toGraphicsObjectList(itemList);
+    m_selectedItemList.clear();
+
+    foreach(QGraphicsObject *obj, objects) {
+        m_selectedItemList.append(obj);
+        connect(obj, SIGNAL(xChanged()), this, SLOT(repaintBoundingRects()));
+        connect(obj, SIGNAL(yChanged()), this, SLOT(repaintBoundingRects()));
+        connect(obj, SIGNAL(widthChanged()), this, SLOT(repaintBoundingRects()));
+        connect(obj, SIGNAL(heightChanged()), this, SLOT(repaintBoundingRects()));
+        connect(obj, SIGNAL(rotationChanged()), this, SLOT(repaintBoundingRects()));
+    }
+
+    m_selectionIndicator.setItems(m_selectedItemList);
+    //m_resizeIndicator.setItems(toGraphicsObjectList(itemList));
+}
+
+void SelectionTool::repaintBoundingRects()
+{
+    m_selectionIndicator.setItems(m_selectedItemList);
+}
+
+void SelectionTool::selectUnderPoint(QMouseEvent *event)
+{
+    m_singleSelectionManipulator.begin(event->pos());
+
+    if (event->modifiers().testFlag(Qt::ControlModifier))
+        m_singleSelectionManipulator.select(SingleSelectionManipulator::RemoveFromSelection, m_selectOnlyContentItems);
+    else if (event->modifiers().testFlag(Qt::ShiftModifier))
+        m_singleSelectionManipulator.select(SingleSelectionManipulator::AddToSelection, m_selectOnlyContentItems);
+    else
+        m_singleSelectionManipulator.select(SingleSelectionManipulator::InvertSelection, m_selectOnlyContentItems);
+
+    m_singleSelectionManipulator.end(event->pos());
+}
+
+}

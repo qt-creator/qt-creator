@@ -145,7 +145,8 @@ void SelectionTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
 
         if (formEditorItem
             && formEditorItem->qmlItemNode().isValid()
-            && !formEditorItem->qmlItemNode().isRootNode()
+            && !formEditorItem->qmlItemNode().instanceIsInPositioner()
+            && formEditorItem->qmlItemNode().instanceIsMovable()
             && (formEditorItem->qmlItemNode().hasShowContent() || !m_selectOnlyContentItems))
         {
             topSelectableItem = formEditorItem;

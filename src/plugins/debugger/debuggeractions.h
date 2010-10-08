@@ -99,6 +99,8 @@ enum DebuggerActionCode
     CustomDebuggingHelperLocation,
     DebugDebuggingHelpers,
 
+    UseQmlObserver,
+
     UseCodeModel,
 
     UseToolTipsInMainEditor,
@@ -140,7 +142,6 @@ enum DebuggerActionCode
     AdjustBreakpointLocations,
     NoPluginBreakpoints,
     SelectedPluginBreakpointsPattern,
-    UsePreciseBreakpoints,
     BreakOnThrow,
     BreakOnCatch
 };

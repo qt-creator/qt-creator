@@ -240,7 +240,7 @@ DebuggerSettings *DebuggerSettings::instance()
     item->setCheckable(true);
     item->setDefaultValue(true);
     item->setSettingsKey(debugModeGroup, QLatin1String("AutoDerefPointers"));
-    item->setToolTip(tr("This switches the Locals&Watchers view to "
+    item->setToolTip(tr("This switches the Locals&&Watchers view to "
         "automatically dereference pointers. This saves a level in the "
         "tree view, but also loses data for the now-missing intermediate "
         "level."));
@@ -307,6 +307,14 @@ DebuggerSettings *DebuggerSettings::instance()
     instance->insertItem(DebugDebuggingHelpers, item);
 
     item = new SavedAction(instance);
+    item->setSettingsKey(debugModeGroup, QLatin1String("UseQmlObserver"));
+    item->setText(tr("Use QML Observer"));
+    item->setCheckable(true);
+    item->setDefaultValue(true);
+    item->setValue(true);
+    instance->insertItem(UseQmlObserver, item);
+
+    item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseCodeModel"));
     item->setText(tr("Use Code Model"));
     item->setToolTip(tr("Selecting this causes the C++ Code Model being asked "
@@ -324,18 +332,6 @@ DebuggerSettings *DebuggerSettings::instance()
     item = new SavedAction(instance);
     item->setText(tr("Synchronize Breakpoints"));
     instance->insertItem(SynchronizeBreakpoints, item);
-
-    item = new SavedAction(instance);
-    item->setText(tr("Use Precise Breakpoints"));
-    item->setToolTip(tr("Selecting this causes breakpoint synchronization "
-      "being done after each step. This results in up-to-date breakpoint "
-      "information on whether a breakpoint has been resolved after "
-      "loading shared libraries, but slows down stepping."));
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    item->setValue(false);
-    item->setSettingsKey(debugModeGroup, QLatin1String("UsePreciseBreakpoints"));
-    instance->insertItem(UsePreciseBreakpoints, item);
 
     item = new SavedAction(instance);
     item->setText(tr("Adjust Breakpoint Locations"));

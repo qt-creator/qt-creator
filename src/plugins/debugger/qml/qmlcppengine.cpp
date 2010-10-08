@@ -222,6 +222,11 @@ void QmlCppEngine::attemptBreakpointSynchronization()
     static_cast<DebuggerEngine*>(d->m_qmlEngine)->attemptBreakpointSynchronization();
 }
 
+bool QmlCppEngine::acceptsBreakpoint(const Internal::BreakpointData *br)
+{
+    return d->m_cppEngine->acceptsBreakpoint(br) || d->m_qmlEngine->acceptsBreakpoint(br);
+}
+
 void QmlCppEngine::selectThread(int index)
 {
     d->m_cppEngine->selectThread(index);

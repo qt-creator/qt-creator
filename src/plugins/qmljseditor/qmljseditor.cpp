@@ -63,6 +63,7 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/refactoroverlay.h>
+#include <texteditor/tooltip/tooltip.h>
 #include <qmldesigner/qmldesignerconstants.h>
 #include <utils/changeset.h>
 #include <utils/uncommentselection.h>
@@ -82,7 +83,8 @@
 enum {
     UPDATE_DOCUMENT_DEFAULT_INTERVAL = 100,
     UPDATE_USES_DEFAULT_INTERVAL = 150,
-    UPDATE_OUTLINE_INTERVAL = 500 // msecs after new semantic info has been arrived / cursor has moved
+    UPDATE_OUTLINE_INTERVAL = 500, // msecs after new semantic info has been arrived / cursor has moved
+    TOOLTIP_TIMER_INTERVAL = 1000 // delay after we show the Quick ToolBar after a tooltip
 };
 
 using namespace QmlJS;
@@ -678,6 +680,7 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     m_modelManager(0),
     m_contextPane(0),
     m_updateSelectedElements(false),
+    m_toolTipPosition(0),
     m_findReferences(new FindReferences(this))
 {
     qRegisterMetaType<QmlJSEditor::Internal::SemanticInfo>("QmlJSEditor::Internal::SemanticInfo");
@@ -725,6 +728,11 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     m_cursorPositionTimer->setSingleShot(true);
     connect(m_cursorPositionTimer, SIGNAL(timeout()), this, SLOT(updateCursorPositionNow()));
 
+    m_toolTipTimer  = new QTimer(this);
+    m_toolTipTimer->setInterval(TOOLTIP_TIMER_INTERVAL);
+    m_toolTipTimer->setSingleShot(true);
+    connect(m_toolTipTimer, SIGNAL(timeout()), this, SLOT(updateToolTipNow()));
+
     baseTextDocument()->setSyntaxHighlighter(new Highlighter(document()));
 
     m_modelManager = ExtensionSystem::PluginManager::instance()->getObject<ModelManagerInterface>();
@@ -749,6 +757,9 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
 
     connect(this, SIGNAL(refactorMarkerClicked(TextEditor::Internal::RefactorMarker)),
             SLOT(onRefactorMarkerClicked(TextEditor::Internal::RefactorMarker)));
+
+    connect(editableInterface(), SIGNAL(tooltipRequested(TextEditor::ITextEditor*, QPoint, int)),
+            SLOT(onTooltipRequested(TextEditor::ITextEditor*, QPoint, int)));
 
     setRequestMarkEnabled(true);
 }
@@ -973,8 +984,8 @@ static UiQualifiedId *qualifiedTypeNameId(UiObjectMember *m)
 
 void QmlJSTextEditor::updateCursorPositionNow()
 {
-    if (m_contextPane && document() && !semanticInfo().document.isNull() &&
-        document()->revision() == semanticInfo().document->editorRevision())
+    if (m_contextPane && document() && semanticInfo().isValid()
+            && document()->revision() == semanticInfo().document->editorRevision())
     {
         Node *oldNode = m_semanticInfo.declaringMemberNoProperties(m_oldCursorPosition);
         Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
@@ -1032,6 +1043,18 @@ bool QmlJSTextEditor::updateSelectedElements() const
 void QmlJSTextEditor::setUpdateSelectedElements(bool value)
 {
     m_updateSelectedElements = value;
+}
+
+void QmlJSTextEditor::renameId(const QString &oldId, const QString &newId)
+{
+    Utils::ChangeSet changeSet;
+
+    foreach (const AST::SourceLocation &loc, m_semanticInfo.idLocations.value(oldId)) {
+        changeSet.replace(loc.begin(), loc.end(), newId);
+    }
+
+    QTextCursor tc = textCursor();
+    changeSet.apply(&tc);
 }
 
 void QmlJSTextEditor::updateUsesNow()
@@ -1202,7 +1225,7 @@ void QmlJSTextEditor::setSelectedElements()
         endPos = textCursor().position();
     }
 
-    if (m_semanticInfo.document) {
+    if (m_semanticInfo.isValid()) {
         SelectedElement selectedMembers;
         QList<UiObjectMember *> members = selectedMembers(m_semanticInfo.lookupContext(),
                                                           startPos, endPos);
@@ -1231,14 +1254,7 @@ void QmlJSTextEditor::renameIdUnderCursor()
                                                 QLineEdit::Normal,
                                                 id, &ok);
     if (ok) {
-        Utils::ChangeSet changeSet;
-
-        foreach (const AST::SourceLocation &loc, m_semanticInfo.idLocations.value(id)) {
-            changeSet.replace(loc.begin(), loc.end(), newId);
-        }
-
-        QTextCursor tc = textCursor();
-        changeSet.apply(&tc);
+        renameId(id, newId);
     }
 }
 
@@ -1443,7 +1459,7 @@ void QmlJSTextEditor::findUsages()
 
 void QmlJSTextEditor::showContextPane()
 {
-    if (m_contextPane) {
+    if (m_contextPane && m_semanticInfo.isValid()) {
         Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
         m_contextPane->apply(editableInterface(), m_semanticInfo.lookupContext(), newNode, false, true);
         m_oldCursorPosition = position();
@@ -1456,6 +1472,28 @@ void QmlJSTextEditor::performQuickFix(int index)
 {
     TextEditor::QuickFixOperation::Ptr op = m_quickFixes.at(index);
     op->perform();
+}
+
+void QmlJSTextEditor::onTooltipRequested(TextEditor::ITextEditor* /* editor */, QPoint /* point */, int position)
+{
+    m_toolTipPosition = position;
+    if (m_contextPane) {
+        m_toolTipTimer->start();
+    }
+}
+
+void QmlJSTextEditor::updateToolTipNow()
+{
+    if (!TextEditor::ToolTip::instance()->isVisible())
+        return;
+
+    if (m_contextPane && m_semanticInfo.isValid()) {
+        Node *newNode = m_semanticInfo.declaringMemberNoProperties(m_toolTipPosition);
+        m_contextPane->apply(editableInterface(), m_semanticInfo.lookupContext(), newNode, false, true);
+        m_oldCursorPosition = m_toolTipPosition;
+        QList<TextEditor::Internal::RefactorMarker> markers;
+        setRefactorMarkers(markers);
+    }
 }
 
 void QmlJSTextEditor::contextMenuEvent(QContextMenuEvent *e)
@@ -1536,8 +1574,12 @@ void QmlJSTextEditor::wheelEvent(QWheelEvent *event)
 
     BaseTextEditor::wheelEvent(event);
 
-    if (visible)
-        m_contextPane->apply(editableInterface(),  m_semanticInfo.lookupContext(), m_semanticInfo.declaringMemberNoProperties(position()), false, true);
+    if (visible) {
+        LookupContext::Ptr lookupContext;
+        if (m_semanticInfo.isValid())
+            lookupContext = m_semanticInfo.lookupContext();
+        m_contextPane->apply(editableInterface(),  lookupContext, m_semanticInfo.declaringMemberNoProperties(position()), false, true);
+    }
 }
 
 void QmlJSTextEditor::resizeEvent(QResizeEvent *event)
@@ -1838,8 +1880,12 @@ QModelIndex QmlJSTextEditor::indexForPosition(unsigned cursorPosition, const QMo
 bool QmlJSTextEditor::hideContextPane()
 {
     bool b = (m_contextPane) && m_contextPane->widget()->isVisible();
-    if (b)
-        m_contextPane->apply(editableInterface(),  m_semanticInfo.lookupContext(), 0, false);
+    if (b) {
+        LookupContext::Ptr lookupContext;
+        if (m_semanticInfo.isValid())
+            lookupContext = m_semanticInfo.lookupContext();
+        m_contextPane->apply(editableInterface(), lookupContext, 0, false);
+    }
     return b;
 }
 

@@ -189,16 +189,17 @@ void SessionDialog::markItems()
 
 void SessionDialog::updateActions()
 {
-    bool isDefault = false;
-    bool isActive = false;
-
     if (m_ui.sessionList->currentItem()) {
-        isDefault = (m_ui.sessionList->currentItem()->text() == QLatin1String("default"));
-        isActive = (m_ui.sessionList->currentItem()->text() == m_sessionManager->activeSession());
+        bool isDefault = (m_ui.sessionList->currentItem()->text() == QLatin1String("default"));
+        bool isActive = (m_ui.sessionList->currentItem()->text() == m_sessionManager->activeSession());
+        m_ui.btDelete->setEnabled(!isActive && !isDefault);
+        m_ui.btRename->setEnabled(!isDefault);
+    } else {
+        m_ui.btDelete->setEnabled(false);
+        m_ui.btRename->setEnabled(false);
+        m_ui.btClone->setEnabled(false);
+        m_ui.btSwitch->setEnabled(false);
     }
-
-    m_ui.btDelete->setDisabled(isActive || isDefault);
-    m_ui.btRename->setDisabled(isDefault);
 }
 
 void SessionDialog::createNew()
@@ -262,11 +263,9 @@ void SessionDialog::rename()
 
 void SessionDialog::switchToSession()
 {
-    if (m_ui.sessionList->currentItem()) {
-        QString session = m_ui.sessionList->currentItem()->text();
-        m_sessionManager->loadSession(session);
-        markItems();
-    }
+    QString session = m_ui.sessionList->currentItem()->text();
+    m_sessionManager->loadSession(session);
+    markItems();
     updateActions();
 }
 

@@ -230,6 +230,7 @@ void GdbEngine::initializeVariables()
     m_isMacGdb = false;
     m_hasPython = false;
     m_registerNamesListed = false;
+    m_hasInferiorThreadList = false;
 
     m_fullToShortName.clear();
     m_shortToFullName.clear();
@@ -270,8 +271,8 @@ QString GdbEngine::errorMessage(QProcess::ProcessError error)
         case QProcess::FailedToStart:
             return tr("The Gdb process failed to start. Either the "
                 "invoked program '%1' is missing, or you may have insufficient "
-                "permissions to invoke the program.")
-                .arg(m_gdb);
+                "permissions to invoke the program.\n%2")
+                .arg(m_gdb, gdbProc()->errorString());
         case QProcess::Crashed:
             return tr("The Gdb process crashed some time after starting "
                 "successfully.");
@@ -793,7 +794,7 @@ void GdbEngine::flushCommand(const GdbCommand &cmd0)
         return;
     }
 
-    QTC_ASSERT(gdbProc()->state() == QProcess::Running, /**/);
+    QTC_ASSERT(gdbProc()->state() == QProcess::Running, return;)
 
     ++currentToken();
     GdbCommand cmd = cmd0;
@@ -1395,10 +1396,6 @@ void GdbEngine::handleStop1(const GdbMi &data)
     if (m_modulesListOutdated)
         reloadModulesInternal();
 
-    // This needs to be done before fullName() may need it.
-    if (m_sourcesListOutdated && theDebuggerBoolSetting(UsePreciseBreakpoints))
-        reloadSourceFilesInternal();
-
     if (m_breakListOutdated) {
         reloadBreakListInternal();
     } else {
@@ -1678,12 +1675,18 @@ void GdbEngine::notifyAdapterShutdownOk()
     showMessage(_("INITIATE GDBENGINE SHUTDOWN IN STATE %1, PROC: %2")
         .arg(lastGoodState()).arg(gdbProc()->state()));
     m_commandsDoneCallback = 0;
-    if (gdbProc()->state() == QProcess::Running) {
+    switch (gdbProc()->state()) {
+    case QProcess::Running:
         postCommand("-gdb-exit", GdbEngine::ExitRequest, CB(handleGdbExit));
-    } else {
+        break;
+    case QProcess::NotRunning: // Cannot find executable
+        notifyEngineShutdownOk();
+        break;
+    case QProcess::Starting:
         showMessage(_("GDB NOT REALLY RUNNING; KILLING IT"));
         gdbProc()->kill();
         notifyEngineShutdownFailed();
+        break;
     }
 }
 
@@ -2144,8 +2147,13 @@ static inline QByteArray bpAddressSpec(quint64 address)
 
 QByteArray GdbEngine::breakpointLocation(const BreakpointData *data)
 {
-    if (!data->funcName.isEmpty())
+    if (!data->funcName.isEmpty()) {
+        if (data->funcName == QLatin1String(BreakpointData::throwFunction))
+            return QByteArray("__cxa_throw");
+        if (data->funcName == QLatin1String(BreakpointData::catchFunction))
+            return QByteArray("__cxa_begin_catch");
         return data->funcName.toLatin1();
+    }
     if (data->address)
         return bpAddressSpec(data->address);
     // In this case, data->funcName is something like '*0xdeadbeef'
@@ -2475,31 +2483,6 @@ void GdbEngine::attemptBreakpointSynchronization()
         return;
     }
 
-    // For best results, we rely on an up-to-date fullname mapping.
-    // The listing completion will retrigger us, so no futher action is needed.
-    if (m_sourcesListOutdated && theDebuggerBoolSetting(UsePreciseBreakpoints)) {
-        if (state() == InferiorRunOk) {
-            // FIXME: this is a hack
-            // The hack solves the problem that we want both commands
-            // (reloadSourceFiles and reloadBreakList) to be executed
-            // within the same stop-executecommand-continue cycle.
-            // Just calling reloadSourceFiles and reloadBreakList doesn't work
-            // in this case, because a) stopping the executable is asynchronous,
-            // b) we wouldn't want to stop-exec-continue twice
-            m_sourcesListUpdating = true;
-            GdbCommand cmd;
-            cmd.command = "-file-list-exec-source-files";
-            cmd.flags = NoFlags;
-            cmd.callback = &GdbEngine::handleQuerySources;
-            cmd.callbackName = "";
-            m_commandsToRunOnTemporaryBreak.append(cmd);
-        } else {
-            reloadSourceFilesInternal();
-        }
-        reloadBreakListInternal();
-        return;
-    }
-
     if (m_breakListOutdated) {
         reloadBreakListInternal();
         return;
@@ -2595,6 +2578,11 @@ void GdbEngine::attemptBreakpointSynchronization()
     }
 
     handler->updateMarkers();
+}
+
+bool GdbEngine::acceptsBreakpoint(const Internal::BreakpointData *br)
+{
+    return !( br->fileName.endsWith(QLatin1String("js")) || br->fileName.endsWith(QLatin1String("qml")) );
 }
 
 

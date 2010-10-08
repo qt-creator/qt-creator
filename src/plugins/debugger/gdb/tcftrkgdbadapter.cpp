@@ -113,6 +113,7 @@ static inline QString startMsg(const trk::Session &session)
 TcfTrkGdbAdapter::TcfTrkGdbAdapter(GdbEngine *engine) :
     AbstractGdbAdapter(engine),
     m_running(false),
+    m_stopReason(0),
     m_trkDevice(new TcfTrkDevice(this)),
     m_gdbAckMode(true),
     m_uid(0),
@@ -326,6 +327,9 @@ void TcfTrkGdbAdapter::tcftrkEvent(const TcfTrkEvent &e)
             m_snapshot.setThreadState(threadId, reason);
             // Update registers first, then report stopped
             m_running = false;
+            m_stopReason = reason.contains(QLatin1String("exception"), Qt::CaseInsensitive)
+                           || reason.contains(QLatin1String("panic"), Qt::CaseInsensitive) ?
+                           gdbServerSignalSegfault : gdbServerSignalTrap;
             m_trkDevice->sendRegistersGetMRangeCommand(
                 TcfTrkCallback(this, &TcfTrkGdbAdapter::handleAndReportReadRegistersAfterStop),
                 currentThreadContextId(), 0,
@@ -689,7 +693,7 @@ void TcfTrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         } else {
             //qDebug() << "Fetching single register";
             m_trkDevice->sendRegistersGetMRangeCommand(
-                TcfTrkCallback(this, &TcfTrkGdbAdapter::handleAndReportReadRegistersAfterStop),
+                TcfTrkCallback(this, &TcfTrkGdbAdapter::handleAndReportReadRegister),
                 currentThreadContextId(), registerNumber, 1);
         }
     }
@@ -1306,7 +1310,7 @@ void TcfTrkGdbAdapter::handleAndReportReadRegistersAfterStop(const TcfTrkCommand
     handleReadRegisters(result);
     handleReadRegisters(result);
     const bool reportThread = m_session.tid != m_session.mainTid;
-    sendGdbServerMessage(m_snapshot.gdbStopMessage(m_session.tid, reportThread), stopMessage());
+    sendGdbServerMessage(m_snapshot.gdbStopMessage(m_session.tid, m_stopReason, reportThread), stopMessage());
 }
 
 void TcfTrkGdbAdapter::handleAndReportSetBreakpoint(const TcfTrkCommandResult &result)

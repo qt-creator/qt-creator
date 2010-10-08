@@ -116,10 +116,11 @@ QStringList QMakeStep::allArguments()
 
     // Find out what flags we pass on to qmake
     arguments << bc->configCommandLineArguments();
-    arguments << moreArguments();
 
     if (!additonalArguments.isEmpty())
         arguments << additonalArguments;
+
+    arguments << moreArguments();
 
     return arguments;
 }
@@ -153,7 +154,7 @@ QStringList QMakeStep::moreArguments()
     }
 
     arguments << QLatin1String(Constants::QMAKEVAR_QMLJSDEBUGGER_PATH) + QLatin1Char('=') +
-            Core::ICore::instance()->resourcePath() + QLatin1String("/qmljsdebugger");
+            Core::ICore::instance()->resourcePath() + QLatin1String("/qml/qmljsdebugger");
     return arguments;
 }
 
@@ -164,6 +165,7 @@ bool QMakeStep::init()
 
     QStringList args = allArguments();
     QString workingDirectory;
+
     if (qt4bc->subNodeBuild())
         workingDirectory = qt4bc->subNodeBuild()->buildDir();
     else
@@ -173,10 +175,24 @@ bool QMakeStep::init()
 
     // Check whether we need to run qmake
     m_needToRunQMake = true;
-    if (QDir(workingDirectory).exists(QLatin1String("Makefile"))) {
-        QString qmakePath = QtVersionManager::findQMakeBinaryFromMakefile(workingDirectory);
+    QString makefile = workingDirectory;
+
+    if (qt4bc->subNodeBuild()) {
+        if (!qt4bc->subNodeBuild()->makefile().isEmpty()) {
+            makefile.append(qt4bc->subNodeBuild()->makefile());
+        } else {
+            makefile.append("/Makefile");
+        }
+    } else if (!qt4bc->makefile().isEmpty()) {
+        makefile.append(qt4bc->makefile());
+    } else {
+        makefile.append("/Makefile");
+    }
+
+    if (QFileInfo(makefile).exists()) {
+        QString qmakePath = QtVersionManager::findQMakeBinaryFromMakefile(makefile);
         if (qtVersion->qmakeCommand() == qmakePath) {
-            m_needToRunQMake = !qt4bc->compareToImportFrom(workingDirectory);
+            m_needToRunQMake = !qt4bc->compareToImportFrom(makefile);
         }
     }
 

@@ -33,7 +33,6 @@
 #include "checkoutjobs.h"
 
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QFileInfo>

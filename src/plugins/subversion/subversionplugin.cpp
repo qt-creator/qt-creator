@@ -65,13 +65,14 @@
 #include <QtCore/QTextCodec>
 #include <QtCore/QtPlugin>
 #include <QtCore/QProcessEnvironment>
+#include <QtCore/QUrl>
 #include <QtGui/QAction>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMainWindow>
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
 #include <QtGui/QInputDialog>
-
+#include <QtXml/QXmlStreamReader>
 #include <limits.h>
 
 using namespace Subversion::Internal;
@@ -1222,6 +1223,75 @@ bool SubversionPlugin::vcsMove(const QString &workingDir, const QString &from, c
                    SshPasswordPrompt|ShowStdOutInLogWindow);
     qDebug() << response.stdOut << "\n"<<response.stdErr;
     return !response.error;
+}
+
+bool SubversionPlugin::vcsCheckout(const QString &directory, const QByteArray &url)
+{
+    QUrl tempUrl;
+    tempUrl.setEncodedUrl(url);
+    QString username = tempUrl.userName();
+    QString password = tempUrl.password();
+    QStringList args = QStringList(QLatin1String("checkout"));
+    args << QLatin1String(nonInteractiveOptionC) ;
+
+    if(!username.isEmpty() && !password.isEmpty())
+    {
+        // If url contains username and password we have to use separate username and password
+        // arguments instead of passing those in the url. Otherwise the subversion 'non-interactive'
+        // authentication will always fail (if the username and password data are not stored locally),
+        // if for example we are logging into a new host for the first time using svn. There seems to
+        // be a bug in subversion, so this might get fixed in the future.
+        tempUrl.setUserInfo("");
+        args << tempUrl.toEncoded() << directory;
+        const SubversionResponse response = runSvn(directory, username, password, args,
+                                                   m_settings.longTimeOutMS(),
+                                                   VCSBase::VCSBasePlugin::SshPasswordPrompt);
+        return !response.error;
+    } else {
+        args << url << directory;
+        const SubversionResponse response = runSvn(directory, args, m_settings.longTimeOutMS(),
+                                                   VCSBase::VCSBasePlugin::SshPasswordPrompt);
+        return !response.error;
+    }
+}
+
+QString SubversionPlugin::vcsGetRepositoryURL(const QString &directory)
+{
+    QXmlStreamReader xml;
+    QStringList args = QStringList(QLatin1String("info"));
+    args << QLatin1String("--xml");
+
+    const SubversionResponse response = runSvn(directory, args, m_settings.longTimeOutMS(), SuppressCommandLogging);
+    xml.addData(response.stdOut);
+
+    bool repo = false;
+    bool root = false;
+
+    while(!xml.atEnd() && !xml.hasError()) {
+        switch(xml.readNext()) {
+        case QXmlStreamReader::StartDocument:
+            break;
+        case QXmlStreamReader::StartElement:
+            if(xml.name() == QLatin1String("repository"))
+                repo = true;
+            else if(repo && xml.name() == QLatin1String("root"))
+                root = true;
+            break;
+        case QXmlStreamReader::EndElement:
+            if(xml.name() == QLatin1String("repository"))
+                repo = false;
+            else if(repo && xml.name() == QLatin1String("root"))
+                root = false;
+            break;
+        case QXmlStreamReader::Characters:
+            if (repo && root)
+                return xml.text().toString();
+            break;
+        default:
+            break;
+        }
+    }
+    return QString();
 }
 
 /* Subversion has ".svn" directory in each directory

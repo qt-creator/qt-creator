@@ -723,7 +723,8 @@ def qdump__QObject(d, item):
             if d.isExpandedIName(item.iname + ".properties"):
                 # FIXME: Make this global. Don't leak.
                 variant = "'%sQVariant'" % d.ns
-                gdb.execute("set $d = (%s*)malloc(sizeof(%s))" % (variant, variant))
+                # Avoid malloc symbol clash with QVector
+                gdb.execute("set $d = (%s*)calloc(sizeof(%s), 1)" % (variant, variant))
                 gdb.execute("set $d.d.is_shared = 0")
 
                 with Children(d, [propertyCount, 500]):
@@ -769,7 +770,8 @@ def qdump__QObject(d, item):
                             #     % (d.ns, item.value.address, propertyName)
                             #exp = '"((\'%sQObject\'*)%s)"' % (d.ns, item.value.address,)
                             #warn("EXPRESSION:  %s" % exp)
-                            value = call(item.value, 'property("%s")' % propertyName)
+                            value = call(item.value, 'property(%s)'
+                                % cleanAddress(metaStringData + metaData[offset]))
                             value1 = value["d"]
                             #warn("   CODE: %s" % value1["type"])
                             # Type 1 and 2 are bool and int. Try to save a few cycles in this case:

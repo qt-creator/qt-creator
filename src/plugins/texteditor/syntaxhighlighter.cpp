@@ -535,6 +535,22 @@ void SyntaxHighlighter::setFormat(int start, int count, const QFont &font)
     setFormat(start, count, format);
 }
 
+void SyntaxHighlighter::applyFormatToSpaces(const QString &text, const QTextCharFormat &format)
+{
+    int offset = 0;
+    const int length = text.length();
+    while (offset < length) {
+        if (text.at(offset).isSpace()) {
+            int start = offset++;
+            while (offset < length && text.at(offset).isSpace())
+                ++offset;
+            setFormat(start, offset - start, format);
+        } else {
+            ++offset;
+        }
+    }
+}
+
 /*!
     \fn QTextCharFormat SyntaxHighlighter::format(int position) const
 

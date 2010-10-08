@@ -326,6 +326,15 @@ void SubComponentManagerPrivate::unregisterQmlFile(const QFileInfo &fileInfo, co
     }
 }
 
+static inline bool isDepricatedQtType(const QString &typeName)
+{
+    if (typeName.length() < 3)
+        return false;
+
+    return (typeName.at(0) == 'Q' && typeName.at(1) == 't' && typeName.at(2) == '/');
+}
+
+
 void SubComponentManagerPrivate::registerQmlFile(const QFileInfo &fileInfo, const QString &qualifier,
                                                  const QDeclarativeDomDocument &document, bool addToLibrary)
 {
@@ -351,9 +360,17 @@ void SubComponentManagerPrivate::registerQmlFile(const QFileInfo &fileInfo, cons
     NodeMetaInfo nodeInfo(m_metaInfo);
     nodeInfo.setType(componentName, -1, -1);
     nodeInfo.setQmlFile(fileInfo.filePath());
-    nodeInfo.setSuperClass(rootObject.objectType(),
-                           rootObject.objectTypeMajorVersion(),
-                           rootObject.objectTypeMinorVersion());
+    if (!isDepricatedQtType(rootObject.objectType())) {
+        nodeInfo.setSuperClass(rootObject.objectType(),
+            rootObject.objectTypeMajorVersion(),
+            rootObject.objectTypeMinorVersion());
+    } else {
+        QString properClassName = rootObject.objectType();
+        properClassName.replace("Qt/", "QtQuick/");
+        nodeInfo.setSuperClass(properClassName,
+            1,
+            0);
+    }
 
     if (addToLibrary) {
         // Add file components to the library

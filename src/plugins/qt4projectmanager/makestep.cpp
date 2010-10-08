@@ -149,7 +149,19 @@ bool MakeStep::init()
     // we should stop the clean queue
     // That is mostly so that rebuild works on a already clean project
     setIgnoreReturnValue(m_clean);
-    QStringList args = m_userArgs;
+    QStringList args;
+
+    ProjectExplorer::ToolChain *toolchain = bc->toolChain();
+
+    if (bc->subNodeBuild()){
+        if(!bc->subNodeBuild()->makefile().isEmpty()) {
+            args << "-f" << bc->subNodeBuild()->makefile();
+        }
+    } else if (!bc->makefile().isEmpty()) {
+        args << "-f" << bc->makefile();
+    }
+
+    args.append(m_userArgs);
     if (!m_clean) {
         if (!bc->defaultMakeTarget().isEmpty())
             args << bc->defaultMakeTarget();
@@ -159,7 +171,6 @@ bool MakeStep::init()
     // FIXME doing this without the user having a way to override this is rather bad
     // so we only do it for unix and if the user didn't override the make command
     // but for now this is the least invasive change
-    ProjectExplorer::ToolChain *toolchain = bc->toolChain();
 
     if (toolchain) {
         if (toolchain->type() != ProjectExplorer::ToolChain::MSVC &&
@@ -238,7 +249,11 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     : BuildStepConfigWidget(), m_ui(new Ui::MakeStep), m_makeStep(makeStep), m_ignoreChange(false)
 {
     m_ui->setupUi(this);
-    connect(m_ui->makeLineEdit, SIGNAL(textEdited(QString)),
+
+    m_ui->makePathChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    m_ui->makePathChooser->setBaseDirectory(Utils::PathChooser::homePath());
+
+    connect(m_ui->makePathChooser, SIGNAL(changed(QString)),
             this, SLOT(makeEdited()));
     connect(m_ui->makeArgumentsLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(makeArgumentsLineEdited()));
@@ -336,7 +351,7 @@ void MakeStepConfigWidget::init()
     updateMakeOverrideLabel();
 
     const QString &makeCmd = m_makeStep->m_makeCmd;
-    m_ui->makeLineEdit->setText(makeCmd);
+    m_ui->makePathChooser->setPath(makeCmd);
 
     const QStringList &makeArguments = m_makeStep->userArguments();
     m_ui->makeArgumentsLineEdit->setText(Utils::Environment::joinArgumentList(makeArguments));
@@ -345,7 +360,7 @@ void MakeStepConfigWidget::init()
 
 void MakeStepConfigWidget::makeEdited()
 {
-    m_makeStep->m_makeCmd = m_ui->makeLineEdit->text();
+    m_makeStep->m_makeCmd = m_ui->makePathChooser->rawPath();
     updateDetails();
 }
 

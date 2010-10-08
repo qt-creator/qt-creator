@@ -322,10 +322,25 @@ FormEditorItem* MoveTool::containerFormEditorItem(const QList<QGraphicsItem*> &i
     return 0;
 }
 
+QList<FormEditorItem*> movalbeItems(const QList<FormEditorItem*> &itemList)
+{
+    QList<FormEditorItem*> filteredItemList(itemList);
+
+    QMutableListIterator<FormEditorItem*> listIterator(filteredItemList);
+    while (listIterator.hasNext()) {
+        FormEditorItem *item = listIterator.next();
+        if (!item->qmlItemNode().isValid() || !item->qmlItemNode().instanceIsMovable() || item->qmlItemNode().instanceIsInPositioner())
+            listIterator.remove();
+    }
+
+    return filteredItemList;
+}
 
 QList<FormEditorItem*> MoveTool::movingItems(const QList<FormEditorItem*> &selectedItemList)
 {
-    FormEditorItem* ancestorItem = ancestorIfOtherItemsAreChild(selectedItemList);
+    QList<FormEditorItem*> filteredItemList = movalbeItems(selectedItemList);
+
+    FormEditorItem* ancestorItem = ancestorIfOtherItemsAreChild(filteredItemList);
 
     if (ancestorItem != 0 && ancestorItem->qmlItemNode().isRootNode()) {
 //        view()->changeToSelectionTool();
@@ -339,12 +354,12 @@ QList<FormEditorItem*> MoveTool::movingItems(const QList<FormEditorItem*> &selec
         return ancestorItemList;
     }
 
-    if (!haveSameParent(selectedItemList)) {
+    if (!haveSameParent(filteredItemList)) {
 //        view()->changeToSelectionTool();
         return QList<FormEditorItem*>();
     }
 
-    return selectedItemList;
+    return filteredItemList;
 }
 
 void MoveTool::formEditorItemsChanged(const QList<FormEditorItem*> &itemList)

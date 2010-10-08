@@ -50,7 +50,6 @@
 #include <coreplugin/statusbarmanager.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/session.h>
 
 #include <texteditor/basetextdocumentlayout.h>
 #include <texteditor/basetexteditor.h>
@@ -90,8 +89,6 @@
 using namespace FakeVim::Internal;
 using namespace TextEditor;
 using namespace Core;
-using namespace ProjectExplorer;
-
 
 namespace FakeVim {
 namespace Constants {

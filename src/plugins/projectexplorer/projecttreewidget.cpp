@@ -106,12 +106,12 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
     layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
 
-    m_filterProjectsAction = new QAction(tr("Simplify tree"), this);
+    m_filterProjectsAction = new QAction(tr("Simplify Tree"), this);
     m_filterProjectsAction->setCheckable(true);
     m_filterProjectsAction->setChecked(false); // default is the traditional complex tree
     connect(m_filterProjectsAction, SIGNAL(toggled(bool)), this, SLOT(setProjectFilter(bool)));
 
-    m_filterGeneratedFilesAction = new QAction(tr("Hide generated files"), this);
+    m_filterGeneratedFilesAction = new QAction(tr("Hide Generated Files"), this);
     m_filterGeneratedFilesAction->setCheckable(true);
     m_filterGeneratedFilesAction->setChecked(true);
     connect(m_filterGeneratedFilesAction, SIGNAL(toggled(bool)), this, SLOT(setGeneratedFilesFilter(bool)));
@@ -363,7 +363,7 @@ Core::NavigationView ProjectTreeWidgetFactory::createWidget()
 
     QToolButton *filter = new QToolButton;
     filter->setIcon(QIcon(QLatin1String(Core::Constants::ICON_FILTER)));
-    filter->setToolTip(tr("Filter tree"));
+    filter->setToolTip(tr("Filter Tree"));
     filter->setPopupMode(QToolButton::InstantPopup);
     QMenu *filterMenu = new QMenu(filter);
     filterMenu->addAction(ptw->m_filterProjectsAction);

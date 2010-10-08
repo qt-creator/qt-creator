@@ -27,16 +27,16 @@ symbian:TARGET.UID3 = 0xE1111234
 # and 0x2002CCCF value if protected UID is given to the application
 #symbian:DEPLOYMENT.installer_header = 0x2002CCCF
 
-symbian:ICON = symbianicon.svg
-
 # Define QMLJSDEBUGGER to enable basic debugging (setting breakpoints etc)
 # Define QMLOBSERVER for advanced features (requires experimental QmlInspector plugin!)
 #DEFINES += QMLJSDEBUGGER
 #DEFINES += QMLOBSERVER
 
+# The .cpp file which was generated for your project. Feel free to hack it.
 SOURCES += main.cpp
 
+# Please do not modify the following two lines. Required for deployment.
 include(qmlapplicationviewer/qmlapplicationviewer.pri)
+# INCLUDE_DEPLOYMENT_PRI (wizard will remove the include and append deployment.pri to qmlapplicationviewer.pri, instead) #
 include(../shared/deployment.pri)
-
 qtcAddDeployment()

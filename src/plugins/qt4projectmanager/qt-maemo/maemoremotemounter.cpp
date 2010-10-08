@@ -35,8 +35,11 @@
 #include <coreplugin/ssh/sftpchannel.h>
 #include <coreplugin/ssh/sshconnection.h>
 #include <coreplugin/ssh/sshremoteprocess.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QTimer>
+
+#define ASSERT_STATE(state) assertState(state, Q_FUNC_INFO)
 
 using namespace Core;
 
@@ -45,7 +48,7 @@ namespace Internal {
 
 MaemoRemoteMounter::MaemoRemoteMounter(QObject *parent)
     : QObject(parent), m_utfsServerTimer(new QTimer(this)),
-      m_uploadJobId(SftpInvalidJob), m_stop(false)
+      m_uploadJobId(SftpInvalidJob), m_state(Inactive)
 {
     connect(m_utfsServerTimer, SIGNAL(timeout()), this,
         SLOT(handleUtfsServerTimeout()));
@@ -58,12 +61,16 @@ MaemoRemoteMounter::~MaemoRemoteMounter()
 
 void MaemoRemoteMounter::setConnection(const Core::SshConnection::Ptr &connection)
 {
+    ASSERT_STATE(Inactive);
+
     m_connection = connection;
 }
 
 bool MaemoRemoteMounter::addMountSpecification(const MaemoMountSpecification &mountSpec,
     bool mountAsRoot)
 {
+    ASSERT_STATE(Inactive);
+
     if (mountSpec.isValid()) {
         if (!m_portList.hasMore())
             return false;
@@ -75,21 +82,27 @@ bool MaemoRemoteMounter::addMountSpecification(const MaemoMountSpecification &mo
 
 void MaemoRemoteMounter::mount()
 {
-    m_stop = false;
+    ASSERT_STATE(Inactive);
     Q_ASSERT(m_utfsServers.isEmpty());
+    Q_ASSERT(m_connection);
 
     if (!m_toolChain->allowsRemoteMounts())
         m_mountSpecs.clear();
-    if (m_mountSpecs.isEmpty())
+    if (m_mountSpecs.isEmpty()) {
+        setState(Inactive);
+        emit reportProgress(tr("No directories to mount"));
         emit mounted();
-    else
+    } else {
         deployUtfsClient();
+    }
 }
 
 void MaemoRemoteMounter::unmount()
 {
-    m_stop = false;
+    ASSERT_STATE(Inactive);
+
     if (m_mountSpecs.isEmpty()) {
+        emit reportProgress(tr("No directories to unmount"));
         emit unmounted();
         return;
     }
@@ -108,13 +121,17 @@ void MaemoRemoteMounter::unmount()
         SLOT(handleUnmountProcessFinished(int)));
     connect(m_unmountProcess.data(), SIGNAL(errorOutputAvailable(QByteArray)),
         this, SLOT(handleUmountStderr(QByteArray)));
+    setState(Unmounting);
     m_unmountProcess->start();
 }
 
 void MaemoRemoteMounter::handleUnmountProcessFinished(int exitStatus)
 {
-    if (m_stop)
+    ASSERT_STATE(QList<State>() << Unmounting << Inactive);
+
+    if (m_state == Inactive)
         return;
+    setState(Inactive);
 
     QString errorMsg;
     switch (exitStatus) {
@@ -148,7 +165,7 @@ void MaemoRemoteMounter::handleUnmountProcessFinished(int exitStatus)
 
 void MaemoRemoteMounter::stop()
 {
-    m_stop = true;
+    setState(Inactive);
     if (m_utfsClientUploader) {
         disconnect(m_utfsClientUploader.data(), 0, this, 0);
         m_utfsClientUploader->closeChannel();
@@ -172,19 +189,24 @@ void MaemoRemoteMounter::deployUtfsClient()
     connect(m_utfsClientUploader.data(), SIGNAL(initializationFailed(QString)),
         this, SLOT(handleUploaderInitializationFailed(QString)));
     m_utfsClientUploader->initialize();
+
+    setState(UploaderInitializing);
 }
 
 void MaemoRemoteMounter::handleUploaderInitializationFailed(const QString &reason)
 {
-    if (m_stop)
-        return;
+    ASSERT_STATE(QList<State>() << UploaderInitializing << Inactive);
 
-    emit error(tr("Failed to establish SFTP connection: %1").arg(reason));
+    if (m_state == UploaderInitializing) {
+        emit error(tr("Failed to establish SFTP connection: %1").arg(reason));
+        setState(Inactive);
+    }
 }
 
 void MaemoRemoteMounter::handleUploaderInitialized()
 {
-    if (m_stop)
+    ASSERT_STATE(QList<State>() << UploaderInitializing << Inactive);
+    if (m_state == Inactive)
         return;
 
     emit reportProgress(tr("Uploading UTFS client..."));
@@ -195,14 +217,20 @@ void MaemoRemoteMounter::handleUploaderInitialized()
         = m_toolChain->maddeRoot() + QLatin1String("/madlib/armel/utfs-client");
     m_uploadJobId = m_utfsClientUploader->uploadFile(localFile,
         utfsClientOnDevice(), SftpOverwriteExisting);
-    if (m_uploadJobId == SftpInvalidJob)
+    if (m_uploadJobId == SftpInvalidJob) {
+        setState(Inactive);
         emit error(tr("Could not upload UTFS client (%1).").arg(localFile));
+    } else {
+        setState(UploadRunning);
+    }
 }
 
 void MaemoRemoteMounter::handleUploadFinished(Core::SftpJobId jobId,
     const QString &errorMsg)
 {
-    if (m_stop)
+    ASSERT_STATE(QList<State>() << UploadRunning << Inactive);
+
+    if (m_state == Inactive)
         return;
 
     if (jobId != m_uploadJobId) {
@@ -213,6 +241,7 @@ void MaemoRemoteMounter::handleUploadFinished(Core::SftpJobId jobId,
     m_uploadJobId = SftpInvalidJob;
     if (!errorMsg.isEmpty()) {
         emit error(tr("Could not upload UTFS client: %1").arg(errorMsg));
+        setState(Inactive);
         return;
     }
 
@@ -255,22 +284,31 @@ void MaemoRemoteMounter::startUtfsClients()
     connect(m_mountProcess.data(), SIGNAL(errorOutputAvailable(QByteArray)),
         this, SLOT(handleUtfsClientStderr(QByteArray)));
     m_mountProcess->start();
+
+    setState(UtfsClientsStarting);
 }
 
 void MaemoRemoteMounter::handleUtfsClientsStarted()
 {
-    if (!m_stop)
+    ASSERT_STATE(QList<State>() << UtfsClientsStarting << Inactive);
+    if (m_state == UtfsClientsStarting) {
+        setState(UtfsClientsStarted);
         QTimer::singleShot(250, this, SLOT(startUtfsServers()));
+    }
 }
 
 void MaemoRemoteMounter::handleUtfsClientsFinished(int exitStatus)
 {
-    if (m_stop)
+    ASSERT_STATE(QList<State>() << UtfsClientsStarting << UtfsClientsStarted
+        << UtfsServersStarted << Inactive);
+
+    if (m_state == Inactive)
         return;
 
+    setState(Inactive);
     if (exitStatus == SshRemoteProcess::ExitedNormally
             && m_mountProcess->exitCode() == 0) {
-        m_utfsServerTimer->stop();
+        emit reportProgress(tr("Mount operation succeeded."));
         emit mounted();
     } else {
         QString errMsg = tr("Failure running UTFS client: %1")
@@ -284,7 +322,9 @@ void MaemoRemoteMounter::handleUtfsClientsFinished(int exitStatus)
 
 void MaemoRemoteMounter::startUtfsServers()
 {
-    if (m_stop)
+    ASSERT_STATE(QList<State>() << UtfsClientsStarted << Inactive);
+
+    if (m_state == Inactive)
         return;
 
     emit reportProgress(tr("Starting UTFS servers..."));
@@ -310,11 +350,13 @@ void MaemoRemoteMounter::startUtfsServers()
         m_utfsServers << utfsServerProc;
         utfsServerProc->start(utfsServer(), utfsServerArgs);
     }
+
+    setState(UtfsServersStarted);
 }
 
 void MaemoRemoteMounter::handleUtfsServerStderr()
 {
-    if (!m_stop) {
+    if (m_state != Inactive) {
         QProcess * const proc = static_cast<QProcess *>(sender());
         const QByteArray &output = proc->readAllStandardError();
         emit debugOutput(QString::fromLocal8Bit(output));
@@ -323,7 +365,7 @@ void MaemoRemoteMounter::handleUtfsServerStderr()
 
 void MaemoRemoteMounter::handleUtfsServerError(QProcess::ProcessError)
 {
-    if (m_stop || m_utfsServers.isEmpty())
+    if (m_state == Inactive || m_utfsServers.isEmpty())
         return;
 
     QProcess * const proc = static_cast<QProcess *>(sender());
@@ -334,25 +376,29 @@ void MaemoRemoteMounter::handleUtfsServerError(QProcess::ProcessError)
             .arg(QString::fromLocal8Bit(errorOutput));
     }
     killAllUtfsServers();
-    m_utfsServerTimer->stop();
+    killUtfsClients();
     emit error(tr("Error running UTFS server: %1").arg(errorString));
+
+    setState(Inactive);
 }
 
 void MaemoRemoteMounter::handleUtfsServerFinished(int /* exitCode */,
     QProcess::ExitStatus exitStatus)
 {
-    if (!m_stop && exitStatus != QProcess::NormalExit)
+    if (m_state != Inactive && exitStatus != QProcess::NormalExit)
         handleUtfsServerError(static_cast<QProcess *>(sender())->error());
 }
 
 void MaemoRemoteMounter::handleUtfsClientStderr(const QByteArray &output)
 {
-    m_utfsClientStderr += output;
+    if (m_state != Inactive)
+        m_utfsClientStderr += output;
 }
 
 void MaemoRemoteMounter::handleUmountStderr(const QByteArray &output)
 {
-    m_umountStderr += output;
+    if (m_state != Inactive)
+        m_umountStderr += output;
 }
 
 QString MaemoRemoteMounter::utfsClientOnDevice() const
@@ -383,11 +429,42 @@ void MaemoRemoteMounter::killUtfsServer(QProcess *proc)
 
 void MaemoRemoteMounter::handleUtfsServerTimeout()
 {
-    if (m_stop)
+    ASSERT_STATE(QList<State>() << UtfsServersStarted << Inactive);
+    if (m_state == Inactive)
         return;
 
     killAllUtfsServers();
+    killUtfsClients();
     emit error(tr("Timeout waiting for UTFS servers to connect."));
+
+    setState(Inactive);
+}
+
+void MaemoRemoteMounter::assertState(State expectedState, const char *func)
+{
+    assertState(QList<State>() << expectedState, func);
+}
+
+void MaemoRemoteMounter::assertState(const QList<State> &expectedStates,
+    const char *func)
+{
+    QTC_ASSERT(expectedStates.contains(m_state),
+        qDebug("Unexpected state %d at %s.", m_state, func))
+}
+
+void MaemoRemoteMounter::setState(State newState)
+{
+    if (newState == Inactive)
+        m_utfsServerTimer->stop();
+    m_state = newState;
+}
+
+void MaemoRemoteMounter::killUtfsClients()
+{
+    const SshRemoteProcess::Ptr utfsClientKiller
+        = m_connection->createRemoteProcess("pkill utfs-client; sleep 1; "
+            "pkill -9 utfs-client");
+    utfsClientKiller->start();
 }
 
 } // namespace Internal

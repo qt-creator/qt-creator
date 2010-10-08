@@ -37,6 +37,8 @@
 #include "qt-s60/s60manager.h"
 #include "qt-s60/s60projectchecker.h"
 
+#include "qmlobservertool.h"
+#include "qmldumptool.h"
 #include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -515,6 +517,8 @@ QtVersion::QtVersion(const QString &name, const QString &qmakeCommand, int id,
     m_isAutodetected(isAutodetected),
     m_autodetectionSource(autodetectionSource),
     m_hasDebuggingHelper(false),
+    m_hasQmlDump(false),
+    m_hasQmlObserver(false),
     m_toolChainUpToDate(false),
     m_versionInfoUpToDate(false),
     m_notInstalled(false),
@@ -537,6 +541,8 @@ QtVersion::QtVersion(const QString &name, const QString &qmakeCommand,
     m_isAutodetected(isAutodetected),
     m_autodetectionSource(autodetectionSource),
     m_hasDebuggingHelper(false),
+    m_hasQmlDump(false),
+    m_hasQmlObserver(false),
     m_toolChainUpToDate(false),
     m_versionInfoUpToDate(false),
     m_notInstalled(false),
@@ -555,6 +561,8 @@ QtVersion::QtVersion(const QString &qmakeCommand, bool isAutodetected, const QSt
     : m_isAutodetected(isAutodetected),
     m_autodetectionSource(autodetectionSource),
     m_hasDebuggingHelper(false),
+    m_hasQmlDump(false),
+    m_hasQmlObserver(false),
     m_toolChainUpToDate(false),
     m_versionInfoUpToDate(false),
     m_notInstalled(false),
@@ -573,6 +581,8 @@ QtVersion::QtVersion()
     :  m_id(-1),
     m_isAutodetected(false),
     m_hasDebuggingHelper(false),
+    m_hasQmlDump(false),
+    m_hasQmlObserver(false),
     m_toolChainUpToDate(false),
     m_versionInfoUpToDate(false),
     m_notInstalled(false),
@@ -793,12 +803,12 @@ void QtVersion::updateSourcePath()
 // That is returns the directory
 // To find out whether we already have a qtversion for that directory call
 // QtVersion *QtVersionManager::qtVersionForDirectory(const QString directory);
-QString QtVersionManager::findQMakeBinaryFromMakefile(const QString &directory)
+QString QtVersionManager::findQMakeBinaryFromMakefile(const QString &makefile)
 {
     bool debugAdding = false;
-    QFile makefile(directory + "/Makefile" );
-    if (makefile.exists() && makefile.open(QFile::ReadOnly)) {
-        QTextStream ts(&makefile);
+    QFile fi(makefile);
+    if (fi.exists() && fi.open(QFile::ReadOnly)) {
+        QTextStream ts(&fi);
         QRegExp r1("QMAKE\\s*=(.*)");
         while (!ts.atEnd()) {
             QString line = ts.readLine();
@@ -844,32 +854,31 @@ void dumpQMakeAssignments(const QList<QMakeAssignment> &list)
     }
 }
 
-bool QtVersionManager::makefileIsFor(const QString &directory, const QString &proFile)
+bool QtVersionManager::makefileIsFor(const QString &makefile, const QString &proFile)
 {
     if (proFile.isEmpty())
         return true;
 
-    QString line = findQMakeLine(directory, QLatin1String("# Project:")).trimmed();
+    QString line = findQMakeLine(makefile, QLatin1String("# Project:")).trimmed();
     if (line.isEmpty())
         return false;
-
 
     line = line.mid(line.indexOf(QChar(':')) + 1);
     line = line.trimmed();
 
-    QFileInfo srcFileInfo(QDir(directory), line);
+    QFileInfo srcFileInfo(QFileInfo(makefile).absoluteDir(), line);
     QFileInfo proFileInfo(proFile);
     return srcFileInfo == proFileInfo;
 }
 
-QPair<QtVersion::QmakeBuildConfigs, QStringList> QtVersionManager::scanMakeFile(const QString &directory, QtVersion::QmakeBuildConfigs defaultBuildConfig)
+QPair<QtVersion::QmakeBuildConfigs, QStringList> QtVersionManager::scanMakeFile(const QString &makefile, QtVersion::QmakeBuildConfigs defaultBuildConfig)
 {
     if (debug)
         qDebug()<<"ScanMakeFile, the gory details:";
     QtVersion::QmakeBuildConfigs result = defaultBuildConfig;
     QStringList result2;
 
-    QString line = findQMakeLine(directory, QLatin1String("# Command:"));
+    QString line = findQMakeLine(makefile, QLatin1String("# Command:"));
     if (!line.isEmpty()) {
         if (debug)
             qDebug()<<"Found line"<<line;
@@ -920,11 +929,11 @@ QPair<QtVersion::QmakeBuildConfigs, QStringList> QtVersionManager::scanMakeFile(
     return qMakePair(result, result2);
 }
 
-QString QtVersionManager::findQMakeLine(const QString &directory, const QString &key)
+QString QtVersionManager::findQMakeLine(const QString &makefile, const QString &key)
 {
-    QFile makefile(directory + QLatin1String("/Makefile" ));
-    if (makefile.exists() && makefile.open(QFile::ReadOnly)) {
-        QTextStream ts(&makefile);
+    QFile fi(makefile);
+    if (fi.exists() && fi.open(QFile::ReadOnly)) {
+        QTextStream ts(&fi);
         while (!ts.atEnd()) {
             const QString line = ts.readLine();
             if (line.startsWith(key))
@@ -1125,6 +1134,8 @@ void QtVersion::updateVersionInfo() const
     m_hasExamples = false;
     m_hasDocumentation = false;
     m_hasDebuggingHelper = false;
+    m_hasQmlDump = false;
+    m_hasQmlObserver = false;
 
     if (!queryQMakeVariables(qmakeCommand(), &m_versionInfo))
         return;
@@ -1133,8 +1144,11 @@ void QtVersion::updateVersionInfo() const
         QString qtInstallData = m_versionInfo.value("QT_INSTALL_DATA");
         m_versionInfo.insert("QMAKE_MKSPECS", QDir::cleanPath(qtInstallData+"/mkspecs"));
 
-        if (!qtInstallData.isEmpty())
+        if (!qtInstallData.isEmpty()) {
             m_hasDebuggingHelper = !DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData).isEmpty();
+            m_hasQmlDump = !QmlDumpTool::toolByInstallData(qtInstallData).isEmpty();
+            m_hasQmlObserver = !QmlObserverTool::toolByInstallData(qtInstallData).isEmpty();
+        }
     }
 
     // Now check for a qt that is configured with a prefix but not installed
@@ -1234,6 +1248,7 @@ QString QtVersion::qmlviewerCommand() const
 {
     if (!isValid())
         return QString();
+
     if (m_qmlviewerCommand.isNull()) {
 #ifdef Q_OS_MAC
         const QString qmlViewerName = QLatin1String("QMLViewer");
@@ -1609,6 +1624,18 @@ bool QtVersion::hasDebuggingHelper() const
     return m_hasDebuggingHelper;
 }
 
+bool QtVersion::hasQmlDump() const
+{
+    updateVersionInfo();
+    return m_hasQmlDump;
+}
+
+bool QtVersion::hasQmlObserver() const
+{
+    updateVersionInfo();
+    return m_hasQmlObserver;
+}
+
 QString QtVersion::debuggingHelperLibrary() const
 {
     QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");
@@ -1617,12 +1644,28 @@ QString QtVersion::debuggingHelperLibrary() const
     return DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData);
 }
 
+QString QtVersion::qmlDumpTool() const
+{
+    QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");
+    if (qtInstallData.isEmpty())
+        return QString();
+    return QmlDumpTool::toolByInstallData(qtInstallData);
+}
+
+QString QtVersion::qmlObserverTool() const
+{
+    QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");
+    if (qtInstallData.isEmpty())
+        return QString();
+    return QmlObserverTool::toolByInstallData(qtInstallData);
+}
+
 QStringList QtVersion::debuggingHelperLibraryLocations() const
 {
     QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");
     if (qtInstallData.isEmpty())
         return QStringList();
-    return DebuggingHelperLibrary::debuggingHelperLibraryLocationsByInstallData(qtInstallData);
+    return DebuggingHelperLibrary::locationsByInstallData(qtInstallData);
 }
 
 bool QtVersion::supportsBinaryDebuggingHelper() const
@@ -1702,8 +1745,9 @@ bool QtVersion::isQt64Bit() const
 #endif
 }
 
-QString QtVersion::buildDebuggingHelperLibrary()
+QString QtVersion::buildDebuggingHelperLibrary(QFutureInterface<void> &future, bool onlyQmlDump)
 {
+    QString qtInstallHeaders = versionInfo().value("QT_INSTALL_HEADERS");
     QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");
     if (qtInstallData.isEmpty())
         return QString();
@@ -1717,13 +1761,50 @@ QString QtVersion::buildDebuggingHelperLibrary()
         return QCoreApplication::translate("QtVersion", "The Qt Version has no toolchain.");
     tc->addToEnvironment(env);
     QString output;
-    QString directory = DebuggingHelperLibrary::copyDebuggingHelperLibrary(qtInstallData, &output);
-    if (!directory.isEmpty()) {
-        output += DebuggingHelperLibrary::buildDebuggingHelperLibrary(directory, tc->makeCommand(),
-            qmakeCommand(), mkspec(), env,
-            (tc->type() == ToolChain::GCC_MAEMO ? QLatin1String("-unix") : QLatin1String("")));
+
+    if (!onlyQmlDump) {
+        QString gdbHelperDirectory = DebuggingHelperLibrary::copy(qtInstallData, &output);
+        if (!gdbHelperDirectory.isEmpty()) {
+            output += DebuggingHelperLibrary::build(gdbHelperDirectory, tc->makeCommand(),
+                                                    qmakeCommand(), mkspec(), env,
+                                                    (tc->type() == ToolChain::GCC_MAEMO ? QLatin1String("-unix") : QLatin1String("")));
+        }
+        future.setProgressValue(2);
+
+        if (QmlObserverTool::canBuild(this)) {
+            QString toolDirectory = QmlObserverTool::copy(qtInstallData, &output);
+            if (!toolDirectory.isEmpty()) {
+                output += QmlObserverTool::build(toolDirectory, tc->makeCommand(),
+                    qmakeCommand(), mkspec(), env,
+                    (tc->type() == ToolChain::GCC_MAEMO ? QLatin1String("-unix") : QLatin1String("")));
+            }
+        } else {
+            output += QCoreApplication::tr("Cannot build QMLObserver; Qt version must be 4.7.1 or higher.");
+        }
+        future.setProgressValue(3);
     }
-    m_hasDebuggingHelper = !debuggingHelperLibrary().isEmpty();
+
+    if (QmlDumpTool::canBuild(this)) {
+        QString toolDirectory = QmlDumpTool::copy(qtInstallData, &output);
+        if (!toolDirectory.isEmpty()) {
+            output += QmlDumpTool::build(toolDirectory, tc->makeCommand(),
+                qmakeCommand(), mkspec(), env,
+                (tc->type() == ToolChain::GCC_MAEMO ? QLatin1String("-unix") : QLatin1String("")));
+        }
+    } else {
+        output += QCoreApplication::tr("Cannot build qmldump; Qt version must be 4.7.1 or higher.");
+    }
+    future.setProgressValue(4);
+
+    // invalidate version before updating version info
+    m_versionInfoUpToDate = false;
+    updateVersionInfo();
+
+    if (!onlyQmlDump) {
+        m_hasDebuggingHelper = !debuggingHelperLibrary().isEmpty();
+        m_hasQmlObserver = !qmlObserverTool().isEmpty();
+    }
+    m_hasQmlDump = !qmlDumpTool().isEmpty();
+
     return output;
 }
-

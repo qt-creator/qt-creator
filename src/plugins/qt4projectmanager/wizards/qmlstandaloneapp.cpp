@@ -261,6 +261,8 @@ void QmlStandaloneApp::handleCurrentProFileTemplateLine(const QString &line,
         }
 
         proFile << endl;
+    } else if (line.contains(QLatin1String("# INCLUDE_DEPLOYMENT_PRI"))) {
+        proFileTemplate.readLine(); // eats 'include(deployment.pri)'
     }
 }
 
@@ -378,6 +380,7 @@ QByteArray QmlStandaloneApp::generateFileExtended(int fileType,
             break;
         case QmlAppGeneratedFileInfo::AppViewerPriFile:
             data = readBlob(path(AppViewerPriOrigin), errorMessage);
+            data.append(readBlob(path(DeploymentPriOrigin), errorMessage));
             *comment = ProFileComment;
             *versionAndCheckSum = true;
             break;
@@ -408,9 +411,7 @@ static QList<QmlAppGeneratedFileInfo> updateableFiles(const QString &mainProFile
     } files[] = {
         {QmlAppGeneratedFileInfo::AppViewerPriFile, appViewerPriFileName},
         {QmlAppGeneratedFileInfo::AppViewerHFile, appViewerHFileName},
-        {QmlAppGeneratedFileInfo::AppViewerCppFile, appViewerCppFileName},
-        {QmlAppGeneratedFileInfo::DeploymentPriFile,
-             QLatin1String("../") + AbstractMobileApp::DeploymentPriFileName}
+        {QmlAppGeneratedFileInfo::AppViewerCppFile, appViewerCppFileName}
     };
     const QFileInfo mainProFileInfo(mainProFile);
     const int size = sizeof(files) / sizeof(files[0]);
@@ -424,6 +425,8 @@ static QList<QmlAppGeneratedFileInfo> updateableFiles(const QString &mainProFile
         file.fileInfo = QFileInfo(fileName);
         result.append(file);
     }
+    if (result.count() != size)
+        result.clear(); // All files must be found. No wrong/partial updates, please.
     return result;
 }
 
@@ -474,7 +477,7 @@ bool QmlStandaloneApp::updateFiles(const QList<QmlAppGeneratedFileInfo> &list, Q
     return true;
 }
 
-const int QmlStandaloneApp::StubVersion = 7;
+const int QmlStandaloneApp::StubVersion = 8;
 
 } // namespace Internal
 } // namespace Qt4ProjectManager

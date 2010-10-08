@@ -40,19 +40,11 @@ class QmlStandaloneAppWizard : public AbstractMobileAppWizard
     Q_OBJECT
 
 public:
-    enum WizardType {
-        NewQmlFile,
-        ImportQmlFile
-    };
-
-    QmlStandaloneAppWizard(WizardType type);
+    QmlStandaloneAppWizard();
     virtual ~QmlStandaloneAppWizard();
 
-private slots:
-    void handleModulesChange(const QStringList &uris, const QStringList &paths);
-
 private:
-    static Core::BaseFileWizardParameters parameters(WizardType type);
+    static Core::BaseFileWizardParameters parameters();
 
     virtual AbstractMobileApp *app() const;
     virtual AbstractMobileAppWizardDialog *wizardDialog() const;

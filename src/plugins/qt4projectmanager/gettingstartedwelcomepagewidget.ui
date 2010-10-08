@@ -269,7 +269,7 @@
          <item row="1" column="0">
           <widget class="QLabel" name="demoTitleLabel">
            <property name="text">
-            <string>Explore Qt C++ Examples</string>
+            <string>Explore Qt C++ examples:</string>
            </property>
           </widget>
          </item>
@@ -291,14 +291,14 @@
             </size>
            </property>
            <property name="text">
-            <string>Examples not installed...</string>
+            <string>Examples Not Installed...</string>
            </property>
           </widget>
          </item>
          <item row="2" column="0">
           <widget class="QLabel" name="demoTitleLabel_2">
            <property name="text">
-            <string>Explore Qt Quick Examples</string>
+            <string>Explore Qt Quick examples:</string>
            </property>
           </widget>
          </item>
@@ -320,14 +320,14 @@
             </size>
            </property>
            <property name="text">
-            <string>Examples not installed...</string>
+            <string>Examples Not Installed...</string>
            </property>
           </widget>
          </item>
          <item row="3" column="0">
           <widget class="QLabel" name="demoTitleLabel_3">
            <property name="text">
-            <string>Explore Qt C++ Mobile Examples</string>
+            <string>Explore Qt C++ mobile examples:</string>
            </property>
           </widget>
          </item>
@@ -349,7 +349,7 @@
             </size>
            </property>
            <property name="text">
-            <string>Examples not installed...</string>
+            <string>Examples Not Installed...</string>
            </property>
           </widget>
          </item>
@@ -457,14 +457,14 @@ border-bottom: 1px solid &quot;#C9C9C9&quot;;
          </size>
         </property>
         <property name="text">
-         <string>Image</string>
+         <string notr="true">Image</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QLabel" name="featuredTextLabel">
         <property name="text">
-         <string>Text</string>
+         <string notr="true">Text</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
@@ -489,7 +489,7 @@ border-bottom: 1px solid &quot;#C9C9C9&quot;;
         <item>
          <widget class="QLabel" name="detailsLabel">
           <property name="text">
-           <string>Link</string>
+           <string notr="true">Link</string>
           </property>
          </widget>
         </item>

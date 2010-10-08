@@ -317,6 +317,13 @@ QString Qt4BuildConfiguration::defaultMakeTarget() const
     return QString();
 }
 
+QString Qt4BuildConfiguration::makefile() const
+{
+    if (qt4Target()->id() == Constants::S60_DEVICE_TARGET_ID)
+        return QString();
+    return qt4Target()->qt4Project()->rootProjectNode()->makefile();
+}
+
 QtVersion *Qt4BuildConfiguration::qtVersion() const
 {
     QtVersionManager *vm = QtVersionManager::instance();
@@ -455,21 +462,22 @@ void Qt4BuildConfiguration::qtVersionsChanged(const QList<int> &changedVersions)
 }
 
 // returns true if both are equal
-bool Qt4BuildConfiguration::compareToImportFrom(const QString &workingDirectory)
+bool Qt4BuildConfiguration::compareToImportFrom(const QString &makefile)
 {
     QMakeStep *qs = qmakeStep();
-    if (QDir(workingDirectory).exists(QLatin1String("Makefile")) && qs) {
-        QString qmakePath = QtVersionManager::findQMakeBinaryFromMakefile(workingDirectory);
+    if (QFileInfo(makefile).exists() && qs) {
+        QString qmakePath = QtVersionManager::findQMakeBinaryFromMakefile(makefile);
         QtVersion *version = qtVersion();
         if (version->qmakeCommand() == qmakePath) {
             // same qtversion
             QPair<QtVersion::QmakeBuildConfigs, QStringList> result =
-                    QtVersionManager::scanMakeFile(workingDirectory, version->defaultBuildConfig());
+                    QtVersionManager::scanMakeFile(makefile, version->defaultBuildConfig());
             if (qmakeBuildConfiguration() == result.first) {
                 // The qmake Build Configuration are the same,
                 // now compare arguments lists
                 // we have to compare without the spec/platform cmd argument
                 // and compare that on its own
+                QString workingDirectory = QFileInfo(makefile).absolutePath();
                 QString actualSpec = extractSpecFromArgumentList(qs->userArguments(), workingDirectory, version);
                 if (actualSpec.isEmpty()) {
                     // Easy one: the user has chosen not to override the settings

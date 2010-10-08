@@ -32,7 +32,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Orientation Behavior:</string>
+         <string>Orientation behavior:</string>
         </property>
         <property name="buddy">
          <cstring>orientationBehaviorComboBox</cstring>
@@ -52,7 +52,7 @@
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
-       <string>Symbian specific</string>
+       <string>Symbian Specific</string>
       </attribute>
       <layout class="QFormLayout" name="formLayout">
        <item row="0" column="0">
@@ -64,7 +64,7 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>Application Icon (.svg):</string>
+          <string>Application icon (.svg):</string>
          </property>
          <property name="buddy">
           <cstring>symbianAppIconLoadToolButton</cstring>
@@ -164,7 +164,7 @@
      </widget>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
-       <string>Maemo specific</string>
+       <string>Maemo Specific</string>
       </attribute>
       <widget class="QLabel" name="maemoAppIconLabel">
        <property name="geometry">
@@ -176,7 +176,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>Application Icon (64x64):</string>
+        <string>Application icon (64x64):</string>
        </property>
       </widget>
       <widget class="QToolButton" name="maemoPngIconButton">

@@ -409,7 +409,7 @@ void CdbEngine::setupEngine()
     m_d->m_inferiorStartupComplete = false;
     // Options
     QString errorMessage;
-    if (!m_d->setBreakOnThrow(theDebuggerBoolSetting(BreakOnThrow), &errorMessage))
+    if (!m_d->setBreakOnThrow(m_d->m_options->breakOnException, &errorMessage))
         showMessage(errorMessage, LogWarning);
     m_d->setVerboseSymbolLoading(m_d->m_options->verboseSymbolLoading);
     // Figure out dumper. @TODO: same in gdb...
@@ -481,7 +481,7 @@ void CdbEngine::runEngine()
         }
         break;
     case AttachCore:
-        errorMessage = tr("Attaching to core files is not supported!");
+        errorMessage = tr("Attaching to core files is not supported.");
         break;
     }
     if (rc) {
@@ -563,6 +563,8 @@ void CdbEngine::processTerminated(unsigned long exitCode)
 
 bool CdbEnginePrivate::endInferior(bool detachOnly, QString *errorMessage)
 {
+    if (debugCDBExecution)
+        qDebug("endInferior detach=%d, %s", detachOnly, DebuggerEngine::stateName(m_engine->state()));
     // Are we running
     switch (m_engine->state()) {
     case InferiorRunRequested:
@@ -572,6 +574,7 @@ bool CdbEnginePrivate::endInferior(bool detachOnly, QString *errorMessage)
     case InferiorStopOk:
     case InferiorStopFailed:
     case InferiorShutdownRequested:
+    case EngineShutdownRequested: // Forwarded when choosing 'Abort...' an attached process.
         break;
     default:
         return true;

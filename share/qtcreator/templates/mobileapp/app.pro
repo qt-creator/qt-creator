@@ -22,12 +22,10 @@ symbian:TARGET.UID3 = 0xE1111234
 # and 0x2002CCCF value if protected UID is given to the application
 #symbian:DEPLOYMENT.installer_header = 0x2002CCCF
 
-symbian:ICON = symbianicon.svg
-
 SOURCES += main.cpp mainwindow.cpp
 HEADERS += mainwindow.h
 FORMS += mainwindow.ui
 
+# Please do not modify the following two lines. Required for deployment.
 include(../shared/deployment.pri)
-
 qtcAddDeployment()

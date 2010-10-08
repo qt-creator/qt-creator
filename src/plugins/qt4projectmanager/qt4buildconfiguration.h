@@ -102,8 +102,9 @@ public:
 
     QString makeCommand() const;
     QString defaultMakeTarget() const;
+    QString makefile() const;
 
-    bool compareToImportFrom(const QString &workingDirectory);
+    bool compareToImportFrom(const QString &makefile);
     static QStringList removeQMLInspectorFromArgumentList(const QStringList &old);
     static QStringList removeSpecFromArgumentList(const QStringList &old);
     static QString extractSpecFromArgumentList(const QStringList &list, QString directory, QtVersion *version);

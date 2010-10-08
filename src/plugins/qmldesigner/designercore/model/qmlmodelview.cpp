@@ -98,8 +98,8 @@ QmlItemNode QmlModelView::createQmlItemNodeFromImage(const QString &imageName, c
     QmlItemNode newNode;
     RewriterTransaction transaction = beginRewriterTransaction();
     {
-        const QString newImportUrl = QLatin1String("Qt");
-        const QString newImportVersion = QLatin1String("4.7");
+        const QString newImportUrl = QLatin1String("QtQuick");
+        const QString newImportVersion = QLatin1String("1.0");
         Import newImport = Import::createLibraryImport(newImportUrl, newImportVersion);
 
         foreach (const Import &import, model()->imports()) {
@@ -129,7 +129,7 @@ QmlItemNode QmlModelView::createQmlItemNodeFromImage(const QString &imageName, c
         }
 
         propertyPairList.append(qMakePair(QString("source"), QVariant(relativeImageName)));
-        newNode = createQmlItemNode("Qt/Image", 4, 7, propertyPairList);
+        newNode = createQmlItemNode("QtQuick/Image", 1, 0, propertyPairList);
         parentNode.nodeAbstractProperty("data").reparentHere(newNode);
 
         Q_ASSERT(newNode.isValid());
@@ -325,7 +325,9 @@ static bool isTransformProperty(const QString &name)
                                                          << "z"
                                                          << "rotation"
                                                          << "scale"
-                                                         << "transformOrigin");
+                                                         << "transformOrigin"
+                                                         << "paintedWidth"
+                                                         << "paintedHeight");
 
     return transformProperties.contains(name);
 }
@@ -385,9 +387,12 @@ void QmlModelView::activateState(const QmlModelState &state)
         return;
 
     if (m_state == state)
-        return;
+        return;    
 
-    QmlModelState oldState = m_state;
+    m_state = state; //This is hacky. m_state should be controlled by the instances
+                     //### todo: If the state thumbnail code gets refactored.
+                     //          this is not neccessary anymore.
+
 
     NodeInstance newStateInstance = instanceForModelNode(state.modelNode());
 

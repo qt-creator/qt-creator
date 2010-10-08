@@ -94,6 +94,7 @@ Core::GeneratedFiles MobileApp::generateFiles(QString *errorMessage) const
 {
     Core::GeneratedFiles files = AbstractMobileApp::generateFiles(errorMessage);
 
+    files.append(file(generateFile(AbstractGeneratedFileInfo::DeploymentPriFile, errorMessage), path(DeploymentPri)));
     files.append(file(generateFile(MobileAppGeneratedFileInfo::MainWindowCppFile, errorMessage), path(MainWindowCpp)));
     files.append(file(generateFile(MobileAppGeneratedFileInfo::MainWindowHFile, errorMessage), path(MainWindowH)));
     files.append(file(generateFile(MobileAppGeneratedFileInfo::MainWindowUiFile, errorMessage), path(MainWindowUi)));
@@ -137,7 +138,7 @@ QString MobileApp::mainWindowClassName() const
 
 int MobileApp::stubVersionMinor() const { return StubVersion; }
 
-const int MobileApp::StubVersion = 1;
+const int MobileApp::StubVersion = 2;
 
 } // namespace Internal
 } // namespace Qt4ProjectManager

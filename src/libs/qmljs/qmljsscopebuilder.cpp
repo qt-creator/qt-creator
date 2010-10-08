@@ -282,7 +282,8 @@ const ObjectValue *ScopeBuilder::isPropertyChangesObject(const Context *context,
     while (prototype) {
         if (const QmlObjectValue *qmlMetaObject = dynamic_cast<const QmlObjectValue *>(prototype)) {
             if (qmlMetaObject->className() == QLatin1String("PropertyChanges")
-                    && qmlMetaObject->packageName() == QLatin1String("Qt"))
+                    && (qmlMetaObject->packageName() == QLatin1String("Qt")
+                        || qmlMetaObject->packageName() == QLatin1String("QtQuick")))
                 return prototype;
         }
         prototype = prototype->prototype(context);

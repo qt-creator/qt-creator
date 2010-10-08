@@ -68,6 +68,11 @@ public:
 
     IVersionControl *findVersionControlForDirectory(const QString &directory,
                                                     QString *topLevelDirectory = 0);
+    IVersionControl *checkout(const QString &versionControlType,
+                              const QString &directory,
+                              const QByteArray &url);
+    bool findVersionControl(const QString &versionControl);
+    QString getRepositoryURL(const QString &directory);
 
     // Shows a confirmation dialog, whether the file should also be deleted
     // from revision control Calls sccDelete on the file. Returns false

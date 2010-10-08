@@ -2,7 +2,15 @@
 <ui version="4.0">
  <class>DebuggingHelperOptionPage</class>
  <widget class="QWidget" name="DebuggingHelperOptionPage">
-  <layout class="QVBoxLayout" name="verticalLayout_2">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>529</width>
+    <height>411</height>
+   </rect>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
@@ -47,7 +55,7 @@
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="Utils::PathChooser" name="dumperLocationChooser"/>
+          <widget class="Utils::PathChooser" name="dumperLocationChooser" native="true"/>
          </item>
         </layout>
        </widget>
@@ -73,6 +81,25 @@
        </widget>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>QML Observer is used to offer additional debugging facilities to QML applications, such as interactive preview of code changes and inspection tools.
+
+It is not strictly necessary for debugging with Qt Creator.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="checkBoxUseQmlObserver">
+     <property name="text">
+      <string>Use QML Observer</string>
+     </property>
     </widget>
    </item>
    <item>

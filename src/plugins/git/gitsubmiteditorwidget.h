@@ -31,7 +31,12 @@
 #define GITSUBMITEDITORWIDGET_H
 
 #include "ui_gitsubmitpanel.h"
+
 #include <utils/submiteditorwidget.h>
+
+QT_BEGIN_NAMESPACE
+class QValidator;
+QT_END_NAMESPACE
 
 namespace Git {
 namespace Internal {
@@ -49,6 +54,7 @@ struct GitSubmitEditorPanelData;
 
 class GitSubmitEditorWidget : public Utils::SubmitEditorWidget
 {
+    Q_OBJECT
 
 public:
     explicit GitSubmitEditorWidget(QWidget *parent = 0);
@@ -59,9 +65,18 @@ public:
 
     void setPanelInfo(const GitSubmitEditorPanelInfo &info);
 
+protected:
+    bool canSubmit() const;
+
+private slots:
+    void authorInformationChanged();
+
 private:
+    bool emailIsValid() const;
+
     QWidget *m_gitSubmitPanel;
     Ui::GitSubmitPanel m_gitSubmitPanelUi;
+    QValidator *m_emailValidator;
 };
 
 } // namespace Internal

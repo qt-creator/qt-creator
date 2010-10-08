@@ -199,13 +199,19 @@ public:
 };
 
 class FakeMetaObject {
-    FakeMetaObject(FakeMetaObject&);
-    FakeMetaObject &operator=(const FakeMetaObject&);
+    Q_DISABLE_COPY(FakeMetaObject)
 
-    QString m_name;
-    QString m_package;
-    QString m_packageNameVersion;
-    ComponentVersion m_version;
+public:
+    class Export {
+    public:
+        QString package;
+        QString type;
+        QmlJS::ComponentVersion version;
+        QString packageNameVersion;
+    };
+
+private:
+    QList<Export> m_exports;
     const FakeMetaObject *m_super;
     QString m_superName;
     QList<FakeMetaEnum> m_enums;
@@ -216,13 +222,25 @@ class FakeMetaObject {
     QString m_defaultPropertyName;
 
 public:
-    FakeMetaObject(const QString &name, const QString &package, ComponentVersion version)
-        : m_name(name), m_package(package), m_version(version), m_super(0)
+    FakeMetaObject()
+        : m_super(0)
     {
-        m_packageNameVersion = QString::fromLatin1("%1.%2 %3.%4").arg(
-                package, name,
-                QString::number(version.majorVersion()), QString::number(version.minorVersion()));
     }
+
+    void addExport(const QString &name, const QString &package, QmlJS::ComponentVersion version)
+    {
+        Export exp;
+        exp.type = name;
+        exp.package = package;
+        exp.version = version;
+        exp.packageNameVersion = QString::fromLatin1("%1.%2 %3.%4").arg(
+                package, name,
+                QString::number(version.majorVersion()),
+                QString::number(version.minorVersion()));
+        m_exports.append(exp);
+    }
+    QList<Export> exports() const
+    { return m_exports; }
 
     void setSuperclassName(const QString &superclass)
     { m_superName = superclass; }
@@ -233,12 +251,6 @@ public:
     { m_super = superClass; }
     const FakeMetaObject *superClass() const
     { return m_super; }
-    QString className() const
-    { return m_name; }
-    QString packageName() const
-    { return m_package; }
-    QString packageClassVersionString() const
-    { return m_packageNameVersion; }
 
     void addEnum(const FakeMetaEnum &fakeEnum)
     { m_enumNameToIndex.insert(fakeEnum.name(), m_enums.size()); m_enums.append(fakeEnum); }
@@ -270,9 +282,6 @@ public:
     { return 0; }
     FakeMetaMethod method(int index) const
     { return m_methods.at(index); }
-
-    ComponentVersion version() const
-    { return m_version; }
 
     QString defaultPropertyName() const
     { return m_defaultPropertyName; }
@@ -404,37 +413,13 @@ private:
         QString name, defaultPropertyName;
         QmlJS::ComponentVersion version;
         QString extends;
+        QString id;
         foreach (const QXmlStreamAttribute &attr, _xml.attributes()) {
             if (attr.name() == QLatin1String("name")) {
-                name = attr.value().toString();
-                if (name.isEmpty()) {
+                id = attr.value().toString();
+                if (id.isEmpty()) {
                     invalidAttr(name, QLatin1String("name"), tag);
                     return;
-                }
-            } else if (attr.name() == QLatin1String("version")) {
-                QString versionStr = attr.value().toString();
-                int dotIdx = versionStr.indexOf('.');
-                if (dotIdx == -1) {
-                    bool ok = false;
-                    const int major = versionStr.toInt(&ok);
-                    if (!ok) {
-                        invalidAttr(versionStr, QLatin1String("version"), tag);
-                        return;
-                    }
-                    version = QmlJS::ComponentVersion(major, QmlJS::ComponentVersion::NoVersion);
-                } else {
-                    bool ok = false;
-                    const int major = versionStr.left(dotIdx).toInt(&ok);
-                    if (!ok) {
-                        invalidAttr(versionStr, QLatin1String("version"), tag);
-                        return;
-                    }
-                    const int minor = versionStr.mid(dotIdx + 1).toInt(&ok);
-                    if (!ok) {
-                        invalidAttr(versionStr, QLatin1String("version"), tag);
-                        return;
-                    }
-                    version = QmlJS::ComponentVersion(major, minor);
                 }
             } else if (attr.name() == QLatin1String("defaultProperty")) {
                 defaultPropertyName = attr.value().toString();
@@ -451,9 +436,7 @@ private:
             }
         }
 
-        QString className, packageName;
-        split(name, &packageName, &className);
-        FakeMetaObject *metaObject = new FakeMetaObject(className, packageName, version);
+        FakeMetaObject *metaObject = new FakeMetaObject;
         if (! extends.isEmpty())
             metaObject->setSuperclassName(extends);
         if (! defaultPropertyName.isEmpty())
@@ -468,14 +451,19 @@ private:
                 readSignal(metaObject);
             else if (_xml.name() == QLatin1String("method"))
                 readMethod(metaObject);
+            else if (_xml.name() == QLatin1String("exports"))
+                readExports(metaObject);
             else
                 unexpectedElement(_xml.name(), tag);
         }
 
-        if (doInsert)
-            _objects->insert(name, metaObject);
-        else
+        metaObject->addExport(id, QString(), QmlJS::ComponentVersion());
+
+        if (doInsert) {
+            _objects->insert(id, metaObject);
+        } else {
             delete metaObject;
+        }
     }
 
     bool split(const QString &name, QString *packageName, QString *className) {
@@ -706,6 +694,60 @@ private:
         metaObject->addMethod(method);
     }
 
+    void readExports(FakeMetaObject *metaObject)
+    {
+        Q_ASSERT(metaObject);
+        QLatin1String tag("exports");
+        QLatin1String childTag("export");
+        Q_ASSERT(_xml.isStartElement() && _xml.name() == tag);
+
+        while (_xml.readNextStartElement()) {
+            if (_xml.name() == childTag) {
+                QString type;
+                QString package;
+                QmlJS::ComponentVersion version;
+                foreach (const QXmlStreamAttribute &attr, _xml.attributes()) {
+                    if (attr.name() == QLatin1String("module")) {
+                        package = attr.value().toString();
+                    } else if (attr.name() == QLatin1String("type")) {
+                        type = attr.value().toString();
+                    } else if (attr.name() == QLatin1String("version")) {
+                        QString versionStr = attr.value().toString();
+                        int dotIdx = versionStr.indexOf('.');
+                        if (dotIdx == -1) {
+                            bool ok = false;
+                            const int major = versionStr.toInt(&ok);
+                            if (!ok) {
+                                invalidAttr(versionStr, QLatin1String("version"), childTag);
+                                continue;
+                            }
+                            version = QmlJS::ComponentVersion(major, QmlJS::ComponentVersion::NoVersion);
+                        } else {
+                            bool ok = false;
+                            const int major = versionStr.left(dotIdx).toInt(&ok);
+                            if (!ok) {
+                                invalidAttr(versionStr, QLatin1String("version"), childTag);
+                                continue;
+                            }
+                            const int minor = versionStr.mid(dotIdx + 1).toInt(&ok);
+                            if (!ok) {
+                                invalidAttr(versionStr, QLatin1String("version"), childTag);
+                                continue;
+                            }
+                            version = QmlJS::ComponentVersion(major, minor);
+                        }
+                    } else {
+                        ignoreAttr(attr);
+                    }
+                }
+                metaObject->addExport(type, package, version);
+            } else {
+                unexpectedElement(_xml.name(), childTag);
+            }
+            _xml.skipCurrentElement(); // the <export> tag should be empty anyhow
+        }
+    }
+
 private:
     QXmlStreamReader _xml;
     QMap<QString, FakeMetaObject *> *_objects;
@@ -713,11 +755,12 @@ private:
 
 } // end of anonymous namespace
 
-QmlObjectValue::QmlObjectValue(const FakeMetaObject *metaObject, Engine *engine)
+QmlObjectValue::QmlObjectValue(const FakeMetaObject *metaObject, int exportIndex, Engine *engine)
     : ObjectValue(engine),
-      _metaObject(metaObject)
+      _metaObject(metaObject),
+      _exportIndex(exportIndex)
 {
-    setClassName(metaObject->className()); // ### TODO: we probably need to do more than just this...
+    setClassName(metaObject->exports().at(exportIndex).type); // ### TODO: we probably need to do more than just this...
 }
 
 QmlObjectValue::~QmlObjectValue()
@@ -834,10 +877,10 @@ const Value *QmlObjectValue::propertyValue(const FakeMetaProperty &prop) const
 }
 
 QString QmlObjectValue::packageName() const
-{ return _metaObject->packageName(); }
+{ return _metaObject->exports().at(_exportIndex).package; }
 
 QmlJS::ComponentVersion QmlObjectValue::version() const
-{ return _metaObject->version(); }
+{ return _metaObject->exports().at(_exportIndex).version; }
 
 QString QmlObjectValue::defaultPropertyName() const
 { return _metaObject->defaultPropertyName(); }
@@ -890,7 +933,7 @@ bool QmlObjectValue::hasChildInPackage() const
     while (it.hasNext()) {
         it.next();
         const FakeMetaObject *other = it.value()->_metaObject;
-        if (other->packageName().isEmpty())
+        if (other->exports().isEmpty())
             continue;
         for (const FakeMetaObject *iter = other; iter; iter = iter->superClass()) {
             if (iter == _metaObject) // this object is a parent of other
@@ -1981,21 +2024,42 @@ void CppQmlTypes::load(Engine *engine, const QList<const FakeMetaObject *> &obje
 {
     // load
     foreach (const FakeMetaObject *metaObject, objects) {
-        // make sure we're not loading duplicate objects
-        if (_typesByFullyQualifiedName.contains(metaObject->packageClassVersionString()))
-            continue;
+        for (int i = 0; i < metaObject->exports().size(); ++i) {
+            const FakeMetaObject::Export &exp = metaObject->exports().at(i);
+            // make sure we're not loading duplicate objects
+            if (_typesByFullyQualifiedName.contains(exp.packageNameVersion))
+                continue;
 
-        QmlObjectValue *objectValue = new QmlObjectValue(metaObject, engine);
-        _typesByPackage[metaObject->packageName()].append(objectValue);
-        _typesByFullyQualifiedName[metaObject->packageClassVersionString()] = objectValue;
+            QmlObjectValue *objectValue = new QmlObjectValue(metaObject, i, engine);
+            _typesByPackage[exp.package].append(objectValue);
+            _typesByFullyQualifiedName[exp.packageNameVersion] = objectValue;
+        }
     }
 
     // set prototype correctly
     foreach (const FakeMetaObject *metaObject, objects) {
-        QmlObjectValue *objectValue = _typesByFullyQualifiedName.value(metaObject->packageClassVersionString());
-        if (!objectValue || !metaObject->superClass())
-            continue;
-        objectValue->setPrototype(_typesByFullyQualifiedName.value(metaObject->superClass()->packageClassVersionString()));
+        foreach (const FakeMetaObject::Export &exp, metaObject->exports()) {
+            QmlObjectValue *objectValue = _typesByFullyQualifiedName.value(exp.packageNameVersion);
+            if (!objectValue || !metaObject->superClass())
+                continue;
+            bool found = false;
+            // try to get a prototype from the library first
+            foreach (const FakeMetaObject::Export &superExports, metaObject->superClass()->exports()) {
+                if (superExports.package == exp.package) {
+                    objectValue->setPrototype(_typesByFullyQualifiedName.value(superExports.packageNameVersion));
+                    found = true;
+                    break;
+                }
+            }
+            if (found)
+                continue;
+            // otherwise, just use the first available
+            if (!metaObject->superClass()->exports().isEmpty()) {
+                objectValue->setPrototype(_typesByFullyQualifiedName.value(metaObject->superClass()->exports().first().packageNameVersion));
+                continue;
+            }
+            //qWarning() << "Could not find super class for " << exp.packageNameVersion;
+        }
     }
 }
 

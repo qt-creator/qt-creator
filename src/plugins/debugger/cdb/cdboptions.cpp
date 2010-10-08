@@ -39,6 +39,7 @@ static const char *enabledKeyC = "Enabled";
 static const char *pathKeyC = "Path";
 static const char *symbolPathsKeyC = "SymbolPaths";
 static const char *sourcePathsKeyC = "SourcePaths";
+static const char *breakOnExceptionKeyC = "BreakOnException";
 static const char *verboseSymbolLoadingKeyC = "VerboseSymbolLoading";
 static const char *fastLoadDebuggingHelpersKeyC = "FastLoadDebuggingHelpers";
 
@@ -47,6 +48,7 @@ namespace Internal {
 
 CdbOptions::CdbOptions() :
     enabled(false),
+    breakOnException(false),
     verboseSymbolLoading(false),
     fastLoadDebuggingHelpers(true)
 {
@@ -83,6 +85,7 @@ void CdbOptions::fromSettings(const QSettings *s)
     sourcePaths = s->value(keyRoot + QLatin1String(sourcePathsKeyC), QStringList()).toStringList();
     verboseSymbolLoading = s->value(keyRoot + QLatin1String(verboseSymbolLoadingKeyC), false).toBool();
     fastLoadDebuggingHelpers = s->value(keyRoot + QLatin1String(fastLoadDebuggingHelpersKeyC), true).toBool();
+    breakOnException = s->value(keyRoot + QLatin1String(breakOnExceptionKeyC), false).toBool();
 }
 
 void CdbOptions::toSettings(QSettings *s) const
@@ -94,6 +97,7 @@ void CdbOptions::toSettings(QSettings *s) const
     s->setValue(QLatin1String(sourcePathsKeyC), sourcePaths);
     s->setValue(QLatin1String(verboseSymbolLoadingKeyC), verboseSymbolLoading);
     s->setValue(QLatin1String(fastLoadDebuggingHelpersKeyC), fastLoadDebuggingHelpers);
+    s->setValue(QLatin1String(breakOnExceptionKeyC), breakOnException);
     s->endGroup();
 }
 
@@ -108,6 +112,8 @@ unsigned CdbOptions::compare(const CdbOptions &rhs) const
         rc |= SymbolOptionsChanged;
     if (fastLoadDebuggingHelpers != rhs.fastLoadDebuggingHelpers)
         rc |= FastLoadDebuggingHelpersChanged;
+    if (breakOnException != rhs.breakOnException)
+        rc |= OtherOptionsChanged;
     return rc;
 }
 

@@ -128,11 +128,12 @@ QString GitSettings::gitBinaryPath(bool *ok, QString *errorMessage) const
     if (errorMessage)
         errorMessage->clear();
     const QString binary = QLatin1String(Constants::GIT_BINARY);
+    QString currentPath = path;
     // Easy, git is assumed to be elsewhere accessible
     if (!adoptPath)
-        return binary;
+        currentPath = QString::fromLocal8Bit(qgetenv("PATH"));
     // Search in path?
-    const QString pathBinary = Utils::SynchronousProcess::locateBinary(path, binary);
+    const QString pathBinary = Utils::SynchronousProcess::locateBinary(currentPath, binary);
     if (pathBinary.isEmpty()) {
         if (ok)
             *ok = false;
@@ -144,5 +145,5 @@ QString GitSettings::gitBinaryPath(bool *ok, QString *errorMessage) const
     return pathBinary;
 }
 
-}
-}
+} // namespace Internal
+} // namespace Git

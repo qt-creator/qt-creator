@@ -78,6 +78,7 @@ public:
     public:
         Error();
         Error(const QDeclarativeError &qmlError);
+        Error(const QString &shortDescription);
         Error(Exception *exception);
 
         Type type() const
@@ -158,6 +159,8 @@ public:
     int firstDefinitionInsideOffset(const ModelNode &node) const;
     int firstDefinitionInsideLength(const ModelNode &node) const;
     bool modificationGroupActive();
+
+    bool renameId(const QString& oldId, const QString& newId);
 
 signals:
     void errorsChanged(const QList<RewriterView::Error> &errors);

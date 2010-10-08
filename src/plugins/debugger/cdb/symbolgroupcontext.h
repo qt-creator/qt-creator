@@ -143,6 +143,7 @@ private:
 
     void clear();
     bool expandSymbol(const QString &prefix, unsigned long index, QString *errorMessage);
+    bool expandSymbol(unsigned long index, QString *errorMessage);
     void populateINameIndexMap(const QString &prefix, unsigned long parentId, unsigned long end);
     QString symbolINameAt(unsigned long index) const;
     inline QString formatShadowedName(const QString &name, int n) const;

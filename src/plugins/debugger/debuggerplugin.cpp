@@ -572,7 +572,6 @@ QWidget *CommonOptionsPage::createPage(QWidget *parent)
     m_group.insert(theDebuggerAction(SortStructMembers), 0);
     m_group.insert(theDebuggerAction(LogTimeStamps), 0);
     m_group.insert(theDebuggerAction(VerboseLog), 0);
-    m_group.insert(theDebuggerAction(UsePreciseBreakpoints), 0);
     m_group.insert(theDebuggerAction(BreakOnThrow), 0);
     m_group.insert(theDebuggerAction(BreakOnCatch), 0);
 #ifdef Q_OS_WIN
@@ -669,6 +668,9 @@ QWidget *DebuggingHelperOptionPage::createPage(QWidget *parent)
     m_group.insert(theDebuggerAction(UseCodeModel),
         m_ui.checkBoxUseCodeModel);
 
+    m_group.insert(theDebuggerAction(UseQmlObserver),
+        m_ui.checkBoxUseQmlObserver);
+
 #ifdef QT_DEBUG
     m_group.insert(theDebuggerAction(DebugDebuggingHelpers),
         m_ui.checkBoxDebugDebuggingHelpers);
@@ -692,7 +694,8 @@ QWidget *DebuggingHelperOptionPage::createPage(QWidget *parent)
                 << ' ' << m_ui.customLocationGroupBox->title()
                 << ' ' << m_ui.dumperLocationLabel->text()
                 << ' ' << m_ui.checkBoxUseCodeModel->text()
-                << ' ' << m_ui.checkBoxDebugDebuggingHelpers->text();
+                << ' ' << m_ui.checkBoxDebugDebuggingHelpers->text()
+                << ' ' << m_ui.checkBoxUseQmlObserver->text();
         m_searchKeywords.remove(QLatin1Char('&'));
     }
     return w;
@@ -1265,8 +1268,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     // Cpp/Qml ui setup
     m_uiSwitcher = new DebuggerUISwitcher(m_debugMode, this);
     ExtensionSystem::PluginManager::instance()->addObject(m_uiSwitcher);
-    m_uiSwitcher->addLanguage(CppLanguage, tr("C++"), cppDebuggercontext);
-    m_uiSwitcher->addLanguage(QmlLanguage, tr("QML/JavaScript"), qmlDebuggerContext);
+    m_uiSwitcher->addLanguage(CppLanguage, cppDebuggercontext);
+    m_uiSwitcher->addLanguage(QmlLanguage, qmlDebuggerContext);
 
     // Dock widgets
     m_breakDock = m_uiSwitcher->createDockWidget(CppLanguage, m_breakWindow);
@@ -2168,8 +2171,7 @@ void DebuggerPluginPrivate::setSimpleDockWidgetArrangement
 
     if ((activeLanguages.testFlag(CppLanguage)
                 && !activeLanguages.testFlag(QmlLanguage))
-            || activeLanguages == AnyLanguage
-            || !uiSwitcher->qmlInspectorWindow()) {
+            || activeLanguages == AnyLanguage) {
         m_stackDock->show();
         m_breakDock->show();
         m_watchDock->show();
@@ -2180,7 +2182,8 @@ void DebuggerPluginPrivate::setSimpleDockWidgetArrangement
         m_breakDock->show();
         m_watchDock->show();
         m_scriptConsoleDock->show();
-        uiSwitcher->qmlInspectorWindow()->show();
+        if (uiSwitcher->qmlInspectorWindow())
+            uiSwitcher->qmlInspectorWindow()->show();
     }
     mw->splitDockWidget(mw->toolBarDockWidget(), m_stackDock, Qt::Vertical);
     mw->splitDockWidget(m_stackDock, m_watchDock, Qt::Horizontal);

@@ -232,7 +232,7 @@ bool Bind::visit(UiImport *ast)
 bool Bind::visit(UiPublicMember *)
 {
     // nothing to do.
-    return false;
+    return true;
 }
 
 bool Bind::visit(UiObjectDefinition *ast)

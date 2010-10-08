@@ -167,6 +167,41 @@ bool VCSManager::promptToDelete(const QString &fileName)
     return true;
 }
 
+IVersionControl *VCSManager::checkout(const QString &versionControlType,
+                                      const QString &directory,
+                                      const QByteArray &url)
+{
+    foreach (IVersionControl *versionControl, allVersionControls()) {
+        if (versionControl->displayName() == versionControlType
+            && versionControl->supportsOperation(Core::IVersionControl::CheckoutOperation)) {
+            if (versionControl->vcsCheckout(directory, url)) {
+                m_d->m_cachedMatches.insert(directory, versionControl);
+                return versionControl;
+            }
+            return 0;
+        }
+    }
+    return 0;
+}
+
+bool VCSManager::findVersionControl(const QString &versionControlType)
+{
+    foreach (IVersionControl * versionControl, allVersionControls()) {
+        if (versionControl->displayName() == versionControlType)
+            return true;
+    }
+    return false;
+}
+
+QString VCSManager::getRepositoryURL(const QString &directory)
+{
+    IVersionControl *vc = findVersionControlForDirectory(directory);
+
+    if (vc && vc->supportsOperation(Core::IVersionControl::GetRepositoryRootOperation))
+       return vc->vcsGetRepositoryURL(directory);
+    return QString();
+}
+
 bool VCSManager::promptToDelete(IVersionControl *vc, const QString &fileName)
 {
     QTC_ASSERT(vc, return true)

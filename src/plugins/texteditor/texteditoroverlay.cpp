@@ -171,10 +171,10 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
                 inSelection = true;
                 firstOrLastBlock = true;
             } else {
-                while (beginChar < block.length() && document->characterAt(block.position() + beginChar).isSpace())
-                    ++beginChar;
-                if (beginChar == block.length())
-                    beginChar = 0;
+//                while (beginChar < block.length() && document->characterAt(block.position() + beginChar).isSpace())
+//                    ++beginChar;
+//                if (beginChar == block.length())
+//                    beginChar = 0;
             }
 
             int lastLine = blockLayout->lineCount()-1;

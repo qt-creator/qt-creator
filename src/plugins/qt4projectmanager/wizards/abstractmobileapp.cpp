@@ -167,7 +167,7 @@ QString AbstractMobileApp::path(int fileType) const
         case DesktopOrigin:         return originsRootShared + QLatin1String("app.desktop");
         case DeploymentPri:         return outputPathBase() + DeploymentPriFileName;
         case DeploymentPriOrigin:   return originsRootShared + DeploymentPriFileName;
-        case SymbianSvgIcon:        return outputPathBase() + symbianIconFileName;
+        case SymbianSvgIcon:        return outputPathBase() + projectName() + QLatin1String(".svg");
         case SymbianSvgIconOrigin:  return !m_symbianSvgIcon.isEmpty() ? m_symbianSvgIcon
                                         : originsRootShared + symbianIconFileName;
         case MaemoPngIcon:          return outputPathBase() + projectName() +  QLatin1String(".png");
@@ -319,7 +319,6 @@ Core::GeneratedFiles AbstractMobileApp::generateFiles(QString *errorMessage) con
     files << file(generateFile(AbstractGeneratedFileInfo::SymbianSvgIconFile, errorMessage), path(SymbianSvgIcon));
     files << file(generateFile(AbstractGeneratedFileInfo::MaemoPngIconFile, errorMessage), path(MaemoPngIcon));
     files << file(generateFile(AbstractGeneratedFileInfo::DesktopFile, errorMessage), path(Desktop));
-    files << file(generateFile(AbstractGeneratedFileInfo::DeploymentPriFile, errorMessage), path(DeploymentPri));
     return files;
 }
 #endif // CREATORLESSTEST

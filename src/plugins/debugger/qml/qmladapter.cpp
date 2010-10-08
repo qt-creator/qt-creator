@@ -36,6 +36,8 @@
 #include <QtCore/QTimer>
 #include <QtCore/QDebug>
 
+#include <utils/qtcassert.h>
+
 namespace Debugger {
 
 struct QmlAdapterPrivate {
@@ -49,6 +51,7 @@ struct QmlAdapterPrivate {
     int m_connectionAttempts;
     int m_maxConnectionAttempts;
     QDeclarativeDebugConnection *m_conn;
+    QList<QByteArray> sendBuffer;
 };
 
 QmlAdapterPrivate::QmlAdapterPrivate(DebuggerEngine *engine, QmlAdapter *q) :
@@ -133,6 +136,16 @@ bool QmlAdapter::connectToViewer()
     return true;
 }
 
+void QmlAdapter::sendMessage(const QByteArray &msg)
+{
+    if (d->m_qmlClient->status() == QDeclarativeDebugClient::Enabled) {
+        flushSendBuffer();
+        d->m_qmlClient->sendMessage(msg);
+    } else {
+        d->sendBuffer.append(msg);
+    }
+}
+
 void QmlAdapter::connectionErrorOccurred(QAbstractSocket::SocketError socketError)
 {
     showConnectionErrorMessage(tr("Error: (%1) %2", "%1=error code, %2=error message")
@@ -141,6 +154,19 @@ void QmlAdapter::connectionErrorOccurred(QAbstractSocket::SocketError socketErro
     // this is only an error if we are already connected and something goes wrong.
     if (isConnected())
         emit connectionError(socketError);
+}
+
+void QmlAdapter::clientStatusChanged(QDeclarativeDebugClient::Status status)
+{
+    QString serviceName;
+    if (QDeclarativeDebugClient *client = qobject_cast<QDeclarativeDebugClient*>(sender())) {
+        serviceName = client->name();
+    }
+
+    logServiceStatusChange(serviceName, status);
+
+    if (status == QDeclarativeDebugClient::Enabled)
+        flushSendBuffer();
 }
 
 void QmlAdapter::connectionStateChanged()
@@ -165,6 +191,7 @@ void QmlAdapter::connectionStateChanged()
 
             if (!d->m_mainClient) {
                 d->m_mainClient = new QDeclarativeEngineDebug(d->m_conn, this);
+                logServiceStatusChange(QLatin1String("QmlObserver"), static_cast<QDeclarativeDebugClient::Status>(d->m_mainClient->status()));
             }
 
             createDebuggerClient();
@@ -185,10 +212,14 @@ void QmlAdapter::createDebuggerClient()
 {
     d->m_qmlClient = new Internal::QmlDebuggerClient(d->m_conn);
 
+    connect(d->m_qmlClient, SIGNAL(newStatus(QDeclarativeDebugClient::Status)),
+            this, SLOT(clientStatusChanged(QDeclarativeDebugClient::Status)));
     connect(d->m_engine.data(), SIGNAL(sendMessage(QByteArray)),
-            d->m_qmlClient, SLOT(slotSendMessage(QByteArray)));
+            this, SLOT(sendMessage(QByteArray)));
     connect(d->m_qmlClient, SIGNAL(messageWasReceived(QByteArray)),
             d->m_engine.data(), SLOT(messageReceived(QByteArray)));
+
+    logServiceStatusChange(d->m_qmlClient->name(), d->m_qmlClient->status());
 
     //engine->startSuccessful();  // FIXME: AAA: port to new debugger states
 }
@@ -235,6 +266,35 @@ void QmlAdapter::setMaxConnectionAttempts(int maxAttempts)
 void QmlAdapter::setConnectionAttemptInterval(int interval)
 {
     d->m_connectionTimer->setInterval(interval);
+}
+
+void QmlAdapter::logServiceStatusChange(const QString &service, QDeclarativeDebugClient::Status newStatus)
+{
+    switch (newStatus) {
+    case QDeclarativeDebugClient::Unavailable: {
+        showConnectionErrorMessage(tr("Error: Cannot connect to debug service '%1'. Debugging functionality will be limited.").arg(service));
+        emit serviceConnectionError(service);
+        break;
+    }
+    case QDeclarativeDebugClient::Enabled: {
+        showConnectionStatusMessage(tr("Connected to debug service '%1'.").arg(service));
+        break;
+    }
+
+    case QDeclarativeDebugClient::NotConnected: {
+        showConnectionStatusMessage(tr("Not connected to debug service '%1'.").arg(service));
+        break;
+    }
+    }
+}
+
+void QmlAdapter::flushSendBuffer()
+{
+    QTC_ASSERT(d->m_qmlClient->status() == QDeclarativeDebugClient::Enabled, return);
+    foreach (const QByteArray &msg, d->sendBuffer) {
+        d->m_qmlClient->sendMessage(msg);
+    }
+    d->sendBuffer.clear();
 }
 
 } // namespace Debugger

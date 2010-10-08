@@ -94,7 +94,6 @@ static QColor mix_colors(QColor a, QColor b)
                   (a.blue() + 2* b.blue()) / 3, (a.alpha() + 2 * b.alpha()) / 3);
 }
 
-
 void OutputFormatter::initFormats()
 {
     QPalette p = plainTextEdit()->palette();

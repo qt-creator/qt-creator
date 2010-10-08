@@ -70,16 +70,22 @@ public:
     bool isAnchoredByChildren() const;
     void doComponentComplete();
 
+    bool isResizable() const;
+    void setResizable(bool resizeable);
+
 protected:
     QmlGraphicsItemNodeInstance(QDeclarativeItem *item, bool hasContent);
     QDeclarativeItem *qmlGraphicsItem() const;
     QDeclarativeAnchors *anchors() const;
     void resetHorizontal();
     void resetVertical(); 
+    void refresh();
 
 private: //variables
     bool m_hasHeight;
     bool m_hasWidth;
+    bool m_isResizable;
+
 };
 
 }

@@ -58,6 +58,10 @@ const char * const JS_MIMETYPE = "application/javascript";
 
 const char *const TASK_CATEGORY_QML = "Task.Category.Qml";
 
+const char * const WIZARD_CATEGORY_QML = "S.Qml";
+const char * const WIZARD_TR_CATEGORY_QML = QT_TRANSLATE_NOOP("QmlJsEditor", "QML");
+
+
 } // namespace Constants
 } // namespace QmlJSEditor
 

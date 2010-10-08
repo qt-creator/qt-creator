@@ -27,12 +27,12 @@ public:
         if (m_connection->createSftpChannel())
             qDebug("Error: Unconnected SSH connection creates SFTP channel.");
 
-        SshConnectionParameters noHost;
+        SshConnectionParameters noHost=SshConnectionParameters(SshConnectionParameters::DefaultProxy);
         noHost.host = QLatin1String("hgdfxgfhgxfhxgfchxgcf");
         noHost.port = 12345;
         noHost.timeout = 10;
 
-        SshConnectionParameters noUser;
+        SshConnectionParameters noUser=SshConnectionParameters(SshConnectionParameters::DefaultProxy);
         noUser.host = QLatin1String("localhost");
         noUser.port = 22;
         noUser.timeout = 30;
@@ -40,7 +40,7 @@ public:
         noUser.uname = QLatin1String("dumdidumpuffpuff");
         noUser.uname = QLatin1String("whatever");
 
-        SshConnectionParameters wrongPwd;
+        SshConnectionParameters wrongPwd=SshConnectionParameters(SshConnectionParameters::DefaultProxy);
         wrongPwd.host = QLatin1String("localhost");
         wrongPwd.port = 22;
         wrongPwd.timeout = 30;
@@ -48,7 +48,7 @@ public:
         wrongPwd.uname = QLatin1String("root");
         noUser.uname = QLatin1String("thiscantpossiblybeapasswordcanit");
 
-        SshConnectionParameters invalidKeyFile;
+        SshConnectionParameters invalidKeyFile=SshConnectionParameters(SshConnectionParameters::DefaultProxy);
         invalidKeyFile.host = QLatin1String("localhost");
         invalidKeyFile.port = 22;
         invalidKeyFile.timeout = 30;

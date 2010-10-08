@@ -19,7 +19,6 @@ SUBDIRS   = plugin_coreplugin \
             plugin_cvs \
             plugin_cpptools \
             plugin_qt4projectmanager \
-#            plugin_snippets \ # buggy and annoying
             plugin_locator \
             plugin_debugger \
 #            plugin_qtestlib \ # this seems to be dead
@@ -38,20 +37,22 @@ SUBDIRS   = plugin_coreplugin \
             plugin_tasklist \
             debugger/dumper.pro
 
-contains(QT_CONFIG, declarative) {
+include(../../qtcreator.pri)
 
+contains(QT_CONFIG, declarative) {
     SUBDIRS += \
             plugin_qmlprojectmanager \
             plugin_qmljsinspector
 
     include(../private_headers.pri)
     exists($${QT_PRIVATE_HEADERS}/QtDeclarative/private/qdeclarativecontext_p.h) {
-        isEqual(QT_MINOR_VERSION, 7):greaterThan(QT_PATCH_VERSION, 0) {
+
+        minQtVersion(4, 7, 1) {
             SUBDIRS += plugin_qmldesigner 
         } else {
             warning()
             warning("QmlDesigner plugin has been disabled.")
-            warning("Qt Version has to be 4.7.x with x > 0")
+            warning("QmlDesigner requires Qt 4.7.1 or later.")
         }
     } else {
         warning()
@@ -87,7 +88,7 @@ plugin_imageviewer.subdir = imageviewer
 plugin_imageviewer.depends = plugin_coreplugin
 
 plugin_designer.subdir = designer
-plugin_designer.depends = plugin_coreplugin plugin_cppeditor plugin_projectexplorer
+plugin_designer.depends = plugin_coreplugin plugin_cpptools plugin_projectexplorer plugin_texteditor
 
 plugin_vcsbase.subdir = vcsbase
 plugin_vcsbase.depends = plugin_find
@@ -125,8 +126,6 @@ plugin_qt4projectmanager.subdir = qt4projectmanager
 plugin_qt4projectmanager.depends = plugin_texteditor
 plugin_qt4projectmanager.depends += plugin_projectexplorer
 plugin_qt4projectmanager.depends += plugin_cpptools
-plugin_qt4projectmanager.depends += plugin_cppeditor
-plugin_qt4projectmanager.depends += plugin_qmljseditor
 plugin_qt4projectmanager.depends += plugin_designer
 plugin_qt4projectmanager.depends += plugin_debugger
 plugin_qt4projectmanager.depends += plugin_qmljseditor
@@ -144,11 +143,6 @@ plugin_bookmarks.subdir = bookmarks
 plugin_bookmarks.depends = plugin_projectexplorer
 plugin_bookmarks.depends += plugin_coreplugin
 plugin_bookmarks.depends += plugin_texteditor
-
-plugin_snippets.subdir = snippets
-plugin_snippets.depends = plugin_projectexplorer
-plugin_snippets.depends += plugin_coreplugin
-plugin_snippets.depends += plugin_texteditor
 
 plugin_debugger.subdir = debugger
 plugin_debugger.depends = plugin_projectexplorer
@@ -181,19 +175,17 @@ plugin_regexp.depends = plugin_coreplugin
 plugin_cpaster.subdir = cpaster
 plugin_cpaster.depends = plugin_texteditor
 plugin_cpaster.depends += plugin_coreplugin
-plugin_cpaster.depends += plugin_projectexplorer
 
 plugin_cmakeprojectmanager.subdir = cmakeprojectmanager
 plugin_cmakeprojectmanager.depends = plugin_texteditor
 plugin_cmakeprojectmanager.depends += plugin_projectexplorer
 plugin_cmakeprojectmanager.depends += plugin_cpptools
-plugin_cmakeprojectmanager.depends += plugin_cppeditor
+plugin_cmakeprojectmanager.depends += plugin_designer
 
 plugin_genericprojectmanager.subdir = genericprojectmanager
 plugin_genericprojectmanager.depends = plugin_texteditor
 plugin_genericprojectmanager.depends += plugin_projectexplorer
 plugin_genericprojectmanager.depends += plugin_cpptools
-plugin_genericprojectmanager.depends += plugin_cppeditor
 
 plugin_qmljseditor.subdir = qmljseditor
 plugin_qmljseditor.depends = plugin_texteditor

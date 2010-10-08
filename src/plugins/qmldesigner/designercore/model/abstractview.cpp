@@ -348,6 +348,15 @@ NodeInstanceView *AbstractView::nodeInstanceView() const
     }
 }
 
+RewriterView *AbstractView::rewriterView() const
+{
+    if (model()) {
+        return model()->m_d->rewriterView();
+    } else {
+        return 0;
+    }
+}
+
 QList<ModelNode> AbstractView::allModelNodes()
 {
    return toModelNodeList(model()->m_d->allNodes());
@@ -370,7 +379,7 @@ void AbstractView::emitCustomNotification(const QString &identifier, const QList
 
 void AbstractView::emitInstancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList)
 {
-    if (model())
+    if (model() && nodeInstanceView() == this)
         model()->m_d->notifyInstancePropertyChange(propertyList);
 }
 

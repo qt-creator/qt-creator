@@ -198,6 +198,9 @@ void ModeManager::objectAdded(QObject *obj)
     connect(cmd, SIGNAL(keySequenceChanged()), this, SLOT(updateModeToolTip()));
     for (int i = 0; i < d->m_modeShortcuts.size(); ++i) {
         Command *currentCmd = d->m_modeShortcuts.at(i);
+        // we need this hack with currentlyHasDefaultSequence
+        // because we call setDefaultShortcut multiple times on the same cmd
+        // and still expect the current shortcut to change with it
         bool currentlyHasDefaultSequence = (currentCmd->keySequence()
                                             == currentCmd->defaultKeySequence());
 #ifdef Q_WS_MAC

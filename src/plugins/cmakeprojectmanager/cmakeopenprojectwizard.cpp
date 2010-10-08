@@ -328,6 +328,11 @@ void CMakeRunPage::initWidgets()
     pl.setVerticalStretch(1);
     m_output->setSizePolicy(pl);
     fl->addRow(m_output);
+
+    m_exitCodeLabel = new QLabel(this);
+    m_exitCodeLabel->setVisible(false);
+    fl->addRow(m_exitCodeLabel);
+
     setTitle(tr("Run CMake"));
 }
 
@@ -460,7 +465,8 @@ void CMakeRunPage::runCMake()
 
     if (m_cmakeWizard->cmakeManager()->isCMakeExecutableValid()) {
         m_cmakeProcess = new QProcess();
-        connect(m_cmakeProcess, SIGNAL(readyRead()), this, SLOT(cmakeReadyRead()));
+        connect(m_cmakeProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(cmakeReadyReadStandardOutput()));
+        connect(m_cmakeProcess, SIGNAL(readyReadStandardError()), this, SLOT(cmakeReadyReadStandardError()));
         connect(m_cmakeProcess, SIGNAL(finished(int)), this, SLOT(cmakeFinished()));
         cmakeManager->createXmlFile(m_cmakeProcess, arguments, m_cmakeWizard->sourceDirectory(), m_buildDirectory, env, generator);
     } else {
@@ -470,20 +476,54 @@ void CMakeRunPage::runCMake()
     }
 }
 
-void CMakeRunPage::cmakeReadyRead()
+static QColor mix_colors(QColor a, QColor b)
 {
-    m_output->appendPlainText(m_cmakeProcess->readAll());
+    return QColor((a.red() + 2 * b.red()) / 3, (a.green() + 2 * b.green()) / 3,
+                  (a.blue() + 2* b.blue()) / 3, (a.alpha() + 2 * b.alpha()) / 3);
+}
+
+void CMakeRunPage::cmakeReadyReadStandardOutput()
+{
+    QTextCursor cursor(m_output->document());
+    QTextCharFormat tf;
+
+    QFont font = m_output->font();
+    tf.setFont(font);
+    tf.setForeground(m_output->palette().color(QPalette::Text));
+
+    cursor.insertText(m_cmakeProcess->readAllStandardOutput(), tf);
+}
+
+void CMakeRunPage::cmakeReadyReadStandardError()
+{
+    QTextCursor cursor(m_output->document());
+    QTextCharFormat tf;
+
+    QFont font = m_output->font();
+    QFont boldFont = font;
+    boldFont.setBold(true);
+    tf.setFont(boldFont);
+    tf.setForeground(mix_colors(m_output->palette().color(QPalette::Text), QColor(Qt::red)));
+
+    cursor.insertText(m_cmakeProcess->readAllStandardError(), tf);
 }
 
 void CMakeRunPage::cmakeFinished()
 {
     m_runCMake->setEnabled(true);
     m_argumentsLineEdit->setEnabled(true);
+    if (m_cmakeProcess->exitCode() != 0) {
+        m_exitCodeLabel->setVisible(true);
+        m_exitCodeLabel->setText(tr("CMake exited with errors. Please check cmake output."));
+        m_complete = false;
+    } else {
+        m_exitCodeLabel->setVisible(false);
+        m_complete = true;
+    }
     m_cmakeProcess->deleteLater();
     m_cmakeProcess = 0;
     m_cmakeWizard->setArguments(Utils::Environment::parseCombinedArgString(m_argumentsLineEdit->text()));
     //TODO Actually test that running cmake was finished, for setting this bool
-    m_complete = true;
     emit completeChanged();
 }
 
@@ -491,6 +531,7 @@ void CMakeRunPage::cleanupPage()
 {
     m_output->clear();
     m_complete = false;
+    m_exitCodeLabel->setVisible(false);
     emit completeChanged();
 }
 

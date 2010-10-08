@@ -40,6 +40,7 @@
 #include "projectloadwizard.h"
 #include "qt4buildconfiguration.h"
 #include "findqt4profiles.h"
+#include "qmldumptool.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -50,6 +51,7 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
+#include <projectexplorer/projectexplorer.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
@@ -567,6 +569,9 @@ void Qt4Project::updateCppCodeModel()
 
 void Qt4Project::updateQmlJSCodeModel()
 {
+    if (m_projectFiles->files[QMLType].isEmpty())
+        return;
+
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
     if (!modelManager)
         return;
@@ -583,6 +588,10 @@ void Qt4Project::updateQmlJSCodeModel()
         projectInfo.importPaths.append(node->variableValue(QmlImportPathVar));
     }
     projectInfo.importPaths.removeDuplicates();
+
+    if (projectInfo.qmlDumpPath.isNull()) {
+        projectInfo.qmlDumpPath = QmlDumpTool::qmlDumpPath(this);
+    }
 
     modelManager->updateProjectInfo(projectInfo);
 }

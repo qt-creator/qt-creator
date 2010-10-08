@@ -147,11 +147,18 @@ QStringList S60DeployConfiguration::signedPackages() const
             continue;
         TargetInformation ti = node->targetInformation();
         if (ti.valid)
-            result << ti.buildDir + QLatin1Char('/') + ti.target
-                      + (runSmartInstaller() ? QLatin1String("_installer") : QLatin1String(""))
-                      + QLatin1String(".sis");
+            result << ti.buildDir + QLatin1Char('/') + createPackageName(ti.target);
     }
     return result;
+}
+
+QString S60DeployConfiguration::createPackageName(const QString &baseName) const
+{
+    QString name(baseName);
+    name += isSigned() ? QLatin1String("") : QLatin1String("_unsigned");
+    name += runSmartInstaller() ? QLatin1String("_installer") : QLatin1String("");
+    name += QLatin1String(".sis");
+    return name;
 }
 
 QStringList S60DeployConfiguration::packageFileNamesWithTargetInfo() const
@@ -211,6 +218,21 @@ bool S60DeployConfiguration::runSmartInstaller() const
     foreach (const BuildStep *step, steps) {
         if (const S60CreatePackageStep *packageStep = qobject_cast<const S60CreatePackageStep *>(step)) {
             return packageStep->createsSmartInstaller();
+        }
+    }
+    return false;
+}
+
+bool S60DeployConfiguration::isSigned() const
+{
+    DeployConfiguration *dc = target()->activeDeployConfiguration();
+    QTC_ASSERT(dc, return false);
+    BuildStepList *bsl = dc->stepList();
+    QTC_ASSERT(bsl, return false);
+    QList<BuildStep *> steps = bsl->steps();
+    foreach (const BuildStep *step, steps) {
+        if (const S60CreatePackageStep *packageStep = qobject_cast<const S60CreatePackageStep *>(step)) {
+            return packageStep->signingMode() != S60CreatePackageStep::NotSigned;
         }
     }
     return false;

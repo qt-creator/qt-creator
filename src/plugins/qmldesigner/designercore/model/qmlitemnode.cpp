@@ -46,7 +46,7 @@ namespace QmlDesigner {
 
 bool QmlItemNode::isValid() const
 {
-    return QmlModelNodeFacade::isValid() && modelNode().metaInfo().isValid() && modelNode().metaInfo().isSubclassOf("Qt/Item", 4, 7);
+    return QmlModelNodeFacade::isValid() && modelNode().metaInfo().isValid() && modelNode().metaInfo().isSubclassOf("QtQuick/Item", 1, 0);
 }
 
 bool QmlItemNode::isRootNode() const
@@ -201,6 +201,21 @@ bool QmlItemNode::instanceIsAnchoredByChildren() const
     return nodeInstance().isAnchoredByChildren();
 }
 
+bool QmlItemNode::instanceIsMovable() const
+{
+    return nodeInstance().isMovable();
+}
+
+bool QmlItemNode::instanceIsResizable() const
+{
+    return nodeInstance().isResizable();
+}
+
+bool QmlItemNode::instanceIsInPositioner() const
+{
+    return nodeInstance().isInPositioner();
+}
+
 QRectF  QmlItemNode::instanceBoundingRect() const
 {
     return nodeInstance().boundingRect();
@@ -287,7 +302,7 @@ QmlModelState QmlModelStateGroup::addState(const QString &name)
     PropertyListType propertyList;
     propertyList.append(qMakePair(QString("name"), QVariant(name)));
 
-    ModelNode newState = modelNode().view()->createModelNode("Qt/State", 4, 7, propertyList);
+    ModelNode newState = modelNode().view()->createModelNode("QtQuick/State", 1, 0, propertyList);
     modelNode().nodeListProperty("states").reparentHere(newState);
 
     return newState;

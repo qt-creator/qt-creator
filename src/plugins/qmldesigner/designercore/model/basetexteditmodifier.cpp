@@ -32,6 +32,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <qmljseditor/qmljseditor.h>
 #include <texteditor/tabsettings.h>
 
 using namespace QmlDesigner;
@@ -46,7 +47,7 @@ void BaseTextEditModifier::indent(int offset, int length)
     if (length == 0 || offset < 0 || offset + length >= text().length())
         return;
 
-    if (TextEditor::BaseTextEditor *bte = dynamic_cast<TextEditor::BaseTextEditor*>(plainTextEdit())) {
+    if (TextEditor::BaseTextEditor *bte = qobject_cast<TextEditor::BaseTextEditor*>(plainTextEdit())) {
         // find the applicable block:
         QTextDocument *doc = bte->document();
         QTextCursor tc(doc);
@@ -60,10 +61,20 @@ void BaseTextEditModifier::indent(int offset, int length)
 
 int BaseTextEditModifier::indentDepth() const
 {
-    if (TextEditor::BaseTextEditor *bte = dynamic_cast<TextEditor::BaseTextEditor*>(plainTextEdit())) {
+    if (TextEditor::BaseTextEditor *bte = qobject_cast<TextEditor::BaseTextEditor*>(plainTextEdit())) {
         return bte->tabSettings().m_indentSize;
     } else {
         return 0;
+    }
+}
+
+bool BaseTextEditModifier::renameId(const QString &oldId, const QString &newId)
+{
+    if (QmlJSEditor::Internal::QmlJSTextEditor *qmljse = qobject_cast<QmlJSEditor::Internal::QmlJSTextEditor*>(plainTextEdit())) {
+        qmljse->renameId(oldId, newId);
+        return true;
+    } else {
+        return false;
     }
 }
 

@@ -49,10 +49,10 @@ AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent)
     resize(900, 450);
     m_targetsPage->setImportDirectoryBrowsingEnabled(false);
     int pageId = addPage(m_targetsPage);
-    wizardProgress()->item(pageId)->setTitle(tr("Qt versions"));
+    wizardProgress()->item(pageId)->setTitle(tr("Qt Versions"));
     m_optionsPage = new MobileAppWizardOptionsPage;
     pageId = addPage(m_optionsPage);
-    wizardProgress()->item(pageId)->setTitle(tr("Application options"));
+    wizardProgress()->item(pageId)->setTitle(tr("Application Options"));
 }
 
 

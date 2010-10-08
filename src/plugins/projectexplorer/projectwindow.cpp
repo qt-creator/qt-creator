@@ -229,7 +229,8 @@ void PanelsWidget::addPanelWidget(IPropertiesPanel *panel, int row)
 
 ProjectWindow::ProjectWindow(QWidget *parent)
     : QWidget(parent),
-    m_currentWidget(0)
+      m_currentWidget(0),
+      m_previousTargetSubIndex(-1)
 {
     ProjectExplorer::SessionManager *session = ProjectExplorerPlugin::instance()->session();
 
@@ -375,11 +376,19 @@ void ProjectWindow::showProperties(int index, int subIndex)
     // Set up custom panels again:
     int pos = 0;
     IPanelFactory *fac = 0;
+    // remember previous sub index state of target settings page
+    if (TargetSettingsPanelWidget *previousPanelWidget
+            = qobject_cast<TargetSettingsPanelWidget*>(m_currentWidget)) {
+        m_previousTargetSubIndex = previousPanelWidget->currentSubIndex();
+    }
     if (project->supportedTargetIds().count() > 1) {
         if (subIndex == 0) {
             // Targets page
             removeCurrentWidget();
-            m_currentWidget = new TargetSettingsPanelWidget(project);
+            TargetSettingsPanelWidget *panelWidget = new TargetSettingsPanelWidget(project);
+            if (m_previousTargetSubIndex >= 0)
+                panelWidget->setCurrentSubIndex(m_previousTargetSubIndex);
+            m_currentWidget = panelWidget;
             m_centralWidget->addWidget(m_currentWidget);
             m_centralWidget->setCurrentWidget(m_currentWidget);
         }

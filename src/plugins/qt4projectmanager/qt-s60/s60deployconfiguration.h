@@ -93,8 +93,10 @@ protected:
 private:
     void ctor();
     bool runSmartInstaller() const;
+    bool isSigned() const;
     QString symbianPlatform() const;
     QString symbianTarget() const;
+    QString createPackageName(const QString &baseName) const;
     bool isDebug() const;
     bool isStaticLibrary(const Qt4ProFileNode &projectNode) const;
 

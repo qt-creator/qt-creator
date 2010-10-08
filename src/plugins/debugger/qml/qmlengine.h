@@ -93,6 +93,7 @@ private:
     void selectThread(int index);
 
     void attemptBreakpointSynchronization();
+    bool acceptsBreakpoint(const Internal::BreakpointData *br);
 
     void assignValueInDebugger(const Internal::WatchData *w, const QString &expr, const QVariant &value);
     void loadSymbols(const QString &moduleName);
@@ -117,6 +118,7 @@ private slots:
     void connectionEstablished();
     void connectionStartupFailed();
     void connectionError(QAbstractSocket::SocketError error);
+    void serviceConnectionError(const QString &service);
 
 private:
     void expandObject(const QByteArray &iname, quint64 objectId);

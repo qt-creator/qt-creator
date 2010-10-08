@@ -139,7 +139,6 @@ struct SubmitEditorWidgetPrivate
 
     Ui::SubmitEditorWidget m_ui;
     bool m_filesSelected;
-    bool m_filesChecked;
     int m_fileNameColumn;
     int m_activatedRow;
     bool m_emptyFileListEnabled;
@@ -148,16 +147,18 @@ struct SubmitEditorWidgetPrivate
     QVBoxLayout *m_fieldLayout;
     QList<SubmitFieldWidget *> m_fieldWidgets;
     int m_lineWidth;
+
+    bool m_commitEnabled;
 };
 
 SubmitEditorWidgetPrivate::SubmitEditorWidgetPrivate() :
     m_filesSelected(false),
-    m_filesChecked(false),
     m_fileNameColumn(1),
     m_activatedRow(-1),
     m_emptyFileListEnabled(false),
     m_fieldLayout(0),
-    m_lineWidth(defaultLineWidth)
+    m_lineWidth(defaultLineWidth),
+    m_commitEnabled(false)
 {
 }
 
@@ -209,10 +210,10 @@ void SubmitEditorWidget::registerActions(QAction *editorUndoAction, QAction *edi
             int count = 0;
             if (const QAbstractItemModel *model = m_d->m_ui.fileView->model())
                 count = model->rowCount();
-            qDebug() << Q_FUNC_INFO << submitAction << count << "items" << m_d->m_filesChecked;
+            qDebug() << Q_FUNC_INFO << submitAction << count << "items";
         }
-        submitAction->setEnabled(m_d->m_filesChecked);
-        connect(this, SIGNAL(fileCheckStateChanged(bool)), submitAction, SLOT(setEnabled(bool)));
+        m_d->m_commitEnabled = !canSubmit();
+        connect(this, SIGNAL(submitActionEnabledChanged(bool)), submitAction, SLOT(setEnabled(bool)));
         // Wire setText via QActionSetTextSlotHelper.
         QActionSetTextSlotHelper *actionSlotHelper = submitAction->findChild<QActionSetTextSlotHelper *>();
         if (!actionSlotHelper)
@@ -243,7 +244,7 @@ void SubmitEditorWidget::unregisterActions(QAction *editorUndoAction,  QAction *
     }
 
     if (submitAction) {
-        disconnect(this, SIGNAL(fileCheckStateChanged(bool)), submitAction, SLOT(setEnabled(bool)));
+        disconnect(this, SIGNAL(submitActionEnabledChanged(bool)), submitAction, SLOT(setEnabled(bool)));
         // Just deactivate the QActionSetTextSlotHelper on the action
         disconnect(this, SIGNAL(submitActionTextChanged(QString)), 0, 0);
     }
@@ -448,18 +449,20 @@ void SubmitEditorWidget::updateActions()
 void SubmitEditorWidget::updateSubmitAction()
 {
     const unsigned checkedCount = checkedFilesCount();
-    const bool newFilesCheckedState = m_d->m_emptyFileListEnabled || checkedCount > 0;
+    const bool newCommitState = canSubmit();
     // Emit signal to update action
-    if (m_d->m_filesChecked != newFilesCheckedState) {
-        m_d->m_filesChecked = newFilesCheckedState;
-        emit fileCheckStateChanged(m_d->m_filesChecked);
+    if (m_d->m_commitEnabled != newCommitState) {
+        m_d->m_commitEnabled = newCommitState;
+        emit submitActionEnabledChanged(m_d->m_commitEnabled);
     }
-    // Update button text.
-    const int fileCount = m_d->m_ui.fileView->model()->rowCount();
-    const QString msg = checkedCount ?
-                        tr("Commit %1/%n Files", 0, fileCount).arg(checkedCount) :
-                        tr("Commit");
-    emit submitActionTextChanged(msg);
+    if (m_d->m_ui.fileView && m_d->m_ui.fileView->model()) {
+        // Update button text.
+        const int fileCount = m_d->m_ui.fileView->model()->rowCount();
+        const QString msg = checkedCount ?
+                            tr("Commit %1/%n Files", 0, fileCount).arg(checkedCount) :
+                            tr("Commit");
+        emit submitActionTextChanged(msg);
+    }
 }
 
 // Enable diff depending on selected files
@@ -507,6 +510,12 @@ void SubmitEditorWidget::changeEvent(QEvent *e)
 void SubmitEditorWidget::insertTopWidget(QWidget *w)
 {
     m_d->m_ui.vboxLayout->insertWidget(0, w);
+}
+
+bool SubmitEditorWidget::canSubmit() const
+{
+    const unsigned checkedCount = checkedFilesCount();
+    return m_d->m_emptyFileListEnabled || checkedCount > 0;
 }
 
 void SubmitEditorWidget::addSubmitFieldWidget(SubmitFieldWidget *f)

@@ -109,7 +109,7 @@ void ComponentView::searchForComponentAndAddToList(const ModelNode &node)
 
 
     foreach (const ModelNode &childNode, nodeList) {
-        if (childNode.type() == "Qt/Component") {
+        if (childNode.type() == "QtQuick/Component") {
             if (!childNode.id().isEmpty()) {
                 QStandardItem *item = new QStandardItem(childNode.id());
                 item->setData(QVariant::fromValue(childNode), ModelNodeRole);

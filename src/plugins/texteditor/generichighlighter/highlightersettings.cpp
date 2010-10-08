@@ -34,9 +34,9 @@
 #include <QtCore/QSettings>
 #include <QtCore/QLatin1String>
 #include <QtCore/QLatin1Char>
-#include <QtCore/QDebug>
-#ifdef Q_OS_UNIX
 #include <QtCore/QDir>
+#include <QtCore/QFile>
+#ifdef Q_OS_UNIX
 #include <QtCore/QProcess>
 #endif
 
@@ -135,8 +135,7 @@ void HighlighterSettings::fromSettings(const QString &category, QSettings *s)
     s->beginGroup(group);
     m_definitionFilesPath = s->value(kDefinitionFilesPath, QString()).toString();
     if (!s->contains(kDefinitionFilesPath))
-        m_definitionFilesPath = Core::ICore::instance()->resourcePath() +
-                                QLatin1String("/generic-highlighter");
+        assignDefaultDefinitionsPath();
     else
         m_definitionFilesPath = s->value(kDefinitionFilesPath).toString();
     if (!s->contains(kFallbackDefinitionFilesPath)) {
@@ -151,7 +150,7 @@ void HighlighterSettings::fromSettings(const QString &category, QSettings *s)
     }
     m_alertWhenNoDefinition = s->value(kAlertWhenDefinitionIsNotFound, true).toBool();
     if (!s->contains(kIgnoredFilesPatterns))
-        assignInitialIgnoredPatterns();
+        assignDefaultIgnoredPatterns();
     else
         setIgnoredFilesPatterns(s->value(kIgnoredFilesPatterns, QString()).toString());
     s->endGroup();
@@ -167,7 +166,7 @@ QString HighlighterSettings::ignoredFilesPatterns() const
     return listFromExpressions().join(QLatin1String(","));
 }
 
-void HighlighterSettings::assignInitialIgnoredPatterns()
+void HighlighterSettings::assignDefaultIgnoredPatterns()
 {
     QStringList patterns;
     patterns << QLatin1String("*.txt")
@@ -178,6 +177,14 @@ void HighlighterSettings::assignInitialIgnoredPatterns()
         << QLatin1String("NEWS")
         << QLatin1String("qmldir");
     setExpressionsFromList(patterns);
+}
+
+void HighlighterSettings::assignDefaultDefinitionsPath()
+{
+    const QString &path =
+        Core::ICore::instance()->userResourcePath() + QLatin1String("/generic-highlighter");
+    if (QFile::exists(path) || QDir().mkpath(path))
+        m_definitionFilesPath = path;
 }
 
 bool HighlighterSettings::isIgnoredFilePattern(const QString &fileName) const

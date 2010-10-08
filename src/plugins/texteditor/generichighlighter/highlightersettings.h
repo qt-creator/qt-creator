@@ -68,7 +68,8 @@ public:
     bool equals(const HighlighterSettings &highlighterSettings) const;
 
 private:
-    void assignInitialIgnoredPatterns();
+    void assignDefaultIgnoredPatterns();
+    void assignDefaultDefinitionsPath();
 
     void setExpressionsFromList(const QStringList &patterns);
     QStringList listFromExpressions() const;

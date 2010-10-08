@@ -53,11 +53,7 @@
 #include <coreplugin/progressmanager/futureprogress.h>
 
 #include <projectexplorer/debugginghelper.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/target.h>
-#include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/applicationrunconfiguration.h> // For LocalApplication*
+#include <projectexplorer/toolchain.h>
 
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 
@@ -326,7 +322,7 @@ void DebuggerEnginePrivate::breakpointSetRemoveMarginActionTriggered()
     QAction *act = qobject_cast<QAction *>(sender());
     QTC_ASSERT(act, return);
     QList<QVariant> list = act->data().toList();
-    QTC_ASSERT(list.size() >= 3, return);
+    QTC_ASSERT(list.size() >= 3, qDebug() << list; return);
     const QString fileName = list.at(0).toString();
     const int lineNumber = list.at(1).toInt();
     const quint64 address = list.at(2).toULongLong();
@@ -338,7 +334,7 @@ void DebuggerEnginePrivate::breakpointEnableDisableMarginActionTriggered()
     QAction *act = qobject_cast<QAction *>(sender());
     QTC_ASSERT(act, return);
     QList<QVariant> list = act->data().toList();
-    QTC_ASSERT(list.size() == 2, return);
+    QTC_ASSERT(list.size() == 3, qDebug() << list; return);
     const QString fileName = list.at(0).toString();
     const int lineNumber = list.at(1).toInt();
     m_breakHandler.toggleBreakpointEnabled(fileName, lineNumber);
@@ -347,7 +343,7 @@ void DebuggerEnginePrivate::breakpointEnableDisableMarginActionTriggered()
 void DebuggerEnginePrivate::handleContextMenuRequest(const QVariant &parameters)
 {
     const QList<QVariant> list = parameters.toList();
-    QTC_ASSERT(list.size() == 3, return);
+    QTC_ASSERT(list.size() == 3, qDebug() << list; return);
     TextEditor::ITextEditor *editor =
         (TextEditor::ITextEditor *)(list.at(0).value<quint64>());
     int lineNumber = list.at(1).toInt();
@@ -1024,8 +1020,7 @@ QStringList DebuggerEngine::qtDumperLibraryLocations() const
 
 void DebuggerEngine::showQtDumperLibraryWarning(const QString &details)
 {
-    //QMessageBox dialog(d->m_mainWindow); // FIXME
-    QMessageBox dialog;
+    QMessageBox dialog(plugin()->mainWindow());
     QPushButton *qtPref = dialog.addButton(tr("Open Qt4 Options"),
         QMessageBox::ActionRole);
     QPushButton *helperOff = dialog.addButton(tr("Turn off Helper Usage"),
@@ -1050,6 +1045,35 @@ void DebuggerEngine::showQtDumperLibraryWarning(const QString &details)
             _(Qt4ProjectManager::Constants::QTVERSION_SETTINGS_PAGE_ID));
     } else if (dialog.clickedButton() == helperOff) {
         theDebuggerAction(UseDebuggingHelpers)
+            ->setValue(qVariantFromValue(false), false);
+    }
+}
+
+void DebuggerEngine::showQmlObserverToolWarning()
+{
+    QMessageBox dialog(plugin()->mainWindow());
+    QPushButton *qtPref = dialog.addButton(tr("Open Qt4 Options"),
+        QMessageBox::ActionRole);
+    QPushButton *helperOff = dialog.addButton(tr("Turn off QML Observer Usage"),
+        QMessageBox::ActionRole);
+    QPushButton *justContinue = dialog.addButton(tr("Continue Anyway"),
+        QMessageBox::AcceptRole);
+    dialog.setDefaultButton(justContinue);
+    dialog.setWindowTitle(tr("QML Observer Missing"));
+    dialog.setText(tr("QML Observer could not be found."));
+    dialog.setInformativeText(tr(
+        "QML Observer is used to offer additional debugging features for "
+        "QML applications, such as interactive debugging and inspection tools."
+        "It must be compiled for each used Qt version separately. "
+        "On the Qt4 options page, select a Qt installation "
+        "and click Rebuild."));
+    dialog.exec();
+    if (dialog.clickedButton() == qtPref) {
+        Core::ICore::instance()->showOptionsDialog(
+            _(Qt4ProjectManager::Constants::QT_SETTINGS_CATEGORY),
+            _(Qt4ProjectManager::Constants::QTVERSION_SETTINGS_PAGE_ID));
+    } else if (dialog.clickedButton() == helperOff) {
+        theDebuggerAction(UseQmlObserver)
             ->setValue(qVariantFromValue(false), false);
     }
 }
@@ -1666,6 +1690,11 @@ void DebuggerEngine::updateAll()
 
 void DebuggerEngine::attemptBreakpointSynchronization()
 {
+}
+
+bool DebuggerEngine::acceptsBreakpoint(const BreakpointData *)
+{
+    return true;
 }
 
 void DebuggerEngine::selectThread(int)

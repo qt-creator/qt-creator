@@ -102,6 +102,10 @@ enum {
 using namespace CPlusPlus;
 using namespace CppEditor::Internal;
 
+namespace {
+bool semanticHighlighterDisabled = qstrcmp(qVersion(), "4.7.0") == 0;
+}
+
 static QList<QTextEdit::ExtraSelection> createSelections(QTextDocument *document,
                                                          const QList<CPlusPlus::Document::DiagnosticMessage> &msgs,
                                                          const QTextCharFormat &format)
@@ -1888,7 +1892,7 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
 
         m_highlighter.cancel();
 
-        if (semanticInfo.doc) {
+        if (! semanticHighlighterDisabled && semanticInfo.doc) {
             if (Core::EditorManager::instance()->currentEditor() == editableInterface()) {
                 LookupContext context(semanticInfo.doc, semanticInfo.snapshot);
                 CheckSymbols::Future f = CheckSymbols::go(semanticInfo.doc, context);

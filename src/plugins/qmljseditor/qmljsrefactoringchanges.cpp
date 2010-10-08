@@ -30,6 +30,7 @@
 #include "qmljsrefactoringchanges.h"
 #include "qmljseditorcodeformatter.h"
 
+#include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/tabsettings.h>
@@ -109,9 +110,31 @@ Document::Ptr QmlJSRefactoringFile::qmljsDocument() const
     return m_qmljsDocument;
 }
 
-unsigned QmlJSRefactoringFile::startOf(const QmlJS::AST::SourceLocation &loc) const
+unsigned QmlJSRefactoringFile::startOf(const AST::SourceLocation &loc) const
 {
     return position(loc.startLine, loc.startColumn);
+}
+
+bool QmlJSRefactoringFile::isCursorOn(AST::UiObjectMember *ast) const
+{
+    const unsigned pos = cursor().position();
+
+    return ast->firstSourceLocation().begin() <= pos
+            && pos <= ast->lastSourceLocation().end();
+}
+
+bool QmlJSRefactoringFile::isCursorOn(AST::UiQualifiedId *ast) const
+{
+    const unsigned pos = cursor().position();
+
+    if (ast->identifierToken.begin() > pos)
+        return false;
+
+    AST::UiQualifiedId *last = ast;
+    while (last->next)
+        last = last->next;
+
+    return pos <= ast->identifierToken.end();
 }
 
 QmlJSRefactoringChanges *QmlJSRefactoringFile::refactoringChanges() const

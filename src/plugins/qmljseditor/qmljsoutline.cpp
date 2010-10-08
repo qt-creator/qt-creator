@@ -83,7 +83,7 @@ QmlJSOutlineWidget::QmlJSOutlineWidget(QWidget *parent) :
     layout->addWidget(m_treeView);
 
     m_showBindingsAction = new QAction(this);
-    m_showBindingsAction->setText(tr("Show all bindings"));
+    m_showBindingsAction->setText(tr("Show All Bindings"));
     m_showBindingsAction->setCheckable(true);
     m_showBindingsAction->setChecked(true);
     connect(m_showBindingsAction, SIGNAL(toggled(bool)), this, SLOT(setShowBindings(bool)));

@@ -47,12 +47,6 @@ const char *const FILES_EDITOR_ID    = "Qt4.QmlProjectEditor";
 const char *const FILES_EDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("OpenWith::Editors", ".qmlproject Editor");
 const char *const FILES_MIMETYPE     = QMLMIMETYPE;
 
-// Wizard category
-const char * const QML_WIZARD_CATEGORY = "F.Projects"; // (after Qt)
-const char * const QML_WIZARD_TR_SCOPE = "QmlProjectManager";
-const char * const QML_WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("QmlProjectManager", "Qt Quick Project");
-const char * const QML_WIZARD_ICON = ":/qmlproject/images/qml_wizard.png";
-
 } // namespace Constants
 } // namespace QmlProjectManager
 

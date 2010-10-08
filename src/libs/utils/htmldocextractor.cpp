@@ -180,28 +180,32 @@ void HtmlDocExtractor::processOutput(QString *html) const
         return;
 
     if (m_mode == FirstParagraph) {
-        int index = html->indexOf(QLatin1String("</p>"));
-        if (index > 0) {
-            if (html->at(index - 1) == QLatin1Char('.')) {
-                index += 4;
-                html->truncate(index);
-            } else {
-                // <p>Paragraphs similar to this. Example:</p>
-                index = html->lastIndexOf(QLatin1Char('.'), index);
-                if (index > 0) {
-                    html->truncate(index);
-                    html->append(QLatin1String(".</p>"));
+        // Try to get the entire first paragraph, but if one is not found or if its opening
+        // tag is not in the very beginning (using an empirical value as the limit) the html
+        // is cleared to avoid too much content.
+        int index = html->indexOf(QLatin1String("<p>"));
+        if (index != -1 && index < 400) {
+            index = html->indexOf(QLatin1String("</p>"), index + 2);
+            if (index != -1) {
+                if (html->at(index - 1) == QLatin1Char('.')) {
+                    html->truncate(index + 4);
+                } else {
+                    // <p>Paragraphs similar to this. Example:</p>
+                    index = html->lastIndexOf(QLatin1Char('.'), index);
+                    if (index != -1) {
+                        html->truncate(index);
+                        html->append(QLatin1String(".</p>"));
+                    }
                 }
+            } else {
+                html->clear();
             }
         } else {
-            // Some enumerations don't have paragraphs and just a table with the items. In such
-            // cases the the html is cleared to avoid showing more that desired.
             html->clear();
-            return;
         }
     }
 
-    if (m_formatContents) {
+    if (!html->isEmpty() && m_formatContents) {
         stripBold(html);
         replaceNonStyledHeadingsForBold(html);
         replaceTablesForSimpleLines(html);
