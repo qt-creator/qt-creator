@@ -622,7 +622,7 @@ void GitPlugin::undoRepositoryChanges()
 {
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return)
-    const QString msg = tr("Would you like to revert all pending changes to the repository\n%1?").arg(QDir::toNativeSeparators(state.topLevel()));
+    const QString msg = tr("Revert all pending changes to the repository\n%1?").arg(QDir::toNativeSeparators(state.topLevel()));
     const QMessageBox::StandardButton answer
             = QMessageBox::question(m_core->mainWindow(),
                                     tr("Revert"), msg,

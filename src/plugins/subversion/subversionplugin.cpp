@@ -632,7 +632,7 @@ void SubversionPlugin::revertAll()
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return)
     const QString title = tr("Revert repository");
-    if (QMessageBox::warning(0, title, tr("Would you like to revert all changes to the repository?"),
+    if (QMessageBox::warning(0, title, tr("Revert all pending changes to the repository?"),
                              QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
         return;
     // NoteL: Svn "revert ." doesn not work.
