@@ -178,10 +178,10 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *am = core->actionManager();
 
-    m_fromQmlAction = new QAction(QIcon(QLatin1String(":/qml/images/from-qml-small.png")), tr("Apply Changes to Document"), this);
-    m_observerModeAction = new QAction(QIcon(QLatin1String(":/qml/images/observermode.png")), tr("Observer Mode"), this);
+    m_fromQmlAction = new QAction(QIcon(QLatin1String(":/qml/images/from-qml-small.png")), tr("Apply Changes on Save"), this);
+    m_reloadAction = new QAction(QIcon(QLatin1String(":/qml/images/reload.png")), tr("Reload QML"), this);
 
-    m_reloadAction = new QAction(QIcon(QLatin1String(":/qml/images/reload.png")), tr("Reload"), this);
+    m_observerModeAction = new QAction(QIcon(QLatin1String(":/qml/images/observermode.png")), tr("Observer Mode"), this);
     m_playAction = new QAction(m_pauseIcon, tr("Play/Pause Animations"), this);
     m_selectAction = new QAction(QIcon(QLatin1String(":/qml/images/select-small.png")), tr("Select"), this);
     m_zoomAction = new QAction(QIcon(QLatin1String(":/qml/images/zoom-small.png")), tr("Zoom"), this);
@@ -248,9 +248,10 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
 //    configBarLayout->addWidget(createToolButton(am->command(ProjectExplorer::Constants::DEBUG)->action()));
 //    configBarLayout->addWidget(createToolButton(am->command(ProjectExplorer::Constants::STOP)->action()));
     configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::FROM_QML_ACTION)->action()));
-    configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::DESIGNMODE_ACTION)->action()));
     configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::RELOAD_ACTION)->action()));
+    configBarLayout->addSpacing(10);
 
+    configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::DESIGNMODE_ACTION)->action()));
     m_playButton = createToolButton(am->command(QmlJSInspector::Constants::PLAY_ACTION)->action());
     m_playButton->setMenu(playSpeedMenu);
     configBarLayout->addWidget(m_playButton);
