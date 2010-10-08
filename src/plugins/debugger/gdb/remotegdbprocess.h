@@ -67,8 +67,13 @@ public:
     virtual void setWorkingDirectory(const QString &dir);
 
     void interruptInferior();
+    void realStart(const QString &cmd, const QStringList &args);
 
     static const QByteArray CtrlC;
+
+signals:
+    void started();
+    void startFailed();
 
 private slots:
     void handleConnected();
