@@ -19,7 +19,6 @@ SUBDIRS   = plugin_coreplugin \
             plugin_cvs \
             plugin_cpptools \
             plugin_qt4projectmanager \
-#            plugin_snippets \ # buggy and annoying
             plugin_locator \
             plugin_debugger \
 #            plugin_qtestlib \ # this seems to be dead
@@ -144,11 +143,6 @@ plugin_bookmarks.subdir = bookmarks
 plugin_bookmarks.depends = plugin_projectexplorer
 plugin_bookmarks.depends += plugin_coreplugin
 plugin_bookmarks.depends += plugin_texteditor
-
-plugin_snippets.subdir = snippets
-plugin_snippets.depends = plugin_projectexplorer
-plugin_snippets.depends += plugin_coreplugin
-plugin_snippets.depends += plugin_texteditor
 
 plugin_debugger.subdir = debugger
 plugin_debugger.depends = plugin_projectexplorer
