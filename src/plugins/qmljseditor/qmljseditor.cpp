@@ -973,7 +973,7 @@ void QmlJSTextEditor::updateOutlineIndexNow()
     }
 }
 
-static UiQualifiedId *qualifiedTypeNameId(UiObjectMember *m)
+static UiQualifiedId *qualifiedTypeNameId(Node *m)
 {
     if (UiObjectDefinition *def = cast<UiObjectDefinition *>(m))
         return def->qualifiedTypeNameId;
@@ -1484,17 +1484,27 @@ void QmlJSTextEditor::onTooltipRequested(TextEditor::ITextEditor* /* editor */, 
 
 void QmlJSTextEditor::updateToolTipNow()
 {
-    return; 
-
     if (!TextEditor::ToolTip::instance()->isVisible())
         return;
 
     if (m_contextPane && m_semanticInfo.isValid()) {
         Node *newNode = m_semanticInfo.declaringMemberNoProperties(m_toolTipPosition);
-        m_contextPane->apply(editableInterface(), m_semanticInfo.lookupContext(), newNode, false, true);
-        m_oldCursorPosition = m_toolTipPosition;
-        QList<TextEditor::Internal::RefactorMarker> markers;
-        setRefactorMarkers(markers);
+        if (m_contextPane->isAvailable(editableInterface(), m_semanticInfo.lookupContext(), newNode)) {
+             if (UiQualifiedId *q = qualifiedTypeNameId(newNode)) {
+                const int start = q->identifierToken.begin();
+                for (; q; q = q->next) {
+                    if (! q->next) {
+                        const int end = q->identifierToken.end();
+                        if (m_toolTipPosition >= start && m_toolTipPosition <= end) {
+                            m_contextPane->apply(editableInterface(), m_semanticInfo.lookupContext(), newNode, false, true);
+                            m_oldCursorPosition = m_toolTipPosition;
+                            QList<TextEditor::Internal::RefactorMarker> markers;
+                            setRefactorMarkers(markers);
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -1580,7 +1590,7 @@ void QmlJSTextEditor::wheelEvent(QWheelEvent *event)
         LookupContext::Ptr lookupContext;
         if (m_semanticInfo.isValid())
             lookupContext = m_semanticInfo.lookupContext();
-        m_contextPane->apply(editableInterface(),  lookupContext, m_semanticInfo.declaringMemberNoProperties(position()), false, true);
+        m_contextPane->apply(editableInterface(),  lookupContext, m_semanticInfo.declaringMemberNoProperties(m_oldCursorPosition), false, true);
     }
 }
 
