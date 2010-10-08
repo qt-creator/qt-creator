@@ -377,8 +377,6 @@ Command *ActionManagerPrivate::registerOverridableAction(QAction *action, const 
 #endif
         a->setAction(baseAction);
         m_mainWnd->addAction(baseAction);
-        a->setKeySequence(a->keySequence());
-        a->setDefaultKeySequence(QKeySequence());
     } else  if (checkUnique) {
         qWarning() << "registerOverridableAction: id" << id << "is already registered.";
     }
@@ -416,9 +414,6 @@ Command *ActionManagerPrivate::registerShortcut(QShortcut *shortcut, const Id &i
         sc->setContext(Context(0));
     else
         sc->setContext(context);
-
-    sc->setKeySequence(shortcut->key());
-    sc->setDefaultKeySequence(QKeySequence());
 
     return sc;
 }

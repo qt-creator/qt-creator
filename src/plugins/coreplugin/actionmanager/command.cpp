@@ -200,18 +200,26 @@ using namespace Core::Internal;
 */
 
 CommandPrivate::CommandPrivate(int id)
-    : m_attributes(0), m_id(id)
+    : m_attributes(0), m_id(id), m_isKeyInitialized(false)
 {
 }
 
 void CommandPrivate::setDefaultKeySequence(const QKeySequence &key)
 {
+    if (!m_isKeyInitialized)
+        setKeySequence(key);
     m_defaultKey = key;
 }
 
 QKeySequence CommandPrivate::defaultKeySequence() const
 {
     return m_defaultKey;
+}
+
+void CommandPrivate::setKeySequence(const QKeySequence &key)
+{
+    Q_UNUSED(key)
+    m_isKeyInitialized = true;
 }
 
 void CommandPrivate::setDefaultText(const QString &text)
@@ -306,15 +314,9 @@ Core::Context Shortcut::context() const
     return m_context;
 }
 
-void Shortcut::setDefaultKeySequence(const QKeySequence &key)
-{
-    if (m_shortcut->key().isEmpty())
-        setKeySequence(key);
-    CommandPrivate::setDefaultKeySequence(key);
-}
-
 void Shortcut::setKeySequence(const QKeySequence &key)
 {
+    CommandPrivate::setKeySequence(key);
     m_shortcut->setKey(key);
     emit keySequenceChanged();
 }
@@ -405,15 +407,9 @@ QList<CommandLocation> Action::locations() const
     return m_locations;
 }
 
-void Action::setDefaultKeySequence(const QKeySequence &key)
-{
-    if (m_action->shortcut().isEmpty())
-        setKeySequence(key);
-    CommandPrivate::setDefaultKeySequence(key);
-}
-
 void Action::setKeySequence(const QKeySequence &key)
 {
+    CommandPrivate::setKeySequence(key);
     m_action->setShortcut(key);
     updateToolTipWithKeySequence();
     emit keySequenceChanged();
@@ -538,3 +534,4 @@ void Action::setActive(bool state)
         emit activeStateChanged();
     }
 }
+

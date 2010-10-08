@@ -53,6 +53,8 @@ public:
     void setDefaultKeySequence(const QKeySequence &key);
     QKeySequence defaultKeySequence() const;
 
+    void setKeySequence(const QKeySequence &key);
+
     void setDefaultText(const QString &text);
     QString defaultText() const;
 
@@ -78,6 +80,7 @@ protected:
     int m_id;
     QKeySequence m_defaultKey;
     QString m_defaultText;
+    bool m_isKeyInitialized;
 };
 
 class Shortcut : public CommandPrivate
@@ -88,7 +91,6 @@ public:
 
     QString name() const;
 
-    void setDefaultKeySequence(const QKeySequence &key);
     void setKeySequence(const QKeySequence &key);
     QKeySequence keySequence() const;
 
@@ -116,7 +118,6 @@ public:
 
     QString name() const;
 
-    void setDefaultKeySequence(const QKeySequence &key);
     void setKeySequence(const QKeySequence &key);
     QKeySequence keySequence() const;
 
