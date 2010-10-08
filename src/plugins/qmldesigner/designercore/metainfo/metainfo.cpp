@@ -129,7 +129,7 @@ void MetaInfoPrivate::loadPlugins(QDeclarativeEngine *engine)
     QDeclarativeComponent pluginComponent(engine, 0);
 
     QStringList pluginList;
-    pluginList += "import QtQuick 1.0";
+    pluginList += "import Qt 4.7";
     pluginList += "import QtWebKit 1.0";
 
     // load maybe useful plugins
