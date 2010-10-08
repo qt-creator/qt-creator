@@ -284,6 +284,7 @@ void MaemoRunConfigurationWidget::updateTargetInformation()
 void MaemoRunConfigurationWidget::handleDeploySpecsChanged()
 {
     m_remoteExecutableLabel->setText(m_runConfiguration->remoteExecutableFilePath());
+    m_runConfiguration->updateFactoryState();
 }
 
 void MaemoRunConfigurationWidget::handleBuildConfigChanged()
