@@ -96,11 +96,13 @@
        \o \l{Developing Application UI}
        \list
            \o \l{Optimizing Applications for Mobile Devices}
+           \o \l{Using Qt Designer}
            \o \l{Adding Qt Designer Plugins}
            \if defined(qtquick)
            \o \l{Developing Qt Quick Applications}
                 \list
                     \o \l {Creating Qt Quick Projects}
+                    \o \l {Using Qt Quick Designer}
                     \o \l {Creating Components}
                     \o \l {Creating Screens}
                     \o \l {Animating Screens}
@@ -940,12 +942,32 @@
     You can easily develop animations by using a declarative programming
     language called \l {http://doc.qt.nokia.com/4.7/qtquick.html}{QML}.
     In QML, a user interface is specified as a tree of objects with properties.
-    You can edit QML code in the code editor. You
+    You can edit QML code in the code editor or in the integrated \QMLD. You
     can use Qt or JavaScript to implement the application logic.
 
     The integration includes project management and code completion.
 
-    \section1 Using Qt Designer
+    The following sections describe how to develop application UI:
+
+       \list
+
+           \o \l{Optimizing Applications for Mobile Devices}
+           \o \l{Using Qt Designer}
+           \o \l{Adding Qt Designer Plugins}
+           \o \l{Developing Qt Quick Applications}
+
+       \endlist
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-usability.html
+    \page creator-using-qt-designer.html
+    \nextpage adding-plugins.html
+
+    \title Using Qt Designer
 
     Qt Creator automatically opens all .ui files in \QD.
 
@@ -984,7 +1006,16 @@
     For more information on \QD, see
     \l{http://doc.qt.nokia.com/4.7/designer-manual.html}{Qt Designer Manual}.
 
-    \section1 Using Qt Quick Designer
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage quick-projects.html
+    \page creator-using-qt-quick-designer.html
+    \nextpage quick-components.html
+
+    \title Using Qt Quick Designer
 
     You can edit .qml files in the visual \QMLD editor or in the
     code editor.
@@ -6061,10 +6092,8 @@
 
     \title Developing Qt Quick Applications
 
-    You can either create Qt Quick projects from scratch or import them to
-    Qt Creator. For example, you can import and run the
-    \l {http://doc.qt.nokia.com/4.7/qdeclarativeexamples.html} {QML examples and demos}
-    to learn how to use various aspects of QML.
+    You can either create Qt Quick projects from scratch or import existing projects to
+    Qt Creator.
 
     You can use the code editor (\l{Using the Editor}{Edit mode}) or the visual editor
     (\l{Using Qt Quick Designer}{Design mode}) to develop Qt Quick applications.
@@ -6073,6 +6102,7 @@
     \list
 
         \o \l {Creating Qt Quick Projects}
+        \o \l {Using Qt Quick Designer}
         \o \l {Creating Components}
         \o \l {Creating Screens}
         \o \l {Animating Screens}
@@ -6080,10 +6110,6 @@
         \o \l {Implementing Application Logic}
 
     \endlist
-
-    \note The \QMLD visual editor is provided as an experimental plugin that you must
-    enable to be able to edit QML files in the \gui Design mode. Enabling the
-    visual editor can negatively affect the overall stability of Qt Creator.
 
     To enable or disable the \QMLD visual editor, select
     \gui {Help > About Plugins... > Qt Quick > QmlDesigner}. You must restart Qt Creator
@@ -6097,7 +6123,7 @@
     \contentspage index.html
     \previouspage creator-visual-editor.html
     \page quick-projects.html
-    \nextpage quick-components.html
+    \nextpage creator-using-qt-quick-designer.html
 
     \title Creating Qt Quick Projects
 
@@ -6669,7 +6695,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-usability.html
+    \previouspage creator-using-qt-designer.html
     \page adding-plugins.html
     \nextpage creator-visual-editor.html
 
@@ -6785,7 +6811,7 @@
     \contentspage index.html
     \previouspage creator-design-mode.html
     \page creator-usability.html
-    \nextpage adding-plugins.html
+    \nextpage creator-using-qt-designer.html
 
     \title Optimizing Applications for Mobile Devices
 
