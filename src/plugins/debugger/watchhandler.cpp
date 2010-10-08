@@ -960,40 +960,62 @@ QVariant WatchModel::headerData(int section, Qt::Orientation orientation, int ro
     return QVariant();
 }
 
-struct IName : public QByteArray
+// Determine sort order of watch items by sort order or alphabetical inames
+// according to setting 'SortStructMembers'. We need a map key for bulkInsert
+// and a predicate for finding the insertion position of a single item.
+
+// Set this before using any of the below according to action
+static bool sortWatchDataAlphabetically = true;
+
+static bool watchDataLessThan(const QByteArray &iname1, int sortId1, const QByteArray &iname2, int sortId2)
 {
-    IName(const QByteArray &iname) : QByteArray(iname) {}
+    if (!sortWatchDataAlphabetically)
+        return sortId1 < sortId2;
+    // Get positions of last part of iname 'local.this.i1" -> "i1"
+    int cmpPos1 = iname1.lastIndexOf('.');
+    if (cmpPos1 == -1) {
+        cmpPos1 = 0;
+    } else {
+        cmpPos1++;
+    }
+    int cmpPos2 = iname2.lastIndexOf('.');
+    if (cmpPos2 == -1) {
+        cmpPos2 = 0;
+    } else {
+        cmpPos2++;
+    }
+    // Are we looking at an array with numerical inames 'local.this.i1.0" ->
+    // Go by sort id.
+    if (cmpPos1 < iname1.size() && cmpPos2 < iname2.size()
+            && isdigit(iname1.at(cmpPos1)) && isdigit(iname2.at(cmpPos2)))
+        return sortId1 < sortId2;
+    // Alphabetically
+    return qstrcmp(iname1.constData() + cmpPos1, iname2.constData() + cmpPos2) < 0;
+}
+
+// Sort key for watch data consisting of iname and numerical sort id.
+struct WatchDataSortKey {
+    explicit WatchDataSortKey(const WatchData &wd) :
+             iname(wd.iname), sortId(wd.sortId) {}
+    QByteArray iname;
+    int sortId;
 };
 
-bool iNameLess(const QString &iname1, const QString &iname2)
+inline bool operator<(const WatchDataSortKey &k1, const WatchDataSortKey &k2)
 {
-    QString name1 = iname1.section('.', -1);
-    QString name2 = iname2.section('.', -1);
-    if (!name1.isEmpty() && !name2.isEmpty()) {
-        if (name1.at(0).isDigit() && name2.at(0).isDigit()) {
-            bool ok1 = false, ok2 = false;
-            int i1 = name1.toInt(&ok1), i2 = name2.toInt(&ok2);
-            if (ok1 && ok2)
-                return i1 < i2;
-        }
-    }
-    return name1 < name2;
+    return watchDataLessThan(k1.iname, k1.sortId, k2.iname, k2.sortId);
 }
 
-bool operator<(const IName &iname1, const IName &iname2)
+bool watchItemSorter(const WatchItem *item1, const WatchItem *item2)
 {
-    return iNameLess(iname1, iname2);
-}
-
-static bool iNameSorter(const WatchItem *item1, const WatchItem *item2)
-{
-    return iNameLess(item1->iname, item2->iname);
+    return watchDataLessThan(item1->iname, item1->sortId, item2->iname, item2->sortId);
 }
 
 static int findInsertPosition(const QList<WatchItem *> &list, const WatchItem *item)
 {
-    QList<WatchItem *>::const_iterator it =
-        qLowerBound(list.begin(), list.end(), item, iNameSorter);
+    sortWatchDataAlphabetically = theDebuggerBoolSetting(SortStructMembers);
+    const QList<WatchItem *>::const_iterator it =
+        qLowerBound(list.begin(), list.end(), item, watchItemSorter);
     return it - list.begin();
 }
 
@@ -1045,7 +1067,7 @@ void WatchModel::insertData(const WatchData &data)
         item->parent = parent;
         item->generation = generationCounter;
         item->changed = true;
-        int n = findInsertPosition(parent->children, item);
+        const int n = findInsertPosition(parent->children, item);
         beginInsertRows(index, n, n);
         parent->children.insert(n, item);
         endInsertRows();
@@ -1078,10 +1100,11 @@ void WatchModel::insertBulkData(const QList<WatchData> &list)
     }
     QModelIndex index = watchIndex(parent);
 
-    QMap<IName, WatchData> newList;
-    typedef QMap<IName, WatchData>::iterator Iterator;
+    sortWatchDataAlphabetically = theDebuggerBoolSetting(SortStructMembers);
+    QMap<WatchDataSortKey, WatchData> newList;
+    typedef QMap<WatchDataSortKey, WatchData>::iterator Iterator;
     foreach (const WatchItem &data, list)
-        newList[data.iname] = data;
+        newList.insert(WatchDataSortKey(data), data);
     if (newList.size() != list.size()) {
         qDebug() << "LIST: ";
         foreach (const WatchItem &data, list)
@@ -1100,11 +1123,12 @@ void WatchModel::insertBulkData(const QList<WatchData> &list)
     QTC_ASSERT(newList.size() == list.size(), return);
 
     foreach (WatchItem *oldItem, parent->children) {
-        Iterator it = newList.find(oldItem->iname);
+        const WatchDataSortKey oldSortKey(*oldItem);
+        Iterator it = newList.find(oldSortKey);
         if (it == newList.end()) {
             WatchData data = *oldItem;
             data.generation = generationCounter;
-            newList[oldItem->iname] = data;
+            newList.insert(oldSortKey, data);
         } else {
             bool changed = !it->value.isEmpty()
                 && it->value != oldItem->value

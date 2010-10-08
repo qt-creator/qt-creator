@@ -1666,7 +1666,7 @@ void setWatchDataDisplayedType(WatchData &data, const GdbMi &item)
 
 void parseWatchData(const QSet<QByteArray> &expandedINames,
     const WatchData &data0, const GdbMi &item,
-    bool sortMembers, QList<WatchData> *list)
+    QList<WatchData> *list)
 {
     //qDebug() << "HANDLE CHILDREN: " << data0.toString() << item.toString();
     WatchData data = data0;
@@ -1711,6 +1711,7 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
     int i = 0;
     foreach (const GdbMi &child, children.children()) {
         WatchData data1 = childtemplate;
+        data1.sortId = i++;
         GdbMi name = child.findChild("name");
         if (name.isValid())
             data1.name = _(name.data());
@@ -1722,11 +1723,6 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
         } else {
             data1.iname = data.iname;
             data1.iname += '.';
-            if (!sortMembers) {
-                char buf[10];
-                qsnprintf(buf, sizeof(buf) - 1, "%04d", i);
-                data1.iname += buf;
-            }
             data1.iname += data1.name.toLatin1();
         }
         if (!data1.name.isEmpty() && data1.name.at(0).isDigit())
@@ -1747,8 +1743,7 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
             //data1.name += " (" + skey + ")";
             data1.name = skey;
         }
-        parseWatchData(expandedINames, data1, child, sortMembers, list);
-        ++i;
+        parseWatchData(expandedINames, data1, child, list);
     }
 }
 
