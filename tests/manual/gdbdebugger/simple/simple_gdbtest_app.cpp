@@ -458,17 +458,17 @@ QFileInfo testQFileInfo()
     return result;
 }
 
-/*
 void testQFixed()
 {
+/*
     QFixed f = QFixed::fromReal(4.2);
     f += 1;
     f += 1;
     f *= -1;
     f += 1;
     f += 1;
-}
 */
+}
 
 QHash<int, float> testQHash()
 {
