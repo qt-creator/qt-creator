@@ -3850,7 +3850,9 @@
 
     \title Creating a Qt Quick Application
 
-    \note This tutorial assumes that you are familiar with the \l {http://doc.qt.nokia.com/4.7/qtquick.html}
+    \note To complete this tutorial, you must have Qt 4.7 or later installed.
+
+    This tutorial assumes that you are familiar with the \l {http://doc.qt.nokia.com/4.7/qtquick.html}
     {QML declarative language}.
 
     This tutorial describes how to use Qt Creator to create a small
@@ -3862,7 +3864,7 @@
 
     \list 1
 
-        \o Select \gui{File > New File or Project > Qt Quick Project > Qt QML Application > Choose}.
+        \o Select \gui{File > New File or Project > Qt Quick Project > Qt Quick Application > Choose}.
 
         \image qmldesigner-new-project.png "New File or Project dialog"
 
@@ -3875,6 +3877,34 @@
         \o In the \gui {Create in} field, enter the path for the project files. For example,
         \c {C:\Qt\examples}, and then click \gui{Next}.
 
+        The \gui {Qt Versions} dialog opens.
+
+        \image qmldesigner-new-project-qt-versions.png "Qt Versions dialog"
+
+        \o Select the Qt versions to use as build targets for your project,
+        and then click \gui{Next}.
+
+        \note If you have only one Qt version installed, this dialog is skipped.
+
+        The \gui{Application Options} dialog opens.
+
+        \image qtcreator-mobile-project-app-options.png "Application Options dialog"
+
+        \o In the \gui {Orientation behavior} field, determine how the application
+        behaves when the orientation of the device display rotates between portrait
+        and landscape, and then click \gui{Next}.
+
+        \note Qt Creator contains a default program icon and generates a UID for testing
+        the application on a device. You only need to specify the \gui {Symbian Specific}
+        and \gui {Maemo Specific} settings if you publish the application.
+
+        The \gui {QML Sources} dialog opens.
+
+        \image qmldesigner-new-project-qml-sources.png "QML Sources" dialog
+
+        \o In the \gui {QML Main File} group, select \gui {Generate a .qml file},
+        and then click \gui{Next}.
+
         The \gui{Project Management} dialog opens.
 
         \image qmldesigner-new-project-summary.png "Project Management dialog"
@@ -3883,21 +3913,12 @@
 
     \endlist
 
-    The HelloWorld project now contains the following files:
-
-    \list
-        \o HelloWorld.qmlproject
-        \o HelloWorld.qml
-    \endlist
-
+    The HelloWorld project now contains the necessary files.
     The \gui Projects pane in the \gui Sidebar displays the project files:
 
     \image qmldesigner-new-project-contents.png "HelloWorld project contents"
 
-    The .qmlproject file defines that all QML, JavaScript, and image files in
-    the project folder belong to the project.
-
-    The .qml file contains the following example code that specifies a rectangle
+    The main.qml file contains the following example code that specifies a rectangle
     and a label that contains
     the text \bold {Hello World}.
 
@@ -3907,11 +3928,10 @@
 
     Rectangle {
         width: 200
-        height: 200
+        height: 323
         Text {
-            x: 66
-            y: 93
             text: "Hello World"
+            anchors.centerIn: parent
         }
     }
 
@@ -3919,49 +3939,46 @@
 
     Your application is now ready.
 
-    \section1 Running the Application
+    \section1 Building and Running the Application
 
-    Press \key {Ctrl+R} to run the application in the QML Viewer.
-
-
+    Press \key {Ctrl+R} to run the application on the desktop.
 
     \image qmldesigner-helloworld.png "Hello World"
 
     \section1 Changing Hello World Properties
 
     To experiment with QML and to try some of the code editor features, change the
-    properties of the rectangle and text. Move the cursor on \gui Rectangle and
-    press \key F1 to get help on the available properties. Try adding a \gui color
-    property to the \gui Rectangle. When you start to type,
+    properties of the rectangle and text.
+
+    \list 1
+
+        \o Move the cursor on \gui Rectangle and click
+        \inlineimage qml-toolbar-indicator.png
+        to open the Qt Quick toolbar for rectangles:
+
+        \image qml-toolbar-rectangle.png "Qt Quick Toolbar for rectangles"
+
+        \o Click the \gui Color box to select a color in the color picker, and click
+        \gui Apply.
+
+        \o Move the cursor on \gui Text and and click
+        \inlineimage qml-toolbar-indicator.png
+        to open the Qt Quick toolbar for text:
+
+        \image qml-toolbar-text.png "Qt Quick Toolbar for text"
+
+        \o Click the \gui Color box to select a color in the color picker, and click
+        \gui Apply.
+
+    \endlist
+
+    Try adding another rectangle to the \gui Rectangle. When you start to type,
     the code completion feature of the code editor suggests properties, IDs, and
     code snippets to complete the code. Select an item in the list and press
     \key Tab or \key Enter to complete the code.
 
     The code editor checks the code syntax and underlines syntax errors.
     Move the cursor over an error to display detailed information about it.
-
-    The following code illustrates how to set the backround color
-    to light steel blue and the text color to white:
-
-    \code
-
-    import Qt 4.7
-
-    Rectangle {
-        width: 200
-        height: 200
-        color: "lightsteelblue"
-        Text {
-            x: 66
-            y: 93
-            text: "Hello World"
-            color: "white"
-        }
-    }
-
-    \endcode
-
-    \image qmldesigner-helloworld-edited.png "Hello World in blue and white"
 
 */
 
