@@ -370,6 +370,18 @@ DebuggerSettings *DebuggerSettings::instance()
     instance->insertItem(GdbScriptFile, item);
 
     item = new SavedAction(instance);
+    item->setSettingsKey(debugModeGroup, QLatin1String("CloseBuffersOnExit"));
+    item->setCheckable(true);
+    item->setDefaultValue(false);
+    instance->insertItem(CloseBuffersOnExit, item);
+
+    item = new SavedAction(instance);
+    item->setSettingsKey(debugModeGroup, QLatin1String("SwitchModeOnExit"));
+    item->setCheckable(true);
+    item->setDefaultValue(false);
+    instance->insertItem(SwitchModeOnExit, item);
+
+    item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("AutoQuit"));
     item->setText(tr("Automatically Quit Debugger"));
     item->setCheckable(true);

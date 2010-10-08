@@ -561,6 +561,10 @@ QWidget *CommonOptionsPage::createPage(QWidget *parent)
         m_ui.checkBoxUseAlternatingRowColors);
     m_group.insert(theDebuggerAction(UseToolTipsInMainEditor),
         m_ui.checkBoxUseToolTipsInMainEditor);
+    m_group.insert(theDebuggerAction(CloseBuffersOnExit),
+        m_ui.checkBoxCloseBuffersOnExit);
+    m_group.insert(theDebuggerAction(SwitchModeOnExit),
+        m_ui.checkBoxSwitchModeOnExit);
     m_group.insert(theDebuggerAction(AutoDerefPointers), 0);
     m_group.insert(theDebuggerAction(UseToolTipsInLocalsView), 0);
     m_group.insert(theDebuggerAction(UseToolTipsInBreakpointsView), 0);
@@ -2127,12 +2131,14 @@ void DebuggerPluginPrivate::cleanupViews()
     //if (d->m_engine)
     //    d->m_engine->cleanup();
 
-    if (EditorManager *editorManager = EditorManager::instance()) {
-        QList<IEditor *> toClose;
-        foreach (IEditor *editor, editorManager->openedEditors())
-            if (editor->property("OpenedByDebugger").toBool())
-                toClose.append(editor);
-        editorManager->closeEditors(toClose);
+    if (theDebuggerBoolSetting(CloseBuffersOnExit)) {
+        if (EditorManager *editorManager = EditorManager::instance()) {
+            QList<IEditor *> toClose;
+            foreach (IEditor *editor, editorManager->openedEditors())
+                if (editor->property("OpenedByDebugger").toBool())
+                    toClose.append(editor);
+            editorManager->closeEditors(toClose);
+        }
     }
 }
 
@@ -2834,8 +2840,9 @@ void DebuggerPlugin::runControlFinished(DebuggerRunControl *runControl)
     Q_UNUSED(runControl);
     d->m_snapshotHandler->removeSnapshot(runControl);
     d->disconnectEngine();
-    if (d->m_snapshotHandler->size() == 0)
-        d->activatePreviousMode();
+    if (theDebuggerBoolSetting(SwitchModeOnExit))
+        if (d->m_snapshotHandler->size() == 0)
+            d->activatePreviousMode();
 }
 
 DebuggerLanguages DebuggerPlugin::activeLanguages() const

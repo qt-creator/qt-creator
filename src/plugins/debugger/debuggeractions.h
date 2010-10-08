@@ -92,7 +92,8 @@ enum DebuggerActionCode
     LogTimeStamps,
     VerboseLog,
     OperateByInstruction,
-    AutoDerefPointers,
+    CloseBuffersOnExit,
+    SwitchModeOnExit,
 
     UseDebuggingHelpers,
     UseCustomDebuggingHelperLocation,
@@ -125,6 +126,7 @@ enum DebuggerActionCode
     ShowStdNamespace,
     ShowQtNamespace,
     SortStructMembers,
+    AutoDerefPointers,
 
     // Source List
     ListSourceFiles,
