@@ -3037,7 +3037,7 @@ static void qDumpQVector(QDumper &d)
             if (const void *p = addOffset(v, i * innersize + typeddatasize))
                 qCheckPointer(deref(p));
 
-    d.putItemCount("value", n);
+    d.putItemCount("value", nn);
     d.putItem("valueeditable", "false");
     d.putItem("numchild", nn);
     if (d.dumpChildren) {
