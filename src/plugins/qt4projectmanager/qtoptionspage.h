@@ -125,8 +125,11 @@ private slots:
     void updateCurrentGcceDirectory();
     void msvcVersionChanged();
     void buildDebuggingHelper();
-    void showDebuggingBuildLog();
+    void slotShowDebuggingBuildLog();
     void debuggingHelperBuildFinished(const QString &versionName, const QString &output);
+
+private:
+    void showDebuggingBuildLog(const QTreeWidgetItem *currentItem);
 };
 
 class QtOptionsPage : public Core::IOptionsPage

@@ -70,14 +70,19 @@ public:
     {
         future.setProgressRange(0, 5);
         future.setProgressValue(1);
-        const QString output = m_version.buildDebuggingHelperLibrary(future, true);
-
-        const QString qtInstallData = m_version.versionInfo().value("QT_INSTALL_DATA");
-        QString path = QmlDumpTool::toolByInstallData(qtInstallData);
-        if (path.isEmpty()) {
-            qWarning() << "Could not build QML plugin dumping helper for " << m_version.displayName()
-                       << "\nOutput:\n" << output;
-            m_failed = true;
+        QString output;
+        QString errorMessage;
+        QString path;
+        if (m_version.buildDebuggingHelperLibrary(future, true, &output, &errorMessage)) {
+            const QString qtInstallData = m_version.versionInfo().value("QT_INSTALL_DATA");
+            path = QmlDumpTool::toolByInstallData(qtInstallData);
+            if (path.isEmpty())
+                errorMessage = QString::fromLatin1("Could not build QML plugin dumping helper for %1\nOutput:\n%2").
+                               arg(m_version.displayName(), output);
+        }
+        m_failed = path.isEmpty();
+        if (m_failed) {
+            qWarning("%s", qPrintable(errorMessage));
         } else {
             // proceed in gui thread
             metaObject()->invokeMethod(this, "finish", Qt::QueuedConnection, Q_ARG(QString, path));
@@ -222,12 +227,14 @@ QStringList QmlDumpTool::locationsByInstallData(const QString &qtInstallData)
     return result;
 }
 
-QString QmlDumpTool::build(const QString &directory, const QString &makeCommand,
-                     const QString &qmakeCommand, const QString &mkspec,
-                     const Utils::Environment &env, const QString &targetMode)
+bool QmlDumpTool::build(const QString &directory, const QString &makeCommand,
+                        const QString &qmakeCommand, const QString &mkspec,
+                        const Utils::Environment &env, const QString &targetMode,
+                        QString *output,  QString *errorMessage)
 {
     return buildHelper(QCoreApplication::translate("Qt4ProjectManager::QmlDumpTool", "qmldump"), QLatin1String("qmldump.pro"),
-                       directory, makeCommand, qmakeCommand, mkspec, env, targetMode);
+                       directory, makeCommand, qmakeCommand, mkspec, env, targetMode,
+                       output, errorMessage);
 }
 
 QString QmlDumpTool::copy(const QString &qtInstallData, QString *errorMessage)

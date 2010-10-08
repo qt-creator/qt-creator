@@ -99,13 +99,15 @@ QStringList QmlObserverTool::locationsByInstallData(const QString &qtInstallData
     return result;
 }
 
-QString QmlObserverTool::build(const QString &directory, const QString &makeCommand,
-                     const QString &qmakeCommand, const QString &mkspec,
-                     const Utils::Environment &env, const QString &targetMode)
+bool  QmlObserverTool::build(const QString &directory, const QString &makeCommand,
+                             const QString &qmakeCommand, const QString &mkspec,
+                             const Utils::Environment &env, const QString &targetMode,
+                             QString *output,  QString *errorMessage)
 {
     return buildHelper(QCoreApplication::translate("Qt4ProjectManager::QmlObserverTool", "QMLObserver"),
                        QLatin1String("qmlobserver.pro"),
-                       directory, makeCommand, qmakeCommand, mkspec, env, targetMode);
+                       directory, makeCommand, qmakeCommand, mkspec, env, targetMode,
+                       output, errorMessage);
 }
 
 static inline bool mkpath(const QString &targetDirectory, QString *errorMessage)
