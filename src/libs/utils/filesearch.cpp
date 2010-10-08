@@ -107,7 +107,7 @@ void runFileSearch(QFutureInterface<FileSearchResultList> &future,
         }
         QIODevice *device;
         if (fileToContentsMap.contains(s)) {
-            buffer.setData(fileToContentsMap.value(s).toLocal8Bit());
+            buffer.setData(fileToContentsMap.value(s).toUtf8());
             device = &buffer;
         } else {
             file.setFileName(s);
