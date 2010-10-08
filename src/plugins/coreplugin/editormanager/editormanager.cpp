@@ -1708,14 +1708,15 @@ QByteArray EditorManager::saveState() const
     QList<OpenEditorsModel::Entry> entries = m_d->m_editorModel->entries();
     int entriesCount = 0;
     foreach (const OpenEditorsModel::Entry &entry, entries) {
-        if (!entry.editor->isTemporary())
+        // The editor may be 0 if it was not loaded yet: In that case it is not temporary
+        if (!entry.editor || !entry.editor->isTemporary())
             ++entriesCount;
     }
 
     stream << entriesCount;
 
     foreach (const OpenEditorsModel::Entry &entry, entries) {
-        if (!entry.editor->isTemporary())
+        if (!entry.editor || !entry.editor->isTemporary())
             stream << entry.fileName() << entry.displayName() << entry.id().toUtf8();
     }
 
