@@ -1932,10 +1932,9 @@
            Follow the instructions of the wizard.
            This example uses \gui {Qt Gui Application}.
 
-        \o Name the project and set its path. To select the path from a
-           directory tree, click \gui Browse.
+        \o Name the project and set its path, and then click \gui Next.
 
-           Avoid using spaces and special characters in the project name and
+           Do not use spaces and special characters in the project name and
            path.
 
            \image qtcreator-intro-and-location.png
@@ -1943,7 +1942,7 @@
         \o Select the Qt versions to use as build targets for your project, and click
            \gui{Next}.
 
-           \image qtcreator-new-project-qt-versions.png "Target setting dialog"
+           \image qtcreator-new-project-qt-versions.png "Qt Versions dialog"
 
            \note If you have only one Qt version installed, this dialog is skipped.
 
@@ -4000,9 +3999,9 @@
         \o In the \gui {Create in} field, enter the path for the project files. For example,
         \c {C:\Qt\examples}, and then click \gui{Next}.
 
-        The target setting dialog opens.
+        The \gui {Qt Versions} dialog opens.
 
-        \image qtcreator-new-project-qt-versions.png "Target setting dialog"
+        \image qtcreator-new-project-qt-versions.png "Qt Versions dialog"
 
         \o Select the Qt versions to use as build targets for your project, and click
         \gui{Next}.
@@ -4013,12 +4012,12 @@
 
         \image qtcreator-class-info.png "Class Information dialog"
 
-        \o In the \gui{Class Name} field, type \bold {TextFinder} as the class name.
+        \o In the \gui{Class name} field, type \bold {TextFinder} as the class name.
 
-        \o In the \gui{Base Class} list, select \bold {QWidget} as the base class type.
+        \o In the \gui{Base class} list, select \bold {QWidget} as the base class type.
 
-           \note The \gui{Header File}, \gui{Source File} and
-           \gui{Form File} fields are automatically updated to match the name of the
+           \note The \gui{Header file}, \gui{Source file} and
+           \gui{Form file} fields are automatically updated to match the name of the
            class.
 
         \o Click \gui{Next}.
