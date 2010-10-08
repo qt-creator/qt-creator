@@ -2678,6 +2678,10 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         moveLeft(count());
         setTargetColumn();
         m_lastInsertion.clear();
+    } else if (input.isControl(Key_Left)) {
+        moveToWordBoundary(false, false);
+        setTargetColumn();
+        m_lastInsertion.clear();
     } else if (input.isKey(Key_Down)) {
         //removeAutomaticIndentation();
         m_submode = NoSubMode;
@@ -2690,6 +2694,11 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         m_lastInsertion.clear();
     } else if (input.isKey(Key_Right)) {
         moveRight(count());
+        setTargetColumn();
+        m_lastInsertion.clear();
+    } else if (input.isControl(Key_Right)) {
+        moveToWordBoundary(false, true);
+        moveRight(); // we need one more move since we are in insert mode
         setTargetColumn();
         m_lastInsertion.clear();
     } else if (input.isKey(Key_Home)) {
