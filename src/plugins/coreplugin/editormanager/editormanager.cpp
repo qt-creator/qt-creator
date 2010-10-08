@@ -66,6 +66,7 @@
 #include <QtCore/QProcess>
 #include <QtCore/QSet>
 #include <QtCore/QSettings>
+#include <QtCore/QTextCodec>
 
 #include <QtGui/QAction>
 #include <QtGui/QShortcut>
@@ -1982,6 +1983,15 @@ void EditorManager::setReloadSetting(IFile::ReloadSetting behavior)
 IFile::ReloadSetting EditorManager::reloadSetting() const
 {
     return m_d->m_reloadSetting;
+}
+
+QTextCodec *EditorManager::defaultTextEncoding() const
+{
+    QSettings *settings = Core::ICore::instance()->settings();
+    if (QTextCodec *candidate = QTextCodec::codecForName(
+            settings->value(QLatin1String(Constants::SETTINGS_DEFAULTTEXTENCODING)).toByteArray()))
+        return candidate;
+    return QTextCodec::codecForLocale();
 }
 
 Core::IEditor *EditorManager::duplicateEditor(Core::IEditor *editor)
