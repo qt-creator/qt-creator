@@ -57,6 +57,7 @@
 #include <QtGui/QColor>
 #include <QtGui/QFont>
 #include <QtGui/QLabel>
+//#include <QtGui/private/qfixed_p.h>
 #include <QtGui/QPainter>
 #include <QtGui/QPainterPath>
 #include <QtGui/QRegion>
@@ -456,6 +457,18 @@ QFileInfo testQFileInfo()
     QFileInfo result("/tmp/t");
     return result;
 }
+
+/*
+void testQFixed()
+{
+    QFixed f = QFixed::fromReal(4.2);
+    f += 1;
+    f += 1;
+    f *= -1;
+    f += 1;
+    f += 1;
+}
+*/
 
 QHash<int, float> testQHash()
 {
@@ -2015,6 +2028,7 @@ int main(int argc, char *argv[])
     testQDateTime();
     testQTime();
     testQFileInfo();
+    testQFixed();
     testObject1();
     testVector1();
     testQHash1();
