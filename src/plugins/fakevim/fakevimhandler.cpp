@@ -2663,6 +2663,12 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         insertInInsertMode(input.raw());
     } else if (input.isControl('v')) {
         m_ctrlVActive = true;
+    } else if (input.isControl('w')) {
+        int endPos = position();
+        moveToWordBoundary(false, false, false);
+        int beginPos = position();
+        Range range(beginPos, endPos, RangeCharMode);
+        removeText(range);
     } else if (input.isKey(Key_Insert)) {
         if (m_mode == ReplaceMode)
             m_mode = InsertMode;
