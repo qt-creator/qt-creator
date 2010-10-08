@@ -62,6 +62,7 @@ QML/JS Support
    * Added new indenter
    * Added code folding for multiline comments
    * Improved performance of the code model significantly
+   * Added Qt Quick ToolBar
 
 FakeVim:
    * Fix indentation of first line after >iB and >ib, undo after cjaaa<Esc>, ~ etc
