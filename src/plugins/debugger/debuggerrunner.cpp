@@ -39,6 +39,7 @@
 #include "gdb/remoteplaingdbadapter.h"
 #include "qml/qmlengine.h"
 #include "qml/qmlcppengine.h"
+#include "lldb/lldbenginehost.h"
 
 #ifdef Q_OS_WIN
 #  include "peutils.h"
@@ -72,6 +73,7 @@ DebuggerEngine *createPdbEngine(const DebuggerStartParameters &);
 DebuggerEngine *createTcfEngine(const DebuggerStartParameters &);
 DebuggerEngine *createQmlEngine(const DebuggerStartParameters &);
 DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &);
+DebuggerEngine *createLLDBEngine(const DebuggerStartParameters &);
 
 bool checkGdbConfiguration(int toolChain, QString *errorMsg, QString *settingsPage);
 
@@ -429,6 +431,9 @@ void DebuggerRunControl::createEngine(const DebuggerStartParameters &startParams
     if (sp.processArgs.size() >= 5 && sp.processArgs.at(0) == _("@tcf@"))
         engineType = GdbEngineType;
 
+    if (sp.processArgs.contains( _("@lldb@")))
+        engineType = LLDBEngineType;
+
     if (engineType == NoEngineType
             && sp.startMode != AttachToRemote
             && !sp.executable.isEmpty())
@@ -477,6 +482,8 @@ void DebuggerRunControl::createEngine(const DebuggerStartParameters &startParams
             if (Internal::GdbEngine *embeddedGdbEngine = gdbEngine())
                 initGdbEngine(embeddedGdbEngine);
             break;
+        case LLDBEngineType:
+            d->m_engine = Internal::createLLDBEngine(sp);
        case NoEngineType:
        case AllEngineTypes:
             break;
