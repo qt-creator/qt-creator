@@ -59,7 +59,7 @@ static QToolButton *createToolButton(QAction *action)
 QmlInspectorToolbar::QmlInspectorToolbar(QObject *parent) :
     QObject(parent),
     m_observerModeAction(0),
-    m_reloadAction(0),
+//    m_reloadAction(0),
     m_playAction(0),
     m_selectAction(0),
     m_zoomAction(0),
@@ -91,7 +91,7 @@ void QmlInspectorToolbar::setEnabled(bool value)
     //m_toQmlAction->setEnabled(value);
     m_fromQmlAction->setEnabled(value);
 
-    m_reloadAction->setEnabled(value);
+//    m_reloadAction->setEnabled(value);
     m_playAction->setEnabled(value);
     m_selectAction->setEnabled(value);
     m_zoomAction->setEnabled(value);
@@ -179,7 +179,7 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     Core::ActionManager *am = core->actionManager();
 
     m_fromQmlAction = new QAction(QIcon(QLatin1String(":/qml/images/from-qml-small.png")), tr("Apply Changes on Save"), this);
-    m_reloadAction = new QAction(QIcon(QLatin1String(":/qml/images/reload.png")), tr("Reload QML"), this);
+//    m_reloadAction = new QAction(QIcon(QLatin1String(":/qml/images/reload.png")), tr("Reload QML"), this);
 
     m_observerModeAction = new QAction(QIcon(QLatin1String(":/qml/images/observermode.png")), tr("Observer Mode"), this);
     m_playAction = new QAction(m_pauseIcon, tr("Play/Pause Animations"), this);
@@ -198,7 +198,7 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     m_fromQmlAction->setChecked(true);
 
     am->registerAction(m_observerModeAction, QmlJSInspector::Constants::DESIGNMODE_ACTION, context);
-    am->registerAction(m_reloadAction, QmlJSInspector::Constants::RELOAD_ACTION, context);
+//    am->registerAction(m_reloadAction, QmlJSInspector::Constants::RELOAD_ACTION, context);
     am->registerAction(m_playAction, QmlJSInspector::Constants::PLAY_ACTION, context);
     am->registerAction(m_selectAction, QmlJSInspector::Constants::SELECT_ACTION, context);
     am->registerAction(m_zoomAction, QmlJSInspector::Constants::ZOOM_ACTION, context);
@@ -248,7 +248,7 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
 //    configBarLayout->addWidget(createToolButton(am->command(ProjectExplorer::Constants::DEBUG)->action()));
 //    configBarLayout->addWidget(createToolButton(am->command(ProjectExplorer::Constants::STOP)->action()));
     configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::FROM_QML_ACTION)->action()));
-    configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::RELOAD_ACTION)->action()));
+//    configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::RELOAD_ACTION)->action()));
     configBarLayout->addSpacing(10);
 
     configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::DESIGNMODE_ACTION)->action()));
@@ -278,7 +278,7 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     setEnabled(false);
 
     connect(m_observerModeAction, SIGNAL(triggered()), SLOT(activateDesignModeOnClick()));
-    connect(m_reloadAction, SIGNAL(triggered()), SIGNAL(reloadSelected()));
+//    connect(m_reloadAction, SIGNAL(triggered()), SIGNAL(reloadSelected()));
 
     connect(m_colorPickerAction, SIGNAL(triggered()), SLOT(activateColorPickerOnClick()));
 
@@ -331,7 +331,7 @@ void QmlInspectorToolbar::activateDesignModeOnClick()
 {
     bool checked = m_observerModeAction->isChecked();
 
-    m_reloadAction->setEnabled(true);
+//    m_reloadAction->setEnabled(true);
     m_playAction->setEnabled(checked);
     m_selectAction->setEnabled(checked);
     m_zoomAction->setEnabled(checked);
