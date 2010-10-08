@@ -260,9 +260,13 @@ void QmlEngine::shutdownInferiorAsSlave()
     if (state() == InferiorRunOk) {
         setState(InferiorStopRequested);
         setState(InferiorStopOk);
+        setState(InferiorShutdownRequested);
+        setState(InferiorShutdownOk);
+    } else {
+        // force
+        setState(InferiorShutdownRequested, true);
+        setState(InferiorShutdownOk);
     }
-    setState(InferiorShutdownRequested);
-    setState(InferiorShutdownOk);
 }
 
 void QmlEngine::shutdownEngineAsSlave()
