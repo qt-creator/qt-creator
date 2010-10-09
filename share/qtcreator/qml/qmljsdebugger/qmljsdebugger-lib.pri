@@ -9,14 +9,16 @@ contains(CONFIG, dll) {
 }
 
 ## Input
+!contains(DEFINES, NO_JSDEBUGGER) {
 HEADERS += \
     include/jsdebuggeragent.h \
     include/qmljsdebugger_global.h
 
 SOURCES += \
     jsdebuggeragent.cpp
+}
 
-contains(DEFINES, QMLOBSERVER) {
+!contains(DEFINES, NO_QMLOBSERVER) {
     include($$PWD/editor/editor.pri)
 
     HEADERS += \

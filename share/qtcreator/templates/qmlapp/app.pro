@@ -20,10 +20,9 @@ DEFINES += NETWORKACCESS
 # TARGETUID3 #
 symbian:TARGET.UID3 = 0xE1111234
 
-# Define QMLJSDEBUGGER to enable basic debugging (setting breakpoints etc)
-# Define QMLOBSERVER for advanced features (requires experimental QmlInspector plugin!)
-#DEFINES += QMLJSDEBUGGER
-#DEFINES += QMLOBSERVER
+# Define QMLJSDEBUGGER to allow debugging of QML
+# (This might significantly increase build time)
+# DEFINES += QMLJSDEBUGGER
 
 # The .cpp file which was generated for your project. Feel free to hack it.
 SOURCES += main.cpp

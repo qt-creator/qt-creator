@@ -1,5 +1,4 @@
 TEMPLATE = app
-DEFINES += QMLOBSERVER
 
 ### FIXME: only debug plugins are now supported.
 CONFIG -= release
