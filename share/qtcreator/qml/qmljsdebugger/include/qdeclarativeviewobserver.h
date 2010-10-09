@@ -60,7 +60,6 @@ public:
     QToolBar *toolbar() const;
     static QString idStringForObject(QObject *obj);
     QRectF adjustToScreenBoundaries(const QRectF &boundingRectInSceneSpace);
-    void setDebugMode(bool isDebugMode);
 
 public Q_SLOTS:
     void setDesignModeBehavior(bool value);

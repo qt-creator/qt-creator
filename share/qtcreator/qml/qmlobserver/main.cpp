@@ -417,10 +417,6 @@ int main(int argc, char ** argv)
 
     viewer->setDesignModeBehavior(designModeBehavior);
 
-    // FIXME debug mode is always on for qml observer
-    debuggerModeBehavior = true;
-    viewer->setDebugMode(debuggerModeBehavior);
-
     foreach (QString lib, imports)
         viewer->addLibraryPath(lib);
 
