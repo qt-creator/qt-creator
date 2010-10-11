@@ -46,10 +46,6 @@ namespace Internal {
     static_cast<GdbEngine::AdapterCallback>(&CoreGdbAdapter::callback), \
     STRINGIFY(callback)
 
-#ifdef Q_OS_LINUX
-# define EXE_FROM_CORE
-#endif
-
 ///////////////////////////////////////////////////////////////////////
 //
 // CoreGdbAdapter
@@ -76,21 +72,38 @@ void CoreGdbAdapter::startAdapter()
     if (!m_engine->startGdb())
         return;
 
-#ifndef EXE_FROM_CORE
-    if (m_executable.isEmpty()) {
-        DebuggerEngine::showMessageBox(QMessageBox::Warning, tr("Error Loading Symbols"),
-                       tr("No executable to load symbols from specified."));
-    }
-    m_engine->handleAdapterStarted();
-#else
-    // Extra round trip to get executable name from core file.
-    // This is sometimes not the full name, so it can't be used
-    // as the generic solution.
+    //if (m_executable.isEmpty()) {
+    //    DebuggerEngine::showMessageBox(QMessageBox::Warning,
+    //        tr("Error Loading Symbols"),
+    //        tr("No executable to load symbols from specified."));
+    //}
 
-    // Quoting core name below fails in gdb 6.8-debian.
-    m_engine->postCommand("target core " + m_coreName,
-        CB(handleTemporaryTargetCore));
+#ifdef Q_OS_LINUX
+    const bool canUseExeFromCore = true;
+#else
+    const bool canUseExeFromCore = false;
 #endif
+
+    if (!m_executable.isEmpty()) {
+        m_engine->notifyEngineSetupOk();
+    } else if (canUseExeFromCore) {
+        // Extra round trip to get executable name from core file.
+        // This is sometimes not the full name, so it can't be used
+        // as the generic solution.
+
+        // Quoting core name below fails in gdb 6.8-debian.
+        m_engine->postCommand("target core " + m_coreName,
+            CB(handleTemporaryTargetCore));
+    } else {
+        QString msg = tr("The name of the binary file cannot be extracted "
+            "from this core file.");
+        msg += _(" ");
+        msg += tr("Try to specify the binary using the "
+            "<i>Debug->Start Debugging->Attach to Core</i> dialog.");
+        DebuggerEngine::showMessageBox(QMessageBox::Warning,
+            tr("Loading core file failed"), msg);
+        m_engine->notifyEngineSetupFailed();
+    }
 }
 
 void CoreGdbAdapter::handleTemporaryTargetCore(const GdbResponse &response)
@@ -155,7 +168,15 @@ void CoreGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
             CB(handleTargetCore));
         return;
     }
-    m_engine->notifyInferiorSetupFailed(_("File or symbols not found"));
+    QString msg = tr("No symbols found in core file <i>%1</i>.")
+        .arg(startParameters().coreFile);
+    msg += _(" ");
+    msg += tr("This can be caused by a path length limitation in the "
+        "core file.");
+    msg += _(" ");
+    msg += tr("Try to specify the binary using the "
+        "<i>Debug->Start Debugging->Attach to Core</i> dialog.");
+    m_engine->notifyInferiorSetupFailed(msg);
 }
 
 void CoreGdbAdapter::handleTargetCore(const GdbResponse &response)
