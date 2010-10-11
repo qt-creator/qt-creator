@@ -704,6 +704,9 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
 
         case EngineActionsEnabledRole:
             return engine()->debuggerActionsEnabled();
+
+       case EngineStateRole:
+            return QVariant(int(engine()->state()));
     }
 
     const WatchItem *item = watchItem(idx);

@@ -705,7 +705,7 @@ void CdbEngine::updateWatchData(const WatchData &incomplete, const WatchUpdateFl
 
     if (incomplete.iname.startsWith("watch.")) {
         WatchData watchData = incomplete;
-        evaluateWatcher(&watchData);
+        watchData.setError(tr("<not supported>"));
         watchHandler()->insertData(watchData);
         return;
     }
