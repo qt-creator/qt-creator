@@ -226,7 +226,7 @@ void QmlRunControlFactory::showQmlObserverToolWarning() {
     dialog.setText(tr("QML Observer could not be found."));
     dialog.setInformativeText(tr(
                                   "QML Observer is used to offer debugging features for "
-                                  "QML applications, such as interactive debugging and inspection tools."
+                                  "QML applications, such as interactive debugging and inspection tools. "
                                   "It must be compiled for each used Qt version separately. "
                                   "On the Qt4 options page, select the current Qt installation "
                                   "and click Rebuild."));
