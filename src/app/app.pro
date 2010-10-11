@@ -9,20 +9,17 @@ SOURCES += main.cpp
 
 include(../rpath.pri)
 
+LIBS *= -l$$qtLibraryName(ExtensionSystem) -l$$qtLibraryName(Aggregation)
+
 QT_BREAKPAD_ROOT_PATH = $$(QT_BREAKPAD_ROOT_PATH)
 !isEmpty(QT_BREAKPAD_ROOT_PATH) {
     include($$QT_BREAKPAD_ROOT_PATH/qtbreakpad.pri)
 }
 win32 {
-    CONFIG(debug, debug|release):LIBS *= -lExtensionSystemd -lAggregationd
-    else:LIBS *= -lExtensionSystem -lAggregation
-
     RC_FILE = qtcreator.rc
     target.path = /bin
     INSTALLS += target
 } else:macx {
-    CONFIG(debug, debug|release):LIBS *= -lExtensionSystem_debug -lAggregation_debug
-    else:LIBS *= -lExtensionSystem -lAggregation
     LIBS += -framework CoreFoundation
     ICON = qtcreator.icns
     QMAKE_INFO_PLIST = Info.plist
@@ -30,8 +27,6 @@ win32 {
     FILETYPES.path = Contents/Resources
     QMAKE_BUNDLE_DATA += FILETYPES
 } else {
-    LIBS *= -lExtensionSystem -lAggregation
-
     target.path  = /bin
     INSTALLS    += target
 }
