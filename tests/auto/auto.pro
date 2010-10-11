@@ -8,7 +8,6 @@ SUBDIRS += \
     fakevim \
     generichighlighter \
 #    icheckbuild \
-#    profilereader \
 #    profilewriter \
     qml \
     utils_stringutils

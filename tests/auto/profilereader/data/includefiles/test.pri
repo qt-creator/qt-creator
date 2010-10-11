@@ -1,1 +1,0 @@
-SOURCES += pri.cpp
