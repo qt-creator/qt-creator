@@ -74,7 +74,6 @@ public:
     {
         m_data = data;
         m_pending = true;
-        m_enabled = true;
         //qDebug() << "CREATE MARKER " << fileName << lineNumber;
     }
 
@@ -87,19 +86,18 @@ public:
     QIcon icon() const
     {
         const BreakHandler *handler = m_data->handler();
+        if (!m_data->enabled)
+            return handler->disabledBreakpointIcon();
         if (!handler->isActive())
             return handler->emptyIcon();
-        if (!m_enabled)
-            return handler->disabledBreakpointIcon();
         return m_pending ? handler->pendingBreakPointIcon() : handler->breakpointIcon();
     }
 
-    void setPending(bool pending, bool enabled)
+    void setPending(bool pending)
     {
-        if (pending == m_pending && enabled == m_enabled)
+        if (pending == m_pending)
             return;
         m_pending = pending;
-        m_enabled = enabled;
         updateMarker();
     }
 
@@ -149,7 +147,6 @@ public:
 private:
     BreakpointData *m_data;
     bool m_pending;
-    bool m_enabled;
 };
 
 
@@ -243,7 +240,7 @@ void BreakpointData::updateMarker()
         marker = new BreakpointMarker(this, m_markerFileName, m_markerLineNumber);
 
     if (marker)
-        marker->setPending(pending, enabled);
+        marker->setPending(pending);
 }
 
 void BreakpointData::setMarkerFileName(const QString &fileName)

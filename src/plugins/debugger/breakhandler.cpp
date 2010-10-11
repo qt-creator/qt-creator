@@ -584,6 +584,7 @@ void BreakHandler::toggleBreakpointEnabled(BreakpointData *data)
         m_enabled.removeAll(data);
         m_disabled.append(data);
     }
+    data->removeMarker(); // Force icon update.
     data->updateMarker();
     emit layoutChanged();
     m_engine->attemptBreakpointSynchronization();
