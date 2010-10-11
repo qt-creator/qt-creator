@@ -10,6 +10,7 @@ SOURCES += \
 	$$FAKEVIMDIR/fakevimhandler.cpp \
 	$$FAKEVIMDIR/fakevimactions.cpp \
 	$$FAKEVIMDIR/fakevimsyntax.cpp \
+	$$UTILSDIR/utils/environment.cpp \
 	$$UTILSDIR/utils/savedaction.cpp \
 	$$UTILSDIR/utils/pathchooser.cpp \
 	$$UTILSDIR/utils/basevalidatinglineedit.cpp \
@@ -19,6 +20,7 @@ HEADERS += \
 	$$FAKEVIMDIR/fakevimhandler.h \
 	$$FAKEVIMDIR/fakevimactions.h \
 	$$FAKEVIMDIR/fakevimsyntax.h \
+	$$UTILSDIR/utils/environment.h \
 	$$UTILSDIR/utils/savedaction.h \
 	$$UTILSDIR/utils/pathchooser.h \
 	$$UTILSDIR/utils/basevalidatinglineedit.h \
