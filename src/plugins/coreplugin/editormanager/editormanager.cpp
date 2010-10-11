@@ -1215,8 +1215,12 @@ IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QStri
         *newEditor = false;
 
     const QList<IEditor *> editors = editorsForFileName(fn);
-    if (!editors.isEmpty())
-        return activateEditor(view, editors.first(), flags);
+    if (!editors.isEmpty()) {
+        IEditor *editor = editors.first();
+        if (flags && EditorManager::CanContainLineNumber)
+            editor->gotoLine(lineNumber, -1);
+        return activateEditor(view, editor, flags);
+    }
 
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     IEditor *editor = createEditor(editorId, fn);
