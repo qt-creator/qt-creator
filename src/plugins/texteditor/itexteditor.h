@@ -119,6 +119,7 @@ public:
     virtual QTextCodec *textCodec() const = 0;
 
     static QMap<QString, QString> openedTextEditorsContents();
+    static QMap<QString, QTextCodec *> openedTextEditorsEncodings();
 
 signals:
     void contentsChanged();

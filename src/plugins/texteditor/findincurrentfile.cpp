@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "findincurrentfile.h"
+#include "itexteditor.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -40,6 +41,7 @@
 #include <QtGui/QVBoxLayout>
 
 using namespace Find;
+using namespace TextEditor;
 using namespace TextEditor::Internal;
 
 FindInCurrentFile::FindInCurrentFile(SearchResultWindow *resultWindow)
@@ -64,10 +66,13 @@ QString FindInCurrentFile::displayName() const
 
 Utils::FileIterator *FindInCurrentFile::files() const
 {
-    QStringList fileList;
-    if (isEnabled())
-        fileList << m_currentFile->fileName();
-    return new Utils::FileIterator(fileList);
+    Q_ASSERT(isEnabled());
+    QString fileName = m_currentFile->fileName();
+    QMap<QString, QTextCodec *> openEditorEncodings = ITextEditor::openedTextEditorsEncodings();
+    QTextCodec *codec = openEditorEncodings.value(fileName);
+    if (!codec)
+        codec = Core::EditorManager::instance()->defaultTextEncoding();
+    return new Utils::FileIterator(QStringList() << fileName, QList<QTextCodec *>() << codec);
 }
 
 bool FindInCurrentFile::isEnabled() const

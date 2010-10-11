@@ -82,20 +82,20 @@ void runFileSearch(QFutureInterface<FileSearchResultList> &future,
     bool caseInsensitive = !(flags & QTextDocument::FindCaseSensitively);
     bool wholeWord = (flags & QTextDocument::FindWholeWords);
 
-    QByteArray sa = searchTerm.toUtf8();
-    int scMaxIndex = sa.length()-1;
-    const char *sc = sa.constData();
+    const QString searchTermLower = searchTerm.toLower();
+    const QString searchTermUpper = searchTerm.toUpper();
 
-    QByteArray sal = searchTerm.toLower().toUtf8();
-    const char *scl = sal.constData();
+    int termLength = searchTerm.length();
+    int termMaxIndex = termLength - 1;
+    const QChar *termData = searchTerm.constData();
+    const QChar *termDataLower = searchTermLower.constData();
+    const QChar *termDataUpper = searchTermUpper.constData();
 
-    QByteArray sau = searchTerm.toUpper().toUtf8();
-    const char *scu = sau.constData();
-
-    int chunkSize = qMax(100000, sa.length());
+    int chunkSize = qMax(100000, 2 * termLength);
 
     QFile file;
-    QBuffer buffer;
+    QString str;
+    QTextStream stream;
     FileSearchResultList results;
     while (files->hasNext()) {
         const QString &s = files->next();
@@ -105,83 +105,104 @@ void runFileSearch(QFutureInterface<FileSearchResultList> &future,
             future.setProgressValueAndText(files->currentProgress(), msgCanceled(searchTerm, numMatches, numFilesSearched));
             break;
         }
-        QIODevice *device;
+
+        bool needsToCloseFile = false;
         if (fileToContentsMap.contains(s)) {
-            buffer.setData(fileToContentsMap.value(s).toLocal8Bit());
-            device = &buffer;
+            str = fileToContentsMap.value(s);
+            stream.setString(&str);
         } else {
             file.setFileName(s);
-            device = &file;
+            if (!file.open(QIODevice::ReadOnly))
+                continue;
+            needsToCloseFile = true;
+            stream.setDevice(&file);
+            stream.setCodec(files->encoding());
         }
-        if (!device->open(QIODevice::ReadOnly))
-            continue;
+
         int lineNr = 1;
-        const char *startOfLastLine = NULL;
-
+        const QChar *startOfLastLine = NULL;
         bool firstChunk = true;
-        while (!device->atEnd()) {
-            if (!firstChunk)
-                device->seek(device->pos()-sa.length()+1);
+        while (!stream.atEnd()) {
+            int chunkProcessingStart = 0;
+            if (!firstChunk) {
+                // we need one additional char to the left and right
+                // for whole word searches
+                // so we jump back two additional chars, and start at index 1
+                stream.seek(stream.pos() - termLength - 1);
+                chunkProcessingStart = 1;
+            }
+            firstChunk = false;
 
-            const QByteArray chunk = device->read(chunkSize);
-            const char *chunkPtr = chunk.constData();
+            const QString chunk = stream.read(chunkSize);
+            int chunkLength = chunk.length();
+            const QChar *chunkPtr = chunk.constData();
+            // we need one additional char to the right for whole word searches,
+            // except at the very end
+            const QChar *chunkProcessingEnd = (stream.atEnd() ? chunkPtr + chunkLength : chunkPtr + chunkLength - 1);
+
             startOfLastLine = chunkPtr;
-            for (const char *regionPtr = chunkPtr; regionPtr < chunkPtr + chunk.length()-scMaxIndex; ++regionPtr) {
-                const char *regionEnd = regionPtr + scMaxIndex;
-
-                if (*regionPtr == '\n') {
+            for (const QChar *regionPtr = chunkPtr + chunkProcessingStart;
+                    regionPtr + termMaxIndex < chunkProcessingEnd;
+                    ++regionPtr) {
+                const QChar *regionEnd = regionPtr + termMaxIndex;
+                if (*regionPtr == QLatin1Char('\n')) {
                     startOfLastLine = regionPtr + 1;
                     ++lineNr;
-                }
-                else if (
+                } else if ( /* optimization check for start and end of region */
                         // case sensitive
-                        (!caseInsensitive && *regionPtr == sc[0] && *regionEnd == sc[scMaxIndex])
+                        (!caseInsensitive && *regionPtr == termData[0] && *regionEnd == termData[termMaxIndex])
                         ||
                         // case insensitive
-                        (caseInsensitive && (*regionPtr == scl[0] || *regionPtr == scu[0])
-                        && (*regionEnd == scl[scMaxIndex] || *regionEnd == scu[scMaxIndex]))
+                        (caseInsensitive && (*regionPtr == termDataLower[0] || *regionPtr == termDataUpper[0])
+                        && (*regionEnd == termDataLower[termMaxIndex] || *regionEnd == termDataUpper[termMaxIndex]))
                          ) {
-                    const char *afterRegion = regionEnd + 1;
-                    const char *beforeRegion = regionPtr - 1;
                     bool equal = true;
-                    if (wholeWord &&
-                            (  isalnum((unsigned char)*beforeRegion)
-                            || (*beforeRegion == '_')
-                            || isalnum((unsigned char)*afterRegion)
-                            || (*afterRegion == '_'))) {
+
+                    // whole word check
+                    const QChar *beforeRegion = regionPtr - 1;
+                    const QChar *afterRegion = regionEnd + 1;
+                    if (wholeWord && (
+                            ((beforeRegion >= chunkPtr) && (beforeRegion->isLetterOrNumber() || ((*beforeRegion) == QLatin1Char('_')))) ||
+                            ((afterRegion < chunkPtr + chunkLength) && (afterRegion->isLetterOrNumber() || ((*afterRegion) == QLatin1Char('_'))))
+                            )) {
                         equal = false;
                     }
 
-                    int regionIndex = 1;
-                    for (const char *regionCursor = regionPtr + 1; regionCursor < regionEnd; ++regionCursor, ++regionIndex) {
-                        if (  // case sensitive
-                              (!caseInsensitive && equal && *regionCursor != sc[regionIndex])
-                              ||
-                              // case insensitive
-                              (caseInsensitive && equal && *regionCursor != sc[regionIndex] && *regionCursor != scl[regionIndex] && *regionCursor != scu[regionIndex])
-                               ) {
-                         equal = false;
+                    if (equal) {
+                        // check all chars
+                        int regionIndex = 1;
+                        for (const QChar *regionCursor = regionPtr + 1; regionCursor < regionEnd; ++regionCursor, ++regionIndex) {
+                            if (  // case sensitive
+                                  (!caseInsensitive && *regionCursor != termData[regionIndex])
+                                  ||
+                                  // case insensitive
+                                  (caseInsensitive && *regionCursor != termData[regionIndex]
+                                   && *regionCursor != termDataLower[regionIndex] && *regionCursor != termDataUpper[regionIndex])
+                                   ) {
+                                equal = false;
+                            }
                         }
                     }
                     if (equal) {
-                        int textLength = chunk.length() - (startOfLastLine - chunkPtr);
+                        int textLength = chunkLength - (startOfLastLine - chunkPtr);
                         if (textLength > 0) {
-                            QByteArray res;
+                            QString res;
                             res.reserve(256);
                             int i = 0;
                             int n = 0;
-                            while (startOfLastLine[i] != '\n' && startOfLastLine[i] != '\r' && i < textLength && n++ < 256)
+                            while (startOfLastLine[i] != QLatin1Char('\n') && startOfLastLine[i] != QLatin1Char('\r') && i < textLength && n++ < 256)
                                 res.append(startOfLastLine[i++]);
-                            results << FileSearchResult(s, lineNr, QString::fromUtf8(res),
-                                                          regionPtr - startOfLastLine, sa.length(),
+                            res.squeeze();
+                            results << FileSearchResult(s, lineNr, res,
+                                                          regionPtr - startOfLastLine, termLength,
                                                           QStringList());
                             ++numMatches;
                         }
                     }
                 }
             }
-            firstChunk = false;
         }
+
         ++numFilesSearched;
         if (future.isProgressUpdateNeeded()) {
             if (!results.isEmpty()) {
@@ -191,7 +212,11 @@ void runFileSearch(QFutureInterface<FileSearchResultList> &future,
             future.setProgressRange(0, files->maxProgress());
             future.setProgressValueAndText(files->currentProgress(), msgFound(searchTerm, numMatches, numFilesSearched));
         }
-        device->close();
+
+        // clean up
+        if (needsToCloseFile)
+            file.close();
+
     }
     if (!results.isEmpty()) {
         future.reportResult(results);
@@ -240,6 +265,7 @@ void runFileSearchRegExp(QFutureInterface<FileSearchResultList> &future,
                 continue;
             needsToCloseFile = true;
             stream.setDevice(&file);
+            stream.setCodec(files->encoding());
         }
         int lineNr = 1;
         QString line;
@@ -334,14 +360,16 @@ QString Utils::expandRegExpReplacement(const QString &replaceText, const QString
 FileIterator::FileIterator()
     : m_list(QStringList()),
     m_iterator(0),
-    m_index(0)
+    m_index(-1)
 {
 }
 
-FileIterator::FileIterator(const QStringList &fileList)
+FileIterator::FileIterator(const QStringList &fileList,
+                           const QList<QTextCodec *> encodings)
     : m_list(fileList),
-    m_iterator(new QStringListIterator(m_list)),
-    m_index(0)
+      m_iterator(new QStringListIterator(m_list)),
+      m_encodings(encodings),
+      m_index(-1)
 {
 }
 
@@ -371,7 +399,14 @@ int FileIterator::maxProgress() const
 
 int FileIterator::currentProgress() const
 {
-    return m_index;
+    return m_index + 1;
+}
+
+QTextCodec * FileIterator::encoding() const
+{
+    if (m_index >= 0 && m_index < m_encodings.size())
+        return m_encodings.at(m_index);
+    return QTextCodec::codecForLocale();
 }
 
 // #pragma mark -- SubDirFileIterator
@@ -380,9 +415,11 @@ namespace {
     const int MAX_PROGRESS = 1000;
 }
 
-SubDirFileIterator::SubDirFileIterator(const QStringList &directories, const QStringList &filters)
+SubDirFileIterator::SubDirFileIterator(const QStringList &directories, const QStringList &filters,
+                                       QTextCodec *encoding)
     : m_filters(filters), m_progress(0)
 {
+    m_encoding = (encoding == 0 ? QTextCodec::codecForLocale() : encoding);
     qreal maxPer = MAX_PROGRESS/directories.count();
     foreach (const QString &directoryEntry, directories) {
         if (!directoryEntry.isEmpty()) {
@@ -456,4 +493,9 @@ int SubDirFileIterator::maxProgress() const
 int SubDirFileIterator::currentProgress() const
 {
     return qMin(qRound(m_progress), MAX_PROGRESS);
+}
+
+QTextCodec * SubDirFileIterator::encoding() const
+{
+    return m_encoding;
 }

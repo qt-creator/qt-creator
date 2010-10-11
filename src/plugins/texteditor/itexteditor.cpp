@@ -31,6 +31,8 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <QtCore/QTextCodec>
+
 using namespace TextEditor;
 
 QMap<QString, QString> ITextEditor::openedTextEditorsContents()
@@ -42,6 +44,19 @@ QMap<QString, QString> ITextEditor::openedTextEditorsContents()
             continue;
         QString fileName = textEditor->file()->fileName();
         workingCopy[fileName] = textEditor->contents();
+    }
+    return workingCopy;
+}
+
+QMap<QString, QTextCodec *> TextEditor::ITextEditor::openedTextEditorsEncodings()
+{
+    QMap<QString, QTextCodec *> workingCopy;
+    foreach (Core::IEditor *editor, Core::EditorManager::instance()->openedEditors()) {
+        ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor);
+        if (!textEditor)
+            continue;
+        QString fileName = textEditor->file()->fileName();
+        workingCopy[fileName] = textEditor->textCodec();
     }
     return workingCopy;
 }
