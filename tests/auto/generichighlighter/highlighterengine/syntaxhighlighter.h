@@ -31,13 +31,24 @@
 #define SYNTAXHIGHLIGHTER_H
 
 // Replaces the "real" syntaxhighlighter.h file. The scope of this test is restricted to the
-// highlight definition's context engine. Using QSyntaxHighlighter as a base instead of the
-// real TextEditor::SyntaxHighlighter should not affect it.
+// highlight definition's context engine. Using a mock derived from QSyntaxHighlighter as a
+// base instead of the real TextEditor::SyntaxHighlighter should not affect it.
 
 #include <QtGui/QSyntaxHighlighter>
 
 namespace TextEditor {
-    typedef QSyntaxHighlighter SyntaxHighlighter;
+
+class SyntaxHighlighter : public QSyntaxHighlighter
+{
+public:
+    SyntaxHighlighter(QTextDocument *parent) : QSyntaxHighlighter(parent) {}
+    virtual ~SyntaxHighlighter() {}
+
+protected:
+    void SyntaxHighlighter::applyFormatToSpaces(const QString &, const QTextCharFormat &)
+    {}
+};
+
 }
 
 #endif //SYNTAXHIGHLIGHTER_H
