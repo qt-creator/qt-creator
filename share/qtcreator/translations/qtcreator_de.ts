@@ -8744,7 +8744,7 @@ konnte dem Projekt &apos;%2&apos; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Set as Startup Project</source>
-        <translation>Als Startprojekts setzen</translation>
+        <translation>Als Startprojekt setzen</translation>
     </message>
     <message>
         <source>Ctrl+T</source>
