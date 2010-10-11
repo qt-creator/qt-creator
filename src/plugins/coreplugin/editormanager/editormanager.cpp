@@ -66,6 +66,7 @@
 #include <QtCore/QProcess>
 #include <QtCore/QSet>
 #include <QtCore/QSettings>
+#include <QtCore/QTextCodec>
 
 #include <QtGui/QAction>
 #include <QtGui/QShortcut>
@@ -1685,6 +1686,7 @@ void EditorManager::showPopupOrSelectDocument() const
     }
 }
 
+// Save state of all non-teporary editors.
 QByteArray EditorManager::saveState() const
 {
     QByteArray bytes;
@@ -1694,7 +1696,8 @@ QByteArray EditorManager::saveState() const
 
     QList<IEditor *> editors = openedEditors();
     foreach (IEditor *editor, editors) {
-        if (!editor->file()->fileName().isEmpty()) {
+        if (!editor->file()->fileName().isEmpty()
+                && !editor->isTemporary()) {
             QByteArray state = editor->saveState();
             if (!state.isEmpty())
                 m_d->m_editorStates.insert(editor->file()->fileName(), QVariant(state));
@@ -1704,10 +1707,18 @@ QByteArray EditorManager::saveState() const
     stream << m_d->m_editorStates;
 
     QList<OpenEditorsModel::Entry> entries = m_d->m_editorModel->entries();
-    stream << entries.count();
+    int entriesCount = 0;
+    foreach (const OpenEditorsModel::Entry &entry, entries) {
+        // The editor may be 0 if it was not loaded yet: In that case it is not temporary
+        if (!entry.editor || !entry.editor->isTemporary())
+            ++entriesCount;
+    }
+
+    stream << entriesCount;
 
     foreach (const OpenEditorsModel::Entry &entry, entries) {
-        stream << entry.fileName() << entry.displayName() << entry.id().toUtf8();
+        if (!entry.editor || !entry.editor->isTemporary())
+            stream << entry.fileName() << entry.displayName() << entry.id().toUtf8();
     }
 
     stream << m_d->m_splitter->saveState();
@@ -1972,6 +1983,15 @@ void EditorManager::setReloadSetting(IFile::ReloadSetting behavior)
 IFile::ReloadSetting EditorManager::reloadSetting() const
 {
     return m_d->m_reloadSetting;
+}
+
+QTextCodec *EditorManager::defaultTextEncoding() const
+{
+    QSettings *settings = Core::ICore::instance()->settings();
+    if (QTextCodec *candidate = QTextCodec::codecForName(
+            settings->value(QLatin1String(Constants::SETTINGS_DEFAULTTEXTENCODING)).toByteArray()))
+        return candidate;
+    return QTextCodec::codecForLocale();
 }
 
 Core::IEditor *EditorManager::duplicateEditor(Core::IEditor *editor)

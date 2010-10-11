@@ -99,12 +99,15 @@ QStringList QmlObserverTool::locationsByInstallData(const QString &qtInstallData
     return result;
 }
 
-QString QmlObserverTool::build(const QString &directory, const QString &makeCommand,
-                     const QString &qmakeCommand, const QString &mkspec,
-                     const Utils::Environment &env, const QString &targetMode)
+bool  QmlObserverTool::build(const QString &directory, const QString &makeCommand,
+                             const QString &qmakeCommand, const QString &mkspec,
+                             const Utils::Environment &env, const QString &targetMode,
+                             QString *output,  QString *errorMessage)
 {
-    return buildHelper(QCoreApplication::tr("QMLObserver"), QLatin1String("qmlobserver.pro"),
-                       directory, makeCommand, qmakeCommand, mkspec, env, targetMode);
+    return buildHelper(QCoreApplication::translate("Qt4ProjectManager::QmlObserverTool", "QMLObserver"),
+                       QLatin1String("qmlobserver.pro"),
+                       directory, makeCommand, qmakeCommand, mkspec, env, targetMode,
+                       output, errorMessage);
 }
 
 static inline bool mkpath(const QString &targetDirectory, QString *errorMessage)
@@ -137,7 +140,11 @@ QString QmlObserverTool::copy(const QString &qtInstallData, QString *errorMessag
           << QLatin1String("content/Browser.qml") << QLatin1String("content/images/folder.png")
           << QLatin1String("content/images/titlebar.png") << QLatin1String("content/images/titlebar.sci")
           << QLatin1String("content/images/up.png")
-          << QLatin1String("LICENSE.LGPL") << QLatin1String("LGPL_EXCEPTION.TXT");
+          << QLatin1String("LICENSE.LGPL") << QLatin1String("LGPL_EXCEPTION.TXT")
+          << QLatin1String("crumblepath.qrc") << QLatin1String("images/crumblepath-segment-end.png")
+          << QLatin1String("images/crumblepath-segment-hover-end.png") << QLatin1String("images/crumblepath-segment-hover.png")
+          << QLatin1String("images/crumblepath-segment-selected-end.png") << QLatin1String("images/crumblepath-segment-selected.png")
+          << QLatin1String("images/crumblepath-segment.png");
 
     QStringList debuggerLibFiles;
     debuggerLibFiles << QLatin1String("jsdebuggeragent.cpp")
@@ -185,6 +192,7 @@ QString QmlObserverTool::copy(const QString &qtInstallData, QString *errorMessag
     // Try to find a writeable directory.
     foreach(const QString &directory, directories) {
         if (!mkpath(directory + QLatin1String("/content/images"), errorMessage)
+            || !mkpath(directory + QLatin1String("/images"), errorMessage)
             || !mkpath(directory + QLatin1String("/qmljsdebugger/editor/images"), errorMessage)
             || !mkpath(directory + QLatin1String("/qmljsdebugger/include"), errorMessage)
             || !mkpath(directory + QLatin1String("/qmljsdebugger/include/qt_private"), errorMessage))

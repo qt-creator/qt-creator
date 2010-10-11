@@ -116,7 +116,7 @@ private slots:
 
 private:
     QAction *m_observerModeAction;
-    QAction *m_reloadAction;
+//    QAction *m_reloadAction;
     QAction *m_playAction;
     QAction *m_selectAction;
     QAction *m_zoomAction;

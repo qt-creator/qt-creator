@@ -325,15 +325,13 @@ bool MainWindow::init(QString *errorMessage)
 void MainWindow::extensionsInitialized()
 {
     m_editorManager->init();
-
     m_statusBarManager->extensionsInitalized();
-
     OutputPaneManager::instance()->init();
-
-    m_actionManager->initialize();
     m_vcsManager->extensionsInitialized();
-
     m_navigationWidget->setFactories(ExtensionSystem::PluginManager::instance()->getObjects<INavigationWidgetFactory>());
+
+    // reading the shortcut settings must be done after all shortcuts have been registered
+    m_actionManager->initialize();
 
     readSettings();
     updateContext();

@@ -29,12 +29,7 @@
 
 #include "cppinsertdecldef.h"
 
-#include <AST.h>
-#include <ASTVisitor.h>
-#include <CoreTypes.h>
-#include <Names.h>
-#include <Symbols.h>
-#include <TranslationUnit.h>
+#include <CPlusPlus.h>
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/CppRewriter.h>
 #include <cplusplus/LookupContext.h>
@@ -42,6 +37,7 @@
 #include <cpptools/insertionpointlocator.h>
 
 #include <QtCore/QCoreApplication>
+#include <QtCore/QDir>
 
 using namespace CPlusPlus;
 using namespace CppEditor;
@@ -74,8 +70,8 @@ public:
         default: break;
         }
 
-        setDescription(QCoreApplication::tr("Add %1 declaration",
-                                            "CppEditor::DeclFromDef").arg(type));
+        setDescription(QCoreApplication::translate("CppEditor::InsertDeclOperation",
+                                                   "Add %1 Declaration").arg(type));
     }
 
     void performChanges(CppRefactoringFile *, CppRefactoringChanges *refactoring)
@@ -142,46 +138,49 @@ QList<CppQuickFixOperation::Ptr> DeclFromDef::match(const CppQuickFixState &stat
 
     Function *method = funDef->symbol;
 
-    if (ClassOrNamespace *targetBinding = state.context().lookupParent(method)) {
-        foreach (Symbol *s, targetBinding->symbols()) {
-            if (Class *clazz = s->asClass()) {
-                QList<CppQuickFixOperation::Ptr> results;
-                const QLatin1String fn(clazz->fileName());
+    Scope *enclosingScope = method->enclosingScope();
+    while (! (enclosingScope->isNamespace() || enclosingScope->isClass()))
+        enclosingScope = enclosingScope->enclosingScope();
+    Q_ASSERT(enclosingScope != 0);
+
+    const Name *functionName = method->name();
+    if (! functionName)
+        return noResult(); // warn, anonymous function names are not valid c++
+
+    if (! functionName->isQualifiedNameId())
+        return noResult(); // warn, trying to add a declaration for a global function
+
+    const QualifiedNameId *q = functionName->asQualifiedNameId();
+    if (!q->base())
+        return noResult();
+
+    if (ClassOrNamespace *binding = state.context().lookupType(q->base(), enclosingScope)) {
+        foreach (Symbol *s, binding->symbols()) {
+            if (Class *matchingClass = s->asClass()) {
+                for (Symbol *s = matchingClass->find(q->identifier()); s; s = s->next()) {
+                    if (! s->name())
+                        continue;
+                    else if (! q->identifier()->isEqualTo(s->identifier()))
+                        continue;
+                    else if (! s->type()->isFunctionType())
+                        continue;
+
+                    if (s->type().isEqualTo(method->type()))
+                        return noResult();
+                }
+
+                // a good candidate
+
+                const QString fn = QString::fromUtf8(matchingClass->fileName(),
+                                                     matchingClass->fileNameLength());
                 const QString decl = generateDeclaration(state,
                                                          method,
-                                                         targetBinding);
-                results.append(
-                            singleResult(
-                                new InsertDeclOperation(state, idx, fn, clazz,
-                                                        InsertionPointLocator::Public,
-                                                        decl)));
-                results.append(
-                            singleResult(
-                                new InsertDeclOperation(state, idx, fn, clazz,
-                                                        InsertionPointLocator::Protected,
-                                                        decl)));
-                results.append(
-                            singleResult(
-                                new InsertDeclOperation(state, idx, fn, clazz,
-                                                        InsertionPointLocator::Private,
-                                                        decl)));
-                results.append(
-                            singleResult(
-                                new InsertDeclOperation(state, idx, fn, clazz,
-                                                        InsertionPointLocator::PublicSlot,
-                                                        decl)));
-                results.append(
-                            singleResult(
-                                new InsertDeclOperation(state, idx, fn, clazz,
-                                                        InsertionPointLocator::ProtectedSlot,
-                                                        decl)));
-                results.append(
-                            singleResult(
-                                new InsertDeclOperation(state, idx, fn, clazz,
-                                                        InsertionPointLocator::PrivateSlot,
-                                                        decl)));
-                return results;
-            } //! \todo support insertion of non-methods into namespaces
+                                                         binding);
+                return singleResult(
+                            new InsertDeclOperation(state, idx, fn, matchingClass,
+                                                    InsertionPointLocator::Public,
+                                                    decl));
+            }
         }
     }
 
@@ -217,9 +216,11 @@ public:
         , m_decl(decl)
         , m_loc(loc)
     {
-        setDescription(QCoreApplication::tr("Add definition in %1",
-                                            "CppEditor::DefFromDecl")
-                       .arg(m_loc.fileName()));
+        const QString declFile = QString::fromUtf8(decl->fileName(), decl->fileNameLength());
+        const QDir dir = QFileInfo(declFile).dir();
+        setDescription(QCoreApplication::translate("CppEditor::InsertDefOperation",
+                                                   "Add Definition in %1")
+                       .arg(dir.relativeFilePath(m_loc.fileName())));
     }
 
     void performChanges(CppRefactoringFile *,
@@ -281,14 +282,19 @@ QList<CppQuickFixOperation::Ptr> DefFromDecl::match(const CppQuickFixState &stat
             if (simpleDecl->symbols && ! simpleDecl->symbols->next) {
                 if (Symbol *symbol = simpleDecl->symbols->value) {
                     if (Declaration *decl = symbol->asDeclaration()) {
-                        if (decl->type()->isFunctionType() && decl->enclosingScope() && decl->enclosingScope()->isClass()) {
+                        if (decl->type()->isFunctionType()
+                                && !decl->type()->asFunctionType()->isPureVirtual()
+                                && decl->enclosingScope()
+                                && decl->enclosingScope()->isClass()) {
                             DeclaratorAST *declarator = simpleDecl->declarator_list->value;
                             if (file.isCursorOn(declarator->core_declarator)) {
                                 CppRefactoringChanges refactoring(state.snapshot());
                                 InsertionPointLocator locator(&refactoring);
                                 QList<CppQuickFixOperation::Ptr> results;
-                                foreach (const InsertionLocation &loc, locator.methodDefinition(decl))
-                                    results.append(CppQuickFixOperation::Ptr(new InsertDefOperation(state, idx, decl, loc)));
+                                foreach (const InsertionLocation &loc, locator.methodDefinition(decl)) {
+                                    if (loc.isValid())
+                                        results.append(CppQuickFixOperation::Ptr(new InsertDefOperation(state, idx, decl, loc)));
+                                }
                                 return results;
                             }
                         }

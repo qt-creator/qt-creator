@@ -216,6 +216,8 @@ void GitClient::diff(const QString &workingDirectory,
     commonDiffArgs << QLatin1String("diff") << QLatin1String(noColorOption);
     if (m_settings.diffPatience)
         commonDiffArgs << QLatin1String("--patience");
+    if (m_settings.ignoreSpaceChanges)
+        commonDiffArgs << QLatin1String("--ignore-space-change");
     if (unstagedFileNames.empty() && stagedFileNames.empty()) {
        QStringList arguments(commonDiffArgs);
        arguments << diffArgs;
@@ -396,7 +398,7 @@ void GitClient::blame(const QString &workingDirectory,
         qDebug() << "blame" << workingDirectory << fileName << lineNumber;
     QStringList arguments(QLatin1String("blame"));
     arguments << QLatin1String("--root");
-    if (m_plugin->settings().spaceIgnorantBlame)
+    if (m_plugin->settings().ignoreSpaceChanges)
         arguments << QLatin1String("-w");
     arguments << QLatin1String("--") << fileName;
     if (!revision.isEmpty())
@@ -1272,29 +1274,45 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory,
         return StatusFailed;
     }
     // Unchanged (output text depending on whether -u was passed)
-    if (outputText.contains("nothing to commit")
-        || outputText.contains("nothing added to commit but untracked files present"))
+    if (outputText.contains("nothing to commit"))
         return StatusUnchanged;
+    if (outputText.contains("nothing added to commit but untracked files present"))
+        return untracked ? StatusChanged : StatusUnchanged;
     return StatusChanged;
 }
 
 // Quietly retrieve branch list of remote repository URL
+//
+// The branch HEAD is pointing to is always returned first.
 QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryURL)
 {
     QStringList arguments(QLatin1String("ls-remote"));
-    arguments << QLatin1String("--heads") << repositoryURL;
+    arguments << repositoryURL << QLatin1String("HEAD") << QLatin1String("refs/heads/*");
     const unsigned flags =
             VCSBase::VCSBasePlugin::SshPasswordPrompt|
             VCSBase::VCSBasePlugin::SuppressStdErrInLogWindow|
             VCSBase::VCSBasePlugin::SuppressFailMessageInLogWindow;
     const Utils::SynchronousProcessResponse resp = synchronousGit(QString(), arguments, flags);
     QStringList branches;
+    branches << "<detached HEAD>";
+    QString headSha;
     if (resp.result == Utils::SynchronousProcessResponse::Finished) {
         // split "82bfad2f51d34e98b18982211c82220b8db049b<tab>refs/heads/master"
         foreach(const QString &line, resp.stdOut.split(QLatin1Char('\n'))) {
+            if (line.endsWith("\tHEAD")) {
+                Q_ASSERT(headSha.isNull());
+                headSha = line.left(line.indexOf(QChar('\t')));
+                continue;
+            }
+
             const int slashPos = line.lastIndexOf(QLatin1Char('/'));
-            if (slashPos != -1)
-                branches.push_back(line.mid(slashPos + 1));
+            const QString branchName = line.mid(slashPos + 1);
+            if (slashPos != -1) {
+                if (line.startsWith(headSha))
+                    branches[0] = branchName;
+                else
+                    branches.push_back(branchName);
+            }
         }
     }
     return branches;

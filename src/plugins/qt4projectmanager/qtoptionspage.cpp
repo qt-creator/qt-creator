@@ -54,6 +54,8 @@
 #include <QtGui/QHelpEvent>
 #include <QtGui/QToolTip>
 
+enum ModelRoles { BuildLogRole = Qt::UserRole, BuildRunningRole = Qt::UserRole + 1 };
+
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
@@ -74,8 +76,14 @@ void DebuggingHelperBuildTask::run(QFutureInterface<void> &future)
 {
     future.setProgressRange(0, 5);
     future.setProgressValue(1);
-    const QString output = m_version->buildDebuggingHelperLibrary(future);
-    emit finished(m_version->displayName(), output);
+    QString output;
+    QString errorMessage;
+    if (m_version->buildDebuggingHelperLibrary(future, false, &output, &errorMessage)) {
+        emit finished(m_version->displayName(), output);
+    } else {
+        qWarning("%s", qPrintable(errorMessage));
+        emit finished(m_version->displayName(), errorMessage);
+    }
     deleteLater();
 }
 
@@ -232,7 +240,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
     connect(m_ui->rebuildButton, SIGNAL(clicked()),
             this, SLOT(buildDebuggingHelper()));
     connect(m_ui->showLogButton, SIGNAL(clicked()),
-            this, SLOT(showDebuggingBuildLog()));
+            this, SLOT(slotShowDebuggingBuildLog()));
 
     showEnvironmentPage(0);
     updateState();
@@ -315,7 +323,9 @@ void QtOptionsPageWidget::debuggingHelperBuildFinished(const QString &name, cons
     // Update item view
     QTreeWidgetItem *item = treeItemForIndex(index);
     QTC_ASSERT(item, return)
-    item->setData(2, Qt::UserRole, output);
+    item->setData(2, BuildRunningRole, QVariant(false));
+    item->setData(2, BuildLogRole, output);
+
     QSharedPointerQtVersion qtVersion = m_versions.at(index);
     const bool success = qtVersion->hasDebuggingHelper()
             && (!QmlDumpTool::canBuild(qtVersion.data()) || qtVersion->hasQmlDump())
@@ -325,10 +335,11 @@ void QtOptionsPageWidget::debuggingHelperBuildFinished(const QString &name, cons
     // Update bottom control if the selection is still the same
     if (index == currentIndex()) {
         m_ui->showLogButton->setEnabled(true);
+        m_ui->rebuildButton->setEnabled(true);
         updateDebuggingHelperStateLabel(m_versions.at(index).data());
-        if (!success)
-            showDebuggingBuildLog();
     }
+    if (!success)
+        showDebuggingBuildLog(item);
 }
 
 void QtOptionsPageWidget::buildDebuggingHelper()
@@ -337,7 +348,12 @@ void QtOptionsPageWidget::buildDebuggingHelper()
     if (index < 0)
         return;
 
+    QTreeWidgetItem *item = treeItemForIndex(index);
+    QTC_ASSERT(item, return);
     m_ui->showLogButton->setEnabled(false);
+    m_ui->rebuildButton->setEnabled(false);
+    item->setData(2, BuildRunningRole, QVariant(true));
+
     // Run a debugging helper build task in the background.
     DebuggingHelperBuildTask *buildTask = new DebuggingHelperBuildTask(m_versions.at(index));
     connect(buildTask, SIGNAL(finished(QString,QString)), this, SLOT(debuggingHelperBuildFinished(QString,QString)),
@@ -348,21 +364,44 @@ void QtOptionsPageWidget::buildDebuggingHelper()
                                                         QLatin1String("Qt4ProjectManager::BuildHelpers"));
 }
 
-void QtOptionsPageWidget::showDebuggingBuildLog()
-{
-    QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
+// Non-modal dialog
+class BuildLogDialog : public QDialog {
+public:
+    explicit BuildLogDialog(QWidget *parent = 0);
+    void setText(const QString &text);
 
-    int currentItemIndex = indexForTreeItem(currentItem);
+private:
+    Ui_ShowBuildLog m_ui;
+};
+
+BuildLogDialog::BuildLogDialog(QWidget *parent) : QDialog(parent)
+{
+    m_ui.setupUi(this);
+    setAttribute(Qt::WA_DeleteOnClose, true);
+}
+
+void BuildLogDialog::setText(const QString &text)
+{
+    m_ui.log->setPlainText(text); // Show and scroll to bottom
+    m_ui.log->moveCursor(QTextCursor::End);
+    m_ui.log->ensureCursorVisible();
+}
+
+void QtOptionsPageWidget::slotShowDebuggingBuildLog()
+{
+    if (const QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem())
+        showDebuggingBuildLog(currentItem);
+}
+
+void QtOptionsPageWidget::showDebuggingBuildLog(const QTreeWidgetItem *currentItem)
+{
+    const int currentItemIndex = indexForTreeItem(currentItem);
     if (currentItemIndex < 0)
         return;
-    // Show and scroll to bottom
-    QDialog dlg(this);
-    Ui_ShowBuildLog ui;
-    ui.setupUi(&dlg);
-    ui.log->setPlainText(currentItem->data(2, Qt::UserRole).toString());
-    ui.log->moveCursor(QTextCursor::End);
-    ui.log->ensureCursorVisible();
-    dlg.exec();
+    BuildLogDialog *dialog = new BuildLogDialog(this);
+    dialog->setWindowTitle(tr("Debugging Helper Build Log for '%1'").arg(currentItem->text(0)));
+    dialog->setText(currentItem->data(2, BuildLogRole).toString());
+    dialog->show();
 }
 
 QtOptionsPageWidget::~QtOptionsPageWidget()
@@ -472,10 +511,11 @@ void QtOptionsPageWidget::updateState()
     m_ui->s60SDKPath->setEnabled(s60SDKPathEnabled);
     m_ui->gccePath->setEnabled(enabled);
 
-    const bool hasLog = enabled && !m_ui->qtdirList->currentItem()->data(2, Qt::UserRole).toString().isEmpty();
+    const QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
+    const bool buildRunning = currentItem && currentItem->data(2, BuildRunningRole).toBool();
+    const bool hasLog = enabled && currentItem && !currentItem->data(2, Qt::UserRole).toString().isEmpty();
     m_ui->showLogButton->setEnabled(hasLog);
-
-    m_ui->rebuildButton->setEnabled(version && version->isValid());
+    m_ui->rebuildButton->setEnabled(version && version->isValid() && !buildRunning);
     updateDebuggingHelperStateLabel(version);
 }
 
@@ -638,6 +678,7 @@ void QtOptionsPageWidget::versionChanged(QTreeWidgetItem *item, QTreeWidgetItem 
     } else {
         m_ui->nameEdit->clear();
         m_ui->qmakePath->setPath(QString()); // clear()
+
     }
     showEnvironmentPage(item);
     updateState();

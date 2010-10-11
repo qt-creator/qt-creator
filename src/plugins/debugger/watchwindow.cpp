@@ -296,6 +296,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     const unsigned engineCapabilities = modelData(EngineCapabilitiesRole).toUInt();
     const bool canHandleWatches =
         actionsEnabled && (engineCapabilities & AddWatcherCapability);
+    const DebuggerState state = static_cast<DebuggerState>(modelData(EngineStateRole).toInt());
 
     QMenu menu;
     QAction *actInsertNewWatchItem = menu.addAction(tr("Insert New Watch Item"));
@@ -352,10 +353,12 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actWatchExpression = new QAction(actionName, &menu);
     actWatchExpression->setEnabled(canHandleWatches && !exp.isEmpty());
 
+    // Can remove watch if engine can handle it or session engine.
     actionName = exp.isEmpty() ? tr("Remove Watch Expression")
         : tr("Remove Watch Expression \"%1\"").arg(exp);
     QAction *actRemoveWatchExpression = new QAction(actionName, &menu);
-    actRemoveWatchExpression->setEnabled(canHandleWatches && !exp.isEmpty());
+    actRemoveWatchExpression->setEnabled((canHandleWatches || state == DebuggerNotReady)
+                                         && !exp.isEmpty());
 
     if (m_type == LocalsType)
         menu.addAction(actWatchExpression);

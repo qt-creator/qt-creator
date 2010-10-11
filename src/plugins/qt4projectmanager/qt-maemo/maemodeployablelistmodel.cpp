@@ -218,7 +218,7 @@ QString MaemoDeployableListModel::localExecutableFilePath() const
     fileName += ti.target;
     if (isLib)
         fileName += QLatin1String(isStatic ? ".a" : ".so");
-    return QDir::cleanPath(ti.buildDir + '/' + fileName);
+    return QDir::cleanPath(ti.workingDir + '/' + fileName);
 }
 
 QString MaemoDeployableListModel::remoteExecutableFilePath() const

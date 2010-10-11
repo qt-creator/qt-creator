@@ -37,7 +37,6 @@
 QT_FORWARD_DECLARE_CLASS(QAction)
 QT_FORWARD_DECLARE_CLASS(QComboBox)
 QT_FORWARD_DECLARE_CLASS(QMenu)
-QT_FORWARD_DECLARE_CLASS(QToolBar)
 QT_FORWARD_DECLARE_CLASS(QToolButton)
 QT_FORWARD_DECLARE_CLASS(QUrl)
 
@@ -48,6 +47,10 @@ class MiniSplitter;
 class SideBar;
 class SideBarItem;
 }   // Core
+
+namespace Utils {
+class StyledBar;
+}   // Utils
 
 namespace Help {
 namespace Internal {
@@ -116,8 +119,8 @@ private:
     void setupUi();
     void resetFilter();
     void activateHelpMode();
-    QToolBar *createWidgetToolBar();
-    QToolBar *createIconToolBar(bool external);
+    Utils::StyledBar *createWidgetToolBar();
+    Utils::StyledBar *createIconToolBar(bool external);
     HelpViewer* viewerForContextMode();
     void createRightPaneContextViewer();
 
@@ -162,8 +165,8 @@ private:
 
     QMenu *m_backMenu;
     QMenu *m_nextMenu;
-    QToolBar *m_internalHelpBar;
-    QToolBar *m_externalHelpBar;
+    Utils::StyledBar *m_internalHelpBar;
+    Utils::StyledBar *m_externalHelpBar;
 };
 
 } // namespace Internal

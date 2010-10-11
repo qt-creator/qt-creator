@@ -101,7 +101,7 @@ GettingStartedWelcomePageWidget::GettingStartedWelcomePageWidget(QWidget *parent
     m_currentTip = rand()%tips.count();
 
     QTextDocument *doc = ui->didYouKnowTextBrowser->document();
-    doc->setDefaultStyleSheet("a:link {color:black;}");
+    doc->setDefaultStyleSheet("* {color:black;};");
     ui->didYouKnowTextBrowser->setDocument(doc);
     ui->didYouKnowTextBrowser->setText(tips.at(m_currentTip));
 
@@ -434,9 +434,9 @@ QStringList GettingStartedWelcomePageWidget::tipsOfTheDay()
         tips.append(tr("You can return to edit mode from any other mode at any time by hitting <tt>Escape</tt>."));
         //:%1 gets replaced by Alt (Win/Unix) or Cmd (Mac)
         tips.append(tr("You can switch between the output pane by hitting <tt>%1+n</tt> where n is the number denoted "
-                       "on the buttons at the window bottom:"
-                       "<ul><li>1 - Build Issues</li><li>2 - Search Results</li><li>3 - Application Output</li>"
-                       "<li>4 - Compile Output</li></ul>").arg(altShortcut));
+                       "on the buttons at the window bottom: <br /><br />"
+                       "1: Build Issues, 2: Search Results, 3: Application Output, "
+                       "4: Compile Output").arg(altShortcut));
         tips.append(tr("You can quickly search methods, classes, help and more using the "
                        "<a href=\"qthelp://com.nokia.qtcreator/doc/creator-editor-locator.html\">Locator bar</a> (<tt>%1+K</tt>).").arg(ctrlShortcut));
         tips.append(tr("You can add custom build steps in the "
@@ -482,12 +482,12 @@ void GettingStartedWelcomePageWidget::showFeature(int feature)
     }
 
     if (item.category == QLatin1String("Event")) {
-        ui->detailsLabel->setText(QString::fromLatin1("<a href='%1'>Details...</a>").arg(item.url));
+        ui->detailsLabel->setText(tr("<a href='%1'>Details...</a>").arg(item.url));
         ui->detailsLabel->show();
         ui->detailsLabel->setOpenExternalLinks(true);
     }
     else if (item.category == QLatin1String("Tutorial")) {
-        ui->detailsLabel->setText(QString::fromLatin1("<a href='%1'>Take Tutorial</a>").arg(item.url+"?view=split"));
+        ui->detailsLabel->setText(tr("<a href='%1'>Take Tutorial</a>").arg(item.url+"?view=split"));
         ui->detailsLabel->show();
         ui->detailsLabel->setOpenExternalLinks(true);
     }

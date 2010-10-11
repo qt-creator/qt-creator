@@ -84,7 +84,6 @@ public:
     quint16 qmlServerPort;
     QString projectBuildDir;
     QString projectDir;
-    bool qmlObserverAvailable;
     // for cpp+qml debugging
     DebuggerEngineType cppEngineType;
 
@@ -267,7 +266,6 @@ public:
     QString qtDumperLibraryName() const;
     QStringList qtDumperLibraryLocations() const;
     void showQtDumperLibraryWarning(const QString &details);
-    void showQmlObserverToolWarning();
 
     static const char *stateName(int s);
 

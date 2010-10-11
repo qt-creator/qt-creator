@@ -221,7 +221,7 @@ void QmlEngine::connectionError(QAbstractSocket::SocketError socketError)
 
 void QmlEngine::serviceConnectionError(const QString &serviceName)
 {
-    plugin()->showMessage(tr("QML Debugger: Couldn't connect to service '%1'.").arg(serviceName), StatusBar);
+    plugin()->showMessage(tr("QML Debugger: Could not connect to service '%1'.").arg(serviceName), StatusBar);
 }
 
 void QmlEngine::runEngine()
@@ -322,13 +322,6 @@ void QmlEngine::shutdownEngine()
 
 void QmlEngine::setupEngine()
 {
-    if (!d->m_attachToRunningExternalApp
-     && !startParameters().qmlObserverAvailable
-     && Internal::theDebuggerBoolSetting(Internal::UseQmlObserver))
-    {
-        showQmlObserverToolWarning();
-    }
-
     d->m_adapter->setMaxConnectionAttempts(MaxConnectionAttempts);
     d->m_adapter->setConnectionAttemptInterval(ConnectionAttemptDefaultInterval);
     connect(d->m_adapter, SIGNAL(connectionError(QAbstractSocket::SocketError)),

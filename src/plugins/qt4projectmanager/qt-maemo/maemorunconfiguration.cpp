@@ -304,6 +304,30 @@ void MaemoRunConfiguration::setArguments(const QStringList &args)
     m_arguments = args;
 }
 
+MaemoRunConfiguration::DebuggingType MaemoRunConfiguration::debuggingType() const
+{
+    if (!toolchain() || !toolchain()->allowsQmlDebugging())
+        return DebugCppOnly;
+    if (useCppDebugger()) {
+        if (useQmlDebugger())
+            return DebugCppAndQml;
+        return DebugCppOnly;
+    }
+    return DebugQmlOnly;
+}
+
+int MaemoRunConfiguration::portsUsedByDebuggers() const
+{
+    switch (debuggingType()) {
+    case DebugCppOnly:
+    case DebugQmlOnly:
+        return 1;
+    case DebugCppAndQml:
+    default:
+        return 2;
+    }
+}
+
 void MaemoRunConfiguration::updateDeviceConfigurations()
 {
     emit deviceConfigurationChanged(target());

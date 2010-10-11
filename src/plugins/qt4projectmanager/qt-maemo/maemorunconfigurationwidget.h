@@ -107,6 +107,7 @@ private:
     QLabel *m_localExecutableLabel;
     QLabel *m_remoteExecutableLabel;
     QLabel *m_devConfLabel;
+    QLabel *m_debuggingLanguagesLabel;
     QRadioButton *m_debugCppOnlyButton;
     QRadioButton *m_debugQmlOnlyButton;
     QRadioButton *m_debugCppAndQmlButton;

@@ -95,13 +95,13 @@ QToolButton:pressed, QPushButton:pressed{
        <widget class="QFrame" name="mainFrame">
         <property name="minimumSize">
          <size>
-          <width>662</width>
+          <width>700</width>
           <height>550</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>662</width>
+          <width>750</width>
           <height>550</height>
          </size>
         </property>
@@ -153,13 +153,13 @@ QToolButton:pressed, QPushButton:pressed{
            <property name="minimumSize">
             <size>
              <width>649</width>
-             <height>74</height>
+             <height>50</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>649</width>
-             <height>89</height>
+             <height>50</height>
             </size>
            </property>
            <property name="styleSheet">

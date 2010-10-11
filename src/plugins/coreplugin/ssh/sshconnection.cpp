@@ -59,7 +59,7 @@ namespace {
             staticInitMutex.lock();
             if (!staticInitializationsDone) {
                 Botan::LibraryInitializer::initialize("thread_safe=true");
-                qRegisterMetaType<SshError>("SshError");
+                qRegisterMetaType<Core::SshError>("Core::SshError");
                 qRegisterMetaType<Core::SftpJobId>("Core::SftpJobId");
                 staticInitializationsDone = true;
             }
@@ -109,8 +109,8 @@ SshConnection::SshConnection() : d(new Internal::SshConnectionPrivate(this))
         SIGNAL(dataAvailable(QString)), Qt::QueuedConnection);
     connect(d, SIGNAL(disconnected()), this, SIGNAL(disconnected()),
         Qt::QueuedConnection);
-    connect(d, SIGNAL(error(SshError)), this, SIGNAL(error(SshError)),
-        Qt::QueuedConnection);
+    connect(d, SIGNAL(error(Core::SshError)), this,
+        SIGNAL(error(Core::SshError)), Qt::QueuedConnection);
 }
 
 void SshConnection::connectToHost(const SshConnectionParameters &serverInfo)
@@ -160,12 +160,16 @@ SshConnection::~SshConnection()
 
 QSharedPointer<SshRemoteProcess> SshConnection::createRemoteProcess(const QByteArray &command)
 {
+    // TODO: Is this conditonal return value really a good idea?
+    // Get rid of this IF we can prove that no harm is done by returning
+    // a non-working (but non-null) process pointer.
     return state() == Connected
         ? d->createRemoteProcess(command) : QSharedPointer<SshRemoteProcess>();
 }
 
 QSharedPointer<SftpChannel> SshConnection::createSftpChannel()
 {
+    // TODO: See above
     return state() == Connected
         ? d->createSftpChannel() : QSharedPointer<SftpChannel>();
 }

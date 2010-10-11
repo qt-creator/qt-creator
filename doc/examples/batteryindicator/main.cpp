@@ -1,18 +1,23 @@
+#include "mainwindow.h"
+
 #include <QtGui/QApplication>
-#include "batteryindicator.h"
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    BatteryIndicator w;
+    QApplication app(argc, argv);
+
+    MainWindow mainWindow;
+    mainWindow.setOrientation(MainWindow::Auto);
 
 //! [0]
-#if defined(Q_WS_S60)
-    w.showMaximized();
+#ifdef Q_OS_SYMBIAN
+    mainWindow.showFullScreen();
+#elif defined(Q_WS_MAEMO_5)
+    mainWindow.showMaximized();
 #else
-    w.show();
+    mainWindow.show();
 #endif
 //! [0]
 
-    return a.exec();
+    return app.exec();
 }

@@ -98,8 +98,8 @@ QmlItemNode QmlModelView::createQmlItemNodeFromImage(const QString &imageName, c
     QmlItemNode newNode;
     RewriterTransaction transaction = beginRewriterTransaction();
     {
-        const QString newImportUrl = QLatin1String("QtQuick");
-        const QString newImportVersion = QLatin1String("1.0");
+        const QString newImportUrl = QLatin1String("Qt");
+        const QString newImportVersion = QLatin1String("4.7");
         Import newImport = Import::createLibraryImport(newImportUrl, newImportVersion);
 
         foreach (const Import &import, model()->imports()) {
@@ -129,7 +129,7 @@ QmlItemNode QmlModelView::createQmlItemNodeFromImage(const QString &imageName, c
         }
 
         propertyPairList.append(qMakePair(QString("source"), QVariant(relativeImageName)));
-        newNode = createQmlItemNode("QtQuick/Image", 1, 0, propertyPairList);
+        newNode = createQmlItemNode("Qt/Image", 4, 7, propertyPairList);
         parentNode.nodeAbstractProperty("data").reparentHere(newNode);
 
         Q_ASSERT(newNode.isValid());

@@ -315,7 +315,9 @@ bool ContextPaneWidget::setType(const QStringList &types)
     m_rectangleWidget->hide();
     m_easingWidget->hide();
 
-    if (types.contains("Text")) {
+    if (types.contains("Text") ||
+        types.contains("TextEdit") ||
+        types.contains("TextInput")) {
         m_currentWidget = m_textWidget;
         m_textWidget->show();
         m_textWidget->setStyleVisible(true);
@@ -361,7 +363,7 @@ bool ContextPaneWidget::setType(const QStringList &types)
 
 bool ContextPaneWidget::acceptsType(const QStringList &types)
 {
-    return types.contains("Text") || m_easingWidget->acceptsType(types) ||
+    return types.contains("Text") || types.contains("TextEdit") || types.contains("TextInput") || m_easingWidget->acceptsType(types) ||
             types.contains("Rectangle") || types.contains("Image") || types.contains("BorderImage");
 }
 

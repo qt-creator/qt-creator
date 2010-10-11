@@ -28,7 +28,8 @@ WatchData::WatchData() :
     source(0),
     objectId(0),
     state(InitialState),
-    changed(false)
+    changed(false),
+    sortId(0)
 {
 }
 
@@ -172,6 +173,7 @@ QString WatchData::toString() const
     str << QLatin1Char('{');
     if (!iname.isEmpty())
         str << "iname=\"" << iname << doubleQuoteComma;
+    str << "sortId=\"" << sortId << doubleQuoteComma;
     if (!name.isEmpty() && name != iname)
         str << "name=\"" << name << doubleQuoteComma;
     if (error)

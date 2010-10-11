@@ -30,6 +30,7 @@
 #include "sessionengine.h"
 #include "breakhandler.h"
 #include "watchhandler.h"
+#include "debuggerconstants.h"
 
 #include <utils/qtcassert.h>
 
@@ -62,6 +63,12 @@ void SessionEngine::saveSessionData()
 {
     watchHandler()->saveSessionData();
     breakHandler()->saveSessionData();
+}
+
+unsigned SessionEngine::debuggerCapabilities() const
+{
+    return DebuggerEngine::debuggerCapabilities()
+            | AddWatcherCapability | WatchpointCapability;
 }
 
 } // namespace Internal

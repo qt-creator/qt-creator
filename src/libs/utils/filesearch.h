@@ -37,6 +37,7 @@
 #include <QtCore/QMap>
 #include <QtCore/QStack>
 #include <QtCore/QDir>
+#include <QtCore/QTextCodec>
 #include <QtGui/QTextDocument>
 
 namespace Utils {
@@ -45,32 +46,38 @@ class QTCREATOR_UTILS_EXPORT FileIterator
 {
 public:
     FileIterator();
-    explicit FileIterator(const QStringList &fileList);
+    explicit FileIterator(const QStringList &fileList,
+                          const QList<QTextCodec *> encodings);
     ~FileIterator();
 
     virtual bool hasNext() const;
     virtual QString next();
+    virtual QTextCodec *encoding() const;
     virtual int maxProgress() const;
     virtual int currentProgress() const;
 
 private:
     QStringList m_list;
     QStringListIterator *m_iterator;
+    QList<QTextCodec *> m_encodings;
     int m_index;
 };
 
 class QTCREATOR_UTILS_EXPORT SubDirFileIterator : public FileIterator
 {
 public:
-    SubDirFileIterator(const QStringList &directories, const QStringList &filters);
+    SubDirFileIterator(const QStringList &directories, const QStringList &filters,
+                       QTextCodec *encoding = 0);
 
     bool hasNext() const;
     QString next();
+    QTextCodec *encoding() const;
     int maxProgress() const;
     int currentProgress() const;
 
 private:
     QStringList m_filters;
+    QTextCodec *m_encoding;
     mutable QStack<QDir> m_dirs;
     mutable QStack<qreal> m_progressValues;
     mutable QStack<bool> m_processedValues;

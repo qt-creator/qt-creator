@@ -278,10 +278,10 @@ SymbolsFindFilterConfigWidget::SymbolsFindFilterConfigWidget(SymbolsFindFilter *
     connect(m_typeEnums, SIGNAL(clicked(bool)), this, SLOT(setState()));
     connect(m_typeDeclarations, SIGNAL(clicked(bool)), this, SLOT(setState()));
 
-    m_searchProjectsOnly = new QRadioButton(tr("Projects Only"));
+    m_searchProjectsOnly = new QRadioButton(tr("Projects only"));
     layout->addWidget(m_searchProjectsOnly, 2, 1);
 
-    m_searchGlobal = new QRadioButton(tr("Global"));
+    m_searchGlobal = new QRadioButton(tr("All files"));
     layout->addWidget(m_searchGlobal, 2, 2);
 
     m_searchGroup = new QButtonGroup(this);

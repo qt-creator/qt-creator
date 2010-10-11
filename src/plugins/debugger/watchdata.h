@@ -136,6 +136,7 @@ public:
     quint64 objectId; // Object id used for the QMLEngine
     int state;
     bool changed;
+    int sortId;
 };
 
 } // namespace Internal

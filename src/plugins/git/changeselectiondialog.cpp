@@ -55,7 +55,7 @@ QString ChangeSelectionDialog::repository() const
 
 void ChangeSelectionDialog::setRepository(const QString &s)
 {
-    m_ui.repositoryEdit->setText(s);
+    m_ui.repositoryEdit->setText(QDir::toNativeSeparators(s));
 }
 
 void ChangeSelectionDialog::selectWorkingDirectory()

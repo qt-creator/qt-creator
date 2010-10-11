@@ -28,9 +28,6 @@ namespace Internal {
 QmlOutlineItem::QmlOutlineItem(QmlOutlineModel *model) :
     m_outlineModel(model)
 {
-    Qt::ItemFlags defaultFlags = flags();
-    setFlags(Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | defaultFlags);
-    setEditable(false);
 }
 
 QVariant QmlOutlineItem::data(int role) const
@@ -242,8 +239,9 @@ private:
     int indent;
 };
 
-QmlOutlineModel::QmlOutlineModel(QObject *parent) :
-    QStandardItemModel(parent)
+QmlOutlineModel::QmlOutlineModel(QmlJSTextEditor *editor) :
+    QStandardItemModel(editor),
+    m_textEditor(editor)
 {
     m_icons = Icons::instance();
     const QString resourcePath = Core::ICore::instance()->resourcePath();
@@ -334,6 +332,25 @@ bool QmlOutlineModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
     // Prevent view from calling removeRow() on it's own
     return false;
 }
+
+Qt::ItemFlags QmlOutlineModel::flags(const QModelIndex &index) const
+{
+    if (!index.isValid())
+        return QStandardItemModel::flags(index);
+
+    Qt::ItemFlags flags = Qt::ItemIsSelectable|Qt::ItemIsEnabled;
+
+    // only allow drag&drop if we're in sync
+    if (m_semanticInfo.isValid()
+            && m_semanticInfo.revision() == m_textEditor->editorRevision()) {
+        if (index.parent().isValid())
+            flags |= Qt::ItemIsDragEnabled;
+        if (index.data(ItemTypeRole) != NonElementBindingType)
+            flags |= Qt::ItemIsDropEnabled;
+    }
+    return flags;
+}
+
 
 Document::Ptr QmlOutlineModel::document() const
 {

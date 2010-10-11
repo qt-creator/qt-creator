@@ -46,6 +46,7 @@
 #include "threadshandler.h"
 #include "watchhandler.h"
 #include "watchutils.h"
+#include "breakwindow.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -80,7 +81,7 @@
 #include <QtGui/QTextCursor>
 #include <QtGui/QTextDocument>
 #include <QtGui/QTreeWidget>
-
+#include <QtGui/QMainWindow>
 
 using namespace Core;
 using namespace Debugger;
@@ -282,6 +283,8 @@ public slots:
         m_runControl->bringApplicationToForeground(m_inferiorPid);
     }
 
+private slots:
+    void slotEditBreakpoint();
 
 public:
     DebuggerState state() const { return m_state; }
@@ -327,6 +330,17 @@ void DebuggerEnginePrivate::breakpointSetRemoveMarginActionTriggered()
     const int lineNumber = list.at(1).toInt();
     const quint64 address = list.at(2).toULongLong();
     m_breakHandler.toggleBreakpoint(fileName, lineNumber, address);
+}
+
+void DebuggerEnginePrivate::slotEditBreakpoint()
+{
+    const QAction *act = qobject_cast<QAction *>(sender());
+    QTC_ASSERT(act, return);
+    const QVariant data = act->data();
+    QTC_ASSERT(qVariantCanConvert<BreakpointData *>(data), return);
+    BreakpointData *breakPointData = qvariant_cast<BreakpointData *>(data);
+    if (BreakWindow::editBreakpoint(breakPointData, ICore::instance()->mainWindow()))
+        breakPointData->reinsertBreakpoint();
 }
 
 void DebuggerEnginePrivate::breakpointEnableDisableMarginActionTriggered()
@@ -388,6 +402,10 @@ void DebuggerEnginePrivate::handleContextMenuRequest(const QVariant &parameters)
         connect(act2, SIGNAL(triggered()),
             this, SLOT(breakpointEnableDisableMarginActionTriggered()));
         menu->addAction(act2);
+        QAction *editAction = new QAction(tr("Edit Breakpoint %1...").arg(number), menu);
+        connect(editAction, SIGNAL(triggered()), this, SLOT(slotEditBreakpoint()));
+        editAction->setData(qVariantFromValue(data));
+        menu->addAction(editAction);
     } else {
         // non-existing
         const QString text = address ?
@@ -1045,35 +1063,6 @@ void DebuggerEngine::showQtDumperLibraryWarning(const QString &details)
             _(Qt4ProjectManager::Constants::QTVERSION_SETTINGS_PAGE_ID));
     } else if (dialog.clickedButton() == helperOff) {
         theDebuggerAction(UseDebuggingHelpers)
-            ->setValue(qVariantFromValue(false), false);
-    }
-}
-
-void DebuggerEngine::showQmlObserverToolWarning()
-{
-    QMessageBox dialog(plugin()->mainWindow());
-    QPushButton *qtPref = dialog.addButton(tr("Open Qt4 Options"),
-        QMessageBox::ActionRole);
-    QPushButton *helperOff = dialog.addButton(tr("Turn off QML Observer Usage"),
-        QMessageBox::ActionRole);
-    QPushButton *justContinue = dialog.addButton(tr("Continue Anyway"),
-        QMessageBox::AcceptRole);
-    dialog.setDefaultButton(justContinue);
-    dialog.setWindowTitle(tr("QML Observer Missing"));
-    dialog.setText(tr("QML Observer could not be found."));
-    dialog.setInformativeText(tr(
-        "QML Observer is used to offer additional debugging features for "
-        "QML applications, such as interactive debugging and inspection tools."
-        "It must be compiled for each used Qt version separately. "
-        "On the Qt4 options page, select a Qt installation "
-        "and click Rebuild."));
-    dialog.exec();
-    if (dialog.clickedButton() == qtPref) {
-        Core::ICore::instance()->showOptionsDialog(
-            _(Qt4ProjectManager::Constants::QT_SETTINGS_CATEGORY),
-            _(Qt4ProjectManager::Constants::QTVERSION_SETTINGS_PAGE_ID));
-    } else if (dialog.clickedButton() == helperOff) {
-        theDebuggerAction(UseQmlObserver)
             ->setValue(qVariantFromValue(false), false);
     }
 }

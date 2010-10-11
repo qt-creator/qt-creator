@@ -74,7 +74,7 @@ GitSettings SettingsPageWidget::settings() const
     rc.pullRebase = m_ui.pullRebaseCheckBox->isChecked();
     rc.promptToSubmit = m_ui.promptToSubmitCheckBox->isChecked();
     rc.omitAnnotationDate = m_ui.omitAnnotationDataCheckBox->isChecked();
-    rc.spaceIgnorantBlame = m_ui.spaceIgnorantBlameCheckBox->isChecked();
+    rc.ignoreSpaceChanges = m_ui.spaceIgnorantBlameCheckBox->isChecked();
     rc.diffPatience = m_ui.diffPatienceCheckBox->isChecked();
     rc.winSetHomeEnvironment = m_ui.winHomeCheckBox->isChecked();
     rc.gitkOptions = m_ui.gitkOptionsLineEdit->text().trimmed();
@@ -90,7 +90,7 @@ void SettingsPageWidget::setSettings(const GitSettings &s)
     m_ui.pullRebaseCheckBox->setChecked(s.pullRebase);
     m_ui.promptToSubmitCheckBox->setChecked(s.promptToSubmit);
     m_ui.omitAnnotationDataCheckBox->setChecked(s.omitAnnotationDate);
-    m_ui.spaceIgnorantBlameCheckBox->setChecked(s.spaceIgnorantBlame);
+    m_ui.spaceIgnorantBlameCheckBox->setChecked(s.ignoreSpaceChanges);
     m_ui.diffPatienceCheckBox->setChecked(s.diffPatience);
     m_ui.winHomeCheckBox->setChecked(s.winSetHomeEnvironment);
     m_ui.gitkOptionsLineEdit->setText(s.gitkOptions);

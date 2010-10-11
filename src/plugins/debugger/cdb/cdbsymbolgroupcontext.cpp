@@ -187,15 +187,15 @@ static inline void fixDumperResult(const WatchData &source,
     // If the model queries the expanding item by pretending childrenNeeded=1,
     // refuse the request as the children are already known
     returned.source |= CdbSymbolGroupContext::ChildrenKnownBit;
-    // Fix the children: If the address is missing, we cannot query any further.
-    const QList<WatchData>::iterator wend = result->end();
-    QList<WatchData>::iterator it = result->begin();
-    for (++it; it != wend; ++it) {
-        WatchData &wd = *it;
+    // Fix the children: Assign sort id , if the address is missing, we cannot query any further.
+    const int resultSize = result->size();
+    for (int i = 1; i < resultSize; i++) {
+        WatchData &wd = (*result)[i];
+        wd.sortId = i;
         // Indicate owner and known children
-        it->source = OwnerDumper;
-        if (it->isChildrenKnown() && it->isHasChildrenKnown() && it->hasChildren)
-            it->source |= CdbSymbolGroupContext::ChildrenKnownBit;
+        wd.source = OwnerDumper;
+        if (wd.isChildrenKnown() && wd.isHasChildrenKnown() && wd.hasChildren)
+            wd.source |= CdbSymbolGroupContext::ChildrenKnownBit;
         // Cannot dump items with missing addresses or missing types
         const bool typeFixed = fixDumperType(&wd); // Order of evaluation!
         if ((wd.address == 0 && wd.isSomethingNeeded()) || typeFixed) {

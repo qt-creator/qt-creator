@@ -192,6 +192,8 @@ public:
     void setReloadSetting(IFile::ReloadSetting behavior);
     IFile::ReloadSetting reloadSetting() const;
 
+    QTextCodec *defaultTextEncoding() const;
+
     // Helper to display a message dialog when encountering a read-only
     // file, prompting the user about how to make it writeable.
     enum ReadOnlyAction { RO_Cancel, RO_OpenVCS, RO_MakeWriteable, RO_SaveAs };

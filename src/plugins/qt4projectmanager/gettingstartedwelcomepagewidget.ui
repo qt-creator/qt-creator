@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>672</width>
+    <width>749</width>
     <height>366</height>
    </rect>
   </property>
@@ -415,7 +415,7 @@
     <widget class="QFrame" name="featureFrame">
      <property name="maximumSize">
       <size>
-       <width>150</width>
+       <width>200</width>
        <height>16777215</height>
       </size>
      </property>
@@ -457,14 +457,14 @@ border-bottom: 1px solid &quot;#C9C9C9&quot;;
          </size>
         </property>
         <property name="text">
-         <string notr="true">Image</string>
+         <string notr="true"/>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QLabel" name="featuredTextLabel">
         <property name="text">
-         <string notr="true">Text</string>
+         <string notr="true"/>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
@@ -489,7 +489,7 @@ border-bottom: 1px solid &quot;#C9C9C9&quot;;
         <item>
          <widget class="QLabel" name="detailsLabel">
           <property name="text">
-           <string notr="true">Link</string>
+           <string notr="true"/>
           </property>
          </widget>
         </item>

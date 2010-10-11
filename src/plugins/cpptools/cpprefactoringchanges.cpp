@@ -104,7 +104,8 @@ CppRefactoringFile::CppRefactoringFile(TextEditor::BaseTextEditor *editor, CPlus
 
 Document::Ptr CppRefactoringFile::cppDocument() const
 {
-    if (!m_cppDocument) {
+    if (!m_cppDocument || !m_cppDocument->translationUnit() ||
+            !m_cppDocument->translationUnit()->ast()) {
         const QString source = document()->toPlainText();
         const QString name = fileName();
         const Snapshot &snapshot = refactoringChanges()->snapshot();

@@ -261,6 +261,11 @@ void InspectorUi::debugQueryUpdated(QDeclarativeDebugQuery::State newState)
     disconnect(m_debugQuery,SIGNAL(stateChanged(QDeclarativeDebugQuery::State)),this,SLOT(debugQueryUpdated(QDeclarativeDebugQuery::State)));
 }
 
+bool InspectorUi::isConnected() const
+{
+    return m_clientProxy;
+}
+
 void InspectorUi::connected(ClientProxy *clientProxy)
 {
     m_clientProxy = clientProxy;

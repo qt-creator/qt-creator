@@ -91,7 +91,7 @@ public:
 public slots:
     void setFileName(const QUrl &fileName);
     void setFileNameStr(const QString &fileName);
-    void buttonPressed();
+    void onButtonReleased();
     void lineEditChanged();
     void comboBoxChanged();
 
@@ -113,7 +113,6 @@ private:
     QString m_filter;
     bool m_showComboBox;
     bool m_lock;
-    QString m_currentPath;
 
 };
 

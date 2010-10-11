@@ -42,6 +42,10 @@ using namespace QmlJS::AST;
 namespace {
 using namespace QmlJS;
 
+enum {
+    debug = false
+};
+
 /*!
     Build a hash of the parents
  */
@@ -359,7 +363,8 @@ void Delta::insert(UiObjectMember *member, UiObjectMember *parentMember, const Q
             importList << doc->source().mid(importBegin, importEnd - importBegin);
         }
 
-        QString filename = doc->fileName() + QLatin1Char('_') + QString::number(doc->editorRevision())
+        // encode editorRevision, lineNumber in URL. See ClientProxy::buildDebugIdHashRecursive
+        QString filename = QLatin1String("file://") + doc->fileName() + QLatin1Char('_') + QString::number(doc->editorRevision())
                          + QLatin1Char(':') + QString::number(uiObjectDef->firstSourceLocation().startLine-importList.count());
         foreach(DebugId debugId, debugReferences) {
             if (debugId != -1) {
@@ -475,7 +480,8 @@ Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::P
             UiObjectMember* parent = parents2.parent.value(y);
             if (!M.way2.contains(parent))
                 continue;
-            qDebug () << "Delta::operator():  insert " << label(y, doc2) << " to " << label(parent, doc2);
+            if (debug)
+                qDebug () << "Delta::operator():  insert " << label(y, doc2) << " to " << label(parent, doc2);
             insert(y, parent, newDebuggIds.value(parent), doc2);
             continue;
         }
@@ -494,7 +500,8 @@ Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::P
         //     << " to "<< label(y, doc2) << "with parent " << label(parents2.parent.value(y), doc2);
 
         if (!M.contains(parents1.parent.value(x),parents2.parent.value(y))) {
-            qDebug () << "Delta::operator():  move " << label(y, doc2) << " from " << label(parents1.parent.value(x), doc1)
+            if (debug)
+                qDebug () << "Delta::operator():  move " << label(y, doc2) << " from " << label(parents1.parent.value(x), doc1)
             << " to " << label(parents2.parent.value(y), doc2);
             reparent(newDebuggIds.value(y), newDebuggIds.value(parents2.parent.value(y)));
             continue;
@@ -508,7 +515,8 @@ Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::P
         if (!cast<UiObjectDefinition *>(x))
             continue;
         if (!M.way1.contains(x)) {
-            qDebug () << "Delta::operator():  remove " << label(x, doc1);
+            if (debug)
+                qDebug () << "Delta::operator():  remove " << label(x, doc1);
             QList<DebugId> ids = debugIds.value(x);
             if (!ids.isEmpty())
                 remove(ids);

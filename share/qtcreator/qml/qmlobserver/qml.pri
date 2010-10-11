@@ -5,6 +5,10 @@ contains(QT_CONFIG, opengl) {
     DEFINES += GL_SUPPORTED
 }
 
+!exists($$[QT_INSTALL_HEADERS]/QtCore/private/qabstractanimation_p.h) {
+    DEFINES += NO_PRIVATE_HEADERS
+}
+
 INCLUDEPATH += $$PWD
 
 HEADERS += $$PWD/qmlruntime.h \
@@ -21,7 +25,8 @@ SOURCES += $$PWD/qmlruntime.cpp \
            $$PWD/loggerwidget.cpp \
            $$PWD/crumblepath.cpp
 
-RESOURCES += $$PWD/qmlruntime.qrc
+RESOURCES += $$PWD/qmlruntime.qrc \
+    crumblepath.qrc
 
 OTHER_FILES += toolbarstyle.css
 

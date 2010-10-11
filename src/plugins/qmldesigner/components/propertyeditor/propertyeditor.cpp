@@ -310,7 +310,7 @@ PropertyEditor::~PropertyEditor()
 void PropertyEditor::setupPane(const QString &typeName)
 {
 
-    QUrl qmlFile = fileToUrl(locateQmlFile(QLatin1String("QtQuick/ItemPane.qml")));
+    QUrl qmlFile = fileToUrl(locateQmlFile(QLatin1String("Qt/ItemPane.qml")));
     QUrl qmlSpecificsFile;
 
     qmlSpecificsFile = fileToUrl(locateQmlFile(typeName + "Specifics.qml"));
@@ -360,7 +360,7 @@ void PropertyEditor::changeValue(const QString &propertyName)
                 rewriterView()->renameId(m_selectedNode.id(), newId);
         } else {
             value->setValue(m_selectedNode.id());
-            QMessageBox::warning(0, tr("Invalid Id"), newId + tr(" is an invalid id"));
+            QMessageBox::warning(0, tr("Invalid Id"),  tr("%1 is an invalid id").arg(newId));
         }
         return;
     }
@@ -577,7 +577,7 @@ QString templateGeneration(NodeMetaInfo type, NodeMetaInfo superType, const QmlO
                 "DoubleSpinBoxAlternate {\ntext: \"%1\"\nbackendValue: backendValues.%2\nbaseStateFlag: isBaseState\n}\n"
                 )).arg(name).arg(properName);
             }
-            if (typeName == "string" || typeName == "QString" || typeName =="url" || typeName =="QUrl") {
+            if (typeName == "string" || typeName == "QString" || typeName == "QUrl" || typeName == "url") {
                  qmlTemplate +=  QString(QLatin1String(
                 "QWidget {\nlayout: HorizontalLayout {\nLabel {\ntext: \"%1\"\ntoolTip: \"%1\"\n}\nLineEdit {\nbackendValue: backendValues.%2\nbaseStateFlag: isBaseState\n}\n}\n}\n"
                 )).arg(name).arg(properName);
@@ -716,10 +716,10 @@ void PropertyEditor::modelAttached(Model *model)
 
     m_locked = true;
 
-    setupPane("QtQuick/Rectangle");
-    setupPane("QtQuick/Text");
-    setupPane("QtQuick/TextInput");
-    setupPane("QtQuick/TextEdit");
+    setupPane("Qt/Rectangle");
+    setupPane("Qt/Text");
+    setupPane("Qt/TextInput");
+    setupPane("Qt/TextEdit");
     resetView();
 
     m_locked = false;
@@ -895,7 +895,7 @@ QUrl PropertyEditor::qmlForNode(const ModelNode &modelNode, QString &className) 
             }
         }
     }
-    return fileToUrl(QDir(m_qmlDir).filePath("QtQuick/emptyPane.qml"));
+    return fileToUrl(QDir(m_qmlDir).filePath("Qt/emptyPane.qml"));
 }
 
 QString PropertyEditor::locateQmlFile(const QString &relativePath) const

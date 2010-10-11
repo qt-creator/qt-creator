@@ -47,7 +47,7 @@ bool %PluginName%Impl::initialize(const QStringList &arguments, QString *errorSt
     Core::ActionManager *am = Core::ICore::instance()->actionManager();
 
     QAction *action = new QAction(tr("%PluginName% action"), this);
-    Core::Command *cmd = am->registerAction(action, QLatin1String(ACTION_ID),
+    Core::Command *cmd = am->registerAction(action, ACTION_ID,
                          Core::Context(Core::Constants::C_GLOBAL));
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Meta+A")));
     connect(action, SIGNAL(triggered()), this, SLOT(triggerAction()));

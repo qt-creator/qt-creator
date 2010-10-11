@@ -688,11 +688,7 @@ void OutputWindow::appendText(const QString &textIn, const QTextCharFormat &form
 
 bool OutputWindow::isScrollbarAtBottom() const
 {
-    return isVisible()
-            && (blockBoundingRect(document()->lastBlock()).bottom()
-                + contentOffset().y() <= viewport()->rect().bottom());
-
-    // return verticalScrollBar()->value() == verticalScrollBar()->maximum();
+    return verticalScrollBar()->value() == verticalScrollBar()->maximum();
 }
 
 void OutputWindow::clear()

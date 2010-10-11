@@ -30,9 +30,10 @@
 #ifndef CURRENTPROJECTFIND_H
 #define CURRENTPROJECTFIND_H
 
+#include "allprojectsfind.h"
+
 #include <find/ifindfilter.h>
 #include <find/searchresultwindow.h>
-#include <texteditor/basefilefind.h>
 
 #include <QtCore/QPointer>
 
@@ -43,10 +44,11 @@ QT_END_NAMESPACE
 namespace ProjectExplorer {
 
 class ProjectExplorerPlugin;
+class Project;
 
 namespace Internal {
 
-class CurrentProjectFind : public TextEditor::BaseFileFind
+class CurrentProjectFind : public AllProjectsFind
 {
     Q_OBJECT
 
@@ -58,16 +60,14 @@ public:
 
     bool isEnabled() const;
 
-    QWidget *createConfigWidget();
     void writeSettings(QSettings *settings);
     void readSettings(QSettings *settings);
 
 protected:
-    Utils::FileIterator *files();
+    QList<Project *> projects() const;
 
 private:
     ProjectExplorerPlugin *m_plugin;
-    QPointer<QWidget> m_configWidget;
 };
 
 } // namespace Internal

@@ -133,14 +133,12 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
 
         GdbMi data = all.findChild("data");
         QList<WatchData> list;
-        const bool sortMembers = theDebuggerBoolSetting(SortStructMembers);
         foreach (const GdbMi &child, data.children()) {
             WatchData dummy;
             dummy.iname = child.findChild("iname").data();
             dummy.name = _(child.findChild("name").data());
             //qDebug() << "CHILD: " << child.toString();
-            parseWatchData(watchHandler()->expandedINames(), dummy, child,
-                sortMembers, &list);
+            parseWatchData(watchHandler()->expandedINames(), dummy, child, &list);
         }
         watchHandler()->insertBulkData(list);
         //for (int i = 0; i != list.size(); ++i)

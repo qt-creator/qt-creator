@@ -47,8 +47,12 @@
 #include <QDeclarativeComponent>
 #include <QDir>
 #include <QCryptographicHash>
+#include <QGraphicsObject>
+
+#ifndef NO_PRIVATE_HEADERS
 #include <private/qabstractanimation_p.h>
 #include <private/qdeclarativeitem_p.h>
+#endif
 
 QT_BEGIN_NAMESPACE
 
@@ -60,7 +64,9 @@ QDeclarativeTester::QDeclarativeTester(const QString &script, QDeclarativeViewer
 {
     parent->viewport()->installEventFilter(this);
     parent->installEventFilter(this);
+#ifndef NO_PRIVATE_HEADERS
     QUnifiedTimer::instance()->setConsistentTiming(true);
+#endif
     if (options & QDeclarativeViewer::Play)
         this->run();
     start();
@@ -239,7 +245,9 @@ void QDeclarativeTester::save()
 
 void QDeclarativeTester::updateCurrentTime(int msec)
 {
+#ifndef NO_PRIVATE_HEADERS
     QDeclarativeItemPrivate::setConsistentTime(msec);
+#endif
     if (!testscript && msec > 16 && options & QDeclarativeViewer::Snapshot)
         return;
 

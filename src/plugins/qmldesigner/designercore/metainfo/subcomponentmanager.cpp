@@ -328,10 +328,10 @@ void SubComponentManagerPrivate::unregisterQmlFile(const QFileInfo &fileInfo, co
 
 static inline bool isDepricatedQtType(const QString &typeName)
 {
-    if (typeName.length() < 3)
+    if (typeName.length() < 8)
         return false;
 
-    return (typeName.at(0) == 'Q' && typeName.at(1) == 't' && typeName.at(2) == '/');
+    return typeName.contains("QtQuick/");
 }
 
 
@@ -366,7 +366,7 @@ void SubComponentManagerPrivate::registerQmlFile(const QFileInfo &fileInfo, cons
             rootObject.objectTypeMinorVersion());
     } else {
         QString properClassName = rootObject.objectType();
-        properClassName.replace("Qt/", "QtQuick/");
+        properClassName.replace("QtQuick/", "Qt/");
         nodeInfo.setSuperClass(properClassName,
             1,
             0);

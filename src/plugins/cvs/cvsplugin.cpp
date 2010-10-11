@@ -629,7 +629,7 @@ void CVSPlugin::revertAll()
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return)
     const QString title = tr("Revert repository");
-    if (!messageBoxQuestion(title, tr("Would you like to revert all changes to the repository?")))
+    if (!messageBoxQuestion(title, tr("Revert all pending changes to the repository?")))
         return;
     QStringList args;
     args << QLatin1String("update") << QLatin1String("-C") << state.topLevel();

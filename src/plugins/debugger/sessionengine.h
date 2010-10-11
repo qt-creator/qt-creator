@@ -51,6 +51,7 @@ public:
     virtual void shutdownEngine() {}
     virtual void shutdownInferior() {}
     virtual void executeDebuggerCommand(const QString &command);
+    virtual unsigned debuggerCapabilities() const;
 
     virtual bool isSessionEngine() const { return true; }
 

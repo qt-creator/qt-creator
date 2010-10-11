@@ -117,7 +117,7 @@ void StatesEditorView::createState(const QString &name)
         qDebug() << __FUNCTION__ << name;
 
     try {
-        model()->addImport(Import::createLibraryImport("QtQuick", "1.0"));
+        model()->addImport(Import::createLibraryImport("Qt", "4.7"));
         stateRootNode().states().addState(name);
     }  catch (RewritingException &e) {
         QMessageBox::warning(0, "Error", e.description());

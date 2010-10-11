@@ -980,7 +980,8 @@ void FileManager::syncWithEditor(Core::IContext *context)
         return;
 
     Core::IEditor *editor = Core::EditorManager::instance()->currentEditor();
-    if (editor && (editor->widget() == context->widget()))
+    if (editor && (editor->widget() == context->widget()) &&
+        !editor->isTemporary())
         setCurrentFile(editor->file()->fileName());
 }
 

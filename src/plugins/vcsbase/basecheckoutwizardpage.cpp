@@ -53,6 +53,8 @@ BaseCheckoutWizardPage::BaseCheckoutWizardPage(QWidget *parent) :
     connect(d->ui.checkoutDirectoryLineEdit, SIGNAL(validChanged()),
             this, SLOT(slotChanged()));
     connect(d->ui.checkoutDirectoryLineEdit, SIGNAL(textEdited(QString)), this, SLOT(slotDirectoryEdited()));
+    connect(d->ui.branchComboBox, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(slotChanged()));
 
     d->ui.pathChooser->setExpectedKind(Utils::PathChooser::Directory);
     connect(d->ui.pathChooser, SIGNAL(validChanged()), this, SLOT(slotChanged()));
@@ -67,14 +69,31 @@ BaseCheckoutWizardPage::~BaseCheckoutWizardPage()
     delete d;
 }
 
-void BaseCheckoutWizardPage::addControl(QWidget *w)
+void BaseCheckoutWizardPage::addLocalControl(QWidget *w)
 {
-    d->ui.formLayout->addRow(w);
+    d->ui.localLayout->addRow(w);
 }
 
-void BaseCheckoutWizardPage::addControl(QString &description, QWidget *w)
+void BaseCheckoutWizardPage::addLocalControl(QString &description, QWidget *w)
 {
-    d->ui.formLayout->addRow(description, w);
+    d->ui.localLayout->addRow(description, w);
+}
+
+void BaseCheckoutWizardPage::addRepositoryControl(QWidget *w)
+{
+    d->ui.repositoryLayout->addRow(w);
+}
+
+bool BaseCheckoutWizardPage::checkIsValid() const
+{
+    return d->ui.pathChooser->isValid()
+            && d->ui.checkoutDirectoryLineEdit->isValid()
+            && !d->ui.repositoryLineEdit->text().isEmpty();
+}
+
+void BaseCheckoutWizardPage::addRepositoryControl(QString &description, QWidget *w)
+{
+    d->ui.repositoryLayout->addRow(description, w);
 }
 
 bool BaseCheckoutWizardPage::isBranchSelectorVisible() const
@@ -167,6 +186,7 @@ void BaseCheckoutWizardPage::slotRefreshBranches()
         if (current >= 0 && current < branchList.size())
             d->ui.branchComboBox->setCurrentIndex(current);
     }
+    slotChanged();
 }
 
 void BaseCheckoutWizardPage::slotRepositoryChanged(const QString &repo)
@@ -212,9 +232,7 @@ bool BaseCheckoutWizardPage::isComplete() const
 
 void BaseCheckoutWizardPage::slotChanged()
 {
-    const bool valid = d->ui.pathChooser->isValid()
-                       && d->ui.checkoutDirectoryLineEdit->isValid()
-                       && !d->ui.repositoryLineEdit->text().isEmpty();
+    const bool valid = checkIsValid();
 
     if (valid != d->m_valid) {
         d->m_valid = valid;

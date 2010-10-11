@@ -49,6 +49,10 @@ public:
 signals:
     void requestSetup();
 
+private slots:
+    void handleGdbStarted();
+    void handleGdbStartFailed();
+
 private:
     void startAdapter();
     void setupInferior();

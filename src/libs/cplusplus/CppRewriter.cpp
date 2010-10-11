@@ -132,6 +132,8 @@ public:
         {
             Function *funTy = control()->newFunction(0, 0);
             funTy->copy(type);
+            funTy->setConst(type->isConst());
+            funTy->setVolatile(type->isVolatile());
 
             funTy->setName(rewrite->rewriteName(type->name()));
 

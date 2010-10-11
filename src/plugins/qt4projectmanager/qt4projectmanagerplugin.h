@@ -85,6 +85,8 @@ private slots:
     void testQtOutputParser();
     void testSbsV2OutputParsers_data();
     void testSbsV2OutputParsers();
+    void testRvctOutputParser_data();
+    void testRvctOutputParser();
 #endif
 
 private:

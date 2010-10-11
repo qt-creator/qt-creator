@@ -47,9 +47,8 @@ using namespace ProjectExplorer::Internal;
 using namespace TextEditor;
 
 CurrentProjectFind::CurrentProjectFind(ProjectExplorerPlugin *plugin, SearchResultWindow *resultWindow)
-  : BaseFileFind(resultWindow),
-    m_plugin(plugin),
-    m_configWidget(0)
+  : AllProjectsFind(plugin, resultWindow),
+    m_plugin(plugin)
 {
     connect(m_plugin, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
             this, SIGNAL(changed()));
@@ -70,50 +69,9 @@ bool CurrentProjectFind::isEnabled() const
     return m_plugin->currentProject() != 0 && BaseFileFind::isEnabled();
 }
 
-Utils::FileIterator *CurrentProjectFind::files()
+QList<Project *> CurrentProjectFind::projects() const
 {
-    Project *project = m_plugin->currentProject();
-    Q_ASSERT(project);
-    QList<QRegExp> filterRegs;
-    QStringList nameFilters = fileNameFilters();
-    foreach (const QString &filter, nameFilters) {
-        filterRegs << QRegExp(filter, Qt::CaseInsensitive, QRegExp::Wildcard);
-    }
-    QStringList files;
-    if (!filterRegs.isEmpty()) {
-        foreach (const QString &file, project->files(Project::AllFiles)) {
-            foreach (const QRegExp &reg, filterRegs) {
-                if (reg.exactMatch(file) || reg.exactMatch(QFileInfo(file).fileName())) {
-                    files.append(file);
-                    break;
-                }
-            }
-        }
-    } else {
-        files += project->files(Project::AllFiles);
-    }
-    files.removeDuplicates();
-    return new Utils::FileIterator(files);
-}
-
-QWidget *CurrentProjectFind::createConfigWidget()
-{
-    if (!m_configWidget) {
-        m_configWidget = new QWidget;
-        QGridLayout * const layout = new QGridLayout(m_configWidget);
-        layout->setMargin(0);
-        m_configWidget->setLayout(layout);
-        QLabel * const filePatternLabel = new QLabel(tr("File &pattern:"));
-        filePatternLabel->setMinimumWidth(80);
-        filePatternLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-        filePatternLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-        QWidget *patternWidget = createPatternWidget();
-        filePatternLabel->setBuddy(patternWidget);
-        layout->addWidget(filePatternLabel, 0, 0, Qt::AlignRight);
-        layout->addWidget(patternWidget, 0, 1);
-        m_configWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    }
-    return m_configWidget;
+    return QList<Project *>() << m_plugin->currentProject();
 }
 
 void CurrentProjectFind::writeSettings(QSettings *settings)

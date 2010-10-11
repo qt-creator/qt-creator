@@ -57,6 +57,7 @@ public:
     QString toToolTip() const;
     BreakHandler *handler() { return m_handler; }
     void reinsertBreakpoint();
+    void clear(); // Delete all generated data.
 
     bool isLocatedAt(const QString &fileName, int lineNumber,
         bool useMarkerPosition) const;

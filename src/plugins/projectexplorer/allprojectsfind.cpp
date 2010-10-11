@@ -32,8 +32,11 @@
 #include "project.h"
 #include "session.h"
 #include "projectexplorer.h"
+#include "editorconfiguration.h"
 
 #include <utils/qtcassert.h>
+#include <texteditor/itexteditor.h>
+#include <coreplugin/editormanager/editormanager.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
@@ -72,33 +75,46 @@ bool AllProjectsFind::isEnabled() const
             && m_plugin->session()->projects().count() > 0;
 }
 
-Utils::FileIterator *AllProjectsFind::files()
+QList<Project *> AllProjectsFind::projects() const
 {
     Q_ASSERT(m_plugin->session());
+    return m_plugin->session()->projects();
+}
+
+Utils::FileIterator *AllProjectsFind::files() const
+{
     QList<QRegExp> filterRegs;
     QStringList nameFilters = fileNameFilters();
     foreach (const QString &filter, nameFilters) {
         filterRegs << QRegExp(filter, Qt::CaseInsensitive, QRegExp::Wildcard);
     }
-    QStringList files;
-    QStringList projectFiles;
-    foreach (const Project *project, m_plugin->session()->projects()) {
-        projectFiles = project->files(Project::AllFiles);
+    QMap<QString, QTextCodec *> openEditorEncodings = TextEditor::ITextEditor::openedTextEditorsEncodings();
+    QMap<QString, QTextCodec *> encodings;
+    foreach (const Project *project, projects()) {
+        QStringList projectFiles = project->files(Project::AllFiles);
+        QStringList filteredFiles;
         if (!filterRegs.isEmpty()) {
             foreach (const QString &file, projectFiles) {
                 foreach (const QRegExp &reg, filterRegs) {
                     if (reg.exactMatch(file) || reg.exactMatch(QFileInfo(file).fileName())) {
-                        files.append(file);
+                        filteredFiles.append(file);
                         break;
                     }
                 }
             }
         } else {
-            files += projectFiles;
+            filteredFiles = projectFiles;
+        }
+        foreach (const QString &fileName, filteredFiles) {
+            QTextCodec *codec = openEditorEncodings.value(fileName);
+            if (!codec)
+                codec = project->editorConfiguration()->defaultTextCodec();
+            if (!codec)
+                codec = Core::EditorManager::instance()->defaultTextEncoding();
+            encodings.insert(fileName, codec);
         }
     }
-    files.removeDuplicates();
-    return new Utils::FileIterator(files);
+    return new Utils::FileIterator(encodings.keys(), encodings.values());
 }
 
 QWidget *AllProjectsFind::createConfigWidget()

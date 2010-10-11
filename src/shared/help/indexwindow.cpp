@@ -45,7 +45,6 @@
 #include <QtGui/QMenu>
 #include <QtGui/QContextMenuEvent>
 #include <QtGui/QListWidgetItem>
-#include <QtGui/QToolBar>
 
 #include <QtHelp/QHelpEngine>
 #include <QtHelp/QHelpIndexWidget>

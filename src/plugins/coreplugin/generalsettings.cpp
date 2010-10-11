@@ -130,7 +130,7 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
 
     QTextCodec *defaultTextCodec = QTextCodec::codecForLocale();
     if (QTextCodec *candidate = QTextCodec::codecForName(
-            settings->value(QLatin1String("General/DefaultFileEncoding")).toByteArray()))
+            settings->value(QLatin1String(Constants::SETTINGS_DEFAULTTEXTENCODING)).toByteArray()))
         defaultTextCodec = candidate;
 
     QList<int> mibs = QTextCodec::availableMibs();
@@ -225,7 +225,7 @@ void GeneralSettings::apply()
 #endif
 
     QSettings* settings = Core::ICore::instance()->settings();
-    return settings->setValue(QLatin1String("General/DefaultFileEncoding"),
+    return settings->setValue(QLatin1String(Constants::SETTINGS_DEFAULTTEXTENCODING),
                               m_codecs.at(m_page->encodingBox->currentIndex())->name());
 
 }

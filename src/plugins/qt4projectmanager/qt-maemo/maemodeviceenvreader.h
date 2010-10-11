@@ -67,12 +67,10 @@ signals:
     void finished();
     void error(const QString &error);
 
-private:
-    void setEnvironment();
-
 private slots:
     void executeRemoteCall();
     void handleConnectionFailure();
+    void handleCurrentDeviceConfigChanged();
 
     void remoteProcessFinished(int exitCode);
     void remoteOutput(const QByteArray &data);
@@ -83,6 +81,7 @@ private:
     QString m_remoteOutput;
     Utils::Environment m_env;
     MaemoDeviceConfig m_devConfig;
+    MaemoRunConfiguration *m_runConfig;
     QSharedPointer<Core::SshConnection> m_connection;
     QSharedPointer<Core::SshRemoteProcess> m_remoteProcess;
 };

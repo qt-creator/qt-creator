@@ -29,6 +29,8 @@
 
 #include "findinfiles.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+
 #include <QtCore/QtDebug>
 #include <QtCore/QSettings>
 #include <QtCore/QDir>
@@ -63,10 +65,11 @@ void FindInFiles::findAll(const QString &txt, Find::FindFlags findFlags)
     BaseFileFind::findAll(txt, findFlags);
 }
 
-Utils::FileIterator *FindInFiles::files()
+Utils::FileIterator *FindInFiles::files() const
 {
     return new Utils::SubDirFileIterator(QStringList() << m_directory->currentText(),
-                                         fileNameFilters());
+                                         fileNameFilters(),
+                                         Core::EditorManager::instance()->defaultTextEncoding());
 }
 
 QWidget *FindInFiles::createConfigWidget()
