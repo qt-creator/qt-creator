@@ -61,6 +61,7 @@ class MaemoDeployableListWidget : public QWidget
 public:
     MaemoDeployableListWidget(QWidget *parent, MaemoDeployableListModel *model);
     ~MaemoDeployableListWidget();
+    MaemoDeployableListModel *model() const { return m_model; }
 
 private slots:
     void addFile();

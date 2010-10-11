@@ -222,6 +222,8 @@ QString MaemoProFileWrapper::absFilePath(const QString &relFilePath) const
 
 void MaemoProFileWrapper::parseProFile(ParseType type) const
 {
+    if (m_proFileReader)
+        m_proFile->deref();
     m_proFileReader.reset(new ProFileReader(m_proFileOption.data()));
     m_proFileReader->setOutputDir(m_buildDir);
     m_proFileReader->setCumulative(false);
@@ -241,7 +243,6 @@ void MaemoProFileWrapper::parseProFile(ParseType type) const
     }
 
     m_proFileReader->accept(m_proFile);
-    m_proFile->deref();
 }
 
 bool MaemoProFileWrapper::writeProFileContents()

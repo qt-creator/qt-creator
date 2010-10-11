@@ -72,6 +72,7 @@ MaemoDeployableListWidget::MaemoDeployableListWidget(QWidget *parent,
         SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this,
         SLOT(enableOrDisableRemoveButton()));
     m_ui->deployablesView->resizeColumnsToContents();
+    m_ui->deployablesView->resizeRowsToContents();
     m_ui->deployablesView->horizontalHeader()->setStretchLastSection(true);
     enableOrDisableRemoveButton();
 }

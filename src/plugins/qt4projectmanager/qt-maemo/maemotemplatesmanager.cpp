@@ -402,9 +402,9 @@ void MaemoTemplatesManager::handleProFileUpdated()
         = qobject_cast<MaemoDeployables *>(sender());
     if (!deployables)
         return;
-    const Target * const target = deployables->buildStep()->target();
-    if (m_maemoProjects.contains(target->project()))
-        updateDesktopFiles(qobject_cast<const Qt4Target *>(target));
+//    const Target * const target = deployables->buildStep()->target();
+//    if (m_maemoProjects.contains(target->project()))
+//        updateDesktopFiles(qobject_cast<const Qt4Target *>(target));
 }
 
 QString MaemoTemplatesManager::version(const Project *project,

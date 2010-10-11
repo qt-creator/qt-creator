@@ -52,8 +52,13 @@ class MaemoDeployableListModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
+    enum ProFileUpdateSetting {
+        UpdateProFile, DontUpdateProFile, AskToUpdateProFile
+    };
+
     MaemoDeployableListModel(const Qt4ProFileNode *proFileNode,
-        const QSharedPointer<ProFileOption> &proFileOption, QObject *parent);
+        const QSharedPointer<ProFileOption> &proFileOption,
+        ProFileUpdateSetting updateSetting, QObject *parent);
     ~MaemoDeployableListModel();
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -68,6 +73,11 @@ public:
     QString projectName() const;
     QString projectDir() const;
     const Qt4ProFileNode *proFileNode() const { return m_proFileNode; }
+    bool hasTargetPath() const { return m_hasTargetPath; }
+    ProFileUpdateSetting proFileUpdateSetting() const {
+        return m_proFileUpdateSetting;
+    }
+    void setProFileUpdateSetting(ProFileUpdateSetting updateSetting);
 
 private:
     virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -85,6 +95,8 @@ private:
     QList<MaemoDeployable> m_deployables;
     mutable bool m_modified;
     const QScopedPointer<MaemoProFileWrapper> m_proFileWrapper;
+    ProFileUpdateSetting m_proFileUpdateSetting;
+    bool m_hasTargetPath;
 };
 
 } // namespace Qt4ProjectManager
