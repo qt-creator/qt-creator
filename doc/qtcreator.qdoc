@@ -5137,7 +5137,9 @@
                package (Version 6.11.1.404 for the 32-bit or the 64-bit version of Qt Creator, respectively),
                which is freely available for download from the
                \l{http://msdn.microsoft.com/en-us/default.aspx}
-               {Microsoft Developer Network}.
+               {Microsoft Developer Network}. The Qt Creator help browser does
+               not allow you to download files, and therefore, you must copy the above links to
+               a browser.
 
                \note Visual Studio does not include the Debugging tools needed,
                and therefore, you must install them separately.
