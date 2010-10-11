@@ -945,7 +945,7 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
     QTC_ASSERT(editorManager(), return);
 
     *handled = true;
-    if (cmd.matches("w", "write")) {
+    if (cmd.matches("w", "write") || cmd.cmd == "wq") {
         // :w[rite]
         Core::IEditor *editor = m_editorToHandler.key(handler);
         const QString fileName = handler->currentFileName();
@@ -962,6 +962,8 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
             handler->showBlackMessage(FakeVimHandler::tr("\"%1\" %2 %3L, %4C written")
                 .arg(fileName).arg(" ")
                 .arg(ba.count('\n')).arg(ba.size()));
+            if (cmd.cmd == "wq")
+                delayedQuitRequested(cmd.hasBang, m_editorToHandler.key(handler));
         } else {
             handler->showRedMessage(tr("File not saved"));
         }
