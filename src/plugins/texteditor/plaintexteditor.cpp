@@ -62,7 +62,8 @@ PlainTextEditorEditable::PlainTextEditorEditable(PlainTextEditor *editor)
 
 PlainTextEditor::PlainTextEditor(QWidget *parent)
   : BaseTextEditor(parent),
-  m_isMissingSyntaxDefinition(false)
+  m_isMissingSyntaxDefinition(false),
+  m_ignoreMissingSyntaxDefinition(false)
 {
     setRevisionsVisible(true);
     setMarksVisible(true);
@@ -225,6 +226,11 @@ bool PlainTextEditor::isMissingSyntaxDefinition() const
     return m_isMissingSyntaxDefinition;
 }
 
+bool PlainTextEditor::ignoreMissingSyntaxDefinition() const
+{
+    return m_ignoreMissingSyntaxDefinition;
+}
+
 QString PlainTextEditor::findDefinitionId(const Core::MimeType &mimeType,
                                           bool considerParents) const
 {
@@ -245,4 +251,15 @@ QString PlainTextEditor::findDefinitionId(const Core::MimeType &mimeType,
 void PlainTextEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar)
 {
     m_indenter->indentBlock(doc, block, typedChar, tabSettings());
+}
+
+void PlainTextEditor::acceptMissingSyntaxDefinitionInfo()
+{
+    Core::ICore::instance()->showOptionsDialog(Constants::TEXT_EDITOR_SETTINGS_CATEGORY,
+                                               Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS);
+}
+
+void PlainTextEditor::ignoreMissingSyntaxDefinitionInfo()
+{
+    m_ignoreMissingSyntaxDefinition = true;
 }
