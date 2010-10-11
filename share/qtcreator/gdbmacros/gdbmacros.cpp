@@ -1299,6 +1299,7 @@ static void qDumpQDateTime(QDumper &d)
         d.putItem("value", "(null)");
         d.putItem("type", NS"QDateTime");
         d.putItem("numchild", "0");
+        d.disarm();
         return;
     }
     d.putItem("value", date.toString());

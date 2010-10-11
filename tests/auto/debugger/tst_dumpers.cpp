@@ -196,7 +196,6 @@ private slots:
 private:
     void dumpQAbstractItemHelper(QModelIndex &index);
     void dumpQAbstractItemModelHelper(QAbstractItemModel &m);
-    void dumpQDateTimeHelper(const QDateTime &d, bool isNull);
     template <typename K, typename V> void dumpQHashNodeHelper(QHash<K, V> &hash);
     void dumpQImageHelper(const QImage &img);
     void dumpQImageDataHelper(QImage &img);
@@ -949,41 +948,30 @@ void tst_Dumpers::dumpQChar()
         &c, NS"QChar", false);
 }
 
-void tst_Dumpers::dumpQDateTimeHelper(const QDateTime &d, bool isNull)
+void tst_Dumpers::dumpQDateTime()
 {
-    QByteArray value;
-    if (d.isNull())
-        value = "value='(null)'";
-    else
-        value = QByteArray("value='%',valueencoded='2'")
-            << utfToBase64(d.toString());
+    // Case 1: Null object.
+    QDateTime d;
+    testDumper("value='(null)',type='$T',numchild='0'",
+        &d, NS"QDateTime", true);
 
-    QByteArray expected = QByteArray("%,type='$T',numchild='3',children=["
-        "{name='isNull',%},"
+    // Case 2: Non-null object.
+    d = QDateTime::currentDateTime();
+    testDumper(QByteArray("value='%',valueencoded='2',"
+        "type='$T',numchild='1',children=["
         "{name='toTime_t',%},"
         "{name='toString',%},"
         "{name='toString_(ISO)',%},"
         "{name='toString_(SystemLocale)',%},"
         "{name='toString_(Locale)',%}]")
-            << value
-            << generateBoolSpec(d.isNull())
+            << utfToBase64(d.toString())
             << generateLongSpec((d.toTime_t()))
-            << generateQStringSpec(d.toString(), isNull)
-            << generateQStringSpec(d.toString(Qt::ISODate), isNull)
-            << generateQStringSpec(d.toString(Qt::SystemLocaleDate), isNull)
-            << generateQStringSpec(d.toString(Qt::LocaleDate), isNull);
-    testDumper(expected, &d, NS"QDateTime", true);
-}
+            << generateQStringSpec(d.toString())
+            << generateQStringSpec(d.toString(Qt::ISODate))
+            << generateQStringSpec(d.toString(Qt::SystemLocaleDate))
+            << generateQStringSpec(d.toString(Qt::LocaleDate)),
+        &d, NS"QDateTime", true);
 
-void tst_Dumpers::dumpQDateTime()
-{
-    // Case 1: Null object.
-    QDateTime d;
-    dumpQDateTimeHelper(d, true);
-
-    // Case 2: Non-null object.
-    d = QDateTime::currentDateTime();
-    dumpQDateTimeHelper(d, false);
 }
 
 void tst_Dumpers::dumpQDir()
@@ -1196,11 +1184,9 @@ void tst_Dumpers::dumpQHashNode()
 
 void tst_Dumpers::dumpQImageHelper(const QImage &img)
 {
-    QByteArray expected = "value='(%x%)',type='"NS"QImage',numchild='1',"
-        "children=[{name='data',type='"NS"QImageData',addr='%'}]"
+    QByteArray expected = "value='(%x%)',type='"NS"QImage',numchild='0'"
             << N(img.width())
-            << N(img.height())
-            << ptrToBa(&img);
+            << N(img.height());
     testDumper(expected, &img, NS"QImage", true);
 }
 
