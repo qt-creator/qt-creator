@@ -1,14 +1,15 @@
 CONFIG += qtestlib
 TEMPLATE = app
 CONFIG -= app_bundle
-DESTDIR = $${PWD}
+
 # Input
 SOURCES += tst_pluginspec.cpp
 
+RELATIVEPATH = ../..
 include(../../extensionsystem_test.pri)
 
-LIBS += -L$${PWD}/testplugin -ltest
+LIBS += -L$${OUT_PWD}/testplugin -ltest
 macx {
 } else:unix {
-    QMAKE_RPATHDIR += $${PWD}/testplugin
+    QMAKE_RPATHDIR += $${OUT_PWD}/testplugin
 }

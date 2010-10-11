@@ -6,4 +6,5 @@ macx:CONFIG-=app_bundle
 HEADERS += plugindialog.h
 SOURCES += plugindialog.cpp
 
+RELATIVEPATH = ../..
 include(../../extensionsystem_test.pri)

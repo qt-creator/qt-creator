@@ -8,6 +8,7 @@ CONFIG -= app_bundle
 
 # Input
 
+RELATIVEPATH = ../..
 include(../../extensionsystem_test.pri)
 
 SOURCES += tst_pluginmanager.cpp

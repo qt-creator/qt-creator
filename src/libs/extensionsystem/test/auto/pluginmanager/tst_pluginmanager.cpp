@@ -198,7 +198,7 @@ void tst_PluginManager::plugins()
 {
     m_pm->setPluginPaths(QStringList() << "plugins");
     QCOMPARE(m_sr->pluginsChangedCount, 1);
-    QSet<PluginSpec *> plugins = m_pm->plugins();
+    QList<PluginSpec *> plugins = m_pm->plugins();
     QCOMPARE(plugins.count(), 3);
     foreach (const QString &expected, QStringList() << "helloworld" << "MyPlugin" << "dummyPlugin") {
         bool found = false;
