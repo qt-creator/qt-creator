@@ -50,7 +50,7 @@ MaemoProFilesUpdateDialog::MaemoProFilesUpdateDialog(const QList<MaemoDeployable
         new QTableWidgetItem(tr("Updateable Project Files")));
     for (int row = 0; row < models.count(); ++row) {
         QTableWidgetItem *const item
-            = new QTableWidgetItem(models.at(row)->proFileNode()->path());
+            = new QTableWidgetItem(models.at(row)->proFilePath());
         item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
         item->setCheckState(Qt::Unchecked);
         ui->tableWidget->setItem(row, 0, item);

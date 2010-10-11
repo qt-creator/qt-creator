@@ -112,7 +112,7 @@ void MaemoDeployables::createModels()
                 = setting.second
                     ? MaemoDeployableListModel::UpdateProFile
                     : MaemoDeployableListModel::DontUpdateProFile;
-            m_updateSettings.insert(setting.first->proFileNode()->path(),
+            m_updateSettings.insert(setting.first->proFilePath(),
                 updateSetting);
             setting.first->setProFileUpdateSetting(updateSetting);
         }

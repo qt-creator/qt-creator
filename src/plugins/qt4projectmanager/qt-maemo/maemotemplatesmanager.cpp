@@ -327,7 +327,7 @@ bool MaemoTemplatesManager::updateDesktopFile(const Qt4Target *target,
             ->deployables();
     for (int i = 0; i < deployables->modelCount(); ++i) {
         const MaemoDeployableListModel * const model = deployables->modelAt(i);
-        if (model->proFileNode() == proFileNode) {
+        if (model->proFilePath() == proFileNode->path()) {
             executable = model->remoteExecutableFilePath();
             break;
         }
