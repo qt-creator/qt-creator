@@ -63,7 +63,7 @@ void FindInFiles::findAll(const QString &txt, Find::FindFlags findFlags)
     BaseFileFind::findAll(txt, findFlags);
 }
 
-Utils::FileIterator *FindInFiles::files()
+Utils::FileIterator *FindInFiles::files() const
 {
     return new Utils::SubDirFileIterator(QStringList() << m_directory->currentText(),
                                          fileNameFilters());

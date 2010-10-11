@@ -72,9 +72,14 @@ bool AllProjectsFind::isEnabled() const
             && m_plugin->session()->projects().count() > 0;
 }
 
-Utils::FileIterator *AllProjectsFind::files()
+QList<Project *> AllProjectsFind::projects() const
 {
     Q_ASSERT(m_plugin->session());
+    return m_plugin->session()->projects();
+}
+
+Utils::FileIterator *AllProjectsFind::files() const
+{
     QList<QRegExp> filterRegs;
     QStringList nameFilters = fileNameFilters();
     foreach (const QString &filter, nameFilters) {
@@ -82,7 +87,7 @@ Utils::FileIterator *AllProjectsFind::files()
     }
     QStringList files;
     QStringList projectFiles;
-    foreach (const Project *project, m_plugin->session()->projects()) {
+    foreach (const Project *project, projects()) {
         projectFiles = project->files(Project::AllFiles);
         if (!filterRegs.isEmpty()) {
             foreach (const QString &file, projectFiles) {

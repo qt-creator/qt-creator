@@ -40,6 +40,7 @@
 namespace ProjectExplorer {
 
 class ProjectExplorerPlugin;
+class Project;
 
 namespace Internal {
 
@@ -60,7 +61,8 @@ public:
     void readSettings(QSettings *settings);
 
 protected:
-    Utils::FileIterator *files();
+    virtual QList<Project *> projects() const;
+    Utils::FileIterator *files() const;
 
 private:
     ProjectExplorerPlugin *m_plugin;

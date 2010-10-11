@@ -62,7 +62,7 @@ QString FindInCurrentFile::displayName() const
     return tr("Current File");
 }
 
-Utils::FileIterator *FindInCurrentFile::files()
+Utils::FileIterator *FindInCurrentFile::files() const
 {
     QStringList fileList;
     if (isEnabled())
