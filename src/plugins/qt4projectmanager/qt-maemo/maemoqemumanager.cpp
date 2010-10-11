@@ -723,12 +723,13 @@ QString MaemoQemuManager::runtimeForQtVersion(const QString &qmakeCommand) const
                     if (infoReader.tokenType() == QXmlStreamReader::StartElement
                         && infoReader.name() == QLatin1String("installed")) {
                         if (infoReader.readNext() == QXmlStreamReader::Characters
-                            && infoReader.text() == QLatin1String("true"))
-                        if (attrs.hasAttribute(QLatin1String(QLatin1String("runtime_id"))))
-                            installedRuntimes << attrs.value(QLatin1String("runtime_id")).toString();
-                        else if (attrs.hasAttribute(QLatin1String(QLatin1String("id")))) {
-                            // older MADDE seems to use only id
-                            installedRuntimes << attrs.value(QLatin1String("id")).toString();
+                            && infoReader.text() == QLatin1String("true")) {
+                            if (attrs.hasAttribute(QLatin1String("runtime_id")))
+                                installedRuntimes << attrs.value(QLatin1String("runtime_id")).toString();
+                            else if (attrs.hasAttribute(QLatin1String("id"))) {
+                                // older MADDE seems to use only id
+                                installedRuntimes << attrs.value(QLatin1String("id")).toString();
+                            }
                         }
                         break;
                     }
