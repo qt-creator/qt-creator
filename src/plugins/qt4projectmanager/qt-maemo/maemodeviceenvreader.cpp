@@ -72,7 +72,7 @@ void MaemoDeviceEnvReader::start()
 
     connect(m_connection.data(), SIGNAL(connected()), this,
         SLOT(executeRemoteCall()));
-    connect(m_connection.data(), SIGNAL(error(SshError)), this,
+    connect(m_connection.data(), SIGNAL(error(Core::SshError)), this,
         SLOT(handleConnectionFailure()));
 
     if (reuse)
