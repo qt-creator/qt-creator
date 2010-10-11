@@ -1789,37 +1789,62 @@ void ProjectExplorerPlugin::startupProjectChanged()
         d->m_projectsMode->setEnabled(project);
 
     if (previousStartupProject) {
-        disconnect(previousStartupProject->activeTarget(), SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
-                this, SLOT(updateRunActions()));
-
         disconnect(previousStartupProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
-                   this, SLOT(updateDeployActions()));
-        disconnect(previousStartupProject->activeTarget()->activeRunConfiguration(),
-                   SIGNAL(isEnabledChanged(bool)), this, SLOT(updateRunActions()));
-
-        foreach (Target *t, previousStartupProject->targets())
-            disconnect(t, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
-                       this, SLOT(updateActions()));
+                   this, SLOT(activeTargetChanged()));
     }
 
     previousStartupProject = project;
 
     if (project) {
         connect(project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
-                this, SLOT(updateDeployActions()));
-
-        connect(project->activeTarget(), SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
-                this, SLOT(updateRunActions()));
-
-        if (project->activeTarget()->activeRunConfiguration()) {
-            connect(project->activeTarget()->activeRunConfiguration(), SIGNAL(isEnabledChanged(bool)),
-                    this, SLOT(updateRunActions()));
-            foreach (Target *t, project->targets())
-                connect(t, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
-                    this, SLOT(updateActions()));
-        }
+                this, SLOT(activeTargetChanged()));
     }
 
+    activeTargetChanged();
+
+    updateRunActions();
+}
+
+void ProjectExplorerPlugin::activeTargetChanged()
+{
+    static QPointer<Target> previousTarget = 0;
+    Target *target = 0;
+    if (startupProject())
+        target = startupProject()->activeTarget();
+    if (target == previousTarget)
+        return;
+
+    if (previousTarget) {
+        disconnect(previousTarget, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
+                   this, SLOT(activeRunConfigurationChanged()));
+    }
+    previousTarget = target;
+    if (target) {
+        connect(target, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
+                this, SLOT(activeRunConfigurationChanged()));
+    }
+
+    updateDeployActions();
+    activeRunConfigurationChanged();
+}
+
+void ProjectExplorerPlugin::activeRunConfigurationChanged()
+{
+    static QPointer<RunConfiguration> previousRunConfiguration = 0;
+    RunConfiguration *rc = 0;
+    if (startupProject() && startupProject()->activeTarget())
+        rc = startupProject()->activeTarget()->activeRunConfiguration();
+    if (rc == previousRunConfiguration)
+        return;
+    if (previousRunConfiguration) {
+        disconnect(previousRunConfiguration, SIGNAL(isEnabledChanged(bool)),
+                   this, SLOT(updateRunActions()));
+    }
+    previousRunConfiguration = rc;
+    if (rc) {
+        connect(rc, SIGNAL(isEnabledChanged(bool)),
+                this, SLOT(updateRunActions()));
+    }
     updateRunActions();
 }
 

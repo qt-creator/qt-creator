@@ -190,6 +190,9 @@ private slots:
     void runControlFinished();
 
     void startupProjectChanged(); // Calls updateRunAction
+    void activeTargetChanged();
+    void activeRunConfigurationChanged();
+
     void updateDeployActions();
     void updateRunActions();
 
