@@ -98,8 +98,7 @@ Maemo Target
    * Deployment information is taken from .pro file's INSTALLS variable
    * Support for "subdirs" and library project types
    * Projects created by mobile wizards are now usable for Maemo development
-   * Automatic creation and deployment of Desktop files for application projects
-   * Fremantle: Support for exporting host directories to the device (also employed for zero-copy deployment)
+   * Fremantle: Support for exporting host directories to the device
 
 Designer
    * Added switching between code and forms using Shift-F4

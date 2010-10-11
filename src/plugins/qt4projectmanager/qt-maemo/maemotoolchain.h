@@ -55,7 +55,10 @@ public:
     enum MaemoVersion { Maemo5, Maemo6 };
     MaemoVersion version() const;
     bool allowsRemoteMounts() const { return version() == Maemo5; }
-    bool allowsPackagingDisabling() const { return version() == Maemo5; }
+
+    // TODO: Perhaps re-enable when we deploy via UTFS again, otherwise throw the whole function away.
+    bool allowsPackagingDisabling() const { return /* version() == Maemo5 */ false; }
+
     bool allowsQmlDebugging() const { return version() == Maemo6; }
 
 protected:

@@ -167,8 +167,11 @@ bool MaemoRunControlFactory::canRun(RunConfiguration *runConfiguration,
         || maemoRunConfig->remoteExecutableFilePath().isEmpty())
         return false;
     const int freePortCount = maemoRunConfig->freePorts().count();
-    if (freePortCount == 0)
+
+#if 0 // TODO: Enable if deployment-via-mount is enabled again, otherwise throw away.
+    if (maemoRunConfig->toolchain()->allowsRemoteMounts() && freePortCount == 0)
         return false;
+#endif
     const int mountDirCount
         = maemoRunConfig->toolchain()->allowsRemoteMounts()
             ? maemoRunConfig->remoteMounts()->validMountSpecificationCount()
