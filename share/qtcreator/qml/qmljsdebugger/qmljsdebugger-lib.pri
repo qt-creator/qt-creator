@@ -11,9 +11,7 @@ contains(CONFIG, dll) {
 ## Input
 HEADERS += \
     include/jsdebuggeragent.h \
-    include/qmljsdebugger_global.h \
-    include/qt_private/qdeclarativedebughelper_p.h \
-    include/qt_private/qdeclarativedebugservice_p.h
+    include/qmljsdebugger_global.h
 
 SOURCES += \
     jsdebuggeragent.cpp

@@ -36,65 +36,217 @@ using namespace ProjectExplorer::Constants;
 using namespace Qt4ProjectManager;
 
 RvctParser::RvctParser() :
-    m_additionalInfo(false),
-    m_lastLine(0)
+    m_task(0)
 {
     setObjectName(QLatin1String("RvctParser"));
     // Start of a error or warning:
-    m_warningOrError.setPattern("^\"([^\\(\\)]+[^\\d])\", line (\\d+):(\\s(Warning|Error):)\\s(.+)$");
+    m_warningOrError.setPattern("^\"([^\\(\\)]+[^\\d])\", line (\\d+):(\\s(Warning|Error):)\\s+([^\\s].*)$");
     m_warningOrError.setMinimal(true);
 
     // Last message for any file with warnings/errors.
-    m_doneWithFile.setPattern("^([^\\(\\)]+[^\\d]):\\s(\\d+) warnings?,\\s(\\d+) errors?$");
-    m_doneWithFile.setMinimal(true);
+    m_wrapUpTask.setPattern("^([^\\(\\)]+[^\\d]):\\s(\\d+) warnings?,\\s(\\d+) errors?$");
+    m_wrapUpTask.setMinimal(true);
 
     // linker problems:
-    m_linkerProblem.setPattern("^(\\S*)\\(\\S+\\):\\s(.+)$");
-    m_linkerProblem.setMinimal(true);
+    m_genericProblem.setPattern("^(Error|Warning): (.*)$");
+    m_genericProblem.setMinimal(true);
+}
+
+RvctParser::~RvctParser()
+{
+    sendTask();
 }
 
 void RvctParser::stdError(const QString &line)
 {
     QString lne = line.trimmed();
-    if (m_linkerProblem.indexIn(lne) > -1) {
-       emit addTask(Task(Task::Error,
-                         m_linkerProblem.cap(2) /* description */,
-                         m_linkerProblem.cap(1) /* filename */,
-                         -1 /* linenumber */,
-                         TASK_CATEGORY_COMPILE));
-       return;
-   }
+    if (m_genericProblem.indexIn(lne) > -1) {
+        sendTask();
 
+        m_task = new Task(Task::Error,
+                          m_genericProblem.cap(2) /* description */,
+                          QString(),
+                          -1 /* linenumber */,
+                          TASK_CATEGORY_COMPILE);
+        if (m_warningOrError.cap(4) == "Warning")
+            m_task->type = Task::Warning;
+        else if (m_warningOrError.cap(4) == "Error")
+            m_task->type = Task::Error;
+
+        return;
+   }
    if (m_warningOrError.indexIn(lne) > -1) {
-       m_lastFile = m_warningOrError.cap(1);
-       m_lastLine = m_warningOrError.cap(2).toInt();
+       sendTask();
 
-       Task task(Task::Unknown,
-                 m_warningOrError.cap(5) /* description */,
-                 m_lastFile, m_lastLine,
-                 TASK_CATEGORY_COMPILE);
+       m_task = new Task(Task::Unknown,
+                         m_warningOrError.cap(5) /* description */,
+                         m_warningOrError.cap(1) /* file */, m_warningOrError.cap(2).toInt() /* line */,
+                         TASK_CATEGORY_COMPILE);
        if (m_warningOrError.cap(4) == "Warning")
-           task.type = Task::Warning;
+           m_task->type = Task::Warning;
        else if (m_warningOrError.cap(4) == "Error")
-           task.type = Task::Error;
-
-       m_additionalInfo = true;
-
-       emit addTask(task);
+           m_task->type = Task::Error;
        return;
    }
 
-   if (m_doneWithFile.indexIn(lne) > -1) {
-       m_additionalInfo = false;
+   if (m_wrapUpTask.indexIn(lne) > -1) {
+       sendTask();
        return;
    }
-   if (m_additionalInfo) {
-       // Report any lines after a error/warning message as these contain
-       // additional information on the problem.
-       emit addTask(Task(Task::Unknown, lne,
-                         m_lastFile,  m_lastLine,
-                         TASK_CATEGORY_COMPILE));
+   if (m_task) {
+       QString description = line;
+       if (description.startsWith(QLatin1String("  ")))
+           description = description.mid(2);
+       if (description.endsWith('\n'))
+           description.chop(1);
+       if (m_task->formats.isEmpty()) {
+           QTextLayout::FormatRange fr;
+           fr.start = m_task->description.count(); // incl. '\n' we are about to add!
+           fr.length = description.count() - 1;
+           fr.format.setFontItalic(true);
+           m_task->formats.append(fr);
+       } else {
+           m_task->formats[0].length += description.count() - 2 + 1;
+       }
+       m_task->description += QLatin1Char('\n') + description;
+
+       // Wrap up license error:
+       if (description.endsWith(QLatin1String("at \"www.macrovision.com\".")))
+           sendTask();
+
        return;
    }
    IOutputParser::stdError(line);
 }
+
+void RvctParser::sendTask()
+{
+    if (!m_task)
+        return;
+    emit addTask(*m_task);
+    delete m_task;
+    m_task = 0;
+}
+
+// Unit tests:
+
+#ifdef WITH_TESTS
+#   include <QTest>
+
+#   include "qt4projectmanagerplugin.h"
+#   include <projectexplorer/metatypedeclarations.h>
+#   include <projectexplorer/outputparser_test.h>
+
+using namespace Qt4ProjectManager::Internal;
+
+void Qt4ProjectManagerPlugin::testRvctOutputParser_data()
+{
+    QTest::addColumn<QString>("input");
+    QTest::addColumn<OutputParserTester::Channel>("inputChannel");
+    QTest::addColumn<QString>("childStdOutLines");
+    QTest::addColumn<QString>("childStdErrLines");
+    QTest::addColumn<QList<ProjectExplorer::Task> >("tasks");
+    QTest::addColumn<QString>("outputLines");
+
+
+    QTest::newRow("pass-through stdout")
+            << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
+            << QString::fromLatin1("Sometext") << QString()
+            << QList<ProjectExplorer::Task>()
+            << QString();
+    QTest::newRow("pass-through stderr")
+            << QString::fromLatin1("Sometext") << OutputParserTester::STDERR
+            << QString() << QString::fromLatin1("Sometext")
+            << QList<ProjectExplorer::Task>()
+            << QString();
+
+    QTest::newRow("Rvct warning")
+            << QString::fromLatin1("\"../../../../s60-sdk/epoc32/include/stdapis/stlport/stl/_limits.h\", line 256: Warning:  #68-D: integer conversion resulted in a change of sign\n"
+                                   "    : public _Integer_limits<char, CHAR_MIN, CHAR_MAX, -1, true>\n"
+                                   "                                   ^")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Warning,
+                        QLatin1String("#68-D: integer conversion resulted in a change of sign\n"
+                                      "  : public _Integer_limits<char, CHAR_MIN, CHAR_MAX, -1, true>\n"
+                                      "                                 ^"),
+                        QLatin1String("../../../../s60-sdk/epoc32/include/stdapis/stlport/stl/_limits.h"), 256,
+                        Constants::TASK_CATEGORY_COMPILE)
+                )
+            << QString();
+    QTest::newRow("Rvct error")
+            << QString::fromLatin1("\"mainwindow.cpp\", line 22: Error:  #20: identifier \"e\" is undefined\n"
+                                   "      delete ui;e\n"
+                                   "                ^")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Error,
+                        QLatin1String("#20: identifier \"e\" is undefined\n"
+                                      "    delete ui;e\n"
+                                      "              ^"),
+                        QLatin1String("mainwindow.cpp"), 22,
+                        Constants::TASK_CATEGORY_COMPILE)
+                )
+            << QString();
+    QTest::newRow("Rvct linking error")
+            << QString::fromLatin1("Error: L6218E: Undefined symbol MainWindow::sth() (referred from mainwindow.o)")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Error,
+                        QLatin1String("L6218E: Undefined symbol MainWindow::sth() (referred from mainwindow.o)"),
+                        QString(), -1,
+                        Constants::TASK_CATEGORY_COMPILE)
+                )
+            << QString();
+    QTest::newRow("Rvct license error")
+            << QString::fromLatin1("Error: C3397E: Cannot obtain license for Compiler (feature compiler) with license version >= 2.2:\n"
+                                   "Cannot find license file.\n"
+                                   " The license files (or license server system network addresses) attempted are \n"
+                                   "listed below.  Use LM_LICENSE_FILE to use a different license file,\n"
+                                   " or contact your software provider for a license file.\n"
+                                   "Feature:       compiler\n"
+                                   "Filename:      /usr/local/flexlm/licenses/license.dat\n"
+                                   "License path:  /usr/local/flexlm/licenses/license.dat\n"
+                                   "FLEXnet Licensing error:-1,359.  System Error: 2 \"No such file or directory\"\n"
+                                   "For further information, refer to the FLEXnet Licensing End User Guide,\n"
+                                   "available at \"www.macrovision.com\".")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Error,
+                        QLatin1String("C3397E: Cannot obtain license for Compiler (feature compiler) with license version >= 2.2:\n"
+                                      "Cannot find license file.\n"
+                                      " The license files (or license server system network addresses) attempted are \n"
+                                      "listed below.  Use LM_LICENSE_FILE to use a different license file,\n"
+                                      " or contact your software provider for a license file.\n"
+                                      "Feature:       compiler\n"
+                                      "Filename:      /usr/local/flexlm/licenses/license.dat\n"
+                                      "License path:  /usr/local/flexlm/licenses/license.dat\n"
+                                      "FLEXnet Licensing error:-1,359.  System Error: 2 \"No such file or directory\"\n"
+                                      "For further information, refer to the FLEXnet Licensing End User Guide,\n"
+                                      "available at \"www.macrovision.com\"."),
+                        QString(), -1,
+                        Constants::TASK_CATEGORY_COMPILE)
+                )
+            << QString();
+}
+
+void Qt4ProjectManagerPlugin::testRvctOutputParser()
+{
+    OutputParserTester testbench;
+    testbench.appendOutputParser(new RvctParser);
+    QFETCH(QString, input);
+    QFETCH(OutputParserTester::Channel, inputChannel);
+    QFETCH(QList<Task>, tasks);
+    QFETCH(QString, childStdOutLines);
+    QFETCH(QString, childStdErrLines);
+    QFETCH(QString, outputLines);
+
+    testbench.testParsing(input, inputChannel,
+                          tasks, childStdOutLines, childStdErrLines,
+                          outputLines);
+}
+#endif

@@ -83,6 +83,8 @@ private slots:
     void objc_protocol_forward_declaration_1();
     void objc_protocol_definition_1();
     void objc_method_attributes_1();
+    void objc_selector_error_recovery_1();
+    void objc_selector_error_recovery_2();
 
     // expressions with (square) brackets
     void normal_array_access();
@@ -830,6 +832,35 @@ void tst_AST::objc_method_attributes_1()
     QVERIFY(unavailableAttr);
     QVERIFY(! unavailableAttr->expression_list);
     QCOMPARE(unit->spell(unavailableAttr->identifier_token), "unavailable");
+}
+
+/*
+  @selector(foo)
+  @selector(foo:)
+  @selector(foo:bar:)
+  ...
+ */
+void tst_AST::objc_selector_error_recovery_1()
+{
+    QSharedPointer<TranslationUnit> unit(parseDeclaration("\n"
+                                                          "void tst() {\n"
+                                                          "    @selector(foo:\n"
+                                                          "    int i = 1;\n"
+                                                          "}\n"
+                                                          ));
+    AST *ast = unit->ast();
+    QVERIFY(ast);
+}
+
+void tst_AST::objc_selector_error_recovery_2()
+{
+    QSharedPointer<TranslationUnit> unit(parseDeclaration("\n"
+                                                          "void tst() {\n"
+                                                          "    @selector(foo:bar);\n"
+                                                          "}\n"
+                                                          ));
+    AST *ast = unit->ast();
+    QVERIFY(ast);
 }
 
 void tst_AST::normal_array_access()

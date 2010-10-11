@@ -71,7 +71,7 @@ public:
 
     virtual bool isComplete() const;
 
-    bool isBranchSelectorVisible() const ;
+    bool isBranchSelectorVisible() const;
 
 protected:
     void changeEvent(QEvent *e);
@@ -88,8 +88,14 @@ protected:
     virtual QStringList branches(const QString &repository, int *current);
 
     /* Add additional controls */
-    void addControl(QWidget *w);
-    void addControl(QString &description, QWidget *w);
+    void addLocalControl(QWidget *w);
+    void addLocalControl(QString &description, QWidget *w);
+
+    void addRepositoryControl(QWidget *w);
+    void addRepositoryControl(QString &description, QWidget *w);
+
+    /* Override validity information */
+    virtual bool checkIsValid() const;
 
 private slots:
     void slotRepositoryChanged(const QString &url);

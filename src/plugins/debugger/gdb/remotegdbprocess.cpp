@@ -31,6 +31,8 @@
 
 #include "remoteplaingdbadapter.h"
 
+#include <utils/qtcassert.h>
+
 #include <ctype.h>
 
 using namespace Core;
@@ -60,13 +62,20 @@ QByteArray RemoteGdbProcess::readAllStandardError()
 
 void RemoteGdbProcess::start(const QString &cmd, const QStringList &args)
 {
+    Q_UNUSED(cmd);
+    Q_UNUSED(args);
+    QTC_ASSERT(m_gdbStarted, return);
+}
+
+void RemoteGdbProcess::realStart(const QString &cmd, const QStringList &args)
+{
     m_command = cmd;
     m_cmdArgs = args;
     m_gdbStarted = false;
     m_error.clear();
     m_conn = SshConnection::create();
     connect(m_conn.data(), SIGNAL(connected()), this, SLOT(handleConnected()));
-    connect(m_conn.data(), SIGNAL(error(SshError)), this,
+    connect(m_conn.data(), SIGNAL(error(Core::SshError)), this,
         SLOT(handleConnectionError()));
     m_conn->connectToHost(m_connParams);
 }
@@ -129,13 +138,15 @@ void RemoteGdbProcess::handleAppOutputReaderFinished(int exitStatus)
 void RemoteGdbProcess::handleGdbStarted()
 {
     m_gdbStarted = true;
+    emit started();
 }
 
 void RemoteGdbProcess::handleGdbFinished(int exitStatus)
 {
     switch (exitStatus) {
     case SshRemoteProcess::FailedToStart:
-        emitErrorExit(tr("Remote gdb failed to start."));
+        m_error = tr("Remote gdb failed to start.");
+        emit startFailed();
         break;
     case SshRemoteProcess::KilledBySignal:
         emitErrorExit(tr("Remote gdb crashed."));

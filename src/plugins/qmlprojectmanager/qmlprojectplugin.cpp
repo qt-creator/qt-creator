@@ -29,7 +29,6 @@
 
 #include "qmlprojectplugin.h"
 #include "qmlprojectmanager.h"
-#include "qmlprojectimportwizard.h"
 #include "qmlprojectapplicationwizard.h"
 #include "qmlprojectconstants.h"
 #include "qmlproject.h"
@@ -77,7 +76,6 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
     addAutoReleasedObject(new Internal::QmlProjectRunConfigurationFactory);
     addAutoReleasedObject(new Internal::QmlRunControlFactory);
     addAutoReleasedObject(new QmlProjectApplicationWizard);
-    addAutoReleasedObject(new QmlProjectImportWizard);
 
     QmlProjectFileFormat::registerDeclarativeTypes();
 

@@ -269,8 +269,14 @@ bool SessionFile::save(const QString &fileName)
     writer.saveValue(QLatin1String("ProjectDependencies"), QVariant(depMap));
 
 
-    writer.saveValue(QLatin1String("OpenEditors"),
-                     m_core->editorManager()->openedEditors().count());
+    int editorCount = 0;
+    QList<Core::IEditor *> editors = m_core->editorManager()->openedEditors();
+    foreach (Core::IEditor *editor, editors) {
+        Q_ASSERT(editor);
+        if (!editor->isTemporary())
+            ++editorCount;
+    }
+    writer.saveValue(QLatin1String("OpenEditors"), editorCount);
     writer.saveValue(QLatin1String("EditorSettings"),
                      m_core->editorManager()->saveState().toBase64());
 

@@ -129,7 +129,7 @@ void MetaInfoPrivate::loadPlugins(QDeclarativeEngine *engine)
     QDeclarativeComponent pluginComponent(engine, 0);
 
     QStringList pluginList;
-    pluginList += "import QtQuick 1.0";
+    pluginList += "import Qt 4.7";
     pluginList += "import QtWebKit 1.0";
 
     // load maybe useful plugins
@@ -279,10 +279,10 @@ QList<QDeclarativeType*> MetaInfoPrivate::qmlTypes()
 
 static inline bool isDepricatedQtType(const QString &typeName)
 {
-    if (typeName.length() < 3)
+    if (typeName.length() < 8)
         return false;
 
-    return (typeName.at(0) == 'Q' && typeName.at(1) == 't' && typeName.at(2) == '/');
+    return typeName.contains("QtQuick/");
 }
 
 void MetaInfoPrivate::typeInfo(const QMetaObject *qMetaObject, QString *typeName, int *majorVersion, int *minorVersion) const
@@ -304,7 +304,7 @@ void MetaInfoPrivate::typeInfo(const QMetaObject *qMetaObject, QString *typeName
         }
         if (isDepricatedQtType(qmlType->qmlTypeName())) { //### todo there has to be an alternative
             QString properTypeName = qmlType->qmlTypeName();
-            properTypeName.replace("Qt/", "QtQuick/");
+            properTypeName.replace("QtQuick/", "Qt/");
             *typeName = properTypeName;
             majVersion = 1;
             minVersion = 0;

@@ -103,6 +103,7 @@ public:
     bool isShadowBuildProject() const;
 
     void setupUi();
+    bool isConnected() const;
     void connected(ClientProxy *clientProxy);
     void disconnected();
     void setDebuggerEngine(Debugger::QmlEngine *qmlEngine);

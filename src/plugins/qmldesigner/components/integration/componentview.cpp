@@ -109,7 +109,7 @@ void ComponentView::searchForComponentAndAddToList(const ModelNode &node)
 
 
     foreach (const ModelNode &childNode, nodeList) {
-        if (childNode.type() == "QtQuick/Component") {
+        if (childNode.type() == "Qt/Component") {
             if (!childNode.id().isEmpty()) {
                 QStandardItem *item = new QStandardItem(childNode.id());
                 item->setData(QVariant::fromValue(childNode), ModelNodeRole);
@@ -160,7 +160,7 @@ void ComponentView::variantPropertiesChanged(const QList<VariantProperty>& /*pro
 void ComponentView::bindingPropertiesChanged(const QList<BindingProperty>& /*propertyList*/, PropertyChangeFlags /*propertyChange*/) {}
 void ComponentView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/) {}
 void ComponentView::scriptFunctionsChanged(const ModelNode &/*node*/, const QStringList &/*scriptFunctionList*/) {}
-void ComponentView::instancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList) {};
+void ComponentView::instancePropertyChange(const QList<QPair<ModelNode, QString> > &/*propertyList*/) {};
 
 
 void ComponentView::selectedNodesChanged(const QList<ModelNode> &/*selectedNodeList*/,

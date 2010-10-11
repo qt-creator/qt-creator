@@ -122,7 +122,6 @@ GitSubmitEditorWidget::GitSubmitEditorWidget(QWidget *parent) :
 
     m_emailValidator = new QRegExpValidator(QRegExp(QLatin1String("[^@ ]+@[^@ ]+\\.[a-zA-Z]+")), this);
 
-    m_gitSubmitPanelUi.emailLineEdit->setValidator(m_emailValidator);
     connect(m_gitSubmitPanelUi.authorLineEdit, SIGNAL(textChanged(QString)),
             this, SLOT(authorInformationChanged()));
     connect(m_gitSubmitPanelUi.emailLineEdit, SIGNAL(textChanged(QString)),
@@ -152,18 +151,21 @@ void GitSubmitEditorWidget::setPanelData(const GitSubmitEditorPanelData &data)
 
 bool GitSubmitEditorWidget::canSubmit() const
 {
-    if (m_gitSubmitPanelUi.authorLineEdit->text().isEmpty()
-        || !emailIsValid())
+    if (m_gitSubmitPanelUi.invalidAuthorLabel->isVisible()
+        || m_gitSubmitPanelUi.invalidEmailLabel->isVisible())
         return false;
     return SubmitEditorWidget::canSubmit();
 }
 
 void GitSubmitEditorWidget::authorInformationChanged()
 {
+    bool bothEmpty = m_gitSubmitPanelUi.authorLineEdit->text().isEmpty() &&
+            m_gitSubmitPanelUi.emailLineEdit->text().isEmpty();
+
     m_gitSubmitPanelUi.invalidAuthorLabel->
-            setVisible(m_gitSubmitPanelUi.authorLineEdit->text().isEmpty());
+            setVisible(m_gitSubmitPanelUi.authorLineEdit->text().isEmpty() && !bothEmpty);
     m_gitSubmitPanelUi.invalidEmailLabel->
-            setVisible(!emailIsValid());
+            setVisible(!emailIsValid() && !bothEmpty);
 
    updateSubmitAction();
 }

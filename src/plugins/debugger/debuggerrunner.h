@@ -61,7 +61,7 @@ class DEBUGGER_EXPORT DebuggerRunControlFactory
     Q_OBJECT
 
 public:
-    DebuggerRunControlFactory(QObject *parent, DebuggerEngineType enabledEngines);
+    DebuggerRunControlFactory(QObject *parent, unsigned enabledEngines);
 
     // This is used by the "Non-Standard" scenarios, e.g. Attach to Core.
     // FIXME: What to do in case of a 0 runConfiguration?
@@ -78,7 +78,7 @@ private:
     QString displayName() const;
     QWidget *createConfigurationWidget(RunConfiguration *runConfiguration);
 
-    DebuggerEngineType m_enabledEngines;
+    unsigned m_enabledEngines;
 };
 
 
@@ -92,7 +92,7 @@ class DEBUGGER_EXPORT DebuggerRunControl
 public:
     typedef ProjectExplorer::RunConfiguration RunConfiguration;
     explicit DebuggerRunControl(RunConfiguration *runConfiguration,
-        DebuggerEngineType enabledEngines, const DebuggerStartParameters &sp);
+        unsigned enabledEngines, const DebuggerStartParameters &sp);
     ~DebuggerRunControl();
 
     // ProjectExplorer::RunControl
@@ -105,7 +105,6 @@ public:
     void createEngine(const DebuggerStartParameters &startParameters);
 
     void setCustomEnvironment(Utils::Environment env);
-    void setEnabledEngines(DebuggerEngineType enabledEngines);
 
     void startFailed();
     void debuggingFinished();
@@ -138,8 +137,8 @@ protected:
     const DebuggerStartParameters &startParameters() const;
 
 private:
-    DebuggerEngineType engineForExecutable(const QString &executable);
-    DebuggerEngineType engineForMode(DebuggerStartMode mode);
+    DebuggerEngineType engineForExecutable(unsigned enabledEngineTypes, const QString &executable);
+    DebuggerEngineType engineForMode(unsigned enabledEngineTypes, DebuggerStartMode mode);
     void initGdbEngine(Internal::GdbEngine *engine);
     Internal::GdbEngine *gdbEngine() const;
     Internal::AbstractGdbAdapter *gdbAdapter() const;

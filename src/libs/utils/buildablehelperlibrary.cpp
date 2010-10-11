@@ -171,12 +171,79 @@ bool BuildableHelperLibrary::copyFiles(const QString &sourcePath,
     return true;
 }
 
-QString BuildableHelperLibrary::buildHelper(const QString &helperName, const QString &proFilename,
-                                            const QString &directory, const QString &makeCommand,
-                                            const QString &qmakeCommand, const QString &mkspec,
-                                            const Utils::Environment &env, const QString &targetMode)
+// Helper: Run a build process with merged stdout/stderr
+static inline bool runBuildProcessI(QProcess &proc,
+                                    const QString &binary,
+                                    const QStringList &args,
+                                    int timeoutMS,
+                                    bool ignoreNonNullExitCode,
+                                    QString *output, QString *errorMessage)
 {
-    QString output;
+    proc.start(binary, args);
+    if (!proc.waitForStarted()) {
+        *errorMessage = QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
+                                                    "Cannot start process: %1").
+                                                    arg(proc.errorString());
+        return false;
+    }
+    // Read stdout/err and check for timeouts
+    QByteArray stdOut;
+    QByteArray stdErr;
+    if (!SynchronousProcess::readDataFromProcess(proc, timeoutMS, &stdOut, &stdErr, false)) {
+        *errorMessage = QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
+                                                    "Timeout after %1s.").
+                                                    arg(timeoutMS / 1000);
+        SynchronousProcess::stopProcess(proc);
+        return false;
+    }
+    if (proc.exitStatus() != QProcess::NormalExit) {
+        *errorMessage = QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
+                                                    "The process crashed.");
+        return false;
+    }
+    const QString stdOutS = QString::fromLocal8Bit(stdOut);
+    if (!ignoreNonNullExitCode && proc.exitCode() != 0) {
+            *errorMessage = QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
+                                                        "The process returned exit code %1:\n%2").
+                                                         arg(proc.exitCode()).arg(stdOutS);
+        return false;
+    }
+    output->append(stdOutS);
+    return true;
+}
+
+// Run a build process with merged stdout/stderr and qWarn about errors.
+static bool runBuildProcess(QProcess &proc,
+                            const QString &binary,
+                            const QStringList &args,
+                            int timeoutMS,
+                            bool ignoreNonNullExitCode,
+                            QString *output, QString *errorMessage)
+{
+    const bool rc = runBuildProcessI(proc, binary, args, timeoutMS, ignoreNonNullExitCode, output, errorMessage);
+    if (!rc) {
+        // Fail - reformat error.
+        QString cmd = binary;
+        if (!args.isEmpty()) {
+            cmd += QLatin1Char(' ');
+            cmd += args.join(QString(QLatin1Char(' ')));
+        }
+        *errorMessage =
+                QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
+                                            "Error running '%1' in %2: %3").
+                                            arg(cmd, proc.workingDirectory(), *errorMessage);
+        qWarning("%s", qPrintable(*errorMessage));
+    }
+    return rc;
+}
+
+
+bool BuildableHelperLibrary::buildHelper(const QString &helperName, const QString &proFilename,
+                                         const QString &directory, const QString &makeCommand,
+                                         const QString &qmakeCommand, const QString &mkspec,
+                                         const Utils::Environment &env, const QString &targetMode,
+                                         QString *output, QString *errorMessage)
+{
     const QChar newline = QLatin1Char('\n');
     // Setup process
     QProcess proc;
@@ -184,45 +251,43 @@ QString BuildableHelperLibrary::buildHelper(const QString &helperName, const QSt
     proc.setWorkingDirectory(directory);
     proc.setProcessChannelMode(QProcess::MergedChannels);
 
-    output += QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
-                                          "Building helper library '%1' in %2\n").arg(helperName, directory);
-    output += newline;
+    output->append(QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
+                                          "Building helper library '%1' in %2\n").arg(helperName, directory));
+    output->append(newline);
 
     const QString makeFullPath = env.searchInPath(makeCommand);
     if (QFileInfo(directory + QLatin1String("/Makefile")).exists()) {
-        if (!makeFullPath.isEmpty()) {
-            const QString cleanTarget = QLatin1String("distclean");
-            output += QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
-                                                  "Running %1 %2...\n").arg(makeFullPath, cleanTarget);
-            proc.start(makeFullPath, QStringList(cleanTarget));
-            proc.waitForFinished();
-            output += QString::fromLocal8Bit(proc.readAll());
-        } else {
-            output += QCoreApplication::translate("ProjectExplorer::DebuggingHelperLibrary",
-                                                  "%1 not found in PATH\n").arg(makeCommand);
-            return output;
+        if (makeFullPath.isEmpty()) {
+            *errorMessage = QCoreApplication::translate("ProjectExplorer::DebuggingHelperLibrary",
+                                                       "%1 not found in PATH\n").arg(makeCommand);
+            return false;
         }
+        const QString cleanTarget = QLatin1String("distclean");
+        output->append(QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
+                                                   "Running %1 %2...\n").arg(makeFullPath, cleanTarget));
+        if (!runBuildProcess(proc, makeFullPath, QStringList(cleanTarget), 30000, true, output, errorMessage))
+            return false;
     }
-    output += newline;
-    output += QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary", "Running %1 ...\n").arg(qmakeCommand);
+    output->append(newline);
+    output->append(QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary", "Running %1 ...\n").arg(qmakeCommand));
 
-    QStringList makeArgs;
-    makeArgs << targetMode << QLatin1String("-spec") << (mkspec.isEmpty() ? QString(QLatin1String("default")) : mkspec) << proFilename;
-    proc.start(qmakeCommand, makeArgs);
-    proc.waitForFinished();
-
-    output += proc.readAll();
-
-    output += newline;;
-    if (!makeFullPath.isEmpty()) {
-        output += QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary", "Running %1 ...\n").arg(makeFullPath);
-        proc.start(makeFullPath, QStringList());
-        proc.waitForFinished();
-        output += proc.readAll();
-    } else {
-        output += QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary", "%1 not found in PATH\n").arg(makeCommand);
+    QStringList qMakeArgs;
+    if (!targetMode.isEmpty())
+        qMakeArgs << targetMode;
+    if (!mkspec.isEmpty())
+        qMakeArgs << QLatin1String("-spec") << mkspec;
+    qMakeArgs << proFilename;
+    if (!runBuildProcess(proc, qmakeCommand, qMakeArgs, 30000, false, output, errorMessage))
+        return false;
+    output->append(newline);
+    if (makeFullPath.isEmpty()) {
+        *errorMessage = QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary", "%1 not found in PATH\n").arg(makeCommand);
+        return false;
     }
-    return output;
+    output->append(QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary", "Running %1 ...\n").arg(makeFullPath));
+    if (!runBuildProcess(proc, makeFullPath, QStringList(), 120000, false, output, errorMessage))
+        return false;
+    return true;
 }
 
 bool BuildableHelperLibrary::getHelperFileInfoFor(const QStringList &validBinaryFilenames,

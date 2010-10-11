@@ -58,6 +58,9 @@
 #include <QFileInfo>
 #include <QFileSystemWatcher>
 #include <QPixmapCache>
+#ifndef QT_NO_WEBKIT
+#include <QGraphicsWebView>
+#endif
 
 #include <QTextDocument>
 
@@ -655,7 +658,7 @@ ObjectNodeInstance::Pointer ObjectNodeInstance::create(const NodeMetaInfo &nodeM
     return instance;
 }
 
-static void stopAnimation(QObject *object, QObjectList &inspectedObjectList)
+static void stopAnimation(QObject *object)
 {
     if (object == 0)
         return;
@@ -677,57 +680,78 @@ static void stopAnimation(QObject *object, QObjectList &inspectedObjectList)
     } else if (timer) {
         timer->blockSignals(true);
     }
-
-    ObjectNodeInstance::removeAnimationsFromComponents(object, inspectedObjectList);
 }
 
-void ObjectNodeInstance::removeAnimationsFromComponents(QObject *object, QObjectList &inspectedObjectList)
+void allSubObject(QObject *object, QObjectList &objectList)
 {
-    if (inspectedObjectList.contains(object)) // prevent cycles
+    // don't add null pointer and stop if the object is already in the list
+    if (!object || objectList.contains(object))
         return;
 
-    inspectedObjectList.append(object);
+    objectList.append(object);
+
     for (int index = QObject::staticMetaObject.propertyOffset();
          index < object->metaObject()->propertyCount();
          index++) {
-             QMetaProperty metaProperty = object->metaObject()->property(index);
+        QMetaProperty metaProperty = object->metaObject()->property(index);
 
-             // search recursive in objects
-             if (metaProperty.isReadable()
-                 && metaProperty.isWritable()
-                 && QDeclarativeMetaType::isQObject(metaProperty.userType())) {
-                 QObject *propertyObject = QDeclarativeMetaType::toQObject(metaProperty.read(object));
-                 if (propertyObject) {
-                    stopAnimation(object, inspectedObjectList);
-                 }
-             }
+        // search recursive in property objects
+        if (metaProperty.isReadable()
+                && metaProperty.isWritable()
+                && QDeclarativeMetaType::isQObject(metaProperty.userType())) {
+            QObject *propertyObject = QDeclarativeMetaType::toQObject(metaProperty.read(object));
+            allSubObject(propertyObject, objectList);
 
-             // search recursive in objects list
-             if (metaProperty.isReadable()
-                 && QDeclarativeMetaType::isList(metaProperty.userType())) {
-                 QDeclarativeListReference list(object, metaProperty.name());
-                 if (list.canCount() && list.canAt()) {
-                     for (int i = 0; i < list.count(); i++) {
-                         QObject *propertyObject = list.at(i);
-                         if (propertyObject) {
-                             stopAnimation(object, inspectedObjectList);
-                         }
-                     }
-                 }
-             }
-         }
+        }
 
+        // search recursive in property object lists
+        if (metaProperty.isReadable()
+                && QDeclarativeMetaType::isList(metaProperty.userType())) {
+            QDeclarativeListReference list(object, metaProperty.name());
+            if (list.canCount() && list.canAt()) {
+                for (int i = 0; i < list.count(); i++) {
+                    QObject *propertyObject = list.at(i);
+                    allSubObject(propertyObject, objectList);
 
-         foreach(QObject *object, object->children()) {
-             stopAnimation(object, inspectedObjectList);
-         }
+                }
+            }
+        }
+    }
 
-         QGraphicsObject *graphicsObject = qobject_cast<QGraphicsObject*>(object);
-         if (graphicsObject) {
-             foreach(QGraphicsItem *item, graphicsObject->childItems()) {
-                 stopAnimation(item->toGraphicsObject(), inspectedObjectList);
-             }
-         }
+    // search recursive in object children list
+    foreach(QObject *childObject, object->children()) {
+        allSubObject(childObject, objectList);
+    }
+
+    // search recursive in graphics item childItems list
+    QGraphicsObject *graphicsObject = qobject_cast<QGraphicsObject*>(object);
+    if (graphicsObject) {
+        foreach(QGraphicsItem *item, graphicsObject->childItems()) {
+            QGraphicsObject *childObject = item->toGraphicsObject();
+            allSubObject(childObject, objectList);
+        }
+    }
+}
+
+static void disableTiledBackingStore(QObject *object)
+{
+#ifndef QT_NO_WEBKIT
+    QGraphicsWebView *webView = qobject_cast<QGraphicsWebView*>(object);
+    if (webView)
+        webView->settings()->setAttribute(QWebSettings::TiledBackingStoreEnabled, false);
+#else
+    Q_UNUSED(object);
+#endif
+}
+
+void ObjectNodeInstance::tweakObjects(QObject *object)
+{
+    QObjectList objectList;
+    allSubObject(object, objectList);
+    foreach(QObject* childObject, objectList) {
+        disableTiledBackingStore(childObject);
+        stopAnimation(childObject);
+    }
 }
 
 /*!
@@ -750,8 +774,6 @@ QObject *ObjectNodeInstance::createInstance(const NodeMetaInfo &metaInfo, QDecla
         QDeclarativeComponent component(context->engine(), QUrl::fromLocalFile(metaInfo.componentString()));
         QDeclarativeContext *newContext =  new QDeclarativeContext(context);
         object = component.beginCreate(newContext);
-        QObjectList inspectedObjectList;
-        removeAnimationsFromComponents(object, inspectedObjectList);
         component.completeCreate();
         newContext->setParent(object);
     } else {
@@ -771,6 +793,8 @@ QObject *ObjectNodeInstance::createInstance(const NodeMetaInfo &metaInfo, QDecla
 
     QDeclarativeEngine::setObjectOwnership(object, QDeclarativeEngine::CppOwnership);
 
+    tweakObjects(object);
+
     return object;
 }
 
@@ -780,11 +804,6 @@ QObject* ObjectNodeInstance::createObject(const NodeMetaInfo &metaInfo, QDeclara
 
     if (object == 0)
         throw InvalidNodeInstanceException(__LINE__, __FUNCTION__, __FILE__);
-
-    if (metaInfo.isComponent()) {
-        QObjectList inspectedObjectList;
-        removeAnimationsFromComponents(object, inspectedObjectList);
-    }
 
     return object;
 }

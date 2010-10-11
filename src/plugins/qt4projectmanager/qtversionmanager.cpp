@@ -1670,15 +1670,26 @@ QStringList QtVersion::debuggingHelperLibraryLocations() const
 
 bool QtVersion::supportsBinaryDebuggingHelper() const
 {
-    QList<ProjectExplorer::ToolChain::ToolChainType> types = possibleToolChainTypes();
-    if (types.contains(ProjectExplorer::ToolChain::GCC)
-            || types.contains(ProjectExplorer::ToolChain::LINUX_ICC)
-            || types.contains(ProjectExplorer::ToolChain::MSVC)
-            || types.contains(ProjectExplorer::ToolChain::WINCE)
-            || types.contains(ProjectExplorer::ToolChain::GCC_MAEMO)
-            || types.contains(ProjectExplorer::ToolChain::OTHER)
-            || types.contains(ProjectExplorer::ToolChain::UNKNOWN))
-        return true;
+    foreach (ProjectExplorer::ToolChain::ToolChainType type, possibleToolChainTypes())
+        switch (type) {
+        case ProjectExplorer::ToolChain::GCC:
+        case ProjectExplorer::ToolChain::LINUX_ICC:
+        case ProjectExplorer::ToolChain::MinGW:
+        case ProjectExplorer::ToolChain::MSVC:
+        case ProjectExplorer::ToolChain::WINCE:
+        case ProjectExplorer::ToolChain::GCC_MAEMO:
+        case ProjectExplorer::ToolChain::OTHER:
+        case ProjectExplorer::ToolChain::UNKNOWN:
+            return true;
+        case ProjectExplorer::ToolChain::WINSCW:
+        case ProjectExplorer::ToolChain::GCCE :
+        case ProjectExplorer::ToolChain::RVCT_ARMV5:
+        case ProjectExplorer::ToolChain::RVCT_ARMV6:
+        case ProjectExplorer::ToolChain::GCCE_GNUPOC:
+        case ProjectExplorer::ToolChain::RVCT_ARMV5_GNUPOC:
+        case ProjectExplorer::ToolChain::INVALID:
+            break;
+        }
     return false;
 }
 
@@ -1745,66 +1756,70 @@ bool QtVersion::isQt64Bit() const
 #endif
 }
 
-QString QtVersion::buildDebuggingHelperLibrary(QFutureInterface<void> &future, bool onlyQmlDump)
+bool QtVersion::buildDebuggingHelperLibrary(QFutureInterface<void> &future,
+                                            bool onlyQmlDump,
+                                            QString *output, QString *errorMessage)
 {
-    QString qtInstallHeaders = versionInfo().value("QT_INSTALL_HEADERS");
-    QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");
-    if (qtInstallData.isEmpty())
-        return QString();
+    const QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");
+    if (qtInstallData.isEmpty()) {
+        *errorMessage =
+                QCoreApplication::translate("QtVersion",
+                                            "Cannot determine the installation path for Qt version '%1'.").
+                                             arg(displayName());
+        return false;
+    }
     Utils::Environment env = Utils::Environment::systemEnvironment();
     addToEnvironment(env);
 
     // TODO: the debugging helper doesn't comply to actual tool chain yet
     QList<QSharedPointer<ProjectExplorer::ToolChain> > alltc = toolChains();
     ProjectExplorer::ToolChain *tc = alltc.isEmpty() ? 0 : alltc.first().data();
-    if (!tc)
-        return QCoreApplication::translate("QtVersion", "The Qt Version has no toolchain.");
+    if (!tc) {
+        *errorMessage = QCoreApplication::translate("QtVersion", "The Qt Version has no toolchain.");
+        return false;
+    }
     tc->addToEnvironment(env);
-    QString output;
+    const QString target = (tc->type() == ToolChain::GCC_MAEMO ? QLatin1String("-unix") : QLatin1String(""));
+
+    // invalidate cache
+    m_versionInfoUpToDate = false;
 
     if (!onlyQmlDump) {
-        QString gdbHelperDirectory = DebuggingHelperLibrary::copy(qtInstallData, &output);
-        if (!gdbHelperDirectory.isEmpty()) {
-            output += DebuggingHelperLibrary::build(gdbHelperDirectory, tc->makeCommand(),
-                                                    qmakeCommand(), mkspec(), env,
-                                                    (tc->type() == ToolChain::GCC_MAEMO ? QLatin1String("-unix") : QLatin1String("")));
-        }
+        const QString gdbHelperDirectory = DebuggingHelperLibrary::copy(qtInstallData, errorMessage);
+        if (gdbHelperDirectory.isEmpty())
+            return false;
+        if (!DebuggingHelperLibrary::build(gdbHelperDirectory, tc->makeCommand(),
+                                           qmakeCommand(), mkspec(), env,
+                                           target, output, errorMessage))
+            return false;
+
         future.setProgressValue(2);
 
         if (QmlObserverTool::canBuild(this)) {
-            QString toolDirectory = QmlObserverTool::copy(qtInstallData, &output);
-            if (!toolDirectory.isEmpty()) {
-                output += QmlObserverTool::build(toolDirectory, tc->makeCommand(),
-                    qmakeCommand(), mkspec(), env,
-                    (tc->type() == ToolChain::GCC_MAEMO ? QLatin1String("-unix") : QLatin1String("")));
-            }
+            const QString toolDirectory = QmlObserverTool::copy(qtInstallData, errorMessage);
+            if (toolDirectory.isEmpty())
+                return false;
+            if (!QmlObserverTool::build(toolDirectory, tc->makeCommand(),
+                                        qmakeCommand(), mkspec(), env, target, output, errorMessage))
+                return false;
         } else {
-            output += QCoreApplication::tr("Cannot build QMLObserver; Qt version must be 4.7.1 or higher.");
+            output->append(QCoreApplication::translate("Qt4ProjectManager::QtVersion", "Warning: Cannot build QMLObserver; Qt version must be 4.7.1 or higher."));
         }
         future.setProgressValue(3);
     }
 
     if (QmlDumpTool::canBuild(this)) {
-        QString toolDirectory = QmlDumpTool::copy(qtInstallData, &output);
-        if (!toolDirectory.isEmpty()) {
-            output += QmlDumpTool::build(toolDirectory, tc->makeCommand(),
-                qmakeCommand(), mkspec(), env,
-                (tc->type() == ToolChain::GCC_MAEMO ? QLatin1String("-unix") : QLatin1String("")));
-        }
+        const QString qmlDumpToolDirectory = QmlDumpTool::copy(qtInstallData, errorMessage);
+        if (qmlDumpToolDirectory.isEmpty())
+            return false;
+        if (!QmlDumpTool::build(qmlDumpToolDirectory, tc->makeCommand(),
+                                qmakeCommand(), mkspec(), env, target, output, errorMessage))
+            return false;
+
     } else {
-        output += QCoreApplication::tr("Cannot build qmldump; Qt version must be 4.7.1 or higher.");
+        output->append(QCoreApplication::translate("Qt4ProjectManager::QtVersion", "Warning: Cannot build qmldump; Qt version must be 4.7.1 or higher."));
     }
     future.setProgressValue(4);
 
-    // invalidate version before updating version info
-    m_versionInfoUpToDate = false;
-    updateVersionInfo();
-
-    if (!onlyQmlDump) {
-        m_hasDebuggingHelper = !debuggingHelperLibrary().isEmpty();
-        m_hasQmlObserver = !qmlObserverTool().isEmpty();
-    }
-    m_hasQmlDump = !qmlDumpTool().isEmpty();
-
-    return output;
+    return true;
 }

@@ -109,6 +109,8 @@ bool ColorTip::handleContentReplacement(const TipContent &content) const
 
 void ColorTip::paintEvent(QPaintEvent *event)
 {
+    QTipLabel::paintEvent(event);
+
     const QColor &color = static_cast<const ColorContent &>(content()).color();
 
     QPen pen;
@@ -124,8 +126,6 @@ void ColorTip::paintEvent(QPaintEvent *event)
     QRect r(1, 1, rect().width() - 2, rect().height() - 2);
     painter.drawTiledPixmap(r, m_tilePixMap);
     painter.drawRect(r);
-
-    QLabel::paintEvent(event);
 }
 
 TextTip::TextTip(QWidget *parent) : QTipLabel(parent)

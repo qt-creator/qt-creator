@@ -140,7 +140,8 @@ void InspectorPlugin::objectAdded(QObject *object)
 void InspectorPlugin::aboutToRemoveObject(QObject *obj)
 {
     if (m_clientProxy && m_clientProxy->qmlAdapter() == obj) {
-        m_inspectorUi->disconnected();
+        if (m_inspectorUi->isConnected())
+            m_inspectorUi->disconnected();
         delete m_clientProxy;
         m_clientProxy = 0;
     }

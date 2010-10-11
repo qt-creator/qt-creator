@@ -42,6 +42,7 @@
 #ifndef QDECLARATIVEDEBUGHELPER_P_H
 #define QDECLARATIVEDEBUGHELPER_P_H
 
+#include "../qmljsdebugger_global.h"
 #include <QtCore/qglobal.h>
 
 QT_BEGIN_HEADER
@@ -53,7 +54,7 @@ class QDeclarativeEngine;
 
 // Helper methods to access private API through a stable interface
 // This is used in the qmljsdebugger library of QtCreator.
-class Q_DECLARATIVE_EXPORT QDeclarativeDebugHelper
+class QMLJSDEBUGGER_EXTERN QDeclarativeDebugHelper
 {
 public:
     static QScriptEngine *getScriptEngine(QDeclarativeEngine *engine);

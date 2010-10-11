@@ -85,8 +85,8 @@ void MaemoRunControl::start()
             SLOT(handleRemoteOutput(QByteArray)));
         connect(m_runner, SIGNAL(remoteProcessStarted()), this,
             SLOT(handleRemoteProcessStarted()));
-        connect(m_runner, SIGNAL(remoteProcessFinished(int)), this,
-            SLOT(handleRemoteProcessFinished(int)));
+        connect(m_runner, SIGNAL(remoteProcessFinished(qint64)), this,
+            SLOT(handleRemoteProcessFinished(qint64)));
         connect(m_runner, SIGNAL(reportProgress(QString)), this,
             SLOT(handleProgressReport(QString)));
         connect(m_runner, SIGNAL(mountDebugOutput(QString)), this,
@@ -118,11 +118,13 @@ void MaemoRunControl::startExecution()
         .arg(m_runConfig->arguments().join(QLatin1String(" "))).toUtf8());
 }
 
-void MaemoRunControl::handleRemoteProcessFinished(int exitCode)
+void MaemoRunControl::handleRemoteProcessFinished(qint64 exitCode)
 {
-    emit appendMessage(this,
-        tr("Finished running remote process. Exit code was %1.").arg(exitCode),
-        false);
+    if (exitCode != MaemoSshRunner::InvalidExitCode) {
+        emit appendMessage(this,
+            tr("Finished running remote process. Exit code was %1.")
+            .arg(exitCode), false);
+    }
     setFinished();
 }
 

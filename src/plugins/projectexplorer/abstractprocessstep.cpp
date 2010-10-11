@@ -151,13 +151,12 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
         fi.reportResult(true);
         return;
     }
-    QString workDir = m_environment.expandVariables(m_workingDirectory);
-    QDir wd(workDir);
+    QDir wd(m_environment.expandVariables(m_workingDirectory));
     if (!wd.exists())
         wd.mkpath(wd.absolutePath());
 
     m_process = new QProcess();
-    m_process->setWorkingDirectory(workDir);
+    m_process->setWorkingDirectory(wd.absolutePath());
     m_process->setEnvironment(m_environment.toStringList());
 
     connect(m_process, SIGNAL(readyReadStandardOutput()),

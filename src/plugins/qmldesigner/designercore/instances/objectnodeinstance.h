@@ -181,7 +181,7 @@ public:
     virtual bool updateStateBinding(const NodeInstance &target, const QString &propertyName, const QString &expression);
     virtual bool resetStateProperty(const NodeInstance &target, const QString &propertyName, const QVariant &resetValue);
 
-    static void removeAnimationsFromComponents(QObject *object, QObjectList &inspectedObjectList);
+    static void tweakObjects(QObject *object);
 
     NodeInstance nodeInstanceParentForObject(QObject *currentObject) const;
 

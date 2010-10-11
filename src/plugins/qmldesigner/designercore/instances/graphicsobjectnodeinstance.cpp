@@ -195,23 +195,20 @@ void GraphicsObjectNodeInstance::paintRecursively(QGraphicsItem *graphicsItem, Q
 
 void GraphicsObjectNodeInstance::paint(QPainter *painter) const
 {
-    painter->save();
-    Q_ASSERT(graphicsObject());
-    if (hasContent()) {
-        QStyleOptionGraphicsItem option;
-        initOption(graphicsObject(), &option, painter->transform());
-        graphicsObject()->paint(painter, &option);
+    if (graphicsObject()) {
+        painter->save();
+        if (hasContent()) {
+            QStyleOptionGraphicsItem option;
+            initOption(graphicsObject(), &option, painter->transform());
+            graphicsObject()->paint(painter, &option);
 
-    }
-    foreach(QGraphicsItem *graphicsItem, graphicsObject()->childItems()) {
-        QGraphicsObject *graphicsObject = qgraphicsitem_cast<QGraphicsObject*>(graphicsItem);
-        if (graphicsObject
-            && !nodeInstanceView()->hasInstanceForObject(graphicsObject))
+        }
+
+        foreach(QGraphicsItem *graphicsItem, graphicsObject()->childItems())
             paintRecursively(graphicsItem, painter);
+
+        painter->restore();
     }
-
-
-    painter->restore();
 }
 
 QPair<QGraphicsObject*, bool> GraphicsObjectNodeInstance::createGraphicsObject(const NodeMetaInfo &metaInfo, QDeclarativeContext *context)

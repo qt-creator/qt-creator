@@ -67,6 +67,8 @@ public:
 
     QSharedPointer<Core::SshConnection> connection() const { return m_connection; }
 
+    static const qint64 InvalidExitCode;
+
 signals:
     void error(const QString &error);
     void mountDebugOutput(const QString &output);
@@ -75,7 +77,7 @@ signals:
     void remoteErrorOutput(const QByteArray &output);
     void reportProgress(const QString &progressOutput);
     void remoteProcessStarted();
-    void remoteProcessFinished(int exitCode);
+    void remoteProcessFinished(qint64 exitCode);
 
 private slots:
     void handleConnected();
@@ -87,9 +89,21 @@ private slots:
     void handleMounterError(const QString &errorMsg);
 
 private:
-    void cleanup(bool initialCleanup);
+    enum State { Inactive, Connecting, PreRunCleaning, PostRunCleaning,
+        PreMountUnmounting, Mounting, ReadyForExecution,
+        ProcessStarting, StopRequested
+    };
+
+    void assertState(State expectedState, const char *func);
+    void assertState(const QList<State> &expectedStates, const char *func);
+    void setState(State newState);
+    void emitError(const QString &errorMsg);
+
+    void cleanup();
     bool addMountSpecification(const MaemoMountSpecification &mountSpec);
     bool isConnectionUsable() const;
+    void mount();
+    void unmount();
 
     MaemoRunConfiguration * const m_runConfig; // TODO this pointer can be invalid
     MaemoRemoteMounter * const m_mounter;
@@ -100,13 +114,9 @@ private:
     QSharedPointer<Core::SshRemoteProcess> m_cleaner;
     QStringList m_procsToKill;
 
-    bool m_stop;
     int m_exitStatus;
-    bool m_shuttingDown;
     const bool m_debugging;
-
-    enum UnmountState { InitialUnmount, PreMountUnmount, ShutdownUnmount };
-    UnmountState m_unmountState;
+    State m_state;
 };
 
 } // namespace Internal

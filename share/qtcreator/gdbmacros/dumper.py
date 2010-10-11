@@ -1700,7 +1700,7 @@ class Dumper:
                 iname = "%s.%s" % (item.iname, name)
                 child = Item(item.value, iname, None, name)
                 with SubItem(self):
-                    self.put('name="%s",', name)
+                    self.put('name="%s",' % name)
                     self.putValue(" ")
                     if str(field.type).endswith("<anonymous union>"):
                         self.putType("<anonymous union>")

@@ -41,6 +41,9 @@ RemotePlainGdbAdapter::RemotePlainGdbAdapter(GdbEngine *engine, QObject *parent)
     : AbstractPlainGdbAdapter(engine, parent),
       m_gdbProc(engine->startParameters().connParams, this)
 {
+    connect(&m_gdbProc, SIGNAL(started()), this, SLOT(handleGdbStarted()));
+    connect(&m_gdbProc, SIGNAL(startFailed()), this,
+        SLOT(handleGdbStartFailed()));
 }
 
 void RemotePlainGdbAdapter::startAdapter()
@@ -106,9 +109,20 @@ void RemotePlainGdbAdapter::handleSetupDone()
         m_gdbProc.setWorkingDirectory(startParameters().workingDirectory);
     if (!startParameters().environment.isEmpty())
         m_gdbProc.setEnvironment(startParameters().environment);
+    m_gdbProc.realStart(m_engine->startParameters().debuggerCommand,
+        QStringList() << QLatin1String("-i") << QLatin1String("mi"));
+}
 
-    if (m_engine->startGdb(QStringList(), m_engine->startParameters().debuggerCommand))
+void RemotePlainGdbAdapter::handleGdbStarted()
+{
+    if (m_engine->startGdb(QStringList(),
+            m_engine->startParameters().debuggerCommand))
         m_engine->handleAdapterStarted();
+}
+
+void RemotePlainGdbAdapter::handleGdbStartFailed()
+{
+    m_engine->handleAdapterStartFailed(m_gdbProc.errorString());
 }
 
 void RemotePlainGdbAdapter::handleSetupFailed(const QString &reason)

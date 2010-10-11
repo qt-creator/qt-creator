@@ -113,7 +113,7 @@ void myMessageOutput(QtMsgType type, const char *msg)
 
 void usage()
 {
-    qWarning("Usage: qmlviewer [options] <filename>");
+    qWarning("Usage: qmlobserver [options] <filename>");
     qWarning(" ");
     qWarning(" options:");
     qWarning("  -v, -version ............................. display version");
@@ -125,6 +125,7 @@ void usage()
     qWarning("  -sizerootobjecttoview .................... the content resizes to the changes in the view (default)");
     qWarning("  -qmlbrowser .............................. use a QML-based file browser");
     qWarning("  -warnings [show|hide]..................... show warnings in a separate log window");
+#ifndef NO_PRIVATE_HEADERS
     qWarning("  -recordfile <output> ..................... set video recording file");
     qWarning("                                              - ImageMagick 'convert' for GIF)");
     qWarning("                                              - png file for raw frames");
@@ -133,6 +134,7 @@ void usage()
     qWarning("  -recordrate <fps> ........................ set recording frame rate");
     qWarning("  -record arg .............................. add a recording process argument");
     qWarning("  -autorecord [from-]<tomilliseconds> ...... set recording to start and stop");
+#endif
     qWarning("  -devicekeys .............................. use numeric keys (see F1)");
     qWarning("  -dragthreshold <size> .................... set mouse drag threshold size");
     qWarning("  -netcache <size> ......................... set disk cache to size bytes");
@@ -141,8 +143,10 @@ void usage()
     qWarning("                                             display path if <directory> is empty");
     qWarning("  -P <directory> ........................... prepend to the plugin search path");
     qWarning("  -opengl .................................. use a QGLWidget for the viewport");
+#ifndef NO_PRIVATE_HEADERS
     qWarning("  -script <path> ........................... set the script to use");
     qWarning("  -scriptopts <options>|help ............... set the script options to use");
+#endif
 
     qWarning(" ");
     qWarning(" Press F1 for interactive help");
@@ -151,7 +155,7 @@ void usage()
 
 void scriptOptsUsage()
 {
-    qWarning("Usage: qmlviewer -scriptopts <option>[,<option>...] ...");
+    qWarning("Usage: qmlobserver -scriptopts <option>[,<option>...] ...");
     qWarning(" options:");
     qWarning("  record ................................... record a new script");
     qWarning("  play ..................................... playback an existing script");

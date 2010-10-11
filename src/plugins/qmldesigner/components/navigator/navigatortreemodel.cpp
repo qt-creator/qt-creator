@@ -302,7 +302,7 @@ void NavigatorTreeModel::handleChangedItem(QStandardItem *item)
              if (node.view()->rewriterView())
                 node.view()->rewriterView()->renameId(node.id(), item->text());
         } else {
-            QMessageBox::warning(0, tr("Invalid Id"), item->text() + tr(" is an invalid id"));
+            QMessageBox::warning(0, tr("Invalid Id"),  tr("%1 is an invalid id").arg(item->text()));
             item->setText(node.id());
         }
     } else if (item == itemRow.visibilityItem) {
@@ -351,7 +351,7 @@ void NavigatorTreeModel::setView(AbstractView *view)
     m_view = view;
     m_hiddenProperties.clear();
     if (view) {
-        ModelNode sampleItemNode(m_view->createModelNode("QtQuick/Item", 4, 7));
+        ModelNode sampleItemNode(m_view->createModelNode("Qt/Item", 4, 7));
         m_hiddenProperties << visibleProperties(sampleItemNode);
         addSubTree(view->rootModelNode());
     }

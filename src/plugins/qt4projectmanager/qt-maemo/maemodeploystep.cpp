@@ -567,7 +567,7 @@ void MaemoDeployStep::connectToDevice()
         m_connection = SshConnection::create();
     connect(m_connection.data(), SIGNAL(connected()), this,
         SLOT(handleConnected()));
-    connect(m_connection.data(), SIGNAL(error(SshError)), this,
+    connect(m_connection.data(), SIGNAL(error(Core::SshError)), this,
         SLOT(handleConnectionFailure()));
     if (canReUse) {
         unmountOldDirs();

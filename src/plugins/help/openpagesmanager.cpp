@@ -69,7 +69,6 @@ OpenPagesManager::OpenPagesManager(QObject *parent)
 
     m_comboBox = new QComboBox;
     m_comboBox->setModel(m_model);
-    m_comboBox->setMinimumContentsLength(40);
     m_comboBox->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(m_comboBox, SIGNAL(activated(int)), this, SLOT(setCurrentPage(int)));
     connect(m_comboBox, SIGNAL(customContextMenuRequested(QPoint)), this,

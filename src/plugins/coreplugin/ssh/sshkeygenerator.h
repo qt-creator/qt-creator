@@ -61,7 +61,7 @@ private:
 
     bool generatePkcs8Keys(const KeyPtr &key);
     void generatePkcs8Key(const KeyPtr &key, bool privateKey);
-    bool generateOpenSslKeys(const KeyPtr &key, KeyType type);
+    bool generateOpenSslKeys(const KeyPtr &key);
 
     QString m_error;
     QByteArray m_publicKey;

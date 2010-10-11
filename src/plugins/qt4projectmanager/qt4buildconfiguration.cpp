@@ -658,8 +658,12 @@ void Qt4BuildConfigurationFactory::update()
     m_versions.clear();
     QtVersionManager *vm = QtVersionManager::instance();
     foreach (const QtVersion *version, vm->versions()) {
-        m_versions.insert(QString::fromLatin1(QT4_BC_ID_PREFIX) + QString::fromLatin1("Qt%1").arg(version->uniqueId()),
-                          VersionInfo(tr("Using Qt Version \"%1\"").arg(version->displayName()), version->uniqueId()));
+        if (version->isValid()) {
+            QString key = QString::fromLatin1(QT4_BC_ID_PREFIX)
+                    + QString::fromLatin1("Qt%1").arg(version->uniqueId());
+            VersionInfo info(tr("Using Qt Version \"%1\"").arg(version->displayName()), version->uniqueId());
+            m_versions.insert(key, info);
+        }
     }
     emit availableCreationIdsChanged();
 }
@@ -718,6 +722,7 @@ BuildConfiguration *Qt4BuildConfigurationFactory::create(ProjectExplorer::Target
                           QLineEdit::Normal,
                           version->displayName(),
                           &ok);
+    buildConfigurationName = buildConfigurationName.trimmed();
     if (!ok || buildConfigurationName.isEmpty())
         return 0;
 

@@ -54,9 +54,10 @@ public:
     static QStringList locationsByInstallData(const QString &qtInstallData);
 
     // Build the helpers and return the output log/errormessage.
-    static QString build(const QString &directory, const QString &makeCommand,
-                         const QString &qmakeCommand, const QString &mkspec,
-                         const Utils::Environment &env, const QString &targetMode);
+    static bool build(const QString &directory, const QString &makeCommand,
+                       const QString &qmakeCommand, const QString &mkspec,
+                       const Utils::Environment &env, const QString &targetMode,
+                       QString *output,  QString *errorMessage);
 
     // Copy the source files to a target location and return the chosen target location.
     static QString copy(const QString &qtInstallData, QString *errorMessage);

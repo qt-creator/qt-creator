@@ -107,6 +107,7 @@ private slots:
 private:
     void cloneConfiguration(BuildConfiguration *toClone);
     void deleteConfiguration(BuildConfiguration *toDelete);
+    QString uniqueName(const QString & name);
 
     Target *m_target;
     BuildConfiguration *m_buildConfiguration;

@@ -7,6 +7,7 @@ include(../../../../qtcreatorlibrary.pri)
 
 DEPENDPATH += .
 INCLUDEPATH += $$PWD $$PWD/../build $$PWD/../build/botan
+unix:QMAKE_CXXFLAGS_DEBUG += -O2
 
 win32 {
     win32-msvc* {

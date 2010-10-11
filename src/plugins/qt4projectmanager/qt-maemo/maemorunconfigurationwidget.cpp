@@ -126,10 +126,11 @@ void MaemoRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
     m_debugCppOnlyButton = new QRadioButton(tr("C++ only"));
     m_debugQmlOnlyButton = new QRadioButton(tr("QML only"));
     m_debugCppAndQmlButton = new QRadioButton(tr("C++ and QML"));
+    m_debuggingLanguagesLabel = new QLabel(tr("Debugging type:"));
     debugButtonsLayout->addWidget(m_debugCppOnlyButton);
     debugButtonsLayout->addWidget(m_debugQmlOnlyButton);
     debugButtonsLayout->addWidget(m_debugCppAndQmlButton);
-    formLayout->addRow(tr("Debugging type:"), debugButtonsLayout);
+    formLayout->addRow(m_debuggingLanguagesLabel, debugButtonsLayout);
     if (m_runConfiguration->useCppDebugger()) {
         if (m_runConfiguration->useQmlDebugger())
             m_debugCppAndQmlButton->setChecked(true);
@@ -283,6 +284,7 @@ void MaemoRunConfigurationWidget::updateTargetInformation()
 void MaemoRunConfigurationWidget::handleDeploySpecsChanged()
 {
     m_remoteExecutableLabel->setText(m_runConfiguration->remoteExecutableFilePath());
+    m_runConfiguration->updateFactoryState();
 }
 
 void MaemoRunConfigurationWidget::handleBuildConfigChanged()
@@ -304,6 +306,11 @@ void MaemoRunConfigurationWidget::handleToolchainChanged()
         const bool remoteMountsAvailable = toolChain->allowsRemoteMounts();
         m_debugDetailsContainer->setVisible(remoteMountsAvailable);
         m_mountDetailsContainer->setVisible(remoteMountsAvailable);
+        const bool qmlDebuggingAvailable = toolChain->allowsQmlDebugging();
+        m_debuggingLanguagesLabel->setVisible(qmlDebuggingAvailable);
+        m_debugCppOnlyButton->setVisible(qmlDebuggingAvailable);
+        m_debugQmlOnlyButton->setVisible(qmlDebuggingAvailable);
+        m_debugCppAndQmlButton->setVisible(qmlDebuggingAvailable);
     }
     m_runConfiguration->updateFactoryState();
 }

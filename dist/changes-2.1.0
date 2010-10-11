@@ -5,11 +5,10 @@ within the logs of Qt Creator sources. Simply check it out from the public git
 repository. For example:
 
 git clone git://gitorious.org/qt-creator/qt-creator.git
-git log --cherry-pick --pretty=oneline v2.0.0...v2.0.1
+git log --cherry-pick --pretty=oneline v2.1.0...v2.0.1
 
 General
-   *
-   *
+   * Made search result panel searchable
 
 Editing
 
@@ -17,21 +16,67 @@ C++ Support
    * Added semantic highlighting of types, virtual methods, locals, statics and
      member variables (only enabled when running against Qt 4.7.1 and up, for
      performance reasons)
+   * Add new indenter along with a new option to control alignment indents
    * Add new %FILENAME%, %CLASS% placeholders to license template
+   * Added searching for symbols that match a pattern to advanced find
+   * Made 'Follow symbol' for classes skip forward declarations
 
 Project Support
-   * Add option for adding subprojects to projects in the New wizard
-   * Add context-menu command for removing subprojects in the Edit mode,
+   * Added option for adding subprojects to projects in the New wizard
+   * Added context-menu command for removing subprojects in the Edit mode,
      Projects view
-   * Add a wizard for adding other than Qt libraries to project files
+   * Added a wizard for adding other than Qt libraries to project files
 
 Debugging
-   * Fix console debugging with MinGW/gdb
-   * Symbian: Add basic thread support, improve logging
+   * Fixed splitter inconsistency of debugger tool bar
+   * Fixed console debugging with MinGW/gdb
+   * Symbian: Added basic thread support, improve logging
+   * New dumpers for QDate, QTime, QHostAddress, QRegion, boost::optional,
+     QSharedData and QSharedDataPointer
+   * Improved/fixed dumpers for QObject (include user defined properties), QList,
+     C-style arrays, QSize, QSizeF, QImage/QPixmap, std::vector<bool>,
+     QVariant(QString), qulonglong, std::size_t, std::ptrdiff_t,
+     QScopedPointer, QStandardItem
+   * Performance improvements due to use of dwarf index data to reduce gdb
+     startup time, use of new gdb.read_memory for QByteArray and QString display
+   * Debugger framework handles multiple debugging sessions in parallel
+   * Allow per item and/or type selection of display method in Locals&Watchers
+   * Implement data watchpoints
+   * Implement a debugger engine to debug Python scripts
+   * Direct remote debugging using -debug binary@host:port[@arch] on the command line
+   * Make alphabetic sorting of struct members optional
+   * New Add/Edit breakpoint dialog
+   * Show QThread object names in threads view
+   * Support for per-thread breakpoints
+   * Show dynamic type of objects for gdb versions newer than Aug 31, 2010
+   * [etc]
 
 Help
 
 QML/JS Support
+   * Added 'Find usages' action that works on ids, properties, functions and
+     variables
+   * Improved 'Follow symbol' to also work on file imports and JS functions
+   * Completion: Sort completion items by relevance
+   * Completion: Automatically complete trailing : or .
+   * Added new indenter
+   * Added code folding for multiline comments
+   * Improved performance of the code model significantly
+   * Added Qt Quick ToolBar
+
+FakeVim:
+   * Fix indentation of first line after >iB and >ib, undo after cjaaa<Esc>, ~ etc
+   * Implement :mak, :nohlsearch, :only, :reg[isters], Ctrl-J, Ctrl-N, Ctrl-P,
+   * Implement [(, ]), [{, ]}, some of the :bn/bp commands
+   * Implement {}/[]/<>-block text objects
+   * Make :q after :sp more vim-ish, make <C-.> etc work in mappings
+   * Make Searching a 'sub-sub-mode' to allow d/
+   * Make recognition of ex command names similar to vi's
+   * Move "status line" to the main statusbar
+   * Refactor searching for less random jumps and more speed
+   * Rework line ranges and support for marks
+   * Use basetext cursor handling and indentation support for better integration
+   * [etc]
 
 Platform Specific
 
@@ -44,27 +89,35 @@ Windows
 Symbian Target
 
 Maemo Target
+   * Improved support for Debian packaging:
+       - Automatic creation of Debian files in project directory
+       - Debian files adaptable by users
+   * Deployment information is taken from .pro file's INSTALLS variable
+   * Support for "subdirs" and library project types
+   * Projects created by mobile wizards are now usable for Maemo development
+   * Automatic creation and deployment of Desktop files for application projects
+   * Fremantle: Support for exporting host directories to the device (also employed for zero-copy deployment)
 
 Designer
-   * Add switching between code and forms using Shift-F4
-   * Various improvements to mode switching
+   * Added switching between code and forms using Shift-F4
+   * Made various improvements to mode switching
 
 Version control plugins
    * Support git version 1.7.x
-   * Add support for git --amend
-   * Make it possible to run gitk from Qt Creator
-   * Improve commit window, show number of files to be committed, add context
+   * Added support for git --amend
+   * Made it possible to run gitk from Qt Creator
+   * Improved commit window, show number of files to be committed, add context
      menu for quickly checking and unchecking all files
-   * Add branch selector to the git checkout wizard
-   * Add support for the CVS 'edit' functionality, make Qt Creator prompt to
+   * Added branch selector to the git checkout wizard
+   * Added support for the CVS 'edit' functionality, make Qt Creator prompt to
      request a read-only file using 'cvs edit' (cvsnt only).
-   * Perforce: Add setting to automatically open read-only files
+   * Perforce: Added setting to automatically open read-only files
 
 Wizards
-   * Custom wizard: Enhance template processing of wizards to be able to include
+   * Custom wizard: Enhanced template processing of wizards to be able to include
      sections of files conditionally, extend functionality of combo control
      to be able to handle user-displayable strings and keywords
-   * Custom wizard: Add ability to have files generated by scripts
+   * Custom wizard: Added ability to have files generated by scripts
 
 Additional credits go to:
 

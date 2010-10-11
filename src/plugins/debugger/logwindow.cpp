@@ -362,7 +362,7 @@ public slots:
 LogWindow::LogWindow(QWidget *parent)
   : QWidget(parent)
 {
-    setWindowTitle(tr("Log"));
+    setWindowTitle(tr("Debugger Log"));
     setObjectName("Log");
 
     QSplitter *m_splitter = new  Core::MiniSplitter(Qt::Horizontal);

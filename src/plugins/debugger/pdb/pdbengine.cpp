@@ -826,13 +826,12 @@ void PdbEngine::handleListLocals(const PdbResponse &response)
     //GdbMi data = all.findChild("data");
     QList<WatchData> list;
     WatchHandler *handler = watchHandler();
-    bool sortMembers = theDebuggerBoolSetting(SortStructMembers);
     foreach (const GdbMi &child, all.children()) {
         WatchData dummy;
         dummy.iname = child.findChild("iname").data();
         dummy.name = _(child.findChild("name").data());
         //qDebug() << "CHILD: " << child.toString();
-        parseWatchData(handler->expandedINames(), dummy, child, sortMembers, &list);
+        parseWatchData(handler->expandedINames(), dummy, child, &list);
     }
     handler->insertBulkData(list);
 }

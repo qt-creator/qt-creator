@@ -172,7 +172,7 @@ void runFileSearch(QFutureInterface<FileSearchResultList> &future,
                             int n = 0;
                             while (startOfLastLine[i] != '\n' && startOfLastLine[i] != '\r' && i < textLength && n++ < 256)
                                 res.append(startOfLastLine[i++]);
-                            results << FileSearchResult(s, lineNr, QString(res),
+                            results << FileSearchResult(s, lineNr, QString::fromUtf8(res),
                                                           regionPtr - startOfLastLine, sa.length(),
                                                           QStringList());
                             ++numMatches;

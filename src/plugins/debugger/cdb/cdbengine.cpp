@@ -705,7 +705,7 @@ void CdbEngine::updateWatchData(const WatchData &incomplete, const WatchUpdateFl
 
     if (incomplete.iname.startsWith("watch.")) {
         WatchData watchData = incomplete;
-        evaluateWatcher(&watchData);
+        watchData.setError(tr("<not supported>"));
         watchHandler()->insertData(watchData);
         return;
     }
@@ -1169,6 +1169,11 @@ bool CdbEnginePrivate::attemptBreakpointSynchronization(QString *errorMessage)
 {
     if (!m_hDebuggeeProcess) {
         *errorMessage = QLatin1String("attemptBreakpointSynchronization() called while debugger is not running");
+        return false;
+    }
+    // Might be called nested while attempting to stop.
+    if (m_breakEventMode == BreakEventSyncBreakPoints) {
+        *errorMessage = QLatin1String("Nested invocation of attemptBreakpointSynchronization.");
         return false;
     }
     // This is called from
@@ -1690,16 +1695,21 @@ unsigned CdbEngine::debuggerCapabilities() const
 }
 
 // Accessed by RunControlFactory
-DebuggerEngine *createCdbEngine(const DebuggerStartParameters &sp)
+bool isCdbEngineEnabled()
+{
+    return theOptionsPage && theOptionsPage->options()->enabled;
+}
+
+// Accessed by RunControlFactory
+DebuggerEngine *createCdbEngine(const DebuggerStartParameters &sp, QString *errorMessage)
 {
     // Create engine
-    QString errorMessage;
-    DebuggerEngine *engine = CdbEngine::create(sp, &errorMessage);
+    DebuggerEngine *engine = CdbEngine::create(sp, errorMessage);
     if (engine) {
         QObject::connect(theOptionsPage, SIGNAL(debuggerPathsChanged()), engine, SLOT(syncDebuggerPaths()));
     } else {
-        theOptionsPage->setFailureMessage(errorMessage);
-        qWarning("%s\n" ,qPrintable(errorMessage));
+        theOptionsPage->setFailureMessage(*errorMessage);
+        qWarning("%s\n" ,qPrintable(*errorMessage));
     }
     return engine;
 }

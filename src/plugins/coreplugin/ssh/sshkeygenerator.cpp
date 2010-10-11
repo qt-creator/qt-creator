@@ -49,21 +49,28 @@ namespace Core {
 using namespace Botan;
 using namespace Internal;
 
-SshKeyGenerator::SshKeyGenerator() { }
+SshKeyGenerator::SshKeyGenerator()
+    : m_type(Rsa)
+    , m_format(OpenSsl)
+{
+}
 
 bool SshKeyGenerator::generateKeys(KeyType type, PrivateKeyFormat format,
     int keySize)
 {
+    m_type = type;
+    m_format = format;
+
     try {
         AutoSeeded_RNG rng;
         KeyPtr key;
-        if (type == Rsa)
+        if (m_type == Rsa)
             key = KeyPtr(new RSA_PrivateKey(rng, keySize));
         else
             key = KeyPtr(new DSA_PrivateKey(rng, DL_Group(rng, DL_Group::Strong,
                 keySize)));
-        return format == Pkcs8
-            ? generatePkcs8Keys(key) : generateOpenSslKeys(key, type);
+        return m_format == Pkcs8
+            ? generatePkcs8Keys(key) : generateOpenSslKeys(key);
     } catch (Botan::Exception &e) {
         m_error = tr("Error generating key: %1").arg(e.what());
         return false;
@@ -95,12 +102,12 @@ void SshKeyGenerator::generatePkcs8Key(const KeyPtr &key, bool privateKey)
         pipe.message_count() - 1);
 }
 
-bool SshKeyGenerator::generateOpenSslKeys(const KeyPtr &key, KeyType type)
+bool SshKeyGenerator::generateOpenSslKeys(const KeyPtr &key)
 {
     QList<BigInt> publicParams;
     QList<BigInt> allParams;
     QByteArray keyId;
-    if (type == Rsa) {
+    if (m_type == Rsa) {
         const QSharedPointer<RSA_PrivateKey> rsaKey
             = key.dynamicCast<RSA_PrivateKey>();
         publicParams << rsaKey->get_e() << rsaKey->get_n();
@@ -130,7 +137,7 @@ bool SshKeyGenerator::generateOpenSslKeys(const KeyPtr &key, KeyType type)
         encoder.encode(b);
     encoder.end_cons();
     const char * const label
-        = type == Rsa ? "RSA PRIVATE KEY" : "DSA PRIVATE KEY";
+        = m_type == Rsa ? "RSA PRIVATE KEY" : "DSA PRIVATE KEY";
     m_privateKey
         = QByteArray(PEM_Code::encode (encoder.get_contents(), label).c_str());
     return true;

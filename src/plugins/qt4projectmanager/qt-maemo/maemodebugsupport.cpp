@@ -63,11 +63,13 @@ RunControl *MaemoDebugSupport::createDebugRunControl(MaemoRunConfiguration *runC
     DebuggerStartParameters params;
     const MaemoDeviceConfig &devConf = runConfig->deviceConfig();
 
-    if (runConfig->useQmlDebugger()) {
+    const MaemoRunConfiguration::DebuggingType debuggingType
+        = runConfig->debuggingType();
+    if (debuggingType != MaemoRunConfiguration::DebugCppOnly) {
         params.qmlServerAddress = runConfig->deviceConfig().server.host;
         params.qmlServerPort = qmlServerPort(runConfig);
     }
-    if (runConfig->useCppDebugger()) {
+    if (debuggingType != MaemoRunConfiguration::DebugQmlOnly) {
         params.processArgs = runConfig->arguments();
         params.sysRoot = runConfig->sysRoot();
         params.toolChainType = ToolChain::GCC_MAEMO;
@@ -113,7 +115,7 @@ MaemoDebugSupport::MaemoDebugSupport(MaemoRunConfiguration *runConfig,
     : QObject(runControl), m_runControl(runControl), m_runConfig(runConfig),
       m_deviceConfig(m_runConfig->deviceConfig()),
       m_runner(new MaemoSshRunner(this, m_runConfig, true)),
-      m_qmlOnlyDebugging(m_runConfig->useQmlDebugger() && !m_runConfig->useCppDebugger())
+      m_qmlOnlyDebugging(m_runConfig->debuggingType() == MaemoRunConfiguration::DebugQmlOnly)
 {
     connect(m_runControl, SIGNAL(engineRequestSetup()), this,
         SLOT(handleAdapterSetupRequested()));
@@ -305,7 +307,7 @@ int MaemoDebugSupport::gdbServerPort(const MaemoRunConfiguration *rc)
 int MaemoDebugSupport::qmlServerPort(const MaemoRunConfiguration *rc)
 {
     MaemoPortList portList = rc->freePorts();
-    if (rc->useCppDebugger())
+    if (rc->debuggingType() != MaemoRunConfiguration::DebugQmlOnly)
         portList.getNext();
     return portList.getNext();
 }
@@ -314,7 +316,7 @@ QString MaemoDebugSupport::environment(const MaemoRunConfiguration *rc)
 {
     QList<Utils::EnvironmentItem> env = rc->userEnvironmentChanges();
     // FIXME: this must use command line argument instead: -qmljsdebugger=port:1234.
-    if (rc->useQmlDebugger()) {
+    if (rc->debuggingType() != MaemoRunConfiguration::DebugCppOnly) {
 //        env << Utils::EnvironmentItem(QLatin1String(Debugger::Constants::E_QML_DEBUG_SERVER_PORT),
 //            QString::number(qmlServerPort(rc)));
     }

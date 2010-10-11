@@ -72,7 +72,6 @@ MaemoQemuManager::MaemoQemuManager(QObject *parent)
     , m_qemuAction(0)
     , m_qemuProcess(new QProcess(this))
     , m_runningQtId(-1)
-    , m_needsSetup(true)
     , m_userTerminated(false)
 {
     m_qemuStarterIcon.addFile(":/qt-maemo/images/qemu-run.png", iconSize);
@@ -149,9 +148,6 @@ bool MaemoQemuManager::runtimeForQtVersion(int uniqueId, Runtime *rt) const
 
 void MaemoQemuManager::qtVersionsChanged(const QList<int> &uniqueIds)
 {
-    if (m_needsSetup)
-        setupRuntimes();
-
     QtVersionManager *manager = QtVersionManager::instance();
     foreach (int uniqueId, uniqueIds) {
         if (manager->isValidId(uniqueId)) {
@@ -199,7 +195,6 @@ void MaemoQemuManager::projectAdded(ProjectExplorer::Project *project)
 
     foreach (Target *target, project->targets())
         targetAdded(target);
-    m_qemuAction->setVisible(!m_runtimes.isEmpty() && sessionHasMaemoTarget());
 }
 
 void MaemoQemuManager::projectRemoved(ProjectExplorer::Project *project)
@@ -255,7 +250,7 @@ void MaemoQemuManager::targetAdded(ProjectExplorer::Target *target)
 
     foreach (RunConfiguration *rc, target->runConfigurations())
         toggleDeviceConnections(qobject_cast<MaemoRunConfiguration*> (rc), true);
-    m_qemuAction->setVisible(!m_runtimes.isEmpty() && sessionHasMaemoTarget());
+    toggleStarterButton(target);
 }
 
 void MaemoQemuManager::targetRemoved(ProjectExplorer::Target *target)
@@ -522,19 +517,6 @@ void MaemoQemuManager::runtimeFolderChanged(const QString &directory)
 
 // -- private
 
-void MaemoQemuManager::setupRuntimes()
-{
-    m_needsSetup = false;
-
-    const QList<QtVersion*> &versions = QtVersionManager::instance()
-        ->versionsForTargetId(Constants::MAEMO_DEVICE_TARGET_ID);
-
-    QList<int> uniqueIds;
-    foreach (QtVersion *version, versions)
-        uniqueIds.append(version->uniqueId());
-    qtVersionsChanged(uniqueIds);
-}
-
 void MaemoQemuManager::updateStarterIcon(bool running)
 {
     QIcon::State state;
@@ -554,9 +536,6 @@ void MaemoQemuManager::updateStarterIcon(bool running)
 
 void MaemoQemuManager::toggleStarterButton(Target *target)
 {
-    if (m_needsSetup)
-        setupRuntimes();
-
     int uniqueId = -1;
     if (target) {
         if (Qt4Target *qt4Target = qobject_cast<Qt4Target*>(target)) {
@@ -567,12 +546,16 @@ void MaemoQemuManager::toggleStarterButton(Target *target)
         }
     }
 
+    if (m_runtimes.isEmpty() || !m_runtimes.contains(uniqueId))
+        qtVersionsChanged(QList<int>() << uniqueId);
+
     bool isRunning = m_qemuProcess->state() != QProcess::NotRunning;
     if (m_runningQtId == uniqueId)
         isRunning = false;
 
     m_qemuAction->setEnabled(m_runtimes.value(uniqueId, Runtime()).isValid()
         && targetUsesMatchingRuntimeConfig(target) && !isRunning);
+    m_qemuAction->setVisible(!m_runtimes.isEmpty() && sessionHasMaemoTarget());
 }
 
 bool MaemoQemuManager::sessionHasMaemoTarget() const
@@ -739,7 +722,12 @@ QString MaemoQemuManager::runtimeForQtVersion(const QString &qmakeCommand) const
                         && infoReader.name() == QLatin1String("installed")) {
                         if (infoReader.readNext() == QXmlStreamReader::Characters
                             && infoReader.text() == QLatin1String("true"))
-                        installedRuntimes << attrs.value(QLatin1String("runtime_id")).toString();
+                        if (attrs.hasAttribute(QLatin1String(QLatin1String("runtime_id"))))
+                            installedRuntimes << attrs.value(QLatin1String("runtime_id")).toString();
+                        else if (attrs.hasAttribute(QLatin1String(QLatin1String("id")))) {
+                            // older MADDE seems to use only id
+                            installedRuntimes << attrs.value(QLatin1String("id")).toString();
+                        }
                         break;
                     }
                 }

@@ -33,10 +33,11 @@ public:
     static bool copyFiles(const QString &sourcePath, const QStringList &files,
                           const QString &targetDirectory, QString *errorMessage);
 
-    static QString buildHelper(const QString &helperName, const QString &proFilename,
-                               const QString &directory, const QString &makeCommand,
-                               const QString &qmakeCommand, const QString &mkspec,
-                               const Utils::Environment &env, const QString &targetMode);
+    static bool buildHelper(const QString &helperName, const QString &proFilename,
+                            const QString &directory, const QString &makeCommand,
+                            const QString &qmakeCommand, const QString &mkspec,
+                            const Utils::Environment &env, const QString &targetMode,
+                            QString *output, QString *errorMessage);
 
     static bool getHelperFileInfoFor(const QStringList &validBinaryFilenames,
                                      const QString &directory, QFileInfo* info);

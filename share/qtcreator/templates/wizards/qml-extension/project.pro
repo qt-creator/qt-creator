@@ -18,6 +18,6 @@ OTHER_FILES = qmldir
 
 copy_qmldir.target = $$OUT_PWD/qmldir
 copy_qmldir.depends = $$PWD/qmldir
-copy_qmldir.commands = $(COPY_FILE) $$copy_qmldir.depends $$copy_qmldir.target
+copy_qmldir.commands = $(COPY_FILE) \"$$replace(copy_qmldir.depends, /, $$QMAKE_DIR_SEP)\" \"$$replace(copy_qmldir.target, /, $$QMAKE_DIR_SEP)\"
 QMAKE_EXTRA_TARGETS += copy_qmldir
 PRE_TARGETDEPS += $$copy_qmldir.target

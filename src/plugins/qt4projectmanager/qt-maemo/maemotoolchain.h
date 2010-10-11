@@ -56,6 +56,7 @@ public:
     MaemoVersion version() const;
     bool allowsRemoteMounts() const { return version() == Maemo5; }
     bool allowsPackagingDisabling() const { return version() == Maemo5; }
+    bool allowsQmlDebugging() const { return version() == Maemo6; }
 
 protected:
     bool equals(const ToolChain *other) const;

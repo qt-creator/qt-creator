@@ -53,9 +53,8 @@ FileWidget::FileWidget(QWidget *parent) : QWidget(parent), m_filter("(*.*)"), m_
     layout->addWidget(m_pushButton);
     m_pushButton->setText("...");
     connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(lineEditChanged()));
-    connect(m_pushButton, SIGNAL(pressed()), this, SLOT(buttonPressed()));
+    connect(m_pushButton, SIGNAL(released()), this, SLOT(onButtonReleased()));
     connect(m_comboBox, SIGNAL(editTextChanged(const QString &)), this, SLOT(comboBoxChanged()));
-    m_currentPath = QDir::currentPath();
 }
 
 FileWidget::~FileWidget()
@@ -83,14 +82,11 @@ void FileWidget::comboBoxChanged()
     setFileNameStr(m_comboBox->currentText());
 }
 
-void FileWidget::buttonPressed()
+void FileWidget::onButtonReleased()
 {
-    QString path = m_currentPath;
-    QString newFile = QFileDialog::getOpenFileName(0, tr("Open File"), path, m_filter);
+    QString newFile = QFileDialog::getOpenFileName(0, tr("Open File"), m_path.toLocalFile(), m_filter);
     if (!newFile.isEmpty())
         setFileNameStr(newFile);
-
-    m_currentPath = QFileInfo(newFile).absolutePath();
 }
 
 void FileWidget::setFileNameStr(const QString &fileName)

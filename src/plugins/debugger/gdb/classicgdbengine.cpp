@@ -425,10 +425,7 @@ void GdbEngine::handleDebuggingHelperValue2Classic(const GdbResponse &response)
     setWatchDataType(data, response.data.findChild("type"));
     setWatchDataDisplayedType(data, response.data.findChild("displaytype"));
     QList<WatchData> list;
-    parseWatchData(watchHandler()->expandedINames(),
-        data, contents,
-        theDebuggerBoolSetting(SortStructMembers),
-        &list);
+    parseWatchData(watchHandler()->expandedINames(), data, contents, &list);
     //for (int i = 0; i != list.size(); ++i)
     //    qDebug() << "READ: " << list.at(i).toString();
     watchHandler()->insertBulkData(list);

@@ -123,7 +123,6 @@ private:
     MaemoQemuManager(QObject *parent);
     ~MaemoQemuManager();
 
-    void setupRuntimes();
     bool sessionHasMaemoTarget() const;
 
     void updateStarterIcon(bool running);
@@ -146,7 +145,6 @@ private:
     QProcess *m_qemuProcess;
 
     int m_runningQtId;
-    bool m_needsSetup;
     bool m_userTerminated;
     QIcon m_qemuStarterIcon;
     QMap<int, Runtime> m_runtimes;

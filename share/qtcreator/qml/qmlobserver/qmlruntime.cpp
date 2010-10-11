@@ -64,7 +64,9 @@
 #include <qdeclarativenetworkaccessmanagerfactory.h>
 #include "qdeclarative.h"
 #include <QAbstractAnimation>
+#ifndef NO_PRIVATE_HEADERS
 #include <private/qabstractanimation_p.h>
+#endif
 
 #include <QSettings>
 #include <QXmlStreamReader>
@@ -103,6 +105,8 @@
 #ifdef GL_SUPPORTED
 #include <QGLWidget>
 #endif
+
+#include <qt_private/qdeclarativedebughelper_p.h>
 
 #include <qdeclarativetester.h>
 #include "jsdebuggeragent.h"
@@ -737,6 +741,9 @@ void QDeclarativeViewer::createMenu()
     recordAction = new QAction(tr("Start Recording &Video"), this);
     recordAction->setShortcut(QKeySequence("F9"));
     connect(recordAction, SIGNAL(triggered()), this, SLOT(toggleRecordingWithSelection()));
+#ifdef NO_PRIVATE_HEADERS
+    recordAction->setEnabled(false);
+#endif
 
     QAction *recordOptions = new QAction(tr("Video &Options..."), this);
     connect(recordOptions, SIGNAL(triggered()), this, SLOT(chooseRecordingOptions()));
@@ -1001,6 +1008,7 @@ void QDeclarativeViewer::toggleRecordingWithSelection()
 
 void QDeclarativeViewer::toggleRecording()
 {
+#ifndef NO_PRIVATE_HEADERS
     if (record_file.isEmpty()) {
         toggleRecordingWithSelection();
         return;
@@ -1008,6 +1016,7 @@ void QDeclarativeViewer::toggleRecording()
     bool recording = !recordTimer.isActive();
     recordAction->setText(recording ? tr("&Stop Recording Video\tF9") : tr("&Start Recording Video\tF9"));
     setRecording(recording);
+#endif
 }
 
 void QDeclarativeViewer::setAnimationsPaused(bool enable)
@@ -1147,8 +1156,10 @@ bool QDeclarativeViewer::open(const QString& file_or_url)
         url = QUrl(file_or_url);
     setWindowTitle(tr("%1 - Qt QML Viewer").arg(file_or_url));
 
+#ifndef NO_PRIVATE_HEADERS
     if (!m_script.isEmpty())
         tester = new QDeclarativeTester(m_script, m_scriptOptions, canvas);
+#endif
 
     delete canvas->rootObject();
     canvas->engine()->clearComponentCache();
@@ -1295,8 +1306,10 @@ void QDeclarativeViewer::setRecording(bool on)
         return;
 
     int period = int(1000/record_rate+0.5);
+#ifndef NO_PRIVATE_HEADERS
     QUnifiedTimer::instance()->setTimingInterval(on ? period:16);
     QUnifiedTimer::instance()->setConsistentTiming(on);
+#endif
     if (on) {
         canvas->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
         recordTimer.setInterval(period);
@@ -1527,8 +1540,7 @@ void QDeclarativeViewer::setSizeToView(bool sizeToView)
 
 void QDeclarativeViewer::setAnimationSpeed(float f)
 {
-    QUnifiedTimer::instance()->setSlowdownFactor(f);
-    QUnifiedTimer::instance()->setSlowModeEnabled(f != 1.0);
+    QDeclarativeDebugHelper::setAnimationSlowDownFactor(f);
 }
 
 void QDeclarativeViewer::updateSizeHints(bool initial)

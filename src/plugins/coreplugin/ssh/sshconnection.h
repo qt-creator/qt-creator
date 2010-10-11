@@ -95,7 +95,7 @@ signals:
     void connected();
     void disconnected();
     void dataAvailable(const QString &message);
-    void error(SshError);
+    void error(Core::SshError);
 
 private:
     SshConnection();

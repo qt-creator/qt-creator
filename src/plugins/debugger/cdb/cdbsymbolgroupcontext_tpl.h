@@ -52,6 +52,7 @@ bool CdbSymbolGroupContext::getDumpChildSymbols(const QString &prefix,
     // children, so, re-evaluate size in end condition.
     // Note the that the internal dumpers might expand children,
     // so the size might change.
+    int sortId = 0;
     for (int s = start; s < size(); ++s) {
         const DEBUG_SYMBOL_PARAMETERS &p = symbolParameterAt(s);
         if (p.ParentSymbol == parentId && isSymbolDisplayable(p)) {
@@ -59,6 +60,7 @@ bool CdbSymbolGroupContext::getDumpChildSymbols(const QString &prefix,
             const unsigned rc = watchDataAt(s, &wd);
             if (rc & InternalDumperMask)
                 wd.source = dumpedOwner;
+            wd.sortId = sortId++;
             *it = wd;
             ++it;
         }

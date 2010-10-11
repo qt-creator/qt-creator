@@ -321,6 +321,12 @@ def qdump__QFileInfo(d, item):
             d.putCallItem("lastRead", item, "lastRead()")
 
 
+def qdump__QFixed(d, item):
+    v = int(item.value["val"])
+    d.putValue("%s/64 = %s" % (v, v/64.0))
+    d.putNumChild(0)
+
+
 def qdump__QFlags(d, item):
     #warn("QFLAGS: %s" % item.value)
     i = item.value["i"]
@@ -2046,6 +2052,11 @@ def qdump__std__set(d, item):
                     node = node["_M_right"]
                     while not isNull(node["_M_left"]):
                         node = node["_M_left"]
+
+
+def qdump__std__stack(d, item):
+    data = item.value["c"]
+    qdump__std__deque(d, Item(data, item.iname))
 
 
 def qdump__std__string(d, item):

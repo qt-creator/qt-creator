@@ -4041,12 +4041,12 @@ bool Parser::parseObjCSelectorExpression(ExpressionAST *&node)
         last->value->name_token = identifier_token;
         last->value->colon_token = consumeToken();
 
-        while (LA() != T_RPAREN) {
+        while (LA(1) == T_IDENTIFIER && LA(2) == T_COLON) {
             last->next = new (_pool) ObjCSelectorArgumentListAST;
             last = last->next;
             last->value = new (_pool) ObjCSelectorArgumentAST;
-            match(T_IDENTIFIER, &last->value->name_token);
-            match(T_COLON, &last->value->colon_token);
+            last->value->name_token = consumeToken();
+            last->value->colon_token = consumeToken();
         }
     } else {
         ObjCSelectorAST *args = new (_pool) ObjCSelectorAST;
@@ -4056,7 +4056,13 @@ bool Parser::parseObjCSelectorExpression(ExpressionAST *&node)
         args->selector_argument_list->value->name_token = identifier_token;
     }
 
+    if (LA(1) == T_IDENTIFIER && LA(2) == T_RPAREN) {
+        const char *txt = tok(1).spell();
+        consumeToken();
+        error(cursor(), "missing ':' after '%s'", txt);
+    }
     match(T_RPAREN, &ast->rparen_token);
+
     node = ast;
     return true;
 }

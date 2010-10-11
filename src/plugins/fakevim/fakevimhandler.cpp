@@ -2743,6 +2743,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         }
         endEditBlock();
     } else if (input.isKey(Key_Delete)) {
+        setAnchor();
         cursor().deleteChar();
         m_lastInsertion.clear();
     } else if (input.isKey(Key_PageDown) || input.isControl('f')) {

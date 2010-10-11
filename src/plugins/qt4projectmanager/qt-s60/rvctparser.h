@@ -42,16 +42,17 @@ class RvctParser : public ProjectExplorer::IOutputParser
 
 public:
     RvctParser();
+    ~RvctParser();
     virtual void stdError(const QString & line);
 
 private:
-    QRegExp m_warningOrError;
-    QRegExp m_doneWithFile;
-    QRegExp m_linkerProblem;
+    void sendTask();
 
-    bool m_additionalInfo;
-    QString m_lastFile;
-    int m_lastLine;
+    QRegExp m_warningOrError;
+    QRegExp m_wrapUpTask;
+    QRegExp m_genericProblem;
+
+    ProjectExplorer::Task * m_task;
 };
 
 } // namespace Qt4ProjectManager

@@ -55,12 +55,13 @@ public:
         NonElementBindingType // can be filtered out
     };
 
-    QmlOutlineModel(QObject *parent = 0);
+    QmlOutlineModel(QmlJSTextEditor *editor);
 
     // QStandardItemModel
     QStringList mimeTypes() const;
     QMimeData *mimeData(const QModelIndexList &indexes) const;
     bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex  &parent);
+    Qt::ItemFlags flags(const QModelIndex &index) const;
 
     QmlJS::Document::Ptr document() const;
     void update(const SemanticInfo &semanticInfo);
@@ -124,6 +125,7 @@ private:
     QHash<QmlOutlineItem*,QIcon> m_itemToIcon;
     QHash<QmlOutlineItem*,QmlJS::AST::Node*> m_itemToNode;
     QHash<QmlOutlineItem*,QmlJS::AST::UiQualifiedId*> m_itemToIdNode;
+    QmlJSTextEditor *m_textEditor;
 
 
     friend class QmlOutlineModelSync;

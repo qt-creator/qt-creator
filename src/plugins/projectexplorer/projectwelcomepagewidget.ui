@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>520</width>
+    <width>696</width>
     <height>221</height>
    </rect>
   </property>
@@ -43,7 +43,7 @@
            <item>
             <widget class="Utils::WelcomeModeLabel" name="recentSessionsTitleLabel">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
+              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -69,12 +69,6 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>270</width>
-            <height>130</height>
-           </size>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
