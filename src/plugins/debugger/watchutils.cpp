@@ -1708,10 +1708,10 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
     setWatchDataChildCount(childtemplate, item.findChild("childnumchild"));
     //qDebug() << "CHILD TEMPLATE:" << childtemplate.toString();
 
-    int i = 0;
-    foreach (const GdbMi &child, children.children()) {
+    for (int i = 0, n = children.children().size(); i != n; ++i) {
+        const GdbMi &child = children.children().at(i);
         WatchData data1 = childtemplate;
-        data1.sortId = i++;
+        data1.sortId = i;
         GdbMi name = child.findChild("name");
         if (name.isValid())
             data1.name = _(name.data());
