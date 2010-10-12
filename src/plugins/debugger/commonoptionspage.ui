@@ -67,7 +67,7 @@
          <string>Switch to previous mode on debugger exit.</string>
         </property>
         <property name="text">
-         <string>Switch to previous mode on debugger exit.</string>
+         <string>Switch to previous mode on debugger exit</string>
         </property>
        </widget>
       </item>
