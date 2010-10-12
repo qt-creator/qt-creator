@@ -1,8 +1,14 @@
 
-For Linux, MinGW:
+For Linux:
 
     FSF 7.1 release
     + gdb-increased-dcache-line-size.patch
+
+For MinGW:
+
+    FSF 7.1 release
+    + gdb-increased-dcache-line-size.patch
+    + gdb-expand-line-sal-maybe.patch
 
 For Maemo targets:
     (--target=arm-none-linux-gnueabi)
