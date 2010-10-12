@@ -134,20 +134,6 @@ void PlainTextEditor::setFontSettings(const FontSettings &fs)
         highlighter->configureFormat(Highlighter::String, fs.toTextCharFormat(
             QLatin1String(Constants::C_STRING)));
 
-        // Creator does not have corresponding formats for the following ones. Implement them?
-        // For now I will leave hardcoded values.
-        QTextCharFormat format;
-        format.setForeground(Qt::blue);
-        highlighter->configureFormat(Highlighter::Others, format);
-        format.setForeground(Qt::red);
-        highlighter->configureFormat(Highlighter::Alert, format);
-        format.setForeground(Qt::darkBlue);
-        highlighter->configureFormat(Highlighter::Function, format);
-        format.setForeground(Qt::darkGray);
-        highlighter->configureFormat(Highlighter::RegionMarker, format);
-        format.setForeground(Qt::darkRed);
-        highlighter->configureFormat(Highlighter::Error, format);
-
         highlighter->rehighlight();
     }
 }
