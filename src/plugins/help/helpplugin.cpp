@@ -797,17 +797,16 @@ HelpViewer* HelpPlugin::viewerForContextMode()
             break;
     }
 
-    HelpViewer *viewer = m_centralWidget->currentHelpViewer();
     if (placeHolder && showSideBySide) {
         RightPaneWidget::instance()->setShown(true);
-
         createRightPaneContextViewer();
-        viewer = m_helpViewerForSideBar;
-    } else {
-        activateHelpMode();
-        if (!viewer)
-            viewer = OpenPagesManager::instance().createPage();
+        return m_helpViewerForSideBar;
     }
+
+    activateHelpMode(); // should trigger an createPage...
+    HelpViewer *viewer = m_centralWidget->currentHelpViewer();
+    if (!viewer)
+        viewer = OpenPagesManager::instance().createPage();
     return viewer;
 }
 
