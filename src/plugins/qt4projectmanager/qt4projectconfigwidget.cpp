@@ -100,6 +100,9 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4Project *project)
     connect(m_ui->manageQtVersionPushButtons, SIGNAL(clicked()),
             this, SLOT(manageQtVersions()));
 
+    connect(project, SIGNAL(environmentChanged()),
+            this, SLOT(environmentChanged()));
+
     connect(project, SIGNAL(buildDirectoryInitialized()),
             this, SLOT(updateImportLabel()));
 }
@@ -133,6 +136,11 @@ void Qt4ProjectConfigWidget::updateDetails()
                      ProjectExplorer::ToolChain::toolChainName(m_buildConfiguration->toolChainType()),
                      QDir::toNativeSeparators(m_buildConfiguration->buildDirectory())));
     }
+}
+
+void Qt4ProjectConfigWidget::environmentChanged()
+{
+    m_ui->shadowBuildDirEdit->setEnvironment(m_buildConfiguration->environment());
 }
 
 void Qt4ProjectConfigWidget::updateShadowBuildUi()
@@ -173,6 +181,7 @@ void Qt4ProjectConfigWidget::init(ProjectExplorer::BuildConfiguration *bc)
                    this, SLOT(toolChainTypeChanged()));
     }
     m_buildConfiguration = static_cast<Qt4BuildConfiguration *>(bc);
+    m_ui->shadowBuildDirEdit->setEnvironment(m_buildConfiguration->environment());
 
     connect(m_buildConfiguration, SIGNAL(buildDirectoryChanged()),
             this, SLOT(buildDirectoryChanged()));
@@ -268,7 +277,7 @@ void Qt4ProjectConfigWidget::shadowBuildClicked(bool checked)
     bool b = m_ui->shadowBuildCheckBox->isChecked();
 
     m_ignoreChange = true;
-    m_buildConfiguration->setShadowBuildAndDirectory(b, QDir::cleanPath(m_ui->shadowBuildDirEdit->path()));
+    m_buildConfiguration->setShadowBuildAndDirectory(b, m_ui->shadowBuildDirEdit->rawPath());
     m_ignoreChange = false;
 
     updateDetails();
@@ -277,11 +286,10 @@ void Qt4ProjectConfigWidget::shadowBuildClicked(bool checked)
 
 void Qt4ProjectConfigWidget::shadowBuildEdited()
 {
-    if (m_buildConfiguration->shadowBuildDirectory() == m_ui->shadowBuildDirEdit->path())
+    if (m_buildConfiguration->shadowBuildDirectory() == m_ui->shadowBuildDirEdit->rawPath())
         return;
     m_ignoreChange = true;
-    m_buildConfiguration->setShadowBuildAndDirectory(m_buildConfiguration->shadowBuild(),
-                                                     QDir::cleanPath(m_ui->shadowBuildDirEdit->path()));
+    m_buildConfiguration->setShadowBuildAndDirectory(m_buildConfiguration->shadowBuild(), m_ui->shadowBuildDirEdit->rawPath());
     m_ignoreChange = false;
 
     // if the directory already exists

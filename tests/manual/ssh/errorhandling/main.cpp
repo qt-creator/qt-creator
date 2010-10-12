@@ -96,7 +96,7 @@ private slots:
         qApp->quit();
     }
 
-    void handleError(SshError error)
+    void handleError(Core::SshError error)
     {
         if (m_testSet.isEmpty()) {
             qDebug("Error: Received error %d, but no test was running.", error);
@@ -140,8 +140,8 @@ private:
             SLOT(handleDisconnected()));
         connect(m_connection.data(), SIGNAL(dataAvailable(QString)), this,
             SLOT(handleDataAvailable(QString)));
-        connect(m_connection.data(), SIGNAL(error(SshError)), this,
-            SLOT(handleError(SshError)));
+        connect(m_connection.data(), SIGNAL(error(Core::SshError)), this,
+            SLOT(handleError(Core::SshError)));
         const TestItem &nextItem = m_testSet.first();
         m_timeoutTimer.stop();
         m_timeoutTimer.setInterval(qMax(10000, nextItem.params.timeout * 1000));

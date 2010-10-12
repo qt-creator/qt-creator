@@ -32,6 +32,8 @@
 
 #include "maemodeployable.h"
 
+#include <qt4projectmanager/qt4nodes.h>
+
 #include <QtCore/QAbstractTableModel>
 #include <QtCore/QHash>
 #include <QtCore/QList>
@@ -46,14 +48,18 @@ QT_END_NAMESPACE
 namespace Qt4ProjectManager {
 namespace Internal {
 class MaemoProFileWrapper;
-class Qt4ProFileNode;
 
 class MaemoDeployableListModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
+    enum ProFileUpdateSetting {
+        UpdateProFile, DontUpdateProFile, AskToUpdateProFile
+    };
+
     MaemoDeployableListModel(const Qt4ProFileNode *proFileNode,
-        const QSharedPointer<ProFileOption> &proFileOption, QObject *parent);
+        const QSharedPointer<ProFileOption> &proFileOption,
+        ProFileUpdateSetting updateSetting, QObject *parent);
     ~MaemoDeployableListModel();
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -65,9 +71,14 @@ public:
     void setUnModified() { m_modified = false; }
     QString localExecutableFilePath() const;
     QString remoteExecutableFilePath() const;
-    QString projectName() const;
+    QString projectName() const { return m_projectName; }
     QString projectDir() const;
-    const Qt4ProFileNode *proFileNode() const { return m_proFileNode; }
+    QString proFilePath() const { return m_proFilePath; }
+    bool hasTargetPath() const { return m_hasTargetPath; }
+    ProFileUpdateSetting proFileUpdateSetting() const {
+        return m_proFileUpdateSetting;
+    }
+    void setProFileUpdateSetting(ProFileUpdateSetting updateSetting);
 
 private:
     virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -81,10 +92,15 @@ private:
 
     bool buildModel();
 
-    const Qt4ProFileNode * const m_proFileNode;
+    const Qt4ProjectType m_projectType;
+    const QString m_proFilePath;
+    const QString m_projectName;
+    const TargetInformation m_targetInfo;
     QList<MaemoDeployable> m_deployables;
     mutable bool m_modified;
     const QScopedPointer<MaemoProFileWrapper> m_proFileWrapper;
+    ProFileUpdateSetting m_proFileUpdateSetting;
+    bool m_hasTargetPath;
 };
 
 } // namespace Qt4ProjectManager

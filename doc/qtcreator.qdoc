@@ -2819,8 +2819,8 @@
         Qt Creator uses the compiler specified in the MADDE toolchain to
         build the application.
 
-        Qt Creator generates an installation package, installs in on the device,
-        and executes it. You can skip the packaging step to save some time.
+        Qt Creator generates an installation package, installs it on the device,
+        and executes the selected application.
         The application views are displayed on the Nokia N900.
         Command-line
         output is visible in the Qt Creator \gui {Application Output} view.
@@ -3285,12 +3285,6 @@
 
     You can specify settings for deploying applications to Maemo devices in the
     project .pro file. You can view the settings in the \gui {Run Settings}.
-
-    When you test your application on a device or the Maemo emulator, you can
-    save some time by installing the built files directly on the connected device
-    without packaging. Select the \gui {Skip packaging step} check box in the
-    \gui {Create Package} step. However, this is not recommended and is only supported
-    for simple application projects.
 
     The files to be installed are listed in the
     \gui {Deploy to Device} step, the \gui {Files to install} field. The

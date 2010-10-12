@@ -36,6 +36,7 @@
 #include <QtCore/QVariant>
 #include <QtCore/QXmlStreamReader>
 #include <QtCore/QDebug>
+#include <QtGui/QTextDocument>
 
 using namespace TextEditor;
 
@@ -81,6 +82,7 @@ const QList<CompletionItem> &SnippetsParser::execute(ICompletionCollector *colle
                                     QString infotip = data;
                                     while (infotip.size() && infotip.at(infotip.size()-1).isSpace())
                                         infotip.chop(1);
+                                    infotip = Qt::escape(infotip);
                                     infotip.replace(QLatin1Char('\n'), QLatin1String("<br>"));
                                     infotip.replace(QLatin1Char(' '), QLatin1String("&nbsp;"));
                                     {

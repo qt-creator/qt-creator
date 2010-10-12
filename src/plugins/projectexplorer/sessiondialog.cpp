@@ -194,6 +194,8 @@ void SessionDialog::updateActions()
         bool isActive = (m_ui.sessionList->currentItem()->text() == m_sessionManager->activeSession());
         m_ui.btDelete->setEnabled(!isActive && !isDefault);
         m_ui.btRename->setEnabled(!isDefault);
+        m_ui.btClone->setEnabled(true);
+        m_ui.btSwitch->setEnabled(true);
     } else {
         m_ui.btDelete->setEnabled(false);
         m_ui.btRename->setEnabled(false);

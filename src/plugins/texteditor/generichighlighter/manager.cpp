@@ -410,12 +410,6 @@ bool Manager::isDownloadingDefinitions() const
     return m_downloadingDefinitions;
 }
 
-void Manager::showGenericHighlighterOptions() const
-{
-    Core::ICore::instance()->showOptionsDialog(Constants::TEXT_EDITOR_SETTINGS_CATEGORY,
-                                               Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS);
-}
-
 void Manager::clear()
 {
     m_idByName.clear();

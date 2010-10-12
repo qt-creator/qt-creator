@@ -58,6 +58,8 @@
 
 #include <QtXml/QXmlStreamReader>
 
+#include <limits.h>
+
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
@@ -71,7 +73,7 @@ MaemoQemuManager::MaemoQemuManager(QObject *parent)
     : QObject(parent)
     , m_qemuAction(0)
     , m_qemuProcess(new QProcess(this))
-    , m_runningQtId(-1)
+    , m_runningQtId(INT_MIN)
     , m_userTerminated(false)
 {
     m_qemuStarterIcon.addFile(":/qt-maemo/images/qemu-run.png", iconSize);
@@ -412,7 +414,7 @@ void MaemoQemuManager::terminateRuntime()
 
 void MaemoQemuManager::qemuProcessFinished()
 {
-    m_runningQtId = -1;
+    m_runningQtId = INT_MIN;
     QemuStatus status = QemuFinished;
     QString error;
 
@@ -546,7 +548,7 @@ void MaemoQemuManager::toggleStarterButton(Target *target)
         }
     }
 
-    if (m_runtimes.isEmpty() || !m_runtimes.contains(uniqueId))
+    if (uniqueId >= 0 && (m_runtimes.isEmpty() || !m_runtimes.contains(uniqueId)))
         qtVersionsChanged(QList<int>() << uniqueId);
 
     bool isRunning = m_qemuProcess->state() != QProcess::NotRunning;
@@ -721,12 +723,13 @@ QString MaemoQemuManager::runtimeForQtVersion(const QString &qmakeCommand) const
                     if (infoReader.tokenType() == QXmlStreamReader::StartElement
                         && infoReader.name() == QLatin1String("installed")) {
                         if (infoReader.readNext() == QXmlStreamReader::Characters
-                            && infoReader.text() == QLatin1String("true"))
-                        if (attrs.hasAttribute(QLatin1String(QLatin1String("runtime_id"))))
-                            installedRuntimes << attrs.value(QLatin1String("runtime_id")).toString();
-                        else if (attrs.hasAttribute(QLatin1String(QLatin1String("id")))) {
-                            // older MADDE seems to use only id
-                            installedRuntimes << attrs.value(QLatin1String("id")).toString();
+                            && infoReader.text() == QLatin1String("true")) {
+                            if (attrs.hasAttribute(QLatin1String("runtime_id")))
+                                installedRuntimes << attrs.value(QLatin1String("runtime_id")).toString();
+                            else if (attrs.hasAttribute(QLatin1String("id"))) {
+                                // older MADDE seems to use only id
+                                installedRuntimes << attrs.value(QLatin1String("id")).toString();
+                            }
                         }
                         break;
                     }

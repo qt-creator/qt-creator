@@ -134,6 +134,7 @@ signals:
 
 private slots:
     void qtVersionsChanged(const QList<int> &changedVersions);
+    void emitBuildDirectoryChanged();
 
 protected:
     Qt4BuildConfiguration(Qt4Target *target, Qt4BuildConfiguration *source);
@@ -143,9 +144,11 @@ protected:
 private:
     void ctor();
     void pickValidQtVersion();
+    QString rawBuildDirectory() const;
 
     bool m_shadowBuild;
     QString m_buildDirectory;
+    QString m_lastEmmitedBuildDirectory;
     int m_qtVersionId;
     int m_toolChainType;
     QtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration;

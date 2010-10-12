@@ -43,21 +43,21 @@
 #define MAEMODEPLOYABLES_H
 
 #include "maemodeployable.h"
+#include "maemodeployablelistmodel.h"
 
+#include <QtCore/QHash>
 #include <QtCore/QList>
 #include <QtCore/QObject>
 #include <QtCore/QSharedPointer>
 
-QT_BEGIN_NAMESPACE
-struct ProFileOption;
-QT_END_NAMESPACE
+QT_FORWARD_DECLARE_CLASS(QTimer);
+QT_FORWARD_DECLARE_STRUCT(ProFileOption)
 
 namespace ProjectExplorer { class BuildStep; }
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class MaemoDeployableListModel;
 class Qt4BuildConfiguration;
 class Qt4ProFileNode;
 
@@ -80,6 +80,8 @@ signals:
     void modelsCreated();
 
 private:
+    typedef QHash<QString, MaemoDeployableListModel::ProFileUpdateSetting> UpdateSettingsMap;
+
     Q_SLOT void createModels();
     Q_SLOT void init();
     void createModels(const Qt4ProFileNode *proFileNode);
@@ -87,7 +89,9 @@ private:
 
     QList<MaemoDeployableListModel *> m_listModels;
     QSharedPointer<ProFileOption> m_proFileOption;
+    UpdateSettingsMap m_updateSettings;
     const ProjectExplorer::BuildStep * const m_buildStep;
+    QTimer *const m_updateTimer;
 };
 
 } // namespace Qt4ProjectManager

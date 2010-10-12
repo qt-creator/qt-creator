@@ -327,7 +327,7 @@ bool MaemoTemplatesManager::updateDesktopFile(const Qt4Target *target,
             ->deployables();
     for (int i = 0; i < deployables->modelCount(); ++i) {
         const MaemoDeployableListModel * const model = deployables->modelAt(i);
-        if (model->proFileNode() == proFileNode) {
+        if (model->proFilePath() == proFileNode->path()) {
             executable = model->remoteExecutableFilePath();
             break;
         }
@@ -402,9 +402,9 @@ void MaemoTemplatesManager::handleProFileUpdated()
         = qobject_cast<MaemoDeployables *>(sender());
     if (!deployables)
         return;
-    const Target * const target = deployables->buildStep()->target();
-    if (m_maemoProjects.contains(target->project()))
-        updateDesktopFiles(qobject_cast<const Qt4Target *>(target));
+//    const Target * const target = deployables->buildStep()->target();
+//    if (m_maemoProjects.contains(target->project()))
+//        updateDesktopFiles(qobject_cast<const Qt4Target *>(target));
 }
 
 QString MaemoTemplatesManager::version(const Project *project,

@@ -77,6 +77,7 @@ private slots:
     void buildDirectoryChanged();
     void toolChainTypeChanged();
     void updateImportLabel();
+    void environmentChanged();
 private:
     void updateDetails();
     void updateToolChainCombo();

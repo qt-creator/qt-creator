@@ -94,14 +94,16 @@ void PlainTextEditorFactory::updateEditorInfoBar(Core::IEditor *editor)
     if (editorEditable) {
         PlainTextEditor *textEditor = static_cast<PlainTextEditor *>(editorEditable->editor());
         if (textEditor->isMissingSyntaxDefinition() &&
+            !textEditor->ignoreMissingSyntaxDefinition() &&
             TextEditorSettings::instance()->highlighterSettings().alertWhenNoDefinition()) {
             Core::EditorManager::instance()->showEditorInfoBar(
                 Constants::INFO_SYNTAX_DEFINITION,
                 tr("A highlight definition was not found for this file. "
                    "Would you like to try to find one?"),
                 tr("Show highlighter options"),
-                Manager::instance(),
-                SLOT(showGenericHighlighterOptions()));
+                textEditor,
+                SLOT(acceptMissingSyntaxDefinitionInfo()),
+                SLOT(ignoreMissingSyntaxDefinitionInfo()));
             return;
         }
     }

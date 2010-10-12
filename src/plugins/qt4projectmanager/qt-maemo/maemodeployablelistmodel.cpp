@@ -31,8 +31,6 @@
 
 #include "maemoprofilewrapper.h"
 
-#include <qt4projectmanager/qt4nodes.h>
-
 #include <QtCore/QCryptographicHash>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
@@ -41,12 +39,18 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 MaemoDeployableListModel::MaemoDeployableListModel(const Qt4ProFileNode *proFileNode,
-    const QSharedPointer<ProFileOption> &proFileOption, QObject *parent)
+    const QSharedPointer<ProFileOption> &proFileOption,
+    ProFileUpdateSetting updateSetting, QObject *parent)
     : QAbstractTableModel(parent),
-      m_proFileNode(proFileNode),
+      m_projectType(proFileNode->projectType()),
+      m_proFilePath(proFileNode->path()),
+      m_projectName(proFileNode->displayName()),
+      m_targetInfo(proFileNode->targetInformation()),
       m_modified(false),
-      m_proFileWrapper(new MaemoProFileWrapper(m_proFileNode->path(),
-          m_proFileNode->buildDir(), proFileOption))
+      m_proFileWrapper(new MaemoProFileWrapper(m_proFilePath,
+          proFileNode->buildDir(), proFileOption)),
+      m_proFileUpdateSetting(updateSetting),
+      m_hasTargetPath(false)
 {
     buildModel();
 }
@@ -58,9 +62,10 @@ bool MaemoDeployableListModel::buildModel()
     m_deployables.clear();
 
     const MaemoProFileWrapper::InstallsList &installs = m_proFileWrapper->installs();
-    if (installs.targetPath.isEmpty()) {
+    m_hasTargetPath = !installs.targetPath.isEmpty();
+    if (!m_hasTargetPath && m_proFileUpdateSetting == UpdateProFile) {
         const QString remoteDirSuffix
-            = QLatin1String(m_proFileNode->projectType() == LibraryTemplate
+            = QLatin1String(m_projectType == LibraryTemplate
                 ? "/lib" : "/bin");
         const QString remoteDirMaemo5
             = QLatin1String("/opt/usr") + remoteDirSuffix;
@@ -68,7 +73,7 @@ bool MaemoDeployableListModel::buildModel()
             = QLatin1String("/usr/local") + remoteDirSuffix;
         m_deployables.prepend(MaemoDeployable(localExecutableFilePath(),
             remoteDirMaemo5));
-        QFile projectFile(m_proFileNode->path());
+        QFile projectFile(m_proFilePath);
         if (!projectFile.open(QIODevice::WriteOnly | QIODevice::Append)) {
             qWarning("Error updating .pro file.");
             return false;
@@ -200,11 +205,10 @@ QVariant MaemoDeployableListModel::headerData(int section,
 
 QString MaemoDeployableListModel::localExecutableFilePath() const
 {
-    const TargetInformation &ti = m_proFileNode->targetInformation();
-    if (!ti.valid)
+    if (!m_targetInfo.valid)
         return QString();
 
-    const bool isLib = m_proFileNode->projectType() == LibraryTemplate;
+    const bool isLib = m_projectType == LibraryTemplate;
     bool isStatic = false; // Nonsense init for stupid compilers.
     QString fileName;
     if (isLib) {
@@ -215,26 +219,30 @@ QString MaemoDeployableListModel::localExecutableFilePath() const
             || config.contains(QLatin1String("staticlib"))
             || config.contains(QLatin1String("plugin"));
     }
-    fileName += ti.target;
+    fileName += m_targetInfo.target;
     if (isLib)
         fileName += QLatin1String(isStatic ? ".a" : ".so");
-    return QDir::cleanPath(ti.workingDir + '/' + fileName);
+    return QDir::cleanPath(m_targetInfo.workingDir + '/' + fileName);
 }
 
 QString MaemoDeployableListModel::remoteExecutableFilePath() const
 {
-    return deployableAt(0).remoteDir + '/'
-        + QFileInfo(localExecutableFilePath()).fileName();
-}
-
-QString MaemoDeployableListModel::projectName() const
-{
-    return m_proFileNode->displayName();
+    return m_hasTargetPath
+        ? deployableAt(0).remoteDir + '/'
+              + QFileInfo(localExecutableFilePath()).fileName()
+        : QString();
 }
 
 QString MaemoDeployableListModel::projectDir() const
 {
-    return QFileInfo(m_proFileNode->path()).dir().path();
+    return QFileInfo(m_proFilePath).dir().path();
+}
+
+void MaemoDeployableListModel::setProFileUpdateSetting(ProFileUpdateSetting updateSetting)
+{
+    m_proFileUpdateSetting = updateSetting;
+    if (updateSetting == UpdateProFile)
+        buildModel();
 }
 
 } // namespace Qt4ProjectManager

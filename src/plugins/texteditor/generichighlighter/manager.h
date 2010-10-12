@@ -82,7 +82,6 @@ public:
 
 public slots:
     void registerMimeTypes();
-    void showGenericHighlighterOptions() const;
 
 private slots:
     void registerMimeType(int index) const;

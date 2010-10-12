@@ -31,7 +31,8 @@ HEADERS += \
     $$PWD/maemodeviceenvreader.h \
     $$PWD/maemotemplatesmanager.h \
     $$PWD/maemomountspecification.h \
-    $$PWD/maemoremotemounter.h
+    $$PWD/maemoremotemounter.h \
+    $$PWD/maemoprofilesupdatedialog.h
 
 SOURCES += \
     $$PWD/maemoconfigtestdialog.cpp \
@@ -64,7 +65,8 @@ SOURCES += \
     $$PWD/maemodeviceenvreader.cpp \
     $$PWD/maemotemplatesmanager.cpp \
     $$PWD/maemomountspecification.cpp \
-    $$PWD/maemoremotemounter.cpp
+    $$PWD/maemoremotemounter.cpp \
+    $$PWD/maemoprofilesupdatedialog.cpp
 
 FORMS += \
     $$PWD/maemoconfigtestdialog.ui \
@@ -72,6 +74,7 @@ FORMS += \
     $$PWD/maemosshconfigdialog.ui \
     $$PWD/maemopackagecreationwidget.ui \
     $$PWD/maemodeployablelistwidget.ui \
-    $$PWD/maemodeploystepwidget.ui
+    $$PWD/maemodeploystepwidget.ui \
+    $$PWD/maemoprofilesupdatedialog.ui
 
 RESOURCES += $$PWD/qt-maemo.qrc

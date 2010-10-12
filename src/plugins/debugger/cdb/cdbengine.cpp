@@ -563,8 +563,12 @@ void CdbEngine::processTerminated(unsigned long exitCode)
 
 bool CdbEnginePrivate::endInferior(bool detachOnly, QString *errorMessage)
 {
+    // Prevent repeated invocation.
+    const bool hasHandles = m_hDebuggeeProcess != NULL;
     if (debugCDBExecution)
-        qDebug("endInferior detach=%d, %s", detachOnly, DebuggerEngine::stateName(m_engine->state()));
+        qDebug("endInferior detach=%d, %s handles=%d", detachOnly, DebuggerEngine::stateName(m_engine->state()), hasHandles);
+    if (!hasHandles)
+        return true;
     // Are we running
     switch (m_engine->state()) {
     case InferiorRunRequested:
@@ -1089,8 +1093,13 @@ void CdbEngine::activateFrame(int frameIndex)
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << frameIndex;
 
-    if (state() != InferiorStopOk) {
-        qWarning("WARNING %s: invoked while debuggee is running\n", Q_FUNC_INFO);
+    switch (state()) {
+    case InferiorStopOk:
+    case InferiorShutdownRequested:
+        break;
+    default:
+        qWarning("WARNING %s: invoked in invalid state %s\n",
+                 Q_FUNC_INFO, DebuggerEngine::stateName(state()));
         return;
     }
 

@@ -1313,10 +1313,10 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
 
                 if (def == lastVisibleSymbol)
                     def = 0; // jump to declaration then.
-            }
 
-            if (symbol->isForwardClassDeclaration()) {
-                def = snapshot.findMatchingClassDeclaration(symbol);
+                if (symbol->isForwardClassDeclaration()) {
+                    def = snapshot.findMatchingClassDeclaration(symbol);
+                }
             }
 
             link = linkToSymbol(def ? def : symbol);

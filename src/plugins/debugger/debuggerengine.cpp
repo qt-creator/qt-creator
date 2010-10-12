@@ -1410,15 +1410,23 @@ void DebuggerEngine::notifyEngineIll()
     switch (state()) {
         case InferiorRunRequested:
         case InferiorRunOk:
+            // The engine does not look overly ill right now, so attempt to
+            // properly interrupt at least once. If that fails, we are on the
+            // shutdown path due to d->m_targetState anyways.
+            setState(InferiorStopRequested, true);
+            showMessage(_("ATTEMPT TO INTERRUPT INFERIOR"));
+            interruptInferior();
+            break;
         case InferiorStopRequested:
         case InferiorStopOk:
-            qDebug() << "FORWARDING STATE TO " << InferiorShutdownFailed;
+            showMessage(_("FORWARDING STATE TO InferiorShutdownFailed"));
             setState(InferiorShutdownFailed, true);
+            d->queueShutdownEngine();
             break;
         default:
+            d->queueShutdownEngine();
             break;
     }
-    d->queueShutdownEngine();
 }
 
 void DebuggerEngine::notifyEngineSpontaneousShutdown()

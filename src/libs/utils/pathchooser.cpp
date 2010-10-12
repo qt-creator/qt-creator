@@ -188,13 +188,15 @@ void PathChooser::setBaseDirectory(const QString &directory)
 
 void PathChooser::setEnvironment(const Utils::Environment &env)
 {
+    QString oldExpand = path();
     m_d->m_environment = env;
+    if (path() != oldExpand)
+        emit changed(rawPath());
 }
-
 
 QString PathChooser::path() const
 {
-    return m_d->expandedPath(QDir::fromNativeSeparators(m_d->m_lineEdit->text()));
+    return QDir::cleanPath(m_d->expandedPath(QDir::fromNativeSeparators(m_d->m_lineEdit->text())));
 }
 
 QString PathChooser::rawPath() const
