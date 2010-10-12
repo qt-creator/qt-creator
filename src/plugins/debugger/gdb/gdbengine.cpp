@@ -947,15 +947,18 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
     response->cookie = cmd.cookie;
 
     bool isExpectedResult =
-           response->resultClass == GdbResultError
-        || response->resultClass == ((cmd.flags & RunRequest) ? GdbResultRunning :
-                                  (cmd.flags & ExitRequest) ? GdbResultExit :
-                                  GdbResultDone)
-        // Happens with some incarnations of gdb 6.8 for "run to line"
-        || (response->resultClass == GdbResultDone && cmd.command == "continue")
+           (response->resultClass == GdbResultError) // Can always happen.
+        || (response->resultClass == GdbResultRunning && (cmd.flags & RunRequest))
+        || (response->resultClass == GdbResultExit && (cmd.flags & ExitRequest))
+        || (response->resultClass == GdbResultDone);
+        // GdbResultDone can almost "always" happen. Known examples are:
+        //  (response->resultClass == GdbResultDone && cmd.command == "continue")
         // Happens with some incarnations of gdb 6.8 for "jump to line"
-        || (response->resultClass == GdbResultDone && cmd.command.startsWith("jump"))
-        || (response->resultClass == GdbResultDone && cmd.command.startsWith("detach"));
+        //  (response->resultClass == GdbResultDone && cmd.command.startsWith("jump"))
+        //  (response->resultClass == GdbResultDone && cmd.command.startsWith("detach"))
+        // Happens when stepping finishes very quickly and issues *stopped/^done
+        // instead of ^running/*stopped
+        //  (response->resultClass == GdbResultDone && (cmd.flags & RunRequest));
 
     if (!isExpectedResult) {
 #ifdef Q_OS_WIN
@@ -1225,10 +1228,14 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         // initiated by the user.
         notifyInferiorSpontaneousStop();
     } else if (state() == InferiorRunRequested) {
-        // Stop triggered by somethin like "-exec-step\n"
+        // Stop triggered by something like "-exec-step\n"
         // "&"Cannot access memory at address 0xbfffedd4\n"
         // In this case a proper response 94^error,msg="" will follow and
         // be handled in the result handler.
+        // -- or --
+        // *stopped arriving earlier than ^done response to an -exec-step
+        notifyInferiorRunOk();
+        notifyInferiorSpontaneousStop();
     } else {
         QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state());
         notifyInferiorStopOk();
@@ -1847,6 +1854,12 @@ void GdbEngine::executeStep()
 
 void GdbEngine::handleExecuteStep(const GdbResponse &response)
 {
+    if (response.resultClass == GdbResultDone) {
+        // Step was finishing too quick, and a '*stopped' messages should
+        // have preceeded it, so just ignore this result.
+        QTC_ASSERT(state() == InferiorStopOk, /**/);
+        return;
+    }
     QTC_ASSERT(state() == InferiorRunRequested, qDebug() << state());
     if (response.resultClass == GdbResultRunning) {
         notifyInferiorRunOk();
@@ -1904,6 +1917,12 @@ void GdbEngine::executeNext()
 
 void GdbEngine::handleExecuteNext(const GdbResponse &response)
 {
+    if (response.resultClass == GdbResultDone) {
+        // Step was finishing too quick, and a '*stopped' messages should
+        // have preceeded it, so just ignore this result.
+        QTC_ASSERT(state() == InferiorStopOk, /**/);
+        return;
+    }
     QTC_ASSERT(state() == InferiorRunRequested, qDebug() << state());
     if (response.resultClass == GdbResultRunning) {
         notifyInferiorRunOk();
@@ -4135,6 +4154,10 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
     //postCommand("pwd");
     postCommand("set width 0");
     postCommand("set height 0");
+
+    // Work around http://bugreports.qt.nokia.com/browse/QTCREATORBUG-2004
+    postCommand("maintenance set internal-warning quit no");
+    postCommand("maintenance set internal-error quit no");
 
     if (m_isMacGdb) {
         postCommand("-gdb-set inferior-auto-start-cfm off");

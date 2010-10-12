@@ -221,17 +221,6 @@
     </message>
 </context>
 <context>
-    <name>BreakByFunctionDialog</name>
-    <message>
-        <source>Set Breakpoint at Function</source>
-        <translation type="obsolete">Haltepunkt bei Funktion setzen</translation>
-    </message>
-    <message>
-        <source>Function to break on:</source>
-        <translation type="obsolete">Funktion:</translation>
-    </message>
-</context>
-<context>
     <name>BreakCondition</name>
     <message>
         <source>Condition:</source>
@@ -240,18 +229,6 @@
     <message>
         <source>Ignore count:</source>
         <translation>Anhalten erst nach:</translation>
-    </message>
-    <message>
-        <source>File name:</source>
-        <translation type="obsolete">Dateiname:</translation>
-    </message>
-    <message>
-        <source>Line number:</source>
-        <translation type="obsolete">Zeilennummer:</translation>
-    </message>
-    <message>
-        <source>Function:</source>
-        <translation type="obsolete">Funktion:</translation>
     </message>
     <message>
         <source>Thread specification:</source>
@@ -680,7 +657,7 @@
         <translation>Alle Änderungen rückgängig machen</translation>
     </message>
     <message>
-        <source>Would you like to revert all changes to the repository?</source>
+        <source>Revert all pending changes to the repository?</source>
         <translation>Möchten Sie alle ausstehenden Änderungen des Repositories rückgängig machen?</translation>
     </message>
     <message>
@@ -1046,6 +1023,22 @@
     <message>
         <source>Use Qt Creator for post-mortem debugging</source>
         <translation>Qt Creator als Post-Mortem-Debugger verwenden</translation>
+    </message>
+    <message>
+        <source>Close temporary buffers on debugger exit.</source>
+        <translation>Bewirkt, dass während des Debuggens geöffnete Editoren bei Beendigung des Debuggens geschlossen werden.</translation>
+    </message>
+    <message>
+        <source>Close temporary buffers on debugger exit</source>
+        <translation>Editoren bei Beendigung des Debuggens schließen</translation>
+    </message>
+    <message>
+        <source>Switch to previous mode on debugger exit.</source>
+        <translation>Bewirkt, dass der bei Beginn des Debuggens aktive Modus bei Beendigung wiederherstellt wird.</translation>
+    </message>
+    <message>
+        <source>Switch to previous mode on debugger exit</source>
+        <translation>Bei Beginn des Debuggens aktiven Modus bei Beendigung wiederherstellen</translation>
     </message>
 </context>
 <context>
@@ -2479,18 +2472,6 @@ Sollen sie überschrieben werden?</translation>
         <translation>Haltepunkt für Thread %1 setzen</translation>
     </message>
     <message>
-        <source>Use Short Path</source>
-        <translation type="obsolete">Kurzen Pfad verwenden</translation>
-    </message>
-    <message>
-        <source>Use Full Path</source>
-        <translation type="obsolete">Vollständigen Pfad verwenden</translation>
-    </message>
-    <message>
-        <source>Set Breakpoint...</source>
-        <translation type="obsolete">Haltepunkt setzen...</translation>
-    </message>
-    <message>
         <source>Delete Breakpoint</source>
         <translation>Haltepunkt löschen</translation>
     </message>
@@ -2549,10 +2530,6 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <source>Edit Breakpoint Properties</source>
         <translation>Haltepunkts bearbeiten</translation>
-    </message>
-    <message>
-        <source>Conditions on Breakpoint %1</source>
-        <translation type="obsolete">Bedingungen des Haltepunkts %1</translation>
     </message>
 </context>
 <context>
@@ -2697,10 +2674,6 @@ Sollen sie überschrieben werden?</translation>
         <translation>Zeiger automatisch dereferenzieren</translation>
     </message>
     <message>
-        <source>This switches the Locals&amp;Watchers view to automatically dereference pointers. This saves a level in the tree view, but also loses data for the now-missing intermediate level.</source>
-        <translation type="obsolete">Bewirkt, dass Zeiger im Fenster &quot;Lokale Variablen und Überwachte Ausdrücke&quot; automatisch dereferenziert werden. Das vereinfacht die Baumanzeige, allerdings fehlt die Information über die Zwischenebene.</translation>
-    </message>
-    <message>
         <source>Show &quot;std::&quot; Namespace in Types</source>
         <translation>Leerzeichen &amp;anstelle Tabulatoren einfügen</translation>
     </message>
@@ -2721,10 +2694,6 @@ Sollen sie überschrieben werden?</translation>
         <translation>Debug-Version der Ausgabe-Hilfsbibliothek</translation>
     </message>
     <message>
-        <source>Use QML Observer</source>
-        <translation type="obsolete">QML-Beobachter benutzen</translation>
-    </message>
-    <message>
         <source>Use Code Model</source>
         <translation>Code-Modell verwenden</translation>
     </message>
@@ -2733,21 +2702,8 @@ Sollen sie überschrieben werden?</translation>
         <translation>Benutzt das Code-Modell von Qt Creator, um Informationen bezüglich des Gültigkeitsbereiches von Variablen zu erhalten. Bewirkt eine schnellere Anzeige der Werte, kann aber bei optimiertem Code fehlschlagen.</translation>
     </message>
     <message>
-        <source>Recheck Debugging Helper Availability</source>
-        <translation type="obsolete">Verfügbarkeit der Ausgabe-Hilfsbibliothek prüfen</translation>
-    </message>
-    <message>
         <source>Synchronize Breakpoints</source>
         <translation>Haltepunkte synchronisieren</translation>
-    </message>
-    <message>
-        <source>Use Precise Breakpoints</source>
-        <translation type="obsolete">Genaue Haltepunkte verwenden</translation>
-    </message>
-    <message>
-        <source>Selecting this causes breakpoint synchronization being done after each step. This results in up-to-date breakpoint information on whether a breakpoint has been resolved after loading shared libraries, but slows down stepping.</source>
-        <translation type="obsolete">Der Gdb-Prozess hat nach %1 Sekunde nicht auf das Kommando reagiert. Das könnte bedeuten, dass er sich in einer Endlosschleife befindet oder für die Operation mehr Zeit benötigt.
-Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
     </message>
     <message>
         <source>Adjust Breakpoint Locations</source>
@@ -2863,10 +2819,6 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
 </context>
 <context>
     <name>Debugger::Internal::GdbEngine</name>
-    <message>
-        <source>The Gdb process failed to start. Either the invoked program &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
-        <translation type="obsolete">Der Start des Gdb-Prozesses schlug fehl. Entweder fehlt die ausführbare Datei &apos;%1&apos; oder die Berechtigungen sind nicht ausreichend.</translation>
-    </message>
     <message>
         <source>The Gdb process crashed some time after starting successfully.</source>
         <translation>Der Gdb-Prozess ist einige Zeit nach dem Start abgestürzt.</translation>
@@ -4019,18 +3971,6 @@ Die Ausgabe-Hilfsbibliothek dient lediglich zur formatierten Ausgabe von Objekte
         <source>Use Debugging Helper</source>
         <translation>Ausgabe-Hilfsbibliothek benutzen</translation>
     </message>
-    <message>
-        <source>QML Observer is used to offer additional debugging facilities to QML applications, such as interactive preview of code changes and inspection tools.
-
-It is not strictly necessary for debugging with Qt Creator.</source>
-        <translation type="obsolete">Der QML-Beobachter stellt zusätzliche Debugging-Funktionalität für QML-Anwendungen zur Verfügung, wie zum Beispiel interaktive Vorschau von Code-Änderungen und weitere Werkzeuge zur Untersuchung.
-
-Er ist jedoch keine notwendige Voraussetzung für das Debuggen mit Qt Creator.</translation>
-    </message>
-    <message>
-        <source>Use QML Observer</source>
-        <translation type="obsolete">QML-Beobachter benutzen</translation>
-    </message>
 </context>
 <context>
     <name>DependenciesModel</name>
@@ -5014,17 +4954,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>Haltepunkte in Plugins niemals automatisch setzen</translation>
     </message>
     <message>
-        <source>When this option is checked, the debugger plugin attempts
-to extract full path information for all source files from gdb. This is a
-slow process but enables setting breakpoints in files with the same file
-name in different directories.</source>
-        <translation type="obsolete">Diese Option bewirkt, dass der Debugger versucht, die vollständigen Pfade aller Quelldateien von gdb zu erhalten. Das ist zeitaufwändig, gestattet aber das Setzen von Haltepunkten in Quelldateien gleichen Namens in verschiedenen Ordnern.</translation>
-    </message>
-    <message>
-        <source>Use full path information to set breakpoints</source>
-        <translation type="obsolete">Vollständige Pfadinformation beim Setzen der Haltepunkte verwenden</translation>
-    </message>
-    <message>
         <source>Gdb timeout:</source>
         <translation>Gdb-Timeout:</translation>
     </message>
@@ -5163,10 +5092,6 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <source>Switch to editor context after last help page is closed.</source>
         <translation>Nach Schließen der letzten Hilfeseite zum Editor schalten.</translation>
-    </message>
-    <message>
-        <source>Return to editor on closing the  last page</source>
-        <translation type="obsolete">Nach Schließen der letzten Hilfeseite zum Editor schalten</translation>
     </message>
     <message>
         <source>Return to editor on closing the last page</source>
@@ -5660,16 +5585,8 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>Diff für Datei</translation>
     </message>
     <message>
-        <source>Diff &quot;%1&quot;</source>
-        <translation>Diff für &quot;%1&quot;</translation>
-    </message>
-    <message>
         <source>Alt+G,Alt+D</source>
         <translation>Alt+G,Alt+D</translation>
-    </message>
-    <message>
-        <source>Log File</source>
-        <translation>Log für Datei</translation>
     </message>
     <message>
         <source>Log of &quot;%1&quot;</source>
@@ -5724,17 +5641,8 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>Diff für Projekt &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>Stash Snapshot...</source>
-        <translation>Snapshot als Stash speichern...</translation>
-    </message>
-    <message>
         <source>Stashes...</source>
         <translation>Stashes...</translation>
-    </message>
-    <message>
-        <source>Would you like to revert all pending changes to the repository
-%1?</source>
-        <translation>Möchten Sie alle ausstehenden Änderungen des Repositories %1 rückgängig machen?</translation>
     </message>
     <message>
         <source>Log Project</source>
@@ -5781,40 +5689,12 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>Projekt &quot;%1&quot; bereinigen...</translation>
     </message>
     <message>
-        <source>Diff Repository</source>
-        <translation>Diff des Repositories</translation>
-    </message>
-    <message>
-        <source>Repository Status</source>
-        <translation>Status des Repositories</translation>
-    </message>
-    <message>
-        <source>Log Repository</source>
-        <translation>Log des Repositories</translation>
-    </message>
-    <message>
-        <source>Apply Patch</source>
-        <translation>Patch anwenden</translation>
-    </message>
-    <message>
         <source>Apply &quot;%1&quot;</source>
         <translation>Patch &quot;%1&quot;anwenden</translation>
     </message>
     <message>
-        <source>Apply Patch...</source>
-        <translation>Patch anwenden...</translation>
-    </message>
-    <message>
-        <source>Undo Repository Changes</source>
-        <translation>Änderungen des Repositories rückgängig machen</translation>
-    </message>
-    <message>
         <source>Create Repository...</source>
         <translation>Repository erzeugen...</translation>
-    </message>
-    <message>
-        <source>Clean Repository...</source>
-        <translation>Repository bereinigen...</translation>
     </message>
     <message>
         <source>Launch gitk</source>
@@ -5885,6 +5765,46 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>Fetch</translation>
     </message>
     <message>
+        <source>Diff of &quot;%1&quot;</source>
+        <translation>Diff für &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Log Current File</source>
+        <translation>Filelog für Datei</translation>
+    </message>
+    <message>
+        <source>Diff</source>
+        <translation>Diff</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation>Status</translation>
+    </message>
+    <message>
+        <source>Reset...</source>
+        <translation>Repository Zurücksetzen...</translation>
+    </message>
+    <message>
+        <source>Clean...</source>
+        <translation>Repository bereinigen</translation>
+    </message>
+    <message>
+        <source>Patch</source>
+        <translation>Patch anwenden</translation>
+    </message>
+    <message>
+        <source>Apply from Editor</source>
+        <translation>Von Editor</translation>
+    </message>
+    <message>
+        <source>Apply from File...</source>
+        <translation>Von Datei...</translation>
+    </message>
+    <message>
+        <source>Take Snapshot...</source>
+        <translation>Snapshot erzeugen...</translation>
+    </message>
+    <message>
         <source>Commit</source>
         <translation>Abgeben</translation>
     </message>
@@ -5899,6 +5819,11 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <source>&amp;Redo</source>
         <translation>&amp;Wiederholen</translation>
+    </message>
+    <message>
+        <source>Revert all pending changes to the repository
+%1?</source>
+        <translation>Möchten Sie alle ausstehenden Änderungen des Repositories %1 rückgängig machen?</translation>
     </message>
     <message>
         <source>Revert</source>
@@ -6049,10 +5974,6 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>Abgabe bestätigen</translation>
     </message>
     <message>
-        <source>Ignore whitespace changes in annotation</source>
-        <translation>Änderungen der Leerzeichen bei Annotation weglassen</translation>
-    </message>
-    <message>
         <source>Use &quot;patience diff&quot; algorithm</source>
         <translation>&quot;patience diff&quot;-Algorithmus verwenden</translation>
     </message>
@@ -6079,6 +6000,10 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <source>Arguments:</source>
         <translation>Argumente:</translation>
+    </message>
+    <message>
+        <source>Ignore whitespace changes in annotation and diff</source>
+        <translation>Änderungen der Leerzeichen bei Annotation und Diff weglassen</translation>
     </message>
 </context>
 <context>
@@ -7717,10 +7642,6 @@ on slow machines. In this case, the value should be increased.</source>
         <source>Could not start process &quot;%1&quot; %2</source>
         <translation>Der Prozess &quot;%1&quot; %2 nicht gestartet werden</translation>
     </message>
-    <message>
-        <source>Could not start process &quot;%1&quot;</source>
-        <translation type="obsolete">Der Prozess :&quot;%1&quot; konnte nicht gestartet werden</translation>
-    </message>
 </context>
 <context>
     <name>ProjectExplorer::ApplicationLauncher</name>
@@ -7843,27 +7764,9 @@ Fehler: %2</translation>
         <translation>GDB-Hilfsbibliothek</translation>
     </message>
     <message>
-        <source>Building debugging helper library in %1
-</source>
-        <translation type="obsolete">Erstelle Ausgabe-Hilfsbibliothek in %1
-</translation>
-    </message>
-    <message>
-        <source>Running %1 %2...
-</source>
-        <translation type="obsolete">Führe %1 %2 aus...
-</translation>
-    </message>
-    <message>
         <source>%1 not found in PATH
 </source>
         <translation>%1 konnte im Pfad (PATH) nicht gefunden werden
-</translation>
-    </message>
-    <message>
-        <source>Running %1 ...
-</source>
-        <translation type="obsolete">Führe %1 aus...
 </translation>
     </message>
 </context>
@@ -8312,14 +8215,6 @@ konnte dem Projekt &apos;%2&apos; nicht hinzugefügt werden.</translation>
 <context>
     <name>ProjectExplorer::Internal::ProjectTreeWidget</name>
     <message>
-        <source>Simplify tree</source>
-        <translation type="obsolete">Baum vereinfachen</translation>
-    </message>
-    <message>
-        <source>Hide generated files</source>
-        <translation type="obsolete">Generierte Dateien nicht zeigen</translation>
-    </message>
-    <message>
         <source>Simplify Tree</source>
         <translation>Baum vereinfachen</translation>
     </message>
@@ -8341,10 +8236,6 @@ konnte dem Projekt &apos;%2&apos; nicht hinzugefügt werden.</translation>
     <message>
         <source>Filter Tree</source>
         <translation>Baum filtern</translation>
-    </message>
-    <message>
-        <source>Filter tree</source>
-        <translation type="obsolete">Baum filtern</translation>
     </message>
 </context>
 <context>
@@ -9482,6 +9373,10 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <translation>Qt Creator bietet automatisch Syntax-Hervorhebung und Code-Vervollständigung an, wenn Sie externe Bibliotheken zu Ihrem Projekt hinzufügen.</translation>
     </message>
     <message>
+        <source>You can switch between the output pane by hitting &lt;tt&gt;%1+n&lt;/tt&gt; where n is the number denoted on the buttons at the window bottom: &lt;br /&gt;&lt;br /&gt;1: Build Issues, 2: Search Results, 3: Application Output, 4: Compile Output</source>
+        <translation>Sie können zwischen den Ausgabepanelen umschalten, in dem Sie &lt;tt&gt;%1+n&lt;/tt&gt; drücken, wobei n die Zahl ist, die auf den Schaltflächen am unteren Fensterrand befindet: &lt;ul&gt;&lt;li&gt;1 - Build-Probleme&lt;/li&gt;&lt;li&gt;2 - Suchergebnisse&lt;/li&gt;&lt;li&gt;3 - Ausgabe der Anwendung&lt;/li&gt;&lt;li&gt;4 - Kompilierung&lt;/li&gt;&lt;/ul&gt;</translation>
+    </message>
+    <message>
         <source>You can quickly search methods, classes, help and more using the &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-editor-locator.html&quot;&gt;Locator bar&lt;/a&gt; (&lt;tt&gt;%1+K&lt;/tt&gt;).</source>
         <translation>Mit der &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-navigation.html&quot;&gt;Locator-Leiste&lt;/a&gt; (&lt;tt&gt;%1+K&lt;/tt&gt;) können Sie schnell nach Methoden, Klassen, Hilfe und anderem suchen.</translation>
     </message>
@@ -9530,10 +9425,6 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <translation>Sie können stets mittels &lt;tt&gt;Escape&lt;/tt&gt;-Taste aus jedem anderen Modus in den Editier-Modus zurückkehren.</translation>
     </message>
     <message>
-        <source>You can switch between the output pane by hitting &lt;tt&gt;%1+n&lt;/tt&gt; where n is the number denoted on the buttons at the window bottom:&lt;ul&gt;&lt;li&gt;1 - Build Issues&lt;/li&gt;&lt;li&gt;2 - Search Results&lt;/li&gt;&lt;li&gt;3 - Application Output&lt;/li&gt;&lt;li&gt;4 - Compile Output&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation>Sie können zwischen den Ausgabepanelen umschalten, in dem Sie &lt;tt&gt;%1+n&lt;/tt&gt; drücken, wobei n die Zahl ist, die auf den Schaltflächen am unteren Fensterrand befindet: &lt;ul&gt;&lt;li&gt;1 - Build-Probleme&lt;/li&gt;&lt;li&gt;2 - Suchergebnisse&lt;/li&gt;&lt;li&gt;3 - Ausgabe der Anwendung&lt;/li&gt;&lt;li&gt;4 - Kompilierung&lt;/li&gt;&lt;/ul&gt;</translation>
-    </message>
-    <message>
         <source>You can set the preferred editor encoding for every project in &lt;tt&gt;Projects -&gt; Editor Settings -&gt; Default Encoding&lt;/tt&gt;.</source>
         <translation>Sie können ihre Encoding-Vorgabe für den Editor für jedes Projekt in &lt;tt&gt;Projekte -&gt; Editoreinstellungen -&gt; Encoding-Vorgabe&lt;/tt&gt; einstellen.</translation>
     </message>
@@ -9546,20 +9437,8 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <translation>Im Editor können Sie &lt;tt&gt;F2&lt;/tt&gt; verwenden, um ein Symbol zu verfolgen; &lt;tt&gt;Shift+F2&lt;/tt&gt; wechselt zwischen Deklaration und Definition. &lt;tt&gt;F4&lt;/tt&gt; schaltet zwischen Header- und Quelldatei um.</translation>
     </message>
     <message>
-        <source>Examples not installed...</source>
-        <translation type="obsolete">Beispiele nicht installiert...</translation>
-    </message>
-    <message>
         <source>Create Project...</source>
         <translation>Projekt erstellen...</translation>
-    </message>
-    <message>
-        <source>Explore Qt C++ Examples</source>
-        <translation type="obsolete">Qt C++-Beispiele öffnen</translation>
-    </message>
-    <message>
-        <source>Explore Qt Quick Examples</source>
-        <translation type="obsolete">Qt-Quick-Beispiele öffnen</translation>
     </message>
     <message>
         <source>Open Project...</source>
@@ -9979,6 +9858,10 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <translation>Ausgabe-Hilfsbibliothek</translation>
     </message>
     <message>
+        <source>Debugging Helper Build Log for &apos;%1&apos;</source>
+        <translation>Erstellungsprotokoll der Ausgabe-Hilfsbibliothek für &apos;%1&apos;</translation>
+    </message>
+    <message>
         <source>Binary not found</source>
         <translation>Ausführbare Datei nicht gefunden</translation>
     </message>
@@ -9986,11 +9869,6 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <source>&lt;html&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;GDB debugging helpers&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;File:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%1&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Last&amp;nbsp;modified:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Size:&lt;/td&gt;&lt;td&gt;%3 Bytes&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;QML type dumper&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;File:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%4&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Last&amp;nbsp;modified:&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Size:&lt;/td&gt;&lt;td&gt;%6 Bytes&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;QML observer&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;File:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%7&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Last&amp;nbsp;modified:&lt;/td&gt;&lt;td&gt;%8&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Size:&lt;/td&gt;&lt;td&gt;%9 Bytes&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <extracomment>Tooltip showing the debugging helper library file.</extracomment>
         <translation>&lt;html&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;GDB-Ausgabe-Hilfsbibliothek&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Datei:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%1&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Zuletzt&amp;nbsp;geändert:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Größe:&lt;/td&gt;&lt;td&gt;%3 Bytes&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;QML-Typausgabe&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Datei:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%4&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Zuletzt&amp;nbsp;geändert:&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Größe:&lt;/td&gt;&lt;td&gt;%6 Bytes&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;QML observer&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Größe:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%7&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Zuletzt&amp;nbsp;geändert:&lt;/td&gt;&lt;td&gt;%8&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Größe:&lt;/td&gt;&lt;td&gt;%9 Bytes&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;File:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%1&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Last&amp;nbsp;modified:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Size:&lt;/td&gt;&lt;td&gt;%3 Bytes&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <extracomment>Tooltip showing the debugging helper library file.</extracomment>
-        <translation type="obsolete">&lt;html&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Datei:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%1&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Letzte Änderung:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Größe:&lt;/td&gt;&lt;td&gt;%3 Bytes&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>This Qt Version has a unknown toolchain.</source>
@@ -10083,10 +9961,6 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     <message>
         <source>Carbide directory:</source>
         <translation>Carbide-Ordner:</translation>
-    </message>
-    <message>
-        <source>Debugging helper:</source>
-        <translation type="obsolete">Ausgabe-Hilfsbibliothek:</translation>
     </message>
     <message>
         <source>Unable to detect MSVC version.</source>
@@ -10834,10 +10708,6 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
         <translation>Die Datei %1 befindet sich nicht in einem Unterverzeichnis der Ressourcendatei. Sie können sie jetzt an die richtige Stelle kopieren.</translation>
     </message>
     <message>
-        <source>Choose copy location</source>
-        <translation type="obsolete">Wählen Sie ein Ziel zum Kopieren</translation>
-    </message>
-    <message>
         <source>Could not overwrite file %1.</source>
         <translation>Die Datei %1 konnte nicht überschrieben werden.</translation>
     </message>
@@ -11199,6 +11069,10 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
         <translation>Die Überprüfung der Beschreibung schlug fehl. Möchten Sie den Commit trotzdem ausführen?</translation>
     </message>
     <message>
+        <source>Revert all pending changes to the repository?</source>
+        <translation>Möchten Sie alle ausstehenden Änderungen des Repositories rückgängig machen?</translation>
+    </message>
+    <message>
         <source>The file has been changed. Do you want to revert it?</source>
         <translation>Die Datei wurde geändert. Möchten Sie sie zurücksetzen?</translation>
     </message>
@@ -11245,10 +11119,6 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <message>
         <source>Revert repository</source>
         <translation>Alle Änderungen rückgängig machen</translation>
-    </message>
-    <message>
-        <source>Would you like to revert all changes to the repository?</source>
-        <translation>Möchten Sie alle ausstehenden Änderungen des Repositories rückgängig machen?</translation>
     </message>
     <message>
         <source>Revert failed: %1</source>
@@ -12610,14 +12480,6 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
         <translation>Vollständiger Pfad: &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>The path &apos;%1&apos; is not a directory.</source>
-        <translation type="obsolete">Der Pfad &apos;%1&apos; zeigt nicht zu einem Verzeichnis.</translation>
-    </message>
-    <message>
-        <source>The path &apos;%1&apos; is not a file.</source>
-        <translation type="obsolete">Der Pfad &apos;%1&apos; zeigt nicht zu einer Datei.</translation>
-    </message>
-    <message>
         <source>Path:</source>
         <translation>Pfad:</translation>
     </message>
@@ -12800,10 +12662,6 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     <message>
         <source>Checkout Directory:</source>
         <translation>Verzeichnis:</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation type="obsolete">Pfad:</translation>
     </message>
     <message>
         <source>...</source>
@@ -15602,14 +15460,6 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
 <context>
     <name>QmlJSEditor::Internal::QmlJSEditorPlugin</name>
     <message>
-        <source>Creates a Qt QML file.</source>
-        <translation type="obsolete">Erstellt eine Qt-QML-Datei.</translation>
-    </message>
-    <message>
-        <source>Qt QML File</source>
-        <translation type="obsolete">Qt QML-Datei</translation>
-    </message>
-    <message>
         <source>Show Qt Quick Toolbar</source>
         <translation>Qt Quick-Werkzeugleiste anzeigen</translation>
     </message>
@@ -15673,7 +15523,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <translation>Der QML-Betrachter konnte nicht gefunden werden.</translation>
     </message>
     <message>
-        <source>QML Observer is used to offer debugging features for QML applications, such as interactive debugging and inspection tools.It must be compiled for each used Qt version separately. On the Qt4 options page, select the current Qt installation and click Rebuild.</source>
+        <source>QML Observer is used to offer debugging features for QML applications, such as interactive debugging and inspection tools. It must be compiled for each used Qt version separately. On the Qt4 options page, select the current Qt installation and click Rebuild.</source>
         <translation>Der QML-Beobachter stellt zusätzliche Debugging-Funktionalität für QML-Anwendungen zur Verfügung, wie zum Beispiel interaktive Vorschau von Code-Änderungen und weitere Werkzeuge zur Untersuchung. Er muss für jede verwendete Qt-Version separat übersetzt werden. Gehen Sie auf die Qt4-Einstellungsseite, wählen Sie die betreffende Qt-Installation aus und klicken Sie auf &apos;Neu Erstellen&apos;.</translation>
     </message>
 </context>
@@ -15932,6 +15782,10 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <translation>Der Pfad zu den ausführbaren Dateien der Qt-Installation konnte nicht bestimmt werden, möglicherweise ist der Pfad zu qmake falsch?</translation>
     </message>
     <message>
+        <source>Cannot determine the installation path for Qt version &apos;%1&apos;.</source>
+        <translation>Der Installationsordner der Qt-Version &apos;%1&apos; kann nicht bestimmt werden.</translation>
+    </message>
+    <message>
         <source>The Qt Version has no toolchain.</source>
         <translation>Dieser Qt-Version ist keine Toolchain zugeordnet.</translation>
     </message>
@@ -16152,16 +16006,8 @@ Dezimaler, vorzeichenbehafteter Wert (Big Endian): %4</translation>
 <context>
     <name>Debugger::DebuggerUISwitcher</name>
     <message>
-        <source>&amp;Debug Languages</source>
-        <translation type="obsolete">&amp;Sprachen</translation>
-    </message>
-    <message>
         <source>Memory...</source>
         <translation>Speicher...</translation>
-    </message>
-    <message>
-        <source>Alt+L</source>
-        <translation type="obsolete">Alt+L</translation>
     </message>
     <message>
         <source>Debugger Toolbar</source>
@@ -16263,14 +16109,6 @@ Fehler:
 <context>
     <name>QmlProjectManager::Internal::QmlProjectApplicationWizardDialog</name>
     <message>
-        <source>New QML Project</source>
-        <translation type="obsolete">Neues QML-Projekt</translation>
-    </message>
-    <message>
-        <source>This wizard generates a QML application project.</source>
-        <translation type="obsolete">Dieser Wizard erstellt ein QML-Anwendungsprojekt.</translation>
-    </message>
-    <message>
         <source>New Qt Quick UI Project</source>
         <translation>Neues Qt Quick-UI-Projekt</translation>
     </message>
@@ -16281,22 +16119,6 @@ Fehler:
 </context>
 <context>
     <name>QmlProjectManager::Internal::QmlProjectApplicationWizard</name>
-    <message>
-        <source>Qt QML Application</source>
-        <translation type="obsolete">Qt-QML-Anwendung</translation>
-    </message>
-    <message>
-        <source>QML Application</source>
-        <translation type="obsolete">QML-Anwendung</translation>
-    </message>
-    <message>
-        <source>Creates a QML application project with a single QML file containing the main view.
-
-QML application projects are executed by the Qt QML Viewer and do not need to be built.</source>
-        <translation type="obsolete">Erstellt eine QML-Anwendung aus einer einzelnen QML-Datei, die die Hauptansicht enthält.
-
-QML-Anwendungen werden vom Qt QML-Betrachter direkt ausgeführt und benötigen keine Compilierung.</translation>
-    </message>
     <message>
         <source>Qt Quick UI</source>
         <translation>Qt Quick UI</translation>
@@ -16329,58 +16151,6 @@ Qt Quick-UI-Projekte benötigen keine Übersetzung und können direkt im QML-Bet
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlProjectImportWizardDialog</name>
-    <message>
-        <source>Import Existing QML Directory</source>
-        <translation type="obsolete">Importiere existierenden QML-Ordner</translation>
-    </message>
-    <message>
-        <source>Project Name and Location</source>
-        <translation type="obsolete">Name und Ordner des Projekts</translation>
-    </message>
-    <message>
-        <source>Project name:</source>
-        <translation type="obsolete">Projektname:</translation>
-    </message>
-    <message>
-        <source>Location:</source>
-        <translation type="obsolete">Pfad:</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation type="obsolete">Pfad</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectImportWizard</name>
-    <message>
-        <source>Import Existing QML Directory</source>
-        <translation type="obsolete">Importiere existierenden QML-Ordner</translation>
-    </message>
-    <message>
-        <source>Creates a QML project from an existing directory of QML files.</source>
-        <translation type="obsolete">Erstellt ein QML-Projekt von einem Ordner, der QML-Dateien enthält.</translation>
-    </message>
-    <message>
-        <source>File generated by QtCreator</source>
-        <comment>qmlproject Template</comment>
-        <extracomment>Comment added to generated .qmlproject file</extracomment>
-        <translation type="obsolete">File generated by QtCreator</translation>
-    </message>
-    <message>
-        <source>Include .qml, .js, and image files from current directory and subdirectories</source>
-        <comment>qmlproject Template</comment>
-        <extracomment>Comment added to generated .qmlproject file</extracomment>
-        <translation type="obsolete">Include .qml, .js, and image files from current directory and subdirectories</translation>
-    </message>
-    <message>
-        <source>List of plugin directories passed to QML runtime</source>
-        <comment>qmlproject Template</comment>
-        <extracomment>Comment added to generated .qmlproject file</extracomment>
-        <translation type="obsolete">List of plugin directories passed to QML runtime</translation>
-    </message>
-</context>
-<context>
     <name>QmlProjectManager::QmlProjectRunConfiguration</name>
     <message>
         <source>QML Viewer</source>
@@ -16388,16 +16158,8 @@ Qt Quick-UI-Projekte benötigen keine Übersetzung und können direkt im QML-Bet
         <translation>QML-Betrachter</translation>
     </message>
     <message>
-        <source>Custom QML Viewer:</source>
-        <translation type="obsolete">Benutzerdefinierter QML-Betrachter:</translation>
-    </message>
-    <message>
         <source>Arguments:</source>
         <translation>Argumente:</translation>
-    </message>
-    <message>
-        <source>QML Viewer arguments:</source>
-        <translation type="obsolete">Kommandozeilenargumente des Betrachters:</translation>
     </message>
     <message>
         <source>Manage Qt versions</source>
@@ -16656,10 +16418,6 @@ Qt Quick-UI-Projekte benötigen keine Übersetzung und können direkt im QML-Bet
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::S60CreatePackageStepWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Form</translation>
-    </message>
     <message>
         <source>Self-signed certificate</source>
         <translation>Selbstsigniertes Zertifikat</translation>
@@ -17311,14 +17069,6 @@ Haben Sie Qemu gestartet?</translation>
         <translation>spezielle Eigenschaften</translation>
     </message>
     <message>
-        <source>layout and geometry</source>
-        <translation type="obsolete">Layout und Geometrie</translation>
-    </message>
-    <message>
-        <source>Geometry</source>
-        <translation type="obsolete">Geometrie</translation>
-    </message>
-    <message>
         <source>layout</source>
         <translation>layout</translation>
     </message>
@@ -17735,10 +17485,6 @@ Haben Sie Qemu gestartet?</translation>
         <translation>Parameter des Plugins zur Erweiterung von QML</translation>
     </message>
     <message>
-        <source>Example Object Class-name:</source>
-        <translation type="obsolete">Klassenname des Beispiel-Objekts:</translation>
-    </message>
-    <message>
         <source>Object Class-name:</source>
         <translation>Klassenname des Objektes:</translation>
     </message>
@@ -17976,12 +17722,36 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>WebView</translation>
     </message>
     <message>
+        <source>Url</source>
+        <translation>Url</translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation>Titel</translation>
+    </message>
+    <message>
+        <source>Pref Width</source>
+        <translation>Bevorzugte Breite</translation>
+    </message>
+    <message>
         <source>Preferred Width</source>
         <translation>Bevorzugte Breite</translation>
     </message>
     <message>
-        <source>Page Height</source>
-        <translation>Seitenhöhe</translation>
+        <source>Pref Height</source>
+        <translation>Bevorzugte Höhe</translation>
+    </message>
+    <message>
+        <source>Preferred Height</source>
+        <translation>Bevorzugte Höhe</translation>
+    </message>
+    <message>
+        <source>Scale</source>
+        <translation>Skalierung</translation>
+    </message>
+    <message>
+        <source>Contents Scale</source>
+        <translation>Skalierung des Inhalts</translation>
     </message>
 </context>
 <context>
@@ -18042,13 +17812,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Path:</source>
         <translation>Pfad:</translation>
-    </message>
-</context>
-<context>
-    <name>QApplication</name>
-    <message>
-        <source>Qt QML Viewer</source>
-        <translation type="obsolete">Qt QML-Betrachter</translation>
     </message>
 </context>
 <context>
@@ -18471,12 +18234,12 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
         <translation>Das Build-Verzeichnis muss sich auf Ebene des Quellverzeichnisses befinden.</translation>
     </message>
     <message>
-        <source>Cannot build QMLObserver; Qt version must be 4.7.1 or higher.</source>
-        <translation>Der QML-Beobachter kann nicht erstellt werden, da er Qt-Version 4.7.1 oder höher erfordert.</translation>
+        <source>Warning: Cannot build QMLObserver; Qt version must be 4.7.1 or higher.</source>
+        <translation>Warnung: Der QML-Beobachter kann nicht erstellt werden, da er Qt-Version 4.7.1 oder höher erfordert.</translation>
     </message>
     <message>
-        <source>Cannot build qmldump; Qt version must be 4.7.1 or higher.</source>
-        <translation>qmldump kann nicht erstellt werden, da es Qt-Version 4.7.1 oder höher erfordert.</translation>
+        <source>Warning: Cannot build qmldump; Qt version must be 4.7.1 or higher.</source>
+        <translation>Warnung: Der QML-Beobachter kann nicht erstellt werden, da er Qt-Version 4.7.1 oder höher erfordert.</translation>
     </message>
 </context>
 <context>
@@ -18654,8 +18417,16 @@ Ids müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <translation>In QLatin1String(...) einschließen</translation>
     </message>
     <message>
-        <source>Mark as translatable</source>
+        <source>Mark as Translatable</source>
         <translation>Zur Übersetzung vorsehen</translation>
+    </message>
+    <message>
+        <source>#include Header File</source>
+        <translation>#include Header-Datei</translation>
+    </message>
+    <message>
+        <source>Add local Declaration</source>
+        <translation>Lokale Deklaration hinzufügen</translation>
     </message>
     <message>
         <source>Convert to Objective-C String Literal</source>
@@ -18676,14 +18447,6 @@ Ids müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     <message>
         <source>Complete Switch Statement</source>
         <translation>Switch-Anweisung vervollständigen</translation>
-    </message>
-    <message>
-        <source>#include header file</source>
-        <translation>#include Header-Datei</translation>
-    </message>
-    <message>
-        <source>Add local declaration</source>
-        <translation>Lokale Deklaration hinzufügen</translation>
     </message>
     <message>
         <source>Convert to Camel Case ...</source>
@@ -18715,18 +18478,6 @@ Ids müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <translation>Stil</translation>
     </message>
     <message>
-        <source>Outline</source>
-        <translation type="obsolete">Umriss</translation>
-    </message>
-    <message>
-        <source>Raised</source>
-        <translation type="obsolete">Hervorgehoben</translation>
-    </message>
-    <message>
-        <source>Sunken</source>
-        <translation type="obsolete">Abgesenkt</translation>
-    </message>
-    <message>
         <source>...</source>
         <translation>...</translation>
     </message>
@@ -18754,18 +18505,6 @@ Ids müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     <message>
         <source>Form</source>
         <translation>Form</translation>
-    </message>
-    <message>
-        <source>Scale the image to fit to the available area.</source>
-        <translation type="obsolete">Bild auf Größe der verfügbaren Fläche skalieren</translation>
-    </message>
-    <message>
-        <source>Tile the image until there is no more space. May crop the last image.</source>
-        <translation type="obsolete">Bild mehrfach nebeneinander anordnen, bis kein Platz mehr vorhanden ist. Das letzte Bild wird unter Umständen beschnitten.</translation>
-    </message>
-    <message>
-        <source>Like Repeat, but scales the images down to ensure that the last image is not cropped.</source>
-        <translation type="obsolete">Wie &apos;Nebeneinander&apos; mit zusätzlicher Skalierung zur Vermeidung des Beschneidens des letzten Bildes.</translation>
     </message>
     <message>
         <source>10 x 10</source>
@@ -18857,36 +18596,16 @@ Ids müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <translation>Dialog</translation>
     </message>
     <message>
-        <source>play simulation</source>
-        <translation type="obsolete">Simulation abspielen</translation>
-    </message>
-    <message>
         <source>Easing</source>
         <translation>Easing</translation>
-    </message>
-    <message>
-        <source>easing type</source>
-        <translation type="obsolete">Easing-Typ</translation>
-    </message>
-    <message>
-        <source>Linear</source>
-        <translation type="obsolete">Linear</translation>
     </message>
     <message>
         <source>Subtype</source>
         <translation>Subtype</translation>
     </message>
     <message>
-        <source>easing subtype</source>
-        <translation type="obsolete">Easing-Subtyp</translation>
-    </message>
-    <message>
         <source>Duration</source>
         <translation>Dauer</translation>
-    </message>
-    <message>
-        <source>duration</source>
-        <translation type="obsolete">Dauer</translation>
     </message>
     <message>
         <source>INVALID</source>
@@ -18901,24 +18620,12 @@ Ids müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <translation>Amplitude</translation>
     </message>
     <message>
-        <source>easing amplitude (only for Elastic and Bounce curves)</source>
-        <translation type="obsolete">Easing-Amplitude (nur für Kurven des Typs Elastic und Bounce)</translation>
-    </message>
-    <message>
         <source>Period</source>
         <translation>Periode</translation>
     </message>
     <message>
-        <source>easing period (only for Elastic curve)</source>
-        <translation type="obsolete">Easing-Periode (nur für Kurven des Typs Elastic)</translation>
-    </message>
-    <message>
         <source>Overshoot</source>
         <translation>Overshoot</translation>
-    </message>
-    <message>
-        <source>easing overshoot (only for Back curve)</source>
-        <translation type="obsolete">Easing-Overshoot (nur für Kurven des Typs Back)</translation>
     </message>
     <message>
         <source>Play simulation</source>
@@ -18954,10 +18661,6 @@ Ids müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     <message>
         <source>Form</source>
         <translation>Form</translation>
-    </message>
-    <message>
-        <source>Show subprojects</source>
-        <translation type="obsolete">Untergeordnete Projekte anzeigen</translation>
     </message>
     <message>
         <source>Show Subprojects</source>
@@ -19070,10 +18773,6 @@ Ids müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::LibraryDetailsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Form</translation>
-    </message>
     <message>
         <source>Library:</source>
         <translation>Bibliothek:</translation>
@@ -19192,51 +18891,19 @@ Ids müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <translation>WizardPage</translation>
     </message>
     <message>
-        <source>+</source>
-        <translation type="obsolete">+</translation>
-    </message>
-    <message>
-        <source>-</source>
-        <translation type="obsolete">-</translation>
-    </message>
-    <message>
-        <source>Import Paths</source>
-        <translation type="obsolete">Import-Pfade</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="obsolete">Fehler</translation>
-    </message>
-    <message>
-        <source>Main QML file</source>
-        <translation type="obsolete">QML-Hauptdatei</translation>
-    </message>
-    <message>
-        <source>QML Modules</source>
-        <translation type="obsolete">QML-Module</translation>
-    </message>
-    <message>
-        <source>URIs (e.g. &apos;org.mydomain.MyQmlModule&apos;)</source>
-        <translation type="obsolete">URIs (zum Beispiel &apos;org.mydomain.MyQmlModule&apos;)</translation>
-    </message>
-    <message>
         <source>Main QML File</source>
         <translation>QML-Hauptdatei</translation>
-    </message>
-    <message>
-        <source>New &apos;main.qml&apos; file, generated by this wizard.</source>
-        <translation>Generiere neue &apos;main.qml&apos;-Datei.</translation>
     </message>
     <message>
         <source>Import an existing .qml file</source>
         <translation>Importiere existierende QML-Datei</translation>
     </message>
     <message>
-        <source>Note: All files and directories which reside in the same directory as the Main QML File will be deployed. You can anytime modify the contents of that directory before deploying.</source>
-        <translation type="obsolete">Hinweis: Alle Dateien und Ordner, die sich im selben Ordner wie die QML-Hauptdatei befinden, sind zum Deployment vorgesehen. Der Inhalt des Ordners kann vor dem Deployment-Vorgang jederzeit modifiziert werden.</translation>
+        <source>Generate a main.qml file</source>
+        <translation>Datei main.qml erstellen</translation>
     </message>
     <message>
-        <source>Note: All files and directories which reside in the same directory as the Main QML File will be deployed. You can modify the contents of that directory anytime before deploying.</source>
+        <source>Note: All files and directories that reside in the same directory as the main QML file are deployed. You can modify the contents of the directory any time before deploying.</source>
         <translation>Hinweis: Alle Dateien und Ordner, die sich im selben Ordner wie die QML-Hauptdatei befinden, sind zum Deployment vorgesehen. Der Inhalt des Ordners kann vor dem Deployment-Vorgang jederzeit modifiziert werden.</translation>
     </message>
 </context>
@@ -19302,172 +18969,6 @@ Ids müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     <message>
         <source>Invert Selection</source>
         <translation>Auswahl umkehren</translation>
-    </message>
-</context>
-<context>
-    <name>ProxySettings</name>
-    <message>
-        <source>Dialog</source>
-        <translation type="obsolete">Dialog</translation>
-    </message>
-    <message>
-        <source>Use http proxy</source>
-        <translation type="obsolete">HTTP-Proxy verwenden</translation>
-    </message>
-    <message>
-        <source>Server Address:</source>
-        <translation type="obsolete">Adresse des Servers:</translation>
-    </message>
-    <message>
-        <source>Port:</source>
-        <translation type="obsolete">Port:</translation>
-    </message>
-    <message>
-        <source>Username:</source>
-        <translation type="obsolete">Nutzername:</translation>
-    </message>
-    <message>
-        <source>Password:</source>
-        <translation type="obsolete">Passwort:</translation>
-    </message>
-    <message>
-        <source>HTTP Proxy</source>
-        <translation type="obsolete">HTTP-Proxy</translation>
-    </message>
-    <message>
-        <source>Use HTTP Proxy</source>
-        <translation type="obsolete">HTTP-Proxy verwenden</translation>
-    </message>
-    <message>
-        <source>Server</source>
-        <translation type="obsolete">Server</translation>
-    </message>
-    <message>
-        <source>Name or IP</source>
-        <translation type="obsolete">Name oder IP-Adresse</translation>
-    </message>
-    <message>
-        <source>Port</source>
-        <translation type="obsolete">Port</translation>
-    </message>
-    <message>
-        <source>8080</source>
-        <translation type="obsolete">8080</translation>
-    </message>
-    <message>
-        <source>Username</source>
-        <translation type="obsolete">Nutzername</translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation type="obsolete">Passwort</translation>
-    </message>
-</context>
-<context>
-    <name>RecordingOptions</name>
-    <message>
-        <source>Video options</source>
-        <translation type="obsolete">Video-Einstellungen</translation>
-    </message>
-    <message>
-        <source>File:</source>
-        <translation type="obsolete">Datei:</translation>
-    </message>
-    <message>
-        <source>...</source>
-        <translation type="obsolete">...</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation type="obsolete">Größe</translation>
-    </message>
-    <message>
-        <source>VGA</source>
-        <translation type="obsolete">VGA</translation>
-    </message>
-    <message>
-        <source>720p</source>
-        <translation type="obsolete">720p</translation>
-    </message>
-    <message>
-        <source>QVGA</source>
-        <translation type="obsolete">QVGA</translation>
-    </message>
-    <message>
-        <source>Width:</source>
-        <translation type="obsolete">Breite:</translation>
-    </message>
-    <message>
-        <source>Height:</source>
-        <translation type="obsolete">Höhe:</translation>
-    </message>
-    <message>
-        <source>Rate</source>
-        <translation type="obsolete">Bildfrequenz</translation>
-    </message>
-    <message>
-        <source>60Hz</source>
-        <translation type="obsolete">60Hz</translation>
-    </message>
-    <message>
-        <source>50Hz</source>
-        <translation type="obsolete">50Hz</translation>
-    </message>
-    <message>
-        <source>25Hz</source>
-        <translation type="obsolete">25Hz</translation>
-    </message>
-    <message>
-        <source>Hz</source>
-        <translation type="obsolete">Hz</translation>
-    </message>
-    <message>
-        <source>24Hz</source>
-        <translation type="obsolete">24Hz</translation>
-    </message>
-    <message>
-        <source>Profile</source>
-        <translation type="obsolete">Profile</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="obsolete">Hilfe</translation>
-    </message>
-    <message>
-        <source>60 Hz</source>
-        <translation type="obsolete">60 Hz</translation>
-    </message>
-    <message>
-        <source>50 Hz</source>
-        <translation type="obsolete">50 Hz</translation>
-    </message>
-    <message>
-        <source>25 Hz</source>
-        <translation type="obsolete">25 Hz</translation>
-    </message>
-    <message>
-        <source>24 Hz</source>
-        <translation type="obsolete">24 Hz</translation>
-    </message>
-    <message>
-        <source>20 Hz</source>
-        <translation type="obsolete">20 Hz</translation>
-    </message>
-    <message>
-        <source>15 Hz</source>
-        <translation type="obsolete">15 Hz</translation>
-    </message>
-    <message>
-        <source>10 Hz</source>
-        <translation type="obsolete">10 Hz</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation type="obsolete">Datei</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation type="obsolete">Einstellungen</translation>
     </message>
 </context>
 <context>
@@ -19559,10 +19060,6 @@ Ids müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     <message>
         <source>Would you like to terminate it?</source>
         <translation>Möchten Sie abbrechen?</translation>
-    </message>
-    <message>
-        <source> Would you like to terminate it?</source>
-        <translation type="obsolete">Möchten Sie ihn abbrechen?</translation>
     </message>
 </context>
 <context>
@@ -19756,19 +19253,6 @@ Server: %2.</translation>
     </message>
 </context>
 <context>
-    <name>QCoreApplication</name>
-    <message>
-        <source>Add %1 declaration</source>
-        <comment>CppEditor::DeclFromDef</comment>
-        <translation type="obsolete">Deklaration für %1 hinzufügen</translation>
-    </message>
-    <message>
-        <source>Add definition in %1</source>
-        <comment>CppEditor::DefFromDecl</comment>
-        <translation type="obsolete">Definition in %1 hinzufügen</translation>
-    </message>
-</context>
-<context>
     <name>CppEditor::Internal::CppTypeHierarchyWidget</name>
     <message>
         <source>No type hierarchy available</source>
@@ -19816,12 +19300,12 @@ Server: %2.</translation>
         <translation>Deklarationen</translation>
     </message>
     <message>
-        <source>Projects Only</source>
+        <source>Projects only</source>
         <translation>Nur Projekte</translation>
     </message>
     <message>
-        <source>Global</source>
-        <translation>Global</translation>
+        <source>All files</source>
+        <translation>Alle Dateien</translation>
     </message>
 </context>
 <context>
@@ -19864,16 +19348,16 @@ Server: %2.</translation>
         <translation>Der Konsolenprozess konnte &apos;%1&apos; nicht ausführen.</translation>
     </message>
     <message>
-        <source>Attaching to core files is not supported!</source>
-        <translation type="obsolete">Das Debuggen von Core-Dateien wird nicht unterstützt!</translation>
-    </message>
-    <message>
         <source>Attaching to core files is not supported.</source>
         <translation>Das Debuggen von Core-Dateien wird nicht unterstützt.</translation>
     </message>
     <message>
         <source>The process exited with exit code %1.</source>
         <translation>Der Prozess wurde beendet, Rückgabewert %1.</translation>
+    </message>
+    <message>
+        <source>&lt;not supported&gt;</source>
+        <translation>&lt;nicht unterstützt&gt;</translation>
     </message>
     <message>
         <source>Continuing with &apos;%1&apos;...</source>
@@ -20070,6 +19554,10 @@ Server: %2.</translation>
         <translation>Anhalten</translation>
     </message>
     <message>
+        <source>Debugger is Busy</source>
+        <translation>Debugger arbeitet</translation>
+    </message>
+    <message>
         <source>Abort Debugging</source>
         <translation>Debuggen abbrechen</translation>
     </message>
@@ -20128,14 +19616,6 @@ Server: %2.</translation>
     <message>
         <source>Move to Calling Frame</source>
         <translation>Gehe zumaufrufenden Stackframe</translation>
-    </message>
-    <message>
-        <source>C++</source>
-        <translation type="obsolete">C++</translation>
-    </message>
-    <message>
-        <source>QML/JavaScript</source>
-        <translation type="obsolete">QML/JavaScript</translation>
     </message>
     <message>
         <source>Error evaluating command line arguments: %1</source>
@@ -20258,10 +19738,6 @@ Server: %2.</translation>
     <message>
         <source>A debugging session is still in progress. Terminating the session in the current state can leave the target in an inconsistent state. Would you still like to terminate it?</source>
         <translation>Der Debugger läuft noch. Das Beenden im gegenwärtigen Zustand könnte zu einem inkonsistenten Zustand des untersuchten Prozesses führen. Möchten Sie ihn trotzdem beenden?</translation>
-    </message>
-    <message>
-        <source>A debugging session are still in progress. Terminating the session in the current state can leave the target in an inconsistent state. Would you still like to terminate it?</source>
-        <translation type="obsolete">Der Debugger läuft noch. Das Beenden im gegenwärtigen Zustand könnte zu einem inkonsistenten Zustand des untersuchten Prozesses führen. Möchten Sie ihn trotzdem beenden?</translation>
     </message>
     <message>
         <source>Close Debugging Session</source>
@@ -20677,10 +20153,6 @@ Möchten Sie sie trotzdem laden?</translation>
 <context>
     <name>QmlJSEditor::Internal::QmlJSOutlineWidget</name>
     <message>
-        <source>Show all bindings</source>
-        <translation type="obsolete">Alle Bindings anzeigen</translation>
-    </message>
-    <message>
         <source>Show All Bindings</source>
         <translation>Alle Bindings anzeigen</translation>
     </message>
@@ -20695,16 +20167,12 @@ Möchten Sie sie trotzdem laden?</translation>
 <context>
     <name>QmlJSInspector::Internal::QmlInspectorToolbar</name>
     <message>
-        <source>Apply Changes to Document</source>
-        <translation>Änderungen auf Dokument anwenden</translation>
-    </message>
-    <message>
         <source>Observer Mode</source>
         <translation>Beobachter-Modus</translation>
     </message>
     <message>
-        <source>Reload</source>
-        <translation>Neu laden</translation>
+        <source>Apply Changes on Save</source>
+        <translation>Änderungen beim Speichern anwenden</translation>
     </message>
     <message>
         <source>Play/Pause Animations</source>
@@ -21193,10 +20661,6 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
         <translation>Es sind keine Ordner zum Abhängen vorhanden</translation>
     </message>
     <message>
-        <source>Unmounting remote mount points...</source>
-        <translation>Hänge entfernte Dateisysteme ab...</translation>
-    </message>
-    <message>
         <source>Could not execute unmount request.</source>
         <translation>Unmount-Anforderung konnte nicht ausgeführt werden.</translation>
     </message>
@@ -21231,8 +20695,8 @@ Fehlerausgabe: &apos;%1&apos;</translation>
         <translation>Fehlschlag beim Hochladen des UTFS-Clients (&apos;%1)</translation>
     </message>
     <message>
-        <source>Could not upload UTFS client: %1</source>
-        <translation>Fehlschlag beim Hochladen des UTFS-Clients: %1</translation>
+        <source>Could not upload UTFS client (%1), continuing anyway.</source>
+        <translation>Fehlschlag beim Hochladen des UTFS-Clients (&apos;%1), setze trotzdem fort.</translation>
     </message>
     <message>
         <source>Starting remote UTFS clients...</source>
@@ -21298,10 +20762,6 @@ Fehlerausgabe: %1</translation>
 <context>
     <name>Qt4ProjectManager::Internal::MaemoSshRunner</name>
     <message>
-        <source>Cannot start deployment, as the clean-up from the last time has not finished yet.</source>
-        <translation type="obsolete">Das Deployment kann nicht gestartet werden, da die Bereinigung vom letzten Mal noch nicht abgeschlossen wurde.</translation>
-    </message>
-    <message>
         <source>Connecting to device...</source>
         <translation>Verbinde zu Mobilgerät...</translation>
     </message>
@@ -21332,6 +20792,22 @@ Fehlerausgabe: %1</translation>
     <message>
         <source>The device does not have enough free ports for this run configuration.</source>
         <translation>Für diese Ausführungskonfiguration sind nicht ausreichend freie Ports auf dem Mobilgerät verfügbar.</translation>
+    </message>
+    <message>
+        <source>Mounting host directories...</source>
+        <translation>Anhängen der Ordner...</translation>
+    </message>
+    <message>
+        <source>Unmounting left-over host directory mounts...</source>
+        <translation>Abhängen der übriggebliebenen Ordner...</translation>
+    </message>
+    <message>
+        <source>Potentially unmounting left-over host directory mounts...</source>
+        <translation>Abhängen der möglicherweise übriggebliebenen Ordner...</translation>
+    </message>
+    <message>
+        <source>Unmounting host directories...</source>
+        <translation>Abhängen der Ordner...</translation>
     </message>
 </context>
 <context>
@@ -21620,22 +21096,6 @@ Bitte prüfen Sie, ob das Gerät verbunden ist und die Anwendung &apos;TRK&apos;
 <context>
     <name>Qt4ProjectManager::Internal::QmlStandaloneAppWizardDialog</name>
     <message>
-        <source>New QML Project</source>
-        <translation type="obsolete">Neues QML-Projekt</translation>
-    </message>
-    <message>
-        <source>QML Project from existing, QML Viewer-based Project</source>
-        <translation type="obsolete">QML-Projekt aus bereits existierendem, auf dem QML-Betrachter basierendem Projekt erstellen</translation>
-    </message>
-    <message>
-        <source>This wizard generates a QML application project.</source>
-        <translation type="obsolete">Dieser Wizard erstellt ein QML-Anwendungsprojekt.</translation>
-    </message>
-    <message>
-        <source>This wizard imports an existing, QML Viewer-based application and creates a standalone version of it.</source>
-        <translation type="obsolete">Dieser Wizard importiert eine existierende, auf dem QML-Betrachter basierende Anwendung und erstellt daraus eine eigenständig lauffähige Anwendung.</translation>
-    </message>
-    <message>
         <source>New Qt Quick Application</source>
         <translation>Neue Qt Quick-Anwendung</translation>
     </message>
@@ -21650,14 +21110,6 @@ Bitte prüfen Sie, ob das Gerät verbunden ist und die Anwendung &apos;TRK&apos;
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::QmlStandaloneAppWizardSourcesPage</name>
-    <message>
-        <source>Select the main QML file of the application.</source>
-        <translation type="obsolete">Wählen Sie die Haupt-QML-Datei der Anwendung aus.</translation>
-    </message>
-    <message>
-        <source>Select an import path for QML modules.</source>
-        <translation type="obsolete">Wählen Sie einen Importpfad für die QML-Module.</translation>
-    </message>
     <message>
         <source>Select QML File</source>
         <translation>QML-Datei auswählen</translation>
@@ -21802,247 +21254,6 @@ Bitte prüfen Sie die Zugriffsrechte des Ordners.</translation>
     </message>
 </context>
 <context>
-    <name>LoggerWidget</name>
-    <message>
-        <source>Warnings</source>
-        <translation type="obsolete">Warnungen</translation>
-    </message>
-    <message>
-        <source>Show by default</source>
-        <translation type="obsolete">Per Vorgabe anzeigen</translation>
-    </message>
-    <message>
-        <source>Hide by default</source>
-        <translation type="obsolete">Per Vorgabe nicht anzeigen</translation>
-    </message>
-    <message>
-        <source>Show for first warning</source>
-        <translation type="obsolete">Bei der ersten Warnung anzeigen</translation>
-    </message>
-</context>
-<context>
-    <name>RecordingDialog</name>
-    <message>
-        <source>Original (%1x%2)</source>
-        <translation type="obsolete">Originalgröße (%1x%2)</translation>
-    </message>
-</context>
-<context>
-    <name>QDeclarativeViewer</name>
-    <message>
-        <source>Save Video File</source>
-        <translation type="obsolete">Video-Datei speichern</translation>
-    </message>
-    <message>
-        <source>Save PNG Frames</source>
-        <translation type="obsolete">PNG-Bilder speichern</translation>
-    </message>
-    <message>
-        <source>Common Video files</source>
-        <translation type="obsolete">Gebräuchliche Videodateien</translation>
-    </message>
-    <message>
-        <source>GIF Animation</source>
-        <translation type="obsolete">GIF-Animation</translation>
-    </message>
-    <message>
-        <source>Individual PNG frames</source>
-        <translation type="obsolete">Einzelne PNG-Bilder</translation>
-    </message>
-    <message>
-        <source>All ffmpeg formats (*.*)</source>
-        <translation type="obsolete">Alle ffmpeg Formate (*.*)</translation>
-    </message>
-    <message>
-        <source>Qt QML Viewer</source>
-        <translation type="obsolete">Qt QML-Betrachter</translation>
-    </message>
-    <message>
-        <source>ffmpeg and ImageMagick not available - no video output</source>
-        <translation type="obsolete">ffmpeg und ImageMagick nicht verfügbar - keine Video-Ausgabe</translation>
-    </message>
-    <message>
-        <source>ffmpeg not available - GIF and PNG outputs only</source>
-        <translation type="obsolete">ffmpeg nicht verfügbar - nur GIF- und PNG-Ausgabe möglich</translation>
-    </message>
-    <message>
-        <source>&amp;Open...</source>
-        <translation type="obsolete">&amp;Öffnen...</translation>
-    </message>
-    <message>
-        <source>&amp;Reload</source>
-        <translation type="obsolete">Neu &amp;laden</translation>
-    </message>
-    <message>
-        <source>&amp;Take Snapshot</source>
-        <translation type="obsolete">&amp;Momentaufnahme erstellen</translation>
-    </message>
-    <message>
-        <source>Start Recording &amp;Video</source>
-        <translation type="obsolete">&amp;Video-Aufzeichnung beginnen</translation>
-    </message>
-    <message>
-        <source>Video &amp;Options...</source>
-        <translation type="obsolete">Video-&amp;Einstellungen</translation>
-    </message>
-    <message>
-        <source>Animation Speed</source>
-        <translation type="obsolete">Animationsgeschwindigkeit</translation>
-    </message>
-    <message>
-        <source>1x</source>
-        <translation type="obsolete">1x</translation>
-    </message>
-    <message>
-        <source>0.5x</source>
-        <translation type="obsolete">0.5x</translation>
-    </message>
-    <message>
-        <source>0.25x</source>
-        <translation type="obsolete">0.25x</translation>
-    </message>
-    <message>
-        <source>0.125x</source>
-        <translation type="obsolete">0.125x</translation>
-    </message>
-    <message>
-        <source>0.1x</source>
-        <translation type="obsolete">0.1x</translation>
-    </message>
-    <message>
-        <source>Pause</source>
-        <translation type="obsolete">Pause</translation>
-    </message>
-    <message>
-        <source>Pause and step</source>
-        <translation type="obsolete">Pause und Einzelschritt</translation>
-    </message>
-    <message>
-        <source>Set step</source>
-        <translation type="obsolete">Schrittweite setzen</translation>
-    </message>
-    <message>
-        <source>Animations</source>
-        <translation type="obsolete">Animationen</translation>
-    </message>
-    <message>
-        <source>Show Warnings</source>
-        <translation type="obsolete">Warnungen anzeigen</translation>
-    </message>
-    <message>
-        <source>&amp;Observer Mode</source>
-        <translation type="obsolete">&amp;Beobachter-Modus</translation>
-    </message>
-    <message>
-        <source>HTTP &amp;Proxy...</source>
-        <translation type="obsolete">HTTP-&amp;Proxy...</translation>
-    </message>
-    <message>
-        <source>Full Screen</source>
-        <translation type="obsolete">Vollbild</translation>
-    </message>
-    <message>
-        <source>Rotate orientation</source>
-        <translation type="obsolete">Ausrichtung umschalten</translation>
-    </message>
-    <message>
-        <source>Portrait</source>
-        <translation type="obsolete">Hochformat</translation>
-    </message>
-    <message>
-        <source>Landscape</source>
-        <translation type="obsolete">Querformat</translation>
-    </message>
-    <message>
-        <source>Portrait (inverted)</source>
-        <translation type="obsolete">Umgedrehtes Hochformat</translation>
-    </message>
-    <message>
-        <source>Landscape (inverted)</source>
-        <translation type="obsolete">Umgedrehtes Querformat</translation>
-    </message>
-    <message>
-        <source>&amp;About Qt...</source>
-        <translation type="obsolete">&amp;Über Qt...</translation>
-    </message>
-    <message>
-        <source>&amp;Quit</source>
-        <translation type="obsolete">&amp;Beenden</translation>
-    </message>
-    <message>
-        <source>Set orientation</source>
-        <translation type="obsolete">Ausrichtung festlegen</translation>
-    </message>
-    <message>
-        <source>&amp;File</source>
-        <translation type="obsolete">&amp;Datei</translation>
-    </message>
-    <message>
-        <source>&amp;Recording</source>
-        <translation type="obsolete">&amp;Aufzeichnung</translation>
-    </message>
-    <message>
-        <source>&amp;Debugging</source>
-        <translation type="obsolete">&amp;Debuggen</translation>
-    </message>
-    <message>
-        <source>S&amp;ettings</source>
-        <translation type="obsolete">&amp;Einstellungen</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation type="obsolete">Eigenschaften</translation>
-    </message>
-    <message>
-        <source>&amp;Help</source>
-        <translation type="obsolete">&amp;Hilfe</translation>
-    </message>
-    <message>
-        <source>&amp;Stop Recording Video	F9</source>
-        <translation type="obsolete">&amp;Video-Aufzeichnung beenden	F9</translation>
-    </message>
-    <message>
-        <source>&amp;Start Recording Video	F9</source>
-        <translation type="obsolete">&amp;Video-Aufzeichnung beginnen	F9</translation>
-    </message>
-    <message>
-        <source>Set animation step duration</source>
-        <translation type="obsolete">Animationsschrittweite festlegen</translation>
-    </message>
-    <message>
-        <source>Step duration (ms):</source>
-        <translation type="obsolete">Animationsschrittweite (ms):</translation>
-    </message>
-    <message>
-        <source>Open QML file</source>
-        <translation type="obsolete">QML-Datei öffnen</translation>
-    </message>
-    <message>
-        <source>QML Files (*.qml)</source>
-        <translation type="obsolete">QML-Dateien (*.qml)</translation>
-    </message>
-    <message>
-        <source>%1 - Qt QML Viewer</source>
-        <translation type="obsolete">%1 - Qt QML-Betrachter</translation>
-    </message>
-    <message>
-        <source>Video recording uses ffmpeg:</source>
-        <translation type="obsolete">Video-Aufzeichnung unter Verwendung von ffmpeg:</translation>
-    </message>
-    <message>
-        <source>Saving frames...</source>
-        <translation type="obsolete">Speichere Bilder...</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Abbrechen</translation>
-    </message>
-    <message>
-        <source>Converting frames to GIF file...</source>
-        <translation type="obsolete">Wandele Bilder in GIF-Datei...</translation>
-    </message>
-</context>
-<context>
     <name>MobileAppWizardOptionPage</name>
     <message>
         <source>WizardPage</source>
@@ -22053,32 +21264,12 @@ Bitte prüfen Sie die Zugriffsrechte des Ordners.</translation>
         <translation>Allgemein</translation>
     </message>
     <message>
-        <source>Orientation Behavior:</source>
-        <translation type="obsolete">Ausrichtung:</translation>
-    </message>
-    <message>
-        <source>Symbian specific</source>
-        <translation type="obsolete">Symbian-spezifisch</translation>
-    </message>
-    <message>
-        <source>Application Icon (.svg):</source>
-        <translation type="obsolete">Icon der Anwendung (.svg):</translation>
-    </message>
-    <message>
         <source>Target UID3:</source>
         <translation>Ziel-UID3:</translation>
     </message>
     <message>
         <source>Enable network access</source>
         <translation>Netzwerkzugriff gestatten</translation>
-    </message>
-    <message>
-        <source>Maemo specific</source>
-        <translation type="obsolete">Maemo-spezifisch</translation>
-    </message>
-    <message>
-        <source>Application Icon (64x64):</source>
-        <translation type="obsolete">Icon der Anwendung (64x64):</translation>
     </message>
     <message>
         <source>Orientation behavior:</source>
@@ -22114,6 +21305,10 @@ Bitte prüfen Sie die Zugriffsrechte des Ordners.</translation>
     <message>
         <source>Enable Breakpoint %1</source>
         <translation>Haltepunkt %1 aktivieren</translation>
+    </message>
+    <message>
+        <source>Edit Breakpoint %1...</source>
+        <translation>Haltepunkt %1 bearbeiten...</translation>
     </message>
     <message>
         <source>Set Breakpoint at 0x%1</source>
@@ -22309,18 +21504,6 @@ Wählt Qt-Versionen für Simulator und mobile Ziele aus, sofern sie verfügbar s
 <context>
     <name>Qt4ProjectManager::Internal::MobileAppWizardOptionsPage</name>
     <message>
-        <source>Auto rotate orientation</source>
-        <translation type="obsolete">Ausrichtung automatisch ändern</translation>
-    </message>
-    <message>
-        <source>Lock to landscape orientation</source>
-        <translation type="obsolete">Querformat festlegen</translation>
-    </message>
-    <message>
-        <source>Lock to portrait orientation</source>
-        <translation type="obsolete">Hochformat festlegen</translation>
-    </message>
-    <message>
         <source>Automatically Rotate Orientation</source>
         <translation>Ausrichtung automatisch ändern</translation>
     </message>
@@ -22395,12 +21578,16 @@ Wählt Qt-Versionen für Simulator und mobile Ziele aus, sofern sie verfügbar s
 <context>
     <name>Debugger::Internal::CoreGdbAdapter</name>
     <message>
-        <source>Error Loading Symbols</source>
-        <translation>Fehler beim Laden der Symbole</translation>
+        <source>The name of the binary file cannot be extracted from this core file.</source>
+        <translation>Der Name der ausführbaren Datei kann nicht aus der core-Datei bestimmt werden.</translation>
     </message>
     <message>
-        <source>No executable to load symbols from specified.</source>
-        <translation>Es wurde keine ausführbare Datei zum Laden der Symbole angegeben.</translation>
+        <source>Try to specify the binary using the &lt;i&gt;Debug-&gt;Start Debugging-&gt;Attach to Core&lt;/i&gt; dialog.</source>
+        <translation>Bitte geben Sie den Namen der ausführbaren Datei im Dialog &lt;i&gt;Debug-&gt;Debugge core-Datei&lt;/i&gt; an.</translation>
+    </message>
+    <message>
+        <source>Loading core file failed</source>
+        <translation>Das Laden der core-Datei schlug fehl</translation>
     </message>
     <message>
         <source>Attach to core failed.</source>
@@ -22413,6 +21600,14 @@ Wählt Qt-Versionen für Simulator und mobile Ziele aus, sofern sie verfügbar s
     <message>
         <source>Symbols found.</source>
         <translation>Die Symbole wurden gefunden.</translation>
+    </message>
+    <message>
+        <source>No symbols found in core file &lt;i&gt;%1&lt;/i&gt;.</source>
+        <translation>In der core-Datei &lt;i&gt;%1&lt;/i&gt; konnten keine Symbole gefunden werden.</translation>
+    </message>
+    <message>
+        <source>This can be caused by a path length limitation in the core file.</source>
+        <translation>Eine mögliche Ursache ist die Begrenzung der Pfadlänge in der core-Datei.</translation>
     </message>
     <message>
         <source>Attached to core.</source>
@@ -22476,36 +21671,20 @@ Wählt Qt-Versionen für Simulator und mobile Ziele aus, sofern sie verfügbar s
 <context>
     <name>Qt4ProjectManager::Internal::QmlStandaloneAppWizard</name>
     <message>
-        <source>Qt QML Application</source>
-        <translation type="obsolete">Qt-QML-Anwendung</translation>
-    </message>
-    <message>
-        <source>Qt QML Imported Application</source>
-        <translation type="obsolete">Qt QML Neue Anwendung (Import)</translation>
-    </message>
-    <message>
-        <source>Creates a mobile-deployable Qt QML application project. A lightweight Qt/C++ application with a QDeclarativeView and a single QML file will be created.</source>
-        <translation type="obsolete">Erstellt ein auf einem Mobilgeräte installierbares Qt QML-Anwendungsprojekt. Es wird eine leichtgewichtige Qt-C++-Anwendung mit einer einzelnen QML-Datei unter Verwendung von QDeclarativeViewer erstellt.</translation>
-    </message>
-    <message>
-        <source>Creates a mobile-deployable Qt QML application project. An existing, QML Viewer-based project will be imported and a lightweight Qt/C++ application with a QDeclarativeView will be created for it.</source>
-        <translation type="obsolete">Erstellt ein auf einem Mobilgeräte installierbares Qt QML-Anwendungsprojekt. Eine auf dem QML-Betrachter basierende Anwendung wird importiert und daraus eine leichtgewichtige Qt-C++-Anwendung mit einer einzelnen QML-Datei unter Verwendung von QDeclarativeViewer erstellt.</translation>
-    </message>
-    <message>
         <source>Qt Quick Application</source>
         <translation>Neue Qt Quick-Anwendung</translation>
     </message>
     <message>
-        <source>Creates a Qt Quick application that you can deploy to mobile devices.</source>
-        <translation>Erstellt eine Qt Quick-Anwendung, die auf mobilen Geräten installiert werden kann.</translation>
+        <source>Creates a Qt Quick application project that can contain both QML and C++ code and includes a QDeclarativeView.
+
+You can build the application and deploy it on desktop and mobile target platforms. For example, you can create signed Symbian Installation System (SIS) packages for this type of projects.</source>
+        <translation>Erstellt ein Qt Quick-Projekt, welches QML- und C++-Code enthält und eine Instanz der Klasse QDeclarativeView verwendet.
+
+Sie können diese Anwendung sowohl auf Desktop- als auch auf mobilen Plattformen ausführen. Dieser Projekttyp ermöglicht zum Beispiel die Estellung eines signierten Symbian Installation System (SIS)-Paketes.</translation>
     </message>
 </context>
 <context>
     <name>BreakpointDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation type="obsolete">Dialog</translation>
-    </message>
     <message>
         <source>Breakpoint type:</source>
         <translation>Typ des Haltepunkts:</translation>
@@ -22584,8 +21763,8 @@ Wählt Qt-Versionen für Simulator und mobile Ziele aus, sofern sie verfügbar s
 <context>
     <name>Core::Internal::CommandComboBox</name>
     <message>
-        <source>Activate %1</source>
-        <translation>Aktiviere %1</translation>
+        <source>Activate %1 Pane</source>
+        <translation>Aktiviere Panel %1</translation>
     </message>
 </context>
 <context>
@@ -22670,8 +21849,8 @@ Wählt Qt-Versionen für Simulator und mobile Ziele aus, sofern sie verfügbar s
 <context>
     <name>Debugger::Internal::LogWindow</name>
     <message>
-        <source>Log</source>
-        <translation>Log</translation>
+        <source>Debugger Log</source>
+        <translation>Debugger-Log</translation>
     </message>
 </context>
 <context>
@@ -22711,14 +21890,6 @@ Wählt Qt-Versionen für Simulator und mobile Ziele aus, sofern sie verfügbar s
 <context>
     <name>Qt4ProjectManager::Internal::AbstractMobileAppWizardDialog</name>
     <message>
-        <source>Qt versions</source>
-        <translation type="obsolete">Qt Versionen</translation>
-    </message>
-    <message>
-        <source>Application options</source>
-        <translation type="obsolete">Einstellungen der Anwendung</translation>
-    </message>
-    <message>
         <source>Qt Versions</source>
         <translation>Qt-Versionen</translation>
     </message>
@@ -22744,6 +21915,28 @@ Wählt Qt-Versionen für Simulator und mobile Ziele aus, sofern sie verfügbar s
 </context>
 <context>
     <name>ProjectExplorer::BuildableHelperLibrary</name>
+    <message>
+        <source>Cannot start process: %1</source>
+        <translation>Der Prozess :&quot;%1&quot; konnte nicht gestartet werden</translation>
+    </message>
+    <message>
+        <source>Timeout after %1s.</source>
+        <translation>Zeitüberschreitung nach %1s.</translation>
+    </message>
+    <message>
+        <source>The process crashed.</source>
+        <translation>Der Prozess ist abgestürzt.</translation>
+    </message>
+    <message>
+        <source>The process returned exit code %1:
+%2</source>
+        <translation>Der Prozess wurde beendet, Rückgabewert %1:
+%2</translation>
+    </message>
+    <message>
+        <source>Error running &apos;%1&apos; in %2: %3</source>
+        <translation>Fehler bei der Ausführung von &apos;%1&apos; in %2: %3</translation>
+    </message>
     <message>
         <source>Building helper library &apos;%1&apos; in %2
 </source>
@@ -22823,28 +22016,16 @@ Fehler: %2</translation>
 <context>
     <name>QmlDesigner::TextToModelMerger</name>
     <message>
-        <source>Deprecated import: import Qt 4.7</source>
-        <translation>Veraltete Import-Spezifikation: import Qt 4.7</translation>
-    </message>
-    <message>
-        <source>Deprecated import: import Qt 4.7
-use import QtQuick 1.0 instead.
-
-Do you want to automatically fix the import?</source>
-        <translation>Veraltete Import-Spezifikation: import Qt 4.7
-Es sollte import QtQuick 1.0 verwendet werden.
-
-Soll sie automatisch korrigiert werden?</translation>
-    </message>
-    <message>
-        <source>Deprecated import: import Qt 4.7 use import QtQuick 1.0 instead</source>
-        <translation>Veraltete Import-Spezifikation: import QtQuick 1.0 sollte an Stelle von import Qt 4.7 verwendet werden</translation>
+        <source>Unsupported import:
+import QtQuick 1.0 use import Qt 4.7 instead</source>
+        <translation>Nicht unterstützte Import-Spezifikation:
+import Qt 4.7 import sollte an Stelle von import Qt 4.7 verwendet werden</translation>
     </message>
 </context>
 <context>
     <name>CppEditor::InsertDefOperation</name>
     <message>
-        <source>Add definition in %1</source>
+        <source>Add Definition in %1</source>
         <translation>Definition in %1 hinzufügen</translation>
     </message>
 </context>
@@ -22865,8 +22046,34 @@ Soll sie automatisch korrigiert werden?</translation>
 <context>
     <name>CppEditor::InsertDeclOperation</name>
     <message>
-        <source>Add %1 declaration</source>
+        <source>Add %1 Declaration</source>
         <translation>Deklaration für %1 hinzufügen</translation>
+    </message>
+</context>
+<context>
+    <name>MaemoProFilesUpdateDialog</name>
+    <message>
+        <source>Maemo Deployment Issue</source>
+        <translation>Maemo-Deployment-Problem</translation>
+    </message>
+    <message>
+        <source>The project files listed below do not contain Maemo deployment information, which means the respective targets cannot be deployed to and/or run on a device. Qt Creator can add the missing information to these files. </source>
+        <translation>Die unten aufgeführten Projektdateien enthalten nicht die erforderliche Maemo-Deployment-Information, das heißt, für die betreffenden Ziele kann kein Deployment durchgeführt werden und/oder sie können nicht auf einem Mobilgerät ausgeführt werden. Qt Creator kann die fehlende Information zu den Dateien hinzufügen.</translation>
+    </message>
+    <message>
+        <source>Check all</source>
+        <translation>Alle markieren</translation>
+    </message>
+    <message>
+        <source>Uncheck All</source>
+        <translation>Alle Markierungen entfernen</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoProFilesUpdateDialog</name>
+    <message>
+        <source>Updateable Project Files</source>
+        <translation>Korrigierbare Projektdateien</translation>
     </message>
 </context>
 </TS>

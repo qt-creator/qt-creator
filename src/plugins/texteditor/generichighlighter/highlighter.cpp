@@ -382,29 +382,32 @@ void Highlighter::applyFormat(int offset,
 
     TextFormatId formatId = m_kateFormats.m_ids.value(itemData->style());
     if (formatId != Normal) {
-        QTextCharFormat format = m_creatorFormats.value(formatId);
+        QHash<TextFormatId, QTextCharFormat>::const_iterator cit =
+            m_creatorFormats.constFind(formatId);
+        if (cit != m_creatorFormats.constEnd()) {
+            QTextCharFormat format = cit.value();
+            if (itemData->isCustomized()) {
+                // Please notice that the following are applied every time for item datas which have
+                // customizations. The configureFormats method could be used to provide a "one time"
+                // configuration, but it would probably require to traverse all item datas from all
+                // definitions available/loaded (either to set the values or for some "notifying"
+                // strategy). This is because the highlighter does not really know on which
+                // definition(s) it is working. Since not many item datas specify customizations I
+                // think this approach would fit better. If there are other ideas...
+                if (itemData->color().isValid())
+                    format.setForeground(itemData->color());
+                if (itemData->isItalicSpecified())
+                    format.setFontItalic(itemData->isItalic());
+                if (itemData->isBoldSpecified())
+                    format.setFontWeight(toFontWeight(itemData->isBold()));
+                if (itemData->isUnderlinedSpecified())
+                    format.setFontUnderline(itemData->isUnderlined());
+                if (itemData->isStrikedOutSpecified())
+                    format.setFontStrikeOut(itemData->isStrikedOut());
+            }
 
-        if (itemData->isCustomized()) {
-            // Please notice that the following are applied every time for item datas which have
-            // customizations. The configureFormats method could be used to provide a "one time"
-            // configuration, but it would probably require to traverse all item datas from all
-            // definitions available/loaded (either to set the values or for some "notifying"
-            // strategy). This is because the highlighter does not really know on which
-            // definition(s) it is working. Since not many item datas specify customizations I
-            // think this approach would fit better. If there are other ideas...
-            if (itemData->color().isValid())
-                format.setForeground(itemData->color());
-            if (itemData->isItalicSpecified())
-                format.setFontItalic(itemData->isItalic());
-            if (itemData->isBoldSpecified())
-                format.setFontWeight(toFontWeight(itemData->isBold()));
-            if (itemData->isUnderlinedSpecified())
-                format.setFontUnderline(itemData->isUnderlined());
-            if (itemData->isStrikedOutSpecified())
-                format.setFontStrikeOut(itemData->isStrikedOut());
+            setFormat(offset, count, format);
         }
-
-        setFormat(offset, count, format);
     }
 }
 

@@ -307,7 +307,8 @@ void testPeekAndPoke3()
             s[i].a = i;  // Break here. Expand s and s[0]. Step.
             // Watcher Context: "Add New Watcher".
             // Type    ['s[%d].a' % i for i in range(5)]
-            // Expand it, continue stepping.
+            // Expand it, continue stepping. This should result in a list
+            // of five items containing the .a fields of s[0]..s[4].
         }
         Q_UNUSED(s);
     }
@@ -1422,6 +1423,26 @@ Foo testStruct()
     return f1;
 }
 
+void testTypeFormats()
+{
+    // These tests should result in properly displayed umlauts in the
+    // Locals&Watchers view. It is only support on gdb with Python.
+
+    // Select UTF-8 in "Change Format for Type" in L&W context menu.
+    const char *s = "aöa";
+
+    // Windows: Select UTF-16 in "Change Format for Type" in L&W context menu.
+    // Other: Select UCS-6 in "Change Format for Type" in L&W context menu.
+    const wchar_t *w = L"aöa";
+
+    // Make sure to undo "Change Format".
+    int dummy = 1;
+    Q_UNUSED(s);
+    Q_UNUSED(w);
+    Q_UNUSED(dummy);
+}
+
+
 class Thread : public QThread
 {
 public:
@@ -2081,14 +2102,12 @@ int main(int argc, char *argv[])
     testStdStack();
     testStdString();
     testStdVector();
+    testTypeFormats();
 
     testPassByReference();
     testPlugin();
     testQList();
     testQLinkedList();
-    const char *s = "aöa";
-    // wchar_t * support only with Python.
-    const wchar_t *w = L"aöa";
     testNamespace();
     //return 0;
     testQHash();
@@ -2116,9 +2135,6 @@ int main(int argc, char *argv[])
 
     //QColor color(255,128,10);
     //QFont font;
-
-    Q_UNUSED(s);
-    Q_UNUSED(w);
     return 0;
 }
 

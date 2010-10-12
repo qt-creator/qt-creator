@@ -177,7 +177,8 @@ void OpenPagesManager::setupInitialPages()
         CentralWidget::instance()->addPage(m_model->pageAt(i));
 
     emit pagesChanged();
-    setCurrentPage(initialPage);
+    setCurrentPage((initialPage >= m_model->rowCount())
+        ? m_model->rowCount() - 1 : initialPage);
     m_openPagesSwitcher->selectCurrentPage();
 }
 
