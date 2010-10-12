@@ -90,67 +90,8 @@ void MetaInfoParser::metaInfoHandler(QXmlStreamReader &reader)
 {
     if (reader.isStartElement())
     {
-        if (reader.name() == "enumerator")
-            handleEnumElement(reader);
-
-        if (reader.name() == "flag")
-            handleFlagElement(reader);
-
         if (reader.name() == "node")
             handleNodeElement(reader);
-    }
-}
-
-void MetaInfoParser::handleEnumElement(QXmlStreamReader &reader)
-{
-    QString enumeratorName = reader.attributes().value("name").toString();
-    QString enumeratorScope = reader.attributes().value("scope").toString();
-    EnumeratorMetaInfo enumeratorMetaInfo;
-    if (m_metaInfo.hasEnumerator(enumeratorName)) {
-        enumeratorMetaInfo = m_metaInfo.enumerator(enumeratorName);
-    } else {
-        enumeratorMetaInfo = m_metaInfo.addEnumerator(enumeratorScope, enumeratorName);
-    }
-
-    while (!reader.atEnd() && !(reader.isEndElement() && reader.name() == "enumerator")) {
-
-        reader.readNext();
-        handleEnumElementElement(reader, enumeratorMetaInfo);
-    }
-}
-
-void MetaInfoParser::handleFlagElement(QXmlStreamReader &reader)
-{
-    QString enumeratorName = reader.attributes().value("name").toString();
-    QString enumeratorScope = reader.attributes().value("scope").toString();
-    EnumeratorMetaInfo enumeratorMetaInfo = m_metaInfo.addFlag(enumeratorScope, enumeratorName);
-
-    while (!reader.atEnd() && !(reader.isEndElement() && reader.name() == "flag")) {
-
-        reader.readNext();
-        handleFlagElementElement(reader, enumeratorMetaInfo);
-    }
-}
-
-void MetaInfoParser::handleEnumElementElement(QXmlStreamReader &reader, EnumeratorMetaInfo &enumeratorMetaInfo)
-{
-    if (reader.isStartElement() && reader.name() == "element")
-    {
-        bool isIntType;
-        enumeratorMetaInfo.addElement(reader.attributes().value("name").toString(),
-                                     reader.attributes().value("value").toString().toInt(&isIntType));
-        Q_ASSERT(isIntType);
-    }
-}
-
-void MetaInfoParser::handleFlagElementElement(QXmlStreamReader &reader, EnumeratorMetaInfo &enumeratorMetaInfo)
-{
-    if (reader.isStartElement() && reader.name() == "element")
-    {
-        bool isIntType;
-        enumeratorMetaInfo.addElement(reader.attributes().value("name").toString(),
-                                     reader.attributes().value("value").toString().toInt(&isIntType));
-        Q_ASSERT(isIntType);
     }
 }
 
@@ -164,46 +105,21 @@ void MetaInfoParser::handleNodeElement(QXmlStreamReader &reader)
         return;
     }
 
-    NodeMetaInfo nodeMetaInfo;
-    if (m_metaInfo.hasNodeMetaInfo(className)) {
-        nodeMetaInfo = m_metaInfo.nodeMetaInfo(className);
-    } else {
-        nodeMetaInfo = MetaInfo(m_metaInfo);
-        nodeMetaInfo.setType(className, 1, 0);
-        m_metaInfo.addNodeInfo(nodeMetaInfo);
-        qWarning() << "Metainfo: " << className << " does not exist";
-        /*while (!reader.atEnd() && !(reader.isEndElement() && reader.name() == "node"))
-            reader.readNext();*/
-    }
-
-    if (attributes.hasAttribute("isContainer")) {
-        const QString isContainer = attributes.value("isContainer").toString();
-        nodeMetaInfo.setIsContainer(stringToBool(isContainer));
-    }
-
-    if (attributes.hasAttribute("icon")) {
-        const QString iconPath = reader.attributes().value("icon").toString();
-        nodeMetaInfo.setIcon(QIcon(iconPath));
-    }
-
     while (!reader.atEnd() && !(reader.isEndElement() && reader.name() == "node")) {
         reader.readNext();
 
-        handleAbstractPropertyElement(reader, nodeMetaInfo);
-        handleAbstractPropertyDefaultValueElement(reader, nodeMetaInfo);
         handleNodeItemLibraryEntryElement(reader, className);
     }
 }
 
-void MetaInfoParser::handleNodeItemLibraryEntryElement(QXmlStreamReader &reader, const QString & className)
+void MetaInfoParser::handleNodeItemLibraryEntryElement(QXmlStreamReader &reader, const QString &className)
 {
     if (reader.isStartElement() && reader.name() == "itemlibraryentry")
     {
         const QString name = reader.attributes().value("name").toString();
-        const NodeMetaInfo typeInfo = m_metaInfo.nodeMetaInfo(className);
 
         ItemLibraryEntry entry;
-        entry.setType(typeInfo.typeName(), typeInfo.majorVersion(), typeInfo.minorVersion());
+        entry.setType(className, 4, 7);
         entry.setName(name);
 
         QString iconPath = reader.attributes().value("icon").toString();
@@ -232,93 +148,6 @@ void MetaInfoParser::handleItemLibraryEntryPropertyElement(QXmlStreamReader &rea
         QString type = attributes.value("type").toString();
         QString value = attributes.value("value").toString();
         itemLibraryEntry.addProperty(name, type, value);
-
-        reader.readNext();
-    }
-}
-
-void MetaInfoParser::handleAbstractPropertyDefaultValueElement(QXmlStreamReader &reader, NodeMetaInfo &nodeMetaInfoArg)
-{
-    if (reader.isStartElement() && reader.name() == "propertyDefaultValue")
-    {
-        const QXmlStreamAttributes attributes(reader.attributes());
-        Q_ASSERT(attributes.hasAttribute("name"));
-        Q_ASSERT(attributes.hasAttribute("type"));
-        Q_ASSERT(attributes.hasAttribute("defaultValue"));
-        const QString propertyName = attributes.value("name").toString();
-        const QString propertyType = attributes.value("type").toString();
-        const QString defaultValueString = attributes.value("defaultValue").toString();
-        QVariant defaultValue = Internal::PropertyParser::read(propertyType,
-                                                               defaultValueString,
-                                                               m_metaInfo);
-
-        QList<NodeMetaInfo> nodeMetaInfoList(nodeMetaInfoArg.superClasses());
-        nodeMetaInfoList.prepend(nodeMetaInfoArg);
-        foreach(const NodeMetaInfo &nodeMetaInfo, nodeMetaInfoList) {
-            if (nodeMetaInfo.hasLocalProperty(propertyName)) {
-                nodeMetaInfo.property(propertyName).setDefaultValue(nodeMetaInfoArg, defaultValue);
-                break;
-            }
-        }
-
-        reader.readNext();
-    }
-}
-
-void MetaInfoParser::handleAbstractPropertyElement(QXmlStreamReader &reader, NodeMetaInfo &nodeMetaInfo)
-{
-    if (reader.isStartElement() && reader.name() == "property")
-    {
-        const QXmlStreamAttributes attributes(reader.attributes());
-
-
-        const QString propertyName = attributes.value("name").toString();
-
-        if (propertyName.isEmpty()) {
-            reader.raiseError("Invalid element 'property' - attribute 'name' is missing or empty");
-            return;
-        }
-
-        PropertyMetaInfo propertyMetaInfo;
-        if (nodeMetaInfo.hasLocalProperty(propertyName)) {
-            propertyMetaInfo = nodeMetaInfo.property(propertyName);
-        } else {
-            propertyMetaInfo.setName(propertyName);
-        }
-        propertyMetaInfo.setValid(true);
-
-        //propertyMetaInfo.setReadable(stringToBool(attributes.value("isReadable").toString()));
-        //propertyMetaInfo.setWritable(stringToBool(attributes.value("isWritable").toString()));
-        //propertyMetaInfo.setResettable(stringToBool(attributes.value("isResetable").toString()));
-        if (attributes.hasAttribute("isEnumType"))
-            propertyMetaInfo.setEnumType(stringToBool(attributes.value("isEnumType").toString()));
-        if (attributes.hasAttribute("isFlagType"))
-            propertyMetaInfo.setFlagType(stringToBool(attributes.value("isFlagType").toString()));
-        if (attributes.hasAttribute("showInPropertyEditor"))
-            propertyMetaInfo.setIsVisibleToPropertyEditor(stringToBool(attributes.value("showInPropertyEditor").toString()));
-
-        if (propertyMetaInfo.isEnumType()) {
-            propertyMetaInfo.setType(QString("%1::%2").arg(attributes.value("enumeratorScope").toString(),
-                                                           attributes.value("enumeratorName").toString()));
-            propertyMetaInfo.setEnumerator(m_metaInfo.enumerator(propertyMetaInfo.type()));
-        } else {
-            const QString type = attributes.value("type").toString();
-            if (type.isEmpty()) {
-                reader.raiseError("Invalid element 'property' - attribute 'type' is missing or empty");
-                return;
-            }
-            propertyMetaInfo.setType(attributes.value("type").toString());
-        }
-
-        if (attributes.hasAttribute("defaultValue")) {
-            QVariant defaultValue = Internal::PropertyParser::read(propertyMetaInfo.type(),
-                                                                   attributes.value("defaultValue").toString(),
-                                                                   m_metaInfo);
-
-            propertyMetaInfo.setDefaultValue(nodeMetaInfo, defaultValue);
-        }
-
-        nodeMetaInfo.addProperty(propertyMetaInfo);
 
         reader.readNext();
     }

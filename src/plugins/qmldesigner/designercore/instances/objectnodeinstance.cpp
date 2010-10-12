@@ -879,8 +879,9 @@ QStringList propertyNameForWritableProperties(QObject *object, const QString &ba
     const QMetaObject *metaObject = object->metaObject();
     for (int index = 0; index < metaObject->propertyCount(); ++index) {
         QMetaProperty metaProperty = metaObject->property(index);
-        if (metaProperty.isReadable() && !metaProperty.isWritable()) {
-            QObject *childObject = QDeclarativeMetaType::toQObject(metaProperty.read(object));
+        QDeclarativeProperty declarativeProperty(object, QLatin1String(metaProperty.name()));
+        if (declarativeProperty.isValid() && declarativeProperty.isWritable() && declarativeProperty.propertyTypeCategory() == QDeclarativeProperty::Object) {
+            QObject *childObject = QDeclarativeMetaType::toQObject(declarativeProperty.read());
             if (childObject)
                 propertyNameList.append(propertyNameForWritableProperties(childObject, baseName +  QString::fromUtf8(metaProperty.name()) + '.'));
         } else if (QDeclarativeValueTypeFactory::valueType(metaProperty.userType())) {

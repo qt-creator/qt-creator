@@ -133,6 +133,8 @@ Internal::ObjectNodeInstance::Pointer NodeInstance::createInstance(const NodeMet
 {
     Internal::ObjectNodeInstance::Pointer instance;
 
+    qDebug() << __FUNCTION__ << metaInfo.typeName() << metaInfo.directSuperClass().typeName();
+
     if (!metaInfo.isValid())
         instance = Internal::DummyNodeInstance::create();
     else if (metaInfo.isSubclassOf("Qt/QWidget", 4, 7))

@@ -1,7 +1,5 @@
 <metainfo>
-  <node name="Qt/Item" isContainer="true" icon=":/qtquickplugin/images/item-icon16.png">
-    <propertyDefaultValue name="width" type="int" defaultValue="600"/>
-    <propertyDefaultValue name="height" type="int" defaultValue="400"/>
+  <node name="Qt/Item" icon=":/qtquickplugin/images/item-icon16.png">
     <itemlibraryentry name="Item"  category="Qt - Basic" icon=":/qtquickplugin/images/item-icon.png">
       <property name="width" type="int" value="200"/>
       <property name="height" type="int" value="200"/>
@@ -9,14 +7,10 @@
   </node>
   <node name="Qt/Rectangle" category="Qt - Basic" isContainer="true" icon=":/qtquickplugin/images/rect-icon16.png">
     <itemlibraryentry name="Rectangle"  category="Qt - Basic" icon=":/qtquickplugin/images/rect-icon.png">
-      <property name="width" type="int" value="100"/>
-      <property name="height" type="int" value="100"/>
       <property name="color" type="QColor" value="#ffffff"/>
     </itemlibraryentry>
   </node>
   <node name="Qt/Text" icon=":/qtquickplugin/images/text-icon16.png">
-    <propertyDefaultValue name="width" type="int" defaultValue="80"/>
-    <propertyDefaultValue name="height" type="int" defaultValue="20"/>
     <itemlibraryentry name="Text" category="Qt - Basic" icon=":/qtquickplugin/images/text-icon.png">
       <property name="width" type="int" value="80"/>
       <property name="height" type="int" value="20"/>
@@ -24,9 +18,7 @@
       <property name="font.pixelSize" type="int" value="12"/>
     </itemlibraryentry>
   </node>
-  <node name="Qt/TextEdit" isContainer="false" icon=":/qtquickplugin/images/text-edit-icon16.png">
-    <propertyDefaultValue name="width" type="int" defaultValue="80"/>
-    <propertyDefaultValue name="height" type="int" defaultValue="20"/>
+  <node name="Qt/TextEdit" icon=":/qtquickplugin/images/text-edit-icon16.png">
     <itemlibraryentry name="Text Edit" category="Qt - Basic" icon=":/qtquickplugin/images/text-edit-icon.png">
       <property name="width" type="int" value="80"/>
       <property name="height" type="int" value="20"/>
@@ -34,9 +26,7 @@
       <property name="font.pixelSize" type="int" value="12"/>
     </itemlibraryentry>
   </node>
-  <node name="Qt/TextInput" isContainer="false" icon=":/qtquickplugin/images/text-input-icon16.png">
-    <propertyDefaultValue name="width" type="int" defaultValue="80"/>
-    <propertyDefaultValue name="height" type="int" defaultValue="20"/>
+  <node name="Qt/TextInput" icon=":/qtquickplugin/images/text-input-icon16.png">
     <itemlibraryentry name="Text Input" category="Qt - Basic" icon=":/qtquickplugin/images/text-input-icon.png">
       <property name="width" type="int" value="80"/>
       <property name="height" type="int" value="20"/>
@@ -51,8 +41,6 @@
     </itemlibraryentry>
   </node>
   <node name="Qt/Image" isContainer="true" icon=":/qtquickplugin/images/image-icon16.png">
-    <propertyDefaultValue name="width" type="int" defaultValue="200"/>
-    <propertyDefaultValue name="height" type="int" defaultValue="200"/>
     <itemlibraryentry name="Image" category="Qt - Basic" icon=":/qtquickplugin/images/image-icon.png">
       <property name="width" type="int" value="100"/>
       <property name="height" type="int" value="100"/>
@@ -60,8 +48,6 @@
     </itemlibraryentry>
   </node>
   <node name="Qt/BorderImage" icon=":/qtquickplugin/images/border-image-icon16.png">
-    <propertyDefaultValue name="width" type="int" defaultValue="200"/>
-    <propertyDefaultValue name="height" type="int" defaultValue="200"/>
     <itemlibraryentry name="Border Image" category="Qt - Basic" icon=":/qtquickplugin/images/border-image-icon.png">
       <property name="width" type="int" value="100"/>
       <property name="height" type="int" value="100"/>
@@ -69,16 +55,12 @@
     </itemlibraryentry>
   </node>
   <node name="Qt/Flickable" icon=":/qtquickplugin/images/flickable-icon16.png">
-    <propertyDefaultValue name="width" type="int" defaultValue="300"/>
-    <propertyDefaultValue name="height" type="int" defaultValue="300"/>
     <itemlibraryentry name="Flickable" category="Qt - Widgets" icon=":/qtquickplugin/images/flickable-icon.png">
       <property name="width" type="int" value="300"/>
       <property name="height" type="int" value="300"/>
     </itemlibraryentry>
   </node>
   <node name="Qt/Flipable" icon=":/qtquickplugin/images/flipable-icon16.png">
-    <propertyDefaultValue name="width" type="int" defaultValue="300"/>
-    <propertyDefaultValue name="height" type="int" defaultValue="300"/>
     <itemlibraryentry name="Flipable" category="Qt - Widgets" icon=":/qtquickplugin/images/flipable-icon.png">
       <property name="width" type="int" value="300"/>
       <property name="height" type="int" value="300"/>
@@ -106,8 +88,6 @@
   </node>
 
   <node name="Qt/FocusScope" icon=":/qtquickplugin/images/focusscope-icon16.png">
-    <propertyDefaultValue name="width" type="int" defaultValue="100"/>
-    <propertyDefaultValue name="height" type="int" defaultValue="100"/>
     <itemlibraryentry name="Focus Scope" category="Qt - Interaction" icon=":/qtquickplugin/images/focusscope-icon.png">
       <property name="width" type="int" value="100"/>
       <property name="height" type="int" value="100"/>
@@ -115,8 +95,6 @@
   </node>
 
   <node name="QtWebKit/WebView" icon=":/qtquickplugin/images/webview-icon16.png">
-    <propertyDefaultValue name="width" type="int" defaultValue="300"/>
-    <propertyDefaultValue name="height" type="int" defaultValue="300"/>
     <itemlibraryentry name="Web View" category="Qt - Widgets" icon=":/qtquickplugin/images/webview-icon.png">
       <property name="width" type="int" value="300"/>
       <property name="height" type="int" value="300"/>

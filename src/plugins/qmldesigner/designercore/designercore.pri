@@ -197,6 +197,4 @@ contains(CONFIG, plugin) {
   HEADERS += $$PWD/include/basetexteditmodifier.h
 }
 
-DISTFILES += $$PWD/metafile/widget.metafile
-RESOURCES += $$PWD/designercore.qrc
-OTHER_FILES += $$PWD/metainfo/gui.metainfo
+

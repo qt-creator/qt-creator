@@ -117,8 +117,8 @@ void MetaInfoPrivate::initialize()
     loadPlugins(&engine);
     parseQmlTypes();
     parseNonQmlTypes();
-    parseXmlFiles();
     parseValueTypes();
+    parseXmlFiles();
 
     m_isInitialized = true;
 }
@@ -135,8 +135,10 @@ void MetaInfoPrivate::loadPlugins(QDeclarativeEngine *engine)
     // load maybe useful plugins
     pluginList += "import Qt.labs.folderlistmodel 1.0";
     pluginList += "import Qt.labs.gestures 1.0";
-    pluginList += "import Qt.multimedia 4.7";
     pluginList += "import Qt.labs.particles 1.0";
+    pluginList += "import Qt.labs.components 1.0";
+    pluginList += "import com.meego.themebridge 1.0";
+    pluginList += "import com.meego 1.0";
 
     QString componentString = QString("%1\n Item {}\n").arg(pluginList.join("\n"));
 
@@ -384,6 +386,7 @@ void MetaInfoPrivate::parseQmlTypes()
             m_QtTypesToQmlTypes.insert(qtTypeName, qmlTypeName);
     }
     foreach (QDeclarativeType *qmlType, qmlTypes()) {
+        qDebug() << __FUNCTION__ << qmlType->qmlTypeName() << qmlType->typeName();
         const QMetaObject *qMetaObject = qmlType->metaObject();
 
         // parseQmlTypes is called iteratively e.g. when plugins are loaded
@@ -439,8 +442,6 @@ void MetaInfoPrivate::parseNonQmlTypes()
 
 void MetaInfoPrivate::parseXmlFiles()
 {
-    Internal::MetaInfoParser(*m_q).parseFile(":/metainfo/gui.metainfo");
-
     Internal::WidgetPluginManager pluginManager;
     foreach (const QString &pluginDir, m_q->s_pluginDirs)
         pluginManager.addPath(pluginDir);
@@ -654,6 +655,7 @@ void MetaInfo::removeNodeInfo(NodeMetaInfo &info)
 
 EnumeratorMetaInfo MetaInfo::addEnumerator(const QString &enumeratorScope, const QString &enumeratorName)
 {
+    qDebug() << __FUNCTION__ << enumeratorScope << enumeratorName;
     Q_ASSERT(!enumeratorName.isEmpty());
 
     EnumeratorMetaInfo enumeratorMetaInfo;
