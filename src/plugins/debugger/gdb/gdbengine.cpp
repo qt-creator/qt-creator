@@ -4155,6 +4155,10 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
     postCommand("set width 0");
     postCommand("set height 0");
 
+    // Work around http://bugreports.qt.nokia.com/browse/QTCREATORBUG-2004
+    postCommand("maintenance set internal-warning quit no");
+    postCommand("maintenance set internal-error quit no");
+
     if (m_isMacGdb) {
         postCommand("-gdb-set inferior-auto-start-cfm off");
         postCommand("-gdb-set sharedLibrary load-rules "

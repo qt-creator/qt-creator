@@ -68,7 +68,9 @@ void SessionEngine::saveSessionData()
 unsigned SessionEngine::debuggerCapabilities() const
 {
     return DebuggerEngine::debuggerCapabilities()
-            | AddWatcherCapability | WatchpointCapability;
+            | AddWatcherCapability
+            | BreakOnThrowAndCatchCapability
+            | WatchpointCapability;
 }
 
 } // namespace Internal
