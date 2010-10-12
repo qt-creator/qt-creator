@@ -305,7 +305,8 @@ void testPeekAndPoke3()
             s[i].a = i;  // Break here. Expand s and s[0]. Step.
             // Watcher Context: "Add New Watcher".
             // Type    ['s[%d].a' % i for i in range(5)]
-            // Expand it, continue stepping.
+            // Expand it, continue stepping. This should result in a list
+            // of five items containing the .a fields of s[0]..s[4].
         }
         Q_UNUSED(s);
     }

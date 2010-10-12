@@ -1236,10 +1236,10 @@ class Dumper:
         #warn("HANDLING WATCH %s, INAME: '%s'" % (exp, iname))
         if exp.startswith("[") and exp.endswith("]"):
             #warn("EVAL: EXP: %s" % exp)
-            with SubItem(d):
-                self.put('iname="%s",', iname)
-                self.put('name="%s",', escapedExp)
-                self.put('exp="%s",', escapedExp)
+            with SubItem(self):
+                self.put('iname="%s",' % iname)
+                self.put('name="%s",' % escapedExp)
+                self.put('exp="%s",' % escapedExp)
                 try:
                     list = eval(exp)
                     self.putValue("")
