@@ -15,8 +15,8 @@ class CORE_EXPORT SshRemoteProcessRunner : public QObject
 public:
     typedef QSharedPointer<SshRemoteProcessRunner> Ptr;
 
-    Ptr create(const SshConnectionParameters &params);
-    Ptr create(const SshConnection::Ptr &connection);
+    static Ptr create(const SshConnectionParameters &params);
+    static Ptr create(const SshConnection::Ptr &connection);
 
     void run(const QByteArray &command);
     QByteArray command() const;
