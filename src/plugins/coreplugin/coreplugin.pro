@@ -105,6 +105,7 @@ SOURCES += mainwindow.cpp \
     ssh/sftpincomingpacket.cpp \
     ssh/sftpdefs.cpp \
     ssh/sftpchannel.cpp \
+    ssh/sshremoteprocessrunner.cpp \
     outputpanemanager.cpp \
     navigationsubwidget.cpp \
     sidebarwidget.cpp \
@@ -217,6 +218,7 @@ HEADERS += mainwindow.h \
     ssh/sftpdefs.h \
     ssh/sftpchannel.h \
     ssh/sftpchannel_p.h \
+    ssh/sshremoteprocessrunner.h \
     outputpanemanager.h \
     navigationsubwidget.h \
     sidebarwidget.h \
