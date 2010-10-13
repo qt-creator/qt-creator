@@ -1090,6 +1090,7 @@ static bool queryQMakeVariables(const QString &binary, QHash<QString, QString> *
              "QT_INSTALL_BINS",
              "QT_INSTALL_DOCS",
              "QT_INSTALL_PREFIX",
+             "QT_INSTALL_IMPORTS",
              "QMAKEFEATURES"
         };
     QStringList args;
