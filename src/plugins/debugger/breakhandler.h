@@ -64,11 +64,11 @@ public:
     QAbstractItemModel *model() { return this; }
 
     BreakpointData *at(int index) const;
-    int size() const { return m_bp?m_bp->size():0; }
+    int size() const;
     bool hasPendingBreakpoints() const;
     void removeAt(int index); // This also deletes the marker.
     void clear(); // This also deletes all the marker.
-    int indexOf(BreakpointData *data) { return m_bp?m_bp->indexOf(data):-1; }
+    int indexOf(BreakpointData *data);
     // Find a breakpoint matching approximately the data in needle.
     BreakpointData *findSimilarBreakpoint(const BreakpointData *needle) const;
     BreakpointData *findBreakpointByNumber(int bpNumber) const;
@@ -76,7 +76,6 @@ public:
     bool watchPointAt(quint64 address) const;
     void updateMarkers();
     bool isActive() const;
-    bool isMasterList() const;
 
     Breakpoints takeRemovedBreakpoints(); // Owned.
     Breakpoints takeEnabledBreakpoints(); // Not owned.
@@ -120,8 +119,6 @@ private:
     void removeBreakpointHelper(int index);
     void append(BreakpointData *data);
 
-    void initMasterList();
-
     const QIcon m_breakpointIcon;
     const QIcon m_disabledBreakpointIcon;
     const QIcon m_pendingBreakPointIcon;
@@ -129,13 +126,10 @@ private:
     const QIcon m_watchpointIcon;
 
     Debugger::DebuggerEngine *m_engine; // Not owned.
-    Breakpoints *m_bp;
     Breakpoints m_inserted; // Lately inserted breakpoints.
     Breakpoints m_removed; // Lately removed breakpoints.
     Breakpoints m_enabled; // Lately enabled breakpoints.
     Breakpoints m_disabled; // Lately disabled breakpoints.
-
-    bool m_masterList;
 
     // Hack for BreakWindow::findSimilarBreakpoint
     mutable BreakpointData *m_lastFound;
