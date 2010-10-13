@@ -179,19 +179,14 @@ bool MaemoTemplatesManager::createDebianTemplatesIfNecessary(const ProjectExplor
 
     QDir debianDir(debianDirPath(project));
     const QStringList &files = debianDir.entryList(QDir::Files);
-    QStringList filesToAddToProject;
     foreach (const QString &fileName, files) {
         if (fileName.endsWith(QLatin1String(".ex"), Qt::CaseInsensitive)
             || fileName.compare(QLatin1String("README.debian"), Qt::CaseInsensitive) == 0
             || fileName.compare(QLatin1String("dirs"), Qt::CaseInsensitive) == 0
             || fileName.compare(QLatin1String("docs"), Qt::CaseInsensitive) == 0) {
             debianDir.remove(fileName);
-        } else
-            filesToAddToProject << debianDir.absolutePath()
-                + QLatin1Char('/') + fileName;
+        }
     }
-    qobject_cast<Qt4Project *>(project)->rootProjectNode()
-        ->addFiles(UnknownFileType, filesToAddToProject);
 
     return adaptRulesFile(project) && adaptControlFile(project);
 }
