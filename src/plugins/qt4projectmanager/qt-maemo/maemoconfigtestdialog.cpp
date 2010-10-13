@@ -38,8 +38,7 @@
 #include "maemodeviceconfigurations.h"
 #include "maemoglobal.h"
 
-#include <coreplugin/ssh/sshconnection.h>
-#include <coreplugin/ssh/sshremoteprocess.h>
+#include <coreplugin/ssh/sshremoteprocessrunner.h>
 
 #include <QtGui/QPalette>
 #include <QtGui/QPushButton>
@@ -71,63 +70,60 @@ MaemoConfigTestDialog::~MaemoConfigTestDialog()
 
 void MaemoConfigTestDialog::startConfigTest()
 {
-    if (m_infoProcess)
+    if (m_testProcessRunner)
         return;
 
+    m_currentTest = GeneralTest;
     m_ui->testResultEdit->setPlainText(tr("Testing configuration..."));
     m_closeButton->setText(tr("Stop Test"));
-    m_connection = SshConnection::create();
-    connect(m_connection.data(), SIGNAL(connected()), this,
-        SLOT(handleConnected()));
-    connect(m_connection.data(), SIGNAL(error(Core::SshError)), this,
-        SLOT(handleConnectionError()));
-    m_connection->connectToHost(m_config.server);
-}
-
-void MaemoConfigTestDialog::handleConnected()
-{
-    if (!m_connection)
-        return;
+    m_testProcessRunner = SshRemoteProcessRunner::create(m_config.server);
+    connect(m_testProcessRunner.data(), SIGNAL(connectionError(Core::SshError)),
+        this, SLOT(handleConnectionError()));
+    connect(m_testProcessRunner.data(), SIGNAL(processClosed(int)), this,
+        SLOT(handleTestProcessFinished(int)));
+    connect(m_testProcessRunner.data(),
+        SIGNAL(processOutputAvailable(QByteArray)), this,
+        SLOT(processSshOutput(QByteArray)));
     QLatin1String sysInfoCmd("uname -rsm");
     QLatin1String qtInfoCmd("dpkg-query -W -f '${Package} ${Version} ${Status}\n' 'libqt*' "
         "|grep ' installed$'");
     QString command(sysInfoCmd + " && " + qtInfoCmd);
-    m_infoProcess = m_connection->createRemoteProcess(command.toUtf8());
-    connect(m_infoProcess.data(), SIGNAL(closed(int)), this,
-        SLOT(handleInfoProcessFinished(int)));
-    connect(m_infoProcess.data(), SIGNAL(outputAvailable(QByteArray)), this,
-        SLOT(processSshOutput(QByteArray)));
-    m_infoProcess->start();
+    m_testProcessRunner->run(command.toUtf8());
 }
 
 void MaemoConfigTestDialog::handleConnectionError()
 {
-    if (!m_connection)
+    if (!m_testProcessRunner)
         return;
     QString output = tr("Could not connect to host: %1")
-        .arg(m_connection->errorString());
+        .arg(m_testProcessRunner->connection()->errorString());
     if (m_config.type == MaemoDeviceConfig::Simulator)
         output += tr("\nDid you start Qemu?");
     m_ui->testResultEdit->setPlainText(output);
     stopConfigTest();
 }
 
-void MaemoConfigTestDialog::handleInfoProcessFinished(int exitStatus)
+void MaemoConfigTestDialog::handleTestProcessFinished(int exitStatus)
 {
-    if (!m_connection)
+    if (!m_testProcessRunner)
         return;
 
     Q_ASSERT(exitStatus == SshRemoteProcess::FailedToStart
         || exitStatus == SshRemoteProcess::KilledBySignal
         || exitStatus == SshRemoteProcess::ExitedNormally);
 
-    if (!m_infoProcess)
-        return;
+    if (m_currentTest == GeneralTest)
+        handleGeneralTestResult(exitStatus);
+    else
+        handleMadDeveloperTestResult(exitStatus);
+}
 
+void MaemoConfigTestDialog::handleGeneralTestResult(int exitStatus)
+{
     if (exitStatus != SshRemoteProcess::ExitedNormally
-        || m_infoProcess->exitCode() != 0) {
+        || m_testProcessRunner->process()->exitCode() != 0) {
         m_ui->testResultEdit->setPlainText(tr("Remote process failed: %1")
-            .arg(m_infoProcess->errorString()));
+            .arg(m_testProcessRunner->process()->errorString()));
     } else {
         const QString &output = parseTestOutput();
         if (!m_qtVersionOk) {
@@ -137,26 +133,20 @@ void MaemoConfigTestDialog::handleInfoProcessFinished(int exitStatus)
         m_ui->testResultEdit->setPlainText(output);
     }
 
+    m_currentTest = MadDeveloperTest;
+    disconnect(m_testProcessRunner.data(),
+        SIGNAL(processOutputAvailable(QByteArray)), this,
+        SLOT(processSshOutput(QByteArray)));
     const QByteArray command = "test -x " + MaemoGlobal::remoteSudo().toUtf8();
-    m_madDeveloperTestProcess = m_connection->createRemoteProcess(command);
-    connect(m_madDeveloperTestProcess.data(), SIGNAL(closed(int)), this,
-        SLOT(handleMadDeveloperTestProcessFinished(int)));
-    m_madDeveloperTestProcess->start();
+    m_testProcessRunner->run(command);
 }
 
-void MaemoConfigTestDialog::handleMadDeveloperTestProcessFinished(int exitStatus)
+void MaemoConfigTestDialog::handleMadDeveloperTestResult(int exitStatus)
 {
-    if (!m_connection)
-        return;
-
-    Q_ASSERT(exitStatus == SshRemoteProcess::FailedToStart
-        || exitStatus == SshRemoteProcess::KilledBySignal
-        || exitStatus == SshRemoteProcess::ExitedNormally);
-
     if (exitStatus != SshRemoteProcess::ExitedNormally) {
         m_ui->testResultEdit->setPlainText(tr("Remote process failed: %1")
-            .arg(m_madDeveloperTestProcess->errorString()));
-    } else if (m_madDeveloperTestProcess->exitCode() != 0) {
+            .arg(m_testProcessRunner->process()->errorString()));
+    } else if (m_testProcessRunner->process()->exitCode() != 0) {
         m_ui->errorLabel->setText(m_ui->errorLabel->text()
             + QLatin1String("<br>") + tr("Mad Developer is not installed.<br>"
                   "You will not be able to deploy to this device."));
@@ -173,13 +163,10 @@ void MaemoConfigTestDialog::handleMadDeveloperTestProcessFinished(int exitStatus
 
 void MaemoConfigTestDialog::stopConfigTest()
 {
-    if (m_infoProcess)
-        disconnect(m_infoProcess.data(), 0, this, 0);
-    if (m_madDeveloperTestProcess)
-        disconnect(m_madDeveloperTestProcess.data(), 0, this, 0);
-    if (m_connection)
-        disconnect(m_connection.data(), 0, this, 0);
-
+    if (m_testProcessRunner) {
+        disconnect(m_testProcessRunner.data(), 0, this, 0);
+        m_testProcessRunner = SshRemoteProcessRunner::Ptr();
+    }
     m_deviceTestOutput.clear();
     m_closeButton->setText(tr("Close"));
 }

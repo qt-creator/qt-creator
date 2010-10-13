@@ -44,8 +44,7 @@ class Ui_MaemoConfigTestDialog;
 QT_END_NAMESPACE
 
 namespace Core {
-    class SshConnection;
-    class SshRemoteProcess;
+    class SshRemoteProcessRunner;
 } // namespace Core
 
 namespace Qt4ProjectManager {
@@ -66,24 +65,25 @@ public:
 private slots:
     void stopConfigTest();
     void processSshOutput(const QByteArray &output);
-    void handleConnected();
     void handleConnectionError();
-    void handleInfoProcessFinished(int exitStatus);
-    void handleMadDeveloperTestProcessFinished(int exitStatus);
+    void handleTestProcessFinished(int exitStatus);
 
 private:
     void startConfigTest();
     QString parseTestOutput();
+    void handleGeneralTestResult(int exitStatus);
+    void handleMadDeveloperTestResult(int exitStatus);
 
     Ui_MaemoConfigTestDialog *m_ui;
     QPushButton *m_closeButton;
 
     const MaemoDeviceConfig &m_config;
-    QSharedPointer<Core::SshConnection> m_connection;
-    QSharedPointer<Core::SshRemoteProcess> m_infoProcess;
-    QSharedPointer<Core::SshRemoteProcess> m_madDeveloperTestProcess;
+    QSharedPointer<Core::SshRemoteProcessRunner> m_testProcessRunner;
     QString m_deviceTestOutput;
     bool m_qtVersionOk;
+
+    enum DeviceTest { GeneralTest, MadDeveloperTest };
+    DeviceTest m_currentTest;
 };
 
 } // namespace Internal

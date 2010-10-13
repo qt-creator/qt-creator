@@ -49,14 +49,12 @@ class Ui_MaemoSettingsWidget;
 QT_END_NAMESPACE
 
 namespace Core {
-class SshConnection;
-class SshRemoteProcess;
+class SshRemoteProcessRunner;
 }
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class MaemoSshRunner;
 class NameValidator;
 
 class MaemoSettingsWidget : public QWidget
@@ -94,7 +92,6 @@ private slots:
     // For key deploying.
     void deployKey();
     void stopDeploying();
-    void handleConnected();
     void handleConnectionFailure();
     void handleKeyUploadFinished(int exitStatus);
 
@@ -112,8 +109,7 @@ private:
     MaemoDeviceConfig m_lastConfigHW;
     MaemoDeviceConfig m_lastConfigSim;
     NameValidator * const m_nameValidator;
-    QSharedPointer<Core::SshConnection> m_connection;
-    QSharedPointer<Core::SshRemoteProcess> m_keyDeployer;
+    QSharedPointer<Core::SshRemoteProcessRunner> m_keyDeployer;
     bool m_saveSettingsRequested;
 };
 

@@ -40,8 +40,7 @@
 #include "maemodeviceconfigurations.h"
 #include "maemosshconfigdialog.h"
 
-#include <coreplugin/ssh/sshconnection.h>
-#include <coreplugin/ssh/sshremoteprocess.h>
+#include <coreplugin/ssh/sshremoteprocessrunner.h>
 
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
@@ -354,32 +353,13 @@ void MaemoSettingsWidget::deployKey()
     if (m_keyDeployer)
         return;
 
-    disconnect(m_ui->deployKeyButton, 0, this, 0);
-    m_ui->deployKeyButton->setText(tr("Stop Deploying"));
-    connect(m_ui->deployKeyButton, SIGNAL(clicked()), this,
-        SLOT(stopDeploying()));
-    m_connection = SshConnection::create();
-    connect(m_connection.data(), SIGNAL(connected()), this,
-        SLOT(handleConnected()));
-    connect(m_connection.data(), SIGNAL(error(Core::SshError)), this,
-        SLOT(handleConnectionFailure()));
-    m_connection->connectToHost(currentConfig().server);
-}
-
-void MaemoSettingsWidget::handleConnected()
-{
-    if (!m_connection)
-        return;
-
     const QString &dir
         = QFileInfo(currentConfig().server.privateKeyFile).path();
     QString publicKeyFileName = QFileDialog::getOpenFileName(this,
         tr("Choose Public Key File"), dir,
         tr("Public Key Files(*.pub);;All Files (*)"));
-    if (publicKeyFileName.isEmpty()) {
-        stopDeploying();
+    if (publicKeyFileName.isEmpty())
         return;
-    }
 
     QFile keyFile(publicKeyFileName);
     QByteArray key;
@@ -389,26 +369,33 @@ void MaemoSettingsWidget::handleConnected()
     if (!keyFileAccessible || keyFile.error() != QFile::NoError) {
         QMessageBox::critical(this, tr("Deployment Failed"),
             tr("Could not read public key file '%1'.").arg(publicKeyFileName));
-        stopDeploying();
         return;
     }
 
+    disconnect(m_ui->deployKeyButton, 0, this, 0);
+    m_ui->deployKeyButton->setText(tr("Stop Deploying"));
+    connect(m_ui->deployKeyButton, SIGNAL(clicked()), this,
+        SLOT(stopDeploying()));
+
+    m_keyDeployer = SshRemoteProcessRunner::create(currentConfig().server);
+    connect(m_keyDeployer.data(), SIGNAL(connectionError(Core::SshError)), this,
+        SLOT(handleConnectionFailure()));
+    connect(m_keyDeployer.data(), SIGNAL(processClosed(int)), this,
+        SLOT(handleKeyUploadFinished(int)));
     const QByteArray command = "test -d .ssh "
         "|| mkdir .ssh && chmod 0700 .ssh && echo '"
         + key + "' >> .ssh/authorized_keys";
-    m_keyDeployer = m_connection->createRemoteProcess(command);
-    connect(m_keyDeployer.data(), SIGNAL(closed(int)), this,
-        SLOT(handleKeyUploadFinished(int)));
-    m_keyDeployer->start();
+    m_keyDeployer->run(command);
 }
 
 void MaemoSettingsWidget::handleConnectionFailure()
 {
-    if (!m_connection)
+    if (!m_keyDeployer)
         return;
 
     QMessageBox::critical(this, tr("Deployment Failed"),
-        tr("Could not connect to host: %1").arg(m_connection->errorString()));
+        tr("Could not connect to host: %1")
+            .arg(m_keyDeployer->connection()->errorString()));
     stopDeploying();
 }
 
@@ -418,16 +405,17 @@ void MaemoSettingsWidget::handleKeyUploadFinished(int exitStatus)
         || exitStatus == SshRemoteProcess::KilledBySignal
         || exitStatus == SshRemoteProcess::ExitedNormally);
 
-    if (!m_connection)
+    if (!m_keyDeployer)
         return;
 
     if (exitStatus == SshRemoteProcess::ExitedNormally
-        && m_keyDeployer->exitCode() == 0) {
+        && m_keyDeployer->process()->exitCode() == 0) {
         QMessageBox::information(this, tr("Deployment Succeeded"),
             tr("Key was successfully deployed."));
     } else {
         QMessageBox::critical(this, tr("Deployment Failed"),
-            tr("Key deployment failed: %1.").arg(m_keyDeployer->errorString()));
+            tr("Key deployment failed: %1.")
+                .arg(m_keyDeployer->process()->errorString()));
     }
     stopDeploying();
 }
@@ -436,10 +424,8 @@ void MaemoSettingsWidget::stopDeploying()
 {
     if (m_keyDeployer) {
         disconnect(m_keyDeployer.data(), 0, this, 0);
-        m_keyDeployer = SshRemoteProcess::Ptr();
+        m_keyDeployer = SshRemoteProcessRunner::Ptr();
     }
-    if (m_connection)
-        disconnect(m_connection.data(), 0, this, 0);
     m_ui->deployKeyButton->disconnect();
     m_ui->deployKeyButton->setText(tr("Deploy Public Key ..."));
     connect(m_ui->deployKeyButton, SIGNAL(clicked()), this, SLOT(deployKey()));
