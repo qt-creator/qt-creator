@@ -32,21 +32,12 @@
 #include <QtCore/QtPlugin>
 #include <private/qdeclarativerectangle_p.h>
 #include <private/qdeclarativescalegrid_p_p.h>
-#include <MComponentData>
 
 namespace QmlDesigner {
 
 
 QtQuickPlugin::QtQuickPlugin()
 {
-    qApp->setProperty("NoMStyle", true);
-    if(!MComponentData::instance()) {
-        // This is a workaround because we can't use a default
-        // constructor for MComponentData
-        int argc = 1;
-        char *argv0 = "meegotouch";
-        (void) new MComponentData(argc, &argv0);
-    }
 
     qmlRegisterType<QDeclarativePen>("Qt", 4, 7, "Pen");
     qmlRegisterType<QDeclarativeScaleGrid>("Qt", 4, 7, "ScaleGrid");
