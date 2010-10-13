@@ -87,6 +87,7 @@ Core::GeneratedFiles AbstractMobileAppWizard::generateFiles(const QWizard *wizar
         = qobject_cast<const AbstractMobileAppWizardDialog*>(wizard);
     app()->setSymbianTargetUid(wdlg->m_optionsPage->symbianUid());
     app()->setSymbianSvgIcon(wdlg->m_optionsPage->symbianSvgIcon());
+    app()->setMaemoPngIcon(wdlg->m_optionsPage->maemoPngIcon());
     app()->setOrientation(wdlg->m_optionsPage->orientation());
     app()->setNetworkEnabled(wdlg->m_optionsPage->networkEnabled());
     return app()->generateFiles(errorMessage);
