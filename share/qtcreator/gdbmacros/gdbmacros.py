@@ -815,28 +815,34 @@ def qdump__QObject(d, item):
                                 d.putValue("...")
                                 d.putNumChild(0)
 
-            # Connections.
-            with SubItem(d):
-                connectionCount = 0
-                d.putName("connections")
-                d.putItemCount(connectionCount)
-                d.putType(" ")
-                d.putNumChild(connectionCount)
-                if connectionCount:
-                    d.putField("childtype", "")
-                    d.putField("childnumchild", "0")
+        # Connections.
+        with SubItem(d):
+            d.putName("connections")
+            d.putType(" ")
+            connections = d_ptr["connectionLists"]
+            connectionListCount = 0
+            if not isNull(connections):
+                connectionListCount = connections["d"]["size"]
+            d.putItemCount(connectionListCount)
+            d.putNumChild(connectionListCount)
+            if d.isExpandedIName(item.iname + ".connections"):
+                with Children(d):
+                    vectorType = connections.type.target().fields()[0].type
+                    innerType = vectorType.template_argument(0)
+                    # Should check:  innerType == ns::QObjectPrivate::ConnectionList
+                    p = gdb.Value(connections["p"]["array"]).cast(innerType.pointer())
+                    pp = 0
+                    for i in xrange(connectionListCount):
+                        first = p.dereference()["first"]
+                        while not isNull(first):
+                            d.putItem(Item(first.dereference(), item.iname + ".connections", pp))
+                            first = first["next"]
+                            # We need to enforce some upper limit.
+                            pp += 1
+                            if pp > 1000:
+                                break
+                        p += 1
 
-                if d.isExpandedIName(item.iname + ".connections"):
-                    with Children(d):
-                        connectionLists = d_ptr["connectionLists"]
-                        warn("CONNECTIONLISTS: %s " % connectionLists)
-
-                        for connection in xrange(connectionCount):
-                            with SubItem(d):
-                                d.putField("iname", "%s.connections.%d"
-                                    % (item.iname, connection))
-                                d.putName("connection %d" % connection)
-                                d.putValue("")
 
         # Signals
         signalCount = metaData[13]
@@ -858,6 +864,7 @@ def qdump__QObject(d, item):
                             d.putName("signal %d" % signal)
                             d.putType(" ")
                             d.putValue(extractCString(metaStringData, offset))
+                            d.putNumChild(0)  # FIXME: List the connections here.
 
         # Slots
         with SubItem(d):
@@ -878,6 +885,7 @@ def qdump__QObject(d, item):
                             d.putName("slot %d" % slot)
                             d.putType(" ")
                             d.putValue(extractCString(metaStringData, offset))
+                            d.putNumChild(0)  # FIXME: List the connections here.
 
         # Active connection
         with SubItem(d):
