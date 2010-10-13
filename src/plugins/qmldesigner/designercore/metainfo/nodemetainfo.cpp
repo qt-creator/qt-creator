@@ -255,9 +255,9 @@ QHash<QString,PropertyMetaInfo> NodeMetaInfo::dotProperties() const
 
     QHash<QString,PropertyMetaInfo> propertiesInfo;
 
-    foreach (const QString &propertyName, properties().keys()) {
+    foreach (const QString &propertyName, properties(false).keys()) {
         if (property(propertyName).hasDotSubProperties()) {
-                QString propertyType = property(propertyName).type();
+                QString propertyType = property(propertyName, false).type();
                 if (propertyType.right(1) == "*")
                     propertyType = propertyType.left(propertyType.size() - 1).trimmed();
 
@@ -377,17 +377,17 @@ bool NodeMetaInfo::hasLocalProperty(const QString &propertyName, bool resolveDot
 
   \throws InvalidMetaInfoException if the object is not valid
   */
-bool NodeMetaInfo::hasProperty(const QString &propertyName, bool resolveDotSyntax) const
+bool NodeMetaInfo::hasProperty(const QString &propertyName) const
 {
     if (!isValid()) {
         qWarning() << "NodeMetaInfo is invalid";
         return false;
     }
 
-    if (hasLocalProperty(propertyName, resolveDotSyntax))
+    if (hasLocalProperty(propertyName, true))
         return true;
 
-    if (directSuperClass().isValid() && directSuperClass().hasProperty(propertyName, resolveDotSyntax))
+    if (directSuperClass().isValid() && directSuperClass().hasProperty(propertyName))
         return true;
 
     return false;
@@ -608,6 +608,38 @@ bool NodeMetaInfo::isSubclassOf(const QString &type, int majorVersion, int minor
             return true;
     }
     return false;
+}
+
+QStringList NodeMetaInfo::propertyNames() const
+{
+    return properties(true).keys();
+}
+
+QStringList NodeMetaInfo::propertyNamesOnlyContainer() const
+{
+    QStringList nameList;
+    foreach(const PropertyMetaInfo &propertyMetaInfo, properties(true).values()) {
+        if (propertyMetaInfo.isReadable() && propertyMetaInfo.isWriteable())
+            nameList.append(propertyMetaInfo.name());
+    }
+
+    return nameList;
+}
+
+QString NodeMetaInfo::propertyType(const QString &propertyName) const
+{
+    if (!hasProperty(propertyName))
+        return QString();
+
+    return property(propertyName).type();
+}
+
+QVariant NodeMetaInfo::nativePropertyValue(const QString &propertyName, const QVariant &value) const
+{
+    if (!hasProperty(propertyName))
+        return value;
+
+    return property(propertyName).castedValue(value);
 }
 
 void NodeMetaInfo::setQmlFile(const QString &filePath)

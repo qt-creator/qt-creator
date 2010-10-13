@@ -573,16 +573,14 @@ QStringList NavigatorTreeModel::visibleProperties(const ModelNode &node) const
 {
     QStringList propertyList;
 
-    foreach (PropertyMetaInfo propertyMetaInfo, node.metaInfo().properties().values()) {
-        if (!m_hiddenProperties.contains(propertyMetaInfo.name()) &&
-            propertyMetaInfo.name() != node.metaInfo().defaultProperty() &&
-            propertyMetaInfo.isReadable() &&
-            propertyMetaInfo.isWriteable()) {
+    foreach (const QString &propertyName, node.metaInfo().propertyNamesOnlyContainer()) {
+        if (!m_hiddenProperties.contains(propertyName) &&
+            propertyName != node.metaInfo().defaultProperty()) { // TODO: ask the node instances
 
-            QString qmlType = qmlTypeInQtContainer(propertyMetaInfo.type());
+            QString qmlType = qmlTypeInQtContainer(node.metaInfo().propertyType(propertyName));
             if (node.metaInfo().metaInfo().hasNodeMetaInfo(qmlType) &&
-                node.metaInfo().metaInfo().nodeMetaInfo(qmlType).isSubclassOf("QGraphicsObject", -1, -1)) {
-                propertyList << propertyMetaInfo.name();
+                node.metaInfo().metaInfo().nodeMetaInfo(qmlType).isSubclassOf("Qt/QtObject", 4, 7)) {
+                propertyList.append(propertyName);
             }
         }
     }    

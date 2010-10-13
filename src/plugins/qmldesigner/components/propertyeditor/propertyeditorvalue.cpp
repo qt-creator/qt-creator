@@ -53,8 +53,8 @@ PropertyEditorValue::PropertyEditorValue(QObject *parent)
 QVariant PropertyEditorValue::value() const
 {
     QVariant returnValue = m_value;
-    if (modelNode().isValid() && modelNode().metaInfo().isValid() && modelNode().metaInfo().property(name()).isValid())
-        if (modelNode().metaInfo().property(name()).type() == QLatin1String("QUrl")) {
+    if (modelNode().isValid() && modelNode().metaInfo().isValid() && modelNode().metaInfo().hasProperty(name()))
+        if (modelNode().metaInfo().propertyType(name()) == QLatin1String("QUrl")) {
         returnValue = returnValue.toUrl().toString();
     }
     return returnValue;
@@ -97,8 +97,8 @@ void PropertyEditorValue::setValueWithEmit(const QVariant &value)
 {
     if (m_value != value) {
         QVariant newValue = value;
-        if (modelNode().isValid() && modelNode().metaInfo().isValid() && modelNode().metaInfo().property(name()).isValid())
-            if (modelNode().metaInfo().property(name()).type() == QLatin1String("QUrl")) {
+        if (modelNode().isValid() && modelNode().metaInfo().isValid() && modelNode().metaInfo().hasProperty(name()))
+            if (modelNode().metaInfo().propertyType(name()) == QLatin1String("QUrl")) {
             newValue = QUrl(newValue.toString());
         }
 
@@ -272,7 +272,7 @@ void PropertyEditorNodeWrapper::add(const QString &type)
 
     if ((m_editorValue && m_editorValue->modelNode().isValid())) {
         if (propertyType.isEmpty())
-            propertyType = m_editorValue->modelNode().metaInfo().property(m_editorValue->name()).type();
+            propertyType = m_editorValue->modelNode().metaInfo().propertyType(m_editorValue->name());
         while (propertyType.contains('*')) //strip star
             propertyType.chop(1);
         m_modelNode = m_editorValue->modelNode().view()->createModelNode(propertyType, 4, 7);
@@ -332,7 +332,7 @@ void PropertyEditorNodeWrapper::setup()
         foreach (QObject *object, m_valuesPropertyMap.children())
             delete object;
 
-        foreach (const QString &propertyName, m_modelNode.metaInfo().properties().keys()) {
+        foreach (const QString &propertyName, m_modelNode.metaInfo().propertyNames()) {
             if (fxObjectNode.isValid()) {
                 PropertyEditorValue *valueObject = new PropertyEditorValue(&m_valuesPropertyMap);
                 valueObject->setName(propertyName);

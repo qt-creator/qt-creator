@@ -77,11 +77,14 @@ public:
     bool isValid() const;
     MetaInfo metaInfo() const;
 
-    PropertyMetaInfo property(const QString &propertyName, bool resolveDotSyntax = false) const;
-
     QList<NodeMetaInfo> superClasses() const;
     NodeMetaInfo directSuperClass() const;
-    QHash<QString,PropertyMetaInfo> properties(bool resolveDotSyntax = false) const;
+
+
+    QStringList propertyNames() const;
+    QStringList propertyNamesOnlyContainer() const;
+    QString propertyType(const QString &propertyName) const;
+    QVariant nativePropertyValue(const QString &propertyName, const QVariant &value) const;
 
     QString typeName() const;
     int majorVersion() const;
@@ -92,7 +95,7 @@ public:
     bool hasDefaultProperty() const;
     QString defaultProperty() const;
 
-    bool hasProperty(const QString &propertyName, bool resolveDotSyntax = false) const;
+    bool hasProperty(const QString &propertyName) const;
     bool isContainer() const;
     bool isComponent() const;
     bool isSubclassOf(const QString& type, int majorVersion, int minorVersio) const;
@@ -113,8 +116,11 @@ private:
     void setDefaultProperty(const QString &defaultProperty);
     void setSuperClass(const QString &typeName, int majorVersion = -1, int minorVersion = -1);
 
-    bool hasLocalProperty(const QString &propertyName, bool resolveDotSyntax = false) const;
+    bool hasLocalProperty(const QString &propertyName, bool resolveDotSyntax = true) const;
     QHash<QString,PropertyMetaInfo> dotProperties() const;
+    QHash<QString,PropertyMetaInfo> properties(bool resolveDotSyntax = true) const;
+    PropertyMetaInfo property(const QString &propertyName, bool resolveDotSyntax = true) const;
+
 
 private:
     QExplicitlySharedDataPointer<Internal::NodeMetaInfoData> m_data;

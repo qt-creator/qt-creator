@@ -175,7 +175,7 @@ void PropertyEditor::NodeType::setup(const QmlObjectNode &fxObjectNode, const QS
     QDeclarativeContext *ctxt = m_view->rootContext();
 
     if (fxObjectNode.isValid()) {
-        foreach (const QString &propertyName, fxObjectNode.modelNode().metaInfo().properties(true).keys())
+        foreach (const QString &propertyName, fxObjectNode.modelNode().metaInfo().propertyNames())
             createPropertyEditorValue(fxObjectNode, propertyName, fxObjectNode.instanceValue(propertyName), &m_backendValuesPropertyMap, propertyEditor);
 
         // className
@@ -227,8 +227,8 @@ void PropertyEditor::NodeType::initialSetup(const QString &typeName, const QUrl 
 
     NodeMetaInfo metaInfo = propertyEditor->model()->metaInfo().nodeMetaInfo(typeName, 4, 7);
 
-    foreach (const QString &propertyName, metaInfo.properties(true).keys())
-        setupPropertyEditorValue(propertyName, &m_backendValuesPropertyMap, propertyEditor, metaInfo.property(propertyName, true).type());
+    foreach (const QString &propertyName, metaInfo.propertyNames())
+        setupPropertyEditorValue(propertyName, &m_backendValuesPropertyMap, propertyEditor, metaInfo.propertyType(propertyName));
 
     PropertyEditorValue *valueObject = qobject_cast<PropertyEditorValue*>(QDeclarativeMetaType::toQObject(m_backendValuesPropertyMap.value("className")));
     if (!valueObject)
@@ -386,8 +386,8 @@ void PropertyEditor::changeValue(const QString &propertyName)
 
     QVariant castedValue;
 
-    if (fxObjectNode.modelNode().metaInfo().isValid() && fxObjectNode.modelNode().metaInfo().property(propertyName, true).isValid()) {
-        castedValue = fxObjectNode.modelNode().metaInfo().property(propertyName, true).castedValue(value->value());
+    if (fxObjectNode.modelNode().metaInfo().isValid() && fxObjectNode.modelNode().metaInfo().hasProperty(propertyName)) {
+        castedValue = fxObjectNode.modelNode().metaInfo().nativePropertyValue(propertyName, value->value());
     } else {
         qWarning() << "PropertyEditor:" <<propertyName << "cannot be casted (metainfo)";
         return ;
@@ -398,8 +398,8 @@ void PropertyEditor::changeValue(const QString &propertyName)
         return ;
     }
 
-    if (fxObjectNode.modelNode().metaInfo().isValid() && fxObjectNode.modelNode().metaInfo().property(propertyName).isValid())
-        if (fxObjectNode.modelNode().metaInfo().property(propertyName).type() == QLatin1String("QUrl")) { //turn absolute local file paths into relative paths
+    if (fxObjectNode.modelNode().metaInfo().isValid() && fxObjectNode.modelNode().metaInfo().hasProperty(propertyName))
+        if (fxObjectNode.modelNode().metaInfo().propertyType(propertyName) == QLatin1String("QUrl")) { //turn absolute local file paths into relative paths
         QString filePath = castedValue.toUrl().toString();
         if (QFileInfo(filePath).exists() && QFileInfo(filePath).isAbsolute()) {
             QDir fileDir(QFileInfo(model()->fileUrl().toLocalFile()).absolutePath());
@@ -446,13 +446,13 @@ void PropertyEditor::changeExpression(const QString &name)
     QmlObjectNode fxObjectNode(m_selectedNode);
     PropertyEditorValue *value = qobject_cast<PropertyEditorValue*>(QDeclarativeMetaType::toQObject(m_currentType->m_backendValuesPropertyMap.value(underscoreName)));
 
-    if (fxObjectNode.modelNode().metaInfo().isValid() && fxObjectNode.modelNode().metaInfo().property(name).isValid()) {
-        if (fxObjectNode.modelNode().metaInfo().property(name).type() == QLatin1String("QColor")) {
+    if (fxObjectNode.modelNode().metaInfo().isValid() && fxObjectNode.modelNode().metaInfo().hasProperty(name)) {
+        if (fxObjectNode.modelNode().metaInfo().propertyType(name) == QLatin1String("QColor")) {
             if (QColor(value->expression().remove('"')).isValid()) {
                 fxObjectNode.setVariantProperty(name, QColor(value->expression().remove('"')));
                 return;
             }
-        } else if (fxObjectNode.modelNode().metaInfo().property(name).type() == QLatin1String("bool")) {
+        } else if (fxObjectNode.modelNode().metaInfo().propertyType(name) == QLatin1String("bool")) {
             if (value->expression().compare("false", Qt::CaseInsensitive) == 0 || value->expression().compare("true", Qt::CaseInsensitive) == 0) {
                 if (value->expression().compare("true", Qt::CaseInsensitive) == 0)
                     fxObjectNode.setVariantProperty(name, true);
@@ -460,14 +460,14 @@ void PropertyEditor::changeExpression(const QString &name)
                     fxObjectNode.setVariantProperty(name, false);
                 return;
             }
-        } else if (fxObjectNode.modelNode().metaInfo().property(name).type() == QLatin1String("int")) {
+        } else if (fxObjectNode.modelNode().metaInfo().propertyType(name) == QLatin1String("int")) {
             bool ok;
             int intValue = value->expression().toInt(&ok);
             if (ok) {
                 fxObjectNode.setVariantProperty(name, intValue);
                 return;
             }
-        } else if (fxObjectNode.modelNode().metaInfo().property(name).type() == QLatin1String("qreal")) {
+        } else if (fxObjectNode.modelNode().metaInfo().propertyType(name) == QLatin1String("qreal")) {
             bool ok;
             qreal realValue = value->expression().toFloat(&ok);
             if (ok) {
@@ -561,20 +561,19 @@ QString templateGeneration(NodeMetaInfo type, NodeMetaInfo superType, const QmlO
     qmlTemplate += QLatin1String("layout: VerticalLayout {\n");
 
     QList<QString> orderedList;
-    orderedList = type.properties(true).keys();
+    orderedList = type.propertyNames();
     qSort(orderedList);
 
     foreach (const QString &name, orderedList) {
-        const PropertyMetaInfo propertyMetaInfo(type.property(name, true));
         QString properName = name;
         properName.replace(".", "_");
 
-        QString typeName = propertyMetaInfo.type();
+        QString typeName = type.propertyType(name);
         //alias resolution only possible with instance
             if (typeName == QLatin1String("alias") && objectNode.isValid())
                 typeName = objectNode.instanceType(name);
 
-        if (!superType.hasProperty(name, true)) {
+        if (!superType.hasProperty(name)) {
             if (typeName == "int") {
                 qmlTemplate +=  QString(QLatin1String(
                 "IntEditor { backendValue: backendValues.%2\n caption: \"%1\"\nbaseStateFlag: isBaseState\nslider: false\n}"
