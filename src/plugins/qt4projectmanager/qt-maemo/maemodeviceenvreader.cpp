@@ -84,8 +84,9 @@ void MaemoDeviceEnvReader::start()
 void MaemoDeviceEnvReader::stop()
 {
     m_stop = true;
-    disconnect(m_connection.data(), 0, this, 0);
 
+    if (m_connection)
+        disconnect(m_connection.data(), 0, this, 0);
     if (m_remoteProcess) {
         disconnect(m_remoteProcess.data());
         m_remoteProcess->closeChannel();
@@ -109,6 +110,7 @@ void MaemoDeviceEnvReader::executeRemoteCall()
         SLOT(remoteErrorOutput(QByteArray)));
 
     m_remoteOutput.clear();
+    m_remoteErrorOutput.clear();
     m_remoteProcess->start();
 }
 
@@ -116,7 +118,7 @@ void MaemoDeviceEnvReader::handleConnectionFailure()
 {
     emit error(tr("Could not connect to host: %1")
         .arg(m_connection->errorString()));
-    emit finished();
+    setFinished();
 }
 
 void MaemoDeviceEnvReader::handleCurrentDeviceConfigChanged()
@@ -124,7 +126,7 @@ void MaemoDeviceEnvReader::handleCurrentDeviceConfigChanged()
     m_devConfig = m_runConfig->deviceConfig();
 
     m_env.clear();
-    emit finished();
+    setFinished();
 }
 
 void MaemoDeviceEnvReader::remoteProcessFinished(int exitCode)
@@ -143,10 +145,15 @@ void MaemoDeviceEnvReader::remoteProcessFinished(int exitCode)
                 QString::SkipEmptyParts));
         }
     } else {
-        emit error(tr("Error running remote process: %1")
-            .arg(m_remoteProcess->errorString()));
+        QString errorMsg = tr("Error running remote process: %1")
+            .arg(m_remoteProcess->errorString());
+        if (!m_remoteErrorOutput.isEmpty()) {
+            errorMsg += tr("\nRemote stderr was: '%1'")
+                .arg(QString::fromUtf8(m_remoteErrorOutput));
+        }
+        emit error(errorMsg);
     }
-    emit finished();
+    setFinished();
 }
 
 void MaemoDeviceEnvReader::remoteOutput(const QByteArray &data)
@@ -156,8 +163,14 @@ void MaemoDeviceEnvReader::remoteOutput(const QByteArray &data)
 
 void MaemoDeviceEnvReader::remoteErrorOutput(const QByteArray &data)
 {
-    emit error(data);
+    m_remoteErrorOutput += data;
 }
 
-    }   // Internal
+void MaemoDeviceEnvReader::setFinished()
+{
+    stop();
+    emit finished();
+}
+
+}   // Internal
 }   // Qt4ProjectManager

@@ -85,6 +85,8 @@ private slots:
     void handleDebuggingTypeChanged(bool useGdb);
     void fetchEnvironment();
     void fetchEnvironmentFinished();
+    void fetchEnvironmentError(const QString &error);
+    void stopFetchEnvironment();
     void userChangesEdited();
     void baseEnvironmentSelected(int index);
     void baseEnvironmentChanged();
