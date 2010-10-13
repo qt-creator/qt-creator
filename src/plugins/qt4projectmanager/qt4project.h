@@ -122,6 +122,8 @@ public:
 
 private slots:
     void folderChanged(const QString &folder);
+    void onTimer();
+    void delayedFolderChanged(const QString &folder);
 
 private:
     QSet<QString> recursiveDirs(const QString &folder);
@@ -129,6 +131,8 @@ private:
     QMultiMap<QString, Qt4PriFileNode *> m_map;
 
     QSet<QString> m_recursiveWatchedFolders;
+    QTimer m_compressTimer;
+    QSet<QString> m_changedFolders;
 };
 
 }

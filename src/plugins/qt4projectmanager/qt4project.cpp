@@ -1132,6 +1132,10 @@ namespace {
 
 CentralizedFolderWatcher::CentralizedFolderWatcher()
 {
+    m_compressTimer.setSingleShot(true);
+    m_compressTimer.setInterval(200);
+    connect(&m_compressTimer, SIGNAL(timeout()),
+            this, SLOT(onTimer()));
     connect (&m_watcher, SIGNAL(directoryChanged(QString)),
              this, SLOT(folderChanged(QString)));
 }
@@ -1225,8 +1229,20 @@ void CentralizedFolderWatcher::unwatchFolders(const QList<QString> &folders, Qt4
     }
 }
 
-
 void CentralizedFolderWatcher::folderChanged(const QString &folder)
+{
+    m_changedFolders.insert(folder);
+    m_compressTimer.start();
+}
+
+void CentralizedFolderWatcher::onTimer()
+{
+    foreach(const QString &folder, m_changedFolders)
+        delayedFolderChanged(folder);
+    m_changedFolders.clear();
+}
+
+void CentralizedFolderWatcher::delayedFolderChanged(const QString &folder)
 {
     if (debugCFW)
         qDebug()<<"CFW::folderChanged"<<folder;
