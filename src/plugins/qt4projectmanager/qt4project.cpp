@@ -1260,7 +1260,11 @@ void CentralizedFolderWatcher::folderChanged(const QString &folder)
     if (!tmp.isEmpty()) {
         if (debugCFW)
             qDebug()<<"found new recursive dirs"<<tmp;
-        m_watcher.addPaths(tmp.toList());
+
+        QSet<QString> alreadyAdded = m_watcher.directories().toSet();
+        tmp.subtract(alreadyAdded);
+        if (!tmp.isEmpty())
+            m_watcher.addPaths(tmp.toList());
         m_recursiveWatchedFolders += tmp;
     }
 }
