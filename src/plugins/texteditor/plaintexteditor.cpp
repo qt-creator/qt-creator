@@ -63,7 +63,8 @@ PlainTextEditorEditable::PlainTextEditorEditable(PlainTextEditor *editor)
 PlainTextEditor::PlainTextEditor(QWidget *parent)
   : BaseTextEditor(parent),
   m_isMissingSyntaxDefinition(false),
-  m_ignoreMissingSyntaxDefinition(false)
+  m_ignoreMissingSyntaxDefinition(false),
+  m_indenter(new NormalIndenter) // Currently only "normal" indentation is supported.
 {
     setRevisionsVisible(true);
     setMarksVisible(true);
@@ -198,11 +199,6 @@ void PlainTextEditor::configure(const Core::MimeType &mimeType)
     }
 
     setFontSettings(TextEditorSettings::instance()->fontSettings());
-
-    // @todo: Indentation specification through the definition files is not really being used
-    // because Kate recommends to configure indentation  through another feature. Maybe we should
-    // provide something similar in Creator? For now, only normal indentation is supported.
-    m_indenter.reset(new NormalIndenter);
 
     emit configured(editableInterface());
 }

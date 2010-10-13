@@ -96,8 +96,8 @@ private:
 
     bool m_isMissingSyntaxDefinition;
     bool m_ignoreMissingSyntaxDefinition;
-    Utils::CommentDefinition m_commentDefinition;
     QScopedPointer<Indenter> m_indenter;
+    Utils::CommentDefinition m_commentDefinition;
 };
 
 } // namespace TextEditor
