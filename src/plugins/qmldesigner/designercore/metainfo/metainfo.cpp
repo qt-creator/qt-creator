@@ -386,7 +386,6 @@ void MetaInfoPrivate::parseQmlTypes()
             m_QtTypesToQmlTypes.insert(qtTypeName, qmlTypeName);
     }
     foreach (QDeclarativeType *qmlType, qmlTypes()) {
-        qDebug() << __FUNCTION__ << qmlType->qmlTypeName() << qmlType->typeName();
         const QMetaObject *qMetaObject = qmlType->metaObject();
 
         // parseQmlTypes is called iteratively e.g. when plugins are loaded
@@ -655,7 +654,6 @@ void MetaInfo::removeNodeInfo(NodeMetaInfo &info)
 
 EnumeratorMetaInfo MetaInfo::addEnumerator(const QString &enumeratorScope, const QString &enumeratorName)
 {
-    qDebug() << __FUNCTION__ << enumeratorScope << enumeratorName;
     Q_ASSERT(!enumeratorName.isEmpty());
 
     EnumeratorMetaInfo enumeratorMetaInfo;
