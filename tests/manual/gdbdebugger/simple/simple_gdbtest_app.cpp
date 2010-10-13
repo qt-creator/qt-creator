@@ -1473,7 +1473,8 @@ void testQTextCursor()
     //QApplication app(argc, argv);
     QTextDocument doc;
     doc.setPlainText("Hallo\nWorld");
-    QTextCursor tc = doc.find("all");
+    QTextCursor tc;
+    tc = doc.find("all");
     int pos = tc.position();
     int anc = tc.anchor();
     Q_UNUSED(pos);
