@@ -1660,14 +1660,19 @@ def qdump__QTextCodec(d, item):
 
 
 def qdump__QTextCursor(d, item):
-    p = item.value["d"]["d"].dereference()
-    d.putValue(p["position"])
-    d.putNumChild(1)
-    if d.isExpanded(item):
-        with Children(d):
-            d.putIntItem("position", p["position"])
-            d.putIntItem("anchor", p["anchor"])
-            d.putCallItem("selected", item, "selectedText()")
+    dd = item.value["d"]["d"]
+    if isNull(dd):
+        d.putValue("(invalid)")
+        d.putNumChild(0)
+    else:
+        p = dd.dereference()
+        d.putValue(p["position"])
+        d.putNumChild(1)
+        if d.isExpanded(item):
+            with Children(d):
+                d.putIntItem("position", p["position"])
+                d.putIntItem("anchor", p["anchor"])
+                d.putCallItem("selected", item, "selectedText()")
 
 
 def qdump__QTextDocument(d, item):
