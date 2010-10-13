@@ -644,15 +644,22 @@ void Qt4PriFileNode::watchFolders(const QSet<QString> &folders)
     m_watchedFolders = folders;
 }
 
-void Qt4PriFileNode::folderChanged(const QString &)
+void Qt4PriFileNode::folderChanged(const QString &folder)
 {
     //qDebug()<<"########## Qt4PriFileNode::folderChanged";
     // So, we need to figure out which files changed.
 
+    QString changedFolder = folder;
+    if (!changedFolder.endsWith(QLatin1Char('/')))
+        changedFolder.append(QLatin1Char('/'));
+
     // Collect all the files
     QSet<QString> newFiles;
-    foreach (const QString &folder, m_watchedFolders) {
-        newFiles += recursiveEnumerate(folder);
+    newFiles += recursiveEnumerate(changedFolder);
+
+    foreach (const QString &file, m_recursiveEnumerateFiles) {
+        if (!file.startsWith(changedFolder))
+            newFiles.insert(file);
     }
 
     QSet<QString> addedFiles = newFiles;
