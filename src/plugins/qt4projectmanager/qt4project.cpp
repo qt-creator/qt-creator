@@ -587,6 +587,14 @@ void Qt4Project::updateQmlJSCodeModel()
     foreach (Qt4ProFileNode *node, proFiles) {
         projectInfo.importPaths.append(node->variableValue(QmlImportPathVar));
     }
+    if (activeTarget() && activeTarget()->activeBuildConfiguration()) {
+        const QtVersion *qtVersion = activeTarget()->activeBuildConfiguration()->qtVersion();
+        if (qtVersion->isValid()) {
+            const QString qtVersionImportPath = qtVersion->versionInfo().value("QT_INSTALL_IMPORTS");
+            if (!qtVersionImportPath.isEmpty())
+                projectInfo.importPaths += qtVersionImportPath;
+        }
+    }
     projectInfo.importPaths.removeDuplicates();
 
     if (projectInfo.qmlDumpPath.isNull()) {
