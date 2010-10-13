@@ -165,6 +165,15 @@ int QmlProjectRunConfiguration::qtVersionId() const
     return m_qtVersionId;
 }
 
+void QmlProjectRunConfiguration::setQtVersionId(int id)
+{
+    if (m_qtVersionId == id)
+        return;
+
+    m_qtVersionId = id;
+    qmlTarget()->qmlProject()->refresh(QmlProject::Configuration);
+}
+
 Qt4ProjectManager::QtVersion *QmlProjectRunConfiguration::qtVersion() const
 {
     if (m_qtVersionId == -1)
@@ -311,7 +320,7 @@ void QmlProjectRunConfiguration::onQtVersionSelectionChanged()
 {
     QVariant data = m_qtVersionComboBox.data()->itemData(m_qtVersionComboBox.data()->currentIndex());
     QTC_ASSERT(data.isValid() && data.canConvert(QVariant::Int), return)
-    m_qtVersionId = data.toInt();
+    setQtVersionId(data.toInt());
     updateEnabled();
 }
 
@@ -348,7 +357,7 @@ QVariantMap QmlProjectRunConfiguration::toMap() const
 
 bool QmlProjectRunConfiguration::fromMap(const QVariantMap &map)
 {
-    m_qtVersionId = map.value(QLatin1String(Constants::QML_VIEWER_QT_KEY), -1).toInt();
+    setQtVersionId(map.value(QLatin1String(Constants::QML_VIEWER_QT_KEY), -1).toInt());
     m_qmlViewerArgs = map.value(QLatin1String(Constants::QML_VIEWER_ARGUMENTS_KEY)).toString();
     m_scriptFile = map.value(QLatin1String(Constants::QML_MAINSCRIPT_KEY), M_CURRENT_FILE).toString();
 
@@ -411,14 +420,15 @@ void QmlProjectRunConfiguration::updateQtVersions()
     //
     if (!qtVersions->isValidId(m_qtVersionId)
             || !isValidVersion(qtVersions->version(m_qtVersionId))) {
-        m_qtVersionId = -1;
+        int newVersionId = -1;
         // take first one you find
         foreach (Qt4ProjectManager::QtVersion *version, qtVersions->validVersions()) {
             if (isValidVersion(version)) {
-                m_qtVersionId = version->uniqueId();
+                newVersionId = version->uniqueId();
                 break;
             }
         }
+        setQtVersionId(newVersionId);
     }
 
     updateEnabled();
