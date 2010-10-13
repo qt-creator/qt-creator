@@ -29,17 +29,10 @@
 
 #include <qglobal.h>
 
-namespace Locator {
-struct FilterEntry;
-}
-
-QT_BEGIN_NAMESPACE
-unsigned int qHash(const Locator::FilterEntry &entry);
-QT_END_NAMESPACE
-
 #include "locatorwidget.h"
 #include "locatorplugin.h"
 #include "locatorconstants.h"
+#include "ilocatorfilter.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>
@@ -117,20 +110,18 @@ private:
 };
 
 } // namespace Internal
+
+uint qHash(const FilterEntry &entry)
+{
+    if (entry.internalData.canConvert(QVariant::String))
+        return QT_PREPEND_NAMESPACE(qHash)(entry.internalData.toString());
+    return QT_PREPEND_NAMESPACE(qHash)(entry.internalData.constData());
+}
+
 } // namespace Locator
 
 using namespace Locator;
 using namespace Locator::Internal;
-
-QT_BEGIN_NAMESPACE
-uint qHash(const FilterEntry &entry)
-{
-    if (entry.internalData.canConvert(QVariant::String))
-        return qHash(entry.internalData.toString());
-    return qHash(entry.internalData.constData());
-}
-QT_END_NAMESPACE
-
 
 // =========== LocatorModel ===========
 
