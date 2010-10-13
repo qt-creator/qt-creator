@@ -671,6 +671,7 @@ void BreakHandler::saveSessionData()
 void BreakHandler::initMasterList()
 {
     if (m_bp) {
+        qDeleteAll(*m_bp);
         delete m_bp;
     }
     m_masterList = true;
