@@ -4375,7 +4375,7 @@
 
     \section1 Using Version Control Systems
 
-    The \gui{Tools} menu contains a sub-menu for each supported version
+    The \gui{Tools} menu contains a submenu for each supported version
     control system.
 
     The \gui{Version Control} output pane displays the commands
@@ -4601,7 +4601,7 @@
     Control > Perforce}. If you do not use Perforce and want to turn
     off the check, clear this field.
 
-    The \gui Perforce sub-menu contains the following additional items:
+    The \gui Perforce submenu contains the following additional items:
 
     \table
         \row
@@ -4625,7 +4625,7 @@
 
     \section2 Using Additional Subversion Functions
 
-    The \gui Subversion sub-menu contains the following additional items:
+    The \gui Subversion submenu contains the following additional items:
 
     \table
         \row
@@ -5315,7 +5315,7 @@
 
        \o To finish debugging, press \key{Shift+F5}.
        \o  To execute a line of code as a whole, press \key{F10}.
-       \o  To step into a function or a sub-function, press \key{F11}.
+       \o  To step into a function or a subfunction, press \key{F11}.
        \o  To continue running the program, press \key{F5}.
 
     \endlist
@@ -8031,12 +8031,12 @@
            items with names consisting of plain characters, numbers,
            underscores, and hyphens.
 
-        \o There is no IDE support for adding or removing sub-projects. Project
+        \o There is no IDE support for adding or removing subprojects. Project
            hierarchies (SUBDIRS template) have to be created manually.
 
         \o Creating new CMake projects with Qt Creator is not supported.
 
-        \o Building and packaging sub-projects is not supported for Maemo devices.
+        \o Building and packaging subprojects is not supported for Maemo devices.
 
         \o You must create projects for Maemo targets on the same partition where
         you installed Nokia Qt SDK, Qt Creator, and MADDE.
