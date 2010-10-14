@@ -4304,7 +4304,9 @@ bool BaseTextEditor::openLink(const Link &link)
         return true;
     }
 
-    return openEditorAt(link.fileName, link.line, link.column);
+    return openEditorAt(link.fileName, link.line, link.column, QString(),
+                          Core::EditorManager::IgnoreNavigationHistory
+                        | Core::EditorManager::ModeSwitch);
 }
 
 void BaseTextEditor::updateLink(QMouseEvent *e)

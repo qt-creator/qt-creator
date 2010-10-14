@@ -44,6 +44,7 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <QtCore/QFileInfo>
+#include <QtCore/QDir>
 #include <QtGui/QMenu>
 
 using namespace Qt4ProjectManager;
@@ -107,6 +108,95 @@ void ProFileEditor::unCommentSelection()
     Utils::unCommentSelection(this, m_commentDefinition);
 }
 
+static bool isValidFileNameChar(const QChar &c)
+{
+    if (c.isLetterOrNumber()
+            || c == QLatin1Char('.')
+            || c == QLatin1Char('_')
+            || c == QLatin1Char('-')
+            || c == QLatin1Char('/')
+            || c == QLatin1Char('\\'))
+        return true;
+    return false;
+}
+
+ProFileEditor::Link ProFileEditor::findLinkAt(const QTextCursor &cursor,
+                                      bool resolveTarget)
+{
+    Link link;
+
+    int lineNumber = 0, positionInBlock = 0;
+    convertPosition(cursor.position(), &lineNumber, &positionInBlock);
+
+    const QString block = cursor.block().text();
+
+    // check if the current position is commented out
+    const int hashPos = block.indexOf(QLatin1Char('#'));
+    if (hashPos >= 0 && hashPos < positionInBlock)
+        return link;
+
+    // find the beginning of a filename
+    QString buffer;
+    int beginPos = positionInBlock - 1;
+    while (beginPos >= 0) {
+        QChar c = block.at(beginPos);
+        if (isValidFileNameChar(c)) {
+            buffer.prepend(c);
+            beginPos--;
+        } else {
+            break;
+        }
+    }
+
+    // find the end of a filename
+    int endPos = positionInBlock;
+    while (endPos < block.count()) {
+        QChar c = block.at(endPos);
+        if (isValidFileNameChar(c)) {
+            buffer.append(c);
+            endPos++;
+        } else {
+            break;
+        }
+    }
+
+    if (buffer.isEmpty())
+        return link;
+
+    // remove trailing '\' since it can be line continuation char
+    if (buffer.at(buffer.size() - 1) == QLatin1Char('\\')) {
+        buffer.chop(1);
+        endPos--;
+    }
+
+    // if the buffer starts with $$PWD accept it
+    if (buffer.startsWith(QLatin1String("PWD/")) ||
+            buffer.startsWith(QLatin1String("PWD\\"))) {
+        if (beginPos > 0 && block.mid(beginPos - 1, 2) == QLatin1String("$$")) {
+            beginPos -=2;
+            buffer = buffer.mid(4);
+        }
+    }
+
+    QDir dir(QFileInfo(file()->fileName()).absolutePath());
+    QString fileName = dir.filePath(buffer);
+    QFileInfo fi(fileName);
+    if (fi.exists()) {
+        if (fi.isDir()) {
+            QDir subDir(fi.absoluteFilePath());
+            QString subProject = subDir.filePath(subDir.dirName() + QLatin1String(".pro"));
+            if (QFileInfo(subProject).exists())
+                fileName = subProject;
+            else
+                return link;
+        }
+        link.fileName = fileName;
+        link.begin = cursor.position() - positionInBlock + beginPos + 1;
+        link.end = cursor.position() - positionInBlock + endPos;
+    }
+    return link;
+}
+
 TextEditor::BaseTextEditorEditable *ProFileEditor::createEditableInterface()
 {
     return new ProFileEditorEditable(this);
@@ -167,6 +257,11 @@ void ProFileEditor::addLibrary()
         snippet = QLatin1Char('\n') + snippet;
 
     editable->insert(snippet);
+}
+
+void ProFileEditor::jumpToFile()
+{
+    openLink(findLinkAt(textCursor()));
 }
 
 //

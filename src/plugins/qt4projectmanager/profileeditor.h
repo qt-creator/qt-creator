@@ -82,12 +82,14 @@ public:
 
     void unCommentSelection();
 protected:
+    virtual Link findLinkAt(const QTextCursor &, bool resolveTarget = true);
     TextEditor::BaseTextEditorEditable *createEditableInterface();
     void contextMenuEvent(QContextMenuEvent *);
 
 public slots:
     virtual void setFontSettings(const TextEditor::FontSettings &);
     void addLibrary();
+    void jumpToFile();
 
 private:
     ProFileEditorFactory *m_factory;

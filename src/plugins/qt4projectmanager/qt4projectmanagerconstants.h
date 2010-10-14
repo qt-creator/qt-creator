@@ -65,6 +65,8 @@ const char * const BUILDSUBDIR         = "Qt4Builder.BuildSubDir";
 const char * const REBUILDSUBDIR       = "Qt4Builder.RebuildSubDir";
 const char * const CLEANSUBDIR         = "Qt4Builder.CleanSubDir";
 const char * const ADDLIBRARY          = "Qt4.AddLibrary";
+const char * const JUMP_TO_FILE        = "Qt4.JumpToFile";
+const char * const SEPARATOR           = "Qt4.Separator";
 
 //configurations
 const char * const CONFIG_DEBUG     = "debug";

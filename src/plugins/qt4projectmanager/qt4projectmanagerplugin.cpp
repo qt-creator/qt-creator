@@ -232,17 +232,29 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     Core::Command *cmd;
 
-    cmd = am->command(TextEditor::Constants::UN_COMMENT_SELECTION);
-    contextMenu->addAction(cmd);
-
     Core::Context proFileEditorContext = Core::Context(Qt4ProjectManager::Constants::PROJECT_ID);
+
+    QAction *jumpToFile = new QAction(tr("Jump to File Under Cursor"), this);
+    cmd = am->registerAction(jumpToFile,
+        Constants::JUMP_TO_FILE, proFileEditorContext);
+    cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F2));
+    connect(jumpToFile, SIGNAL(triggered()),
+            this, SLOT(jumpToFile()));
+    contextMenu->addAction(cmd);
 
     QAction *addLibrary = new QAction(tr("Add Library..."), this);
     cmd = am->registerAction(addLibrary,
         Constants::ADDLIBRARY, proFileEditorContext);
-    //cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F2));
     connect(addLibrary, SIGNAL(triggered()),
             this, SLOT(addLibrary()));
+    contextMenu->addAction(cmd);
+
+    QAction *separator = new QAction(this);
+    separator->setSeparator(true);
+    contextMenu->addAction(am->registerAction(separator,
+                  Core::Id(Constants::SEPARATOR), proFileEditorContext));
+
+    cmd = am->command(TextEditor::Constants::UN_COMMENT_SELECTION);
     contextMenu->addAction(cmd);
 
     return true;
@@ -304,6 +316,14 @@ void Qt4ProjectManagerPlugin::addLibrary()
     ProFileEditor *editor = qobject_cast<ProFileEditor*>(em->currentEditor()->widget());
     if (editor)
         editor->addLibrary();
+}
+
+void Qt4ProjectManagerPlugin::jumpToFile()
+{
+    Core::EditorManager *em = Core::EditorManager::instance();
+    ProFileEditor *editor = qobject_cast<ProFileEditor*>(em->currentEditor()->widget());
+    if (editor)
+        editor->jumpToFile();
 }
 
 #ifdef WITH_TESTS
