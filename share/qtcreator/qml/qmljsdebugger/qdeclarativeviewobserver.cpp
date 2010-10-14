@@ -716,9 +716,11 @@ void QDeclarativeViewObserverPrivate::_q_onCurrentObjectsChanged(QList<QObject*>
                 gfxObjects << gfxObj;
         }
     }
-    setSelectedItemsForTools(items);
-    clearHighlight();
-    highlight(gfxObjects, QDeclarativeViewObserverPrivate::IgnoreContext);
+    if (designModeBehavior) {
+        setSelectedItemsForTools(items);
+        clearHighlight();
+        highlight(gfxObjects, QDeclarativeViewObserverPrivate::IgnoreContext);
+    }
 }
 
 QString QDeclarativeViewObserver::idStringForObject(QObject *obj)
