@@ -62,7 +62,7 @@ bool CloneWizardPagePrivate::urlIsLocal(const QString &url)
 {
     if (url.startsWith(QLatin1String("file://"))
         || url.startsWith(QLatin1Char('/'))
-        || url.at(0).isLetter() && url.at(1) == QChar(':') && url.at(2) == QChar('\\'))
+        || (url.at(0).isLetter() && url.at(1) == QChar(':') && url.at(2) == QChar('\\')))
         return true;
     return false;
 }
