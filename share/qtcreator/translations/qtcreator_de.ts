@@ -15638,6 +15638,18 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <source>&lt;b&gt;Debugging details:&lt;/b&gt; Use gdbserver</source>
         <translation>&lt;b&gt;Debuggereinstellung:&lt;/b&gt; Benutze Gdb-Server</translation>
     </message>
+    <message>
+        <source>Cancel Fetch Operation</source>
+        <translation>Abfragen der Umgebung abbrechen</translation>
+    </message>
+    <message>
+        <source>Device error</source>
+        <translation>Gerätefehler</translation>
+    </message>
+    <message>
+        <source>Fetching environment failed: %1</source>
+        <translation>Das Abfragen der Umgebung schlug fehl: %1</translation>
+    </message>
     <message numerus="yes">
         <source>%n local directories to be mounted on the device.</source>
         <extracomment>Note: Only mountCount&gt;1 will occur here as 0, 1 are handled above.</extracomment>
@@ -18073,6 +18085,10 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
     </message>
     <message>
         <source>&lt;b&gt;Package Manager Icon:&lt;/b&gt;</source>
+        <translation type="obsolete">&lt;b&gt;Paketverwaltungs-Icon:&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Package Manager icon:&lt;/b&gt;</source>
         <translation>&lt;b&gt;Paketverwaltungs-Icon:&lt;/b&gt;</translation>
     </message>
 </context>
@@ -18850,15 +18866,15 @@ Ids müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     <name>MaemoDeployableListWidget</name>
     <message>
         <source>Form</source>
-        <translation>Form</translation>
+        <translation type="obsolete">Form</translation>
     </message>
     <message>
         <source>Add File to Package</source>
-        <translation>Datei zu Paket hinzufügen</translation>
+        <translation type="obsolete">Datei zu Paket hinzufügen</translation>
     </message>
     <message>
         <source>Remove File from Package</source>
-        <translation>Datei aus Paket entfernen</translation>
+        <translation type="obsolete">Datei aus Paket entfernen</translation>
     </message>
 </context>
 <context>
@@ -18881,7 +18897,11 @@ Ids müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Files to install:&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Zu installierende Dateien:&lt;/b&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;Zu installierende Dateien:&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Files to install for subproject:&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Zu installierende Dateien des Unterprojektes:&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
@@ -20469,15 +20489,15 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     <name>Qt4ProjectManager::Internal::MaemoDeployableListWidget</name>
     <message>
         <source>Choose a local file</source>
-        <translation>Lokale Datei</translation>
+        <translation type="obsolete">Lokale Datei</translation>
     </message>
     <message>
         <source>Error adding file</source>
-        <translation>Fehler beim Hinzufügen der Datei</translation>
+        <translation type="obsolete">Fehler beim Hinzufügen der Datei</translation>
     </message>
     <message>
         <source>Error removing file</source>
-        <translation>Fehler beim Entfernen der Datei</translation>
+        <translation type="obsolete">Fehler beim Entfernen der Datei</translation>
     </message>
 </context>
 <context>
@@ -20610,6 +20630,12 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     <message>
         <source>Error running remote process: %1</source>
         <translation>Fehler bei Ausführung des Prozesses auf dem Gerät: %1</translation>
+    </message>
+    <message>
+        <source>
+Remote stderr was: &apos;%1&apos;</source>
+        <translation>
+Fehlerausgabe: &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
