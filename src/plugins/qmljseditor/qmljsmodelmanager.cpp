@@ -472,6 +472,8 @@ void ModelManager::onLoadPluginTypes(const QString &libraryPath, const QString &
     const QString canonicalLibraryPath = QDir::cleanPath(libraryPath);
     if (m_runningQmldumps.values().contains(canonicalLibraryPath))
         return;
+    if (_snapshot.libraryInfo(canonicalLibraryPath).isDumped())
+        return;
 
     ProjectExplorer::Project *activeProject = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
     if (!activeProject)
@@ -526,36 +528,33 @@ void ModelManager::qmlPluginTypeDumpDone(int exitCode)
     process->deleteLater();
 
     const QString libraryPath = m_runningQmldumps.take(process);
+    LibraryInfo libraryInfo = _snapshot.libraryInfo(libraryPath);
+    libraryInfo.setDumped(true);
 
     if (exitCode != 0) {
         Core::MessageManager *messageManager = Core::MessageManager::instance();
         messageManager->printToOutputPane(qmldumpErrorMessage(libraryPath, process->readAllStandardError()));
-        return;
     }
 
     const QByteArray output = process->readAllStandardOutput();
     QMap<QString, Interpreter::FakeMetaObject *> newObjects;
     const QString error = Interpreter::CppQmlTypesLoader::parseQmlTypeXml(output, &newObjects);
-    if (!error.isEmpty())
-        return;
 
-    // convert from QList<T *> to QList<const T *>
-    QList<const Interpreter::FakeMetaObject *> objectsList;
-    QMapIterator<QString, Interpreter::FakeMetaObject *> it(newObjects);
-    while (it.hasNext()) {
-        it.next();
-        objectsList.append(it.value());
-    }
-
-    QMutexLocker locker(&m_mutex);
-
-    if (!libraryPath.isEmpty()) {
-        LibraryInfo libraryInfo = _snapshot.libraryInfo(libraryPath);
+    if (exitCode == 0 && error.isEmpty()) {
+        // convert from QList<T *> to QList<const T *>
+        QList<const Interpreter::FakeMetaObject *> objectsList;
+        QMapIterator<QString, Interpreter::FakeMetaObject *> it(newObjects);
+        while (it.hasNext()) {
+            it.next();
+            objectsList.append(it.value());
+        }
         libraryInfo.setMetaObjects(objectsList);
-        _snapshot.insertLibraryInfo(libraryPath, libraryInfo);
-    } else {
-        Interpreter::CppQmlTypesLoader::builtinObjects.append(objectsList);
+        if (libraryPath.isEmpty())
+            Interpreter::CppQmlTypesLoader::builtinObjects.append(objectsList);
     }
+
+    if (!libraryPath.isEmpty())
+        emitLibraryInfoUpdated(libraryPath, libraryInfo);
 }
 
 void ModelManager::qmlPluginTypeDumpError(QProcess::ProcessError)
@@ -569,4 +568,10 @@ void ModelManager::qmlPluginTypeDumpError(QProcess::ProcessError)
 
     Core::MessageManager *messageManager = Core::MessageManager::instance();
     messageManager->printToOutputPane(qmldumpErrorMessage(libraryPath, process->readAllStandardError()));
+
+    if (!libraryPath.isEmpty()) {
+        LibraryInfo libraryInfo = _snapshot.libraryInfo(libraryPath);
+        libraryInfo.setDumped(true);
+        emitLibraryInfoUpdated(libraryPath, libraryInfo);
+    }
 }
