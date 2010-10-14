@@ -85,7 +85,7 @@ MaemoTemplatesManager::MaemoTemplatesManager(QObject *parent) : QObject(parent)
         SLOT(handleActiveProjectChanged(ProjectExplorer::Project*)));
     connect(session, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
         this, SLOT(handleProjectToBeRemoved(ProjectExplorer::Project*)));
-    handleActiveProjectChanged(session->startupProject());    
+    handleActiveProjectChanged(session->startupProject());
 }
 
 void MaemoTemplatesManager::handleActiveProjectChanged(ProjectExplorer::Project *project)
@@ -113,7 +113,7 @@ bool MaemoTemplatesManager::handleTarget(ProjectExplorer::Target *target)
     const Qt4Target * const qt4Target = qobject_cast<Qt4Target *>(target);
     const MaemoDeployStep * const deployStep
         = MaemoGlobal::buildStep<MaemoDeployStep>(qt4Target->activeDeployConfiguration());
-    connect(deployStep->deployables(), SIGNAL(modelsCreated()), this,
+    connect(deployStep->deployables(), SIGNAL(modelReset()), this,
         SLOT(handleProFileUpdated()), Qt::QueuedConnection);
 
     Project * const project = target->project();

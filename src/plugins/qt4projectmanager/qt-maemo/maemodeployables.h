@@ -45,9 +45,9 @@
 #include "maemodeployable.h"
 #include "maemodeployablelistmodel.h"
 
+#include <QtCore/QAbstractListModel>
 #include <QtCore/QHash>
 #include <QtCore/QList>
-#include <QtCore/QObject>
 #include <QtCore/QSharedPointer>
 
 QT_FORWARD_DECLARE_CLASS(QTimer);
@@ -61,7 +61,7 @@ namespace Internal {
 class Qt4BuildConfiguration;
 class Qt4ProFileNode;
 
-class MaemoDeployables : public QObject
+class MaemoDeployables : public QAbstractListModel
 {
     Q_OBJECT
 public:
@@ -76,11 +76,11 @@ public:
     MaemoDeployableListModel *modelAt(int i) const { return m_listModels.at(i); }
     const ProjectExplorer::BuildStep *buildStep() const { return m_buildStep; }
 
-signals:
-    void modelsCreated();
-
 private:
     typedef QHash<QString, MaemoDeployableListModel::ProFileUpdateSetting> UpdateSettingsMap;
+
+    virtual int rowCount(const QModelIndex &parent) const;
+    virtual QVariant data(const QModelIndex &index, int role) const;
 
     Q_SLOT void createModels();
     Q_SLOT void init();
