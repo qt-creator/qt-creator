@@ -161,7 +161,7 @@ QVariant MaemoDeployableListModel::data(const QModelIndex &index, int role) cons
 
     const MaemoDeployable &d = deployableAt(index.row());
     if (index.column() == 0 && role == Qt::DisplayRole)
-        return d.localFilePath;
+        return QDir::toNativeSeparators(d.localFilePath);
     if (role == Qt::DisplayRole || role == Qt::EditRole)
         return d.remoteDir;
     return QVariant();
