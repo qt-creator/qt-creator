@@ -8,6 +8,7 @@ INCLUDEPATH += $$PWD
 QT += network
 
 SOURCES += $$PWD/environment.cpp \
+    $$PWD/qtcprocess.cpp \
     $$PWD/reloadpromptutils.cpp \
     $$PWD/stringutils.cpp \
     $$PWD/filesearch.cpp \
@@ -66,6 +67,7 @@ unix:!macx {
     SOURCES += $$PWD/unixutils.cpp
 }
 HEADERS += $$PWD/environment.h \
+    $$PWD/qtcprocess.h \
     $$PWD/utils_global.h \
     $$PWD/reloadpromptutils.h \
     $$PWD/stringutils.h \

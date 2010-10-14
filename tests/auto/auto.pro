@@ -12,6 +12,7 @@ SUBDIRS += \
 #    icheckbuild \
 #    profilewriter \
     ioutils \
+    qtcprocess \
     utils_stringutils \
     filesearch
 
