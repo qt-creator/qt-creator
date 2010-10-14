@@ -241,7 +241,7 @@ bool Bind::visit(UiObjectDefinition *ast)
     // think anchors { ... }
     bool isGroupedBinding = false;
     for (UiQualifiedId *it = ast->qualifiedTypeNameId; it; it = it->next) {
-        if (!it->next)
+        if (!it->next && it->name)
             isGroupedBinding = it->name->asString().at(0).isLower();
     }
 

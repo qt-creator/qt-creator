@@ -468,7 +468,7 @@ private:
 
     bool checkBindingName(UiQualifiedId *id)
     {
-        if (id && !id->next && containsOffset(id->identifierToken)) {
+        if (id && id->name && !id->next && containsOffset(id->identifierToken)) {
             _result.second = id->name->asString();
             return true;
         }
