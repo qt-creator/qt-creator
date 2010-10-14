@@ -161,7 +161,8 @@ static QtVersion *qtVersionForProject(ProjectExplorer::Project *project)
 
     if (project && project->id() == QLatin1String("QmlProjectManager.QmlProject")) {
         // We cannot access the QmlProject interfaces here, therefore use the metatype system
-        QTC_ASSERT(project->activeTarget() && project->activeTarget()->activeRunConfiguration(), return 0);
+        if (!project->activeTarget() || !project->activeTarget()->activeRunConfiguration())
+            return 0;
         QVariant variant = project->activeTarget()->activeRunConfiguration()->property("qtVersionId");
         QTC_ASSERT(variant.isValid() && variant.canConvert(QVariant::Int), return 0);
         QtVersion *version = QtVersionManager::instance()->version(variant.toInt());
