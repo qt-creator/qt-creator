@@ -2,4 +2,5 @@ TEMPLATE = subdirs
 
 SUBDIRS +=  qmldesigner \
 #            qmleditor \
-            qmlprojectmanager
+            qmlprojectmanager \
+            codemodel
