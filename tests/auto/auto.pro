@@ -9,6 +9,7 @@ SUBDIRS += \
     generichighlighter \
 #    icheckbuild \
 #    profilewriter \
+    ioutils \
     utils_stringutils \
     filesearch
 

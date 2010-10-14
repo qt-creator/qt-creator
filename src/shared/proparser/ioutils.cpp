@@ -88,115 +88,60 @@ QString IoUtils::resolvePath(const QString &baseDir, const QString &fileName)
     return QDir::cleanPath(baseDir + QLatin1Char('/') + fileName);
 }
 
-#ifdef Q_OS_WIN
-
-// FIXME: Without this, quoting is not foolproof. But it needs support in the process setup, etc.
-//#define PERCENT_ESCAPE QLatin1String("%PERCENT_SIGN%")
-
-static QString quoteArgInternal(const QString &arg)
-{
-    // Escape quotes, preceding backslashes are doubled. Surround with quotes.
-    // Note that cmd does not understand quote escapes in quoted strings,
-    // so the quoting needs to be "suspended".
-    const QLatin1Char bs('\\'), dq('"');
-    QString ret;
-    bool inquote = false;
-    int bslashes = 0;
-    for (int p = 0; p < arg.length(); p++) {
-        if (arg[p] == bs) {
-            bslashes++;
-        } else if (arg[p] == dq) {
-            if (inquote) {
-                ret.append(dq);
-                inquote = false;
-            }
-            for (; bslashes; bslashes--)
-                ret.append(QLatin1String("\\\\"));
-            ret.append(QLatin1String("\\^\""));
-        } else {
-            if (!inquote) {
-                ret.append(dq);
-                inquote = true;
-            }
-            for (; bslashes; bslashes--)
-                ret.append(bs);
-            ret.append(arg[p]);
-        }
-    }
-    //ret.replace(QLatin1Char('%'), PERCENT_ESCAPE);
-    if (bslashes) {
-        // Ensure that we don't have directly trailing backslashes,
-        // so concatenating with another string won't cause surprises.
-        if (!inquote)
-            ret.append(dq);
-        for (; bslashes; bslashes--)
-            ret.append(QLatin1String("\\\\"));
-        ret.append(dq);
-    } else if (inquote) {
-        ret.append(dq);
-    }
-    return ret;
-}
-
 inline static bool isSpecialChar(ushort c)
 {
     // Chars that should be quoted (TM). This includes:
+#ifdef Q_OS_WIN
     // - control chars & space
-    // - the shell meta chars &()<>^|
+    // - the shell meta chars "&()<>^|
     // - the potential separators ,;=
     static const uchar iqm[] = {
-        0xff, 0xff, 0xff, 0xff, 0x41, 0x13, 0x00, 0x78,
+        0xff, 0xff, 0xff, 0xff, 0x45, 0x13, 0x00, 0x78,
         0x00, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00, 0x10
     };
-
-    return (c < sizeof(iqm) * 8) && (iqm[c / 8] & (1 << (c & 7)));
-}
-
-QString IoUtils::shellQuote(const QString &arg)
-{
-    if (arg.isEmpty())
-        return QString::fromLatin1("\"\"");
-
-    // Ensure that we don't have directly trailing backslashes,
-    // so concatenating with another string won't cause surprises.
-    if (arg.endsWith(QLatin1Char('\\')))
-        return quoteArgInternal(arg);
-
-    for (int x = arg.length() - 1; x >= 0; --x)
-        if (isSpecialChar(arg[x].unicode()))
-            return quoteArgInternal(arg);
-
-    // Escape quotes. Preceding backslashes are doubled.
-    // Note that the remaining string is not quoted.
-    QString ret(arg);
-    ret.replace(QRegExp(QLatin1String("(\\\\*)\"")), QLatin1String("\\1\\1\\^\""));
-    //ret.replace('%', PERCENT_ESCAPE);
-    return ret;
-}
-
-#else // Q_OS_WIN
-
-inline static bool isSpecial(QChar cUnicode)
-{
+#else
     static const uchar iqm[] = {
         0xff, 0xff, 0xff, 0xff, 0xdf, 0x07, 0x00, 0xd8,
         0x00, 0x00, 0x00, 0x38, 0x01, 0x00, 0x00, 0x78
     }; // 0-32 \'"$`<>|;&(){}*?#!~[]
+#endif
 
-    uint c = cUnicode.unicode();
     return (c < sizeof(iqm) * 8) && (iqm[c / 8] & (1 << (c & 7)));
+}
+
+inline static bool hasSpecialChars(const QString &arg)
+{
+    for (int x = arg.length() - 1; x >= 0; --x)
+        if (isSpecialChar(arg.unicode()[x].unicode()))
+            return true;
+    return false;
 }
 
 QString IoUtils::shellQuote(const QString &arg)
 {
     if (!arg.length())
-        return QString::fromLatin1("''");
-    for (int i = 0; i < arg.length(); i++)
-        if (isSpecial(arg.unicode()[i])) {
-            const QLatin1Char q('\'');
-            return q + QString(arg).replace(q, QLatin1String("'\\''")) + q;
-        }
-    return arg;
-}
+        return QString::fromLatin1("\"\"");
 
+    QString ret(arg);
+    if (hasSpecialChars(ret)) {
+#ifdef Q_OS_WIN
+        // Quotes are escaped and their preceding backslashes are doubled.
+        // It's impossible to escape anything inside a quoted string on cmd
+        // level, so the outer quoting must be "suspended".
+        ret.replace(QRegExp(QLatin1String("(\\\\*)\"")), QLatin1String("\"\\1\\1\\^\"\""));
+        // The argument must not end with a \ since this would be interpreted
+        // as escaping the quote -- rather put the \ behind the quote: e.g.
+        // rather use "foo"\ than "foo\"
+        int i = ret.length();
+        while (i > 0 && ret.at(i - 1) == QLatin1Char('\\'))
+            --i;
+        ret.insert(i, QLatin1Char('"'));
+        ret.prepend(QLatin1Char('"'));
+#else // Q_OS_WIN
+        ret.replace(QLatin1Char('\''), QLatin1String("'\\''"));
+        ret.prepend(QLatin1Char('\''));
+        ret.append(QLatin1Char('\''));
 #endif // Q_OS_WIN
+    }
+    return ret;
+}
