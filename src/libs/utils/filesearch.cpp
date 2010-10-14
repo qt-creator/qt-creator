@@ -119,36 +119,18 @@ void runFileSearch(QFutureInterface<FileSearchResultList> &future,
             stream.setCodec(files->encoding());
         }
 
-        int lineNr = 1;
-        const QChar *startOfLastLine = NULL;
-        bool firstChunk = true;
+        int lineNr = 0;
         while (!stream.atEnd()) {
-            int chunkProcessingStart = 0;
-            if (!firstChunk) {
-                // we need one additional char to the left and right
-                // for whole word searches
-                // so we jump back two additional chars, and start at index 1
-                stream.seek(stream.pos() - termLength - 1);
-                chunkProcessingStart = 1;
-            }
-            firstChunk = false;
-
-            const QString chunk = stream.read(chunkSize);
+            ++lineNr;
+            const QString chunk = stream.readLine();
             int chunkLength = chunk.length();
             const QChar *chunkPtr = chunk.constData();
-            // we need one additional char to the right for whole word searches,
-            // except at the very end
-            const QChar *chunkProcessingEnd = (stream.atEnd() ? chunkPtr + chunkLength : chunkPtr + chunkLength - 1);
-
-            startOfLastLine = chunkPtr;
-            for (const QChar *regionPtr = chunkPtr + chunkProcessingStart;
-                    regionPtr + termMaxIndex < chunkProcessingEnd;
+            const QChar *chunkEnd = chunkPtr + chunkLength - 1;
+            for (const QChar *regionPtr = chunkPtr;
+                    regionPtr + termMaxIndex <= chunkEnd;
                     ++regionPtr) {
                 const QChar *regionEnd = regionPtr + termMaxIndex;
-                if (*regionPtr == QLatin1Char('\n')) {
-                    startOfLastLine = regionPtr + 1;
-                    ++lineNr;
-                } else if ( /* optimization check for start and end of region */
+                if ( /* optimization check for start and end of region */
                         // case sensitive
                         (!caseInsensitive && *regionPtr == termData[0] && *regionEnd == termData[termMaxIndex])
                         ||
@@ -163,7 +145,7 @@ void runFileSearch(QFutureInterface<FileSearchResultList> &future,
                     const QChar *afterRegion = regionEnd + 1;
                     if (wholeWord && (
                             ((beforeRegion >= chunkPtr) && (beforeRegion->isLetterOrNumber() || ((*beforeRegion) == QLatin1Char('_')))) ||
-                            ((afterRegion < chunkPtr + chunkLength) && (afterRegion->isLetterOrNumber() || ((*afterRegion) == QLatin1Char('_'))))
+                            ((afterRegion <= chunkEnd) && (afterRegion->isLetterOrNumber() || ((*afterRegion) == QLatin1Char('_'))))
                             )) {
                         equal = false;
                     }
@@ -184,20 +166,10 @@ void runFileSearch(QFutureInterface<FileSearchResultList> &future,
                         }
                     }
                     if (equal) {
-                        int textLength = chunkLength - (startOfLastLine - chunkPtr);
-                        if (textLength > 0) {
-                            QString res;
-                            res.reserve(256);
-                            int i = 0;
-                            int n = 0;
-                            while (startOfLastLine[i] != QLatin1Char('\n') && startOfLastLine[i] != QLatin1Char('\r') && i < textLength && n++ < 256)
-                                res.append(startOfLastLine[i++]);
-                            res.squeeze();
-                            results << FileSearchResult(s, lineNr, res,
-                                                          regionPtr - startOfLastLine, termLength,
-                                                          QStringList());
-                            ++numMatches;
-                        }
+                        results << FileSearchResult(s, lineNr, chunk,
+                                                      regionPtr - chunkPtr, termLength,
+                                                      QStringList());
+                        ++numMatches;
                     }
                 }
             }
