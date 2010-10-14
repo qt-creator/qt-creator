@@ -2461,7 +2461,7 @@ Sollen sie überschrieben werden?</translation>
     </message>
     <message>
         <source>Edit Breakpoint...</source>
-        <translation>Haltepunkts bearbeiten...</translation>
+        <translation>Haltepunkt bearbeiten...</translation>
     </message>
     <message>
         <source>Associate Breakpoint With All Threads</source>
