@@ -351,6 +351,9 @@ void SelectionTool::wheelEvent(QWheelEvent *event)
 
     QList<QGraphicsItem*> itemList = QDeclarativeViewObserverPrivate::get(observer())->selectableItems(event->pos());
 
+    if (itemList.isEmpty())
+        return;
+
     int selectedIdx = 0;
     if (!observer()->selectedItems().isEmpty()) {
         selectedIdx = itemList.indexOf(observer()->selectedItems().first());
