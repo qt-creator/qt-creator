@@ -287,7 +287,8 @@ void MaemoRunConfigurationWidget::argumentsEdited(const QString &text)
 
 void MaemoRunConfigurationWidget::updateTargetInformation()
 {
-    m_localExecutableLabel->setText(m_runConfiguration->localExecutableFilePath());
+    m_localExecutableLabel
+        ->setText(QDir::toNativeSeparators(m_runConfiguration->localExecutableFilePath()));
 }
 
 void MaemoRunConfigurationWidget::handleDeploySpecsChanged()
