@@ -3,9 +3,8 @@
 <snippet>property <tab>type</tab> <tab>name</tab>: <tab>value</tab>
 </snippet>
 <snippet>Item {
-	id: <tab>name</tab>
-	
-	}
+    id: <tab>name</tab>
+}
 </snippet>
 <snippet>BorderImage {
     id: <tab>name</tab>
