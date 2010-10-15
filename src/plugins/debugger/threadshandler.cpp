@@ -43,23 +43,6 @@ namespace Internal {
 // ThreadsHandler
 //
 ///////////////////////////////////////////////////////////////////////
-
-ThreadData::ThreadData(int threadId)
-{
-    notifyRunning();
-    id = threadId;
-}
-
-void ThreadData::notifyRunning()
-{
-    address = 0;
-    function.clear();
-    fileName.clear();
-    frameLevel = -1;
-    state.clear();
-    lineNumber = -1;
-}
-
 static inline QString threadToolTip(const ThreadData &thread)
 {
     const char tableRowStartC[] = "<tr><td>";
@@ -239,7 +222,7 @@ void ThreadsHandler::setCurrentThreadId(int id)
     }
 }
 
-int ThreadsHandler::indexOf(int threadId) const
+int ThreadsHandler::indexOf(quint64 threadId) const
 {
     const int count = m_threads.size();
     for(int i = 0; i < count; i++)

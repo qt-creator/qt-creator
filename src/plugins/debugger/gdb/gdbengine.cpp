@@ -3033,7 +3033,7 @@ void GdbEngine::handleThreadNames(const GdbResponse &response)
             int id = name.findChild("id").data().toInt();
             for (int index = 0, n = threads.size(); index != n; ++index) {
                 ThreadData & thread = threads[index];
-                if (thread.id == id) {
+                if (thread.id == (quint64)id) {
                     thread.name = decodeData(name.findChild("value").data(), name.findChild("valueencoded").data().toInt());
                     break;
                 }

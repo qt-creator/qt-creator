@@ -52,6 +52,7 @@ HEADERS += breakhandler.h \
     watchhandler.h \
     watchutils.h \
     watchwindow.h \
+    threaddata.h \
     threadshandler.h \
     watchdelegatewidgets.h
 

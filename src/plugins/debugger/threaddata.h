@@ -27,67 +27,72 @@
 **
 **************************************************************************/
 
-#ifndef THREADSHANDLER_H
-#define THREADSHANDLER_H
+#ifndef THREADDATA_H
+#define THREADDATA_H
 
-#include <QtCore/QAbstractTableModel>
 #include <QtCore/QList>
 
-#include <QtGui/QIcon>
-
-#include "threaddata.h"
-
 namespace Debugger {
-class DebuggerEngine;
 
 namespace Internal {
 
 ////////////////////////////////////////////////////////////////////////
 //
-// ThreadsHandler
+// ThreadData
 //
 ////////////////////////////////////////////////////////////////////////
 
-/*! A model to represent the running threads in a QTreeView or ComboBox */
-class ThreadsHandler : public QAbstractTableModel
+/*! A structure containing information about a single thread */
+struct ThreadData
 {
-    Q_OBJECT
+    inline ThreadData(quint64 threadid = 0)
+        : id (threadid)
+        , frameLevel(-1)
+        , address (0)
+        , lineNumber(-1)
+    {
+    }
 
-public:
-    explicit ThreadsHandler(DebuggerEngine *engine);
+    enum {
+        IdColumn,
+        AddressColumn,
+        FunctionColumn,
+        FileColumn,
+        LineColumn,
+        StateColumn,
+        NameColumn,
+        CoreColumn,
+        ColumnCount = CoreColumn
+    };
 
-    int currentThread() const { return m_currentIndex; }
-    void setCurrentThread(int index);
-    int currentThreadId() const;
-    void setCurrentThreadId(int id);
-    int indexOf(quint64 threadId) const;
+    // Permanent data.
+    quint64 id;
+    QString targetId;
+    QString core;
 
-    void selectThread(int index);
-    void setThreads(const Threads &threads);
-    void removeAll();
-    Threads threads() const;
-    QAbstractItemModel *model() { return this; }
+    // State information when stopped
+    inline void notifyRunning() // Clear state information
+    {
+        address = 0;
+        function.clear();
+        fileName.clear();
+        frameLevel = -1;
+        state.clear();
+        lineNumber = -1;
+    }
 
-    // Clear out all frame information
-    void notifyRunning();
-
-private:
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role);
-    QVariant headerData(int section, Qt::Orientation orientation,
-        int role = Qt::DisplayRole) const;
-
-private:
-    DebuggerEngine *m_engine;
-    Threads m_threads;
-    int m_currentIndex;
-    const QIcon m_positionIcon;
-    const QIcon m_emptyIcon;
+    qint32  frameLevel;
+    quint64 address;
+    QString function;
+    QString fileName;
+    QString state;
+    qint32  lineNumber;
+    QString name;
 };
+
+typedef QVector<ThreadData> Threads;
 
 } // namespace Internal
 } // namespace Debugger
 
-#endif // THREADSHANDLER_H
+#endif // THREADDATA_H
