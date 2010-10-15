@@ -212,9 +212,16 @@ QString Environment::searchInPath(const QString &executable,
     }
 
 #ifdef Q_OS_WIN
-    if (!exec.endsWith(QLatin1String(".exe"))) {
-        exec.append(QLatin1String(".exe"));
-        return searchInPath(exec, additionalDirs);
+    // Check all the executable extensions on windows:
+    QStringList extensions = value(QLatin1String("PATHEXT")).split(QLatin1Char(';'));
+    if (extensions.isEmpty())
+        extensions.append(QLatin1String(".exe"));
+
+    // .exe.bat is legal (and run when starting new.exe), so always go through the complete list:
+    foreach (const QString &ext, extensions) {
+        QString result = searchInPath(exec + ext.toLower(), additionalDirs);
+        if (!result.isEmpty())
+            return result;
     }
 #endif
     return QString();
