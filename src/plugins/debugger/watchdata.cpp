@@ -1,12 +1,10 @@
 
 #include "watchdata.h"
-#include "watchutils.h"
 
 #include <QtCore/QTextStream>
 #include <QtCore/QDebug>
 
-#include <QtGui/QApplication>
-#include <QtGui/QTextDocument> // Qt::escape
+#include <QtCore/QCoreApplication>
 
 ////////////////////////////////////////////////////////////////////
 //
@@ -17,19 +15,107 @@
 namespace Debugger {
 namespace Internal {
 
+enum GuessChildrenResult { HasChildren, HasNoChildren, HasPossiblyChildren };
+static QString qt_escape(const QString& plain)
+{
+    QString rich;
+    rich.reserve(int(plain.length() * 1.1));
+    for (int i = 0; i < plain.length(); ++i) {
+        if (plain.at(i) == QLatin1Char('<'))
+            rich += QLatin1String("&lt;");
+        else if (plain.at(i) == QLatin1Char('>'))
+            rich += QLatin1String("&gt;");
+        else if (plain.at(i) == QLatin1Char('&'))
+            rich += QLatin1String("&amp;");
+        else if (plain.at(i) == QLatin1Char('"'))
+            rich += QLatin1String("&quot;");
+        else
+            rich += plain.at(i);
+    }
+    return rich;
+}
+
+bool isPointerType(const QByteArray &type)
+{
+    return type.endsWith('*') || type.endsWith("* const");
+}
+
+bool isCharPointerType(const QByteArray &type)
+{
+    return type == "char *" || type == "const char *" || type == "char const *";
+}
+
+bool isIntType(const QByteArray &type)
+{
+    if (type.isEmpty())
+        return false;
+    switch (type.at(0)) {
+        case 'b':
+            return type == "bool";
+        case 'c':
+            return type == "char";
+        case 'i':
+            return type == "int" || type == "int64";
+        case 'l':
+            return type == "long"
+                || type == "long long";
+        case 'p':
+            return type == "ptrdiff_t";
+        case 'q':
+            return type == "qint16" || type == "quint16"
+                || type == "qint32" || type == "quint32"
+                || type == "qint64" || type == "quint64";
+        case 's':
+            return type == "short"
+                || type == "signed"
+                || type == "size_t"
+                || type == "std::size_t"
+                || type == "std::ptrdiff_t"
+                || type.startsWith("signed ");
+        case 'u':
+            return type == "unsigned"
+                || type.startsWith("unsigned ");
+        default:
+            return false;
+    }
+}
+
+bool isFloatType(const QByteArray &type)
+{
+   return type == "float" || type == "double" || type == "qreal";
+}
+
+bool isIntOrFloatType(const QByteArray &type)
+{
+    return isIntType(type) || isFloatType(type);
+}
+
+GuessChildrenResult guessChildren(const QByteArray &type)
+{
+    if (isIntOrFloatType(type))
+        return HasNoChildren;
+    if (isCharPointerType(type))
+        return HasNoChildren;
+    if (isPointerType(type))
+        return HasChildren;
+    if (type.endsWith("QString"))
+        return HasNoChildren;
+    return HasPossiblyChildren;
+}
+
 WatchData::WatchData() :
+    id(0),
+    state(InitialState),
     editformat(0),
     address(0),
-    hasChildren(false),
     generation(-1),
+    hasChildren(false),
     valueEnabled(true),
     valueEditable(true),
     error(false),
-    source(0),
-    objectId(0),
-    state(InitialState),
     changed(false),
-    sortId(0)
+    sortId(0),
+    source(0)
 {
 }
 
@@ -45,7 +131,6 @@ bool WatchData::isEqual(const WatchData &other) const
       && displayedType == other.displayedType
       && variable == other.variable
       && address == other.address
-      && framekey == other.framekey
       && hasChildren == other.hasChildren
       && valueEnabled == other.valueEnabled
       && valueEditable == other.valueEditable
@@ -213,8 +298,6 @@ QString WatchData::toString() const
 
     if (isChildrenNeeded())
         str << "children=<needed>,";
-    if (source)
-        str << "source=" << source;
     str.flush();
     if (res.endsWith(QLatin1Char(',')))
         res.truncate(res.size() - 1);
@@ -226,7 +309,7 @@ static void formatToolTipRow(QTextStream &str,
     const QString &category, const QString &value)
 {
     str << "<tr><td>" << category << "</td><td> : </td><td>"
-        << Qt::escape(value) << "</td></tr>";
+        << qt_escape(value) << "</td></tr>";
 }
 
 static QString typeToolTip(const WatchData &wd)
@@ -247,19 +330,19 @@ QString WatchData::toToolTip() const
     QString res;
     QTextStream str(&res);
     str << "<html><body><table>";
-    formatToolTipRow(str, QCoreApplication::translate("Debugger::Internal::WatchHandler", "Name"), name);
-    formatToolTipRow(str, QCoreApplication::translate("Debugger::Internal::WatchHandler", "Expression"), exp);
-    formatToolTipRow(str, QCoreApplication::translate("Debugger::Internal::WatchHandler", "Type"), typeToolTip(*this));
+    formatToolTipRow(str, tr("Name"), name);
+    formatToolTipRow(str, tr("Expression"), exp);
+    formatToolTipRow(str, tr("Type"), typeToolTip(*this));
     QString val = value;
     if (value.size() > 1000) {
         val.truncate(1000);
-        val += QCoreApplication::translate("Debugger::Internal::WatchHandler", " ... <cut off>");
+        val += tr(" ... <cut off>");
     }
-    formatToolTipRow(str, QCoreApplication::translate("Debugger::Internal::WatchHandler", "Value"), val);
-    formatToolTipRow(str, QCoreApplication::translate("Debugger::Internal::WatchHandler", "Object Address"),
+    formatToolTipRow(str, tr("Value"), val);
+    formatToolTipRow(str, tr("Object Address"),
                      QString::fromAscii(hexAddress()));
-    formatToolTipRow(str, QCoreApplication::translate("Debugger::Internal::WatchHandler", "Internal ID"), iname);
-    formatToolTipRow(str, QCoreApplication::translate("Debugger::Internal::WatchHandler", "Generation"),
+    formatToolTipRow(str, tr("Internal ID"), iname);
+    formatToolTipRow(str, tr("Generation"),
         QString::number(generation));
     str << "</table></body></html>";
     return res;

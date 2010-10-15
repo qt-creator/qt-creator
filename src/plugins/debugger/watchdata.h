@@ -33,6 +33,7 @@
 #include <QtCore/QMetaType>
 #include <QtCore/QtGlobal>
 #include <QtCore/QObject>
+#include <QtCore/QCoreApplication>
 #include <QtScript/QScriptValue>
 
 namespace Debugger {
@@ -45,11 +46,11 @@ public:
 
     enum State
     {
-        Complete = 0,
+        Complete          = 0,
         HasChildrenNeeded = 1,
-        ValueNeeded = 2,
-        TypeNeeded = 4,
-        ChildrenNeeded = 8,
+        ValueNeeded       = 2,
+        TypeNeeded        = 4,
+        ChildrenNeeded    = 8,
 
         NeededMask = ValueNeeded
             | TypeNeeded
@@ -62,81 +63,84 @@ public:
             | HasChildrenNeeded
     };
 
-    void setValue(const QString &);
-    void setType(const QByteArray &, bool guessChildrenFromType = true);
-    void setValueToolTip(const QString &);
-    void setError(const QString &);
-    void setAddress(const quint64 &);
-    void setHexAddress(const QByteArray &a);
-
     bool isSomethingNeeded() const { return state & NeededMask; }
-    void setAllNeeded() { state = NeededMask; }
-    void setAllUnneeded() { state = State(0); }
+    void setAllNeeded()            { state = NeededMask; }
+    void setAllUnneeded()          { state = State(0); }
 
     bool isTypeNeeded() const { return state & TypeNeeded; }
-    bool isTypeKnown() const { return !(state & TypeNeeded); }
-    void setTypeNeeded() { state = State(state | TypeNeeded); }
-    void setTypeUnneeded() { state = State(state & ~TypeNeeded); }
+    bool isTypeKnown()  const { return !(state & TypeNeeded); }
+    void setTypeNeeded()      { state = State(state | TypeNeeded); }
+    void setTypeUnneeded()    { state = State(state & ~TypeNeeded); }
 
     bool isValueNeeded() const { return state & ValueNeeded; }
-    bool isValueKnown() const { return !(state & ValueNeeded); }
-    void setValueNeeded() { state = State(state | ValueNeeded); }
-    void setValueUnneeded() { state = State(state & ~ValueNeeded); }
+    bool isValueKnown()  const { return !(state & ValueNeeded); }
+    void setValueNeeded()      { state = State(state | ValueNeeded); }
+    void setValueUnneeded()    { state = State(state & ~ValueNeeded); }
 
     bool isChildrenNeeded() const { return state & ChildrenNeeded; }
-    bool isChildrenKnown() const { return !(state & ChildrenNeeded); }
-    void setChildrenNeeded() { state = State(state | ChildrenNeeded); }
+    bool isChildrenKnown()  const { return !(state & ChildrenNeeded); }
+    void setChildrenNeeded()   { state = State(state | ChildrenNeeded); }
     void setChildrenUnneeded() { state = State(state & ~ChildrenNeeded); }
 
     bool isHasChildrenNeeded() const { return state & HasChildrenNeeded; }
-    bool isHasChildrenKnown() const { return !(state & HasChildrenNeeded); }
-    void setHasChildrenNeeded() { state = State(state | HasChildrenNeeded); }
+    bool isHasChildrenKnown()  const { return !(state & HasChildrenNeeded); }
+    void setHasChildrenNeeded()   { state = State(state | HasChildrenNeeded); }
     void setHasChildrenUnneeded() { state = State(state & ~HasChildrenNeeded); }
-    void setHasChildren(bool c) { hasChildren = c; setHasChildrenUnneeded();
-        if (!c) setChildrenUnneeded(); }
+    void setHasChildren(bool c)   { hasChildren = c; setHasChildrenUnneeded();
+                                         if (!c) setChildrenUnneeded(); }
 
-    QString toString() const;
-    QString toToolTip() const;
-    bool isLocal() const { return iname.startsWith("local."); }
+    bool isLocal()   const { return iname.startsWith("local."); }
     bool isWatcher() const { return iname.startsWith("watch."); }
-    bool isValid() const { return !iname.isEmpty(); }
+    bool isValid()   const { return !iname.isEmpty(); }
 
     bool isEqual(const WatchData &other) const;
-    quint64 coreAddress() const;
-    QByteArray hexAddress() const;
+
+    void setError(const QString &);
+    void setValue(const QString &);
+    void setValueToolTip(const QString &);
+    void setType(const QByteArray &, bool guessChildrenFromType = true);
+    void setAddress(const quint64 &);
+    void setHexAddress(const QByteArray &a);
+
+    QString toString()  const;
+    QString toToolTip() const;
 
     static QString msgNotInScope();
     static QString shadowedName(const QString &name, int seen);
     static const QString &shadowedNameFormat();
 
-public:
-    QByteArray iname;     // Internal name sth like 'local.baz.public.a'
-    QByteArray exp;       // The expression
-    QString name;         // Displayed name
-    QString value;        // Displayed value
-    QByteArray editvalue; // Displayed value
-    int editformat;       // Format of displayed value
-    QString valuetooltip; // Tooltip in value column
-    QString typeFormats;  // Selection of formats of displayed value
-    QByteArray type;         // Type for further processing
-    QString displayedType;// Displayed type (optional)
-    QByteArray variable;  // Name of internal Gdb variable if created
-    quint64 address;      // Displayed address
-    QString framekey;     // Key for type cache
-    QScriptValue scriptValue; // If needed...
-    bool hasChildren;
-    int generation;       // When updated?
-    bool valueEnabled;    // Value will be greyed out or not
-    bool valueEditable;   // Value will be editable
-    bool error;
-    QByteArray dumperFlags;
+    quint64    coreAddress() const;
+    QByteArray hexAddress()  const;
 
 public:
-    int source;  // Originated from dumper or symbol evaluation? (CDB only)
-    quint64 objectId; // Object id used for the QMLEngine
-    int state;
+    quint64    id;           // Token for the engine for internal mapping
+    qint32     state;        // 'needed' flags;
+    QByteArray iname;        // Internal name sth like 'local.baz.public.a'
+    QByteArray exp;          // The expression
+    QString    name;         // Displayed name
+    QString    value;        // Displayed value
+    QByteArray editvalue;    // Displayed value
+    qint32     editformat;   // Format of displayed value
+    QString    valuetooltip; // Tooltip in value column
+    QString    typeFormats;  // Selection of formats of displayed value
+    QByteArray type;         // Type for further processing
+    QString    displayedType;// Displayed type (optional)
+    quint64    address;      // Displayed address
+    qint32     generation;   // When updated?
+    bool hasChildren;
+    bool valueEnabled;       // Value will be greyed out or not
+    bool valueEditable;      // Value will be editable
+    bool error;
     bool changed;
-    int sortId;
+    qint32 sortId;
+    QByteArray dumperFlags;
+
+    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::WatchHandler)
+
+public:
+    // FIXME: this is engine specific data that should be mapped internally
+    QByteArray variable;  // Name of internal Gdb variable if created
+    qint32 source;  // Originated from dumper or symbol evaluation? (CDB only)
 };
 
 } // namespace Internal

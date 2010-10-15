@@ -90,7 +90,7 @@ QDataStream& operator>>(QDataStream& s, WatchData &data)
     QString value;
     QString type;
     bool hasChildren;
-    s >> data.exp >> data.name >> value >> type >> hasChildren >> data.objectId;
+    s >> data.exp >> data.name >> value >> type >> hasChildren >> data.id;
     data.setType(type.toUtf8(), false);
     data.setValue(value);
     data.setHasChildren(hasChildren);
@@ -535,7 +535,7 @@ void QmlEngine::updateWatchData(const Internal::WatchData &data, const Internal:
 
     if (!data.name.isEmpty() && data.isChildrenNeeded()
             && watchHandler()->isExpandedIName(data.iname))
-        expandObject(data.iname, data.objectId);
+        expandObject(data.iname, data.id);
 
     {
         QByteArray reply;
@@ -630,7 +630,7 @@ void QmlEngine::messageReceived(const QByteArray &message)
 
             if (watchHandler()->expandedINames().contains(data.iname)) {
                 needPing = true;
-                expandObject(data.iname, data.objectId);
+                expandObject(data.iname, data.id);
             }
         }
 
@@ -640,7 +640,7 @@ void QmlEngine::messageReceived(const QByteArray &message)
 
             if (watchHandler()->expandedINames().contains(data.iname)) {
                 needPing = true;
-                expandObject(data.iname, data.objectId);
+                expandObject(data.iname, data.id);
             }
         }
 
@@ -710,7 +710,7 @@ void QmlEngine::messageReceived(const QByteArray &message)
 
             if (watchHandler()->expandedINames().contains(data.iname)) {
                 needPing = true;
-                expandObject(data.iname, data.objectId);
+                expandObject(data.iname, data.id);
             }
         }
         if (needPing)
@@ -726,7 +726,7 @@ void QmlEngine::messageReceived(const QByteArray &message)
             watchHandler()->insertData(data);
             if (watchHandler()->expandedINames().contains(data.iname)) {
                 needPing = true;
-                expandObject(data.iname, data.objectId);
+                expandObject(data.iname, data.id);
             }
         }
         if (needPing)

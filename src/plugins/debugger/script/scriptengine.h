@@ -34,6 +34,7 @@
 
 #include <QtCore/QSharedPointer>
 #include <QtCore/QScopedPointer>
+#include <QtCore/QHash>
 
 QT_BEGIN_NAMESPACE
 class QScriptEngine;
@@ -114,6 +115,8 @@ private:
     QString m_scriptContents;
     QString m_scriptFileName;
     QScopedPointer<ScriptAgent> m_scriptAgent;
+    QHash<quint64,QScriptValue> m_watchIdToScriptValue;
+    quint64 m_watchIdCounter;
 
     bool m_stopped;
     bool m_stopOnNextLine;

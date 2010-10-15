@@ -3613,7 +3613,6 @@ WatchData GdbEngine::localVariable(const GdbMi &item,
     data.iname = "local." + name;
     data.name = nam;
     data.exp = name;
-    data.framekey = m_currentFrame + data.name;
     setWatchDataType(data, item.findChild("type"));
     if (uninitializedVariables.contains(data.name)) {
         data.setError(WatchData::msgNotInScope());

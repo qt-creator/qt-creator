@@ -702,9 +702,11 @@ void ScriptEngine::updateLocals()
     m_scriptEngine->setAgent(0);
 
     WatchData data;
+    data.id = m_watchIdCounter++;
+    m_watchIdToScriptValue.insert(data.id, context->activationObject());
     data.iname = "local";
     data.name = _(data.iname);
-    data.scriptValue = context->activationObject();
+
     watchHandler()->beginCycle();
     updateSubItem(data);
     watchHandler()->endCycle();
@@ -744,8 +746,8 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
     //SDEBUG("\nUPDATE SUBITEM: " << data.toString() << data.scriptValue.toString());
     QTC_ASSERT(data.isValid(), return);
 
+    const QScriptValue &ob = m_watchIdToScriptValue.value(data.id);
     if (data.isTypeNeeded() || data.isValueNeeded()) {
-        const QScriptValue &ob = data.scriptValue;
         if (ob.isArray()) {
             data.setType("Array", false);
             data.setValue(QString(QLatin1Char(' ')));
@@ -802,14 +804,15 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
     }
 
     if (data.isChildrenNeeded()) {
-        QScriptValueIterator it(data.scriptValue);
+        QScriptValueIterator it(ob);
         while (it.hasNext()) {
             it.next();
             WatchData data1;
             data1.iname = data.iname + '.' + it.name().toLatin1();
             data1.exp = it.name().toLatin1();
             data1.name = it.name();
-            data1.scriptValue = it.value();
+            data.id = m_watchIdCounter++;
+            m_watchIdToScriptValue.insert(data.id, it.value());
             if (watchHandler()->isExpandedIName(data1.iname)) {
                 data1.setChildrenNeeded();
             } else {
@@ -822,7 +825,7 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
     }
 
     if (data.isHasChildrenNeeded()) {
-        QScriptValueIterator it(data.scriptValue);
+        QScriptValueIterator it(ob);
         data.setHasChildren(it.hasNext());
     }
 

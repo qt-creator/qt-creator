@@ -273,16 +273,6 @@ bool isKeyWord(const QString &exp)
         || exp == QLatin1String("while");
 }
 
-bool isPointerType(const QByteArray &type)
-{
-    return type.endsWith('*') || type.endsWith("* const");
-}
-
-bool isCharPointerType(const QByteArray &type)
-{
-    return type == "char *" || type == "const char *" || type == "char const *";
-}
-
 bool startsWithDigit(const QString &str)
 {
     return !str.isEmpty() && str.at(0).isDigit();
@@ -540,67 +530,9 @@ QString extractTypeFromPTypeOutput(const QString &str)
     return res.simplified();
 }
 
-bool isIntType(const QByteArray &type)
-{
-    if (type.isEmpty())
-        return false;
-    switch (type.at(0)) {
-        case 'b':
-            return type == "bool";
-        case 'c':
-            return type == "char";
-        case 'i':
-            return type == "int" || type == "int64";
-        case 'l':
-            return type == "long"
-                || type == "long long";
-        case 'p':
-            return type == "ptrdiff_t";
-        case 'q':
-            return type == "qint16" || type == "quint16"
-                || type == "qint32" || type == "quint32"
-                || type == "qint64" || type == "quint64";
-        case 's':
-            return type == "short"
-                || type == "signed"
-                || type == "size_t"
-                || type == "std::size_t"
-                || type == "std::ptrdiff_t"
-                || type.startsWith("signed ");
-        case 'u':
-            return type == "unsigned"
-                || type.startsWith("unsigned ");
-        default:
-            return false;
-    }
-}
-
 bool isSymbianIntType(const QByteArray &type)
 {
     return type == "TInt" || type == "TBool";
-}
-
-bool isFloatType(const QByteArray &type)
-{
-   return type == "float" || type == "double" || type == "qreal";
-}
-
-bool isIntOrFloatType(const QByteArray &type)
-{
-    return isIntType(type) || isFloatType(type);
-}
-
-GuessChildrenResult guessChildren(const QByteArray &type)
-{
-    if (isIntOrFloatType(type))
-        return HasNoChildren;
-    if (isCharPointerType(type))
-        return HasNoChildren;
-    if (isPointerType(type))
-        return HasChildren;
-    if (type.endsWith("QString"))
-        return HasNoChildren;
-    return HasPossiblyChildren;
 }
 
 QByteArray sizeofTypeExpression(const QByteArray &type, QtDumperHelper::Debugger debugger)
