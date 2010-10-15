@@ -391,7 +391,11 @@ void DebuggerEnginePrivate::handleContextMenuRequest(const QVariant &parameters)
     if (data) {
         // existing breakpoint
         const QString number = QString::fromAscii(data->bpNumber);
-        QAction *act = new QAction(tr("Remove Breakpoint %1").arg(number), menu);
+        QAction *act;
+        if (number.isEmpty())
+            act = new QAction(tr("Remove Breakpoint"), menu);
+        else
+            act = new QAction(tr("Remove Breakpoint %1").arg(number), menu);
         act->setData(args);
         connect(act, SIGNAL(triggered()),
             this, SLOT(breakpointSetRemoveMarginActionTriggered()));
@@ -399,14 +403,24 @@ void DebuggerEnginePrivate::handleContextMenuRequest(const QVariant &parameters)
 
         QAction *act2;
         if (data->enabled)
-            act2 = new QAction(tr("Disable Breakpoint %1").arg(number), menu);
+            if (number.isEmpty())
+                act2 = new QAction(tr("Disable Breakpoint"), menu);
+            else
+                act2 = new QAction(tr("Disable Breakpoint %1").arg(number), menu);
         else
-            act2 = new QAction(tr("Enable Breakpoint %1").arg(number), menu);
+            if (number.isEmpty())
+                act2 = new QAction(tr("Enable Breakpoint"), menu);
+            else
+                act2 = new QAction(tr("Enable Breakpoint %1").arg(number), menu);
         act2->setData(args);
         connect(act2, SIGNAL(triggered()),
             this, SLOT(breakpointEnableDisableMarginActionTriggered()));
         menu->addAction(act2);
-        QAction *editAction = new QAction(tr("Edit Breakpoint %1...").arg(number), menu);
+        QAction *editAction;
+        if (number.isEmpty())
+            editAction = new QAction(tr("Edit Breakpoint..."), menu);
+        else
+            editAction = new QAction(tr("Edit Breakpoint %1...").arg(number), menu);
         connect(editAction, SIGNAL(triggered()), this, SLOT(slotEditBreakpoint()));
         editAction->setData(qVariantFromValue(data));
         menu->addAction(editAction);
