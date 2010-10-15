@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
-** This file is part of Qt Creator.
+** This file is part of the Qt Creator.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
 ** No Commercial Usage
@@ -31,67 +31,53 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
+#ifndef MAEMOUSEDPORTSGATHERER_H
+#define MAEMOUSEDPORTSGATHERER_H
 
-#ifndef MAEMOCONFIGTESTDIALOG_H
-#define MAEMOCONFIGTESTDIALOG_H
+#include "maemodeviceconfigurations.h"
 
+#include <QtCore/QList>
+#include <QtCore/QObject>
 #include <QtCore/QSharedPointer>
-#include <QtGui/QDialog>
-
-QT_BEGIN_NAMESPACE
-class QPushButton;
-class Ui_MaemoConfigTestDialog;
-QT_END_NAMESPACE
+#include <QtCore/QString>
 
 namespace Core {
-    class SshRemoteProcessRunner;
-} // namespace Core
+class SshConnection;
+class SshRemoteProcessRunner;
+}
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class MaemoDeviceConfig;
-class MaemoUsedPortsGatherer;
-
-/**
- * A dialog that runs a test of a device configuration.
- */
-class MaemoConfigTestDialog : public QDialog
+class MaemoUsedPortsGatherer : public QObject
 {
     Q_OBJECT
 public:
-    explicit MaemoConfigTestDialog(const MaemoDeviceConfig &config, QWidget *parent = 0);
-    ~MaemoConfigTestDialog();
+    explicit MaemoUsedPortsGatherer(QObject *parent = 0);
+    ~MaemoUsedPortsGatherer();
+    void start(const QSharedPointer<Core::SshConnection> &connection,
+        const MaemoPortList &portList);
+    void stop();
+    QList<int> usedPorts() const;
+
+signals:
+    void error(const QString &errMsg);
+    void portListReady();
 
 private slots:
-    void stopConfigTest();
-    void processSshOutput(const QByteArray &output);
     void handleConnectionError();
-    void handleTestProcessFinished(int exitStatus);
-    void handlePortListReady();
-    void handlePortListFailure(const QString &errMsg);
+    void handleProcessClosed(int exitStatus);
+    void handleRemoteStdOut(const QByteArray &output);
+    void handleRemoteStdErr(const QByteArray &output);
 
 private:
-    void startConfigTest();
-    QString parseTestOutput();
-    void handleGeneralTestResult(int exitStatus);
-    void handleMadDeveloperTestResult(int exitStatus);
-    void finish();
-
-    Ui_MaemoConfigTestDialog *m_ui;
-    QPushButton *m_closeButton;
-
-    const MaemoDeviceConfig &m_config;
-    QSharedPointer<Core::SshRemoteProcessRunner> m_testProcessRunner;
-    QString m_deviceTestOutput;
-    bool m_qtVersionOk;
-    MaemoUsedPortsGatherer *const m_portsGatherer;
-
-    enum DeviceTest { GeneralTest, MadDeveloperTest };
-    DeviceTest m_currentTest;
+    QSharedPointer<Core::SshRemoteProcessRunner> m_procRunner;
+    QByteArray m_remoteStdout;
+    QByteArray m_remoteStderr;
+    bool m_running;
 };
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
 
-#endif // MAEMOCONFIGTESTDIALOG_H
+#endif // MAEMOUSEDPORTSGATHERER_H

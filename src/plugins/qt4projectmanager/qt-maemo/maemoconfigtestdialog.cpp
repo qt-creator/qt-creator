@@ -37,6 +37,7 @@
 
 #include "maemodeviceconfigurations.h"
 #include "maemoglobal.h"
+#include "maemousedportsgatherer.h"
 
 #include <coreplugin/ssh/sshremoteprocessrunner.h>
 
@@ -52,6 +53,7 @@ MaemoConfigTestDialog::MaemoConfigTestDialog(const MaemoDeviceConfig &config, QW
     : QDialog(parent)
     , m_ui(new Ui_MaemoConfigTestDialog)
     , m_config(config)
+    , m_portsGatherer(new MaemoUsedPortsGatherer(this))
 {
     setAttribute(Qt::WA_DeleteOnClose);
 
@@ -59,6 +61,10 @@ MaemoConfigTestDialog::MaemoConfigTestDialog(const MaemoDeviceConfig &config, QW
     m_closeButton = m_ui->buttonBox->button(QDialogButtonBox::Close);
 
     connect(m_closeButton, SIGNAL(clicked()), SLOT(stopConfigTest()));
+    connect(m_portsGatherer, SIGNAL(error(QString)),
+        SLOT(handlePortListFailure(QString)));
+    connect(m_portsGatherer, SIGNAL(portListReady()),
+        SLOT(handlePortListReady()));
 
     startConfigTest();
 }
@@ -151,6 +157,37 @@ void MaemoConfigTestDialog::handleMadDeveloperTestResult(int exitStatus)
             + QLatin1String("<br>") + tr("Mad Developer is not installed.<br>"
                   "You will not be able to deploy to this device."));
     }
+    if (m_config.freePorts().hasMore())
+        m_portsGatherer->start(m_testProcessRunner->connection(),
+            m_config.freePorts());
+    else
+        finish();
+}
+
+void MaemoConfigTestDialog::handlePortListFailure(const QString &errMsg)
+{
+    m_ui->testResultEdit->appendPlainText(tr("Error retrieving list of used ports: %1")
+        .arg(errMsg));
+    finish();
+}
+
+void MaemoConfigTestDialog::handlePortListReady()
+{
+    const QList<int> &usedPorts = m_portsGatherer->usedPorts();
+    QString output;
+    if (usedPorts.isEmpty()) {
+        output = tr("All specified ports are available.");
+    } else {
+        output = tr("The following supposedly free ports are being used on the device:");
+        foreach (const int port, usedPorts)
+            output += QLatin1Char(' ') + QString::number(port);
+    }
+    m_ui->testResultEdit->appendPlainText(output);
+    finish();
+}
+
+void MaemoConfigTestDialog::finish()
+{
     if (m_ui->errorLabel->text().isEmpty()) {
         QPalette palette = m_ui->errorLabel->palette();
         palette.setColor(m_ui->errorLabel->foregroundRole(),

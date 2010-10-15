@@ -32,7 +32,8 @@ HEADERS += \
     $$PWD/maemotemplatesmanager.h \
     $$PWD/maemomountspecification.h \
     $$PWD/maemoremotemounter.h \
-    $$PWD/maemoprofilesupdatedialog.h
+    $$PWD/maemoprofilesupdatedialog.h \
+    $$PWD/maemousedportsgatherer.h
 
 SOURCES += \
     $$PWD/maemoconfigtestdialog.cpp \
@@ -66,7 +67,8 @@ SOURCES += \
     $$PWD/maemotemplatesmanager.cpp \
     $$PWD/maemomountspecification.cpp \
     $$PWD/maemoremotemounter.cpp \
-    $$PWD/maemoprofilesupdatedialog.cpp
+    $$PWD/maemoprofilesupdatedialog.cpp \
+    $$PWD/maemousedportsgatherer.cpp
 
 FORMS += \
     $$PWD/maemoconfigtestdialog.ui \

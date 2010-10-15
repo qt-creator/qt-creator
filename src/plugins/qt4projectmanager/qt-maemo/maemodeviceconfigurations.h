@@ -72,6 +72,19 @@ public:
             m_ranges.removeFirst();
         return next;
     }
+    QString toString() const
+    {
+        QString stringRep;
+        foreach (const Range &range, m_ranges) {
+            stringRep += QString::number(range.first);
+            if (range.second != range.first)
+                stringRep += QLatin1Char('-') + QString::number(range.second);
+            stringRep += QLatin1Char(',');
+        }
+        if (!stringRep.isEmpty())
+            stringRep.remove(stringRep.length() - 1, 1); // Trailing comma.
+        return stringRep;
+    }
 
 private:
     QList<Range> m_ranges;
