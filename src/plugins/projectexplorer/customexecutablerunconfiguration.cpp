@@ -370,7 +370,7 @@ QString CustomExecutableRunConfiguration::executable() const
             return QString();
         }
     }
-    return m_executable;
+    return exec;
 }
 
 QString CustomExecutableRunConfiguration::rawExecutable() const
