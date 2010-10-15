@@ -129,6 +129,7 @@ signals:
     void documentUpdated(QmlJS::Document::Ptr doc);
     void documentChangedOnDisk(QmlJS::Document::Ptr doc);
     void aboutToRemoveFiles(const QStringList &files);
+    void libraryInfoUpdated(const QString &path, const QmlJS::LibraryInfo &info);
 };
 
 } // namespace QmlJS

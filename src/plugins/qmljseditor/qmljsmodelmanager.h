@@ -75,7 +75,6 @@ public:
 
 Q_SIGNALS:
     void projectPathChanged(const QString &projectPath);
-    void libraryInfoUpdated(const QString &path, const QmlJS::LibraryInfo &info);
 
 private Q_SLOTS:
     void onLoadPluginTypes(const QString &libraryPath, const QString &importPath, const QString &importUri);
