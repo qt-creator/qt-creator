@@ -184,7 +184,9 @@ int main(int argc, char ** argv)
 #if defined (Q_OS_WIN)
     // Debugging output is not visible by default on Windows -
     // therefore show modal dialog with errors instead.
-    atexit(showWarnings);
+
+    // (Disabled in QmlObserver: We're usually running inside QtCreator anyway, see also QTCREATORBUG-2748)
+//    atexit(showWarnings);
 #endif
 
 #if defined (Q_WS_X11) || defined (Q_WS_MAC)
