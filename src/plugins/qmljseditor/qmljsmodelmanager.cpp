@@ -69,11 +69,6 @@ ModelManager::ModelManager(QObject *parent):
     qRegisterMetaType<QmlJS::Document::Ptr>("QmlJS::Document::Ptr");
     qRegisterMetaType<QmlJS::LibraryInfo>("QmlJS::LibraryInfo");
 
-    connect(this, SIGNAL(documentUpdated(QmlJS::Document::Ptr)),
-            this, SLOT(onDocumentUpdated(QmlJS::Document::Ptr)));
-    connect(this, SIGNAL(libraryInfoUpdated(QString,QmlJS::LibraryInfo)),
-            this, SLOT(onLibraryInfoUpdated(QString,QmlJS::LibraryInfo)));
-
     loadQmlTypeDescriptions();
 
     m_defaultImportPaths << environmentImportPaths();
@@ -215,24 +210,22 @@ void ModelManager::updateProjectInfo(const ProjectInfo &pinfo)
 void ModelManager::emitDocumentChangedOnDisk(Document::Ptr doc)
 { emit documentChangedOnDisk(doc); }
 
-void ModelManager::emitDocumentUpdated(Document::Ptr doc)
-{ emit documentUpdated(doc); }
-
-void ModelManager::onDocumentUpdated(Document::Ptr doc)
+void ModelManager::updateDocument(Document::Ptr doc)
 {
-    QMutexLocker locker(&m_mutex);
-
-    _snapshot.insert(doc);
+    {
+        QMutexLocker locker(&m_mutex);
+        _snapshot.insert(doc);
+    }
+    emit documentUpdated(doc);
 }
 
-void ModelManager::emitLibraryInfoUpdated(const QString &path, const LibraryInfo &info)
-{ emit libraryInfoUpdated(path, info); }
-
-void ModelManager::onLibraryInfoUpdated(const QString &path, const LibraryInfo &info)
+void ModelManager::updateLibraryInfo(const QString &path, const LibraryInfo &info)
 {
-    QMutexLocker locker(&m_mutex);
-
-    _snapshot.insertLibraryInfo(path, info);
+    {
+        QMutexLocker locker(&m_mutex);
+        _snapshot.insertLibraryInfo(path, info);
+    }
+    emit libraryInfoUpdated(path, info);
 }
 
 static QStringList qmlFilesInDirectory(const QString &path)
@@ -318,7 +311,7 @@ static void findNewLibraryImports(const Document::Ptr &doc, const Snapshot &snap
                 qmldirParser.setSource(qmldirData);
                 qmldirParser.parse();
 
-                modelManager->emitLibraryInfoUpdated(QFileInfo(qmldirFile).absolutePath(),
+                modelManager->updateLibraryInfo(QFileInfo(qmldirFile).absolutePath(),
                                                      LibraryInfo(qmldirParser));
 
                 // scan the qml files in the library
@@ -405,7 +398,7 @@ void ModelManager::parse(QFutureInterface<void> &future,
                 files.append(file);
         }
 
-        modelManager->emitDocumentUpdated(doc);
+        modelManager->updateDocument(doc);
         if (emitDocChangedOnDisk)
             modelManager->emitDocumentChangedOnDisk(doc);
     }
@@ -554,7 +547,7 @@ void ModelManager::qmlPluginTypeDumpDone(int exitCode)
     }
 
     if (!libraryPath.isEmpty())
-        emitLibraryInfoUpdated(libraryPath, libraryInfo);
+        updateLibraryInfo(libraryPath, libraryInfo);
 }
 
 void ModelManager::qmlPluginTypeDumpError(QProcess::ProcessError)
@@ -572,6 +565,6 @@ void ModelManager::qmlPluginTypeDumpError(QProcess::ProcessError)
     if (!libraryPath.isEmpty()) {
         LibraryInfo libraryInfo = _snapshot.libraryInfo(libraryPath);
         libraryInfo.setDumped(true);
-        emitLibraryInfoUpdated(libraryPath, libraryInfo);
+        updateLibraryInfo(libraryPath, libraryInfo);
     }
 }
