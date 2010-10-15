@@ -691,6 +691,7 @@ bool BreakHandler::isActive() const
 
 void BreakHandler::initializeFromTemplate(BreakHandler *other)
 {
+    Q_UNUSED(other)
     m_inserted.clear();
     foreach(BreakpointData *data, m_bp) {
         if (m_engine->acceptsBreakpoint(data)) {
