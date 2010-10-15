@@ -69,7 +69,11 @@ FutureProgress *ProgressView::addTask(const QFuture<void> &future,
     m_layout->insertWidget(0, progress);
     m_taskList.append(progress);
     progress->setType(type);
-    progress->setKeepOnFinish(flags & ProgressManager::KeepOnFinish);
+    if (flags.testFlag(ProgressManager::KeepOnFinish)) {
+        progress->setKeepOnFinish(FutureProgress::KeepOnFinishTillUserInteraction);
+    } else {
+        progress->setKeepOnFinish(FutureProgress::DontKeepOnFinish);
+    }
     connect(progress, SIGNAL(removeMe()), this, SLOT(slotRemoveTask()));
     return progress;
 }

@@ -46,6 +46,11 @@ class CORE_EXPORT FutureProgress : public QWidget
     Q_OBJECT
 
 public:
+    enum KeepOnFinishType {
+        DontKeepOnFinish = 0,
+        KeepOnFinishTillUserInteraction = 1,
+        KeepOnFinish = 2
+    };
     explicit FutureProgress(QWidget *parent = 0);
     virtual ~FutureProgress();
 
@@ -60,7 +65,7 @@ public:
     void setType(const QString &type);
     QString type() const;
 
-    void setKeepOnFinish(bool keep);
+    void setKeepOnFinish(KeepOnFinishType keepType);
     bool keepOnFinish() const;
 
     bool hasError() const;
