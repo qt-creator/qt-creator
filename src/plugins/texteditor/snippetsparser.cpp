@@ -77,7 +77,7 @@ const QList<CompletionItem> &SnippetsParser::execute(ICompletionCollector *colle
                                         item.text +=  QLatin1Char(' ');
                                         item.text += description;
                                     }
-                                    item.data = QVariant::fromValue(data);
+                                    item.data = QVariant::fromValue(data.trimmed());
 
                                     QString infotip = data;
                                     while (infotip.size() && infotip.at(infotip.size()-1).isSpace())
