@@ -127,6 +127,7 @@
                 \o \l{Setting Up Debugger}
                 \o \l{Debugger Modes of Operation}
                 \o \l{Using Debugging Helpers}
+                \o \l{Debugging Qt Quick Projects}
             \endlist
        \o \l{Using the Maemo Emulator}
        \o \l{Using Version Control Systems}
@@ -4873,15 +4874,14 @@
     Qt Creator does not include a debugger. It provides a debugger plugin that acts
     as an interface between the Qt Creator core and external native debuggers
     such as the GNU Symbolic Debugger (gdb), the Microsoft Console Debugger (CDB),
-    and an internal Java Script debugger. You can use the native debuggers to
-    debug the C++ language.
+    and a QML/Java Script debugger.
 
     The following sections describe debugging with Qt Creator:
 
     \list
 
         \o \l{Debugging the Example Application} uses an example application to illustrate
-        how to debug applications in the \gui Debug mode.
+        how to debug Qt C++ applications in the \gui Debug mode.
 
         \o \l{Interacting with the Debugger} describes the views and functions available
         in the \gui Debug mode.
@@ -4895,6 +4895,8 @@
 
         \o \l{Using Debugging Helpers} describes how to get more detailed data
         on complex data.
+
+        \o \l{Debugging Qt Quick Projects} describes how to debug Qt Quick projects.
 
     \endlist
 
@@ -4933,6 +4935,8 @@
        \o \bold TRK to debug processes running on a Symbian device.
 
     \endlist
+
+    \note Debugging QML and Java Script is supported only in plain mode.
 
     When you click the \gui {Start Debugging} button, the debugger is launched
     in the appropriate operating mode (plain, terminal, or TRK), based on the
@@ -5016,6 +5020,9 @@
     \nextpage creator-debugger-operating-modes.html
 
     \title Setting Up Debugger
+
+    \note The information in this section applies only to debugging the C++
+    language.
 
     Typically, the interaction between Qt Creator and the native debugger is set
     up automatically and you do not need to do anything. However, you might have an
@@ -5241,7 +5248,8 @@
     \title Interacting with the Debugger
 
     In \gui Debug mode, you can use several views to interact with the
-    program you are debugging. Frequently used views are shown by
+    program you are debugging. The availability of views depends on whether
+    you are debugging C++ or QML. Frequently used views are shown by
     default and rarely used ones are hidden. To change the default settings,
     select \gui {Window > Views}, and then select views to display or hide.
 
@@ -5268,30 +5276,12 @@
     Select \gui Debug menu options to launch the debugger in other modes.
     For more information, see \l{Debugger Modes of Operation}.
 
+    \note Debugging QML and Java Script is supported only in plain mode.
+
     Once the program starts running, it behaves and performs as usual.
-    You can interrupt a running program by selecting \gui{Debug} >
+    You can interrupt a running C++ program by selecting \gui{Debug} >
     \gui {Interrupt}. The program is automatically interrupted as soon as a
     breakpoint is hit.
-
-    \section2 Starting the Debugger from the Command Line
-
-    You can use the Qt Creator debugger interface from the command line. To
-    attach it to a running process, specify the process ID as a parameter for
-    the \c {-debug} option. To examine a core file, specify the file name.
-    Qt Creator executes all the necessary steps, such as searching for
-    the binary that belongs to a core file.
-
-    For example:
-
-    \list
-
-        \o \c {C:\qtcreator-2.1\bin>qtcreator -debug 2000}
-
-        \o \c {C:\qtcreator-2.1\bin>qtcreator -debug core.2000}
-
-    \endlist
-
-    For more information, see \l{Using Command Line Options}.
 
     \section1 Using the Debugger
 
@@ -5303,9 +5293,8 @@
         \o Retrieves the contents of local variables.
         \o Examines \gui Watchers.
         \o Updates the \gui Registers, \gui Modules, and \gui Disassembler
-           views.
+           views if you are debugging the C++ language.
     \endlist
-
 
     You can use the \gui Debug mode views to examine the data in more detail.
 
@@ -5323,14 +5312,6 @@
     It is also possible to continue executing the program until the current
     function completes or jump to an arbitrary position in the current function.
 
-    \section2 Stepping into Frameworks in Mac OS
-
-    In Mac OS X, external libraries are usually built into so-called Frameworks,
-    which may contain both release and debug versions of the library. When you run
-    applications on the Mac OS desktop, the release version of Frameworks is used
-    by default. To step into Frameworks, select the \gui {Use debug versions of
-    Frameworks} option in the project run settings for \gui Desktop and
-    \gui {Qt Simulator} targets.
 
     \section1 Setting Breakpoints
 
@@ -5374,7 +5355,6 @@
     while it is running under the debugger's control. Breakpoints are saved
     together with a session.
 
-
     \section1 Viewing Call Stack Trace
 
     When the program being debugged is interrupted, Qt Creator displays the
@@ -5395,42 +5375,6 @@
     jumps to the corresponding location and updates the \gui{Locals and Watchers}
     view, making it seem like the program was interrupted before entering the
     function.
-
-
-    \section1 Viewing Threads
-
-    If a multi-threaded program is interrupted, the \gui Thread view or the
-    combobox named \gui Thread in the debugger's status bar can be used to
-    switch from one thread to another. The \gui Stack view adjusts itself
-    accordingly.
-
-
-    \section1 Viewing Modules and Source Files
-
-    The \gui{Modules} view and \gui{Source Files} views display information
-    that the debugger plugin has about modules and source files included in
-    the project. The \gui{Modules} view lists the modules in the project and
-    symbols within the modules. In addition, it indicates where the module
-    was loaded.
-
-    The \gui{Source Files} view lists all the source files included in the project.
-    If you cannot step into an instruction, you can check whether the source file is
-    actually part of the project, or whether it was compiled
-    elsewhere. The view shows the path to each file in the file system.
-
-    By default, the \gui{Modules} view and \gui{Source Files} view are hidden.
-
-
-    \section1 Viewing Disassembled Code and Register State
-
-    The \gui{Disassembler} view displays disassembled code for the current
-    function. The \gui{Registers} view displays the current state of the CPU's
-    registers.
-
-    The \gui{Disassembler} view and the \gui{Registers} view are both useful
-    for low-level commands for checking single instructions, such as \gui{Step Into}
-    and \gui{Step Over}. By default, both \gui{Disassembler} and
-    \gui{Registers} view are hidden.
 
     \section1 Locals and Watchers
 
@@ -5500,6 +5444,74 @@
 
     \note The set of watched items is saved in your session.
 
+    \section1 Debugging the C++ Language
+
+    The following sections describe additional debugging functions that apply
+    only to debugging C++.
+
+    \section2 Starting the Debugger from the Command Line
+
+    You can use the Qt Creator debugger interface from the command line. To
+    attach it to a running process, specify the process ID as a parameter for
+    the \c {-debug} option. To examine a core file, specify the file name.
+    Qt Creator executes all the necessary steps, such as searching for
+    the binary that belongs to a core file.
+
+    For example:
+
+    \list
+
+        \o \c {C:\qtcreator-2.1\bin>qtcreator -debug 2000}
+
+        \o \c {C:\qtcreator-2.1\bin>qtcreator -debug core.2000}
+
+    \endlist
+
+    For more information, see \l{Using Command Line Options}.
+
+    \section2 Stepping into Frameworks in Mac OS
+
+    In Mac OS X, external libraries are usually built into so-called Frameworks,
+    which may contain both release and debug versions of the library. When you run
+    applications on the Mac OS desktop, the release version of Frameworks is used
+    by default. To step into Frameworks, select the \gui {Use debug versions of
+    Frameworks} option in the project run settings for \gui Desktop and
+    \gui {Qt Simulator} targets.
+
+    \section2 Viewing Threads
+
+    If a multi-threaded program is interrupted, the \gui Thread view or the
+    combobox named \gui Thread in the debugger's status bar can be used to
+    switch from one thread to another. The \gui Stack view adjusts itself
+    accordingly.
+
+    \section2 Viewing Modules and Source Files
+
+    The \gui{Modules} view and \gui{Source Files} views display information
+    that the debugger plugin has about modules and source files included in
+    the project. The \gui{Modules} view lists the modules in the project and
+    symbols within the modules. In addition, it indicates where the module
+    was loaded.
+
+    The \gui{Source Files} view lists all the source files included in the project.
+    If you cannot step into an instruction, you can check whether the source file is
+    actually part of the project, or whether it was compiled
+    elsewhere. The view shows the path to each file in the file system.
+
+    By default, the \gui{Modules} view and \gui{Source Files} view are hidden.
+
+
+    \section2 Viewing Disassembled Code and Register State
+
+    The \gui{Disassembler} view displays disassembled code for the current
+    function. The \gui{Registers} view displays the current state of the CPU's
+    registers.
+
+    The \gui{Disassembler} view and the \gui{Registers} view are both useful
+    for low-level commands for checking single instructions, such as \gui{Step Into}
+    and \gui{Step Over}. By default, both \gui{Disassembler} and
+    \gui{Registers} view are hidden.
+
 */
 
 
@@ -5512,7 +5524,9 @@
     \title Debugging the Example Application
 
     This section uses the \l{Creating a Qt C++ Application}{TextFinder} example to
-    illustrate how to debug applications in the \gui Debug mode. TextFinder
+    illustrate how to debug Qt C++ applications in the \gui Debug mode.
+
+    TextFinder
     reads a text file into
     QString and then displays it with QTextEdit.
     To look at the example QString, \c{line}, and see the
@@ -5590,7 +5604,7 @@
     \contentspage index.html
     \previouspage creator-debugger-operating-modes.html
     \page creator-debugging-helpers.html
-    \nextpage creator-maemo-emulator.html
+    \nextpage creator-debugging-qml.html
 
     \title Using Debugging Helpers
 
@@ -5602,7 +5616,7 @@
     with Qt Creator, but they enhance the user's ability to quickly
     examine complex data significantly.
 
-    \section1 Debugging Helpers based on C++
+    \section1 Debugging Helpers Based on C++
 
     This is the first and original approach to display complex data
     types. While it has been superseded on most platforms by the more
@@ -5621,7 +5635,7 @@
     library is built for each Qt version.
 
 
-    \section1 Debugging Helpers based on Python
+    \section1 Debugging Helpers Based on Python
 
     On platforms featuring a Python-enabled version of the gdb debugger,
     the data extraction is done by a Python script. This is more robust
@@ -5893,6 +5907,17 @@
                 d.putName("value")
                 d.putItemHelper(Item(value, item.iname, "value"))
     \endcode
+
+    \section1 Debugging Helpers for QML
+
+    The debugging helpers for QML provide you with code completion for custom modules
+    (\c qmldump) and debugging Qt Quick UI projects (\c qmlobserver).
+
+    You have to build the QML Observer once for each Qt version that you want to debug
+    with. Select \gui{Tools > Options... > Qt4 > Qt Versions}.
+
+    \note QML Observer requires Qt 4.7.1 or later.
+
 */
 
 
@@ -5998,6 +6023,134 @@
 
     Syntax completion and highlighting work once your project successfully
     builds and links against the external library.
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-debugging-helpers.html
+    \page creator-debugging-qml.html
+    \nextpage creator-maemo-emulator.html
+
+    \title Debugging Qt Quick Projects
+
+    \note You need Qt 4.7.1 or later to debug Qt Quick projects.
+
+    \section1 Setting Up QML Debugging
+
+    The process of setting up debugging for Qt Quick projects depends on the type of
+    the project: Qt Quick UI or Qt Quick Application.
+
+    To debug Qt Quick UI projects, you must compile the debugging helpers. For more
+    information, see \l{Debugging Helpers for QML}.
+
+    To debug Qt Quick Applications, you must modify the project file to comment in the
+    following line:
+
+    \c {DEFINES += QMLJSDEBUGGER}.
+
+    Then you must rebuild the project.
+
+    To enable QML debugging for  both types of projects, select \gui Projects, and
+    then select the \gui QML check box in the run settings.
+
+    \section1 Starting QML Debugging
+
+    To start the application, choose \gui {Debug > Start Debugging
+    > Start Debugging} or press \key F5. Once the application starts running, it behaves
+    and performs as usual. You can then perform the following tasks:
+
+    \list
+
+        \o Debug Java Script functions
+
+        \o Preview QML changes at runtime
+
+        \o Inspect QML at runtime
+
+    \endlist
+
+    \section1 Debugging Java Script Functions
+
+    You can use the Qt Creator \gui Debug mode to inspect the state of your
+    application while debugging. You can interact with the debugger in several
+    ways, as described in the following sections:
+
+    \list
+
+        \o \l{Setting Breakpoints}
+
+        \o \l{Viewing Call Stack Trace}
+
+        \o \l{Locals and Watchers}
+
+    \endlist
+
+    \section1 Executing Java Script Expressions
+
+    When the application is interrupted by a breakpoint, you can use the \gui {QML
+    Script Console} to execute Java Script expressions in the current context. To
+    open it, choose \gui {Window > View > QML Script Console}.
+
+    \image qml-script-console.png "QML Script Console view"
+
+    You can type Java Script expressions and use them to get information about the
+    state or your application. For example, property values.
+
+    You can see the current value of a property by hovering over it in the code editor.
+
+    \section1 Previewing QML Changes at Runtime
+
+    If you change property values or add properties in the code editor, the changes
+    are updated in the running application when you save them. If live preview is not supported
+    for an element, a message appears. Click \gui Reload to preview the changes.
+
+    Reloading is enabled by default. To disable it, click
+    \inlineimage qml-observer-bar-reload.png "Apply Changes on Save button"
+    in the \gui {QML Observer} view.
+
+    \section1 Inspecting QML at Runtime
+
+    While the application is running, you can use the \gui {QML Observer} view to
+    explore the object structure, debug animations, and inspect colors.
+    To open the \gui {QML Observer} view, choose \gui {Window > View > QML Observer}.
+
+    \image qml-observer-view.png "QML Observer view"
+
+    When you debug complex applications, you can use the observe
+    mode to jump to the position in code where an element is defined. To switch to
+    the observe mode, click
+    \inlineimage qml-observer-bar-observe.png
+    in the \gui {QML Observer} view.
+
+    Click elements in the running application to jump to their definitions in the code.
+    Double-click elements to browse the element hierarchy. The hierarchy is displayed
+    as bread crumbs in the \gui {QML Observer} view.
+
+    You can also right-click an element in the running application to view the element
+    hierarchy as a context menu. Select an element to jump to its definition in code.
+
+    To zoom in and out of the application, click the \gui Zoom button.
+
+    To inspect colors, click the \gui {Color Picker} button. You can also the click
+    \inlineimage qml-observer-bar-copy-color.png "Copy Color button"
+    to copy the color definition to the clipboard.
+
+    \section1 Debugging Animations
+
+    \image qml-observer.png
+
+    To play and pause animations in the running application, click the \gui {Play/Pause Animations}
+    button in the \gui {QML Observer} view or \gui {Debugging > Animations > Pause} or press
+    \key {Ctrl+.}.
+
+    To step through an animation, select \gui {Debugging > Animations > Pause & Step}
+    or press \key {Ctrl+,}.
+
+    To set step duration in milliseconds, select \gui {Debugging > Animations > Set Step}.
+    To change the speed at which animations are played, select a value in \gui {Debugging
+    > Animations}.
+
 */
 
 
