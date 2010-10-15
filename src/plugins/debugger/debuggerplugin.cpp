@@ -2096,17 +2096,17 @@ void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine, bool notify)
         notifyCurrentEngine(RequestActivationRole, true);
 }
 
-static void changeFontSize(QWidget *widget, int size)
+static void changeFontSize(QWidget *widget, qreal size)
 {
     QFont font = widget->font();
-    font.setPointSize(size);
+    font.setPointSizeF(size);
     widget->setFont(font);
 }
 
 void DebuggerPluginPrivate::fontSettingsChanged
     (const TextEditor::FontSettings &settings)
 {
-    int size = settings.fontZoom() * settings.fontSize() / 100;
+    qreal size = settings.fontZoom() * settings.fontSize() / 100.;
     changeFontSize(m_breakWindow, size);
     changeFontSize(m_logWindow, size);
     changeFontSize(m_localsWindow, size);
