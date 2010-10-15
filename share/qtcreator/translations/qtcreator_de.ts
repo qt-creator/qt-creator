@@ -21321,16 +21321,32 @@ Bitte prüfen Sie die Zugriffsrechte des Ordners.</translation>
 <context>
     <name>Debugger::DebuggerEnginePrivate</name>
     <message>
+        <source>Remove Breakpoint</source>
+        <translation>Haltepunkt löschen</translation>
+    </message>
+    <message>
         <source>Remove Breakpoint %1</source>
         <translation>Haltepunkt %1 löschen</translation>
+    </message>
+    <message>
+        <source>Disable Breakpoint</source>
+        <translation>Haltepunkt deaktivieren</translation>
     </message>
     <message>
         <source>Disable Breakpoint %1</source>
         <translation>Haltepunkt %1 deaktivieren</translation>
     </message>
     <message>
+        <source>Enable Breakpoint</source>
+        <translation>Haltepunkt aktivieren</translation>
+    </message>
+    <message>
         <source>Enable Breakpoint %1</source>
         <translation>Haltepunkt %1 aktivieren</translation>
+    </message>
+    <message>
+        <source>Edit Breakpoint...</source>
+        <translation>Haltepunkt bearbeiten...</translation>
     </message>
     <message>
         <source>Edit Breakpoint %1...</source>
