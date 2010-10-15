@@ -33,6 +33,7 @@
 #include <QtCore/QList>
 #include <QtCore/QMetaType>
 #include <QtCore/QString>
+#include <QtCore/QCoreApplication>
 
 QT_BEGIN_NAMESPACE
 class QDebug;
@@ -51,13 +52,15 @@ public:
     QString toString() const;
 
 public:
-    int level;
+    qint32 level;
     QString function;
     QString file;  // We try to put an absolute file name in there.
     QString from;  // Sometimes something like "/usr/lib/libstdc++.so.6"
     QString to;    // Used in ScriptEngine only.
-    int line;
+    qint32 line;
     quint64 address;
+
+    Q_DECLARE_TR_FUNCTIONS(StackHandler)
 };
 
 QDebug operator<<(QDebug d, const StackFrame &frame);

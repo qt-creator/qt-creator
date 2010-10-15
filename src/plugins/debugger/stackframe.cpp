@@ -28,15 +28,12 @@
 **************************************************************************/
 
 #include "stackframe.h"
-#include "stackhandler.h"
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QTextStream>
-
-#include <QtGui/QToolTip>
-#include <QtGui/QFontMetrics>
+#include <QtCore/QCoreApplication>
 
 namespace Debugger {
 namespace Internal {
@@ -48,12 +45,12 @@ namespace Internal {
 ////////////////////////////////////////////////////////////////////////
 
 StackFrame::StackFrame()
-  : level(0), line(0), address(0)
+  : level(-1), line(-1), address(0)
 {}
 
 void StackFrame::clear()
 {
-    line = level = 0;
+    line = level = -1;
     function.clear();
     file.clear();
     from.clear();
@@ -70,16 +67,16 @@ QString StackFrame::toString() const
 {
     QString res;
     QTextStream str(&res);
-    str << StackHandler::tr("Address:") << ' ';
+    str << tr("Address:") << ' ';
     str.setIntegerBase(16);
     str << address;
     str.setIntegerBase(10);
     str << ' '
-        << StackHandler::tr("Function:") << ' ' << function << ' '
-        << StackHandler::tr("File:") << ' ' << file << ' '
-        << StackHandler::tr("Line:") << ' ' << line << ' '
-        << StackHandler::tr("From:") << ' ' << from << ' '
-        << StackHandler::tr("To:") << ' ' << to;
+        << tr("Function:") << ' ' << function << ' '
+        << tr("File:") << ' ' << file << ' '
+        << tr("Line:") << ' ' << line << ' '
+        << tr("From:") << ' ' << from << ' '
+        << tr("To:") << ' ' << to;
     return res;
 }
 
@@ -89,17 +86,16 @@ QString StackFrame::toToolTip() const
     QString res;
     QTextStream str(&res);
     str << "<html><body><table>"
-        << "<tr><td>" << StackHandler::tr("Address:") << "</td><td>0x";
+        << "<tr><td>" << tr("Address:") << "</td><td>0x";
     str.setIntegerBase(16);
     str <<  address;
     str.setIntegerBase(10);
     str << "</td></tr>"
-        << "<tr><td>" << StackHandler::tr("Function:") << "</td><td>" << function << "</td></tr>"
-        << "<tr><td>" << StackHandler::tr("File:") << "</td><td width="
-        << QFontMetrics(QToolTip::font()).width(filePath) << ">" << filePath << "</td></tr>"
-        << "<tr><td>" << StackHandler::tr("Line:") << "</td><td>" << line << "</td></tr>"
-        << "<tr><td>" << StackHandler::tr("From:") << "</td><td>" << from << "</td></tr>"
-        << "<tr><td>" << StackHandler::tr("To:") << "</td><td>" << to << "</td></tr>"
+        << "<tr><td>" << tr("Function:") << "</td><td>" << function << "</td></tr>"
+        << "<tr><td>" << tr("File:") << "</td><td>" << filePath << "</td></tr>"
+        << "<tr><td>" << tr("Line:") << "</td><td>" << line << "</td></tr>"
+        << "<tr><td>" << tr("From:") << "</td><td>" << from << "</td></tr>"
+        << "<tr><td>" << tr("To:") << "</td><td>" << to << "</td></tr>"
         << "</table></body></html>";
     return res;
 }
