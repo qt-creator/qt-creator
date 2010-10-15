@@ -6485,7 +6485,7 @@
     project.
 
     To create a graphical button that scales beautifully without using vector graphics,
-    use the \l{http://doc.qt.nokia.com/4.7-snapshot/qml-borderimage.html}{Border Image}
+    use the \l{http://doc.qt.nokia.com/4.7/qml-borderimage.html}{Border Image}
     element. For more information, see \l{Creating Scalable Buttons and Borders}.
 
     */
@@ -6500,7 +6500,7 @@
 
     \title Creating Scalable Buttons and Borders
 
-    You can use the \l{http://doc.qt.nokia.com/4.7-snapshot/qml-borderimage.html}{Border Image}
+    You can use the \l{http://doc.qt.nokia.com/4.7/qml-borderimage.html}{Border Image}
     element to display an image, such as a PNG file, as a border and a background.
 
     Use two Border Image elements and suitable graphics to make it look like the button
