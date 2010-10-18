@@ -232,7 +232,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     Core::Command *cmd;
 
-    Core::Context proFileEditorContext = Core::Context(Qt4ProjectManager::Constants::PROJECT_ID);
+    Core::Context proFileEditorContext = Core::Context(Qt4ProjectManager::Constants::C_PROFILEEDITOR);
 
     QAction *jumpToFile = new QAction(tr("Jump to File Under Cursor"), this);
     cmd = am->registerAction(jumpToFile,
