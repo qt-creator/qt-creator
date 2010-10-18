@@ -46,6 +46,7 @@
 #include <qt4projectmanager/qtversionmanager.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qt4projectmanager/qmlobservertool.h>
+#include <qt4projectmanager/qtoutputformatter.h>
 
 #include <QFormLayout>
 #include <QComboBox>
@@ -258,6 +259,10 @@ QWidget *QmlProjectRunConfiguration::createConfigurationWidget()
     return detailsWidget;
 }
 
+ProjectExplorer::OutputFormatter *QmlProjectRunConfiguration::createOutputFormatter() const
+{
+    return new Qt4ProjectManager::QtOutputFormatter(qmlTarget()->qmlProject());
+}
 
 QString QmlProjectRunConfiguration::mainScript() const
 {

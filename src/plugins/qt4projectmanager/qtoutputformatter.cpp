@@ -39,7 +39,7 @@
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
 
-QtOutputFormatter::QtOutputFormatter(Qt4Project *project)
+QtOutputFormatter::QtOutputFormatter(ProjectExplorer::Project *project)
     : OutputFormatter()
     , m_qmlError(QLatin1String("(file:///.+:\\d+:\\d+):"))
     , m_qtError(QLatin1String("Object::.*in (.*:\\d+)"))
@@ -210,7 +210,7 @@ void QtOutputFormatter::handleLink(const QString &href)
             QFileInfo fi(fileName);
             if (fi.isRelative()) {
                 // Yeah fileName is relative, no suprise
-                Qt4Project *pro = m_project.data();
+                ProjectExplorer::Project *pro = m_project.data();
                 if (pro) {
                     QString baseName = fi.fileName();
                     foreach (const QString &file, pro->files(Project::AllFiles)) {

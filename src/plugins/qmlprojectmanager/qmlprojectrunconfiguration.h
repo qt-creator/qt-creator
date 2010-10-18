@@ -83,6 +83,8 @@ public:
     // RunConfiguration
     virtual QWidget *createConfigurationWidget();
 
+    ProjectExplorer::OutputFormatter *createOutputFormatter() const;
+
     QVariantMap toMap() const;
 
 public slots:
