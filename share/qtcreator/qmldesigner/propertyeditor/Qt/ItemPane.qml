@@ -43,7 +43,6 @@ PropertyFrame {
 
             horizontalScrollBarPolicy: "Qt::ScrollBarAlwaysOff";
             id: standardPane;
-            content: properyEditorStandard;
             QFrame {
                 //minimumHeight: 1100
                 id: properyEditorStandard
