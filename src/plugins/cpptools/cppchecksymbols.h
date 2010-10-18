@@ -107,7 +107,7 @@ protected:
     bool maybeType(const Name *name) const;
     bool maybeMember(const Name *name) const;
     bool maybeStatic(const Name *name) const;
-    bool maybeVirtualMethod(const Name *name) const;
+    bool maybeFunction(const Name *name) const;
 
     void checkName(NameAST *ast, Scope *scope = 0);
     void checkNamespace(NameAST *name);
@@ -121,7 +121,7 @@ protected:
     void addTypeOrStatic(const QList<LookupItem> &candidates, NameAST *ast);
     void addStatic(const QList<LookupItem> &candidates, NameAST *ast);
     void addClassMember(const QList<LookupItem> &candidates, NameAST *ast);
-    void addVirtualMethod(const QList<LookupItem> &candidates, NameAST *ast, unsigned argumentCount);
+    void addFunction(const QList<LookupItem> &candidates, NameAST *ast, unsigned argumentCount);
 
     bool isTemplateClass(Symbol *s) const;
 
@@ -142,6 +142,7 @@ protected:
 
     virtual bool visit(SimpleNameAST *ast);
     virtual bool visit(DestructorNameAST *ast);
+    virtual bool visit(ParameterDeclarationAST *ast);
     virtual bool visit(QualifiedNameAST *ast);
     virtual bool visit(TemplateIdAST *ast);
 
@@ -166,10 +167,9 @@ private:
     LookupContext _context;
     TypeOfExpression typeOfExpression;
     QString _fileName;
-    QList<Document::DiagnosticMessage> _diagnosticMessages;
     QSet<QByteArray> _potentialTypes;
     QSet<QByteArray> _potentialMembers;
-    QSet<QByteArray> _potentialVirtualMethods;
+    QSet<QByteArray> _potentialFunctions;
     QSet<QByteArray> _potentialStatics;
     QList<AST *> _astStack;
     QVector<Use> _usages;

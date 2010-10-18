@@ -1154,13 +1154,19 @@ void CppModelManager::updateEditor(Document::Ptr doc)
 
                     QTextCursor c(ed->document()->findBlockByNumber(m.line() - 1));
                     const QString text = c.block().text();
-                    for (int i = 0; i < text.size(); ++i) {
-                        if (! text.at(i).isSpace()) {
-                            c.setPosition(c.position() + i);
-                            break;
+                    if (m.length() > 0 && m.column() + m.length() < (unsigned)text.size()) {
+                        int column = m.column() > 0 ? m.column() - 1 : 0;
+                        c.setPosition(c.position() + column);
+                        c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, m.length());
+                    } else {
+                        for (int i = 0; i < text.size(); ++i) {
+                            if (! text.at(i).isSpace()) {
+                                c.setPosition(c.position() + i);
+                                break;
+                            }
                         }
+                        c.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
                     }
-                    c.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
                     sel.cursor = c;
                     sel.format.setToolTip(m.text());
                     e.selections.append(sel);

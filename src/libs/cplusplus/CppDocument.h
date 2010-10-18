@@ -192,6 +192,9 @@ public:
     void addDiagnosticMessage(const DiagnosticMessage &d)
     { _diagnosticMessages.append(d); }
 
+    void clearDiagnosticMessages()
+    { _diagnosticMessages.clear(); }
+
     QList<DiagnosticMessage> diagnosticMessages() const
     { return _diagnosticMessages; }
 
