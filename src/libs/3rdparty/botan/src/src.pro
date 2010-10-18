@@ -3,6 +3,8 @@ TARGET = Botan
 
 CONFIG += dll
 
+PRECOMPILED_HEADER = ../../precompiled_headers/botan_pch.h
+
 include(../../../../qtcreatorlibrary.pri)
 
 DEPENDPATH += .

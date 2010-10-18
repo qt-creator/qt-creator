@@ -37,7 +37,6 @@
 #include "boundingrecthighlighter.h"
 #include "subcomponenteditortool.h"
 #include "qmltoolbar.h"
-#include "jsdebuggeragent.h"
 
 #include "qt_private/qdeclarativedebughelper_p.h"
 
@@ -60,7 +59,6 @@ QDeclarativeViewObserverPrivate::QDeclarativeViewObserverPrivate(QDeclarativeVie
     designModeBehavior(false),
     executionPaused(false),
     slowdownFactor(1.0f),
-    jsDebuggerAgent(0),
     toolbar(0)
 {
 }
@@ -718,9 +716,11 @@ void QDeclarativeViewObserverPrivate::_q_onCurrentObjectsChanged(QList<QObject*>
                 gfxObjects << gfxObj;
         }
     }
-    setSelectedItemsForTools(items);
-    clearHighlight();
-    highlight(gfxObjects, QDeclarativeViewObserverPrivate::IgnoreContext);
+    if (designModeBehavior) {
+        setSelectedItemsForTools(items);
+        clearHighlight();
+        highlight(gfxObjects, QDeclarativeViewObserverPrivate::IgnoreContext);
+    }
 }
 
 QString QDeclarativeViewObserver::idStringForObject(QObject *obj)
@@ -789,11 +789,6 @@ void QDeclarativeViewObserverPrivate::createToolbar()
     QObject::connect(q, SIGNAL(marqueeSelectToolActivated()), toolbar, SLOT(activateMarqueeSelectTool()));
 }
 
-void QDeclarativeViewObserver::setDebugMode(bool isDebugMode)
-{
-    if (isDebugMode && !data->jsDebuggerAgent)
-        data->jsDebuggerAgent = new JSDebuggerAgent(data->view->engine());
-}
 
 } //namespace QmlJSDebugger
 

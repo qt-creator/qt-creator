@@ -172,7 +172,7 @@ QTextCharFormat FontSettings::toTextCharFormat(const QString &category) const
 
     if (category == textCategory) {
         tf.setFontFamily(m_family);
-        tf.setFontPointSize(m_fontSize * m_fontZoom / 100);
+        tf.setFontPointSize(m_fontSize * m_fontZoom / 100.);
         tf.setFontStyleStrategy(m_antialias ? QFont::PreferAntialias : QFont::NoAntialias);
     }
 

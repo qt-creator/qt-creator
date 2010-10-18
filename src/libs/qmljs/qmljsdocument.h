@@ -122,6 +122,7 @@ class QMLJS_EXPORT LibraryInfo
     QList<QmlDirParser::Plugin> _plugins;
     typedef QList<const Interpreter::FakeMetaObject *> FakeMetaObjectList;
     FakeMetaObjectList _metaObjects;
+    bool _dumped;
 
 public:
     LibraryInfo();
@@ -142,6 +143,12 @@ public:
 
     bool isValid() const
     { return _valid; }
+
+    bool isDumped() const
+    { return _dumped; }
+
+    void setDumped(bool dumped)
+    { _dumped = dumped; }
 };
 
 class QMLJS_EXPORT Snapshot

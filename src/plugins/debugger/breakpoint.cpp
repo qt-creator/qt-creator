@@ -289,7 +289,7 @@ QString BreakpointData::toToolTip() const
         << "<tr><td>" << BreakHandler::tr("Internal Number:")
         << "</td><td>&mdash;</td><td>" << bpNumber << "</td></tr>"
         << "<tr><td>" << BreakHandler::tr("File Name:")
-        << "</td><td>" << fileName << "</td><td>" << QDir::toNativeSeparators(bpFileName) << "</td></tr>"
+        << "</td><td>" << QDir::toNativeSeparators(fileName) << "</td><td>" << QDir::toNativeSeparators(bpFileName) << "</td></tr>"
         << "<tr><td>" << BreakHandler::tr("Function Name:")
         << "</td><td>" << funcName << "</td><td>" << bpFuncName << "</td></tr>"
         << "<tr><td>" << BreakHandler::tr("Line Number:") << "</td><td>";

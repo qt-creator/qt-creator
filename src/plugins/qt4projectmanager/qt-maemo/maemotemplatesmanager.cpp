@@ -62,6 +62,8 @@ namespace Internal {
 
 namespace {
 const QByteArray IconFieldName("XB-Maemo-Icon-26:");
+const QLatin1String PackagingDirName("qtc_packaging");
+const QLatin1String DebianDirNameFremantle("debian_fremantle");
 } // anonymous namespace
 
 
@@ -85,7 +87,7 @@ MaemoTemplatesManager::MaemoTemplatesManager(QObject *parent) : QObject(parent)
         SLOT(handleActiveProjectChanged(ProjectExplorer::Project*)));
     connect(session, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
         this, SLOT(handleProjectToBeRemoved(ProjectExplorer::Project*)));
-    handleActiveProjectChanged(session->startupProject());    
+    handleActiveProjectChanged(session->startupProject());
 }
 
 void MaemoTemplatesManager::handleActiveProjectChanged(ProjectExplorer::Project *project)
@@ -113,7 +115,7 @@ bool MaemoTemplatesManager::handleTarget(ProjectExplorer::Target *target)
     const Qt4Target * const qt4Target = qobject_cast<Qt4Target *>(target);
     const MaemoDeployStep * const deployStep
         = MaemoGlobal::buildStep<MaemoDeployStep>(qt4Target->activeDeployConfiguration());
-    connect(deployStep->deployables(), SIGNAL(modelsCreated()), this,
+    connect(deployStep->deployables(), SIGNAL(modelReset()), this,
         SLOT(handleProFileUpdated()), Qt::QueuedConnection);
 
     Project * const project = target->project();
@@ -140,8 +142,14 @@ bool MaemoTemplatesManager::createDebianTemplatesIfNecessary(const ProjectExplor
 {
     Project * const project = target->project();
     QDir projectDir(project->projectDirectory());
-    if (projectDir.exists(QLatin1String("debian")))
+    if (QFileInfo(debianDirPath(project)).exists())
         return true;
+    if (!projectDir.exists(PackagingDirName)
+            && !projectDir.mkdir(PackagingDirName)) {
+        raiseError(tr("Error creating Maemo packaging directory '%1'.")
+            .arg(PackagingDirName));
+        return false;
+    }
 
     QProcess dh_makeProc;
     QString error;
@@ -154,11 +162,14 @@ bool MaemoTemplatesManager::createDebianTemplatesIfNecessary(const ProjectExplor
         return false;
     }
     if (!MaemoPackageCreationStep::preparePackagingProcess(&dh_makeProc, tc,
-        projectDir.path(), &error)) {
+        projectDir.path() + QLatin1Char('/') + PackagingDirName, &error)) {
         raiseError(error);
         return false;
     }
 
+    const QString dhMakeDebianDir = projectDir.path() + QLatin1Char('/')
+        + PackagingDirName + QLatin1String("/debian");
+    MaemoPackageCreationStep::removeDirectory(dhMakeDebianDir);
     const QString command = QLatin1String("dh_make -s -n -p ")
         + MaemoPackageCreationStep::packageName(project) + QLatin1Char('_')
         + MaemoPackageCreationStep::DefaultVersionNumber;
@@ -177,21 +188,23 @@ bool MaemoTemplatesManager::createDebianTemplatesIfNecessary(const ProjectExplor
         return false;
     }
 
+    if (!QFile::rename(dhMakeDebianDir, debianDirPath(project))) {
+        raiseError(tr("Unable to move new debian directory to '%1'.")
+            .arg(QDir::toNativeSeparators(debianDirPath(project))));
+        MaemoPackageCreationStep::removeDirectory(dhMakeDebianDir);
+        return false;
+    }
+
     QDir debianDir(debianDirPath(project));
     const QStringList &files = debianDir.entryList(QDir::Files);
-    QStringList filesToAddToProject;
     foreach (const QString &fileName, files) {
         if (fileName.endsWith(QLatin1String(".ex"), Qt::CaseInsensitive)
             || fileName.compare(QLatin1String("README.debian"), Qt::CaseInsensitive) == 0
             || fileName.compare(QLatin1String("dirs"), Qt::CaseInsensitive) == 0
             || fileName.compare(QLatin1String("docs"), Qt::CaseInsensitive) == 0) {
             debianDir.remove(fileName);
-        } else
-            filesToAddToProject << debianDir.absolutePath()
-                + QLatin1Char('/') + fileName;
+        }
     }
-    qobject_cast<Qt4Project *>(project)->rootProjectNode()
-        ->addFiles(UnknownFileType, filesToAddToProject);
 
     return adaptRulesFile(project) && adaptControlFile(project);
 }
@@ -247,7 +260,7 @@ bool MaemoTemplatesManager::adaptControlFile(const Project *project)
     adaptControlFileField(controlContents, "Priority", "optional");
     const int buildDependsOffset = controlContents.indexOf("Build-Depends:");
     if (buildDependsOffset == -1) {
-        qWarning("Weird: no Build-Depends field in debian/control file.");
+        qDebug("Unexpected: no Build-Depends field in debian control file.");
     } else {
         int buildDependsNewlineOffset
             = controlContents.indexOf('\n', buildDependsOffset);
@@ -559,8 +572,8 @@ QStringList MaemoTemplatesManager::debianFiles(const Project *project) const
 
 QString MaemoTemplatesManager::debianDirPath(const Project *project) const
 {
-    return project->projectDirectory() + QLatin1Char('/')
-        + QLatin1String("/debian");
+    return project->projectDirectory() + QLatin1Char('/') + PackagingDirName
+        + QLatin1Char('/') + DebianDirNameFremantle;
 }
 
 QString MaemoTemplatesManager::changeLogFilePath(const Project *project) const

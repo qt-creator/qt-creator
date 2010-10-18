@@ -83,6 +83,8 @@ public:
     // RunConfiguration
     virtual QWidget *createConfigurationWidget();
 
+    ProjectExplorer::OutputFormatter *createOutputFormatter() const;
+
     QVariantMap toMap() const;
 
 public slots:
@@ -111,6 +113,7 @@ protected:
 private:
     void ctor();
     static bool isValidVersion(Qt4ProjectManager::QtVersion *version);
+    void setQtVersionId(int id);
 
     // absolute path to current file (if being used)
     QString m_currentFileFilename;

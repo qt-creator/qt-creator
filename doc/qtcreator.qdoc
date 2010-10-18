@@ -125,6 +125,7 @@
                 \o \l{Setting Up Debugger}
                 \o \l{Debugger Modes of Operation}
                 \o \l{Using Debugging Helpers}
+                \o \l{Debugging Qt Quick Projects}
             \endlist
        \o \l{Using the Maemo Emulator}
        \o \l{Using Version Control Systems}
@@ -444,7 +445,7 @@
     \list
         \o Windows XP Service Pack 2
         \o Windows Vista
-        \o (K)Ubuntu Linux 7.04 (32-bit and 64-bit) or later, with the following:
+        \o (K)Ubuntu Linux 8.04 (32-bit and 64-bit) or later, with the following:
            \list
                \o g++
                \o make
@@ -516,7 +517,7 @@
             \o Mac OS X
             \o Yes
             \o No
-            \o No
+            \o Yes
     \endtable
 */
 
@@ -993,10 +994,6 @@
     editor. Then select the \gui {Design} mode to edit the file in the
     visual editor.
 
-    \note The visual \QMLD editor is provided as an experimental plugin that you must
-    enable to be able to edit QML files in the \gui Design mode. Enabling the
-    visual editor can negatively affect the overall stability of Qt Creator.
-
     To enable or disable the \QMLD visual editor, select
     \gui {Help > About Plugins... > Qt Quick > QmlDesigner}. You must restart Qt Creator
     to enable or disable the visual editor.
@@ -1007,8 +1004,10 @@
 
     \list
 
-    \o \gui {Navigator} pane displays the items in the scene. You can
+    \o \gui {Navigator} pane displays the items in the editor. You can
     show and hide items to focus on specific parts of the application.
+    To view lists of files or projects, instead, select \gui {File System},
+    \gui {Open Documents}, or \gui Projects in the menu.
 
     \o \gui {Library} pane displays lists of predefined \gui {Items} and
     imported \gui {Resources} that you can use to design applications. The
@@ -4261,7 +4260,7 @@
 
     \section1 Using Version Control Systems
 
-    The \gui{Tools} menu contains a sub-menu for each supported version
+    The \gui{Tools} menu contains a submenu for each supported version
     control system.
 
     The \gui{Version Control} output pane displays the commands
@@ -4345,73 +4344,71 @@
     editor, you can go back to it by closing the diff view. You can also check
     a diff view from the editor combo box showing the \gui{Opened files}.
 
-
     \section2 Reverting Changes
 
-    To discard local changes to a file or project, use the \gui Revert
-    function or the \gui {Undo Changes/Undo Repository Changes} function
-    (for Git). The changes discarded depend on the version control system.
+    All supported version control system support reverting your project to
+    known states. This functionality is generally called \e reverting.
 
-    For example, in Perforce, select \gui{Revert File/Revert Project}
-    to discard changes made to open files, reverting them to the
-    revisions last synchronized from the repository. Select
-    \gui{Revert Unchanged} to revert files if their contents or file
-    type have not changed after they were opened for editing.
+    The changes discarded depend on the version control system.
+
+    A version control system can replace the \gui Revert menu option with other
+    options.
+
+    \section3 Reverting Changes Using Git
+
+    The Git version control system has an index that is used to stage
+    changes. The index is commited on the next commit. Git allows you to revert
+    back to the state of the last commit as well as to the state staged in the
+    index.
+
+    \list
+
+        \o \gui{Undo Unstaged Changes} reverts all changes and resets the working
+        directory to the state of the index.
+
+        \o \gui{Undo Uncommitted Changes} reverts all changes, discarding the index.
+        This returns your working copy to the state it was in right after the last commit.
+
+    \endlist
 
     \section2 Using Additional Git Functions
 
-    The \gui Git sub-menu contains the following additional items:
+    Git is a fast decentralized version control system. Git is available
+    for Windows, Linux and Mac.
+
+    The \gui Git submenu contains the following additional items:
 
     \table
 
         \row
-            \i  \gui {Apply Patch/Apply Patch...}
-            \i  Apply changes to a file or project from a diff file. You can
-                either apply a patch file that is open in Qt Creator or select
+            \i  \gui {Patch > Apply from Editor/Apply from File...}
+            \i  Patches are rewriting instructions that can be applied to a set of files.
+                You can either apply a patch file that is open in Qt Creator or select
                 the patch file to apply from the file system.
-        \row
-            \i  \gui{Stash Snapshot...}
-            \i  Save a snapshot of your current
-                work under a name for later reference. For example, if you
-                want to try out something and find out later that it does not work,
-                you can discard it and return to the state of the snapshot.
-        \row
-            \i  \gui{Stash}
-            \i  Stash local changes prior to executing a \gui{Pull}.
-        \row
-            \i  \gui{Stash Pop}
-            \i  Remove a single stashed state from the stash list and apply it on
-                top of the current working tree state.
         \row
             \i  \gui{Pull}
             \i  Pull changes from the remote repository. If there are locally
-                modified files, you are prompted to stash those changes.
-                The \gui Git options page contains an option to do
-                a rebase operation while pulling.
+                modified files, you are prompted to stash those changes. Select \gui{Tools >
+                Options... > Version Control > Git} and select the \gui {Pull with rebase}
+                check box to perform a rebase operation while pulling.
 
         \row
-            \i  \gui{Clean Repository.../Clean Project...}
-            \i  Collect all files that are not under version control
-                with the exception of patches and project files
-                and show them as a checkable list in a dialog
-                prompting for deletion. This lets you completely clean a build.
+            \i  \gui{Clean.../Clean Project...}
+            \i  All files that are not under version control (with the exception
+                of patches and project files) are displayed in the \gui {Clean Repository}
+                dialog. Select the files to delete and click \gui Delete. This allows you to
+                clean a build completely.
 
         \row
             \i  \gui{Branches...}
-            \i  Displays the branch dialog showing the local branches at the
-                top and remote branches at the bottom. To switch to the local
-                branch, double-click on it. Double-clicking on a remote
-                branch first creates a local branch with the same name that
-                tracks the remote branch, and then switches to it.
+            \i  Display the \gui Branch dialog that shows the local branches at the
+                top and remote branches at the bottom. To switch to a local branch,
+                double-click it. Double-clicking on a remote branch first creates a local
+                branch with the same name that tracks the remote branch, and then switches
+                to it.
 
                 \image qtcreator-vcs-gitbranch.png
 
-
-        \row
-            \i  \gui{Stashes...}
-            \i  Displays a dialog showing the stashes created by
-                \gui{Stash Snapshot...} with options to restore,
-                display or delete them.
         \row
             \i  \gui {Stage File for Commit}
             \i  Mark new or modified files for committing to the repository.
@@ -4422,9 +4419,39 @@
                 in the \gui Change field.
     \endtable
 
-    \section2 Using Additional Mercurial Functions
+    \section3 Using Stashes
 
-    The \gui Mercurial sub-menu contains the following additional items:
+    With Git, you can put your current set of changes onto a virtual shelf called a \e stash.
+    Stashes are useful, for example, to put aside a set of changes to work on higher
+    priority tasks or to pull in new chages from another repository.
+
+    Qt Creator exposes this functionality in the \gui{Tools > Git > Stash} menu.
+
+    \table
+        \row
+            \i  \gui{Stashes...}
+            \i  Display a dialog that shows all known stashes with options to restore,
+                display or delete them.
+        \row
+            \i  \gui{Stash}
+            \i  Stash all local changes. The working copy is then reset to
+                the state it had right after the last commit.
+        \row
+            \i  \gui{Stash Snapshot...}
+            \i  Save a snapshot of your current work under a name for later reference. The
+                working copy is unchanged.
+
+                For example, if you want to try something and find out later that it does not work,
+                you can discard it and return to the state of the snapshot.
+        \row
+            \i  \gui{Stash Pop}
+            \i  Remove a single stashed state from the stash list and apply it on
+                top of the current working tree state.
+    \endtable
+
+    \section2 Using Additional Mercurial Functionality
+
+    The \gui Mercurial submenu contains the following additional items:
 
     \table
         \row
@@ -4453,7 +4480,7 @@
     Control > Perforce}. If you do not use Perforce and want to turn
     off the check, clear this field.
 
-    The \gui Perforce sub-menu contains the following additional items:
+    The \gui Perforce submenu contains the following additional items:
 
     \table
         \row
@@ -4475,10 +4502,9 @@
 
     \endtable
 
-
     \section2 Using Additional Subversion Functions
 
-    The \gui Subversion sub-menu contains the following additional items:
+    The \gui Subversion submenu contains the following additional items:
 
     \table
         \row
@@ -4726,15 +4752,14 @@
     Qt Creator does not include a debugger. It provides a debugger plugin that acts
     as an interface between the Qt Creator core and external native debuggers
     such as the GNU Symbolic Debugger (gdb), the Microsoft Console Debugger (CDB),
-    and an internal Java Script debugger. You can use the native debuggers to
-    debug the C++ language.
+    and a QML/Java Script debugger.
 
     The following sections describe debugging with Qt Creator:
 
     \list
 
         \o \l{Debugging the Example Application} uses an example application to illustrate
-        how to debug applications in the \gui Debug mode.
+        how to debug Qt C++ applications in the \gui Debug mode.
 
         \o \l{Interacting with the Debugger} describes the views and functions available
         in the \gui Debug mode.
@@ -4748,6 +4773,8 @@
 
         \o \l{Using Debugging Helpers} describes how to get more detailed data
         on complex data.
+
+        \o \l{Debugging Qt Quick Projects} describes how to debug Qt Quick projects.
 
     \endlist
 
@@ -4786,6 +4813,8 @@
        \o \bold TRK to debug processes running on a Symbian device.
 
     \endlist
+
+    \note Debugging QML and Java Script is supported only in plain mode.
 
     When you click the \gui {Start Debugging} button, the debugger is launched
     in the appropriate operating mode (plain, terminal, or TRK), based on the
@@ -4869,6 +4898,9 @@
     \nextpage creator-debugger-operating-modes.html
 
     \title Setting Up Debugger
+
+    \note The information in this section applies only to debugging the C++
+    language.
 
     Typically, the interaction between Qt Creator and the native debugger is set
     up automatically and you do not need to do anything. However, you might have an
@@ -5021,7 +5053,9 @@
                package (Version 6.11.1.404 for the 32-bit or the 64-bit version of Qt Creator, respectively),
                which is freely available for download from the
                \l{http://msdn.microsoft.com/en-us/default.aspx}
-               {Microsoft Developer Network}.
+               {Microsoft Developer Network}. The Qt Creator help browser does
+               not allow you to download files, and therefore, you must copy the above links to
+               a browser.
 
                \note Visual Studio does not include the Debugging tools needed,
                and therefore, you must install them separately.
@@ -5092,7 +5126,8 @@
     \title Interacting with the Debugger
 
     In \gui Debug mode, you can use several views to interact with the
-    program you are debugging. Frequently used views are shown by
+    program you are debugging. The availability of views depends on whether
+    you are debugging C++ or QML. Frequently used views are shown by
     default and rarely used ones are hidden. To change the default settings,
     select \gui {Window > Views}, and then select views to display or hide.
 
@@ -5119,30 +5154,12 @@
     Select \gui Debug menu options to launch the debugger in other modes.
     For more information, see \l{Debugger Modes of Operation}.
 
+    \note Debugging QML and Java Script is supported only in plain mode.
+
     Once the program starts running, it behaves and performs as usual.
-    You can interrupt a running program by selecting \gui{Debug} >
+    You can interrupt a running C++ program by selecting \gui{Debug} >
     \gui {Interrupt}. The program is automatically interrupted as soon as a
     breakpoint is hit.
-
-    \section2 Starting the Debugger from the Command Line
-
-    You can use the Qt Creator debugger interface from the command line. To
-    attach it to a running process, specify the process ID as a parameter for
-    the \c {-debug} option. To examine a core file, specify the file name.
-    Qt Creator executes all the necessary steps, such as searching for
-    the binary that belongs to a core file.
-
-    For example:
-
-    \list
-
-        \o \c {C:\qtcreator-2.1\bin>qtcreator -debug 2000}
-
-        \o \c {C:\qtcreator-2.1\bin>qtcreator -debug core.2000}
-
-    \endlist
-
-    For more information, see \l{Using Command Line Options}.
 
     \section1 Using the Debugger
 
@@ -5154,9 +5171,8 @@
         \o Retrieves the contents of local variables.
         \o Examines \gui Watchers.
         \o Updates the \gui Registers, \gui Modules, and \gui Disassembler
-           views.
+           views if you are debugging the C++ language.
     \endlist
-
 
     You can use the \gui Debug mode views to examine the data in more detail.
 
@@ -5166,7 +5182,7 @@
 
        \o To finish debugging, press \key{Shift+F5}.
        \o  To execute a line of code as a whole, press \key{F10}.
-       \o  To step into a function or a sub-function, press \key{F11}.
+       \o  To step into a function or a subfunction, press \key{F11}.
        \o  To continue running the program, press \key{F5}.
 
     \endlist
@@ -5174,14 +5190,6 @@
     It is also possible to continue executing the program until the current
     function completes or jump to an arbitrary position in the current function.
 
-    \section2 Stepping into Frameworks in Mac OS
-
-    In Mac OS X, external libraries are usually built into so-called Frameworks,
-    which may contain both release and debug versions of the library. When you run
-    applications on the Mac OS desktop, the release version of Frameworks is used
-    by default. To step into Frameworks, select the \gui {Use debug versions of
-    Frameworks} option in the project run settings for \gui Desktop and
-    \gui {Qt Simulator} targets.
 
     \section1 Setting Breakpoints
 
@@ -5225,7 +5233,6 @@
     while it is running under the debugger's control. Breakpoints are saved
     together with a session.
 
-
     \section1 Viewing Call Stack Trace
 
     When the program being debugged is interrupted, Qt Creator displays the
@@ -5246,42 +5253,6 @@
     jumps to the corresponding location and updates the \gui{Locals and Watchers}
     view, making it seem like the program was interrupted before entering the
     function.
-
-
-    \section1 Viewing Threads
-
-    If a multi-threaded program is interrupted, the \gui Thread view or the
-    combobox named \gui Thread in the debugger's status bar can be used to
-    switch from one thread to another. The \gui Stack view adjusts itself
-    accordingly.
-
-
-    \section1 Viewing Modules and Source Files
-
-    The \gui{Modules} view and \gui{Source Files} views display information
-    that the debugger plugin has about modules and source files included in
-    the project. The \gui{Modules} view lists the modules in the project and
-    symbols within the modules. In addition, it indicates where the module
-    was loaded.
-
-    The \gui{Source Files} view lists all the source files included in the project.
-    If you cannot step into an instruction, you can check whether the source file is
-    actually part of the project, or whether it was compiled
-    elsewhere. The view shows the path to each file in the file system.
-
-    By default, the \gui{Modules} view and \gui{Source Files} view are hidden.
-
-
-    \section1 Viewing Disassembled Code and Register State
-
-    The \gui{Disassembler} view displays disassembled code for the current
-    function. The \gui{Registers} view displays the current state of the CPU's
-    registers.
-
-    The \gui{Disassembler} view and the \gui{Registers} view are both useful
-    for low-level commands for checking single instructions, such as \gui{Step Into}
-    and \gui{Step Over}. By default, both \gui{Disassembler} and
-    \gui{Registers} view are hidden.
 
     \section1 Locals and Watchers
 
@@ -5351,6 +5322,74 @@
 
     \note The set of watched items is saved in your session.
 
+    \section1 Debugging the C++ Language
+
+    The following sections describe additional debugging functions that apply
+    only to debugging C++.
+
+    \section2 Starting the Debugger from the Command Line
+
+    You can use the Qt Creator debugger interface from the command line. To
+    attach it to a running process, specify the process ID as a parameter for
+    the \c {-debug} option. To examine a core file, specify the file name.
+    Qt Creator executes all the necessary steps, such as searching for
+    the binary that belongs to a core file.
+
+    For example:
+
+    \list
+
+        \o \c {C:\qtcreator-2.1\bin>qtcreator -debug 2000}
+
+        \o \c {C:\qtcreator-2.1\bin>qtcreator -debug core.2000}
+
+    \endlist
+
+    For more information, see \l{Using Command Line Options}.
+
+    \section2 Stepping into Frameworks in Mac OS
+
+    In Mac OS X, external libraries are usually built into so-called Frameworks,
+    which may contain both release and debug versions of the library. When you run
+    applications on the Mac OS desktop, the release version of Frameworks is used
+    by default. To step into Frameworks, select the \gui {Use debug versions of
+    Frameworks} option in the project run settings for \gui Desktop and
+    \gui {Qt Simulator} targets.
+
+    \section2 Viewing Threads
+
+    If a multi-threaded program is interrupted, the \gui Thread view or the
+    combobox named \gui Thread in the debugger's status bar can be used to
+    switch from one thread to another. The \gui Stack view adjusts itself
+    accordingly.
+
+    \section2 Viewing Modules and Source Files
+
+    The \gui{Modules} view and \gui{Source Files} views display information
+    that the debugger plugin has about modules and source files included in
+    the project. The \gui{Modules} view lists the modules in the project and
+    symbols within the modules. In addition, it indicates where the module
+    was loaded.
+
+    The \gui{Source Files} view lists all the source files included in the project.
+    If you cannot step into an instruction, you can check whether the source file is
+    actually part of the project, or whether it was compiled
+    elsewhere. The view shows the path to each file in the file system.
+
+    By default, the \gui{Modules} view and \gui{Source Files} view are hidden.
+
+
+    \section2 Viewing Disassembled Code and Register State
+
+    The \gui{Disassembler} view displays disassembled code for the current
+    function. The \gui{Registers} view displays the current state of the CPU's
+    registers.
+
+    The \gui{Disassembler} view and the \gui{Registers} view are both useful
+    for low-level commands for checking single instructions, such as \gui{Step Into}
+    and \gui{Step Over}. By default, both \gui{Disassembler} and
+    \gui{Registers} view are hidden.
+
 */
 
 
@@ -5363,7 +5402,9 @@
     \title Debugging the Example Application
 
     This section uses the \l{Creating a Qt C++ Application}{TextFinder} example to
-    illustrate how to debug applications in the \gui Debug mode. TextFinder
+    illustrate how to debug Qt C++ applications in the \gui Debug mode.
+
+    TextFinder
     reads a text file into
     QString and then displays it with QTextEdit.
     To look at the example QString, \c{line}, and see the
@@ -5441,7 +5482,7 @@
     \contentspage index.html
     \previouspage creator-debugger-operating-modes.html
     \page creator-debugging-helpers.html
-    \nextpage creator-maemo-emulator.html
+    \nextpage creator-debugging-qml.html
 
     \title Using Debugging Helpers
 
@@ -5453,7 +5494,7 @@
     with Qt Creator, but they enhance the user's ability to quickly
     examine complex data significantly.
 
-    \section1 Debugging Helpers based on C++
+    \section1 Debugging Helpers Based on C++
 
     This is the first and original approach to display complex data
     types. While it has been superseded on most platforms by the more
@@ -5472,7 +5513,7 @@
     library is built for each Qt version.
 
 
-    \section1 Debugging Helpers based on Python
+    \section1 Debugging Helpers Based on Python
 
     On platforms featuring a Python-enabled version of the gdb debugger,
     the data extraction is done by a Python script. This is more robust
@@ -5744,6 +5785,17 @@
                 d.putName("value")
                 d.putItemHelper(Item(value, item.iname, "value"))
     \endcode
+
+    \section1 Debugging Helpers for QML
+
+    The debugging helpers for QML provide you with code completion for custom modules
+    (\c qmldump) and debugging Qt Quick UI projects (\c qmlobserver).
+
+    You have to build the QML Observer once for each Qt version that you want to debug
+    with. Select \gui{Tools > Options... > Qt4 > Qt Versions}.
+
+    \note QML Observer requires Qt 4.7.1 or later.
+
 */
 
 
@@ -5849,6 +5901,134 @@
 
     Syntax completion and highlighting work once your project successfully
     builds and links against the external library.
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-debugging-helpers.html
+    \page creator-debugging-qml.html
+    \nextpage creator-maemo-emulator.html
+
+    \title Debugging Qt Quick Projects
+
+    \note You need Qt 4.7.1 or later to debug Qt Quick projects.
+
+    \section1 Setting Up QML Debugging
+
+    The process of setting up debugging for Qt Quick projects depends on the type of
+    the project: Qt Quick UI or Qt Quick Application.
+
+    To debug Qt Quick UI projects, you must compile the debugging helpers. For more
+    information, see \l{Debugging Helpers for QML}.
+
+    To debug Qt Quick Applications, you must modify the project file to comment in the
+    following line:
+
+    \c {DEFINES += QMLJSDEBUGGER}.
+
+    Then you must rebuild the project.
+
+    To enable QML debugging for  both types of projects, select \gui Projects, and
+    then select the \gui QML check box in the run settings.
+
+    \section1 Starting QML Debugging
+
+    To start the application, choose \gui {Debug > Start Debugging
+    > Start Debugging} or press \key F5. Once the application starts running, it behaves
+    and performs as usual. You can then perform the following tasks:
+
+    \list
+
+        \o Debug Java Script functions
+
+        \o Preview QML changes at runtime
+
+        \o Inspect QML at runtime
+
+    \endlist
+
+    \section1 Debugging Java Script Functions
+
+    You can use the Qt Creator \gui Debug mode to inspect the state of your
+    application while debugging. You can interact with the debugger in several
+    ways, as described in the following sections:
+
+    \list
+
+        \o \l{Setting Breakpoints}
+
+        \o \l{Viewing Call Stack Trace}
+
+        \o \l{Locals and Watchers}
+
+    \endlist
+
+    \section1 Executing Java Script Expressions
+
+    When the application is interrupted by a breakpoint, you can use the \gui {QML
+    Script Console} to execute Java Script expressions in the current context. To
+    open it, choose \gui {Window > View > QML Script Console}.
+
+    \image qml-script-console.png "QML Script Console view"
+
+    You can type Java Script expressions and use them to get information about the
+    state or your application. For example, property values.
+
+    You can see the current value of a property by hovering over it in the code editor.
+
+    \section1 Previewing QML Changes at Runtime
+
+    If you change property values or add properties in the code editor, the changes
+    are updated in the running application when you save them. If live preview is not supported
+    for an element, a message appears. Click \gui Reload to preview the changes.
+
+    Reloading is enabled by default. To disable it, click
+    \inlineimage qml-observer-bar-reload.png "Apply Changes on Save button"
+    in the \gui {QML Observer} view.
+
+    \section1 Inspecting QML at Runtime
+
+    While the application is running, you can use the \gui {QML Observer} view to
+    explore the object structure, debug animations, and inspect colors.
+    To open the \gui {QML Observer} view, choose \gui {Window > View > QML Observer}.
+
+    \image qml-observer-view.png "QML Observer view"
+
+    When you debug complex applications, you can use the observe
+    mode to jump to the position in code where an element is defined. To switch to
+    the observe mode, click
+    \inlineimage qml-observer-bar-observe.png
+    in the \gui {QML Observer} view.
+
+    Click elements in the running application to jump to their definitions in the code.
+    Double-click elements to browse the element hierarchy. The hierarchy is displayed
+    as bread crumbs in the \gui {QML Observer} view.
+
+    You can also right-click an element in the running application to view the element
+    hierarchy as a context menu. Select an element to jump to its definition in code.
+
+    To zoom in and out of the application, click the \gui Zoom button.
+
+    To inspect colors, click the \gui {Color Picker} button. You can also the click
+    \inlineimage qml-observer-bar-copy-color.png "Copy Color button"
+    to copy the color definition to the clipboard.
+
+    \section1 Debugging Animations
+
+    \image qml-observer.png
+
+    To play and pause animations in the running application, click the \gui {Play/Pause Animations}
+    button in the \gui {QML Observer} view or \gui {Debugging > Animations > Pause} or press
+    \key {Ctrl+.}.
+
+    To step through an animation, select \gui {Debugging > Animations > Pause & Step}
+    or press \key {Ctrl+,}.
+
+    To set step duration in milliseconds, select \gui {Debugging > Animations > Set Step}.
+    To change the speed at which animations are played, select a value in \gui {Debugging
+    > Animations}.
+
 */
 
 
@@ -6044,9 +6224,9 @@
 /*!
 
     \contentspage index.html
-    \previouspage quick-projects.html
+    \previouspage creator-using-qt-quick-designer.html
     \page quick-components.html
-    \nextpage quick-screens.html
+    \nextpage quick-buttons.html
 
     \title Creating Components
 
@@ -6055,7 +6235,7 @@
     through properties, signals, and slots, and is generally defined in its own QML file.
     You can import components to screens and applications.
 
-    You can create the following QML components:
+    You can use the following QML elements to create components:
 
     \list
 
@@ -6079,6 +6259,268 @@
 
     \endlist
 
+    \section1 Creating Components in Qt Quick Designer
+
+    \list 1
+
+        \o Select \gui {File > New File or Project > Files and Classes > QML
+        > Choose...} to create a new .qml file.
+
+        \o Click \gui Design to open the .qml file in \QMLD.
+
+        \o Drag and drop an item from the \gui Library pane to the editor.
+
+        \o Edit item properties in the \gui Properties pane.
+
+        The available properties depend on the item.
+
+    \endlist
+
+    The following sections contain examples of how to create some common components:
+
+    \list
+
+        \o \l{Creating Buttons}
+
+        \o \l{Creating Scalable Buttons and Borders}
+
+    \endlist
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage quick-components.html
+    \page quick-buttons.html
+    \nextpage quick-scalable-image.html
+
+    \title Creating Buttons
+
+    To create a button component:
+
+    \list 1
+
+        \o Select \gui {File > New File or Project > QML > QML File > Choose...} to
+         create a QML file called Button.qml (for example).
+
+        \note Components are listed in the \gui Library pane only if the filename
+        begins with a capital letter.
+
+        \o Click \gui {Design} to edit the file in the visual editor.
+
+        \o In the \gui Navigator pane, click \gui Rectangle to set properties
+        for it.
+
+        \o In the \gui Properties pane, modify the appearance of the button.
+
+        \list a
+
+            \o In the \gui Size field, set the width (\gui W) of the button to 60
+             and the height of the button (\gui H) to 20.
+
+            \o In the \gui Color field, select the button color.
+
+            \o In the \gui Radius field, use the slider to set the radius of the
+            rectangle and produce rounded corners for the button.
+
+        \endlist
+
+        \o Drag and drop a \gui {Text} item on top of the \gui Rectangle. This
+        creates a nested element where \gui Rectangle is the parent element of
+        \gui Text. Elements are positioned relative to their parents.
+
+        \o In the \gui Properties pane, edit the properties of the \gui Text item.
+
+        \list a
+
+            \o In the \gui Text field, type \bold Button.
+
+            You can select the text color, font, size, and style in the \gui Font
+            section.
+
+            \o In the \gui Alignment field, select the center buttons to align
+            the text to the center of the button.
+
+            \o Click \gui {Layout}, and then click the
+            \inlineimage qmldesigner-anchor-fill-screen.png
+            button to anchor the text to the whole button area.
+
+        \endlist
+
+        \o Press \key {Ctrl+S} to save the button.
+
+        \image qmldesigner-button.png "Button component"
+
+    \endlist
+
+    \note To view the button, you must add it to a Qt Quick Application or Qt Quick UI
+    project.
+
+    To create a graphical button that scales beautifully without using vector graphics,
+    use the \l{http://doc.qt.nokia.com/4.7/qml-borderimage.html}{Border Image}
+    element. For more information, see \l{Creating Scalable Buttons and Borders}.
+
+    */
+
+
+    /*!
+
+    \contentspage index.html
+    \previouspage quick-buttons.html
+    \page quick-scalable-image.html
+    \nextpage quick-screens.html
+
+    \title Creating Scalable Buttons and Borders
+
+    You can use the \l{http://doc.qt.nokia.com/4.7/qml-borderimage.html}{Border Image}
+    element to display an image, such as a PNG file, as a border and a background.
+
+    Use two Border Image elements and suitable graphics to make it look like the button
+    is pushed down when it is clicked. One of the Border Image elements is visible by default.
+    You can specify that it is hidden and the other one becomes visible when the mouse
+    is clicked.
+
+    Add a MouseArea that covers the whole area and emits the clicked signal (\c {parent.clicked()})
+    when it detects a mouse click.
+
+    You can add text to the button and set it up as a property. The text can then be initialized
+    from the outside, making the button a reusable UI component. The font size is also available
+    in case the default size is too big. You can scale down the button text and use smooth text
+    rendering for some extra quality.
+
+    \image qmldesigner-borderimage.png "Graphical button"
+
+    To create a graphical button:
+
+    \list 1
+
+        \o Select \gui {File > New File or Project > QML > QML File > Choose...} to create
+        a QML file called Button.qml (for example).
+
+        \o Double-click the file to open it in the code editor.
+
+        \o Replace the \gui Rectangle with an \gui Item, as illustrated by the
+        following code snippet:
+
+        \code
+
+        Item {
+
+        }
+
+        \endcode
+
+        \o Specify properties and set expressions for the \gui Item, as
+        illustrated by the following code snippet:
+
+        \code
+
+        property string text: ""
+        property int fontSize: 44
+
+        signal clicked
+
+        \endcode
+
+        You will point to the properties and expression later.
+
+        \o Click \gui {Design} to edit the file in the visual editor.
+
+        \o Drag and drop two \gui BorderImage items from the \gui Library pane to
+        the scene.
+
+        \o Drag and drop a \gui Text item to the scene.
+
+        \o Drag and drop a \gui MouseArea to the screen.
+
+        \o Click \gui Design to return to the visual editor.
+
+        \o In the \gui Navigator pane, select \gui border_image1 to specify
+        settings for it in the \gui Properties pane:
+
+        \list a
+
+            \o Select \gui {Set Expression} in the menu next to the \gui Visibility
+            check box.
+
+            \o Enter the following expression to specify that the image is visible
+            when the mouse is not pressed down: \c {!mouse_area1.pressed}.
+
+            \o In the \gui Source field, select the image file for the
+            button, for example button_up.png.
+
+            \o Click \gui {Layout}, and then click the
+            \inlineimage qmldesigner-anchor-fill-screen.png
+            button to anchor the border image to the \gui Item.
+
+        \endlist
+
+        \o Select \gui border_image2 to specify similar settings for it:
+
+        \list a
+
+            \o Set the following epression for \gui Visibility, to specify that
+            the the image is visible when the mouse is pressed down:
+            \c {mouse_area1.pressed}.
+
+            \o In the \gui Source field, select the image file for the
+            button when it is clicked, for example button_down.png.
+
+            \o Click \gui {Layout}, and then click the
+            \inlineimage qmldesigner-anchor-fill-screen.png
+            button to anchor the border image to the \gui Item.
+
+        \endlist
+
+        \o Select \gui text1 to specify font size and color, and text
+        scaling and rendering:
+
+        \list a
+
+            \o In the \gui Color field, use the color picker to select
+            the font color, or enter a value in the field.
+
+            \o In the \gui Text field, select \gui {Set Expression} and
+            enter a pointer to the \c {text} property that you specified
+            earlier: \c {parent.txt}.
+
+            \o Select the \gui Aliasing check box to enable smooth text
+            rendering.
+
+            \o In the \gui Size field, select \gui {Pixels} to specify
+            the font size in pixels. By default, the size is specified in
+            points.
+
+            \o In the \gui Size field, select \gui {Set Expression} and
+            enter a pointer to the \c {fontSize} property that you specified
+            earlier.
+
+            \o Click \gui {Layout}, and then click the
+            \inlineimage qmldesigner-center-in.png "Anchor buttons"
+            buttons to inherit the vertical and horizontal centering from
+            the parent.
+
+            \o Click \gui Advanced to specify scaling for the text in the
+            \gui Scale field.
+
+            \o Select \gui {Set Expression} and enter the following expression:
+            \c {if (!mousearea1.pressed) { 1 } else { 0.95 }}.
+
+            \note You can enter long and complicated expressions also in the
+            code editor.
+
+        \endlist
+
+        \o In the code editor, add to the \c MouseArea item
+        a pointer to the \c clicked expression that you added earlier:
+        \c {onClicked: parent.clicked()}.
+
+    \endlist
+
+    \note To view the button, you must add it to a Qt Quick Application or Qt
+    Quick UI project.
+
 */
 
 
@@ -6092,6 +6534,28 @@
     \title Creating Screens
 
     You can use predefined QML elements and your own components to create screens.
+    Typically, the main qml file in a Qt Quick project specifies the main window of an
+    application.
+
+    \section1 Adding Components to Screens
+
+    \list 1
+
+        \o Select \gui {File > New File or Project > Qt Quick Project > Qt Quick UI}
+        or \gui {Qt Quick Application} to create a Qt Quick project.
+
+        \o Drag and drop components from the \gui Library pane to the editor.
+
+        The QML files in the project folder are displayed in \gui {QML Elements}.
+
+        \o Select components in the \gui Navigator pane to edit their properties
+        in the \gui Properties pane.
+
+        For example, you can anchor components to a position on the screen.
+
+    \endlist
+
+    \section1 Organizing Items on Screens
 
     You can create the following types of views to organize items provided by
     \l{http://doc.qt.nokia.com/4.7/qdeclarativemodels.html}{data models}:
@@ -6106,6 +6570,8 @@
 
     In the code editor, write the code to use the data models.
 
+    \section1 Using States
+
     Use states and transitions
     to navigate between screens.
 
@@ -6113,6 +6579,13 @@
     their properties and behavior and the available actions. For example, you can use
     states to create two screens.
 
+    To add states, click the empty slot in the \gui States pane. Then modify the new state
+    in the visual editor.
+
+    \image qmldesigner-states.png "States pane"
+
+    The properties that you change in a state are highlighted with blue color.
+    In the code editor, you can see the changes recorded as changes to the base state.
 */
 
 
@@ -7431,12 +7904,12 @@
            items with names consisting of plain characters, numbers,
            underscores, and hyphens.
 
-        \o There is no IDE support for adding or removing sub-projects. Project
+        \o There is no IDE support for adding or removing subprojects. Project
            hierarchies (SUBDIRS template) have to be created manually.
 
         \o Creating new CMake projects with Qt Creator is not supported.
 
-        \o Building and packaging sub-projects is not supported for Maemo devices.
+        \o Building and packaging subprojects is not supported for Maemo devices.
 
         \o You must create projects for Maemo targets on the same partition where
         you installed Nokia Qt SDK, Qt Creator, and MADDE.

@@ -84,20 +84,24 @@ void FadeWidgetHack::paintEvent(QPaintEvent *)
 struct FutureProgressPrivate {
     explicit FutureProgressPrivate(FutureProgress *q);
 
+    void tryToFadeAway();
+
     QFutureWatcher<void> m_watcher;
     Internal::ProgressBar *m_progress;
     QWidget *m_widget;
     QHBoxLayout *m_widgetLayout;
     QString m_type;
-    bool m_keep;
+    FutureProgress::KeepOnFinishType m_keep;
     bool m_waitingForUserInteraction;
     Internal::FadeWidgetHack *m_faderWidget;
+    FutureProgress *m_q;
+    bool m_isFading;
 };
 
 FutureProgressPrivate::FutureProgressPrivate(FutureProgress *q) :
     m_progress(new Internal::ProgressBar), m_widget(0), m_widgetLayout(new QHBoxLayout),
-    m_keep(false), m_waitingForUserInteraction(false),
-    m_faderWidget(new Internal::FadeWidgetHack(q))
+    m_keep(FutureProgress::DontKeepOnFinish), m_waitingForUserInteraction(false),
+    m_faderWidget(new Internal::FadeWidgetHack(q)), m_q(q), m_isFading(false)
 {
 }
 
@@ -224,7 +228,7 @@ void FutureProgress::setStarted()
 
 bool FutureProgress::eventFilter(QObject *, QEvent *e)
 {
-    if (d->m_waitingForUserInteraction
+    if (d->m_keep != KeepOnFinish && d->m_waitingForUserInteraction
         && (e->type() == QEvent::MouseMove || e->type() == QEvent::KeyPress)) {
         qApp->removeEventFilter(this);
         QTimer::singleShot(notificationTimeout, this, SLOT(fadeAway()));
@@ -248,13 +252,25 @@ void FutureProgress::setFinished()
         d->m_progress->setError(false);
     }
     emit finished();
-    if (d->m_keep) {
-        d->m_waitingForUserInteraction = true;
-        qApp->installEventFilter(this);
-    } else if (!d->m_progress->hasError()) {
-        QTimer::singleShot(shortNotificationTimeout, this, SLOT(fadeAway()));
+    d->tryToFadeAway();
+}
+
+void FutureProgressPrivate::tryToFadeAway()
+{
+    if (m_isFading)
+        return;
+    if (m_keep == FutureProgress::KeepOnFinishTillUserInteraction) {
+        m_waitingForUserInteraction = true;
+        //eventfilter is needed to get user interaction
+        //events to start QTimer::singleShot later
+        qApp->installEventFilter(m_q);
+        m_isFading = true;
+    } else if (m_keep == FutureProgress::DontKeepOnFinish && !m_progress->hasError()) {
+        QTimer::singleShot(shortNotificationTimeout, m_q, SLOT(fadeAway()));
+        m_isFading = true;
     }
 }
+
 
 void FutureProgress::setProgressRange(int min, int max)
 {
@@ -343,9 +359,17 @@ QString FutureProgress::type() const
     return d->m_type;
 }
 
-void FutureProgress::setKeepOnFinish(bool keep)
+void FutureProgress::setKeepOnFinish(KeepOnFinishType keepType)
 {
-    d->m_keep = keep;
+    if (d->m_keep == keepType) {
+        return;
+    }
+    d->m_keep = keepType;
+
+    //if it is not finished tryToFadeAway is called by setFinished at the end
+    if (d->m_watcher.isFinished()) {
+        d->tryToFadeAway();
+    }
 }
 
 bool FutureProgress::keepOnFinish() const

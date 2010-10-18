@@ -27,17 +27,22 @@
 **
 **************************************************************************/
 
-#ifndef QMLOUTPUTFORMATTER_H
-#define QMLOUTPUTFORMATTER_H
+#ifndef QTOUTPUTFORMATTER_H
+#define QTOUTPUTFORMATTER_H
+
+#include "qt4projectmanager_global.h"
 
 #include <projectexplorer/outputformatter.h>
 #include <QtCore/QRegExp>
 #include <QtCore/QSharedPointer>
 #include <QtGui/QTextCharFormat>
 
+namespace ProjectExplorer {
+class Project;
+} // namespace ProjectExplorer
+
 namespace Qt4ProjectManager
 {
-class Qt4Project;
 
 struct LinkResult
 {
@@ -46,10 +51,10 @@ struct LinkResult
     QString href;
 };
 
-class QtOutputFormatter: public ProjectExplorer::OutputFormatter
+class QT4PROJECTMANAGER_EXPORT QtOutputFormatter: public ProjectExplorer::OutputFormatter
 {
 public:
-    QtOutputFormatter(Qt4Project *project);
+    QtOutputFormatter(ProjectExplorer::Project *project);
 
     virtual void appendApplicationOutput(const QString &text, bool onStdErr);
 
@@ -63,13 +68,12 @@ private:
     QRegExp m_qtError;
     QRegExp m_qtAssert;
     QRegExp m_qtTestFail;
-    QWeakPointer<Qt4Project> m_project;
-    QTextCharFormat m_linkFormat;
+    QWeakPointer<ProjectExplorer::Project> m_project;
     QString m_lastLine;
     QString m_deferedText;
 };
 
 
-} // namespace QmlProjectManager
+} // namespace Qt4ProjectManager
 
-#endif // QMLOUTPUTFORMATTER_H
+#endif // QTOUTPUTFORMATTER_H

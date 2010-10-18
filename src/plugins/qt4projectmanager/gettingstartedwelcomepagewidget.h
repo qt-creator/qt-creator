@@ -94,7 +94,6 @@ private slots:
     void slotNextFeature();
     void slotPrevFeature();
     void slotCreateNewProject();
-    void slotSetPrivateQmlExamples();
     void addToFeatures(const RssItem&);
     void showFeature(int feature = -1);
 
@@ -103,11 +102,6 @@ signals:
 
 private:
     QStringList tipsOfTheDay();
-    void updateCppExamples(const QString &examplePath,
-                           const QString &sourcePath,
-                           const QString &demoXml);
-    void updateQmlExamples(const QString &examplePath,
-                           const QString &sourcePath);
     Ui::GettingStartedWelcomePageWidget *ui;
     int m_currentTip;
     int m_currentFeature;

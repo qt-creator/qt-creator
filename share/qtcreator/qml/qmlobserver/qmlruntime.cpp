@@ -619,6 +619,7 @@ QDeclarativeViewer::QDeclarativeViewer(QWidget *parent, Qt::WindowFlags flags)
 
     canvas = new QDeclarativeView(this);
     observer = new QmlJSDebugger::QDeclarativeViewObserver(canvas, this);
+    new QmlJSDebugger::JSDebuggerAgent(canvas->engine());
     if (!(flags & Qt::FramelessWindowHint)) {
         m_crumblePathWidget = new CrumblePath(canvas);
 #ifndef Q_WS_MAC
@@ -697,11 +698,6 @@ void QDeclarativeViewer::setDesignModeBehavior(bool value)
     if (designModeBehaviorAction)
         designModeBehaviorAction->setChecked(value);
     observer->setDesignModeBehavior(value);
-}
-
-void QDeclarativeViewer::setDebugMode(bool on)
-{
-    observer->setDebugMode(on);
 }
 
 void QDeclarativeViewer::enableExperimentalGestures()

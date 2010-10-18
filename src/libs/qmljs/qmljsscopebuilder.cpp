@@ -228,7 +228,7 @@ void ScopeBuilder::setQmlScopeObject(Node *node)
         if (initializer) {
             for (UiObjectMemberList *m = initializer->members; m; m = m->next) {
                 if (UiScriptBinding *scriptBinding = cast<UiScriptBinding *>(m->member)) {
-                    if (scriptBinding->qualifiedId
+                    if (scriptBinding->qualifiedId && scriptBinding->qualifiedId->name
                             && scriptBinding->qualifiedId->name->asString() == QLatin1String("target")
                             && ! scriptBinding->qualifiedId->next) {
                         // ### make Evaluate understand statements.
@@ -256,6 +256,8 @@ const Value *ScopeBuilder::scopeObjectLookup(AST::UiQualifiedId *id)
     foreach (const ObjectValue *scopeObject, _context->scopeChain().qmlScopeObjects) {
         const ObjectValue *object = scopeObject;
         for (UiQualifiedId *it = id; it; it = it->next) {
+            if (!it->name)
+                return 0;
             result = object->property(it->name->asString(), _context);
             if (!result)
                 break;

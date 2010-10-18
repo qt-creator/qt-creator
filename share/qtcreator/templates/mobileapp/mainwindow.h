@@ -9,6 +9,7 @@ namespace Ui {
 
 class MainWindow : public QMainWindow
 {
+    Q_OBJECT
 public:
     enum Orientation {
         LockPortrait,

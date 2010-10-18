@@ -749,6 +749,8 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
         m_semanticHighlighter->setModelManager(m_modelManager);
         connect(m_modelManager, SIGNAL(documentUpdated(QmlJS::Document::Ptr)),
                 this, SLOT(onDocumentUpdated(QmlJS::Document::Ptr)));
+        connect(m_modelManager, SIGNAL(libraryInfoUpdated(QString,QmlJS::LibraryInfo)),
+                this, SLOT(forceSemanticRehighlight()));
         connect(this->document(), SIGNAL(modificationChanged(bool)), this, SLOT(modificationChanged(bool)));
     }
 

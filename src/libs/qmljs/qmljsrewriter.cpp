@@ -256,7 +256,8 @@ QString Rewriter::flatten(UiQualifiedId *first)
         if (current != first)
             flatId += '.';
 
-        flatId += current->name->asString();
+        if (current->name)
+            flatId += current->name->asString();
     }
 
     return flatId;

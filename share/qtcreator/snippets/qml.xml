@@ -3,9 +3,8 @@
 <snippet>property <tab>type</tab> <tab>name</tab>: <tab>value</tab>
 </snippet>
 <snippet>Item {
-	id: <tab>name</tab>
-	
-	}
+    id: <tab>name</tab>
+}
 </snippet>
 <snippet>BorderImage {
     id: <tab>name</tab>
@@ -81,16 +80,6 @@
 <snippet>PauseAnimation { duration: <tab>200</tab> }
 </snippet>
 <snippet>ColorAnimation { from: <tab>"white"</tab>; to: <tab>"black"</tab>; duration: <tab>200</tab> }
-</snippet>
-<snippet description="Colorize">effect: Colorize { color: "<tab>"red"</tab>" }
-</snippet>
-<snippet description="Blur">effect: Blur { blurRadius: "<tab>200</tab>" }
-</snippet>
-<snippet description="DropShadow">effect: DropShadow {
-            blurRadius: <tab>3</tab>
-            offset.x: <tab>2</tab>
-            offset.y: <tab>2</tab>
-        }
 </snippet>
 
 </snippets>

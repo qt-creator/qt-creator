@@ -537,6 +537,9 @@ bool DebuggerRunControl::checkDebugConfiguration(int toolChain,
 
     bool success = true;
 
+    if (!(DebuggerPlugin::instance()->activeLanguages() & CppLanguage))
+        return success;
+
     switch(toolChain) {
     case ProjectExplorer::ToolChain::GCC:
     case ProjectExplorer::ToolChain::LINUX_ICC:

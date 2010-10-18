@@ -79,18 +79,19 @@ void MaemoDeployables::createModels()
         || qt4BuildConfiguration()->qt4Target()->project()->activeTarget()->id()
             != QLatin1String(Qt4ProjectManager::Constants::MAEMO_DEVICE_TARGET_ID))
         return;
-    disconnect(qt4BuildConfiguration()->qt4Target()->qt4Project(),
-        SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
-        m_updateTimer, SLOT(start()));
+    const Qt4ProFileNode *const rootNode
+        = qt4BuildConfiguration()->qt4Target()->qt4Project()->rootProjectNode();
+    if (!rootNode) // Happens on project creation by wizard.
+        return;
     m_updateTimer->stop();
     m_proFileOption = QSharedPointer<ProFileOption>(new ProFileOption);
     m_proFileOption->properties
         = qt4BuildConfiguration()->qtVersion()->versionInfo();
     m_proFileOption->target_mode = ProFileOption::TARG_UNIX_MODE;
-    const Qt4ProFileNode *const rootNode
-        = qt4BuildConfiguration()->qt4Target()->qt4Project()->rootProjectNode();
-    if (!rootNode) // Happens on project creation by wizard.
-        return;
+    disconnect(qt4BuildConfiguration()->qt4Target()->qt4Project(),
+        SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
+        m_updateTimer, SLOT(start()));
+    beginResetModel();
     qDeleteAll(m_listModels);
     m_listModels.clear();
     createModels(rootNode);
@@ -118,7 +119,7 @@ void MaemoDeployables::createModels()
         }
     }
 
-    emit modelsCreated();
+    endResetModel();
     connect(qt4BuildConfiguration()->qt4Target()->qt4Project(),
         SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
         m_updateTimer, SLOT(start()));
@@ -207,6 +208,27 @@ const Qt4BuildConfiguration *MaemoDeployables::qt4BuildConfiguration() const
     const Qt4BuildConfiguration * const bc
         = qobject_cast<Qt4BuildConfiguration *>(m_buildStep->target()->activeBuildConfiguration());
     return bc;
+}
+
+int MaemoDeployables::rowCount(const QModelIndex &parent) const
+{
+    return parent.isValid() ? 0 : modelCount();
+}
+
+QVariant MaemoDeployables::data(const QModelIndex &index, int role) const
+{
+    if (!index.isValid() || index.row() < 0 || index.row() >= modelCount()
+            || index.column() != 0)
+        return QVariant();
+    const MaemoDeployableListModel *const model = m_listModels.at(index.row());
+    if (role == Qt::ForegroundRole && !model->hasTargetPath()) {
+        QBrush brush;
+        brush.setColor(Qt::red);
+        return brush;
+    }
+    if (role == Qt::DisplayRole)
+        return QFileInfo(model->proFilePath()).fileName();
+    return QVariant();
 }
 
 } // namespace Qt4ProjectManager

@@ -1,5 +1,8 @@
 include(../qtcreator.pri)
 
+# use gui precompiled header for plugins by default
+isEmpty(PRECOMPILED_HEADER):PRECOMPILED_HEADER = $$PWD/shared/qtcreator_gui_pch.h
+
 isEmpty(PROVIDER) {
     PROVIDER = Nokia
 }

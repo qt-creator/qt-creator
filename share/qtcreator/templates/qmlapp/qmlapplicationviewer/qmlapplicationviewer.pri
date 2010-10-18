@@ -7,10 +7,6 @@ SOURCES += $$PWD/qmlapplicationviewer.cpp
 HEADERS += $$PWD/qmlapplicationviewer.h
 INCLUDEPATH += $$PWD
 
-contains(DEFINES, QMLOBSERVER) {
-    DEFINES *= QMLJSDEBUGGER
-}
-
 defineTest(minQtVersion) {
     maj = $$1
     min = $$2

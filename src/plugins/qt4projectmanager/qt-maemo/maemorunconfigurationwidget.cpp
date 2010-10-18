@@ -51,6 +51,7 @@
 #include <qt4projectmanager/qt4target.h>
 #include <utils/detailswidget.h>
 
+#include <QtCore/QCoreApplication>
 #include <QtGui/QComboBox>
 #include <QtGui/QFileDialog>
 #include <QtGui/QFormLayout>
@@ -59,6 +60,7 @@
 #include <QtGui/QHeaderView>
 #include <QtGui/QLabel>
 #include <QtGui/QLineEdit>
+#include <QtGui/QMessageBox>
 #include <QtGui/QPushButton>
 #include <QtGui/QRadioButton>
 #include <QtGui/QTableView>
@@ -66,6 +68,11 @@
 
 namespace Qt4ProjectManager {
 namespace Internal {
+namespace {
+const QString FetchEnvButtonText
+    = QCoreApplication::translate("Qt4ProjectManager::Internal::MaemoRunConfigurationWidget",
+          "Fetch Device Environment");
+} // anonymous namespace
 
 MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
         MaemoRunConfiguration *runConfiguration, QWidget *parent)
@@ -155,7 +162,7 @@ void MaemoRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
     connect(m_runConfiguration, SIGNAL(targetInformationChanged()), this,
         SLOT(updateTargetInformation()));
     connect(m_runConfiguration->deployStep()->deployables(),
-        SIGNAL(modelsCreated()), this, SLOT(handleDeploySpecsChanged()));
+        SIGNAL(modelReset()), this, SLOT(handleDeploySpecsChanged()));
     handleDeploySpecsChanged();
 }
 
@@ -246,7 +253,7 @@ void MaemoRunConfigurationWidget::addEnvironmentWidgets(QVBoxLayout *mainLayout)
     m_baseEnvironmentComboBox->setCurrentIndex(m_runConfiguration->baseEnvironmentBase());
     baseEnvironmentLayout->addWidget(m_baseEnvironmentComboBox);
 
-    m_fetchEnv = new QPushButton(tr("Fetch Device Environment"));
+    m_fetchEnv = new QPushButton(FetchEnvButtonText);
     baseEnvironmentLayout->addWidget(m_fetchEnv);
     baseEnvironmentLayout->addStretch(10);
 
@@ -267,8 +274,10 @@ void MaemoRunConfigurationWidget::addEnvironmentWidgets(QVBoxLayout *mainLayout)
     connect(m_runConfiguration,
         SIGNAL(userEnvironmentChangesChanged(QList<Utils::EnvironmentItem>)),
         this, SLOT(userEnvironmentChangesChanged(QList<Utils::EnvironmentItem>)));
-    connect(m_fetchEnv, SIGNAL(pressed()), this, SLOT(fetchEnvironment()));
+    connect(m_fetchEnv, SIGNAL(clicked()), this, SLOT(fetchEnvironment()));
     connect(m_deviceEnvReader, SIGNAL(finished()), this, SLOT(fetchEnvironmentFinished()));
+    connect(m_deviceEnvReader, SIGNAL(error(QString)), this,
+        SLOT(fetchEnvironmentError(QString)));
 }
 
 void MaemoRunConfigurationWidget::argumentsEdited(const QString &text)
@@ -278,7 +287,8 @@ void MaemoRunConfigurationWidget::argumentsEdited(const QString &text)
 
 void MaemoRunConfigurationWidget::updateTargetInformation()
 {
-    m_localExecutableLabel->setText(m_runConfiguration->localExecutableFilePath());
+    m_localExecutableLabel
+        ->setText(QDir::toNativeSeparators(m_runConfiguration->localExecutableFilePath()));
 }
 
 void MaemoRunConfigurationWidget::handleDeploySpecsChanged()
@@ -387,14 +397,31 @@ void MaemoRunConfigurationWidget::handleDebuggingTypeChanged(bool useGdb)
 
 void MaemoRunConfigurationWidget::fetchEnvironment()
 {
+    disconnect(m_fetchEnv, SIGNAL(clicked()), this, SLOT(fetchEnvironment()));
+    connect(m_fetchEnv, SIGNAL(clicked()), this, SLOT(stopFetchEnvironment()));
+    m_fetchEnv->setText(tr("Cancel Fetch Operation"));
     m_deviceEnvReader->start();
-    m_fetchEnv->setEnabled(false);
+}
+
+void MaemoRunConfigurationWidget::stopFetchEnvironment()
+{
+    m_deviceEnvReader->stop();
+    fetchEnvironmentFinished();
 }
 
 void MaemoRunConfigurationWidget::fetchEnvironmentFinished()
 {
-    m_fetchEnv->setEnabled(true);
+    disconnect(m_fetchEnv, SIGNAL(clicked()), this,
+        SLOT(stopFetchEnvironment()));
+    connect(m_fetchEnv, SIGNAL(clicked()), this, SLOT(fetchEnvironment()));
+    m_fetchEnv->setText(FetchEnvButtonText);
     m_runConfiguration->setSystemEnvironment(m_deviceEnvReader->deviceEnvironment());
+}
+
+void MaemoRunConfigurationWidget::fetchEnvironmentError(const QString &error)
+{
+    QMessageBox::warning(this, tr("Device error"),
+        tr("Fetching environment failed: %1").arg(error));
 }
 
 void MaemoRunConfigurationWidget::userChangesEdited()

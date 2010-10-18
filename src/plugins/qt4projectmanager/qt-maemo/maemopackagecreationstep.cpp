@@ -64,6 +64,7 @@
 
 namespace {
     const QLatin1String PackagingEnabledKey("Packaging Enabled");
+    const QLatin1String MagicFileName(".qtcreator");
 }
 
 using namespace ProjectExplorer::Constants;
@@ -168,7 +169,7 @@ bool MaemoPackageCreationStep::createPackage(QProcess *buildProc)
         = buildConfiguration()->target()->project()->projectDirectory();
     const bool inSourceBuild
         = QFileInfo(buildDirectory()) == QFileInfo(projectDir);
-    if (!inSourceBuild && !copyDebianFiles())
+    if (!copyDebianFiles(inSourceBuild))
         return false;
 
     if (!runCommand(buildProc, QLatin1String("dpkg-buildpackage -nc -uc -us")))
@@ -209,13 +210,26 @@ bool MaemoPackageCreationStep::createPackage(QProcess *buildProc)
         buildProc->start(packagingCommand(maemoToolChain(),
             QLatin1String("dh_clean")));
         buildProc->waitForFinished();
+        buildProc->terminate();
     }
     return true;
 }
 
-bool MaemoPackageCreationStep::copyDebianFiles()
+bool MaemoPackageCreationStep::copyDebianFiles(bool inSourceBuild)
 {
     const QString debianDirPath = buildDirectory() + QLatin1String("/debian");
+    const QString magicFilePath
+        = debianDirPath + QLatin1Char('/') + MagicFileName;
+    if (inSourceBuild && QFileInfo(debianDirPath).isDir()
+        && !QFileInfo(magicFilePath).exists()) {
+        raiseError(tr("Packaging failed: Foreign debian directory detected."),
+             tr("You are not using a shadow build and there is a debian "
+                "directory in your project root ('%1'). Qt Creator will not "
+                "overwrite that directory. Please remove it or use the "
+                "shadow build feature.")
+                   .arg(QDir::toNativeSeparators(debianDirPath)));
+        return false;
+    }
     if (!removeDirectory(debianDirPath)) {
         raiseError(tr("Packaging failed."),
             tr("Could not remove directory '%1'.").arg(debianDirPath));
@@ -251,6 +265,14 @@ bool MaemoPackageCreationStep::copyDebianFiles()
         if (harmattanWorkaroundNeeded && fileName == QLatin1String("rules"))
             addWorkaroundForHarmattanBug(destFile);
     }
+
+    QFile magicFile(magicFilePath);
+    if (!magicFile.open(QIODevice::WriteOnly)) {
+        raiseError(tr("Error: Could not create create file '%1'.")
+            .arg(QDir::toNativeSeparators(magicFilePath)));
+        return false;
+    }
+
     return true;
 }
 

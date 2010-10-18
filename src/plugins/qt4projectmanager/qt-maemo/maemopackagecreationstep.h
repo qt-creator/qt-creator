@@ -81,6 +81,7 @@ public:
     static QString packageName(const ProjectExplorer::Project *project);
     static QString packageFileName(const ProjectExplorer::Project *project,
         const QString &version);
+    static bool removeDirectory(const QString &dirPath);
 
     static const QLatin1String DefaultVersionNumber;
 
@@ -105,8 +106,7 @@ private:
     virtual bool fromMap(const QVariantMap &map);
 
     bool createPackage(QProcess *buildProc);
-    bool copyDebianFiles();
-    bool removeDirectory(const QString &dirPath);
+    bool copyDebianFiles(bool inSourceBuild);
     bool runCommand(QProcess *buildProc, const QString &command);
     QString maddeRoot() const;
     QString targetRoot() const;

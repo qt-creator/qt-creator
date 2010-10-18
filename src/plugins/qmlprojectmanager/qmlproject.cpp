@@ -38,6 +38,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/filewatcher.h>
 #include <qt4projectmanager/qmldumptool.h>
+#include <qt4projectmanager/qtversionmanager.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <QTextStream>
@@ -171,6 +172,21 @@ QStringList QmlProject::importPaths() const
     QStringList importPaths;
     if (m_projectItem)
         importPaths = m_projectItem.data()->importPaths();
+
+    // add the default import path for the target Qt version
+    if (activeTarget()) {
+        const QmlProjectRunConfiguration *runConfig =
+                qobject_cast<QmlProjectRunConfiguration*>(activeTarget()->activeRunConfiguration());
+        if (runConfig) {
+            const Qt4ProjectManager::QtVersion *qtVersion = runConfig->qtVersion();
+            if (qtVersion && qtVersion->isValid()) {
+                const QString qtVersionImportPath = qtVersion->versionInfo().value("QT_INSTALL_IMPORTS");
+                if (!qtVersionImportPath.isEmpty())
+                    importPaths += qtVersionImportPath;
+            }
+        }
+    }
+
     return importPaths;
 }
 

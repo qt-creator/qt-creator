@@ -65,8 +65,8 @@ public:
     virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const;
     virtual void updateProjectInfo(const ProjectInfo &pinfo);
 
-    void emitDocumentUpdated(QmlJS::Document::Ptr doc);
-    void emitLibraryInfoUpdated(const QString &path, const QmlJS::LibraryInfo &info);
+    void updateDocument(QmlJS::Document::Ptr doc);
+    void updateLibraryInfo(const QString &path, const QmlJS::LibraryInfo &info);
     void emitDocumentChangedOnDisk(QmlJS::Document::Ptr doc);
 
     virtual QStringList importPaths() const;
@@ -75,12 +75,8 @@ public:
 
 Q_SIGNALS:
     void projectPathChanged(const QString &projectPath);
-    void libraryInfoUpdated(const QString &path, const QmlJS::LibraryInfo &info);
 
 private Q_SLOTS:
-    // this should be executed in the GUI thread.
-    void onDocumentUpdated(QmlJS::Document::Ptr doc);
-    void onLibraryInfoUpdated(const QString &path, const QmlJS::LibraryInfo &info);
     void onLoadPluginTypes(const QString &libraryPath, const QString &importPath, const QString &importUri);
     void qmlPluginTypeDumpDone(int exitCode);
     void qmlPluginTypeDumpError(QProcess::ProcessError error);

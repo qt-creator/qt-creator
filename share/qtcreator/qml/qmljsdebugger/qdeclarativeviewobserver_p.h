@@ -86,8 +86,6 @@ public:
     bool executionPaused;
     qreal slowdownFactor;
 
-    JSDebuggerAgent *jsDebuggerAgent;
-
     QmlToolbar *toolbar;
 
     void clearEditorItems();

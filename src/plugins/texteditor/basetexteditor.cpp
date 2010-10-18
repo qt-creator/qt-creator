@@ -4724,7 +4724,7 @@ void BaseTextEditor::changeEvent(QEvent *e)
         || e->type() == QEvent::FontChange) {
         if (d->m_extraArea) {
             QFont f = d->m_extraArea->font();
-            f.setPointSize(font().pointSize());
+            f.setPointSizeF(font().pointSizeF());
             d->m_extraArea->setFont(f);
             slotUpdateExtraAreaWidth();
             d->m_extraArea->update();

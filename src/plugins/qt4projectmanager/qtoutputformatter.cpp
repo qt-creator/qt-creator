@@ -39,7 +39,7 @@
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
 
-QtOutputFormatter::QtOutputFormatter(Qt4Project *project)
+QtOutputFormatter::QtOutputFormatter(ProjectExplorer::Project *project)
     : OutputFormatter()
     , m_qmlError(QLatin1String("(file:///.+:\\d+:\\d+):"))
     , m_qtError(QLatin1String("Object::.*in (.*:\\d+)"))
@@ -77,14 +77,6 @@ LinkResult QtOutputFormatter::matchLine(const QString &line) const
 
 void QtOutputFormatter::appendApplicationOutput(const QString &txt, bool onStdErr)
 {
-    // Do the initialization lazily, as we don't have a plaintext edit
-    // in the ctor
-    if (!m_linkFormat.isValid()) {
-        m_linkFormat.setForeground(plainTextEdit()->palette().link().color());
-        m_linkFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
-        m_linkFormat.setAnchor(true);
-    }
-
     QTextCursor cursor(plainTextEdit()->document());
     cursor.movePosition(QTextCursor::End);
     cursor.beginEditBlock();
@@ -166,10 +158,18 @@ void QtOutputFormatter::appendApplicationOutput(const QString &txt, bool onStdEr
 
 void QtOutputFormatter::appendLine(QTextCursor &cursor, LinkResult lr, const QString &line, bool onStdErr)
 {
-    cursor.insertText(line.left(lr.start), format(onStdErr ? StdErrFormat : StdOutFormat));
-    m_linkFormat.setAnchorHref(lr.href);
-    cursor.insertText(line.mid(lr.start, lr.end - lr.start), m_linkFormat);
-    cursor.insertText(line.mid(lr.end), format(onStdErr ? StdErrFormat : StdOutFormat));
+    const QTextCharFormat normalFormat = format(onStdErr ? StdErrFormat : StdOutFormat);
+    cursor.insertText(line.left(lr.start), normalFormat);
+
+    QTextCharFormat linkFormat = normalFormat;
+    const QColor textColor = plainTextEdit()->palette().color(QPalette::Text);
+    linkFormat.setForeground(mixColors(textColor, QColor(Qt::blue)));
+    linkFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+    linkFormat.setAnchor(true);
+    linkFormat.setAnchorHref(lr.href);
+    cursor.insertText(line.mid(lr.start, lr.end - lr.start), linkFormat);
+
+    cursor.insertText(line.mid(lr.end), normalFormat);
 }
 
 void QtOutputFormatter::handleLink(const QString &href)
@@ -210,7 +210,7 @@ void QtOutputFormatter::handleLink(const QString &href)
             QFileInfo fi(fileName);
             if (fi.isRelative()) {
                 // Yeah fileName is relative, no suprise
-                Qt4Project *pro = m_project.data();
+                ProjectExplorer::Project *pro = m_project.data();
                 if (pro) {
                     QString baseName = fi.fileName();
                     foreach (const QString &file, pro->files(Project::AllFiles)) {

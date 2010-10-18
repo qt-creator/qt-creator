@@ -3,13 +3,13 @@
 
 #include "maemodeploystep.h"
 #include "maemodeployablelistmodel.h"
-#include "maemodeployablelistwidget.h"
 #include "maemodeployables.h"
 #include "maemodeviceconfiglistmodel.h"
 #include "maemorunconfiguration.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/target.h>
+#include <utils/qtcassert.h>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -20,10 +20,19 @@ MaemoDeployStepWidget::MaemoDeployStepWidget(MaemoDeployStep *step) :
     m_step(step)
 {
     ui->setupUi(this);
+    ui->tableView->setTextElideMode(Qt::ElideMiddle);
+    ui->modelComboBox->setModel(m_step->deployables());
+    connect(m_step->deployables(), SIGNAL(modelAboutToBeReset()),
+        SLOT(handleModelListToBeReset()));
 
-    connect(m_step->deployables(), SIGNAL(modelsCreated()), this,
-        SLOT(handleModelsCreated()));
-    handleModelsCreated();
+    // Queued connection because of race condition with combo box's reaction
+    // to modelReset().
+    connect(m_step->deployables(), SIGNAL(modelReset()),
+        SLOT(handleModelListReset()), Qt::QueuedConnection);
+
+    connect(ui->modelComboBox, SIGNAL(currentIndexChanged(int)),
+        SLOT(setModel(int)));
+    handleModelListReset();
 }
 
 MaemoDeployStepWidget::~MaemoDeployStepWidget()
@@ -77,18 +86,6 @@ QString MaemoDeployStepWidget::displayName() const
     return QString();
 }
 
-
-void MaemoDeployStepWidget::handleModelsCreated()
-{
-    ui->tabWidget->clear();
-    for (int i = 0; i < m_step->deployables()->modelCount(); ++i) {
-        MaemoDeployableListModel * const model
-            = m_step->deployables()->modelAt(i);
-        ui->tabWidget->addTab(new MaemoDeployableListWidget(this, model),
-            model->projectName());
-    }
-}
-
 void MaemoDeployStepWidget::setCurrentDeviceConfig(int index)
 {
     m_step->deviceConfigModel()->setCurrentIndex(index);
@@ -97,6 +94,30 @@ void MaemoDeployStepWidget::setCurrentDeviceConfig(int index)
 void MaemoDeployStepWidget::setDeployToSysroot(bool doDeploy)
 {
     m_step->setDeployToSysrootEnabled(doDeploy);
+}
+
+void MaemoDeployStepWidget::handleModelListToBeReset()
+{
+    ui->tableView->setModel(0);
+}
+
+void MaemoDeployStepWidget::handleModelListReset()
+{
+    QTC_ASSERT(m_step->deployables()->modelCount() == ui->modelComboBox->count(), return);
+    if (m_step->deployables()->modelCount() > 0) {
+        if (ui->modelComboBox->currentIndex() == -1)
+            ui->modelComboBox->setCurrentIndex(0);
+        else
+            setModel(ui->modelComboBox->currentIndex());
+    }
+}
+
+void MaemoDeployStepWidget::setModel(int row)
+{
+    if (row != -1) {
+        ui->tableView->setModel(m_step->deployables()->modelAt(row));
+        ui->tableView->resizeRowsToContents();
+    }
 }
 
 } // namespace Internal

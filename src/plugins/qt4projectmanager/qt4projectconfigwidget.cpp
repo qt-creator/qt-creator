@@ -240,12 +240,12 @@ void Qt4ProjectConfigWidget::qtVersionsChanged()
             if (validVersions.at(i) == qtVersion)
                 m_ui->qtVersionComboBox->setCurrentIndex(i);
         }
-        m_ui->qtVersionComboBox->setEnabled(validVersions.count() > 1);
     }
     if (!qtVersion->isValid()) {
         m_ui->qtVersionComboBox->addItem(tr("Invalid Qt version"), -1);
         m_ui->qtVersionComboBox->setCurrentIndex(m_ui->qtVersionComboBox->count() - 1);
     }
+    m_ui->qtVersionComboBox->setEnabled(m_ui->qtVersionComboBox->count() > 1);
     m_ignoreChange = false;
 
     updateToolChainCombo();

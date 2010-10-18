@@ -7,7 +7,6 @@ QScrollArea {
     horizontalScrollBarPolicy: "Qt::ScrollBarAlwaysOff";
     id: extendedPane;
     visible: false;
-    content: properyEditorExtended;
     QFrame {
         id: properyEditorExtended
         layout: QVBoxLayout {

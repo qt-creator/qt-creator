@@ -129,7 +129,7 @@ QWidget *MaemoRunConfiguration::createConfigurationWidget()
     return new MaemoRunConfigurationWidget(this);
 }
 
-ProjectExplorer::OutputFormatter *MaemoRunConfiguration::createConfigurationWidget() const
+ProjectExplorer::OutputFormatter *MaemoRunConfiguration::createOutputFormatter() const
 {
     return new QtOutputFormatter(qt4Target()->qt4Project());
 }

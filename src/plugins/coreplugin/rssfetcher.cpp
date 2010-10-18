@@ -40,6 +40,7 @@
 #include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkProxyFactory>
 #include <QtNetwork/QNetworkAccessManager>
+#include <QtNetwork/QNetworkConfiguration>
 
 #include <QtCore/QXmlStreamReader>
 
@@ -142,6 +143,7 @@ void RssFetcher::fetch(const QUrl &url)
     req.setRawHeader("User-Agent", agentStr.toLatin1());
     if (!m_networkAccessManager) {
         m_networkAccessManager = new QNetworkAccessManager;
+        m_networkAccessManager->setConfiguration(QNetworkConfiguration());
         connect(m_networkAccessManager, SIGNAL(finished(QNetworkReply*)),
                 SLOT(fetchingFinished(QNetworkReply*)));
     }

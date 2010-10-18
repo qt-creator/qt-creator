@@ -69,11 +69,6 @@ ModelManager::ModelManager(QObject *parent):
     qRegisterMetaType<QmlJS::Document::Ptr>("QmlJS::Document::Ptr");
     qRegisterMetaType<QmlJS::LibraryInfo>("QmlJS::LibraryInfo");
 
-    connect(this, SIGNAL(documentUpdated(QmlJS::Document::Ptr)),
-            this, SLOT(onDocumentUpdated(QmlJS::Document::Ptr)));
-    connect(this, SIGNAL(libraryInfoUpdated(QString,QmlJS::LibraryInfo)),
-            this, SLOT(onLibraryInfoUpdated(QString,QmlJS::LibraryInfo)));
-
     loadQmlTypeDescriptions();
 
     m_defaultImportPaths << environmentImportPaths();
@@ -215,24 +210,22 @@ void ModelManager::updateProjectInfo(const ProjectInfo &pinfo)
 void ModelManager::emitDocumentChangedOnDisk(Document::Ptr doc)
 { emit documentChangedOnDisk(doc); }
 
-void ModelManager::emitDocumentUpdated(Document::Ptr doc)
-{ emit documentUpdated(doc); }
-
-void ModelManager::onDocumentUpdated(Document::Ptr doc)
+void ModelManager::updateDocument(Document::Ptr doc)
 {
-    QMutexLocker locker(&m_mutex);
-
-    _snapshot.insert(doc);
+    {
+        QMutexLocker locker(&m_mutex);
+        _snapshot.insert(doc);
+    }
+    emit documentUpdated(doc);
 }
 
-void ModelManager::emitLibraryInfoUpdated(const QString &path, const LibraryInfo &info)
-{ emit libraryInfoUpdated(path, info); }
-
-void ModelManager::onLibraryInfoUpdated(const QString &path, const LibraryInfo &info)
+void ModelManager::updateLibraryInfo(const QString &path, const LibraryInfo &info)
 {
-    QMutexLocker locker(&m_mutex);
-
-    _snapshot.insertLibraryInfo(path, info);
+    {
+        QMutexLocker locker(&m_mutex);
+        _snapshot.insertLibraryInfo(path, info);
+    }
+    emit libraryInfoUpdated(path, info);
 }
 
 static QStringList qmlFilesInDirectory(const QString &path)
@@ -318,7 +311,7 @@ static void findNewLibraryImports(const Document::Ptr &doc, const Snapshot &snap
                 qmldirParser.setSource(qmldirData);
                 qmldirParser.parse();
 
-                modelManager->emitLibraryInfoUpdated(QFileInfo(qmldirFile).absolutePath(),
+                modelManager->updateLibraryInfo(QFileInfo(qmldirFile).absolutePath(),
                                                      LibraryInfo(qmldirParser));
 
                 // scan the qml files in the library
@@ -405,7 +398,7 @@ void ModelManager::parse(QFutureInterface<void> &future,
                 files.append(file);
         }
 
-        modelManager->emitDocumentUpdated(doc);
+        modelManager->updateDocument(doc);
         if (emitDocChangedOnDisk)
             modelManager->emitDocumentChangedOnDisk(doc);
     }
@@ -472,6 +465,8 @@ void ModelManager::onLoadPluginTypes(const QString &libraryPath, const QString &
     const QString canonicalLibraryPath = QDir::cleanPath(libraryPath);
     if (m_runningQmldumps.values().contains(canonicalLibraryPath))
         return;
+    if (_snapshot.libraryInfo(canonicalLibraryPath).isDumped())
+        return;
 
     ProjectExplorer::Project *activeProject = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
     if (!activeProject)
@@ -526,36 +521,33 @@ void ModelManager::qmlPluginTypeDumpDone(int exitCode)
     process->deleteLater();
 
     const QString libraryPath = m_runningQmldumps.take(process);
+    LibraryInfo libraryInfo = _snapshot.libraryInfo(libraryPath);
+    libraryInfo.setDumped(true);
 
     if (exitCode != 0) {
         Core::MessageManager *messageManager = Core::MessageManager::instance();
         messageManager->printToOutputPane(qmldumpErrorMessage(libraryPath, process->readAllStandardError()));
-        return;
     }
 
     const QByteArray output = process->readAllStandardOutput();
     QMap<QString, Interpreter::FakeMetaObject *> newObjects;
     const QString error = Interpreter::CppQmlTypesLoader::parseQmlTypeXml(output, &newObjects);
-    if (!error.isEmpty())
-        return;
 
-    // convert from QList<T *> to QList<const T *>
-    QList<const Interpreter::FakeMetaObject *> objectsList;
-    QMapIterator<QString, Interpreter::FakeMetaObject *> it(newObjects);
-    while (it.hasNext()) {
-        it.next();
-        objectsList.append(it.value());
-    }
-
-    QMutexLocker locker(&m_mutex);
-
-    if (!libraryPath.isEmpty()) {
-        LibraryInfo libraryInfo = _snapshot.libraryInfo(libraryPath);
+    if (exitCode == 0 && error.isEmpty()) {
+        // convert from QList<T *> to QList<const T *>
+        QList<const Interpreter::FakeMetaObject *> objectsList;
+        QMapIterator<QString, Interpreter::FakeMetaObject *> it(newObjects);
+        while (it.hasNext()) {
+            it.next();
+            objectsList.append(it.value());
+        }
         libraryInfo.setMetaObjects(objectsList);
-        _snapshot.insertLibraryInfo(libraryPath, libraryInfo);
-    } else {
-        Interpreter::CppQmlTypesLoader::builtinObjects.append(objectsList);
+        if (libraryPath.isEmpty())
+            Interpreter::CppQmlTypesLoader::builtinObjects.append(objectsList);
     }
+
+    if (!libraryPath.isEmpty())
+        updateLibraryInfo(libraryPath, libraryInfo);
 }
 
 void ModelManager::qmlPluginTypeDumpError(QProcess::ProcessError)
@@ -569,4 +561,10 @@ void ModelManager::qmlPluginTypeDumpError(QProcess::ProcessError)
 
     Core::MessageManager *messageManager = Core::MessageManager::instance();
     messageManager->printToOutputPane(qmldumpErrorMessage(libraryPath, process->readAllStandardError()));
+
+    if (!libraryPath.isEmpty()) {
+        LibraryInfo libraryInfo = _snapshot.libraryInfo(libraryPath);
+        libraryInfo.setDumped(true);
+        updateLibraryInfo(libraryPath, libraryInfo);
+    }
 }

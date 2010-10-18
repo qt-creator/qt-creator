@@ -1089,6 +1089,7 @@ static bool queryQMakeVariables(const QString &binary, QHash<QString, QString> *
              "QT_INSTALL_BINS",
              "QT_INSTALL_DOCS",
              "QT_INSTALL_PREFIX",
+             "QT_INSTALL_IMPORTS",
              "QMAKEFEATURES"
         };
     QStringList args;
@@ -1721,6 +1722,16 @@ QString QtVersion::headerInstallPath() const
 {
     updateVersionInfo();
     return m_versionInfo["QT_INSTALL_HEADERS"];
+}
+
+QString QtVersion::frameworkInstallPath() const
+{
+#ifdef Q_OS_MAC
+    updateVersionInfo();
+    return m_versionInfo["QT_INSTALL_LIBS"];
+#else
+    return QString();
+#endif
 }
 
 bool QtVersion::hasExamples() const

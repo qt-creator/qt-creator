@@ -77,8 +77,11 @@ private slots:
     void remoteErrorOutput(const QByteArray &data);
 
 private:
+    void setFinished();
+
     bool m_stop;
     QString m_remoteOutput;
+    QByteArray m_remoteErrorOutput;
     Utils::Environment m_env;
     MaemoDeviceConfig m_devConfig;
     MaemoRunConfiguration *m_runConfig;

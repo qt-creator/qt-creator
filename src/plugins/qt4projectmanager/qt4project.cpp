@@ -426,6 +426,10 @@ void Qt4Project::updateCppCodeModel()
     QStringList predefinedFrameworkPaths;
     QByteArray predefinedMacros;
 
+    QString qtFrameworkPath = activeBC->qtVersion()->frameworkInstallPath();
+    if (!qtFrameworkPath.isEmpty())
+        predefinedFrameworkPaths.append(qtFrameworkPath);
+
     ToolChain *tc = activeBC->toolChain();
     if (tc) {
         predefinedMacros = tc->predefinedMacros();
@@ -586,6 +590,14 @@ void Qt4Project::updateQmlJSCodeModel()
 
     foreach (Qt4ProFileNode *node, proFiles) {
         projectInfo.importPaths.append(node->variableValue(QmlImportPathVar));
+    }
+    if (activeTarget() && activeTarget()->activeBuildConfiguration()) {
+        const QtVersion *qtVersion = activeTarget()->activeBuildConfiguration()->qtVersion();
+        if (qtVersion->isValid()) {
+            const QString qtVersionImportPath = qtVersion->versionInfo().value("QT_INSTALL_IMPORTS");
+            if (!qtVersionImportPath.isEmpty())
+                projectInfo.importPaths += qtVersionImportPath;
+        }
     }
     projectInfo.importPaths.removeDuplicates();
 
@@ -1252,7 +1264,11 @@ void CentralizedFolderWatcher::folderChanged(const QString &folder)
     if (!tmp.isEmpty()) {
         if (debugCFW)
             qDebug()<<"found new recursive dirs"<<tmp;
-        m_watcher.addPaths(tmp.toList());
+
+        QSet<QString> alreadyAdded = m_watcher.directories().toSet();
+        tmp.subtract(alreadyAdded);
+        if (!tmp.isEmpty())
+            m_watcher.addPaths(tmp.toList());
         m_recursiveWatchedFolders += tmp;
     }
 }
