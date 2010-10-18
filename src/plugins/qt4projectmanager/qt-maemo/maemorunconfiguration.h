@@ -78,7 +78,7 @@ public:
 
     bool isEnabled(ProjectExplorer::BuildConfiguration *config) const;
     QWidget *createConfigurationWidget();
-    ProjectExplorer::OutputFormatter *createConfigurationWidget() const;
+    ProjectExplorer::OutputFormatter *createOutputFormatter() const;
     Qt4Target *qt4Target() const;
     Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
 
