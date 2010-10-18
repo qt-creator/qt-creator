@@ -62,6 +62,8 @@ namespace Internal {
 
 namespace {
 const QByteArray IconFieldName("XB-Maemo-Icon-26:");
+const QLatin1String PackagingDirName("qtc_packaging");
+const QLatin1String DebianDirNameFremantle("debian_fremantle");
 } // anonymous namespace
 
 
@@ -140,8 +142,14 @@ bool MaemoTemplatesManager::createDebianTemplatesIfNecessary(const ProjectExplor
 {
     Project * const project = target->project();
     QDir projectDir(project->projectDirectory());
-    if (projectDir.exists(QLatin1String("debian")))
+    if (QFileInfo(debianDirPath(project)).exists())
         return true;
+    if (!projectDir.exists(PackagingDirName)
+            && !projectDir.mkdir(PackagingDirName)) {
+        raiseError(tr("Error creating Maemo packaging directory '%1'.")
+            .arg(PackagingDirName));
+        return false;
+    }
 
     QProcess dh_makeProc;
     QString error;
@@ -154,11 +162,14 @@ bool MaemoTemplatesManager::createDebianTemplatesIfNecessary(const ProjectExplor
         return false;
     }
     if (!MaemoPackageCreationStep::preparePackagingProcess(&dh_makeProc, tc,
-        projectDir.path(), &error)) {
+        projectDir.path() + QLatin1Char('/') + PackagingDirName, &error)) {
         raiseError(error);
         return false;
     }
 
+    const QString dhMakeDebianDir = projectDir.path() + QLatin1Char('/')
+        + PackagingDirName + QLatin1String("/debian");
+    MaemoPackageCreationStep::removeDirectory(dhMakeDebianDir);
     const QString command = QLatin1String("dh_make -s -n -p ")
         + MaemoPackageCreationStep::packageName(project) + QLatin1Char('_')
         + MaemoPackageCreationStep::DefaultVersionNumber;
@@ -174,6 +185,13 @@ bool MaemoTemplatesManager::createDebianTemplatesIfNecessary(const ProjectExplor
         || dh_makeProc.exitCode() != 0) {
         raiseError(tr("Unable to create debian templates: dh_make failed (%1)")
             .arg(dh_makeProc.errorString()));
+        return false;
+    }
+
+    if (!QFile::rename(dhMakeDebianDir, debianDirPath(project))) {
+        raiseError(tr("Unable to move new debian directory to '%1'.")
+            .arg(QDir::toNativeSeparators(debianDirPath(project))));
+        MaemoPackageCreationStep::removeDirectory(dhMakeDebianDir);
         return false;
     }
 
@@ -242,7 +260,7 @@ bool MaemoTemplatesManager::adaptControlFile(const Project *project)
     adaptControlFileField(controlContents, "Priority", "optional");
     const int buildDependsOffset = controlContents.indexOf("Build-Depends:");
     if (buildDependsOffset == -1) {
-        qWarning("Weird: no Build-Depends field in debian/control file.");
+        qDebug("Unexpected: no Build-Depends field in debian control file.");
     } else {
         int buildDependsNewlineOffset
             = controlContents.indexOf('\n', buildDependsOffset);
@@ -554,8 +572,8 @@ QStringList MaemoTemplatesManager::debianFiles(const Project *project) const
 
 QString MaemoTemplatesManager::debianDirPath(const Project *project) const
 {
-    return project->projectDirectory() + QLatin1Char('/')
-        + QLatin1String("/debian");
+    return project->projectDirectory() + QLatin1Char('/') + PackagingDirName
+        + QLatin1Char('/') + DebianDirNameFremantle;
 }
 
 QString MaemoTemplatesManager::changeLogFilePath(const Project *project) const
