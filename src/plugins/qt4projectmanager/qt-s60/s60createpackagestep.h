@@ -180,6 +180,7 @@ private slots:
     void updateUi();
     void updateFromUi();
     void resetPassphrases();
+    void signatureChanged(QString certFile);
 
 private:
     S60CreatePackageStep *m_signStep;

@@ -654,13 +654,38 @@ S60CreatePackageStepConfigWidget::S60CreatePackageStepConfigWidget(S60CreatePack
     connect(m_ui.notSignedButton, SIGNAL(clicked()),
             this, SLOT(updateFromUi()));
     connect(m_ui.signaturePath, SIGNAL(changed(QString)),
-            this, SLOT(updateFromUi()));
+            this, SLOT(signatureChanged(QString)));
     connect(m_ui.keyFilePath, SIGNAL(changed(QString)),
             this, SLOT(updateFromUi()));
     connect(m_ui.smartInstaller, SIGNAL(clicked()),
             this, SLOT(updateFromUi()));
     connect(m_ui.resetPassphrasesButton, SIGNAL(clicked()),
             this, SLOT(resetPassphrases()));
+}
+
+void S60CreatePackageStepConfigWidget::signatureChanged(QString certFile)
+{
+    if (!certFile.isEmpty() && m_ui.keyFilePath->path().isEmpty()) {
+        /*  If a cert file is selected and there is not key file inserted,
+            then we check if there is a .key or .pem file in the folder with
+            the same base name as the cert file. This file is probably a key
+            file for this cert and the key field is then populated automatically
+        */
+        QFileInfo certFileInfo(certFile);
+        QDir directory = QDir(certFileInfo.absolutePath());
+        QString keyFile(certFileInfo.baseName() + QLatin1String(".key"));
+        QString pemFile(certFileInfo.baseName() + QLatin1String(".pem"));
+        QStringList files;
+        QStringList keys;
+        keys << keyFile << pemFile;
+        files = directory.entryList(QStringList(keys),
+                                    QDir::Files | QDir::NoSymLinks);
+
+        m_ui.keyFilePath->setPath(files.isEmpty()?
+                                      QString():
+                                      directory.filePath(files[0]));
+    }
+    updateFromUi();
 }
 
 void S60CreatePackageStepConfigWidget::updateUi()
