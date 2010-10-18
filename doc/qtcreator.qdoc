@@ -4460,46 +4460,39 @@
     editor, you can go back to it by closing the diff view. You can also check
     a diff view from the editor combo box showing the \gui{Opened files}.
 
-
     \section2 Reverting Changes
 
     All supported version control system support reverting your project to
-    known states. This functionality is generally provided by the \gui{Revert}
-    functionality.
+    known states. This functionality is generally called \e reverting.
 
-    The changes discarded by depend on the version control system.
+    The changes discarded depend on the version control system.
 
-    The individual version control system can replace the \gui{Revert} menu
-    option though. This is done by Git which uses \gui {Undo Unstaged Changes}
-    and \gui{Undo Uncommitted Changes} instead.
+    A version control system can replace the \gui Revert menu option with other
+    options.
 
-    \section2 Git
+    \section3 Reverting Changes Using Git
+
+    The Git version control system has an index that is used to stage
+    changes. The index is commited on the next commit. Git allows you to revert
+    back to the state of the last commit as well as to the state staged in the
+    index.
+
+    \list
+
+        \o \gui{Undo Unstaged Changes} reverts all changes and resets the working
+        directory to the state of the index.
+
+        \o \gui{Undo Uncommitted Changes} reverts all changes, discarding the index.
+        This returns your working copy to the state it was in right after the last commit.
+
+    \endlist
+
+    \section2 Using Additional Git Functions
 
     Git is a fast decentralized version control system. Git is available
     for Windows, Linux and Mac.
 
-    \section3 Reverting Changes using Git
-
-    The git version control system has a concept of an index which is used to stage
-    changes. This index is what is commited on the next commit. Git allows to revert
-    back to the state of the last commit as well as to the state staged in the
-    index.
-
-    \table
-
-        \row
-            \i \gui{Undo Unstaged Changes}
-            \i Undo all changes and reset the working directory to the state of the index.
-
-        \row
-            \i \gui{Undo Uncommitted Changes}
-            \i Undo all changes, discading the index. This returns your working copy to the
-               state it was in right after the last commit.
-    \endtable
-
-    \section3 Using Additional Git Functions
-
-    The \gui Git sub-menu contains the following additional items:
+    The \gui Git submenu contains the following additional items:
 
     \table
 
@@ -4511,24 +4504,24 @@
         \row
             \i  \gui{Pull}
             \i  Pull changes from the remote repository. If there are locally
-                modified files, you are prompted to stash those changes.
-                The \gui Git options page contains an option to do
-                a rebase operation while pulling.
+                modified files, you are prompted to stash those changes. Select \gui{Tools >
+                Options... > Version Control > Git} and select the \gui {Pull with rebase}
+                check box to perform a rebase operation while pulling.
 
         \row
-            \i  \gui{Clean Repository.../Clean Project...}
-            \i  Collect all files that are not under version control
-                with the exception of patches and project files
-                and show them as a checkable list in a dialog
-                prompting for deletion. This lets you completely clean a build.
+            \i  \gui{Clean.../Clean Project...}
+            \i  All files that are not under version control (with the exception
+                of patches and project files) are displayed in the \gui {Clean Repository}
+                dialog. Select the files to delete and click \gui Delete. This allows you to
+                clean a build completely.
 
         \row
             \i  \gui{Branches...}
-            \i  Displays the branch dialog showing the local branches at the
-                top and remote branches at the bottom. To switch to the local
-                branch, double-click on it. Double-clicking on a remote
-                branch first creates a local branch with the same name that
-                tracks the remote branch, and then switches to it.
+            \i  Display the \gui Branch dialog that shows the local branches at the
+                top and remote branches at the bottom. To switch to a local branch,
+                double-click it. Double-clicking on a remote branch first creates a local
+                branch with the same name that tracks the remote branch, and then switches
+                to it.
 
                 \image qtcreator-vcs-gitbranch.png
 
@@ -4544,20 +4537,20 @@
 
     \section3 Using Stashes
 
-    With git you can put your current set of changes onto a virtual shelf called a stash.
-    These stashes are e.g. useful to put aside a set of changes to work on higher priority
-    tasks or to pull in new chages from another repository.
+    With Git, you can put your current set of changes onto a virtual shelf called a \e stash.
+    Stashes are useful, for example, to put aside a set of changes to work on higher
+    priority tasks or to pull in new chages from another repository.
 
-    Qt Creator exposed this functionality in the \gui{Tools > Git > Stash} menu.
+    Qt Creator exposes this functionality in the \gui{Tools > Git > Stash} menu.
 
     \table
         \row
             \i  \gui{Stashes...}
-            \i  Displays a dialog showing the all known stashes with options to restore,
+            \i  Display a dialog that shows all known stashes with options to restore,
                 display or delete them.
         \row
             \i  \gui{Stash}
-            \i  Stashes all local changes. The working copy is then reset to
+            \i  Stash all local changes. The working copy is then reset to
                 the state it had right after the last commit.
         \row
             \i  \gui{Stash Snapshot...}
@@ -4570,10 +4563,11 @@
             \i  \gui{Stash Pop}
             \i  Remove a single stashed state from the stash list and apply it on
                 top of the current working tree state.
+    \endtable
 
     \section2 Using Additional Mercurial Functionality
 
-    The \gui Mercurial sub-menu contains the following additional items:
+    The \gui Mercurial submenu contains the following additional items:
 
     \table
         \row
