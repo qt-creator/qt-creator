@@ -40,6 +40,7 @@
 #include <texteditor/basetextmark.h>
 #include <utils/qtcassert.h>
 
+#include <QtCore/QDir>
 #include <QtCore/QByteArray>
 #include <QtCore/QFileInfo>
 
@@ -338,7 +339,7 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                 //    str = data->markerFileName;
                 str = str.isEmpty() ? empty : str;
                 if (data->useFullPath)
-                    str = "/.../" + str;
+                    str = QDir::toNativeSeparators(QLatin1String("/.../") + str);
                 return str;
             }
             break;
