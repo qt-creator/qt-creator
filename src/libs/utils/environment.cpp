@@ -270,7 +270,7 @@ Environment::const_iterator Environment::constEnd() const
     return m_values.constEnd();
 }
 
-Environment::const_iterator Environment::find(const QString &name)
+Environment::const_iterator Environment::constFind(const QString &name) const
 {
     QMap<QString, QString>::const_iterator it = m_values.constFind(name);
     if (it == m_values.constEnd())
@@ -304,7 +304,7 @@ void Environment::modify(const QList<EnvironmentItem> & list)
                             end = value.indexOf('}', i);
                         if (end != -1) {
                             const QString &name = value.mid(i+2, end-i-2);
-                            Environment::const_iterator it = find(name);
+                            Environment::const_iterator it = constFind(name);
                             if (it != constEnd())
                                 value.replace(i, end-i+1, it.value());
                         }

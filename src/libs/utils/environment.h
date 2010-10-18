@@ -83,12 +83,12 @@ public:
     void clear();
     int size() const;
 
-    Environment::const_iterator find(const QString &name);
     QString key(Environment::const_iterator it) const;
     QString value(Environment::const_iterator it) const;
 
     Environment::const_iterator constBegin() const;
     Environment::const_iterator constEnd() const;
+    Environment::const_iterator constFind(const QString &name) const;
 
     QString searchInPath(const QString &executable,
                          const QStringList & additionalDirs = QStringList()) const;
