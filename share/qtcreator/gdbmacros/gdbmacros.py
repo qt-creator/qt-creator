@@ -2077,7 +2077,14 @@ def qdump__std__string(d, item):
     baseType = item.value.type.unqualified().strip_typedefs()
     if baseType.code == gdb.TYPE_CODE_REF:
         baseType = baseType.target().unqualified().strip_typedefs()
-    charType = baseType.template_argument(0)
+    # We might encounter 'std::string' or 'std::basic_string<>'
+    # or even 'std::locale::string' on MinGW due to some type lookup glitch.
+    if str(baseType) == 'std::string' or str(baseType) == 'std::locale::string':
+        charType = lookupType("char")
+    elif str(baseType) == 'std::wstring':
+        charType = lookupType("wchar_t")
+    else:
+        charType = baseType.template_argument(0)
     repType = lookupType("%s::_Rep" % baseType).pointer()
     rep = (data.cast(repType) - 1).dereference()
     size = rep['_M_length']
