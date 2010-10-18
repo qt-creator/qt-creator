@@ -103,6 +103,8 @@ public:
     bool operator!=(const Environment &other) const;
     bool operator==(const Environment &other) const;
 private:
+    QString searchInPath(const QStringList &executables,
+                         const QStringList & additionalDirs = QStringList()) const;
     QMap<QString, QString> m_values;
 };
 

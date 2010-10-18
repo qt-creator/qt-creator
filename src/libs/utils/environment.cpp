@@ -182,48 +182,56 @@ void Environment::clear()
 }
 
 QString Environment::searchInPath(const QString &executable,
-                                  const QStringList & additionalDirs) const
+                                  const QStringList &additionalDirs) const
 {
-    QString exec = expandVariables(executable);
-
-    if (exec.isEmpty() || QFileInfo(exec).isAbsolute())
-        return QDir::toNativeSeparators(exec);
-
-    // Check in directories:
-    foreach (const QString &dir, additionalDirs) {
-        if (dir.isEmpty())
-            continue;
-        QFileInfo fi(dir + QLatin1Char('/') + exec);
-        if (fi.isFile() && fi.isExecutable())
-            return fi.absoluteFilePath();
-    }
-
-    // Check in path:
-    if (exec.indexOf(QChar('/')) != -1)
-        return QString();
-    const QChar slash = QLatin1Char('/');
-    foreach (const QString &p, path()) {
-        QString fp = p;
-        fp += slash;
-        fp += exec;
-        const QFileInfo fi(fp);
-        if (fi.exists())
-            return fi.absoluteFilePath();
-    }
-
+    QStringList execs;
+    execs << executable;
 #ifdef Q_OS_WIN
     // Check all the executable extensions on windows:
     QStringList extensions = value(QLatin1String("PATHEXT")).split(QLatin1Char(';'));
-    if (extensions.isEmpty())
-        extensions.append(QLatin1String(".exe"));
 
-    // .exe.bat is legal (and run when starting new.exe), so always go through the complete list:
-    foreach (const QString &ext, extensions) {
-        QString result = searchInPath(exec + ext.toLower(), additionalDirs);
-        if (!result.isEmpty())
-            return result;
-    }
+    // .exe.bat is legal (and run when starting new.exe), so always go through the complete list once:
+    foreach (const QString &ext, extensions)
+        execs << executable + ext.toLower();
 #endif
+    return searchInPath(execs, additionalDirs);
+}
+
+QString Environment::searchInPath(const QStringList &executables,
+                                  const QStringList &additionalDirs) const
+{
+    foreach (const QString &executable, executables) {
+        QString exec = expandVariables(executable);
+
+        if (exec.isEmpty())
+            continue;
+
+        QFileInfo baseFi(exec);
+        if (baseFi.isAbsolute() && baseFi.exists())
+            return QDir::toNativeSeparators(exec);
+
+        // Check in directories:
+        foreach (const QString &dir, additionalDirs) {
+            if (dir.isEmpty())
+                continue;
+            QFileInfo fi(dir + QLatin1Char('/') + exec);
+            if (fi.isFile() && fi.isExecutable())
+                return fi.absoluteFilePath();
+        }
+
+        // Check in path:
+        const QChar slash = QLatin1Char('/');
+        if (exec.indexOf(slash) != -1)
+            continue;
+        foreach (const QString &p, path()) {
+            QString fp = p;
+            fp += slash;
+            fp += exec;
+            const QFileInfo fi(fp);
+            if (fi.exists())
+                return fi.absoluteFilePath();
+        }
+    }
     return QString();
 }
 
