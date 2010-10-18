@@ -1725,6 +1725,16 @@ QString QtVersion::headerInstallPath() const
     return m_versionInfo["QT_INSTALL_HEADERS"];
 }
 
+QString QtVersion::frameworkInstallPath() const
+{
+#ifdef Q_OS_MAC
+    updateVersionInfo();
+    return m_versionInfo["QT_INSTALL_LIBS"];
+#else
+    return QString();
+#endif
+}
+
 bool QtVersion::hasExamples() const
 {
     updateVersionInfo();

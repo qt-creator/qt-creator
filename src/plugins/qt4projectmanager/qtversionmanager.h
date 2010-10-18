@@ -135,6 +135,7 @@ public:
     QString demosPath() const;
 
     QString headerInstallPath() const;
+    QString frameworkInstallPath() const;
 
     // All valid Ids are >= 0
     int uniqueId() const;

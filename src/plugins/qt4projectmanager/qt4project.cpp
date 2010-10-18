@@ -426,6 +426,10 @@ void Qt4Project::updateCppCodeModel()
     QStringList predefinedFrameworkPaths;
     QByteArray predefinedMacros;
 
+    QString qtFrameworkPath = activeBC->qtVersion()->frameworkInstallPath();
+    if (!qtFrameworkPath.isEmpty())
+        predefinedFrameworkPaths.append(qtFrameworkPath);
+
     ToolChain *tc = activeBC->toolChain();
     if (tc) {
         predefinedMacros = tc->predefinedMacros();
