@@ -34,6 +34,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QString>
+#include <QtGui/QColor>
 
 QT_FORWARD_DECLARE_CLASS(QMouseEvent);
 QT_FORWARD_DECLARE_CLASS(QPlainTextEdit);
@@ -70,6 +71,8 @@ protected:
     void initFormats();
     void clearLastLine();
     QTextCharFormat format(Format format);
+
+    static QColor mixColors(const QColor &a, const QColor &b);
 
 private:
     QPlainTextEdit *m_plainTextEdit;

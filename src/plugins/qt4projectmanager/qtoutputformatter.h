@@ -69,7 +69,6 @@ private:
     QRegExp m_qtAssert;
     QRegExp m_qtTestFail;
     QWeakPointer<ProjectExplorer::Project> m_project;
-    QTextCharFormat m_linkFormat;
     QString m_lastLine;
     QString m_deferedText;
 };

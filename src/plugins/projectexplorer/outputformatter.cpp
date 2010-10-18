@@ -88,7 +88,7 @@ void OutputFormatter::clearLastLine()
     cursor.removeSelectedText();
 }
 
-static QColor mix_colors(QColor a, QColor b)
+QColor OutputFormatter::mixColors(const QColor &a, const QColor &b)
 {
     return QColor((a.red() + 2 * b.red()) / 3, (a.green() + 2 * b.green()) / 3,
                   (a.blue() + 2* b.blue()) / 3, (a.alpha() + 2 * b.alpha()) / 3);
@@ -108,11 +108,11 @@ void OutputFormatter::initFormats()
 
     // NormalMessageFormat
     m_formats[NormalMessageFormat].setFont(boldFont);
-    m_formats[NormalMessageFormat].setForeground(mix_colors(p.color(QPalette::Text), QColor(Qt::blue)));
+    m_formats[NormalMessageFormat].setForeground(mixColors(p.color(QPalette::Text), QColor(Qt::blue)));
 
     // ErrorMessageFormat
     m_formats[ErrorMessageFormat].setFont(boldFont);
-    m_formats[ErrorMessageFormat].setForeground(mix_colors(p.color(QPalette::Text), QColor(Qt::red)));
+    m_formats[ErrorMessageFormat].setForeground(mixColors(p.color(QPalette::Text), QColor(Qt::red)));
 
     // StdOutFormat
     m_formats[StdOutFormat].setFont(font);
@@ -120,7 +120,7 @@ void OutputFormatter::initFormats()
 
     // StdErrFormat
     m_formats[StdErrFormat].setFont(font);
-    m_formats[StdErrFormat].setForeground(mix_colors(p.color(QPalette::Text), QColor(Qt::red)));
+    m_formats[StdErrFormat].setForeground(mixColors(p.color(QPalette::Text), QColor(Qt::red)));
 }
 
 void OutputFormatter::handleLink(const QString &href)
