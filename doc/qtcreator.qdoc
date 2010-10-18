@@ -4462,40 +4462,51 @@
 
     \section2 Reverting Changes
 
-    To discard local changes to a file or project, use the \gui Revert
-    function or the \gui {Undo Changes/Undo Repository Changes} function
-    (for Git). The changes discarded depend on the version control system.
+    All supported version control system support reverting your project to
+    known states. This functionality is generally provided by the \gui{Revert}
+    functionality.
 
-    For example, in Perforce, select \gui{Revert File/Revert Project}
-    to discard changes made to open files, reverting them to the
-    revisions last synchronized from the repository. Select
-    \gui{Revert Unchanged} to revert files if their contents or file
-    type have not changed after they were opened for editing.
+    The changes discarded by depend on the version control system.
 
-    \section2 Using Additional Git Functions
+    The individual version control system can replace the \gui{Revert} menu
+    option though. This is done by Git which uses \gui {Undo Unstaged Changes}
+    and \gui{Undo Uncommitted Changes} instead.
+
+    \section2 Git
+
+    Git is a fast decentralized version control system. Git is available
+    for Windows, Linux and Mac.
+
+    \section3 Reverting Changes using Git
+
+    The git version control system has a concept of an index which is used to stage
+    changes. This index is what is commited on the next commit. Git allows to revert
+    back to the state of the last commit as well as to the state staged in the
+    index.
+
+    \table
+
+        \row
+            \i \gui{Undo Unstaged Changes}
+            \i Undo all changes and reset the working directory to the state of the index.
+
+        \row
+            \i \gui{Undo Uncommitted Changes}
+            \i Undo all changes, discading the index. This returns your working copy to the
+               state it was in right after the last commit.
+    \endtable
+
+    \section3 Using Additional Git Functions
 
     The \gui Git sub-menu contains the following additional items:
 
     \table
 
         \row
-            \i  \gui {Apply Patch/Apply Patch...}
-            \i  Apply changes to a file or project from a diff file. You can
-                either apply a patch file that is open in Qt Creator or select
+            \i  \gui {Patch > Apply from Editor/Apply from File...}
+            \i  Patches are rewriting instructions that can be applied to a set of files.
+                You can either apply a patch file that is open in Qt Creator or select
                 the patch file to apply from the file system.
-        \row
-            \i  \gui{Stash Snapshot...}
-            \i  Save a snapshot of your current
-                work under a name for later reference. For example, if you
-                want to try out something and find out later that it does not work,
-                you can discard it and return to the state of the snapshot.
-        \row
-            \i  \gui{Stash}
-            \i  Stash local changes prior to executing a \gui{Pull}.
-        \row
-            \i  \gui{Stash Pop}
-            \i  Remove a single stashed state from the stash list and apply it on
-                top of the current working tree state.
         \row
             \i  \gui{Pull}
             \i  Pull changes from the remote repository. If there are locally
@@ -4520,12 +4531,6 @@
 
                 \image qtcreator-vcs-gitbranch.png
 
-
-        \row
-            \i  \gui{Stashes...}
-            \i  Displays a dialog showing the stashes created by
-                \gui{Stash Snapshot...} with options to restore,
-                display or delete them.
         \row
             \i  \gui {Stage File for Commit}
             \i  Mark new or modified files for committing to the repository.
@@ -4536,7 +4541,36 @@
                 in the \gui Change field.
     \endtable
 
-    \section2 Using Additional Mercurial Functions
+    \section3 Using Stashes
+
+    With git you can put your current set of changes onto a virtual shelf called a stash.
+    These stashes are e.g. useful to put aside a set of changes to work on higher priority
+    tasks or to pull in new chages from another repository.
+
+    Qt Creator exposed this functionality in the \gui{Tools > Git > Stash} menu.
+
+    \table
+        \row
+            \i  \gui{Stashes...}
+            \i  Displays a dialog showing the all known stashes with options to restore,
+                display or delete them.
+        \row
+            \i  \gui{Stash}
+            \i  Stashes all local changes. The working copy is then reset to
+                the state it had right after the last commit.
+        \row
+            \i  \gui{Stash Snapshot...}
+            \i  Save a snapshot of your current work under a name for later reference. The
+                working copy is unchanged.
+
+                For example, if you want to try something and find out later that it does not work,
+                you can discard it and return to the state of the snapshot.
+        \row
+            \i  \gui{Stash Pop}
+            \i  Remove a single stashed state from the stash list and apply it on
+                top of the current working tree state.
+
+    \section2 Using Additional Mercurial Functionality
 
     The \gui Mercurial sub-menu contains the following additional items:
 
@@ -4588,7 +4622,6 @@
             projects from the repository.
 
     \endtable
-
 
     \section2 Using Additional Subversion Functions
 
