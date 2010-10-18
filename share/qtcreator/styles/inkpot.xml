@@ -19,6 +19,7 @@
   <style name="Doxygen.Comment" foreground="#737dd5"/>
   <style name="Doxygen.Tag" foreground="#4e5ab3"/>
   <style name="Field" bold="true"/>
+  <style name="Function"/>
   <style name="Keyword" foreground="#808bed"/>
   <style name="Label" foreground="#e76000"/>
   <style name="LineNumber" foreground="#8b8bcd" background="#2e2e2e"/>

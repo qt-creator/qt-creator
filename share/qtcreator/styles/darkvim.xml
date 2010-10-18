@@ -14,6 +14,7 @@
   <style name="Doxygen.Comment" foreground="#55ffff"/>
   <style name="Doxygen.Tag" foreground="#00a0a0"/>
   <style name="Field"/>
+  <style name="Function"/>
   <style name="Keyword" foreground="#ffff55"/>
   <style name="Label" foreground="#ffff55"/>
   <style name="LineNumber" foreground="#888888" background="#232323"/>
