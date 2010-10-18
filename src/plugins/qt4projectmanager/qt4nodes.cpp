@@ -1066,7 +1066,9 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
     }
 
     // save file
+    Core::ICore::instance()->fileManager()->expectFileChange(m_projectFilePath);
     save(lines);
+    Core::ICore::instance()->fileManager()->unexpectFileChange(m_projectFilePath);
 
     // This is a hack.
     // We are saving twice in a very short timeframe, once the editor and once the ProFile.
