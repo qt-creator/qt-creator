@@ -2401,6 +2401,11 @@ Engine::Engine()
     initializePrototypes();
 
     _cppQmlTypes.load(this, CppQmlTypesLoader::builtinObjects);
+
+    // the 'Qt' object is dumped even though it is not exported
+    // it contains useful information, in particular on enums - add the
+    // object as a prototype to our custom Qt object to offer these for completion
+    _qtObject->setPrototype(_cppQmlTypes.typeForImport(QLatin1String("Qt")));
 }
 
 Engine::~Engine()
