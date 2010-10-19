@@ -79,19 +79,17 @@ void runFileSearch(QFutureInterface<FileSearchResultList> &future,
     future.setProgressRange(0, files->maxProgress());
     future.setProgressValueAndText(files->currentProgress(), msgFound(searchTerm, numMatches, numFilesSearched));
 
-    bool caseInsensitive = !(flags & QTextDocument::FindCaseSensitively);
-    bool wholeWord = (flags & QTextDocument::FindWholeWords);
+    const bool caseInsensitive = !(flags & QTextDocument::FindCaseSensitively);
+    const bool wholeWord = (flags & QTextDocument::FindWholeWords);
 
     const QString searchTermLower = searchTerm.toLower();
     const QString searchTermUpper = searchTerm.toUpper();
 
-    int termLength = searchTerm.length();
-    int termMaxIndex = termLength - 1;
+    const int termLength = searchTerm.length();
+    const int termMaxIndex = termLength - 1;
     const QChar *termData = searchTerm.constData();
     const QChar *termDataLower = searchTermLower.constData();
     const QChar *termDataUpper = searchTermUpper.constData();
-
-    int chunkSize = qMax(100000, 2 * termLength);
 
     QFile file;
     QString str;
@@ -295,7 +293,7 @@ QString Utils::expandRegExpReplacement(const QString &replaceText, const QString
 {
     // handles \1 \\ \& & \t
     QString result;
-    int numCaptures = capturedTexts.size() - 1;
+    const int numCaptures = capturedTexts.size() - 1;
     for (int i = 0; i < replaceText.length(); ++i) {
         QChar c = replaceText.at(i);
         if (c == QLatin1Char('\\') && i < replaceText.length() - 1) {
@@ -408,8 +406,8 @@ bool SubDirFileIterator::hasNext() const
         return true;
     while(!m_dirs.isEmpty() && m_currentFiles.isEmpty()) {
         QDir dir = m_dirs.pop();
-        qreal dirProgressMax = m_progressValues.pop();
-        bool processed = m_processedValues.pop();
+        const qreal dirProgressMax = m_progressValues.pop();
+        const bool processed = m_processedValues.pop();
         if (dir.exists()) {
             QStringList subDirs;
             if (!processed) {
