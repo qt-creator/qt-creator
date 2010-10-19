@@ -170,10 +170,9 @@ bool QmlDirParser::parse()
             const int dotIndex = version.indexOf(QLatin1Char('.'));
 
             if (dotIndex == -1) {
-                qWarning() << "expected '.'"; // ### use reportError
+                reportError(lineNumber, -1, QLatin1String("expected '.'"));
             } else if (version.indexOf(QLatin1Char('.'), dotIndex + 1) != -1) {
-                qWarning() << "unexpected '.'"; // ### use reportError
-
+                reportError(lineNumber, -1, QLatin1String("unexpected '.'"));
             } else {
                 bool validVersionNumber = false;
                 const int majorVersion = version.left(dotIndex).toInt(&validVersionNumber);
@@ -189,8 +188,8 @@ bool QmlDirParser::parse()
                 }
             }
         } else {
-             // ### use reportError
-            qWarning() << "a component declaration requires 3 arguments, but" << (sectionCount + 1) << "were provided";
+            reportError(lineNumber, -1, 
+                        QString::fromUtf8("a component declaration requires 3 arguments, but %1 were provided").arg(sectionCount + 1));
         }
     }
 

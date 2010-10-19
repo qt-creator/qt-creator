@@ -1376,7 +1376,7 @@ case $rule_number: {
 } break;
 ./
 
-PropertyName: T_IDENTIFIER %prec REDUCE_HERE ;
+PropertyName: T_IDENTIFIER %prec SHIFT_THERE ;
 /.
 case $rule_number: {
   AST::IdentifierPropertyName *node = makeAstNode<AST::IdentifierPropertyName> (driver->nodePool(), sym(1).sval);
