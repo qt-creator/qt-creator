@@ -383,14 +383,13 @@ const char * const ADD_TO_WATCH2        = "Debugger.AddToWatch2";
 const char * const OPERATE_BY_INSTRUCTION  = "Debugger.OperateByInstruction";
 const char * const FRAME_UP             = "Debugger.FrameUp";
 const char * const FRAME_DOWN           = "Debugger.FrameDown";
-const char * const DEBUG_KEY                = "F5";
 
 #ifdef Q_WS_MAC
-const char * const STOP_KEY                 = "Shift+F5";
+const char * const STOP_KEY                 = "Shift+Ctrl+Y";
 const char * const RESET_KEY                = "Ctrl+Shift+F5";
-const char * const STEP_KEY                 = "F7";
-const char * const STEPOUT_KEY              = "Shift+F7";
-const char * const NEXT_KEY                 = "F6";
+const char * const STEP_KEY                 = "Ctrl+Shift+I";
+const char * const STEPOUT_KEY              = "Ctrl+Shift+T";
+const char * const NEXT_KEY                 = "Ctrl+Shift+O";
 const char * const REVERSE_KEY              = "";
 const char * const RUN_TO_LINE_KEY          = "Shift+F8";
 const char * const RUN_TO_FUNCTION_KEY      = "Ctrl+F6";
@@ -1445,7 +1444,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
 
     cmd = am->registerAction(m_actions.interruptAction,
         PE::DEBUG, m_interruptibleContext);
-    cmd->setDefaultKeySequence(QKeySequence(Constants::STOP_KEY));
     cmd->setDefaultText(tr("Interrupt Debugger"));
 
     cmd = am->registerAction(m_actions.undisturbableAction,
@@ -2291,7 +2289,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_actions.continueAction->setEnabled(false);
         m_actions.stopAction->setEnabled(false);
         am->command(Constants::STOP)->setKeySequence(QKeySequence());
-        am->command(PE::DEBUG)->setKeySequence(QKeySequence(DEBUG_KEY));
+        am->command(PE::DEBUG)->setKeySequence(QKeySequence(ProjectExplorer::Constants::DEBUG_KEY));
         core->updateAdditionalContexts(m_anyContext, Context());
     } else if (m_state == InferiorStopOk) {
         // F5 continues, Shift-F5 kills. It is "continuable".
@@ -2299,7 +2297,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_actions.continueAction->setEnabled(true);
         m_actions.stopAction->setEnabled(true);
         am->command(Constants::STOP)->setKeySequence(QKeySequence(STOP_KEY));
-        am->command(PE::DEBUG)->setKeySequence(QKeySequence(DEBUG_KEY));
+        am->command(PE::DEBUG)->setKeySequence(QKeySequence(ProjectExplorer::Constants::DEBUG_KEY));
         core->updateAdditionalContexts(m_anyContext, m_continuableContext);
     } else if (m_state == InferiorRunOk) {
         // Shift-F5 interrupts. It is also "interruptible".
@@ -2315,7 +2313,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_actions.continueAction->setEnabled(false);
         m_actions.stopAction->setEnabled(false);
         am->command(Constants::STOP)->setKeySequence(QKeySequence());
-        am->command(PE::DEBUG)->setKeySequence(QKeySequence(DEBUG_KEY));
+        am->command(PE::DEBUG)->setKeySequence(QKeySequence(ProjectExplorer::Constants::DEBUG_KEY));
         //core->updateAdditionalContexts(m_anyContext, m_finishedContext);
         m_codeModelSnapshot = CPlusPlus::Snapshot();
         core->updateAdditionalContexts(m_anyContext, Context());

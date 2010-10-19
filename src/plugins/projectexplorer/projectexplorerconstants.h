@@ -226,6 +226,12 @@ const char * const DEFAULT_DEPLOYCONFIGURATION_ID = "ProjectExplorer.DefaultDepl
 // Run Configuration defaults:
 const int QML_DEFAULT_DEBUG_SERVER_PORT = 3768;
 
+#ifdef Q_OS_MAC
+const char * const DEBUG_KEY = "Ctrl+Y";
+#else
+const char * const DEBUG_KEY = "F5";
+#endif
+
 } // namespace Constants
 } // namespace ProjectExplorer
 
