@@ -2006,6 +2006,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
         doc = snapshot.documentFromSource(source.code, source.fileName);
         doc->setEditorRevision(source.revision);
         doc->parse();
+        snapshot.insert(doc);
     }
 
     SemanticInfo semanticInfo;
