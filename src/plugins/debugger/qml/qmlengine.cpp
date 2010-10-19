@@ -683,6 +683,8 @@ void QmlEngine::messageReceived(const QByteArray &message)
                 if (processedFilename == file
                         && data->lineNumber == line) {
                     data->pending = false;
+                    data->bpFileName = file;
+                    data->bpLineNumber = line;
                     data->updateMarker();
                 }
             }
