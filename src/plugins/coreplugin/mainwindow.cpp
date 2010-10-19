@@ -82,6 +82,7 @@
 #include <QtCore/QTimer>
 #include <QtCore/QtPlugin>
 #include <QtCore/QUrl>
+#include <QtCore/QDir>
 
 #include <QtGui/QApplication>
 #include <QtGui/QCloseEvent>
@@ -1208,7 +1209,7 @@ void MainWindow::writeSettings()
 
     m_settings->endGroup();
 
-    m_fileManager->saveRecentFiles();
+    m_fileManager->saveSettings();
     m_actionManager->saveSettings(m_settings);
     m_editorManager->saveSettings();
     m_navigationWidget->saveSettings(m_settings);
@@ -1271,7 +1272,7 @@ void MainWindow::aboutToShowRecentFiles()
     foreach (const QString &fileName, m_fileManager->recentFiles()) {
         hasRecentFiles = true;
         QAction *action = aci->menu()->addAction(
-                    Utils::withTildeHomePath(fileName));
+                    QDir::toNativeSeparators(Utils::withTildeHomePath(fileName)));
         action->setData(fileName);
         connect(action, SIGNAL(triggered()), this, SLOT(openRecentFile()));
     }

@@ -74,8 +74,7 @@ public:
     // recent files
     void addToRecentFiles(const QString &fileName);
     QStringList recentFiles() const;
-    void saveRecentFiles();
-
+    void saveSettings();
 
     // current file
     void setCurrentFile(const QString &filePath);
@@ -133,6 +132,7 @@ private slots:
     void syncWithEditor(Core::IContext *context);
 
 private:
+    void readSettings();
     void dump();
     void addFileInfo(IFile *file);
     void removeFileInfo(IFile *file);
