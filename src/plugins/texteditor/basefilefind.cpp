@@ -262,7 +262,7 @@ void BaseFileFind::updateComboEntries(QComboBox *combo, bool onTop)
 void BaseFileFind::openEditor(const Find::SearchResultItem &item)
 {
     if (item.path.size() > 0) {
-        TextEditor::BaseTextEditor::openEditorAt(item.path.first(), item.lineNumber, item.textMarkPos,
+        TextEditor::BaseTextEditor::openEditorAt(QDir::fromNativeSeparators(item.path.first()), item.lineNumber, item.textMarkPos,
                                                  QString(), Core::EditorManager::ModeSwitch);
     } else {
         Core::EditorManager::instance()->openEditor(item.text, QString(), Core::EditorManager::ModeSwitch);
@@ -318,7 +318,7 @@ QStringList BaseFileFind::replaceAll(const QString &text,
     QHash<QString, QList<Find::SearchResultItem> > changes;
 
     foreach (const Find::SearchResultItem &item, items)
-        changes[item.path.first()].append(item);
+        changes[QDir::fromNativeSeparators(item.path.first())].append(item);
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
 
