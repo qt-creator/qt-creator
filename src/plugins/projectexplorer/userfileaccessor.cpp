@@ -41,6 +41,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/ifile.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QtGui/QApplication>
 #include <QtGui/QMainWindow>
@@ -218,6 +219,28 @@ public:
     QVariantMap update(Project *project, const QVariantMap &map);
 };
 
+// Version 8 reflects the change of environment variable expansion rules,
+// turning some env variables into expandos, the change of argument quoting rules,
+// and the change of VariableManager's expansion syntax.
+class Version8Handler : public UserFileVersionHandler
+{
+public:
+    int userFileVersion() const
+    {
+        return 8;
+    }
+
+    QString displayUserFileVersion() const
+    {
+        // pre5 because we renamed 2.2 to 2.1 later, so people already have 2.2pre4 files
+        return QLatin1String("2.2pre5");
+    }
+
+    QVariantMap update(Project *project, const QVariantMap &map);
+};
+
+} // namespace
+
 //
 // Helper functions:
 //
@@ -237,7 +260,57 @@ static QString fileNameFor(const QString &name)
     return baseName + QLatin1String(PROJECT_FILE_POSTFIX);
 }
 
-} // namespace
+QT_BEGIN_NAMESPACE
+
+class HandlerNode {
+public:
+    QSet<QString> strings;
+    QHash<QString, HandlerNode> children;
+};
+Q_DECLARE_TYPEINFO(HandlerNode, Q_MOVABLE_TYPE);
+
+QT_END_NAMESPACE
+
+static HandlerNode buildHandlerNodes(const char * const **keys)
+{
+    HandlerNode ret;
+    while (const char *rname = *(*keys)++) {
+        QString name = QLatin1String(rname);
+        if (name.endsWith(QLatin1Char('.'))) {
+            HandlerNode sub = buildHandlerNodes(keys);
+            foreach (const QString &key, name.split(QLatin1Char('|')))
+                ret.children.insert(key, sub);
+        } else {
+            ret.strings.insert(name);
+        }
+    }
+    return ret;
+}
+
+static QVariantMap processHandlerNodes(const HandlerNode &node, const QVariantMap &map,
+                                       QVariant (*handler)(const QVariant &var))
+{
+    QVariantMap result;
+    QMapIterator<QString, QVariant> it(map);
+    while (it.hasNext()) {
+        it.next();
+        const QString &key = it.key();
+        if (node.strings.contains(key)) {
+            result.insert(key, handler(it.value()));
+            goto handled;
+        }
+        if (it.value().type() == QVariant::Map)
+            for (QHash<QString, HandlerNode>::ConstIterator subit = node.children.constBegin();
+                 subit != node.children.constEnd(); ++subit)
+                if (key.startsWith(subit.key())) {
+                    result.insert(key, processHandlerNodes(subit.value(), it.value().toMap(), handler));
+                    goto handled;
+                }
+        result.insert(key, it.value());
+      handled: ;
+    }
+    return result;
+}
 
 // -------------------------------------------------------------------------
 // UserFileVersionHandler
@@ -292,6 +365,7 @@ UserFileAccessor::UserFileAccessor() :
     addVersionHandler(new Version5Handler);
     addVersionHandler(new Version6Handler);
     addVersionHandler(new Version7Handler);
+    addVersionHandler(new Version8Handler);
 }
 
 UserFileAccessor::~UserFileAccessor()
@@ -1418,4 +1492,307 @@ QVariantMap Version7Handler::update(Project *, const QVariantMap &map)
         result.insert(globalKey, newTarget);
     }
     return result;
+}
+
+// -------------------------------------------------------------------------
+// Version8Handler
+// -------------------------------------------------------------------------
+
+// Argument list reinterpretation
+
+static const char * const argListKeys[] = {
+    "ProjectExplorer.Project.Target.",
+        "ProjectExplorer.Target.BuildConfiguration."
+        "|ProjectExplorer.Target.DeployConfiguration.",
+            "ProjectExplorer.BuildConfiguration.BuildStepList.",
+                "ProjectExplorer.BuildStepList.Step.",
+                    "GenericProjectManager.GenericMakeStep.MakeArguments",
+                    "QtProjectManager.QMakeBuildStep.QMakeArguments",
+                    "Qt4ProjectManager.MakeStep.MakeArguments",
+                    "CMakeProjectManager.MakeStep.AdditionalArguments",
+                    0,
+                0,
+            0,
+        "ProjectExplorer.Target.RunConfiguration.",
+            "ProjectExplorer.CustomExecutableRunConfiguration.Arguments",
+            "Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments",
+            "CMakeProjectManager.CMakeRunConfiguration.Arguments",
+            0,
+        0,
+    0
+};
+
+static const char * const lameArgListKeys[] = {
+    "ProjectExplorer.Project.Target.",
+        "ProjectExplorer.Target.BuildConfiguration."
+        "|ProjectExplorer.Target.DeployConfiguration.",
+            "ProjectExplorer.BuildConfiguration.BuildStepList.",
+                "ProjectExplorer.BuildStepList.Step.",
+                    "ProjectExplorer.ProcessStep.Arguments",
+                    0,
+                0,
+            0,
+        "ProjectExplorer.Target.RunConfiguration.",
+            "Qt4ProjectManager.MaemoRunConfiguration.Arguments",
+            "Qt4ProjectManager.S60DeviceRunConfiguration.CommandLineArguments",
+            "QmlProjectManager.QmlRunConfiguration.QDeclarativeViewerArguments",
+            0,
+        0,
+    0
+};
+
+#ifdef Q_OS_UNIX
+inline static bool isSpecialChar(ushort c)
+{
+    // Chars that should be quoted (TM). This includes:
+    static const uchar iqm[] = {
+        0xff, 0xff, 0xff, 0xff, 0xdf, 0x07, 0x00, 0xd8,
+        0x00, 0x00, 0x00, 0x38, 0x01, 0x00, 0x00, 0x78
+    }; // 0-32 \'"$`<>|;&(){}*?#!~[]
+
+    return (c < sizeof(iqm) * 8) && (iqm[c / 8] & (1 << (c & 7)));
+}
+
+inline static bool hasSpecialChars(const QString &arg)
+{
+    for (int x = arg.length() - 1; x >= 0; --x)
+        if (isSpecialChar(arg.unicode()[x].unicode()))
+            return true;
+    return false;
+}
+#endif
+
+// These were split according to sane (even if a bit arcane) rules
+static QVariant version8ArgNodeHandler(const QVariant &var)
+{
+    QString ret;
+    foreach (const QVariant &svar, var.toList()) {
+#ifdef Q_OS_UNIX
+        // We don't just addArg, so we don't disarm existing env expansions.
+        // This is a bit fuzzy logic ...
+        QString s = svar.toString();
+        s.replace(QLatin1Char('\\'), QLatin1String("\\\\"));
+        s.replace(QLatin1Char('"'), QLatin1String("\\\""));
+        s.replace(QLatin1Char('`'), QLatin1String("\\`"));
+        if (s != svar.toString() || hasSpecialChars(s))
+            s.prepend(QLatin1Char('"')).append(QLatin1Char('"'));
+        Utils::QtcProcess::addArgs(&ret, s);
+#else
+        // Under windows, env expansions cannot be quoted anyway.
+        Utils::QtcProcess::addArg(&ret, svar.toString());
+#endif
+    }
+    return QVariant(ret);
+}
+
+// These were just split on whitespace
+static QVariant version8LameArgNodeHandler(const QVariant &var)
+{
+    QString ret;
+    foreach (const QVariant &svar, var.toList())
+        Utils::QtcProcess::addArgs(&ret, svar.toString());
+    return QVariant(ret);
+}
+
+// Environment variable reinterpretation
+
+static const char * const envExpandedKeys[] = {
+    "ProjectExplorer.Project.Target.",
+        "ProjectExplorer.Target.BuildConfiguration."
+        "|ProjectExplorer.Target.DeployConfiguration.",
+            "ProjectExplorer.BuildConfiguration.BuildStepList.",
+                "ProjectExplorer.BuildStepList.Step.",
+                    "ProjectExplorer.ProcessStep.WorkingDirectory",
+                    "ProjectExplorer.ProcessStep.Command",
+                    "ProjectExplorer.ProcessStep.Arguments",
+                    "GenericProjectManager.GenericMakeStep.MakeCommand",
+                    "GenericProjectManager.GenericMakeStep.MakeArguments",
+                    "GenericProjectManager.GenericMakeStep.BuildTargets",
+                    "QtProjectManager.QMakeBuildStep.QMakeArguments",
+                    "Qt4ProjectManager.MakeStep.MakeCommand",
+                    "Qt4ProjectManager.MakeStep.MakeArguments",
+                    "CMakeProjectManager.MakeStep.AdditionalArguments",
+                    "CMakeProjectManager.MakeStep.BuildTargets",
+                    0,
+                0,
+            "Qt4ProjectManager.Qt4BuildConfiguration.BuildDirectory",
+            0,
+        "ProjectExplorer.Target.RunConfiguration.",
+            "ProjectExplorer.CustomExecutableRunConfiguration.WorkingDirectory",
+            "ProjectExplorer.CustomExecutableRunConfiguration.Executable",
+            "ProjectExplorer.CustomExecutableRunConfiguration.Arguments",
+            "Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory",
+            "Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments",
+            "Qt4ProjectManager.MaemoRunConfiguration.Arguments",
+            "Qt4ProjectManager.S60DeviceRunConfiguration.CommandLineArguments",
+            "CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory",
+            "CMakeProjectManager.CMakeRunConfiguration.Arguments",
+            0,
+        0,
+    0
+};
+
+static QString version8NewVar(const QString &old)
+{
+    QString ret = old;
+#ifdef Q_OS_UNIX
+    ret.prepend(QLatin1String("${"));
+    ret.append(QLatin1Char('}'));
+#else
+    ret.prepend(QLatin1Char('%'));
+    ret.append(QLatin1Char('%'));
+#endif
+    return ret;
+}
+
+// Translate DOS-like env var expansions into Unix-like ones and vice versa.
+// On the way, change {SOURCE,BUILD}DIR env expansions to %{}-expandos
+static QVariant version8EnvNodeTransform(const QVariant &var)
+{
+    QString result = var.toString();
+
+    result.replace(QRegExp(QLatin1String("%SOURCEDIR%|\\$(SOURCEDIR\\b|{SOURCEDIR})")),
+                   QLatin1String("%{sourceDir}"));
+    result.replace(QRegExp(QLatin1String("%BUILDDIR%|\\$(BUILDDIR\\b|{BUILDDIR})")),
+                   QLatin1String("%{buildDir}"));
+#ifdef Q_OS_UNIX
+    for (int vStart = -1, i = 0; i < result.length(); ) {
+        QChar c = result.at(i++);
+        if (c == QLatin1Char('%')) {
+            if (vStart > 0 && vStart < i - 1) {
+                QString nv = version8NewVar(result.mid(vStart, i - 1 - vStart));
+                result.replace(vStart - 1, i - vStart + 1, nv);
+                i = vStart - 1 + nv.length();
+                vStart = -1;
+            } else {
+                vStart = i;
+            }
+        } else if (vStart > 0) {
+            // Sanity check so we don't catch too much garbage
+            if (!c.isLetterOrNumber() && c != QLatin1Char('_'))
+                vStart = -1;
+        }
+    }
+#else
+    enum { BASE, OPTIONALVARIABLEBRACE, VARIABLE, BRACEDVARIABLE } state = BASE;
+    int vStart = -1;
+
+    for (int i = 0; i < result.length();) {
+        QChar c = result.at(i++);
+        if (state == BASE) {
+            if (c == QLatin1Char('$'))
+                state = OPTIONALVARIABLEBRACE;
+        } else if (state == OPTIONALVARIABLEBRACE) {
+            if (c == QLatin1Char('{')) {
+                state = BRACEDVARIABLE;
+                vStart = i;
+            } else if (c.isLetterOrNumber() || c == QLatin1Char('_')) {
+                state = VARIABLE;
+                vStart = i - 1;
+            } else {
+                state = BASE;
+            }
+        } else if (state == BRACEDVARIABLE) {
+            if (c == QLatin1Char('}')) {
+                QString nv = version8NewVar(result.mid(vStart, i - 1 - vStart));
+                result.replace(vStart - 2, i - vStart + 2, nv);
+                i = vStart + nv.length();
+                state = BASE;
+            }
+        } else if (state == VARIABLE) {
+            if (!c.isLetterOrNumber() && c != QLatin1Char('_')) {
+                QString nv = version8NewVar(result.mid(vStart, i - 1 - vStart));
+                result.replace(vStart - 1, i - vStart, nv);
+                i = vStart - 1 + nv.length(); // On the same char - could be next expansion.
+                state = BASE;
+            }
+        }
+    }
+    if (state == VARIABLE) {
+        QString nv = version8NewVar(result.mid(vStart));
+        result.truncate(vStart - 1);
+        result += nv;
+    }
+#endif
+
+    return QVariant(result);
+}
+
+static QVariant version8EnvNodeHandler(const QVariant &var)
+{
+    if (var.type() != QVariant::List)
+        return version8EnvNodeTransform(var);
+
+    QVariantList vl;
+    foreach (const QVariant &svar, var.toList())
+        vl << version8EnvNodeTransform(svar);
+    return vl;
+}
+
+// VariableManager expando reinterpretation
+
+static const char * const varExpandedKeys[] = {
+    "ProjectExplorer.Project.Target.",
+        "ProjectExplorer.Target.BuildConfiguration."
+        "|ProjectExplorer.Target.DeployConfiguration.",
+            "ProjectExplorer.BuildConfiguration.BuildStepList.",
+                "ProjectExplorer.BuildStepList.Step.",
+                    "GenericProjectManager.GenericMakeStep.MakeCommand",
+                    "GenericProjectManager.GenericMakeStep.MakeArguments",
+                    "GenericProjectManager.GenericMakeStep.BuildTargets",
+                    0,
+                0,
+            0,
+        0,
+    0
+};
+
+// Translate old-style ${} var expansions into new-style %{} ones
+static QVariant version8VarNodeHandler(const QVariant &var)
+{
+    static const char * const vars[] = {
+        "absoluteFilePath",
+        "absolutePath",
+        "baseName",
+        "canonicalPath",
+        "canonicalFilePath",
+        "completeBaseName",
+        "completeSuffix",
+        "fileName",
+        "filePath",
+        "path",
+        "suffix"
+    };
+    static QSet<QString> map;
+    if (map.isEmpty())
+        for (unsigned i = 0; i < sizeof(vars)/sizeof(vars[0]); i++)
+            map.insert(QLatin1String("CURRENT_DOCUMENT:") + QLatin1String(vars[i]));
+
+    QString str = var.toString();
+    int pos = 0;
+    forever {
+        int openPos = str.indexOf(QLatin1String("${"), pos);
+        if (openPos < 0)
+            break;
+        int varPos = openPos + 2;
+        int closePos = str.indexOf(QLatin1Char('}'), varPos);
+        if (closePos < 0)
+            break;
+        if (map.contains(str.mid(varPos, closePos - varPos)))
+            str[openPos] = QLatin1Char('%');
+        pos = closePos + 1;
+    }
+    return QVariant(str);
+}
+
+QVariantMap Version8Handler::update(Project *, const QVariantMap &map)
+{
+    const char * const *p1 = argListKeys;
+    QVariantMap rmap1 = processHandlerNodes(buildHandlerNodes(&p1), map, version8ArgNodeHandler);
+    const char * const *p2 = lameArgListKeys;
+    QVariantMap rmap2 = processHandlerNodes(buildHandlerNodes(&p2), rmap1, version8LameArgNodeHandler);
+    const char * const *p3 = envExpandedKeys;
+    QVariantMap rmap3 = processHandlerNodes(buildHandlerNodes(&p3), rmap2, version8EnvNodeHandler);
+    const char * const *p4 = varExpandedKeys;
+    return processHandlerNodes(buildHandlerNodes(&p4), rmap3, version8VarNodeHandler);
 }
