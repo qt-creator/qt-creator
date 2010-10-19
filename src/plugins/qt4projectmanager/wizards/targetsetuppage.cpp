@@ -40,6 +40,7 @@
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QtGui/QAction>
 #include <QtGui/QFileDialog>
@@ -415,21 +416,20 @@ TargetSetupPage::recursivelyCheckDirectoryForBuild(const QString &directory, con
         info.isTemporary = true;
     }
 
-    QPair<QtVersion::QmakeBuildConfigs, QStringList> result =
+    QPair<QtVersion::QmakeBuildConfigs, QString> result =
             QtVersionManager::scanMakeFile(directory + "/Makefile", info.version->defaultBuildConfig());
     info.buildConfig = result.first;
-    info.additionalArguments = Qt4BuildConfiguration::removeSpecFromArgumentList(result.second);
-
-    QString parsedSpec = Qt4BuildConfiguration::extractSpecFromArgumentList(result.second, directory, info.version);
+    QString aa = result.second;
+    QString parsedSpec = Qt4BuildConfiguration::extractSpecFromArguments(&aa, directory, info.version);
     QString versionSpec = info.version->mkspec();
 
     // Compare mkspecs and add to additional arguments
     if (parsedSpec.isEmpty() || parsedSpec == versionSpec || parsedSpec == "default") {
         // using the default spec, don't modify additional arguments
     } else {
-        info.additionalArguments.prepend(parsedSpec);
-        info.additionalArguments.prepend("-spec");
+        info.additionalArguments = "-spec " + Utils::QtcProcess::quoteArg(parsedSpec);
     }
+    Utils::QtcProcess::addArgs(&info.additionalArguments, aa);
 
     results.append(info);
     return results;

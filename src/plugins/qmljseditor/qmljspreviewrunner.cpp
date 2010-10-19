@@ -30,6 +30,7 @@
 #include "qmljspreviewrunner.h"
 
 #include <utils/environment.h>
+#include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
 
 #include <QtGui/QMessageBox>
@@ -50,7 +51,7 @@ QmlJSPreviewRunner::QmlJSPreviewRunner(QObject *parent) :
     m_qmlViewerDefaultPath = Utils::SynchronousProcess::locateBinary(searchPath, QLatin1String("qmlviewer"));
 
     Utils::Environment environment = Utils::Environment::systemEnvironment();
-    m_applicationLauncher.setEnvironment(environment.toStringList());
+    m_applicationLauncher.setEnvironment(environment);
 }
 
 bool QmlJSPreviewRunner::isReady() const
@@ -63,7 +64,7 @@ void QmlJSPreviewRunner::run(const QString &filename)
     QString errorMessage;
     if (!filename.isEmpty()) {
         m_applicationLauncher.start(ProjectExplorer::ApplicationLauncher::Gui, m_qmlViewerDefaultPath,
-                                    QStringList() << filename);
+                                    Utils::QtcProcess::quoteArg(filename));
 
     } else {
         errorMessage = "No file specified.";

@@ -265,9 +265,9 @@ public:
 
     // Static Methods
     static bool makefileIsFor(const QString &makefile, const QString &proFile);
-    static QPair<QtVersion::QmakeBuildConfigs, QStringList> scanMakeFile(const QString &makefile,
-                                                                         QtVersion::QmakeBuildConfigs defaultBuildConfig);
-    static QString findQMakeBinaryFromMakefile(const QString &makefile);
+    static QPair<QtVersion::QmakeBuildConfigs, QString> scanMakeFile(const QString &makefile,
+                                                                     QtVersion::QmakeBuildConfigs defaultBuildConfig);
+    static QString findQMakeBinaryFromMakefile(const QString &directory);
     bool isValidId(int id) const;
 
 signals:
@@ -281,11 +281,10 @@ private:
     static bool equals(QtVersion *a, QtVersion *b);
     static QString findQMakeLine(const QString &directory, const QString &key);
     static QString trimLine(const QString line);
-    static QStringList splitLine(const QString &line);
-    static void parseParts(const QStringList &parts,
-                           QList<QMakeAssignment> *assignments,
-                           QList<QMakeAssignment> *afterAssignments,
-                           QStringList *additionalArguments);
+    static void parseArgs(const QString &args,
+                          QList<QMakeAssignment> *assignments,
+                          QList<QMakeAssignment> *afterAssignments,
+                          QString *additionalArguments);
     static QtVersion::QmakeBuildConfigs qmakeBuildConfigFromCmdArgs(QList<QMakeAssignment> *assignments,
                                                                     QtVersion::QmakeBuildConfigs defaultBuildConfig);
     // Used by QtOptionsPage

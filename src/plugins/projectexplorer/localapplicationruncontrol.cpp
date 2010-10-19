@@ -78,7 +78,7 @@ LocalApplicationRunControl::LocalApplicationRunControl(LocalApplicationRunConfig
 {
     Utils::Environment env = rc->environment();
     QString dir = rc->workingDirectory();
-    m_applicationLauncher.setEnvironment(env.toStringList());
+    m_applicationLauncher.setEnvironment(env);
     m_applicationLauncher.setWorkingDirectory(dir);
 
     m_executable = rc->executable();

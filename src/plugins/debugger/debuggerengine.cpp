@@ -118,10 +118,9 @@ QDebug operator<<(QDebug d, DebuggerState state)
 QDebug operator<<(QDebug str, const DebuggerStartParameters &sp)
 {
     QDebug nospace = str.nospace();
-    const QString sep = QString(QLatin1Char(','));
     nospace << "executable=" << sp.executable
             << " coreFile=" << sp.coreFile
-            << " processArgs=" << sp.processArgs.join(sep)
+            << " processArgs=" << sp.processArgs
             << " environment=<" << sp.environment.size() << " variables>"
             << " workingDir=" << sp.workingDirectory
             << " attachPID=" << sp.attachPID
@@ -477,8 +476,8 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
     d->m_inferiorPid = d->m_startParameters.attachPID > 0
         ? d->m_startParameters.attachPID : 0;
 
-    if (d->m_startParameters.environment.empty())
-        d->m_startParameters.environment = Utils::Environment().toStringList();
+    if (!d->m_startParameters.environment.size())
+        d->m_startParameters.environment = Utils::Environment();
 
     if (d->m_startParameters.breakAtMain)
         breakByFunctionMain();

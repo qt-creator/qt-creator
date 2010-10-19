@@ -44,6 +44,10 @@
 QT_FORWARD_DECLARE_CLASS(QProcess)
 QT_FORWARD_DECLARE_CLASS(QLabel)
 
+namespace Utils {
+class QtcProcess;
+}
+
 namespace CMakeProjectManager {
 namespace Internal {
 
@@ -66,8 +70,8 @@ public:
 
     void setCMakeExecutable(const QString &executable);
 
-    void createXmlFile(QProcess *process,
-                       const QStringList &arguments,
+    void createXmlFile(Utils::QtcProcess *process,
+                       const QString &arguments,
                        const QString &sourceDirectory,
                        const QDir &buildDirectory,
                        const Utils::Environment &env,

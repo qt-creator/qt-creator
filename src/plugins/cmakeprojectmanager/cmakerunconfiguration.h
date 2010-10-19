@@ -68,7 +68,7 @@ public:
     QString executable() const;
     RunMode runMode() const;
     QString workingDirectory() const;
-    QStringList commandLineArguments() const;
+    QString commandLineArguments() const;
     Utils::Environment environment() const;
     QWidget *createConfigurationWidget();
 
@@ -104,7 +104,6 @@ protected:
 private:
     void setUserWorkingDirectory(const QString &workingDirectory);
     QString baseWorkingDirectory() const;
-    QStringList baseCommandLineArguments() const;
     void ctor();
 
     enum BaseEnvironmentBase { CleanEnvironmentBase = 0,

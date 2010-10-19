@@ -32,6 +32,8 @@
 
 #include "utils_global.h"
 
+#include "environment.h"
+
 #include <QtCore/QStringList>
 
 namespace Utils {
@@ -45,10 +47,10 @@ public:
     QString workingDirectory() const { return m_workingDir; }
     void setWorkingDirectory(const QString &dir) { m_workingDir = dir; }
 
-    QStringList environment() const { return m_environment; }
-    void setEnvironment(const QStringList &env) { m_environment = env; }
+    void setEnvironment(const Environment &env) { m_environment = env; }
+    Environment environment() const { return m_environment; }
 
-    virtual bool start(const QString &program, const QStringList &args) = 0;
+    virtual bool start(const QString &program, const QString &args) = 0;
     virtual void stop() = 0;
 
     virtual bool isRunning() const = 0;
@@ -63,14 +65,15 @@ public:
     static QStringList fixWinEnvironment(const QStringList &env);
     // Quote a Windows command line correctly for the "CreateProcess" API
     static QString createWinCommandline(const QString &program, const QStringList &args);
+    static QString createWinCommandline(const QString &program, const QString &args);
     // Create a bytearray suitable to be passed on as environment
     // to the "CreateProcess" API (0-terminated UTF 16 strings).
     static QByteArray createWinEnvironment(const QStringList &env);
 #endif
 
-private:
+protected:
     QString m_workingDir;
-    QStringList m_environment;
+    Environment m_environment;
 };
 
 } //namespace Utils

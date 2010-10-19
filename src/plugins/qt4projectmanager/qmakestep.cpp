@@ -42,6 +42,7 @@
 
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -100,29 +101,34 @@ Qt4BuildConfiguration *QMakeStep::qt4BuildConfiguration() const
 /// config arguemnts
 /// moreArguments
 /// user arguments
-QStringList QMakeStep::allArguments()
+QString QMakeStep::allArguments(bool shorted)
 {
-    QStringList additonalArguments = m_userArgs;
+    QString additonalArguments = m_userArgs;
     Qt4BuildConfiguration *bc = qt4BuildConfiguration();
     QStringList arguments;
     if (bc->subNodeBuild())
         arguments << QDir::toNativeSeparators(bc->subNodeBuild()->path());
+    else if (shorted)
+        arguments << QDir::toNativeSeparators(QFileInfo(
+                buildConfiguration()->target()->project()->file()->fileName()).fileName());
     else
         arguments << QDir::toNativeSeparators(buildConfiguration()->target()->project()->file()->fileName());
     arguments << "-r";
 
-    if (!additonalArguments.contains("-spec"))
-        arguments << "-spec" << bc->qtVersion()->mkspec();
+    for (Utils::QtcProcess::ArgIterator ait(&additonalArguments); ait.next(); )
+        if (ait.value() == QLatin1String("-spec"))
+            goto haveSpec;
+    arguments << "-spec" << bc->qtVersion()->mkspec();
+  haveSpec:
 
     // Find out what flags we pass on to qmake
     arguments << bc->configCommandLineArguments();
 
-    if (!additonalArguments.isEmpty())
-        arguments << additonalArguments;
-
     arguments << moreArguments();
 
-    return arguments;
+    QString args = Utils::QtcProcess::joinArgs(arguments);
+    Utils::QtcProcess::addArgs(&args, additonalArguments);
+    return args;
 }
 
 ///
@@ -164,7 +170,7 @@ bool QMakeStep::init()
     Qt4BuildConfiguration *qt4bc = qt4BuildConfiguration();
     const QtVersion *qtVersion = qt4bc->qtVersion();
 
-    QStringList args = allArguments();
+    QString args = allArguments();
     QString workingDirectory;
 
     if (qt4bc->subNodeBuild())
@@ -286,7 +292,7 @@ bool QMakeStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
     return result;
 }
 
-void QMakeStep::setUserArguments(const QStringList &arguments)
+void QMakeStep::setUserArguments(const QString &arguments)
 {
     if (m_userArgs == arguments)
         return;
@@ -301,14 +307,13 @@ void QMakeStep::setUserArguments(const QStringList &arguments)
 QStringList QMakeStep::parserArguments()
 {
     QStringList result;
-    foreach (const QString &str, allArguments()) {
-        if (str.contains("="))
-            result << str;
-    }
+    for (Utils::QtcProcess::ConstArgIterator ait(allArguments()); ait.next(); )
+        if (ait.value().contains(QLatin1Char('=')))
+            result << ait.value();
     return result;
 }
 
-QStringList QMakeStep::userArguments()
+QString QMakeStep::userArguments()
 {
     return m_userArgs;
 }
@@ -322,7 +327,7 @@ QVariantMap QMakeStep::toMap() const
 
 bool QMakeStep::fromMap(const QVariantMap &map)
 {
-    m_userArgs = map.value(QLatin1String(QMAKE_ARGUMENTS_KEY)).toStringList();
+    m_userArgs = map.value(QLatin1String(QMAKE_ARGUMENTS_KEY)).toString();
 
     return BuildStep::fromMap(map);
 }
@@ -349,8 +354,7 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
 
 void QMakeStepConfigWidget::init()
 {
-    QString qmakeArgs = Utils::Environment::joinArgumentList(m_step->userArguments());
-    m_ui.qmakeAdditonalArgumentsLineEdit->setText(qmakeArgs);
+    m_ui.qmakeAdditonalArgumentsLineEdit->setText(m_step->userArguments());
 
     qmakeBuildConfigChanged();
 
@@ -393,8 +397,7 @@ void QMakeStepConfigWidget::userArgumentsChanged()
 {
     if (m_ignoreChange)
         return;
-    QString qmakeArgs = Utils::Environment::joinArgumentList(m_step->userArguments());
-    m_ui.qmakeAdditonalArgumentsLineEdit->setText(qmakeArgs);
+    m_ui.qmakeAdditonalArgumentsLineEdit->setText(m_step->userArguments());
     updateSummaryLabel();
     updateEffectiveQMakeCall();
 }
@@ -402,8 +405,7 @@ void QMakeStepConfigWidget::userArgumentsChanged()
 void QMakeStepConfigWidget::qmakeArgumentsLineEdited()
 {
     m_ignoreChange = true;
-    m_step->setUserArguments(
-            Utils::Environment::parseCombinedArgString(m_ui.qmakeAdditonalArgumentsLineEdit->text()));
+    m_step->setUserArguments(m_ui.qmakeAdditonalArgumentsLineEdit->text());
     m_ignoreChange = false;
 
     updateSummaryLabel();
@@ -446,16 +448,11 @@ void QMakeStepConfigWidget::updateSummaryLabel()
         return;
     }
 
-    QStringList args = m_step->allArguments();
     // We don't want the full path to the .pro file
-    const QString projectFileName = m_step->buildConfiguration()->target()->project()->file()->fileName();
-    int index = args.indexOf(projectFileName);
-    if (index != -1)
-        args[index] = QFileInfo(projectFileName).fileName();
-
+    QString args = m_step->allArguments(true);
     // And we only use the .pro filename not the full path
     QString program = QFileInfo(qtVersion->qmakeCommand()).fileName();
-    m_summaryText = tr("<b>qmake:</b> %1 %2").arg(program, args.join(QString(QLatin1Char(' '))));
+    m_summaryText = tr("<b>qmake:</b> %1 %2").arg(program, args);
     emit updateSummary();
 
 }
@@ -465,7 +462,7 @@ void QMakeStepConfigWidget::updateEffectiveQMakeCall()
     Qt4BuildConfiguration *qt4bc = m_step->qt4BuildConfiguration();
     const QtVersion *qtVersion = qt4bc->qtVersion();
     QString program = QFileInfo(qtVersion->qmakeCommand()).fileName();
-    m_ui.qmakeArgumentsEdit->setPlainText(program + QLatin1Char(' ') + Utils::Environment::joinArgumentList(m_step->allArguments()));
+    m_ui.qmakeArgumentsEdit->setPlainText(program + QLatin1Char(' ') + m_step->allArguments());
 }
 
 ////

@@ -96,10 +96,14 @@ void TermGdbAdapter::startAdapter()
 //    m_stubProc.stop();
 //    m_stubProc.blockSignals(false);
 
+#ifdef Q_OS_WIN
+    if (!prepareWinCommand())
+        return;
+#endif
+
     m_stubProc.setWorkingDirectory(startParameters().workingDirectory);
     // Set environment + dumper preload.
-    QStringList environment = startParameters().environment;
-    m_stubProc.setEnvironment(environment);
+    m_stubProc.setEnvironment(startParameters().environment);
     // FIXME: Starting the stub implies starting the inferior. This is
     // fairly unclean as far as the state machine and error reporting go.
     if (!m_stubProc.start(startParameters().executable,

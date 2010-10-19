@@ -37,6 +37,8 @@
 
 #include <coreplugin/ssh/sshconnection.h> 
 
+#include <utils/environment.h>
+
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
 
@@ -70,8 +72,8 @@ public:
     QString displayName;
     QString coreFile;
     bool isSnapshot; // set if created internally
-    QStringList processArgs;
-    QStringList environment;
+    QString processArgs;
+    Utils::Environment environment;
     QString workingDirectory;
     qint64 attachPID;
     bool useTerminal;

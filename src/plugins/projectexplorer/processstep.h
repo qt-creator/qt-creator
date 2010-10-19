@@ -73,12 +73,12 @@ public:
     virtual bool immutable() const;
 
     QString command() const;
-    QStringList arguments() const;
+    QString arguments() const;
     bool enabled() const;
     QString workingDirectory() const;
 
     void setCommand(const QString &command);
-    void setArguments(const QStringList &arguments);
+    void setArguments(const QString &arguments);
     void setEnabled(bool enabled);
     void setWorkingDirectory(const QString &workingDirectory);
 
@@ -94,7 +94,7 @@ private:
     void ctor();
 
     QString m_command;
-    QStringList m_arguments;
+    QString m_arguments;
     QString m_workingDirectory;
     Utils::Environment m_env;
     bool m_enabled;

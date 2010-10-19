@@ -109,8 +109,8 @@ void RemotePlainGdbAdapter::handleSetupDone(int qmlPort)
         startParameters().qmlServerPort = qmlPort;
     if (!startParameters().workingDirectory.isEmpty())
         m_gdbProc.setWorkingDirectory(startParameters().workingDirectory);
-    if (!startParameters().environment.isEmpty())
-        m_gdbProc.setEnvironment(startParameters().environment);
+    if (startParameters().environment.size())
+        m_gdbProc.setEnvironment(startParameters().environment.toStringList());
     m_gdbProc.realStart(m_engine->startParameters().debuggerCommand,
         QStringList() << QLatin1String("-i") << QLatin1String("mi"),
         m_engine->startParameters().executable);

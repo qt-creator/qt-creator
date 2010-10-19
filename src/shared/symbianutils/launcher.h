@@ -92,7 +92,7 @@ public:
     void setCopyFileNames(const QStringList &srcName, const QStringList &dstName);
     void setDownloadFileName(const QString &srcName, const QString &dstName);
     void setInstallFileNames(const QStringList &names);
-    void setCommandLineArgs(const QStringList &args);
+    void setCommandLineArgs(const QString &args);
     bool startServer(QString *errorMessage);
     void setInstallationMode(InstallationMode installation);
     void setInstallationDrive(char drive);
@@ -122,7 +122,7 @@ public:
 
     // Create Trk message to start a process.
     static QByteArray startProcessMessage(const QString &executable,
-                                          const QStringList &arguments);
+                                          const QString &arguments);
     // Create Trk message to read memory
     static QByteArray readMemoryMessage(uint pid, uint tid, uint from, uint len);
     static QByteArray readRegistersMessage(uint pid, uint tid);

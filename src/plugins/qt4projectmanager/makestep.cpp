@@ -43,6 +43,7 @@
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/projectexplorer.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/qtcprocess.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
@@ -113,7 +114,7 @@ QVariantMap MakeStep::toMap() const
 bool MakeStep::fromMap(const QVariantMap &map)
 {
     m_makeCmd = map.value(QLatin1String(MAKE_COMMAND_KEY)).toString();
-    m_userArgs = map.value(QLatin1String(MAKE_ARGUMENTS_KEY)).toStringList();
+    m_userArgs = map.value(QLatin1String(MAKE_ARGUMENTS_KEY)).toString();
     m_clean = map.value(QLatin1String(CLEAN_KEY)).toBool();
 
     return ProjectExplorer::AbstractProcessStep::fromMap(map);
@@ -150,22 +151,26 @@ bool MakeStep::init()
     // we should stop the clean queue
     // That is mostly so that rebuild works on a already clean project
     setIgnoreReturnValue(m_clean);
-    QStringList args;
+
+    QString args;
 
     ProjectExplorer::ToolChain *toolchain = bc->toolChain();
 
     if (bc->subNodeBuild()){
         if(!bc->subNodeBuild()->makefile().isEmpty()) {
-            args << "-f" << bc->subNodeBuild()->makefile();
+            Utils::QtcProcess::addArg(&args, QLatin1String("-f"));
+            Utils::QtcProcess::addArg(&args, bc->subNodeBuild()->makefile());
         }
     } else if (!bc->makefile().isEmpty()) {
-        args << "-f" << bc->makefile();
+        Utils::QtcProcess::addArg(&args, QLatin1String("-f"));
+        Utils::QtcProcess::addArg(&args, bc->makefile());
     }
 
-    args.append(m_userArgs);
+    Utils::QtcProcess::addArgs(&args, m_userArgs);
+
     if (!m_clean) {
         if (!bc->defaultMakeTarget().isEmpty())
-            args << bc->defaultMakeTarget();
+            Utils::QtcProcess::addArg(&args, bc->defaultMakeTarget());
     }
     // -w option enables "Enter"/"Leaving directory" messages, which we need for detecting the
     // absolute file path
@@ -177,7 +182,7 @@ bool MakeStep::init()
         if (toolchain->type() != ProjectExplorer::ToolChain_MSVC &&
             toolchain->type() != ProjectExplorer::ToolChain_WINCE) {
             if (m_makeCmd.isEmpty())
-                args << "-w";
+                Utils::QtcProcess::addArg(&args, QLatin1String("-w"));
         }
     }
 
@@ -235,12 +240,12 @@ ProjectExplorer::BuildStepConfigWidget *MakeStep::createConfigWidget()
     return new MakeStepConfigWidget(this);
 }
 
-QStringList MakeStep::userArguments()
+QString MakeStep::userArguments()
 {
     return m_userArgs;
 }
 
-void MakeStep::setUserArguments(const QStringList &arguments)
+void MakeStep::setUserArguments(const QString &arguments)
 {
     m_userArgs = arguments;
     emit userArgumentsChanged();
@@ -314,16 +319,16 @@ void MakeStepConfigWidget::updateDetails()
     // FIXME doing this without the user having a way to override this is rather bad
     // so we only do it for unix and if the user didn't override the make command
     // but for now this is the least invasive change
-    QStringList args = m_makeStep->userArguments();
+    QString args = m_makeStep->userArguments();
     ProjectExplorer::ToolChainType t = ProjectExplorer::ToolChain_UNKNOWN;
     ProjectExplorer::ToolChain *toolChain = bc->toolChain();
     if (toolChain)
         t = toolChain->type();
     if (t != ProjectExplorer::ToolChain_MSVC && t != ProjectExplorer::ToolChain_WINCE) {
         if (m_makeStep->m_makeCmd.isEmpty())
-            args << "-w";
+            Utils::QtcProcess::addArg(&args, QLatin1String("-w"));
     }
-    m_summaryText = tr("<b>Make:</b> %1 %2 in %3").arg(QFileInfo(makeCmd).fileName(), args.join(" "),
+    m_summaryText = tr("<b>Make:</b> %1 %2 in %3").arg(QFileInfo(makeCmd).fileName(), args,
                                                        QDir::toNativeSeparators(workingDirectory));
     emit updateSummary();
 }
@@ -342,8 +347,7 @@ void MakeStepConfigWidget::userArgumentsChanged()
 {
     if (m_ignoreChange)
         return;
-    const QStringList &makeArguments = m_makeStep->userArguments();
-    m_ui->makeArgumentsLineEdit->setText(Utils::Environment::joinArgumentList(makeArguments));
+    m_ui->makeArgumentsLineEdit->setText(m_makeStep->userArguments());
     updateDetails();
 }
 
@@ -354,8 +358,7 @@ void MakeStepConfigWidget::init()
     const QString &makeCmd = m_makeStep->m_makeCmd;
     m_ui->makePathChooser->setPath(makeCmd);
 
-    const QStringList &makeArguments = m_makeStep->userArguments();
-    m_ui->makeArgumentsLineEdit->setText(Utils::Environment::joinArgumentList(makeArguments));
+    m_ui->makeArgumentsLineEdit->setText(m_makeStep->userArguments());
     updateDetails();
 }
 
@@ -368,8 +371,7 @@ void MakeStepConfigWidget::makeEdited()
 void MakeStepConfigWidget::makeArgumentsLineEdited()
 {
     m_ignoreChange = true;
-    m_makeStep->setUserArguments(
-            Utils::Environment::parseCombinedArgString(m_ui->makeArgumentsLineEdit->text()));
+    m_makeStep->setUserArguments(m_ui->makeArgumentsLineEdit->text());
     m_ignoreChange = false;
     updateDetails();
 }

@@ -43,6 +43,7 @@
 #include <utils/debuggerlanguagechooser.h>
 #include <utils/detailswidget.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <qt4projectmanager/qtversionmanager.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qt4projectmanager/qmlobservertool.h>
@@ -135,23 +136,20 @@ QString QmlProjectRunConfiguration::observerPath() const
     }
 }
 
-QStringList QmlProjectRunConfiguration::viewerArguments() const
+QString QmlProjectRunConfiguration::viewerArguments() const
 {
-    QStringList args;
-
     // arguments in .user file
-    if (!m_qmlViewerArgs.isEmpty())
-        args.append(m_qmlViewerArgs.split(QLatin1Char(' ')));
+    QString args = m_qmlViewerArgs;
 
     // arguments from .qmlproject file
     foreach (const QString &importPath, qmlTarget()->qmlProject()->importPaths()) {
-        args.append(QLatin1String("-I"));
-        args.append(importPath);
+        Utils::QtcProcess::addArg(&args, "-I");
+        Utils::QtcProcess::addArg(&args, importPath);
     }
 
-    const QString s = mainScript();
-    if (! s.isEmpty())
-        args.append(s);
+    const QString &s = mainScript();
+    if (!s.isEmpty())
+        Utils::QtcProcess::addArg(&args, s);
     return args;
 }
 

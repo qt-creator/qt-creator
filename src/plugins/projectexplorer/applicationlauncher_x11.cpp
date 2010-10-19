@@ -32,6 +32,8 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/qtcprocess.h>
+
 #include <QtCore/QTimer>
 #include <QtCore/QTextCodec>
 
@@ -40,7 +42,7 @@ namespace ProjectExplorer {
 struct ApplicationLauncherPrivate {
     ApplicationLauncherPrivate();
 
-    QProcess m_guiProcess;
+    Utils::QtcProcess m_guiProcess;
     Utils::ConsoleProcess m_consoleProcess;
     ApplicationLauncher::Mode m_currentMode;
 
@@ -87,17 +89,18 @@ void ApplicationLauncher::setWorkingDirectory(const QString &dir)
     d->m_consoleProcess.setWorkingDirectory(dir);
 }
 
-void ApplicationLauncher::setEnvironment(const QStringList &env)
+void ApplicationLauncher::setEnvironment(const Utils::Environment &env)
 {
     d->m_guiProcess.setEnvironment(env);
     d->m_consoleProcess.setEnvironment(env);
 }
 
-void ApplicationLauncher::start(Mode mode, const QString &program, const QStringList &args)
+void ApplicationLauncher::start(Mode mode, const QString &program, const QString &args)
 {
     d->m_currentMode = mode;
     if (mode == Gui) {
-        d->m_guiProcess.start(program, args);
+        d->m_guiProcess.setCommand(program, args);
+        d->m_guiProcess.start();
     } else {
         d->m_consoleProcess.start(program, args);
     }

@@ -86,7 +86,7 @@ public:
     // Start functions
     bool startDebuggerWithExecutable(const QString &workingDirectory,
                                      const QString &filename,
-                                     const QStringList &args,
+                                     const QString &args,
                                      const QStringList &env,
                                      QString *errorMessage);
 

@@ -32,6 +32,7 @@
 #include "remoteplaingdbadapter.h"
 
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QtCore/QFileInfo>
 
@@ -143,11 +144,11 @@ void RemoteGdbProcess::handleAppOutputReaderStarted()
 
     connect(m_appOutputReader.data(), SIGNAL(outputAvailable(QByteArray)),
         this, SLOT(handleAppOutput(QByteArray)));
-    QByteArray cmdLine = "DISPLAY=:0.0 " + m_command.toUtf8() + ' '
-        + m_cmdArgs.join(QLatin1String(" ")).toUtf8()
+    QByteArray cmdLine = "DISPLAY=:0.0 " + Utils::QtcProcess::quoteArgUnix(m_command).toUtf8() + ' '
+        + Utils::QtcProcess::joinArgsUnix(m_cmdArgs).toUtf8()
         + " -tty=" + m_appOutputFileName;
     if (!m_wd.isEmpty())
-        cmdLine.prepend("cd " + m_wd.toUtf8() + " && ");
+        cmdLine.prepend("cd " + Utils::QtcProcess::quoteArgUnix(m_wd).toUtf8() + " && ");
     m_gdbProc = m_conn->createRemoteProcess(cmdLine);
     connect(m_gdbProc.data(), SIGNAL(started()), this,
         SLOT(handleGdbStarted()));

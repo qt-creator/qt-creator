@@ -56,6 +56,7 @@
 
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/winutils.h>
 #include <utils/consoleprocess.h>
 #include <utils/fancymainwindow.h>
@@ -464,7 +465,17 @@ void CdbEngine::runEngine()
         needWatchTimer = true; // Fetch away module load, etc. even if crashed
         break;
     case StartInternal:
-    case StartExternal:
+    case StartExternal: {
+        Utils::QtcProcess::SplitError perr;
+        QString pargs = Utils::QtcProcess::prepareArgs(sp.processArgs, &perr,
+                                                       &sp.environment, &sp.workingDirectory);
+        if (perr != Utils::QtcProcess::SplitOk) {
+            // perr == BadQuoting is never returned on Windows
+            // FIXME? QTCREATORBUG-2809
+            errorMessage = QApplication::translate("DebuggerEngine", // Same message in GdbEngine
+                    "Debugging complex command lines is currently not supported under Windows");
+            break;
+        }
         if (sp.useTerminal) {
             // Attaching to console processes triggers an initial breakpoint, which we do not want
             m_d->m_ignoreInitialBreakPoint = true;
@@ -472,7 +483,7 @@ void CdbEngine::runEngine()
             m_d->m_consoleStubProc.stop(); // We leave the console open, so recycle it now.
             m_d->m_consoleStubProc.setWorkingDirectory(sp.workingDirectory);
             m_d->m_consoleStubProc.setEnvironment(sp.environment);
-            rc = m_d->m_consoleStubProc.start(sp.executable, sp.processArgs);
+            rc = m_d->m_consoleStubProc.start(sp.executable, pargs);
             if (!rc)
                 errorMessage = tr("The console stub process was unable to start '%1'.").arg(sp.executable);
             // continues in slotConsoleStubStarted()...
@@ -480,11 +491,11 @@ void CdbEngine::runEngine()
             needWatchTimer = true;
             rc = m_d->startDebuggerWithExecutable(sp.workingDirectory,
                                                   sp.executable,
-                                                  sp.processArgs,
-                                                  sp.environment,
+                                                  pargs,
+                                                  sp.environment.toStringList(),
                                                   &errorMessage);
         }
-        break;
+        break; }
     case AttachCore:
         errorMessage = tr("Attaching to core files is not supported.");
         break;

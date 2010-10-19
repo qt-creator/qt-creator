@@ -48,4 +48,3 @@ LocalApplicationRunConfiguration::~LocalApplicationRunConfiguration()
 }
 
 } // namespace ProjectExplorer
-

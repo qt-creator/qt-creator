@@ -43,6 +43,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <QtGui/QFileDialog>
@@ -416,20 +417,22 @@ void Qt4ProjectConfigWidget::importLabelClicked()
                 vm->addVersion(version);
             }
 
-            QPair<QtVersion::QmakeBuildConfigs, QStringList> result =
+            QPair<QtVersion::QmakeBuildConfigs, QString> result =
                     QtVersionManager::scanMakeFile(directory, version->defaultBuildConfig());
             QtVersion::QmakeBuildConfigs qmakeBuildConfig = result.first;
-            QStringList additionalArguments = Qt4BuildConfiguration::removeSpecFromArgumentList(result.second);
-            QString parsedSpec = Qt4BuildConfiguration::extractSpecFromArgumentList(result.second, directory, version);
+
+            QString aa = result.second;
+            QString parsedSpec = Qt4BuildConfiguration::extractSpecFromArguments(&aa, directory, version);
             QString versionSpec = version->mkspec();
+            QString additionalArguments;
             if (parsedSpec.isEmpty() || parsedSpec == versionSpec || parsedSpec == "default") {
                 // using the default spec, don't modify additional arguments
             } else {
-                additionalArguments.prepend(parsedSpec);
-                additionalArguments.prepend("-spec");
+                additionalArguments = "-spec " + Utils::QtcProcess::quoteArg(parsedSpec);
             }
+            Utils::QtcProcess::addArgs(&additionalArguments, aa);
 
-            additionalArguments = Qt4BuildConfiguration::removeQMLInspectorFromArgumentList(additionalArguments);
+            Qt4BuildConfiguration::removeQMLInspectorFromArguments(&additionalArguments);
 
             // So we got all the information now apply it...
             m_buildConfiguration->setQtVersion(version);
@@ -443,16 +446,25 @@ void Qt4ProjectConfigWidget::importLabelClicked()
             // If we are switching to BuildAll we want "release" in there and no "debug"
             // or "debug" in there and no "release"
             // If we are switching to not BuildAl we want neither "release" nor "debug" in there
-            QStringList makeCmdArguments = makeStep->userArguments();
             bool debug = qmakeBuildConfig & QtVersion::DebugBuild;
-            if (qmakeBuildConfig & QtVersion::BuildAll) {
-                makeCmdArguments.removeAll(debug ? "release" : "debug");
-                if (!makeCmdArguments.contains(debug ? "debug" : "release"))
-                    makeCmdArguments.append(debug ? "debug" : "release");
-            } else {
-                makeCmdArguments.removeAll("debug");
-                makeCmdArguments.removeAll("release");
+            bool haveTag = !(qmakeBuildConfig & QtVersion::BuildAll);
+            QString makeCmdArguments = makeStep->userArguments();
+            Utils::QtcProcess::ArgIterator ait(&makeCmdArguments);
+            while (ait.next()) {
+                if (ait.value() == QLatin1String("debug")) {
+                    if (!haveTag && debug)
+                        haveTag = true;
+                    else
+                        ait.deleteArg();
+                } else if (ait.value() == QLatin1String("release")) {
+                    if (!haveTag && !debug)
+                        haveTag = true;
+                    else
+                        ait.deleteArg();
+                }
             }
+            if (!haveTag)
+                ait.appendArg(QLatin1String(debug ? "debug" : "release"));
             makeStep->setUserArguments(makeCmdArguments);
         }
     }

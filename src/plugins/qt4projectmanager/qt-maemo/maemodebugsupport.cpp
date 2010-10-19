@@ -270,7 +270,7 @@ void MaemoDebugSupport::startDebugging()
         const QString cmdPrefix = MaemoGlobal::remoteCommandPrefix(remoteExe);
         const QString env
             = environment(m_debuggingType, m_runner->userEnvChanges());
-        const QString args = m_runner->arguments().join(QLatin1String(" "));
+        const QString args = m_runner->arguments();
         const QString remoteCommandLine
             = m_debuggingType == MaemoRunConfiguration::DebugQmlOnly
                 ? QString::fromLocal8Bit("%1 %2 %3 %4").arg(cmdPrefix).arg(env)

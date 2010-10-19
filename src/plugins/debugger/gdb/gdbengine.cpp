@@ -1708,7 +1708,7 @@ AbstractGdbAdapter *GdbEngine::createAdapter()
         case ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC:
         case ProjectExplorer::ToolChain_GCCE_GNUPOC:
             // fixme: 1 of 3 testing hacks
-            if (sp.processArgs.size() >= 5 && sp.processArgs.at(0) == _("@tcf@"))
+            if (sp.processArgs.startsWith(__("@tcf@ ")))
                 return new TcfTrkGdbAdapter(this);
             return new TrkGdbAdapter(this);
         default:

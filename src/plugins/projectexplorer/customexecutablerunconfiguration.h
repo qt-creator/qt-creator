@@ -69,7 +69,7 @@ public:
 
     LocalApplicationRunConfiguration::RunMode runMode() const;
     QString workingDirectory() const;
-    QStringList commandLineArguments() const;
+    QString commandLineArguments() const;
     Utils::Environment environment() const;
 
     QWidget *createConfigurationWidget();
@@ -108,8 +108,7 @@ private:
     QList<Utils::EnvironmentItem> userEnvironmentChanges() const;
 
     void setExecutable(const QString &executable);
-    void setBaseCommandLineArguments(const QString &commandLineArguments);
-    QStringList baseCommandLineArguments() const;
+    void setCommandLineArguments(const QString &commandLineArguments);
     QString baseWorkingDirectory() const;
     void setBaseWorkingDirectory(const QString &workingDirectory);
     void setUserName(const QString &name);
@@ -117,7 +116,7 @@ private:
 
     QString m_executable;
     QString m_workingDirectory;
-    QStringList m_cmdArguments;
+    QString m_cmdArguments;
     RunMode m_runMode;
     bool m_userSetName;
     QString m_userName;

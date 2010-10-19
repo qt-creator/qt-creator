@@ -86,11 +86,11 @@ public:
     bool forced();
 
     // TODO clean up those functions
-    QStringList allArguments();
+    QString allArguments(bool shorted = false);
     QStringList moreArguments();
     QStringList parserArguments();
-    QStringList userArguments();
-    void setUserArguments(const QStringList &arguments);
+    QString userArguments();
+    void setUserArguments(const QString &arguments);
 
     QVariantMap toMap() const;
 
@@ -112,7 +112,7 @@ private:
     QStringList m_lastEnv;
     bool m_forced;
     bool m_needToRunQMake; // set in init(), read in run()
-    QStringList m_userArgs;
+    QString m_userArgs;
     bool m_scriptTemplate;
     QList<ProjectExplorer::Task> m_tasks;
 };

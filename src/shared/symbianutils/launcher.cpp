@@ -106,7 +106,7 @@ struct LauncherPrivate {
     CopyState m_copyState;
     DownloadState m_downloadState;
     QString m_fileName;
-    QStringList m_commandLineArgs;
+    QString m_commandLineArgs;
     QStringList m_installFileNames;
     int m_currentInstallFileName;
     int m_verbose;
@@ -218,7 +218,7 @@ void Launcher::setInstallFileNames(const QStringList &names)
     d->m_currentInstallFileName = 0;
 }
 
-void Launcher::setCommandLineArgs(const QStringList &args)
+void Launcher::setCommandLineArgs(const QString &args)
 {
     d->m_commandLineArgs = args;
 }
@@ -267,7 +267,7 @@ bool Launcher::startServer(QString *errorMessage)
         if (!d->m_fileName.isEmpty())
             str << " Executable=" << d->m_fileName;
         if (!d->m_commandLineArgs.isEmpty())
-            str << " Arguments= " << d->m_commandLineArgs.join(QString(QLatin1Char(' ')));
+            str << " Arguments= " << d->m_commandLineArgs;
         for (int i = 0; i < d->m_copyState.sourceFileNames.size(); ++i) {
             str << " Package/Source=" << d->m_copyState.sourceFileNames.at(i);
             str << " Remote Package/Destination=" << d->m_copyState.destinationFileNames.at(i);
@@ -955,7 +955,7 @@ void Launcher::handleInstallPackageFinished(const TrkResult &result)
 }
 
 QByteArray Launcher::startProcessMessage(const QString &executable,
-                                         const QStringList &arguments)
+                                         const QString &arguments)
 {
     // It's not started yet
     QByteArray ba;
@@ -965,7 +965,7 @@ QByteArray Launcher::startProcessMessage(const QString &executable,
     QByteArray commandLineBa = executable.toLocal8Bit();
     commandLineBa.append(char(0));
     if (!arguments.isEmpty())
-        commandLineBa.append(arguments.join(QString(QLatin1Char(' '))).toLocal8Bit());
+        commandLineBa.append(arguments.toLocal8Bit());
     appendString(&ba, commandLineBa, TargetByteOrder, true);
     return ba;
 }

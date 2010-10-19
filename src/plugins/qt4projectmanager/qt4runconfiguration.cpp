@@ -47,6 +47,7 @@
 #include <projectexplorer/environmenteditmodel.h>
 #include <projectexplorer/persistentsettings.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/pathchooser.h>
 #include <utils/detailswidget.h>
 #include <utils/debuggerlanguagechooser.h>
@@ -220,7 +221,7 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     toplayout->addRow(tr("Executable:"), m_executableLineEdit);
 
     QLabel *argumentsLabel = new QLabel(tr("Arguments:"), this);
-    m_argumentsLineEdit = new QLineEdit(Utils::Environment::joinArgumentList(qt4RunConfiguration->baseCommandLineArguments()), this);
+    m_argumentsLineEdit = new QLineEdit(qt4RunConfiguration->commandLineArguments(), this);
     argumentsLabel->setBuddy(m_argumentsLineEdit);
     toplayout->addRow(argumentsLabel, m_argumentsLineEdit);
 
@@ -326,7 +327,7 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     connect(qt4RunConfiguration, SIGNAL(baseWorkingDirectoryChanged(QString)),
             this, SLOT(workingDirectoryChanged(QString)));
 
-    connect(qt4RunConfiguration, SIGNAL(baseCommandLineArgumentsChanged(QString)),
+    connect(qt4RunConfiguration, SIGNAL(commandLineArgumentsChanged(QString)),
             this, SLOT(commandLineArgumentsChanged(QString)));
     connect(qt4RunConfiguration, SIGNAL(runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode)),
             this, SLOT(runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode)));
@@ -424,7 +425,7 @@ void Qt4RunConfigurationWidget::workingDirectoryReseted()
 void Qt4RunConfigurationWidget::argumentsEdited(const QString &args)
 {
     m_ignoreChange = true;
-    m_qt4RunConfiguration->setBaseCommandLineArguments(args);
+    m_qt4RunConfiguration->setCommandLineArguments(args);
     m_ignoreChange = false;
 }
 
@@ -514,7 +515,7 @@ QVariantMap Qt4RunConfiguration::toMap() const
 bool Qt4RunConfiguration::fromMap(const QVariantMap &map)
 {
     const QDir projectDir = QDir(target()->project()->projectDirectory());
-    m_commandLineArguments = map.value(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY)).toStringList();
+    m_commandLineArguments = map.value(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY)).toString();
     m_proFilePath = projectDir.filePath(map.value(QLatin1String(PRO_FILE_KEY)).toString());
     m_runMode = map.value(QLatin1String(USE_TERMINAL_KEY), false).toBool() ? Console : Gui;
     m_isUsingDyldImageSuffix = map.value(QLatin1String(USE_DYLD_IMAGE_SUFFIX_KEY), false).toBool();
@@ -573,12 +574,7 @@ QString Qt4RunConfiguration::baseWorkingDirectory() const
     return ti.workingDir;
 }
 
-QStringList Qt4RunConfiguration::commandLineArguments() const
-{
-    return environment().expandVariables(baseCommandLineArguments());
-}
-
-QStringList Qt4RunConfiguration::baseCommandLineArguments() const
+QString Qt4RunConfiguration::commandLineArguments() const
 {
     return m_commandLineArguments;
 }
@@ -651,10 +647,10 @@ void Qt4RunConfiguration::setBaseWorkingDirectory(const QString &wd)
         emit baseWorkingDirectoryChanged(newWorkingDirectory);
 }
 
-void Qt4RunConfiguration::setBaseCommandLineArguments(const QString &argumentsString)
+void Qt4RunConfiguration::setCommandLineArguments(const QString &argumentsString)
 {
-    m_commandLineArguments = Utils::Environment::parseCombinedArgString(argumentsString);
-    emit baseCommandLineArgumentsChanged(argumentsString);
+    m_commandLineArguments = argumentsString;
+    emit commandLineArgumentsChanged(argumentsString);
 }
 
 void Qt4RunConfiguration::setRunMode(RunMode runMode)

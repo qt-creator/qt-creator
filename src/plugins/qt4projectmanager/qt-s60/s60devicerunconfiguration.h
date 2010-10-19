@@ -77,8 +77,8 @@ public:
 
     ProjectExplorer::OutputFormatter *createOutputFormatter() const;
 
-    QStringList commandLineArguments() const;
-    void setCommandLineArguments(const QStringList &args);
+    QString commandLineArguments() const;
+    void setCommandLineArguments(const QString &args);
 
     QString projectFilePath() const;
 
@@ -112,7 +112,7 @@ private:
     void handleParserState(bool sucess);
 
     QString m_proFilePath;
-    QStringList m_commandLineArguments;
+    QString m_commandLineArguments;
     bool m_validParse;
 };
 
@@ -184,7 +184,7 @@ private:
     QString m_serialPortName;
     QString m_serialPortFriendlyName;
     QString m_targetName;
-    QStringList m_commandLineArguments;
+    QString m_commandLineArguments;
     QString m_executableFileName;
     QString m_qtDir;
     QString m_qtBinPath;

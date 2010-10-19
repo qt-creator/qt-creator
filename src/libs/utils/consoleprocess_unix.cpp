@@ -29,6 +29,9 @@
 
 #include "consoleprocess.h"
 
+#include "environment.h"
+#include "qtcprocess.h"
+
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
 #include <QtCore/QSettings>
@@ -66,6 +69,7 @@ ConsoleProcessPrivate::ConsoleProcessPrivate() :
     m_mode(ConsoleProcess::Run),
     m_appPid(0),
     m_stubSocket(0),
+    m_tempFile(0),
     m_settings(0)
 {
 }
@@ -114,10 +118,40 @@ void ConsoleProcess::setSettings(QSettings *settings)
     d->m_settings = settings;
 }
 
-bool ConsoleProcess::start(const QString &program, const QStringList &args)
+bool ConsoleProcess::start(const QString &program, const QString &args)
 {
     if (isRunning())
         return false;
+
+    QtcProcess::SplitError perr;
+    QStringList pargs = QtcProcess::prepareArgs(args, &perr, &m_environment, &m_workingDir);
+    QString pcmd;
+    if (perr == QtcProcess::SplitOk) {
+        pcmd = program;
+    } else {
+        if (perr != QtcProcess::FoundMeta) {
+            emit processMessage(tr("Quoting error in command."), true);
+            return false;
+        }
+        if (d->m_mode == Debug) {
+            // FIXME: QTCREATORBUG-2809
+            emit processMessage(tr("Debugging complex shell commands in a terminal"
+                                   " is currently not supported."), true);
+            return false;
+        }
+        pcmd = QLatin1String("/bin/sh");
+        pargs << QLatin1String("-c") << (QtcProcess::quoteArg(program) + QLatin1Char(' ') + args);
+    }
+
+    QtcProcess::SplitError qerr;
+    QStringList xtermArgs = QtcProcess::prepareArgs(terminalEmulator(d->m_settings), &qerr,
+                                                    &m_environment, &m_workingDir);
+    if (qerr != QtcProcess::SplitOk) {
+        emit processMessage(qerr == QtcProcess::BadQuoting
+                            ? tr("Quoting error in terminal command.")
+                            : tr("Terminal command may not be a shell command."), true);
+        return false;
+    }
 
     const QString err = stubServerListen();
     if (!err.isEmpty()) {
@@ -125,7 +159,8 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
         return false;
     }
 
-    if (!environment().isEmpty()) {
+    QStringList env = m_environment.toStringList();
+    if (!env.isEmpty()) {
         d->m_tempFile = new QTemporaryFile();
         if (!d->m_tempFile->open()) {
             stubServerShutdown();
@@ -134,14 +169,13 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
             d->m_tempFile = 0;
             return false;
         }
-        foreach (const QString &var, environment()) {
+        foreach (const QString &var, env) {
             d->m_tempFile->write(var.toLocal8Bit());
             d->m_tempFile->write("", 1);
         }
         d->m_tempFile->flush();
     }
 
-    QStringList xtermArgs = terminalEmulator(d->m_settings).split(QLatin1Char(' ')); // FIXME: quoting
     xtermArgs
 #ifdef Q_OS_MAC
               << (QCoreApplication::applicationDirPath() + QLatin1String("/../Resources/qtcreator_process_stub"))
@@ -153,7 +187,7 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
               << msgPromptToClose()
               << workingDirectory()
               << (d->m_tempFile ? d->m_tempFile->fileName() : QString())
-              << program << args;
+              << pcmd << pargs;
 
     QString xterm = xtermArgs.takeFirst();
     d->m_process.start(xterm, xtermArgs);

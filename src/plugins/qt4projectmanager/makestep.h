@@ -91,8 +91,8 @@ public:
 
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     virtual bool immutable() const;
-    QStringList userArguments();
-    void setUserArguments(const QStringList &arguments);
+    QString userArguments();
+    void setUserArguments(const QString &arguments);
     void setClean(bool clean);
 
     QVariantMap toMap() const;
@@ -108,7 +108,7 @@ protected:
 private:
     void ctor();
     bool m_clean;
-    QStringList m_userArgs;
+    QString m_userArgs;
     QString m_makeCmd;
     ProjectExplorer::GnuMakeParser * m_gnuMakeParser;
 };

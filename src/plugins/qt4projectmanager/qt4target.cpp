@@ -274,7 +274,7 @@ Qt4Project *Qt4Target::qt4Project() const
 
 Qt4BuildConfiguration *Qt4Target::addQt4BuildConfiguration(QString displayName, QtVersion *qtversion,
                                                            QtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
-                                                           QStringList additionalArguments,
+                                                           QString additionalArguments,
                                                            QString directory)
 {
     Q_ASSERT(qtversion);
@@ -297,14 +297,14 @@ Qt4BuildConfiguration *Qt4Target::addQt4BuildConfiguration(QString displayName, 
 
     MakeStep* cleanStep = new MakeStep(cleanSteps);
     cleanStep->setClean(true);
-    cleanStep->setUserArguments(QStringList() << "clean");
+    cleanStep->setUserArguments("clean");
     cleanSteps->insertStep(0, cleanStep);
     if (!additionalArguments.isEmpty())
         qmakeStep->setUserArguments(additionalArguments);
 
     // set some options for qmake and make
     if (qmakeBuildConfiguration & QtVersion::BuildAll) // debug_and_release => explicit targets
-        makeStep->setUserArguments(QStringList() << (debug ? "debug" : "release"));
+        makeStep->setUserArguments(debug ? "debug" : "release");
 
     bc->setQMakeBuildConfiguration(qmakeBuildConfiguration);
 

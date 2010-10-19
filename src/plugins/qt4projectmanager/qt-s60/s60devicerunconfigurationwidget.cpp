@@ -46,7 +46,7 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
     : QWidget(parent),
     m_runConfiguration(runConfiguration),
     m_detailsWidget(new Utils::DetailsWidget),
-    m_argumentsLineEdit(new QLineEdit(m_runConfiguration->commandLineArguments().join(QString(QLatin1Char(' ')))))
+    m_argumentsLineEdit(new QLineEdit(m_runConfiguration->commandLineArguments()))
 {
     m_detailsWidget->setState(Utils::DetailsWidget::NoSummary);
     QVBoxLayout *mainBoxLayout = new QVBoxLayout();
@@ -76,13 +76,7 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
 
 void S60DeviceRunConfigurationWidget::argumentsEdited(const QString &text)
 {
-    const QString trimmed = text.trimmed();
-    if (trimmed.isEmpty()) {
-        m_runConfiguration->setCommandLineArguments(QStringList());
-    } else {
-        m_runConfiguration->setCommandLineArguments(trimmed.split(QLatin1Char(' '),
-                                                                  QString::SkipEmptyParts));
-    }
+    m_runConfiguration->setCommandLineArguments(text.trimmed());
 }
 
 void S60DeviceRunConfigurationWidget::runConfigurationEnabledChange(bool enabled)

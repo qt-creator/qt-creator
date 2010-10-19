@@ -49,6 +49,7 @@
 #include <qt4projectmanager/qt4project.h>
 
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QtCore/QStringBuilder>
 
@@ -185,7 +186,7 @@ bool MaemoRunConfiguration::fromMap(const QVariantMap &map)
     if (!RunConfiguration::fromMap(map))
         return false;
 
-    m_arguments = map.value(ArgumentsKey).toStringList();
+    m_arguments = map.value(ArgumentsKey).toString();
     const QDir dir = QDir(target()->project()->projectDirectory());
     m_proFilePath = dir.filePath(map.value(ProFileKey).toString());
     m_useRemoteGdb = map.value(UseRemoteGdbKey, DefaultUseRemoteGdbValue).toBool();
@@ -262,7 +263,7 @@ const QString MaemoRunConfiguration::targetRoot() const
     return QString();
 }
 
-const QStringList MaemoRunConfiguration::arguments() const
+const QString MaemoRunConfiguration::arguments() const
 {
     return m_arguments;
 }
@@ -334,7 +335,7 @@ bool MaemoRunConfiguration::useRemoteGdb() const
     return m_useRemoteGdb && toolchain()->allowsRemoteMounts();
 }
 
-void MaemoRunConfiguration::setArguments(const QStringList &args)
+void MaemoRunConfiguration::setArguments(const QString &args)
 {
     m_arguments = args;
 }

@@ -28,6 +28,8 @@
 **************************************************************************/
 
 #include "consoleprocess.h"
+#include "environment.h"
+#include "qtcprocess.h"
 #include "winutils.h"
 
 #include <windows.h>
@@ -115,10 +117,19 @@ QProcess::ExitStatus ConsoleProcess::exitStatus() const
     return d->m_appStatus;
 }
 
-bool ConsoleProcess::start(const QString &program, const QStringList &args)
+bool ConsoleProcess::start(const QString &program, const QString &args)
 {
     if (isRunning())
         return false;
+
+    QString pcmd;
+    QString pargs;
+    if (d->m_mode != Run) { // The debugger engines already pre-process the arguments.
+        pcmd = program;
+        pargs = args;
+    } else {
+        QtcProcess::prepareCommand(program, args, &pcmd, &pargs, &m_environment, &m_workingDir);
+    }
 
     const QString err = stubServerListen();
     if (!err.isEmpty()) {
@@ -126,7 +137,8 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
         return false;
     }
 
-    if (!environment().isEmpty()) {
+    QStringList env = m_environment.toStringList();
+    if (!env.isEmpty()) {
         d->m_tempFile = new QTemporaryFile();
         if (!d->m_tempFile->open()) {
             stubServerShutdown();
@@ -138,7 +150,7 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
         QTextStream out(d->m_tempFile);
         out.setCodec("UTF-16LE");
         out.setGenerateByteOrderMark(false);
-        foreach (const QString &var, fixWinEnvironment(environment()))
+        foreach (const QString &var, fixWinEnvironment(env))
             out << var << QChar(0);
         out << QChar(0);
     }
@@ -159,7 +171,7 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
              << d->m_stubServer.fullServerName()
              << workDir
              << (d->m_tempFile ? d->m_tempFile->fileName() : 0)
-             << createWinCommandline(program, args)
+             << createWinCommandline(pcmd, pargs)
              << msgPromptToClose();
 
     const QString cmdLine = createWinCommandline(

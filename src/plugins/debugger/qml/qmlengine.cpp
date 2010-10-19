@@ -791,13 +791,7 @@ bool QmlEngine::isShadowBuildProject() const
 
 QString QmlEngine::qmlImportPath() const
 {
-    const QString qmlImportPathPrefix("QML_IMPORT_PATH=");
-    QStringList env = startParameters().environment;
-    foreach (const QString &envStr, env) {
-        if (envStr.startsWith(qmlImportPathPrefix))
-            return envStr.mid(qmlImportPathPrefix.length());
-    }
-    return QString();
+    return startParameters().environment.value("QML_IMPORT_PATH");
 }
 
 QString QmlEngine::toShadowBuildFilename(const QString &filename) const

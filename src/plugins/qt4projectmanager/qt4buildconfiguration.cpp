@@ -37,6 +37,7 @@
 #include "makestep.h"
 
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <limits>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -494,7 +495,7 @@ bool Qt4BuildConfiguration::compareToImportFrom(const QString &makefile)
         QtVersion *version = qtVersion();
         if (version->qmakeCommand() == qmakePath) {
             // same qtversion
-            QPair<QtVersion::QmakeBuildConfigs, QStringList> result =
+            QPair<QtVersion::QmakeBuildConfigs, QString> result =
                     QtVersionManager::scanMakeFile(makefile, version->defaultBuildConfig());
             if (qmakeBuildConfiguration() == result.first) {
                 // The qmake Build Configuration are the same,
@@ -502,18 +503,18 @@ bool Qt4BuildConfiguration::compareToImportFrom(const QString &makefile)
                 // we have to compare without the spec/platform cmd argument
                 // and compare that on its own
                 QString workingDirectory = QFileInfo(makefile).absolutePath();
-                QString actualSpec = extractSpecFromArgumentList(qs->userArguments(), workingDirectory, version);
+                QString userArgs = qs->userArguments();
+                QStringList actualArgs;
+                QString actualSpec = extractSpecFromArguments(&userArgs, workingDirectory, version, &actualArgs);
                 if (actualSpec.isEmpty()) {
                     // Easy one: the user has chosen not to override the settings
                     actualSpec = version->mkspec();
                 }
+                actualArgs += qs->moreArguments();
 
-
-                QString parsedSpec = extractSpecFromArgumentList(result.second, workingDirectory, version);
-                QStringList actualArgs = qs->moreArguments();
-                actualArgs << qs->userArguments();
-                actualArgs = removeSpecFromArgumentList(actualArgs);
-                QStringList parsedArgs = removeSpecFromArgumentList(result.second);
+                QString qmakeArgs = result.second;
+                QStringList parsedArgs;
+                QString parsedSpec = extractSpecFromArguments(&qmakeArgs, workingDirectory, version, &parsedArgs);
 
                 if (debug) {
                     qDebug()<<"Actual args:"<<actualArgs;
@@ -558,59 +559,53 @@ bool Qt4BuildConfiguration::compareToImportFrom(const QString &makefile)
     return false;
 }
 
-QStringList Qt4BuildConfiguration::removeQMLInspectorFromArgumentList(const QStringList &old)
+void Qt4BuildConfiguration::removeQMLInspectorFromArguments(QString *args)
 {
-    QStringList result;
-    foreach (const QString &str, old)
-        if (!str.startsWith(QLatin1String(Constants::QMAKEVAR_QMLJSDEBUGGER_PATH)))
-            result << str;
-    return result;
+    for (Utils::QtcProcess::ArgIterator ait(args); ait.next(); )
+        if (ait.value().startsWith(QLatin1String(Constants::QMAKEVAR_QMLJSDEBUGGER_PATH)))
+            ait.deleteArg();
 }
 
-// We match -spec and -platfrom separetly
-// We ignore -cache, because qmake contained a bug that it didn't
-// mention the -cache in the Makefile
-// That means changing the -cache option in the additional arguments
-// does not automatically rerun qmake. Alas, we could try more
-// intelligent matching for -cache, but i guess people rarely
-// do use that.
-
-QStringList Qt4BuildConfiguration::removeSpecFromArgumentList(const QStringList &old)
+QString Qt4BuildConfiguration::extractSpecFromArguments(QString *args,
+                                                        const QString &directory, const QtVersion *version,
+                                                        QStringList *outArgs)
 {
-    if (!old.contains("-spec") && !old.contains("-platform") && !old.contains("-cache"))
-        return old;
-    QStringList newList;
+    QString parsedSpec;
+
     bool ignoreNext = false;
-    foreach(const QString &item, old) {
+    bool nextIsSpec = false;
+    for (Utils::QtcProcess::ArgIterator ait(args); ait.next(); ) {
         if (ignoreNext) {
             ignoreNext = false;
-        } else if (item == "-spec" || item == "-platform" || item == "-cache") {
+            ait.deleteArg();
+        } else if (nextIsSpec) {
+            nextIsSpec = false;
+            parsedSpec = QDir::cleanPath(ait.value());
+            ait.deleteArg();
+        } else if (ait.value() == QLatin1String("-spec") || ait.value() == QLatin1String("-platform")) {
+            nextIsSpec = true;
+            ait.deleteArg();
+        } else if (ait.value() == QLatin1String("-cache")) {
+            // We ignore -cache, because qmake contained a bug that it didn't
+            // mention the -cache in the Makefile.
+            // That means changing the -cache option in the additional arguments
+            // does not automatically rerun qmake. Alas, we could try more
+            // intelligent matching for -cache, but i guess people rarely
+            // do use that.
             ignoreNext = true;
-        } else {
-            newList << item;
+            ait.deleteArg();
+        } else if (outArgs && ait.isSimple()) {
+            outArgs->append(ait.value());
         }
     }
-    return newList;
-}
 
-QString Qt4BuildConfiguration::extractSpecFromArgumentList(const QStringList &list, QString directory, QtVersion *version)
-{
-    int index = list.indexOf("-spec");
-    if (index == -1)
-        index = list.indexOf("-platform");
-    if (index == -1)
-        return QString();
-
-    ++index;
-
-    if (index >= list.length())
+    if (parsedSpec.isEmpty())
         return QString();
 
     QString baseMkspecDir = version->versionInfo().value("QMAKE_MKSPECS");
     if (baseMkspecDir.isEmpty())
         baseMkspecDir = version->versionInfo().value("QT_INSTALL_DATA") + "/mkspecs";
 
-    QString parsedSpec = QDir::cleanPath(list.at(index));
 #ifdef Q_OS_WIN
     baseMkspecDir = baseMkspecDir.toLower();
     parsedSpec = parsedSpec.toLower();
@@ -753,12 +748,12 @@ BuildConfiguration *Qt4BuildConfigurationFactory::create(ProjectExplorer::Target
     qt4Target->addQt4BuildConfiguration(tr("%1 Debug").arg(buildConfigurationName),
                                         version,
                                         (version->defaultBuildConfig() | QtVersion::DebugBuild),
-                                        QStringList(), QString());
+                                        QString(), QString());
     BuildConfiguration *bc =
     qt4Target->addQt4BuildConfiguration(tr("%1 Release").arg(buildConfigurationName),
                                         version,
                                         (version->defaultBuildConfig() & ~QtVersion::DebugBuild),
-                                        QStringList(), QString());
+                                        QString(), QString());
     return bc;
 }
 

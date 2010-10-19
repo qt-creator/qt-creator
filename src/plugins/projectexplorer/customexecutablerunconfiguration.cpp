@@ -141,7 +141,7 @@ QString CustomExecutableRunConfiguration::executable() const
 
         QString oldExecutable = m_executable;
         QString oldWorkingDirectory = m_workingDirectory;
-        QStringList oldCmdArguments = m_cmdArguments;
+        QString oldCmdArguments = m_cmdArguments;
 
         if (dialog.exec()) {
             return executable();
@@ -183,12 +183,7 @@ QString CustomExecutableRunConfiguration::baseWorkingDirectory() const
 }
 
 
-QStringList CustomExecutableRunConfiguration::commandLineArguments() const
-{
-    return environment().expandVariables(baseCommandLineArguments());
-}
-
-QStringList CustomExecutableRunConfiguration::baseCommandLineArguments() const
+QString CustomExecutableRunConfiguration::commandLineArguments() const
 {
     return m_cmdArguments;
 }
@@ -275,7 +270,7 @@ QVariantMap CustomExecutableRunConfiguration::toMap() const
 bool CustomExecutableRunConfiguration::fromMap(const QVariantMap &map)
 {
     m_executable = map.value(QLatin1String(EXECUTABLE_KEY)).toString();
-    m_cmdArguments = map.value(QLatin1String(ARGUMENTS_KEY)).toStringList();
+    m_cmdArguments = map.value(QLatin1String(ARGUMENTS_KEY)).toString();
     m_workingDirectory = map.value(QLatin1String(WORKING_DIRECTORY_KEY)).toString();
     m_runMode = map.value(QLatin1String(USE_TERMINAL_KEY)).toBool() ? Console : Gui;
     m_userEnvironmentChanges = Utils::EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
@@ -294,9 +289,9 @@ void CustomExecutableRunConfiguration::setExecutable(const QString &executable)
     emit changed();
 }
 
-void CustomExecutableRunConfiguration::setBaseCommandLineArguments(const QString &commandLineArguments)
+void CustomExecutableRunConfiguration::setCommandLineArguments(const QString &commandLineArguments)
 {
-    m_cmdArguments = Utils::Environment::parseCombinedArgString(commandLineArguments);
+    m_cmdArguments = commandLineArguments;
     emit changed();
 }
 

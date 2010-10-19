@@ -101,7 +101,7 @@ void IPCEngineHost::setupInferior()
         SET_NATIVE_BYTE_ORDER(s);
         s << QFileInfo(startParameters().executable).absoluteFilePath();
         s << startParameters().processArgs;
-        s << startParameters().environment;
+        s << startParameters().environment.toStringList();
     }
     rpcCall(SetupInferior, p);
 }

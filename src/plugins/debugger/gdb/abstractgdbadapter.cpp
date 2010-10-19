@@ -32,6 +32,9 @@
 #include "abstractgdbprocess.h"
 
 #include <utils/qtcassert.h>
+#ifdef Q_OS_WIN
+#include <utils/qtcprocess.h>
+#endif
 
 #include <QtCore/QProcess>
 
@@ -73,6 +76,24 @@ bool AbstractGdbAdapter::isTrkAdapter() const
 {
     return false;
 }
+
+#ifdef Q_OS_WIN
+bool AbstractGdbAdapter::prepareWinCommand()
+{
+    Utils::QtcProcess::SplitError perr;
+    startParameters().processArgs = Utils::QtcProcess::prepareArgs(
+                startParameters().processArgs, &perr,
+                &startParameters().environment, &startParameters().workingDirectory);
+    if (perr != Utils::QtcProcess::SplitOk) {
+        // perr == BadQuoting is never returned on Windows
+        // FIXME? QTCREATORBUG-2809
+        m_engine->handleAdapterStartFailed(QApplication::translate("DebuggerEngine", // Same message in CdbEngine
+            "Debugging complex command lines is currently not supported under Windows"), QString());
+        return false;
+    }
+    return true;
+}
+#endif
 
 QString AbstractGdbAdapter::msgGdbStopFailed(const QString &why)
 {

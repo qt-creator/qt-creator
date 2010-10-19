@@ -327,7 +327,7 @@ S60EmulatorRunControl::S60EmulatorRunControl(S60EmulatorRunConfiguration *runCon
     // stuff like the EPOCROOT and EPOCDEVICE env variable
     Utils::Environment env = Utils::Environment::systemEnvironment();
     runConfiguration->qt4Target()->activeBuildConfiguration()->toolChain()->addToEnvironment(env);
-    m_applicationLauncher.setEnvironment(env.toStringList());
+    m_applicationLauncher.setEnvironment(env);
 
     m_executable = runConfiguration->executable();
     connect(&m_applicationLauncher, SIGNAL(applicationError(QString)),
@@ -342,7 +342,7 @@ S60EmulatorRunControl::S60EmulatorRunControl(S60EmulatorRunConfiguration *runCon
 
 void S60EmulatorRunControl::start()
 {
-    m_applicationLauncher.start(ApplicationLauncher::Gui, m_executable, QStringList());
+    m_applicationLauncher.start(ApplicationLauncher::Gui, m_executable, QString());
     emit started();
 
     emit appendMessage(this, tr("Starting %1...").arg(QDir::toNativeSeparators(m_executable)), false);

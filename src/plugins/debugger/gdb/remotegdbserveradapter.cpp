@@ -176,7 +176,7 @@ void RemoteGdbServerAdapter::setupInferior()
     const QByteArray gnuTarget = startParameters().gnuTarget.toLatin1();
     const QByteArray solibPath =
          QFileInfo(startParameters().dumperLibrary).path().toLocal8Bit();
-    const QString args = startParameters().processArgs.join(_(" "));
+    const QString args = startParameters().processArgs;
 
     if (!remoteArch.isEmpty())
         m_engine->postCommand("set architecture " + remoteArch);

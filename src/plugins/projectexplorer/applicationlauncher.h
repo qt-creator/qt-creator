@@ -32,12 +32,10 @@
 
 #include "projectexplorer_export.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QStringList>
 #include <QtCore/QProcess>
 
 namespace Utils {
-class ConsoleProcess;
+class Environment;
 }
 
 namespace ProjectExplorer {
@@ -57,10 +55,10 @@ public:
     ~ApplicationLauncher();
 
     void setWorkingDirectory(const QString &dir);
-    void setEnvironment(const QStringList &env);
+    void setEnvironment(const Utils::Environment &env);
 
     void start(Mode mode, const QString &program,
-               const QStringList &args = QStringList());
+               const QString &args = QString());
     void stop();
     bool isRunning() const;
     qint64 applicationPID() const;

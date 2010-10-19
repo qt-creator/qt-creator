@@ -332,62 +332,6 @@ bool Environment::operator==(const Environment &other) const
     return m_values == other.m_values;
 }
 
-QStringList Environment::parseCombinedArgString(const QString &program)
-{
-    QStringList args;
-    QString tmp;
-    int quoteCount = 0;
-    bool inQuote = false;
-
-    // handle quoting. tokens can be surrounded by double quotes
-    // "hello world". three consecutive double quotes represent
-    // the quote character itself.
-    for (int i = 0; i < program.size(); ++i) {
-        if (program.at(i) == QLatin1Char('"')) {
-            ++quoteCount;
-            if (quoteCount == 3) {
-                // third consecutive quote
-                quoteCount = 0;
-                tmp += program.at(i);
-            }
-            continue;
-        }
-        if (quoteCount) {
-            if (quoteCount == 1)
-                inQuote = !inQuote;
-            quoteCount = 0;
-        }
-        if (!inQuote && program.at(i).isSpace()) {
-            if (!tmp.isEmpty()) {
-                args += tmp;
-                tmp.clear();
-            }
-        } else {
-            tmp += program.at(i);
-        }
-    }
-    if (!tmp.isEmpty())
-        args += tmp;
-    return args;
-}
-
-QString Environment::joinArgumentList(const QStringList &arguments)
-{
-    QString result;
-    const QChar doubleQuote = QLatin1Char('"');
-    foreach (QString arg, arguments) {
-        if (!result.isEmpty())
-            result += QLatin1Char(' ');
-        arg.replace(QString(doubleQuote), QLatin1String("\"\"\""));
-        if (arg.contains(QLatin1Char(' '))) {
-            arg.insert(0, doubleQuote);
-            arg += doubleQuote;
-        }
-        result += arg;
-    }
-    return result;
-}
-
 /** Expand environment variables in a string.
  *
  * Environment variables are accepted in the following forms:

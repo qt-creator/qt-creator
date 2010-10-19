@@ -40,6 +40,7 @@
 #include <utils/environment.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/unixutils.h>
 #include <utils/consoleprocess.h>
 
@@ -438,8 +439,8 @@ void FolderNavigationWidget::openTerminal(const QString &path)
     const QString terminalEmulator = QString::fromLocal8Bit(qgetenv("COMSPEC"));
     const QStringList args; // none
 #else
-   QStringList args = Utils::ConsoleProcess::terminalEmulator(
-           Core::ICore::instance()->settings()).split(QLatin1Char(' '));
+    QStringList args = Utils::QtcProcess::splitArgs(
+        Utils::ConsoleProcess::terminalEmulator(Core::ICore::instance()->settings()));
     const QString terminalEmulator = args.takeFirst();
     const QString shell = QString::fromLocal8Bit(qgetenv("SHELL"));
     args.append(shell);

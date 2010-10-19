@@ -32,8 +32,8 @@
 
 #include <utils/environment.h>
 #include <utils/wizard.h>
+#include <utils/qtcprocess.h>
 
-#include <QtCore/QProcess>
 #include <QtGui/QPushButton>
 #include <QtGui/QComboBox>
 #include <QtGui/QLineEdit>
@@ -81,8 +81,8 @@ public:
     QString sourceDirectory() const;
     void setBuildDirectory(const QString &directory);
     CMakeManager *cmakeManager() const;
-    QStringList arguments() const;
-    void setArguments(const QStringList &args);
+    QString arguments() const;
+    void setArguments(const QString &args);
     Utils::Environment environment() const;
     QString msvcVersion() const;
     void setMsvcVersion(const QString &version);
@@ -93,7 +93,7 @@ private:
     CMakeManager *m_cmakeManager;
     QString m_buildDirectory;
     QString m_sourceDirectory;
-    QStringList m_arguments;
+    QString m_arguments;
     QString m_msvcVersion;
     bool m_creatingCbpFiles;
     Utils::Environment m_environment;
@@ -140,7 +140,7 @@ private:
     CMakeOpenProjectWizard *m_cmakeWizard;
     QPlainTextEdit *m_output;
     QPushButton *m_runCMake;
-    QProcess *m_cmakeProcess;
+    Utils::QtcProcess *m_cmakeProcess;
     QLineEdit *m_argumentsLineEdit;
     Utils::PathChooser *m_cmakeExecutable;
     QComboBox *m_generatorComboBox;

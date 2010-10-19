@@ -35,8 +35,8 @@
 #include "msvcparser.h"
 #include "linuxiccparser.h"
 
-
 #include <utils/synchronousprocess.h>
+#include <utils/qtcprocess.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
@@ -768,16 +768,16 @@ MSVCToolChain::StringStringPairList MSVCToolChain::readEnvironmentSettingI(const
     if (!tf.open())
         return StringStringPairList();
     const QString filename = tf.fileName();
-    QByteArray call = "call \"";
-    call +=  varsBat.toLocal8Bit();
-    call += '"';
+    QByteArray call = "call ";
+    call += Utils::QtcProcess::quoteArg(varsBat).toLocal8Bit();
     if (!args.isEmpty()) {
         call += ' ';
-        call += args.join(QString(QLatin1Char(' '))).toLocal8Bit();
+        call += Utils::QtcProcess::joinArgs(args).toLocal8Bit();
     }
     call += "\r\n";
     tf.write(call);
-    const QByteArray redirect = "set > \"" + QDir::toNativeSeparators(tempOutputFileName).toLocal8Bit() + "\"\r\n";
+    const QByteArray redirect = "set > " + Utils::QtcProcess::quoteArg(
+                QDir::toNativeSeparators(tempOutputFileName)).toLocal8Bit() + "\r\n";
     tf.write(redirect);
     tf.flush();
     tf.waitForBytesWritten(30000);

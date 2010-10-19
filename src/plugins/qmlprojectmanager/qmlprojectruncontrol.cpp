@@ -37,6 +37,7 @@
 #include <qt4projectmanager/qtversionmanager.h>
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <debugger/debuggerrunner.h>
 #include <debugger/debuggerplugin.h>
@@ -64,7 +65,9 @@ QmlRunControl::QmlRunControl(QmlProjectRunConfiguration *runConfiguration, QStri
     : RunControl(runConfiguration, mode)
 {
     if (Qt4ProjectManager::QtVersion *qtVersion = runConfiguration->qtVersion())
-        m_applicationLauncher.setEnvironment(qtVersion->qmlToolsEnvironment().toStringList());
+        m_applicationLauncher.setEnvironment(qtVersion->qmlToolsEnvironment());
+    else
+        m_applicationLauncher.setEnvironment(Utils::Environment::systemEnvironment());
     m_applicationLauncher.setWorkingDirectory(runConfiguration->workingDirectory());
 
     if (mode == ProjectExplorer::Constants::RUNMODE) {
@@ -96,7 +99,7 @@ void QmlRunControl::start()
 
     emit started();
     emit appendMessage(this, tr("Starting %1 %2").arg(QDir::toNativeSeparators(m_executable),
-                                                      m_commandLineArguments.join(QLatin1String(" "))), false);
+                                                      m_commandLineArguments), false);
 }
 
 RunControl::StopResult QmlRunControl::stop()
@@ -200,10 +203,11 @@ ProjectExplorer::RunControl *QmlRunControlFactory::createDebugRunControl(QmlProj
     params.qmlServerAddress = "127.0.0.1";
     params.qmlServerPort = runConfig->qmlDebugServerPort();
     params.processArgs = runConfig->viewerArguments();
-    params.processArgs.append(QLatin1String("-qmljsdebugger=port:") + QString::number(runConfig->qmlDebugServerPort()));
+    Utils::QtcProcess::addArg(&params.processArgs,
+            QLatin1String("-qmljsdebugger=port:") + QString::number(runConfig->qmlDebugServerPort()));
     params.workingDirectory = runConfig->workingDirectory();
     if (Qt4ProjectManager::QtVersion *qtVersion = runConfig->qtVersion())
-        params.environment = qtVersion->qmlToolsEnvironment().toStringList();
+        params.environment = qtVersion->qmlToolsEnvironment();
     params.displayName = runConfig->displayName();
 
     if (params.executable.isEmpty()) {

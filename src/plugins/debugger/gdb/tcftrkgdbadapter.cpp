@@ -44,6 +44,7 @@
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
+#include <utils/qtcprocess.h>
 
 #include <QtCore/QTimer>
 #include <QtCore/QDir>
@@ -971,7 +972,7 @@ void TcfTrkGdbAdapter::startAdapter()
     // Retrieve parameters
     const DebuggerStartParameters &parameters = startParameters();
     m_remoteExecutable = parameters.executable;
-    m_remoteArguments = parameters.processArgs;
+    m_remoteArguments = Utils::QtcProcess::splitArgs(parameters.processArgs);
     m_symbolFile = parameters.symbolFileName;
 
     QPair<QString, unsigned short> tcfTrkAddress;
@@ -983,15 +984,15 @@ void TcfTrkGdbAdapter::startAdapter()
     if (debug)
         qDebug() << parameters.processArgs;
     // Fixme: 1 of 3 testing hacks.
-    if (parameters.processArgs.size() < 5 || parameters.processArgs.at(0) != _("@tcf@")) {
+    if (m_remoteArguments.size() < 5 || m_remoteArguments.at(0) != __("@tcf@")) {
         m_engine->handleAdapterStartFailed(_("Parameter error"), QString());
         return;
     }
 
-    m_remoteExecutable = parameters.processArgs.at(1);
-    m_uid = parameters.processArgs.at(2).toUInt(0, 16);
-    m_symbolFile = parameters.processArgs.at(3);
-    tcfTrkAddress = splitIpAddressSpec(parameters.processArgs.at(4), 1534);
+    m_remoteExecutable = m_remoteArguments.at(1);
+    m_uid = m_remoteArguments.at(2).toUInt(0, 16);
+    m_symbolFile = m_remoteArguments.at(3);
+    tcfTrkAddress = splitIpAddressSpec(m_remoteArguments.at(4), 1534);
     m_remoteArguments.clear();
 
     // Unixish gdbs accept only forward slashes

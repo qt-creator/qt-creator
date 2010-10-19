@@ -202,12 +202,12 @@ void CMakeOpenProjectWizard::setMsvcVersion(const QString &version)
     m_msvcVersion = version;
 }
 
-QStringList CMakeOpenProjectWizard::arguments() const
+QString CMakeOpenProjectWizard::arguments() const
 {
     return m_arguments;
 }
 
-void CMakeOpenProjectWizard::setArguments(const QStringList &args)
+void CMakeOpenProjectWizard::setArguments(const QString &args)
 {
     m_arguments = args;
 }
@@ -426,7 +426,6 @@ void CMakeRunPage::runCMake()
 {
     m_runCMake->setEnabled(false);
     m_argumentsLineEdit->setEnabled(false);
-    QStringList arguments = Utils::Environment::parseCombinedArgString(m_argumentsLineEdit->text());
     CMakeManager *cmakeManager = m_cmakeWizard->cmakeManager();
 
 #ifdef Q_OS_WIN
@@ -464,11 +463,11 @@ void CMakeRunPage::runCMake()
     m_output->clear();
 
     if (m_cmakeWizard->cmakeManager()->isCMakeExecutableValid()) {
-        m_cmakeProcess = new QProcess();
+        m_cmakeProcess = new Utils::QtcProcess();
         connect(m_cmakeProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(cmakeReadyReadStandardOutput()));
         connect(m_cmakeProcess, SIGNAL(readyReadStandardError()), this, SLOT(cmakeReadyReadStandardError()));
         connect(m_cmakeProcess, SIGNAL(finished(int)), this, SLOT(cmakeFinished()));
-        cmakeManager->createXmlFile(m_cmakeProcess, arguments, m_cmakeWizard->sourceDirectory(), m_buildDirectory, env, generator);
+        cmakeManager->createXmlFile(m_cmakeProcess, m_argumentsLineEdit->text(), m_cmakeWizard->sourceDirectory(), m_buildDirectory, env, generator);
     } else {
         m_runCMake->setEnabled(true);
         m_argumentsLineEdit->setEnabled(true);
@@ -522,7 +521,7 @@ void CMakeRunPage::cmakeFinished()
     }
     m_cmakeProcess->deleteLater();
     m_cmakeProcess = 0;
-    m_cmakeWizard->setArguments(Utils::Environment::parseCombinedArgString(m_argumentsLineEdit->text()));
+    m_cmakeWizard->setArguments(m_argumentsLineEdit->text());
     //TODO Actually test that running cmake was finished, for setting this bool
     emit completeChanged();
 }

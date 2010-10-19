@@ -87,7 +87,7 @@ public:
         QtVersion *version;
         bool isTemporary;
         QtVersion::QmakeBuildConfigs buildConfig;
-        QStringList additionalArguments;
+        QString additionalArguments;
         QString directory;
         bool isExistingBuild;
         bool isShadowBuild;

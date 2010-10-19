@@ -95,6 +95,9 @@ protected:
     const DebuggerStartParameters &startParameters() const;
     DebuggerStartParameters &startParameters();
     void showMessage(const QString &msg, int channel = LogDebug, int timeout = 1);
+#ifdef Q_OS_WIN
+    bool prepareWinCommand();
+#endif
 
     GdbEngine * const m_engine;
 };

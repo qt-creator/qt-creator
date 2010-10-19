@@ -69,13 +69,13 @@ void ApplicationLauncher::setWorkingDirectory(const QString &dir)
     d->m_consoleProcess.setWorkingDirectory(dir);
 }
 
-void ApplicationLauncher::setEnvironment(const QStringList &env)
+void ApplicationLauncher::setEnvironment(const Utils::Environment &env)
 {
     d->m_winGuiProcess.setEnvironment(env);
     d->m_consoleProcess.setEnvironment(env);
 }
 
-void ApplicationLauncher::start(Mode mode, const QString &program, const QStringList &args)
+void ApplicationLauncher::start(Mode mode, const QString &program, const QString &args)
 {
     d->m_currentMode = mode;
     if (mode == Gui) {

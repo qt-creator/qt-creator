@@ -109,9 +109,10 @@ public:
     QString makefile() const;
 
     bool compareToImportFrom(const QString &makefile);
-    static QStringList removeQMLInspectorFromArgumentList(const QStringList &old);
-    static QStringList removeSpecFromArgumentList(const QStringList &old);
-    static QString extractSpecFromArgumentList(const QStringList &list, QString directory, QtVersion *version);
+    static void removeQMLInspectorFromArguments(QString *args);
+    static QString extractSpecFromArguments(QString *arguments,
+                                            const QString &directory, const QtVersion *version,
+                                            QStringList *outArgs = 0);
 
     QVariantMap toMap() const;
 

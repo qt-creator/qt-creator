@@ -137,7 +137,7 @@ void MaemoRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
     formLayout->addRow(tr("Executable on host:"), m_localExecutableLabel);
     m_remoteExecutableLabel = new QLabel;
     formLayout->addRow(tr("Executable on device:"), m_remoteExecutableLabel);
-    m_argsLineEdit = new QLineEdit(m_runConfiguration->arguments().join(" "));
+    m_argsLineEdit = new QLineEdit(m_runConfiguration->arguments());
     formLayout->addRow(tr("Arguments:"), m_argsLineEdit);
 
     QHBoxLayout * const debugButtonsLayout = new QHBoxLayout;
@@ -293,7 +293,7 @@ void MaemoRunConfigurationWidget::addEnvironmentWidgets(QVBoxLayout *mainLayout)
 
 void MaemoRunConfigurationWidget::argumentsEdited(const QString &text)
 {
-    m_runConfiguration->setArguments(text.split(' ', QString::SkipEmptyParts));
+    m_runConfiguration->setArguments(text);
 }
 
 void MaemoRunConfigurationWidget::updateTargetInformation()

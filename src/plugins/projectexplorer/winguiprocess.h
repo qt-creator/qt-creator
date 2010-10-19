@@ -53,7 +53,7 @@ public:
     explicit WinGuiProcess(QObject *parent = 0);
     virtual ~WinGuiProcess();
 
-    bool start(const QString &program, const QStringList &args);
+    bool start(const QString &program, const QString &args);
     void stop();
 
     bool isRunning() const;
@@ -71,7 +71,7 @@ private:
 
     PROCESS_INFORMATION *m_pid;
     QString m_program;
-    QStringList m_args;
+    QString m_args;
     unsigned long m_exitCode;
 };
 

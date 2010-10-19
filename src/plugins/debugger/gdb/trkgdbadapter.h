@@ -224,7 +224,7 @@ private:
     trk::Session m_session; // global-ish data (process id, target information)
     Symbian::Snapshot m_snapshot; // local-ish data (memory and registers)
     QString m_remoteExecutable;
-    QStringList m_remoteArguments;
+    QString m_remoteArguments;
     QString m_symbolFile;
     int m_verbose;
     bool m_bufferedMemoryRead;

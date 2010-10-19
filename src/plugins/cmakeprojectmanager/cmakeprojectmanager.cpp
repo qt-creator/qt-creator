@@ -32,6 +32,7 @@
 #include "cmakeproject.h"
 
 #include <utils/synchronousprocess.h>
+#include <utils/qtcprocess.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
@@ -102,7 +103,7 @@ bool CMakeManager::hasCodeBlocksMsvcGenerator() const
 // we probably want the process instead of this function
 // cmakeproject then could even run the cmake process in the background, adding the files afterwards
 // sounds like a plan
-void CMakeManager::createXmlFile(QProcess *proc, const QStringList &arguments,
+void CMakeManager::createXmlFile(Utils::QtcProcess *proc, const QString &arguments,
                                  const QString &sourceDirectory, const QDir &buildDirectory,
                                  const Utils::Environment &env, const QString &generator)
 {
@@ -117,11 +118,16 @@ void CMakeManager::createXmlFile(QProcess *proc, const QStringList &arguments,
     QString buildDirectoryPath = buildDirectory.absolutePath();
     buildDirectory.mkpath(buildDirectoryPath);
     proc->setWorkingDirectory(buildDirectoryPath);
-    proc->setEnvironment(env.toStringList());
+    proc->setEnvironment(env);
 
     const QString srcdir = buildDirectory.exists(QLatin1String("CMakeCache.txt")) ?
                 QString(QLatin1Char('.')) : sourceDirectory;
-    proc->start(cmakeExecutable(), QStringList() << srcdir << arguments << generator);
+    QString args;
+    Utils::QtcProcess::addArg(&args, srcdir);
+    Utils::QtcProcess::addArgs(&args, arguments);
+    Utils::QtcProcess::addArg(&args, generator);
+    proc->setCommand(cmakeExecutable(), args);
+    proc->start();
 }
 
 QString CMakeManager::findCbpFile(const QDir &directory)

@@ -231,7 +231,7 @@ void CustomExecutableConfigurationWidget::executableEdited()
 void CustomExecutableConfigurationWidget::argumentsEdited(const QString &arguments)
 {
     m_ignoreChange = true;
-    m_runConfiguration->setBaseCommandLineArguments(arguments);
+    m_runConfiguration->setCommandLineArguments(arguments);
     m_ignoreChange = false;
 }
 void CustomExecutableConfigurationWidget::workingDirectoryEdited()
@@ -256,7 +256,7 @@ void CustomExecutableConfigurationWidget::changed()
         return;
 
     m_executableChooser->setPath(m_runConfiguration->rawExecutable());
-    m_commandLineArgumentsLineEdit->setText(Utils::Environment::joinArgumentList(m_runConfiguration->baseCommandLineArguments()));
+    m_commandLineArgumentsLineEdit->setText(m_runConfiguration->commandLineArguments());
     m_workingDirectory->setPath(m_runConfiguration->baseWorkingDirectory());
     m_useTerminalCheck->setChecked(m_runConfiguration->runMode() == LocalApplicationRunConfiguration::Console);
 }

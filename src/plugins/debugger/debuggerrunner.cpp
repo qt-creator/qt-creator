@@ -171,7 +171,7 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
     QTC_ASSERT(rc, return sp);
 
     sp.startMode = StartInternal;
-    sp.environment = rc->environment().toStringList();
+    sp.environment = rc->environment();
     sp.workingDirectory = rc->workingDirectory();
     sp.executable = rc->executable();
     sp.processArgs = rc->commandLineArguments();
@@ -429,7 +429,7 @@ void DebuggerRunControl::createEngine(const DebuggerStartParameters &startParams
     }
 
     // Fixme: 1 of 3 testing hacks.
-    if (sp.processArgs.size() >= 5 && sp.processArgs.at(0) == _("@tcf@"))
+    if (sp.processArgs.startsWith(__("@tcf@ ")))
         engineType = GdbEngineType;
 
     if (sp.processArgs.contains( _("@lldb@")))
@@ -525,7 +525,7 @@ QString DebuggerRunControl::displayName() const
 
 void DebuggerRunControl::setCustomEnvironment(Utils::Environment env)
 {
-    d->m_engine->startParameters().environment = env.toStringList();
+    d->m_engine->startParameters().environment = env;
 }
 
 bool DebuggerRunControl::checkDebugConfiguration(int toolChain,

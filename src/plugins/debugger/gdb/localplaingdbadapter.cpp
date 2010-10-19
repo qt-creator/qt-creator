@@ -72,6 +72,11 @@ void LocalPlainGdbAdapter::startAdapter()
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("TRYING TO START ADAPTER"));
 
+#ifdef Q_OS_WIN
+    if (!prepareWinCommand())
+        return;
+#endif
+
     QStringList gdbArgs;
 
     if (!m_outputCollector.listen()) {
@@ -83,8 +88,8 @@ void LocalPlainGdbAdapter::startAdapter()
 
     if (!startParameters().workingDirectory.isEmpty())
         m_gdbProc.setWorkingDirectory(startParameters().workingDirectory);
-    if (!startParameters().environment.isEmpty())
-        m_gdbProc.setEnvironment(startParameters().environment);
+    if (startParameters().environment.size())
+        m_gdbProc.setEnvironment(startParameters().environment.toStringList());
 
     if (!m_engine->startGdb(gdbArgs)) {
         m_outputCollector.shutdown();

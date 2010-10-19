@@ -54,7 +54,7 @@ public:
     virtual QString executable() const = 0;
     virtual RunMode runMode() const = 0;
     virtual QString workingDirectory() const = 0;
-    virtual QStringList commandLineArguments() const = 0;
+    virtual QString commandLineArguments() const = 0;
     virtual Utils::Environment environment() const = 0;
     virtual QString dumperLibrary() const = 0;
     virtual QStringList dumperLibraryLocations() const = 0;

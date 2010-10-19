@@ -104,7 +104,7 @@ void MaemoRunControl::startExecution()
         .arg(MaemoGlobal::remoteCommandPrefix(m_runner->remoteExecutable()))
         .arg(MaemoGlobal::remoteEnvironment(m_runner->userEnvChanges()))
         .arg(m_runner->remoteExecutable())
-        .arg(m_runner->arguments().join(QLatin1String(" "))).toUtf8());
+        .arg(m_runner->arguments()).toUtf8());
 }
 
 void MaemoRunControl::handleRemoteProcessFinished(qint64 exitCode)

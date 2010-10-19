@@ -54,7 +54,7 @@ public:
     ConsoleProcess(QObject *parent = 0);
     ~ConsoleProcess();
 
-    bool start(const QString &program, const QStringList &args);
+    bool start(const QString &program, const QString &args);
     void stop();
 
     void setMode(Mode m);

@@ -61,7 +61,7 @@ private:
     ProjectExplorer::ApplicationLauncher m_applicationLauncher;
 
     QString m_executable;
-    QStringList m_commandLineArguments;
+    QString m_commandLineArguments;
 };
 
 class QmlRunControlFactory : public ProjectExplorer::IRunControlFactory {

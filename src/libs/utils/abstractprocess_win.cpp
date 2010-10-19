@@ -51,49 +51,57 @@ QStringList AbstractProcess::fixWinEnvironment(const QStringList &env)
     return envStrings;
 }
 
-QString AbstractProcess::createWinCommandline(const QString &program, const QStringList &args)
+static QString quoteWinCommand(const QString &program)
 {
     const QChar doubleQuote = QLatin1Char('"');
-    const QChar blank = QLatin1Char(' ');
-    const QChar backSlash = QLatin1Char('\\');
 
+    // add the programm as the first arg ... it works better
     QString programName = program;
-    if (!programName.startsWith(doubleQuote) && !programName.endsWith(doubleQuote) && programName.contains(blank)) {
-        programName.insert(0, doubleQuote);
+    programName.replace(QLatin1Char('/'), QLatin1Char('\\'));
+    if (!programName.startsWith(doubleQuote) && !programName.endsWith(doubleQuote)
+            && programName.contains(QLatin1Char(' '))) {
+        programName.prepend(doubleQuote);
         programName.append(doubleQuote);
     }
-    // add the prgram as the first arrg ... it works better
-    programName.replace(QLatin1Char('/'), backSlash);
-    QString cmdLine = programName;
-    if (args.empty())
-        return cmdLine;
+    return programName;
+}
 
-    cmdLine += blank;
-    for (int i = 0; i < args.size(); ++i) {
-        QString tmp = args.at(i);
-        // in the case of \" already being in the string the \ must also be escaped
-        tmp.replace(QLatin1String("\\\""), QLatin1String("\\\\\""));
-        // escape a single " because the arguments will be parsed
-        tmp.replace(QString(doubleQuote), QLatin1String("\\\""));
-        if (tmp.isEmpty() || tmp.contains(blank) || tmp.contains('\t')) {
-            // The argument must not end with a \ since this would be interpreted
-            // as escaping the quote -- rather put the \ behind the quote: e.g.
-            // rather use "foo"\ than "foo\"
-            QString endQuote(doubleQuote);
-            int i = tmp.length();
-            while (i > 0 && tmp.at(i - 1) == backSlash) {
-                --i;
-                endQuote += backSlash;
-            }
-            cmdLine += QLatin1String(" \"");
-            cmdLine += tmp.left(i);
-            cmdLine += endQuote;
-        } else {
-            cmdLine += blank;
-            cmdLine += tmp;
-        }
+static QString quoteWinArgument(const QString &arg)
+{
+    if (!arg.length())
+        return QString::fromLatin1("\"\"");
+
+    QString ret(arg);
+    // Quotes are escaped and their preceding backslashes are doubled.
+    ret.replace(QRegExp(QLatin1String("(\\\\*)\"")), QLatin1String("\\1\\1\\\""));
+    if (ret.contains(QRegExp(QLatin1String("\\s")))) {
+        // The argument must not end with a \ since this would be interpreted
+        // as escaping the quote -- rather put the \ behind the quote: e.g.
+        // rather use "foo"\ than "foo\"
+        ret.replace(QRegExp(QLatin1String("(\\\\*)$")), QLatin1String("\"\\1"));
+        ret.prepend(QLatin1Char('"'));
     }
-    return cmdLine;
+    return ret;
+}
+
+QString AbstractProcess::createWinCommandline(const QString &program, const QStringList &args)
+{
+    QString programName = quoteWinCommand(program);
+    foreach (const QString &arg, args) {
+        programName += QLatin1Char(' ');
+        programName += quoteWinArgument(arg);
+    }
+    return programName;
+}
+
+QString AbstractProcess::createWinCommandline(const QString &program, const QString &args)
+{
+    QString programName = quoteWinCommand(program);
+    if (!args.isEmpty()) {
+        programName += QLatin1Char(' ');
+        programName += args;
+    }
+    return programName;
 }
 
 QByteArray AbstractProcess::createWinEnvironment(const QStringList &env)

@@ -92,8 +92,8 @@ public:
     QString remoteExecutableFilePath() const;
     const QString sysRoot() const;
     const QString targetRoot() const;
-    const QStringList arguments() const;
-    void setArguments(const QStringList &args);
+    const QString arguments() const;
+    void setArguments(const QString &args);
     MaemoDeviceConfig deviceConfig() const;
     MaemoPortList freePorts() const;
     bool useRemoteGdb() const;
@@ -149,7 +149,7 @@ private:
     QString m_proFilePath;
     mutable QString m_gdbPath;
     MaemoRemoteMountsModel *m_remoteMounts;
-    QStringList m_arguments;
+    QString m_arguments;
     bool m_useRemoteGdb;
 
     BaseEnvironmentBase m_baseEnvironmentBase;

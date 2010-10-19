@@ -94,9 +94,6 @@ public:
                          const QStringList & additionalDirs = QStringList()) const;
     QStringList path() const;
 
-    static QStringList parseCombinedArgString(const QString &program);
-    static QString joinArgumentList(const QStringList &arguments);
-
     QString expandVariables(const QString &) const;
     QStringList expandVariables(const QStringList &) const;
 

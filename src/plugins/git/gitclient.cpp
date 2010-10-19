@@ -49,6 +49,7 @@
 
 #include <texteditor/itexteditor.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
 #include <utils/environment.h>
 #include <vcsbase/vcsbaseeditor.h>
@@ -1352,7 +1353,7 @@ bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
 #endif
     VCSBase::VCSBaseOutputWindow *outwin = VCSBase::VCSBaseOutputWindow::instance();
     if (!m_settings.gitkOptions.isEmpty())
-        arguments.append(m_settings.gitkOptions.split(QLatin1Char(' ')));
+        arguments.append(Utils::QtcProcess::splitArgs(m_settings.gitkOptions));
     outwin->appendCommand(workingDirectory, binary, arguments);
     // This should always use QProcess::startDetached (as not to kill
     // the child), but that does not have an environment parameter.

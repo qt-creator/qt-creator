@@ -34,8 +34,9 @@
 
 #include <utils/environment.h>
 
+#include <utils/qtcprocess.h>
+
 #include <QtCore/QString>
-#include <QtCore/QProcess>
 
 QT_BEGIN_NAMESPACE
 class QEventLoop;
@@ -93,8 +94,8 @@ public:
 
     /// sets the command line arguments used by the process for a \p buildConfiguration
     /// should be called from init()
-    void setArguments(const QStringList &arguments);
-    QStringList arguments() const;
+    void setArguments(const QString &arguments);
+    QString arguments() const;
 
     /// enables or disables a BuildStep
     /// Disabled BuildSteps immediately return true from their run method
@@ -125,6 +126,8 @@ protected:
 
     /// Get the fully expanded command name to run:
     QString expandedCommand() const;
+    /// Get the fully expanded command line args. This is for display purposes only!
+    QString expandedArguments() const;
 
     /// Called after the process is started
     /// the default implementation adds a process started message to the output message
@@ -161,10 +164,10 @@ private:
     QFutureInterface<bool> *m_futureInterface;
     QString m_workingDirectory;
     QString m_command;
-    QStringList m_arguments;
+    QString m_arguments;
     bool m_enabled;
     bool m_ignoreReturnValue;
-    QProcess *m_process;
+    Utils::QtcProcess *m_process;
     QEventLoop *m_eventLoop;
     Utils::Environment m_environment;
     ProjectExplorer::IOutputParser *m_outputParserChain;

@@ -46,6 +46,7 @@
 #endif
 
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/savedaction.h>
 
 #include <QtCore/QTimer>
@@ -1551,10 +1552,11 @@ void TrkGdbAdapter::startAdapter()
     m_symbolFile = parameters.symbolFileName;
     QString remoteChannel = parameters.remoteChannel;
     // FIXME: testing hack, remove!
-    if (parameters.processArgs.size() >= 4 && parameters.processArgs.at(0) == _("@sym@")) {
-        remoteChannel = parameters.processArgs.at(1);
-        m_remoteExecutable = parameters.processArgs.at(2);
-        m_symbolFile = parameters.processArgs.at(3);
+    if (m_remoteArguments.startsWith(__("@sym@ "))) {
+        QStringList pa = Utils::QtcProcess::splitArgs(m_remoteArguments);
+        remoteChannel = pa.at(1);
+        m_remoteExecutable = pa.at(2);
+        m_symbolFile = pa.at(3);
         m_remoteArguments.clear();
     }
     // Unixish gdbs accept only forward slashes

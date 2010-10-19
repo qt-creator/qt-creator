@@ -39,6 +39,8 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/gnumakeparser.h>
 
+#include <utils/qtcprocess.h>
+
 #include <QtGui/QFormLayout>
 #include <QtGui/QGroupBox>
 #include <QtGui/QCheckBox>
@@ -78,7 +80,7 @@ MakeStep::MakeStep(BuildStepList *bsl, MakeStep *bs) :
     m_clean(bs->m_clean),
     m_futureInterface(0),
     m_buildTargets(bs->m_buildTargets),
-    m_additionalArguments(bs->m_buildTargets)
+    m_additionalArguments(Utils::QtcProcess::joinArgs(bs->m_buildTargets))
 {
     ctor();
 }
@@ -117,7 +119,7 @@ bool MakeStep::fromMap(const QVariantMap &map)
 {
     m_clean = map.value(QLatin1String(CLEAN_KEY)).toBool();
     m_buildTargets = map.value(QLatin1String(BUILD_TARGETS_KEY)).toStringList();
-    m_additionalArguments = map.value(QLatin1String(ADDITIONAL_ARGUMENTS_KEY)).toStringList();
+    m_additionalArguments = map.value(QLatin1String(ADDITIONAL_ARGUMENTS_KEY)).toString();
 
     return BuildStep::fromMap(map);
 }
@@ -132,8 +134,8 @@ bool MakeStep::init()
 
     setCommand(bc->toolChain()->makeCommand());
 
-    QStringList arguments = m_buildTargets;
-    arguments << additionalArguments();
+    QString arguments = Utils::QtcProcess::joinArgs(m_buildTargets);
+    Utils::QtcProcess::addArgs(&arguments, additionalArguments());
     setArguments(arguments);
     setEnvironment(bc->environment());
     setIgnoreReturnValue(m_clean);
@@ -191,12 +193,12 @@ void MakeStep::setBuildTarget(const QString &buildTarget, bool on)
     m_buildTargets = old;
 }
 
-QStringList MakeStep::additionalArguments() const
+QString MakeStep::additionalArguments() const
 {
     return m_additionalArguments;
 }
 
-void MakeStep::setAdditionalArguments(const QStringList &list)
+void MakeStep::setAdditionalArguments(const QString &list)
 {
     m_additionalArguments = list;
 }
@@ -239,7 +241,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
 void MakeStepConfigWidget::additionalArgumentsEdited()
 {
-    m_makeStep->setAdditionalArguments(Utils::Environment::parseCombinedArgString(m_additionalArguments->text()));
+    m_makeStep->setAdditionalArguments(m_additionalArguments->text());
     updateDetails();
 }
 
@@ -266,7 +268,7 @@ void MakeStepConfigWidget::init()
     // and connect again
     connect(m_buildTargetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
 
-    m_additionalArguments->setText(Utils::Environment::joinArgumentList(m_makeStep->additionalArguments()));
+    m_additionalArguments->setText(m_makeStep->additionalArguments());
     updateDetails();
 
     CMakeProject *pro = m_makeStep->cmakeBuildConfiguration()->cmakeTarget()->cmakeProject();
@@ -290,13 +292,13 @@ void MakeStepConfigWidget::buildTargetsChanged()
 
 void MakeStepConfigWidget::updateDetails()
 {
-    QStringList arguments = m_makeStep->m_buildTargets;
-    arguments << m_makeStep->additionalArguments();
+    QString arguments = Utils::QtcProcess::joinArgs(m_makeStep->m_buildTargets);
+    Utils::QtcProcess::addArgs(&arguments, m_makeStep->additionalArguments());
 
     CMakeBuildConfiguration *bc = m_makeStep->cmakeBuildConfiguration();
     ProjectExplorer::ToolChain *tc = bc->toolChain();
     if (tc)
-        m_summaryText = tr("<b>Make:</b> %1 %2").arg(tc->makeCommand(), arguments.join(QString(QLatin1Char(' '))));
+        m_summaryText = tr("<b>Make:</b> %1 %2").arg(tc->makeCommand(), arguments);
     else
         m_summaryText = tr("<b>Unknown Toolchain</b>");
     emit updateSummary();

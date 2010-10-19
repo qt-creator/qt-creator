@@ -75,7 +75,7 @@ public:
 
     QString viewerPath() const;
     QString observerPath() const;
-    QStringList viewerArguments() const;
+    QString viewerArguments() const;
     QString workingDirectory() const;
     int qtVersionId() const;
     Qt4ProjectManager::QtVersion *qtVersion() const;

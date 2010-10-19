@@ -47,12 +47,12 @@ class Qt4DeployConfigurationFactory;
 
 struct BuildConfigurationInfo {
     explicit BuildConfigurationInfo(QtVersion *v = 0, QtVersion::QmakeBuildConfigs bc = QtVersion::QmakeBuildConfig(0),
-                                    const QStringList &aa = QStringList(), const QString &d = QString()) :
+                                    const QString &aa = QString(), const QString &d = QString()) :
         version(v), buildConfig(bc), additionalArguments(aa), directory(d)
     { }
     QtVersion *version;
     QtVersion::QmakeBuildConfigs buildConfig;
-    QStringList additionalArguments;
+    QString additionalArguments;
     QString directory;
 };
 
@@ -71,7 +71,7 @@ public:
     Internal::Qt4BuildConfiguration *addQt4BuildConfiguration(QString displayName,
                                                               QtVersion *qtversion,
                                                               QtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
-                                                              QStringList additionalArguments,
+                                                              QString additionalArguments,
                                                               QString directory);
     void addRunConfigurationForPath(const QString &proFilePath);
 

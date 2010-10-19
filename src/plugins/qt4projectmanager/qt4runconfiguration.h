@@ -84,7 +84,7 @@ public:
     virtual QString executable() const;
     virtual RunMode runMode() const;
     virtual QString workingDirectory() const;
-    virtual QStringList commandLineArguments() const;
+    virtual QString commandLineArguments() const;
     virtual Utils::Environment environment() const;
     virtual QString dumperLibrary() const;
     virtual QStringList dumperLibraryLocations() const;
@@ -101,7 +101,7 @@ public:
     ProjectExplorer::OutputFormatter *createOutputFormatter() const;
 
 signals:
-    void baseCommandLineArgumentsChanged(const QString&);
+    void commandLineArgumentsChanged(const QString&);
     void baseWorkingDirectoryChanged(const QString&);
     void runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode runMode);
     void usingDyldImageSuffixChanged(bool);
@@ -124,8 +124,7 @@ private:
     void setRunMode(RunMode runMode);
     void setBaseWorkingDirectory(const QString &workingDirectory);
     QString baseWorkingDirectory() const;
-    void setBaseCommandLineArguments(const QString &argumentsString);
-    QStringList baseCommandLineArguments() const;
+    void setCommandLineArguments(const QString &argumentsString);
     enum BaseEnvironmentBase { CleanEnvironmentBase = 0,
                                SystemEnvironmentBase = 1,
                                BuildEnvironmentBase  = 2 };
@@ -141,7 +140,7 @@ private:
     QList<Utils::EnvironmentItem> userEnvironmentChanges() const;
 
     void updateTarget();
-    QStringList m_commandLineArguments;
+    QString m_commandLineArguments;
     QString m_proFilePath; // Full path to the Application Pro File
 
     // Cached startup sub project information

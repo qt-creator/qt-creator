@@ -465,7 +465,7 @@ void CoreEngine::resetModuleLoadTimer()
 
 bool CoreEngine::startDebuggerWithExecutable(const QString &workingDirectory,
                                              const QString &filename,
-                                             const QStringList &args,
+                                             const QString &args,
                                              const QStringList &envList,
                                              QString *errorMessage)
 {

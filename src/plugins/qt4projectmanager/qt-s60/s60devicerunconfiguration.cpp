@@ -225,7 +225,7 @@ bool S60DeviceRunConfiguration::fromMap(const QVariantMap &map)
     const QDir projectDir = QDir(target()->project()->projectDirectory());
 
     m_proFilePath = projectDir.filePath(map.value(QLatin1String(PRO_FILE_KEY)).toString());
-    m_commandLineArguments = map.value(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY)).toStringList();
+    m_commandLineArguments = map.value(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY)).toString();
 
     if (m_proFilePath.isEmpty())
         return false;
@@ -368,12 +368,12 @@ QString S60DeviceRunConfiguration::projectFilePath() const
     return m_proFilePath;
 }
 
-QStringList S60DeviceRunConfiguration::commandLineArguments() const
+QString S60DeviceRunConfiguration::commandLineArguments() const
 {
     return m_commandLineArguments;
 }
 
-void S60DeviceRunConfiguration::setCommandLineArguments(const QStringList &args)
+void S60DeviceRunConfiguration::setCommandLineArguments(const QString &args)
 {
     m_commandLineArguments = args;
 }

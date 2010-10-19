@@ -53,7 +53,7 @@ void AbstractPlainGdbAdapter::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     if (!startParameters().processArgs.isEmpty()) {
-        QString args = startParameters().processArgs.join(_(" "));
+        QString args = startParameters().processArgs;
         m_engine->postCommand("-exec-arguments " + toLocalEncoding(args));
     }
     m_engine->postCommand("-file-exec-and-symbols \"" + execFilePath() + '"',

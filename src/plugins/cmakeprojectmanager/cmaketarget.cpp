@@ -209,7 +209,7 @@ CMakeTarget *CMakeTargetFactory::create(ProjectExplorer::Project *parent, const 
 
     MakeStep *cleanMakeStep = new MakeStep(cleanSteps);
     cleanSteps->insertStep(0, cleanMakeStep);
-    cleanMakeStep->setAdditionalArguments(QStringList() << "clean");
+    cleanMakeStep->setAdditionalArguments("clean");
     cleanMakeStep->setClean(true);
 
     t->addBuildConfiguration(bc);

@@ -49,6 +49,7 @@
 #include <coreplugin/helpmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #ifdef Q_OS_WIN
 #    include <utils/winutils.h>
 #endif
@@ -884,25 +885,21 @@ bool QtVersionManager::makefileIsFor(const QString &makefile, const QString &pro
     return srcFileInfo == proFileInfo;
 }
 
-QPair<QtVersion::QmakeBuildConfigs, QStringList> QtVersionManager::scanMakeFile(const QString &makefile, QtVersion::QmakeBuildConfigs defaultBuildConfig)
+QPair<QtVersion::QmakeBuildConfigs, QString> QtVersionManager::scanMakeFile(const QString &makefile, QtVersion::QmakeBuildConfigs defaultBuildConfig)
 {
     if (debug)
         qDebug()<<"ScanMakeFile, the gory details:";
     QtVersion::QmakeBuildConfigs result = defaultBuildConfig;
-    QStringList result2;
+    QString result2;
 
     QString line = findQMakeLine(makefile, QLatin1String("# Command:"));
     if (!line.isEmpty()) {
         if (debug)
             qDebug()<<"Found line"<<line;
         line = trimLine(line);
-        QStringList parts = splitLine(line);
-        if (debug)
-            qDebug()<<"Split into"<<parts;
         QList<QMakeAssignment> assignments;
         QList<QMakeAssignment> afterAssignments;
-        QStringList additionalArguments;
-        parseParts(parts, &assignments, &afterAssignments, &additionalArguments);
+        parseArgs(line, &assignments, &afterAssignments, &result2);
 
         if (debug) {
             dumpQMakeAssignments(assignments);
@@ -918,13 +915,12 @@ QPair<QtVersion::QmakeBuildConfigs, QStringList> QtVersionManager::scanMakeFile(
         if (debug)
             dumpQMakeAssignments(assignments);
 
-        result2.append(additionalArguments);
         foreach(const QMakeAssignment &qa, assignments)
-            result2.append(qa.variable + qa.op + qa.value);
+            Utils::QtcProcess::addArg(&result2, qa.variable + qa.op + qa.value);
         if (!afterAssignments.isEmpty()) {
-            result2.append("-after");
+            Utils::QtcProcess::addArg(&result2, QLatin1String("-after"));
             foreach(const QMakeAssignment &qa, afterAssignments)
-                result2.append(qa.variable + qa.op + qa.value);
+                Utils::QtcProcess::addArg(&result2, qa.variable + qa.op + qa.value);
         }
     }
 
@@ -965,55 +961,23 @@ QString QtVersionManager::trimLine(const QString line)
     return line.mid(firstSpace).trimmed();
 }
 
-QStringList QtVersionManager::splitLine(const QString &line)
-{
-    // Split on each " ", except on those which are escaped
-    // On Unix also remove all escaping
-    // On Windows also, but different escaping
-    bool escape = false;
-    QString currentWord;
-    QStringList results;
-    int length = line.length();
-    for (int i=0; i<length; ++i) {
-#ifdef Q_OS_WIN
-        if (line.at(i) == '"') {
-            escape = !escape;
-        } else if (escape || line.at(i) != ' ') {
-            currentWord += line.at(i);
-        } else {
-            results << currentWord;
-            currentWord.clear();;
-        }
-#else
-        if (escape) {
-            currentWord += line.at(i);
-            escape = false;
-        } else if (line.at(i) == ' ') {
-            results << currentWord;
-            currentWord.clear();
-        } else if (line.at(i) == '\\') {
-            escape = true;
-        } else {
-            currentWord += line.at(i);
-        }
-#endif
-    }
-    return results;
-}
-
-void QtVersionManager::parseParts(const QStringList &parts, QList<QMakeAssignment> *assignments, QList<QMakeAssignment> *afterAssignments, QStringList *additionalArguments)
+void QtVersionManager::parseArgs(const QString &args, QList<QMakeAssignment> *assignments, QList<QMakeAssignment> *afterAssignments, QString *additionalArguments)
 {
     QRegExp regExp("([^\\s\\+-]*)\\s*(\\+=|=|-=|~=)(.*)");
     bool after = false;
     bool ignoreNext = false;
-    foreach (const QString &part, parts) {
+    *additionalArguments = args;
+    Utils::QtcProcess::ArgIterator ait(additionalArguments);
+    while (ait.next()) {
         if (ignoreNext) {
             // Ignoring
             ignoreNext = false;
-        } else if (part == "-after") {
+            ait.deleteArg();
+        } else if (ait.value() == QLatin1String("-after")) {
             after = true;
-        } else if(part.contains('=')) {
-            if (regExp.exactMatch(part)) {
+            ait.deleteArg();
+        } else if (ait.value().contains(QLatin1Char('='))) {
+            if (regExp.exactMatch(ait.value())) {
                 QMakeAssignment qa;
                 qa.variable = regExp.cap(1);
                 qa.op = regExp.cap(2);
@@ -1025,21 +989,23 @@ void QtVersionManager::parseParts(const QStringList &parts, QList<QMakeAssignmen
             } else {
                 qDebug()<<"regexp did not match";
             }
-        } else if (part == "-o") {
+            ait.deleteArg();
+        } else if (ait.value() == QLatin1String("-o")) {
             ignoreNext = true;
-        } else {
-            additionalArguments->append(part);
+            ait.deleteArg();
+#if defined(Q_OS_WIN32)
+        } else if (ait.value() == QLatin1String("-win32")) {
+#elif defined(Q_OS_MAC)
+        } else if (ait.value() == QLatin1String("-macx")) {
+#elif defined(Q_OS_QNX6)
+        } else if (ait.value() == QLatin1String("-qnx6")) {
+#else
+        } else if (ait.value() == QLatin1String("-unix")) {
+#endif
+            ait.deleteArg();
         }
     }
-#if defined(Q_OS_WIN32)
-    additionalArguments->removeAll("-win32");
-#elif defined(Q_OS_MAC)
-    additionalArguments->removeAll("-macx");
-#elif defined(Q_OS_QNX6)
-    additionalArguments->removeAll("-qnx6");
-#else
-    additionalArguments->removeAll("-unix");
-#endif
+    ait.deleteArg();  // The .pro file is always the last arg
 }
 
 /// This function extracts all the CONFIG+=debug, CONFIG+=release

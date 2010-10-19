@@ -65,8 +65,8 @@ public:
     virtual bool immutable() const;
     bool buildsBuildTarget(const QString &target) const;
     void setBuildTarget(const QString &target, bool on);
-    QStringList additionalArguments() const;
-    void setAdditionalArguments(const QStringList &list);
+    QString additionalArguments() const;
+    void setAdditionalArguments(const QString &list);
 
     void setClean(bool clean);
 
@@ -88,7 +88,7 @@ private:
     QRegExp m_percentProgress;
     QFutureInterface<bool> *m_futureInterface;
     QStringList m_buildTargets;
-    QStringList m_additionalArguments;
+    QString m_additionalArguments;
 };
 
 class MakeStepConfigWidget :public ProjectExplorer::BuildStepConfigWidget

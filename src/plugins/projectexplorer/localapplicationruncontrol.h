@@ -66,7 +66,7 @@ private slots:
 private:
     ProjectExplorer::ApplicationLauncher m_applicationLauncher;
     QString m_executable;
-    QStringList m_commandLineArguments;
+    QString m_commandLineArguments;
     ProjectExplorer::ApplicationLauncher::Mode m_runMode;
 };
 

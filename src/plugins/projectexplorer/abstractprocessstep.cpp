@@ -35,6 +35,7 @@
 #include "target.h"
 
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QtCore/QEventLoop>
 #include <QtCore/QTimer>
@@ -113,12 +114,12 @@ void AbstractProcessStep::setWorkingDirectory(const QString &workingDirectory)
     m_workingDirectory = workingDirectory;
 }
 
-void AbstractProcessStep::setArguments(const QStringList &arguments)
+void AbstractProcessStep::setArguments(const QString &arguments)
 {
     m_arguments = arguments;
 }
 
-QStringList AbstractProcessStep::arguments() const
+QString AbstractProcessStep::arguments() const
 {
     return m_arguments;
 }
@@ -154,9 +155,9 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
     if (!wd.exists())
         wd.mkpath(wd.absolutePath());
 
-    m_process = new QProcess();
+    m_process = new Utils::QtcProcess();
     m_process->setWorkingDirectory(wd.absolutePath());
-    m_process->setEnvironment(m_environment.toStringList());
+    m_process->setEnvironment(m_environment);
 
     connect(m_process, SIGNAL(readyReadStandardOutput()),
             this, SLOT(processReadyReadStdOutput()),
@@ -169,7 +170,8 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
             this, SLOT(slotProcessFinished(int, QProcess::ExitStatus)),
             Qt::DirectConnection);
 
-    m_process->start(expandedCommand(), m_environment.expandVariables(m_arguments));
+    m_process->setCommand(expandedCommand(), m_arguments);
+    m_process->start();
     if (!m_process->waitForStarted()) {
         processStartupFailed();
         delete m_process;
@@ -210,8 +212,7 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
 void AbstractProcessStep::processStarted()
 {
     emit addOutput(tr("Starting: \"%1\" %2\n")
-                   .arg(QDir::toNativeSeparators(expandedCommand()),
-                        m_environment.expandVariables(m_arguments).join(QChar(' '))),
+                   .arg(QDir::toNativeSeparators(expandedCommand()), expandedArguments()),
                    BuildStep::MessageOutput);
 }
 
@@ -232,9 +233,8 @@ void AbstractProcessStep::processFinished(int exitCode, QProcess::ExitStatus sta
 
 void AbstractProcessStep::processStartupFailed()
 {
-    emit addOutput(tr("Could not start process \"%1\" %2").
-                   arg(QDir::toNativeSeparators(expandedCommand()),
-                       m_environment.expandVariables(m_arguments).join(QChar(' '))),
+    emit addOutput(tr("Could not start process \"%1\" %2")
+                   .arg(QDir::toNativeSeparators(expandedCommand()), expandedArguments()),
                    BuildStep::ErrorMessageOutput);
 }
 
@@ -358,4 +358,22 @@ QString AbstractProcessStep::expandedCommand() const
     if (command.isEmpty())
         command = m_command;
     return command;
+}
+
+QString AbstractProcessStep::expandedArguments() const
+{
+#ifdef Q_OS_WIN
+    QString args;
+#else
+    QStringList args;
+#endif
+    Utils::QtcProcess::SplitError err;
+    args = Utils::QtcProcess::prepareArgs(m_arguments, &err, &m_environment);
+    if (err != Utils::QtcProcess::SplitOk)
+        return m_arguments; // Sorry, too complex - just fall back.
+#ifdef Q_OS_WIN
+    return args;
+#else
+    return Utils::QtcProcess::joinArgs(args);
+#endif
 }

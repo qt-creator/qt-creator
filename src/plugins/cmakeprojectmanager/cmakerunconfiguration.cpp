@@ -141,14 +141,9 @@ QString CMakeRunConfiguration::baseWorkingDirectory() const
     return m_workingDirectory;
 }
 
-QStringList CMakeRunConfiguration::commandLineArguments() const
+QString CMakeRunConfiguration::commandLineArguments() const
 {
-    return environment().expandVariables(baseCommandLineArguments());
-}
-
-QStringList CMakeRunConfiguration::baseCommandLineArguments() const
-{
-    return Utils::Environment::parseCombinedArgString(m_arguments);
+    return m_arguments;
 }
 
 QString CMakeRunConfiguration::title() const
@@ -329,7 +324,7 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     fl->setMargin(0);
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     QLineEdit *argumentsLineEdit = new QLineEdit();
-    argumentsLineEdit->setText(Utils::Environment::joinArgumentList(cmakeRunConfiguration->baseCommandLineArguments()));
+    argumentsLineEdit->setText(cmakeRunConfiguration->commandLineArguments());
     connect(argumentsLineEdit, SIGNAL(textChanged(QString)),
             this, SLOT(setArguments(QString)));
     fl->addRow(tr("Arguments:"), argumentsLineEdit);

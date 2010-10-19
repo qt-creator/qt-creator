@@ -33,6 +33,7 @@
 #include "buildconfiguration.h"
 
 #include <coreplugin/ifile.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
@@ -124,7 +125,7 @@ QString ProcessStep::command() const
     return m_command;
 }
 
-QStringList ProcessStep::arguments() const
+QString ProcessStep::arguments() const
 {
     return m_arguments;
 }
@@ -144,7 +145,7 @@ void ProcessStep::setCommand(const QString &command)
     m_command = command;
 }
 
-void ProcessStep::setArguments(const QStringList &arguments)
+void ProcessStep::setArguments(const QString &arguments)
 {
     m_arguments = arguments;
 }
@@ -176,7 +177,7 @@ QVariantMap ProcessStep::toMap() const
 bool ProcessStep::fromMap(const QVariantMap &map)
 {
     setCommand(map.value(QLatin1String(PROCESS_COMMAND_KEY)).toString());
-    setArguments(map.value(QLatin1String(PROCESS_ARGUMENTS_KEY)).toStringList());
+    setArguments(map.value(QLatin1String(PROCESS_ARGUMENTS_KEY)).toString());
     setWorkingDirectory(map.value(QLatin1String(PROCESS_WORKINGDIRECTORY_KEY)).toString());
     setEnabled(map.value(QLatin1String(PROCESS_ENABLED_KEY), false).toBool());
     return AbstractProcessStep::fromMap(map);
@@ -277,7 +278,7 @@ void ProcessStepConfigWidget::updateDetails()
     m_summaryText = tr("<b>%1</b> %2 %3 %4")
                     .arg(displayName,
                          m_step->command(),
-                         m_step->arguments().join(QString(QLatin1Char(' '))),
+                         m_step->arguments(),
                          m_step->enabled() ? QString() : tr("(disabled)"));
     emit updateSummary();
 }
@@ -295,7 +296,7 @@ void ProcessStepConfigWidget::init()
     m_ui.workingDirectory->setEnvironment(m_step->buildConfiguration()->environment());
     m_ui.workingDirectory->setPath(m_step->workingDirectory());
 
-    m_ui.commandArgumentsLineEdit->setText(m_step->arguments().join(QString(QLatin1Char(' '))));
+    m_ui.commandArgumentsLineEdit->setText(m_step->arguments());
     m_ui.enabledCheckBox->setChecked(m_step->enabled());
 
     updateDetails();
@@ -319,8 +320,7 @@ void ProcessStepConfigWidget::workingDirectoryLineEditTextEdited()
 
 void ProcessStepConfigWidget::commandArgumentsLineEditTextEdited()
 {
-    m_step->setArguments(m_ui.commandArgumentsLineEdit->text().split(QLatin1Char(' '),
-          QString::SkipEmptyParts));
+    m_step->setArguments(m_ui.commandArgumentsLineEdit->text());
     updateDetails();
 }
 

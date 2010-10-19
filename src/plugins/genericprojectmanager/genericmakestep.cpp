@@ -42,6 +42,7 @@
 #include <coreplugin/variablemanager.h>
 #include <utils/stringutils.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QtGui/QFormLayout>
 #include <QtGui/QGroupBox>
@@ -132,26 +133,18 @@ QVariantMap GenericMakeStep::toMap() const
 bool GenericMakeStep::fromMap(const QVariantMap &map)
 {
     m_buildTargets = map.value(QLatin1String(BUILD_TARGETS_KEY)).toStringList();
-    m_makeArguments = map.value(QLatin1String(MAKE_ARGUMENTS_KEY)).toStringList();
+    m_makeArguments = map.value(QLatin1String(MAKE_ARGUMENTS_KEY)).toString();
     m_makeCommand = map.value(QLatin1String(MAKE_COMMAND_KEY)).toString();
 
     return BuildStep::fromMap(map);
 }
 
-QStringList GenericMakeStep::replacedArguments() const
+QString GenericMakeStep::replacedArguments() const
 {
-    Utils::AbstractMacroExpander *mx = Core::VariableManager::instance()->macroExpander();
-    const QStringList targets = m_buildTargets;
-    QStringList arguments = m_makeArguments;
-    QStringList replacedArguments;
-    foreach (QString arg, arguments) {
-        Utils::expandMacros(&arg, mx);
-        replacedArguments << arg;
-    }
-    foreach (QString arg, targets) {
-        Utils::expandMacros(&arg, mx);
-        replacedArguments << arg;
-    }
+    QString replacedArguments = m_makeArguments;
+    Utils::QtcProcess::addArgs(&replacedArguments, m_buildTargets);
+    Utils::QtcProcess::expandMacros(&replacedArguments,
+                                    Core::VariableManager::instance()->macroExpander());
     return replacedArguments;
 }
 
@@ -245,11 +238,8 @@ void GenericMakeStepConfigWidget::init()
 {
     updateMakeOverrrideLabel();
 
-    QString makeCommand = m_makeStep->m_makeCommand;
-    m_ui->makeLineEdit->setText(makeCommand);
-
-    const QStringList &makeArguments = m_makeStep->m_makeArguments;
-    m_ui->makeArgumentsLineEdit->setText(Utils::Environment::joinArgumentList(makeArguments));
+    m_ui->makeLineEdit->setText(m_makeStep->m_makeCommand);
+    m_ui->makeArgumentsLineEdit->setText(m_makeStep->m_makeArguments);
 
     // Disconnect to make the changes to the items
     disconnect(m_ui->targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
@@ -268,8 +258,7 @@ void GenericMakeStepConfigWidget::init()
 void GenericMakeStepConfigWidget::updateDetails()
 {
     m_summaryText = tr("<b>Make:</b> %1 %2")
-                    .arg(m_makeStep->makeCommand(),
-                         Utils::Environment::joinArgumentList(m_makeStep->replacedArguments()));
+                    .arg(m_makeStep->makeCommand(), m_makeStep->replacedArguments());
     emit updateSummary();
 }
 
@@ -292,8 +281,7 @@ void GenericMakeStepConfigWidget::makeLineEditTextEdited()
 
 void GenericMakeStepConfigWidget::makeArgumentsLineEditTextEdited()
 {
-    m_makeStep->m_makeArguments =
-            Utils::Environment::parseCombinedArgString(m_ui->makeArgumentsLineEdit->text());
+    m_makeStep->m_makeArguments = m_ui->makeArgumentsLineEdit->text();
     updateDetails();
 }
 

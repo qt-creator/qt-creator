@@ -30,6 +30,8 @@
 #include "winguiprocess.h"
 #include "consoleprocess.h"
 
+#include <utils/qtcprocess.h>
+
 #include <QtCore/QDir>
 
 using namespace ProjectExplorer::Internal;
@@ -46,7 +48,7 @@ WinGuiProcess::~WinGuiProcess()
     stop();
 }
 
-bool WinGuiProcess::start(const QString &program, const QStringList &args)
+bool WinGuiProcess::start(const QString &program, const QString &args)
 {
     m_program = program;
     m_args = args;
@@ -112,11 +114,14 @@ void WinGuiProcess::run()
 
         const bool dbgInterface = setupDebugInterface(bufferReadyEvent, dataReadyEvent, sharedFile, sharedMem);
 
-        const QString cmdLine = createWinCommandline(m_program, m_args);
+        QString pcmd, pargs;
+        QtcProcess::prepareCommand(m_program, m_args, &pcmd, &pargs, &m_environment, &m_workingDir);
+        const QString cmdLine = createWinCommandline(pcmd, pargs);
+        const QStringList env = m_environment.toStringList();
         started = CreateProcessW(0, (WCHAR*)cmdLine.utf16(),
                                       0, 0, TRUE, CREATE_UNICODE_ENVIRONMENT,
-                                      environment().isEmpty() ? 0
-                                          : createWinEnvironment(fixWinEnvironment(environment())).data(),
+                                      env.isEmpty() ? 0
+                                          : createWinEnvironment(fixWinEnvironment(env)).data(),
                                           workingDirectory().isEmpty() ? 0
                                               : (WCHAR*)QDir::convertSeparators(workingDirectory()).utf16(),
                                               &si, m_pid);
