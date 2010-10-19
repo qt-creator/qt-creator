@@ -33,6 +33,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/mainwindow.h>
 #include <coreplugin/rssfetcher.h>
 #include <projectexplorer/projectexplorer.h>
@@ -329,8 +330,8 @@ void GettingStartedWelcomePageWidget::slotOpenExample()
         tryFile = proFileInfo.path() + '/' + proFileInfo.baseName() + ".qml";
     if(QFile::exists(tryFile))
         files << tryFile;
-    Core::ICore::instance()->openFiles(files, Core::ICore::SwitchMode);
-    if (!helpFile.isEmpty())
+    Core::ICore::instance()->openFiles(files, static_cast<Core::ICore::OpenFilesFlags>(Core::ICore::SwitchMode | Core::ICore::StopOnLoadFail));
+    if (!tryFile.isEmpty() && Core::EditorManager::instance()->hasEditor(tryFile) && !helpFile.isEmpty())
         slotOpenContextHelpPage(helpFile);
 }
 

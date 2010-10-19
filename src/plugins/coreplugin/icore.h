@@ -119,7 +119,13 @@ public:
     virtual void addContextObject(IContext *context) = 0;
     virtual void removeContextObject(IContext *context) = 0;
 
-    enum OpenFilesFlags { None = 0, SwitchMode = 1, CanContainLineNumbers = 2};
+    enum OpenFilesFlags {
+        None = 0,
+        SwitchMode = 1,
+        CanContainLineNumbers = 2,
+         /// Stop loading once the first file fails to load
+        StopOnLoadFail = 4
+    };
     virtual void openFiles(const QStringList &fileNames, OpenFilesFlags flags = None) = 0;
 
 signals:

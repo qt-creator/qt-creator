@@ -829,16 +829,20 @@ void MainWindow::openFiles(const QStringList &fileNames, ICore::OpenFilesFlags f
         const QFileInfo fi(fileName);
         const QString absoluteFilePath = fi.absoluteFilePath();
         if (IFileFactory *fileFactory = findFileFactory(nonEditorFileFactories, mimeDatabase(), fi)) {
-            fileFactory->open(absoluteFilePath);
-            if (flags && ICore::SwitchMode)
+            Core::IFile *file = fileFactory->open(absoluteFilePath);
+            if (!file && (flags & ICore::StopOnLoadFail))
+                return;
+            if (file && (flags & ICore::SwitchMode))
                 Core::ModeManager::instance()->activateMode(Core::Constants::MODE_EDIT);
         } else {
             QFlags<EditorManager::OpenEditorFlag> emFlags;
-            if (flags && ICore::SwitchMode)
+            if (flags & ICore::SwitchMode)
                 emFlags = EditorManager::ModeSwitch;
-            if (flags && ICore::CanContainLineNumbers)
+            if (flags & ICore::CanContainLineNumbers)
                 emFlags |=  EditorManager::CanContainLineNumber;
-            editorManager()->openEditor(absoluteFilePath, QString(), emFlags);
+            Core::IEditor *editor = editorManager()->openEditor(absoluteFilePath, QString(), emFlags);
+            if (!editor && (flags & ICore::StopOnLoadFail))
+                return;
         }
     }
 }
