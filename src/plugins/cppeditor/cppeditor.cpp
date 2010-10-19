@@ -1337,7 +1337,7 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
     } else {
         // Handle macro uses
         const Document::MacroUse *use = doc->findMacroUseAt(endOfToken - 1);
-        if (use) {
+        if (use && use->macro().fileName() != QLatin1String("<configuration>")) {
             const Macro &macro = use->macro();
             link.fileName = macro.fileName();
             link.line = macro.line();
