@@ -48,6 +48,12 @@ const char * const PROCESS_COMMAND_KEY("ProjectExplorer.ProcessStep.Command");
 const char * const PROCESS_WORKINGDIRECTORY_KEY("ProjectExplorer.ProcessStep.WorkingDirectory");
 const char * const PROCESS_ARGUMENTS_KEY("ProjectExplorer.ProcessStep.Arguments");
 const char * const PROCESS_ENABLED_KEY("ProjectExplorer.ProcessStep.Enabled");
+
+#ifdef Q_OS_WIN
+const char * const DEFAULT_WORKING_DIR("%BUILDDIR%");
+#else
+const char * const DEFAULT_WORKING_DIR("$BUILDDIR");
+#endif
 }
 
 ProcessStep::ProcessStep(BuildStepList *bsl) :
@@ -78,7 +84,7 @@ void ProcessStep::ctor()
     //: Default ProcessStep display name
     setDefaultDisplayName(tr("Custom Process Step"));
     if (m_workingDirectory.isEmpty())
-        m_workingDirectory = QLatin1String("$BUILDDIR");
+        m_workingDirectory = QLatin1String(DEFAULT_WORKING_DIR);
 }
 
 ProcessStep::~ProcessStep()
@@ -151,7 +157,7 @@ void ProcessStep::setEnabled(bool enabled)
 void ProcessStep::setWorkingDirectory(const QString &workingDirectory)
 {
     if (workingDirectory.isEmpty())
-        m_workingDirectory = QLatin1String("$BUILDDIR");
+        m_workingDirectory = QLatin1String(DEFAULT_WORKING_DIR);
     else
         m_workingDirectory = workingDirectory;
 }

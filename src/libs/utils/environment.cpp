@@ -388,69 +388,79 @@ QString Environment::joinArgumentList(const QStringList &arguments)
     return result;
 }
 
-enum State { BASE, VARIABLE, OPTIONALVARIABLEBRACE, STRING };
-
 /** Expand environment variables in a string.
  *
  * Environment variables are accepted in the following forms:
- * $SOMEVAR, ${SOMEVAR} and %SOMEVAR%.
- *
- * Strings enclosed in '"' characters do not get varaibles
- * substituted.
+ * $SOMEVAR, ${SOMEVAR} on Unix and %SOMEVAR% on Windows.
+ * No escapes and quoting are supported.
+ * If a variable is not found, it is not substituted.
  */
 QString Environment::expandVariables(const QString &input) const
 {
-    QString result;
-    QString variable;
-    QChar endVariable;
-    State state = BASE;
+    QString result = input;
 
-    int length = input.count();
-    for (int i = 0; i < length; ++i) {
-        QChar c = input.at(i);
-        if (state == BASE) {
-            if (c == '$') {
-                state = OPTIONALVARIABLEBRACE;
-                variable.clear();
-                endVariable = QChar(0);
-            } else if (c == '%') {
-                state = VARIABLE;
-                variable.clear();
-                endVariable = '%';
-            } else if (c == '\"') {
-                state = STRING;
-                result += c;
+#ifdef Q_OS_WIN
+    for (int vStart = -1, i = 0; i < result.length(); ) {
+        if (result.at(i++) == QLatin1Char('%')) {
+            if (vStart > 0) {
+                const_iterator it = m_values.constFind(result.mid(vStart, i - vStart - 1).toUpper());
+                if (it != m_values.constEnd()) {
+                    result.replace(vStart - 1, i - vStart + 1, *it);
+                    i = vStart - 1 + it->length();
+                    vStart = -1;
+                } else {
+                    vStart = i;
+                }
             } else {
-                result += c;
-            }
-        } else if (state == VARIABLE) {
-            if (c == endVariable) {
-                result += value(variable);
-                state = BASE;
-            } else if (c.isLetterOrNumber() || c == '_') {
-                variable += c;
-            } else {
-                result += value(variable);
-                result += c;
-                state = BASE;
-            }
-        } else if (state == OPTIONALVARIABLEBRACE) {
-            if (c == '{')
-                endVariable = '}';
-            else
-                variable = c;
-            state = VARIABLE;
-        } else if (state == STRING) {
-            if (c == '\"') {
-                state = BASE;
-                result += c;
-            } else {
-                result += c;
+                vStart = i;
             }
         }
     }
-    if (state == VARIABLE)
-        result += value(variable);
+#else
+    enum { BASE, OPTIONALVARIABLEBRACE, VARIABLE, BRACEDVARIABLE } state = BASE;
+    int vStart = -1;
+
+    for (int i = 0; i < result.length();) {
+        QChar c = result.at(i++);
+        if (state == BASE) {
+            if (c == QLatin1Char('$'))
+                state = OPTIONALVARIABLEBRACE;
+        } else if (state == OPTIONALVARIABLEBRACE) {
+            if (c == QLatin1Char('{')) {
+                state = BRACEDVARIABLE;
+                vStart = i;
+            } else if (c.isLetterOrNumber() || c == QLatin1Char('_')) {
+                state = VARIABLE;
+                vStart = i - 1;
+            } else {
+                state = BASE;
+            }
+        } else if (state == BRACEDVARIABLE) {
+            if (c == QLatin1Char('}')) {
+                const_iterator it = m_values.constFind(result.mid(vStart, i - 1 - vStart));
+                if (it != constEnd()) {
+                    result.replace(vStart - 2, i - vStart + 2, *it);
+                    i = vStart - 2 + it->length();
+                }
+                state = BASE;
+            }
+        } else if (state == VARIABLE) {
+            if (!c.isLetterOrNumber() && c != QLatin1Char('_')) {
+                const_iterator it = m_values.constFind(result.mid(vStart, i - vStart - 1));
+                if (it != constEnd()) {
+                    result.replace(vStart - 1, i - vStart, *it);
+                    i = vStart - 1 + it->length();
+                }
+                state = BASE;
+            }
+        }
+    }
+    if (state == VARIABLE) {
+        const_iterator it = m_values.constFind(result.mid(vStart));
+        if (it != constEnd())
+            result.replace(vStart - 1, result.length() - vStart + 1, *it);
+    }
+#endif
     return result;
 }
 

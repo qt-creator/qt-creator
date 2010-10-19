@@ -57,7 +57,11 @@ const char * const USE_TERMINAL_KEY("ProjectExplorer.CustomExecutableRunConfigur
 const char * const USER_ENVIRONMENT_CHANGES_KEY("ProjectExplorer.CustomExecutableRunConfiguration.UserEnvironmentChanges");
 const char * const BASE_ENVIRONMENT_BASE_KEY("ProjectExplorer.CustomExecutableRunConfiguration.BaseEnvironmentBase");
 
+#ifdef Q_OS_WIN
+const char * const DEFAULT_WORKING_DIR("%BUILDDIR%");
+#else
 const char * const DEFAULT_WORKING_DIR("$BUILDDIR");
+#endif
 }
 
 void CustomExecutableRunConfiguration::ctor()

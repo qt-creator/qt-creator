@@ -3213,8 +3213,9 @@
     \image qtcreator-build-steps-custom.png "Custom Process Step"
 
     You can use any environment variables as values in the fields. For a list
-    of variable names, click \gui {Build Environment > Details}. You can specify
-    variables as ${VARNAME} or %VARNAME%. For example, ${BUILDDIR} or %BUILDDIR%.
+    of variable names, click \gui {Build Environment > Details}. Variables are
+    referenced using the platform's native syntax: $VARNAME or ${VARNAME} on
+    Unix and %VARNAME% on Windows.
 
     \note Qt Creator sets SOURCEDIR and BUILDDIR as part of the build environment.
     For more information, see \l{Build Environment}.
