@@ -220,9 +220,9 @@ QAbstractItemModel *NavigationWidget::factoryModel() const
 void NavigationWidget::updateToggleText()
 {
     if (isShown())
-        d->m_toggleSideBarAction->setText(tr("Hide Sidebar"));
+        d->m_toggleSideBarAction->setToolTip(tr("Hide Sidebar"));
     else
-        d->m_toggleSideBarAction->setText(tr("Show Sidebar"));
+        d->m_toggleSideBarAction->setToolTip(tr("Show Sidebar"));
 }
 
 void NavigationWidget::placeHolderChanged(NavigationWidgetPlaceHolder *holder)
