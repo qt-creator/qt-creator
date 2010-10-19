@@ -186,7 +186,7 @@ Debugger::QmlEngine *InspectorUi::debuggerEngine() const
 void InspectorUi::showDebuggerTooltip(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos)
 {
     Q_UNUSED(mousePos);
-    if (editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
+    if (m_clientProxy && editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
         QmlJSEditor::Internal::QmlJSTextEditor *qmlEditor = static_cast<QmlJSEditor::Internal::QmlJSTextEditor*>(editor->widget());
 
         QTextCursor tc(qmlEditor->document());
@@ -201,10 +201,16 @@ void InspectorUi::showDebuggerTooltip(const QPoint &mousePos, TextEditor::ITextE
         QmlJS::AST::Node *qmlNode = qmlEditor->semanticInfo().nodeUnderCursor(cursorPos);
         if (!qmlNode)
             return;
-        QmlJS::AST::Node *node = qmlEditor->semanticInfo().declaringMemberNoProperties(cursorPos);
-        if (!node)
-            return;
-        QDeclarativeDebugObjectReference ref = m_clientProxy->objectReferenceForLocation(node->uiObjectMemberCast()->firstSourceLocation().startLine, node->uiObjectMemberCast()->firstSourceLocation().startColumn);
+
+        QDeclarativeDebugObjectReference ref;
+        if (QmlJS::AST::Node *node
+                = qmlEditor->semanticInfo().declaringMemberNoProperties(cursorPos)) {
+            if (QmlJS::AST::UiObjectMember *objMember = node->uiObjectMemberCast()) {
+                ref = m_clientProxy->objectReferenceForLocation(
+                            objMember->firstSourceLocation().startLine,
+                            objMember->firstSourceLocation().startColumn);
+            }
+        }
 
         if (ref.debugId() == -1)
             return;
