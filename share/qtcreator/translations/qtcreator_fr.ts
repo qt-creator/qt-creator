@@ -4622,7 +4622,7 @@ Vous pouvez décider entre attendre plus longtemps ou mettre fin au débogage.</
     </message>
     <message>
         <source>Load Symbols for All Modules</source>
-        <translation>Charger les symboles pour tout les modules</translation>
+        <translation>Charger les symboles pour tous les modules</translation>
     </message>
     <message>
         <source>Load Symbols for Module</source>
@@ -4674,7 +4674,7 @@ Vous pouvez décider entre attendre plus longtemps ou mettre fin au débogage.</
     </message>
     <message>
         <source>Load symbols for all modules</source>
-        <translation type="obsolete">Charger les symboles pour tout les modules</translation>
+        <translation type="obsolete">Charger les symboles pour tous les modules</translation>
     </message>
     <message>
         <source>Load symbols for module</source>
@@ -9168,7 +9168,7 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
     <message>
         <source>All Projects</source>
         <translatorcomment>lower &quot;t&quot; at the beginning because this is indented after &quot;Rechercher dans...&quot;</translatorcomment>
-        <translation>tout les projets</translation>
+        <translation>tous les projets</translation>
     </message>
     <message>
         <source>File &amp;pattern:</source>
@@ -9937,7 +9937,7 @@ No project selected</extracomment>
     </message>
     <message>
         <source>Close All Projects</source>
-        <translation>Fermer tout les projets</translation>
+        <translation>Fermer tous les projets</translation>
     </message>
     <message>
         <source>Session</source>

@@ -5956,19 +5956,19 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>Undo Unstaged Changes</source>
-        <translation>Änderungen in &quot;%1&quot; rückgängig machen</translation>
+        <translation>Nicht bereitgestellte Änderungen rückgängig machen</translation>
     </message>
     <message>
         <source>Undo Unstaged Changes for &quot;%1&quot;</source>
-        <translation>Änderungen in &quot;%1&quot; rückgängig machen</translation>
+        <translation>Nicht bereitgestellte Änderungen in &quot;%1&quot; rückgängig machen</translation>
     </message>
     <message>
         <source>Undo Uncommitted Changes</source>
-        <translation>Änderungen in &quot;%1&quot; rückgängig machen</translation>
+        <translation>Nicht eingetragene Änderungen rückgängig machen</translation>
     </message>
     <message>
         <source>Undo Uncommitted Changes for &quot;%1&quot;</source>
-        <translation>Änderungen in &quot;%1&quot; rückgängig machen</translation>
+        <translation>Nicht eingetragene Änderungen in &quot;%1&quot; rückgängig machen</translation>
     </message>
     <message>
         <source>Clean Project...</source>

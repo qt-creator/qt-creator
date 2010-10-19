@@ -1451,6 +1451,8 @@ void BaseTextEditor::setTextCursor(const QTextCursor &cursor)
     QTextCursor c = cursor;
     c.setVisualNavigation(true);
     QPlainTextEdit::setTextCursor(c);
+    if (!c.block().isVisible())
+        expand();
     if (selectionChange)
         slotSelectionChanged();
 }
@@ -3238,7 +3240,7 @@ void BaseTextEditor::updateCurrentLineHighlight()
         if (block.isValid())
             d->m_extraArea->update(blockBoundingGeometry(block).translated(offset).toAlignedRect());
         block = document()->findBlockByNumber(cursorBlockNumber);
-        if (block.isValid())
+        if (block.isValid() && block.isVisible())
             d->m_extraArea->update(blockBoundingGeometry(block).translated(offset).toAlignedRect());
         d->m_cursorBlockNumber = cursorBlockNumber;
     }
