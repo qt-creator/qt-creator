@@ -755,12 +755,14 @@ private:
 
 } // end of anonymous namespace
 
-QmlObjectValue::QmlObjectValue(const FakeMetaObject *metaObject, int exportIndex, Engine *engine)
+QmlObjectValue::QmlObjectValue(const FakeMetaObject *metaObject, const QString &className,
+                               const QString &packageName, const QmlJS::ComponentVersion version, Engine *engine)
     : ObjectValue(engine),
       _metaObject(metaObject),
-      _exportIndex(exportIndex)
+      _packageName(packageName),
+      _componentVersion(version)
 {
-    setClassName(metaObject->exports().at(exportIndex).type); // ### TODO: we probably need to do more than just this...
+    setClassName(className);
 }
 
 QmlObjectValue::~QmlObjectValue()
@@ -877,10 +879,10 @@ const Value *QmlObjectValue::propertyValue(const FakeMetaProperty &prop) const
 }
 
 QString QmlObjectValue::packageName() const
-{ return _metaObject->exports().at(_exportIndex).package; }
+{ return _packageName; }
 
 QmlJS::ComponentVersion QmlObjectValue::version() const
-{ return _metaObject->exports().at(_exportIndex).version; }
+{ return _componentVersion; }
 
 QString QmlObjectValue::defaultPropertyName() const
 { return _metaObject->defaultPropertyName(); }
@@ -2031,35 +2033,34 @@ void CppQmlTypes::load(Engine *engine, const QList<const FakeMetaObject *> &obje
             if (_typesByFullyQualifiedName.contains(exp.packageNameVersion))
                 continue;
 
-            QmlObjectValue *objectValue = new QmlObjectValue(metaObject, i, engine);
+            QmlObjectValue *objectValue = new QmlObjectValue(
+                        metaObject, exp.type, exp.package, exp.version, engine);
             _typesByPackage[exp.package].append(objectValue);
             _typesByFullyQualifiedName[exp.packageNameVersion] = objectValue;
         }
     }
 
-    // set prototype correctly
+    // set prototypes
     foreach (const FakeMetaObject *metaObject, objects) {
         foreach (const FakeMetaObject::Export &exp, metaObject->exports()) {
             QmlObjectValue *objectValue = _typesByFullyQualifiedName.value(exp.packageNameVersion);
             if (!objectValue || !metaObject->superClass())
                 continue;
-            bool found = false;
-            // try to get a prototype from the library first
-            foreach (const FakeMetaObject::Export &superExports, metaObject->superClass()->exports()) {
-                if (superExports.package == exp.package) {
-                    objectValue->setPrototype(_typesByFullyQualifiedName.value(superExports.packageNameVersion));
-                    found = true;
-                    break;
-                }
+
+            // set prototypes for whole chain, creating new QmlObjectValues if necessary
+            // for instance, if an type isn't exported in the package of the super type
+            // Example: QObject (Qt, QtQuick) -> Positioner (not exported) -> Column (Qt, QtQuick)
+            // needs to create Positioner (Qt) and Positioner (QtQuick)
+            bool created = true;
+            QmlObjectValue *v = objectValue;
+            const FakeMetaObject *fmo = metaObject;
+            while (created && fmo->superClass()) {
+                QmlObjectValue *superValue = getOrCreate(exp.package, fmo->superclassName(),
+                                                         fmo->superClass(), engine, &created);
+                v->setPrototype(superValue);
+                v = superValue;
+                fmo = fmo->superClass();
             }
-            if (found)
-                continue;
-            // otherwise, just use the first available
-            if (!metaObject->superClass()->exports().isEmpty()) {
-                objectValue->setPrototype(_typesByFullyQualifiedName.value(metaObject->superClass()->exports().first().packageNameVersion));
-                continue;
-            }
-            //qWarning() << "Could not find super class for " << exp.packageNameVersion;
         }
     }
 }
@@ -2121,6 +2122,51 @@ QmlObjectValue *CppQmlTypes::typeForImport(const QString &qualifiedName) const
 bool CppQmlTypes::hasPackage(const QString &package) const
 {
     return _typesByPackage.contains(package);
+}
+
+QString CppQmlTypes::qualifiedName(const QString &package, const QString &type, QmlJS::ComponentVersion version)
+{
+    return QString("%1.%2 %3.%4").arg(
+                package, type,
+                QString::number(version.majorVersion()),
+                QString::number(version.minorVersion()));
+}
+
+QmlObjectValue *CppQmlTypes::typeByQualifiedName(const QString &name) const
+{
+    return _typesByFullyQualifiedName.value(name);
+}
+
+QmlObjectValue *CppQmlTypes::typeByQualifiedName(const QString &package, const QString &type, QmlJS::ComponentVersion version) const
+{
+    return typeByQualifiedName(qualifiedName(package, type, version));
+}
+
+QmlObjectValue *CppQmlTypes::getOrCreate(const QString &package, const QString &cppName,
+                                          const FakeMetaObject *metaObject, Engine *engine, bool *created)
+{
+    QString typeName = cppName;
+    ComponentVersion version;
+    foreach (const FakeMetaObject::Export &exp, metaObject->exports()) {
+        if (exp.package == package) {
+            typeName = exp.type;
+            version = exp.version;
+            break;
+        }
+    }
+
+    const QString qName = qualifiedName(package, typeName, version);
+    QmlObjectValue *value = typeByQualifiedName(qName);
+    if (!value) {
+        *created = true;
+        value = new QmlObjectValue(
+                    metaObject, typeName, package, QmlJS::ComponentVersion(), engine);
+        _typesByFullyQualifiedName[qName] = value;
+    } else {
+        *created = false;
+    }
+
+    return value;
 }
 
 ConvertToNumber::ConvertToNumber(Engine *engine)

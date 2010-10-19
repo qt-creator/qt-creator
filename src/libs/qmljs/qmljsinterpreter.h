@@ -383,7 +383,8 @@ private:
 class QMLJS_EXPORT QmlObjectValue: public ObjectValue
 {
 public:
-    QmlObjectValue(const FakeMetaObject *metaObject, int exportIndex, Engine *engine);
+    QmlObjectValue(const FakeMetaObject *metaObject, const QString &className,
+                   const QString &packageName, const ComponentVersion version, Engine *engine);
     virtual ~QmlObjectValue();
 
     virtual void processMembers(MemberProcessor *processor) const;
@@ -404,7 +405,8 @@ protected:
 
 private:
     const FakeMetaObject *_metaObject;
-    const int _exportIndex;
+    const QString _packageName;
+    const ComponentVersion _componentVersion;
     mutable QHash<int, const Value *> _metaSignature;
 };
 
@@ -534,7 +536,14 @@ public:
     QHash<QString, QmlObjectValue *> types() const
     { return _typesByFullyQualifiedName; }
 
+    static QString qualifiedName(const QString &package, const QString &type, ComponentVersion version);
+    QmlObjectValue *typeByQualifiedName(const QString &name) const;
+    QmlObjectValue *typeByQualifiedName(const QString &package, const QString &type, ComponentVersion version) const;
+
 private:
+    QmlObjectValue *getOrCreate(const QString &package, const QString &cppName, const FakeMetaObject *metaObject, Engine *engine, bool *created);
+
+
     QHash<QString, QList<QmlObjectValue *> > _typesByPackage;
     QHash<QString, QmlObjectValue *> _typesByFullyQualifiedName;
 };
