@@ -51,6 +51,7 @@ private Q_SLOTS:
     void forStatement();
     void templateSingleline();
     void macrosNoSemicolon2();
+    void renamedNamespace();
 };
 
 struct Line {
@@ -979,6 +980,20 @@ void tst_CodeFormatter::macrosNoSemicolon2()
          << Line("FOO(ABC)")
          << Line("{")
          << Line("    BAR(FOO)")
+         << Line("}")
+         << Line("int i;")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::renamedNamespace()
+{
+    QList<Line> data;
+    data
+         << Line("namespace X = Y;")
+         << Line("void foo()")
+         << Line("{")
+         << Line("    return;")
          << Line("}")
          << Line("int i;")
          ;

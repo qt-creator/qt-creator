@@ -93,6 +93,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
         case namespace_start:
             switch (kind) {
             case T_LBRACE:      enter(namespace_open); break;
+            case T_SEMICOLON:
             case T_RBRACE:      leave(); break;
             } break;
 
