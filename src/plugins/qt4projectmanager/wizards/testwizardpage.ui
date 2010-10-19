@@ -2,14 +2,6 @@
 <ui version="4.0">
  <class>Qt4ProjectManager::Internal::TestWizardPage</class>
  <widget class="QWizardPage" name="Qt4ProjectManager::Internal::TestWizardPage">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>400</width>
-    <height>300</height>
-   </rect>
-  </property>
   <property name="windowTitle">
    <string>WizardPage</string>
   </property>
@@ -55,6 +47,16 @@
      <item row="0" column="1">
       <widget class="Utils::ClassNameValidatingLineEdit" name="testClassLineEdit"/>
      </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Test slot:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="Utils::ClassNameValidatingLineEdit" name="testSlotLineEdit"/>
+     </item>
      <item row="2" column="0">
       <widget class="QLabel" name="typeLabel">
        <property name="text">
@@ -76,17 +78,17 @@
        </item>
       </widget>
      </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="fileLabel">
+     <item row="3" column="0" colspan="2">
+      <widget class="QCheckBox" name="dataCheckBox">
        <property name="text">
-        <string>File:</string>
+        <string>Use a test data set</string>
        </property>
       </widget>
      </item>
-     <item row="6" column="1">
-      <widget class="Utils::FileNameValidatingLineEdit" name="fileLineEdit">
-       <property name="allowDirectories" stdset="0">
-        <bool>true</bool>
+     <item row="4" column="0" colspan="2">
+      <widget class="QCheckBox" name="qApplicationCheckBox">
+       <property name="text">
+        <string>Requires QApplication</string>
        </property>
       </widget>
      </item>
@@ -97,27 +99,17 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label">
+     <item row="6" column="0">
+      <widget class="QLabel" name="fileLabel">
        <property name="text">
-        <string>Test slot:</string>
+        <string>File:</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="Utils::ClassNameValidatingLineEdit" name="testSlotLineEdit"/>
-     </item>
-     <item row="4" column="0" colspan="2">
-      <widget class="QCheckBox" name="qApplicationCheckBox">
-       <property name="text">
-        <string>Requires QApplication</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0" colspan="2">
-      <widget class="QCheckBox" name="dataCheckBox">
-       <property name="text">
-        <string>Use a test data set</string>
+     <item row="6" column="1">
+      <widget class="Utils::FileNameValidatingLineEdit" name="fileLineEdit">
+       <property name="allowDirectories">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -127,12 +119,6 @@
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>194</height>
-      </size>
      </property>
     </spacer>
    </item>
