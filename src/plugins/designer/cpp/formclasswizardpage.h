@@ -68,7 +68,6 @@ public:
 public slots:
     void setClassName(const QString &suggestedClassName);
     void setPath(const QString &);
-    void slotSettings();
 
 private slots:
     void slotValidChanged();

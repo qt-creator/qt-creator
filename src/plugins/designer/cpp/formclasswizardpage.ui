@@ -2,14 +2,6 @@
 <ui version="4.0">
  <class>Designer::Internal::FormClassWizardPage</class>
  <widget class="QWizardPage" name="Designer::Internal::FormClassWizardPage">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>542</width>
-    <height>267</height>
-   </rect>
-  </property>
   <property name="title">
    <string>Choose a Class Name</string>
   </property>
@@ -21,34 +13,10 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="Utils::NewClassWidget" name="newClassWidget" native="true"/>
+       <widget class="Utils::NewClassWidget" name="newClassWidget"/>
       </item>
      </layout>
     </widget>
-   </item>
-   <item row="0" column="1">
-    <layout class="QVBoxLayout" name="verticalLayout_4">
-     <item>
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QToolButton" name="settingsToolButton">
-       <property name="text">
-        <string>Configure...</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
    </item>
   </layout>
  </widget>

@@ -60,7 +60,6 @@ FormClassWizardPage::FormClassWizardPage(QWidget * parent) :
     m_ui->newClassWidget->setClassTypeComboVisible(false);
 
     connect(m_ui->newClassWidget, SIGNAL(validChanged()), this, SLOT(slotValidChanged()));
-    connect(m_ui->settingsToolButton, SIGNAL(clicked()), this, SLOT(slotSettings()));
 
     initFileGenerationSettings();
 }
@@ -88,17 +87,6 @@ void FormClassWizardPage::initFileGenerationSettings()
     m_ui->newClassWidget->setHeaderExtension(mdb->preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)));
     m_ui->newClassWidget->setSourceExtension(mdb->preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)));
     m_ui->newClassWidget->setLowerCaseFiles(lowercaseHeaderFiles());
-}
-
-// Pop up settings dialog for generation settings
-void FormClassWizardPage::slotSettings()
-{
-    const QString id = QLatin1String(CppTools::Constants::CPP_SETTINGS_ID);
-    const QString cat = QLatin1String(CppTools::Constants::CPP_SETTINGS_CATEGORY);
-    if (Core::ICore::instance()->showOptionsDialog(cat, id, this)) {
-        initFileGenerationSettings();
-        m_ui->newClassWidget->triggerUpdateFileNames();
-    }
 }
 
 void FormClassWizardPage::setClassName(const QString &suggestedClassName)
