@@ -432,7 +432,8 @@ CPPEditor::CPPEditor(QWidget *parent)
 
 CPPEditor::~CPPEditor()
 {
-    Core::EditorManager::instance()->hideEditorInfoBar(QLatin1String("CppEditor.Rename"));
+    if (Core::EditorManager *em = Core::EditorManager::instance())
+        em->hideEditorInfoBar(QLatin1String("CppEditor.Rename"));
 
     m_semanticHighlighter->abort();
     m_semanticHighlighter->wait();

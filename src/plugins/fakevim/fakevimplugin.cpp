@@ -491,6 +491,7 @@ public:
     friend class FakeVimExCommandsPage;
 
     bool initialize();
+    void onCoreAboutToClose();
     void aboutToShutdown();
 
 private slots:
@@ -586,6 +587,13 @@ FakeVimPluginPrivate::~FakeVimPluginPrivate()
     m_fakeVimExCommandsPage = 0;
 }
 
+void FakeVimPluginPrivate::onCoreAboutToClose()
+{
+    // don't attach to editors any more
+    disconnect(editorManager(), SIGNAL(editorOpened(Core::IEditor*)),
+        this, SLOT(editorOpened(Core::IEditor*)));
+}
+
 void FakeVimPluginPrivate::aboutToShutdown()
 {
     theFakeVimSettings()->writeSettings(ICore::instance()->settings());
@@ -617,6 +625,8 @@ bool FakeVimPluginPrivate::initialize()
     ActionContainer *advancedMenu =
         actionManager()->actionContainer(Core::Constants::M_EDIT_ADVANCED);
     advancedMenu->addAction(cmd, Core::Constants::G_EDIT_EDITOR);
+
+    connect(m_core, SIGNAL(coreAboutToClose()), this, SLOT(onCoreAboutToClose()));
 
     // EditorManager
     connect(editorManager(), SIGNAL(editorAboutToClose(Core::IEditor*)),
