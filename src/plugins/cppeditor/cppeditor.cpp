@@ -1269,7 +1269,7 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
             }
         }
 
-        if (tk.isNot(T_IDENTIFIER))
+        if (tk.isNot(T_IDENTIFIER) && tk.kind() < T_FIRST_QT_KEYWORD && tk.kind() > T_LAST_KEYWORD)
             return link;
 
         tc.setPosition(endOfToken);
