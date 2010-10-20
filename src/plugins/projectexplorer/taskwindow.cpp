@@ -55,8 +55,7 @@
 #include <QtGui/QToolButton>
 
 namespace {
-const int TASK_ICON_SIZE = 16;
-const int TASK_ICON_MARGIN = 2;
+const int ELLIPSIS_GRADIENT_WIDTH = 16;
 }
 
 namespace ProjectExplorer {
@@ -69,25 +68,6 @@ public:
     ~TaskView();
     void resizeEvent(QResizeEvent *e);
     void keyPressEvent(QKeyEvent *e);
-};
-
-class TaskDelegate : public QStyledItemDelegate
-{
-    Q_OBJECT
-public:
-    TaskDelegate(QObject * parent = 0);
-    ~TaskDelegate();
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
-
-    // TaskView uses this method if the size of the taskview changes
-    void emitSizeHintChanged(const QModelIndex &index);
-
-public slots:
-    void currentChanged(const QModelIndex &current, const QModelIndex &previous);
-
-private:
-    void generateGradientPixmap(int width, int height, QColor color, bool selected) const;
 };
 
 class TaskWindowContext : public Core::IContext
@@ -122,8 +102,8 @@ public:
     void removeTask(const Task &task);
     void clearTasks(const QString &categoryId = QString());
 
-    int sizeOfFile();
-    int sizeOfLineNumber();
+    int sizeOfFile(const QFont &font);
+    int sizeOfLineNumber(const QFont &font);
     void setFileNotFound(const QModelIndex &index, bool b);
 
     enum Roles { File = Qt::UserRole, Line, Description, FileNotFound, Type, Category, Icon, Task_t };
@@ -142,11 +122,13 @@ private:
 
     QHash<QString,bool> m_fileNotFound;
     int m_maxSizeOfFileName;
+    QString m_fileMeasurementFont;
     const QIcon m_errorIcon;
     const QIcon m_warningIcon;
     int m_taskCount;
     int m_errorTaskCount;
     int m_sizeOfLineNumber;
+    QString m_lineMeasurementFont;
 };
 
 class TaskFilterModel : public QSortFilterProxyModel
@@ -182,6 +164,97 @@ private:
     bool m_includeWarnings;
     bool m_includeErrors;
     QStringList m_categoryIds;
+};
+
+class TaskDelegate : public QStyledItemDelegate
+{
+    Q_OBJECT
+
+public:
+    TaskDelegate(QObject * parent = 0);
+    ~TaskDelegate();
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+
+    // TaskView uses this method if the size of the taskview changes
+    void emitSizeHintChanged(const QModelIndex &index);
+
+public slots:
+    void currentChanged(const QModelIndex &current, const QModelIndex &previous);
+
+private:
+    void generateGradientPixmap(int width, int height, QColor color, bool selected) const;
+
+    /*
+      Collapsed:
+      +----------------------------------------------------------------------------------------------------+
+      | TASKICONAREA  TEXTAREA                                                           FILEAREA LINEAREA |
+      +----------------------------------------------------------------------------------------------------+
+
+      Expanded:
+      +----------------------------------------------------------------------------------------------------+
+      | TASKICONICON  TEXTAREA                                                           FILEAREA LINEAREA |
+      |               more text -------------------------------------------------------------------------> |
+      +----------------------------------------------------------------------------------------------------+
+     */
+    class Positions
+    {
+    public:
+        Positions(const QStyleOptionViewItemV4 &options, TaskModel *model) :
+            m_totalWidth(options.rect.width()),
+            m_maxFileLength(model->sizeOfFile(options.font)),
+            m_maxLineLength(model->sizeOfLineNumber(options.font)),
+            m_realFileLength(m_maxFileLength),
+            m_top(options.rect.top()),
+            m_bottom(options.rect.bottom())
+        {
+            int flexibleArea = lineAreaLeft() - textAreaLeft() - ITEM_SPACING;
+            if (m_maxFileLength > flexibleArea / 2)
+                m_realFileLength = flexibleArea / 2;
+            m_fontHeight = QFontMetrics(options.font).height();
+        }
+
+        int top() const { return m_top + ITEM_MARGIN; }
+        int left() const { return ITEM_MARGIN; }
+        int right() const { return m_totalWidth - ITEM_MARGIN; }
+        int bottom() const { return m_bottom; }
+        int firstLineHeight() const { return m_fontHeight + 1; }
+        int minimumHeight() const { return taskIconHeight() + 2 * ITEM_MARGIN; }
+
+        int taskIconLeft() const { return left(); }
+        int taskIconWidth() const { return TASK_ICON_SIZE; }
+        int taskIconHeight() const { return TASK_ICON_SIZE; }
+        int taskIconRight() const { return taskIconLeft() + taskIconWidth(); }
+        QRect taskIcon() const { return QRect(taskIconLeft(), top(), taskIconWidth(), taskIconHeight()); }
+
+        int textAreaLeft() const { return taskIconRight() + ITEM_SPACING; }
+        int textAreaWidth() const { return textAreaRight() - textAreaLeft(); }
+        int textAreaRight() const { return fileAreaLeft() - ITEM_SPACING; }
+        QRect textArea() const { return QRect(textAreaLeft(), top(), textAreaWidth(), firstLineHeight()); }
+
+        int fileAreaLeft() const { return fileAreaRight() - fileAreaWidth(); }
+        int fileAreaWidth() const { return m_realFileLength; }
+        int fileAreaRight() const { return lineAreaLeft() - ITEM_SPACING; }
+        QRect fileArea() const { return QRect(fileAreaLeft(), top(), fileAreaWidth(), firstLineHeight()); }
+
+        int lineAreaLeft() const { return lineAreaRight() - lineAreaWidth(); }
+        int lineAreaWidth() const { return m_maxLineLength; }
+        int lineAreaRight() const { return right(); }
+        QRect lineArea() const { return QRect(lineAreaLeft(), top(), lineAreaWidth(), firstLineHeight()); }
+
+    private:
+        int m_totalWidth;
+        int m_maxFileLength;
+        int m_maxLineLength;
+        int m_realFileLength;
+        int m_top;
+        int m_bottom;
+        int m_fontHeight;
+
+        static const int TASK_ICON_SIZE = 16;
+        static const int ITEM_MARGIN = 2;
+        static const int ITEM_SPACING = 2 * ITEM_MARGIN;
+    };
 };
 
 TaskView::TaskView(QWidget *parent)
@@ -223,7 +296,6 @@ TaskModel::TaskModel() :
     m_errorTaskCount(0),
     m_sizeOfLineNumber(0)
 {
-
 }
 
 int TaskModel::taskCount()
@@ -288,14 +360,7 @@ void TaskModel::addTask(const Task &task)
     m_tasks.append(task);
     endInsertRows();
 
-    QFont font;
-    QFontMetrics fm(font);
-    QString filename = task.file;
-    const int pos = filename.lastIndexOf(QLatin1Char('/'));
-    if (pos != -1)
-        filename = task.file.mid(pos +1);
-
-    m_maxSizeOfFileName = qMax(m_maxSizeOfFileName, fm.width(filename));
+    m_maxSizeOfFileName = 0;
     ++m_taskCount;
     if (task.type == Task::Error)
         ++m_errorTaskCount;
@@ -430,16 +495,32 @@ QString TaskModel::categoryDisplayName(const QString &categoryId) const
     return m_categories.value(categoryId);
 }
 
-int TaskModel::sizeOfFile()
+int TaskModel::sizeOfFile(const QFont &font)
 {
+    QString fontKey = font.key();
+    if (m_maxSizeOfFileName > 0 && fontKey == m_fileMeasurementFont)
+        return m_maxSizeOfFileName;
+
+    QFontMetrics fm(font);
+    m_fileMeasurementFont = fontKey;
+
+    foreach (const Task & t, m_tasks) {
+        QString filename = t.file;
+        const int pos = filename.lastIndexOf(QLatin1Char('/'));
+        if (pos != -1)
+            filename = filename.mid(pos +1);
+
+        m_maxSizeOfFileName = qMax(m_maxSizeOfFileName, fm.width(filename));
+    }
     return m_maxSizeOfFileName;
 }
 
-int TaskModel::sizeOfLineNumber()
+int TaskModel::sizeOfLineNumber(const QFont &font)
 {
-    if (m_sizeOfLineNumber == 0) {
-        QFont font;
+    QString fontKey = font.key();
+    if (m_sizeOfLineNumber == 0 || fontKey != m_lineMeasurementFont) {
         QFontMetrics fm(font);
+        m_lineMeasurementFont = fontKey;
         m_sizeOfLineNumber = fm.width("8888");
     }
     return m_sizeOfLineNumber;
@@ -889,11 +970,12 @@ QSize TaskDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelInd
     int fontHeight = fm.height();
     int fontLeading = fm.leading();
 
-    QSize s;
-    s.setWidth(option.rect.width());
     const QAbstractItemView * view = qobject_cast<const QAbstractItemView *>(opt.widget);
     TaskModel *model = static_cast<TaskFilterModel *>(view->model())->taskModel();
-    int width = opt.rect.width() - model->sizeOfFile() - model->sizeOfLineNumber() - 12 - 22;
+    Positions positions(option, model);
+
+    QSize s;
+    s.setWidth(option.rect.width());
     if (view->selectionModel()->currentIndex() == index) {
         QString description = index.data(TaskModel::Description).toString();
         // Layout the description
@@ -906,7 +988,7 @@ QSize TaskDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelInd
             QTextLine line = tl.createLine();
             if (!line.isValid())
                 break;
-            line.setLineWidth(width);
+            line.setLineWidth(positions.textAreaWidth());
             height += leading;
             line.setPosition(QPoint(0, height));
             height += static_cast<int>(line.height());
@@ -917,8 +999,8 @@ QSize TaskDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelInd
     } else {
         s.setHeight(fontHeight + 3);
     }
-    if (s.height() < TASK_ICON_SIZE + 2 * TASK_ICON_MARGIN)
-        s.setHeight(TASK_ICON_SIZE + 2 * TASK_ICON_MARGIN);
+    if (s.height() < positions.minimumHeight())
+        s.setHeight(positions.minimumHeight());
     return s;
 }
 
@@ -965,23 +1047,26 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
     painter->setPen(textColor);
 
     TaskModel *model = static_cast<TaskFilterModel *>(view->model())->taskModel();
-    QIcon icon = index.data(TaskModel::Icon).value<QIcon>();
-    painter->drawPixmap(TASK_ICON_MARGIN, opt.rect.top() + TASK_ICON_MARGIN, icon.pixmap(TASK_ICON_SIZE, TASK_ICON_SIZE));
+    Positions positions(opt, model);
 
-    int width = opt.rect.width() - model->sizeOfFile() - model->sizeOfLineNumber() - 12 - 22;
+    // Paint TaskIconArea:
+    QIcon icon = index.data(TaskModel::Icon).value<QIcon>();
+    painter->drawPixmap(positions.left(), positions.top(),
+                        icon.pixmap(positions.taskIconWidth(), positions.taskIconHeight()));
+
+    // Paint TextArea:
     if (!selected) {
         // in small mode we lay out differently
         QString bottom = index.data(TaskModel::Description).toString().split('\n').first();
-        painter->drawText(22, 2 + opt.rect.top() + fm.ascent(), bottom);
-        if (fm.width(bottom) > width) {
+        painter->setClipRect(positions.textArea());
+        painter->drawText(positions.textAreaLeft(), positions.top() + fm.ascent(), bottom);
+        if (fm.width(bottom) > positions.textAreaWidth()) {
             // draw a gradient to mask the text
-            int gwidth = opt.rect.right() + 1 - width;
-            QLinearGradient lg(QPoint(width, 0), QPoint(width+gwidth, 0));
-            QColor c = backgroundColor;
-            c.setAlpha(0);
-            lg.setColorAt(0, c);
-            lg.setColorAt(20.0/gwidth, backgroundColor);
-            painter->fillRect(width, 2 + opt.rect.top(), gwidth, fm.height() + 1, lg);
+            int gradientStart = positions.textAreaRight() - ELLIPSIS_GRADIENT_WIDTH + 1;
+            QLinearGradient lg(gradientStart, 0, gradientStart + ELLIPSIS_GRADIENT_WIDTH, 0);
+            lg.setColorAt(0, Qt::transparent);
+            lg.setColorAt(1, backgroundColor);
+            painter->fillRect(gradientStart, positions.top(), ELLIPSIS_GRADIENT_WIDTH, positions.firstLineHeight(), lg);
         }
     } else {
         // Description
@@ -997,14 +1082,13 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
             QTextLine line = tl.createLine();
             if (!line.isValid())
                 break;
-            line.setLineWidth(width);
+            line.setLineWidth(positions.textAreaWidth());
             height += leading;
             line.setPosition(QPoint(0, height));
             height += static_cast<int>(line.height());
         }
         tl.endLayout();
-        tl.draw(painter, QPoint(22, 2 + opt.rect.top()));
-        //painter->drawText(22, 2 + opt.rect.top() + fm.ascent(), description);
+        tl.draw(painter, QPoint(positions.textAreaLeft(), positions.top()));
 
         QColor mix;
         mix.setRgb( static_cast<int>(0.7 * textColor.red()   + 0.3 * backgroundColor.red()),
@@ -1013,27 +1097,42 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
         painter->setPen(mix);
 
         const QString directory = QDir::toNativeSeparators(index.data(TaskModel::File).toString());
-        int secondBaseLine = 2 + fm.ascent() + opt.rect.top() + height + leading; //opt.rect.top() + fm.ascent() + fm.height() + 6;
+        int secondBaseLine = positions.top() + fm.ascent() + height + leading;
         if (index.data(TaskModel::FileNotFound).toBool()) {
             QString fileNotFound = tr("File not found: %1").arg(directory);
             painter->setPen(Qt::red);
-            painter->drawText(22, secondBaseLine, fileNotFound);
+            painter->drawText(positions.textAreaLeft(), secondBaseLine, fileNotFound);
         } else {
-            painter->drawText(22, secondBaseLine, directory);
+            painter->drawText(positions.textAreaLeft(), secondBaseLine, directory);
         }
     }
-
     painter->setPen(textColor);
-    // Assemble string for the right side
-    // just filename + linenumer
+
+    // Paint FileArea
     QString file = index.data(TaskModel::File).toString();
     const int pos = file.lastIndexOf(QLatin1Char('/'));
     if (pos != -1)
         file = file.mid(pos +1);
-    painter->drawText(width + 22 + 4, 2 + opt.rect.top() + fm.ascent(), file);
+    const int realFileWidth = fm.width(file);
+    painter->setClipRect(positions.fileArea());
+    painter->drawText(qMin(positions.fileAreaLeft(), positions.fileAreaRight() - realFileWidth),
+                      positions.top() + fm.ascent(), file);
+    if (realFileWidth > positions.fileAreaWidth()) {
+        // draw a gradient to mask the text
+        int gradientStart = positions.fileAreaLeft() - 1;
+        QLinearGradient lg(gradientStart + ELLIPSIS_GRADIENT_WIDTH, 0, gradientStart, 0);
+        lg.setColorAt(0, Qt::transparent);
+        lg.setColorAt(1, backgroundColor);
+        painter->fillRect(gradientStart, positions.top(), ELLIPSIS_GRADIENT_WIDTH, positions.firstLineHeight(), lg);
+    }
 
-    QString topRight = index.data(TaskModel::Line).toString();
-    painter->drawText(opt.rect.right() - fm.width(topRight) - 6 , 2 + opt.rect.top() + fm.ascent(), topRight);
+    // Paint LineArea
+    QString lineText = index.data(TaskModel::Line).toString();
+    painter->setClipRect(positions.lineArea());
+    const int realLineWidth = fm.width(lineText);
+    painter->drawText(positions.lineAreaRight() - realLineWidth, positions.top() + fm.ascent(), lineText);
+    painter->setClipRect(opt.rect);
+
     // Separator lines
     painter->setPen(QColor::fromRgb(150,150,150));
     painter->drawLine(0, opt.rect.bottom(), opt.rect.right(), opt.rect.bottom());
