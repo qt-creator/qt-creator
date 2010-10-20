@@ -15,6 +15,12 @@ DEFINES += NETWORKACCESS
 # TARGETUID3 #
 symbian:TARGET.UID3 = 0xE1111234
 
+# If your application uses the Qt Mobility libraries, uncomment
+# the following lines and add the respective components to the 
+# MOBILITY variable. 
+# CONFIG += mobility
+# MOBILITY +=
+
 SOURCES += main.cpp mainwindow.cpp
 HEADERS += mainwindow.h
 FORMS += mainwindow.ui
