@@ -16,5 +16,3 @@ HEADERS += \
     $$SRCDIR/plugins/texteditor/basetextdocumentlayout.h
 
 INCLUDEPATH += $$SRCDIR/plugins $$SRCDIR/libs
-
-TARGET=tst_$$TARGET

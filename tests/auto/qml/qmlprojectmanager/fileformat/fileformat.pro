@@ -13,8 +13,6 @@ include($$PLUGIN_DIR/fileformat/fileformat.pri)
 
 INCLUDEPATH += $$PLUGIN_DIR/fileformat
 
-TARGET=tst_$$TARGET
-
 DEFINES += SRCDIR=\\\"$$PWD\\\"
 
 TEMPLATE = app

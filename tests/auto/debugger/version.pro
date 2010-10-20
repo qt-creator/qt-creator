@@ -11,5 +11,3 @@ SOURCES += \
     tst_version.cpp \
     $$DEBUGGERDIR/gdb/gdbmi.cpp \
 
-TARGET = tst_$$TARGET
-

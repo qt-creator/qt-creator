@@ -13,5 +13,3 @@ HEADERS += \
 	$$UTILSDIR/utils/changeset.h
 
 INCLUDEPATH += $$UTILSDIR
-
-TARGET=tst_$$TARGET

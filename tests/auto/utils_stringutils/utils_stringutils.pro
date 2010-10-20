@@ -11,5 +11,3 @@ SOURCES += tst_stringutils.cpp \
     $$UTILS_PATH/stringutils.cpp
 HEADERS += $$UTILS_PATH/stringutils.h \
     $$UTILS_PATH/utils_global.h
-
-TARGET=tst_$$TARGET

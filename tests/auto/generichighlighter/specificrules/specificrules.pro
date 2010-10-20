@@ -13,5 +13,3 @@ SOURCES += tst_specificrules.cpp \
     $$PLUGINSDIR/texteditor/generichighlighter/itemdata.cpp
 
 INCLUDEPATH += $$PLUGINSDIR
-
-TARGET=tst_$$TARGET
