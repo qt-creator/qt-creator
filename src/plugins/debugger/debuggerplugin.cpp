@@ -460,6 +460,7 @@ void addCdbOptionPages(QList<Core::IOptionsPage*> *opts);
 struct AttachRemoteParameters
 {
     AttachRemoteParameters() : attachPid(0), winCrashEvent(0) {}
+    void clear();
 
     quint64 attachPid;
     QString attachTarget;  // core file name or  server:port
@@ -467,6 +468,11 @@ struct AttachRemoteParameters
     quint64 winCrashEvent;
 };
 
+void AttachRemoteParameters::clear()
+{
+    attachPid = winCrashEvent = 0;
+    attachTarget.clear();
+}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -790,6 +796,7 @@ static bool parseArguments(const QStringList &args,
    AttachRemoteParameters *attachRemoteParameters,
    unsigned *enabledEngines, QString *errorMessage)
 {
+    attachRemoteParameters->clear();
     const QStringList::const_iterator cend = args.constEnd();
     for (QStringList::const_iterator it = args.constBegin(); it != cend; ++it)
         if (!parseArgument(it, cend, attachRemoteParameters, enabledEngines, errorMessage))
@@ -918,9 +925,9 @@ public slots:
     void attachExternalApplication();
     void attachExternalApplication
         (qint64 pid, const QString &binary, const QString &crashParameter);
+    bool attachCmdLine();
     void attachCore();
     void attachCore(const QString &core, const QString &exeFileName);
-    void attachCmdLine();
     void attachRemote(const QString &spec);
     void attachRemoteTcf();
 
@@ -1936,7 +1943,7 @@ void DebuggerPluginPrivate::attachRemoteTcf()
     startDebugger(createDebugger(sp));
 }
 
-void DebuggerPluginPrivate::attachCmdLine()
+bool DebuggerPluginPrivate::attachCmdLine()
 {
     if (m_attachRemoteParameters.attachPid) {
         showStatusMessage(tr("Attaching to PID %1.")
@@ -1945,7 +1952,7 @@ void DebuggerPluginPrivate::attachCmdLine()
             ? QString::number(m_attachRemoteParameters.winCrashEvent) : QString();
         attachExternalApplication(m_attachRemoteParameters.attachPid,
             QString(), crashParameter);
-        return;
+        return true;
     }
     const QString target = m_attachRemoteParameters.attachTarget;
     if (!target.isEmpty()) {
@@ -1956,7 +1963,9 @@ void DebuggerPluginPrivate::attachCmdLine()
             showStatusMessage(tr("Attaching to core %1.").arg(target));
             attachCore(target, QString());
         }
+        return true;
     }
+    return false;
 }
 
 void DebuggerPluginPrivate::editorOpened(Core::IEditor *editor)
@@ -2861,6 +2870,27 @@ bool DebuggerPlugin::isRegisterViewVisible() const
 bool DebuggerPlugin::hasSnapsnots() const
 {
     return d->m_snapshotHandler->size();
+}
+
+void DebuggerPlugin::remoteCommand(const QStringList &options, const QStringList &)
+{
+    unsigned enabledEngines = 0;
+    QString errorMessage;
+    bool success = false;
+    do {
+        if (!parseArguments(options, &d->m_attachRemoteParameters, &enabledEngines, &errorMessage))
+            break;
+
+        if (!d->attachCmdLine()) {
+            errorMessage = QString::fromLatin1("Incomplete remote attach command received: %1").
+                           arg(options.join(QString(QLatin1Char(' '))));
+            break;
+        }
+        success = true;
+    } while (false);
+
+    if (!success)
+        qWarning("%s", qPrintable(errorMessage));
 }
 
 //////////////////////////////////////////////////////////////////////

@@ -80,6 +80,7 @@ public:
     QVariant configValue(const QString &name) const;
     void setConfigValue(const QString &name, const QVariant &value);
     void updateState(DebuggerEngine *engine);
+    virtual void remoteCommand(const QStringList &options, const QStringList &arguments);
 
     QIcon locationMarkIcon() const;
     void activateDebugMode();
