@@ -665,13 +665,13 @@ Rewriter::Range Rewriter::addObject(UiArrayBinding *ast, const QString &content,
     QString textToInsert;
     if (insertAfter && insertAfter->member) {
         insertionPoint = insertAfter->member->lastSourceLocation().end();
-        textToInsert += QLatin1String("\n");
+        textToInsert = QLatin1String(",\n") + content;
     } else {
         insertionPoint = ast->lbracketToken.end();
+        textToInsert += QLatin1String("\n") + content + QLatin1Char(',');
     }
 
-    textToInsert += content;
-    m_changeSet->insert(insertionPoint, QLatin1String("\n") + textToInsert);
+    m_changeSet->insert(insertionPoint, textToInsert);
 
     return Range(insertionPoint, insertionPoint);
 }
