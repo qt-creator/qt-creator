@@ -367,6 +367,10 @@ void QmlOutlineModel::update(const SemanticInfo &semanticInfo)
     m_treePos.append(0);
     m_currentItem = invisibleRootItem();
 
+    // resetModel() actually gives better average performance
+    // then the incremental updates.
+    beginResetModel();
+
     m_typeToIcon.clear();
     m_itemToNode.clear();
     m_itemToIdNode.clear();
@@ -375,6 +379,8 @@ void QmlOutlineModel::update(const SemanticInfo &semanticInfo)
 
     QmlOutlineModelSync syncModel(this);
     syncModel(m_semanticInfo.document);
+
+    endResetModel();
 
     emit updated();
 }
