@@ -3,7 +3,8 @@ include($$IDE_SOURCE_TREE/src/plugins/qmldesigner/config.pri)
 
 QT += script \
     network \
-    declarative
+    declarative \
+    webkit
 
 CONFIG += qtestlib testcase
 

@@ -45,7 +45,7 @@ public:
     virtual ~SyntaxHighlighter() {}
 
 protected:
-    void SyntaxHighlighter::applyFormatToSpaces(const QString &, const QTextCharFormat &)
+    void applyFormatToSpaces(const QString &, const QTextCharFormat &)
     {}
 };
 

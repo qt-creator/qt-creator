@@ -2,12 +2,13 @@
 #include <Control.h>
 #include <CppDocument.h>
 #include <DiagnosticClient.h>
-#include <InsertionPointLocator.h>
 #include <Scope.h>
 #include <TranslationUnit.h>
 #include <Literals.h>
 #include <Bind.h>
 #include <Symbols.h>
+#include <cpptools/insertionpointlocator.h>
+#include <cpptools/cpprefactoringchanges.h>
 
 #include <QtTest>
 #include <QtDebug>
@@ -20,6 +21,7 @@
     tests the InsertionPointLocator.
  */
 using namespace CPlusPlus;
+using namespace CppTools;
 
 class tst_Codegen: public QObject
 {
@@ -61,7 +63,8 @@ void tst_Codegen::public_in_empty_class()
 
     Snapshot snapshot;
     snapshot.insert(doc);
-    InsertionPointLocator find(snapshot);
+    CppRefactoringChanges changes(snapshot);
+    InsertionPointLocator find(&changes);
     InsertionLocation loc = find.methodDeclarationInClass(
                 doc->fileName(),
                 foo,
@@ -100,7 +103,8 @@ void tst_Codegen::public_in_nonempty_class()
 
     Snapshot snapshot;
     snapshot.insert(doc);
-    InsertionPointLocator find(snapshot);
+    CppRefactoringChanges changes(snapshot);
+    InsertionPointLocator find(&changes);
     InsertionLocation loc = find.methodDeclarationInClass(
                 doc->fileName(),
                 foo,
@@ -139,7 +143,8 @@ void tst_Codegen::public_before_protected()
 
     Snapshot snapshot;
     snapshot.insert(doc);
-    InsertionPointLocator find(snapshot);
+    CppRefactoringChanges changes(snapshot);
+    InsertionPointLocator find(&changes);
     InsertionLocation loc = find.methodDeclarationInClass(
                 doc->fileName(),
                 foo,
@@ -179,7 +184,8 @@ void tst_Codegen::private_after_protected()
 
     Snapshot snapshot;
     snapshot.insert(doc);
-    InsertionPointLocator find(snapshot);
+    CppRefactoringChanges changes(snapshot);
+    InsertionPointLocator find(&changes);
     InsertionLocation loc = find.methodDeclarationInClass(
                 doc->fileName(),
                 foo,
@@ -219,7 +225,8 @@ void tst_Codegen::protected_in_nonempty_class()
 
     Snapshot snapshot;
     snapshot.insert(doc);
-    InsertionPointLocator find(snapshot);
+    CppRefactoringChanges changes(snapshot);
+    InsertionPointLocator find(&changes);
     InsertionLocation loc = find.methodDeclarationInClass(
                 doc->fileName(),
                 foo,
@@ -259,7 +266,8 @@ void tst_Codegen::protected_betwee_public_and_private()
 
     Snapshot snapshot;
     snapshot.insert(doc);
-    InsertionPointLocator find(snapshot);
+    CppRefactoringChanges changes(snapshot);
+    InsertionPointLocator find(&changes);
     InsertionLocation loc = find.methodDeclarationInClass(
                 doc->fileName(),
                 foo,
@@ -319,7 +327,8 @@ void tst_Codegen::qtdesigner_integration()
 
     Snapshot snapshot;
     snapshot.insert(doc);
-    InsertionPointLocator find(snapshot);
+    CppRefactoringChanges changes(snapshot);
+    InsertionPointLocator find(&changes);
     InsertionLocation loc = find.methodDeclarationInClass(
                 doc->fileName(),
                 foo,
