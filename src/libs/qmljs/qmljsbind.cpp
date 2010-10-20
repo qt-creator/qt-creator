@@ -93,6 +93,9 @@ Interpreter::ObjectValue *Bind::findQmlObject(AST::Node *node) const
 bool Bind::usesQmlPrototype(ObjectValue *prototype,
                             const Context *context) const
 {
+    // ### This function is disabled for performance reasons.
+    return false;
+
     foreach (ObjectValue *object, _qmlObjects.values()) {
         const ObjectValue *resolvedPrototype = object->prototype(context);
 
