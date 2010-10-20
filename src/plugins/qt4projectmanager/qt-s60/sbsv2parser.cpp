@@ -65,7 +65,7 @@ void SbsV2Parser::stdOutput(const QString &line)
 {
     // Eat most output!
     if (line.startsWith(QLatin1String("sbs: build log in "))) {
-        QString logfile = line.mid(18).trimmed();
+        QString logfile = QDir::fromNativeSeparators(line.mid(18).trimmed());
         parseLogFile(logfile);
         addTask(ProjectExplorer::Task(Task::Unknown, tr("SBSv2 build log"),
                                       logfile, -1,

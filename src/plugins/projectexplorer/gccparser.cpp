@@ -32,6 +32,8 @@
 #include "taskwindow.h"
 #include "projectexplorerconstants.h"
 
+#include <QtCore/QDir>
+
 using namespace ProjectExplorer;
 
 namespace {
@@ -100,7 +102,7 @@ void GccParser::stdError(const QString &line)
         int lineno = m_regExp.cap(3).toInt();
         Task task(Task::Unknown,
                   m_regExp.cap(8) /* description */,
-                  filename, lineno,
+                  QDir::fromNativeSeparators(filename), lineno,
                   Constants::TASK_CATEGORY_COMPILE);
         if (m_regExp.cap(7) == QLatin1String("warning"))
             task.type = Task::Warning;
@@ -118,7 +120,7 @@ void GccParser::stdError(const QString &line)
     } else if (m_regExpIncluded.indexIn(lne) > -1) {
         emit addTask(Task(Task::Unknown,
                           lne /* description */,
-                          m_regExpIncluded.cap(1) /* filename */,
+                          QDir::fromNativeSeparators(m_regExpIncluded.cap(1)) /* filename */,
                           m_regExpIncluded.cap(3).toInt() /* linenumber */,
                           Constants::TASK_CATEGORY_COMPILE));
         return;

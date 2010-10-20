@@ -41,6 +41,7 @@
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
 
+#include <QtCore/QDir>
 #include <QtCore/QStringList>
 #include <QtCore/QtPlugin>
 
@@ -105,6 +106,7 @@ public:
                 description = chunks.at(3);
             }
             if (!file.isEmpty()) {
+                file = QDir::fromNativeSeparators(file);
                 QFileInfo fi(file);
                 if (fi.isRelative() && context) {
                     QString fullPath = context->projectDirectory() + '/' + file;

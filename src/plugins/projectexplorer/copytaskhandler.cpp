@@ -33,6 +33,7 @@
 
 #include <coreplugin/coreconstants.h>
 
+#include <QtCore/QDir>
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
 #include <QtGui/QClipboard>
@@ -48,16 +49,18 @@ void CopyTaskHandler::handle(const ProjectExplorer::Task &task)
     QString type;
     switch (task.type) {
     case Task::Error:
-        type = tr("error: ", "Task is of type error");
+        //: Task is of type: error
+        type = tr("error: ");
         break;
     case Task::Warning:
-        type = tr("warning: ", "Task is of type warning");
+        //: Task is of type: warning
+        type = tr("warning: ");
         break;
     default:
         break;
     }
 
-    QApplication::clipboard()->setText(task.file + ':' +
+    QApplication::clipboard()->setText(QDir::toNativeSeparators(task.file) + ':' +
                                        QString::number(task.line) + ": "
                                        + type + task.description);
 }

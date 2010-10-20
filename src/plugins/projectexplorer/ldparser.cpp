@@ -31,6 +31,8 @@
 #include "projectexplorerconstants.h"
 #include "taskwindow.h"
 
+#include <QtCore/QDir>
+
 using namespace ProjectExplorer;
 
 namespace {
@@ -98,7 +100,7 @@ void LdParser::stdError(const QString &line)
             && !m_regExpLinker.cap(4).startsWith(QLatin1String("(.text+0x")))
             filename = m_regExpLinker.cap(4);
         QString description = m_regExpLinker.cap(8).trimmed();
-        Task task(Task::Error, description, filename, lineno,
+        Task task(Task::Error, description, QDir::fromNativeSeparators(filename), lineno,
                   Constants::TASK_CATEGORY_COMPILE);
         if (m_regExpInFunction.indexIn(description) > -1 ||
             description.startsWith(QLatin1String("At global scope")) ||

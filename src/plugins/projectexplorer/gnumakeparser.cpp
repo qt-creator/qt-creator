@@ -87,7 +87,7 @@ void GnuMakeParser::stdError(const QString &line)
             m_suppressIssues = true;
             addTask(Task(Task::Error,
                          m_makefileError.cap(3),
-                         m_makefileError.cap(1),
+                         QDir::fromNativeSeparators(m_makefileError.cap(1)),
                          m_makefileError.cap(2).toInt(),
                          Constants::TASK_CATEGORY_BUILDSYSTEM));
         }

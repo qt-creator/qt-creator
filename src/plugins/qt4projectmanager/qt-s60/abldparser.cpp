@@ -32,6 +32,8 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskwindow.h>
 
+#include <QtCore/QDir>
+
 using namespace Qt4ProjectManager;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Constants;
@@ -73,7 +75,7 @@ void AbldParser::stdOutput(const QString &line)
 
     if (m_perlIssue.indexIn(lne) > -1) {
         m_waitingForStdOutContinuation = true;
-        m_currentFile = m_perlIssue.cap(2);
+        m_currentFile = QDir::fromNativeSeparators(m_perlIssue.cap(2));
         m_currentLine = m_perlIssue.cap(3).toInt();
 
         Task task(Task::Unknown,
@@ -143,7 +145,7 @@ void AbldParser::stdError(const QString &line)
     }
 
     if (lne.startsWith(QLatin1String("MMPFILE \""))) {
-        m_currentFile = lne.mid(9, lne.size() - 10);
+        m_currentFile = QDir::fromNativeSeparators(lne.mid(9, lne.size() - 10));
         m_waitingForStdErrContinuation = false;
         return;
     }
