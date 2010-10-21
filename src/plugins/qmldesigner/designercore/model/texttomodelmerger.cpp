@@ -77,7 +77,27 @@ static inline QString deEscape(const QString &value)
 
     return result;
 }
+ 
+static inline int fixUpMajorVersionForQtQuick(const QString &value, int i)
+{
+    if (i = 1 && value == "QtQuick")
+        return 4;
+    else return i;
+}
 
+static inline int fixUpMinorVersionForQtQuick(const QString &value, int i)
+{
+    if (i = 0 && value == "QtQuick")
+        return 7;
+    else return i;
+}
+
+static inline QString fixUpPackeNameForQtQuick(const QString &value)
+{
+    if (value == "QtQuick")
+        return "Qt";
+    return value;
+}
 
 static inline bool isSignalPropertyName(const QString &signalName)
 {
@@ -232,9 +252,11 @@ public:
 
         const Interpreter::QmlObjectValue * qmlValue = dynamic_cast<const Interpreter::QmlObjectValue *>(value);
         if (qmlValue) {
-            typeName = qmlValue->packageName() + QLatin1String("/") + qmlValue->className();
-            majorVersion = qmlValue->version().major();
-            minorVersion = qmlValue->version().minor();
+            typeName = fixUpPackeNameForQtQuick(qmlValue->packageName()) + QLatin1String("/") + qmlValue->className();
+
+            //### todo this is just a hack to support QtQuick 1.0
+            majorVersion = fixUpMajorVersionForQtQuick(qmlValue->packageName(), qmlValue->version().major());
+            minorVersion = fixUpMinorVersionForQtQuick(qmlValue->packageName(), qmlValue->version().minor());
         } else {
             for (UiQualifiedId *iter = astTypeNode; iter; iter = iter->next)
                 if (!iter->next && iter->name)
@@ -589,17 +611,6 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         ReadingContext ctxt(snapshot, doc, importPaths);
 
         setupImports(doc, differenceHandler);
-
-        foreach (const Import &import, m_rewriterView->model()->imports()) {
-            if (import.url() == "QtQuick") {
-                QList<RewriterView::Error> errors;
-                RewriterView::Error error(QCoreApplication::translate("QmlDesigner::TextToModelMerger",
-                    "Unsupported import:\nimport QtQuick 1.0 use import Qt 4.7 instead"));
-                errors.append(error);
-                m_rewriterView->setErrors(errors);
-                return false;
-            }
-        }
 
         UiObjectMember *astRootNode = 0;
         if (UiProgram *program = doc->qmlProgram())
