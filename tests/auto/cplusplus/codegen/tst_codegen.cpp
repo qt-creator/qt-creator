@@ -9,6 +9,8 @@
 #include <Symbols.h>
 #include <cpptools/insertionpointlocator.h>
 #include <cpptools/cpprefactoringchanges.h>
+#include <cpptools/cpptoolsplugin.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <QtTest>
 #include <QtDebug>
@@ -28,6 +30,8 @@ class tst_Codegen: public QObject
     Q_OBJECT
 
 private slots:
+    void initTestCase();
+    void cleanupTestCase();
     void public_in_empty_class();
     void public_in_nonempty_class();
     void public_before_protected();
@@ -35,8 +39,23 @@ private slots:
     void protected_in_nonempty_class();
     void protected_betwee_public_and_private();
     void qtdesigner_integration();
+private:
+    ExtensionSystem::PluginManager *pluginManager;
 };
 
+void tst_Codegen::initTestCase()
+{
+    pluginManager = new ExtensionSystem::PluginManager;
+    pluginManager->setFileExtension(QLatin1String("pluginspec"));
+    pluginManager->setPluginPaths(QStringList() << QLatin1String(Q_PLUGIN_PATH));
+    pluginManager->loadPlugins();
+}
+
+void tst_Codegen::cleanupTestCase()
+{
+    pluginManager->shutdown();
+    delete pluginManager;
+}
 /*!
     Should insert at line 3, column 1, with "public:\n" as prefix and without suffix.
  */
@@ -340,5 +359,5 @@ void tst_Codegen::qtdesigner_integration()
     QCOMPARE(loc.column(), 1U);
 }
 
-QTEST_APPLESS_MAIN(tst_Codegen)
+QTEST_MAIN(tst_Codegen)
 #include "tst_codegen.moc"
