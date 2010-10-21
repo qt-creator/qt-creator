@@ -32,7 +32,9 @@ HEADERS += \
     $$PWD/maemomountspecification.h \
     $$PWD/maemoremotemounter.h \
     $$PWD/maemoprofilesupdatedialog.h \
-    $$PWD/maemousedportsgatherer.h
+    $$PWD/maemousedportsgatherer.h \
+    $$PWD/maemoremoteprocesslist.h \
+    $$PWD/maemoremoteprocessesdialog.h
 
 SOURCES += \
     $$PWD/maemoconfigtestdialog.cpp \
@@ -66,7 +68,9 @@ SOURCES += \
     $$PWD/maemomountspecification.cpp \
     $$PWD/maemoremotemounter.cpp \
     $$PWD/maemoprofilesupdatedialog.cpp \
-    $$PWD/maemousedportsgatherer.cpp
+    $$PWD/maemousedportsgatherer.cpp \
+    $$PWD/maemoremoteprocesslist.cpp \
+    $$PWD/maemoremoteprocessesdialog.cpp
 
 FORMS += \
     $$PWD/maemoconfigtestdialog.ui \
@@ -74,6 +78,7 @@ FORMS += \
     $$PWD/maemosshconfigdialog.ui \
     $$PWD/maemopackagecreationwidget.ui \
     $$PWD/maemodeploystepwidget.ui \
-    $$PWD/maemoprofilesupdatedialog.ui
+    $$PWD/maemoprofilesupdatedialog.ui \
+    $$PWD/maemoremoteprocessesdialog.ui
 
 RESOURCES += $$PWD/qt-maemo.qrc

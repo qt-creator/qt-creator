@@ -38,6 +38,7 @@
 
 #include "maemoconfigtestdialog.h"
 #include "maemodeviceconfigurations.h"
+#include "maemoremoteprocessesdialog.h"
 #include "maemosshconfigdialog.h"
 
 #include <coreplugin/ssh/sshremoteprocessrunner.h>
@@ -340,6 +341,12 @@ void MaemoSettingsWidget::showGenerateSshKeyDialog()
 {
     MaemoSshConfigDialog dialog(this);
     dialog.exec();
+}
+
+void MaemoSettingsWidget::showRemoteProcesses()
+{
+    MaemoRemoteProcessesDialog dlg(currentConfig().server, this);
+    dlg.exec();
 }
 
 void MaemoSettingsWidget::setPrivateKey(const QString &path)

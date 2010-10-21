@@ -369,6 +369,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="remoteProcessesButton">
+       <property name="text">
+        <string>Remote Processes ...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="verticalSpacer">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -438,7 +445,7 @@
    <slot>userNameEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>425</x>
+     <x>384</x>
      <y>302</y>
     </hint>
     <hint type="destinationlabel">
@@ -454,7 +461,7 @@
    <slot>passwordEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>297</x>
+     <x>256</x>
      <y>334</y>
     </hint>
     <hint type="destinationlabel">
@@ -534,7 +541,7 @@
    <slot>keyFileEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>425</x>
+     <x>384</x>
      <y>356</y>
     </hint>
     <hint type="destinationlabel">
@@ -550,7 +557,7 @@
    <slot>keyFileEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>425</x>
+     <x>384</x>
      <y>356</y>
     </hint>
     <hint type="destinationlabel">
@@ -710,7 +717,7 @@
    <slot>showPassword(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>424</x>
+     <x>383</x>
      <y>332</y>
     </hint>
     <hint type="destinationlabel">
@@ -735,6 +742,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>remoteProcessesButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MaemoSettingsWidget</receiver>
+   <slot>showRemoteProcesses()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>443</x>
+     <y>183</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>598</x>
+     <y>378</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>configNameEditingFinished()</slot>
@@ -756,5 +779,6 @@
   <slot>showGenerateSshKeyDialog()</slot>
   <slot>showPassword(bool)</slot>
   <slot>handleFreePortsChanged()</slot>
+  <slot>showRemoteProcesses()</slot>
  </slots>
 </ui>
