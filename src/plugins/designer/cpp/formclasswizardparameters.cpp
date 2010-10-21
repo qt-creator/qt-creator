@@ -422,8 +422,8 @@ bool FormClassWizardParametersPrivate::generateCpp(const FormClassWizardGenerati
     sourceStr << '\n' << namespaceIndent << unqualifiedClassName << "::" << unqualifiedClassName << "(QWidget *parent) :\n"
                << namespaceIndent << indent << formBaseClass << "(parent)";
     if (embedding == FormClassWizardGenerationParameters::PointerAggregatedUiClass)
-        sourceStr << ",\n"  << namespaceIndent << indent <<  uiMemberC << "(new " << uiClassName << ")\n";
-    sourceStr <<  namespaceIndent << "{\n" <<  namespaceIndent << indent;
+        sourceStr << ",\n"  << namespaceIndent << indent <<  uiMemberC << "(new " << uiClassName << ")";
+    sourceStr <<  '\n' << namespaceIndent << "{\n" <<  namespaceIndent << indent;
     writeUiMemberAccess(generationParameters, sourceStr);
     sourceStr <<  "setupUi(this);\n" << namespaceIndent << "}\n";
     // Deleting destructor for ptr
