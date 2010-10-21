@@ -1,5 +1,5 @@
+include(../../qttest.pri)
 QT += gui
-CONFIG += qtestlib testcase
 
 PLUGINSDIR = ../../../../src/plugins
 GENERICHIGHLIGHTERDIR = $$PLUGINSDIR/texteditor/generichighlighter

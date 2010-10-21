@@ -1,4 +1,4 @@
-CONFIG += qtestlib testcase
+include(../../qttest.pri)
 
 PLUGINSDIR = ../../../../src/plugins
 

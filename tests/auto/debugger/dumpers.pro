@@ -1,4 +1,4 @@
-CONFIG += qtestlib testcase
+include(../qttest.pri)
 
 DEBUGGERDIR = ../../../src/plugins/debugger
 UTILSDIR    = ../../../src/libs

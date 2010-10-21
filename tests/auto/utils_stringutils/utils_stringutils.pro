@@ -1,6 +1,4 @@
-CONFIG += qtestlib testcase
-TEMPLATE = app
-CONFIG -= app_bundle
+include(../qttest.pri)
 DEFINES += QTCREATOR_UTILS_LIB
 
 UTILS_PATH = ../../../src/libs/utils

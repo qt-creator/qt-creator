@@ -1,4 +1,4 @@
-CONFIG += qtestlib testcase
+include(../qttest.pri)
 
 # Defines import symbol as empty
 DEFINES+=QTCREATOR_UTILS_STATIC_LIB

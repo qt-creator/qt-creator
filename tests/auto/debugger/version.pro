@@ -1,5 +1,4 @@
-CONFIG += qtestlib testcase
-QT -= gui
+include(../qttest.pri)
 
 UTILSDIR    = ../../../src/libs
 

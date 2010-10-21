@@ -1,6 +1,4 @@
-CONFIG += qtestlib testcase
-TEMPLATE = app
-CONFIG -= app_bundle
+include(../qttest.pri)
 DEFINES += AGGREGATION_LIBRARY
 
 AGGREGATION_PATH = ../../../src/libs/aggregation
