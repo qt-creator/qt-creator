@@ -753,9 +753,6 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     connect(this, SIGNAL(refactorMarkerClicked(TextEditor::Internal::RefactorMarker)),
             SLOT(onRefactorMarkerClicked(TextEditor::Internal::RefactorMarker)));
 
-    connect(editableInterface(), SIGNAL(tooltipRequested(TextEditor::ITextEditor*, QPoint, int)),
-            SLOT(onTooltipRequested(TextEditor::ITextEditor*, QPoint, int)));
-
     setRequestMarkEnabled(true);
 }
 
