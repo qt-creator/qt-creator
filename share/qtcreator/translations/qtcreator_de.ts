@@ -2025,7 +2025,7 @@ Sollen sie überschrieben werden?</translation>
     </message>
     <message>
         <source>Configure...</source>
-        <translation>Einstellungen...</translation>
+        <translation type="obsolete">Einstellungen...</translation>
     </message>
 </context>
 <context>
@@ -3528,7 +3528,7 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
     </message>
     <message>
         <source>Open Memory Editor at 0x%1</source>
-        <translation>Speicher-Editor bei %1 öffnen</translation>
+        <translation>Speicher-Editor bei 0x%1 öffnen</translation>
     </message>
     <message>
         <source>Open Disassembler at 0x%1</source>
@@ -4091,7 +4091,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Configure...</source>
-        <translation>Einstellungen...</translation>
+        <translation type="obsolete">Einstellungen...</translation>
     </message>
     <message>
         <source>Choose a Class Name</source>
@@ -5641,6 +5641,10 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>Diff für Projekt &quot;%1&quot;</translation>
     </message>
     <message>
+        <source>Undo Uncommited Changes...</source>
+        <translation>Ausstehende Änderungen rückgängig machen...</translation>
+    </message>
+    <message>
         <source>Stashes...</source>
         <translation>Stashes...</translation>
     </message>
@@ -5674,11 +5678,11 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>Undo Uncommitted Changes</source>
-        <translation>Nicht eingetragene Änderungen rückgängig machen</translation>
+        <translation>Ausstehende Änderungen rückgängig machen</translation>
     </message>
     <message>
         <source>Undo Uncommitted Changes for &quot;%1&quot;</source>
-        <translation>Nicht eingetragene Änderungen in &quot;%1&quot; rückgängig machen</translation>
+        <translation>Ausstehende Änderungen in &quot;%1&quot; rückgängig machen</translation>
     </message>
     <message>
         <source>Clean Project...</source>
@@ -5749,6 +5753,17 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>Log</translation>
     </message>
     <message>
+        <source>Undo all pending changes to the repository
+%1?</source>
+        <translation>Möchten Sie alle ausstehenden Änderungen des Repositories
+%1
+rückgängig machen?</translation>
+    </message>
+    <message>
+        <source>Undo Changes</source>
+        <translation>Änderungen rückgängig machen</translation>
+    </message>
+    <message>
         <source>Closing Git Editor</source>
         <translation>Git-Editor schließen</translation>
     </message>
@@ -5782,7 +5797,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>Reset...</source>
-        <translation>Repository Zurücksetzen...</translation>
+        <translation type="obsolete">Repository Zurücksetzen...</translation>
     </message>
     <message>
         <source>Clean...</source>
@@ -5823,11 +5838,11 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <source>Revert all pending changes to the repository
 %1?</source>
-        <translation>Möchten Sie alle ausstehenden Änderungen des Repositories %1 rückgängig machen?</translation>
+        <translation type="obsolete">Möchten Sie alle ausstehenden Änderungen des Repositories %1 rückgängig machen?</translation>
     </message>
     <message>
         <source>Revert</source>
-        <translation>Rückgängig machen</translation>
+        <translation type="obsolete">Rückgängig machen</translation>
     </message>
     <message>
         <source>Another submit is currently being executed.</source>
@@ -5955,7 +5970,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>Omit date from annotation output</source>
-        <translation>Datum in Annotation weglassen</translation>
+        <translation type="obsolete">Datum in Annotation weglassen</translation>
     </message>
     <message>
         <source>Miscellaneous</source>
@@ -6003,7 +6018,15 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>Ignore whitespace changes in annotation and diff</source>
-        <translation>Änderungen der Leerzeichen bei Annotation und Diff weglassen</translation>
+        <translation type="obsolete">Änderungen der Leerzeichen bei Annotation und Diff weglassen</translation>
+    </message>
+    <message>
+        <source>Omit date from blame output</source>
+        <translation>Datum bei Blame-Ausgabe weglassen</translation>
+    </message>
+    <message>
+        <source>Ignore whitespace changes in blame and diff</source>
+        <translation>Änderungen der Leerzeichen bei Blame- und Diff-Ausgabe weglassen</translation>
     </message>
 </context>
 <context>
@@ -7980,12 +8003,12 @@ Fehler: %2</translation>
     </message>
     <message>
         <source>No Executable specified.</source>
-        <translation>Es wurde keine ausführbaren Datei angegeben.
+        <translation type="obsolete">Es wurde keine ausführbaren Datei angegeben.
 </translation>
     </message>
     <message>
         <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2</source>
-        <translation>Führe aus: &lt;b&gt;%1&lt;/b&gt; %2</translation>
+        <translation type="obsolete">Führe aus: &lt;b&gt;%1&lt;/b&gt; %2</translation>
     </message>
 </context>
 <context>
@@ -8595,7 +8618,7 @@ konnte dem Projekt &apos;%2&apos; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>F5</source>
-        <translation>F5</translation>
+        <translation type="obsolete">F5</translation>
     </message>
     <message>
         <source>Add New...</source>
@@ -13104,6 +13127,14 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Invalid regular expression flag &apos;%0&apos;</source>
         <translation>Ungültiger Modifikator für regulären Ausdruck &apos;%0&apos;</translation>
+    </message>
+    <message>
+        <source>Unterminated regular expression backslash sequence</source>
+        <translation>Der reguläre Ausdruck endet mit einer nicht abgeschlossenen Backslash-Sequenz</translation>
+    </message>
+    <message>
+        <source>Unterminated regular expression class</source>
+        <translation>Nicht abgeschlossene Zeichenklassenangabe innerhalb des regulären Ausdrucks</translation>
     </message>
     <message>
         <source>Syntax error</source>
@@ -17889,6 +17920,14 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>Die Paketdateien konnten nicht von %1 zu %2 verschoben werden.</translation>
     </message>
     <message>
+        <source>Packaging failed: Foreign debian directory detected.</source>
+        <translation>Fehlschlag bei Paketerstellung: Es wurde ein fremder Debian-Ordner festgestellt.</translation>
+    </message>
+    <message>
+        <source>You are not using a shadow build and there is a debian directory in your project root (&apos;%1&apos;). Qt Creator will not overwrite that directory. Please remove it or use the shadow build feature.</source>
+        <translation>Sie verwenden keinen Shadow-Build und es befindet sich ein Debian-Ordner im Hauptordner Ihres Projektes (&apos;%1&apos;). Qt Creator wird diesen Ordner nicht überschreiben. Bitte entfernen Sie den Ordner oder verwenden Sie einen Shadow-Build.</translation>
+    </message>
+    <message>
         <source>Could not remove directory &apos;%1&apos;.</source>
         <translation>Der Ordner %1 konnte nicht entfernt werden.</translation>
     </message>
@@ -17899,6 +17938,10 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;</source>
         <translation>Die Datei &apos;%1&apos; konnte nicht nach &apos;%2&apos; kopiert werden</translation>
+    </message>
+    <message>
+        <source>Error: Could not create create file &apos;%1&apos;.</source>
+        <translation>Fehler: Die Datei &apos;%1&apos; konnte nicht erstellt werden.</translation>
     </message>
     <message>
         <source>Packaging error: Could not start command &apos;%1&apos;. Reason: %2</source>
@@ -18255,7 +18298,7 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
     </message>
     <message>
         <source>Warning: Cannot build qmldump; Qt version must be 4.7.1 or higher.</source>
-        <translation>Warnung: Der QML-Beobachter kann nicht erstellt werden, da er Qt-Version 4.7.1 oder höher erfordert.</translation>
+        <translation>Warnung: Das Werkzeug qmldump kann nicht erstellt werden, da es Qt-Version 4.7.1 oder höher erfordert.</translation>
     </message>
 </context>
 <context>
@@ -20839,12 +20882,20 @@ Fehlerausgabe: %1</translation>
 <context>
     <name>Qt4ProjectManager::Internal::MaemoTemplatesManager</name>
     <message>
+        <source>Error creating Maemo packaging directory &apos;%1&apos;.</source>
+        <translation>Fehler beim Anlegen des Maemo-Paket-Ordners &apos;%1&apos;</translation>
+    </message>
+    <message>
         <source>Unable to create Debian templates: dh_make failed (%1)</source>
         <translation>Es konnten keine Debian-Vorlagedateien erstellt werden: dh_make schlug fehl (%1)</translation>
     </message>
     <message>
         <source>Unable to create debian templates: dh_make failed (%1)</source>
         <translation>Es konnten keine Debian-Vorlagedateien erstellt werden: dh_make schlug fehl (%1)</translation>
+    </message>
+    <message>
+        <source>Unable to move new debian directory to &apos;%1&apos;.</source>
+        <translation>Der Debian-Ordner konnte nicht zu %1 verschoben werden.</translation>
     </message>
     <message>
         <source>Packaging Error: Cannot open file &apos;%1&apos;.</source>
