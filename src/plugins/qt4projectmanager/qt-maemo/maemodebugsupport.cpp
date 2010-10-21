@@ -230,12 +230,11 @@ void MaemoDebugSupport::startDebugging()
     if (useGdb()) {
         handleAdapterSetupDone();
     } else {
+        m_gdbserverOutput.clear();
         connect(m_runner, SIGNAL(remoteErrorOutput(QByteArray)), this,
             SLOT(handleRemoteErrorOutput(QByteArray)));
         connect(m_runner, SIGNAL(remoteOutput(QByteArray)), this,
             SLOT(handleRemoteOutput(QByteArray)));
-        connect(m_runner, SIGNAL(remoteProcessStarted()), this,
-            SLOT(handleRemoteProcessStarted()));
         const QString &remoteExe = m_runConfig->remoteExecutableFilePath();
         const QString cmdPrefix = MaemoGlobal::remoteCommandPrefix(remoteExe);
         const QString env = environment(m_runConfig);
@@ -248,11 +247,6 @@ void MaemoDebugSupport::startDebugging()
                   .arg(remoteExe).arg(args);
         m_runner->startExecution(remoteCommandLine.toUtf8());
     }
-}
-
-void MaemoDebugSupport::handleRemoteProcessStarted()
-{
-    handleAdapterSetupDone();
 }
 
 void MaemoDebugSupport::handleDebuggingFinished()
@@ -269,6 +263,13 @@ void MaemoDebugSupport::handleRemoteOutput(const QByteArray &output)
 void MaemoDebugSupport::handleRemoteErrorOutput(const QByteArray &output)
 {
     m_runControl->showMessage(QString::fromUtf8(output), AppOutput);
+    if (!m_adapterStarted && !useGdb() && !m_qmlOnlyDebugging) {
+        m_gdbserverOutput += output;
+        if (m_gdbserverOutput.contains("Listening on port")) {
+            handleAdapterSetupDone();
+            m_gdbserverOutput.clear();
+        }
+    }
 }
 
 void MaemoDebugSupport::handleProgressReport(const QString &progressOutput)

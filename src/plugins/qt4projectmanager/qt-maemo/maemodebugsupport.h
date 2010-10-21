@@ -75,7 +75,6 @@ private slots:
     void handleSftpChannelInitialized();
     void handleSftpChannelInitializationFailed(const QString &error);
     void handleSftpJobFinished(Core::SftpJobId job, const QString &error);
-    void handleRemoteProcessStarted();
     void handleDebuggingFinished();
     void handleRemoteOutput(const QByteArray &output);
     void handleRemoteErrorOutput(const QByteArray &output);
@@ -102,6 +101,7 @@ private:
     Core::SftpJobId m_uploadJob;
     bool m_adapterStarted;
     bool m_stopped;
+    QByteArray m_gdbserverOutput;
 };
 
 } // namespace Internal
