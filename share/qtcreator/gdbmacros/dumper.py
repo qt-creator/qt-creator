@@ -1745,15 +1745,18 @@ class ThreadNamesCommand(gdb.Command):
                 if e == None or e.name() == None:
                     break
                 if e.name() == ns + "QThreadPrivate::start":
-                    thrptr = e.read_var("thr").dereference()
-                    obtype = lookupType(ns + "QObjectPrivate").pointer()
-                    d_ptr = thrptr["d_ptr"]["d"].cast(obtype).dereference()
-                    objectName = d_ptr["objectName"]
-                    out += '{valueencoded="';
-                    out += str(Hex4EncodedLittleEndianWithoutQuotes)+'",id="'
-                    out += str(thread.num) + '",value="'
-                    out += encodeString(objectName)
-                    out += '"},'
+                    try:
+                        thrptr = e.read_var("thr").dereference()
+                        obtype = lookupType(ns + "QObjectPrivate").pointer()
+                        d_ptr = thrptr["d_ptr"]["d"].cast(obtype).dereference()
+                        objectName = d_ptr["objectName"]
+                        out += '{valueencoded="';
+                        out += str(Hex4EncodedLittleEndianWithoutQuotes)+'",id="'
+                        out += str(thread.num) + '",value="'
+                        out += encodeString(objectName)
+                        out += '"},'
+                    except:
+                        pass
         print out[:-1] + ']'
 
 ThreadNamesCommand()
