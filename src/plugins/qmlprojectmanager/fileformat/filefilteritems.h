@@ -54,12 +54,15 @@ private:
     QString absolutePath(const QString &path) const;
     QString absoluteDir() const;
 
+    bool fileMatches(const QString &fileName) const;
     QSet<QString> filesInSubTree(const QDir &rootDir, const QDir &dir, QSet<QString> *parsedDirs = 0);
 
     QString m_rootDir;
     QString m_defaultDir;
 
     QString m_filter;
+    // simple "*.png" patterns are stored in m_fileSuffixes, otherwise store in m_regExpList
+    QList<QString> m_fileSuffixes;
     QList<QRegExp> m_regExpList;
 
     enum RecursiveOption {

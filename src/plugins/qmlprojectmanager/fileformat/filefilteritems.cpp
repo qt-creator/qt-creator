@@ -47,7 +47,21 @@ void FileFilterBaseItem::setFilter(const QString &filter)
     m_filter = filter;
 
     m_regExpList.clear();
+    m_fileSuffixes.clear();
+
     foreach (const QString &pattern, filter.split(QLatin1Char(';'))) {
+        if (pattern.isEmpty())
+            continue;
+        // decide if it's a canonical pattern like *.x
+        if (pattern.startsWith(QLatin1String("*."))) {
+            const QString suffix = pattern.right(pattern.size() - 1);
+            if (!suffix.contains(QLatin1Char('*'))
+                    && !suffix.contains(QLatin1Char('?'))
+                    && !suffix.contains(QLatin1Char('['))) {
+                m_fileSuffixes << suffix;
+                continue;
+            }
+        }
         m_regExpList << QRegExp(pattern, Qt::CaseInsensitive, QRegExp::Wildcard);
     }
 
@@ -113,16 +127,9 @@ bool FileFilterBaseItem::matchesFile(const QString &filePath) const
             return true;
     }
 
-    bool regexMatches = false;
     const QString &fileName = QFileInfo(filePath).fileName();
-    foreach (const QRegExp &exp, m_regExpList) {
-        if (exp.exactMatch(fileName)) {
-            regexMatches = true;
-            break;
-        }
-    }
 
-    if (!regexMatches)
+    if (!fileMatches(fileName))
         return false;
 
     const QDir fileDir = QFileInfo(filePath).absoluteDir();
@@ -164,7 +171,7 @@ void FileFilterBaseItem::updateFileList()
     foreach (const QString &explicitPath, m_explicitFiles) {
         newFiles << absolutePath(explicitPath);
     }
-    if (!m_regExpList.isEmpty() && m_explicitFiles.isEmpty())
+    if ((!m_fileSuffixes.isEmpty() || !m_regExpList.isEmpty()) && m_explicitFiles.isEmpty())
         newFiles += filesInSubTree(QDir(m_defaultDir), QDir(projectDir), &dirsToBeWatched);
 
     if (newFiles != m_files) {
@@ -190,6 +197,23 @@ void FileFilterBaseItem::updateFileList()
         m_dirWatcher.addDirectories(watchDirs.toList());
 }
 
+bool FileFilterBaseItem::fileMatches(const QString &fileName) const
+{
+    foreach (const QString &suffix, m_fileSuffixes) {
+        if (fileName.endsWith(suffix, Qt::CaseInsensitive)) {
+            return true;
+        }
+    }
+
+    foreach (const QRegExp &filter, m_regExpList) {
+        if (filter.exactMatch(fileName)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 QSet<QString> FileFilterBaseItem::filesInSubTree(const QDir &rootDir, const QDir &dir, QSet<QString> *parsedDirs)
 {
     QSet<QString> fileSet;
@@ -199,12 +223,9 @@ QSet<QString> FileFilterBaseItem::filesInSubTree(const QDir &rootDir, const QDir
 
     foreach (const QFileInfo &file, dir.entryInfoList(QDir::Files)) {
         const QString fileName = file.fileName();
-        foreach (const QRegExp &filter, m_regExpList) {
-            if (filter.exactMatch(fileName)) {
-                fileSet.insert(file.absoluteFilePath());
-                break;
-            }
-        }
+
+        if (fileMatches(fileName))
+            fileSet.insert(file.absoluteFilePath());
     }
 
     if (recursive()) {
