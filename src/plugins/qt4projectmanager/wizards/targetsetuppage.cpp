@@ -85,6 +85,13 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
             this, SLOT(contextMenuRequested(QPoint)));
 }
 
+void TargetSetupPage::initializePage()
+{
+    // WORKAROUND: Somebody sets all buttons to autoDefault between the ctor and here!
+    m_ui->importButton->setAutoDefault(false);
+    m_ui->uncheckButton->setAutoDefault(false);
+}
+
 TargetSetupPage::~TargetSetupPage()
 {
     resetInfos();

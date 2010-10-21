@@ -96,6 +96,8 @@ public:
     explicit TargetSetupPage(QWidget* parent = 0);
     ~TargetSetupPage();
 
+    void initializePage();
+
     void setImportInfos(const QList<ImportInfo> &infos);
     QList<ImportInfo> importInfos() const;
 
