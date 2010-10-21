@@ -304,26 +304,25 @@ void NavigationWidget::saveSettings(QSettings *settings)
         d->m_subWidgets.at(i)->saveSettings();
         viewIds.append(d->m_subWidgets.at(i)->factory()->id());
     }
-    settings->setValue("Navigation/Views", viewIds);
-    settings->setValue("Navigation/Visible", isShown());
-    settings->setValue("Navigation/VerticalPosition", saveState());
-    settings->setValue("Navigation/Width", d->m_width);
+    settings->setValue(QLatin1String("Navigation/Views"), viewIds);
+    settings->setValue(QLatin1String("Navigation/Visible"), isShown());
+    settings->setValue(QLatin1String("Navigation/VerticalPosition"), saveState());
+    settings->setValue(QLatin1String("Navigation/Width"), d->m_width);
 }
 
 void NavigationWidget::restoreSettings(QSettings *settings)
 {
-    int version = settings->value("Navigation/Version", 1).toInt();
-    QStringList viewIds = settings->value("Navigation/Views").toStringList();
+    int version = settings->value(QLatin1String("Navigation/Version"), 1).toInt();
+    QStringList viewIds = settings->value(QLatin1String("Navigation/Views"),
+                                          QStringList("Projects")).toStringList();
 
     bool restoreSplitterState = true;
     if (version == 1) {
-        if (viewIds.isEmpty())
-            viewIds += "Projects";
-        if (!viewIds.contains("Open Documents")) {
-            viewIds += "Open Documents";
+        if (!viewIds.contains(QLatin1String("Open Documents"))) {
+            viewIds += QLatin1String("Open Documents");
             restoreSplitterState = false;
         }
-        settings->setValue("Navigation/Version", 2);
+        settings->setValue(QLatin1String("Navigation/Version"), 2);
     }
 
     int position = 0;
@@ -342,14 +341,10 @@ void NavigationWidget::restoreSettings(QSettings *settings)
         // Make sure we have at least the projects widget
         insertSubItem(0, qMax(0, factoryIndex(QLatin1String("Projects"))));
 
-    if (settings->contains("Navigation/Visible")) {
-        setShown(settings->value("Navigation/Visible").toBool());
-    } else {
-        setShown(true);
-    }
+    setShown(settings->value(QLatin1String("Navigation/Visible"), true).toBool());
 
-    if (restoreSplitterState && settings->contains("Navigation/VerticalPosition")) {
-        restoreState(settings->value("Navigation/VerticalPosition").toByteArray());
+    if (restoreSplitterState && settings->contains(QLatin1String("Navigation/VerticalPosition"))) {
+        restoreState(settings->value(QLatin1String("Navigation/VerticalPosition")).toByteArray());
     } else {
         QList<int> sizes;
         sizes += 256;
@@ -358,17 +353,13 @@ void NavigationWidget::restoreSettings(QSettings *settings)
         setSizes(sizes);
     }
 
-    if (settings->contains("Navigation/Width")) {
-        d->m_width = settings->value("Navigation/Width").toInt();
-        if (!d->m_width)
-            d->m_width = 240;
-    } else {
-        d->m_width = 240; //pixel
-    }
+    d->m_width = settings->value(QLatin1String("Navigation/Width"), 240).toInt();
+    if (d->width < 40)
+        d->width = 40;
+
     // Apply
-    if (NavigationWidgetPlaceHolder::m_current) {
+    if (NavigationWidgetPlaceHolder::m_current)
         NavigationWidgetPlaceHolder::m_current->applyStoredSize(d->m_width);
-    }
 }
 
 void NavigationWidget::closeSubWidgets()
