@@ -112,7 +112,15 @@ QStringList Qt4TargetFactory::availableCreationIds(ProjectExplorer::Project *par
     if (!qobject_cast<Qt4Project *>(parent))
         return QStringList();
 
-    return parent->possibleTargetIds().toList();
+    QSet<QString> ids;
+    ids << QLatin1String("Qt4ProjectManager.Target.DesktopTarget")
+        << QLatin1String("Qt4ProjectManager.Target.S60EmulatorTarget")
+        << QLatin1String("Qt4ProjectManager.Target.S60DeviceTarget")
+        << QLatin1String("Qt4ProjectManager.Target.MaemoDeviceTarget")
+        << QLatin1String("Qt4ProjectManager.Target.QtSimulatorTarget");
+
+
+    return parent->possibleTargetIds().intersect(ids).toList();
 }
 
 QString Qt4TargetFactory::displayNameForId(const QString &id) const
