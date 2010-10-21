@@ -165,7 +165,6 @@ NavigationWidget::NavigationWidget(QAction *toggleSideBarAction) :
 {
     d->m_factoryModel->setSortRole(FactoryPriorityRole);
     setOrientation(Qt::Vertical);
-    insertSubItem(0, -1); // we don't have any entry to show yet
     d->m_instance = this;
 }
 
@@ -327,16 +326,21 @@ void NavigationWidget::restoreSettings(QSettings *settings)
         settings->setValue("Navigation/Version", 2);
     }
 
-    for (int i=0; i<viewIds.count(); ++i) {
-        const QString &view = viewIds.at(i);
-        int index = factoryIndex(view);
-
-        if (i >= d->m_subWidgets.size()) {
-            insertSubItem(i, index);
+    int position = 0;
+    foreach (const QString &id, viewIds) {
+        int index = factoryIndex(id);
+        if (index >= 0) {
+            // Only add if the id was actually found!
+            insertSubItem(position, index);
+            ++position;
         } else {
-            d->m_subWidgets.at(i)->setFactoryIndex(index);
+            restoreSplitterState = false;
         }
     }
+
+    if (d->m_subWidgets.isEmpty())
+        // Make sure we have at least the projects widget
+        insertSubItem(0, qMax(0, factoryIndex(QLatin1String("Projects"))));
 
     if (settings->contains("Navigation/Visible")) {
         setShown(settings->value("Navigation/Visible").toBool());
