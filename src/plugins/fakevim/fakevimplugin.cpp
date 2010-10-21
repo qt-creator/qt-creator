@@ -491,10 +491,10 @@ public:
     friend class FakeVimExCommandsPage;
 
     bool initialize();
-    void onCoreAboutToClose();
     void aboutToShutdown();
 
 private slots:
+    void onCoreAboutToClose();
     void editorOpened(Core::IEditor *);
     void editorAboutToClose(Core::IEditor *);
 
