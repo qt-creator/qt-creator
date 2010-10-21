@@ -111,6 +111,7 @@ MaemoSettingsWidget::~MaemoSettingsWidget()
 {
     if (m_saveSettingsRequested)
         MaemoDeviceConfigurations::instance().setDevConfigs(m_devConfs);
+    delete m_ui;
 }
 
 QString MaemoSettingsWidget::searchKeywords() const
