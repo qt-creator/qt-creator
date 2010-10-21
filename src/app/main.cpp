@@ -34,6 +34,7 @@
 #include <extensionsystem/iplugin.h>
 
 #include <QtCore/QDir>
+#include <QtCore/QUrl>
 #include <QtCore/QTextStream>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
@@ -221,8 +222,16 @@ int main(int argc, char **argv)
     }
 
     // Make sure we honor the system's proxy settings
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
+    QUrl proxyUrl(QString::fromLatin1(qgetenv("http_proxy")));
+    if (proxyUrl.isValid()) {
+        QNetworkProxy proxy(QNetworkProxy::HttpCachingProxy, proxyUrl.host(),
+                            proxyUrl.port(), proxyUrl.userName(), proxyUrl.password());
+        QNetworkProxy::setApplicationProxy(proxy);
+    }
+#else
     QNetworkProxyFactory::setUseSystemConfiguration(true);
-
+#endif
     // Load
     ExtensionSystem::PluginManager pluginManager;
     pluginManager.setFileExtension(QLatin1String("pluginspec"));
