@@ -230,6 +230,7 @@ public:
         m_startParameters(sp),
         m_state(DebuggerNotReady),
         m_lastGoodState(DebuggerNotReady),
+        m_targetState(DebuggerNotReady),
         m_breakHandler(engine),
         m_commandHandler(engine),
         m_modulesHandler(engine),

@@ -51,6 +51,7 @@
 #include <QtCore/QTimer>
 #include <QtCore/QSettings>
 #include <QtCore/QXmlStreamReader>
+#include <QtCore/QScopedPointer>
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QFont>
 #include <QtGui/QMessageBox>
@@ -169,7 +170,7 @@ void GettingStartedWelcomePageWidget::updateExamples(const QString &examplePath,
     QMenu *cppMenu = new QMenu(ui->cppExamplesButton);
     ui->cppExamplesButton->setMenu(cppMenu);
 
-    QMenu *subMenu = 0;
+    QScopedPointer<QMenu> subMenu;
     bool inExamples = false;
     QString dirName;
     QXmlStreamReader reader(&description);
@@ -182,7 +183,7 @@ void GettingStartedWelcomePageWidget::updateExamples(const QString &examplePath,
                 if (name.contains(QLatin1String("tutorial")))
                     break;
                 dirName = reader.attributes().value(QLatin1String("dirname")).toString();
-                subMenu = new QMenu(name);
+                subMenu.reset(new QMenu(name));
                 inExamples = true;
             }
             if (inExamples && reader.name() == QLatin1String("example")) {
@@ -218,11 +219,8 @@ void GettingStartedWelcomePageWidget::updateExamples(const QString &examplePath,
             break;
         case QXmlStreamReader::EndElement:
             if (reader.name() == QLatin1String("category")) {
-                if (subMenu->actions().isEmpty())
-                    delete subMenu;
-                else
-                    cppMenu->addMenu(subMenu);
-
+                if (!subMenu->actions().isEmpty())
+                    cppMenu->addMenu(subMenu.take());
                 inExamples = false;
             }
             break;
