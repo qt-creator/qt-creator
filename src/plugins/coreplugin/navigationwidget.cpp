@@ -218,6 +218,10 @@ QAbstractItemModel *NavigationWidget::factoryModel() const
 
 void NavigationWidget::updateToggleText()
 {
+    bool haveData = d->m_factoryModel->rowCount();
+    d->m_toggleSideBarAction->setVisible(haveData);
+    d->m_toggleSideBarAction->setEnabled(haveData);
+
     if (isShown())
         d->m_toggleSideBarAction->setToolTip(tr("Hide Sidebar"));
     else
@@ -312,6 +316,12 @@ void NavigationWidget::saveSettings(QSettings *settings)
 
 void NavigationWidget::restoreSettings(QSettings *settings)
 {
+    if (!d->m_factoryModel->rowCount()) {
+        // We have no widgets to show!
+        setShown(false);
+        return;
+    }
+
     int version = settings->value(QLatin1String("Navigation/Version"), 1).toInt();
     QStringList viewIds = settings->value(QLatin1String("Navigation/Views"),
                                           QStringList("Projects")).toStringList();
@@ -375,10 +385,11 @@ void NavigationWidget::setShown(bool b)
 {
     if (d->m_shown == b)
         return;
+    bool haveData = d->m_factoryModel->rowCount();
     d->m_shown = b;
     if (NavigationWidgetPlaceHolder::m_current) {
-        NavigationWidgetPlaceHolder::m_current->setVisible(d->m_shown && !d->m_suppressed);
-        d->m_toggleSideBarAction->setChecked(d->m_shown);
+        NavigationWidgetPlaceHolder::m_current->setVisible(d->m_shown && !d->m_suppressed && haveData);
+        d->m_toggleSideBarAction->setChecked(d->m_shown && !d->m_suppressed && haveData);
     } else {
         d->m_toggleSideBarAction->setChecked(false);
     }
@@ -420,4 +431,3 @@ QHash<QString, Core::Command*> NavigationWidget::commandMap() const
 }
 
 } // namespace Core
-
