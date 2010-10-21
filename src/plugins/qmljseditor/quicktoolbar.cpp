@@ -214,7 +214,7 @@ void QuickToolBar::apply(TextEditor::BaseTextEditorEditable *editor, Document::P
 
 }
 
-bool QuickToolBar::isAvailable(TextEditor::BaseTextEditorEditable *editor, Document::Ptr document, AST::Node *node)
+bool QuickToolBar::isAvailable(TextEditor::BaseTextEditorEditable *, Document::Ptr document, AST::Node *node)
 {
     if (document.isNull())
         return false;

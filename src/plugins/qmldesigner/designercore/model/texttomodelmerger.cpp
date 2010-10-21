@@ -80,14 +80,14 @@ static inline QString deEscape(const QString &value)
  
 static inline int fixUpMajorVersionForQtQuick(const QString &value, int i)
 {
-    if (i = 1 && value == "QtQuick")
+    if (i == 1 && value == "QtQuick")
         return 4;
     else return i;
 }
 
 static inline int fixUpMinorVersionForQtQuick(const QString &value, int i)
 {
-    if (i = 0 && value == "QtQuick")
+    if (i == 0 && value == "QtQuick")
         return 7;
     else return i;
 }
