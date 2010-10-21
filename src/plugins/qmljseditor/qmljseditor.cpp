@@ -985,8 +985,8 @@ void QmlJSTextEditor::updateCursorPositionNow()
         Node *oldNode = m_semanticInfo.declaringMemberNoProperties(m_oldCursorPosition);
         Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
         if (oldNode != newNode && m_oldCursorPosition != -1)
-            m_contextPane->apply(editableInterface(), m_semanticInfo.lookupContext(), newNode, false);
-        if (m_contextPane->isAvailable(editableInterface(), m_semanticInfo.lookupContext(), newNode) &&
+            m_contextPane->apply(editableInterface(), semanticInfo().document, LookupContext::Ptr(),newNode, false);
+        if (m_contextPane->isAvailable(editableInterface(), semanticInfo().document, newNode) &&
             !m_contextPane->widget()->isVisible()) {
             QList<TextEditor::Internal::RefactorMarker> markers;
             if (UiObjectMember *m = newNode->uiObjectMemberCast()) {
@@ -1456,7 +1456,7 @@ void QmlJSTextEditor::showContextPane()
 {
     if (m_contextPane && m_semanticInfo.isValid()) {
         Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
-        m_contextPane->apply(editableInterface(), m_semanticInfo.lookupContext(), newNode, false, true);
+        m_contextPane->apply(editableInterface(), m_semanticInfo.document, m_semanticInfo.lookupContext(), newNode, false, true);
         m_oldCursorPosition = position();
         QList<TextEditor::Internal::RefactorMarker> markers;
         setRefactorMarkers(markers);
@@ -1551,7 +1551,7 @@ void QmlJSTextEditor::wheelEvent(QWheelEvent *event)
         LookupContext::Ptr lookupContext;
         if (m_semanticInfo.isValid())
             lookupContext = m_semanticInfo.lookupContext();
-        m_contextPane->apply(editableInterface(),  lookupContext, m_semanticInfo.declaringMemberNoProperties(m_oldCursorPosition), false, true);
+        m_contextPane->apply(editableInterface(), semanticInfo().document, QmlJS::LookupContext::Ptr(), m_semanticInfo.declaringMemberNoProperties(m_oldCursorPosition), false, true);
     }
 }
 
@@ -1801,7 +1801,7 @@ void QmlJSTextEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
     if (m_contextPane) {
         Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
         if (newNode) {
-            m_contextPane->apply(editableInterface(), m_semanticInfo.lookupContext(), newNode, true);
+            m_contextPane->apply(editableInterface(), semanticInfo.document, LookupContext::Ptr(), newNode, true);
             m_cursorPositionTimer->start(); //update text marker
         }
     }
@@ -1854,10 +1854,7 @@ bool QmlJSTextEditor::hideContextPane()
 {
     bool b = (m_contextPane) && m_contextPane->widget()->isVisible();
     if (b) {
-        LookupContext::Ptr lookupContext;
-        if (m_semanticInfo.isValid())
-            lookupContext = m_semanticInfo.lookupContext();
-        m_contextPane->apply(editableInterface(), lookupContext, 0, false);
+        m_contextPane->apply(editableInterface(), semanticInfo().document, LookupContext::Ptr(), 0, false);
     }
     return b;
 }

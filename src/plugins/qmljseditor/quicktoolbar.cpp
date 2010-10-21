@@ -98,17 +98,14 @@ QuickToolBar::~QuickToolBar()
         m_widget.clear();
 }
 
-void QuickToolBar::apply(TextEditor::BaseTextEditorEditable *editor, LookupContext::Ptr lookupContext, AST::Node *node, bool update, bool force)
+void QuickToolBar::apply(TextEditor::BaseTextEditorEditable *editor, Document::Ptr document, LookupContext::Ptr lookupContext, AST::Node *node, bool update, bool force)
 {
     if (!QuickToolBarSettings::get().enableContextPane && !force && !update) {
         contextWidget()->hide();
         return;
     }
 
-    if (lookupContext.isNull())
-        return;
-    Document::Ptr doc = lookupContext->document();
-    if (doc.isNull())
+    if (document.isNull())
         return;
 
     if (update && editor != m_editor)
@@ -116,24 +113,26 @@ void QuickToolBar::apply(TextEditor::BaseTextEditorEditable *editor, LookupConte
 
     m_blockWriting = true;
 
-    const Interpreter::ObjectValue *scopeObject = doc->bind()->findQmlObject(node);
+    const Interpreter::ObjectValue *scopeObject = document->bind()->findQmlObject(node);
 
-    QStringList prototypes;
-    while (scopeObject) {
-        prototypes.append(scopeObject->className());
-        scopeObject =  scopeObject->prototype(lookupContext->context());
-    }
+    if (!lookupContext.isNull()) {
+        m_prototypes.clear();
+        while (scopeObject) {
+            m_prototypes.append(scopeObject->className());
+            scopeObject =  scopeObject->prototype(lookupContext->context());
+        }
 
-    if (prototypes.contains("PropertyChanges")) {
-        const Interpreter::ObjectValue *targetObject = getPropertyChangesTarget(node, lookupContext);
-        prototypes.clear();
-        while (targetObject) {
-            prototypes.append(targetObject->className());
-            targetObject =  targetObject->prototype(lookupContext->context());
+        if (m_prototypes.contains("PropertyChanges")) {
+            const Interpreter::ObjectValue *targetObject = getPropertyChangesTarget(node, lookupContext);
+            m_prototypes.clear();
+            while (targetObject) {
+                m_prototypes.append(targetObject->className());
+                targetObject =  targetObject->prototype(lookupContext->context());
+            }
         }
     }
 
-    setEnabled(doc->isParsedCorrectly());
+    setEnabled(document->isParsedCorrectly());
     m_editor = editor;
     contextWidget()->setParent(editor->widget()->parentWidget());
     contextWidget()->colorDialog()->setParent(editor->widget()->parentWidget());
@@ -158,6 +157,8 @@ void QuickToolBar::apply(TextEditor::BaseTextEditorEditable *editor, LookupConte
             end = objectBinding->lastSourceLocation().end();
         }
 
+        m_prototypes.append(name);
+
         int line1;
         int column1;
         int line2;
@@ -175,9 +176,9 @@ void QuickToolBar::apply(TextEditor::BaseTextEditorEditable *editor, LookupConte
         rect.moveTo(reg.boundingRect().topLeft());
         reg = reg.intersect(rect);
 
-        if (contextWidget()->acceptsType(prototypes)) {
+        if (contextWidget()->acceptsType(m_prototypes)) {
             m_node = 0;
-            PropertyReader propertyReader(doc, initializer);
+            PropertyReader propertyReader(document, initializer);
             QTextCursor tc(editor->editor()->document());
             tc.setPosition(offset); 
             QPoint p1 = editor->editor()->mapToParent(editor->editor()->viewport()->mapToParent(editor->editor()->cursorRect(tc).topLeft()) - QPoint(0, contextWidget()->height() + 10));
@@ -188,15 +189,15 @@ void QuickToolBar::apply(TextEditor::BaseTextEditorEditable *editor, LookupConte
                 offset = QPoint(400 - reg.boundingRect().width() + 10 ,0);
             QPoint p3 = editor->editor()->mapToParent(editor->editor()->viewport()->mapToParent(reg.boundingRect().topRight()) + offset);
             p2.setX(p1.x());
-            contextWidget()->setType(prototypes);
+            contextWidget()->setType(m_prototypes);
             if (!update)
                 contextWidget()->activate(p3 , p1, p2, QuickToolBarSettings::get().pinContextPane);
             else
                 contextWidget()->rePosition(p3 , p1, p2, QuickToolBarSettings::get().pinContextPane);
             contextWidget()->setOptions(QuickToolBarSettings::get().enableContextPane, QuickToolBarSettings::get().pinContextPane);
-            contextWidget()->setPath(doc->path());
+            contextWidget()->setPath(document->path());
             contextWidget()->setProperties(&propertyReader); 
-            m_doc = doc;
+            m_doc = document;
             m_node = node;
         } else {
             contextWidget()->setParent(0);
@@ -213,34 +214,27 @@ void QuickToolBar::apply(TextEditor::BaseTextEditorEditable *editor, LookupConte
 
 }
 
-bool QuickToolBar::isAvailable(TextEditor::BaseTextEditorEditable *, LookupContext::Ptr lookupContext, AST::Node *node)
+bool QuickToolBar::isAvailable(TextEditor::BaseTextEditorEditable *editor, Document::Ptr document, AST::Node *node)
 {
-    if (lookupContext.isNull())
-        return false;
-    Document::Ptr doc = lookupContext->document();
-    if (doc.isNull())
+    if (document.isNull())
         return false;
 
     if (!node)
         return false;
 
-    const Interpreter::ObjectValue *scopeObject = doc->bind()->findQmlObject(node);
+    QString name;
+
+    UiObjectDefinition *objectDefinition = cast<UiObjectDefinition*>(node);
+    UiObjectBinding *objectBinding = cast<UiObjectBinding*>(node);
+    if (objectDefinition) {
+        name = objectDefinition->qualifiedTypeNameId->name->asString();
+
+    } else if (objectBinding) {
+        name = objectBinding->qualifiedTypeNameId->name->asString();
+    }
 
     QStringList prototypes;
-
-    while (scopeObject) {
-        prototypes.append(scopeObject->className());
-        scopeObject =  scopeObject->prototype(lookupContext->context());
-    }
-
-    if (prototypes.contains("PropertyChanges")) {
-        const Interpreter::ObjectValue *targetObject = getPropertyChangesTarget(node, lookupContext);
-        prototypes.clear();
-        while (targetObject) {
-            prototypes.append(targetObject->className());
-            targetObject =  targetObject->prototype(lookupContext->context());
-        }
-    }
+    prototypes.append(name);
 
     if (prototypes.contains("Rectangle") ||
             prototypes.contains("Image") ||
@@ -248,7 +242,9 @@ bool QuickToolBar::isAvailable(TextEditor::BaseTextEditorEditable *, LookupConte
             prototypes.contains("TextEdit") ||
             prototypes.contains("TextInput") ||
             prototypes.contains("PropertyAnimation") ||
-            prototypes.contains("Text"))
+            prototypes.contains("NumberAnimation") ||
+            prototypes.contains("Text") ||
+            prototypes.contains("PropertyChanges"))
         return true;
 
     return false;

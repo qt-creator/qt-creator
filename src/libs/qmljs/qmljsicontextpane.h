@@ -52,9 +52,9 @@ class QMLJS_EXPORT IContextPane : public QObject
 public:
     IContextPane(QObject *parent = 0) : QObject(parent) {}
     virtual ~IContextPane() {}
-    virtual void apply(TextEditor::BaseTextEditorEditable *editor, LookupContext::Ptr lookupContext, AST::Node *node, bool update, bool force = false) = 0;
+    virtual void apply(TextEditor::BaseTextEditorEditable *editor, Document::Ptr document, LookupContext::Ptr lookupContext, AST::Node *node, bool update, bool force = false) = 0;
     virtual void setEnabled(bool) = 0;
-    virtual bool isAvailable(TextEditor::BaseTextEditorEditable *editor, LookupContext::Ptr lookupContext, AST::Node *node) = 0;
+    virtual bool isAvailable(TextEditor::BaseTextEditorEditable *editor, Document::Ptr document, AST::Node *node) = 0;
     virtual QWidget* widget() = 0;
 signals:
     void closed();
