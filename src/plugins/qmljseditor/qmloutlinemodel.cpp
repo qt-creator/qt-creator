@@ -367,11 +367,6 @@ void QmlOutlineModel::update(const SemanticInfo &semanticInfo)
     m_treePos.append(0);
     m_currentItem = invisibleRootItem();
 
-    // Set up lookup context once to do the element type lookup
-    //
-    // We're simplifying here by using the root context everywhere; should be
-    // ok since there is AFAIK no way to introduce new type names in a sub-context.
-    m_context = semanticInfo.lookupContext();
     m_typeToIcon.clear();
     m_itemToNode.clear();
     m_itemToIdNode.clear();
@@ -380,8 +375,6 @@ void QmlOutlineModel::update(const SemanticInfo &semanticInfo)
 
     QmlOutlineModelSync syncModel(this);
     syncModel(m_semanticInfo.document);
-
-    m_context.clear();
 
     emit updated();
 }
@@ -815,26 +808,18 @@ AST::SourceLocation QmlOutlineModel::getLocation(AST::ExpressionNode *exprNode) 
 }
 
 QIcon QmlOutlineModel::getIcon(AST::UiQualifiedId *qualifiedId) {
-    const Interpreter::Value *value = m_context->evaluate(qualifiedId);
+    QIcon icon;
+    if (qualifiedId) {
+        QString name = asString(qualifiedId);
+        if (name.contains(QLatin1Char('.')))
+            name = name.split(QLatin1Char('.')).last();
 
-    if (const Interpreter::ObjectValue *objectValue = value->asObjectValue()) {
-        do {
-            QString module;
-            QString typeName;
-            if (const Interpreter::QmlObjectValue *qmlObjectValue =
-                    dynamic_cast<const Interpreter::QmlObjectValue*>(objectValue)) {
-                module = qmlObjectValue->packageName();
-            }
-            typeName = objectValue->className();
-
-            QIcon icon = m_icons->icon(module, typeName);
-            if (! icon.isNull())
-                return icon;
-
-            objectValue = objectValue->prototype(m_context->context());
-        } while (objectValue);
+        // TODO: get rid of namespace prefixes.
+        icon = m_icons->icon("Qt", name);
+        if (icon.isNull())
+            icon = m_icons->icon("QtWebkit", name);
     }
-    return QIcon();
+    return icon;
 }
 
 QString QmlOutlineModel::getAnnotation(AST::UiObjectInitializer *objectInitializer) {
