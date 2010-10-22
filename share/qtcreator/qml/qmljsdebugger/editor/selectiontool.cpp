@@ -107,51 +107,9 @@ void SelectionTool::mousePressEvent(QMouseEvent *event)
         if (m_rubberbandSelectionMode) {
             m_rubberbandSelectionManipulator.begin(event->pos());
         } else {
-
-            if (itemList.isEmpty()) {
-                QDeclarativeViewObserverPrivate::get(observer())->setSelectedItems(itemList);
-                return;
-            }
-
-            if ((selectionType == SingleSelectionManipulator::InvertSelection
-                 || selectionType == SingleSelectionManipulator::ReplaceSelection)
-                && alreadySelected(itemList))
-            {
-                //view()->changeToMoveTool(event->pos());
-                return;
-            }
-
-            QGraphicsItem* item = itemList.first();
-
-            if (item->children().isEmpty()) {
-                m_singleSelectionManipulator.begin(event->pos());
-                m_singleSelectionManipulator.select(selectionType, m_selectOnlyContentItems);
-            } else {
-                m_mousePressTimer.start();
-
-                if (itemList.isEmpty()) {
-                    observer()->setSelectedItems(itemList);
-                    return;
-                }
-
-                if (item->children().isEmpty()) {
-                    m_singleSelectionManipulator.begin(event->pos());
-                    m_singleSelectionManipulator.select(selectionType, m_selectOnlyContentItems);
-                } else {
-                    m_singleSelectionManipulator.begin(event->pos());
-                    m_singleSelectionManipulator.select(selectionType, m_selectOnlyContentItems);
-                    m_singleSelectionManipulator.end(event->pos());
-                    //view()->changeToMoveTool(event->pos());
-                }
-
-                m_singleSelectionManipulator.begin(event->pos());
-                m_singleSelectionManipulator.select(selectionType, m_selectOnlyContentItems);
-                m_singleSelectionManipulator.end(event->pos());
-                //view()->changeToMoveTool(event->pos());
-
-            }
+            m_singleSelectionManipulator.begin(event->pos());
+            m_singleSelectionManipulator.select(selectionType, m_selectOnlyContentItems);
         }
-
     } else if (event->buttons() & Qt::RightButton) {
         createContextMenu(itemList, event->globalPos());
     }
