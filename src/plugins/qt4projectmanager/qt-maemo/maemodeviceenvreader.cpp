@@ -37,8 +37,7 @@
 #include "maemoglobal.h"
 #include "maemorunconfiguration.h"
 
-#include <coreplugin/ssh/sshconnection.h>
-#include <coreplugin/ssh/sshremoteprocess.h>
+#include <coreplugin/ssh/sshremoteprocessrunner.h>
 
 namespace Qt4ProjectManager {
     namespace Internal {
@@ -60,71 +59,52 @@ MaemoDeviceEnvReader::~MaemoDeviceEnvReader()
 void MaemoDeviceEnvReader::start()
 {
     m_stop = false;
-    if (m_connection)
-        disconnect(m_connection.data(), 0, this, 0);
-
-    const bool reuse = m_connection
-        && m_connection->state() == Core::SshConnection::Connected
-        && m_connection->connectionParameters() == m_devConfig.server;
-
-    if (!reuse)
-        m_connection = Core::SshConnection::create();
-
-    connect(m_connection.data(), SIGNAL(connected()), this,
-        SLOT(executeRemoteCall()));
-    connect(m_connection.data(), SIGNAL(error(Core::SshError)), this,
+    if (!m_remoteProcessRunner
+        || m_remoteProcessRunner->connection()->state() != Core::SshConnection::Connected
+        || m_remoteProcessRunner->connection()->connectionParameters() != m_devConfig.server) {
+        m_remoteProcessRunner
+            = Core::SshRemoteProcessRunner::create(m_devConfig.server);
+    }
+    connect(m_remoteProcessRunner.data(),
+        SIGNAL(connectionError(Core::SshError)), this,
         SLOT(handleConnectionFailure()));
-
-    if (reuse)
-        executeRemoteCall();
-    else
-        m_connection->connectToHost(m_devConfig.server);
+    connect(m_remoteProcessRunner.data(), SIGNAL(processClosed(int)), this,
+        SLOT(remoteProcessFinished(int)));
+    connect(m_remoteProcessRunner.data(),
+        SIGNAL(processOutputAvailable(QByteArray)), this,
+        SLOT(remoteOutput(QByteArray)));
+    connect(m_remoteProcessRunner.data(),
+        SIGNAL(processErrorOutputAvailable(QByteArray)), this,
+        SLOT(remoteErrorOutput(QByteArray)));
+    const QByteArray remoteCall = MaemoGlobal::remoteSourceProfilesCommand()
+        .toUtf8() + "; env";
+    m_remoteOutput.clear();
+    m_remoteProcessRunner->run(remoteCall);
 }
 
 void MaemoDeviceEnvReader::stop()
 {
     m_stop = true;
-
-    if (m_connection)
-        disconnect(m_connection.data(), 0, this, 0);
-    if (m_remoteProcess) {
-        disconnect(m_remoteProcess.data());
-        m_remoteProcess->closeChannel();
-    }
-}
-
-void MaemoDeviceEnvReader::executeRemoteCall()
-{
-    if (m_stop)
-        return;
-
-    const QByteArray remoteCall = MaemoGlobal::remoteSourceProfilesCommand()
-        .toUtf8() + "; env";
-    m_remoteProcess = m_connection->createRemoteProcess(remoteCall);
-
-    connect(m_remoteProcess.data(), SIGNAL(closed(int)), this,
-        SLOT(remoteProcessFinished(int)));
-    connect(m_remoteProcess.data(), SIGNAL(outputAvailable(QByteArray)), this,
-        SLOT(remoteOutput(QByteArray)));
-    connect(m_remoteProcess.data(), SIGNAL(errorOutputAvailable(QByteArray)), this,
-        SLOT(remoteErrorOutput(QByteArray)));
-
-    m_remoteOutput.clear();
-    m_remoteErrorOutput.clear();
-    m_remoteProcess->start();
+    if (m_remoteProcessRunner)
+        disconnect(m_remoteProcessRunner.data(), 0, this, 0);
 }
 
 void MaemoDeviceEnvReader::handleConnectionFailure()
 {
-    emit error(tr("Could not connect to host: %1")
-        .arg(m_connection->errorString()));
-    setFinished();
+    if (m_stop)
+        return;
+
+    disconnect(m_remoteProcessRunner.data(), 0, this, 0);
+    emit error(tr("Connection error: %1")
+        .arg(m_remoteProcessRunner->connection()->errorString()));
+    emit finished();
 }
 
 void MaemoDeviceEnvReader::handleCurrentDeviceConfigChanged()
 {
     m_devConfig = m_runConfig->deviceConfig();
 
+    disconnect(m_remoteProcessRunner.data(), 0, this, 0);
     m_env.clear();
     setFinished();
 }
@@ -138,6 +118,7 @@ void MaemoDeviceEnvReader::remoteProcessFinished(int exitCode)
     if (m_stop)
         return;
 
+    disconnect(m_remoteProcessRunner.data(), 0, this, 0);
     m_env.clear();
     if (exitCode == Core::SshRemoteProcess::ExitedNormally) {
         if (!m_remoteOutput.isEmpty()) {
@@ -146,7 +127,7 @@ void MaemoDeviceEnvReader::remoteProcessFinished(int exitCode)
         }
     } else {
         QString errorMsg = tr("Error running remote process: %1")
-            .arg(m_remoteProcess->errorString());
+            .arg(m_remoteProcessRunner->process()->errorString());
         if (!m_remoteErrorOutput.isEmpty()) {
             errorMsg += tr("\nRemote stderr was: '%1'")
                 .arg(QString::fromUtf8(m_remoteErrorOutput));

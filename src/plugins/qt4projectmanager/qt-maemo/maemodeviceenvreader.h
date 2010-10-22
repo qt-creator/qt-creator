@@ -42,8 +42,7 @@
 #include <QtCore/QObject>
 
 namespace Core {
-    class SshConnection;
-    class SshRemoteProcess;
+    class SshRemoteProcessRunner;
 }
 
 namespace Qt4ProjectManager {
@@ -68,7 +67,6 @@ signals:
     void error(const QString &error);
 
 private slots:
-    void executeRemoteCall();
     void handleConnectionFailure();
     void handleCurrentDeviceConfigChanged();
 
@@ -85,8 +83,7 @@ private:
     Utils::Environment m_env;
     MaemoDeviceConfig m_devConfig;
     MaemoRunConfiguration *m_runConfig;
-    QSharedPointer<Core::SshConnection> m_connection;
-    QSharedPointer<Core::SshRemoteProcess> m_remoteProcess;
+    QSharedPointer<Core::SshRemoteProcessRunner> m_remoteProcessRunner;
 };
 
     }   // Internal
