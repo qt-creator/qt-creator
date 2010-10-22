@@ -47,11 +47,8 @@
 #include <QtCore/QList>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QString>
-
-namespace Core {
-class SshConnectionParameters;
-class SshRemoteProcessRunner;
-}
+#include <coreplugin/ssh/sshconnection.h>
+#include <coreplugin/ssh/sshremoteprocessrunner.h>
 
 namespace Qt4ProjectManager {
 namespace Internal {

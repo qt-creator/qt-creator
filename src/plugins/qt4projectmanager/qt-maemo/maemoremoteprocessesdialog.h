@@ -42,6 +42,7 @@
 #define MAEMOREMOTEPROCESSDIALOG_H
 
 #include <QtGui/QDialog>
+#include <coreplugin/ssh/sshconnection.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -49,8 +50,6 @@ namespace Ui {
 }
 class QSortFilterProxyModel;
 QT_END_NAMESPACE
-
-namespace Core { class SshConnectionParameters; }
 
 namespace Qt4ProjectManager {
 namespace Internal {
