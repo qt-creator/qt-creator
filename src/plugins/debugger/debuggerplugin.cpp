@@ -1790,7 +1790,9 @@ void DebuggerPluginPrivate::startExternalApplication()
         && (sp.processArgs.front() == _("@tcf@") || sp.processArgs.front() == _("@sym@")))
         sp.toolChainType = ToolChain::RVCT_ARMV5;
 
-    startDebugger(m_debuggerRunControlFactory->create(sp));
+
+    if (RunControl *rc = m_debuggerRunControlFactory->create(sp))
+        startDebugger(rc);
 }
 
 void DebuggerPluginPrivate::notifyCurrentEngine(int role, const QVariant &value)
@@ -1820,8 +1822,8 @@ void DebuggerPluginPrivate::attachExternalApplication
     sp.executable = binary;
     sp.crashParameter = crashParameter;
     sp.startMode = crashParameter.isEmpty() ? AttachExternal : AttachCrashedExternal;
-    DebuggerRunControl *rc = createDebugger(sp);
-    startDebugger(rc);
+    if (DebuggerRunControl *rc = createDebugger(sp))
+        startDebugger(rc);
 }
 
 void DebuggerPluginPrivate::attachCore()
@@ -1843,8 +1845,8 @@ void DebuggerPluginPrivate::attachCore(const QString &core, const QString &exe)
     sp.coreFile = core;
     sp.displayName = tr("Core file \"%1\"").arg(core);
     sp.startMode = AttachCore;
-    DebuggerRunControl *rc = createDebugger(sp);
-    startDebugger(rc);
+    if (DebuggerRunControl *rc = createDebugger(sp))
+        startDebugger(rc);
 }
 
 void DebuggerPluginPrivate::attachRemote(const QString &spec)
@@ -1856,8 +1858,8 @@ void DebuggerPluginPrivate::attachRemote(const QString &spec)
     sp.remoteArchitecture = spec.section('@', 2, 2);
     sp.displayName = tr("Remote: \"%1\"").arg(sp.remoteChannel);
     sp.startMode = AttachToRemote;
-    DebuggerRunControl *rc = createDebugger(sp);
-    startDebugger(rc);
+    if (DebuggerRunControl *rc = createDebugger(sp))
+        startDebugger(rc);
 }
 
 void DebuggerPluginPrivate::startRemoteApplication()
@@ -1902,7 +1904,8 @@ void DebuggerPluginPrivate::startRemoteApplication()
     sp.useServerStartScript = dlg.useServerStartScript();
     sp.serverStartScript = dlg.serverStartScript();
     sp.sysRoot = dlg.sysRoot();
-    startDebugger(createDebugger(sp));
+    if (RunControl *rc = createDebugger(sp))
+        startDebugger(rc);
 }
 
 void DebuggerPluginPrivate::enableReverseDebuggingTriggered(const QVariant &value)
@@ -1940,7 +1943,8 @@ void DebuggerPluginPrivate::attachRemoteTcf()
     sp.startMode = AttachTcf;
     if (dlg.useServerStartScript())
         sp.serverStartScript = dlg.serverStartScript();
-    startDebugger(createDebugger(sp));
+    if (RunControl *rc = createDebugger(sp))
+        startDebugger(rc);
 }
 
 bool DebuggerPluginPrivate::attachCmdLine()
