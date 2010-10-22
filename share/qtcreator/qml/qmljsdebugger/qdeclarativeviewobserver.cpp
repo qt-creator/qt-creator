@@ -125,8 +125,9 @@ void QDeclarativeViewObserver::setObserverContext(int contextIndex)
 {
     if (data->subcomponentEditorTool->contextIndex() != contextIndex) {
         QGraphicsObject *object = data->subcomponentEditorTool->setContext(contextIndex);
-        if (object)
-            data->debugService->setCurrentObjects(QList<QObject*>() << object);
+        if (object) {
+            setSelectedItems(QList<QGraphicsItem*>() << object);
+        }
     }
 }
 
@@ -244,8 +245,6 @@ bool QDeclarativeViewObserver::mouseReleaseEvent(QMouseEvent *event)
 
     data->cursorPos = event->pos();
     data->currentTool->mouseReleaseEvent(event);
-
-    data->debugService->setCurrentObjects(AbstractFormEditorTool::toObjectList(selectedItems()));
     return true;
 }
 
@@ -342,6 +341,15 @@ void QDeclarativeViewObserverPrivate::_q_clearComponentCache()
     view->engine()->clearComponentCache();
 }
 
+void QDeclarativeViewObserverPrivate::_q_removeFromSelection(QObject *obj)
+{
+    QList<QGraphicsItem*> items = selectedItems();
+    if (QGraphicsItem *item = dynamic_cast<QGraphicsItem*>(obj)) {
+        items.removeOne(item);
+    }
+    setSelectedItems(items);
+}
+
 QGraphicsItem *QDeclarativeViewObserverPrivate::currentRootItem() const
 {
     return subcomponentEditorTool->currentRootItem();
@@ -374,8 +382,9 @@ bool QDeclarativeViewObserver::mouseDoubleClickEvent(QMouseEvent *event)
 
     if ((event->buttons() & Qt::LeftButton) && itemToEnter) {
         QGraphicsObject *objectToEnter = itemToEnter->toGraphicsObject();
-        if (objectToEnter)
-            data->debugService->setCurrentObjects(QList<QObject*>() << objectToEnter);
+        if (objectToEnter) {
+            setSelectedItems(QList<QGraphicsItem*>() << objectToEnter);
+        }
     }
 
     return true;
@@ -440,32 +449,51 @@ void QDeclarativeViewObserverPrivate::changeTool(Constants::DesignTool tool, Con
 
 void QDeclarativeViewObserverPrivate::setSelectedItemsForTools(QList<QGraphicsItem *> items)
 {
-    currentSelection.clear();
-    foreach(QGraphicsItem *item, items) {
-        if (item) {
-            QGraphicsObject *obj = item->toGraphicsObject();
-            if (obj)
-                currentSelection << obj;
+    foreach (QWeakPointer<QGraphicsObject> obj, currentSelection) {
+        if (QGraphicsItem *item = obj.data()) {
+            if (!items.contains(item)) {
+                QObject::disconnect(obj.data(), SIGNAL(destroyed(QObject*)),
+                                    q, SLOT(_q_removeFromSelection(QObject*)));
+                currentSelection.removeOne(obj);
+            }
         }
     }
+
+    foreach (QGraphicsItem *item, items) {
+        if (item) {
+            QGraphicsObject *obj = item->toGraphicsObject();
+            if (obj) {
+                QObject::connect(obj, SIGNAL(destroyed(QObject*)),
+                                 q, SLOT(_q_removeFromSelection(QObject*)));
+                currentSelection.append(obj);
+            }
+        }
+    }
+
     currentTool->updateSelectedItems();
 }
 
 void QDeclarativeViewObserverPrivate::setSelectedItems(QList<QGraphicsItem *> items)
 {
+    QList<QWeakPointer<QGraphicsObject> > oldList = currentSelection;
     setSelectedItemsForTools(items);
-    debugService->setCurrentObjects(AbstractFormEditorTool::toObjectList(items));
+    if (oldList != currentSelection) {
+        QList<QObject*> objectList;
+        foreach (QWeakPointer<QGraphicsObject> graphicsObject, currentSelection) {
+            if (graphicsObject)
+                objectList << graphicsObject.data();
+        }
+
+        debugService->setCurrentObjects(objectList);
+    }
 }
 
 QList<QGraphicsItem *> QDeclarativeViewObserverPrivate::selectedItems()
 {
     QList<QGraphicsItem *> selection;
     foreach(const QWeakPointer<QGraphicsObject> &selectedObject, currentSelection) {
-        if (selectedObject.isNull()) {
-            currentSelection.removeOne(selectedObject);
-        } else {
+        if (selectedObject.data())
             selection << selectedObject.data();
-        }
     }
 
     return selection;

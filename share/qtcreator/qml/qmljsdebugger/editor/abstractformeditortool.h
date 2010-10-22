@@ -83,7 +83,6 @@ public:
     bool topSelectedItemIsMovable(const QList<QGraphicsItem*> &itemList);
 
     static QString titleForItem(QGraphicsItem *item);
-    static QList<QObject*> toObjectList(const QList<QGraphicsItem*> &itemList);
     static QList<QGraphicsObject*> toGraphicsObjectList(const QList<QGraphicsItem*> &itemList);
     static QGraphicsItem* topMovableGraphicsItem(const QList<QGraphicsItem*> &itemList);
     static QDeclarativeItem* topMovableDeclarativeItem(const QList<QGraphicsItem*> &itemList);

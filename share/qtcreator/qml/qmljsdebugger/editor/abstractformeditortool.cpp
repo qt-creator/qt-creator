@@ -153,18 +153,6 @@ QList<QGraphicsObject*> AbstractFormEditorTool::toGraphicsObjectList(const QList
     return gfxObjects;
 }
 
-QList<QObject*> AbstractFormEditorTool::toObjectList(const QList<QGraphicsItem*> &itemList)
-{
-    QList<QObject*> objects;
-    foreach(QGraphicsItem *item, itemList) {
-        QObject *obj = item->toGraphicsObject();
-        if (obj)
-            objects << obj;
-    }
-
-    return objects;
-}
-
 QString AbstractFormEditorTool::titleForItem(QGraphicsItem *item)
 {
     QString className("QGraphicsItem");

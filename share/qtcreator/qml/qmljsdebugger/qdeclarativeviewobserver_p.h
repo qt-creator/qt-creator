@@ -130,6 +130,7 @@ public:
     void _q_changeToColorPickerTool();
     void _q_changeContextPathIndex(int index);
     void _q_clearComponentCache();
+    void _q_removeFromSelection(QObject *);
 
     static QDeclarativeViewObserverPrivate *get(QDeclarativeViewObserver *v) { return v->d_func(); }
 };

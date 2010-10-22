@@ -115,6 +115,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_changeToColorPickerTool())
     Q_PRIVATE_SLOT(d_func(), void _q_changeContextPathIndex(int index))
     Q_PRIVATE_SLOT(d_func(), void _q_clearComponentCache());
+    Q_PRIVATE_SLOT(d_func(), void _q_removeFromSelection(QObject *));
 
     inline QDeclarativeViewObserverPrivate *d_func() { return data.data(); }
     QScopedPointer<QDeclarativeViewObserverPrivate> data;
