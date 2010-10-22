@@ -402,6 +402,10 @@ DebuggerEngineType DebuggerRunControl::engineForMode(unsigned enabledEngineTypes
     // Preferably Windows debugger for attaching locally.
     if (startMode != AttachToRemote && (enabledEngineTypes & CdbEngineType))
         return CdbEngineType;
+    if (startMode == AttachCrashedExternal) {
+        d->m_errorMessage = tr("There is no debugging engine available for post-mortem debugging.");
+        return NoEngineType;
+    }
     return GdbEngineType;
 #else
     Q_UNUSED(startMode)
