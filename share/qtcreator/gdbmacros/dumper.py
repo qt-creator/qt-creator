@@ -1561,14 +1561,18 @@ class Dumper:
                 ## Generic pointer type with format None
                 #warn("GENERIC AUTODEREF POINTER: %s" % value.address)
                 innerType = realtype.target()
-                self.putType(innerType)
-                savedCurrentChildType = self.currentChildType
-                self.currentChildType = stripClassTag(str(innerType))
-                self.putItemHelper(
-                    Item(item.value.dereference(), item.iname, None, None))
-                self.currentChildType = savedCurrentChildType
-                self.putPointerValue(value.address)
-                return
+                innerTypeName = str(innerType.unqualified())
+                # Never dereference char types.
+                if innerTypeName != "char" and innerTypeName != "signed char" \
+                   and innerTypeName != "unsigned char" and innerTypeName != "wchar_t":
+                    self.putType(innerType)
+                    savedCurrentChildType = self.currentChildType
+                    self.currentChildType = stripClassTag(str(innerType))
+                    self.putItemHelper(
+                        Item(item.value.dereference(), item.iname, None, None))
+                    self.currentChildType = savedCurrentChildType
+                    self.putPointerValue(value.address)
+                    return
 
             # Fall back to plain pointer printing.
             #warn("GENERIC PLAIN POINTER: %s" % value.type)
