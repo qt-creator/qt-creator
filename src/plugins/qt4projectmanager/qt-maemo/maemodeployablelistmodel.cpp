@@ -30,10 +30,18 @@
 #include "maemodeployablelistmodel.h"
 
 #include "maemoprofilewrapper.h"
+#include "maemotoolchain.h"
 
-#include <QtCore/QCryptographicHash>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/session.h>
+#include <qt4projectmanager/qt4buildconfiguration.h>
+#include <qt4projectmanager/qt4target.h>
+
+#include <utils/qtcassert.h>
+
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
+#include <QtGui/QBrush>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -159,6 +167,16 @@ QVariant MaemoDeployableListModel::data(const QModelIndex &index, int role) cons
     if (!index.isValid() || index.row() >= rowCount())
         return QVariant();
 
+    if (isEditable(index)) {
+        if (role == Qt::DisplayRole)
+            return tr("<no target path set>");
+        if (role == Qt::ForegroundRole) {
+            QBrush brush;
+            brush.setColor("red");
+            return brush;
+        }
+    }
+
     const MaemoDeployable &d = deployableAt(index.row());
     if (index.column() == 0 && role == Qt::DisplayRole)
         return QDir::toNativeSeparators(d.localFilePath);
@@ -170,27 +188,20 @@ QVariant MaemoDeployableListModel::data(const QModelIndex &index, int role) cons
 Qt::ItemFlags MaemoDeployableListModel::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags parentFlags = QAbstractTableModel::flags(index);
-//    if (index.column() == 1)
-//        return parentFlags | Qt::ItemIsEditable;
+    if (isEditable(index))
+        return parentFlags | Qt::ItemIsEditable;
     return parentFlags;
 }
 
 bool MaemoDeployableListModel::setData(const QModelIndex &index,
                                    const QVariant &value, int role)
 {
-    if (!index.isValid() || index.row() >= rowCount() || index.column() != 1
-        || role != Qt::EditRole)
+    if (!isEditable(index) || role != Qt::EditRole)
         return false;
-
-    MaemoDeployable &deployable = m_deployables[index.row()];
-    const QString &newRemoteDir = value.toString();
-    if (!m_proFileWrapper->replaceInstallPath(deployable.remoteDir,
-        deployable.localFilePath, newRemoteDir)) {
-        qWarning("Error: Could not update .pro file");
+    const QString &remoteDir = value.toString();
+    if (!addTargetPath(remoteDir))
         return false;
-    }
-
-    deployable.remoteDir = newRemoteDir;
+    m_deployables.first().remoteDir = remoteDir;
     emit dataChanged(index, index);
     return true;
 }
@@ -243,6 +254,47 @@ void MaemoDeployableListModel::setProFileUpdateSetting(ProFileUpdateSetting upda
     m_proFileUpdateSetting = updateSetting;
     if (updateSetting == UpdateProFile)
         buildModel();
+}
+
+bool MaemoDeployableListModel::isEditable(const QModelIndex &index) const
+{
+    return index.row() == 0 && index.column() == 1
+        && m_deployables.first().remoteDir.isEmpty();
+}
+
+bool MaemoDeployableListModel::addTargetPath(const QString &remoteDir)
+{
+    QFile projectFile(m_proFilePath);
+    if (!projectFile.open(QIODevice::WriteOnly | QIODevice::Append)) {
+        qWarning("Error opening .pro file for writing.");
+        return false;
+    }
+    const ProjectExplorer::Project *const activeProject
+        = ProjectExplorer::ProjectExplorerPlugin::instance()->session()->startupProject();
+    QTC_ASSERT(activeProject, return false);
+    const Qt4Target *const activeTarget
+        = qobject_cast<Qt4Target *>(activeProject->activeTarget());
+    QTC_ASSERT(activeTarget, return false);
+    const Qt4BuildConfiguration *const bc
+        = activeTarget->activeBuildConfiguration();
+    QTC_ASSERT(bc, return false);
+    const MaemoToolChain *const tc
+        = dynamic_cast<MaemoToolChain *>(bc->toolChain());
+    QTC_ASSERT(tc, return false);
+    QString proFileScope;
+    if (tc->version() == MaemoToolChain::Maemo5)
+        proFileScope = QLatin1String("maemo5");
+    else
+        proFileScope = QLatin1String("unix:!symbian:!maemo5");
+    const QString proFileString = QString(QLatin1Char('\n') + proFileScope
+        + QLatin1String(" {\n    target.path = %1\n    INSTALLS += target\n}\n"))
+              .arg(remoteDir);
+    if (!projectFile.write(proFileString.toLocal8Bit())
+            || !projectFile.flush()) {
+        qWarning("Error updating .pro file.");
+        return false;
+    }
+    return true;
 }
 
 } // namespace Qt4ProjectManager

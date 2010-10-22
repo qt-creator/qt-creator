@@ -98,6 +98,7 @@ void MaemoDeployStepWidget::setDeployToSysroot(bool doDeploy)
 
 void MaemoDeployStepWidget::handleModelListToBeReset()
 {
+    ui->tableView->reset(); // Otherwise we'll crash if the user is currently editing.
     ui->tableView->setModel(0);
 }
 

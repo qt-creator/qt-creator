@@ -90,7 +90,9 @@ private:
     virtual bool setData(const QModelIndex &index, const QVariant &value,
                          int role = Qt::EditRole);
 
+    bool isEditable(const QModelIndex &index) const;
     bool buildModel();
+    bool addTargetPath(const QString &remoteDir);
 
     const Qt4ProjectType m_projectType;
     const QString m_proFilePath;
