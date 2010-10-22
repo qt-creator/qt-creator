@@ -128,6 +128,7 @@
 #include <QtCore/QTimer>
 #include <QtCore/QVariant>
 #include <QtCore/QtPlugin>
+#include <QtCore/QScopedPointer>
 
 #include <QtGui/QAbstractItemView>
 #include <QtGui/QAction>
@@ -958,7 +959,6 @@ public slots:
     void updateState(DebuggerEngine *engine);
     void onCurrentProjectChanged(ProjectExplorer::Project *project);
 
-    void resetLocation();
     void gotoLocation(const QString &file, int line, bool setMarker);
 
     void clearStatusMessage();
@@ -969,6 +969,7 @@ public slots:
 
     void executeDebuggerCommand();
     void scriptExpressionEntered(const QString &expression);
+    void coreShutdown();
 
 public:
     DebuggerState m_state;
@@ -978,7 +979,7 @@ public:
     DebuggerRunControlFactory *m_debuggerRunControlFactory;
 
     QString m_previousMode;
-    TextEditor::BaseTextMark *m_locationMark;
+    QScopedPointer<TextEditor::BaseTextMark> m_locationMark;
     Core::Context m_continuableContext;
     Core::Context m_interruptibleContext;
     Core::Context m_undisturbableContext;
@@ -1043,9 +1044,11 @@ public:
     DebuggerPlugin *m_plugin;
 
     SnapshotHandler *m_snapshotHandler;
+    bool m_shuttingDown;
 };
 
-DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
+DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin) :
+    m_shuttingDown(false)
 {
     m_plugin = plugin;
 
@@ -1078,7 +1081,6 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
 
     m_sessionEngine = 0;
     m_debugMode = 0;
-    m_locationMark = 0;
 
     m_continuableContext = Core::Context(0);
     m_interruptibleContext = Core::Context(0);
@@ -1106,6 +1108,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     // FIXME: Move part of this to extensionsInitialized()?
     ICore *core = ICore::instance();
     QTC_ASSERT(core, return false);
+    connect(core, SIGNAL(coreAboutToClose()), this, SLOT(coreShutdown()));
 
     Core::ActionManager *am = core->actionManager();
     QTC_ASSERT(am, return false);
@@ -1608,8 +1611,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     foreach (Core::IOptionsPage *op, engineOptionPages)
         m_plugin->addAutoReleasedObject(op);
     m_plugin->addAutoReleasedObject(new DebuggingHelperOptionPage);
-
-    m_locationMark = 0;
 
     //setSimpleDockWidgetArrangement(Lang_Cpp);
 
@@ -2133,7 +2134,7 @@ void DebuggerPluginPrivate::fontSettingsChanged
 
 void DebuggerPluginPrivate::cleanupViews()
 {
-    resetLocation();
+    m_plugin->resetLocation();
     m_actions.reverseDirectionAction->setChecked(false);
     m_actions.reverseDirectionAction->setEnabled(false);
     hideDebuggerToolTip();
@@ -2411,14 +2412,12 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     m_scriptConsoleWindow->setEnabled(stopped);
 }
 
-void DebuggerPluginPrivate::resetLocation()
-{
-    delete m_locationMark;
-    m_locationMark = 0;
-}
-
 void DebuggerPluginPrivate::gotoLocation(const QString &file, int line, bool setMarker)
 {
+    // CDB might hit on breakpoints while shutting down.
+    if (m_shuttingDown)
+        return;
+
     bool newEditor = false;
     ITextEditor *editor =
         BaseTextEditor::openEditorAt(file, line, 0, QString(),
@@ -2427,10 +2426,8 @@ void DebuggerPluginPrivate::gotoLocation(const QString &file, int line, bool set
         return;
     if (newEditor)
         editor->setProperty("OpenedByDebugger", true);
-    if (setMarker) {
-        resetLocation();
-        m_locationMark = new LocationMark(file, line);
-    }
+    if (setMarker)
+        m_locationMark.reset(new LocationMark(file, line));
 }
 
 void DebuggerPluginPrivate::onModeChanged(IMode *mode)
@@ -2554,6 +2551,10 @@ void DebuggerPluginPrivate::openMemoryEditor()
         QModelIndex(), dialog.address(), RequestShowMemoryRole);
 }
 
+void DebuggerPluginPrivate::coreShutdown()
+{
+    m_shuttingDown = true;
+}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -2586,9 +2587,6 @@ DebuggerPlugin::~DebuggerPlugin()
 
     delete d->m_debugMode;
     d->m_debugMode = 0;
-
-    delete d->m_locationMark;
-    d->m_locationMark = 0;
 
     removeObject(d->m_uiSwitcher);
     delete d->m_uiSwitcher;
@@ -2636,34 +2634,19 @@ QVariant DebuggerPlugin::configValue(const QString &name) const
 
 void DebuggerPlugin::resetLocation()
 {
-    d->resetLocation();
-    //qDebug() << "RESET_LOCATION: current:"  << currentTextEditor();
-    //qDebug() << "RESET_LOCATION: locations:"  << m_locationMark;
-    //qDebug() << "RESET_LOCATION: stored:"  << m_locationMark->editor();
-    delete d->m_locationMark;
-    d->m_locationMark = 0;
+    d->m_locationMark.reset();
 }
 
 void DebuggerPlugin::gotoLocation(const QString &file, int line, bool setMarker)
 {
-    bool newEditor = false;
-    ITextEditor *editor =
-        BaseTextEditor::openEditorAt(file, line, 0, QString(),
-            EditorManager::IgnoreNavigationHistory,
-            &newEditor);
-    if (!editor)
-        return;
-    if (newEditor)
-        editor->setProperty("OpenedByDebugger", true);
-    if (setMarker) {
-        resetLocation();
-        d->m_locationMark = new LocationMark(file, line);
-    }
+    d->gotoLocation(file, line, setMarker);
 }
 
 void DebuggerPlugin::openTextEditor(const QString &titlePattern0,
     const QString &contents)
 {
+    if (d->m_shuttingDown)
+        return;
     QString titlePattern = titlePattern0;
     EditorManager *editorManager = EditorManager::instance();
     QTC_ASSERT(editorManager, return);
