@@ -768,7 +768,7 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
         foreach (ICoreListener *listener, listeners) {
             if (!listener->editorAboutToClose(editor)) {
                 editorAccepted = false;
-                closingFailed = false;
+                closingFailed = true;
                 break;
             }
         }
@@ -802,7 +802,8 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
     // remove the editors
     foreach (IEditor *editor, acceptedEditors) {
         emit editorAboutToClose(editor);
-        if (!editor->file()->fileName().isEmpty()) {
+        if (!editor->file()->fileName().isEmpty()
+                && !editor->isTemporary()) {
             QByteArray state = editor->saveState();
             if (!state.isEmpty())
                 m_d->m_editorStates.insert(editor->file()->fileName(), QVariant(state));

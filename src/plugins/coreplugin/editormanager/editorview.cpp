@@ -803,14 +803,26 @@ QByteArray SplitterOrView::saveState() const
         IEditor* e = editor();
         EditorManager *em = CoreImpl::instance()->editorManager();
 
-        if (e && e == em->currentEditor()) {
+        // don't save state of temporary or ad-hoc editors
+        if (e && (e->isTemporary() || e->file()->fileName().isEmpty())) {
+            // look for another editor that is more suited
+            e = 0;
+            foreach (IEditor *otherEditor, editors()) {
+                if (!otherEditor->isTemporary() && !otherEditor->file()->fileName().isEmpty()) {
+                    e = otherEditor;
+                    break;
+                }
+            }
+        }
+
+        if (!e) {
+            stream << QByteArray("empty");
+        } else if (e == em->currentEditor()) {
             stream << QByteArray("currenteditor")
                     << e->file()->fileName() << e->id() << e->saveState();
-        } else if (e) {
+        } else {
             stream << QByteArray("editor")
                     << e->file()->fileName() << e->id() << e->saveState();
-        } else {
-            stream << QByteArray("empty");
         }
     }
     return bytes;
