@@ -92,6 +92,8 @@ public:
     qint64 attachPID() const;
     QString executable() const;
 
+    virtual void accept();
+
 private slots:
     void rebuildProcessList();
     void procSelected(const QModelIndex &index);

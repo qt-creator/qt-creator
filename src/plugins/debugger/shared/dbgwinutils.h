@@ -57,6 +57,8 @@ unsigned long winGetCurrentProcessId();
 
 QString winNormalizeFileName(const QString &f);
 
+bool isWinProcessBeingDebugged(unsigned long pid);
+
 } // namespace Internal
 } // namespace Debugger
 
