@@ -187,8 +187,15 @@ void ClientProxy::onCurrentObjectsChanged(const QList< int >& debugIds, bool req
 
 void ClientProxy::setSelectedItemsByObjectId(const QList<QDeclarativeDebugObjectReference> &objectRefs)
 {
-    if (isConnected())
-        m_designClient->setSelectedItemsByObjectId(objectRefs);
+    if (isConnected()) {
+        QList<int> debugIds;
+
+        foreach (const QDeclarativeDebugObjectReference &ref, objectRefs) {
+            debugIds << ref.debugId();
+        }
+
+        m_designClient->setSelectedItemsByObjectId(debugIds);
+    }
 }
 
 QDeclarativeDebugObjectReference ClientProxy::objectReferenceForId(int debugId) const

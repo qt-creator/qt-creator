@@ -74,6 +74,7 @@ void QmlJSObserverClient::messageReceived(const QByteArray &message)
     if (type == "CURRENT_OBJECTS_CHANGED") {
         int objectCount;
         ds >> objectCount;
+
         m_selectedItemIds.clear();
 
         for(int i = 0; i < objectCount; ++i) {
@@ -124,8 +125,7 @@ QList<int> QmlJSObserverClient::selectedItemIds() const
     return m_selectedItemIds;
 }
 
-void QmlJSObserverClient::setSelectedItemsByObjectId(const QList<QDeclarativeDebugObjectReference> &objects)
-{
+void QmlJSObserverClient::setSelectedItemsByObjectId(const QList<int> &debugIds) {
     if (!m_connection || !m_connection->isConnected())
         return;
 
@@ -133,14 +133,14 @@ void QmlJSObserverClient::setSelectedItemsByObjectId(const QList<QDeclarativeDeb
     QDataStream ds(&message, QIODevice::WriteOnly);
 
     ds << QByteArray("SET_CURRENT_OBJECTS")
-       << objects.length();
+       << debugIds.length();
 
-    foreach(const QDeclarativeDebugObjectReference &ref, objects) {
-        ds << ref.debugId();
+    foreach (int id, debugIds) {
+        ds << id;
     }
 
     if (debug)
-        qDebug() << "QmlJSObserverClient: Sending" <<"SET_CURRENT_OBJECTS" << objects.length() << "[list of ids]";
+        qDebug() << "QmlJSObserverClient: Sending" <<"SET_CURRENT_OBJECTS" << debugIds.length() << "[list of ids]";
 
     sendMessage(message);
 }

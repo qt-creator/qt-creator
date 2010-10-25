@@ -54,7 +54,7 @@ public:
     explicit QmlJSObserverClient(QDeclarativeDebugConnection *client,
                                     QObject *parent = 0);
 
-    void setSelectedItemsByObjectId(const QList<QDeclarativeDebugObjectReference> &objects);
+    void setSelectedItemsByObjectId(const QList<int> &debugIds);
     void reloadViewer();
     void setDesignModeBehavior(bool inDesignMode);
     void setAnimationSpeed(qreal slowdownFactor);
