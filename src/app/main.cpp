@@ -201,11 +201,15 @@ int main(int argc, char **argv)
     // Must be done before any QSettings class is created
     QSettings::setPath(QSettings::IniFormat, QSettings::SystemScope,
             QCoreApplication::applicationDirPath()+QLatin1String(SHARE_PATH));
-    // keep this in sync with the MainWindow ctor in coreplugin/mainwindow.cpp
-    const QSettings settings(QSettings::IniFormat, QSettings::UserScope,
+    // plugin manager takes control of this settings object
+    QSettings *settings = new QSettings(QSettings::IniFormat, QSettings::UserScope,
                                  QLatin1String("Nokia"), QLatin1String("QtCreator"));
-    locale = settings.value("General/OverrideLanguage", locale).toString();
 
+    ExtensionSystem::PluginManager pluginManager;
+    pluginManager.setFileExtension(QLatin1String("pluginspec"));
+    pluginManager.setSettings(settings);
+
+    locale = settings->value("General/OverrideLanguage", locale).toString();
     const QString &creatorTrPath = QCoreApplication::applicationDirPath()
                         + QLatin1String(SHARE_PATH "/translations");
     if (translator.load(QLatin1String("qtcreator_") + locale, creatorTrPath)) {
@@ -233,9 +237,6 @@ int main(int argc, char **argv)
     QNetworkProxyFactory::setUseSystemConfiguration(true);
 #endif
     // Load
-    ExtensionSystem::PluginManager pluginManager;
-    pluginManager.setFileExtension(QLatin1String("pluginspec"));
-
     const QStringList pluginPaths = getPluginPaths();
     pluginManager.setPluginPaths(pluginPaths);
 

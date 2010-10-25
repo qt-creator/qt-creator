@@ -41,6 +41,7 @@
 
 QT_BEGIN_NAMESPACE
 class QTime;
+class QSettings;
 QT_END_NAMESPACE
 
 namespace ExtensionSystem {
@@ -72,7 +73,8 @@ public:
     void resolveDependencies();
     void initProfiling();
     void profilingReport(const char *what, const PluginSpec *spec = 0);
-    void loadSettings();
+    void setSettings(QSettings *settings);
+    void readSettings();
     void writeSettings();
     void disablePluginIndirectly(PluginSpec *spec);
 
@@ -91,6 +93,7 @@ public:
     QScopedPointer<QTime> m_profileTimer;
     int m_profileElapsedMS;
     unsigned m_profilingVerbosity;
+    QSettings *settings;
 
     // Look in argument descriptions of the specs for the option.
     PluginSpec *pluginForOption(const QString &option, bool *requiresArgument) const;

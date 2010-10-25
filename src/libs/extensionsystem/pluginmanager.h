@@ -39,6 +39,7 @@
 
 QT_BEGIN_NAMESPACE
 class QTextStream;
+class QSettings;
 QT_END_NAMESPACE
 
 namespace ExtensionSystem {
@@ -101,7 +102,9 @@ public:
     QString fileExtension() const;
 
     // Settings
-    void loadSettings();
+    void setSettings(QSettings *settings);
+    QSettings *settings() const;
+    void readSettings();
     void writeSettings();
 
     // command line arguments

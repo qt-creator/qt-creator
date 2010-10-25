@@ -311,9 +311,19 @@ void PluginManager::setFileExtension(const QString &extension)
     d->extension = extension;
 }
 
-void PluginManager::loadSettings()
+void PluginManager::setSettings(QSettings *settings)
 {
-    d->loadSettings();
+    d->setSettings(settings);
+}
+
+QSettings *PluginManager::settings() const
+{
+    return d->settings;
+}
+
+void PluginManager::readSettings()
+{
+    d->readSettings();
 }
 
 void PluginManager::writeSettings()
@@ -617,6 +627,19 @@ PluginSpec *PluginManagerPrivate::createSpec()
 }
 
 /*!
+    \fn void PluginManagerPrivate::setSettings(QSettings *settings)
+    \internal
+*/
+void PluginManagerPrivate::setSettings(QSettings *s)
+{
+    if (settings)
+        delete settings;
+    settings = s;
+    if (settings)
+        settings->setParent(this);
+}
+
+/*!
     \fn PluginSpecPrivate *PluginManagerPrivate::privateSpec(PluginSpec *spec)
     \internal
 */
@@ -633,6 +656,7 @@ PluginManagerPrivate::PluginManagerPrivate(PluginManager *pluginManager) :
     extension(QLatin1String("xml")),
     m_profileElapsedMS(0),
     m_profilingVerbosity(0),
+    settings(0),
     q(pluginManager)
 {
 }
@@ -654,9 +678,8 @@ PluginManagerPrivate::~PluginManagerPrivate()
 */
 void PluginManagerPrivate::writeSettings()
 {
-    QSettings settings(QSettings::IniFormat, QSettings::UserScope,
-                                 QLatin1String("Nokia"), QLatin1String("QtCreator"));
-
+    if (!settings)
+        return;
     QStringList tempDisabledPlugins;
     QStringList tempForceEnabledPlugins;
     foreach(PluginSpec *spec, pluginSpecs) {
@@ -666,21 +689,20 @@ void PluginManagerPrivate::writeSettings()
             tempForceEnabledPlugins.append(spec->name());
     }
 
-    settings.setValue(QLatin1String(C_IGNORED_PLUGINS), tempDisabledPlugins);
-    settings.setValue(QLatin1String(C_FORCEENABLED_PLUGINS), tempForceEnabledPlugins);
+    settings->setValue(QLatin1String(C_IGNORED_PLUGINS), tempDisabledPlugins);
+    settings->setValue(QLatin1String(C_FORCEENABLED_PLUGINS), tempForceEnabledPlugins);
 }
 
 /*!
-    \fn void PluginManagerPrivate::loadSettings()
+    \fn void PluginManagerPrivate::readSettings()
     \internal
 */
-void PluginManagerPrivate::loadSettings()
+void PluginManagerPrivate::readSettings()
 {
-    const QSettings settings(QSettings::IniFormat, QSettings::UserScope,
-                                 QLatin1String("Nokia"), QLatin1String("QtCreator"));
-
-    disabledPlugins = settings.value(QLatin1String(C_IGNORED_PLUGINS)).toStringList();
-    forceEnabledPlugins = settings.value(QLatin1String(C_FORCEENABLED_PLUGINS)).toStringList();
+    if (!settings)
+        return;
+    disabledPlugins = settings->value(QLatin1String(C_IGNORED_PLUGINS)).toStringList();
+    forceEnabledPlugins = settings->value(QLatin1String(C_FORCEENABLED_PLUGINS)).toStringList();
 }
 
 /*!
@@ -941,7 +963,7 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
 void PluginManagerPrivate::setPluginPaths(const QStringList &paths)
 {
     pluginPaths = paths;
-    loadSettings();
+    readSettings();
     readPluginPaths();
 }
 

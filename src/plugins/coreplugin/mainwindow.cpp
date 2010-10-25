@@ -118,9 +118,7 @@ MainWindow::MainWindow() :
     m_coreImpl(new CoreImpl(this)),
     m_uniqueIDManager(new UniqueIDManager()),
     m_additionalContexts(Constants::C_GLOBAL),
-    // keep this in sync with main() in app/main.cpp
-    m_settings(new QSettings(QSettings::IniFormat, QSettings::UserScope,
-                             QLatin1String("Nokia"), QLatin1String("QtCreator"), this)),
+    m_settings(ExtensionSystem::PluginManager::instance()->settings()),
     m_globalSettings(new QSettings(QSettings::IniFormat, QSettings::SystemScope,
                              QLatin1String("Nokia"), QLatin1String("QtCreator"), this)),
     m_settingsDatabase(new SettingsDatabase(QFileInfo(m_settings->fileName()).path(),
