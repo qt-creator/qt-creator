@@ -162,6 +162,7 @@ private:
     ClientProxy *m_clientProxy;
     Debugger::QmlEngine *m_qmlEngine;
     QDeclarativeDebugExpressionQuery *m_debugQuery;
+    int m_lastSelectedDebugId;
 
     // Qml/JS integration
     QHash<QString, QmlJSLiveTextPreview *> m_textPreviews;

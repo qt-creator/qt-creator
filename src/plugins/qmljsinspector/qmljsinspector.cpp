@@ -138,6 +138,7 @@ InspectorUi::InspectorUi(QObject *parent)
     , m_clientProxy(0)
     , m_qmlEngine(0)
     , m_debugQuery(0)
+    , m_lastSelectedDebugId(-1)
     , m_debugProject(0)
 {
     m_instance = this;
@@ -350,6 +351,18 @@ void InspectorUi::updateEngineList()
 
 void InspectorUi::changeSelectedItems(const QList<QDeclarativeDebugObjectReference> &objects)
 {
+    if (m_lastSelectedDebugId >= 0) {
+        foreach (QDeclarativeDebugObjectReference ref, objects) {
+            if (ref.debugId() == m_lastSelectedDebugId) {
+                // this is only the 'call back' after we have programatically set a new cursor
+                // position in
+                m_lastSelectedDebugId = -1;
+                return;
+            }
+        }
+        m_lastSelectedDebugId = -1;
+    }
+
     m_clientProxy->setSelectedItemsByObjectId(objects);
 }
 
@@ -548,6 +561,8 @@ void InspectorUi::gotoObjectReferenceDefinition(const QDeclarativeDebugObjectRef
     TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor);
 
     if (textEditor) {
+        m_lastSelectedDebugId = obj.debugId();
+
         editorManager->addCurrentPositionToNavigationHistory();
         textEditor->gotoLine(source.lineNumber());
         textEditor->widget()->setFocus();
