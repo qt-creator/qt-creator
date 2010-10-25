@@ -628,6 +628,8 @@ void Qt4Project::update()
 
 void Qt4Project::scheduleAsyncUpdate(Qt4ProFileNode *node)
 {
+    if (m_asyncUpdateState == ShuttingDown)
+        return;
     if (debug)
         qDebug()<<"schduleAsyncUpdate (node)";
     Q_ASSERT(m_asyncUpdateState != NoState);
@@ -694,6 +696,8 @@ void Qt4Project::scheduleAsyncUpdate()
 {
     if (debug)
         qDebug()<<"scheduleAsyncUpdate";
+    if (m_asyncUpdateState == ShuttingDown)
+        return;
     Q_ASSERT(m_asyncUpdateState != NoState);
     if (m_cancelEvaluate) { // we are in progress of canceling
                             // and will start the evaluation after that

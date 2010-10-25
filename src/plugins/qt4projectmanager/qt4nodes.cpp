@@ -1299,6 +1299,7 @@ void Qt4ProFileNode::asyncUpdate()
 {
     m_project->incrementPendingEvaluateFutures();
     setupReader();
+    m_parseFutureWatcher.waitForFinished();
     QFuture<bool> future = QtConcurrent::run(&Qt4ProFileNode::asyncEvaluate, this);
     m_parseFutureWatcher.setFuture(future);
 }
