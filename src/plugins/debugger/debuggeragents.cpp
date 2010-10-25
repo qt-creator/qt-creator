@@ -33,6 +33,7 @@
 #include "debuggerplugin.h"
 #include "debuggerstringutils.h"
 #include "stackframe.h"
+#include "debuggerconstants.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -367,8 +368,8 @@ void DisassemblerViewAgent::setContents(const QString &contents)
                 Core::Constants::K_DEFAULT_TEXT_EDITOR_ID,
                 &titlePattern));
         QTC_ASSERT(d->editor, return);
-        d->editor->setProperty("OpenedByDebugger", true);
-        d->editor->setProperty("DisassemblerView", true);
+        d->editor->setProperty(Debugger::Constants::OPENED_BY_DEBUGGER, true);
+        d->editor->setProperty(Debugger::Constants::OPENED_WITH_DISASSEMBLY, true);
         d->configureMimeType();
     }
 

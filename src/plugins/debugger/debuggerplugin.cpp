@@ -2146,9 +2146,17 @@ void DebuggerPluginPrivate::cleanupViews()
     if (theDebuggerBoolSetting(CloseBuffersOnExit)) {
         if (EditorManager *editorManager = EditorManager::instance()) {
             QList<IEditor *> toClose;
-            foreach (IEditor *editor, editorManager->openedEditors())
-                if (editor->property("OpenedByDebugger").toBool())
-                    toClose.append(editor);
+            foreach (IEditor *editor, editorManager->openedEditors()) {
+                if (editor->property(Debugger::Constants::OPENED_BY_DEBUGGER).toBool()) {
+                    // close disassembly views. close other opened files if they are not modified and not current editor
+                    if (editor->property(Debugger::Constants::OPENED_WITH_DISASSEMBLY).toBool()
+                            || (!editor->file()->isModified() && editor != editorManager->currentEditor())) {
+                        toClose.append(editor);
+                    } else {
+                        editor->setProperty(Debugger::Constants::OPENED_BY_DEBUGGER, false);
+                    }
+                }
+            }
             editorManager->closeEditors(toClose);
         }
     }
@@ -2425,7 +2433,7 @@ void DebuggerPluginPrivate::gotoLocation(const QString &file, int line, bool set
     if (!editor)
         return;
     if (newEditor)
-        editor->setProperty("OpenedByDebugger", true);
+        editor->setProperty(Debugger::Constants::OPENED_BY_DEBUGGER, true);
     if (setMarker)
         m_locationMark.reset(new LocationMark(file, line));
 }

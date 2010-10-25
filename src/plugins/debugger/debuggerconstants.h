@@ -87,6 +87,9 @@ namespace Internal {
 
 } // namespace Internal
 
+const char * const OPENED_BY_DEBUGGER         = "OpenedByDebugger";
+const char * const OPENED_WITH_DISASSEMBLY    = "DisassemblerView";
+
 } // namespace Constants
 
 
