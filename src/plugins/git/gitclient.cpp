@@ -69,13 +69,6 @@
 static const char *const kGitDirectoryC = ".git";
 static const char *const kBranchIndicatorC = "# On branch";
 
-static inline QString msgServerFailure()
-{
-    return Git::Internal::GitClient::tr(
-"Note that the git plugin for QtCreator is not able to interact with the server "
-"so far. Thus, manual ssh-identification etc. will not work.");
-}
-
 inline Core::IEditor* locateEditor(const Core::ICore *core, const char *property, const QString &entry)
 {
     foreach (Core::IEditor *ed, core->editorManager()->openedEditors())
