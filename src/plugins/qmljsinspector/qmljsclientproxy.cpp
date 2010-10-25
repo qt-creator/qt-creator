@@ -53,47 +53,47 @@ using namespace QmlJSInspector::Internal;
 ClientProxy::ClientProxy(Debugger::QmlAdapter *adapter, QObject *parent)
     : QObject(parent)
     , m_adapter(adapter)
-    , m_client(m_adapter->client())
-    , m_designClient(0)
+    , m_engineClient(m_adapter->client())
+    , m_observerClient(0)
     , m_engineQuery(0)
     , m_contextQuery(0)
     , m_isConnected(false)
 {
     m_requestObjectsTimer.setSingleShot(true);
     m_requestObjectsTimer.setInterval(3000);
-    connect(m_client, SIGNAL(newObjects()), this, SLOT(newObjects()));
+    connect(m_engineClient, SIGNAL(newObjects()), this, SLOT(newObjects()));
     connect(&m_requestObjectsTimer, SIGNAL(timeout()), this, SLOT(refreshObjectTree()));
     connectToServer();
 }
 
 void ClientProxy::connectToServer()
 {
-    m_designClient = new QmlJSObserverClient(m_adapter->connection(), this);
+    m_observerClient = new QmlJSObserverClient(m_adapter->connection(), this);
 
 
-    m_adapter->logServiceStatusChange(m_designClient->name(), m_designClient->status());
+    m_adapter->logServiceStatusChange(m_observerClient->name(), m_observerClient->status());
 
-    connect(m_designClient, SIGNAL(connectedStatusChanged(QDeclarativeDebugClient::Status)),
+    connect(m_observerClient, SIGNAL(connectedStatusChanged(QDeclarativeDebugClient::Status)),
              this, SLOT(clientStatusChanged(QDeclarativeDebugClient::Status)));
-    connect(m_designClient, SIGNAL(currentObjectsChanged(QList<int>)),
+    connect(m_observerClient, SIGNAL(currentObjectsChanged(QList<int>)),
         SLOT(onCurrentObjectsChanged(QList<int>)));
-    connect(m_designClient, SIGNAL(colorPickerActivated()),
+    connect(m_observerClient, SIGNAL(colorPickerActivated()),
         SIGNAL(colorPickerActivated()));
-    connect(m_designClient, SIGNAL(zoomToolActivated()),
+    connect(m_observerClient, SIGNAL(zoomToolActivated()),
         SIGNAL(zoomToolActivated()));
-    connect(m_designClient, SIGNAL(selectToolActivated()),
+    connect(m_observerClient, SIGNAL(selectToolActivated()),
         SIGNAL(selectToolActivated()));
-    connect(m_designClient, SIGNAL(selectMarqueeToolActivated()),
+    connect(m_observerClient, SIGNAL(selectMarqueeToolActivated()),
         SIGNAL(selectMarqueeToolActivated()));
-    connect(m_designClient, SIGNAL(animationSpeedChanged(qreal)),
+    connect(m_observerClient, SIGNAL(animationSpeedChanged(qreal)),
         SIGNAL(animationSpeedChanged(qreal)));
-    connect(m_designClient, SIGNAL(designModeBehaviorChanged(bool)),
+    connect(m_observerClient, SIGNAL(designModeBehaviorChanged(bool)),
         SIGNAL(designModeBehaviorChanged(bool)));
-    connect(m_designClient, SIGNAL(reloaded()), this,
+    connect(m_observerClient, SIGNAL(reloaded()), this,
         SIGNAL(serverReloaded()));
-    connect(m_designClient, SIGNAL(selectedColorChanged(QColor)),
+    connect(m_observerClient, SIGNAL(selectedColorChanged(QColor)),
         SIGNAL(selectedColorChanged(QColor)));
-    connect(m_designClient, SIGNAL(contextPathUpdated(QStringList)),
+    connect(m_observerClient, SIGNAL(contextPathUpdated(QStringList)),
         SIGNAL(contextPathUpdated(QStringList)));
 
     updateConnected();
@@ -113,30 +113,30 @@ void ClientProxy::clientStatusChanged(QDeclarativeDebugClient::Status status)
 
 void ClientProxy::disconnectFromServer()
 {
-    if (m_designClient) {
-        disconnect(m_designClient, SIGNAL(connectedStatusChanged(QDeclarativeDebugClient::Status)),
+    if (m_observerClient) {
+        disconnect(m_observerClient, SIGNAL(connectedStatusChanged(QDeclarativeDebugClient::Status)),
                  this, SLOT(clientStatusChanged(QDeclarativeDebugClient::Status)));
-        disconnect(m_designClient, SIGNAL(currentObjectsChanged(QList<int>)),
+        disconnect(m_observerClient, SIGNAL(currentObjectsChanged(QList<int>)),
             this, SLOT(onCurrentObjectsChanged(QList<int>)));
-        disconnect(m_designClient, SIGNAL(colorPickerActivated()),
+        disconnect(m_observerClient, SIGNAL(colorPickerActivated()),
             this, SIGNAL(colorPickerActivated()));
-        disconnect(m_designClient, SIGNAL(zoomToolActivated()),
+        disconnect(m_observerClient, SIGNAL(zoomToolActivated()),
             this, SIGNAL(zoomToolActivated()));
-        disconnect(m_designClient, SIGNAL(selectToolActivated()),
+        disconnect(m_observerClient, SIGNAL(selectToolActivated()),
             this, SIGNAL(selectToolActivated()));
-        disconnect(m_designClient, SIGNAL(selectMarqueeToolActivated()),
+        disconnect(m_observerClient, SIGNAL(selectMarqueeToolActivated()),
             this, SIGNAL(selectMarqueeToolActivated()));
-        disconnect(m_designClient, SIGNAL(animationSpeedChanged(qreal)),
+        disconnect(m_observerClient, SIGNAL(animationSpeedChanged(qreal)),
             this, SIGNAL(animationSpeedChanged(qreal)));
-        disconnect(m_designClient, SIGNAL(designModeBehaviorChanged(bool)),
+        disconnect(m_observerClient, SIGNAL(designModeBehaviorChanged(bool)),
             this, SIGNAL(designModeBehaviorChanged(bool)));
-        disconnect(m_designClient, SIGNAL(selectedColorChanged(QColor)),
+        disconnect(m_observerClient, SIGNAL(selectedColorChanged(QColor)),
             this, SIGNAL(selectedColorChanged(QColor)));
-        disconnect(m_designClient, SIGNAL(contextPathUpdated(QStringList)),
+        disconnect(m_observerClient, SIGNAL(contextPathUpdated(QStringList)),
             this, SIGNAL(contextPathUpdated(QStringList)));
 
-        delete m_designClient;
-        m_designClient = 0;
+        delete m_observerClient;
+        m_observerClient = 0;
     }
 
     if (m_engineQuery)
@@ -194,7 +194,7 @@ void ClientProxy::setSelectedItemsByObjectId(const QList<QDeclarativeDebugObject
             debugIds << ref.debugId();
         }
 
-        m_designClient->setCurrentObjects(debugIds);
+        m_observerClient->setCurrentObjects(debugIds);
     }
 }
 
@@ -285,7 +285,7 @@ bool ClientProxy::setBindingForObject(int objectDebugId,
     if (propertyName == QLatin1String("id"))
         return false; // Crashes the QMLViewer.
 
-    bool result = m_client->setBindingForObject(objectDebugId, propertyName, value.toString(), isLiteralValue);
+    bool result = m_engineClient->setBindingForObject(objectDebugId, propertyName, value.toString(), isLiteralValue);
 
     return result;
 }
@@ -296,7 +296,7 @@ bool ClientProxy::setMethodBodyForObject(int objectDebugId, const QString &metho
         qDebug() << "setMethodBodyForObject():" << objectDebugId << methodName << methodBody;
     if (objectDebugId == -1)
         return 0;
-    return m_client->setMethodBody(objectDebugId, methodName, methodBody);
+    return m_engineClient->setMethodBody(objectDebugId, methodName, methodBody);
 }
 
 bool ClientProxy::resetBindingForObject(int objectDebugId, const QString& propertyName)
@@ -306,7 +306,7 @@ bool ClientProxy::resetBindingForObject(int objectDebugId, const QString& proper
     if (objectDebugId == -1)
         return false;
     //    if (propertyName == QLatin1String("id"))  return false;
-    return m_client->resetBindingForObject(objectDebugId, propertyName);
+    return m_engineClient->resetBindingForObject(objectDebugId, propertyName);
 }
 
 QDeclarativeDebugExpressionQuery *ClientProxy::queryExpressionResult(int objectDebugId, const QString &expr, QObject *parent)
@@ -314,14 +314,14 @@ QDeclarativeDebugExpressionQuery *ClientProxy::queryExpressionResult(int objectD
     if (debug)
         qDebug() << "queryExpressionResult():" << objectDebugId << expr << parent;
     if (objectDebugId != -1)
-        return m_client->queryExpressionResult(objectDebugId,expr,parent);
+        return m_engineClient->queryExpressionResult(objectDebugId,expr,parent);
     return 0;
 }
 
 void ClientProxy::clearComponentCache()
 {
     if (isConnected())
-        m_designClient->clearComponentCache();
+        m_observerClient->clearComponentCache();
 }
 
 void ClientProxy::queryEngineContext(int id)
@@ -334,7 +334,7 @@ void ClientProxy::queryEngineContext(int id)
         m_contextQuery = 0;
     }
 
-    m_contextQuery = m_client->queryRootContexts(QDeclarativeDebugEngineReference(id), this);
+    m_contextQuery = m_engineClient->queryRootContexts(QDeclarativeDebugEngineReference(id), this);
     if (!m_contextQuery->isWaiting())
         contextChanged();
     else
@@ -361,7 +361,7 @@ void ClientProxy::contextChanged()
 void ClientProxy::fetchContextObjectRecusrsive(const QDeclarativeDebugContextReference& context)
 {
     foreach (const QDeclarativeDebugObjectReference & obj, context.objects()) {
-        QDeclarativeDebugObjectQuery* query = m_client->queryObjectRecursive(obj, this);
+        QDeclarativeDebugObjectQuery* query = m_engineClient->queryObjectRecursive(obj, this);
         if (!query->isWaiting()) {
             query->deleteLater(); //ignore errors;
         } else {
@@ -401,10 +401,10 @@ void ClientProxy::objectTreeFetched(QDeclarativeDebugQuery::State state)
         emit objectTreeUpdated();
 
         if (isConnected()) {
-            if (!m_designClient->currentObjects().isEmpty())
-                onCurrentObjectsChanged(m_designClient->currentObjects(), false);
+            if (!m_observerClient->currentObjects().isEmpty())
+                onCurrentObjectsChanged(m_observerClient->currentObjects(), false);
 
-            m_designClient->setObjectIdList(m_rootObjects);
+            m_observerClient->setObjectIdList(m_rootObjects);
         }
     }
 }
@@ -446,73 +446,73 @@ void ClientProxy::buildDebugIdHashRecursive(const QDeclarativeDebugObjectReferen
 void ClientProxy::reloadQmlViewer()
 {
     if (isConnected())
-        m_designClient->reloadViewer();
+        m_observerClient->reloadViewer();
 }
 
 void ClientProxy::setDesignModeBehavior(bool inDesignMode)
 {
     if (isConnected())
-        m_designClient->setDesignModeBehavior(inDesignMode);
+        m_observerClient->setDesignModeBehavior(inDesignMode);
 }
 
 void ClientProxy::setAnimationSpeed(qreal slowdownFactor)
 {
     if (isConnected())
-        m_designClient->setAnimationSpeed(slowdownFactor);
+        m_observerClient->setAnimationSpeed(slowdownFactor);
 }
 
 void ClientProxy::changeToColorPickerTool()
 {
     if (isConnected())
-        m_designClient->changeToColorPickerTool();
+        m_observerClient->changeToColorPickerTool();
 }
 
 void ClientProxy::changeToZoomTool()
 {
     if (isConnected())
-        m_designClient->changeToZoomTool();
+        m_observerClient->changeToZoomTool();
 }
 void ClientProxy::changeToSelectTool()
 {
     if (isConnected())
-        m_designClient->changeToSelectTool();
+        m_observerClient->changeToSelectTool();
 }
 
 void ClientProxy::changeToSelectMarqueeTool()
 {
     if (isConnected())
-        m_designClient->changeToSelectMarqueeTool();
+        m_observerClient->changeToSelectMarqueeTool();
 }
 
 void ClientProxy::createQmlObject(const QString &qmlText, int parentDebugId,
                                   const QStringList &imports, const QString &filename)
 {
     if (isConnected())
-        m_designClient->createQmlObject(qmlText, parentDebugId, imports, filename);
+        m_observerClient->createQmlObject(qmlText, parentDebugId, imports, filename);
 }
 
 void ClientProxy::destroyQmlObject(int debugId)
 {
     if (isConnected())
-        m_designClient->destroyQmlObject(debugId);
+        m_observerClient->destroyQmlObject(debugId);
 }
 
 void ClientProxy::reparentQmlObject(int debugId, int newParent)
 {
     if (isConnected())
-        m_designClient->reparentQmlObject(debugId, newParent);
+        m_observerClient->reparentQmlObject(debugId, newParent);
 }
 
 void ClientProxy::setContextPathIndex(int contextIndex)
 {
     if (isConnected())
-        m_designClient->setContextPathIndex(contextIndex);
+        m_observerClient->setContextPathIndex(contextIndex);
 }
 
 void ClientProxy::updateConnected()
 {
-    bool isConnected = m_designClient && m_designClient->status() == QDeclarativeDebugClient::Enabled
-            && m_client && m_client->status() == QDeclarativeEngineDebug::Enabled;
+    bool isConnected = m_observerClient && m_observerClient->status() == QDeclarativeDebugClient::Enabled
+            && m_engineClient && m_engineClient->status() == QDeclarativeEngineDebug::Enabled;
 
     if (isConnected != m_isConnected) {
         m_isConnected = isConnected;
@@ -534,7 +534,7 @@ void ClientProxy::reloadEngines()
 
     emit aboutToReloadEngines();
 
-    m_engineQuery = m_client->queryAvailableEngines(this);
+    m_engineQuery = m_engineClient->queryAvailableEngines(this);
     if (!m_engineQuery->isWaiting())
         updateEngineList();
     else

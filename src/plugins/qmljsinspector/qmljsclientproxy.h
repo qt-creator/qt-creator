@@ -146,8 +146,8 @@ private:
     void buildDebugIdHashRecursive(const QDeclarativeDebugObjectReference &ref);
 
     Debugger::QmlAdapter *m_adapter;
-    QDeclarativeEngineDebug *m_client;
-    QmlJSObserverClient *m_designClient;
+    QDeclarativeEngineDebug *m_engineClient;
+    QmlJSObserverClient *m_observerClient;
 
     QDeclarativeDebugEnginesQuery *m_engineQuery;
     QDeclarativeDebugRootContextQuery *m_contextQuery;
