@@ -30,7 +30,7 @@
 #ifndef SCRIPTMANAGER_P_H
 #define SCRIPTMANAGER_P_H
 
-#include <coreplugin/scriptmanager/scriptmanager.h>
+#include "scriptmanager.h"
 
 #include <QtCore/QObject>
 #include <QtScript/QScriptEngine>
