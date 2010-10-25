@@ -68,7 +68,7 @@ private slots:
 
 private:
     QPointer<QWidget> m_configWidget;
-    Core::IFile *m_currentFile;
+    QPointer<Core::IFile> m_currentFile;
 };
 
 } // namespace Internal
