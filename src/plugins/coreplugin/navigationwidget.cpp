@@ -364,8 +364,8 @@ void NavigationWidget::restoreSettings(QSettings *settings)
     }
 
     d->m_width = settings->value(QLatin1String("Navigation/Width"), 240).toInt();
-    if (d->width < 40)
-        d->width = 40;
+    if (d->m_width < 40)
+        d->m_width = 40;
 
     // Apply
     if (NavigationWidgetPlaceHolder::m_current)
