@@ -655,7 +655,7 @@ bool ScriptEngine::checkForBreakCondition(bool byFunction)
         data->setMarkerLineNumber(lineNumber);
         data->setMarkerFileName(fileName);
         data->pending = false;
-        data->updateMarker();
+        breakHandler()->updateMarker(data);
     }
     notifyInferiorSpontaneousStop();
     SDEBUG("Stopped at " << lineNumber << fileName);

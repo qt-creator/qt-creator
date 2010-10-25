@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "breakwindow.h"
+#include "breakhandler.h"
 
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
@@ -426,8 +427,12 @@ void BreakWindow::editBreakpoints(const QModelIndexList &list)
         const QVariant dataV = model()->data(list.at(0), BreakpointRole);
         QTC_ASSERT(qVariantCanConvert<BreakpointData *>(dataV), return );
         BreakpointData *data = qvariant_cast<BreakpointData *>(dataV);
-        if (editBreakpoint(data, this))
-            data->reinsertBreakpoint();
+        if (editBreakpoint(data, this)) {
+            // FIXME: nasty MVC violation
+            BreakHandler * handler = qobject_cast<BreakHandler *>(model());
+            if (handler)
+                handler->reinsertBreakpoint(data);
+        }
         return;
     }
 

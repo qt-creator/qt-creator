@@ -75,6 +75,8 @@ public:
     int findWatchPointIndexByAddress(quint64 address) const;
     bool watchPointAt(quint64 address) const;
     void updateMarkers();
+    void updateMarker(BreakpointData *);
+    void removeMarker(BreakpointData *);
     bool isActive() const;
 
     Breakpoints takeRemovedBreakpoints(); // Owned.

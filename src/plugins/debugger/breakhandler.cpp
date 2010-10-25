@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "breakhandler.h"
+#include "breakpointmarker.h"
 
 #include "debuggeractions.h"
 #include "debuggerengine.h"
@@ -52,6 +53,8 @@ static DebuggerPlugin *plugin() { return DebuggerPlugin::instance(); }
 
 
 static Breakpoints m_bp;
+// FIXME this is only static because it might map to bps in the above list
+static QHash<quint64,BreakpointMarker*> m_markers;
 
 //////////////////////////////////////////////////////////////////
 //
@@ -108,6 +111,7 @@ void BreakHandler::removeAt(int index)
     BreakpointData *data = at(index);
     QTC_ASSERT(data, return);
     m_bp.removeAt(index);
+    delete m_markers.take(data->id);
     delete data;
 }
 
@@ -242,8 +246,31 @@ void BreakHandler::loadBreakpoints()
 void BreakHandler::updateMarkers()
 {
     for (int index = 0; index != size(); ++index)
-        at(index)->updateMarker();
+        updateMarker(at(index));
     emit layoutChanged();
+}
+
+void BreakHandler::updateMarker(BreakpointData * bp)
+{
+    BreakpointMarker *marker = m_markers.value(bp->id);
+
+    if (marker && (bp->m_markerFileName != marker->fileName()
+                || bp->m_markerLineNumber != marker->lineNumber())) {
+        removeMarker(bp);
+        marker = 0;
+    }
+
+    if (!marker && !bp->m_markerFileName.isEmpty() && bp->m_markerLineNumber > 0) {
+        marker = new BreakpointMarker(this, bp, bp->m_markerFileName, bp->m_markerLineNumber);
+        m_markers.insert(bp->id, marker);
+    }
+
+    if (marker)
+        marker->setPending(bp->pending);
+}
+void BreakHandler::removeMarker(BreakpointData * bp)
+{
+    delete m_markers.take(bp->id);
 }
 
 QVariant BreakHandler::headerData(int section,
@@ -517,12 +544,14 @@ void BreakHandler::reinsertBreakpoint(BreakpointData *data)
 
 void BreakHandler::append(BreakpointData *data)
 {
-    data->m_handler = this;
     m_bp.append(data);
 }
 
 Breakpoints BreakHandler::takeRemovedBreakpoints()
 {
+    foreach(BreakpointData *bp, m_removed) {
+        removeMarker(bp);
+    }
     Breakpoints result = m_removed;
     m_removed.clear();
     return result;
@@ -547,7 +576,7 @@ void BreakHandler::removeBreakpointHelper(int index)
     BreakpointData *data = at(index);
     QTC_ASSERT(data, return);
     m_bp.removeAt(index);
-    data->removeMarker();
+    removeMarker(data);
     m_removed.append(data);
 }
 
@@ -576,8 +605,8 @@ void BreakHandler::toggleBreakpointEnabled(BreakpointData *data)
         m_enabled.removeAll(data);
         m_disabled.append(data);
     }
-    data->removeMarker(); // Force icon update.
-    data->updateMarker();
+    removeMarker(data); // Force icon update.
+    updateMarker(data);
     emit layoutChanged();
     m_engine->attemptBreakpointSynchronization();
 }
@@ -661,6 +690,9 @@ void BreakHandler::saveSessionData()
 void BreakHandler::loadSessionData()
 {
     QTC_ASSERT(m_engine->isSessionEngine(), return);
+    foreach(BreakpointData *bp, m_bp) {
+        delete m_markers.take(bp->id);
+    }
     qDeleteAll(m_bp);
     m_bp.clear();
     loadBreakpoints();
@@ -696,7 +728,9 @@ void BreakHandler::initializeFromTemplate(BreakHandler *other)
     m_inserted.clear();
     foreach(BreakpointData *data, m_bp) {
         if (m_engine->acceptsBreakpoint(data)) {
-            data->m_handler = this;
+            BreakpointMarker *marker = m_markers.value(data->id);
+            if (marker)
+                marker->m_handler = this;
             m_inserted.append(data);
         }
     }
@@ -705,7 +739,9 @@ void BreakHandler::initializeFromTemplate(BreakHandler *other)
 void BreakHandler::storeToTemplate(BreakHandler *other)
 {
     foreach (BreakpointData *data, m_bp) {
-        data->m_handler = other;
+        BreakpointMarker *marker = m_markers.value(data->id);
+        if (marker)
+            marker->m_handler = other;
         data->clear();
     }
     other->saveSessionData();

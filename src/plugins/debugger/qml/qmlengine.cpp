@@ -705,7 +705,7 @@ void QmlEngine::messageReceived(const QByteArray &message)
                     data->pending = false;
                     data->bpFileName = file;
                     data->bpLineNumber = line;
-                    data->updateMarker();
+                    handler->updateMarker(data);
                 }
             }
         }

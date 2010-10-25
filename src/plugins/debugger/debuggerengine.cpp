@@ -340,8 +340,7 @@ void DebuggerEnginePrivate::slotEditBreakpoint()
     const QVariant data = act->data();
     QTC_ASSERT(qVariantCanConvert<BreakpointData *>(data), return);
     BreakpointData *breakPointData = qvariant_cast<BreakpointData *>(data);
-    if (BreakWindow::editBreakpoint(breakPointData, ICore::instance()->mainWindow()))
-        breakPointData->reinsertBreakpoint();
+    BreakWindow::editBreakpoint(breakPointData, ICore::instance()->mainWindow());
 }
 
 void DebuggerEnginePrivate::breakpointEnableDisableMarginActionTriggered()

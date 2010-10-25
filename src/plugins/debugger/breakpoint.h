@@ -33,6 +33,7 @@
 #include <QtCore/QMetaType>
 #include <QtCore/QList>
 #include <QtCore/QString>
+#include <QtCore/QCoreApplication>
 
 namespace Debugger {
 namespace Internal {
@@ -52,11 +53,7 @@ public:
     BreakpointData();
     ~BreakpointData();
 
-    void removeMarker();
-    void updateMarker();
     QString toToolTip() const;
-    BreakHandler *handler() { return m_handler; }
-    void reinsertBreakpoint();
     void clear(); // Delete all generated data.
 
     bool isLocatedAt(const QString &fileName, int lineNumber,
@@ -77,12 +74,12 @@ private:
     BreakpointData(const BreakpointData &);
     void operator=(const BreakpointData &);
 
-    // Our owner
-    BreakHandler *m_handler; // Not owned.
     friend class BreakHandler;
 
 public:
     enum Type { BreakpointType, WatchpointType };
+
+    quint64 id;
 
     bool enabled;            // Should we talk to the debugger engine?
     bool pending;            // Does the debugger engine know about us already?
@@ -124,13 +121,12 @@ public:
     bool isSetByFunction() const { return !funcName.isEmpty(); }
     bool isSetByFileAndLine() const { return !fileName.isEmpty(); }
 
-private:
+    Q_DECLARE_TR_FUNCTIONS(BreakHandler)
+
+    // TODO: move those to breakhandler
     // Taken from either user input or gdb responses.
     QString m_markerFileName; // Used to locate the marker.
     int m_markerLineNumber;
-
-    // Our red blob in the editor.
-    BreakpointMarker *marker;
 };
 
 typedef QList<BreakpointData *> Breakpoints;
