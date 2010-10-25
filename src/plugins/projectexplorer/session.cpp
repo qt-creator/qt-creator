@@ -155,18 +155,6 @@ bool SessionFile::load(const QString &fileName)
 
     QStringList fileList =
         reader.restoreValue(QLatin1String("ProjectList")).toStringList();
-    QString configDir = QFileInfo(m_core->settings()->fileName()).path();
-    QMutableStringListIterator it(fileList);
-    while (it.hasNext()) {
-        const QString &file = it.next();
-        if (QFileInfo(file).isRelative()) {
-            // We used to write relative paths into the session file
-            // relative to the session files, and those were stored in the
-            // config dir
-            it.setValue(configDir + QLatin1Char('/') + file);
-        }
-    }
-
     int openEditorsCount = reader.restoreValue(QLatin1String("OpenEditors")).toInt();
 
     future.setProgressRange(0, fileList.count() + openEditorsCount + 2);
@@ -349,23 +337,6 @@ SessionManager::SessionManager(QObject *parent)
     m_currentEditor(0),
     m_virginSession(true)
 {
-    // Create qtcreator dir if it doesn't yet exist
-    QString configDir = QFileInfo(m_core->settings()->fileName()).path();
-
-    QFileInfo fi(configDir + "/qtcreator/");
-    if (!fi.exists()) {
-        QDir dir;
-        dir.mkpath(configDir + "/qtcreator");
-
-        // Move sessions to that directory
-        foreach (const QString &session, sessions()) {
-            QFile file(configDir + QLatin1Char('/') + session + QLatin1String(".qws"));
-            if (file.exists())
-                if (file.copy(configDir + QLatin1String("/qtcreator/") + session + QLatin1String(".qws")))
-                    file.remove();
-        }
-    }
-
     connect(m_core->modeManager(), SIGNAL(currentModeChanged(Core::IMode*)),
             this, SLOT(saveActiveMode(Core::IMode*)));
 
@@ -1023,7 +994,7 @@ QStringList SessionManager::sessions() const
 {
     if (m_sessions.isEmpty()) {
         // We are not initialized yet, so do that now
-        QDir sessionDir(QFileInfo(m_core->settings()->fileName()).path()+ "/qtcreator/");
+        QDir sessionDir(Core::ICore::instance()->userResourcePath());
         QList<QFileInfo> sessionFiles = sessionDir.entryInfoList(QStringList() << QLatin1String("*.qws"), QDir::NoFilter, QDir::Time);
         Q_FOREACH(const QFileInfo& fileInfo, sessionFiles) {
             if (fileInfo.completeBaseName() != "default")
