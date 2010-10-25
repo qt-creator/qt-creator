@@ -57,7 +57,6 @@ public:
 
 private slots:
     void slotValidChanged();
-    void slotSettings();
 
 private:
     void initParameters();

@@ -200,7 +200,6 @@ static QList<ProjectEntry> findDeployProject(const QList<ProjectEntry> &projects
 // path. Either a direct match on the directory or the directory with
 // the longest matching path (list containing"/project/subproject1" matching
 // common path "/project/subproject1/newuserpath").
-// This relies on 'pro' occurring before 'pri' in the list.
 static int findMatchingProject(const QList<ProjectEntry> &projects,
                                const QString &commonPath)
 {
@@ -209,14 +208,20 @@ static int findMatchingProject(const QList<ProjectEntry> &projects,
 
     int bestMatch = -1;
     int bestMatchLength = 0;
+    bool bestMatchIsProFile = false;
     const int count = projects.size();
     for (int p = 0; p < count; p++) {
         // Direct match or better match? (note that the wizards' files are native).
-        const QString &projectDirectory = projects.at(p).directory;
-        if (projectDirectory == commonPath)
-            return p;
-        if (projectDirectory.size() > bestMatchLength
-            && commonPath.startsWith(projectDirectory)) {
+        const ProjectEntry &entry = projects.at(p);
+        const QString &projectDirectory = entry.directory;
+        const int projectDirectorySize = projectDirectory.size();
+        if (projectDirectorySize == bestMatchLength && bestMatchIsProFile)
+            continue; // prefer first pro file over all other files with same bestMatchLength
+        if (projectDirectorySize == bestMatchLength && entry.type == ProjectEntry::PriFile)
+            continue; // we already have a match with same bestMatchLength that is at least a pri file
+        if (projectDirectorySize >= bestMatchLength
+                && commonPath.startsWith(projectDirectory)) {
+            bestMatchIsProFile = (entry.type == ProjectEntry::ProFile);
             bestMatchLength = projectDirectory.size();
             bestMatch = p;
         }

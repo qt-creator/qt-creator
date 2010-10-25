@@ -57,7 +57,7 @@
 #include <string.h>
 
 QT_BEGIN_NAMESPACE
-extern double qstrtod(const char *s00, char const **se, bool *ok);
+Q_CORE_EXPORT double qstrtod(const char *s00, char const **se, bool *ok);
 QT_END_NAMESPACE
 
 QT_QML_BEGIN_NAMESPACE
@@ -103,7 +103,7 @@ Lexer::Lexer(Engine *eng, bool tokenizeComments)
       prohibitAutomaticSemicolon(false),
       tokenizeComments(tokenizeComments)
 {
-    driver->setLexer(this);
+    if (driver) driver->setLexer(this);
     // allocate space for read buffers
     buffer8 = new char[size8];
     buffer16 = new QChar[size16];
@@ -120,7 +120,7 @@ Lexer::~Lexer()
 
 void Lexer::setCode(const QString &c, int lineno)
 {
-    errmsg = QString();
+    errmsg.clear();
     yylineno = lineno;
     yycolumn = 1;
     restrKeyword = false;
@@ -484,6 +484,8 @@ int Lexer::lex()
         stackToken = -1;
     }
 
+    bool identifierWithEscapedUnicode = false;
+
     while (!done) {
         switch (state) {
         case Start:
@@ -508,22 +510,44 @@ int Lexer::lex()
                     setDone(Eof);
                 }
             } else if (isLineTerminator()) {
-                shiftWindowsLineBreak();
-                yylineno++;
-                yycolumn = 0;
-                bol = true;
-                terminator = true;
-                syncProhibitAutomaticSemicolon();
                 if (restrKeyword) {
+                    // automatic semicolon insertion
+                    recordStartPos();
                     token = QmlJSGrammar::T_SEMICOLON;
                     setDone(Other);
+                } else {
+                    shiftWindowsLineBreak();
+                    yylineno++;
+                    yycolumn = 0;
+                    bol = true;
+                    terminator = true;
+                    syncProhibitAutomaticSemicolon();
                 }
             } else if (current == '"' || current == '\'') {
                 recordStartPos();
                 state = InString;
                 multiLineString = false;
                 stringType = current;
+            } else if (current == '\\' && next1 == 'u') {
+                identifierWithEscapedUnicode = true;
+                recordStartPos();
+
+                shift(2); // skip the unicode escape prefix `\u'
+
+                if (isHexDigit(current) && isHexDigit(next1) &&
+                     isHexDigit(next2) && isHexDigit(next3)) {
+                    record16(convertUnicode(current, next1, next2, next3));
+                    shift(3);
+                    state = InIdentifier;
+                } else {
+                    setDone(Bad);
+                    err = IllegalUnicodeEscapeSequence;
+                    errmsg = QCoreApplication::translate("QmlParser", "Illegal unicode escape sequence");
+                    break;
+                }
+
             } else if (isIdentLetter(current)) {
+                identifierWithEscapedUnicode = false;
                 recordStartPos();
                 record16(current);
                 state = InIdentifier;
@@ -656,9 +680,9 @@ int Lexer::lex()
                     setDone(Other);
                 } else
                     state = Start;
-                driver->addComment(startpos, tokenLength(), startlineno, startcolumn);
+                if (driver) driver->addComment(startpos+2, tokenLength()-2, startlineno, startcolumn+2);
             } else if (current == 0) {
-                driver->addComment(startpos, tokenLength(), startlineno, startcolumn);
+                if (driver) driver->addComment(startpos+2, tokenLength()-2, startlineno, startcolumn+2);
                 setDone(Eof);
             }
 
@@ -668,14 +692,14 @@ int Lexer::lex()
                 setDone(Bad);
                 err = UnclosedComment;
                 errmsg = QCoreApplication::translate("QmlParser", "Unclosed comment at end of file");
-                driver->addComment(startpos, tokenLength(), startlineno, startcolumn);
+                if (driver) driver->addComment(startpos+2, tokenLength()-2, startlineno, startcolumn+2);
             } else if (isLineTerminator()) {
                 shiftWindowsLineBreak();
                 yylineno++;
             } else if (current == '*' && next1 == '/') {
                 state = Start;
                 shift(1);
-                driver->addComment(startpos, tokenLength(), startlineno, startcolumn);
+                if (driver) driver->addComment(startpos+2, tokenLength()-3, startlineno, startcolumn+2);
             }
 
             break;
@@ -683,6 +707,21 @@ int Lexer::lex()
             if (isIdentLetter(current) || isDecimalDigit(current)) {
                 record16(current);
                 break;
+            } else if (current == '\\' && next1 == 'u') {
+                identifierWithEscapedUnicode = true;
+                shift(2); // skip the unicode escape prefix `\u'
+
+                if (isHexDigit(current) && isHexDigit(next1) &&
+                     isHexDigit(next2) && isHexDigit(next3)) {
+                    record16(convertUnicode(current, next1, next2, next3));
+                    shift(3);
+                    break;
+                } else {
+                    setDone(Bad);
+                    err = IllegalUnicodeEscapeSequence;
+                    errmsg = QCoreApplication::translate("QmlParser", "Illegal unicode escape sequence");
+                    break;
+                }
             }
             setDone(Identifier);
             break;
@@ -825,7 +864,11 @@ int Lexer::lex()
             delimited = true;
         return token;
     case Identifier:
-        if ((token = findReservedWord(buffer16, pos16)) < 0) {
+        token = -1;
+        if (! identifierWithEscapedUnicode)
+            token = findReservedWord(buffer16, pos16);
+
+        if (token < 0) {
             /* TODO: close leak on parse error. same holds true for String */
             if (driver)
                 qsyylval.ustr = driver->intern(buffer16, pos16);
@@ -1104,47 +1147,97 @@ void Lexer::recordStartPos()
 bool Lexer::scanRegExp(RegExpBodyPrefix prefix)
 {
     pos16 = 0;
-    bool lastWasEscape = false;
+    pattern = 0;
 
     if (prefix == EqualPrefix)
         record16(QLatin1Char('='));
 
-    while (1) {
-        if (isLineTerminator() || current == 0) {
+    while (true) {
+        switch (current) {
+
+        case 0: // eof
+        case '\n': case '\r': // line terminator
             errmsg = QCoreApplication::translate("QmlParser", "Unterminated regular expression literal");
             return false;
-        }
-        else if (current != '/' || lastWasEscape == true)
-            {
-                record16(current);
-                lastWasEscape = !lastWasEscape && (current == '\\');
-            }
-        else {
-            if (driver)
+
+        case '/':
+            shift(1);
+
+            if (driver) // create the pattern
                 pattern = driver->intern(buffer16, pos16);
-            else
-                pattern = 0;
+
+            // scan the flags
             pos16 = 0;
+            flags = 0;
+            while (isIdentLetter(current)) {
+                int flag = Ecma::RegExp::flagFromChar(current);
+                if (flag == 0) {
+                    errmsg = QCoreApplication::translate("QmlParser", "Invalid regular expression flag '%0'")
+                             .arg(QChar(current));
+                    return false;
+                }
+                flags |= flag;
+                record16(current);
+                shift(1);
+            }
+            return true;
+
+        case '\\':
+            // regular expression backslash sequence
+            record16(current);
+            shift(1);
+
+            if (! current || isLineTerminator()) {
+                errmsg = QCoreApplication::translate("QmlParser", "Unterminated regular expression backslash sequence");
+                return false;
+            }
+
+            record16(current);
             shift(1);
             break;
-        }
-        shift(1);
-    }
 
-    flags = 0;
-    while (isIdentLetter(current)) {
-        int flag = Ecma::RegExp::flagFromChar(current);
-        if (flag == 0) {
-            errmsg = QCoreApplication::translate("QmlParser", "Invalid regular expression flag '%0'")
-                     .arg(QChar(current));
-            return false;
-        }
-        flags |= flag;
-        record16(current);
-        shift(1);
-    }
+        case '[':
+            // regular expression class
+            record16(current);
+            shift(1);
 
-    return true;
+            while (current && ! isLineTerminator()) {
+                if (current == ']')
+                    break;
+                else if (current == '\\') {
+                    // regular expression backslash sequence
+                    record16(current);
+                    shift(1);
+
+                    if (! current || isLineTerminator()) {
+                        errmsg = QCoreApplication::translate("QmlParser", "Unterminated regular expression backslash sequence");
+                        return false;
+                    }
+
+                    record16(current);
+                    shift(1);
+                } else {
+                    record16(current);
+                    shift(1);
+                }
+            }
+
+            if (current != ']') {
+                errmsg = QCoreApplication::translate("QmlParser", "Unterminated regular expression class");
+                return false;
+            }
+
+            record16(current);
+            shift(1); // skip ]
+            break;
+
+        default:
+            record16(current);
+            shift(1);
+        } // switch
+    } // while
+
+    return false;
 }
 
 void Lexer::syncProhibitAutomaticSemicolon()

@@ -120,7 +120,6 @@ private:
     QStandardItem *m_currentItem;
     QmlJS::Icons *m_icons;
 
-    QmlJS::LookupContext::Ptr m_context;
     QHash<QString, QIcon> m_typeToIcon;
     QHash<QmlOutlineItem*,QIcon> m_itemToIcon;
     QHash<QmlOutlineItem*,QmlJS::AST::Node*> m_itemToNode;

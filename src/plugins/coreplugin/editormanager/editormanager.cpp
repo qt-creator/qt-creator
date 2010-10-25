@@ -455,6 +455,7 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
 
 EditorManager::~EditorManager()
 {
+    m_instance = 0;
     if (m_d->m_core) {
         ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
         if (m_d->m_coreListener) {

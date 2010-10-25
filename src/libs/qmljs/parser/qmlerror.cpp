@@ -49,8 +49,27 @@ QT_BEGIN_NAMESPACE
 
 /*!
     \class QmlError
-  \since 4.7
-    \brief The QmlError class encapsulates a QML error
+    \since 4.7
+    \brief The QmlError class encapsulates a QML error.
+
+    QmlError includes a textual description of the error, as well
+    as location information (the file, line, and column). The toString()
+    method creates a single-line, human-readable string containing all of
+    this information, for example:
+    \code
+    file:///home/user/test.qml:7:8: Invalid property assignment: double expected
+    \endcode
+
+    You can use qDebug() or qWarning() to output errors to the console. This method
+    will attempt to open the file indicated by the error
+    and include additional contextual information.
+    \code
+    file:///home/user/test.qml:7:8: Invalid property assignment: double expected
+            y: "hello"
+               ^
+    \endcode
+
+    \sa QmlView::errors(), QmlComponent::errors()
 */
 class QmlErrorPrivate
 {
@@ -69,7 +88,7 @@ QmlErrorPrivate::QmlErrorPrivate()
 }
 
 /*!
-    Create an empty error object.
+    Creates an empty error object.
 */
 QmlError::QmlError()
 : d(0)
@@ -77,7 +96,7 @@ QmlError::QmlError()
 }
 
 /*!
-    Create a copy of \a other.
+    Creates a copy of \a other.
 */
 QmlError::QmlError(const QmlError &other)
 : d(0)
@@ -86,7 +105,7 @@ QmlError::QmlError(const QmlError &other)
 }
 
 /*!
-    Assign \a other to this error object.
+    Assigns \a other to this error object.
 */
 QmlError &QmlError::operator=(const QmlError &other)
 {
@@ -112,7 +131,7 @@ QmlError::~QmlError()
 }
 
 /*!
-    Return true if this error is valid, otherwise false.
+    Returns true if this error is valid, otherwise false.
 */
 bool QmlError::isValid() const
 {
@@ -120,7 +139,7 @@ bool QmlError::isValid() const
 }
 
 /*!
-    Return the url for the file that caused this error.
+    Returns the url for the file that caused this error.
 */
 QUrl QmlError::url() const
 {
@@ -129,7 +148,7 @@ QUrl QmlError::url() const
 }
 
 /*!
-    Set the \a url for the file that caused this error.
+    Sets the \a url for the file that caused this error.
 */
 void QmlError::setUrl(const QUrl &url)
 {
@@ -138,7 +157,7 @@ void QmlError::setUrl(const QUrl &url)
 }
 
 /*!
-    Return the error description.
+    Returns the error description.
 */
 QString QmlError::description() const
 {
@@ -147,7 +166,7 @@ QString QmlError::description() const
 }
 
 /*!
-    Set the error \a description.
+    Sets the error \a description.
 */
 void QmlError::setDescription(const QString &description)
 {
@@ -156,7 +175,7 @@ void QmlError::setDescription(const QString &description)
 }
 
 /*!
-    Return the error line number.
+    Returns the error line number.
 */
 int QmlError::line() const
 {
@@ -165,7 +184,7 @@ int QmlError::line() const
 }
 
 /*!
-    Set the error \a line number.
+    Sets the error \a line number.
 */
 void QmlError::setLine(int line)
 {
@@ -174,7 +193,7 @@ void QmlError::setLine(int line)
 }
 
 /*!
-    Return the error column number.
+    Returns the error column number.
 */
 int QmlError::column() const
 {
@@ -183,7 +202,7 @@ int QmlError::column() const
 }
 
 /*!
-    Set the error \a column number.
+    Sets the error \a column number.
 */
 void QmlError::setColumn(int column)
 {
@@ -192,14 +211,20 @@ void QmlError::setColumn(int column)
 }
 
 /*!
-    Return the error as a human readable string.
+    Returns the error as a human readable string.
 */
 QString QmlError::toString() const
 {
     QString rv;
-    rv = url().toString() + QLatin1Char(':') + QString::number(line());
-    if(column() != -1) 
-        rv += QLatin1Char(':') + QString::number(column());
+    if (url().isEmpty()) {
+        rv = QLatin1String("<Unknown File>");
+    } else if (line() != -1) {
+        rv = url().toString() + QLatin1Char(':') + QString::number(line());
+        if(column() != -1) 
+            rv += QLatin1Char(':') + QString::number(column());
+    } else {
+        rv = url().toString();
+    }
 
     rv += QLatin1String(": ") + description();
 
@@ -210,7 +235,7 @@ QString QmlError::toString() const
     \relates QmlError
     \fn QDebug operator<<(QDebug debug, const QmlError &error)
 
-    Output a human readable version of \a error to \a debug.
+    Outputs a human readable version of \a error to \a debug.
 */
 
 QDebug operator<<(QDebug debug, const QmlError &error)
@@ -225,7 +250,9 @@ QDebug operator<<(QDebug debug, const QmlError &error)
         if (f.open(QIODevice::ReadOnly)) {
             QByteArray data = f.readAll();
             QTextStream stream(data, QIODevice::ReadOnly);
+#ifndef QT_NO_TEXTCODEC
             stream.setCodec("UTF-8");
+#endif
             const QString code = stream.readAll();
             const QStringList lines = code.split(QLatin1Char('\n'));
 

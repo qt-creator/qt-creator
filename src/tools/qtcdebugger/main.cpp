@@ -269,6 +269,7 @@ bool startCreatorAsDebugger(bool asClient, QString *errorMessage)
     const QString dir = QApplication::applicationDirPath();
     const QString binary = dir + QLatin1Char('/') + QLatin1String(creatorBinaryC);
     QStringList args;
+    // Send to running Creator: Unstable with directly linked CDB engine.
     if (asClient)
         args << QLatin1String("-client");
     args << QLatin1String("-debug") << QString::number(argProcessId)
@@ -356,8 +357,10 @@ bool chooseDebugger(QString *errorMessage)
     if (msgBox.clickedButton() == creatorButton) {
         // Just in case, default to standard. Do not run as client in the unlikely case
         // Creator crashed
+        // TODO: pass asClient=true for new CDB engine.
         const bool canRunAsClient = !processName.contains(QLatin1String(creatorBinaryC), Qt::CaseInsensitive);
-        if (startCreatorAsDebugger(canRunAsClient, errorMessage))
+        Q_UNUSED(canRunAsClient)
+        if (startCreatorAsDebugger(false, errorMessage))
             return true;
         return startDefaultDebugger(errorMessage);
     }
@@ -478,7 +481,8 @@ int main(int argc, char *argv[])
         usage(QCoreApplication::applicationFilePath(), errorMessage);
         break;
     case ForceCreatorMode:
-        ex = startCreatorAsDebugger(true, &errorMessage) ? 0 : -1;
+        // TODO: pass asClient=true for new CDB engine.
+        ex = startCreatorAsDebugger(false, &errorMessage) ? 0 : -1;
         break;
     case ForceDefaultMode:
         ex = startDefaultDebugger(&errorMessage) ? 0 : -1;

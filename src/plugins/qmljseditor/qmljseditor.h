@@ -281,8 +281,6 @@ private slots:
     void onRefactorMarkerClicked(const TextEditor::Internal::RefactorMarker &marker);
 
     void performQuickFix(int index);
-    void onTooltipRequested(TextEditor::ITextEditor* editor, QPoint point, int position);
-    void updateToolTipNow();
 
 protected:
     void contextMenuEvent(QContextMenuEvent *e);
@@ -320,7 +318,6 @@ private:
     QTimer *m_semanticRehighlightTimer;
     QTimer *m_updateOutlineTimer;
     QTimer *m_updateOutlineIndexTimer;
-    QTimer *m_toolTipTimer;
     QTimer *m_cursorPositionTimer;
     QComboBox *m_outlineCombo;
     QmlOutlineModel *m_outlineModel;
@@ -338,7 +335,6 @@ private:
     QmlJS::IContextPane *m_contextPane;
     int m_oldCursorPosition;
     bool m_updateSelectedElements;
-    int m_toolTipPosition;
 
     FindReferences *m_findReferences;
 };

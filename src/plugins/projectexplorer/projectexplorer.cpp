@@ -690,7 +690,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setAttribute(Core::Command::CA_UpdateIcon);
     cmd->setDefaultText(tr("Start Debugging"));
-    cmd->setDefaultKeySequence(QKeySequence(tr("F5")));
+    cmd->setDefaultKeySequence(QKeySequence(Constants::DEBUG_KEY));
     mstartdebugging->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
     modeManager->addAction(cmd, Constants::P_ACTION_DEBUG);
 

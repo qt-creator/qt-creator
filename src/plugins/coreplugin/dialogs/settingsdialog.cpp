@@ -314,7 +314,6 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
                 m_proxyModel, SLOT(setFilterFixedString(QString)));
     connect(m_filterLineEdit, SIGNAL(filterChanged(QString)), this, SLOT(filter(QString)));
     m_categoryList->setFocus();
-    setAttribute(Qt::WA_DeleteOnClose);
 }
 
 void SettingsDialog::showPage(const QString &categoryId, const QString &pageId)
@@ -522,6 +521,11 @@ bool SettingsDialog::execDialog()
     if (!m_running) {
         m_running = true;
         exec();
+        m_running = false;
+        m_instance = 0;
+        // make sure that the current "single" instance is deleted
+        // we can't delete right away, since we still access the m_applied member
+        deleteLater();
     } else {
         // exec dialog is called while the instance is already running
         // this can happen when a event triggers a code path that wants to

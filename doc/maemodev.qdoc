@@ -89,13 +89,6 @@
 
     \endlist
 
-     The Qt Creator/MADDE integration is supported on the following platforms:
-    \list
-       \o  Linux (32 bit and 64 bit)
-       \o  Windows (32 bit and 64 bit)
-       \omit \o  Mac OS 10.5 Leopard, or higher \endomit
-    \endlist
-
     \note The only supported build system for Maemo in Qt
     Creator is qmake.
 

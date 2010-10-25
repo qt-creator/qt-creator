@@ -994,28 +994,23 @@
     editor. Then select the \gui {Design} mode to edit the file in the
     visual editor.
 
-    To enable or disable the \QMLD visual editor, select
-    \gui {Help > About Plugins... > Qt Quick > QmlDesigner}. You must restart Qt Creator
-    to enable or disable the visual editor.
-
     \image qmldesigner-visual-editor.png "Visual editor"
 
     Use the visual editor panes to manage your project:
 
     \list
 
-    \o \gui {Navigator} pane displays the items in the editor. You can
-    show and hide items to focus on specific parts of the application.
+    \o \gui {Navigator} pane displays the QML elements in the current QML file.
+    You can show and hide items to focus on specific parts of the application.
     To view lists of files or projects, instead, select \gui {File System},
     \gui {Open Documents}, or \gui Projects in the menu.
 
-    \o \gui {Library} pane displays lists of predefined \gui {Items} and
-    imported \gui {Resources} that you can use to design applications. The
-    images and other files that you copy to the project folder appear in the
-    \gui {Resources} pane.
+    \o \gui {Library} pane displays the building blocks that you can use to design
+    applications: predefined QML elements, your own QML components, and other
+    resources.
 
-    \o \gui {Properties} pane displays the properties of the selected component.
-     You can also change the properties in the code editor.
+    \o \gui {Properties} pane organizes the properties of the selected QML element
+    or QML component. You can also change the properties in the code editor.
 
     \o \gui {State} pane displays the different states of the component. To add
     states, click the empty slot. Then modify the new state in the editor.
@@ -1023,6 +1018,59 @@
     the base state.
 
     \endlist
+
+    \section1 Element Library
+
+    The \gui {Library} pane contains two tabs: \gui {Items} and \gui {Resources}.
+    The \gui Items pane displays the QML elements grouped by type: your own QML
+    components, basic elements, interaction elements, views, and widgets.
+
+    \image qmldesigner-qml-components.png "QML Components pane"
+
+    The \gui {Resources} pane displays the images and other files that you copy to
+    the project folder.
+
+    \section1 Specifying Element Properties
+
+    The \gui Properties pane displays all the properties of the selected QML element.
+    The properties are grouped by type. The top part of the pane displays properties
+    that are common to all elements, such as element type, position, size,
+    and visibility.
+
+    The bottom part of the pane displays properties that are specific to each element
+    type. For example, the following image displays the properties you can set for
+    \gui Rectangle and \gui Text elements.
+
+    \image qmldesigner-element-properties.png
+
+    For more information on the properties available for an element, press \key {F1}.
+
+    \section2 Setting Expressions
+
+    You can set Java Script expressions as values of some properties. Click the circle
+    icon next to a property to open a context menu, and select \gui {Set Expression}.
+
+    \image qmldesigner-set-expression.png "Element properties context menu"
+
+    For more information on the Java Script environment provided by QML, see
+    \l{http://doc.qt.nokia.com/4.7-snapshot/qdeclarativejavascript.html}{Integrating JavaScript}.
+
+    \section2 Setting Anchors and Margins
+
+    The \gui Layout pane allows you to set anchors and margins for elements. To set
+    the anchors of an item, click the anchor buttons. You can combine the top/bottom
+    and left/right anchors to anchor objects in the corners of the parent element.
+
+    \inlineimage qmldesigner-anchor-buttons.png "Anchor buttons"
+
+    \section2 Building Transformations on Items
+
+    The \gui Advanced pane allows you configure advanced transformations, such as
+    rotation, scale, and translation. You can assign any number of transformations
+    to an item. Each transformation is applied in order, one at a time.
+
+    For more information on Transform elements, see
+    \l {http://doc.qt.nokia.com/4.7/qml-transform.html}{QML Transform Element}.
 
 */
 
@@ -6170,14 +6218,6 @@
 
     \endlist
 
-    \note The \QMLD visual editor is provided as an experimental plugin that you must
-    enable to be able to edit QML files in the \gui Design mode. Enabling the
-    visual editor can negatively affect the overall stability of Qt Creator.
-
-    To enable or disable the \QMLD visual editor, select
-    \gui {Help > About Plugins... > Qt Quick > QmlDesigner}. You must restart Qt Creator
-    to enable or disable the visual editor.
-
 */
 
 
@@ -6266,6 +6306,9 @@
         \o Select \gui {File > New File or Project > Files and Classes > QML
         > Choose...} to create a new .qml file.
 
+        \note Components are listed in the \gui {QML Components} section of the
+        \gui Library pane only if the filename begins with a capital letter.
+
         \o Click \gui Design to open the .qml file in \QMLD.
 
         \o Drag and drop an item from the \gui Library pane to the editor.
@@ -6316,8 +6359,8 @@
 
         \list a
 
-            \o In the \gui Size field, set the width (\gui W) of the button to 60
-             and the height of the button (\gui H) to 20.
+            \o In the \gui Size field, set the width (\gui W) and height (\gui H)
+            of the button.
 
             \o In the \gui Color field, select the button color.
 
@@ -6434,8 +6477,6 @@
 
         \o Drag and drop a \gui MouseArea to the screen.
 
-        \o Click \gui Design to return to the visual editor.
-
         \o In the \gui Navigator pane, select \gui border_image1 to specify
         settings for it in the \gui Properties pane:
 
@@ -6537,16 +6578,14 @@
     Typically, the main qml file in a Qt Quick project specifies the main window of an
     application.
 
+    The QML files in the project folder are displayed in \gui {QML Components} in the
+    \gui Library pane.
+
     \section1 Adding Components to Screens
 
     \list 1
 
-        \o Select \gui {File > New File or Project > Qt Quick Project > Qt Quick UI}
-        or \gui {Qt Quick Application} to create a Qt Quick project.
-
         \o Drag and drop components from the \gui Library pane to the editor.
-
-        The QML files in the project folder are displayed in \gui {QML Elements}.
 
         \o Select components in the \gui Navigator pane to edit their properties
         in the \gui Properties pane.

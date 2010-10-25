@@ -84,7 +84,6 @@ enum {
     UPDATE_DOCUMENT_DEFAULT_INTERVAL = 100,
     UPDATE_USES_DEFAULT_INTERVAL = 150,
     UPDATE_OUTLINE_INTERVAL = 500, // msecs after new semantic info has been arrived / cursor has moved
-    TOOLTIP_TIMER_INTERVAL = 1000 // delay after we show the Quick ToolBar after a tooltip
 };
 
 using namespace QmlJS;
@@ -680,7 +679,6 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     m_modelManager(0),
     m_contextPane(0),
     m_updateSelectedElements(false),
-    m_toolTipPosition(0),
     m_findReferences(new FindReferences(this))
 {
     qRegisterMetaType<QmlJSEditor::Internal::SemanticInfo>("QmlJSEditor::Internal::SemanticInfo");
@@ -728,11 +726,6 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     m_cursorPositionTimer->setSingleShot(true);
     connect(m_cursorPositionTimer, SIGNAL(timeout()), this, SLOT(updateCursorPositionNow()));
 
-    m_toolTipTimer  = new QTimer(this);
-    m_toolTipTimer->setInterval(TOOLTIP_TIMER_INTERVAL);
-    m_toolTipTimer->setSingleShot(true);
-    connect(m_toolTipTimer, SIGNAL(timeout()), this, SLOT(updateToolTipNow()));
-
     baseTextDocument()->setSyntaxHighlighter(new Highlighter(document()));
 
     m_modelManager = ExtensionSystem::PluginManager::instance()->getObject<ModelManagerInterface>();
@@ -759,9 +752,6 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
 
     connect(this, SIGNAL(refactorMarkerClicked(TextEditor::Internal::RefactorMarker)),
             SLOT(onRefactorMarkerClicked(TextEditor::Internal::RefactorMarker)));
-
-    connect(editableInterface(), SIGNAL(tooltipRequested(TextEditor::ITextEditor*, QPoint, int)),
-            SLOT(onTooltipRequested(TextEditor::ITextEditor*, QPoint, int)));
 
     setRequestMarkEnabled(true);
 }
@@ -992,8 +982,8 @@ void QmlJSTextEditor::updateCursorPositionNow()
         Node *oldNode = m_semanticInfo.declaringMemberNoProperties(m_oldCursorPosition);
         Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
         if (oldNode != newNode && m_oldCursorPosition != -1)
-            m_contextPane->apply(editableInterface(), m_semanticInfo.lookupContext(), newNode, false);
-        if (m_contextPane->isAvailable(editableInterface(), m_semanticInfo.lookupContext(), newNode) &&
+            m_contextPane->apply(editableInterface(), semanticInfo().document, LookupContext::Ptr(),newNode, false);
+        if (m_contextPane->isAvailable(editableInterface(), semanticInfo().document, newNode) &&
             !m_contextPane->widget()->isVisible()) {
             QList<TextEditor::Internal::RefactorMarker> markers;
             if (UiObjectMember *m = newNode->uiObjectMemberCast()) {
@@ -1463,7 +1453,7 @@ void QmlJSTextEditor::showContextPane()
 {
     if (m_contextPane && m_semanticInfo.isValid()) {
         Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
-        m_contextPane->apply(editableInterface(), m_semanticInfo.lookupContext(), newNode, false, true);
+        m_contextPane->apply(editableInterface(), m_semanticInfo.document, m_semanticInfo.lookupContext(), newNode, false, true);
         m_oldCursorPosition = position();
         QList<TextEditor::Internal::RefactorMarker> markers;
         setRefactorMarkers(markers);
@@ -1474,40 +1464,6 @@ void QmlJSTextEditor::performQuickFix(int index)
 {
     TextEditor::QuickFixOperation::Ptr op = m_quickFixes.at(index);
     op->perform();
-}
-
-void QmlJSTextEditor::onTooltipRequested(TextEditor::ITextEditor* /* editor */, QPoint /* point */, int position)
-{
-    m_toolTipPosition = position;
-    if (m_contextPane) {
-        m_toolTipTimer->start();
-    }
-}
-
-void QmlJSTextEditor::updateToolTipNow()
-{
-    if (!TextEditor::ToolTip::instance()->isVisible())
-        return;
-
-    if (m_contextPane && m_semanticInfo.isValid()) {
-        Node *newNode = m_semanticInfo.declaringMemberNoProperties(m_toolTipPosition);
-        if (m_contextPane->isAvailable(editableInterface(), m_semanticInfo.lookupContext(), newNode)) {
-             if (UiQualifiedId *q = qualifiedTypeNameId(newNode)) {
-                const int start = q->identifierToken.begin();
-                for (; q; q = q->next) {
-                    if (! q->next) {
-                        const int end = q->identifierToken.end();
-                        if (m_toolTipPosition >= start && m_toolTipPosition <= end) {
-                            m_contextPane->apply(editableInterface(), m_semanticInfo.lookupContext(), newNode, false, true);
-                            m_oldCursorPosition = m_toolTipPosition;
-                            QList<TextEditor::Internal::RefactorMarker> markers;
-                            setRefactorMarkers(markers);
-                        }
-                    }
-                }
-            }
-        }
-    }
 }
 
 void QmlJSTextEditor::contextMenuEvent(QContextMenuEvent *e)
@@ -1592,7 +1548,7 @@ void QmlJSTextEditor::wheelEvent(QWheelEvent *event)
         LookupContext::Ptr lookupContext;
         if (m_semanticInfo.isValid())
             lookupContext = m_semanticInfo.lookupContext();
-        m_contextPane->apply(editableInterface(),  lookupContext, m_semanticInfo.declaringMemberNoProperties(m_oldCursorPosition), false, true);
+        m_contextPane->apply(editableInterface(), semanticInfo().document, QmlJS::LookupContext::Ptr(), m_semanticInfo.declaringMemberNoProperties(m_oldCursorPosition), false, true);
     }
 }
 
@@ -1842,7 +1798,7 @@ void QmlJSTextEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
     if (m_contextPane) {
         Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
         if (newNode) {
-            m_contextPane->apply(editableInterface(), m_semanticInfo.lookupContext(), newNode, true);
+            m_contextPane->apply(editableInterface(), semanticInfo.document, LookupContext::Ptr(), newNode, true);
             m_cursorPositionTimer->start(); //update text marker
         }
     }
@@ -1895,10 +1851,7 @@ bool QmlJSTextEditor::hideContextPane()
 {
     bool b = (m_contextPane) && m_contextPane->widget()->isVisible();
     if (b) {
-        LookupContext::Ptr lookupContext;
-        if (m_semanticInfo.isValid())
-            lookupContext = m_semanticInfo.lookupContext();
-        m_contextPane->apply(editableInterface(), lookupContext, 0, false);
+        m_contextPane->apply(editableInterface(), semanticInfo().document, LookupContext::Ptr(), 0, false);
     }
     return b;
 }
@@ -2006,6 +1959,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
         doc = snapshot.documentFromSource(source.code, source.fileName);
         doc->setEditorRevision(source.revision);
         doc->parse();
+        snapshot.insert(doc);
     }
 
     SemanticInfo semanticInfo;

@@ -324,7 +324,7 @@ void QmlEditorWidgets::EasingContextPane::on_easingShapeComboBox_currentIndexCha
         m_easingGraph->setPeriod(ui->periodSpinBox->value());
         m_easingGraph->setOvershoot(ui->overshootSpinBox->value());
         m_simulation->updateCurve(m_easingGraph->easingCurve(),ui->durationSpinBox->value());
-        emit propertyChanged(QLatin1String("easing.type"), QVariant("\""+m_easingGraph->easingName()+"\""));
+        emit propertyChanged(QLatin1String("easing.type"), QVariant(QLatin1String("Easing.")+m_easingGraph->easingName()));
     }
 }
 
@@ -336,7 +336,7 @@ void QmlEditorWidgets::EasingContextPane::on_easingExtremesComboBox_currentIndex
         m_easingGraph->setPeriod(ui->periodSpinBox->value());
         m_easingGraph->setOvershoot(ui->overshootSpinBox->value());
         m_simulation->updateCurve(m_easingGraph->easingCurve(),ui->durationSpinBox->value());
-        emit propertyChanged(QLatin1String("easing.type"), QVariant("\""+m_easingGraph->easingName()+"\""));
+        emit propertyChanged(QLatin1String("easing.type"), QVariant(QLatin1String("Easing.")+m_easingGraph->easingName()));
     }
 }
 

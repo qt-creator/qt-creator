@@ -83,14 +83,7 @@ ClassNamePage::ClassNamePage(QWidget *parent) :
     pageLayout->addWidget(m_newClassWidget);
     QSpacerItem *vSpacer = new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::Expanding);
     pageLayout->addItem(vSpacer);
-    QHBoxLayout *buttonLayout = new QHBoxLayout;
-    pageLayout->addLayout(buttonLayout);
-    QSpacerItem *hSpacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored);
-    buttonLayout->addItem(hSpacer);
-    QToolButton *settingsButton = new QToolButton;
-    settingsButton->setText(tr("Configure..."));
-    connect(settingsButton, SIGNAL(clicked()), this, SLOT(slotSettings()));
-    buttonLayout->addWidget(settingsButton);
+
     initParameters();
 }
 
@@ -112,16 +105,6 @@ void ClassNamePage::initParameters()
     m_newClassWidget->setHeaderExtension(mdb->preferredSuffixByType(QLatin1String(Constants::CPP_HEADER_MIMETYPE)));
     m_newClassWidget->setSourceExtension(mdb->preferredSuffixByType(QLatin1String(Constants::CPP_SOURCE_MIMETYPE)));
     m_newClassWidget->setLowerCaseFiles(lowerCaseFiles(core));
-}
-
-void ClassNamePage::slotSettings()
-{
-    const QString id = QLatin1String(CppTools::Constants::CPP_SETTINGS_ID);
-    const QString cat = QLatin1String(CppTools::Constants::CPP_SETTINGS_CATEGORY);
-    if (Core::ICore::instance()->showOptionsDialog(cat, id, this)) {
-        initParameters();
-        m_newClassWidget->triggerUpdateFileNames();
-    }
 }
 
 void ClassNamePage::slotValidChanged()

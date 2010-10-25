@@ -3171,6 +3171,7 @@ QStringList ProFileEvaluator::absoluteFileValues(
                 QString wildcard = d->m_tmp2.setRawData(absEl.constData() + nameOff + 1,
                                                         absEl.length() - nameOff - 1);
                 if (wildcard.contains(QLatin1Char('*')) || wildcard.contains(QLatin1Char('?'))) {
+                    wildcard.detach(); // Keep m_tmp out of QRegExp's cache
                     QDir theDir(absDir);
                     foreach (const QString &fn, theDir.entryList(QStringList(wildcard)))
                         if (fn != statics.strDot && fn != statics.strDotDot)

@@ -1561,14 +1561,18 @@ class Dumper:
                 ## Generic pointer type with format None
                 #warn("GENERIC AUTODEREF POINTER: %s" % value.address)
                 innerType = realtype.target()
-                self.putType(innerType)
-                savedCurrentChildType = self.currentChildType
-                self.currentChildType = stripClassTag(str(innerType))
-                self.putItemHelper(
-                    Item(item.value.dereference(), item.iname, None, None))
-                self.currentChildType = savedCurrentChildType
-                self.putPointerValue(value.address)
-                return
+                innerTypeName = str(innerType.unqualified())
+                # Never dereference char types.
+                if innerTypeName != "char" and innerTypeName != "signed char" \
+                   and innerTypeName != "unsigned char" and innerTypeName != "wchar_t":
+                    self.putType(innerType)
+                    savedCurrentChildType = self.currentChildType
+                    self.currentChildType = stripClassTag(str(innerType))
+                    self.putItemHelper(
+                        Item(item.value.dereference(), item.iname, None, None))
+                    self.currentChildType = savedCurrentChildType
+                    self.putPointerValue(value.address)
+                    return
 
             # Fall back to plain pointer printing.
             #warn("GENERIC PLAIN POINTER: %s" % value.type)
@@ -1660,7 +1664,13 @@ class Dumper:
 
                 #warn("FIELD NAME: %s" % field.name)
                 #warn("FIELD TYPE: %s" % field.type)
-                if field.is_base_class:
+                # The 'field.is_base_class' attribute exists in gdb 7.0.X and later only.
+                # Symbian gdb is 6.8 as of 20.10.2010. TODO: Remove once Symbian gdb is up to date.
+                if hasattr(field, 'is_base_class'):
+                    isBaseClass = field.is_base_class
+                else:
+                    isBaseClass = field.name == stripClassTag(str(field.type))
+                if isBaseClass:
                     # Field is base type. We cannot use field.name as part
                     # of the iname as it might contain spaces and other
                     # strange characters.
@@ -1739,15 +1749,18 @@ class ThreadNamesCommand(gdb.Command):
                 if e == None or e.name() == None:
                     break
                 if e.name() == ns + "QThreadPrivate::start":
-                    thrptr = e.read_var("thr").dereference()
-                    obtype = lookupType(ns + "QObjectPrivate").pointer()
-                    d_ptr = thrptr["d_ptr"]["d"].cast(obtype).dereference()
-                    objectName = d_ptr["objectName"]
-                    out += '{valueencoded="';
-                    out += str(Hex4EncodedLittleEndianWithoutQuotes)+'",id="'
-                    out += str(thread.num) + '",value="'
-                    out += encodeString(objectName)
-                    out += '"},'
+                    try:
+                        thrptr = e.read_var("thr").dereference()
+                        obtype = lookupType(ns + "QObjectPrivate").pointer()
+                        d_ptr = thrptr["d_ptr"]["d"].cast(obtype).dereference()
+                        objectName = d_ptr["objectName"]
+                        out += '{valueencoded="';
+                        out += str(Hex4EncodedLittleEndianWithoutQuotes)+'",id="'
+                        out += str(thread.num) + '",value="'
+                        out += encodeString(objectName)
+                        out += '"},'
+                    except:
+                        pass
         print out[:-1] + ']'
 
 ThreadNamesCommand()

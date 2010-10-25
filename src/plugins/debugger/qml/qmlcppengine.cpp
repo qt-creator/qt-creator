@@ -449,7 +449,7 @@ void QmlCppEngine::finishDebugger()
 
 void QmlCppEngine::setupSlaveEngineOnTimer()
 {
-    QTimer::singleShot(ConnectionWaitTimeMs, this, SLOT(setupSlaveEngine()));
+    QTimer::singleShot(0, this, SLOT(setupSlaveEngine()));
 }
 
 void QmlCppEngine::setupSlaveEngine()

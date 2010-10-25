@@ -86,6 +86,7 @@ Platform Specific
 Mac
 
 Linux (GNOME and KDE)
+   * Respect http_proxy variable if set
 
 Windows
 

@@ -432,7 +432,8 @@ CPPEditor::CPPEditor(QWidget *parent)
 
 CPPEditor::~CPPEditor()
 {
-    Core::EditorManager::instance()->hideEditorInfoBar(QLatin1String("CppEditor.Rename"));
+    if (Core::EditorManager *em = Core::EditorManager::instance())
+        em->hideEditorInfoBar(QLatin1String("CppEditor.Rename"));
 
     m_semanticHighlighter->abort();
     m_semanticHighlighter->wait();
@@ -1337,7 +1338,7 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
     } else {
         // Handle macro uses
         const Document::MacroUse *use = doc->findMacroUseAt(endOfToken - 1);
-        if (use) {
+        if (use && use->macro().fileName() != QLatin1String("<configuration>")) {
             const Macro &macro = use->macro();
             link.fileName = macro.fileName();
             link.line = macro.line();

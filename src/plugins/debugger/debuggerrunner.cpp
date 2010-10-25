@@ -276,7 +276,8 @@ unsigned DebuggerRunnerPrivate::enabledEngines() const
 
 DebuggerRunnerPrivate::DebuggerRunnerPrivate(RunConfiguration *runConfiguration,
                                              unsigned enabledEngines) :
-      m_myRunConfiguration(runConfiguration)
+      m_engine(0)
+    , m_myRunConfiguration(runConfiguration)
     , m_running(false)
     , m_cmdLineEnabledEngines(enabledEngines)
 {
@@ -401,6 +402,10 @@ DebuggerEngineType DebuggerRunControl::engineForMode(unsigned enabledEngineTypes
     // Preferably Windows debugger for attaching locally.
     if (startMode != AttachToRemote && (enabledEngineTypes & CdbEngineType))
         return CdbEngineType;
+    if (startMode == AttachCrashedExternal) {
+        d->m_errorMessage = tr("There is no debugging engine available for post-mortem debugging.");
+        return NoEngineType;
+    }
     return GdbEngineType;
 #else
     Q_UNUSED(startMode)
@@ -439,10 +444,11 @@ void DebuggerRunControl::createEngine(const DebuggerStartParameters &startParams
             && !sp.executable.isEmpty())
         engineType = engineForExecutable(enabledEngineTypes, sp.executable);
 
-    if (!engineType)
+    if (engineType == NoEngineType)
         engineType = engineForMode(enabledEngineTypes, sp.startMode);
 
-    if (engineType != QmlEngineType && (activeLangs & QmlLanguage)) {
+    if ((engineType != QmlEngineType && engineType != NoEngineType)
+        && (activeLangs & QmlLanguage)) {
         if (activeLangs & CppLanguage) {
             sp.cppEngineType = engineType;
             engineType = QmlCppEngineType;

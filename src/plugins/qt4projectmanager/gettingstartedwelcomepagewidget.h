@@ -37,6 +37,8 @@
 QT_BEGIN_NAMESPACE
 class QUrl;
 class QLabel;
+class QFile;
+class QMenu;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -54,6 +56,8 @@ namespace Internal {
 namespace Ui {
     class GettingStartedWelcomePageWidget;
 }
+
+typedef QHash<QString, QMenu*> QMenuHash;
 
 class PixmapDownloader : public QNetworkAccessManager {
     Q_OBJECT
@@ -101,6 +105,8 @@ signals:
     void startRssFetching(const QUrl&);
 
 private:
+    void parseXmlFile(QFile *file, QMenuHash &cppSubMenuHash, QMenuHash &qmlSubMenuHash,
+                      const QString &examplePath, const QString &sourcePath);
     QStringList tipsOfTheDay();
     Ui::GettingStartedWelcomePageWidget *ui;
     int m_currentTip;

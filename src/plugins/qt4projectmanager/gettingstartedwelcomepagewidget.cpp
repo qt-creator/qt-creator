@@ -52,6 +52,7 @@
 #include <QtCore/QTimer>
 #include <QtCore/QSettings>
 #include <QtCore/QXmlStreamReader>
+#include <QtCore/QScopedPointer>
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QFont>
 #include <QtGui/QMessageBox>
@@ -140,89 +141,96 @@ GettingStartedWelcomePageWidget::~GettingStartedWelcomePageWidget()
     delete ui;
 }
 
-
-void GettingStartedWelcomePageWidget::updateExamples(const QString &examplePath,
-                                                     const QString &demosPath,
-                                                     const QString &sourcePath)
+void GettingStartedWelcomePageWidget::parseXmlFile(QFile *file, QMenuHash &cppSubMenuHash, QMenuHash &qmlSubMenuHash,
+                                                   const QString &examplePath, const QString &sourcePath)
 {
-    QString demoXml = demosPath + "/qtdemo/xml/examples.xml";
-    if (!QFile::exists(demoXml)) {
-        demoXml = sourcePath + "/demos/qtdemo/xml/examples.xml";
-        if (!QFile::exists(demoXml))
-            return;
-    }
-
-    QFile description(demoXml);
-    if (!description.open(QFile::ReadOnly))
-        return;
-
-    const QString dropDownLabel = tr("Choose an Example...");
-
-    ui->qmlExamplesButton->setEnabled(true);
-    ui->qmlExamplesButton->setText(dropDownLabel);
-
-    QMenu *qmlMenu = new QMenu(ui->qmlExamplesButton);
-    ui->qmlExamplesButton->setMenu(qmlMenu);
-
-    ui->cppExamplesButton->setEnabled(true);
-    ui->cppExamplesButton->setText(dropDownLabel);
-
-    QMenu *cppMenu = new QMenu(ui->cppExamplesButton);
-    ui->cppExamplesButton->setMenu(cppMenu);
-
-    QMenu *subMenu = 0;
+    QMenu *cppSubMenu = 0;
+    QMenu *qmlSubMenu = 0;
     bool inExamples = false;
     QString dirName;
-    QXmlStreamReader reader(&description);
+
+    QXmlStreamReader reader(file);
 
     while (!reader.atEnd()) {
         switch (reader.readNext()) {
         case QXmlStreamReader::StartElement:
             if (reader.name() == QLatin1String("category")) {
                 QString name = reader.attributes().value(QLatin1String("name")).toString();
-                if (name.contains(QLatin1String("tutorial")))
+                if (name.contains(QLatin1String("Tutorial")))
                     break;
                 dirName = reader.attributes().value(QLatin1String("dirname")).toString();
-                subMenu = new QMenu(name);
+                if (!cppSubMenuHash.contains(dirName)) {
+                    cppSubMenu = new QMenu(name, this);
+                    cppSubMenu->setObjectName(dirName);
+                    cppSubMenuHash.insert(dirName, cppSubMenu);
+                } else {
+                    cppSubMenu = cppSubMenuHash.value(dirName);
+                }
+                if (!qmlSubMenuHash.contains(dirName)) {
+                    qmlSubMenu = new QMenu(name, this);
+                    qmlSubMenu->setObjectName(dirName);
+                    qmlSubMenuHash.insert(dirName, qmlSubMenu);
+                } else {
+                    qmlSubMenu = qmlSubMenuHash.value(dirName);
+                }
                 inExamples = true;
             }
             if (inExamples && reader.name() == QLatin1String("example")) {
                 const QChar slash = QLatin1Char('/');
                 const QString name = reader.attributes().value(QLatin1String("name")).toString();
                 const bool isQml = reader.attributes().value(QLatin1String("qml")).toString() == "true";
-                const QString fn = reader.attributes().value(QLatin1String("filename")).toString();
+                const QString localDir = reader.attributes().value(QLatin1String("filename")).toString();
                 const QString extension = isQml ? QLatin1String(".qmlproject") : QLatin1String(".pro");
-                const QString relativeProPath = slash + dirName + slash + fn + slash + fn + extension;
+                const QString fileName = localDir.section(',', -1);
+                const QString relativeProPath = slash + dirName + slash + localDir + slash + fileName + extension;
 
-                QString fileName = examplePath + relativeProPath;
-                if (!QFile::exists(fileName))
-                    fileName = sourcePath + QLatin1String("/examples") + relativeProPath;
+                QString finaleFileName = examplePath + relativeProPath;
+                if (!QFile::exists(finaleFileName))
+                    finaleFileName = sourcePath + QLatin1String("/examples") + relativeProPath;
+
+                if (!QFile::exists(finaleFileName))
+                    break;
 
                 QString dirName1 = dirName;
                 dirName1.replace(slash, QLatin1Char('-'));
                 QString helpPath = QLatin1String("qthelp://com.trolltech.qt/qdoc/") +
                         dirName1 +
-                        QLatin1Char('-') + fn + QLatin1String(".html");
+                        QLatin1Char('-') + fileName + QLatin1String(".html");
 
-                QAction *exampleAction;
-                if (isQml)
-                    exampleAction = qmlMenu->addAction(name);
-                else
-                    exampleAction = subMenu->addAction(name);
+                QAction *exampleAction = 0;
+                QAction *beforeAction = 0;
+                bool duplicate = false;
+                QMenu *subMenu;
+                subMenu = isQml ? qmlSubMenu : cppSubMenu;
 
-                connect(exampleAction, SIGNAL(triggered()), SLOT(slotOpenExample()));
+                foreach (beforeAction, subMenu->actions()) {
+                    int res = beforeAction->text().compare(name, Qt::CaseInsensitive);
+                    if (res==0) {
+                        duplicate = true;
+                        break;
+                    } else if (res<0)
+                        beforeAction = 0;
+                    else if (res>0) {
+                        break;
+                    }
+                }
 
-                exampleAction->setProperty(ExamplePathPropertyName, fileName);
-                exampleAction->setProperty(HelpPathPropertyName, helpPath);
-
+                if (!duplicate) {
+                    exampleAction = new QAction(name, subMenu);
+                    subMenu->insertAction(beforeAction, exampleAction);
+                    connect(exampleAction, SIGNAL(triggered()), SLOT(slotOpenExample()));
+                    exampleAction->setProperty(ExamplePathPropertyName, finaleFileName);
+                    exampleAction->setProperty(HelpPathPropertyName, helpPath);
+                }
             }
             break;
         case QXmlStreamReader::EndElement:
-            if (reader.name() == QLatin1String("category")) {
-                if (subMenu->actions().isEmpty())
-                    delete subMenu;
-                else
-                    cppMenu->addMenu(subMenu);
+            if (inExamples && reader.name() == QLatin1String("category")) {
+                if (cppSubMenu->actions().isEmpty())
+                    delete cppSubMenuHash.take(dirName);
+
+                if (qmlSubMenu->actions().isEmpty())
+                    delete qmlSubMenuHash.take(dirName);
 
                 inExamples = false;
             }
@@ -230,6 +238,67 @@ void GettingStartedWelcomePageWidget::updateExamples(const QString &examplePath,
         default:
             break;
         }
+    }
+}
+
+bool menuEntryCompare(QMenu* first, QMenu* second)
+{
+    return (QString::localeAwareCompare(first->title(), second->title()) < 0);
+}
+
+void GettingStartedWelcomePageWidget::updateExamples(const QString &examplePath,
+                                                     const QString &demosPath,
+                                                     const QString &sourcePath)
+{
+
+    QString demoXml = demosPath + "/qtdemo/xml/examples.xml";
+    if (!QFile::exists(demoXml)) {
+        demoXml = sourcePath + "/demos/qtdemo/xml/examples.xml";
+        if (!QFile::exists(demoXml))
+            return;
+    }
+
+    QMenuHash cppSubMenuHash;
+    QMenuHash qmlSubMenuHash;
+
+    const QString dropDownLabel = tr("Choose an Example...");
+    QMenu *cppMenu = new QMenu(ui->cppExamplesButton);
+    ui->cppExamplesButton->setMenu(cppMenu);
+    QMenu *qmlMenu = new QMenu(ui->qmlExamplesButton);
+
+
+    // let Creator's files take precedence
+    QString localQmlExamplesXml =
+            Core::ICore::instance()->resourcePath()+QLatin1String("/examplebrowser/qmlexamples.xml");
+
+    QFile localDescriptions(localQmlExamplesXml);
+    if (localDescriptions.open(QFile::ReadOnly)) {
+        parseXmlFile(&localDescriptions, cppSubMenuHash, qmlSubMenuHash, examplePath, sourcePath);
+    }
+
+    QFile descriptions(demoXml);
+    if (!descriptions.open(QFile::ReadOnly))
+        return;
+
+    ui->cppExamplesButton->setEnabled(true);
+    ui->cppExamplesButton->setText(dropDownLabel);
+
+    parseXmlFile(&descriptions, cppSubMenuHash, qmlSubMenuHash, examplePath, sourcePath);
+
+    QList<QMenu*> cppSubMenus = cppSubMenuHash.values();
+    qSort(cppSubMenus.begin(), cppSubMenus.end(), menuEntryCompare);
+    QList<QMenu*> qmlSubMenus = qmlSubMenuHash.values();
+    qSort(qmlSubMenus.begin(), qmlSubMenus.end(), menuEntryCompare);
+
+    foreach (QMenu *menu, cppSubMenus)
+        cppMenu->addMenu(menu);
+    foreach (QMenu *menu, qmlSubMenus)
+        qmlMenu->addMenu(menu);
+
+    if (!qmlMenu->isEmpty()) {
+        ui->qmlExamplesButton->setMenu(qmlMenu);
+        ui->qmlExamplesButton->setEnabled(true);
+        ui->qmlExamplesButton->setText(dropDownLabel);
     }
 }
 

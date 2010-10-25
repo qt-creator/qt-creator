@@ -242,5 +242,22 @@ QString winNormalizeFileName(const QString &f)
     return rc.isEmpty() ? f : rc;
 }
 
+bool isWinProcessBeingDebugged(unsigned long pid)
+{
+    // Exclude VS 2005
+#if defined(_MSC_VER) && _MSC_VER < 1400
+    Q_UNUSED(pid);
+    return false;
+#else
+    HANDLE processHandle = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, pid);
+    if (processHandle == NULL)
+        return false;
+    BOOL debugged = FALSE;
+    CheckRemoteDebuggerPresent(processHandle, &debugged);
+    CloseHandle(processHandle);
+    return debugged != FALSE;
+#endif
+}
+
 } // namespace Internal
 } // namespace Debugger

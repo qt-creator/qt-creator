@@ -277,6 +277,12 @@ void RewriterView::importAdded(const Import &import)
     if (textToModelMerger()->isActive())
         return;
 
+    if (import.url() == "Qt")
+        foreach (const Import &import, model()->imports()) {
+            if (import.url() == "QtQuick")
+                return; //QtQuick magic we do not have to add an import for Qt
+        }
+
     modelToTextMerger()->addImport(import);
 
     if (!isModificationGroupActive())

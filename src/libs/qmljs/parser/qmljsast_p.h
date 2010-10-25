@@ -224,6 +224,9 @@ public:
     inline Node()
         : kind(Kind_Undefined) {}
 
+    // NOTE: node destructors are never called,
+    //       instead we block free the memory
+    //       (see the NodePool class)
     virtual ~Node() {}
 
     virtual ExpressionNode *expressionCast();
@@ -247,7 +250,6 @@ class QML_PARSER_EXPORT ExpressionNode: public Node
 {
 public:
     ExpressionNode() {}
-    virtual ~ExpressionNode() {}
 
     virtual ExpressionNode *expressionCast();
 
@@ -259,7 +261,6 @@ class QML_PARSER_EXPORT Statement: public Node
 {
 public:
     Statement() {}
-    virtual ~Statement() {}
 
     virtual Statement *statementCast();
 
@@ -272,7 +273,7 @@ class QML_PARSER_EXPORT UiFormal: public Node
 public:
     QMLJS_DECLARE_AST_NODE(UiFormal)
 
-    explicit UiFormal(NameId *name, NameId *alias = 0)
+    UiFormal(NameId *name, NameId *alias = 0)
       : name(name), alias(alias)
     { }
 
@@ -379,7 +380,6 @@ public:
     QMLJS_DECLARE_AST_NODE(ThisExpression)
 
     ThisExpression() { kind = K; }
-    virtual ~ThisExpression() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -401,8 +401,6 @@ public:
     IdentifierExpression(NameId *n):
         name (n) { kind = K; }
 
-    virtual ~IdentifierExpression() {}
-
     virtual void accept0(Visitor *visitor);
 
     virtual SourceLocation firstSourceLocation() const
@@ -422,7 +420,6 @@ public:
     QMLJS_DECLARE_AST_NODE(NullExpression)
 
     NullExpression() { kind = K; }
-    virtual ~NullExpression() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -442,7 +439,6 @@ public:
     QMLJS_DECLARE_AST_NODE(TrueLiteral)
 
     TrueLiteral() { kind = K; }
-    virtual ~TrueLiteral() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -462,7 +458,6 @@ public:
     QMLJS_DECLARE_AST_NODE(FalseLiteral)
 
     FalseLiteral() { kind = K; }
-    virtual ~FalseLiteral() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -483,7 +478,6 @@ public:
 
     NumericLiteral(double v):
         value(v) { kind = K; }
-    virtual ~NumericLiteral() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -506,8 +500,6 @@ public:
     StringLiteral(NameId *v):
         value (v) { kind = K; }
 
-    virtual ~StringLiteral() {}
-
     virtual void accept0(Visitor *visitor);
 
     virtual SourceLocation firstSourceLocation() const
@@ -528,8 +520,6 @@ public:
 
     RegExpLiteral(NameId *p, int f):
         pattern (p), flags (f) { kind = K; }
-
-    virtual ~RegExpLiteral() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -562,8 +552,6 @@ public:
         elements (elts), elision (e)
         { kind = K; }
 
-    virtual ~ArrayLiteral() {}
-
     virtual void accept0(Visitor *visitor);
 
     virtual SourceLocation firstSourceLocation() const
@@ -590,8 +578,6 @@ public:
 
     ObjectLiteral(PropertyNameAndValueList *plist):
         properties (plist) { kind = K; }
-
-    virtual ~ObjectLiteral() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -624,8 +610,6 @@ public:
         previous->next = this;
     }
 
-    virtual ~ElementList() {}
-
     inline ElementList *finish ()
     {
         ElementList *front = next;
@@ -656,8 +640,6 @@ public:
         next = previous->next;
         previous->next = this;
     }
-
-    virtual ~Elision() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -690,8 +672,6 @@ public:
         previous->next = this;
     }
 
-    virtual ~PropertyNameAndValueList() {}
-
     virtual void accept0(Visitor *visitor);
 
     inline PropertyNameAndValueList *finish ()
@@ -715,7 +695,6 @@ public:
     QMLJS_DECLARE_AST_NODE(PropertyName)
 
     PropertyName() { kind = K; }
-    virtual ~PropertyName() {}
 
 // attributes
     SourceLocation propertyNameToken;
@@ -728,8 +707,6 @@ public:
 
     IdentifierPropertyName(NameId *n):
         id (n) { kind = K; }
-
-    virtual ~IdentifierPropertyName() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -744,7 +721,6 @@ public:
 
     StringLiteralPropertyName(NameId *n):
         id (n) { kind = K; }
-    virtual ~StringLiteralPropertyName() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -759,7 +735,6 @@ public:
 
     NumericLiteralPropertyName(double n):
         id (n) { kind = K; }
-    virtual ~NumericLiteralPropertyName() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -775,8 +750,6 @@ public:
     ArrayMemberExpression(ExpressionNode *b, ExpressionNode *e):
         base (b), expression (e)
         { kind = K; }
-
-    virtual ~ArrayMemberExpression() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -802,8 +775,6 @@ public:
         base (b), name (n)
         { kind = K; }
 
-    virtual ~FieldMemberExpression() {}
-
     virtual void accept0(Visitor *visitor);
 
     virtual SourceLocation firstSourceLocation() const
@@ -827,8 +798,6 @@ public:
     NewMemberExpression(ExpressionNode *b, ArgumentList *a):
         base (b), arguments (a)
         { kind = K; }
-
-    virtual ~NewMemberExpression() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -854,8 +823,6 @@ public:
     NewExpression(ExpressionNode *e):
         expression (e) { kind = K; }
 
-    virtual ~NewExpression() {}
-
     virtual void accept0(Visitor *visitor);
 
     virtual SourceLocation firstSourceLocation() const
@@ -877,8 +844,6 @@ public:
     CallExpression(ExpressionNode *b, ArgumentList *a):
         base (b), arguments (a)
         { kind = K; }
-
-    virtual ~CallExpression() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -912,8 +877,6 @@ public:
         previous->next = this;
     }
 
-    virtual ~ArgumentList() {}
-
     virtual void accept0(Visitor *visitor);
 
     inline ArgumentList *finish ()
@@ -937,8 +900,6 @@ public:
     PostIncrementExpression(ExpressionNode *b):
         base (b) { kind = K; }
 
-    virtual ~PostIncrementExpression() {}
-
     virtual void accept0(Visitor *visitor);
 
     virtual SourceLocation firstSourceLocation() const
@@ -960,8 +921,6 @@ public:
     PostDecrementExpression(ExpressionNode *b):
         base (b) { kind = K; }
 
-    virtual ~PostDecrementExpression() {}
-
     virtual void accept0(Visitor *visitor);
 
     virtual SourceLocation firstSourceLocation() const
@@ -982,7 +941,6 @@ public:
 
     DeleteExpression(ExpressionNode *e):
         expression (e) { kind = K; }
-    virtual ~DeleteExpression() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -1005,8 +963,6 @@ public:
     VoidExpression(ExpressionNode *e):
         expression (e) { kind = K; }
 
-    virtual ~VoidExpression() {}
-
     virtual void accept0(Visitor *visitor);
 
     virtual SourceLocation firstSourceLocation() const
@@ -1027,8 +983,6 @@ public:
 
     TypeOfExpression(ExpressionNode *e):
         expression (e) { kind = K; }
-
-    virtual ~TypeOfExpression() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -1051,8 +1005,6 @@ public:
     PreIncrementExpression(ExpressionNode *e):
         expression (e) { kind = K; }
 
-    virtual ~PreIncrementExpression() {}
-
     virtual void accept0(Visitor *visitor);
 
     virtual SourceLocation firstSourceLocation() const
@@ -1073,8 +1025,6 @@ public:
 
     PreDecrementExpression(ExpressionNode *e):
         expression (e) { kind = K; }
-
-    virtual ~PreDecrementExpression() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -1097,8 +1047,6 @@ public:
     UnaryPlusExpression(ExpressionNode *e):
         expression (e) { kind = K; }
 
-    virtual ~UnaryPlusExpression() {}
-
     virtual void accept0(Visitor *visitor);
 
     virtual SourceLocation firstSourceLocation() const
@@ -1119,8 +1067,6 @@ public:
 
     UnaryMinusExpression(ExpressionNode *e):
         expression (e) { kind = K; }
-
-    virtual ~UnaryMinusExpression() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -1143,8 +1089,6 @@ public:
     TildeExpression(ExpressionNode *e):
         expression (e) { kind = K; }
 
-    virtual ~TildeExpression() {}
-
     virtual void accept0(Visitor *visitor);
 
     virtual SourceLocation firstSourceLocation() const
@@ -1165,8 +1109,6 @@ public:
 
     NotExpression(ExpressionNode *e):
         expression (e) { kind = K; }
-
-    virtual ~NotExpression() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -1189,8 +1131,6 @@ public:
     BinaryExpression(ExpressionNode *l, int o, ExpressionNode *r):
         left (l), op (o), right (r)
         { kind = K; }
-
-    virtual ~BinaryExpression() {}
 
     virtual BinaryExpression *binaryExpressionCast();
 
@@ -1218,8 +1158,6 @@ public:
         expression (e), ok (t), ko (f)
         { kind = K; }
 
-    virtual ~ConditionalExpression() {}
-
     virtual void accept0(Visitor *visitor);
 
     virtual SourceLocation firstSourceLocation() const
@@ -1244,8 +1182,6 @@ public:
     Expression(ExpressionNode *l, ExpressionNode *r):
         left (l), right (r) { kind = K; }
 
-    virtual ~Expression() {}
-
     virtual void accept0(Visitor *visitor);
 
     virtual SourceLocation firstSourceLocation() const
@@ -1267,8 +1203,6 @@ public:
 
     Block(StatementList *slist):
         statements (slist) { kind = K; }
-
-    virtual ~Block() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -1301,8 +1235,6 @@ public:
         previous->next = this;
     }
 
-    virtual ~StatementList() {}
-
     virtual void accept0(Visitor *visitor);
 
     inline StatementList *finish ()
@@ -1326,8 +1258,6 @@ public:
         declarations (vlist)
         { kind = K; }
 
-    virtual ~VariableStatement() {}
-
     virtual void accept0(Visitor *visitor);
 
     virtual SourceLocation firstSourceLocation() const
@@ -1350,8 +1280,6 @@ public:
     VariableDeclaration(NameId *n, ExpressionNode *e):
         name (n), expression (e), readOnly(false)
         { kind = K; }
-
-    virtual ~VariableDeclaration() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -1379,8 +1307,6 @@ public:
         previous->next = this;
     }
 
-    virtual ~VariableDeclarationList() {}
-
     virtual void accept0(Visitor *visitor);
 
     inline VariableDeclarationList *finish (bool readOnly)
@@ -1407,7 +1333,6 @@ public:
     QMLJS_DECLARE_AST_NODE(EmptyStatement)
 
     EmptyStatement() { kind = K; }
-    virtual ~EmptyStatement() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -1428,8 +1353,6 @@ public:
 
     ExpressionStatement(ExpressionNode *e):
         expression (e) { kind = K; }
-
-    virtual ~ExpressionStatement() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -1452,8 +1375,6 @@ public:
     IfStatement(ExpressionNode *e, Statement *t, Statement *f = 0):
         expression (e), ok (t), ko (f)
         { kind = K; }
-
-    virtual ~IfStatement() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -1487,8 +1408,6 @@ public:
         statement (stmt), expression (e)
         { kind = K; }
 
-    virtual ~DoWhileStatement() {}
-
     virtual void accept0(Visitor *visitor);
 
     virtual SourceLocation firstSourceLocation() const
@@ -1516,8 +1435,6 @@ public:
         expression (e), statement (stmt)
         { kind = K; }
 
-    virtual ~WhileStatement() {}
-
     virtual void accept0(Visitor *visitor);
 
     virtual SourceLocation firstSourceLocation() const
@@ -1542,8 +1459,6 @@ public:
     ForStatement(ExpressionNode *i, ExpressionNode *c, ExpressionNode *e, Statement *stmt):
         initialiser (i), condition (c), expression (e), statement (stmt)
         { kind = K; }
-
-    virtual ~ForStatement() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -1573,8 +1488,6 @@ public:
     LocalForStatement(VariableDeclarationList *vlist, ExpressionNode *c, ExpressionNode *e, Statement *stmt):
         declarations (vlist), condition (c), expression (e), statement (stmt)
         { kind = K; }
-
-    virtual ~LocalForStatement() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -1606,8 +1519,6 @@ public:
         initialiser (i), expression (e), statement (stmt)
         { kind = K; }
 
-    virtual ~ForEachStatement() {}
-
     virtual void accept0(Visitor *visitor);
 
     virtual SourceLocation firstSourceLocation() const
@@ -1634,8 +1545,6 @@ public:
     LocalForEachStatement(VariableDeclaration *v, ExpressionNode *e, Statement *stmt):
         declaration (v), expression (e), statement (stmt)
         { kind = K; }
-
-    virtual ~LocalForEachStatement() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -1664,8 +1573,6 @@ public:
     ContinueStatement(NameId *l = 0):
         label (l) { kind = K; }
 
-    virtual ~ContinueStatement() {}
-
     virtual void accept0(Visitor *visitor);
 
     virtual SourceLocation firstSourceLocation() const
@@ -1688,8 +1595,6 @@ public:
 
     BreakStatement(NameId *l = 0):
         label (l) { kind = K; }
-
-    virtual ~BreakStatement() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -1714,8 +1619,6 @@ public:
     ReturnStatement(ExpressionNode *e):
         expression (e) { kind = K; }
 
-    virtual ~ReturnStatement() {}
-
     virtual void accept0(Visitor *visitor);
 
     virtual SourceLocation firstSourceLocation() const
@@ -1739,8 +1642,6 @@ public:
         expression (e), statement (stmt)
         { kind = K; }
 
-    virtual ~WithStatement() {}
-
     virtual void accept0(Visitor *visitor);
 
     virtual SourceLocation firstSourceLocation() const
@@ -1762,11 +1663,9 @@ class QML_PARSER_EXPORT CaseBlock: public Node
 public:
     QMLJS_DECLARE_AST_NODE(CaseBlock)
 
-    explicit CaseBlock(CaseClauses *c, DefaultClause *d = 0, CaseClauses *r = 0):
+    CaseBlock(CaseClauses *c, DefaultClause *d = 0, CaseClauses *r = 0):
         clauses (c), defaultClause (d), moreClauses (r)
         { kind = K; }
-
-    virtual ~CaseBlock() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -1786,8 +1685,6 @@ public:
     SwitchStatement(ExpressionNode *e, CaseBlock *b):
         expression (e), block (b)
         { kind = K; }
-
-    virtual ~SwitchStatement() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -1822,8 +1719,6 @@ public:
         previous->next = this;
     }
 
-    virtual ~CaseClauses() {}
-
     virtual void accept0(Visitor *visitor);
 
     inline CaseClauses *finish ()
@@ -1847,8 +1742,6 @@ public:
         expression (e), statements (slist)
         { kind = K; }
 
-    virtual ~CaseClause() {}
-
     virtual void accept0(Visitor *visitor);
 
 // attributes
@@ -1867,8 +1760,6 @@ public:
         statements (slist)
         { kind = K; }
 
-    virtual ~DefaultClause() {}
-
     virtual void accept0(Visitor *visitor);
 
 // attributes
@@ -1885,8 +1776,6 @@ public:
     LabelledStatement(NameId *l, Statement *stmt):
         label (l), statement (stmt)
         { kind = K; }
-
-    virtual ~LabelledStatement() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -1911,8 +1800,6 @@ public:
     ThrowStatement(ExpressionNode *e):
         expression (e) { kind = K; }
 
-    virtual ~ThrowStatement() {}
-
     virtual void accept0(Visitor *visitor);
 
     virtual SourceLocation firstSourceLocation() const
@@ -1936,8 +1823,6 @@ public:
         name (n), statement (stmt)
         { kind = K; }
 
-    virtual ~Catch() {}
-
     virtual void accept0(Visitor *visitor);
 
 // attributes
@@ -1957,8 +1842,6 @@ public:
     Finally(Block *stmt):
         statement (stmt)
         { kind = K; }
-
-    virtual ~Finally() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -1983,8 +1866,6 @@ public:
     TryStatement(Statement *stmt, Catch *c):
         statement (stmt), catchExpression (c), finallyExpression (0)
         { kind = K; }
-
-    virtual ~TryStatement() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -2017,8 +1898,6 @@ public:
         name (n), formals (f), body (b)
         { kind = K; }
 
-    virtual ~FunctionExpression() {}
-
     virtual void accept0(Visitor *visitor);
 
     virtual SourceLocation firstSourceLocation() const
@@ -2048,8 +1927,6 @@ public:
         FunctionExpression(n, f, b)
         { kind = K; }
 
-    virtual ~FunctionDeclaration() {}
-
     virtual void accept0(Visitor *visitor);
 };
 
@@ -2069,8 +1946,6 @@ public:
         next = previous->next;
         previous->next = this;
     }
-
-    virtual ~FormalParameterList() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -2097,8 +1972,6 @@ public:
         elements (elts)
         { kind = K; }
 
-    virtual ~FunctionBody() {}
-
     virtual void accept0(Visitor *visitor);
 
 // attributes
@@ -2113,8 +1986,6 @@ public:
     Program(SourceElements *elts):
         elements (elts)
         { kind = K; }
-
-    virtual ~Program() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -2139,8 +2010,6 @@ public:
         previous->next = this;
     }
 
-    virtual ~SourceElements() {}
-
     virtual void accept0(Visitor *visitor);
 
     inline SourceElements *finish ()
@@ -2162,8 +2031,6 @@ public:
 
     inline SourceElement()
         { kind = K; }
-
-    virtual ~SourceElement() {}
 };
 
 class QML_PARSER_EXPORT FunctionSourceElement: public SourceElement
@@ -2174,8 +2041,6 @@ public:
     FunctionSourceElement(FunctionDeclaration *f):
         declaration (f)
         { kind = K; }
-
-    virtual ~FunctionSourceElement() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -2192,8 +2057,6 @@ public:
         statement (stmt)
         { kind = K; }
 
-    virtual ~StatementSourceElement() {}
-
     virtual void accept0(Visitor *visitor);
 
 // attributes
@@ -2207,8 +2070,6 @@ public:
 
     DebuggerStatement()
         { kind = K; }
-
-    virtual ~DebuggerStatement() {}
 
     virtual void accept0(Visitor *visitor);
 
@@ -2255,8 +2116,6 @@ public:
         next = previous->next;
         previous->next = this;
     }
-
-    virtual ~UiQualifiedId() {}
 
     UiQualifiedId *finish()
     {
@@ -2458,8 +2317,6 @@ public:
         next = previous->next;
         previous->next = this;
     }
-
-    virtual ~UiParameterList() {}
 
     virtual void accept0(Visitor *) {}
 

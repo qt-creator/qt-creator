@@ -207,7 +207,8 @@ void ScopeBuilder::setQmlScopeObject(Node *node)
         if (const QmlObjectValue *qmlMetaObject = dynamic_cast<const QmlObjectValue *>(prototype)) {
             if ((qmlMetaObject->className() == QLatin1String("ListElement")
                     || qmlMetaObject->className() == QLatin1String("Connections")
-                    ) && qmlMetaObject->packageName() == QLatin1String("Qt")) {
+                    ) && (qmlMetaObject->packageName() == QLatin1String("Qt")
+                          || qmlMetaObject->packageName() == QLatin1String("QtQuick"))) {
                 scopeChain.qmlScopeObjects.clear();
                 break;
             }

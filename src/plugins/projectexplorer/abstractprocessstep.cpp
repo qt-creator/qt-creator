@@ -355,7 +355,8 @@ void AbstractProcessStep::slotProcessFinished(int, QProcess::ExitStatus)
 
 QString AbstractProcessStep::expandedCommand() const
 {
-    QString command = m_environment.searchInPath(m_command, QStringList() << workingDirectory());
+    QString command = m_environment.searchInPath(
+                m_command, QStringList() << m_environment.expandVariables(m_workingDirectory));
     if (command.isEmpty())
         command = m_command;
     return command;

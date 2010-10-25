@@ -55,6 +55,7 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QProxyModel>
 #include <QtGui/QSortFilterProxyModel>
+#include <QtGui/QMessageBox>
 
 using namespace Utils;
 
@@ -422,6 +423,20 @@ void AttachExternalDialog::pidChanged(const QString &pid)
 {
     bool enabled = !pid.isEmpty() && pid != QLatin1String("0") && pid != m_selfPid;
     okButton()->setEnabled(enabled);
+}
+
+void AttachExternalDialog::accept()
+{
+#ifdef Q_OS_WIN
+    const qint64 pid = attachPID();
+    if (pid && isWinProcessBeingDebugged(pid)) {
+        QMessageBox::warning(this, tr("Process Already Under Debugger Control"),
+                             tr("The process %1 is already under the control of a debugger.\n"
+                                "Qt Creator cannot attach to it.").arg(pid));
+        return;
+    }
+#endif
+    QDialog::accept();
 }
 
 

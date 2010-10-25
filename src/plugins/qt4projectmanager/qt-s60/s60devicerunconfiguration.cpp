@@ -756,7 +756,6 @@ void S60DeviceDebugRunControl::start()
     QString settingsPage;
     if (!Debugger::DebuggerRunControl::checkDebugConfiguration(startParameters().toolChainType,
                                                                &errorMessage, &settingsCategory, &settingsPage)) {
-        m_debugProgress->reportCanceled();
         appendMessage(this, errorMessage, true);
         emit finished();
         Core::ICore::instance()->showWarningWithOptions(tr("Debugger for Symbian Platform"),
