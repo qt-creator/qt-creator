@@ -101,14 +101,28 @@ void DebuggerSettings::readSettings(QSettings *settings)
             break;
         const QString binary = tokens.front();
         tokens.pop_front();
-        foreach(const QString &t, tokens)
-            m_gdbBinaryToolChainMap.insert(binary, t.toInt());
+        foreach(const QString &t, tokens) {
+            // Paranoia: Check if the there is already a binary configured for the toolchain.
+            const int toolChain = t.toInt();
+            const QString predefinedGdb = m_gdbBinaryToolChainMap.key(toolChain);
+            if (predefinedGdb.isEmpty()) {
+                m_gdbBinaryToolChainMap.insert(binary, toolChain);
+            } else {
+                const QString toolChainName = ProjectExplorer::ToolChain::toolChainName(static_cast<ProjectExplorer::ToolChain::ToolChainType>(toolChain));
+                const QString msg =
+                        QString::fromLatin1("An inconsistency has been encountered in the Ini-file '%1':\n"
+                                            "Skipping gdb binary '%2' for toolchain '%3' as '%4' is already configured for it.").
+                        arg(settings->fileName(), binary, toolChainName, predefinedGdb);
+                qWarning("%s", qPrintable(msg));
+            }
+        }
     }
     // Linux defaults
 #ifdef Q_OS_UNIX
     if (m_gdbBinaryToolChainMap.isEmpty()) {
         const QString gdb = QLatin1String("gdb");
         m_gdbBinaryToolChainMap.insert(gdb, ProjectExplorer::ToolChain::GCC);
+        m_gdbBinaryToolChainMap.insert(gdb, ProjectExplorer::ToolChain::LINUX_ICC);
         m_gdbBinaryToolChainMap.insert(gdb, ProjectExplorer::ToolChain::OTHER);
         m_gdbBinaryToolChainMap.insert(gdb, ProjectExplorer::ToolChain::UNKNOWN);
     }
@@ -133,6 +147,10 @@ void DebuggerSettings::writeSettings(QSettings *settings) const
         settingsList.back().append(separator); // Append toolchain to last binary
         settingsList.back().append(QString::number(it.value()));
     }
+    // Terminate settings list by an empty element such that consecutive keys resulting
+    // from ini-file merging are suppressed while reading.
+    settingsList.push_back(QString());
+    // Write out list
     settings->beginGroup(QLatin1String(gdbBinariesSettingsGroupC));
     settings->remove(QString()); // remove all keys in group.
     const int count = settingsList.size();
