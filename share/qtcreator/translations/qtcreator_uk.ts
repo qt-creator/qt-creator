@@ -15204,7 +15204,7 @@ Did you start Qemu?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Error: Could not create create file &apos;%1&apos;.</source>
+        <source>Error: Could not create file &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -17940,7 +17940,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>Die Datei &apos;%1&apos; konnte nicht nach &apos;%2&apos; kopiert werden</translation>
     </message>
     <message>
-        <source>Error: Could not create create file &apos;%1&apos;.</source>
+        <source>Error: Could not create file &apos;%1&apos;.</source>
         <translation>Fehler: Die Datei &apos;%1&apos; konnte nicht erstellt werden.</translation>
     </message>
     <message>

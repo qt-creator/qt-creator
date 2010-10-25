@@ -268,7 +268,7 @@ bool MaemoPackageCreationStep::copyDebianFiles(bool inSourceBuild)
 
     QFile magicFile(magicFilePath);
     if (!magicFile.open(QIODevice::WriteOnly)) {
-        raiseError(tr("Error: Could not create create file '%1'.")
+        raiseError(tr("Error: Could not create file '%1'.")
             .arg(QDir::toNativeSeparators(magicFilePath)));
         return false;
     }

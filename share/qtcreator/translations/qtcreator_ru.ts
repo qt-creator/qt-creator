@@ -16085,7 +16085,7 @@ Remote stderr was: &apos;%1&apos;</source>
         <translation>Невозможно создать каталог Debian &quot;%1&quot;.</translation>
     </message>
     <message>
-        <source>Error: Could not create create file &apos;%1&apos;.</source>
+        <source>Error: Could not create file &apos;%1&apos;.</source>
         <translation>Ошибка: Невозможно создать файл &quot;%1&quot;.</translation>
     </message>
     <message>

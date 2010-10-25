@@ -20431,7 +20431,7 @@ Qemu は起動していますか?</translation>
         <translation>&apos;%1&apos; から &apos;%2&apos; へファイルをコピーできませんでした</translation>
     </message>
     <message>
-        <source>Error: Could not create create file &apos;%1&apos;.</source>
+        <source>Error: Could not create file &apos;%1&apos;.</source>
         <translation>エラー: ファイル &apos;%1&apos; を作成できませんでした。</translation>
     </message>
     <message>
