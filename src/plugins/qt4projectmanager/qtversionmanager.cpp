@@ -1833,5 +1833,8 @@ bool QtVersion::buildDebuggingHelperLibrary(QFutureInterface<void> &future,
     }
     future.setProgressValue(4);
 
+    // invalidate cache once more
+    m_versionInfoUpToDate = false;
+
     return true;
 }
