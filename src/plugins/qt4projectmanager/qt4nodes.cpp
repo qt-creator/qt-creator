@@ -588,6 +588,9 @@ void Qt4PriFileNode::update(ProFile *includeFileExact, ProFileReader *readerExac
         m_recursiveEnumerateFiles += recursiveEnumerate(folder);
     }
 
+
+    QMap<FileType, QSet<QString> > foundFiles;
+
     // update files
     for (int i = 0; i < fileTypes.size(); ++i) {
         FileType type = fileTypes.at(i).type;
@@ -604,6 +607,13 @@ void Qt4PriFileNode::update(ProFile *includeFileExact, ProFileReader *readerExac
 
         }
 
+        foundFiles[type] = newFilePaths;
+        m_recursiveEnumerateFiles.subtract(newFilePaths);
+    }
+
+    for (int i = 0; i < fileTypes.size(); ++i) {
+        FileType type = fileTypes.at(i).type;
+        QSet<QString> newFilePaths = foundFiles[type];
         newFilePaths += filterFiles(type, m_recursiveEnumerateFiles);
 
         // We only need to save this information if
