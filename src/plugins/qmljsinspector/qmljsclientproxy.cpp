@@ -163,7 +163,7 @@ void ClientProxy::refreshObjectTree()
     }
 }
 
-void ClientProxy::onCurrentObjectsChanged(const QList< int >& debugIds, bool requestIfNeeded)
+void ClientProxy::onCurrentObjectsChanged(const QList<int> &debugIds, bool requestIfNeeded)
 {
     QList<QDeclarativeDebugObjectReference> selectedItems;
 
@@ -194,7 +194,7 @@ void ClientProxy::setSelectedItemsByObjectId(const QList<QDeclarativeDebugObject
             debugIds << ref.debugId();
         }
 
-        m_designClient->setSelectedItemsByObjectId(debugIds);
+        m_designClient->setCurrentObjects(debugIds);
     }
 }
 
@@ -401,8 +401,8 @@ void ClientProxy::objectTreeFetched(QDeclarativeDebugQuery::State state)
         emit objectTreeUpdated();
 
         if (isConnected()) {
-            if (!m_designClient->selectedItemIds().isEmpty())
-                onCurrentObjectsChanged(m_designClient->selectedItemIds(), false);
+            if (!m_designClient->currentObjects().isEmpty())
+                onCurrentObjectsChanged(m_designClient->currentObjects(), false);
 
             m_designClient->setObjectIdList(m_rootObjects);
         }

@@ -276,7 +276,7 @@ void InspectorUi::connected(ClientProxy *clientProxy)
 {
     m_clientProxy = clientProxy;
 
-    connect(m_clientProxy, SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
+    connect(m_clientProxy, SIGNAL(currentObjectsChanged(QList<QDeclarativeDebugObjectReference>)),
             SLOT(setSelectedItemsByObjectReference(QList<QDeclarativeDebugObjectReference>)));
 
     connect(m_clientProxy, SIGNAL(enginesChanged()), SLOT(updateEngineList()));
@@ -309,7 +309,7 @@ void InspectorUi::connected(ClientProxy *clientProxy)
 
 void InspectorUi::disconnected()
 {
-    disconnect(m_clientProxy, SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
+    disconnect(m_clientProxy, SIGNAL(currentObjectsChanged(QList<QDeclarativeDebugObjectReference>)),
                this, SLOT(setSelectedItemsByObjectReference(QList<QDeclarativeDebugObjectReference>)));
 
     disconnect(m_clientProxy, SIGNAL(enginesChanged()), this, SLOT(updateEngineList()));
@@ -431,7 +431,7 @@ QmlJSLiveTextPreview *InspectorUi::createPreviewForEditor(Core::IEditor *newEdit
         } else {
             preview = new QmlJSLiveTextPreview(doc, initdoc, m_clientProxy, this);
             connect(preview,
-                    SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
+                    SIGNAL(currentObjectsChanged(QList<QDeclarativeDebugObjectReference>)),
                     SLOT(changeSelectedItems(QList<QDeclarativeDebugObjectReference>)));
             connect(preview, SIGNAL(reloadQmlViewerRequested()), m_clientProxy, SLOT(reloadQmlViewer()));
             connect(preview, SIGNAL(disableLivePreviewRequested()), SLOT(disableLivePreview()));

@@ -75,17 +75,17 @@ void QmlJSObserverClient::messageReceived(const QByteArray &message)
         int objectCount;
         ds >> objectCount;
 
-        m_selectedItemIds.clear();
+        m_currentDebugIds.clear();
 
         for(int i = 0; i < objectCount; ++i) {
             int debugId;
             ds >> debugId;
             if (debugId != -1) {
-                m_selectedItemIds  << debugId;
+                m_currentDebugIds << debugId;
             }
         }
 
-        emit currentObjectsChanged(m_selectedItemIds);
+        emit currentObjectsChanged(m_currentDebugIds);
     } else if (type == "TOOL_CHANGED") {
         int toolId;
         ds >> toolId;
@@ -120,12 +120,12 @@ void QmlJSObserverClient::messageReceived(const QByteArray &message)
     }
 }
 
-QList<int> QmlJSObserverClient::selectedItemIds() const
+QList<int> QmlJSObserverClient::currentObjects() const
 {
-    return m_selectedItemIds;
+    return m_currentDebugIds;
 }
 
-void QmlJSObserverClient::setSelectedItemsByObjectId(const QList<int> &debugIds) {
+void QmlJSObserverClient::setCurrentObjects(const QList<int> &debugIds) {
     if (!m_connection || !m_connection->isConnected())
         return;
 

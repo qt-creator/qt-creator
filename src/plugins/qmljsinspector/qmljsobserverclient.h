@@ -54,7 +54,7 @@ public:
     explicit QmlJSObserverClient(QDeclarativeDebugConnection *client,
                                     QObject *parent = 0);
 
-    void setSelectedItemsByObjectId(const QList<int> &debugIds);
+    void setCurrentObjects(const QList<int> &debugIds);
     void reloadViewer();
     void setDesignModeBehavior(bool inDesignMode);
     void setAnimationSpeed(qreal slowdownFactor);
@@ -71,7 +71,7 @@ public:
     void applyChangesToQmlFile();
     void applyChangesFromQmlFile();
 
-    QList<int> selectedItemIds() const;
+    QList<int> currentObjects() const;
 
     // ### Qt 4.8: remove if we can have access to qdeclarativecontextdata or id's
     void setObjectIdList(const QList<QDeclarativeDebugObjectReference> &objectRoots);
@@ -98,7 +98,7 @@ protected:
     virtual void messageReceived(const QByteArray &);
 
 private:
-    QList<int> m_selectedItemIds;
+    QList<int> m_currentDebugIds;
     QDeclarativeDebugConnection *m_connection;
 };
 
