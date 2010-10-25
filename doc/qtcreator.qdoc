@@ -8202,7 +8202,11 @@
 
         \row
             \o -profile
-            \o Load profile plugin.
+            \o Output plugin start up and shut down profiling data.
+
+        \row
+            \o -settingspath <path>
+            \o Override the default path where user settings are stored.
 
         \row
             \o -color <color>

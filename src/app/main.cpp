@@ -55,16 +55,17 @@
 #include <qtsystemexceptionhandler.h>
 #endif
 
-enum { OptionIndent = 4, DescriptionIndent = 24 };
+enum { OptionIndent = 4, DescriptionIndent = 34 };
 
 static const char *appNameC = "Qt Creator";
 static const char *corePluginNameC = "Core";
 static const char *fixedOptionsC =
 " [OPTION]... [FILE]...\n"
 "Options:\n"
-"    -help               Display this help\n"
-"    -version            Display program version\n"
-"    -client             Attempt to connect to already running instance\n";
+"    -help                         Display this help\n"
+"    -version                      Display program version\n"
+"    -client                       Attempt to connect to already running instance\n"
+"    -settingspath <path>          Override the default path where user settings are stored.\n";
 
 static const char *HELP_OPTION1 = "-h";
 static const char *HELP_OPTION2 = "-help";
@@ -72,6 +73,7 @@ static const char *HELP_OPTION3 = "/h";
 static const char *HELP_OPTION4 = "--help";
 static const char *VERSION_OPTION = "-version";
 static const char *CLIENT_OPTION = "-client";
+static const char *SETTINGS_OPTION = "-settingspath";
 
 typedef QList<ExtensionSystem::PluginSpec *> PluginSpecSet;
 
@@ -198,6 +200,25 @@ int main(int argc, char **argv)
     QTranslator qtTranslator;
     QString locale = QLocale::system().name();
 
+    // Manually determine -settingspath command line option
+    // We can't use the regular way of the plugin manager, because that needs to parse pluginspecs
+    // but the settings path can influence which plugins are enabled
+    QString settingsPath;
+    QStringList arguments = app.arguments(); /* adapted arguments list is passed to plugin manager later */
+    QMutableStringListIterator it(arguments);
+    while (it.hasNext()) {
+        const QString &arg = it.next();
+        if (arg == QLatin1String(SETTINGS_OPTION)) {
+            it.remove();
+            if (it.hasNext()) {
+                settingsPath = QDir::fromNativeSeparators(it.next());
+                it.remove();
+            }
+        }
+    }
+    if (!settingsPath.isEmpty())
+        QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, settingsPath);
+
     // Must be done before any QSettings class is created
     QSettings::setPath(QSettings::IniFormat, QSettings::SystemScope,
             QCoreApplication::applicationDirPath()+QLatin1String(SHARE_PATH));
@@ -240,7 +261,6 @@ int main(int argc, char **argv)
     const QStringList pluginPaths = getPluginPaths();
     pluginManager.setPluginPaths(pluginPaths);
 
-    const QStringList arguments = app.arguments();
     QMap<QString, QString> foundAppOptions;
     if (arguments.size() > 1) {
         QMap<QString, bool> appOptions;
