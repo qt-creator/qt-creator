@@ -277,7 +277,7 @@ void InspectorUi::connected(ClientProxy *clientProxy)
     m_clientProxy = clientProxy;
 
     connect(m_clientProxy, SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
-            SLOT(setSelectedItemsByObjectReference(QList<QDeclarativeDebugObjectReference>)));
+            SLOT(gotoObjectReferenceDefinition(QList<QDeclarativeDebugObjectReference>)));
 
     connect(m_clientProxy, SIGNAL(enginesChanged()), SLOT(updateEngineList()));
     connect(m_clientProxy, SIGNAL(serverReloaded()), this, SLOT(serverReloaded()));
@@ -310,7 +310,7 @@ void InspectorUi::connected(ClientProxy *clientProxy)
 void InspectorUi::disconnected()
 {
     disconnect(m_clientProxy, SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
-               this, SLOT(setSelectedItemsByObjectReference(QList<QDeclarativeDebugObjectReference>)));
+               this, SLOT(gotoObjectReferenceDefinition(QList<QDeclarativeDebugObjectReference>)));
 
     disconnect(m_clientProxy, SIGNAL(enginesChanged()), this, SLOT(updateEngineList()));
     disconnect(m_clientProxy, SIGNAL(serverReloaded()), this, SLOT(serverReloaded()));
@@ -506,7 +506,7 @@ void InspectorUi::setSimpleDockWidgetArrangement(const Debugger::DebuggerLanguag
     mw->setTrackingEnabled(true);
 }
 
-void InspectorUi::setSelectedItemsByObjectReference(QList<QDeclarativeDebugObjectReference> objectReferences)
+void InspectorUi::gotoObjectReferenceDefinition(QList<QDeclarativeDebugObjectReference> objectReferences)
 {
     if (objectReferences.length())
         gotoObjectReferenceDefinition(objectReferences.first());

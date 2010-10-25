@@ -123,8 +123,7 @@ private slots:
     void enable();
     void disable();
     void gotoObjectReferenceDefinition(const QDeclarativeDebugObjectReference &obj);
-
-    void setSelectedItemsByObjectReference(QList<QDeclarativeDebugObjectReference> objectReferences);
+    void gotoObjectReferenceDefinition(QList<QDeclarativeDebugObjectReference> objectReferences);
     void changeSelectedItems(const QList<QDeclarativeDebugObjectReference> &objects);
 
     void updateEngineList();
