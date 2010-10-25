@@ -199,7 +199,9 @@ bool MaemoDeployableListModel::setData(const QModelIndex &index,
     if (!isEditable(index) || role != Qt::EditRole)
         return false;
     const QString &remoteDir = value.toString();
-    if (!addTargetPath(remoteDir))
+    if (!addLinesToProFile(QStringList()
+             << QString::fromLocal8Bit("target.path = %1").arg(remoteDir)
+             << QLatin1String("INSTALLS += target")))
         return false;
     m_deployables.first().remoteDir = remoteDir;
     emit dataChanged(index, index);
@@ -262,13 +264,97 @@ bool MaemoDeployableListModel::isEditable(const QModelIndex &index) const
         && m_deployables.first().remoteDir.isEmpty();
 }
 
-bool MaemoDeployableListModel::addTargetPath(const QString &remoteDir)
+bool MaemoDeployableListModel::canAddDesktopFile() const
+{
+    if (m_projectType == LibraryTemplate)
+        return false;
+    foreach (const MaemoDeployable &d, m_deployables) {
+        if (QFileInfo(d.localFilePath).fileName() == m_projectName + QLatin1String(".desktop"))
+            return false;
+    }
+    return true;
+}
+
+bool MaemoDeployableListModel::addDesktopFile(QString &error)
+{
+    if (!canAddDesktopFile())
+        return true;
+    const QString desktopFilePath = QFileInfo(m_proFilePath).path()
+        + QLatin1Char('/') + m_projectName + QLatin1String(".desktop");
+    QFile desktopFile(desktopFilePath);
+    const bool existsAlready = desktopFile.exists();
+    if (!desktopFile.open(QIODevice::ReadWrite)) {
+        error = tr("Failed to open '%1': %2")
+            .arg(desktopFilePath, desktopFile.errorString());
+        return false;
+    }
+
+    const QByteArray desktopTemplate("[Desktop Entry]\nEncoding=UTF-8\n"
+        "Version=1.0\nType=Application\nTerminal=false\nName=%1\nExec=%2\n"
+        "Icon=%1\nX-Window-Icon=\nX-HildonDesk-ShowInToolbar=true\n"
+        "X-Osso-Type=application/x-executable\n");
+    const QString contents = existsAlready
+        ? QString::fromUtf8(desktopFile.readAll())
+        : QString::fromLocal8Bit(desktopTemplate)
+              .arg(m_projectName, remoteExecutableFilePath());
+    desktopFile.resize(0);
+    const QByteArray &contentsAsByteArray = contents.toUtf8();
+    if (desktopFile.write(contentsAsByteArray) != contentsAsByteArray.count()
+            || !desktopFile.flush()) {
+        error = tr("Could not write '%1': %2")
+            .arg(desktopFilePath, desktopFile.errorString());
+            return false;
+    }
+
+    const MaemoToolChain *const tc = maemoToolchain();
+    QTC_ASSERT(tc, return false);
+    QString remoteDir = QLatin1String("/usr/share/applications");
+    if (tc->version() == MaemoToolChain::Maemo5)
+        remoteDir += QLatin1String("/hildon");
+    const QLatin1String filesLine("desktopfile.files = $${TARGET}.desktop");
+    const QString pathLine = QLatin1String("desktopfile.path = ") + remoteDir;
+    const QLatin1String installsLine("INSTALLS += desktopfile");
+    if (!addLinesToProFile(QStringList() << filesLine << pathLine
+            << installsLine)) {
+        error = tr("Error writing project file.");
+        return false;
+    }
+
+    beginInsertRows(QModelIndex(), rowCount(), rowCount());
+    m_deployables << MaemoDeployable(desktopFilePath, remoteDir);
+    endInsertRows();
+    return true;
+}
+
+bool MaemoDeployableListModel::addLinesToProFile(const QStringList &lines)
 {
     QFile projectFile(m_proFilePath);
     if (!projectFile.open(QIODevice::WriteOnly | QIODevice::Append)) {
         qWarning("Error opening .pro file for writing.");
         return false;
     }
+    QString proFileScope;
+    const MaemoToolChain *const tc = maemoToolchain();
+    QTC_ASSERT(tc, return false);
+    if (tc->version() == MaemoToolChain::Maemo5)
+        proFileScope = QLatin1String("maemo5");
+    else
+        proFileScope = QLatin1String("unix:!symbian:!maemo5");
+    const QLatin1String separator("\n    ");
+    const QString proFileString = QString(QLatin1Char('\n') + proFileScope
+        + QLatin1String(" {") + separator + lines.join(separator)
+        + QLatin1String("\n}\n"));
+    const QByteArray &proFileByteArray = proFileString.toLocal8Bit();
+    if (projectFile.write(proFileByteArray) != proFileByteArray.count()
+            || !projectFile.flush()) {
+        qWarning("Error updating .pro file.");
+        return false;
+    }
+    return true;
+}
+
+const MaemoToolChain *MaemoDeployableListModel::maemoToolchain() const
+{
     const ProjectExplorer::Project *const activeProject
         = ProjectExplorer::ProjectExplorerPlugin::instance()->session()->startupProject();
     QTC_ASSERT(activeProject, return false);
@@ -281,20 +367,7 @@ bool MaemoDeployableListModel::addTargetPath(const QString &remoteDir)
     const MaemoToolChain *const tc
         = dynamic_cast<MaemoToolChain *>(bc->toolChain());
     QTC_ASSERT(tc, return false);
-    QString proFileScope;
-    if (tc->version() == MaemoToolChain::Maemo5)
-        proFileScope = QLatin1String("maemo5");
-    else
-        proFileScope = QLatin1String("unix:!symbian:!maemo5");
-    const QString proFileString = QString(QLatin1Char('\n') + proFileScope
-        + QLatin1String(" {\n    target.path = %1\n    INSTALLS += target\n}\n"))
-              .arg(remoteDir);
-    if (!projectFile.write(proFileString.toLocal8Bit())
-            || !projectFile.flush()) {
-        qWarning("Error updating .pro file.");
-        return false;
-    }
-    return true;
+    return tc;
 }
 
 } // namespace Qt4ProjectManager

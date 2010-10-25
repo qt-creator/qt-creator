@@ -48,6 +48,7 @@ QT_END_NAMESPACE
 namespace Qt4ProjectManager {
 namespace Internal {
 class MaemoProFileWrapper;
+class MaemoToolChain;
 
 class MaemoDeployableListModel : public QAbstractTableModel
 {
@@ -75,6 +76,8 @@ public:
     QString projectDir() const;
     QString proFilePath() const { return m_proFilePath; }
     bool hasTargetPath() const { return m_hasTargetPath; }
+    bool canAddDesktopFile() const;
+    bool addDesktopFile(QString &error);
     ProFileUpdateSetting proFileUpdateSetting() const {
         return m_proFileUpdateSetting;
     }
@@ -92,7 +95,8 @@ private:
 
     bool isEditable(const QModelIndex &index) const;
     bool buildModel();
-    bool addTargetPath(const QString &remoteDir);
+    bool addLinesToProFile(const QStringList &lines);
+    const MaemoToolChain *maemoToolchain() const;
 
     const Qt4ProjectType m_projectType;
     const QString m_proFilePath;

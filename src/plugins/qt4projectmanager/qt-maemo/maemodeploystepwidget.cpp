@@ -11,6 +11,8 @@
 #include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
 
+#include <QtGui/QMessageBox>
+
 namespace Qt4ProjectManager {
 namespace Internal {
 
@@ -32,6 +34,8 @@ MaemoDeployStepWidget::MaemoDeployStepWidget(MaemoDeployStep *step) :
 
     connect(ui->modelComboBox, SIGNAL(currentIndexChanged(int)),
         SLOT(setModel(int)));
+    connect(ui->addDesktopFileButton, SIGNAL(clicked()),
+        SLOT(addDesktopFile()));
     handleModelListReset();
 }
 
@@ -100,6 +104,7 @@ void MaemoDeployStepWidget::handleModelListToBeReset()
 {
     ui->tableView->reset(); // Otherwise we'll crash if the user is currently editing.
     ui->tableView->setModel(0);
+    ui->addDesktopFileButton->setEnabled(false);
 }
 
 void MaemoDeployStepWidget::handleModelListReset()
@@ -115,10 +120,31 @@ void MaemoDeployStepWidget::handleModelListReset()
 
 void MaemoDeployStepWidget::setModel(int row)
 {
+    bool canAddDesktopFile = false;
     if (row != -1) {
-        ui->tableView->setModel(m_step->deployables()->modelAt(row));
+        MaemoDeployableListModel *const model
+            = m_step->deployables()->modelAt(row);
+        ui->tableView->setModel(model);
         ui->tableView->resizeRowsToContents();
+        canAddDesktopFile = model->canAddDesktopFile();
     }
+    ui->addDesktopFileButton->setEnabled(canAddDesktopFile);
+}
+
+void MaemoDeployStepWidget::addDesktopFile()
+{
+    const int modelRow = ui->modelComboBox->currentIndex();
+    if (modelRow == -1)
+        return;
+    MaemoDeployableListModel *const model
+        = m_step->deployables()->modelAt(modelRow);
+    QString error;
+    if (!model->addDesktopFile(error)) {
+        QMessageBox::warning(this, tr("Could not create desktop file"),
+             tr("Error creating desktop file: %1").arg(error));
+    }
+    ui->addDesktopFileButton->setEnabled(model->canAddDesktopFile());
+    ui->tableView->resizeRowsToContents();
 }
 
 } // namespace Internal
