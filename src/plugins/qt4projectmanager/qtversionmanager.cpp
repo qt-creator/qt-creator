@@ -1829,7 +1829,7 @@ bool QtVersion::buildDebuggingHelperLibrary(QFutureInterface<void> &future,
             return false;
 
     } else {
-        output->append(QCoreApplication::translate("Qt4ProjectManager::QtVersion", "Warning: Cannot build qmldump; Qt version must be 4.7.1 or higher."));
+//        output->append(QCoreApplication::translate("Qt4ProjectManager::QtVersion", "Warning: Cannot build qmldump; Qt version must be 4.7.1 or higher."));
     }
     future.setProgressValue(4);
 
