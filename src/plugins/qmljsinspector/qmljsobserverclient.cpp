@@ -129,6 +129,11 @@ void QmlJSObserverClient::setCurrentObjects(const QList<int> &debugIds) {
     if (!m_connection || !m_connection->isConnected())
         return;
 
+    if (debugIds == m_currentDebugIds)
+        return;
+
+    m_currentDebugIds = debugIds;
+
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
