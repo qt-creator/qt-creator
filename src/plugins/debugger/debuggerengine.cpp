@@ -1182,7 +1182,7 @@ void DebuggerEngine::notifyEngineSetupFailed()
     setState(EngineSetupFailed);
     QTC_ASSERT(d->m_runControl, return);
     d->m_runControl->startFailed();
-    d->queueShutdownEngine();
+    setState(DebuggerFinished);
 }
 
 void DebuggerEngine::notifyEngineSetupOk()
