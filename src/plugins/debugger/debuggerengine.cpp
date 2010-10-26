@@ -1240,7 +1240,7 @@ void DebuggerEngine::notifyEngineRunFailed()
     d->m_progress.reportCanceled();
     d->m_progress.reportFinished();
     setState(EngineRunFailed);
-    d->queueShutdownInferior();
+    d->queueShutdownEngine();
 }
 
 void DebuggerEngine::notifyEngineRunAndInferiorRunOk()
