@@ -40,6 +40,8 @@
 #include <QtGui/QTreeView>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
+#include <QtGui/QScrollBar>
+#include <QtGui/QDesktopWidget>
 
 
 namespace Debugger {
@@ -135,6 +137,34 @@ Q_SLOT void ToolTipWidget::computeSize()
         columns += sizeHintForColumn(i);
     }
     int rows = computeHeight(QModelIndex());
+
+    //Fit tooltip to screen, showing/hiding scrollbars as needed
+    //Add a bit of space to account for tooltip border, and not touch the border of the screen
+    QPoint pos(x(), y());
+    QRect desktopRect = QApplication::desktop()->availableGeometry(pos);
+    const int maxWidth = desktopRect.right() - pos.x() - 5 - 5;
+    const int maxHeight = desktopRect.bottom() - pos.y() - 5 - 5;
+
+    if (columns > maxWidth)
+        rows += horizontalScrollBar()->height();
+
+    if (rows > maxHeight) {
+        setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+        rows = maxHeight;
+        columns += verticalScrollBar()->width();
+    }
+    else {
+        setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    }
+
+    if (columns > maxWidth) {
+        setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+        columns = maxWidth;
+    }
+    else {
+        setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    }
+
     m_size = QSize(columns + 5, rows + 5);
     setMinimumSize(m_size);
     setMaximumSize(m_size);
