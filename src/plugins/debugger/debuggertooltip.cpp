@@ -33,15 +33,15 @@
 #include <QtCore/QtDebug>
 
 #include <QtGui/QApplication>
+#include <QtGui/QDesktopWidget>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QHeaderView>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QLabel>
+#include <QtGui/QScrollBar>
 #include <QtGui/QTreeView>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
-#include <QtGui/QScrollBar>
-#include <QtGui/QDesktopWidget>
 
 
 namespace Debugger {
@@ -101,9 +101,8 @@ bool ToolTipWidget::eventFilter(QObject *ob, QEvent *ev)
             return true;
         break;
     case QEvent::KeyPress:
-        if (static_cast<QKeyEvent *>(ev)->key() == Qt::Key_Escape) {
+        if (static_cast<QKeyEvent *>(ev)->key() == Qt::Key_Escape)
             return true;
-        }
         break;
     case QEvent::KeyRelease:
         if (static_cast<QKeyEvent *>(ev)->key() == Qt::Key_Escape) {
@@ -129,7 +128,7 @@ int ToolTipWidget::computeHeight(const QModelIndex &index) const
     return s;
 }
 
-Q_SLOT void ToolTipWidget::computeSize()
+void ToolTipWidget::computeSize()
 {
     int columns = 0;
     for (int i = 0; i < 3; ++i) {
@@ -138,8 +137,9 @@ Q_SLOT void ToolTipWidget::computeSize()
     }
     int rows = computeHeight(QModelIndex());
 
-    //Fit tooltip to screen, showing/hiding scrollbars as needed
-    //Add a bit of space to account for tooltip border, and not touch the border of the screen
+    // Fit tooltip to screen, showing/hiding scrollbars as needed.
+    // Add a bit of space to account for tooltip border, and not
+    // touch the border of the screen.
     QPoint pos(x(), y());
     QRect desktopRect = QApplication::desktop()->availableGeometry(pos);
     const int maxWidth = desktopRect.right() - pos.x() - 5 - 5;
@@ -152,16 +152,14 @@ Q_SLOT void ToolTipWidget::computeSize()
         setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
         rows = maxHeight;
         columns += verticalScrollBar()->width();
-    }
-    else {
+    } else {
         setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     }
 
     if (columns > maxWidth) {
         setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
         columns = maxWidth;
-    }
-    else {
+    } else {
         setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     }
 
