@@ -33,6 +33,8 @@
 #include "qmljs_global.h"
 #include "qmljsdocument.h"
 
+#include <utils/environment.h>
+
 #include <QObject>
 #include <QStringList>
 #include <QSharedPointer>
@@ -77,6 +79,7 @@ public:
         QStringList sourceFiles;
         QStringList importPaths;
         QString qmlDumpPath;
+        Utils::Environment qmlDumpEnvironment;
     };
 
     class WorkingCopy

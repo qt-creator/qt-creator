@@ -119,6 +119,7 @@ public:
 
     bool hasQmlDump() const;
     bool hasQmlObserver() const;
+    Utils::Environment qmlToolsEnvironment() const;
 
     // Builds a debugging library
     // returns the output of the commands

@@ -1638,6 +1638,19 @@ bool QtVersion::hasQmlObserver() const
     return m_hasQmlObserver;
 }
 
+Utils::Environment QtVersion::qmlToolsEnvironment() const
+{
+    Utils::Environment environment = Utils::Environment::systemEnvironment();
+    addToEnvironment(environment);
+
+    // add preferred toolchain, as that is how the tools are built, compare QtVersion::buildDebuggingHelperLibrary
+    QList<QSharedPointer<ProjectExplorer::ToolChain> > alltc = toolChains();
+    if (!alltc.isEmpty())
+        alltc.first().data()->addToEnvironment(environment);
+
+    return environment;
+}
+
 QString QtVersion::debuggingHelperLibrary() const
 {
     QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");

@@ -34,6 +34,8 @@
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/applicationlauncher.h>
+#include <projectexplorer/toolchain.h>
+#include <qt4projectmanager/qtversionmanager.h>
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
 
@@ -62,9 +64,8 @@ namespace Internal {
 QmlRunControl::QmlRunControl(QmlProjectRunConfiguration *runConfiguration, QString mode)
     : RunControl(runConfiguration, mode)
 {
-    Utils::Environment environment = Utils::Environment::systemEnvironment();
-
-    m_applicationLauncher.setEnvironment(environment.toStringList());
+    if (Qt4ProjectManager::QtVersion *qtVersion = runConfiguration->qtVersion())
+        m_applicationLauncher.setEnvironment(qtVersion->qmlToolsEnvironment().toStringList());
     m_applicationLauncher.setWorkingDirectory(runConfiguration->workingDirectory());
 
     if (mode == ProjectExplorer::Constants::RUNMODE) {
@@ -195,7 +196,6 @@ QWidget *QmlRunControlFactory::createConfigurationWidget(RunConfiguration *runCo
 
 ProjectExplorer::RunControl *QmlRunControlFactory::createDebugRunControl(QmlProjectRunConfiguration *runConfig)
 {
-    Utils::Environment environment = Utils::Environment::systemEnvironment();
     Debugger::DebuggerStartParameters params;
     params.startMode = Debugger::StartInternal;
     params.executable = runConfig->observerPath();
@@ -204,7 +204,8 @@ ProjectExplorer::RunControl *QmlRunControlFactory::createDebugRunControl(QmlProj
     params.processArgs = runConfig->viewerArguments();
     params.processArgs.append(QLatin1String("-qmljsdebugger=port:") + QString::number(runConfig->qmlDebugServerPort()));
     params.workingDirectory = runConfig->workingDirectory();
-    params.environment = environment.toStringList();
+    if (Qt4ProjectManager::QtVersion *qtVersion = runConfig->qtVersion())
+        params.environment = qtVersion->qmlToolsEnvironment().toStringList();
     params.displayName = runConfig->displayName();
 
     if (params.executable.isEmpty()) {
