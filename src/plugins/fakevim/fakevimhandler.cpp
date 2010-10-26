@@ -814,6 +814,7 @@ public:
 
     bool m_lastSearchForward;
     bool m_findPending;
+    int m_findStartPosition;
     QString m_lastInsertion;
     QString m_lastDeletion;
 
@@ -984,6 +985,7 @@ void FakeVimHandler::Private::init()
     m_subsubmode = NoSubSubMode;
     m_passing = false;
     m_findPending = false;
+    m_findStartPosition = -1;
     m_fakeEnd = false;
     m_positionPastEnd = false;
     m_anchorPastEnd = false;
@@ -1326,8 +1328,9 @@ void FakeVimHandler::Private::stopIncrementalFind()
     if (m_findPending) {
         m_findPending = false;
         QTextCursor tc = cursor();
-        tc.setPosition(tc.selectionStart());
-        setCursor(tc);
+        setAnchorAndPosition(m_findStartPosition, tc.selectionStart());
+        finishMovement();
+        setAnchor();
     }
 }
 
@@ -1924,8 +1927,10 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         if (hasConfig(ConfigUseCoreSearch)) {
             // re-use the core dialog.
             m_findPending = true;
+            m_findStartPosition = position();
+            m_movetype = MoveExclusive;
+            setAnchor(); // clear selection: otherwise, search is restricted to selection 
             emit q->findRequested(!m_lastSearchForward);
-            //m_tc.setPosition(m_tc.selectionStart());
         } else {
             // FIXME: make core find dialog sufficiently flexible to
             // produce the "default vi" behaviour too. For now, roll our own.
@@ -2306,12 +2311,23 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         handleStartOfLine();
         finishMovement();
     } else if (input.is('n') || input.is('N')) {
-        SearchData sd;
-        sd.needle = g.searchHistory.current();
-        sd.forward = input.is('n') ? m_lastSearchForward : !m_lastSearchForward;
-        sd.highlightCursor = false;
-        sd.highlightMatches = true;
-        search(sd);
+        if (hasConfig(ConfigUseCoreSearch)) {
+            bool forward = (input.is('n')) ? m_lastSearchForward : !m_lastSearchForward;
+            int pos = position();
+            emit q->findNextRequested(!forward);
+            if (forward && pos == cursor().selectionStart()) {
+                // if cursor is already positioned at the start of a find result, this is returned
+                emit q->findNextRequested(false);
+            }
+            setPosition(cursor().selectionStart());
+        } else {
+            SearchData sd;
+            sd.needle = g.searchHistory.current();
+            sd.forward = input.is('n') ? m_lastSearchForward : !m_lastSearchForward;
+            sd.highlightCursor = false;
+            sd.highlightMatches = true;
+            search(sd);
+        }
     } else if (isVisualMode() && (input.is('o') || input.is('O'))) {
         int pos = position();
         setAnchorAndPosition(pos, anchor());
