@@ -2,14 +2,6 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="ru">
 <context>
-    <name>AboutDialog</name>
-    <message>
-        <source>About Bauhaus</source>
-        <comment>AboutDialog</comment>
-        <translation>О Баухаусе</translation>
-    </message>
-</context>
-<context>
     <name>Application</name>
     <message>
         <source>Failed to load core: %1</source>
@@ -3577,6 +3569,10 @@ Would you like to overwrite them?</source>
 <context>
     <name>Debugger::DebuggerRunControl</name>
     <message>
+        <source>There is no debugging engine available for post-mortem debugging.</source>
+        <translation>Отсутствует движок отладчика для системной отладки.</translation>
+    </message>
+    <message>
         <source>Cannot debug &apos;%1&apos; (tool chain: &apos;%2&apos;): %3</source>
         <translation>Не удалось отладить &quot;%1&quot; (инструментарий: &quot;%2&quot;): %3</translation>
     </message>
@@ -3712,6 +3708,16 @@ Would you like to overwrite them?</source>
     <message>
         <source>Refresh</source>
         <translation>Обновить</translation>
+    </message>
+    <message>
+        <source>Process Already Under Debugger Control</source>
+        <translation>Процесс уже работает под контролем отладчика</translation>
+    </message>
+    <message>
+        <source>The process %1 is already under the control of a debugger.
+Qt Creator cannot attach to it.</source>
+        <translation>Процесс %1 уже работает под контролем отладчика.
+Qt Creator не может подключиться к нему.</translation>
     </message>
 </context>
 <context>
@@ -6579,6 +6585,18 @@ Rebuilding the project might help.</source>
         <source>Previous Open Document in History</source>
         <translation>Предыдущий открытый документ в истории</translation>
     </message>
+    <message>
+        <source>Go Back</source>
+        <translation>Перейти назад</translation>
+    </message>
+    <message>
+        <source>Go Forward</source>
+        <translation>Перейти вперёд</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Закрыть</translation>
+    </message>
 </context>
 <context>
     <name>EditorSettingsPanel</name>
@@ -7792,10 +7810,6 @@ on slow machines. In this case, the value should be increased.</source>
 </context>
 <context>
     <name>Git::Internal::GitClient</name>
-    <message>
-        <source>Note that the git plugin for QtCreator is not able to interact with the server so far. Thus, manual ssh-identification etc. will not work.</source>
-        <translation>Следует иметь в виду, что надстройка Git до сих пор не умеет работать с сервером. Поэтому, ручная настройка ssh-авторизации и другое не будет работать.</translation>
-    </message>
     <message>
         <source>Unable to determine the repository for %1.</source>
         <translation>Не удалось определить хранилище для %1.</translation>
@@ -9053,44 +9067,6 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
 </context>
 <context>
-    <name>HelloWorld::Internal::HelloWorldPlugin</name>
-    <message>
-        <source>Say &quot;&amp;Hello World!&quot;</source>
-        <translation>Скажите &quot;&amp;Привет, Мир!&quot;</translation>
-    </message>
-    <message>
-        <source>&amp;Hello World</source>
-        <translation>&amp;Привет, Мир</translation>
-    </message>
-    <message>
-        <source>Hello world!</source>
-        <translation>Привет, Мир!</translation>
-    </message>
-    <message>
-        <source>Hello World PushButton!</source>
-        <translation>Моя первая PushButton!</translation>
-    </message>
-    <message>
-        <source>Hello World!</source>
-        <translation>Привет, Мир!</translation>
-    </message>
-    <message>
-        <source>Hello World! Beautiful day today, isn&apos;t it?</source>
-        <translation>Привет, Мир! Отличный день сегодня, не так ли?</translation>
-    </message>
-</context>
-<context>
-    <name>HelloWorld::Internal::HelloWorldWindow</name>
-    <message>
-        <source>Focus me to activate my context!</source>
-        <translation>Укажи на меня, чтобы активировать мой контекст!</translation>
-    </message>
-    <message>
-        <source>Hello, world!</source>
-        <translation>Привет, Мир!</translation>
-    </message>
-</context>
-<context>
     <name>Help</name>
     <message>
         <source>Help</source>
@@ -10120,150 +10096,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <source>Save Private Key...</source>
         <translation>Сохранить секретный...</translation>
-    </message>
-</context>
-<context>
-    <name>MainWindow</name>
-    <message>
-        <source>Ctrl+Q</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Ctrl+O</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Bauhaus</source>
-        <comment>MainWindowClass</comment>
-        <translation>Баухаус</translation>
-    </message>
-    <message>
-        <source>&amp;File</source>
-        <translation>&amp;Файл</translation>
-    </message>
-    <message>
-        <source>&amp;New...</source>
-        <translation>&amp;Новый...</translation>
-    </message>
-    <message>
-        <source>Ctrl+N</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>&amp;Open...</source>
-        <translation>&amp;Открыть...</translation>
-    </message>
-    <message>
-        <source>Recent Files</source>
-        <translation>Недавние файлы</translation>
-    </message>
-    <message>
-        <source>&amp;Save</source>
-        <translation>&amp;Сохранить</translation>
-    </message>
-    <message>
-        <source>Ctrl+S</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Save &amp;As...</source>
-        <translation>Сохранить &amp;как...</translation>
-    </message>
-    <message>
-        <source>&amp;Preview</source>
-        <translation>&amp;Предпросмотр</translation>
-    </message>
-    <message>
-        <source>Ctrl+R</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>&amp;Preview with Debug</source>
-        <translation>Предпросмотр с отла&amp;дкой</translation>
-    </message>
-    <message>
-        <source>Ctrl+D</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>&amp;Quit</source>
-        <translation>В&amp;ыход</translation>
-    </message>
-    <message>
-        <source>&amp;Edit</source>
-        <translation>&amp;Правка</translation>
-    </message>
-    <message>
-        <source>Ctrl+Z</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Ctrl+Y</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+Z</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <translation>&amp;Копировать</translation>
-    </message>
-    <message>
-        <source>&amp;Cut</source>
-        <translation>Выре&amp;зать</translation>
-    </message>
-    <message>
-        <source>&amp;Paste</source>
-        <translation>В&amp;ставить</translation>
-    </message>
-    <message>
-        <source>&amp;Delete</source>
-        <translation>&amp;Удалить</translation>
-    </message>
-    <message>
-        <source>Del</source>
-        <translation>Del</translation>
-    </message>
-    <message>
-        <source>Backspace</source>
-        <translation>Backspace</translation>
-    </message>
-    <message>
-        <source>&amp;View</source>
-        <translation>&amp;Вид</translation>
-    </message>
-    <message>
-        <source>&amp;Help</source>
-        <translation>&amp;Справка</translation>
-    </message>
-    <message>
-        <source>&amp;About...</source>
-        <translation>&amp;О программе...</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation>Свойства</translation>
-    </message>
-    <message>
-        <source>Could not open file &lt;%1&gt;</source>
-        <translation>Не удалось открыть файл &lt;%1&gt;</translation>
-    </message>
-    <message>
-        <source>Qml Errors:</source>
-        <translation>Ошибки Qml:</translation>
-    </message>
-    <message>
-        <source>
-%1 %2:%3 - %4</source>
-        <translation>
-%1 %2:%3 - %4</translation>
-    </message>
-    <message>
-        <source>
-%1:%2 - %3</source>
-        <translation>
-%1:%2 - %3</translation>
     </message>
 </context>
 <context>
@@ -13736,86 +13568,6 @@ Do you still want to load the settings file?</source>
     </message>
 </context>
 <context>
-    <name>QObject</name>
-    <message>
-        <source>Pass</source>
-        <translation>Готово</translation>
-    </message>
-    <message>
-        <source>Expected Failure</source>
-        <translation>Ожидаемая проблема</translation>
-    </message>
-    <message>
-        <source>Failure</source>
-        <translation>Проблема</translation>
-    </message>
-    <message>
-        <source>Expected Pass</source>
-        <translation>Ожидаемый успех</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translatorcomment>не думаю, что стоит переводить</translatorcomment>
-        <translation>Warning</translation>
-    </message>
-    <message>
-        <source>Qt Warning</source>
-        <translatorcomment>не думаю, что стоит переводить</translatorcomment>
-        <translation>Qt Warning</translation>
-    </message>
-    <message>
-        <source>Qt Debug</source>
-        <translatorcomment>не думаю, что стоит переводить</translatorcomment>
-        <translation>Qt Debug</translation>
-    </message>
-    <message>
-        <source>Critical</source>
-        <translatorcomment>не думаю, что стоит переводить</translatorcomment>
-        <translation>Critical</translation>
-    </message>
-    <message>
-        <source>Fatal</source>
-        <translatorcomment>не думаю, что стоит переводить</translatorcomment>
-        <translation>Fatal</translation>
-    </message>
-    <message>
-        <source>Skipped</source>
-        <translatorcomment>не думаю, что стоит переводить</translatorcomment>
-        <translation>Пропущено</translation>
-    </message>
-    <message>
-        <source>Info</source>
-        <translatorcomment>не думаю, что стоит переводить</translatorcomment>
-        <translation>Info</translation>
-    </message>
-</context>
-<context>
-    <name>QTestLib::Internal::QTestOutputPane</name>
-    <message>
-        <source>Test Results</source>
-        <translation>Результаты тестирования</translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation>Результат</translation>
-    </message>
-    <message>
-        <source>Message</source>
-        <translation>Сообщение</translation>
-    </message>
-</context>
-<context>
-    <name>QTestLib::Internal::QTestOutputWidget</name>
-    <message>
-        <source>All Incidents</source>
-        <translation>Все происшествия</translation>
-    </message>
-    <message>
-        <source>Show Only:</source>
-        <translation>Показать только:</translation>
-    </message>
-</context>
-<context>
     <name>QmlDesigner::AllPropertiesBox</name>
     <message>
         <source>Properties</source>
@@ -14170,15 +13922,6 @@ Do you still want to load the settings file?</source>
         <source>States</source>
         <comment>Title of Editor widget</comment>
         <translation>Состояния</translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::TextToModelMerger</name>
-    <message>
-        <source>Unsupported import:
-import QtQuick 1.0 use import Qt 4.7 instead</source>
-        <translation>Неподдерживаемый импорт:
-следует использовать импорт Qt 4.7 вместо QtQuick 1.0</translation>
     </message>
 </context>
 <context>
@@ -15531,10 +15274,6 @@ Preselects a desktop Qt for building the application if available.</source>
     <message>
         <source>Explore Qt Quick examples:</source>
         <translation>Примеры Qt Quick:</translation>
-    </message>
-    <message>
-        <source>Explore Qt C++ mobile examples:</source>
-        <translation>&quot;Мобильные&quot; примеры Qt C++:</translation>
     </message>
 </context>
 <context>
@@ -18082,10 +17821,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Warning: Cannot build QMLObserver; Qt version must be 4.7.1 or higher.</source>
         <translation>Внимание: Невозможно собрать QMLObserver; версия Qt должна быть не ниже 4.7.1.</translation>
     </message>
-    <message>
-        <source>Warning: Cannot build qmldump; Qt version must be 4.7.1 or higher.</source>
-        <translation>Внимание: Невозможно собрать qmldump; версия Qt должна быть не ниже 4.7.1.</translation>
-    </message>
 </context>
 <context>
     <name>Qt4ProjectManager::QtVersionManager</name>
@@ -18623,89 +18358,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>RegExp::Internal::RegExpWindow</name>
-    <message>
-        <source>&amp;Pattern:</source>
-        <translation>&amp;Шаблон:</translation>
-    </message>
-    <message>
-        <source>&amp;Text:</source>
-        <translation>&amp;Текст:</translation>
-    </message>
-    <message>
-        <source>&amp;Minimal</source>
-        <translation>&amp;Минимально</translation>
-    </message>
-    <message>
-        <source>Wildcard</source>
-        <translation>Символ-заменитель</translation>
-    </message>
-    <message>
-        <source>&amp;Escaped pattern:</source>
-        <translation>Экран&amp;ированный шаблон:</translation>
-    </message>
-    <message>
-        <source>&amp;Pattern syntax:</source>
-        <translation>&amp;Правила шаблона:</translation>
-    </message>
-    <message>
-        <source>Case &amp;sensitive</source>
-        <translation>Учитывать &amp;регистр</translation>
-    </message>
-    <message>
-        <source>Index of match:</source>
-        <translation>Номер совпадения:</translation>
-    </message>
-    <message>
-        <source>Matched length:</source>
-        <translation>Совпадение длины:</translation>
-    </message>
-    <message>
-        <source>Regular Expression v1</source>
-        <translation>Регулярное выражение v1</translation>
-    </message>
-    <message>
-        <source>Regular Expression v2</source>
-        <translation>Регулярное выражение v2</translation>
-    </message>
-    <message>
-        <source>Fixed String</source>
-        <translation>Фиксированная строка</translation>
-    </message>
-    <message>
-        <source>Capture %1:</source>
-        <translation>Захват %1:</translation>
-    </message>
-    <message>
-        <source>Match:</source>
-        <translation>Соответствие:</translation>
-    </message>
-    <message>
-        <source>Regular Expression</source>
-        <translation>Регулярное выражение</translation>
-    </message>
-    <message>
-        <source>Enter Pattern from Code...</source>
-        <translation>Ввод шаблона из кода...</translation>
-    </message>
-    <message>
-        <source>Clear Patterns</source>
-        <translation>Очистить шаблоны</translation>
-    </message>
-    <message>
-        <source>Clear Text</source>
-        <translation>Очистить текст</translation>
-    </message>
-    <message>
-        <source>Enter Pattern from Code</source>
-        <translation>Ввод шаблона из кода</translation>
-    </message>
-    <message>
-        <source>Pattern</source>
-        <translation>Шаблон</translation>
-    </message>
-</context>
-<context>
     <name>ResourceEditor::Internal::ResourceEditorPlugin</name>
     <message>
         <source>Creates a Qt Resource file (.qrc) that you can add to a Qt C++ project.</source>
@@ -18877,20 +18529,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     <message>
         <source>Debugging Helper Build Log</source>
         <translation>Журнал сборки помощника отладчика</translation>
-    </message>
-</context>
-<context>
-    <name>Snippets::Internal::SnippetsPlugin</name>
-    <message>
-        <source>Snippets</source>
-        <translation>Фрагменты</translation>
-    </message>
-</context>
-<context>
-    <name>Snippets::Internal::SnippetsWindow</name>
-    <message>
-        <source>Snippets</source>
-        <translation>Фрагменты</translation>
     </message>
 </context>
 <context>
