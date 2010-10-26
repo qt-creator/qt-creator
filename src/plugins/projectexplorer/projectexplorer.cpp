@@ -1251,7 +1251,7 @@ void ProjectExplorerPlugin::restoreSession()
         }
     }
 
-    Core::ICore::instance()->openFiles(combinedList, Core::ICore::CanContainLineNumbers);
+    Core::ICore::instance()->openFiles(combinedList, Core::ICore::OpenFilesFlags(Core::ICore::CanContainLineNumbers | Core::ICore::SwitchMode));
     updateActions();
 
 }
