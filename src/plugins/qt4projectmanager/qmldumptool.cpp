@@ -112,10 +112,9 @@ public slots:
 
         foreach (ProjectExplorer::Project *project, m_projectsToUpdate) {
             QmlJS::ModelManagerInterface::ProjectInfo projectInfo = modelManager->projectInfo(project);
-            if (projectInfo.qmlDumpPath.isEmpty()) {
-                projectInfo.qmlDumpPath = qmldumpPath;
-                modelManager->updateProjectInfo(projectInfo);
-            }
+            projectInfo.qmlDumpPath = qmldumpPath;
+            projectInfo.qmlDumpEnvironment = m_version.qmlToolsEnvironment();
+            modelManager->updateProjectInfo(projectInfo);
         }
     }
 

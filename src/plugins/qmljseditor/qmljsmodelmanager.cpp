@@ -478,6 +478,7 @@ void ModelManager::onLoadPluginTypes(const QString &libraryPath, const QString &
         return;
 
     QProcess *process = new QProcess(this);
+    process->setEnvironment(info.qmlDumpEnvironment.toStringList());
     connect(process, SIGNAL(finished(int)), SLOT(qmlPluginTypeDumpDone(int)));
     connect(process, SIGNAL(error(QProcess::ProcessError)), SLOT(qmlPluginTypeDumpError(QProcess::ProcessError)));
     QStringList args;
