@@ -2463,6 +2463,16 @@ Would you like to overwrite them?</source>
         <source>Refresh</source>
         <translation>更新</translation>
     </message>
+    <message>
+        <source>Process Already Under Debugger Control</source>
+        <translation>プロセスはすでにデバッガ制御下です</translation>
+    </message>
+    <message>
+        <source>The process %1 is already under the control of a debugger.
+Qt Creator cannot attach to it.</source>
+        <translation>プロセス %1 はすでにデバッガの制御下にある為
+Qt Creator はアタッチできません。</translation>
+    </message>
 </context>
 <context>
     <name>Debugger::Internal::AddressDialog</name>
@@ -9264,7 +9274,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Creates a C++ library based on qmake. This can be used to create:&lt;ul&gt;&lt;li&gt;a shared C++ library for use with &lt;tt&gt;QPluginLoader&lt;/tt&gt; and runtime (Plugins)&lt;/li&gt;&lt;li&gt;a shared or static C++ library for use with another project at linktime&lt;/li&gt;&lt;/ul&gt;.</source>
-        <translation>qmake を使用した C++ ライブラリベースのプロジェクトを作成します。このプロジェクトでは&lt;ul&gt;&lt;li&gt;&lt;tt&gt;QPluginLoader&lt;/tt&gt;やランタイム(プラグイン)にから使用できる共有 C++ ライブラリ&lt;/li&gt;&lt;li&gt;別のプロジェクトのリンク時に使用される共有/静的 C++ ライブラリ&lt;/li&gt;&lt;/ul&gt;を作成できます。</translation>
+        <translation>qmake を使用した C++ ライブラリのプロジェクトを作成します。このプロジェクトでは&lt;ul&gt;&lt;li&gt;&lt;tt&gt;QPluginLoader&lt;/tt&gt;やランタイム(プラグイン)から使用できる共有 C++ ライブラリ&lt;/li&gt;&lt;li&gt;他のプロジェクトとのリンク時に使用される共有/静的 C++ ライブラリ&lt;/li&gt;&lt;/ul&gt;を作成できます。</translation>
     </message>
 </context>
 <context>
@@ -11385,7 +11395,7 @@ The following encodings are likely to fit:</source>
     </message>
     <message>
         <source>General</source>
-        <translation>概要</translation>
+        <translation>その他</translation>
     </message>
     <message>
         <source>Triggers a completion in this scope</source>
@@ -11889,7 +11899,7 @@ The following encodings are likely to fit:</source>
     </message>
     <message>
         <source>Project from Version Control</source>
-        <translation>バージョン管理からのプロジェクト インポート</translation>
+        <translation>バージョン管理からインポート</translation>
     </message>
 </context>
 <context>
@@ -12872,7 +12882,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Explore Qt C++ mobile examples:</source>
-        <translation>Qt C++ のモバイル向けサンプルを参照する:</translation>
+        <translation type="obsolete">Qt C++ のモバイル向けサンプルを参照する:</translation>
     </message>
     <message>
         <source>Featured</source>
@@ -14187,18 +14197,18 @@ Reason: %2</source>
     <name>Qt4ProjectManager::Internal::CustomWidgetWizard</name>
     <message>
         <source>Qt Custom Designer Widget</source>
-        <translation>Qt カスタム デザイナー ウィジェット</translation>
+        <translation>Qt カスタム デザイナ ウィジェット</translation>
     </message>
     <message>
         <source>Creates a Qt Custom Designer Widget or a Custom Widget Collection.</source>
-        <translation>Qt カスタム Designer ウィジェット、またはカスタム ウィジェット コレクションを作成します。</translation>
+        <translation>Qt カスタム デザイナ ウィジェット、またはカスタム ウィジェット コレクションを作成します。</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::CustomWidgetWizardDialog</name>
     <message>
         <source>This wizard generates a Qt4 Designer Custom Widget or a Qt4 Designer Custom Widget Collection project.</source>
-        <translation>このウィザードでは Qt4 デザイナー用カスタムウィジェットもしくは Qt4 デザイナーカスタムウィジェットコレクションプロジェクトを生成します。</translation>
+        <translation>このウィザードでは Qt4 デザイナ用カスタムウィジェットもしくは Qt4 デザイナカスタムウィジェットコレクションプロジェクトを生成します。</translation>
     </message>
     <message>
         <source>Custom Widgets</source>
@@ -19337,7 +19347,8 @@ Decimal signed value (big endian): %4</source>
     <message>
         <source>State%1</source>
         <comment>Default name for newly created states</comment>
-        <translation>%1 状態</translation>
+        <translatorcomment>This text is used as state name in QML code. So I don&apos;t translate this.</translatorcomment>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -21013,7 +21024,7 @@ We will try to work around that, but you may experience problems.</source>
     </message>
     <message>
         <source>Warning: Cannot build qmldump; Qt version must be 4.7.1 or higher.</source>
-        <translation>警告: qmldump をビルドできません; Qt バージョンは 4.7.1以降でなければいけません。</translation>
+        <translation type="obsolete">警告: qmldump をビルドできません; Qt バージョンは 4.7.1以降でなければいけません。</translation>
     </message>
 </context>
 <context>
@@ -22939,6 +22950,10 @@ Server list was %2.</source>
 </context>
 <context>
     <name>Debugger::DebuggerRunControl</name>
+    <message>
+        <source>There is no debugging engine available for post-mortem debugging.</source>
+        <translation>事後検証デバッグで使用可能なデバッグエンジンがありません。</translation>
+    </message>
     <message>
         <source>Cannot debug &apos;%1&apos; (tool chain: &apos;%2&apos;): %3</source>
         <translation>&apos;%1&apos; (ツール チェイン: &apos;%2&apos;) のデバッグができません: %3</translation>
