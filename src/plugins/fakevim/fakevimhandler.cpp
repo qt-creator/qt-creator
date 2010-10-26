@@ -405,8 +405,13 @@ public:
 
     bool isControl(int c) const
     {
-        return m_modifiers == Qt::ControlModifier &&
-            (m_xkey == c || m_xkey + 32 == c || m_xkey + 64 == c || m_xkey + 96 == c);
+        return m_modifiers ==
+#ifdef Q_WS_MAC
+            Qt::MetaModifier
+#else
+            Qt::ControlModifier
+#endif
+            && (m_xkey == c || m_xkey + 32 == c || m_xkey + 64 == c || m_xkey + 96 == c);
     }
 
     bool isShift(int c) const
@@ -1026,7 +1031,12 @@ bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
     }
 
     // We are interested in overriding most Ctrl key combinations
-    if (mods == Qt::ControlModifier
+    if (mods ==
+#ifdef Q_WS_MAC
+            Qt::MetaModifier
+#else
+            Qt::ControlModifier
+#endif
             && !config(ConfigPassControlKey).toBool()
             && ((key >= Key_A && key <= Key_Z && key != Key_K)
                 || key == Key_BracketLeft || key == Key_BracketRight)) {
@@ -1220,7 +1230,13 @@ void FakeVimHandler::Private::importSelection()
         // Import new selection.
         Qt::KeyboardModifiers mods = QApplication::keyboardModifiers();
         if (cursor().hasSelection()) {
-            if (mods & Qt::ControlModifier)
+            if (mods &
+#ifdef Q_WS_MAC
+                    Qt::MetaModifier
+#else
+                    Qt::ControlModifier
+#endif
+                    )
                 m_visualMode = VisualBlockMode;
             else if (mods & Qt::AltModifier)
                 m_visualMode = VisualBlockMode;
