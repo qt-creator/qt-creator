@@ -168,6 +168,10 @@ bool CdbEnginePrivate::init(QString *errorMessage)
 DebuggerEngine *CdbEngine::create(const DebuggerStartParameters &sp,
                                        QString *errorMessage)
 {
+    if (!CdbCore::CoreEngine::interfacesAvailable()) {
+        *errorMessage = CdbEngine::tr("An instance of the CDB engine is still running; cannot create an a new instance.");
+        return 0;
+    }
     CdbEngine *rc = new CdbEngine(sp);
     if (rc->m_d->init(errorMessage)) {
         rc->syncDebuggerPaths();
@@ -563,6 +567,7 @@ void CdbEngine::processTerminated(unsigned long exitCode)
 
 bool CdbEnginePrivate::endInferior(bool detachOnly, QString *errorMessage)
 {
+    QTC_ASSERT(hasInterfaces(), return true; )
     // Prevent repeated invocation.
     const bool hasHandles = m_hDebuggeeProcess != NULL;
     if (debugCDBExecution)
@@ -635,6 +640,8 @@ void CdbEnginePrivate::endDebugging(bool detachOnly)
     if (debugCDBExecution)
         qDebug("endDebugging() detach=%d, state=%s", detachOnly, DebuggerEngine::stateName(m_engine->state()));
 
+    QTC_ASSERT(hasInterfaces(), return; )
+
     switch (m_engine->state()) {
     case DebuggerNotReady:
     case EngineShutdownOk:
@@ -659,6 +666,8 @@ void CdbEnginePrivate::endDebugging(bool detachOnly)
         m_engine->showMessage(errorMessage, LogError);
         m_engine->notifyEngineShutdownFailed();
     }
+    // At this point release interfaces as we might be kept around by the run control.
+    releaseInterfaces();
 }
 
 void CdbEngine::detachDebugger()

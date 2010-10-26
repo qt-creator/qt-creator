@@ -172,6 +172,13 @@
 // Transitions marked by '*' are done asynchronously.
 // The GdbEngine->setupEngine() function is described in more detail below.
 //
+// The engines are responsible for local roll-back to the last
+// acknowledged state before calling notify*Failed. I.e. before calling
+// notifyEngineSetupFailed() any process started during setupEngine()
+// so far must be terminated.
+//
+//
+//
 //                        DebuggerNotReady
 //                               +
 //                      EngineSetupRequested

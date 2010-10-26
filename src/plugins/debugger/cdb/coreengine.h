@@ -69,6 +69,11 @@ public:
     explicit CoreEngine(QObject *parent = 0);
     virtual ~CoreEngine();
 
+    // Preliminary release interfaces.
+    void releaseInterfaces();
+    bool hasInterfaces() const;
+    static bool interfacesAvailable();
+
     bool init(const QString &dllEnginePath, QString *errorMessage);
     // code level/output
 
@@ -179,11 +184,11 @@ private:
     void setModuleCount(unsigned m);
     void resetModuleLoadTimer();
 
+    static CoreEngine *m_instance;
     ComInterfaces m_cif;
     DebugOutputBasePtr m_debugOutput;
     DebugEventCallbackBasePtr m_debugEventCallback;
     QString m_dbengDLL;
-    QString m_baseImagePath;
     int m_watchTimer;
     unsigned m_moduleCount;
     unsigned m_lastTimerModuleCount;
