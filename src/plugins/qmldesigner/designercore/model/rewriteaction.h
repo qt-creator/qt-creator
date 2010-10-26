@@ -65,6 +65,7 @@ public:
     virtual RemovePropertyRewriteAction *asRemovePropertyRewriteAction() { return 0; }
     virtual ReparentNodeRewriteAction *asReparentNodeRewriteAction() { return 0; }
     virtual MoveNodeRewriteAction *asMoveNodeRewriteAction() { return 0; }
+    virtual ~RewriteAction() {}
 
 protected:
     RewriteAction()
