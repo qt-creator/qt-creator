@@ -88,6 +88,11 @@
 #undef max
 #endif
 
+#ifdef Q_OS_LINUX
+#include <xmmintrin.h>
+#include <stddef.h>
+#endif
+
 Q_DECLARE_METATYPE(QHostAddress)
 Q_DECLARE_METATYPE(QList<int>)
 Q_DECLARE_METATYPE(QStringList)
@@ -1368,12 +1373,34 @@ QStack<int> testQStack()
     return result;
 }
 
-void testQString()
+
+void testQUrl()
 {
     QUrl url(QString("http://www.nokia.com"));
+    (void) url;
+}
+
+
+#ifdef FOP
+
+int xxxx()
+{
+}
+
+#else
+
+int xxxx()
+{
+}
+
+
+#endif
+
+
+void testQString()
+{
     QImage im;
 
-    // Could be broken due to Return Value Optimzation
     QString str = "Hello ";
     str += " big, ";
     str += " fat ";
@@ -2034,6 +2061,24 @@ void testWCout0()
     cerr << "EEEEEE" << endl;
 }
 
+void testSSE()
+{
+#ifdef Q_OS_LINUX
+    float a[4];
+    float b[4];
+    int i;
+    for (i = 0; i < 4; i++) {
+        a[i] = 2 * i;
+        b[i] = 2 * i;
+    }
+    __m128 sseA, sseB;
+    sseA = _mm_loadu_ps(a);
+    sseB = _mm_loadu_ps(b);
+    ++i;
+#endif
+}
+
+
 void testQSettings()
 {
     // Note: Construct a QCoreApplication first.
@@ -2048,6 +2093,7 @@ int main(int argc, char *argv[])
     //testQSettings();
     //testWCout0();
     //testWCout();
+    testSSE();
     testQLocale();
     testColor();
     testQRegion();
@@ -2116,6 +2162,7 @@ int main(int argc, char *argv[])
     testQMap();
     testQMultiMap();
     testQString();
+    testQUrl();
     testQSet();
 #    if QT_VERSION >= 0x040500
     testQSharedPointer();

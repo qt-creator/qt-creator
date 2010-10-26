@@ -1477,12 +1477,16 @@ class Dumper:
 
         if self.useFancy \
                 and ((format is None) or (format >= 1)) \
-                and ((nsStrippedType in qqDumpers) or isQObjectDerived):
+                and ((nsStrippedType in qqDumpers) \
+                    or (str(type) in qqDumpers) \
+                    or isQObjectDerived):
             #warn("IS DUMPABLE: %s " % type)
             #self.putAddress(value.address)
             self.putType(realtype)
             if nsStrippedType in qqDumpers:
                 qqDumpers[nsStrippedType](self, item)
+            if str(type) in qqDumpers:
+                qqDumpers[str(type)](self, item)
             elif isQObjectDerived:
                 # value has references stripped off item.value.
                 item1 = Item(value, item.iname)

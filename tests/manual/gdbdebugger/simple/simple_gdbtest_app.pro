@@ -1,13 +1,11 @@
 TEMPLATE = app
 TARGET = simple_gdbtest_app
 DEPENDPATH += .
-INCLUDEPATH += .
 DESTDIR = .
 
-# Input
-SOURCES += \
-    simple_gdbtest_app.cpp
+SOURCES +=  simple_gdbtest_app.cpp
 
-# SOURCES += ../../../share/qtcreator/gdbmacros/gdbmacros.cpp
 QT += network
+unix: QMAKE_CXXFLAGS += -msse2
+
 message("this says <foo & bar>")

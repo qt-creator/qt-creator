@@ -2264,6 +2264,33 @@ def qdump__TLitC(d, item):
 
 #######################################################################
 #
+# SSE
+#
+#######################################################################
+
+def qform____m128():
+    return "As Floats,As Doubles"
+
+def qdump____m128(d, item):
+    d.putValue(" ")
+    d.putNumChild(1)
+    if d.isExpanded(item):
+        format = d.itemFormat(item)
+        if format == 2: # As Double
+            innerType = lookupType("double")
+            count = 2
+        else: # Default, As float
+            innerType = lookupType("float")
+            count = 4
+        p = item.value.address.cast(innerType.pointer())
+        with Children(d, count, innerType):
+            for i in xrange(count):
+                d.putItem(Item(p.dereference(), item.iname))
+                p += 1
+
+
+#######################################################################
+#
 # Display Test
 #
 #######################################################################
