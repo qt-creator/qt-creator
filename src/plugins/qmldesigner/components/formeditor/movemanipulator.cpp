@@ -198,6 +198,8 @@ QPointF MoveManipulator::findSnappingOffset(const QHash<FormEditorItem*, QRectF>
 
 void MoveManipulator::generateSnappingLines(const QHash<FormEditorItem*, QRectF> &boundingRectHash)
 {
+    qDeleteAll(m_graphicsLineList);
+    m_graphicsLineList.clear();
     m_graphicsLineList = m_snapper.generateSnappingLines(boundingRectHash.values(),
                                                          m_layerItem.data(),
                                                          m_snapper.transformtionSpaceFormEditorItem()->sceneTransform());
