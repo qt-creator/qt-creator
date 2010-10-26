@@ -1168,7 +1168,7 @@ class Dumper:
                         with Children(self, n):
                             for i in xrange(n):
                                 value = p.dereference()
-                                self.putItem(Item(value, item.iname, i, None))
+                                self.putSubItem(Item(value, item.iname, i, None))
                                 p += 1
                             if n > 100:
                                 self.putEllipsis()
@@ -1180,7 +1180,7 @@ class Dumper:
                    with SubItem(self):
                        self.put('iname="%s",' % item.iname)
                        self.put('addr="%s",' % addr)
-                       self.putItemHelper(item)
+                       self.putItem(item)
                 except AttributeError:
                     # Thrown by cleanAddress with message "'NoneType' object
                     # has no attribute 'cast'" for optimized-out values.
@@ -1275,7 +1275,7 @@ class Dumper:
                     item = Item(value, iname, None, None)
                     if not value is None:
                         self.putAddress(value.address)
-                    self.putItemHelper(item)
+                    self.putItem(item)
                 except RuntimeError:
                     self.currentType = " "
                     self.currentValue = "<no such value>"
@@ -1403,15 +1403,15 @@ class Dumper:
             format = self.typeformats.get(stripClassTag(str(item.value.type)))
         return format
 
-    def putItem(self, item):
+    def putSubItem(self, item):
         with SubItem(self):
-            self.putItemHelper(item)
+            self.putItem(item)
 
     def putCallItem(self, name, item, func):
         result = call(item.value, func)
-        self.putItem(Item(result, item.iname, name, name))
+        self.putSubItem(Item(result, item.iname, name, name))
 
-    def putItemHelper(self, item):
+    def putItem(self, item):
         name = getattr(item, "name", None)
         if not name is None:
             self.putName(name)
@@ -1521,7 +1521,7 @@ class Dumper:
                 if self.isExpanded(item):
                     with Children(self):
                         with SubItem(self):
-                            self.putItemHelper(Item(item.value.dereference(),
+                            self.putItem(Item(item.value.dereference(),
                                 item.iname, "*", "*"))
                             self.putAddress(item.value)
                 return
@@ -1572,7 +1572,7 @@ class Dumper:
                     self.putType(innerType)
                     savedCurrentChildType = self.currentChildType
                     self.currentChildType = stripClassTag(str(innerType))
-                    self.putItemHelper(
+                    self.putItem(
                         Item(item.value.dereference(), item.iname, None, None))
                     self.currentChildType = savedCurrentChildType
                     self.putPointerValue(value.address)
@@ -1586,7 +1586,7 @@ class Dumper:
             if self.isExpanded(item):
                 with Children(self):
                     with SubItem(self):
-                        self.putItemHelper(Item(item.value.dereference(),
+                        self.putItem(Item(item.value.dereference(),
                             item.iname, "*", "*"))
                         self.putAddress(item.value)
             self.putPointerValue(value.address)
@@ -1658,7 +1658,7 @@ class Dumper:
                     innerType = type.target()
                     p = value.cast(innerType.pointer())
                     for i in xrange(type.sizeof / innerType.sizeof):
-                        self.putItem(Item(p.dereference(), item.iname, i, None))
+                        self.putSubItem(Item(p.dereference(), item.iname, i, None))
                         p = p + 1
                     continue
 
@@ -1683,7 +1683,7 @@ class Dumper:
                     baseNumber += 1
                     with SubItem(self):
                         self.put('iname="%s",' % child.iname)
-                        self.putItemHelper(child)
+                        self.putItem(child)
                 elif len(field.name) == 0:
                     # Anonymous union. We need a dummy name to distinguish
                     # multiple anonymous unions in the struct.
@@ -1695,7 +1695,7 @@ class Dumper:
                     with SubItem(self):
                         child = Item(value[field.name],
                             item.iname, field.name, field.name)
-                        self.putItemHelper(child)
+                        self.putItem(child)
 
 
     def listAnonymous(self, item, name, type):
@@ -1706,7 +1706,7 @@ class Dumper:
                 child = Item(value, item.iname, field.name, field.name)
                 with SubItem(self):
                     self.putAddress(value.address)
-                    self.putItemHelper(child)
+                    self.putItem(child)
             else:
                 # Further nested.
                 self.anonNumber += 1

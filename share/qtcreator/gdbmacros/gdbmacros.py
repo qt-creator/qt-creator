@@ -32,7 +32,7 @@ def qdump__QByteArray(d, item):
             data = d_ptr['data']
             p = gdb.Value(data.cast(innerType.pointer()))
             for i in d.childRange():
-                d.putItem(Item(p.dereference(), item.iname, i))
+                d.putSubItem(Item(p.dereference(), item.iname, i))
                 p += 1
 
 
@@ -99,7 +99,7 @@ def qdump__QAbstractItemModel(d, item):
                         #warn("MI: %s " % mi)
                         #name = "[%d,%d]" % (row, column)
                         #d.putValue("%s" % mi)
-                        d.putItemHelper(Item(mi, item.iname, i))
+                        d.putItem(Item(mi, item.iname, i))
                         i = i + 1
                         #warn("MI: %s " % mi)
                         #d.putName("[%d,%d]" % (row, column))
@@ -141,7 +141,7 @@ def qdump__QModelIndex(d, item):
                             d.putName("[%s, %s]" % (row, column))
                             mi2 = parseAndEvaluate("%s.index(%d,%d,%s)"
                                 % (mm_, row, column, mi_))
-                            d.putItemHelper(Item(mi2, item.iname, i))
+                            d.putItem(Item(mi2, item.iname, i))
                             i = i + 1
                 #d.putCallItem("parent", item, "parent()")
                 #with SubItem(d):
@@ -395,10 +395,10 @@ def qdump__QHash(d, item):
                     value = it["value"]
                     if isSimpleKey and isSimpleValue:
                         d.putName(key)
-                        d.putItemHelper(Item(value, item.iname, i))
+                        d.putItem(Item(value, item.iname, i))
                         d.putType(valueType)
                     else:
-                        d.putItemHelper(Item(it, item.iname, i))
+                        d.putItem(Item(it, item.iname, i))
                 node = hashDataNextNode(node)
 
 
@@ -409,7 +409,7 @@ def qdump__QHashNode(d, item):
     value = item.value["value"]
 
     if isSimpleType(keyType) and isSimpleType(valueType):
-        d.putItemHelper(Item(value, "data", item.iname))
+        d.putItem(Item(value, "data", item.iname))
     else:
         d.putValue(" ")
 
@@ -418,10 +418,10 @@ def qdump__QHashNode(d, item):
         with Children(d):
             with SubItem(d):
                 d.putName("key")
-                d.putItemHelper(Item(key, item.iname, "key"))
+                d.putItem(Item(key, item.iname, "key"))
             with SubItem(d):
                 d.putName("value")
-                d.putItemHelper(Item(value, item.iname, "value"))
+                d.putItem(Item(value, item.iname, "value"))
 
 
 def qdump__QHostAddress(d, item):
@@ -476,10 +476,10 @@ def qdump__QList(d, item):
             for i in d.childRange():
                 if isInternal:
                     pp = p.cast(innerTypePointer).dereference();
-                    d.putItem(Item(pp, item.iname, i))
+                    d.putSubItem(Item(pp, item.iname, i))
                 else:
                     pp = p.cast(innerTypePointer.pointer()).dereference()
-                    d.putItem(Item(pp, item.iname, i))
+                    d.putSubItem(Item(pp, item.iname, i))
                 p += 1
 
 def qform__QImage():
@@ -545,7 +545,7 @@ def qdump__QLinkedList(d, item):
         with Children(d, [n, 1000], item.value.type.template_argument(0)):
             p = e_ptr["n"]
             for i in d.childRange():
-                d.putItem(Item(p["t"], item.iname, i))
+                d.putSubItem(Item(p["t"], item.iname, i))
                 p = p["n"]
 
 
@@ -579,10 +579,10 @@ def qdump__QMapNode(d, item):
         with Children(d, 2):
             with SubItem(d):
                 d.putName("key")
-                d.putItemHelper(Item(item.value["key"], item.iname, "name"))
+                d.putItem(Item(item.value["key"], item.iname, "name"))
             with SubItem(d):
                 d.putName("value")
-                d.putItemHelper(Item(item.value["value"], item.iname, "value"))
+                d.putItem(Item(item.value["value"], item.iname, "value"))
 
 
 def qdump__QMap(d, item):
@@ -627,9 +627,9 @@ def qdump__QMap(d, item):
                     if isSimpleKey and isSimpleValue:
                         #d.putType(valueType)
                         d.putName(key)
-                        d.putItemHelper(Item(value, item.iname, i))
+                        d.putItem(Item(value, item.iname, i))
                     else:
-                        d.putItemHelper(Item(node, item.iname, i))
+                        d.putItem(Item(node, item.iname, i))
                 it = it.dereference()["forward"].dereference()
 
 
@@ -694,8 +694,8 @@ def qdump__QObject(d, item):
         d.putFields(item)
         # Parent and children.
         if stripClassTag(str(item.value.type)) == d.ns + "QObject":
-            d.putItem(Item(d_ptr["parent"], item.iname, "parent", "parent"))
-            d.putItem(Item(d_ptr["children"], item.iname, "children", "children"))
+            d.putSubItem(Item(d_ptr["parent"], item.iname, "parent", "parent"))
+            d.putSubItem(Item(d_ptr["children"], item.iname, "children", "children"))
 
         # Properties.
         with SubItem(d):
@@ -792,7 +792,7 @@ def qdump__QObject(d, item):
                                 # Build-in types.
                                 d.putType(inner)
                                 name = "%s.properties.%d" % (item.iname, i + dynamicPropertyCount)
-                                d.putItemHelper(Item(val, item.iname + ".properties",
+                                d.putItem(Item(val, item.iname + ".properties",
                                                     propertyName, propertyName))
 
                             else:
@@ -808,7 +808,7 @@ def qdump__QObject(d, item):
                            #    d.putNumChild(1)
                            #    if d.isExpanded(item):
                            #        with Children(d):
-                           #           d.putItem(Item(tdata, item.iname, "data", "data"))
+                           #           d.putSubItem(Item(tdata, item.iname, "data", "data"))
                                 warn("FIXME: CUSTOM QOBJECT PROPERTIES NOT IMPLEMENTED: %s %s"
                                     % (propertyType, innert))
                                 d.putType(propertyType)
@@ -835,7 +835,7 @@ def qdump__QObject(d, item):
                     for i in xrange(connectionListCount):
                         first = p.dereference()["first"]
                         while not isNull(first):
-                            d.putItem(Item(first.dereference(), item.iname + ".connections", pp))
+                            d.putSubItem(Item(first.dereference(), item.iname + ".connections", pp))
                             first = first["next"]
                             # We need to enforce some upper limit.
                             pp += 1
@@ -901,7 +901,7 @@ def qdump__QObject(d, item):
                 if d.isExpandedIName(iname):
                     with Children(d):
                         # Sending object
-                        d.putItem(Item(sender["sender"], iname, "object", "object"))
+                        d.putSubItem(Item(sender["sender"], iname, "object", "object"))
                         # Signal in sending object
                         with SubItem(d):
                             d.putName("signal")
@@ -1056,7 +1056,7 @@ def qdump__QObject(d, item):
 #             with SubItem(d):
 #                 d.putName("parent")
 #                 if isSimpleType(item.value.type):
-#                     d.putItemHelper(d, ns + "QObject *", ob->parent())
+#                     d.putItem(d, ns + "QObject *", ob->parent())
 #     #if 1
 #             with SubItem(d):
 #                 d.putName("className")
@@ -1236,7 +1236,7 @@ def qdump__QObject(d, item):
 #             d.putField("addr", owner)
 #         } else {
 #       if isSimpleType(item.value.type):
-#           d.putItemHelper(ns + "QObject *", partner)
+#           d.putItem(ns + "QObject *", partner)
 #
 # static void dumpQObjectSignal(QDumper &d)
 # {
@@ -1441,8 +1441,8 @@ def qdump__QPoint(d, item):
     d.putNumChild(2)
     if d.isExpanded(item):
         with Children(d, 2, x.type.strip_typedefs()):
-            d.putItem(Item(x, None, None, "x"))
-            d.putItem(Item(y, None, None, "y"))
+            d.putSubItem(Item(x, None, None, "x"))
+            d.putSubItem(Item(y, None, None, "y"))
 
 
 def qdump__QPointF(d, item):
@@ -1461,10 +1461,10 @@ def qdump__QRect(d, item):
     d.putNumChild(4)
     if d.isExpanded(item):
         with Children(d, 4, x1.type.strip_typedefs()):
-            d.putItem(Item(x1, None, None, "x1"))
-            d.putItem(Item(y1, None, None, "y1"))
-            d.putItem(Item(x2, None, None, "x2"))
-            d.putItem(Item(y2, None, None, "y2"))
+            d.putSubItem(Item(x1, None, None, "x1"))
+            d.putSubItem(Item(y1, None, None, "y1"))
+            d.putSubItem(Item(x2, None, None, "x2"))
+            d.putSubItem(Item(y2, None, None, "y2"))
 
 
 def qdump__QRectF(d, item):
@@ -1482,10 +1482,10 @@ def qdump__QRectF(d, item):
     d.putNumChild(4)
     if d.isExpanded(item):
         with Children(d, 4, x.type.strip_typedefs()):
-            d.putItem(Item(x, None, None, "x"))
-            d.putItem(Item(y, None, None, "y"))
-            d.putItem(Item(w, None, None, "w"))
-            d.putItem(Item(h, None, None, "h"))
+            d.putSubItem(Item(x, None, None, "x"))
+            d.putSubItem(Item(y, None, None, "y"))
+            d.putSubItem(Item(w, None, None, "w"))
+            d.putSubItem(Item(h, None, None, "h"))
 
 
 def qdump__QRegion(d, item):
@@ -1506,7 +1506,7 @@ def qdump__QRegion(d, item):
 
 def qdump__QScopedPointer(d, item):
     d.putType(d.currentType, d.currentTypePriority + 1)
-    d.putItemHelper(Item(item.value["d"], item.iname, None, None))
+    d.putItem(Item(item.value["d"], item.iname, None, None))
 
 
 def qdump__QSet(d, item):
@@ -1563,9 +1563,9 @@ def qdump__QSet(d, item):
                     key = it["key"]
                     if isSimpleKey:
                         d.putType(keyType)
-                        d.putItemHelper(Item(key, None, None))
+                        d.putItem(Item(key, None, None))
                     else:
-                        d.putItemHelper(Item(key, item.iname, i))
+                        d.putItem(Item(key, item.iname, i))
                 node = hashDataNextNode(node)
 
 
@@ -1585,7 +1585,7 @@ def qdump__QSharedDataPointer(d, item):
         innerType = item.value.type.template_argument(0)
         value = gdb.Value(d_ptr.cast(innerType.pointer()))
         d.putType(d.currentType, d.currentTypePriority + 1)
-        d.putItemHelper(Item(value.dereference(), item.iname, None))
+        d.putItem(Item(value.dereference(), item.iname, None))
 
 
 def qdump__QSharedPointer(d, item):
@@ -1599,8 +1599,8 @@ def qdump__QSize(d, item):
     d.putNumChild(2)
     if d.isExpanded(item):
         with Children(d, 2, w.type):
-            d.putItem(Item(w, item.iname, "w", "w"))
-            d.putItem(Item(h, item.iname, "h", "h"))
+            d.putSubItem(Item(w, item.iname, "w", "w"))
+            d.putSubItem(Item(h, item.iname, "h", "h"))
 
 
 def qdump__QSizeF(d, item):
@@ -1613,7 +1613,7 @@ def qdump__QStack(d, item):
 
 def qdump__QStandardItem(d, item):
     d.putType(d.currentType, d.currentTypePriority + 1)
-    d.putItemHelper(Item(item.value["d_ptr"], item.iname, None, None))
+    d.putItem(Item(item.value["d_ptr"], item.iname, None, None))
 
 
 def qform__QString():
@@ -1649,7 +1649,7 @@ def qdump__QStringList(d, item):
         ptr += d_ptr["begin"]
         with Children(d, [size, 1000], innerType):
             for i in d.childRange():
-                d.putItem(Item(ptr.dereference(), item.iname, i))
+                d.putSubItem(Item(ptr.dereference(), item.iname, i))
                 ptr += 1
 
 
@@ -1859,7 +1859,7 @@ def qdump__QVariant(d, item):
                 .cast(innerType.pointer()).dereference()
         else:
             v = item.value["d"]["data"].cast(innerType)
-        d.putItemHelper(Item(v, item.iname))
+        d.putItem(Item(v, item.iname))
         d.putType("%sQVariant (%s)" % (d.ns, innert), d.currentTypePriority + 1)
         return innert
     else:
@@ -1875,7 +1875,7 @@ def qdump__QVariant(d, item):
         d.putNumChild(1)
         if d.isExpanded(item):
             with Children(d):
-                d.putItem(Item(tdata, item.iname, "data", "data"))
+                d.putSubItem(Item(tdata, item.iname, "data", "data"))
         return tdata.type
 
 
@@ -1899,7 +1899,7 @@ def qdump__QVector(d, item):
         d.putField("addrstep", (p+1).cast(charPtr) - p.cast(charPtr))
         with Children(d, [size, 2000], innerType):
             for i in d.childRange():
-                d.putItem(Item(p.dereference(), item.iname, i))
+                d.putSubItem(Item(p.dereference(), item.iname, i))
                 p += 1
 
 
@@ -1922,14 +1922,14 @@ def qdump__QWeakPointer(d, item):
 
     innerType = item.value.type.template_argument(0)
     if isSimpleType(value.dereference().type):
-        d.putItemHelper(Item(value.dereference(), item.iname, None))
+        d.putItem(Item(value.dereference(), item.iname, None))
     else:
         d.putValue("")
 
     d.putNumChild(3)
     if d.isExpanded(item):
         with Children(d, 3):
-            d.putItem(Item(value.dereference(), item.iname, "data", "data"))
+            d.putSubItem(Item(value.dereference(), item.iname, "data", "data"))
             d.putIntItem("weakref", weakref)
             d.putIntItem("strongref", strongref)
 
@@ -1958,7 +1958,7 @@ def qdump__std__deque(d, item):
             plast = start["_M_last"]
             pnode = start["_M_node"]
             for i in d.childRange():
-                d.putItem(Item(pcur.dereference(), item.iname, i))
+                d.putSubItem(Item(pcur.dereference(), item.iname, i))
                 pcur += 1
                 if pcur == plast:
                     newnode = pnode + 1
@@ -1988,7 +1988,7 @@ def qdump__std__list(d, item):
             for i in d.childRange():
                 innerPointer = innerType.pointer()
                 value = (p + 1).cast(innerPointer).dereference()
-                d.putItem(Item(value, item.iname, i))
+                d.putSubItem(Item(value, item.iname, i))
                 p = p["_M_next"]
 
 
@@ -2016,7 +2016,7 @@ def qdump__std__map(d, item):
                 with SubItem(d):
                     if isSimpleKey and isSimpleValue:
                         d.putName(str(pair["first"]))
-                        d.putItemHelper(Item(pair["second"], item.iname, i))
+                        d.putItem(Item(pair["second"], item.iname, i))
                     else:
                         d.putValue(" ")
                         if d.isExpandedIName("%s.%d" % (item.iname, i)):
@@ -2024,8 +2024,8 @@ def qdump__std__map(d, item):
                                 iname = "%s.%d" % (item.iname, i)
                                 keyItem = Item(pair["first"], iname, "first", "first")
                                 valueItem = Item(pair["second"], iname, "second", "second")
-                                d.putItem(keyItem)
-                                d.putItem(valueItem)
+                                d.putSubItem(keyItem)
+                                d.putSubItem(valueItem)
 
                 if isNull(node["_M_right"]):
                     parent = node["_M_parent"]
@@ -2052,7 +2052,7 @@ def qdump__std__set(d, item):
         with Children(d, [size, 1000], valueType):
             for i in d.childRange():
                 element = (node + 1).cast(valueType.pointer()).dereference()
-                d.putItem(Item(element, item.iname, i))
+                d.putSubItem(Item(element, item.iname, i))
 
                 if isNull(node["_M_right"]):
                     parent = node["_M_parent"]
@@ -2165,7 +2165,7 @@ def qdump__std__vector(d, item):
             with Children(d, [size, 10000], type):
                 p = start
                 for i in d.childRange():
-                    d.putItem(Item(p.dereference(), item.iname, i))
+                    d.putSubItem(Item(p.dereference(), item.iname, i))
                     p += 1
 
 
@@ -2226,7 +2226,7 @@ def qdump__boost__optional(d, item):
             value = storage.cast(type.target().pointer()).dereference()
         else:
             value = storage.cast(type)
-        d.putItemHelper(Item(value, item.iname))
+        d.putItem(Item(value, item.iname))
 
 
 #######################################################################
@@ -2285,7 +2285,7 @@ def qdump____m128(d, item):
         p = item.value.address.cast(innerType.pointer())
         with Children(d, count, innerType):
             for i in xrange(count):
-                d.putItem(Item(p.dereference(), item.iname))
+                d.putSubItem(Item(p.dereference(), item.iname))
                 p += 1
 
 
@@ -2303,10 +2303,10 @@ if False:
         d.putValue("(%s, %s, %s; %s)" % (v["r"], v["g"], v["b"], v["a"]))
         if d.isExpanded(item):
             with Children(d):
-                d.putItem(Item(v["r"], item.iname, "0", "r"))
-                d.putItem(Item(v["g"], item.iname, "1", "g"))
-                d.putItem(Item(v["b"], item.iname, "2", "b"))
-                d.putItem(Item(v["a"], item.iname, "3", "a"))
+                d.putSubItem(Item(v["r"], item.iname, "0", "r"))
+                d.putSubItem(Item(v["g"], item.iname, "1", "g"))
+                d.putSubItem(Item(v["b"], item.iname, "2", "b"))
+                d.putSubItem(Item(v["a"], item.iname, "3", "a"))
 
     def qdump__Color_(d, item):
         v = item.value
@@ -2315,16 +2315,16 @@ if False:
             with Children(d):
                 with SubItem(d):
                     d.putField("iname", item.iname + ".0")
-                    d.putItemHelper(Item(v["r"], item.iname, "0", "r"))
+                    d.putItem(Item(v["r"], item.iname, "0", "r"))
                 with SubItem(d):
                     d.putField("iname", item.iname + ".1")
-                    d.putItemHelper(Item(v["g"], item.iname, "1", "g"))
+                    d.putItem(Item(v["g"], item.iname, "1", "g"))
                 with SubItem(d):
                     d.putField("iname", item.iname + ".2")
-                    d.putItemHelper(Item(v["b"], item.iname, "2", "b"))
+                    d.putItem(Item(v["b"], item.iname, "2", "b"))
                 with SubItem(d):
                     d.putField("iname", item.iname + ".3")
-                    d.putItemHelper(Item(v["a"], item.iname, "3", "a"))
+                    d.putItem(Item(v["a"], item.iname, "3", "a"))
 
 
     def qdump__Function(d, item):

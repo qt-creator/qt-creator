@@ -5610,7 +5610,7 @@
             p = gdb.Value(p_ptr["array"]).cast(innerType.pointer())
             with Children(d, [size, 2000], innerType)
                 for i in d.childRange():
-                    d.putItem(Item(p.dereference(), item.iname, i))
+                    d.putSubItem(Item(p.dereference(), item.iname, i))
                     p += 1
     \endcode
 
@@ -5784,18 +5784,18 @@
         not available when debugging core dumps and it is not available
         on the Symbian platform due to restrictions imposed by AppTRK.
 
-    \o \gui{putItemHelper(self, item)} - The "master function", handling
+    \o \gui{putItem(self, item)} - The "master function", handling
         basic types, references, pointers and enums directly, iterates
         over base classes and class members of compound types and calls
         \c qdump__* functions whenever appropriate.
 
-    \o \gui{putItem(self, item)} - Equivalent to:
+    \o \gui{putSubItem(self, item)} - Equivalent to:
         \code
         with SubItem(self):
-            self.putItemHelper(item)
+            self.putItem(item)
         \endcode
         Exceptions raised by nested function calls are caught and all
-        output produced by \c putItemHelper is replaced by the output of:
+        output produced by \c putItem is replaced by the output of:
         \code
             ...
         except RuntimeError:
@@ -5828,10 +5828,10 @@
         with Children(d):
             with SubItem(d):
                 d.putName("key")
-                d.putItemHelper(Item(key, item.iname, "key"))
+                d.putItem(Item(key, item.iname, "key"))
             with SubItem(d):
                 d.putName("value")
-                d.putItemHelper(Item(value, item.iname, "value"))
+                d.putItem(Item(value, item.iname, "value"))
     \endcode
 
     \section1 Debugging Helpers for QML
