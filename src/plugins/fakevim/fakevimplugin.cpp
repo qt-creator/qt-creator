@@ -1005,10 +1005,10 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
         } else if (cmd.args == "ic" || cmd.args == "ignorecase") {
             // :set noic
             setActionChecked(Find::Constants::CASE_SENSITIVE, false);
-            *handled = false; // Let the handler see it as well.
         } else if (cmd.args == "noic" || cmd.args == "noignorecase") {
             // :set noic
             setActionChecked(Find::Constants::CASE_SENSITIVE, true);
+        } else {
             *handled = false; // Let the handler see it as well.
         }
     } else if (cmd.matches("n", "next")) {
