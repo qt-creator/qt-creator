@@ -2364,7 +2364,8 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
 
             const QColor col = (palette().base().color().value() > 128) ? Qt::black : Qt::white;
             const QPen pen = painter.pen();
-            painter.setPen(blendColors(background.color(), col, 32));
+            painter.setPen(blendColors(background.isOpaque() ? background.color() : palette().base().color(),
+                                       col, 32));
             painter.drawLine(QPointF(lineX, er.top()), QPointF(lineX, er.bottom()));
             painter.setPen(pen);
         }
