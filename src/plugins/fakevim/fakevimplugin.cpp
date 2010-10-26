@@ -734,7 +734,7 @@ void FakeVimPluginPrivate::setActionChecked(const QString &code, bool check)
     QAction *action = cmd->action();
     QTC_ASSERT(action, return);
     QTC_ASSERT(action->isCheckable(), return);
-    action->setChecked(check);
+    action->setChecked(!check); // trigger negates the action's state
     action->trigger();
 }
 
@@ -1003,7 +1003,7 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
             // :se[t]
             showSettingsDialog();
         } else if (cmd.args == "ic" || cmd.args == "ignorecase") {
-            // :set noic
+            // :set nc
             setActionChecked(Find::Constants::CASE_SENSITIVE, false);
         } else if (cmd.args == "noic" || cmd.args == "noignorecase") {
             // :set noic
