@@ -597,10 +597,9 @@ void Qt4Project::updateQmlJSCodeModel()
             const QString qtVersionImportPath = qtVersion->versionInfo().value("QT_INSTALL_IMPORTS");
             if (!qtVersionImportPath.isEmpty())
                 projectInfo.importPaths += qtVersionImportPath;
-            projectInfo.qmlDumpEnvironment = qtVersion->qmlToolsEnvironment();
-            projectInfo.qmlDumpPath = QmlDumpTool::qmlDumpPath(this);
         }
     }
+    QmlDumpTool::pathAndEnvironment(this, &projectInfo.qmlDumpPath, &projectInfo.qmlDumpEnvironment);
     projectInfo.importPaths.removeDuplicates();
 
     modelManager->updateProjectInfo(projectInfo);
