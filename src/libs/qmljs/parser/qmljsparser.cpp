@@ -679,7 +679,7 @@ case 85: {
   else
     node = makeAstNode<AST::ObjectLiteral> (driver->nodePool());
   node->lbraceToken = loc(1);
-  node->lbraceToken = loc(3);
+  node->rbraceToken = loc(3);
   sym(1).Node = node;
 } break;
 
@@ -687,7 +687,7 @@ case 86: {
   AST::ObjectLiteral *node = makeAstNode<AST::ObjectLiteral> (driver->nodePool(),
     sym(2).PropertyNameAndValueList->finish ());
   node->lbraceToken = loc(1);
-  node->lbraceToken = loc(4);
+  node->rbraceToken = loc(4);
   sym(1).Node = node;
 } break;
 
