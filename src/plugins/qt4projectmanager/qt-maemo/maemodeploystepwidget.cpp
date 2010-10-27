@@ -23,13 +23,13 @@ MaemoDeployStepWidget::MaemoDeployStepWidget(MaemoDeployStep *step) :
 {
     ui->setupUi(this);
     ui->tableView->setTextElideMode(Qt::ElideMiddle);
-    ui->modelComboBox->setModel(m_step->deployables());
-    connect(m_step->deployables(), SIGNAL(modelAboutToBeReset()),
+    ui->modelComboBox->setModel(m_step->deployables().data());
+    connect(m_step->deployables().data(), SIGNAL(modelAboutToBeReset()),
         SLOT(handleModelListToBeReset()));
 
     // Queued connection because of race condition with combo box's reaction
     // to modelReset().
-    connect(m_step->deployables(), SIGNAL(modelReset()),
+    connect(m_step->deployables().data(), SIGNAL(modelReset()),
         SLOT(handleModelListReset()), Qt::QueuedConnection);
 
     connect(ui->modelComboBox, SIGNAL(currentIndexChanged(int)),

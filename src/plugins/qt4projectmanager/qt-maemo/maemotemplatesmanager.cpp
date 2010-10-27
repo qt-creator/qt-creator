@@ -115,7 +115,7 @@ bool MaemoTemplatesManager::handleTarget(ProjectExplorer::Target *target)
     const Qt4Target * const qt4Target = qobject_cast<Qt4Target *>(target);
     const MaemoDeployStep * const deployStep
         = MaemoGlobal::buildStep<MaemoDeployStep>(qt4Target->activeDeployConfiguration());
-    connect(deployStep->deployables(), SIGNAL(modelReset()), this,
+    connect(deployStep->deployables().data(), SIGNAL(modelReset()), this,
         SLOT(handleProFileUpdated()), Qt::QueuedConnection);
 
     Project * const project = target->project();
@@ -335,7 +335,7 @@ bool MaemoTemplatesManager::updateDesktopFile(const Qt4Target *target,
         = existsAlready ? desktopFile.readAll() : desktopTemplate;
 
     QString executable;
-    const MaemoDeployables * const deployables
+    const QSharedPointer<MaemoDeployables> &deployables
         = MaemoGlobal::buildStep<MaemoDeployStep>(target->activeDeployConfiguration())
             ->deployables();
     for (int i = 0; i < deployables->modelCount(); ++i) {

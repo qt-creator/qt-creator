@@ -394,7 +394,8 @@ QString MaemoPackageCreationStep::targetRoot() const
 
 bool MaemoPackageCreationStep::packagingNeeded() const
 {
-    const MaemoDeployables * const deployables = deployStep()->deployables();
+    const QSharedPointer<MaemoDeployables> &deployables
+        = deployStep()->deployables();
     QFileInfo packageInfo(packageFilePath());
     if (!packageInfo.exists() || deployables->isModified())
         return true;

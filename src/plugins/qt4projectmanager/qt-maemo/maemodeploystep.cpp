@@ -30,7 +30,6 @@
 #include "maemodeploystep.h"
 
 #include "maemoconstants.h"
-#include "maemodeployables.h"
 #include "maemodeploystepwidget.h"
 #include "maemodeviceconfiglistmodel.h"
 #include "maemoglobal.h"
@@ -65,28 +64,37 @@ namespace { const int DefaultMountPort = 1050; }
 const QLatin1String MaemoDeployStep::Id("Qt4ProjectManager.MaemoDeployStep");
 
 MaemoDeployStep::MaemoDeployStep(ProjectExplorer::BuildStepList *parent)
-    : BuildStep(parent, Id), m_deployables(new MaemoDeployables(this))
+    : BuildStep(parent, Id)
 {
     ctor();
 }
 
 MaemoDeployStep::MaemoDeployStep(ProjectExplorer::BuildStepList *parent,
     MaemoDeployStep *other)
-    : BuildStep(parent, other), m_deployables(new MaemoDeployables(this)),
-      m_lastDeployed(other->m_lastDeployed)
+    : BuildStep(parent, other), m_lastDeployed(other->m_lastDeployed)
 {
     ctor();
 }
 
-MaemoDeployStep::~MaemoDeployStep()
-{
-    delete m_deployables;
-}
+MaemoDeployStep::~MaemoDeployStep() { }
 
 void MaemoDeployStep::ctor()
 {
     //: MaemoDeployStep default display name
     setDefaultDisplayName(tr("Deploy to Maemo device"));
+
+    // A MaemoDeployables object is only dependent on the active build
+    // configuration and therefore can (and should) be shared among all
+    // deploy steps.
+    const QList<DeployConfiguration *> &deployConfigs
+        = target()->deployConfigurations();
+    if (deployConfigs.isEmpty()) {
+        m_deployables = QSharedPointer<MaemoDeployables>(new MaemoDeployables(this));
+    } else {
+        const MaemoDeployStep *const other
+            = MaemoGlobal::buildStep<MaemoDeployStep>(deployConfigs.first());
+        m_deployables = other->deployables();
+    }
 
     m_connecting = false;
     m_needsInstall = false;

@@ -31,6 +31,7 @@
 #define MAEMODEPLOYSTEP_H
 
 #include "maemodeployable.h"
+#include "maemodeployables.h"
 #include "maemodeviceconfigurations.h"
 #include "maemomountspecification.h"
 
@@ -58,7 +59,6 @@ class SshRemoteProcess;
 namespace Qt4ProjectManager {
 namespace Internal {
 class MaemoRemoteMounter;
-class MaemoDeployables;
 class MaemoDeviceConfigListModel;
 class MaemoPackageCreationStep;
 class MaemoToolChain;
@@ -76,7 +76,7 @@ public:
     bool currentlyNeedsDeployment(const QString &host,
         const MaemoDeployable &deployable) const;
     void setDeployed(const QString &host, const MaemoDeployable &deployable);
-    MaemoDeployables *deployables() const { return m_deployables; }
+    QSharedPointer<MaemoDeployables> deployables() const { return m_deployables; }
     QSharedPointer<Core::SshConnection> sshConnection() const { return m_connection; }
 
     bool isDeployToSysrootEnabled() const { return m_deployToSysroot; }
@@ -138,7 +138,7 @@ private:
 
     static const QLatin1String Id;
 
-    MaemoDeployables * const m_deployables;
+    QSharedPointer<MaemoDeployables> m_deployables;
     QSharedPointer<Core::SshConnection> m_connection;
     QProcess *m_sysrootInstaller;
     typedef QPair<MaemoDeployable, QSharedPointer<Core::SshRemoteProcess> > DeviceDeployAction;
