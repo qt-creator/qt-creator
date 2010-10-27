@@ -1487,9 +1487,15 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
         threadsHandler()->notifyRunning();
 
     showMessage(msg, LogDebug);
-    plugin()->updateState(this);
+    updateViews();
 
     emit stateChanged(d->m_state);
+}
+
+void DebuggerEngine::updateViews()
+{
+    // FIXME: This should not be done for slave engines.
+    plugin()->updateState(this);
 }
 
 void DebuggerEngine::setRunInWrapperEngine(bool value)

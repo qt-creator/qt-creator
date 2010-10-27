@@ -2994,9 +2994,12 @@ void GdbEngine::handleThreadInfo(const GdbResponse &response)
         const int currentThreadId =
             response.data.findChild("current-thread-id").data().toInt();
         threadsHandler()->setCurrentThreadId(currentThreadId);
-        plugin()->updateState(this); // Adjust Threads combobox.
-        if (m_hasInferiorThreadList)
-            postCommand("threadnames " + theDebuggerAction(MaximalStackDepth)->value().toByteArray(), CB(handleThreadNames), id);
+        updateViews(); // Adjust Threads combobox.
+        if (m_hasInferiorThreadList) {
+            postCommand("threadnames " +
+                theDebuggerAction(MaximalStackDepth)->value().toByteArray(),
+                CB(handleThreadNames), id);
+        }
     } else {
         // Fall back for older versions: Try to get at least a list
         // of running threads.
@@ -3034,15 +3037,15 @@ void GdbEngine::handleThreadNames(const GdbResponse &response)
             for (int index = 0, n = threads.size(); index != n; ++index) {
                 ThreadData & thread = threads[index];
                 if (thread.id == (quint64)id) {
-                    thread.name = decodeData(name.findChild("value").data(), name.findChild("valueencoded").data().toInt());
+                    thread.name = decodeData(name.findChild("value").data(),
+                        name.findChild("valueencoded").data().toInt());
                     break;
                 }
             }
         }
         threadsHandler()->setThreads(threads);
-        plugin()->updateState(this);
+        updateViews();
     }
-
 }
 
 

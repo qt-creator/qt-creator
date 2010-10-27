@@ -152,7 +152,7 @@ public:
     void initializeFromTemplate(DebuggerEngine *other);
 
     virtual void updateWatchData(const Internal::WatchData &data,
-                                 const Internal::WatchUpdateFlags & flags = Internal::WatchUpdateFlags());
+        const Internal::WatchUpdateFlags & flags = Internal::WatchUpdateFlags());
     void startDebugger(DebuggerRunControl *runControl);
     virtual bool isSessionEngine() const;
 
@@ -286,8 +286,11 @@ public:
     virtual void gotoLocation(const Internal::StackFrame &frame, bool setMarker);
     virtual void quitDebugger(); // called by DebuggerRunControl
 
+    virtual void updateViews();
+
 signals:
     void stateChanged(const DebuggerState &state);
+    void updateViewsRequested();
 
 protected:
     // The base notify*() function implementation should be sufficient
