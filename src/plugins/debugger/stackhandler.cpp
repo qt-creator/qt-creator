@@ -115,7 +115,7 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
         case 2: // File name
             return frame.file.isEmpty() ? frame.from : QFileInfo(frame.file).fileName();
         case 3: // Line number
-            return frame.line;
+            return frame.line >= 0 ? QVariant(frame.line) : QVariant();
         case 4: // Address
             if (frame.address)
                 return QString::fromAscii("0x%1").arg(frame.address, 0, 16);
