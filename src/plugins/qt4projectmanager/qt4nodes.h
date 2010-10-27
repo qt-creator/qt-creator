@@ -248,6 +248,18 @@ struct TargetInformation
 
 };
 
+struct InstallsItem {
+    InstallsItem(QString p, QStringList f) : path(p), files(f) {}
+    QString path;
+    QStringList files;
+};
+
+struct InstallsList {
+    void clear() { targetPath.clear(); items.clear(); }
+    QString targetPath;
+    QList<InstallsItem> items;
+};
+
 // Implements ProjectNode for qt4 pro files
 class Qt4ProFileNode : public Qt4PriFileNode
 {
@@ -279,6 +291,8 @@ public:
     TargetInformation targetInformation(const QString &fileName) const;
     TargetInformation targetInformation() const;
 
+    InstallsList installsList() const;
+
     QString makefile() const;
 
     void update();
@@ -309,6 +323,7 @@ private:
     QStringList libDirectories(ProFileReader *reader) const;
     QStringList subDirsPaths(ProFileReader *reader) const;
     TargetInformation targetInformation(ProFileReader *reader) const;
+    void setupInstallsList(const ProFileReader *reader);
 
     void invalidate();
 
@@ -317,6 +332,7 @@ private:
 
     QMap<QString, QDateTime> m_uitimestamps;
     TargetInformation m_qt4targetInformation;
+    InstallsList m_installsList;
     friend class Qt4NodeHierarchy;
 
     // Async stuff

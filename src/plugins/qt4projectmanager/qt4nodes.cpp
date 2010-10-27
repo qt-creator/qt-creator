@@ -1603,6 +1603,8 @@ void Qt4ProFileNode::applyEvaluate(bool parseResult, bool async)
     // update TargetInformation
     m_qt4targetInformation = targetInformation(m_readerExact);
 
+    setupInstallsList(m_readerExact);
+
     // update other variables
     QHash<Qt4Variable, QStringList> newVarValues;
 
@@ -1930,6 +1932,51 @@ TargetInformation Qt4ProFileNode::targetInformation(ProFileReader *reader) const
 TargetInformation Qt4ProFileNode::targetInformation() const
 {
     return m_qt4targetInformation;
+}
+
+void Qt4ProFileNode::setupInstallsList(const ProFileReader *reader)
+{
+    m_installsList.clear();
+    if (!reader)
+        return;
+    const QStringList &itemList = reader->values(QLatin1String("INSTALLS"));
+    foreach (const QString &item, itemList) {
+        QString itemPath;
+        const QString pathVar = item + QLatin1String(".path");        
+        const QStringList &itemPaths = reader->values(pathVar);
+        if (itemPaths.count() != 1) {
+            qDebug("Invalid RHS: Variable '%s' has %d values.",
+                qPrintable(pathVar), itemPaths.count());
+            if (itemPaths.isEmpty()) {
+                qDebug("Ignoring INSTALLS item '%s', because it has no path.",
+                    qPrintable(item));
+                continue;
+            } else {
+                itemPath = itemPaths.last();
+            }
+        }
+
+        const QStringList &itemFiles
+            = reader->absoluteFileValues(item + QLatin1String(".files"),
+                  m_projectDir, QStringList() << m_projectDir, 0);
+        if (item == QLatin1String("target")) {
+            if (!m_installsList.targetPath.isEmpty())
+                qDebug("Overwriting existing target.path in INSTALLS list.");
+            m_installsList.targetPath = itemPath;
+        } else {
+            if (itemFiles.isEmpty()) {
+                qDebug("Ignoring INSTALLS item '%s', because it has no files.",
+                    qPrintable(item));
+                continue;
+            }
+            m_installsList.items << InstallsItem(itemPath, itemFiles);
+        }
+    }
+}
+
+InstallsList Qt4ProFileNode::installsList() const
+{
+    return m_installsList;
 }
 
 QString Qt4ProFileNode::buildDir() const
