@@ -100,6 +100,17 @@ QDataStream &operator>>(QDataStream &s, WatchData &data)
     return s;
 }
 
+QDataStream &operator>>(QDataStream &s, StackFrame &frame)
+{
+    frame = StackFrame();
+    QByteArray function;
+    QByteArray file;
+    s >> function >> file >> frame.line;
+    frame.function = QString::fromUtf8(function);
+    frame.file = QString::fromUtf8(file);
+    return s;
+}
+
 } // namespace Internal
 
 struct QmlEnginePrivate
@@ -619,22 +630,13 @@ void QmlEngine::messageReceived(const QByteArray &message)
             notifyInferiorSpontaneousStop();
         }
 
-        QList<QPair<QString, QPair<QString, qint32> > > backtrace;
+        Internal::StackFrames stackFrames;
         QList<Internal::WatchData> watches;
         QList<Internal::WatchData> locals;
-        stream >> backtrace >> watches >> locals;
+        stream >> stackFrames >> watches >> locals;
 
-        Internal::StackFrames stackFrames;
-        typedef QPair<QString, QPair<QString, qint32> > Iterator;
-        int level = 0;
-        foreach (const Iterator &it, backtrace) {
-            Internal::StackFrame frame;
-            frame.level = ++level;
-            frame.file = it.second.first;
-            frame.line = it.second.second;
-            frame.function = it.first;
-            stackFrames.append(frame);
-        }
+        for (int i = 0; i != stackFrames.size(); ++i)
+            stackFrames[i].level = i + 1;
 
         gotoLocation(stackFrames.value(0), true);
         stackHandler()->setFrames(stackFrames);

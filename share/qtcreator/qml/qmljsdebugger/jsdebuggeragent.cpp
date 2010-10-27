@@ -53,24 +53,27 @@
 
 namespace QmlJSDebugger {
 
-class JSDebuggerAgent::SetupExecEnv {
-    JSDebuggerAgent* agent;
-    JSDebuggerAgent::State previousState;
-    bool hadException;
+class SetupExecEnv
+{
 public:
     SetupExecEnv(JSDebuggerAgent *a)
         : agent(a),
           previousState(a->state),
           hadException(a->engine()->hasUncaughtException())
-        {
-            agent->state = JSDebuggerAgent::Stopped;
-        }
+    {
+        agent->state = JSDebuggerAgent::Stopped;
+    }
 
     ~SetupExecEnv() {
         if (!hadException && agent->engine()->hasUncaughtException())
             agent->engine()->clearExceptions();
         agent->state = previousState;
     }
+
+private:
+    JSDebuggerAgent *agent;
+    JSDebuggerAgent::State previousState;
+    bool hadException;
 };
 
 class JSAgentWatchData
@@ -83,6 +86,26 @@ public:
     bool hasChildren;
     quint64 objectId;
 };
+
+QDataStream &operator<<(QDataStream &s, const JSAgentWatchData &data)
+{
+    return s << data.exp << data.name << data.value
+        << data.type << data.hasChildren << data.objectId;
+}
+
+class JSAgentStackData
+{
+public:
+    QByteArray functionName;
+    QByteArray fileName;
+    qint32 lineNumber;
+};
+
+QDataStream &operator<<(QDataStream &s, const JSAgentStackData &data)
+{
+    return s << data.functionName << data.fileName << data.lineNumber;
+}
+
 
 static JSAgentWatchData fromScriptValue(const QString &expression,
     const QScriptValue &value)
@@ -139,12 +162,6 @@ static JSAgentWatchData fromScriptValue(const QString &expression,
         data.type = "<unknown>";
     }
     return data;
-}
-
-QDataStream &operator<<(QDataStream &s, const JSAgentWatchData &data)
-{
-    return s << data.exp << data.name << data.value
-        << data.type << data.hasChildren << data.objectId;
 }
 
 static QList<JSAgentWatchData> expandObject(const QScriptValue &object)
@@ -270,7 +287,7 @@ void JSDebuggerAgent::positionChange(qint64 scriptId,
 {
     Q_UNUSED(columnNumber);
 
-    if(state == Stopped)
+    if (state == Stopped)
         return; //no re-entrency
 
     // check breakpoints
@@ -461,42 +478,45 @@ void JSDebuggerAgent::messageReceived(const QByteArray& message)
     QDeclarativeDebugService::messageReceived(message);
 }
 
-void JSDebuggerAgent::stopped(bool becauseOfException, const QScriptValue& exception)
+void JSDebuggerAgent::stopped(bool becauseOfException, const QScriptValue &exception)
 {
     knownObjectIds.clear();
     state = Stopped;
-    QList<QPair<QString, QPair<QString, qint32> > > backtrace;
+    QList<JSAgentStackData> backtrace;
 
     for (QScriptContext* ctx = engine()->currentContext(); ctx; ctx = ctx->parentContext()) {
         QScriptContextInfo info(ctx);
 
-        QString functionName = info.functionName();
-        if (functionName.isEmpty()) {
+        JSAgentStackData frame;
+        frame.functionName = info.functionName().toUtf8();
+        if (frame.functionName.isEmpty()) {
             if (ctx->parentContext()) {
                 switch (info.functionType()) {
                 case QScriptContextInfo::ScriptFunction:
-                    functionName = QLatin1String("<anonymous>");
+                    frame.functionName = "<anonymous>";
                     break;
                 case QScriptContextInfo::NativeFunction:
-                    functionName = QLatin1String("<native>");
+                    frame.functionName = "<native>";
                     break;
                 case QScriptContextInfo::QtFunction:
                 case QScriptContextInfo::QtPropertyFunction:
-                    functionName = QLatin1String("<native slot>");
+                    frame.functionName = "<native slot>";
                     break;
                 }
             } else {
-                functionName = QLatin1String("<global>");
+                frame.functionName = "<global>";
             }
         }
-        int lineNumber = info.lineNumber();
-        if (lineNumber == -1) // if the line number is unknown, fallback to the function line number
-            lineNumber = info.functionStartLineNumber();
-        backtrace.append(qMakePair(functionName, qMakePair( QUrl(info.fileName()).toLocalFile(), lineNumber ) ) );
+        frame.lineNumber = info.lineNumber();
+        // if the line number is unknown, fallback to the function line number
+        if (frame.lineNumber == -1)
+            frame.lineNumber = info.functionStartLineNumber();
+        frame.fileName = QUrl(info.fileName()).toLocalFile().toUtf8();
+        backtrace.append(frame);
     }
     QList<JSAgentWatchData> watches;
     foreach (const QString &expr, watchExpressions)
-        watches << fromScriptValue(expr,  engine()->evaluate(expr));
+        watches << fromScriptValue(expr, engine()->evaluate(expr));
     recordKnownObjects(watches);
 
     QList<JSAgentWatchData> locals = getLocals(engine()->currentContext());
@@ -508,7 +528,8 @@ void JSDebuggerAgent::stopped(bool becauseOfException, const QScriptValue& excep
 
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
-    rs << QByteArray("STOPPED") << backtrace << watches << locals << becauseOfException << exception.toString();
+    rs << QByteArray("STOPPED") << backtrace << watches << locals
+        << becauseOfException << exception.toString();
     sendMessage(reply);
 
     loop.exec(QEventLoop::ExcludeUserInputEvents);

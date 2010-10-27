@@ -69,8 +69,10 @@ QT_FORWARD_DECLARE_CLASS(QDeclarativeEngine);
 namespace QmlJSDebugger {
 
 class JSAgentWatchData;
+class SetupExecEnv;
 
-class QMLJSDEBUGGER_EXPORT JSDebuggerAgent : public QDeclarativeDebugService , public QScriptEngineAgent
+class QMLJSDEBUGGER_EXPORT JSDebuggerAgent
+  : public QDeclarativeDebugService, public QScriptEngineAgent
 {
     Q_OBJECT
 public:
@@ -110,9 +112,7 @@ public slots:
 //    void pauses();
 
 private:
-    class SetupExecEnv;
     friend class SetupExecEnv;
-
     enum State {
         NoState,
         SteppingIntoState,
@@ -136,8 +136,6 @@ private:
     QSet< QPair<QString, qint32> > breakpointList;
     QStringList watchExpressions;
     QSet<qint64> knownObjectIds;
-
-    Q_DISABLE_COPY(JSDebuggerAgent)
 };
 
 } // namespace QmlJSDebugger
