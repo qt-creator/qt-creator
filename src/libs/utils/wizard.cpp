@@ -337,6 +337,12 @@ WizardProgress *Wizard::wizardProgress() const
     return d->m_wizardProgress;
 }
 
+bool Wizard::validateCurrentPage()
+{
+    emit nextClicked();
+    return QWizard::validateCurrentPage();
+}
+
 void Wizard::_q_currentPageChanged(int pageId)
 {
     Q_D(Wizard);

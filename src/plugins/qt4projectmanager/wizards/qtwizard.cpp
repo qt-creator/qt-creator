@@ -212,7 +212,7 @@ void BaseQt4ProjectWizardDialog::init(bool showModulesPage)
 {
     if (showModulesPage)
         m_modulesPage = new ModulesPage;
-    connect(this, SIGNAL(introPageLeft(QString,QString)),
+    connect(this, SIGNAL(projectParametersChanged(QString,QString)),
             this, SLOT(generateProfileName(QString,QString)));
 }
 

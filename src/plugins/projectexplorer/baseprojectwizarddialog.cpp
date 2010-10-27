@@ -44,14 +44,12 @@ struct BaseProjectWizardDialogPrivate {
     const int desiredIntroPageId;
     Utils::ProjectIntroPage *introPage;
     int introPageId;
-    int lastId;
 };
 
 BaseProjectWizardDialogPrivate::BaseProjectWizardDialogPrivate(Utils::ProjectIntroPage *page, int id) :
     desiredIntroPageId(id),
     introPage(page),
-    introPageId(-1),
-    lastId(-1)
+    introPageId(-1)
 {
 }
 
@@ -82,7 +80,7 @@ void BaseProjectWizardDialog::init()
     }
     wizardProgress()->item(d->introPageId)->setTitle(tr("Location"));
     connect(this, SIGNAL(accepted()), this, SLOT(slotAccepted()));
-    connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotBaseCurrentIdChanged(int)));
+    connect(this, SIGNAL(nextClicked()), this, SLOT(nextClicked()));
 }
 
 BaseProjectWizardDialog::~BaseProjectWizardDialog()
@@ -125,12 +123,11 @@ void BaseProjectWizardDialog::slotAccepted()
     }
 }
 
-void BaseProjectWizardDialog::slotBaseCurrentIdChanged(int id)
+void BaseProjectWizardDialog::nextClicked()
 {
-    if (d->lastId == d->introPageId) {
-        emit introPageLeft(d->introPage->projectName(), d->introPage->path());
+    if (currentId() == d->introPageId) {
+        emit projectParametersChanged(d->introPage->projectName(), d->introPage->path());
     }
-    d->lastId = id;
 }
 
 Utils::ProjectIntroPage *BaseProjectWizardDialog::introPage() const

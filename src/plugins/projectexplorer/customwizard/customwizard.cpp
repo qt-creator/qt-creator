@@ -503,7 +503,7 @@ void CustomProjectWizard::initProjectWizardDialog(BaseProjectWizardDialog *w,
     w->setPath(defaultPath);
     w->setProjectName(BaseProjectWizardDialog::uniqueProjectName(defaultPath));
 
-    connect(w, SIGNAL(introPageLeft(QString,QString)), this, SLOT(introPageLeft(QString,QString)));
+    connect(w, SIGNAL(projectParametersChanged(QString,QString)), this, SLOT(projectParametersChanged(QString,QString)));
 
     if (CustomWizardPrivate::verbose)
         qDebug() << "initProjectWizardDialog" << w << w->pageIds();
@@ -549,7 +549,7 @@ bool CustomProjectWizard::postGenerateFiles(const QWizard *, const Core::Generat
     return CustomProjectWizard::postGenerateOpen(l, errorMessage);
 }
 
-void CustomProjectWizard::introPageLeft(const QString &project, const QString & path)
+void CustomProjectWizard::projectParametersChanged(const QString &project, const QString & path)
 {
     // Make '%ProjectName%' available in base replacements.
     context()->baseReplacements.insert(QLatin1String("ProjectName"), project);

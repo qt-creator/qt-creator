@@ -170,7 +170,7 @@ protected:
                                  const WizardPageList &extensionPages) const;
 
 private slots:
-    void introPageLeft(const QString &project, const QString &path);
+    void projectParametersChanged(const QString &project, const QString &path);
 };
 
 } // namespace ProjectExplorer

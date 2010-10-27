@@ -72,7 +72,7 @@ QWizard *AbstractMobileAppWizard::createWizardDialog(QWidget *parent,
     wdlg->m_optionsPage->setMaemoPngIcon(app()->maemoPngIcon());
     wdlg->m_optionsPage->setOrientation(app()->orientation());
     wdlg->m_optionsPage->setNetworkEnabled(app()->networkEnabled());
-    connect(wdlg, SIGNAL(introPageLeft(QString, QString)),
+    connect(wdlg, SIGNAL(projectParametersChanged(QString, QString)),
         SLOT(useProjectPath(QString, QString)));
     foreach (QWizardPage *p, extensionPages)
         BaseFileWizard::applyExtensionPageShortTitle(wdlg, wdlg->addPage(p));

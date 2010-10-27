@@ -57,6 +57,11 @@ public:
     void setStartId(int pageId);
 
     WizardProgress *wizardProgress() const;
+    virtual bool validateCurrentPage();
+
+signals:
+    void nextClicked(); /* workaround for QWizard behavior where page->initialize is
+                           called before currentIdChanged */
 
 private slots:
     void _q_currentPageChanged(int pageId);
