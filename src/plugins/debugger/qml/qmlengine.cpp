@@ -624,8 +624,10 @@ void QmlEngine::messageReceived(const QByteArray &message)
 
         Internal::StackFrames stackFrames;
         typedef QPair<QString, QPair<QString, qint32> > Iterator;
+        int level = 0;
         foreach (const Iterator &it, backtrace) {
             Internal::StackFrame frame;
+            frame.level = ++level;
             frame.file = it.second.first;
             frame.line = it.second.second;
             frame.function = it.first;
