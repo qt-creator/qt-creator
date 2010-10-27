@@ -68,6 +68,7 @@ static QList<int> allGdbToolChains()
     rc
 #ifdef Q_OS_UNIX
        << ProjectExplorer::ToolChain::GCC
+       << ProjectExplorer::ToolChain::LINUX_ICC
 #endif
 #ifdef Q_OS_WIN
        << ProjectExplorer::ToolChain::MinGW
@@ -424,6 +425,7 @@ ToolChainSelectorWidget::ToolChainSelectorWidget(QWidget *parent) :
     foreach(int tc, allGdbToolChains()) {
         switch (tc) {
         case ProjectExplorer::ToolChain::GCC:
+        case ProjectExplorer::ToolChain::LINUX_ICC:
         case ProjectExplorer::ToolChain::MinGW:
         case ProjectExplorer::ToolChain::OTHER:
         case ProjectExplorer::ToolChain::UNKNOWN:

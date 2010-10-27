@@ -492,7 +492,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // open action
     d->m_loadAction = new QAction(tr("Load Project..."), this);
     cmd = am->registerAction(d->m_loadAction, Constants::LOAD, globalcontext);
+#ifndef Q_WS_MAC
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+O")));
+#endif
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_FILES);
 
     // Default open action

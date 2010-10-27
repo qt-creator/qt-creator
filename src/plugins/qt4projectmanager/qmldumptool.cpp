@@ -112,10 +112,9 @@ public slots:
 
         foreach (ProjectExplorer::Project *project, m_projectsToUpdate) {
             QmlJS::ModelManagerInterface::ProjectInfo projectInfo = modelManager->projectInfo(project);
-            if (projectInfo.qmlDumpPath.isEmpty()) {
-                projectInfo.qmlDumpPath = qmldumpPath;
-                modelManager->updateProjectInfo(projectInfo);
-            }
+            projectInfo.qmlDumpPath = qmldumpPath;
+            projectInfo.qmlDumpEnvironment = m_version.qmlToolsEnvironment();
+            modelManager->updateProjectInfo(projectInfo);
         }
     }
 
@@ -273,7 +272,7 @@ QStringList QmlDumpTool::installDirectories(const QString &qtInstallData)
     return directories;
 }
 
-QString QmlDumpTool::qmlDumpPath(ProjectExplorer::Project *project)
+void QmlDumpTool::pathAndEnvironment(ProjectExplorer::Project *project, QString *dumperPath, Utils::Environment *env)
 {
     QString path;
 
@@ -293,7 +292,7 @@ QString QmlDumpTool::qmlDumpPath(ProjectExplorer::Project *project)
             Core::ICore::instance()->progressManager()->addTask(task, taskName,
                                                                 QLatin1String("Qt4ProjectManager::BuildHelpers"));
         }
-        return path;
+        return;
     }
 
     if (!path.isEmpty()) {
@@ -307,7 +306,10 @@ QString QmlDumpTool::qmlDumpPath(ProjectExplorer::Project *project)
         }
     }
 
-    return path;
+    if (!path.isEmpty() && version && dumperPath && env) {
+        *dumperPath = path;
+        *env = version->qmlToolsEnvironment();
+    }
 }
 
 } // namespace Qt4ProjectManager

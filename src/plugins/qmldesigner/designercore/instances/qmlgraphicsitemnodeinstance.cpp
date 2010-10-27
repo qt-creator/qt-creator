@@ -247,16 +247,22 @@ QVariant QmlGraphicsItemNodeInstance::property(const QString &name) const
         double implicitWidth = qmlGraphicsItem()->implicitWidth();
         if (!m_hasWidth
             && implicitWidth // WORKAROUND
-            && implicitWidth != qmlGraphicsItem()->width())
-            qmlGraphicsItem()->setWidth(implicitWidth);
+            && implicitWidth != qmlGraphicsItem()->width()) {
+                qmlGraphicsItem()->blockSignals(true);
+                qmlGraphicsItem()->setWidth(implicitWidth);
+                qmlGraphicsItem()->blockSignals(false);
+        }
     }
 
     if (name == "height" && modelNode().isValid() && !modelNode().hasBindingProperty("height")) {
         double implicitHeight = qmlGraphicsItem()->implicitHeight();
         if (!m_hasHeight
             && implicitHeight // WORKAROUND
-            && implicitHeight != qmlGraphicsItem()->height())
-            qmlGraphicsItem()->setHeight(implicitHeight);
+            && implicitHeight != qmlGraphicsItem()->height()) {
+                qmlGraphicsItem()->blockSignals(true);
+                qmlGraphicsItem()->setHeight(implicitHeight);
+                qmlGraphicsItem()->blockSignals(false);
+            }
     }
 
     return GraphicsObjectNodeInstance::property(name);

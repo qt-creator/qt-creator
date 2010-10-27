@@ -1978,7 +1978,7 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <source>Exception at line %1: %2
 %3</source>
-        <translation>Ausnahme in Zeile%1: %2
+        <translation>Ausnahme in Zeile %1: %2
 %3</translation>
     </message>
     <message>
@@ -2320,6 +2320,16 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <source>Refresh</source>
         <translation>Aktualisieren</translation>
+    </message>
+    <message>
+        <source>Process Already Under Debugger Control</source>
+        <translation>Prozess bereits unter Debugger-Kontrolle</translation>
+    </message>
+    <message>
+        <source>The process %1 is already under the control of a debugger.
+Qt Creator cannot attach to it.</source>
+        <translation>Der Prozess %1 wird bereits von einem Debugger kontrolliert.
+Qt Creator kann sich nicht anhängen.</translation>
     </message>
 </context>
 <context>
@@ -5316,11 +5326,6 @@ on slow machines. In this case, the value should be increased.</source>
 <context>
     <name>Git::Internal::GitClient</name>
     <message>
-        <source>Note that the git plugin for QtCreator is not able to interact with the server so far. Thus, manual ssh-identification etc. will not work.</source>
-        <translatorcomment>Not used.</translatorcomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Unable to determine the repository for %1.</source>
         <translation>Das Repository von %1 konnte nicht bestimmt werden.</translation>
     </message>
@@ -6190,44 +6195,6 @@ rückgängig machen?</translation>
     </message>
 </context>
 <context>
-    <name>HelloWorld::Internal::HelloWorldPlugin</name>
-    <message>
-        <source>Say &quot;&amp;Hello World!&quot;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Hello World</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hello world!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hello World PushButton!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hello World!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hello World! Beautiful day today, isn&apos;t it?</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>HelloWorld::Internal::HelloWorldWindow</name>
-    <message>
-        <source>Focus me to activate my context!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hello, world!</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>Help::Internal::CentralWidget</name>
     <message>
         <source>Print Document</source>
@@ -6527,142 +6494,59 @@ rückgängig machen?</translation>
     <name>MainWindow</name>
     <message>
         <source>Ctrl+Q</source>
-        <translation>Ctrl+Q</translation>
-    </message>
-    <message>
-        <source>Ctrl+O</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Bauhaus</source>
-        <comment>MainWindowClass</comment>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Ctrl+Q</translation>
     </message>
     <message>
         <source>&amp;File</source>
-        <translation>&amp;Datei</translation>
-    </message>
-    <message>
-        <source>&amp;New...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ctrl+N</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">&amp;Datei</translation>
     </message>
     <message>
         <source>&amp;Open...</source>
-        <translation>&amp;Öffnen...</translation>
-    </message>
-    <message>
-        <source>Recent Files</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">&amp;Öffnen...</translation>
     </message>
     <message>
         <source>&amp;Save</source>
-        <translation>&amp;Speichern</translation>
-    </message>
-    <message>
-        <source>Ctrl+S</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">&amp;Speichern</translation>
     </message>
     <message>
         <source>Save &amp;As...</source>
-        <translation>Speichern &amp;unter...</translation>
-    </message>
-    <message>
-        <source>&amp;Preview</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Speichern &amp;unter...</translation>
     </message>
     <message>
         <source>Ctrl+R</source>
-        <translation>Ctrl+R</translation>
-    </message>
-    <message>
-        <source>&amp;Preview with Debug</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ctrl+D</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Ctrl+R</translation>
     </message>
     <message>
         <source>&amp;Quit</source>
-        <translation>&amp;Beenden</translation>
+        <translation type="obsolete">&amp;Beenden</translation>
     </message>
     <message>
         <source>&amp;Edit</source>
-        <translation>&amp;Bearbeiten</translation>
-    </message>
-    <message>
-        <source>Ctrl+Z</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ctrl+Y</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+Z</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">&amp;Bearbeiten</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation>&amp;Kopieren</translation>
-    </message>
-    <message>
-        <source>&amp;Cut</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">&amp;Kopieren</translation>
     </message>
     <message>
         <source>&amp;Paste</source>
-        <translation>&amp;Einfügen</translation>
+        <translation type="obsolete">&amp;Einfügen</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation>&amp;Löschen</translation>
-    </message>
-    <message>
-        <source>Del</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Backspace</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">&amp;Löschen</translation>
     </message>
     <message>
         <source>&amp;View</source>
-        <translation>&amp;Ansicht</translation>
+        <translation type="obsolete">&amp;Ansicht</translation>
     </message>
     <message>
         <source>&amp;Help</source>
-        <translation>&amp;Hilfe</translation>
-    </message>
-    <message>
-        <source>&amp;About...</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">&amp;Hilfe</translation>
     </message>
     <message>
         <source>Properties</source>
-        <translation>Eigenschaften</translation>
-    </message>
-    <message>
-        <source>Could not open file &lt;%1&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Qml Errors:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>
-%1 %2:%3 - %4</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>
-%1:%2 - %3</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Eigenschaften</translation>
     </message>
 </context>
 <context>
@@ -6856,145 +6740,145 @@ rückgängig machen?</translation>
     <name>MyMain</name>
     <message>
         <source>N/A</source>
-        <translation type="unfinished"></translation>
+        <translation>N/A</translation>
     </message>
 </context>
 <context>
     <name>NameDemanglerPrivate</name>
     <message>
         <source>Premature end of input</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Invalid encoding</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Invalid name</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Invalid nested-name</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Invalid template args</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Invalid template-param</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Invalid qualifiers: unexpected &apos;volatile&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Invalid qualifiers: &apos;const&apos; appears twice</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Invalid non-negative number</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Invalid template-arg</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Invalid expression</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Invalid primary expression</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Invalid expr-primary</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Invalid type</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Invalid built-in type</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Invalid builtin-type</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Invalid function type</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Invalid unqualified-name</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Invalid operator-name &apos;%s&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Invalid array-type</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Invalid pointer-to-member-type</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Invalid substitution</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Invalid substitution: element %1 was requested, but there are only %2</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Invalid substitution: There are no elements</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Invalid special-name</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Invalid local-name</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Invalid discriminator</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Invalid ctor-dtor-name</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Invalid call-offset</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Invalid v-offset</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Invalid digit</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>At position %1: </source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
     <name>NickNameDialog</name>
     <message>
         <source>Nicknames</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicknames</translation>
     </message>
 </context>
 <context>
@@ -8924,73 +8808,74 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <name>QObject</name>
     <message>
         <source>Pass</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Bestanden</translation>
     </message>
     <message>
         <source>Expected Failure</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Erwarteter Fehler</translation>
     </message>
     <message>
         <source>Failure</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Fehler</translation>
     </message>
     <message>
         <source>Expected Pass</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>buggy source string</translatorcomment>
+        <translation type="obsolete">Unerwartet bestanden</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation>Warnung</translation>
+        <translation type="obsolete">Warnung</translation>
     </message>
     <message>
         <source>Qt Warning</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Qt-Warnung</translation>
     </message>
     <message>
         <source>Qt Debug</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Qt-Debug</translation>
     </message>
     <message>
         <source>Critical</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Kritisch</translation>
     </message>
     <message>
         <source>Fatal</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Fatal</translation>
     </message>
     <message>
         <source>Skipped</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Übersprungen</translation>
     </message>
     <message>
         <source>Info</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Info</translation>
     </message>
 </context>
 <context>
     <name>QTestLib::Internal::QTestOutputPane</name>
     <message>
         <source>Test Results</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Testergebnisse</translation>
     </message>
     <message>
         <source>Result</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Ergebniss</translation>
     </message>
     <message>
         <source>Message</source>
-        <translation>Bezeichnung</translation>
+        <translation type="obsolete">Bezeichnung</translation>
     </message>
 </context>
 <context>
     <name>QTestLib::Internal::QTestOutputWidget</name>
     <message>
         <source>All Incidents</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Alle Vorfälle</translation>
     </message>
     <message>
         <source>Show Only:</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Beschränken auf:</translation>
     </message>
 </context>
 <context>
@@ -9485,7 +9370,7 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     </message>
     <message>
         <source>Explore Qt C++ mobile examples:</source>
-        <translation>Mobile Qt C++-Beispiele erkunden:</translation>
+        <translation type="obsolete">Mobile Qt C++-Beispiele erkunden:</translation>
     </message>
     <message>
         <source>Featured</source>
@@ -10565,89 +10450,6 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     </message>
 </context>
 <context>
-    <name>RegExp::Internal::RegExpWindow</name>
-    <message>
-        <source>&amp;Pattern:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Text:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Minimal</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Wildcard</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Escaped pattern:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Pattern syntax:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Case &amp;sensitive</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Index of match:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Matched length:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Regular Expression v1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Regular Expression v2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Fixed String</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Capture %1:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Match:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Regular Expression</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter Pattern from Code...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Clear Patterns</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Clear Text</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter Pattern from Code</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Pattern</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>ResourceEditor::Internal::ResourceEditorPlugin</name>
     <message>
         <source>Creates a Qt Resource file (.qrc) that you can add to a Qt C++ project.</source>
@@ -10809,14 +10611,14 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <name>Snippets::Internal::SnippetsPlugin</name>
     <message>
         <source>Snippets</source>
-        <translation>Snippets</translation>
+        <translation type="obsolete">Snippets</translation>
     </message>
 </context>
 <context>
     <name>Snippets::Internal::SnippetsWindow</name>
     <message>
         <source>Snippets</source>
-        <translation>Snippets</translation>
+        <translation type="obsolete">Snippets</translation>
     </message>
 </context>
 <context>
@@ -13000,7 +12802,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>http://labs.trolltech.com/blogs/feed</source>
         <extracomment>Add localized feed here only if one exists</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>http://labs.trolltech.com/blogs/feed</translation>
     </message>
     <message>
         <source>Qt Support Sites</source>
@@ -13019,7 +12821,11 @@ p, li { white-space: pre-wrap; }
     border-width: 0;
 }
 </source>
-        <translation type="unfinished"></translation>
+        <translation>#headerFrame {
+    border-image: url(:/welcome/images/center_frame_header.png) 0;
+    border-width: 0;
+}
+</translation>
     </message>
     <message>
         <source>Help us make Qt Creator even better</source>
@@ -13038,23 +12844,23 @@ p, li { white-space: pre-wrap; }
     <name>mainClass</name>
     <message>
         <source>main</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Text1:</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>N/A</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Text2:</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Text3:</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -15928,7 +15734,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <message>
         <source>About Bauhaus</source>
         <comment>AboutDialog</comment>
-        <translation>Über Bauhaus</translation>
+        <translation type="obsolete">Über Bauhaus</translation>
     </message>
 </context>
 <context>
@@ -17940,7 +17746,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>Die Datei &apos;%1&apos; konnte nicht nach &apos;%2&apos; kopiert werden</translation>
     </message>
     <message>
-        <source>Error: Could not create create file &apos;%1&apos;.</source>
+        <source>Error: Could not create file &apos;%1&apos;.</source>
         <translation>Fehler: Die Datei &apos;%1&apos; konnte nicht erstellt werden.</translation>
     </message>
     <message>
@@ -18298,7 +18104,7 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
     </message>
     <message>
         <source>Warning: Cannot build qmldump; Qt version must be 4.7.1 or higher.</source>
-        <translation>Warnung: Das Werkzeug qmldump kann nicht erstellt werden, da es Qt-Version 4.7.1 oder höher erfordert.</translation>
+        <translation type="obsolete">Warnung: Das Werkzeug qmldump kann nicht erstellt werden, da es Qt-Version 4.7.1 oder höher erfordert.</translation>
     </message>
 </context>
 <context>
@@ -19771,6 +19577,10 @@ Server: %2.</translation>
 <context>
     <name>Debugger::DebuggerRunControl</name>
     <message>
+        <source>There is no debugging engine available for post-mortem debugging.</source>
+        <translation>Keine Debugging-Engine für Post-Mortem-Debugging verfügbar.</translation>
+    </message>
+    <message>
         <source>Cannot debug &apos;%1&apos; (tool chain: &apos;%2&apos;): %3</source>
         <translation>Der Debugger kann nicht mit &apos;%1&apos; (Toolchain &apos;%2&apos;) gestartet werden: %3</translation>
     </message>
@@ -19944,6 +19754,18 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
     <message>
         <source>Previous Open Document in History</source>
         <translation>Vorhergehendes geöffnetes Dokument im Verlauf</translation>
+    </message>
+    <message>
+        <source>Go Back</source>
+        <translation>Zurück</translation>
+    </message>
+    <message>
+        <source>Go Forward</source>
+        <translation>Vorwärts</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Schließen</translation>
     </message>
 </context>
 <context>
@@ -22111,7 +21933,7 @@ Fehler: %2</translation>
     <message>
         <source>Unsupported import:
 import QtQuick 1.0 use import Qt 4.7 instead</source>
-        <translation>Nicht unterstützte Import-Spezifikation:
+        <translation type="obsolete">Nicht unterstützte Import-Spezifikation:
 import Qt 4.7 import sollte an Stelle von import Qt 4.7 verwendet werden</translation>
     </message>
 </context>

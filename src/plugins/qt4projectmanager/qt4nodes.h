@@ -156,7 +156,7 @@ public:
     bool renameFile(const FileType fileType,
                     const QString &filePath, const QString &newFilePath);
 
-    void folderChanged(const QString &folder);
+    void folderChanged(const QString &changedFolder);
 
     bool deploysFolder(const QString &folder) const;
 

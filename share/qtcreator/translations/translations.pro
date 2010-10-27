@@ -1,7 +1,6 @@
 include(../../../qtcreator.pri)
 
-LANGUAGES = de ja pl ru uk zh_CN
-#LANGUAGES = cs es fr hu it sl
+LANGUAGES = de fr ja ru
 
 # var, prepend, append
 defineReplace(prependAll) {
@@ -30,16 +29,26 @@ extract.commands += \
     $$XMLPATTERNS -output $$CUSTOMWIZARD_TR_H -param files=$$CUSTOMWIZARD_FILES $$PWD/extract-customwizards.xq
 QMAKE_EXTRA_TARGETS += extract
 
+plugin_sources = $$files($$IDE_SOURCE_TREE/src/plugins/*)
+plugin_sources ~= s,^$$re_escape($$IDE_SOURCE_TREE/),,g
+plugin_sources -= src/plugins/plugins.pro \
+    src/plugins/helloworld \ # just an example
+    # the following ones are dead
+    src/plugins/qtestlib \
+    src/plugins/snippets \
+    src/plugins/regexp
+sources = src/app src/libs $$plugin_sources src/shared share/qtcreator/qmldesigner
+
 files = $$files($$PWD/*_??.ts) $$PWD/qtcreator_untranslated.ts
 for(file, files) {
     lang = $$replace(file, .*_([^/]*)\\.ts, \\1)
     v = ts-$${lang}.commands
-    $$v = cd $$IDE_SOURCE_TREE && $$LUPDATE src share/qtcreator/qmldesigner $$MIME_TR_H $$CUSTOMWIZARD_TR_H -ts $$file
+    $$v = cd $$IDE_SOURCE_TREE && $$LUPDATE $$sources $$MIME_TR_H $$CUSTOMWIZARD_TR_H -ts $$file
     v = ts-$${lang}.depends
     $$v = extract
     QMAKE_EXTRA_TARGETS += ts-$$lang
 }
-ts-all.commands = cd $$IDE_SOURCE_TREE && $$LUPDATE src share/qtcreator/qmldesigner $$MIME_TR_H $$CUSTOMWIZARD_TR_H -ts $$files
+ts-all.commands = cd $$IDE_SOURCE_TREE && $$LUPDATE $$sources $$MIME_TR_H $$CUSTOMWIZARD_TR_H -ts $$files
 ts-all.depends = extract
 QMAKE_EXTRA_TARGETS += ts-all
 

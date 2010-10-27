@@ -60,7 +60,7 @@ QmlPropertyChanges QmlModelState::propertyChanges(const ModelNode &node)
     addChangeSetIfNotExists(node);
     foreach (const ModelNode &childNode, modelNode().nodeListProperty("changes").toModelNodeList()) {
         //### exception if not valid QmlModelStateOperation
-        if (QmlPropertyChanges(childNode).target().isValid() && QmlPropertyChanges(childNode).target() == node)
+        if (QmlPropertyChanges(childNode).target().isValid() && QmlPropertyChanges(childNode).target() == node && QmlPropertyChanges(childNode).isValid())
             return QmlPropertyChanges(childNode); //### exception if not valid(childNode);
     }
     return QmlPropertyChanges(); //not found

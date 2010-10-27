@@ -49,6 +49,8 @@ static const char *debugCreateFuncC = "DebugCreate";
 
 enum { debug = 0 };
 
+Q_GLOBAL_STATIC(QString, baseImagePath)
+
 static inline QString msgLibLoadFailed(const QString &lib, const QString &why)
 {
     return QCoreApplication::translate("Debugger::Cdb",
@@ -223,6 +225,8 @@ bool DebuggerEngineLibrary::init(const QString &path,
     return true;
 }
 
+CoreEngine *CoreEngine::m_instance = 0;
+
 // ------ Engine
 CoreEngine::CoreEngine(QObject *parent) :
     QObject(parent),
@@ -231,32 +235,70 @@ CoreEngine::CoreEngine(QObject *parent) :
     m_lastTimerModuleCount(0),
     m_modulesLoadedEmitted(true)
 {
+    m_instance = this;
 }
 
 CoreEngine::~CoreEngine()
 {
+    releaseInterfaces();
+    m_instance = 0;
+}
 
+bool CoreEngine::hasInterfaces() const
+{
+    return m_cif.debugClient != 0;
+}
+
+bool CoreEngine::interfacesAvailable()
+{
+    return CoreEngine::m_instance == 0 ||
+            !CoreEngine::m_instance->hasInterfaces();
+}
+
+void CoreEngine::releaseInterfaces()
+{
     if (m_cif.debugClient) {
         m_cif.debugClient->SetOutputCallbacksWide(0);
         m_cif.debugClient->SetEventCallbacksWide(0);
         m_cif.debugClient->Release();
+        m_cif.debugClient = 0;
     }
-    if (m_cif.debugControl)
+    if (m_cif.debugControl) {
         m_cif.debugControl->Release();
-    if (m_cif.debugSystemObjects)
+        m_cif.debugControl = 0;
+    }
+    if (m_cif.debugSystemObjects) {
         m_cif.debugSystemObjects->Release();
-    if (m_cif.debugSymbols)
+        m_cif.debugSystemObjects =0;
+    }
+
+    if (m_cif.debugSymbols) {
         m_cif.debugSymbols->Release();
-    if (m_cif.debugRegisters)
+        m_cif.debugSymbols = 0;
+    }
+
+    if (m_cif.debugRegisters) {
         m_cif.debugRegisters->Release();
-    if (m_cif.debugDataSpaces)
+        m_cif.debugRegisters = 0;
+    }
+
+    if (m_cif.debugDataSpaces) {
         m_cif.debugDataSpaces->Release();
-    if (m_cif.debugAdvanced)
+        m_cif.debugDataSpaces = 0;
+    }
+
+    if (m_cif.debugAdvanced) {
         m_cif.debugAdvanced->Release();
+        m_cif.debugAdvanced = 0;
+    }
 }
 
 bool CoreEngine::init(const QString &dllEnginePath, QString *errorMessage)
 {
+    if (!CoreEngine::interfacesAvailable()) {
+        *errorMessage = QString::fromLatin1("Internal error: The COM interfaces are already in use.");
+        return false;
+    }
     enum {  bufLen = 10240 };
     // Load the DLL
     DebuggerEngineLibrary lib;
@@ -293,13 +335,18 @@ bool CoreEngine::init(const QString &dllEnginePath, QString *errorMessage)
         return false;
     }
 
-    WCHAR buf[bufLen];
-    hr = m_cif.debugSymbols->GetImagePathWide(buf, bufLen, 0);
-    if (FAILED(hr)) {
-        *errorMessage = msgComFailed("GetImagePathWide", hr);
-        return false;
+    // Query inherited image path from environment only once as it is remembered.
+    static bool firstInstance = true;
+    if (firstInstance) {
+        firstInstance = false;
+        WCHAR buf[bufLen];
+        hr = m_cif.debugSymbols->GetImagePathWide(buf, bufLen, 0);
+        if (FAILED(hr)) {
+            *errorMessage = msgComFailed("GetImagePathWide", hr);
+            return false;
+        }
+        *baseImagePath() = QString::fromWCharArray(buf);
     }
-    m_baseImagePath = QString::fromWCharArray(buf);
 
     hr = lib.debugCreate( __uuidof(IDebugRegisters2), reinterpret_cast<void**>(&m_cif.debugRegisters));
     if (FAILED(hr)) {
@@ -430,10 +477,11 @@ bool CoreEngine::startDebuggerWithExecutable(const QString &workingDirectory,
     // Set image path
     const QFileInfo fi(filename);
     QString imagePath = QDir::toNativeSeparators(fi.absolutePath());
-    if (!m_baseImagePath.isEmpty()) {
+    if (!baseImagePath()->isEmpty()) {
         imagePath += QLatin1Char(';');
-        imagePath += m_baseImagePath;
+        imagePath += baseImagePath();
     }
+
     HRESULT hr = m_cif.debugSymbols->SetImagePathWide(reinterpret_cast<PCWSTR>(imagePath.utf16()));
     if (FAILED(hr)) {
         *errorMessage = tr("Unable to set the image path to %1: %2").arg(imagePath, msgComFailed("SetImagePathWide", hr));

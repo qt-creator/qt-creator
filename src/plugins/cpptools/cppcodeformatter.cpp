@@ -1247,6 +1247,12 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
         *indentDepth = m_indentSize;
         break;
     }
+
+    // ensure padding and indent are >= 0
+    *indentDepth = qMax(0, *indentDepth);
+    *savedIndentDepth = qMax(0, *savedIndentDepth);
+    *paddingDepth = qMax(0, *paddingDepth);
+    *savedPaddingDepth = qMax(0, *savedPaddingDepth);
 }
 
 void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, int lexerState, int *indentDepth, int *paddingDepth) const
@@ -1287,7 +1293,10 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
         if (topState.type == expression && previousState.type == declaration_start) {
             *paddingDepth = m_indentSize;
         } else if (topState.type == ternary_op) {
-            *paddingDepth -= 2;
+            if (*paddingDepth >= 2)
+                *paddingDepth -= 2;
+            else
+                *paddingDepth = 0;
         }
         break;
     case T_LBRACE: {
@@ -1382,8 +1391,12 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
         break;
     case T_LESS_LESS:
     case T_GREATER_GREATER:
-        if (topState.type == stream_op || topState.type == stream_op_cont)
-            *paddingDepth -= 3; // to align << with <<
+        if (topState.type == stream_op || topState.type == stream_op_cont) {
+            if (*paddingDepth >= 3)
+                *paddingDepth -= 3; // to align << with <<
+            else
+                *paddingDepth = 0;
+        }
         break;
     case T_COMMENT:
     case T_DOXY_COMMENT:
@@ -1395,7 +1408,10 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
                 && (kind == T_COMMENT || kind == T_DOXY_COMMENT)
                 && (lexerState == Lexer::State_Default
                     || tokens.size() != 1)) {
-            *indentDepth -= m_indentSize;
+            if (*indentDepth >= m_indentSize)
+                *indentDepth -= m_indentSize;
+            else
+                *indentDepth = 0;
         }
         break;
     }

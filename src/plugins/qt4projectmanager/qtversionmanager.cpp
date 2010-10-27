@@ -1637,6 +1637,19 @@ bool QtVersion::hasQmlObserver() const
     return m_hasQmlObserver;
 }
 
+Utils::Environment QtVersion::qmlToolsEnvironment() const
+{
+    Utils::Environment environment = Utils::Environment::systemEnvironment();
+    addToEnvironment(environment);
+
+    // add preferred toolchain, as that is how the tools are built, compare QtVersion::buildDebuggingHelperLibrary
+    QList<QSharedPointer<ProjectExplorer::ToolChain> > alltc = toolChains();
+    if (!alltc.isEmpty())
+        alltc.first().data()->addToEnvironment(environment);
+
+    return environment;
+}
+
 QString QtVersion::debuggingHelperLibrary() const
 {
     QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");
@@ -1828,9 +1841,12 @@ bool QtVersion::buildDebuggingHelperLibrary(QFutureInterface<void> &future,
             return false;
 
     } else {
-        output->append(QCoreApplication::translate("Qt4ProjectManager::QtVersion", "Warning: Cannot build qmldump; Qt version must be 4.7.1 or higher."));
+//        output->append(QCoreApplication::translate("Qt4ProjectManager::QtVersion", "Warning: Cannot build qmldump; Qt version must be 4.7.1 or higher."));
     }
     future.setProgressValue(4);
+
+    // invalidate cache once more
+    m_versionInfoUpToDate = false;
 
     return true;
 }
