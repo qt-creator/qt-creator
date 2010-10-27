@@ -1389,11 +1389,7 @@ void DebuggerEngine::notifyEngineShutdownOk()
     showMessage(_("NOTE: ENGINE SHUTDOWN OK"));
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
     setState(EngineShutdownOk);
-    if (isSlaveEngine()) {
-        setState(DebuggerFinished); // WHY?
-    } else {
-        d->queueFinishDebugger();
-    }
+    d->queueFinishDebugger();
 }
 
 void DebuggerEngine::notifyEngineShutdownFailed()
@@ -1401,11 +1397,7 @@ void DebuggerEngine::notifyEngineShutdownFailed()
     showMessage(_("NOTE: ENGINE SHUTDOWN FAILED"));
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
     setState(EngineShutdownFailed);
-    if (isSlaveEngine()) {
-        setState(DebuggerFinished);  // WHY?
-    } else {
-        d->queueFinishDebugger();
-    }
+    d->queueFinishDebugger();
 }
 
 void DebuggerEnginePrivate::doFinishDebugger()
@@ -1494,8 +1486,10 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
 
 void DebuggerEngine::updateViews()
 {
-    // FIXME: This should not be done for slave engines.
-    plugin()->updateState(this);
+    // The slave engines are not entitled to change the view. Their wishes
+    // should be coordinated by their master engine.
+    if (isSlaveEngine())
+        plugin()->updateState(this);
 }
 
 bool DebuggerEngine::isSlaveEngine() const
