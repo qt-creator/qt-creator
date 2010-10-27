@@ -80,6 +80,7 @@ QDeclarativeViewObserver::QDeclarativeViewObserver(QDeclarativeView *view, QObje
     data->currentTool = data->selectionTool;
 
     data->view->setMouseTracking(true);
+    data->view->installEventFilter(this);
     data->view->viewport()->installEventFilter(this);
 
     data->debugService = QDeclarativeObserverService::instance();
