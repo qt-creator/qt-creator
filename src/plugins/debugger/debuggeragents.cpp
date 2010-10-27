@@ -346,7 +346,7 @@ static QPair<int, int> lineNumberOfAddress(const QString &disassembly, quint64 a
         const QString line = disassembly.mid(pos, endOfLinePos - pos);
         if (DisassemblerViewAgent::addressFromDisassemblyLine(line) == address)
             return QPair<int, int>(lineNumber, pos);
-        pos = endOfLinePos;
+        pos = endOfLinePos + 1;
     }
     return QPair<int, int>(-1, -1);;
 }
