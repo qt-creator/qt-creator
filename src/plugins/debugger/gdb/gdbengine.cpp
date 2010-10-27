@@ -538,9 +538,9 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 //if (state() == InferiorStopOk) { // Result of manual command.
                 //    resetLocation();
                 //    setTokenBarrier();
-                //    setState(InferiorRunRequested);
+                //    notifyInferiorRunRequested();
                 //}
-                //setState(InferiorRunOk);
+                //notifyInferiorRunOk();
                 //showStatusMessage(tr("Running..."));
                 response.resultClass = GdbResultRunning;
             } else if (resultClass == "connected") {
@@ -752,16 +752,6 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
                 showMessage(_("CHILD ALREADY BEING INTERRUPTED. STILL HOPING."));
                 // Calling shutdown() here breaks all situations where two
                 // NeedsStop commands are issued in quick succession.
-            //} else if (state() == InferiorStopRequested_Kill) {
-            //    showMessage(_("CHILD ALREADY BEING INTERRUPTED (KILL PENDING)"));
-            //    // FIXME
-            //    shutdown();
-            //} else if (state() == InferiorRunRequested) {
-            //    if (cmd.flags & LosesChild)
-            //        setState(InferiorRunRequested_Kill);
-            //    showMessage(_("RUNNING REQUESTED; POSTPONING INTERRUPT"));
-            //} else if (state() == InferiorRunRequested_Kill) {
-            //    showMessage(_("RUNNING REQUESTED; POSTPONING INTERRUPT (KILL PENDING)"));
             } else if (state() == InferiorRunOk) {
                 showStatusMessage(tr("Stopping temporarily"), 1000);
                 interruptInferiorTemporarily();
@@ -818,7 +808,7 @@ void GdbEngine::flushCommand(const GdbCommand &cmd0)
         m_commandTimer->start();
 
     //if (cmd.flags & LosesChild)
-    //    setState(InferiorShutdownRequested);
+    //    notifyInferiorIll();
 }
 
 int GdbEngine::commandTimeoutTime() const
@@ -914,8 +904,7 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
                 // and library load messages.
                 showMessage(_("APPLYING WORKAROUND #4"));
                 notifyInferiorStopOk();
-                //setState(InferiorShutdownRequested);
-                //setState(InferiorShutdownOk);
+                //notifyInferiorIll();
                 //showStatusMessage(tr("Executable failed: %1")
                 //    .arg(QString::fromLocal8Bit(msg)));
                 //shutdown();
@@ -1119,7 +1108,7 @@ void GdbEngine::handleExecuteRunToFunction(const GdbResponse &response)
     // func="foo",args=[{name="str",value="@0x7fff0f450460"}],
     // file="main.cpp",fullname="/tmp/g/main.cpp",line="37"}
     QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state())
-    setState(InferiorStopOk);
+    notifyInferiorStopOk();
     showStatusMessage(tr("Function reached. Stopped"));
     GdbMi frame = response.data.findChild("frame");
     StackFrame f = parseStackFrame(frame, 0);
@@ -4226,7 +4215,7 @@ void GdbEngine::handleGdbError(QProcess::ProcessError error)
     case QProcess::Timedout:
     default:
         //gdbProc()->kill();
-        //setState(EngineShutdownRequested, true);
+        //notifyEngineIll();
         showMessageBox(QMessageBox::Critical, tr("Gdb I/O Error"), msg);
         break;
     }
