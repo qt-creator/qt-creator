@@ -14,6 +14,7 @@ namespace Debugger {
 const int ConnectionWaitTimeMs = 5000;
 
 namespace Internal {
+
 DebuggerEngine *createCdbEngine(const DebuggerStartParameters &, QString *);
 DebuggerEngine *createGdbEngine(const DebuggerStartParameters &);
 DebuggerEngine *createQmlEngine(const DebuggerStartParameters &);
@@ -21,16 +22,16 @@ DebuggerEngine *createQmlEngine(const DebuggerStartParameters &);
 DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &sp)
 {
     QmlCppEngine *newEngine = new QmlCppEngine(sp);
-    if (newEngine->cppEngine()) {
+    if (newEngine->cppEngine())
         return newEngine;
-    } else {
-        delete newEngine;
-        return 0;
-    }
+    delete newEngine;
+    return 0;
 }
+
 } // namespace Internal
 
-struct QmlCppEnginePrivate {
+struct QmlCppEnginePrivate
+{
     QmlCppEnginePrivate();
 
     QmlEngine *m_qmlEngine;
@@ -42,11 +43,11 @@ struct QmlCppEnginePrivate {
     bool m_isInitialStartup;
 };
 
-QmlCppEnginePrivate::QmlCppEnginePrivate() :
-    m_qmlEngine(0),
-    m_cppEngine(0),
-    m_activeEngine(0),
-    m_shutdownOk(true)
+QmlCppEnginePrivate::QmlCppEnginePrivate()
+    : m_qmlEngine(0)
+    , m_cppEngine(0)
+    , m_activeEngine(0)
+    , m_shutdownOk(true)
     , m_shutdownDeferred(false)
     , m_shutdownDone(false)
     , m_isInitialStartup(true)
@@ -70,36 +71,39 @@ QmlCppEngine::QmlCppEngine(const DebuggerStartParameters &sp)
         }
     }
 
-    d->m_cppEngine->setSlave(true);
-    d->m_qmlEngine->setSlave(true);
+    d->m_cppEngine->setSlaveEngine(true);
+    d->m_qmlEngine->setSlaveEngine(true);
 
     d->m_activeEngine = d->m_cppEngine;
-    connect(d->m_cppEngine, SIGNAL(stateChanged(DebuggerState)), SLOT(masterEngineStateChanged(DebuggerState)));
-    connect(d->m_qmlEngine, SIGNAL(stateChanged(DebuggerState)), SLOT(slaveEngineStateChanged(DebuggerState)));
+    connect(d->m_cppEngine, SIGNAL(stateChanged(DebuggerState)),
+        SLOT(masterEngineStateChanged(DebuggerState)));
+    connect(d->m_qmlEngine, SIGNAL(stateChanged(DebuggerState)),
+        SLOT(slaveEngineStateChanged(DebuggerState)));
 
-    Core::EditorManager *em = Core::EditorManager::instance();
-    connect(em, SIGNAL(currentEditorChanged(Core::IEditor*)), SLOT(editorChanged(Core::IEditor*)));
+    connect(Core::EditorManager::instance(),
+        SIGNAL(currentEditorChanged(Core::IEditor*)),
+        SLOT(editorChanged(Core::IEditor*)));
 }
 
 QmlCppEngine::~QmlCppEngine()
 {
     delete d->m_qmlEngine;
-    delete d->m_cppEngine;
     d->m_qmlEngine = 0;
+    delete d->m_cppEngine;
     d->m_cppEngine = 0;
 }
 
 void QmlCppEngine::editorChanged(Core::IEditor *editor)
 {
-    // change the engine based on editor, but only if we're not currently in stopped state.
+    // Change the engine based on editor, but only if we're not
+    // currently in stopped state.
     if (state() != InferiorRunOk || !editor)
         return;
 
-    if (editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
+    if (editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID)
         setActiveEngine(QmlLanguage);
-    } else {
+    else
         setActiveEngine(CppLanguage);
-    }
 }
 
 void QmlCppEngine::setActiveEngine(DebuggerLanguage language)
@@ -130,7 +134,8 @@ void QmlCppEngine::setToolTipExpression(const QPoint & mousePos,
     d->m_activeEngine->setToolTipExpression(mousePos, editor, cursorPos);
 }
 
-void QmlCppEngine::updateWatchData(const Internal::WatchData &data, const Internal::WatchUpdateFlags &flags)
+void QmlCppEngine::updateWatchData(const Internal::WatchData &data,
+    const Internal::WatchUpdateFlags &flags)
 {
     d->m_activeEngine->updateWatchData(data, flags);
 }
@@ -235,7 +240,8 @@ void QmlCppEngine::attemptBreakpointSynchronization()
 
 bool QmlCppEngine::acceptsBreakpoint(const Internal::BreakpointData *br)
 {
-    return d->m_cppEngine->acceptsBreakpoint(br) || d->m_qmlEngine->acceptsBreakpoint(br);
+    return d->m_cppEngine->acceptsBreakpoint(br)
+        || d->m_qmlEngine->acceptsBreakpoint(br);
 }
 
 void QmlCppEngine::selectThread(int index)

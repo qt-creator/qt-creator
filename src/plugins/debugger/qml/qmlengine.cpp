@@ -84,7 +84,7 @@ enum {
 namespace Debugger {
 namespace Internal {
 
-QDataStream& operator>>(QDataStream& s, WatchData &data)
+QDataStream &operator>>(QDataStream &s, WatchData &data)
 {
     data = WatchData();
     QString value;
@@ -100,7 +100,8 @@ QDataStream& operator>>(QDataStream& s, WatchData &data)
 
 } // namespace Internal
 
-struct QmlEnginePrivate {
+struct QmlEnginePrivate
+{
     explicit QmlEnginePrivate(QmlEngine *q);
 
     int m_ping;
@@ -111,12 +112,12 @@ struct QmlEnginePrivate {
     bool m_hasShutdown;
 };
 
-QmlEnginePrivate::QmlEnginePrivate(QmlEngine *q) :
-  m_ping(0)
-, m_adapter(new QmlAdapter(q))
-, m_addedAdapterToObjectPool(false)
-, m_attachToRunningExternalApp(false)
-, m_hasShutdown(false)
+QmlEnginePrivate::QmlEnginePrivate(QmlEngine *q)
+    : m_ping(0)
+    , m_adapter(new QmlAdapter(q))
+    , m_addedAdapterToObjectPool(false)
+    , m_attachToRunningExternalApp(false)
+    , m_hasShutdown(false)
 {
 }
 
@@ -221,7 +222,7 @@ void QmlEngine::connectionError(QAbstractSocket::SocketError socketError)
 
 void QmlEngine::serviceConnectionError(const QString &serviceName)
 {
-    plugin()->showMessage(tr("QML Debugger: Could not connect to service '%1'.").arg(serviceName), StatusBar);
+    showMessage(tr("QML Debugger: Could not connect to service '%1'.").arg(serviceName), StatusBar);
 }
 
 void QmlEngine::runEngine()
@@ -235,7 +236,7 @@ void QmlEngine::runEngine()
     }
 
     d->m_adapter->beginConnection();
-    plugin()->showMessage(tr("QML Debugger connecting..."), StatusBar);
+    showMessage(tr("QML Debugger connecting..."), StatusBar);
 }
 
 void QmlEngine::handleRemoteSetupDone()
@@ -274,11 +275,13 @@ void QmlEngine::shutdownEngineAsSlave()
     if (d->m_hasShutdown)
         return;
 
-    disconnect(d->m_adapter, SIGNAL(connectionStartupFailed()), this, SLOT(connectionStartupFailed()));
+    disconnect(d->m_adapter, SIGNAL(connectionStartupFailed()),
+        this, SLOT(connectionStartupFailed()));
     d->m_adapter->closeConnection();
 
     if (d->m_addedAdapterToObjectPool) {
-        ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
+        ExtensionSystem::PluginManager *pluginManager =
+            ExtensionSystem::PluginManager::instance();
         pluginManager->removeObject(d->m_adapter);
         pluginManager->removeObject(this);
     }
@@ -290,7 +293,8 @@ void QmlEngine::shutdownEngineAsSlave()
     } else {
         if (d->m_applicationLauncher.isRunning()) {
             // should only happen if engine is ill
-            disconnect(&d->m_applicationLauncher, SIGNAL(processExited(int)), this, SLOT(disconnected()));
+            disconnect(&d->m_applicationLauncher, SIGNAL(processExited(int)),
+                this, SLOT(disconnected()));
             d->m_applicationLauncher.stop();
         }
     }
@@ -307,7 +311,8 @@ void QmlEngine::shutdownInferior()
     if (!d->m_applicationLauncher.isRunning()) {
         showMessage(tr("Trying to stop while process is no longer running."), LogError);
     } else {
-        disconnect(&d->m_applicationLauncher, SIGNAL(processExited(int)), this, SLOT(disconnected()));
+        disconnect(&d->m_applicationLauncher, SIGNAL(processExited(int)),
+            this, SLOT(disconnected()));
         if (!d->m_attachToRunningExternalApp)
             d->m_applicationLauncher.stop();
     }
@@ -329,10 +334,13 @@ void QmlEngine::setupEngine()
     d->m_adapter->setMaxConnectionAttempts(MaxConnectionAttempts);
     d->m_adapter->setConnectionAttemptInterval(ConnectionAttemptDefaultInterval);
     connect(d->m_adapter, SIGNAL(connectionError(QAbstractSocket::SocketError)),
-            SLOT(connectionError(QAbstractSocket::SocketError)));
-    connect(d->m_adapter, SIGNAL(serviceConnectionError(QString)), SLOT(serviceConnectionError(QString)));
-    connect(d->m_adapter, SIGNAL(connected()), SLOT(connectionEstablished()));
-    connect(d->m_adapter, SIGNAL(connectionStartupFailed()), SLOT(connectionStartupFailed()));
+        SLOT(connectionError(QAbstractSocket::SocketError)));
+    connect(d->m_adapter, SIGNAL(serviceConnectionError(QString)),
+        SLOT(serviceConnectionError(QString)));
+    connect(d->m_adapter, SIGNAL(connected()),
+        SLOT(connectionEstablished()));
+    connect(d->m_adapter, SIGNAL(connectionStartupFailed()),
+        SLOT(connectionStartupFailed()));
 
     notifyEngineSetupOk();
 }
@@ -454,19 +462,18 @@ void QmlEngine::attemptBreakpointSynchronization()
         breakList << qMakePair(processedFilename, data->lineNumber);
     }
 
-    {
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
     rs << QByteArray("BREAKPOINTS");
     rs << breakList;
     //qDebug() << Q_FUNC_INFO << breakList;
     sendMessage(reply);
-    }
 }
 
 bool QmlEngine::acceptsBreakpoint(const Internal::BreakpointData *br)
 {
-    return (br->fileName.endsWith(QLatin1String("qml")) || br->fileName.endsWith(QLatin1String("js")));
+    return br->fileName.endsWith(QLatin1String("qml"))
+        || br->fileName.endsWith(QLatin1String("js"));
 }
 
 void QmlEngine::loadSymbols(const QString &moduleName)
@@ -493,9 +500,11 @@ void QmlEngine::requestModuleSymbols(const QString &moduleName)
 //
 //////////////////////////////////////////////////////////////////////
 
-void QmlEngine::setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos)
+void QmlEngine::setToolTipExpression(const QPoint &mousePos,
+    TextEditor::ITextEditor *editor, int cursorPos)
 {
-    // this is processed by QML inspector, which has deps to qml js editor. Makes life easier.
+    // This is processed by QML inspector, which has dependencies to 
+    // the qml js editor. Makes life easier.
     emit tooltipRequested(mousePos, editor, cursorPos);
 }
 
@@ -506,7 +515,7 @@ void QmlEngine::setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEd
 //////////////////////////////////////////////////////////////////////
 
 void QmlEngine::assignValueInDebugger(const Internal::WatchData *,
-                                      const QString &expression, const QVariant &valueV)
+    const QString &expression, const QVariant &valueV)
 {
     QRegExp inObject("@([0-9a-fA-F]+)->(.+)");
     if (inObject.exactMatch(expression)) {
@@ -523,7 +532,8 @@ void QmlEngine::assignValueInDebugger(const Internal::WatchData *,
     }
 }
 
-void QmlEngine::updateWatchData(const Internal::WatchData &data, const Internal::WatchUpdateFlags &)
+void QmlEngine::updateWatchData(const Internal::WatchData &data,
+    const Internal::WatchUpdateFlags &)
 {
 //    qDebug() << "UPDATE WATCH DATA" << data.toString();
     //watchHandler()->rebuildModel();
@@ -748,7 +758,6 @@ void QmlEngine::messageReceived(const QByteArray &message)
     } else {
         qDebug() << Q_FUNC_INFO << "Unknown command: " << command;
     }
-
 }
 
 void QmlEngine::disconnected()
@@ -768,26 +777,19 @@ void QmlEngine::executeDebuggerCommand(const QString& command)
 
 bool QmlEngine::isShadowBuildProject() const
 {
-    if (!startParameters().projectBuildDir.isEmpty()
-        && (startParameters().projectDir != startParameters().projectBuildDir))
-    {
-        return true;
-    }
-    return false;
+    return !startParameters().projectBuildDir.isEmpty()
+        && startParameters().projectDir != startParameters().projectBuildDir;
 }
 
 QString QmlEngine::qmlImportPath() const
 {
-    QString result;
     const QString qmlImportPathPrefix("QML_IMPORT_PATH=");
     QStringList env = startParameters().environment;
-    foreach(const QString &envStr, env) {
-        if (envStr.startsWith(qmlImportPathPrefix)) {
-            result = envStr.mid(qmlImportPathPrefix.length());
-            break;
-        }
+    foreach (const QString &envStr, env) {
+        if (envStr.startsWith(qmlImportPathPrefix))
+            return envStr.mid(qmlImportPathPrefix.length());
     }
-    return result;
+    return QString();
 }
 
 QString QmlEngine::toShadowBuildFilename(const QString &filename) const
@@ -803,7 +805,8 @@ QString QmlEngine::toShadowBuildFilename(const QString &filename) const
     return newFilename;
 }
 
-QString QmlEngine::mangleFilenamePaths(const QString &filename, const QString &oldBasePath, const QString &newBasePath) const
+QString QmlEngine::mangleFilenamePaths(const QString &filename,
+    const QString &oldBasePath, const QString &newBasePath) const
 {
     QDir oldBaseDir(oldBasePath);
     QDir newBaseDir(newBasePath);

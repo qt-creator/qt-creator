@@ -80,7 +80,8 @@ private:
     void shutdownInferior();
     void shutdownEngine();
 
-    void setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
+    void setToolTipExpression(const QPoint &mousePos,
+        TextEditor::ITextEditor *editor, int cursorPos);
 
     void continueInferior();
     void interruptInferior();
@@ -105,14 +106,16 @@ private:
     void reloadFullStack() {}
 
     bool supportsThreads() const { return false; }
-    void updateWatchData(const Internal::WatchData &data, const Internal::WatchUpdateFlags &flags);
-    void executeDebuggerCommand(const QString& command);
+    void updateWatchData(const Internal::WatchData &data,
+        const Internal::WatchUpdateFlags &flags);
+    void executeDebuggerCommand(const QString &command);
 
     unsigned int debuggerCapabilities() const;
 
 signals:
     void sendMessage(const QByteArray &msg);
-    void tooltipRequested(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
+    void tooltipRequested(const QPoint &mousePos,
+        TextEditor::ITextEditor *editor, int cursorPos);
 
 private slots:
     void connectionEstablished();
@@ -126,7 +129,8 @@ private:
 
     bool isShadowBuildProject() const;
     QString fromShadowBuildFilename(const QString &filename) const;
-    QString mangleFilenamePaths(const QString &filename, const QString &oldBasePath, const QString &newBasePath) const;
+    QString mangleFilenamePaths(const QString &filename,
+        const QString &oldBasePath, const QString &newBasePath) const;
     QString toShadowBuildFilename(const QString &filename) const;
     QString qmlImportPath() const;
 

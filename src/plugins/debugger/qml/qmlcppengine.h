@@ -22,9 +22,10 @@ public:
 
     void setActiveEngine(DebuggerLanguage language);
 
-    virtual void setToolTipExpression(const QPoint & /* mousePos */,
-            TextEditor::ITextEditor * /* editor */, int /* cursorPos */);
-    virtual void updateWatchData(const Internal::WatchData & /* data */, const Internal::WatchUpdateFlags &flags);
+    virtual void setToolTipExpression(const QPoint &mousePos,
+        TextEditor::ITextEditor * editor, int cursorPos);
+    virtual void updateWatchData(const Internal::WatchData &data,
+        const Internal::WatchUpdateFlags &flags);
 
     virtual void watchPoint(const QPoint &);
     virtual void fetchMemory(Internal::MemoryViewAgent *, QObject *,
@@ -55,7 +56,8 @@ public:
     virtual bool acceptsBreakpoint(const Internal::BreakpointData *br);
     virtual void selectThread(int index);
 
-    virtual void assignValueInDebugger(const Internal::WatchData *w, const QString &expr, const QVariant &value);
+    virtual void assignValueInDebugger(const Internal::WatchData *w,
+        const QString &expr, const QVariant &value);
 
     QAbstractItemModel *commandModel() const;
     QAbstractItemModel *modulesModel() const;
