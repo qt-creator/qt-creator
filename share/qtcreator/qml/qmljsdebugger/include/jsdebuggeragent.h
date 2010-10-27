@@ -54,27 +54,26 @@
 //
 
 #include <QtScript/qscriptengineagent.h>
-#include <QtScript/QScriptValue>
-#include <QtCore/QEventLoop>
-#include <QtCore/QSet>
-#include <QtCore/QStringList>
 
 #include "qt_private/qdeclarativedebugservice_p.h"
 
 #include "qmljsdebugger_global.h"
 
-QT_FORWARD_DECLARE_CLASS(QScriptContext);
-QT_FORWARD_DECLARE_CLASS(QDeclarativeEngine);
+QT_BEGIN_NAMESPACE
+class QScriptValue;
+class QDeclarativeEngine;
+QT_END_NAMESPACE
 
 namespace QmlJSDebugger {
 
-class JSAgentWatchData;
-class SetupExecEnv;
+class JSDebuggerAgentPrivate;
 
 class QMLJSDEBUGGER_EXPORT JSDebuggerAgent
-  : public QDeclarativeDebugService, public QScriptEngineAgent
+    : public QDeclarativeDebugService
+    , public QScriptEngineAgent
 {
     Q_OBJECT
+
 public:
     JSDebuggerAgent(QScriptEngine *engine);
     JSDebuggerAgent(QDeclarativeEngine *engine);
@@ -107,35 +106,14 @@ public:
 
     void messageReceived(const QByteArray &);
     void statusChanged(Status status);
+    void baseMessageReceived(const QByteArray &message)
+        { QDeclarativeDebugService::messageReceived(message); }
 
 public slots:
 //    void pauses();
 
 private:
-    friend class SetupExecEnv;
-    enum State {
-        NoState,
-        SteppingIntoState,
-        SteppingOverState,
-        SteppingOutState,
-        Stopped
-    };
-    State state;
-    int stepDepth;
-    int stepCount;
-
-    void continueExec();
-    void stopped(bool becauseOfException = false, const QScriptValue &exception = QScriptValue());
-
-
-    void recordKnownObjects(const QList<JSAgentWatchData> &);
-    QList<JSAgentWatchData> getLocals(QScriptContext *);
-
-    QEventLoop loop;
-    QHash <qint64, QString> filenames;
-    QSet< QPair<QString, qint32> > breakpointList;
-    QStringList watchExpressions;
-    QSet<qint64> knownObjectIds;
+    JSDebuggerAgentPrivate *d;
 };
 
 } // namespace QmlJSDebugger

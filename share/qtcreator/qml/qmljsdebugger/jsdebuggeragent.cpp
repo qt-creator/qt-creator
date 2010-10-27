@@ -53,32 +53,17 @@
 
 namespace QmlJSDebugger {
 
-class SetupExecEnv
+enum JSDebuggerState
 {
-public:
-    SetupExecEnv(JSDebuggerAgent *a)
-        : agent(a),
-          previousState(a->state),
-          hadException(a->engine()->hasUncaughtException())
-    {
-        agent->state = JSDebuggerAgent::Stopped;
-    }
-
-    ~SetupExecEnv() {
-        if (!hadException && agent->engine()->hasUncaughtException())
-            agent->engine()->clearExceptions();
-        agent->state = previousState;
-    }
-
-private:
-    JSDebuggerAgent *agent;
-    JSDebuggerAgent::State previousState;
-    bool hadException;
+    NoState,
+    SteppingIntoState,
+    SteppingOverState,
+    SteppingOutState,
+    StoppedState
 };
 
-class JSAgentWatchData
+struct JSAgentWatchData
 {
-public:
     QByteArray exp;
     QByteArray name;
     QByteArray value;
@@ -93,9 +78,8 @@ QDataStream &operator<<(QDataStream &s, const JSAgentWatchData &data)
         << data.type << data.hasChildren << data.objectId;
 }
 
-class JSAgentStackData
+struct JSAgentStackData
 {
-public:
     QByteArray functionName;
     QByteArray fileName;
     qint32 lineNumber;
@@ -106,6 +90,60 @@ QDataStream &operator<<(QDataStream &s, const JSAgentStackData &data)
     return s << data.functionName << data.fileName << data.lineNumber;
 }
 
+typedef JSAgentStackData JSBreakpointData;
+
+class JSDebuggerAgentPrivate
+{
+public:
+    JSDebuggerAgentPrivate(JSDebuggerAgent *q)
+        : q(q), state(NoState)
+    {}
+
+    void continueExec();
+    void recordKnownObjects(const QList<JSAgentWatchData> &);
+    QList<JSAgentWatchData> getLocals(QScriptContext *);
+    void positionChange(qint64 scriptId, int lineNumber, int columnNumber);
+    QScriptEngine *engine() { return q->engine(); }
+    void stopped();
+    void messageReceived(const QByteArray &message);
+    void sendMessage(const QByteArray &message) { q->sendMessage(message); }
+
+public:
+    JSDebuggerAgent *q;
+    JSDebuggerState state;
+    int stepDepth;
+    int stepCount;
+
+    QEventLoop loop;
+    QHash <qint64, QString> filenames;
+    QSet< QPair<QString, qint32> > breakpointList;
+    QStringList watchExpressions;
+    QSet<qint64> knownObjectIds;
+};
+
+class SetupExecEnv
+{
+public:
+    SetupExecEnv(JSDebuggerAgentPrivate *a)
+        : agent(a),
+          previousState(a->state),
+          hadException(a->engine()->hasUncaughtException())
+    {
+        agent->state = StoppedState;
+    }
+
+    ~SetupExecEnv()
+    {
+        if (!hadException && agent->engine()->hasUncaughtException())
+            agent->engine()->clearExceptions();
+        agent->state = previousState;
+    }
+
+private:
+    JSDebuggerAgentPrivate *agent;
+    JSDebuggerState previousState;
+    bool hadException;
+};
 
 static JSAgentWatchData fromScriptValue(const QString &expression,
     const QScriptValue &value)
@@ -194,20 +232,21 @@ static QList<JSAgentWatchData> expandObject(const QScriptValue &object)
     return result;
 }
 
-void JSDebuggerAgent::recordKnownObjects(const QList<JSAgentWatchData>& list)
+void JSDebuggerAgentPrivate::recordKnownObjects(const QList<JSAgentWatchData>& list)
 {
     foreach (const JSAgentWatchData &data, list)
         knownObjectIds << data.objectId;
 }
 
-QList<JSAgentWatchData> JSDebuggerAgent::getLocals(QScriptContext *ctx)
+QList<JSAgentWatchData> JSDebuggerAgentPrivate::getLocals(QScriptContext *ctx)
 {
     QList<JSAgentWatchData> locals;
     if (ctx) {
         QScriptValue activationObject = ctx->activationObject();
         QScriptValue thisObject = ctx->thisObject();
         locals = expandObject(activationObject);
-        if (thisObject.isObject() && thisObject.objectId() != engine()->globalObject().objectId())
+        if (thisObject.isObject()
+                && thisObject.objectId() != engine()->globalObject().objectId())
             locals.prepend(fromScriptValue("this", thisObject));
         recordKnownObjects(locals);
         knownObjectIds << activationObject.objectId();
@@ -221,30 +260,33 @@ QList<JSAgentWatchData> JSDebuggerAgent::getLocals(QScriptContext *ctx)
   \a backend.
 */
 JSDebuggerAgent::JSDebuggerAgent(QScriptEngine *engine)
-    : QDeclarativeDebugService("JSDebugger"), QScriptEngineAgent(engine)
-    , state(NoState)
+    : QDeclarativeDebugService("JSDebugger")
+    , QScriptEngineAgent(engine)
+    , d(new JSDebuggerAgentPrivate(this))
 {}
 
 JSDebuggerAgent::JSDebuggerAgent(QDeclarativeEngine *engine)
     : QDeclarativeDebugService("JSDebugger")
     , QScriptEngineAgent(QDeclarativeDebugHelper::getScriptEngine(engine))
-    , state(NoState)
+    , d(new JSDebuggerAgentPrivate(this))
 {}
 
 /*!
   Destroys this QScriptDebuggerAgent.
 */
 JSDebuggerAgent::~JSDebuggerAgent()
-{}
+{
+    delete d;
+}
 
 /*!
   \reimp
 */
-void JSDebuggerAgent::scriptLoad(qint64 id, const QString & program,
-                                      const QString &fileName, int )
+void JSDebuggerAgent::scriptLoad(qint64 id, const QString &program,
+                                 const QString &fileName, int)
 {
     Q_UNUSED(program);
-    filenames.insert(id, QUrl(fileName).toLocalFile());
+    d->filenames.insert(id, QUrl(fileName).toLocalFile());
 }
 
 /*!
@@ -252,7 +294,7 @@ void JSDebuggerAgent::scriptLoad(qint64 id, const QString & program,
 */
 void JSDebuggerAgent::scriptUnload(qint64 id)
 {
-    filenames.remove(id);
+    d->filenames.remove(id);
 }
 
 /*!
@@ -275,7 +317,7 @@ void JSDebuggerAgent::contextPop()
 void JSDebuggerAgent::functionEntry(qint64 scriptId)
 {
     Q_UNUSED(scriptId);
-    stepDepth++;
+    d->stepDepth++;
 }
 
 /*!
@@ -285,26 +327,38 @@ void JSDebuggerAgent::functionExit(qint64 scriptId, const QScriptValue &returnVa
 {
     Q_UNUSED(scriptId);
     Q_UNUSED(returnValue);
-    stepDepth--;
+    d->stepDepth--;
 }
 
 /*!
   \reimp
 */
-void JSDebuggerAgent::positionChange(qint64 scriptId,
-                                   int lineNumber, int columnNumber)
+void JSDebuggerAgent::positionChange
+    (qint64 scriptId, int lineNumber, int columnNumber)
+{
+    d->positionChange(scriptId, lineNumber, columnNumber);
+}
+
+void JSDebuggerAgentPrivate::positionChange
+    (qint64 scriptId, int lineNumber, int columnNumber)
 {
     Q_UNUSED(columnNumber);
 
-    if (state == Stopped)
+    if (state == StoppedState)
         return; //no re-entrency
 
     // check breakpoints
     if (!breakpointList.isEmpty()) {
         QHash<qint64, QString>::const_iterator it = filenames.constFind(scriptId);
+        QScriptContext *ctx = engine()->currentContext();
+        QScriptContextInfo info(ctx);
         if (it == filenames.constEnd()) {
             // It is possible that the scripts are loaded before the agent is attached
-            QString filename = QUrl(QScriptContextInfo(engine()->currentContext()).fileName()).toLocalFile();
+            QString filename = QUrl(info.fileName()).toLocalFile();
+
+            JSAgentStackData frame;
+            frame.functionName = info.functionName().toUtf8();
+
             QPair<QString, qint32> key = qMakePair(filename, lineNumber);
             it = filenames.insert(scriptId, filename);
         }
@@ -317,7 +371,7 @@ void JSDebuggerAgent::positionChange(qint64 scriptId,
 
     switch (state) {
     case NoState:
-    case Stopped:
+    case StoppedState:
         // Do nothing
         break;
     case SteppingOutState:
@@ -347,7 +401,7 @@ void JSDebuggerAgent::exceptionThrow(qint64 scriptId,
     Q_UNUSED(hasHandler);
 //    qDebug() << Q_FUNC_INFO << exception.toString() << hasHandler;
 #if 0 //sometimes, we get exceptions that we should just ignore.
-    if (!hasHandler && state != Stopped)
+    if (!hasHandler && state != StoppedState)
         stopped(true, exception);
 #endif
 }
@@ -355,30 +409,32 @@ void JSDebuggerAgent::exceptionThrow(qint64 scriptId,
 /*!
   \reimp
 */
-void JSDebuggerAgent::exceptionCatch(qint64 scriptId,
-                                          const QScriptValue &exception)
+void JSDebuggerAgent::exceptionCatch(qint64 scriptId, const QScriptValue &exception)
 {
     Q_UNUSED(scriptId);
     Q_UNUSED(exception);
 }
 
-bool JSDebuggerAgent::supportsExtension(QScriptEngineAgent::Extension extension) const
+bool JSDebuggerAgent::supportsExtension(Extension extension) const
 {
     return extension == QScriptEngineAgent::DebuggerInvocationRequest;
 }
 
-QVariant JSDebuggerAgent::extension(QScriptEngineAgent::Extension extension, const QVariant& argument)
+QVariant JSDebuggerAgent::extension(Extension extension, const QVariant &argument)
 {
     if (extension == QScriptEngineAgent::DebuggerInvocationRequest) {
-        stopped();
+        d->stopped();
         return QVariant();
     }
     return QScriptEngineAgent::extension(extension, argument);
 }
 
+void JSDebuggerAgent::messageReceived(const QByteArray &message)
+{
+    d->messageReceived(message);
+}
 
-
-void JSDebuggerAgent::messageReceived(const QByteArray& message)
+void JSDebuggerAgentPrivate::messageReceived(const QByteArray &message)
 {
     QDataStream ds(message);
     QByteArray command;
@@ -484,13 +540,16 @@ void JSDebuggerAgent::messageReceived(const QByteArray& message)
         qDebug() << Q_FUNC_INFO << "Unknown command" << command;
     }
 
-    QDeclarativeDebugService::messageReceived(message);
+    q->baseMessageReceived(message);
 }
 
-void JSDebuggerAgent::stopped(bool becauseOfException, const QScriptValue &exception)
+void JSDebuggerAgentPrivate::stopped()
 {
+    bool becauseOfException = false;
+    const QScriptValue &exception = QScriptValue();
+
     knownObjectIds.clear();
-    state = Stopped;
+    state = StoppedState;
     QList<JSAgentStackData> backtrace;
 
     for (QScriptContext* ctx = engine()->currentContext(); ctx; ctx = ctx->parentContext()) {
@@ -544,7 +603,7 @@ void JSDebuggerAgent::stopped(bool becauseOfException, const QScriptValue &excep
     loop.exec(QEventLoop::ExcludeUserInputEvents);
 }
 
-void JSDebuggerAgent::continueExec()
+void JSDebuggerAgentPrivate::continueExec()
 {
     loop.quit();
 }
