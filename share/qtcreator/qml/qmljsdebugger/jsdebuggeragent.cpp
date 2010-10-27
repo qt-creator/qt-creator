@@ -42,13 +42,13 @@
 #include "jsdebuggeragent.h"
 #include "qt_private/qdeclarativedebughelper_p.h"
 
+#include <QtCore/qdatetime.h>
+#include <QtCore/qdebug.h>
+#include <QtCore/qurl.h>
 #include <QtCore/qcoreapplication.h>
 #include <QtCore/qset.h>
+#include <QtScript/qscriptcontextinfo.h>
 #include <QtScript/qscriptengine.h>
-#include <QtScript/QScriptContextInfo>
-#include <QtCore/QDebug>
-#include <QtCore/QUrl>
-#include <QtCore/QDateTime>
 #include <QtScript/qscriptvalueiterator.h>
 
 namespace QmlJSDebugger {
@@ -180,7 +180,16 @@ static QList<JSAgentWatchData> expandObject(const QScriptValue &object)
         }
         JSAgentWatchData data = fromScriptValue(it.name(), it.value());
         data.exp.prepend(expPrefix);
-        result << data;
+        result.append(data);
+    }
+    if (result.isEmpty()) {
+        JSAgentWatchData data;
+        data.name = "<no initialized data>";
+        data.hasChildren = false;
+        data.value = " ";
+        data.exp.prepend(expPrefix);
+        data.objectId = 0;
+        result.append(data);
     }
     return result;
 }
