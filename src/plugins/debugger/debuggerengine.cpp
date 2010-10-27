@@ -236,7 +236,7 @@ public:
         m_threadsHandler(engine),
         m_watchHandler(engine),
         m_disassemblerViewAgent(engine),
-        m_runInWrapperEngine(false)
+        m_isSlaveEngine(false)
     {}
 
     ~DebuggerEnginePrivate() {}
@@ -318,7 +318,7 @@ public:
     DisassemblerViewAgent m_disassemblerViewAgent;
     QFutureInterface<void> m_progress;
 
-    bool m_runInWrapperEngine;
+    bool m_isSlaveEngine;
 };
 
 void DebuggerEnginePrivate::breakpointSetRemoveMarginActionTriggered()
@@ -778,7 +778,7 @@ void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) c
 
 void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
 {
-    if (!isSessionEngine() && !d->m_runInWrapperEngine) {
+    if (!isSessionEngine() && !isSlaveEngine()) {
         d->m_progress.setProgressRange(0, 1000);
         Core::FutureProgress *fp = Core::ICore::instance()->progressManager()
             ->addTask(d->m_progress.future(),
@@ -1389,10 +1389,10 @@ void DebuggerEngine::notifyEngineShutdownOk()
     showMessage(_("NOTE: ENGINE SHUTDOWN OK"));
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
     setState(EngineShutdownOk);
-    if (!d->m_runInWrapperEngine) {
-        d->queueFinishDebugger();
+    if (isSlaveEngine()) {
+        setState(DebuggerFinished); // WHY?
     } else {
-        setState(DebuggerFinished);
+        d->queueFinishDebugger();
     }
 }
 
@@ -1401,10 +1401,10 @@ void DebuggerEngine::notifyEngineShutdownFailed()
     showMessage(_("NOTE: ENGINE SHUTDOWN FAILED"));
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
     setState(EngineShutdownFailed);
-    if (!d->m_runInWrapperEngine) {
-        d->queueFinishDebugger();
+    if (isSlaveEngine()) {
+        setState(DebuggerFinished);  // WHY?
     } else {
-        setState(DebuggerFinished);
+        d->queueFinishDebugger();
     }
 }
 
@@ -1498,9 +1498,14 @@ void DebuggerEngine::updateViews()
     plugin()->updateState(this);
 }
 
-void DebuggerEngine::setRunInWrapperEngine(bool value)
+bool DebuggerEngine::isSlaveEngine() const
 {
-    d->m_runInWrapperEngine = value;
+    return d->m_isSlaveEngine;
+}
+
+void DebuggerEngine::setSlaveEngine(bool value)
+{
+    d->m_isSlaveEngine = value;
 }
 
 bool DebuggerEngine::debuggerActionsEnabled() const

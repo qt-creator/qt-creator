@@ -336,7 +336,8 @@ protected:
     virtual void shutdownEngine() = 0;
 
     void setState(DebuggerState state, bool forced = false);
-    void setRunInWrapperEngine(bool value);
+    void setSlaveEngine(bool value);
+    bool isSlaveEngine() const;
 
 protected:
     DebuggerRunControl *runControl() const;
