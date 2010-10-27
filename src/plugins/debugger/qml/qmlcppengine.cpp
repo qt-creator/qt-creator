@@ -70,8 +70,8 @@ QmlCppEngine::QmlCppEngine(const DebuggerStartParameters &sp)
         }
     }
 
-    d->m_cppEngine->setRunInWrapperEngine(true);
-    d->m_qmlEngine->setRunInWrapperEngine(true);
+    d->m_cppEngine->setSlave(true);
+    d->m_qmlEngine->setSlave(true);
 
     d->m_activeEngine = d->m_cppEngine;
     connect(d->m_cppEngine, SIGNAL(stateChanged(DebuggerState)), SLOT(masterEngineStateChanged(DebuggerState)));
