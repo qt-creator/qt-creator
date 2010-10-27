@@ -933,7 +933,8 @@ bool QmlObjectValue::hasChildInPackage() const
     while (it.hasNext()) {
         it.next();
         const FakeMetaObject *other = it.value()->_metaObject;
-        if (other->exports().isEmpty())
+        // if it has only the default no-package export, it is not really exported
+        if (other->exports().size() <= 1)
             continue;
         for (const FakeMetaObject *iter = other; iter; iter = iter->superClass()) {
             if (iter == _metaObject) // this object is a parent of other
