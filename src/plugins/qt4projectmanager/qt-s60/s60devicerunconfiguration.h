@@ -69,12 +69,13 @@ class S60DeviceRunConfiguration : public ProjectExplorer::RunConfiguration
     friend class S60DeviceRunConfigurationFactory;
 
 public:
-    S60DeviceRunConfiguration(ProjectExplorer::Target *parent, const QString &proFilePath);
+    S60DeviceRunConfiguration(Qt4ProjectManager::Internal::Qt4Target *parent, const QString &proFilePath);
     virtual ~S60DeviceRunConfiguration();
 
     Qt4Target *qt4Target() const;
     const QtVersion *qtVersion() const;
 
+    using ProjectExplorer::RunConfiguration::isEnabled;
     bool isEnabled(ProjectExplorer::BuildConfiguration *configuration) const;
     QWidget *createConfigurationWidget();
 
@@ -97,22 +98,26 @@ public:
 
     QVariantMap toMap() const;
 
-    void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
 
 signals:
     void targetInformationChanged();
 
 protected:
-    S60DeviceRunConfiguration(ProjectExplorer::Target *parent, S60DeviceRunConfiguration *source);
+    S60DeviceRunConfiguration(Qt4ProjectManager::Internal::Qt4Target *parent, S60DeviceRunConfiguration *source);
     QString defaultDisplayName() const;
     virtual bool fromMap(const QVariantMap &map);
+private slots:
+    void proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
+    void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro, bool success);
 
 private:
     ProjectExplorer::ToolChain::ToolChainType toolChainType(ProjectExplorer::BuildConfiguration *configuration) const;
     void ctor();
+    void handleParserState(bool sucess);
 
     QString m_proFilePath;
     QStringList m_commandLineArguments;
+    bool m_validParse;
 };
 
 class S60DeviceRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory

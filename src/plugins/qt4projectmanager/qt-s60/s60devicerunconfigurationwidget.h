@@ -50,10 +50,10 @@ class S60DeviceRunConfigurationWidget : public QWidget
     Q_OBJECT
 public:
     explicit S60DeviceRunConfigurationWidget(S60DeviceRunConfiguration *runConfiguration,
-                                      QWidget *parent = 0);
-
+                                             QWidget *parent = 0);
 private slots:
     void argumentsEdited(const QString &text);
+    void runConfigurationEnabledChange(bool enabled);
 
 private:
     S60DeviceRunConfiguration *m_runConfiguration;

@@ -298,6 +298,10 @@ public:
     void update();
     void scheduleUpdate();
 
+    void emitProFileInvalidated();
+
+    bool validParse() const;
+
 public slots:
     void asyncUpdate();
 
@@ -335,6 +339,8 @@ private:
     InstallsList m_installsList;
     friend class Qt4NodeHierarchy;
 
+    bool m_validParse;
+
     // Async stuff
     QFutureWatcher<bool> m_parseFutureWatcher;
     ProFileReader *m_readerExact;
@@ -357,7 +363,8 @@ signals:
                           const QHash<Qt4Variable, QStringList> &oldValues,
                           const QHash<Qt4Variable, QStringList> &newValues);
 
-    void proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *projectNode);
+    void proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *projectNode, bool success);
+    void proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode *projectNode);
 
 private:
     // let them emit signals

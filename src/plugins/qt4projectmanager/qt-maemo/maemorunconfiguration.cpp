@@ -67,6 +67,7 @@ MaemoRunConfiguration::MaemoRunConfiguration(Qt4Target *parent,
     , m_proFilePath(proFilePath)
     , m_useRemoteGdb(DefaultUseRemoteGdbValue)
     , m_baseEnvironmentBase(SystemEnvironmentBase)
+    , m_validParse(parent->qt4Project()->validParse(m_proFilePath))
 {
     init();
 }
@@ -81,6 +82,7 @@ MaemoRunConfiguration::MaemoRunConfiguration(Qt4Target *parent,
     , m_baseEnvironmentBase(source->m_baseEnvironmentBase)
     , m_systemEnvironment(source->m_systemEnvironment)
     , m_userEnvironmentChanges(source->m_userEnvironmentChanges)
+    , m_validParse(source->m_validParse)
 {
     init();
 }
@@ -97,9 +99,11 @@ void MaemoRunConfiguration::init()
         this, SLOT(handleDeployConfigChanged()));
     handleDeployConfigChanged();
 
-    connect(qt4Target()->qt4Project(),
-        SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
-        this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
+    Qt4Project *pro = qt4Target()->qt4Project();
+    connect(pro, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*,bool)),
+            this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*,bool)));
+    connect(pro, SIGNAL(profFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode *)),
+            this, SLOT(proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
 }
 
 MaemoRunConfiguration::~MaemoRunConfiguration()
@@ -118,6 +122,8 @@ Qt4BuildConfiguration *MaemoRunConfiguration::activeQt4BuildConfiguration() cons
 
 bool MaemoRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *config) const
 {
+    if (!m_validParse)
+        return false;
     Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration*>(config);
     QTC_ASSERT(qt4bc, return false);
     ToolChain::ToolChainType type = qt4bc->toolChainType();
@@ -134,10 +140,30 @@ ProjectExplorer::OutputFormatter *MaemoRunConfiguration::createOutputFormatter()
     return new QtOutputFormatter(qt4Target()->qt4Project());
 }
 
-void MaemoRunConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro)
+void MaemoRunConfiguration::handleParseState(bool success)
 {
-    if (m_proFilePath == pro->path())
+    bool enabled = isEnabled();
+    m_validParse = success;
+    if (enabled != isEnabled()) {
+        qDebug()<<"Emitting isEnabledChanged()"<<!enabled;
+        emit isEnabledChanged(!enabled);
+    }
+}
+
+void MaemoRunConfiguration::proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode *pro)
+{
+    if (m_proFilePath != pro->path())
+        return;
+    qDebug()<<"proFileInvalidated";
+    handleParseState(false);
+}
+
+void MaemoRunConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro, bool success)
+{
+    if (m_proFilePath == pro->path()) {
+        handleParseState(success);
         emit targetInformationChanged();
+    }
 }
 
 QVariantMap MaemoRunConfiguration::toMap() const

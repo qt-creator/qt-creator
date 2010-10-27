@@ -71,9 +71,10 @@ class MaemoRunConfigurationWidget : public QWidget
     Q_OBJECT
 public:
     explicit MaemoRunConfigurationWidget(MaemoRunConfiguration *runConfiguration,
-        QWidget *parent = 0);
+                                         QWidget *parent = 0);
 
 private slots:
+    void runConfigurationEnabledChange(bool enabled);
     void argumentsEdited(const QString &args);
     void showSettingsDialog(const QString &link);
     void updateTargetInformation();

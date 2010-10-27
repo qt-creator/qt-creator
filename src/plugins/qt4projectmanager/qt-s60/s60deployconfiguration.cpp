@@ -110,6 +110,10 @@ S60DeployConfiguration::S60DeployConfiguration(Target *target, S60DeployConfigur
 void S60DeployConfiguration::ctor()
 {
     setDefaultDisplayName(defaultDisplayName());
+    // TODO disable S60 Deploy Configuration while parsing
+    // requires keeping track of the parsing state of the project
+//    connect(qt4Target()->qt4Project(), SIGNAL(proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
+//            this, SLOT(targetInformationInvalidated()));
     connect(qt4Target()->qt4Project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
             this, SIGNAL(targetInformationChanged()));
     connect(qt4Target(), SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),

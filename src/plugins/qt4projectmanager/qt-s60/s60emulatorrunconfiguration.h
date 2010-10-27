@@ -59,11 +59,12 @@ class S60EmulatorRunConfiguration : public ProjectExplorer::RunConfiguration
     friend class S60EmulatorRunConfigurationFactory;
 
 public:
-    S60EmulatorRunConfiguration(ProjectExplorer::Target *parent, const QString &proFilePath);
+    S60EmulatorRunConfiguration(Qt4ProjectManager::Internal::Qt4Target *parent, const QString &proFilePath);
     virtual ~S60EmulatorRunConfiguration();
 
     Qt4Target *qt4Target() const;
 
+    using ProjectExplorer::RunConfiguration::isEnabled;
     bool isEnabled(ProjectExplorer::BuildConfiguration *configuration) const;
     QWidget *createConfigurationWidget();
 
@@ -77,17 +78,20 @@ signals:
     void targetInformationChanged();
 
 private slots:
-    void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
+    void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro, bool success);
+    void proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
 
 protected:
-    S60EmulatorRunConfiguration(ProjectExplorer::Target *parent, S60EmulatorRunConfiguration *source);
+    S60EmulatorRunConfiguration(Qt4ProjectManager::Internal::Qt4Target *parent, S60EmulatorRunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
 
 private:
     void ctor();
+    void handleParserState(bool sucess);
     void updateTarget();
 
     QString m_proFilePath;
+    bool m_validParse;
 };
 
 class S60EmulatorRunConfigurationWidget : public QWidget
@@ -99,6 +103,7 @@ public:
 
 private slots:
     void updateTargetInformation();
+    void runConfigurationEnabledChange(bool enabled);
 
 private:
     S60EmulatorRunConfiguration *m_runConfiguration;

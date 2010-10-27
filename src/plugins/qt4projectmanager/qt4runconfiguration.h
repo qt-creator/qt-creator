@@ -75,6 +75,7 @@ public:
     Qt4Target *qt4Target() const;
 
     virtual bool isEnabled(ProjectExplorer::BuildConfiguration *configuration) const;
+    using ProjectExplorer::LocalApplicationRunConfiguration::isEnabled;
     virtual QWidget *createConfigurationWidget();
 
     virtual QString executable() const;
@@ -108,13 +109,15 @@ signals:
     void effectiveTargetInformationChanged();
 
 private slots:
-    void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
+    void proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *pro, bool success);
+    void proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
 
 protected:
     Qt4RunConfiguration(Qt4Target *parent, Qt4RunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
 
 private:
+    void handleParseState(bool success);
     void setRunMode(RunMode runMode);
     void setBaseWorkingDirectory(const QString &workingDirectory);
     QString baseWorkingDirectory() const;
@@ -146,6 +149,7 @@ private:
     QString m_userWorkingDirectory;
     QList<Utils::EnvironmentItem> m_userEnvironmentChanges;
     BaseEnvironmentBase m_baseEnvironmentBase;
+    bool m_parseSuccess;
 };
 
 class Qt4RunConfigurationWidget : public QWidget
@@ -159,7 +163,9 @@ public:
 protected:
     void showEvent(QShowEvent *event);
     void hideEvent(QHideEvent *event);
+
 private slots:
+    void runConfigurationEnabledChange(bool);
     void workDirectoryEdited();
     void workingDirectoryReseted();
     void argumentsEdited(const QString &arguments);

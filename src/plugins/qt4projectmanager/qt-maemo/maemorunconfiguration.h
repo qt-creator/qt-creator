@@ -76,6 +76,7 @@ public:
     MaemoRunConfiguration(Qt4Target *parent, const QString &proFilePath);
     virtual ~MaemoRunConfiguration();
 
+    using ProjectExplorer::RunConfiguration::isEnabled;
     bool isEnabled(ProjectExplorer::BuildConfiguration *config) const;
     QWidget *createConfigurationWidget();
     ProjectExplorer::OutputFormatter *createOutputFormatter() const;
@@ -135,14 +136,15 @@ protected:
     QString defaultDisplayName();
 
 private slots:
-    void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
+    void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro, bool success);
+    void proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
     void updateDeviceConfigurations();
     void handleDeployConfigChanged();
 
 private:
     void init();
+    void handleParseState(bool success);
 
-private:
     QString m_proFilePath;
     mutable QString m_gdbPath;
     MaemoRemoteMountsModel *m_remoteMounts;
@@ -152,6 +154,7 @@ private:
     BaseEnvironmentBase m_baseEnvironmentBase;
     Utils::Environment m_systemEnvironment;
     QList<Utils::EnvironmentItem> m_userEnvironmentChanges;
+    bool m_validParse;
 };
 
     } // namespace Internal

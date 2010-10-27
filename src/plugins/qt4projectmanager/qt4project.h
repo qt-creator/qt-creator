@@ -159,6 +159,7 @@ public:
     QList<ProjectExplorer::Project *>dependsOn();
 
     Internal::Qt4ProFileNode *rootProjectNode() const;
+    bool validParse(const QString &proFilePath) const;
 
     virtual QStringList files(FilesMode fileMode) const;
     virtual QString generatedUiHeader(const QString &formFile) const;
@@ -192,9 +193,10 @@ public:
 
     Internal::CentralizedFolderWatcher *centralizedFolderWatcher();
 
+
 signals:
-    /// emitted after parse
-    void proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *node);
+    void proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *node, bool);
+    void proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode *node);
     void buildDirectoryInitialized();
 
 public slots:

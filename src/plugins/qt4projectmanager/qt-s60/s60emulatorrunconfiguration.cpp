@@ -78,16 +78,18 @@ QString pathToId(const QString &path)
 
 // ======== S60EmulatorRunConfiguration
 
-S60EmulatorRunConfiguration::S60EmulatorRunConfiguration(Target *parent, const QString &proFilePath) :
+S60EmulatorRunConfiguration::S60EmulatorRunConfiguration(Qt4Target *parent, const QString &proFilePath) :
     RunConfiguration(parent, QLatin1String(S60_EMULATOR_RC_ID)),
-    m_proFilePath(proFilePath)
+    m_proFilePath(proFilePath),
+    m_validParse(parent->qt4Project()->validParse(proFilePath))
 {
     ctor();
 }
 
-S60EmulatorRunConfiguration::S60EmulatorRunConfiguration(Target *parent, S60EmulatorRunConfiguration *source) :
+S60EmulatorRunConfiguration::S60EmulatorRunConfiguration(Qt4Target *parent, S60EmulatorRunConfiguration *source) :
     RunConfiguration(parent, source),
-    m_proFilePath(source->m_proFilePath)
+    m_proFilePath(source->m_proFilePath),
+    m_validParse(source->m_validParse)
 {
     ctor();
 }
@@ -100,8 +102,11 @@ void S60EmulatorRunConfiguration::ctor()
     else
         //: S60 emulator run configuration default display name (no pro-file name)
         setDefaultDisplayName(tr("Run on Symbian Emulator"));
-    connect(qt4Target()->qt4Project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
-            this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
+    Qt4Project *pro = qt4Target()->qt4Project();
+    connect(pro, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*,bool)),
+            this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*,bool)));
+    connect(pro, SIGNAL(proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode *)),
+            this, SLOT(proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode *)));
 }
 
 
@@ -109,10 +114,29 @@ S60EmulatorRunConfiguration::~S60EmulatorRunConfiguration()
 {
 }
 
-void S60EmulatorRunConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro)
+void S60EmulatorRunConfiguration::handleParserState(bool success)
 {
-    if (m_proFilePath == pro->path())
-        emit targetInformationChanged();
+    bool enabled = isEnabled();
+    m_validParse = success;
+    if (enabled != isEnabled()) {
+        qDebug()<<"Emitting isEnabledChanged()"<<!enabled;
+        emit isEnabledChanged(!enabled);
+    }
+}
+
+void S60EmulatorRunConfiguration::proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode *pro)
+{
+    if (m_proFilePath != pro->path())
+        return;
+    handleParserState(false);
+}
+
+void S60EmulatorRunConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro, bool success)
+{
+    if (m_proFilePath != pro->path())
+        return;
+    handleParserState(success);
+    emit targetInformationChanged();
 }
 
 Qt4Target *S60EmulatorRunConfiguration::qt4Target() const
@@ -122,6 +146,8 @@ Qt4Target *S60EmulatorRunConfiguration::qt4Target() const
 
 bool S60EmulatorRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *configuration) const
 {
+    if (!m_validParse)
+        return false;
     Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration *>(configuration);
     QTC_ASSERT(qt4bc, return false);
     ToolChain::ToolChainType type = qt4bc->toolChainType();
@@ -203,11 +229,19 @@ S60EmulatorRunConfigurationWidget::S60EmulatorRunConfigurationWidget(S60Emulator
 
     connect(m_runConfiguration, SIGNAL(targetInformationChanged()),
             this, SLOT(updateTargetInformation()));
+
+    connect(m_runConfiguration, SIGNAL(isEnabledChanged(bool)),
+            this, SLOT(runConfigurationEnabledChange(bool)));
 }
 
 void S60EmulatorRunConfigurationWidget::updateTargetInformation()
 {
     m_executableLabel->setText(m_runConfiguration->executable());
+}
+
+void S60EmulatorRunConfigurationWidget::runConfigurationEnabledChange(bool enabled)
+{
+    setEnabled(enabled);
 }
 
 // ======== S60EmulatorRunConfigurationFactory

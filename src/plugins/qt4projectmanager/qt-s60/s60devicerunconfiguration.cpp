@@ -107,17 +107,19 @@ QString pathToId(const QString &path)
 
 // ======== S60DeviceRunConfiguration
 
-S60DeviceRunConfiguration::S60DeviceRunConfiguration(Target *parent, const QString &proFilePath) :
+S60DeviceRunConfiguration::S60DeviceRunConfiguration(Qt4Target *parent, const QString &proFilePath) :
     RunConfiguration(parent,  QLatin1String(S60_DEVICE_RC_ID)),
-    m_proFilePath(proFilePath)
+    m_proFilePath(proFilePath),
+    m_validParse(parent->qt4Project()->validParse(proFilePath))
 {
     ctor();
 }
 
-S60DeviceRunConfiguration::S60DeviceRunConfiguration(Target *target, S60DeviceRunConfiguration *source) :
+S60DeviceRunConfiguration::S60DeviceRunConfiguration(Qt4Target *target, S60DeviceRunConfiguration *source) :
     RunConfiguration(target, source),
     m_proFilePath(source->m_proFilePath),
-    m_commandLineArguments(source->m_commandLineArguments)
+    m_commandLineArguments(source->m_commandLineArguments),
+    m_validParse(source->m_validParse)
 {
     ctor();
 }
@@ -130,12 +132,35 @@ void S60DeviceRunConfiguration::ctor()
     else
         //: S60 device runconfiguration default display name (no profile set)
         setDefaultDisplayName(tr("Run on Symbian device"));
+
+    Qt4Project *pro = qt4Target()->qt4Project();
+    connect(pro, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*,bool)),
+            this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*,bool)));
+    connect(pro, SIGNAL(proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode *)),
+            this, SLOT(proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode *)));
 }
 
-void S60DeviceRunConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro)
+void S60DeviceRunConfiguration::handleParserState(bool success)
 {
-    if (m_proFilePath == pro->path())
-        emit targetInformationChanged();
+    bool enabled = isEnabled();
+    m_validParse = success;
+    if (enabled != isEnabled())
+        emit isEnabledChanged(!enabled);
+}
+
+void S60DeviceRunConfiguration::proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode *pro)
+{
+    if (m_proFilePath != pro->path())
+        return;
+    handleParserState(false);
+}
+
+void S60DeviceRunConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro, bool success)
+{
+    if (m_proFilePath != pro->path())
+        return;
+    handleParserState(success);
+    emit targetInformationChanged();
 }
 
 S60DeviceRunConfiguration::~S60DeviceRunConfiguration()
@@ -164,6 +189,8 @@ ProjectExplorer::ToolChain::ToolChainType S60DeviceRunConfiguration::toolChainTy
 
 bool S60DeviceRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *configuration) const
 {
+    if (!m_validParse)
+        return false;
     const Qt4BuildConfiguration *qt4bc = static_cast<const Qt4BuildConfiguration *>(configuration);
     switch (qt4bc->toolChainType()) {
     case ToolChain::GCCE:

@@ -337,8 +337,11 @@ bool Qt4Project::fromMap(const QVariantMap &map)
     connect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>)),
             this, SLOT(qtVersionsChanged()));
 
-    connect(m_nodesWatcher, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *)),
-            this, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *)));
+    connect(m_nodesWatcher, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*,bool)),
+            this, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *,bool)));
+
+    connect(m_nodesWatcher, SIGNAL(proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
+            this, SIGNAL(proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
 
     connect(this, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
             this, SLOT(activeTargetWasChanged()));
@@ -618,6 +621,7 @@ void Qt4Project::update()
     if (debug)
         qDebug()<<"Doing sync update";
     m_rootProjectNode->update();
+
     if (debug)
         qDebug()<<"State is now Base";
     m_asyncUpdateState = Base;
@@ -627,6 +631,7 @@ void Qt4Project::scheduleAsyncUpdate(Qt4ProFileNode *node)
 {
     if (m_asyncUpdateState == ShuttingDown)
         return;
+
     if (debug)
         qDebug()<<"schduleAsyncUpdate (node)";
     Q_ASSERT(m_asyncUpdateState != NoState);
@@ -695,6 +700,7 @@ void Qt4Project::scheduleAsyncUpdate()
         qDebug()<<"scheduleAsyncUpdate";
     if (m_asyncUpdateState == ShuttingDown)
         return;
+
     Q_ASSERT(m_asyncUpdateState != NoState);
     if (m_cancelEvaluate) { // we are in progress of canceling
                             // and will start the evaluation after that
@@ -707,12 +713,14 @@ void Qt4Project::scheduleAsyncUpdate()
             qDebug()<<"  update in progress, canceling and setting state to full update pending";
         m_cancelEvaluate = true;
         m_asyncUpdateState = AsyncFullUpdatePending;
+        m_rootProjectNode->emitProFileInvalidated();
         return;
     }
 
     if (debug)
         qDebug()<<"  starting timer for full update, setting state to full update pending";
     m_partialEvaluate.clear();
+    m_rootProjectNode->emitProFileInvalidated();
     m_asyncUpdateState = AsyncFullUpdatePending;
     m_asyncUpdateTimer.start();
 
@@ -948,6 +956,12 @@ void Qt4Project::destroyProFileReader(ProFileReader *reader)
 Qt4ProFileNode *Qt4Project::rootProjectNode() const
 {
     return m_rootProjectNode;
+}
+
+bool Qt4Project::validParse(const QString &proFilePath) const
+{
+    const Qt4ProFileNode *node = m_rootProjectNode->findProFileFor(proFilePath);
+    return node && node->validParse();
 }
 
 BuildConfigWidget *Qt4Project::createConfigWidget()

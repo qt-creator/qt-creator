@@ -96,7 +96,16 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     connect(m_runConfiguration->qt4Target(),
         SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
         this, SLOT(handleBuildConfigChanged()));
+
+    connect(m_runConfiguration, SIGNAL(isEnabledChanged(bool)),
+            this, SLOT(runConfigurationEnabledChange(bool)));
+
     handleBuildConfigChanged();
+}
+
+void MaemoRunConfigurationWidget::runConfigurationEnabledChange(bool enabled)
+{
+    setEnabled(enabled);
 }
 
 void MaemoRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)

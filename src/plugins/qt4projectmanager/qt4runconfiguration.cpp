@@ -102,7 +102,8 @@ Qt4RunConfiguration::Qt4RunConfiguration(Qt4Target *parent, const QString &proFi
     m_runMode(Gui),
     m_isUsingDyldImageSuffix(false),
     m_userSetWokingDirectory(false),
-    m_baseEnvironmentBase(Qt4RunConfiguration::BuildEnvironmentBase)
+    m_baseEnvironmentBase(Qt4RunConfiguration::BuildEnvironmentBase),
+    m_parseSuccess(true)
 {
     ctor();
 }
@@ -116,7 +117,8 @@ Qt4RunConfiguration::Qt4RunConfiguration(Qt4Target *parent, Qt4RunConfiguration 
     m_userSetWokingDirectory(source->m_userSetWokingDirectory),
     m_userWorkingDirectory(source->m_userWorkingDirectory),
     m_userEnvironmentChanges(source->m_userEnvironmentChanges),
-    m_baseEnvironmentBase(source->m_baseEnvironmentBase)
+    m_baseEnvironmentBase(source->m_baseEnvironmentBase),
+    m_parseSuccess(source->m_parseSuccess)
 {
     ctor();
 }
@@ -132,6 +134,8 @@ Qt4Target *Qt4RunConfiguration::qt4Target() const
 
 bool Qt4RunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *configuration) const
 {
+    if (!m_parseSuccess)
+        return false;
     Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration *>(configuration);
     QTC_ASSERT(qt4bc, return false);
 
@@ -156,10 +160,26 @@ bool Qt4RunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *configu
     return enabled;
 }
 
-void Qt4RunConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro)
+void Qt4RunConfiguration::handleParseState(bool success)
 {
-    if  (m_proFilePath == pro->path())
-        emit effectiveTargetInformationChanged();
+    bool enabled = isEnabled();
+    m_parseSuccess = success;
+    if (enabled != isEnabled())
+        emit isEnabledChanged(!enabled);
+}
+
+void Qt4RunConfiguration::proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *pro, bool success)
+{
+    if (m_proFilePath != pro->path())
+        return;
+    qDebug()<<"proFileUpdated"<<success;
+    handleParseState(success);
+    emit effectiveTargetInformationChanged();
+}
+
+void Qt4RunConfiguration::proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode *pro)
+{
+    handleParseState(false);
 }
 
 void Qt4RunConfiguration::ctor()
@@ -168,9 +188,11 @@ void Qt4RunConfiguration::ctor()
 
     connect(qt4Target(), SIGNAL(environmentChanged()),
             this, SIGNAL(baseEnvironmentChanged()));
+    connect(qt4Target()->qt4Project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*,bool)),
+            this, SLOT(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*,bool)));
 
-    connect(qt4Target()->qt4Project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
-            this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
+    connect(qt4Target()->qt4Project(), SIGNAL(proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
+            this, SLOT(proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
 }
 
 //////
@@ -281,6 +303,8 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     m_environmentWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     vboxTopLayout->addWidget(m_environmentWidget);
 
+    setEnabled(m_qt4RunConfiguration->isEnabled());
+
     connect(m_workingDirectoryEdit, SIGNAL(changed(QString)),
             this, SLOT(workDirectoryEdited()));
 
@@ -319,6 +343,9 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
 
     connect(qt4RunConfiguration, SIGNAL(baseEnvironmentChanged()),
             this, SLOT(baseEnvironmentChanged()));
+
+    connect(qt4RunConfiguration, SIGNAL(isEnabledChanged(bool)),
+            this, SLOT(runConfigurationEnabledChange(bool)));
 }
 
 Qt4RunConfigurationWidget::~Qt4RunConfigurationWidget()
@@ -372,6 +399,11 @@ void Qt4RunConfigurationWidget::userChangesEdited()
     m_ignoreChange = true;
     m_qt4RunConfiguration->setUserEnvironmentChanges(m_environmentWidget->userChanges());
     m_ignoreChange = false;
+}
+
+void Qt4RunConfigurationWidget::runConfigurationEnabledChange(bool enabled)
+{
+    setEnabled(enabled);
 }
 
 void Qt4RunConfigurationWidget::workDirectoryEdited()
