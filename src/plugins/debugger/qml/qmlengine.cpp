@@ -87,12 +87,14 @@ namespace Internal {
 QDataStream &operator>>(QDataStream &s, WatchData &data)
 {
     data = WatchData();
-    QString value;
-    QString type;
-    bool hasChildren;
-    s >> data.exp >> data.name >> value >> type >> hasChildren >> data.id;
-    data.setType(type.toUtf8(), false);
-    data.setValue(value);
+    QByteArray name;
+    QByteArray value;
+    QByteArray type;
+    bool hasChildren = false;
+    s >> data.exp >> name >> value >> type >> hasChildren >> data.id;
+    data.name = QString::fromUtf8(name);
+    data.setType(type, false);
+    data.setValue(QString::fromUtf8(value));
     data.setHasChildren(hasChildren);
     data.setAllUnneeded();
     return s;

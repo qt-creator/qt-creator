@@ -73,70 +73,78 @@ public:
     }
 };
 
-class JSAgentWatchData {
+class JSAgentWatchData
+{
 public:
     QByteArray exp;
-    QString name;
-    QString value;
-    QString type;
+    QByteArray name;
+    QByteArray value;
+    QByteArray type;
     bool hasChildren;
     quint64 objectId;
-
-    static JSAgentWatchData fromScriptValue(const QString &expression, const QScriptValue &value)
-    {
-        JSAgentWatchData data;
-        data.exp = expression.toUtf8();
-        data.name = expression;
-        data.hasChildren = false;
-        data.value = value.toString();
-        data.objectId = value.objectId();
-        if (value.isArray()) {
-            data.type = QLatin1String("Array");
-            data.value = QString::fromLatin1("[Array of length %1]").arg(value.property("length").toString());
-            data.hasChildren = true;
-        } else if (value.isBool()) {
-            data.type = QLatin1String("Bool");
-//            data.value = value.toBool() ? QLatin1String("true") : QLatin1String("false");
-        } else if (value.isDate()) {
-            data.type = QLatin1String("Date");
-            data.value = value.toDateTime().toString();
-        } else if (value.isError()) {
-            data.type = QLatin1String("Error");
-        } else if (value.isFunction()) {
-            data.type = QLatin1String("Function");
-        } else if (value.isUndefined()) {
-            data.type = QLatin1String("<undefined>");
-        } else if (value.isNumber()) {
-            data.type = QLatin1String("Number");
-        } else if (value.isRegExp()) {
-            data.type = QLatin1String("RegExp");
-        } else if (value.isString()) {
-            data.type = QLatin1String("String");
-        } else if (value.isVariant()) {
-            data.type = QLatin1String("Variant");
-        } else if (value.isQObject()) {
-            const QObject *obj = value.toQObject();
-            data.value = QString::fromLatin1("[%1]").arg(obj->metaObject()->className());
-            data.type = QLatin1String("Object");
-            data.hasChildren = true;
-        } else if (value.isObject()) {
-            data.type = QLatin1String("Object");
-            data.hasChildren = true;
-            data.type = QLatin1String("Object");
-            data.value = QLatin1String("[Object]");
-        } else if (value.isNull()) {
-            data.type = QLatin1String("<null>");
-        } else {
-            data.type = QLatin1String("<unknown>");
-        }
-        return data;
-    }
 };
 
-
-QDataStream& operator<<(QDataStream& s, const JSAgentWatchData& data)
+static JSAgentWatchData fromScriptValue(const QString &expression,
+    const QScriptValue &value)
 {
-    return s << data.exp << data.name << data.value << data.type << data.hasChildren << data.objectId;
+    static const QString arrayStr = QCoreApplication::translate
+        ("Debugger::JSAgentWatchData", "[Array of length %1]");
+    static const QString undefinedStr = QCoreApplication::translate
+        ("Debugger::JSAgentWatchData", "<undefined>");
+
+    JSAgentWatchData data;
+    data.exp = expression.toUtf8();
+    data.name = data.exp;
+    data.hasChildren = false;
+    data.value = value.toString().toUtf8();
+    data.objectId = value.objectId();
+    if (value.isArray()) {
+        data.type = "Array";
+        data.value = arrayStr.arg(value.property("length").toString()).toUtf8();
+        data.hasChildren = true;
+    } else if (value.isBool()) {
+        data.type = "Bool";
+        // data.value = value.toBool() ? "true" : "false";
+    } else if (value.isDate()) {
+        data.type = "Date";
+        data.value = value.toDateTime().toString().toUtf8();
+    } else if (value.isError()) {
+        data.type = "Error";
+    } else if (value.isFunction()) {
+        data.type = "Function";
+    } else if (value.isUndefined()) {
+        data.type = undefinedStr.toUtf8();
+    } else if (value.isNumber()) {
+        data.type = "Number";
+    } else if (value.isRegExp()) {
+        data.type = "RegExp";
+    } else if (value.isString()) {
+        data.type = "String";
+    } else if (value.isVariant()) {
+        data.type = "Variant";
+    } else if (value.isQObject()) {
+        const QObject *obj = value.toQObject();
+        data.type = "Object";
+        data.value += '[';
+        data.value += obj->metaObject()->className();
+        data.value += ']';
+        data.hasChildren = true;
+    } else if (value.isObject()) {
+        data.type = "Object";
+        data.hasChildren = true;
+        data.value = "[Object]";
+    } else if (value.isNull()) {
+        data.type = "<null>";
+    } else {
+        data.type = "<unknown>";
+    }
+    return data;
+}
+
+QDataStream &operator<<(QDataStream &s, const JSAgentWatchData &data)
+{
+    return s << data.exp << data.name << data.value
+        << data.type << data.hasChildren << data.objectId;
 }
 
 static QList<JSAgentWatchData> expandObject(const QScriptValue &object)
@@ -153,7 +161,7 @@ static QList<JSAgentWatchData> expandObject(const QScriptValue &object)
             //  and it is not usefull in the debugger.
             continue;
         }
-        JSAgentWatchData data = JSAgentWatchData::fromScriptValue(it.name(), it.value());
+        JSAgentWatchData data = fromScriptValue(it.name(), it.value());
         data.exp.prepend(expPrefix);
         result << data;
     }
@@ -174,7 +182,7 @@ QList<JSAgentWatchData> JSDebuggerAgent::getLocals(QScriptContext *ctx)
         QScriptValue thisObject = ctx->thisObject();
         locals = expandObject(activationObject);
         if (thisObject.isObject() && thisObject.objectId() != engine()->globalObject().objectId())
-            locals.prepend(JSAgentWatchData::fromScriptValue("this", thisObject));
+            locals.prepend(fromScriptValue("this", thisObject));
         recordKnownObjects(locals);
         knownObjectIds << activationObject.objectId();
     }
@@ -375,7 +383,7 @@ void JSDebuggerAgent::messageReceived(const QByteArray& message)
         QString expr;
         ds >> id >> expr;
 
-        JSAgentWatchData data = JSAgentWatchData::fromScriptValue(expr, engine()->evaluate(expr));
+        JSAgentWatchData data = fromScriptValue(expr, engine()->evaluate(expr));
         knownObjectIds << data.objectId;
 
         QByteArray reply;
@@ -488,7 +496,7 @@ void JSDebuggerAgent::stopped(bool becauseOfException, const QScriptValue& excep
     }
     QList<JSAgentWatchData> watches;
     foreach (const QString &expr, watchExpressions)
-        watches << JSAgentWatchData::fromScriptValue(expr,  engine()->evaluate(expr));
+        watches << fromScriptValue(expr,  engine()->evaluate(expr));
     recordKnownObjects(watches);
 
     QList<JSAgentWatchData> locals = getLocals(engine()->currentContext());
