@@ -1395,7 +1395,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
 
     m_attachCoreAction = new QAction(this);
     m_attachCoreAction->setText(tr("Attach to Core..."));
-    connect(m_attachCoreAction, SIGNAL(triggered()), this, SLOT(attachCore()));
+    connect(m_attachCoreAction, SIGNAL(triggered()), SLOT(attachCore()));
 
     m_attachTcfAction = new QAction(this);
     m_attachTcfAction->setText(tr("Attach to Running Tcf Agent..."));
@@ -1560,7 +1560,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     cmd->setDefaultKeySequence(QKeySequence(Constants::TOGGLE_BREAK_KEY));
     m_uiSwitcher->addMenuAction(cmd, CppLanguage);
     connect(m_actions.breakAction, SIGNAL(triggered()),
-        this, SLOT(toggleBreakpoint()));
+        SLOT(toggleBreakpoint()));
 
     //mcppcontext->addAction(cmd);
 
@@ -1622,7 +1622,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     //setSimpleDockWidgetArrangement(Lang_Cpp);
 
     connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
-            this, SLOT(onModeChanged(Core::IMode*)));
+        SLOT(onModeChanged(Core::IMode*)));
     m_debugMode->widget()->setFocusProxy(EditorManager::instance());
     m_plugin->addObject(m_debugMode);
 
@@ -1988,12 +1988,12 @@ void DebuggerPluginPrivate::editorOpened(Core::IEditor *editor)
     if (!textEditor)
         return;
     connect(textEditor, SIGNAL(markRequested(TextEditor::ITextEditor*,int)),
-        this, SLOT(requestMark(TextEditor::ITextEditor*,int)));
+        SLOT(requestMark(TextEditor::ITextEditor*,int)));
     connect(editor, SIGNAL(tooltipRequested(TextEditor::ITextEditor*,QPoint,int)),
-        this, SLOT(showToolTip(TextEditor::ITextEditor*,QPoint,int)));
+        SLOT(showToolTip(TextEditor::ITextEditor*,QPoint,int)));
     connect(textEditor,
         SIGNAL(markContextMenuRequested(TextEditor::ITextEditor*,int,QMenu*)),
-        this, SLOT(requestContextMenu(TextEditor::ITextEditor*,int,QMenu*)));
+        SLOT(requestContextMenu(TextEditor::ITextEditor*,int,QMenu*)));
 }
 
 void DebuggerPluginPrivate::editorAboutToClose(Core::IEditor *editor)
@@ -2318,7 +2318,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_actions.continueAction->setEnabled(false);
         m_actions.stopAction->setEnabled(false);
         am->command(Constants::STOP)->setKeySequence(QKeySequence());
-        am->command(PE::DEBUG)->setKeySequence(QKeySequence(ProjectExplorer::Constants::DEBUG_KEY));
+        am->command(PE::DEBUG)->setKeySequence(QKeySequence(PE::DEBUG_KEY));
         core->updateAdditionalContexts(m_anyContext, Context());
     } else if (m_state == InferiorStopOk) {
         // F5 continues, Shift-F5 kills. It is "continuable".
@@ -2326,7 +2326,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_actions.continueAction->setEnabled(true);
         m_actions.stopAction->setEnabled(true);
         am->command(Constants::STOP)->setKeySequence(QKeySequence(STOP_KEY));
-        am->command(PE::DEBUG)->setKeySequence(QKeySequence(ProjectExplorer::Constants::DEBUG_KEY));
+        am->command(PE::DEBUG)->setKeySequence(QKeySequence(PE::DEBUG_KEY));
         core->updateAdditionalContexts(m_anyContext, m_continuableContext);
     } else if (m_state == InferiorRunOk) {
         // Shift-F5 interrupts. It is also "interruptible".
@@ -2342,7 +2342,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_actions.continueAction->setEnabled(false);
         m_actions.stopAction->setEnabled(false);
         am->command(Constants::STOP)->setKeySequence(QKeySequence());
-        am->command(PE::DEBUG)->setKeySequence(QKeySequence(ProjectExplorer::Constants::DEBUG_KEY));
+        am->command(PE::DEBUG)->setKeySequence(QKeySequence(PE::DEBUG_KEY));
         //core->updateAdditionalContexts(m_anyContext, m_finishedContext);
         m_codeModelSnapshot = CPlusPlus::Snapshot();
         core->updateAdditionalContexts(m_anyContext, Context());
