@@ -104,7 +104,8 @@ void MaemoDeviceEnvReader::handleCurrentDeviceConfigChanged()
 {
     m_devConfig = m_runConfig->deviceConfig();
 
-    disconnect(m_remoteProcessRunner.data(), 0, this, 0);
+    if (m_remoteProcessRunner)
+        disconnect(m_remoteProcessRunner.data(), 0, this, 0);
     m_env.clear();
     setFinished();
 }
