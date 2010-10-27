@@ -410,7 +410,9 @@ quint64 DisassemblerViewAgent::address() const
 // Return address of an assembly line "0x0dfd  bla"
 quint64 DisassemblerViewAgent::addressFromDisassemblyLine(const QString &line)
 {
-    const int pos = line.indexOf(QLatin1Char(' '));
+    // Mac gdb has an overflow reporting 64bit addresses causing the instruction
+    // to follow the last digit "0x000000013fff4810mov 1,1". Truncate here.
+    const int pos = qMin(line.indexOf(QLatin1Char(' ')), 19);
     if (pos < 0)
         return 0;
     QString addressS = line.left(pos);
