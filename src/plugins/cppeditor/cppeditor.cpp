@@ -1735,22 +1735,7 @@ void CPPEditor::setFontSettings(const TextEditor::FontSettings &fs)
     if (!highlighter)
         return;
 
-    static QVector<QString> categories;
-    if (categories.isEmpty()) {
-        categories << QLatin1String(TextEditor::Constants::C_NUMBER)
-                   << QLatin1String(TextEditor::Constants::C_STRING)
-                   << QLatin1String(TextEditor::Constants::C_TYPE)
-                   << QLatin1String(TextEditor::Constants::C_KEYWORD)
-                   << QLatin1String(TextEditor::Constants::C_OPERATOR)
-                   << QLatin1String(TextEditor::Constants::C_PREPROCESSOR)
-                   << QLatin1String(TextEditor::Constants::C_LABEL)
-                   << QLatin1String(TextEditor::Constants::C_COMMENT)
-                   << QLatin1String(TextEditor::Constants::C_DOXYGEN_COMMENT)
-                   << QLatin1String(TextEditor::Constants::C_DOXYGEN_TAG)
-                   << QLatin1String(TextEditor::Constants::C_VISUAL_WHITESPACE);
-    }
-
-    const QVector<QTextCharFormat> formats = fs.toTextCharFormats(categories);
+    const QVector<QTextCharFormat> formats = fs.toTextCharFormats(highlighterFormatCategories());
     highlighter->setFormats(formats.constBegin(), formats.constEnd());
 
     m_occurrencesFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES));
@@ -2173,6 +2158,25 @@ QModelIndex CPPEditor::indexForPosition(int line, int column, const QModelIndex 
     }
 
     return lastIndex;
+}
+
+QVector<QString> CPPEditor::highlighterFormatCategories()
+{
+    static QVector<QString> categories;
+    if (categories.isEmpty()) {
+        categories << QLatin1String(TextEditor::Constants::C_NUMBER)
+                   << QLatin1String(TextEditor::Constants::C_STRING)
+                   << QLatin1String(TextEditor::Constants::C_TYPE)
+                   << QLatin1String(TextEditor::Constants::C_KEYWORD)
+                   << QLatin1String(TextEditor::Constants::C_OPERATOR)
+                   << QLatin1String(TextEditor::Constants::C_PREPROCESSOR)
+                   << QLatin1String(TextEditor::Constants::C_LABEL)
+                   << QLatin1String(TextEditor::Constants::C_COMMENT)
+                   << QLatin1String(TextEditor::Constants::C_DOXYGEN_COMMENT)
+                   << QLatin1String(TextEditor::Constants::C_DOXYGEN_TAG)
+                   << QLatin1String(TextEditor::Constants::C_VISUAL_WHITESPACE);
+    }
+    return categories;
 }
 
 #include "cppeditor.moc"

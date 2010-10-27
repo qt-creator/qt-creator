@@ -44,6 +44,7 @@
 #include "tipcontents.h"
 #include "indenter.h"
 #include "autocompleter.h"
+#include "snippet.h"
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -1848,7 +1849,7 @@ void BaseTextEditor::_q_requestAutoCompletion()
 
 void BaseTextEditor::insertCodeSnippet(const QTextCursor &cursor_arg, const QString &snippet)
 {
-    if ((snippet.count('$') % 2) != 0) {
+    if ((snippet.count(Snippet::kVariableDelimiter) % 2) != 0) {
         qWarning() << "invalid snippet";
         return;
     }
@@ -1864,21 +1865,21 @@ void BaseTextEditor::insertCodeSnippet(const QTextCursor &cursor_arg, const QStr
     QMap<int, int> positions;
 
     while (pos < snippet.size()) {
-        if (snippet.at(pos) != QChar::ObjectReplacementCharacter) {
+        if (snippet.at(pos) != Snippet::kVariableDelimiter) {
             const int start = pos;
             do { ++pos; }
-            while (pos < snippet.size() && snippet.at(pos) != QChar::ObjectReplacementCharacter);
+            while (pos < snippet.size() && snippet.at(pos) != Snippet::kVariableDelimiter);
             cursor.insertText(snippet.mid(start, pos - start));
         } else {
             // the start of a place holder.
             const int start = ++pos;
             for (; pos < snippet.size(); ++pos) {
-                if (snippet.at(pos) == QChar::ObjectReplacementCharacter)
+                if (snippet.at(pos) == Snippet::kVariableDelimiter)
                     break;
             }
 
             Q_ASSERT(pos < snippet.size());
-            Q_ASSERT(snippet.at(pos) == QChar::ObjectReplacementCharacter);
+            Q_ASSERT(snippet.at(pos) == Snippet::kVariableDelimiter);
 
             const QString textToInsert = snippet.mid(start, pos - start);
 

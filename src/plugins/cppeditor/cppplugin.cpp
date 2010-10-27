@@ -38,6 +38,7 @@
 #include "cppoutline.h"
 #include "cppquickfixcollector.h"
 #include "cpptypehierarchy.h"
+#include "cppsnippeteditordecorator.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -211,6 +212,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     addAutoReleasedObject(new CppHoverHandler);
     addAutoReleasedObject(new CppOutlineWidgetFactory);
     addAutoReleasedObject(new CppTypeHierarchyFactory);
+    addAutoReleasedObject(new CppSnippetEditorDecorator);
 
     m_quickFixCollector = new CppQuickFixCollector;
     addAutoReleasedObject(m_quickFixCollector);

@@ -37,7 +37,7 @@
 #include <cplusplus/TypeOfExpression.h>
 
 #include <texteditor/icompletioncollector.h>
-#include <texteditor/snippetsparser.h>
+#include <texteditor/snippets/snippetprovider.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
@@ -153,7 +153,7 @@ private:
     unsigned m_completionOperator;
     bool m_objcEnabled;
 
-    TextEditor::SnippetsParser m_snippetsParser;
+    TextEditor::SnippetProvider m_snippetProvider;
 
     CPlusPlus::Icons m_icons;
     CPlusPlus::Overview overview;

@@ -487,7 +487,7 @@ CodeCompletion::CodeCompletion(ModelManagerInterface *modelManager, QObject *par
       m_editor(0),
       m_startPosition(0),
       m_restartCompletion(false),
-      m_snippetsParser(Core::ICore::instance()->resourcePath() + QLatin1String("/snippets/qml.xml"))
+      m_snippetProvider(TextEditor::Snippet::Qml, iconForColor(Qt::red), SnippetOrder)
 {
     Q_ASSERT(modelManager);
 }
@@ -952,7 +952,7 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     }
 
     if (isQmlFile && (completionOperator.isNull() || completionOperator.isSpace() || isDelimiter(completionOperator))) {
-        m_completions.append(m_snippetsParser.execute(this, iconForColor(Qt::red), SnippetOrder));
+        m_completions.append(m_snippetProvider.getSnippets(this));
     }
 
     if (! m_completions.isEmpty())

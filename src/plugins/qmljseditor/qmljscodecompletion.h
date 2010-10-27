@@ -32,7 +32,7 @@
 
 #include <qmljs/qmljsdocument.h>
 #include <texteditor/icompletioncollector.h>
-#include <texteditor/snippetsparser.h>
+#include <texteditor/snippets/snippetprovider.h>
 #include <QtCore/QDateTime>
 #include <QtCore/QPointer>
 
@@ -97,7 +97,7 @@ private:
     TextEditor::ITextEditable *m_editor;
     int m_startPosition;
     bool m_restartCompletion;
-    TextEditor::SnippetsParser m_snippetsParser;
+    TextEditor::SnippetProvider m_snippetProvider;
     QList<TextEditor::CompletionItem> m_completions;
     QPointer<FunctionArgumentWidget> m_functionArgumentWidget;
 };

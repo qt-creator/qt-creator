@@ -27,34 +27,36 @@
 **
 **************************************************************************/
 
-#ifndef SNIPPETSPARSER_H
-#define SNIPPETSPARSER_H
+#include "snippetprovider.h"
+#include "snippetsmanager.h"
+#include "snippetscollection.h"
 
-#include "texteditor_global.h"
-#include "icompletioncollector.h"
+using namespace TextEditor;
+using namespace Internal;
 
-#include <QtCore/QString>
-#include <QtCore/QList>
-#include <QtCore/QDateTime>
-#include <QtGui/QIcon>
+SnippetProvider::SnippetProvider(Snippet::Group group, const QIcon &icon, int order) :
+    m_group(group), m_icon(icon), m_order(order)
+{}
 
-namespace TextEditor {
+SnippetProvider::~SnippetProvider()
+{}
 
-class TEXTEDITOR_EXPORT SnippetsParser
+QList<CompletionItem> SnippetProvider::getSnippets(ICompletionCollector *collector) const
 {
-public:
-    SnippetsParser(const QString &fileName);
+    QList<CompletionItem> completionItems;
+    QSharedPointer<SnippetsCollection> collection =
+        SnippetsManager::instance()->snippetsCollection();
+    const int size = collection->totalActiveSnippets(m_group);
+    for (int i = 0; i < size; ++i) {
+        const Snippet &snippet = collection->snippet(i, m_group);
+        CompletionItem item(collector);
+        item.text = snippet.trigger() + QLatin1Char(' ') + snippet.complement();
+        item.data = snippet.content();
+        item.details = snippet.generateTip();
+        item.icon = m_icon;
+        item.order = m_order;
 
-    const QList<CompletionItem> &execute(ICompletionCollector *collector,
-                                         const QIcon &icon,
-                                         int order = 0);
-
-private:
-    QString m_fileName;
-    QDateTime m_lastTrackedFileChange;
-    QList<CompletionItem> m_snippets;
-};
-
-} // namespace TextEditor
-
-#endif // SNIPPETSPARSER_H
+        completionItems.append(item);
+    }
+    return completionItems;
+}

@@ -1187,27 +1187,7 @@ void QmlJSTextEditor::setFontSettings(const TextEditor::FontSettings &fs)
     if (!highlighter)
         return;
 
-    /*
-        NumberFormat,
-        StringFormat,
-        TypeFormat,
-        KeywordFormat,
-        LabelFormat,
-        CommentFormat,
-        VisualWhitespace,
-     */
-    static QVector<QString> categories;
-    if (categories.isEmpty()) {
-        categories << QLatin1String(TextEditor::Constants::C_NUMBER)
-                << QLatin1String(TextEditor::Constants::C_STRING)
-                << QLatin1String(TextEditor::Constants::C_TYPE)
-                << QLatin1String(TextEditor::Constants::C_KEYWORD)
-                << QLatin1String(TextEditor::Constants::C_FIELD)
-                << QLatin1String(TextEditor::Constants::C_COMMENT)
-                << QLatin1String(TextEditor::Constants::C_VISUAL_WHITESPACE);
-    }
-
-    highlighter->setFormats(fs.toTextCharFormats(categories));
+    highlighter->setFormats(fs.toTextCharFormats(highlighterFormatCategories()));
     highlighter->rehighlight();
 
     m_occurrencesFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES));
@@ -1569,6 +1549,30 @@ bool QmlJSTextEditor::hideContextPane()
         m_contextPane->apply(editableInterface(), semanticInfo().document, LookupContext::Ptr(), 0, false);
     }
     return b;
+}
+
+QVector<QString> QmlJSTextEditor::highlighterFormatCategories()
+{
+    /*
+        NumberFormat,
+        StringFormat,
+        TypeFormat,
+        KeywordFormat,
+        LabelFormat,
+        CommentFormat,
+        VisualWhitespace,
+     */
+    static QVector<QString> categories;
+    if (categories.isEmpty()) {
+        categories << QLatin1String(TextEditor::Constants::C_NUMBER)
+                << QLatin1String(TextEditor::Constants::C_STRING)
+                << QLatin1String(TextEditor::Constants::C_TYPE)
+                << QLatin1String(TextEditor::Constants::C_KEYWORD)
+                << QLatin1String(TextEditor::Constants::C_FIELD)
+                << QLatin1String(TextEditor::Constants::C_COMMENT)
+                << QLatin1String(TextEditor::Constants::C_VISUAL_WHITESPACE);
+    }
+    return categories;
 }
 
 SemanticHighlighterSource QmlJSTextEditor::currentSource(bool force)

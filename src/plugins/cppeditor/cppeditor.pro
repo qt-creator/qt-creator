@@ -25,7 +25,9 @@ HEADERS += cppplugin.h \
     cppquickfixcollector.h \
     cppqtstyleindenter.h \
     cppautocompleter.h \
-    cppcompleteswitch.h
+    cppcompleteswitch.h \
+    cppsnippeteditordecorator.h
+
 SOURCES += cppplugin.cpp \
     cppeditor.cpp \
     cpphighlighter.cpp \
@@ -44,6 +46,8 @@ SOURCES += cppplugin.cpp \
     cppquickfixcollector.cpp \
     cppqtstyleindenter.cpp \
     cppautocompleter.cpp \
-    cppcompleteswitch.cpp
+    cppcompleteswitch.cpp \
+    cppsnippeteditordecorator.cpp
+
 RESOURCES += cppeditor.qrc
 OTHER_FILES += CppEditor.mimetypes.xml

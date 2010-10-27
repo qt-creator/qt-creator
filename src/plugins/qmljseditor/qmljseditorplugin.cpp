@@ -39,6 +39,7 @@
 #include "qmljsoutline.h"
 #include "qmljspreviewrunner.h"
 #include "qmljsquickfix.h"
+#include "qmljssnippeteditordecorator.h"
 #include "qmltaskmanager.h"
 #include "quicktoolbar.h"
 #include "quicktoolbarsettingspage.h"
@@ -128,6 +129,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
         return false;
 
     m_modelManager = QmlJS::ModelManagerInterface::instance();
+    addAutoReleasedObject(new QmlJSSnippetEditorDecorator);
 
     Core::Context context(QmlJSEditor::Constants::C_QMLJSEDITOR_ID);
 

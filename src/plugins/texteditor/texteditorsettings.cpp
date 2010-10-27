@@ -41,6 +41,7 @@
 #include "tabsettings.h"
 #include "texteditorplugin.h"
 #include "highlightersettingspage.h"
+#include "snippetssettingspage.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>
@@ -62,6 +63,7 @@ public:
     BehaviorSettingsPage *m_behaviorSettingsPage;
     DisplaySettingsPage *m_displaySettingsPage;
     HighlighterSettingsPage *m_highlighterSettingsPage;
+    SnippetsSettingsPage *m_snippetsSettingsPage;
 
     CompletionSettings m_completionSettings;
 
@@ -174,6 +176,10 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
         new HighlighterSettingsPage(QLatin1String(Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS), this);
     pm->addObject(m_d->m_highlighterSettingsPage);
 
+    m_d->m_snippetsSettingsPage =
+        new SnippetsSettingsPage(QLatin1String(Constants::TEXT_EDITOR_SNIPPETS_SETTINGS), this);
+    pm->addObject(m_d->m_snippetsSettingsPage);
+
     connect(m_d->m_fontSettingsPage, SIGNAL(changed(TextEditor::FontSettings)),
             this, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)));
     connect(m_d->m_behaviorSettingsPage, SIGNAL(tabSettingsChanged(TextEditor::TabSettings)),
@@ -197,6 +203,7 @@ TextEditorSettings::~TextEditorSettings()
     pm->removeObject(m_d->m_behaviorSettingsPage);
     pm->removeObject(m_d->m_displaySettingsPage);
     pm->removeObject(m_d->m_highlighterSettingsPage);
+    pm->removeObject(m_d->m_snippetsSettingsPage);
 
     delete m_d;
 

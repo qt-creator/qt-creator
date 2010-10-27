@@ -1,0 +1,85 @@
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+** Commercial Usage
+**
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
+**
+** GNU Lesser General Public License Usage
+**
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at http://qt.nokia.com/contact.
+**
+**************************************************************************/
+
+#ifndef REUSE_H
+#define REUSE_H
+
+#include "snippet.h"
+
+#include <QtCore/QString>
+#include <QtCore/QLatin1String>
+
+namespace TextEditor {
+namespace Internal {
+
+const QLatin1String kCpp("C++");
+const QLatin1String kQml("QML");
+const QLatin1String kText("Text");
+const QLatin1String kTrue("true");
+const QLatin1String kFalse("false");
+
+inline Snippet::Group toSnippetGroup(const QString &s)
+{
+    const QString &upper = s.toUpper();
+    if (upper == kCpp)
+        return Snippet::Cpp;
+    else if (upper == kQml)
+        return Snippet::Qml;
+    else
+        return Snippet::PlainText;
+}
+
+inline QString fromSnippetGroup(Snippet::Group group)
+{
+    if (group == Snippet::Cpp)
+        return kCpp;
+    else if (group == Snippet::Qml)
+        return kQml;
+    else
+        return kText;
+}
+
+inline bool toBool(const QString &s)
+{
+    if (s == kTrue)
+        return true;
+    return false;
+}
+
+inline QString fromBool(bool b)
+{
+    if (b)
+        return kTrue;
+    return kFalse;
+}
+
+} // Internal
+} // TextEditor
+
+#endif // REUSE_H

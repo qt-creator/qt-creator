@@ -155,6 +155,8 @@ public:
 
     void renameId(const QString &oldId, const QString &newId);
 
+    static QVector<QString> highlighterFormatCategories();
+
 public slots:
     void followSymbolUnderCursor();
     void findUsages();

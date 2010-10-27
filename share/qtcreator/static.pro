@@ -25,7 +25,6 @@ isEmpty(vcproj) {
 
 DATA_DIRS = \
     examplebrowser \
-    snippets \
     templates \
     designer \
     schemes \

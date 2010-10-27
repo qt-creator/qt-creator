@@ -59,6 +59,7 @@
 #include <texteditor/itexteditor.h>
 #include <texteditor/itexteditable.h>
 #include <texteditor/basetexteditor.h>
+#include <texteditor/snippets/snippet.h>
 #include <projectexplorer/projectexplorer.h>
 
 #include <utils/faketooltip.h>
@@ -462,7 +463,8 @@ CppCodeCompletion::CppCodeCompletion(CppModelManager *manager)
       m_automaticCompletion(false),
       m_completionOperator(T_EOF_SYMBOL),
       m_objcEnabled(true),
-      m_snippetsParser(Core::ICore::instance()->resourcePath() + QLatin1String("/snippets/cpp.xml"))
+      m_snippetProvider(TextEditor::Snippet::Cpp,
+                        QIcon(QLatin1String(":/texteditor/images/snippet.png")))
 {
 }
 
@@ -751,12 +753,12 @@ void CppCodeCompletion::completeObjCMsgSend(ClassOrNamespace *binding,
                             Symbol *arg = method->argumentAt(i);
                             text += selectorName->nameAt(i)->identifier()->chars();
                             text += QLatin1Char(':');
-                            text += QChar::ObjectReplacementCharacter;
+                            text += TextEditor::Snippet::kVariableDelimiter;
                             text += QLatin1Char('(');
                             text += oo(arg->type());
                             text += QLatin1Char(')');
                             text += oo(arg->name());
-                            text += QChar::ObjectReplacementCharacter;
+                            text += TextEditor::Snippet::kVariableDelimiter;
                         }
                     } else {
                         text = selectorName->identifier()->chars();
@@ -2058,8 +2060,7 @@ bool CppCodeCompletion::objcKeywordsWanted() const
 
 void CppCodeCompletion::addSnippets()
 {
-    static const QIcon icon(QLatin1String(":/texteditor/images/snippet.png"));
-    m_completions.append(m_snippetsParser.execute(this, icon));
+    m_completions.append(m_snippetProvider.getSnippets(this));
 }
 
 #include "cppcodecompletion.moc"

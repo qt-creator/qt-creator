@@ -43,6 +43,7 @@
 #include <QtCore/QWaitCondition>
 #include <QtCore/QFutureWatcher>
 #include <QtCore/QModelIndex>
+#include <QtCore/QVector>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -183,6 +184,8 @@ public:
     bool openLink(const Link &link) { return openCppEditorAt(link); }
 
     static Link linkToSymbol(CPlusPlus::Symbol *symbol);
+
+    static QVector<QString> highlighterFormatCategories();
 
 Q_SIGNALS:
     void outlineModelIndexChanged(const QModelIndex &index);
