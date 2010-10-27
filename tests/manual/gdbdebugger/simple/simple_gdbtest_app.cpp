@@ -377,7 +377,7 @@ func_t testFunctionPointer()
     return f1;
 }
 
-QByteArray testQByteArray()
+void testQByteArray()
 {
     QByteArray ba = "Hello";
     ba += '"';
@@ -393,7 +393,6 @@ QByteArray testQByteArray()
     ba += char(0);
     ba += 1;
     ba += 2;
-    return ba;
 }
 
 static void throwit1()
@@ -1859,11 +1858,10 @@ struct Color
     Color() { r = 1, g = 2, b = 3, a = 4; }
 };
 
-Color testColor()
+void testColor()
 {
     Color c;
     c.r = 5;
-    return c;
 }
 
 int fooii()
