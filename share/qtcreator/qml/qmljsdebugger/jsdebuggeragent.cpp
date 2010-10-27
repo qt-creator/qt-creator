@@ -156,9 +156,9 @@ static QList<JSAgentWatchData> expandObject(const QScriptValue &object)
         it.next();
         if (it.flags() & QScriptValue::SkipInEnumeration)
             continue;
-        if (object.isQObject() && it.value().isFunction()) {
-            // cosmetics: skip all signals and slot, there is too many of them,
-            //  and it is not usefull in the debugger.
+        if (/*object.isQObject() &&*/ it.value().isFunction()) {
+            // Cosmetics: skip all functions and slot, there are too many of them,
+            // and it is not useful information in the debugger.
             continue;
         }
         JSAgentWatchData data = fromScriptValue(it.name(), it.value());
@@ -440,7 +440,7 @@ void JSDebuggerAgent::messageReceived(const QByteArray& message)
             QScriptValue object;
             object = engine()->objectById(objectId);
 
-            if(object.isObject()) {
+            if (object.isObject()) {
                 QScriptValue result = engine()->evaluate(value);
                 object.setProperty(property, result);
             }
