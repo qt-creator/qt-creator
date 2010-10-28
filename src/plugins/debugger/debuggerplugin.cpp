@@ -2293,7 +2293,11 @@ void DebuggerPluginPrivate::setInitialState()
 
 void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
 {
-    QTC_ASSERT(engine != 0 && m_watchersWindow->model() != 0 && m_returnWindow->model() != 0, return);
+    QTC_ASSERT(engine, return);
+    QTC_ASSERT(m_watchersWindow->model(), return);
+    QTC_ASSERT(m_returnWindow->model(), return);
+    QTC_ASSERT(!engine->isSlaveEngine(), return);
+
     m_threadBox->setCurrentIndex(engine->threadsHandler()->currentThread());
 
     m_watchersWindow->setVisible(
@@ -2301,13 +2305,15 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     m_returnWindow->setVisible(
         m_returnWindow->model()->rowCount(QModelIndex()) > 0);
 
+    //m_plugin->showMessage(QString("PLUGIN SET STATE: ")
+    //    + DebuggerEngine::stateName(engine->state()), LogStatus);
+    //qDebug() << "PLUGIN SET STATE: " << engine->state();
+
     if (m_state == engine->state())
         return;
 
     m_state = engine->state();
     bool actionsEnabled = DebuggerEngine::debuggerActionsEnabled(m_state);
-
-    //qDebug() << "PLUGIN SET STATE: " << m_state;
 
     ICore *core = ICore::instance();
     ActionManager *am = core->actionManager();

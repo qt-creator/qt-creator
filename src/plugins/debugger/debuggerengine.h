@@ -287,6 +287,7 @@ public:
     virtual void quitDebugger(); // called by DebuggerRunControl
 
     virtual void updateViews();
+    bool isSlaveEngine() const;
 
 signals:
     void stateChanged(const DebuggerState &state);
@@ -337,7 +338,6 @@ protected:
 
     void setState(DebuggerState state, bool forced = false);
     void setSlaveEngine(bool value);
-    bool isSlaveEngine() const;
 
 protected:
     DebuggerRunControl *runControl() const;

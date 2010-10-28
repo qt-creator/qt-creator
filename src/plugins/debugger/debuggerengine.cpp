@@ -1489,7 +1489,8 @@ void DebuggerEngine::updateViews()
     // The slave engines are not entitled to change the view. Their wishes
     // should be coordinated by their master engine.
     if (isSlaveEngine())
-        plugin()->updateState(this);
+        return;
+    plugin()->updateState(this);
 }
 
 bool DebuggerEngine::isSlaveEngine() const
