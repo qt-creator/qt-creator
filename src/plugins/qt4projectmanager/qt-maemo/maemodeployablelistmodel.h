@@ -38,16 +38,10 @@
 #include <QtCore/QHash>
 #include <QtCore/QList>
 #include <QtCore/QScopedPointer>
-#include <QtCore/QSharedPointer>
 #include <QtCore/QString>
-
-QT_BEGIN_NAMESPACE
-struct ProFileOption;
-QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
 namespace Internal {
-class MaemoProFileWrapper;
 class MaemoToolChain;
 
 class MaemoDeployableListModel : public QAbstractTableModel
@@ -59,15 +53,12 @@ public:
     };
 
     MaemoDeployableListModel(const Qt4ProFileNode *proFileNode,
-        const QSharedPointer<ProFileOption> &proFileOption,
         ProFileUpdateSetting updateSetting, QObject *parent);
     ~MaemoDeployableListModel();
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
     MaemoDeployable deployableAt(int row) const;
-    bool addDeployable(const MaemoDeployable &deployable, QString *error);
-    bool removeDeployableAt(int row, QString *error);
     bool isModified() const { return m_modified; }
     void setUnModified() { m_modified = false; }
     QString localExecutableFilePath() const;
@@ -102,9 +93,10 @@ private:
     const QString m_proFilePath;
     const QString m_projectName;
     const TargetInformation m_targetInfo;
+    const InstallsList m_installsList;
+    const QStringList m_config;
     QList<MaemoDeployable> m_deployables;
     mutable bool m_modified;
-    const QScopedPointer<MaemoProFileWrapper> m_proFileWrapper;
     ProFileUpdateSetting m_proFileUpdateSetting;
     bool m_hasTargetPath;
 };

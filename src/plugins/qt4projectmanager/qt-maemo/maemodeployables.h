@@ -48,10 +48,8 @@
 #include <QtCore/QAbstractListModel>
 #include <QtCore/QHash>
 #include <QtCore/QList>
-#include <QtCore/QSharedPointer>
 
 QT_FORWARD_DECLARE_CLASS(QTimer);
-QT_FORWARD_DECLARE_STRUCT(ProFileOption)
 
 namespace ProjectExplorer { class BuildStep; }
 
@@ -88,7 +86,6 @@ private:
     const Qt4BuildConfiguration *qt4BuildConfiguration() const;
 
     QList<MaemoDeployableListModel *> m_listModels;
-    QSharedPointer<ProFileOption> m_proFileOption;
     UpdateSettingsMap m_updateSettings;
     const ProjectExplorer::BuildStep * const m_buildStep;
     QTimer *const m_updateTimer;

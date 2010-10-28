@@ -84,10 +84,6 @@ void MaemoDeployables::createModels()
     if (!rootNode) // Happens on project creation by wizard.
         return;
     m_updateTimer->stop();
-    m_proFileOption = QSharedPointer<ProFileOption>(new ProFileOption);
-    m_proFileOption->properties
-        = qt4BuildConfiguration()->qtVersion()->versionInfo();
-    m_proFileOption->target_mode = ProFileOption::TARG_UNIX_MODE;
     disconnect(qt4BuildConfiguration()->qt4Target()->qt4Project(),
         SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
         m_updateTimer, SLOT(start()));
@@ -137,8 +133,7 @@ void MaemoDeployables::createModels(const Qt4ProFileNode *proFileNode)
             = it != m_updateSettings.end()
                   ? it.value() : MaemoDeployableListModel::AskToUpdateProFile;
         MaemoDeployableListModel *const newModel
-            = new MaemoDeployableListModel(proFileNode, m_proFileOption,
-                      updateSetting, this);
+            = new MaemoDeployableListModel(proFileNode, updateSetting, this);
         m_listModels << newModel;
         break;
     }

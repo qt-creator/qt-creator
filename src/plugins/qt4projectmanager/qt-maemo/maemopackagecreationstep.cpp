@@ -46,7 +46,6 @@
 #include "maemodeploystep.h"
 #include "maemoglobal.h"
 #include "maemopackagecreationwidget.h"
-#include "maemoprofilewrapper.h"
 #include "maemotemplatesmanager.h"
 #include "maemotoolchain.h"
 

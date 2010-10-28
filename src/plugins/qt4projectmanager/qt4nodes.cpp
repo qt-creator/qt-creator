@@ -1942,7 +1942,7 @@ void Qt4ProFileNode::setupInstallsList(const ProFileReader *reader)
     const QStringList &itemList = reader->values(QLatin1String("INSTALLS"));
     foreach (const QString &item, itemList) {
         QString itemPath;
-        const QString pathVar = item + QLatin1String(".path");        
+        const QString pathVar = item + QLatin1String(".path");
         const QStringList &itemPaths = reader->values(pathVar);
         if (itemPaths.count() != 1) {
             qDebug("Invalid RHS: Variable '%s' has %d values.",
@@ -1951,10 +1951,9 @@ void Qt4ProFileNode::setupInstallsList(const ProFileReader *reader)
                 qDebug("Ignoring INSTALLS item '%s', because it has no path.",
                     qPrintable(item));
                 continue;
-            } else {
-                itemPath = itemPaths.last();
             }
         }
+        itemPath = itemPaths.last();
 
         const QStringList &itemFiles
             = reader->absoluteFileValues(item + QLatin1String(".files"),

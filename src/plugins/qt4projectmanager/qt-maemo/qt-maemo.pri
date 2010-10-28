@@ -16,7 +16,6 @@ HEADERS += \
     $$PWD/maemopackagecreationwidget.h \
     $$PWD/maemodeployablelistmodel.h \
     $$PWD/maemoqemumanager.h \
-    $$PWD/maemoprofilewrapper.h \
     $$PWD/maemodeployables.h \
     $$PWD/maemodeployable.h \
     $$PWD/maemodeploystep.h \
@@ -53,7 +52,6 @@ SOURCES += \
     $$PWD/maemopackagecreationwidget.cpp \
     $$PWD/maemodeployablelistmodel.cpp \
     $$PWD/maemoqemumanager.cpp \
-    $$PWD/maemoprofilewrapper.cpp \
     $$PWD/maemodeployables.cpp \
     $$PWD/maemodeploystep.cpp \
     $$PWD/maemodeploystepwidget.cpp \
