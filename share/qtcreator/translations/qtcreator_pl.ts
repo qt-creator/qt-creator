@@ -241,15 +241,15 @@
     </message>
     <message numerus="yes">
         <source>Commit %1/%n Files</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Commit %1/%n Plik</numerusform>
+            <numerusform>Commit %1/%n Plików</numerusform>
+            <numerusform>Commit %1/%n Plików</numerusform>
         </translation>
     </message>
     <message>
         <source>Commit</source>
-        <translation type="unfinished">Wyślij</translation>
+        <translation>Commit</translation>
     </message>
     <message>
         <source>Check All</source>
@@ -259,7 +259,7 @@
     <message>
         <source>Uncheck All</source>
         <extracomment>Uncheck all for submit</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Odznacz wszystko</translation>
     </message>
 </context>
 <context>
@@ -770,6 +770,10 @@ p, li { white-space: pre-wrap; }
         <source>Switch to previous mode on debugger exit.</source>
         <translation>Przełącz do poprzedniego trybu po zakończeniu debugowania.</translation>
     </message>
+    <message>
+        <source>Switch to previous mode on debugger exit</source>
+        <translation>Przełącz do poprzedniego trybu po zakończeniu debugowania</translation>
+    </message>
 </context>
 <context>
     <name>DebuggingHelperOptionPage</name>
@@ -990,7 +994,7 @@ dla emisji sygnału wskoczy bezpośrednio do podłączonego slotu.</translation>
     </message>
     <message>
         <source>Configure...</source>
-        <translation>Konfiguruj...</translation>
+        <translation type="obsolete">Konfiguruj...</translation>
     </message>
     <message>
         <source>%1 - Error</source>
@@ -1201,7 +1205,7 @@ dla emisji sygnału wskoczy bezpośrednio do podłączonego slotu.</translation>
     </message>
     <message>
         <source>Log</source>
-        <translation>Dziennik</translation>
+        <translation>Log</translation>
     </message>
     <message>
         <source>Refresh</source>
@@ -1264,7 +1268,7 @@ dla emisji sygnału wskoczy bezpośrednio do podłączonego slotu.</translation>
     </message>
     <message>
         <source>Repository location:</source>
-        <translation>Położenie składnicy:</translation>
+        <translation>Położenie repozytorium:</translation>
     </message>
 </context>
 <context>
@@ -1333,15 +1337,15 @@ dla emisji sygnału wskoczy bezpośrednio do podłączonego slotu.</translation>
     </message>
     <message>
         <source>Repository</source>
-        <translation>Składnica</translation>
+        <translation>Repozytorium</translation>
     </message>
     <message>
         <source>Choose a repository of the project &apos;%1&apos;.</source>
-        <translation>Wybierz składnicę dla projektu &quot;%1&quot;.</translation>
+        <translation>Wybierz repozytorium dla projektu &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Mainline Repositories</source>
-        <translation>Główne składnice</translation>
+        <translation>Główne repozytoria</translation>
     </message>
     <message>
         <source>Clones</source>
@@ -1349,15 +1353,15 @@ dla emisji sygnału wskoczy bezpośrednio do podłączonego slotu.</translation>
     </message>
     <message>
         <source>Baseline Repositories</source>
-        <translation>Podstawowe składnice</translation>
+        <translation>Podstawowe repozytoria</translation>
     </message>
     <message>
         <source>Shared Project Repositories</source>
-        <translation>Współdzielone składnice</translation>
+        <translation>Współdzielone repozytoria</translation>
     </message>
     <message>
         <source>Personal Repositories</source>
-        <translation>Osobiste składnice</translation>
+        <translation>Osobiste repozytoria</translation>
     </message>
 </context>
 <context>
@@ -1368,11 +1372,11 @@ dla emisji sygnału wskoczy bezpośrednio do podłączonego slotu.</translation>
     </message>
     <message>
         <source>Repository:</source>
-        <translation>Składnica:</translation>
+        <translation>Repozytorium:</translation>
     </message>
     <message>
         <source>repository</source>
-        <translation>składnica</translation>
+        <translation>repozytorium</translation>
     </message>
     <message>
         <source>Branch:</source>
@@ -1411,7 +1415,7 @@ dla emisji sygnału wskoczy bezpośrednio do podłączonego slotu.</translation>
     </message>
     <message>
         <source>Log commit display count:</source>
-        <translation>Liczba wyświetlanych zmian w dzienniku:</translation>
+        <translation>Liczba wyświetlanych zmian w logu:</translation>
     </message>
     <message>
         <source>Note that huge amount of commits might take some time.</source>
@@ -1419,7 +1423,7 @@ dla emisji sygnału wskoczy bezpośrednio do podłączonego slotu.</translation>
     </message>
     <message>
         <source>Omit date from annotation output</source>
-        <translation>Pomijaj daty w wyjściowych adnotacjach</translation>
+        <translation type="obsolete">Pomijaj daty w wyjściowych adnotacjach</translation>
     </message>
     <message>
         <source>Git</source>
@@ -1475,7 +1479,15 @@ dla emisji sygnału wskoczy bezpośrednio do podłączonego slotu.</translation>
     </message>
     <message>
         <source>Ignore whitespace changes in annotation and diff</source>
-        <translation>Ignoruj zmiany spacji w adnotacjach i różnicach</translation>
+        <translation type="obsolete">Ignoruj zmiany spacji w adnotacjach i różnicach</translation>
+    </message>
+    <message>
+        <source>Omit date from blame output</source>
+        <translation>Pomijaj daty w rezultatach z &quot;blame&quot;</translation>
+    </message>
+    <message>
+        <source>Ignore whitespace changes in blame and diff</source>
+        <translation>Ignoruj zmiany spacji w rezultatach z &quot;blame&quot; oraz &quot;diff&quot;</translation>
     </message>
 </context>
 <context>
@@ -1710,7 +1722,7 @@ Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokum
     </message>
     <message>
         <source>Log count:</source>
-        <translation>Licznik dziennika:</translation>
+        <translation>Licznik loga:</translation>
     </message>
     <message>
         <source>P4 command:</source>
@@ -2332,7 +2344,7 @@ Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokum
     </message>
     <message>
         <source>Featured</source>
-        <translation type="unfinished"></translation>
+        <translation>Przedstawiamy</translation>
     </message>
     <message>
         <source>Explore Qt C++ examples:</source>
@@ -2348,7 +2360,7 @@ Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokum
     </message>
     <message>
         <source>Explore Qt C++ mobile examples:</source>
-        <translation>Poznaj dogłębnie mobilne przykłady Qt C++:</translation>
+        <translation type="obsolete">Poznaj dogłębnie mobilne przykłady Qt C++:</translation>
     </message>
 </context>
 <context>
@@ -2500,7 +2512,7 @@ Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokum
     </message>
     <message>
         <source>Show &amp;Log</source>
-        <translation>Pokaż &amp;dziennik</translation>
+        <translation>Pokaż &amp;log</translation>
     </message>
     <message>
         <source>&amp;Rebuild</source>
@@ -2559,7 +2571,7 @@ Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokum
     <name>ShowBuildLog</name>
     <message>
         <source>Debugging Helper Build Log</source>
-        <translation>Dziennik kompilacji asystenta debuggera</translation>
+        <translation>Log kompilacji asystenta debuggera</translation>
     </message>
 </context>
 <context>
@@ -2602,7 +2614,7 @@ Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokum
     </message>
     <message>
         <source>Log count:</source>
-        <translation>Licznik dziennika:</translation>
+        <translation>Licznik loga:</translation>
     </message>
     <message>
         <source>Subversion command:</source>
@@ -3027,7 +3039,7 @@ Wpływa na wcięcia przeniesionych linii.
     </message>
     <message>
         <source>Repository</source>
-        <translation>Składnica</translation>
+        <translation>Repozytorium</translation>
     </message>
     <message>
         <source>The remote repository to check out.</source>
@@ -3039,7 +3051,7 @@ Wpływa na wcięcia przeniesionych linii.
     </message>
     <message>
         <source>Retrieve list of branches in repository.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pozyskaj listę gałęzi z repozytorium.</translation>
     </message>
     <message>
         <source>Working Copy</source>
@@ -3093,7 +3105,7 @@ Wpływa na wcięcia przeniesionych linii.
     </message>
     <message>
         <source>&lt;b&gt;Qt Git Hosting&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Participate in Qt development&lt;/font&gt;</source>
-        <translation>&lt;b&gt;Składnica Git dla Qt&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Weź udział w rozwoju Qt&lt;/font&gt;</translation>
+        <translation>&lt;b&gt;Repozytorium Git dla Qt&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Weź udział w rozwoju Qt&lt;/font&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Qt Apps&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Find free Qt-based apps&lt;/font&gt;</source>
@@ -4914,7 +4926,7 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     </message>
     <message>
         <source>Configure...</source>
-        <translation>Konfiguruj...</translation>
+        <translation type="obsolete">Konfiguruj...</translation>
     </message>
 </context>
 <context>
@@ -5134,7 +5146,7 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     <name>CVS::Internal::CheckoutWizard</name>
     <message>
         <source>Checks out a CVS repository and tries to load the contained project.</source>
-        <translation>Wyciąga składnicę CVS i próbuje załadować zawarty projekt.</translation>
+        <translation>Wyciąga repozytorium CVS i próbuje załadować zawarty projekt.</translation>
     </message>
     <message>
         <source>CVS Checkout</source>
@@ -5149,18 +5161,18 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     </message>
     <message>
         <source>Specify repository and path.</source>
-        <translation>Podaj składnicę i ścieżkę.</translation>
+        <translation>Podaj repozytorium i ścieżkę.</translation>
     </message>
     <message>
         <source>Repository:</source>
-        <translation>Składnica:</translation>
+        <translation>Repozytorium:</translation>
     </message>
 </context>
 <context>
     <name>CVS::Internal::CVSPlugin</name>
     <message>
         <source>Parsing of the log output failed</source>
-        <translation>Nie można przetworzyć komunikatów dziennika</translation>
+        <translation>Nie można przetworzyć komunikatów loga</translation>
     </message>
     <message>
         <source>&amp;CVS</source>
@@ -5196,15 +5208,15 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     </message>
     <message>
         <source>Commit All Files</source>
-        <translation>Wyślij wszystkie pliki</translation>
+        <translation type="unfinished">Dokonaj commitu wszystkich plików</translation>
     </message>
     <message>
         <source>Commit Current File</source>
-        <translation>Wyślij bieżący plik</translation>
+        <translation type="unfinished">Dokonaj commitu bieżącego pliku</translation>
     </message>
     <message>
         <source>Commit &quot;%1&quot;</source>
-        <translation>Wyślij &quot;%1&quot;</translation>
+        <translation>Commit &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Alt+C,Alt+C</source>
@@ -5212,15 +5224,15 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     </message>
     <message>
         <source>Filelog Current File</source>
-        <translation>Dziennik bieżącego pliku</translation>
+        <translation>Log bieżącego pliku</translation>
     </message>
     <message>
         <source>Cannot find repository for &apos;%1&apos;</source>
-        <translation>Nie można odnaleźć składnicy dla &quot;%1&quot;</translation>
+        <translation>Nie można odnaleźć repozytorium dla &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Filelog &quot;%1&quot;</source>
-        <translation>Dziennik pliku &quot;%1&quot;</translation>
+        <translation>Log pliku &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Annotate Current File</source>
@@ -5264,7 +5276,7 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     </message>
     <message>
         <source>Unedit Repository</source>
-        <translation>Cofnij modyfikacje w składnicy</translation>
+        <translation>Cofnij modyfikacje w repozytorium</translation>
     </message>
     <message>
         <source>Diff Project &quot;%1&quot;</source>
@@ -5280,11 +5292,11 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     </message>
     <message>
         <source>Log Project</source>
-        <translation>Pokaż dziennik projektu</translation>
+        <translation>Pokaż log  projektu</translation>
     </message>
     <message>
         <source>Log Project &quot;%1&quot;</source>
-        <translation>Pokaż dziennik projektu &quot;%1&quot;</translation>
+        <translation>Pokaż log projektu &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Update Project</source>
@@ -5296,35 +5308,35 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     </message>
     <message>
         <source>Commit Project</source>
-        <translation type="unfinished">Wyślij projekt</translation>
+        <translation type="unfinished">Dokonaj commitu na projekcie</translation>
     </message>
     <message>
         <source>Commit Project &quot;%1&quot;</source>
-        <translation type="unfinished">Wyślij projekt &quot;%1&quot;</translation>
+        <translation type="unfinished">Dokonaj commitu na projekcie &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Diff Repository</source>
-        <translation>Pokaż zmiany w składnicy</translation>
+        <translation>Pokaż zmiany w repozytorium</translation>
     </message>
     <message>
         <source>Repository Status</source>
-        <translation>Stan składnicy</translation>
+        <translation>Stan repozytorium</translation>
     </message>
     <message>
         <source>Repository Log</source>
-        <translation>Dziennik składnicy</translation>
+        <translation>Log repozytorium</translation>
     </message>
     <message>
         <source>Update Repository</source>
-        <translation>Uaktualnij składnicę</translation>
+        <translation>Uaktualnij repozytorium</translation>
     </message>
     <message>
         <source>Revert Repository...</source>
-        <translation>Odwróć zmiany w składnicy...</translation>
+        <translation>Odwróć zmiany w repozytorium...</translation>
     </message>
     <message>
         <source>Commit</source>
-        <translation>Wyślij</translation>
+        <translation>Commit</translation>
     </message>
     <message>
         <source>Diff Selected Files</source>
@@ -5344,7 +5356,7 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     </message>
     <message>
         <source>Do you want to commit the change?</source>
-        <translation>Czy chcesz wysłać zmianę?</translation>
+        <translation type="unfinished">Czy chcesz dokonać commita na zmianie?</translation>
     </message>
     <message>
         <source>The commit message check failed. Do you want to commit the change?</source>
@@ -5356,11 +5368,11 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     </message>
     <message>
         <source>Revert repository</source>
-        <translation>Odwróć zmiany w składnicy</translation>
+        <translation>Odwróć zmiany w repozytorium</translation>
     </message>
     <message>
         <source>Revert all pending changes to the repository?</source>
-        <translation>Czy chcesz odwrócić wszystkie oczekujące zmiany w składnicy?</translation>
+        <translation>Czy chcesz odwrócić wszystkie oczekujące zmiany w repozytorium?</translation>
     </message>
     <message>
         <source>Revert failed: %1</source>
@@ -5372,7 +5384,7 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     </message>
     <message>
         <source>Another commit is currently being executed.</source>
-        <translation>Trwa inna wysyłka.</translation>
+        <translation type="unfinished">Trwa inny commit.</translation>
     </message>
     <message>
         <source>There are no modified files.</source>
@@ -5384,7 +5396,7 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     </message>
     <message>
         <source>Would you like to discard your changes to the repository &apos;%1&apos;?</source>
-        <translation>Czy chcesz porzucić zmiany w składnicy &quot;%1&quot;?</translation>
+        <translation>Czy chcesz porzucić zmiany w repozytorium &quot;%1&quot;?</translation>
     </message>
     <message>
         <source>Would you like to discard your changes to the file &apos;%1&apos;?</source>
@@ -5396,7 +5408,7 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     </message>
     <message>
         <source>Repository status</source>
-        <translation>Stan składnicy</translation>
+        <translation>Stan repozytorium</translation>
     </message>
     <message>
         <source>The initial revision %1 cannot be described.</source>
@@ -5437,11 +5449,11 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     <name>Debugger::Internal::BreakHandler</name>
     <message>
         <source>Marker File:</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik znacznika:</translation>
     </message>
     <message>
         <source>Marker Line:</source>
-        <translation type="unfinished"></translation>
+        <translation>Linia znacznika:</translation>
     </message>
     <message>
         <source>Breakpoint Number:</source>
@@ -5655,11 +5667,11 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     </message>
     <message>
         <source>Loading the custom dumper library &apos;%1&apos; (%2) ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Ładowanie biblioteki z własnymi zrzutami &quot;%1&quot; (%2) ...</translation>
     </message>
     <message>
         <source>Loading of the custom dumper library &apos;%1&apos; (%2) failed: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd ładowania biblioteki z własnymi zrzutami &quot;%1&quot; (%2) : %3</translation>
     </message>
     <message>
         <source>Loaded the custom dumper library &apos;%1&apos; (%2).</source>
@@ -5667,11 +5679,11 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     </message>
     <message>
         <source>Stopped / Custom dumper library initialized.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zatrzymano / Biblioteka z własnymi zrzutami zainicjalizowana.</translation>
     </message>
     <message>
         <source>The custom dumper library could not be initialized: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można zainicjalizować biblioteki z własnymi zrzutami: %1</translation>
     </message>
     <message>
         <source>The debuggee does not appear to be Qt application.</source>
@@ -5687,7 +5699,7 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     </message>
     <message>
         <source>Querying dumpers for &apos;%1&apos;/&apos;%2&apos; (%3)</source>
-        <translation type="unfinished"></translation>
+        <translation>Odpytywanie zrzutów &quot;%1&quot;/&quot;%2&quot; (%3)</translation>
     </message>
 </context>
 <context>
@@ -5785,11 +5797,11 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     </message>
     <message>
         <source>Log Time Stamps</source>
-        <translation>Notuj w dzienniku czas komunikatów</translation>
+        <translation>Notuj w logu czas komunikatów</translation>
     </message>
     <message>
         <source>Verbose Log</source>
-        <translation>Gadatliwy dziennik</translation>
+        <translation>Gadatliwy log</translation>
     </message>
     <message>
         <source>Operate by Instruction</source>
@@ -5976,6 +5988,16 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
         <source>Refresh</source>
         <translation>Odśwież</translation>
     </message>
+    <message>
+        <source>Process Already Under Debugger Control</source>
+        <translation>Proces jest już debugowany</translation>
+    </message>
+    <message>
+        <source>The process %1 is already under the control of a debugger.
+Qt Creator cannot attach to it.</source>
+        <translation>Proces %1 jest już debugowany.
+Qt Creator nie może się do niego podłączyć.</translation>
+    </message>
 </context>
 <context>
     <name>Debugger::Internal::AttachCoreDialog</name>
@@ -6096,11 +6118,11 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     <name>Debugger::Internal::CoreGdbAdapter</name>
     <message>
         <source>Error Loading Symbols</source>
-        <translation>Błąd w trakcie ładowania symboli</translation>
+        <translation type="obsolete">Błąd w trakcie ładowania symboli</translation>
     </message>
     <message>
         <source>No executable to load symbols from specified.</source>
-        <translation>Nie podano programu z którego można załadować symbole.</translation>
+        <translation type="obsolete">Nie podano programu z którego można załadować symbole.</translation>
     </message>
     <message>
         <source>Attached to core temporarily.</source>
@@ -6117,8 +6139,28 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
         <translation>Symbole odnalezione.</translation>
     </message>
     <message>
+        <source>The name of the binary file cannot be extracted from this core file.</source>
+        <translation>Nazwa pliku binarnego nie może zostać uzyskana z pliku zrzutu.</translation>
+    </message>
+    <message>
+        <source>Try to specify the binary using the &lt;i&gt;Debug-&gt;Start Debugging-&gt;Attach to Core&lt;/i&gt; dialog.</source>
+        <translation>Podaj plik binarny używając dialogu &lt;i&gt;Debugowanie-&gt;Rozpocznij debugowanie-&gt;Dołącz do zrzutu&lt;/i&gt;.</translation>
+    </message>
+    <message>
+        <source>Loading core file failed</source>
+        <translation>Nie można załadować pliku zrzutu</translation>
+    </message>
+    <message>
         <source>Attach to core failed.</source>
         <translation>Dołączenie do zrzutu zakończone niepowodzeniem.</translation>
+    </message>
+    <message>
+        <source>No symbols found in core file &lt;i&gt;%1&lt;/i&gt;.</source>
+        <translation>Brak symboli w pliku zrzutu &lt;i&gt;%1&lt;/i&gt;.</translation>
+    </message>
+    <message>
+        <source>This can be caused by a path length limitation in the core file.</source>
+        <translation>To może być spowodowane ograniczeniem długości ścieżek w pliku zrzutu.</translation>
     </message>
     <message>
         <source>Attached to core.</source>
@@ -6193,7 +6235,7 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     </message>
     <message>
         <source>Watchpoint %1 at %2 triggered:</source>
-        <translation type="unfinished"></translation>
+        <translation>Monitor pamięci %1 został wyzwolony pod %2:</translation>
     </message>
     <message>
         <source>Stopped at breakpoint %1 in thread %2</source>
@@ -6201,15 +6243,15 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     </message>
     <message>
         <source>Raw structure</source>
-        <translation type="unfinished"></translation>
+        <translation>Surowa struktura</translation>
     </message>
     <message>
         <source>Step requested...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zażądano wykonania kroku...</translation>
     </message>
     <message>
         <source>Step by instruction requested...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zażądano wykonania kroku o jedną instrukcję...</translation>
     </message>
     <message>
         <source>Finish function requested...</source>
@@ -6217,11 +6259,11 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     </message>
     <message>
         <source>Step next requested...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zażądano wykonania następnego kroku...</translation>
     </message>
     <message>
         <source>Step next instruction requested...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zażądano wykonania następnego kroku o jedną instrukcję...</translation>
     </message>
     <message>
         <source>Run to line %1 requested...</source>
@@ -6237,7 +6279,7 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     </message>
     <message>
         <source>Retrieving data for stack view thread 0x%1...</source>
-        <translation type="unfinished"></translation>
+        <translation>Pobieranie danych dla widoku stosu w wątku 0x%1...</translation>
     </message>
     <message>
         <source>Retrieving data for stack view...</source>
@@ -6253,10 +6295,10 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     </message>
     <message numerus="yes">
         <source>Dumper version %1, %n custom dumpers found.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Wersja zrzutu %1, znaleziono %n własny zrzut.</numerusform>
+            <numerusform>Wersja zrzutu %1, znaleziono %n własne zrzuty.</numerusform>
+            <numerusform>Wersja zrzutu %1, znaleziono %n własnych zrzutów.</numerusform>
         </translation>
     </message>
     <message>
@@ -6274,7 +6316,7 @@ This might yield incorrect results.</source>
     </message>
     <message>
         <source>Custom dumper setup: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfiguracja własnego zrzutu: %1</translation>
     </message>
     <message>
         <source>&lt;0 items&gt;</source>
@@ -6710,7 +6752,7 @@ Możesz poczekać dłużej na odpowiedź lub przerwać debugowanie.</translation
     </message>
     <message>
         <source>Invalid expr-primary</source>
-        <translation type="unfinished"></translation>
+        <translation>Niepoprawne wyrażenie główne</translation>
     </message>
     <message>
         <source>Invalid type</source>
@@ -6730,15 +6772,15 @@ Możesz poczekać dłużej na odpowiedź lub przerwać debugowanie.</translation
     </message>
     <message>
         <source>Invalid unqualified-name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Niesprecyzowana nazwa</translation>
     </message>
     <message>
         <source>Invalid operator-name &apos;%s&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Niepoprawna nazwa operatora &quot;%s&quot;</translation>
     </message>
     <message>
         <source>Invalid array-type</source>
-        <translation type="unfinished"></translation>
+        <translation>Niepoprawny typ tablicowy</translation>
     </message>
     <message>
         <source>Invalid pointer-to-member-type</source>
@@ -6774,11 +6816,11 @@ Możesz poczekać dłużej na odpowiedź lub przerwać debugowanie.</translation
     </message>
     <message>
         <source>Invalid call-offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Niepoprawny offset wywołania</translation>
     </message>
     <message>
         <source>Invalid v-offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Niepoprawny v-offset</translation>
     </message>
     <message>
         <source>Invalid digit</source>
@@ -7286,15 +7328,15 @@ Możesz poczekać dłużej na odpowiedź lub przerwać debugowanie.</translation
     </message>
     <message>
         <source>Break on Changes at Object&apos;s Address (0x%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zatrzymano na zmianie obiektu pod adresem 0x%1</translation>
     </message>
     <message>
         <source>Break on Changes at Referenced Address (0x%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zatrzymano na zmianie danych pod adresem 0x%1</translation>
     </message>
     <message>
         <source>Break on Changing Contents</source>
-        <translation type="unfinished"></translation>
+        <translation>Zatrzymano na zmianie zawartości</translation>
     </message>
     <message>
         <source>Watch Expression</source>
@@ -7907,11 +7949,11 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     <name>Git::Internal::ChangeSelectionDialog</name>
     <message>
         <source>Select a Git Commit</source>
-        <translation>Wybierz zmianę Git</translation>
+        <translation type="unfinished">Wybierz commit w Git</translation>
     </message>
     <message>
         <source>Select Git Repository</source>
-        <translation>Wybierz składnicę Git</translation>
+        <translation>Wybierz repozytorium Git</translation>
     </message>
     <message>
         <source>Error</source>
@@ -7919,18 +7961,18 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Selected directory is not a Git repository</source>
-        <translation>Wybrany katalog nie jest składnicą Git</translation>
+        <translation>Wybrany katalog nie jest repozytorium Git</translation>
     </message>
 </context>
 <context>
     <name>Git::Internal::CloneWizard</name>
     <message>
         <source>Clones a Git repository and tries to load the contained project.</source>
-        <translation>Klonuje składnicę Git i próbuje załadować zawarty projekt.</translation>
+        <translation>Klonuje repozytorium Git i próbuje załadować zawarty projekt.</translation>
     </message>
     <message>
         <source>Git Repository Clone</source>
-        <translation>Klon składnicy Git</translation>
+        <translation>Klon repozytorium Git</translation>
     </message>
 </context>
 <context>
@@ -7941,7 +7983,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Specify repository URL, checkout directory and path.</source>
-        <translation>Podaj URL składnicy, nazwę katalogu z kopią roboczą i ścieżkę do niego.</translation>
+        <translation>Podaj URL repozytorium, nazwę katalogu z kopią roboczą i ścieżkę do niego.</translation>
     </message>
     <message>
         <source>Clone URL:</source>
@@ -7953,7 +7995,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Delete the master branch after checking out the repository.</source>
-        <translation>Usuń gałąź master po skolowaniu składnicy.</translation>
+        <translation>Usuń gałąź master po skolowaniu repozytorium.</translation>
     </message>
 </context>
 <context>
@@ -7964,7 +8006,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Unable to determine the repository for %1.</source>
-        <translation>Nie można określić składnicy dla %1.</translation>
+        <translation>Nie można określić repozytorium dla %1.</translation>
     </message>
     <message>
         <source>Unable to parse the file output.</source>
@@ -7976,35 +8018,35 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Git Diff</source>
-        <translation type="unfinished"></translation>
+        <translation>Git Diff</translation>
     </message>
     <message>
         <source>Git Diff %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Git Diff %1</translation>
     </message>
     <message>
         <source>Git Diff Branch %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Git Diff Branch %1</translation>
     </message>
     <message>
         <source>Git Log</source>
-        <translation type="unfinished"></translation>
+        <translation>Git Log</translation>
     </message>
     <message>
         <source>Git Log %1</source>
-        <translation>Dziennik Git %1</translation>
+        <translation>Log Git %1</translation>
     </message>
     <message>
         <source>Cannot describe &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można opisać &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Git Show %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Git Show %1</translation>
     </message>
     <message>
         <source>Git Blame %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Git Blame %1</translation>
     </message>
     <message>
         <source>Unable to checkout %1 of %2: %3</source>
@@ -8029,18 +8071,18 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Unable to move from %1 to %2: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można przenieść z %1 do %2: %3</translation>
     </message>
     <message>
         <source>Unable to reset %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można przywrócić %1: %2</translation>
     </message>
     <message numerus="yes">
         <source>Unable to reset %n file(s) in %1: %2</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Nie można przywrócić %n pliku w %1: %2</numerusform>
+            <numerusform>Nie można przywrócić %n plików w %1: %2</numerusform>
+            <numerusform>Nie można przywrócić %n plików w %1: %2</numerusform>
         </translation>
     </message>
     <message>
@@ -8059,15 +8101,15 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Unable to retrieve branch of %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można pobrać gałęzi w %1: %2</translation>
     </message>
     <message>
         <source>Unable to retrieve top revision of %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nie można pobrać głównej gałęzi w %1: %2</translation>
     </message>
     <message>
         <source>Unable to describe revision %1 in %2: %3</source>
-        <translation>Nie można opisać poprawki %1 w %2: %3</translation>
+        <translation type="unfinished">Nie można opisać poprawki %1 w %2: %3</translation>
     </message>
     <message>
         <source>Description:</source>
@@ -8093,7 +8135,8 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     <message>
         <source>There were warnings while applying %1 to %2:
 %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Wystąpiły ostrzeżenia podczas aplikowania  %1 do %2:
+%3</translation>
     </message>
     <message>
         <source>Unable apply patch %1 to %2: %3</source>
@@ -8101,11 +8144,11 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Cannot locate %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można odnaleźć %1.</translation>
     </message>
     <message>
         <source>Unable to launch %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można uruchomić %1.</translation>
     </message>
     <message>
         <source>Unable to retrieve the last commit data of the repository %1.</source>
@@ -8114,35 +8157,38 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     <message numerus="yes">
         <source>Amended %1 (%n file(s)).
 </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Poprawiono %1 (%n plik).
+</numerusform>
+            <numerusform>Poprawiono %1 (%n pliki).
+</numerusform>
+            <numerusform>Poprawiono %1 (%n plików).
+</numerusform>
         </translation>
     </message>
     <message>
         <source>Amended %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Poprawiono %1.</translation>
     </message>
     <message>
         <source>Unable to restore stash %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można przywrócić odłożonej zmiany%1: %2</translation>
     </message>
     <message>
         <source>Unable to restore stash %1 to branch %2: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można przywrócić odłożonej zmiany%1 w gałęzi %2: %3</translation>
     </message>
     <message>
         <source>Unable to remove stashes of %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można usunąć odłożonych zmian%1: %2</translation>
     </message>
     <message>
         <source>Unable to remove stash %1 of %2: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można przywrócić odłożonej zmiany %1 w %2: %3</translation>
     </message>
     <message>
         <source>Unable retrieve stash list of %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można pobrać listy odłożonych zmian w %1: %2</translation>
     </message>
     <message>
         <source>Unable to determine git version: %1</source>
@@ -8150,11 +8196,11 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Unable stash in %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można odłożyć zmiany w %1: %2</translation>
     </message>
     <message>
         <source>Stash Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Opis odłożonej zmiany</translation>
     </message>
     <message>
         <source>Changes</source>
@@ -8170,7 +8216,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>The repository %1 is not initialized yet.</source>
-        <translation>Składnica %1 nie jest jeszcze zainicjalizowana.</translation>
+        <translation>Repozytorium %1 nie jest jeszcze zainicjalizowane.</translation>
     </message>
     <message>
         <source>You did not checkout a branch.</source>
@@ -8212,7 +8258,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Git SVN Log</source>
-        <translation>Dziennik git SVN</translation>
+        <translation>Log git SVN</translation>
     </message>
     <message>
         <source>There are no modified files.</source>
@@ -8257,11 +8303,11 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     <name>Gitorious::Internal::GitoriousCloneWizard</name>
     <message>
         <source>Clones a Gitorious repository and tries to load the contained project.</source>
-        <translation>Klonuje składnicę Gitorious i próbuje załadować zawarty projekt.</translation>
+        <translation>Klonuje repozytorium Gitorious i próbuje załadować zawarty projekt.</translation>
     </message>
     <message>
         <source>Gitorious Repository Clone</source>
-        <translation>Klon składnicy Gitorious</translation>
+        <translation>Klon repozytorium Gitorious</translation>
     </message>
 </context>
 <context>
@@ -8302,7 +8348,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Log of &quot;%1&quot;</source>
-        <translation>Pokaż dziennik &quot;%1&quot;</translation>
+        <translation>Pokaż log &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Alt+G,Alt+L</source>
@@ -8310,11 +8356,11 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Blame</source>
-        <translation type="unfinished"></translation>
+        <translation>Blame</translation>
     </message>
     <message>
         <source>Blame for &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Blame dla &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Alt+G,Alt+B</source>
@@ -8326,19 +8372,19 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Stage File for Commit</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj plik do indeksu</translation>
     </message>
     <message>
         <source>Diff of &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż różnice w &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Log Current File</source>
-        <translation type="unfinished">Dziennik bieżącego pliku</translation>
+        <translation>Log dla bieżącego pliku</translation>
     </message>
     <message>
         <source>Stage &quot;%1&quot; for Commit</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj &quot;%1&quot; do indeksu</translation>
     </message>
     <message>
         <source>Alt+G,Alt+A</source>
@@ -8346,11 +8392,11 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Unstage File from Commit</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń plik z indeksu</translation>
     </message>
     <message>
         <source>Unstage &quot;%1&quot; from Commit</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń &quot;%1&quot; z indeksu</translation>
     </message>
     <message>
         <source>Diff Current Project</source>
@@ -8362,19 +8408,23 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Log Project</source>
-        <translation>Pokaż dziennik projektu</translation>
+        <translation>Pokaż log dla projektu</translation>
     </message>
     <message>
         <source>Log Project &quot;%1&quot;</source>
-        <translation>Pokaż dziennik projektu &quot;%1&quot;</translation>
+        <translation>Pokaż log dla projektu &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Alt+G,Alt+K</source>
         <translation>Alt+G,Alt+K</translation>
     </message>
     <message>
+        <source>Undo Uncommited Changes...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Stash</source>
-        <translation>Odłóż</translation>
+        <translation>Stash</translation>
     </message>
     <message>
         <source>Saves the current state of your work.</source>
@@ -8382,11 +8432,11 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Undo Unstaged Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Cofnij niezaindeksowane zmiany</translation>
     </message>
     <message>
         <source>Undo Unstaged Changes for &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Cofnij niezaindeksowane zmiany dla &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Undo Uncommitted Changes</source>
@@ -8406,35 +8456,35 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Apply &quot;%1&quot;</source>
-        <translation>Zastosuj &quot;%1&quot;</translation>
+        <translation>Zastosuj łatę &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Create Repository...</source>
-        <translation>Utwórz składnicę...</translation>
+        <translation>Utwórz repozytorium...</translation>
     </message>
     <message>
         <source>Launch gitk</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchom gitk</translation>
     </message>
     <message>
         <source>Saves the current state of your work and resets the repository.</source>
-        <translation>Zachowuje bieżący stan Twojej pracy i przywraca składnicę do stanu sprzed zmian.</translation>
+        <translation>Zachowuje bieżący stan Twojej pracy i przywraca repozytorium do stanu sprzed zmian.</translation>
     </message>
     <message>
         <source>Pull</source>
-        <translation>Pociągnij</translation>
+        <translation>Pull</translation>
     </message>
     <message>
         <source>Stash Pop</source>
-        <translation>Przywróć odłożone zmiany</translation>
+        <translation>Stash Pop</translation>
     </message>
     <message>
         <source>Restores changes saved to the stash list using &quot;Stash&quot;.</source>
-        <translation>Przywraca zmiany zachowane na stosie odłożonych zmian.</translation>
+        <translation>Przywraca zmiany zachowane na stosie odłożonych zmian przy użyciu &quot;Stash&quot;.</translation>
     </message>
     <message>
         <source>Commit...</source>
-        <translation type="unfinished"></translation>
+        <translation>Commit...</translation>
     </message>
     <message>
         <source>Alt+G,Alt+C</source>
@@ -8442,11 +8492,11 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Amend Last Commit...</source>
-        <translation type="unfinished"></translation>
+        <translation>Popraw ostatni commit...</translation>
     </message>
     <message>
         <source>Push</source>
-        <translation>Popchnij</translation>
+        <translation>Push</translation>
     </message>
     <message>
         <source>Branches...</source>
@@ -8457,16 +8507,26 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
         <translation>Odłożone zmiany...</translation>
     </message>
     <message>
+        <source>Undo all pending changes to the repository
+%1?</source>
+        <translation>Czy odwrócić wszystkie oczekujące zmiany w repozytorium
+%1?</translation>
+    </message>
+    <message>
+        <source>Undo Changes</source>
+        <translation>Cofnij zmiany</translation>
+    </message>
+    <message>
         <source>Amend %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Amend %1</translation>
     </message>
     <message>
         <source>Git Commit</source>
-        <translation type="unfinished"></translation>
+        <translation>Git Commit</translation>
     </message>
     <message>
         <source>Closing Git Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Zamykanie Git Editor</translation>
     </message>
     <message>
         <source>Unable to retrieve file list</source>
@@ -8474,7 +8534,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Repository Clean</source>
-        <translation>Czysta składnica</translation>
+        <translation>Czyste repozytorium</translation>
     </message>
     <message>
         <source>Choose Patch</source>
@@ -8482,7 +8542,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>The repository is clean.</source>
-        <translation>Składnica jest czysta.</translation>
+        <translation>Repozytorium jest czyste.</translation>
     </message>
     <message>
         <source>Patches (*.patch *.diff)</source>
@@ -8494,7 +8554,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Show Commit...</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż commit...</translation>
     </message>
     <message>
         <source>Subversion</source>
@@ -8502,7 +8562,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Log</source>
-        <translation>Dziennik</translation>
+        <translation>Log</translation>
     </message>
     <message>
         <source>Diff</source>
@@ -8514,7 +8574,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Reset...</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Reset...</translation>
     </message>
     <message>
         <source>Clean...</source>
@@ -8526,23 +8586,23 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Apply from Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Zastosuj z edytora</translation>
     </message>
     <message>
         <source>Apply from File...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zastosuj z pliku...</translation>
     </message>
     <message>
         <source>Take Snapshot...</source>
-        <translation type="unfinished"></translation>
+        <translation>Wykonaj zrzut...</translation>
     </message>
     <message>
         <source>Fetch</source>
-        <translation>Pobierz</translation>
+        <translation>Fetch</translation>
     </message>
     <message>
         <source>Commit</source>
-        <translation type="unfinished">Wyślij</translation>
+        <translation>Commit</translation>
     </message>
     <message>
         <source>Diff Selected Files</source>
@@ -8559,11 +8619,12 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     <message>
         <source>Revert all pending changes to the repository
 %1?</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Odwróć wszystkie oczekujące zmiany dla repozytorium
+%1?</translation>
     </message>
     <message>
         <source>Revert</source>
-        <translation>Odwróć zmiany</translation>
+        <translation type="obsolete">Odwróć zmiany</translation>
     </message>
     <message>
         <source>Another submit is currently being executed.</source>
@@ -8665,15 +8726,15 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>The filter &quot;%1&quot; will show every documentation file available, as no attributes are specified.</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtr &quot;%1&quot; pokaże całą dostępną dokumentację, ponieważ nie podano żadnych atrybutów.</translation>
     </message>
     <message>
         <source>The filter &quot;%1&quot; will only show documentation files that have the attribute %2 specified.</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtr &quot;%1&quot; pokaże tylko tą dokumentację, która posiada atrybut %2.</translation>
     </message>
     <message>
         <source>The filter &quot;%1&quot; will only show documentation files that have the attributes %2 specified.</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtr &quot;%1&quot; pokaże tylko tą dokumentację, która posiada atrybuty %2.</translation>
     </message>
 </context>
 <context>
@@ -9010,11 +9071,11 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Filelog Current File</source>
-        <translation>Dziennik bieżącego pliku</translation>
+        <translation>Log  bieżącego pliku</translation>
     </message>
     <message>
         <source>Filelog &quot;%1&quot;</source>
-        <translation>Dziennik pliku &quot;%1&quot;</translation>
+        <translation>Log pliku &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Alt+P,Alt+F</source>
@@ -9022,7 +9083,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Filelog...</source>
-        <translation>Dziennik pliku...</translation>
+        <translation>Log pliku...</translation>
     </message>
     <message>
         <source>Update All</source>
@@ -9038,11 +9099,11 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Log Project</source>
-        <translation>Pokaż dziennik projektu</translation>
+        <translation>Pokaż log projektu</translation>
     </message>
     <message>
         <source>Log Project &quot;%1&quot;</source>
-        <translation>Pokaż dziennik projektu &quot;%1&quot;</translation>
+        <translation>Pokaż log projektu &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Submit Project &quot;%1&quot;</source>
@@ -9070,7 +9131,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Repository Log</source>
-        <translation>Dziennik składnicy</translation>
+        <translation>Log repozytorium</translation>
     </message>
     <message>
         <source>Submit</source>
@@ -9139,7 +9200,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     <message>
         <source>Error running &quot;where&quot; on %1: %2</source>
         <extracomment>Failed to run p4 &quot;where&quot; to resolve a Perforce file name to a local file system name.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Błąd podczas uruchamiania &quot;where&quot; w %1: %2</translation>
     </message>
     <message>
         <source>The file is not mapped</source>
@@ -9148,11 +9209,11 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Perforce repository: %1</source>
-        <translation>Składnica Perforce: %1</translation>
+        <translation>Repozytorium Perforce: %1</translation>
     </message>
     <message>
         <source>Perforce: Unable to determine the repository: %1</source>
-        <translation>Perforce: Nie można określić składnicy: %1</translation>
+        <translation>Perforce: Nie można określić repozytorium: %1</translation>
     </message>
     <message>
         <source>The process terminated abnormally.</source>
@@ -9482,11 +9543,11 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>No Executable specified.</source>
-        <translation>Nie podano programu wykonywalnego.</translation>
+        <translation type="obsolete">Nie podano programu wykonywalnego.</translation>
     </message>
     <message>
         <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2</source>
-        <translation>Uruchomiony program: &lt;b&gt;%1&lt;/b&gt; %2</translation>
+        <translation type="obsolete">Uruchomiony program: &lt;b&gt;%1&lt;/b&gt; %2</translation>
     </message>
 </context>
 <context>
@@ -9928,7 +9989,7 @@ Powód: %2</translation>
     </message>
     <message>
         <source>F5</source>
-        <translation>F5</translation>
+        <translation type="obsolete">F5</translation>
     </message>
     <message>
         <source>Add New...</source>
@@ -10096,7 +10157,7 @@ do projektu &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>A version control system repository could not be created in &apos;%1&apos;.</source>
-        <translation>Nie można utworzyć składnicy systemu kontroli wersji w &quot;%1&quot;.</translation>
+        <translation>Nie można utworzyć repozytorium systemu kontroli wersji w &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Failed to add &apos;%1&apos; to the version control system.</source>
@@ -10313,7 +10374,7 @@ do projektu &quot;%2&quot;.</translation>
     <name>QmlProjectManager::Internal::QmlRunConfiguration</name>
     <message>
         <source>QML Viewer</source>
-        <translation>Przeglądarka QML</translation>
+        <translation>QML Viewer</translation>
     </message>
 </context>
 <context>
@@ -10923,7 +10984,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
     <message>
         <source>Debugging Helper Build Log for &apos;%1&apos;</source>
-        <translation>Dziennik budowania asystenta debuggera dla &quot;%1&quot;</translation>
+        <translation>Log budowania asystenta debuggera dla &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Binary not found</source>
@@ -11352,7 +11413,7 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
     <name>Subversion::Internal::CheckoutWizard</name>
     <message>
         <source>Checks out a Subversion repository and tries to load the contained project.</source>
-        <translation>Wyciąga składnicę Subversion i próbuje załadować zawarty projekt.</translation>
+        <translation type="unfinished">Wyciąga repozytorium Subversion i próbuje załadować zawarty projekt.</translation>
     </message>
     <message>
         <source>Subversion Checkout</source>
@@ -11367,11 +11428,11 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
     </message>
     <message>
         <source>Specify repository URL, checkout directory and path.</source>
-        <translation>Podaj URL składnicy, nazwę katalogu z kopią roboczą i ścieżkę do niego.</translation>
+        <translation>Podaj URL repozytorium, nazwę katalogu z kopią roboczą i ścieżkę do niego.</translation>
     </message>
     <message>
         <source>Repository:</source>
-        <translation>Składnica:</translation>
+        <translation>Repozytorium:</translation>
     </message>
 </context>
 <context>
@@ -11433,11 +11494,11 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
     </message>
     <message>
         <source>Filelog Current File</source>
-        <translation>Dziennik bieżącego pliku</translation>
+        <translation>Log bieżącego pliku</translation>
     </message>
     <message>
         <source>Filelog &quot;%1&quot;</source>
-        <translation>Dziennik pliku &quot;%1&quot;</translation>
+        <translation>Log pliku &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Annotate Current File</source>
@@ -11457,19 +11518,19 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
     </message>
     <message>
         <source>Diff Repository</source>
-        <translation>Pokaż zmiany w składnicy</translation>
+        <translation>Pokaż zmiany w repozytorium</translation>
     </message>
     <message>
         <source>Repository Status</source>
-        <translation>Stan składnicy</translation>
+        <translation>Stan repozytorium</translation>
     </message>
     <message>
         <source>Log Repository</source>
-        <translation>Dziennik składnicy</translation>
+        <translation>Log  repozytorium</translation>
     </message>
     <message>
         <source>Update Repository</source>
-        <translation>Uaktualnij składnicę</translation>
+        <translation>Uaktualnij repozytorium</translation>
     </message>
     <message>
         <source>Describe...</source>
@@ -11505,11 +11566,11 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
     </message>
     <message>
         <source>Log Project</source>
-        <translation>Pokaż dziennik projektu</translation>
+        <translation>Pokaż log projektu</translation>
     </message>
     <message>
         <source>Log Project &quot;%1&quot;</source>
-        <translation>Pokaż dziennik projektu &quot;%1&quot;</translation>
+        <translation>Pokaż log projektu &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Update Project</source>
@@ -11521,7 +11582,7 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
     </message>
     <message>
         <source>Revert Repository...</source>
-        <translation>Odwróć zmiany w składnicy...</translation>
+        <translation>Odwróć zmiany w repozytorium...</translation>
     </message>
     <message>
         <source>Commit</source>
@@ -11553,11 +11614,11 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
     </message>
     <message>
         <source>Revert repository</source>
-        <translation>Odwróć zmiany w składnicy</translation>
+        <translation>Odwróć zmiany w repozytorium</translation>
     </message>
     <message>
         <source>Revert all pending changes to the repository?</source>
-        <translation>Czy chcesz odwrócić wszystkie oczekujące zmiany w składnicy?</translation>
+        <translation>Czy chcesz odwrócić wszystkie oczekujące zmiany w repozytorium?</translation>
     </message>
     <message>
         <source>Revert failed: %1</source>
@@ -11910,15 +11971,15 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     </message>
     <message>
         <source>Fold</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwiń</translation>
     </message>
     <message>
         <source>Unfold</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozwiń</translation>
     </message>
     <message>
         <source>(Un)&amp;Fold All</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Zwiń / rozwiń wszystko</translation>
     </message>
     <message>
         <source>Ctrl+]</source>
@@ -12415,7 +12476,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     </message>
     <message>
         <source>Insert Name...</source>
-        <translation type="unfinished"></translation>
+        <translation>Wstaw nazwę...</translation>
     </message>
     <message>
         <source>Submit Message Check Failed</source>
@@ -12711,7 +12772,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     </message>
     <message>
         <source>&amp;Preview with Debug</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Podgląd z debugowaniem</translation>
     </message>
     <message>
         <source>Ctrl+D</source>
@@ -12954,7 +13015,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     </message>
     <message>
         <source>Qt Creator task list file</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik z listą zadań Qt Creatora</translation>
     </message>
     <message>
         <source>Plain text document</source>
@@ -13290,6 +13351,14 @@ aktywny tylko po wpisaniu przedrostka</translation>
         <translation>Niepoprawna flaga &quot;%0&quot; wyrażenia regularnego</translation>
     </message>
     <message>
+        <source>Unterminated regular expression backslash sequence</source>
+        <translation>Niedokończone wyrażenie regularne w sekwencji z backslashem</translation>
+    </message>
+    <message>
+        <source>Unterminated regular expression class</source>
+        <translation>Niedokończona klasa wyrażenia regularnego</translation>
+    </message>
+    <message>
         <source>Syntax error</source>
         <translation>Błąd składni</translation>
     </message>
@@ -13458,11 +13527,11 @@ aktywny tylko po wpisaniu przedrostka</translation>
     </message>
     <message>
         <source>&lt;No repository&gt;</source>
-        <translation>&lt;Brak składnicy&gt;</translation>
+        <translation>&lt;Brak repozytorium&gt;</translation>
     </message>
     <message>
         <source>Repository: %1</source>
-        <translation>Składnica: %1</translation>
+        <translation>Repozytorium: %1</translation>
     </message>
     <message>
         <source>Do you want to delete all stashes?</source>
@@ -13491,12 +13560,12 @@ aktywny tylko po wpisaniu przedrostka</translation>
     </message>
     <message>
         <source>Repository Modified</source>
-        <translation>Składnica zmodyfikowana</translation>
+        <translation>Repozytorium zmodyfikowane</translation>
     </message>
     <message>
         <source>%1 cannot be restored since the repository is modified.
 You can choose between stashing the changes or discarding them.</source>
-        <translation>Nie można przywrócić %1 ponieważ składnica została zmodyfikowana.
+        <translation>Nie można przywrócić %1 ponieważ repozytorium zostało zmodyfikowane.
 Możesz odłożyć zmiany lub je porzucić.</translation>
     </message>
     <message>
@@ -13536,11 +13605,11 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     </message>
     <message>
         <source>Repository:</source>
-        <translation>Składnica:</translation>
+        <translation>Repozytorium:</translation>
     </message>
     <message>
         <source>repository</source>
-        <translation>składnica</translation>
+        <translation>repozytorium</translation>
     </message>
     <message>
         <source>Branch:</source>
@@ -13599,11 +13668,11 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     </message>
     <message>
         <source>Log count:</source>
-        <translation>Licznik dziennika:</translation>
+        <translation>Licznik loga:</translation>
     </message>
     <message>
         <source>The number of recent commit logs to show, choose 0 to see all enteries</source>
-        <translation>Liczba ostatnich zmian wyświetlanych w dzienniku, wybierz 0 aby ujrzeć wszystkie zmiany</translation>
+        <translation>Liczba ostatnich zmian wyświetlanych w logu, wybierz 0 aby ujrzeć wszystkie zmiany</translation>
     </message>
     <message>
         <source>Timeout:</source>
@@ -14420,7 +14489,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <name>Qt4ProjectManager::Internal::S60CreatePackageStepWidget</name>
     <message>
         <source>Self-signed certificate</source>
-        <translation>Własnoręcznie podpisany certyfikat</translation>
+        <translation>Własnoręcznie stworzony certyfikat</translation>
     </message>
     <message>
         <source>Custom certificate:</source>
@@ -14436,15 +14505,15 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     </message>
     <message>
         <source>Create Smart Installer package</source>
-        <translation type="unfinished"></translation>
+        <translation>Utwórz pakiet z &quot;Smart Installer&quot;</translation>
     </message>
     <message>
         <source>Resets saved passphrases for all used keys</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń hasła dla wszystkich użytych kluczy</translation>
     </message>
     <message>
         <source>Reset Passphrases</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń hasła</translation>
     </message>
     <message>
         <source>Not signed</source>
@@ -14514,7 +14583,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     </message>
     <message>
         <source>There were errors when cleaning the repository %1:</source>
-        <translation>Wystąpiły błędy podczas usuwania składnicy %1:</translation>
+        <translation>Wystąpiły błędy podczas czyszczenia repozytorium %1:</translation>
     </message>
     <message>
         <source>Delete...</source>
@@ -14526,7 +14595,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     </message>
     <message>
         <source>Repository: %1</source>
-        <translation>Składnica: %1</translation>
+        <translation>Repozytorium: %1</translation>
     </message>
     <message>
         <source>%1 bytes, last modified %2</source>
@@ -14550,7 +14619,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     </message>
     <message>
         <source>Clean Repository</source>
-        <translation>Wyczyść składnicę</translation>
+        <translation>Wyczyść repozytorium</translation>
     </message>
 </context>
 <context>
@@ -15239,11 +15308,11 @@ Wartość dziesiętna ze znakiem (big endian): %4</translation>
     <name>Mercurial::Internal::CloneWizard</name>
     <message>
         <source>Clones a Mercurial repository and tries to load the contained project.</source>
-        <translation>Klonuje składnicę Mercurial i próbuje załadować zawarty projekt.</translation>
+        <translation>Klonuje repozytorium Mercurial i próbuje załadować zawarty projekt.</translation>
     </message>
     <message>
         <source>Mercurial Clone</source>
-        <translation>Klon składnicy Mercurial</translation>
+        <translation>Klon repozytorium Mercurial</translation>
     </message>
 </context>
 <context>
@@ -15254,7 +15323,7 @@ Wartość dziesiętna ze znakiem (big endian): %4</translation>
     </message>
     <message>
         <source>Specify repository URL, checkout directory and path.</source>
-        <translation>Podaj URL składnicy, nazwę katalogu z kopią roboczą i ścieżkę do niego.</translation>
+        <translation>Podaj URL repozytorium, nazwę katalogu z kopią roboczą i ścieżkę do niego.</translation>
     </message>
     <message>
         <source>Clone URL:</source>
@@ -15276,31 +15345,31 @@ Wartość dziesiętna ze znakiem (big endian): %4</translation>
     </message>
     <message>
         <source>Cannot parse output: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można przetworzyć komunikatu: %1</translation>
     </message>
     <message>
         <source>Hg Annotate %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Hg Annotate %1</translation>
     </message>
     <message>
         <source>Hg diff %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Hg diff %1</translation>
     </message>
     <message>
         <source>Hg log %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Hg log %1</translation>
     </message>
     <message>
         <source>Hg incoming %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Hg incoming %1</translation>
     </message>
     <message>
         <source>Hg outgoing %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Hg outgoing %1</translation>
     </message>
     <message>
         <source>Working...</source>
-        <translation type="unfinished"></translation>
+        <translation>Przetwarzanie...</translation>
     </message>
 </context>
 <context>
@@ -15329,7 +15398,7 @@ Wartość dziesiętna ze znakiem (big endian): %4</translation>
     </message>
     <message>
         <source>Timed out after %1s waiting for mercurial process to finish.</source>
-        <translation type="unfinished"></translation>
+        <translation>Przekroczono czas oczekiwania %1s na ukończenie procesu mercuriala.</translation>
     </message>
 </context>
 <context>
@@ -15360,11 +15429,11 @@ Wartość dziesiętna ze znakiem (big endian): %4</translation>
     </message>
     <message>
         <source>Log Current File</source>
-        <translation>Dziennik bieżącego pliku</translation>
+        <translation>Log bieżącego pliku</translation>
     </message>
     <message>
         <source>Log &quot;%1&quot;</source>
-        <translation>Dziennik &quot;%1&quot;</translation>
+        <translation>Log &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Alt+H,Alt+L</source>
@@ -15412,7 +15481,7 @@ Wartość dziesiętna ze znakiem (big endian): %4</translation>
     </message>
     <message>
         <source>Log</source>
-        <translation>Dziennik</translation>
+        <translation>Log</translation>
     </message>
     <message>
         <source>Revert...</source>
@@ -15424,19 +15493,19 @@ Wartość dziesiętna ze znakiem (big endian): %4</translation>
     </message>
     <message>
         <source>Pull...</source>
-        <translation>Pociągnij...</translation>
+        <translation>Pull...</translation>
     </message>
     <message>
         <source>Push...</source>
-        <translation>Popchnij...</translation>
+        <translation>Push...</translation>
     </message>
     <message>
         <source>Update...</source>
-        <translation>Uaktualnij...</translation>
+        <translation>Update...</translation>
     </message>
     <message>
         <source>Import...</source>
-        <translation>Importuj...</translation>
+        <translation>Import...</translation>
     </message>
     <message>
         <source>Incoming...</source>
@@ -15448,7 +15517,7 @@ Wartość dziesiętna ze znakiem (big endian): %4</translation>
     </message>
     <message>
         <source>Commit...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Commit...</translation>
     </message>
     <message>
         <source>Alt+H,Alt+C</source>
@@ -15456,7 +15525,7 @@ Wartość dziesiętna ze znakiem (big endian): %4</translation>
     </message>
     <message>
         <source>Create Repository...</source>
-        <translation>Utwórz składnicę...</translation>
+        <translation>Utwórz repozytorium...</translation>
     </message>
     <message>
         <source>Pull Source</source>
@@ -15476,7 +15545,7 @@ Wartość dziesiętna ze znakiem (big endian): %4</translation>
     </message>
     <message>
         <source>Commit</source>
-        <translation type="unfinished">Wyślij</translation>
+        <translation>Commit</translation>
     </message>
     <message>
         <source>Diff Selected Files</source>
@@ -15563,7 +15632,7 @@ Wartość dziesiętna ze znakiem (big endian): %4</translation>
     </message>
     <message>
         <source>The repository &quot;%1&quot; does not exist.</source>
-        <translation>Składnica &quot;%1&quot; nie istnieje.</translation>
+        <translation>Repozytorium &quot;%1&quot; nie istnieje.</translation>
     </message>
 </context>
 <context>
@@ -15590,7 +15659,7 @@ Wartość dziesiętna ze znakiem (big endian): %4</translation>
     <message>
         <source>Build</source>
         <extracomment>Display name of the build build step list. Used as part of the labels in the project window.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Budowanie</translation>
     </message>
     <message>
         <source>Clean</source>
@@ -15640,31 +15709,31 @@ Wartość dziesiętna ze znakiem (big endian): %4</translation>
     </message>
     <message>
         <source>Creates a C++ plugin that makes it possible to offer extensions that can be loaded dynamically into applications using the QDeclarativeEngine class.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy wtyczkę C++ umożliwiającą rozszerzenia, które mogą być dynamicznie załadowane przy pomocy klasy QDeclarativeEngine.</translation>
     </message>
     <message>
         <source>Custom QML Extension Plugin</source>
-        <translation type="unfinished"></translation>
+        <translation>Wtyczka z własnym rozszerzeniem QML</translation>
     </message>
     <message>
         <source>QML Extension Plugin</source>
-        <translation type="unfinished"></translation>
+        <translation>Wtyczka z rozszerzeniem QML</translation>
     </message>
     <message>
         <source>Custom QML Extension  Plugin Parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>Parametry wtyczki z własnym rozszerzeniem QML</translation>
     </message>
     <message>
         <source>Object Class-name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa klasy:</translation>
     </message>
     <message>
         <source>The project name and the object class-name cannot be the same.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa klasy oraz projektu nie mogą być identyczne.</translation>
     </message>
     <message>
         <source>Creates a custom Qt Creator plugin.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy własną wtyczkę dla Qt Creatora.</translation>
     </message>
     <message>
         <source>Qt Creator plugin</source>
@@ -15684,7 +15753,7 @@ Wartość dziesiętna ze znakiem (big endian): %4</translation>
     </message>
     <message>
         <source>Vendor name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa dostawcy:</translation>
     </message>
     <message>
         <source>Copyright:</source>
@@ -15800,7 +15869,7 @@ Wartość dziesiętna ze znakiem (big endian): %4</translation>
     </message>
     <message>
         <source>Open Command Prompt Here...</source>
-        <translation type="unfinished"></translation>
+        <translation>Otwórz tutaj linię poleceń...</translation>
     </message>
     <message>
         <source>Open Terminal Here...</source>
@@ -16543,7 +16612,9 @@ Errors:
         <source>Creates a  Qt Quick UI project with a single QML file that contains the main view.
 
 You can review Qt Quick UI projects in the QML Viewer and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of projects.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy projekt Qt Quick z pojedynczym plikiem QML zawierającym główny widok.
+
+Możesz przeglądać projekty przy pomocy QML Viewera bez ich uprzedniego budowania. Nie musisz posiadać zainstalowanego środowiska na swoim komputerze aby uruchamiać tego typu projekty.</translation>
     </message>
     <message>
         <source>File generated by QtCreator</source>
@@ -16583,7 +16654,7 @@ You can review Qt Quick UI projects in the QML Viewer and you need not build the
     <message>
         <source>QML Viewer</source>
         <comment>QMLRunConfiguration display name.</comment>
-        <translation>Przeglądarka QML</translation>
+        <translation>QML Viewer</translation>
     </message>
     <message>
         <source>Manage Qt versions</source>
@@ -16658,8 +16729,8 @@ You can review Qt Quick UI projects in the QML Viewer and you need not build the
         <translation>Nie można odnaleźć QML Observera.</translation>
     </message>
     <message>
-        <source>QML Observer is used to offer debugging features for QML applications, such as interactive debugging and inspection tools.It must be compiled for each used Qt version separately. On the Qt4 options page, select the current Qt installation and click Rebuild.</source>
-        <translation type="unfinished"></translation>
+        <source>QML Observer is used to offer debugging features for QML applications, such as interactive debugging and inspection tools. It must be compiled for each used Qt version separately. On the Qt4 options page, select the current Qt installation and click Rebuild.</source>
+        <translation>QML Observer umożliwia interaktywne debugowanie aplikacji QML. Aplikacja musi być skompilowana dla każdej wersji Qt. W tym celu wybierz bieżącą instalację Qt w ustawieniach Qt4 i kliknij Przebuduj.</translation>
     </message>
 </context>
 <context>
@@ -16820,6 +16891,18 @@ Czy uruchomiłeś Qemu?</translation>
         <translation>&lt;b&gt;Szczegóły debugowania:&lt;/b&gt; Użyj gdbserver</translation>
     </message>
     <message>
+        <source>Cancel Fetch Operation</source>
+        <translation>Anuluj pobieranie</translation>
+    </message>
+    <message>
+        <source>Device error</source>
+        <translation>Błąd urządenia</translation>
+    </message>
+    <message>
+        <source>Fetching environment failed: %1</source>
+        <translation>Błąd podczas pobierania środowiska: %1</translation>
+    </message>
+    <message>
         <source>No local directories to be mounted on the device.</source>
         <translation>Brak lokalnych katalogów do zamontowania na urządzeniu.</translation>
     </message>
@@ -16961,15 +17044,15 @@ Czy uruchomiłeś Qemu?</translation>
     <name>Qt4ProjectManager::Internal::S60CreatePackageStepConfigWidget</name>
     <message>
         <source>Reset Passphrases</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń hasła</translation>
     </message>
     <message>
         <source>Do you want to reset all passphrases saved for keys used?</source>
-        <translation type="unfinished"></translation>
+        <translation>Czy chcesz usunąć hasła dla wszystkich użytych kluczy?</translation>
     </message>
     <message>
         <source>not signed</source>
-        <translation type="unfinished"></translation>
+        <translation>bez podpisu</translation>
     </message>
     <message>
         <source>self-signed</source>
@@ -16981,7 +17064,7 @@ Czy uruchomiłeś Qemu?</translation>
     </message>
     <message>
         <source>&lt;b&gt;Create SIS Package:&lt;/b&gt; %1, using Smart Installer</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Utwórz pakiet SIS:&lt;/b&gt; %1, używając Smart Installera</translation>
     </message>
     <message>
         <source>&lt;b&gt;Create SIS Package:&lt;/b&gt; %1</source>
@@ -17155,7 +17238,7 @@ Czy uruchomiłeś Qemu?</translation>
     <message>
         <source>&lt;br&gt;using %1 (%2)</source>
         <extracomment>%1: qmake used (incl. full path), %2: &quot;debug&quot;, &quot;release&quot; or &quot;debug and release&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>&lt;br&gt;używając %1 (%2)</translation>
     </message>
     <message>
         <source>Import</source>
@@ -17185,7 +17268,7 @@ Czy uruchomiłeś Qemu?</translation>
     </message>
     <message>
         <source>Uncheck All</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Odznacz wszystko</translation>
     </message>
 </context>
 <context>
@@ -17236,7 +17319,7 @@ Czy uruchomiłeś Qemu?</translation>
     </message>
     <message>
         <source>Choose Repository Directory</source>
-        <translation>Wybierz katalog składnicy</translation>
+        <translation>Wybierz katalog repozytorium</translation>
     </message>
     <message>
         <source>The directory &apos;%1&apos; is already managed by a version control system (%2). Would you like to specify another directory?</source>
@@ -17244,23 +17327,23 @@ Czy uruchomiłeś Qemu?</translation>
     </message>
     <message>
         <source>Repository already under version control</source>
-        <translation>Składnica znajduje się już w systemie kontroli wersji</translation>
+        <translation>Repozytorium znajduje się już w systemie kontroli wersji</translation>
     </message>
     <message>
         <source>Repository Created</source>
-        <translation>Utworzono składnicę</translation>
+        <translation>Utworzono repozytorium</translation>
     </message>
     <message>
         <source>Repository Creation Failed</source>
-        <translation>Błąd podczas tworzenia składnicy</translation>
+        <translation>Błąd podczas tworzenia repozytorium</translation>
     </message>
     <message>
         <source>A version control repository has been created in %1.</source>
-        <translation>Składnica systemu kontroli wersji została utworzona w %1.</translation>
+        <translation>Repozytorium systemu kontroli wersji została utworzona w %1.</translation>
     </message>
     <message>
         <source>A version control repository could not be created in %1.</source>
-        <translation>Nie można utworzyć składnicy systemu kontroli wersji w %1.</translation>
+        <translation>Nie można utworzyć repozytorium systemu kontroli wersji w %1.</translation>
     </message>
 </context>
 <context>
@@ -17337,15 +17420,15 @@ Czy uruchomiłeś Qemu?</translation>
     </message>
     <message>
         <source>&lt;b&gt;Adapt Debian file:&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Przyswój plik Debiana:&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Edit</source>
         <translation>Zmodyfikuj</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Package Manager Icon:&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <source>&lt;b&gt;Package Manager icon:&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Ikona menadżera pakietu:&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
@@ -17416,19 +17499,20 @@ Czy uruchomiłeś Qemu?</translation>
     <message>
         <source>A file listing user names and email addresses in a 4-column mailmap format:
 name &lt;email&gt; alias &lt;email&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik z listą nazw użytkowników i adresami pocztowymi w 4 kolumnach (format mailmap):
+nazwa &lt;email&gt; alias &lt;email&gt;</translation>
     </message>
     <message>
         <source>User/alias configuration file:</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik z konfiguracją użytkownik / alias:</translation>
     </message>
     <message>
         <source>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Plik z liniami zawierającymi pola takie jak: &quot;Reviewed-By:&quot; który będzie dodany poniżej submit editor.</translation>
     </message>
     <message>
         <source>User fields configuration file:</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik z konfiguracją pól użytkownika:</translation>
     </message>
     <message>
         <source>Specifies a command that is executed to graphically prompt for a password, 
@@ -17749,7 +17833,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Echo Mode</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tryb echo</translation>
     </message>
     <message>
         <source>Pass. Char</source>
@@ -18097,11 +18181,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <name>ProjectExplorer::Internal::TargetSelector</name>
     <message>
         <source>Run</source>
-        <translation>Uruchom</translation>
+        <translation>Uruchamianie</translation>
     </message>
     <message>
         <source>Build</source>
-        <translation>Zbuduj</translation>
+        <translation>Budowanie</translation>
     </message>
 </context>
 <context>
@@ -18152,6 +18236,10 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>Tworzenie pliku pakietu...</translation>
     </message>
     <message>
+        <source>Error: Could not create file &apos;%1&apos;.</source>
+        <translation>Błąd: Nie można utworzyć pliku &quot;%1&quot;.</translation>
+    </message>
+    <message>
         <source>Cannot open MADDE config file &apos;%1&apos;.</source>
         <translation>Nie można otworzyć pliku konfiguracyjnego MADDE &quot;%1&quot;.</translation>
     </message>
@@ -18178,6 +18266,14 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Could not move package files from %1 to %2.</source>
         <translation>Nie można przenieść plików pakietu z %1 do %2.</translation>
+    </message>
+    <message>
+        <source>Packaging failed: Foreign debian directory detected.</source>
+        <translation>Błąd podczas tworzenia pakietu: wykryto obcy katalog Debiana.</translation>
+    </message>
+    <message>
+        <source>You are not using a shadow build and there is a debian directory in your project root (&apos;%1&apos;). Qt Creator will not overwrite that directory. Please remove it or use the shadow build feature.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Could not remove directory &apos;%1&apos;.</source>
@@ -18336,7 +18432,7 @@ Przy obecnej nazwie możesz spodziewać się problemów.</translation>
     </message>
     <message>
         <source>The &quot;Open C/C++ plugin&quot; is not installed in the Symbian SDK or the Symbian SDK path is misconfigured for Qt version %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wtyczka &quot;Open C/C++&quot; nie jest zainstalowana w Symbian SDK lub ścieżka Symbian SDK jest niewłaściwie skonfigurowana dla wersji Qt %1.</translation>
     </message>
     <message>
         <source>The Symbian toolchain does not handle special characters in a project path well.</source>
@@ -18509,19 +18605,19 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     </message>
     <message>
         <source>Convert to Objective-C String Literal</source>
-        <translation type="unfinished"></translation>
+        <translation>Skonwertuj do stałej znakowej Objective-C</translation>
     </message>
     <message>
         <source>Convert to Hexadecimal</source>
-        <translation type="unfinished"></translation>
+        <translation>Skonwertuj do wartości szesnastkowej</translation>
     </message>
     <message>
         <source>Convert to Octal</source>
-        <translation type="unfinished"></translation>
+        <translation>Skonwertuj do wartości ósemkowej</translation>
     </message>
     <message>
         <source>Convert to Decimal</source>
-        <translation type="unfinished"></translation>
+        <translation>Skonwertuj do wartości dziesiętnej</translation>
     </message>
     <message>
         <source>Complete Switch Statement</source>
@@ -18529,7 +18625,7 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     </message>
     <message>
         <source>Convert to Camel Case ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Skonwertuj do stylu Camel Case ...</translation>
     </message>
 </context>
 <context>
@@ -18544,7 +18640,7 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     <message>
         <source>QML Viewer</source>
         <comment>QML Viewer target display name</comment>
-        <translation>Przeglądarka QML</translation>
+        <translation>QML Viewer</translation>
     </message>
 </context>
 <context>
@@ -18595,19 +18691,19 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     </message>
     <message>
         <source>Stretch vertically. Scales the image to fit to the available area.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozciągnięcie w pionie. Dopasowuje rozmiar obrazu do dostępnej powierzchni.</translation>
     </message>
     <message>
         <source>Repeat vertically. Tiles the image until there is no more space. May crop the last image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Powtarzanie w pionie. Ostatni obraz może zostać przycięty.</translation>
     </message>
     <message>
         <source>Round. Like Repeat, but scales the images down to ensure that the last image is not cropped.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaokrąglenie. Działa jak powtarzanie, ale dodatkowo skaluje w taki sposób, że ostatni obraz nie jest przycięty.</translation>
     </message>
     <message>
         <source>Repeat horizontally. Tiles the image until there is no more space. May crop the last image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Powtarzanie w poziomie. Ostatni obraz może zostać przycięty.</translation>
     </message>
     <message>
         <source>10 x 10</source>
@@ -18615,7 +18711,7 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     </message>
     <message>
         <source>Stretch horizontally. Scales the image to fit to the available area.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozciągnięcie w poziomie. Dopasowuje rozmiar obrazu do dostępnej powierzchni.</translation>
     </message>
 </context>
 <context>
@@ -18626,27 +18722,27 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     </message>
     <message>
         <source>The image is scaled to fit</source>
-        <translation type="unfinished"></translation>
+        <translation>Dopasowuje obraz do dostępnej powierzchni</translation>
     </message>
     <message>
         <source>The image is stretched horizontally and tiled vertically</source>
-        <translation type="unfinished"></translation>
+        <translation>Obraz jest rozciągany w poziomie i powtarzany w pionie</translation>
     </message>
     <message>
         <source>The image is stretched vertically and tiled horizontally</source>
-        <translation type="unfinished"></translation>
+        <translation>Obraz jest rozciągany w pionie i powtarzany w poziomie</translation>
     </message>
     <message>
         <source>The image is duplicated horizontally and vertically</source>
-        <translation type="unfinished"></translation>
+        <translation>Obraz jest powielany w poziomie i w pionie</translation>
     </message>
     <message>
         <source>The image is scaled uniformly to fit without cropping</source>
-        <translation type="unfinished"></translation>
+        <translation>Obraz jest skalowany jednolicie bez przycinania</translation>
     </message>
     <message>
         <source>The image is scaled uniformly to fill, cropping if necessary</source>
-        <translation type="unfinished"></translation>
+        <translation>Obraz jest skalowany jednolicie, może zostać przycięty</translation>
     </message>
     <message>
         <source>10 x 10</source>
@@ -18688,11 +18784,11 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     </message>
     <message>
         <source>Easing</source>
-        <translation type="unfinished"></translation>
+        <translation>Easing</translation>
     </message>
     <message>
         <source>Type of easing curve</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ easing curve</translation>
     </message>
     <message>
         <source>Subtype</source>
@@ -18700,7 +18796,7 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     </message>
     <message>
         <source>Acceleration or deceleration of easing curve</source>
-        <translation type="unfinished"></translation>
+        <translation>Przyspieszenie i opóźnienie easing curve</translation>
     </message>
     <message>
         <source>Duration</source>
@@ -18724,7 +18820,7 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     </message>
     <message>
         <source>Amplitude of elastic and bounce easing curves</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplituda  easing curve typu elastic i bounce</translation>
     </message>
     <message>
         <source>Period</source>
@@ -18732,7 +18828,7 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     </message>
     <message>
         <source>Easing period of an elastic curve</source>
-        <translation type="unfinished"></translation>
+        <translation>Okres easing curve typu elastic</translation>
     </message>
     <message>
         <source>Overshoot</source>
@@ -18856,7 +18952,7 @@ aktywny tylko po wpisaniu przedrostka</translation>
     </message>
     <message>
         <source>Show outline</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż zarys</translation>
     </message>
     <message>
         <source>Fit image in the screen</source>
@@ -18910,7 +19006,7 @@ aktywny tylko po wpisaniu przedrostka</translation>
     </message>
     <message>
         <source>If enabled, the toolbar will remain pinned to an absolute position.</source>
-        <translation type="unfinished">Jeśli włączone pasek narzędzi pozostanie przypięty w absolutnej pozycji.</translation>
+        <translation>Jeśli włączone pasek narzędzi pozostanie przypięty w pozycji bezwzględnej.</translation>
     </message>
     <message>
         <source>Pin Qt Quick Toolbar</source>
@@ -19000,15 +19096,15 @@ aktywny tylko po wpisaniu przedrostka</translation>
     <name>MaemoDeployableListWidget</name>
     <message>
         <source>Form</source>
-        <translation>Formularz</translation>
+        <translation type="obsolete">Formularz</translation>
     </message>
     <message>
         <source>Add File to Package</source>
-        <translation>Dodaj plik do pakietu</translation>
+        <translation type="obsolete">Dodaj plik do pakietu</translation>
     </message>
     <message>
         <source>Remove File from Package</source>
-        <translation>Usuń plik z pakietu</translation>
+        <translation type="obsolete">Usuń plik z pakietu</translation>
     </message>
 </context>
 <context>
@@ -19027,11 +19123,15 @@ aktywny tylko po wpisaniu przedrostka</translation>
     </message>
     <message>
         <source>These show the INSTALLS settings from the project file(s).</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokazuje ustawienia INSTALLS dla plików projektu.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Files to install:&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Pliki do zainstalowania:&lt;/b&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;Pliki do zainstalowania:&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Files to install for subproject:&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Pliki do zainstalowania dla podprojektu:&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
@@ -19046,7 +19146,7 @@ aktywny tylko po wpisaniu przedrostka</translation>
     </message>
     <message>
         <source>Target UID3:</source>
-        <translation type="unfinished"></translation>
+        <translation>UID3 prodktu:</translation>
     </message>
     <message>
         <source>Enable network access</source>
@@ -19085,7 +19185,7 @@ aktywny tylko po wpisaniu przedrostka</translation>
     </message>
     <message>
         <source>Target UID3:</source>
-        <translation type="unfinished"></translation>
+        <translation>UID3 prodktu:</translation>
     </message>
 </context>
 <context>
@@ -19120,11 +19220,12 @@ aktywny tylko po wpisaniu przedrostka</translation>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;Highlight definitions are provided by the &lt;a href=&quot;http://kate-editor.org/&quot;&gt;Kate Text Editor&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+&lt;p&gt;Definicje podświetleń są dostarczone przez &lt;a href=&quot;http://kate-editor.org/&quot;&gt;edytor tekstu Kate&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Syntax Highlight Definition Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Pliki z definicjami podświetleń składni</translation>
     </message>
     <message>
         <source>Location:</source>
@@ -19132,7 +19233,7 @@ aktywny tylko po wpisaniu przedrostka</translation>
     </message>
     <message>
         <source>Use fallback location</source>
-        <translation type="unfinished"></translation>
+        <translation>Użyj położenia zastępczego</translation>
     </message>
     <message>
         <source>Behavior</source>
@@ -19140,11 +19241,11 @@ aktywny tylko po wpisaniu przedrostka</translation>
     </message>
     <message>
         <source>Alert when a highlight definition is not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Ostrzegaj w przypadku braku definicji podświetlenia</translation>
     </message>
     <message>
         <source>Ignored file patterns:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ignorowane wzorce plików:</translation>
     </message>
 </context>
 <context>
@@ -19601,6 +19702,10 @@ Lista serwera: %2.</translation>
         <translation>Proces zakończył się kodem wyjściowym %1.</translation>
     </message>
     <message>
+        <source>&lt;not supported&gt;</source>
+        <translation>&lt;nieobsługiwane&gt;</translation>
+    </message>
+    <message>
         <source>Continuing with &apos;%1&apos;...</source>
         <translation>Kontynuacja z &quot;%1&quot;...</translation>
     </message>
@@ -19719,8 +19824,12 @@ Lista serwera: %2.</translation>
         <translation>Warunkowa pułapka: %1</translation>
     </message>
     <message>
+        <source>The CDB debug engine does not support the &apos;%1&apos;</source>
+        <translation>Silnik debuggera CDB nie obsługuje &quot;%1&apos;&quot;</translation>
+    </message>
+    <message>
         <source>The CDB debug engine does not support the &apos;%1</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Silnik debuggera CDB nie obsługuje &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
@@ -19762,7 +19871,7 @@ Lista serwera: %2.</translation>
     </message>
     <message>
         <source>Log File</source>
-        <translation>Plik dziennika</translation>
+        <translation>Plik loga</translation>
     </message>
     <message>
         <source>Write Failure</source>
@@ -19770,7 +19879,7 @@ Lista serwera: %2.</translation>
     </message>
     <message>
         <source>Unable to write log contents to &apos;%1&apos;: %2</source>
-        <translation>Nie można zapisać zawartości dziennika do &quot;%1&quot;: %2</translation>
+        <translation>Nie można zapisać zawartości loga do &quot;%1&quot;: %2</translation>
     </message>
 </context>
 <context>
@@ -19790,16 +19899,32 @@ Lista serwera: %2.</translation>
 <context>
     <name>Debugger::DebuggerEnginePrivate</name>
     <message>
+        <source>Remove Breakpoint</source>
+        <translation>Usuń pułapkę</translation>
+    </message>
+    <message>
         <source>Remove Breakpoint %1</source>
         <translation>Usuń pułapkę %1</translation>
+    </message>
+    <message>
+        <source>Disable Breakpoint</source>
+        <translation>Wyłącz pułapkę</translation>
     </message>
     <message>
         <source>Disable Breakpoint %1</source>
         <translation>Wyłącz pułapkę %1</translation>
     </message>
     <message>
+        <source>Enable Breakpoint</source>
+        <translation>Włącz pułapkę</translation>
+    </message>
+    <message>
         <source>Enable Breakpoint %1</source>
         <translation>Włącz pułapkę %1</translation>
+    </message>
+    <message>
+        <source>Edit Breakpoint...</source>
+        <translation>Zmodyfikuj pułapkę...</translation>
     </message>
     <message>
         <source>Edit Breakpoint %1...</source>
@@ -19988,11 +20113,11 @@ Lista serwera: %2.</translation>
     </message>
     <message>
         <source>Attach to Running Tcf Agent...</source>
-        <translation type="unfinished"></translation>
+        <translation>Dołącz do uruchomionego agenta Tcf...</translation>
     </message>
     <message>
         <source>This attaches to a running &apos;Target Communication Framework&apos; agent.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dołącza do uruchomionego agenta Tcf (Target Communication Framework).</translation>
     </message>
     <message>
         <source>Start and Attach to Remote Application...</source>
@@ -20048,7 +20173,7 @@ Lista serwera: %2.</translation>
     </message>
     <message>
         <source>Save Debugger Log</source>
-        <translation>Zachowaj dziennik debuggera</translation>
+        <translation>Zachowaj log debuggera</translation>
     </message>
 </context>
 <context>
@@ -20060,6 +20185,10 @@ Lista serwera: %2.</translation>
 </context>
 <context>
     <name>Debugger::DebuggerRunControl</name>
+    <message>
+        <source>There is no debugging engine available for post-mortem debugging.</source>
+        <translation>Brak dostępnego silnika debuggera dla pośmiertnego debugowania.</translation>
+    </message>
     <message>
         <source>Cannot debug &apos;%1&apos; (tool chain: &apos;%2&apos;): %3</source>
         <translation>Nie można debugować &quot;%1&quot; (zestaw narzędzi: &quot;%2&quot;): %3</translation>
@@ -20138,7 +20267,7 @@ Ustawianie pułapek może się nie powieść.</translation>
     </message>
     <message>
         <source>Application output reader unexpectedly finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieoczekiwane zakończenie czytnika komunikatów aplikacji.</translation>
     </message>
     <message>
         <source>Remote gdb failed to start.</source>
@@ -20219,7 +20348,7 @@ Ustawianie pułapek może się nie powieść.</translation>
     </message>
     <message>
         <source>Log File</source>
-        <translation>Plik dziennika</translation>
+        <translation>Plik loga</translation>
     </message>
     <message>
         <source>Write Failure</source>
@@ -20227,7 +20356,7 @@ Ustawianie pułapek może się nie powieść.</translation>
     </message>
     <message>
         <source>Unable to write log contents to &apos;%1&apos;: %2</source>
-        <translation>Nie można zapisać zawartości dziennika do &quot;%1&quot;: %2</translation>
+        <translation>Nie można zapisać zawartości loga do &quot;%1&quot;: %2</translation>
     </message>
 </context>
 <context>
@@ -20241,7 +20370,7 @@ Ustawianie pułapek może się nie powieść.</translation>
     <name>Debugger::Internal::LogWindow</name>
     <message>
         <source>Debugger Log</source>
-        <translation>Dziennik debuggera</translation>
+        <translation>Log debuggera</translation>
     </message>
 </context>
 <context>
@@ -20264,7 +20393,7 @@ Ustawianie pułapek może się nie powieść.</translation>
     </message>
     <message>
         <source>resolving host...</source>
-        <translation type="unfinished"></translation>
+        <translation>rozwiązywanie adresu hosta...</translation>
     </message>
     <message>
         <source>connecting to debug server...</source>
@@ -20500,7 +20629,7 @@ zamiast w jego katalogu instalacyjnym.</translation>
     </message>
     <message>
         <source>Switch outline</source>
-        <translation type="unfinished"></translation>
+        <translation>Przełącz zarys</translation>
     </message>
     <message>
         <source>Ctrl+]</source>
@@ -20766,7 +20895,7 @@ Czy wciąż chcesz załadować plik z ustawieniami?</translation>
     </message>
     <message>
         <source>Live Preview Changes in QML Viewer</source>
-        <translation type="unfinished"></translation>
+        <translation>Podgląd zmian na żywo w QML Viewerze</translation>
     </message>
     <message>
         <source>Animation Speed</source>
@@ -21013,7 +21142,7 @@ Adds the library and include paths to the .pro file.</source>
     </message>
     <message>
         <source>Initial setup failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd wstępnej konfiguracji: %1</translation>
     </message>
 </context>
 <context>
@@ -21043,15 +21172,15 @@ Adds the library and include paths to the .pro file.</source>
     <name>Qt4ProjectManager::Internal::MaemoDeployableListWidget</name>
     <message>
         <source>Choose a local file</source>
-        <translation>Wybierz plik lokalny</translation>
+        <translation type="obsolete">Wybierz plik lokalny</translation>
     </message>
     <message>
         <source>Error adding file</source>
-        <translation>Błąd w trakcie dodawania pliku</translation>
+        <translation type="obsolete">Błąd w trakcie dodawania pliku</translation>
     </message>
     <message>
         <source>Error removing file</source>
-        <translation>Błąd w trakcie usuwania pliku</translation>
+        <translation type="obsolete">Błąd w trakcie usuwania pliku</translation>
     </message>
 </context>
 <context>
@@ -21087,7 +21216,7 @@ Adds the library and include paths to the .pro file.</source>
     </message>
     <message>
         <source>Could not set up SFTP connection: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można ustanowić połączenia SFTP: %1</translation>
     </message>
     <message>
         <source>Failed to upload file %1: %2</source>
@@ -21185,6 +21314,12 @@ Adds the library and include paths to the .pro file.</source>
         <source>Error running remote process: %1</source>
         <translation>Błąd zdalnego procesu: %1</translation>
     </message>
+    <message>
+        <source>
+Remote stderr was: &apos;%1&apos;</source>
+        <translation>
+Zawartość zdalnego stderr: &quot;%1&quot;</translation>
+    </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::MaemoPackageCreationFactory</name>
@@ -21277,7 +21412,7 @@ stderr was: &apos;%1&apos;</source>
     </message>
     <message>
         <source>Mount operation succeeded.</source>
-        <translation type="unfinished"></translation>
+        <translation>Operacja zamontowania powiodła się.</translation>
     </message>
     <message>
         <source>Failure running UTFS client: %1</source>
@@ -21368,7 +21503,7 @@ stderr był: %1</translation>
     </message>
     <message>
         <source>Mounting host directories...</source>
-        <translation type="unfinished"></translation>
+        <translation>Montowanie katalogów hosta...</translation>
     </message>
     <message>
         <source>Unmounting left-over host directory mounts...</source>
@@ -21380,18 +21515,26 @@ stderr był: %1</translation>
     </message>
     <message>
         <source>Unmounting host directories...</source>
-        <translation type="unfinished"></translation>
+        <translation>Odmontowywanie katalogów hosta...</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::MaemoTemplatesManager</name>
     <message>
+        <source>Error creating Maemo packaging directory &apos;%1&apos;.</source>
+        <translation>Błąd tworzenia katalogu pakietu Maemo &quot;%1&quot;.</translation>
+    </message>
+    <message>
         <source>Unable to create Debian templates: dh_make failed (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można utworzyć szablonu dla Debiana: dh_make failed (%1)</translation>
     </message>
     <message>
         <source>Unable to create debian templates: dh_make failed (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można utworzyć szablonu dla debiana: dh_make failed (%1)</translation>
+    </message>
+    <message>
+        <source>Unable to move new debian directory to &apos;%1&apos;.</source>
+        <translation>Nie można przenieść nowych katalogów Debiana do &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Packaging Error: Cannot open file &apos;%1&apos;.</source>
@@ -21403,11 +21546,11 @@ stderr był: %1</translation>
     </message>
     <message>
         <source>Debian changelog file &apos;%1&apos; has unexpected format.</source>
-        <translation>Nieoczekiwany format pliku z dziennikiem zmian Debiana &quot;%1&quot;.</translation>
+        <translation>Nieoczekiwany format pliku z logiem zmian Debiana &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Error writing Debian changelog file &apos;%1&apos;: %2</source>
-        <translation>Błąd zapisu pliku z dziennikiem zmian Debiana &quot;%1&quot;: %2</translation>
+        <translation>Błąd zapisu pliku z logiem zmian Debiana &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>Invalid icon data in Debian control file.</source>
@@ -21442,19 +21585,19 @@ stderr był: %1</translation>
     <name>Qt4ProjectManager::PassphraseForKeyDialog</name>
     <message>
         <source>Passphrase:</source>
-        <translation type="unfinished"></translation>
+        <translation>Hasło:</translation>
     </message>
     <message>
         <source>Save passphrase</source>
-        <translation type="unfinished"></translation>
+        <translation>Zachowaj hasło</translation>
     </message>
     <message>
         <source>This is an insecure option. The password will be saved as a plain text.</source>
-        <translation type="unfinished"></translation>
+        <translation>To nie jest bezpieczna opcja. Hasło zostanie zapisane jako zwykły tekst.</translation>
     </message>
     <message>
         <source>Passphrase for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Hasło dla %1</translation>
     </message>
 </context>
 <context>
@@ -21614,11 +21757,11 @@ Sprawdź czy telefon jest podłączony i czy aplikacja TRK jest uruchomiona.</tr
     <name>Qt4ProjectManager::SbsV2Parser</name>
     <message>
         <source>SBSv2 build log</source>
-        <translation>Dziennik budowania SBSv2</translation>
+        <translation>Log budowania SBSv2</translation>
     </message>
     <message>
         <source>The file &apos;%1&apos; is not a SBSv2 log file.</source>
-        <translation>Plik &quot;%1&quot; nie jest plikiem dziennika SVSv2.</translation>
+        <translation>Plik &quot;%1&quot; nie jest plikiem logu SVSv2.</translation>
     </message>
     <message>
         <source>Running command: %1
@@ -21787,7 +21930,7 @@ Aplikację można zbudować i zainstalować na desktopie i urządzeniach mobilny
     <name>TextEditor::HighlighterSettingsPage</name>
     <message>
         <source>Generic Highlighter</source>
-        <translation type="unfinished"></translation>
+        <translation>Ogólny podświetlacz</translation>
     </message>
     <message>
         <source>Download Definitions</source>
@@ -21803,7 +21946,7 @@ Aplikację można zbudować i zainstalować na desktopie i urządzeniach mobilny
     </message>
     <message>
         <source>No pre-installed definitions could be found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak pre-instalowanych definicji.</translation>
     </message>
     <message>
         <source>Error connecting to server.</source>
@@ -21874,7 +22017,7 @@ Sprawdź prawa dostępu do katalogu.</translation>
     <name>TextEditor::Internal::OutlineWidgetStack</name>
     <message>
         <source>No outline available</source>
-        <translation type="unfinished"></translation>
+        <translation>Zarys nie jest dostępny</translation>
     </message>
     <message>
         <source>Synchronize with Editor</source>
@@ -21889,18 +22032,18 @@ Sprawdź prawa dostępu do katalogu.</translation>
     <name>TextEditor::Internal::OutlineFactory</name>
     <message>
         <source>Outline</source>
-        <translation type="unfinished">Kontur</translation>
+        <translation>Zarys</translation>
     </message>
 </context>
 <context>
     <name>TextEditor::Internal::PlainTextEditorFactory</name>
     <message>
         <source>A highlight definition was not found for this file. Would you like to try to find one?</source>
-        <translation type="unfinished"></translation>
+        <translation>Definicja podświetleń nie została znaleziona. Czy chcesz spróbować ją znaleźć?</translation>
     </message>
     <message>
         <source>Show highlighter options</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż opcje podświetlacza</translation>
     </message>
 </context>
 <context>
@@ -21956,7 +22099,7 @@ Sprawdź prawa dostępu do katalogu.</translation>
     <name>QmlJSEditor::Internal::QmlJSOutlineWidget</name>
     <message>
         <source>Show All Bindings</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż wszystkie wiązania</translation>
     </message>
 </context>
 <context>
@@ -22008,7 +22151,7 @@ Powód: %2</translation>
     <message>
         <source>Unsupported import:
 import QtQuick 1.0 use import Qt 4.7 instead</source>
-        <translation>Nieobsługiwany import:
+        <translation type="obsolete">Nieobsługiwany import:
 zamiast &quot;import QtQuick 1.0&quot; użyj &quot;import Qt 4.7&quot;</translation>
     </message>
 </context>
@@ -22056,6 +22199,32 @@ zamiast &quot;import QtQuick 1.0&quot; użyj &quot;import Qt 4.7&quot;</translat
     <message>
         <source>Select QML File</source>
         <translation>Wybierz plik QML</translation>
+    </message>
+</context>
+<context>
+    <name>MaemoProFilesUpdateDialog</name>
+    <message>
+        <source>Maemo Deployment Issue</source>
+        <translation>Problem instalacji Maemo</translation>
+    </message>
+    <message>
+        <source>The project files listed below do not contain Maemo deployment information, which means the respective targets cannot be deployed to and/or run on a device. Qt Creator can add the missing information to these files. </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Check all</source>
+        <translation>Zaznacz wszystko</translation>
+    </message>
+    <message>
+        <source>Uncheck All</source>
+        <translation type="unfinished">Odznacz wszystko</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoProFilesUpdateDialog</name>
+    <message>
+        <source>Updateable Project Files</source>
+        <translation type="unfinished">Odświeżalne pliki projektu</translation>
     </message>
 </context>
 </TS>
