@@ -307,14 +307,17 @@ Influences the indentation of continuation lines.
    </item>
    <item>
     <widget class="QGroupBox" name="groupBoxStorageSettings">
+     <property name="toolTip">
+      <string>Cleanup actions which are automatically performed right before the file is saved to disk.</string>
+     </property>
      <property name="title">
-      <string>Storage</string>
+      <string>Cleanups Upon Saving</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
        <widget class="QCheckBox" name="cleanWhitespace">
         <property name="toolTip">
-         <string>Removes trailing whitespace on saving.</string>
+         <string>Removes trailing whitespace upon saving.</string>
         </property>
         <property name="text">
          <string>&amp;Clean whitespace</string>
