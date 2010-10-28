@@ -7324,6 +7324,8 @@
 
     \list 1
         \o \c %YEAR%: Year
+        \o \c %MONTH%: Month
+        \o \c %DAY%: Day of the month
         \o \c %DATE%: Date
         \o \c %USER%: User name
         \o \c %FILENAME%: File name
