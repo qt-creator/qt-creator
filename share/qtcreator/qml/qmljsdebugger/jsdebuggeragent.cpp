@@ -90,7 +90,34 @@ QDataStream &operator<<(QDataStream &s, const JSAgentStackData &data)
     return s << data.functionName << data.fileName << data.lineNumber;
 }
 
-typedef JSAgentStackData JSBreakpointData;
+struct JSAgentBreakpointData
+{
+    QByteArray functionName;
+    QByteArray fileName;
+    qint32 lineNumber;
+};
+
+typedef QSet<JSAgentBreakpointData> JSAgentBreakpoints;
+
+QDataStream &operator<<(QDataStream &s, const JSAgentBreakpointData &data)
+{
+    return s << data.functionName << data.fileName << data.lineNumber;
+}
+
+QDataStream &operator>>(QDataStream &s, JSAgentBreakpointData &data)
+{
+    return s >> data.functionName >> data.fileName >> data.lineNumber;
+}
+
+bool operator==(const JSAgentBreakpointData &b1, const JSAgentBreakpointData &b2)
+{
+    return b1.lineNumber == b2.lineNumber && b1.fileName == b2.fileName;
+}
+
+uint qHash(const JSAgentBreakpointData &b)
+{
+    return b.lineNumber ^ qHash(b.fileName);
+}
 
 class JSDebuggerAgentPrivate
 {
@@ -115,8 +142,8 @@ public:
     int stepCount;
 
     QEventLoop loop;
-    QHash <qint64, QString> filenames;
-    QSet< QPair<QString, qint32> > breakpointList;
+    QHash<qint64, QString> filenames;
+    JSAgentBreakpoints breakpoints;
     QStringList watchExpressions;
     QSet<qint64> knownObjectIds;
 };
@@ -348,7 +375,7 @@ void JSDebuggerAgentPrivate::positionChange
         return; //no re-entrency
 
     // check breakpoints
-    if (!breakpointList.isEmpty()) {
+    if (!breakpoints.isEmpty()) {
         QHash<qint64, QString>::const_iterator it = filenames.constFind(scriptId);
         QScriptContext *ctx = engine()->currentContext();
         QScriptContextInfo info(ctx);
@@ -362,8 +389,10 @@ void JSDebuggerAgentPrivate::positionChange
             QPair<QString, qint32> key = qMakePair(filename, lineNumber);
             it = filenames.insert(scriptId, filename);
         }
-        QPair<QString, qint32> key = qMakePair(*it, lineNumber);
-        if (breakpointList.contains(key)) {
+        JSAgentBreakpointData bp;
+        bp.fileName = it->toUtf8();
+        bp.lineNumber = lineNumber;
+        if (breakpoints.contains(bp)) {
             stopped();
             return;
         }
@@ -440,7 +469,10 @@ void JSDebuggerAgentPrivate::messageReceived(const QByteArray &message)
     QByteArray command;
     ds >> command;
     if (command == "BREAKPOINTS") {
-        ds >> breakpointList;
+        ds >> breakpoints;
+        //qDebug() << "BREAKPOINTS";
+        //foreach (const JSAgentBreakpointData &bp, breakpoints)
+        //    qDebug() << "BREAKPOINT: " << bp.fileName << bp.lineNumber;
     } else if (command == "WATCH_EXPRESSIONS") {
         ds >> watchExpressions;
     } else if (command == "STEPOVER") {

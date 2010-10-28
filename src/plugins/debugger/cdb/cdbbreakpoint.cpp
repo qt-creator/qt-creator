@@ -38,11 +38,12 @@ namespace Internal {
 enum { debugBP = 0 };
 
 // Convert breakpoint structs
-CdbCore::BreakPoint breakPointFromBreakPointData(const Debugger::Internal::BreakpointData &bpd)
+CdbCore::BreakPoint breakPointFromBreakPointData(const BreakpointData &bpd)
 {
     CdbCore::BreakPoint rc;
-    rc.type = bpd.type == Debugger::Internal::BreakpointData::BreakpointType ?
-              CdbCore::BreakPoint::Code : CdbCore::BreakPoint::Data;
+    rc.type = bpd.type == Watchpoint ?
+                  CdbCore::BreakPoint::Data :
+                  CdbCore::BreakPoint::Code ;
 
     rc.address = bpd.address;
     if (!bpd.threadSpec.isEmpty()) {

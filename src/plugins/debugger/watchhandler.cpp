@@ -835,7 +835,7 @@ bool WatchModel::setData(const QModelIndex &index, const QVariant &value, int ro
             const int index = handler->findWatchPointIndexByAddress(address);
             if (index == -1) {
                 BreakpointData *data = new BreakpointData;
-                data->type = BreakpointData::WatchpointType;
+                data->type = Watchpoint;
                 data->address = address;
                 handler->appendBreakpoint(data);
             } else {

@@ -148,7 +148,7 @@ int BreakHandler::findWatchPointIndexByAddress(quint64 address) const
 {
     for (int index = size() - 1; index >= 0; --index) {
         BreakpointData *bd = at(index);
-        if (bd->type == BreakpointData::WatchpointType && bd->address == address)
+        if (bd->isWatchpoint() && bd->address == address)
             return index;
     }
     return -1;
@@ -168,9 +168,9 @@ void BreakHandler::saveBreakpoints()
         const BreakpointData *data = at(index);
         QMap<QString, QVariant> map;
         // Do not persist Watchpoints.
-        //if (data->type == BreakpointData::WatchpointType)
+        //if (data->isWatchpoint())
         //    continue;
-        if (data->type != BreakpointData::BreakpointType)
+        if (data->type != BreakpointByFileAndLine)
             map.insert(_("type"), data->type);
         if (!data->fileName.isEmpty())
             map.insert(_("filename"), data->fileName);
@@ -235,7 +235,7 @@ void BreakHandler::loadBreakpoints()
             data->useFullPath = bool(v.toInt());
         v = map.value(_("type"));
         if (v.isValid())
-            data->type = BreakpointData::Type(v.toInt());
+            data->type = BreakpointType(v.toInt());
         data->setMarkerFileName(data->fileName);
         data->setMarkerLineNumber(data->lineNumber);
         append(data);
@@ -344,7 +344,7 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                 return str.isEmpty() ? empty : str;
             }
             if (role == Qt::DecorationRole) {
-                if (data->type == BreakpointData::WatchpointType)
+                if (data->isWatchpoint())
                     return m_watchpointIcon;
                 if (!data->enabled)
                     return m_disabledBreakpointIcon;
@@ -414,8 +414,8 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
         case 7:
             if (role == Qt::DisplayRole) {
                 QString displayValue;
-                const quint64 effectiveAddress = data->type == BreakpointData::WatchpointType ?
-                              data->address : data->bpAddress;
+                const quint64 effectiveAddress
+                    = data->isWatchpoint() ? data->address : data->bpAddress;
                 if (effectiveAddress)
                     displayValue += QString::fromAscii("0x%1").arg(effectiveAddress, 0, 16);
                 if (!data->bpState.isEmpty()) {

@@ -2114,10 +2114,11 @@ void GdbEngine::setBreakpointDataFromOutput(BreakpointData *data, const GdbMi &b
         } else if (child.hasName("thread")) {
             data->bpThreadSpec = child.data();
         } else if (child.hasName("type")) {
-            if (child.data().contains("reakpoint")) // "breakpoint", "hw breakpoint"
-                data->type = BreakpointData::BreakpointType;
-            else // FIXME: Incomplete list of cases.
-                data->type = BreakpointData::WatchpointType;
+            // FIXME: This should not change the type.
+            //if (child.data().contains("reakpoint")) // "breakpoint", "hw breakpoint"
+            //    ; // data->type = BreakpointData::BreakpointType;
+            //else // FIXME: Incomplete list of cases.
+            //    data->type = Watchpoint;
         }
         // This field is not present.  Contents needs to be parsed from
         // the plain "ignore" response.
@@ -2179,7 +2180,7 @@ void GdbEngine::sendInsertBreakpoint(int index)
     const BreakpointData *data = breakHandler()->at(index);
     // Set up fallback in case of pending breakpoints which aren't handled
     // by the MI interface.
-    if (data->type == BreakpointData::WatchpointType) {
+    if (data->type == Watchpoint) {
         postCommand("watch " + bpAddressSpec(data->address),
             NeedsStop | RebuildBreakpointModel,
             CB(handleWatchInsert), index);

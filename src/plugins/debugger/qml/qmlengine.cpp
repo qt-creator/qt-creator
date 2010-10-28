@@ -84,6 +84,36 @@ enum {
 namespace Debugger {
 namespace Internal {
 
+struct JSAgentBreakpointData
+{
+    QByteArray functionName;
+    QByteArray fileName;
+    qint32 lineNumber;
+};
+
+uint qHash(const JSAgentBreakpointData &b)
+{
+    return b.lineNumber ^ qHash(b.fileName);
+}
+
+QDataStream &operator<<(QDataStream &s, const JSAgentBreakpointData &data)
+{
+    return s << data.functionName << data.fileName << data.lineNumber;
+}
+
+QDataStream &operator>>(QDataStream &s, JSAgentBreakpointData &data)
+{
+    return s >> data.functionName >> data.fileName >> data.lineNumber;
+}
+
+bool operator==(const JSAgentBreakpointData &b1, const JSAgentBreakpointData &b2)
+{
+    return b1.lineNumber == b2.lineNumber && b1.fileName == b2.fileName;
+}
+
+typedef QSet<JSAgentBreakpointData> JSAgentBreakpoints;
+
+
 QDataStream &operator>>(QDataStream &s, WatchData &data)
 {
     data = WatchData();
@@ -466,27 +496,31 @@ void QmlEngine::attemptBreakpointSynchronization()
 {
     Internal::BreakHandler *handler = breakHandler();
     //bool updateNeeded = false;
-    QSet< QPair<QString, qint32> > breakList;
+    Internal::JSAgentBreakpoints breakpoints;
     for (int index = 0; index != handler->size(); ++index) {
         Internal::BreakpointData *data = handler->at(index);
         QString processedFilename = data->fileName;
         if (isShadowBuildProject())
             processedFilename = toShadowBuildFilename(data->fileName);
-        breakList << qMakePair(processedFilename, data->lineNumber);
+        Internal::JSAgentBreakpointData bp;
+        bp.fileName = processedFilename.toUtf8();
+        bp.lineNumber = data->lineNumber;
+        bp.functionName = data->funcName.toUtf8();
+        breakpoints.insert(bp);
     }
 
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
     rs << QByteArray("BREAKPOINTS");
-    rs << breakList;
-    //qDebug() << Q_FUNC_INFO << breakList;
+    rs << breakpoints;
+    //qDebug() << Q_FUNC_INFO << breakpoints;
     sendMessage(reply);
 }
 
 bool QmlEngine::acceptsBreakpoint(const Internal::BreakpointData *br)
 {
-    return br->fileName.endsWith(QLatin1String("qml"))
-        || br->fileName.endsWith(QLatin1String("js"));
+    return br->fileName.endsWith(QLatin1String(".qml"))
+        || br->fileName.endsWith(QLatin1String(".js"));
 }
 
 void QmlEngine::loadSymbols(const QString &moduleName)
@@ -624,11 +658,12 @@ void QmlEngine::messageReceived(const QByteArray &message)
     QByteArray command;
     stream >> command;
 
-    showMessage(QLatin1String("RECEIVED RESPONSE: ") + Internal::quoteUnprintableLatin1(message));
+    showMessage(QLatin1String("RECEIVED RESPONSE: ")
+        + Internal::quoteUnprintableLatin1(message));
+
     if (command == "STOPPED") {
-        if (state() == InferiorRunOk) {
+        if (state() == InferiorRunOk)
             notifyInferiorSpontaneousStop();
-        }
 
         Internal::StackFrames stackFrames;
         QList<Internal::WatchData> watches;
@@ -684,11 +719,13 @@ void QmlEngine::messageReceived(const QByteArray &message)
             // Make breakpoint non-pending
             //
             QString file;
+            QString function;
             int line = -1;
 
             if (!stackFrames.isEmpty()) {
                 file = stackFrames.at(0).file;
                 line = stackFrames.at(0).line;
+                function = stackFrames.at(0).function;
 
                 if (isShadowBuildProject()) {
                     file = fromShadowBuildFilename(file);
@@ -700,11 +737,11 @@ void QmlEngine::messageReceived(const QByteArray &message)
                 Internal::BreakpointData *data = handler->at(index);
                 QString processedFilename = data->fileName;
 
-                if (processedFilename == file
-                        && data->lineNumber == line) {
+                if (processedFilename == file && data->lineNumber == line) {
                     data->pending = false;
                     data->bpFileName = file;
                     data->bpLineNumber = line;
+                    data->bpFuncName = function;
                     handler->updateMarker(data);
                 }
             }

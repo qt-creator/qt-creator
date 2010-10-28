@@ -81,7 +81,8 @@ BreakpointDialog::BreakpointDialog(QWidget *parent) : QDialog(parent)
     comboBoxType->insertItem(3, tr("Address"));
     pathChooserFileName->setExpectedKind(Utils::PathChooser::File);
     connect(comboBoxType, SIGNAL(activated(int)), SLOT(typeChanged(int)));
-    lineEditIgnoreCount->setValidator(new QIntValidator(0, 2147483647, lineEditIgnoreCount));
+    lineEditIgnoreCount->setValidator(
+        new QIntValidator(0, 2147483647, lineEditIgnoreCount));
 }
 
 bool BreakpointDialog::showDialog(BreakpointData *data)

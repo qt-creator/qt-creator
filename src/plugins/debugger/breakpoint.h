@@ -47,6 +47,14 @@ class BreakHandler;
 //
 //////////////////////////////////////////////////////////////////
 
+enum BreakpointType
+{
+    BreakpointByFileAndLine,
+    BreakpointByFunction,
+    BreakpointByAddress,
+    Watchpoint,
+};
+
 class BreakpointData
 {
 public:
@@ -77,13 +85,11 @@ private:
     friend class BreakHandler;
 
 public:
-    enum Type { BreakpointType, WatchpointType };
-
     quint64 id;
 
     bool enabled;            // Should we talk to the debugger engine?
     bool pending;            // Does the debugger engine know about us already?
-    Type type;               // Type of breakpoint.
+    BreakpointType type;     // Type of breakpoint.
 
     // This "user requested information" will get stored in the session.
     QString fileName;        // Short name of source file.
@@ -118,12 +124,13 @@ public:
     void setMarkerLineNumber(int lineNumber);
     int markerLineNumber() const { return m_markerLineNumber; }
 
-    bool isSetByFunction() const { return !funcName.isEmpty(); }
-    bool isSetByFileAndLine() const { return !fileName.isEmpty(); }
+    bool isWatchpoint() const { return type == Watchpoint; }
+    bool isBreakpoint() const { return type != Watchpoint; } // Enough for now.
 
     Q_DECLARE_TR_FUNCTIONS(BreakHandler)
 
     // TODO: move those to breakhandler
+private:
     // Taken from either user input or gdb responses.
     QString m_markerFileName; // Used to locate the marker.
     int m_markerLineNumber;

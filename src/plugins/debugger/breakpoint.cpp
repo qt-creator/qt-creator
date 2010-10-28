@@ -61,7 +61,7 @@ static quint64 nextBPId() {
 
 BreakpointData::BreakpointData() :
     id(nextBPId()), enabled(true),
-    pending(true), type(BreakpointType),
+    pending(true), type(BreakpointByFileAndLine),
     ignoreCount(0), lineNumber(0), address(0),
     useFullPath(false),
     bpIgnoreCount(0), bpLineNumber(0),
@@ -84,7 +84,7 @@ BreakpointData *BreakpointData::clone() const
     data->threadSpec = threadSpec;
     data->funcName = funcName;
     data->useFullPath = useFullPath;
-    if (isSetByFunction()) {
+    if (data->type == BreakpointByFunction) {
         // FIXME: Would removing it be better then leaving this 
         // "history" around?
         data->m_markerFileName = m_markerFileName;
@@ -142,6 +142,22 @@ static inline void formatAddress(QTextStream &str, quint64 address)
 
 QString BreakpointData::toToolTip() const
 {
+    QString t = tr("Unknown Breakpoint Type");
+    switch (type) {
+        case BreakpointByFileAndLine:
+            t = tr("Breakpoint by File and Line");
+            break;
+        case BreakpointByFunction:
+            t = tr("Breakpoint by Function");
+            break;
+        case BreakpointByAddress:
+            t = tr("Breakpoint by Address");
+            break;
+        case Watchpoint:
+            t = tr("Watchpoint");
+            break;
+    }
+
     QString rc;
     QTextStream str(&rc);
     str << "<html><body><table>"
@@ -152,11 +168,7 @@ QString BreakpointData::toToolTip() const
         << "<tr><td>" << tr("Breakpoint Number:")
         << "</td><td>" << bpNumber << "</td></tr>"
         << "<tr><td>" << tr("Breakpoint Type:")
-        << "</td><td>"
-        << (type == BreakpointType ? tr("Breakpoint")
-            : type == WatchpointType ? tr("Watchpoint")
-            : tr("Unknown breakpoint type"))
-        << "</td></tr>"
+        << "</td><td>" << t << "</td></tr>"
         << "<tr><td>" << tr("State:")
         << "</td><td>" << bpState << "</td></tr>"
         << "</table><br><hr><table>"
@@ -166,7 +178,8 @@ QString BreakpointData::toToolTip() const
         << "<tr><td>" << tr("Internal Number:")
         << "</td><td>&mdash;</td><td>" << bpNumber << "</td></tr>"
         << "<tr><td>" << tr("File Name:")
-        << "</td><td>" << QDir::toNativeSeparators(fileName) << "</td><td>" << QDir::toNativeSeparators(bpFileName) << "</td></tr>"
+        << "</td><td>" << QDir::toNativeSeparators(fileName)
+        << "</td><td>" << QDir::toNativeSeparators(bpFileName) << "</td></tr>"
         << "<tr><td>" << tr("Function Name:")
         << "</td><td>" << funcName << "</td><td>" << bpFuncName << "</td></tr>"
         << "<tr><td>" << tr("Line Number:") << "</td><td>";
