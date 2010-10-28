@@ -133,6 +133,7 @@ BaseTextDocument::BaseTextDocument()
     m_fileIsReadOnly = false;
     m_isBinaryData = false;
     m_codec = Core::EditorManager::instance()->defaultTextEncoding();
+    m_fileHasUtf8Bom = false;
     m_hasDecodingError = false;
 }
 
@@ -186,6 +187,12 @@ bool BaseTextDocument::save(const QString &fileName)
 
     if (m_lineTerminatorMode == CRLFLineTerminator)
         plainText.replace(QLatin1Char('\n'), QLatin1String("\r\n"));
+
+    Core::IFile::Utf8BomSetting utf8bomSetting = Core::EditorManager::instance()->utf8BomSetting();
+    if (m_codec->name() == "UTF-8" &&
+        (utf8bomSetting == Core::IFile::AlwaysAdd || (utf8bomSetting == Core::IFile::OnlyKeep && m_fileHasUtf8Bom))) {
+        file.write("\xef\xbb\xbf", 3);
+    }
 
     file.write(m_codec->fromUnicode(plainText));
     if (!file.flush())
@@ -259,6 +266,7 @@ bool BaseTextDocument::open(const QString &fileName)
         int bytesRead = buf.size();
 
         QTextCodec *codec = m_codec;
+        m_fileHasUtf8Bom = false;
 
         // code taken from qtextstream
         if (bytesRead >= 4 && ((uchar(buf[0]) == 0xff && uchar(buf[1]) == 0xfe && uchar(buf[2]) == 0 && uchar(buf[3]) == 0)
@@ -267,6 +275,9 @@ bool BaseTextDocument::open(const QString &fileName)
         } else if (bytesRead >= 2 && ((uchar(buf[0]) == 0xff && uchar(buf[1]) == 0xfe)
                                       || (uchar(buf[0]) == 0xfe && uchar(buf[1]) == 0xff))) {
             codec = QTextCodec::codecForName("UTF-16");
+        } else if (bytesRead >= 3 && ((uchar(buf[0]) == 0xef && uchar(buf[1]) == 0xbb) && uchar(buf[2]) == 0xbf)) {
+            codec = QTextCodec::codecForName("UTF-8");
+            m_fileHasUtf8Bom = true;
         } else if (!codec) {
             codec = QTextCodec::codecForLocale();
         }

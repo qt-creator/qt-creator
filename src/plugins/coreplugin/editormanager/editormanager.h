@@ -192,6 +192,9 @@ public:
     void setReloadSetting(IFile::ReloadSetting behavior);
     IFile::ReloadSetting reloadSetting() const;
 
+    void setUtf8BomSetting(IFile::Utf8BomSetting behavior);
+    IFile::Utf8BomSetting utf8BomSetting() const;
+
     QTextCodec *defaultTextEncoding() const;
 
     // Helper to display a message dialog when encountering a read-only

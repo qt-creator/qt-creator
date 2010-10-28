@@ -142,6 +142,7 @@ private:
     };
     LineTerminatorMode m_lineTerminatorMode;
     QTextCodec *m_codec;
+    bool m_fileHasUtf8Bom;
 
     bool m_fileIsReadOnly;
     bool m_isBinaryData;

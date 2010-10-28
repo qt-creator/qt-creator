@@ -36,6 +36,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/editormanager.h>
 
 #include <QtCore/QSettings>
 #include <QtCore/QTextCodec>
@@ -135,6 +136,8 @@ QWidget *BehaviorSettingsPage::createPage(QWidget *parent)
             m_d->m_page.encodingBox->setCurrentIndex(i);
     }
 
+    m_d->m_page.utf8BomBox->setCurrentIndex(Core::EditorManager::instance()->utf8BomSetting());
+
     return w;
 }
 
@@ -177,6 +180,8 @@ void BehaviorSettingsPage::apply()
     settings->setValue(QLatin1String(Core::Constants::SETTINGS_DEFAULTTEXTENCODING),
                        m_codecs.at(m_d->m_page.encodingBox->currentIndex())->name());
 
+    Core::EditorManager::instance()->setUtf8BomSetting(
+                Core::IFile::Utf8BomSetting(m_d->m_page.utf8BomBox->currentIndex()));
 }
 
 void BehaviorSettingsPage::settingsFromUI(TabSettings &tabSettings,

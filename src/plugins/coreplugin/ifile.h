@@ -50,6 +50,12 @@ public:
         IgnoreAll = 2
     };
 
+    enum Utf8BomSetting {
+        AlwaysAdd = 0,
+        OnlyKeep = 1,
+        AlwaysDelete = 2
+    };
+
     enum ChangeTrigger {
         TriggerInternal,
         TriggerExternal
