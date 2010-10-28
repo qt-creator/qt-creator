@@ -549,7 +549,7 @@ void SubversionPlugin::svnDiff(const QString &workingDir, const QStringList &fil
     args << files;
 
     const SubversionResponse response =
-            runSvn(workingDir, args, m_settings.timeOutMS(), 0);
+            runSvn(workingDir, args, m_settings.timeOutMS(), 0, codec);
     if (response.error)
         return;
 
