@@ -474,8 +474,10 @@ bool ResizeManipulator::isInvalidSize(const QSizeF & size)
 void ResizeManipulator::deleteSnapLines()
 {
     if (m_layerItem) {
-        foreach (QGraphicsItem *item, m_graphicsLineList)
+        foreach (QGraphicsItem *item, m_graphicsLineList) {
             m_layerItem->scene()->removeItem(item);
+            delete item;
+        }
     }
 
     m_graphicsLineList.clear();
