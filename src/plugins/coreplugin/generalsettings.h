@@ -82,7 +82,6 @@ private:
     Ui::GeneralSettings *m_page;
     QString m_searchKeywords;
     QPointer<QMessageBox> m_dialog;
-    QList<QTextCodec *> m_codecs;
 };
 
 } // namespace Internal

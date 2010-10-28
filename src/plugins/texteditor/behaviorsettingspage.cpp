@@ -35,8 +35,10 @@
 #include "ui_behaviorsettingspage.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/coreconstants.h>
 
 #include <QtCore/QSettings>
+#include <QtCore/QTextCodec>
 #include <QtCore/QTextStream>
 
 using namespace TextEditor;
@@ -105,6 +107,34 @@ QWidget *BehaviorSettingsPage::createPage(QWidget *parent)
           << ' ' << m_d->m_page.groupBoxMouse->title();
         m_d->m_searchKeywords.remove(QLatin1Char('&'));
     }
+
+    QSettings *settings = Core::ICore::instance()->settings();
+    QTextCodec *defaultTextCodec = QTextCodec::codecForLocale();
+    if (QTextCodec *candidate = QTextCodec::codecForName(
+            settings->value(QLatin1String(Core::Constants::SETTINGS_DEFAULTTEXTENCODING)).toByteArray()))
+        defaultTextCodec = candidate;
+    QList<int> mibs = QTextCodec::availableMibs();
+    qSort(mibs);
+    QList<int> sortedMibs;
+    foreach (int mib, mibs)
+        if (mib >= 0)
+            sortedMibs += mib;
+    foreach (int mib, mibs)
+        if (mib < 0)
+            sortedMibs += mib;
+    for (int i = 0; i < sortedMibs.count(); i++) {
+        QTextCodec *codec = QTextCodec::codecForMib(sortedMibs.at(i));
+        m_codecs += codec;
+        QString name = codec->name();
+        foreach (const QByteArray &alias, codec->aliases()) {
+            name += QLatin1String(" / ");
+            name += QString::fromLatin1(alias);
+        }
+        m_d->m_page.encodingBox->addItem(name);
+        if (defaultTextCodec == codec)
+            m_d->m_page.encodingBox->setCurrentIndex(i);
+    }
+
     return w;
 }
 
@@ -142,6 +172,11 @@ void BehaviorSettingsPage::apply()
 
         emit behaviorSettingsChanged(newBehaviorSettings);
     }
+
+    QSettings* settings = Core::ICore::instance()->settings();
+    settings->setValue(QLatin1String(Core::Constants::SETTINGS_DEFAULTTEXTENCODING),
+                       m_codecs.at(m_d->m_page.encodingBox->currentIndex())->name());
+
 }
 
 void BehaviorSettingsPage::settingsFromUI(TabSettings &tabSettings,

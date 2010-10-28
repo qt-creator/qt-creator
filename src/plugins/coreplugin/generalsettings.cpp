@@ -45,7 +45,6 @@
 #include <QtCore/QDir>
 #include <QtCore/QLibraryInfo>
 #include <QtCore/QSettings>
-#include <QtCore/QTextCodec>
 
 #include "ui_generalsettings.h"
 
@@ -128,35 +127,6 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
     QSettings* settings = Core::ICore::instance()->settings();
     fillLanguageBox();
 
-    QTextCodec *defaultTextCodec = QTextCodec::codecForLocale();
-    if (QTextCodec *candidate = QTextCodec::codecForName(
-            settings->value(QLatin1String(Constants::SETTINGS_DEFAULTTEXTENCODING)).toByteArray()))
-        defaultTextCodec = candidate;
-
-    QList<int> mibs = QTextCodec::availableMibs();
-    qSort(mibs);
-    QList<int> sortedMibs;
-    foreach (int mib, mibs)
-        if (mib >= 0)
-            sortedMibs += mib;
-    foreach (int mib, mibs)
-        if (mib < 0)
-            sortedMibs += mib;
-    int i = 0;
-    foreach (int mib, sortedMibs) {
-        QTextCodec *codec = QTextCodec::codecForMib(mib);
-        m_codecs += codec;
-        QString name = codec->name();
-        foreach (const QByteArray &alias, codec->aliases()) {
-            name += QLatin1String(" / ");
-            name += QString::fromLatin1(alias);
-        }
-        m_page->encodingBox->addItem(name);
-        if (defaultTextCodec == codec)
-            m_page->encodingBox->setCurrentIndex(i);
-        i++;
-    }
-
     m_page->colorButton->setColor(StyleHelper::requestedBaseColor());
     m_page->externalEditorEdit->setText(EditorManager::instance()->externalEditor());
     m_page->reloadBehavior->setCurrentIndex(EditorManager::instance()->reloadSetting());
@@ -223,11 +193,6 @@ void GeneralSettings::apply()
     Utils::UnixUtils::setFileBrowser(Core::ICore::instance()->settings(), m_page->externalFileBrowserEdit->text());
 #endif
 #endif
-
-    QSettings* settings = Core::ICore::instance()->settings();
-    return settings->setValue(QLatin1String(Constants::SETTINGS_DEFAULTTEXTENCODING),
-                              m_codecs.at(m_page->encodingBox->currentIndex())->name());
-
 }
 
 void GeneralSettings::finish()

@@ -79,6 +79,8 @@ private:
                         StorageSettings &storageSettings,
                         BehaviorSettings &behaviorSettings) const;
     void settingsToUI();
+
+    QList<QTextCodec *> m_codecs;
     struct BehaviorSettingsPagePrivate;
     BehaviorSettingsPagePrivate *m_d;
 };
