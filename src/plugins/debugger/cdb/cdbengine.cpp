@@ -1751,7 +1751,8 @@ bool checkCdbConfiguration(int toolChainI, QString *errorMsg, QString *settingsP
     case ProjectExplorer::ToolChain::INVALID:
         break;
     default:
-        *errorMsg = CdbEngine::tr("The CDB debug engine does not support the '%1").
+        //: %1 is something like "GCCE" or "Intel C++ Compiler (Linux)" (see ToolChain context)
+        *errorMsg = CdbEngine::tr("The CDB debug engine does not support the %1 toolchain.").
                     arg(ProjectExplorer::ToolChain::toolChainName(toolChain));
         *settingsPage = CdbOptionsPage::settingsId();
         return false;
