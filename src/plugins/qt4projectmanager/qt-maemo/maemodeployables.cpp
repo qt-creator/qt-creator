@@ -119,7 +119,8 @@ void MaemoDeployables::createModels()
     }
 
     endResetModel();
-    connect(pro, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*,bool)),
+    connect(qt4BuildConfiguration()->qt4Target()->qt4Project(),
+            SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*,bool)),
             m_updateTimer, SLOT(start()));
 }
 
