@@ -19824,12 +19824,9 @@ Lista serwera: %2.</translation>
         <translation>Warunkowa pułapka: %1</translation>
     </message>
     <message>
-        <source>The CDB debug engine does not support the &apos;%1&apos;</source>
-        <translation>Silnik debuggera CDB nie obsługuje &quot;%1&apos;&quot;</translation>
-    </message>
-    <message>
-        <source>The CDB debug engine does not support the &apos;%1</source>
-        <translation type="obsolete">Silnik debuggera CDB nie obsługuje &quot;%1&quot;</translation>
+        <source>The CDB debug engine does not support the %1 toolchain.</source>
+        <extracomment>%1 is something like &quot;GCCE&quot; or &quot;Intel C++ Compiler (Linux)&quot; (see ToolChain context)</extracomment>
+        <translation>Silnik debuggera CDB nie obsługuje zestawu narzędzi &quot;%1&quot;.</translation>
     </message>
 </context>
 <context>

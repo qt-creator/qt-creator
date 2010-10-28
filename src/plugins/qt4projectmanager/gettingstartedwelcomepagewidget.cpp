@@ -524,7 +524,6 @@ void GettingStartedWelcomePageWidget::showFeature(int feature)
         ui->detailsLabel->show();
         ui->detailsLabel->setOpenExternalLinks(true);
     }
-    ui->featuredImage->setScaledContents(true);
 }
 
 void GettingStartedWelcomePageWidget::slotNextFeature()

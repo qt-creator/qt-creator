@@ -56,6 +56,7 @@
 #include <qt4project.h>
 #include <qt4target.h>
 
+#include <QtCore/QDateTime>
 #include <QtCore/QProcess>
 #include <QtCore/QProcessEnvironment>
 #include <QtCore/QRegExp>
@@ -401,9 +402,8 @@ bool MaemoPackageCreationStep::packagingNeeded() const
 
     const int deployableCount = deployables->deployableCount();
     for (int i = 0; i < deployableCount; ++i) {
-        if (packageInfo.lastModified()
-            <= QFileInfo(deployables->deployableAt(i).localFilePath)
-               .lastModified())
+        if (isFileNewerThan(deployables->deployableAt(i).localFilePath,
+                packageInfo.lastModified()))
             return true;
     }
 
@@ -420,6 +420,25 @@ bool MaemoPackageCreationStep::packagingNeeded() const
             return true;
     }
 
+    return false;
+}
+
+bool MaemoPackageCreationStep::isFileNewerThan(const QString &filePath,
+    const QDateTime &timeStamp) const
+{
+    QFileInfo fileInfo(filePath);
+    if (!fileInfo.exists() || fileInfo.lastModified() >= timeStamp)
+        return true;
+    if (fileInfo.isDir()) {
+        const QStringList dirContents = QDir(filePath)
+            .entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
+        foreach (const QString &curFileName, dirContents) {
+            const QString curFilePath
+                = filePath + QLatin1Char('/') + curFileName;
+            if (isFileNewerThan(curFilePath, timeStamp))
+                return true;
+        }
+    }
     return false;
 }
 

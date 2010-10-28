@@ -26700,8 +26700,9 @@ La liste du serveur était %2.</translation>
         <translation>Point d&apos;observation : %1</translation>
     </message>
     <message>
-        <source>The CDB debug engine does not support the &apos;%1</source>
-        <translation>Le moteur de débogage CDB ne supporte pas le &apos;%1&apos;</translation>
+        <source>The CDB debug engine does not support the %1 toolchain.</source>
+        <extracomment>%1 is something like &quot;GCCE&quot; or &quot;Intel C++ Compiler (Linux)&quot; (see ToolChain context)</extracomment>
+        <translation type="unfinished">Le moteur de débogage CDB ne supporte pas le &apos;%1&apos;</translation>
     </message>
 </context>
 <context>

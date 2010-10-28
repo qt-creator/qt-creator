@@ -389,6 +389,12 @@
    </item>
    <item>
     <widget class="QFrame" name="featureFrame">
+     <property name="minimumSize">
+      <size>
+       <width>200</width>
+       <height>0</height>
+      </size>
+     </property>
      <property name="maximumSize">
       <size>
        <width>200</width>
@@ -434,6 +440,9 @@ border-bottom: 1px solid &quot;#C9C9C9&quot;;
         </property>
         <property name="text">
          <string notr="true"/>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
         </property>
        </widget>
       </item>

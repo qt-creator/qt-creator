@@ -7,14 +7,14 @@
     <lastBuildDate>Fri, 17 Sep 2010 10:30:00 GMT</lastBuildDate>
     <language>en-us</language>
     <item>
-      <title>How to create a Qt C++ application</title>
+      <title>How to create a Qt Quick application</title>
       <category>Tutorial</category>
-      <link>qthelp://com.nokia.qtcreator/doc/creator-writing-program.html</link>
-      <guid>qthelp://com.nokia.qtcreator/doc/creator-writing-program.html</guid>
+      <link>qthelp://com.nokia.qtcreator/doc/creator-qml-application.html</link>
+      <guid>qthelp://com.nokia.qtcreator/doc/creator-qml-application.html</guid>
       <pubDate>Mon, 12 Sep 2005 18:37:00 GMT</pubDate>
-      <description><![CDATA[ This tutorial describes how to use Qt Creator to create a small Qt application, Text Finder. ]]></description>
+      <description><![CDATA[ This tutorial describes how to use the Qt Creator to implement the states and transitions example application. ]]></description>
       <image>
-        <link>images/qtcreator-textfinder-screenshot.png</link>
+        <link>images/qtquick.png</link>
       </image>
     </item>
   </channel>

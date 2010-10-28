@@ -22593,8 +22593,9 @@ Server list was %2.</source>
         <translation>監視ポイント: %1</translation>
     </message>
     <message>
-        <source>The CDB debug engine does not support the &apos;%1</source>
-        <translation>CDB デバッグ エンジンは &apos;%1&apos; をサポートしていません</translation>
+        <source>The CDB debug engine does not support the %1 toolchain.</source>
+        <extracomment>%1 is something like &quot;GCCE&quot; or &quot;Intel C++ Compiler (Linux)&quot; (see ToolChain context)</extracomment>
+        <translation type="unfinished">CDB デバッグ エンジンは &apos;%1&apos; をサポートしていません</translation>
     </message>
 </context>
 <context>
