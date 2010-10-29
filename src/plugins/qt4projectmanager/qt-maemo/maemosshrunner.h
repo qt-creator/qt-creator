@@ -94,8 +94,6 @@ private:
         ProcessStarting, StopRequested
     };
 
-    void assertState(State expectedState, const char *func);
-    void assertState(const QList<State> &expectedStates, const char *func);
     void setState(State newState);
     void emitError(const QString &errorMsg);
 

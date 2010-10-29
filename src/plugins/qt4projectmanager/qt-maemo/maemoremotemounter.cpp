@@ -39,7 +39,7 @@
 
 #include <QtCore/QTimer>
 
-#define ASSERT_STATE(state) assertState(state, Q_FUNC_INFO)
+#define ASSERT_STATE(state) ASSERT_STATE_GENERIC(State, state, m_state)
 
 using namespace Core;
 
@@ -440,18 +440,6 @@ void MaemoRemoteMounter::handleUtfsServerTimeout()
     emit error(tr("Timeout waiting for UTFS servers to connect."));
 
     setState(Inactive);
-}
-
-void MaemoRemoteMounter::assertState(State expectedState, const char *func)
-{
-    assertState(QList<State>() << expectedState, func);
-}
-
-void MaemoRemoteMounter::assertState(const QList<State> &expectedStates,
-    const char *func)
-{
-    QTC_ASSERT(expectedStates.contains(m_state),
-        qDebug("Unexpected state %d at %s.", m_state, func))
 }
 
 void MaemoRemoteMounter::setState(State newState)

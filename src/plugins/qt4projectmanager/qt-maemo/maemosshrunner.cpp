@@ -48,7 +48,7 @@
 
 #include <limits>
 
-#define ASSERT_STATE(state) assertState(state, Q_FUNC_INFO)
+#define ASSERT_STATE(state) ASSERT_STATE_GENERIC(State, state, m_state)
 
 using namespace Core;
 
@@ -307,18 +307,6 @@ bool MaemoSshRunner::isConnectionUsable() const
 {
     return m_connection && m_connection->state() == SshConnection::Connected
         && m_connection->connectionParameters() == m_devConfig.server;
-}
-
-void MaemoSshRunner::assertState(State expectedState, const char *func)
-{
-    assertState(QList<State>() << expectedState, func);
-}
-
-void MaemoSshRunner::assertState(const QList<State> &expectedStates,
-    const char *func)
-{
-    if (!expectedStates.contains(m_state))
-        qWarning("Unexpected state %d at %s.", m_state, func);
 }
 
 void MaemoSshRunner::setState(State newState)
