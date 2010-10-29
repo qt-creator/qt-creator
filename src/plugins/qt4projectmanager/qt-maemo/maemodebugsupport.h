@@ -40,6 +40,7 @@
 #include <coreplugin/ssh/sftpdefs.h>
 
 #include <QtCore/QObject>
+#include <QtCore/QPointer>
 #include <QtCore/QSharedPointer>
 
 namespace Core { class SftpChannel; }
@@ -81,17 +82,22 @@ private slots:
     void handleProgressReport(const QString &progressOutput);
 
 private:
+    enum State {
+        Inactive, StartingRunner, InitializingUploader, UploadingDumpers,
+        DumpersUploaded, StartingRemoteProcess, Debugging
+    };
+
     static int gdbServerPort(const MaemoRunConfiguration *rc);
     static int qmlServerPort(const MaemoRunConfiguration *rc);
     static QString environment(const MaemoRunConfiguration *rc);
 
-    void stopSsh();
     void handleAdapterSetupFailed(const QString &error);
     void handleAdapterSetupDone();
     void startDebugging();
     bool useGdb() const;
+    void setState(State newState);
 
-    Debugger::DebuggerRunControl * const m_runControl;
+    const QPointer<Debugger::DebuggerRunControl> m_runControl;
     MaemoRunConfiguration * const m_runConfig;
     const MaemoDeviceConfig m_deviceConfig;
     MaemoSshRunner * const m_runner;
@@ -99,9 +105,8 @@ private:
 
     QSharedPointer<Core::SftpChannel> m_uploader;
     Core::SftpJobId m_uploadJob;
-    bool m_adapterStarted;
-    bool m_stopped;
     QByteArray m_gdbserverOutput;
+    State m_state;
 };
 
 } // namespace Internal
