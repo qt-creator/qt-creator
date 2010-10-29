@@ -104,7 +104,7 @@
         </property>
        </spacer>
       </item>
-      <item row="2" column="0" colspan="3">
+      <item row="3" column="0" colspan="3">
        <widget class="QCheckBox" name="autoInsertBrackets">
         <property name="toolTip">
          <string>Automatically insert (, ) and ; when appropriate.</string>
@@ -117,7 +117,17 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="0" colspan="3">
+      <item row="5" column="0" colspan="3">
+       <widget class="QCheckBox" name="spaceAfterFunctionName">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>Insert &amp;space after function name</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
        <widget class="QCheckBox" name="partiallyComplete">
         <property name="toolTip">
          <string>Insert the common prefix of available completion items.</string>
@@ -127,16 +137,6 @@
         </property>
         <property name="checked">
          <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0" colspan="3">
-       <widget class="QCheckBox" name="spaceAfterFunctionName">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="text">
-         <string>Insert &amp;space after function name</string>
         </property>
        </widget>
       </item>
@@ -157,11 +157,24 @@
     </spacer>
    </item>
   </layout>
-  <zorder>groupBox</zorder>
-  <zorder>autoInsertBrackets</zorder>
-  <zorder>partiallyComplete</zorder>
-  <zorder>spaceAfterFunctionName</zorder>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>autoInsertBrackets</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>spaceAfterFunctionName</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>132</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>246</x>
+     <y>164</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
