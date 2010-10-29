@@ -40,7 +40,8 @@ QT_END_NAMESPACE
 namespace Git {
 namespace Internal {
 
-struct Stash {
+class Stash {
+public:
     void clear();
     bool parseStashLine(const QString &l);
 

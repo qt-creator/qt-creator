@@ -65,7 +65,7 @@ class GitOutputWindow;
 class GitCommand;
 struct CommitData;
 struct GitSubmitEditorPanelData;
-struct Stash;
+class Stash;
 
 class GitClient : public QObject
 {
