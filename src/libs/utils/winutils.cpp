@@ -155,10 +155,23 @@ QTCREATOR_UTILS_EXPORT QString getShortPathName(const QString &name, QString *er
     return rc;
 }
 
-unsigned long winQPidToPid(const Q_PID qpid)
+QTCREATOR_UTILS_EXPORT unsigned long winQPidToPid(const Q_PID qpid)
 {
     const PROCESS_INFORMATION *processInfo = reinterpret_cast<const PROCESS_INFORMATION*>(qpid);
     return processInfo->dwProcessId;
+}
+
+QTCREATOR_UTILS_EXPORT bool winIs64BitSystem()
+{
+ // Exclude VS 2005
+#if defined(_MSC_VER) && _MSC_VER < 1400
+    return false;
+#else
+    SYSTEM_INFO systemInfo;
+    GetNativeSystemInfo(&systemInfo);
+    return systemInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64
+            || systemInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64;
+#endif
 }
 
 } // namespace Utils

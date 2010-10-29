@@ -56,5 +56,7 @@ QTCREATOR_UTILS_EXPORT QString getShortPathName(const QString &name,
 
 QTCREATOR_UTILS_EXPORT unsigned long winQPidToPid(const Q_PID qpid);
 
+QTCREATOR_UTILS_EXPORT bool winIs64BitSystem();
+
 } // namespace Utils
 #endif // WINUTILS_H
