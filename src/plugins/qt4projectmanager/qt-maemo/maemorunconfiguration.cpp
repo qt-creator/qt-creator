@@ -196,8 +196,6 @@ bool MaemoRunConfiguration::fromMap(const QVariantMap &map)
         SystemEnvironmentBase).toInt());
     m_remoteMounts->fromMap(map);
 
-    m_validParse = qt4Target()->qt4Project()->validParse(m_proFilePath);
-
     setDefaultDisplayName(defaultDisplayName());
 
     return true;

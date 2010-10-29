@@ -237,9 +237,6 @@ bool S60DeviceRunConfiguration::fromMap(const QVariantMap &map)
         return false;
     if (!QFileInfo(m_proFilePath).exists())
         return false;
-
-    m_validParse = qt4Target()->qt4Project()->validParse(m_proFilePath);
-
     setDefaultDisplayName(tr("%1 on Symbian Device").arg(QFileInfo(m_proFilePath).completeBaseName()));
 
     return RunConfiguration::fromMap(map);

@@ -179,9 +179,6 @@ bool S60EmulatorRunConfiguration::fromMap(const QVariantMap &map)
 
     if (m_proFilePath.isEmpty())
         return false;
-
-    m_validParse = qt4Target()->qt4Project()->validParse(m_proFilePath);
-
     //: S60 emulator run configuration default display name, %1 is base pro-File name
     setDefaultDisplayName(tr("%1 in Symbian Emulator").arg(QFileInfo(m_proFilePath).completeBaseName()));
 
