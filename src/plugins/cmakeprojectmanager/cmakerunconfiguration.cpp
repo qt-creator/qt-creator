@@ -331,7 +331,6 @@ bool CMakeRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *bc) c
 CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *cmakeRunConfiguration, QWidget *parent)
     : QWidget(parent), m_ignoreChange(false), m_cmakeRunConfiguration(cmakeRunConfiguration)
 {
-
     QFormLayout *fl = new QFormLayout();
     fl->setMargin(0);
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
@@ -438,6 +437,7 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     connect(m_cmakeRunConfiguration, SIGNAL(userEnvironmentChangesChanged(QList<Utils::EnvironmentItem>)),
             this, SLOT(userEnvironmentChangesChanged()));
 
+    setEnabled(m_cmakeRunConfiguration->isEnabled());
 }
 
 void CMakeRunConfigurationWidget::setWorkingDirectory()

@@ -235,6 +235,8 @@ S60EmulatorRunConfigurationWidget::S60EmulatorRunConfigurationWidget(S60Emulator
 
     connect(m_runConfiguration, SIGNAL(isEnabledChanged(bool)),
             this, SLOT(runConfigurationEnabledChange(bool)));
+
+    setEnabled(m_runConfiguration->isEnabled());
 }
 
 void S60EmulatorRunConfigurationWidget::updateTargetInformation()

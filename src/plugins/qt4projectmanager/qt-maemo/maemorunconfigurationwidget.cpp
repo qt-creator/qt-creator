@@ -101,6 +101,8 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
             this, SLOT(runConfigurationEnabledChange(bool)));
 
     handleBuildConfigChanged();
+
+    setEnabled(m_runConfiguration->isEnabled());
 }
 
 void MaemoRunConfigurationWidget::runConfigurationEnabledChange(bool enabled)
