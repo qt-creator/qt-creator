@@ -134,7 +134,7 @@ private:
     void unmountOldDirs();
     void setupMount();
     void prepareSftpConnection();
-    void runDpkg(const QString &packageFilePath);
+    void runDpkg(const QString &packageFilePath, bool removeAfterInstall);
 
     static const QLatin1String Id;
 

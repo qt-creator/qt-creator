@@ -387,7 +387,7 @@ void MaemoDeployStep::handleSftpJobFinished(Core::SftpJobId,
         .arg(filePathNative));
     const QString remoteFilePath
         = uploadDir() + QLatin1Char('/') + QFileInfo(filePathNative).fileName();
-    runDpkg(remoteFilePath);
+    runDpkg(remoteFilePath, true);
 }
 
 void MaemoDeployStep::handleMounted()
@@ -400,7 +400,7 @@ void MaemoDeployStep::handleMounted()
     if (m_needsInstall) {
         const QString remoteFilePath = deployMountPoint() + QLatin1Char('/')
             + QFileInfo(packagingStep()->packageFilePath()).fileName();
-        runDpkg(remoteFilePath);
+        runDpkg(remoteFilePath, false);
     } else {
         copyNextFileToDevice();
     }
@@ -605,11 +605,14 @@ void MaemoDeployStep::unmountOldDirs()
     m_mounter->unmount();
 }
 
-void MaemoDeployStep::runDpkg(const QString &packageFilePath)
+void MaemoDeployStep::runDpkg(const QString &packageFilePath,
+    bool removeAfterInstall)
 {
     writeOutput(tr("Installing package to device..."));
-    const QByteArray cmd = MaemoGlobal::remoteSudo().toUtf8() + " dpkg -i "
+    QByteArray cmd = MaemoGlobal::remoteSudo().toUtf8() + " dpkg -i "
         + packageFilePath.toUtf8();
+    if (removeAfterInstall)
+        cmd += " && rm " + packageFilePath.toUtf8() + " || :";
     m_deviceInstaller = m_connection->createRemoteProcess(cmd);
     connect(m_deviceInstaller.data(), SIGNAL(closed(int)), this,
         SLOT(handleInstallationFinished(int)));

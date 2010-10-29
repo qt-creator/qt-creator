@@ -113,7 +113,7 @@ void MaemoRemoteMounter::unmount()
 
     QString remoteCall;
     for (int i = 0; i < m_mountSpecs.count(); ++i) {
-        remoteCall += QString::fromLocal8Bit("%1 umount %2;")
+        remoteCall += QString::fromLocal8Bit("%1 umount %2 && %1 rmdir %2;")
             .arg(MaemoGlobal::remoteSudo(),
                 m_mountSpecs.at(i).mountSpec.remoteMountPoint);
     }

@@ -99,7 +99,8 @@ void RemoteGdbProcess::handleFifoCreationFinished(int exitStatus)
     if (exitStatus != SshRemoteProcess::ExitedNormally) {
         emitErrorExit(tr("Could not create FIFO."));
     } else {
-        m_appOutputReader = m_conn->createRemoteProcess("cat " + AppOutputFile);
+        m_appOutputReader = m_conn->createRemoteProcess("cat " + AppOutputFile
+            + " && rm -f " + AppOutputFile);
         connect(m_appOutputReader.data(), SIGNAL(started()), this,
             SLOT(handleAppOutputReaderStarted()));
         connect(m_appOutputReader.data(), SIGNAL(closed(int)), this,
