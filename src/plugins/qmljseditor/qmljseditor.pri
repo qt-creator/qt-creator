@@ -1,3 +1,3 @@
 include(qmljseditor_dependencies.pri)
 
-LIBS *= -l$$qtLibraryTarget(QmlJSEditor)
+LIBS *= -l$$qtLibraryName(QmlJSEditor)

@@ -1,2 +1,2 @@
 include(qmlprojectmanager_dependencies.pri)
-LIBS *= -l$$qtLibraryTarget(QmlProjectManager)
+LIBS *= -l$$qtLibraryName(QmlProjectManager)

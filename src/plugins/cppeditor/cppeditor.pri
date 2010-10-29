@@ -1,3 +1,3 @@
 include(cppeditor_dependencies.pri)
 
-LIBS *= -l$$qtLibraryTarget(CppEditor)
+LIBS *= -l$$qtLibraryName(CppEditor)

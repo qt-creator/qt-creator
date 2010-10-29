@@ -8,13 +8,11 @@
 QT       += core
 QT       += gui
 
+include(../../../qtcreator.pri)
+
 # -- Add creator 'utils' lib
-CREATOR_LIB_LIB = ../../../lib/qtcreator
-LIBS *= -L$$CREATOR_LIB_LIB
-LIBS *= -l$$qtLibraryTarget(Utils)
-QMAKE_RPATHDIR*=$$CREATOR_LIB_LIB
-CREATOR_LIB_SRC = ../../../src/libs
-INCLUDEPATH *= $$CREATOR_LIB_SRC
+
+LIBS *= -l$$qtLibraryName(Utils)
 
 TARGET = process
 CONFIG   += console

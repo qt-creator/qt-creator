@@ -1,3 +1,3 @@
 include(find_dependencies.pri)
 
-LIBS *= -l$$qtLibraryTarget(Find)
+LIBS *= -l$$qtLibraryName(Find)

@@ -1,10 +1,9 @@
-INCLUDEPATH += ../../../../src/plugins
-CREATORLIBPATH = ../../../../lib/qtcreator
-PLUGINPATH=$$CREATORLIBPATH/plugins/Nokia
-LIBS *= -L$$PLUGINPATH -lCore
-LIBS *= -L$$CREATORLIBPATH
 include (../../../qtcreator.pri)
-include (../../../src/plugins/coreplugin/coreplugin_dependencies.pri)
+include (../../../src/plugins/coreplugin/coreplugin.pri)
+
+INCLUDEPATH *= $$IDE_SOURCE_TREE/src/plugins
+LIBS *= -L$$IDE_LIBRARY_PATH/Nokia
+
 QT       += core
 QT       -= gui
 CONFIG   += console

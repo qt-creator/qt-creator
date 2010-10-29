@@ -1,3 +1,3 @@
 include(texteditor_dependencies.pri)
 
-LIBS *= -l$$qtLibraryTarget(TextEditor)
+LIBS *= -l$$qtLibraryName(TextEditor)

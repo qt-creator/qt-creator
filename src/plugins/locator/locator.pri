@@ -1,3 +1,3 @@
 include(locator_dependencies.pri)
 
-LIBS *= -l$$qtLibraryTarget(Locator)
+LIBS *= -l$$qtLibraryName(Locator)

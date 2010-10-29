@@ -51,5 +51,5 @@ CONFIG += plugin plugin_with_soname
     INSTALLS += target pluginspec
 }
 
-TARGET = $$qtLibraryTarget($$TARGET)
+TARGET = $$qtLibraryName($$TARGET)
 

@@ -1,2 +1,2 @@
 include(coreplugin_dependencies.pri)
-LIBS *= -l$$qtLibraryTarget(Core)
+LIBS *= -l$$qtLibraryName(Core)

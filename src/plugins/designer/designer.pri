@@ -1,3 +1,3 @@
 include(designer_dependencies.pri)
 
-LIBS *= -l$$qtLibraryTarget(Designer)
+LIBS *= -l$$qtLibraryName(Designer)

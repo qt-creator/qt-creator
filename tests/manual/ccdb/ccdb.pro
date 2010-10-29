@@ -15,7 +15,7 @@ INCLUDEPATH *= $$CDB_CORE
 # -- Add creator 'utils' lib
 CREATOR_LIB_LIB = ../../../lib/qtcreator
 LIBS *= -L$$CREATOR_LIB_LIB
-LIBS *= -l$$qtLibraryTarget(Utilsd)
+LIBS *= -l$$qtLibraryName(Utils)
 CREATOR_LIB_SRC = ../../../src/libs
 INCLUDEPATH *= $$CREATOR_LIB_SRC
 

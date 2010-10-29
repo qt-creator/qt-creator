@@ -1,3 +1,3 @@
 include(cpptools_dependencies.pri)
 
-LIBS *= -l$$qtLibraryTarget(CppTools)
+LIBS *= -l$$qtLibraryName(CppTools)
