@@ -103,7 +103,7 @@ Qt4RunConfiguration::Qt4RunConfiguration(Qt4Target *parent, const QString &proFi
     m_isUsingDyldImageSuffix(false),
     m_userSetWokingDirectory(false),
     m_baseEnvironmentBase(Qt4RunConfiguration::BuildEnvironmentBase),
-    m_parseSuccess(true)
+    m_parseSuccess(parent->qt4Project()->validParse(m_proFilePath))
 {
     ctor();
 }
