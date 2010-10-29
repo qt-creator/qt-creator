@@ -102,7 +102,7 @@ void MaemoRunConfiguration::init()
     Qt4Project *pro = qt4Target()->qt4Project();
     connect(pro, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*,bool)),
             this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*,bool)));
-    connect(pro, SIGNAL(profFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode *)),
+    connect(pro, SIGNAL(proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode *)),
             this, SLOT(proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
 }
 
