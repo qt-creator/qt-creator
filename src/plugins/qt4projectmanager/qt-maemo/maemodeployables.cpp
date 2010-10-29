@@ -68,7 +68,7 @@ MaemoDeployables::~MaemoDeployables() {}
 void MaemoDeployables::init()
 {
     Qt4Project *pro = qt4BuildConfiguration()->qt4Target()->qt4Project();
-    connect(pro,  SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*,bool)),
+    connect(pro, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*,bool)),
             m_updateTimer, SLOT(start()));
 
     // TODO do we want to disable the view
