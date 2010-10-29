@@ -171,12 +171,15 @@ void RemoteGdbServerAdapter::setupInferior()
     }
     const QByteArray sysRoot = startParameters().sysRoot.toLocal8Bit();
     const QByteArray remoteArch = startParameters().remoteArchitecture.toLatin1();
+    const QByteArray gnuTarget = startParameters().gnuTarget.toLatin1();
     const QByteArray solibPath =
          QFileInfo(startParameters().dumperLibrary).path().toLocal8Bit();
     const QString args = startParameters().processArgs.join(_(" "));
 
     if (!remoteArch.isEmpty())
         m_engine->postCommand("set architecture " + remoteArch);
+    if (!gnuTarget.isEmpty())
+        m_engine->postCommand("set gnutarget " + gnuTarget);
     if (!sysRoot.isEmpty())
         m_engine->postCommand("set sysroot " + sysRoot);
     if (!solibPath.isEmpty())

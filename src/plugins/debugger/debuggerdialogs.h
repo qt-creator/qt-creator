@@ -178,6 +178,10 @@ public:
     void setRemoteArchitecture(const QString &arch);
     void setRemoteArchitectures(const QStringList &arches);
 
+    QString gnuTarget() const;
+    void setGnuTarget(const QString &gnuTarget);
+    void setGnuTargets(const QStringList &gnuTargets);
+
     bool useServerStartScript() const;
     void setUseServerStartScript(bool on);
     QString serverStartScript() const;

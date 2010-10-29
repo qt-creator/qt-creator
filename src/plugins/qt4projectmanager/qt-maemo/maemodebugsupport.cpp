@@ -99,6 +99,7 @@ RunControl *MaemoDebugSupport::createDebugRunControl(MaemoRunConfiguration *runC
                 + QString::number(gdbServerPort(runConfig));
             params.useServerStartScript = true;
             params.remoteArchitecture = QLatin1String("arm");
+            params.gnuTarget = QLatin1String("arm-none-linux-gnueabi");
         }
     } else {
         params.startMode = AttachToRemote;

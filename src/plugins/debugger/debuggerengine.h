@@ -90,6 +90,7 @@ public:
     // for remote debugging
     QString remoteChannel;
     QString remoteArchitecture;
+    QString gnuTarget;
     QString symbolFileName;
     bool useServerStartScript;
     QString serverStartScript;

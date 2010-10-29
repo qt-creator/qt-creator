@@ -1877,16 +1877,28 @@ void DebuggerPluginPrivate::startRemoteApplication()
     QStringList arches;
     arches.append(_("i386:x86-64:intel"));
     arches.append(_("i386"));
+    arches.append(_("arm"));
     QString lastUsed = configValue(_("LastRemoteArchitecture")).toString();
     if (!arches.contains(lastUsed))
         arches.prepend(lastUsed);
     dlg.setRemoteArchitectures(arches);
+    QStringList gnuTargets;
+    gnuTargets.append(_("auto"));
+    gnuTargets.append(_("i686-linux-gnu"));
+    gnuTargets.append(_("x86_64-linux-gnu"));
+    gnuTargets.append(_("arm-none-linux-gnueabi"));
+    const QString lastUsedGnuTarget
+        = configValue(_("LastGnuTarget")).toString();
+    if (!gnuTargets.contains(lastUsedGnuTarget))
+        gnuTargets.prepend(lastUsedGnuTarget);
+    dlg.setGnuTargets(gnuTargets);
     dlg.setRemoteChannel(
             configValue(_("LastRemoteChannel")).toString());
     dlg.setLocalExecutable(
             configValue(_("LastLocalExecutable")).toString());
     dlg.setDebugger(configValue(_("LastDebugger")).toString());
     dlg.setRemoteArchitecture(lastUsed);
+    dlg.setGnuTarget(lastUsedGnuTarget);
     dlg.setServerStartScript(
             configValue(_("LastServerStartScript")).toString());
     dlg.setUseServerStartScript(
@@ -1898,11 +1910,13 @@ void DebuggerPluginPrivate::startRemoteApplication()
     setConfigValue(_("LastLocalExecutable"), dlg.localExecutable());
     setConfigValue(_("LastDebugger"), dlg.debugger());
     setConfigValue(_("LastRemoteArchitecture"), dlg.remoteArchitecture());
+    setConfigValue(_("LastGnuTarget"), dlg.gnuTarget());
     setConfigValue(_("LastServerStartScript"), dlg.serverStartScript());
     setConfigValue(_("LastUseServerStartScript"), dlg.useServerStartScript());
     setConfigValue(_("LastSysroot"), dlg.sysRoot());
     sp.remoteChannel = dlg.remoteChannel();
     sp.remoteArchitecture = dlg.remoteArchitecture();
+    sp.gnuTarget = dlg.gnuTarget();
     sp.executable = dlg.localExecutable();
     sp.displayName = dlg.localExecutable();
     sp.debuggerCommand = dlg.debugger(); // Override toolchain-detection.
