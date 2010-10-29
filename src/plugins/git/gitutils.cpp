@@ -67,20 +67,14 @@ bool Stash::parseStashLine(const QString &l)
     const int messagePos = l.indexOf(colon, branchPos + 1);
     if (messagePos < 0)
         return false;
-    // Name
-    const QString newName = l.left(branchPos);
     // Branch spec
-    const QString branchSpec = l.mid(branchPos + 1, messagePos - branchPos - 1);
-    const bool emptyMessage = branchSpec.contains(QLatin1String("WIP")); // "Work in Progress or sth"
-    const int onIndex = branchSpec.indexOf(QLatin1String("on "), 0, Qt::CaseInsensitive);
-    if (onIndex == -1)
+    const int onIndex = l.indexOf(QLatin1String("on "), branchPos + 2, Qt::CaseInsensitive);
+    if (onIndex == -1 || onIndex >= messagePos)
         return false;
-    const QString newBranch = branchSpec.mid(onIndex + 3);
     // Happy!
-    name = newName;
-    branch = newBranch;
-    if (!emptyMessage)
-        message = l.mid(messagePos + 2); // skip blank
+    name = l.left(branchPos);
+    branch = l.mid(onIndex + 3, messagePos - onIndex - 3);
+    message = l.mid(messagePos + 2); // skip blank
     return true;
 }
 
