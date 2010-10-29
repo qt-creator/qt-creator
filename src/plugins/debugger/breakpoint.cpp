@@ -28,11 +28,8 @@
 **************************************************************************/
 
 #include "breakpoint.h"
-#include "breakhandler.h"
-
 #include "stackframe.h"
 
-#include <texteditor/basetextmark.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QByteArray>
