@@ -59,6 +59,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/basetextdocument.h>
 #include <texteditor/fontsettings.h>
+#include <texteditor/tabsettings.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/syntaxhighlighter.h>

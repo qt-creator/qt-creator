@@ -32,6 +32,7 @@
 #include "basetextdocumentlayout.h"
 #include "basetexteditor.h"
 #include "storagesettings.h"
+#include "tabsettings.h"
 #include "syntaxhighlighter.h"
 
 #include <QtCore/QFile>
@@ -48,7 +49,25 @@
 #include <utils/qtcassert.h>
 #include <utils/reloadpromptutils.h>
 
-using namespace TextEditor;
+namespace TextEditor {
+namespace Internal {
+
+class DocumentMarker : public ITextMarkable
+{
+    Q_OBJECT
+public:
+    DocumentMarker(QTextDocument *);
+
+    // ITextMarkable
+    bool addMark(ITextMark *mark, int line);
+    TextMarks marksAt(int line) const;
+    void removeMark(ITextMark *mark);
+    bool hasMark(ITextMark *mark) const;
+    void updateMark(ITextMark *mark);
+
+private:
+    QTextDocument *document;
+};
 
 DocumentMarker::DocumentMarker(QTextDocument *doc)
   : ITextMarkable(doc), document(doc)
@@ -123,59 +142,188 @@ void DocumentMarker::updateMark(ITextMark *mark)
     documentLayout->requestUpdate();
 }
 
+} // namespace Internal
 
-BaseTextDocument::BaseTextDocument()
-  : m_document(new QTextDocument(this)),
-    m_highlighter(0)
+class BaseTextDocumentPrivate {
+public:
+    explicit BaseTextDocumentPrivate(BaseTextDocument *q);
+
+    QString m_fileName;
+    QString m_defaultPath;
+    QString m_suggestedFileName;
+    QString m_mimeType;
+    StorageSettings m_storageSettings;
+    TabSettings m_tabSettings;
+    QTextDocument *m_document;
+    Internal::DocumentMarker *m_documentMarker;
+    SyntaxHighlighter *m_highlighter;
+
+    enum LineTerminatorMode {
+        LFLineTerminator,
+        CRLFLineTerminator,
+        NativeLineTerminator =
+#if defined (Q_OS_WIN)
+        CRLFLineTerminator
+#else
+        LFLineTerminator
+#endif
+    };
+    LineTerminatorMode m_lineTerminatorMode;
+    QTextCodec *m_codec;
+    bool m_fileHasUtf8Bom;
+
+    bool m_fileIsReadOnly;
+    bool m_isBinaryData;
+    bool m_hasDecodingError;
+    QByteArray m_decodingErrorSample;
+};
+
+BaseTextDocumentPrivate::BaseTextDocumentPrivate(BaseTextDocument *q) :
+    m_document(new QTextDocument(q)),
+    m_documentMarker(new Internal::DocumentMarker(m_document)),
+    m_highlighter(0),
+    m_lineTerminatorMode(NativeLineTerminator),
+    m_codec(Core::EditorManager::instance()->defaultTextEncoding()),
+    m_fileHasUtf8Bom(false),
+    m_fileIsReadOnly(false),
+    m_isBinaryData(false),
+    m_hasDecodingError(false)
 {
-    m_documentMarker = new DocumentMarker(m_document);
-    m_lineTerminatorMode = NativeLineTerminator;
-    m_fileIsReadOnly = false;
-    m_isBinaryData = false;
-    m_codec = Core::EditorManager::instance()->defaultTextEncoding();
-    m_fileHasUtf8Bom = false;
-    m_hasDecodingError = false;
+}
+
+BaseTextDocument::BaseTextDocument() : d(new BaseTextDocumentPrivate(this))
+{
 }
 
 BaseTextDocument::~BaseTextDocument()
 {
     documentClosing();
-
-    delete m_document;
-    m_document = 0;
+    delete d->m_document;
+    d->m_document = 0;
+    delete d;
 }
 
 QString BaseTextDocument::mimeType() const
 {
-    return m_mimeType;
+    return d->m_mimeType;
 }
 
 void BaseTextDocument::setMimeType(const QString &mt)
 {
-    m_mimeType = mt;
+    d->m_mimeType = mt;
+}
+
+void BaseTextDocument::setStorageSettings(const StorageSettings &storageSettings)
+{
+    d->m_storageSettings = storageSettings;
+}
+
+const StorageSettings &BaseTextDocument::storageSettings() const
+{
+    return d->m_storageSettings;
+}
+
+void BaseTextDocument::setTabSettings(const TabSettings &tabSettings)
+{
+    d->m_tabSettings = tabSettings;
+}
+
+const TabSettings &BaseTextDocument::tabSettings() const
+{
+    return d->m_tabSettings;
+}
+
+QString BaseTextDocument::fileName() const
+{
+    return d->m_fileName;
+}
+
+bool BaseTextDocument::isSaveAsAllowed() const
+{
+    return true;
+}
+
+QString BaseTextDocument::defaultPath() const
+{
+    return d->m_defaultPath;
+}
+
+QString BaseTextDocument::suggestedFileName() const
+{
+    return d->m_suggestedFileName;
+}
+
+void BaseTextDocument::setDefaultPath(const QString &defaultPath)
+{
+    d->m_defaultPath = defaultPath;
+}
+
+void BaseTextDocument::setSuggestedFileName(const QString &suggestedFileName)
+{
+    d->m_suggestedFileName = suggestedFileName;
+}
+
+QTextDocument *BaseTextDocument::document() const
+{
+    return d->m_document;
+}
+
+SyntaxHighlighter *BaseTextDocument::syntaxHighlighter() const
+{
+    return d->m_highlighter;
+}
+
+bool BaseTextDocument::isBinaryData() const
+{
+    return d->m_isBinaryData;
+}
+
+bool BaseTextDocument::hasDecodingError() const
+{
+    return d->m_hasDecodingError || d->m_isBinaryData;
+}
+
+QTextCodec *BaseTextDocument::codec() const
+{
+    return d->m_codec;
+}
+
+void BaseTextDocument::setCodec(QTextCodec *c)
+{
+    d->m_codec = c;
+}
+
+QByteArray BaseTextDocument::decodingErrorSample() const
+{
+    return d->m_decodingErrorSample;
+}
+
+ITextMarkable *BaseTextDocument::documentMarker() const
+{
+    return d->m_documentMarker;
 }
 
 bool BaseTextDocument::save(const QString &fileName)
 {
-    QTextCursor cursor(m_document);
+    QTextCursor cursor(d->m_document);
 
     // When saving the current editor, make sure to maintain the cursor position for undo
     Core::IEditor *currentEditor = Core::EditorManager::instance()->currentEditor();
     if (BaseTextEditorEditable *editable = qobject_cast<BaseTextEditorEditable*>(currentEditor)) {
-        if (editable->file() == this) 
+        if (editable->file() == this)
             cursor.setPosition(editable->editor()->textCursor().position());
     }
 
     cursor.beginEditBlock();
     cursor.movePosition(QTextCursor::Start);
 
-    if (m_storageSettings.m_cleanWhitespace)
-        cleanWhitespace(cursor, m_storageSettings.m_cleanIndentation, m_storageSettings.m_inEntireDocument);
-    if (m_storageSettings.m_addFinalNewLine)
+    if (d->m_storageSettings.m_cleanWhitespace)
+        cleanWhitespace(cursor, d->m_storageSettings.m_cleanIndentation, d->m_storageSettings.m_inEntireDocument);
+    if (d->m_storageSettings.m_addFinalNewLine)
         ensureFinalNewLine(cursor);
     cursor.endEditBlock();
 
-    QString fName = m_fileName;
+    QString fName = d->m_fileName;
     if (!fileName.isEmpty())
         fName = fileName;
 
@@ -183,32 +331,32 @@ bool BaseTextDocument::save(const QString &fileName)
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate))
         return false;
 
-    QString plainText = m_document->toPlainText();
+    QString plainText = d->m_document->toPlainText();
 
-    if (m_lineTerminatorMode == CRLFLineTerminator)
+    if (d->m_lineTerminatorMode == BaseTextDocumentPrivate::CRLFLineTerminator)
         plainText.replace(QLatin1Char('\n'), QLatin1String("\r\n"));
 
     Core::IFile::Utf8BomSetting utf8bomSetting = Core::EditorManager::instance()->utf8BomSetting();
-    if (m_codec->name() == "UTF-8" &&
-        (utf8bomSetting == Core::IFile::AlwaysAdd || (utf8bomSetting == Core::IFile::OnlyKeep && m_fileHasUtf8Bom))) {
+    if (d->m_codec->name() == "UTF-8" &&
+        (utf8bomSetting == Core::IFile::AlwaysAdd || (utf8bomSetting == Core::IFile::OnlyKeep && d->m_fileHasUtf8Bom))) {
         file.write("\xef\xbb\xbf", 3);
     }
 
-    file.write(m_codec->fromUnicode(plainText));
+    file.write(d->m_codec->fromUnicode(plainText));
     if (!file.flush())
         return false;
     file.close();
 
     const QFileInfo fi(fName);
-    m_fileName = QDir::cleanPath(fi.absoluteFilePath());
+    d->m_fileName = QDir::cleanPath(fi.absoluteFilePath());
 
-    m_document->setModified(false);
+    d->m_document->setModified(false);
     emit titleChanged(fi.fileName());
     emit changed();
 
-    m_isBinaryData = false;
-    m_hasDecodingError = false;
-    m_decodingErrorSample.clear();
+    d->m_isBinaryData = false;
+    d->m_hasDecodingError = false;
+    d->m_decodingErrorSample.clear();
 
     return true;
 }
@@ -216,35 +364,35 @@ bool BaseTextDocument::save(const QString &fileName)
 void BaseTextDocument::rename(const QString &newName)
 {
     const QFileInfo fi(newName);
-    m_fileName = QDir::cleanPath(fi.absoluteFilePath());
+    d->m_fileName = QDir::cleanPath(fi.absoluteFilePath());
     emit titleChanged(fi.fileName());
     emit changed();
 }
 
 bool BaseTextDocument::isReadOnly() const
 {
-    if (m_isBinaryData || m_hasDecodingError)
+    if (d->m_isBinaryData || d->m_hasDecodingError)
         return true;
-    if (m_fileName.isEmpty()) //have no corresponding file, so editing is ok
+    if (d->m_fileName.isEmpty()) //have no corresponding file, so editing is ok
         return false;
-    return m_fileIsReadOnly;
+    return d->m_fileIsReadOnly;
 }
 
 bool BaseTextDocument::isModified() const
 {
-    return m_document->isModified();
+    return d->m_document->isModified();
 }
 
 void BaseTextDocument::checkPermissions()
 {
-    bool previousReadOnly = m_fileIsReadOnly;
-    if (!m_fileName.isEmpty()) {
-        const QFileInfo fi(m_fileName);
-        m_fileIsReadOnly = !fi.isWritable();
+    bool previousReadOnly = d->m_fileIsReadOnly;
+    if (!d->m_fileName.isEmpty()) {
+        const QFileInfo fi(d->m_fileName);
+        d->m_fileIsReadOnly = !fi.isWritable();
     } else {
-        m_fileIsReadOnly = false;
+        d->m_fileIsReadOnly = false;
     }
-    if (previousReadOnly != m_fileIsReadOnly)
+    if (previousReadOnly != d->m_fileIsReadOnly)
         emit changed();
 }
 
@@ -253,8 +401,8 @@ bool BaseTextDocument::open(const QString &fileName)
     QString title = tr("untitled");
     if (!fileName.isEmpty()) {
         const QFileInfo fi(fileName);
-        m_fileIsReadOnly = !fi.isWritable();
-        m_fileName = QDir::cleanPath(fi.absoluteFilePath());
+        d->m_fileIsReadOnly = !fi.isWritable();
+        d->m_fileName = QDir::cleanPath(fi.absoluteFilePath());
 
         QFile file(fileName);
         if (!file.open(QIODevice::ReadOnly))
@@ -265,8 +413,8 @@ bool BaseTextDocument::open(const QString &fileName)
         QByteArray buf = file.readAll();
         int bytesRead = buf.size();
 
-        QTextCodec *codec = m_codec;
-        m_fileHasUtf8Bom = false;
+        QTextCodec *codec = d->m_codec;
+        d->m_fileHasUtf8Bom = false;
 
         // code taken from qtextstream
         if (bytesRead >= 4 && ((uchar(buf[0]) == 0xff && uchar(buf[1]) == 0xfe && uchar(buf[2]) == 0 && uchar(buf[3]) == 0)
@@ -277,57 +425,57 @@ bool BaseTextDocument::open(const QString &fileName)
             codec = QTextCodec::codecForName("UTF-16");
         } else if (bytesRead >= 3 && ((uchar(buf[0]) == 0xef && uchar(buf[1]) == 0xbb) && uchar(buf[2]) == 0xbf)) {
             codec = QTextCodec::codecForName("UTF-8");
-            m_fileHasUtf8Bom = true;
+            d->m_fileHasUtf8Bom = true;
         } else if (!codec) {
             codec = QTextCodec::codecForLocale();
         }
         // end code taken from qtextstream
 
-        m_codec = codec;
+        d->m_codec = codec;
 
 #if 0 // should work, but does not, Qt bug with "system" codec
-        QTextDecoder *decoder = m_codec->makeDecoder();
+        QTextDecoder *decoder = d->m_codec->makeDecoder();
         QString text = decoder->toUnicode(buf);
-        m_hasDecodingError = (decoder->hasFailure());
+        d->m_hasDecodingError = (decoder->hasFailure());
         delete decoder;
 #else
-        QString text = m_codec->toUnicode(buf);
-        QByteArray verifyBuf = m_codec->fromUnicode(text); // slow
+        QString text = d->m_codec->toUnicode(buf);
+        QByteArray verifyBuf = d->m_codec->fromUnicode(text); // slow
         // the minSize trick lets us ignore unicode headers
         int minSize = qMin(verifyBuf.size(), buf.size());
-        m_hasDecodingError = (minSize < buf.size()- 4
+        d->m_hasDecodingError = (minSize < buf.size()- 4
                               || memcmp(verifyBuf.constData() + verifyBuf.size() - minSize,
                                         buf.constData() + buf.size() - minSize, minSize));
 #endif
 
-        if (m_hasDecodingError) {
+        if (d->m_hasDecodingError) {
             int p = buf.indexOf('\n', 16384);
             if (p < 0)
-                m_decodingErrorSample = buf;
+                d->m_decodingErrorSample = buf;
             else
-                m_decodingErrorSample = buf.left(p);
+                d->m_decodingErrorSample = buf.left(p);
         } else {
-            m_decodingErrorSample.clear();
+            d->m_decodingErrorSample.clear();
         }
 
         int lf = text.indexOf('\n');
         if (lf > 0 && text.at(lf-1) == QLatin1Char('\r')) {
-            m_lineTerminatorMode = CRLFLineTerminator;
+            d->m_lineTerminatorMode = BaseTextDocumentPrivate::CRLFLineTerminator;
         } else if (lf >= 0) {
-            m_lineTerminatorMode = LFLineTerminator;
+            d->m_lineTerminatorMode = BaseTextDocumentPrivate::LFLineTerminator;
         } else {
-            m_lineTerminatorMode = NativeLineTerminator;
+            d->m_lineTerminatorMode = BaseTextDocumentPrivate::NativeLineTerminator;
         }
 
-        m_document->setModified(false);
-        if (m_isBinaryData)
-            m_document->setHtml(tr("<em>Binary data</em>"));
+        d->m_document->setModified(false);
+        if (d->m_isBinaryData)
+            d->m_document->setHtml(tr("<em>Binary data</em>"));
         else
-            m_document->setPlainText(text);
-        BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(m_document->documentLayout());
+            d->m_document->setPlainText(text);
+        BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(d->m_document->documentLayout());
         QTC_ASSERT(documentLayout, return true);
-        documentLayout->lastSaveRevision = m_document->revision();
-        m_document->setModified(false);
+        documentLayout->lastSaveRevision = d->m_document->revision();
+        d->m_document->setModified(false);
         emit titleChanged(title);
         emit changed();
     }
@@ -337,7 +485,7 @@ bool BaseTextDocument::open(const QString &fileName)
 void BaseTextDocument::reload(QTextCodec *codec)
 {
     QTC_ASSERT(codec, return);
-    m_codec = codec;
+    d->m_codec = codec;
     reload();
 }
 
@@ -346,7 +494,7 @@ void BaseTextDocument::reload()
     emit aboutToReload();
     documentClosing(); // removes text marks non-permanently
 
-    if (open(m_fileName))
+    if (open(d->m_fileName))
         emit reloaded();
 }
 
@@ -375,11 +523,11 @@ void BaseTextDocument::reload(ReloadFlag flag, ChangeType type)
 
 void BaseTextDocument::setSyntaxHighlighter(SyntaxHighlighter *highlighter)
 {
-    if (m_highlighter)
-        delete m_highlighter;
-    m_highlighter = highlighter;
-    m_highlighter->setParent(this);
-    m_highlighter->setDocument(m_document);
+    if (d->m_highlighter)
+        delete d->m_highlighter;
+    d->m_highlighter = highlighter;
+    d->m_highlighter->setParent(this);
+    d->m_highlighter->setDocument(d->m_document);
 }
 
 
@@ -398,34 +546,34 @@ void BaseTextDocument::cleanWhitespace(const QTextCursor &cursor)
 
 void BaseTextDocument::cleanWhitespace(QTextCursor &cursor, bool cleanIndentation, bool inEntireDocument)
 {
-    BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(m_document->documentLayout());
+    BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(d->m_document->documentLayout());
     Q_ASSERT(cursor.visualNavigation() == false);
 
-    QTextBlock block = m_document->findBlock(cursor.selectionStart());
+    QTextBlock block = d->m_document->findBlock(cursor.selectionStart());
     QTextBlock end;
     if (cursor.hasSelection())
-        end = m_document->findBlock(cursor.selectionEnd()-1).next();
+        end = d->m_document->findBlock(cursor.selectionEnd()-1).next();
 
     while (block.isValid() && block != end) {
 
         if (inEntireDocument || block.revision() != documentLayout->lastSaveRevision) {
 
             QString blockText = block.text();
-            if (int trailing = m_tabSettings.trailingWhitespaces(blockText)) {
+            if (int trailing = d->m_tabSettings.trailingWhitespaces(blockText)) {
                 cursor.setPosition(block.position() + block.length() - 1);
                 cursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor, trailing);
                 cursor.removeSelectedText();
             }
-            if (cleanIndentation && !m_tabSettings.isIndentationClean(block)) {
+            if (cleanIndentation && !d->m_tabSettings.isIndentationClean(block)) {
                 cursor.setPosition(block.position());
-                int firstNonSpace = m_tabSettings.firstNonSpace(blockText);
+                int firstNonSpace = d->m_tabSettings.firstNonSpace(blockText);
                 if (firstNonSpace == blockText.length()) {
                     cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
                     cursor.removeSelectedText();
                 } else {
-                    int column = m_tabSettings.columnAt(blockText, firstNonSpace);
+                    int column = d->m_tabSettings.columnAt(blockText, firstNonSpace);
                     cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, firstNonSpace);
-                    QString indentationString = m_tabSettings.indentationString(0, column, block);
+                    QString indentationString = d->m_tabSettings.indentationString(0, column, block);
                     cursor.insertText(indentationString);
                 }
             }
@@ -449,10 +597,14 @@ void BaseTextDocument::ensureFinalNewLine(QTextCursor& cursor)
 
 void BaseTextDocument::documentClosing()
 {
-    QTextBlock block = m_document->begin();
+    QTextBlock block = d->m_document->begin();
     while (block.isValid()) {
         if (TextBlockUserData *data = static_cast<TextBlockUserData *>(block.userData()))
             data->documentClosing();
         block = block.next();
     }
 }
+
+} // namespace TextEditor
+
+#include "basetextdocument.moc"

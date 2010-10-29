@@ -28,16 +28,52 @@
 **************************************************************************/
 
 #include "basetextmark.h"
-
+#include "itexteditor.h"
 #include "basetextdocument.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QTimer>
+#include <QtGui/QIcon>
 
-using namespace TextEditor;
-using namespace TextEditor::Internal;
+namespace TextEditor {
+namespace Internal {
+
+class InternalMark : public TextEditor::ITextMark
+{
+public:
+    explicit InternalMark(BaseTextMark *parent) : m_parent(parent) {}
+
+    virtual QIcon icon() const
+    {
+        return m_parent->icon();
+    }
+
+    virtual void updateLineNumber(int lineNumber)
+    {
+        return m_parent->updateLineNumber(lineNumber);
+    }
+
+    virtual void updateBlock(const QTextBlock &block)
+    {
+        return m_parent->updateBlock(block);
+    }
+
+    virtual void removedFromEditor()
+    {
+        m_parent->childRemovedFromEditor(this);
+    }
+
+    virtual void documentClosing()
+    {
+        m_parent->documentClosingFor(this);
+    }
+private:
+    BaseTextMark *m_parent;
+};
+
+} // namespace Internal
 
 BaseTextMark::BaseTextMark(const QString &filename, int line)
     : m_markableInterface(0)
@@ -80,7 +116,7 @@ void BaseTextMark::editorOpened(Core::IEditor *editor)
     if (ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor)) {
         if (m_markableInterface == 0) { // We aren't added to something
             m_markableInterface = textEditor->markableInterface();
-            m_internalMark = new InternalMark(this);
+            m_internalMark = new Internal::InternalMark(this);
 
             if (m_markableInterface->addMark(m_internalMark, m_line)) {
                 // Handle reload of text documents, readding the mark as necessary
@@ -103,13 +139,13 @@ void BaseTextMark::documentReloaded()
         return;
 
     m_markableInterface = doc->documentMarker();
-    m_internalMark = new InternalMark(this);
+    m_internalMark = new Internal::InternalMark(this);
 
     if (!m_markableInterface->addMark(m_internalMark, m_line))
         removeInternalMark();
 }
 
-void BaseTextMark::childRemovedFromEditor(InternalMark *mark)
+void BaseTextMark::childRemovedFromEditor(Internal::InternalMark *mark)
 {
     Q_UNUSED(mark)
     // m_internalMark was removed from the editor
@@ -117,7 +153,7 @@ void BaseTextMark::childRemovedFromEditor(InternalMark *mark)
     removedFromEditor();
 }
 
-void BaseTextMark::documentClosingFor(InternalMark *mark)
+void BaseTextMark::documentClosingFor(Internal::InternalMark *mark)
 {
     Q_UNUSED(mark)
     removeInternalMark();
@@ -155,3 +191,4 @@ void BaseTextMark::moveMark(const QString & /* filename */, int /* line */)
     foreach (Core::IEditor *editor, em->openedEditors())
         editorOpened(editor);
 }
+} // namespace TextEditor

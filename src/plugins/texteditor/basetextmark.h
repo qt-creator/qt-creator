@@ -30,8 +30,17 @@
 #ifndef BASETEXTMARK_H
 #define BASETEXTMARK_H
 
-#include "itexteditor.h"
-#include <QtGui/QIcon>
+#include "texteditor_global.h"
+#include <QtCore/QObject>
+
+QT_BEGIN_NAMESPACE
+class QIcon;
+class QTextBlock;
+QT_END_NAMESPACE
+
+namespace Core {
+class IEditor;
+}
 
 namespace TextEditor {
 
@@ -47,8 +56,8 @@ class TEXTEDITOR_EXPORT BaseTextMark : public QObject
     Q_OBJECT
 
 public:
-    BaseTextMark(const QString &filename, int line);
-    ~BaseTextMark();
+    explicit BaseTextMark(const QString &filename, int line);
+    virtual ~BaseTextMark();
 
     // return your icon here
     virtual QIcon icon() const = 0;
@@ -88,49 +97,6 @@ private:
     bool m_init;
 };
 
-namespace Internal {
-
-class InternalMark : public ITextMark
-{
-public:
-    InternalMark(BaseTextMark *parent)
-        : m_parent(parent)
-    {
-    }
-
-    ~InternalMark()
-    {
-    }
-
-    virtual QIcon icon() const
-    {
-        return m_parent->icon();
-    }
-
-    virtual void updateLineNumber(int lineNumber)
-    {
-        return m_parent->updateLineNumber(lineNumber);
-    }
-
-    virtual void updateBlock(const QTextBlock &block)
-    {
-        return m_parent->updateBlock(block);
-    }
-
-    virtual void removedFromEditor()
-    {
-        m_parent->childRemovedFromEditor(this);
-    }
-
-    virtual void documentClosing()
-    {
-        m_parent->documentClosingFor(this);
-    }
-private:
-    BaseTextMark *m_parent;
-};
-
-} // namespace Internal
 } // namespace TextEditor
 
 #endif // BASETEXTMARK_H

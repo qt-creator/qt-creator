@@ -56,6 +56,7 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QTextCursor>
+#include <QtGui/QIcon>
 
 #include <limits.h>
 

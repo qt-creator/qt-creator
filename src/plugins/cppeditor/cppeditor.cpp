@@ -72,6 +72,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <texteditor/basetextdocument.h>
 #include <texteditor/fontsettings.h>
+#include <texteditor/tabsettings.h>
 #include <texteditor/texteditorconstants.h>
 
 #include <QtCore/QDebug>

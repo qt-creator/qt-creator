@@ -31,9 +31,6 @@
 #define BASETEXTDOCUMENT_H
 
 #include "texteditor_global.h"
-#include "storagesettings.h"
-#include "itexteditor.h"
-#include "tabsettings.h"
 
 #include <coreplugin/ifile.h>
 
@@ -43,26 +40,15 @@ class QTextDocument;
 QT_END_NAMESPACE
 
 namespace TextEditor {
+namespace Internal {
+class DocumentMarker;
+}
 
+class ITextMarkable;
+class StorageSettings;
+class TabSettings;
 class SyntaxHighlighter;
-
-class DocumentMarker : public ITextMarkable
-{
-    Q_OBJECT
-public:
-    DocumentMarker(QTextDocument *);
-
-    // ITextMarkable
-    bool addMark(ITextMark *mark, int line);
-    TextMarks marksAt(int line) const;
-    void removeMark(ITextMark *mark);
-    bool hasMark(ITextMark *mark) const;
-    void updateMark(ITextMark *mark);
-
-private:
-    QTextDocument *document;
-};
-
+class BaseTextDocumentPrivate;
 
 class TEXTEDITOR_EXPORT BaseTextDocument : public Core::IFile
 {
@@ -70,21 +56,22 @@ class TEXTEDITOR_EXPORT BaseTextDocument : public Core::IFile
 
 public:
     BaseTextDocument();
-    ~BaseTextDocument();
-    void setStorageSettings(const StorageSettings &storageSettings) { m_storageSettings = storageSettings; }
-    void setTabSettings(const TabSettings &tabSettings) { m_tabSettings = tabSettings; }
+    virtual ~BaseTextDocument();
 
-    inline const StorageSettings &storageSettings() const { return m_storageSettings; }
-    inline const TabSettings &tabSettings() const { return m_tabSettings; }
+    void setStorageSettings(const StorageSettings &storageSettings);
+    void setTabSettings(const TabSettings &tabSettings);
 
-    DocumentMarker *documentMarker() const { return m_documentMarker; }
+    const StorageSettings &storageSettings() const;
+    const TabSettings &tabSettings() const;
+
+    ITextMarkable *documentMarker() const;
 
     //IFile
     virtual bool save(const QString &fileName = QString());
-    virtual QString fileName() const { return m_fileName; }
+    virtual QString fileName() const;
     virtual bool isReadOnly() const;
     virtual bool isModified() const;
-    virtual bool isSaveAsAllowed() const { return true; }
+    virtual bool isSaveAsAllowed() const;
     virtual void checkPermissions();
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
     void reload(ReloadFlag flag, ChangeType type);
@@ -92,25 +79,25 @@ public:
     void setMimeType(const QString &mt);
     virtual void rename(const QString &newName);
 
-    virtual QString defaultPath() const { return m_defaultPath; }
-    virtual QString suggestedFileName() const { return m_suggestedFileName; }
+    virtual QString defaultPath() const;
+    virtual QString suggestedFileName() const;
 
-    void setDefaultPath(const QString &defaultPath) {  m_defaultPath = defaultPath; }
-    void setSuggestedFileName(const QString &suggestedFileName) { m_suggestedFileName = suggestedFileName; }
+    void setDefaultPath(const QString &defaultPath);
+    void setSuggestedFileName(const QString &suggestedFileName);
 
     virtual bool open(const QString &fileName = QString());
     virtual void reload();
 
-    QTextDocument *document() const { return m_document; }
+    QTextDocument *document() const;
     void setSyntaxHighlighter(SyntaxHighlighter *highlighter);
-    SyntaxHighlighter *syntaxHighlighter() const { return m_highlighter; }
+    SyntaxHighlighter *syntaxHighlighter() const;
 
 
-    inline bool isBinaryData() const { return m_isBinaryData; }
-    inline bool hasDecodingError() const { return m_hasDecodingError || m_isBinaryData; }
-    inline QTextCodec *codec() const { return m_codec; }
-    inline void setCodec(QTextCodec *c) { m_codec = c; }
-    inline QByteArray decodingErrorSample() const { return m_decodingErrorSample; }
+    bool isBinaryData() const;
+    bool hasDecodingError() const;
+    QTextCodec *codec() const;
+    void setCodec(QTextCodec *c);
+    QByteArray decodingErrorSample() const;
 
     void reload(QTextCodec *codec);
 
@@ -120,38 +107,11 @@ signals:
     void titleChanged(QString title);
 
 private:
-    QString m_fileName;
-    QString m_defaultPath;
-    QString m_suggestedFileName;
-    QString m_mimeType;
-    StorageSettings m_storageSettings;
-    TabSettings m_tabSettings;
-    QTextDocument *m_document;
-    DocumentMarker *m_documentMarker;
-    SyntaxHighlighter *m_highlighter;
-
-    enum LineTerminatorMode {
-        LFLineTerminator,
-        CRLFLineTerminator,
-        NativeLineTerminator =
-#if defined (Q_OS_WIN)
-        CRLFLineTerminator
-#else
-        LFLineTerminator
-#endif
-    };
-    LineTerminatorMode m_lineTerminatorMode;
-    QTextCodec *m_codec;
-    bool m_fileHasUtf8Bom;
-
-    bool m_fileIsReadOnly;
-    bool m_isBinaryData;
-    bool m_hasDecodingError;
-    QByteArray m_decodingErrorSample;
-
     void cleanWhitespace(QTextCursor& cursor, bool cleanIndentation, bool inEntireDocument);
     void ensureFinalNewLine(QTextCursor& cursor);
     void documentClosing();
+
+    BaseTextDocumentPrivate *d;
 };
 
 } // namespace TextEditor
