@@ -34,7 +34,6 @@
 #include <QtCore/QtGlobal>
 #include <QtCore/QObject>
 #include <QtCore/QCoreApplication>
-#include <QtScript/QScriptValue>
 
 namespace Debugger {
 namespace Internal {

@@ -1,4 +1,3 @@
-
 #include "watchdata.h"
 
 #include <QtCore/QTextStream>
