@@ -144,7 +144,8 @@ void DocumentMarker::updateMark(ITextMark *mark)
 
 } // namespace Internal
 
-class BaseTextDocumentPrivate {
+class BaseTextDocumentPrivate
+{
 public:
     explicit BaseTextDocumentPrivate(BaseTextDocument *q);
 
