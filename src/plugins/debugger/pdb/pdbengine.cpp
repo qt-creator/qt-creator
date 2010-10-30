@@ -167,7 +167,7 @@ void PdbEngine::setupEngine()
     connect(this, SIGNAL(outputReady(QByteArray)),
         SLOT(handleOutput2(QByteArray)), Qt::QueuedConnection);
 
-    // We will stop immediatly, so setup a proper callback.
+    // We will stop immediately, so setup a proper callback.
     PdbCommand cmd;
     cmd.callback = &PdbEngine::handleFirstCommand;
     m_commands.enqueue(cmd);

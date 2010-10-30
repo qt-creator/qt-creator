@@ -146,7 +146,7 @@ void Manager::initialize()
     // internal manager state is changed
     connect(this, SIGNAL(stateChanged(bool)), SLOT(onStateChanged(bool)), Qt::QueuedConnection);
 
-    // connections to enable/disbale navi widget factory
+    // connections to enable/disable navi widget factory
     ProjectExplorer::SessionManager *sessionManager =
         ProjectExplorer::ProjectExplorerPlugin::instance()->session();
     connect(sessionManager, SIGNAL(projectAdded(ProjectExplorer::Project*)),

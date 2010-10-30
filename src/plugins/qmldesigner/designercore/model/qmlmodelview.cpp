@@ -391,7 +391,7 @@ void QmlModelView::activateState(const QmlModelState &state)
 
     m_state = state; //This is hacky. m_state should be controlled by the instances
                      //### todo: If the state thumbnail code gets refactored.
-                     //          this is not neccessary anymore.
+                     //          this is not necessary anymore.
 
 
     NodeInstance newStateInstance = instanceForModelNode(state.modelNode());

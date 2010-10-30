@@ -185,7 +185,7 @@
 //                                                 `-+-+-+-+-+-+-+-+-+-+-+>-+
 //                                                                          +
 //                                                                          +
-//                       #Interupt@InferiorRunOk#                           +
+//                       #Interrupt@InferiorRunOk#                           +
 //                                  +                                       +
 //                          InferiorStopRequested                           +
 //  #SpontaneousStop                +                                       +
@@ -2492,7 +2492,7 @@ void DebuggerPluginPrivate::sessionLoaded()
 void DebuggerPluginPrivate::aboutToUnloadSession()
 {
     // Stop debugging the active project when switching sessions.
-    // Note that at startup, session switches may occur, which interfer
+    // Note that at startup, session switches may occur, which interfere
     // with command-line debugging startup.
     // FIXME ABC: Still wanted? Iterate?
     //if (d->m_engine && state() != DebuggerNotReady

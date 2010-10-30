@@ -871,7 +871,7 @@ public:
         LibraryImport,
         FileImport,
         DirectoryImport,
-        UnknownFileImport // refers a file/directoy that wasn't found
+        UnknownFileImport // refers a file/directory that wasn't found
     };
 
     ImportInfo();

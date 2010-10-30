@@ -3690,7 +3690,7 @@ void FakeVimHandler::Private::search(const SearchData &sd)
     }
 
     // Set Cursor. In contrast to the main editor we have the cursor
-    // position befor the anchor position.
+    // position before the anchor position.
     setAnchorAndPosition(tc.position(), tc.anchor());
 
     // Making this unconditional feels better, but is not "vim like".

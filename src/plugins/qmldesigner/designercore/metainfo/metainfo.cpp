@@ -390,7 +390,7 @@ void MetaInfoPrivate::parseQmlTypes()
         if (m_q->hasNodeMetaInfo(qmlType->qmlTypeName(), qmlType->majorVersion(), qmlType->minorVersion()))
             continue;
 
-        // we ignore the depricated Qt/ namespace
+        // we ignore the deprecated Qt/ namespace
         if (isDepricatedQtType(qmlType->qmlTypeName()))
             continue;
 

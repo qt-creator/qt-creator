@@ -573,7 +573,7 @@ void Parser::resetDataToCurrentState()
 
 void Parser::onResetDataDone()
 {
-    // internal data is resetted, update a tree and send it back
+    // internal data is reset, update a tree and send it back
     emitCurrentTree();
 }
 

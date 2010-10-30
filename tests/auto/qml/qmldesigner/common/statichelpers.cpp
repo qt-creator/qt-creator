@@ -119,7 +119,7 @@ static bool compareTree(const ModelNode &node1, const ModelNode &node2)
             return false;
     }
 
-    // Compare list of childs
+    // Compare list of children
     {
         const QList<ModelNode> childList1 = node1.allDirectSubModelNodes();
         const QList<ModelNode> childList2 = node2.allDirectSubModelNodes();

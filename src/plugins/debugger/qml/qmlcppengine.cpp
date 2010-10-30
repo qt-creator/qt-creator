@@ -568,7 +568,7 @@ void QmlCppEngine::masterEngineStateChanged(const DebuggerState &newState)
         break;
 
     // here, we shut down the qml engine first.
-    // but due to everything being asyncronous, we cannot guarantee
+    // but due to everything being asynchronous, we cannot guarantee
     // that it is shut down completely before gdb engine is shut down.
     case InferiorShutdownRequested:
         if (d->m_activeEngine == d->m_qmlEngine) {

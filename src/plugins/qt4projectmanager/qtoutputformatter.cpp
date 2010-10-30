@@ -210,7 +210,7 @@ void QtOutputFormatter::handleLink(const QString &href)
         if (!fileName.isEmpty()) {
             QFileInfo fi(fileName);
             if (fi.isRelative()) {
-                // Yeah fileName is relative, no suprise
+                // Yeah fileName is relative, no surprise
                 ProjectExplorer::Project *pro = m_project.data();
                 if (pro) {
                     QString baseName = fi.fileName();

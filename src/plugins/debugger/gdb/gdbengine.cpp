@@ -4203,7 +4203,7 @@ void GdbEngine::handleGdbError(QProcess::ProcessError error)
 {
     const QString msg = errorMessage(error);
     showMessage(_("HANDLE GDB ERROR: ") + msg);
-    // Show a message box for asynchroneously reported issues.
+    // Show a message box for asynchronously reported issues.
     switch (error) {
     case QProcess::FailedToStart:
         // This should be handled by the code trying to start the process.

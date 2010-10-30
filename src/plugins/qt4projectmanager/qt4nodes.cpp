@@ -1476,7 +1476,7 @@ void Qt4ProFileNode::applyEvaluate(bool parseResult, bool async)
         // probably all subfiles/projects have changed anyway ...
         clear();
         m_projectType = projectType;
-        // really emit here? or at the end? Noone is connected to this signal at the moment
+        // really emit here? or at the end? Nobody is connected to this signal at the moment
         // so we kind of can ignore that question for now
         foreach (NodesWatcher *watcher, watchers())
             if (Qt4NodesWatcher *qt4Watcher = qobject_cast<Qt4NodesWatcher*>(watcher))
@@ -1540,7 +1540,7 @@ void Qt4ProFileNode::applyEvaluate(bool parseResult, bool async)
         if (existingAtEnd && newExactAtEnd && newCumlativeAtEnd)
             break; // we are done, hurray!
 
-        // So this is one giant loop comparing 3 lists at once and sorting the comparision
+        // So this is one giant loop comparing 3 lists at once and sorting the comparison
         // into mainly 2 buckets: toAdd and toRemove
         // We need to distinguish between nodes that came from exact and cumalative
         // parsing, since the update call is diffrent for them
@@ -1851,7 +1851,7 @@ QStringList Qt4ProFileNode::includePaths(ProFileReader *reader) const
     paths.append(reader->absolutePathValues(QLatin1String("INCLUDEPATH"), m_projectDir));
     // paths already contains moc dir and ui dir, due to corrrectly parsing uic.prf and moc.prf
     // except if those directories don't exist at the time of parsing
-    // thus we add those directories manually (without checking for existance)
+    // thus we add those directories manually (without checking for existence)
     paths << mocDirPath(reader) << uiDirPath(reader);
     paths.removeDuplicates();
     return paths;

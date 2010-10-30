@@ -1284,7 +1284,7 @@ QStringList EditorManager::getOpenFileNames() const
 void EditorManager::switchToPreferedMode()
 {
     QString preferedMode;
-    // Figure out prefered mode for editor
+    // Figure out preferred mode for editor
     if (m_d->m_currentEditor)
         preferedMode = m_d->m_currentEditor->preferredModeType();
 

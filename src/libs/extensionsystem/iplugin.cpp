@@ -262,7 +262,7 @@
     IPlugin::SynchronousShutdown.
 
     Returns IPlugin::AsynchronousShutdown if the plugin needs to perform
-    asynchonous actions before performing the shutdown.
+    asynchronous actions before performing the shutdown.
 
     \sa asynchronousShutdownFinished()
 */

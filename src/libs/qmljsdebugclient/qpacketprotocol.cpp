@@ -422,7 +422,7 @@ QPacket::~QPacket()
 
 /*!
   Creates a copy of \a other.  The initial stream positions are shared, but the
-  two packets are otherwise independant.
+  two packets are otherwise independent.
  */
 QPacket::QPacket(const QPacket & other)
 : QDataStream(), b(other.b), buf(0)

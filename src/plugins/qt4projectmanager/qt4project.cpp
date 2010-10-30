@@ -770,7 +770,7 @@ void Qt4Project::decrementPendingEvaluateFutures()
                 qDebug()<<"  Oh update is pending start the timer";
             m_asyncUpdateTimer.start();
         } else  if (m_asyncUpdateState != ShuttingDown){
-            // After beeing done, we need to call:
+            // After being done, we need to call:
             updateFileList();
             updateCodeModels();
             if (debug)

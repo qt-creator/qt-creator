@@ -58,7 +58,7 @@ struct ParserTreeItemPrivate
     //! symbol locations
     QSet<SymbolLocation> symbolLocations;
 
-    //! symbol informations
+    //! symbol information
     QHash<SymbolInformation, ParserTreeItem::Ptr> symbolInformations;
 
     //! An icon
@@ -190,7 +190,7 @@ void ParserTreeItem::add(const ParserTreeItem::ConstPtr &target)
     // add locations
     d_ptr->symbolLocations = d_ptr->symbolLocations.unite(target->d_ptr->symbolLocations);
 
-    // add childs
+    // add children
     // every target child
     QHash<SymbolInformation, ParserTreeItem::Ptr>::const_iterator cur =
             target->d_ptr->symbolInformations.constBegin();

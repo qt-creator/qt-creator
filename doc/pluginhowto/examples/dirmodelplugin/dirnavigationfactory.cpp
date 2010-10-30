@@ -12,7 +12,7 @@ Core::NavigationView DirNavigationFactory::createWidget()
 {
     Core::NavigationView view;
 
-    // Create FileSystemModel and set the defauls path as home path
+    // Create FileSystemModel and set the default path as home path
     FileSystemModel* model = new FileSystemModel;
     model->setRootPath(QDir::homePath());
 

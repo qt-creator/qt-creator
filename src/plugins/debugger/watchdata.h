@@ -126,7 +126,7 @@ public:
     quint64    address;      // Displayed address
     qint32     generation;   // When updated?
     bool hasChildren;
-    bool valueEnabled;       // Value will be greyed out or not
+    bool valueEnabled;       // Value will be enabled or not
     bool valueEditable;      // Value will be editable
     bool error;
     bool changed;

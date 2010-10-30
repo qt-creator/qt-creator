@@ -456,9 +456,9 @@ void Thread::readStandardOutput()
         return;
 
     //qWarning() << "WAKE UP: " << m_output;
-    //qDebug() << "\n2 ABOUT TO AQUIRE FREE ";
+    //qDebug() << "\n2 ABOUT TO ACQUIRE FREE ";
     freeBytes.acquire();
-    //qDebug() << "\n2 AQUIRED FREE ";
+    //qDebug() << "\n2 ACQUIRED FREE ";
     buffer = m_output;
     m_output.clear();
     //m_waitCondition.wakeAll();
@@ -571,9 +571,9 @@ void tst_Gdb::check(const QByteArray &label, const QByteArray &expected0,
         options += ",fancy";
     writeToGdb("bb " + options + " " + expanded);
 
-    //qDebug() << "\n1 ABOUT TO AQUIRE USED ";
+    //qDebug() << "\n1 ABOUT TO ACQUIRE USED ";
     usedBytes.acquire();
-    //qDebug() << "\n1 AQUIRED USED ";
+    //qDebug() << "\n1 ACQUIRED USED ";
     QByteArray ba = buffer;
     buffer.clear();
     //qDebug() << "\n1 ABOUT TO RELEASE FREE ";

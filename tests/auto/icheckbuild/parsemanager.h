@@ -45,7 +45,7 @@
 **    chParseManager->parse(chFilelist);
 **
 **    if(!chParseManager->checkAllMetadatas(iParseManager)){
-**        cout << "Folowing interface items are missing:" << endl;
+**        cout << "Following interface items are missing:" << endl;
 **        QStringList errorlist = chParseManager->getErrorMsg();
 **        foreach(QString msg, errorlist){
 **            cout << (const char *)msg.toLatin1() << endl;

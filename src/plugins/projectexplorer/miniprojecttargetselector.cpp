@@ -582,7 +582,7 @@ void MiniProjectTargetSelector::updateAction()
     QIcon targetIcon = style()->standardIcon(QStyle::SP_ComputerIcon);
 
     const int extrawidth = 110; // Size of margins + icon width
-    // Some fudge numbers to ensure the menu doesnt grow unbounded
+    // Some fudge numbers to ensure the menu does not grow unbounded
     int maxLength = fontMetrics().averageCharWidth() * 140;
 
     if (project) {

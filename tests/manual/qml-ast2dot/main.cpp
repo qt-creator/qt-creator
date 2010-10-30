@@ -219,7 +219,7 @@ protected: // visiting methods:
     }
 
     virtual bool visit(UiPublicMember *ast) {
-        // TODO: place the paramters...
+        // TODO: place the parameters...
 //        UiParameterList *parameters;
 
         terminal(ast->defaultToken);

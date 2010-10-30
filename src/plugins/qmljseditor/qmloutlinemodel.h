@@ -51,7 +51,7 @@ public:
 
     enum ItemTypes {
         ElementType,
-        ElementBindingType, // might contain elements as childs
+        ElementBindingType, // might contain elements as children
         NonElementBindingType // can be filtered out
     };
 

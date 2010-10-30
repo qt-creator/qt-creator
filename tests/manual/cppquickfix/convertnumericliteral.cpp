@@ -10,7 +10,7 @@ int main()
     0xFA0Bu;
     // uppercase X
     0X856A;
-    // negativ values
+    // negative values
     -199;
     -017;
     // not integer, do nothing
