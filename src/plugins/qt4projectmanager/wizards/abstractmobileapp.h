@@ -69,6 +69,8 @@ struct AbstractGeneratedFileInfo
 
 class AbstractMobileApp : public QObject
 {
+    Q_OBJECT
+
 public:
     enum ScreenOrientation {
         ScreenOrientationLockLandscape,

@@ -39,6 +39,8 @@ namespace Internal {
 
 class InspectorSettings : public QObject
 {
+    Q_OBJECT
+
 public:
     InspectorSettings(QObject *parent = 0);
     ~InspectorSettings();

@@ -104,6 +104,8 @@ typedef QList<Module> Modules;
 
 class ModulesHandler : public QObject
 {
+    Q_OBJECT
+
 public:
     explicit ModulesHandler(DebuggerEngine *engine);
 
