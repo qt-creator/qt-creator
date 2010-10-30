@@ -66,7 +66,7 @@ public:
     void prepend(int c) { d.prepend(c); }
     void add(const Context &c) { d += c.d; }
     void add(int c) { d.append(c); }
-    bool operator==(const Context &c) { return d == c.d; }
+    bool operator==(const Context &c) const { return d == c.d; }
 
 private:
     QList<int> d;

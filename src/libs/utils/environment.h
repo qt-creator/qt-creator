@@ -50,7 +50,7 @@ public:
     QString value;
     bool unset;
 
-    bool operator==(const EnvironmentItem &other)
+    bool operator==(const EnvironmentItem &other) const
     {
         return (unset == other.unset) && (name == other.name) && (value == other.value);
     }
