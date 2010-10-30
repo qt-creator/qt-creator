@@ -1241,7 +1241,7 @@ void CdbEngine::fetchDisassembler(DisassemblerViewAgent *agent)
     }
     QString disassembly;
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    const bool ok = dissassemble(m_d, address, ContextLines, ContextLines, QTextStream(&disassembly), &errorMessage);
+    const bool ok = disassemble(m_d, address, ContextLines, ContextLines, QTextStream(&disassembly), &errorMessage);
     QApplication::restoreOverrideCursor();
     if (ok) {
         agent->setContents(disassembly);

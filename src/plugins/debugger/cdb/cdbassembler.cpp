@@ -192,17 +192,17 @@ void DisassemblerOutputParser::parse(const QStringList &l)
     }
 }
 
-bool dissassemble(CdbCore::CoreEngine *engine,
-                  ULONG64 offset,
-                  unsigned long beforeLines,
-                  unsigned long afterLines,
-                  QTextStream &str,
-                  QString *errorMessage)
+bool disassemble(CdbCore::CoreEngine *engine,
+                 ULONG64 offset,
+                 unsigned long beforeLines,
+                 unsigned long afterLines,
+                 QTextStream &str,
+                 QString *errorMessage)
 {
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << offset;
     QString lines;
-    if (!engine->dissassemble(offset, beforeLines, afterLines, &lines, errorMessage))
+    if (!engine->disassemble(offset, beforeLines, afterLines, &lines, errorMessage))
         return false;
     DisassemblerOutputParser parser(str);
     parser.parse(lines.split(QLatin1Char('\n')));

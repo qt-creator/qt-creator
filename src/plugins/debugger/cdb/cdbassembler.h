@@ -54,12 +54,12 @@ Registers getRegisters(CIDebugControl *ctl,
                        QString *errorMessage,
                        int base = 10 /* 16 for hex, etc */);
 
-bool dissassemble(CdbCore::CoreEngine *engine,
-                  ULONG64 offset,
-                  unsigned long beforeLines,
-                  unsigned long afterLines,
-                  QTextStream &str,
-                  QString *errorMessage);
+bool disassemble(CdbCore::CoreEngine *engine,
+                 ULONG64 offset,
+                 unsigned long beforeLines,
+                 unsigned long afterLines,
+                 QTextStream &str,
+                 QString *errorMessage);
 
 } // namespace Internal
 } // namespace Debugger

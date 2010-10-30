@@ -844,11 +844,11 @@ bool CoreEngine::writeToDebuggee(const QByteArray &buffer, quint64 address, QStr
     return true;
 }
 
-bool CoreEngine::dissassemble(ULONG64 offset,
-                              unsigned long beforeLines,
-                              unsigned long afterLines,
-                              QString *target,
-                              QString *errorMessage)
+bool CoreEngine::disassemble(ULONG64 offset,
+                             unsigned long beforeLines,
+                             unsigned long afterLines,
+                             QString *target,
+                             QString *errorMessage)
 {
     const ULONG flags = DEBUG_DISASM_MATCHING_SYMBOLS|DEBUG_DISASM_SOURCE_LINE_NUMBER|DEBUG_DISASM_SOURCE_FILE_NAME;
     // Catch the output by temporarily setting another handler.

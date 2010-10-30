@@ -147,8 +147,8 @@ public:
     bool createDebuggeeAscIIString(const QString &s, ULONG64 *address, QString *errorMessage);
     bool writeToDebuggee(const QByteArray &buffer, quint64 address, QString *errorMessage);
     // Write to debuggee memory in chunks
-    bool dissassemble(ULONG64 offset, unsigned long beforeLines, unsigned long afterLines,
-                      QString *target, QString *errorMessage);
+    bool disassemble(ULONG64 offset, unsigned long beforeLines, unsigned long afterLines,
+                     QString *target, QString *errorMessage);
 
     quint64 getSourceLineAddress(const QString &file, int line, QString *errorMessage) const;
 
