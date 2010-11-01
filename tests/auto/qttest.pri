@@ -1,3 +1,5 @@
+include(../../qtcreator.pri)
+
 isEmpty(TEMPLATE):TEMPLATE=app
 CONFIG += qt warn_on console depend_includepath testcase qtestlib
 CONFIG -= app_bundle
@@ -7,6 +9,15 @@ symbian:{
 #    DEFINES += QTEST_NO_SPECIALIZATIONS
     TARGET.CAPABILITY="None"
     RSS_RULES ="group_name=\"QtTests\";"
+}
+
+unix:{
+    QMAKE_RPATHDIR += $$IDE_BUILD_TREE/$$IDE_LIBRARY_BASENAME/qtcreator
+    QMAKE_RPATHDIR += $$IDE_PLUGIN_PATH/Nokia
+
+    IDE_PLUGIN_RPATH = $$join(QMAKE_RPATHDIR, ":")
+
+    QMAKE_LFLAGS += -Wl,-z,origin \'-Wl,-rpath,$${IDE_PLUGIN_RPATH}\'
 }
 
 # prefix test binary with tst_
