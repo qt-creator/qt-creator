@@ -33,10 +33,9 @@
 #include <QtCore/QDebug>
 #include <QtCore/QString>
 
+// Enable Win API of XP SP1 and later
 #ifdef Q_OS_WIN
-#    ifdef __GNUC__  // Required for OpenThread under MinGW
-#        define _WIN32_WINNT 0x0502
-#    endif // __GNUC__
+#    define _WIN32_WINNT 0x0502
 #    include <windows.h>
 #    include <utils/winutils.h>
 #    if !defined(PROCESS_SUSPEND_RESUME) // Check flag for MinGW
@@ -244,11 +243,6 @@ QString winNormalizeFileName(const QString &f)
 
 bool isWinProcessBeingDebugged(unsigned long pid)
 {
-    // Exclude VS 2005
-#if defined(_MSC_VER) && _MSC_VER < 1400
-    Q_UNUSED(pid);
-    return false;
-#else
     HANDLE processHandle = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, pid);
     if (processHandle == NULL)
         return false;
@@ -256,7 +250,6 @@ bool isWinProcessBeingDebugged(unsigned long pid)
     CheckRemoteDebuggerPresent(processHandle, &debugged);
     CloseHandle(processHandle);
     return debugged != FALSE;
-#endif
 }
 
 } // namespace Internal
