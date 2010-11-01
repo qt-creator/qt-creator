@@ -31,16 +31,15 @@
 #define SESSION_H
 
 #include "projectexplorer_export.h"
-#include "projectnodes.h"
 
 #include <QtCore/QHash>
-#include <QtCore/QList>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QPointer>
 
 QT_BEGIN_NAMESPACE
 class QAbstractItemModel;
+class QTimer;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -58,23 +57,8 @@ class SessionNode;
 class SessionManager;
 
 namespace Internal {
-
 class SessionFile;
-
-// Must be in header as otherwise moc has issues
-// with ProjectExplorer::SessionNode on msvc2005
-class SessionNodeImpl : public ProjectExplorer::SessionNode
-{
-    Q_OBJECT
-public:
-    SessionNodeImpl(SessionManager *manager);
-
-    void addProjectNode(ProjectNode *projectNode);
-    void removeProjectNode(ProjectNode *projectNode);
-
-    void setFileName(const QString &fileName);
-};
-
+class SessionNodeImpl;
 } // namespace Internal
 
 // TODO the interface of this class is not really great

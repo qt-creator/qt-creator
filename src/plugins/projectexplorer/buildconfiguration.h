@@ -31,15 +31,14 @@
 #define BUILDCONFIGURATION_H
 
 #include "projectexplorer_export.h"
+#include "projectconfiguration.h"
 
 #include <utils/environment.h>
 
 #include <QtCore/QString>
 #include <QtCore/QStringList>
-#include <QtCore/QList>
-#include <QtCore/QObject>
 
-#include "projectconfiguration.h"
+
 
 namespace ProjectExplorer {
 

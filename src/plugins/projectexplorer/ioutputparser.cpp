@@ -28,7 +28,9 @@
 **************************************************************************/
 
 #include "ioutputparser.h"
-#include "utils/qtcassert.h"
+#include "task.h"
+
+#include <utils/qtcassert.h>
 
 namespace ProjectExplorer {
 

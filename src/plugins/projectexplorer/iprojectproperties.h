@@ -32,7 +32,9 @@
 
 #include "projectexplorer_export.h"
 
-#include <QtGui/QIcon>
+#include <QtCore/QObject>
+
+QT_FORWARD_DECLARE_CLASS(QIcon)
 
 namespace ProjectExplorer {
 class Project;

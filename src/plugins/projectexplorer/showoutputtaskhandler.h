@@ -30,8 +30,6 @@
 #ifndef PROJECTEXPLORER_SHOWOUTPUTTASKHANDLER_H
 #define PROJECTEXPLORER_SHOWOUTPUTTASKHANDLER_H
 
-#include "projectexplorer_export.h"
-
 #include "itaskhandler.h"
 
 namespace ProjectExplorer {
@@ -39,7 +37,7 @@ namespace Internal {
 
 class CompileOutputWindow;
 
-class PROJECTEXPLORER_EXPORT ShowOutputTaskHandler : public ITaskHandler
+class ShowOutputTaskHandler : public ITaskHandler
 {
     Q_OBJECT
 

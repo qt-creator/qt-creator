@@ -27,44 +27,50 @@
 **
 **************************************************************************/
 
-#ifndef APPLICATIONRUNCONFIGURATION_H
-#define APPLICATIONRUNCONFIGURATION_H
-
-#include <projectexplorer/toolchain.h>
+#ifndef LOCALAPPLICATIONRUNCONTROL_H
+#define LOCALAPPLICATIONRUNCONTROL_H
 
 #include "runconfiguration.h"
 #include "applicationlauncher.h"
 
-namespace Utils {
-class Environment;
-}
-
 namespace ProjectExplorer {
 
-class PROJECTEXPLORER_EXPORT LocalApplicationRunConfiguration : public RunConfiguration
+class LocalApplicationRunConfiguration;
+namespace Internal {
+
+class LocalApplicationRunControlFactory : public IRunControlFactory
 {
     Q_OBJECT
 public:
-    enum RunMode {
-        Console = ApplicationLauncher::Console,
-        Gui
-    };
-
-    virtual ~LocalApplicationRunConfiguration();
-    virtual QString executable() const = 0;
-    virtual RunMode runMode() const = 0;
-    virtual QString workingDirectory() const = 0;
-    virtual QStringList commandLineArguments() const = 0;
-    virtual Utils::Environment environment() const = 0;
-    virtual QString dumperLibrary() const = 0;
-    virtual QStringList dumperLibraryLocations() const = 0;
-    virtual ProjectExplorer::ToolChain::ToolChainType toolChainType() const = 0;
-
-protected:
-    explicit LocalApplicationRunConfiguration(Target *target, const QString &id);
-    explicit LocalApplicationRunConfiguration(Target *target, LocalApplicationRunConfiguration *rc);
+    LocalApplicationRunControlFactory ();
+    virtual ~LocalApplicationRunControlFactory();
+    virtual bool canRun(RunConfiguration *runConfiguration, const QString &mode) const;
+    virtual QString displayName() const;
+    virtual RunControl* create(RunConfiguration *runConfiguration, const QString &mode);
+    virtual QWidget *createConfigurationWidget(RunConfiguration  *runConfiguration);
 };
 
+class LocalApplicationRunControl : public RunControl
+{
+    Q_OBJECT
+public:
+    LocalApplicationRunControl(LocalApplicationRunConfiguration *runConfiguration, QString mode);
+    virtual ~LocalApplicationRunControl();
+    virtual void start();
+    virtual StopResult stop();
+    virtual bool isRunning() const;
+private slots:
+    void processExited(int exitCode);
+    void slotAddToOutputWindow(const QString &line, bool isError);
+    void slotAppendMessage(const QString &err, bool isError);
+private:
+    ProjectExplorer::ApplicationLauncher m_applicationLauncher;
+    QString m_executable;
+    QStringList m_commandLineArguments;
+    ProjectExplorer::ApplicationLauncher::Mode m_runMode;
+};
+
+} // namespace Internal
 } // namespace ProjectExplorer
 
-#endif // APPLICATIONRUNCONFIGURATION_H
+#endif // LOCALAPPLICATIONRUNCONTROL_H

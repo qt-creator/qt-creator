@@ -30,8 +30,6 @@
 #ifndef PROJECTEXPLORER_VCSANNOTATETASKHANDLER_H
 #define PROJECTEXPLORER_VCSANNOTATETASKHANDLER_H
 
-#include "projectexplorer_export.h"
-
 #include "itaskhandler.h"
 
 namespace Core {
@@ -41,7 +39,7 @@ class IVersionControl;
 namespace ProjectExplorer {
 namespace Internal {
 
-class PROJECTEXPLORER_EXPORT VcsAnnotateTaskHandler : public ITaskHandler
+class VcsAnnotateTaskHandler : public ITaskHandler
 {
     Q_OBJECT
 

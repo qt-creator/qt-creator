@@ -31,13 +31,12 @@
 #define IOUTPUTPARSER_H
 
 #include "projectexplorer_export.h"
-#include "task.h"
 #include "buildstep.h"
 
-#include <QtCore/QObject>
 #include <QtCore/QString>
 
 namespace ProjectExplorer {
+class Task;
 
 class PROJECTEXPLORER_EXPORT IOutputParser : public QObject
 {

@@ -33,25 +33,8 @@
 #include "applicationrunconfiguration.h"
 
 #include <QtCore/QVariantMap>
-#include <QtGui/QWidget>
-
-QT_BEGIN_NAMESPACE
-class QCheckBox;
-class QLineEdit;
-class QComboBox;
-class QLabel;
-class QAbstractButton;
-QT_END_NAMESPACE
-
-namespace Utils {
-class DetailsWidget;
-class PathChooser;
-class DebuggerLanguageChooser;
-}
 
 namespace ProjectExplorer {
-
-class EnvironmentWidget;
 class Target;
 
 namespace Internal {
@@ -160,46 +143,6 @@ public:
     RunConfiguration *clone(Target *parent, RunConfiguration *source);
 };
 
-namespace Internal {
-
-class CustomExecutableConfigurationWidget : public QWidget
-{
-    Q_OBJECT
-
-public:
-    CustomExecutableConfigurationWidget(CustomExecutableRunConfiguration *rc);
-
-private slots:
-    void changed();
-
-    void executableEdited();
-    void argumentsEdited(const QString &arguments);
-    void workingDirectoryEdited();
-    void termToggled(bool);
-
-    void userChangesChanged();
-    void baseEnvironmentChanged();
-    void userEnvironmentChangesChanged();
-    void baseEnvironmentSelected(int index);
-    void useCppDebuggerToggled(bool toggled);
-    void useQmlDebuggerToggled(bool toggled);
-    void qmlDebugServerPortChanged(uint port);
-
-private:
-    bool m_ignoreChange;
-    CustomExecutableRunConfiguration *m_runConfiguration;
-    Utils::PathChooser *m_executableChooser;
-    QLineEdit *m_userName;
-    QLineEdit *m_commandLineArgumentsLineEdit;
-    Utils::PathChooser *m_workingDirectory;
-    QCheckBox *m_useTerminalCheck;
-    ProjectExplorer::EnvironmentWidget *m_environmentWidget;
-    QComboBox *m_baseEnvironmentComboBox;
-    Utils::DetailsWidget *m_detailsContainer;
-    Utils::DebuggerLanguageChooser *m_debuggerLanguageChooser;
-};
-
-} // namespace Internal
 } // namespace ProjectExplorer
 
 #endif // CUSTOMEXECUTABLERUNCONFIGURATION_H

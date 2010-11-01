@@ -37,8 +37,6 @@
 
 #include <QtCore/QString>
 #include <QtCore/QStringList>
-#include <QtCore/QList>
-#include <QtCore/QObject>
 
 namespace ProjectExplorer {
 

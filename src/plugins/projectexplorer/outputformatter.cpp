@@ -33,6 +33,9 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <QtGui/QPlainTextEdit>
+#include <QtGui/QColor>
+
+#include <QtCore/QString>
 
 using namespace ProjectExplorer;
 using namespace TextEditor;

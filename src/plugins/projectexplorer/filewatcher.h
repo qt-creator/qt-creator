@@ -39,7 +39,6 @@
 #include <QtCore/QMap>
 
 QT_BEGIN_NAMESPACE
-class QTimer;
 class QFileSystemWatcher;
 QT_END_NAMESPACE
 

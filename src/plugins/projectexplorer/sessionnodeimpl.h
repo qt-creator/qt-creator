@@ -27,27 +27,31 @@
 **
 **************************************************************************/
 
-#ifndef PROJECTEXPLORER_SHOWINEDITORTASKHANDLER_H
-#define PROJECTEXPLORER_SHOWINEDITORTASKHANDLER_H
+#ifndef SESSIONNODEIMPL_H
+#define SESSIONNODEIMPL_H
 
-#include "itaskhandler.h"
+#include "projectnodes.h"
 
 namespace ProjectExplorer {
+class SessionManager;
+
 namespace Internal {
 
-class ShowInEditorTaskHandler : public ITaskHandler
+// Must be in a header as otherwise moc has issues
+// with ProjectExplorer::SessionNode on msvc2005
+class SessionNodeImpl : public ProjectExplorer::SessionNode
 {
     Q_OBJECT
-
 public:
-    ShowInEditorTaskHandler();
+    explicit SessionNodeImpl(SessionManager *manager);
 
-    bool canHandle(const Task &);
-    void handle(const Task &task);
-    QAction *createAction(QObject *parent = 0);
+    void addProjectNode(ProjectNode *projectNode);
+    void removeProjectNode(ProjectNode *projectNode);
+
+    void setFileName(const QString &fileName);
 };
 
 } // namespace Internal
 } // namespace ProjectExplorer
 
-#endif // PROJECTEXPLORER_SHOWINEDITORTASKHANDLER_H
+#endif // SESSIONNODEIMPL_H

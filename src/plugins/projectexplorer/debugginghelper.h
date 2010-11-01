@@ -32,7 +32,6 @@
 
 #include "projectexplorer_export.h"
 
-#include <utils/environment.h>
 #include <utils/buildablehelperlibrary.h>
 
 #include <QtCore/QString>

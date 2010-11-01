@@ -30,6 +30,7 @@
 #include "projecttreewidget.h"
 
 #include "projectexplorer.h"
+#include "projectnodes.h"
 #include "project.h"
 #include "session.h"
 #include "projectexplorerconstants.h"

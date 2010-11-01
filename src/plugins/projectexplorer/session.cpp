@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "session.h"
+#include "sessionnodeimpl.h"
 
 #include "project.h"
 #include "projectexplorer.h"
@@ -110,7 +111,6 @@ private:
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
-
 
 void SessionFile::sessionLoadingProgress()
 {
@@ -303,28 +303,6 @@ QStringList SessionFile::failedProjectFileNames() const
 void SessionFile::clearFailedProjectFileNames()
 {
     m_failedProjects.clear();
-}
-
-Internal::SessionNodeImpl::SessionNodeImpl(SessionManager *manager)
-        : ProjectExplorer::SessionNode(manager->currentSession(), manager)
-{
-    setFileName("session");
-}
-
-void Internal::SessionNodeImpl::addProjectNode(ProjectNode *projectNode)
-{
-    addProjectNodes(QList<ProjectNode*>() << projectNode);
-}
-
-void Internal::SessionNodeImpl::removeProjectNode(ProjectNode *projectNode)
-{
-    removeProjectNodes(QList<ProjectNode*>() << projectNode);
-}
-
-void Internal::SessionNodeImpl::setFileName(const QString &fileName)
-{
-    setPath(fileName);
-    setDisplayName(fileName);
 }
 
 /* --------------------------------- */

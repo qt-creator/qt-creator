@@ -33,6 +33,7 @@
 #include "iprojectproperties.h"
 
 #include <QtGui/QWidget>
+#include <QtGui/QIcon>
 
 QT_BEGIN_NAMESPACE
 class QMenu;

@@ -92,7 +92,10 @@ HEADERS += projectexplorer.h \
     runconfigurationmodel.h \
     buildconfigurationmodel.h \
     abstractprocessstep.h \
-    taskhub.h
+    taskhub.h \
+    localapplicationruncontrol.h \
+    customexecutableconfigurationwidget.h \
+    sessionnodeimpl.h
 SOURCES += projectexplorer.cpp \
     projectwindow.cpp \
     buildmanager.cpp \
@@ -169,7 +172,10 @@ SOURCES += projectexplorer.cpp \
     outputformatter.cpp \
     runconfigurationmodel.cpp \
     buildconfigurationmodel.cpp \
-    taskhub.cpp
+    taskhub.cpp \
+    localapplicationruncontrol.cpp \
+    customexecutableconfigurationwidget.cpp \
+    sessionnodeimpl.cpp
 FORMS += processstep.ui \
     editorsettingspropertiespage.ui \
     runsettingspropertiespage.ui \

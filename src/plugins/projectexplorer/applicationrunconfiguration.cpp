@@ -29,16 +29,7 @@
 
 #include "applicationrunconfiguration.h"
 
-#include "environment.h"
-
-#include <projectexplorer/projectexplorerconstants.h>
-#include <utils/qtcassert.h>
-
-#include <QtCore/QDir>
-#include <QtGui/QLabel>
-
-using namespace ProjectExplorer;
-using namespace ProjectExplorer::Internal;
+namespace ProjectExplorer {
 
 /// LocalApplicationRunConfiguration
 
@@ -56,102 +47,5 @@ LocalApplicationRunConfiguration::~LocalApplicationRunConfiguration()
 {
 }
 
-/// LocalApplicationRunControlFactory
-
-LocalApplicationRunControlFactory::LocalApplicationRunControlFactory()
-{
-}
-
-LocalApplicationRunControlFactory::~LocalApplicationRunControlFactory()
-{
-}
-
-bool LocalApplicationRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode) const
-{
-    return (mode == ProjectExplorer::Constants::RUNMODE)
-            && (qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration) != 0);
-}
-
-QString LocalApplicationRunControlFactory::displayName() const
-{
-    return tr("Run");
-}
-
-RunControl *LocalApplicationRunControlFactory::create(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode)
-{
-    QTC_ASSERT(canRun(runConfiguration, mode), return 0);
-    return new LocalApplicationRunControl(qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration), mode);
-}
-
-QWidget *LocalApplicationRunControlFactory::createConfigurationWidget(RunConfiguration *runConfiguration)
-{
-    Q_UNUSED(runConfiguration)
-    return new QLabel("TODO add Configuration widget");
-}
-
-// ApplicationRunControl
-
-LocalApplicationRunControl::LocalApplicationRunControl(LocalApplicationRunConfiguration *rc, QString mode)
-    : RunControl(rc, mode)
-{
-    Utils::Environment env = rc->environment();
-    QString dir = rc->workingDirectory();
-    m_applicationLauncher.setEnvironment(env.toStringList());
-    m_applicationLauncher.setWorkingDirectory(dir);
-
-    m_executable = rc->executable();
-    m_runMode = static_cast<ApplicationLauncher::Mode>(rc->runMode());
-    m_commandLineArguments = rc->commandLineArguments();
-
-    connect(&m_applicationLauncher, SIGNAL(appendMessage(QString,bool)),
-            this, SLOT(slotAppendMessage(QString,bool)));
-    connect(&m_applicationLauncher, SIGNAL(appendOutput(QString, bool)),
-            this, SLOT(slotAddToOutputWindow(QString, bool)));
-    connect(&m_applicationLauncher, SIGNAL(processExited(int)),
-            this, SLOT(processExited(int)));
-    connect(&m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),
-            this, SLOT(bringApplicationToForeground(qint64)));
-}
-
-LocalApplicationRunControl::~LocalApplicationRunControl()
-{
-}
-
-void LocalApplicationRunControl::start()
-{
-    m_applicationLauncher.start(m_runMode, m_executable, m_commandLineArguments);
-    emit started();
-
-    emit appendMessage(this, tr("Starting %1...").arg(QDir::toNativeSeparators(m_executable)), false);
-}
-
-LocalApplicationRunControl::StopResult LocalApplicationRunControl::stop()
-{
-    m_applicationLauncher.stop();
-    return StoppedSynchronously;
-}
-
-bool LocalApplicationRunControl::isRunning() const
-{
-    return m_applicationLauncher.isRunning();
-}
-
-void LocalApplicationRunControl::slotAppendMessage(const QString &err,
-                                                   bool isError)
-{
-    emit appendMessage(this, err, isError);
-    emit finished();
-}
-
-void LocalApplicationRunControl::slotAddToOutputWindow(const QString &line,
-                                                       bool isError)
-{
-    emit addToOutputWindowInline(this, line, isError);
-}
-
-void LocalApplicationRunControl::processExited(int exitCode)
-{
-    emit appendMessage(this, tr("%1 exited with code %2").arg(QDir::toNativeSeparators(m_executable)).arg(exitCode), false);
-    emit finished();
-}
+} // namespace ProjectExplorer
 

@@ -27,27 +27,33 @@
 **
 **************************************************************************/
 
-#ifndef PROJECTEXPLORER_SHOWINEDITORTASKHANDLER_H
-#define PROJECTEXPLORER_SHOWINEDITORTASKHANDLER_H
-
-#include "itaskhandler.h"
+#include "sessionnodeimpl.h"
+#include "session.h"
 
 namespace ProjectExplorer {
 namespace Internal {
 
-class ShowInEditorTaskHandler : public ITaskHandler
+SessionNodeImpl::SessionNodeImpl(SessionManager *manager)
+        : ProjectExplorer::SessionNode(manager->currentSession(), manager)
 {
-    Q_OBJECT
+    setFileName(QLatin1String("session"));
+}
 
-public:
-    ShowInEditorTaskHandler();
+void SessionNodeImpl::addProjectNode(ProjectNode *projectNode)
+{
+    addProjectNodes(QList<ProjectNode*>() << projectNode);
+}
 
-    bool canHandle(const Task &);
-    void handle(const Task &task);
-    QAction *createAction(QObject *parent = 0);
-};
+void SessionNodeImpl::removeProjectNode(ProjectNode *projectNode)
+{
+    removeProjectNodes(QList<ProjectNode*>() << projectNode);
+}
+
+void SessionNodeImpl::setFileName(const QString &fileName)
+{
+    setPath(fileName);
+    setDisplayName(fileName);
+}
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // PROJECTEXPLORER_SHOWINEDITORTASKHANDLER_H
