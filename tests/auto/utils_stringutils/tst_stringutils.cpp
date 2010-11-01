@@ -62,7 +62,7 @@ void tst_StringUtils::testWithTildeHomePath()
              QLatin1String("~/some/path/file.txt"));
     // not sub of home path
     QCOMPARE(Utils::withTildeHomePath(QDir::homePath() + QLatin1String("/../foo")),
-             QDir::homePath() + QLatin1String("/../foo"));
+             QString(QDir::homePath() + QLatin1String("/../foo")));
 #else
     // windows: should return same as input
     QCOMPARE(Utils::withTildeHomePath(QDir::homePath()), QDir::homePath());
