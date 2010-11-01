@@ -1,0 +1,5 @@
+wholeWordAtStart bla foo blubb wholeWordAtEnd
+search to find multiple find results
+search CaseSensitively for casesensitive
+here you find another result
+wholeWordAtVeryEnd

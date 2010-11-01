@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/tst_filesearch">
+        <file>testfile.txt</file>
+    </qresource>
+</RCC>

@@ -9,7 +9,8 @@ SUBDIRS += \
     generichighlighter \
 #    icheckbuild \
 #    profilewriter \
-    utils_stringutils
+    utils_stringutils \
+    filesearch
 
 contains (QT_CONFIG, declarative) {
 SUBDIRS += qml
