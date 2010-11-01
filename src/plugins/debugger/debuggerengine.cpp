@@ -54,7 +54,7 @@
 #include <coreplugin/progressmanager/futureprogress.h>
 
 #include <projectexplorer/debugginghelper.h>
-#include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchaintype.h>
 
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 
@@ -112,7 +112,7 @@ DebuggerStartParameters::DebuggerStartParameters() :
     qmlServerPort(0),
     useServerStartScript(false),
     connParams(SshConnectionParameters::NoProxy),
-    toolChainType(ToolChain::UNKNOWN),
+    toolChainType(ToolChain_UNKNOWN),
     startMode(NoStartMode),
     executableUid(0)
 {}

@@ -34,7 +34,7 @@
 
 #include <debugger/debuggerrunner.h>
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchaintype.h>
 
 #include <QtCore/QProcess>
 #include <QtCore/QFutureInterface>
@@ -86,7 +86,7 @@ public:
 
     QString projectFilePath() const;
 
-    ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
+    ProjectExplorer::ToolChainType toolChainType() const;
 
     QString targetName() const;
     QString localExecutableFileName() const;
@@ -111,7 +111,7 @@ private slots:
     void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro, bool success);
 
 private:
-    ProjectExplorer::ToolChain::ToolChainType toolChainType(ProjectExplorer::BuildConfiguration *configuration) const;
+    ProjectExplorer::ToolChainType toolChainType(ProjectExplorer::BuildConfiguration *configuration) const;
     void ctor();
     void handleParserState(bool sucess);
 
@@ -184,7 +184,7 @@ private:
     void startLaunching();
     bool setupLauncher(QString &errorMessage);
 
-    ProjectExplorer::ToolChain::ToolChainType m_toolChain;
+    ProjectExplorer::ToolChainType m_toolChain;
     QString m_serialPortName;
     QString m_serialPortFriendlyName;
     QString m_targetName;

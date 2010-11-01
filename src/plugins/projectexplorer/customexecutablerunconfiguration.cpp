@@ -29,6 +29,7 @@
 
 #include "customexecutablerunconfiguration.h"
 #include "customexecutableconfigurationwidget.h"
+#include "toolchaintype.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -326,9 +327,9 @@ QStringList CustomExecutableRunConfiguration::dumperLibraryLocations() const
     return ProjectExplorer::DebuggingHelperLibrary::locationsByInstallData(qtInstallData);
 }
 
-ProjectExplorer::ToolChain::ToolChainType CustomExecutableRunConfiguration::toolChainType() const
+ProjectExplorer::ToolChainType CustomExecutableRunConfiguration::toolChainType() const
 {
-    return ProjectExplorer::ToolChain::UNKNOWN;
+    return ProjectExplorer::ToolChain_UNKNOWN;
 }
 
 // Factory

@@ -34,6 +34,7 @@
 #include "cmaketarget.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/toolchain.h>
 #include <projectexplorer/buildsteplist.h>
 #include <utils/qtcassert.h>
 
@@ -102,11 +103,11 @@ QString CMakeBuildConfiguration::buildDirectory() const
     return m_buildDirectory;
 }
 
-ProjectExplorer::ToolChain::ToolChainType CMakeBuildConfiguration::toolChainType() const
+ProjectExplorer::ToolChainType CMakeBuildConfiguration::toolChainType() const
 {
     if (m_toolChain)
         return m_toolChain->type();
-    return ProjectExplorer::ToolChain::UNKNOWN;
+    return ProjectExplorer::ToolChain_UNKNOWN;
 }
 
 ProjectExplorer::ToolChain *CMakeBuildConfiguration::toolChain() const

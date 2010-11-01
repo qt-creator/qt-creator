@@ -34,6 +34,7 @@
 #include "generictarget.h"
 
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
 

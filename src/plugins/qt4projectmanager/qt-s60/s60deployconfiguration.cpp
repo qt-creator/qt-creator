@@ -242,23 +242,23 @@ bool S60DeployConfiguration::isSigned() const
     return false;
 }
 
-ProjectExplorer::ToolChain::ToolChainType S60DeployConfiguration::toolChainType() const
+ProjectExplorer::ToolChainType S60DeployConfiguration::toolChainType() const
 {
     if (Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(target()->activeBuildConfiguration()))
         return bc->toolChainType();
-    return ProjectExplorer::ToolChain::INVALID;
+    return ProjectExplorer::ToolChain_INVALID;
 }
 
 QString S60DeployConfiguration::symbianPlatform() const
 {
     const Qt4BuildConfiguration *qt4bc = qt4Target()->activeBuildConfiguration();
     switch (qt4bc->toolChainType()) {
-    case ToolChain::GCCE:
-    case ToolChain::GCCE_GNUPOC:
+    case ProjectExplorer::ToolChain_GCCE:
+    case ProjectExplorer::ToolChain_GCCE_GNUPOC:
         return QLatin1String("gcce");
-    case ToolChain::RVCT_ARMV5:
+    case ProjectExplorer::ToolChain_RVCT_ARMV5:
         return QLatin1String("armv5");
-    default: // including ToolChain::RVCT_ARMV6_GNUPOC:
+    default: // including ProjectExplorer::RVCT_ARMV6_GNUPOC:
         return QLatin1String("armv6");
     }
 }

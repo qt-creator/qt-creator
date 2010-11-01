@@ -43,7 +43,6 @@
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/toolchain.h>
 #include <debugger/debuggerplugin.h>
 #include <utils/qtcassert.h>
 
@@ -226,18 +225,18 @@ ProjectExplorer::ToolChain *S60Manager::createWINSCWToolChain(const Qt4ProjectMa
 ProjectExplorer::ToolChain *S60Manager::createGCCEToolChain(const Qt4ProjectManager::QtVersion *version) const
 {
     Q_ASSERT(version);
-    return GCCEToolChain::create(deviceForQtVersion(version), version->gcceDirectory(), ProjectExplorer::ToolChain::GCCE);
+    return GCCEToolChain::create(deviceForQtVersion(version), version->gcceDirectory(), ProjectExplorer::ToolChain_GCCE);
 }
 
 ProjectExplorer::ToolChain *S60Manager::createGCCE_GnuPocToolChain(const Qt4ProjectManager::QtVersion *version) const
 {
     Q_ASSERT(version);
-    return GCCEToolChain::create(deviceForQtVersion(version), version->gcceDirectory(), ProjectExplorer::ToolChain::GCCE_GNUPOC);
+    return GCCEToolChain::create(deviceForQtVersion(version), version->gcceDirectory(), ProjectExplorer::ToolChain_GCCE_GNUPOC);
 }
 
 ProjectExplorer::ToolChain *S60Manager::createRVCTToolChain(
         const Qt4ProjectManager::QtVersion *version,
-        ProjectExplorer::ToolChain::ToolChainType type) const
+        ProjectExplorer::ToolChainType type) const
 {
     Q_ASSERT(version);
     return new RVCTToolChain(deviceForQtVersion(version), type);

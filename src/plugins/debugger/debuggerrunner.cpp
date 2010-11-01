@@ -47,6 +47,7 @@
 
 #include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
@@ -104,7 +105,7 @@ bool checkCdbConfiguration(int, QString *, QString *) { return false; }
 
 static QString toolChainName(int toolChainType)
 {
-    return ToolChain::toolChainName(ToolChain::ToolChainType(toolChainType));
+    return ToolChain::toolChainName(ProjectExplorer::ToolChainType(toolChainType));
 }
 
 
@@ -312,25 +313,25 @@ const DebuggerStartParameters &DebuggerRunControl::startParameters() const
 static DebuggerEngineType engineForToolChain(int toolChainType)
 {
     switch (toolChainType) {
-        case ProjectExplorer::ToolChain::LINUX_ICC:
-        case ProjectExplorer::ToolChain::MinGW:
-        case ProjectExplorer::ToolChain::GCC:
-        case ProjectExplorer::ToolChain::WINSCW: // S60
-        case ProjectExplorer::ToolChain::GCCE:
-        case ProjectExplorer::ToolChain::RVCT_ARMV5:
-        case ProjectExplorer::ToolChain::RVCT_ARMV6:
-        case ProjectExplorer::ToolChain::RVCT_ARMV5_GNUPOC:
-        case ProjectExplorer::ToolChain::GCCE_GNUPOC:
-        case ProjectExplorer::ToolChain::GCC_MAEMO:
+        case ProjectExplorer::ToolChain_LINUX_ICC:
+        case ProjectExplorer::ToolChain_MinGW:
+        case ProjectExplorer::ToolChain_GCC:
+        case ProjectExplorer::ToolChain_WINSCW: // S60
+        case ProjectExplorer::ToolChain_GCCE:
+        case ProjectExplorer::ToolChain_RVCT_ARMV5:
+        case ProjectExplorer::ToolChain_RVCT_ARMV6:
+        case ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC:
+        case ProjectExplorer::ToolChain_GCCE_GNUPOC:
+        case ProjectExplorer::ToolChain_GCC_MAEMO:
             return GdbEngineType;
 
-        case ProjectExplorer::ToolChain::MSVC:
-        case ProjectExplorer::ToolChain::WINCE:
+        case ProjectExplorer::ToolChain_MSVC:
+        case ProjectExplorer::ToolChain_WINCE:
             return CdbEngineType;
 
-        case ProjectExplorer::ToolChain::OTHER:
-        case ProjectExplorer::ToolChain::UNKNOWN:
-        case ProjectExplorer::ToolChain::INVALID:
+        case ProjectExplorer::ToolChain_OTHER:
+        case ProjectExplorer::ToolChain_UNKNOWN:
+        case ProjectExplorer::ToolChain_INVALID:
         default:
             break;
     }
@@ -377,7 +378,7 @@ DebuggerEngineType DebuggerRunControl::engineForExecutable(unsigned enabledEngin
 
     // We need the CDB debugger in order to be able to debug VS
     // executables
-    if (checkDebugConfiguration(ToolChain::MSVC, &d->m_errorMessage, 0, &d->m_settingsIdHint)) {
+    if (checkDebugConfiguration(ProjectExplorer::ToolChain_MSVC, &d->m_errorMessage, 0, &d->m_settingsIdHint)) {
         if (enabledEngineTypes & CdbEngineType)
             return CdbEngineType;
         d->m_errorMessage = msgEngineNotAvailable("Cdb Engine");
@@ -547,19 +548,19 @@ bool DebuggerRunControl::checkDebugConfiguration(int toolChain,
         return success;
 
     switch(toolChain) {
-    case ProjectExplorer::ToolChain::GCC:
-    case ProjectExplorer::ToolChain::LINUX_ICC:
-    case ProjectExplorer::ToolChain::MinGW:
-    case ProjectExplorer::ToolChain::WINCE: // S60
-    case ProjectExplorer::ToolChain::WINSCW:
-    case ProjectExplorer::ToolChain::GCCE:
-    case ProjectExplorer::ToolChain::RVCT_ARMV5:
-    case ProjectExplorer::ToolChain::RVCT_ARMV6:
+    case ProjectExplorer::ToolChain_GCC:
+    case ProjectExplorer::ToolChain_LINUX_ICC:
+    case ProjectExplorer::ToolChain_MinGW:
+    case ProjectExplorer::ToolChain_WINCE: // S60
+    case ProjectExplorer::ToolChain_WINSCW:
+    case ProjectExplorer::ToolChain_GCCE:
+    case ProjectExplorer::ToolChain_RVCT_ARMV5:
+    case ProjectExplorer::ToolChain_RVCT_ARMV6:
         success = checkGdbConfiguration(toolChain, errorMessage, settingsPage);
         if (!success)
             *errorMessage += msgEngineNotAvailable("Gdb");
         break;
-    case ProjectExplorer::ToolChain::MSVC:
+    case ProjectExplorer::ToolChain_MSVC:
         success = checkCdbConfiguration(toolChain, errorMessage, settingsPage);
         if (!success) {
             *errorMessage += msgEngineNotAvailable("Cdb");

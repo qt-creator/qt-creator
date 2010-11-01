@@ -67,7 +67,7 @@ static QString gcceCommand(const QString &dir)
 // The GccToolChain base class constructor wants to know the gcc command
 GCCEToolChain *GCCEToolChain::create(const S60Devices::Device &device,
                                      const QString &gcceRoot,
-                                     ProjectExplorer::ToolChain::ToolChainType type)
+                                     ProjectExplorer::ToolChainType type)
 {
     const QString gccCommand = gcceCommand(gcceRoot);
     const QFileInfo gccCommandFi(gccCommand);
@@ -78,18 +78,18 @@ GCCEToolChain *GCCEToolChain::create(const S60Devices::Device &device,
 GCCEToolChain::GCCEToolChain(const S60Devices::Device &device,
                              const QString &gcceBinPath,
                              const QString &gcceCommand,
-                             ProjectExplorer::ToolChain::ToolChainType type) :
+                             ProjectExplorer::ToolChainType type) :
     GccToolChain(gcceCommand),
     m_mixin(device),
     m_type(type),
     m_gcceBinPath(gcceBinPath)
 {
-    QTC_ASSERT(m_type == ProjectExplorer::ToolChain::GCCE || m_type == ProjectExplorer::ToolChain::GCCE_GNUPOC, return)
+    QTC_ASSERT(m_type == ProjectExplorer::ToolChain_GCCE || m_type == ProjectExplorer::ToolChain_GCCE_GNUPOC, return)
     if (debug)
         qDebug() << "GCCEToolChain on" << m_type << gcceCommand << gcceBinPath << m_mixin.device();
 }
 
-ToolChain::ToolChainType GCCEToolChain::type() const
+ProjectExplorer::ToolChainType GCCEToolChain::type() const
 {
     return m_type;
 }
@@ -110,10 +110,10 @@ QList<HeaderPath> GCCEToolChain::systemHeaderPaths()
     if (m_systemHeaderPaths.isEmpty()) {
         GccToolChain::systemHeaderPaths();
         switch (m_type) {
-        case ProjectExplorer::ToolChain::GCCE:
+        case ProjectExplorer::ToolChain_GCCE:
             m_systemHeaderPaths += m_mixin.epocHeaderPaths();
             break;
-        case ProjectExplorer::ToolChain::GCCE_GNUPOC:
+        case ProjectExplorer::ToolChain_GCCE_GNUPOC:
             m_systemHeaderPaths += m_mixin.gnuPocHeaderPaths();
             break;
         default:
@@ -131,10 +131,10 @@ void GCCEToolChain::addToEnvironment(Utils::Environment &env)
     if (!m_gcceBinPath.isEmpty())
         env.prependOrSetPath(m_gcceBinPath);
     switch (m_type) {
-    case ProjectExplorer::ToolChain::GCCE:
+    case ProjectExplorer::ToolChain_GCCE:
         m_mixin.addEpocToEnvironment(&env);
         break;
-    case ProjectExplorer::ToolChain::GCCE_GNUPOC:
+    case ProjectExplorer::ToolChain_GCCE_GNUPOC:
         m_mixin.addGnuPocToEnvironment(&env);
         break;
     default:

@@ -40,7 +40,6 @@
 #include "maemosshrunner.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/toolchain.h>
 #include <utils/qtcassert.h>
 
 #include <QtGui/QMessageBox>
@@ -51,7 +50,6 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 using ProjectExplorer::RunConfiguration;
-using ProjectExplorer::ToolChain;
 
 MaemoRunControl::MaemoRunControl(RunConfiguration *rc)
     : RunControl(rc, ProjectExplorer::Constants::RUNMODE)

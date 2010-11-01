@@ -33,7 +33,11 @@
 #include "qtversionmanager.h"
 
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchaintype.h>
+
+namespace ProjectExplorer {
+class ToolChain;
+}
 
 namespace Qt4ProjectManager {
 
@@ -71,8 +75,8 @@ public:
     void setQtVersion(QtVersion *);
 
     ProjectExplorer::ToolChain *toolChain() const;
-    void setToolChainType(ProjectExplorer::ToolChain::ToolChainType type);
-    ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
+    void setToolChainType(ProjectExplorer::ToolChainType type);
+    ProjectExplorer::ToolChainType toolChainType() const;
 
     QtVersion::QmakeBuildConfigs qmakeBuildConfiguration() const;
     void setQMakeBuildConfiguration(QtVersion::QmakeBuildConfigs config);

@@ -47,9 +47,9 @@ WINSCWToolChain::WINSCWToolChain(const S60Devices::Device &device, const QString
 
 }
 
-ToolChain::ToolChainType WINSCWToolChain::type() const
+ProjectExplorer::ToolChainType WINSCWToolChain::type() const
 {
-    return ToolChain::WINSCW;
+    return ProjectExplorer::ToolChain_WINSCW;
 }
 
 QByteArray WINSCWToolChain::predefinedMacros()

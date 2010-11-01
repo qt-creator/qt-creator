@@ -305,11 +305,11 @@ void CMakeRunConfiguration::setUserEnvironmentChanges(const QList<Utils::Environ
     }
 }
 
-ProjectExplorer::ToolChain::ToolChainType CMakeRunConfiguration::toolChainType() const
+ProjectExplorer::ToolChainType CMakeRunConfiguration::toolChainType() const
 {
     CMakeBuildConfiguration *bc = activeBuildConfiguration();
     if (!bc)
-        return ProjectExplorer::ToolChain::UNKNOWN;
+        return ProjectExplorer::ToolChain_UNKNOWN;
     return bc->toolChainType();
 }
 

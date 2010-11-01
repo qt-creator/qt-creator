@@ -49,6 +49,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <projectexplorer/toolchain.h>
 #include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/projectexplorer.h>

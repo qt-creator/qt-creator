@@ -32,9 +32,13 @@
 
 #include "s60devices.h"
 
-#include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchaintype.h>
 
 #include <QtCore/QObject>
+
+namespace ProjectExplorer {
+class ToolChain;
+}
 
 namespace Qt4ProjectManager {
 class QtVersion;
@@ -53,7 +57,7 @@ public:
     ProjectExplorer::ToolChain *createGCCEToolChain(const Qt4ProjectManager::QtVersion *version) const;
     ProjectExplorer::ToolChain *createGCCE_GnuPocToolChain(const Qt4ProjectManager::QtVersion *version) const;
     ProjectExplorer::ToolChain *createRVCTToolChain(const Qt4ProjectManager::QtVersion *version,
-                                                    ProjectExplorer::ToolChain::ToolChainType type) const;
+                                                    ProjectExplorer::ToolChainType type) const;
 
     S60Devices *devices() const { return m_devices; }
     S60Devices::Device deviceForQtVersion(const Qt4ProjectManager::QtVersion *version) const;

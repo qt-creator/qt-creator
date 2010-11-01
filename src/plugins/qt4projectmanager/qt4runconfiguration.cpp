@@ -140,20 +140,20 @@ bool Qt4RunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *configu
     QTC_ASSERT(qt4bc, return false);
 
     using namespace ProjectExplorer;
-    ToolChain::ToolChainType type = qt4bc->toolChainType();
+    const ToolChainType type = qt4bc->toolChainType();
     bool enabled;
     switch (type) {
-    case ToolChain::MSVC:        case ToolChain::WINCE:
-    case ToolChain::GCC:         case ToolChain::MinGW:
-    case ToolChain::GCCE_GNUPOC: case ToolChain::RVCT_ARMV5_GNUPOC:
-    case ToolChain::OTHER:       case ToolChain::UNKNOWN:
-    case ToolChain::LINUX_ICC:
-    case ToolChain::INVALID:
+    case ProjectExplorer::ToolChain_MSVC:        case ProjectExplorer::ToolChain_WINCE:
+    case ProjectExplorer::ToolChain_GCC:         case ProjectExplorer::ToolChain_MinGW:
+    case ProjectExplorer::ToolChain_GCCE_GNUPOC: case ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC:
+    case ProjectExplorer::ToolChain_OTHER:       case ProjectExplorer::ToolChain_UNKNOWN:
+    case ProjectExplorer::ToolChain_LINUX_ICC:
+    case ProjectExplorer::ToolChain_INVALID:
         enabled = true;
         break;
-    case ToolChain::WINSCW:      case ToolChain::GCCE:
-    case ToolChain::RVCT_ARMV5:  case ToolChain::RVCT_ARMV6:
-    case ToolChain::GCC_MAEMO:
+    case ProjectExplorer::ToolChain_WINSCW:      case ProjectExplorer::ToolChain_GCCE:
+    case ProjectExplorer::ToolChain_RVCT_ARMV5:  case ProjectExplorer::ToolChain_RVCT_ARMV6:
+    case ProjectExplorer::ToolChain_GCC_MAEMO:
         enabled = false;
         break;
     }
@@ -712,7 +712,7 @@ Qt4RunConfiguration::BaseEnvironmentBase Qt4RunConfiguration::baseEnvironmentBas
 {
     return m_baseEnvironmentBase;
 }
-ProjectExplorer::ToolChain::ToolChainType Qt4RunConfiguration::toolChainType() const
+ProjectExplorer::ToolChainType Qt4RunConfiguration::toolChainType() const
 {
     Qt4BuildConfiguration *qt4bc = qt4Target()->activeBuildConfiguration();
     return qt4bc->toolChainType();

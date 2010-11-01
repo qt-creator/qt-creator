@@ -41,11 +41,11 @@ class RVCTToolChain : public ProjectExplorer::ToolChain
 {
 public:
     explicit RVCTToolChain(const S60Devices::Device &device,
-                           ProjectExplorer::ToolChain::ToolChainType type);
+                           ProjectExplorer::ToolChainType type);
     virtual QByteArray predefinedMacros();
     QList<ProjectExplorer::HeaderPath> systemHeaderPaths();
     void addToEnvironment(Utils::Environment &env);
-    ProjectExplorer::ToolChain::ToolChainType type() const;
+    ProjectExplorer::ToolChainType type() const;
     QString makeCommand() const;
     ProjectExplorer::IOutputParser *outputParser() const;
 
@@ -65,7 +65,7 @@ private:
     void updateVersion();
 
     const S60ToolChainMixin m_mixin;
-    const ProjectExplorer::ToolChain::ToolChainType m_type;
+    const ProjectExplorer::ToolChainType m_type;
     bool m_versionUpToDate;
     int m_major;
     int m_minor;

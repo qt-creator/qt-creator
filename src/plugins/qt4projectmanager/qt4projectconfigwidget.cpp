@@ -39,6 +39,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mainwindow.h>
+#include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <utils/qtcassert.h>
@@ -488,8 +489,8 @@ void Qt4ProjectConfigWidget::toolChainTypeChanged()
     if (m_ignoreChange)
         return;
     for (int i=0; i < m_ui->toolChainComboBox->count(); ++i) {
-        ProjectExplorer::ToolChain::ToolChainType tt =
-                m_ui->toolChainComboBox->itemData(i, Qt::UserRole).value<ProjectExplorer::ToolChain::ToolChainType>();
+        ProjectExplorer::ToolChainType tt =
+                m_ui->toolChainComboBox->itemData(i, Qt::UserRole).value<ProjectExplorer::ToolChainType>();
         if (tt == m_buildConfiguration->toolChainType()) {
             m_ignoreChange = true;
             m_ui->toolChainComboBox->setCurrentIndex(i);
@@ -501,12 +502,12 @@ void Qt4ProjectConfigWidget::toolChainTypeChanged()
 void Qt4ProjectConfigWidget::updateToolChainCombo()
 {
     m_ui->toolChainComboBox->clear();
-    QList<ProjectExplorer::ToolChain::ToolChainType> toolchains =
+    QList<ProjectExplorer::ToolChainType> toolchains =
             m_buildConfiguration->qtVersion()->possibleToolChainTypes();
 
     toolchains = m_buildConfiguration->qt4Target()->filterToolChainTypes(toolchains);
 
-    foreach (ToolChain::ToolChainType toolchain, toolchains)
+    foreach (ProjectExplorer::ToolChainType toolchain, toolchains)
         m_ui->toolChainComboBox->addItem(ToolChain::toolChainName(toolchain), qVariantFromValue(toolchain));
     m_ui->toolChainComboBox->setEnabled(toolchains.size() > 1);
 
@@ -519,9 +520,9 @@ void Qt4ProjectConfigWidget::toolChainSelected(int index)
 {
     if (m_ignoreChange)
         return;
-    ProjectExplorer::ToolChain::ToolChainType selectedToolChainType =
+    ProjectExplorer::ToolChainType selectedToolChainType =
         m_ui->toolChainComboBox->itemData(index,
-            Qt::UserRole).value<ProjectExplorer::ToolChain::ToolChainType>();
+            Qt::UserRole).value<ProjectExplorer::ToolChainType>();
     m_ignoreChange = true;
     m_buildConfiguration->setToolChainType(selectedToolChainType);
     m_ignoreChange = false;

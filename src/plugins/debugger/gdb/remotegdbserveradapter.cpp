@@ -34,7 +34,7 @@
 
 #include <utils/qtcassert.h>
 #include <utils/fancymainwindow.h>
-#include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchaintype.h>
 
 #include <QtCore/QFileInfo>
 #include <QtGui/QMessageBox>
@@ -69,14 +69,14 @@ RemoteGdbServerAdapter::RemoteGdbServerAdapter(GdbEngine *engine, int toolChainT
 AbstractGdbAdapter::DumperHandling RemoteGdbServerAdapter::dumperHandling() const
 {
     switch (m_toolChainType) {
-    case ProjectExplorer::ToolChain::MinGW:
-    case ProjectExplorer::ToolChain::MSVC:
-    case ProjectExplorer::ToolChain::WINCE:
-    case ProjectExplorer::ToolChain::WINSCW:
-    case ProjectExplorer::ToolChain::GCCE:
-    case ProjectExplorer::ToolChain::RVCT_ARMV5:
-    case ProjectExplorer::ToolChain::RVCT_ARMV6:
-    case ProjectExplorer::ToolChain::GCC_MAEMO:
+    case ProjectExplorer::ToolChain_MinGW:
+    case ProjectExplorer::ToolChain_MSVC:
+    case ProjectExplorer::ToolChain_WINCE:
+    case ProjectExplorer::ToolChain_WINSCW:
+    case ProjectExplorer::ToolChain_GCCE:
+    case ProjectExplorer::ToolChain_RVCT_ARMV5:
+    case ProjectExplorer::ToolChain_RVCT_ARMV6:
+    case ProjectExplorer::ToolChain_GCC_MAEMO:
         return DumperLoadedByGdb;
     default:
         break;
@@ -189,7 +189,7 @@ void RemoteGdbServerAdapter::setupInferior()
 
     // This has to be issued before 'target remote'. On pre-7.0 the
     // command is not present and will result in ' No symbol table is
-    // loaded.  Use the "file" command.' as gdb tries to set the 
+    // loaded.  Use the "file" command.' as gdb tries to set the
     // value of a variable with name 'target-async'.
     //
     // Testing with -list-target-features which was introduced at

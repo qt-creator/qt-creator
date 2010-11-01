@@ -172,19 +172,19 @@ Qt4Target *S60DeviceRunConfiguration::qt4Target() const
     return static_cast<Qt4Target *>(target());
 }
 
-ProjectExplorer::ToolChain::ToolChainType S60DeviceRunConfiguration::toolChainType(
+ProjectExplorer::ToolChainType S60DeviceRunConfiguration::toolChainType(
         ProjectExplorer::BuildConfiguration *configuration) const
 {
     if (Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(configuration))
         return bc->toolChainType();
-    return ProjectExplorer::ToolChain::INVALID;
+    return ProjectExplorer::ToolChain_INVALID;
 }
 
-ProjectExplorer::ToolChain::ToolChainType S60DeviceRunConfiguration::toolChainType() const
+ProjectExplorer::ToolChainType S60DeviceRunConfiguration::toolChainType() const
 {
     if (Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(target()->activeBuildConfiguration()))
         return bc->toolChainType();
-    return ProjectExplorer::ToolChain::INVALID;
+    return ProjectExplorer::ToolChain_INVALID;
 }
 
 bool S60DeviceRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *configuration) const
@@ -193,11 +193,11 @@ bool S60DeviceRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *c
         return false;
     const Qt4BuildConfiguration *qt4bc = static_cast<const Qt4BuildConfiguration *>(configuration);
     switch (qt4bc->toolChainType()) {
-    case ToolChain::GCCE:
-    case ToolChain::RVCT_ARMV5:
-    case ToolChain::RVCT_ARMV6:
-    case ToolChain::GCCE_GNUPOC:
-    case ToolChain::RVCT_ARMV5_GNUPOC:
+    case ProjectExplorer::ToolChain_GCCE:
+    case ProjectExplorer::ToolChain_RVCT_ARMV5:
+    case ProjectExplorer::ToolChain_RVCT_ARMV6:
+    case ProjectExplorer::ToolChain_GCCE_GNUPOC:
+    case ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC:
         return true;
     default:
         break;
@@ -282,12 +282,12 @@ QString S60DeviceRunConfiguration::symbianPlatform() const
 {
     const Qt4BuildConfiguration *qt4bc = qt4Target()->activeBuildConfiguration();
     switch (qt4bc->toolChainType()) {
-    case ToolChain::GCCE:
-    case ToolChain::GCCE_GNUPOC:
+    case ProjectExplorer::ToolChain_GCCE:
+    case ProjectExplorer::ToolChain_GCCE_GNUPOC:
         return QLatin1String("gcce");
-    case ToolChain::RVCT_ARMV5:
+    case ProjectExplorer::ToolChain_RVCT_ARMV5:
         return QLatin1String("armv5");
-    default: // including ToolChain::RVCT_ARMV6_GNUPOC:
+    default: // including ProjectExplorer::RVCT_ARMV6_GNUPOC:
         return QLatin1String("armv6");
     }
 }
@@ -324,8 +324,8 @@ QString S60DeviceRunConfiguration::localExecutableFileName() const
 {
     QString localExecutable;
     switch (toolChainType()) {
-    case ToolChain::GCCE_GNUPOC:
-    case ToolChain::RVCT_ARMV5_GNUPOC: {
+    case ProjectExplorer::ToolChain_GCCE_GNUPOC:
+    case ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC: {
         TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()->targetInformation(projectFilePath());
         if (!ti.valid)
             return QString();
@@ -470,7 +470,7 @@ RunConfiguration *S60DeviceRunConfigurationFactory::clone(Target *parent, RunCon
 
 S60DeviceRunControl::S60DeviceRunControl(RunConfiguration *runConfiguration, QString mode) :
     RunControl(runConfiguration, mode),
-    m_toolChain(ProjectExplorer::ToolChain::INVALID),
+    m_toolChain(ProjectExplorer::ToolChain_INVALID),
     m_handleDeviceRemoval(true),
     m_launcher(0)
 {

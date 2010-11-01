@@ -42,16 +42,16 @@ class GCCEToolChain : public ProjectExplorer::GccToolChain
     explicit GCCEToolChain(const S60Devices::Device &device,
                            const QString &gcceBinPath,
                            const QString &gcceCommand,
-                           ProjectExplorer::ToolChain::ToolChainType type);
+                           ProjectExplorer::ToolChainType type);
 public:
     static GCCEToolChain *create(const S60Devices::Device &device,
                                  const QString &gcceRoot,
-                                 ProjectExplorer::ToolChain::ToolChainType type);
+                                 ProjectExplorer::ToolChainType type);
 
     QByteArray predefinedMacros();
     virtual QList<ProjectExplorer::HeaderPath> systemHeaderPaths();
     virtual void addToEnvironment(Utils::Environment &env);
-    virtual ProjectExplorer::ToolChain::ToolChainType type() const;
+    virtual ProjectExplorer::ToolChainType type() const;
     virtual QString makeCommand() const;
 
 protected:
@@ -60,7 +60,7 @@ protected:
 private:
     QString gcceVersion() const;
     const S60ToolChainMixin m_mixin;
-    const ProjectExplorer::ToolChain::ToolChainType m_type;
+    const ProjectExplorer::ToolChainType m_type;
     const QString m_gcceBinPath;
     mutable QString m_gcceVersion;
 };

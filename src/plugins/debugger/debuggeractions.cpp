@@ -108,7 +108,7 @@ void DebuggerSettings::readSettings(QSettings *settings)
             if (predefinedGdb.isEmpty()) {
                 m_gdbBinaryToolChainMap.insert(binary, toolChain);
             } else {
-                const QString toolChainName = ProjectExplorer::ToolChain::toolChainName(static_cast<ProjectExplorer::ToolChain::ToolChainType>(toolChain));
+                const QString toolChainName = ProjectExplorer::ToolChain::toolChainName(static_cast<ProjectExplorer::ToolChainType>(toolChain));
                 const QString msg =
                         QString::fromLatin1("An inconsistency has been encountered in the Ini-file '%1':\n"
                                             "Skipping gdb binary '%2' for toolchain '%3' as '%4' is already configured for it.").
@@ -121,10 +121,10 @@ void DebuggerSettings::readSettings(QSettings *settings)
 #ifdef Q_OS_UNIX
     if (m_gdbBinaryToolChainMap.isEmpty()) {
         const QString gdb = QLatin1String("gdb");
-        m_gdbBinaryToolChainMap.insert(gdb, ProjectExplorer::ToolChain::GCC);
-        m_gdbBinaryToolChainMap.insert(gdb, ProjectExplorer::ToolChain::LINUX_ICC);
-        m_gdbBinaryToolChainMap.insert(gdb, ProjectExplorer::ToolChain::OTHER);
-        m_gdbBinaryToolChainMap.insert(gdb, ProjectExplorer::ToolChain::UNKNOWN);
+        m_gdbBinaryToolChainMap.insert(gdb, ProjectExplorer::ToolChain_GCC);
+        m_gdbBinaryToolChainMap.insert(gdb, ProjectExplorer::ToolChain_LINUX_ICC);
+        m_gdbBinaryToolChainMap.insert(gdb, ProjectExplorer::ToolChain_OTHER);
+        m_gdbBinaryToolChainMap.insert(gdb, ProjectExplorer::ToolChain_UNKNOWN);
     }
 #endif
 }

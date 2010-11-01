@@ -157,11 +157,11 @@ bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
     if (version->isValid())
         m_shadowBuild = (m_shadowBuild && version->supportsShadowBuilds());
 
-    QList<ToolChain::ToolChainType> possibleTcs(qt4Target()->filterToolChainTypes(qtVersion()->possibleToolChainTypes()));
+    QList<ProjectExplorer::ToolChainType> possibleTcs(qt4Target()->filterToolChainTypes(qtVersion()->possibleToolChainTypes()));
     if (!possibleTcs.contains(toolChainType()))
         setToolChainType(qt4Target()->preferredToolChainType(possibleTcs));
 
-    if (toolChainType() == ToolChain::INVALID) {
+    if (toolChainType() == ProjectExplorer::ToolChain_INVALID) {
         qWarning() << "No toolchain available for" << qtVersion()->displayName() << "used in" << target()->id() << "!";
         return false;
     }
@@ -298,7 +298,7 @@ void Qt4BuildConfiguration::setShadowBuildAndDirectory(bool shadowBuild, const Q
 
 ProjectExplorer::ToolChain *Qt4BuildConfiguration::toolChain() const
 {
-    ToolChain::ToolChainType tct = toolChainType();
+    const ProjectExplorer::ToolChainType tct = toolChainType();
     return qtVersion()->toolChain(tct);
 }
 
@@ -325,14 +325,14 @@ QString Qt4BuildConfiguration::defaultMakeTarget() const
     const QtVersion::QmakeBuildConfigs buildConfig = qmakeBuildConfiguration();
 
     switch (tc->type()) {
-    case ToolChain::GCCE:
+    case ProjectExplorer::ToolChain_GCCE:
         return symbianMakeTarget(buildConfig, QLatin1String("gcce"));
-    case ToolChain::RVCT_ARMV5:
+    case ProjectExplorer::ToolChain_RVCT_ARMV5:
         return symbianMakeTarget(buildConfig, QLatin1String("armv5"));
-    case ToolChain::RVCT_ARMV6:
+    case ProjectExplorer::ToolChain_RVCT_ARMV6:
         return symbianMakeTarget(buildConfig, QLatin1String("armv6"));
-    case ToolChain::RVCT_ARMV5_GNUPOC:
-    case ToolChain::GCCE_GNUPOC:
+    case ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC:
+    case ProjectExplorer::ToolChain_GCCE_GNUPOC:
     default:
         break;
     }
@@ -361,11 +361,11 @@ void Qt4BuildConfiguration::setQtVersion(QtVersion *version)
 
     m_qtVersionId = version->uniqueId();
 
-    if (!version->possibleToolChainTypes().contains(ProjectExplorer::ToolChain::ToolChainType(m_toolChainType))) {
-        QList<ToolChain::ToolChainType> candidates =
+    if (!version->possibleToolChainTypes().contains(ProjectExplorer::ToolChainType(m_toolChainType))) {
+        QList<ProjectExplorer::ToolChainType> candidates =
                 qt4Target()->filterToolChainTypes(qtVersion()->possibleToolChainTypes());
         if (candidates.isEmpty())
-            m_toolChainType = ToolChain::INVALID;
+            m_toolChainType = ProjectExplorer::ToolChain_INVALID;
         else
             m_toolChainType = candidates.first();
     }
@@ -378,7 +378,7 @@ void Qt4BuildConfiguration::setQtVersion(QtVersion *version)
     emitBuildDirectoryChanged();
 }
 
-void Qt4BuildConfiguration::setToolChainType(ProjectExplorer::ToolChain::ToolChainType type)
+void Qt4BuildConfiguration::setToolChainType(ProjectExplorer::ToolChainType type)
 {
     if (!qt4Target()->filterToolChainTypes(qtVersion()->possibleToolChainTypes()).contains(type)
         || m_toolChainType == type)
@@ -392,9 +392,9 @@ void Qt4BuildConfiguration::setToolChainType(ProjectExplorer::ToolChain::ToolCha
     emitBuildDirectoryChanged();
 }
 
-ProjectExplorer::ToolChain::ToolChainType Qt4BuildConfiguration::toolChainType() const
+ProjectExplorer::ToolChainType Qt4BuildConfiguration::toolChainType() const
 {
-    return ToolChain::ToolChainType(m_toolChainType);
+    return ProjectExplorer::ToolChainType(m_toolChainType);
 }
 
 QtVersion::QmakeBuildConfigs Qt4BuildConfiguration::qmakeBuildConfiguration() const

@@ -34,7 +34,6 @@
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/applicationlauncher.h>
-#include <projectexplorer/toolchain.h>
 #include <qt4projectmanager/qtversionmanager.h>
 #include <utils/environment.h>
 #include <utils/qtcassert.h>

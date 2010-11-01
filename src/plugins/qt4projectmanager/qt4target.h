@@ -78,8 +78,8 @@ public:
     Internal::Qt4BuildConfigurationFactory *buildConfigurationFactory() const;
     ProjectExplorer::DeployConfigurationFactory *deployConfigurationFactory() const;
 
-    QList<ProjectExplorer::ToolChain::ToolChainType> filterToolChainTypes(const QList<ProjectExplorer::ToolChain::ToolChainType> &candidates) const;
-    ProjectExplorer::ToolChain::ToolChainType preferredToolChainType(const QList<ProjectExplorer::ToolChain::ToolChainType> &candidates) const;
+    QList<ProjectExplorer::ToolChainType> filterToolChainTypes(const QList<ProjectExplorer::ToolChainType> &candidates) const;
+    ProjectExplorer::ToolChainType preferredToolChainType(const QList<ProjectExplorer::ToolChainType> &candidates) const;
 
     QString defaultBuildDirectory() const;
     static QString defaultShadowBuildDirectory(const QString &projectLocation, const QString &id);

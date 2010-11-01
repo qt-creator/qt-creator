@@ -38,6 +38,7 @@
 #include "qt-s60/abldparser.h"
 #include "qt-s60/sbsv2parser.h"
 
+#include <projectexplorer/toolchain.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/projectexplorer.h>
@@ -173,8 +174,8 @@ bool MakeStep::init()
     // but for now this is the least invasive change
 
     if (toolchain) {
-        if (toolchain->type() != ProjectExplorer::ToolChain::MSVC &&
-            toolchain->type() != ProjectExplorer::ToolChain::WINCE) {
+        if (toolchain->type() != ProjectExplorer::ToolChain_MSVC &&
+            toolchain->type() != ProjectExplorer::ToolChain_WINCE) {
             if (m_makeCmd.isEmpty())
                 args << "-w";
         }
@@ -314,11 +315,11 @@ void MakeStepConfigWidget::updateDetails()
     // so we only do it for unix and if the user didn't override the make command
     // but for now this is the least invasive change
     QStringList args = m_makeStep->userArguments();
-    ProjectExplorer::ToolChain::ToolChainType t = ProjectExplorer::ToolChain::UNKNOWN;
+    ProjectExplorer::ToolChainType t = ProjectExplorer::ToolChain_UNKNOWN;
     ProjectExplorer::ToolChain *toolChain = bc->toolChain();
     if (toolChain)
         t = toolChain->type();
-    if (t != ProjectExplorer::ToolChain::MSVC && t != ProjectExplorer::ToolChain::WINCE) {
+    if (t != ProjectExplorer::ToolChain_MSVC && t != ProjectExplorer::ToolChain_WINCE) {
         if (m_makeStep->m_makeCmd.isEmpty())
             args << "-w";
     }

@@ -1722,7 +1722,7 @@ int GdbEngine::currentFrame() const
 
 static inline QString msgNoBinaryForToolChain(int tc)
 {
-    const ProjectExplorer::ToolChain::ToolChainType toolChain = static_cast<ProjectExplorer::ToolChain::ToolChainType>(tc);
+    const ProjectExplorer::ToolChainType toolChain = static_cast<ProjectExplorer::ToolChainType>(tc);
     const QString toolChainName = ProjectExplorer::ToolChain::toolChainName(toolChain);
     return GdbEngine::tr("There is no gdb binary available for '%1'").arg(toolChainName);
 }
@@ -1737,12 +1737,12 @@ AbstractGdbAdapter *GdbEngine::createAdapter()
     const DebuggerStartParameters &sp = startParameters();
     //qDebug() << "CREATE ADAPTER: " << sp.toolChainType;
     switch (sp.toolChainType) {
-        case ProjectExplorer::ToolChain::WINSCW: // S60
-        case ProjectExplorer::ToolChain::GCCE:
-        case ProjectExplorer::ToolChain::RVCT_ARMV5:
-        case ProjectExplorer::ToolChain::RVCT_ARMV6:
-        case ProjectExplorer::ToolChain::RVCT_ARMV5_GNUPOC:
-        case ProjectExplorer::ToolChain::GCCE_GNUPOC:
+        case ProjectExplorer::ToolChain_WINSCW: // S60
+        case ProjectExplorer::ToolChain_GCCE:
+        case ProjectExplorer::ToolChain_RVCT_ARMV5:
+        case ProjectExplorer::ToolChain_RVCT_ARMV6:
+        case ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC:
+        case ProjectExplorer::ToolChain_GCCE_GNUPOC:
             // fixme: 1 of 3 testing hacks
             if (sp.processArgs.size() >= 5 && sp.processArgs.at(0) == _("@tcf@"))
                 return new TcfTrkGdbAdapter(this);

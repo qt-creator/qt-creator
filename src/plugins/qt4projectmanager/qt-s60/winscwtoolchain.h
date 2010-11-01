@@ -44,7 +44,7 @@ public:
     QByteArray predefinedMacros();
     QList<ProjectExplorer::HeaderPath> systemHeaderPaths();
     void addToEnvironment(Utils::Environment &env);
-    ProjectExplorer::ToolChain::ToolChainType type() const;
+    ProjectExplorer::ToolChainType type() const;
     QString makeCommand() const;
     ProjectExplorer::IOutputParser *outputParser() const;
 

@@ -1299,7 +1299,7 @@ QList<QSharedPointer<ProjectExplorer::ToolChain> > QtVersion::toolChains() const
     return m_toolChains;
 }
 
-ProjectExplorer::ToolChain *QtVersion::toolChain(ProjectExplorer::ToolChain::ToolChainType type) const
+ProjectExplorer::ToolChain *QtVersion::toolChain(ProjectExplorer::ToolChainType type) const
 {
     foreach(const QSharedPointer<ProjectExplorer::ToolChain> &tcptr, toolChains())
         if (tcptr->type() == type)
@@ -1307,9 +1307,9 @@ ProjectExplorer::ToolChain *QtVersion::toolChain(ProjectExplorer::ToolChain::Too
     return 0;
 }
 
-QList<ProjectExplorer::ToolChain::ToolChainType> QtVersion::possibleToolChainTypes() const
+QList<ProjectExplorer::ToolChainType> QtVersion::possibleToolChainTypes() const
 {
-    QList<ProjectExplorer::ToolChain::ToolChainType> types;
+    QList<ProjectExplorer::ToolChainType> types;
     foreach(const QSharedPointer<ProjectExplorer::ToolChain> &tc, toolChains())
         types << tc->type();
     return types;
@@ -1454,15 +1454,15 @@ void QtVersion::updateToolChainAndMkspec() const
             m_targetIds.insert(QLatin1String(Constants::S60_DEVICE_TARGET_ID));
             m_toolChains << ToolChainPtr(s60mgr->createGCCEToolChain(this));
             if (S60Manager::hasRvctCompiler())
-                m_toolChains << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain::RVCT_ARMV5))
-                             << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain::RVCT_ARMV6));
+                m_toolChains << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain_RVCT_ARMV5))
+                             << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain_RVCT_ARMV6));
             if (!mwcDirectory().isEmpty()) {
                 m_toolChains << ToolChainPtr(s60mgr->createWINSCWToolChain(this));
                 m_targetIds.insert(QLatin1String(Constants::S60_EMULATOR_TARGET_ID));
             }
 #    else
             if (S60Manager::hasRvctCompiler())
-                m_toolChains << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain::RVCT_ARMV5_GNUPOC));
+                m_toolChains << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC));
             m_toolChains << ToolChainPtr(s60mgr->createGCCE_GnuPocToolChain(this));
             m_targetIds.insert(QLatin1String(Constants::S60_DEVICE_TARGET_ID));
 #    endif
@@ -1695,24 +1695,24 @@ QStringList QtVersion::debuggingHelperLibraryLocations() const
 
 bool QtVersion::supportsBinaryDebuggingHelper() const
 {
-    foreach (ProjectExplorer::ToolChain::ToolChainType type, possibleToolChainTypes())
+    foreach (ProjectExplorer::ToolChainType type, possibleToolChainTypes())
         switch (type) {
-        case ProjectExplorer::ToolChain::GCC:
-        case ProjectExplorer::ToolChain::LINUX_ICC:
-        case ProjectExplorer::ToolChain::MinGW:
-        case ProjectExplorer::ToolChain::MSVC:
-        case ProjectExplorer::ToolChain::WINCE:
-        case ProjectExplorer::ToolChain::GCC_MAEMO:
-        case ProjectExplorer::ToolChain::OTHER:
-        case ProjectExplorer::ToolChain::UNKNOWN:
+        case ProjectExplorer::ToolChain_GCC:
+        case ProjectExplorer::ToolChain_LINUX_ICC:
+        case ProjectExplorer::ToolChain_MinGW:
+        case ProjectExplorer::ToolChain_MSVC:
+        case ProjectExplorer::ToolChain_WINCE:
+        case ProjectExplorer::ToolChain_GCC_MAEMO:
+        case ProjectExplorer::ToolChain_OTHER:
+        case ProjectExplorer::ToolChain_UNKNOWN:
             return true;
-        case ProjectExplorer::ToolChain::WINSCW:
-        case ProjectExplorer::ToolChain::GCCE :
-        case ProjectExplorer::ToolChain::RVCT_ARMV5:
-        case ProjectExplorer::ToolChain::RVCT_ARMV6:
-        case ProjectExplorer::ToolChain::GCCE_GNUPOC:
-        case ProjectExplorer::ToolChain::RVCT_ARMV5_GNUPOC:
-        case ProjectExplorer::ToolChain::INVALID:
+        case ProjectExplorer::ToolChain_WINSCW:
+        case ProjectExplorer::ToolChain_GCCE :
+        case ProjectExplorer::ToolChain_RVCT_ARMV5:
+        case ProjectExplorer::ToolChain_RVCT_ARMV6:
+        case ProjectExplorer::ToolChain_GCCE_GNUPOC:
+        case ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC:
+        case ProjectExplorer::ToolChain_INVALID:
             break;
         }
     return false;
@@ -1814,7 +1814,7 @@ bool QtVersion::buildDebuggingHelperLibrary(QFutureInterface<void> &future,
         return false;
     }
     tc->addToEnvironment(env);
-    const QString target = (tc->type() == ToolChain::GCC_MAEMO ? QLatin1String("-unix") : QLatin1String(""));
+    const QString target = (tc->type() == ProjectExplorer::ToolChain_GCC_MAEMO ? QLatin1String("-unix") : QLatin1String(""));
 
     // invalidate cache
     m_versionInfoUpToDate = false;

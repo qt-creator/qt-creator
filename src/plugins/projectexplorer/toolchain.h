@@ -31,6 +31,7 @@
 #define TOOLCHAIN_H
 
 #include "projectexplorer_export.h"
+#include "toolchaintype.h"
 
 #include <utils/environment.h>
 
@@ -73,26 +74,6 @@ private:
 class PROJECTEXPLORER_EXPORT ToolChain
 {
 public:
-    enum ToolChainType
-    {
-        GCC = 0,
-        LINUX_ICC = 1,
-        MinGW = 2,
-        MSVC = 3,
-        WINCE = 4,
-        WINSCW = 5,
-        GCCE = 6,
-        RVCT_ARMV5 = 7,
-        RVCT_ARMV6 = 8,
-        GCC_MAEMO = 9,
-        GCCE_GNUPOC = 10,
-        RVCT_ARMV5_GNUPOC = 11,
-        LAST_VALID = 11,
-        OTHER = 200,
-        UNKNOWN = 201,
-        INVALID = 202
-    };
-
     virtual QByteArray predefinedMacros() = 0;
     virtual QList<HeaderPath> systemHeaderPaths() = 0;
     virtual void addToEnvironment(Utils::Environment &env) = 0;
@@ -112,7 +93,7 @@ public:
     static ToolChain *createWinCEToolChain(const QString &name, const QString &platform);
     static QStringList availableMSVCVersions();
     static QStringList availableMSVCVersions(bool amd64); // filter 32/64bit apart
-    static QList<ToolChain::ToolChainType> supportedToolChains();
+    static QList<ToolChainType> supportedToolChains();
 
     static QString toolChainName(ToolChainType tc);
 
@@ -257,6 +238,6 @@ private:
 
 }
 
-Q_DECLARE_METATYPE(ProjectExplorer::ToolChain::ToolChainType);
+Q_DECLARE_METATYPE(ProjectExplorer::ToolChainType);
 
 #endif // TOOLCHAIN_H

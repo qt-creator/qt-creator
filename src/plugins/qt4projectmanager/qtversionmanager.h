@@ -40,6 +40,14 @@
 #include <QtCore/QSharedPointer>
 #include <QtCore/QFutureInterface>
 
+namespace ProjectExplorer {
+class ToolChain;
+}
+
+namespace Utils {
+class Environment;
+}
+
 namespace Qt4ProjectManager {
 
 namespace Internal {
@@ -78,8 +86,8 @@ public:
     QSet<QString> supportedTargetIds() const;
     bool supportsMobileTarget() const;
 
-    QList<ProjectExplorer::ToolChain::ToolChainType> possibleToolChainTypes() const;
-    ProjectExplorer::ToolChain *toolChain(ProjectExplorer::ToolChain::ToolChainType type) const;
+    QList<ProjectExplorer::ToolChainType> possibleToolChainTypes() const;
+    ProjectExplorer::ToolChain *toolChain(ProjectExplorer::ToolChainType type) const;
 
     /// @returns the name of the mkspec, which is generally not enough
     /// to pass to qmake.

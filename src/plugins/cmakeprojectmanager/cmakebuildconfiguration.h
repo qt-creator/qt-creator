@@ -31,7 +31,11 @@
 #define CMAKEBUILDCONFIGURATION_H
 
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchaintype.h>
+
+namespace ProjectExplorer {
+class ToolChain;
+}
 
 namespace CMakeProjectManager {
 namespace Internal {
@@ -52,7 +56,7 @@ public:
 
     virtual QString buildDirectory() const;
 
-    ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
+    ProjectExplorer::ToolChainType toolChainType() const;
     ProjectExplorer::ToolChain *toolChain() const;
 
     void setBuildDirectory(const QString &buildDirectory);

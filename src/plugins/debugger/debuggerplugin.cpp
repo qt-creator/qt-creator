@@ -99,7 +99,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchaintype.h>
 
 #include <texteditor/basetexteditor.h>
 #include <texteditor/basetextmark.h>
@@ -1796,7 +1796,7 @@ void DebuggerPluginPrivate::startExternalApplication()
     // Fixme: 1 of 3 testing hacks.
     if (!sp.processArgs.isEmpty()
         && (sp.processArgs.front() == _("@tcf@") || sp.processArgs.front() == _("@sym@")))
-        sp.toolChainType = ToolChain::RVCT_ARMV5;
+        sp.toolChainType = ProjectExplorer::ToolChain_RVCT_ARMV5;
 
 
     if (RunControl *rc = m_debuggerRunControlFactory->create(sp))
@@ -1921,7 +1921,7 @@ void DebuggerPluginPrivate::startRemoteApplication()
     sp.displayName = dlg.localExecutable();
     sp.debuggerCommand = dlg.debugger(); // Override toolchain-detection.
     if (!sp.debuggerCommand.isEmpty())
-        sp.toolChainType = ToolChain::INVALID;
+        sp.toolChainType = ProjectExplorer::ToolChain_INVALID;
     sp.startMode = AttachToRemote;
     sp.useServerStartScript = dlg.useServerStartScript();
     sp.serverStartScript = dlg.serverStartScript();

@@ -27,44 +27,31 @@
 **
 **************************************************************************/
 
-#ifndef APPLICATIONRUNCONFIGURATION_H
-#define APPLICATIONRUNCONFIGURATION_H
-
-#include <projectexplorer/toolchaintype.h>
-
-#include "runconfiguration.h"
-#include "applicationlauncher.h"
-
-namespace Utils {
-class Environment;
-}
+#ifndef TOOLCHAINTYPE_H
+#define TOOLCHAINTYPE_H
 
 namespace ProjectExplorer {
 
-class PROJECTEXPLORER_EXPORT LocalApplicationRunConfiguration : public RunConfiguration
+enum ToolChainType
 {
-    Q_OBJECT
-public:
-    enum RunMode {
-        Console = ApplicationLauncher::Console,
-        Gui
-    };
-
-    virtual ~LocalApplicationRunConfiguration();
-    virtual QString executable() const = 0;
-    virtual RunMode runMode() const = 0;
-    virtual QString workingDirectory() const = 0;
-    virtual QStringList commandLineArguments() const = 0;
-    virtual Utils::Environment environment() const = 0;
-    virtual QString dumperLibrary() const = 0;
-    virtual QStringList dumperLibraryLocations() const = 0;
-    virtual ProjectExplorer::ToolChainType toolChainType() const = 0;
-
-protected:
-    explicit LocalApplicationRunConfiguration(Target *target, const QString &id);
-    explicit LocalApplicationRunConfiguration(Target *target, LocalApplicationRunConfiguration *rc);
+    ToolChain_GCC = 0,
+    ToolChain_LINUX_ICC = 1,
+    ToolChain_MinGW = 2,
+    ToolChain_MSVC = 3,
+    ToolChain_WINCE = 4,
+    ToolChain_WINSCW = 5,
+    ToolChain_GCCE = 6,
+    ToolChain_RVCT_ARMV5 = 7,
+    ToolChain_RVCT_ARMV6 = 8,
+    ToolChain_GCC_MAEMO = 9,
+    ToolChain_GCCE_GNUPOC = 10,
+    ToolChain_RVCT_ARMV5_GNUPOC = 11,
+    ToolChain_LAST_VALID = 11,
+    ToolChain_OTHER = 200,
+    ToolChain_UNKNOWN = 201,
+    ToolChain_INVALID = 202
 };
 
 } // namespace ProjectExplorer
 
-#endif // APPLICATIONRUNCONFIGURATION_H
+#endif // TOOLCHAINTYPE_H

@@ -119,10 +119,10 @@ QStringList ToolChain::availableMSVCVersions(bool amd64)
     return rc;
 }
 
-QList<ToolChain::ToolChainType> ToolChain::supportedToolChains()
+QList<ToolChainType> ToolChain::supportedToolChains()
 {
-    QList<ToolChain::ToolChainType> toolChains;
-    for (int i = 0; i < LAST_VALID; ++i) {
+    QList<ToolChainType> toolChains;
+    for (int i = 0; i < ToolChain_LAST_VALID; ++i) {
         toolChains.append(ToolChainType(i));
     }
     return toolChains;
@@ -131,35 +131,35 @@ QList<ToolChain::ToolChainType> ToolChain::supportedToolChains()
 QString ToolChain::toolChainName(ToolChainType tc)
 {
     switch (tc) {
-    case GCC:
+    case ToolChain_GCC:
         return QCoreApplication::translate("ToolChain", "GCC");
-    case LINUX_ICC:
+    case ToolChain_LINUX_ICC:
         return QCoreApplication::translate("ToolChain", "Intel C++ Compiler (Linux)");
-    case MinGW:
+    case ToolChain_MinGW:
         return QString::fromLatin1("MinGW");
-    case MSVC:
+    case ToolChain_MSVC:
         return QCoreApplication::translate("ToolChain", "Microsoft Visual C++");
-    case WINCE:
+    case ToolChain_WINCE:
         return QCoreApplication::translate("ToolChain", "Windows CE");
-    case WINSCW:
+    case ToolChain_WINSCW:
         return QCoreApplication::translate("ToolChain", "WINSCW");
-    case GCCE:
+    case ToolChain_GCCE:
         return QCoreApplication::translate("ToolChain", "GCCE");
-    case GCCE_GNUPOC:
+    case ToolChain_GCCE_GNUPOC:
         return QCoreApplication::translate("ToolChain", "GCCE/GnuPoc");
-    case RVCT_ARMV5_GNUPOC:
+    case ToolChain_RVCT_ARMV5_GNUPOC:
         return QCoreApplication::translate("ToolChain", "RVCT (ARMV6)/GnuPoc");
-    case RVCT_ARMV5:
+    case ToolChain_RVCT_ARMV5:
         return QCoreApplication::translate("ToolChain", "RVCT (ARMV5)");
-    case RVCT_ARMV6:
+    case ToolChain_RVCT_ARMV6:
         return QCoreApplication::translate("ToolChain", "RVCT (ARMV6)");
-    case GCC_MAEMO:
+    case ToolChain_GCC_MAEMO:
         return QCoreApplication::translate("ToolChain", "GCC for Maemo");
-    case OTHER:
+    case ToolChain_OTHER:
         return QCoreApplication::translate("ToolChain", "Other");
-    case INVALID:
+    case ToolChain_INVALID:
         return QCoreApplication::translate("ToolChain", "<Invalid>");
-    case UNKNOWN:
+    case ToolChain_UNKNOWN:
         break;
     default:
         Q_ASSERT("Missing name for Toolchaintype");
@@ -173,9 +173,9 @@ GccToolChain::GccToolChain(const QString &gcc)
 
 }
 
-ToolChain::ToolChainType GccToolChain::type() const
+ToolChainType GccToolChain::type() const
 {
-    return ToolChain::GCC;
+    return ToolChain_GCC;
 }
 
 static QByteArray gccPredefinedMacros(const QString &gcc, const QStringList &env)
@@ -333,9 +333,9 @@ MinGWToolChain::MinGWToolChain(const QString &gcc, const QString &mingwPath)
 
 }
 
-ToolChain::ToolChainType MinGWToolChain::type() const
+ToolChainType MinGWToolChain::type() const
 {
-    return ToolChain::MinGW;
+    return ToolChain_MinGW;
 }
 
 bool MinGWToolChain::equals(const ToolChain *other) const
@@ -370,9 +370,9 @@ LinuxIccToolChain::LinuxIccToolChain()
 {
 }
 
-ToolChain::ToolChainType LinuxIccToolChain::type() const
+ToolChainType LinuxIccToolChain::type() const
 {
-    return ToolChain::LINUX_ICC;
+    return ToolChain_LINUX_ICC;
 }
 
 IOutputParser *LinuxIccToolChain::outputParser() const
@@ -587,9 +587,9 @@ MSVCToolChain::MSVCToolChain(const Installation &in) :
         qDebug() << "\nMSVCToolChain::CT\n" << m_installation;
 }
 
-ToolChain::ToolChainType MSVCToolChain::type() const
+ToolChainType MSVCToolChain::type() const
 {
-    return ToolChain::MSVC;
+    return ToolChain_MSVC;
 }
 
 bool MSVCToolChain::equals(const ToolChain *other) const
@@ -870,9 +870,9 @@ WinCEToolChain::WinCEToolChain(const Installation &in, const QString &platform) 
 {
 }
 
-ToolChain::ToolChainType WinCEToolChain::type() const
+ToolChainType WinCEToolChain::type() const
 {
-    return ToolChain::WINCE;
+    return ToolChain_WINCE;
 }
 
 bool WinCEToolChain::equals(const ToolChain *other) const

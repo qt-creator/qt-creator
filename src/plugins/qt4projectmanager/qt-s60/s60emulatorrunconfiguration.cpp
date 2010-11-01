@@ -150,8 +150,8 @@ bool S60EmulatorRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration 
         return false;
     Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration *>(configuration);
     QTC_ASSERT(qt4bc, return false);
-    ToolChain::ToolChainType type = qt4bc->toolChainType();
-    return type == ToolChain::WINSCW;
+    const ProjectExplorer::ToolChainType type = qt4bc->toolChainType();
+    return type == ProjectExplorer::ToolChain_WINSCW;
 }
 
 QWidget *S60EmulatorRunConfiguration::createConfigurationWidget()

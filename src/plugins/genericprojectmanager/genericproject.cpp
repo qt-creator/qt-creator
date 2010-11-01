@@ -330,7 +330,7 @@ void GenericProject::setIncludePaths(const QStringList &includePaths)
 QByteArray GenericProject::defines() const
 { return m_defines; }
 
-void GenericProject::setToolChainType(ProjectExplorer::ToolChain::ToolChainType type)
+void GenericProject::setToolChainType(ProjectExplorer::ToolChainType type)
 {
     using namespace ProjectExplorer;
 
@@ -339,23 +339,23 @@ void GenericProject::setToolChainType(ProjectExplorer::ToolChain::ToolChainType 
     delete m_toolChain;
     m_toolChain = 0;
 
-    if (type == ToolChain::MinGW) {
+    if (type == ToolChain_MinGW) {
         const QLatin1String qmake_cxx("g++"); // ### FIXME
         const QString mingwDirectory; // ### FIXME
 
         m_toolChain = ToolChain::createMinGWToolChain(qmake_cxx, mingwDirectory);
 
-    } else if (type == ToolChain::MSVC) {
+    } else if (type == ToolChain_MSVC) {
         const QString msvcVersion; // ### FIXME
         m_toolChain = ToolChain::createMSVCToolChain(msvcVersion, false);
 
-    } else if (type == ToolChain::WINCE) {
+    } else if (type == ToolChain_WINCE) {
         const QString msvcVersion, wincePlatform; // ### FIXME
         m_toolChain = ToolChain::createWinCEToolChain(msvcVersion, wincePlatform);
-    } else if (type == ToolChain::GCC) {
+    } else if (type == ToolChain_GCC) {
         const QLatin1String qmake_cxx("g++"); // ### FIXME
         m_toolChain = ToolChain::createGccToolChain(qmake_cxx);
-    } else if (type == ToolChain::LINUX_ICC) {
+    } else if (type == ToolChain_LINUX_ICC) {
         m_toolChain = ToolChain::createLinuxIccToolChain();
     }
 }
@@ -365,7 +365,7 @@ ProjectExplorer::ToolChain *GenericProject::toolChain() const
     return m_toolChain;
 }
 
-ProjectExplorer::ToolChain::ToolChainType GenericProject::toolChainType() const
+ProjectExplorer::ToolChainType GenericProject::toolChainType() const
 { return m_toolChainType; }
 
 QString GenericProject::displayName() const
@@ -452,8 +452,8 @@ bool GenericProject::fromMap(const QVariantMap &map)
     if (targets().isEmpty())
         addTarget(targetFactory()->create(this, QLatin1String(GENERIC_DESKTOP_TARGET_ID)));
 
-    ToolChain::ToolChainType type =
-            static_cast<ProjectExplorer::ToolChain::ToolChainType>
+    ToolChainType type =
+            static_cast<ProjectExplorer::ToolChainType>
             (map.value(QLatin1String(TOOLCHAIN_KEY), 0).toInt());
 
     setToolChainType(type);
@@ -488,8 +488,8 @@ GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericProject *project)
     using namespace ProjectExplorer;
     int index = 0;
     int selectedIndex = -1;
-    foreach (ToolChain::ToolChainType tc, ToolChain::supportedToolChains()) {
-        toolChainChooser->addItem(ToolChain::toolChainName(tc), QVariant::fromValue<ToolChain::ToolChainType>(tc));
+    foreach (ToolChainType tc, ToolChain::supportedToolChains()) {
+        toolChainChooser->addItem(ToolChain::toolChainName(tc), QVariant::fromValue<ToolChainType>(tc));
         if (m_project->toolChainType() == tc)
             selectedIndex = index;
         ++index;
@@ -522,7 +522,7 @@ void GenericBuildSettingsWidget::toolChainSelected(int index)
     using namespace ProjectExplorer;
 
     QComboBox *toolChainChooser = qobject_cast<QComboBox*>(sender());
-    ToolChain::ToolChainType type = toolChainChooser->itemData(index).value<ToolChain::ToolChainType>();
+    ToolChainType type = toolChainChooser->itemData(index).value<ToolChainType>();
     m_project->setToolChainType(type);
 }
 

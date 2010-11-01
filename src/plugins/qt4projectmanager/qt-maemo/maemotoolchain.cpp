@@ -49,9 +49,9 @@ MaemoToolChain::~MaemoToolChain()
 {
 }
 
-ToolChain::ToolChainType MaemoToolChain::type() const
+ProjectExplorer::ToolChainType MaemoToolChain::type() const
 {
-    return ToolChain::GCC_MAEMO;
+    return ProjectExplorer::ToolChain_GCC_MAEMO;
 }
 
 void MaemoToolChain::addToEnvironment(Utils::Environment &env)

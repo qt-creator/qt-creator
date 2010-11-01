@@ -79,7 +79,7 @@ public:
 
     QString dumperLibrary() const;
     QStringList dumperLibraryLocations() const;
-    ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
+    ProjectExplorer::ToolChainType toolChainType() const;
 
     QVariantMap toMap() const;
 

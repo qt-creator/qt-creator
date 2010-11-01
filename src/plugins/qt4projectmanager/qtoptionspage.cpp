@@ -37,6 +37,7 @@
 #include "qmlobservertool.h"
 
 #include <projectexplorer/debugginghelper.h>
+#include <projectexplorer/toolchaintype.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -563,7 +564,7 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
             return;
         }
         const QSharedPointerQtVersion qtVersion = m_versions.at(index);
-        QList<ProjectExplorer::ToolChain::ToolChainType> types = qtVersion->possibleToolChainTypes();
+        QList<ProjectExplorer::ToolChainType> types = qtVersion->possibleToolChainTypes();
         QSet<QString> targets = qtVersion->supportedTargetIds();
         makeDebuggingHelperVisible(qtVersion->supportsBinaryDebuggingHelper());
         if (types.isEmpty()) {
@@ -574,13 +575,13 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
                 m_ui->errorLabel->setText(m_versions.at(index)->invalidReason());
             else
                 m_ui->errorLabel->setText(tr("This Qt Version has a unknown toolchain."));
-        } else if (types.contains(ProjectExplorer::ToolChain::MinGW)) {
+        } else if (types.contains(ProjectExplorer::ToolChain_MinGW)) {
             makeMSVCVisible(false);
             makeMingwVisible(true);
             makeS60Visible(false);
             m_ui->mingwPath->setPath(m_versions.at(index)->mingwDirectory());
-        } else if (types.contains(ProjectExplorer::ToolChain::MSVC) ||
-                   types.contains(ProjectExplorer::ToolChain::WINCE)) {
+        } else if (types.contains(ProjectExplorer::ToolChain_MSVC) ||
+                   types.contains(ProjectExplorer::ToolChain_WINCE)) {
             makeMSVCVisible(false);
             makeMingwVisible(false);
             makeS60Visible(false);

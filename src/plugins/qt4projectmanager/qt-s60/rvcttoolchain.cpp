@@ -44,7 +44,7 @@ using namespace Qt4ProjectManager::Internal;
 
 static const char rvctBinaryC[] = "armcc";
 
-RVCTToolChain::RVCTToolChain(const S60Devices::Device &device, ToolChain::ToolChainType type) :
+RVCTToolChain::RVCTToolChain(const S60Devices::Device &device, ProjectExplorer::ToolChainType type) :
     m_mixin(device),
     m_type(type),
     m_versionUpToDate(false),
@@ -102,7 +102,7 @@ QString RVCTToolChain::rvctBinary()
     return binPath.isEmpty() ? executable : (binPath + QLatin1Char('/') + executable);
 }
 
-ToolChain::ToolChainType RVCTToolChain::type() const
+ProjectExplorer::ToolChainType RVCTToolChain::type() const
 {
     return m_type;
 }
@@ -185,7 +185,7 @@ QList<HeaderPath> RVCTToolChain::systemHeaderPaths()
         if (!rvctInclude.isEmpty())
             m_systemHeaderPaths.append(HeaderPath(rvctInclude, HeaderPath::GlobalHeaderPath));
         switch (m_type) {
-        case ProjectExplorer::ToolChain::RVCT_ARMV5_GNUPOC:
+        case ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC:
             m_systemHeaderPaths += m_mixin.gnuPocRvctHeaderPaths(m_major, m_minor);
             break;
         default:
@@ -241,7 +241,7 @@ void RVCTToolChain::addToEnvironment(Utils::Environment &env)
 {
     updateVersion();
     switch (m_type) {
-    case ProjectExplorer::ToolChain::RVCT_ARMV5_GNUPOC: {
+    case ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC: {
         m_mixin.addGnuPocToEnvironment(&env);
         // setup RVCT22INC, LIB
         addToRVCTPathVariable(QLatin1String("INC"),

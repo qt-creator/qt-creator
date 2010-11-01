@@ -126,8 +126,8 @@ bool MaemoRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *confi
         return false;
     Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration*>(config);
     QTC_ASSERT(qt4bc, return false);
-    ToolChain::ToolChainType type = qt4bc->toolChainType();
-    return type == ToolChain::GCC_MAEMO;
+    const ProjectExplorer::ToolChainType type = qt4bc->toolChainType();
+    return type == ProjectExplorer::ToolChain_GCC_MAEMO;
 }
 
 QWidget *MaemoRunConfiguration::createConfigurationWidget()

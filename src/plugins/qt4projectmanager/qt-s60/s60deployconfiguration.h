@@ -33,7 +33,7 @@
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchaintype.h>
 
 namespace Qt4ProjectManager {
 class QtVersion;
@@ -59,7 +59,7 @@ public:
 
     const QtVersion *qtVersion() const;
     Qt4Target *qt4Target() const;
-    ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
+    ProjectExplorer::ToolChainType toolChainType() const;
 
     QString serialPortName() const;
     void setSerialPortName(const QString &name);

@@ -35,6 +35,7 @@
 #include "cmakebuildconfiguration.h"
 
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/gnumakeparser.h>
 

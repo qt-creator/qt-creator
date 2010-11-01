@@ -45,7 +45,7 @@
 #include <debugger/debuggerrunner.h>
 #include <debugger/debuggerengine.h>
 
-#include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchaintype.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
@@ -74,7 +74,7 @@ RunControl *MaemoDebugSupport::createDebugRunControl(MaemoRunConfiguration *runC
     if (debuggingType != MaemoRunConfiguration::DebugQmlOnly) {
         params.processArgs = runConfig->arguments();
         params.sysRoot = runConfig->sysRoot();
-        params.toolChainType = ToolChain::GCC_MAEMO;
+        params.toolChainType = ProjectExplorer::ToolChain_GCC_MAEMO;
         params.dumperLibrary = runConfig->dumperLib();
         params.remoteDumperLib = uploadDir(devConf).toUtf8() + '/'
             + QFileInfo(runConfig->dumperLib()).fileName().toUtf8();

@@ -42,6 +42,7 @@
 #include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildmanager.h>
+#include <projectexplorer/toolchain.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <extensionsystem/pluginmanager.h>
 #include <designer/formwindoweditor.h>

@@ -31,6 +31,9 @@
 #define QT4RUNCONFIGURATION_H
 
 #include <projectexplorer/applicationrunconfiguration.h>
+
+#include <utils/environment.h>
+
 #include <QtCore/QStringList>
 #include <QtGui/QWidget>
 
@@ -85,7 +88,7 @@ public:
     virtual Utils::Environment environment() const;
     virtual QString dumperLibrary() const;
     virtual QStringList dumperLibraryLocations() const;
-    virtual ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
+    virtual ProjectExplorer::ToolChainType toolChainType() const;
 
     bool isUsingDyldImageSuffix() const;
     void setUsingDyldImageSuffix(bool state);

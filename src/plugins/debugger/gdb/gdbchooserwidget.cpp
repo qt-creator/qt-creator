@@ -67,29 +67,29 @@ static QList<int> allGdbToolChains()
     QList<int> rc;
     rc
 #ifdef Q_OS_UNIX
-       << ProjectExplorer::ToolChain::GCC
-       << ProjectExplorer::ToolChain::LINUX_ICC
+       << ProjectExplorer::ToolChain_GCC
+       << ProjectExplorer::ToolChain_LINUX_ICC
 #endif
 #ifdef Q_OS_WIN
-       << ProjectExplorer::ToolChain::MinGW
-       << ProjectExplorer::ToolChain::WINSCW
-       << ProjectExplorer::ToolChain::GCCE
-       << ProjectExplorer::ToolChain::RVCT_ARMV5
-       << ProjectExplorer::ToolChain::RVCT_ARMV6
+       << ProjectExplorer::ToolChain_MinGW
+       << ProjectExplorer::ToolChain_WINSCW
+       << ProjectExplorer::ToolChain_GCCE
+       << ProjectExplorer::ToolChain_RVCT_ARMV5
+       << ProjectExplorer::ToolChain_RVCT_ARMV6
 #endif
-       << ProjectExplorer::ToolChain::GCC_MAEMO
+       << ProjectExplorer::ToolChain_GCC_MAEMO
 #ifdef Q_OS_UNIX
-       << ProjectExplorer::ToolChain::GCCE_GNUPOC
-       << ProjectExplorer::ToolChain::RVCT_ARMV5_GNUPOC
+       << ProjectExplorer::ToolChain_GCCE_GNUPOC
+       << ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC
 #endif
-       << ProjectExplorer::ToolChain::OTHER
-       << ProjectExplorer::ToolChain::UNKNOWN;
+       << ProjectExplorer::ToolChain_OTHER
+       << ProjectExplorer::ToolChain_UNKNOWN;
     return rc;
 }
 
 static inline QString toolChainName(int tc)
 {
-    return ProjectExplorer::ToolChain::toolChainName(static_cast<ProjectExplorer::ToolChain::ToolChainType>(tc));
+    return ProjectExplorer::ToolChain::toolChainName(static_cast<ProjectExplorer::ToolChainType>(tc));
 }
 
 namespace Debugger {
@@ -424,28 +424,28 @@ ToolChainSelectorWidget::ToolChainSelectorWidget(QWidget *parent) :
     // Group checkboxes into categories
     foreach(int tc, allGdbToolChains()) {
         switch (tc) {
-        case ProjectExplorer::ToolChain::GCC:
-        case ProjectExplorer::ToolChain::LINUX_ICC:
-        case ProjectExplorer::ToolChain::MinGW:
-        case ProjectExplorer::ToolChain::OTHER:
-        case ProjectExplorer::ToolChain::UNKNOWN:
+        case ProjectExplorer::ToolChain_GCC:
+        case ProjectExplorer::ToolChain_LINUX_ICC:
+        case ProjectExplorer::ToolChain_MinGW:
+        case ProjectExplorer::ToolChain_OTHER:
+        case ProjectExplorer::ToolChain_UNKNOWN:
             desktopLayout->addWidget(createToolChainCheckBox(tc));
             break;
-        case ProjectExplorer::ToolChain::MSVC:
-        case ProjectExplorer::ToolChain::WINCE:
+        case ProjectExplorer::ToolChain_MSVC:
+        case ProjectExplorer::ToolChain_WINCE:
             break;
-        case ProjectExplorer::ToolChain::WINSCW:
-        case ProjectExplorer::ToolChain::GCCE:
-        case ProjectExplorer::ToolChain::RVCT_ARMV5:
-        case ProjectExplorer::ToolChain::RVCT_ARMV6:
-        case ProjectExplorer::ToolChain::GCCE_GNUPOC:
-        case ProjectExplorer::ToolChain::RVCT_ARMV5_GNUPOC:
+        case ProjectExplorer::ToolChain_WINSCW:
+        case ProjectExplorer::ToolChain_GCCE:
+        case ProjectExplorer::ToolChain_RVCT_ARMV5:
+        case ProjectExplorer::ToolChain_RVCT_ARMV6:
+        case ProjectExplorer::ToolChain_GCCE_GNUPOC:
+        case ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC:
             symbianLayout->addWidget(createToolChainCheckBox(tc));
             break;
-        case ProjectExplorer::ToolChain::GCC_MAEMO:
+        case ProjectExplorer::ToolChain_GCC_MAEMO:
             maemoLayout->addWidget(createToolChainCheckBox(tc));
             break;
-        case ProjectExplorer::ToolChain::INVALID:
+        case ProjectExplorer::ToolChain_INVALID:
             break;
         }
     }

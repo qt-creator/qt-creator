@@ -38,7 +38,7 @@
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/buildstep.h>
-#include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchaintype.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <coreplugin/ifile.h>
 
@@ -46,6 +46,10 @@
 
 namespace Utils {
 class PathChooser;
+}
+
+namespace ProjectExplorer {
+class ToolChain;
 }
 
 namespace GenericProjectManager {
@@ -106,8 +110,8 @@ public:
     QStringList projectIncludePaths() const;
     QStringList files() const;
     QStringList generated() const;
-    ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
-    void setToolChainType(ProjectExplorer::ToolChain::ToolChainType type);
+    ProjectExplorer::ToolChainType toolChainType() const;
+    void setToolChainType(ProjectExplorer::ToolChainType type);
 
     QVariantMap toMap() const;
 
@@ -139,7 +143,7 @@ private:
 
     GenericProjectNode *m_rootNode;
     ProjectExplorer::ToolChain *m_toolChain;
-    ProjectExplorer::ToolChain::ToolChainType m_toolChainType;
+    ProjectExplorer::ToolChainType m_toolChainType;
     QFuture<void> m_codeModelFuture;
 };
 

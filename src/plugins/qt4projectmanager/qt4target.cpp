@@ -47,7 +47,7 @@
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
-#include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchaintype.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <coreplugin/coreconstants.h>
 #include <symbianutils/symbiandevicemanager.h>
@@ -310,7 +310,7 @@ Qt4BuildConfiguration *Qt4Target::addQt4BuildConfiguration(QString displayName, 
 
     // Finally set the qt version & ToolChain
     bc->setQtVersion(qtversion);
-    ToolChain::ToolChainType defaultTc = preferredToolChainType(filterToolChainTypes(bc->qtVersion()->possibleToolChainTypes()));
+    ProjectExplorer::ToolChainType defaultTc = preferredToolChainType(filterToolChainTypes(bc->qtVersion()->possibleToolChainTypes()));
     bc->setToolChainType(defaultTc);
     if (!directory.isEmpty())
         bc->setShadowBuildAndDirectory(directory != project()->projectDirectory(), directory);
@@ -342,27 +342,27 @@ void Qt4Target::addRunConfigurationForPath(const QString &proFilePath)
         addRunConfiguration(new MaemoRunConfiguration(this, proFilePath));
 }
 
-QList<ToolChain::ToolChainType> Qt4Target::filterToolChainTypes(const QList<ToolChain::ToolChainType> &candidates) const
+QList<ProjectExplorer::ToolChainType> Qt4Target::filterToolChainTypes(const QList<ProjectExplorer::ToolChainType> &candidates) const
 {
-    QList<ToolChain::ToolChainType> tmp(candidates);
+    QList<ProjectExplorer::ToolChainType> tmp(candidates);
     if (id() == QLatin1String(Constants::S60_EMULATOR_TARGET_ID)) {
-        if (tmp.contains(ToolChain::WINSCW))
-            return QList<ToolChain::ToolChainType>() << ToolChain::WINSCW;
+        if (tmp.contains(ProjectExplorer::ToolChain_WINSCW))
+            return QList<ProjectExplorer::ToolChainType>() << ProjectExplorer::ToolChain_WINSCW;
         else
-            return QList<ToolChain::ToolChainType>();
+            return QList<ProjectExplorer::ToolChainType>();
     } else if (id() == QLatin1String(Constants::S60_DEVICE_TARGET_ID)) {
-        tmp.removeAll(ToolChain::WINSCW);
+        tmp.removeAll(ProjectExplorer::ToolChain_WINSCW);
         return tmp;
     }
     return tmp;
 }
 
-ToolChain::ToolChainType Qt4Target::preferredToolChainType(const QList<ToolChain::ToolChainType> &candidates) const
+ProjectExplorer::ToolChainType Qt4Target::preferredToolChainType(const QList<ProjectExplorer::ToolChainType> &candidates) const
 {
-    ToolChain::ToolChainType preferredType = ToolChain::INVALID;
+    ProjectExplorer::ToolChainType preferredType = ProjectExplorer::ToolChain_INVALID;
     if (id() == QLatin1String(Constants::S60_EMULATOR_TARGET_ID) &&
-        candidates.contains(ToolChain::WINSCW))
-        preferredType = ToolChain::WINSCW;
+        candidates.contains(ProjectExplorer::ToolChain_WINSCW))
+        preferredType = ProjectExplorer::ToolChain_WINSCW;
     if (!candidates.isEmpty())
         preferredType = candidates.at(0);
     return preferredType;

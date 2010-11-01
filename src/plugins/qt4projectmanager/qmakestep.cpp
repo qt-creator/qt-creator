@@ -135,8 +135,8 @@ QStringList QMakeStep::moreArguments()
     Qt4BuildConfiguration *bc = qt4BuildConfiguration();
     QStringList arguments;
 #if defined(Q_OS_WIN) || defined(Q_OS_MAC)
-    ToolChain::ToolChainType type = bc->toolChainType();
-    if (type == ToolChain::GCC_MAEMO)
+    const ProjectExplorer::ToolChainType type = bc->toolChainType();
+    if (type == ProjectExplorer::ToolChain_GCC_MAEMO)
         arguments << QLatin1String("-unix");
 #endif
     if (bc->target()->id() == Constants::S60_DEVICE_TARGET_ID

@@ -1741,14 +1741,14 @@ void addCdbOptionPages(QList<Core::IOptionsPage *> *opts)
 
 bool checkCdbConfiguration(int toolChainI, QString *errorMsg, QString *settingsPage)
 {
-    const ProjectExplorer::ToolChain::ToolChainType toolChain = static_cast<ProjectExplorer::ToolChain::ToolChainType>(toolChainI);
+    const ProjectExplorer::ToolChainType toolChain = static_cast<ProjectExplorer::ToolChainType>(toolChainI);
     switch (toolChain) {
-    case ProjectExplorer::ToolChain::MinGW: // Do our best
-    case ProjectExplorer::ToolChain::MSVC:
-    case ProjectExplorer::ToolChain::WINCE:
-    case ProjectExplorer::ToolChain::OTHER:
-    case ProjectExplorer::ToolChain::UNKNOWN:
-    case ProjectExplorer::ToolChain::INVALID:
+    case ProjectExplorer::ToolChain_MinGW: // Do our best
+    case ProjectExplorer::ToolChain_MSVC:
+    case ProjectExplorer::ToolChain_WINCE:
+    case ProjectExplorer::ToolChain_OTHER:
+    case ProjectExplorer::ToolChain_UNKNOWN:
+    case ProjectExplorer::ToolChain_INVALID:
         break;
     default:
         //: %1 is something like "GCCE" or "Intel C++ Compiler (Linux)" (see ToolChain context)
