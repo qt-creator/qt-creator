@@ -11,7 +11,7 @@ QT       += gui
 include(../../../qtcreator.pri)
 
 # -- Add creator 'utils' lib
-
+macx:QMAKE_LFLAGS += -Wl,-rpath,\"$$IDE_BIN_PATH/..\"
 LIBS *= -l$$qtLibraryName(Utils)
 
 TARGET = process
