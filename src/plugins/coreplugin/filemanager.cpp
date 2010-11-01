@@ -779,6 +779,8 @@ QStringList FileManager::getOpenFileNames(const QString &filters,
     if (path.isEmpty()) {
         if (!d->m_currentFile.isEmpty())
             path = QFileInfo(d->m_currentFile).absoluteFilePath();
+        if (path.isEmpty() && useProjectsDirectory())
+            path = projectsDirectory();
     }
     const QStringList files = QFileDialog::getOpenFileNames(d->m_mainWindow,
                                                       tr("Open File"),
