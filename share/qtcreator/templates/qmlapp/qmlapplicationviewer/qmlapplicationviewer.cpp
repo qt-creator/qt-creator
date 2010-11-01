@@ -99,6 +99,7 @@ void QmlApplicationViewer::setOrientation(ScreenOrientation orientation)
             if (appUi)
                 appUi->SetOrientationL(uiOrientation);
         );
+        Q_UNUSED(error)
 #else // ORIENTATIONLOCK
         qWarning("'ORIENTATIONLOCK' needs to be defined on Symbian when locking the orientation.");
 #endif // ORIENTATIONLOCK
