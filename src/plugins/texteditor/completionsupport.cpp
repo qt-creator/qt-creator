@@ -40,11 +40,7 @@
 #include <QtCore/QString>
 #include <QtCore/QList>
 
-#include <algorithm>
-
-using namespace TextEditor;
-using namespace TextEditor::Internal;
-
+namespace TextEditor {
 
 CompletionSupport *CompletionSupport::instance()
 {
@@ -54,48 +50,68 @@ CompletionSupport *CompletionSupport::instance()
     return m_instance;
 }
 
-CompletionSupport::CompletionSupport()
-    : QObject(Core::ICore::instance()),
-      m_completionList(0),
-      m_startPosition(0),
-      m_checkCompletionTrigger(false),
-      m_editor(0),
-      m_completionCollector(0)
+class CompletionSupportPrivate {
+public:
+    CompletionSupportPrivate();
+
+    Internal::CompletionWidget *m_completionList;
+    int m_startPosition;
+    bool m_checkCompletionTrigger;          // Whether to check for completion trigger after cleanup
+    ITextEditable *m_editor;
+    const QList<ICompletionCollector *> m_completionCollectors;
+    ICompletionCollector *m_completionCollector;
+};
+
+CompletionSupportPrivate::CompletionSupportPrivate() :
+    m_completionList(0),
+    m_startPosition(0),
+    m_checkCompletionTrigger(false),
+    m_editor(0),
+    m_completionCollectors(ExtensionSystem::PluginManager::instance()
+                           ->getObjects<ICompletionCollector>()),
+    m_completionCollector(0)
 {
-    m_completionCollectors = ExtensionSystem::PluginManager::instance()
-        ->getObjects<ICompletionCollector>();
+}
+
+CompletionSupport::CompletionSupport() :
+    QObject(Core::ICore::instance()), d(new CompletionSupportPrivate)
+{
+}
+
+CompletionSupport::~CompletionSupport()
+{
 }
 
 void CompletionSupport::performCompletion(const CompletionItem &item)
 {
-    item.collector->complete(item, m_completionList->typedChar());
-    m_checkCompletionTrigger = true;
+    item.collector->complete(item, d->m_completionList->typedChar());
+    d->m_checkCompletionTrigger = true;
 }
 
 void CompletionSupport::cleanupCompletions()
 {
-    if (m_completionList)
-        disconnect(m_completionList, SIGNAL(destroyed(QObject*)),
+    if (d->m_completionList)
+        disconnect(d->m_completionList, SIGNAL(destroyed(QObject*)),
                    this, SLOT(cleanupCompletions()));
 
-    if (m_checkCompletionTrigger)
-        m_checkCompletionTrigger = m_completionCollector->shouldRestartCompletion();
+    if (d->m_checkCompletionTrigger)
+        d->m_checkCompletionTrigger = d->m_completionCollector->shouldRestartCompletion();
 
-    m_completionList = 0;
-    m_completionCollector->cleanup();
+    d->m_completionList = 0;
+    d->m_completionCollector->cleanup();
 
-    if (m_checkCompletionTrigger) {
-        m_checkCompletionTrigger = false;
+    if (d->m_checkCompletionTrigger) {
+        d->m_checkCompletionTrigger = false;
 
         // Only check for completion trigger when some text was entered
-        if (m_editor->position() > m_startPosition)
-            autoComplete(m_editor, false);
+        if (d->m_editor->position() > d->m_startPosition)
+            autoComplete(d->m_editor, false);
     }
 }
 
 bool CompletionSupport::isActive() const
 {
-    return m_completionList != 0;
+    return d->m_completionList != 0;
 }
 
 void CompletionSupport::autoComplete(ITextEditable *editor, bool forced)
@@ -113,68 +129,68 @@ void CompletionSupport::quickFix(ITextEditable *editor)
 void CompletionSupport::autoComplete_helper(ITextEditable *editor, bool forced,
                                             bool quickFix)
 {
-    m_completionCollector = 0;
+    d->m_completionCollector = 0;
 
-    foreach (ICompletionCollector *collector, m_completionCollectors) {
+    foreach (ICompletionCollector *collector, d->m_completionCollectors) {
         if (quickFix)
             collector = qobject_cast<IQuickFixCollector *>(collector);
 
         if (collector && collector->supportsEditor(editor)) {
-            m_completionCollector = collector;
+            d->m_completionCollector = collector;
             break;
         }
     }
 
-    if (!m_completionCollector)
+    if (!d->m_completionCollector)
         return;
 
-    m_editor = editor;
+    d->m_editor = editor;
     QList<CompletionItem> completionItems;
 
     int currentIndex = 0;
 
-    if (!m_completionList) {
+    if (!d->m_completionList) {
         if (!forced) {
-            const CompletionSettings &completionSettings = m_completionCollector->completionSettings();
+            const CompletionSettings &completionSettings = d->m_completionCollector->completionSettings();
             if (completionSettings.m_completionTrigger == ManualCompletion)
                 return;
-            if (!m_completionCollector->triggersCompletion(editor))
+            if (!d->m_completionCollector->triggersCompletion(editor))
                 return;
         }
 
-        m_startPosition = m_completionCollector->startCompletion(editor);
+        d->m_startPosition = d->m_completionCollector->startCompletion(editor);
         completionItems = getCompletions();
 
-        QTC_ASSERT(!(m_startPosition == -1 && completionItems.size() > 0), return);
+        QTC_ASSERT(!(d->m_startPosition == -1 && completionItems.size() > 0), return);
 
         if (completionItems.isEmpty()) {
             cleanupCompletions();
             return;
         }
 
-        m_completionList = new CompletionWidget(this, editor);
-        m_completionList->setQuickFix(quickFix);
+        d->m_completionList = new Internal::CompletionWidget(this, editor);
+        d->m_completionList->setQuickFix(quickFix);
 
-        connect(m_completionList, SIGNAL(itemSelected(TextEditor::CompletionItem)),
+        connect(d->m_completionList, SIGNAL(itemSelected(TextEditor::CompletionItem)),
                 this, SLOT(performCompletion(TextEditor::CompletionItem)));
-        connect(m_completionList, SIGNAL(completionListClosed()),
+        connect(d->m_completionList, SIGNAL(completionListClosed()),
                 this, SLOT(cleanupCompletions()));
 
         // Make sure to clean up the completions if the list is destroyed without
         // emitting completionListClosed (can happen when no focus out event is received,
         // for example when switching applications on the Mac)
-        connect(m_completionList, SIGNAL(destroyed(QObject*)),
+        connect(d->m_completionList, SIGNAL(destroyed(QObject*)),
                 this, SLOT(cleanupCompletions()));
     } else {
         completionItems = getCompletions();
 
         if (completionItems.isEmpty()) {
-            m_completionList->closeList();
+            d->m_completionList->closeList();
             return;
         }
 
-        if (m_completionList->explicitlySelected()) {
-            const int originalIndex = m_completionList->currentCompletionItem().originalIndex;
+        if (d->m_completionList->explicitlySelected()) {
+            const int originalIndex = d->m_completionList->currentCompletionItem().originalIndex;
 
             for (int index = 0; index < completionItems.size(); ++index) {
                 if (completionItems.at(index).originalIndex == originalIndex) {
@@ -185,24 +201,26 @@ void CompletionSupport::autoComplete_helper(ITextEditable *editor, bool forced,
         }
     }
 
-    m_completionList->setCompletionItems(completionItems);
+    d->m_completionList->setCompletionItems(completionItems);
 
     if (currentIndex)
-        m_completionList->setCurrentIndex(currentIndex);
+        d->m_completionList->setCurrentIndex(currentIndex);
 
     // Partially complete when completion was forced
-    if (forced && m_completionCollector->partiallyComplete(completionItems)) {
-        m_checkCompletionTrigger = true;
-        m_completionList->closeList();
+    if (forced && d->m_completionCollector->partiallyComplete(completionItems)) {
+        d->m_checkCompletionTrigger = true;
+        d->m_completionList->closeList();
     } else {
-        m_completionList->showCompletions(m_startPosition);
+        d->m_completionList->showCompletions(d->m_startPosition);
     }
 }
 
 QList<CompletionItem> CompletionSupport::getCompletions() const
 {
-    if (m_completionCollector)
-        return m_completionCollector->getCompletions();
+    if (d->m_completionCollector)
+        return d->m_completionCollector->getCompletions();
 
     return QList<CompletionItem>();
 }
+
+} // namespace TextEditor

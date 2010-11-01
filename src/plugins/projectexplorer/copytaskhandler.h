@@ -30,14 +30,12 @@
 #ifndef PROJECTEXPLORER_COPYTASKHANDLER_H
 #define PROJECTEXPLORER_COPYTASKHANDLER_H
 
-#include "projectexplorer_export.h"
-
 #include "itaskhandler.h"
 
 namespace ProjectExplorer {
 namespace Internal {
 
-class PROJECTEXPLORER_EXPORT CopyTaskHandler : public ITaskHandler
+class CopyTaskHandler : public ITaskHandler
 {
     Q_OBJECT
 

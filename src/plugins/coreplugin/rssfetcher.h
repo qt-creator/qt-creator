@@ -33,16 +33,15 @@
 #include "core_global.h"
 
 #include <QtCore/QThread>
-#include <QtCore/QUrl>
 
 QT_BEGIN_NAMESPACE
+class QUrl;
 class QNetworkReply;
 class QNetworkAccessManager;
 class QIODevice;
 QT_END_NAMESPACE
 
 namespace Core {
-namespace Internal {
 
 class CORE_EXPORT RssItem
 {
@@ -64,7 +63,7 @@ public:
 
 signals:
     void newsItemReady(const QString& title, const QString& desciption, const QString& url);
-    void rssItemReady(const RssItem& item);
+    void rssItemReady(const Core::RssItem& item);
     void finished(bool error);
 
 public slots:
@@ -84,7 +83,6 @@ private:
     QNetworkAccessManager* m_networkAccessManager;
 };
 
-} // namespace Core
 } // namespace Internal
 
 #endif // RSSFETCHER_H

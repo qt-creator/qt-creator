@@ -81,7 +81,6 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/filemanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/mainwindow.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -112,6 +111,7 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
+#include <QtGui/QMainWindow>
 
 Q_DECLARE_METATYPE(Core::IEditorFactory*);
 Q_DECLARE_METATYPE(Core::IExternalEditor*);

@@ -278,7 +278,7 @@ private slots:
     void forceSemanticRehighlight();
     void updateSemanticInfo(const QmlJSEditor::Internal::SemanticInfo &semanticInfo);
     void onCursorPositionChanged();
-    void onRefactorMarkerClicked(const TextEditor::Internal::RefactorMarker &marker);
+    void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker);
 
     void performQuickFix(int index);
 

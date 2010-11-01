@@ -28,14 +28,13 @@
 **************************************************************************/
 
 #include "texteditoroverlay.h"
+#include "basetexteditor.h"
 
 #include <QtGui/QPainter>
 #include <QtGui/QTextBlock>
 
 using namespace TextEditor;
 using namespace TextEditor::Internal;
-
-
 
 TextEditorOverlay::TextEditorOverlay(BaseTextEditor *editor)
     :QObject(editor) {

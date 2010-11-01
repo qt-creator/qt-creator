@@ -30,7 +30,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "core_global.h"
 #include "icontext.h"
 #include "icore.h"
 #include "dialogs/iwizard.h"
@@ -81,7 +80,7 @@ class StatusBarManager;
 class VersionDialog;
 class SystemEditor;
 
-class CORE_EXPORT MainWindow : public EventFilteringMainWindow
+class MainWindow : public EventFilteringMainWindow
 {
     Q_OBJECT
 

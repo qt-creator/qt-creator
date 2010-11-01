@@ -37,7 +37,6 @@
 #include <utils/stylehelper.h>
 
 #include <coreplugin/icore.h>
-#include <coreplugin/mainwindow.h>
 #include <coreplugin/coreconstants.h>
 
 #include <projectexplorer/projectexplorer.h>
@@ -57,6 +56,7 @@
 #include <QtGui/QPainter>
 #include <QtGui/QAction>
 #include <QtGui/QItemDelegate>
+#include <QtGui/QMainWindow>
 
 #include <QtGui/QApplication>
 

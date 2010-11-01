@@ -38,11 +38,11 @@ namespace TextEditor {
 
 class CompletionItem;
 class ITextEditable;
+class CompletionSupport;
 
 namespace Internal {
 
 class AutoCompletionModel;
-class CompletionSupport;
 class CompletionListView;
 class CompletionInfoFrame;
 

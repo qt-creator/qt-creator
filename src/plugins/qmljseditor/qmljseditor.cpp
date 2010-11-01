@@ -751,8 +751,8 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     connect(m_semanticHighlighter, SIGNAL(changed(QmlJSEditor::Internal::SemanticInfo)),
             this, SLOT(updateSemanticInfo(QmlJSEditor::Internal::SemanticInfo)));
 
-    connect(this, SIGNAL(refactorMarkerClicked(TextEditor::Internal::RefactorMarker)),
-            SLOT(onRefactorMarkerClicked(TextEditor::Internal::RefactorMarker)));
+    connect(this, SIGNAL(refactorMarkerClicked(TextEditor::RefactorMarker)),
+            SLOT(onRefactorMarkerClicked(TextEditor::RefactorMarker)));
 
     setRequestMarkEnabled(true);
 }
@@ -986,21 +986,21 @@ void QmlJSTextEditor::updateCursorPositionNow()
             m_contextPane->apply(editableInterface(), semanticInfo().document, LookupContext::Ptr(),newNode, false);
         if (m_contextPane->isAvailable(editableInterface(), semanticInfo().document, newNode) &&
             !m_contextPane->widget()->isVisible()) {
-            QList<TextEditor::Internal::RefactorMarker> markers;
+            QList<TextEditor::RefactorMarker> markers;
             if (UiObjectMember *m = newNode->uiObjectMemberCast()) {
                 const int start = qualifiedTypeNameId(m)->identifierToken.begin();
                 for (UiQualifiedId *q = qualifiedTypeNameId(m); q; q = q->next) {
                     if (! q->next) {
                         const int end = q->identifierToken.end();
                         if (position() >= start && position() <= end) {
-                            TextEditor::Internal::RefactorMarker marker;
+                            TextEditor::RefactorMarker marker;
                             QTextCursor tc(document());
                             tc.setPosition(end);
                             marker.cursor = tc;
                             marker.tooltip = tr("Show Qt Quick ToolBar");
                             markers.append(marker);
                         } else {
-                             QList<TextEditor::Internal::RefactorMarker> markers;
+                             QList<TextEditor::RefactorMarker> markers;
                              setRefactorMarkers(markers);
                         }
                     }
@@ -1008,7 +1008,7 @@ void QmlJSTextEditor::updateCursorPositionNow()
             }
             setRefactorMarkers(markers);
         } else if (oldNode != newNode) {
-            QList<TextEditor::Internal::RefactorMarker> markers;
+            QList<TextEditor::RefactorMarker> markers;
             setRefactorMarkers(markers);
         }
         m_oldCursorPosition = position();
@@ -1456,7 +1456,7 @@ void QmlJSTextEditor::showContextPane()
         Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
         m_contextPane->apply(editableInterface(), m_semanticInfo.document, m_semanticInfo.lookupContext(), newNode, false, true);
         m_oldCursorPosition = position();
-        QList<TextEditor::Internal::RefactorMarker> markers;
+        QList<TextEditor::RefactorMarker> markers;
         setRefactorMarkers(markers);
     }
 }
@@ -1814,7 +1814,7 @@ void QmlJSTextEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
     setExtraSelections(CodeWarningsSelection, selections);
 }
 
-void QmlJSTextEditor::onRefactorMarkerClicked(const TextEditor::Internal::RefactorMarker &)
+void QmlJSTextEditor::onRefactorMarkerClicked(const TextEditor::RefactorMarker &)
 {
     showContextPane();
 }

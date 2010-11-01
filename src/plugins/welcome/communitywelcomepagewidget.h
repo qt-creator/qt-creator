@@ -37,9 +37,7 @@ class QUrl;
 QT_END_NAMESPACE
 
 namespace Core{
-namespace Internal {
-    class RssFetcher;
-}
+class RssFetcher;
 }
 
 namespace Welcome {
@@ -65,7 +63,7 @@ private slots:
 
 
 private:
-    Core::Internal::RssFetcher *m_rssFetcher;
+    Core::RssFetcher *m_rssFetcher;
     Ui::CommunityWelcomePageWidget *ui;
 };
 

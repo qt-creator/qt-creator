@@ -257,7 +257,7 @@ void QmlJSEditorPlugin::initializeEditor(QmlJSEditor::Internal::QmlJSTextEditor 
 
     // auto completion
     connect(editor, SIGNAL(requestAutoCompletion(TextEditor::ITextEditable*, bool)),
-            TextEditor::Internal::CompletionSupport::instance(), SLOT(autoComplete(TextEditor::ITextEditable*, bool)));
+            TextEditor::CompletionSupport::instance(), SLOT(autoComplete(TextEditor::ITextEditable*, bool)));
 
     // quick fix
     connect(editor, SIGNAL(requestQuickFix(TextEditor::ITextEditable*)),
@@ -323,7 +323,7 @@ void QmlJSEditorPlugin::quickFixNow()
                 // ### FIXME: m_quickFixTimer->start(QUICKFIX_INTERVAL);
                 m_quickFixTimer->stop();
             } else {
-                TextEditor::Internal::CompletionSupport::instance()->quickFix(m_currentTextEditable);
+                TextEditor::CompletionSupport::instance()->quickFix(m_currentTextEditable);
             }
         }
     }

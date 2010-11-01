@@ -34,6 +34,7 @@
 #include <QtCore/QSysInfo>
 #include <QtCore/QLocale>
 #include <QtCore/QEventLoop>
+#include <QtCore/QUrl>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QLineEdit>
 #include <QtNetwork/QNetworkReply>
@@ -48,7 +49,7 @@
 #include <sys/utsname.h>
 #endif
 
-using namespace Core::Internal;
+namespace Core {
 
 static const QString getOsString()
 {
@@ -119,7 +120,7 @@ RssFetcher::RssFetcher(int maxItems)
     : QThread(0), m_maxItems(maxItems), m_items(0),
        m_requestCount(0), m_networkAccessManager(0)
 {
-    qRegisterMetaType<RssItem>("RssItem");
+    qRegisterMetaType<Core::RssItem>("Core::RssItem");
     moveToThread(this);
 }
 
@@ -241,3 +242,5 @@ void RssFetcher::parseXml(QIODevice *device)
                  qPrintable(item.title));
     }
 }
+
+} // namespace Core

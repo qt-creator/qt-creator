@@ -39,11 +39,11 @@
 #include "toolchaintype.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/mainwindow.h>
 #include <coreplugin/ifile.h>
 #include <utils/qtcassert.h>
 
 #include <QtGui/QApplication>
+#include <QtGui/QMainWindow>
 #include <QtCore/QFile>
 #include <QtGui/QMessageBox>
 #include <QtNetwork/QHostInfo>

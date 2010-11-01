@@ -42,13 +42,9 @@ class QMenu;
 QT_END_NAMESPACE
 
 namespace Core {
-    namespace Internal {
-    class RssFetcher;
-    class RssItem;
-    }
+class RssFetcher;
+class RssItem;
 }
-
-using namespace Core::Internal;
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -98,7 +94,7 @@ private slots:
     void slotNextFeature();
     void slotPrevFeature();
     void slotCreateNewProject();
-    void addToFeatures(const RssItem&);
+    void addToFeatures(const Core::RssItem&);
     void showFeature(int feature = -1);
 
 signals:
@@ -111,8 +107,8 @@ private:
     Ui::GettingStartedWelcomePageWidget *ui;
     int m_currentTip;
     int m_currentFeature;
-    QList<Core::Internal::RssItem> m_featuredItems;
-    Core::Internal::RssFetcher *m_rssFetcher;
+    QList<Core::RssItem> m_featuredItems;
+    Core::RssFetcher *m_rssFetcher;
 };
 
 } // namespace Internal

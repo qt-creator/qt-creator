@@ -5655,10 +5655,10 @@ QString BaseTextEditorEditable::contextHelpId() const
 
 void BaseTextEditor::setRefactorMarkers(const Internal::RefactorMarkers &markers)
 {
-    foreach (const Internal::RefactorMarker &marker, d->m_refactorOverlay->markers())
+    foreach (const RefactorMarker &marker, d->m_refactorOverlay->markers())
         requestBlockUpdate(marker.cursor.block());
     d->m_refactorOverlay->setMarkers(markers);
-    foreach (const Internal::RefactorMarker &marker, markers)
+    foreach (const RefactorMarker &marker, markers)
         requestBlockUpdate(marker.cursor.block());
 }
 

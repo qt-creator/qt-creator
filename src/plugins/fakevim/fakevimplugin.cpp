@@ -906,7 +906,7 @@ void FakeVimPluginPrivate::triggerCompletions()
     if (!handler)
         return;
     if (BaseTextEditor *bt = qobject_cast<BaseTextEditor *>(handler->widget()))
-        TextEditor::Internal::CompletionSupport::instance()->
+        TextEditor::CompletionSupport::instance()->
             autoComplete(bt->editableInterface(), false);
    //     bt->triggerCompletions();
 }

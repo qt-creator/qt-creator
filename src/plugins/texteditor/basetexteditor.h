@@ -50,36 +50,13 @@ namespace Utils {
 
 namespace TextEditor {
 class TabSettings;
+class RefactorOverlay;
+struct RefactorMarker;
 
 namespace Internal {
     class BaseTextEditorPrivate;
     class TextEditorOverlay;
-    class RefactorOverlay;
-    struct RefactorMarker;
     typedef QList<RefactorMarker> RefactorMarkers;
-
-    class TEXTEDITOR_EXPORT BaseTextBlockSelection
-    {
-    public:
-
-        bool isValid() const{ return !firstBlock.isNull() && !lastBlock.isNull(); }
-        void clear() { firstBlock = lastBlock = QTextCursor(); }
-
-        QTextCursor firstBlock; // defines the first block
-        QTextCursor lastBlock; // defines the last block
-        int firstVisualColumn; // defines the first visual column of the selection
-        int lastVisualColumn; // defines the last visual column of the selection
-        enum Anchor {TopLeft = 0, TopRight, BottomLeft, BottomRight} anchor;
-        BaseTextBlockSelection():firstVisualColumn(0), lastVisualColumn(0), anchor(BottomRight){}
-        void moveAnchor(int blockNumber, int visualColumn);
-        inline int anchorColumnNumber() const { return (anchor % 2) ? lastVisualColumn : firstVisualColumn; }
-        inline int anchorBlockNumber() const {
-            return (anchor <= TopRight ? firstBlock.blockNumber() : lastBlock.blockNumber()); }
-        QTextCursor selection(const TabSettings &ts) const;
-        void fromSelection(const TabSettings &ts, const QTextCursor &selection);
-    };
-
-
 }
 
 class ITextMarkable;
@@ -351,7 +328,7 @@ private:
     Internal::BaseTextEditorPrivate *d;
     friend class Internal::BaseTextEditorPrivate;
     friend class Internal::TextEditorOverlay;
-    friend class Internal::RefactorOverlay;
+    friend class RefactorOverlay;
 
 public:
     QWidget *extraArea() const;
@@ -387,7 +364,7 @@ public:
 
     void setRefactorMarkers(const Internal::RefactorMarkers &markers);
 signals:
-    void refactorMarkerClicked(const TextEditor::Internal::RefactorMarker &marker);
+    void refactorMarkerClicked(const TextEditor::RefactorMarker &marker);
 
 public:
 

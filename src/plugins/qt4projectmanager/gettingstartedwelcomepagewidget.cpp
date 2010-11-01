@@ -34,7 +34,6 @@
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/mainwindow.h>
 #include <coreplugin/rssfetcher.h>
 #include <projectexplorer/projectexplorer.h>
 
@@ -59,8 +58,6 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QMenu>
 #include <QtGui/QDesktopServices>
-
-using namespace Core::Internal;
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -119,8 +116,8 @@ GettingStartedWelcomePageWidget::GettingStartedWelcomePageWidget(QWidget *parent
     ui->openProjectButton->setIcon(
             QIcon::fromTheme(QLatin1String("document-open"), ui->openProjectButton->icon()));
 
-    m_rssFetcher = new RssFetcher;
-    connect (m_rssFetcher, SIGNAL(rssItemReady(const RssItem&)), SLOT(addToFeatures(const RssItem&)));
+    m_rssFetcher = new Core::RssFetcher;
+    connect (m_rssFetcher, SIGNAL(rssItemReady(Core::RssItem)), SLOT(addToFeatures(Core::RssItem)));
     connect (m_rssFetcher, SIGNAL(finished(bool)), SLOT(showFeature()), Qt::QueuedConnection);
     connect(this, SIGNAL(startRssFetching(QUrl)), m_rssFetcher, SLOT(fetch(QUrl)), Qt::QueuedConnection);
     m_rssFetcher->start(QThread::LowestPriority);
@@ -486,7 +483,7 @@ QStringList GettingStartedWelcomePageWidget::tipsOfTheDay()
     return tips;
 }
 
-void GettingStartedWelcomePageWidget::addToFeatures(const RssItem &feature)
+void GettingStartedWelcomePageWidget::addToFeatures(const Core::RssItem &feature)
 {
     m_featuredItems.append(feature);
     ui->nextFeatureBtn->setEnabled(true);
@@ -503,7 +500,7 @@ void GettingStartedWelcomePageWidget::showFeature(int feature)
         m_currentFeature = rand()%m_featuredItems.count();
     }
 
-    RssItem item = m_featuredItems.at(m_currentFeature);
+    const Core::RssItem &item = m_featuredItems.at(m_currentFeature);
     ui->featuredTextLabel->setTextFormat(Qt::RichText);
     QString text = QString::fromLatin1("<b style='color: rgb(85, 85, 85);'>%1</b><br><b>%2</b><br/><br/>%3").arg(item.category).arg(item.title).arg(item.description);
     ui->featuredTextLabel->setText(text);

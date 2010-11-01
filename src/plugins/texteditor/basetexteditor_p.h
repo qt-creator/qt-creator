@@ -53,6 +53,27 @@ class TextEditorActionHandler;
 
 namespace Internal {
 
+class TEXTEDITOR_EXPORT BaseTextBlockSelection
+{
+public:
+
+    bool isValid() const{ return !firstBlock.isNull() && !lastBlock.isNull(); }
+    void clear() { firstBlock = lastBlock = QTextCursor(); }
+
+    QTextCursor firstBlock; // defines the first block
+    QTextCursor lastBlock; // defines the last block
+    int firstVisualColumn; // defines the first visual column of the selection
+    int lastVisualColumn; // defines the last visual column of the selection
+    enum Anchor {TopLeft = 0, TopRight, BottomLeft, BottomRight} anchor;
+    BaseTextBlockSelection():firstVisualColumn(0), lastVisualColumn(0), anchor(BottomRight){}
+    void moveAnchor(int blockNumber, int visualColumn);
+    inline int anchorColumnNumber() const { return (anchor % 2) ? lastVisualColumn : firstVisualColumn; }
+    inline int anchorBlockNumber() const {
+        return (anchor <= TopRight ? firstBlock.blockNumber() : lastBlock.blockNumber()); }
+    QTextCursor selection(const TabSettings &ts) const;
+    void fromSelection(const TabSettings &ts, const QTextCursor &selection);
+};
+
 //========== Pointers with reference count ==========
 
 template <class T> class QRefCountData : public QSharedData

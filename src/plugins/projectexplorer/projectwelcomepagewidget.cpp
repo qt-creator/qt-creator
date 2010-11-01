@@ -36,7 +36,6 @@
 #include <coreplugin/modemanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/dialogs/iwizard.h>
-#include <coreplugin/mainwindow.h>
 #include <coreplugin/filemanager.h>
 
 #include <utils/stringutils.h>

@@ -125,6 +125,8 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
     m_page->setupUi(w);
 
     QSettings* settings = Core::ICore::instance()->settings();
+    Q_UNUSED(settings) // Windows
+
     fillLanguageBox();
 
     m_page->colorButton->setColor(StyleHelper::requestedBaseColor());

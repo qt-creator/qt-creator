@@ -40,9 +40,7 @@ class CompletionItem;
 class ICompletionCollector;
 class ITextEditable;
 
-namespace Internal {
-
-class CompletionWidget;
+class CompletionSupportPrivate;
 
 /* Completion support is responsible for querying the list of completion collectors
    and popping up the CompletionWidget with the available completions.
@@ -52,7 +50,7 @@ class TEXTEDITOR_EXPORT CompletionSupport : public QObject
     Q_OBJECT
 
 public:
-    CompletionSupport();
+    virtual ~CompletionSupport();
 
     static CompletionSupport *instance();
 
@@ -67,18 +65,14 @@ private slots:
     void cleanupCompletions();
 
 private:
+    CompletionSupport();
+
     QList<CompletionItem> getCompletions() const;
     void autoComplete_helper(ITextEditable *editor, bool forced, bool quickFix);
 
-    CompletionWidget *m_completionList;
-    int m_startPosition;
-    bool m_checkCompletionTrigger;          // Whether to check for completion trigger after cleanup
-    ITextEditable *m_editor;
-    QList<ICompletionCollector *> m_completionCollectors;
-    ICompletionCollector *m_completionCollector;
+    QScopedPointer<CompletionSupportPrivate> d;
 };
 
-} // namespace Internal
 } // namespace TextEditor
 
 #endif // COMPLETIONSUPPORT_H

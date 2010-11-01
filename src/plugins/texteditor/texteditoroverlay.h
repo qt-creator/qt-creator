@@ -30,13 +30,20 @@
 #ifndef TEXTEDITOROVERLAY_H
 #define TEXTEDITOROVERLAY_H
 
-#include <QtGui/QWidget>
-#include "basetexteditor.h"
+#include <QtCore/QObject>
+
+#include <QtGui/QTextCursor>
+#include <QtGui/QColor>
+
+QT_FORWARD_DECLARE_CLASS(QWidget)
 
 namespace TextEditor {
+class BaseTextEditor;
+
 namespace Internal {
 
-struct TEXTEDITOR_EXPORT OverlaySelection {
+struct OverlaySelection
+{
     OverlaySelection():m_fixedLength(-1), m_dropShadow(false){}
     QTextCursor m_cursor_begin;
     QTextCursor m_cursor_end;
@@ -44,22 +51,22 @@ struct TEXTEDITOR_EXPORT OverlaySelection {
     QColor m_bg;
     int m_fixedLength;
     bool m_dropShadow;
-    };
+};
 
-class TEXTEDITOR_EXPORT TextEditorOverlay : public QObject
+class TextEditorOverlay : public QObject
 {
-Q_OBJECT
-BaseTextEditor *m_editor;
-QWidget *m_viewport;
+    Q_OBJECT
+    BaseTextEditor *m_editor;
+    QWidget *m_viewport;
 
 public:
-QList<OverlaySelection> m_selections;
-private:
+    QList<OverlaySelection> m_selections;
 
-bool m_visible;
-int m_borderWidth;
-int m_dropShadowWidth;
-bool m_alpha;
+private:
+    bool m_visible;
+    int m_borderWidth;
+    int m_dropShadowWidth;
+    bool m_alpha;
 
 public:
     TextEditorOverlay(BaseTextEditor *editor);
@@ -103,7 +110,6 @@ private:
     QPainterPath createSelectionPath(const QTextCursor &begin, const QTextCursor &end, const QRect& clip);
     void paintSelection(QPainter *painter, const OverlaySelection &selection);
     void fillSelection(QPainter *painter, const OverlaySelection &selection, const QColor &color);
-
 };
 
 } // namespace Internal

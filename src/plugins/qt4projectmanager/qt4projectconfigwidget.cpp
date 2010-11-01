@@ -38,7 +38,7 @@
 #include "ui_qt4projectconfigwidget.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/mainwindow.h>
+
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/buildconfiguration.h>
