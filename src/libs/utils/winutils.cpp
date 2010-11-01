@@ -28,6 +28,9 @@
 **************************************************************************/
 
 #include "winutils.h"
+
+// Enable WinAPI Windows XP and later
+#define _WIN32_WINNT 0x0501
 #include <windows.h>
 
 #include <QtCore/QString>
@@ -105,8 +108,9 @@ QTCREATOR_UTILS_EXPORT QString winGetDLLVersion(WinDLLVersionType t,
         return QString();
     }
     VS_FIXEDFILEINFO  *versionInfo;
+    const LPCWSTR backslash = TEXT("\\");
     UINT len = 0;
-    if (!(*verQueryValueW)(data, TEXT("\\"), &versionInfo, &len)) {
+    if (!(*verQueryValueW)(data, const_cast<LPWSTR>(backslash), &versionInfo, &len)) {
         *errorMessage = QString::fromLatin1("Unable to determine version string of %1: %2").arg(name, winErrorMessage(GetLastError()));
         return QString();
     }
@@ -163,15 +167,10 @@ QTCREATOR_UTILS_EXPORT unsigned long winQPidToPid(const Q_PID qpid)
 
 QTCREATOR_UTILS_EXPORT bool winIs64BitSystem()
 {
- // Exclude VS 2005
-#if defined(_MSC_VER) && _MSC_VER < 1400
-    return false;
-#else
     SYSTEM_INFO systemInfo;
     GetNativeSystemInfo(&systemInfo);
     return systemInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64
             || systemInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64;
-#endif
 }
 
 } // namespace Utils
