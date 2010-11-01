@@ -1,3 +1,6 @@
+# This file is part of Qt Creator
+# It enables debugging of Qt Quick applications
+
 INCLUDEPATH += $$PWD
 
 HEADERS += \

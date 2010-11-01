@@ -5,7 +5,7 @@ folder_01.target = qml
 DEPLOYMENTFOLDERS = folder_01
 # DEPLOYMENTFOLDERS_END #
 
-# Additional import path used to resolve Qml modules in Creator's code model
+# Additional import path used to resolve QML modules in Creator's code model
 # QML_IMPORT_PATH #
 QML_IMPORT_PATH =
 

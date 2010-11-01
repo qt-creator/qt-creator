@@ -70,10 +70,10 @@ struct AbstractGeneratedFileInfo
 class AbstractMobileApp : public QObject
 {
 public:
-    enum Orientation {
-        LockLandscape,
-        LockPortrait,
-        Auto
+    enum ScreenOrientation {
+        ScreenOrientationLockLandscape,
+        ScreenOrientationLockPortrait,
+        ScreenOrientationAuto
     };
 
     enum FileType {
@@ -95,8 +95,8 @@ public:
 
     virtual ~AbstractMobileApp();
 
-    void setOrientation(Orientation orientation);
-    Orientation orientation() const;
+    void setOrientation(ScreenOrientation orientation);
+    ScreenOrientation orientation() const;
     void setProjectName(const QString &name);
     QString projectName() const;
     void setProjectPath(const QString &path);
@@ -164,7 +164,7 @@ private:
     QString m_symbianSvgIcon;
     QString m_maemoPngIcon;
     QString m_symbianTargetUid;
-    Orientation m_orientation;
+    ScreenOrientation m_orientation;
     bool m_networkEnabled;
 };
 

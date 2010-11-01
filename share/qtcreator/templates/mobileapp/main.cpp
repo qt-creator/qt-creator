@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     MainWindow mainWindow;
-    mainWindow.setOrientation(MainWindow::Auto); // ORIENTATION
+    mainWindow.setOrientation(MainWindow::ScreenOrientationAuto); // ORIENTATION
 
 #ifdef Q_OS_SYMBIAN
     mainWindow.showFullScreen();
