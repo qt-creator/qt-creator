@@ -35,16 +35,12 @@
 
 #include <ASTfwd.h>
 #include <cplusplus/CppDocument.h>
-#include <cpptools/cpprefactoringchanges.h>
-#include <texteditor/icompletioncollector.h>
 #include <texteditor/quickfix.h>
-#include <utils/changeset.h>
-
-#include <QtCore/QSharedPointer>
-#include <QtGui/QTextCursor>
 
 namespace CppTools {
     class CppModelManagerInterface;
+    class CppRefactoringFile;
+    class CppRefactoringChanges;
 } // end of namespace CppTools
 
 namespace ExtensionSystem {
@@ -72,10 +68,8 @@ public:
 
     const CppTools::CppRefactoringFile currentFile() const;
 
-    bool isCursorOn(unsigned tokenIndex) const
-    { return currentFile().isCursorOn(tokenIndex); }
-    bool isCursorOn(const CPlusPlus::AST *ast) const
-    { return currentFile().isCursorOn(ast); }
+    bool isCursorOn(unsigned tokenIndex) const;
+    bool isCursorOn(const CPlusPlus::AST *ast) const;
 
 private:
     QList<CPlusPlus::AST *> _path;
@@ -101,9 +95,6 @@ protected:
     QString fileName() const;
 
     const CppQuickFixState &state() const;
-
-protected: // Utility functions forwarding to CppQuickFixState
-    typedef Utils::ChangeSet::Range Range;
 
 private:
     CppQuickFixState _state;
@@ -136,26 +127,6 @@ protected:
     static QList<CppQuickFixOperation::Ptr> noResult();
 };
 
-namespace Internal {
-
-class CppQuickFixCollector: public TextEditor::QuickFixCollector
-{
-    Q_OBJECT
-
-public:
-    CppQuickFixCollector();
-    virtual ~CppQuickFixCollector();
-
-    virtual bool supportsEditor(TextEditor::ITextEditable *editor);
-    virtual TextEditor::QuickFixState *initializeCompletion(TextEditor::BaseTextEditor *editor);
-
-    virtual QList<TextEditor::QuickFixFactory *> quickFixFactories() const;
-
-    /// Registers all quick-fixes in this plug-in as auto-released objects.
-    static void registerQuickFixes(ExtensionSystem::IPlugin *plugIn);
-};
-
-} // end of namespace Internal
-} // end of namespace CppEditor
+} // namespace CppEditor
 
 #endif // CPPQUICKFIX_H

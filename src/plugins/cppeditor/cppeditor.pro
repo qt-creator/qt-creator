@@ -21,7 +21,8 @@ HEADERS += cppplugin.h \
     cppinsertdecldef.h \
     cpplocalsymbols.h \
     cpptypehierarchy.h \
-    cppelementevaluator.h
+    cppelementevaluator.h \
+    cppquickfixcollector.h
 SOURCES += cppplugin.cpp \
     cppeditor.cpp \
     cpphighlighter.cpp \
@@ -36,7 +37,8 @@ SOURCES += cppplugin.cpp \
     cppinsertdecldef.cpp \
     cpplocalsymbols.cpp \
     cpptypehierarchy.cpp \
-    cppelementevaluator.cpp
+    cppelementevaluator.cpp \
+    cppquickfixcollector.cpp
 RESOURCES += cppeditor.qrc
 OTHER_FILES += CppEditor.pluginspec \
     CppEditor.mimetypes.xml

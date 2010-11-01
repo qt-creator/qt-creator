@@ -29,6 +29,7 @@
 
 #include "cppquickfix.h"
 #include "cppeditor.h"
+#include "cppquickfixcollector.h"
 
 #include <AST.h>
 #include <TranslationUnit.h>
@@ -42,11 +43,7 @@
 #include <cplusplus/DependencyTable.h>
 #include <cplusplus/CppRewriter.h>
 
-#include <cppeditor/cppeditor.h>
 #include <cpptools/cpprefactoringchanges.h>
-#include <cpptools/cpptoolsconstants.h>
-#include <cpptools/cppmodelmanagerinterface.h>
-#include <extensionsystem/pluginmanager.h>
 
 #include <QtGui/QTextBlock>
 
@@ -91,6 +88,15 @@ const CppRefactoringFile CppQuickFixState::currentFile() const
     return CppRefactoringFile(editor(), document());
 }
 
+bool CppQuickFixState::isCursorOn(unsigned tokenIndex) const
+{
+    return currentFile().isCursorOn(tokenIndex);
+}
+
+bool CppQuickFixState::isCursorOn(const CPlusPlus::AST *ast) const
+{
+    return currentFile().isCursorOn(ast);
+}
 
 CppQuickFixOperation::CppQuickFixOperation(const CppQuickFixState &state, int priority)
     : QuickFixOperation(priority)
@@ -142,55 +148,4 @@ QList<CppQuickFixOperation::Ptr> CppQuickFixFactory::singleResult(CppQuickFixOpe
 QList<CppQuickFixOperation::Ptr> CppQuickFixFactory::noResult()
 {
     return QList<CppQuickFixOperation::Ptr>();
-}
-
-CppQuickFixCollector::CppQuickFixCollector()
-{
-}
-
-CppQuickFixCollector::~CppQuickFixCollector()
-{
-}
-
-bool CppQuickFixCollector::supportsEditor(TextEditor::ITextEditable *editor)
-{
-    return CppTools::CppModelManagerInterface::instance()->isCppEditor(editor);
-}
-
-TextEditor::QuickFixState *CppQuickFixCollector::initializeCompletion(TextEditor::BaseTextEditor *editor)
-{
-    if (CPPEditor *cppEditor = qobject_cast<CPPEditor *>(editor)) {
-        const SemanticInfo info = cppEditor->semanticInfo();
-
-        if (info.revision != cppEditor->editorRevision()) {
-            // outdated
-            qWarning() << "TODO: outdated semantic info, force a reparse.";
-            return 0;
-        }
-
-        if (info.doc) {
-            ASTPath astPath(info.doc);
-
-            const QList<AST *> path = astPath(cppEditor->textCursor());
-            if (! path.isEmpty()) {
-                CppQuickFixState *state = new CppQuickFixState(editor);
-                state->_path = path;
-                state->_semanticInfo = info;
-                state->_snapshot = CppTools::CppModelManagerInterface::instance()->snapshot();
-                state->_context = LookupContext(info.doc, state->snapshot());
-                return state;
-            }
-        }
-    }
-
-    return 0;
-}
-
-QList<TextEditor::QuickFixFactory *> CppQuickFixCollector::quickFixFactories() const
-{
-    QList<TextEditor::QuickFixFactory *> results;
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    foreach (CppQuickFixFactory *f, pm->getObjects<CppEditor::CppQuickFixFactory>())
-        results.append(f);
-    return results;
 }

@@ -36,6 +36,7 @@
 #include "cpphoverhandler.h"
 #include "cppquickfix.h"
 #include "cppoutline.h"
+#include "cppquickfixcollector.h"
 #include "cpptypehierarchy.h"
 
 #include <coreplugin/icore.h>

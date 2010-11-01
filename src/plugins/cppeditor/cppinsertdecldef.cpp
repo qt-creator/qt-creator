@@ -35,6 +35,7 @@
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Overview.h>
 #include <cpptools/insertionpointlocator.h>
+#include <cpptools/cpprefactoringchanges.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>

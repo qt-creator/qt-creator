@@ -34,6 +34,7 @@
 #include "cppchecksymbols.h"
 #include "cppquickfix.h"
 #include "cpplocalsymbols.h"
+#include "cppquickfixcollector.h"
 
 #include <AST.h>
 #include <Control.h>

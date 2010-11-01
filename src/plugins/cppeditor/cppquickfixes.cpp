@@ -30,6 +30,7 @@
 #include "cppeditor.h"
 #include "cppquickfix.h"
 #include "cppinsertdecldef.h"
+#include "cppquickfixcollector.h"
 
 #include <ASTVisitor.h>
 #include <AST.h>
@@ -50,6 +51,7 @@
 #include <cplusplus/TypeOfExpression.h>
 #include <cplusplus/CppRewriter.h>
 #include <cpptools/cpptoolsconstants.h>
+#include <cpptools/cpprefactoringchanges.h>
 #include <extensionsystem/iplugin.h>
 
 #include <QtGui/QApplication>
@@ -521,7 +523,7 @@ private:
             changes.insert(end, "\n}");
 
             currentFile->change(changes);
-            currentFile->indent(Range(start, end));
+            currentFile->indent(Utils::ChangeSet::Range(start, end));
         }
 
     private:
