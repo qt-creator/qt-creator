@@ -1,6 +1,5 @@
 include(../../../qttest.pri)
 
-include(../../../../../qtcreator.pri)
 include($$IDE_SOURCE_TREE/src/plugins/qmldesigner/config.pri)
 
 QT += script \
