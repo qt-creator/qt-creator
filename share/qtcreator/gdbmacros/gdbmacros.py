@@ -233,7 +233,7 @@ def qdump__QDateTime(d, item):
 
 
 def qdump__QDir(d, item):
-    d.putStringValue(call(item.value, "path()"))
+    d.putStringValue(item.value["d_ptr"]["d"].dereference()["path"])
     d.putNumChild(2)
     if d.isExpanded(item):
         with Children(d, 2):
