@@ -99,6 +99,7 @@ macx {
     IDE_BIN_PATH     = $$IDE_APP_PATH/$${IDE_APP_TARGET}.app/Contents/MacOS
     contains(QT_CONFIG, ppc):CONFIG += ppc x86
     copydata = 1
+    isEmpty(TIGER_COMPAT_MODE):TIGER_COMPAT_MODE=$$(QTC_TIGER_COMPAT)
 } else {
     win32 {
         contains(TEMPLATE, vc.*)|contains(TEMPLATE_PREFIX, vc):vcproj = 1

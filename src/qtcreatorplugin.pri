@@ -28,7 +28,12 @@ QMAKE_EXTRA_COMPILERS += copy2build
 
 
 macx {
+    !isEmpty(TIGER_COMPAT_MODE) {
         QMAKE_LFLAGS_SONAME = -Wl,-install_name,@executable_path/../PlugIns/$${PROVIDER}/
+    } else {
+        QMAKE_LFLAGS_SONAME = -Wl,-install_name,@rpath/PlugIns/$${PROVIDER}/
+        QMAKE_LFLAGS += -Wl,-rpath,@loader_path/../../
+    }
 } else:linux-* {
     #do the rpath by hand since it's not possible to use ORIGIN in QMAKE_RPATHDIR
     QMAKE_RPATHDIR += \$\$ORIGIN
