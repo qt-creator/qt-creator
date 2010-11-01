@@ -50,6 +50,7 @@ public:
         CMakeFunctionFormat,
         CMakeCommentFormat,
         CMakeStringFormat,
+        CMakeVisualWhiteSpaceFormat,
         NumCMakeFormats
     };
 

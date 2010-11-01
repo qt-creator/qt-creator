@@ -129,5 +129,7 @@ void CMakeHighlighter::highlightBlock(const QString &text)
     } else {
         setCurrentBlockState(0);
     }
+
+    applyFormatToSpaces(text, m_formats[CMakeVisualWhiteSpaceFormat]);
 }
 
