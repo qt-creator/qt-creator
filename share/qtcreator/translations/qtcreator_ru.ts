@@ -17,7 +17,7 @@
     </message>
     <message>
         <source>Qt Creator - Plugin loader messages</source>
-        <translation>Qt Creator - Сообщения загрузчика надстроек</translation>
+        <translation>Сообщения загрузчика модулей Qt Creator</translation>
     </message>
 </context>
 <context>
@@ -2412,7 +2412,7 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <source>About &amp;Plugins...</source>
-        <translation>О &amp;надстройках...</translation>
+        <translation>О &amp;модулях...</translation>
     </message>
     <message>
         <source>New</source>
@@ -2557,15 +2557,15 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <source>Installed Plugins</source>
-        <translation>Установленные надстройки</translation>
+        <translation>Установленные модули</translation>
     </message>
     <message>
         <source>Plugin Details of %1</source>
-        <translation>Подробнее о надстройке %1</translation>
+        <translation>Подробнее о модуле %1</translation>
     </message>
     <message>
         <source>Plugin Errors of %1</source>
-        <translation>Ошибки надстройки %1</translation>
+        <translation>Ошибки модуля %1</translation>
     </message>
 </context>
 <context>
@@ -4060,6 +4060,10 @@ Qt Creator не может подключиться к нему.</translation>
         <translation>Сбой функции &quot;%1()&quot;: %2</translation>
     </message>
     <message>
+        <source>An instance of the CDB engine is still running; cannot create an a new instance.</source>
+        <translation>Уже запущен экземпляр отладчика GDB. Запустить ещё один невозможно.</translation>
+    </message>
+    <message>
         <source>Version: %1</source>
         <translation>Версия: %1</translation>
     </message>
@@ -4222,9 +4226,8 @@ Qt Creator не может подключиться к нему.</translation>
         <translation>Точка наблюдения: %1</translation>
     </message>
     <message>
-        <source>The CDB debug engine does not support the %1 toolchain.</source>
-        <extracomment>%1 is something like &quot;GCCE&quot; or &quot;Intel C++ Compiler (Linux)&quot; (see ToolChain context)</extracomment>
-        <translation type="unfinished">Движок отладчика CDB не поддерживает &quot;%1&quot;</translation>
+        <source>The CDB debug engine does not support the &apos;%1</source>
+        <translation>Движок отладчика CDB не поддерживает &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
@@ -5048,7 +5051,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
     <message>
         <source>The memory contents cannot be shown as no viewer plugin for binary data has been loaded.</source>
-        <translation>Невозможно отобразить содержимое памяти, так как надстройка просмотра двоичных данных не загружена.</translation>
+        <translation>Невозможно отобразить содержимое памяти, так как модуль просмотра двоичных данных не загружен.</translation>
     </message>
 </context>
 <context>
@@ -6406,7 +6409,7 @@ Rebuilding the project might help.</source>
     </message>
     <message>
         <source>About Qt Designer plugins....</source>
-        <translation>О надстройках Qt Designer...</translation>
+        <translation>О модулях Qt Designer...</translation>
     </message>
     <message>
         <source>Preview in</source>
@@ -6794,7 +6797,7 @@ Rebuilding the project might help.</source>
     </message>
     <message>
         <source>Plugin&apos;s initialization method succeeded</source>
-        <translation>Инициализация надстройки завершилась успешно</translation>
+        <translation>Инициализация модуля завершилась успешно</translation>
     </message>
     <message>
         <source>Running</source>
@@ -6802,7 +6805,7 @@ Rebuilding the project might help.</source>
     </message>
     <message>
         <source>Plugin successfully loaded and running</source>
-        <translation>Надстройка успешно загружена и запущена</translation>
+        <translation>Модуль успешно загружен и запущен</translation>
     </message>
     <message>
         <source>Stopped</source>
@@ -6810,7 +6813,7 @@ Rebuilding the project might help.</source>
     </message>
     <message>
         <source>Plugin was shut down</source>
-        <translation>Надстройка была выключена</translation>
+        <translation>Модуль был выключен</translation>
     </message>
     <message>
         <source>Deleted</source>
@@ -6818,7 +6821,7 @@ Rebuilding the project might help.</source>
     </message>
     <message>
         <source>Plugin ended its life cycle and was deleted</source>
-        <translation>Надстройка закончила свой жизненный цикл и была удалена</translation>
+        <translation>Модуль закончил свой жизненный цикл и был удалён</translation>
     </message>
 </context>
 <context>
@@ -6842,7 +6845,7 @@ Rebuilding the project might help.</source>
     <message>
         <source>Cannot load plugin because dependency failed to load: %1(%2)
 Reason: %3</source>
-        <translation>Невозможно загрузить надстройку, так как её зависимость не загрузилась: %1(%2)
+        <translation>Невозможно загрузить модуль, так как его зависимость не загрузилась: %1(%2)
 Причина: %3</translation>
     </message>
 </context>
@@ -7388,11 +7391,11 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Try to set breakpoints in plugins always automatically.</source>
-        <translation>Всегда автоматически ставить точки останова в надстройках.</translation>
+        <translation>Всегда автоматически ставить точки останова в модулях.</translation>
     </message>
     <message>
         <source>Try to set breakpoints in selected plugins</source>
-        <translation>Ставить точки останова в выбранных надстройках</translation>
+        <translation>Ставить точки останова в выбранных модулях</translation>
     </message>
     <message>
         <source>Matching regular expression: </source>
@@ -7443,7 +7446,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>Behavior of Breakpoint Setting in Plugins</source>
-        <translation>Поведение точек останова, устанавливаемых в надстройках</translation>
+        <translation>Поведение точек останова, устанавливаемых в модулях</translation>
     </message>
     <message>
         <source>Adjust Breakpoint Locations</source>
@@ -11048,7 +11051,7 @@ Preselects Qt for Simulator and mobile targets if available.</source>
 &lt;p&gt;Note that the plugin will use this for posting as well as fetching.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; позволяет отправлять данные на пользовательские субдомены (например, creator.pastebin.com). Поэтому укажите желаемый префикс.&lt;/p&gt;
-&lt;p&gt;Надстройка будет использовать его как для отправки, так и для получения.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+&lt;p&gt;Модуль будет использовать его как для отправки, так и для получения.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -11568,22 +11571,22 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     </message>
     <message>
         <source>Installed Plugins</source>
-        <translation>Установленные надстройки</translation>
+        <translation>Установленные модули</translation>
     </message>
     <message>
         <source>Plugin Details of %1</source>
-        <translation>Подробнее о надстройке %1</translation>
+        <translation>Подробнее о модуле %1</translation>
     </message>
     <message>
         <source>Plugin Errors of %1</source>
-        <translation>Ошибки надстройки %1</translation>
+        <translation>Ошибки модуля %1</translation>
     </message>
 </context>
 <context>
     <name>PluginManager</name>
     <message>
         <source>The plugin &apos;%1&apos; does not exist.</source>
-        <translation>Надстройка &quot;%1&quot; не существует.</translation>
+        <translation>Модуль &quot;%1&quot; не существует.</translation>
     </message>
     <message>
         <source>Unknown option %1</source>
@@ -11595,7 +11598,7 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     </message>
     <message>
         <source>Failed Plugins</source>
-        <translation>Проблемные надстройки</translation>
+        <translation>Проблемные модули</translation>
     </message>
 </context>
 <context>
@@ -11638,19 +11641,19 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     </message>
     <message>
         <source>Plugin is not valid (does not derive from IPlugin)</source>
-        <translation>Неправильная надстройка (не потомок IPlugin)</translation>
+        <translation>Неправильный модуль (не потомок IPlugin)</translation>
     </message>
     <message>
         <source>Initializing the plugin failed because state != Loaded</source>
-        <translation>Не удалось инициализировать надстройку, так как state != Loaded</translation>
+        <translation>Не удалось инициализировать модуль, так как state не равен &quot;Loaded&quot;</translation>
     </message>
     <message>
         <source>Internal error: have no plugin instance to initialize</source>
-        <translation>Внутренняя ошибка: отсутствует экземпляр надстройки для инициализации</translation>
+        <translation>Внутренняя ошибка: отсутствует экземпляр модуля для инициализации</translation>
     </message>
     <message>
         <source>Plugin initialization failed: %1</source>
-        <translation>Не удалось инициализировать надстройку: %1</translation>
+        <translation>Не удалось инициализировать модуль: %1</translation>
     </message>
     <message>
         <source>Cannot perform extensionsInitialized because state != Initialized</source>
@@ -11658,7 +11661,7 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     </message>
     <message>
         <source>Internal error: have no plugin instance to perform extensionsInitialized</source>
-        <translation>Внутренняя ошибка: отсутствует экземпляр надстройки для выполнения extensionsInitialized</translation>
+        <translation>Внутренняя ошибка: отсутствует экземпляр модуля для выполнения extensionsInitialized</translation>
     </message>
 </context>
 <context>
@@ -11900,19 +11903,19 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     </message>
     <message>
         <source>Creates a C++ plugin that makes it possible to offer extensions that can be loaded dynamically into applications using the QDeclarativeEngine class.</source>
-        <translation>Создание C++ надстройки, являющейся расширением, которое может быть динамически загружено в приложения через класс QDeclarativeEngine.</translation>
+        <translation>Создание подключаемого модуля на C++, являющегося расширением, которое может быть динамически загружено в приложения через класс QDeclarativeEngine.</translation>
     </message>
     <message>
         <source>Custom QML Extension Plugin</source>
-        <translation>Особая надстройка расширяющая QML</translation>
+        <translation>Особый модуль расширяющий QML</translation>
     </message>
     <message>
         <source>QML Extension Plugin</source>
-        <translation>Надстройка расширяющая QML</translation>
+        <translation>Модуль расширяющий QML</translation>
     </message>
     <message>
         <source>Custom QML Extension  Plugin Parameters</source>
-        <translation>Параметры особой надстройки расширяющей QML</translation>
+        <translation>Параметры особого модуля расширяющего QML</translation>
     </message>
     <message>
         <source>Object Class-name:</source>
@@ -11924,11 +11927,11 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     </message>
     <message>
         <source>Creates a custom Qt Creator plugin.</source>
-        <translation>Создание собственной надстройки Qt Creator.</translation>
+        <translation>Создание особого подключаемого модуля для Qt Creator.</translation>
     </message>
     <message>
         <source>Qt Creator plugin</source>
-        <translation>Надстройка Qt Creator</translation>
+        <translation>Модуль Qt Creator</translation>
     </message>
     <message>
         <source>Other Project</source>
@@ -11936,11 +11939,11 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     </message>
     <message>
         <source>Plugin Information</source>
-        <translation>Информация о надстройке</translation>
+        <translation>Информация о модуле</translation>
     </message>
     <message>
         <source>Plugin name:</source>
-        <translation>Название надстройки:</translation>
+        <translation>Название модуля:</translation>
     </message>
     <message>
         <source>Vendor name:</source>
@@ -13873,7 +13876,7 @@ Do you still want to load the settings file?</source>
     <name>QmlDesigner::PluginManager</name>
     <message>
         <source>About Plugins</source>
-        <translation>О надстройках</translation>
+        <translation>О модулях</translation>
     </message>
 </context>
 <context>
@@ -14140,7 +14143,7 @@ Do you still want to load the settings file?</source>
 Errors:
 %1
 </source>
-        <translation type="unfinished">Не удалось получить типы от надстройки QML в %0.
+        <translation type="unfinished">Не удалось получить типы от модуля QML в %0.
 Ошибки:
 %1
 </translation>
@@ -14158,11 +14161,11 @@ Errors:
     </message>
     <message>
         <source>Qt Creator -&gt; About Plugins...</source>
-        <translation>Qt Creator -&gt; О надстройках...</translation>
+        <translation>Qt Creator -&gt; О модулях...</translation>
     </message>
     <message>
         <source>Help -&gt; About Plugins...</source>
-        <translation>Справка -&gt; О надстройках...</translation>
+        <translation>Справка -&gt; О модулях...</translation>
     </message>
     <message>
         <source>Enable experimental Qt Quick Designer?</source>
@@ -14537,7 +14540,7 @@ You can review Qt Quick UI projects in the QML Viewer and you need not build the
         <source>List of plugin directories passed to QML runtime</source>
         <comment>qmlproject Template</comment>
         <extracomment>Comment added to generated .qmlproject file</extracomment>
-        <translation>Список каталогов надстроек передаваемый среде исполнения QML</translation>
+        <translation>Список каталогов модулей, передаваемый среде исполнения QML</translation>
     </message>
 </context>
 <context>
@@ -14822,15 +14825,15 @@ You can review Qt Quick UI projects in the QML Viewer and you need not build the
     </message>
     <message>
         <source>Plugin class &amp;name:</source>
-        <translation>Имя класса &amp;надстройки:</translation>
+        <translation>Имя класса &amp;модуля:</translation>
     </message>
     <message>
         <source>Plugin &amp;header file:</source>
-        <translation>За&amp;головочный файл надстройки:</translation>
+        <translation>За&amp;головочный файл модуля:</translation>
     </message>
     <message>
         <source>Plugin sou&amp;rce file:</source>
-        <translation>Файл реализа&amp;ции надстройки:</translation>
+        <translation>Файл реализа&amp;ции модуля:</translation>
     </message>
     <message>
         <source>Icon file:</source>
@@ -14934,15 +14937,15 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Plugin and Collection Class Information</source>
-        <translation>Информация о надстройке и классе набора</translation>
+        <translation>Информация о модуле и классе коллекции</translation>
     </message>
     <message>
         <source>Specify the properties of the plugin library and the collection class.</source>
-        <translation>Укажите свойства библиотеки надстройки и класса набора.</translation>
+        <translation>Укажите свойства библиотеки модуля и класса коллекции.</translation>
     </message>
     <message>
         <source>Collection class:</source>
-        <translation>Класс набора:</translation>
+        <translation>Класс коллекции:</translation>
     </message>
     <message>
         <source>Collection header file:</source>
@@ -14954,7 +14957,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Plugin name:</source>
-        <translation>Название надстройки:</translation>
+        <translation>Название модуля:</translation>
     </message>
     <message>
         <source>Resource file:</source>
@@ -15011,7 +15014,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Plugin Details</source>
-        <translation>Подробнее о надстройке</translation>
+        <translation>Подробнее о модуле</translation>
     </message>
 </context>
 <context>
@@ -15477,7 +15480,7 @@ Adds the library and include paths to the .pro file.</source>
     </message>
     <message>
         <source>Creates a C++ library based on qmake. This can be used to create:&lt;ul&gt;&lt;li&gt;a shared C++ library for use with &lt;tt&gt;QPluginLoader&lt;/tt&gt; and runtime (Plugins)&lt;/li&gt;&lt;li&gt;a shared or static C++ library for use with another project at linktime&lt;/li&gt;&lt;/ul&gt;.</source>
-        <translation>Создание проекта C++ библиотеки под управлением qmake. Может использоваться для разработки:&lt;ul&gt;&lt;li&gt;разделяемая C++ библиотека для загрузки через &lt;tt&gt;QPluginLoader&lt;/tt&gt; (надстройка)&lt;/li&gt;&lt;li&gt;разделяемая или статическая C++ библиотека для подключения к другому проекту на этапе компоновки&lt;/li&gt;&lt;/ul&gt;.</translation>
+        <translation>Создание проекта C++ библиотеки под управлением qmake. Может использоваться для разработки:&lt;ul&gt;&lt;li&gt;разделяемая C++ библиотека для загрузки через &lt;tt&gt;QPluginLoader&lt;/tt&gt; (подключаемый модуль)&lt;/li&gt;&lt;li&gt;разделяемая или статическая C++ библиотека для подключения к другому проекту на этапе компоновки&lt;/li&gt;&lt;/ul&gt;.</translation>
     </message>
 </context>
 <context>
@@ -15492,7 +15495,7 @@ Adds the library and include paths to the .pro file.</source>
     </message>
     <message>
         <source>Qt 4 Plugin</source>
-        <translation>Надстройка Qt 4</translation>
+        <translation>Модуль Qt 4</translation>
     </message>
     <message>
         <source>Type</source>
@@ -16466,7 +16469,7 @@ stderr was: %1</source>
     </message>
     <message>
         <source>No .pro file for plugin &apos;%1&apos; cannot be found.</source>
-        <translation>Не удалось найти файл .pro для надстройки &quot;%1&quot;.</translation>
+        <translation>Не удалось найти файл .pro для модуля &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Could not write file &apos;%1&apos;.</source>
@@ -21572,7 +21575,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Not a QmlDesigner plugin.</source>
-        <translation>Не надстройка QmlDesigner.</translation>
+        <translation>Не модуль QmlDesigner.</translation>
     </message>
     <message>
         <source>Failed to create instance of file &apos;%1&apos;: %2</source>
@@ -21584,7 +21587,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>File &apos;%1&apos; is not a QmlDesigner plugin.</source>
-        <translation>Файл &quot;%1&quot; не является надстройкой QmlDesigner.</translation>
+        <translation>Файл &quot;%1&quot; не является модулем QmlDesigner.</translation>
     </message>
 </context>
 <context>
