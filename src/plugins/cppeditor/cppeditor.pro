@@ -40,5 +40,4 @@ SOURCES += cppplugin.cpp \
     cppelementevaluator.cpp \
     cppquickfixcollector.cpp
 RESOURCES += cppeditor.qrc
-OTHER_FILES += CppEditor.pluginspec \
-    CppEditor.mimetypes.xml
+OTHER_FILES += CppEditor.mimetypes.xml

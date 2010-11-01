@@ -17,4 +17,3 @@ FORMS += welcomemode.ui \
     communitywelcomepagewidget.ui
 RESOURCES += welcome.qrc
 DEFINES += WELCOME_LIBRARY
-OTHER_FILES += Welcome.pluginspec

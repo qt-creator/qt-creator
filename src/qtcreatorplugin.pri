@@ -26,6 +26,7 @@ copy2build.name = COPY ${QMAKE_FILE_IN}
 copy2build.CONFIG += no_link
 QMAKE_EXTRA_COMPILERS += copy2build
 
+OTHER_FILES += $$PLUGINSPECS
 
 macx {
     !isEmpty(TIGER_COMPAT_MODE) {

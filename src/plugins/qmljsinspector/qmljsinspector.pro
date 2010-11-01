@@ -35,7 +35,6 @@ qmljsobjecttree.cpp
 
 include(../../libs/qmljsdebugclient/qmljsdebugclient-lib.pri)
 
-OTHER_FILES += QmlJSInspector.pluginspec
 RESOURCES += qmljsinspector.qrc
 
 include(../../qtcreatorplugin.pri)

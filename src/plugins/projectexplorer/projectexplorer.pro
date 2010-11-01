@@ -204,4 +204,3 @@ win32 {
 }
 RESOURCES += projectexplorer.qrc
 DEFINES += PROJECTEXPLORER_LIBRARY
-OTHER_FILES += ProjectExplorer.pluginspec

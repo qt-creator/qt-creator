@@ -11,5 +11,3 @@ SOURCES += bineditorplugin.cpp \
         bineditor.cpp
 
 RESOURCES +=
-
-OTHER_FILES += BinEditor.pluginspec

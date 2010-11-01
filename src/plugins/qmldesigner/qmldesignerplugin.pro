@@ -34,5 +34,3 @@ SOURCES += qmldesignerplugin.cpp \
     styledoutputpaneplaceholder.cpp
 
 FORMS += settingspage.ui
-
-OTHER_FILES += QmlDesigner.pluginspec

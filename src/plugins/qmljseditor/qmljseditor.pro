@@ -65,7 +65,7 @@ SOURCES += \
     qmljssemantichighlighter.cpp
 
 RESOURCES += qmljseditor.qrc
-OTHER_FILES += QmlJSEditor.pluginspec QmlJSEditor.mimetypes.xml
+OTHER_FILES += QmlJSEditor.mimetypes.xml
 
 FORMS += \
     quicktoolbarsettingspage.ui \

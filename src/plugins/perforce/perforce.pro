@@ -36,5 +36,3 @@ FORMS += settingspage.ui \
     submitpanel.ui
 
 RESOURCES += perforce.qrc
-
-OTHER_FILES += Perforce.pluginspec

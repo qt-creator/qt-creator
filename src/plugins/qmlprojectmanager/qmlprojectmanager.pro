@@ -35,5 +35,4 @@ SOURCES += qmlproject.cpp \
 
 RESOURCES += qmlproject.qrc
 
-OTHER_FILES += QmlProjectManager.pluginspec \
-               QmlProject.mimetypes.xml
+OTHER_FILES += QmlProject.mimetypes.xml

@@ -32,5 +32,3 @@ FORMS += settingspage.ui \
     filesystemfilter.ui \
     directoryfilter.ui
 RESOURCES += locator.qrc
-
-OTHER_FILES += Locator.pluginspec

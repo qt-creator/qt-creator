@@ -153,4 +153,4 @@ FORMS += behaviorsettingspage.ui \
     generichighlighter/highlightersettingspage.ui \
     generichighlighter/managedefinitionsdialog.ui
 RESOURCES += texteditor.qrc
-OTHER_FILES += TextEditor.pluginspec TextEditor.mimetypes.xml
+OTHER_FILES += TextEditor.mimetypes.xml

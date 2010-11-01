@@ -21,4 +21,3 @@ HEADERS += fakevimactions.h \
     fakevimsyntax.h \
     fakevimplugin.h
 FORMS += fakevimoptions.ui
-OTHER_FILES += FakeVim.pluginspec

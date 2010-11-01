@@ -31,7 +31,6 @@ HEADERS += mercurialplugin.h \
     clonewizardpage.h \
     clonewizard.h \
     mercurialsettings.h
-OTHER_FILES += Mercurial.pluginspec
 FORMS += optionspage.ui \
     revertdialog.ui \
     srcdestdialog.ui \

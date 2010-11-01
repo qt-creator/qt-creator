@@ -16,5 +16,3 @@ SOURCES += bookmarksplugin.cpp \
            bookmarkmanager.cpp
 
 RESOURCES += bookmarks.qrc
-
-OTHER_FILES += Bookmarks.pluginspec

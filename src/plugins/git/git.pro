@@ -48,7 +48,6 @@ FORMS += changeselectiondialog.ui \
     gitsubmitpanel.ui \
     branchdialog.ui \
     stashdialog.ui
-OTHER_FILES += ScmGit.pluginspec
 include(gitorious/gitorious.pri)
 
 RESOURCES += \

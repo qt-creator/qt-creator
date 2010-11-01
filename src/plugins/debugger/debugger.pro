@@ -131,6 +131,3 @@ contains(QT_CONFIG, declarative) {
 
 include(tcf/tcf.pri)
 include(shared/shared.pri)
-
-
-OTHER_FILES += Debugger.pluginspec

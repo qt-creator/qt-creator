@@ -32,5 +32,4 @@ SOURCES = cmakeproject.cpp \
 RESOURCES += cmakeproject.qrc
 FORMS +=
 
-OTHER_FILES += CMakeProjectManager.pluginspec \
-               CMakeProject.mimetypes.xml
+OTHER_FILES += CMakeProject.mimetypes.xml

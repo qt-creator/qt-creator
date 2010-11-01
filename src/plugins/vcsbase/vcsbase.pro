@@ -60,5 +60,3 @@ FORMS += commonsettingspage.ui \
     checkoutprogresswizardpage.ui \
     basecheckoutwizardpage.ui \
     cleandialog.ui
-
-OTHER_FILES += VCSBase.pluginspec

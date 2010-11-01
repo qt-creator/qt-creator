@@ -28,9 +28,6 @@ SOURCES += \
     classviewutils.cpp \
     classviewtreeitemmodel.cpp
 
-OTHER_FILES += \
-    ClassView.pluginspec
-
 FORMS += \
     classviewnavigationwidget.ui
 

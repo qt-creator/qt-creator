@@ -24,7 +24,6 @@ RESOURCES += \
     imageviewer.qrc
 
 OTHER_FILES += \
-    ImageViewer.pluginspec \
     ImageViewer.mimetypes.xml
 
 contains(QT_CONFIG, svg):QT += svg

@@ -52,5 +52,3 @@ SOURCES += completionsettingspage.cpp \
 
 FORMS += completionsettingspage.ui \
     cppfilesettingspage.ui
-
-OTHER_FILES += CppTools.pluginspec

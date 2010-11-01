@@ -248,4 +248,4 @@ else:unix {
     images.path = /share/pixmaps
     INSTALLS += images
 }
-OTHER_FILES += Core.pluginspec editormanager/BinFiles.mimetypes.xml
+OTHER_FILES += editormanager/BinFiles.mimetypes.xml

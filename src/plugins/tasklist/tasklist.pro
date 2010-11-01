@@ -19,5 +19,4 @@ SOURCES += tasklistplugin.cpp \
 
 RESOURCES += tasklist.qrc
 
-OTHER_FILES += TaskList.pluginspec \
-    TaskList.mimetypes.xml
+OTHER_FILES += TaskList.mimetypes.xml
