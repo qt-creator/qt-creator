@@ -45,6 +45,7 @@
 #include <projectexplorer/buildstep.h>
 
 QT_BEGIN_NAMESPACE
+class QDateTime;
 class QFile;
 class QProcess;
 QT_END_NAMESPACE
@@ -112,6 +113,8 @@ private:
     QString targetRoot() const;
     static QString nativePath(const QFile &file);
     bool packagingNeeded() const;
+    bool isFileNewerThan(const QString &filePath,
+        const QDateTime &timeStamp) const;
     void raiseError(const QString &shortMsg,
                     const QString &detailedMsg = QString());
     QString buildDirectory() const;

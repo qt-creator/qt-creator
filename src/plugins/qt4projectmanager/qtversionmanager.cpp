@@ -240,6 +240,17 @@ void QtVersionManager::updateExamples()
         candidates.append(version);
     }
 
+    // in SDKs, we want to prefer the Qt version shipping with the SDK
+    QString preferred = Core::ICore::instance()->settings()->value("General/PreferredQMakePath").toString();
+    if (!preferred.isEmpty()) {
+        foreach (version, candidates) {
+            if (version->qmakeCommand() == preferred) {
+                emit updateExamples(version->examplesPath(), version->demosPath(), version->sourcePath());
+                return;
+            }
+        }
+    }
+
     // prefer versions with declarative examples
     foreach (version, candidates) {
         if (QDir(version->examplesPath()+"/declarative").exists()) {

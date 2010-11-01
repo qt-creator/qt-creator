@@ -223,9 +223,11 @@ void MaemoSshRunner::handleUnmounted()
         mount();
         break;
     case PostRunCleaning:
-    case StopRequested:
+    case StopRequested: {
         m_mounter->resetMountSpecifications();
-        if (m_state == StopRequested) {
+        const bool stopRequested = m_state == StopRequested;
+        setState(Inactive);
+        if (stopRequested) {
             emit remoteProcessFinished(InvalidExitCode);
         } else if (m_exitStatus == SshRemoteProcess::ExitedNormally) {
             emit remoteProcessFinished(m_runner->exitCode());
@@ -233,8 +235,8 @@ void MaemoSshRunner::handleUnmounted()
             emit error(tr("Error running remote process: %1")
                 .arg(m_runner->errorString()));
         }
-        setState(Inactive);
         break;
+    }
     default: ;
     }
 }
@@ -326,8 +328,8 @@ void MaemoSshRunner::setState(State newState)
 void MaemoSshRunner::emitError(const QString &errorMsg)
 {
     if (m_state != Inactive) {
-        emit error(errorMsg);
         setState(Inactive);
+        emit error(errorMsg);
     }
 }
 

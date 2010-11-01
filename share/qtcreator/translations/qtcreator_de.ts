@@ -19347,8 +19347,9 @@ Server: %2.</translation>
         <translation></translation>
     </message>
     <message>
-        <source>The CDB debug engine does not support the &apos;%1</source>
-        <translation></translation>
+        <source>The CDB debug engine does not support the %1 toolchain.</source>
+        <extracomment>%1 is something like &quot;GCCE&quot; or &quot;Intel C++ Compiler (Linux)&quot; (see ToolChain context)</extracomment>
+        <translation>Der CDB-Debugger unterstützt die Toolchain &apos;%1&apos; nicht.</translation>
     </message>
 </context>
 <context>

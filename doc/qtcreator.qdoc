@@ -3801,102 +3801,304 @@
 
     \title Creating a Qt Quick Application
 
-    \note This tutorial assumes that you are familiar with the \l {http://doc.qt.nokia.com/4.7/qtquick.html}
-    {QML declarative language}.
+    \note To complete this tutorial, you must have Qt 4.7 or later installed.
 
-    This tutorial describes how to use Qt Creator to create a small
-    Qt Quick application, Hello World.
+    This tutorial uses basic elements and illustrates basic concepts of the
+    \l {http://doc.qt.nokia.com/4.7/qtquick.html}{QML declarative language}.
 
-    \image qmldesigner-helloworld-edited.png "Hello World"
+    This tutorial describes how to use the Qt Creator to implement the
+    \l{http://doc.qt.nokia.com/4.7-snapshot/declarative-animation-states.html}
+    {states and transitions example application}. The example application displays a user
+    icon that moves between three rectangles on the page when you click them.
 
-    \section1 Creating the Hello World Project
+    \image qmldesigner-tutorial.png "States and transitions example"
+
+    \section1 Creating the Project
 
     \list 1
 
-        \o Select \gui{File > New File or Project > Qt Quick Project > Qt QML Application > Choose}.
+        \o Select \gui{File > New File or Project > Qt Quick Project > Qt Quick UI >
+        Choose}.
 
-        \image qmldesigner-new-project.png "New File or Project dialog"
+        \o Follow the instructions of the wizard to create a project called Transitions.
 
-        The \gui{Introduction and Project Location} dialog opens.
-
-        \image qmldesigner-new-project-location.png "Introduction and Project Location dialog"
-
-        \o In the \gui{Name} field, type \bold {HelloWorld}.
-
-        \o In the \gui {Create in} field, enter the path for the project files. For example,
-        \c {C:\Qt\examples}, and then click \gui{Next}.
-
-        The \gui{Project Management} dialog opens.
-
-        \image qmldesigner-new-project-summary.png "Project Management dialog"
-
-        \o Review the project settings, and click \gui{Finish} to create the project.
+        \o Press \key {Ctrl+R} to run the application in the QML Viewer.
 
     \endlist
 
-    The HelloWorld project now contains the following files:
+    Qt Creator generates a default QML file that you can modify to create the main view
+    of the application.
 
-    \list
-        \o HelloWorld.qmlproject
-        \o HelloWorld.qml
+    \image qmldesigner-tutorial-project.png "Transitions project in Edit mode"
+
+    \section1 Creating the Main View
+
+    The main view of the application displays a user icon in the top left corner of the
+    screen and two empty rectangles.
+
+    To use the user.png image in your application, you must copy it to the project
+    directory from the \c {\qt\examples\declarative\animation\states} directory in the
+    Qt installation directory. For example:
+    \c {C:\Qt\2010.05\qt\examples\declarative\animation\states}. The image appears
+    in the \gui Resources pane. You can also use any other image or a QML element, instead.
+
+    \list 1
+
+        \o In the \gui Projects view, double-click the main .qml file (Transitions.qml)
+        to open it in the code editor.
+
+        \o Click \gui Design to open the file in \QMLD.
+
+        \image qmldesigner-tutorial-desing-mode.png "Transitions project in Design Mode"
+
+        \o In the \gui Navigator pane, select \gui Text and press \key Delete to delete it.
+
+        \o Select \gui Rectangle to edit its properties.
+
+        \image qmldesigner-tutorial-page.png "Page properties"
+
+        \list a
+
+            \o In the \gui Id field, enter \e page, to be able to reference the rectangle
+            from other places.
+
+            \o In the \gui Size field, set \gui W to 640 and \gui H to 480.
+
+            \o In the \gui Colors tab, \gui Rectangle field, set the color to #343434.
+
+        \endlist
+
+        \o Drag and drop user.png from \gui Resources to the canvas.
+
+        \o In the \gui Id field, enter \e userIcon.
+
+        \image qmldesigner-tutorial-user-icon.png "User icon properties"
+
+        \o Drag and drop a \gui Rectangle element to the canvas, and edit its properties.
+
+        \image qmldesigner-tutorial-topleftrect.png "Rectangle properties"
+
+        \list a
+
+            \o In the \gui Id field, enter \e topLeftRect.
+
+            \o In the \gui Size field, set \gui W and \gui H to 64, for the rectangle size
+            to match the image size.
+
+            \o In the \gui Colors tab, \gui Rectangle field, click the
+            \inlineimage qmldesigner-transparent-button.png
+            button to make the rectangle transparent.
+
+            \o In the \gui Border field, set the border color to #808080.
+
+            \o In the \gui Rectangle tab, \gui Border field, set the border width to
+            1.
+
+            \o In the \gui Radius field, select 6 to create rounded corners for the
+            rectangle.
+
+            \o Click \gui {Layout}, and then click the top and left anchor buttons
+            to anchor the rectangle to the top left corner of the page.
+
+            \image qmldesigner-tutorial-topleftrect-layout.png "Layout tab"
+
+            \o In the \gui Margin field for the top anchor, select 20.
+
+        \endlist
+
+        \o Drag and drop a \gui {Mouse Area} element on top of the rectangle,
+        and edit its properties:
+
+        \list a
+
+            \o Click \gui {Layout}, and then click the
+            \inlineimage qmldesigner-anchor-fill-screen.png
+            button to anchor the mouse area to the rectangle.
+
+            \o In the code editor, add a pointer to a clicked expression to the mouse
+            area element, as illustrated by the following code snippet:
+
+            \code
+
+            MouseArea {
+                id: mouse_area1
+                anchors.fill: parent
+                onClicked: page.state = ''
+            }
+
+            \endcode
+
+            The expression sets the state to the base state and returns the image to
+            its initial position.
+
+        \endlist
+
+    \o To make sure that the user icon appears within the rectangle even if the screen
+    size changes, you can anchor the icon to the x and y coordinates of the rectangle:
+
+        \list a
+
+        \o In the \gui Navigator, select userIcon.
+
+        \o In the \gui Geometry tab, \gui {Position X} field, open the menu and select
+        \gui {Set Expression}.
+
+        \o Enter the following expression: \c {topLeftRect.x}
+
+        \o In the \gui Y field, set the following expression: \c {topLeftRect.y}
+
+        \endlist
+
+    \o Copy topLeftRect (by pressing \key {Ctrl+C}) and paste it to the canvas twice
+    (by pressing \key {Ctrl+V}). Qt Creator renames the new instances of the element
+    topLeftRect1 and topLeftRect2.
+
+    \o Select topLeftRect1 and edit its properties:
+
+        \list a
+
+            \o In the \gui Id field, enter \e middleRightRect.
+
+            \o In \gui {Layout}, select the right and vertical center anchor buttons to
+            anchor the rectangle to the middle right margin of the screen.
+
+            \o In the code editor, modify the pointer to the clicked expression in the
+            mouse area element. The following expression sets the state to \e State1:
+
+            \c {onClicked: page.state = 'State1'}
+
+            You will create State1 later.
+
+        \endlist
+
+    \o Select topLeftRect2 and edit its properties:
+
+        \list a
+
+            \o In the \gui Id field, enter \e bottomLeftRect.
+
+            \o In \gui {Layout}, select the bottom and left anchor buttons to
+            anchor the rectangle to the bottom left margin of the screen.
+
+            \o In the code editor, modify the pointer to a clicked expression in the
+            mouse area element. The following expression sets the state to \e State2:
+
+            \c {onClicked: page.state = 'State2'}
+
+            You will create State2 later.
+
+        \endlist
+
+    \o Press \key {Ctrl+R} to run the application in the QML Viewer.
+
     \endlist
 
-    The \gui Projects pane in the \gui Sidebar displays the project files:
+    \image qmldesigner-tutorial.png "States and transitions example"
 
-    \image qmldesigner-new-project-contents.png "HelloWorld project contents"
+    You should see the user icon in the top left rectangle, and two additional
+    rectangles in the center right and bottom left of the screen.
 
-    The .qmlproject file defines that all QML, JavaScript, and image files in
-    the project folder belong to the project.
+    You can now create additional states to add views to the application.
 
-    The .qml file contains the following example code that specifies a rectangle
-    and a label that contains
-    the text \bold {Hello World}.
+    \section1 Adding Views
 
-    \code
+    In the .qml file, you already created pointers to two additional states:
+    State1 and State2. To create the states:
 
-    import Qt 4.7
+    \list 1
 
-    Rectangle {
-        width: 200
-        height: 200
-        Text {
-            x: 66
-            y: 93
-            text: "Hello World"
+        \o Click the empty slot in the \gui States pane to create State1.
+
+        \o Drag and drop the user icon on top of middleRightRect.
+
+        \image qmldesigner-tutorial-state1.png "State 1"
+
+        \o Click the empty slot in the \gui States pane to create State2.
+
+        \o Drag and drop the user icon on top of bottomLeftRect.
+
+    \o Press \key {Ctrl+R} to run the application in the QML Viewer.
+
+    \endlist
+
+    Click the rectangles to move the user icon from one rectangle to another.
+
+    \section1 Adding Animation to the View
+
+    Add transitions to define how the properties change when the user icon moves
+    between states. The transitions apply animations to the user icon. For example,
+    the user icon bounces back when it moves to the middleRightRect and eases into
+    bottomLeftRect. Add the transitions in the code editor.
+
+    \list 1
+
+        \o In the code editor, add the following code to specify that when moving to
+        State1, the x and y coordinates of the user icon change linearly over a duration
+        of 1 second:
+
+        \code
+
+        transitions: [
+            Transition {
+                from: "*"; to: "State1"
+                NumberAnimation {
+                    properties: "x,y";
+                    duration: 1000
+                }
+            },
+
+        \endcode
+
+        \o You can use the Qt Quick toolbar for animation to change the easing curve
+        type from linear to OutBounce:
+
+        \list a
+
+            \o Select NumberAnimation and click
+            \inlineimage qml-toolbar-indicator.png
+            to open the toolbar:
+
+            \image qmldesigner-tutorial-quick-toolbar.png "Qt Quick toolbar for animation"
+
+            \o In the \gui Easing field, select \gui Bounce.
+
+            \o In the \gui Subtype field, select \gui Out.
+
+        \endlist
+
+        \o Add the following code to specify that when moving to State2, the x and y
+        coordinates of the user icon change over a duration of 2 seconds,
+        and an InOutQuad easing function is used:
+
+        \code
+
+        Transition {
+            from: "*"; to: "State2"
+            NumberAnimation {
+                properties: "x,y";
+                easing.type: Easing.InOutQuad;
+                duration: 2000
+            }
+        },
+
+        \endcode
+
+        \o Add the following code to specify that for any other state changes, the x
+        and y coordinates of the user icon change linearly over a duration of 200
+        milliseconds:
+
+        \code
+
+        Transition {
+            NumberAnimation {
+                properties: "x,y";
+                duration: 200
+            }
         }
-    }
 
-    \endcode
+        \endcode
 
-    Your application is now ready.
-
-    \section1 Running the Application
-
-    Press \key {Ctrl+R} to run the application in the QML Viewer.
-
-
-
-    \image qmldesigner-helloworld.png "Hello World"
-
-    \section1 Changing Hello World Properties
-
-    To experiment with QML and to try some of the code editor features, change the
-    properties of the rectangle and text. Move the cursor on \gui Rectangle and
-    press \key F1 to get help on the available properties. Try adding a \gui color
-    property to the \gui Rectangle. When you start to type,
-    the code completion feature of the code editor suggests properties, IDs, and
-    code snippets to complete the code. Select an item in the list and press
-    \key Tab or \key Enter to complete the code.
-
-    The code editor checks the code syntax and underlines syntax errors.
-    Move the cursor over an error to display detailed information about it.
-
-    The following code illustrates how to set the backround color
-    to light steel blue and the text color to white:
-
-    \code
-
-    import Qt 4.7
+        \o Press \key {Ctrl+R} to run the application in the QML Viewer.
 
     Rectangle {
         width: 200
@@ -3910,9 +4112,13 @@
         }
     }
 
-    \endcode
+    Click the rectangles to view the animated transitions.
 
-    \image qmldesigner-helloworld-edited.png "Hello World in blue and white"
+    \section1 Deploying the Application to Mobile Devices
+
+    To deploy the application to mobile devices, use the \gui {Qt Quick Application} wizard
+    to convert it into a Qt Quick application. For more information, see
+    \l{Importing QML Applications}.
 
 */
 

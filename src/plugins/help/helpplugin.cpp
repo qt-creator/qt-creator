@@ -772,6 +772,9 @@ HelpViewer* HelpPlugin::viewerForContextMode()
 {
     using namespace Core;
 
+    if (m_core->modeManager()->currentMode()->id() == Core::Constants::MODE_WELCOME)
+        m_core->modeManager()->activateMode(Core::Constants::MODE_EDIT);
+
     bool showSideBySide = false;
     RightPanePlaceHolder *placeHolder = RightPanePlaceHolder::current();
     switch (contextHelpOption()) {

@@ -25,9 +25,10 @@ GroupBox {
 
 
                 AnchorButtons {
-                    //opacity: enabled?1.0:0.5;
+                    opacity: enabled ? 1.0 : 0.3;
                     enabled: isInBaseState
                     fixedWidth:266
+                    toolTip: enabled ? qsTr("Set anchors") : qsTr("Setting anchors in states is not supported.")
                 }
             }
         }

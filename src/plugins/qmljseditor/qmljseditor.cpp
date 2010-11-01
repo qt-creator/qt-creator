@@ -405,14 +405,14 @@ protected:
 
     virtual bool visit(AST::UiObjectBinding *ast)
     {
-        if (ast->initializer)
+        if (ast->initializer && ast->initializer->lbraceToken.length)
             _ranges.append(createRange(ast, ast->initializer));
         return true;
     }
 
     virtual bool visit(AST::UiObjectDefinition *ast)
     {
-        if (ast->initializer)
+        if (ast->initializer && ast->initializer->lbraceToken.length)
             _ranges.append(createRange(ast, ast->initializer));
         return true;
     }

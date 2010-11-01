@@ -2896,6 +2896,9 @@ bool DebuggerPlugin::hasSnapsnots() const
 
 void DebuggerPlugin::remoteCommand(const QStringList &options, const QStringList &)
 {
+    if (options.isEmpty())
+        return;
+
     unsigned enabledEngines = 0;
     QString errorMessage;
     bool success = false;

@@ -4222,8 +4222,9 @@ Qt Creator не может подключиться к нему.</translation>
         <translation>Точка наблюдения: %1</translation>
     </message>
     <message>
-        <source>The CDB debug engine does not support the &apos;%1</source>
-        <translation>Движок отладчика CDB не поддерживает &quot;%1&quot;</translation>
+        <source>The CDB debug engine does not support the %1 toolchain.</source>
+        <extracomment>%1 is something like &quot;GCCE&quot; or &quot;Intel C++ Compiler (Linux)&quot; (see ToolChain context)</extracomment>
+        <translation type="unfinished">Движок отладчика CDB не поддерживает &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
