@@ -242,16 +242,17 @@ def qdump__QDir(d, item):
 
 
 def qdump__QFile(d, item):
-    d.putStringValue(call(item.value, "fileName()"))
-    d.putNumChild(2)
+    ptype = lookupType(d.ns + "QFilePrivate")
+    d_ptr = item.value["d_ptr"]["d"].dereference()
+    d.putStringValue(d_ptr.cast(ptype)["fileName"])
+    d.putNumChild(1)
     if d.isExpanded(item):
-        with Children(d, 2):
-            d.putCallItem("fileName", item, "fileName()")
+        with Children(d, 1):
             d.putCallItem("exists", item, "exists()")
 
 
 def qdump__QFileInfo(d, item):
-    d.putStringValue(call(item.value, "filePath()"))
+    d.putStringValue(item.value["d_ptr"]["d"].dereference()["fileName"])
     d.putNumChild(3)
     if d.isExpanded(item):
         with Children(d, 10, lookupType(d.ns + "QString")):
