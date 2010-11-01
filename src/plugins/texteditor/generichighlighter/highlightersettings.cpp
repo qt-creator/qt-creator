@@ -45,7 +45,7 @@ namespace Internal {
 
 QString findDefinitionsLocation()
 {
-#ifdef Q_OS_UNIX
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
     static const QLatin1String kateSyntax[] = {
         QLatin1String("/share/apps/katepart/syntax"),
         QLatin1String("/share/kde4/apps/katepart/syntax")
