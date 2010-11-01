@@ -65,3 +65,14 @@ void MainWindow::setOrientation(ScreenOrientation orientation)
     Q_UNUSED(orientation);
 #endif // Q_OS_SYMBIAN
 }
+
+void MainWindow::showExpanded()
+{
+#ifdef Q_OS_SYMBIAN
+    showFullScreen();
+#elif defined(Q_WS_MAEMO_5) || defined(Q_WS_MAEMO_6)
+    showMaximized();
+#else
+    show();
+#endif
+}

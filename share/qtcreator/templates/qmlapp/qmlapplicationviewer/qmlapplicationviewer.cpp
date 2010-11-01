@@ -123,13 +123,13 @@ void QmlApplicationViewer::setOrientation(ScreenOrientation orientation)
 #endif // Q_OS_SYMBIAN
 }
 
-void QmlApplicationViewer::show()
+void QmlApplicationViewer::showExpanded()
 {
 #ifdef Q_OS_SYMBIAN
     showFullScreen();
 #elif defined(Q_WS_MAEMO_5) || defined(Q_WS_MAEMO_6)
     showMaximized();
 #else
-    QDeclarativeView::show();
+    show();
 #endif
 }

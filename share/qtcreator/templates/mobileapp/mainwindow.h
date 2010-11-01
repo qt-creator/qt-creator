@@ -29,6 +29,7 @@ public:
     virtual ~MainWindow();
 
     void setOrientation(ScreenOrientation orientation);
+    void showExpanded();
 
 private:
     Ui::MainWindow *ui;
