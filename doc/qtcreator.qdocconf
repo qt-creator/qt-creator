@@ -20,12 +20,12 @@ sources.fileextensions  = "qtcreator.qdoc maemodev.qdoc symbiandev.qdoc addressb
 
 qhp.projects            = QtCreator
 qhp.QtCreator.file             = qtcreator.qhp
-qhp.QtCreator.namespace        = com.nokia.qtcreator.2181
+qhp.QtCreator.namespace        = com.nokia.qtcreator.$QTC_VERSION_TAG
 qhp.QtCreator.virtualFolder    = doc
 qhp.QtCreator.indexTitle       = Qt Creator
-qhp.QtCreator.filterAttributes = qtcreator 2.1.81
-qhp.QtCreator.customFilters.QtCreator.name = Qt Creator 2.1.81
-qhp.QtCreator.customFilters.QtCreator.filterAttributes = qtcreator 2.1.81
+qhp.QtCreator.filterAttributes = qtcreator $QTC_VERSION
+qhp.QtCreator.customFilters.QtCreator.name = Qt Creator $QTC_VERSION
+qhp.QtCreator.customFilters.QtCreator.filterAttributes = qtcreator $QTC_VERSION
 qhp.QtCreator.indexRoot        =
 qhp.QtCreator.extraFiles       = style/style.css \
                           style/style_ie6.css \
@@ -65,6 +65,8 @@ qhp.QtCreator.subprojects.manual.indexTitle = Qt Creator Manual
 qhp.QtCreator.subprojects.manual.type = manual
 
 # macros.qdocconf
+
+macro.qtcversion        = $QTC_VERSION
 
 macro.aring.HTML        = "&aring;"
 macro.Auml.HTML         = "&Auml;"

@@ -17,16 +17,29 @@ isEmpty(TARGET) {
     error("qtcreatorplugin.pri: You must provide a TARGET")
 }
 
-PLUGINSPECS = $${_PRO_FILE_PWD_}/$${TARGET}.pluginspec
-copy2build.input = PLUGINSPECS
-copy2build.output = $$DESTDIR/${QMAKE_FUNC_FILE_IN_stripSrcDir}
+defineReplace(stripOutDir) {
+    1 ~= s|^$$re_escape($$OUT_PWD/)||$$i_flag
+    return($$1)
+}
+
+PLUGINSPEC = $$_PRO_FILE_PWD_/$${TARGET}.pluginspec
+PLUGINSPEC_IN = $${PLUGINSPEC}.in
+exists($$PLUGINSPEC_IN) {
+    OTHER_FILES += $$PLUGINSPEC_IN
+    PLUGINSPEC = $$OUT_PWD/$${TARGET}.pluginspec
+    QMAKE_SUBSTITUTES += $${PLUGINSPEC}.in
+    copy2build.output = $$DESTDIR/${QMAKE_FUNC_FILE_IN_stripOutDir}
+} else {
+    # need to support that for external plugins
+    OTHER_FILES += $$PLUGINSPEC
+    copy2build.output = $$DESTDIR/${QMAKE_FUNC_FILE_IN_stripSrcDir}
+}
+copy2build.input = PLUGINSPEC
 isEmpty(vcproj):copy2build.variable_out = PRE_TARGETDEPS
 copy2build.commands = $$QMAKE_COPY ${QMAKE_FILE_IN} ${QMAKE_FILE_OUT}
 copy2build.name = COPY ${QMAKE_FILE_IN}
 copy2build.CONFIG += no_link
 QMAKE_EXTRA_COMPILERS += copy2build
-
-OTHER_FILES += $$PLUGINSPECS
 
 macx {
     !isEmpty(TIGER_COMPAT_MODE) {
