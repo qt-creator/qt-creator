@@ -2051,12 +2051,11 @@ void ProjectExplorerPlugin::updateContextMenuActions(Node *node)
     }
 }
 
-void ProjectExplorerPlugin::addNewFile()
+QString ProjectExplorerPlugin::directoryFor(Node *node)
 {
-    QTC_ASSERT(d->m_currentNode, return)
-    QString path = d->m_currentNode->path();
+    QString path = node->path();
     QString location;
-    FolderNode *folder = qobject_cast<FolderNode *>(d->m_currentNode);
+    FolderNode *folder = qobject_cast<FolderNode *>(node);
     if (path.contains("#") && folder) {
         // Virtual Folder case
         // We figure out a commonPath from the subfolders
@@ -2071,6 +2070,14 @@ void ProjectExplorerPlugin::addNewFile()
         QFileInfo fi(path);
         location = (fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath());
     }
+    return location;
+}
+
+void ProjectExplorerPlugin::addNewFile()
+{
+    QTC_ASSERT(d->m_currentNode, return)
+    QString location = directoryFor(d->m_currentNode);
+
     Core::ICore::instance()->showNewItemDialog(tr("New File", "Title of dialog"),
                               Core::IWizard::wizardsOfKind(Core::IWizard::FileWizard)
                               + Core::IWizard::wizardsOfKind(Core::IWizard::ClassWizard),
@@ -2083,8 +2090,7 @@ void ProjectExplorerPlugin::addExistingFiles()
 
     ProjectNode *projectNode = qobject_cast<ProjectNode*>(d->m_currentNode->projectNode());
     Core::ICore *core = Core::ICore::instance();
-    QFileInfo fi(d->m_currentNode->path());
-    const QString dir = (fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath());
+    const QString dir = directoryFor(d->m_currentNode);
     QStringList fileNames = QFileDialog::getOpenFileNames(core->mainWindow(), tr("Add Existing Files"), dir);
     if (fileNames.isEmpty())
         return;
@@ -2156,13 +2162,13 @@ void ProjectExplorerPlugin::showInGraphicalShell()
 {
     QTC_ASSERT(d->m_currentNode, return)
     FolderNavigationWidget::showInGraphicalShell(Core::ICore::instance()->mainWindow(),
-                                                 d->m_currentNode->path());
+                                                 directoryFor(d->m_currentNode));
 }
 
 void ProjectExplorerPlugin::openTerminalHere()
 {
     QTC_ASSERT(d->m_currentNode, return)
-    FolderNavigationWidget::openTerminal(d->m_currentNode->path());
+    FolderNavigationWidget::openTerminal(directoryFor(d->m_currentNode));
 }
 
 void ProjectExplorerPlugin::removeFile()
