@@ -1153,8 +1153,12 @@ void MainWindow::aboutToShutdown()
 }
 
 static const char *settingsGroup = "MainWindow";
-static const char *geometryKey = "Geometry";
 static const char *colorKey = "Color";
+static const char *windowGeometryKey = "WindowGeometry";
+static const char *windowStateKey = "WindowState";
+
+// TODO compat for <= 2.1, remove later
+static const char *geometryKey = "Geometry";
 static const char *maxKey = "Maximized";
 static const char *fullScreenKey = "FullScreen";
 
@@ -1172,15 +1176,27 @@ void MainWindow::readSettings()
                                   QColor(Utils::StyleHelper::DEFAULT_BASE_COLOR)).value<QColor>());
     }
 
-    const QVariant geom = m_settings->value(QLatin1String(geometryKey));
-    if (geom.isValid()) {
-        setGeometry(geom.toRect());
+    // TODO compat for <= 2.1, remove later
+    if (m_settings->contains(QLatin1String(geometryKey))) {
+        const QVariant geom = m_settings->value(QLatin1String(geometryKey));
+        if (geom.isValid()) {
+            setGeometry(geom.toRect());
+        } else {
+            resize(1024, 700);
+        }
+        if (m_settings->value(QLatin1String(maxKey), false).toBool())
+            setWindowState(Qt::WindowMaximized);
+        setFullScreen(m_settings->value(QLatin1String(fullScreenKey), false).toBool());
+
+        m_settings->remove(QLatin1String(geometryKey));
+        m_settings->remove(QLatin1String(maxKey));
+        m_settings->remove(QLatin1String(fullScreenKey));
     } else {
-        resize(1024, 700);
+        if (!restoreGeometry(m_settings->value(QLatin1String(windowGeometryKey)).toByteArray())) {
+            resize(1024, 700);
+        }
+        restoreState(m_settings->value(QLatin1String(windowStateKey)).toByteArray());
     }
-    if (m_settings->value(QLatin1String(maxKey), false).toBool())
-        setWindowState(Qt::WindowMaximized);
-    setFullScreen(m_settings->value(QLatin1String(fullScreenKey), false).toBool());
 
     m_settings->endGroup();
 
@@ -1196,14 +1212,8 @@ void MainWindow::writeSettings()
     if (!(m_overrideColor.isValid() && Utils::StyleHelper::baseColor() == m_overrideColor))
         m_settings->setValue(QLatin1String(colorKey), Utils::StyleHelper::requestedBaseColor());
 
-    if (windowState() & (Qt::WindowMaximized | Qt::WindowFullScreen)) {
-        m_settings->setValue(QLatin1String(maxKey), (bool) (windowState() & Qt::WindowMaximized));
-        m_settings->setValue(QLatin1String(fullScreenKey), (bool) (windowState() & Qt::WindowFullScreen));
-    } else {
-        m_settings->setValue(QLatin1String(maxKey), false);
-        m_settings->setValue(QLatin1String(fullScreenKey), false);
-        m_settings->setValue(QLatin1String(geometryKey), geometry());
-    }
+    m_settings->setValue(QLatin1String(windowGeometryKey), saveGeometry());
+    m_settings->setValue(QLatin1String(windowStateKey), saveState());
 
     m_settings->endGroup();
 
