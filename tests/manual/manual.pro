@@ -9,11 +9,6 @@ preprocessor \
 subdir_proparser \
 trklauncher
 
-win32 {
-#   Uses CDB debugger
-    SUBDIRS += ccdb
-}
-
 unix {
 #   Uses popen
     SUBDIRS += \

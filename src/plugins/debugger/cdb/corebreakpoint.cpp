@@ -29,8 +29,9 @@
 
 #include "corebreakpoint.h"
 #include "coreengine.h"
-#include "dbgwinutils.h"
-
+#ifndef TEST_COMPILE // Usage in manual tests
+#    include "dbgwinutils.h"
+#endif
 #include <utils/qtcassert.h>
 
 #include <QtCore/QTextStream>
@@ -246,6 +247,9 @@ Q_GLOBAL_STATIC(NormalizedFileCache, normalizedFileNameCache)
 
 QString BreakPoint::normalizeFileName(const QString &f)
 {
+#ifdef TEST_COMPILE // Usage in manual tests
+    return f;
+#else
     QTC_ASSERT(!f.isEmpty(), return f)
     const NormalizedFileCache::const_iterator it = normalizedFileNameCache()->constFind(f);
     if (it != normalizedFileNameCache()->constEnd())
@@ -256,6 +260,7 @@ QString BreakPoint::normalizeFileName(const QString &f)
         normalizedName[0] = normalizedName.at(0).toUpper();
     normalizedFileNameCache()->insert(f, normalizedName);
     return normalizedName;
+#endif
 }
 
 void BreakPoint::clearNormalizeFileNameCache()
