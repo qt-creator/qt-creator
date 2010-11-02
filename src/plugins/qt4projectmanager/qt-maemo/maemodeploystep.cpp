@@ -422,11 +422,9 @@ void MaemoDeployStep::handleUnmounted()
 
     switch (m_unmountState) {
     case OldDirsUnmount:
-#if 0 // TODO: Disabled for 2.1. Re-enable later or throw away for good.
         if (toolChain()->allowsRemoteMounts())
             setupMount();
         else
-#endif
             prepareSftpConnection();
         break;
     case CurrentDirsUnmount:
