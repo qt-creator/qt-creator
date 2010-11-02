@@ -31,8 +31,6 @@
 #define ICORE_H
 
 #include "core_global.h"
-#include "dialogs/iwizard.h"
-#include "uniqueidmanager.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QSettings>
@@ -40,14 +38,13 @@
 QT_BEGIN_NAMESPACE
 class QMainWindow;
 class QPrinter;
-class QSettings;
 class QStatusBar;
 template <class T> class QList;
 QT_END_NAMESPACE
 
 
 namespace Core {
-
+class IWizard;
 class ActionManager;
 class Context;
 class EditorManager;

@@ -37,6 +37,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditoractionhandler.h>

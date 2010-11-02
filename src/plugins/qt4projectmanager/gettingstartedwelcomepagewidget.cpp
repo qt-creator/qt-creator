@@ -35,6 +35,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/rssfetcher.h>
+#include <coreplugin/dialogs/iwizard.h>
 #include <projectexplorer/projectexplorer.h>
 
 #include <utils/pathchooser.h>

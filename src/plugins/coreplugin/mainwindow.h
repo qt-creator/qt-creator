@@ -30,15 +30,12 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "eventfilteringmainwindow.h"
 #include "icontext.h"
 #include "icore.h"
-#include "dialogs/iwizard.h"
-
-#include "eventfilteringmainwindow.h"
 
 #include <QtCore/QMap>
 #include <QtGui/QColor>
-#include <QtCore/QSettings>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -54,7 +51,6 @@ class StatusBarWidget;
 class EditorManager;
 class FileManager;
 class HelpManager;
-class IContext;
 class IWizard;
 class MessageManager;
 class MimeDatabase;

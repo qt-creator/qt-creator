@@ -51,6 +51,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/manhattanstyle.h>
+#include <coreplugin/uniqueidmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <find/basetextfind.h>
 #include <utils/linecolumnlabel.h>

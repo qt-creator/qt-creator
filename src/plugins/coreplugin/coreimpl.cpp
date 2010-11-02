@@ -32,7 +32,6 @@
 
 #include <QtCore/QDir>
 #include <QtCore/QCoreApplication>
-#include <QtCore/QSettings>
 #include <QtCore/QDebug>
 
 #include <QtGui/QStatusBar>
