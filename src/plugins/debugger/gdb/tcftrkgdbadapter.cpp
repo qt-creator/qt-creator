@@ -28,9 +28,9 @@
 **************************************************************************/
 
 #include "tcftrkgdbadapter.h"
-
 #include "tcftrkdevice.h"
 #include "trkutils.h"
+#include "gdbmi.h"
 
 #include "registerhandler.h"
 #include "threadshandler.h"

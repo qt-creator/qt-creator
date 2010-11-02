@@ -3,8 +3,6 @@
 #include <QtCore/QTextStream>
 #include <QtCore/QDebug>
 
-#include <QtCore/QCoreApplication>
-
 ////////////////////////////////////////////////////////////////////
 //
 // WatchData

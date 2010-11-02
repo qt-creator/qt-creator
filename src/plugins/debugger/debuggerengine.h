@@ -37,7 +37,6 @@
 #include <coreplugin/ssh/sshconnection.h> 
 
 #include <QtCore/QObject>
-#include <QtCore/QSharedPointer>
 #include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE

@@ -31,10 +31,9 @@
 #define DEBUGGER_TERMGDBADAPTER_H
 
 #include "abstractgdbadapter.h"
+#include "localgdbprocess.h"
 
-#include "abstractgdbprocess.h"
-
-#include <consoleprocess.h>
+#include <utils/consoleprocess.h>
 
 namespace Debugger {
 namespace Internal {

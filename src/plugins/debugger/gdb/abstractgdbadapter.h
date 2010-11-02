@@ -30,14 +30,18 @@
 #ifndef DEBUGGER_ABSTRACT_GDB_ADAPTER
 #define DEBUGGER_ABSTRACT_GDB_ADAPTER
 
+#include "debuggerconstants.h"
+
 #include <QtCore/QObject>
 
-#include "gdbengine.h"
-
 namespace Debugger {
+class DebuggerStartParameters;
+
 namespace Internal {
 
 class AbstractGdbProcess;
+class GdbEngine;
+class GdbResponse;
 
 // AbstractGdbAdapter is inherited by PlainGdbAdapter used for local
 // debugging and TrkGdbAdapter used for on-device debugging.
@@ -85,14 +89,10 @@ public:
     virtual void trkReloadThreads() {}
 
 protected:
-    DebuggerState state() const
-        { return m_engine->state(); }
-    const DebuggerStartParameters &startParameters() const
-        { return m_engine->startParameters(); }
-    DebuggerStartParameters &startParameters()
-        { return m_engine->startParameters(); }
-    void showMessage(const QString &msg, int channel = LogDebug, int timeout = 1)
-        { m_engine->showMessage(msg, channel, timeout); }
+    DebuggerState state() const;
+    const DebuggerStartParameters &startParameters() const;
+    DebuggerStartParameters &startParameters();
+    void showMessage(const QString &msg, int channel = LogDebug, int timeout = 1);
 
     GdbEngine * const m_engine;
 };

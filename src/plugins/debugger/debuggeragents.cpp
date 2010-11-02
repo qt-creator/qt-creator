@@ -44,7 +44,6 @@
 #include <texteditor/basetexteditor.h>
 #include <texteditor/plaintexteditor.h>
 #include <texteditor/basetextmark.h>
-#include <texteditor/itexteditor.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/basetextdocument.h>
 

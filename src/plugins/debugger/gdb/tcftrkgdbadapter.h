@@ -31,7 +31,7 @@
 #define DEBUGGER_TCFTRKGDBADAPTER_H
 
 #include "abstractgdbadapter.h"
-
+#include "localgdbprocess.h"
 #include "callback.h"
 #include "trkutils.h"
 #include "symbian.h"

@@ -53,8 +53,6 @@ class GdbEngine;
 class AbstractGdbAdapter;
 }
 
-//DEBUGGER_EXPORT QDebug operator<<(QDebug str, const DebuggerStartParameters &);
-
 class DEBUGGER_EXPORT DebuggerRunControlFactory
     : public ProjectExplorer::IRunControlFactory
 {

@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "termgdbadapter.h"
-
+#include "gdbmi.h"
 #include "gdbengine.h"
 #include "procinterrupt.h"
 #include "debuggerstringutils.h"

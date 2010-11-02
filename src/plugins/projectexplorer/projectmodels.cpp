@@ -40,10 +40,8 @@
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
 
-#include <QtGui/QApplication>
+#include <QtGui/QFont>
 #include <QtGui/QIcon>
-#include <QtGui/QMessageBox>
-#include <QtGui/QStyle>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;

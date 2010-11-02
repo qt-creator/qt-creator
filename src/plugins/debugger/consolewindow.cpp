@@ -28,32 +28,22 @@
 **************************************************************************/
 
 #include "consolewindow.h"
+#include "logwindow.h"
 
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
 
 #include <QtCore/QDebug>
-#include <QtCore/QFile>
-#include <QtCore/QTime>
 
-#include <QtGui/QAction>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QKeyEvent>
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
 #include <QtGui/QMenu>
-#include <QtGui/QSpacerItem>
-#include <QtGui/QSplitter>
 #include <QtGui/QSyntaxHighlighter>
-#include <QtGui/QTextBlock>
 #include <QtGui/QPlainTextEdit>
-#include <QtGui/QFileDialog>
-#include <QtGui/QMessageBox>
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/findplaceholder.h>
-#include <coreplugin/minisplitter.h>
 #include <find/basetextfind.h>
 
 #include <utils/savedaction.h>
@@ -268,24 +258,8 @@ private:
 
 void Console::saveContents()
 {
-    while (true) {
-        const QString fileName = QFileDialog::getSaveFileName(this, tr("Log File"));
-        if (fileName.isEmpty())
-            break;
-        QFile file(fileName);
-        if (file.open(QIODevice::WriteOnly|QIODevice::Text|QIODevice::Truncate)) {
-            file.write(toPlainText().toUtf8());
-            file.close();
-            break;
-        } else {
-            QMessageBox::warning(this, tr("Write Failure"),
-                                 tr("Unable to write log contents to '%1': %2").
-                                 arg(fileName, file.errorString()));
-        }
-    }
+    LogWindow::writeLogContents(this, this);
 }
-
-
 
 /////////////////////////////////////////////////////////////////////
 //

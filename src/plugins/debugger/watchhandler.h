@@ -33,7 +33,6 @@
 #include "watchdata.h"
 
 #include <QtCore/QPointer>
-#include <QtCore/QObject>
 #include <QtCore/QHash>
 #include <QtCore/QSet>
 #include <QtCore/QStringList>

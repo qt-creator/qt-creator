@@ -35,7 +35,6 @@
 #include "debuggerdialogs.h"
 #include "debuggerengine.h"
 #include "debuggermainwindow.h"
-#include "debuggerplugin.h"
 #include "debuggerrunner.h"
 #include "debuggerstringutils.h"
 #include "debuggertooltip.h"
@@ -52,16 +51,9 @@
 #include "threadswindow.h"
 #include "watchwindow.h"
 
-#include "breakhandler.h"
 #include "sessionengine.h"
 #include "snapshothandler.h"
 #include "threadshandler.h"
-#include "watchutils.h"
-
-#ifdef Q_OS_WIN
-#  include "shared/peutils.h"
-#endif
-
 
 #include "ui_commonoptionspage.h"
 #include "ui_dumperoptionpage.h"
@@ -79,15 +71,8 @@
 #include <coreplugin/imode.h>
 #include <coreplugin/icorelistener.h>
 #include <coreplugin/manhattanstyle.h>
-#include <coreplugin/messagemanager.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/modemanager.h>
-#include <coreplugin/navigationwidget.h>
-#include <coreplugin/outputpane.h>
-#include <coreplugin/rightpane.h>
-
-#include <cplusplus/ExpressionUnderCursor.h>
-#include <cplusplus/CppDocument.h>
 
 #include <cppeditor/cppeditorconstants.h>
 #include <cpptools/cppmodelmanagerinterface.h>
@@ -104,11 +89,7 @@
 #include <texteditor/basetexteditor.h>
 #include <texteditor/basetextmark.h>
 #include <texteditor/fontsettings.h>
-#include <texteditor/itexteditor.h>
-#include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
-
-//#include <qt4projectmanager/qt4projectmanagerconstants.h>
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
@@ -116,40 +97,13 @@
 
 #include <qml/scriptconsole.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QObject>
-#include <QtCore/QPoint>
-#include <QtCore/QSettings>
-#include <QtCore/QTextStream>
-#include <QtCore/QTime>
 #include <QtCore/QTimer>
-#include <QtCore/QVariant>
 #include <QtCore/QtPlugin>
-#include <QtCore/QScopedPointer>
-
-#include <QtGui/QAbstractItemView>
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
 #include <QtGui/QComboBox>
 #include <QtGui/QDockWidget>
-#include <QtGui/QErrorMessage>
 #include <QtGui/QFileDialog>
-#include <QtGui/QHeaderView>
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
-#include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
-#include <QtGui/QPlainTextEdit>
-#include <QtGui/QPushButton>
-#include <QtGui/QStatusBar>
-#include <QtGui/QTextBlock>
-#include <QtGui/QTextCursor>
 #include <QtGui/QToolButton>
-#include <QtGui/QToolTip>
-#include <QtGui/QTreeWidget>
 
 #include <climits>
 

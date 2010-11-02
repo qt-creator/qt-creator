@@ -30,12 +30,8 @@
 #include "currentprojectfilter.h"
 #include "projectexplorer.h"
 #include "project.h"
-#include "session.h"
 
 #include <QtCore/QtDebug>
-#include <QtCore/QThread>
-#include <QtCore/QTimer>
-#include <QtCore/QVariant>
 
 using namespace Core;
 using namespace Locator;

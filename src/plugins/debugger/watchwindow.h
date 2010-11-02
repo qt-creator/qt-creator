@@ -32,7 +32,6 @@
 
 #include <QtGui/QTreeView>
 
-
 namespace Debugger {
 namespace Internal {
 

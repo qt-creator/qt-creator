@@ -28,11 +28,11 @@
 **************************************************************************/
 
 #include "remoteplaingdbadapter.h"
+#include "gdbengine.h"
 
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggerstringutils.h>
 #include <utils/qtcassert.h>
-
 
 namespace Debugger {
 namespace Internal {

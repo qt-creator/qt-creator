@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "attachgdbadapter.h"
+#include "gdbmi.h"
 
 #include "gdbengine.h"
 #include "procinterrupt.h"

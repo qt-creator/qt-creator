@@ -32,9 +32,11 @@
 
 #include "projectexplorer_export.h"
 
-#include <coreplugin/icontext.h>
 #include <QtCore/QObject>
 
+namespace Core {
+class Context;
+}
 namespace ProjectExplorer {
 
 class Project;

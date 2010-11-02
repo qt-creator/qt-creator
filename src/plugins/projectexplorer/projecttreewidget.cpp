@@ -46,6 +46,7 @@
 #include <QtCore/QSettings>
 
 #include <QtGui/QHeaderView>
+#include <QtGui/QTreeView>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QToolButton>
 #include <QtGui/QFocusEvent>

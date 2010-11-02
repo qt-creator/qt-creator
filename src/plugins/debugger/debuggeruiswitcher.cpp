@@ -29,13 +29,8 @@
 
 #include "debuggeruiswitcher.h"
 #include "debuggermainwindow.h"
-#include "debuggeractions.h"
-#include "debuggerconstants.h"
-#include "debuggerrunner.h"
 #include "debuggerplugin.h"
-#include "savedaction.h"
 
-#include <utils/savedaction.h>
 #include <utils/styledbar.h>
 #include <utils/qtcassert.h>
 
@@ -48,7 +43,6 @@
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
-#include <coreplugin/modemanager.h>
 #include <coreplugin/navigationwidget.h>
 #include <coreplugin/outputpane.h>
 #include <coreplugin/rightpane.h>
@@ -60,7 +54,6 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/runconfiguration.h>
 
-#include <QtGui/QActionGroup>
 #include <QtGui/QStackedWidget>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QMenu>

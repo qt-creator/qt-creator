@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "abstractgdbadapter.h"
-
+#include "gdbengine.h"
 #include "abstractgdbprocess.h"
 
 #include <utils/qtcassert.h>
@@ -102,6 +102,26 @@ QString AbstractGdbAdapter::msgAttachedToStoppedInferior()
 QString AbstractGdbAdapter::msgConnectRemoteServerFailed(const QString &why)
 {
     return tr("Connecting to remote server failed:\n%1").arg(why);
+}
+
+DebuggerState AbstractGdbAdapter::state() const
+{
+    return m_engine->state();
+}
+
+const DebuggerStartParameters &AbstractGdbAdapter::startParameters() const
+{
+    return m_engine->startParameters();
+}
+
+DebuggerStartParameters &AbstractGdbAdapter::startParameters()
+{
+    return m_engine->startParameters();
+}
+
+void AbstractGdbAdapter::showMessage(const QString &msg, int channel, int timeout)
+{
+    m_engine->showMessage(msg, channel, timeout);
 }
 
 } // namespace Internal

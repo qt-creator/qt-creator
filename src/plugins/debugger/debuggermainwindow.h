@@ -31,7 +31,6 @@
 #define DEBUGGERMAINWINDOW_H
 
 #include <utils/fancymainwindow.h>
-#include "debuggerconstants.h"
 
 QT_FORWARD_DECLARE_CLASS(QMenu);
 

@@ -28,7 +28,8 @@
 **************************************************************************/
 
 #include "abstractplaingdbadapter.h"
-
+#include "gdbmi.h"
+#include "gdbengine.h"
 #include "debuggeractions.h"
 #include "debuggerstringutils.h"
 

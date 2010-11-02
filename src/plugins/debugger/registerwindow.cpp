@@ -38,18 +38,12 @@
 #include <utils/savedaction.h>
 
 #include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QFileInfoList>
 
-#include <QtGui/QAction>
 #include <QtGui/QHeaderView>
 #include <QtGui/QItemDelegate>
-#include <QtGui/QLineEdit>
 #include <QtGui/QMenu>
 #include <QtGui/QPainter>
 #include <QtGui/QResizeEvent>
-#include <QtGui/QToolButton>
 
 namespace Debugger {
 namespace Internal {

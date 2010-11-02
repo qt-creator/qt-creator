@@ -30,10 +30,7 @@
 #ifndef QTUICODEMODELSUPPORT_H
 #define QTUICODEMODELSUPPORT_H
 
-#include <cpptools/cppmodelmanagerinterface.h>
 #include <cpptools/uicodecompletionsupport.h>
-
-#include <QtCore/QDateTime>
 
 namespace Qt4ProjectManager {
 class Qt4Project;
@@ -46,7 +43,7 @@ public:
                           Qt4Project *project,
                           const QString &sourceFile,
                           const QString &uiHeaderFile);
-    ~Qt4UiCodeModelSupport();
+    virtual ~Qt4UiCodeModelSupport();
 protected:
     virtual QString uicCommand() const;
     virtual QStringList environment() const;

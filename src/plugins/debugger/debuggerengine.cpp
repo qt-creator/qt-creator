@@ -49,11 +49,11 @@
 #include "breakwindow.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/ifile.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 
-#include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/toolchaintype.h>
 
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
@@ -65,8 +65,6 @@
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
 #include <QtCore/QTimer>
 #include <QtCore/QFutureInterface>
 
@@ -79,7 +77,6 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextCursor>
-#include <QtGui/QTextDocument>
 #include <QtGui/QTreeWidget>
 #include <QtGui/QMainWindow>
 

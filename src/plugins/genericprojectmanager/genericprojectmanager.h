@@ -31,6 +31,7 @@
 #define GENERICPROJECTMANAGER_H
 
 #include <projectexplorer/iprojectmanager.h>
+#include <coreplugin/icontext.h>
 
 namespace GenericProjectManager {
 namespace Internal {

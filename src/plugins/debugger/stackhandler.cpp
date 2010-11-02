@@ -36,10 +36,8 @@
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
-#include <QtCore/QAbstractTableModel>
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
-
 
 namespace Debugger {
 namespace Internal {

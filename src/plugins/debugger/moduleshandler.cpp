@@ -33,12 +33,6 @@
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QTextStream>
-
-#include <QtGui/QAction>
-#include <QtGui/QMainWindow>
-#include <QtGui/QStandardItemModel>
 #include <QtGui/QSortFilterProxyModel>
 
 

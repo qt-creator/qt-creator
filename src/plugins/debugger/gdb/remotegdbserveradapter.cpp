@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "remotegdbserveradapter.h"
-
+#include "gdbmi.h"
 #include "debuggerstringutils.h"
 #include "gdbengine.h"
 

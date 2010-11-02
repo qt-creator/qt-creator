@@ -32,8 +32,6 @@
 
 #include <locator/basefilefilter.h>
 
-#include <QtCore/QString>
-#include <QtCore/QByteArray>
 #include <QtCore/QFutureInterface>
 
 namespace ProjectExplorer {

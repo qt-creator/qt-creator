@@ -29,20 +29,17 @@
 
 #include "debuggertooltip.h"
 
-#include <QtCore/QPointer>
 #include <QtCore/QtDebug>
+#include <QtCore/QPointer>
 
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopWidget>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QHeaderView>
 #include <QtGui/QKeyEvent>
-#include <QtGui/QLabel>
 #include <QtGui/QScrollBar>
 #include <QtGui/QTreeView>
 #include <QtGui/QVBoxLayout>
-#include <QtGui/QWidget>
-
 
 namespace Debugger {
 namespace Internal {

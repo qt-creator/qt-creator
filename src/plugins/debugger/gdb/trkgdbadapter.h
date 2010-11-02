@@ -31,7 +31,7 @@
 #define DEBUGGER_TRKGDBADAPTER_H
 
 #include "abstractgdbadapter.h"
-
+#include "localgdbprocess.h"
 #include "trkutils.h"
 #include "callback.h"
 #include "symbian.h"

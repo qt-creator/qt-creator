@@ -32,7 +32,6 @@
 
 #include <coreplugin/ifilefactory.h>
 
-#include <QtCore/QObject>
 #include <QtCore/QStringList>
 
 namespace ProjectExplorer {

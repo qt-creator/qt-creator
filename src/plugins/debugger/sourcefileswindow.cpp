@@ -38,12 +38,9 @@
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
 
-#include <QtGui/QAction>
 #include <QtGui/QHeaderView>
 #include <QtGui/QMenu>
 #include <QtGui/QResizeEvent>
-#include <QtGui/QTreeView>
-
 
 //////////////////////////////////////////////////////////////////
 //

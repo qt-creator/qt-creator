@@ -38,16 +38,11 @@
 
 #include <QtCore/QDebug>
 
-#include <QtGui/QAction>
 #include <QtGui/QApplication>
 #include <QtGui/QClipboard>
-#include <QtGui/QComboBox>
 #include <QtGui/QHeaderView>
 #include <QtGui/QMenu>
 #include <QtGui/QResizeEvent>
-#include <QtGui/QTreeView>
-#include <QtGui/QVBoxLayout>
-
 
 namespace Debugger {
 namespace Internal {

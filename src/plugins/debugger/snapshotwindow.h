@@ -33,7 +33,6 @@
 #include <QtGui/QTreeView>
 
 QT_BEGIN_NAMESPACE
-class QComboBox;
 class QModelIndex;
 QT_END_NAMESPACE
 

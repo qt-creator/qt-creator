@@ -37,7 +37,6 @@
 
 #include <QtCore/QDebug>
 
-#include <QtGui/QAction>
 #include <QtGui/QHeaderView>
 #include <QtGui/QMenu>
 #include <QtGui/QResizeEvent>

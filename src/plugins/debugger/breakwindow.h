@@ -30,13 +30,12 @@
 #ifndef DEBUGGER_BREAKWINDOW_H
 #define DEBUGGER_BREAKWINDOW_H
 
-#include "breakpoint.h"
-
 #include <QtGui/QTreeView>
 
 namespace Debugger {
 namespace Internal {
 
+class BreakpointData;
 class BreakWindow : public QTreeView
 {
     Q_OBJECT

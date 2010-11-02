@@ -30,19 +30,16 @@
 #include "snapshothandler.h"
 
 #include "sessionengine.h"
-#include "debuggeractions.h"
 #include "debuggerconstants.h"
 #include "debuggerengine.h"
 #include "debuggerrunner.h"
 #include "debuggerplugin.h"
 
 #include <utils/qtcassert.h>
-#include <utils/savedaction.h>
 
-#include <QtCore/QAbstractTableModel>
 #include <QtCore/QDebug>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
+#include <QtCore/QFile>
+#include <QtGui/QIcon>
 
 namespace Debugger {
 namespace Internal {

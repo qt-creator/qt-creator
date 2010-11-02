@@ -32,12 +32,11 @@
 
 #include "debuggerengine.h"
 
-#include "gdbmi.h"
-#include "localgdbprocess.h"
 #include "stackframe.h"
 #include "watchutils.h"
 
 #include <QtCore/QByteArray>
+#include <QtCore/QProcess>
 #include <QtCore/QHash>
 #include <QtCore/QMap>
 #include <QtCore/QMultiMap>
@@ -47,11 +46,9 @@
 #include <QtCore/QTextCodec>
 #include <QtCore/QTime>
 #include <QtCore/QVariant>
-#include <QtCore/QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QMainWindow;
-class QMessageBox;
 class QTimer;
 QT_END_NAMESPACE
 

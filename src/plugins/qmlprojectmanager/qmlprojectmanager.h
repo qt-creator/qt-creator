@@ -31,6 +31,7 @@
 #define QMLPROJECTMANAGER_H
 
 #include <projectexplorer/iprojectmanager.h>
+#include <coreplugin/icontext.h>
 
 namespace QmlProjectManager {
 

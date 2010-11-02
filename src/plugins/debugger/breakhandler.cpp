@@ -35,16 +35,11 @@
 #include "debuggerplugin.h"
 #include "debuggerstringutils.h"
 #include "threadshandler.h"
-#include "stackhandler.h"
-#include "stackframe.h"
 
-#include <texteditor/basetextmark.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDir>
-#include <QtCore/QByteArray>
 #include <QtCore/QFileInfo>
-
 
 namespace Debugger {
 namespace Internal {

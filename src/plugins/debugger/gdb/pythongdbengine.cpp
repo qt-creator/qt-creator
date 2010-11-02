@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "gdbengine.h"
-
+#include "gdbmi.h"
 #include "abstractgdbadapter.h"
 #include "debuggeractions.h"
 #include "debuggerstringutils.h"

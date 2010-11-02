@@ -30,9 +30,8 @@
 #ifndef DEBUGGER_SOURCEFILEWINDOW_H
 #define DEBUGGER_SOURCEFILEWINDOW_H
 
-#include <QtCore/QMap>
-#include <QtGui/QTreeView>
 
+#include <QtGui/QTreeView>
 
 namespace Debugger {
 namespace Internal {

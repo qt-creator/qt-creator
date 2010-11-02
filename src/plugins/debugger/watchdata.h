@@ -32,7 +32,6 @@
 
 #include <QtCore/QMetaType>
 #include <QtCore/QtGlobal>
-#include <QtCore/QObject>
 #include <QtCore/QCoreApplication>
 
 namespace Debugger {

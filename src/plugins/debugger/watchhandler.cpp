@@ -49,13 +49,9 @@
 #include <QtCore/QFile>
 #include <QtCore/QProcess>
 #include <QtCore/QTextStream>
-#include <QtCore/QTimer>
 #include <QtCore/QtAlgorithms>
 
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
 #include <QtGui/QLabel>
-#include <QtGui/QToolTip>
 #include <QtGui/QTextEdit>
 
 #include <ctype.h>

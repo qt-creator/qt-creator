@@ -30,7 +30,6 @@
 #include "sessionengine.h"
 #include "breakhandler.h"
 #include "watchhandler.h"
-#include "debuggerconstants.h"
 
 #include <utils/qtcassert.h>
 

@@ -34,7 +34,6 @@
 
 #include <QtCore/QFutureInterface>
 #include <QtCore/QString>
-#include <QtGui/QWidget>
 
 namespace ProjectExplorer {
 

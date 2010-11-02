@@ -30,10 +30,13 @@
 #ifndef CMAKEPROJECTMANAGER_H
 #define CMAKEPROJECTMANAGER_H
 
-#include <coreplugin/dialogs/ioptionspage.h>
 #include <projectexplorer/iprojectmanager.h>
+#include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/icontext.h>
+
 #include <utils/environment.h>
 #include <utils/pathchooser.h>
+
 #include <QtCore/QFuture>
 #include <QtCore/QStringList>
 #include <QtCore/QDir>

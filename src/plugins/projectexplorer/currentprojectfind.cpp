@@ -30,16 +30,11 @@
 #include "currentprojectfind.h"
 
 #include "projectexplorer.h"
-#include "project.h"
 
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
-#include <QtCore/QFileInfo>
 #include <QtCore/QSettings>
-#include <QtCore/QRegExp>
-#include <QtGui/QGridLayout>
-#include <QtGui/QLabel>
 
 using namespace Find;
 using namespace ProjectExplorer;

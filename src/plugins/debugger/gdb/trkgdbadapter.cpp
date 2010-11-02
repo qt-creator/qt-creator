@@ -29,6 +29,7 @@
 
 #include "trkgdbadapter.h"
 
+#include "gdbmi.h"
 #include "launcher.h"
 #include "symbiandevicemanager.h"
 #include "s60debuggerbluetoothstarter.h"

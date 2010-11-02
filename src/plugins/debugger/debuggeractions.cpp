@@ -81,7 +81,7 @@ void DebuggerSettings::insertItem(int code, SavedAction *item)
     m_items[code] = item;
 }
 
-void DebuggerSettings::readSettings(QSettings *settings)
+void DebuggerSettings::readSettings(const QSettings *settings)
 {
     foreach (SavedAction *item, m_items)
         item->readSettings(settings);

@@ -30,7 +30,7 @@
 #ifndef DEBUGGER_SNAPSHOTHANDLER_H
 #define DEBUGGER_SNAPSHOTHANDLER_H
 
-#include <QtCore/QAbstractItemModel>
+#include <QtCore/QAbstractTableModel>
 #include <QtCore/QPointer>
 
 namespace Debugger {

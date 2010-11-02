@@ -31,8 +31,7 @@
 #define DEBUGGER_REMOTEGDBADAPTER_H
 
 #include "abstractgdbadapter.h"
-
-#include "abstractgdbprocess.h"
+#include "localgdbprocess.h"
 
 namespace Debugger {
 namespace Internal {

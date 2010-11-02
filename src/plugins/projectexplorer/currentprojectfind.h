@@ -32,11 +32,6 @@
 
 #include "allprojectsfind.h"
 
-#include <find/ifindfilter.h>
-#include <find/searchresultwindow.h>
-
-#include <QtCore/QPointer>
-
 QT_BEGIN_NAMESPACE
 class QWidget;
 QT_END_NAMESPACE

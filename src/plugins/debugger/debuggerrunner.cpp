@@ -30,7 +30,6 @@
 #include "debuggerrunner.h"
 
 #include "debuggeractions.h"
-#include "debuggerconstants.h"
 #include "debuggerengine.h"
 #include "debuggerplugin.h"
 #include "debuggerstringutils.h"
@@ -48,27 +47,17 @@
 #include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/toolchain.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/applicationrunconfiguration.h> // For LocalApplication*
 
-#include <utils/environment.h>
 #include <utils/synchronousprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/fancymainwindow.h>
 #include <coreplugin/icore.h>
 
-#include <QtCore/QDebug>
 #include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QTimer>
-#include <QtCore/QStringList>
-
-#include <QtGui/QAbstractItemView>
-#include <QtGui/QTextDocument>
-#include <QtGui/QTreeWidget>
 #include <QtGui/QMessageBox>
 
 using namespace ProjectExplorer;

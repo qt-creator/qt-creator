@@ -35,7 +35,6 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <utils/savedaction.h>
 
-
 namespace Debugger {
 namespace Internal {
 

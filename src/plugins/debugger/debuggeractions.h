@@ -68,7 +68,7 @@ public:
     static DebuggerSettings *instance();
 
 public slots:
-    void readSettings(QSettings *settings);
+    void readSettings(const QSettings *settings);
     void writeSettings(QSettings *settings) const;
 
 private:

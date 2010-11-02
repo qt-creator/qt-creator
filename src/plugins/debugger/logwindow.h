@@ -55,6 +55,8 @@ public:
 
     static QString logTimeStamp();
 
+    static bool writeLogContents(const QPlainTextEdit *editor, QWidget *parent = 0);
+
 public slots:
     void clearContents();
     void showOutput(int channel, const QString &output);

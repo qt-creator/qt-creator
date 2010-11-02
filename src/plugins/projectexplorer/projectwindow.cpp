@@ -32,36 +32,24 @@
 #include "doubletabwidget.h"
 
 #include "project.h"
-#include "environment.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
-#include "iprojectproperties.h"
 #include "session.h"
-#include "target.h"
 #include "projecttreewidget.h"
-#include "runconfiguration.h"
-#include "buildsettingspropertiespage.h"
-#include "runsettingspropertiespage.h"
+#include "iprojectproperties.h"
 #include "targetsettingspanel.h"
 
-#include <coreplugin/minisplitter.h>
-#include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/ifile.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
-#include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 
 #include <QtGui/QApplication>
-#include <QtGui/QBoxLayout>
-#include <QtGui/QComboBox>
-#include <QtGui/QScrollArea>
+#include <QtGui/QGridLayout>
 #include <QtGui/QLabel>
 #include <QtGui/QPainter>
 #include <QtGui/QStackedWidget>
-#include <QtGui/QPaintEvent>
-#include <QtGui/QMenu>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;

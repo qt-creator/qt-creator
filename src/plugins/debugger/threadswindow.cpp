@@ -34,11 +34,9 @@
 
 #include <utils/savedaction.h>
 
-#include <QtGui/QAction>
 #include <QtGui/QContextMenuEvent>
 #include <QtGui/QHeaderView>
 #include <QtGui/QMenu>
-
 
 namespace Debugger {
 namespace Internal {

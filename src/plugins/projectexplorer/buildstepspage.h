@@ -34,8 +34,6 @@
 #include "deployconfiguration.h"
 #include "namedwidget.h"
 
-#include <utils/detailswidget.h>
-
 QT_BEGIN_NAMESPACE
 class QPushButton;
 class QToolButton;
@@ -43,6 +41,10 @@ class QLabel;
 class QVBoxLayout;
 class QSignalMapper;
 QT_END_NAMESPACE
+
+namespace Utils {
+class DetailsWidget;
+}
 
 namespace ProjectExplorer {
 

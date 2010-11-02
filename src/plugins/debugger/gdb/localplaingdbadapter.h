@@ -31,9 +31,7 @@
 #define DEBUGGER_PLAINGDBADAPTER_H
 
 #include "abstractplaingdbadapter.h"
-
-#include "abstractgdbprocess.h"
-
+#include "localgdbprocess.h"
 #include <outputcollector.h>
 
 namespace Debugger {

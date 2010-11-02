@@ -38,6 +38,7 @@
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
+#include <utils/detailswidget.h>
 
 #include <QtCore/QSignalMapper>
 

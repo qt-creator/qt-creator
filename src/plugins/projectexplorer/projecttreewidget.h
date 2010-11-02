@@ -33,7 +33,9 @@
 #include <coreplugin/inavigationwidgetfactory.h>
 
 #include <QtGui/QWidget>
-#include <QtGui/QTreeView>
+#include <QtCore/QModelIndex>
+
+QT_FORWARD_DECLARE_CLASS(QTreeView)
 
 namespace ProjectExplorer {
 

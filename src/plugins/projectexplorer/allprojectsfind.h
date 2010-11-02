@@ -30,12 +30,9 @@
 #ifndef ALLPROJECTSFIND_H
 #define ALLPROJECTSFIND_H
 
-#include <find/ifindfilter.h>
-#include <find/searchresultwindow.h>
 #include <texteditor/basefilefind.h>
 
 #include <QtCore/QPointer>
-
 
 namespace ProjectExplorer {
 

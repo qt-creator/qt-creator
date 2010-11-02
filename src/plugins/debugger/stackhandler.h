@@ -33,9 +33,6 @@
 #include "stackframe.h"
 
 #include <QtCore/QAbstractItemModel>
-#include <QtCore/QObject>
-
-#include <QtGui/QIcon>
 
 namespace Debugger {
 class DebuggerEngine;

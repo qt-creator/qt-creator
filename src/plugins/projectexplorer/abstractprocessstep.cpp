@@ -36,10 +36,9 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QProcess>
 #include <QtCore/QEventLoop>
 #include <QtCore/QTimer>
-#include <QtGui/QTextDocument>
+#include <QtCore/QDir>
 
 using namespace ProjectExplorer;
 

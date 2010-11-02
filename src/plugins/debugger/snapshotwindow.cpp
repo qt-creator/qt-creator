@@ -37,11 +37,9 @@
 
 #include <QtCore/QDebug>
 
-#include <QtGui/QAction>
 #include <QtGui/QHeaderView>
-#include <QtGui/QKeyEvent>
 #include <QtGui/QMenu>
-#include <QtGui/QTreeView>
+#include <QtGui/QKeyEvent>
 
 static QModelIndexList normalizeIndexes(const QModelIndexList &list)
 {

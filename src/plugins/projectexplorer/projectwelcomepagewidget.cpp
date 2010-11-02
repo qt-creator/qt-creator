@@ -44,7 +44,6 @@
 #include <QtCore/QDir>
 #include <QtCore/QPair>
 #include <QtGui/QLabel>
-#include <QtGui/QTreeWidgetItem>
 
 #include <QtCore/QDebug>
 

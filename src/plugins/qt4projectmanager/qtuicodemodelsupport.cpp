@@ -33,12 +33,8 @@
 #include "qt4project.h"
 #include "qt4target.h"
 
-#include <QtCore/QProcess>
-
 using namespace Qt4ProjectManager;
 using namespace Internal;
-
-enum { debug = 0 };
 
 Qt4UiCodeModelSupport::Qt4UiCodeModelSupport(CppTools::CppModelManagerInterface *modelmanager,
                                              Qt4Project *project,

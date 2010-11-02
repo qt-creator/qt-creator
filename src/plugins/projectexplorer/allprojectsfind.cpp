@@ -38,10 +38,9 @@
 #include <texteditor/itexteditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QFileInfo>
 #include <QtCore/QSettings>
 #include <QtCore/QRegExp>
+
 #include <QtGui/QGridLayout>
 #include <QtGui/QLabel>
 

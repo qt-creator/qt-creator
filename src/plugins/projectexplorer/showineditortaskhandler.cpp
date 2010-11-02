@@ -32,7 +32,6 @@
 #include "projectexplorerconstants.h"
 #include "task.h"
 
-#include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/basetexteditor.h>
 
 #include <QtGui/QAction>

@@ -31,9 +31,7 @@
 #define DEBUGGER_SOURCEFILESHANDLER_H
 
 #include <QtCore/QAbstractItemModel>
-#include <QtCore/QMap>
 #include <QtCore/QStringList>
-
 
 namespace Debugger {
 class DebuggerEngine;

@@ -96,6 +96,7 @@
 #include <coreplugin/iversioncontrol.h>
 #include <welcome/welcomemode.h>
 #include <extensionsystem/pluginmanager.h>
+#include <find/searchresultwindow.h>
 #include <utils/consoleprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/parameteraction.h>

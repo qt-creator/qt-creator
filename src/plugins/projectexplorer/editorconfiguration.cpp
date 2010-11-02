@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "editorconfiguration.h"
-#include <coreplugin/icore.h>
+
 #include <QtCore/QTextCodec>
 
 using namespace ProjectExplorer;

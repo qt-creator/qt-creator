@@ -40,16 +40,14 @@ class QDockWidget;
 QT_END_NAMESPACE
 
 namespace Core {
-    class ActionContainer;
     class Command;
     class Context;
-    class BaseMode;
     class IMode;
+    class BaseMode;
 }
 
 namespace Utils {
 class FancyMainWindow;
-    class SavedAction;
 }
 
 namespace ProjectExplorer {

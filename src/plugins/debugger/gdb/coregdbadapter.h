@@ -31,9 +31,7 @@
 #define DEBUGGER_COREGDBADAPTER_H
 
 #include "abstractgdbadapter.h"
-
-#include "abstractgdbprocess.h"
-
+#include "localgdbprocess.h"
 
 namespace Debugger {
 namespace Internal {

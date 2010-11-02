@@ -34,6 +34,7 @@
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QRegExp>
+#include <QtCore/QVector>
 
 namespace Debugger {
 namespace Internal {
