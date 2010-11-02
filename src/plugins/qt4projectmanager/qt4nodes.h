@@ -299,6 +299,7 @@ public:
     void scheduleUpdate();
 
     void emitProFileInvalidated();
+    void emitProFileUpdated();
 
     bool validParse() const;
 

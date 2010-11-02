@@ -331,18 +331,23 @@ bool Qt4Project::fromMap(const QVariantMap &map)
 
     setSupportedTargetIds(QtVersionManager::instance()->supportedTargetIds());
 
-    // Setup Qt versions supported (== possible targets).
-    connect(this, SIGNAL(addedTarget(ProjectExplorer::Target*)),
-            this, SLOT(onAddedTarget(ProjectExplorer::Target*)));
-
-    connect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>)),
-            this, SLOT(qtVersionsChanged()));
 
     connect(m_nodesWatcher, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*,bool)),
             this, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *,bool)));
 
     connect(m_nodesWatcher, SIGNAL(proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
             this, SIGNAL(proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
+
+    // Now we emit update once :)
+    m_rootProjectNode->emitProFileUpdated();
+
+
+    // Setup Qt versions supported (== possible targets).
+    connect(this, SIGNAL(addedTarget(ProjectExplorer::Target*)),
+            this, SLOT(onAddedTarget(ProjectExplorer::Target*)));
+
+    connect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>)),
+            this, SLOT(qtVersionsChanged()));
 
     connect(this, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
             this, SLOT(activeTargetWasChanged()));

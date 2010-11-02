@@ -1308,6 +1308,20 @@ QStringList Qt4ProFileNode::variableValue(const Qt4Variable var) const
     return m_varValues.value(var);
 }
 
+void Qt4ProFileNode::emitProFileUpdated()
+{
+    foreach (NodesWatcher *watcher, watchers())
+        if (Qt4NodesWatcher *qt4Watcher = qobject_cast<Qt4NodesWatcher*>(watcher))
+            emit qt4Watcher->proFileUpdated(this, m_validParse);
+
+    foreach (ProjectNode *subNode, subProjectNodes()) {
+        if (Qt4ProFileNode *node = qobject_cast<Qt4ProFileNode *>(subNode)) {
+            node->emitProFileUpdated();
+        }
+    }
+}
+
+
 void Qt4ProFileNode::emitProFileInvalidated()
 {
     foreach (NodesWatcher *watcher, watchers())
