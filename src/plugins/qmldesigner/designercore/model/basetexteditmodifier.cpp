@@ -70,7 +70,7 @@ int BaseTextEditModifier::indentDepth() const
 
 bool BaseTextEditModifier::renameId(const QString &oldId, const QString &newId)
 {
-    if (QmlJSEditor::Internal::QmlJSTextEditor *qmljse = qobject_cast<QmlJSEditor::Internal::QmlJSTextEditor*>(plainTextEdit())) {
+    if (QmlJSEditor::QmlJSTextEditor *qmljse = qobject_cast<QmlJSEditor::QmlJSTextEditor*>(plainTextEdit())) {
         qmljse->renameId(oldId, newId);
         return true;
     } else {

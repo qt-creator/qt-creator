@@ -187,7 +187,7 @@ void InspectorUi::showDebuggerTooltip(const QPoint &mousePos, TextEditor::ITextE
 {
     Q_UNUSED(mousePos);
     if (m_clientProxy && editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
-        QmlJSEditor::Internal::QmlJSTextEditor *qmlEditor = static_cast<QmlJSEditor::Internal::QmlJSTextEditor*>(editor->widget());
+        QmlJSEditor::QmlJSTextEditor *qmlEditor = static_cast<QmlJSEditor::QmlJSTextEditor*>(editor->widget());
 
         QTextCursor tc(qmlEditor->document());
         tc.setPosition(cursorPos);

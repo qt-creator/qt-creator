@@ -38,10 +38,8 @@
 #include <texteditor/basetexteditor.h>
 #include <texteditor/quickfix.h>
 
-#include <QtCore/QWaitCondition>
+#include <QtCore/QSharedPointer>
 #include <QtCore/QModelIndex>
-#include <QtCore/QMutex>
-#include <QtCore/QThread>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -62,34 +60,16 @@ namespace QmlJS {
     The top-level namespace of the QmlJSEditor plug-in.
  */
 namespace QmlJSEditor {
-class Highlighter;
 class FindReferences;
 
 namespace Internal {
-
-class QmlJSTextEditor;
 class QmlOutlineModel;
+class QmlJSEditorEditable;
+class SemanticHighlighter;
+struct SemanticHighlighterSource;
+} // namespace Internal
 
-class QmlJSEditorEditable : public TextEditor::BaseTextEditorEditable
-{
-    Q_OBJECT
-
-public:
-    QmlJSEditorEditable(QmlJSTextEditor *);
-    Core::Context context() const;
-
-    bool duplicateSupported() const { return true; }
-    Core::IEditor *duplicate(QWidget *parent);
-    QString id() const;
-    bool isTemporary() const { return false; }
-    virtual bool open(const QString & fileName);
-    virtual QString preferredModeType() const;
-
-private:
-    Core::Context m_context;
-};
-
-struct Declaration
+struct QMLJSEDITOR_EXPORT Declaration
 {
     QString text;
     int startLine;
@@ -105,7 +85,7 @@ struct Declaration
     { }
 };
 
-class Range
+class QMLJSEDITOR_EXPORT Range
 {
 public:
     Range(): ast(0) {}
@@ -115,8 +95,6 @@ public: // attributes
     QTextCursor begin;
     QTextCursor end;
 };
-
-class SemanticHighlighter;
 
 class QMLJSEDITOR_EXPORT SemanticInfo
 {
@@ -152,75 +130,7 @@ public: // attributes
 private:
     QSharedPointer<const QmlJS::Interpreter::Context> m_context;
 
-    friend class SemanticHighlighter;
-};
-
-class SemanticHighlighter: public QThread
-{
-    Q_OBJECT
-
-public:
-    SemanticHighlighter(QObject *parent = 0);
-    virtual ~SemanticHighlighter();
-
-    void abort();
-
-    struct Source
-    {
-        QmlJS::Snapshot snapshot;
-        QString fileName;
-        QString code;
-        int line;
-        int column;
-        int revision;
-        bool force;
-
-        Source()
-            : line(0), column(0), revision(0), force(false)
-        { }
-
-        Source(const QmlJS::Snapshot &snapshot,
-               const QString &fileName,
-               const QString &code,
-               int line, int column,
-               int revision)
-            : snapshot(snapshot), fileName(fileName),
-              code(code), line(line), column(column),
-              revision(revision), force(false)
-        { }
-
-        void clear()
-        {
-            snapshot = QmlJS::Snapshot();
-            fileName.clear();
-            code.clear();
-            line = 0;
-            column = 0;
-            revision = 0;
-            force = false;
-        }
-    };
-
-    void rehighlight(const Source &source);
-    void setModelManager(QmlJS::ModelManagerInterface *modelManager);
-
-Q_SIGNALS:
-    void changed(const QmlJSEditor::Internal::SemanticInfo &semanticInfo);
-
-protected:
-    virtual void run();
-
-private:
-    bool isOutdated();
-    SemanticInfo semanticInfo(const Source &source);
-
-private:
-    QMutex m_mutex;
-    QWaitCondition m_condition;
-    bool m_done;
-    Source m_source;
-    SemanticInfo m_lastSemanticInfo;
-    QmlJS::ModelManagerInterface *m_modelManager;
+    friend class Internal::SemanticHighlighter;
 };
 
 class QMLJSEDITOR_EXPORT QmlJSTextEditor : public TextEditor::BaseTextEditor
@@ -237,7 +147,7 @@ public:
     int editorRevision() const;
     bool isOutdated() const;
 
-    QmlOutlineModel *outlineModel() const;
+    Internal::QmlOutlineModel *outlineModel() const;
     QModelIndex outlineModelIndex();
 
     bool updateSelectedElements() const;
@@ -276,7 +186,7 @@ private slots:
 
     void semanticRehighlight();
     void forceSemanticRehighlight();
-    void updateSemanticInfo(const QmlJSEditor::Internal::SemanticInfo &semanticInfo);
+    void updateSemanticInfo(const QmlJSEditor::SemanticInfo &semanticInfo);
     void onCursorPositionChanged();
     void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker);
 
@@ -289,7 +199,7 @@ protected:
     void resizeEvent(QResizeEvent *event);
     void scrollContentsBy(int dx, int dy);
     TextEditor::BaseTextEditorEditable *createEditableInterface();
-    void createToolBar(QmlJSEditorEditable *editable);
+    void createToolBar(Internal::QmlJSEditorEditable *editable);
     TextEditor::BaseTextEditor::Link findLinkAt(const QTextCursor &cursor, bool resolveTarget = true);
 
     //// brace matching
@@ -307,7 +217,7 @@ private:
     void setSelectedElements();
     QString wordUnderCursor() const;
 
-    SemanticHighlighter::Source currentSource(bool force = false);
+    Internal::SemanticHighlighterSource currentSource(bool force = false);
     QModelIndex indexForPosition(unsigned cursorPosition, const QModelIndex &rootIndex = QModelIndex()) const;
     bool hideContextPane();
 
@@ -320,14 +230,14 @@ private:
     QTimer *m_updateOutlineIndexTimer;
     QTimer *m_cursorPositionTimer;
     QComboBox *m_outlineCombo;
-    QmlOutlineModel *m_outlineModel;
+    Internal::QmlOutlineModel *m_outlineModel;
     QModelIndex m_outlineModelIndex;
     QmlJS::ModelManagerInterface *m_modelManager;
     QTextCharFormat m_occurrencesFormat;
     QTextCharFormat m_occurrencesUnusedFormat;
     QTextCharFormat m_occurrenceRenameFormat;
 
-    SemanticHighlighter *m_semanticHighlighter;
+    Internal::SemanticHighlighter *m_semanticHighlighter;
     SemanticInfo m_semanticInfo;
 
     QList<TextEditor::QuickFixOperation::Ptr> m_quickFixes;
@@ -339,7 +249,6 @@ private:
     FindReferences *m_findReferences;
 };
 
-} // namespace Internal
 } // namespace QmlJSEditor
 
 #endif // QMLJSEDITOR_H

@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "qmljseditor.h"
+#include "qmljseditoreditable.h"
 #include "qmljseditorconstants.h"
 #include "qmljshighlighter.h"
 #include "qmljseditorplugin.h"
@@ -36,13 +37,12 @@
 #include "qmljsquickfix.h"
 #include "qmloutlinemodel.h"
 #include "qmljsfindreferences.h"
+#include "qmljssemantichighlighter.h"
 
 #include <qmljs/qmljsbind.h>
-#include <qmljs/qmljscheck.h>
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsicontextpane.h>
 #include <qmljs/qmljslookupcontext.h>
-#include <qmljs/qmljslink.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsengine_p.h>
@@ -52,9 +52,6 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/modemanager.h>
-#include <coreplugin/designmode.h>
 #include <coreplugin/mimedatabase.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/basetextdocument.h>
@@ -89,6 +86,7 @@ enum {
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
+using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
 
 static int blockStartState(const QTextBlock &block)
@@ -628,51 +626,6 @@ int SemanticInfo::revision() const
     return 0;
 }
 
-QmlJSEditorEditable::QmlJSEditorEditable(QmlJSTextEditor *editor)
-    : BaseTextEditorEditable(editor)
-{
-    m_context.add(QmlJSEditor::Constants::C_QMLJSEDITOR_ID);
-    m_context.add(TextEditor::Constants::C_TEXTEDITOR);
-}
-
-// Use preferred mode from Bauhaus settings
-static bool openInDesignMode()
-{
-    static bool bauhausDetected = false;
-    static bool bauhausPresent = false;
-    // Check if Bauhaus is loaded, that is, a Design mode widget is
-    // registered for the QML mime type.
-    if (!bauhausDetected) {
-        if (const Core::IMode *dm = Core::ModeManager::instance()->mode(QLatin1String(Core::Constants::MODE_DESIGN)))
-            if (const Core::DesignMode *designMode = qobject_cast<const Core::DesignMode *>(dm))
-                bauhausPresent = designMode->registeredMimeTypes().contains(QLatin1String(QmlJSEditor::Constants::QML_MIMETYPE));
-        bauhausDetected =  true;
-    }
-    if (!bauhausPresent)
-        return false;
-
-    return bool(QmlDesigner::Constants::QML_OPENDESIGNMODE_DEFAULT);
-}
-
-QString QmlJSEditorEditable::preferredModeType() const
-{
-    Core::ModeManager *modeManager = Core::ModeManager::instance();
-    if (modeManager->currentMode()
-            && (modeManager->currentMode()->type() == Core::Constants::MODE_DESIGN_TYPE
-                || modeManager->currentMode()->type() == Core::Constants::MODE_EDIT_TYPE))
-    {
-        return modeManager->currentMode()->type();
-    }
-
-    // if we are in other mode than edit or design, use the hard-coded default.
-    // because the editor opening decision is modal, it would be confusing to
-    // have the user also access to this failsafe setting.
-    if (editor()->mimeType() == QLatin1String(QmlJSEditor::Constants::QML_MIMETYPE)
-        && openInDesignMode())
-        return QLatin1String(Core::Constants::MODE_DESIGN_TYPE);
-    return QString();
-}
-
 QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     TextEditor::BaseTextEditor(parent),
     m_outlineCombo(0),
@@ -682,7 +635,7 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     m_updateSelectedElements(false),
     m_findReferences(new FindReferences(this))
 {
-    qRegisterMetaType<QmlJSEditor::Internal::SemanticInfo>("QmlJSEditor::Internal::SemanticInfo");
+    qRegisterMetaType<QmlJSEditor::SemanticInfo>("QmlJSEditor::SemanticInfo");
 
     m_semanticHighlighter = new SemanticHighlighter(this);
     m_semanticHighlighter->start();
@@ -748,8 +701,8 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
         connect(this->document(), SIGNAL(modificationChanged(bool)), this, SLOT(modificationChanged(bool)));
     }
 
-    connect(m_semanticHighlighter, SIGNAL(changed(QmlJSEditor::Internal::SemanticInfo)),
-            this, SLOT(updateSemanticInfo(QmlJSEditor::Internal::SemanticInfo)));
+    connect(m_semanticHighlighter, SIGNAL(changed(QmlJSEditor::SemanticInfo)),
+            this, SLOT(updateSemanticInfo(QmlJSEditor::SemanticInfo)));
 
     connect(this, SIGNAL(refactorMarkerClicked(TextEditor::RefactorMarker)),
             SLOT(onRefactorMarkerClicked(TextEditor::RefactorMarker)));
@@ -885,7 +838,7 @@ void QmlJSTextEditor::onDocumentUpdated(QmlJS::Document::Ptr doc)
     if (doc->ast()) {
         // got a correctly parsed (or recovered) file.
 
-        const SemanticHighlighter::Source source = currentSource(/*force = */ true);
+        const SemanticHighlighterSource source = currentSource(/*force = */ true);
         m_semanticHighlighter->rehighlight(source);
     } else {
         // show parsing errors
@@ -1857,7 +1810,7 @@ bool QmlJSTextEditor::hideContextPane()
     return b;
 }
 
-SemanticHighlighter::Source QmlJSTextEditor::currentSource(bool force)
+SemanticHighlighterSource QmlJSTextEditor::currentSource(bool force)
 {
     int line = 0, column = 0;
     convertPosition(position(), &line, &column);
@@ -1870,119 +1823,8 @@ SemanticHighlighter::Source QmlJSTextEditor::currentSource(bool force)
         code = toPlainText(); // get the source code only when needed.
 
     const unsigned revision = document()->revision();
-    SemanticHighlighter::Source source(snapshot, fileName, code,
+    SemanticHighlighterSource source(snapshot, fileName, code,
                                        line, column, revision);
     source.force = force;
     return source;
 }
-
-SemanticHighlighter::SemanticHighlighter(QObject *parent)
-        : QThread(parent),
-          m_done(false),
-          m_modelManager(0)
-{
-}
-
-SemanticHighlighter::~SemanticHighlighter()
-{
-}
-
-void SemanticHighlighter::abort()
-{
-    QMutexLocker locker(&m_mutex);
-    m_done = true;
-    m_condition.wakeOne();
-}
-
-void SemanticHighlighter::rehighlight(const Source &source)
-{
-    QMutexLocker locker(&m_mutex);
-    m_source = source;
-    m_condition.wakeOne();
-}
-
-bool SemanticHighlighter::isOutdated()
-{
-    QMutexLocker locker(&m_mutex);
-    const bool outdated = ! m_source.fileName.isEmpty() || m_done;
-    return outdated;
-}
-
-void SemanticHighlighter::run()
-{
-    setPriority(QThread::LowestPriority);
-
-    forever {
-        m_mutex.lock();
-
-        while (! (m_done || ! m_source.fileName.isEmpty()))
-            m_condition.wait(&m_mutex);
-
-        const bool done = m_done;
-        const Source source = m_source;
-        m_source.clear();
-
-        m_mutex.unlock();
-
-        if (done)
-            break;
-
-        const SemanticInfo info = semanticInfo(source);
-
-        if (! isOutdated()) {
-            m_mutex.lock();
-            m_lastSemanticInfo = info;
-            m_mutex.unlock();
-
-            emit changed(info);
-        }
-    }
-}
-
-SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
-{
-    m_mutex.lock();
-    const int revision = m_lastSemanticInfo.revision();
-    m_mutex.unlock();
-
-    Snapshot snapshot;
-    Document::Ptr doc;
-
-    if (! source.force && revision == source.revision) {
-        m_mutex.lock();
-        snapshot = m_lastSemanticInfo.snapshot;
-        doc = m_lastSemanticInfo.document;
-        m_mutex.unlock();
-    }
-
-    if (! doc) {
-        snapshot = source.snapshot;
-        doc = snapshot.documentFromSource(source.code, source.fileName);
-        doc->setEditorRevision(source.revision);
-        doc->parse();
-        snapshot.insert(doc);
-    }
-
-    SemanticInfo semanticInfo;
-    semanticInfo.snapshot = snapshot;
-    semanticInfo.document = doc;
-
-    Interpreter::Context *ctx = new Interpreter::Context;
-    Link link(ctx, doc, snapshot, ModelManagerInterface::instance()->importPaths());
-    semanticInfo.m_context = QSharedPointer<const QmlJS::Interpreter::Context>(ctx);
-    semanticInfo.semanticMessages = link.diagnosticMessages();
-
-    QStringList importPaths;
-    if (m_modelManager)
-        importPaths = m_modelManager->importPaths();
-    Check checker(doc, snapshot, ctx);
-    semanticInfo.semanticMessages.append(checker());
-
-    return semanticInfo;
-}
-
-void SemanticHighlighter::setModelManager(QmlJS::ModelManagerInterface *modelManager)
-{
-    m_modelManager = modelManager;
-}
-

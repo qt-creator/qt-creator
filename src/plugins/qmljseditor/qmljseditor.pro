@@ -32,7 +32,9 @@ HEADERS += \
     quicktoolbarsettingspage.h \
     quicktoolbar.h \
     qmljscomponentnamedialog.h \
-    qmljsfindreferences.h
+    qmljsfindreferences.h \
+    qmljseditoreditable.h \
+    qmljssemantichighlighter.h
 
 SOURCES += \
     qmljscodecompletion.cpp \
@@ -58,7 +60,9 @@ SOURCES += \
     quicktoolbarsettingspage.cpp \
     quicktoolbar.cpp \
     qmljscomponentnamedialog.cpp \
-    qmljsfindreferences.cpp
+    qmljsfindreferences.cpp \
+    qmljseditoreditable.cpp \
+    qmljssemantichighlighter.cpp
 
 RESOURCES += qmljseditor.qrc
 OTHER_FILES += QmlJSEditor.pluginspec QmlJSEditor.mimetypes.xml

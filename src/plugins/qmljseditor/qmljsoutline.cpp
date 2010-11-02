@@ -1,5 +1,6 @@
 #include "qmljsoutline.h"
 #include "qmloutlinemodel.h"
+#include "qmljseditoreditable.h"
 #include "qmljsoutlinetreeview.h"
 
 #include <coreplugin/icore.h>

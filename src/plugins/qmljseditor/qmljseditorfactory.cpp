@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "qmljseditorfactory.h"
+#include "qmljseditoreditable.h"
 #include "qmljseditor.h"
 #include "qmljseditoractionhandler.h"
 #include "qmljseditorconstants.h"
@@ -124,7 +125,7 @@ Core::IEditor *QmlJSEditorFactory::createEditor(QWidget *parent)
                      SLOT(updateEditorInfoBar(Core::IEditor*)));
         }
     }
-    QmlJSTextEditor *rc = new QmlJSTextEditor(parent);
+    QmlJSEditor::QmlJSTextEditor *rc = new QmlJSEditor::QmlJSTextEditor(parent);
     QmlJSEditorPlugin::instance()->initializeEditor(rc);
     return rc->editableInterface();
 }

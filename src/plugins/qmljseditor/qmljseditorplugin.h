@@ -58,11 +58,11 @@ namespace QmlJS {
 namespace QmlJSEditor {
 
 class QmlFileWizard;
+class QmlJSTextEditor;
 
 namespace Internal {
 
 class QmlJSEditorFactory;
-class QmlJSTextEditor;
 class QmlJSPreviewRunner;
 class QmlJSQuickFixCollector;
 class QmlTaskManager;
@@ -85,7 +85,7 @@ public:
 
     QmlJSQuickFixCollector *quickFixCollector() const;
 
-    void initializeEditor(QmlJSTextEditor *editor);
+    void initializeEditor(QmlJSEditor::QmlJSTextEditor *editor);
 
 public Q_SLOTS:
     void followSymbolUnderCursor();

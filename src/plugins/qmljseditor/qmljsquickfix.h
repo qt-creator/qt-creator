@@ -65,7 +65,7 @@ public:
     /// Creates a new state for the given editor.
     QmlJSQuickFixState(TextEditor::BaseTextEditor *editor);
 
-    Internal::SemanticInfo semanticInfo() const;
+    SemanticInfo semanticInfo() const;
 
     /// \returns the snapshot holding the document of the editor.
     QmlJS::Snapshot snapshot() const;
@@ -76,7 +76,7 @@ public:
     const QmlJSRefactoringFile currentFile() const;
 
 private:
-    Internal::SemanticInfo _semanticInfo;
+    SemanticInfo _semanticInfo;
 };
 
 /*!

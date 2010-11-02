@@ -247,7 +247,7 @@ ExtensionSystem::IPlugin::ShutdownFlag QmlJSEditorPlugin::aboutToShutdown()
     return IPlugin::aboutToShutdown();
 }
 
-void QmlJSEditorPlugin::initializeEditor(QmlJSEditor::Internal::QmlJSTextEditor *editor)
+void QmlJSEditorPlugin::initializeEditor(QmlJSEditor::QmlJSTextEditor *editor)
 {
     QTC_ASSERT(m_instance, /**/);
 

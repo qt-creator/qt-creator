@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "qmljseditor.h"
+#include "qmljseditoreditable.h"
 #include "qmlexpressionundercursor.h"
 #include "qmljshoverhandler.h"
 
@@ -104,12 +105,12 @@ void HoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
     if (!m_modelManager)
         return;
 
-    QmlJSTextEditor *qmlEditor = qobject_cast<QmlJSTextEditor *>(editor->widget());
+    QmlJSEditor::QmlJSTextEditor *qmlEditor = qobject_cast<QmlJSEditor::QmlJSTextEditor *>(editor->widget());
     if (!qmlEditor)
         return;
 
     if (!matchDiagnosticMessage(qmlEditor, pos)) {
-        const SemanticInfo &semanticInfo = qmlEditor->semanticInfo();
+        const QmlJSEditor::SemanticInfo &semanticInfo = qmlEditor->semanticInfo();
         if (! semanticInfo.isValid() || semanticInfo.revision() != qmlEditor->editorRevision())
             return;
 
@@ -129,7 +130,7 @@ void HoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
     }
 }
 
-bool HoverHandler::matchDiagnosticMessage(QmlJSTextEditor *qmlEditor, int pos)
+bool HoverHandler::matchDiagnosticMessage(QmlJSEditor::QmlJSTextEditor *qmlEditor, int pos)
 {
     foreach (const QTextEdit::ExtraSelection &sel,
              qmlEditor->extraSelections(TextEditor::BaseTextEditor::CodeWarningsSelection)) {
