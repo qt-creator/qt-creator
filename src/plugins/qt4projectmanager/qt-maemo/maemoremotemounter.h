@@ -77,7 +77,7 @@ signals:
     void mounted();
     void unmounted();
     void error(const QString &reason);
-    void reportProgress(const QString &progressOutput); // TODO: No progress output when there's nothingt to mount
+    void reportProgress(const QString &progressOutput);
     void debugOutput(const QString &output);
 
 private slots:

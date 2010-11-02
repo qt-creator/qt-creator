@@ -56,7 +56,7 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 namespace {
-const bool DefaultUseRemoteGdbValue = false;  // TODO: Make true once it works reliably on Windows
+const bool DefaultUseRemoteGdbValue = false;
 } // anonymous namespace
 
 using namespace ProjectExplorer;
