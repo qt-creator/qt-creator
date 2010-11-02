@@ -1388,7 +1388,7 @@ int xxxx()
 
 #else
 
-int xxxx()
+void xxxx()
 {
 }
 
