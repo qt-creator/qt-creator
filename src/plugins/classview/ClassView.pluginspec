@@ -1,4 +1,4 @@
-<plugin name="ClassView" version="2.0.93" compatVersion="2.0.93">
+<plugin name="ClassView" version="2.0.94" compatVersion="2.0.94">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2010 Denis Mingulov</copyright>
     <license>
@@ -14,9 +14,9 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <description>Class View component.</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name="Core" version="2.0.93"/>
-        <dependency name="CppTools" version="2.0.93"/>
-        <dependency name="ProjectExplorer" version="2.0.93"/>
-        <dependency name="TextEditor" version="2.0.93"/>
+        <dependency name="Core" version="2.0.94"/>
+        <dependency name="CppTools" version="2.0.94"/>
+        <dependency name="ProjectExplorer" version="2.0.94"/>
+        <dependency name="TextEditor" version="2.0.94"/>
     </dependencyList>
 </plugin>
