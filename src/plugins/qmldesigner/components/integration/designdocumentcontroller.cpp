@@ -51,6 +51,7 @@
 #include <nodelistproperty.h>
 #include <toolbox.h>
 #include <variantproperty.h>
+#include <rewritingexception.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
@@ -456,13 +457,17 @@ void DesignDocumentController::deleteSelected()
     if (!m_d->model)
         return;
 
-    if (m_d->formEditorView) {
-        RewriterTransaction transaction(m_d->formEditorView.data());
-        QList<ModelNode> toDelete = m_d->formEditorView->selectedModelNodes();
-        foreach (ModelNode node, toDelete) {
-            if (node.isValid() && !node.isRootNode() && QmlObjectNode(node).isValid())
-                QmlObjectNode(node).destroy();
+    try {
+        if (m_d->formEditorView) {
+            RewriterTransaction transaction(m_d->formEditorView.data());
+            QList<ModelNode> toDelete = m_d->formEditorView->selectedModelNodes();
+            foreach (ModelNode node, toDelete) {
+                if (node.isValid() && !node.isRootNode() && QmlObjectNode(node).isValid())
+                    QmlObjectNode(node).destroy();
+            }
         }
+    } catch (RewritingException &e) {
+        QMessageBox::warning(0, tr("Error"), e.description());
     }
 }
 
