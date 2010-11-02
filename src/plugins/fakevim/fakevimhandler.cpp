@@ -353,6 +353,9 @@ inline QString msgMarkNotSet(const QString &text)
 class Input
 {
 public:
+    // Remove some extra "information" on Mac.
+    static int cleanModifier(int m)  { return m & ~Qt::KeypadModifier; }
+
     Input()
         : m_key(0), m_xkey(0), m_modifiers(0) {}
 
@@ -360,7 +363,7 @@ public:
         : m_key(x.unicode()), m_xkey(x.unicode()), m_modifiers(0), m_text(x) {}
 
     Input(int k, int m, const QString &t)
-        : m_key(k), m_modifiers(m), m_text(t)
+        : m_key(k), m_modifiers(cleanModifier(m)), m_text(t)
     {
         // On Mac, QKeyEvent::text() returns non-empty strings for
         // cursor keys. This breaks some of the logic later on
