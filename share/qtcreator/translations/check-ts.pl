@@ -48,7 +48,7 @@ my %scores = ();
 my $files = join("\n", <*_??.ts>);
 my $res = `xmlpatterns -param files=\"$files\" check-ts.xq`;
 for my $i (split(/ /, $res)) {
-  $i =~ /^(?:[^\/]+\/)*qtcreator_(..)\.ts:(.*)$/;
+  $i =~ /^(?:[^\/]+\/)*qtcreator_([^.]+)\.ts:(.*)$/;
   my ($lang, $pc) = ($1, $2);
   $scores{$lang} = $pc;
 }

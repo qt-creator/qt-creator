@@ -533,7 +533,7 @@
     </message>
     <message>
         <source>The directory %1 already contains a cbp file, which is recent enough. You can pass special arguments or change the used toolchain here and rerun CMake. Or simply finish the wizard directly.</source>
-        <translation>Le répertoire %1 contient déjà un fichier cbp qui est assez récent. Vous pouvez passer des arguments spéciaux ou changer la chaine de compilation utilisée ici et réexécuter CMake. Vous pouvez aussi terminer l&apos;assistant directement.</translation>
+        <translation>Le répertoire %1 contient déjà un fichier cbp qui est assez récent. Vous pouvez passer des arguments spéciaux ou changer la chaîne de compilation utilisée ici et réexécuter CMake. Vous pouvez aussi terminer l&apos;assistant directement.</translation>
     </message>
     <message>
         <source>The directory %1 does not contain a cbp file. Qt Creator needs to create this file by running CMake. Some projects require command line arguments to the initial CMake call.</source>
@@ -25313,7 +25313,7 @@ Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des pro
     <name>Qt4ProjectManager::Internal::Qt4TargetFactory</name>
     <message>
         <source>Debug</source>
-        <translation>Déboguer</translation>
+        <translation>Debug</translation>
     </message>
     <message>
         <source>Release</source>
@@ -26702,7 +26702,7 @@ La liste du serveur était %2.</translation>
     <message>
         <source>The CDB debug engine does not support the %1 toolchain.</source>
         <extracomment>%1 is something like &quot;GCCE&quot; or &quot;Intel C++ Compiler (Linux)&quot; (see ToolChain context)</extracomment>
-        <translation type="unfinished">Le moteur de débogage CDB ne supporte pas le &apos;%1&apos;</translation>
+        <translation>Le moteur de débogage CDB ne supporte pas la chaîne de compilation %1.</translation>
     </message>
 </context>
 <context>
