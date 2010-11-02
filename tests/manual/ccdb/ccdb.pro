@@ -7,10 +7,13 @@ CONFIG += console
 CONFIG -= app_bundle
 TEMPLATE = app
 
+DEFINES += TEST_COMPILE
 # -- Add CDB core engine
 CDB_CORE = ../../../src/plugins/debugger/cdb
 include($$CDB_CORE/cdbcore.pri)
 INCLUDEPATH *= $$CDB_CORE
+
+include(../../../qtcreator.pri)
 
 # -- Add creator 'utils' lib
 CREATOR_LIB_LIB = ../../../lib/qtcreator
