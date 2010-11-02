@@ -62,6 +62,7 @@ class MaemoRemoteMounter;
 class MaemoDeviceConfigListModel;
 class MaemoPackageCreationStep;
 class MaemoToolChain;
+class MaemoUsedPortsGatherer;
 
 class MaemoDeployStep : public ProjectExplorer::BuildStep
 {
@@ -107,6 +108,8 @@ private slots:
     void handleInstallationFinished(int exitStatus);
     void handleDeviceInstallerOutput(const QByteArray &output);
     void handleDeviceInstallerErrorOutput(const QByteArray &output);
+    void handlePortsGathererError(const QString &errorMsg);
+    void handlePortListReady();
 
 private:
     MaemoDeployStep(ProjectExplorer::BuildStepList *bc,
@@ -127,7 +130,6 @@ private:
     QString deployMountPoint() const;
     const MaemoToolChain *toolChain() const;
     void copyNextFileToDevice();
-    bool addMountSpecification(const MaemoMountSpecification &mountSpec);
     void installToSysroot();
     QString uploadDir() const;
     void connectToDevice();
@@ -159,6 +161,8 @@ private:
     typedef QPair<MaemoDeployable, QString> DeployablePerHost;
     QHash<DeployablePerHost, QDateTime> m_lastDeployed;
     MaemoDeviceConfigListModel *m_deviceConfigModel;
+    MaemoUsedPortsGatherer *m_portsGatherer;
+    MaemoPortList m_freePorts;
 };
 
 class MaemoDeployEventHandler : public QObject

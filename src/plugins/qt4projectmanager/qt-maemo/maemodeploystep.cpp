@@ -37,6 +37,7 @@
 #include "maemoremotemounter.h"
 #include "maemorunconfiguration.h"
 #include "maemotoolchain.h"
+#include "maemousedportsgatherer.h"
 
 #include <coreplugin/ssh/sftpchannel.h>
 #include <coreplugin/ssh/sshconnection.h>
@@ -120,6 +121,11 @@ void MaemoDeployStep::ctor()
         SLOT(handleProgressReport(QString)));
     connect(m_mounter, SIGNAL(debugOutput(QString)), this,
         SLOT(handleMountDebugOutput(QString)));
+    m_portsGatherer = new MaemoUsedPortsGatherer(this);
+    connect(m_portsGatherer, SIGNAL(error(QString)), this,
+        SLOT(handlePortsGathererError(QString)));
+    connect(m_portsGatherer, SIGNAL(portListReady()), this,
+        SLOT(handlePortListReady()));
 }
 
 bool MaemoDeployStep::init()
@@ -424,7 +430,7 @@ void MaemoDeployStep::handleUnmounted()
             prepareSftpConnection();
         break;
     case CurrentDirsUnmount:
-        // m_mounter->mount(); TODO: See above
+        m_portsGatherer->start(m_connection, deviceConfig().freePorts());
         break;
     case CurrentMountsUnmount:
         writeOutput(tr("Deployment finished."));
@@ -456,8 +462,7 @@ void MaemoDeployStep::setupMount()
         const QString localDir
             = QFileInfo(packagingStep()->packageFilePath()).absolutePath();
         const MaemoMountSpecification mountSpec(localDir, deployMountPoint());
-        if (!addMountSpecification(mountSpec))
-            return;
+        m_mounter->addMountSpecification(mountSpec, true);
     } else {
 #ifdef Q_OS_WIN
         bool drivesToMount[26];
@@ -479,14 +484,12 @@ void MaemoDeployStep::setupMount()
                 + QLatin1Char(driveLetter);
             const MaemoMountSpecification mountSpec(localDir.left(3),
                 mountPoint);
-            if (!addMountSpecification(mountSpec))
-                return;
+            m_mounter->addMountSpecification(mountSpec, true);
             drivesToMount[index] = true;
         }
 #else
-        if (!addMountSpecification(MaemoMountSpecification(QLatin1String("/"),
-            deployMountPoint())))
-            return;
+        m_mounter->addMountSpecification(MaemoMountSpecification(QLatin1String("/"),
+            deployMountPoint()), true);
 #endif
     }
     m_unmountState = CurrentDirsUnmount;
@@ -657,15 +660,6 @@ void MaemoDeployStep::copyNextFileToDevice()
     copyProcess->start();
 }
 
-bool MaemoDeployStep::addMountSpecification(const MaemoMountSpecification &mountSpec)
-{
-    if (!m_mounter->addMountSpecification(mountSpec, true)) {
-        raiseError(tr("Device has not enough free ports for deployment."));
-        return false;
-    }
-    return true;
-}
-
 void MaemoDeployStep::handleCopyProcessFinished(int exitStatus)
 {
     if (m_stopped) {
@@ -757,6 +751,17 @@ void MaemoDeployStep::handleInstallationFinished(int exitStatus)
     }
     m_unmountState = CurrentMountsUnmount;
     m_mounter->unmount();
+}
+
+void MaemoDeployStep::handlePortsGathererError(const QString &errorMsg)
+{
+    raiseError(errorMsg);
+}
+
+void MaemoDeployStep::handlePortListReady()
+{
+    m_freePorts = deviceConfig().freePorts();
+    m_mounter->mount(&m_freePorts, m_portsGatherer);
 }
 
 void MaemoDeployStep::handleDeviceInstallerOutput(const QByteArray &output)

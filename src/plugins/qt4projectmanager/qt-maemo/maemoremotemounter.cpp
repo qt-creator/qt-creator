@@ -67,7 +67,7 @@ void MaemoRemoteMounter::setConnection(const Core::SshConnection::Ptr &connectio
     m_connection = connection;
 }
 
-bool MaemoRemoteMounter::addMountSpecification(const MaemoMountSpecification &mountSpec,
+void MaemoRemoteMounter::addMountSpecification(const MaemoMountSpecification &mountSpec,
     bool mountAsRoot)
 {
     Q_ASSERT(m_toolChain);
@@ -75,7 +75,6 @@ bool MaemoRemoteMounter::addMountSpecification(const MaemoMountSpecification &mo
 
     if (m_toolChain->allowsRemoteMounts() && mountSpec.isValid())
         m_mountSpecs << MountInfo(mountSpec, mountAsRoot);
-    return true; // TODO: Function can't fail anymore. Make void and remove all checks
 }
 
 bool MaemoRemoteMounter::hasValidMountSpecifications() const

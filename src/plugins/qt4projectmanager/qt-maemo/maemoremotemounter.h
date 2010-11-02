@@ -61,7 +61,7 @@ public:
     MaemoRemoteMounter(QObject *parent);
     ~MaemoRemoteMounter();
     void setToolchain(const MaemoToolChain *toolchain) { m_toolChain = toolchain; }
-    bool addMountSpecification(const MaemoMountSpecification &mountSpec,
+    void addMountSpecification(const MaemoMountSpecification &mountSpec,
         bool mountAsRoot);
     bool hasValidMountSpecifications() const;
     void resetMountSpecifications() { m_mountSpecs.clear(); }
