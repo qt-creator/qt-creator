@@ -115,7 +115,7 @@ public:
 
     void showMessage(const QString &msg, int channel);
 
-    void handleRemoteSetupDone();
+    void handleRemoteSetupDone(int gdbServerPort, int qmlPort);
     void handleRemoteSetupFailed(const QString &message);
 
     static bool checkDebugConfiguration(int toolChain,

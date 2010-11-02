@@ -710,15 +710,15 @@ Internal::AbstractGdbAdapter *DebuggerRunControl::gdbAdapter() const
     return engine->gdbAdapter();
 }
 
-void DebuggerRunControl::handleRemoteSetupDone()
+void DebuggerRunControl::handleRemoteSetupDone(int gdbServerPort, int qmlPort)
 {
     if (QmlEngine *qmlEngine = qobject_cast<QmlEngine *>(d->m_engine)) {
-        qmlEngine->handleRemoteSetupDone();
+        qmlEngine->handleRemoteSetupDone(qmlPort);
     } else if (Internal::AbstractGdbAdapter *adapter = gdbAdapter()) {
         if (RemotePlainGdbAdapter *rpga = qobject_cast<RemotePlainGdbAdapter *>(adapter)) {
-            rpga->handleSetupDone();
+            rpga->handleSetupDone(qmlPort);
         } else if (RemoteGdbServerAdapter *rgsa = qobject_cast<RemoteGdbServerAdapter *>(adapter)) {
-            rgsa->handleSetupDone();
+            rgsa->handleSetupDone(gdbServerPort, qmlPort);
         } else {
             QTC_ASSERT(false, /* */ );
         }

@@ -286,10 +286,25 @@ void RemoteGdbServerAdapter::shutdownAdapter()
     m_engine->notifyAdapterShutdownOk();
 }
 
-void RemoteGdbServerAdapter::handleSetupDone()
+void RemoteGdbServerAdapter::handleSetupDone(int gdbServerPort, int qmlPort)
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
 
+    if (qmlPort != -1)
+        startParameters().qmlServerPort = qmlPort;
+    if (gdbServerPort != -1) {
+        QString &rc = startParameters().remoteChannel;
+        const int sepIndex = rc.lastIndexOf(QLatin1Char(':'));
+        if (sepIndex != -1) {
+            rc.replace(sepIndex + 1, rc.count() - sepIndex - 1,
+                       QString::number(gdbServerPort));
+        }
+    }
+    handleSetupDone();
+}
+
+void RemoteGdbServerAdapter::handleSetupDone()
+{
     if (m_engine->startGdb(QStringList(), startParameters().debuggerCommand))
         m_engine->handleAdapterStarted();
 }

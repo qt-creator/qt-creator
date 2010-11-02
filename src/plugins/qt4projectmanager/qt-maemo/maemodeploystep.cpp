@@ -424,7 +424,7 @@ void MaemoDeployStep::handleUnmounted()
             prepareSftpConnection();
         break;
     case CurrentDirsUnmount:
-        m_mounter->mount();
+        // m_mounter->mount(); TODO: See above
         break;
     case CurrentMountsUnmount:
         writeOutput(tr("Deployment finished."));
@@ -452,7 +452,6 @@ void MaemoDeployStep::setupMount()
     Q_ASSERT(m_needsInstall || !m_filesToCopy.isEmpty());
     m_mounter->resetMountSpecifications();
     m_mounter->setToolchain(toolChain());
-    m_mounter->setPortList(deviceConfig().freePorts());
     if (m_needsInstall) {
         const QString localDir
             = QFileInfo(packagingStep()->packageFilePath()).absolutePath();

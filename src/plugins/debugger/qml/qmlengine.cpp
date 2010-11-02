@@ -282,8 +282,10 @@ void QmlEngine::runEngine()
     showMessage(tr("QML Debugger connecting..."), StatusBar);
 }
 
-void QmlEngine::handleRemoteSetupDone()
+void QmlEngine::handleRemoteSetupDone(int port)
 {
+    if (port != -1)
+        startParameters().qmlServerPort = port;
     notifyInferiorSetupOk();
 }
 

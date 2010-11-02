@@ -49,7 +49,7 @@ class RemoteGdbServerAdapter : public AbstractGdbAdapter
 
 public:
     RemoteGdbServerAdapter(GdbEngine *engine, int toolChainType, QObject *parent = 0);
-    void handleSetupDone();
+    void handleSetupDone(int gdbServerPort, int qmlPort);
     void handleSetupFailed(const QString &reason);
 
 private:
@@ -63,6 +63,8 @@ private:
     void shutdownAdapter();
 
     AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
+
+    void handleSetupDone();
 
 signals:
     /*

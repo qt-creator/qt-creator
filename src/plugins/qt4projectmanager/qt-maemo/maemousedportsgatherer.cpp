@@ -54,6 +54,7 @@ void MaemoUsedPortsGatherer::start(const Core::SshConnection::Ptr &connection,
 {
     if (m_running)
         qWarning("Unexpected call of %s in running state", Q_FUNC_INFO);
+    m_usedPorts.clear();
     m_remoteStdout.clear();
     m_remoteStderr.clear();
     m_procRunner = SshRemoteProcessRunner::create(connection);
@@ -82,9 +83,18 @@ void MaemoUsedPortsGatherer::stop()
         m_procRunner->process()->closeChannel();
 }
 
-QList<int> MaemoUsedPortsGatherer::usedPorts() const
+int MaemoUsedPortsGatherer::getNextFreePort(MaemoPortList *freePorts) const
 {
-    QList<int> ports;
+    while (freePorts->hasMore()) {
+        const int port = freePorts->getNext();
+        if (!m_usedPorts.contains(port))
+            return port;
+    }
+    return -1;
+}
+
+void MaemoUsedPortsGatherer::setupUsedPorts()
+{
     const QList<QByteArray> &portStrings = m_remoteStdout.split('\n');
     foreach (const QByteArray &portString, portStrings) {
         if (portString.isEmpty())
@@ -92,13 +102,13 @@ QList<int> MaemoUsedPortsGatherer::usedPorts() const
         bool ok;
         const int port = portString.toInt(&ok);
         if (ok) {
-            ports << port;
+            m_usedPorts << port;
         } else {
             qWarning("%s: Unexpected string '%s' is not a port.",
                 Q_FUNC_INFO, portString.data());
         }
     }
-    return ports;
+    emit portListReady();
 }
 
 void MaemoUsedPortsGatherer::handleConnectionError()
@@ -126,7 +136,7 @@ void MaemoUsedPortsGatherer::handleProcessClosed(int exitStatus)
         break;
     case SshRemoteProcess::ExitedNormally:
         if (m_procRunner->process()->exitCode() == 0) {
-            emit portListReady();
+            setupUsedPorts();
         } else {
             errMsg = tr("Remote process failed: %1")
                 .arg(m_procRunner->process()->errorString());

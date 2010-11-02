@@ -40,6 +40,7 @@
 #include "maemoremotemounter.h"
 #include "maemoremotemountsmodel.h"
 #include "maemorunconfiguration.h"
+#include "maemousedportsgatherer.h"
 
 #include <coreplugin/ssh/sshconnection.h>
 #include <coreplugin/ssh/sshremoteprocess.h>
@@ -59,14 +60,12 @@ MaemoSshRunner::MaemoSshRunner(QObject *parent,
     MaemoRunConfiguration *runConfig, bool debugging)
     : QObject(parent), m_runConfig(runConfig),
       m_mounter(new MaemoRemoteMounter(this)),
+      m_portsGatherer(new MaemoUsedPortsGatherer(this)),
       m_devConfig(runConfig->deviceConfig()),
+      m_freePorts(runConfig->freePorts()),
       m_debugging(debugging), m_state(Inactive)
 {
-    m_procsToKill
-        << QFileInfo(m_runConfig->localExecutableFilePath()).fileName()
-        << QLatin1String("utfs-client");
-    if (debugging)
-        m_procsToKill << QLatin1String("gdbserver");
+    m_procsToKill << QFileInfo(m_runConfig->localExecutableFilePath()).fileName();
     connect(m_mounter, SIGNAL(mounted()), this, SLOT(handleMounted()));
     connect(m_mounter, SIGNAL(unmounted()), this, SLOT(handleUnmounted()));
     connect(m_mounter, SIGNAL(error(QString)), this,
@@ -75,6 +74,10 @@ MaemoSshRunner::MaemoSshRunner(QObject *parent,
         SIGNAL(reportProgress(QString)));
     connect(m_mounter, SIGNAL(debugOutput(QString)), this,
         SIGNAL(mountDebugOutput(QString)));
+    connect(m_portsGatherer, SIGNAL(error(QString)), this,
+        SLOT(handlePortsGathererError(QString)));
+    connect(m_portsGatherer, SIGNAL(portListReady()), this,
+        SLOT(handleUsedPortsAvailable()));
 }
 
 MaemoSshRunner::~MaemoSshRunner() {}
@@ -191,36 +194,23 @@ void MaemoSshRunner::handleUnmounted()
     switch (m_state) {
     case PreRunCleaning: {
         m_mounter->resetMountSpecifications();
-        MaemoPortList portList = m_devConfig.freePorts();
-        if (m_debugging) { // gdbserver and QML inspector need one port each.
-            MaemoRunConfiguration::DebuggingType debuggingType
-                = m_runConfig->debuggingType();
-            if (debuggingType != MaemoRunConfiguration::DebugQmlOnly
-                    && !m_runConfig->useRemoteGdb())
-                portList.getNext();
-            if (debuggingType != MaemoRunConfiguration::DebugCppOnly)
-                portList.getNext();
-        }
         m_mounter->setToolchain(m_runConfig->toolchain());
-        m_mounter->setPortList(portList);
         const MaemoRemoteMountsModel * const remoteMounts
             = m_runConfig->remoteMounts();
-        for (int i = 0; i < remoteMounts->mountSpecificationCount(); ++i) {
-            if (!addMountSpecification(remoteMounts->mountSpecificationAt(i)))
-                return;
-        }
+        for (int i = 0; i < remoteMounts->mountSpecificationCount(); ++i)
+            m_mounter->addMountSpecification(remoteMounts->mountSpecificationAt(i), false);
         if (m_debugging && m_runConfig->useRemoteGdb()) {
-            if (!addMountSpecification(MaemoMountSpecification(
+            m_mounter->addMountSpecification(MaemoMountSpecification(
                 m_runConfig->localDirToMountForRemoteGdb(),
-                MaemoGlobal::remoteProjectSourcesMountPoint())))
-                return;
+                MaemoGlobal::remoteProjectSourcesMountPoint()), false);
         }
         setState(PreMountUnmounting);
         unmount();
         break;
     }
     case PreMountUnmounting:
-        mount();
+        setState(GatheringPorts);
+        m_portsGatherer->start(m_connection, m_freePorts);
         break;
     case PostRunCleaning:
     case StopRequested: {
@@ -295,16 +285,6 @@ void MaemoSshRunner::handleRemoteProcessFinished(int exitStatus)
     }
 }
 
-bool MaemoSshRunner::addMountSpecification(const MaemoMountSpecification &mountSpec)
-{
-    if (!m_mounter->addMountSpecification(mountSpec, false)) {
-        emitError(tr("The device does not have enough free ports "
-            "for this run configuration."));
-        return false;
-    }
-    return true;
-}
-
 bool MaemoSshRunner::isConnectionUsable() const
 {
     return m_connection && m_connection->state() == SshConnection::Connected
@@ -315,6 +295,7 @@ void MaemoSshRunner::setState(State newState)
 {
     if (newState == Inactive) {
         m_mounter->setConnection(SshConnection::Ptr());
+        m_portsGatherer->stop();
         if (m_connection) {
             disconnect(m_connection.data(), 0, this, 0);
             m_connection = SshConnection::Ptr();
@@ -338,7 +319,7 @@ void MaemoSshRunner::mount()
     setState(Mounting);
     if (m_mounter->hasValidMountSpecifications()) {
         emit reportProgress(tr("Mounting host directories..."));
-        m_mounter->mount();
+        m_mounter->mount(freePorts(), m_portsGatherer);
     } else {
         handleMounted();
     }
@@ -369,6 +350,21 @@ void MaemoSshRunner::unmount()
     }
 }
 
+void MaemoSshRunner::handlePortsGathererError(const QString &errorMsg)
+{
+    emitError(errorMsg);
+}
+
+void MaemoSshRunner::handleUsedPortsAvailable()
+{
+    ASSERT_STATE(QList<State>() << GatheringPorts << StopRequested);
+
+    if (m_state == StopRequested) {
+        setState(Inactive);
+    } else {
+        mount();
+    }
+}
 
 const qint64 MaemoSshRunner::InvalidExitCode
     = std::numeric_limits<qint64>::min();

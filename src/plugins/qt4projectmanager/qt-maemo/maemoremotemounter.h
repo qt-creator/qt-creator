@@ -52,6 +52,7 @@ class SshRemoteProcess;
 namespace Qt4ProjectManager {
 namespace Internal {
 class MaemoToolChain;
+class MaemoUsedPortsGatherer;
 
 class MaemoRemoteMounter : public QObject
 {
@@ -60,12 +61,12 @@ public:
     MaemoRemoteMounter(QObject *parent);
     ~MaemoRemoteMounter();
     void setToolchain(const MaemoToolChain *toolchain) { m_toolChain = toolchain; }
-    void setPortList(const MaemoPortList &portList) { m_portList = portList; }
     bool addMountSpecification(const MaemoMountSpecification &mountSpec,
         bool mountAsRoot);
     bool hasValidMountSpecifications() const;
     void resetMountSpecifications() { m_mountSpecs.clear(); }
-    void mount();
+    void mount(MaemoPortList *freePorts,
+        const MaemoUsedPortsGatherer *portsGatherer);
     void unmount();
     void stop();
 
@@ -107,7 +108,6 @@ private:
     void startUtfsClients();
     void killUtfsServer(QProcess *proc);
     void killAllUtfsServers();
-    void killUtfsClients();
     QString utfsClientOnDevice() const;
     QString utfsServer() const;
 
@@ -115,11 +115,11 @@ private:
     QTimer * const m_utfsServerTimer;
 
     struct MountInfo {
-        MountInfo(const MaemoMountSpecification &m, int port, bool root)
-            : mountSpec(m), remotePort(port), mountAsRoot(root) {}
+        MountInfo(const MaemoMountSpecification &m, bool root)
+            : mountSpec(m), mountAsRoot(root), remotePort(-1) {}
         MaemoMountSpecification mountSpec;
-        int remotePort;
         bool mountAsRoot;
+        int remotePort;
     };
 
     QSharedPointer<Core::SshConnection> m_connection;
@@ -134,7 +134,8 @@ private:
 
     QByteArray m_utfsClientStderr;
     QByteArray m_umountStderr;
-    MaemoPortList m_portList;
+    MaemoPortList *m_freePorts;
+    const MaemoUsedPortsGatherer *m_portsGatherer;
 
     State m_state;
 };

@@ -101,10 +101,12 @@ void RemotePlainGdbAdapter::shutdownAdapter()
     m_engine->notifyAdapterShutdownOk();
 }
 
-void RemotePlainGdbAdapter::handleSetupDone()
+void RemotePlainGdbAdapter::handleSetupDone(int qmlPort)
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
 
+    if (qmlPort != -1)
+        startParameters().qmlServerPort = qmlPort;
     if (!startParameters().workingDirectory.isEmpty())
         m_gdbProc.setWorkingDirectory(startParameters().workingDirectory);
     if (!startParameters().environment.isEmpty())

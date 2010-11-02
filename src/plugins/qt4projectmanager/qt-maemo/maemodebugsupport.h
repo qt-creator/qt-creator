@@ -36,6 +36,7 @@
 #define MAEMODEBUGSUPPORT_H
 
 #include "maemodeviceconfigurations.h"
+#include "maemorunconfiguration.h"
 
 #include <coreplugin/ssh/sftpdefs.h>
 
@@ -87,8 +88,6 @@ private:
         DumpersUploaded, StartingRemoteProcess, Debugging
     };
 
-    static int gdbServerPort(const MaemoRunConfiguration *rc);
-    static int qmlServerPort(const MaemoRunConfiguration *rc);
     static QString environment(const MaemoRunConfiguration *rc);
 
     void handleAdapterSetupFailed(const QString &error);
@@ -96,17 +95,20 @@ private:
     void startDebugging();
     bool useGdb() const;
     void setState(State newState);
+    bool setPort(int &port);
 
     const QPointer<Debugger::DebuggerRunControl> m_runControl;
     MaemoRunConfiguration * const m_runConfig;
     const MaemoDeviceConfig m_deviceConfig;
     MaemoSshRunner * const m_runner;
-    const bool m_qmlOnlyDebugging;
+    const MaemoRunConfiguration::DebuggingType m_debuggingType;
 
     QSharedPointer<Core::SftpChannel> m_uploader;
     Core::SftpJobId m_uploadJob;
     QByteArray m_gdbserverOutput;
     State m_state;
+    int m_gdbServerPort;
+    int m_qmlPort;
 };
 
 } // namespace Internal

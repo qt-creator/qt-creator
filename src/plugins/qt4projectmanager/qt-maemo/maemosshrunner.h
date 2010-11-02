@@ -51,6 +51,7 @@ namespace Qt4ProjectManager {
 namespace Internal {
 class MaemoRemoteMounter;
 class MaemoRunConfiguration;
+class MaemoUsedPortsGatherer;
 
 class MaemoSshRunner : public QObject
 {
@@ -66,6 +67,9 @@ public:
     void startExecution(const QByteArray &remoteCall);
 
     QSharedPointer<Core::SshConnection> connection() const { return m_connection; }
+
+    const MaemoUsedPortsGatherer *usedPortsGatherer() const { return m_portsGatherer; }
+    MaemoPortList *freePorts() { return &m_freePorts; }
 
     static const qint64 InvalidExitCode;
 
@@ -87,30 +91,33 @@ private slots:
     void handleMounted();
     void handleUnmounted();
     void handleMounterError(const QString &errorMsg);
+    void handlePortsGathererError(const QString &errorMsg);
+    void handleUsedPortsAvailable();
 
 private:
     enum State { Inactive, Connecting, PreRunCleaning, PostRunCleaning,
         PreMountUnmounting, Mounting, ReadyForExecution,
-        ProcessStarting, StopRequested
+        ProcessStarting, StopRequested, GatheringPorts
     };
 
     void setState(State newState);
     void emitError(const QString &errorMsg);
 
     void cleanup();
-    bool addMountSpecification(const MaemoMountSpecification &mountSpec);
     bool isConnectionUsable() const;
     void mount();
     void unmount();
 
     MaemoRunConfiguration * const m_runConfig; // TODO this pointer can be invalid
     MaemoRemoteMounter * const m_mounter;
+    MaemoUsedPortsGatherer * const m_portsGatherer;
     const MaemoDeviceConfig m_devConfig;
 
     QSharedPointer<Core::SshConnection> m_connection;
     QSharedPointer<Core::SshRemoteProcess> m_runner;
     QSharedPointer<Core::SshRemoteProcess> m_cleaner;
     QStringList m_procsToKill;
+    MaemoPortList m_freePorts;
 
     int m_exitStatus;
     const bool m_debugging;

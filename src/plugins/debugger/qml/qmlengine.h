@@ -48,7 +48,7 @@ public:
     explicit QmlEngine(const DebuggerStartParameters &startParameters);
     virtual ~QmlEngine();
 
-    void handleRemoteSetupDone();
+    void handleRemoteSetupDone(int port);
     void handleRemoteSetupFailed(const QString &message);
 
     void setAttachToRunningExternalApp(bool value);

@@ -58,7 +58,8 @@ public:
     void start(const QSharedPointer<Core::SshConnection> &connection,
         const MaemoPortList &portList);
     void stop();
-    QList<int> usedPorts() const;
+    int getNextFreePort(MaemoPortList *freePorts) const; // returns -1 if no more are left
+    QList<int> usedPorts() const { return m_usedPorts; }
 
 signals:
     void error(const QString &errMsg);
@@ -71,7 +72,10 @@ private slots:
     void handleRemoteStdErr(const QByteArray &output);
 
 private:
+    void setupUsedPorts();
+
     QSharedPointer<Core::SshRemoteProcessRunner> m_procRunner;
+    QList<int> m_usedPorts;
     QByteArray m_remoteStdout;
     QByteArray m_remoteStderr;
     bool m_running;

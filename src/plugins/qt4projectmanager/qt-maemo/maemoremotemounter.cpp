@@ -31,6 +31,7 @@
 
 #include "maemoglobal.h"
 #include "maemotoolchain.h"
+#include "maemousedportsgatherer.h"
 
 #include <coreplugin/ssh/sftpchannel.h>
 #include <coreplugin/ssh/sshconnection.h>
@@ -72,13 +73,9 @@ bool MaemoRemoteMounter::addMountSpecification(const MaemoMountSpecification &mo
     Q_ASSERT(m_toolChain);
     ASSERT_STATE(Inactive);
 
-    if (m_toolChain->allowsRemoteMounts() && mountSpec.isValid()) {
-        if (!m_portList.hasMore())
-            return false;
-        else
-            m_mountSpecs << MountInfo(mountSpec, m_portList.getNext(), mountAsRoot);
-    }
-    return true;
+    if (m_toolChain->allowsRemoteMounts() && mountSpec.isValid())
+        m_mountSpecs << MountInfo(mountSpec, mountAsRoot);
+    return true; // TODO: Function can't fail anymore. Make void and remove all checks
 }
 
 bool MaemoRemoteMounter::hasValidMountSpecifications() const
@@ -86,7 +83,8 @@ bool MaemoRemoteMounter::hasValidMountSpecifications() const
     return !m_mountSpecs.isEmpty();
 }
 
-void MaemoRemoteMounter::mount()
+void MaemoRemoteMounter::mount(MaemoPortList *freePorts,
+    const MaemoUsedPortsGatherer *portsGatherer)
 {
     ASSERT_STATE(Inactive);
     Q_ASSERT(m_utfsServers.isEmpty());
@@ -97,6 +95,8 @@ void MaemoRemoteMounter::mount()
         emit reportProgress(tr("No directories to mount"));
         emit mounted();
     } else {
+        m_freePorts = freePorts;
+        m_portsGatherer = portsGatherer;
         deployUtfsClient();
     }
 }
@@ -259,7 +259,15 @@ void MaemoRemoteMounter::startUtfsClients()
     const QLatin1String andOp(" && ");
     QString remoteCall = chmodFuse + andOp + chmodUtfsClient;
     for (int i = 0; i < m_mountSpecs.count(); ++i) {
-        const MountInfo &mountInfo = m_mountSpecs.at(i);
+        MountInfo &mountInfo = m_mountSpecs[i];
+        mountInfo.remotePort
+            = m_portsGatherer->getNextFreePort(m_freePorts);
+        if (mountInfo.remotePort == -1) {
+            setState(Inactive);
+            emit error(tr("Error: Not enough free ports on device to fulfill all mount requests."));
+            return;
+        }
+
         const MaemoMountSpecification &mountSpec = mountInfo.mountSpec;
         const QString mkdir = QString::fromLocal8Bit("%1 mkdir -p %2")
             .arg(MaemoGlobal::remoteSudo(), mountSpec.remoteMountPoint);
@@ -378,7 +386,6 @@ void MaemoRemoteMounter::handleUtfsServerError(QProcess::ProcessError)
             .arg(QString::fromLocal8Bit(errorOutput));
     }
     killAllUtfsServers();
-    killUtfsClients();
     emit error(tr("Error running UTFS server: %1").arg(errorString));
 
     setState(Inactive);
@@ -436,7 +443,6 @@ void MaemoRemoteMounter::handleUtfsServerTimeout()
         return;
 
     killAllUtfsServers();
-    killUtfsClients();
     emit error(tr("Timeout waiting for UTFS servers to connect."));
 
     setState(Inactive);
@@ -447,16 +453,6 @@ void MaemoRemoteMounter::setState(State newState)
     if (newState == Inactive)
         m_utfsServerTimer->stop();
     m_state = newState;
-}
-
-// TODO: Perhaps remove this one again, since it might interfere with
-// an unrelated application
-void MaemoRemoteMounter::killUtfsClients()
-{
-    const SshRemoteProcess::Ptr utfsClientKiller
-        = m_connection->createRemoteProcess("pkill utfs-client; sleep 1; "
-            "pkill -9 utfs-client");
-    utfsClientKiller->start();
 }
 
 } // namespace Internal
