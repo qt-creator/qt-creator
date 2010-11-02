@@ -1758,16 +1758,26 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         return;
     }
 
-    if (d->m_snippetOverlay->isVisible()
-        && (e->key() == Qt::Key_Delete || e->key() == Qt::Key_Backspace)) {
-        d->snippetCheckCursor(textCursor());
-    }
-
     if (ro || e->text().isEmpty() || !e->text().at(0).isPrint()) {
         if (cursorMoveKeyEvent(e))
             ;
-        else
+        else {
+            QTextCursor cursor = textCursor();
+            bool cursorWithinSnippet = false;
+            if (d->m_snippetOverlay->isVisible()
+                && (e->key() == Qt::Key_Delete || e->key() == Qt::Key_Backspace)) {
+                cursorWithinSnippet = d->snippetCheckCursor(cursor);
+            }
+            if (cursorWithinSnippet)
+                cursor.beginEditBlock();
+
             QPlainTextEdit::keyPressEvent(e);
+
+            if (cursorWithinSnippet) {
+                cursor.endEditBlock();
+                d->m_snippetOverlay->updateEquivalentSelections(textCursor());
+            }
+        }
     } else if ((e->modifiers() & (Qt::ControlModifier|Qt::AltModifier)) != Qt::ControlModifier){
         QTextCursor cursor = textCursor();
         QString text = e->text();
@@ -1783,10 +1793,11 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
             }
         }
 
+        bool cursorWithinSnippet = false;
         if (d->m_snippetOverlay->isVisible())
-            d->snippetCheckCursor(cursor);
+            cursorWithinSnippet = d->snippetCheckCursor(cursor);
 
-        bool doEditBlock = !(electricChar.isNull() && autoText.isEmpty());
+        bool doEditBlock = !electricChar.isNull() || !autoText.isEmpty() || cursorWithinSnippet;
         if (doEditBlock)
             cursor.beginEditBlock();
 
@@ -1806,8 +1817,11 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
             cursor.setPosition(autoText.length() == 1 ? cursor.position() : cursor.anchor());
         }
 
-        if (doEditBlock)
+        if (doEditBlock) {
             cursor.endEditBlock();
+            if (cursorWithinSnippet)
+                d->m_snippetOverlay->updateEquivalentSelections(textCursor());
+        }
 
         setTextCursor(cursor);
     }
@@ -2431,10 +2445,10 @@ void BaseTextEditorPrivate::setupDocumentSignals(BaseTextDocument *document)
 }
 
 
-void BaseTextEditorPrivate::snippetCheckCursor(const QTextCursor &cursor)
+bool BaseTextEditorPrivate::snippetCheckCursor(const QTextCursor &cursor)
 {
     if (!m_snippetOverlay->isVisible() || m_snippetOverlay->isEmpty())
-        return;
+        return false;
 
     QTextCursor start = cursor;
     start.setPosition(cursor.selectionStart());
@@ -2444,7 +2458,9 @@ void BaseTextEditorPrivate::snippetCheckCursor(const QTextCursor &cursor)
         || !m_snippetOverlay->hasCursorInSelection(end)) {
         m_snippetOverlay->setVisible(false);
         m_snippetOverlay->clear();
+        return false;
     }
+    return true;
 }
 
 void BaseTextEditorPrivate::snippetTabOrBacktab(bool forward)
@@ -2454,8 +2470,8 @@ void BaseTextEditorPrivate::snippetTabOrBacktab(bool forward)
     QTextCursor cursor = q->textCursor();
     OverlaySelection final;
     if (forward) {
-        for (int i = 0; i < m_snippetOverlay->m_selections.count(); ++i){
-            const OverlaySelection &selection = m_snippetOverlay->m_selections.at(i);
+        for (int i = 0; i < m_snippetOverlay->selections().count(); ++i){
+            const OverlaySelection &selection = m_snippetOverlay->selections().at(i);
             if (selection.m_cursor_begin.position() >= cursor.position()
                 && selection.m_cursor_end.position() > cursor.position()) {
                 final = selection;
@@ -2463,8 +2479,8 @@ void BaseTextEditorPrivate::snippetTabOrBacktab(bool forward)
             }
         }
     } else {
-        for (int i = m_snippetOverlay->m_selections.count()-1; i >= 0; --i){
-            const OverlaySelection &selection = m_snippetOverlay->m_selections.at(i);
+        for (int i = m_snippetOverlay->selections().count()-1; i >= 0; --i){
+            const OverlaySelection &selection = m_snippetOverlay->selections().at(i);
             if (selection.m_cursor_end.position() < cursor.position()) {
                 final = selection;
                 break;
@@ -2473,7 +2489,7 @@ void BaseTextEditorPrivate::snippetTabOrBacktab(bool forward)
 
     }
     if (final.m_cursor_begin.isNull())
-        final = forward ? m_snippetOverlay->m_selections.first() : m_snippetOverlay->m_selections.last();
+        final = forward ? m_snippetOverlay->selections().first() : m_snippetOverlay->selections().last();
 
     if (final.m_cursor_begin.position() == final.m_cursor_end.position()) { // empty tab stop
         cursor.setPosition(final.m_cursor_end.position());
@@ -2483,7 +2499,6 @@ void BaseTextEditorPrivate::snippetTabOrBacktab(bool forward)
     }
     q->setTextCursor(cursor);
 }
-
 
 bool BaseTextEditor::viewportEvent(QEvent *event)
 {
@@ -4382,18 +4397,17 @@ void BaseTextEditor::handleHomeKey(bool anchor)
     setTextCursor(cursor);
 }
 
-
-#define SET_AND_RETURN(cursor) setTextCursor(cursor); return  // make cursor visible and reset vertical x movement
 void BaseTextEditor::handleBackspaceKey()
 {
     QTextCursor cursor = textCursor();
     int pos = cursor.position();
     QTC_ASSERT(!cursor.hasSelection(), return);
 
+    bool cursorWithinSnippet = false;
     if (d->m_snippetOverlay->isVisible()) {
         QTextCursor snippetCursor = cursor;
         snippetCursor.movePosition(QTextCursor::Left);
-        d->snippetCheckCursor(snippetCursor);
+        cursorWithinSnippet = d->snippetCheckCursor(snippetCursor);
     }
 
     const TextEditor::TabSettings &tabSettings = d->m_document->tabSettings();
@@ -4401,40 +4415,58 @@ void BaseTextEditor::handleBackspaceKey()
     if (tabSettings.m_autoIndent && d->m_autoCompleter->autoBackspace(cursor))
         return;
 
+    bool handled = false;
     if (!tabSettings.m_smartBackspace) {
-        cursor.deletePreviousChar();
-        SET_AND_RETURN(cursor);
-    }
-
-    QTextBlock currentBlock = cursor.block();
-    int positionInBlock = pos - currentBlock.position();
-    const QString blockText = currentBlock.text();
-    if (cursor.atBlockStart() || tabSettings.firstNonSpace(blockText) < positionInBlock) {
-        cursor.deletePreviousChar();
-        SET_AND_RETURN(cursor);
-    }
-
-    int previousIndent = 0;
-    const int indent = tabSettings.columnAt(blockText, positionInBlock);
-
-    for (QTextBlock previousNonEmptyBlock = currentBlock.previous();
-         previousNonEmptyBlock.isValid();
-         previousNonEmptyBlock = previousNonEmptyBlock.previous()) {
-        QString previousNonEmptyBlockText = previousNonEmptyBlock.text();
-        if (previousNonEmptyBlockText.trimmed().isEmpty())
-            continue;
-        previousIndent = tabSettings.columnAt(previousNonEmptyBlockText,
-                                              tabSettings.firstNonSpace(previousNonEmptyBlockText));
-        if (previousIndent < indent) {
+        if (cursorWithinSnippet)
             cursor.beginEditBlock();
-            cursor.setPosition(currentBlock.position(), QTextCursor::KeepAnchor);
-            cursor.insertText(tabSettings.indentationString(previousNonEmptyBlockText));
-            cursor.endEditBlock();
-            SET_AND_RETURN(cursor);
+        cursor.deletePreviousChar();
+        handled = true;
+    } else {
+        QTextBlock currentBlock = cursor.block();
+        int positionInBlock = pos - currentBlock.position();
+        const QString blockText = currentBlock.text();
+        if (cursor.atBlockStart() || tabSettings.firstNonSpace(blockText) < positionInBlock) {
+            if (cursorWithinSnippet)
+                cursor.beginEditBlock();
+            cursor.deletePreviousChar();
+            handled = true;
+        } else {
+            int previousIndent = 0;
+            const int indent = tabSettings.columnAt(blockText, positionInBlock);
+
+            for (QTextBlock previousNonEmptyBlock = currentBlock.previous();
+                 previousNonEmptyBlock.isValid();
+                 previousNonEmptyBlock = previousNonEmptyBlock.previous()) {
+                QString previousNonEmptyBlockText = previousNonEmptyBlock.text();
+                if (previousNonEmptyBlockText.trimmed().isEmpty())
+                    continue;
+                previousIndent =
+                    tabSettings.columnAt(previousNonEmptyBlockText,
+                                         tabSettings.firstNonSpace(previousNonEmptyBlockText));
+                if (previousIndent < indent) {
+                    cursor.beginEditBlock();
+                    cursor.setPosition(currentBlock.position(), QTextCursor::KeepAnchor);
+                    cursor.insertText(tabSettings.indentationString(previousNonEmptyBlockText));
+                    cursor.endEditBlock();
+                    handled = true;
+                    break;
+                }
+            }
         }
     }
-    cursor.deletePreviousChar();
-    SET_AND_RETURN(cursor);
+
+    if (!handled) {
+        if (cursorWithinSnippet)
+            cursor.beginEditBlock();
+        cursor.deletePreviousChar();
+    }
+
+    if (cursorWithinSnippet) {
+        cursor.endEditBlock();
+        d->m_snippetOverlay->updateEquivalentSelections(cursor);
+    }
+
+    setTextCursor(cursor);
 }
 
 void BaseTextEditor::wheelEvent(QWheelEvent *e)
@@ -4997,6 +5029,7 @@ void BaseTextEditor::setExtraSelections(ExtraSelectionKind kind, const QList<QTe
                                               selection.format.background().color(),
                                               TextEditorOverlay::ExpandBegin);
         }
+        d->m_snippetOverlay->mapEquivalentSelections();
         d->m_snippetOverlay->setVisible(!d->m_snippetOverlay->isEmpty());
     } else {
         QList<QTextEdit::ExtraSelection> all;

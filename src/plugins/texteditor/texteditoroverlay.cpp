@@ -30,20 +30,22 @@
 #include "texteditoroverlay.h"
 #include "basetexteditor.h"
 
+#include <QtCore/QMap>
 #include <QtGui/QPainter>
 #include <QtGui/QTextBlock>
 
 using namespace TextEditor;
 using namespace TextEditor::Internal;
 
-TextEditorOverlay::TextEditorOverlay(BaseTextEditor *editor)
-    :QObject(editor) {
-    m_visible = false;
-    m_borderWidth = 1;
-    m_dropShadowWidth = 2;
-    m_editor = editor;
-    m_alpha = true;
-    m_viewport = editor->viewport();
+TextEditorOverlay::TextEditorOverlay(BaseTextEditor *editor) :
+    QObject(editor),
+    m_visible(false),
+    m_borderWidth(1),
+    m_dropShadowWidth(2),
+    m_alpha(true),
+    m_editor(editor),
+    m_viewport(editor->viewport())
+{
 }
 
 void TextEditorOverlay::update()
@@ -448,11 +450,78 @@ void TextEditorOverlay::fill(QPainter *painter, const QColor &color, const QRect
 */
 bool TextEditorOverlay::hasCursorInSelection(const QTextCursor &cursor) const
 {
+    if (selectionIndexForCursor(cursor) != -1)
+        return true;
+    return false;
+}
+
+int TextEditorOverlay::selectionIndexForCursor(const QTextCursor &cursor) const
+{
     for (int i = 0; i < m_selections.size(); ++i) {
         const OverlaySelection &selection = m_selections.at(i);
         if (cursor.position() >= selection.m_cursor_begin.position()
             && cursor.position() <= selection.m_cursor_end.position())
-            return true;
+            return i;
     }
-    return false;
+    return -1;
+}
+
+QString TextEditorOverlay::selectionText(int selectionIndex) const
+{
+    return assembleCursorForSelection(selectionIndex).selectedText();
+}
+
+QTextCursor TextEditorOverlay::assembleCursorForSelection(int selectionIndex) const
+{
+    const OverlaySelection &selection = m_selections.at(selectionIndex);
+    QTextCursor cursor(m_editor->document());
+    cursor.setPosition(selection.m_cursor_begin.position());
+    cursor.setPosition(selection.m_cursor_end.position(), QTextCursor::KeepAnchor);
+    return cursor;
+}
+
+void TextEditorOverlay::mapEquivalentSelections()
+{
+    m_equivalentSelections.clear();
+    m_equivalentSelections.resize(m_selections.size());
+
+    QMap<QString, int> all;
+    for (int i = 0; i < m_selections.size(); ++i)
+        all.insertMulti(selectionText(i), i);
+
+    const QList<QString> &uniqueKeys = all.uniqueKeys();
+    foreach (const QString &key, uniqueKeys) {
+        QList<int> indexes;
+        QMap<QString, int>::const_iterator lbit = all.lowerBound(key);
+        QMap<QString, int>::const_iterator ubit = all.upperBound(key);
+        while (lbit != ubit) {
+            indexes.append(lbit.value());
+            ++lbit;
+        }
+
+        foreach (int index, indexes)
+            m_equivalentSelections[index] = indexes;
+    }
+}
+
+void TextEditorOverlay::updateEquivalentSelections(const QTextCursor &cursor)
+{
+    int selectionIndex = selectionIndexForCursor(cursor);
+    if (selectionIndex == -1)
+        return;
+
+    const QString &currentText = selectionText(selectionIndex);
+    const QList<int> &equivalents = m_equivalentSelections.at(selectionIndex);
+    foreach (int i, equivalents) {
+        if (i == selectionIndex)
+            continue;
+        const QString &equivalentText = selectionText(i);
+        if (currentText != equivalentText) {
+            QTextCursor selectionCursor = assembleCursorForSelection(i);
+            selectionCursor.joinPreviousEditBlock();
+            selectionCursor.removeSelectedText();
+            selectionCursor.insertText(currentText);
+            selectionCursor.endEditBlock();
+        }
+    }
 }

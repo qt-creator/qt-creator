@@ -215,7 +215,7 @@ public:
     TextEditorOverlay *m_overlay;
     TextEditorOverlay *m_snippetOverlay;
     TextEditorOverlay *m_searchResultOverlay;
-    void snippetCheckCursor(const QTextCursor &cursor);
+    bool snippetCheckCursor(const QTextCursor &cursor);
     void snippetTabOrBacktab(bool forward);
     QTextCharFormat m_occurrencesFormat;
     QTextCharFormat m_occurrenceRenameFormat;

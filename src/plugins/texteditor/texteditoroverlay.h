@@ -31,7 +31,8 @@
 #define TEXTEDITOROVERLAY_H
 
 #include <QtCore/QObject>
-
+#include <QtCore/QList>
+#include <QtCore/QVector>
 #include <QtGui/QTextCursor>
 #include <QtGui/QColor>
 
@@ -45,6 +46,7 @@ namespace Internal {
 struct OverlaySelection
 {
     OverlaySelection():m_fixedLength(-1), m_dropShadow(false){}
+
     QTextCursor m_cursor_begin;
     QTextCursor m_cursor_end;
     QColor m_fg;
@@ -56,18 +58,6 @@ struct OverlaySelection
 class TextEditorOverlay : public QObject
 {
     Q_OBJECT
-    BaseTextEditor *m_editor;
-    QWidget *m_viewport;
-
-public:
-    QList<OverlaySelection> m_selections;
-
-private:
-    bool m_visible;
-    int m_borderWidth;
-    int m_dropShadowWidth;
-    bool m_alpha;
-
 public:
     TextEditorOverlay(BaseTextEditor *editor);
 
@@ -100,16 +90,33 @@ public:
     void addOverlaySelection(int begin, int end, const QColor &fg, const QColor &bg,
                              uint overlaySelectionFlags = 0);
 
+    const QList<OverlaySelection> &selections() const { return m_selections; }
+
     inline bool isEmpty() const { return m_selections.isEmpty(); }
 
     inline int dropShadowWidth() const { return m_dropShadowWidth; }
 
     bool hasCursorInSelection(const QTextCursor &cursor) const;
 
+    void mapEquivalentSelections();
+    void updateEquivalentSelections(const QTextCursor &cursor);
+
 private:
     QPainterPath createSelectionPath(const QTextCursor &begin, const QTextCursor &end, const QRect& clip);
     void paintSelection(QPainter *painter, const OverlaySelection &selection);
     void fillSelection(QPainter *painter, const OverlaySelection &selection, const QColor &color);
+    int selectionIndexForCursor(const QTextCursor &cursor) const;
+    QString selectionText(int selectionIndex) const;
+    QTextCursor assembleCursorForSelection(int selectionIndex) const;
+
+    bool m_visible;
+    int m_borderWidth;
+    int m_dropShadowWidth;
+    bool m_alpha;
+    BaseTextEditor *m_editor;
+    QWidget *m_viewport;
+    QList<OverlaySelection> m_selections;
+    QVector<QList<int> > m_equivalentSelections;
 };
 
 } // namespace Internal
