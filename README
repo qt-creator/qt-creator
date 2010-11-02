@@ -8,7 +8,7 @@ The binary packages support the following platforms:
 
 Windows XP SP2, Windows Vista
 (K)Ubuntu Linux 7.04 32bit and 64bit
-Mac OS 10.4 and later
+Mac OS 10.5 and later
 
 Building the sources requires Qt 4.7.0 or later.
 
@@ -17,7 +17,8 @@ Compiling Qt Creator
 Prerequisites:
    * Qt 4.7
    * On Windows: mingw 4.4 or later, Visual Studio 2008 or later
-   * On Mac: XCode 2.5 or later
+   * On Mac: XCode 2.5 or later, compiling on 10.4 requires to set the
+     environment variable QTC_TIGER_COMPAT before running qmake
 
 We recommend that you build Qt Creator not in the source directory, but in a
 separate directory. To do that, use the following commands:
