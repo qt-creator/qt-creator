@@ -13,18 +13,22 @@
 //
 
 // Put everything into a single project.
-static bool treeDepth = 0;
+static int targetDepth = 0;
+static bool forceOverWrite = false;
+static QString subProjectSeparator = "@";
 
 // FIXME: Make file classes configurable on the command line.
-static const char *defaultExtensions[][2] =
+static const char *defaultExtensions[] =
 {
-    { "SOURCES", "cpp,c,C,cxx,c++" },
-    { "HEADERS", "hpp,h,H,hxx,h++" },
-    { "TRANSLATIONS", "ts" },
-    { "FORMS", "ui" },
+    "SOURCES",      "cpp,c,C,cxx,c++",
+    "HEADERS",      "hpp,h,H,hxx,h++",
+    "TRANSLATIONS", "ts",
+    "FORMS",        "ui",
 };
 
 typedef QHash<QByteArray, QByteArray> Extensions;
+
+static QByteArray proExtension = "pro";
 
 
 class FileClass
@@ -62,6 +66,8 @@ public:
 
     void writeProBlock(QTextStream &ts) const
     {
+        if (m_files.isEmpty())
+            return;
         ts << '\n' << m_varName << " *=";
         foreach (QString s, m_files)
             ts << " \\\n    " << s;
@@ -74,31 +80,54 @@ private:
     QSet<QString> m_files;
 };
 
+class ProMaker;
+
 class Project
 {
+    friend class ProMaker;
+    explicit Project(ProMaker *master)
+      : m_master(master)
+    {}
+
 public:
-    Project() {}
-    void create();
-    void addPath(const QDir &dir);
+    void setTreeLevel(int level) { m_treeLevel = level; }
+    int treeLevel() const { return m_treeLevel; }
     void setPaths(const QStringList &paths);
     void setOutputFileName(const QString &fileName) { m_outputFileName = fileName; }
     void writeProFile();
+    void createFileLists();
     void setExtensions(const Extensions &extensions);
+    Extensions extensions() const { return m_extensions; }
 
 private:
-    //void addFileClass(const FileClass &fc) { m_fileClasses.append(fc); }
     void handleDir(const QDir &dir);
 
+    ProMaker *m_master;
     QList<QDir> m_dirs;
     QVector<FileClass> m_fileClasses;
     Extensions m_extensions;
     QString m_outputFileName;
+    QStringList m_subdirs;
+    int m_treeLevel;
+};
+
+class ProMaker
+{
+public:
+    ProMaker() {}
+    ~ProMaker() { qDeleteAll(m_projects); }
+    Project *addEmptyProject();
+    void createContents();
+    void writeOutput();
+
+private:
+    QVector<Project *> m_projects;
 };
 
 void Project::setPaths(const QStringList &paths)
 {
     foreach (const QString &path, paths)
-        addPath(QDir(path));
+        m_dirs.append(path);
 }
 
 void Project::setExtensions(const Extensions &extensions)
@@ -110,12 +139,7 @@ void Project::setExtensions(const Extensions &extensions)
         m_fileClasses.append(FileClass(it.value(), it.key()));
 }
 
-void Project::addPath(const QDir &dir)
-{
-    m_dirs.append(dir);
-}
-
-void Project::create()
+void Project::createFileLists()
 {
     for (int i = 0; i != m_dirs.size(); ++i)
         handleDir(m_dirs.at(i));
@@ -126,10 +150,24 @@ void Project::handleDir(const QDir &dir)
     QDirIterator it(dir.path());
     while (it.hasNext()) {
         it.next();
-        const QFileInfo &fi = it.fileInfo();
+        const QFileInfo fi = it.fileInfo();
         if (fi.isDir()) {
-            if (fi.fileName() != ".." && fi.fileName() != ".")
-                addPath(fi.filePath());
+            if (fi.fileName() == ".." || fi.fileName() == ".")
+                continue;
+            const QString filePath = fi.filePath();
+            if (m_treeLevel < targetDepth) {
+                QString subName = m_outputFileName;
+                subName.insert(subName.size() - 1 - proExtension.size(),
+                    subProjectSeparator + fi.fileName());
+                Project *child = m_master->addEmptyProject();
+                child->setTreeLevel(treeLevel() + 1);
+                child->setPaths(QStringList(filePath));
+                child->setOutputFileName(subName);
+                child->setExtensions(extensions());
+                m_subdirs.append(subName);
+            } else {
+                m_dirs.append(fi.filePath());
+            }
         } else {
             const QByteArray ext = FileClass::prepareSuffix(fi.suffix().toUtf8());
             for (int i = m_fileClasses.size(); --i >= 0; ) {
@@ -143,22 +181,68 @@ void Project::handleDir(const QDir &dir)
 void Project::writeProFile()
 {
     QFile file(m_outputFileName);
-    file.open(QIODevice::ReadWrite);
+    if (file.exists()) {
+        if (!forceOverWrite) {
+            qWarning("%s", qPrintable(QString(
+                "%1 not overwritten. Use -f if this should be done.")
+                .arg(m_outputFileName)));
+            return;
+        }
+        if (!file.remove()) {
+            qWarning("%s", qPrintable(QString(
+                "%1 could not be deleted.").arg(m_outputFileName)));
+            return;
+        }
+    }
+
+    if (!file.open(QIODevice::WriteOnly)) {
+         qWarning("%s", qPrintable(QString(
+            "%1 cannot be written").arg(m_outputFileName)));
+         return;
+    }
+
+
     QTextStream ts(&file);
-    ts << "######################################################################\n";
+    ts << "#####################################################################\n";
     ts << "# Automatically generated by qtpromaker\n";
-    ts << "######################################################################\n\n";
-    ts << "TEMPLATE = app\n";
-    ts << "TARGET = " << QFileInfo(m_outputFileName).baseName() << "\n";
-    foreach (const FileClass &fc, m_fileClasses)
-        fc.writeProBlock(ts);
-    ts << "\nPATHS *=";
-    foreach (const QDir &dir, m_dirs)
-        ts << " \\\n    " << dir.path();
-    ts << "\n\nDEPENDPATH *= $$PATHS\n";
-    ts << "\nINCLUDEPATH *= $$PATHS\n";
-    ts.flush();
-    file.close();
+    ts << "#####################################################################\n\n";
+
+    if (m_subdirs.isEmpty()) {
+        ts << "TEMPLATE = app\n";
+        ts << "TARGET = " << QFileInfo(m_outputFileName).baseName() << "\n";
+        foreach (const FileClass &fc, m_fileClasses)
+            fc.writeProBlock(ts);
+        ts << "\nPATHS *=";
+        foreach (const QDir &dir, m_dirs)
+            ts << " \\\n    " << dir.path();
+        ts << "\n\nDEPENDPATH *= $$PATHS\n";
+        ts << "\nINCLUDEPATH *= $$PATHS\n";
+    } else {
+        ts << "TEMPLATE = subdirs\n";
+        ts << "SUBDIRS = ";
+        foreach (const QString &subdir, m_subdirs)
+            ts << " \\\n    " << subdir;
+        ts << "\n";
+    }
+}
+
+void ProMaker::createContents()
+{
+    for (int i = 0; i != m_projects.size(); ++i)
+        m_projects[i]->createFileLists();
+};
+
+void ProMaker::writeOutput()
+{
+    for (int i = 0; i != m_projects.size(); ++i)
+        m_projects.at(i)->writeProFile();
+}
+
+Project *ProMaker::addEmptyProject()
+{
+    Project *project = new Project(this);
+    m_projects.append(project);
+    return project;
 }
 
 int main(int argc, char *argv[])
@@ -167,27 +251,40 @@ int main(int argc, char *argv[])
     QStringList args = app.arguments();
 
     // Set up default values.
-    QDir dir = QDir::currentPath();
-    QString outputFileName = dir.dirName() + ".pro";
     QStringList paths;
     Extensions extensions;
-    for (int i = 0; i != sizeof(defaultExtensions)/sizeof(defaultExtensions[0]); ++i)
-        extensions[defaultExtensions[i][0]] = extensions[defaultExtensions[i][1]];
+    int extensionsCount = sizeof(defaultExtensions)/sizeof(defaultExtensions[0]);
+    for (int i = 0; i < extensionsCount; i += 2)
+        extensions[defaultExtensions[i]] = defaultExtensions[i + 1];
+
+    QString outputFileName;
 
     // Override by command line.
     for (int i = 1, n = args.size(); i < n; ++i) {
         const QString arg = args.at(i);
         if (arg == "-h" || arg == "--help" || arg == "-help") {
             qWarning() << "Usage: " << qPrintable(args.at(0))
-                << " [-o out.pro] [dir...]";
+                << " [-f] [-o out.pro] [dir...]"
+                << "\n\n"
+                << "Argumnents:\n"
+                << "  -f, --force             overwrite existing files\n"
+                << "  -d, --depth <n>         recursion depth for sub-projects\n"
+                << "  -s, --separator <char>  separator for sub-project names\n"
+                << "  -o, --output <file>     output to <file>\n"
+                << "  -h, --help              print this help\n";
             return 1;
         }
+
         bool handled = true;
-        if (i < n - 1) {
+        if (arg == "-f" || arg == "--force" || arg == "-force") {
+            forceOverWrite = true;
+        } else if (i < n - 1) {
             if (arg == "-o" || arg == "--output" || arg == "-output")
                 outputFileName = args.at(++i);
             else if (arg == "-d" || arg == "--depth" || arg == "-depth")
-                treeDepth = args.at(++i).toInt();
+                targetDepth = args.at(++i).toInt();
+            else if (arg == "-s" || arg == "--separator" || arg == "-separator")
+                subProjectSeparator = args.at(++i);
             else
                 handled = false;
         }
@@ -197,15 +294,34 @@ int main(int argc, char *argv[])
             paths.append(args.at(i));
     }
 
-    if (paths.isEmpty())
+
+    // Fallbacks.
+    if (paths.isEmpty()) {
+        QDir dir = QDir::currentPath();
+        outputFileName = dir.dirName() + '.' + proExtension;
         paths.append(".");
+    }
+
+    if (outputFileName.isEmpty()) {
+        outputFileName = QDir(paths.at(0)).dirName() + '.' + proExtension;
+    }
+
+    if (targetDepth == -1)
+        targetDepth = 1000000; // "infinity"
+
+    //qDebug() << "DEPTH: " << targetDepth;
+    //qDebug() << "SEPARATOR: " << subProjectSeparator;
 
     // Run the thing.
-    Project p;
-    p.setExtensions(extensions);
-    p.setPaths(paths);
-    p.setOutputFileName(outputFileName);
-    p.create();
+    ProMaker pm;
+
+    Project *p = pm.addEmptyProject();
+    p->setExtensions(extensions);
+    p->setPaths(paths);
+    p->setOutputFileName(outputFileName);
+
+    pm.createContents();
+    pm.writeOutput();
 
     return 0;
 }
