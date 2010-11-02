@@ -961,7 +961,6 @@ Qt4ProFileNode *Qt4Project::rootProjectNode() const
 
 bool Qt4Project::validParse(const QString &proFilePath) const
 {
-    return true;
     if (!m_rootProjectNode)
         return false;
     const Qt4ProFileNode *node = m_rootProjectNode->findProFileFor(proFilePath);
