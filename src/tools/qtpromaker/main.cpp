@@ -5,6 +5,8 @@
 #include <QDirIterator>
 #include <QFile>
 #include <QSet>
+#include <QMap>
+#include <QProcess>
 #include <QTextStream>
 #include <QVector>
 
@@ -15,7 +17,7 @@
 // Put everything into a single project.
 static int targetDepth = 0;
 static bool forceOverWrite = false;
-static QString subProjectSeparator = "@";
+static QString subProjectSeparator = "_";
 
 // FIXME: Make file classes configurable on the command line.
 static const char *defaultExtensions[] =
@@ -53,7 +55,7 @@ public:
 
     void addFile(const QFileInfo &fi)
     {
-        m_files.insert(fi.filePath());
+        m_files.insert(fi.filePath(), Dummy());
     }
 
     bool handleFile(const QFileInfo &fi, const QByteArray &preparedSuffix)
@@ -69,15 +71,20 @@ public:
         if (m_files.isEmpty())
             return;
         ts << '\n' << m_varName << " *=";
-        foreach (QString s, m_files)
-            ts << " \\\n    " << s;
+        Files::ConstIterator it = m_files.begin();
+        Files::ConstIterator end = m_files.end();
+        for ( ; it != end; ++it)
+            ts << " \\\n    " << it.key();
         ts << "\n";
     }
 
 private:
+    struct Dummy {};
+    typedef QMap<QString, Dummy> Files;
+
     QByteArray m_suffixes;
     QString m_varName;
-    QSet<QString> m_files;
+    Files m_files;
 };
 
 class ProMaker;
@@ -100,10 +107,12 @@ public:
     Extensions extensions() const { return m_extensions; }
 
 private:
-    void handleDir(const QDir &dir);
+    void handleItem(const QString &item);
+    void handleDir(const QString &item);
+    void handleBinary(const QString &item);
 
     ProMaker *m_master;
-    QList<QDir> m_dirs;
+    QStringList m_items;
     QVector<FileClass> m_fileClasses;
     Extensions m_extensions;
     QString m_outputFileName;
@@ -127,7 +136,7 @@ private:
 void Project::setPaths(const QStringList &paths)
 {
     foreach (const QString &path, paths)
-        m_dirs.append(path);
+        m_items.append(path);
 }
 
 void Project::setExtensions(const Extensions &extensions)
@@ -141,13 +150,73 @@ void Project::setExtensions(const Extensions &extensions)
 
 void Project::createFileLists()
 {
-    for (int i = 0; i != m_dirs.size(); ++i)
-        handleDir(m_dirs.at(i));
+    for (int i = 0; i != m_items.size(); ++i)
+        handleItem(m_items.at(i));
 }
 
-void Project::handleDir(const QDir &dir)
+void Project::handleItem(const QString &item)
 {
-    QDirIterator it(dir.path());
+    QFileInfo fi(item);
+    if (fi.isDir())
+        handleDir(item);
+    else
+        handleBinary(item);
+}
+
+void Project::handleBinary(const QString &item)
+{
+    QStringList args;
+    args.append("--batch-silent");
+    args.append("--nx");
+    args.append("--quiet");
+    args.append("-i");
+    args.append("mi");
+    args.append("--se=" + item);
+    args.append("-ex");
+    args.append("interpreter-exec mi -file-list-exec-source-files");
+    args.append("-ex");
+    args.append("quit");
+    QProcess proc;
+    proc.start("gdb", args);
+    if (!proc.waitForStarted()) {
+        qDebug() << "COULD NOT START";
+        return;
+    }
+    if (!proc.waitForFinished()) {
+        qDebug() << "COULD NOT FINISH";
+        return;
+    }
+    QByteArray ba = proc.readAllStandardOutput();
+    if (ba.isEmpty()) {
+        qDebug() << "NO OUTPUT";
+        return;
+    }
+    QString input = QString::fromLatin1(ba, ba.size());
+    // ^done,files=[{file="<<C++-namespaces>>",{file=...,fullname=}
+    // "}] (gdb)
+    int first = input.indexOf('{');
+    input = input.mid(first, input.lastIndexOf('}') - first);
+    foreach (QString item, input.split("},{")) {
+        //qDebug() << "ITEM: " << item;
+        int full = item.indexOf(",fullname=\"");
+        if (full != -1)
+            item = item.mid(full + 11);
+        else
+            item = item.mid(6);
+        item.chop(1);
+        //qDebug() << "ITEM: " << item;
+        QFileInfo fi(item);
+        const QByteArray ext = FileClass::prepareSuffix(fi.suffix().toUtf8());
+        for (int i = m_fileClasses.size(); --i >= 0; ) {
+            if (m_fileClasses[i].handleFile(fi, ext))
+                break;
+        }
+    }
+}
+
+void Project::handleDir(const QString &item)
+{
+    QDirIterator it(item);
     while (it.hasNext()) {
         it.next();
         const QFileInfo fi = it.fileInfo();
@@ -166,7 +235,7 @@ void Project::handleDir(const QDir &dir)
                 child->setExtensions(extensions());
                 m_subdirs.append(subName);
             } else {
-                m_dirs.append(fi.filePath());
+                m_items.append(fi.filePath());
             }
         } else {
             const QByteArray ext = FileClass::prepareSuffix(fi.suffix().toUtf8());
@@ -213,7 +282,7 @@ void Project::writeProFile()
         foreach (const FileClass &fc, m_fileClasses)
             fc.writeProBlock(ts);
         ts << "\nPATHS *=";
-        foreach (const QDir &dir, m_dirs)
+        foreach (const QDir &dir, m_items)
             ts << " \\\n    " << dir.path();
         ts << "\n\nDEPENDPATH *= $$PATHS\n";
         ts << "\nINCLUDEPATH *= $$PATHS\n";
