@@ -530,6 +530,8 @@ bool Qt4RunConfiguration::fromMap(const QVariantMap &map)
     m_userEnvironmentChanges = Utils::EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
     m_baseEnvironmentBase = static_cast<BaseEnvironmentBase>(map.value(QLatin1String(BASE_ENVIRONMENT_BASE_KEY), static_cast<int>(Qt4RunConfiguration::BuildEnvironmentBase)).toInt());
 
+    m_parseSuccess = qt4Target()->qt4Project()->validParse(m_proFilePath);
+
     return RunConfiguration::fromMap(map);
 }
 
