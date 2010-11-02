@@ -2429,19 +2429,6 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
         }
     }
 
-    if (!d->m_findScopeStart.isNull() && d->m_findScopeVerticalBlockSelectionFirstColumn < 0) {
-
-        TextEditorOverlay *overlay = new TextEditorOverlay(this);
-        overlay->addOverlaySelection(d->m_findScopeStart.position(),
-                                     d->m_findScopeEnd.position(),
-                                     d->m_searchScopeFormat.foreground().color(),
-                                     d->m_searchScopeFormat.background().color(),
-                                     TextEditorOverlay::ExpandBegin);
-        overlay->setAlpha(false);
-        overlay->paint(&painter, e->rect());
-        delete overlay;
-    }
-
     int blockSelectionIndex = -1;
 
     if (d->m_inBlockSelectionMode
@@ -2486,11 +2473,40 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
     } // end first pass
 
 
+    { // extra pass for ifdefed out blocks
+        QTextBlock blockIDO = block;
+        QPointF offsetIDO = offset;
+        while (blockIDO.isValid()) {
+
+            QRectF r = blockBoundingRect(blockIDO).translated(offsetIDO);
+
+            if (r.bottom() >= er.top() && r.top() <= er.bottom()) {
+                if (BaseTextDocumentLayout::ifdefedOut(blockIDO)) {
+                    QRectF rr = r;
+                    rr.setRight(viewportRect.width() - offset.x());
+                    if (lineX > 0)
+                        rr.setRight(qMin(lineX, rr.right()));
+                    painter.fillRect(rr, d->m_ifdefedOutFormat.background());
+                }
+            }
+            offsetIDO.ry() += r.height();
+
+            if (offsetIDO.y() > viewportRect.height())
+                break;
+
+            blockIDO = blockIDO.next();
+            if (!blockIDO.isVisible()) {
+                // invisible blocks do have zero line count
+                blockIDO = doc->findBlockByLineNumber(blockIDO.firstLineNumber());
+            }
+
+        }
+    }
+
     // possible extra pass for the block selection find scope
     if (!d->m_findScopeStart.isNull() && d->m_findScopeVerticalBlockSelectionFirstColumn >= 0) {
         QTextBlock blockFS = block;
         QPointF offsetFS = offset;
-
         while (blockFS.isValid()) {
 
             QRectF r = blockBoundingRect(blockFS).translated(offsetFS);
@@ -2552,6 +2568,19 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
         }
     }
 
+    if (!d->m_findScopeStart.isNull() && d->m_findScopeVerticalBlockSelectionFirstColumn < 0) {
+
+        TextEditorOverlay *overlay = new TextEditorOverlay(this);
+        overlay->addOverlaySelection(d->m_findScopeStart.position(),
+                                     d->m_findScopeEnd.position(),
+                                     d->m_searchScopeFormat.foreground().color(),
+                                     d->m_searchScopeFormat.background().color(),
+                                     TextEditorOverlay::ExpandBegin);
+        overlay->setAlpha(false);
+        overlay->paint(&painter, e->rect());
+        delete overlay;
+    }
+
 
 
     d->m_searchResultOverlay->fill(&painter,
@@ -2564,14 +2593,6 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
         QRectF r = blockBoundingRect(block).translated(offset);
 
         if (r.bottom() >= er.top() && r.top() <= er.bottom()) {
-
-            if (BaseTextDocumentLayout::ifdefedOut(block)) {
-                QRectF rr = r;
-                rr.setRight(viewportRect.width() - offset.x());
-                if (lineX > 0)
-                    rr.setRight(qMin(lineX, rr.right()));
-                painter.fillRect(rr, d->m_ifdefedOutFormat.background());
-            }
 
             QTextLayout *layout = block.layout();
 
