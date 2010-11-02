@@ -233,7 +233,7 @@ def qdump__QDateTime(d, item):
 
 
 def qdump__QDir(d, item):
-    d.putStringValue(call(item.value, "path()"))
+    d.putStringValue(item.value["d_ptr"]["d"].dereference()["path"])
     d.putNumChild(2)
     if d.isExpanded(item):
         with Children(d, 2):
@@ -242,16 +242,17 @@ def qdump__QDir(d, item):
 
 
 def qdump__QFile(d, item):
-    d.putStringValue(call(item.value, "fileName()"))
-    d.putNumChild(2)
+    ptype = lookupType(d.ns + "QFilePrivate")
+    d_ptr = item.value["d_ptr"]["d"].dereference()
+    d.putStringValue(d_ptr.cast(ptype)["fileName"])
+    d.putNumChild(1)
     if d.isExpanded(item):
-        with Children(d, 2):
-            d.putCallItem("fileName", item, "fileName()")
+        with Children(d, 1):
             d.putCallItem("exists", item, "exists()")
 
 
 def qdump__QFileInfo(d, item):
-    d.putStringValue(call(item.value, "filePath()"))
+    d.putStringValue(item.value["d_ptr"]["d"].dereference()["fileName"])
     d.putNumChild(3)
     if d.isExpanded(item):
         with Children(d, 10, lookupType(d.ns + "QString")):
@@ -327,12 +328,34 @@ def qdump__QFixed(d, item):
     d.putNumChild(0)
 
 
+# Stock gdb 7.2 seems to have a problem with types here:
+#
+#  echo -e "namespace N { struct S { enum E { zero, one, two }; }; }\n"\
+#      "int main() { N::S::E x = N::S::one;\n return x; }" >> main.cpp
+#  g++ -g main.cpp
+#  gdb-7.2 -ex 'file a.out' -ex 'b main' -ex 'run' -ex 'step' \
+#     -ex 'ptype N::S::E' -ex 'python print gdb.lookup_type("N::S::E")' -ex 'q'
+#  gdb-7.1 -ex 'file a.out' -ex 'b main' -ex 'run' -ex 'step' \
+#     -ex 'ptype N::S::E' -ex 'python print gdb.lookup_type("N::S::E")' -ex 'q'
+#  gdb-cvs -ex 'file a.out' -ex 'b main' -ex 'run' -ex 'step' \
+#     -ex 'ptype N::S::E' -ex 'python print gdb.lookup_type("N::S::E")' -ex 'q'
+#
+# gives as of 2010-11-02
+#
+#  type = enum N::S::E {N::S::zero, N::S::one, N::S::two} \n
+#    Traceback (most recent call last): File "<string>", line 1, in <module> RuntimeError: No type named N::S::E.
+#  type = enum N::S::E {N::S::zero, N::S::one, N::S::two} \n  N::S::E
+#  type = enum N::S::E {N::S::zero, N::S::one, N::S::two} \n  N::S::E
+#
+# i.e. there's something broken in stock 7.2 that is was ok in 7.1 and is ok later.
+
 def qdump__QFlags(d, item):
-    #warn("QFLAGS: %s" % item.value)
     i = item.value["i"]
-    enumType = item.value.type.template_argument(0)
-    #warn("QFLAGS: %s" % item.value["i"].cast(enumType))
-    d.putValue("%s (%s)" % (i.cast(enumType), i))
+    try:
+        enumType = item.value.type.unqualified().template_argument(0)
+        d.putValue("%s (%s)" % (i.cast(enumType), i))
+    except:
+        d.putValue("%s" % i)
     d.putNumChild(0)
 
 

@@ -7,14 +7,8 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     MainWindow mainWindow;
-    mainWindow.setOrientation(MainWindow::Auto); // ORIENTATION
+    mainWindow.setOrientation(MainWindow::ScreenOrientationAuto); // ORIENTATION
+    mainWindow.showExpanded();
 
-#ifdef Q_OS_SYMBIAN
-    mainWindow.showFullScreen();
-#elif defined(Q_WS_MAEMO_5)
-    mainWindow.showMaximized();
-#else
-    mainWindow.show();
-#endif
     return app.exec();
 }

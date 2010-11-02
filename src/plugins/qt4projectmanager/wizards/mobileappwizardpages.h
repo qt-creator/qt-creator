@@ -46,8 +46,8 @@ public:
     explicit MobileAppWizardOptionsPage(QWidget *parent = 0);
     virtual ~MobileAppWizardOptionsPage();
 
-    void setOrientation(AbstractMobileApp::Orientation orientation);
-    AbstractMobileApp::Orientation orientation() const;
+    void setOrientation(AbstractMobileApp::ScreenOrientation orientation);
+    AbstractMobileApp::ScreenOrientation orientation() const;
     QString symbianSvgIcon() const;
     void setSymbianSvgIcon(const QString &icon);
     QString maemoPngIcon() const;

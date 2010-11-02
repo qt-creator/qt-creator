@@ -68,7 +68,7 @@ const QString AbstractMobileApp::FileStubVersion(QLatin1String("version"));
 const int AbstractMobileApp::StubVersion = 1;
 
 AbstractMobileApp::AbstractMobileApp()
-    : m_orientation(Auto), m_networkEnabled(false)
+    : m_orientation(ScreenOrientationAuto), m_networkEnabled(false)
 {
 }
 
@@ -85,12 +85,12 @@ QString AbstractMobileApp::symbianUidForPath(const QString &path)
             + QString::fromLatin1("%1").arg(hash, 7, 16, QLatin1Char('0')).right(7).toUpper();
 }
 
-void AbstractMobileApp::setOrientation(Orientation orientation)
+void AbstractMobileApp::setOrientation(ScreenOrientation orientation)
 {
     m_orientation = orientation;
 }
 
-AbstractMobileApp::Orientation AbstractMobileApp::orientation() const
+AbstractMobileApp::ScreenOrientation AbstractMobileApp::orientation() const
 {
     return m_orientation;
 }
@@ -210,14 +210,14 @@ QByteArray AbstractMobileApp::generateMainCpp(QString *errorMessage) const
         if (line.contains(QLatin1String("// ORIENTATION"))) {
             const char *orientationString;
             switch (orientation()) {
-            case LockLandscape:
-                orientationString = "LockLandscape";
+            case ScreenOrientationLockLandscape:
+                orientationString = "ScreenOrientationLockLandscape";
                 break;
-            case LockPortrait:
-                orientationString = "LockPortrait";
+            case ScreenOrientationLockPortrait:
+                orientationString = "ScreenOrientationLockPortrait";
                 break;
-            case Auto:
-                orientationString = "Auto";
+            case ScreenOrientationAuto:
+                orientationString = "ScreenOrientationAuto";
                 break;
             }
             insertParameter(line, mainWindowClassName() + QLatin1String("::")
@@ -258,7 +258,7 @@ QByteArray AbstractMobileApp::generateProFile(QString *errorMessage) const
         if (line.contains(QLatin1String("# TARGETUID3"))) {
             valueOnNextLine = symbianTargetUid();
         } else if (line.contains(QLatin1String("# ORIENTATIONLOCK"))
-            && orientation() == Auto) {
+            && orientation() == ScreenOrientationAuto) {
             uncommentNextLine = true;
         } else if (line.contains(QLatin1String("# NETWORKACCESS"))
             && !networkEnabled()) {

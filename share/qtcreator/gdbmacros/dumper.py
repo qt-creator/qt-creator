@@ -1452,6 +1452,7 @@ class Dumper:
                 # a "QWidget &" as "void &".
                 type = type.target()
                 value = value.cast(type)
+                item.value = value
             except RuntimeError:
                 value = item.value
                 type = value.type
