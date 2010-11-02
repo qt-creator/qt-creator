@@ -172,7 +172,6 @@ void Qt4RunConfiguration::proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFile
 {
     if (m_proFilePath != pro->path())
         return;
-    qDebug()<<"proFileUpdated"<<success;
     handleParseState(success);
     emit effectiveTargetInformationChanged();
 }
