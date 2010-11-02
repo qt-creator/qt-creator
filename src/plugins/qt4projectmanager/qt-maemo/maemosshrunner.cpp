@@ -202,7 +202,7 @@ void MaemoSshRunner::handleUnmounted()
         if (m_debugging && m_runConfig->useRemoteGdb()) {
             m_mounter->addMountSpecification(MaemoMountSpecification(
                 m_runConfig->localDirToMountForRemoteGdb(),
-                MaemoGlobal::remoteProjectSourcesMountPoint()), false);
+                m_runConfig->remoteProjectSourcesMountPoint()), false);
         }
         setState(PreMountUnmounting);
         unmount();

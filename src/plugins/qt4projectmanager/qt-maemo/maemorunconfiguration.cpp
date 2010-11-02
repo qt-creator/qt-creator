@@ -291,6 +291,13 @@ QString MaemoRunConfiguration::localDirToMountForRemoteGdb() const
         ? projectDir : projectDir.left(lastSeparatorPos);
 }
 
+QString MaemoRunConfiguration::remoteProjectSourcesMountPoint() const
+{
+    return MaemoGlobal::homeDirOnDevice(deviceConfig().server.uname)
+        + QLatin1String("/gdbSourcesDir_")
+        + QFileInfo(localExecutableFilePath()).fileName();
+}
+
 QString MaemoRunConfiguration::localExecutableFilePath() const
 {
     TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()

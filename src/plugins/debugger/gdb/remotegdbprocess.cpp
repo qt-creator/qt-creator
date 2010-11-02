@@ -33,6 +33,8 @@
 
 #include <utils/qtcassert.h>
 
+#include <QtCore/QFileInfo>
+
 #include <ctype.h>
 
 using namespace Core;
@@ -67,10 +69,13 @@ void RemoteGdbProcess::start(const QString &cmd, const QStringList &args)
     QTC_ASSERT(m_gdbStarted, return);
 }
 
-void RemoteGdbProcess::realStart(const QString &cmd, const QStringList &args)
+void RemoteGdbProcess::realStart(const QString &cmd, const QStringList &args,
+    const QString &executableFilePath)
 {
     m_command = cmd;
     m_cmdArgs = args;
+    m_appOutputFileName = "app_output_"
+        + QFileInfo(executableFilePath).fileName().toUtf8();
     m_gdbStarted = false;
     m_error.clear();
     m_conn = SshConnection::create();
@@ -83,7 +88,7 @@ void RemoteGdbProcess::realStart(const QString &cmd, const QStringList &args)
 void RemoteGdbProcess::handleConnected()
 {
     m_fifoCreator = m_conn->createRemoteProcess( "rm -f "
-        + AppOutputFile + " && mkfifo " + AppOutputFile);
+        + m_appOutputFileName + " && mkfifo " + m_appOutputFileName);
     connect(m_fifoCreator.data(), SIGNAL(closed(int)), this,
         SLOT(handleFifoCreationFinished(int)));
     m_fifoCreator->start();
@@ -99,8 +104,8 @@ void RemoteGdbProcess::handleFifoCreationFinished(int exitStatus)
     if (exitStatus != SshRemoteProcess::ExitedNormally) {
         emitErrorExit(tr("Could not create FIFO."));
     } else {
-        m_appOutputReader = m_conn->createRemoteProcess("cat " + AppOutputFile
-            + " && rm -f " + AppOutputFile);
+        m_appOutputReader = m_conn->createRemoteProcess("cat "
+            + m_appOutputFileName + " && rm -f " + m_appOutputFileName);
         connect(m_appOutputReader.data(), SIGNAL(started()), this,
             SLOT(handleAppOutputReaderStarted()));
         connect(m_appOutputReader.data(), SIGNAL(closed(int)), this,
@@ -115,7 +120,7 @@ void RemoteGdbProcess::handleAppOutputReaderStarted()
         this, SLOT(handleAppOutput(QByteArray)));
     QByteArray cmdLine = "DISPLAY=:0.0 " + m_command.toUtf8() + ' '
         + m_cmdArgs.join(QLatin1String(" ")).toUtf8()
-        + " -tty=" + AppOutputFile;
+        + " -tty=" + m_appOutputFileName;
     if (!m_wd.isEmpty())
         cmdLine.prepend("cd " + m_wd.toUtf8() + " && ");
     m_gdbProc = m_conn->createRemoteProcess(cmdLine);
@@ -303,7 +308,6 @@ void RemoteGdbProcess::emitErrorExit(const QString &error)
 }
 
 const QByteArray RemoteGdbProcess::CtrlC = QByteArray(1, 0x3);
-const QByteArray RemoteGdbProcess::AppOutputFile("app_output");
 
 } // namespace Internal
 } // namespace Debugger

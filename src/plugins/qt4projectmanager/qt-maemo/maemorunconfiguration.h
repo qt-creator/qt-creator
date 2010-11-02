@@ -104,6 +104,7 @@ public:
     const QString gdbCmd() const;
     const QString dumperLib() const;
     QString localDirToMountForRemoteGdb() const;
+    QString remoteProjectSourcesMountPoint() const;
 
     virtual QVariantMap toMap() const;
 

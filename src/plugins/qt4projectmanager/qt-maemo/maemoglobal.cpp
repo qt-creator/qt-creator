@@ -71,10 +71,5 @@ QString MaemoGlobal::remoteEnvironment(const QList<Utils::EnvironmentItem> &list
     return env.mid(0, env.size() - 1);
 }
 
-QString MaemoGlobal::remoteProjectSourcesMountPoint()
-{
-    return QLatin1String("/tmp/gdbSourcesDir");
-}
-
 } // namespace Internal
 } // namespace Qt4ProjectManager

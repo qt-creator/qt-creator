@@ -67,7 +67,8 @@ public:
     virtual void setWorkingDirectory(const QString &dir);
 
     void interruptInferior();
-    void realStart(const QString &cmd, const QStringList &args);
+    void realStart(const QString &cmd, const QStringList &args,
+        const QString &executableFilePath);
 
     static const QByteArray CtrlC;
 
@@ -95,8 +96,6 @@ private:
     QByteArray removeCarriageReturn(const QByteArray &data);
     void emitErrorExit(const QString &error);
 
-    static const QByteArray AppOutputFile;
-
     Core::SshConnectionParameters m_connParams;
     Core::SshConnection::Ptr m_conn;
     Core::SshRemoteProcess::Ptr m_gdbProc;
@@ -112,6 +111,7 @@ private:
     QByteArray m_lastSeqNr;
     QString m_error;
     bool m_gdbStarted;
+    QByteArray m_appOutputFileName;
 
     RemotePlainGdbAdapter *m_adapter;
 };

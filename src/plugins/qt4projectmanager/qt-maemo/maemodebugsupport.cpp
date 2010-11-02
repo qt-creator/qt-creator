@@ -86,7 +86,8 @@ RunControl *MaemoDebugSupport::createDebugRunControl(MaemoRunConfiguration *runC
                     + environment(runConfig) + QLatin1String(" /usr/bin/gdb");
             params.connParams = devConf.server;
             params.localMountDir = runConfig->localDirToMountForRemoteGdb();
-            params.remoteMountPoint = MaemoGlobal::remoteProjectSourcesMountPoint();
+            params.remoteMountPoint
+                = runConfig->remoteProjectSourcesMountPoint();
             const QString execDirAbs
                 = QDir::fromNativeSeparators(QFileInfo(runConfig->localExecutableFilePath()).path());
             const QString execDirRel

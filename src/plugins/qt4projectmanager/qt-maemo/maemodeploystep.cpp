@@ -705,7 +705,7 @@ void MaemoDeployStep::handleCleanupTimeout()
 QString MaemoDeployStep::deployMountPoint() const
 {
     return MaemoGlobal::homeDirOnDevice(deviceConfig().server.uname)
-        + QLatin1String("/deployMountPoint");
+        + QLatin1String("/deployMountPoint_") + packagingStep()->projectName();
 }
 
 const MaemoToolChain *MaemoDeployStep::toolChain() const

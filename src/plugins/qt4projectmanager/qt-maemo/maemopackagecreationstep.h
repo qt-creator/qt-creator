@@ -84,6 +84,8 @@ public:
         const QString &version);
     static bool removeDirectory(const QString &dirPath);
 
+    QString projectName() const;
+
     static const QLatin1String DefaultVersionNumber;
 
 signals:
@@ -118,7 +120,6 @@ private:
     void raiseError(const QString &shortMsg,
                     const QString &detailedMsg = QString());
     QString buildDirectory() const;
-    QString projectName() const;
     const Qt4BuildConfiguration *qt4BuildConfiguration() const;
     MaemoDeployStep * deployStep() const;
     void checkProjectName();
