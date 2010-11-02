@@ -75,8 +75,9 @@ public:
 
     const MaemoToolChain *maemoToolChain() const;
 
-    static bool preparePackagingProcess(QProcess *proc, const MaemoToolChain *tc,
-        const QString &workingDir, QString *error);
+    static bool preparePackagingProcess(QProcess *proc,
+        const Qt4BuildConfiguration *bc, const QString &workingDir,
+        QString *error);
     static QString packagingCommand(const MaemoToolChain *tc,
         const QString &commandName);
     static QString packageName(const ProjectExplorer::Project *project);

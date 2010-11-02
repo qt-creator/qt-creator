@@ -159,8 +159,8 @@ bool MaemoPackageCreationStep::createPackage(QProcess *buildProc)
     emit addOutput(tr("Creating package file ..."), MessageOutput);
     checkProjectName();
     QString error;
-    if (!preparePackagingProcess(buildProc, maemoToolChain(), buildDirectory(),
-        &error)) {
+    if (!preparePackagingProcess(buildProc, qt4BuildConfiguration(),
+       buildDirectory(), &error)) {
         raiseError(error);
         return false;
     }
@@ -488,8 +488,14 @@ void MaemoPackageCreationStep::raiseError(const QString &shortMsg,
 }
 
 bool MaemoPackageCreationStep::preparePackagingProcess(QProcess *proc,
-    const MaemoToolChain *tc, const QString &workingDir, QString *error)
+    const Qt4BuildConfiguration *bc, const QString &workingDir, QString *error)
 {
+    const MaemoToolChain * const tc
+        = dynamic_cast<const MaemoToolChain *>(bc->toolChain());
+    if (!tc) {
+        *error = tr("Build configuration has no Maemo toolchain.");
+        return false;
+    }
     QFile configFile(tc->targetRoot() % QLatin1String("/config.sh"));
     if (!configFile.open(QIODevice::ReadOnly)) {
         *error = tr("Cannot open MADDE config file '%1'.")
@@ -510,6 +516,15 @@ bool MaemoPackageCreationStep::preparePackagingProcess(QProcess *proc,
 
     env.insert(key, tc->targetRoot() % "/bin" % colon % env.value(key));
     env.insert(key, path % QLatin1String("madbin") % colon % env.value(key));
+
+    if (bc->qmakeBuildConfiguration() & QtVersion::DebugBuild) {
+        const QLatin1String debOptionsKey("DEB_BUILD_OPTIONS");
+        QString debOptions = env.value(debOptionsKey);
+        if (!debOptions.isEmpty())
+            debOptions += QLatin1Char(' ');
+        debOptions += QLatin1String("nostrip");
+        env.insert(debOptionsKey, debOptions);
+    }
 
     QString perlLib
         = QDir::fromNativeSeparators(path % QLatin1String("madlib/perl5"));

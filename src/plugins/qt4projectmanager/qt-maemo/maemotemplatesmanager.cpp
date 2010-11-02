@@ -155,13 +155,15 @@ bool MaemoTemplatesManager::createDebianTemplatesIfNecessary(const ProjectExplor
     QString error;
     const Qt4Target * const qt4Target = qobject_cast<const Qt4Target *>(target);
     Q_ASSERT_X(qt4Target, Q_FUNC_INFO, "Target ID does not match actual type.");
+    const Qt4BuildConfiguration * const bc
+        = qt4Target->activeBuildConfiguration();
     const MaemoToolChain * const tc
-        = dynamic_cast<MaemoToolChain *>(qt4Target->activeBuildConfiguration()->toolChain());
+        = dynamic_cast<MaemoToolChain *>(bc->toolChain());
     if (!tc) {
         qDebug("Maemo target has no Maemo toolchain.");
         return false;
     }
-    if (!MaemoPackageCreationStep::preparePackagingProcess(&dh_makeProc, tc,
+    if (!MaemoPackageCreationStep::preparePackagingProcess(&dh_makeProc, bc,
         projectDir.path() + QLatin1Char('/') + PackagingDirName, &error)) {
         raiseError(error);
         return false;
@@ -221,7 +223,6 @@ bool MaemoTemplatesManager::adaptRulesFile(const Project *project)
     QByteArray rulesContents = rulesFile.readAll();
     rulesContents.replace("DESTDIR", "INSTALL_ROOT");
     rulesContents.replace("dh_shlibdeps", "# dh_shlibdeps");
-    rulesContents.replace("dh_strip", "# dh_strip");
 //    rulesContents.replace("$(MAKE) clean", "# $(MAKE) clean");
 //    const Qt4Project * const qt4Project
 //        = static_cast<const Qt4Project *>(project);
