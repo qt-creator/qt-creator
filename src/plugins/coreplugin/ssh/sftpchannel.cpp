@@ -214,6 +214,8 @@ SftpJobId SftpChannelPrivate::createJob(const AbstractSftpOperation::Ptr &job)
 
 void SftpChannelPrivate::handleChannelSuccess()
 {
+    if (channelState() == CloseRequested)
+        return;
 #ifdef CREATOR_SSH_DEBUG
     qDebug("sftp subsystem initialized");
 #endif
@@ -223,6 +225,9 @@ void SftpChannelPrivate::handleChannelSuccess()
 
 void SftpChannelPrivate::handleChannelFailure()
 {
+    if (channelState() == CloseRequested)
+        return;
+
     if (m_sftpState != SubsystemRequested) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Unexpected SSH_MSG_CHANNEL_FAILURE packet.");
@@ -233,6 +238,9 @@ void SftpChannelPrivate::handleChannelFailure()
 
 void SftpChannelPrivate::handleChannelDataInternal(const QByteArray &data)
 {
+    if (channelState() == CloseRequested)
+        return;
+
     m_incomingData += data;
     m_incomingPacket.consumeData(m_incomingData);
     while (m_incomingPacket.isComplete()) {
@@ -764,6 +772,9 @@ SftpChannelPrivate::JobMap::Iterator SftpChannelPrivate::lookupJob(SftpJobId id)
 
 void SftpChannelPrivate::closeHook()
 {
+    m_jobs.clear();
+    m_incomingData.clear();
+    m_incomingPacket.clear();
     emit closed();
 }
 
