@@ -276,7 +276,8 @@ GdbChooserWidget::GdbChooserWidget(QWidget *parent) :
     m_treeView(new QTreeView),
     m_model(new GdbBinaryModel),
     m_addButton(new QToolButton),
-    m_deleteButton(new QToolButton)
+    m_deleteButton(new QToolButton),
+    m_dirty(false)
 {
     QHBoxLayout *mainHLayout = new QHBoxLayout;
 
@@ -339,6 +340,7 @@ void GdbChooserWidget::slotAdd()
     }
     // Add binary + toolchain to model
     m_model->append(path, binaryDialog.toolChains());
+    m_dirty = true;
 }
 
 void GdbChooserWidget::slotRemove()
@@ -350,6 +352,7 @@ void GdbChooserWidget::slotRemove()
 void GdbChooserWidget::removeItem(QStandardItem *item)
 {
     m_model->removeRow(item->row());
+    m_dirty = true;
 }
 
 void GdbChooserWidget::slotCurrentChanged(const QModelIndex &current, const QModelIndex &)
@@ -382,6 +385,7 @@ void GdbChooserWidget::slotDoubleClicked(const QModelIndex &current)
 
     GdbBinaryModel::setBinaryItem(m_model->item(row, binaryColumn), newBinary);
     GdbBinaryModel::setToolChainItem(m_model->item(row, toolChainColumn), newToolChains);
+    m_dirty = true;
 }
 
 GdbChooserWidget::BinaryToolChainMap GdbChooserWidget::gdbBinaries() const
@@ -394,6 +398,17 @@ void GdbChooserWidget::setGdbBinaries(const BinaryToolChainMap &m)
     m_model->setGdbBinaries(m);
     for (int c = 0; c < ColumnCount; c++)
         m_treeView->resizeColumnToContents(c);
+    m_dirty = false;
+}
+
+bool GdbChooserWidget::isDirty() const
+{
+    return m_dirty;
+}
+
+void GdbChooserWidget::clearDirty()
+{
+    m_dirty = false;
 }
 
 // -------------- ToolChainSelectorWidget

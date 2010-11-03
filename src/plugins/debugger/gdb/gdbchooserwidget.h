@@ -68,6 +68,11 @@ public:
     BinaryToolChainMap gdbBinaries() const;
     void setGdbBinaries(const BinaryToolChainMap &m);
 
+    bool isDirty() const;
+
+public slots:
+    void clearDirty();
+
 private slots:
     void slotAdd();
     void slotRemove();
@@ -83,6 +88,7 @@ private:
     GdbBinaryModel *m_model;
     QToolButton *m_addButton;
     QToolButton *m_deleteButton;
+    bool m_dirty;
 };
 
 // Present toolchains with checkboxes grouped in QGroupBox panes

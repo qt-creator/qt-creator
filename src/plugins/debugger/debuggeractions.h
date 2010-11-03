@@ -55,10 +55,8 @@ public:
     explicit DebuggerSettings(QObject *parent = 0);
     ~DebuggerSettings();
 
-    GdbBinaryToolChainMap gdbBinaryToolChainMap() const
-        { return m_gdbBinaryToolChainMap; }
-    void setGdbBinaryToolChainMap(const GdbBinaryToolChainMap &map)
-        { m_gdbBinaryToolChainMap = map; }
+    GdbBinaryToolChainMap gdbBinaryToolChainMap() const;
+    void setGdbBinaryToolChainMap(const GdbBinaryToolChainMap &map);
 
     void insertItem(int code, Utils::SavedAction *item);
     Utils::SavedAction *item(int code) const;
@@ -72,10 +70,13 @@ public slots:
     void writeSettings(QSettings *settings) const;
 
 private:
+    void readGdbBinarySettings(const QSettings *settings);
+    void writeGdbBinarySettings(QSettings *settings) const;
+
     QHash<int, Utils::SavedAction *> m_items;
     GdbBinaryToolChainMap m_gdbBinaryToolChainMap;
+    bool m_gdbBinariesChanged;
 };
-
 
 ///////////////////////////////////////////////////////////
 

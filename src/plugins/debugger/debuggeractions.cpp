@@ -41,6 +41,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QVariant>
 #include <QtCore/QSettings>
+#include <QtCore/QFileInfo>
 
 #include <QtGui/QAction>
 #include <QtGui/QAbstractButton>
@@ -64,12 +65,23 @@ namespace Internal {
 //////////////////////////////////////////////////////////////////////////
 
 DebuggerSettings::DebuggerSettings(QObject *parent)
-    : QObject(parent)
+    : QObject(parent), m_gdbBinariesChanged(false)
 {}
 
 DebuggerSettings::~DebuggerSettings()
 {
     qDeleteAll(m_items);
+}
+
+DebuggerSettings::GdbBinaryToolChainMap DebuggerSettings::gdbBinaryToolChainMap() const
+{
+    return m_gdbBinaryToolChainMap;
+}
+
+void DebuggerSettings::setGdbBinaryToolChainMap(const GdbBinaryToolChainMap &map)
+{
+    m_gdbBinaryToolChainMap = map;
+    m_gdbBinariesChanged = true;
 }
 
 void DebuggerSettings::insertItem(int code, SavedAction *item)
@@ -83,8 +95,21 @@ void DebuggerSettings::insertItem(int code, SavedAction *item)
 
 void DebuggerSettings::readSettings(const QSettings *settings)
 {
+     foreach (SavedAction *item, m_items)
+         item->readSettings(settings);
+    readGdbBinarySettings(settings);
+}
+
+void DebuggerSettings::writeSettings(QSettings *settings) const
+{
     foreach (SavedAction *item, m_items)
-        item->readSettings(settings);
+        item->writeSettings(settings);
+    if (m_gdbBinariesChanged)
+        writeGdbBinarySettings(settings);
+}
+
+void DebuggerSettings::readGdbBinarySettings(const QSettings *settings)
+{
     // Convert gdb binaries from flat settings list (see writeSettings)
     // into map ("binary1=gdb,1,2", "binary2=symbian_gdb,3,4").
     m_gdbBinaryToolChainMap.clear();
@@ -100,6 +125,16 @@ void DebuggerSettings::readSettings(const QSettings *settings)
         if (tokens.size() < 2)
             break;
         const QString binary = tokens.front();
+        // Skip non-existent absolute binaries allowing for upgrades by the installer.
+        // Force a rewrite of the settings file.
+        const QFileInfo binaryInfo(binary);
+        if (binaryInfo.isAbsolute() && !binaryInfo.isExecutable()) {
+            m_gdbBinariesChanged = true;
+            const QString msg = QString::fromLatin1("Warning: The gdb binary '%1' does not exist, skipping.\n").arg(binary);
+            qWarning("%s", qPrintable(msg));
+            continue;
+        }
+        // Create entries for all toolchains.
         tokens.pop_front();
         foreach(const QString &t, tokens) {
             // Paranoia: Check if the there is already a binary configured for the toolchain.
@@ -129,10 +164,8 @@ void DebuggerSettings::readSettings(const QSettings *settings)
 #endif
 }
 
-void DebuggerSettings::writeSettings(QSettings *settings) const
+void DebuggerSettings::writeGdbBinarySettings(QSettings *settings) const
 {
-    foreach (SavedAction *item, m_items)
-        item->writeSettings(settings);
     // Convert gdb binaries map into a flat settings list of
     // ("binary1=gdb,1,2", "binary2=symbian_gdb,3,4"). It needs to be ASCII for installers
     QString lastBinary;

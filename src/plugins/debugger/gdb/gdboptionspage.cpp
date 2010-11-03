@@ -131,8 +131,12 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
 void GdbOptionsPage::apply()
 {
     m_group.apply(Core::ICore::instance()->settings());
-    DebuggerSettings::instance()
-        ->setGdbBinaryToolChainMap(m_ui.gdbChooserWidget->gdbBinaries());
+
+    if (m_ui.gdbChooserWidget->isDirty()) {
+        DebuggerSettings::instance()
+            ->setGdbBinaryToolChainMap(m_ui.gdbChooserWidget->gdbBinaries());
+        m_ui.gdbChooserWidget->clearDirty();
+    }
 }
 
 void GdbOptionsPage::finish()
