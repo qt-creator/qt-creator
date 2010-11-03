@@ -20,7 +20,7 @@ DEFINES += NETWORKACCESS
 # TARGETUID3 #
 symbian:TARGET.UID3 = 0xE1111234
 
-# Define QMLJSDEBUGGER to allow debugging of QML
+# Define QMLJSDEBUGGER to allow debugging of QML in debug builds
 # (This might significantly increase build time)
 # DEFINES += QMLJSDEBUGGER
 

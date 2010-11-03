@@ -59,6 +59,10 @@ class QMLJSDEBUGGER_EXTERN QDeclarativeDebugHelper
 public:
     static QScriptEngine *getScriptEngine(QDeclarativeEngine *engine);
     static void setAnimationSlowDownFactor(qreal factor);
+
+    // Enables remote debugging functionality
+    // Only use this for debugging in a safe environment!
+    static void enableDebugging();
 };
 
 QT_END_NAMESPACE
