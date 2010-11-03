@@ -50,7 +50,9 @@
 #include <extensionsystem/pluginmanager.h>
 #include <help/helpmanager.h>
 #include <utils/qtcassert.h>
-#include <utils/winutils.h>
+#ifdef Q_OS_WIN
+#    include <utils/winutils.h>
+#endif
 
 #include <QtCore/QFile>
 #include <QtCore/QProcess>
@@ -1769,8 +1771,12 @@ QString QtVersion::examplesPath() const
 
 bool QtVersion::isQt64Bit() const
 {
+#ifdef Q_OS_WIN
     const QString qmake = qmakeCommand();
     return qmake.isEmpty() ? false : Utils::winIs64BitBinary(qmake);
+#else
+    return false;
+#endif
 }
 
 bool QtVersion::buildDebuggingHelperLibrary(QFutureInterface<void> &future,
