@@ -50,6 +50,7 @@
 #include <QDebug>
 #include <QMessageBox>
 #include "qdeclarativetester.h"
+#include "private/qdeclarativedebughelper_p.h"
 
 QT_USE_NAMESPACE
 
@@ -360,6 +361,9 @@ int main(int argc, char ** argv)
     Qt::WFlags wflags = (frameless ? Qt::FramelessWindowHint : Qt::Widget);
     if (stayOnTop)
         wflags |= Qt::WindowStaysOnTopHint;
+
+    // enable remote debugging
+    QDeclarativeDebugHelper::enableDebugging();
 
     QDeclarativeViewer *viewer = new QDeclarativeViewer(0, wflags);
     viewer->setAttribute(Qt::WA_DeleteOnClose, true);
