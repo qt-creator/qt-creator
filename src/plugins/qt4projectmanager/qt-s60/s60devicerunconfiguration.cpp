@@ -32,34 +32,28 @@
 #include "s60deployconfiguration.h"
 #include "qt4project.h"
 #include "qt4target.h"
-#include "qtversionmanager.h"
-#include "profilereader.h"
 #include "s60manager.h"
 #include "s60devices.h"
 #include "s60runconfigbluetoothstarter.h"
-#include "bluetoothlistener_gui.h"
-#include "symbiandevicemanager.h"
-#include "qt4buildconfiguration.h"
 #include "qt4projectmanagerconstants.h"
-#include "s60createpackagestep.h"
 #include "qtoutputformatter.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/messagemanager.h>
-#include <coreplugin/progressmanager/progressmanager.h>
+#include <symbianutils/bluetoothlistener_gui.h>
+#include <symbianutils/launcher.h>
+#include <symbianutils/symbiandevicemanager.h>
+
 #include <utils/qtcassert.h>
-#include <utils/pathchooser.h>
-#include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/deployconfiguration.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/project.h>
+
+#include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 
 #include <debugger/debuggerengine.h>
-#include <debugger/debuggerplugin.h>
 
 #include <QtGui/QMessageBox>
 #include <QtGui/QMainWindow>
-#include <QtCore/QCoreApplication>
+#include <QtCore/QFileInfo>
+#include <QtCore/QDateTime>
+#include <QtCore/QDir>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;

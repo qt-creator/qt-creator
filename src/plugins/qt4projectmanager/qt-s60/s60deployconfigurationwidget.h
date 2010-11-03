@@ -30,10 +30,10 @@
 #ifndef S60DEPLOYCONFIGURATIONWIDGET_H
 #define S60DEPLOYCONFIGURATIONWIDGET_H
 
+#include <projectexplorer/deployconfiguration.h>
+
 #include <QtGui/QWidget>
 #include <QtCore/QPointer>
-
-#include <projectexplorer/deployconfiguration.h>
 
 QT_BEGIN_NAMESPACE
 class QLabel;

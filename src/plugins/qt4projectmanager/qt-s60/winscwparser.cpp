@@ -28,8 +28,8 @@
 **************************************************************************/
 
 #include "winscwparser.h"
+
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/taskwindow.h>
 
 #include <QtCore/QDir>
 

@@ -33,9 +33,11 @@
 #include "qt4projectmanager_global.h"
 
 #include <projectexplorer/outputformatter.h>
+
 #include <QtCore/QRegExp>
-#include <QtCore/QSharedPointer>
-#include <QtGui/QTextCharFormat>
+#include <QtCore/QWeakPointer>
+
+QT_FORWARD_DECLARE_CLASS(QTextCursor)
 
 namespace ProjectExplorer {
 class Project;

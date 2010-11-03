@@ -32,24 +32,24 @@
 #include "qt4buildconfiguration.h"
 #include "s60deployconfiguration.h"
 #include "s60devicerunconfiguration.h"
-#include "symbiandevicemanager.h"
 #include "s60runconfigbluetoothstarter.h"
-
-#include <QtGui/QMessageBox>
-#include <QtGui/QMainWindow>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QTimer>
-#include <QDateTime>
-#include <QFile>
-#include <QFileInfo>
-#include <QDir>
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/ioutputparser.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qt4projectmanagerconstants.h>
+
+#include <symbianutils/launcher.h>
+#include <symbianutils/symbiandevicemanager.h>
+
+#include <QtGui/QMessageBox>
+#include <QtGui/QMainWindow>
+
+#include <QtCore/QTimer>
+#include <QtCore/QDateTime>
+#include <QtCore/QDir>
+#include <QtCore/QEventLoop>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager::Internal;
@@ -416,6 +416,10 @@ void S60DeployStep::deviceRemoved(const SymbianUtils::SymbianDevice &d)
 BuildStepConfigWidget *S60DeployStep::createConfigWidget()
 {
     return new S60DeployStepWidget();
+}
+
+S60DeployStepWidget::S60DeployStepWidget() : ProjectExplorer::BuildStepConfigWidget()
+{
 }
 
 void S60DeployStepWidget::init()

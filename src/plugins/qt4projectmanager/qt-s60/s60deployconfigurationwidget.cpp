@@ -32,11 +32,11 @@
 #include "s60devicerunconfiguration.h"
 
 #include "s60runconfigbluetoothstarter.h"
-#include "bluetoothlistener_gui.h"
-#include "s60manager.h"
-#include "launcher.h"
-#include "bluetoothlistener.h"
-#include "symbiandevicemanager.h"
+#include <symbianutils/bluetoothlistener_gui.h>
+
+#include <symbianutils/launcher.h>
+#include <symbianutils/bluetoothlistener.h>
+#include <symbianutils/symbiandevicemanager.h>
 
 #include <utils/detailswidget.h>
 #include <utils/qtcassert.h>

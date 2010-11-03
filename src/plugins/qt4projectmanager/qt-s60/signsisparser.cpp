@@ -31,7 +31,6 @@
 #include "signsisparser.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/taskwindow.h>
 
 using namespace Qt4ProjectManager;
 using namespace ProjectExplorer;

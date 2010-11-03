@@ -30,29 +30,25 @@
 #ifndef S60DEVICERUNCONFIGURATION_H
 #define S60DEVICERUNCONFIGURATION_H
 
-#include "launcher.h"
-
 #include <debugger/debuggerrunner.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/toolchaintype.h>
 
-#include <QtCore/QProcess>
 #include <QtCore/QFutureInterface>
-#include <QtCore/QSharedPointer>
 #include <QtCore/QScopedPointer>
+#include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE
 class QMessageBox;
 class QWidget;
 QT_END_NAMESPACE
 
-namespace Debugger {
-class DebuggerStartParameters;
-class DebuggerRunControl;
-}
-
 namespace SymbianUtils {
 class SymbianDevice;
+}
+
+namespace trk {
+class Launcher;
 }
 
 namespace Qt4ProjectManager {

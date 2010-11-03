@@ -28,7 +28,6 @@
 **************************************************************************/
 
 #include "s60devices.h"
-#include "gccetoolchain.h"
 
 #include <utils/environment.h>
 

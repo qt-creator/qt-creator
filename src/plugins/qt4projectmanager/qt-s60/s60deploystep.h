@@ -27,19 +27,20 @@
 **
 **************************************************************************/
 
-
 #ifndef S60DeployStep_H
 #define S60DeployStep_H
 
 #include <projectexplorer/buildstep.h>
 
-#include "launcher.h"
-
 #include <QtCore/QString>
-#include <QtCore/QEventLoop>
+
+QT_FORWARD_DECLARE_CLASS(QEventLoop)
 
 namespace SymbianUtils {
 class SymbianDevice;
+}
+namespace trk{
+class Launcher;
 }
 
 namespace ProjectExplorer {
@@ -57,7 +58,7 @@ class S60DeployStepFactory : public ProjectExplorer::IBuildStepFactory
     Q_OBJECT
 public:
     explicit S60DeployStepFactory(QObject *parent = 0);
-    ~S60DeployStepFactory();
+    virtual ~S60DeployStepFactory();
 
     // used to show the list of possible additons to a target, returns a list of types
     QStringList availableCreationIds(ProjectExplorer::BuildStepList *parent) const;
@@ -151,13 +152,11 @@ class S60DeployStepWidget : public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT
 public:
-    S60DeployStepWidget()
-        : ProjectExplorer::BuildStepConfigWidget()
-        {}
+    S60DeployStepWidget();
+
     void init();
     QString summaryText() const;
     QString displayName() const;
-
 };
 
 } // Internal

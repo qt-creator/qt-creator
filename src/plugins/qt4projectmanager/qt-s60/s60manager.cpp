@@ -31,7 +31,6 @@
 #include "qtversionmanager.h"
 
 #include "s60devicespreferencepane.h"
-#include "symbiandevicemanager.h"
 #include "winscwtoolchain.h"
 #include "gccetoolchain.h"
 #include "rvcttoolchain.h"
@@ -39,6 +38,8 @@
 #include "s60devicerunconfiguration.h"
 #include "s60createpackagestep.h"
 #include "s60deploystep.h"
+
+#include <symbianutils/symbiandevicemanager.h>
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
@@ -49,7 +50,6 @@
 #include <QtGui/QMainWindow>
 
 #include <QtCore/QDir>
-#include <QtCore/QFileInfo>
 
 namespace {
     const char S60_AUTODETECTION_SOURCE[] = "QTS60";

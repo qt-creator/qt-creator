@@ -30,13 +30,8 @@
 #include "sbsv2parser.h"
 
 #include <extensionsystem/pluginmanager.h>
-#include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskhub.h>
-#include <projectexplorer/taskwindow.h>
-
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
 
 using namespace Qt4ProjectManager;
 using namespace ProjectExplorer;

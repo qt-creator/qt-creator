@@ -35,6 +35,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QUrl>
 #include <QtGui/QPlainTextEdit>
+#include <QtGui/QTextCursor>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;

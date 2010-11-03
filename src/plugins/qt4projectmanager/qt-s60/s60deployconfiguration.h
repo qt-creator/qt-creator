@@ -31,9 +31,12 @@
 #define S60DEPLOYCONFIGURATION_H
 
 #include <projectexplorer/deployconfiguration.h>
-#include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/toolchaintype.h>
+
+namespace ProjectExplorer {
+class BuildConfiguration;
+class RunConfiguration;
+}
 
 namespace Qt4ProjectManager {
 class QtVersion;
@@ -50,7 +53,7 @@ class S60DeployConfiguration : public ProjectExplorer::DeployConfiguration
     friend class S60DeployConfigurationFactory;
 
 public:
-    S60DeployConfiguration(ProjectExplorer::Target *parent);
+    explicit S60DeployConfiguration(ProjectExplorer::Target *parent);
     virtual ~S60DeployConfiguration();
 
     bool isEnabled(ProjectExplorer::BuildConfiguration *configuration) const;

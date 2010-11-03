@@ -28,9 +28,9 @@
 **************************************************************************/
 
 #include "s60runconfigbluetoothstarter.h"
-#include "bluetoothlistener.h"
-#include "symbiandevicemanager.h"
-#include "trkdevice.h"
+#include <symbianutils/bluetoothlistener.h>
+#include <symbianutils/symbiandevicemanager.h>
+#include <symbianutils/trkdevice.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>

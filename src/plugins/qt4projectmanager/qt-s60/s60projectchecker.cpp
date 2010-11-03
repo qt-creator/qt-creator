@@ -32,7 +32,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qt4projectmanager/qt-s60/s60manager.h>
 #include <qt4projectmanager/qt4project.h>
-#include <qt4projectmanager/qtversionmanager.h>
 
 #include <QtCore/QCoreApplication>
 

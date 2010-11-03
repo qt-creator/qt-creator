@@ -32,16 +32,10 @@
 
 #include <utils/detailswidget.h>
 
-#include <QtGui/QLabel>
 #include <QtGui/QLineEdit>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QFormLayout>
-#include <QtGui/QStyle>
-#include <QtGui/QApplication>
-#include <QtGui/QSpacerItem>
-#include <QtGui/QMainWindow>
-#include <QtGui/QMessageBox>
 
 namespace Qt4ProjectManager {
 namespace Internal {

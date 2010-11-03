@@ -31,25 +31,15 @@
 
 #include "qt4project.h"
 #include "qt4target.h"
-#include "qtversionmanager.h"
-#include "profilereader.h"
 #include "s60manager.h"
-#include "s60devices.h"
-#include "qt4buildconfiguration.h"
 #include "qt4projectmanagerconstants.h"
 #include "qtoutputformatter.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/messagemanager.h>
 #include <utils/qtcassert.h>
 #include <utils/detailswidget.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/persistentsettings.h>
 
 #include <QtGui/QLabel>
 #include <QtGui/QVBoxLayout>
-#include <QtGui/QLineEdit>
 #include <QtGui/QFormLayout>
 
 using namespace ProjectExplorer;
