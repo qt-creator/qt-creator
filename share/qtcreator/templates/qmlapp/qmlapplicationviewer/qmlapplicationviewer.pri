@@ -34,20 +34,20 @@ contains(DEFINES, QMLJSDEBUGGER) {
     CONFIG(debug, debug|release) {
         !minQtVersion(4, 7, 1) {
             warning()
+            warning("Disabling QML debugging:")
+            warning()
             warning("Debugging QML requires the qmljsdebugger library that ships with Qt Creator.")
             warning("This library requires Qt 4.7.1 or newer.")
             warning()
-
-            error("Qt version $$QT_VERSION too old for QmlJS Debugging. Aborting.")
-        }
-        isEmpty(QMLJSDEBUGGER_PATH) {
+            DEFINES -= QMLJSDEBUGGER
+        } else:isEmpty(QMLJSDEBUGGER_PATH) {
+            warning()
+            warning("Disabling QML debugging:")
             warning()
             warning("Debugging QML requires the qmljsdebugger library that ships with Qt Creator.")
             warning("Please specify its location on the qmake command line, eg")
             warning("  qmake -r QMLJSDEBUGGER_PATH=$CREATORDIR/share/qtcreator/qmljsdebugger")
             warning()
-
-            error("QMLJSDEBUGGER defined, but no QMLJSDEBUGGER_PATH set on command line. Aborting.")
             DEFINES -= QMLJSDEBUGGER
         } else {
             include($$QMLJSDEBUGGER_PATH/qmljsdebugger-lib.pri)
