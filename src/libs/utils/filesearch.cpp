@@ -291,7 +291,7 @@ QFuture<FileSearchResultList> Utils::findInFilesRegExp(const QString &searchTerm
 
 QString Utils::expandRegExpReplacement(const QString &replaceText, const QStringList &capturedTexts)
 {
-    // handles \1 \\ \& & \t
+    // handles \1 \\ \& & \t \n
     QString result;
     const int numCaptures = capturedTexts.size() - 1;
     for (int i = 0; i < replaceText.length(); ++i) {
@@ -304,6 +304,8 @@ QString Utils::expandRegExpReplacement(const QString &replaceText, const QString
                 result += QLatin1Char('&');
             } else if (c == QLatin1Char('t')) {
                 result += QLatin1Char('\t');
+            } else if (c == QLatin1Char('n')) {
+                result += QLatin1Char('\n');
             } else if (c.isDigit()) {
                 int index = c.unicode()-'1';
                 if (index < numCaptures) {
