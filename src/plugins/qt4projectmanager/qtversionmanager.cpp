@@ -50,6 +50,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <help/helpmanager.h>
 #include <utils/qtcassert.h>
+#include <utils/winutils.h>
 
 #include <QtCore/QFile>
 #include <QtCore/QProcess>
@@ -60,10 +61,6 @@
 #include <QtCore/QDir>
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopServices>
-
-#ifdef Q_OS_WIN32
-#include <windows.h>
-#endif
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
@@ -1772,23 +1769,8 @@ QString QtVersion::examplesPath() const
 
 bool QtVersion::isQt64Bit() const
 {
-        const QString make = qmakeCommand();
-//        qDebug() << make;
-        bool isAmd64 = false;
-#ifdef Q_OS_WIN32
-#  ifdef __GNUC__   // MinGW lacking some definitions/winbase.h
-#    define SCS_64BIT_BINARY 6
-#  endif
-        DWORD binaryType = 0;
-        bool success = GetBinaryTypeW(reinterpret_cast<const TCHAR*>(make.utf16()), &binaryType) != 0;
-        if (success && binaryType == SCS_64BIT_BINARY)
-            isAmd64=true;
-//        qDebug() << "isAmd64:" << isAmd64 << binaryType;
-        return isAmd64;
-#else
-        Q_UNUSED(isAmd64)
-        return false;
-#endif
+    const QString qmake = qmakeCommand();
+    return qmake.isEmpty() ? false : Utils::winIs64BitBinary(qmake);
 }
 
 bool QtVersion::buildDebuggingHelperLibrary(QFutureInterface<void> &future,

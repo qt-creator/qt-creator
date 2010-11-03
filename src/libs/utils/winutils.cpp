@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "winutils.h"
+#include "qtcassert.h"
 
 // Enable WinAPI Windows XP and later
 #define _WIN32_WINNT 0x0501
@@ -38,6 +39,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QLibrary>
 #include <QtCore/QTextStream>
+#include <QtCore/QDir>
 
 namespace Utils {
 
@@ -171,6 +173,25 @@ QTCREATOR_UTILS_EXPORT bool winIs64BitSystem()
     GetNativeSystemInfo(&systemInfo);
     return systemInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64
             || systemInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64;
+}
+
+QTCREATOR_UTILS_EXPORT bool winIs64BitBinary(const QString &binaryIn)
+{
+       QTC_ASSERT(!binaryIn.isEmpty(), return false; )
+#ifdef Q_OS_WIN32
+#  ifdef __GNUC__   // MinGW lacking some definitions/winbase.h
+#    define SCS_64BIT_BINARY 6
+#  endif
+        bool isAmd64 = false;
+        DWORD binaryType = 0;
+        const QString binary = QDir::toNativeSeparators(binaryIn);
+        bool success = GetBinaryTypeW(reinterpret_cast<const TCHAR*>(binary.utf16()), &binaryType) != 0;
+        if (success && binaryType == SCS_64BIT_BINARY)
+            isAmd64=true;
+        return isAmd64;
+#else
+        return false;
+#endif
 }
 
 } // namespace Utils
