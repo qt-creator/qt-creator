@@ -54,6 +54,12 @@ Registers getRegisters(CIDebugControl *ctl,
                        QString *errorMessage,
                        int base = 10 /* 16 for hex, etc */);
 
+bool setRegisterValueU64(CIDebugRegisters *ireg, unsigned index, quint64 value,
+                         QString *errorMessage);
+
+bool setRegisterValueU64(CIDebugControl *ctl, CIDebugRegisters *ireg, const QString &name,
+                         quint64 value, QString *errorMessage);
+
 bool disassemble(CdbCore::CoreEngine *engine,
                  ULONG64 offset,
                  unsigned long beforeLines,

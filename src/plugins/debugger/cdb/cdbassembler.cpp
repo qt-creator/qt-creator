@@ -79,6 +79,35 @@ Registers getRegisters(CIDebugControl *ctl,
     return registers;
 }
 
+bool setRegisterValueU64(CIDebugRegisters *ireg, unsigned index, quint64 value, QString *errorMessage)
+{
+    DEBUG_VALUE debugValueSet;
+    debugValueSet.Type = DEBUG_VALUE_INT64;
+    debugValueSet.I64 = value;
+    const HRESULT hr = ireg->SetValue(index, &debugValueSet);
+    if (FAILED(hr)) {
+        *errorMessage= CdbCore::msgComFailed("SetValue", hr);
+        false;
+    }
+    return true;
+}
+
+bool setRegisterValueU64(CIDebugControl *ctl,
+                         CIDebugRegisters *ireg,
+                         const QString &name, quint64 value,
+                         QString *errorMessage)
+{
+    // Look up register by name
+    const Registers registers = getRegisters(ctl, ireg, errorMessage);
+    const int regCount = registers.size();
+    for (int r = 0; r < regCount; r++)
+        if (registers.at(r).name == name)
+            return setRegisterValueU64(ireg, r, value, errorMessage);
+    *errorMessage = QString::fromLatin1("Unable to set register '%1' to %2: No such register")
+            .arg(name).arg(value);
+    return false;
+}
+
 /* Output parser for disassembler lines: Parse a disassembler line:
  * \code
 module!class::foo:

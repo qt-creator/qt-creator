@@ -1023,9 +1023,53 @@ void CdbEngine::executeRunToFunction(const QString &functionName)
         warning(errorMessage);
 }
 
-void CdbEngine::executeJumpToLine(const QString & /* fileName */, int /*lineNumber*/)
+void CdbEngine::setRegisterValue(int regnr, const QString &valueIn)
 {
-    warning(tr("Jump to line is not implemented"));
+    bool success = false;
+    QString errorMessage;
+    do {
+        const quint64 value = valueIn.toULongLong(&success, 0);
+        if (!success) {
+            errorMessage = tr("Invalid register value '%1'").arg(valueIn);
+            break;
+        }
+        if (!setRegisterValueU64(m_d->interfaces().debugRegisters, regnr, value, &errorMessage))
+            break;
+        showMessage(QString::fromLatin1("Setting register %1 to 0x%2...").
+                    arg(regnr).arg(value, 0, 16));
+        reloadRegisters();
+        success =true;
+    } while (false);
+    if (!success)
+        warning(tr("Cannot set register %1 to '%2': %3").
+                arg(regnr).arg(valueIn).arg(errorMessage));
+}
+
+void CdbEngine::executeJumpToLine(const QString &fileName, int lineNumber)
+{
+    // 'Jump' to line by manipulating the program counter register 'rip'.
+    bool success = false;
+    QString errorMessage;
+    do {
+        const quint64 address = m_d->getSourceLineAddress(fileName, lineNumber, &errorMessage);
+        if (address == 0)
+            break;
+
+        if (!setRegisterValueU64(m_d->interfaces().debugControl,
+                                 m_d->interfaces().debugRegisters,
+                                 QLatin1String("rip"), address, &errorMessage))
+            break;
+        showMessage(QString::fromLatin1("Jumping to %1:%2 (0x%3)...").
+                    arg(QDir::toNativeSeparators(fileName)).arg(lineNumber).arg(address, 0, 16));
+
+        StackFrame frame;
+        frame.file = fileName;
+        frame.line = lineNumber;
+        gotoLocation(frame, true);
+        success = true;
+    } while (false);
+    if (!success)
+        warning(tr("Cannot jump to %1:%2: %3").arg(fileName).arg(lineNumber).arg(errorMessage));
 }
 
 void CdbEngine::assignValueInDebugger(const WatchData *w, const QString &expr, const QVariant &valueV)
@@ -1708,7 +1752,7 @@ void CdbEngine::syncDebuggerPaths()
 unsigned CdbEngine::debuggerCapabilities() const
 {
     return DisassemblerCapability | RegisterCapability | ShowMemoryCapability
-           |WatchpointCapability
+           |WatchpointCapability|JumpToLineCapability
            |BreakOnThrowAndCatchCapability; // Sort-of: Can break on throw().
 }
 

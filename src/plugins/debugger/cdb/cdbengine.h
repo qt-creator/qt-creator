@@ -85,6 +85,7 @@ public:
 
     virtual void attemptBreakpointSynchronization();
 
+    virtual void setRegisterValue(int regnr, const QString &value);
     virtual void fetchDisassembler(DisassemblerViewAgent *agent);
     virtual void fetchMemory(MemoryViewAgent *, QObject *, quint64 addr, quint64 length);
 
