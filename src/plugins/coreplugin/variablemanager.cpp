@@ -150,7 +150,7 @@ QString VariableManager::resolve(const QString &stringWithVariables) const
     QMapIterator<QString, QString> i(d->m_map);
     while (i.hasNext()) {
         i.next();
-        QString key = QLatin1String("${");
+        QString key = QLatin1String("%{");
         key += i.key();
         key += QLatin1Char('}');
         result.replace(key, i.value());
