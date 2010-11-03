@@ -36,6 +36,7 @@
 #include "cpptools_global.h"
 
 QT_FORWARD_DECLARE_CLASS(QTextCursor)
+QT_FORWARD_DECLARE_CLASS(QStringRef)
 
 namespace CPlusPlus {
 class Symbol;
@@ -51,6 +52,8 @@ bool CPPTOOLS_EXPORT isOwnershipRAIIType(CPlusPlus::Symbol *symbol,
                                          const CPlusPlus::LookupContext &context);
 
 bool CPPTOOLS_EXPORT isValidIdentifier(const QString &s);
+
+bool CPPTOOLS_EXPORT isQtKeyword(const QStringRef &text);
 
 } // CppTools
 

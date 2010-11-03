@@ -34,6 +34,10 @@
 #include "cpphighlightingsupportinternal.h"
 
 #include <cplusplus/LookupContext.h>
+#include <cplusplus/SimpleLexer.h>
+#include <cplusplus/Token.h>
+#include <cpptools/cpptoolsreuse.h>
+#include <texteditor/itexteditor.h>
 
 using namespace CPlusPlus;
 using namespace CppTools;
@@ -52,8 +56,32 @@ QFuture<CppHighlightingSupport::Use> CppHighlightingSupportInternal::highlightin
         const Document::Ptr &doc,
         const Snapshot &snapshot) const
 {
+    //Get macro uses
+    QList<CheckSymbols::Use> macroUses;
+    foreach (Document::MacroUse macro, doc->macroUses()) {
+        const QString name = QString::fromUtf8(macro.macro().name());
+
+        //Filter out QtKeywords
+        if (isQtKeyword(QStringRef(&name)))
+            continue;
+
+        //Filter out C++ keywords
+        SimpleLexer tokenize;
+        tokenize.setQtMocRunEnabled(false);
+        tokenize.setObjCEnabled(false);
+        const QList<Token> tokens = tokenize(name);
+        if (tokens.length() && (tokens.at(0).isKeyword() || tokens.at(0).isObjCAtKeyword()))
+            continue;
+
+        int line, column;
+        editor()->convertPosition(macro.begin(), &line, &column);
+        ++column; //Highlighting starts at (column-1) --> compensate here
+        CheckSymbols::Use use(line, column, name.size(), SemanticInfo::MacroUse);
+        macroUses.append(use);
+    }
+
     LookupContext context(doc, snapshot);
-    return CheckSymbols::go(doc, context);
+    return CheckSymbols::go(doc, context, macroUses);
 }
 
 CppHighlightingSupportInternalFactory::~CppHighlightingSupportInternalFactory()
