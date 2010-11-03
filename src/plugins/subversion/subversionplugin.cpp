@@ -842,7 +842,6 @@ void SubversionPlugin::filelog(const QString &workingDir,
                                const QStringList &files,
                                bool enableAnnotationContextMenu)
 {
-    QTextCodec *codec = VCSBase::VCSBaseEditor::getCodec(workingDir, files);
     // no need for temp file
     QStringList args(QLatin1String("log"));
     if (m_settings.logCount > 0)
@@ -850,9 +849,11 @@ void SubversionPlugin::filelog(const QString &workingDir,
     foreach(const QString &file, files)
         args.append(QDir::toNativeSeparators(file));
 
+    // subversion stores log in UTF-8 and returns it back in user system locale.
+    // So we do not need to encode it.
     const SubversionResponse response =
             runSvn(workingDir, args, m_settings.timeOutMS(),
-                   SshPasswordPrompt, codec);
+                   SshPasswordPrompt, 0/*codec*/);
     if (response.error)
         return;
 
@@ -866,7 +867,7 @@ void SubversionPlugin::filelog(const QString &workingDir,
     } else {
         const QString title = QString::fromLatin1("svn log %1").arg(id);
         const QString source = VCSBase::VCSBaseEditor::getSource(workingDir, files);
-        Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VCSBase::LogOutput, source, codec);
+        Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VCSBase::LogOutput, source, /*codec*/0);
         newEditor->setProperty("logFileName", id);
         if (enableAnnotationContextMenu)
             VCSBase::VCSBaseEditor::getVcsBaseEditor(newEditor)->setFileLogAnnotateEnabled(true);
