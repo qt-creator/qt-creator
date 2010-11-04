@@ -46,30 +46,30 @@ void tst_StringUtils::testWithTildeHomePath()
 {
 #ifndef Q_OS_WIN
     // home path itself
-    QCOMPARE(Utils::withTildeHomePath(QDir::homePath()), QLatin1String("~"));
+    QCOMPARE(Utils::withTildeHomePath(QDir::homePath()), QString::fromLatin1("~"));
     QCOMPARE(Utils::withTildeHomePath(QDir::homePath() + QLatin1Char('/')),
-             QLatin1String("~"));
-    QCOMPARE(Utils::withTildeHomePath(QLatin1String("/unclean/..") + QDir::homePath()),
-             QLatin1String("~"));
+             QString::fromLatin1("~"));
+    QCOMPARE(Utils::withTildeHomePath(QString::fromLatin1("/unclean/..") + QDir::homePath()),
+             QString::fromLatin1("~"));
     // sub of home path
-    QCOMPARE(Utils::withTildeHomePath(QDir::homePath() + QLatin1String("/foo")),
-             QLatin1String("~/foo"));
-    QCOMPARE(Utils::withTildeHomePath(QDir::homePath() + QLatin1String("/foo/")),
-             QLatin1String("~/foo"));
-    QCOMPARE(Utils::withTildeHomePath(QDir::homePath() + QLatin1String("/some/path/file.txt")),
-             QLatin1String("~/some/path/file.txt"));
-    QCOMPARE(Utils::withTildeHomePath(QDir::homePath() + QLatin1String("/some/unclean/../path/file.txt")),
-             QLatin1String("~/some/path/file.txt"));
+    QCOMPARE(Utils::withTildeHomePath(QDir::homePath() + QString::fromLatin1("/foo")),
+             QString::fromLatin1("~/foo"));
+    QCOMPARE(Utils::withTildeHomePath(QDir::homePath() + QString::fromLatin1("/foo/")),
+             QString::fromLatin1("~/foo"));
+    QCOMPARE(Utils::withTildeHomePath(QDir::homePath() + QString::fromLatin1("/some/path/file.txt")),
+             QString::fromLatin1("~/some/path/file.txt"));
+    QCOMPARE(Utils::withTildeHomePath(QDir::homePath() + QString::fromLatin1("/some/unclean/../path/file.txt")),
+             QString::fromLatin1("~/some/path/file.txt"));
     // not sub of home path
-    QCOMPARE(Utils::withTildeHomePath(QDir::homePath() + QLatin1String("/../foo")),
-             QString(QDir::homePath() + QLatin1String("/../foo")));
+    QCOMPARE(Utils::withTildeHomePath(QDir::homePath() + QString::fromLatin1("/../foo")),
+             QString(QDir::homePath() + QString::fromLatin1("/../foo")));
 #else
     // windows: should return same as input
     QCOMPARE(Utils::withTildeHomePath(QDir::homePath()), QDir::homePath());
-    QCOMPARE(Utils::withTildeHomePath(QDir::homePath() + QLatin1String("/foo")),
-             QDir::homePath() + QLatin1String("/foo"));
-    QCOMPARE(Utils::withTildeHomePath(QDir::homePath() + QLatin1String("/../foo")),
-             Utils::withTildeHomePath(QDir::homePath() + QLatin1String("/../foo")));
+    QCOMPARE(Utils::withTildeHomePath(QDir::homePath() + QString::fromLatin1("/foo")),
+             QDir::homePath() + QString::fromLatin1("/foo"));
+    QCOMPARE(Utils::withTildeHomePath(QDir::homePath() + QString::fromLatin1("/../foo")),
+             Utils::withTildeHomePath(QDir::homePath() + QString::fromLatin1("/../foo")));
 #endif
 }
 
