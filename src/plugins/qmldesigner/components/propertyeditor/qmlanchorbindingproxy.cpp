@@ -301,8 +301,10 @@ void QmlAnchorBindingProxy::setBottomAnchor(bool anchor)
         removeBottomAnchor();
     } else {
         calcBottomMargin();
-        m_fxItemNode.modelNode().setAuxiliaryData(auxDataString + "height", m_fxItemNode.instanceSize().height());
-        m_fxItemNode.removeVariantProperty("height");
+        if (topAnchored()) {
+            m_fxItemNode.modelNode().setAuxiliaryData(auxDataString + "height", m_fxItemNode.instanceSize().height());
+            m_fxItemNode.removeVariantProperty("height");
+        }
     }
     emit bottomAnchorChanged();
 
@@ -326,6 +328,10 @@ void QmlAnchorBindingProxy::setLeftAnchor(bool anchor)
         calcLeftMargin();
         m_fxItemNode.modelNode().setAuxiliaryData(auxDataString + "x", m_fxItemNode.instancePosition().x());
         m_fxItemNode.removeVariantProperty("x");
+        if (rightAnchored()) {
+            m_fxItemNode.modelNode().setAuxiliaryData(auxDataString + "width", m_fxItemNode.instanceSize().width());
+            m_fxItemNode.removeVariantProperty("width");
+        }
     }
     emit leftAnchorChanged();
     if (hasAnchors() != anchor)
@@ -346,8 +352,10 @@ void QmlAnchorBindingProxy::setRightAnchor(bool anchor)
         removeRightAnchor();
     } else {
         calcRightMargin();
-        m_fxItemNode.modelNode().setAuxiliaryData(auxDataString + "width", m_fxItemNode.instanceSize().width());
-        m_fxItemNode.removeVariantProperty("width");
+        if (leftAnchored()) {
+            m_fxItemNode.modelNode().setAuxiliaryData(auxDataString + "width", m_fxItemNode.instanceSize().width());
+            m_fxItemNode.removeVariantProperty("width");
+        }
     }
     emit rightAnchorChanged();
     if (hasAnchors() != anchor)
@@ -400,7 +408,7 @@ void QmlAnchorBindingProxy::calcBottomMargin()
         m_fxItemNode.anchors().setMargin( AnchorLine::Bottom, bottomMargin);
         m_fxItemNode.anchors().setAnchor(AnchorLine::Bottom, m_bottomTarget, AnchorLine::Bottom);
     } else {
-        qreal bottomMargin = boundingBox(m_fxItemNode).bottom() - boundingBox(m_rightTarget).top();
+        qreal bottomMargin = boundingBox(m_bottomTarget).top()- boundingBox(m_fxItemNode).bottom();
         m_fxItemNode.anchors().setMargin( AnchorLine::Bottom, bottomMargin);
         m_fxItemNode.anchors().setAnchor(AnchorLine::Bottom, m_bottomTarget, AnchorLine::Top);
     }
@@ -458,6 +466,10 @@ void QmlAnchorBindingProxy::setTopAnchor(bool anchor)
         calcTopMargin();
         m_fxItemNode.modelNode().setAuxiliaryData(auxDataString + "y", m_fxItemNode.instancePosition().y());
         m_fxItemNode.removeVariantProperty("y");
+        if (bottomAnchored()) {
+            m_fxItemNode.modelNode().setAuxiliaryData(auxDataString + "height", m_fxItemNode.instanceSize().height());
+            m_fxItemNode.removeVariantProperty("height");
+        }
     }
     emit topAnchorChanged();
     if (hasAnchors() != anchor)
@@ -472,6 +484,8 @@ void QmlAnchorBindingProxy::removeTopAnchor() {
 
     if (qFuzzyCompare(m_fxItemNode.instancePosition().y(), 0.0) && m_fxItemNode.modelNode().hasAuxiliaryData(auxDataString + "y"))
         m_fxItemNode.setVariantProperty("y", m_fxItemNode.modelNode().auxiliaryData(auxDataString + "y"));
+    if (qFuzzyCompare(m_fxItemNode.instanceSize().height(), 0.0) && m_fxItemNode.modelNode().hasAuxiliaryData(auxDataString + "height"))
+        m_fxItemNode.setVariantProperty("height", m_fxItemNode.modelNode().auxiliaryData(auxDataString + "height"));
 
 }
 
@@ -493,6 +507,8 @@ void QmlAnchorBindingProxy::removeLeftAnchor() {
 
     if (qFuzzyCompare(m_fxItemNode.instancePosition().x(), 0.0) && m_fxItemNode.modelNode().hasAuxiliaryData(auxDataString + "x"))
         m_fxItemNode.setVariantProperty("x", m_fxItemNode.modelNode().auxiliaryData(auxDataString + "x"));
+    if (qFuzzyCompare(m_fxItemNode.instanceSize().width(), 0.0) && m_fxItemNode.modelNode().hasAuxiliaryData(auxDataString + "width"))
+        m_fxItemNode.setVariantProperty("width", m_fxItemNode.modelNode().auxiliaryData(auxDataString + "width"));
 }
 
 void QmlAnchorBindingProxy::removeRightAnchor() {
