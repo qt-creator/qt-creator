@@ -204,15 +204,9 @@ public:
                                       const QString &mode);
     virtual ~S60DeviceDebugRunControl();
     virtual void start();
-    virtual StopResult stop();
-
-private slots:
-    void slotFinished();
 
 private:
     static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceRunConfiguration *rc);
-
-    QScopedPointer<QFutureInterface<void> > m_debugProgress;
 };
 
 } // namespace Internal

@@ -770,7 +770,6 @@ S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *rc
                                arg(localExecutable(rc));
         emit appendMessage(this, msg, true);
     }
-    connect(this, SIGNAL(finished()), this, SLOT(slotFinished()));
 }
 
 void S60DeviceDebugRunControl::start()
@@ -787,13 +786,6 @@ void S60DeviceDebugRunControl::start()
                                                         settingsCategory, settingsPage);
         return;
     }
-    m_debugProgress.reset(new QFutureInterface<void>);
-    Core::ICore::instance()->progressManager()->addTask(m_debugProgress->future(),
-                                                        tr("Debugging"),
-                                                        QLatin1String("Symbian.Debug"));
-    m_debugProgress->setProgressRange(0, PROGRESS_MAX);
-    m_debugProgress->setProgressValue(0);
-    m_debugProgress->reportStarted();
 
     emit appendMessage(this, tr("Launching debugger..."), false);
     Debugger::DebuggerRunControl::start();
@@ -801,22 +793,4 @@ void S60DeviceDebugRunControl::start()
 
 S60DeviceDebugRunControl::~S60DeviceDebugRunControl()
 {
-}
-
-RunControl::StopResult S60DeviceDebugRunControl::stop()
-{
-    if (!m_debugProgress.isNull()) {
-        m_debugProgress->reportCanceled();
-        m_debugProgress.reset();
-    }
-    return Debugger::DebuggerRunControl::stop();
-}
-
-void S60DeviceDebugRunControl::slotFinished()
-{
-    if (!m_debugProgress.isNull()) {
-        m_debugProgress->setProgressValue(PROGRESS_MAX);
-        m_debugProgress->reportFinished();
-        m_debugProgress.reset();
-    }
 }
