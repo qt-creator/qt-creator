@@ -56,7 +56,6 @@ class DebuggerRunControl;
 class DebuggerStartParameters;
 
 namespace Internal {
-class DebuggerListener;
 class BreakHandler;
 }
 
@@ -115,10 +114,6 @@ private:
     void runControlStarted(DebuggerRunControl *runControl);
     void runControlFinished(DebuggerRunControl *runControl);
     DebuggerLanguages activeLanguages() const;
-
-    // This contains per-session data like breakpoints and watched
-    // expression. It serves as a template for new engine instantiations.
-    DebuggerEngine *sessionTemplate();
 
     QMessageBox *showMessageBox(int icon, const QString &title,
         const QString &text, int buttons = 0);

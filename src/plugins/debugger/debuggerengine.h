@@ -154,7 +154,6 @@ public:
     virtual void updateWatchData(const Internal::WatchData &data,
         const Internal::WatchUpdateFlags & flags = Internal::WatchUpdateFlags());
     void startDebugger(DebuggerRunControl *runControl);
-    virtual bool isSessionEngine() const;
 
     virtual void watchPoint(const QPoint &);
     virtual void fetchMemory(Internal::MemoryViewAgent *, QObject *,

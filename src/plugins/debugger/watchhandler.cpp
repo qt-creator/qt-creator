@@ -78,6 +78,9 @@ static int generationCounter = 0;
 
 static DebuggerPlugin *plugin() { return DebuggerPlugin::instance(); }
 
+QHash<QByteArray, int> WatchHandler::m_watcherNames;
+QHash<QByteArray, int> WatchHandler::m_typeFormats;
+
 ////////////////////////////////////////////////////////////////////
 //
 // WatchItem
@@ -1383,7 +1386,7 @@ void WatchHandler::watchExpression(const QString &exp)
     if (exp.isEmpty())
         data.setAllUnneeded();
     data.iname = watcherName(data.exp);
-    if (m_engine->isSynchronous() && !m_engine->isSessionEngine())
+    if (m_engine->isSynchronous())
         m_engine->updateWatchData(data);
     else
         insertData(data);
@@ -1531,7 +1534,7 @@ void WatchHandler::loadWatchers()
     //qDebug() << "LOAD WATCHERS: " << m_watchers;
 }
 
-QStringList WatchHandler::watchedExpressions() const
+QStringList WatchHandler::watchedExpressions()
 {
     // Filter out invalid watchers.
     QStringList watcherNames;
@@ -1581,17 +1584,18 @@ void WatchHandler::saveTypeFormats()
 
 void WatchHandler::saveSessionData()
 {
-    QTC_ASSERT(m_engine->isSessionEngine(), return);
     saveWatchers();
     saveTypeFormats();
 }
 
 void WatchHandler::loadSessionData()
 {
-    QTC_ASSERT(m_engine->isSessionEngine(), return);
     loadWatchers();
     loadTypeFormats();
+}
 
+void WatchHandler::synchronizeWatchers()
+{
     foreach (const QByteArray &exp, m_watcherNames.keys()) {
         WatchData data;
         data.iname = watcherName(exp);
@@ -1600,7 +1604,6 @@ void WatchHandler::loadSessionData()
         data.exp = exp;
         insertData(data);
     }
-    updateWatchersWindow();
 }
 
 void WatchHandler::initializeFromTemplate(WatchHandler *other)

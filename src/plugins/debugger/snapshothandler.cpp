@@ -29,7 +29,6 @@
 
 #include "snapshothandler.h"
 
-#include "sessionengine.h"
 #include "debuggerconstants.h"
 #include "debuggerengine.h"
 #include "debuggerrunner.h"

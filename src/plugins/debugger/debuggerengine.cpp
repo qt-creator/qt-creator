@@ -614,17 +614,6 @@ void DebuggerEngine::handleCommand(int role, const QVariant &value)
             executeDebuggerCommand(value.toString());
             break;
 
-/*
-        case RequestToggleBreakpointRole: {
-            QList<QVariant> list = value.toList();
-            QTC_ASSERT(list.size() == 2, break);
-            const QString fileName = list.at(0).toString();
-            const int lineNumber = list.at(1).toInt();
-            breakHandler()->toggleBreakpoint(fileName, lineNumber);
-            break;
-        }
-*/
-
         case RequestToolTipByExpressionRole: {
             QList<QVariant> list = value.toList();
             QTC_ASSERT(list.size() == 3, break);
@@ -817,7 +806,7 @@ void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) c
 
 void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
 {
-    if (!isSessionEngine() && !isSlaveEngine()) {
+    if (!isSlaveEngine()) {
         d->m_progress.setProgressRange(0, 1000);
         Core::FutureProgress *fp = Core::ICore::instance()->progressManager()
             ->addTask(d->m_progress.future(),
@@ -827,12 +816,6 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
     }
     QTC_ASSERT(runControl, notifyEngineSetupFailed(); return);
     QTC_ASSERT(!d->m_runControl, notifyEngineSetupFailed(); return);
-
-    DebuggerEngine *sessionTemplate = plugin()->sessionTemplate();
-    QTC_ASSERT(sessionTemplate, notifyEngineSetupFailed(); return);
-    QTC_ASSERT(sessionTemplate != this, notifyEngineSetupFailed(); return);
-
-    watchHandler()->initializeFromTemplate(sessionTemplate->watchHandler());
 
     d->m_runControl = runControl;
 
@@ -1027,11 +1010,6 @@ void DebuggerEngine::handleFinished()
     stackHandler()->removeAll();
     threadsHandler()->removeAll();
     watchHandler()->cleanup();
-
-    DebuggerEngine *sessionTemplate = plugin()->sessionTemplate();
-    QTC_ASSERT(sessionTemplate != this, /**/);
-    breakHandler()->storeToTemplate(sessionTemplate->breakHandler());
-    watchHandler()->storeToTemplate(sessionTemplate->watchHandler());
 
     d->m_progress.setProgressValue(1000);
     d->m_progress.reportFinished();
@@ -1593,7 +1571,7 @@ bool DebuggerEngine::isReverseDebugging() const
 
 bool DebuggerEngine::isActive() const
 {
-    return d->m_isActive && !isSessionEngine();
+    return d->m_isActive;
 }
 
 void DebuggerEngine::setActive(bool on)
@@ -1651,11 +1629,6 @@ void DebuggerEngine::setToolTipExpression(const QPoint &, TextEditor::ITextEdito
 
 void DebuggerEngine::updateWatchData(const Internal::WatchData &, const Internal::WatchUpdateFlags &)
 {
-}
-
-bool DebuggerEngine::isSessionEngine() const
-{
-    return false;
 }
 
 void DebuggerEngine::watchPoint(const QPoint &)

@@ -51,9 +51,9 @@
 #include "stackwindow.h"
 #include "sourcefileswindow.h"
 #include "threadswindow.h"
+#include "watchhandler.h"
 #include "watchwindow.h"
 
-#include "sessionengine.h"
 #include "snapshothandler.h"
 #include "threadshandler.h"
 
@@ -853,7 +853,7 @@ public:
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void notifyCurrentEngine(int role, const QVariant &value = QVariant());
     void connectEngine(DebuggerEngine *engine, bool notify = true);
-    void disconnectEngine() { connectEngine(m_sessionEngine); }
+    void disconnectEngine() { connectEngine(0); }
 
 public slots:
     void updateWatchersHeader(int section, int, int newSize)
@@ -872,6 +872,16 @@ public slots:
             if (DebuggerRunControl *runControl = m_snapshotHandler->at(i)) {
                 DebuggerEngine *engine = runControl->engine();
                 engine->attemptBreakpointSynchronization();
+            }
+        }
+    }
+
+    void synchronizeWatchers()
+    {
+        for (int i = 0, n = m_snapshotHandler->size(); i != n; ++i) {
+            if (DebuggerRunControl *runControl = m_snapshotHandler->at(i)) {
+                DebuggerEngine *engine = runControl->engine();
+                engine->watchHandler()->synchronizeWatchers();
             }
         }
     }
@@ -1008,8 +1018,6 @@ public:
     LogWindow *m_logWindow;
     ScriptConsole *m_scriptConsoleWindow;
 
-    SessionEngine *m_sessionEngine;
-
     bool m_busy;
     QTimer m_statusTimer;
     QString m_lastPermanentStatusMessage;
@@ -1019,13 +1027,14 @@ public:
 
     SnapshotHandler *m_snapshotHandler;
     bool m_shuttingDown;
+    DebuggerEngine *m_currentEngine;
 };
 
-DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin) :
-    m_shuttingDown(false)
+DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
 {
     m_plugin = plugin;
 
+    m_shuttingDown = false;
     m_statusLabel = 0;
     m_threadBox = 0;
 
@@ -1054,7 +1063,6 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin) :
     m_logWindow = 0;
     m_scriptConsoleWindow = 0;
 
-    m_sessionEngine = 0;
     m_debugMode = 0;
 
     m_continuableContext = Core::Context(0);
@@ -1067,6 +1075,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin) :
     m_uiSwitcher = 0;
     m_state = DebuggerNotReady;
     m_snapshotHandler = 0;
+    m_currentEngine = 0;
 }
 
 bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *errorMessage)
@@ -1113,6 +1122,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
         SLOT(synchronizeBreakpoints()));
     m_breakWindow = new BreakWindow;
     m_breakWindow->setObjectName(QLatin1String("CppDebugBreakpoints"));
+    m_breakWindow->setModel(m_breakHandler->model());
+
     //m_consoleWindow = new ConsoleWindow;
     //m_consoleWindow->setObjectName(QLatin1String("CppDebugConsole"));
     m_modulesWindow = new ModulesWindow;
@@ -1142,9 +1153,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     m_scriptConsoleWindow->setObjectName(QLatin1String("QMLScriptConsole"));
     connect(m_scriptConsoleWindow, SIGNAL(expressionEntered(QString)),
         SLOT(scriptExpressionEntered(QString)));
-
-    // Session related data
-    m_sessionEngine = new SessionEngine;
 
     // Snapshot
     m_snapshotHandler = new SnapshotHandler;
@@ -1652,7 +1660,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
         SLOT(languagesChanged(Debugger::DebuggerLanguages)));
 
     setInitialState();
-    connectEngine(m_sessionEngine, false);
+    connectEngine(0, false);
 
     connect(sessionManager(),
         SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
@@ -1758,8 +1766,9 @@ void DebuggerPluginPrivate::startExternalApplication()
 
 void DebuggerPluginPrivate::notifyCurrentEngine(int role, const QVariant &value)
 {
-    QTC_ASSERT(m_commandWindow && m_commandWindow->model(), return);
-    m_commandWindow->model()->setData(QModelIndex(), value, role);
+    QTC_ASSERT(m_commandWindow, return);
+    if (m_commandWindow->model()) 
+        m_commandWindow->model()->setData(QModelIndex(), value, role);
 }
 
 void DebuggerPluginPrivate::attachExternalApplication()
@@ -2052,32 +2061,38 @@ void DebuggerPluginPrivate::startDebugger(RunControl *rc)
 
 void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine, bool notify)
 {
-    const QAbstractItemModel *oldCommandModel = m_commandWindow->model();
-    if (oldCommandModel == engine->commandModel()) {
-        // qDebug("RECONNECTING ENGINE %s", qPrintable(engine->objectName()));
+    if (m_currentEngine == engine)
         return;
+
+    if (engine) {
+        if (notify)
+            notifyCurrentEngine(RequestActivationRole, false);
+        m_commandWindow->setModel(engine->commandModel());
+        m_localsWindow->setModel(engine->localsModel());
+        m_modulesWindow->setModel(engine->modulesModel());
+        m_registerWindow->setModel(engine->registerModel());
+        m_returnWindow->setModel(engine->returnModel());
+        m_sourceFilesWindow->setModel(engine->sourceFilesModel());
+        m_stackWindow->setModel(engine->stackModel());
+        m_threadsWindow->setModel(engine->threadsModel());
+        m_threadBox->setModel(engine->threadsModel());
+        m_threadBox->setModelColumn(ThreadData::NameColumn);
+        m_watchersWindow->setModel(engine->watchersModel());
+        if (notify)
+            notifyCurrentEngine(RequestActivationRole, true);
+    } else {
+        m_commandWindow->setModel(0);
+        m_localsWindow->setModel(0);
+        m_modulesWindow->setModel(0);
+        m_registerWindow->setModel(0);
+        m_returnWindow->setModel(0);
+        m_sourceFilesWindow->setModel(0);
+        m_stackWindow->setModel(0);
+        m_threadsWindow->setModel(0);
+        m_threadBox->setModel(0);
+        m_threadBox->setModelColumn(ThreadData::NameColumn);
+        m_watchersWindow->setModel(0);
     }
-
-    if (notify)
-        notifyCurrentEngine(RequestActivationRole, false);
-
-    // qDebug("CONNECTING ENGINE %s (OLD ENGINE: %s)", qPrintable(engine->objectName()),
-    //       (oldCommandModel ? qPrintable(oldCommandModel->objectName()) : ""));
-
-    m_breakWindow->setModel(m_breakHandler->model());
-    m_commandWindow->setModel(engine->commandModel());
-    m_localsWindow->setModel(engine->localsModel());
-    m_modulesWindow->setModel(engine->modulesModel());
-    m_registerWindow->setModel(engine->registerModel());
-    m_returnWindow->setModel(engine->returnModel());
-    m_sourceFilesWindow->setModel(engine->sourceFilesModel());
-    m_stackWindow->setModel(engine->stackModel());
-    m_threadsWindow->setModel(engine->threadsModel());
-    m_threadBox->setModel(engine->threadsModel());
-    m_threadBox->setModelColumn(ThreadData::NameColumn);
-    m_watchersWindow->setModel(engine->watchersModel());
-    if (notify)
-        notifyCurrentEngine(RequestActivationRole, true);
 }
 
 static void changeFontSize(QWidget *widget, qreal size)
@@ -2478,7 +2493,9 @@ void DebuggerPluginPrivate::activateDebugMode()
 
 void DebuggerPluginPrivate::sessionLoaded()
 {
-    m_sessionEngine->loadSessionData();
+    m_breakHandler->loadSessionData();
+    WatchHandler::loadSessionData();
+    synchronizeWatchers();
 }
 
 void DebuggerPluginPrivate::aboutToUnloadSession()
@@ -2494,7 +2511,8 @@ void DebuggerPluginPrivate::aboutToUnloadSession()
 
 void DebuggerPluginPrivate::aboutToSaveSession()
 {
-    m_sessionEngine->saveSessionData();
+    WatchHandler::saveSessionData();
+    m_breakHandler->saveSessionData();
 }
 
 void DebuggerPluginPrivate::executeDebuggerCommand()
@@ -2559,9 +2577,6 @@ DebuggerPlugin::DebuggerPlugin()
 
 DebuggerPlugin::~DebuggerPlugin()
 {
-    delete d->m_sessionEngine;
-    d->m_sessionEngine = 0;
-
     theInstance = 0;
     delete DebuggerSettings::instance();
 
@@ -2824,11 +2839,6 @@ void DebuggerPlugin::runControlFinished(DebuggerRunControl *runControl)
 DebuggerLanguages DebuggerPlugin::activeLanguages() const
 {
     return DebuggerUISwitcher::instance()->activeDebugLanguages();
-}
-
-DebuggerEngine *DebuggerPlugin::sessionTemplate()
-{
-    return d->m_sessionEngine;
 }
 
 bool DebuggerPlugin::isRegisterViewVisible() const

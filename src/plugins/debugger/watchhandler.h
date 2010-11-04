@@ -153,8 +153,8 @@ public:
     void removeData(const QByteArray &iname);
     WatchData *findItem(const QByteArray &iname) const;
 
-    void loadSessionData();
-    void saveSessionData();
+    static void loadSessionData();
+    static void saveSessionData();
     void removeTooltip();
 
     void initializeFromTemplate(WatchHandler *other);
@@ -164,8 +164,8 @@ public:
         { return m_expandedINames.contains(iname); }
     QSet<QByteArray> expandedINames() const
         { return m_expandedINames; }
-    QStringList watchedExpressions() const;
-    QHash<QByteArray, int> watcherNames() const
+    static QStringList watchedExpressions();
+    static QHash<QByteArray, int> watcherNames()
         { return m_watcherNames; }
 
     QByteArray expansionRequests() const;
@@ -177,15 +177,16 @@ public:
     void addTypeFormats(const QByteArray &type, const QStringList &formats);
 
     QByteArray watcherName(const QByteArray &exp);
+    void synchronizeWatchers();
 
 private:
     friend class WatchModel;
 
-    void loadWatchers();
-    void saveWatchers();
+    static void loadWatchers();
+    static void saveWatchers();
+    static void loadTypeFormats();
+    static void saveTypeFormats();
 
-    void loadTypeFormats();
-    void saveTypeFormats();
     void setFormat(const QByteArray &type, int format);
     void updateWatchersWindow();
     void showInEditor();
@@ -197,8 +198,8 @@ private:
     typedef QMap<QString, QPointer<QObject> > EditHandlers;
     EditHandlers m_editHandlers;
 
-    QHash<QByteArray, int> m_watcherNames;
-    QHash<QByteArray, int> m_typeFormats;
+    static QHash<QByteArray, int> m_watcherNames;
+    static QHash<QByteArray, int> m_typeFormats;
     QHash<QByteArray, int> m_individualFormats; // Indexed by iname.
     QHash<QString, QStringList> m_reportedTypeFormats;
 

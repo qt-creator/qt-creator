@@ -41,7 +41,6 @@ HEADERS += breakhandler.h \
     procinterrupt.h \
     registerhandler.h \
     registerwindow.h \
-    sessionengine.h \
     snapshothandler.h \
     snapshotwindow.h \
     sourcefileshandler.h \
@@ -79,7 +78,6 @@ SOURCES += breakhandler.cpp \
     procinterrupt.cpp \
     registerhandler.cpp \
     registerwindow.cpp \
-    sessionengine.cpp \
     snapshothandler.cpp \
     snapshotwindow.cpp \
     sourcefileshandler.cpp \
