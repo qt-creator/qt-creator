@@ -818,11 +818,9 @@ struct DebuggerActions
     QAction *resetAction; // FIXME: Should not be needed in a stable release
     QAction *stepAction;
     QAction *stepOutAction;
-    QAction *runToLineAction1; // in the Debug menu
-    QAction *runToLineAction2; // in the text editor context menu
+    QAction *runToLineAction; // Debug menu
     QAction *runToFunctionAction;
-    QAction *jumpToLineAction1; // in the Debug menu
-    QAction *jumpToLineAction2; // in the text editor context menu
+    QAction *jumpToLineAction; // in the Debug menu
     QAction *returnFromFunctionAction;
     QAction *nextAction;
     QAction *snapshotAction;
@@ -1196,10 +1194,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     m_actions.stepOutAction->setIcon(
         QIcon(__(":/debugger/images/debugger_stepout_small.png")));
 
-    m_actions.runToLineAction1 = new QAction(tr("Run to Line"), this);
-    m_actions.runToLineAction1->setProperty(Role, RequestExecRunToLineRole);
-    m_actions.runToLineAction2 = new QAction(tr("Run to Line"), this);
-    m_actions.runToLineAction2->setProperty(Role, RequestExecRunToLineRole);
+    m_actions.runToLineAction = new QAction(tr("Run to Line"), this);
+    m_actions.runToLineAction->setProperty(Role, RequestExecRunToLineRole);
 
     m_actions.runToFunctionAction =
         new QAction(tr("Run to Outermost Function"), this);
@@ -1209,10 +1205,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
         new QAction(tr("Immediately Return From Inner Function"), this);
     m_actions.returnFromFunctionAction->setProperty(Role, RequestExecReturnFromFunctionRole);
 
-    m_actions.jumpToLineAction1 = new QAction(tr("Jump to Line"), this);
-    m_actions.jumpToLineAction1->setProperty(Role, RequestExecJumpToLineRole);
-    m_actions.jumpToLineAction2 = new QAction(tr("Jump to Line"), this);
-    m_actions.jumpToLineAction2->setProperty(Role, RequestExecJumpToLineRole);
+    m_actions.jumpToLineAction = new QAction(tr("Jump to Line"), this);
+    m_actions.jumpToLineAction->setProperty(Role, RequestExecJumpToLineRole);
 
     m_actions.breakAction = new QAction(tr("Toggle Breakpoint"), this);
 
@@ -1249,11 +1243,9 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     connect(m_actions.nextAction, SIGNAL(triggered()), SLOT(onAction()));
     connect(m_actions.stepAction, SIGNAL(triggered()), SLOT(onAction()));
     connect(m_actions.stepOutAction, SIGNAL(triggered()), SLOT(onAction()));
-    connect(m_actions.runToLineAction1, SIGNAL(triggered()), SLOT(onAction()));
-    connect(m_actions.runToLineAction2, SIGNAL(triggered()), SLOT(onAction()));
+    connect(m_actions.runToLineAction, SIGNAL(triggered()), SLOT(onAction()));
     connect(m_actions.runToFunctionAction, SIGNAL(triggered()), SLOT(onAction()));
-    connect(m_actions.jumpToLineAction1, SIGNAL(triggered()), SLOT(onAction()));
-    connect(m_actions.jumpToLineAction2, SIGNAL(triggered()), SLOT(onAction()));
+    connect(m_actions.jumpToLineAction, SIGNAL(triggered()), SLOT(onAction()));
     connect(m_actions.returnFromFunctionAction, SIGNAL(triggered()), SLOT(onAction()));
     connect(m_actions.watchAction1, SIGNAL(triggered()), SLOT(onAction()));
     connect(m_actions.watchAction2, SIGNAL(triggered()), SLOT(onAction()));
@@ -1471,7 +1463,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     m_uiSwitcher->addMenuAction(cmd, CppLanguage);
 
 
-    cmd = am->registerAction(m_actions.runToLineAction1,
+    cmd = am->registerAction(m_actions.runToLineAction,
         Constants::RUN_TO_LINE1, cppDebuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::RUN_TO_LINE_KEY));
     cmd->setAttribute(Command::CA_Hide);
@@ -1485,7 +1477,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     m_uiSwitcher->addMenuAction(cmd, CppLanguage);
 
 
-    cmd = am->registerAction(m_actions.jumpToLineAction1,
+    cmd = am->registerAction(m_actions.jumpToLineAction,
         Constants::JUMP_TO_LINE1, cppDebuggercontext);
     cmd->setAttribute(Command::CA_Hide);
     m_uiSwitcher->addMenuAction(cmd, CppLanguage);
@@ -1560,18 +1552,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
 
     cmd = am->registerAction(m_actions.watchAction2,
         Constants::ADD_TO_WATCH2, cppDebuggercontext);
-    cmd->action()->setEnabled(true);
-    editorContextMenu->addAction(cmd);
-    cmd->setAttribute(Command::CA_Hide);
-
-    cmd = am->registerAction(m_actions.runToLineAction2,
-        Constants::RUN_TO_LINE2, cppDebuggercontext);
-    cmd->action()->setEnabled(true);
-    editorContextMenu->addAction(cmd);
-    cmd->setAttribute(Command::CA_Hide);
-
-    cmd = am->registerAction(m_actions.jumpToLineAction2,
-        Constants::JUMP_TO_LINE2, cppDebuggercontext);
     cmd->action()->setEnabled(true);
     editorContextMenu->addAction(cmd);
     cmd->setAttribute(Command::CA_Hide);
@@ -2259,12 +2239,10 @@ void DebuggerPluginPrivate::setInitialState()
 
     m_actions.stepAction->setEnabled(false);
     m_actions.stepOutAction->setEnabled(false);
-    m_actions.runToLineAction1->setEnabled(false);
-    m_actions.runToLineAction2->setEnabled(false);
+    m_actions.runToLineAction->setEnabled(false);
     m_actions.runToFunctionAction->setEnabled(false);
     m_actions.returnFromFunctionAction->setEnabled(false);
-    m_actions.jumpToLineAction1->setEnabled(false);
-    m_actions.jumpToLineAction2->setEnabled(false);
+    m_actions.jumpToLineAction->setEnabled(false);
     m_actions.nextAction->setEnabled(false);
 
     theDebuggerAction(AutoDerefPointers)->setEnabled(true);
@@ -2391,15 +2369,13 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
 
     m_actions.stepAction->setEnabled(stopped);
     m_actions.stepOutAction->setEnabled(stopped);
-    m_actions.runToLineAction1->setEnabled(stopped);
-    m_actions.runToLineAction2->setEnabled(stopped);
+    m_actions.runToLineAction->setEnabled(stopped);
     m_actions.runToFunctionAction->setEnabled(stopped);
     m_actions.returnFromFunctionAction->
         setEnabled(stopped && (caps & ReturnFromFunctionCapability));
 
     const bool canJump = stopped && (caps & JumpToLineCapability);
-    m_actions.jumpToLineAction1->setEnabled(canJump);
-    m_actions.jumpToLineAction2->setEnabled(canJump);
+    m_actions.jumpToLineAction->setEnabled(canJump);
 
     m_actions.nextAction->setEnabled(stopped);
 

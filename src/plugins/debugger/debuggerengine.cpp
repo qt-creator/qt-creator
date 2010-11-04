@@ -204,7 +204,6 @@ bool CommandHandler::setData(const QModelIndex &, const QVariant &value, int rol
     return true;
 }
 
-
 //////////////////////////////////////////////////////////////////////
 //
 // DebuggerEnginePrivate
@@ -282,6 +281,8 @@ public slots:
 
 private slots:
     void slotEditBreakpoint();
+    void slotRunToLine();
+    void slotJumpToLine();
 
 public:
     DebuggerState state() const { return m_state; }
@@ -316,16 +317,61 @@ public:
     bool m_isSlaveEngine;
 };
 
+// Retrieve file name and line and optionally address
+// from the data set on the text editor context menu action.
+static bool positionFromContextActionData(const QObject *sender,
+                                          QString *fileName,
+                                          int *lineNumber,
+                                          quint64 *address = 0)
+{
+    if (const QAction *action = qobject_cast<const QAction *>(sender)) {
+        const QVariantList data = action->data().toList();
+        if (data.size() >= (address ? 3 : 2)) {
+            *fileName = data.front().toString();
+            *lineNumber = data.at(1).toInt();
+            if (address)
+                *address = data.at(2).toULongLong();
+            return true;
+        }
+    }
+    return false;
+}
+
 void DebuggerEnginePrivate::breakpointSetRemoveMarginActionTriggered()
 {
-    QAction *act = qobject_cast<QAction *>(sender());
-    QTC_ASSERT(act, return);
-    QList<QVariant> list = act->data().toList();
-    QTC_ASSERT(list.size() >= 3, qDebug() << list; return);
-    const QString fileName = list.at(0).toString();
-    const int lineNumber = list.at(1).toInt();
-    const quint64 address = list.at(2).toULongLong();
-    m_engine->breakHandler()->toggleBreakpoint(fileName, lineNumber, address);
+    QString fileName;
+    int lineNumber;
+    quint64 address;
+    if (positionFromContextActionData(sender(), &fileName, &lineNumber, &address))
+        m_engine->breakHandler()->toggleBreakpoint(fileName, lineNumber, address);
+ }
+
+
+void DebuggerEnginePrivate::slotRunToLine()
+{
+    // Run to line, file name and line number set as list.
+    QString fileName;
+    int lineNumber;
+    if (positionFromContextActionData(sender(), &fileName, &lineNumber)) {
+        m_engine->resetLocation();
+        m_engine->executeRunToLine(fileName, lineNumber);
+    }
+}
+
+void DebuggerEnginePrivate::slotJumpToLine()
+{
+    QString fileName;
+    int lineNumber;
+    if (positionFromContextActionData(sender(), &fileName, &lineNumber))
+        m_engine->executeJumpToLine(fileName, lineNumber);
+}
+
+ void DebuggerEnginePrivate::breakpointEnableDisableMarginActionTriggered()
+{
+    QString fileName;
+    int lineNumber;
+    if (positionFromContextActionData(sender(), &fileName, &lineNumber))
+        m_engine->breakHandler()->toggleBreakpointEnabled(fileName, lineNumber);
 }
 
 void DebuggerEnginePrivate::slotEditBreakpoint()
@@ -338,24 +384,13 @@ void DebuggerEnginePrivate::slotEditBreakpoint()
     BreakWindow::editBreakpoint(breakPointData, ICore::instance()->mainWindow());
 }
 
-void DebuggerEnginePrivate::breakpointEnableDisableMarginActionTriggered()
-{
-    QAction *act = qobject_cast<QAction *>(sender());
-    QTC_ASSERT(act, return);
-    QList<QVariant> list = act->data().toList();
-    QTC_ASSERT(list.size() == 3, qDebug() << list; return);
-    const QString fileName = list.at(0).toString();
-    const int lineNumber = list.at(1).toInt();
-    m_engine->breakHandler()->toggleBreakpointEnabled(fileName, lineNumber);
-}
-
 void DebuggerEnginePrivate::handleContextMenuRequest(const QVariant &parameters)
 {
     const QList<QVariant> list = parameters.toList();
     QTC_ASSERT(list.size() == 3, qDebug() << list; return);
     TextEditor::ITextEditor *editor =
         (TextEditor::ITextEditor *)(list.at(0).value<quint64>());
-    int lineNumber = list.at(1).toInt();
+    const int lineNumber = list.at(1).toInt();
     QMenu *menu = (QMenu *)(list.at(2).value<quint64>());
 
     BreakpointData *data = 0;
@@ -427,6 +462,25 @@ void DebuggerEnginePrivate::handleContextMenuRequest(const QVariant &parameters)
         connect(act, SIGNAL(triggered()),
             SLOT(breakpointSetRemoveMarginActionTriggered()));
         menu->addAction(act);
+    }
+    // Run to, jump to line below in stopped state.
+    if (state() == InferiorStopOk) {
+        menu->addSeparator();
+        const QString runText = DebuggerEngine::tr("Run to Line %1").
+                                arg(lineNumber);
+        QAction *runToLineAction  = new QAction(runText, menu);
+        runToLineAction->setData(args);
+        connect(runToLineAction, SIGNAL(triggered()), this, SLOT(slotRunToLine()));
+        menu->addAction(runToLineAction);
+        if (m_engine->debuggerCapabilities() & JumpToLineCapability) {
+            const QString jumpText = DebuggerEngine::tr("Jump to Line %1").
+                                     arg(lineNumber);
+            QAction *jumpToLineAction  = new QAction(jumpText, menu);
+            menu->addAction(runToLineAction);
+            jumpToLineAction->setData(args);
+            connect(jumpToLineAction, SIGNAL(triggered()), this, SLOT(slotJumpToLine()));
+            menu->addAction(jumpToLineAction);
+        }
     }
 }
 
@@ -875,32 +929,20 @@ void DebuggerEngine::executeReturnX()
     executeReturn();
 }
 
-static TextEditor::ITextEditor *currentTextEditor()
-{
-    EditorManager *editorManager = EditorManager::instance();
-    if (!editorManager)
-        return 0;
-    Core::IEditor *editor = editorManager->currentEditor();
-    return qobject_cast<ITextEditor*>(editor);
-}
-
 void DebuggerEngine::executeRunToLine()
 {
-    ITextEditor *textEditor = currentTextEditor();
-    QTC_ASSERT(textEditor, return);
-    QString fileName = textEditor->file()->fileName();
-    if (fileName.isEmpty())
-        return;
-    int lineNumber = textEditor->currentLine();
-    resetLocation();
-    executeRunToLine(fileName, lineNumber);
+    QString fileName;
+    int lineNumber;
+    if (currentTextEditorPosition(&fileName, &lineNumber)) {
+        resetLocation();
+        executeRunToLine(fileName, lineNumber);
+    }
 }
 
 void DebuggerEngine::executeRunToFunction()
 {
     ITextEditor *textEditor = currentTextEditor();
     QTC_ASSERT(textEditor, return);
-    QString fileName = textEditor->file()->fileName();
     QPlainTextEdit *ed = qobject_cast<QPlainTextEdit*>(textEditor->widget());
     if (!ed)
         return;
@@ -931,13 +973,10 @@ void DebuggerEngine::executeRunToFunction()
 
 void DebuggerEngine::executeJumpToLine()
 {
-    ITextEditor *textEditor = currentTextEditor();
-    QTC_ASSERT(textEditor, return);
-    QString fileName = textEditor->file()->fileName();
-    int lineNumber = textEditor->currentLine();
-    if (fileName.isEmpty())
-        return;
-    executeJumpToLine(fileName, lineNumber);
+    QString fileName;
+    int lineNumber;
+    if (currentTextEditorPosition(&fileName, &lineNumber))
+        executeJumpToLine(fileName, lineNumber);
 }
 
 void DebuggerEngine::addToWatchWindow()

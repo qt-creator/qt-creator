@@ -40,6 +40,7 @@
 #include <texteditor/basetextmark.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/texteditorconstants.h>
+#include <coreplugin/editormanager/editormanager.h>
 
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <cpptools/cpptoolsconstants.h>
@@ -664,6 +665,14 @@ QString decodeData(const QByteArray &ba, int encoding)
     return QCoreApplication::translate("Debugger", "<Encoding error>");
 }
 
+TextEditor::ITextEditor *currentTextEditor()
+{
+    if (const Core::EditorManager *editorManager = Core::EditorManager::instance())
+            if (Core::IEditor *editor = editorManager->currentEditor())
+                return qobject_cast<TextEditor::ITextEditor*>(editor);
+    return 0;
+}
+
 // Editor tooltip support
 bool isCppEditor(Core::IEditor *editor)
 {
@@ -676,6 +685,24 @@ bool isCppEditor(Core::IEditor *editor)
         || mimeType == CPP_SOURCE_MIMETYPE
         || mimeType == CPP_HEADER_MIMETYPE
         || mimeType == OBJECTIVE_CPP_SOURCE_MIMETYPE;
+}
+
+bool currentTextEditorPosition(QString *fileNameIn /* = 0 */,
+                               int *lineNumberIn /* = 0 */)
+{
+    QString fileName;
+    int  lineNumber;
+    if (TextEditor::ITextEditor *textEditor = currentTextEditor()) {
+        if (const Core::IFile *file = textEditor->file()) {
+            fileName = file->fileName();
+            lineNumber = textEditor->currentLine();
+        }
+    }
+    if (fileNameIn)
+        *fileNameIn = fileName;
+    if (lineNumberIn)
+        *lineNumberIn = lineNumber;
+    return !fileName.isEmpty();
 }
 
 // Return the Cpp expression, and, if desired, the function

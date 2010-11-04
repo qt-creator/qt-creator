@@ -238,5 +238,6 @@ bool StackHandler::isDebuggingDebuggingHelpers() const
     return false;
 }
 
+
 } // namespace Internal
 } // namespace Debugger
