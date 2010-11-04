@@ -57,6 +57,7 @@ class DebuggerStartParameters;
 
 namespace Internal {
 class DebuggerListener;
+class BreakHandler;
 }
 
 class DEBUGGER_EXPORT DebuggerPlugin : public ExtensionSystem::IPlugin
@@ -87,9 +88,10 @@ public:
 
     const CPlusPlus::Snapshot &cppCodeModelSnapshot() const;
     bool isRegisterViewVisible() const;
-    bool hasSnapsnots() const;
+    bool hasSnapshots() const;
 
     void openTextEditor(const QString &titlePattern, const QString &contents);
+    Internal::BreakHandler *breakHandler() const;
 
 public slots:
     void clearCppCodeModelSnapshot();
@@ -97,6 +99,7 @@ public slots:
 
     // void runTest(const QString &fileName);
     void showMessage(const QString &msg, int channel, int timeout = -1);
+    void gotoLocation(const QString &fileName, int lineNumber, bool setMarker);
 
 private:
     friend class DebuggerEngine;
@@ -104,7 +107,6 @@ private:
     friend class DebuggerRunControl;
 
     void resetLocation();
-    void gotoLocation(const QString &fileName, int lineNumber, bool setMarker);
     void readSettings();
     void writeSettings() const;
 

@@ -61,7 +61,6 @@ public:
 
     QAbstractItemModel *commandModel() const;
     QAbstractItemModel *modulesModel() const;
-    QAbstractItemModel *breakModel() const;
     QAbstractItemModel *registerModel() const;
     QAbstractItemModel *stackModel() const;
     QAbstractItemModel *threadsModel() const;

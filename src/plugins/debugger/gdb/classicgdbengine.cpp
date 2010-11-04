@@ -592,7 +592,7 @@ void GdbEngine::setDebugDebuggingHelpersClassic(const QVariant &on)
     if (on.toBool()) {
         showMessage(_("SWITCHING ON DUMPER DEBUGGING"));
         postCommand("set unwindonsignal off");
-        breakByFunction(_("qDumpObjectData440"));
+        //FIXME BP: breakByFunction(_("qDumpObjectData440"));
         //updateLocals();
     } else {
         showMessage(_("SWITCHING OFF DUMPER DEBUGGING"));

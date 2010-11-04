@@ -222,16 +222,15 @@ public:
     DebuggerStartParameters &startParameters();
 
     Internal::ModulesHandler *modulesHandler() const;
-    Internal::BreakHandler *breakHandler() const;
     Internal::RegisterHandler *registerHandler() const;
     Internal::StackHandler *stackHandler() const;
     Internal::ThreadsHandler *threadsHandler() const;
     Internal::WatchHandler *watchHandler() const;
     Internal::SourceFilesHandler *sourceFilesHandler() const;
+    Internal::BreakHandler *breakHandler() const;
 
     virtual QAbstractItemModel *commandModel() const;
     virtual QAbstractItemModel *modulesModel() const;
-    virtual QAbstractItemModel *breakModel() const;
     virtual QAbstractItemModel *registerModel() const;
     virtual QAbstractItemModel *stackModel() const;
     virtual QAbstractItemModel *threadsModel() const;

@@ -36,6 +36,7 @@ namespace Debugger {
 namespace Internal {
 
 class BreakpointData;
+
 class BreakWindow : public QTreeView
 {
     Q_OBJECT
@@ -67,9 +68,6 @@ private:
     void associateBreakpoint(const QModelIndexList &list, int thread);
     void setBreakpointsEnabled(const QModelIndexList &list, bool enabled);
     void setBreakpointsFullPath(const QModelIndexList &list, bool fullpath);
-
-    void setModelData(int role, const QVariant &value = QVariant(),
-        const QModelIndex &index = QModelIndex());
 
     bool m_alwaysResizeColumnsToContents;
 };

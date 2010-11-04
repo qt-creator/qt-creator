@@ -184,6 +184,7 @@ enum ModelRoles
     EngineCapabilitiesRole,
     EngineActionsEnabledRole,
     RequestActivationRole,
+    RequestContextMenuRole,
 
     // Running
     RequestExecContinueRole,
@@ -204,25 +205,6 @@ enum ModelRoles
     RequestExecExitRole,
     RequestOperatedByInstructionTriggeredRole,
     RequestExecuteCommandRole,
-
-    // Breakpoints
-    BreakpointRole,
-    BreakpointEnabledRole,
-    BreakpointUseFullPathRole,
-    BreakpointFunctionNameRole,
-    BreakpointFileNameRole,
-    BreakpointConditionRole,
-    BreakpointIgnoreCountRole,
-    BreakpointThreadSpecRole,
-    RequestActivateBreakpointRole,
-    RequestRemoveBreakpointByIndexRole,
-    RequestSynchronizeBreakpointsRole,
-    RequestBreakByFunctionRole,
-    RequestBreakByFunctionMainRole,
-    RequestBreakpointRole,
-    RequestToggleBreakpointRole,
-    RequestToggleBreakpointEnabledRole,
-    RequestContextMenuRole,
 
     // Locals and Watchers
     LocalsINameRole,
@@ -254,7 +236,6 @@ enum ModelRoles
     RequestShowDisassemblerRole,
 
     // Threads
-    CurrentThreadIdRole,
     RequestSelectThreadRole,
 
     // Modules

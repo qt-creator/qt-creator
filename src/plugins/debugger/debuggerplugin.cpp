@@ -40,6 +40,8 @@
 #include "debuggertooltip.h"
 #include "debuggeruiswitcher.h"
 
+#include "breakpoint.h"
+#include "breakhandler.h"
 #include "breakwindow.h"
 #include "consolewindow.h"
 #include "logwindow.h"
@@ -462,6 +464,7 @@ public:
     }
 };
 
+
 ///////////////////////////////////////////////////////////////////////
 //
 // LocationMark
@@ -865,8 +868,18 @@ public slots:
     void registerDockToggled(bool on)
         { if (on) notifyCurrentEngine(RequestReloadRegistersRole); }
 
+    void synchronizeBreakpoints()
+    {
+        for (int i = 0, n = m_snapshotHandler->size(); i != n; ++i) {
+            if (DebuggerRunControl *runControl = m_snapshotHandler->at(i)) {
+                DebuggerEngine *engine = runControl->engine();
+                engine->attemptBreakpointSynchronization();
+            }
+        }
+    }
+
     void onAction();
-    void setSimpleDockWidgetArrangement(const Debugger::DebuggerLanguages &activeLanguages);
+    void setSimpleDockWidgetArrangement(const DebuggerLanguages &activeLanguages);
 
     void editorOpened(Core::IEditor *editor);
     void editorAboutToClose(Core::IEditor *editor);
@@ -982,6 +995,7 @@ public:
     DebuggerActions m_actions;
 
     BreakWindow *m_breakWindow;
+    BreakHandler *m_breakHandler;
     //ConsoleWindow *m_consoleWindow;
     QTreeView *m_returnWindow;
     QTreeView *m_localsWindow;
@@ -1029,6 +1043,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin) :
     m_watchDock = 0;
 
     m_breakWindow = 0;
+    m_breakHandler = 0;
     m_returnWindow = 0;
     m_localsWindow = 0;
     m_watchersWindow = 0;
@@ -1095,6 +1110,9 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     m_statusLabel = new QLabel;
     m_statusLabel->setMinimumSize(QSize(30, 10));
 
+    m_breakHandler = new BreakHandler;
+    connect(m_breakHandler, SIGNAL(breakpointSynchronizationRequested()),
+        SLOT(synchronizeBreakpoints()));
     m_breakWindow = new BreakWindow;
     m_breakWindow->setObjectName(QLatin1String("CppDebugBreakpoints"));
     //m_consoleWindow = new ConsoleWindow;
@@ -2004,10 +2022,8 @@ void DebuggerPluginPrivate::toggleBreakpoint()
 
 void DebuggerPluginPrivate::toggleBreakpoint(const QString &fileName, int lineNumber)
 {
-    QList<QVariant> list;
-    list.append(fileName);
-    list.append(lineNumber);
-    notifyCurrentEngine(RequestToggleBreakpointRole, list);
+    m_breakHandler->toggleBreakpoint(fileName, lineNumber);
+    m_breakHandler->synchronizeBreakpoints();
 }
 
 void DebuggerPluginPrivate::requestMark(ITextEditor *editor, int lineNumber)
@@ -2068,7 +2084,7 @@ void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine, bool notify)
     // qDebug("CONNECTING ENGINE %s (OLD ENGINE: %s)", qPrintable(engine->objectName()),
     //       (oldCommandModel ? qPrintable(oldCommandModel->objectName()) : ""));
 
-    m_breakWindow->setModel(engine->breakModel());
+    m_breakWindow->setModel(m_breakHandler->model());
     m_commandWindow->setModel(engine->commandModel());
     m_localsWindow->setModel(engine->localsModel());
     m_modulesWindow->setModel(engine->modulesModel());
@@ -2844,9 +2860,14 @@ bool DebuggerPlugin::isRegisterViewVisible() const
     return d->m_registerDock->toggleViewAction()->isChecked();
 }
 
-bool DebuggerPlugin::hasSnapsnots() const
+bool DebuggerPlugin::hasSnapshots() const
 {
     return d->m_snapshotHandler->size();
+}
+
+Internal::BreakHandler *DebuggerPlugin::breakHandler() const
+{
+    return d->m_breakHandler;
 }
 
 void DebuggerPlugin::remoteCommand(const QStringList &options, const QStringList &)

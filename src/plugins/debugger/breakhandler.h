@@ -54,7 +54,7 @@ class BreakHandler : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    explicit BreakHandler(DebuggerEngine *engine);
+    BreakHandler();
     ~BreakHandler();
 
     void removeAllBreakpoints();
@@ -96,13 +96,16 @@ public:
         bool useMarkerPosition = true);
     BreakpointData *findBreakpoint(quint64 address) const;
 
-public slots:
     void appendBreakpoint(BreakpointData *data);
     void reinsertBreakpoint(BreakpointData *data);
     void toggleBreakpointEnabled(BreakpointData *data);
     void breakByFunction(const QString &functionName);
     void removeBreakpoint(int index);
     void removeBreakpoint(BreakpointData *data);
+    void synchronizeBreakpoints();
+
+signals:
+    void breakpointSynchronizationRequested();
 
 private:
     friend class BreakpointMarker;
@@ -111,7 +114,6 @@ private:
     int columnCount(const QModelIndex &parent) const;
     int rowCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role);
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
@@ -127,7 +129,6 @@ private:
     const QIcon m_emptyIcon;
     const QIcon m_watchpointIcon;
 
-    Debugger::DebuggerEngine *m_engine; // Not owned.
     Breakpoints m_inserted; // Lately inserted breakpoints.
     Breakpoints m_removed; // Lately removed breakpoints.
     Breakpoints m_enabled; // Lately enabled breakpoints.
@@ -136,6 +137,8 @@ private:
     // Hack for BreakWindow::findSimilarBreakpoint
     mutable BreakpointData *m_lastFound;
     mutable bool m_lastFoundQueried;
+
+    QList<BreakpointData *> m_bp;
 };
 
 } // namespace Internal

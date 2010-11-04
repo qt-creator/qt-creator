@@ -57,7 +57,7 @@ static QHash<quint64,BreakpointMarker*> m_markers;
 //
 //////////////////////////////////////////////////////////////////
 
-BreakHandler::BreakHandler(Debugger::DebuggerEngine *engine)
+BreakHandler::BreakHandler()
   : m_breakpointIcon(_(":/debugger/images/breakpoint_16.png")),
     m_disabledBreakpointIcon(_(":/debugger/images/breakpoint_disabled_16.png")),
     m_pendingBreakPointIcon(_(":/debugger/images/breakpoint_pending_16.png")),
@@ -65,12 +65,9 @@ BreakHandler::BreakHandler(Debugger::DebuggerEngine *engine)
     m_emptyIcon(_(":/debugger/images/breakpoint_pending_16.png")),
     //m_emptyIcon(_(":/debugger/images/debugger_empty_14.png")),
     m_watchpointIcon(_(":/debugger/images/watchpoint.png")),
-    m_engine(engine),
     m_lastFound(0),
     m_lastFoundQueried(false)
-{
-    QTC_ASSERT(m_engine, /**/);
-}
+{}
 
 BreakHandler::~BreakHandler()
 {
@@ -285,52 +282,11 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
 {
     static const QString empty = QString(QLatin1Char('-'));
 
-    switch (role) {
-        case CurrentThreadIdRole:
-            QTC_ASSERT(m_engine, return QVariant());
-            return m_engine->threadsHandler()->currentThreadId();
-
-        case EngineActionsEnabledRole:
-            QTC_ASSERT(m_engine, return QVariant());
-            return m_engine->debuggerActionsEnabled();
-
-        case EngineCapabilitiesRole:
-            QTC_ASSERT(m_engine, return QVariant());
-            return m_engine->debuggerCapabilities();
-
-        default:
-            break;
-    }
-
     QTC_ASSERT(mi.isValid(), return QVariant());
     if (mi.row() >= size())
         return QVariant();
 
     BreakpointData *data = at(mi.row());
-
-    if (role == BreakpointRole)
-        return qVariantFromValue(data);
-
-    if (role == BreakpointUseFullPathRole)
-        return data->useFullPath;
-
-    if (role == BreakpointFileNameRole)
-        return data->fileName;
-
-    if (role == BreakpointEnabledRole)
-        return data->enabled;
-
-    if (role == BreakpointFunctionNameRole)
-        return data->funcName;
-
-    if (role == BreakpointConditionRole)
-        return data->condition;
-
-    if (role == BreakpointIgnoreCountRole)
-        return data->ignoreCount ? QVariant(data->ignoreCount) : QVariant(QString());
-
-    if (role == BreakpointThreadSpecRole)
-        return data->threadSpec;
 
     switch (mi.column()) {
         case 0:
@@ -438,102 +394,12 @@ Qt::ItemFlags BreakHandler::flags(const QModelIndex &index) const
 //    }
 }
 
-bool BreakHandler::setData(const QModelIndex &index, const QVariant &value, int role)
-{
-    switch (role) {
-        case RequestActivateBreakpointRole: {
-            const BreakpointData *data = at(value.toInt());
-            QTC_ASSERT(data, return false);
-            m_engine->gotoLocation(data->markerFileName(),
-                data->markerLineNumber(), false);
-            return true;
-        }
-
-        case RequestRemoveBreakpointByIndexRole: {
-            BreakpointData *data = at(value.toInt());
-            QTC_ASSERT(data, return false);
-            removeBreakpoint(data);
-            return true;
-        }
-
-        case RequestSynchronizeBreakpointsRole:
-            QTC_ASSERT(m_engine, return false);
-            m_engine->attemptBreakpointSynchronization();
-            return true;
-
-        case RequestBreakByFunctionRole:
-            QTC_ASSERT(m_engine, return false);
-            m_engine->breakByFunction(value.toString());
-            return true;
-
-        case RequestBreakByFunctionMainRole:
-            QTC_ASSERT(m_engine, return false);
-            m_engine->breakByFunctionMain();
-            return true;
-
-        case RequestBreakpointRole:
-            QTC_ASSERT(m_engine, return false);
-            BreakpointData *data = value.value<BreakpointData *>();
-            if (data->funcName == "main") {
-                m_engine->breakByFunctionMain();
-            } else {
-                appendBreakpoint(data);
-                m_engine->attemptBreakpointSynchronization();
-            }
-            return true;
-    }
-
-    BreakpointData *data = at(index.row());
-
-    switch (role) {
-        case BreakpointEnabledRole:
-            if (data->enabled != value.toBool())
-                toggleBreakpointEnabled(data);
-            return true;
-
-        case BreakpointUseFullPathRole:
-            if (data->useFullPath != value.toBool()) {
-                data->useFullPath = value.toBool();
-                emit layoutChanged();
-            }
-            return true;
-
-        case BreakpointConditionRole: {
-                QByteArray val = value.toString().toLatin1();
-                if (val != data->condition) {
-                    data->condition = val;
-                    emit layoutChanged();
-                }
-            }
-            return true;
-
-        case BreakpointIgnoreCountRole: {
-                const int ignoreCount = value.toInt();
-                if (ignoreCount != data->ignoreCount) {
-                    data->ignoreCount = ignoreCount;
-                    emit layoutChanged();
-                }
-            }
-            return true;
-
-        case BreakpointThreadSpecRole: {
-                QByteArray val = value.toString().toLatin1();
-                if (val != data->threadSpec) {
-                    data->threadSpec = val;
-                    emit layoutChanged();
-                }
-            }
-            return true;
-    }
-    return false;
-}
-
 void BreakHandler::reinsertBreakpoint(BreakpointData *data)
 {
     // FIXME: Use some more direct method?
     appendBreakpoint(data->clone());
     removeBreakpoint(data);
-    m_engine->attemptBreakpointSynchronization();
+    synchronizeBreakpoints();
     emit layoutChanged();
 }
 
@@ -603,7 +469,7 @@ void BreakHandler::toggleBreakpointEnabled(BreakpointData *data)
     removeMarker(data); // Force icon update.
     updateMarker(data);
     emit layoutChanged();
-    m_engine->attemptBreakpointSynchronization();
+    synchronizeBreakpoints();
 }
 
 void BreakHandler::toggleBreakpointEnabled(const QString &fileName, int lineNumber)
@@ -673,19 +539,19 @@ void BreakHandler::toggleBreakpoint(const QString &fileName, int lineNumber,
         data->setMarkerLineNumber(lineNumber);
         appendBreakpoint(data);
     }
-    m_engine->attemptBreakpointSynchronization();
+    synchronizeBreakpoints();
 }
 
 void BreakHandler::saveSessionData()
 {
-    QTC_ASSERT(m_engine->isSessionEngine(), return);
+    // FIXME QTC_ASSERT(m_engine->isSessionEngine(), return);
     saveBreakpoints();
 }
 
 void BreakHandler::loadSessionData()
 {
-    QTC_ASSERT(m_engine->isSessionEngine(), return);
-    foreach(BreakpointData *bp, m_bp) {
+    // FIXME QTC_ASSERT(m_engine->isSessionEngine(), return);
+    foreach (BreakpointData *bp, m_bp) {
         delete m_markers.take(bp->id);
     }
     qDeleteAll(m_bp);
@@ -714,15 +580,15 @@ void BreakHandler::breakByFunction(const QString &functionName)
 
 bool BreakHandler::isActive() const
 {
-    return m_engine->isActive();
+    return true; // FIXME m_engine->isActive();
 }
 
 void BreakHandler::initializeFromTemplate(BreakHandler *other)
 {
     Q_UNUSED(other)
     m_inserted.clear();
-    foreach(BreakpointData *data, m_bp) {
-        if (m_engine->acceptsBreakpoint(data)) {
+    foreach (BreakpointData *data, m_bp) {
+        if (true /* FIXME m_engine->acceptsBreakpoint(data) */) {
             BreakpointMarker *marker = m_markers.value(data->id);
             if (marker)
                 marker->m_handler = this;
@@ -750,6 +616,11 @@ int BreakHandler::size() const
 int BreakHandler::indexOf(BreakpointData *data)
 {
     return m_bp.indexOf(data);
+}
+
+void BreakHandler::synchronizeBreakpoints()
+{
+    emit breakpointSynchronizationRequested();
 }
 
 } // namespace Internal

@@ -31,6 +31,7 @@
 #include "breakhandler.h"
 
 #include "debuggeractions.h"
+#include "debuggerplugin.h"
 #include "debuggerconstants.h"
 #include "ui_breakpoint.h"
 #include "ui_breakcondition.h"
@@ -54,6 +55,38 @@
 
 namespace Debugger {
 namespace Internal {
+
+static DebuggerPlugin *plugin()
+{
+    return DebuggerPlugin::instance();
+}
+
+static BreakHandler *breakHandler()
+{
+    return plugin()->breakHandler();
+}
+
+static BreakpointData *breakpointAt(int index)
+{
+    BreakHandler *handler = breakHandler();
+    QTC_ASSERT(handler, return 0);
+    return handler->at(index);
+}
+
+static void synchronizeBreakpoints()
+{
+    BreakHandler *handler = breakHandler();
+    QTC_ASSERT(handler, return);
+    handler->synchronizeBreakpoints();
+}
+
+static void appendBreakpoint(BreakpointData *data)
+{
+    BreakHandler *handler = breakHandler();
+    QTC_ASSERT(handler, return);
+    handler->appendBreakpoint(data);
+}
+
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -236,8 +269,8 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     si = normalizeIndexes(si);
 
     const int rowCount = model()->rowCount();
-    const unsigned engineCapabilities =
-        model()->data(QModelIndex(), EngineCapabilitiesRole).toUInt();
+    const unsigned engineCapabilities = BreakOnThrowAndCatchCapability;
+    // FIXME BP:    model()->data(QModelIndex(), EngineCapabilitiesRole).toUInt();
 
     QAction *deleteAction = new QAction(tr("Delete Breakpoint"), &menu);
     deleteAction->setEnabled(si.size() > 0);
@@ -280,7 +313,8 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
         new QAction(tr("Edit Breakpoint..."), &menu);
     editBreakpointAction->setEnabled(si.size() > 0);
 
-    int threadId = model()->data(QModelIndex(), CurrentThreadIdRole).toInt();
+    int threadId = 0;
+    // FIXME BP: m_engine->threadsHandler()->currentThreadId();
     QString associateTitle = threadId == -1
         ?  tr("Associate Breakpoint With All Threads")
         :  tr("Associate Breakpoint With Thread %1").arg(threadId);
@@ -289,13 +323,12 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QAction *synchronizeAction =
         new QAction(tr("Synchronize Breakpoints"), &menu);
-    synchronizeAction->setEnabled(
-        model()->data(QModelIndex(), EngineActionsEnabledRole).toBool());
+    synchronizeAction->setEnabled(plugin()->hasSnapshots());
 
     QModelIndex idx0 = (si.size() ? si.front() : QModelIndex());
     QModelIndex idx2 = idx0.sibling(idx0.row(), 2);
-    bool enabled = si.isEmpty()
-        || idx0.data(BreakpointEnabledRole).toBool();
+    BreakpointData *data = breakpointAt(idx0.row());
+    bool enabled = si.isEmpty() || (data && data->enabled);
 
     const QString str5 = si.size() > 1
         ? enabled
@@ -357,29 +390,40 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     else if (act == associateBreakpointAction)
         associateBreakpoint(si, threadId);
     else if (act == synchronizeAction)
-        setModelData(RequestSynchronizeBreakpointsRole);
+        synchronizeBreakpoints();
     else if (act == toggleEnabledAction)
         setBreakpointsEnabled(si, !enabled);
     else if (act == addBreakpointAction)
         addBreakpoint();
-    else if (act == breakAtThrowAction)
-        setModelData(RequestBreakByFunctionRole, QLatin1String(BreakpointData::throwFunction));
-    else if (act == breakAtCatchAction)
-        setModelData(RequestBreakByFunctionRole, QLatin1String(BreakpointData::catchFunction));
+    else if (act == breakAtThrowAction) {
+        BreakpointData *data = new BreakpointData;
+        data->funcName = BreakpointData::throwFunction;
+        appendBreakpoint(data);
+    } else if (act == breakAtCatchAction) {
+        BreakpointData *data = new BreakpointData;
+        data->funcName = BreakpointData::catchFunction;
+        appendBreakpoint(data);
+    }
 }
 
 void BreakWindow::setBreakpointsEnabled(const QModelIndexList &list, bool enabled)
 {
-    foreach (const QModelIndex &index, list)
-        setModelData(BreakpointEnabledRole, enabled, index);
-    setModelData(RequestSynchronizeBreakpointsRole);
+    foreach (const QModelIndex &index, list) {
+        BreakpointData *data = breakpointAt(index.row());
+        QTC_ASSERT(data, continue);
+        data->enabled = enabled;
+    }
+    synchronizeBreakpoints();
 }
 
 void BreakWindow::setBreakpointsFullPath(const QModelIndexList &list, bool fullpath)
 {
-    foreach (const QModelIndex &index, list)
-        setModelData(BreakpointUseFullPathRole, fullpath, index);
-    setModelData(RequestSynchronizeBreakpointsRole);
+    foreach (const QModelIndex &index, list) {
+        BreakpointData *data = breakpointAt(index.row());
+        QTC_ASSERT(data, continue);
+        data->useFullPath = fullpath;
+    }
+    synchronizeBreakpoints();
 }
 
 void BreakWindow::deleteBreakpoints(const QModelIndexList &indexes)
@@ -395,15 +439,19 @@ void BreakWindow::deleteBreakpoints(QList<int> list)
 {
     if (list.empty())
         return;
+    BreakHandler *handler = breakHandler();
     const int firstRow = list.front();
     qSort(list.begin(), list.end());
-    for (int i = list.size(); --i >= 0; )
-        setModelData(RequestRemoveBreakpointByIndexRole, list.at(i));
+    for (int i = list.size(); --i >= 0; ) {
+        BreakpointData *data = breakpointAt(i);
+        QTC_ASSERT(data, continue);
+        handler->removeBreakpoint(data);
+    }
 
     const int row = qMin(firstRow, model()->rowCount() - 1);
     if (row >= 0)
         setCurrentIndex(model()->index(row, 0));
-    setModelData(RequestSynchronizeBreakpointsRole);
+    synchronizeBreakpoints();
 }
 
 bool BreakWindow::editBreakpoint(BreakpointData *data, QWidget *parent)
@@ -416,7 +464,7 @@ void BreakWindow::addBreakpoint()
 {
     BreakpointData *data = new BreakpointData();
     if (editBreakpoint(data, this))
-        setModelData(RequestBreakpointRole, QVariant::fromValue(data));
+        appendBreakpoint(data);
     else
         delete data;
 }
@@ -424,16 +472,12 @@ void BreakWindow::addBreakpoint()
 void BreakWindow::editBreakpoints(const QModelIndexList &list)
 {
     QTC_ASSERT(!list.isEmpty(), return);
+
     if (list.size() == 1) {
-        const QVariant dataV = model()->data(list.at(0), BreakpointRole);
-        QTC_ASSERT(qVariantCanConvert<BreakpointData *>(dataV), return );
-        BreakpointData *data = qvariant_cast<BreakpointData *>(dataV);
-        if (editBreakpoint(data, this)) {
-            // FIXME: nasty MVC violation
-            BreakHandler * handler = qobject_cast<BreakHandler *>(model());
-            if (handler)
-                handler->reinsertBreakpoint(data);
-        }
+        BreakpointData *data = breakpointAt(0); 
+        QTC_ASSERT(data, return);
+        if (editBreakpoint(data, this))
+            breakHandler()->reinsertBreakpoint(data);
         return;
     }
 
@@ -442,14 +486,16 @@ void BreakWindow::editBreakpoints(const QModelIndexList &list)
     Ui::BreakCondition ui;
     ui.setupUi(&dlg);
     dlg.setWindowTitle(tr("Edit Breakpoint Properties"));
-    ui.lineEditIgnoreCount->setValidator(new QIntValidator(0, 2147483647, ui.lineEditIgnoreCount));
+    ui.lineEditIgnoreCount->setValidator(
+        new QIntValidator(0, 2147483647, ui.lineEditIgnoreCount));
 
     const QModelIndex idx = list.front();
-    QAbstractItemModel *m = model();
+    BreakpointData *data = breakpointAt(idx.row()); 
+    QTC_ASSERT(data, return);
 
-    const QString oldCondition = m->data(idx, BreakpointConditionRole).toString();
-    const QString oldIgnoreCount = m->data(idx, BreakpointIgnoreCountRole).toString();
-    const QString oldThreadSpec = m->data(idx, BreakpointThreadSpecRole).toString();
+    const QString oldCondition = QString::fromLatin1(data->condition);
+    const QString oldIgnoreCount = QString::number(data->ignoreCount);
+    const QString oldThreadSpec = QString::fromLatin1(data->threadSpec);
 
     ui.lineEditCondition->setText(oldCondition);
     ui.lineEditIgnoreCount->setText(oldIgnoreCount);
@@ -468,21 +514,26 @@ void BreakWindow::editBreakpoints(const QModelIndexList &list)
         return;
 
     foreach (const QModelIndex &idx, list) {
-        m->setData(idx, newCondition, BreakpointConditionRole);
-        m->setData(idx, newIgnoreCount, BreakpointIgnoreCountRole);
-        m->setData(idx, newThreadSpec, BreakpointThreadSpecRole);
+        BreakpointData *data = breakpointAt(idx.row()); 
+        QTC_ASSERT(data, continue);
+        data->condition = newCondition.toLatin1();
+        data->ignoreCount = newIgnoreCount.toInt();
+        data->threadSpec = newThreadSpec.toLatin1();
     }
-    setModelData(RequestSynchronizeBreakpointsRole);
+    synchronizeBreakpoints();
 }
 
 void BreakWindow::associateBreakpoint(const QModelIndexList &list, int threadId)
 {
-    QString str;
+    QByteArray condition;
     if (threadId != -1)
-        str = QString::number(threadId);
-    foreach (const QModelIndex &index, list)
-        setModelData(BreakpointThreadSpecRole, str, index);
-    setModelData(RequestSynchronizeBreakpointsRole);
+        condition = QByteArray::number(threadId);
+    foreach (const QModelIndex &index, list) {
+        BreakpointData *data = breakpointAt(index.row()); 
+        QTC_ASSERT(data, continue);
+        data->condition = condition;
+    }
+    synchronizeBreakpoints();
 }
 
 void BreakWindow::resizeColumnsToContents()
@@ -502,16 +553,11 @@ void BreakWindow::setAlwaysResizeColumnsToContents(bool on)
 
 void BreakWindow::rowActivated(const QModelIndex &index)
 {
-    setModelData(RequestActivateBreakpointRole, index.row());
+    BreakpointData *data = breakpointAt(index.row());
+    QTC_ASSERT(data, return);
+    plugin()->gotoLocation(data->markerFileName(),
+        data->markerLineNumber(), false);
 }
-
-void BreakWindow::setModelData
-    (int role, const QVariant &value, const QModelIndex &index)
-{
-    QTC_ASSERT(model(), return);
-    model()->setData(index, value, role);
-}
-
 
 } // namespace Internal
 } // namespace Debugger

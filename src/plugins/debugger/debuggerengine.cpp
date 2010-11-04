@@ -224,7 +224,6 @@ public:
         m_state(DebuggerNotReady),
         m_lastGoodState(DebuggerNotReady),
         m_targetState(DebuggerNotReady),
-        m_breakHandler(engine),
         m_commandHandler(engine),
         m_modulesHandler(engine),
         m_registerHandler(engine),
@@ -304,7 +303,6 @@ public:
 
     qint64 m_inferiorPid;
 
-    BreakHandler m_breakHandler;
     CommandHandler m_commandHandler;
     ModulesHandler m_modulesHandler;
     RegisterHandler m_registerHandler;
@@ -327,7 +325,7 @@ void DebuggerEnginePrivate::breakpointSetRemoveMarginActionTriggered()
     const QString fileName = list.at(0).toString();
     const int lineNumber = list.at(1).toInt();
     const quint64 address = list.at(2).toULongLong();
-    m_breakHandler.toggleBreakpoint(fileName, lineNumber, address);
+    m_engine->breakHandler()->toggleBreakpoint(fileName, lineNumber, address);
 }
 
 void DebuggerEnginePrivate::slotEditBreakpoint()
@@ -348,21 +346,23 @@ void DebuggerEnginePrivate::breakpointEnableDisableMarginActionTriggered()
     QTC_ASSERT(list.size() == 3, qDebug() << list; return);
     const QString fileName = list.at(0).toString();
     const int lineNumber = list.at(1).toInt();
-    m_breakHandler.toggleBreakpointEnabled(fileName, lineNumber);
+    m_engine->breakHandler()->toggleBreakpointEnabled(fileName, lineNumber);
 }
 
 void DebuggerEnginePrivate::handleContextMenuRequest(const QVariant &parameters)
 {
     const QList<QVariant> list = parameters.toList();
     QTC_ASSERT(list.size() == 3, qDebug() << list; return);
-    TextEditor::ITextEditor *editor =
-        (TextEditor::ITextEditor *)(list.at(0).value<quint64>());
+//    TextEditor::ITextEditor *editor =
+//        (TextEditor::ITextEditor *)(list.at(0).value<quint64>());
     int lineNumber = list.at(1).toInt();
     QMenu *menu = (QMenu *)(list.at(2).value<quint64>());
 
     BreakpointData *data = 0;
     QString fileName;
     quint64 address = 0;
+/*
+FIXME:
     if (editor->property("DisassemblerView").toBool()) {
         fileName = editor->file()->fileName();
         QString line = editor->contents()
@@ -375,6 +375,7 @@ void DebuggerEnginePrivate::handleContextMenuRequest(const QVariant &parameters)
         fileName = editor->file()->fileName();
         data = m_breakHandler.findBreakpoint(fileName, lineNumber);
     }
+*/
 
     QList<QVariant> args;
     args.append(fileName);
@@ -560,6 +561,7 @@ void DebuggerEngine::handleCommand(int role, const QVariant &value)
             executeDebuggerCommand(value.toString());
             break;
 
+/*
         case RequestToggleBreakpointRole: {
             QList<QVariant> list = value.toList();
             QTC_ASSERT(list.size() == 2, break);
@@ -568,6 +570,7 @@ void DebuggerEngine::handleCommand(int role, const QVariant &value)
             breakHandler()->toggleBreakpoint(fileName, lineNumber);
             break;
         }
+*/
 
         case RequestToolTipByExpressionRole: {
             QList<QVariant> list = value.toList();
@@ -632,11 +635,6 @@ ModulesHandler *DebuggerEngine::modulesHandler() const
     return &d->m_modulesHandler;
 }
 
-BreakHandler *DebuggerEngine::breakHandler() const
-{
-    return &d->m_breakHandler;
-}
-
 RegisterHandler *DebuggerEngine::registerHandler() const
 {
     return &d->m_registerHandler;
@@ -672,14 +670,6 @@ QAbstractItemModel *DebuggerEngine::modulesModel() const
     QAbstractItemModel *model = d->m_modulesHandler.model();
     if (model->objectName().isEmpty()) // Make debugging easier.
         model->setObjectName(objectName() + QLatin1String("ModulesModel"));
-    return model;
-}
-
-QAbstractItemModel *DebuggerEngine::breakModel() const
-{
-    QAbstractItemModel *model = d->m_breakHandler.model();
-    if (model->objectName().isEmpty()) // Make debugging easier.
-        model->setObjectName(objectName() + QLatin1String("BreakModel"));
     return model;
 }
 
@@ -789,7 +779,6 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
     QTC_ASSERT(sessionTemplate, notifyEngineSetupFailed(); return);
     QTC_ASSERT(sessionTemplate != this, notifyEngineSetupFailed(); return);
 
-    breakHandler()->initializeFromTemplate(sessionTemplate->breakHandler());
     watchHandler()->initializeFromTemplate(sessionTemplate->watchHandler());
 
     d->m_runControl = runControl;
@@ -827,8 +816,8 @@ void DebuggerEngine::breakByFunctionMain()
 
 void DebuggerEngine::breakByFunction(const QString &functionName)
 {
-    d->m_breakHandler.breakByFunction(functionName);
-    attemptBreakpointSynchronization();
+    breakHandler()->breakByFunction(functionName);
+    breakHandler()->synchronizeBreakpoints();
 }
 
 void DebuggerEngine::resetLocation()
@@ -1769,7 +1758,11 @@ void DebuggerEngine::executeJumpToLine(const QString &, int)
 
 void DebuggerEngine::executeDebuggerCommand(const QString &)
 {
+}
 
+Internal::BreakHandler *DebuggerEngine::breakHandler() const
+{
+    return plugin()->breakHandler();
 }
 
 bool DebuggerEngine::isDying() const

@@ -264,11 +264,6 @@ QAbstractItemModel *QmlCppEngine::modulesModel() const
     return d->m_cppEngine->modulesModel();
 }
 
-QAbstractItemModel *QmlCppEngine::breakModel() const
-{
-    return d->m_activeEngine->breakModel();
-}
-
 QAbstractItemModel *QmlCppEngine::registerModel() const
 {
     return d->m_cppEngine->registerModel();

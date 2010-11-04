@@ -296,7 +296,7 @@ void DebuggerUISwitcher::onModeChanged(IMode *mode)
     hideInactiveWidgets();
 
     if (mode->id() != Constants::MODE_DEBUG)
-        //|| DebuggerPlugin::instance()->hasSnapsnots())
+        //|| DebuggerPlugin::instance()->hasSnapshots())
        return;
 
     updateActiveLanguages();
@@ -597,7 +597,7 @@ QWidget *DebuggerUISwitcher::createContents(BaseMode *mode)
 
 void DebuggerUISwitcher::aboutToStartDebugger()
 {
-    if (!DebuggerPlugin::instance()->hasSnapsnots())
+    if (!DebuggerPlugin::instance()->hasSnapshots())
         updateActiveLanguages();
 }
 
