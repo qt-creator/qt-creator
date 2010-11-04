@@ -139,10 +139,12 @@ void MaemoPackageCreationWidget::updatePackageManagerIcon(const ProjectExplorer:
     QString error;
     const QIcon &icon
         = MaemoTemplatesManager::instance()->packageManagerIcon(project, &error);
-    if (!error.isEmpty())
+    if (!error.isEmpty()) {
         QMessageBox::critical(this, tr("Could not read icon"), error);
-    else
+    } else {
         m_ui->packageManagerIconButton->setIcon(icon);
+        m_ui->packageManagerIconButton->setIconSize(m_ui->packageManagerIconButton->size());
+    }
 }
 
 void MaemoPackageCreationWidget::setPackageManagerIcon()
@@ -153,7 +155,8 @@ void MaemoPackageCreationWidget::setPackageManagerIcon()
         imageFilter += "*." + QString::fromAscii(imageType) + QLatin1Char(' ');
     imageFilter += QLatin1Char(')');
     const QString iconFileName = QFileDialog::getOpenFileName(this,
-        tr("Choose Image"), QString(), imageFilter);
+        tr("Choose Image (will be scaled to 48x48 pixels if necessary)"),
+        QString(), imageFilter);
     if (!iconFileName.isEmpty()) {
         QString error;
         if (!MaemoTemplatesManager::instance()->setPackageManagerIcon(m_step->

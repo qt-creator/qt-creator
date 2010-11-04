@@ -192,6 +192,12 @@
      </item>
      <item row="2" column="0">
       <widget class="QLabel" name="packageManagerIconLabel">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>48</height>
+        </size>
+       </property>
        <property name="text">
         <string>&lt;b&gt;Package Manager icon:&lt;/b&gt;</string>
        </property>
@@ -201,6 +207,21 @@
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
         <widget class="QToolButton" name="packageManagerIconButton">
+         <property name="minimumSize">
+          <size>
+           <width>48</width>
+           <height>48</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>48</width>
+           <height>48</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Size is 48x48 pixels</string>
+         </property>
          <property name="text">
           <string/>
          </property>
