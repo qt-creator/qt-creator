@@ -825,8 +825,6 @@ bool WatchModel::setData(const QModelIndex &index, const QVariant &value, int ro
             return true;
         }
 
-/*
-    FIXME BP:
         case RequestToggleWatchRole: {
             BreakHandler *handler = engine()->breakHandler();
             const quint64 address = value.toULongLong();
@@ -842,7 +840,6 @@ bool WatchModel::setData(const QModelIndex &index, const QVariant &value, int ro
             engine()->attemptBreakpointSynchronization();
             return true;
         }
-*/
 
         case RequestShowMemoryRole: {
             (void) new MemoryViewAgent(engine(), value.toULongLong());

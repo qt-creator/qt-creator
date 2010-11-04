@@ -353,29 +353,28 @@ void DebuggerEnginePrivate::handleContextMenuRequest(const QVariant &parameters)
 {
     const QList<QVariant> list = parameters.toList();
     QTC_ASSERT(list.size() == 3, qDebug() << list; return);
-//    TextEditor::ITextEditor *editor =
-//        (TextEditor::ITextEditor *)(list.at(0).value<quint64>());
+    TextEditor::ITextEditor *editor =
+        (TextEditor::ITextEditor *)(list.at(0).value<quint64>());
     int lineNumber = list.at(1).toInt();
     QMenu *menu = (QMenu *)(list.at(2).value<quint64>());
 
     BreakpointData *data = 0;
     QString fileName;
     quint64 address = 0;
-/*
-FIXME:
+
     if (editor->property("DisassemblerView").toBool()) {
         fileName = editor->file()->fileName();
         QString line = editor->contents()
             .section('\n', lineNumber - 1, lineNumber - 1);
         BreakpointData needle;
-        address = needle.address = DisassemblerViewAgent::addressFromDisassemblyLine(line);
+        address = DisassemblerViewAgent::addressFromDisassemblyLine(line);
+        needle.address = address;
         needle.bpLineNumber = -1;
-        data = m_breakHandler.findSimilarBreakpoint(&needle);
+        data = m_engine->breakHandler()->findSimilarBreakpoint(&needle);
     } else {
         fileName = editor->file()->fileName();
-        data = m_breakHandler.findBreakpoint(fileName, lineNumber);
+        data = m_engine->breakHandler()->findBreakpoint(fileName, lineNumber);
     }
-*/
 
     QList<QVariant> args;
     args.append(fileName);
@@ -392,7 +391,7 @@ FIXME:
             act = new QAction(tr("Remove Breakpoint %1").arg(number), menu);
         act->setData(args);
         connect(act, SIGNAL(triggered()),
-            this, SLOT(breakpointSetRemoveMarginActionTriggered()));
+            SLOT(breakpointSetRemoveMarginActionTriggered()));
         menu->addAction(act);
 
         QAction *act2;
@@ -415,7 +414,7 @@ FIXME:
             editAction = new QAction(tr("Edit Breakpoint..."), menu);
         else
             editAction = new QAction(tr("Edit Breakpoint %1...").arg(number), menu);
-        connect(editAction, SIGNAL(triggered()), this, SLOT(slotEditBreakpoint()));
+        connect(editAction, SIGNAL(triggered()), SLOT(slotEditBreakpoint()));
         editAction->setData(qVariantFromValue(data));
         menu->addAction(editAction);
     } else {
@@ -426,7 +425,7 @@ FIXME:
         QAction *act = new QAction(text, menu);
         act->setData(args);
         connect(act, SIGNAL(triggered()),
-            this, SLOT(breakpointSetRemoveMarginActionTriggered()));
+            SLOT(breakpointSetRemoveMarginActionTriggered()));
         menu->addAction(act);
     }
 }

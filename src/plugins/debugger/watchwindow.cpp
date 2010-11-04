@@ -69,7 +69,8 @@ public:
     {
         // Value column: Custom editor. Apply integer-specific settings.
         if (index.column() == 1) {
-            const QVariant::Type type = static_cast<QVariant::Type>(index.data(LocalsEditTypeRole).toInt());
+            const QVariant::Type type =
+                static_cast<QVariant::Type>(index.data(LocalsEditTypeRole).toInt());
             switch (type) {
             case QVariant::Bool:
                 return new BooleanComboBox(parent);
@@ -296,7 +297,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     const unsigned engineCapabilities = modelData(EngineCapabilitiesRole).toUInt();
     const bool canHandleWatches =
         actionsEnabled && (engineCapabilities & AddWatcherCapability);
-    const DebuggerState state = static_cast<DebuggerState>(modelData(EngineStateRole).toInt());
+    const DebuggerState state =
+        static_cast<DebuggerState>(modelData(EngineStateRole).toInt());
 
     QMenu menu;
     QAction *actInsertNewWatchItem = menu.addAction(tr("Insert New Watch Item"));
@@ -329,14 +331,13 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     const bool canSetWatchpoint = engineCapabilities & WatchpointCapability;
     if (canSetWatchpoint && address) {
         actSetWatchPointAtVariableAddress =
-            new QAction(tr("Break on Changes at Object's Address (0x%1)")
+            new QAction(tr("Add Watchpoint at Object's Address (0x%1)")
                 .arg(address, 0, 16), &menu);
-        actSetWatchPointAtVariableAddress->setCheckable(true);
         actSetWatchPointAtVariableAddress->
             setChecked(mi0.data(LocalsIsWatchpointAtAddressRole).toBool());
         if (createPointerActions) {
             actSetWatchPointAtPointerValue =
-                new QAction(tr("Break on Changes at Referenced Address (0x%1)")
+                new QAction(tr("Add Watchpoint at Referenced Address (0x%1)")
                     .arg(pointerValue, 0, 16), &menu);
             actSetWatchPointAtPointerValue->setCheckable(true);
             actSetWatchPointAtPointerValue->
@@ -344,9 +345,12 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         }
     } else {
         actSetWatchPointAtVariableAddress =
-            new QAction(tr("Break on Changing Contents"), &menu);
+            new QAction(tr("At Watchpoint"), &menu);
         actSetWatchPointAtVariableAddress->setEnabled(false);
     }
+    actSetWatchPointAtVariableAddress->setToolTip(
+        tr("Setting a watchpoint on an address will cause the program "
+           "to stop when the data at the address it modified"));
 
     QString actionName = exp.isEmpty() ? tr("Watch Expression")
         : tr("Watch Expression \"%1\"").arg(exp);
@@ -357,8 +361,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     actionName = exp.isEmpty() ? tr("Remove Watch Expression")
         : tr("Remove Watch Expression \"%1\"").arg(exp);
     QAction *actRemoveWatchExpression = new QAction(actionName, &menu);
-    actRemoveWatchExpression->setEnabled((canHandleWatches || state == DebuggerNotReady)
-                                         && !exp.isEmpty());
+    actRemoveWatchExpression->setEnabled(
+        (canHandleWatches || state == DebuggerNotReady) && !exp.isEmpty());
 
     if (m_type == LocalsType)
         menu.addAction(actWatchExpression);
