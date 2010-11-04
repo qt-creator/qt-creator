@@ -299,8 +299,16 @@ void NavigatorTreeModel::handleChangedItem(QStandardItem *item)
     ItemRow itemRow = itemRowForNode(node);
     if (item == itemRow.idItem) {
          if (node.isValidId(item->text())) {
-             if (node.view()->rewriterView())
-                node.view()->rewriterView()->renameId(node.id(), item->text());
+             if (node.id().isEmpty() || item->text().isEmpty()) { //no id
+                 try {
+                     node.setId(item->text());
+                 } catch (InvalidIdException &e) { //better save then sorry
+                     QMessageBox::warning(0, tr("Invalid Id"), e.description());
+                 }
+             } else { //there is already an id, so we refactor
+                 if (node.view()->rewriterView())
+                     node.view()->rewriterView()->renameId(node.id(), item->text());
+             }
         } else {
             QMessageBox::warning(0, tr("Invalid Id"),  tr("%1 is an invalid id").arg(item->text()));
             item->setText(node.id());
