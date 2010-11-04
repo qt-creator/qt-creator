@@ -1198,7 +1198,11 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
         break;
 
     case block_open:
-        if (parentState.type != case_cont)
+        // case_cont already adds some indent, revert it for a block
+        if (parentState.type == case_cont && !m_indentSubstatementBraces)
+            *indentDepth = *savedIndentDepth = parentState.savedIndentDepth;
+
+        if (m_indentSubstatementStatements)
             *indentDepth += m_indentSize;
         break;
 
@@ -1302,6 +1306,8 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
     case T_LBRACE: {
         if (topState.type == case_cont) {
             *indentDepth = topState.savedIndentDepth;
+            if (m_indentSubstatementBraces)
+                *indentDepth += m_indentSize;
             *paddingDepth = 0;
         // function definition - argument list is expression state
         } else if (topState.type == expression && previousState.type == declaration_start) {
@@ -1332,8 +1338,8 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
     }
     case T_RBRACE: {
         if (topState.type == block_open && previousState.type == case_cont) {
-            *indentDepth = previousState.savedIndentDepth;
-            *paddingDepth = previousState.savedPaddingDepth;
+            *indentDepth = topState.savedIndentDepth;
+            *paddingDepth = topState.savedPaddingDepth;
             break;
         }
         for (int i = 0; state(i).type != topmost_intro; ++i) {
@@ -1365,10 +1371,16 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
     //    }
     //    break;
     case T_DEFAULT:
-    case T_CASE:
+    case T_CASE: {
+        int lastSubstatementIndent = 0;
         for (int i = 0; state(i).type != topmost_intro; ++i) {
             const int type = state(i).type;
-            if (type == switch_statement || type == case_cont) {
+            if (type == substatement_open) {
+                lastSubstatementIndent = state(i).savedIndentDepth;
+            } else if (type == switch_statement) {
+                *indentDepth = lastSubstatementIndent;
+                break;
+            } else if (type == case_cont) {
                 *indentDepth = state(i).savedIndentDepth;
                 break;
             } else if (type == topmost_intro) {
@@ -1376,6 +1388,7 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
             }
         }
         break;
+    }
     case T_PUBLIC:
     case T_PRIVATE:
     case T_PROTECTED:

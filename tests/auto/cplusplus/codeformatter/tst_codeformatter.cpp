@@ -54,6 +54,8 @@ private Q_SLOTS:
     void macrosNoSemicolon2();
     void renamedNamespace();
     void cpp0xFor();
+    void gnuStyleSwitch();
+    void whitesmithsStyleSwitch();
 };
 
 struct Line {
@@ -820,6 +822,9 @@ void tst_CodeFormatter::gnuStyle()
          << Line("        if (b) {")
          << Line("            fpp;")
          << Line("        }")
+         << Line("        {")
+         << Line("            foo;")
+         << Line("        }")
          << Line("    }")
          << Line("};")
          ;
@@ -840,6 +845,9 @@ void tst_CodeFormatter::whitesmithsStyle()
          << Line("        if (b) {")
          << Line("            fpp;")
          << Line("            }")
+         << Line("        {")
+         << Line("        foo;")
+         << Line("        }")
          << Line("        }")
          << Line("    };")
          ;
@@ -1032,6 +1040,62 @@ void tst_CodeFormatter::cpp0xFor()
          << Line("    int i;")
          ;
     checkIndent(data);
+}
+
+void tst_CodeFormatter::gnuStyleSwitch()
+{
+    QList<Line> data;
+    data << Line("void foo()")
+         << Line("{")
+         << Line("    switch (a)")
+         << Line("        {")
+         << Line("        case 1:")
+         << Line("            foo;")
+         << Line("            break;")
+         << Line("        case 2: {")
+         << Line("                bar;")
+         << Line("                continue;")
+         << Line("            }")
+         << Line("        case 3:")
+         << Line("            {")
+         << Line("                bar;")
+         << Line("                continue;")
+         << Line("            }")
+         << Line("        case 4:")
+         << Line("        case 5:")
+         << Line("            ;")
+         << Line("        }")
+         << Line("}")
+         ;
+    checkIndent(data, 1);
+}
+
+void tst_CodeFormatter::whitesmithsStyleSwitch()
+{
+    QList<Line> data;
+    data << Line("void foo()")
+         << Line("    {")
+         << Line("    switch (a)")
+         << Line("        {")
+         << Line("        case 1:")
+         << Line("            foo;")
+         << Line("            break;")
+         << Line("        case 2: {")
+         << Line("            bar;")
+         << Line("            continue;")
+         << Line("            }")
+         << Line("        case 3:")
+         << Line("            {")
+         << Line("            bar;")
+         << Line("            continue;")
+         << Line("            }")
+         << Line("        case 4:")
+         << Line("        case 5:")
+         << Line("            ;")
+         << Line("        }")
+         << Line("    }")
+         ;
+    checkIndent(data, 2);
 }
 
 QTEST_APPLESS_MAIN(tst_CodeFormatter)
