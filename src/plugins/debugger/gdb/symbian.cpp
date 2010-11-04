@@ -203,9 +203,10 @@ Snapshot::Snapshot()
 
 void Snapshot::reset()
 {
-    for (Memory::Iterator it = memory.begin(); it != memory.end(); ++it) {
+    for (Memory::Iterator it = memory.begin(); it != memory.end(); ) {
         if (isReadOnly(it.key())) {
             MEMORY_DEBUG("KEEPING READ-ONLY RANGE" << it.key());
+            ++it;
         } else {
             it = memory.erase(it);
         }
