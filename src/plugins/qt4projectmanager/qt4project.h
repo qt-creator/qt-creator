@@ -192,6 +192,9 @@ public:
 
     Internal::CentralizedFolderWatcher *centralizedFolderWatcher();
 
+    // For Qt4ProFileNode after a on disk change
+    void updateFileList();
+
 signals:
     /// emitted after parse
     void proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *node);
@@ -220,7 +223,7 @@ private:
     void updateCodeModels();
     void updateCppCodeModel();
     void updateQmlJSCodeModel();
-    void updateFileList();
+
 
     static void collectLeafProFiles(QList<Internal::Qt4ProFileNode *> &list, Internal::Qt4ProFileNode *node);
     static void collectApplicationProFiles(QList<Internal::Qt4ProFileNode *> &list, Internal::Qt4ProFileNode *node);

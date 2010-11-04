@@ -719,6 +719,7 @@ void Qt4PriFileNode::folderChanged(const QString &folder)
     }
 
     contents.updateSubFolders(this, this);
+    m_project->updateFileList();
 }
 
 bool Qt4PriFileNode::deploysFolder(const QString &folder) const
