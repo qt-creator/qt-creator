@@ -31,6 +31,9 @@
 #define DEBUGGER_ABSTRACT_GDB_ADAPTER
 
 #include "debuggerconstants.h"
+// Need to include gdbengine.h as otherwise MSVC crashes
+// on invoking the first adapter callback in a *derived* adapter class.
+#include "gdbengine.h"
 
 #include <QtCore/QObject>
 
@@ -40,7 +43,6 @@ class DebuggerStartParameters;
 namespace Internal {
 
 class AbstractGdbProcess;
-class GdbEngine;
 class GdbResponse;
 
 // AbstractGdbAdapter is inherited by PlainGdbAdapter used for local
