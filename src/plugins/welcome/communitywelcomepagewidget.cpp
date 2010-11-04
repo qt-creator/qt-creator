@@ -47,7 +47,7 @@ struct Site {
 static const Site supportSites[] = {
     { QT_TRANSLATE_NOOP("Welcome::Internal::CommunityWelcomePageWidget",
                         "<b>Forum Nokia</b><br /><font color='gray'>Mobile application support</font>"),
-      "http://www.forum.nokia.com/I_Want_To/Develop_Mobile_Applications/Technical_Support/"},
+      "http://www.forum.nokia.com/Support/"},
     { QT_TRANSLATE_NOOP("Welcome::Internal::CommunityWelcomePageWidget",
                         "<b>Qt LGPL Support</b><br /><font color='gray'>Buy commercial Qt support</font>"),
       "http://shop.qt.nokia.com/en/support.html"},
