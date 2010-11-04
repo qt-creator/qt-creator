@@ -177,4 +177,19 @@ void CustomColorDialog::setupWidgets()
     m_blockUpdate = false;
 }
 
+void CustomColorDialog::leaveEvent(QEvent *)
+{
+#ifdef Q_WS_MAC
+    unsetCursor();
+#endif
+}
+
+void CustomColorDialog::enterEvent(QEvent *)
+{
+#ifdef Q_WS_MAC
+    setCursor(Qt::ArrowCursor);
+#endif
+}
+
+
 } //QmlEditorWidgets
