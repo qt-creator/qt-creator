@@ -64,6 +64,8 @@ protected:
     void mouseReleaseEvent(QMouseEvent * event);
     void mouseMoveEvent(QMouseEvent * event);
     void virtual protectedMoved();
+    void leaveEvent(QEvent *);
+    void enterEvent(QEvent *);
 
 private:
     QGraphicsDropShadowEffect *m_dropShadowEffect;

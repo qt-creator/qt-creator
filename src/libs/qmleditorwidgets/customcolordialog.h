@@ -89,6 +89,8 @@ signals:
 
 protected:
     void setupWidgets();
+    void leaveEvent(QEvent *);
+    void enterEvent(QEvent *);
 
 private:
     QFrame *m_beforeColorWidget;

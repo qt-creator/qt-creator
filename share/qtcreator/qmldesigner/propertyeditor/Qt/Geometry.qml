@@ -63,7 +63,7 @@ GroupBox {
                     alignRight: false
                     spacing: 4
                     singleStep: 1;
-                    enabled: !anchorBackend.rightAnchored && !anchorBackend.horizontalCentered
+                    enabled: !(anchorBackend.rightAnchored && anchorBackend.leftAnchored)
                     backendValue: backendValues.width
                     minimum: -2000;
                     maximum: 2000;
@@ -76,7 +76,7 @@ GroupBox {
                     alignRight: false
                     spacing: 4
                     singleStep: 1;
-                    enabled: !anchorBackend.bottomAnchored && !anchorBackend.verticalCentered
+                    enabled: !(anchorBackend.bottomAnchored && anchorBackend.topAnchored)
                     backendValue: backendValues.height
                     minimum: -2000;
                     maximum: 2000;

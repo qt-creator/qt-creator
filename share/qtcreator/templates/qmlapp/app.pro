@@ -27,7 +27,7 @@ symbian:TARGET.UID3 = 0xE1111234
 # and 0x2002CCCF value if protected UID is given to the application
 #symbian:DEPLOYMENT.installer_header = 0x2002CCCF
 
-# Define QMLJSDEBUGGER to allow debugging of QML
+# Define QMLJSDEBUGGER to allow debugging of QML in debug builds
 # (This might significantly increase build time)
 # DEFINES += QMLJSDEBUGGER
 

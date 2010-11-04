@@ -356,8 +356,16 @@ void PropertyEditor::changeValue(const QString &propertyName)
         const QString newId = value->value().toString();
 
         if (m_selectedNode.isValidId(newId)) {
-            if (rewriterView())
-                rewriterView()->renameId(m_selectedNode.id(), newId);
+            if (m_selectedNode.id().isEmpty() || newId.isEmpty()) { //no id
+                try {
+                    m_selectedNode.setId(newId);
+                } catch (InvalidIdException &e) { //better save then sorry
+                    QMessageBox::warning(0, tr("Invalid Id"), e.description());
+                }
+            } else { //there is already an id, so we refactor
+                if (rewriterView())
+                    rewriterView()->renameId(m_selectedNode.id(), newId);
+            }
         } else {
             value->setValue(m_selectedNode.id());
             QMessageBox::warning(0, tr("Invalid Id"),  tr("%1 is an invalid id").arg(newId));

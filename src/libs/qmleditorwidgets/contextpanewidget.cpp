@@ -165,6 +165,20 @@ void DragWidget::protectedMoved()
 
 }
 
+void DragWidget::leaveEvent(QEvent *)
+{
+#ifdef Q_WS_MAC
+    unsetCursor();
+#endif
+}
+
+void DragWidget::enterEvent(QEvent *)
+{
+#ifdef Q_WS_MAC
+    setCursor(Qt::ArrowCursor);
+#endif
+}
+
 ContextPaneWidget::ContextPaneWidget(QWidget *parent) : DragWidget(parent), m_currentWidget(0)
 {
     QGridLayout *layout = new QGridLayout(this);
@@ -208,6 +222,9 @@ ContextPaneWidget::ContextPaneWidget(QWidget *parent) : DragWidget(parent), m_cu
     m_disableAction->setCheckable(true);
     connect(m_disableAction.data(), SIGNAL(toggled(bool)), this, SLOT(onDisable(bool)));
     m_pinned = false;
+#ifdef Q_WS_MAC
+    setCursor(Qt::ArrowCursor);
+#endif
 }
 
 ContextPaneWidget::~ContextPaneWidget()

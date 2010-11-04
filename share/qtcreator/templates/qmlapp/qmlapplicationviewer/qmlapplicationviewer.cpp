@@ -16,6 +16,10 @@
 #include <QtDeclarative/QDeclarativeEngine>
 #include <QtDeclarative/QDeclarativeContext>
 
+#if defined(QMLJSDEBUGGER)
+#include <qt_private/qdeclarativedebughelper_p.h>
+#endif
+
 #if defined(QMLJSDEBUGGER) && !defined(NO_JSDEBUGGER)
 #include <jsdebuggeragent.h>
 #endif
@@ -29,6 +33,22 @@
 #include <aknenv.h>
 #include <aknappui.h>
 #endif // Q_OS_SYMBIAN && ORIENTATIONLOCK
+
+#if defined(QMLJSDEBUGGER)
+
+// Enable debugging before any QDeclarativeEngine is created
+struct QmlJsDebuggingEnabler
+{
+    QmlJsDebuggingEnabler()
+    {
+        QDeclarativeDebugHelper::enableDebugging();
+    }
+};
+
+// Execute code in constructor before first QDeclarativeEngine is instantiated
+static QmlJsDebuggingEnabler enableDebuggingHelper;
+
+#endif // QMLJSDEBUGGER
 
 class QmlApplicationViewerPrivate
 {
