@@ -350,7 +350,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     }
     actSetWatchPointAtVariableAddress->setToolTip(
         tr("Setting a watchpoint on an address will cause the program "
-           "to stop when the data at the address it modified"));
+           "to stop when the data at the address it modified."));
 
     QString actionName = exp.isEmpty() ? tr("Watch Expression")
         : tr("Watch Expression \"%1\"").arg(exp);
