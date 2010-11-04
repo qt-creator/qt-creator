@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>230</width>
-    <height>100</height>
+    <width>233</width>
+    <height>94</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -36,7 +36,7 @@
     <widget class="QFontComboBox" name="fontComboBox">
      <property name="maximumSize">
       <size>
-       <width>120</width>
+       <width>140</width>
        <height>16777215</height>
       </size>
      </property>
@@ -45,10 +45,16 @@
    <item row="1" column="0" colspan="3">
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <property name="spacing">
-      <number>0</number>
+      <number>4</number>
      </property>
      <item>
       <widget class="QToolButton" name="boldButton">
+       <property name="minimumSize">
+        <size>
+         <width>30</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -65,6 +71,12 @@
      </item>
      <item>
       <widget class="QToolButton" name="italicButton">
+       <property name="minimumSize">
+        <size>
+         <width>30</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -81,6 +93,12 @@
      </item>
      <item>
       <widget class="QToolButton" name="underlineButton">
+       <property name="minimumSize">
+        <size>
+         <width>30</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -97,6 +115,12 @@
      </item>
      <item>
       <widget class="QToolButton" name="strikeoutButton">
+       <property name="minimumSize">
+        <size>
+         <width>30</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -125,7 +149,7 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <property name="spacing">
-         <number>0</number>
+         <number>4</number>
         </property>
         <item>
          <widget class="QToolButton" name="leftAlignmentButton">
@@ -232,7 +256,7 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <property name="spacing">
-         <number>0</number>
+         <number>4</number>
         </property>
         <item>
          <widget class="QToolButton" name="topAlignmentButton">
@@ -310,7 +334,7 @@
     <widget class="QComboBox" name="styleComboBox">
      <property name="maximumSize">
       <size>
-       <width>70</width>
+       <width>90</width>
        <height>16777215</height>
       </size>
      </property>
