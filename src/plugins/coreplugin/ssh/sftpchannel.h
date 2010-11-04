@@ -63,7 +63,8 @@ class SshSendFacility;
  * Operations are identified by their job id, which is returned by
  * the respective member function. If the function can right away detect that
  * the operation cannot succeed, it returns SftpInvalidJob. If an error occurs
- * later, the finishedWithError() signal is emitted for the respective job.
+ * later, the finished() signal is emitted for the respective job with a
+ * non-empty error string.
  * Note that directory names must not have a trailing slash.
  */
 class CORE_EXPORT SftpChannel : public QObject
