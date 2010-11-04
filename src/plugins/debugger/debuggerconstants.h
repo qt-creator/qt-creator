@@ -79,12 +79,6 @@ const char * const DOCKWIDGET_QML_SCRIPTCONSOLE = "Debugger.Docks.ScriptConsole"
 
 namespace Internal {
     enum { debug = 0 };
-#ifdef Q_OS_MAC
-    const char * const LD_PRELOAD_ENV_VAR = "DYLD_INSERT_LIBRARIES";
-#else
-    const char * const LD_PRELOAD_ENV_VAR = "LD_PRELOAD";
-#endif
-
 } // namespace Internal
 
 const char * const OPENED_BY_DEBUGGER         = "OpenedByDebugger";

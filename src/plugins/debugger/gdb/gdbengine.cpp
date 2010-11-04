@@ -1548,8 +1548,13 @@ void GdbEngine::pythonDumpersFailed()
     if (m_gdbAdapter->dumperHandling()
                 == AbstractGdbAdapter::DumperLoadedByGdbPreload
             && checkDebuggingHelpersClassic()) {
+#ifdef Q_OS_MAC
+        const char * const LD_PRELOAD_ENV_VAR = "DYLD_INSERT_LIBRARIES";
+#else
+        const char * const LD_PRELOAD_ENV_VAR = "LD_PRELOAD";
+#endif
         QByteArray cmd = "set environment ";
-        cmd += Debugger::Constants::Internal::LD_PRELOAD_ENV_VAR;
+        cmd += LD_PRELOAD_ENV_VAR;
         cmd += ' ';
         cmd += startParameters().startMode == StartRemoteGdb
            ? startParameters().remoteDumperLib
