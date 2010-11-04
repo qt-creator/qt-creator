@@ -44,7 +44,8 @@ namespace Internal {
 
 RemoteGdbProcess::RemoteGdbProcess(const Core::SshConnectionParameters &connParams,
     RemotePlainGdbAdapter *adapter, QObject *parent)
-    : AbstractGdbProcess(parent), m_connParams(connParams), m_adapter(adapter)
+    : AbstractGdbProcess(parent), m_connParams(connParams),
+      m_state(Inactive), m_adapter(adapter)
 {
 }
 
@@ -66,17 +67,19 @@ void RemoteGdbProcess::start(const QString &cmd, const QStringList &args)
 {
     Q_UNUSED(cmd);
     Q_UNUSED(args);
-    QTC_ASSERT(m_gdbStarted, return);
+    QTC_ASSERT(m_state == RunningGdb, return);
 }
 
 void RemoteGdbProcess::realStart(const QString &cmd, const QStringList &args,
     const QString &executableFilePath)
 {
+    QTC_ASSERT(m_state == Inactive, return);
+    setState(Connecting);
+
     m_command = cmd;
     m_cmdArgs = args;
     m_appOutputFileName = "app_output_"
         + QFileInfo(executableFilePath).fileName().toUtf8();
-    m_gdbStarted = false;
     m_error.clear();
     m_conn = SshConnection::create();
     connect(m_conn.data(), SIGNAL(connected()), this, SLOT(handleConnected()));
@@ -87,6 +90,12 @@ void RemoteGdbProcess::realStart(const QString &cmd, const QStringList &args,
 
 void RemoteGdbProcess::handleConnected()
 {
+    if (m_state == Inactive)
+        return;
+
+    QTC_ASSERT(m_state == Connecting, return);
+    setState(CreatingFifo);
+
     m_fifoCreator = m_conn->createRemoteProcess( "rm -f "
         + m_appOutputFileName + " && mkfifo " + m_appOutputFileName);
     connect(m_fifoCreator.data(), SIGNAL(closed(int)), this,
@@ -96,14 +105,20 @@ void RemoteGdbProcess::handleConnected()
 
 void RemoteGdbProcess::handleConnectionError()
 {
-    emitErrorExit(tr("Connection could not be established."));
+    if (m_state != Inactive)
+        emitErrorExit(tr("Connection failure: %1.").arg(m_conn->errorString()));
 }
 
 void RemoteGdbProcess::handleFifoCreationFinished(int exitStatus)
 {
+    if (m_state == Inactive)
+        return;
+    QTC_ASSERT(m_state == CreatingFifo, return);
+
     if (exitStatus != SshRemoteProcess::ExitedNormally) {
         emitErrorExit(tr("Could not create FIFO."));
     } else {
+        setState(StartingFifoReader);
         m_appOutputReader = m_conn->createRemoteProcess("cat "
             + m_appOutputFileName + " && rm -f " + m_appOutputFileName);
         connect(m_appOutputReader.data(), SIGNAL(started()), this,
@@ -116,6 +131,11 @@ void RemoteGdbProcess::handleFifoCreationFinished(int exitStatus)
 
 void RemoteGdbProcess::handleAppOutputReaderStarted()
 {
+    if (m_state == Inactive)
+        return;
+    QTC_ASSERT(m_state == StartingFifoReader, return);
+    setState(StartingGdb);
+
     connect(m_appOutputReader.data(), SIGNAL(outputAvailable(QByteArray)),
         this, SLOT(handleAppOutput(QByteArray)));
     QByteArray cmdLine = "DISPLAY=:0.0 " + m_command.toUtf8() + ' '
@@ -143,38 +163,48 @@ void RemoteGdbProcess::handleAppOutputReaderFinished(int exitStatus)
 
 void RemoteGdbProcess::handleGdbStarted()
 {
-    m_gdbStarted = true;
+    if (m_state == Inactive)
+        return;
+    QTC_ASSERT(m_state == StartingGdb, return);
+    setState(RunningGdb);
     emit started();
 }
 
 void RemoteGdbProcess::handleGdbFinished(int exitStatus)
 {
+    if (m_state == Inactive)
+        return;
+    QTC_ASSERT(m_state == RunningGdb, return);
+
     switch (exitStatus) {
     case SshRemoteProcess::FailedToStart:
         m_error = tr("Remote gdb failed to start.");
+        setState(Inactive);
         emit startFailed();
         break;
     case SshRemoteProcess::KilledBySignal:
         emitErrorExit(tr("Remote gdb crashed."));
         break;
     case SshRemoteProcess::ExitedNormally:
-        emit finished(m_gdbProc->exitCode(), QProcess::NormalExit);
+        const int exitCode = m_gdbProc->exitCode();
+        setState(Inactive);
+        emit finished(exitCode, QProcess::NormalExit);
         break;
     }
-    disconnect(m_conn.data(), 0, this, 0);
-    m_gdbProc = SshRemoteProcess::Ptr();
-    m_appOutputReader = SshRemoteProcess::Ptr();
-    m_conn->disconnectFromHost();
 }
 
 bool RemoteGdbProcess::waitForStarted()
 {
-    return m_error.isEmpty();
+    if (m_state == Inactive)
+        return false;
+    QTC_ASSERT(m_state == RunningGdb, return false);
+    return true;
 }
 
 qint64 RemoteGdbProcess::write(const QByteArray &data)
 {
-    if (!m_gdbStarted || !m_inputToSend.isEmpty() || !m_lastSeqNr.isEmpty())
+    if (m_state != RunningGdb || !m_inputToSend.isEmpty()
+            || !m_lastSeqNr.isEmpty())
         m_inputToSend.enqueue(data);
     else
         sendInput(data);
@@ -183,13 +213,19 @@ qint64 RemoteGdbProcess::write(const QByteArray &data)
 
 void RemoteGdbProcess::kill()
 {
-    SshRemoteProcess::Ptr killProc
-        = m_conn->createRemoteProcess("pkill -SIGKILL -x gdb");
-    killProc->start();
+    if (m_state == RunningGdb) {
+        SshRemoteProcess::Ptr killProc
+            = m_conn->createRemoteProcess("pkill -SIGKILL -x gdb");
+        killProc->start();
+    } else {
+        setState(Inactive);
+    }
 }
 
 void RemoteGdbProcess::interruptInferior()
 {
+    QTC_ASSERT(m_state == RunningGdb, return);
+
     SshRemoteProcess::Ptr intProc
         = m_conn->createRemoteProcess("pkill -x -SIGINT gdb");
     intProc->start();
@@ -197,7 +233,11 @@ void RemoteGdbProcess::interruptInferior()
 
 QProcess::ProcessState RemoteGdbProcess::state() const
 {
-    return m_gdbStarted ? QProcess::Running : QProcess::Starting;
+    switch (m_state) {
+    case RunningGdb: return QProcess::Running;
+    case Inactive: return QProcess::NotRunning;
+    default: return QProcess::Starting;
+    }
 }
 
 QString RemoteGdbProcess::errorString() const
@@ -207,6 +247,10 @@ QString RemoteGdbProcess::errorString() const
 
 void RemoteGdbProcess::handleGdbOutput(const QByteArray &output)
 {
+    if (m_state == Inactive)
+        return;
+    QTC_ASSERT(m_state == RunningGdb, return);
+
     // TODO: Carriage return removal still necessary?
     m_currentGdbOutput += removeCarriageReturn(output);
 #if 0
@@ -269,6 +313,8 @@ int RemoteGdbProcess::findAnchor(const QByteArray &data) const
 
 void RemoteGdbProcess::sendInput(const QByteArray &data)
 {
+    QTC_ASSERT(m_state == RunningGdb, return);
+
     int pos;
     for (pos = 0; pos < data.size(); ++pos)
         if (!isdigit(data.at(pos)))
@@ -279,13 +325,16 @@ void RemoteGdbProcess::sendInput(const QByteArray &data)
 
 void RemoteGdbProcess::handleAppOutput(const QByteArray &output)
 {
-    m_adapter->handleApplicationOutput(output);
+    if (m_state == RunningGdb)
+        m_adapter->handleApplicationOutput(output);
 }
 
 void RemoteGdbProcess::handleErrOutput(const QByteArray &output)
 {
-    m_errorOutput += output;
-    emit readyReadStandardError();
+    if (m_state == RunningGdb) {
+        m_errorOutput += output;
+        emit readyReadStandardError();
+    }
 }
 
 QByteArray RemoteGdbProcess::removeCarriageReturn(const QByteArray &data)
@@ -303,7 +352,31 @@ void RemoteGdbProcess::emitErrorExit(const QString &error)
 {
     if (m_error.isEmpty()) {
         m_error = error;
+        setState(Inactive);
         emit finished(-1, QProcess::CrashExit);
+    }
+}
+
+void RemoteGdbProcess::setState(State newState)
+{
+    if (m_state == newState)
+        return;
+    m_state = newState;
+    if (m_state == Inactive) {
+        if (m_gdbProc) {
+            disconnect(m_gdbProc.data(), 0, this, 0);
+            m_gdbProc = SshRemoteProcess::Ptr();
+        }
+        if (m_appOutputReader) {
+            disconnect(m_appOutputReader.data(), 0, this, 0);
+            m_appOutputReader = SshRemoteProcess::Ptr();
+        }
+        if (m_fifoCreator) {
+            disconnect(m_fifoCreator.data(), 0, this, 0);
+            m_fifoCreator = SshRemoteProcess::Ptr();
+        }
+        disconnect(m_conn.data(), 0, this, 0);
+        m_conn->disconnectFromHost();
     }
 }
 

@@ -89,12 +89,18 @@ private slots:
     void handleErrOutput(const QByteArray &output);
 
 private:
+    enum State {
+        Inactive, Connecting, CreatingFifo, StartingFifoReader,
+        StartingGdb, RunningGdb,
+    };
+
     static QByteArray readerCmdLine(const QByteArray &file);
 
     int findAnchor(const QByteArray &data) const;
     void sendInput(const QByteArray &data);
     QByteArray removeCarriageReturn(const QByteArray &data);
     void emitErrorExit(const QString &error);
+    void setState(State newState);
 
     Core::SshConnectionParameters m_connParams;
     Core::SshConnection::Ptr m_conn;
@@ -110,8 +116,8 @@ private:
     QByteArray m_currentGdbOutput;
     QByteArray m_lastSeqNr;
     QString m_error;
-    bool m_gdbStarted;
     QByteArray m_appOutputFileName;
+    State m_state;
 
     RemotePlainGdbAdapter *m_adapter;
 };
