@@ -491,9 +491,12 @@ def listOfLocals(varList):
                 item = Item(0, "local", name, name)
                 try:
                     item.value = frame.read_var(name)  # this is a gdb value
-                except RuntimeError:
-                    # happens for  void foo() { std::string s; std::wstring w; }
-                    #warn("  FRAME READ VAR ERROR: %s (%s): " % (symbol, name))
+                except:
+                    # RuntimeError: happens for
+                    #     void foo() { std::string s; std::wstring w; }
+                    # ValueError: happens for (as of 2010/11/4)
+                    #     a local struct as found e.g. in
+                    #     gcc sources in gcc.c, int execute()
                     continue
                 #warn("ITEM %s: " % item.value)
                 items.append(item)
