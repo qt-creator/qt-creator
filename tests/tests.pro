@@ -1,3 +1,2 @@
 TEMPLATE=subdirs
-SUBDIRS += auto \
-            manual
+SUBDIRS += auto manual tools

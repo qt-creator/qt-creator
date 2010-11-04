@@ -6,8 +6,7 @@ cplusplus-dump \
 fakevim \
 gdbdebugger \
 preprocessor \
-subdir_proparser \
-trklauncher
+subdir_proparser
 
 unix {
 #   Uses popen
