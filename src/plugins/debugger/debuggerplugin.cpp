@@ -879,7 +879,7 @@ public slots:
     }
 
     void onAction();
-    void setSimpleDockWidgetArrangement(const DebuggerLanguages &activeLanguages);
+    void setSimpleDockWidgetArrangement(Debugger::DebuggerLanguages activeLanguages);
 
     void editorOpened(Core::IEditor *editor);
     void editorAboutToClose(Core::IEditor *editor);
@@ -2177,7 +2177,7 @@ void DebuggerPluginPrivate::setBusyCursor(bool busy)
 }
 
 void DebuggerPluginPrivate::setSimpleDockWidgetArrangement
-    (const DebuggerLanguages &activeLanguages)
+    (Debugger::DebuggerLanguages activeLanguages)
 {
     Debugger::DebuggerUISwitcher *uiSwitcher = DebuggerUISwitcher::instance();
     DebuggerMainWindow *mw = mainWindow();

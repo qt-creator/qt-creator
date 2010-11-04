@@ -117,7 +117,7 @@ signals:
     // emit when user changes active languages from the menu.
     // Both UI and debugger startup are affected.
     void activeLanguagesChanged(Debugger::DebuggerLanguages activeLanguages);
-    void dockResetRequested(const Debugger::DebuggerLanguages &activeLanguages);
+    void dockResetRequested(Debugger::DebuggerLanguages activeLanguages);
     void memoryEditorRequested();
 
 private slots:
