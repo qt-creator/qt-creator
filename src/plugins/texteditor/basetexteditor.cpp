@@ -42,6 +42,7 @@
 #include "syntaxhighlighter.h"
 #include "tooltip.h"
 #include "tipcontents.h"
+#include "indenter.h"
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -1875,6 +1876,17 @@ void BaseTextEditor::setVisibleWrapColumn(int column)
 int BaseTextEditor::visibleWrapColumn() const
 {
     return d->m_visibleWrapColumn;
+}
+
+void BaseTextEditor::setIndenter(Indenter *indenter)
+{
+    // clear out existing code formatter data
+    for (QTextBlock it = document()->begin(); it.isValid(); it = it.next()) {
+        TextEditor::TextBlockUserData *userData = BaseTextDocumentLayout::testUserData(it);
+        if (userData)
+            userData->setCodeFormatterData(0);
+    }
+    d->m_indenter.reset(indenter);
 }
 
 //--------- BaseTextEditorPrivate -----------
@@ -3995,8 +4007,10 @@ void BaseTextEditor::zoomReset()
     emit requestZoomReset();
 }
 
-bool BaseTextEditor::isElectricCharacter(QChar) const
+bool BaseTextEditor::isElectricCharacter(QChar ch) const
 {
+    if (!d->m_indenter.isNull())
+        return d->m_indenter->isElectricCharacter(ch);
     return false;
 }
 
@@ -4256,58 +4270,25 @@ int BaseTextEditor::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor)
     return 1;
 }
 
-void BaseTextEditor::indentBlock(QTextDocument *, QTextBlock, QChar)
+void BaseTextEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar ch)
 {
+    if (!d->m_indenter.isNull())
+        d->m_indenter->indentBlock(doc, block, ch, this);
 }
 
 void BaseTextEditor::indent(QTextDocument *doc, const QTextCursor &cursor, QChar typedChar)
 {
     maybeClearSomeExtraSelections(cursor);
-    if (cursor.hasSelection()) {
-        QTextBlock block = doc->findBlock(cursor.selectionStart());
-        const QTextBlock end = doc->findBlock(cursor.selectionEnd()).next();
-        do {
-            indentBlock(doc, block, typedChar);
-            block = block.next();
-        } while (block.isValid() && block != end);
-    } else {
-        indentBlock(doc, cursor.block(), typedChar);
-    }
+    if (!d->m_indenter.isNull())
+        d->m_indenter->indent(doc, cursor, typedChar, this);
 }
 
 void BaseTextEditor::reindent(QTextDocument *doc, const QTextCursor &cursor)
 {
     maybeClearSomeExtraSelections(cursor);
-    if (cursor.hasSelection()) {
-        QTextBlock block = doc->findBlock(cursor.selectionStart());
-        const QTextBlock end = doc->findBlock(cursor.selectionEnd()).next();
-
-        const TabSettings &ts = d->m_document->tabSettings();
-
-        // skip empty blocks
-        while (block.isValid() && block != end) {
-            QString bt = block.text();
-            if (ts.firstNonSpace(bt) < bt.size())
-                break;
-            indentBlock(doc, block, QChar::Null);
-            block = block.next();
-        }
-
-        int previousIndentation = ts.indentationColumn(block.text());
-        indentBlock(doc, block, QChar::Null);
-        int currentIndentation = ts.indentationColumn(block.text());
-        int delta = currentIndentation - previousIndentation;
-
-        block = block.next();
-        while (block.isValid() && block != end) {
-            ts.reindentLine(block, delta);
-            block = block.next();
-        }
-    } else {
-        indentBlock(doc, cursor.block(), QChar::Null);
-    }
+    if (!d->m_indenter.isNull())
+        d->m_indenter->reindent(doc, cursor, this);
 }
-
 
 BaseTextEditor::Link BaseTextEditor::findLinkAt(const QTextCursor &, bool)
 {

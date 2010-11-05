@@ -34,7 +34,8 @@ HEADERS += \
     qmljscomponentnamedialog.h \
     qmljsfindreferences.h \
     qmljseditoreditable.h \
-    qmljssemantichighlighter.h
+    qmljssemantichighlighter.h \
+    qmljsindenter.h
 
 SOURCES += \
     qmljscodecompletion.cpp \
@@ -62,7 +63,8 @@ SOURCES += \
     qmljscomponentnamedialog.cpp \
     qmljsfindreferences.cpp \
     qmljseditoreditable.cpp \
-    qmljssemantichighlighter.cpp
+    qmljssemantichighlighter.cpp \
+    qmljsindenter.cpp
 
 RESOURCES += qmljseditor.qrc
 OTHER_FILES += QmlJSEditor.mimetypes.xml

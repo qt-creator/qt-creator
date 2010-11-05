@@ -27,53 +27,29 @@
 **
 **************************************************************************/
 
-#ifndef INDENTER_H
-#define INDENTER_H
+#ifndef QMLJSINDENTER_H
+#define QMLJSINDENTER_H
 
-#include "texteditor_global.h"
+#include <texteditor/indenter.h>
 
-#include <QtCore/QChar>
-#include <QtGui/QTextBlock>
+namespace QmlJSEditor {
+namespace Internal {
 
-QT_BEGIN_NAMESPACE
-class QTextDocument;
-class QTextCursor;
-QT_END_NAMESPACE
-
-namespace TextEditor {
-
-class BaseTextEditor;
-
-class TEXTEDITOR_EXPORT Indenter
+class Indenter : public TextEditor::Indenter
 {
 public:
     Indenter();
     virtual ~Indenter();
-
-    bool isElectricCharacter(const QChar &ch) const;
-    void indentBlock(QTextDocument *doc,
-                     const QTextBlock &block,
-                     const QChar &typedChar,
-                     BaseTextEditor *editor);
-    void indent(QTextDocument *doc,
-                const QTextCursor &cursor,
-                const QChar &typedChar,
-                BaseTextEditor *editor);
-    void reindent(QTextDocument *doc, const QTextCursor &cursor, BaseTextEditor *editor);
 
 private:
     virtual bool doIsElectricalCharacter(const QChar &ch) const;
     virtual void doIndentBlock(QTextDocument *doc,
                                const QTextBlock &block,
                                const QChar &typedChar,
-                               BaseTextEditor *editor) = 0;
-    virtual void doIndent(QTextDocument *doc,
-                          const QTextCursor &cursor,
-                          const QChar &typedChar,
-                          BaseTextEditor *editor);
-    virtual void doReindent(QTextDocument *doc, const QTextCursor &cursor, BaseTextEditor *editor);
+                               TextEditor::BaseTextEditor *editor);
 };
 
-} // namespace TextEditor
+} // Internal
+} // QmlJSEditor
 
-#endif // INDENTER_H
+#endif // QMLJSINDENTER_H

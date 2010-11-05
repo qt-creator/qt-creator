@@ -38,6 +38,7 @@
 #include "qmloutlinemodel.h"
 #include "qmljsfindreferences.h"
 #include "qmljssemantichighlighter.h"
+#include "qmljsindenter.h"
 
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljsdocument.h>
@@ -645,6 +646,7 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     setMarksVisible(true);
     setCodeFoldingSupported(true);
     setCodeFoldingVisible(true);
+    setIndenter(new Indenter);
 
     m_updateDocumentTimer = new QTimer(this);
     m_updateDocumentTimer->setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
@@ -1262,15 +1264,6 @@ QString QmlJSTextEditor::wordUnderCursor() const
     return word;
 }
 
-bool QmlJSTextEditor::isElectricCharacter(QChar ch) const
-{
-    if (ch == QLatin1Char('}')
-            || ch == QLatin1Char(']')
-            || ch == QLatin1Char(':'))
-        return true;
-    return false;
-}
-
 bool QmlJSTextEditor::isClosingBrace(const QList<Token> &tokens) const
 {
 
@@ -1281,19 +1274,6 @@ bool QmlJSTextEditor::isClosingBrace(const QList<Token> &tokens) const
     }
 
     return false;
-}
-
-void QmlJSTextEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar)
-{
-    Q_UNUSED(doc)
-    Q_UNUSED(typedChar)
-
-    const TextEditor::TabSettings &ts = tabSettings();
-    QmlJSEditor::QtStyleCodeFormatter codeFormatter(ts);
-
-    codeFormatter.updateStateUntil(block);
-    const int depth = codeFormatter.indentFor(block);
-    ts.indentLine(block, depth);
 }
 
 TextEditor::BaseTextEditorEditable *QmlJSTextEditor::createEditableInterface()

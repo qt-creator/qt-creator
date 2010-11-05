@@ -42,6 +42,7 @@
 #include <QtCore/QBasicTimer>
 #include <QtCore/QSharedData>
 #include <QtCore/QPointer>
+#include <QtCore/QScopedPointer>
 
 #include <QtGui/QPixmap>
 #include <QtGui/QTextEdit>
@@ -292,6 +293,8 @@ public:
 
     QPointer<BaseTextEditorAnimator> m_animator;
     int m_cursorBlockNumber;
+
+    QScopedPointer<Indenter> m_indenter;
 };
 
 } // namespace Internal

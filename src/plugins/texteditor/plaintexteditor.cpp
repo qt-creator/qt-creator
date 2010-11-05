@@ -63,13 +63,13 @@ PlainTextEditorEditable::PlainTextEditorEditable(PlainTextEditor *editor)
 PlainTextEditor::PlainTextEditor(QWidget *parent)
   : BaseTextEditor(parent),
   m_isMissingSyntaxDefinition(false),
-  m_ignoreMissingSyntaxDefinition(false),
-  m_indenter(new NormalIndenter) // Currently only "normal" indentation is supported.
+  m_ignoreMissingSyntaxDefinition(false)
 {
     setRevisionsVisible(true);
     setMarksVisible(true);
     setRequestMarkEnabled(false);
     setLineSeparatorsAllowed(true);
+    setIndenter(new NormalIndenter); // Currently only "normal" indentation is supported.
 
     setMimeType(QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
     setDisplayName(tr(Core::Constants::K_DEFAULT_TEXT_EDITOR_DISPLAY_NAME));
@@ -228,11 +228,6 @@ QString PlainTextEditor::findDefinitionId(const Core::MimeType &mimeType,
         }
     }
     return definitionId;
-}
-
-void PlainTextEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar)
-{
-    m_indenter->indentBlock(doc, block, typedChar, tabSettings());
 }
 
 void PlainTextEditor::acceptMissingSyntaxDefinitionInfo()

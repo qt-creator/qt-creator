@@ -35,6 +35,7 @@
 #include "cppquickfix.h"
 #include "cpplocalsymbols.h"
 #include "cppquickfixcollector.h"
+#include "cppqtstyleindenter.h"
 
 #include <AST.h>
 #include <Control.h>
@@ -414,6 +415,7 @@ CPPEditor::CPPEditor(QWidget *parent)
     setMarksVisible(true);
     setCodeFoldingSupported(true);
     setCodeFoldingVisible(true);
+    setIndenter(new CppQtStyleIndenter);
     baseTextDocument()->setSyntaxHighlighter(new CppHighlighter);
 
     m_modelManager = CppTools::CppModelManagerInterface::instance();
@@ -1405,17 +1407,6 @@ QModelIndex CPPEditor::outlineModelIndex()
     return m_outlineModelIndex;
 }
 
-bool CPPEditor::isElectricCharacter(QChar ch) const
-{
-    if (ch == QLatin1Char('{') ||
-        ch == QLatin1Char('}') ||
-        ch == QLatin1Char(':') ||
-        ch == QLatin1Char('#')) {
-        return true;
-    }
-    return false;
-}
-
 QString CPPEditor::insertMatchingBrace(const QTextCursor &tc, const QString &text,
                                        QChar la, int *skippedChars) const
 {
@@ -1498,61 +1489,6 @@ bool CPPEditor::isInComment(const QTextCursor &cursor) const
     }
 
     return false;
-}
-
-void CPPEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar)
-{
-    Q_UNUSED(doc)
-
-    const TabSettings &ts = tabSettings();
-    CppTools::QtStyleCodeFormatter codeFormatter(ts);
-
-    codeFormatter.updateStateUntil(block);
-    int indent;
-    int padding;
-    codeFormatter.indentFor(block, &indent, &padding);
-
-    // only reindent the current line when typing electric characters if the
-    // indent is the same it would be if the line were empty
-    if (isElectricCharacter(typedChar)) {
-        int newlineIndent;
-        int newlinePadding;
-        codeFormatter.indentForNewLineAfter(block.previous(), &newlineIndent, &newlinePadding);
-        if (ts.indentationColumn(block.text()) != newlineIndent + newlinePadding)
-            return;
-    }
-
-    ts.indentLine(block, indent + padding, padding);
-}
-
-void CPPEditor::indent(QTextDocument *doc, const QTextCursor &cursor, QChar typedChar)
-{
-    Q_UNUSED(doc)
-    Q_UNUSED(typedChar)
-
-    maybeClearSomeExtraSelections(cursor);
-    if (cursor.hasSelection()) {
-        QTextBlock block = doc->findBlock(cursor.selectionStart());
-        const QTextBlock end = doc->findBlock(cursor.selectionEnd()).next();
-
-        const TabSettings &ts = tabSettings();
-        CppTools::QtStyleCodeFormatter codeFormatter(ts);
-        codeFormatter.updateStateUntil(block);
-
-        QTextCursor tc = textCursor();
-        tc.beginEditBlock();
-        do {
-            int indent;
-            int padding;
-            codeFormatter.indentFor(block, &indent, &padding);
-            ts.indentLine(block, indent + padding, padding);
-            codeFormatter.updateLineStateChange(block);
-            block = block.next();
-        } while (block.isValid() && block != end);
-        tc.endEditBlock();
-    } else {
-        indentBlock(doc, cursor.block(), typedChar);
-    }
 }
 
 bool CPPEditor::event(QEvent *e)

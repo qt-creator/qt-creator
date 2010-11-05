@@ -27,26 +27,48 @@
 **
 **************************************************************************/
 
-#ifndef NORMALINDENTER_H
-#define NORMALINDENTER_H
+#include "qmljsindenter.h"
+#include "qmljseditorcodeformatter.h"
 
-#include "indenter.h"
+#include <texteditor/basetexteditor.h>
+#include <texteditor/tabsettings.h>
 
-namespace TextEditor {
+#include <QtCore/QChar>
+#include <QtGui/QTextDocument>
+#include <QtGui/QTextBlock>
+#include <QtGui/QTextCursor>
 
-class TEXTEDITOR_EXPORT NormalIndenter : public Indenter
+using namespace QmlJSEditor;
+using namespace Internal;
+
+Indenter::Indenter()
+{}
+
+Indenter::~Indenter()
+{}
+
+bool Indenter::doIsElectricalCharacter(const QChar &ch) const
 {
-public:
-    NormalIndenter();
-    virtual ~NormalIndenter();
+    if (ch == QLatin1Char('}')
+            || ch == QLatin1Char(']')
+            || ch == QLatin1Char(':'))
+        return true;
+    return false;
+}
 
-private:
-    virtual void doIndentBlock(QTextDocument *doc,
-                               const QTextBlock &block,
-                               const QChar &typedChar,
-                               BaseTextEditor *editor);
-};
+void Indenter::doIndentBlock(QTextDocument *doc,
+                             const QTextBlock &block,
+                             const QChar &typedChar,
+                             TextEditor::BaseTextEditor *editor)
+{
+    Q_UNUSED(doc)
+    Q_UNUSED(typedChar)
+    Q_UNUSED(editor)
 
-} // namespace TextEditor
+    const TextEditor::TabSettings &ts = editor->tabSettings();
+    QtStyleCodeFormatter codeFormatter(ts);
 
-#endif // NORMALINDENTER_H
+    codeFormatter.updateStateUntil(block);
+    const int depth = codeFormatter.indentFor(block);
+    ts.indentLine(block, depth);
+}

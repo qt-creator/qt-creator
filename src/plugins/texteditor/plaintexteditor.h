@@ -89,14 +89,12 @@ signals:
 
 protected:
     virtual BaseTextEditorEditable *createEditableInterface() { return new PlainTextEditorEditable(this); }    
-    virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
 
 private:
     QString findDefinitionId(const Core::MimeType &mimeType, bool considerParents) const;
 
     bool m_isMissingSyntaxDefinition;
     bool m_ignoreMissingSyntaxDefinition;
-    QScopedPointer<Indenter> m_indenter;
     Utils::CommentDefinition m_commentDefinition;
 };
 

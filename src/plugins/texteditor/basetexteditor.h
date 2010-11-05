@@ -68,6 +68,7 @@ class BehaviorSettings;
 class CompletionSettings;
 class DisplaySettings;
 class StorageSettings;
+class Indenter;
 
 class TEXTEDITOR_EXPORT BaseTextEditorAnimator : public QObject
 {
@@ -221,6 +222,8 @@ public:
     int verticalBlockSelectionLastColumn() const;
 
     QRegion translatedLineRegion(int lineStart, int lineEnd) const;
+
+    void setIndenter(Indenter *indenter);
 
 public slots:
     void setDisplayName(const QString &title);
@@ -409,17 +412,16 @@ protected:
     void dragEnterEvent(QDragEnterEvent *e);
 
 public:
-    // Returns true if key triggers an indent.
-    virtual bool isElectricCharacter(QChar ch) const;
-
-    void indentInsertedText(const QTextCursor &tc);
-
     // Returns the text to complete at the cursor position, or an empty string
     virtual QString autoComplete(QTextCursor &cursor, const QString &text) const;
     // Handles backspace. When returning true, backspace processing is stopped
     virtual bool autoBackspace(QTextCursor &cursor);
     // Hook to insert special characters on enter. Returns the number of extra blocks inserted.
     virtual int paragraphSeparatorAboutToBeInserted(QTextCursor &cursor);
+
+    void indentInsertedText(const QTextCursor &tc);
+    // Returns true if key triggers an indent.
+    virtual bool isElectricCharacter(QChar ch) const;
     // Indent a text block based on previous line. Default does nothing
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
     // Indent at cursor. Calls indentBlock for selection or current line.

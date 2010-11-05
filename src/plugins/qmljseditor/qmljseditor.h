@@ -210,8 +210,6 @@ protected:
     virtual QString insertParagraphSeparator(const QTextCursor &tc) const;
 
 private:
-    virtual bool isElectricCharacter(QChar ch) const;
-    virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
     bool isClosingBrace(const QList<QmlJS::Token> &tokens) const;
 
     void setSelectedElements();

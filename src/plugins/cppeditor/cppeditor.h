@@ -207,9 +207,6 @@ protected:
 
     TextEditor::BaseTextEditorEditable *createEditableInterface();
 
-    // These override BaseTextEditor
-    virtual bool isElectricCharacter(QChar ch) const;
-
     virtual QString insertMatchingBrace(const QTextCursor &tc, const QString &text,
                                         QChar la, int *skippedChars) const;
 
@@ -252,8 +249,6 @@ private:
     void markSymbols(const QTextCursor &tc, const SemanticInfo &info);
     bool sortedOutline() const;
     CPlusPlus::Symbol *findDefinition(CPlusPlus::Symbol *symbol, const CPlusPlus::Snapshot &snapshot);
-    virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
-    virtual void indent(QTextDocument *doc, const QTextCursor &cursor, QChar typedChar);
 
     TextEditor::ITextEditor *openCppEditorAt(const QString &fileName, int line,
                                              int column = 0);
