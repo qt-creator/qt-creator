@@ -41,7 +41,6 @@ class StackWindow : public QTreeView
 
 public:
     explicit StackWindow(QWidget *parent = 0);
-    ~StackWindow();
 
 public slots:
     void resizeColumnsToContents();
@@ -56,10 +55,6 @@ private slots:
 private:
     void contextMenuEvent(QContextMenuEvent *ev);
     void copyContentsToClipboard();
-
-    void setModelData(int role, const QVariant &value = QVariant(),
-        const QModelIndex &index = QModelIndex());
-    QVariant modelData(int role, const QModelIndex &index = QModelIndex());
 
     bool m_alwaysResizeColumnsToContents;
 };

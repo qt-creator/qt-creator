@@ -224,10 +224,10 @@ public:
         m_lastGoodState(DebuggerNotReady),
         m_targetState(DebuggerNotReady),
         m_commandHandler(engine),
-        m_modulesHandler(engine),
+        m_modulesHandler(),
         m_registerHandler(),
-        m_sourceFilesHandler(engine),
-        m_stackHandler(engine),
+        m_sourceFilesHandler(),
+        m_stackHandler(),
         m_threadsHandler(),
         m_watchHandler(engine),
         m_disassemblerViewAgent(engine),
@@ -248,25 +248,29 @@ public slots:
     void doInterruptInferior();
     void doFinishDebugger();
 
-    void queueRunEngine() {
+    void queueRunEngine()
+    {
         m_engine->setState(EngineRunRequested);
         m_engine->showMessage(_("QUEUE: RUN ENGINE"));
         QTimer::singleShot(0, this, SLOT(doRunEngine()));
     }
 
-    void queueShutdownEngine() {
+    void queueShutdownEngine()
+    {
         m_engine->setState(EngineShutdownRequested);
         m_engine->showMessage(_("QUEUE: SHUTDOWN ENGINE"));
         QTimer::singleShot(0, this, SLOT(doShutdownEngine()));
     }
 
-    void queueShutdownInferior() {
+    void queueShutdownInferior()
+    {
         m_engine->setState(InferiorShutdownRequested);
         m_engine->showMessage(_("QUEUE: SHUTDOWN INFERIOR"));
         QTimer::singleShot(0, this, SLOT(doShutdownInferior()));
     }
 
-    void queueFinishDebugger() {
+    void queueFinishDebugger()
+    {
         QTC_ASSERT(state() == EngineShutdownOk
             || state() == EngineShutdownFailed, qDebug() << state());
         m_engine->setState(DebuggerFinished);
@@ -274,7 +278,8 @@ public slots:
         QTimer::singleShot(0, this, SLOT(doFinishDebugger()));
     }
 
-    void raiseApplication() {
+    void raiseApplication()
+    {
         QTC_ASSERT(m_runControl, return);
         m_runControl->bringApplicationToForeground(m_inferiorPid);
     }
@@ -514,30 +519,9 @@ void DebuggerEngine::removeTooltip()
 
 void DebuggerEngine::handleCommand(int role, const QVariant &value)
 {
-    if (role != RequestToolTipByExpressionRole)
-        removeTooltip();
+    removeTooltip();
 
     switch (role) {
-        case RequestActivateFrameRole:
-            activateFrame(value.toInt());
-            break;
-
-        case RequestReloadFullStackRole:
-            reloadFullStack();
-            break;
-
-        case RequestReloadSourceFilesRole:
-            reloadSourceFiles();
-            break;
-
-        case RequestReloadModulesRole:
-            reloadModules();
-            break;
-
-        //case RequestReloadRegistersRole:
-        //    reloadRegisters();
-        //    break;
-
         case RequestExecDetachRole:
             detachDebugger();
             break;
@@ -590,10 +574,6 @@ void DebuggerEngine::handleCommand(int role, const QVariant &value)
             d->queueShutdownInferior();
             break;
 
-        case RequestCreateSnapshotRole:
-            createSnapshot();
-            break;
-
         case RequestActivationRole:
             setActive(value.toBool());
             break;
@@ -614,27 +594,10 @@ void DebuggerEngine::handleCommand(int role, const QVariant &value)
             executeDebuggerCommand(value.toString());
             break;
 
-        case RequestToolTipByExpressionRole: {
-            QList<QVariant> list = value.toList();
-            QTC_ASSERT(list.size() == 3, break);
-            QPoint point = list.at(0).value<QPoint>();
-            TextEditor::ITextEditor *editor = // Eeks.
-                (TextEditor::ITextEditor *)(list.at(1).value<quint64>());
-            int pos = list.at(2).toInt();
-            setToolTipExpression(point, editor, pos);
-            break;
-        }
-
         case RequestContextMenuRole: {
             QList<QVariant> list = value.toList();
             QTC_ASSERT(list.size() == 3, break);
             d->handleContextMenuRequest(list);
-            break;
-        }
-
-        case RequestShowMemoryRole: {
-            qDebug() << "CREATING MEMORY VIEW";
-            (void) MemoryViewAgent(this, "0x0");
             break;
         }
     }

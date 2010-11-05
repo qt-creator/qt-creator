@@ -31,6 +31,8 @@
 
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
+#include "debuggerengine.h"
+#include "debuggerplugin.h"
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
@@ -42,6 +44,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QResizeEvent>
 
+
 //////////////////////////////////////////////////////////////////
 //
 // SourceFilesWindow
@@ -50,6 +53,11 @@
 
 namespace Debugger {
 namespace Internal {
+
+static DebuggerEngine *currentEngine()
+{
+    return DebuggerPlugin::instance()->currentEngine();
+}
 
 SourceFilesWindow::SourceFilesWindow(QWidget *parent)
     : QTreeView(parent)
@@ -66,14 +74,14 @@ SourceFilesWindow::SourceFilesWindow(QWidget *parent)
     //header()->setDefaultAlignment(Qt::AlignLeft);
 
     connect(this, SIGNAL(activated(QModelIndex)),
-        this, SLOT(sourceFileActivated(QModelIndex)));
+        SLOT(sourceFileActivated(QModelIndex)));
     connect(act, SIGNAL(toggled(bool)),
-        this, SLOT(setAlternatingRowColorsHelper(bool)));
+        SLOT(setAlternatingRowColorsHelper(bool)));
 }
 
 void SourceFilesWindow::sourceFileActivated(const QModelIndex &index)
 {
-    setModelData(RequestOpenFileRole, index.data());
+    currentEngine()->openFile(index.data().toString());
 }
 
 void SourceFilesWindow::contextMenuEvent(QContextMenuEvent *ev)
@@ -81,7 +89,7 @@ void SourceFilesWindow::contextMenuEvent(QContextMenuEvent *ev)
     QModelIndex index = indexAt(ev->pos());
     index = index.sibling(index.row(), 0);
     QString name = index.data().toString();
-    bool engineActionsEnabled = index.data(EngineActionsEnabledRole).toBool();
+    bool engineActionsEnabled = currentEngine()->debuggerActionsEnabled();
 
     QMenu menu;
     QAction *act1 = new QAction(tr("Reload Data"), &menu);
@@ -105,9 +113,9 @@ void SourceFilesWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *act = menu.exec(ev->globalPos());
 
     if (act == act1)
-        setModelData(RequestReloadSourceFilesRole);
+        currentEngine()->reloadSourceFiles();
     else if (act == act2)
-        setModelData(RequestOpenFileRole, name);
+        currentEngine()->openFile(name);
 }
 
 void SourceFilesWindow::setModelData

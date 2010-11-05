@@ -48,12 +48,10 @@ namespace Internal {
 //
 ////////////////////////////////////////////////////////////////////////
 
-StackHandler::StackHandler(DebuggerEngine *engine)
+StackHandler::StackHandler()
   : m_positionIcon(QIcon(QLatin1String(":/debugger/images/location_16.png"))),
     m_emptyIcon(QIcon(QLatin1String(":/debugger/images/debugger_empty_14.png")))
 {
-    m_engine = engine;
-    m_disassemblerViewAgent = new DisassemblerViewAgent(engine);
     m_currentIndex = 0;
     m_canExpand = false;
     connect(theDebuggerAction(OperateByInstruction), SIGNAL(triggered()),
@@ -62,7 +60,6 @@ StackHandler::StackHandler(DebuggerEngine *engine)
 
 StackHandler::~StackHandler()
 {
-    delete m_disassemblerViewAgent;
 }
 
 int StackHandler::rowCount(const QModelIndex &parent) const
@@ -78,17 +75,6 @@ int StackHandler::columnCount(const QModelIndex &parent) const
 
 QVariant StackHandler::data(const QModelIndex &index, int role) const
 {
-    switch (role) {
-        case EngineStateRole:
-            return m_engine->state();
-
-        case EngineCapabilitiesRole:
-            return m_engine->debuggerCapabilities();
-
-        case EngineActionsEnabledRole:
-            return m_engine->debuggerActionsEnabled();
-    }
-
     if (!index.isValid() || index.row() >= m_stackFrames.size() + m_canExpand)
         return QVariant();
 
@@ -127,38 +113,12 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
         return (index.row() == m_currentIndex) ? m_positionIcon : m_emptyIcon;
     }
 
-    if (role == StackFrameAddressRole)
-        return frame.address;
-
     if (role == Qt::ToolTipRole)
         return frame.toToolTip();
 
     return QVariant();
 }
 
-
-bool StackHandler::setData(const QModelIndex &index, const QVariant &value, int role)
-{
-    switch (role) {
-        case RequestReloadFullStackRole:
-        case RequestActivateFrameRole:
-            m_engine->handleCommand(role, value);
-            return true;
-
-        case RequestShowMemoryRole:
-            (void) new MemoryViewAgent(m_engine, value.toString());
-            return true;
-    
-        case RequestShowDisassemblerRole: {
-            const StackFrame &frame = m_stackFrames.at(value.toInt());
-            m_disassemblerViewAgent->setFrame(frame);
-            return true;
-        }
-    
-        default:
-            return QAbstractTableModel::setData(index, value, role);
-    }
-}
 
 QVariant StackHandler::headerData(int section, Qt::Orientation orient, int role) const
 {
@@ -237,7 +197,6 @@ bool StackHandler::isDebuggingDebuggingHelpers() const
             return true;
     return false;
 }
-
 
 } // namespace Internal
 } // namespace Debugger

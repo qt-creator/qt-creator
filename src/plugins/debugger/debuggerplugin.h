@@ -57,6 +57,7 @@ class DebuggerStartParameters;
 
 namespace Internal {
 class BreakHandler;
+class SnapshotHandler;
 }
 
 class DEBUGGER_EXPORT DebuggerPlugin : public ExtensionSystem::IPlugin
@@ -91,6 +92,7 @@ public:
 
     void openTextEditor(const QString &titlePattern, const QString &contents);
     Internal::BreakHandler *breakHandler() const;
+    Internal::SnapshotHandler *snapshotHandler() const;
     DebuggerEngine *currentEngine() const;
 
 public slots:

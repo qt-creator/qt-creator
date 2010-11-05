@@ -32,20 +32,17 @@
 
 #include <QtGui/QTreeView>
 
-QT_BEGIN_NAMESPACE
-class QModelIndex;
-QT_END_NAMESPACE
-
 namespace Debugger {
 namespace Internal {
+
+class SnapshotHandler;
 
 class SnapshotWindow : public QTreeView
 {
     Q_OBJECT
 
 public:
-    SnapshotWindow(QWidget *parent = 0);
-    ~SnapshotWindow();
+    explicit SnapshotWindow(SnapshotHandler *handler);
 
 public slots:
     void resizeColumnsToContents();
@@ -58,9 +55,9 @@ private slots:
 private:
     void keyPressEvent(QKeyEvent *ev);
     void contextMenuEvent(QContextMenuEvent *ev);
-    void removeSnapshots(const QModelIndexList &list);
 
     bool m_alwaysResizeColumnsToContents;
+    SnapshotHandler *m_snapshotHandler;
 };
 
 } // namespace Internal

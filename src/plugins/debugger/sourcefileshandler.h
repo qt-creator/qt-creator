@@ -34,8 +34,6 @@
 #include <QtCore/QStringList>
 
 namespace Debugger {
-class DebuggerEngine;
-
 namespace Internal {
 
 class SourceFilesHandler : public QAbstractItemModel
@@ -43,7 +41,7 @@ class SourceFilesHandler : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    explicit SourceFilesHandler(DebuggerEngine *engine);
+    SourceFilesHandler();
 
     int columnCount(const QModelIndex &parent) const
         { return parent.isValid() ? 0 : 2; }
@@ -54,7 +52,6 @@ public:
         { return createIndex(row, column); }
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     QVariant data(const QModelIndex &index, int role) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role);
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
     void clearModel();
@@ -66,7 +63,6 @@ public:
     QAbstractItemModel *model() { return m_proxyModel; }
 
 private:
-    DebuggerEngine *m_engine;
     QStringList m_shortNames;
     QStringList m_fullNames;
     QAbstractItemModel *m_proxyModel;

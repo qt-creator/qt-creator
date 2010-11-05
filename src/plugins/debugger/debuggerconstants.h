@@ -214,36 +214,9 @@ enum ModelRoles
     LocalsPointerValueRole, // Pointer value (address) as quint64
     LocalsIsWatchpointAtAddressRole,
     LocalsIsWatchpointAtPointerValueRole,
-    RequestShowInEditorRole,
-    RequestWatchPointRole,
-    RequestToggleWatchRole,
-    RequestToolTipByExpressionRole,
-    RequestClearCppCodeModelSnapshotRole,
-    RequestWatchExpressionRole,
-    RequestRemoveWatchExpressionRole,
-
-    // Stack
-    StackFrameAddressRole,
-    RequestActivateFrameRole,
-    RequestReloadFullStackRole,
-    RequestShowMemoryRole,
-    RequestShowDisassemblerRole,
-
-    // Modules
-    RequestReloadModulesRole,
-    RequestExamineModulesRole,
-    RequestModuleSymbolsRole,
-    RequestAllSymbolsRole,
-    RequestOpenFileRole,
 
     // Snapshots
     SnapshotCapabilityRole,
-    RequestCreateSnapshotRole,
-    RequestActivateSnapshotRole,
-    RequestRemoveSnapshotRole,
-
-    // Sources
-    RequestReloadSourceFilesRole,
 };
 
 enum DebuggerEngineType

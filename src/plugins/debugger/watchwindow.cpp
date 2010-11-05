@@ -29,20 +29,23 @@
 
 #include "watchwindow.h"
 
+#include "breakhandler.h"
+#include "debuggeragents.h"
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
-#include "debuggerengine.h"
 #include "debuggerdialogs.h"
-#include "watchhandler.h"
+#include "debuggerengine.h"
+#include "debuggerplugin.h"
 #include "watchdelegatewidgets.h"
+#include "watchhandler.h"
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
 #include <QtCore/QDebug>
-#include <QtCore/QVariant>
-#include <QtCore/QMetaProperty>
 #include <QtCore/QMetaObject>
+#include <QtCore/QMetaProperty>
+#include <QtCore/QVariant>
 
 #include <QtGui/QContextMenuEvent>
 #include <QtGui/QHeaderView>
@@ -50,8 +53,6 @@
 #include <QtGui/QMenu>
 #include <QtGui/QResizeEvent>
 
-using namespace Debugger;
-using namespace Debugger::Internal;
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -59,10 +60,25 @@ using namespace Debugger::Internal;
 //
 /////////////////////////////////////////////////////////////////////
 
+namespace Debugger {
+namespace Internal {
+
+static DebuggerPlugin *plugin()
+{
+    return DebuggerPlugin::instance();
+}
+
+static DebuggerEngine *currentEngine()
+{
+    return DebuggerPlugin::instance()->currentEngine();
+}
+
 class WatchDelegate : public QItemDelegate
 {
 public:
-    explicit WatchDelegate(QObject *parent) : QItemDelegate(parent) {}
+    explicit WatchDelegate(WatchWindow *parent)
+        : QItemDelegate(parent), m_watchWindow(parent)
+    {}
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &,
         const QModelIndex &index) const
@@ -98,12 +114,12 @@ public:
         }
         const QMetaProperty userProperty = editor->metaObject()->userProperty();
         QTC_ASSERT(userProperty.isValid(), return);
-        const QVariant value = editor->property(userProperty.name());
+        const QString value = editor->property(userProperty.name()).toString();
         const QString exp = index.data(LocalsExpressionRole).toString();
-        if (exp != value.toString()) {
-            model->setData(index, exp, RequestRemoveWatchExpressionRole);
-            model->setData(index, value, RequestWatchExpressionRole);
-        }
+        if (exp == value)
+            return;
+        m_watchWindow->removeWatchExpression(exp);
+        m_watchWindow->watchExpression(value);
     }
 
     void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
@@ -111,6 +127,9 @@ public:
     {
         editor->setGeometry(option.rect);
     }
+
+private:
+    WatchWindow *m_watchWindow;
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -216,6 +235,9 @@ void WatchWindow::mouseDoubleClickEvent(QMouseEvent *ev)
 
 void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
+    DebuggerEngine *engine = currentEngine();
+    WatchHandler *handler = engine->watchHandler();
+
     const QModelIndex idx = indexAt(ev->pos());
     const QModelIndex mi0 = idx.sibling(idx.row(), 0);
     const QModelIndex mi1 = idx.sibling(idx.row(), 1);
@@ -420,17 +442,17 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == actInsertNewWatchItem) {
         watchExpression(QString());
     } else if (act == actOpenMemoryEditAtVariableAddress) {
-        setModelData(RequestShowMemoryRole, address);
+        (void) new MemoryViewAgent(currentEngine(), address);
     } else if (act == actOpenMemoryEditAtPointerValue) {
-        setModelData(RequestShowMemoryRole, pointerValue);
+        (void) new MemoryViewAgent(currentEngine(), pointerValue);
     } else if (act == actOpenMemoryEditor) {
         AddressDialog dialog;
         if (dialog.exec() == QDialog::Accepted)
-            setModelData(RequestShowMemoryRole, dialog.address());
+            (void) new MemoryViewAgent(currentEngine(), dialog.address());
     } else if (act == actSetWatchPointAtVariableAddress) {
-        setModelData(RequestToggleWatchRole, address);
+        setWatchpoint(address);
     } else if (act == actSetWatchPointAtPointerValue) {
-        setModelData(RequestToggleWatchRole, pointerValue);
+        setWatchpoint(pointerValue);
     } else if (act == actSelectWidgetToWatch) {
         grabMouse(Qt::CrossCursor);
         m_grabbing = true;
@@ -439,13 +461,14 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == actRemoveWatchExpression) {
         removeWatchExpression(exp);
     } else if (act == actClearCodeModelSnapshot) {
-        setModelData(RequestClearCppCodeModelSnapshotRole);
+        plugin()->clearCppCodeModelSnapshot();
     } else if (act == clearTypeFormatAction) {
         setModelData(LocalsTypeFormatRole, -1, mi1);
     } else if (act == clearIndividualFormatAction) {
         setModelData(LocalsIndividualFormatRole, -1, mi1);
     } else if (act == actShowInEditor) {
-        setModelData(RequestShowInEditorRole);
+        QString contents = handler->editorContents();
+        plugin()->openTextEditor(tr("Locals & Watchers"), contents);
     } else {
         for (int i = 0; i != typeFormatActions.size(); ++i) {
             if (act == typeFormatActions.at(i))
@@ -481,7 +504,7 @@ bool WatchWindow::event(QEvent *ev)
         QMouseEvent *mev = static_cast<QMouseEvent *>(ev);
         m_grabbing = false;
         releaseMouse();
-        setModelData(RequestWatchPointRole, mapToGlobal(mev->pos()));
+        currentEngine()->watchPoint(mapToGlobal(mev->pos()));
     }
     return QTreeView::event(ev);
 }
@@ -501,10 +524,8 @@ void WatchWindow::setModel(QAbstractItemModel *model)
     if (m_type != LocalsType)
         header()->hide();
 
-    connect(model, SIGNAL(layoutChanged()),
-        this, SLOT(resetHelper()));
-    connect(model, SIGNAL(enableUpdates(bool)),
-        this, SLOT(setUpdatesEnabled(bool)));
+    connect(model, SIGNAL(layoutChanged()), SLOT(resetHelper()));
+    connect(model, SIGNAL(enableUpdates(bool)), SLOT(setUpdatesEnabled(bool)));
 }
 
 void WatchWindow::setUpdatesEnabled(bool enable)
@@ -535,12 +556,12 @@ void WatchWindow::resetHelper(const QModelIndex &idx)
 
 void WatchWindow::watchExpression(const QString &exp)
 {
-    setModelData(RequestWatchExpressionRole, exp);
+    currentEngine()->watchHandler()->watchExpression(exp);
 }
 
 void WatchWindow::removeWatchExpression(const QString &exp)
 {
-    setModelData(RequestRemoveWatchExpressionRole, exp);
+    currentEngine()->watchHandler()->removeWatchExpression(exp);
 }
 
 void WatchWindow::setModelData
@@ -555,4 +576,23 @@ QVariant WatchWindow::modelData(int role, const QModelIndex &index)
     QTC_ASSERT(model(), return QVariant());
     return model()->data(index, role);
 }
+
+void WatchWindow::setWatchpoint(quint64 address)
+{
+    DebuggerEngine *engine = currentEngine();
+    BreakHandler *handler = engine->breakHandler();
+    const int index = handler->findWatchPointIndexByAddress(address);
+    if (index == -1) {
+        BreakpointData *data = new BreakpointData;
+        data->type = Watchpoint;
+        data->address = address;
+        handler->appendBreakpoint(data);
+    } else {
+        handler->removeBreakpoint(index);
+    }
+    engine->attemptBreakpointSynchronization();
+}
+
+} // namespace Internal
+} // namespace Debugger
 

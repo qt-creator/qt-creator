@@ -823,7 +823,7 @@ struct DebuggerActions
     QAction *jumpToLineAction; // in the Debug menu
     QAction *returnFromFunctionAction;
     QAction *nextAction;
-    QAction *snapshotAction;
+    //QAction *snapshotAction;
     QAction *watchAction1; // in the Debug menu
     QAction *watchAction2; // in the text editor context menu
     QAction *breakAction;
@@ -854,19 +854,29 @@ public:
     void notifyCurrentEngine(int role, const QVariant &value = QVariant());
     void connectEngine(DebuggerEngine *engine, bool notify = true);
     void disconnectEngine() { connectEngine(0); }
+    DebuggerEngine *currentEngine() const { return m_currentEngine; }
 
 public slots:
     void updateWatchersHeader(int section, int, int newSize)
-        { m_watchersWindow->header()->resizeSection(section, newSize); }
+    {
+        m_watchersWindow->header()->resizeSection(section, newSize);
+    }
 
     void sourceFilesDockToggled(bool on)
-        { if (on) notifyCurrentEngine(RequestReloadSourceFilesRole); }
+    {
+        if (on)
+            m_currentEngine->reloadSourceFiles();
+    }
+
     void modulesDockToggled(bool on)
-        { if (on) notifyCurrentEngine(RequestReloadModulesRole); }
+    {
+        if (on)
+            m_currentEngine->reloadModules();
+    }
 
     void registerDockToggled(bool on)
     {
-        if (on && m_currentEngine)
+        if (on)
             m_currentEngine->reloadRegisters();
     }
 
@@ -1137,8 +1147,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
 
     m_registerWindow = new RegisterWindow;
     m_registerWindow->setObjectName(QLatin1String("CppDebugRegisters"));
-    m_snapshotWindow = new SnapshotWindow;
-    m_snapshotWindow->setObjectName(QLatin1String("CppDebugSnapshots"));
     m_stackWindow = new StackWindow;
     m_stackWindow->setObjectName(QLatin1String("CppDebugStack"));
     m_sourceFilesWindow = new SourceFilesWindow;
@@ -1160,6 +1168,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
 
     // Snapshot
     m_snapshotHandler = new SnapshotHandler;
+    m_snapshotWindow = new SnapshotWindow(m_snapshotHandler);
+    m_snapshotWindow->setObjectName(QLatin1String("CppDebugSnapshots"));
     m_snapshotWindow->setModel(m_snapshotHandler->model());
 
     // Debug mode setup
@@ -1227,10 +1237,10 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     m_actions.watchAction2 = new QAction(tr("Add to Watch Window"), this);
     m_actions.watchAction2->setProperty(Role, RequestExecWatchRole);
 
-    m_actions.snapshotAction = new QAction(tr("Create Snapshot"), this);
-    m_actions.snapshotAction->setProperty(Role, RequestCreateSnapshotRole);
-    m_actions.snapshotAction->setIcon(
-        QIcon(__(":/debugger/images/debugger_snapshot_small.png")));
+    //m_actions.snapshotAction = new QAction(tr("Create Snapshot"), this);
+    //m_actions.snapshotAction->setProperty(Role, RequestCreateSnapshotRole);
+    //m_actions.snapshotAction->setIcon(
+    //    QIcon(__(":/debugger/images/debugger_snapshot_small.png")));
 
     m_actions.reverseDirectionAction =
         new QAction(tr("Reverse Direction"), this);
@@ -1261,7 +1271,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     connect(m_actions.returnFromFunctionAction, SIGNAL(triggered()), SLOT(onAction()));
     connect(m_actions.watchAction1, SIGNAL(triggered()), SLOT(onAction()));
     connect(m_actions.watchAction2, SIGNAL(triggered()), SLOT(onAction()));
-    connect(m_actions.snapshotAction, SIGNAL(triggered()), SLOT(onAction()));
+    //connect(m_actions.snapshotAction, SIGNAL(triggered()), SLOT(onAction()));
     connect(m_actions.frameDownAction, SIGNAL(triggered()), SLOT(onAction()));
     connect(m_actions.frameUpAction, SIGNAL(triggered()), SLOT(onAction()));
     connect(m_actions.stopAction, SIGNAL(triggered()), SLOT(onAction()));
@@ -1514,11 +1524,11 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     m_uiSwitcher->addMenuAction(cmd, CppLanguage);
 
 
-    cmd = am->registerAction(m_actions.snapshotAction,
-        Constants::SNAPSHOT, cppDebuggercontext);
-    cmd->setDefaultKeySequence(QKeySequence(Constants::SNAPSHOT_KEY));
-    cmd->setAttribute(Command::CA_Hide);
-    m_uiSwitcher->addMenuAction(cmd, CppLanguage);
+    //cmd = am->registerAction(m_actions.snapshotAction,
+    //    Constants::SNAPSHOT, cppDebuggercontext);
+    //cmd->setDefaultKeySequence(QKeySequence(Constants::SNAPSHOT_KEY));
+    //cmd->setAttribute(Command::CA_Hide);
+    //m_uiSwitcher->addMenuAction(cmd, CppLanguage);
 
     cmd = am->registerAction(m_actions.frameDownAction,
         Constants::FRAME_DOWN, cppDebuggercontext);
@@ -2025,7 +2035,8 @@ void DebuggerPluginPrivate::requestMark(ITextEditor *editor, int lineNumber)
         toggleBreakpoint(editor->file()->fileName(), lineNumber);
 }
 
-void DebuggerPluginPrivate::showToolTip(ITextEditor *editor, const QPoint &point, int pos)
+void DebuggerPluginPrivate::showToolTip(ITextEditor *editor,
+    const QPoint &point, int pos)
 {
     if (!isDebuggable(editor))
         return;
@@ -2033,12 +2044,7 @@ void DebuggerPluginPrivate::showToolTip(ITextEditor *editor, const QPoint &point
         return;
     if (state() != InferiorStopOk)
         return;
-
-    QList<QVariant> list;
-    list.append(point);
-    list.append(quint64(editor));
-    list.append(pos);
-    notifyCurrentEngine(RequestToolTipByExpressionRole, list);
+    currentEngine()->setToolTipExpression(point, editor, pos);
 }
 
 DebuggerRunControl *DebuggerPluginPrivate::createDebugger
@@ -2264,7 +2270,7 @@ void DebuggerPluginPrivate::setInitialState()
     m_actions.watchAction1->setEnabled(true);
     m_actions.watchAction2->setEnabled(true);
     m_actions.breakAction->setEnabled(true);
-    m_actions.snapshotAction->setEnabled(false);
+    //m_actions.snapshotAction->setEnabled(false);
     theDebuggerAction(OperateByInstruction)->setEnabled(false);
 
     m_actions.stopAction->setEnabled(false);
@@ -2393,7 +2399,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     m_actions.watchAction1->setEnabled(true);
     m_actions.watchAction2->setEnabled(true);
     m_actions.breakAction->setEnabled(true);
-    m_actions.snapshotAction->setEnabled(stopped && (caps & SnapshotCapability));
+    //m_actions.snapshotAction->setEnabled(stopped && (caps & SnapshotCapability));
 
     theDebuggerAction(OperateByInstruction)->setEnabled(stopped);
 
@@ -2562,11 +2568,8 @@ void DebuggerPluginPrivate::scriptExpressionEntered(const QString &expression)
 void DebuggerPluginPrivate::openMemoryEditor()
 {
     AddressDialog dialog;
-    if (dialog.exec() != QDialog::Accepted)
-        return;
-    QTC_ASSERT(m_watchersWindow, return);
-    m_watchersWindow->model()->setData(
-        QModelIndex(), dialog.address(), RequestShowMemoryRole);
+    if (dialog.exec() == QDialog::Accepted)
+        (void) new MemoryViewAgent(currentEngine(), dialog.address());
 }
 
 void DebuggerPluginPrivate::coreShutdown()
@@ -2872,6 +2875,11 @@ bool DebuggerPlugin::hasSnapshots() const
 Internal::BreakHandler *DebuggerPlugin::breakHandler() const
 {
     return d->m_breakHandler;
+}
+
+Internal::SnapshotHandler *DebuggerPlugin::snapshotHandler() const
+{
+    return d->m_snapshotHandler;
 }
 
 DebuggerEngine *DebuggerPlugin::currentEngine() const

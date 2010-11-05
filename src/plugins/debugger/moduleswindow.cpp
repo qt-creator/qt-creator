@@ -29,8 +29,10 @@
 
 #include "moduleswindow.h"
 
-#include "debuggerconstants.h"
 #include "debuggeractions.h"
+#include "debuggerconstants.h"
+#include "debuggerengine.h"
+#include "debuggerplugin.h"
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
@@ -51,6 +53,11 @@
 namespace Debugger {
 namespace Internal {
 
+static DebuggerEngine *currentEngine()
+{
+    return DebuggerPlugin::instance()->currentEngine();
+}
+
 ModulesWindow::ModulesWindow(QWidget *parent)
   : QTreeView(parent), m_alwaysResizeColumnsToContents(false)
 {
@@ -63,16 +70,14 @@ ModulesWindow::ModulesWindow(QWidget *parent)
     setIconSize(QSize(10, 10));
 
     connect(this, SIGNAL(activated(QModelIndex)),
-        this, SLOT(moduleActivated(QModelIndex)));
+        SLOT(moduleActivated(QModelIndex)));
     connect(act, SIGNAL(toggled(bool)),
-        this, SLOT(setAlternatingRowColorsHelper(bool)));
+        SLOT(setAlternatingRowColorsHelper(bool)));
 }
 
 void ModulesWindow::moduleActivated(const QModelIndex &index)
 {
-    qDebug() << "ACTIVATED: " << index.row() << index.column()
-        << index.data().toString();
-    setModelData(RequestOpenFileRole, index.data().toString());
+    currentEngine()->openFile(index.data().toString());
 }
 
 void ModulesWindow::resizeEvent(QResizeEvent *event)
@@ -100,10 +105,9 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
     if (index.isValid())
         name = index.data().toString();
 
-    const bool enabled =
-        model() && model()->data(index, EngineActionsEnabledRole).toBool();
-    const unsigned capabilities =
-        model()->data(index, EngineCapabilitiesRole).toInt();
+    DebuggerEngine *engine = currentEngine();
+    const bool enabled = engine->debuggerActionsEnabled();
+    const unsigned capabilities = engine->debuggerCapabilities();
 
     QMenu menu;
 
@@ -168,7 +172,7 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *act = menu.exec(ev->globalPos());
 
     if (act == actUpdateModuleList) {
-        setModelData(RequestReloadModulesRole);
+        engine->reloadModules();
     } else if (act == actAdjustColumnWidths) {
         resizeColumnsToContents();
     } else if (act == actAlwaysAdjustColumnWidth) {
@@ -176,15 +180,15 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
     //} else if (act == actShowSourceFiles) {
     //    emit displaySourceRequested(name);
     } else if (act == actLoadSymbolsForAllModules) {
-        setModelData(RequestAllSymbolsRole);
+        engine->loadAllSymbols();
     } else if (act == actExamineAllModules) {
-        setModelData(RequestExamineModulesRole);
+        engine->examineModules();
     } else if (act == actLoadSymbolsForModule) {
-        setModelData(RequestModuleSymbolsRole, name);
+        engine->loadSymbols(name);
     } else if (act == actEditFile) {
-        setModelData(RequestOpenFileRole, name);
+        engine->openFile(name);
     } else if (act == actShowSymbols) {
-        setModelData(RequestModuleSymbolsRole, name);
+        // FIXME setModelData(RequestModuleSymbolsRole, name);
     }
 }
 
@@ -213,13 +217,6 @@ void ModulesWindow::setModel(QAbstractItemModel *model)
 {
     QTreeView::setModel(model);
     setAlwaysResizeColumnsToContents(true);
-}
-
-void ModulesWindow::setModelData
-    (int role, const QVariant &value, const QModelIndex &index)
-{
-    QTC_ASSERT(model(), return);
-    model()->setData(index, value, role);
 }
 
 } // namespace Internal

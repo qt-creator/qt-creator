@@ -30,7 +30,6 @@
 #include "watchhandler.h"
 
 #include "breakhandler.h"
-#include "breakpoint.h"
 #include "debuggeractions.h"
 #include "debuggeragents.h"
 #include "debuggerengine.h"
@@ -822,44 +821,6 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
 
 bool WatchModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    switch (role) {
-        case RequestShowInEditorRole: {
-            m_handler->showInEditor();
-            return true;
-        }
-
-        case RequestToggleWatchRole: {
-            BreakHandler *handler = engine()->breakHandler();
-            const quint64 address = value.toULongLong();
-            const int index = handler->findWatchPointIndexByAddress(address);
-            if (index == -1) {
-                BreakpointData *data = new BreakpointData;
-                data->type = Watchpoint;
-                data->address = address;
-                handler->appendBreakpoint(data);
-            } else {
-                handler->removeBreakpoint(index);
-            }
-            engine()->attemptBreakpointSynchronization();
-            return true;
-        }
-
-        case RequestShowMemoryRole: {
-            (void) new MemoryViewAgent(engine(), value.toULongLong());
-            return true;
-        }
-
-        case RequestClearCppCodeModelSnapshotRole: {
-            plugin()->clearCppCodeModelSnapshot();
-            return true;
-        }
-
-        case RequestWatchPointRole: {
-            engine()->watchPoint(value.toPoint());
-            return true;
-        }
-    }
-
     WatchItem &data = *watchItem(index);
 
     switch (role) {
@@ -899,14 +860,6 @@ bool WatchModel::setData(const QModelIndex &index, const QVariant &value, int ro
             engine()->updateWatchData(data);
             break;
         }
-
-        case RequestRemoveWatchExpressionRole:
-            m_handler->removeWatchExpression(value.toString());
-            break;
-
-        case RequestWatchExpressionRole:
-            m_handler->watchExpression(value.toString());
-            break;
     }
 
     emit dataChanged(index, index);
@@ -1734,12 +1687,12 @@ void WatchHandler::addTypeFormats(const QByteArray &type, const QStringList &for
     m_reportedTypeFormats.insert(type, formats);
 }
 
-void WatchHandler::showInEditor()
+QString WatchHandler::editorContents()
 {
     QString contents;
     showInEditorHelper(&contents, m_locals->m_root, 0);
     showInEditorHelper(&contents, m_watchers->m_root, 0);
-    plugin()->openTextEditor(tr("Locals & Watchers"), contents);
+    return contents;
 }
 
 void WatchHandler::showInEditorHelper(QString *contents, WatchItem *item, int depth)

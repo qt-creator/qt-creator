@@ -63,20 +63,22 @@ public:
     void removeSnapshot(DebuggerRunControl *rc);
     void setCurrentIndex(int index);
     int size() const { return m_snapshots.size(); }
-    DebuggerRunControl *at(int i) const;
-    QList<DebuggerRunControl*> runControls() const;
+    DebuggerRunControl *at(int index) const;
+    QList<DebuggerRunControl *> runControls() const;
+
+    void createSnapshot(int index);
+    void activateSnapshot(int index);
+    void removeSnapshot(int index);
 
 private:
     // QAbstractTableModel
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role);
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
     Q_SLOT void resetModel() { reset(); }
     DebuggerEngine *engineAt(int i) const;
-    void removeSnapshot(int index);
 
     int m_currentIndex;
     QList< QPointer<DebuggerRunControl> > m_snapshots;

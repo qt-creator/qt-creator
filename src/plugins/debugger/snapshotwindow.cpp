@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "snapshotwindow.h"
+#include "snapshothandler.h"
 
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
@@ -60,9 +61,11 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-SnapshotWindow::SnapshotWindow(QWidget *parent)
-    : QTreeView(parent), m_alwaysResizeColumnsToContents(false)
+SnapshotWindow::SnapshotWindow(SnapshotHandler *handler)
+    : m_alwaysResizeColumnsToContents(false)
 {
+    m_snapshotHandler = handler;
+
     QAction *act = theDebuggerAction(UseAlternatingRowColors);
     setWindowTitle(tr("Snapshots"));
     setAttribute(Qt::WA_MacShowFocusRect, false);
@@ -74,25 +77,14 @@ SnapshotWindow::SnapshotWindow(QWidget *parent)
     header()->setDefaultAlignment(Qt::AlignLeft);
 
     connect(this, SIGNAL(activated(QModelIndex)),
-        this, SLOT(rowActivated(QModelIndex)));
+        SLOT(rowActivated(QModelIndex)));
     connect(act, SIGNAL(toggled(bool)),
-        this, SLOT(setAlternatingRowColorsHelper(bool)));
-}
-
-SnapshotWindow::~SnapshotWindow()
-{
+        SLOT(setAlternatingRowColorsHelper(bool)));
 }
 
 void SnapshotWindow::rowActivated(const QModelIndex &index)
-{
-    model()->setData(index, index.row(), RequestActivateSnapshotRole);
-}
-
-void SnapshotWindow::removeSnapshots(const QModelIndexList &indexes)
-{
-    QTC_ASSERT(!indexes.isEmpty(), return);
-    foreach (const QModelIndex &idx, indexes)
-        model()->setData(idx, QVariant(), RequestRemoveSnapshotRole);
+{  
+    m_snapshotHandler->activateSnapshot(index.row());
 }
 
 void SnapshotWindow::keyPressEvent(QKeyEvent *ev)
@@ -103,7 +95,8 @@ void SnapshotWindow::keyPressEvent(QKeyEvent *ev)
         QModelIndexList si = sm->selectedIndexes();
         if (si.isEmpty())
             si.append(currentIndex().sibling(currentIndex().row(), 0));
-        removeSnapshots(normalizeIndexes(si));
+        foreach (const QModelIndex &idx, normalizeIndexes(si))
+            m_snapshotHandler->removeSnapshot(idx.row());
     }
     QTreeView::keyPressEvent(ev);
 }
@@ -138,9 +131,9 @@ void SnapshotWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *act = menu.exec(ev->globalPos());
 
     if (act == actCreate)
-        model()->setData(idx, idx.row(), RequestCreateSnapshotRole);
+        m_snapshotHandler->createSnapshot(idx.row());
     else if (act == actRemove)
-        model()->setData(idx, idx.row(), RequestRemoveSnapshotRole);
+        m_snapshotHandler->removeSnapshot(idx.row());
     else if (act == actAdjust)
         resizeColumnsToContents();
     else if (act == actAlwaysAdjust)

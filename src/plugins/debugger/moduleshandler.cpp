@@ -28,7 +28,6 @@
 **************************************************************************/
 
 #include "moduleshandler.h"
-#include "debuggerengine.h"
 
 #include <utils/qtcassert.h>
 
@@ -45,41 +44,8 @@
 namespace Debugger {
 namespace Internal {
 
-class ModulesModel : public QAbstractItemModel
-{   // Needs tr - context.
-    Q_OBJECT
-public:
-    explicit ModulesModel(ModulesHandler *parent, DebuggerEngine *engine);
-
-    // QAbstractItemModel
-    int columnCount(const QModelIndex &parent) const
-        { return parent.isValid() ? 0 : 5; }
-    int rowCount(const QModelIndex &parent) const
-        { return parent.isValid() ? 0 : m_modules.size(); }
-    QModelIndex parent(const QModelIndex &) const { return QModelIndex(); }
-    QModelIndex index(int row, int column, const QModelIndex &) const
-        { return createIndex(row, column); }
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-    QVariant data(const QModelIndex &index, int role) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role);
-
-    void clearModel();
-    void addModule(const Module &module);
-    void removeModule(const QString &moduleName);
-    void setModules(const Modules &modules);
-    void updateModule(const QString &moduleName, const Module &module);
-
-    const Modules &modules() const { return m_modules; }
-
-private:
-    int indexOfModule(const QString &name) const;
-
-    DebuggerEngine *m_engine;
-    Modules m_modules;
-};
-
-ModulesModel::ModulesModel(ModulesHandler *parent, DebuggerEngine *engine)
-  : QAbstractItemModel(parent), m_engine(engine)
+ModulesModel::ModulesModel(ModulesHandler *parent)
+  : QAbstractItemModel(parent)
 {}
 
 QVariant ModulesModel::headerData(int section,
@@ -101,12 +67,6 @@ QVariant ModulesModel::headerData(int section,
 
 QVariant ModulesModel::data(const QModelIndex &index, int role) const
 {
-    if (role == EngineCapabilitiesRole)
-        return m_engine->debuggerCapabilities();
-
-    if (role == EngineActionsEnabledRole)
-        return m_engine->debuggerActionsEnabled();
-
     int row = index.row();
     if (row < 0 || row >= m_modules.size())
         return QVariant();
@@ -151,34 +111,6 @@ QVariant ModulesModel::data(const QModelIndex &index, int role) const
             break;
     }
     return QVariant();
-}
-
-bool ModulesModel::setData(const QModelIndex &index, const QVariant &value, int role)
-{
-    Q_UNUSED(index);
-
-    switch (role) {
-        case RequestReloadModulesRole:
-            m_engine->reloadModules();
-            return true;
-
-        case RequestExamineModulesRole:
-            m_engine->examineModules();
-            return true;
-
-        case RequestModuleSymbolsRole:
-            m_engine->loadSymbols(value.toString());
-            return true;
-
-        case RequestAllSymbolsRole:
-            m_engine->loadAllSymbols();
-            return true;
-
-        case RequestOpenFileRole:
-            m_engine->openFile(value.toString());
-            return true;
-    }
-    return false;
 }
 
 void ModulesModel::addModule(const Module &m)
@@ -234,9 +166,9 @@ void ModulesModel::updateModule(const QString &moduleName, const Module &module)
 //
 //////////////////////////////////////////////////////////////////
 
-ModulesHandler::ModulesHandler(DebuggerEngine *engine)
+ModulesHandler::ModulesHandler()
 {
-    m_model = new ModulesModel(this, engine);
+    m_model = new ModulesModel(this);
     m_proxyModel = new QSortFilterProxyModel(this);
     m_proxyModel->setSourceModel(m_model);
 }
@@ -279,4 +211,3 @@ Modules ModulesHandler::modules() const
 } // namespace Internal
 } // namespace Debugger
 
-#include "moduleshandler.moc"

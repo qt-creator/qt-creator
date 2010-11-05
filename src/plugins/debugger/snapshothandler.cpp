@@ -177,7 +177,8 @@ QVariant SnapshotHandler::data(const QModelIndex &index, int role) const
     case Qt::ToolTipRole:
         return QVariant();
 
-    case Qt::DecorationRole: // Return icon that indicates whether this is the active stack frame
+    case Qt::DecorationRole:
+        // Return icon that indicates whether this is the active stack frame.
         if (index.column() == 0)
             return (index.row() == m_currentIndex) ? m_positionIcon : m_emptyIcon;
         break;
@@ -208,38 +209,43 @@ Qt::ItemFlags SnapshotHandler::flags(const QModelIndex &index) const
     return true ? QAbstractTableModel::flags(index) : Qt::ItemFlags(0);
 }
 
-bool SnapshotHandler::setData
-    (const QModelIndex &index, const QVariant &value, int role)
+void SnapshotHandler::activateSnapshot(int index)
 {
-    Q_UNUSED(value);
-    if (index.isValid() && role == RequestCreateSnapshotRole) {
-        DebuggerEngine *engine = engineAt(index.row());
-        QTC_ASSERT(engine, return false);
-        engine->createSnapshot();
-        return true;
-    }
-    if (index.isValid() && role == RequestActivateSnapshotRole) {
-        m_currentIndex = index.row();
-        //qDebug() << "ACTIVATING INDEX: " << m_currentIndex << " OF " << size();
-        DebuggerPlugin::displayDebugger(m_snapshots.at(m_currentIndex));
-        reset();
-        return true;
-    }
-    if (index.isValid() && role == RequestRemoveSnapshotRole) {
-        DebuggerEngine *engine = engineAt(index.row());
-        //qDebug() << "REMOVING " << engine;
-        QTC_ASSERT(engine, return false);
-        engine->quitDebugger();
-        return true;
-    }
-    return false;
+    m_currentIndex = index;
+    //qDebug() << "ACTIVATING INDEX: " << m_currentIndex << " OF " << size();
+    DebuggerPlugin::displayDebugger(m_snapshots.at(index));
+    reset();
 }
 
+void SnapshotHandler::createSnapshot(int index)
+{
+    DebuggerEngine *engine = engineAt(index);
+    QTC_ASSERT(engine, return);
+    engine->createSnapshot();
+}
+
+void SnapshotHandler::removeSnapshot(int index)
+{
+    DebuggerEngine *engine = engineAt(index);
+    //qDebug() << "REMOVING " << engine;
+    QTC_ASSERT(engine, return);
 #if 0
     // See http://sourceware.org/bugzilla/show_bug.cgi?id=11241.
     setState(EngineSetupRequested);
     postCommand("set stack-cache off");
 #endif
+    QString fileName = engine->startParameters().coreFile;
+    //if (!fileName.isEmpty())
+    //    QFile::remove(fileName);
+    m_snapshots.removeAt(index);
+    if (index == m_currentIndex)
+        m_currentIndex = -1;
+    else if (index < m_currentIndex)
+        --m_currentIndex;
+    engine->quitDebugger();
+    reset();
+}
+
 
 void SnapshotHandler::removeAll()
 {
@@ -261,21 +267,6 @@ void SnapshotHandler::removeSnapshot(DebuggerRunControl *rc)
     int index = m_snapshots.indexOf(rc);
     if (index != -1)
         removeSnapshot(index);
-}
-
-void SnapshotHandler::removeSnapshot(int index)
-{
-    const DebuggerEngine *engine = engineAt(index);
-    QTC_ASSERT(engine, return);
-    QString fileName = engine->startParameters().coreFile;
-    //if (!fileName.isEmpty())
-    //    QFile::remove(fileName);
-    m_snapshots.removeAt(index);
-    if (index == m_currentIndex)
-        m_currentIndex = -1;
-    else if (index < m_currentIndex)
-        --m_currentIndex;
-    reset();
 }
 
 void SnapshotHandler::setCurrentIndex(int index)

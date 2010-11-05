@@ -35,15 +35,11 @@
 #include <QtCore/QAbstractItemModel>
 
 namespace Debugger {
-class DebuggerEngine;
-
 namespace Internal {
-
-class DisassemblerViewAgent;
 
 ////////////////////////////////////////////////////////////////////////
 //
-// StackModel
+// StackCookie
 //
 ////////////////////////////////////////////////////////////////////////
 
@@ -68,7 +64,7 @@ class StackHandler : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    explicit StackHandler(DebuggerEngine *engine);
+    StackHandler();
     ~StackHandler();
 
     void setFrames(const StackFrames &frames, bool canExpand = false);
@@ -76,6 +72,7 @@ public:
     void setCurrentIndex(int index);
     int currentIndex() const { return m_currentIndex; }
     StackFrame currentFrame() const;
+    const StackFrame &frameAt(int index) const { return m_stackFrames.at(index); }
     int stackSize() const { return m_stackFrames.size(); }
     quint64 topAddress() const { return m_stackFrames.at(0).address; }
 
@@ -89,13 +86,10 @@ private:
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
-    bool setData(const QModelIndex &index, const QVariant &, int role);
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
     Q_SLOT void resetModel() { reset(); }
 
-    DebuggerEngine *m_engine;
-    DisassemblerViewAgent *m_disassemblerViewAgent;
     StackFrames m_stackFrames;
     int m_currentIndex;
     const QVariant m_positionIcon;

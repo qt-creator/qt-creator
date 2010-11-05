@@ -52,8 +52,6 @@ private:
     void resizeEvent(QResizeEvent *ev);
     void contextMenuEvent(QContextMenuEvent *ev);
     void setModel(QAbstractItemModel *model);
-    void setModelData(int role, const QVariant &value = QVariant(),
-        const QModelIndex &index = QModelIndex());
 
     bool m_alwaysResizeColumnsToContents;
 };

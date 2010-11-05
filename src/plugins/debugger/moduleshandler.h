@@ -32,20 +32,15 @@
 
 #include <QtCore/QList>
 #include <QtCore/QObject>
-
-QT_BEGIN_NAMESPACE
-class QAbstractItemModel;
-class QSortFilterProxyModel;
-QT_END_NAMESPACE
+#include <QtGui/QSortFilterProxyModel>
 
 
 namespace Debugger {
-
-class DebuggerEngine;
-
 namespace Internal {
 
 class ModulesModel;
+class ModulesHandler;
+
 
 //////////////////////////////////////////////////////////////////
 //
@@ -98,6 +93,45 @@ typedef QList<Module> Modules;
 
 //////////////////////////////////////////////////////////////////
 //
+// ModulesModel
+//
+//////////////////////////////////////////////////////////////////
+
+class ModulesModel : public QAbstractItemModel
+{
+    // Needs tr - context.
+    Q_OBJECT
+public:
+    ModulesModel(ModulesHandler *parent);
+
+    // QAbstractItemModel
+    int columnCount(const QModelIndex &parent) const
+        { return parent.isValid() ? 0 : 5; }
+    int rowCount(const QModelIndex &parent) const
+        { return parent.isValid() ? 0 : m_modules.size(); }
+    QModelIndex parent(const QModelIndex &) const { return QModelIndex(); }
+    QModelIndex index(int row, int column, const QModelIndex &) const
+        { return createIndex(row, column); }
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    QVariant data(const QModelIndex &index, int role) const;
+
+    void clearModel();
+    void addModule(const Module &module);
+    void removeModule(const QString &moduleName);
+    void setModules(const Modules &modules);
+    void updateModule(const QString &moduleName, const Module &module);
+
+    const Modules &modules() const { return m_modules; }
+
+private:
+    int indexOfModule(const QString &name) const;
+
+    Modules m_modules;
+};
+
+
+//////////////////////////////////////////////////////////////////
+//
 // ModulesHandler
 //
 //////////////////////////////////////////////////////////////////
@@ -107,7 +141,7 @@ class ModulesHandler : public QObject
     Q_OBJECT
 
 public:
-    explicit ModulesHandler(DebuggerEngine *engine);
+    ModulesHandler();
 
     QAbstractItemModel *model() const;
 

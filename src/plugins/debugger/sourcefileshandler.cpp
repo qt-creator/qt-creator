@@ -29,9 +29,6 @@
 
 #include "sourcefileshandler.h"
 
-#include "debuggerconstants.h"
-#include "debuggerengine.h"
-
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
 
@@ -40,8 +37,7 @@
 namespace Debugger {
 namespace Internal {
 
-SourceFilesHandler::SourceFilesHandler(DebuggerEngine *engine)
-  : m_engine(engine)
+SourceFilesHandler::SourceFilesHandler()
 {
     QSortFilterProxyModel *proxy = new QSortFilterProxyModel(this);
     proxy->setSourceModel(this);
@@ -80,11 +76,6 @@ Qt::ItemFlags SourceFilesHandler::flags(const QModelIndex &index) const
 
 QVariant SourceFilesHandler::data(const QModelIndex &index, int role) const
 {
-    switch (role) {
-        case EngineActionsEnabledRole:
-            return m_engine->debuggerActionsEnabled();
-    }
-
     int row = index.row();
     if (row < 0 || row >= m_shortNames.size())
         return QVariant();
@@ -105,22 +96,6 @@ QVariant SourceFilesHandler::data(const QModelIndex &index, int role) const
             break;
     }
     return QVariant();
-}
-
-bool SourceFilesHandler::setData
-    (const QModelIndex &index, const QVariant &value, int role)
-{
-    Q_UNUSED(index);
-    switch (role) {
-        case RequestReloadSourceFilesRole:
-            m_engine->reloadSourceFiles();
-            return true;
-
-        case RequestOpenFileRole:
-            m_engine->openFile(value.toString());
-            return true;
-    }
-    return false;
 }
 
 void SourceFilesHandler::setSourceFiles(const QMap<QString, QString> &sourceFiles)

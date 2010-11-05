@@ -178,6 +178,7 @@ public:
 
     QByteArray watcherName(const QByteArray &exp);
     void synchronizeWatchers();
+    QString editorContents();
 
 private:
     friend class WatchModel;
@@ -189,7 +190,6 @@ private:
 
     void setFormat(const QByteArray &type, int format);
     void updateWatchersWindow();
-    void showInEditor();
     void showInEditorHelper(QString *contents, WatchItem *item, int level);
 
     bool m_inChange;

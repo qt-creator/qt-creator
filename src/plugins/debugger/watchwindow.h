@@ -56,6 +56,8 @@ public slots:
     void setAlwaysResizeColumnsToContents(bool on = true);
     void setModel(QAbstractItemModel *model);
     void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
+    void watchExpression(const QString &exp);
+    void removeWatchExpression(const QString &exp);
 
 private:
     Q_SLOT void resetHelper();
@@ -73,8 +75,7 @@ private:
 
     void editItem(const QModelIndex &idx);
     void resetHelper(const QModelIndex &idx);
-    void watchExpression(const QString &exp);
-    void removeWatchExpression(const QString &exp);
+    void setWatchpoint(quint64 address);
 
     void setModelData(int role, const QVariant &value = QVariant(),
         const QModelIndex &index = QModelIndex());

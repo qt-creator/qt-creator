@@ -28,10 +28,13 @@
 **************************************************************************/
 
 #include "stackwindow.h"
-#include "stackframe.h"
+#include "stackhandler.h"
 
 #include "debuggeractions.h"
+#include "debuggeragents.h"
 #include "debuggerconstants.h"
+#include "debuggerengine.h"
+#include "debuggerplugin.h"
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
@@ -46,6 +49,11 @@
 
 namespace Debugger {
 namespace Internal {
+
+static DebuggerEngine *currentEngine()
+{
+    return DebuggerPlugin::instance()->currentEngine();
+}
 
 StackWindow::StackWindow(QWidget *parent)
     : QTreeView(parent), m_alwaysResizeColumnsToContents(false)
@@ -65,19 +73,15 @@ StackWindow::StackWindow(QWidget *parent)
     header()->resizeSection(3, 60);
 
     connect(this, SIGNAL(activated(QModelIndex)),
-        this, SLOT(rowActivated(QModelIndex)));
+        SLOT(rowActivated(QModelIndex)));
     connect(act, SIGNAL(toggled(bool)),
-        this, SLOT(setAlternatingRowColorsHelper(bool)));
+        SLOT(setAlternatingRowColorsHelper(bool)));
     connect(theDebuggerAction(UseAddressInStackView), SIGNAL(toggled(bool)),
-        this, SLOT(showAddressColumn(bool)));
+        SLOT(showAddressColumn(bool)));
     connect(theDebuggerAction(ExpandStack), SIGNAL(triggered()),
-        this, SLOT(reloadFullStack()));
+        SLOT(reloadFullStack()));
     connect(theDebuggerAction(MaximalStackDepth), SIGNAL(triggered()),
-        this, SLOT(reloadFullStack()));
-}
-
-StackWindow::~StackWindow()
-{
+        SLOT(reloadFullStack()));
 }
 
 void StackWindow::showAddressColumn(bool on)
@@ -87,14 +91,20 @@ void StackWindow::showAddressColumn(bool on)
 
 void StackWindow::rowActivated(const QModelIndex &index)
 {
-    setModelData(RequestActivateFrameRole, index.row());
+    currentEngine()->activateFrame(index.row());
 }
 
 void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
+    DebuggerEngine *engine = currentEngine();
+    StackHandler *handler = engine->stackHandler();
     const QModelIndex index = indexAt(ev->pos());
-    const quint64 address = modelData(StackFrameAddressRole, index).toULongLong();
-    const unsigned engineCapabilities = modelData(EngineCapabilitiesRole).toUInt();
+    const int row = index.row();
+    const unsigned engineCapabilities = engine->debuggerCapabilities();
+    StackFrame frame;
+    if (row < handler->stackSize())
+        frame = handler->frameAt(row);
+    const quint64 address = frame.address;
 
     QMenu menu;
     menu.addAction(theDebuggerAction(ExpandStack));
@@ -149,9 +159,11 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
     else if (act == actAlwaysAdjust)
         setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
     else if (act == actShowMemory)
-        setModelData(RequestShowMemoryRole, address);
-    else if (act == actShowDisassembler)
-        setModelData(RequestShowDisassemblerRole, index.row());
+        (void) new MemoryViewAgent(currentEngine(), address);
+    else if (act == actShowDisassembler) {
+        DisassemblerViewAgent *agent = new DisassemblerViewAgent(engine);
+        agent->setFrame(frame);
+    }
 }
 
 void StackWindow::copyContentsToClipboard()
@@ -176,7 +188,7 @@ void StackWindow::copyContentsToClipboard()
 
 void StackWindow::reloadFullStack()
 {
-    setModelData(RequestReloadFullStackRole);
+    currentEngine()->reloadFullStack();
 }
 
 void StackWindow::resizeColumnsToContents()
@@ -193,20 +205,6 @@ void StackWindow::setAlwaysResizeColumnsToContents(bool on)
     for (int i = model()->columnCount(); --i >= 0; )
         header()->setResizeMode(i, mode);
 }
-
-void StackWindow::setModelData
-    (int role, const QVariant &value, const QModelIndex &index)
-{
-    QTC_ASSERT(model(), return);
-    model()->setData(index, value, role);
-}
-
-QVariant StackWindow::modelData(int role, const QModelIndex &index)
-{
-    QTC_ASSERT(model(), return QVariant());
-    return model()->data(index, role);
-}
-
 
 } // namespace Internal
 } // namespace Debugger
