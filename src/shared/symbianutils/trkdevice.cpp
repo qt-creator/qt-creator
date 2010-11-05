@@ -1091,7 +1091,7 @@ void TrkDevice::slotMessageReceived(const trk::TrkResult &result, const QByteArr
     if (isOpen()) { // Might receive bytes after closing due to queued connections.
         d->writerThread->slotHandleResult(result);
         if (d->verbose > 1)
-            qDebug() << "Received: " << result.toString();
+            qDebug() << "TRK DEVICE Received: " << result.toString();
         emit messageReceived(result);
         if (!rawData.isEmpty())
             emit rawDataReceived(rawData);

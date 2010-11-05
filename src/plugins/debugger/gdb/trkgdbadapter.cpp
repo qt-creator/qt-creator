@@ -263,6 +263,7 @@ void TrkGdbAdapter::logMessage(const QString &msg, int logChannel)
 {
     if (m_verbose || logChannel != LogDebug)
         showMessage("TRK LOG: " + msg, logChannel);
+    MEMORY_DEBUG("GDB: " << msg);
 }
 
 //
@@ -946,7 +947,9 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
         case TrkNotifyStopped: {  // 0x90 Notified Stopped
             // 90 01   78 6a 40 40   00 00 07 23   00 00 07 24  00 00
             showMessage(_("RESET SNAPSHOT (NOTIFY STOPPED)"));
+            MEMORY_DEBUG("WE STOPPED");
             m_snapshot.reset();
+            MEMORY_DEBUG("  AFTER CLEANING: " << m_snapshot.memory.size() << " BLOCKS LEFT");
             QString reason;
             uint addr;
             uint pid;
@@ -1212,6 +1215,7 @@ void TrkGdbAdapter::handleReadMemoryBuffered(const TrkResult &result)
     if (extractShort(result.data.data() + 1) + 3 != result.data.size())
         logMessage("\n BAD MEMORY RESULT: " + result.data.toHex() + "\n", LogError);
     const MemoryRange range = result.cookie.value<MemoryRange>();
+    MEMORY_DEBUG("HANDLE READ MEMORY ***BUFFERED*** FOR " << range);
     if (const int errorCode = result.errorCode()) {
         logMessage(_("TEMPORARY: ") + msgMemoryReadError(errorCode, range.from));
         logMessage(_("RETRYING UNBUFFERED"));
@@ -1221,6 +1225,7 @@ void TrkGdbAdapter::handleReadMemoryBuffered(const TrkResult &result)
         return;
     }
     const QByteArray ba = result.data.mid(3);
+    MEMORY_DEBUG("INSERT KNOWN MEMORY RANGE: " << range << m_snapshot.memory.size() << " BLOCKS");
     m_snapshot.insertMemory(range, ba);
     tryAnswerGdbMemoryRequest(true);
 }
@@ -1230,6 +1235,7 @@ void TrkGdbAdapter::handleReadMemoryUnbuffered(const TrkResult &result)
     if (extractShort(result.data.data() + 1) + 3 != result.data.size())
         logMessage("\n BAD MEMORY RESULT: " + result.data.toHex() + "\n", LogError);
     const MemoryRange range = result.cookie.value<MemoryRange>();
+    MEMORY_DEBUG("HANDLE READ MEMORY UNBUFFERED FOR " << range);
     if (const int errorCode = result.errorCode()) {
         logMessage(_("TEMPORARY: ") + msgMemoryReadError(errorCode, range.from));
         logMessage(_("RETRYING UNBUFFERED"));
@@ -1247,6 +1253,7 @@ void TrkGdbAdapter::handleReadMemoryUnbuffered(const TrkResult &result)
     }
     const QByteArray ba = result.data.mid(3);
     m_snapshot.insertMemory(range, ba);
+    MEMORY_DEBUG("INSERT KNOWN MEMORY RANGE: " << range << m_snapshot.memory.size() << " BLOCKS");
     tryAnswerGdbMemoryRequest(false);
 }
 
@@ -1310,10 +1317,10 @@ void TrkGdbAdapter::tryAnswerGdbMemoryRequest(bool buffered)
         int len = needed.to - needed.from;
         logMessage(_("Requesting unbuffered memory %1 bytes from 0x%2")
             .arg(len).arg(needed.from, 0, 16));
+        MEMORY_DEBUG("   FETCH UNBUFFERED MEMORY : " << needed);
         sendTrkMessage(0x10, TrkCB(handleReadMemoryUnbuffered),
             trkReadMemoryMessage(needed),
             QVariant::fromValue(needed));
-        MEMORY_DEBUG("   FETCH UNBUFFERED MEMORY : " << needed);
     }
 }
 

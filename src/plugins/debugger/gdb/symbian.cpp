@@ -203,14 +203,12 @@ Snapshot::Snapshot()
 
 void Snapshot::reset()
 {
+    MEMORY_DEBUG("RESET SNAPSHOT MEMORY INITIALLY: " << memory.size() << " BLOCK LEFT");
     for (Memory::Iterator it = memory.begin(); it != memory.end(); ) {
-        if (isReadOnly(it.key())) {
-            MEMORY_DEBUG("KEEPING READ-ONLY RANGE" << it.key());
-            ++it;
-        } else {
-            it = memory.erase(it);
-        }
+        MEMORY_DEBUG("EXAMINING " << it.key());
+        it = memory.erase(it);
     }
+    MEMORY_DEBUG("RESET SNAPSHOT MEMORY FINALLY: " << memory.size() << " BLOCK LEFT");
 
     const int threadCount = threadInfo.size();
     for (int i =0; i < threadCount; i++) {
@@ -466,7 +464,7 @@ QByteArray Snapshot::memoryReadLogMessage(uint addr, uint threadId, bool verbose
         logMsg += " length ";
         logMsg += QByteArray::number(ba.size());
         logMsg += " :";
-        logMsg += trk::stringFromArray(ba, 16).toAscii();
+        logMsg += trk::stringFromArray(ba, ba.size()).toAscii();
     }
     return logMsg;
 }
