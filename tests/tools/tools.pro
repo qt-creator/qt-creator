@@ -1,4 +1,6 @@
 TEMPLATE=subdirs
 
 SUBDIRS= \
-trklauncher
+trklauncher \
+cplusplus-dump \
+qml-ast2dot

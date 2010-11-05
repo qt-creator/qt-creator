@@ -2,7 +2,6 @@ TEMPLATE=subdirs
 
 SUBDIRS= \
 cplusplus-frontend \
-cplusplus-dump \
 fakevim \
 gdbdebugger \
 preprocessor \
