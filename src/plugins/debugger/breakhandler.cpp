@@ -31,25 +31,19 @@
 #include "breakpointmarker.h"
 
 #include "debuggeractions.h"
-#include "debuggerengine.h"
 #include "debuggerplugin.h"
 #include "debuggerstringutils.h"
-#include "threadshandler.h"
 
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 
+
 namespace Debugger {
 namespace Internal {
 
 static DebuggerPlugin *plugin() { return DebuggerPlugin::instance(); }
-
-
-static Breakpoints m_bp;
-// FIXME this is only static because it might map to bps in the above list
-static QHash<quint64,BreakpointMarker*> m_markers;
 
 //////////////////////////////////////////////////////////////////
 //

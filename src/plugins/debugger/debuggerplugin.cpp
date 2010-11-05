@@ -226,7 +226,7 @@
 //                      *          *                                        +
 //                  EngineShutdownRequested                                 +
 //                            +                                             +
-//           (calls *Engine->shutdownEngine())  <+-+-+-+-+-+-+-+-+-+-+-+-+-+' 
+//           (calls *Engine->shutdownEngine())  <+-+-+-+-+-+-+-+-+-+-+-+-+-+'
 //                         |        |                                        
 //                         |        |                                        
 //                    {notify-   {notify-                                    
@@ -296,7 +296,7 @@ sg1: }
 //
 //
 //                GdbEngine::setupInferior()
-//                          +      
+//                          +
 //            (calls *Adapter->prepareInferior())
 //                          |      |
 //                          |      `---> handlePrepareInferiorFailed()
@@ -305,7 +305,7 @@ sg1: }
 //                          |
 //                handleInferiorPrepared()
 //                          +
-//                {notifyInferiorSetupOk}  
+//                {notifyInferiorSetupOk}
 
 
 
@@ -429,7 +429,7 @@ struct AttachRemoteParameters
 
     quint64 attachPid;
     QString attachTarget;  // core file name or  server:port
-    // Event handle for attaching to crashed Windows processes. 
+    // Event handle for attaching to crashed Windows processes.
     quint64 winCrashEvent;
 };
 
@@ -863,8 +863,12 @@ public slots:
         { if (on) notifyCurrentEngine(RequestReloadSourceFilesRole); }
     void modulesDockToggled(bool on)
         { if (on) notifyCurrentEngine(RequestReloadModulesRole); }
+
     void registerDockToggled(bool on)
-        { if (on) notifyCurrentEngine(RequestReloadRegistersRole); }
+    {
+        if (on && m_currentEngine)
+            m_currentEngine->reloadRegisters();
+    }
 
     void synchronizeBreakpoints()
     {
@@ -1767,7 +1771,7 @@ void DebuggerPluginPrivate::startExternalApplication()
 void DebuggerPluginPrivate::notifyCurrentEngine(int role, const QVariant &value)
 {
     QTC_ASSERT(m_commandWindow, return);
-    if (m_commandWindow->model()) 
+    if (m_commandWindow->model())
         m_commandWindow->model()->setData(QModelIndex(), value, role);
 }
 
@@ -2059,40 +2063,54 @@ void DebuggerPluginPrivate::startDebugger(RunControl *rc)
     ProjectExplorerPlugin::instance()->startRunControl(rc, PE::DEBUGMODE);
 }
 
+
+class DummyEngine : public DebuggerEngine
+{
+    Q_OBJECT
+
+public:
+    DummyEngine() : DebuggerEngine(DebuggerStartParameters()) {}
+    virtual ~DummyEngine() {}
+
+    virtual void setupEngine() {}
+    virtual void setupInferior() {}
+    virtual void runEngine() {}
+    virtual void shutdownEngine() {}
+    virtual void shutdownInferior() {}
+    virtual void executeDebuggerCommand(const QString &) {}
+    virtual unsigned debuggerCapabilities() const { return 0; }
+};
+
+
 void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine, bool notify)
 {
+    static Debugger::DummyEngine dummyEngine;
+
+    if (!engine)
+        engine = &dummyEngine;
+
     if (m_currentEngine == engine)
         return;
 
-    if (engine) {
-        if (notify)
-            notifyCurrentEngine(RequestActivationRole, false);
-        m_commandWindow->setModel(engine->commandModel());
-        m_localsWindow->setModel(engine->localsModel());
-        m_modulesWindow->setModel(engine->modulesModel());
-        m_registerWindow->setModel(engine->registerModel());
-        m_returnWindow->setModel(engine->returnModel());
-        m_sourceFilesWindow->setModel(engine->sourceFilesModel());
-        m_stackWindow->setModel(engine->stackModel());
-        m_threadsWindow->setModel(engine->threadsModel());
-        m_threadBox->setModel(engine->threadsModel());
-        m_threadBox->setModelColumn(ThreadData::NameColumn);
-        m_watchersWindow->setModel(engine->watchersModel());
-        if (notify)
-            notifyCurrentEngine(RequestActivationRole, true);
-    } else {
-        m_commandWindow->setModel(0);
-        m_localsWindow->setModel(0);
-        m_modulesWindow->setModel(0);
-        m_registerWindow->setModel(0);
-        m_returnWindow->setModel(0);
-        m_sourceFilesWindow->setModel(0);
-        m_stackWindow->setModel(0);
-        m_threadsWindow->setModel(0);
-        m_threadBox->setModel(0);
-        m_threadBox->setModelColumn(ThreadData::NameColumn);
-        m_watchersWindow->setModel(0);
-    }
+    m_currentEngine = engine;
+
+    if (notify)
+        notifyCurrentEngine(RequestActivationRole, false);
+
+    m_commandWindow->setModel(engine->commandModel());
+    m_localsWindow->setModel(engine->localsModel());
+    m_modulesWindow->setModel(engine->modulesModel());
+    m_registerWindow->setModel(engine->registerModel());
+    m_returnWindow->setModel(engine->returnModel());
+    m_sourceFilesWindow->setModel(engine->sourceFilesModel());
+    m_stackWindow->setModel(engine->stackModel());
+    m_threadsWindow->setModel(engine->threadsModel());
+    m_threadBox->setModel(engine->threadsModel());
+    m_threadBox->setModelColumn(ThreadData::NameColumn);
+    m_watchersWindow->setModel(engine->watchersModel());
+
+    if (notify)
+        notifyCurrentEngine(RequestActivationRole, true);
 }
 
 static void changeFontSize(QWidget *widget, qreal size)
@@ -2542,7 +2560,7 @@ void DebuggerPluginPrivate::scriptExpressionEntered(const QString &expression)
 }
 
 void DebuggerPluginPrivate::openMemoryEditor()
-{ 
+{
     AddressDialog dialog;
     if (dialog.exec() != QDialog::Accepted)
         return;
@@ -2854,6 +2872,11 @@ bool DebuggerPlugin::hasSnapshots() const
 Internal::BreakHandler *DebuggerPlugin::breakHandler() const
 {
     return d->m_breakHandler;
+}
+
+DebuggerEngine *DebuggerPlugin::currentEngine() const
+{
+    return d->m_currentEngine;
 }
 
 void DebuggerPlugin::remoteCommand(const QStringList &options, const QStringList &)

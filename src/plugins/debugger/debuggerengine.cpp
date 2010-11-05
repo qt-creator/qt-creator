@@ -225,7 +225,7 @@ public:
         m_targetState(DebuggerNotReady),
         m_commandHandler(engine),
         m_modulesHandler(engine),
-        m_registerHandler(engine),
+        m_registerHandler(),
         m_sourceFilesHandler(engine),
         m_stackHandler(engine),
         m_threadsHandler(engine),
@@ -534,9 +534,9 @@ void DebuggerEngine::handleCommand(int role, const QVariant &value)
             reloadModules();
             break;
 
-        case RequestReloadRegistersRole:
-            reloadRegisters();
-            break;
+        //case RequestReloadRegistersRole:
+        //    reloadRegisters();
+        //    break;
 
         case RequestExecDetachRole:
             detachDebugger();

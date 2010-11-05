@@ -117,7 +117,7 @@ private:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
-    void markerUpdated(BreakpointMarker *, int lineNumber);
+    void markerUpdated(BreakpointMarker *marker, int lineNumber);
     void loadBreakpoints();
     void saveBreakpoints();
     void removeBreakpointHelper(int index);
@@ -138,7 +138,8 @@ private:
     mutable BreakpointData *m_lastFound;
     mutable bool m_lastFoundQueried;
 
-    QList<BreakpointData *> m_bp;
+    Breakpoints m_bp;
+    QHash<quint64, BreakpointMarker *> m_markers;
 };
 
 } // namespace Internal

@@ -28,23 +28,7 @@
 **************************************************************************/
 
 #include "registerhandler.h"
-
-#include "debuggeractions.h"
-#include "debuggeragents.h"
-#include "debuggerconstants.h"
-#include "debuggerengine.h"
 #include "watchdelegatewidgets.h"
-
-#include <utils/qtcassert.h>
-
-#include <QtCore/QAbstractTableModel>
-#include <QtCore/QDebug>
-
-#include <QtGui/QColor>
-
-using namespace Debugger;
-using namespace Debugger::Internal;
-using namespace Debugger::Constants;
 
 
 //////////////////////////////////////////////////////////////////
@@ -53,8 +37,11 @@ using namespace Debugger::Constants;
 //
 //////////////////////////////////////////////////////////////////
 
-RegisterHandler::RegisterHandler(DebuggerEngine *engine)
-  : m_engine(engine), m_base(15)
+namespace Debugger {
+namespace Internal {
+
+RegisterHandler::RegisterHandler()
+  : m_base(-1)
 {
     setNumberBase(16);
 }
@@ -70,53 +57,36 @@ int RegisterHandler::columnCount(const QModelIndex &parent) const
 }
 
 // Editor value: Preferably number, else string.
-QVariant RegisterHandler::editValue(const Register &reg)
+QVariant Register::editValue() const
 {
     bool ok = true;
     // Try to convert to number?
-    const qulonglong value = reg.value.toULongLong(&ok, 0); // Autodetect format
+    const qulonglong v = value.toULongLong(&ok, 0); // Autodetect format
     if (ok)
-        return QVariant(value);
-    return QVariant(reg.value);
+        return QVariant(v);
+    return QVariant(value);
 }
 
 // Editor value: Preferably padded number, else padded string.
-inline QString RegisterHandler::displayValue(const Register &reg) const
+QString Register::displayValue(int base, int strlen) const
 {
-    const QVariant editV = RegisterHandler::editValue(reg);
+    const QVariant editV = editValue();
     if (editV.type() == QVariant::ULongLong)
-        return QString::fromAscii("%1").arg(editV.toULongLong(), m_strlen, m_base);
+        return QString::fromAscii("%1").arg(editV.toULongLong(), strlen, base);
     const QString stringValue = editV.toString();
-    if (stringValue.size() < m_strlen)
-        return QString(m_strlen - stringValue.size(), QLatin1Char(' ')) + reg.value;
+    if (stringValue.size() < strlen)
+        return QString(strlen - stringValue.size(), QLatin1Char(' ')) + value;
     return stringValue;
 }
 
 QVariant RegisterHandler::data(const QModelIndex &index, int role) const
 {
-    switch (role) {
-        case EngineStateRole:
-            return m_engine->state();
-
-        case EngineCapabilitiesRole:
-            return m_engine->debuggerCapabilities();
-
-        case EngineActionsEnabledRole:
-            return m_engine->debuggerActionsEnabled();
-    }
-
     if (!index.isValid() || index.row() >= m_registers.size())
         return QVariant();
 
     const Register &reg = m_registers.at(index.row());
 
     switch (role) {
-    case RegisterAddressRole: {
-        // Return some address associated with the register. Autodetect format
-        const QVariant editV = RegisterHandler::editValue(reg);
-        return editV.type() == QVariant::ULongLong ? editV : QVariant();
-    }
-
     case Qt::DisplayRole:
         switch (index.column()) {
         case 0: {
@@ -124,18 +94,12 @@ QVariant RegisterHandler::data(const QModelIndex &index, int role) const
             return QVariant(padding + reg.name + padding);
         }
         case 1: // Display: Pad value for alignment
-            return displayValue(reg);
+            return reg.displayValue(m_base, m_strlen);
         } // switch column
     case Qt::EditRole: // Edit: Unpadded for editing
-        return RegisterHandler::editValue(reg);
+        return reg.editValue();
     case Qt::TextAlignmentRole:
         return index.column() == 1 ? QVariant(Qt::AlignRight) : QVariant();
-    case RegisterChangedRole:
-        return QVariant(reg.changed);
-    case RegisterBigNumberRole: // Editor: Can it be handled as quint64?
-        return editValue(reg).type() != QVariant::ULongLong;
-    case RegisterNumberBaseRole: // Big integers are assumed to be hexadecimal
-        return editValue(reg).type() == QVariant::ULongLong ? m_base : 16;
     default:
         break;
     }
@@ -161,29 +125,10 @@ Qt::ItemFlags RegisterHandler::flags(const QModelIndex &idx) const
 
     const Qt::ItemFlags notEditable = Qt::ItemIsSelectable|Qt::ItemIsEnabled;
     // Can edit registers if they are hex numbers and not arrays.
-    if (idx.column() == 1 && IntegerWatchLineEdit::isUnsignedHexNumber(m_registers.at(idx.row()).value))
+    if (idx.column() == 1
+        && IntegerWatchLineEdit::isUnsignedHexNumber(m_registers.at(idx.row()).value))
         return notEditable | Qt::ItemIsEditable;
     return notEditable;
-}
-
-bool RegisterHandler::setData(const QModelIndex &index, const QVariant &value, int role)
-{
-    switch (role) {
-        case RequestSetRegisterRole:
-            m_engine->setRegisterValue(index.row(), value.toString());
-            return true;
-
-        case RequestReloadRegistersRole:
-            m_engine->reloadRegisters();
-            return true;
-
-        case RequestShowMemoryRole:
-            (void) new MemoryViewAgent(m_engine, value.toString());
-            return true;
-
-        default:
-            return QAbstractTableModel::setData(index, value, role);
-    }
 }
 
 void RegisterHandler::removeAll()
@@ -232,3 +177,6 @@ void RegisterHandler::setNumberBase(int base)
         emit reset();
     }
 }
+
+} // namespace Internal
+} // namespace Debugger

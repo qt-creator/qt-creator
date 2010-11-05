@@ -53,10 +53,6 @@ private:
     void resizeEvent(QResizeEvent *ev);
     void contextMenuEvent(QContextMenuEvent *ev);
 
-    void setModelData(int role, const QVariant &value = QVariant(),
-        const QModelIndex &index = QModelIndex());
-    QVariant modelData(int role, const QModelIndex &index = QModelIndex());
-
     bool m_alwaysResizeColumnsToContents;
 };
 
@@ -64,4 +60,3 @@ private:
 } // namespace Debugger
 
 #endif // DEBUGGER_REGISTERWINDOW_H
-

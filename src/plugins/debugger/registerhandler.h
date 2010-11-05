@@ -34,14 +34,16 @@
 #include <QtCore/QVector>
 
 namespace Debugger {
-class DebuggerEngine;
-
 namespace Internal {
+
 class Register
 {
 public:
     Register() : changed(true) {}
-    Register(QByteArray const &name_) : name(name_), changed(true) {}
+    Register(const QByteArray &name_) : name(name_), changed(true) {}
+
+    QVariant editValue() const;
+    QString displayValue(int base, int strlen) const;
 
 public:
     QByteArray name;
@@ -60,7 +62,7 @@ class RegisterHandler : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    explicit RegisterHandler(DebuggerEngine *engine);
+    RegisterHandler();
 
     QAbstractItemModel *model() { return this; }
 
@@ -68,22 +70,20 @@ public:
     void setRegisters(const Registers &registers);
     void setAndMarkRegisters(const Registers &registers);
     Registers registers() const;
+    Register registerAt(int i) const { return m_registers.at(i); }
     void removeAll();
     Q_SLOT void setNumberBase(int base);
+    int numberBase() const { return m_base; }
 
 private:
     void calculateWidth();
-    inline QString displayValue(const Register &reg) const;
-    static QVariant editValue(const Register &reg);
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    bool setData(const QModelIndex &index, const QVariant &, int role);
     QVariant headerData(int section, Qt::Orientation orientation,
         int role = Qt::DisplayRole) const;
     Qt::ItemFlags flags(const QModelIndex &idx) const;
 
-    DebuggerEngine *m_engine; // Not owned.
     Registers m_registers;
     int m_base;
     int m_strlen; // approximate width of a value in chars.

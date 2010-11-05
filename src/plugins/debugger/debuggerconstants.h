@@ -239,14 +239,6 @@ enum ModelRoles
     RequestAllSymbolsRole,
     RequestOpenFileRole,
 
-    // Registers
-    RegisterNumberBaseRole,  // Currently used number base
-    RegisterAddressRole,     // Start value for opening memory view
-    RegisterChangedRole,     // Used for painting changed values
-    RegisterBigNumberRole,   // Register is a big integer that cannot be handled as quint64.
-    RequestSetRegisterRole,
-    RequestReloadRegistersRole,
-
     // Snapshots
     SnapshotCapabilityRole,
     RequestCreateSnapshotRole,

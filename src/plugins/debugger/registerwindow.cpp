@@ -30,8 +30,11 @@
 #include "registerwindow.h"
 
 #include "debuggeractions.h"
+#include "debuggerplugin.h"
+#include "debuggeragents.h"
 #include "debuggerconstants.h"
-
+#include "debuggerengine.h"
+#include "registerhandler.h"
 #include "watchdelegatewidgets.h"
 
 #include <utils/qtcassert.h>
@@ -45,8 +48,21 @@
 #include <QtGui/QPainter>
 #include <QtGui/QResizeEvent>
 
+
 namespace Debugger {
 namespace Internal {
+
+static DebuggerEngine *currentEngine()
+{
+    return DebuggerPlugin::instance()->currentEngine();
+}
+
+static RegisterHandler *currentHandler()
+{
+    DebuggerEngine *engine = currentEngine();
+    QTC_ASSERT(engine, return 0);
+    return engine->registerHandler();
+}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -57,18 +73,21 @@ namespace Internal {
 class RegisterDelegate : public QItemDelegate
 {
 public:
-    RegisterDelegate(RegisterWindow *owner, QObject *parent)
-        : QItemDelegate(parent), m_owner(owner)
+    RegisterDelegate(QObject *parent)
+        : QItemDelegate(parent)
     {}
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &,
         const QModelIndex &index) const
     {
+        Register reg = currentHandler()->registerAt(index.row());
         IntegerWatchLineEdit *lineEdit = new IntegerWatchLineEdit(parent);
-        lineEdit->setBase(index.data(RegisterNumberBaseRole).toInt());
-        lineEdit->setBigInt(index.data(RegisterBigNumberRole).toBool());
+        const int base = currentHandler()->numberBase();
+        const bool big = reg.value.size() > 16;
+        // Big integers are assumed to be hexadecimal.
+        lineEdit->setBigInt(big);
+        lineEdit->setBase(big ? 16 : base);
         lineEdit->setSigned(false);
-
         lineEdit->setAlignment(Qt::AlignRight);
         return lineEdit;
     }
@@ -80,13 +99,14 @@ public:
         lineEdit->setModelData(index.data(Qt::EditRole));
     }
 
-    void setModelData(QWidget *editor, QAbstractItemModel *, const QModelIndex &index) const
+    void setModelData(QWidget *editor, QAbstractItemModel *,
+        const QModelIndex &index) const
     {
         if (index.column() != 1)
             return;
         IntegerWatchLineEdit *lineEdit = qobject_cast<IntegerWatchLineEdit*>(editor);
         QTC_ASSERT(lineEdit, return);
-        m_owner->model()->setData(index, lineEdit->modelData(), RequestSetRegisterRole);
+        currentEngine()->setRegisterValue(index.row(), lineEdit->text());
     }
 
     void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
@@ -99,7 +119,7 @@ public:
         const QModelIndex &index) const
     {
         if (index.column() == 1) {
-            bool paintRed = index.data(RegisterChangedRole).toBool();
+            bool paintRed = currentHandler()->registerAt(index.row()).changed;
             QPen oldPen = painter->pen();
             if (paintRed)
                 painter->setPen(QColor(200, 0, 0));
@@ -125,9 +145,6 @@ public:
             QItemDelegate::paint(painter, option, index);
         }
     }
-
-private:
-    RegisterWindow *m_owner;
 };
 
 
@@ -146,10 +163,10 @@ RegisterWindow::RegisterWindow(QWidget *parent)
     setAttribute(Qt::WA_MacShowFocusRect, false);
     setAlternatingRowColors(act->isChecked());
     setRootIsDecorated(false);
-    setItemDelegate(new RegisterDelegate(this, this));
+    setItemDelegate(new RegisterDelegate(this));
 
     connect(act, SIGNAL(toggled(bool)),
-        this, SLOT(setAlternatingRowColorsHelper(bool)));
+        SLOT(setAlternatingRowColorsHelper(bool)));
 }
 
 void RegisterWindow::resizeEvent(QResizeEvent *ev)
@@ -161,9 +178,12 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
 
-    const unsigned engineCapabilities = modelData(EngineCapabilitiesRole).toUInt();
-    const bool actionsEnabled = modelData(EngineActionsEnabledRole).toInt();
-    const int state = modelData(EngineStateRole).toInt();
+    DebuggerEngine *engine = currentEngine();
+    QTC_ASSERT(engine, return);
+    RegisterHandler *handler = currentHandler();
+    const unsigned engineCapabilities = engine->debuggerCapabilities();
+    const bool actionsEnabled = engine->debuggerActionsEnabled();
+    const int state = engine->state();
 
     QAction *actReload = menu.addAction(tr("Reload Register Listing"));
     actReload->setEnabled((engineCapabilities & RegisterCapability)
@@ -172,7 +192,7 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addSeparator();
 
     QModelIndex idx = indexAt(ev->pos());
-    QString address = modelData(RegisterAddressRole, idx).toString();
+    QString address = handler->registers().at(idx.row()).value;
     QAction *actShowMemory = menu.addAction(QString());
     if (address.isEmpty()) {
         actShowMemory->setText(tr("Open Memory Editor"));
@@ -184,7 +204,7 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
     }
     menu.addSeparator();
 
-    int base = modelData(RegisterNumberBaseRole).toInt();
+    const int base = handler->numberBase();
     QAction *act16 = menu.addAction(tr("Hexadecimal"));
     act16->setCheckable(true);
     act16->setChecked(base == 16);
@@ -215,13 +235,17 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
     else if (act == actAlwaysAdjust)
         setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
     else if (act == actReload)
-        setModelData(RequestReloadRegistersRole);
+        engine->reloadRegisters();
     else if (act == actShowMemory)
-        setModelData(RequestShowMemoryRole, address);
-    else if (act) {
-        base = (act == act10 ? 10 : act == act8 ? 8 : act == act2 ? 2 : 16);
-        QMetaObject::invokeMethod(model(), "setNumberBase", Q_ARG(int, base));
-    }
+        (void) new MemoryViewAgent(engine, address);
+    else if (act == act16)
+        handler->setNumberBase(16);
+    else if (act == act10)
+        handler->setNumberBase(10);
+    else if (act == act8)
+        handler->setNumberBase(8);
+    else if (act == act2)
+        handler->setNumberBase(2);
 }
 
 void RegisterWindow::resizeColumnsToContents()
@@ -248,20 +272,7 @@ void RegisterWindow::setModel(QAbstractItemModel *model)
 void RegisterWindow::reloadRegisters()
 {
     // FIXME: Only trigger when becoming visible?
-    setModelData(RequestReloadRegistersRole);
-}
-
-void RegisterWindow::setModelData
-    (int role, const QVariant &value, const QModelIndex &index)
-{
-    QTC_ASSERT(model(), return);
-    model()->setData(index, value, role);
-}
-
-QVariant RegisterWindow::modelData(int role, const QModelIndex &index)
-{
-    QTC_ASSERT(model(), return QVariant());
-    return model()->data(index, role);
+    currentEngine()->reloadRegisters();
 }
 
 } // namespace Internal

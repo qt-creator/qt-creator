@@ -91,6 +91,7 @@ public:
 
     void openTextEditor(const QString &titlePattern, const QString &contents);
     Internal::BreakHandler *breakHandler() const;
+    DebuggerEngine *currentEngine() const;
 
 public slots:
     void clearCppCodeModelSnapshot();
