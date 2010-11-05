@@ -38,8 +38,6 @@
 #include "threaddata.h"
 
 namespace Debugger {
-class DebuggerEngine;
-
 namespace Internal {
 
 ////////////////////////////////////////////////////////////////////////
@@ -54,7 +52,7 @@ class ThreadsHandler : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    explicit ThreadsHandler(DebuggerEngine *engine);
+    ThreadsHandler();
 
     int currentThread() const { return m_currentIndex; }
     void setCurrentThread(int index);
@@ -75,12 +73,9 @@ private:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role);
     QVariant headerData(int section, Qt::Orientation orientation,
         int role = Qt::DisplayRole) const;
 
-private:
-    DebuggerEngine *m_engine;
     Threads m_threads;
     int m_currentIndex;
     const QIcon m_positionIcon;

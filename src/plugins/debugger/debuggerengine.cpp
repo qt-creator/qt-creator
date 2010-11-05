@@ -228,7 +228,7 @@ public:
         m_registerHandler(),
         m_sourceFilesHandler(engine),
         m_stackHandler(engine),
-        m_threadsHandler(engine),
+        m_threadsHandler(),
         m_watchHandler(engine),
         m_disassemblerViewAgent(engine),
         m_isSlaveEngine(false)

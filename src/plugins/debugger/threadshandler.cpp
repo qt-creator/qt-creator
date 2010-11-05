@@ -30,7 +30,6 @@
 #include "threadshandler.h"
 
 #include "debuggerconstants.h"
-#include "debuggerengine.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QTextStream>
@@ -43,7 +42,8 @@ namespace Internal {
 // ThreadsHandler
 //
 ///////////////////////////////////////////////////////////////////////
-static inline QString threadToolTip(const ThreadData &thread)
+
+static QString threadToolTip(const ThreadData &thread)
 {
     const char tableRowStartC[] = "<tr><td>";
     const char tableRowSeparatorC[] = "</td><td>";
@@ -87,9 +87,8 @@ static inline QString threadToolTip(const ThreadData &thread)
 //
 ///////////////////////////////////////////////////////////////////////
 
-ThreadsHandler::ThreadsHandler(DebuggerEngine *engine)
-  : m_engine(engine),
-    m_currentIndex(0),
+ThreadsHandler::ThreadsHandler()
+  : m_currentIndex(0),
     m_positionIcon(QLatin1String(":/debugger/images/location_16.png")),
     m_emptyIcon(QLatin1String(":/debugger/images/debugger_empty_14.png"))
 {
@@ -177,16 +176,6 @@ QVariant ThreadsHandler::headerData
         return tr("Name");
     }
     return QVariant();
-}
-
-bool ThreadsHandler::setData
-    (const QModelIndex &index, const QVariant &value, int role)
-{
-    if (role == RequestSelectThreadRole) {
-        m_engine->selectThread(value.toInt());
-        return true;
-    }
-    return QAbstractTableModel::setData(index, value, role);
 }
 
 int ThreadsHandler::currentThreadId() const

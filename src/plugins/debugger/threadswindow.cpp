@@ -29,8 +29,11 @@
 
 #include "threadswindow.h"
 
+#include "threadshandler.h"
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
+#include "debuggerengine.h"
+#include "debuggerplugin.h"
 
 #include <utils/savedaction.h>
 
@@ -107,7 +110,8 @@ void ThreadsWindow::setAlwaysResizeColumnsToContents(bool on)
 
 void ThreadsWindow::selectThread(int index)
 {
-    model()->setData(QModelIndex(), index, RequestSelectThreadRole); 
+    DebuggerPlugin::instance()->currentEngine()
+        ->threadsHandler()->selectThread(index);
 }
 
 } // namespace Internal

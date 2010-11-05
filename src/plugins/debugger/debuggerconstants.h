@@ -229,9 +229,6 @@ enum ModelRoles
     RequestShowMemoryRole,
     RequestShowDisassemblerRole,
 
-    // Threads
-    RequestSelectThreadRole,
-
     // Modules
     RequestReloadModulesRole,
     RequestExamineModulesRole,
