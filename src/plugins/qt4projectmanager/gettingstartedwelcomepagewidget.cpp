@@ -86,16 +86,29 @@ GettingStartedWelcomePageWidget::GettingStartedWelcomePageWidget(QWidget *parent
 
     connect(ui->tutorialTreeWidget, SIGNAL(activated(QString)), SLOT(slotOpenHelpPage(const QString&)));
 
-    ui->tutorialTreeWidget->addItem(tr("The Qt Creator User Interface"),
-                                        QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html"));
-    ui->tutorialTreeWidget->addItem(tr("Building and Running an Example"),
-                                        QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-build-example-application.html?view=split"));
-    ui->tutorialTreeWidget->addItem(tr("Creating a Qt C++ Application"),
-                                        QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-writing-program.html?view=split"));
-    ui->tutorialTreeWidget->addItem(tr("Creating a Mobile Application"),
-                                        QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-mobile-example.html?view=split"));
-    ui->tutorialTreeWidget->addItem(tr("Creating a Qt Quick Application"),
-                                        QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-qml-application.html?view=split"));
+    QFontMetrics fm = fontMetrics();
+    const int margins = 30;
+    int width = ui->tutorialTreeWidget->minimumWidth() - margins;
+
+    QString itemText = tr("The Qt Creator User Interface");
+    QString url = QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html");
+    ui->tutorialTreeWidget->addItem(fm.elidedText(itemText, Qt::ElideRight, width), url, itemText);
+
+    itemText = tr("Building and Running an Example");
+    url = QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-build-example-application.html?view=split");
+    ui->tutorialTreeWidget->addItem(fm.elidedText(itemText, Qt::ElideRight, width), url, itemText);
+
+    itemText = tr("Creating a Qt C++ Application");
+    url = QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-writing-program.html?view=split");
+    ui->tutorialTreeWidget->addItem(fm.elidedText(itemText, Qt::ElideRight, width), url, itemText);
+
+    itemText = tr("Creating a Mobile Application");
+    url = QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-mobile-example.html?view=split");
+    ui->tutorialTreeWidget->addItem(fm.elidedText(itemText, Qt::ElideRight, width), url, itemText);
+
+    itemText = tr("Creating a Qt Quick Application");
+    url = QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-qml-application.html?view=split");
+    ui->tutorialTreeWidget->addItem(fm.elidedText(itemText, Qt::ElideRight, width), url, itemText);
 
     srand(QDateTime::currentDateTime().toTime_t());
     QStringList tips = tipsOfTheDay();
