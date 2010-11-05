@@ -673,7 +673,7 @@ void MaemoDeployStep::runDpkg(const QString &packageFilePath)
     QByteArray cmd = MaemoGlobal::remoteSudo().toUtf8() + " dpkg -i "
         + packageFilePath.toUtf8();
     if (removeAfterInstall)
-        cmd += " && rm " + packageFilePath.toUtf8() + " || :";
+        cmd += " && (rm " + packageFilePath.toUtf8() + " || :)";
     m_deviceInstaller = m_connection->createRemoteProcess(cmd);
     connect(m_deviceInstaller.data(), SIGNAL(closed(int)), this,
         SLOT(handleInstallationFinished(int)));
