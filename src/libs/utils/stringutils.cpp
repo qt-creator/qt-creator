@@ -119,4 +119,42 @@ QTCREATOR_UTILS_EXPORT QString withTildeHomePath(const QString &path)
     return outPath;
 }
 
+int AbstractQtcMacroExpander::findMacro(const QString &str, int *pos, QString *ret)
+{
+    forever {
+        int openPos = str.indexOf(QLatin1String("%{"), *pos);
+        if (openPos < 0)
+            return 0;
+        int varPos = openPos + 2;
+        int closePos = str.indexOf(QLatin1Char('}'), varPos);
+        if (closePos < 0)
+            return 0;
+        int varLen = closePos - varPos;
+        if (resolveMacro(str.mid(varPos, varLen), ret)) {
+            *pos = openPos;
+            return varLen + 3;
+        }
+        // An actual expansion may be nested into a "false" one,
+        // so we continue right after the last %{.
+        *pos = varPos;
+    }
+}
+
+QTCREATOR_UTILS_EXPORT void expandMacros(QString *str, AbstractMacroExpander *mx)
+{
+    QString rsts;
+
+    for (int pos = 0; int len = mx->findMacro(*str, &pos, &rsts); ) {
+        str->replace(pos, len, rsts);
+        pos += rsts.length();
+    }
+}
+
+QTCREATOR_UTILS_EXPORT QString expandMacros(const QString &str, AbstractMacroExpander *mx)
+{
+    QString ret = str;
+    expandMacros(&ret, mx);
+    return ret;
+}
+
 } // namespace Utils

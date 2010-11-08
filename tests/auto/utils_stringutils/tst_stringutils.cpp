@@ -33,13 +33,30 @@
 
 //TESTED_COMPONENT=src/libs/utils
 
+class TestMacroExpander : public Utils::AbstractQtcMacroExpander
+{
+public:
+    virtual bool resolveMacro(const QString &name, QString *ret)
+    {
+        if (name == QLatin1String("a")) {
+            *ret = QLatin1String("hi");
+            return true;
+        }
+        return false;
+    }
+};
+
 class tst_StringUtils : public QObject
 {
     Q_OBJECT
 
 private slots:
     void testWithTildeHomePath();
+    void testMacroExpander_data();
+    void testMacroExpander();
 
+private:
+    TestMacroExpander mx;
 };
 
 void tst_StringUtils::testWithTildeHomePath()
@@ -71,6 +88,39 @@ void tst_StringUtils::testWithTildeHomePath()
     QCOMPARE(Utils::withTildeHomePath(QDir::homePath() + QString::fromLatin1("/../foo")),
              Utils::withTildeHomePath(QDir::homePath() + QString::fromLatin1("/../foo")));
 #endif
+}
+
+void tst_StringUtils::testMacroExpander_data()
+
+{
+    QTest::addColumn<QString>("in");
+    QTest::addColumn<QString>("out");
+
+    static const struct {
+        const char * const in;
+        const char * const out;
+    } vals[] = {
+        { "text", "text" },
+        { "%{a}", "hi" },
+        { "pre%{a}", "prehi" },
+        { "%{a}post", "hipost" },
+        { "pre%{a}post", "prehipost" },
+        { "%{a}%{a}", "hihi" },
+        { "%{a}text%{a}", "hitexthi" },
+    };
+
+    for (unsigned i = 0; i < sizeof(vals)/sizeof(vals[0]); i++)
+        QTest::newRow(vals[i].in) << QString::fromLatin1(vals[i].in)
+                                  << QString::fromLatin1(vals[i].out);
+}
+
+void tst_StringUtils::testMacroExpander()
+{
+    QFETCH(QString, in);
+    QFETCH(QString, out);
+
+    Utils::expandMacros(&in, &mx);
+    QCOMPARE(in, out);
 }
 
 QTEST_MAIN(tst_StringUtils)
