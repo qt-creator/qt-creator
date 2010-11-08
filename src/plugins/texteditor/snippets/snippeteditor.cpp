@@ -55,6 +55,7 @@ SnippetEditor::SnippetEditor(QWidget *parent) : BaseTextEditor(parent)
     setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     setHighlightCurrentLine(false);
     setLineNumbersVisible(false);
+    setParenthesesMatchingEnabled(true);
 }
 
 SnippetEditor::~SnippetEditor()
