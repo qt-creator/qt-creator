@@ -90,10 +90,12 @@ QString BuildableHelperLibrary::qtVersionForQMake(const QString &qmakePath)
         return QString();
     }
     const QString output = QString::fromLocal8Bit(qmake.readAllStandardOutput());
-    QRegExp regexp(QLatin1String("(QMake version|QMake version:)[\\s]*([\\d.]*)"), Qt::CaseInsensitive);
+    static QRegExp regexp(QLatin1String("(QMake version|QMake version:)[\\s]*([\\d.]*)"),
+                          Qt::CaseInsensitive);
     regexp.indexIn(output);
     if (regexp.cap(2).startsWith(QLatin1String("2."))) {
-        QRegExp regexp2(QLatin1String("Using Qt version[\\s]*([\\d\\.]*)"), Qt::CaseInsensitive);
+        static QRegExp regexp2(QLatin1String("Using Qt version[\\s]*([\\d\\.]*)"),
+                               Qt::CaseInsensitive);
         regexp2.indexIn(output);
         const QString version = regexp2.cap(1);
         return version;
@@ -108,7 +110,7 @@ bool BuildableHelperLibrary::checkMinimumQtVersion(const QString &qtVersionStrin
     int patch = -1;
 
     // check format
-    QRegExp qtVersionRegex(QLatin1String("^\\d+\\.\\d+\\.\\d+$"));
+    static QRegExp qtVersionRegex(QLatin1String("^\\d+\\.\\d+\\.\\d+$"));
     if (!qtVersionRegex.exactMatch(qtVersionString))
         return false;
 
