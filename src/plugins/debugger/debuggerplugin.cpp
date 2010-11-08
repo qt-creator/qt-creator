@@ -872,7 +872,10 @@ public:
     DebuggerEngine *currentEngine() const { return m_currentEngine; }
 
 public slots:
-    void selectThread(int index);
+    void selectThread(int index)
+    {
+        currentEngine()->selectThread(index);
+    }
 
     void breakpointSetRemoveMarginActionTriggered()
     {
@@ -1803,8 +1806,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     hbox->addWidget(new QLabel(tr("Threads:")));
 
     m_threadBox = new QComboBox;
-    connect(m_threadBox, SIGNAL(activated(int)),
-        m_threadsWindow, SLOT(selectThread(int)));
+    connect(m_threadBox, SIGNAL(activated(int)), SLOT(selectThread(int)));
 
     hbox->addWidget(m_threadBox);
     hbox->addSpacerItem(new QSpacerItem(4, 0));
