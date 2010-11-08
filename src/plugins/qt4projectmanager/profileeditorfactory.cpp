@@ -89,7 +89,7 @@ Core::IEditor *ProFileEditorFactory::createEditor(QWidget *parent)
 
     // auto completion
     connect(editor, SIGNAL(requestAutoCompletion(TextEditor::ITextEditable*, bool)),
-            TextEditor::Internal::CompletionSupport::instance(), SLOT(autoComplete(TextEditor::ITextEditable*, bool)));
+            TextEditor::CompletionSupport::instance(), SLOT(autoComplete(TextEditor::ITextEditable*, bool)));
     return editor->editableInterface();
 }
 
