@@ -1133,6 +1133,40 @@ void CppCodeCompletion::globalCompletion(Scope *currentScope)
     addMacros(context.thisDocument()->fileName(), context.snapshot());
 }
 
+static Scope *enclosingNonTemplateScope(Symbol *symbol)
+{
+    if (symbol) {
+        if (Scope *scope = symbol->enclosingScope()) {
+            if (Template *templ = scope->asTemplate())
+                return templ->enclosingScope();
+            return scope;
+        }
+    }
+    return 0;
+}
+
+static Function *asFunctionOrTemplateFunctionType(FullySpecifiedType ty)
+{
+    if (Function *funTy = ty->asFunctionType())
+        return funTy;
+    else if (Template *templ = ty->asTemplateType()) {
+        if (Symbol *decl = templ->declaration())
+            return decl->asFunction();
+    }
+    return 0;
+}
+
+static Class *asClassOrTemplateClassType(FullySpecifiedType ty)
+{
+    if (Class *classTy = ty->asClassType())
+        return classTy;
+    else if (Template *templ = ty->asTemplateType()) {
+        if (Symbol *decl = templ->declaration())
+            return decl->asClass();
+    }
+    return 0;
+}
+
 bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &results,
                                                       int endOfExpression, bool toolTipOnly)
 {
@@ -1142,10 +1176,10 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &r
     foreach (const LookupItem &result, results) {
         FullySpecifiedType exprTy = result.type().simplified();
 
-        if (Class *klass = exprTy->asClassType()) {
+        if (Class *klass = asClassOrTemplateClassType(exprTy)) {
             const Name *className = klass->name();
             if (! className)
-                continue; // nothing to do for anonymoous classes.
+                continue; // nothing to do for anonymous classes.
 
             for (unsigned i = 0; i < klass->memberCount(); ++i) {
                 Symbol *member = klass->memberAt(i);
@@ -1173,11 +1207,11 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &r
         foreach (const LookupItem &result, results) {
             FullySpecifiedType ty = result.type().simplified();
 
-            if (Function *fun = ty->asFunctionType()) {
+            if (Function *fun = asFunctionOrTemplateFunctionType(ty)) {
 
                 if (! fun->name())
                     continue;
-                else if (! functions.isEmpty() && functions.first()->enclosingScope() != fun->enclosingScope())
+                else if (! functions.isEmpty() && enclosingNonTemplateScope(functions.first()) != enclosingNonTemplateScope(fun))
                     continue; // skip fun, it's an hidden declaration.
 
                 bool newOverload = true;
