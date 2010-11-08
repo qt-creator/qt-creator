@@ -216,8 +216,7 @@ QString MaemoDeployableListModel::localExecutableFilePath() const
         const QStringList &config
             = m_proFileWrapper->varValues(QLatin1String("CONFIG"));
         isStatic = config.contains(QLatin1String("static"))
-            || config.contains(QLatin1String("staticlib"))
-            || config.contains(QLatin1String("plugin"));
+            || config.contains(QLatin1String("staticlib"));
     }
     fileName += m_targetInfo.target;
     if (isLib)
