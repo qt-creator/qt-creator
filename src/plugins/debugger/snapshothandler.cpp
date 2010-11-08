@@ -234,7 +234,7 @@ void SnapshotHandler::removeSnapshot(int index)
     setState(EngineSetupRequested);
     postCommand("set stack-cache off");
 #endif
-    QString fileName = engine->startParameters().coreFile;
+    //QString fileName = engine->startParameters().coreFile;
     //if (!fileName.isEmpty())
     //    QFile::remove(fileName);
     m_snapshots.removeAt(index);
@@ -242,7 +242,7 @@ void SnapshotHandler::removeSnapshot(int index)
         m_currentIndex = -1;
     else if (index < m_currentIndex)
         --m_currentIndex;
-    engine->quitDebugger();
+    //engine->quitDebugger();
     reset();
 }
 

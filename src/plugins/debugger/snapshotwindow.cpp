@@ -32,6 +32,7 @@
 
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
+#include "debuggerrunner.h"
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
@@ -96,7 +97,7 @@ void SnapshotWindow::keyPressEvent(QKeyEvent *ev)
         if (si.isEmpty())
             si.append(currentIndex().sibling(currentIndex().row(), 0));
         foreach (const QModelIndex &idx, normalizeIndexes(si))
-            m_snapshotHandler->removeSnapshot(idx.row());
+            removeSnapshot(idx.row());
     }
     QTreeView::keyPressEvent(ev);
 }
@@ -133,11 +134,16 @@ void SnapshotWindow::contextMenuEvent(QContextMenuEvent *ev)
     if (act == actCreate)
         m_snapshotHandler->createSnapshot(idx.row());
     else if (act == actRemove)
-        m_snapshotHandler->removeSnapshot(idx.row());
+        removeSnapshot(idx.row());
     else if (act == actAdjust)
         resizeColumnsToContents();
     else if (act == actAlwaysAdjust)
         setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
+}
+
+void SnapshotWindow::removeSnapshot(int i)
+{
+    m_snapshotHandler->at(i)->stop();
 }
 
 void SnapshotWindow::resizeColumnsToContents()

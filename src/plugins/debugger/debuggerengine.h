@@ -199,6 +199,7 @@ public:
 protected:
     friend class DebuggerPluginPrivate;
     virtual void detachDebugger();
+    virtual void exitDebugger();
     virtual void executeStep();
     virtual void executeStepOut() ;
     virtual void executeNext();
@@ -208,8 +209,6 @@ protected:
 
     virtual void continueInferior();
     virtual void interruptInferior();
-    virtual void exitInferior();
-
     virtual void requestInterruptInferior();
 
     virtual void executeRunToLine(const QString &fileName, int lineNumber);

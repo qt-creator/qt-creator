@@ -53,6 +53,7 @@ private slots:
     void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
 
 private:
+    void removeSnapshot(int i);
     void keyPressEvent(QKeyEvent *ev);
     void contextMenuEvent(QContextMenuEvent *ev);
 
