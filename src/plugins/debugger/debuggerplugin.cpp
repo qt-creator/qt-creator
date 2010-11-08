@@ -48,11 +48,13 @@
 #include "moduleswindow.h"
 #include "registerwindow.h"
 #include "snapshotwindow.h"
+#include "stackhandler.h"
 #include "stackwindow.h"
 #include "sourcefileswindow.h"
 #include "threadswindow.h"
 #include "watchhandler.h"
 #include "watchwindow.h"
+#include "watchutils.h"
 
 #include "snapshothandler.h"
 #include "threadshandler.h"
@@ -105,6 +107,7 @@
 #include <QtGui/QComboBox>
 #include <QtGui/QDockWidget>
 #include <QtGui/QFileDialog>
+#include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
 #include <QtGui/QToolButton>
 
@@ -227,15 +230,18 @@
 //                  EngineShutdownRequested                                 +
 //                            +                                             +
 //           (calls *Engine->shutdownEngine())  <+-+-+-+-+-+-+-+-+-+-+-+-+-+'
-//                         |        |                                        
-//                         |        |                                        
-//                    {notify-   {notify-                                    
+//                         |        |
+//                         |        |
+//                    {notify-   {notify-
 //                     Engine-    Engine-
-//                  ShutdownOk}  ShutdownFailed}                             
-//                         +       +                                         
-//            EngineShutdownOk  EngineShutdownFailed                         
+//                  ShutdownOk}  ShutdownFailed}
+//                         +       +
+//            EngineShutdownOk  EngineShutdownFailed
 //                         *       *
 //                     DebuggerFinished
+//
+
+
 /* Here is a matching graph as a GraphViz graph. View it using
  * \code
 grep "^sg1:" debuggerplugin.cpp | cut -c5- | dot -osg1.ps -Tps && gv sg1.ps
@@ -794,14 +800,6 @@ static bool isDebuggable(Core::IEditor *editor)
     return true;
 }
 
-static TextEditor::ITextEditor *currentTextEditor()
-{
-    EditorManager *editorManager = EditorManager::instance();
-    if (!editorManager)
-        return 0;
-    Core::IEditor *editor = editorManager->currentEditor();
-    return qobject_cast<ITextEditor*>(editor);
-}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -851,7 +849,6 @@ public:
     explicit DebuggerPluginPrivate(DebuggerPlugin *plugin);
 
     bool initialize(const QStringList &arguments, QString *errorMessage);
-    void notifyCurrentEngine(int role, const QVariant &value = QVariant());
     void connectEngine(DebuggerEngine *engine, bool notify = true);
     void disconnectEngine() { connectEngine(0); }
     DebuggerEngine *currentEngine() const { return m_currentEngine; }
@@ -900,7 +897,6 @@ public slots:
         }
     }
 
-    void onAction();
     void setSimpleDockWidgetArrangement(Debugger::DebuggerLanguages activeLanguages);
 
     void editorOpened(Core::IEditor *editor);
@@ -968,6 +964,111 @@ public slots:
     void scriptExpressionEntered(const QString &expression);
     void coreShutdown();
 
+public slots:
+    void handleExecDetach() { currentEngine()->detachDebugger(); }
+    void handleExecContinue() { currentEngine()->continueInferior(); }
+    void handleExecInterrupt() { currentEngine()->requestInterruptInferior(); }
+    void handleExecReset() { currentEngine()->notifyEngineIll(); } // FIXME: Check.
+
+    void handleExecStep()
+    {
+        resetLocation();
+        if (theDebuggerBoolSetting(OperateByInstruction))
+            currentEngine()->executeStepI();
+        else
+            currentEngine()->executeStep();
+    }
+
+    void handleExecNext()
+    {
+        resetLocation();
+        if (theDebuggerBoolSetting(OperateByInstruction))
+            currentEngine()->executeNextI();
+        else
+            currentEngine()->executeNext();
+    }
+
+    void handleExecStepOut() { resetLocation(); currentEngine()->executeStepOut(); }
+    void handleExecReturn() { resetLocation(); currentEngine()->executeReturn(); }
+
+    void handleExecJumpToLine()
+    {
+        //removeTooltip();
+        resetLocation();
+        currentEngine()->executeJumpToLine(); // FIXME: move code from engine here.
+    }
+
+    void handleExecRunToLine()
+    {
+        //removeTooltip();
+        resetLocation();
+        currentEngine()->executeRunToLine(); // FIXME: move code from engine here.
+    }
+
+    void handleExecRunToFunction()
+    {
+        resetLocation();
+        currentEngine()->executeRunToFunction(); // FIXME: move code from engine here.
+    }
+
+    void handleAddToWatchWindow()
+    {
+        // Requires a selection, but that's the only case we want anyway.
+        EditorManager *editorManager = EditorManager::instance();
+        if (!editorManager)
+            return;
+        IEditor *editor = editorManager->currentEditor();
+        if (!editor)
+            return;
+        ITextEditor *textEditor = qobject_cast<ITextEditor*>(editor);
+        if (!textEditor)
+            return;
+        QTextCursor tc;
+        QPlainTextEdit *ptEdit = qobject_cast<QPlainTextEdit*>(editor->widget());
+        if (ptEdit)
+            tc = ptEdit->textCursor();
+        QString exp;
+        if (tc.hasSelection()) {
+            exp = tc.selectedText();
+        } else {
+            int line, column;
+            exp = cppExpressionAt(textEditor, tc.position(), &line, &column);
+        }
+        if (exp.isEmpty())
+            return;
+        currentEngine()->watchHandler()->watchExpression(exp);
+    }
+
+    void handleExecExit()
+    {
+        currentEngine()->exitInferior();
+    }
+
+    void handleFrameDown()
+    {
+        currentEngine()->frameDown();
+    }
+
+    void handleFrameUp()
+    {
+        currentEngine()->frameUp();
+    }
+
+    void handleOperateByInstructionTriggered()
+    {
+        currentEngine()->gotoLocation(
+            currentEngine()->stackHandler()->currentFrame(), true);
+    }
+
+    void resetLocation()
+    {
+        // FIXME: code should be moved here.
+        currentEngine()->resetLocation();
+        //d->m_disassemblerViewAgent.resetLocation();
+        //d->m_stackHandler.setCurrentIndex(-1);
+        //plugin()->resetLocation();
+    }
+
 public:
     DebuggerState m_state;
     DebuggerUISwitcher *m_uiSwitcher;
@@ -1022,7 +1123,6 @@ public:
     QTreeView *m_returnWindow;
     QTreeView *m_localsWindow;
     QTreeView *m_watchersWindow;
-    QTreeView *m_commandWindow;
     QAbstractItemView *m_registerWindow;
     QAbstractItemView *m_modulesWindow;
     QAbstractItemView *m_snapshotWindow;
@@ -1159,7 +1259,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     m_localsWindow->setObjectName(QLatin1String("CppDebugLocals"));
     m_watchersWindow = new WatchWindow(WatchWindow::WatchersType);
     m_watchersWindow->setObjectName(QLatin1String("CppDebugWatchers"));
-    m_commandWindow = new QTreeView;
     m_scriptConsoleWindow = new ScriptConsole;
     m_scriptConsoleWindow->setWindowTitle(tr("QML Script Console"));
     m_scriptConsoleWindow->setObjectName(QLatin1String("QMLScriptConsole"));
@@ -1177,113 +1276,92 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
 
     // Watchers
     connect(m_localsWindow->header(), SIGNAL(sectionResized(int,int,int)),
-        this, SLOT(updateWatchersHeader(int,int,int)), Qt::QueuedConnection);
+        SLOT(updateWatchersHeader(int,int,int)), Qt::QueuedConnection);
 
-    m_actions.continueAction = new QAction(tr("Continue"), this);
-    m_actions.continueAction->setProperty(Role, RequestExecContinueRole);
-    m_actions.continueAction->setIcon(m_continueIcon);
+    QAction *act = 0;
 
-    m_actions.stopAction = new QAction(tr("Stop Debugger"), this);
-    m_actions.stopAction->setProperty(Role, RequestExecExitRole);
-    m_actions.stopAction->setIcon(m_stopIcon);
+    act = m_actions.continueAction = new QAction(tr("Continue"), this);
+    act->setIcon(m_continueIcon);
+    connect(act, SIGNAL(triggered()), SLOT(handleExecContinue()));
 
-    m_actions.interruptAction = new QAction(tr("Interrupt"), this);
-    m_actions.interruptAction->setIcon(m_interruptIcon);
-    m_actions.interruptAction->setProperty(Role, RequestExecInterruptRole);
+    act = m_actions.stopAction = new QAction(tr("Stop Debugger"), this);
+    act->setIcon(m_stopIcon);
+    connect(act, SIGNAL(triggered()), SLOT(handleExecExit()));
 
-    m_actions.undisturbableAction = new QAction(tr("Debugger is Busy"), this);
+    act = m_actions.interruptAction = new QAction(tr("Interrupt"), this);
+    act->setIcon(m_interruptIcon);
+    connect(act, SIGNAL(triggered()), SLOT(handleExecInterrupt()));
+
     // A "disabled pause" seems to be a good choice.
-    m_actions.undisturbableAction->setIcon(m_interruptIcon);
-    m_actions.undisturbableAction->setEnabled(false);
+    act = m_actions.undisturbableAction = new QAction(tr("Debugger is Busy"), this);
+    act->setIcon(m_interruptIcon);
+    act->setEnabled(false);
 
-    m_actions.resetAction = new QAction(tr("Abort Debugging"), this);
-    m_actions.resetAction->setProperty(Role, RequestExecResetRole);
-    m_actions.resetAction->setToolTip(tr("Aborts debugging and "
+    act = m_actions.resetAction = new QAction(tr("Abort Debugging"), this);
+    act->setToolTip(tr("Aborts debugging and "
         "resets the debugger to the initial state."));
+    connect(act, SIGNAL(triggered()), SLOT(handleExecReset()));
 
-    m_actions.nextAction = new QAction(tr("Step Over"), this);
-    m_actions.nextAction->setProperty(Role, RequestExecNextRole);
-    m_actions.nextAction->setIcon(
-        QIcon(__(":/debugger/images/debugger_stepover_small.png")));
+    act = m_actions.nextAction = new QAction(tr("Step Over"), this);
+    act->setIcon(QIcon(__(":/debugger/images/debugger_stepover_small.png")));
+    connect(act, SIGNAL(triggered()), SLOT(handleExecNext()));
 
-    m_actions.stepAction = new QAction(tr("Step Into"), this);
-    m_actions.stepAction->setProperty(Role, RequestExecStepRole);
-    m_actions.stepAction->setIcon(
-        QIcon(__(":/debugger/images/debugger_stepinto_small.png")));
+    act = m_actions.stepAction = new QAction(tr("Step Into"), this);
+    act->setIcon(QIcon(__(":/debugger/images/debugger_stepinto_small.png")));
+    connect(act, SIGNAL(triggered()), SLOT(handleExecStep()));
 
-    m_actions.stepOutAction = new QAction(tr("Step Out"), this);
-    m_actions.stepOutAction->setProperty(Role, RequestExecStepOutRole);
-    m_actions.stepOutAction->setIcon(
-        QIcon(__(":/debugger/images/debugger_stepout_small.png")));
+    act = m_actions.stepOutAction = new QAction(tr("Step Out"), this);
+    act->setIcon(QIcon(__(":/debugger/images/debugger_stepout_small.png")));
+    connect(act, SIGNAL(triggered()), SLOT(handleExecStepOut()));
 
-    m_actions.runToLineAction = new QAction(tr("Run to Line"), this);
-    m_actions.runToLineAction->setProperty(Role, RequestExecRunToLineRole);
+    act = m_actions.runToLineAction = new QAction(tr("Run to Line"), this);
+    connect(act, SIGNAL(triggered()), SLOT(handleExecRunToLine()));
 
-    m_actions.runToFunctionAction =
+    act = m_actions.runToFunctionAction =
         new QAction(tr("Run to Outermost Function"), this);
-    m_actions.runToFunctionAction->setProperty(Role, RequestExecRunToFunctionRole);
+    connect(act, SIGNAL(triggered()), SLOT(handleExecRunToFunction()));
 
-    m_actions.returnFromFunctionAction =
+    act = m_actions.returnFromFunctionAction =
         new QAction(tr("Immediately Return From Inner Function"), this);
-    m_actions.returnFromFunctionAction->setProperty(Role, RequestExecReturnFromFunctionRole);
+    connect(act, SIGNAL(triggered()), SLOT(handleExecReturn()));
 
-    m_actions.jumpToLineAction = new QAction(tr("Jump to Line"), this);
-    m_actions.jumpToLineAction->setProperty(Role, RequestExecJumpToLineRole);
+    act = m_actions.jumpToLineAction = new QAction(tr("Jump to Line"), this);
+    connect(act, SIGNAL(triggered()), SLOT(handleExecJumpToLine()));
 
-    m_actions.breakAction = new QAction(tr("Toggle Breakpoint"), this);
+    act = m_actions.breakAction = new QAction(tr("Toggle Breakpoint"), this);
 
-    m_actions.watchAction1 = new QAction(tr("Add to Watch Window"), this);
-    m_actions.watchAction1->setProperty(Role, RequestExecWatchRole);
-    m_actions.watchAction2 = new QAction(tr("Add to Watch Window"), this);
-    m_actions.watchAction2->setProperty(Role, RequestExecWatchRole);
+    act = m_actions.watchAction1 = new QAction(tr("Add to Watch Window"), this);
+    connect(act, SIGNAL(triggered()), SLOT(handleAddToWatchWindow()));
+
+    act = m_actions.watchAction2 = new QAction(tr("Add to Watch Window"), this);
+    connect(act, SIGNAL(triggered()), SLOT(handleAddToWatchWindow()));
 
     //m_actions.snapshotAction = new QAction(tr("Create Snapshot"), this);
     //m_actions.snapshotAction->setProperty(Role, RequestCreateSnapshotRole);
     //m_actions.snapshotAction->setIcon(
     //    QIcon(__(":/debugger/images/debugger_snapshot_small.png")));
 
-    m_actions.reverseDirectionAction =
+    act = m_actions.reverseDirectionAction =
         new QAction(tr("Reverse Direction"), this);
-    m_actions.reverseDirectionAction->setCheckable(true);
-    m_actions.reverseDirectionAction->setChecked(false);
-    m_actions.reverseDirectionAction->setIcon(
-        QIcon(__(":/debugger/images/debugger_reversemode_16.png")));
-    m_actions.reverseDirectionAction->setIconVisibleInMenu(false);
+    act->setCheckable(true);
+    act->setChecked(false);
+    act->setCheckable(false);
+    act->setIcon(QIcon(__(":/debugger/images/debugger_reversemode_16.png")));
+    act->setIconVisibleInMenu(false);
 
-    m_actions.frameDownAction =
-        new QAction(tr("Move to Called Frame"), this);
-    m_actions.frameDownAction->setProperty(Role, RequestExecFrameDownRole);
-    m_actions.frameUpAction =
-        new QAction(tr("Move to Calling Frame"), this);
-    m_actions.frameUpAction->setProperty(Role, RequestExecFrameUpRole);
+    act = m_actions.frameDownAction = new QAction(tr("Move to Called Frame"), this);
+    connect(act, SIGNAL(triggered()), SLOT(handleFrameDown()));
 
-    m_actions.reverseDirectionAction->setCheckable(false);
-    theDebuggerAction(OperateByInstruction)->
-        setProperty(Role, RequestOperatedByInstructionTriggeredRole);
+    act = m_actions.frameUpAction = new QAction(tr("Move to Calling Frame"), this);
+    connect(act, SIGNAL(triggered()), SLOT(handleFrameUp()));
 
-    connect(m_actions.continueAction, SIGNAL(triggered()), SLOT(onAction()));
-    connect(m_actions.nextAction, SIGNAL(triggered()), SLOT(onAction()));
-    connect(m_actions.stepAction, SIGNAL(triggered()), SLOT(onAction()));
-    connect(m_actions.stepOutAction, SIGNAL(triggered()), SLOT(onAction()));
-    connect(m_actions.runToLineAction, SIGNAL(triggered()), SLOT(onAction()));
-    connect(m_actions.runToFunctionAction, SIGNAL(triggered()), SLOT(onAction()));
-    connect(m_actions.jumpToLineAction, SIGNAL(triggered()), SLOT(onAction()));
-    connect(m_actions.returnFromFunctionAction, SIGNAL(triggered()), SLOT(onAction()));
-    connect(m_actions.watchAction1, SIGNAL(triggered()), SLOT(onAction()));
-    connect(m_actions.watchAction2, SIGNAL(triggered()), SLOT(onAction()));
-    //connect(m_actions.snapshotAction, SIGNAL(triggered()), SLOT(onAction()));
-    connect(m_actions.frameDownAction, SIGNAL(triggered()), SLOT(onAction()));
-    connect(m_actions.frameUpAction, SIGNAL(triggered()), SLOT(onAction()));
-    connect(m_actions.stopAction, SIGNAL(triggered()), SLOT(onAction()));
-    connect(m_actions.interruptAction, SIGNAL(triggered()), SLOT(onAction()));
-    connect(m_actions.resetAction, SIGNAL(triggered()), SLOT(onAction()));
+    connect(theDebuggerAction(OperateByInstruction), SIGNAL(triggered()),
+        SLOT(handleOperateByInstructionTriggered()));
+
     connect(&m_statusTimer, SIGNAL(timeout()), SLOT(clearStatusMessage()));
 
     connect(theDebuggerAction(ExecuteCommand), SIGNAL(triggered()),
         SLOT(executeDebuggerCommand()));
-
-    connect(theDebuggerAction(OperateByInstruction), SIGNAL(triggered()),
-        SLOT(onAction()));
 
     m_plugin->readSettings();
 
@@ -1397,8 +1475,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
 
     m_detachAction = new QAction(this);
     m_detachAction->setText(tr("Detach Debugger"));
-    m_detachAction->setProperty(Role, RequestExecDetachRole);
-    connect(m_detachAction, SIGNAL(triggered()), SLOT(onAction()));
+    connect(m_detachAction, SIGNAL(triggered()),
+        SLOT(handleExecDetach()));
 
 
     Core::Command *cmd = 0;
@@ -1723,14 +1801,6 @@ void DebuggerPluginPrivate::onCurrentProjectChanged(Project *project)
     core->updateAdditionalContexts(m_anyContext, Context());
 }
 
-void DebuggerPluginPrivate::onAction()
-{
-    QAction *act = qobject_cast<QAction *>(sender());
-    QTC_ASSERT(act, return);
-    const int role = act->property(Role).toInt();
-    notifyCurrentEngine(role);
-}
-
 void DebuggerPluginPrivate::languagesChanged(const DebuggerLanguages &languages)
 {
     const bool debuggerIsCPP = (languages & CppLanguage);
@@ -1776,13 +1846,6 @@ void DebuggerPluginPrivate::startExternalApplication()
 
     if (RunControl *rc = m_debuggerRunControlFactory->create(sp))
         startDebugger(rc);
-}
-
-void DebuggerPluginPrivate::notifyCurrentEngine(int role, const QVariant &value)
-{
-    QTC_ASSERT(m_commandWindow, return);
-    if (m_commandWindow->model())
-        m_commandWindow->model()->setData(QModelIndex(), value, role);
 }
 
 void DebuggerPluginPrivate::attachExternalApplication()
@@ -2007,11 +2070,95 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditor::ITextEditor *editor,
     if (!isDebuggable(editor))
         return;
 
-    QList<QVariant> list;
-    list.append(quint64(editor));
-    list.append(lineNumber);
-    list.append(quint64(menu));
-    notifyCurrentEngine(RequestContextMenuRole, list);
+    BreakpointData *data = 0;
+    QString fileName;
+    quint64 address = 0;
+
+    if (editor->property("DisassemblerView").toBool()) {
+        fileName = editor->file()->fileName();
+        QString line = editor->contents()
+            .section('\n', lineNumber - 1, lineNumber - 1);
+        BreakpointData needle;
+        address = DisassemblerViewAgent::addressFromDisassemblyLine(line);
+        needle.address = address;
+        needle.bpLineNumber = -1;
+        data = m_breakHandler->findSimilarBreakpoint(&needle);
+    } else {
+        fileName = editor->file()->fileName();
+        data = m_breakHandler->findBreakpoint(fileName, lineNumber);
+    }
+
+    QList<QVariant> args;
+    args.append(fileName);
+    args.append(lineNumber);
+    args.append(address);
+
+    if (data) {
+        // existing breakpoint
+        const QString number = QString::fromAscii(data->bpNumber);
+        QAction *act;
+        if (number.isEmpty())
+            act = new QAction(tr("Remove Breakpoint"), menu);
+        else
+            act = new QAction(tr("Remove Breakpoint %1").arg(number), menu);
+        act->setData(args);
+        connect(act, SIGNAL(triggered()),
+            SLOT(breakpointSetRemoveMarginActionTriggered()));
+        menu->addAction(act);
+
+        QAction *act2;
+        if (data->enabled)
+            if (number.isEmpty())
+                act2 = new QAction(tr("Disable Breakpoint"), menu);
+            else
+                act2 = new QAction(tr("Disable Breakpoint %1").arg(number), menu);
+        else
+            if (number.isEmpty())
+                act2 = new QAction(tr("Enable Breakpoint"), menu);
+            else
+                act2 = new QAction(tr("Enable Breakpoint %1").arg(number), menu);
+        act2->setData(args);
+        connect(act2, SIGNAL(triggered()),
+            this, SLOT(breakpointEnableDisableMarginActionTriggered()));
+        menu->addAction(act2);
+        QAction *editAction;
+        if (number.isEmpty())
+            editAction = new QAction(tr("Edit Breakpoint..."), menu);
+        else
+            editAction = new QAction(tr("Edit Breakpoint %1...").arg(number), menu);
+        connect(editAction, SIGNAL(triggered()), SLOT(slotEditBreakpoint()));
+        editAction->setData(qVariantFromValue(data));
+        menu->addAction(editAction);
+    } else {
+        // non-existing
+        const QString text = address ?
+                    tr("Set Breakpoint at 0x%1").arg(address, 0, 16) :
+                    tr("Set Breakpoint at line %1").arg(lineNumber);
+        QAction *act = new QAction(text, menu);
+        act->setData(args);
+        connect(act, SIGNAL(triggered()),
+            SLOT(breakpointSetRemoveMarginActionTriggered()));
+        menu->addAction(act);
+    }
+    // Run to, jump to line below in stopped state.
+    if (state() == InferiorStopOk) {
+        menu->addSeparator();
+        const QString runText =
+            DebuggerEngine::tr("Run to Line %1").arg(lineNumber);
+        QAction *runToLineAction  = new QAction(runText, menu);
+        runToLineAction->setData(args);
+        connect(runToLineAction, SIGNAL(triggered()), SLOT(slotRunToLine()));
+        menu->addAction(runToLineAction);
+        if (currentEngine()->debuggerCapabilities() & JumpToLineCapability) {
+            const QString jumpText =
+                DebuggerEngine::tr("Jump to Line %1").arg(lineNumber);
+            QAction *jumpToLineAction  = new QAction(jumpText, menu);
+            menu->addAction(runToLineAction);
+            jumpToLineAction->setData(args);
+            connect(jumpToLineAction, SIGNAL(triggered()), SLOT(slotJumpToLine()));
+            menu->addAction(jumpToLineAction);
+        }
+    }
 }
 
 void DebuggerPluginPrivate::toggleBreakpoint()
@@ -2101,9 +2248,8 @@ void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine, bool notify)
     m_currentEngine = engine;
 
     if (notify)
-        notifyCurrentEngine(RequestActivationRole, false);
+        engine->setActive(false);
 
-    m_commandWindow->setModel(engine->commandModel());
     m_localsWindow->setModel(engine->localsModel());
     m_modulesWindow->setModel(engine->modulesModel());
     m_registerWindow->setModel(engine->registerModel());
@@ -2116,7 +2262,7 @@ void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine, bool notify)
     m_watchersWindow->setModel(engine->watchersModel());
 
     if (notify)
-        notifyCurrentEngine(RequestActivationRole, true);
+        engine->setActive(true);
 }
 
 static void changeFontSize(QWidget *widget, qreal size)
@@ -2542,7 +2688,7 @@ void DebuggerPluginPrivate::aboutToSaveSession()
 void DebuggerPluginPrivate::executeDebuggerCommand()
 {
     if (QAction *action = qobject_cast<QAction *>(sender()))
-        notifyCurrentEngine(RequestExecuteCommandRole, action->data().toString());
+        currentEngine()->executeDebuggerCommand(action->data().toString());
 }
 
 void DebuggerPluginPrivate::showStatusMessage(const QString &msg0, int timeout)
@@ -2562,7 +2708,7 @@ void DebuggerPluginPrivate::showStatusMessage(const QString &msg0, int timeout)
 
 void DebuggerPluginPrivate::scriptExpressionEntered(const QString &expression)
 {
-    notifyCurrentEngine(RequestExecuteCommandRole, expression);
+    currentEngine()->executeDebuggerCommand(expression);
 }
 
 void DebuggerPluginPrivate::openMemoryEditor()
@@ -2609,9 +2755,6 @@ DebuggerPlugin::~DebuggerPlugin()
     removeObject(d->m_uiSwitcher);
     delete d->m_uiSwitcher;
     d->m_uiSwitcher = 0;
-
-    delete d->m_commandWindow;
-    d->m_commandWindow = 0;
 
     delete d->m_snapshotHandler;
     d->m_snapshotHandler = 0;

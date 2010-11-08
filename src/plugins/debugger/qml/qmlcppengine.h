@@ -59,7 +59,6 @@ public:
     virtual void assignValueInDebugger(const Internal::WatchData *w,
         const QString &expr, const QVariant &value);
 
-    QAbstractItemModel *commandModel() const;
     QAbstractItemModel *modulesModel() const;
     QAbstractItemModel *registerModel() const;
     QAbstractItemModel *stackModel() const;

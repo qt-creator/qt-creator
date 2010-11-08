@@ -254,11 +254,6 @@ void QmlCppEngine::assignValueInDebugger(const Internal::WatchData *w, const QSt
     d->m_activeEngine->assignValueInDebugger(w, expr, value);
 }
 
-QAbstractItemModel *QmlCppEngine::commandModel() const
-{
-    return d->m_activeEngine->commandModel();
-}
-
 QAbstractItemModel *QmlCppEngine::modulesModel() const
 {
     return d->m_cppEngine->modulesModel();

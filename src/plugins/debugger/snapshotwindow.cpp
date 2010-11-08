@@ -83,7 +83,7 @@ SnapshotWindow::SnapshotWindow(SnapshotHandler *handler)
 }
 
 void SnapshotWindow::rowActivated(const QModelIndex &index)
-{  
+{
     m_snapshotHandler->activateSnapshot(index.row());
 }
 

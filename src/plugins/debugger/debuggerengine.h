@@ -55,9 +55,10 @@ class IOptionsPage;
 
 namespace Debugger {
 
-class DebuggerRunControl;
-class DebuggerPlugin;
 class DebuggerEnginePrivate;
+class DebuggerPlugin;
+class DebuggerPluginPrivate;
+class DebuggerRunControl;
 class QmlCppEngine;
 
 class DEBUGGER_EXPORT DebuggerStartParameters
@@ -136,7 +137,9 @@ struct WatchUpdateFlags
     WatchUpdateFlags() : tryIncremental(false) {}
     bool tryIncremental;
 };
+
 } // namespace Internal
+
 
 // FIXME: DEBUGGER_EXPORT?
 class DEBUGGER_EXPORT DebuggerEngine : public QObject
@@ -148,7 +151,7 @@ public:
     virtual ~DebuggerEngine();
 
     virtual void setToolTipExpression(const QPoint & mousePos,
-                                      TextEditor::ITextEditor * editor, int cursorPos);
+        TextEditor::ITextEditor *editor, int cursorPos);
     void initializeFromTemplate(DebuggerEngine *other);
 
     virtual void updateWatchData(const Internal::WatchData &data,
@@ -185,7 +188,8 @@ public:
     virtual bool acceptsBreakpoint(const Internal::BreakpointData *);
     virtual void selectThread(int index);
 
-    virtual void assignValueInDebugger(const Internal::WatchData *w, const QString &expr, const QVariant &value);
+    virtual void assignValueInDebugger(const Internal::WatchData *data,
+        const QString &expr, const QVariant &value);
     virtual void removeTooltip();
 
     // Convenience
@@ -193,6 +197,7 @@ public:
         (int icon, const QString &title, const QString &text, int buttons = 0);
 
 protected:
+    friend class DebuggerPluginPrivate;
     virtual void detachDebugger();
     virtual void executeStep();
     virtual void executeStepOut() ;
@@ -203,11 +208,11 @@ protected:
 
     virtual void continueInferior();
     virtual void interruptInferior();
+    virtual void exitInferior();
 
     virtual void requestInterruptInferior();
 
     virtual void executeRunToLine(const QString &fileName, int lineNumber);
-
     virtual void executeRunToFunction(const QString &functionName);
     virtual void executeJumpToLine(const QString &fileName, int lineNumber);
     virtual void executeDebuggerCommand(const QString &command);
@@ -228,7 +233,6 @@ public:
     Internal::SourceFilesHandler *sourceFilesHandler() const;
     Internal::BreakHandler *breakHandler() const;
 
-    virtual QAbstractItemModel *commandModel() const;
     virtual QAbstractItemModel *modulesModel() const;
     virtual QAbstractItemModel *registerModel() const;
     virtual QAbstractItemModel *stackModel() const;

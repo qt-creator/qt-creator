@@ -180,26 +180,6 @@ enum ModelRoles
     RequestActivationRole,
     RequestContextMenuRole,
 
-    // Running
-    RequestExecContinueRole,
-    RequestExecInterruptRole,
-    RequestExecResetRole,
-    RequestExecStepRole,
-    RequestExecStepOutRole,
-    RequestExecNextRole,
-    RequestExecRunToLineRole,
-    RequestExecRunToFunctionRole,
-    RequestExecReturnFromFunctionRole,
-    RequestExecJumpToLineRole,
-    RequestExecWatchRole,
-    RequestExecSnapshotRole,
-    RequestExecFrameDownRole,
-    RequestExecFrameUpRole,
-    RequestExecDetachRole,
-    RequestExecExitRole,
-    RequestOperatedByInstructionTriggeredRole,
-    RequestExecuteCommandRole,
-
     // Locals and Watchers
     LocalsINameRole,
     LocalsEditTypeRole,     // A QVariant::type describing the item
