@@ -54,6 +54,11 @@
 namespace Debugger {
 namespace Internal {
 
+static DebuggerPlugin *plugin()
+{
+    return DebuggerPlugin::instance();
+}
+
 static DebuggerEngine *currentEngine()
 {
     return DebuggerPlugin::instance()->currentEngine();
@@ -81,7 +86,7 @@ SourceFilesWindow::SourceFilesWindow(QWidget *parent)
 
 void SourceFilesWindow::sourceFileActivated(const QModelIndex &index)
 {
-    currentEngine()->openFile(index.data().toString());
+    plugin()->gotoLocation(index.data().toString());
 }
 
 void SourceFilesWindow::contextMenuEvent(QContextMenuEvent *ev)
@@ -115,14 +120,7 @@ void SourceFilesWindow::contextMenuEvent(QContextMenuEvent *ev)
     if (act == act1)
         currentEngine()->reloadSourceFiles();
     else if (act == act2)
-        currentEngine()->openFile(name);
-}
-
-void SourceFilesWindow::setModelData
-    (int role, const QVariant &value, const QModelIndex &index)
-{
-    QTC_ASSERT(model(), return);
-    model()->setData(index, value, role);
+        plugin()->gotoLocation(name);
 }
 
 } // namespace Internal

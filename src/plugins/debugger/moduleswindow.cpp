@@ -53,6 +53,11 @@
 namespace Debugger {
 namespace Internal {
 
+static DebuggerPlugin *plugin()
+{
+    return DebuggerPlugin::instance();
+}
+
 static DebuggerEngine *currentEngine()
 {
     return DebuggerPlugin::instance()->currentEngine();
@@ -77,7 +82,7 @@ ModulesWindow::ModulesWindow(QWidget *parent)
 
 void ModulesWindow::moduleActivated(const QModelIndex &index)
 {
-    currentEngine()->openFile(index.data().toString());
+    plugin()->gotoLocation(index.data().toString());
 }
 
 void ModulesWindow::resizeEvent(QResizeEvent *event)
@@ -186,7 +191,7 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == actLoadSymbolsForModule) {
         engine->loadSymbols(name);
     } else if (act == actEditFile) {
-        engine->openFile(name);
+        plugin()->gotoLocation(name);
     } else if (act == actShowSymbols) {
         // FIXME setModelData(RequestModuleSymbolsRole, name);
     }

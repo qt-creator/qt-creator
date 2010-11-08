@@ -101,7 +101,8 @@ public slots:
 
     // void runTest(const QString &fileName);
     void showMessage(const QString &msg, int channel, int timeout = -1);
-    void gotoLocation(const QString &fileName, int lineNumber, bool setMarker);
+    void gotoLocation(const QString &fileName, int lineNumber = -1,
+        bool setMarker = false);
 
 private:
     friend class DebuggerEngine;

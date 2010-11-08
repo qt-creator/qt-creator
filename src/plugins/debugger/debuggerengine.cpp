@@ -1168,11 +1168,6 @@ DebuggerPlugin *DebuggerEngine::plugin()
     return DebuggerPlugin::instance();
 }
 
-void DebuggerEngine::openFile(const QString &fileName, int lineNumber)
-{
-    plugin()->gotoLocation(fileName, lineNumber, false);
-}
-
 bool DebuggerEngine::isReverseDebugging() const
 {
     return plugin()->isReverseDebugging();

@@ -30,7 +30,6 @@
 #ifndef DEBUGGER_SOURCEFILEWINDOW_H
 #define DEBUGGER_SOURCEFILEWINDOW_H
 
-
 #include <QtGui/QTreeView>
 
 namespace Debugger {
@@ -49,8 +48,6 @@ private slots:
 
 private:
     void contextMenuEvent(QContextMenuEvent *ev);
-    void setModelData(int role, const QVariant &value = QVariant(),
-        const QModelIndex &index = QModelIndex());
 };
 
 } // namespace Internal

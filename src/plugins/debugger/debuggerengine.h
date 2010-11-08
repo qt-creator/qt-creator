@@ -278,7 +278,6 @@ public:
     Q_SLOT void showStatusMessage(const QString &msg, int timeout = -1) const;
 
     void resetLocation();
-    void openFile(const QString &fileName, int lineNumber = -1);
     virtual void gotoLocation(const QString &fileName, int lineNumber, bool setMarker);
     virtual void gotoLocation(const Internal::StackFrame &frame, bool setMarker);
     virtual void quitDebugger(); // called by DebuggerRunControl
