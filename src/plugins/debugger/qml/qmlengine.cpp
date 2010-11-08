@@ -114,7 +114,7 @@ bool operator==(const JSAgentBreakpointData &b1, const JSAgentBreakpointData &b2
 typedef QSet<JSAgentBreakpointData> JSAgentBreakpoints;
 
 
-QDataStream &operator>>(QDataStream &s, WatchData &data)
+static QDataStream &operator>>(QDataStream &s, WatchData &data)
 {
     data = WatchData();
     QByteArray name;
@@ -130,7 +130,7 @@ QDataStream &operator>>(QDataStream &s, WatchData &data)
     return s;
 }
 
-QDataStream &operator>>(QDataStream &s, StackFrame &frame)
+static QDataStream &operator>>(QDataStream &s, StackFrame &frame)
 {
     frame = StackFrame();
     QByteArray function;

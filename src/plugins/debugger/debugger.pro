@@ -30,6 +30,7 @@ HEADERS += breakhandler.h \
     debuggermainwindow.h \
     debuggerplugin.h \
     debuggerrunner.h \
+    debuggerstreamops.h \
     debuggerstringutils.h \
     debuggertooltip.h \
     debuggeruiswitcher.h \
@@ -68,6 +69,7 @@ SOURCES += breakhandler.cpp \
     debuggermainwindow.cpp \
     debuggerplugin.cpp \
     debuggerrunner.cpp \
+    debuggerstreamops.cpp \
     debuggertooltip.cpp \
     debuggeruiswitcher.cpp \
     logwindow.cpp \
