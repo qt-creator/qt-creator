@@ -55,6 +55,17 @@ enum BreakpointType
     Watchpoint,
 };
 
+enum BreakpointState
+{
+    BreakpointNew,
+    BreakpointInsertionRequested,  // Inferior was told about bp, not ack'ed.
+    BreakpointChangeRequested,
+    BreakpointOk,
+    BreakpointRemovalRequested,
+    BreakpointRemoved,
+    BreakpointDead,
+};
+
 class BreakpointData
 {
 public:
