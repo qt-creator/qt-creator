@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "profilehighlighter.h"
+#include "profilekeywords.h"
 
 #include <QtCore/QRegExp>
 #include <QtGui/QColor>
@@ -36,125 +37,6 @@
 
 using namespace Qt4ProjectManager::Internal;
 
-const char *const variables[] = {
-    "CCFLAG",
-    "CONFIG",
-    "DEFINES",
-    "DEF_FILE",
-    "DEPENDPATH",
-    "DEPLOYMENT",
-    "DESTDIR",
-    "DESTDIR_TARGET",
-    "DISTFILES",
-    "DLLDESTDIR",
-    "FORMS",
-    "HEADERS",
-    "ICON",
-    "INCLUDEPATH",
-    "INSTALLS",
-    "LEXSOURCES",
-    "LIBS",
-    "MAKEFILE",
-    "MOBILITY",
-    "MOC_DIR",
-    "OBJECTIVE_HEADERS",
-    "OBJECTIVE_SOURCES",
-    "OBJECTS",
-    "OBJECTS_DIR",
-    "OBJMOC",
-    "OTHER_FILES",
-    "PKGCONFIG",
-    "POST_TARGETDEPS",
-    "PRECOMPILED_HEADER",
-    "PRE_TARGETDEPS",
-    "QMAKE",
-    "QMAKESPEC",
-    "QT",
-    "RCC_DIR",
-    "RC_FILE",
-    "REQUIRES",
-    "RESOURCES",
-    "RES_FILE",
-    "SOURCES",
-    "SRCMOC",
-    "STATECHARTS",
-    "SUBDIRS",
-    "TARGET",
-    "TARGET.CAPABILITY",
-    "TARGET.EPOCHEAPSIZE",
-    "TARGET.UID3",
-    "TARGET_EXT",
-    "TARGET_x",
-    "TARGET_x.y.z",
-    "TEMPLATE",
-    "TRANSLATIONS",
-    "UI_DIR",
-    "UI_HEADERS_DIR",
-    "UI_SOURCES_DIR",
-    "VER_MAJ",
-    "VER_MIN",
-    "VER_PAT",
-    "VERSION",
-    "VPATH",
-    "YACCSOURCES",
-    0
-};
-
-const char *const functions[] = {
-    "basename",
-    "contains",
-    "count",
-    "dirname",
-    "error",
-    "exists",
-    "find",
-    "for",
-    "include",
-    "infile",
-    "isEmpty",
-    "join",
-    "member",
-    "message",
-    "prompt",
-    "quote",
-    "sprintf",
-    "system",
-    "unique",
-    "warning",
-    0
-};
-
-struct KeywordHelper
-{
-    inline KeywordHelper(const QString &word) : needle(word) {}
-    const QString needle;
-};
-
-static bool operator<(const KeywordHelper &helper, const char *kw)
-{
-    return helper.needle < QLatin1String(kw);
-}
-
-static bool operator<(const char *kw, const KeywordHelper &helper)
-{
-    return QLatin1String(kw) < helper.needle;
-}
-
-static bool isVariable(const QString &word)
-{
-    const char *const *start = &variables[0];
-    const char *const *end = &variables[sizeof variables / sizeof variables[0] - 1];
-    const char *const *kw = qBinaryFind(start, end, KeywordHelper(word));
-    return *kw != 0;
-}
-
-static bool isFunction(const QString &word)
-{
-    const char *const *start = &functions[0];
-    const char *const *end = &functions[sizeof functions / sizeof functions[0] - 1];
-    const char *const *kw = qBinaryFind(start, end, KeywordHelper(word));
-    return *kw != 0;
-}
 
 ProFileHighlighter::ProFileHighlighter(QTextDocument *document) :
     TextEditor::SyntaxHighlighter(document)
@@ -179,12 +61,12 @@ void ProFileHighlighter::highlightBlock(const QString &text)
             if (c.isLetter() || c == '_' || c == '.' || c.isDigit()) {
                 buf += c;
                 setFormat(i - buf.length()+1, buf.length(), emptyFormat);
-                if (!buf.isEmpty() && isFunction(buf))
+                if (!buf.isEmpty() && ProFileKeywords::isFunction(buf))
                     setFormat(i - buf.length()+1, buf.length(), m_formats[ProfileFunctionFormat]);
-                else if (!buf.isEmpty() && isVariable(buf))
+                else if (!buf.isEmpty() && ProFileKeywords::isVariable(buf))
                     setFormat(i - buf.length()+1, buf.length(), m_formats[ProfileVariableFormat]);
             } else if (c == '(') {
-                if (!buf.isEmpty() && isFunction(buf))
+                if (!buf.isEmpty() && ProFileKeywords::isFunction(buf))
                     setFormat(i - buf.length(), buf.length(), m_formats[ProfileFunctionFormat]);
                 buf.clear();
             } else if (c == '#') {
@@ -192,7 +74,7 @@ void ProFileHighlighter::highlightBlock(const QString &text)
                 setFormat(i, 1, m_formats[ProfileCommentFormat]);
                 buf.clear();
             } else {
-                if (!buf.isEmpty() && isVariable(buf))
+                if (!buf.isEmpty() && ProFileKeywords::isVariable(buf))
                     setFormat(i - buf.length(), buf.length(), m_formats[ProfileVariableFormat]);
                 buf.clear();
             }

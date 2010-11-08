@@ -63,7 +63,9 @@ HEADERS += qt4deployconfiguration.h \
     findqt4profiles.h \
     qt4projectmanager_global.h \
     qmldumptool.h \
-    qmlobservertool.h
+    qmlobservertool.h \
+    profilecompletion.h \
+    profilekeywords.h
 SOURCES += qt4projectmanagerplugin.cpp \
     qt4deployconfiguration.cpp \
     qtparser.cpp \
@@ -121,7 +123,9 @@ SOURCES += qt4projectmanagerplugin.cpp \
     librarydetailscontroller.cpp \
     findqt4profiles.cpp \
     qmldumptool.cpp \
-    qmlobservertool.cpp
+    qmlobservertool.cpp \
+    profilecompletion.cpp \
+    profilekeywords.cpp
 FORMS += makestep.ui \
     qmakestep.ui \
     qt4projectconfigwidget.ui \

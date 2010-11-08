@@ -37,6 +37,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
+#include <texteditor/completionsupport.h>
 
 #include <QtCore/QFileInfo>
 #include <QtGui/QAction>
@@ -83,9 +84,13 @@ Core::IFile *ProFileEditorFactory::open(const QString &fileName)
 
 Core::IEditor *ProFileEditorFactory::createEditor(QWidget *parent)
 {
-    ProFileEditor *rc = new ProFileEditor(parent, this, m_actionHandler);
-    TextEditor::TextEditorSettings::instance()->initializeEditor(rc);
-    return rc->editableInterface();
+    ProFileEditor *editor = new ProFileEditor(parent, this, m_actionHandler);
+    TextEditor::TextEditorSettings::instance()->initializeEditor(editor);
+
+    // auto completion
+    connect(editor, SIGNAL(requestAutoCompletion(TextEditor::ITextEditable*, bool)),
+            TextEditor::Internal::CompletionSupport::instance(), SLOT(autoComplete(TextEditor::ITextEditable*, bool)));
+    return editor->editableInterface();
 }
 
 QStringList ProFileEditorFactory::mimeTypes() const

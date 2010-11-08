@@ -53,6 +53,8 @@ class ProFileEditor;
 
 class ProFileEditorEditable : public TextEditor::BaseTextEditorEditable
 {
+    Q_OBJECT
+
 public:
     ProFileEditorEditable(ProFileEditor *);
     Core::Context context() const;

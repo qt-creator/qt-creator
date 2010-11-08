@@ -50,6 +50,7 @@
 #include "qtoptionspage.h"
 #include "externaleditors.h"
 #include "gettingstartedwelcomepage.h"
+#include "profilecompletion.h"
 
 #include "qt-maemo/maemomanager.h"
 #include "qt-s60/s60manager.h"
@@ -70,6 +71,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
+#include <texteditor/texteditorsettings.h>
 
 #ifdef WITH_TESTS
 #    include <QTest>
@@ -163,6 +165,14 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     addAutoReleasedObject(new S60Manager);
     addAutoReleasedObject(new MaemoManager);
+
+    ProFileCompletion *completion = new ProFileCompletion;
+    addAutoReleasedObject(completion);
+    // Set completion settings and keep them up to date
+    TextEditor::TextEditorSettings *textEditorSettings = TextEditor::TextEditorSettings::instance();
+    completion->setCompletionSettings(textEditorSettings->completionSettings());
+    connect(textEditorSettings, SIGNAL(completionSettingsChanged(TextEditor::CompletionSettings)),
+            completion, SLOT(setCompletionSettings(TextEditor::CompletionSettings)));
 
     new ProFileCacheManager(this);
 
