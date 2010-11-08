@@ -30,9 +30,9 @@
 #include "contentwindow.h"
 
 #include "centralwidget.h"
-#include "helpmanager.h"
 #include "helpviewer.h"
 #include "openpagesmanager.h"
+#include <help/helpmanager.h>
 
 #include <QtGui/QLayout>
 #include <QtGui/QFocusEvent>
