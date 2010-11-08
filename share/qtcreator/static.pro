@@ -35,8 +35,7 @@ DATA_DIRS = \
     qmldesigner \
     qmlicons \
     qml \
-    qml-type-descriptions \
-    qmljsdebugger
+    qml-type-descriptions
 
 !isEmpty(copydata) {
 
