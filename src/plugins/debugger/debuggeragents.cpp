@@ -416,6 +416,8 @@ quint64 DisassemblerViewAgent::addressFromDisassemblyLine(const QString &line)
     if (pos < 0)
         return 0;
     QString addressS = line.left(pos);
+    if (addressS.endsWith(':')) // clang
+        addressS.chop(1);
     if (addressS.startsWith(QLatin1String("0x")))
         addressS.remove(0, 2);
     bool ok;
