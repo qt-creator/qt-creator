@@ -1,13 +1,21 @@
 TEMPLATE = lib
-TARGET = plugin1
 
 SOURCES += plugin1.cpp
 HEADERS += plugin1.h
 
-RELATIVEPATH = ../../../..
-include(../../../../extensionsystem_test.pri)
+OTHER_FILES = $$PWD/plugin.spec
 
-LIBS += -L$${OUT_PWD}/../plugin2 -L$${OUT_PWD}/../plugin3 -lplugin2 -lplugin3
+include(../../../../../../../../qtcreator.pri)
+include(../../../../../extensionsystem.pri)
+include(../../../../../../../../tests/auto/qttestrpath.pri)
+
+COPYDIR = $$OUT_PWD
+COPYFILES = $$OTHER_FILES
+include(../../../copy.pri)
+
+TARGET = $$qtLibraryName(plugin1)
+
+LIBS += -L$${OUT_PWD}/../plugin2 -L$${OUT_PWD}/../plugin3 -l$$qtLibraryName(plugin2) -l$$qtLibraryName(plugin3)
 
 macx {
 } else:unix {

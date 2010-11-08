@@ -55,30 +55,9 @@ private slots:
 
 private:
     PluginManager *m_pm;
-    SignalReceiver *m_sr;
-};
-
-class SignalReceiver : public QObject
-{
-    Q_OBJECT
-
-public:
-    SignalReceiver() :
-        objectAddedCount(0),
-        aboutToRemoveObjectCount(0),
-        pluginsChangedCount(0),
-        objectAddedObj(0),
-        aboutToRemoveObjectObj(0)
-    { }
-    int objectAddedCount;
-    int aboutToRemoveObjectCount;
-    int pluginsChangedCount;
-    QObject *objectAddedObj;
-    QObject *aboutToRemoveObjectObj;
-public slots:
-    void objectAdded(QObject *obj) { objectAddedCount++; objectAddedObj = obj; }
-    void aboutToRemoveObject(QObject *obj) { aboutToRemoveObjectCount++; aboutToRemoveObjectObj = obj; }
-    void pluginsChanged() { pluginsChangedCount++; }
+    QSignalSpy *m_objectAdded;
+    QSignalSpy *m_aboutToRemoveObject;
+    QSignalSpy *m_pluginsChanged;
 };
 
 class MyClass1 : public QObject
@@ -99,16 +78,17 @@ class MyClass11 : public MyClass1
 void tst_PluginManager::init()
 {
     m_pm = new PluginManager;
-    m_sr = new SignalReceiver;
-    connect(m_pm, SIGNAL(objectAdded(QObject*)), m_sr, SLOT(objectAdded(QObject*)));
-    connect(m_pm, SIGNAL(aboutToRemoveObject(QObject*)), m_sr, SLOT(aboutToRemoveObject(QObject*)));
-    connect(m_pm, SIGNAL(pluginsChanged()), m_sr, SLOT(pluginsChanged()));
+    m_objectAdded = new QSignalSpy(m_pm, SIGNAL(objectAdded(QObject*)));
+    m_aboutToRemoveObject = new QSignalSpy(m_pm, SIGNAL(aboutToRemoveObject(QObject*)));
+    m_pluginsChanged = new QSignalSpy(m_pm, SIGNAL(pluginsChanged()));
 }
 
 void tst_PluginManager::cleanup()
 {
     delete m_pm;
-    delete m_sr;
+    delete m_objectAdded;
+    delete m_aboutToRemoveObject;
+    delete m_pluginsChanged;
 }
 
 void tst_PluginManager::addRemoveObjects()
@@ -117,30 +97,30 @@ void tst_PluginManager::addRemoveObjects()
     QObject *object2 = new QObject;
     QCOMPARE(m_pm->allObjects().size(), 0);
     m_pm->addObject(object1);
-    QCOMPARE(m_sr->objectAddedCount, 1);
-    QCOMPARE(m_sr->objectAddedObj, object1);
-    QCOMPARE(m_sr->aboutToRemoveObjectCount, 0);
+    QCOMPARE(m_objectAdded->count(), 1);
+    QCOMPARE(m_objectAdded->at(0).first().value<QObject *>(), object1);
+    QCOMPARE(m_aboutToRemoveObject->count(), 0);
     QVERIFY(m_pm->allObjects().contains(object1));
     QVERIFY(!m_pm->allObjects().contains(object2));
     QCOMPARE(m_pm->allObjects().size(), 1);
     m_pm->addObject(object2);
-    QCOMPARE(m_sr->objectAddedCount, 2);
-    QCOMPARE(m_sr->objectAddedObj, object2);
-    QCOMPARE(m_sr->aboutToRemoveObjectCount, 0);
+    QCOMPARE(m_objectAdded->count(), 2);
+    QCOMPARE(m_objectAdded->at(1).first().value<QObject *>(), object2);
+    QCOMPARE(m_aboutToRemoveObject->count(), 0);
     QVERIFY(m_pm->allObjects().contains(object1));
     QVERIFY(m_pm->allObjects().contains(object2));
     QCOMPARE(m_pm->allObjects().size(), 2);
     m_pm->removeObject(object1);
-    QCOMPARE(m_sr->objectAddedCount, 2);
-    QCOMPARE(m_sr->aboutToRemoveObjectCount, 1);
-    QCOMPARE(m_sr->aboutToRemoveObjectObj, object1);
+    QCOMPARE(m_objectAdded->count(), 2);
+    QCOMPARE(m_aboutToRemoveObject->count(), 1);
+    QCOMPARE(m_aboutToRemoveObject->at(0).first().value<QObject *>(), object1);
     QVERIFY(!m_pm->allObjects().contains(object1));
     QVERIFY(m_pm->allObjects().contains(object2));
     QCOMPARE(m_pm->allObjects().size(), 1);
     m_pm->removeObject(object2);
-    QCOMPARE(m_sr->objectAddedCount, 2);
-    QCOMPARE(m_sr->aboutToRemoveObjectCount, 2);
-    QCOMPARE(m_sr->aboutToRemoveObjectObj, object2);
+    QCOMPARE(m_objectAdded->count(), 2);
+    QCOMPARE(m_aboutToRemoveObject->count(), 2);
+    QCOMPARE(m_aboutToRemoveObject->at(1).first().value<QObject *>(), object2);
     QVERIFY(!m_pm->allObjects().contains(object1));
     QVERIFY(!m_pm->allObjects().contains(object2));
     QCOMPARE(m_pm->allObjects().size(), 0);
@@ -197,7 +177,7 @@ void tst_PluginManager::getObjects()
 void tst_PluginManager::plugins()
 {
     m_pm->setPluginPaths(QStringList() << "plugins");
-    QCOMPARE(m_sr->pluginsChangedCount, 1);
+    QCOMPARE(m_pluginsChanged->count(), 1);
     QList<PluginSpec *> plugins = m_pm->plugins();
     QCOMPARE(plugins.count(), 3);
     foreach (const QString &expected, QStringList() << "helloworld" << "MyPlugin" << "dummyPlugin") {

@@ -1,9 +1,16 @@
 TEMPLATE = lib
-TARGET = plugin3
 
 SOURCES += plugin3.cpp
 HEADERS += plugin3.h
 
-RELATIVEPATH = ../../../..
-include(../../../../extensionsystem_test.pri)
+OTHER_FILES = $$PWD/plugin.xml
 
+include(../../../../../../../../qtcreator.pri)
+include(../../../../../extensionsystem.pri)
+include(../../../../../../../../tests/auto/qttestrpath.pri)
+
+COPYDIR = $$OUT_PWD
+COPYFILES = $$OTHER_FILES
+include(../../../copy.pri)
+
+TARGET = $$qtLibraryName(plugin3)

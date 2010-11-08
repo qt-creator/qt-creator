@@ -1,13 +1,17 @@
+include(../../../../../../../qtcreator.pri)
+
 TEMPLATE = lib
-TARGET = test
+TARGET = $$qtLibraryName(test)
 DEFINES += MYPLUGIN_LIBRARY
 SOURCES += testplugin.cpp
 HEADERS += testplugin.h testplugin_global.h
 
-RELATIVEPATH = ../../..
-include(../../../extensionsystem_test.pri)
+OTHER_FILES += testplugin.xml
 
-macx {
-    QMAKE_LFLAGS_SONAME = -Wl,-install_name,$${OUT_PWD}/
-}
+include(../../../../extensionsystem.pri)
 
+include(../../../../../../../tests/auto/qttestrpath.pri)
+
+COPYDIR = $$OUT_PWD
+COPYFILES = $$PWD/testplugin.xml
+include(../../copy.pri)

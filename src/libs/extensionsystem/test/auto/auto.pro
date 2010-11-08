@@ -1,3 +1,4 @@
 TEMPLATE = subdirs
-SUBDIRS = pluginmanager pluginspec
+SUBDIRS = pluginmanager \
+    pluginspec
 

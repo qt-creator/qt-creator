@@ -27,14 +27,13 @@
 **
 **************************************************************************/
 
-#include "testplugin/testplugin.h"
-
 #include <extensionsystem/pluginspec.h>
 #include <extensionsystem/pluginspec_p.h>
 #include <extensionsystem/pluginmanager_p.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QObject>
+#include <QtCore/QMetaObject>
 #include <QtTest/QtTest>
 
 using namespace ExtensionSystem;
@@ -241,7 +240,8 @@ void tst_PluginSpec::loadLibrary()
     QVERIFY(spec->read("testplugin/testplugin.xml"));
     QVERIFY(spec->resolveDependencies(QList<PluginSpec *>()));
     QVERIFY(spec->loadLibrary());
-    QVERIFY(qobject_cast<MyPlugin::MyPluginImpl*>(spec->plugin) != 0);
+    QVERIFY(spec->plugin != 0);
+    QVERIFY(QString::fromLocal8Bit(spec->plugin->metaObject()->className()) == QString::fromLocal8Bit("MyPlugin::MyPluginImpl"));
     QCOMPARE(spec->state, PluginSpec::Loaded);
     QVERIFY(!spec->hasError);
     QCOMPARE(spec->plugin->pluginSpec(), ps);
@@ -252,33 +252,38 @@ void tst_PluginSpec::loadLibrary()
 void tst_PluginSpec::initializePlugin()
 {
     Internal::PluginSpecPrivate spec(0);
-    MyPlugin::MyPluginImpl *impl;
     QVERIFY(spec.read("testplugin/testplugin.xml"));
     QVERIFY(spec.resolveDependencies(QList<PluginSpec *>()));
     QVERIFY(spec.loadLibrary());
-    impl = qobject_cast<MyPlugin::MyPluginImpl*>(spec.plugin);
-    QVERIFY(impl != 0);
-    QVERIFY(!impl->isInitialized());
+    bool isInitialized;
+    QMetaObject::invokeMethod(spec.plugin, "isInitialized",
+                              Qt::DirectConnection, Q_RETURN_ARG(bool, isInitialized));
+    QVERIFY(!isInitialized);
     QVERIFY(spec.initializePlugin());
     QCOMPARE(spec.state, PluginSpec::Initialized);
     QVERIFY(!spec.hasError);
-    QVERIFY(impl->isInitialized());
+    QMetaObject::invokeMethod(spec.plugin, "isInitialized",
+                              Qt::DirectConnection, Q_RETURN_ARG(bool, isInitialized));
+    QVERIFY(isInitialized);
 }
 
 void tst_PluginSpec::initializeExtensions()
 {
     Internal::PluginSpecPrivate spec(0);
-    MyPlugin::MyPluginImpl *impl;
     QVERIFY(spec.read("testplugin/testplugin.xml"));
     QVERIFY(spec.resolveDependencies(QList<PluginSpec *>()));
     QVERIFY(spec.loadLibrary());
-    impl = qobject_cast<MyPlugin::MyPluginImpl*>(spec.plugin);
-    QVERIFY(impl != 0);
+    bool isExtensionsInitialized;
     QVERIFY(spec.initializePlugin());
+    QMetaObject::invokeMethod(spec.plugin, "isExtensionsInitialized",
+                              Qt::DirectConnection, Q_RETURN_ARG(bool, isExtensionsInitialized));
+    QVERIFY(!isExtensionsInitialized);
     QVERIFY(spec.initializeExtensions());
     QCOMPARE(spec.state, PluginSpec::Running);
     QVERIFY(!spec.hasError);
-    QVERIFY(impl->isExtensionsInitialized());
+    QMetaObject::invokeMethod(spec.plugin, "isExtensionsInitialized",
+                              Qt::DirectConnection, Q_RETURN_ARG(bool, isExtensionsInitialized));
+    QVERIFY(isExtensionsInitialized);
 }
 
 QTEST_MAIN(tst_PluginSpec)

@@ -1,11 +1,19 @@
 TEMPLATE = lib
-TARGET = plugin2
 
 SOURCES += plugin2.cpp
 HEADERS += plugin2.h
 
-RELATIVEPATH = ../../../..
-include(../../../../extensionsystem_test.pri)
+OTHER_FILES = $$PWD/plugin.spec
+
+include(../../../../../../../../qtcreator.pri)
+include(../../../../../extensionsystem.pri)
+include(../../../../../../../../tests/auto/qttestrpath.pri)
+
+COPYDIR = $$OUT_PWD
+COPYFILES = $$OTHER_FILES
+include(../../../copy.pri)
+
+TARGET = $$qtLibraryName(plugin2)
 
 macx {
     QMAKE_LFLAGS_SONAME = -Wl,-install_name,$${OUT_PWD}/

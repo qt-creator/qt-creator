@@ -47,8 +47,10 @@ public:
     bool initialize(const QStringList &arguments, QString *errorString);
     void extensionsInitialized();
 
+public slots:
     bool isInitialized() { return m_isInitialized; }
     bool isExtensionsInitialized() { return m_isExtensionsInitialized; }
+
 private:
     bool m_isInitialized;
     bool m_isExtensionsInitialized;
