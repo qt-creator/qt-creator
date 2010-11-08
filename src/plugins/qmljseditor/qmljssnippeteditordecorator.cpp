@@ -30,6 +30,7 @@
 #include "qmljssnippeteditordecorator.h"
 #include "qmljshighlighter.h"
 #include "qmljseditor.h"
+#include "qmljsindenter.h"
 
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
@@ -59,4 +60,6 @@ void QmlJSSnippetEditorDecorator::apply(TextEditor::SnippetEditor *editor) const
     const TextEditor::FontSettings &fs = TextEditor::TextEditorSettings::instance()->fontSettings();
     highlighter->setFormats(fs.toTextCharFormats(QmlJSTextEditor::highlighterFormatCategories()));
     editor->installSyntaxHighlighter(highlighter);
+
+    editor->setIndenter(new Indenter);
 }

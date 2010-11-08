@@ -30,6 +30,7 @@
 #include "cppsnippeteditordecorator.h"
 #include "cpphighlighter.h"
 #include "cppeditor.h"
+#include "cppqtstyleindenter.h"
 
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
@@ -61,4 +62,6 @@ void CppSnippetEditorDecorator::apply(TextEditor::SnippetEditor *editor) const
         fs.toTextCharFormats(CPPEditor::highlighterFormatCategories());
     highlighter->setFormats(formats.constBegin(), formats.constEnd());
     editor->installSyntaxHighlighter(highlighter);
+
+    editor->setIndenter(new CppQtStyleIndenter);
 }

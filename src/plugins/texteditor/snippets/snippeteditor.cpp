@@ -50,12 +50,9 @@ QString SnippetEditorEditable::id() const
     return Constants::SNIPPET_EDITOR_ID;
 }
 
-SnippetEditor::SnippetEditor(QWidget *parent) :
-    BaseTextEditor(parent),
-    m_indenter(new NormalIndenter)
+SnippetEditor::SnippetEditor(QWidget *parent) : BaseTextEditor(parent)
 {
     setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
-
     setHighlightCurrentLine(false);
     setLineNumbersVisible(false);
 }
@@ -68,11 +65,6 @@ void SnippetEditor::installSyntaxHighlighter(TextEditor::SyntaxHighlighter *high
     baseTextDocument()->setSyntaxHighlighter(highlighter);
 }
 
-void SnippetEditor::installIndenter(Indenter *indenter)
-{
-    m_indenter.reset(indenter);
-}
-
 void SnippetEditor::focusOutEvent(QFocusEvent *event)
 {
     Q_UNUSED(event);
@@ -83,10 +75,4 @@ void SnippetEditor::focusOutEvent(QFocusEvent *event)
 BaseTextEditorEditable *SnippetEditor::createEditableInterface()
 {
     return new SnippetEditorEditable(this);
-}
-
-void SnippetEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar)
-{
-    if (!m_indenter.isNull())
-        m_indenter->indentBlock(doc, block, typedChar, tabSettings());
 }

@@ -71,7 +71,6 @@ public:
     virtual ~SnippetEditor();
 
     void installSyntaxHighlighter(SyntaxHighlighter *highlighter);
-    void installIndenter(Indenter *indenter);
 
 signals:
     void snippetContentChanged();
@@ -81,10 +80,6 @@ protected:
 
     virtual int extraAreaWidth(int * /* markWidthPtr */ = 0) const { return 0; }
     virtual BaseTextEditorEditable *createEditableInterface();
-    virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
-
-private:
-    QScopedPointer<Indenter> m_indenter;
 };
 
 } // TextEditor
