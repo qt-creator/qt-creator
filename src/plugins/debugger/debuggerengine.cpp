@@ -213,7 +213,6 @@ public:
 public slots:
     void breakpointSetRemoveMarginActionTriggered();
     void breakpointEnableDisableMarginActionTriggered();
-    void handleContextMenuRequest(const QVariant &parameters);
 
     void doSetupInferior();
     void doRunEngine();
