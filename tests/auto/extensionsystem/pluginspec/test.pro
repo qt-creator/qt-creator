@@ -20,8 +20,8 @@ OTHER_FILES += \
     $$PWD/testdependencies/spec5.xml \
     $$PWD/testdir/spec.xml
 
-include(../../../../../../tests/auto/qttest.pri)
-include(../../../extensionsystem.pri)
+include(../../qttest.pri)
+include(../../../../src/libs/extensionsystem/extensionsystem.pri)
 
 COPYDIR = $$OUT_PWD
 COPYFILES = $$OTHER_FILES

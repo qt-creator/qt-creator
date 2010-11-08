@@ -5,9 +5,9 @@ HEADERS += plugin2.h
 
 OTHER_FILES = $$PWD/plugin.spec
 
-include(../../../../../../../../qtcreator.pri)
-include(../../../../../extensionsystem.pri)
-include(../../../../../../../../tests/auto/qttestrpath.pri)
+include(../../../../../../qtcreator.pri)
+include(../../../../../../src/libs/extensionsystem/extensionsystem.pri)
+include(../../../../qttestrpath.pri)
 
 COPYDIR = $$OUT_PWD
 COPYFILES = $$OTHER_FILES

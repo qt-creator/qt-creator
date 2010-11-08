@@ -6,8 +6,8 @@ TARGET = pluginmanager
 
 # Input
 
-include(../../../../../../tests/auto/qttest.pri)
-include(../../../extensionsystem.pri)
+include(../../qttest.pri)
+include(../../../../src/libs/extensionsystem/extensionsystem.pri)
 
 SOURCES += tst_pluginmanager.cpp
 

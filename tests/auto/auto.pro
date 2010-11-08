@@ -5,6 +5,7 @@ SUBDIRS += \
     changeset \
     cplusplus \
     debugger \
+    extensionsystem \
     fakevim \
     generichighlighter \
 #    icheckbuild \
