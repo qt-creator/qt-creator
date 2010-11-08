@@ -32,6 +32,7 @@
 #include "editormanager/ieditor.h"
 #include "editormanager/editormanager.h"
 
+#include <utils/stringutils.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QFileInfo>
@@ -40,6 +41,15 @@
 #include <QtCore/QDebug>
 
 namespace Core {
+
+class VMMapExpander : public Utils::AbstractQtcMacroExpander {
+public:
+    virtual bool resolveMacro(const QString &name, QString *ret)
+    {
+        *ret = Core::VariableManager::instance()->value(name);
+        return !ret->isEmpty();
+    }
+};
 
 class VariableManagerPrivate : public QObject
 {
@@ -54,7 +64,8 @@ public slots:
     void updateCurrentDocument(Core::IEditor *editor);
 
 public:
-    QMap<QString, QString> m_map;
+    QHash<QString, QString> m_map;
+    VMMapExpander m_macroExpander;
     static VariableManager *m_instance;
 };
 
@@ -144,20 +155,6 @@ QString VariableManager::value(const QString &variable, const QString &defaultVa
     return d->m_map.value(variable, defaultValue);
 }
 
-QString VariableManager::resolve(const QString &stringWithVariables) const
-{
-    QString result = stringWithVariables;
-    QMapIterator<QString, QString> i(d->m_map);
-    while (i.hasNext()) {
-        i.next();
-        QString key = QLatin1String("%{");
-        key += i.key();
-        key += QLatin1Char('}');
-        result.replace(key, i.value());
-    }
-    return result;
-}
-
 void VariableManager::insert(const QString &variable, const QString &value)
 {
     d->insert(variable, value);
@@ -176,6 +173,11 @@ void VariableManager::removeFileInfo(const QString &tag)
 bool VariableManager::remove(const QString &variable)
 {
     return d->remove(variable);
+}
+
+Utils::AbstractMacroExpander *VariableManager::macroExpander()
+{
+    return &d->m_macroExpander;
 }
 
 VariableManager* VariableManager::instance()

@@ -39,6 +39,10 @@ QT_BEGIN_NAMESPACE
 class QFileInfo;
 QT_END_NAMESPACE
 
+namespace Utils {
+class AbstractMacroExpander;
+}
+
 namespace Core {
 class VariableManagerPrivate;
 
@@ -58,7 +62,7 @@ public:
     QString value(const QString &variable) const;
     QString value(const QString &variable, const QString &defaultValue) const;
     bool remove(const QString &variable);
-    QString resolve(const QString &stringWithVariables) const;
+    Utils::AbstractMacroExpander *macroExpander();
 
 private:
     QScopedPointer<VariableManagerPrivate> d;

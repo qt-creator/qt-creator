@@ -40,6 +40,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/gnumakeparser.h>
 #include <coreplugin/variablemanager.h>
+#include <utils/stringutils.h>
 #include <utils/qtcassert.h>
 
 #include <QtGui/QFormLayout>
@@ -102,9 +103,8 @@ bool GenericMakeStep::init()
     GenericBuildConfiguration *bc = genericBuildConfiguration();
 
     setEnabled(true);
-    Core::VariableManager *vm = Core::VariableManager::instance();
-    const QString rawBuildDir = bc->buildDirectory();
-    const QString buildDir = vm->resolve(rawBuildDir);
+    QString buildDir = bc->buildDirectory();
+    Utils::expandMacros(&buildDir, Core::VariableManager::instance()->macroExpander());
     setWorkingDirectory(buildDir);
 
     setCommand(makeCommand());
@@ -140,15 +140,17 @@ bool GenericMakeStep::fromMap(const QVariantMap &map)
 
 QStringList GenericMakeStep::replacedArguments() const
 {
-    Core::VariableManager *vm = Core::VariableManager::instance();
+    Utils::AbstractMacroExpander *mx = Core::VariableManager::instance()->macroExpander();
     const QStringList targets = m_buildTargets;
     QStringList arguments = m_makeArguments;
     QStringList replacedArguments;
-    foreach (const QString &arg, arguments) {
-      replacedArguments.append(vm->resolve(arg));
+    foreach (QString arg, arguments) {
+        Utils::expandMacros(&arg, mx);
+        replacedArguments << arg;
     }
-    foreach (const QString &arg, targets) {
-      replacedArguments.append(vm->resolve(arg));
+    foreach (QString arg, targets) {
+        Utils::expandMacros(&arg, mx);
+        replacedArguments << arg;
     }
     return replacedArguments;
 }
