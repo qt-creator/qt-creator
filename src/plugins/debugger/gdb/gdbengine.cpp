@@ -1310,13 +1310,13 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
             if (isLeavableFunction(funcName, fileName)) {
                 //showMessage(_("LEAVING ") + funcName);
                 ++stepCounter;
-                executeStepOutX();
+                executeStepOut();
                 return;
             }
             if (isSkippableFunction(funcName, fileName)) {
                 //showMessage(_("SKIPPING ") + funcName);
                 ++stepCounter;
-                executeStepX();
+                executeStep();
                 return;
             }
             //if (stepCounter)

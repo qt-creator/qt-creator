@@ -409,10 +409,28 @@ static QToolButton *toolButton(QAction *action)
     return button;
 }
 
+// Retrieve file name and line and optionally address
+// from the data set on the text editor context menu action.
+static bool positionFromContextActionData(const QObject *sender,
+                                          QString *fileName,
+                                          int *lineNumber,
+                                          quint64 *address = 0)
+{
+    if (const QAction *action = qobject_cast<const QAction *>(sender)) {
+        const QVariantList data = action->data().toList();
+        if (data.size() >= (address ? 3 : 2)) {
+            *fileName = data.front().toString();
+            *lineNumber = data.at(1).toInt();
+            if (address)
+                *address = data.at(2).toULongLong();
+            return true;
+        }
+    }
+    return false;
+}
+
 namespace Debugger {
 namespace Internal {
-
-static const char *Role = "ROLE";
 
 // FIXME: Outdated?
 // The createCdbEngine function takes a list of options pages it can add to.
@@ -854,6 +872,25 @@ public:
     DebuggerEngine *currentEngine() const { return m_currentEngine; }
 
 public slots:
+    void selectThread(int index);
+
+    void breakpointSetRemoveMarginActionTriggered()
+    {
+        QString fileName;
+        int lineNumber;
+        quint64 address;
+        if (positionFromContextActionData(sender(), &fileName, &lineNumber, &address))
+            m_breakHandler->toggleBreakpoint(fileName, lineNumber, address);
+     }
+
+    void breakpointEnableDisableMarginActionTriggered()
+    {
+        QString fileName;
+        int lineNumber;
+        if (positionFromContextActionData(sender(), &fileName, &lineNumber))
+            m_breakHandler->toggleBreakpointEnabled(fileName, lineNumber);
+    }
+
     void updateWatchersHeader(int section, int, int newSize)
     {
         m_watchersWindow->header()->resizeSection(section, newSize);
@@ -988,8 +1025,17 @@ public slots:
             currentEngine()->executeNext();
     }
 
-    void handleExecStepOut() { resetLocation(); currentEngine()->executeStepOut(); }
-    void handleExecReturn() { resetLocation(); currentEngine()->executeReturn(); }
+    void handleExecStepOut()
+    {
+        resetLocation();
+        currentEngine()->executeStepOut();
+    }
+
+    void handleExecReturn()
+    {
+        resetLocation();
+        currentEngine()->executeReturn();
+    }
 
     void handleExecJumpToLine()
     {
@@ -1009,6 +1055,33 @@ public slots:
     {
         resetLocation();
         currentEngine()->executeRunToFunction(); // FIXME: move code from engine here.
+    }
+
+    void slotEditBreakpoint()
+    {
+        const QAction *act = qobject_cast<QAction *>(sender());
+        QTC_ASSERT(act, return);
+        const QVariant data = act->data();
+        QTC_ASSERT(qVariantCanConvert<BreakpointData *>(data), return);
+        BreakpointData *breakPointData = qvariant_cast<BreakpointData *>(data);
+        BreakWindow::editBreakpoint(breakPointData, ICore::instance()->mainWindow());
+    }
+
+    void slotRunToLine()
+    {
+        // Run to line, file name and line number set as list.
+        QString fileName;
+        int lineNumber;
+        if (positionFromContextActionData(sender(), &fileName, &lineNumber))
+            handleExecRunToLine();
+    }
+
+    void slotJumpToLine()
+    {
+        QString fileName;
+        int lineNumber;
+        if (positionFromContextActionData(sender(), &fileName, &lineNumber))
+            currentEngine()->executeJumpToLine(fileName, lineNumber);
     }
 
     void handleAddToWatchWindow()

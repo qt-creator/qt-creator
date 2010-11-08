@@ -253,11 +253,6 @@ public:
     void breakByFunction(const QString &functionName);
     void breakByFunctionMain();
     
-    void executeStepX();
-    void executeStepOutX();
-    void executeStepNextX();
-    void executeReturnX();
-
     DebuggerState state() const;
     DebuggerState lastGoodState() const;
     DebuggerState targetState() const;
