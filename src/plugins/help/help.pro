@@ -58,6 +58,8 @@ FORMS += docsettingspage.ui \
     generalsettingspage.ui \
     remotehelpfilter.ui
 
+INCLUDEPATH += $$PWD
+
 RESOURCES += help.qrc
 include(../../shared/help/help.pri)
 
