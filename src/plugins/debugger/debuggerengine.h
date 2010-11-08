@@ -339,11 +339,6 @@ protected:
     DebuggerRunControl *runControl() const;
 
 private:
-    void executeRunToLine();
-    void executeRunToFunction();
-    void executeJumpToLine();
-    void addToWatchWindow();
-
     // wrapper engine needs access to state of its subengines
     friend class QmlCppEngine;
 

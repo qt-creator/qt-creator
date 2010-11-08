@@ -35,7 +35,6 @@
 #include "debuggerplugin.h"
 #include "debuggerstringutils.h"
 #include "debuggertooltip.h"
-#include "logwindow.h"
 
 #include "breakhandler.h"
 #include "moduleshandler.h"
@@ -45,8 +44,6 @@
 #include "stackhandler.h"
 #include "threadshandler.h"
 #include "watchhandler.h"
-#include "watchutils.h"
-#include "breakwindow.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/ifile.h>
@@ -54,8 +51,6 @@
 #include <coreplugin/progressmanager/futureprogress.h>
 
 #include <projectexplorer/toolchaintype.h>
-
-#include <qt4projectmanager/qt4projectmanagerconstants.h>
 
 #include <texteditor/itexteditor.h>
 
@@ -67,17 +62,9 @@
 #include <QtCore/QTimer>
 #include <QtCore/QFutureInterface>
 
-#include <QtGui/QAbstractItemView>
 #include <QtGui/QStandardItemModel>
 #include <QtGui/QAction>
-#include <QtGui/QMenu>
-#include <QtGui/QMessageBox>
-#include <QtGui/QPlainTextEdit>
-#include <QtGui/QPushButton>
-#include <QtGui/QTextBlock>
-#include <QtGui/QTextCursor>
 #include <QtGui/QTreeWidget>
-#include <QtGui/QMainWindow>
 
 using namespace Core;
 using namespace Debugger;
@@ -550,57 +537,6 @@ void DebuggerEngine::gotoLocation(const StackFrame &frame, bool setMarker)
     }
 }
 
-
-void DebuggerEngine::executeRunToLine()
-{
-    QString fileName;
-    int lineNumber;
-    if (currentTextEditorPosition(&fileName, &lineNumber)) {
-        resetLocation();
-        executeRunToLine(fileName, lineNumber);
-    }
-}
-
-void DebuggerEngine::executeRunToFunction()
-{
-    ITextEditor *textEditor = currentTextEditor();
-    QTC_ASSERT(textEditor, return);
-    QPlainTextEdit *ed = qobject_cast<QPlainTextEdit*>(textEditor->widget());
-    if (!ed)
-        return;
-    QTextCursor cursor = ed->textCursor();
-    QString functionName = cursor.selectedText();
-    if (functionName.isEmpty()) {
-        const QTextBlock block = cursor.block();
-        const QString line = block.text();
-        foreach (const QString &str, line.trimmed().split('(')) {
-            QString a;
-            for (int i = str.size(); --i >= 0; ) {
-                if (!str.at(i).isLetterOrNumber())
-                    break;
-                a = str.at(i) + a;
-            }
-            if (!a.isEmpty()) {
-                functionName = a;
-                break;
-            }
-        }
-    }
-
-    if (functionName.isEmpty())
-        return;
-    resetLocation();
-    executeRunToFunction(functionName);
-}
-
-void DebuggerEngine::executeJumpToLine()
-{
-    QString fileName;
-    int lineNumber;
-    if (currentTextEditorPosition(&fileName, &lineNumber))
-        executeJumpToLine(fileName, lineNumber);
-}
-
 // Called from RunControl.
 void DebuggerEngine::handleStartFailed()
 {
@@ -663,33 +599,7 @@ QStringList DebuggerEngine::qtDumperLibraryLocations() const
 
 void DebuggerEngine::showQtDumperLibraryWarning(const QString &details)
 {
-    QMessageBox dialog(plugin()->mainWindow());
-    QPushButton *qtPref = dialog.addButton(tr("Open Qt4 Options"),
-        QMessageBox::ActionRole);
-    QPushButton *helperOff = dialog.addButton(tr("Turn off Helper Usage"),
-        QMessageBox::ActionRole);
-    QPushButton *justContinue = dialog.addButton(tr("Continue Anyway"),
-        QMessageBox::AcceptRole);
-    dialog.setDefaultButton(justContinue);
-    dialog.setWindowTitle(tr("Debugging Helper Missing"));
-    dialog.setText(tr("The debugger could not load the debugging helper library."));
-    dialog.setInformativeText(tr(
-        "The debugging helper is used to nicely format the values of some Qt "
-        "and Standard Library data types. "
-        "It must be compiled for each used Qt version separately. "
-        "On the Qt4 options page, select a Qt installation "
-        "and click Rebuild."));
-    if (!details.isEmpty())
-        dialog.setDetailedText(details);
-    dialog.exec();
-    if (dialog.clickedButton() == qtPref) {
-        Core::ICore::instance()->showOptionsDialog(
-            _(Qt4ProjectManager::Constants::QT_SETTINGS_CATEGORY),
-            _(Qt4ProjectManager::Constants::QTVERSION_SETTINGS_PAGE_ID));
-    } else if (dialog.clickedButton() == helperOff) {
-        theDebuggerAction(UseDebuggingHelpers)
-            ->setValue(qVariantFromValue(false), false);
-    }
+    plugin()->showQtDumperLibraryWarning(details);
 }
 
 QString DebuggerEngine::qtDumperLibraryName() const

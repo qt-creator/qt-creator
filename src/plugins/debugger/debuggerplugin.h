@@ -82,6 +82,7 @@ public:
     void setConfigValue(const QString &name, const QVariant &value);
     void updateState(DebuggerEngine *engine);
     virtual void remoteCommand(const QStringList &options, const QStringList &arguments);
+    void showQtDumperLibraryWarning(const QString &details);
 
     QIcon locationMarkIcon() const;
     void activateDebugMode();
