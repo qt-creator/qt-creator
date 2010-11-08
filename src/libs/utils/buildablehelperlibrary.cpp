@@ -48,8 +48,11 @@ QString BuildableHelperLibrary::findSystemQt(const Utils::Environment &env)
 {
     QStringList paths = env.path();
     foreach (const QString &path, paths) {
+        QString prefix = path;
+        if (!prefix.endsWith(QLatin1Char('/')))
+            prefix.append(QLatin1Char('/'));
         foreach (const QString &possibleCommand, possibleQMakeCommands()) {
-            const QFileInfo qmake(path + QLatin1Char('/') + possibleCommand);
+            const QFileInfo qmake(prefix + possibleCommand);
             if (qmake.exists()) {
                 if (!qtVersionForQMake(qmake.absoluteFilePath()).isNull()) {
                     return qmake.absoluteFilePath();
