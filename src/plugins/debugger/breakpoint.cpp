@@ -60,7 +60,7 @@ static quint64 nextBPId() {
 }
 
 BreakpointData::BreakpointData() :
-    id(nextBPId()), enabled(true),
+    id(nextBPId()), uiDirty(false), enabled(true),
     pending(true), type(BreakpointByFileAndLine),
     ignoreCount(0), lineNumber(0), address(0),
     useFullPath(false),
@@ -102,6 +102,7 @@ BreakpointData::~BreakpointData()
 
 void BreakpointData::clear()
 {
+    uiDirty = false;
     pending = true;
     bpNumber.clear();
     bpCondition.clear();

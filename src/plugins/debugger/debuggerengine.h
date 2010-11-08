@@ -186,6 +186,18 @@ public:
 
     virtual void attemptBreakpointSynchronization();
     virtual bool acceptsBreakpoint(const Internal::BreakpointData *);
+
+    virtual void addBreakpoint(const Internal::BreakpointData &bp);
+    virtual void notifyAddBreakpointOk(quint64 id);
+    virtual void notifyAddBreakpointFailed(quint64 id);
+    virtual void removeBreakpoint(quint64 id);
+    virtual void notifyRemoveBreakpointOk(quint64 id);
+    virtual void notifyRemoveBreakpointFailed(quint64 id);
+    virtual void changeBreakpoint(const Internal::BreakpointData &bp);
+    virtual void notifyChangeBreakpointOk(quint64 id);
+    virtual void notifyChangeBreakpointFailed(quint64 id);
+    virtual void notifyBreakpointAdjusted(const  Internal::BreakpointData &bp);
+
     virtual void selectThread(int index);
 
     virtual void assignValueInDebugger(const Internal::WatchData *data,
@@ -342,6 +354,7 @@ private:
 
     friend class DebuggerEnginePrivate;
     DebuggerEnginePrivate *d;
+    QHash<quint64, Internal::BreakpointData *> m_breakpoints;
 };
 
 } // namespace Debugger

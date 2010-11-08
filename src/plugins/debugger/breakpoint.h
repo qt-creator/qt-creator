@@ -97,6 +97,8 @@ private:
 
 public:
     quint64 id;
+    BreakpointState state;
+    bool uiDirty;            // ui has changed stuff
 
     bool enabled;            // Should we talk to the debugger engine?
     bool pending;            // Does the debugger engine know about us already?

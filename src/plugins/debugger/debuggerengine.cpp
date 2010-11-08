@@ -1220,11 +1220,112 @@ void DebuggerEngine::updateAll()
 
 void DebuggerEngine::attemptBreakpointSynchronization()
 {
+    for (int i = 0; i < breakHandler()->size(); i++) {
+        BreakpointData *bp = breakHandler()->at(i);
+        if (!m_breakpoints.contains(bp->id)) {
+            m_breakpoints.insert(bp->id, bp);
+        }
+        QTC_ASSERT(m_breakpoints[bp->id] == bp, qDebug() << "corrupted breakpoint map");
+        if (bp->uiDirty) {
+            bp->uiDirty = false;
+            bp->state = BreakpointChangeRequested;
+            changeBreakpoint(*bp);
+        }
+    }
+
+    Breakpoints bps = breakHandler()->takeRemovedBreakpoints();
+    foreach (BreakpointData *bp, bps) {
+        if (m_breakpoints.contains(bp->id)) {
+            bp->state = BreakpointRemovalRequested;
+            removeBreakpoint(bp->id);
+        } else
+            delete bp;
+    }
 }
 
 bool DebuggerEngine::acceptsBreakpoint(const BreakpointData *)
 {
     return true;
+}
+
+void DebuggerEngine::addBreakpoint(const BreakpointData &)
+{
+}
+
+void DebuggerEngine::notifyAddBreakpointOk(quint64 id)
+{
+    BreakpointData *bp = m_breakpoints[id];
+    if (!bp)
+        return;
+    bp->state = BreakpointOk;
+}
+
+void DebuggerEngine::notifyAddBreakpointFailed(quint64 id)
+{
+    BreakpointData *bp = m_breakpoints[id];
+    if (!bp)
+        return;
+    bp->state = BreakpointDead;
+}
+
+void DebuggerEngine::removeBreakpoint(quint64)
+{
+}
+
+void DebuggerEngine::notifyRemoveBreakpointOk(quint64 id)
+{
+    BreakpointData *bp = m_breakpoints.take(id);
+    if (!bp)
+        return;
+    bp->state = BreakpointDead;
+    delete bp;
+}
+
+void DebuggerEngine::notifyRemoveBreakpointFailed(quint64 id)
+{
+    BreakpointData *bp = m_breakpoints[id];
+    if (!bp)
+        return;
+    bp->state = BreakpointOk;
+}
+
+void DebuggerEngine::changeBreakpoint(const BreakpointData &)
+{
+}
+
+void DebuggerEngine::notifyChangeBreakpointOk(quint64 id)
+{
+    BreakpointData *bp = m_breakpoints[id];
+    if (!bp)
+        return;
+    bp->state = BreakpointOk;
+}
+
+void DebuggerEngine::notifyChangeBreakpointFailed(quint64 id)
+{
+    BreakpointData *bp = m_breakpoints[id];
+    if (!bp)
+        return;
+    bp->state = BreakpointDead;
+}
+
+void DebuggerEngine::notifyBreakpointAdjusted(const BreakpointData & rbp)
+{
+    BreakpointData *bp = m_breakpoints[rbp.id];
+    if (!bp)
+        return;
+    bp->bpNumber      = rbp.bpNumber;
+    bp->bpCondition   = rbp.bpCondition;
+    bp->bpIgnoreCount = rbp.bpIgnoreCount;
+    bp->bpFileName    = rbp.bpFileName;
+    bp->bpFullName    = rbp.bpFullName;
+    bp->bpLineNumber  = rbp.bpLineNumber;
+    bp->bpCorrectedLineNumber = rbp.bpCorrectedLineNumber;
+    bp->bpThreadSpec  = rbp.bpThreadSpec;
+    bp->bpFuncName    = rbp.bpFuncName;
+    bp->bpAddress     = rbp.bpAddress;
+    bp->bpMultiple    = rbp.bpMultiple;
+    bp->bpEnabled     = rbp.bpEnabled;
 }
 
 void DebuggerEngine::selectThread(int)

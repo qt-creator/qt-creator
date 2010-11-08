@@ -519,6 +519,7 @@ void BreakWindow::editBreakpoints(const QModelIndexList &list)
         data->condition = newCondition.toLatin1();
         data->ignoreCount = newIgnoreCount.toInt();
         data->threadSpec = newThreadSpec.toLatin1();
+        data->uiDirty = true;
     }
     synchronizeBreakpoints();
 }
