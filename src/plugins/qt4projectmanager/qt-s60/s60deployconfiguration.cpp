@@ -93,7 +93,8 @@ S60DeployConfiguration::S60DeployConfiguration(Target *parent) :
 #else
     m_serialPortName(QLatin1String(SymbianUtils::SymbianDeviceManager::linuxBlueToothDeviceRootC) + QLatin1Char('0')),
 #endif
-    m_installationDrive('C')
+    m_installationDrive('C'),
+    m_silentInstall(true)
 {
     ctor();
 }
@@ -102,7 +103,8 @@ S60DeployConfiguration::S60DeployConfiguration(Target *target, S60DeployConfigur
     DeployConfiguration(target, source),
     m_activeBuildConfiguration(0),
     m_serialPortName(source->m_serialPortName),
-    m_installationDrive(source->m_installationDrive)
+    m_installationDrive(source->m_installationDrive),
+    m_silentInstall(source->m_silentInstall)
 {
     ctor();
 }
