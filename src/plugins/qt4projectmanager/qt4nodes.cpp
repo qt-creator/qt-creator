@@ -2014,8 +2014,11 @@ void Qt4ProFileNode::setupInstallsList(const ProFileReader *reader)
             m_installsList.targetPath = itemPath;
         } else {
             if (itemFiles.isEmpty()) {
-                qDebug("Ignoring INSTALLS item '%s', because it has no files.",
-                    qPrintable(item));
+                if (!reader->values(item + QLatin1String(".CONFIG"))
+                    .contains(QLatin1String("no_check_exist"))) {
+                    qDebug("Ignoring INSTALLS item '%s', because it has no files.",
+                        qPrintable(item));
+                }
                 continue;
             }
             m_installsList.items << InstallsItem(itemPath, itemFiles);
