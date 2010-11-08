@@ -31,6 +31,7 @@
 #define ACTIONMANAGER_H
 
 #include "coreplugin/core_global.h"
+#include "coreplugin/uniqueidmanager.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QList>
@@ -46,7 +47,6 @@ namespace Core {
 class ActionContainer;
 class Command;
 class Context;
-class Id;
 
 class CORE_EXPORT ActionManager : public QObject
 {
