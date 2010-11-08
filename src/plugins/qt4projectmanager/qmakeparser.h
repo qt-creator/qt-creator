@@ -32,6 +32,8 @@
 
 #include <projectexplorer/ioutputparser.h>
 
+#include <QtCore/QRegExp>
+
 namespace Qt4ProjectManager {
 namespace Internal {
 
@@ -42,6 +44,9 @@ class QMakeParser : public ProjectExplorer::IOutputParser
 public:
     QMakeParser();
     virtual void stdError(const QString &line);
+
+private:
+    QRegExp m_error;
 };
 
 } // namesapce Internal

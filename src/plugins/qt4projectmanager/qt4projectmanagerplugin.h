@@ -88,6 +88,8 @@ private slots:
     void testSbsV2OutputParsers();
     void testRvctOutputParser_data();
     void testRvctOutputParser();
+    void testQmakeOutputParsers_data();
+    void testQmakeOutputParsers();
 #endif
 
 private:
