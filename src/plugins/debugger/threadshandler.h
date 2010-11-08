@@ -60,7 +60,6 @@ public:
     void setCurrentThreadId(int id);
     int indexOf(quint64 threadId) const;
 
-    void selectThread(int index);
     void setThreads(const Threads &threads);
     void removeAll();
     Threads threads() const;

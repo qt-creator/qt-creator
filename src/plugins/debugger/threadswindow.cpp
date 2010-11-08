@@ -66,7 +66,7 @@ ThreadsWindow::ThreadsWindow(QWidget *parent)
 
 void ThreadsWindow::rowActivated(const QModelIndex &index)
 {
-    selectThread(index.row());
+    DebuggerPlugin::instance()->currentEngine()->selectThread(index.row());
 }
 
 void ThreadsWindow::contextMenuEvent(QContextMenuEvent *ev)
@@ -106,12 +106,6 @@ void ThreadsWindow::setAlwaysResizeColumnsToContents(bool on)
     QHeaderView::ResizeMode mode = on
         ? QHeaderView::ResizeToContents : QHeaderView::Interactive;
     header()->setResizeMode(0, mode);
-}
-
-void ThreadsWindow::selectThread(int index)
-{
-    DebuggerPlugin::instance()->currentEngine()
-        ->threadsHandler()->selectThread(index);
 }
 
 } // namespace Internal

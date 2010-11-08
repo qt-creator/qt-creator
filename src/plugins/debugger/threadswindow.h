@@ -45,7 +45,6 @@ public:
 public slots:
     void resizeColumnsToContents();
     void setAlwaysResizeColumnsToContents(bool on);
-    void selectThread(int index);
 
 private slots:
     void rowActivated(const QModelIndex &index);
