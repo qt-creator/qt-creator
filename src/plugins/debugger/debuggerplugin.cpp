@@ -1539,7 +1539,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
         m_uiSwitcher->createDockWidget(QmlLanguage, m_scriptConsoleWindow);
     m_scriptConsoleDock->setObjectName(QString(DOCKWIDGET_QML_SCRIPTCONSOLE));
 
-    // Do not fail the whole plugin if something goes wrong here.
+    // Do not fail to load the whole plugin if something goes wrong here.
     uint cmdLineEnabledEngines = AllEngineTypes;
     if (!parseArguments(arguments, &m_attachRemoteParameters,
             &cmdLineEnabledEngines, errorMessage)) {
@@ -3148,21 +3148,17 @@ void DebuggerPlugin::remoteCommand(const QStringList &options, const QStringList
 
     unsigned enabledEngines = 0;
     QString errorMessage;
-    bool success = false;
-    do {
-        if (!parseArguments(options, &d->m_attachRemoteParameters, &enabledEngines, &errorMessage))
-            break;
 
-        if (!d->attachCmdLine()) {
-            errorMessage = QString::fromLatin1("Incomplete remote attach command received: %1").
-                           arg(options.join(QString(QLatin1Char(' '))));
-            break;
-        }
-        success = true;
-    } while (false);
-
-    if (!success)
+    if (!parseArguments(options,
+            &d->m_attachRemoteParameters, &enabledEngines, &errorMessage)) {
         qWarning("%s", qPrintable(errorMessage));
+        return;
+    }
+
+    if (!d->attachCmdLine())
+        qWarning("%s", qPrintable(
+            _("Incomplete remote attach command received: %1").
+               arg(options.join(QString(QLatin1Char(' '))))));
 }
 
 void DebuggerPlugin::showQtDumperLibraryWarning(const QString &details)
