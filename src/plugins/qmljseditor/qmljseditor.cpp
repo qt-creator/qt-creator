@@ -39,6 +39,7 @@
 #include "qmljsfindreferences.h"
 #include "qmljssemantichighlighter.h"
 #include "qmljsindenter.h"
+#include "qmljsautocompleter.h"
 
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljsdocument.h>
@@ -90,39 +91,6 @@ using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
-
-static int blockStartState(const QTextBlock &block)
-{
-    int state = block.userState();
-
-    if (state == -1)
-        return 0;
-    else
-        return state & 0xff;
-}
-
-static bool shouldInsertMatchingText(QChar lookAhead)
-{
-    switch (lookAhead.unicode()) {
-    case '{': case '}':
-    case ']': case ')':
-    case ';': case ',':
-    case '"': case '\'':
-        return true;
-
-    default:
-        if (lookAhead.isSpace())
-            return true;
-
-        return false;
-    } // switch
-}
-
-static bool shouldInsertMatchingText(const QTextCursor &tc)
-{
-    QTextDocument *doc = tc.document();
-    return shouldInsertMatchingText(doc->characterAt(tc.selectionEnd()));
-}
 
 namespace {
 
@@ -647,6 +615,7 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     setCodeFoldingSupported(true);
     setCodeFoldingVisible(true);
     setIndenter(new Indenter);
+    setAutoCompleter(new AutoCompleter);
 
     m_updateDocumentTimer = new QTimer(this);
     m_updateDocumentTimer->setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
@@ -1502,200 +1471,6 @@ void QmlJSTextEditor::resizeEvent(QResizeEvent *event)
 void QmlJSTextEditor::unCommentSelection()
 {
     Utils::unCommentSelection(this);
-}
-
-static bool isCompleteStringLiteral(const QStringRef &text)
-{
-    if (text.length() < 2)
-        return false;
-
-    const QChar quote = text.at(0);
-
-    if (text.at(text.length() - 1) == quote)
-        return text.at(text.length() - 2) != QLatin1Char('\\'); // ### not exactly.
-
-    return false;
-}
-
-static Token tokenUnderCursor(const QTextCursor &cursor)
-{
-    const QString blockText = cursor.block().text();
-    const int blockState = blockStartState(cursor.block());
-
-    Scanner tokenize;
-    const QList<Token> tokens = tokenize(blockText, blockState);
-    const int pos = cursor.positionInBlock();
-
-    int tokenIndex = 0;
-    for (; tokenIndex < tokens.size(); ++tokenIndex) {
-        const Token &token = tokens.at(tokenIndex);
-
-        if (token.is(Token::Comment) || token.is(Token::String)) {
-            if (pos > token.begin() && pos <= token.end())
-                break;
-        } else {
-            if (pos >= token.begin() && pos < token.end())
-                break;
-        }
-    }
-
-    if (tokenIndex != tokens.size())
-        return tokens.at(tokenIndex);
-
-    return Token();
-}
-
-bool QmlJSTextEditor::contextAllowsAutoParentheses(const QTextCursor &cursor, const QString &textToInsert) const
-{
-    QChar ch;
-
-    if (! textToInsert.isEmpty())
-        ch = textToInsert.at(0);
-
-    switch (ch.unicode()) {
-    case '\'':
-    case '"':
-
-    case '(':
-    case '[':
-    case '{':
-
-    case ')':
-    case ']':
-    case '}':
-
-    case ';':
-        break;
-
-    default:
-        if (ch.isNull())
-            break;
-
-        return false;
-    } // end of switch
-
-    const Token token = tokenUnderCursor(cursor);
-    switch (token.kind) {
-    case Token::Comment:
-        return false;
-
-    case Token::String: {
-        const QString blockText = cursor.block().text();
-        const QStringRef tokenText = blockText.midRef(token.offset, token.length);
-        const QChar quote = tokenText.at(0);
-
-        if (ch != quote || isCompleteStringLiteral(tokenText))
-            break;
-
-        return false;
-    }
-
-    default:
-        break;
-    } // end of switch
-
-    return true;
-}
-
-bool QmlJSTextEditor::contextAllowsElectricCharacters(const QTextCursor &cursor) const
-{
-    Token token = tokenUnderCursor(cursor);
-    switch (token.kind) {
-    case Token::Comment:
-    case Token::String:
-        return false;
-    default:
-        return true;
-    }
-}
-
-bool QmlJSTextEditor::isInComment(const QTextCursor &cursor) const
-{
-    return tokenUnderCursor(cursor).is(Token::Comment);
-}
-
-QString QmlJSTextEditor::insertMatchingBrace(const QTextCursor &tc, const QString &text, QChar, int *skippedChars) const
-{
-    if (text.length() != 1)
-        return QString();
-
-    if (! shouldInsertMatchingText(tc))
-        return QString();
-
-    const QChar la = characterAt(tc.position());
-
-    const QChar ch = text.at(0);
-    switch (ch.unicode()) {
-    case '\'':
-        if (la != ch)
-            return QString(ch);
-        ++*skippedChars;
-        break;
-
-    case '"':
-        if (la != ch)
-            return QString(ch);
-        ++*skippedChars;
-        break;
-
-    case '(':
-        return QString(QLatin1Char(')'));
-
-    case '[':
-        return QString(QLatin1Char(']'));
-
-    case '{':
-        return QString(); // nothing to do.
-
-    case ')':
-    case ']':
-    case '}':
-    case ';':
-        if (la == ch)
-            ++*skippedChars;
-        break;
-
-    default:
-        break;
-    } // end of switch
-
-    return QString();
-}
-
-static bool shouldInsertNewline(const QTextCursor &tc)
-{
-    QTextDocument *doc = tc.document();
-    int pos = tc.selectionEnd();
-
-    // count the number of empty lines.
-    int newlines = 0;
-    for (int e = doc->characterCount(); pos != e; ++pos) {
-        const QChar ch = doc->characterAt(pos);
-
-        if (! ch.isSpace())
-            break;
-        else if (ch == QChar::ParagraphSeparator)
-            ++newlines;
-    }
-
-    if (newlines <= 1 && doc->characterAt(pos) != QLatin1Char('}'))
-        return true;
-
-    return false;
-}
-
-QString QmlJSTextEditor::insertParagraphSeparator(const QTextCursor &tc) const
-{
-    if (shouldInsertNewline(tc)) {
-        QTextCursor cursor = tc;
-        cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-        if (! cursor.selectedText().trimmed().isEmpty())
-            return QString();
-
-        return QLatin1String("}\n");
-    }
-
-    return QLatin1String("}");
 }
 
 void QmlJSTextEditor::forceSemanticRehighlight()

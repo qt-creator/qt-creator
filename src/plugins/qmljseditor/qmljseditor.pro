@@ -35,7 +35,8 @@ HEADERS += \
     qmljsfindreferences.h \
     qmljseditoreditable.h \
     qmljssemantichighlighter.h \
-    qmljsindenter.h
+    qmljsindenter.h \
+    qmljsautocompleter.h
 
 SOURCES += \
     qmljscodecompletion.cpp \
@@ -64,7 +65,8 @@ SOURCES += \
     qmljsfindreferences.cpp \
     qmljseditoreditable.cpp \
     qmljssemantichighlighter.cpp \
-    qmljsindenter.cpp
+    qmljsindenter.cpp \
+    qmljsautocompleter.cpp
 
 RESOURCES += qmljseditor.qrc
 OTHER_FILES += QmlJSEditor.mimetypes.xml

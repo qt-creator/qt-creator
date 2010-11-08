@@ -294,6 +294,7 @@ public:
     QPointer<BaseTextEditorAnimator> m_animator;
     int m_cursorBlockNumber;
 
+    QScopedPointer<AutoCompleter> m_autoCompleter;
     QScopedPointer<Indenter> m_indenter;
 };
 

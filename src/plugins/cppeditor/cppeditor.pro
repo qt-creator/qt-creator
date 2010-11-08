@@ -23,7 +23,8 @@ HEADERS += cppplugin.h \
     cpptypehierarchy.h \
     cppelementevaluator.h \
     cppquickfixcollector.h \
-    cppqtstyleindenter.h
+    cppqtstyleindenter.h \
+    cppautocompleter.h
 SOURCES += cppplugin.cpp \
     cppeditor.cpp \
     cpphighlighter.cpp \
@@ -40,6 +41,7 @@ SOURCES += cppplugin.cpp \
     cpptypehierarchy.cpp \
     cppelementevaluator.cpp \
     cppquickfixcollector.cpp \
-    cppqtstyleindenter.cpp
+    cppqtstyleindenter.cpp \
+    cppautocompleter.cpp
 RESOURCES += cppeditor.qrc
 OTHER_FILES += CppEditor.mimetypes.xml

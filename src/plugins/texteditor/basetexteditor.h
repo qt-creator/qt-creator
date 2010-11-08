@@ -69,6 +69,7 @@ class CompletionSettings;
 class DisplaySettings;
 class StorageSettings;
 class Indenter;
+class AutoCompleter;
 
 class TEXTEDITOR_EXPORT BaseTextEditorAnimator : public QObject
 {
@@ -224,6 +225,9 @@ public:
     QRegion translatedLineRegion(int lineStart, int lineEnd) const;
 
     void setIndenter(Indenter *indenter);
+
+    void setAutoCompleter(AutoCompleter *autoCompleter);
+    AutoCompleter *autoCompleter() const;
 
 public slots:
     void setDisplayName(const QString &title);
@@ -428,17 +432,6 @@ public:
     virtual void indent(QTextDocument *doc, const QTextCursor &cursor, QChar typedChar);
     // Reindent at cursor. Selection will be adjusted according to the indentation change of the first block
     virtual void reindent(QTextDocument *doc, const QTextCursor &cursor);
-
-    virtual bool contextAllowsAutoParentheses(const QTextCursor &cursor, const QString &textToInsert = QString()) const;
-    virtual bool contextAllowsElectricCharacters(const QTextCursor &cursor) const;
-
-    // Returns true if the cursor is inside a comment.
-    virtual bool isInComment(const QTextCursor &cursor) const;
-
-    virtual QString insertMatchingBrace(const QTextCursor &tc, const QString &text, QChar la, int *skippedChars) const;
-
-    // Returns the text that needs to be inserted
-    virtual QString insertParagraphSeparator(const QTextCursor &tc) const;
 
 protected:
     static void countBracket(QChar open, QChar close, QChar c, int *errors, int *stillopen);

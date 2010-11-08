@@ -36,6 +36,7 @@
 #include "cpplocalsymbols.h"
 #include "cppquickfixcollector.h"
 #include "cppqtstyleindenter.h"
+#include "cppautocompleter.h"
 
 #include <AST.h>
 #include <Control.h>
@@ -416,6 +417,7 @@ CPPEditor::CPPEditor(QWidget *parent)
     setCodeFoldingSupported(true);
     setCodeFoldingVisible(true);
     setIndenter(new CppQtStyleIndenter);
+    setAutoCompleter(new CppAutoCompleter);
     baseTextDocument()->setSyntaxHighlighter(new CppHighlighter);
 
     m_modelManager = CppTools::CppModelManagerInterface::instance();
@@ -1405,90 +1407,6 @@ QModelIndex CPPEditor::outlineModelIndex()
     }
 
     return m_outlineModelIndex;
-}
-
-QString CPPEditor::insertMatchingBrace(const QTextCursor &tc, const QString &text,
-                                       QChar la, int *skippedChars) const
-{
-    MatchingText m;
-    return m.insertMatchingBrace(tc, text, la, skippedChars);
-}
-
-QString CPPEditor::insertParagraphSeparator(const QTextCursor &tc) const
-{
-    MatchingText m;
-    return m.insertParagraphSeparator(tc);
-}
-
-
-bool CPPEditor::contextAllowsAutoParentheses(const QTextCursor &cursor,
-                                             const QString &textToInsert) const
-{
-    QChar ch;
-
-    if (! textToInsert.isEmpty())
-        ch = textToInsert.at(0);
-
-    if (! (MatchingText::shouldInsertMatchingText(cursor) || ch == QLatin1Char('\'') || ch == QLatin1Char('"')))
-        return false;
-    else if (isInComment(cursor))
-        return false;
-
-    return true;
-}
-
-bool CPPEditor::contextAllowsElectricCharacters(const QTextCursor &cursor) const
-{
-    const Token tk = SimpleLexer::tokenAt(cursor.block().text(), cursor.positionInBlock(), BackwardsScanner::previousBlockState(cursor.block()));
-
-    // XXX Duplicated from CPPEditor::isInComment to avoid tokenizing twice
-    if (tk.isComment()) {
-        const unsigned pos = cursor.selectionEnd() - cursor.block().position();
-
-        if (pos == tk.end()) {
-            if (tk.is(T_CPP_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))
-                return false;
-
-            const int state = cursor.block().userState() & 0xFF;
-            if (state > 0)
-                return false;
-        }
-
-        if (pos < tk.end())
-            return false;
-    }
-    else if (tk.is(T_STRING_LITERAL) || tk.is(T_WIDE_STRING_LITERAL)
-        || tk.is(T_CHAR_LITERAL) || tk.is(T_WIDE_CHAR_LITERAL)) {
-
-        const unsigned pos = cursor.selectionEnd() - cursor.block().position();
-        if (pos <= tk.end())
-            return false;
-    }
-
-    return true;
-}
-
-bool CPPEditor::isInComment(const QTextCursor &cursor) const
-{
-    const Token tk = SimpleLexer::tokenAt(cursor.block().text(), cursor.positionInBlock(), BackwardsScanner::previousBlockState(cursor.block()));
-
-    if (tk.isComment()) {
-        const unsigned pos = cursor.selectionEnd() - cursor.block().position();
-
-        if (pos == tk.end()) {
-            if (tk.is(T_CPP_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))
-                return true;
-
-            const int state = cursor.block().userState() & 0xFF;
-            if (state > 0)
-                return true;
-        }
-
-        if (pos < tk.end())
-            return true;
-    }
-
-    return false;
 }
 
 bool CPPEditor::event(QEvent *e)

@@ -43,6 +43,7 @@
 #include "tooltip.h"
 #include "tipcontents.h"
 #include "indenter.h"
+#include "autocompleter.h"
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -1364,7 +1365,7 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
             cursor.insertText(autoText);
             cursor.setPosition(pos);
         }
-        if (!electricChar.isNull() && contextAllowsElectricCharacters(cursor))
+        if (!electricChar.isNull() && d->m_autoCompleter->contextAllowsElectricCharacters(cursor))
             indent(document(), cursor, electricChar);
 
         if (doEditBlock)
@@ -1889,6 +1890,16 @@ void BaseTextEditor::setIndenter(Indenter *indenter)
     d->m_indenter.reset(indenter);
 }
 
+void BaseTextEditor::setAutoCompleter(AutoCompleter *autoCompleter)
+{
+    d->m_autoCompleter.reset(autoCompleter);
+}
+
+AutoCompleter *BaseTextEditor::autoCompleter() const
+{
+    return d->m_autoCompleter.data();
+}
+
 //--------- BaseTextEditorPrivate -----------
 
 BaseTextEditorPrivate::BaseTextEditorPrivate()
@@ -1937,7 +1948,8 @@ BaseTextEditorPrivate::BaseTextEditorPrivate()
     m_requestAutoCompletionRevision(0),
     m_requestAutoCompletionPosition(0),
     m_requestAutoCompletionTimer(0),
-    m_cursorBlockNumber(-1)
+    m_cursorBlockNumber(-1),
+    m_autoCompleter(new AutoCompleter)
 {
 }
 
@@ -4051,41 +4063,6 @@ void BaseTextEditor::countBrackets(QTextCursor cursor, int from, int end, QChar 
     }
 }
 
-bool BaseTextEditor::contextAllowsAutoParentheses(const QTextCursor &cursor,
-                                                  const QString &textToInsert) const
-{
-    Q_UNUSED(cursor);
-    Q_UNUSED(textToInsert);
-    return false;
-}
-
-bool BaseTextEditor::contextAllowsElectricCharacters(const QTextCursor &cursor) const
-{
-    return contextAllowsAutoParentheses(cursor);
-}
-
-bool BaseTextEditor::isInComment(const QTextCursor &cursor) const
-{
-    Q_UNUSED(cursor);
-    return false;
-}
-
-QString BaseTextEditor::insertMatchingBrace(const QTextCursor &tc, const QString &text,
-                                            QChar la, int *skippedChars) const
-{
-    Q_UNUSED(tc);
-    Q_UNUSED(text);
-    Q_UNUSED(la);
-    Q_UNUSED(skippedChars);
-    return QString();
-}
-
-QString BaseTextEditor::insertParagraphSeparator(const QTextCursor &tc) const
-{
-    Q_UNUSED(tc);
-    return QString();
-}
-
 QString BaseTextEditor::autoComplete(QTextCursor &cursor, const QString &textToInsert) const
 {
     const bool checkBlockEnd = d->m_allowSkippingOfBlockEnd;
@@ -4094,7 +4071,7 @@ QString BaseTextEditor::autoComplete(QTextCursor &cursor, const QString &textToI
     if (!d->m_autoParenthesesEnabled)
         return QString();
 
-    if (!contextAllowsAutoParentheses(cursor, textToInsert))
+    if (!d->m_autoCompleter->contextAllowsAutoParentheses(cursor, textToInsert))
         return QString();
 
     const QString text = textToInsert;
@@ -4128,7 +4105,7 @@ QString BaseTextEditor::autoComplete(QTextCursor &cursor, const QString &textToI
     }
 
     int skippedChars = 0;
-    const QString autoText = insertMatchingBrace(cursor, text, lookAhead, &skippedChars);
+    const QString autoText = d->m_autoCompleter->insertMatchingBrace(cursor, text, lookAhead, &skippedChars);
 
     if (checkBlockEnd && textToInsert.at(0) == QLatin1Char('}')) {
         if (textToInsert.length() > 1)
@@ -4200,7 +4177,7 @@ bool BaseTextEditor::autoBackspace(QTextCursor &cursor)
             && lookFurtherBehind != QLatin1Char('\\'))
         || (lookBehind == QLatin1Char('\'') && lookAhead == QLatin1Char('\'')
             && lookFurtherBehind != QLatin1Char('\\'))) {
-        if (! isInComment(c)) {
+        if (! d->m_autoCompleter->isInComment(c)) {
             cursor.beginEditBlock();
             cursor.deleteChar();
             cursor.deletePreviousChar();
@@ -4219,7 +4196,7 @@ int BaseTextEditor::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor)
     if (characterAt(cursor.position() - 1) != QLatin1Char('{'))
         return 0;
 
-    if (!contextAllowsAutoParentheses(cursor))
+    if (!d->m_autoCompleter->contextAllowsAutoParentheses(cursor))
         return 0;
 
     // verify that we indeed do have an extra opening brace in the document
@@ -4253,7 +4230,7 @@ int BaseTextEditor::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor)
 
     int pos = cursor.position();
 
-    const QString textToInsert = insertParagraphSeparator(cursor);
+    const QString textToInsert = d->m_autoCompleter->insertParagraphSeparator(cursor);
 
     cursor.insertText(textToInsert);
     cursor.setPosition(pos);
