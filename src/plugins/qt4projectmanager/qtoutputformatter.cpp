@@ -42,7 +42,10 @@ using namespace Qt4ProjectManager;
 
 QtOutputFormatter::QtOutputFormatter(ProjectExplorer::Project *project)
     : OutputFormatter()
-    , m_qmlError(QLatin1String("(file:///.+:\\d+:\\d+):"))
+    , m_qmlError(QLatin1String("^(file:///.+"    // file url
+                               ":\\d+"           // colon, line
+                               "(?::\\d+)?)"     // colon, column (optional)
+                               ":"))             // colon
     , m_qtError(QLatin1String("Object::.*in (.*:\\d+)"))
     , m_qtAssert(QLatin1String("^ASSERT: .* in file (.+, line \\d+)$"))
     , m_qtTestFail(QLatin1String("^   Loc: \\[(.*)\\]$"))
@@ -176,13 +179,25 @@ void QtOutputFormatter::appendLine(QTextCursor &cursor, LinkResult lr, const QSt
 void QtOutputFormatter::handleLink(const QString &href)
 {
     if (!href.isEmpty()) {
-        const QRegExp qmlErrorLink(QLatin1String("^(file:///.+):(\\d+):(\\d+)"));
+        const QRegExp qmlLineColumnLink(QLatin1String("^(file:///.+)" // file url
+                                                 ":(\\d+)"            // line
+                                                 ":(\\d+)$"));        // column
 
-        if (qmlErrorLink.indexIn(href) != -1) {
-            const QString fileName = QUrl(qmlErrorLink.cap(1)).toLocalFile();
-            const int line = qmlErrorLink.cap(2).toInt();
-            const int column = qmlErrorLink.cap(3).toInt();
+        if (qmlLineColumnLink.indexIn(href) != -1) {
+            const QString fileName = QUrl(qmlLineColumnLink.cap(1)).toLocalFile();
+            const int line = qmlLineColumnLink.cap(2).toInt();
+            const int column = qmlLineColumnLink.cap(3).toInt();
             TextEditor::BaseTextEditor::openEditorAt(fileName, line, column - 1);
+            return;
+        }
+
+        const QRegExp qmlLineLink(QLatin1String("^(file:///.+)" // file url
+                                                 ":(\\d+)$"));  // line
+
+        if (qmlLineLink.indexIn(href) != -1) {
+            const QString fileName = QUrl(qmlLineLink.cap(1)).toLocalFile();
+            const int line = qmlLineLink.cap(2).toInt();
+            TextEditor::BaseTextEditor::openEditorAt(fileName, line);
             return;
         }
 
