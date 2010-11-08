@@ -271,13 +271,13 @@ void QmlAnchorBindingProxy::resetLayout() {
         m_fxItemNode.anchors().removeAnchors();
         m_fxItemNode.anchors().removeMargins();
 
-        if (qFuzzyCompare(m_fxItemNode.instancePosition().x(), 0.0))
+        if (qFuzzyCompare(m_fxItemNode.instancePosition().x(), 0.0) && m_fxItemNode.modelNode().hasAuxiliaryData(auxDataString + "x"))
             m_fxItemNode.setVariantProperty("x", m_fxItemNode.modelNode().auxiliaryData(auxDataString + "x"));
-        if (qFuzzyCompare(m_fxItemNode.instancePosition().y(), 0.0))
+        if (qFuzzyCompare(m_fxItemNode.instancePosition().y(), 0.0) && m_fxItemNode.modelNode().hasAuxiliaryData(auxDataString + "y"))
             m_fxItemNode.setVariantProperty("y", m_fxItemNode.modelNode().auxiliaryData(auxDataString + "y"));
-        if (qFuzzyCompare(m_fxItemNode.instanceSize().width(), 0.0))
+        if (qFuzzyCompare(m_fxItemNode.instanceSize().width(), 0.0) && m_fxItemNode.modelNode().hasAuxiliaryData(auxDataString + "width"))
             m_fxItemNode.setVariantProperty("width", m_fxItemNode.modelNode().auxiliaryData(auxDataString + "width"));
-        if (qFuzzyCompare(m_fxItemNode.instanceSize().height(), 0.0))
+        if (qFuzzyCompare(m_fxItemNode.instanceSize().height(), 0.0) && m_fxItemNode.modelNode().hasAuxiliaryData(auxDataString + "height"))
             m_fxItemNode.setVariantProperty("height", m_fxItemNode.modelNode().auxiliaryData(auxDataString + "height"));
 
         emit topAnchorChanged();
