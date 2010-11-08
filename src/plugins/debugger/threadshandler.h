@@ -39,7 +39,7 @@
 
 namespace Debugger {
 namespace Internal {
-
+class GdbMi;
 ////////////////////////////////////////////////////////////////////////
 //
 // ThreadsHandler
@@ -67,6 +67,8 @@ public:
 
     // Clear out all frame information
     void notifyRunning();
+
+    static Threads parseGdbmiThreads(const GdbMi &data, int *currentThread = 0);
 
 private:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;

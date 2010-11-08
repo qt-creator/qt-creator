@@ -2964,30 +2964,9 @@ void GdbEngine::handleThreadInfo(const GdbResponse &response)
 {
     int id = response.cookie.toInt();
     if (response.resultClass == GdbResultDone) {
-        // ^done,threads=[{id="1",target-id="Thread 0xb7fdc710 (LWP 4264)",
-        // frame={level="0",addr="0x080530bf",func="testQString",args=[],
-        // file="/.../app.cpp",fullname="/../app.cpp",line="1175"},
-        // state="stopped",core="0"}],current-thread-id="1"
-        const QList<GdbMi> items = response.data.findChild("threads").children();
-        Threads threads;
-        for (int index = 0, n = items.size(); index != n; ++index) {
-            bool ok = false;
-            const GdbMi item = items.at(index);
-            const GdbMi frame = item.findChild("frame");
-            ThreadData thread;
-            thread.id = item.findChild("id").data().toInt();
-            thread.targetId = QString::fromAscii(item.findChild("target-id").data());
-            thread.core = QString::fromLatin1(item.findChild("core").data());
-            thread.state = QString::fromLatin1(item.findChild("state").data());
-            thread.address = frame.findChild("addr").data().toULongLong(&ok, 0);
-            thread.function = QString::fromLatin1(frame.findChild("func").data());
-            thread.fileName = QString::fromLatin1(frame.findChild("fullname").data());
-            thread.lineNumber = frame.findChild("line").data().toInt();
-            threads.append(thread);
-        }
+        int currentThreadId;
+        const Threads threads= ThreadsHandler::parseGdbmiThreads(response.data, &currentThreadId);
         threadsHandler()->setThreads(threads);
-        const int currentThreadId =
-            response.data.findChild("current-thread-id").data().toInt();
         threadsHandler()->setCurrentThreadId(currentThreadId);
         updateViews(); // Adjust Threads combobox.
         if (m_hasInferiorThreadList) {

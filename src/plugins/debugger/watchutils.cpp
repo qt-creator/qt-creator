@@ -1522,10 +1522,19 @@ bool QtDumperHelper::parseValue(const char *data, QList<WatchData> *l)
 {
     l->clear();
     GdbMi root;
-    root.fromStringMultiple(QByteArray(data));
-    if (!root.isValid())
-        return false;
-    gbdMiToWatchData(root, GdbMiRecursionContext(), l);
+    // Array (CDB2)
+    if (*data == '[') {
+        root.fromString(data);
+        if (!root.isValid())
+            return false;
+        foreach(const GdbMi &child, root.children())
+            gbdMiToWatchData(child, GdbMiRecursionContext(), l);
+    } else {
+        root.fromStringMultiple(QByteArray(data));
+        if (!root.isValid())
+            return false;
+        gbdMiToWatchData(root, GdbMiRecursionContext(), l);
+    }
     return true;
 }
 
