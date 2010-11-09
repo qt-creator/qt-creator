@@ -2987,7 +2987,8 @@ void DebuggerPlugin::showMessage(const QString &msg, int channel, int timeout)
             break;
         default:
             ow->showOutput(channel, msg);
-            //cw->showOutput(channel, msg);
+            if (channel == LogError)
+                ensureLogVisible();
             break;
     }
 }
