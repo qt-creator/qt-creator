@@ -1,15 +1,12 @@
-
-
 SOURCES += $$PWD/backtrace.cpp \
            $$PWD/cdbsymbolpathlisteditor.cpp
 
 HEADERS += $$PWD/backtrace.h \
            $$PWD/cdbsymbolpathlisteditor.h
 
-win32 {
-
 INCLUDEPATH+=$$PWD
 
+win32 {
 SOURCES += $$PWD/peutils.cpp \
            $$PWD/dbgwinutils.cpp \
 	   $$PWD/sharedlibraryinjector.cpp
@@ -20,8 +17,7 @@ HEADERS += $$PWD/peutils.h \
 
 contains(QMAKE_CXX, cl) {
 #   For the Privilege manipulation functions in sharedlibraryinjector.cpp.
-#   Not required for MinGW.
-    LIBS += advapi32.lib
+    LIBS += -ladvapi32
 }
 
 }
