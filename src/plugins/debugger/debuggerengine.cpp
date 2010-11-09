@@ -1223,8 +1223,11 @@ void DebuggerEngine::attemptBreakpointSynchronization()
 {
     for (int i = 0; i < breakHandler()->size(); i++) {
         BreakpointData *bp = breakHandler()->at(i);
-        if (!d->m_breakpoints.contains(bp->id))
+        if (!d->m_breakpoints.contains(bp->id)) {
             d->m_breakpoints.insert(bp->id, bp);
+            bp->state = BreakpointInsertionRequested;
+            addBreakpoint(*bp);
+        }
         QTC_ASSERT(d->m_breakpoints[bp->id] == bp, qDebug() << "corrupted breakpoint map");
         if (bp->uiDirty) {
             bp->uiDirty = false;
