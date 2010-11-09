@@ -88,7 +88,7 @@ inline bool operator!=(const HighlighterSettings &a, const HighlighterSettings &
 { return !a.equals(b); }
 
 namespace Internal {
-QString findDefinitionsLocation();
+QString findFallbackDefinitionsLocation();
 }
 
 } // namespace TextEditor

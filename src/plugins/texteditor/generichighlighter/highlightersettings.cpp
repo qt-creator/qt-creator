@@ -36,6 +36,7 @@
 #include <QtCore/QLatin1Char>
 #include <QtCore/QDir>
 #include <QtCore/QFile>
+#include <QtCore/QStringList>
 #ifdef Q_OS_UNIX
 #include <QtCore/QProcess>
 #endif
@@ -43,8 +44,11 @@
 namespace TextEditor {
 namespace Internal {
 
-QString findDefinitionsLocation()
+QString findFallbackDefinitionsLocation()
 {
+    QDir dir;
+    dir.setNameFilters(QStringList(QLatin1String("*.xml")));
+
 #ifdef Q_OS_UNIX
     static const QLatin1String kateSyntax[] = {
         QLatin1String("/share/apps/katepart/syntax"),
@@ -54,7 +58,6 @@ QString findDefinitionsLocation()
         sizeof(kateSyntax) / sizeof(kateSyntax[0]);
 
     // Some wild guesses.
-    QDir dir;
     for (int i = 0; i < kateSyntaxCount; ++i) {
         QStringList paths;
         paths << QLatin1String("/usr") + kateSyntax[i]
@@ -62,7 +65,7 @@ QString findDefinitionsLocation()
               << QLatin1String("/opt") + kateSyntax[i];
         foreach (const QString &path, paths) {
             dir.setPath(path);
-            if (dir.exists())
+            if (dir.exists() && !dir.entryInfoList().isEmpty())
                 return dir.path();
         }
     }
@@ -79,12 +82,16 @@ QString findDefinitionsLocation()
             output.remove(QLatin1Char('\n'));
             for (int i = 0; i < kateSyntaxCount; ++i) {
                 dir.setPath(output + kateSyntax[i]);
-                if (dir.exists())
+                if (dir.exists() && !dir.entryInfoList().isEmpty())
                     return dir.path();
             }
         }
     }
 #endif
+
+    dir.setPath(Core::ICore::instance()->resourcePath() + QLatin1String("/generic-highlighter"));
+    if (dir.exists() && !dir.entryInfoList().isEmpty())
+        return dir.path();
 
     return QString();
 }
@@ -139,7 +146,7 @@ void HighlighterSettings::fromSettings(const QString &category, QSettings *s)
     else
         m_definitionFilesPath = s->value(kDefinitionFilesPath).toString();
     if (!s->contains(kFallbackDefinitionFilesPath)) {
-        m_fallbackDefinitionFilesPath = findDefinitionsLocation();
+        m_fallbackDefinitionFilesPath = findFallbackDefinitionsLocation();
         if (m_fallbackDefinitionFilesPath.isEmpty())
             m_useFallbackLocation = false;
         else
