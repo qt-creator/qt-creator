@@ -50,7 +50,7 @@
 #include <QDebug>
 #include <QMessageBox>
 #include "qdeclarativetester.h"
-#include "private/qdeclarativedebughelper_p.h"
+#include "qt_private/qdeclarativedebughelper_p.h"
 
 QT_USE_NAMESPACE
 
