@@ -525,6 +525,11 @@ private:
 
     void universalHelper(); // test function for development
 
+    bool cursorMoveKeyEvent(QKeyEvent *e);
+    bool camelCaseRight(QTextCursor &cursor, QTextCursor::MoveMode mode);
+    bool camelCaseLeft(QTextCursor &cursor, QTextCursor::MoveMode mode);
+
+
 private slots:
     // auto completion
     void _q_requestAutoCompletion();

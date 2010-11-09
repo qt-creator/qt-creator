@@ -1077,6 +1077,382 @@ void BaseTextEditor::cleanWhitespace()
     d->m_document->cleanWhitespace(textCursor());
 }
 
+
+// could go into QTextCursor...
+static QTextLine currentTextLine(const QTextCursor &cursor)
+{
+    const QTextBlock block = cursor.block();
+    if (!block.isValid())
+        return QTextLine();
+
+    const QTextLayout *layout = block.layout();
+    if (!layout)
+        return QTextLine();
+
+    const int relativePos = cursor.position() - block.position();
+    return layout->lineForTextPosition(relativePos);
+}
+
+bool BaseTextEditor::camelCaseLeft(QTextCursor &cursor, QTextCursor::MoveMode mode)
+{
+    int state = 0;
+    enum Input {
+        Input_U,
+        Input_l,
+        Input_underscore,
+        Input_space,
+        Input_other
+    };
+
+    if (!cursor.movePosition(QTextCursor::Left, mode))
+        return false;
+
+    forever {
+        QChar c = characterAt(cursor.position());
+        Input input = Input_other;
+        if (c.isUpper())
+            input = Input_U;
+        else if (c.isLower() || c.isDigit())
+            input = Input_l;
+        else if (c == QLatin1Char('_'))
+            input = Input_underscore;
+        else if (c.isSpace() && c != QChar::ParagraphSeparator)
+            input = Input_space;
+        else
+            input = Input_other;
+
+        switch (state) {
+        case 0:
+            switch (input) {
+            case Input_U:
+                state = 1;
+                break;
+            case Input_l:
+                state = 2;
+                break;
+            case Input_underscore:
+                state = 3;
+                break;
+            case Input_space:
+                state = 4;
+                break;
+            default:
+                cursor.movePosition(QTextCursor::Right, mode);
+                return cursor.movePosition(QTextCursor::WordLeft, mode);
+            }
+            break;
+        case 1:
+            switch (input) {
+            case Input_U:
+                break;
+            default:
+                return true;
+            }
+            break;
+
+        case 2:
+            switch (input) {
+            case Input_U:
+                return true;
+            case Input_l:
+                break;
+            default:
+                cursor.movePosition(QTextCursor::Right, mode);
+                return true;
+            }
+            break;
+        case 3:
+            switch (input) {
+            case Input_underscore:
+                break;
+            case Input_U:
+                state = 1;
+                break;
+            case Input_l:
+                state = 2;
+                break;
+            default:
+                cursor.movePosition(QTextCursor::Right, mode);
+                return true;
+            }
+            break;
+        case 4:
+            switch (input) {
+            case Input_space:
+                break;
+            case Input_U:
+                state = 1;
+                break;
+            case Input_l:
+                state = 2;
+                break;
+            case Input_underscore:
+                state = 3;
+                break;
+            default:
+                cursor.movePosition(QTextCursor::Right, mode);
+                if (cursor.positionInBlock() == 0)
+                    return true;
+                return cursor.movePosition(QTextCursor::WordLeft, mode);
+            }
+        }
+
+        if (!cursor.movePosition(QTextCursor::Left, mode))
+            return true;
+    }
+}
+
+bool BaseTextEditor::camelCaseRight(QTextCursor &cursor, QTextCursor::MoveMode mode)
+{
+    int state = 0;
+    enum Input {
+        Input_U,
+        Input_l,
+        Input_underscore,
+        Input_space,
+        Input_other
+    };
+
+    forever {
+        QChar c = characterAt(cursor.position());
+        Input input = Input_other;
+        if (c.isUpper())
+            input = Input_U;
+        else if (c.isLower() || c.isDigit())
+            input = Input_l;
+        else if (c == QLatin1Char('_'))
+            input = Input_underscore;
+        else if (c.isSpace() && c != QChar::ParagraphSeparator)
+            input = Input_space;
+        else
+            input = Input_other;
+
+        switch (state) {
+        case 0:
+            switch (input) {
+            case Input_U:
+                state = 4;
+                break;
+            case Input_l:
+                state = 1;
+                break;
+            case Input_underscore:
+                state = 6;
+                break;
+            default:
+                return cursor.movePosition(QTextCursor::WordRight, mode);
+            }
+            break;
+        case 1:
+            switch (input) {
+            case Input_U:
+                return true;
+            case Input_l:
+                break;
+            case Input_underscore:
+                state = 6;
+                break;
+            case Input_space:
+                state = 7;
+                break;
+            default:
+                return true;
+            }
+            break;
+        case 2:
+            switch (input) {
+            case Input_U:
+                break;
+            case Input_l:
+                cursor.movePosition(QTextCursor::Left, mode);
+                return true;
+            case Input_space:
+                state = 7;
+                break;
+            default:
+                return cursor.movePosition(QTextCursor::WordRight, mode);
+            }
+            break;
+        case 4:
+            switch (input) {
+            case Input_U:
+                state = 2;
+                break;
+            case Input_l:
+                state = 1;
+                break;
+            case Input_underscore:
+                state = 6;
+                break;
+            case Input_space:
+                state = 7;
+                break;
+            default:
+                return cursor.movePosition(QTextCursor::WordRight, mode);
+            }
+            break;
+        case 6:
+            switch (input) {
+            case Input_underscore:
+                break;
+            case Input_space:
+                state = 7;
+                break;
+            default:
+                return cursor.movePosition(QTextCursor::WordRight, mode);
+            }
+            break;
+        case 7:
+            switch (input) {
+            case Input_space:
+                break;
+            default:
+                return true;
+            }
+            break;
+        }
+        cursor.movePosition(QTextCursor::Right, mode);
+    }
+}
+
+bool BaseTextEditor::cursorMoveKeyEvent(QKeyEvent *e)
+{
+    QTextCursor cursor = textCursor();
+
+    QTextCursor::MoveMode mode = QTextCursor::MoveAnchor;
+    QTextCursor::MoveOperation op = QTextCursor::NoMove;
+
+    if (e == QKeySequence::MoveToNextChar) {
+            op = QTextCursor::Right;
+    }
+    else if (e == QKeySequence::MoveToPreviousChar) {
+            op = QTextCursor::Left;
+    }
+    else if (e == QKeySequence::SelectNextChar) {
+           op = QTextCursor::Right;
+           mode = QTextCursor::KeepAnchor;
+    }
+    else if (e == QKeySequence::SelectPreviousChar) {
+            op = QTextCursor::Left;
+            mode = QTextCursor::KeepAnchor;
+    }
+    else if (e == QKeySequence::SelectNextWord) {
+            op = QTextCursor::WordRight;
+            mode = QTextCursor::KeepAnchor;
+    }
+    else if (e == QKeySequence::SelectPreviousWord) {
+            op = QTextCursor::WordLeft;
+            mode = QTextCursor::KeepAnchor;
+    }
+    else if (e == QKeySequence::SelectStartOfLine) {
+            op = QTextCursor::StartOfLine;
+            mode = QTextCursor::KeepAnchor;
+    }
+    else if (e == QKeySequence::SelectEndOfLine) {
+            op = QTextCursor::EndOfLine;
+            mode = QTextCursor::KeepAnchor;
+    }
+    else if (e == QKeySequence::SelectStartOfBlock) {
+            op = QTextCursor::StartOfBlock;
+            mode = QTextCursor::KeepAnchor;
+    }
+    else if (e == QKeySequence::SelectEndOfBlock) {
+            op = QTextCursor::EndOfBlock;
+            mode = QTextCursor::KeepAnchor;
+    }
+    else if (e == QKeySequence::SelectStartOfDocument) {
+            op = QTextCursor::Start;
+            mode = QTextCursor::KeepAnchor;
+    }
+    else if (e == QKeySequence::SelectEndOfDocument) {
+            op = QTextCursor::End;
+            mode = QTextCursor::KeepAnchor;
+    }
+    else if (e == QKeySequence::SelectPreviousLine) {
+            op = QTextCursor::Up;
+            mode = QTextCursor::KeepAnchor;
+    }
+    else if (e == QKeySequence::SelectNextLine) {
+            op = QTextCursor::Down;
+            mode = QTextCursor::KeepAnchor;
+            {
+                QTextBlock block = cursor.block();
+                QTextLine line = currentTextLine(cursor);
+                if (!block.next().isValid()
+                    && line.isValid()
+                    && line.lineNumber() == block.layout()->lineCount() - 1)
+                    op = QTextCursor::End;
+            }
+    }
+    else if (e == QKeySequence::MoveToNextWord) {
+            op = QTextCursor::WordRight;
+    }
+    else if (e == QKeySequence::MoveToPreviousWord) {
+            op = QTextCursor::WordLeft;
+    }
+    else if (e == QKeySequence::MoveToEndOfBlock) {
+            op = QTextCursor::EndOfBlock;
+    }
+    else if (e == QKeySequence::MoveToStartOfBlock) {
+            op = QTextCursor::StartOfBlock;
+    }
+    else if (e == QKeySequence::MoveToNextLine) {
+            op = QTextCursor::Down;
+    }
+    else if (e == QKeySequence::MoveToPreviousLine) {
+            op = QTextCursor::Up;
+    }
+    else if (e == QKeySequence::MoveToPreviousLine) {
+            op = QTextCursor::Up;
+    }
+    else if (e == QKeySequence::MoveToStartOfLine) {
+            op = QTextCursor::StartOfLine;
+    }
+    else if (e == QKeySequence::MoveToEndOfLine) {
+            op = QTextCursor::EndOfLine;
+    }
+    else if (e == QKeySequence::MoveToStartOfDocument) {
+            op = QTextCursor::Start;
+    }
+    else if (e == QKeySequence::MoveToEndOfDocument) {
+            op = QTextCursor::End;
+    }
+    else {
+        return false;
+    }
+
+
+// Except for pageup and pagedown, Mac OS X has very different behavior, we don't do it all, but
+// here's the breakdown:
+// Shift still works as an anchor, but only one of the other keys can be down Ctrl (Command),
+// Alt (Option), or Meta (Control).
+// Command/Control + Left/Right -- Move to left or right of the line
+//                 + Up/Down -- Move to top bottom of the file. (Control doesn't move the cursor)
+// Option + Left/Right -- Move one word Left/right.
+//        + Up/Down  -- Begin/End of Paragraph.
+// Home/End Top/Bottom of file. (usually don't move the cursor, but will select)
+
+    bool visualNavigation = cursor.visualNavigation();
+    cursor.setVisualNavigation(true);
+    bool moved = false;
+
+    if (op == QTextCursor::WordRight) {
+        moved = camelCaseRight(cursor, mode);
+    } else if (op == QTextCursor::WordLeft) {
+            moved = camelCaseLeft(cursor, mode);
+    } else {
+        moved = cursor.movePosition(op, mode);
+    }
+    cursor.setVisualNavigation(visualNavigation);
+
+    if (moved) {
+        setTextCursor(cursor);
+        ensureCursorVisible();
+    }
+    return true;
+}
+
+
 void BaseTextEditor::keyPressEvent(QKeyEvent *e)
 {
     viewport()->setCursor(Qt::BlankCursor);
@@ -1335,7 +1711,10 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
     }
 
     if (ro || e->text().isEmpty() || !e->text().at(0).isPrint()) {
-        QPlainTextEdit::keyPressEvent(e);
+        if (cursorMoveKeyEvent(e))
+            ;
+        else
+            QPlainTextEdit::keyPressEvent(e);
     } else if ((e->modifiers() & (Qt::ControlModifier|Qt::AltModifier)) != Qt::ControlModifier){
         QTextCursor cursor = textCursor();
         QString text = e->text();
