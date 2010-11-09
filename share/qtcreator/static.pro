@@ -39,6 +39,16 @@ DATA_DIRS = \
     generic-highlighter \
     glsl
 
+DATA_FILES = \
+    externaltools/lrelease.xml \
+    externaltools/lupdate.xml
+unix:DATA_FILES += externaltools/sort.xml
+linux-*:DATA_FILES += externaltools/vi.xml
+macx:DATA_FILES += runInTerminal.command
+win32:DATA_FILES ~= s|\\\\|/|g
+
+OTHER_FILES += $$DATA_FILES
+
 !isEmpty(copydata) {
 
     for(data_dir, DATA_DIRS) {
@@ -46,6 +56,7 @@ DATA_DIRS = \
         win32:files ~= s|\\\\|/|g
         for(file, files):!exists($$file/*):FILES += $$file
     }
+    for(file, DATA_FILES):FILES += $$PWD/$$file
 
     macx:OTHER_FILES += $$FILES
     copy2build.input = FILES
@@ -56,15 +67,6 @@ DATA_DIRS = \
     copy2build.name = COPY ${QMAKE_FILE_IN}
     copy2build.CONFIG += no_link
     QMAKE_EXTRA_COMPILERS += copy2build
-
-    macx {
-        run_in_term.target = $$IDE_DATA_PATH/runInTerminal.command
-        run_in_term.depends = $$PWD/runInTerminal.command
-        run_in_term.commands = $$QMAKE_COPY \"$<\" \"$@\"
-        QMAKE_EXTRA_TARGETS += run_in_term
-        PRE_TARGETDEPS += $$run_in_term.target
-        QMAKE_CLEAN += $$run_in_term.target
-    }
 }
 
 !macx {
@@ -73,4 +75,7 @@ DATA_DIRS = \
         eval($${data_dir}.path = /share/qtcreator)
         INSTALLS += $$data_dir
     }
+    data_files.files = $$DATA_FILES
+    data_files.path = /share/qtcreator
+    INSTALLS += $$data_files
 }
