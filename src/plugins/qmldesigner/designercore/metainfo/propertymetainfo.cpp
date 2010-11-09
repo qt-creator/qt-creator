@@ -256,7 +256,7 @@ bool PropertyMetaInfo::isValueType() const
         throw InvalidMetaInfoException(__LINE__, Q_FUNC_INFO, __FILE__);
     }
 
-    QDeclarativeValueType *valueType(QDeclarativeValueTypeFactory::valueType(variantTypeId()));
+    QScopedPointer<QDeclarativeValueType> valueType(QDeclarativeValueTypeFactory::valueType(variantTypeId()));
     return valueType;
 }
 
