@@ -199,12 +199,35 @@ void ModelManager::updateProjectInfo(const ProjectInfo &pinfo)
     if (! pinfo.isValid())
         return;
 
+    Snapshot snapshot;
+    ProjectInfo oldInfo;
     {
         QMutexLocker locker(&m_mutex);
+        oldInfo = m_projects.value(pinfo.project);
         m_projects.insert(pinfo.project, pinfo);
+        snapshot = _snapshot;
     }
 
     updateImportPaths();
+
+    // remove files that are no longer in the project and have been deleted
+    QStringList deletedFiles;
+    foreach (const QString &oldFile, oldInfo.sourceFiles) {
+        if (snapshot.document(oldFile)
+                && !pinfo.sourceFiles.contains(oldFile)
+                && !QFile::exists(oldFile)) {
+            deletedFiles += oldFile;
+        }
+    }
+    removeFiles(deletedFiles);
+
+    // parse any files not yet in the snapshot
+    QStringList newFiles;
+    foreach (const QString &file, pinfo.sourceFiles) {
+        if (!snapshot.document(file))
+            newFiles += file;
+    }
+    updateSourceFiles(newFiles, false);
 }
 
 void ModelManager::emitDocumentChangedOnDisk(Document::Ptr doc)

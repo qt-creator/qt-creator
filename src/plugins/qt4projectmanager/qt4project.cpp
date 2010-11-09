@@ -590,9 +590,7 @@ void Qt4Project::updateQmlJSCodeModel()
         return;
 
     QmlJS::ModelManagerInterface::ProjectInfo projectInfo = modelManager->projectInfo(this);
-
-    // Not essential since the QmlJS engine parses required files on demand.
-    //projectInfo.sourceFiles = ...
+    projectInfo.sourceFiles = m_projectFiles->files[QMLType];
 
     FindQt4ProFiles findQt4ProFiles;
     QList<Qt4ProFileNode *> proFiles = findQt4ProFiles(rootProjectNode());
