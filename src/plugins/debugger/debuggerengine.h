@@ -239,7 +239,6 @@ public:
     virtual QAbstractItemModel *localsModel() const;
     virtual QAbstractItemModel *watchersModel() const;
     virtual QAbstractItemModel *returnModel() const;
-    //QAbstractItemModel *snapshotModel() const;
     virtual QAbstractItemModel *sourceFilesModel() const;
 
     void progressPing();

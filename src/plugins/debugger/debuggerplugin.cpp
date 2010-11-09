@@ -1560,35 +1560,31 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     m_reverseToolButton = 0;
 
     // Handling of external applications.
-    m_startExternalAction = new QAction(this);
-    m_startExternalAction->setText(tr("Start and Debug External Application..."));
-    connect(m_startExternalAction, SIGNAL(triggered()),
-       SLOT(startExternalApplication()));
+    act = m_startExternalAction = new QAction(this);
+    act->setText(tr("Start and Debug External Application..."));
+    connect(act, SIGNAL(triggered()), SLOT(startExternalApplication()));
 
-    m_attachExternalAction = new QAction(this);
-    m_attachExternalAction->setText(tr("Attach to Running External Application..."));
-    connect(m_attachExternalAction, SIGNAL(triggered()),
-        SLOT(attachExternalApplication()));
+    act = m_attachExternalAction = new QAction(this);
+    act->setText(tr("Attach to Running External Application..."));
+    connect(act, SIGNAL(triggered()), SLOT(attachExternalApplication()));
 
-    m_attachCoreAction = new QAction(this);
-    m_attachCoreAction->setText(tr("Attach to Core..."));
-    connect(m_attachCoreAction, SIGNAL(triggered()), SLOT(attachCore()));
+    act = m_attachCoreAction = new QAction(this);
+    act->setText(tr("Attach to Core..."));
+    connect(act, SIGNAL(triggered()), SLOT(attachCore()));
 
-    m_attachTcfAction = new QAction(this);
-    m_attachTcfAction->setText(tr("Attach to Running Tcf Agent..."));
-    m_attachTcfAction->setToolTip(tr("This attaches to a running "
+    act = m_attachTcfAction = new QAction(this);
+    act->setText(tr("Attach to Running Tcf Agent..."));
+    act->setToolTip(tr("This attaches to a running "
         "'Target Communication Framework' agent."));
-    connect(m_attachTcfAction, SIGNAL(triggered()), SLOT(attachRemoteTcf()));
+    connect(act, SIGNAL(triggered()), SLOT(attachRemoteTcf()));
 
-    m_startRemoteAction = new QAction(this);
-    m_startRemoteAction->setText(tr("Start and Attach to Remote Application..."));
-    connect(m_startRemoteAction, SIGNAL(triggered()),
-        SLOT(startRemoteApplication()));
+    act = m_startRemoteAction = new QAction(this);
+    act->setText(tr("Start and Attach to Remote Application..."));
+    connect(act, SIGNAL(triggered()), SLOT(startRemoteApplication()));
 
-    m_detachAction = new QAction(this);
-    m_detachAction->setText(tr("Detach Debugger"));
-    connect(m_detachAction, SIGNAL(triggered()),
-        SLOT(handleExecDetach()));
+    act = m_detachAction = new QAction(this);
+    act->setText(tr("Detach Debugger"));
+    connect(act, SIGNAL(triggered()), SLOT(handleExecDetach()));
 
 
     Core::Command *cmd = 0;
