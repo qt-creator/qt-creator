@@ -60,7 +60,7 @@ void QmlJSSnippetEditorDecorator::apply(TextEditor::SnippetEditor *editor) const
     Highlighter *highlighter = new Highlighter;
     const TextEditor::FontSettings &fs = TextEditor::TextEditorSettings::instance()->fontSettings();
     highlighter->setFormats(fs.toTextCharFormats(QmlJSTextEditor::highlighterFormatCategories()));
-    editor->installSyntaxHighlighter(highlighter);
+    editor->setSyntaxHighlighter(highlighter);
     editor->setIndenter(new Indenter);
     editor->setAutoCompleter(new AutoCompleter);
 }

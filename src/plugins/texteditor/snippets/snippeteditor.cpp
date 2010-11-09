@@ -61,7 +61,7 @@ SnippetEditor::SnippetEditor(QWidget *parent) : BaseTextEditor(parent)
 SnippetEditor::~SnippetEditor()
 {}
 
-void SnippetEditor::installSyntaxHighlighter(TextEditor::SyntaxHighlighter *highlighter)
+void SnippetEditor::setSyntaxHighlighter(TextEditor::SyntaxHighlighter *highlighter)
 {
     baseTextDocument()->setSyntaxHighlighter(highlighter);
 }

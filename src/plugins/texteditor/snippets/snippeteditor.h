@@ -70,7 +70,7 @@ public:
     SnippetEditor(QWidget *parent);
     virtual ~SnippetEditor();
 
-    void installSyntaxHighlighter(SyntaxHighlighter *highlighter);
+    void setSyntaxHighlighter(SyntaxHighlighter *highlighter);
 
 signals:
     void snippetContentChanged();

@@ -62,7 +62,7 @@ void CppSnippetEditorDecorator::apply(TextEditor::SnippetEditor *editor) const
     const QVector<QTextCharFormat> &formats =
         fs.toTextCharFormats(CPPEditor::highlighterFormatCategories());
     highlighter->setFormats(formats.constBegin(), formats.constEnd());
-    editor->installSyntaxHighlighter(highlighter);
+    editor->setSyntaxHighlighter(highlighter);
     editor->setIndenter(new CppQtStyleIndenter);
     editor->setAutoCompleter(new CppAutoCompleter);
 }
