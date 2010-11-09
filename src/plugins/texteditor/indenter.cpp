@@ -70,6 +70,17 @@ bool Indenter::doIsElectricalCharacter(const QChar &) const
     return false;
 }
 
+void Indenter::doIndentBlock(QTextDocument *doc,
+                             const QTextBlock &block,
+                             const QChar &typedChar,
+                             BaseTextEditor *editor)
+{
+    Q_UNUSED(doc);
+    Q_UNUSED(block);
+    Q_UNUSED(typedChar);
+    Q_UNUSED(editor);
+}
+
 void Indenter::doIndent(QTextDocument *doc, const QTextCursor &cursor, const QChar &typedChar, BaseTextEditor *editor)
 {
     if (cursor.hasSelection()) {

@@ -225,6 +225,7 @@ public:
     QRegion translatedLineRegion(int lineStart, int lineEnd) const;
 
     void setIndenter(Indenter *indenter);
+    Indenter *indenter() const;
 
     void setAutoCompleter(AutoCompleter *autoCompleter);
     AutoCompleter *autoCompleter() const;
@@ -424,14 +425,8 @@ public:
     virtual int paragraphSeparatorAboutToBeInserted(QTextCursor &cursor);
 
     void indentInsertedText(const QTextCursor &tc);
-    // Returns true if key triggers an indent.
-    virtual bool isElectricCharacter(QChar ch) const;
-    // Indent a text block based on previous line. Default does nothing
-    virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
-    // Indent at cursor. Calls indentBlock for selection or current line.
-    virtual void indent(QTextDocument *doc, const QTextCursor &cursor, QChar typedChar);
-    // Reindent at cursor. Selection will be adjusted according to the indentation change of the first block
-    virtual void reindent(QTextDocument *doc, const QTextCursor &cursor);
+    void indent(QTextDocument *doc, const QTextCursor &cursor, QChar typedChar);
+    void reindent(QTextDocument *doc, const QTextCursor &cursor);
 
 protected:
     static void countBracket(QChar open, QChar close, QChar c, int *errors, int *stillopen);

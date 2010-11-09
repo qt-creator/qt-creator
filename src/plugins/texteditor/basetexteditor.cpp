@@ -1344,7 +1344,7 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         QChar electricChar;
         if (d->m_document->tabSettings().m_autoIndent) {
             foreach (QChar c, text) {
-                if (isElectricCharacter(c)) {
+                if (d->m_indenter->isElectricCharacter(c)) {
                     electricChar = c;
                     break;
                 }
@@ -1890,6 +1890,11 @@ void BaseTextEditor::setIndenter(Indenter *indenter)
     d->m_indenter.reset(indenter);
 }
 
+Indenter *BaseTextEditor::indenter() const
+{
+    return d->m_indenter.data();
+}
+
 void BaseTextEditor::setAutoCompleter(AutoCompleter *autoCompleter)
 {
     d->m_autoCompleter.reset(autoCompleter);
@@ -1949,7 +1954,8 @@ BaseTextEditorPrivate::BaseTextEditorPrivate()
     m_requestAutoCompletionPosition(0),
     m_requestAutoCompletionTimer(0),
     m_cursorBlockNumber(-1),
-    m_autoCompleter(new AutoCompleter)
+    m_autoCompleter(new AutoCompleter),
+    m_indenter(new Indenter)
 {
 }
 
@@ -4019,13 +4025,6 @@ void BaseTextEditor::zoomReset()
     emit requestZoomReset();
 }
 
-bool BaseTextEditor::isElectricCharacter(QChar ch) const
-{
-    if (!d->m_indenter.isNull())
-        return d->m_indenter->isElectricCharacter(ch);
-    return false;
-}
-
 void BaseTextEditor::indentInsertedText(const QTextCursor &tc)
 {
     indent(tc.document(), tc, QChar::Null);
@@ -4247,24 +4246,16 @@ int BaseTextEditor::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor)
     return 1;
 }
 
-void BaseTextEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar ch)
-{
-    if (!d->m_indenter.isNull())
-        d->m_indenter->indentBlock(doc, block, ch, this);
-}
-
 void BaseTextEditor::indent(QTextDocument *doc, const QTextCursor &cursor, QChar typedChar)
 {
     maybeClearSomeExtraSelections(cursor);
-    if (!d->m_indenter.isNull())
-        d->m_indenter->indent(doc, cursor, typedChar, this);
+    d->m_indenter->indent(doc, cursor, typedChar, this);
 }
 
 void BaseTextEditor::reindent(QTextDocument *doc, const QTextCursor &cursor)
 {
     maybeClearSomeExtraSelections(cursor);
-    if (!d->m_indenter.isNull())
-        d->m_indenter->reindent(doc, cursor, this);
+    d->m_indenter->reindent(doc, cursor, this);
 }
 
 BaseTextEditor::Link BaseTextEditor::findLinkAt(const QTextCursor &, bool)

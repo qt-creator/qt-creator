@@ -58,6 +58,7 @@
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorsettings.h>
+#include <texteditor/indenter.h>
 
 #include <find/findplugin.h>
 #include <find/textfindconstants.h>
@@ -935,7 +936,7 @@ void FakeVimPluginPrivate::checkForElectricCharacter(bool *result, QChar c)
     if (!handler)
         return;
     if (BaseTextEditor *bt = qobject_cast<BaseTextEditor *>(handler->widget()))
-        *result = bt->isElectricCharacter(c);
+        *result = bt->indenter()->isElectricCharacter(c);
 }
 
 void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
@@ -1132,7 +1133,7 @@ void FakeVimPluginPrivate::indentRegion(int beginLine, int endLine,
             while (!cursor.atBlockEnd())
                 cursor.deleteChar();
         } else {
-            bt->indentBlock(doc, block, typedChar);
+            bt->indenter()->indentBlock(doc, block, typedChar, bt);
         }
         block = block.next();
     }
