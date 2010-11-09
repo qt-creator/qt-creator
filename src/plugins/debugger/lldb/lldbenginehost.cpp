@@ -73,7 +73,6 @@ LLDBEngineHost::LLDBEngineHost(const DebuggerStartParameters &startParameters)
     connect(m_guestp, SIGNAL(finished(int, QProcess::ExitStatus)),
             this, SLOT(finished (int, QProcess::ExitStatus)));
 
-    qDebug() << Core::ICore::instance()->resourcePath();
     QString a(Core::ICore::instance()->resourcePath() + QLatin1String("/qtcreator-lldb"));
     m_guestp->start(a,QStringList());
 
