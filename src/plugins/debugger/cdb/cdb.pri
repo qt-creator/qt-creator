@@ -16,7 +16,6 @@ HEADERS += \
     $$PWD/cdboptions.h \
     $$PWD/cdboptionspage.h \
     $$PWD/cdbdumperhelper.h \
-    $$PWD/cdbsymbolpathlisteditor.h \
     $$PWD/cdbexceptionutils.h
 
 SOURCES += \
@@ -31,7 +30,6 @@ SOURCES += \
     $$PWD/cdboptions.cpp \
     $$PWD/cdboptionspage.cpp \
     $$PWD/cdbdumperhelper.cpp \
-    $$PWD/cdbsymbolpathlisteditor.cpp \
     $$PWD/cdbexceptionutils.cpp
 
 FORMS += $$PWD/cdboptionspagewidget.ui

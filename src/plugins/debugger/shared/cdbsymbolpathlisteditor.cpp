@@ -28,7 +28,6 @@
 **************************************************************************/
 
 #include "cdbsymbolpathlisteditor.h"
-#include "cdboptions.h"
 
 #include <utils/pathchooser.h>
 
@@ -105,6 +104,11 @@ void CacheDirectoryDialog::accept()
     QDialog::accept();
 }
 
+// ---------------- CdbSymbolPathListEditor
+
+const char *CdbSymbolPathListEditor::symbolServerPrefixC = "symsrv*symsrv.dll*";
+const char *CdbSymbolPathListEditor::symbolServerPostfixC = "*http://msdl.microsoft.com/download/symbols";
+
 CdbSymbolPathListEditor::CdbSymbolPathListEditor(QWidget *parent) :
     Utils::PathListEditor(parent)
 {
@@ -127,7 +131,36 @@ void CdbSymbolPathListEditor::addSymbolServer()
 {
     const QString cacheDir = promptCacheDirectory(this);
     if (!cacheDir.isEmpty())
-        insertPathAtCursor(CdbOptions::symbolServerPath(cacheDir));
+        insertPathAtCursor(CdbSymbolPathListEditor::symbolServerPath(cacheDir));
+}
+
+QString CdbSymbolPathListEditor::symbolServerPath(const QString &cacheDir)
+{
+    QString s = QLatin1String(symbolServerPrefixC);
+    s +=  QDir::toNativeSeparators(cacheDir);
+    s += QLatin1String(symbolServerPostfixC);
+    return s;
+}
+
+bool CdbSymbolPathListEditor::isSymbolServerPath(const QString &path, QString *cacheDir /*  = 0 */)
+{
+    // Split apart symbol server post/prefixes
+    if (!path.startsWith(QLatin1String(symbolServerPrefixC)) || !path.endsWith(QLatin1String(symbolServerPostfixC)))
+        return false;
+    if (cacheDir) {
+        const unsigned prefixLength = qstrlen(symbolServerPrefixC);
+        *cacheDir = path.mid(prefixLength, path.size() - prefixLength - qstrlen(symbolServerPostfixC));
+    }
+    return true;
+}
+
+int CdbSymbolPathListEditor::indexOfSymbolServerPath(const QStringList &paths, QString *cacheDir /*  = 0 */)
+{
+    const int count = paths.size();
+    for (int i = 0; i < count; i++)
+        if (CdbSymbolPathListEditor::isSymbolServerPath(paths.at(i), cacheDir))
+            return i;
+    return -1;
 }
 
 } // namespace Internal

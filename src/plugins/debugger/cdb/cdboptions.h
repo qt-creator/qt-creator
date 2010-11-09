@@ -60,7 +60,6 @@ public:
     // Format a symbol server specification with a cache directory
     static QString symbolServerPath(const QString &cacheDir);
     // Check whether the path is a symbol server specification and return the cache directory
-    static bool isSymbolServerPath(const QString &symbolPath, QString *cacheDir = 0);
     static int indexOfSymbolServerPath(const QStringList &symbolPaths, QString *cacheDir = 0);
 
     static QString settingsGroup();

@@ -75,6 +75,17 @@ public:
 
     static QString promptCacheDirectory(QWidget *parent);
 
+    // Pre- and Postfix used to build a symbol server path specification
+    static const char *symbolServerPrefixC;
+    static const char *symbolServerPostfixC;
+
+    // Format a symbol server specification with a local cache directory
+    static QString symbolServerPath(const QString &cacheDir);
+    // Check for a symbol server path and extract local cache directory
+    static bool isSymbolServerPath(const QString &path, QString *cacheDir = 0);
+    // Check for symbol server in list of paths.
+    static int indexOfSymbolServerPath(const QStringList &paths, QString *cacheDir = 0);
+
 private slots:
     void addSymbolServer();
 };

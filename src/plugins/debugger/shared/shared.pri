@@ -1,7 +1,10 @@
 
 
-SOURCES += $$PWD/backtrace.cpp
-HEADERS += $$PWD/backtrace.h
+SOURCES += $$PWD/backtrace.cpp \
+           $$PWD/cdbsymbolpathlisteditor.cpp
+
+HEADERS += $$PWD/backtrace.h \
+           $$PWD/cdbsymbolpathlisteditor.h
 
 win32 {
 
