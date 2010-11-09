@@ -217,17 +217,16 @@ void AbstractProcessStep::processStarted()
 
 void AbstractProcessStep::processFinished(int exitCode, QProcess::ExitStatus status)
 {
-    QString command = expandedCommand();
+    QString command = QDir::toNativeSeparators(expandedCommand());
     if (status == QProcess::NormalExit && exitCode == 0) {
-        emit addOutput(tr("The process \"%1\" exited normally.")
-                       .arg(QDir::toNativeSeparators(command)),
+        emit addOutput(tr("The process \"%1\" exited normally.").arg(command),
                        BuildStep::MessageOutput);
     } else if (status == QProcess::NormalExit) {
         emit addOutput(tr("The process \"%1\" exited with code %2.")
-                       .arg(QDir::toNativeSeparators(command), QString::number(m_process->exitCode())),
+                       .arg(command, QString::number(m_process->exitCode())),
                        BuildStep::ErrorMessageOutput);
     } else {
-        emit addOutput(tr("The process \"%1\" crashed.").arg(QDir::toNativeSeparators(command)), BuildStep::ErrorMessageOutput);
+        emit addOutput(tr("The process \"%1\" crashed.").arg(command), BuildStep::ErrorMessageOutput);
     }
 }
 
