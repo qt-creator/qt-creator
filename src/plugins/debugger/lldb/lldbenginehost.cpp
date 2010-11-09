@@ -36,6 +36,7 @@
 #include "debuggerdialogs.h"
 #include "debuggerplugin.h"
 #include "debuggerstringutils.h"
+#include "icore.h"
 
 #include "breakhandler.h"
 #include "breakpoint.h"
@@ -72,7 +73,8 @@ LLDBEngineHost::LLDBEngineHost(const DebuggerStartParameters &startParameters)
     connect(m_guestp, SIGNAL(finished(int, QProcess::ExitStatus)),
             this, SLOT(finished (int, QProcess::ExitStatus)));
 
-    QString a(qApp->applicationDirPath() + QLatin1String("/../Resources/qtcreator-lldb"));
+    qDebug() << Core::ICore::instance()->resourcePath();
+    QString a(Core::ICore::instance()->resourcePath() + QLatin1String("/qtcreator-lldb"));
     m_guestp->start(a,QStringList());
 
     if (!m_guestp->waitForStarted()) {
