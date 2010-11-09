@@ -271,6 +271,7 @@ public:
     DisassemblerViewAgent m_disassemblerViewAgent;
     QFutureInterface<void> m_progress;
 
+    QHash<quint64, Internal::BreakpointData *> m_breakpoints;
     bool m_isSlaveEngine;
 };
 
@@ -1222,10 +1223,9 @@ void DebuggerEngine::attemptBreakpointSynchronization()
 {
     for (int i = 0; i < breakHandler()->size(); i++) {
         BreakpointData *bp = breakHandler()->at(i);
-        if (!m_breakpoints.contains(bp->id)) {
-            m_breakpoints.insert(bp->id, bp);
-        }
-        QTC_ASSERT(m_breakpoints[bp->id] == bp, qDebug() << "corrupted breakpoint map");
+        if (!d->m_breakpoints.contains(bp->id))
+            d->m_breakpoints.insert(bp->id, bp);
+        QTC_ASSERT(d->m_breakpoints[bp->id] == bp, qDebug() << "corrupted breakpoint map");
         if (bp->uiDirty) {
             bp->uiDirty = false;
             bp->state = BreakpointChangeRequested;
@@ -1235,11 +1235,12 @@ void DebuggerEngine::attemptBreakpointSynchronization()
 
     Breakpoints bps = breakHandler()->takeRemovedBreakpoints();
     foreach (BreakpointData *bp, bps) {
-        if (m_breakpoints.contains(bp->id)) {
+        if (d->m_breakpoints.contains(bp->id)) {
             bp->state = BreakpointRemovalRequested;
             removeBreakpoint(bp->id);
-        } else
+        } else {
             delete bp;
+        }
     }
 }
 
@@ -1254,17 +1255,15 @@ void DebuggerEngine::addBreakpoint(const BreakpointData &)
 
 void DebuggerEngine::notifyAddBreakpointOk(quint64 id)
 {
-    BreakpointData *bp = m_breakpoints[id];
-    if (!bp)
-        return;
+    BreakpointData *bp = d->m_breakpoints[id];
+    QTC_ASSERT(bp, return);
     bp->state = BreakpointOk;
 }
 
 void DebuggerEngine::notifyAddBreakpointFailed(quint64 id)
 {
-    BreakpointData *bp = m_breakpoints[id];
-    if (!bp)
-        return;
+    BreakpointData *bp = d->m_breakpoints[id];
+    QTC_ASSERT(bp, return);
     bp->state = BreakpointDead;
 }
 
@@ -1274,18 +1273,16 @@ void DebuggerEngine::removeBreakpoint(quint64)
 
 void DebuggerEngine::notifyRemoveBreakpointOk(quint64 id)
 {
-    BreakpointData *bp = m_breakpoints.take(id);
-    if (!bp)
-        return;
+    BreakpointData *bp = d->m_breakpoints.take(id);
+    QTC_ASSERT(bp, return);
     bp->state = BreakpointDead;
     delete bp;
 }
 
 void DebuggerEngine::notifyRemoveBreakpointFailed(quint64 id)
 {
-    BreakpointData *bp = m_breakpoints[id];
-    if (!bp)
-        return;
+    BreakpointData *bp = d->m_breakpoints[id];
+    QTC_ASSERT(bp, return);
     bp->state = BreakpointOk;
 }
 
@@ -1295,25 +1292,22 @@ void DebuggerEngine::changeBreakpoint(const BreakpointData &)
 
 void DebuggerEngine::notifyChangeBreakpointOk(quint64 id)
 {
-    BreakpointData *bp = m_breakpoints[id];
-    if (!bp)
-        return;
+    BreakpointData *bp = d->m_breakpoints[id];
+    QTC_ASSERT(bp, return);
     bp->state = BreakpointOk;
 }
 
 void DebuggerEngine::notifyChangeBreakpointFailed(quint64 id)
 {
-    BreakpointData *bp = m_breakpoints[id];
-    if (!bp)
-        return;
+    BreakpointData *bp = d->m_breakpoints[id];
+    QTC_ASSERT(bp, return);
     bp->state = BreakpointDead;
 }
 
 void DebuggerEngine::notifyBreakpointAdjusted(const BreakpointData & rbp)
 {
-    BreakpointData *bp = m_breakpoints[rbp.id];
-    if (!bp)
-        return;
+    BreakpointData *bp = d->m_breakpoints[rbp.id];
+    QTC_ASSERT(bp, return);
     bp->bpNumber      = rbp.bpNumber;
     bp->bpCondition   = rbp.bpCondition;
     bp->bpIgnoreCount = rbp.bpIgnoreCount;

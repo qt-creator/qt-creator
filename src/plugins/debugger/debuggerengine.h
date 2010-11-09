@@ -354,7 +354,6 @@ private:
 
     friend class DebuggerEnginePrivate;
     DebuggerEnginePrivate *d;
-    QHash<quint64, Internal::BreakpointData *> m_breakpoints;
 };
 
 } // namespace Debugger
