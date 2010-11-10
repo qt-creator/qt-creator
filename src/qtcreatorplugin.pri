@@ -9,8 +9,6 @@ isEmpty(PROVIDER) {
 
 DESTDIR = $$IDE_PLUGIN_PATH/$$PROVIDER
 LIBS += -L$$DESTDIR
-INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins
-DEPENDPATH += $$IDE_SOURCE_TREE/src/plugins
 
 # copy the plugin spec
 isEmpty(TARGET) {

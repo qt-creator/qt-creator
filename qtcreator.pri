@@ -124,11 +124,13 @@ macx {
 
 INCLUDEPATH += \
     $$IDE_SOURCE_TREE/src/libs \
-    $$IDE_SOURCE_TREE/tools
+    $$IDE_SOURCE_TREE/tools \
+    $$IDE_SOURCE_TREE/src/plugins
 
 DEPENDPATH += \
     $$IDE_SOURCE_TREE/src/libs \
-    $$IDE_SOURCE_TREE/tools
+    $$IDE_SOURCE_TREE/tools \
+    $$IDE_SOURCE_TREE/src/plugins
 
 LIBS += -L$$IDE_LIBRARY_PATH
 

@@ -1,0 +1,120 @@
+#include <QtCore/QString>
+#include <QtTest/QtTest>
+
+#include <coreplugin/externaltool.h>
+
+using namespace Core::Internal;
+
+static const char * const TEST_XML1 =
+"<externaltool>"
+"    <description>Synchronizes translator's ts files with the program code</description>"
+"    <description xml:lang=\"de\">Synchronisiert die ts-Übersetzungsdateien mit dem Programmcode</description>"
+"    <displayname>Update translations (lupdate)</displayname>"
+"    <displayname xml:lang=\"de\">Übersetzungen aktualisieren (lupdate)</displayname>"
+"    <category>Linguist</category>"
+"    <category xml:lang=\"de\">Linguist</category>"
+"    <order>1</order>"
+"    <executable>"
+"        <path>%{QT_INSTALL_BINS}/lupdate</path>"
+"        <path>lupdate</path>"
+"        <arguments>%{CurrentProjectFilePath}</arguments>"
+"        <workingdirectory>%{CurrentProjectPath}</workingdirectory>"
+"    </executable>"
+"</externaltool>"
+;
+
+static const char * const TEST_XML2 =
+"<externaltool>"
+"    <description>Sorts the selected text</description>"
+"    <description xml:lang=\"de\">Sortiert den ausgewählten Text</description>"
+"    <displayname>Sort</displayname>"
+"    <displayname xml:lang=\"de\">Sortieren</displayname>"
+"    <category>Text</category>"
+"    <category xml:lang=\"de\">Text</category>"
+"    <executable output=\"replaceselection\">"
+"        <path>sort</path>"
+"        <arguments>%{CurrentSelectionFilePath}</arguments>"
+"        <workingdirectory>%{CurrentPath}</workingdirectory>"
+"    </executable>"
+"</externaltool>";
+
+static const char * const TEST_XML3 =
+"<externaltool>"
+"    <description>Opens the current file in vi</description>"
+"    <description xml:lang=\"de\">Öffnet die aktuelle Datei in vi</description>"
+"    <displayname>Edit with vi</displayname>"
+"    <displayname xml:lang=\"de\">In vi öffnen</displayname>"
+"    <category>Text</category>"
+"    <category xml:lang=\"de\">Text</category>"
+"    <executable output=\"reloaddocument\">"
+"        <path>xterm</path>"
+"        <arguments>-geom %{EditorCharWidth}x%{EditorCharHeight}+%{EditorXPos}+%{EditorYPos} -e vi %{CurrentFilePath} +%{EditorLine} +\"normal %{EditorColumn}|\"</arguments>"
+"        <workingdirectory>%{CurrentPath}</workingdirectory>"
+"    </executable>"
+"</externaltool>";
+
+class ExternaltoolTest : public QObject
+{
+    Q_OBJECT
+
+private Q_SLOTS:
+    void testRead1();
+    void testRead2();
+    void testRead3();
+};
+
+void ExternaltoolTest::testRead1()
+{
+    QString error;
+    ExternalTool *tool = ExternalTool::createFromXml(QLatin1String(TEST_XML1), &error);
+    QVERIFY(tool != 0);
+    QVERIFY(error.isEmpty());
+    QVERIFY(tool->description().startsWith(QLatin1String("Synchronizes tran")));
+    QCOMPARE(tool->displayName(), QString::fromLatin1("Update translations (lupdate)"));
+    QCOMPARE(tool->displayCategory(), QString::fromLatin1("Linguist"));
+    QCOMPARE(tool->order(), 1);
+    QCOMPARE(tool->executables().size(), 2);
+    QCOMPARE(tool->executables().at(0), QString::fromLatin1("%{QT_INSTALL_BINS}/lupdate"));
+    QCOMPARE(tool->executables().at(1), QString::fromLatin1("lupdate"));
+    QCOMPARE(tool->arguments(), QString::fromLatin1("%{CurrentProjectFilePath}"));
+    QCOMPARE(tool->workingDirectory(), QString::fromLatin1("%{CurrentProjectPath}"));
+    QCOMPARE(tool->outputHandling(), ExternalTool::ShowInPane);
+}
+
+void ExternaltoolTest::testRead2()
+{
+    QString error;
+    ExternalTool *tool = ExternalTool::createFromXml(QLatin1String(TEST_XML2), &error);
+    QVERIFY(tool != 0);
+    QVERIFY(error.isEmpty());
+    QVERIFY(tool->description().startsWith(QLatin1String("Sorts the")));
+    QCOMPARE(tool->displayName(), QString::fromLatin1("Sort"));
+    QCOMPARE(tool->displayCategory(), QString::fromLatin1("Text"));
+    QCOMPARE(tool->order(), -1);
+    QCOMPARE(tool->executables().size(), 1);
+    QCOMPARE(tool->executables().at(0), QString::fromLatin1("sort"));
+    QCOMPARE(tool->arguments(), QString::fromLatin1("%{CurrentSelectionFilePath}"));
+    QCOMPARE(tool->workingDirectory(), QString::fromLatin1("%{CurrentPath}"));
+    QCOMPARE(tool->outputHandling(), ExternalTool::ReplaceSelection);
+}
+
+void ExternaltoolTest::testRead3()
+{
+    QString error;
+    ExternalTool *tool = ExternalTool::createFromXml(QLatin1String(TEST_XML3), &error);
+    QVERIFY(tool != 0);
+    QVERIFY(error.isEmpty());
+    QVERIFY(tool->description().startsWith(QLatin1String("Opens the")));
+    QCOMPARE(tool->displayName(), QString::fromLatin1("Edit with vi"));
+    QCOMPARE(tool->displayCategory(), QString::fromLatin1("Text"));
+    QCOMPARE(tool->order(), -1);
+    QCOMPARE(tool->executables().size(), 1);
+    QCOMPARE(tool->executables().at(0), QString::fromLatin1("xterm"));
+    QVERIFY(tool->arguments().startsWith(QLatin1String("-geom %{")));
+    QCOMPARE(tool->workingDirectory(), QString::fromLatin1("%{CurrentPath}"));
+    QCOMPARE(tool->outputHandling(), ExternalTool::ReloadDocument);
+}
+
+QTEST_APPLESS_MAIN(ExternaltoolTest);
+
+#include "tst_externaltooltest.moc"

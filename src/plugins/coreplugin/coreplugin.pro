@@ -87,7 +87,8 @@ SOURCES += mainwindow.cpp \
     outputpanemanager.cpp \
     navigationsubwidget.cpp \
     sidebarwidget.cpp \
-    rssfetcher.cpp
+    rssfetcher.cpp \
+    externaltool.cpp
 
 HEADERS += mainwindow.h \
     editmode.h \
@@ -172,7 +173,8 @@ HEADERS += mainwindow.h \
     outputpanemanager.h \
     navigationsubwidget.h \
     sidebarwidget.h \
-    rssfetcher.h
+    rssfetcher.h \
+    externaltool.h
 
 FORMS += dialogs/newdialog.ui \
     actionmanager/commandmappings.ui \
