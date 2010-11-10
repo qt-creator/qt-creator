@@ -1270,7 +1270,7 @@ bool BaseTextEditor::camelCaseRight(QTextCursor &cursor, QTextCursor::MoveMode m
                 state = 7;
                 break;
             default:
-                return cursor.movePosition(QTextCursor::WordRight, mode);
+                return true;
             }
             break;
         case 4:
@@ -1288,7 +1288,7 @@ bool BaseTextEditor::camelCaseRight(QTextCursor &cursor, QTextCursor::MoveMode m
                 state = 7;
                 break;
             default:
-                return cursor.movePosition(QTextCursor::WordRight, mode);
+                return true;
             }
             break;
         case 6:
@@ -1299,7 +1299,7 @@ bool BaseTextEditor::camelCaseRight(QTextCursor &cursor, QTextCursor::MoveMode m
                 state = 7;
                 break;
             default:
-                return cursor.movePosition(QTextCursor::WordRight, mode);
+                return true;
             }
             break;
         case 7:
@@ -1577,7 +1577,7 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         e->accept();
         QTextCursor c = textCursor();
         int pos = c.position();
-        c.movePosition(QTextCursor::PreviousWord);
+        camelCaseLeft(c, QTextCursor::MoveAnchor);
         int targetpos = c.position();
         forever {
             handleBackspaceKey();
@@ -1586,6 +1586,18 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
                 break;
             pos = cpos;
         }
+        return;
+    } else if (!ro && e == QKeySequence::DeleteStartOfWord && !textCursor().hasSelection()) {
+        e->accept();
+        QTextCursor c = textCursor();
+        camelCaseLeft(c, QTextCursor::KeepAnchor);
+        c.removeSelectedText();
+        return;
+    } else if (!ro && e == QKeySequence::DeleteEndOfWord && !textCursor().hasSelection()) {
+        e->accept();
+        QTextCursor c = textCursor();
+        camelCaseRight(c, QTextCursor::KeepAnchor);
+        c.removeSelectedText();
         return;
     } else switch (e->key()) {
 
