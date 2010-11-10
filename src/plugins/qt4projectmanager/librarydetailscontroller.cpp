@@ -57,6 +57,11 @@ LibraryDetailsController::LibraryDetailsController(
         m_creatorPlatform = CreatorLinux;
 #endif
 
+    setPlatformsVisible(true);
+    setLinkageGroupVisible(true);
+    setMacLibraryGroupVisible(true);
+    setPackageLineEditVisible(false);
+
     if (creatorPlatform() == CreatorMac)
         setMacLibraryRadiosVisible(false);
 
@@ -230,6 +235,11 @@ void LibraryDetailsController::showMacLibraryType(
     libraryDetailsWidget()->macGroupBox->setTitle(libraryTypeTitle);
 }
 
+void LibraryDetailsController::setPlatformsVisible(bool ena)
+{
+    libraryDetailsWidget()->platformGroupBox->setVisible(ena);
+}
+
 void LibraryDetailsController::setLinkageRadiosVisible(bool ena)
 {
     m_linkageRadiosVisible = ena;
@@ -237,11 +247,23 @@ void LibraryDetailsController::setLinkageRadiosVisible(bool ena)
     libraryDetailsWidget()->dynamicRadio->setVisible(ena);
 }
 
+void LibraryDetailsController::setLinkageGroupVisible(bool ena)
+{
+    setLinkageRadiosVisible(ena);
+    libraryDetailsWidget()->linkageGroupBox->setVisible(ena);
+}
+
 void LibraryDetailsController::setMacLibraryRadiosVisible(bool ena)
 {
     m_macLibraryRadiosVisible = ena;
     libraryDetailsWidget()->frameworkRadio->setVisible(ena);
     libraryDetailsWidget()->libraryRadio->setVisible(ena);
+}
+
+void LibraryDetailsController::setMacLibraryGroupVisible(bool ena)
+{
+    setMacLibraryRadiosVisible(ena);
+    libraryDetailsWidget()->macGroupBox->setVisible(ena);
 }
 
 void LibraryDetailsController::setLibraryPathChooserVisible(bool ena)
@@ -254,6 +276,12 @@ void LibraryDetailsController::setLibraryComboBoxVisible(bool ena)
 {
     libraryDetailsWidget()->libraryComboBox->setVisible(ena);
     libraryDetailsWidget()->libraryLabel->setVisible(ena);
+}
+
+void LibraryDetailsController::setPackageLineEditVisible(bool ena)
+{
+    libraryDetailsWidget()->packageLineEdit->setVisible(ena);
+    libraryDetailsWidget()->packageLabel->setVisible(ena);
 }
 
 void LibraryDetailsController::setIncludePathVisible(bool ena)
@@ -733,6 +761,64 @@ QString NonInternalLibraryDetailsController::snippet() const
                                useSubfolders, addSuffix);
     }
     return snippetMessage;
+}
+
+/////////////
+
+PackageLibraryDetailsController::PackageLibraryDetailsController(
+    Ui::LibraryDetailsWidget *libraryDetails,
+    const QString &proFile, QObject *parent)
+    : NonInternalLibraryDetailsController(libraryDetails, proFile, parent)
+{
+    setPlatformsVisible(false);
+    setIncludePathVisible(false);
+    setWindowsGroupVisible(false);
+    setLinkageGroupVisible(false);
+    setMacLibraryGroupVisible(false);
+    setLibraryPathChooserVisible(false);
+    setPackageLineEditVisible(true);
+
+    connect(libraryDetailsWidget()->packageLineEdit, SIGNAL(textChanged(QString)),
+            this, SIGNAL(completeChanged()));
+
+    updateGui();
+}
+
+bool PackageLibraryDetailsController::isComplete() const
+{
+    return !libraryDetailsWidget()->packageLineEdit->text().isEmpty();
+}
+
+QString PackageLibraryDetailsController::snippet() const
+{
+    QString snippetMessage;
+    QTextStream str(&snippetMessage);
+    str << "\n";
+    if (!isLinkPackageGenerated())
+        str << "unix: CONFIG += link_pkgconfig\n";
+    str << "unix: PKGCONFIG += " << libraryDetailsWidget()->packageLineEdit->text() << "\n";
+    return snippetMessage;
+}
+
+bool PackageLibraryDetailsController::isLinkPackageGenerated() const
+{
+    const ProjectExplorer::Project *project =
+            ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projectForFile(proFile());
+    if (!project)
+        return false;
+
+    const Qt4ProFileNode *rootProject = qobject_cast<const Qt4ProFileNode *>(project->rootProjectNode());
+    if (!rootProject)
+        return false;
+
+    const Qt4ProFileNode *currentProject = rootProject->findProFileFor(proFile());
+    if (!currentProject)
+        return false;
+
+    const QStringList configVar = currentProject->variableValue(ConfigVar);
+    if (configVar.contains(QLatin1String("link_pkgconfig")))
+        return true;
+    return false;
 }
 
 /////////////

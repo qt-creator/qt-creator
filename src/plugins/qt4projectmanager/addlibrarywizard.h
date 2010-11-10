@@ -34,9 +34,10 @@ public:
     };
 
     enum LibraryKind {
-        SystemLibrary,
+        InternalLibrary,
         ExternalLibrary,
-        InternalLibrary
+        SystemLibrary,
+        PackageLibrary
         };
 
     enum LinkageType {
@@ -87,9 +88,10 @@ public:
     virtual int nextId() const;
 
 private:
-    QRadioButton *m_systemRadio;
-    QRadioButton *m_externalRadio;
     QRadioButton *m_internalRadio;
+    QRadioButton *m_externalRadio;
+    QRadioButton *m_systemRadio;
+    QRadioButton *m_packageRadio;
 };
 
 class DetailsPage : public QWizardPage

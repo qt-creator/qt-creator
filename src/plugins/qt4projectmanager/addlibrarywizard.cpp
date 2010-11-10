@@ -112,18 +112,17 @@ LibraryTypePage::LibraryTypePage(AddLibraryWizard *parent)
 
     QVBoxLayout *layout = new QVBoxLayout(this);
 
-    m_systemRadio = new QRadioButton(tr("System library"), this);
-    m_systemRadio->setChecked(true);
-    layout->addWidget(m_systemRadio);
+    m_internalRadio = new QRadioButton(tr("Internal library"), this);
+    layout->addWidget(m_internalRadio);
 
-    QLabel *systemLabel = new QLabel(tr("Links to a system library."
-                                    "\nNeither the path to the "
-                                    "library nor the path to its "
-                                    "includes is added to the .pro file."));
+    QLabel *internalLabel = new QLabel(tr("Links to a library "
+                                    "that is located in your build "
+                                    "tree.\nAdds the library and "
+                                    "include paths to the .pro file."));
 
-    systemLabel->setWordWrap(true);
-    systemLabel->setAttribute(Qt::WA_MacSmallSize, true);
-    layout->addWidget(systemLabel);
+    internalLabel->setWordWrap(true);
+    internalLabel->setAttribute(Qt::WA_MacSmallSize, true);
+    layout->addWidget(internalLabel);
 
     m_externalRadio = new QRadioButton(tr("External library"), this);
     layout->addWidget(m_externalRadio);
@@ -137,26 +136,45 @@ LibraryTypePage::LibraryTypePage(AddLibraryWizard *parent)
     externalLabel->setAttribute(Qt::WA_MacSmallSize, true);
     layout->addWidget(externalLabel);
 
-    m_internalRadio = new QRadioButton(tr("Internal library"), this);
-    layout->addWidget(m_internalRadio);
+    m_systemRadio = new QRadioButton(tr("System library"), this);
+    layout->addWidget(m_systemRadio);
 
-    QLabel *internalLabel = new QLabel(tr("Links to a library "
-                                    "that is located in your build "
-                                    "tree.\nAdds the library and "
-                                    "include paths to the .pro file."));
+    QLabel *systemLabel = new QLabel(tr("Links to a system library."
+                                    "\nNeither the path to the "
+                                    "library nor the path to its "
+                                    "includes is added to the .pro file."));
 
-    internalLabel->setWordWrap(true);
-    internalLabel->setAttribute(Qt::WA_MacSmallSize, true);
-    layout->addWidget(internalLabel);
+    systemLabel->setWordWrap(true);
+    systemLabel->setAttribute(Qt::WA_MacSmallSize, true);
+    layout->addWidget(systemLabel);
+
+    m_packageRadio = new QRadioButton(tr("System package"), this);
+    layout->addWidget(m_packageRadio);
+
+    QLabel *packageLabel = new QLabel(tr("Links to a system library using pkg-config."));
+
+    packageLabel->setWordWrap(true);
+    packageLabel->setAttribute(Qt::WA_MacSmallSize, true);
+    layout->addWidget(packageLabel);
+
+#ifdef Q_OS_WIN
+    m_packageRadio->setVisible(false);
+    packageLabel->setVisible(false);
+#endif
+
+    // select the default
+    m_internalRadio->setChecked(true);
 }
 
 AddLibraryWizard::LibraryKind LibraryTypePage::libraryKind() const
 {
     if (m_internalRadio->isChecked())
         return AddLibraryWizard::InternalLibrary;
+    if (m_externalRadio->isChecked())
+        return AddLibraryWizard::ExternalLibrary;
     if (m_systemRadio->isChecked())
         return AddLibraryWizard::SystemLibrary;
-    return AddLibraryWizard::ExternalLibrary;
+    return AddLibraryWizard::PackageLibrary;
 }
 
 int LibraryTypePage::nextId() const
@@ -201,10 +219,10 @@ void DetailsPage::initializePage()
     QString title;
     QString subTitle;
     switch (m_libraryWizard->libraryKind()) {
-    case AddLibraryWizard::SystemLibrary:
-        title = tr("System Library");
-        subTitle = tr("Specify the library to link to");
-        m_libraryDetailsController = new SystemLibraryDetailsController(
+    case AddLibraryWizard::InternalLibrary:
+        title = tr("Internal Library");
+        subTitle = tr("Choose the project file of the library to link to");
+        m_libraryDetailsController = new InternalLibraryDetailsController(
                 m_libraryDetailsWidget, m_libraryWizard->proFile(), this);
         break;
     case AddLibraryWizard::ExternalLibrary:
@@ -213,10 +231,16 @@ void DetailsPage::initializePage()
         m_libraryDetailsController = new ExternalLibraryDetailsController(
                 m_libraryDetailsWidget, m_libraryWizard->proFile(), this);
         break;
-    case AddLibraryWizard::InternalLibrary:
-        title = tr("Internal Library");
-        subTitle = tr("Choose the project file of the library to link to");
-        m_libraryDetailsController = new InternalLibraryDetailsController(
+    case AddLibraryWizard::SystemLibrary:
+        title = tr("System Library");
+        subTitle = tr("Specify the library to link to");
+        m_libraryDetailsController = new SystemLibraryDetailsController(
+                m_libraryDetailsWidget, m_libraryWizard->proFile(), this);
+        break;
+    case AddLibraryWizard::PackageLibrary:
+        title = tr("System Package");
+        subTitle = tr("Specify the package to link to");
+        m_libraryDetailsController = new PackageLibraryDetailsController(
                 m_libraryDetailsWidget, m_libraryWizard->proFile(), this);
         break;
     default:
@@ -261,6 +285,7 @@ void SummaryPage::initializePage()
         str << "<code>";
         QString text = m_snippet;
         text.replace(QLatin1Char('\n'), QLatin1String("<br>"));
+        text.replace(QLatin1Char(' '), QLatin1String("&nbsp;"));
         str << text;
         str << "</code>";
     }

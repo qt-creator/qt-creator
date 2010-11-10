@@ -51,10 +51,14 @@ protected:
 
     void setIgnoreGuiSignals(bool ignore);
 
+    void setPlatformsVisible(bool ena);
     void setLinkageRadiosVisible(bool ena);
+    void setLinkageGroupVisible(bool ena);
     void setMacLibraryRadiosVisible(bool ena);
+    void setMacLibraryGroupVisible(bool ena);
     void setLibraryPathChooserVisible(bool ena);
     void setLibraryComboBoxVisible(bool ena);
+    void setPackageLineEditVisible(bool ena);
     void setIncludePathVisible(bool ena);
     void setWindowsGroupVisible(bool ena);
     void setRemoveSuffixVisible(bool ena);
@@ -111,6 +115,19 @@ private slots:
     void slotLinkageTypeChanged();
     void slotRemoveSuffixChanged(bool ena);
     void slotLibraryPathChanged();
+};
+
+class PackageLibraryDetailsController : public NonInternalLibraryDetailsController
+{
+    Q_OBJECT
+public:
+    explicit PackageLibraryDetailsController(Ui::LibraryDetailsWidget *libraryDetails,
+                                            const QString &proFile,
+                                            QObject *parent = 0);
+    virtual bool isComplete() const;
+    virtual QString snippet() const;
+private:
+    bool isLinkPackageGenerated() const;
 };
 
 class SystemLibraryDetailsController : public NonInternalLibraryDetailsController
