@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+    <mime-type type="application/x-glsl">
+        <alias type="text/x-glsl"/>
+        <sub-class-of type="text/plain"/>
+        <comment>GLSL file</comment>
+        <glob pattern="*.glsl"/>
+    </mime-type>
+</mime-info>

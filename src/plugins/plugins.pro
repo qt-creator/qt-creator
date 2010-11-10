@@ -32,6 +32,7 @@ SUBDIRS   = plugin_coreplugin \
             plugin_resourceeditor \
             plugin_genericprojectmanager \
             plugin_qmljseditor \
+            plugin_glsleditor \
             plugin_mercurial \
             plugin_classview \
             plugin_tasklist \
@@ -191,6 +192,11 @@ plugin_qmljseditor.subdir = qmljseditor
 plugin_qmljseditor.depends = plugin_texteditor
 plugin_qmljseditor.depends += plugin_coreplugin
 plugin_qmljseditor.depends += plugin_projectexplorer
+
+plugin_glsleditor.subdir = glsleditor
+plugin_glsleditor.depends = plugin_texteditor
+plugin_glsleditor.depends += plugin_coreplugin
+plugin_glsleditor.depends += plugin_projectexplorer
 
 plugin_qmlprojectmanager.subdir = qmlprojectmanager
 plugin_qmlprojectmanager.depends = plugin_texteditor
