@@ -268,6 +268,10 @@ public slots:
     void gotoPreviousWordWithSelection();
     void gotoNextWord();
     void gotoNextWordWithSelection();
+    void gotoPreviousWordCamelCase();
+    void gotoPreviousWordCamelCaseWithSelection();
+    void gotoNextWordCamelCase();
+    void gotoNextWordCamelCaseWithSelection();
 
     void selectBlockUp();
     void selectBlockDown();

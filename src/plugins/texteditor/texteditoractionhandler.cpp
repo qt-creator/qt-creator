@@ -327,6 +327,12 @@ void TextEditorActionHandler::createActions()
     a = new QAction(tr("Goto Next Word"), this);
     command = am->registerAction(a, Constants::GOTO_NEXT_WORD, m_contextId);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoNextWord()));
+    a = new QAction(tr("Goto Previous Word Camel Case"), this);
+    command = am->registerAction(a, Constants::GOTO_PREVIOUS_WORD_CAMEL_CASE, m_contextId);
+    connect(a, SIGNAL(triggered()), this, SLOT(gotoPreviousWordCamelCase()));
+    a = new QAction(tr("Goto Next Word Camel Case"), this);
+    command = am->registerAction(a, Constants::GOTO_NEXT_WORD_CAMEL_CASE, m_contextId);
+    connect(a, SIGNAL(triggered()), this, SLOT(gotoNextWordCamelCase()));
 
     a = new QAction(tr("Goto Line Start With Selection"), this);
     command = am->registerAction(a, Constants::GOTO_LINE_START_WITH_SELECTION, m_contextId);
@@ -352,6 +358,12 @@ void TextEditorActionHandler::createActions()
     a = new QAction(tr("Goto Next Word With Selection"), this);
     command = am->registerAction(a, Constants::GOTO_NEXT_WORD_WITH_SELECTION, m_contextId);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoNextWordWithSelection()));
+    a = new QAction(tr("Goto Previous Word Camel Case With Selection"), this);
+    command = am->registerAction(a, Constants::GOTO_PREVIOUS_WORD_CAMEL_CASE_WITH_SELECTION, m_contextId);
+    connect(a, SIGNAL(triggered()), this, SLOT(gotoPreviousWordCamelCaseWithSelection()));
+    a = new QAction(tr("Goto Next Word Camel Case With Selection"), this);
+    command = am->registerAction(a, Constants::GOTO_NEXT_WORD_CAMEL_CASE_WITH_SELECTION, m_contextId);
+    connect(a, SIGNAL(triggered()), this, SLOT(gotoNextWordCamelCaseWithSelection()));
 
 }
 
@@ -532,8 +544,12 @@ FUNCTION(gotoNextCharacter)
 FUNCTION(gotoNextCharacterWithSelection)
 FUNCTION(gotoPreviousWord)
 FUNCTION(gotoPreviousWordWithSelection)
+FUNCTION(gotoPreviousWordCamelCase)
+FUNCTION(gotoPreviousWordCamelCaseWithSelection)
 FUNCTION(gotoNextWord)
 FUNCTION(gotoNextWordWithSelection)
+FUNCTION(gotoNextWordCamelCase)
+FUNCTION(gotoNextWordCamelCaseWithSelection)
 
 
 void TextEditorActionHandler::updateCurrentEditor(Core::IEditor *editor)

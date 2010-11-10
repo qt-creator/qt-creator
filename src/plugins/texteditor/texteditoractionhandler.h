@@ -136,6 +136,10 @@ private slots:
     void gotoPreviousWordWithSelection();
     void gotoNextWord();
     void gotoNextWordWithSelection();
+    void gotoPreviousWordCamelCase();
+    void gotoPreviousWordCamelCaseWithSelection();
+    void gotoNextWordCamelCase();
+    void gotoNextWordCamelCaseWithSelection();
 
 
 private:

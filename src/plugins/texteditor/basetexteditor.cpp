@@ -811,6 +811,35 @@ void BaseTextEditor::gotoNextWordWithSelection()
     moveCursor(QTextCursor::NextWord, QTextCursor::KeepAnchor);
 }
 
+void BaseTextEditor::gotoPreviousWordCamelCase()
+{
+    QTextCursor c = textCursor();
+    camelCaseLeft(c, QTextCursor::MoveAnchor);
+    setTextCursor(c);
+}
+
+void BaseTextEditor::gotoPreviousWordCamelCaseWithSelection()
+{
+    QTextCursor c = textCursor();
+    camelCaseLeft(c, QTextCursor::KeepAnchor);
+    setTextCursor(c);
+}
+
+void BaseTextEditor::gotoNextWordCamelCase()
+{
+    qDebug() << Q_FUNC_INFO;
+    QTextCursor c = textCursor();
+    camelCaseRight(c, QTextCursor::MoveAnchor);
+    setTextCursor(c);
+}
+
+void BaseTextEditor::gotoNextWordCamelCaseWithSelection()
+{
+    QTextCursor c = textCursor();
+    camelCaseRight(c, QTextCursor::KeepAnchor);
+    setTextCursor(c);
+}
+
 
 
 static QTextCursor flippedCursor(const QTextCursor &cursor)
@@ -1146,6 +1175,7 @@ bool BaseTextEditor::camelCaseLeft(QTextCursor &cursor, QTextCursor::MoveMode mo
             case Input_U:
                 break;
             default:
+                cursor.movePosition(QTextCursor::Right, mode);
                 return true;
             }
             break;
@@ -1266,6 +1296,9 @@ bool BaseTextEditor::camelCaseRight(QTextCursor &cursor, QTextCursor::MoveMode m
             case Input_l:
                 cursor.movePosition(QTextCursor::Left, mode);
                 return true;
+            case Input_underscore:
+                state = 6;
+                break;
             case Input_space:
                 state = 7;
                 break;
