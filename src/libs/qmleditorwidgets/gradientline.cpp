@@ -193,6 +193,8 @@ void GradientLine::paintEvent(QPaintEvent *event)
             int pos = qreal((width() - 16)) * m_stops.at(i) + 9;
             p.setBrush(arrowColor);
             QVector<QPointF> points;
+            if (localYOffset < -8)
+                p.setOpacity(0.5);
             points.append(QPointF(pos + 0.5, 28.5 + localYOffset)); //triangle
             points.append(QPointF(pos - 3.5, 22.5 + localYOffset));
             points.append(QPointF(pos + 4.5, 22.5 + localYOffset));
@@ -210,6 +212,7 @@ void GradientLine::paintEvent(QPaintEvent *event)
             p.setBrush(Qt::NoBrush);
             p.setPen(QColor(255, 255, 255, 30));
             p.drawRect(pos - 4, 9 + localYOffset, 8, 9);
+            p.setOpacity(1);
         }
     }
 }
@@ -220,6 +223,7 @@ void GradientLine::mousePressEvent(QMouseEvent *event)
         event->accept();
         int xPos = event->pos().x();
         int yPos = event->pos().y();
+        m_dragStart = event->pos();
 
         int draggedIndex = -1;
         m_create = false;
@@ -227,10 +231,9 @@ void GradientLine::mousePressEvent(QMouseEvent *event)
         if ((yPos > 10) && (yPos < 30))
             for (int i =0; i < m_stops.size(); i++) {
             int pos = qreal((width() - 16)) * m_stops.at(i) + 9;
-            if (((xPos + 5) > pos) && ((xPos - 5) < pos)) {
+            if (((xPos + 8) > pos) && ((xPos - 8) < pos)) {
                 draggedIndex = i;
                 m_dragActive = true;
-                m_dragStart = event->pos();
                 setCurrentIndex(draggedIndex);
                 update();
             }
@@ -253,6 +256,22 @@ void GradientLine::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
         event->accept();
+
+        if (m_dragActive) {
+            m_yOffset += event->pos().y() - 14;
+            if (m_yOffset > 0) {
+                m_yOffset = 0;
+            } else if ((m_yOffset < - 8) && (currentColorIndex()) != 0 && (currentColorIndex() < m_stops.size() - 1)) {
+                m_yOffset = 0;
+                m_dragActive = false;
+                m_stops.removeAt(currentColorIndex());
+                m_colorList.removeAt(currentColorIndex());
+                updateGradient();
+                setCurrentIndex(0);
+                //delete item
+            }
+        }
+
         if (m_dragActive == false && m_create) {
             qreal stopPos = qreal(event->pos().x() - 9) / qreal((width() - 15));
             int index = -1;
@@ -260,7 +279,7 @@ void GradientLine::mouseReleaseEvent(QMouseEvent *event)
                 if ((stopPos > m_stops.at(i)) && (index == -1))
                     index = i +1;
             }
-            if (index != -1 && (m_useGradient)) { //creating of items only in base state
+            if (index != -1 && (m_useGradient) && abs(m_dragStart.x() - event->pos().x()) < 10) { //creating of items only in base state
                 m_stops.insert(index, stopPos);
                 m_colorList.insert(index, QColor(Qt::white));
                 setCurrentIndex(index);
@@ -278,32 +297,24 @@ void GradientLine::mouseMoveEvent(QMouseEvent *event)
 {
     if (m_dragActive) {
         event->accept();
-        int xPos = event->pos().x();
         int pos = qreal((width() - 20)) * m_stops.at(currentColorIndex()) + 8;
-        int offset = m_dragOff ? 2 : 20;
-        if (xPos < pos + offset && xPos > pos - offset) {
-            m_dragOff = false;
-            int xDistance = event->pos().x() - m_dragStart.x();
-            qreal distance = qreal(xDistance) / qreal((width() - 20));
-            qreal newStop  = m_stops.at(currentColorIndex()) + distance;
-            if ((newStop >=0) && (newStop <= 1))
-                m_stops[currentColorIndex()] = newStop;
-            m_yOffset += event->pos().y() - m_dragStart.y();
-            if (m_yOffset > 0) { //deleting only in base state
-                m_yOffset = 0;
-            } else if ((m_yOffset < - 12) && (currentColorIndex()) != 0 && (currentColorIndex() < m_stops.size() - 1)) {
-                m_yOffset = 0;
-                m_dragActive = false;
-                m_stops.removeAt(currentColorIndex());
-                m_colorList.removeAt(currentColorIndex());
-                updateGradient();
-                setCurrentIndex(0);
-                //delete item
-            }
-        } else {
-            m_dragOff = true;
-        }
-        m_dragStart = event->pos();
+
+        m_dragOff = false;
+        int xDistance = event->pos().x() - pos;
+        qreal distance = qreal(xDistance) / qreal((width() - 20));
+        qreal newStopPosition  = m_stops.at(currentColorIndex()) + distance;
+        if (newStopPosition > 0.98) //snap to 1
+            newStopPosition = 1;
+        if (newStopPosition < 0.02) //snap to 0
+            newStopPosition = 0;
+        if ((newStopPosition >=0) && (newStopPosition <= 1))
+            m_stops[currentColorIndex()] = newStopPosition;
+        m_yOffset += event->pos().y() - 14;
+        if (m_yOffset > 0)
+            m_yOffset = 0;
+        else if ((m_yOffset < - 10))
+            m_yOffset = -10;
+
         update();
     }
 }
