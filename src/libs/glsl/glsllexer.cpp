@@ -1,3 +1,31 @@
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+** Commercial Usage
+**
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
+**
+** GNU Lesser General Public License Usage
+**
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at http://qt.nokia.com/contact.
+**
+**************************************************************************/
 
 #include "glsllexer.h"
 #include "glslparser.h"
@@ -13,7 +41,10 @@ Lexer::Lexer(const char *source, unsigned size)
       _size(size),
       _yychar('\n'),
       _lineno(0),
-      _variant(Variant_Mask & ~Variant_Reserved) // everything except reserved
+      _state(0),
+      _variant(Variant_Mask & ~Variant_Reserved), // everything except reserved
+      _scanKeywords(true),
+      _scanComments(false)
 {
 }
 
@@ -23,12 +54,9 @@ Lexer::~Lexer()
 
 void Lexer::yyinp()
 {
-    if (_it != _end) {
-        _yychar = *_it++;
-        if (_yychar == '\n')
-            ++_lineno;
-    } else
-        _yychar = 0;
+    _yychar = (unsigned char) *_it++;
+    if (_yychar == '\n')
+        ++_lineno;
 }
 
 int Lexer::yylex(Token *tk)
@@ -44,6 +72,11 @@ int Lexer::yylex(Token *tk)
     return kind;
 }
 
+enum {
+    State_normal,
+    State_comment
+};
+
 int Lexer::yylex_helper(const char **position, int *line)
 {
 again:
@@ -55,6 +88,22 @@ again:
 
     if (_yychar == 0)
         return Parser::EOF_SYMBOL;
+
+    if (_state == State_comment) {
+        while (_yychar) {
+            if (_yychar == '*') {
+                yyinp();
+                if (_yychar == '/') {
+                    yyinp();
+                    _state = State_normal;
+                    break;
+                }
+            } else {
+                yyinp();
+            }
+        }
+        return Parser::T_COMMENT;
+    }
 
     const int ch = _yychar;
     yyinp();
@@ -171,6 +220,8 @@ again:
                 if (_yychar == '\n')
                     break;
             }
+            if (_scanComments)
+                return Parser::T_COMMENT;
             goto again;
         } else if (_yychar == '*') {
             yyinp();
@@ -179,11 +230,17 @@ again:
                     yyinp();
                     if (_yychar == '/') {
                         yyinp();
+                        if (_scanComments)
+                            return Parser::T_COMMENT;
                         goto again;
                     }
                 } else {
                     yyinp();
                 }
+            }
+            if (_scanComments) {
+                _state = State_comment;
+                return Parser::T_COMMENT;
             }
             goto again;
         } else if (_yychar == '=') {
@@ -302,16 +359,9 @@ again:
             while (std::isalnum(_yychar) || _yychar == '_') {
                 yyinp();
             }
-            int t = classify(word, _it - word -1);
-            if (!(t & Variant_Mask))
-                return t;
-            if ((_variant & t & Variant_Mask) == 0) {
-                // TODO: issue a proper error for the unsupported keyword
-                std::string keyword(word, _it - word -1);
-                fprintf(stderr, "unsupported keyword `%s' at line %d\n",
-                        keyword.c_str(), _lineno);
-            }
-            return t & ~Variant_Mask;
+            if (_scanKeywords)
+                return findKeyword(word, _it - word - 1);
+            return Parser::T_IDENTIFIER;
         } else if (std::isdigit(ch)) {
             while (std::isalnum(_yychar) || _yychar == '.') {
                 yyinp();
@@ -322,4 +372,18 @@ again:
     } // switch
 
     return Parser::T_ERROR;
+}
+
+int Lexer::findKeyword(const char *word, int length) const
+{
+    int t = classify(word, length);
+    if (!(t & Variant_Mask))
+        return t;
+    if ((_variant & t & Variant_Mask) == 0) {
+        // TODO: issue a proper error for the unsupported keyword
+        std::string keyword(word, length);
+        fprintf(stderr, "unsupported keyword `%s' at line %d\n",
+                keyword.c_str(), _lineno);
+    }
+    return t & ~Variant_Mask;
 }

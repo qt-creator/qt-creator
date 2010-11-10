@@ -5,5 +5,8 @@
         <sub-class-of type="text/plain"/>
         <comment>GLSL file</comment>
         <glob pattern="*.glsl"/>
+        <glob pattern="*.frag"/>
+        <glob pattern="*.fsh"/>
+        <glob pattern="*.vsh"/>
     </mime-type>
 </mime-info>

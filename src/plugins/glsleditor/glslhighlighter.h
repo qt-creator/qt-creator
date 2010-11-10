@@ -26,15 +26,47 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-#include "glslast.h"
+#ifndef GLSLHIGHLIGHTER_H
+#define GLSLHIGHLIGHTER_H
 
-using namespace GLSL;
+#include <texteditor/syntaxhighlighter.h>
 
-AST::AST()
+namespace GLSLEditor {
+namespace Internal {
+
+class Highlighter : public TextEditor::SyntaxHighlighter
 {
-}
+    Q_OBJECT
 
-AST::~AST()
-{
-}
+public:
+    enum Formats {
+        GLSLNumberFormat,
+        GLSLStringFormat,
+        GLSLTypeFormat,
+        GLSLKeywordFormat,
+        GLSLOperatorFormat,
+        GLSLPreprocessorFormat,
+        GLSLLabelFormat,
+        GLSLCommentFormat,
+        GLSLDoxygenCommentFormat,
+        GLSLDoxygenTagFormat,
+        GLSLVisualWhitespace,
+        NumGLSLFormats
+    };
 
+    explicit Highlighter(QTextDocument *parent);
+    virtual ~Highlighter();
+
+    void setFormats(const QVector<QTextCharFormat> &formats);
+
+protected:
+    void highlightBlock(const QString &text);
+
+private:
+    QTextCharFormat m_formats[NumGLSLFormats];
+};
+
+} // namespace Internal
+} // namespace GLSLEditor
+
+#endif // GLSLHIGHLIGHTER_H

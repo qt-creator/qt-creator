@@ -31,6 +31,7 @@
 #include "glsleditoreditable.h"
 #include "glsleditorconstants.h"
 #include "glsleditorplugin.h"
+#include "glslhighlighter.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -89,7 +90,7 @@ GLSLTextEditor::GLSLTextEditor(QWidget *parent) :
 
     connect(this, SIGNAL(textChanged()), this, SLOT(updateDocument()));
 
-//    baseTextDocument()->setSyntaxHighlighter(new Highlighter(document()));
+    baseTextDocument()->setSyntaxHighlighter(new Highlighter(document()));
 
 //    if (m_modelManager) {
 //        m_semanticHighlighter->setModelManager(m_modelManager);
@@ -147,8 +148,6 @@ Core::Context GLSLEditorEditable::context() const
 void GLSLTextEditor::setFontSettings(const TextEditor::FontSettings &fs)
 {
     TextEditor::BaseTextEditor::setFontSettings(fs);
-#warning set up the GLSL highlighter
-#if 0
     Highlighter *highlighter = qobject_cast<Highlighter*>(baseTextDocument()->syntaxHighlighter());
     if (!highlighter)
         return;
@@ -175,7 +174,6 @@ void GLSLTextEditor::setFontSettings(const TextEditor::FontSettings &fs)
 
     highlighter->setFormats(fs.toTextCharFormats(categories));
     highlighter->rehighlight();
-#endif
 }
 
 QString GLSLTextEditor::wordUnderCursor() const
@@ -202,7 +200,9 @@ void GLSLTextEditor::createToolBar(GLSLEditorEditable *editable)
 {
     m_outlineCombo = new QComboBox;
     m_outlineCombo->setMinimumContentsLength(22);
+#ifdef __GNUC__
 #warning set up the outline model
+#endif
     // m_outlineCombo->setModel(m_outlineModel);
 
     QTreeView *treeView = new QTreeView;
@@ -218,10 +218,6 @@ void GLSLTextEditor::createToolBar(GLSLEditorEditable *editable)
     QSizePolicy policy = m_outlineCombo->sizePolicy();
     policy.setHorizontalPolicy(QSizePolicy::Expanding);
     m_outlineCombo->setSizePolicy(policy);
-
-    connect(m_outlineCombo, SIGNAL(activated(int)), this, SLOT(jumpToOutlineElement(int)));
-
-    connect(file(), SIGNAL(changed()), this, SLOT(updateFileName()));
 
     QToolBar *toolBar = static_cast<QToolBar*>(editable->toolBar());
 

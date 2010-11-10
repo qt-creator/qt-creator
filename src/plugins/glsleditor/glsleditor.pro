@@ -14,13 +14,16 @@ glsleditoractionhandler.h \
 glsleditorconstants.h \
 glsleditoreditable.h \
 glsleditorfactory.h \
-glsleditorplugin.h
+glsleditorplugin.h \
+    glslhighlighter.h
 
 SOURCES += \
 glsleditor.cpp \
 glsleditoractionhandler.cpp \
 glsleditoreditable.cpp \
 glsleditorfactory.cpp \
-glsleditorplugin.cpp
+glsleditorplugin.cpp \
+    glslhighlighter.cpp
 
 OTHER_FILES += GLSLEditor.mimetypes.xml
+RESOURCES += glsleditor.qrc

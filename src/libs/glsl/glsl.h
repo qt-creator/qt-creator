@@ -26,15 +26,20 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-#include "glslast.h"
 
-using namespace GLSL;
+#ifndef GLSL_H
+#define GLSL_H
 
-AST::AST()
-{
-}
+#include <QtCore/qglobal.h>
+#include <cstdlib>
+#include <cstddef>
 
-AST::~AST()
-{
-}
+#if defined(GLSL_BUILD_LIB)
+#  define GLSL_EXPORT Q_DECL_EXPORT
+#elif defined(GLSL_BUILD_STATIC_LIB)
+#  define GLSL_EXPORT
+#else
+#  define GLSL_EXPORT Q_DECL_IMPORT
+#endif
 
+#endif // GLSL_H
