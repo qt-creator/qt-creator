@@ -1807,10 +1807,13 @@ bool BaseTextEditor::lineSeparatorsAllowed() const
     return d->m_lineSeparatorsAllowed;
 }
 
-void BaseTextEditor::setCodeFoldingVisible(bool b)
+void BaseTextEditor::updateCodeFoldingVisible()
 {
-    d->m_codeFoldingVisible = b && d->m_codeFoldingSupported;
-    slotUpdateExtraAreaWidth();
+    const bool visible = d->m_codeFoldingSupported && d->m_displaySettings.m_displayFoldingMarkers;
+    if (d->m_codeFoldingVisible != visible) {
+        d->m_codeFoldingVisible = visible;
+        slotUpdateExtraAreaWidth();
+    }
 }
 
 bool BaseTextEditor::codeFoldingVisible() const
@@ -1827,6 +1830,7 @@ bool BaseTextEditor::codeFoldingVisible() const
 void BaseTextEditor::setCodeFoldingSupported(bool b)
 {
     d->m_codeFoldingSupported = b;
+    updateCodeFoldingVisible();
 }
 
 bool BaseTextEditor::codeFoldingSupported() const
@@ -5124,7 +5128,6 @@ void BaseTextEditor::setDisplaySettings(const DisplaySettings &ds)
     setLineWrapMode(ds.m_textWrapping ? QPlainTextEdit::WidgetWidth : QPlainTextEdit::NoWrap);
     setLineNumbersVisible(ds.m_displayLineNumbers);
     setVisibleWrapColumn(ds.m_showWrapColumn ? ds.m_wrapColumn : 0);
-    setCodeFoldingVisible(ds.m_displayFoldingMarkers);
     setHighlightCurrentLine(ds.m_highlightCurrentLine);
     setRevisionsVisible(ds.m_markTextChanges);
     setCenterOnScroll(ds.m_centerCursorOnScroll);
@@ -5147,6 +5150,7 @@ void BaseTextEditor::setDisplaySettings(const DisplaySettings &ds)
         d->m_highlightBlocksInfo = BaseTextEditorPrivateHighlightBlocks();
     }
 
+    updateCodeFoldingVisible();
     updateHighlights();
     viewport()->update();
     extraArea()->update();

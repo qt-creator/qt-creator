@@ -410,7 +410,6 @@ CPPEditor::CPPEditor(QWidget *parent)
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
     setCodeFoldingSupported(true);
-    setCodeFoldingVisible(true);
     baseTextDocument()->setSyntaxHighlighter(new CppHighlighter);
 
     m_modelManager = CppTools::CppModelManagerInterface::instance();
