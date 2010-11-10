@@ -11,10 +11,12 @@ HEADERS += \
     $$PWD/qmljstoolsconstants.h \
     $$PWD/qmljsmodelmanager.h \
     $$PWD/qmljsqtstylecodeformatter.h \
-    $$PWD/qmljsrefactoringchanges.h
+    $$PWD/qmljsrefactoringchanges.h \
+    $$PWD/qmljsplugindumper.h
 
 SOURCES += \
     $$PWD/qmljstoolsplugin.cpp \
     $$PWD/qmljsmodelmanager.cpp \
     $$PWD/qmljsqtstylecodeformatter.cpp \
-    $$PWD/qmljsrefactoringchanges.cpp
+    $$PWD/qmljsrefactoringchanges.cpp \
+    $$PWD/qmljsplugindumper.cpp

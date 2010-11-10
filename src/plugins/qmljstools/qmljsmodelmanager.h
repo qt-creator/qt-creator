@@ -48,6 +48,8 @@ class MimeType;
 namespace QmlJSTools {
 namespace Internal {
 
+class PluginDumper;
+
 class QMLJSTOOLS_EXPORT ModelManager: public QmlJS::ModelManagerInterface
 {
     Q_OBJECT
@@ -78,11 +80,6 @@ public:
 Q_SIGNALS:
     void projectPathChanged(const QString &projectPath);
 
-private Q_SLOTS:
-    void onLoadPluginTypes(const QString &libraryPath, const QString &importPath, const QString &importUri);
-    void qmlPluginTypeDumpDone(int exitCode);
-    void qmlPluginTypeDumpError(QProcess::ProcessError error);
-
 protected:
     QFuture<void> refreshSourceFiles(const QStringList &sourceFiles,
                                      bool emitDocumentOnDiskChanged);
@@ -106,12 +103,13 @@ private:
     QmlJS::Snapshot _snapshot;
     QStringList m_allImportPaths;
     QStringList m_defaultImportPaths;
-    QHash<QProcess *, QString> m_runningQmldumps;
 
     QFutureSynchronizer<void> m_synchronizer;
 
     // project integration
     QMap<ProjectExplorer::Project *, ProjectInfo> m_projects;
+
+    PluginDumper *m_pluginDumper;
 };
 
 } // namespace Internal

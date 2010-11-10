@@ -29,12 +29,11 @@
 
 #include "qmljsmodelmanager.h"
 #include "qmljstoolsconstants.h"
-//#include "qmljseditor.h"
+#include "qmljsplugindumper.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <coreplugin/messagemanager.h>
 #include <coreplugin/mimedatabase.h>
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljsbind.h>
@@ -64,7 +63,8 @@ static QStringList environmentImportPaths();
 
 ModelManager::ModelManager(QObject *parent):
         ModelManagerInterface(parent),
-        m_core(Core::ICore::instance())
+        m_core(Core::ICore::instance()),
+        m_pluginDumper(new PluginDumper(this))
 {
     m_synchronizer.setCancelOnWait(true);
 
@@ -502,43 +502,6 @@ static QStringList environmentImportPaths()
     return paths;
 }
 
-void ModelManager::loadPluginTypes(const QString &libraryPath, const QString &importPath, const QString &importUri)
-{
-    // make sure loading is always triggered in ModelManager's thread
-    metaObject()->invokeMethod(this, "onLoadPluginTypes",
-                               Q_ARG(QString, libraryPath),
-                               Q_ARG(QString, importPath),
-                               Q_ARG(QString, importUri));
-}
-
-void ModelManager::onLoadPluginTypes(const QString &libraryPath, const QString &importPath, const QString &importUri)
-{
-    const QString canonicalLibraryPath = QDir::cleanPath(libraryPath);
-    if (m_runningQmldumps.values().contains(canonicalLibraryPath))
-        return;
-    if (_snapshot.libraryInfo(canonicalLibraryPath).isDumped())
-        return;
-
-    ProjectExplorer::Project *activeProject = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
-    if (!activeProject)
-        return;
-
-    ProjectInfo info = projectInfo(activeProject);
-
-    if (info.qmlDumpPath.isEmpty())
-        return;
-
-    QProcess *process = new QProcess(this);
-    process->setEnvironment(info.qmlDumpEnvironment.toStringList());
-    connect(process, SIGNAL(finished(int)), SLOT(qmlPluginTypeDumpDone(int)));
-    connect(process, SIGNAL(error(QProcess::ProcessError)), SLOT(qmlPluginTypeDumpError(QProcess::ProcessError)));
-    QStringList args;
-    args << importPath;
-    args << importUri;
-    process->start(info.qmlDumpPath, args);
-    m_runningQmldumps.insert(process, canonicalLibraryPath);
-}
-
 void ModelManager::updateImportPaths()
 {
     m_allImportPaths.clear();
@@ -560,63 +523,7 @@ void ModelManager::updateImportPaths()
     updateSourceFiles(importedFiles, true);
 }
 
-static QString qmldumpErrorMessage(const QString &libraryPath, const QString &error)
+void ModelManager::loadPluginTypes(const QString &libraryPath, const QString &importPath, const QString &importUri)
 {
-    return ModelManager::tr("Type dump of QML plugin in %0 failed.\nErrors:\n%1\n").arg(libraryPath, error);
-}
-
-void ModelManager::qmlPluginTypeDumpDone(int exitCode)
-{
-    QProcess *process = qobject_cast<QProcess *>(sender());
-    if (!process)
-        return;
-    process->deleteLater();
-
-    const QString libraryPath = m_runningQmldumps.take(process);
-    LibraryInfo libraryInfo = _snapshot.libraryInfo(libraryPath);
-    libraryInfo.setDumped(true);
-
-    if (exitCode != 0) {
-        Core::MessageManager *messageManager = Core::MessageManager::instance();
-        messageManager->printToOutputPane(qmldumpErrorMessage(libraryPath, process->readAllStandardError()));
-    }
-
-    const QByteArray output = process->readAllStandardOutput();
-    QMap<QString, Interpreter::FakeMetaObject *> newObjects;
-    const QString error = Interpreter::CppQmlTypesLoader::parseQmlTypeXml(output, &newObjects);
-
-    if (exitCode == 0 && error.isEmpty()) {
-        // convert from QList<T *> to QList<const T *>
-        QList<const Interpreter::FakeMetaObject *> objectsList;
-        QMapIterator<QString, Interpreter::FakeMetaObject *> it(newObjects);
-        while (it.hasNext()) {
-            it.next();
-            objectsList.append(it.value());
-        }
-        libraryInfo.setMetaObjects(objectsList);
-        if (libraryPath.isEmpty())
-            Interpreter::CppQmlTypesLoader::builtinObjects.append(objectsList);
-    }
-
-    if (!libraryPath.isEmpty())
-        updateLibraryInfo(libraryPath, libraryInfo);
-}
-
-void ModelManager::qmlPluginTypeDumpError(QProcess::ProcessError)
-{
-    QProcess *process = qobject_cast<QProcess *>(sender());
-    if (!process)
-        return;
-    process->deleteLater();
-
-    const QString libraryPath = m_runningQmldumps.take(process);
-
-    Core::MessageManager *messageManager = Core::MessageManager::instance();
-    messageManager->printToOutputPane(qmldumpErrorMessage(libraryPath, process->readAllStandardError()));
-
-    if (!libraryPath.isEmpty()) {
-        LibraryInfo libraryInfo = _snapshot.libraryInfo(libraryPath);
-        libraryInfo.setDumped(true);
-        updateLibraryInfo(libraryPath, libraryInfo);
-    }
+    m_pluginDumper->loadPluginTypes(libraryPath, importPath, importUri);
 }
