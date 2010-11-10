@@ -79,8 +79,10 @@ ModelManager::ModelManager(QObject *parent):
 
 void ModelManager::loadQmlTypeDescriptions()
 {
-    loadQmlTypeDescriptions(Core::ICore::instance()->resourcePath());
-    loadQmlTypeDescriptions(Core::ICore::instance()->userResourcePath());
+    if (Core::ICore::instance()) {
+        loadQmlTypeDescriptions(Core::ICore::instance()->resourcePath());
+        loadQmlTypeDescriptions(Core::ICore::instance()->userResourcePath());
+    }
 }
 
 void ModelManager::loadQmlTypeDescriptions(const QString &resourcePath)
@@ -104,6 +106,9 @@ void ModelManager::loadQmlTypeDescriptions(const QString &resourcePath)
 ModelManagerInterface::WorkingCopy ModelManager::workingCopy() const
 {
     WorkingCopy workingCopy;
+    if (!m_core)
+        return workingCopy;
+
     Core::EditorManager *editorManager = m_core->editorManager();
 
     foreach (Core::IEditor *editor, editorManager->openedEditors()) {
@@ -257,16 +262,21 @@ void ModelManager::updateLibraryInfo(const QString &path, const LibraryInfo &inf
 
 static QStringList qmlFilesInDirectory(const QString &path)
 {
-    // ### It would suffice to build pattern once. This function needs to be thread-safe.
-    Core::MimeDatabase *db = Core::ICore::instance()->mimeDatabase();
-    Core::MimeType jsSourceTy = db->findByType(Constants::JS_MIMETYPE);
-    Core::MimeType qmlSourceTy = db->findByType(Constants::QML_MIMETYPE);
-
     QStringList pattern;
-    foreach (const Core::MimeGlobPattern &glob, jsSourceTy.globPatterns())
-        pattern << glob.regExp().pattern();
-    foreach (const Core::MimeGlobPattern &glob, qmlSourceTy.globPatterns())
-        pattern << glob.regExp().pattern();
+    if (Core::ICore::instance()) {
+        // ### It would suffice to build pattern once. This function needs to be thread-safe.
+        Core::MimeDatabase *db = Core::ICore::instance()->mimeDatabase();
+        Core::MimeType jsSourceTy = db->findByType(Constants::JS_MIMETYPE);
+        Core::MimeType qmlSourceTy = db->findByType(Constants::QML_MIMETYPE);
+
+        QStringList pattern;
+        foreach (const Core::MimeGlobPattern &glob, jsSourceTy.globPatterns())
+            pattern << glob.regExp().pattern();
+        foreach (const Core::MimeGlobPattern &glob, qmlSourceTy.globPatterns())
+            pattern << glob.regExp().pattern();
+    } else {
+        pattern << "*.qml" << "*.js";
+    }
 
     QStringList files;
 
@@ -363,9 +373,14 @@ void ModelManager::parse(QFutureInterface<void> &future,
                             ModelManager *modelManager,
                             bool emitDocChangedOnDisk)
 {
-    Core::MimeDatabase *db = Core::ICore::instance()->mimeDatabase();
-    Core::MimeType jsSourceTy = db->findByType(QLatin1String("application/javascript"));
-    Core::MimeType qmlSourceTy = db->findByType(QLatin1String("application/x-qml"));
+    Core::MimeDatabase *db = 0;
+    Core::MimeType jsSourceTy;
+    Core::MimeType qmlSourceTy;
+    if (Core::ICore::instance()) {
+        db = Core::ICore::instance()->mimeDatabase();
+        jsSourceTy = db->findByType(QLatin1String("application/javascript"));
+        qmlSourceTy = db->findByType(QLatin1String("application/x-qml"));
+    }
 
     int progressRange = files.size();
     future.setProgressRange(0, progressRange);
@@ -381,15 +396,24 @@ void ModelManager::parse(QFutureInterface<void> &future,
         const QString fileName = files.at(i);
 
         const QFileInfo fileInfo(fileName);
-        Core::MimeType fileMimeTy = db->findByFile(fileInfo);
+        Core::MimeType fileMimeTy;
 
         bool isQmlFile = true;
 
-        if (matchesMimeType(fileMimeTy, jsSourceTy))
-            isQmlFile = false;
+        if (db) {
+            fileMimeTy = db->findByFile(fileInfo);
 
-        else if (! matchesMimeType(fileMimeTy, qmlSourceTy))
-            continue; // skip it. it's not a QML or a JS file.
+            if (matchesMimeType(fileMimeTy, jsSourceTy))
+                isQmlFile = false;
+
+            else if (! matchesMimeType(fileMimeTy, qmlSourceTy))
+                continue; // skip it. it's not a QML or a JS file.
+        } else {
+            if (fileName.contains(QLatin1String(".js"), Qt::CaseInsensitive))
+                isQmlFile = false;
+            else if (!fileName.contains(QLatin1String(".qml"), Qt::CaseInsensitive))
+                continue;
+        }
 
         QString contents;
         int documentRevision = 0;
