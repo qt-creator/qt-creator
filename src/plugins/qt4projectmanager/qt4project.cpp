@@ -582,9 +582,6 @@ void Qt4Project::updateCppCodeModel()
 
 void Qt4Project::updateQmlJSCodeModel()
 {
-    if (m_projectFiles->files[QMLType].isEmpty())
-        return;
-
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
     if (!modelManager)
         return;
