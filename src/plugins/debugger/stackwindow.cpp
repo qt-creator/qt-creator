@@ -61,7 +61,7 @@ StackWindow::StackWindow(QWidget *parent)
     setAttribute(Qt::WA_MacShowFocusRect, false);
     setFrameStyle(QFrame::NoFrame);
 
-    QAction *act = theDebuggerAction(UseAlternatingRowColors);
+    QAction *act = debuggerCore()->action(UseAlternatingRowColors);
     setWindowTitle(tr("Stack"));
 
     setAlternatingRowColors(act->isChecked());
@@ -76,11 +76,11 @@ StackWindow::StackWindow(QWidget *parent)
         SLOT(rowActivated(QModelIndex)));
     connect(act, SIGNAL(toggled(bool)),
         SLOT(setAlternatingRowColorsHelper(bool)));
-    connect(theDebuggerAction(UseAddressInStackView), SIGNAL(toggled(bool)),
+    connect(debuggerCore()->action(UseAddressInStackView), SIGNAL(toggled(bool)),
         SLOT(showAddressColumn(bool)));
-    connect(theDebuggerAction(ExpandStack), SIGNAL(triggered()),
+    connect(debuggerCore()->action(ExpandStack), SIGNAL(triggered()),
         SLOT(reloadFullStack()));
-    connect(theDebuggerAction(MaximalStackDepth), SIGNAL(triggered()),
+    connect(debuggerCore()->action(MaximalStackDepth), SIGNAL(triggered()),
         SLOT(reloadFullStack()));
 }
 
@@ -107,13 +107,13 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
     const quint64 address = frame.address;
 
     QMenu menu;
-    menu.addAction(theDebuggerAction(ExpandStack));
+    menu.addAction(debuggerCore()->action(ExpandStack));
 
     QAction *actCopyContents = menu.addAction(tr("Copy Contents to Clipboard"));
     actCopyContents->setEnabled(model() != 0);
 
     if (engineCapabilities & CreateFullBacktraceCapability)
-        menu.addAction(theDebuggerAction(CreateFullBacktrace));
+        menu.addAction(debuggerCore()->action(CreateFullBacktrace));
 
     QAction *actShowMemory = menu.addAction(QString());
     if (address == 0) {
@@ -135,9 +135,9 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     menu.addSeparator();
 #if 0 // @TODO: not implemented
-    menu.addAction(theDebuggerAction(UseToolTipsInStackView));
+    menu.addAction(debuggerCore()->action(UseToolTipsInStackView));
 #endif
-    menu.addAction(theDebuggerAction(UseAddressInStackView));
+    menu.addAction(debuggerCore()->action(UseAddressInStackView));
 
     QAction *actAdjust = menu.addAction(tr("Adjust Column Widths to Contents"));
 
@@ -148,7 +148,7 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     menu.addSeparator();
 
-    menu.addAction(theDebuggerAction(SettingsDialog));
+    menu.addAction(debuggerCore()->action(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
 

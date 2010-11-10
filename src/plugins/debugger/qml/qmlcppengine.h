@@ -53,7 +53,7 @@ public:
     virtual void updateAll();
 
     virtual void attemptBreakpointSynchronization();
-    virtual bool acceptsBreakpoint(const Internal::BreakpointData *br);
+    virtual bool acceptsBreakpoint(BreakpointId id);
     virtual void selectThread(int index);
 
     virtual void assignValueInDebugger(const Internal::WatchData *w,

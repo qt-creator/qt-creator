@@ -38,6 +38,7 @@
 #include "gdb/gdbengine.h"
 #include "gdb/remotegdbserveradapter.h"
 #include "gdb/remoteplaingdbadapter.h"
+#include "gdb/gdboptionspage.h"
 #include "qml/qmlengine.h"
 #include "qml/qmlcppengine.h"
 #include "lldb/lldbenginehost.h"
@@ -76,7 +77,7 @@ DebuggerEngine *createQmlEngine(const DebuggerStartParameters &);
 DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &);
 DebuggerEngine *createLLDBEngine(const DebuggerStartParameters &);
 
-bool checkGdbConfiguration(int toolChain, QString *errorMsg, QString *settingsPage);
+extern QString msgNoBinaryForToolChain(int tc);
 
 // FIXME: Outdated?
 // The createCdbEngine function takes a list of options pages it can add to.
@@ -552,9 +553,14 @@ bool DebuggerRunControl::checkDebugConfiguration(int toolChain,
     case ProjectExplorer::ToolChain_GCCE:
     case ProjectExplorer::ToolChain_RVCT_ARMV5:
     case ProjectExplorer::ToolChain_RVCT_ARMV6:
-        success = checkGdbConfiguration(toolChain, errorMessage, settingsPage);
-        if (!success)
+        if (debuggerCore()->gdbBinaryForToolChain(toolChain).isEmpty()) {
+            *errorMessage = msgNoBinaryForToolChain(toolChain);
+            *settingsPage = GdbOptionsPage::settingsId();
             *errorMessage += msgEngineNotAvailable("Gdb");
+            success = false;
+        } else {
+            success = true;
+        }
         break;
     case ProjectExplorer::ToolChain_MSVC:
         success = checkCdbConfiguration(toolChain, errorMessage, settingsPage);

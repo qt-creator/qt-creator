@@ -31,6 +31,7 @@
 #include "gdbmi.h"
 #include "abstractgdbadapter.h"
 #include "debuggeractions.h"
+#include "debuggercore.h"
 #include "debuggerstringutils.h"
 
 #include "breakhandler.h"
@@ -75,9 +76,9 @@ void GdbEngine::updateLocalsPython(bool tryPartial, const QByteArray &varList)
     }
 
     QByteArray options;
-    if (theDebuggerBoolSetting(UseDebuggingHelpers))
+    if (debuggerCore()->boolSetting(UseDebuggingHelpers))
         options += "fancy,";
-    if (theDebuggerBoolSetting(AutoDerefPointers))
+    if (debuggerCore()->boolSetting(AutoDerefPointers))
         options += "autoderef,";
     if (!qgetenv("QTC_DEBUGGER_PYTHON_VERBOSE").isEmpty())
         options += "pe,";

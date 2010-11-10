@@ -130,8 +130,8 @@ private slots:
 public slots:
     void updateActiveLanguages();
     void updateDockWidgetSettings();
-    void readSettings(QSettings *settings);
-    void writeSettings(QSettings *settings) const;
+    void readSettings();
+    void writeSettings() const;
 
 private:
     // Used by MainWindow

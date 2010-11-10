@@ -29,17 +29,14 @@
 
 #include "breakpointmarker.h"
 #include "breakhandler.h"
-
-#include "stackframe.h"
+#include "debuggercore.h"
 
 #include <texteditor/basetextmark.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QByteArray>
 #include <QtCore/QDebug>
-#include <QtCore/QTextStream>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
+
 
 //////////////////////////////////////////////////////////////////
 //
@@ -51,12 +48,9 @@
 namespace Debugger {
 namespace Internal {
 
-BreakpointMarker::BreakpointMarker(BreakHandler *handler, BreakpointData *data, 
+BreakpointMarker::BreakpointMarker(BreakpointId id,
         const QString &fileName, int lineNumber)
-    : BaseTextMark(fileName, lineNumber)
-    , m_handler(handler)
-    , m_data(data)
-    , m_pending(true)
+  : BaseTextMark(fileName, lineNumber), m_id(id)
 {
     //qDebug() << "CREATE MARKER " << fileName << lineNumber;
 }
@@ -64,24 +58,11 @@ BreakpointMarker::BreakpointMarker(BreakHandler *handler, BreakpointData *data,
 BreakpointMarker::~BreakpointMarker()
 {
     //qDebug() << "REMOVE MARKER ";
-    m_data = 0;
 }
 
 QIcon BreakpointMarker::icon() const
 {
-    if (!m_data->enabled)
-        return m_handler->disabledBreakpointIcon();
-    if (!m_handler->isActive())
-        return m_handler->emptyIcon();
-    return m_pending ? m_handler->pendingBreakPointIcon() : m_handler->breakpointIcon();
-}
-
-void BreakpointMarker::setPending(bool pending)
-{
-    if (pending == m_pending)
-        return;
-    m_pending = pending;
-    updateMarker();
+    return breakHandler()->icon(m_id);
 }
 
 void BreakpointMarker::updateBlock(const QTextBlock &)
@@ -91,38 +72,12 @@ void BreakpointMarker::updateBlock(const QTextBlock &)
 
 void BreakpointMarker::removedFromEditor()
 {
-    if (!m_data)
-        return;
-    m_handler->removeBreakpoint(m_data);
-    //handler->saveBreakpoints();
-    m_handler->updateMarkers();
+    breakHandler()->removeBreakpoint(m_id);
 }
 
 void BreakpointMarker::updateLineNumber(int lineNumber)
 {
-    if (!m_data)
-        return;
-    //if (m_data->markerLineNumber == lineNumber)
-    //    return;
-    if (m_data->markerLineNumber() != lineNumber) {
-        m_data->setMarkerLineNumber(lineNumber);
-        // FIXME: Should we tell gdb about the change?
-        // Ignore it for now, as we would require re-compilation
-        // and debugger re-start anyway.
-        if (0 && m_data->bpLineNumber) {
-            if (!m_data->bpNumber.trimmed().isEmpty()) {
-                m_data->pending = true;
-            }
-        }
-    }
-    // Ignore updates to the "real" line number while the debugger is
-    // running, as this can be triggered by moving the breakpoint to
-    // the next line that generated code.
-    // FIXME: Do we need yet another data member?
-    if (m_data->bpNumber.trimmed().isEmpty()) {
-        m_data->lineNumber = lineNumber;
-        m_handler->updateMarkers();
-    }
+    breakHandler()->updateLineNumberFromMarker(m_id, lineNumber);
 }
 
 } // namespace Internal

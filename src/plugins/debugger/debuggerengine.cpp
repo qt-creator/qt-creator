@@ -271,7 +271,6 @@ public:
     DisassemblerViewAgent m_disassemblerViewAgent;
     QFutureInterface<void> m_progress;
 
-    QHash<quint64, Internal::BreakpointData *> m_breakpoints;
     bool m_isSlaveEngine;
 };
 
@@ -485,7 +484,7 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
         breakByFunctionMain();
 
     const unsigned engineCapabilities = debuggerCapabilities();
-    theDebuggerAction(OperateByInstruction)
+    debuggerCore()->action(OperateByInstruction)
         ->setEnabled(engineCapabilities & DisassemblerCapability);
 
     QTC_ASSERT(state() == DebuggerNotReady || state() == DebuggerFinished,
@@ -509,7 +508,6 @@ void DebuggerEngine::breakByFunctionMain()
 void DebuggerEngine::breakByFunction(const QString &functionName)
 {
     breakHandler()->breakByFunction(functionName);
-    breakHandler()->synchronizeBreakpoints();
 }
 
 void DebuggerEngine::resetLocation()
@@ -529,7 +527,7 @@ void DebuggerEngine::gotoLocation(const QString &fileName, int lineNumber, bool 
 
 void DebuggerEngine::gotoLocation(const StackFrame &frame, bool setMarker)
 {
-    if (theDebuggerBoolSetting(OperateByInstruction) || !frame.isUsable()) {
+    if (debuggerCore()->boolSetting(OperateByInstruction) || !frame.isUsable()) {
         if (setMarker)
             resetLocation();
         d->m_disassemblerViewAgent.setFrame(frame);
@@ -583,14 +581,14 @@ DebuggerStartParameters &DebuggerEngine::startParameters()
 
 bool DebuggerEngine::qtDumperLibraryEnabled() const
 {
-    return theDebuggerBoolSetting(UseDebuggingHelpers);
+    return debuggerCore()->boolSetting(UseDebuggingHelpers);
 }
 
 QStringList DebuggerEngine::qtDumperLibraryLocations() const
 {
-    if (theDebuggerAction(UseCustomDebuggingHelperLocation)->value().toBool()) {
+    if (debuggerCore()->action(UseCustomDebuggingHelperLocation)->value().toBool()) {
         const QString customLocation =
-            theDebuggerAction(CustomDebuggingHelperLocation)->value().toString();
+            debuggerCore()->action(CustomDebuggingHelperLocation)->value().toString();
         const QString location =
             tr("%1 (explicitly set in the Debugger Options)").arg(customLocation);
         return QStringList(location);
@@ -605,8 +603,8 @@ void DebuggerEngine::showQtDumperLibraryWarning(const QString &details)
 
 QString DebuggerEngine::qtDumperLibraryName() const
 {
-    if (theDebuggerAction(UseCustomDebuggingHelperLocation)->value().toBool())
-        return theDebuggerAction(CustomDebuggingHelperLocation)->value().toString();
+    if (debuggerCore()->action(UseCustomDebuggingHelperLocation)->value().toBool())
+        return debuggerCore()->action(CustomDebuggingHelperLocation)->value().toString();
     return startParameters().dumperLibrary;
 }
 
@@ -994,6 +992,13 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
     if (!forced && !isAllowedTransition(oldState, state))
         qDebug() << "UNEXPECTED STATE TRANSITION: " << msg;
 
+    if (state == DebuggerFinished) {
+        // Give up ownership on claimed breakpoints.
+        BreakHandler *handler = breakHandler();
+        foreach (BreakpointId id, handler->engineBreakpointIds(this))
+            handler->notifyBreakpointReleased(id);
+    }
+
     const bool running = d->m_state == InferiorRunOk;
     if (running)
         threadsHandler()->notifyRunning();
@@ -1121,12 +1126,6 @@ void DebuggerEngine::progressPing()
     d->m_progress.setProgressValue(progress);
 }
 
-QMessageBox *DebuggerEngine::showMessageBox(int icon, const QString &title,
-    const QString &text, int buttons)
-{
-    return debuggerCore()->showMessageBox(icon, title, text, buttons);
-}
-
 DebuggerRunControl *DebuggerEngine::runControl() const
 {
     return d->m_runControl;
@@ -1213,111 +1212,123 @@ void DebuggerEngine::updateAll()
 {
 }
 
+#if 0
+        // FIXME: Remove explicit use of BreakpointData
+        if (!bp->engine && acceptsBreakpoint(id)) {
+            QTC_ASSERT(state == BreakpointNew, /**/);
+            // Take ownership of the breakpoint.
+            bp->engine = this;
+        }
+#endif
+
 void DebuggerEngine::attemptBreakpointSynchronization()
 {
-    for (int i = 0; i < breakHandler()->size(); i++) {
-        BreakpointData *bp = breakHandler()->at(i);
-        if (!d->m_breakpoints.contains(bp->id)) {
-            d->m_breakpoints.insert(bp->id, bp);
-            bp->state = BreakpointInsertionRequested;
-            addBreakpoint(*bp);
-        }
-        QTC_ASSERT(d->m_breakpoints[bp->id] == bp, qDebug() << "corrupted breakpoint map");
-        if (bp->uiDirty) {
-            bp->uiDirty = false;
-            bp->state = BreakpointChangeRequested;
-            changeBreakpoint(*bp);
-        }
+    if (!stateAcceptsBreakpointChanges()) {
+        showMessage(_("BREAKPOINT SYNCHRONIZATION NOT POSSIBLE IN CURRENT STATE"));
+        return;
     }
 
-    Breakpoints bps = breakHandler()->takeRemovedBreakpoints();
-    foreach (BreakpointData *bp, bps) {
-        if (d->m_breakpoints.contains(bp->id)) {
-            bp->state = BreakpointRemovalRequested;
-            removeBreakpoint(bp->id);
-        } else {
-            delete bp;
-        }
+    BreakHandler *handler = breakHandler();
+
+    foreach (BreakpointId id, handler->unclaimedBreakpointIds()) {
+        // Take ownership of the breakpoint. Requests insertion.
+        if (acceptsBreakpoint(id))
+            handler->setEngine(id, this);
     }
+
+    foreach (BreakpointId id, handler->engineBreakpointIds(this)) {
+        switch (handler->state(id)) {
+        case BreakpointNew:
+            // Should not happen once claimed.
+            QTC_ASSERT(false, /**/);
+            continue;
+        case BreakpointInsertRequested:
+            insertBreakpoint(id);
+            continue;
+        case BreakpointChangeRequested:
+            changeBreakpoint(id);
+            continue;
+        case BreakpointRemoveRequested:
+            removeBreakpoint(id);
+            continue;
+        case BreakpointChangeProceeding:
+        case BreakpointInsertProceeding:
+        case BreakpointRemoveProceeding:
+            //qDebug() << "BREAKPOINT " << id << " STILL IN PROGRESS, STATE"
+            //    << handler->state(id);
+            continue;
+        case BreakpointPending:
+            //qDebug() << "BREAKPOINT " << id << " IS GOOD: PENDING";
+            continue;
+        case BreakpointInserted:
+            //qDebug() << "BREAKPOINT " << id << " IS GOOD: INSERTED";
+            continue;
+        case BreakpointDead:
+            // Should not only be visible inside BreakpointHandler.
+            QTC_ASSERT(false, /**/);
+            continue;
+        }
+        QTC_ASSERT(false, qDebug() << "UNKNOWN STATE"  << id << state());
+    }
+
 }
 
-bool DebuggerEngine::acceptsBreakpoint(const BreakpointData *)
+bool DebuggerEngine::acceptsBreakpoint(BreakpointId) const
 {
     return true;
 }
 
-void DebuggerEngine::addBreakpoint(const BreakpointData &)
+void DebuggerEngine::insertBreakpoint(BreakpointId)
 {
+    QTC_ASSERT(false, /**/);
 }
 
-void DebuggerEngine::notifyAddBreakpointOk(quint64 id)
+void DebuggerEngine::notifyBreakpointInsertOk(BreakpointId id)
 {
-    BreakpointData *bp = d->m_breakpoints[id];
-    QTC_ASSERT(bp, return);
-    bp->state = BreakpointOk;
+    breakHandler()->notifyBreakpointInsertOk(id);
 }
 
-void DebuggerEngine::notifyAddBreakpointFailed(quint64 id)
+void DebuggerEngine::notifyBreakpointInsertFailed(BreakpointId id)
 {
-    BreakpointData *bp = d->m_breakpoints[id];
-    QTC_ASSERT(bp, return);
-    bp->state = BreakpointDead;
+    breakHandler()->notifyBreakpointInsertFailed(id);
 }
 
-void DebuggerEngine::removeBreakpoint(quint64)
+void DebuggerEngine::removeBreakpoint(BreakpointId)
 {
+    QTC_ASSERT(false, /**/);
 }
 
-void DebuggerEngine::notifyRemoveBreakpointOk(quint64 id)
+void DebuggerEngine::notifyBreakpointRemoveOk(BreakpointId id)
 {
-    BreakpointData *bp = d->m_breakpoints.take(id);
-    QTC_ASSERT(bp, return);
-    bp->state = BreakpointDead;
-    delete bp;
+    breakHandler()->notifyBreakpointRemoveOk(id);
 }
 
-void DebuggerEngine::notifyRemoveBreakpointFailed(quint64 id)
+void DebuggerEngine::notifyBreakpointRemoveFailed(BreakpointId id)
 {
-    BreakpointData *bp = d->m_breakpoints[id];
-    QTC_ASSERT(bp, return);
-    bp->state = BreakpointOk;
+    breakHandler()->notifyBreakpointRemoveFailed(id);
 }
 
-void DebuggerEngine::changeBreakpoint(const BreakpointData &)
+void DebuggerEngine::changeBreakpoint(BreakpointId)
 {
+    QTC_ASSERT(false, /**/);
 }
 
-void DebuggerEngine::notifyChangeBreakpointOk(quint64 id)
+void DebuggerEngine::notifyBreakpointChangeOk(BreakpointId id)
 {
-    BreakpointData *bp = d->m_breakpoints[id];
-    QTC_ASSERT(bp, return);
-    bp->state = BreakpointOk;
+    breakHandler()->notifyBreakpointChangeOk(id);
 }
 
-void DebuggerEngine::notifyChangeBreakpointFailed(quint64 id)
+void DebuggerEngine::notifyBreakpointChangeFailed(BreakpointId id)
 {
-    BreakpointData *bp = d->m_breakpoints[id];
-    QTC_ASSERT(bp, return);
-    bp->state = BreakpointDead;
+    breakHandler()->notifyBreakpointChangeFailed(id);
 }
 
-void DebuggerEngine::notifyBreakpointAdjusted(const BreakpointData & rbp)
+/*
+void DebuggerEngine::notifyBreakpointAdjusted(BreakpointId id)
 {
-    BreakpointData *bp = d->m_breakpoints[rbp.id];
-    QTC_ASSERT(bp, return);
-    bp->bpNumber      = rbp.bpNumber;
-    bp->bpCondition   = rbp.bpCondition;
-    bp->bpIgnoreCount = rbp.bpIgnoreCount;
-    bp->bpFileName    = rbp.bpFileName;
-    bp->bpFullName    = rbp.bpFullName;
-    bp->bpLineNumber  = rbp.bpLineNumber;
-    bp->bpCorrectedLineNumber = rbp.bpCorrectedLineNumber;
-    bp->bpThreadSpec  = rbp.bpThreadSpec;
-    bp->bpFuncName    = rbp.bpFuncName;
-    bp->bpAddress     = rbp.bpAddress;
-    bp->bpMultiple    = rbp.bpMultiple;
-    bp->bpEnabled     = rbp.bpEnabled;
+    breakHandler()->notifyChangeBreakpointAdjusted(id);
 }
+*/
 
 void DebuggerEngine::selectThread(int)
 {

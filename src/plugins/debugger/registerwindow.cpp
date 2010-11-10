@@ -157,7 +157,7 @@ public:
 RegisterWindow::RegisterWindow(QWidget *parent)
   : QTreeView(parent), m_alwaysResizeColumnsToContents(true)
 {
-    QAction *act = theDebuggerAction(UseAlternatingRowColors);
+    QAction *act = debuggerCore()->action(UseAlternatingRowColors);
     setFrameStyle(QFrame::NoFrame);
     setWindowTitle(tr("Registers"));
     setAttribute(Qt::WA_MacShowFocusRect, false);
@@ -226,7 +226,7 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
     actAlwaysAdjust->setChecked(m_alwaysResizeColumnsToContents);
     menu.addSeparator();
 
-    menu.addAction(theDebuggerAction(SettingsDialog));
+    menu.addAction(debuggerCore()->action(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
 

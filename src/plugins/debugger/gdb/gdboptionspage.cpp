@@ -29,14 +29,114 @@
 
 #include "gdboptionspage.h"
 #include "debuggeractions.h"
-#include "debuggerconstants.h"
+#include "debuggercore.h"
 
 #include <coreplugin/icore.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchaintype.h>
+
 #include <QtCore/QCoreApplication>
 #include <QtCore/QTextStream>
+#include <QtCore/QFileInfo>
 
 namespace Debugger {
 namespace Internal {
+
+const char gdbBinariesSettingsGroupC[] = "GdbBinaries";
+const char debugModeGdbBinaryKeyC[] = "GdbBinary";
+
+GdbOptionsPage::GdbBinaryToolChainMap GdbOptionsPage::gdbBinaryToolChainMap;
+bool GdbOptionsPage::gdbBinariesChanged = true;
+
+void GdbOptionsPage::readGdbBinarySettings() /* static */
+{
+    using namespace ProjectExplorer;
+    QSettings *settings = Core::ICore::instance()->settings();
+    // Convert gdb binaries from flat settings list (see writeSettings)
+    // into map ("binary1=gdb,1,2", "binary2=symbian_gdb,3,4").
+    gdbBinaryToolChainMap.clear();
+    const QChar separator = QLatin1Char(',');
+    const QString keyRoot = QLatin1String(gdbBinariesSettingsGroupC) + QLatin1Char('/') +
+                            QLatin1String(debugModeGdbBinaryKeyC);
+    for (int i = 1; ; i++) {
+        const QString value = settings->value(keyRoot + QString::number(i)).toString();
+        if (value.isEmpty())
+            break;
+        // Split apart comma-separated binary and its numerical toolchains.
+        QStringList tokens = value.split(separator);
+        if (tokens.size() < 2)
+            break;
+        const QString binary = tokens.front();
+        // Skip non-existent absolute binaries allowing for upgrades by the installer.
+        // Force a rewrite of the settings file.
+        const QFileInfo binaryInfo(binary);
+        if (binaryInfo.isAbsolute() && !binaryInfo.isExecutable()) {
+            gdbBinariesChanged = true;
+            const QString msg = QString::fromLatin1("Warning: The gdb binary '%1' does not exist, skipping.\n").arg(binary);
+            qWarning("%s", qPrintable(msg));
+            continue;
+        }
+        // Create entries for all toolchains.
+        tokens.pop_front();
+        foreach (const QString &t, tokens) {
+            // Paranoia: Check if the there is already a binary configured for the toolchain.
+            const int toolChain = t.toInt();
+            const QString predefinedGdb = gdbBinaryToolChainMap.key(toolChain);
+            if (predefinedGdb.isEmpty()) {
+                gdbBinaryToolChainMap.insert(binary, toolChain);
+            } else {
+                const QString toolChainName =
+                    ProjectExplorer::ToolChain::toolChainName(ToolChainType(toolChain));
+                const QString msg =
+                        QString::fromLatin1("An inconsistency has been encountered in the Ini-file '%1':\n"
+                                            "Skipping gdb binary '%2' for toolchain '%3' as '%4' is already configured for it.").
+                        arg(settings->fileName(), binary, toolChainName, predefinedGdb);
+                qWarning("%s", qPrintable(msg));
+            }
+        }
+    }
+    // Linux defaults
+#ifdef Q_OS_UNIX
+    if (gdbBinaryToolChainMap.isEmpty()) {
+        const QString gdb = QLatin1String("gdb");
+        gdbBinaryToolChainMap.insert(gdb, ToolChain_GCC);
+        gdbBinaryToolChainMap.insert(gdb, ToolChain_LINUX_ICC);
+        gdbBinaryToolChainMap.insert(gdb, ToolChain_OTHER);
+        gdbBinaryToolChainMap.insert(gdb, ToolChain_UNKNOWN);
+    }
+#endif
+}
+
+void GdbOptionsPage::writeGdbBinarySettings() /* static */
+{
+    QSettings *settings = Core::ICore::instance()->settings();
+    // Convert gdb binaries map into a flat settings list of
+    // ("binary1=gdb,1,2", "binary2=symbian_gdb,3,4"). It needs to be ASCII for installers
+    QString lastBinary;
+    QStringList settingsList;
+    const QChar separator = QLatin1Char(',');
+    const GdbBinaryToolChainMap::const_iterator cend = gdbBinaryToolChainMap.constEnd();
+    for (GdbBinaryToolChainMap::const_iterator it = gdbBinaryToolChainMap.constBegin(); it != cend; ++it) {
+        if (it.key() != lastBinary) {
+            lastBinary = it.key(); // Start new entry with first toolchain
+            settingsList.push_back(lastBinary);
+        }
+        settingsList.back().append(separator); // Append toolchain to last binary
+        settingsList.back().append(QString::number(it.value()));
+    }
+    // Terminate settings list by an empty element such that consecutive keys resulting
+    // from ini-file merging are suppressed while reading.
+    settingsList.push_back(QString());
+    // Write out list
+    settings->beginGroup(QLatin1String(gdbBinariesSettingsGroupC));
+    settings->remove(QString()); // remove all keys in group.
+    const int count = settingsList.size();
+    const QString keyRoot = QLatin1String(debugModeGdbBinaryKeyC);
+    for (int i = 0; i < count; i++)
+        settings->setValue(keyRoot + QString::number(i + 1), settingsList.at(i));
+    settings->endGroup();
+}
 
 GdbOptionsPage::GdbOptionsPage()
 {
@@ -71,44 +171,43 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
 {
     QWidget *w = new QWidget(parent);
     m_ui.setupUi(w);
-    m_ui.gdbChooserWidget
-        ->setGdbBinaries(DebuggerSettings::instance()->gdbBinaryToolChainMap());
+    m_ui.gdbChooserWidget->setGdbBinaries(gdbBinaryToolChainMap);
     m_ui.scriptFileChooser->setExpectedKind(Utils::PathChooser::File);
     m_ui.scriptFileChooser->setPromptDialogTitle(tr("Choose Location of Startup Script File"));
 
     m_group.clear();
-    m_group.insert(theDebuggerAction(GdbScriptFile),
+    m_group.insert(debuggerCore()->action(GdbScriptFile),
         m_ui.scriptFileChooser);
-    m_group.insert(theDebuggerAction(GdbEnvironment),
+    m_group.insert(debuggerCore()->action(GdbEnvironment),
         m_ui.environmentEdit);
-    m_group.insert(theDebuggerAction(AdjustBreakpointLocations),
+    m_group.insert(debuggerCore()->action(AdjustBreakpointLocations),
         m_ui.checkBoxAdjustBreakpointLocations);
-    m_group.insert(theDebuggerAction(GdbWatchdogTimeout),
+    m_group.insert(debuggerCore()->action(GdbWatchdogTimeout),
         m_ui.spinBoxGdbWatchdogTimeout);
 
-    m_group.insert(theDebuggerAction(UseMessageBoxForSignals),
+    m_group.insert(debuggerCore()->action(UseMessageBoxForSignals),
         m_ui.checkBoxUseMessageBoxForSignals);
-    m_group.insert(theDebuggerAction(SkipKnownFrames),
+    m_group.insert(debuggerCore()->action(SkipKnownFrames),
         m_ui.checkBoxSkipKnownFrames);
-    m_group.insert(theDebuggerAction(EnableReverseDebugging),
+    m_group.insert(debuggerCore()->action(EnableReverseDebugging),
         m_ui.checkBoxEnableReverseDebugging);
-    m_group.insert(theDebuggerAction(GdbWatchdogTimeout), 0);
+    m_group.insert(debuggerCore()->action(GdbWatchdogTimeout), 0);
 
 #if 1
     m_ui.groupBoxPluginDebugging->hide();
 #else // The related code (handleAqcuiredInferior()) is disabled as well.
-    m_group.insert(theDebuggerAction(AllPluginBreakpoints),
+    m_group.insert(debuggerCore()->action(AllPluginBreakpoints),
         m_ui.radioButtonAllPluginBreakpoints);
-    m_group.insert(theDebuggerAction(SelectedPluginBreakpoints),
+    m_group.insert(debuggerCore()->action(SelectedPluginBreakpoints),
         m_ui.radioButtonSelectedPluginBreakpoints);
-    m_group.insert(theDebuggerAction(NoPluginBreakpoints),
+    m_group.insert(debuggerCore()->action(NoPluginBreakpoints),
         m_ui.radioButtonNoPluginBreakpoints);
-    m_group.insert(theDebuggerAction(SelectedPluginBreakpointsPattern),
+    m_group.insert(debuggerCore()->action(SelectedPluginBreakpointsPattern),
         m_ui.lineEditSelectedPluginBreakpointsPattern);
 #endif
 
     m_ui.lineEditSelectedPluginBreakpointsPattern->
-        setEnabled(theDebuggerAction(SelectedPluginBreakpoints)->value().toBool());
+        setEnabled(debuggerCore()->action(SelectedPluginBreakpoints)->value().toBool());
     connect(m_ui.radioButtonSelectedPluginBreakpoints, SIGNAL(toggled(bool)),
         m_ui.lineEditSelectedPluginBreakpointsPattern, SLOT(setEnabled(bool)));
 
@@ -128,13 +227,14 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
     }
     return w;
 }
+
 void GdbOptionsPage::apply()
 {
     m_group.apply(Core::ICore::instance()->settings());
 
     if (m_ui.gdbChooserWidget->isDirty()) {
-        DebuggerSettings::instance()
-            ->setGdbBinaryToolChainMap(m_ui.gdbChooserWidget->gdbBinaries());
+        gdbBinariesChanged = true;
+        gdbBinaryToolChainMap = m_ui.gdbChooserWidget->gdbBinaries();
         m_ui.gdbChooserWidget->clearDirty();
     }
 }

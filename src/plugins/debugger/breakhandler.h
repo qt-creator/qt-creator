@@ -37,17 +37,14 @@
 
 #include <QtGui/QIcon>
 
-namespace Debugger {
-
-class DebuggerEngine;
-
-namespace Internal {
-
 //////////////////////////////////////////////////////////////////
 //
 // BreakHandler
 //
 //////////////////////////////////////////////////////////////////
+
+namespace Debugger {
+namespace Internal {
 
 class BreakHandler : public QAbstractTableModel
 {
@@ -57,31 +54,28 @@ public:
     BreakHandler();
     ~BreakHandler();
 
-    void removeAllBreakpoints();
     void loadSessionData();
     void saveSessionData();
 
     QAbstractItemModel *model() { return this; }
 
-    BreakpointData *at(int index) const;
-    int size() const;
+    BreakpointIds allBreakpointIds() const;
+    BreakpointIds engineBreakpointIds(DebuggerEngine *engine) const;
+    BreakpointIds unclaimedBreakpointIds() const;
+    BreakpointData *breakpointById(BreakpointId id) const;
+    int size() const { return m_bp.size(); }
     bool hasPendingBreakpoints() const;
-    void removeAt(int index); // This also deletes the marker.
-    void clear(); // This also deletes all the marker.
-    int indexOf(BreakpointData *data);
-    // Find a breakpoint matching approximately the data in needle.
-    BreakpointData *findSimilarBreakpoint(const BreakpointData *needle) const;
-    BreakpointData *findBreakpointByNumber(int bpNumber) const;
-    int findWatchPointIndexByAddress(quint64 address) const;
-    bool watchPointAt(quint64 address) const;
-    void updateMarkers();
-    void updateMarker(BreakpointData *);
-    void removeMarker(BreakpointData *);
-    bool isActive() const;
 
-    Breakpoints takeRemovedBreakpoints(); // Owned.
-    Breakpoints takeEnabledBreakpoints(); // Not owned.
-    Breakpoints takeDisabledBreakpoints(); // Not owned.
+    // Find a breakpoint matching approximately the data in needle.
+    BreakpointId findSimilarBreakpoint(const BreakpointResponse &needle) const;
+    BreakpointId findBreakpointByNumber(int bpNumber) const;
+    BreakpointId findWatchpointByAddress(quint64 address) const;
+    BreakpointId findBreakpointByFunction(const QString &functionName) const;
+    BreakpointId findBreakpointByIndex(const QModelIndex &index) const;
+    void setWatchpointByAddress(quint64 address);
+    bool hasWatchpointAt(quint64 address) const;
+    void updateMarkers();
+    void removeMarker(BreakpointId id);
 
     QIcon breakpointIcon() const { return m_breakpointIcon; }
     QIcon disabledBreakpointIcon() const { return m_disabledBreakpointIcon; }
@@ -89,21 +83,60 @@ public:
     QIcon emptyIcon() const { return m_emptyIcon; }
 
     void toggleBreakpoint(const QString &fileName, int lineNumber, quint64 address = 0);
-    void toggleBreakpointEnabled(const QString &fileName, int lineNumber);
-    BreakpointData *findBreakpoint(const QString &fileName, int lineNumber,
-        bool useMarkerPosition = true);
-    BreakpointData *findBreakpoint(quint64 address) const;
+    BreakpointId findBreakpointByFileAndLine(const QString &fileName,
+        int lineNumber, bool useMarkerPosition = true);
+    BreakpointId findBreakpointByAddress(quint64 address) const;
 
-    void appendBreakpoint(BreakpointData *data);
-    void reinsertBreakpoint(BreakpointData *data);
-    void toggleBreakpointEnabled(BreakpointData *data);
     void breakByFunction(const QString &functionName);
-    void removeBreakpoint(int index);
-    void removeBreakpoint(BreakpointData *data);
-    void synchronizeBreakpoints();
+    void removeBreakpoint(BreakpointId id);
+    QIcon icon(BreakpointId id) const;
 
-signals:
-    void breakpointSynchronizationRequested();
+    void gotoLocation(BreakpointId id) const;
+
+    // Getter retrieves property value.
+    // Setter sets property value and triggers update if changed.
+    #define PROPERTY(type, getter, setter) \
+        type getter(BreakpointId id) const; \
+        void setter(BreakpointId id, const type &value);
+
+    PROPERTY(bool, useFullPath, setUseFullPath)
+    PROPERTY(QString, markerFileName, setMarkerFileName)
+    PROPERTY(int, markerLineNumber, setMarkerLineNumber)
+    PROPERTY(QByteArray, condition, setCondition)
+    PROPERTY(int, ignoreCount, setIgnoreCount)
+    PROPERTY(QByteArray, threadSpec, setThreadSpec)
+    PROPERTY(BreakpointState, state, setState)
+    PROPERTY(QString, fileName, setFileName)
+    PROPERTY(QString, functionName, setFunctionName)
+    PROPERTY(BreakpointType, type, setType);
+    PROPERTY(quint64, address, setAddress);
+    PROPERTY(int, lineNumber, setLineNumber);
+    #undef PROPERTY
+    bool isEnabled(BreakpointId id) const;
+    void setEnabled(BreakpointId id, const bool &on);
+    void updateEnabled(BreakpointId id, const bool &on);
+    void updateLineNumberFromMarker(BreakpointId id, int lineNumber);
+
+    DebuggerEngine *engine(BreakpointId id) const;
+    void setEngine(BreakpointId id, DebuggerEngine *engine);
+    BreakpointResponse response(BreakpointId id) const;
+    void setResponse(BreakpointId id, const BreakpointResponse &data);
+
+    // Incorporate debugger feedback. No synchronization request needed.
+    // Return true if something changed.
+    void ackCondition(BreakpointId id);
+    void ackIgnoreCount(BreakpointId id);
+
+    void notifyBreakpointInsertOk(BreakpointId id);
+    void notifyBreakpointInsertFailed(BreakpointId id);
+    void notifyBreakpointChangeOk(BreakpointId id);
+    void notifyBreakpointChangeFailed(BreakpointId id);
+    void notifyBreakpointRemoveOk(BreakpointId id);
+    void notifyBreakpointRemoveFailed(BreakpointId id);
+    void notifyBreakpointReleased(BreakpointId id);
+
+    // This takes ownership.
+    void appendBreakpoint(BreakpointData *data);
 
 private:
     friend class BreakpointMarker;
@@ -118,8 +151,8 @@ private:
     void markerUpdated(BreakpointMarker *marker, int lineNumber);
     void loadBreakpoints();
     void saveBreakpoints();
-    void removeBreakpointHelper(int index);
-    void append(BreakpointData *data);
+    void updateMarker(BreakpointId id);
+    void cleanupBreakpoint(BreakpointId id);
 
     const QIcon m_breakpointIcon;
     const QIcon m_disabledBreakpointIcon;
@@ -127,17 +160,17 @@ private:
     const QIcon m_emptyIcon;
     const QIcon m_watchpointIcon;
 
-    Breakpoints m_inserted; // Lately inserted breakpoints.
-    Breakpoints m_removed; // Lately removed breakpoints.
-    Breakpoints m_enabled; // Lately enabled breakpoints.
-    Breakpoints m_disabled; // Lately disabled breakpoints.
-
-    // Hack for BreakWindow::findSimilarBreakpoint
-    mutable BreakpointData *m_lastFound;
-    mutable bool m_lastFoundQueried;
-
+    typedef QMap<BreakpointId, BreakpointData *> Breakpoints;
+    typedef QMap<BreakpointId, BreakpointMarker *> Markers;
+    typedef QMap<BreakpointId, BreakpointResponse *> Responses;
+    typedef Breakpoints::ConstIterator ConstIterator;
     Breakpoints m_bp;
-    QHash<quint64, BreakpointMarker *> m_markers;
+    Markers m_markers;
+    Responses m_responses;
+
+    void scheduleSynchronization();
+    void timerEvent(QTimerEvent *event);
+    int m_syncTimerId;
 };
 
 } // namespace Internal

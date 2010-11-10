@@ -34,6 +34,7 @@
 #include "debuggerconstants.h"
 
 #include <QtCore/QObject>
+#include <QtCore/QMultiMap>
 
 QT_BEGIN_NAMESPACE
 class QIcon;
@@ -43,6 +44,10 @@ QT_END_NAMESPACE
 
 namespace CPlusPlus {
 class Snapshot;
+}
+
+namespace Utils {
+class SavedAction;
 }
 
 namespace Debugger {
@@ -78,8 +83,8 @@ public:
     virtual bool isRegisterViewVisible() const = 0;
     virtual bool hasSnapshots() const = 0;
     virtual void openTextEditor(const QString &titlePattern, const QString &contents) = 0;
-    virtual Internal::BreakHandler *breakHandler() const = 0;
-    virtual Internal::SnapshotHandler *snapshotHandler() const = 0;
+    virtual BreakHandler *breakHandler() const = 0;
+    virtual SnapshotHandler *snapshotHandler() const = 0;
     virtual DebuggerEngine *currentEngine() const = 0;
     virtual bool isActiveDebugLanguage(int language) const = 0;
 
@@ -103,16 +108,22 @@ public:
     virtual void runControlFinished(DebuggerRunControl *runControl) = 0;
     virtual void displayDebugger(DebuggerEngine *engine, bool updateEngine) = 0;
     virtual DebuggerLanguages activeLanguages() const = 0;
-
-    virtual QMessageBox *showMessageBox(int icon, const QString &title,
-        const QString &text, int buttons = 0) = 0;
+    virtual void synchronizeBreakpoints() = 0;
 
     virtual bool initialize(const QStringList &arguments, QString *errorMessage) = 0;
     virtual QWidget *mainWindow() const = 0;
+    virtual QString gdbBinaryForToolChain(int toolChain) const = 0;
+
+    virtual Utils::SavedAction *action(int code) const = 0;
+    virtual bool boolSetting(int code) const = 0;
+    virtual QString stringSetting(int code) const = 0;
 };
 
 // This is the only way to access the global object.
 DebuggerCore *debuggerCore();
+inline BreakHandler *breakHandler() { return debuggerCore()->breakHandler(); }
+QMessageBox *showMessageBox(int icon, const QString &title,
+    const QString &text, int buttons = 0);
 
 } // namespace Internal
 } // namespace Debugger

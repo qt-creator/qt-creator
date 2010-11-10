@@ -140,6 +140,7 @@ struct DebuggerUISwitcherPrivate
     QWeakPointer<ProjectExplorer::RunConfiguration> m_previousRunConfiguration;
 
     bool m_initialized;
+    QSettings *m_settings;
 };
 
 DebuggerUISwitcherPrivate::DebuggerUISwitcherPrivate(DebuggerUISwitcher *q)
@@ -155,6 +156,7 @@ DebuggerUISwitcherPrivate::DebuggerUISwitcherPrivate(DebuggerUISwitcher *q)
     , m_viewsMenu(0)
     , m_debugMenu(0)
     , m_initialized(false)
+    , m_settings(0)
 {
 }
 
@@ -583,44 +585,39 @@ QWidget *DebuggerUISwitcher::createContents(BaseMode *mode)
     return splitter;
 }
 
-void DebuggerUISwitcher::writeSettings(QSettings *settings) const
+void DebuggerUISwitcher::writeSettings() const
 {
-    {
-        settings->beginGroup(QLatin1String("DebugMode.CppMode"));
-        QHashIterator<QString, QVariant> it(d->m_dockWidgetActiveStateCpp);
-        while (it.hasNext()) {
-            it.next();
-            settings->setValue(it.key(), it.value());
-        }
-        settings->endGroup();
+    d->m_settings->beginGroup(QLatin1String("DebugMode.CppMode"));
+    QHashIterator<QString, QVariant> it(d->m_dockWidgetActiveStateCpp);
+    while (it.hasNext()) {
+        it.next();
+        d->m_settings->setValue(it.key(), it.value());
     }
-    {
-        settings->beginGroup(QLatin1String("DebugMode.CppQmlMode"));
-        QHashIterator<QString, QVariant> it(d->m_dockWidgetActiveStateQmlCpp);
-        while (it.hasNext()) {
-            it.next();
-            settings->setValue(it.key(), it.value());
-        }
-        settings->endGroup();
+    d->m_settings->endGroup();
+
+    d->m_settings->beginGroup(QLatin1String("DebugMode.CppQmlMode"));
+    it = QHashIterator<QString, QVariant>(d->m_dockWidgetActiveStateQmlCpp);
+    while (it.hasNext()) {
+        it.next();
+        d->m_settings->setValue(it.key(), it.value());
     }
+    d->m_settings->endGroup();
 }
 
-void DebuggerUISwitcher::readSettings(QSettings *settings)
+void DebuggerUISwitcher::readSettings()
 {
     d->m_dockWidgetActiveStateCpp.clear();
     d->m_dockWidgetActiveStateQmlCpp.clear();
 
-    settings->beginGroup(QLatin1String("DebugMode.CppMode"));
-    foreach (const QString &key, settings->childKeys()) {
-        d->m_dockWidgetActiveStateCpp.insert(key, settings->value(key));
-    }
-    settings->endGroup();
+    d->m_settings->beginGroup(QLatin1String("DebugMode.CppMode"));
+    foreach (const QString &key, d->m_settings->childKeys())
+        d->m_dockWidgetActiveStateCpp.insert(key, d->m_settings->value(key));
+    d->m_settings->endGroup();
 
-    settings->beginGroup(QLatin1String("DebugMode.CppQmlMode"));
-    foreach (const QString &key, settings->childKeys()) {
-        d->m_dockWidgetActiveStateQmlCpp.insert(key, settings->value(key));
-    }
-    settings->endGroup();
+    d->m_settings->beginGroup(QLatin1String("DebugMode.CppQmlMode"));
+    foreach (const QString &key, d->m_settings->childKeys())
+        d->m_dockWidgetActiveStateQmlCpp.insert(key, d->m_settings->value(key));
+    d->m_settings->endGroup();
 
     // reset initial settings when there are none yet
     DebuggerLanguages langs = d->m_activeDebugLanguages;
@@ -637,10 +634,11 @@ void DebuggerUISwitcher::readSettings(QSettings *settings)
 
 void DebuggerUISwitcher::initialize(QSettings *settings)
 {
+    d->m_settings = settings;
     createViewsMenuItems();
 
     emit dockResetRequested(AnyLanguage);
-    readSettings(settings);
+    readSettings();
 
     updateUi();
 

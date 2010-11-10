@@ -57,6 +57,12 @@ public:
 
     static QString settingsId();
 
+    typedef QMultiMap<QString, int> GdbBinaryToolChainMap;
+    static GdbBinaryToolChainMap gdbBinaryToolChainMap;
+    static bool gdbBinariesChanged;
+    static void readGdbBinarySettings();
+    static void writeGdbBinarySettings();
+
 private:
     Ui::GdbOptionsPage m_ui;
     Utils::SavedActionSet m_group;

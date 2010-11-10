@@ -31,6 +31,7 @@
 
 #include "gdbengine.h"
 #include "procinterrupt.h"
+#include "debuggercore.h"
 #include "debuggerstringutils.h"
 
 #include <utils/qtcassert.h>
@@ -140,7 +141,7 @@ void LocalPlainGdbAdapter::checkForReleaseBuild()
     // "30 .debug_info   00087d36  00000000  00000000  0006bbd5  2**0\n"
     // " CONTENTS, READONLY, DEBUGGING"
     if (ba.contains("Sections:") && !ba.contains(".debug_info")) {
-        m_engine->showMessageBox(QMessageBox::Information, "Warning",
+        showMessageBox(QMessageBox::Information, "Warning",
            tr("This does not seem to be a \"Debug\" build.\n"
               "Setting breakpoints by file name and line number may fail."));
     }

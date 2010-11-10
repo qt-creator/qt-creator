@@ -28,10 +28,12 @@
 **************************************************************************/
 
 #include "coregdbadapter.h"
-#include "gdbmi.h"
+
+#include "debuggercore.h"
 #include "debuggeractions.h"
-#include "gdbengine.h"
 #include "debuggerstringutils.h"
+#include "gdbmi.h"
+#include "gdbengine.h"
 
 #include <utils/qtcassert.h>
 
@@ -73,7 +75,7 @@ void CoreGdbAdapter::startAdapter()
         return;
 
     //if (m_executable.isEmpty()) {
-    //    DebuggerEngine::showMessageBox(QMessageBox::Warning,
+    //    showMessageBox(QMessageBox::Warning,
     //        tr("Error Loading Symbols"),
     //        tr("No executable to load symbols from specified."));
     //}
@@ -100,7 +102,7 @@ void CoreGdbAdapter::startAdapter()
         msg += _(" ");
         msg += tr("Try to specify the binary using the "
             "<i>Debug->Start Debugging->Attach to Core</i> dialog.");
-        DebuggerEngine::showMessageBox(QMessageBox::Warning,
+        showMessageBox(QMessageBox::Warning,
             tr("Loading core file failed"), msg);
         m_engine->notifyEngineSetupFailed();
     }

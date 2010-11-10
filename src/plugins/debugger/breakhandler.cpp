@@ -57,14 +57,11 @@ BreakHandler::BreakHandler()
     m_emptyIcon(_(":/debugger/images/breakpoint_pending_16.png")),
     //m_emptyIcon(_(":/debugger/images/debugger_empty_14.png")),
     m_watchpointIcon(_(":/debugger/images/watchpoint.png")),
-    m_lastFound(0),
-    m_lastFoundQueried(false)
+    m_syncTimerId(-1)
 {}
 
 BreakHandler::~BreakHandler()
-{
-    clear();
-}
+{}
 
 int BreakHandler::columnCount(const QModelIndex &parent) const
 {
@@ -73,74 +70,149 @@ int BreakHandler::columnCount(const QModelIndex &parent) const
 
 int BreakHandler::rowCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0 : size();
+    return parent.isValid() ? 0 : m_bp.size();
 }
 
+// FIXME: Only used by cdb. Move there?
 bool BreakHandler::hasPendingBreakpoints() const
 {
-    for (int i = size() - 1; i >= 0; i--)
-        if (at(i)->pending)
+    ConstIterator it = m_bp.constBegin(), et = m_bp.constEnd();
+    for ( ; it != et; ++it)
+        if (it.value()->isPending())
             return true;
     return false;
 }
 
-BreakpointData *BreakHandler::at(int index) const
+static inline bool fileNameMatch(const QString &f1, const QString &f2)
 {
-    QTC_ASSERT(index < size(), return 0);
-    return m_bp.at(index);
+#ifdef Q_OS_WIN
+    return f1.compare(f2, Qt::CaseInsensitive) == 0;
+#else
+    return f1 == f2;
+#endif
 }
 
-void BreakHandler::removeAt(int index)
+static bool isSimilarTo(const BreakpointData *data, const BreakpointResponse &needle)
 {
-    BreakpointData *data = at(index);
-    QTC_ASSERT(data, return);
-    m_bp.removeAt(index);
-    delete m_markers.take(data->id);
-    delete data;
+    // Clear hit.
+    // Clear miss.
+    if (needle.bpType != UnknownType && data->type() != UnknownType
+            && data->type() != needle.bpType)
+        return false;
+
+    // Clear hit.
+    if (data->address() && data->address() == needle.bpAddress)
+        return true;
+
+    // At least at a position we were looking for.
+    // FIXME: breaks multiple breakpoints at the same location
+    if (!data->fileName().isEmpty()
+            && fileNameMatch(data->fileName(), needle.bpFileName)
+            && data->lineNumber() == needle.bpLineNumber)
+        return true;
+
+    // At least at a position we were looking for.
+    // FIXME: breaks multiple breakpoints at the same location
+    if (!data->fileName().isEmpty()
+            && fileNameMatch(data->fileName(), needle.bpFileName)
+            && data->lineNumber() == needle.bpLineNumber)
+        return true;
+
+    return false;
 }
 
-void BreakHandler::clear()
-{
-    m_enabled.clear();
-    m_disabled.clear();
-    m_removed.clear();
-}
-
-BreakpointData *BreakHandler::findSimilarBreakpoint(const BreakpointData *needle) const
+BreakpointId BreakHandler::findSimilarBreakpoint(const BreakpointResponse &needle) const
 {
     // Search a breakpoint we might refer to.
-    for (int index = 0; index != size(); ++index) {
-        BreakpointData *data = m_bp[index];
-        if (data->isSimilarTo(needle))
-            return data;
+    ConstIterator it = m_bp.constBegin(), et = m_bp.constEnd();
+    for ( ; it != et; ++it) {
+        const BreakpointId id = it.key();
+        const BreakpointData *data = it.value();
+        QTC_ASSERT(data, continue);
+        const BreakpointResponse *response = m_responses.value(id);
+        QTC_ASSERT(response, continue);
+
+        qDebug() << "COMPARING " << data->toString() << " WITH " << needle.toString();
+        if (response->bpNumber && response->bpNumber == needle.bpNumber)
+            return id;
+
+        if (isSimilarTo(data, needle))
+            return id;
     }
-    return 0;
+    return BreakpointId(-1);
 }
 
-BreakpointData *BreakHandler::findBreakpointByNumber(int bpNumber) const
+BreakpointId BreakHandler::findBreakpointByNumber(int bpNumber) const
 {
-    if (!size())
-        return 0;
-    QString numStr = QString::number(bpNumber);
-    for (int index = 0; index != size(); ++index)
-        if (at(index)->bpNumber == numStr)
-            return at(index);
-    return 0;
+    Responses::ConstIterator it = m_responses.constBegin();
+    Responses::ConstIterator et = m_responses.constEnd();
+    for ( ; it != et; ++it)
+        if (it.value()->bpNumber == bpNumber)
+            return it.key();
+    return BreakpointId(-1);
 }
 
-int BreakHandler::findWatchPointIndexByAddress(quint64 address) const
+BreakpointId BreakHandler::findBreakpointByFunction(const QString &functionName) const
 {
-    for (int index = size() - 1; index >= 0; --index) {
-        BreakpointData *bd = at(index);
-        if (bd->isWatchpoint() && bd->address == address)
-            return index;
+    ConstIterator it = m_bp.constBegin(), et = m_bp.constEnd();
+    for ( ; it != et; ++it)
+        if (it.value()->functionName() == functionName)
+            return it.key();
+    return BreakpointId(-1);
+}
+
+BreakpointId BreakHandler::findBreakpointByAddress(quint64 address) const
+{
+    ConstIterator it = m_bp.constBegin(), et = m_bp.constEnd();
+    for ( ; it != et; ++it)
+        if (it.value()->address() == address)
+            return it.key();
+    return BreakpointId(-1);
+}
+
+BreakpointId BreakHandler::findBreakpointByFileAndLine(const QString &fileName,
+    int lineNumber, bool useMarkerPosition)
+{
+    ConstIterator it = m_bp.constBegin(), et = m_bp.constEnd();
+    for ( ; it != et; ++it)
+        if (it.value()->isLocatedAt(fileName, lineNumber, useMarkerPosition))
+            return it.key();
+    return BreakpointId(-1);
+}
+
+BreakpointData *BreakHandler::breakpointById(BreakpointId id) const
+{
+    return m_bp.value(id, 0);
+}
+
+BreakpointId BreakHandler::findWatchpointByAddress(quint64 address) const
+{
+    ConstIterator it = m_bp.constBegin(), et = m_bp.constEnd();
+    for ( ; it != et; ++it)
+        if (it.value()->isWatchpoint() && it.value()->address() == address)
+            return it.key();
+    return BreakpointId(-1);
+}
+
+
+void BreakHandler::setWatchpointByAddress(quint64 address)
+{
+    const int id = findWatchpointByAddress(address);
+    if (id == -1) {
+        BreakpointData *data = new BreakpointData;
+        data->setType(Watchpoint);
+        data->setAddress(address);
+        appendBreakpoint(data);
+        scheduleSynchronization();
+    } else {
+        qDebug() << "WATCHPOINT EXISTS";
+     //   removeBreakpoint(index);
     }
-    return -1;
 }
 
-bool BreakHandler::watchPointAt(quint64 address) const
+bool BreakHandler::hasWatchpointAt(quint64 address) const
 {
-    return findWatchPointIndexByAddress(address) != -1;
+    return findWatchpointByAddress(address) != BreakpointId(-1);
 }
 
 void BreakHandler::saveBreakpoints()
@@ -148,31 +220,32 @@ void BreakHandler::saveBreakpoints()
     //qDebug() << "SAVING BREAKPOINTS...";
     QTC_ASSERT(debuggerCore(), return);
     QList<QVariant> list;
-    for (int index = 0; index != size(); ++index) {
-        const BreakpointData *data = at(index);
+    ConstIterator it = m_bp.constBegin(), et = m_bp.constEnd();
+    for ( ; it != et; ++it) {
+        const BreakpointData *data = it.value();
         QMap<QString, QVariant> map;
         // Do not persist Watchpoints.
         //if (data->isWatchpoint())
         //    continue;
-        if (data->type != BreakpointByFileAndLine)
-            map.insert(_("type"), data->type);
-        if (!data->fileName.isEmpty())
-            map.insert(_("filename"), data->fileName);
-        if (data->lineNumber)
-            map.insert(_("linenumber"), QVariant(data->lineNumber));
-        if (!data->funcName.isEmpty())
-            map.insert(_("funcname"), data->funcName);
-        if (data->address)
-            map.insert(_("address"), data->address);
-        if (!data->condition.isEmpty())
-            map.insert(_("condition"), data->condition);
-        if (data->ignoreCount)
-            map.insert(_("ignorecount"), QVariant(data->ignoreCount));
-        if (!data->threadSpec.isEmpty())
-            map.insert(_("threadspec"), data->threadSpec);
-        if (!data->enabled)
+        if (data->type() != BreakpointByFileAndLine)
+            map.insert(_("type"), data->type());
+        if (!data->fileName().isEmpty())
+            map.insert(_("filename"), data->fileName());
+        if (data->lineNumber())
+            map.insert(_("linenumber"), data->lineNumber());
+        if (!data->functionName().isEmpty())
+            map.insert(_("funcname"), data->functionName());
+        if (data->address())
+            map.insert(_("address"), data->address());
+        if (!data->condition().isEmpty())
+            map.insert(_("condition"), data->condition());
+        if (data->ignoreCount())
+            map.insert(_("ignorecount"), data->ignoreCount());
+        if (!data->threadSpec().isEmpty())
+            map.insert(_("threadspec"), data->threadSpec());
+        if (!data->isEnabled())
             map.insert(_("disabled"), _("1"));
-        if (data->useFullPath)
+        if (data->useFullPath())
             map.insert(_("usefullpath"), _("1"));
         list.append(map);
     }
@@ -186,75 +259,76 @@ void BreakHandler::loadBreakpoints()
     //qDebug() << "LOADING BREAKPOINTS...";
     QVariant value = debuggerCore()->sessionValue("Breakpoints");
     QList<QVariant> list = value.toList();
-    clear();
+    //clear();
     foreach (const QVariant &var, list) {
         const QMap<QString, QVariant> map = var.toMap();
         BreakpointData *data = new BreakpointData;
         QVariant v = map.value(_("filename"));
         if (v.isValid())
-            data->fileName = v.toString();
+            data->setFileName(v.toString());
         v = map.value(_("linenumber"));
         if (v.isValid())
-            data->lineNumber = v.toString().toInt();
+            data->setLineNumber(v.toString().toInt());
         v = map.value(_("condition"));
         if (v.isValid())
-            data->condition = v.toString().toLatin1();
+            data->setCondition(v.toString().toLatin1());
         v = map.value(_("address"));
         if (v.isValid())
-            data->address = v.toString().toULongLong();
+            data->setAddress(v.toString().toULongLong());
         v = map.value(_("ignorecount"));
         if (v.isValid())
-            data->ignoreCount = v.toString().toInt();
+            data->setIgnoreCount(v.toString().toInt());
         v = map.value(_("threadspec"));
         if (v.isValid())
-            data->threadSpec = v.toString().toLatin1();
+            data->setThreadSpec(v.toString().toLatin1());
         v = map.value(_("funcname"));
         if (v.isValid())
-            data->funcName = v.toString();
+            data->setFunctionName(v.toString());
         v = map.value(_("disabled"));
         if (v.isValid())
-            data->enabled = !v.toInt();
+            data->setEnabled(!v.toInt());
         v = map.value(_("usefullpath"));
         if (v.isValid())
-            data->useFullPath = bool(v.toInt());
+            data->setUseFullPath(bool(v.toInt()));
         v = map.value(_("type"));
         if (v.isValid())
-            data->type = BreakpointType(v.toInt());
-        data->setMarkerFileName(data->fileName);
-        data->setMarkerLineNumber(data->lineNumber);
-        append(data);
+            data->setType(BreakpointType(v.toInt()));
+        data->setMarkerFileName(data->fileName());
+        data->setMarkerLineNumber(data->lineNumber());
+        appendBreakpoint(data);
     }
     //qDebug() << "LOADED BREAKPOINTS" << this << list.size();
 }
 
 void BreakHandler::updateMarkers()
 {
-    for (int index = 0; index != size(); ++index)
-        updateMarker(at(index));
-    emit layoutChanged();
+    ConstIterator it = m_bp.constBegin(), et = m_bp.constEnd();
+    for ( ; it != et; ++it)
+        updateMarker(it.key());
 }
 
-void BreakHandler::updateMarker(BreakpointData * bp)
+void BreakHandler::updateMarker(BreakpointId id)
 {
-    BreakpointMarker *marker = m_markers.value(bp->id);
+    BreakpointData *data = m_bp.value(id);
+    QTC_ASSERT(data, return);
 
-    if (marker && (bp->m_markerFileName != marker->fileName()
-                || bp->m_markerLineNumber != marker->lineNumber())) {
-        removeMarker(bp);
+    BreakpointMarker *marker = m_markers.value(id);
+
+    if (marker && (data->m_markerFileName != marker->fileName()
+                || data->m_markerLineNumber != marker->lineNumber())) {
+        removeMarker(id);
         marker = 0;
     }
 
-    if (!marker && !bp->m_markerFileName.isEmpty() && bp->m_markerLineNumber > 0) {
-        marker = new BreakpointMarker(this, bp, bp->m_markerFileName, bp->m_markerLineNumber);
-        m_markers.insert(bp->id, marker);
+    if (!marker && !data->m_markerFileName.isEmpty() && data->m_markerLineNumber > 0) {
+        marker = new BreakpointMarker(id, data->m_markerFileName, data->m_markerLineNumber);
+        m_markers.insert(id, marker);
     }
-
-    if (marker)
-        marker->setPending(bp->pending);
 }
-void BreakHandler::removeMarker(BreakpointData * bp)
+
+void BreakHandler::removeMarker(BreakpointId id)
 {
-    delete m_markers.take(bp->id);
+    delete m_markers.take(id);
 }
 
 QVariant BreakHandler::headerData(int section,
@@ -270,45 +344,57 @@ QVariant BreakHandler::headerData(int section,
     return QVariant();
 }
 
+BreakpointId BreakHandler::findBreakpointByIndex(const QModelIndex &index) const
+{
+    int r = index.row();
+    ConstIterator it = m_bp.constBegin(), et = m_bp.constEnd();
+    for (int i = 0; it != et; ++it, ++i)
+        if (i == r)
+            return it.key();
+    return BreakpointId(-1);
+}
+
 QVariant BreakHandler::data(const QModelIndex &mi, int role) const
 {
     static const QString empty = QString(QLatin1Char('-'));
 
     QTC_ASSERT(mi.isValid(), return QVariant());
-    if (mi.row() >= size())
-        return QVariant();
-
-    BreakpointData *data = at(mi.row());
+    BreakpointId id = findBreakpointByIndex(mi);
+    BreakpointData *data = m_bp.value(id);
+    QTC_ASSERT(data, return QVariant());
+    BreakpointResponse *response = m_responses.value(id, 0);
+    QTC_ASSERT(response, return QVariant());
 
     switch (mi.column()) {
         case 0:
             if (role == Qt::DisplayRole) {
-                const QString str = data->bpNumber;
-                return str.isEmpty() ? empty : str;
+                return QString("%1 - %2").arg(id).arg(response->bpNumber);
             }
             if (role == Qt::DecorationRole) {
                 if (data->isWatchpoint())
                     return m_watchpointIcon;
-                if (!data->enabled)
+                if (!data->isEnabled())
                     return m_disabledBreakpointIcon;
-                return data->pending ? m_pendingBreakPointIcon : m_breakpointIcon;
+                return data->isPending() ? m_pendingBreakPointIcon : m_breakpointIcon;
             }
             break;
         case 1:
             if (role == Qt::DisplayRole) {
-                const QString str = data->pending ? data->funcName : data->bpFuncName;
+                const QString str = data->isPending()
+                    ? data->functionName() : response->bpFuncName;
                 return str.isEmpty() ? empty : str;
             }
             break;
         case 2:
             if (role == Qt::DisplayRole) {
-                QString str = data->pending ? data->fileName : data->bpFileName;
+                QString str = data->isPending()
+                    ? data->fileName() : response->bpFileName;
                 str = QFileInfo(str).fileName();
                 // FIXME: better?
                 //if (data->bpMultiple && str.isEmpty() && !data->markerFileName.isEmpty())
                 //    str = data->markerFileName;
                 str = str.isEmpty() ? empty : str;
-                if (data->useFullPath)
+                if (data->useFullPath())
                     str = QDir::toNativeSeparators(QLatin1String("/.../") + str);
                 return str;
             }
@@ -318,62 +404,139 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                 // FIXME: better?
                 //if (data->bpMultiple && str.isEmpty() && !data->markerFileName.isEmpty())
                 //    str = data->markerLineNumber;
-                const int nr = data->pending ? data->lineNumber : data->bpLineNumber;
+                const int nr = data->isPending()
+                    ? data->lineNumber() : response->bpLineNumber;
                 return nr ? QString::number(nr) : empty;
             }
             if (role == Qt::UserRole + 1)
-                return data->lineNumber;
+                return data->lineNumber();
             break;
         case 4:
             if (role == Qt::DisplayRole)
-                return data->pending ? data->condition : data->bpCondition;
+                return data->isPending() ? data->condition() : response->bpCondition;
             if (role == Qt::ToolTipRole)
                 return tr("Breakpoint will only be hit if this condition is met.");
             if (role == Qt::UserRole + 1)
-                return data->condition;
+                return data->condition();
             break;
         case 5:
             if (role == Qt::DisplayRole) {
-                const int ignoreCount = data->pending ? data->ignoreCount : data->bpIgnoreCount;
+                const int ignoreCount =
+                    data->isPending() ? data->ignoreCount() : response->bpIgnoreCount;
                 return ignoreCount ? QVariant(ignoreCount) : QVariant(QString());
             }
             if (role == Qt::ToolTipRole)
                 return tr("Breakpoint will only be hit after being ignored so many times.");
             if (role == Qt::UserRole + 1)
-                return data->ignoreCount;
+                return data->ignoreCount();
             break;
         case 6:
             if (role == Qt::DisplayRole) {
-                if (data->pending)
-                    return !data->threadSpec.isEmpty() ? data->threadSpec : tr("(all)");
+                if (data->isPending())
+                    return !data->threadSpec().isEmpty() ? data->threadSpec() : tr("(all)");
                 else
-                    return !data->bpThreadSpec.isEmpty() ? data->bpThreadSpec : tr("(all)");
+                    return !response->bpThreadSpec.isEmpty() ? response->bpThreadSpec : tr("(all)");
             }
             if (role == Qt::ToolTipRole)
                 return tr("Breakpoint will only be hit in the specified thread(s).");
             if (role == Qt::UserRole + 1)
-                return data->threadSpec;
+                return data->threadSpec();
             break;
         case 7:
             if (role == Qt::DisplayRole) {
                 QString displayValue;
-                const quint64 effectiveAddress
-                    = data->isWatchpoint() ? data->address : data->bpAddress;
-                if (effectiveAddress)
-                    displayValue += QString::fromAscii("0x%1").arg(effectiveAddress, 0, 16);
-                if (!data->bpState.isEmpty()) {
+                const quint64 address =
+                    data->isWatchpoint() ? data->address() : response->bpAddress;
+                if (address)
+                    displayValue += QString::fromAscii("0x%1").arg(address, 0, 16);
+                if (!response->bpState.isEmpty()) {
                     if (!displayValue.isEmpty())
                         displayValue += QLatin1Char(' ');
-                    displayValue += QString::fromAscii(data->bpState);
+                    displayValue += QString::fromAscii(response->bpState);
                 }
                 return displayValue;
             }
             break;
     }
     if (role == Qt::ToolTipRole)
-        return theDebuggerBoolSetting(UseToolTipsInBreakpointsView)
+        return debuggerCore()->boolSetting(UseToolTipsInBreakpointsView)
                 ? data->toToolTip() : QVariant();
+
     return QVariant();
+}
+
+#define GETTER(type, getter) \
+type BreakHandler::getter(BreakpointId id) const \
+{ \
+    BreakpointData *data = m_bp.value(id); \
+    QTC_ASSERT(data, return type()); \
+    return data->getter(); \
+}
+
+#define SETTER(type, setter) \
+void BreakHandler::setter(BreakpointId id, const type &value) \
+{ \
+    BreakpointData *data = m_bp.value(id); \
+    QTC_ASSERT(data, return); \
+    if (data->setter(value)) \
+        scheduleSynchronization(); \
+}
+
+#define PROPERTY(type, getter, setter) \
+    GETTER(type, getter) \
+    SETTER(type, setter)
+
+
+PROPERTY(bool, useFullPath, setUseFullPath)
+PROPERTY(QString, markerFileName, setMarkerFileName)
+PROPERTY(QString, fileName, setFileName)
+PROPERTY(QString, functionName, setFunctionName)
+PROPERTY(int, markerLineNumber, setMarkerLineNumber)
+PROPERTY(bool, isEnabled, setEnabled)
+PROPERTY(BreakpointType, type, setType)
+PROPERTY(BreakpointState, state, setState)
+PROPERTY(QByteArray, threadSpec, setThreadSpec)
+PROPERTY(QByteArray, condition, setCondition)
+PROPERTY(int, lineNumber, setLineNumber)
+PROPERTY(quint64, address, setAddress)
+
+DebuggerEngine *BreakHandler::engine(BreakpointId id) const
+{
+    BreakpointData *data = m_bp.value(id);
+    QTC_ASSERT(data, return 0);
+    return data->engine();
+}
+
+void BreakHandler::setEngine(BreakpointId id, DebuggerEngine *value)
+{
+    BreakpointData *data = m_bp.value(id);
+    QTC_ASSERT(data, return);
+    QTC_ASSERT(data->state() == BreakpointNew, /**/);
+    QTC_ASSERT(!data->engine(), return);
+    data->setEngine(value);
+    data->setState(BreakpointInsertRequested);
+    updateMarker(id);
+    scheduleSynchronization();
+}
+
+void BreakHandler::ackCondition(BreakpointId id)
+{
+    BreakpointData *data = m_bp.value(id);
+    BreakpointResponse *response = m_responses[id];
+    QTC_ASSERT(data, return);
+    QTC_ASSERT(response, return);
+    response->bpCondition = data->condition();
+    updateMarker(id);
+}
+
+void BreakHandler::ackIgnoreCount(BreakpointId id)
+{
+    BreakpointData *data = m_bp.value(id);
+    BreakpointResponse *response = m_responses[id];
+    QTC_ASSERT(data, return);
+    QTC_ASSERT(response, return);
+    response->bpIgnoreCount = data->ignoreCount();
+    updateMarker(id);
 }
 
 Qt::ItemFlags BreakHandler::flags(const QModelIndex &index) const
@@ -386,209 +549,281 @@ Qt::ItemFlags BreakHandler::flags(const QModelIndex &index) const
 //    }
 }
 
-void BreakHandler::reinsertBreakpoint(BreakpointData *data)
+void BreakHandler::removeBreakpoint(BreakpointId id)
 {
-    // FIXME: Use some more direct method?
-    appendBreakpoint(data->clone());
-    removeBreakpoint(data);
-    synchronizeBreakpoints();
-    emit layoutChanged();
-}
-
-void BreakHandler::append(BreakpointData *data)
-{
-    m_bp.append(data);
-}
-
-Breakpoints BreakHandler::takeRemovedBreakpoints()
-{
-    foreach(BreakpointData *bp, m_removed) {
-        removeMarker(bp);
-    }
-    Breakpoints result = m_removed;
-    m_removed.clear();
-    return result;
-}
-
-Breakpoints BreakHandler::takeEnabledBreakpoints()
-{
-    Breakpoints result = m_enabled;
-    m_enabled.clear();
-    return result;
-}
-
-Breakpoints BreakHandler::takeDisabledBreakpoints()
-{
-    Breakpoints result = m_disabled;
-    m_disabled.clear();
-    return result;
-}
-
-void BreakHandler::removeBreakpointHelper(int index)
-{
-    BreakpointData *data = at(index);
-    QTC_ASSERT(data, return);
-    m_bp.removeAt(index);
-    removeMarker(data);
-    m_removed.append(data);
-}
-
-void BreakHandler::removeBreakpoint(int index)
-{
-    if (index < 0 || index >= size())
-        return;
-    removeBreakpointHelper(index);
-    emit layoutChanged();
-}
-
-void BreakHandler::removeBreakpoint(BreakpointData *data)
-{
-    removeBreakpointHelper(indexOf(data));
-    emit layoutChanged();
-}
-
-void BreakHandler::toggleBreakpointEnabled(BreakpointData *data)
-{
-    QTC_ASSERT(data, return);
-    data->enabled = !data->enabled;
-    if (data->enabled) {
-        m_enabled.append(data);
-        m_disabled.removeAll(data);
+    BreakpointData *data = m_bp.value(id);
+    if (data->state() == BreakpointInserted) {
+        qDebug() << "MARK AS CHANGED: " << id;
+        data->m_state = BreakpointRemoveRequested;
+        QTC_ASSERT(data->engine(), return);
+        debuggerCore()->synchronizeBreakpoints();
+    } else if (data->state() == BreakpointNew) {
+        data->m_state = BreakpointDead;
+        cleanupBreakpoint(id);
     } else {
-        m_enabled.removeAll(data);
-        m_disabled.append(data);
+        qDebug() << "CANNOT REMOVE IN STATE " << data->state();
     }
-    removeMarker(data); // Force icon update.
-    updateMarker(data);
-    emit layoutChanged();
-    synchronizeBreakpoints();
-}
-
-void BreakHandler::toggleBreakpointEnabled(const QString &fileName, int lineNumber)
-{
-    BreakpointData *data = findBreakpoint(fileName, lineNumber);
-    toggleBreakpointEnabled(data);
 }
 
 void BreakHandler::appendBreakpoint(BreakpointData *data)
 {
-    append(data);
-    emit layoutChanged();
-    saveBreakpoints();  // FIXME: remove?
-    updateMarkers();
-}
+    // Ok to be not thread-safe. The order does not matter and only the gui
+    // produces authoritative ids.
+    static quint64 currentId = 0;
 
-void BreakHandler::removeAllBreakpoints()
-{
-    for (int index = size(); --index >= 0;)
-        removeBreakpointHelper(index);
-    emit layoutChanged();
-    updateMarkers();
-}
-
-BreakpointData *BreakHandler::findBreakpoint(quint64 address) const
-{
-    foreach (BreakpointData *data, m_bp)
-        if (data->address == address)
-            return data;
-    return 0;
-}
-
-BreakpointData *BreakHandler::findBreakpoint(const QString &fileName,
-    int lineNumber, bool useMarkerPosition)
-{
-    foreach (BreakpointData *data, m_bp)
-        if (data->isLocatedAt(fileName, lineNumber, useMarkerPosition))
-            return data;
-    return 0;
+    BreakpointId id(++currentId);
+    m_bp.insert(id, data);
+    m_responses.insert(id, new BreakpointResponse);
+    scheduleSynchronization();
 }
 
 void BreakHandler::toggleBreakpoint(const QString &fileName, int lineNumber,
                                     quint64 address /* = 0 */)
 {
-    BreakpointData *data = 0;
+    BreakpointId id(-1);
 
     if (address) {
-        data = findBreakpoint(address);
+        id = findBreakpointByAddress(address);
     } else {
-        data = findBreakpoint(fileName, lineNumber, true);
-        if (!data)
-            data = findBreakpoint(fileName, lineNumber, false);
+        id = findBreakpointByFileAndLine(fileName, lineNumber, true);
+        if (id == BreakpointId(-1))
+            id = findBreakpointByFileAndLine(fileName, lineNumber, false);
     }
 
-    if (data) {
-        removeBreakpoint(data);
+    if (id != BreakpointId(-1)) {
+        removeBreakpoint(id);
     } else {
-        data = new BreakpointData;
+        BreakpointData *data = new BreakpointData;
         if (address) {
-            data->address = address;
+            data->setAddress(address);
         } else {
-            data->fileName = fileName;
-            data->lineNumber = lineNumber;
+            data->setFileName(fileName);
+            data->setLineNumber(lineNumber);
         }
-        data->pending = true;
         data->setMarkerFileName(fileName);
         data->setMarkerLineNumber(lineNumber);
         appendBreakpoint(data);
     }
-    synchronizeBreakpoints();
+    debuggerCore()->synchronizeBreakpoints();
 }
 
 void BreakHandler::saveSessionData()
 {
-    // FIXME QTC_ASSERT(m_engine->isSessionEngine(), return);
     saveBreakpoints();
 }
 
 void BreakHandler::loadSessionData()
 {
-    // FIXME QTC_ASSERT(m_engine->isSessionEngine(), return);
-    foreach (BreakpointData *bp, m_bp) {
-        delete m_markers.take(bp->id);
-    }
+    qDeleteAll(m_responses);
+    m_responses.clear();
     qDeleteAll(m_bp);
     m_bp.clear();
+    qDeleteAll(m_markers);
+    m_markers.clear();
     loadBreakpoints();
-    updateMarkers();
 }
 
 void BreakHandler::breakByFunction(const QString &functionName)
 {
     // One breakpoint per function is enough for now. This does not handle
     // combinations of multiple conditions and ignore counts, though.
-    for (int index = size(); --index >= 0;) {
-        const BreakpointData *data = at(index);
+    ConstIterator it = m_bp.constBegin(), et = m_bp.constEnd();
+    for ( ; it != et; ++it) {
+        const BreakpointData *data = it.value();
         QTC_ASSERT(data, break);
-        if (data->funcName == functionName && data->condition.isEmpty()
-                && data->ignoreCount == 0)
+        if (data->functionName() == functionName
+                && data->condition().isEmpty()
+                && data->ignoreCount() == 0)
             return;
     }
     BreakpointData *data = new BreakpointData;
-    data->funcName = functionName;
-    append(data);
-    //saveBreakpoints();
+    data->setType(BreakpointByFunction);
+    data->setFunctionName(functionName);
+    appendBreakpoint(data);
+}
+
+QIcon BreakHandler::icon(BreakpointId id) const
+{
+    //if (!m_handler->isActive())
+    //    return m_handler->emptyIcon();
+    const BreakpointData *data = m_bp.value(id);
+    QTC_ASSERT(data, return pendingBreakPointIcon());
+    //if (!isActive())
+    //    return emptyIcon();
+    switch (data->state()) {
+    case BreakpointInserted:
+        return breakpointIcon();
+    default:
+        return pendingBreakPointIcon();
+    }
+}
+
+void BreakHandler::scheduleSynchronization()
+{
+    if (m_syncTimerId == -1)
+        m_syncTimerId = startTimer(10);
+}
+
+void BreakHandler::timerEvent(QTimerEvent *event)
+{
+    QTC_ASSERT(event->timerId() == m_syncTimerId, return);
+    killTimer(m_syncTimerId);
+    m_syncTimerId = -1;
+    //qDebug() << "BREAKPOINT SYNCRONIZATION STARTED";
+    debuggerCore()->synchronizeBreakpoints();
     updateMarkers();
+    emit layoutChanged();
+    saveBreakpoints();  // FIXME: remove?
 }
 
-bool BreakHandler::isActive() const
+void BreakHandler::gotoLocation(BreakpointId id) const
 {
-    return true; // FIXME m_engine->isActive();
+    BreakpointData *data = m_bp.value(id);
+    QTC_ASSERT(data, return);
+    debuggerCore()->gotoLocation(
+        data->fileName(), data->lineNumber(), false);
 }
 
-int BreakHandler::size() const
+void BreakHandler::updateLineNumberFromMarker(BreakpointId id, int lineNumber)
 {
-    return m_bp.size();
+    BreakpointData *data = m_bp.value(id);
+    QTC_ASSERT(data, return);
+    //if (data->markerLineNumber == lineNumber)
+    //    return;
+    if (data->markerLineNumber() != lineNumber) {
+        data->setMarkerLineNumber(lineNumber);
+        // FIXME: Should we tell gdb about the change?
+        // Ignore it for now, as we would require re-compilation
+        // and debugger re-start anyway.
+        //if (0 && data->bpLineNumber) {
+        //    if (!data->bpNumber.trimmed().isEmpty()) {
+        //        data->pending = true;
+        //    }
+        //}
+    }
+    // Ignore updates to the "real" line number while the debugger is
+    // running, as this can be triggered by moving the breakpoint to
+    // the next line that generated code.
+    // FIXME: Do we need yet another data member?
+    BreakpointResponse *response = m_responses[id];
+    QTC_ASSERT(response, return);
+    if (response->bpNumber == 0) {
+        data->setLineNumber(lineNumber);
+        updateMarker(id);
+    }
 }
 
-int BreakHandler::indexOf(BreakpointData *data)
+BreakpointIds BreakHandler::allBreakpointIds() const
 {
-    return m_bp.indexOf(data);
+    BreakpointIds ids;
+    ConstIterator it = m_bp.constBegin(), et = m_bp.constEnd();
+    for ( ; it != et; ++it)
+        ids.append(it.key());
+    return ids;
 }
 
-void BreakHandler::synchronizeBreakpoints()
+BreakpointIds BreakHandler::unclaimedBreakpointIds() const
 {
-    emit breakpointSynchronizationRequested();
+    return engineBreakpointIds(0);
 }
+
+BreakpointIds BreakHandler::engineBreakpointIds(DebuggerEngine *engine) const
+{
+    BreakpointIds ids;
+    ConstIterator it = m_bp.constBegin(), et = m_bp.constEnd();
+    for ( ; it != et; ++it)
+        if (it.value()->engine() == engine)
+            ids.append(it.key());
+    return ids;
+}
+
+void BreakHandler::notifyBreakpointInsertOk(BreakpointId id)
+{
+    QTC_ASSERT(breakHandler()->state(id)== BreakpointInsertProceeding, /**/);
+    breakHandler()->setState(id, BreakpointInserted);
+}
+
+void BreakHandler::notifyBreakpointInsertFailed(BreakpointId id)
+{
+    QTC_ASSERT(breakHandler()->state(id)== BreakpointInsertProceeding, /**/);
+    breakHandler()->setState(id, BreakpointDead);
+}
+
+void BreakHandler::notifyBreakpointRemoveOk(BreakpointId id)
+{
+    QTC_ASSERT(state(id) == BreakpointRemoveProceeding, /**/);
+    setState(id, BreakpointDead);
+    cleanupBreakpoint(id);
+}
+
+void BreakHandler::notifyBreakpointRemoveFailed(BreakpointId id)
+{
+    QTC_ASSERT(state(id) == BreakpointRemoveProceeding, /**/);
+    setState(id, BreakpointDead);
+    cleanupBreakpoint(id);
+}
+
+void BreakHandler::notifyBreakpointChangeOk(BreakpointId id)
+{
+    QTC_ASSERT(state(id) == BreakpointChangeProceeding, /**/);
+    setState(id, BreakpointInserted);
+}
+
+void BreakHandler::notifyBreakpointChangeFailed(BreakpointId id)
+{
+    QTC_ASSERT(state(id) == BreakpointChangeProceeding, /**/);
+    setState(id, BreakpointDead);
+}
+
+void BreakHandler::notifyBreakpointReleased(BreakpointId id)
+{
+    //QTC_ASSERT(state(id) == BreakpointChangeProceeding, /**/);
+    setState(id, BreakpointNew);
+    m_bp.value(id)->setEngine(0);
+    delete m_markers.take(id);
+    *m_responses[id] = BreakpointResponse();
+    updateMarker(id);
+}
+
+void BreakHandler::cleanupBreakpoint(BreakpointId id)
+{
+    QTC_ASSERT(state(id) == BreakpointDead, /**/);
+    delete m_markers.take(id);
+    delete m_bp.take(id);
+    delete m_responses.take(id);
+}
+
+BreakpointResponse BreakHandler::response(BreakpointId id) const
+{
+    BreakpointResponse *response = m_responses[id];
+    return response ? *response : BreakpointResponse();
+}
+
+void BreakHandler::setResponse(BreakpointId id, const BreakpointResponse &data)
+{
+    delete m_responses.take(id);
+    m_responses[id] = new BreakpointResponse(data);
+    updateMarker(id);
+}
+#if 0
+void BreakHandler::notifyBreakpointAdjusted(BreakpointId id)
+{
+    QTC_ASSERT(state(id)== BreakpointChangeProceeding, /**/);
+    bp->bpNumber      = rbp.bpNumber;
+    bp->bpCondition   = rbp.bpCondition;
+    bp->bpIgnoreCount = rbp.bpIgnoreCount;
+    bp->bpFileName    = rbp.bpFileName;
+    bp->bpFullName    = rbp.bpFullName;
+    bp->bpLineNumber  = rbp.bpLineNumber;
+    bp->bpCorrectedLineNumber = rbp.bpCorrectedLineNumber;
+    bp->bpThreadSpec  = rbp.bpThreadSpec;
+    bp->bpFuncName    = rbp.bpFuncName;
+    bp->bpAddress     = rbp.bpAddress;
+    bp->bpMultiple    = rbp.bpMultiple;
+    bp->bpEnabled     = rbp.bpEnabled;
+    setState(id, BreakpointOk);
+}
+#endif
 
 } // namespace Internal
 } // namespace Debugger

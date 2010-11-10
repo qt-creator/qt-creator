@@ -273,7 +273,7 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
         qDebug() << "IT'S A POINTER";
 #        endif
 
-        if (theDebuggerBoolSetting(AutoDerefPointers)) {
+        if (debuggerCore()->boolSetting(AutoDerefPointers)) {
             // Try automatic dereferentiation
             data.exp = "(*(" + data.exp + "))";
             data.type = data.type + "."; // FIXME: fragile HACK to avoid recursion
@@ -658,7 +658,7 @@ void GdbEngine::handleStackListLocalsClassic(const GdbResponse &response)
     // handleStop1, which passes on the frame as cookie. The whole stack
     // is not known at this point.
     QStringList uninitializedVariables;
-    if (theDebuggerAction(UseCodeModel)->isChecked()) {
+    if (debuggerCore()->action(UseCodeModel)->isChecked()) {
         const StackFrame frame =
             qVariantCanConvert<Debugger::Internal::StackFrame>(response.cookie)
                 ? qVariantValue<Debugger::Internal::StackFrame>(response.cookie)

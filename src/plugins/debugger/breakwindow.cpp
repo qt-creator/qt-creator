@@ -55,32 +55,6 @@
 namespace Debugger {
 namespace Internal {
 
-static BreakHandler *breakHandler()
-{
-    return debuggerCore()->breakHandler();
-}
-
-static BreakpointData *breakpointAt(int index)
-{
-    BreakHandler *handler = breakHandler();
-    QTC_ASSERT(handler, return 0);
-    return handler->at(index);
-}
-
-static void synchronizeBreakpoints()
-{
-    BreakHandler *handler = breakHandler();
-    QTC_ASSERT(handler, return);
-    handler->synchronizeBreakpoints();
-}
-
-static void appendBreakpoint(BreakpointData *data)
-{
-    BreakHandler *handler = breakHandler();
-    QTC_ASSERT(handler, return);
-    handler->appendBreakpoint(data);
-}
-
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -114,19 +88,20 @@ BreakpointDialog::BreakpointDialog(QWidget *parent) : QDialog(parent)
 
 bool BreakpointDialog::showDialog(BreakpointData *data)
 {
-    pathChooserFileName->setPath(data->fileName);
-    lineEditLineNumber->setText(QString::number(data->lineNumber));
-    lineEditFunction->setText(data->funcName);
-    lineEditCondition->setText(QString::fromUtf8(data->condition));
-    lineEditIgnoreCount->setText(QString::number(data->ignoreCount));
-    checkBoxUseFullPath->setChecked(data->useFullPath);
-    lineEditThreadSpec->setText(QString::fromUtf8(data->threadSpec));
-    if (data->address)
-        lineEditAddress->setText(QString::fromAscii("0x%1").arg(data->address, 0, 16));
+    pathChooserFileName->setPath(data->fileName());
+    lineEditLineNumber->setText(QString::number(data->lineNumber()));
+    lineEditFunction->setText(data->functionName());
+    lineEditCondition->setText(QString::fromUtf8(data->condition()));
+    lineEditIgnoreCount->setText(QString::number(data->ignoreCount()));
+    checkBoxUseFullPath->setChecked(data->useFullPath());
+    lineEditThreadSpec->setText(QString::fromUtf8(data->threadSpec()));
+    const quint64 address = data->address();
+    if (address)
+        lineEditAddress->setText(QString::fromAscii("0x%1").arg(address, 0, 16));
     int initialType = 0;
-    if (!data->funcName.isEmpty())
-        initialType = data->funcName == QLatin1String("main") ? 2 : 1;
-    if (data->address)
+    if (!data->functionName().isEmpty())
+        initialType = data->functionName() == QLatin1String("main") ? 2 : 1;
+    if (address)
         initialType = 3;
     typeChanged(initialType);
 
@@ -137,26 +112,22 @@ bool BreakpointDialog::showDialog(BreakpointData *data)
     const int newLineNumber = lineEditLineNumber->text().toInt();
     const bool newUseFullPath  = checkBoxUseFullPath->isChecked();
     const quint64 newAddress = lineEditAddress->text().toULongLong(0, 0);
-    const QString newFunc = lineEditFunction->text();
+    const QString newFunction = lineEditFunction->text();
     const QString newFileName = pathChooserFileName->path();
     const QByteArray newCondition = lineEditCondition->text().toUtf8();
     const int newIgnoreCount = lineEditIgnoreCount->text().toInt();
     const QByteArray newThreadSpec = lineEditThreadSpec->text().toUtf8();
-    if (newLineNumber == data->lineNumber && newUseFullPath == data->useFullPath
-        && newAddress == data->address && newFunc == data->funcName
-        && newFileName == data->fileName && newCondition == data->condition
-        && newIgnoreCount == data->ignoreCount && newThreadSpec == data->threadSpec)
-        return false; // Unchanged -> Cancel.
-
-    data->address = newAddress;
-    data->funcName = newFunc;
-    data->useFullPath = newUseFullPath;
-    data->fileName = newFileName;
-    data->lineNumber = newLineNumber;
-    data->condition = newCondition;
-    data->ignoreCount = newIgnoreCount;
-    data->threadSpec = newThreadSpec;
-    return true;
+   
+    bool result = false; 
+    result |= data->setAddress(newAddress);
+    result |= data->setFunctionName(newFunction);
+    result |= data->setUseFullPath(newUseFullPath);
+    result |= data->setFileName(newFileName);
+    result |= data->setLineNumber(newLineNumber);
+    result |= data->setCondition(newCondition);
+    result |= data->setIgnoreCount(newIgnoreCount);
+    result |= data->setThreadSpec(newThreadSpec);
+    return result;
 }
 
 void BreakpointDialog::typeChanged(int index)
@@ -189,7 +160,7 @@ BreakWindow::BreakWindow(QWidget *parent)
 {
     m_alwaysResizeColumnsToContents = false;
 
-    QAction *act = theDebuggerAction(UseAlternatingRowColors);
+    QAction *act = debuggerCore()->action(UseAlternatingRowColors);
     setFrameStyle(QFrame::NoFrame);
     setAttribute(Qt::WA_MacShowFocusRect, false);
     setWindowTitle(tr("Breakpoints"));
@@ -200,11 +171,11 @@ BreakWindow::BreakWindow(QWidget *parent)
     setSelectionMode(QAbstractItemView::ExtendedSelection);
 
     connect(this, SIGNAL(activated(QModelIndex)),
-        this, SLOT(rowActivated(QModelIndex)));
+        SLOT(rowActivated(QModelIndex)));
     connect(act, SIGNAL(toggled(bool)),
-        this, SLOT(setAlternatingRowColorsHelper(bool)));
-    connect(theDebuggerAction(UseAddressInBreakpointsView), SIGNAL(toggled(bool)),
-        this, SLOT(showAddressColumn(bool)));
+        SLOT(setAlternatingRowColorsHelper(bool)));
+    connect(debuggerCore()->action(UseAddressInBreakpointsView), SIGNAL(toggled(bool)),
+        SLOT(showAddressColumn(bool)));
 }
 
 BreakWindow::~BreakWindow()
@@ -264,6 +235,7 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     const int rowCount = model()->rowCount();
     const unsigned engineCapabilities = BreakOnThrowAndCatchCapability;
+    BreakHandler *handler = breakHandler();
     // FIXME BP:    model()->data(QModelIndex(), EngineCapabilitiesRole).toUInt();
 
     QAction *deleteAction = new QAction(tr("Delete Breakpoint"), &menu);
@@ -274,14 +246,14 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     // Delete by file: Find indices of breakpoints of the same file.
     QAction *deleteByFileAction = 0;
-    QList<int> breakPointsOfFile;
+    QList<QModelIndex> breakPointsOfFile;
     if (indexUnderMouse.isValid()) {
         const QModelIndex index = indexUnderMouse.sibling(indexUnderMouse.row(), 2);
         const QString file = model()->data(index).toString();
         if (!file.isEmpty()) {
             for (int i = 0; i < rowCount; i++)
                 if (model()->data(model()->index(i, 2)).toString() == file)
-                    breakPointsOfFile.push_back(i);
+                    breakPointsOfFile.push_back(model()->index(i, 2));
             if (breakPointsOfFile.size() > 1) {
                 deleteByFileAction =
                     new QAction(tr("Delete Breakpoints of \"%1\"").arg(file), &menu);
@@ -321,8 +293,9 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QModelIndex idx0 = (si.size() ? si.front() : QModelIndex());
     QModelIndex idx2 = idx0.sibling(idx0.row(), 2);
-    BreakpointData *data = breakpointAt(idx0.row());
-    bool enabled = si.isEmpty() || (data && data->enabled);
+    const BreakpointId id = handler->findBreakpointByIndex(idx0);
+
+    bool enabled = si.isEmpty() || handler->isEnabled(id);
 
     const QString str5 = si.size() > 1
         ? enabled
@@ -348,7 +321,7 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(toggleEnabledAction);
     menu.addSeparator();
     menu.addAction(deleteAllAction);
-    menu.addAction(deleteByFileAction);
+    //menu.addAction(deleteByFileAction);
     menu.addSeparator();
     menu.addAction(synchronizeAction);
     if (engineCapabilities & BreakOnThrowAndCatchCapability) {
@@ -357,21 +330,21 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
         menu.addAction(breakAtCatchAction);
     }
     menu.addSeparator();
-    menu.addAction(theDebuggerAction(UseToolTipsInBreakpointsView));
-    menu.addAction(theDebuggerAction(UseAddressInBreakpointsView));
+    menu.addAction(debuggerCore()->action(UseToolTipsInBreakpointsView));
+    menu.addAction(debuggerCore()->action(UseAddressInBreakpointsView));
     menu.addAction(adjustColumnAction);
     menu.addAction(alwaysAdjustAction);
     menu.addSeparator();
-    menu.addAction(theDebuggerAction(SettingsDialog));
+    menu.addAction(debuggerCore()->action(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
 
     if (act == deleteAction) {
         deleteBreakpoints(si);
     } else if (act == deleteAllAction) {
-        QList<int> allRows;
+        QList<QModelIndex> allRows;
         for (int i = 0; i < rowCount; i++)
-            allRows.push_back(i);
+            allRows.push_back(model()->index(i, 0));
         deleteBreakpoints(allRows);
     }  else if (act == deleteByFileAction)
         deleteBreakpoints(breakPointsOfFile);
@@ -384,81 +357,62 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     else if (act == associateBreakpointAction)
         associateBreakpoint(si, threadId);
     else if (act == synchronizeAction)
-        synchronizeBreakpoints();
+        ; //synchronizeBreakpoints();
     else if (act == toggleEnabledAction)
         setBreakpointsEnabled(si, !enabled);
     else if (act == addBreakpointAction)
         addBreakpoint();
     else if (act == breakAtThrowAction) {
+        // FIXME: Use the proper breakpoint type instead.
         BreakpointData *data = new BreakpointData;
-        data->funcName = BreakpointData::throwFunction;
-        appendBreakpoint(data);
+        data->setFunctionName(BreakpointData::throwFunction);
+        handler->appendBreakpoint(data);
     } else if (act == breakAtCatchAction) {
+        // FIXME: Use the proper breakpoint type instead.
         BreakpointData *data = new BreakpointData;
-        data->funcName = BreakpointData::catchFunction;
-        appendBreakpoint(data);
+        data->setFunctionName(BreakpointData::catchFunction);
+        handler->appendBreakpoint(data);
     }
 }
 
 void BreakWindow::setBreakpointsEnabled(const QModelIndexList &list, bool enabled)
 {
-    foreach (const QModelIndex &index, list) {
-        BreakpointData *data = breakpointAt(index.row());
-        QTC_ASSERT(data, continue);
-        data->enabled = enabled;
-    }
-    synchronizeBreakpoints();
+    BreakHandler *handler = breakHandler();
+    foreach (const QModelIndex &index, list)
+        handler->setEnabled(handler->findBreakpointByIndex(index), enabled);
 }
 
 void BreakWindow::setBreakpointsFullPath(const QModelIndexList &list, bool fullpath)
 {
-    foreach (const QModelIndex &index, list) {
-        BreakpointData *data = breakpointAt(index.row());
-        QTC_ASSERT(data, continue);
-        data->useFullPath = fullpath;
-    }
-    synchronizeBreakpoints();
-}
-
-void BreakWindow::deleteBreakpoints(const QModelIndexList &indexes)
-{
-    QTC_ASSERT(!indexes.isEmpty(), return);
-    QList<int> list;
-    foreach (const QModelIndex &index, indexes)
-        list.append(index.row());
-    deleteBreakpoints(list);
-}
-
-void BreakWindow::deleteBreakpoints(QList<int> list)
-{
-    if (list.empty())
-        return;
     BreakHandler *handler = breakHandler();
-    const int firstRow = list.front();
-    qSort(list.begin(), list.end());
-    for (int i = list.size(); --i >= 0; ) {
-        BreakpointData *data = breakpointAt(i);
-        QTC_ASSERT(data, continue);
-        handler->removeBreakpoint(data);
-    }
-
-    const int row = qMin(firstRow, model()->rowCount() - 1);
-    if (row >= 0)
-        setCurrentIndex(model()->index(row, 0));
-    synchronizeBreakpoints();
+    foreach (const QModelIndex &index, list)
+       handler->setUseFullPath(handler->findBreakpointByIndex(index), fullpath);
 }
 
-bool BreakWindow::editBreakpoint(BreakpointData *data, QWidget *parent)
+void BreakWindow::deleteBreakpoints(const QModelIndexList &list)
+{
+    BreakHandler *handler = breakHandler();
+    foreach (const QModelIndex &index, list)
+       handler->removeBreakpoint(handler->findBreakpointByIndex(index));
+}
+
+static bool editBreakpointInternal(BreakpointData *data, QWidget *parent)
 {
     BreakpointDialog dialog(parent);
     return dialog.showDialog(data);
 }
 
+bool BreakWindow::editBreakpoint(BreakpointId id, QWidget *parent)
+{
+    BreakpointDialog dialog(parent);
+    return dialog.showDialog(breakHandler()->breakpointById(id));
+}
+
 void BreakWindow::addBreakpoint()
 {
     BreakpointData *data = new BreakpointData();
-    if (editBreakpoint(data, this))
-        appendBreakpoint(data);
+    if (editBreakpointInternal(data, this))
+        breakHandler()->appendBreakpoint(data);
     else
         delete data;
 }
@@ -467,11 +421,11 @@ void BreakWindow::editBreakpoints(const QModelIndexList &list)
 {
     QTC_ASSERT(!list.isEmpty(), return);
 
+    BreakHandler *handler = breakHandler();
+    const BreakpointId id = handler->findBreakpointByIndex(list.at(0));
+
     if (list.size() == 1) {
-        BreakpointData *data = breakpointAt(0); 
-        QTC_ASSERT(data, return);
-        if (editBreakpoint(data, this))
-            breakHandler()->reinsertBreakpoint(data);
+        editBreakpoint(id, this);
         return;
     }
 
@@ -483,13 +437,9 @@ void BreakWindow::editBreakpoints(const QModelIndexList &list)
     ui.lineEditIgnoreCount->setValidator(
         new QIntValidator(0, 2147483647, ui.lineEditIgnoreCount));
 
-    const QModelIndex idx = list.front();
-    BreakpointData *data = breakpointAt(idx.row()); 
-    QTC_ASSERT(data, return);
-
-    const QString oldCondition = QString::fromLatin1(data->condition);
-    const QString oldIgnoreCount = QString::number(data->ignoreCount);
-    const QString oldThreadSpec = QString::fromLatin1(data->threadSpec);
+    const QString oldCondition = QString::fromLatin1(handler->condition(id));
+    const QString oldIgnoreCount = QString::number(handler->ignoreCount(id));
+    const QString oldThreadSpec = QString::fromLatin1(handler->threadSpec(id));
 
     ui.lineEditCondition->setText(oldCondition);
     ui.lineEditIgnoreCount->setText(oldIgnoreCount);
@@ -508,27 +458,19 @@ void BreakWindow::editBreakpoints(const QModelIndexList &list)
         return;
 
     foreach (const QModelIndex &idx, list) {
-        BreakpointData *data = breakpointAt(idx.row()); 
-        QTC_ASSERT(data, continue);
-        data->condition = newCondition.toLatin1();
-        data->ignoreCount = newIgnoreCount.toInt();
-        data->threadSpec = newThreadSpec.toLatin1();
-        data->uiDirty = true;
+        BreakpointId id = handler->findBreakpointByIndex(idx);
+        handler->setCondition(id, newCondition.toLatin1());
+        handler->setIgnoreCount(id, newIgnoreCount.toInt());
+        handler->setThreadSpec(id, newThreadSpec.toLatin1());
     }
-    synchronizeBreakpoints();
 }
 
 void BreakWindow::associateBreakpoint(const QModelIndexList &list, int threadId)
 {
-    QByteArray condition;
-    if (threadId != -1)
-        condition = QByteArray::number(threadId);
-    foreach (const QModelIndex &index, list) {
-        BreakpointData *data = breakpointAt(index.row()); 
-        QTC_ASSERT(data, continue);
-        data->condition = condition;
-    }
-    synchronizeBreakpoints();
+    BreakHandler *handler = breakHandler();
+    QByteArray spec = QByteArray::number(threadId);
+    foreach (const QModelIndex &index, list)
+        handler->setThreadSpec(handler->findBreakpointByIndex(index), spec);
 }
 
 void BreakWindow::resizeColumnsToContents()
@@ -548,10 +490,7 @@ void BreakWindow::setAlwaysResizeColumnsToContents(bool on)
 
 void BreakWindow::rowActivated(const QModelIndex &index)
 {
-    BreakpointData *data = breakpointAt(index.row());
-    QTC_ASSERT(data, return);
-    debuggerCore()->gotoLocation(data->markerFileName(),
-        data->markerLineNumber(), false);
+    breakHandler()->gotoLocation(breakHandler()->findBreakpointByIndex(index));
 }
 
 } // namespace Internal

@@ -31,7 +31,7 @@
 #include "logwindow.h"
 
 #include "debuggeractions.h"
-#include "debuggerconstants.h"
+#include "debuggercore.h"
 
 #include <QtCore/QDebug>
 
@@ -188,15 +188,15 @@ public:
 
     void contextMenuEvent(QContextMenuEvent *ev)
     {
-        theDebuggerAction(ExecuteCommand)->setData(textCursor().block().text());
+        debuggerCore()->action(ExecuteCommand)->setData(textCursor().block().text());
         QMenu *menu = createStandardContextMenu();
         menu->addAction(m_clearContentsAction);
         menu->addAction(m_saveContentsAction); // X11 clipboard is unreliable for long texts
-        menu->addAction(theDebuggerAction(ExecuteCommand));
-        menu->addAction(theDebuggerAction(LogTimeStamps));
-        menu->addAction(theDebuggerAction(VerboseLog));
+        menu->addAction(debuggerCore()->action(ExecuteCommand));
+        menu->addAction(debuggerCore()->action(LogTimeStamps));
+        menu->addAction(debuggerCore()->action(VerboseLog));
         menu->addSeparator();
-        menu->addAction(theDebuggerAction(SettingsDialog));
+        menu->addAction(debuggerCore()->action(SettingsDialog));
         menu->exec(ev->globalPos());
         delete menu;
     }
@@ -213,7 +213,7 @@ public:
                     if (c.unicode() >= 32 && c.unicode() < 128)
                         cleanCmd.append(c);
                 if (!cleanCmd.isEmpty()) {
-                    theDebuggerAction(ExecuteCommand)->trigger(cleanCmd);
+                    debuggerCore()->action(ExecuteCommand)->trigger(cleanCmd);
                     m_history.append(cleanCmd);
                 }
             }

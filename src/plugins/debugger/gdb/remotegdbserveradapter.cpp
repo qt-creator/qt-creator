@@ -28,9 +28,11 @@
 **************************************************************************/
 
 #include "remotegdbserveradapter.h"
-#include "gdbmi.h"
+
+#include "debuggercore.h"
 #include "debuggerstringutils.h"
 #include "gdbengine.h"
+#include "gdbmi.h"
 
 #include <utils/qtcassert.h>
 #include <utils/fancymainwindow.h>
@@ -132,7 +134,7 @@ void RemoteGdbServerAdapter::uploadProcError(QProcess::ProcessError error)
     }
 
     showMessage(msg, StatusBar);
-    DebuggerEngine::showMessageBox(QMessageBox::Critical, tr("Error"), msg);
+    showMessageBox(QMessageBox::Critical, tr("Error"), msg);
 }
 
 void RemoteGdbServerAdapter::readUploadStandardOutput()

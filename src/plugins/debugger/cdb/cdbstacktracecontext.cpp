@@ -73,7 +73,7 @@ CdbStackTraceContext::createSymbolGroup(const CdbCore::ComInterfaces & /* cif */
     // Exclude uninitialized variables if desired
     QStringList uninitializedVariables;
     const CdbCore::StackFrame &frame = stackFrameAt(index);
-    if (theDebuggerAction(UseCodeModel)->isChecked())
+    if (debuggerCore()->action(UseCodeModel)->isChecked())
         getUninitializedVariables(debuggerCore()->cppCodeModelSnapshot(),
             frame.function, frame.fileName, frame.line, &uninitializedVariables);
     if (debug)

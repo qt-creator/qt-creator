@@ -31,6 +31,7 @@
 #include "gdbmi.h"
 #include "gdbengine.h"
 #include "debuggeractions.h"
+#include "debuggercore.h"
 #include "debuggerstringutils.h"
 
 #include <utils/qtcassert.h>
@@ -96,7 +97,7 @@ void AbstractPlainGdbAdapter::handleExecRun(const GdbResponse &response)
         showMessage(_("INFERIOR STARTED"));
         showMessage(msgInferiorSetupOk(), StatusBar);
         // FIXME: That's the wrong place for it.
-        if (theDebuggerBoolSetting(EnableReverseDebugging))
+        if (debuggerCore()->boolSetting(EnableReverseDebugging))
             m_engine->postCommand("target record");
     } else {
         QString msg = fromLocalEncoding(response.data.findChild("msg").data());

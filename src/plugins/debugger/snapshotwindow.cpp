@@ -31,7 +31,7 @@
 #include "snapshothandler.h"
 
 #include "debuggeractions.h"
-#include "debuggerconstants.h"
+#include "debuggercore.h"
 #include "debuggerrunner.h"
 
 #include <utils/qtcassert.h>
@@ -42,15 +42,6 @@
 #include <QtGui/QHeaderView>
 #include <QtGui/QMenu>
 #include <QtGui/QKeyEvent>
-
-static QModelIndexList normalizeIndexes(const QModelIndexList &list)
-{
-    QModelIndexList res;
-    foreach (const QModelIndex &idx, list)
-        if (idx.column() == 0)
-            res.append(idx);
-    return res;
-}
 
 
 namespace Debugger {
@@ -67,7 +58,7 @@ SnapshotWindow::SnapshotWindow(SnapshotHandler *handler)
 {
     m_snapshotHandler = handler;
 
-    QAction *act = theDebuggerAction(UseAlternatingRowColors);
+    QAction *act = debuggerCore()->action(UseAlternatingRowColors);
     setWindowTitle(tr("Snapshots"));
     setAttribute(Qt::WA_MacShowFocusRect, false);
     setFrameStyle(QFrame::NoFrame);
@@ -96,8 +87,10 @@ void SnapshotWindow::keyPressEvent(QKeyEvent *ev)
         QModelIndexList si = sm->selectedIndexes();
         if (si.isEmpty())
             si.append(currentIndex().sibling(currentIndex().row(), 0));
-        foreach (const QModelIndex &idx, normalizeIndexes(si))
-            removeSnapshot(idx.row());
+
+        foreach (const QModelIndex &idx, si)
+            if (idx.column() == 0)
+                removeSnapshot(idx.row());
     }
     QTreeView::keyPressEvent(ev);
 }
@@ -127,7 +120,7 @@ void SnapshotWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     menu.addSeparator();
 
-    menu.addAction(theDebuggerAction(SettingsDialog));
+    menu.addAction(debuggerCore()->action(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
 

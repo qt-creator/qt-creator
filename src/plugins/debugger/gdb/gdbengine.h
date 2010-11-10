@@ -305,25 +305,29 @@ private: ////////// Gdb Output, State & Capability Handling //////////
 private: ////////// Inferior Management //////////
 
     // This should be always the last call in a function.
-    Q_SLOT virtual void attemptBreakpointSynchronization();
-    bool acceptsBreakpoint(const Internal::BreakpointData *br);
+    //Q_SLOT virtual void attemptBreakpointSynchronization();
+    bool stateAcceptsBreakpointChanges() const;
+    bool acceptsBreakpoint(BreakpointId id) const;
+    void insertBreakpoint(BreakpointId id);
+    void removeBreakpoint(BreakpointId id);
+    void changeBreakpoint(BreakpointId id);
 
-    virtual void executeStep();
-    virtual void executeStepOut();
-    virtual void executeNext();
-    virtual void executeStepI();
-    virtual void executeNextI();
+    void executeStep();
+    void executeStepOut();
+    void executeNext();
+    void executeStepI();
+    void executeNextI();
 
     void continueInferiorInternal();
     void autoContinueInferior();
-    virtual void continueInferior();
-    virtual void interruptInferior();
+    void continueInferior();
+    void interruptInferior();
     void interruptInferiorTemporarily();
 
-    virtual void executeRunToLine(const QString &fileName, int lineNumber);
-    virtual void executeRunToFunction(const QString &functionName);
-    virtual void executeJumpToLine(const QString &fileName, int lineNumber);
-    virtual void executeReturn();
+    void executeRunToLine(const QString &fileName, int lineNumber);
+    void executeRunToFunction(const QString &functionName);
+    void executeJumpToLine(const QString &fileName, int lineNumber);
+    void executeReturn();
 
     void handleExecuteContinue(const GdbResponse &response);
     void handleExecuteStep(const GdbResponse &response);
@@ -340,8 +344,8 @@ private: ////////// Inferior Management //////////
 
 private: ////////// View & Data Stuff //////////
 
-    virtual void selectThread(int index);
-    virtual void activateFrame(int index);
+    void selectThread(int index);
+    void activateFrame(int index);
 
     //
     // Breakpoint specific stuff
@@ -356,21 +360,20 @@ private: ////////// View & Data Stuff //////////
     void handleBreakInfo(const GdbResponse &response);
     void handleWatchInsert(const GdbResponse &response);
     void handleInfoLine(const GdbResponse &response);
-    void extractDataFromInfoBreak(const QString &output, BreakpointData *data);
-    void setBreakpointDataFromOutput(BreakpointData *data, const GdbMi &bkpt);
-    QByteArray breakpointLocation(const BreakpointData *data);
-    void sendInsertBreakpoint(int index);
+    void extractDataFromInfoBreak(const QString &output, BreakpointId);
+    void setBreakpointDataFromOutput(BreakpointId id, const GdbMi &bkpt);
+    QByteArray breakpointLocation(BreakpointId id);
     QString breakLocation(const QString &file) const;
     void reloadBreakListInternal();
 
     //
     // Modules specific stuff
     //
-    virtual void loadSymbols(const QString &moduleName);
-    virtual void loadAllSymbols();
-    virtual void requestModuleSymbols(const QString &moduleName);
-    virtual void reloadModules();
-    virtual void examineModules();
+    void loadSymbols(const QString &moduleName);
+    void loadAllSymbols();
+    void requestModuleSymbols(const QString &moduleName);
+    void reloadModules();
+    void examineModules();
     void reloadModulesInternal();
     void handleModulesList(const GdbResponse &response);
 
@@ -385,15 +388,15 @@ private: ////////// View & Data Stuff //////////
     //
     // Register specific stuff
     //
-    Q_SLOT virtual void reloadRegisters();
-    virtual void setRegisterValue(int nr, const QString &value);
+    Q_SLOT void reloadRegisters();
+    void setRegisterValue(int nr, const QString &value);
     void handleRegisterListNames(const GdbResponse &response);
     void handleRegisterListValues(const GdbResponse &response);
 
     //
     // Disassembler specific stuff
     //
-    virtual void fetchDisassembler(DisassemblerViewAgent *agent);
+    void fetchDisassembler(DisassemblerViewAgent *agent);
     void fetchDisassemblerByAddress(const DisassemblerAgentCookie &ac,
         bool useMixedMode);
     void fetchDisassemblerByCli(const DisassemblerAgentCookie &ac,
@@ -408,7 +411,7 @@ private: ////////// View & Data Stuff //////////
     //
     // Source file specific stuff
     //
-    virtual void reloadSourceFiles();
+    void reloadSourceFiles();
     void reloadSourceFilesInternal();
     void handleQuerySources(const GdbResponse &response);
 

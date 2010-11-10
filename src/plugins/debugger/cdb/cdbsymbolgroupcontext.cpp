@@ -319,7 +319,7 @@ CdbSymbolGroupContext::CdbSymbolGroupContext(const QString &prefix,
     CdbCore::SymbolGroupContext(prefix, symbolGroup,
                                 dumper->comInterfaces()->debugDataSpaces,
                                 uninitializedVariables),
-    m_useDumpers(dumper->isEnabled() && theDebuggerBoolSetting(UseDebuggingHelpers)),
+    m_useDumpers(dumper->isEnabled() && debuggerCore()->boolSetting(UseDebuggingHelpers)),
     m_dumper(dumper)
 {
     setShadowedNameFormat(WatchData::shadowedNameFormat());

@@ -45,18 +45,14 @@ class BreakpointMarker : public TextEditor::BaseTextMark
 {
     Q_OBJECT
 public:
-    BreakpointMarker(BreakHandler *handler, BreakpointData *data,
-            const QString &fileName, int lineNumber);
+    BreakpointMarker(BreakpointId id, const QString &fileName, int lineNumber);
     ~BreakpointMarker();
     QIcon icon() const;
-    void setPending(bool pending);
     void updateBlock(const QTextBlock &);
     void removedFromEditor();
     void updateLineNumber(int lineNumber);
 private:
-    BreakHandler *m_handler;
-    BreakpointData *m_data;
-    bool m_pending;
+    BreakpointId m_id;
     friend class BreakHandler;
 };
 

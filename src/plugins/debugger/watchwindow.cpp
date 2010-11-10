@@ -140,7 +140,7 @@ WatchWindow::WatchWindow(Type type, QWidget *parent)
 {
     m_grabbing = false;
 
-    QAction *act = theDebuggerAction(UseAlternatingRowColors);
+    QAction *act = debuggerCore()->action(UseAlternatingRowColors);
     setFrameStyle(QFrame::NoFrame);
     setAttribute(Qt::WA_MacShowFocusRect, false);
     setWindowTitle(tr("Locals and Watchers"));
@@ -343,29 +343,29 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
                 .arg(pointerValue, 0, 16), &menu);
     menu.addSeparator();
 
-    QAction *actSetWatchPointAtVariableAddress = 0;
-    QAction *actSetWatchPointAtPointerValue = 0;
+    QAction *actSetWatchpointAtVariableAddress = 0;
+    QAction *actSetWatchpointAtPointerValue = 0;
     const bool canSetWatchpoint = engineCapabilities & WatchpointCapability;
     if (canSetWatchpoint && address) {
-        actSetWatchPointAtVariableAddress =
+        actSetWatchpointAtVariableAddress =
             new QAction(tr("Add Watchpoint at Object's Address (0x%1)")
                 .arg(address, 0, 16), &menu);
-        actSetWatchPointAtVariableAddress->
+        actSetWatchpointAtVariableAddress->
             setChecked(mi0.data(LocalsIsWatchpointAtAddressRole).toBool());
         if (createPointerActions) {
-            actSetWatchPointAtPointerValue =
+            actSetWatchpointAtPointerValue =
                 new QAction(tr("Add Watchpoint at Referenced Address (0x%1)")
                     .arg(pointerValue, 0, 16), &menu);
-            actSetWatchPointAtPointerValue->setCheckable(true);
-            actSetWatchPointAtPointerValue->
+            actSetWatchpointAtPointerValue->setCheckable(true);
+            actSetWatchpointAtPointerValue->
                 setChecked(mi0.data(LocalsIsWatchpointAtPointerValueRole).toBool());
         }
     } else {
-        actSetWatchPointAtVariableAddress =
+        actSetWatchpointAtVariableAddress =
             new QAction(tr("At Watchpoint"), &menu);
-        actSetWatchPointAtVariableAddress->setEnabled(false);
+        actSetWatchpointAtVariableAddress->setEnabled(false);
     }
-    actSetWatchPointAtVariableAddress->setToolTip(
+    actSetWatchpointAtVariableAddress->setToolTip(
         tr("Setting a watchpoint on an address will cause the program "
            "to stop when the data at the address it modified."));
 
@@ -395,17 +395,17 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     if (actOpenMemoryEditAtPointerValue)
         menu.addAction(actOpenMemoryEditAtPointerValue);
     menu.addAction(actOpenMemoryEditor);
-    menu.addAction(actSetWatchPointAtVariableAddress);
-    if (actSetWatchPointAtPointerValue)
-        menu.addAction(actSetWatchPointAtPointerValue);
+    menu.addAction(actSetWatchpointAtVariableAddress);
+    if (actSetWatchpointAtPointerValue)
+        menu.addAction(actSetWatchpointAtPointerValue);
     menu.addSeparator();
 
-    menu.addAction(theDebuggerAction(UseDebuggingHelpers));
-    menu.addAction(theDebuggerAction(UseToolTipsInLocalsView));
-    menu.addAction(theDebuggerAction(AutoDerefPointers));
-    menu.addAction(theDebuggerAction(ShowStdNamespace));
-    menu.addAction(theDebuggerAction(ShowQtNamespace));
-    menu.addAction(theDebuggerAction(SortStructMembers));
+    menu.addAction(debuggerCore()->action(UseDebuggingHelpers));
+    menu.addAction(debuggerCore()->action(UseToolTipsInLocalsView));
+    menu.addAction(debuggerCore()->action(AutoDerefPointers));
+    menu.addAction(debuggerCore()->action(ShowStdNamespace));
+    menu.addAction(debuggerCore()->action(ShowQtNamespace));
+    menu.addAction(debuggerCore()->action(SortStructMembers));
 
     QAction *actAdjustColumnWidths =
         menu.addAction(tr("Adjust Column Widths to Contents"));
@@ -418,13 +418,13 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actClearCodeModelSnapshot
         = new QAction(tr("Refresh Code Model Snapshot"), &menu);
     actClearCodeModelSnapshot->setEnabled(actionsEnabled
-        && theDebuggerAction(UseCodeModel)->isChecked());
+        && debuggerCore()->action(UseCodeModel)->isChecked());
     menu.addAction(actClearCodeModelSnapshot);
     QAction *actShowInEditor
         = new QAction(tr("Show View Contents in Editor"), &menu);
     actShowInEditor->setEnabled(actionsEnabled);
     menu.addAction(actShowInEditor);
-    menu.addAction(theDebuggerAction(SettingsDialog));
+    menu.addAction(debuggerCore()->action(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
     if (act == 0)
@@ -444,9 +444,9 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         AddressDialog dialog;
         if (dialog.exec() == QDialog::Accepted)
             (void) new MemoryViewAgent(currentEngine(), dialog.address());
-    } else if (act == actSetWatchPointAtVariableAddress) {
+    } else if (act == actSetWatchpointAtVariableAddress) {
         setWatchpoint(address);
-    } else if (act == actSetWatchPointAtPointerValue) {
+    } else if (act == actSetWatchpointAtPointerValue) {
         setWatchpoint(pointerValue);
     } else if (act == actSelectWidgetToWatch) {
         grabMouse(Qt::CrossCursor);
@@ -574,18 +574,7 @@ QVariant WatchWindow::modelData(int role, const QModelIndex &index)
 
 void WatchWindow::setWatchpoint(quint64 address)
 {
-    DebuggerEngine *engine = currentEngine();
-    BreakHandler *handler = engine->breakHandler();
-    const int index = handler->findWatchPointIndexByAddress(address);
-    if (index == -1) {
-        BreakpointData *data = new BreakpointData;
-        data->type = Watchpoint;
-        data->address = address;
-        handler->appendBreakpoint(data);
-    } else {
-        handler->removeBreakpoint(index);
-    }
-    engine->attemptBreakpointSynchronization();
+    breakHandler()->setWatchpointByAddress(address);
 }
 
 } // namespace Internal

@@ -56,7 +56,7 @@ namespace Internal {
 ModulesWindow::ModulesWindow(QWidget *parent)
   : QTreeView(parent), m_alwaysResizeColumnsToContents(false)
 {
-    QAction *act = theDebuggerAction(UseAlternatingRowColors);
+    QAction *act = debuggerCore()->action(UseAlternatingRowColors);
     setWindowTitle(tr("Modules"));
     setAttribute(Qt::WA_MacShowFocusRect, false);
     setSortingEnabled(true);
@@ -146,7 +146,7 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
     actAlwaysAdjustColumnWidth->setCheckable(true);
     actAlwaysAdjustColumnWidth->setChecked(m_alwaysResizeColumnsToContents);
     menu.addSeparator();
-    menu.addAction(theDebuggerAction(SettingsDialog));
+    menu.addAction(debuggerCore()->action(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
 

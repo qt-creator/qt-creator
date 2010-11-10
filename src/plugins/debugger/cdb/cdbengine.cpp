@@ -183,7 +183,7 @@ DebuggerEngine *CdbEngine::create(const DebuggerStartParameters &sp,
 
 void  CdbEnginePrivate::updateCodeLevel()
 {
-    const CdbCore::CoreEngine::CodeLevel cl = theDebuggerBoolSetting(OperateByInstruction) ?
+    const CdbCore::CoreEngine::CodeLevel cl = debuggerCore()->boolSetting(OperateByInstruction) ?
                                               CdbCore::CoreEngine::CodeLevelAssembly : CdbCore::CoreEngine::CodeLevelSource;
     setCodeLevel(cl);
 }
@@ -1174,7 +1174,7 @@ void CdbEngine::activateFrame(int frameIndex)
         if (showAssembler) { // Assembly code: Clean out model and force instruction mode.
             watchHandler()->beginCycle();
             watchHandler()->endCycle();
-            QAction *assemblerAction = theDebuggerAction(OperateByInstruction);
+            QAction *assemblerAction = debuggerCore()->action(OperateByInstruction);
             if (!assemblerAction->isChecked())
                 assemblerAction->trigger();
             success = true;

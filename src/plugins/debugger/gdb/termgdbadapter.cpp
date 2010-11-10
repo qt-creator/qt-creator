@@ -32,6 +32,7 @@
 #include "gdbengine.h"
 #include "procinterrupt.h"
 #include "debuggerstringutils.h"
+#include "debuggercore.h"
 
 #include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
@@ -199,7 +200,7 @@ void TermGdbAdapter::interruptInferior()
 
 void TermGdbAdapter::stubMessage(const QString &msg, bool)
 {
-    DebuggerEngine::showMessageBox(QMessageBox::Critical, tr("Debugger Error"), msg);
+    showMessageBox(QMessageBox::Critical, tr("Debugger Error"), msg);
 }
 
 void TermGdbAdapter::stubExited()

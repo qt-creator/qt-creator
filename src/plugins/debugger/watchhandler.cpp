@@ -383,9 +383,9 @@ QString WatchModel::displayType(const WatchData &data) const
     if (!data.displayedType.isEmpty())
         return data.displayedType;
     QString type = niceTypeHelper(data.type);
-    if (!theDebuggerBoolSetting(ShowStdNamespace))
+    if (!debuggerCore()->boolSetting(ShowStdNamespace))
         type.remove(QLatin1String("std::"));
-    if (!theDebuggerBoolSetting(ShowQtNamespace)) {
+    if (!debuggerCore()->boolSetting(ShowQtNamespace)) {
         const QString qtNamespace = QString::fromLatin1(engine()->qtNamespace());
         if (!qtNamespace.isEmpty())
             type.remove(qtNamespace);
@@ -742,7 +742,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
                 default: break;
             }  // switch editrole column
         case Qt::ToolTipRole:
-            return theDebuggerBoolSetting(UseToolTipsInLocalsView)
+            return debuggerCore()->boolSetting(UseToolTipsInLocalsView)
                 ? data.toToolTip() : QVariant();
 
         case Qt::ForegroundRole: {
@@ -800,7 +800,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
 
         case LocalsIsWatchpointAtAddressRole:
             return engine()->breakHandler()
-                ->watchPointAt(data.coreAddress());
+                ->hasWatchpointAt(data.coreAddress());
 
         case LocalsAddressRole:
             return data.coreAddress();
@@ -808,7 +808,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
         case LocalsIsWatchpointAtPointerValueRole:
             if (isPointerType(data.type))
                 return engine()->breakHandler()
-                    ->watchPointAt(pointerValue(data.value));
+                    ->hasWatchpointAt(pointerValue(data.value));
             return false;
 
         default:
@@ -966,7 +966,7 @@ bool watchItemSorter(const WatchItem *item1, const WatchItem *item2)
 
 static int findInsertPosition(const QList<WatchItem *> &list, const WatchItem *item)
 {
-    sortWatchDataAlphabetically = theDebuggerBoolSetting(SortStructMembers);
+    sortWatchDataAlphabetically = debuggerCore()->boolSetting(SortStructMembers);
     const QList<WatchItem *>::const_iterator it =
         qLowerBound(list.begin(), list.end(), item, watchItemSorter);
     return it - list.begin();
@@ -1053,7 +1053,7 @@ void WatchModel::insertBulkData(const QList<WatchData> &list)
     }
     QModelIndex index = watchIndex(parent);
 
-    sortWatchDataAlphabetically = theDebuggerBoolSetting(SortStructMembers);
+    sortWatchDataAlphabetically = debuggerCore()->boolSetting(SortStructMembers);
     QMap<WatchDataSortKey, WatchData> newList;
     typedef QMap<WatchDataSortKey, WatchData>::iterator Iterator;
     foreach (const WatchItem &data, list)
@@ -1185,11 +1185,11 @@ WatchHandler::WatchHandler(DebuggerEngine *engine)
     m_watchers = new WatchModel(this, WatchersWatch);
     m_tooltips = new WatchModel(this, TooltipsWatch);
 
-    connect(theDebuggerAction(ShowStdNamespace),
+    connect(debuggerCore()->action(ShowStdNamespace),
         SIGNAL(triggered()), this, SLOT(emitAllChanged()));
-    connect(theDebuggerAction(ShowQtNamespace),
+    connect(debuggerCore()->action(ShowQtNamespace),
         SIGNAL(triggered()), this, SLOT(emitAllChanged()));
-    connect(theDebuggerAction(SortStructMembers),
+    connect(debuggerCore()->action(SortStructMembers),
         SIGNAL(triggered()), this, SLOT(emitAllChanged()));
 }
 

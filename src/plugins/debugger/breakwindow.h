@@ -30,12 +30,12 @@
 #ifndef DEBUGGER_BREAKWINDOW_H
 #define DEBUGGER_BREAKWINDOW_H
 
+#include "breakhandler.h"
+
 #include <QtGui/QTreeView>
 
 namespace Debugger {
 namespace Internal {
-
-class BreakpointData;
 
 class BreakWindow : public QTreeView
 {
@@ -45,7 +45,7 @@ public:
     explicit BreakWindow(QWidget *parent = 0);
     ~BreakWindow();
 
-    static bool editBreakpoint(BreakpointData *data, QWidget *parent = 0);
+    static bool editBreakpoint(BreakpointId id, QWidget *parent = 0);
 
 private slots:
     void resizeColumnsToContents();
@@ -62,7 +62,6 @@ private:
     void mouseDoubleClickEvent(QMouseEvent *ev);
 
     void deleteBreakpoints(const QModelIndexList &list);
-    void deleteBreakpoints(QList<int> rows);
     void addBreakpoint();
     void editBreakpoints(const QModelIndexList &list);
     void associateBreakpoint(const QModelIndexList &list, int thread);

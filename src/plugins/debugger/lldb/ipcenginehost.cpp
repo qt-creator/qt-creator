@@ -475,7 +475,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 SET_NATIVE_BYTE_ORDER(s);
                 quint64 id;
                 s >> id;
-                notifyAddBreakpointOk(id);
+                notifyBreakpointInsertOk(id);
             }
         case IPCEngineGuest::NotifyAddBreakpointFailed:
             {
@@ -483,7 +483,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 SET_NATIVE_BYTE_ORDER(s);
                 quint64 id;
                 s >> id;
-                notifyAddBreakpointFailed(id);
+                notifyBreakpointInsertFailed(id);
             }
         case IPCEngineGuest::NotifyRemoveBreakpointOk:
             {
@@ -491,7 +491,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 SET_NATIVE_BYTE_ORDER(s);
                 quint64 id;
                 s >> id;
-                notifyRemoveBreakpointOk(id);
+                notifyBreakpointRemoveOk(id);
             }
         case IPCEngineGuest::NotifyRemoveBreakpointFailed:
             {
@@ -499,7 +499,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 SET_NATIVE_BYTE_ORDER(s);
                 quint64 id;
                 s >> id;
-                notifyRemoveBreakpointFailed(id);
+                notifyBreakpointRemoveFailed(id);
             }
         case IPCEngineGuest::NotifyChangeBreakpointOk:
             {
@@ -507,7 +507,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 SET_NATIVE_BYTE_ORDER(s);
                 quint64 id;
                 s >> id;
-                notifyChangeBreakpointOk(id);
+                notifyBreakpointChangeOk(id);
             }
         case IPCEngineGuest::NotifyChangeBreakpointFailed:
             {
@@ -515,7 +515,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 SET_NATIVE_BYTE_ORDER(s);
                 quint64 id;
                 s >> id;
-                notifyChangeBreakpointFailed(id);
+                notifyBreakpointChangeFailed(id);
             }
         case IPCEngineGuest::NotifyBreakpointAdjusted:
             {
@@ -523,7 +523,8 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 SET_NATIVE_BYTE_ORDER(s);
                 BreakpointData d;
                 s >> d;
-                notifyBreakpointAdjusted(d);
+                qDebug() << "FIXME";
+                //notifyBreakpointAdjusted(d);
             }
     }
 }

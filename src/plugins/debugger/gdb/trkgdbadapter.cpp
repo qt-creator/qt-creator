@@ -38,6 +38,7 @@
 #include "registerhandler.h"
 #include "threadshandler.h"
 #include "debuggeractions.h"
+#include "debuggercore.h"
 #include "debuggerstringutils.h"
 #include "watchutils.h"
 #ifndef STANDALONE_RUNNER
@@ -107,9 +108,9 @@ TrkGdbAdapter::TrkGdbAdapter(GdbEngine *engine) :
 #endif
     m_gdbServerName = _("127.0.0.1:%1").arg(2222 + portOffset);
 
-    setVerbose(theDebuggerBoolSetting(VerboseLog));
+    setVerbose(debuggerCore()->boolSetting(VerboseLog));
 
-    connect(theDebuggerAction(VerboseLog), SIGNAL(valueChanged(QVariant)),
+    connect(debuggerCore()->action(VerboseLog), SIGNAL(valueChanged(QVariant)),
         this, SLOT(setVerbose(QVariant)));
 }
 

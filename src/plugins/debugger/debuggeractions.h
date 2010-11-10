@@ -34,8 +34,6 @@
 #include <QtCore/QMap>
 
 QT_BEGIN_NAMESPACE
-class QAction;
-class QActionGroup;
 class QSettings;
 QT_END_NAMESPACE
 
@@ -48,34 +46,22 @@ namespace Internal {
 
 class DebuggerSettings : public QObject
 {
-    Q_OBJECT
+    Q_OBJECT // For tr().
 public:
-    typedef QMultiMap<QString, int> GdbBinaryToolChainMap;
-
-    explicit DebuggerSettings(QObject *parent = 0);
+    explicit DebuggerSettings(QSettings *setting);
     ~DebuggerSettings();
-
-    GdbBinaryToolChainMap gdbBinaryToolChainMap() const;
-    void setGdbBinaryToolChainMap(const GdbBinaryToolChainMap &map);
 
     void insertItem(int code, Utils::SavedAction *item);
     Utils::SavedAction *item(int code) const;
 
     QString dump() const;
 
-    static DebuggerSettings *instance();
-
-public slots:
-    void readSettings(const QSettings *settings);
-    void writeSettings(QSettings *settings) const;
+    void readSettings();
+    void writeSettings() const;
 
 private:
-    void readGdbBinarySettings(const QSettings *settings);
-    void writeGdbBinarySettings(QSettings *settings) const;
-
     QHash<int, Utils::SavedAction *> m_items;
-    GdbBinaryToolChainMap m_gdbBinaryToolChainMap;
-    bool m_gdbBinariesChanged;
+    QSettings *m_settings;
 };
 
 ///////////////////////////////////////////////////////////
@@ -146,13 +132,6 @@ enum DebuggerActionCode
     BreakOnThrow,
     BreakOnCatch
 };
-
-// singleton access
-Utils::SavedAction *theDebuggerAction(int code);
-
-// convenience
-bool theDebuggerBoolSetting(int code);
-QString theDebuggerStringSetting(int code);
 
 } // namespace Internal
 } // namespace Debugger

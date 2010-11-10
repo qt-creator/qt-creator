@@ -47,12 +47,12 @@ QDataStream &operator<<(QDataStream& stream, const StackFrame& frame);
 QDataStream &operator>>(QDataStream& stream, StackFrame &frame);
 QDataStream &operator<<(QDataStream& stream, const StackFrames& frames);
 QDataStream &operator>>(QDataStream& stream, StackFrames &frames);
-QDataStream &operator<<(QDataStream& stream, const BreakpointData &bps);
-QDataStream &operator>>(QDataStream& stream, BreakpointData &bps);
-QDataStream &operator<<(QDataStream& stream, const WatchData &bps);
-QDataStream &operator>>(QDataStream& stream, WatchData &bps);
-QDataStream &operator<<(QDataStream& stream, const WatchData &bps);
-QDataStream &operator>>(QDataStream& stream, WatchData &bps);
+QDataStream &operator<<(QDataStream& stream, const BreakpointData &data);
+QDataStream &operator>>(QDataStream& stream, BreakpointData &data);
+QDataStream &operator<<(QDataStream& stream, const BreakpointResponse &data);
+QDataStream &operator>>(QDataStream& stream, BreakpointResponse &data);
+QDataStream &operator<<(QDataStream& stream, const WatchData &data);
+QDataStream &operator>>(QDataStream& stream, WatchData &data);
 
 } // namespace Internal
 } // namespace Debugger

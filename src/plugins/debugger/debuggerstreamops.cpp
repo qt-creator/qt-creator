@@ -134,53 +134,61 @@ QDataStream &operator>>(QDataStream &stream, StackFrames &frames)
     return stream;
 }
 
-QDataStream &operator<<(QDataStream &stream, const BreakpointData &s)
+QDataStream &operator<<(QDataStream &stream, const BreakpointResponse &s)
 {
-    stream << s.fileName;
-    stream << s.condition;
-    stream << (quint64)s.ignoreCount;
-    stream << (quint64)s.lineNumber;
-    stream << s.address;
-    stream << s.funcName;
-    stream << s.useFullPath;
-
     stream << s.bpNumber;
     stream << s.bpCondition;
     stream << s.bpIgnoreCount;
     stream << s.bpFileName;
     stream << s.bpFullName;
     stream << s.bpLineNumber;
-    stream << s.bpCorrectedLineNumber;
+    //stream << s.bpCorrectedLineNumber;
     stream << s.bpThreadSpec;
     stream << s.bpFuncName;
     stream << s.bpAddress;
-
     return stream;
 }
 
-QDataStream &operator>>(QDataStream &stream, BreakpointData &s)
+QDataStream &operator>>(QDataStream &stream, BreakpointResponse &s)
 {
-    quint64 t;
-    stream >> s.fileName;
-    stream >> s.condition;
-    stream >> t;
-    s.ignoreCount = t;
-    stream >> t;
-    s.lineNumber = t;
-    stream >> s.address;
-    stream >> s.funcName;
-    stream >> s.useFullPath;
-
     stream >> s.bpNumber;
     stream >> s.bpCondition;
     stream >> s.bpIgnoreCount;
     stream >> s.bpFileName;
     stream >> s.bpFullName;
     stream >> s.bpLineNumber;
-    stream >> s.bpCorrectedLineNumber;
+    //stream >> s.bpCorrectedLineNumber;
     stream >> s.bpThreadSpec;
     stream >> s.bpFuncName;
     stream >> s.bpAddress;
+    return stream;
+}
+
+QDataStream &operator<<(QDataStream &stream, const BreakpointData &s)
+{
+    stream << s.fileName();
+    stream << s.condition();
+    stream << quint64(s.ignoreCount());
+    stream << quint64(s.lineNumber());
+    stream << quint64(s.address());
+    stream << s.functionName();
+    stream << s.useFullPath();
+    return stream;
+}
+
+QDataStream &operator>>(QDataStream &stream, BreakpointData &s)
+{
+    quint64 t;
+    QString str;
+    QByteArray ba;
+    bool b;
+    stream >> str; s.setFileName(str);
+    stream >> ba; s.setCondition(ba);
+    stream >> t; s.setIgnoreCount(t);
+    stream >> t; s.setLineNumber(t);
+    stream >> t; s.setAddress(t);
+    stream >> str; s.setFunctionName(str);
+    stream >> b; s.setUseFullPath(b);
     return stream;
 }
 

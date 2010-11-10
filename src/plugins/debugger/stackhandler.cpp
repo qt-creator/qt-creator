@@ -31,6 +31,7 @@
 
 #include "debuggeractions.h"
 #include "debuggeragents.h"
+#include "debuggercore.h"
 #include "debuggerengine.h"
 
 #include <utils/qtcassert.h>
@@ -54,7 +55,7 @@ StackHandler::StackHandler()
 {
     m_currentIndex = 0;
     m_canExpand = false;
-    connect(theDebuggerAction(OperateByInstruction), SIGNAL(triggered()),
+    connect(debuggerCore()->action(OperateByInstruction), SIGNAL(triggered()),
         this, SLOT(resetModel()));
 }
 
@@ -142,7 +143,7 @@ Qt::ItemFlags StackHandler::flags(const QModelIndex &index) const
         return QAbstractTableModel::flags(index);
     const StackFrame &frame = m_stackFrames.at(index.row());
     const bool isValid = (frame.isUsable() && !frame.function.isEmpty())
-        || theDebuggerBoolSetting(OperateByInstruction);
+        || debuggerCore()->boolSetting(OperateByInstruction);
     return isValid ? QAbstractTableModel::flags(index) : Qt::ItemFlags(0);
 }
 

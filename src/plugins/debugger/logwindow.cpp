@@ -30,7 +30,7 @@
 #include "logwindow.h"
 
 #include "debuggeractions.h"
-#include "debuggerconstants.h"
+#include "debuggercore.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
@@ -198,12 +198,12 @@ public:
         menu->addAction(m_clearContentsAction);
         menu->addAction(m_saveContentsAction); // X11 clipboard is unreliable for long texts
         addContextActions(menu);
-        theDebuggerAction(ExecuteCommand)->setData(textCursor().block().text());
-        menu->addAction(theDebuggerAction(ExecuteCommand));
-        menu->addAction(theDebuggerAction(LogTimeStamps));
-        menu->addAction(theDebuggerAction(VerboseLog));
+        debuggerCore()->action(ExecuteCommand)->setData(textCursor().block().text());
+        menu->addAction(debuggerCore()->action(ExecuteCommand));
+        menu->addAction(debuggerCore()->action(LogTimeStamps));
+        menu->addAction(debuggerCore()->action(VerboseLog));
         menu->addSeparator();
-        menu->addAction(theDebuggerAction(SettingsDialog));
+        menu->addAction(debuggerCore()->action(SettingsDialog));
         menu->exec(ev->globalPos());
         delete menu;
     }
@@ -248,7 +248,7 @@ private:
     void keyPressEvent(QKeyEvent *ev)
     {
         if (ev->modifiers() == Qt::ControlModifier && ev->key() == Qt::Key_Return)
-            theDebuggerAction(ExecuteCommand)->trigger(textCursor().block().text());
+            debuggerCore()->action(ExecuteCommand)->trigger(textCursor().block().text());
         else if (ev->modifiers() == Qt::ControlModifier && ev->key() == Qt::Key_R)
             emit clearContentsRequested();
         else
@@ -276,7 +276,7 @@ private:
 
     void addContextActions(QMenu *menu)
     {
-       menu->addAction(theDebuggerAction(ExecuteCommand));
+       menu->addAction(debuggerCore()->action(ExecuteCommand));
     }
 
     void focusInEvent(QFocusEvent *ev)
@@ -393,7 +393,7 @@ void LogWindow::showOutput(int channel, const QString &output)
     cursor.movePosition(QTextCursor::End);
     bool atEnd = oldCursor.position() == cursor.position();
 
-    if (theDebuggerBoolSetting(LogTimeStamps))
+    if (debuggerCore()->boolSetting(LogTimeStamps))
         m_combinedText->appendPlainText(charForChannel(LogTime) + logTimeStamp());
     foreach (QString line, output.split('\n')) {
         // FIXME: QTextEdit asserts on really long lines...
@@ -415,7 +415,7 @@ void LogWindow::showOutput(int channel, const QString &output)
 void LogWindow::showInput(int channel, const QString &input)
 {
     Q_UNUSED(channel)
-    if (theDebuggerBoolSetting(LogTimeStamps))
+    if (debuggerCore()->boolSetting(LogTimeStamps))
         m_inputText->appendPlainText(logTimeStamp());
     m_inputText->appendPlainText(input);
     QTextCursor cursor = m_inputText->textCursor();

@@ -50,88 +50,86 @@ namespace Internal {
 const char *BreakpointData::throwFunction = "throw";
 const char *BreakpointData::catchFunction = "catch";
 
-static quint64 nextBPId() {
-    /* ok to be not thread-safe
-       the order does not matter and only the gui
-       produces authoritative ids. well, for now...
-    */
-    static quint64 i=1;
+static quint64 nextBPId()
+{
+    // Ok to be not thread-safe. The order does not matter and only the gui
+    // produces authoritative ids.
+    static quint64 i = 0;
     return ++i;
 }
 
-BreakpointData::BreakpointData() :
-    id(nextBPId()), uiDirty(false), enabled(true),
-    pending(true), type(BreakpointByFileAndLine),
-    ignoreCount(0), lineNumber(0), address(0),
-    useFullPath(false),
-    bpIgnoreCount(0), bpLineNumber(0),
-    bpCorrectedLineNumber(0), bpAddress(0),
-    bpMultiple(false), bpEnabled(true),
-    m_markerLineNumber(0)
+BreakpointData::BreakpointData()
 {
+    m_state = BreakpointNew;
+    m_engine = 0;
+    m_enabled = true;
+    m_type = BreakpointByFileAndLine;
+    m_ignoreCount = 0;
+    m_lineNumber = 0;
+    m_address = 0;
+    m_useFullPath = false;
+    m_markerLineNumber = 0;
 }
 
-BreakpointData *BreakpointData::clone() const
+BreakpointResponse::BreakpointResponse()
 {
-    BreakpointData *data = new BreakpointData();
-    data->enabled = enabled;
-    data->type = type;
-    data->fileName = fileName;
-    data->condition = condition;
-    data->ignoreCount = ignoreCount;
-    data->lineNumber = lineNumber;
-    data->address = address;
-    data->threadSpec = threadSpec;
-    data->funcName = funcName;
-    data->useFullPath = useFullPath;
-    if (data->type == BreakpointByFunction) {
-        // FIXME: Would removing it be better then leaving this 
-        // "history" around?
-        data->m_markerFileName = m_markerFileName;
-        data->m_markerLineNumber = m_markerLineNumber;
-    } else {
-        data->m_markerFileName = fileName;
-        data->m_markerLineNumber = lineNumber;
-    }
-    return data;
-}
-
-BreakpointData::~BreakpointData()
-{
-}
-
-void BreakpointData::clear()
-{
-    uiDirty = false;
-    pending = true;
-    bpNumber.clear();
-    bpCondition.clear();
+    bpNumber = 0;
     bpIgnoreCount = 0;
-    bpFileName.clear();
-    bpFullName.clear();
     bpLineNumber = 0;
-    bpCorrectedLineNumber = 0;
-    bpThreadSpec.clear();
-    bpFuncName.clear();
+    //bpCorrectedLineNumber = 0;
     bpAddress = 0;
     bpMultiple = false;
     bpEnabled = true;
-    bpState.clear();
-    m_markerFileName = fileName;
-    m_markerLineNumber = lineNumber;
 }
 
-void BreakpointData::setMarkerFileName(const QString &fileName)
-{
-    m_markerFileName = fileName;
-}
+#define SETIT(var, value) return (var != value) && (var = value, true)
 
-void BreakpointData::setMarkerLineNumber(int lineNumber)
-{
-    m_markerLineNumber = lineNumber;
-}
+bool BreakpointData::setUseFullPath(bool on)
+{ SETIT(m_useFullPath, on); }
 
-static inline void formatAddress(QTextStream &str, quint64 address)
+bool BreakpointData::setMarkerFileName(const QString &file)
+{ SETIT(m_markerFileName, file); }
+
+bool BreakpointData::setMarkerLineNumber(int line)
+{ SETIT(m_markerLineNumber, line); }
+
+bool BreakpointData::setFileName(const QString &file)
+{ SETIT(m_fileName, file); }
+
+bool BreakpointData::setEnabled(bool on)
+{ SETIT(m_enabled, on); }
+
+bool BreakpointData::setIgnoreCount(bool count)
+{ SETIT(m_ignoreCount, count); }
+
+bool BreakpointData::setFunctionName(const QString &name)
+{ SETIT(m_functionName, name); }
+
+bool BreakpointData::setLineNumber(int line)
+{ SETIT(m_lineNumber, line); }
+
+bool BreakpointData::setAddress(quint64 address)
+{ SETIT(m_address, address); }
+
+bool BreakpointData::setThreadSpec(const QByteArray &spec)
+{ SETIT(m_threadSpec, spec); }
+
+bool BreakpointData::setType(BreakpointType type)
+{ SETIT(m_type, type); }
+
+bool BreakpointData::setCondition(const QByteArray &cond)
+{ SETIT(m_condition, cond); }
+
+bool BreakpointData::setState(BreakpointState state)
+{ SETIT(m_state, state); }
+
+bool BreakpointData::setEngine(DebuggerEngine *engine)
+{ SETIT(m_engine, engine); }
+
+#undef SETIT
+
+
+static void formatAddress(QTextStream &str, quint64 address)
 {
     if (address) {
         str << "0x";
@@ -143,8 +141,8 @@ static inline void formatAddress(QTextStream &str, quint64 address)
 
 QString BreakpointData::toToolTip() const
 {
-    QString t = tr("Unknown Breakpoint Type");
-    switch (type) {
+    QString t;
+    switch (m_type) {
         case BreakpointByFileAndLine:
             t = tr("Breakpoint by File and Line");
             break;
@@ -157,64 +155,72 @@ QString BreakpointData::toToolTip() const
         case Watchpoint:
             t = tr("Watchpoint");
             break;
+        case UnknownType:
+            t = tr("Unknown Breakpoint Type");
     }
 
     QString rc;
     QTextStream str(&rc);
     str << "<html><body><table>"
+        //<< "<tr><td>" << tr("Id:")
+        //<< "</td><td>" << m_id << "</td></tr>"
+        << "<tr><td>" << tr("State:")
+        << "</td><td>" << m_state << "</td></tr>"
+        << "<tr><td>" << tr("Engine:")
+        << "</td><td>" << m_engine << "</td></tr>"
         << "<tr><td>" << tr("Marker File:")
         << "</td><td>" << QDir::toNativeSeparators(m_markerFileName) << "</td></tr>"
         << "<tr><td>" << tr("Marker Line:")
         << "</td><td>" << m_markerLineNumber << "</td></tr>"
-        << "<tr><td>" << tr("Breakpoint Number:")
-        << "</td><td>" << bpNumber << "</td></tr>"
+        //<< "<tr><td>" << tr("Breakpoint Number:")
+        //<< "</td><td>" << bpNumber << "</td></tr>"
         << "<tr><td>" << tr("Breakpoint Type:")
         << "</td><td>" << t << "</td></tr>"
         << "<tr><td>" << tr("State:")
-        << "</td><td>" << bpState << "</td></tr>"
+        //<< "</td><td>" << bpState << "</td></tr>"
         << "</table><br><hr><table>"
         << "<tr><th>" << tr("Property")
         << "</th><th>" << tr("Requested")
         << "</th><th>" << tr("Obtained") << "</th></tr>"
         << "<tr><td>" << tr("Internal Number:")
-        << "</td><td>&mdash;</td><td>" << bpNumber << "</td></tr>"
+        //<< "</td><td>&mdash;</td><td>" << bpNumber << "</td></tr>"
         << "<tr><td>" << tr("File Name:")
-        << "</td><td>" << QDir::toNativeSeparators(fileName)
-        << "</td><td>" << QDir::toNativeSeparators(bpFileName) << "</td></tr>"
+        << "</td><td>" << QDir::toNativeSeparators(m_fileName)
+        //<< "</td><td>" << QDir::toNativeSeparators(bpFileName) << "</td></tr>"
         << "<tr><td>" << tr("Function Name:")
-        << "</td><td>" << funcName << "</td><td>" << bpFuncName << "</td></tr>"
+        << "</td><td>" << m_functionName // << "</td><td>" << bpFuncName << "</td></tr>"
         << "<tr><td>" << tr("Line Number:") << "</td><td>";
-    if (lineNumber)
-        str << lineNumber;
-    str << "</td><td>";
-    if (bpLineNumber)
-        str << bpLineNumber;
+    if (m_lineNumber)
+        str << m_lineNumber;
+    //str << "</td><td>";
+    //if (bpLineNumber)
+    //    str << bpLineNumber;
     str << "</td></tr>"
         << "<tr><td>" << tr("Breakpoint Address:")
         << "</td><td>";
-    formatAddress(str, address);
+    formatAddress(str, m_address);
     str << "</td><td>";
-    formatAddress(str, bpAddress);
-    str <<  "</td></tr>"
-        << "<tr><td>" << tr("Corrected Line Number:")
-        << "</td><td>-</td><td>";
-    if (bpCorrectedLineNumber > 0) {
-        str << bpCorrectedLineNumber;
-    } else {
-        str << '-';
-    }
+    //formatAddress(str, bpAddress);
+    //str <<  "</td></tr>"
+    //    << "<tr><td>" << tr("Corrected Line Number:")
+    //    << "</td><td>-</td><td>";
+    //if (bpCorrectedLineNumber > 0) {
+    //    str << bpCorrectedLineNumber;
+   // } else {
+   //     str << '-';
+   // }
     str << "</td></tr>"
         << "<tr><td>" << tr("Condition:")
-        << "</td><td>" << condition << "</td><td>" << bpCondition << "</td></tr>"
+    //    << "</td><td>" << m_condition << "</td><td>" << bpCondition << "</td></tr>"
         << "<tr><td>" << tr("Ignore Count:") << "</td><td>";
-    if (ignoreCount)
-        str << ignoreCount;
+    if (m_ignoreCount)
+        str << m_ignoreCount;
     str << "</td><td>";
-    if (bpIgnoreCount)
-        str << bpIgnoreCount;
+    //if (bpIgnoreCount)
+    //    str << bpIgnoreCount;
     str << "</td></tr>"
         << "<tr><td>" << tr("Thread Specification:")
-        << "</td><td>" << threadSpec << "</td><td>" << bpThreadSpec << "</td></tr>"
+     //   << "</td><td>" << m_threadSpec << "</td><td>" << bpThreadSpec << "</td></tr>"
         << "</table></body></html>";
     return rc;
 }
@@ -229,66 +235,52 @@ static inline bool fileNameMatch(const QString &f1, const QString &f2)
 #endif
 }
 
-bool BreakpointData::isLocatedAt(const QString &fileName_, int lineNumber_, 
+bool BreakpointData::isLocatedAt(const QString &fileName, int lineNumber, 
     bool useMarkerPosition) const
 {
-    int line = useMarkerPosition ? m_markerLineNumber : lineNumber;
-    return lineNumber_ == line && fileNameMatch(fileName_, m_markerFileName);
+    int line = useMarkerPosition ? m_markerLineNumber : m_lineNumber;
+    return lineNumber == line && fileNameMatch(fileName, m_markerFileName);
 }
 
-bool BreakpointData::isSimilarTo(const BreakpointData *needle) const
-{
-    //qDebug() << "COMPARING " << toString() << " WITH " << needle->toString();
-
-    if (id == needle->id && id != 0)
-        return true;
-
-    // Clear hit.
-    if (bpNumber == needle->bpNumber
-            && !bpNumber.isEmpty()
-            && bpNumber.toInt() != 0)
-        return true;
-
-    // Clear miss.
-    if (type != needle->type)
-        return false;
-
-    // We have numbers, but they are different.
-    if (!bpNumber.isEmpty() && !needle->bpNumber.isEmpty()
-            && !bpNumber.startsWith(needle->bpNumber)
-            && !needle->bpNumber.startsWith(bpNumber))
-        return false;
-
-    if (address && needle->address && address == needle->address)
-        return true;
-
-    // At least at a position we were looking for.
-    // FIXME: breaks multiple breakpoints at the same location
-    if (!fileName.isEmpty()
-            && fileNameMatch(fileName, needle->fileName)
-            && lineNumber == needle->lineNumber)
-        return true;
-
-    // At least at a position we were looking for.
-    // FIXME: breaks multiple breakpoints at the same location
-    if (!fileName.isEmpty()
-            && fileNameMatch(fileName, needle->bpFileName)
-            && lineNumber == needle->bpLineNumber)
-        return true;
-
-    return false;
-}
-
-bool BreakpointData::conditionsMatch() const
+bool BreakpointData::conditionsMatch(const QString &other) const
 {
     // Some versions of gdb "beautify" the passed condition.
-    QString s1 = condition;
+    QString s1 = m_condition;
     s1.remove(QChar(' '));
-    QString s2 = bpCondition;
+    QString s2 = other;
     s2.remove(QChar(' '));
     return s1 == s2;
 }
 
+QString BreakpointData::toString() const
+{
+    QString result;
+    QTextStream ts(&result);
+    ts << fileName();
+    ts << condition();
+    ts << ignoreCount();
+    ts << lineNumber();
+    ts << address();
+    ts << functionName();
+    ts << useFullPath();
+    return result;
+}
+
+QString BreakpointResponse::toString() const
+{
+    QString result;
+    QTextStream ts(&result);
+    ts << bpNumber;
+    ts << bpCondition;
+    ts << bpIgnoreCount;
+    ts << bpFileName;
+    ts << bpFullName;
+    ts << bpLineNumber;
+    ts << bpThreadSpec;
+    ts << bpFuncName;
+    ts << bpAddress;
+    return result;
+}
+
 } // namespace Internal
 } // namespace Debugger
-

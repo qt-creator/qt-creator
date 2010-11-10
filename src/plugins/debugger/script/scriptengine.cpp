@@ -33,6 +33,7 @@
 
 #include "breakhandler.h"
 #include "debuggerconstants.h"
+#include "debuggercore.h"
 #include "debuggerdialogs.h"
 #include "debuggerstringutils.h"
 #include "moduleshandler.h"
@@ -448,6 +449,8 @@ void ScriptEngine::selectThread(int index)
 
 void ScriptEngine::attemptBreakpointSynchronization()
 {
+    QTC_ASSERT(false, /* FIXME */);
+/*
     BreakHandler *handler = breakHandler();
     bool updateNeeded = false;
     for (int index = 0; index != handler->size(); ++index) {
@@ -468,6 +471,7 @@ void ScriptEngine::attemptBreakpointSynchronization()
     }
     if (updateNeeded)
         handler->updateMarkers();
+*/
 }
 
 void ScriptEngine::loadSymbols(const QString &moduleName)
@@ -589,31 +593,6 @@ void ScriptEngine::assignValueInDebugger(const Internal::WatchData *,
     updateLocals();
 }
 
-static BreakpointData *findBreakPointByFunction(BreakHandler *handler,
-                                                const QString &functionName)
-{
-    const int count = handler->size();
-    for (int b = 0; b < count; b++) {
-        BreakpointData *data = handler->at(b);
-        if (data->funcName == functionName)
-            return data;
-    }
-    return 0;
-}
-
-static BreakpointData *findBreakPointByFileName(BreakHandler *handler,
-                                              int lineNumber,
-                                              const QString &fileName)
-{
-    const int count = handler->size();
-    for (int b = 0; b < count; b++) {
-        BreakpointData *data = handler->at(b);
-        if (lineNumber == data->lineNumber && fileName == data->fileName)
-            return data;
-    }
-    return 0;
-}
-
 bool ScriptEngine::checkForBreakCondition(bool byFunction)
 {
     // FIXME: Should that ever happen after setAgent(0) in shutdownInferior()?
@@ -629,33 +608,30 @@ bool ScriptEngine::checkForBreakCondition(bool byFunction)
     const QString fileName = info.fileName();
     const int lineNumber = byFunction
         ? info.functionStartLineNumber() : info.lineNumber();
-    SDEBUG(Q_FUNC_INFO << byFunction << functionName
-        << lineNumber << fileName);
+    SDEBUG(Q_FUNC_INFO << byFunction << functionName << lineNumber << fileName);
     if (m_stopOnNextLine) {
         // Interrupt inferior
         m_stopOnNextLine = false;
     } else {
         if (byFunction && functionName.isEmpty())
             return false;
-        BreakpointData *data = byFunction ?
-           findBreakPointByFunction(breakHandler(), functionName) :
-           findBreakPointByFileName(breakHandler(), lineNumber, fileName);
-        if (!data)
-            return false;
+        BreakHandler *handler = breakHandler();
+        BreakpointId id = byFunction ?
+           handler->findBreakpointByFunction(functionName) :
+           handler->findBreakpointByFileAndLine(fileName, lineNumber, false);
 
         // Skip disabled breakpoint.
-        if (!data->enabled)
+        if (!handler->isEnabled(id))
             return false;
 
+        BreakpointResponse br;
         // We just run into a breakpoint.
         //SDEBUG("RESOLVING BREAKPOINT AT " << fileName << lineNumber);
-        data->bpLineNumber = lineNumber;
-        data->bpFileName = fileName;
-        data->bpFuncName = functionName;
-        data->setMarkerLineNumber(lineNumber);
-        data->setMarkerFileName(fileName);
-        data->pending = false;
-        breakHandler()->updateMarker(data);
+        br.bpLineNumber = lineNumber;
+        br.bpFileName = fileName;
+        br.bpFuncName = functionName;
+        handler->setState(id, BreakpointInserted);
+        handler->setResponse(id, br);
     }
     notifyInferiorSpontaneousStop();
     SDEBUG("Stopped at " << lineNumber << fileName);

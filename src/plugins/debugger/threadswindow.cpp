@@ -47,7 +47,7 @@ namespace Internal {
 ThreadsWindow::ThreadsWindow(QWidget *parent)
     : QTreeView(parent), m_alwaysResizeColumnsToContents(false)
 {
-    QAction *act = theDebuggerAction(UseAlternatingRowColors);
+    QAction *act = debuggerCore()->action(UseAlternatingRowColors);
 
     setAttribute(Qt::WA_MacShowFocusRect, false);
     setFrameStyle(QFrame::NoFrame);
@@ -80,7 +80,7 @@ void ThreadsWindow::contextMenuEvent(QContextMenuEvent *ev)
     alwaysAdjustColumnAction->setChecked(m_alwaysResizeColumnsToContents);
     menu.addSeparator();
 
-    menu.addAction(theDebuggerAction(SettingsDialog));
+    menu.addAction(debuggerCore()->action(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
     if (!act)

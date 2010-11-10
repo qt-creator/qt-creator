@@ -94,9 +94,10 @@ private:
     void selectThread(int index);
 
     void attemptBreakpointSynchronization();
-    bool acceptsBreakpoint(const Internal::BreakpointData *br);
+    bool acceptsBreakpoint(BreakpointId id);
 
-    void assignValueInDebugger(const Internal::WatchData *w, const QString &expr, const QVariant &value);
+    void assignValueInDebugger(const Internal::WatchData *data,
+        const QString &expr, const QVariant &value);
     void loadSymbols(const QString &moduleName);
     void loadAllSymbols();
     void requestModuleSymbols(const QString &moduleName);

@@ -31,12 +31,13 @@
 #include "qmladapter.h"
 
 #include "debuggeractions.h"
-#include "debuggertooltip.h"
 #include "debuggerconstants.h"
+#include "debuggercore.h"
 #include "debuggerdialogs.h"
-#include "debuggerstringutils.h"
-#include "debuggeruiswitcher.h"
 #include "debuggerrunner.h"
+#include "debuggerstringutils.h"
+#include "debuggertooltip.h"
+#include "debuggeruiswitcher.h"
 
 #include "breakhandler.h"
 #include "moduleshandler.h"
@@ -142,6 +143,8 @@ static QDataStream &operator>>(QDataStream &s, StackFrame &frame)
 
 } // namespace Internal
 
+using namespace Internal;
+
 struct QmlEnginePrivate
 {
     explicit QmlEnginePrivate(QmlEngine *q);
@@ -199,9 +202,9 @@ void QmlEngine::gotoLocation(const QString &fileName, int lineNumber, bool setMa
     DebuggerEngine::gotoLocation(processedFilename, lineNumber, setMarker);
 }
 
-void QmlEngine::gotoLocation(const Internal::StackFrame &frame, bool setMarker)
+void QmlEngine::gotoLocation(const StackFrame &frame, bool setMarker)
 {
-    Internal::StackFrame adjustedFrame = frame;
+    StackFrame adjustedFrame = frame;
     if (isShadowBuildProject())
         adjustedFrame.file = fromShadowBuildFilename(frame.file);
 
@@ -478,14 +481,11 @@ void QmlEngine::executeJumpToLine(const QString &fileName, int lineNumber)
 
 void QmlEngine::activateFrame(int index)
 {
-    Q_UNUSED(index)
-
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
     rs << QByteArray("ACTIVATE_FRAME");
     rs << index;
     sendMessage(reply);
-
     gotoLocation(stackHandler()->frames().value(index), true);
 }
 
@@ -496,18 +496,17 @@ void QmlEngine::selectThread(int index)
 
 void QmlEngine::attemptBreakpointSynchronization()
 {
-    Internal::BreakHandler *handler = breakHandler();
+    BreakHandler *handler = breakHandler();
     //bool updateNeeded = false;
-    Internal::JSAgentBreakpoints breakpoints;
-    for (int index = 0; index != handler->size(); ++index) {
-        Internal::BreakpointData *data = handler->at(index);
-        QString processedFilename = data->fileName;
+    JSAgentBreakpoints breakpoints;
+    foreach (BreakpointId id, handler->engineBreakpointIds(this)) {
+        QString processedFilename = handler->fileName(id);
         if (isShadowBuildProject())
-            processedFilename = toShadowBuildFilename(data->fileName);
-        Internal::JSAgentBreakpointData bp;
+            processedFilename = toShadowBuildFilename(handler->fileName(id));
+        JSAgentBreakpointData bp;
         bp.fileName = processedFilename.toUtf8();
-        bp.lineNumber = data->lineNumber;
-        bp.functionName = data->funcName.toUtf8();
+        bp.lineNumber = handler->lineNumber(id);
+        bp.functionName = handler->functionName(id).toUtf8();
         breakpoints.insert(bp);
     }
 
@@ -519,10 +518,11 @@ void QmlEngine::attemptBreakpointSynchronization()
     sendMessage(reply);
 }
 
-bool QmlEngine::acceptsBreakpoint(const Internal::BreakpointData *br)
+bool QmlEngine::acceptsBreakpoint(BreakpointId id)
 {
-    return br->fileName.endsWith(QLatin1String(".qml"))
-        || br->fileName.endsWith(QLatin1String(".js"));
+    const QString fileName = breakHandler()->fileName(id);
+    return fileName.endsWith(QLatin1String(".qml"))
+        || fileName.endsWith(QLatin1String(".js"));
 }
 
 void QmlEngine::loadSymbols(const QString &moduleName)
@@ -563,7 +563,7 @@ void QmlEngine::setToolTipExpression(const QPoint &mousePos,
 //
 //////////////////////////////////////////////////////////////////////
 
-void QmlEngine::assignValueInDebugger(const Internal::WatchData *,
+void QmlEngine::assignValueInDebugger(const WatchData *,
     const QString &expression, const QVariant &valueV)
 {
     QRegExp inObject("@([0-9a-fA-F]+)->(.+)");
@@ -581,8 +581,8 @@ void QmlEngine::assignValueInDebugger(const Internal::WatchData *,
     }
 }
 
-void QmlEngine::updateWatchData(const Internal::WatchData &data,
-    const Internal::WatchUpdateFlags &)
+void QmlEngine::updateWatchData(const WatchData &data,
+    const WatchUpdateFlags &)
 {
 //    qDebug() << "UPDATE WATCH DATA" << data.toString();
     //watchHandler()->rebuildModel();
@@ -661,15 +661,15 @@ void QmlEngine::messageReceived(const QByteArray &message)
     stream >> command;
 
     showMessage(QLatin1String("RECEIVED RESPONSE: ")
-        + Internal::quoteUnprintableLatin1(message));
+        + quoteUnprintableLatin1(message));
 
     if (command == "STOPPED") {
         if (state() == InferiorRunOk)
             notifyInferiorSpontaneousStop();
 
-        Internal::StackFrames stackFrames;
-        QList<Internal::WatchData> watches;
-        QList<Internal::WatchData> locals;
+        StackFrames stackFrames;
+        QList<WatchData> watches;
+        QList<WatchData> locals;
         stream >> stackFrames >> watches >> locals;
 
         for (int i = 0; i != stackFrames.size(); ++i)
@@ -681,7 +681,7 @@ void QmlEngine::messageReceived(const QByteArray &message)
         watchHandler()->beginCycle();
         bool needPing = false;
 
-        foreach (Internal::WatchData data, watches) {
+        foreach (WatchData data, watches) {
             data.iname = watchHandler()->watcherName(data.exp);
             watchHandler()->insertData(data);
 
@@ -691,7 +691,7 @@ void QmlEngine::messageReceived(const QByteArray &message)
             }
         }
 
-        foreach (Internal::WatchData data, locals) {
+        foreach (WatchData data, locals) {
             data.iname = "local." + data.exp;
             watchHandler()->insertData(data);
 
@@ -734,22 +734,21 @@ void QmlEngine::messageReceived(const QByteArray &message)
                 }
             }
 
-            Internal::BreakHandler *handler = breakHandler();
-            for (int index = 0; index != handler->size(); ++index) {
-                Internal::BreakpointData *data = handler->at(index);
-                QString processedFilename = data->fileName;
-
-                if (processedFilename == file && data->lineNumber == line) {
-                    data->pending = false;
-                    data->bpFileName = file;
-                    data->bpLineNumber = line;
-                    data->bpFuncName = function;
-                    handler->updateMarker(data);
+            BreakHandler *handler = breakHandler();
+            foreach (BreakpointId id, handler->engineBreakpointIds(this)) {
+                QString processedFilename = handler->fileName(id);
+                if (processedFilename == file && handler->lineNumber(id) == line) {
+                    handler->setState(id, BreakpointInserted);
+                    BreakpointResponse br = handler->response(id);
+                    br.bpFileName = file;
+                    br.bpLineNumber = line;
+                    br.bpFuncName = function;
+                    handler->setResponse(id, br);
                 }
             }
         }
     } else if (command == "RESULT") {
-        Internal::WatchData data;
+        WatchData data;
         QByteArray iname;
         stream >> iname >> data;
         data.iname = iname;
@@ -761,11 +760,11 @@ void QmlEngine::messageReceived(const QByteArray &message)
             qWarning() << "QmlEngine: Unexcpected result: " << iname << data.value;
         }
     } else if (command == "EXPANDED") {
-        QList<Internal::WatchData> result;
+        QList<WatchData> result;
         QByteArray iname;
         stream >> iname >> result;
         bool needPing = false;
-        foreach (Internal::WatchData data, result) {
+        foreach (WatchData data, result) {
             data.iname = iname + '.' + data.exp;
             watchHandler()->insertData(data);
 
@@ -777,12 +776,12 @@ void QmlEngine::messageReceived(const QByteArray &message)
         if (needPing)
             sendPing();
     } else if (command == "LOCALS") {
-        QList<Internal::WatchData> locals;
+        QList<WatchData> locals;
         int frameId;
         stream >> frameId >> locals;
         watchHandler()->beginCycle();
         bool needPing = false;
-        foreach (Internal::WatchData data, locals) {
+        foreach (WatchData data, locals) {
             data.iname = "local." + data.exp;
             watchHandler()->insertData(data);
             if (watchHandler()->expandedINames().contains(data.iname)) {

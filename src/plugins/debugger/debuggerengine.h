@@ -33,6 +33,7 @@
 #include "debugger_global.h"
 #include "debuggerconstants.h"
 #include "moduleshandler.h" // For 'Symbols'
+#include "breakpoint.h" // For 'BreakpointId'
 
 #include <coreplugin/ssh/sshconnection.h> 
 
@@ -116,11 +117,9 @@ DEBUGGER_EXPORT QDebug operator<<(QDebug str, DebuggerState state);
 
 namespace Internal {
 
-class DebuggerCore;
 class DebuggerPluginPrivate;
 class DisassemblerViewAgent;
 class MemoryViewAgent;
-class Symbol;
 class WatchData;
 class BreakHandler;
 class ModulesHandler;
@@ -183,29 +182,24 @@ public:
     virtual void createSnapshot();
     virtual void updateAll();
 
+
+    virtual bool stateAcceptsBreakpointChanges() const { return true; }
     virtual void attemptBreakpointSynchronization();
-    virtual bool acceptsBreakpoint(const Internal::BreakpointData *);
-
-    virtual void addBreakpoint(const Internal::BreakpointData &bp);
-    virtual void notifyAddBreakpointOk(quint64 id);
-    virtual void notifyAddBreakpointFailed(quint64 id);
-    virtual void removeBreakpoint(quint64 id);
-    virtual void notifyRemoveBreakpointOk(quint64 id);
-    virtual void notifyRemoveBreakpointFailed(quint64 id);
-    virtual void changeBreakpoint(const Internal::BreakpointData &bp);
-    virtual void notifyChangeBreakpointOk(quint64 id);
-    virtual void notifyChangeBreakpointFailed(quint64 id);
-    virtual void notifyBreakpointAdjusted(const  Internal::BreakpointData &bp);
-
-    virtual void selectThread(int index);
+    virtual bool acceptsBreakpoint(BreakpointId id) const;  // FIXME: make pure
+    virtual void insertBreakpoint(BreakpointId id);  // FIXME: make pure
+    virtual void notifyBreakpointInsertOk(BreakpointId id);
+    virtual void notifyBreakpointInsertFailed(BreakpointId id);
+    virtual void removeBreakpoint(BreakpointId id);  // FIXME: make pure
+    virtual void notifyBreakpointRemoveOk(BreakpointId id);
+    virtual void notifyBreakpointRemoveFailed(BreakpointId id);
+    virtual void changeBreakpoint(BreakpointId id);  // FIXME: make pure
+    virtual void notifyBreakpointChangeOk(BreakpointId id);
+    virtual void notifyBreakpointChangeFailed(BreakpointId id);
 
     virtual void assignValueInDebugger(const Internal::WatchData *data,
         const QString &expr, const QVariant &value);
     virtual void removeTooltip();
-
-    // Convenience
-    static QMessageBox *showMessageBox
-        (int icon, const QString &title, const QString &text, int buttons = 0);
+    virtual void selectThread(int index);
 
 protected:
     friend class Internal::DebuggerPluginPrivate;

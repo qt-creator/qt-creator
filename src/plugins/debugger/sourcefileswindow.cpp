@@ -62,7 +62,7 @@ static DebuggerEngine *currentEngine()
 SourceFilesWindow::SourceFilesWindow(QWidget *parent)
     : QTreeView(parent)
 {
-    QAction *act = theDebuggerAction(UseAlternatingRowColors);
+    QAction *act = debuggerCore()->action(UseAlternatingRowColors);
 
     setAttribute(Qt::WA_MacShowFocusRect, false);
     setFrameStyle(QFrame::NoFrame);
@@ -108,7 +108,7 @@ void SourceFilesWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(act1);
     menu.addAction(act2);
     menu.addSeparator();
-    menu.addAction(theDebuggerAction(SettingsDialog));
+    menu.addAction(debuggerCore()->action(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
 

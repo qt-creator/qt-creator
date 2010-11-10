@@ -32,7 +32,7 @@
 #include "pdbengine.h"
 
 #include "debuggeractions.h"
-#include "debuggerconstants.h"
+#include "debuggercore.h"
 #include "debuggerdialogs.h"
 #include "debuggerplugin.h"
 #include "debuggerstringutils.h"
@@ -50,7 +50,6 @@
 
 #include <texteditor/itexteditor.h>
 #include <coreplugin/ifile.h>
-//#include <coreplugin/scriptmanager/scriptmanager.h>
 #include <coreplugin/icore.h>
 
 #include <QtCore/QDateTime>
@@ -327,33 +326,28 @@ void PdbEngine::selectThread(int index)
     Q_UNUSED(index)
 }
 
-static QByteArray breakpointLocation(const BreakpointData *data)
-{
-    if (!data->funcName.isEmpty())
-        return data->funcName.toLatin1();
-    // In this case, data->funcName is something like '*0xdeadbeef'
-    if (data->lineNumber == 0)
-        return data->funcName.toLatin1();
-    //QString loc = data->useFullPath ? data->fileName : breakLocation(data->fileName);
-    // The argument is simply a C-quoted version of the argument to the
-    // non-MI "break" command, including the "original" quoting it wants.
-    //return "\"\\\"" + GdbMi::escapeCString(data->fileName).toLocal8Bit() + "\\\":"
-    //    + data->lineNumber + '"';
-    return data->fileName.toLocal8Bit() + ':' + QByteArray::number(data->lineNumber);
-}
-
 void PdbEngine::attemptBreakpointSynchronization()
 {
     BreakHandler *handler = breakHandler();
     //qDebug() << "ATTEMPT BP SYNC";
     bool updateNeeded = false;
-    for (int index = 0; index != handler->size(); ++index) {
-        BreakpointData *data = handler->at(index);
-        if (data->pending) {
-            data->pending = false; // FIXME
+    foreach (BreakpointId id, handler->engineBreakpointIds(this)) {
+        if (handler->state(id) == BreakpointInsertRequested) {
+            handler->setState(id, BreakpointInserted); // FIXME
             updateNeeded = true;
-            QByteArray loc = breakpointLocation(data);
-            postCommand("break " + loc, CB(handleBreakInsert), QVariant(index));
+
+            QByteArray loc;
+            if (!handler->functionName(id).isEmpty())
+                loc = handler->functionName(id).toLatin1();
+            // The argument is simply a C-quoted version of the argument to the
+            // non-MI "break" command, including the "original" quoting it wants.
+            //return "\"\\\"" + GdbMi::escapeCString(data->fileName).toLocal8Bit()
+            // + "\\\":" + data->lineNumber + '"';
+            else 
+                loc = handler->fileName(id).toLocal8Bit() + ':'
+                 + QByteArray::number(handler->lineNumber(id));
+
+            postCommand("break " + loc, CB(handleBreakInsert), QVariant(id));
         }
 /*
         if (data->bpNumber.isEmpty()) {
@@ -375,10 +369,8 @@ void PdbEngine::handleBreakInsert(const PdbResponse &response)
 {
     //qDebug() << "BP RESPONSE: " << response.data;
     // "Breakpoint 1 at /pdb/math.py:10"
-    int index = response.cookie.toInt();
+    BreakpointId id(response.cookie.toInt());
     BreakHandler *handler = breakHandler();
-    BreakpointData *data = handler->at(index);
-    QTC_ASSERT(data, return);
     QTC_ASSERT(response.data.startsWith("Breakpoint "), return);
     int pos1 = response.data.indexOf(" at ");
     QTC_ASSERT(pos1 != -1, return);
@@ -386,10 +378,11 @@ void PdbEngine::handleBreakInsert(const PdbResponse &response)
     int pos2 = response.data.lastIndexOf(":");
     QByteArray file = response.data.mid(pos1 + 4, pos2 - pos1 - 4);
     QByteArray line = response.data.mid(pos2 + 1);
-    data->bpNumber = bpnr;
-    data->bpFileName = _(file);
-    data->bpLineNumber = line.toInt();
-    handler->updateMarkers();
+    BreakpointResponse br;
+    br.bpNumber = bpnr.toInt();
+    br.bpFileName = _(file);
+    br.bpLineNumber = line.toInt();
+    handler->setResponse(id, br);
 }
 
 void PdbEngine::loadSymbols(const QString &moduleName)
@@ -741,9 +734,9 @@ void PdbEngine::updateLocals()
     }
 
     QByteArray options;
-    if (theDebuggerBoolSetting(UseDebuggingHelpers))
+    if (debuggerCore()->boolSetting(UseDebuggingHelpers))
         options += "fancy,";
-    if (theDebuggerBoolSetting(AutoDerefPointers))
+    if (debuggerCore()->boolSetting(AutoDerefPointers))
         options += "autoderef,";
     if (options.isEmpty())
         options += "defaults,";

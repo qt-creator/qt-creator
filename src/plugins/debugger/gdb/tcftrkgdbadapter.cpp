@@ -34,6 +34,7 @@
 
 #include "registerhandler.h"
 #include "threadshandler.h"
+#include "debuggercore.h"
 #include "debuggeractions.h"
 #include "debuggerstringutils.h"
 #include "watchutils.h"
@@ -135,9 +136,9 @@ TcfTrkGdbAdapter::TcfTrkGdbAdapter(GdbEngine *engine) :
 #endif
     m_gdbServerName = _("127.0.0.1:%1").arg(2222 + portOffset);
 
-    setVerbose(theDebuggerBoolSetting(VerboseLog) ? 1 : 0);
+    setVerbose(debuggerCore()->boolSetting(VerboseLog) ? 1 : 0);
 
-    connect(theDebuggerAction(VerboseLog), SIGNAL(valueChanged(QVariant)),
+    connect(debuggerCore()->action(VerboseLog), SIGNAL(valueChanged(QVariant)),
         this, SLOT(setVerbose(QVariant)));
     connect(m_trkDevice, SIGNAL(error(QString)),
         this, SLOT(tcftrkDeviceError(QString)));
