@@ -32,8 +32,8 @@
 #include "breakhandler.h"
 #include "debuggeractions.h"
 #include "debuggeragents.h"
+#include "debuggercore.h"
 #include "debuggerengine.h"
-#include "debuggerplugin.h"
 #include "watchutils.h"
 
 #if USE_MODEL_TEST
@@ -74,8 +74,6 @@ static const QString strNotInScope =
 
 static int watcherCounter = 0;
 static int generationCounter = 0;
-
-static DebuggerPlugin *plugin() { return DebuggerPlugin::instance(); }
 
 QHash<QByteArray, int> WatchHandler::m_watcherNames;
 QHash<QByteArray, int> WatchHandler::m_typeFormats;
@@ -1461,7 +1459,7 @@ void WatchHandler::removeWatchExpression(const QString &exp0)
 void WatchHandler::updateWatchersWindow()
 {
     // Force show/hide of watchers and return view.
-    plugin()->updateState(m_engine);
+    debuggerCore()->updateState(m_engine);
 }
 
 void WatchHandler::updateWatchers()
@@ -1480,7 +1478,7 @@ void WatchHandler::updateWatchers()
 
 void WatchHandler::loadWatchers()
 {
-    QVariant value = plugin()->sessionValue("Watchers");
+    QVariant value = debuggerCore()->sessionValue("Watchers");
     foreach (const QString &exp, value.toStringList())
         m_watcherNames[exp.toLatin1()] = watcherCounter++;
 
@@ -1504,12 +1502,12 @@ QStringList WatchHandler::watchedExpressions()
 void WatchHandler::saveWatchers()
 {
     //qDebug() << "SAVE WATCHERS: " << m_watchers;
-    plugin()->setSessionValue("Watchers", QVariant(watchedExpressions()));
+    debuggerCore()->setSessionValue("Watchers", QVariant(watchedExpressions()));
 }
 
 void WatchHandler::loadTypeFormats()
 {
-    QVariant value = plugin()->sessionValue("DefaultFormats");
+    QVariant value = debuggerCore()->sessionValue("DefaultFormats");
     QMap<QString, QVariant> typeFormats = value.toMap();
     QMapIterator<QString, QVariant> it(typeFormats);
     while (it.hasNext()) {
@@ -1532,7 +1530,7 @@ void WatchHandler::saveTypeFormats()
                 typeFormats.insert(key, format);
         }
     }
-    plugin()->setSessionValue("DefaultFormats", QVariant(typeFormats));
+    debuggerCore()->setSessionValue("DefaultFormats", QVariant(typeFormats));
 }
 
 void WatchHandler::saveSessionData()

@@ -33,7 +33,6 @@
 #include "debuggeractions.h"
 #include "debuggertooltip.h"
 #include "debuggerconstants.h"
-#include "debuggerplugin.h"
 #include "debuggerdialogs.h"
 #include "debuggerstringutils.h"
 #include "debuggeruiswitcher.h"
@@ -236,36 +235,37 @@ void QmlEngine::connectionEstablished()
 {
     attemptBreakpointSynchronization();
 
-    ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
+    ExtensionSystem::PluginManager *pluginManager =
+        ExtensionSystem::PluginManager::instance();
     pluginManager->addObject(d->m_adapter);
     pluginManager->addObject(this);
     d->m_addedAdapterToObjectPool = true;
 
-    plugin()->showMessage(tr("QML Debugger connected."), StatusBar);
+    showMessage(tr("QML Debugger connected."), StatusBar);
 
     notifyEngineRunAndInferiorRunOk();
 }
 
 void QmlEngine::connectionStartupFailed()
 {
-    QMessageBox::critical(0,
-                          tr("Failed to connect to debugger"),
-                          tr("Could not connect to QML debugger server at %1:%2.")
-                          .arg(startParameters().qmlServerAddress)
-                          .arg(startParameters().qmlServerPort));
+    QMessageBox::critical(0, tr("Failed to connect to debugger"),
+        tr("Could not connect to QML debugger server at %1:%2.")
+        .arg(startParameters().qmlServerAddress)
+        .arg(startParameters().qmlServerPort));
     notifyEngineRunFailed();
 }
 
 void QmlEngine::connectionError(QAbstractSocket::SocketError socketError)
 {
     if (socketError ==QAbstractSocket::RemoteHostClosedError)
-        plugin()->showMessage(tr("QML Debugger: Remote host closed connection."), StatusBar);
+        showMessage(tr("QML Debugger: Remote host closed connection."), StatusBar);
 }
 
 
 void QmlEngine::serviceConnectionError(const QString &serviceName)
 {
-    showMessage(tr("QML Debugger: Could not connect to service '%1'.").arg(serviceName), StatusBar);
+    showMessage(tr("QML Debugger: Could not connect to service '%1'.")
+        .arg(serviceName), StatusBar);
 }
 
 void QmlEngine::runEngine()
@@ -371,7 +371,7 @@ void QmlEngine::shutdownEngine()
     shutdownEngineAsSlave();
 
     notifyEngineShutdownOk();
-    plugin()->showMessage(QString(), StatusBar);
+    showMessage(QString(), StatusBar);
 }
 
 void QmlEngine::setupEngine()
@@ -756,7 +756,7 @@ void QmlEngine::messageReceived(const QByteArray &message)
         if (iname.startsWith("watch.")) {
             watchHandler()->insertData(data);
         } else if(iname == "console") {
-            plugin()->showMessage(data.value, ScriptConsoleOutput);
+            showMessage(data.value, ScriptConsoleOutput);
         } else {
             qWarning() << "QmlEngine: Unexcpected result: " << iname << data.value;
         }
@@ -807,7 +807,7 @@ void QmlEngine::messageReceived(const QByteArray &message)
 
 void QmlEngine::disconnected()
 {
-    plugin()->showMessage(tr("QML Debugger disconnected."), StatusBar);
+    showMessage(tr("QML Debugger disconnected."), StatusBar);
     notifyInferiorExited();
 }
 

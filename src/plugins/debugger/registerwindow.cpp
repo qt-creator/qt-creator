@@ -30,9 +30,9 @@
 #include "registerwindow.h"
 
 #include "debuggeractions.h"
-#include "debuggerplugin.h"
 #include "debuggeragents.h"
 #include "debuggerconstants.h"
+#include "debuggercore.h"
 #include "debuggerengine.h"
 #include "registerhandler.h"
 #include "watchdelegatewidgets.h"
@@ -54,7 +54,7 @@ namespace Internal {
 
 static DebuggerEngine *currentEngine()
 {
-    return DebuggerPlugin::instance()->currentEngine();
+    return debuggerCore()->currentEngine();
 }
 
 static RegisterHandler *currentHandler()

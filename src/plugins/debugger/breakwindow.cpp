@@ -31,8 +31,7 @@
 #include "breakhandler.h"
 
 #include "debuggeractions.h"
-#include "debuggerplugin.h"
-#include "debuggerconstants.h"
+#include "debuggercore.h"
 #include "ui_breakpoint.h"
 #include "ui_breakcondition.h"
 
@@ -44,26 +43,21 @@
 
 #include <QtGui/QAction>
 #include <QtGui/QHeaderView>
+#include <QtGui/QIntValidator>
+#include <QtGui/QItemSelectionModel>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QMenu>
 #include <QtGui/QResizeEvent>
-#include <QtGui/QItemSelectionModel>
 #include <QtGui/QToolButton>
 #include <QtGui/QTreeView>
-#include <QtGui/QIntValidator>
 
 
 namespace Debugger {
 namespace Internal {
 
-static DebuggerPlugin *plugin()
-{
-    return DebuggerPlugin::instance();
-}
-
 static BreakHandler *breakHandler()
 {
-    return plugin()->breakHandler();
+    return debuggerCore()->breakHandler();
 }
 
 static BreakpointData *breakpointAt(int index)
@@ -323,7 +317,7 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QAction *synchronizeAction =
         new QAction(tr("Synchronize Breakpoints"), &menu);
-    synchronizeAction->setEnabled(plugin()->hasSnapshots());
+    synchronizeAction->setEnabled(debuggerCore()->hasSnapshots());
 
     QModelIndex idx0 = (si.size() ? si.front() : QModelIndex());
     QModelIndex idx2 = idx0.sibling(idx0.row(), 2);
@@ -556,7 +550,7 @@ void BreakWindow::rowActivated(const QModelIndex &index)
 {
     BreakpointData *data = breakpointAt(index.row());
     QTC_ASSERT(data, return);
-    plugin()->gotoLocation(data->markerFileName(),
+    debuggerCore()->gotoLocation(data->markerFileName(),
         data->markerLineNumber(), false);
 }
 

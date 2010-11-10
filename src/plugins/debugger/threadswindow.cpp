@@ -32,8 +32,8 @@
 #include "threadshandler.h"
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
+#include "debuggercore.h"
 #include "debuggerengine.h"
-#include "debuggerplugin.h"
 
 #include <utils/savedaction.h>
 
@@ -66,7 +66,7 @@ ThreadsWindow::ThreadsWindow(QWidget *parent)
 
 void ThreadsWindow::rowActivated(const QModelIndex &index)
 {
-    DebuggerPlugin::instance()->currentEngine()->selectThread(index.row());
+    debuggerCore()->currentEngine()->selectThread(index.row());
 }
 
 void ThreadsWindow::contextMenuEvent(QContextMenuEvent *ev)

@@ -31,7 +31,7 @@
 #include "breakpointmarker.h"
 
 #include "debuggeractions.h"
-#include "debuggerplugin.h"
+#include "debuggercore.h"
 #include "debuggerstringutils.h"
 
 #include <utils/qtcassert.h>
@@ -40,16 +40,14 @@
 #include <QtCore/QFileInfo>
 
 
-namespace Debugger {
-namespace Internal {
-
-static DebuggerPlugin *plugin() { return DebuggerPlugin::instance(); }
-
 //////////////////////////////////////////////////////////////////
 //
 // BreakHandler
 //
 //////////////////////////////////////////////////////////////////
+
+namespace Debugger {
+namespace Internal {
 
 BreakHandler::BreakHandler()
   : m_breakpointIcon(_(":/debugger/images/breakpoint_16.png")),
@@ -148,7 +146,7 @@ bool BreakHandler::watchPointAt(quint64 address) const
 void BreakHandler::saveBreakpoints()
 {
     //qDebug() << "SAVING BREAKPOINTS...";
-    QTC_ASSERT(plugin(), return);
+    QTC_ASSERT(debuggerCore(), return);
     QList<QVariant> list;
     for (int index = 0; index != size(); ++index) {
         const BreakpointData *data = at(index);
@@ -178,15 +176,15 @@ void BreakHandler::saveBreakpoints()
             map.insert(_("usefullpath"), _("1"));
         list.append(map);
     }
-    plugin()->setSessionValue("Breakpoints", list);
+    debuggerCore()->setSessionValue("Breakpoints", list);
     //qDebug() << "SAVED BREAKPOINTS" << this << list.size();
 }
 
 void BreakHandler::loadBreakpoints()
 {
-    QTC_ASSERT(plugin(), return);
+    QTC_ASSERT(debuggerCore(), return);
     //qDebug() << "LOADING BREAKPOINTS...";
-    QVariant value = plugin()->sessionValue("Breakpoints");
+    QVariant value = debuggerCore()->sessionValue("Breakpoints");
     QList<QVariant> list = value.toList();
     clear();
     foreach (const QVariant &var, list) {

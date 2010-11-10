@@ -140,8 +140,6 @@ struct DebuggerUISwitcherPrivate
     QWeakPointer<ProjectExplorer::RunConfiguration> m_previousRunConfiguration;
 
     bool m_initialized;
-
-    static DebuggerUISwitcher *m_instance;
 };
 
 DebuggerUISwitcherPrivate::DebuggerUISwitcherPrivate(DebuggerUISwitcher *q)
@@ -159,8 +157,6 @@ DebuggerUISwitcherPrivate::DebuggerUISwitcherPrivate(DebuggerUISwitcher *q)
     , m_initialized(false)
 {
 }
-
-DebuggerUISwitcher *DebuggerUISwitcherPrivate::m_instance = 0;
 
 DebuggerUISwitcher::DebuggerUISwitcher(BaseMode *mode, QObject* parent)
   : QObject(parent), d(new DebuggerUISwitcherPrivate(this))
@@ -180,13 +176,10 @@ DebuggerUISwitcher::DebuggerUISwitcher(BaseMode *mode, QObject* parent)
     d->m_debugMenu = am->actionContainer(ProjectExplorer::Constants::M_DEBUG);
     d->m_viewsMenu = am->actionContainer(Core::Id(Core::Constants::M_WINDOW_VIEWS));
     QTC_ASSERT(d->m_viewsMenu, return)
-
-    DebuggerUISwitcherPrivate::m_instance = this;
 }
 
 DebuggerUISwitcher::~DebuggerUISwitcher()
 {
-    DebuggerUISwitcherPrivate::m_instance = 0;
     delete d;
 }
 
@@ -343,11 +336,6 @@ void DebuggerUISwitcher::createViewsMenuItems()
     cmd = am->registerAction(d->m_mainWindow->resetLayoutAction(),
         Core::Id("Debugger.Views.ResetSimple"), globalcontext);
     d->m_viewsMenu->addAction(cmd);
-}
-
-DebuggerUISwitcher *DebuggerUISwitcher::instance()
-{
-    return DebuggerUISwitcherPrivate::m_instance;
 }
 
 void DebuggerUISwitcher::addLanguage(const DebuggerLanguage &languageId, const Context &context)
@@ -595,20 +583,8 @@ QWidget *DebuggerUISwitcher::createContents(BaseMode *mode)
     return splitter;
 }
 
-void DebuggerUISwitcher::aboutToStartDebugger()
+void DebuggerUISwitcher::writeSettings(QSettings *settings) const
 {
-    if (!DebuggerPlugin::instance()->hasSnapshots())
-        updateActiveLanguages();
-}
-
-void DebuggerUISwitcher::aboutToShutdown()
-{
-    writeSettings();
-}
-
-void DebuggerUISwitcher::writeSettings() const
-{
-    QSettings *settings = ICore::instance()->settings();
     {
         settings->beginGroup(QLatin1String("DebugMode.CppMode"));
         QHashIterator<QString, QVariant> it(d->m_dockWidgetActiveStateCpp);
@@ -629,9 +605,8 @@ void DebuggerUISwitcher::writeSettings() const
     }
 }
 
-void DebuggerUISwitcher::readSettings()
+void DebuggerUISwitcher::readSettings(QSettings *settings)
 {
-    QSettings *settings = ICore::instance()->settings();
     d->m_dockWidgetActiveStateCpp.clear();
     d->m_dockWidgetActiveStateQmlCpp.clear();
 
@@ -660,12 +635,12 @@ void DebuggerUISwitcher::readSettings()
     d->m_activeDebugLanguages = langs;
 }
 
-void DebuggerUISwitcher::initialize()
+void DebuggerUISwitcher::initialize(QSettings *settings)
 {
     createViewsMenuItems();
 
     emit dockResetRequested(AnyLanguage);
-    readSettings();
+    readSettings(settings);
 
     updateUi();
 

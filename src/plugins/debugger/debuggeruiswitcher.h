@@ -37,13 +37,14 @@
 
 QT_BEGIN_NAMESPACE
 class QDockWidget;
+class QSettings;
 QT_END_NAMESPACE
 
 namespace Core {
-    class Command;
-    class Context;
-    class IMode;
-    class BaseMode;
+class Command;
+class Context;
+class IMode;
+class BaseMode;
 }
 
 namespace Utils {
@@ -51,9 +52,9 @@ class FancyMainWindow;
 }
 
 namespace ProjectExplorer {
-    class Project;
-    class Target;
-    class RunConfiguration;
+class Project;
+class Target;
+class RunConfiguration;
 }
 
 namespace Debugger {
@@ -70,8 +71,6 @@ class DEBUGGER_EXPORT DebuggerUISwitcher : public QObject
 public:
     explicit DebuggerUISwitcher(Core::BaseMode *mode, QObject *parent = 0);
     virtual ~DebuggerUISwitcher();
-
-    static DebuggerUISwitcher *instance();
 
     // debuggable languages are registered with this function.
     void addLanguage(const DebuggerLanguage &language, const Core::Context &context);
@@ -90,10 +89,8 @@ public:
     DebuggerLanguages activeDebugLanguages() const;
 
     // called when all dependent plugins have loaded
-    void initialize();
+    void initialize(QSettings *settings);
 
-    void aboutToStartDebugger();
-    void aboutToShutdown();
     void onModeChanged(Core::IMode *mode);
 
     // most common debugger windows
@@ -130,8 +127,11 @@ private slots:
     void updateUiForCurrentRunConfiguration();
     void updateUiOnFileListChange();
 
+public slots:
     void updateActiveLanguages();
     void updateDockWidgetSettings();
+    void readSettings(QSettings *settings);
+    void writeSettings(QSettings *settings) const;
 
 private:
     // Used by MainWindow
@@ -143,8 +143,6 @@ private:
 
     void hideInactiveWidgets();
     void createViewsMenuItems();
-    void readSettings();
-    void writeSettings() const;
     bool isQmlCppActive() const;
     bool isQmlActive() const;
 

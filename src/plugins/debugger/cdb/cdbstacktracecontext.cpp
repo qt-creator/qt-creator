@@ -33,7 +33,7 @@
 #include "cdbdumperhelper.h"
 #include "cdbengine_p.h"
 #include "debuggeractions.h"
-#include "debuggerplugin.h"
+#include "debuggercore.h"
 #include "watchutils.h"
 #include "threadshandler.h"
 
@@ -74,7 +74,8 @@ CdbStackTraceContext::createSymbolGroup(const CdbCore::ComInterfaces & /* cif */
     QStringList uninitializedVariables;
     const CdbCore::StackFrame &frame = stackFrameAt(index);
     if (theDebuggerAction(UseCodeModel)->isChecked())
-        getUninitializedVariables(DebuggerPlugin::instance()->cppCodeModelSnapshot(), frame.function, frame.fileName, frame.line, &uninitializedVariables);
+        getUninitializedVariables(debuggerCore()->cppCodeModelSnapshot(),
+            frame.function, frame.fileName, frame.line, &uninitializedVariables);
     if (debug)
         qDebug() << frame << uninitializedVariables;
     CdbSymbolGroupContext *sc = CdbSymbolGroupContext::create(prefix,

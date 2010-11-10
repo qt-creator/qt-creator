@@ -49,7 +49,6 @@ private slots:
     void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
 
 private:
-    void resizeEvent(QResizeEvent *ev);
     void contextMenuEvent(QContextMenuEvent *ev);
     void setModel(QAbstractItemModel *model);
 

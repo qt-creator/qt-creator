@@ -30,10 +30,9 @@
 #include "debuggeragents.h"
 
 #include "debuggerengine.h"
-#include "debuggerplugin.h"
+#include "debuggercore.h"
 #include "debuggerstringutils.h"
 #include "stackframe.h"
-#include "debuggerconstants.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -196,7 +195,7 @@ class LocationMark2 : public TextEditor::ITextMark
 public:
     LocationMark2() {}
 
-    QIcon icon() const { return DebuggerPlugin::instance()->locationMarkIcon(); }
+    QIcon icon() const { return debuggerCore()->locationMarkIcon(); }
     void updateLineNumber(int /*lineNumber*/) {}
     void updateBlock(const QTextBlock & /*block*/) {}
     void removedFromEditor() {}

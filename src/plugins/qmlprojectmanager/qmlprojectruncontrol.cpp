@@ -144,23 +144,22 @@ QmlRunControlFactory::~QmlRunControlFactory()
 bool QmlRunControlFactory::canRun(RunConfiguration *runConfiguration,
                                   const QString &mode) const
 {
-    QmlProjectRunConfiguration *config = qobject_cast<QmlProjectRunConfiguration*>(runConfiguration);
-    if (mode == ProjectExplorer::Constants::RUNMODE) {
+    QmlProjectRunConfiguration *config =
+        qobject_cast<QmlProjectRunConfiguration*>(runConfiguration);
+    if (mode == ProjectExplorer::Constants::RUNMODE)
         return config != 0 && !config->viewerPath().isEmpty();
-    } else {
-        bool qmlDebugSupportInstalled = Debugger::DebuggerUISwitcher::instance()->supportedLanguages()
-                                        & Debugger::QmlLanguage;
 
-        if (config && qmlDebugSupportInstalled) {
-            if (!config->observerPath().isEmpty()) {
-                return true;
-            }
+    bool qmlDebugSupportInstalled =
+            Debugger::DebuggerPlugin::isActiveDebugLanguage(Debugger::QmlLanguage);
 
-            if (config->qtVersion() && Qt4ProjectManager::QmlObserverTool::canBuild(config->qtVersion())) {
-                return true;
-            } else {
-                return false;
-            }
+    if (config && qmlDebugSupportInstalled) {
+        if (!config->observerPath().isEmpty())
+            return true;
+
+        if (config->qtVersion() && Qt4ProjectManager::QmlObserverTool::canBuild(config->qtVersion())) {
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -212,8 +211,7 @@ ProjectExplorer::RunControl *QmlRunControlFactory::createDebugRunControl(QmlProj
         return 0;
     }
 
-    Debugger::DebuggerRunControl *debuggerRunControl = Debugger::DebuggerPlugin::createDebugger(params, runConfig);
-    return debuggerRunControl;
+    return Debugger::DebuggerPlugin::createDebugger(params, runConfig);
 }
 
 void QmlRunControlFactory::showQmlObserverToolWarning() {

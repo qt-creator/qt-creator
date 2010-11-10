@@ -33,8 +33,8 @@
 #include "debuggeractions.h"
 #include "debuggeragents.h"
 #include "debuggerconstants.h"
+#include "debuggercore.h"
 #include "debuggerengine.h"
-#include "debuggerplugin.h"
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
@@ -52,7 +52,7 @@ namespace Internal {
 
 static DebuggerEngine *currentEngine()
 {
-    return DebuggerPlugin::instance()->currentEngine();
+    return debuggerCore()->currentEngine();
 }
 
 StackWindow::StackWindow(QWidget *parent)

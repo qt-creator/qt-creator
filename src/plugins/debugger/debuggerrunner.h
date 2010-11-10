@@ -120,6 +120,7 @@ public:
                                  QString *errorMessage,
                                  QString *settingsCategory = 0,
                                  QString *settingsPage = 0);
+    QString idString() const;
 
 signals:
     void engineRequestSetup();

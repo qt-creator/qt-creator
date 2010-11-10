@@ -32,8 +32,8 @@
 
 #include "abstractgdbadapter.h"
 #include "debuggeractions.h"
+#include "debuggercore.h"
 #include "debuggerstringutils.h"
-#include "debuggerplugin.h"
 
 #include "stackhandler.h"
 #include "watchhandler.h"
@@ -664,7 +664,7 @@ void GdbEngine::handleStackListLocalsClassic(const GdbResponse &response)
                 ? qVariantValue<Debugger::Internal::StackFrame>(response.cookie)
                 : stackHandler()->currentFrame();
         if (frame.isUsable())
-            getUninitializedVariables(plugin()->cppCodeModelSnapshot(),
+            getUninitializedVariables(debuggerCore()->cppCodeModelSnapshot(),
                                       frame.function, frame.file, frame.line,
                                       &uninitializedVariables);
     }

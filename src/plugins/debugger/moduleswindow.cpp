@@ -31,8 +31,8 @@
 
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
+#include "debuggercore.h"
 #include "debuggerengine.h"
-#include "debuggerplugin.h"
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
@@ -53,16 +53,6 @@
 namespace Debugger {
 namespace Internal {
 
-static DebuggerPlugin *plugin()
-{
-    return DebuggerPlugin::instance();
-}
-
-static DebuggerEngine *currentEngine()
-{
-    return DebuggerPlugin::instance()->currentEngine();
-}
-
 ModulesWindow::ModulesWindow(QWidget *parent)
   : QTreeView(parent), m_alwaysResizeColumnsToContents(false)
 {
@@ -82,23 +72,7 @@ ModulesWindow::ModulesWindow(QWidget *parent)
 
 void ModulesWindow::moduleActivated(const QModelIndex &index)
 {
-    plugin()->gotoLocation(index.data().toString());
-}
-
-void ModulesWindow::resizeEvent(QResizeEvent *event)
-{
-    //QHeaderView *hv = header();
-    //int totalSize = event->size().width() - 110;
-    //hv->resizeSection(0, totalSize / 4);
-    //hv->resizeSection(1, totalSize / 4);
-    //hv->resizeSection(2, totalSize / 4);
-    //hv->resizeSection(3, totalSize / 4);
-    //hv->resizeSection(0, 60);
-    //hv->resizeSection(1, (totalSize * 50) / 100);
-    //hv->resizeSection(2, (totalSize * 50) / 100);
-    //hv->resizeSection(3, 50);
-    //setColumnHidden(3, true);
-    QTreeView::resizeEvent(event);
+    debuggerCore()->gotoLocation(index.data().toString());
 }
 
 void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
@@ -110,7 +84,7 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
     if (index.isValid())
         name = index.data().toString();
 
-    DebuggerEngine *engine = currentEngine();
+    DebuggerEngine *engine = debuggerCore()->currentEngine();
     const bool enabled = engine->debuggerActionsEnabled();
     const unsigned capabilities = engine->debuggerCapabilities();
 
@@ -191,7 +165,7 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == actLoadSymbolsForModule) {
         engine->loadSymbols(name);
     } else if (act == actEditFile) {
-        plugin()->gotoLocation(name);
+        debuggerCore()->gotoLocation(name);
     } else if (act == actShowSymbols) {
         // FIXME setModelData(RequestModuleSymbolsRole, name);
     }

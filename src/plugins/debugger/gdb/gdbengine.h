@@ -525,7 +525,6 @@ private: ////////// View & Data Stuff //////////
     // Convenience Functions
     //
     QString errorMessage(QProcess::ProcessError error);
-    QMainWindow *mainWindow() const;
     AbstractGdbProcess *gdbProc() const;
     void showExecutionError(const QString &message);
 

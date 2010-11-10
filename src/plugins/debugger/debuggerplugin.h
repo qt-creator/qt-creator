@@ -31,18 +31,10 @@
 #define DEBUGGERPLUGIN_H
 
 #include "debugger_global.h"
-#include "debuggerconstants.h"
 
 #include <extensionsystem/iplugin.h>
 
-QT_BEGIN_NAMESPACE
-class QIcon;
-class QMessageBox;
-QT_END_NAMESPACE
-
-namespace CPlusPlus {
-class Snapshot;
-}
+#include <QtCore/QObject>
 
 namespace ProjectExplorer {
 class RunConfiguration;
@@ -50,15 +42,15 @@ class RunControl;
 }
 
 namespace Debugger {
-class DebuggerEngine;
-class DebuggerPluginPrivate;
+
 class DebuggerRunControl;
 class DebuggerStartParameters;
+class DebuggerUISwitcher;
 
-namespace Internal {
-class BreakHandler;
-class SnapshotHandler;
-}
+// This is the "external" interface of the debugger plugin that's
+// visible from Creator core. The internal interfact to global
+// functionality to be used by debugger views and debugger engines
+// is DebuggerCore, implemented in DebuggerPluginPrivate.
 
 class DEBUGGER_EXPORT DebuggerPlugin : public ExtensionSystem::IPlugin
 {
@@ -68,68 +60,23 @@ public:
     DebuggerPlugin();
     ~DebuggerPlugin();
 
-    static DebuggerPlugin *instance();
-
     static DebuggerRunControl *createDebugger(const DebuggerStartParameters &sp,
         ProjectExplorer::RunConfiguration *rc = 0);
     static void startDebugger(ProjectExplorer::RunControl *runControl);
     static void displayDebugger(ProjectExplorer::RunControl *runControl);
-    static void displayDebugger(DebuggerEngine *engine, bool updateEngine = true);
-
-    QVariant sessionValue(const QString &name);
-    void setSessionValue(const QString &name, const QVariant &value);
-    QVariant configValue(const QString &name) const;
-    void setConfigValue(const QString &name, const QVariant &value);
-    void updateState(DebuggerEngine *engine);
-    virtual void remoteCommand(const QStringList &options, const QStringList &arguments);
-    void showQtDumperLibraryWarning(const QString &details);
-
-    QIcon locationMarkIcon() const;
-    void activateDebugMode();
-
-    const CPlusPlus::Snapshot &cppCodeModelSnapshot() const;
-    bool isRegisterViewVisible() const;
-    bool hasSnapshots() const;
-
-    void openTextEditor(const QString &titlePattern, const QString &contents);
-    Internal::BreakHandler *breakHandler() const;
-    Internal::SnapshotHandler *snapshotHandler() const;
-    DebuggerEngine *currentEngine() const;
-
-public slots:
-    void clearCppCodeModelSnapshot();
-    void ensureLogVisible();
-
-    // void runTest(const QString &fileName);
-    void showMessage(const QString &msg, int channel, int timeout = -1);
-    void gotoLocation(const QString &fileName, int lineNumber = -1,
-        bool setMarker = false);
+    static bool isActiveDebugLanguage(int language);
+    static DebuggerUISwitcher *uiSwitcher();
 
 private:
-    friend class DebuggerEngine;
-    friend class DebuggerPluginPrivate;
-    friend class DebuggerRunControl;
-
-    void resetLocation();
-    void readSettings();
-    void writeSettings() const;
-
-    bool isReverseDebugging() const;
-    void createNewDock(QWidget *widget);
-    void runControlStarted(DebuggerRunControl *runControl);
-    void runControlFinished(DebuggerRunControl *runControl);
-    DebuggerLanguages activeLanguages() const;
-
-    QMessageBox *showMessageBox(int icon, const QString &title,
-        const QString &text, int buttons = 0);
-
+    // IPlugin implementation.
     bool initialize(const QStringList &arguments, QString *errorMessage);
+    void remoteCommand(const QStringList &options, const QStringList &arguments);
     ShutdownFlag aboutToShutdown();
     void extensionsInitialized();
-
-    QWidget *mainWindow() const;
-
-    DebuggerPluginPrivate *d;
+    void readSettings();
+    void writeSettings() const;
+    void runControlStarted(DebuggerRunControl *runControl);
+    void runControlFinished(DebuggerRunControl *runControl);
 };
 
 } // namespace Debugger

@@ -31,8 +31,8 @@
 
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
+#include "debuggercore.h"
 #include "debuggerengine.h"
-#include "debuggerplugin.h"
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
@@ -54,14 +54,9 @@
 namespace Debugger {
 namespace Internal {
 
-static DebuggerPlugin *plugin()
-{
-    return DebuggerPlugin::instance();
-}
-
 static DebuggerEngine *currentEngine()
 {
-    return DebuggerPlugin::instance()->currentEngine();
+    return debuggerCore()->currentEngine();
 }
 
 SourceFilesWindow::SourceFilesWindow(QWidget *parent)
@@ -86,7 +81,7 @@ SourceFilesWindow::SourceFilesWindow(QWidget *parent)
 
 void SourceFilesWindow::sourceFileActivated(const QModelIndex &index)
 {
-    plugin()->gotoLocation(index.data().toString());
+    debuggerCore()->gotoLocation(index.data().toString());
 }
 
 void SourceFilesWindow::contextMenuEvent(QContextMenuEvent *ev)
@@ -120,7 +115,7 @@ void SourceFilesWindow::contextMenuEvent(QContextMenuEvent *ev)
     if (act == act1)
         currentEngine()->reloadSourceFiles();
     else if (act == act2)
-        plugin()->gotoLocation(name);
+        debuggerCore()->gotoLocation(name);
 }
 
 } // namespace Internal

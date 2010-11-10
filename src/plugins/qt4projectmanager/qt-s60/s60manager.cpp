@@ -44,7 +44,6 @@
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <debugger/debuggerplugin.h>
 #include <utils/qtcassert.h>
 
 #include <QtGui/QMainWindow>
@@ -122,11 +121,10 @@ S60Manager::S60Manager(QObject *parent)
     addAutoReleasedObject(new S60CreatePackageStepFactory);
     addAutoReleasedObject(new S60DeployStepFactory);
 
-    if (Debugger::DebuggerPlugin::instance())
-        addAutoReleasedObject(new RunControlFactory<S60DeviceDebugRunControl,
-                                                S60DeviceRunConfiguration>
-                                                (QLatin1String(ProjectExplorer::Constants::DEBUGMODE),
-                                                 tr("Debug on Device"), parent));
+    addAutoReleasedObject(new RunControlFactory<S60DeviceDebugRunControl,
+                                            S60DeviceRunConfiguration>
+                                            (QLatin1String(ProjectExplorer::Constants::DEBUGMODE),
+                                             tr("Debug on Device"), parent));
     updateQtVersions();
     connect(m_devices, SIGNAL(qtVersionsChanged()),
             this, SLOT(updateQtVersions()));

@@ -463,7 +463,7 @@ void InspectorUi::reloadQmlViewer()
 
 void InspectorUi::setSimpleDockWidgetArrangement(const Debugger::DebuggerLanguages &activeLanguages)
 {
-    Debugger::DebuggerUISwitcher *uiSwitcher = Debugger::DebuggerUISwitcher::instance();
+    Debugger::DebuggerUISwitcher *uiSwitcher = Debugger::DebuggerPlugin::uiSwitcher();
     Utils::FancyMainWindow *mw = uiSwitcher->mainWindow();
 
     mw->setTrackingEnabled(false);
@@ -592,7 +592,7 @@ bool InspectorUi::addQuotesForData(const QVariant &value) const
 
 void InspectorUi::setupDockWidgets()
 {
-    Debugger::DebuggerUISwitcher *uiSwitcher = Debugger::DebuggerUISwitcher::instance();
+    Debugger::DebuggerUISwitcher *uiSwitcher = Debugger::DebuggerPlugin::uiSwitcher();
 
     m_toolbar->createActions(Core::Context(Debugger::Constants::C_QMLDEBUGGER));
     m_toolbar->setObjectName("QmlInspectorToolbar");

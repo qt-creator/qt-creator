@@ -31,8 +31,9 @@
 
 #include "debuggeractions.h"
 #include "debuggeragents.h"
-#include "debuggerrunner.h"
+#include "debuggercore.h"
 #include "debuggerplugin.h"
+#include "debuggerrunner.h"
 #include "debuggerstringutils.h"
 #include "debuggertooltip.h"
 
@@ -87,6 +88,8 @@ using namespace TextEditor;
 //
 ///////////////////////////////////////////////////////////////////////
 
+namespace Debugger {
+
 DebuggerStartParameters::DebuggerStartParameters() :
     isSnapshot(false),
     attachPID(-1),
@@ -105,9 +108,6 @@ void DebuggerStartParameters::clear()
 {
     *this = DebuggerStartParameters();
 }
-
-
-namespace Debugger {
 
 QDebug operator<<(QDebug d, DebuggerState state)
 {
@@ -321,7 +321,7 @@ void DebuggerEngine::showModuleSymbols
         it->setData(2, Qt::DisplayRole, s.state);
         w->addTopLevelItem(it);
     }
-    plugin()->createNewDock(w);
+    debuggerCore()->createNewDock(w);
 }
 
 void DebuggerEngine::frameUp()
@@ -452,7 +452,7 @@ void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) c
 {
     //if (msg.size() && msg.at(0).isUpper() && msg.at(1).isUpper())
     //    qDebug() << qPrintable(msg) << "IN STATE" << state();
-    plugin()->showMessage(msg, channel, timeout);
+    debuggerCore()->showMessage(msg, channel, timeout);
     if (d->m_runControl) {
         d->m_runControl->showMessage(msg, channel);
     } else {
@@ -516,7 +516,7 @@ void DebuggerEngine::resetLocation()
 {
     d->m_disassemblerViewAgent.resetLocation();
     d->m_stackHandler.setCurrentIndex(-1);
-    plugin()->resetLocation();
+    debuggerCore()->resetLocation();
 }
 
 void DebuggerEngine::gotoLocation(const QString &fileName, int lineNumber, bool setMarker)
@@ -531,10 +531,10 @@ void DebuggerEngine::gotoLocation(const StackFrame &frame, bool setMarker)
 {
     if (theDebuggerBoolSetting(OperateByInstruction) || !frame.isUsable()) {
         if (setMarker)
-            plugin()->resetLocation();
+            debuggerCore()->resetLocation();
         d->m_disassemblerViewAgent.setFrame(frame);
     } else {
-        plugin()->gotoLocation(frame.file, frame.line, setMarker);
+        debuggerCore()->gotoLocation(frame.file, frame.line, setMarker);
     }
 }
 
@@ -600,7 +600,7 @@ QStringList DebuggerEngine::qtDumperLibraryLocations() const
 
 void DebuggerEngine::showQtDumperLibraryWarning(const QString &details)
 {
-    plugin()->showQtDumperLibraryWarning(details);
+    debuggerCore()->showQtDumperLibraryWarning(details);
 }
 
 QString DebuggerEngine::qtDumperLibraryName() const
@@ -1011,7 +1011,7 @@ void DebuggerEngine::updateViews()
     // should be coordinated by their master engine.
     if (isSlaveEngine())
         return;
-    plugin()->updateState(this);
+    debuggerCore()->updateState(this);
 }
 
 bool DebuggerEngine::isSlaveEngine() const
@@ -1074,14 +1074,9 @@ qint64 DebuggerEngine::inferiorPid() const
     return d->m_inferiorPid;
 }
 
-DebuggerPlugin *DebuggerEngine::plugin()
-{
-    return DebuggerPlugin::instance();
-}
-
 bool DebuggerEngine::isReverseDebugging() const
 {
-    return plugin()->isReverseDebugging();
+    return debuggerCore()->isReverseDebugging();
 }
 
 bool DebuggerEngine::isActive() const
@@ -1130,7 +1125,7 @@ void DebuggerEngine::progressPing()
 QMessageBox *DebuggerEngine::showMessageBox(int icon, const QString &title,
     const QString &text, int buttons)
 {
-    return plugin()->showMessageBox(icon, title, text, buttons);
+    return debuggerCore()->showMessageBox(icon, title, text, buttons);
 }
 
 DebuggerRunControl *DebuggerEngine::runControl() const
@@ -1394,7 +1389,7 @@ void DebuggerEngine::executeDebuggerCommand(const QString &)
 
 Internal::BreakHandler *DebuggerEngine::breakHandler() const
 {
-    return plugin()->breakHandler();
+    return debuggerCore()->breakHandler();
 }
 
 bool DebuggerEngine::isDying() const

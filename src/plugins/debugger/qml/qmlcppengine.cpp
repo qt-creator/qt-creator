@@ -1,7 +1,7 @@
 #include "qmlcppengine.h"
 #include "qmlengine.h"
 #include "debuggeruiswitcher.h"
-#include "debuggerplugin.h"
+#include "debuggercore.h"
 
 #include <qmljseditor/qmljseditorconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -124,7 +124,7 @@ void QmlCppEngine::setActiveEngine(DebuggerLanguage language)
     }
     if (previousEngine != d->m_activeEngine) {
         showStatusMessage(tr("%1 debugger activated").arg(engineName));
-        plugin()->displayDebugger(d->m_activeEngine, updateEngine);
+        Internal::debuggerCore()->displayDebugger(d->m_activeEngine, updateEngine);
     }
 }
 

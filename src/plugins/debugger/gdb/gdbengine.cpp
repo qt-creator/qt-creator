@@ -34,6 +34,7 @@
 #include "gdboptionspage.h"
 #include "debuggeruiswitcher.h"
 #include "debuggermainwindow.h"
+#include "debuggercore.h"
 #include "debuggerplugin.h"
 #include "debuggerrunner.h"
 
@@ -201,11 +202,6 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters)
 DebuggerStartMode GdbEngine::startMode() const
 {
     return startParameters().startMode;
-}
-
-QMainWindow *GdbEngine::mainWindow() const
-{
-    return DebuggerUISwitcher::instance()->mainWindow();
 }
 
 AbstractGdbProcess *GdbEngine::gdbProc() const
@@ -3077,7 +3073,7 @@ void GdbEngine::handleMakeSnapshot(const GdbResponse &response)
 
 void GdbEngine::reloadRegisters()
 {
-    if (!plugin()->isRegisterViewVisible())
+    if (!debuggerCore()->isRegisterViewVisible())
         return;
 
     if (state() != InferiorStopOk && state() != InferiorUnrunnable)
@@ -4371,7 +4367,7 @@ void GdbEngine::createFullBacktrace()
 void GdbEngine::handleCreateFullBacktrace(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
-        plugin()->openTextEditor(_("Backtrace $"),
+        debuggerCore()->openTextEditor(_("Backtrace $"),
             _(response.data.findChild("consolestreamoutput").data()));
     }
 }

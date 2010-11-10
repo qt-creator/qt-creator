@@ -30,6 +30,7 @@
 #include "debuggerrunner.h"
 
 #include "debuggeractions.h"
+#include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggerplugin.h"
 #include "debuggerstringutils.h"
@@ -112,8 +113,6 @@ static QString msgEngineNotAvailable(const char *engine)
         "which is disabled.").arg(QLatin1String(engine));
 }
 
-static DebuggerPlugin *plugin() { return DebuggerPlugin::instance(); }
-
 // A factory to create DebuggerRunControls
 DebuggerRunControlFactory::DebuggerRunControlFactory(QObject *parent,
         unsigned enabledEngines)
@@ -180,16 +179,17 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
     sp.dumperLibrary = rc->dumperLibrary();
     sp.dumperLibraryLocations = rc->dumperLibraryLocations();
 
-    DebuggerLanguages activeLangs = DebuggerUISwitcher::instance()->activeDebugLanguages();
-    if (activeLangs & QmlLanguage) {
+    if (debuggerCore()->isActiveDebugLanguage(QmlLanguage)) {
         sp.qmlServerAddress = QLatin1String("127.0.0.1");
         sp.qmlServerPort = runConfiguration->qmlDebugServerPort();
 
         sp.projectDir = runConfiguration->target()->project()->projectDirectory();
         if (runConfiguration->target()->activeBuildConfiguration())
-            sp.projectBuildDir = runConfiguration->target()->activeBuildConfiguration()->buildDirectory();
+            sp.projectBuildDir = runConfiguration->target()
+                ->activeBuildConfiguration()->buildDirectory();
 
-        sp.processArgs.append(QLatin1String("-qmljsdebugger=port:") + QString::number(sp.qmlServerPort));
+        sp.processArgs.append(QLatin1String("-qmljsdebugger=port:")
+            + QString::number(sp.qmlServerPort));
     }
 
     // FIXME: If it's not yet build this will be empty and not filled
@@ -413,7 +413,7 @@ void DebuggerRunControl::createEngine(const DebuggerStartParameters &startParams
 
     // Figure out engine according to toolchain, executable, attach or default.
     DebuggerEngineType engineType = NoEngineType;
-    DebuggerLanguages activeLangs = DebuggerPlugin::instance()->activeLanguages();
+    DebuggerLanguages activeLangs = debuggerCore()->activeLanguages();
     const unsigned enabledEngineTypes = d->enabledEngines();
     if (sp.executable.endsWith(_(".js")))
         engineType = ScriptEngineType;
@@ -540,7 +540,7 @@ bool DebuggerRunControl::checkDebugConfiguration(int toolChain,
 
     bool success = true;
 
-    if (!(DebuggerPlugin::instance()->activeLanguages() & CppLanguage))
+    if (!(debuggerCore()->activeLanguages() & CppLanguage))
         return success;
 
     switch(toolChain) {
@@ -589,14 +589,7 @@ void DebuggerRunControl::start()
         return;
     }
 
-    plugin()->activateDebugMode();
-    DebuggerUISwitcher::instance()->aboutToStartDebugger();
-
-    const QString message = tr("Starting debugger '%1' for tool chain '%2'...").
-                  arg(d->m_engine->objectName(), toolChainName(sp.toolChainType));
-    plugin()->showMessage(message, StatusBar);
-    plugin()->showMessage(DebuggerSettings::instance()->dump(), LogDebug);
-    plugin()->runControlStarted(this);
+    debuggerCore()->runControlStarted(this);
 
     // We might get a synchronous startFailed() notification on Windows,
     // when launching the process fails. Emit a proper finished() sequence.
@@ -609,6 +602,13 @@ void DebuggerRunControl::start()
         emit addToOutputWindowInline(this, tr("Debugging starts"), false);
         emit addToOutputWindowInline(this, "\n", false);
     }
+}
+
+QString DebuggerRunControl::idString() const
+{
+    return tr("Starting debugger '%1' for tool chain '%2'...")
+        .arg(d->m_engine->objectName())
+        .arg(toolChainName(d->m_engine->startParameters().toolChainType));
 }
 
 void DebuggerRunControl::startFailed()
@@ -624,7 +624,7 @@ void DebuggerRunControl::handleFinished()
     emit addToOutputWindowInline(this, tr("Debugging has finished"), false);
     if (engine())
         engine()->handleFinished();
-    plugin()->runControlFinished(this);
+    debuggerCore()->runControlFinished(this);
 }
 
 void DebuggerRunControl::showMessage(const QString &msg, int channel)
@@ -652,7 +652,7 @@ bool DebuggerRunControl::aboutToStop() const
             " Would you still like to terminate it?");
 
     const QMessageBox::StandardButton answer =
-            QMessageBox::question(DebuggerUISwitcher::instance()->mainWindow(),
+            QMessageBox::question(debuggerCore()->mainWindow(),
                                   tr("Close Debugging Session"), question,
                                   QMessageBox::Yes|QMessageBox::No);
     return answer == QMessageBox::Yes;
@@ -754,4 +754,5 @@ RunConfiguration *DebuggerRunControl::runConfiguration() const
 {
     return d->m_myRunConfiguration.data();
 }
+
 } // namespace Debugger

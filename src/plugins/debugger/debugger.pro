@@ -24,6 +24,7 @@ HEADERS += breakhandler.h \
     debugger_global.h \
     debuggeractions.h \
     debuggeragents.h \
+    debuggercore.h \
     debuggerconstants.h \
     debuggerdialogs.h \
     debuggerengine.h \

@@ -33,9 +33,9 @@
 #include "debuggeragents.h"
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
+#include "debuggercore.h"
 #include "debuggerdialogs.h"
 #include "debuggerengine.h"
-#include "debuggerplugin.h"
 #include "watchdelegatewidgets.h"
 #include "watchhandler.h"
 
@@ -63,14 +63,9 @@
 namespace Debugger {
 namespace Internal {
 
-static DebuggerPlugin *plugin()
-{
-    return DebuggerPlugin::instance();
-}
-
 static DebuggerEngine *currentEngine()
 {
-    return DebuggerPlugin::instance()->currentEngine();
+    return debuggerCore()->currentEngine();
 }
 
 class WatchDelegate : public QItemDelegate
@@ -461,14 +456,14 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == actRemoveWatchExpression) {
         removeWatchExpression(exp);
     } else if (act == actClearCodeModelSnapshot) {
-        plugin()->clearCppCodeModelSnapshot();
+        debuggerCore()->clearCppCodeModelSnapshot();
     } else if (act == clearTypeFormatAction) {
         setModelData(LocalsTypeFormatRole, -1, mi1);
     } else if (act == clearIndividualFormatAction) {
         setModelData(LocalsIndividualFormatRole, -1, mi1);
     } else if (act == actShowInEditor) {
         QString contents = handler->editorContents();
-        plugin()->openTextEditor(tr("Locals & Watchers"), contents);
+        debuggerCore()->openTextEditor(tr("Locals & Watchers"), contents);
     } else {
         for (int i = 0; i != typeFormatActions.size(); ++i) {
             if (act == typeFormatActions.at(i))

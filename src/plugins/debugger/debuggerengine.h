@@ -56,8 +56,6 @@ class IOptionsPage;
 namespace Debugger {
 
 class DebuggerEnginePrivate;
-class DebuggerPlugin;
-class DebuggerPluginPrivate;
 class DebuggerRunControl;
 class QmlCppEngine;
 
@@ -118,6 +116,8 @@ DEBUGGER_EXPORT QDebug operator<<(QDebug str, DebuggerState state);
 
 namespace Internal {
 
+class DebuggerCore;
+class DebuggerPluginPrivate;
 class DisassemblerViewAgent;
 class MemoryViewAgent;
 class Symbol;
@@ -209,7 +209,7 @@ public:
         (int icon, const QString &title, const QString &text, int buttons = 0);
 
 protected:
-    friend class DebuggerPluginPrivate;
+    friend class Internal::DebuggerPluginPrivate;
     virtual void detachDebugger();
     virtual void exitDebugger();
     virtual void executeStep();
@@ -232,7 +232,6 @@ protected:
     virtual void frameDown();
 
 public:
-    static DebuggerPlugin *plugin();
     const DebuggerStartParameters &startParameters() const;
     DebuggerStartParameters &startParameters();
 
