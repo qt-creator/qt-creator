@@ -634,10 +634,9 @@ static bool isAllowedTransition(DebuggerState from, DebuggerState to)
     case EngineSetupRequested:
         return to == EngineSetupOk || to == EngineSetupFailed;
     case EngineSetupFailed:
-        // FIXME: In therory it's the engine's task to go into a
-        // proper "Shutdown" state before calling notifyEngineSetupFailed
-        //return to == DebuggerFinished;
-        return to == EngineShutdownRequested;
+        // In is the engine's task to go into a proper "Shutdown"
+        // state before calling notifyEngineSetupFailed
+        return to == DebuggerFinished;
     case EngineSetupOk:
         return to == InferiorSetupRequested || to == EngineShutdownRequested;
 
