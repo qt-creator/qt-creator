@@ -138,9 +138,12 @@ void Highlighter::highlightBlock(const QString &text)
                 break;
 
             case Token::Identifier: {
+                if (!m_qmlEnabled)
+                    break;
+
                 const QStringRef spell = text.midRef(token.offset, token.length);
 
-                if (m_qmlEnabled && maybeQmlKeyword(spell)) {
+                if (maybeQmlKeyword(spell)) {
                     // check the previous token
                     if (index == 0 || tokens.at(index - 1).isNot(Token::Dot)) {
                         if (index + 1 == tokens.size() || tokens.at(index + 1).isNot(Token::Colon)) {
@@ -148,7 +151,7 @@ void Highlighter::highlightBlock(const QString &text)
                             break;
                         }
                     }
-                } else if (m_qmlEnabled && index > 0 && maybeQmlBuiltinType(spell)) {
+                } else if (index > 0 && maybeQmlBuiltinType(spell)) {
                     const Token &previousToken = tokens.at(index - 1);
                     if (previousToken.is(Token::Identifier) && text.at(previousToken.offset) == QLatin1Char('p')
                         && text.midRef(previousToken.offset, previousToken.length) == QLatin1String("property")) {
@@ -157,9 +160,10 @@ void Highlighter::highlightBlock(const QString &text)
                     }
                 }
 
-                if (index + 1 < tokens.size()) {
-                    const Token &nextToken = tokens.at(index + 1);
+                if (!spell.isEmpty() && spell.at(0).isUpper())
+                    setFormat(token.offset, token.length, m_formats[TypeFormat]);
 
+                if (index + 1 < tokens.size()) {
                     bool maybeBinding = (index == 0 || checkStartOfBinding(tokens.at(index - 1)));
                     bool maybeOnBinding = false;
                     if (index > 0) {
@@ -170,11 +174,7 @@ void Highlighter::highlightBlock(const QString &text)
                         }
                     }
 
-                    if (text.at(token.offset).isUpper()
-                        && (nextToken.is(Token::LeftBrace)
-                            || text.midRef(nextToken.offset, nextToken.length) == QLatin1String("on"))) {
-                        setFormat(token.offset, token.length, m_formats[TypeFormat]);
-                    } else if (maybeBinding || maybeOnBinding) {
+                    if (maybeBinding || maybeOnBinding) {
                         Token::Kind expectedTerminator = Token::Colon;
                         if (maybeOnBinding)
                             expectedTerminator = Token::LeftBrace;
@@ -192,7 +192,14 @@ void Highlighter::highlightBlock(const QString &text)
                             // it's a binding.
                             for (int i = start; i <= index; ++i) {
                                 const Token &tok = tokens.at(i);
-                                setFormat(tok.offset, tok.length, m_formats[FieldFormat]);
+                                if (tok.kind == Token::Dot)
+                                    continue;
+                                const QStringRef tokSpell = text.midRef(tok.offset, tok.length);
+                                if (!tokSpell.isEmpty() && tokSpell.at(0).isUpper()) {
+                                    setFormat(tok.offset, tok.length, m_formats[TypeFormat]);
+                                } else {
+                                    setFormat(tok.offset, tok.length, m_formats[FieldFormat]);
+                                }
                             }
                             break;
                         } else {
