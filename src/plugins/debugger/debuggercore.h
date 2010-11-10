@@ -67,8 +67,6 @@ class DebuggerCore : public QObject
 public:
     DebuggerCore() {}
 
-    static DebuggerCore *instance();
-
     virtual QVariant sessionValue(const QString &name) = 0;
     virtual void setSessionValue(const QString &name, const QVariant &value) = 0;
     virtual QVariant configValue(const QString &name) const = 0;
@@ -111,6 +109,7 @@ public:
     virtual QWidget *mainWindow() const = 0;
 };
 
+// This is the only way to access the global object.
 DebuggerCore *debuggerCore();
 
 } // namespace Internal
