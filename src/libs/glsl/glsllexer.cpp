@@ -31,6 +31,7 @@
 #include "glslparser.h"
 #include <cctype>
 #include <iostream>
+#include <cstdio>
 
 using namespace GLSL;
 
@@ -79,9 +80,9 @@ enum {
 
 int Lexer::yylex_helper(const char **position, int *line)
 {
-again:
-    while (std::isspace(_yychar))
-        yyinp();
+    again:
+        while (std::isspace(_yychar))
+      yyinp();
 
     *position = _it - 1;
     *line = _lineno;
@@ -116,7 +117,7 @@ again:
         }
         goto again;
 
-    // one of `!', `!='
+        // one of `!', `!='
     case '!':
         if (_yychar == '=') {
             yyinp();
