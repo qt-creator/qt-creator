@@ -30,6 +30,9 @@ Thumbs.db
 
 # qtcreator generated files
 *.pro.user*
+*.pluginspec
+src/app/Info.plist
+src/plugins/coreplugin/ide_version.h
 
 # xemacs temporary files
 *.flc
