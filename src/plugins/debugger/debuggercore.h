@@ -66,7 +66,6 @@ class DebuggerCore : public QObject
 
 public:
     DebuggerCore() {}
-    virtual ~DebuggerCore() {}
 
     static DebuggerCore *instance();
 
@@ -86,7 +85,6 @@ public:
     virtual DebuggerEngine *currentEngine() const = 0;
     virtual bool isActiveDebugLanguage(int language) const = 0;
 
-public slots: // FIXME: Slot needed?
     virtual void clearCppCodeModelSnapshot() = 0;
     virtual void ensureLogVisible() = 0;
 
