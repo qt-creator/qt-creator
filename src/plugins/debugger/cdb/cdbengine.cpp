@@ -42,7 +42,7 @@
 #include "cdbsymbolpathlisteditor.h"
 #include "debuggeragents.h"
 #include "debuggeruiswitcher.h"
-#include "debuggermainwindow.h"
+#include "debuggercore.h"
 
 #include "debuggeractions.h"
 #include "breakhandler.h"
@@ -1374,13 +1374,13 @@ void CdbEngine::slotConsoleStubStarted()
         m_d->startWatchTimer();
         notifyInferiorPid(appPid);
     } else {
-        QMessageBox::critical(DebuggerUISwitcher::instance()->mainWindow(), tr("Debugger Error"), errorMessage);
+        QMessageBox::critical(debuggerCore()->mainWindow(), tr("Debugger Error"), errorMessage);
     }
 }
 
 void CdbEngine::slotConsoleStubMessage(const QString &msg, bool)
 {
-    QMessageBox::critical(DebuggerUISwitcher::instance()->mainWindow(), tr("Debugger Error"), msg);
+    QMessageBox::critical(debuggerCore()->mainWindow(), tr("Debugger Error"), msg);
 }
 
 void CdbEngine::slotConsoleStubTerminated()
