@@ -71,6 +71,8 @@ void MaemoRunControl::start()
 {
     if (!m_devConfig.isValid()) {
         handleError(tr("No device configuration set for run configuration."));
+    } else if (!m_runConfig) {
+        handleError(tr("Run configuration no longer available."));
     } else {
         m_running = true;
         emit started();

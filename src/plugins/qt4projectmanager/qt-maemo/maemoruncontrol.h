@@ -39,6 +39,7 @@
 
 #include <projectexplorer/runconfiguration.h>
 
+#include <QtCore/QPointer>
 #include <QtCore/QString>
 
 namespace Qt4ProjectManager {
@@ -71,7 +72,7 @@ private:
     void setFinished();
     void handleError(const QString &errString);
 
-    MaemoRunConfiguration *m_runConfig; // TODO this pointer can be invalid
+    QPointer<MaemoRunConfiguration> m_runConfig;
     const MaemoDeviceConfig m_devConfig;
     MaemoSshRunner * const m_runner;
     bool m_running;
