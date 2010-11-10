@@ -107,24 +107,24 @@
             <enumerator name="NormalPriority" value="128"/>
             <enumerator name="HighPriority" value="256"/>
         </enum>
-        <property name="checkable" type="bool"/>
-        <property name="checked" type="bool"/>
-        <property name="enabled" type="bool"/>
-        <property name="icon" type="QIcon"/>
-        <property name="text" type="string"/>
-        <property name="iconText" type="string"/>
-        <property name="toolTip" type="string"/>
-        <property name="statusTip" type="string"/>
-        <property name="whatsThis" type="string"/>
-        <property name="font" type="QFont"/>
-        <property name="shortcut" type="QKeySequence"/>
-        <property name="shortcutContext" type="Qt.ShortcutContext"/>
-        <property name="autoRepeat" type="bool"/>
-        <property name="visible" type="bool"/>
-        <property name="menuRole" type="MenuRole"/>
-        <property name="softKeyRole" type="SoftKeyRole"/>
-        <property name="iconVisibleInMenu" type="bool"/>
-        <property name="priority" type="Priority"/>
+        <property name="checkable" type="bool" isWritable="true"/>
+        <property name="checked" type="bool" isWritable="true"/>
+        <property name="enabled" type="bool" isWritable="true"/>
+        <property name="icon" type="QIcon" isWritable="true"/>
+        <property name="text" type="string" isWritable="true"/>
+        <property name="iconText" type="string" isWritable="true"/>
+        <property name="toolTip" type="string" isWritable="true"/>
+        <property name="statusTip" type="string" isWritable="true"/>
+        <property name="whatsThis" type="string" isWritable="true"/>
+        <property name="font" type="QFont" isWritable="true"/>
+        <property name="shortcut" type="QKeySequence" isWritable="true"/>
+        <property name="shortcutContext" type="Qt.ShortcutContext" isWritable="true"/>
+        <property name="autoRepeat" type="bool" isWritable="true"/>
+        <property name="visible" type="bool" isWritable="true"/>
+        <property name="menuRole" type="MenuRole" isWritable="true"/>
+        <property name="softKeyRole" type="SoftKeyRole" isWritable="true"/>
+        <property name="iconVisibleInMenu" type="bool" isWritable="true"/>
+        <property name="priority" type="Priority" isWritable="true"/>
         <signal name="changed"/>
         <signal name="triggered">
             <param name="checked" type="bool"/>
@@ -134,6 +134,13 @@
         <signal name="toggled">
             <param type="bool"/>
         </signal>
+        <signal name="activated">
+            <param type="int"/>
+        </signal>
+        <signal name="activated"/>
+        <method name="setOn">
+            <param name="b" type="bool"/>
+        </method>
         <method name="trigger"/>
         <method name="hover"/>
         <method name="setChecked">
@@ -158,10 +165,10 @@
         <enum name="Loops">
             <enumerator name="Infinite" value="-2"/>
         </enum>
-        <property name="running" type="bool"/>
-        <property name="paused" type="bool"/>
-        <property name="alwaysRunToEnd" type="bool"/>
-        <property name="loops" type="int"/>
+        <property name="running" type="bool" isWritable="true"/>
+        <property name="paused" type="bool" isWritable="true"/>
+        <property name="alwaysRunToEnd" type="bool" isWritable="true"/>
+        <property name="loops" type="int" isWritable="true"/>
         <signal name="started"/>
         <signal name="completed"/>
         <signal name="runningChanged">
@@ -189,8 +196,8 @@
             <export module="Qt" version="4.7" type="AnchorAnimation"/>
         </exports>
         <property name="targets" type="QDeclarativeItem" isList="true"/>
-        <property name="duration" type="int"/>
-        <property name="easing" type="QEasingCurve"/>
+        <property name="duration" type="int" isWritable="true"/>
+        <property name="easing" type="QEasingCurve" isWritable="true"/>
         <signal name="durationChanged">
             <param type="int"/>
         </signal>
@@ -203,36 +210,36 @@
             <export module="Qt" version="4.7" type="AnchorChanges"/>
             <export module="QtQuick" version="1.0" type="AnchorChanges"/>
         </exports>
-        <property name="target" type="QDeclarativeItem"/>
-        <property name="anchors" type="QDeclarativeAnchorSet"/>
+        <property name="target" type="QDeclarativeItem" isWritable="true" isPointer="true"/>
+        <property name="anchors" type="QDeclarativeAnchorSet" isPointer="true"/>
     </type>
     <type name="QDeclarativeAnchorSet" extends="QObject">
-        <property name="left" type="QDeclarativeScriptString"/>
-        <property name="right" type="QDeclarativeScriptString"/>
-        <property name="horizontalCenter" type="QDeclarativeScriptString"/>
-        <property name="top" type="QDeclarativeScriptString"/>
-        <property name="bottom" type="QDeclarativeScriptString"/>
-        <property name="verticalCenter" type="QDeclarativeScriptString"/>
-        <property name="baseline" type="QDeclarativeScriptString"/>
+        <property name="left" type="QDeclarativeScriptString" isWritable="true"/>
+        <property name="right" type="QDeclarativeScriptString" isWritable="true"/>
+        <property name="horizontalCenter" type="QDeclarativeScriptString" isWritable="true"/>
+        <property name="top" type="QDeclarativeScriptString" isWritable="true"/>
+        <property name="bottom" type="QDeclarativeScriptString" isWritable="true"/>
+        <property name="verticalCenter" type="QDeclarativeScriptString" isWritable="true"/>
+        <property name="baseline" type="QDeclarativeScriptString" isWritable="true"/>
     </type>
     <type name="QDeclarativeAnchors" extends="QObject">
-        <property name="left" type="QDeclarativeAnchorLine"/>
-        <property name="right" type="QDeclarativeAnchorLine"/>
-        <property name="horizontalCenter" type="QDeclarativeAnchorLine"/>
-        <property name="top" type="QDeclarativeAnchorLine"/>
-        <property name="bottom" type="QDeclarativeAnchorLine"/>
-        <property name="verticalCenter" type="QDeclarativeAnchorLine"/>
-        <property name="baseline" type="QDeclarativeAnchorLine"/>
-        <property name="margins" type="qreal"/>
-        <property name="leftMargin" type="qreal"/>
-        <property name="rightMargin" type="qreal"/>
-        <property name="horizontalCenterOffset" type="qreal"/>
-        <property name="topMargin" type="qreal"/>
-        <property name="bottomMargin" type="qreal"/>
-        <property name="verticalCenterOffset" type="qreal"/>
-        <property name="baselineOffset" type="qreal"/>
-        <property name="fill" type="QGraphicsObject"/>
-        <property name="centerIn" type="QGraphicsObject"/>
+        <property name="left" type="QDeclarativeAnchorLine" isWritable="true"/>
+        <property name="right" type="QDeclarativeAnchorLine" isWritable="true"/>
+        <property name="horizontalCenter" type="QDeclarativeAnchorLine" isWritable="true"/>
+        <property name="top" type="QDeclarativeAnchorLine" isWritable="true"/>
+        <property name="bottom" type="QDeclarativeAnchorLine" isWritable="true"/>
+        <property name="verticalCenter" type="QDeclarativeAnchorLine" isWritable="true"/>
+        <property name="baseline" type="QDeclarativeAnchorLine" isWritable="true"/>
+        <property name="margins" type="qreal" isWritable="true"/>
+        <property name="leftMargin" type="qreal" isWritable="true"/>
+        <property name="rightMargin" type="qreal" isWritable="true"/>
+        <property name="horizontalCenterOffset" type="qreal" isWritable="true"/>
+        <property name="topMargin" type="qreal" isWritable="true"/>
+        <property name="bottomMargin" type="qreal" isWritable="true"/>
+        <property name="verticalCenterOffset" type="qreal" isWritable="true"/>
+        <property name="baselineOffset" type="qreal" isWritable="true"/>
+        <property name="fill" type="QGraphicsObject" isWritable="true" isPointer="true"/>
+        <property name="centerIn" type="QGraphicsObject" isWritable="true" isPointer="true"/>
         <signal name="leftChanged"/>
         <signal name="rightChanged"/>
         <signal name="topChanged"/>
@@ -256,9 +263,9 @@
             <export module="Qt" version="4.7" type="AnimatedImage"/>
             <export module="QtQuick" version="1.0" type="AnimatedImage"/>
         </exports>
-        <property name="playing" type="bool"/>
-        <property name="paused" type="bool"/>
-        <property name="currentFrame" type="int"/>
+        <property name="playing" type="bool" isWritable="true"/>
+        <property name="paused" type="bool" isWritable="true"/>
+        <property name="currentFrame" type="int" isWritable="true"/>
         <property name="frameCount" type="int"/>
         <property name="sourceSize" type="QSize"/>
         <signal name="playingChanged"/>
@@ -270,9 +277,9 @@
         <property name="animations" type="QDeclarativeAbstractAnimation" isList="true"/>
     </type>
     <type name="QDeclarativeBasePositioner" defaultProperty="data" extends="QDeclarativeItem">
-        <property name="spacing" type="int"/>
-        <property name="move" type="QDeclarativeTransition"/>
-        <property name="add" type="QDeclarativeTransition"/>
+        <property name="spacing" type="int" isWritable="true"/>
+        <property name="move" type="QDeclarativeTransition" isWritable="true" isPointer="true"/>
+        <property name="add" type="QDeclarativeTransition" isWritable="true" isPointer="true"/>
         <signal name="spacingChanged"/>
         <signal name="moveChanged"/>
         <signal name="addChanged"/>
@@ -282,8 +289,8 @@
             <export module="QtQuick" version="1.0" type="Behavior"/>
             <export module="Qt" version="4.7" type="Behavior"/>
         </exports>
-        <property name="animation" type="QDeclarativeAbstractAnimation"/>
-        <property name="enabled" type="bool"/>
+        <property name="animation" type="QDeclarativeAbstractAnimation" isWritable="true" isPointer="true"/>
+        <property name="enabled" type="bool" isWritable="true"/>
         <signal name="enabledChanged"/>
     </type>
     <type name="QDeclarativeBind" extends="QObject">
@@ -291,10 +298,10 @@
             <export module="QtQuick" version="1.0" type="Binding"/>
             <export module="Qt" version="4.7" type="Binding"/>
         </exports>
-        <property name="target" type="QObject"/>
-        <property name="property" type="string"/>
-        <property name="value" type="QVariant"/>
-        <property name="when" type="bool"/>
+        <property name="target" type="QObject" isWritable="true" isPointer="true"/>
+        <property name="property" type="string" isWritable="true"/>
+        <property name="value" type="QVariant" isWritable="true"/>
+        <property name="when" type="bool" isWritable="true"/>
     </type>
     <type name="QDeclarativeBorderImage" defaultProperty="data" extends="QDeclarativeImageBase">
         <exports>
@@ -306,9 +313,9 @@
             <enumerator name="Repeat" value="1"/>
             <enumerator name="Round" value="2"/>
         </enum>
-        <property name="border" type="QDeclarativeScaleGrid"/>
-        <property name="horizontalTileMode" type="TileMode"/>
-        <property name="verticalTileMode" type="TileMode"/>
+        <property name="border" type="QDeclarativeScaleGrid" isPointer="true"/>
+        <property name="horizontalTileMode" type="TileMode" isWritable="true"/>
+        <property name="verticalTileMode" type="TileMode" isWritable="true"/>
         <signal name="horizontalTileModeChanged"/>
         <signal name="verticalTileModeChanged"/>
     </type>
@@ -317,8 +324,8 @@
             <export module="Qt" version="4.7" type="ColorAnimation"/>
             <export module="QtQuick" version="1.0" type="ColorAnimation"/>
         </exports>
-        <property name="from" type="QColor"/>
-        <property name="to" type="QColor"/>
+        <property name="from" type="QColor" isWritable="true"/>
+        <property name="to" type="QColor" isWritable="true"/>
     </type>
     <type name="QDeclarativeColumn" defaultProperty="data" extends="QDeclarativeBasePositioner">
         <exports>
@@ -355,13 +362,13 @@
             <export module="QtQuick" version="1.0" type="Connections"/>
             <export module="QtQuick" version="1.0" type="Connections"/>
         </exports>
-        <property name="target" type="QObject"/>
-        <property name="ignoreUnknownSignals" type="bool"/>
+        <property name="target" type="QObject" isWritable="true" isPointer="true"/>
+        <property name="ignoreUnknownSignals" type="bool" isWritable="true"/>
         <signal name="targetChanged"/>
     </type>
     <type name="QDeclarativeCurve" extends="QDeclarativePathElement">
-        <property name="x" type="qreal"/>
-        <property name="y" type="qreal"/>
+        <property name="x" type="qreal" isWritable="true"/>
+        <property name="y" type="qreal" isWritable="true"/>
         <signal name="xChanged"/>
         <signal name="yChanged"/>
     </type>
@@ -375,14 +382,14 @@
             <enumerator name="YAxis" value="2"/>
             <enumerator name="XandYAxis" value="3"/>
         </enum>
-        <property name="target" type="QGraphicsObject"/>
-        <property name="axis" type="Axis"/>
-        <property name="minimumX" type="qreal"/>
-        <property name="maximumX" type="qreal"/>
-        <property name="minimumY" type="qreal"/>
-        <property name="maximumY" type="qreal"/>
+        <property name="target" type="QGraphicsObject" isWritable="true" isPointer="true"/>
+        <property name="axis" type="Axis" isWritable="true"/>
+        <property name="minimumX" type="qreal" isWritable="true"/>
+        <property name="maximumX" type="qreal" isWritable="true"/>
+        <property name="minimumY" type="qreal" isWritable="true"/>
+        <property name="maximumY" type="qreal" isWritable="true"/>
         <property name="active" type="bool"/>
-        <property name="filterChildren" type="bool"/>
+        <property name="filterChildren" type="bool" isWritable="true"/>
         <signal name="targetChanged"/>
         <signal name="axisChanged"/>
         <signal name="minimumXChanged"/>
@@ -444,10 +451,10 @@
             <enumerator name="SineCurve" value="43"/>
             <enumerator name="CosineCurve" value="44"/>
         </enum>
-        <property name="type" type="Type"/>
-        <property name="amplitude" type="qreal"/>
-        <property name="overshoot" type="qreal"/>
-        <property name="period" type="qreal"/>
+        <property name="type" type="Type" isWritable="true"/>
+        <property name="amplitude" type="qreal" isWritable="true"/>
+        <property name="overshoot" type="qreal" isWritable="true"/>
+        <property name="period" type="qreal" isWritable="true"/>
     </type>
     <type name="QDeclarativeFlickable" defaultProperty="flickableData" extends="QDeclarativeItem">
         <exports>
@@ -465,30 +472,30 @@
             <enumerator name="VerticalFlick" value="2"/>
             <enumerator name="HorizontalAndVerticalFlick" value="3"/>
         </enum>
-        <property name="contentWidth" type="qreal"/>
-        <property name="contentHeight" type="qreal"/>
-        <property name="contentX" type="qreal"/>
-        <property name="contentY" type="qreal"/>
-        <property name="contentItem" type="QDeclarativeItem"/>
+        <property name="contentWidth" type="qreal" isWritable="true"/>
+        <property name="contentHeight" type="qreal" isWritable="true"/>
+        <property name="contentX" type="qreal" isWritable="true"/>
+        <property name="contentY" type="qreal" isWritable="true"/>
+        <property name="contentItem" type="QDeclarativeItem" isPointer="true"/>
         <property name="horizontalVelocity" type="qreal"/>
         <property name="verticalVelocity" type="qreal"/>
-        <property name="boundsBehavior" type="BoundsBehavior"/>
-        <property name="maximumFlickVelocity" type="qreal"/>
-        <property name="flickDeceleration" type="qreal"/>
+        <property name="boundsBehavior" type="BoundsBehavior" isWritable="true"/>
+        <property name="maximumFlickVelocity" type="qreal" isWritable="true"/>
+        <property name="flickDeceleration" type="qreal" isWritable="true"/>
         <property name="moving" type="bool"/>
         <property name="movingHorizontally" type="bool"/>
         <property name="movingVertically" type="bool"/>
         <property name="flicking" type="bool"/>
         <property name="flickingHorizontally" type="bool"/>
         <property name="flickingVertically" type="bool"/>
-        <property name="flickableDirection" type="FlickableDirection"/>
-        <property name="interactive" type="bool"/>
-        <property name="pressDelay" type="int"/>
+        <property name="flickableDirection" type="FlickableDirection" isWritable="true"/>
+        <property name="interactive" type="bool" isWritable="true"/>
+        <property name="pressDelay" type="int" isWritable="true"/>
         <property name="atXEnd" type="bool"/>
         <property name="atYEnd" type="bool"/>
         <property name="atXBeginning" type="bool"/>
         <property name="atYBeginning" type="bool"/>
-        <property name="visibleArea" type="QDeclarativeFlickableVisibleArea"/>
+        <property name="visibleArea" type="QDeclarativeFlickableVisibleArea" isPointer="true"/>
         <property name="flickableData" type="QObject" isList="true"/>
         <property name="flickableChildren" type="QGraphicsObject" isList="true"/>
         <signal name="contentWidthChanged"/>
@@ -504,7 +511,6 @@
         <signal name="horizontalVelocityChanged"/>
         <signal name="verticalVelocityChanged"/>
         <signal name="isAtBoundaryChanged"/>
-        <signal name="pageChanged"/>
         <signal name="flickableDirectionChanged"/>
         <signal name="interactiveChanged"/>
         <signal name="boundsBehaviorChanged"/>
@@ -521,7 +527,18 @@
         <property name="yPosition" type="qreal"/>
         <property name="widthRatio" type="qreal"/>
         <property name="heightRatio" type="qreal"/>
-        <signal name="pageChanged"/>
+        <signal name="xPositionChanged">
+            <param name="xPosition" type="qreal"/>
+        </signal>
+        <signal name="yPositionChanged">
+            <param name="yPosition" type="qreal"/>
+        </signal>
+        <signal name="widthRatioChanged">
+            <param name="widthRatio" type="qreal"/>
+        </signal>
+        <signal name="heightRatioChanged">
+            <param name="heightRatio" type="qreal"/>
+        </signal>
     </type>
     <type name="QDeclarativeFlipable" defaultProperty="data" extends="QDeclarativeItem">
         <exports>
@@ -532,8 +549,8 @@
             <enumerator name="Front" value="0"/>
             <enumerator name="Back" value="1"/>
         </enum>
-        <property name="front" type="QGraphicsObject"/>
-        <property name="back" type="QGraphicsObject"/>
+        <property name="front" type="QGraphicsObject" isWritable="true" isPointer="true"/>
+        <property name="back" type="QGraphicsObject" isWritable="true" isPointer="true"/>
         <property name="side" type="Side"/>
         <signal name="sideChanged"/>
     </type>
@@ -546,7 +563,7 @@
             <enumerator name="LeftToRight" value="0"/>
             <enumerator name="TopToBottom" value="1"/>
         </enum>
-        <property name="flow" type="Flow"/>
+        <property name="flow" type="Flow" isWritable="true"/>
         <signal name="flowChanged"/>
     </type>
     <type name="QDeclarativeFocusPanel" defaultProperty="data" extends="QDeclarativeItem">
@@ -554,7 +571,7 @@
             <export module="Qt" version="4.7" type="FocusPanel"/>
             <export module="QtQuick" version="1.0" type="FocusPanel"/>
         </exports>
-        <property name="active" type="bool"/>
+        <property name="active" type="bool" isWritable="true"/>
         <signal name="activeChanged"/>
     </type>
     <type name="QDeclarativeFocusScope" defaultProperty="data" extends="QDeclarativeItem">
@@ -574,14 +591,14 @@
             <enumerator name="Size" value="3"/>
             <enumerator name="Type" value="4"/>
         </enum>
-        <property name="folder" type="QUrl"/>
+        <property name="folder" type="QUrl" isWritable="true"/>
         <property name="parentFolder" type="QUrl"/>
-        <property name="nameFilters" type="QStringList"/>
-        <property name="sortField" type="SortField"/>
-        <property name="sortReversed" type="bool"/>
-        <property name="showDirs" type="bool"/>
-        <property name="showDotAndDotDot" type="bool"/>
-        <property name="showOnlyReadable" type="bool"/>
+        <property name="nameFilters" type="QStringList" isWritable="true"/>
+        <property name="sortField" type="SortField" isWritable="true"/>
+        <property name="sortReversed" type="bool" isWritable="true"/>
+        <property name="showDirs" type="bool" isWritable="true"/>
+        <property name="showDotAndDotDot" type="bool" isWritable="true"/>
+        <property name="showOnlyReadable" type="bool" isWritable="true"/>
         <property name="count" type="int"/>
         <signal name="folderChanged"/>
         <method name="isFolder" type="bool">
@@ -599,8 +616,8 @@
             <enumerator name="Loading" value="2"/>
             <enumerator name="Error" value="3"/>
         </enum>
-        <property name="source" type="QUrl"/>
-        <property name="name" type="string"/>
+        <property name="source" type="QUrl" isWritable="true"/>
+        <property name="name" type="string" isWritable="true"/>
         <property name="status" type="Status"/>
         <signal name="sourceChanged"/>
         <signal name="nameChanged"/>
@@ -625,24 +642,24 @@
             <enumerator name="SmallCaps" value="3"/>
             <enumerator name="Capitalize" value="4"/>
         </enum>
-        <property name="family" type="string"/>
-        <property name="bold" type="bool"/>
-        <property name="weight" type="FontWeight"/>
-        <property name="italic" type="bool"/>
-        <property name="underline" type="bool"/>
-        <property name="overline" type="bool"/>
-        <property name="strikeout" type="bool"/>
-        <property name="pointSize" type="qreal"/>
-        <property name="pixelSize" type="int"/>
-        <property name="capitalization" type="Capitalization"/>
-        <property name="letterSpacing" type="qreal"/>
-        <property name="wordSpacing" type="qreal"/>
+        <property name="family" type="string" isWritable="true"/>
+        <property name="bold" type="bool" isWritable="true"/>
+        <property name="weight" type="FontWeight" isWritable="true"/>
+        <property name="italic" type="bool" isWritable="true"/>
+        <property name="underline" type="bool" isWritable="true"/>
+        <property name="overline" type="bool" isWritable="true"/>
+        <property name="strikeout" type="bool" isWritable="true"/>
+        <property name="pointSize" type="qreal" isWritable="true"/>
+        <property name="pixelSize" type="int" isWritable="true"/>
+        <property name="capitalization" type="Capitalization" isWritable="true"/>
+        <property name="letterSpacing" type="qreal" isWritable="true"/>
+        <property name="wordSpacing" type="qreal" isWritable="true"/>
     </type>
     <type name="QDeclarativeGestureArea" defaultProperty="data" extends="QDeclarativeItem">
         <exports>
             <export module="Qt.labs.gestures" version="1.0" type="GestureArea"/>
         </exports>
-        <property name="gesture" type="QGesture"/>
+        <property name="gesture" type="QGesture" isPointer="true"/>
     </type>
     <type name="QDeclarativeGradient" defaultProperty="stops" extends="QObject">
         <exports>
@@ -657,8 +674,8 @@
             <export module="QtQuick" version="1.0" type="GradientStop"/>
             <export module="Qt" version="4.7" type="GradientStop"/>
         </exports>
-        <property name="position" type="qreal"/>
-        <property name="color" type="QColor"/>
+        <property name="position" type="qreal" isWritable="true"/>
+        <property name="color" type="QColor" isWritable="true"/>
     </type>
     <type name="QDeclarativeGrid" defaultProperty="data" extends="QDeclarativeBasePositioner">
         <exports>
@@ -669,9 +686,9 @@
             <enumerator name="LeftToRight" value="0"/>
             <enumerator name="TopToBottom" value="1"/>
         </enum>
-        <property name="rows" type="int"/>
-        <property name="columns" type="int"/>
-        <property name="flow" type="Flow"/>
+        <property name="rows" type="int" isWritable="true"/>
+        <property name="columns" type="int" isWritable="true"/>
+        <property name="flow" type="Flow" isWritable="true"/>
         <signal name="rowsChanged"/>
         <signal name="columnsChanged"/>
         <signal name="flowChanged"/>
@@ -702,26 +719,26 @@
             <enumerator name="Visible" value="3"/>
             <enumerator name="Contain" value="4"/>
         </enum>
-        <property name="model" type="QVariant"/>
-        <property name="delegate" type="QDeclarativeComponent"/>
-        <property name="currentIndex" type="int"/>
-        <property name="currentItem" type="QDeclarativeItem"/>
+        <property name="model" type="QVariant" isWritable="true"/>
+        <property name="delegate" type="QDeclarativeComponent" isWritable="true" isPointer="true"/>
+        <property name="currentIndex" type="int" isWritable="true"/>
+        <property name="currentItem" type="QDeclarativeItem" isPointer="true"/>
         <property name="count" type="int"/>
-        <property name="highlight" type="QDeclarativeComponent"/>
-        <property name="highlightItem" type="QDeclarativeItem"/>
-        <property name="highlightFollowsCurrentItem" type="bool"/>
-        <property name="highlightMoveDuration" type="int"/>
-        <property name="preferredHighlightBegin" type="qreal"/>
-        <property name="preferredHighlightEnd" type="qreal"/>
-        <property name="highlightRangeMode" type="HighlightRangeMode"/>
-        <property name="flow" type="Flow"/>
-        <property name="keyNavigationWraps" type="bool"/>
-        <property name="cacheBuffer" type="int"/>
-        <property name="cellWidth" type="int"/>
-        <property name="cellHeight" type="int"/>
-        <property name="snapMode" type="SnapMode"/>
-        <property name="header" type="QDeclarativeComponent"/>
-        <property name="footer" type="QDeclarativeComponent"/>
+        <property name="highlight" type="QDeclarativeComponent" isWritable="true" isPointer="true"/>
+        <property name="highlightItem" type="QDeclarativeItem" isPointer="true"/>
+        <property name="highlightFollowsCurrentItem" type="bool" isWritable="true"/>
+        <property name="highlightMoveDuration" type="int" isWritable="true"/>
+        <property name="preferredHighlightBegin" type="qreal" isWritable="true"/>
+        <property name="preferredHighlightEnd" type="qreal" isWritable="true"/>
+        <property name="highlightRangeMode" type="HighlightRangeMode" isWritable="true"/>
+        <property name="flow" type="Flow" isWritable="true"/>
+        <property name="keyNavigationWraps" type="bool" isWritable="true"/>
+        <property name="cacheBuffer" type="int" isWritable="true"/>
+        <property name="cellWidth" type="int" isWritable="true"/>
+        <property name="cellHeight" type="int" isWritable="true"/>
+        <property name="snapMode" type="SnapMode" isWritable="true"/>
+        <property name="header" type="QDeclarativeComponent" isWritable="true" isPointer="true"/>
+        <property name="footer" type="QDeclarativeComponent" isWritable="true" isPointer="true"/>
         <signal name="countChanged"/>
         <signal name="currentIndexChanged"/>
         <signal name="cellWidthChanged"/>
@@ -766,7 +783,7 @@
             <enumerator name="TileVertically" value="4"/>
             <enumerator name="TileHorizontally" value="5"/>
         </enum>
-        <property name="fillMode" type="FillMode"/>
+        <property name="fillMode" type="FillMode" isWritable="true"/>
         <property name="paintedWidth" type="qreal"/>
         <property name="paintedHeight" type="qreal"/>
         <signal name="fillModeChanged"/>
@@ -780,10 +797,10 @@
             <enumerator name="Error" value="3"/>
         </enum>
         <property name="status" type="Status"/>
-        <property name="source" type="QUrl"/>
+        <property name="source" type="QUrl" isWritable="true"/>
         <property name="progress" type="qreal"/>
-        <property name="asynchronous" type="bool"/>
-        <property name="sourceSize" type="QSize"/>
+        <property name="asynchronous" type="bool" isWritable="true"/>
+        <property name="sourceSize" type="QSize" isWritable="true"/>
         <signal name="sourceChanged">
             <param type="QUrl"/>
         </signal>
@@ -812,14 +829,14 @@
             <enumerator name="Bottom" value="7"/>
             <enumerator name="BottomRight" value="8"/>
         </enum>
-        <property name="parent" type="QDeclarativeItem"/>
+        <property name="parent" type="QDeclarativeItem" isWritable="true" isPointer="true"/>
         <property name="data" type="QObject" isList="true"/>
         <property name="resources" type="QObject" isList="true"/>
         <property name="states" type="QDeclarativeState" isList="true"/>
         <property name="transitions" type="QDeclarativeTransition" isList="true"/>
-        <property name="state" type="string"/>
+        <property name="state" type="string" isWritable="true"/>
         <property name="childrenRect" type="QRectF"/>
-        <property name="anchors" type="QDeclarativeAnchors"/>
+        <property name="anchors" type="QDeclarativeAnchors" isPointer="true"/>
         <property name="left" type="QDeclarativeAnchorLine"/>
         <property name="right" type="QDeclarativeAnchorLine"/>
         <property name="horizontalCenter" type="QDeclarativeAnchorLine"/>
@@ -827,14 +844,14 @@
         <property name="bottom" type="QDeclarativeAnchorLine"/>
         <property name="verticalCenter" type="QDeclarativeAnchorLine"/>
         <property name="baseline" type="QDeclarativeAnchorLine"/>
-        <property name="baselineOffset" type="qreal"/>
-        <property name="clip" type="bool"/>
-        <property name="focus" type="bool"/>
+        <property name="baselineOffset" type="qreal" isWritable="true"/>
+        <property name="clip" type="bool" isWritable="true"/>
+        <property name="focus" type="bool" isWritable="true"/>
         <property name="activeFocus" type="bool"/>
         <property name="transform" type="QGraphicsTransform" isList="true"/>
-        <property name="transformOrigin" type="TransformOrigin"/>
+        <property name="transformOrigin" type="TransformOrigin" isWritable="true"/>
         <property name="transformOriginPoint" type="QPointF"/>
-        <property name="smooth" type="bool"/>
+        <property name="smooth" type="bool" isWritable="true"/>
         <signal name="childrenRectChanged">
             <param type="QRectF"/>
         </signal>
@@ -851,7 +868,7 @@
             <param type="bool"/>
         </signal>
         <signal name="parentChanged">
-            <param type="QDeclarativeItem"/>
+            <param type="QDeclarativeItem" isPointer="true"/>
         </signal>
         <signal name="transformOriginChanged">
             <param type="TransformOrigin"/>
@@ -887,13 +904,13 @@
             <enumerator name="BeforeItem" value="0"/>
             <enumerator name="AfterItem" value="1"/>
         </enum>
-        <property name="left" type="QDeclarativeItem"/>
-        <property name="right" type="QDeclarativeItem"/>
-        <property name="up" type="QDeclarativeItem"/>
-        <property name="down" type="QDeclarativeItem"/>
-        <property name="tab" type="QDeclarativeItem"/>
-        <property name="backtab" type="QDeclarativeItem"/>
-        <property name="priority" type="Priority"/>
+        <property name="left" type="QDeclarativeItem" isWritable="true" isPointer="true"/>
+        <property name="right" type="QDeclarativeItem" isWritable="true" isPointer="true"/>
+        <property name="up" type="QDeclarativeItem" isWritable="true" isPointer="true"/>
+        <property name="down" type="QDeclarativeItem" isWritable="true" isPointer="true"/>
+        <property name="tab" type="QDeclarativeItem" isWritable="true" isPointer="true"/>
+        <property name="backtab" type="QDeclarativeItem" isWritable="true" isPointer="true"/>
+        <property name="priority" type="Priority" isWritable="true"/>
         <signal name="leftChanged"/>
         <signal name="rightChanged"/>
         <signal name="upChanged"/>
@@ -911,130 +928,130 @@
             <enumerator name="BeforeItem" value="0"/>
             <enumerator name="AfterItem" value="1"/>
         </enum>
-        <property name="enabled" type="bool"/>
+        <property name="enabled" type="bool" isWritable="true"/>
         <property name="forwardTo" type="QDeclarativeItem" isList="true"/>
-        <property name="priority" type="Priority"/>
+        <property name="priority" type="Priority" isWritable="true"/>
         <signal name="enabledChanged"/>
         <signal name="priorityChanged"/>
         <signal name="pressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="released">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="digit0Pressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="digit1Pressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="digit2Pressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="digit3Pressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="digit4Pressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="digit5Pressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="digit6Pressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="digit7Pressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="digit8Pressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="digit9Pressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="leftPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="rightPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="upPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="downPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="tabPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="backtabPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="asteriskPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="numberSignPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="escapePressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="returnPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="enterPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="deletePressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="spacePressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="backPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="cancelPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="selectPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="yesPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="noPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="context1Pressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="context2Pressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="context3Pressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="context4Pressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="callPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="hangupPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="flipPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="menuPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="volumeUpPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
         <signal name="volumeDownPressed">
-            <param name="event" type="QDeclarativeKeyEvent"/>
+            <param name="event" type="QDeclarativeKeyEvent" isPointer="true"/>
         </signal>
     </type>
     <type name="QDeclarativeLayoutItem" defaultProperty="data" extends="QDeclarativeItem">
@@ -1042,9 +1059,9 @@
             <export module="Qt" version="4.7" type="LayoutItem"/>
             <export module="QtQuick" version="1.0" type="LayoutItem"/>
         </exports>
-        <property name="maximumSize" type="QSizeF"/>
-        <property name="minimumSize" type="QSizeF"/>
-        <property name="preferredSize" type="QSizeF"/>
+        <property name="maximumSize" type="QSizeF" isWritable="true"/>
+        <property name="minimumSize" type="QSizeF" isWritable="true"/>
+        <property name="preferredSize" type="QSizeF" isWritable="true"/>
         <signal name="maximumSizeChanged"/>
         <signal name="minimumSizeChanged"/>
         <signal name="preferredSizeChanged"/>
@@ -1118,30 +1135,30 @@
             <enumerator name="Visible" value="3"/>
             <enumerator name="Contain" value="4"/>
         </enum>
-        <property name="model" type="QVariant"/>
-        <property name="delegate" type="QDeclarativeComponent"/>
-        <property name="currentIndex" type="int"/>
-        <property name="currentItem" type="QDeclarativeItem"/>
+        <property name="model" type="QVariant" isWritable="true"/>
+        <property name="delegate" type="QDeclarativeComponent" isWritable="true" isPointer="true"/>
+        <property name="currentIndex" type="int" isWritable="true"/>
+        <property name="currentItem" type="QDeclarativeItem" isPointer="true"/>
         <property name="count" type="int"/>
-        <property name="highlight" type="QDeclarativeComponent"/>
-        <property name="highlightItem" type="QDeclarativeItem"/>
-        <property name="highlightFollowsCurrentItem" type="bool"/>
-        <property name="highlightMoveSpeed" type="qreal"/>
-        <property name="highlightMoveDuration" type="int"/>
-        <property name="highlightResizeSpeed" type="qreal"/>
-        <property name="highlightResizeDuration" type="int"/>
-        <property name="preferredHighlightBegin" type="qreal"/>
-        <property name="preferredHighlightEnd" type="qreal"/>
-        <property name="highlightRangeMode" type="HighlightRangeMode"/>
-        <property name="spacing" type="qreal"/>
-        <property name="orientation" type="Orientation"/>
-        <property name="keyNavigationWraps" type="bool"/>
-        <property name="cacheBuffer" type="int"/>
-        <property name="section" type="QDeclarativeViewSection"/>
+        <property name="highlight" type="QDeclarativeComponent" isWritable="true" isPointer="true"/>
+        <property name="highlightItem" type="QDeclarativeItem" isPointer="true"/>
+        <property name="highlightFollowsCurrentItem" type="bool" isWritable="true"/>
+        <property name="highlightMoveSpeed" type="qreal" isWritable="true"/>
+        <property name="highlightMoveDuration" type="int" isWritable="true"/>
+        <property name="highlightResizeSpeed" type="qreal" isWritable="true"/>
+        <property name="highlightResizeDuration" type="int" isWritable="true"/>
+        <property name="preferredHighlightBegin" type="qreal" isWritable="true"/>
+        <property name="preferredHighlightEnd" type="qreal" isWritable="true"/>
+        <property name="highlightRangeMode" type="HighlightRangeMode" isWritable="true"/>
+        <property name="spacing" type="qreal" isWritable="true"/>
+        <property name="orientation" type="Orientation" isWritable="true"/>
+        <property name="keyNavigationWraps" type="bool" isWritable="true"/>
+        <property name="cacheBuffer" type="int" isWritable="true"/>
+        <property name="section" type="QDeclarativeViewSection" isPointer="true"/>
         <property name="currentSection" type="string"/>
-        <property name="snapMode" type="SnapMode"/>
-        <property name="header" type="QDeclarativeComponent"/>
-        <property name="footer" type="QDeclarativeComponent"/>
+        <property name="snapMode" type="SnapMode" isWritable="true"/>
+        <property name="header" type="QDeclarativeComponent" isWritable="true" isPointer="true"/>
+        <property name="footer" type="QDeclarativeComponent" isWritable="true" isPointer="true"/>
         <signal name="countChanged"/>
         <signal name="spacingChanged"/>
         <signal name="orientationChanged"/>
@@ -1186,9 +1203,9 @@
             <enumerator name="Loading" value="2"/>
             <enumerator name="Error" value="3"/>
         </enum>
-        <property name="source" type="QUrl"/>
-        <property name="sourceComponent" type="QDeclarativeComponent"/>
-        <property name="item" type="QGraphicsObject"/>
+        <property name="source" type="QUrl" isWritable="true"/>
+        <property name="sourceComponent" type="QDeclarativeComponent" isWritable="true" isPointer="true"/>
+        <property name="item" type="QGraphicsObject" isPointer="true"/>
         <property name="status" type="Status"/>
         <property name="progress" type="qreal"/>
         <signal name="itemChanged"/>
@@ -1206,36 +1223,36 @@
         <property name="mouseY" type="qreal"/>
         <property name="containsMouse" type="bool"/>
         <property name="pressed" type="bool"/>
-        <property name="enabled" type="bool"/>
+        <property name="enabled" type="bool" isWritable="true"/>
         <property name="pressedButtons" type="Qt.MouseButtons"/>
-        <property name="acceptedButtons" type="Qt.MouseButtons"/>
-        <property name="hoverEnabled" type="bool"/>
-        <property name="drag" type="QDeclarativeDrag"/>
+        <property name="acceptedButtons" type="Qt.MouseButtons" isWritable="true"/>
+        <property name="hoverEnabled" type="bool" isWritable="true"/>
+        <property name="drag" type="QDeclarativeDrag" isPointer="true"/>
         <signal name="hoveredChanged"/>
         <signal name="pressedChanged"/>
         <signal name="enabledChanged"/>
         <signal name="acceptedButtonsChanged"/>
         <signal name="hoverEnabledChanged"/>
         <signal name="positionChanged">
-            <param name="mouse" type="QDeclarativeMouseEvent"/>
+            <param name="mouse" type="QDeclarativeMouseEvent" isPointer="true"/>
         </signal>
         <signal name="mousePositionChanged">
-            <param name="mouse" type="QDeclarativeMouseEvent"/>
+            <param name="mouse" type="QDeclarativeMouseEvent" isPointer="true"/>
         </signal>
         <signal name="pressed">
-            <param name="mouse" type="QDeclarativeMouseEvent"/>
+            <param name="mouse" type="QDeclarativeMouseEvent" isPointer="true"/>
         </signal>
         <signal name="pressAndHold">
-            <param name="mouse" type="QDeclarativeMouseEvent"/>
+            <param name="mouse" type="QDeclarativeMouseEvent" isPointer="true"/>
         </signal>
         <signal name="released">
-            <param name="mouse" type="QDeclarativeMouseEvent"/>
+            <param name="mouse" type="QDeclarativeMouseEvent" isPointer="true"/>
         </signal>
         <signal name="clicked">
-            <param name="mouse" type="QDeclarativeMouseEvent"/>
+            <param name="mouse" type="QDeclarativeMouseEvent" isPointer="true"/>
         </signal>
         <signal name="doubleClicked">
-            <param name="mouse" type="QDeclarativeMouseEvent"/>
+            <param name="mouse" type="QDeclarativeMouseEvent" isPointer="true"/>
         </signal>
         <signal name="entered"/>
         <signal name="exited"/>
@@ -1246,8 +1263,8 @@
             <export module="QtQuick" version="1.0" type="NumberAnimation"/>
             <export module="Qt" version="4.7" type="NumberAnimation"/>
         </exports>
-        <property name="from" type="qreal"/>
-        <property name="to" type="qreal"/>
+        <property name="from" type="qreal" isWritable="true"/>
+        <property name="to" type="qreal" isWritable="true"/>
     </type>
     <type name="QDeclarativePackage" defaultProperty="data" extends="QObject">
         <exports>
@@ -1257,11 +1274,11 @@
         <property name="data" type="QObject" isList="true"/>
     </type>
     <type name="QDeclarativePaintedItem" defaultProperty="data" extends="QDeclarativeItem">
-        <property name="contentsSize" type="QSize"/>
-        <property name="fillColor" type="QColor"/>
-        <property name="pixelCacheSize" type="int"/>
-        <property name="smoothCache" type="bool"/>
-        <property name="contentsScale" type="qreal"/>
+        <property name="contentsSize" type="QSize" isWritable="true"/>
+        <property name="fillColor" type="QColor" isWritable="true"/>
+        <property name="pixelCacheSize" type="int" isWritable="true"/>
+        <property name="smoothCache" type="bool" isWritable="true"/>
+        <property name="contentsScale" type="qreal" isWritable="true"/>
         <signal name="fillColorChanged"/>
         <signal name="contentsSizeChanged"/>
         <signal name="contentsScaleChanged"/>
@@ -1277,9 +1294,9 @@
             <export module="QtQuick" version="1.0" type="ParentAnimation"/>
             <export module="Qt" version="4.7" type="ParentAnimation"/>
         </exports>
-        <property name="target" type="QDeclarativeItem"/>
-        <property name="newParent" type="QDeclarativeItem"/>
-        <property name="via" type="QDeclarativeItem"/>
+        <property name="target" type="QDeclarativeItem" isWritable="true" isPointer="true"/>
+        <property name="newParent" type="QDeclarativeItem" isWritable="true" isPointer="true"/>
+        <property name="via" type="QDeclarativeItem" isWritable="true" isPointer="true"/>
         <signal name="targetChanged"/>
         <signal name="newParentChanged"/>
         <signal name="viaChanged"/>
@@ -1289,14 +1306,14 @@
             <export module="QtQuick" version="1.0" type="ParentChange"/>
             <export module="Qt" version="4.7" type="ParentChange"/>
         </exports>
-        <property name="target" type="QDeclarativeItem"/>
-        <property name="parent" type="QDeclarativeItem"/>
-        <property name="x" type="QDeclarativeScriptString"/>
-        <property name="y" type="QDeclarativeScriptString"/>
-        <property name="width" type="QDeclarativeScriptString"/>
-        <property name="height" type="QDeclarativeScriptString"/>
-        <property name="scale" type="QDeclarativeScriptString"/>
-        <property name="rotation" type="QDeclarativeScriptString"/>
+        <property name="target" type="QDeclarativeItem" isWritable="true" isPointer="true"/>
+        <property name="parent" type="QDeclarativeItem" isWritable="true" isPointer="true"/>
+        <property name="x" type="QDeclarativeScriptString" isWritable="true"/>
+        <property name="y" type="QDeclarativeScriptString" isWritable="true"/>
+        <property name="width" type="QDeclarativeScriptString" isWritable="true"/>
+        <property name="height" type="QDeclarativeScriptString" isWritable="true"/>
+        <property name="scale" type="QDeclarativeScriptString" isWritable="true"/>
+        <property name="rotation" type="QDeclarativeScriptString" isWritable="true"/>
     </type>
     <type name="QDeclarativeParticleMotion" extends="QObject">
         <exports>
@@ -1307,9 +1324,9 @@
         <exports>
             <export module="Qt.labs.particles" version="1.0" type="ParticleMotionGravity"/>
         </exports>
-        <property name="xattractor" type="qreal"/>
-        <property name="yattractor" type="qreal"/>
-        <property name="acceleration" type="qreal"/>
+        <property name="xattractor" type="qreal" isWritable="true"/>
+        <property name="yattractor" type="qreal" isWritable="true"/>
+        <property name="acceleration" type="qreal" isWritable="true"/>
         <signal name="xattractorChanged"/>
         <signal name="yattractorChanged"/>
         <signal name="accelerationChanged"/>
@@ -1323,9 +1340,9 @@
         <exports>
             <export module="Qt.labs.particles" version="1.0" type="ParticleMotionWander"/>
         </exports>
-        <property name="xvariance" type="qreal"/>
-        <property name="yvariance" type="qreal"/>
-        <property name="pace" type="qreal"/>
+        <property name="xvariance" type="qreal" isWritable="true"/>
+        <property name="yvariance" type="qreal" isWritable="true"/>
+        <property name="pace" type="qreal" isWritable="true"/>
         <signal name="xvarianceChanged"/>
         <signal name="yvarianceChanged"/>
         <signal name="paceChanged"/>
@@ -1334,19 +1351,19 @@
         <exports>
             <export module="Qt.labs.particles" version="1.0" type="Particles"/>
         </exports>
-        <property name="source" type="QUrl"/>
-        <property name="count" type="int"/>
-        <property name="emissionRate" type="int"/>
-        <property name="emissionVariance" type="qreal"/>
-        <property name="lifeSpan" type="int"/>
-        <property name="lifeSpanDeviation" type="int"/>
-        <property name="fadeInDuration" type="int"/>
-        <property name="fadeOutDuration" type="int"/>
-        <property name="angle" type="qreal"/>
-        <property name="angleDeviation" type="qreal"/>
-        <property name="velocity" type="qreal"/>
-        <property name="velocityDeviation" type="qreal"/>
-        <property name="motion" type="QDeclarativeParticleMotion"/>
+        <property name="source" type="QUrl" isWritable="true"/>
+        <property name="count" type="int" isWritable="true"/>
+        <property name="emissionRate" type="int" isWritable="true"/>
+        <property name="emissionVariance" type="qreal" isWritable="true"/>
+        <property name="lifeSpan" type="int" isWritable="true"/>
+        <property name="lifeSpanDeviation" type="int" isWritable="true"/>
+        <property name="fadeInDuration" type="int" isWritable="true"/>
+        <property name="fadeOutDuration" type="int" isWritable="true"/>
+        <property name="angle" type="qreal" isWritable="true"/>
+        <property name="angleDeviation" type="qreal" isWritable="true"/>
+        <property name="velocity" type="qreal" isWritable="true"/>
+        <property name="velocityDeviation" type="qreal" isWritable="true"/>
+        <property name="motion" type="QDeclarativeParticleMotion" isWritable="true" isPointer="true"/>
         <signal name="sourceChanged"/>
         <signal name="countChanged"/>
         <signal name="emissionRateChanged"/>
@@ -1375,8 +1392,8 @@
             <export module="QtQuick" version="1.0" type="Path"/>
         </exports>
         <property name="pathElements" type="QDeclarativePathElement" isList="true"/>
-        <property name="startX" type="qreal"/>
-        <property name="startY" type="qreal"/>
+        <property name="startX" type="qreal" isWritable="true"/>
+        <property name="startY" type="qreal" isWritable="true"/>
         <property name="closed" type="bool"/>
         <signal name="changed"/>
         <signal name="startXChanged"/>
@@ -1387,8 +1404,8 @@
             <export module="Qt" version="4.7" type="PathAttribute"/>
             <export module="QtQuick" version="1.0" type="PathAttribute"/>
         </exports>
-        <property name="name" type="string"/>
-        <property name="value" type="qreal"/>
+        <property name="name" type="string" isWritable="true"/>
+        <property name="value" type="qreal" isWritable="true"/>
         <signal name="nameChanged"/>
         <signal name="valueChanged"/>
     </type>
@@ -1397,10 +1414,10 @@
             <export module="QtQuick" version="1.0" type="PathCubic"/>
             <export module="Qt" version="4.7" type="PathCubic"/>
         </exports>
-        <property name="control1X" type="qreal"/>
-        <property name="control1Y" type="qreal"/>
-        <property name="control2X" type="qreal"/>
-        <property name="control2Y" type="qreal"/>
+        <property name="control1X" type="qreal" isWritable="true"/>
+        <property name="control1Y" type="qreal" isWritable="true"/>
+        <property name="control2X" type="qreal" isWritable="true"/>
+        <property name="control2Y" type="qreal" isWritable="true"/>
         <signal name="control1XChanged"/>
         <signal name="control1YChanged"/>
         <signal name="control2XChanged"/>
@@ -1420,7 +1437,7 @@
             <export module="Qt" version="4.7" type="PathPercent"/>
             <export module="QtQuick" version="1.0" type="PathPercent"/>
         </exports>
-        <property name="value" type="qreal"/>
+        <property name="value" type="qreal" isWritable="true"/>
         <signal name="valueChanged"/>
     </type>
     <type name="QDeclarativePathQuad" extends="QDeclarativeCurve">
@@ -1428,8 +1445,8 @@
             <export module="Qt" version="4.7" type="PathQuad"/>
             <export module="QtQuick" version="1.0" type="PathQuad"/>
         </exports>
-        <property name="controlX" type="qreal"/>
-        <property name="controlY" type="qreal"/>
+        <property name="controlX" type="qreal" isWritable="true"/>
+        <property name="controlY" type="qreal" isWritable="true"/>
         <signal name="controlXChanged"/>
         <signal name="controlYChanged"/>
     </type>
@@ -1443,24 +1460,24 @@
             <enumerator name="ApplyRange" value="1"/>
             <enumerator name="StrictlyEnforceRange" value="2"/>
         </enum>
-        <property name="model" type="QVariant"/>
-        <property name="path" type="QDeclarativePath"/>
-        <property name="currentIndex" type="int"/>
-        <property name="offset" type="qreal"/>
-        <property name="highlight" type="QDeclarativeComponent"/>
-        <property name="highlightItem" type="QDeclarativeItem"/>
-        <property name="preferredHighlightBegin" type="qreal"/>
-        <property name="preferredHighlightEnd" type="qreal"/>
-        <property name="highlightRangeMode" type="HighlightRangeMode"/>
-        <property name="highlightMoveDuration" type="int"/>
-        <property name="dragMargin" type="qreal"/>
-        <property name="flickDeceleration" type="qreal"/>
-        <property name="interactive" type="bool"/>
+        <property name="model" type="QVariant" isWritable="true"/>
+        <property name="path" type="QDeclarativePath" isWritable="true" isPointer="true"/>
+        <property name="currentIndex" type="int" isWritable="true"/>
+        <property name="offset" type="qreal" isWritable="true"/>
+        <property name="highlight" type="QDeclarativeComponent" isWritable="true" isPointer="true"/>
+        <property name="highlightItem" type="QDeclarativeItem" isPointer="true"/>
+        <property name="preferredHighlightBegin" type="qreal" isWritable="true"/>
+        <property name="preferredHighlightEnd" type="qreal" isWritable="true"/>
+        <property name="highlightRangeMode" type="HighlightRangeMode" isWritable="true"/>
+        <property name="highlightMoveDuration" type="int" isWritable="true"/>
+        <property name="dragMargin" type="qreal" isWritable="true"/>
+        <property name="flickDeceleration" type="qreal" isWritable="true"/>
+        <property name="interactive" type="bool" isWritable="true"/>
         <property name="moving" type="bool"/>
         <property name="flicking" type="bool"/>
         <property name="count" type="int"/>
-        <property name="delegate" type="QDeclarativeComponent"/>
-        <property name="pathItemCount" type="int"/>
+        <property name="delegate" type="QDeclarativeComponent" isWritable="true" isPointer="true"/>
+        <property name="pathItemCount" type="int" isWritable="true"/>
         <signal name="currentIndexChanged"/>
         <signal name="offsetChanged"/>
         <signal name="modelChanged"/>
@@ -1492,14 +1509,14 @@
             <export module="Qt" version="4.7" type="PauseAnimation"/>
             <export module="QtQuick" version="1.0" type="PauseAnimation"/>
         </exports>
-        <property name="duration" type="int"/>
+        <property name="duration" type="int" isWritable="true"/>
         <signal name="durationChanged">
             <param type="int"/>
         </signal>
     </type>
     <type name="QDeclarativePen" extends="QObject">
-        <property name="width" type="int"/>
-        <property name="color" type="QColor"/>
+        <property name="width" type="int" isWritable="true"/>
+        <property name="color" type="QColor" isWritable="true"/>
         <signal name="penChanged"/>
     </type>
     <type name="QDeclarativePropertyAction" extends="QDeclarativeAbstractAnimation">
@@ -1507,12 +1524,12 @@
             <export module="QtQuick" version="1.0" type="PropertyAction"/>
             <export module="Qt" version="4.7" type="PropertyAction"/>
         </exports>
-        <property name="target" type="QObject"/>
-        <property name="property" type="string"/>
-        <property name="properties" type="string"/>
+        <property name="target" type="QObject" isWritable="true" isPointer="true"/>
+        <property name="property" type="string" isWritable="true"/>
+        <property name="properties" type="string" isWritable="true"/>
         <property name="targets" type="QObject" isList="true"/>
         <property name="exclude" type="QObject" isList="true"/>
-        <property name="value" type="QVariant"/>
+        <property name="value" type="QVariant" isWritable="true"/>
         <signal name="valueChanged">
             <param type="QVariant"/>
         </signal>
@@ -1527,13 +1544,13 @@
             <export module="QtQuick" version="1.0" type="PropertyAnimation"/>
             <export module="Qt" version="4.7" type="PropertyAnimation"/>
         </exports>
-        <property name="duration" type="int"/>
-        <property name="from" type="QVariant"/>
-        <property name="to" type="QVariant"/>
-        <property name="easing" type="QEasingCurve"/>
-        <property name="target" type="QObject"/>
-        <property name="property" type="string"/>
-        <property name="properties" type="string"/>
+        <property name="duration" type="int" isWritable="true"/>
+        <property name="from" type="QVariant" isWritable="true"/>
+        <property name="to" type="QVariant" isWritable="true"/>
+        <property name="easing" type="QEasingCurve" isWritable="true"/>
+        <property name="target" type="QObject" isWritable="true" isPointer="true"/>
+        <property name="property" type="string" isWritable="true"/>
+        <property name="properties" type="string" isWritable="true"/>
         <property name="targets" type="QObject" isList="true"/>
         <property name="exclude" type="QObject" isList="true"/>
         <signal name="durationChanged">
@@ -1559,19 +1576,19 @@
             <export module="QtQuick" version="1.0" type="PropertyChanges"/>
             <export module="Qt" version="4.7" type="PropertyChanges"/>
         </exports>
-        <property name="target" type="QObject"/>
-        <property name="restoreEntryValues" type="bool"/>
-        <property name="explicit" type="bool"/>
+        <property name="target" type="QObject" isWritable="true" isPointer="true"/>
+        <property name="restoreEntryValues" type="bool" isWritable="true"/>
+        <property name="explicit" type="bool" isWritable="true"/>
     </type>
     <type name="QDeclarativeRectangle" defaultProperty="data" extends="QDeclarativeItem">
         <exports>
             <export module="Qt" version="4.7" type="Rectangle"/>
             <export module="QtQuick" version="1.0" type="Rectangle"/>
         </exports>
-        <property name="color" type="QColor"/>
-        <property name="gradient" type="QDeclarativeGradient"/>
-        <property name="border" type="QDeclarativePen"/>
-        <property name="radius" type="qreal"/>
+        <property name="color" type="QColor" isWritable="true"/>
+        <property name="gradient" type="QDeclarativeGradient" isWritable="true" isPointer="true"/>
+        <property name="border" type="QDeclarativePen" isPointer="true"/>
+        <property name="radius" type="qreal" isWritable="true"/>
         <signal name="colorChanged"/>
         <signal name="radiusChanged"/>
     </type>
@@ -1580,8 +1597,8 @@
             <export module="Qt" version="4.7" type="Repeater"/>
             <export module="QtQuick" version="1.0" type="Repeater"/>
         </exports>
-        <property name="model" type="QVariant"/>
-        <property name="delegate" type="QDeclarativeComponent"/>
+        <property name="model" type="QVariant" isWritable="true"/>
+        <property name="delegate" type="QDeclarativeComponent" isWritable="true" isPointer="true"/>
         <property name="count" type="int"/>
         <signal name="modelChanged"/>
         <signal name="delegateChanged"/>
@@ -1598,9 +1615,9 @@
             <enumerator name="Clockwise" value="2"/>
             <enumerator name="Counterclockwise" value="3"/>
         </enum>
-        <property name="from" type="qreal"/>
-        <property name="to" type="qreal"/>
-        <property name="direction" type="RotationDirection"/>
+        <property name="from" type="qreal" isWritable="true"/>
+        <property name="to" type="qreal" isWritable="true"/>
+        <property name="direction" type="RotationDirection" isWritable="true"/>
         <signal name="directionChanged"/>
     </type>
     <type name="QDeclarativeRow" defaultProperty="data" extends="QDeclarativeBasePositioner">
@@ -1610,10 +1627,10 @@
         </exports>
     </type>
     <type name="QDeclarativeScaleGrid" extends="QObject">
-        <property name="left" type="int"/>
-        <property name="top" type="int"/>
-        <property name="right" type="int"/>
-        <property name="bottom" type="int"/>
+        <property name="left" type="int" isWritable="true"/>
+        <property name="top" type="int" isWritable="true"/>
+        <property name="right" type="int" isWritable="true"/>
+        <property name="bottom" type="int" isWritable="true"/>
         <signal name="borderChanged"/>
     </type>
     <type name="QDeclarativeScriptAction" extends="QDeclarativeAbstractAnimation">
@@ -1621,8 +1638,8 @@
             <export module="QtQuick" version="1.0" type="ScriptAction"/>
             <export module="Qt" version="4.7" type="ScriptAction"/>
         </exports>
-        <property name="script" type="QDeclarativeScriptString"/>
-        <property name="scriptName" type="string"/>
+        <property name="script" type="QDeclarativeScriptString" isWritable="true"/>
+        <property name="scriptName" type="string" isWritable="true"/>
     </type>
     <type name="QDeclarativeSequentialAnimation" defaultProperty="animations" extends="QDeclarativeAnimationGroup">
         <exports>
@@ -1640,9 +1657,9 @@
             <enumerator name="Immediate" value="1"/>
             <enumerator name="Sync" value="2"/>
         </enum>
-        <property name="velocity" type="qreal"/>
-        <property name="reversingMode" type="ReversingMode"/>
-        <property name="maximumEasingTime" type="qreal"/>
+        <property name="velocity" type="qreal" isWritable="true"/>
+        <property name="reversingMode" type="ReversingMode" isWritable="true"/>
+        <property name="maximumEasingTime" type="qreal" isWritable="true"/>
         <signal name="velocityChanged"/>
         <signal name="reversingModeChanged"/>
         <signal name="maximumEasingTimeChanged"/>
@@ -1652,12 +1669,12 @@
             <export module="QtQuick" version="1.0" type="SpringAnimation"/>
             <export module="Qt" version="4.7" type="SpringAnimation"/>
         </exports>
-        <property name="velocity" type="qreal"/>
-        <property name="spring" type="qreal"/>
-        <property name="damping" type="qreal"/>
-        <property name="epsilon" type="qreal"/>
-        <property name="modulus" type="qreal"/>
-        <property name="mass" type="qreal"/>
+        <property name="velocity" type="qreal" isWritable="true"/>
+        <property name="spring" type="qreal" isWritable="true"/>
+        <property name="damping" type="qreal" isWritable="true"/>
+        <property name="epsilon" type="qreal" isWritable="true"/>
+        <property name="modulus" type="qreal" isWritable="true"/>
+        <property name="mass" type="qreal" isWritable="true"/>
         <signal name="modulusChanged"/>
         <signal name="massChanged"/>
         <signal name="syncChanged"/>
@@ -1667,9 +1684,9 @@
             <export module="Qt" version="4.7" type="State"/>
             <export module="QtQuick" version="1.0" type="State"/>
         </exports>
-        <property name="name" type="string"/>
-        <property name="when" type="QDeclarativeBinding"/>
-        <property name="extend" type="string"/>
+        <property name="name" type="string" isWritable="true"/>
+        <property name="when" type="QDeclarativeBinding" isWritable="true" isPointer="true"/>
+        <property name="extend" type="string" isWritable="true"/>
         <property name="changes" type="QDeclarativeStateOperation" isList="true"/>
         <signal name="completed"/>
     </type>
@@ -1678,15 +1695,15 @@
             <export module="QtQuick" version="1.0" type="StateChangeScript"/>
             <export module="Qt" version="4.7" type="StateChangeScript"/>
         </exports>
-        <property name="script" type="QDeclarativeScriptString"/>
-        <property name="name" type="string"/>
+        <property name="script" type="QDeclarativeScriptString" isWritable="true"/>
+        <property name="name" type="string" isWritable="true"/>
     </type>
     <type name="QDeclarativeStateGroup" extends="QObject">
         <exports>
             <export module="Qt" version="4.7" type="StateGroup"/>
             <export module="QtQuick" version="1.0" type="StateGroup"/>
         </exports>
-        <property name="state" type="string"/>
+        <property name="state" type="string" isWritable="true"/>
         <property name="states" type="QDeclarativeState" isList="true"/>
         <property name="transitions" type="QDeclarativeTransition" isList="true"/>
         <signal name="stateChanged">
@@ -1704,7 +1721,7 @@
             <enumerator name="Inactive" value="2"/>
             <enumerator name="Disabled" value="1"/>
         </enum>
-        <property name="colorGroup" type="QDeclarativeSystemPalette.ColorGroup"/>
+        <property name="colorGroup" type="QDeclarativeSystemPalette.ColorGroup" isWritable="true"/>
         <property name="window" type="QColor"/>
         <property name="windowText" type="QColor"/>
         <property name="base" type="QColor"/>
@@ -1761,16 +1778,16 @@
             <enumerator name="WrapAtWordBoundaryOrAnywhere" value="4"/>
             <enumerator name="Wrap" value="4"/>
         </enum>
-        <property name="text" type="string"/>
-        <property name="font" type="QFont"/>
-        <property name="color" type="QColor"/>
-        <property name="style" type="TextStyle"/>
-        <property name="styleColor" type="QColor"/>
-        <property name="horizontalAlignment" type="HAlignment"/>
-        <property name="verticalAlignment" type="VAlignment"/>
-        <property name="wrapMode" type="WrapMode"/>
-        <property name="textFormat" type="TextFormat"/>
-        <property name="elide" type="TextElideMode"/>
+        <property name="text" type="string" isWritable="true"/>
+        <property name="font" type="QFont" isWritable="true"/>
+        <property name="color" type="QColor" isWritable="true"/>
+        <property name="style" type="TextStyle" isWritable="true"/>
+        <property name="styleColor" type="QColor" isWritable="true"/>
+        <property name="horizontalAlignment" type="HAlignment" isWritable="true"/>
+        <property name="verticalAlignment" type="VAlignment" isWritable="true"/>
+        <property name="wrapMode" type="WrapMode" isWritable="true"/>
+        <property name="textFormat" type="TextFormat" isWritable="true"/>
+        <property name="elide" type="TextElideMode" isWritable="true"/>
         <property name="paintedWidth" type="qreal"/>
         <property name="paintedHeight" type="qreal"/>
         <signal name="textChanged">
@@ -1833,30 +1850,30 @@
             <enumerator name="WrapAtWordBoundaryOrAnywhere" value="4"/>
             <enumerator name="Wrap" value="4"/>
         </enum>
-        <property name="text" type="string"/>
-        <property name="color" type="QColor"/>
-        <property name="selectionColor" type="QColor"/>
-        <property name="selectedTextColor" type="QColor"/>
-        <property name="font" type="QFont"/>
-        <property name="horizontalAlignment" type="HAlignment"/>
-        <property name="verticalAlignment" type="VAlignment"/>
-        <property name="wrapMode" type="WrapMode"/>
+        <property name="text" type="string" isWritable="true"/>
+        <property name="color" type="QColor" isWritable="true"/>
+        <property name="selectionColor" type="QColor" isWritable="true"/>
+        <property name="selectedTextColor" type="QColor" isWritable="true"/>
+        <property name="font" type="QFont" isWritable="true"/>
+        <property name="horizontalAlignment" type="HAlignment" isWritable="true"/>
+        <property name="verticalAlignment" type="VAlignment" isWritable="true"/>
+        <property name="wrapMode" type="WrapMode" isWritable="true"/>
         <property name="paintedWidth" type="qreal"/>
         <property name="paintedHeight" type="qreal"/>
-        <property name="textFormat" type="TextFormat"/>
-        <property name="readOnly" type="bool"/>
-        <property name="cursorVisible" type="bool"/>
-        <property name="cursorPosition" type="int"/>
+        <property name="textFormat" type="TextFormat" isWritable="true"/>
+        <property name="readOnly" type="bool" isWritable="true"/>
+        <property name="cursorVisible" type="bool" isWritable="true"/>
+        <property name="cursorPosition" type="int" isWritable="true"/>
         <property name="cursorRectangle" type="QRect"/>
-        <property name="cursorDelegate" type="QDeclarativeComponent"/>
+        <property name="cursorDelegate" type="QDeclarativeComponent" isWritable="true" isPointer="true"/>
         <property name="selectionStart" type="int"/>
         <property name="selectionEnd" type="int"/>
         <property name="selectedText" type="string"/>
-        <property name="activeFocusOnPress" type="bool"/>
-        <property name="persistentSelection" type="bool"/>
-        <property name="textMargin" type="qreal"/>
-        <property name="inputMethodHints" type="Qt.InputMethodHints"/>
-        <property name="selectByMouse" type="bool"/>
+        <property name="activeFocusOnPress" type="bool" isWritable="true"/>
+        <property name="persistentSelection" type="bool" isWritable="true"/>
+        <property name="textMargin" type="qreal" isWritable="true"/>
+        <property name="inputMethodHints" type="Qt.InputMethodHints" isWritable="true"/>
+        <property name="selectByMouse" type="bool" isWritable="true"/>
         <signal name="textChanged">
             <param type="string"/>
         </signal>
@@ -1945,31 +1962,31 @@
             <enumerator name="AlignRight" value="2"/>
             <enumerator name="AlignHCenter" value="4"/>
         </enum>
-        <property name="text" type="string"/>
-        <property name="color" type="QColor"/>
-        <property name="selectionColor" type="QColor"/>
-        <property name="selectedTextColor" type="QColor"/>
-        <property name="font" type="QFont"/>
-        <property name="horizontalAlignment" type="HAlignment"/>
-        <property name="readOnly" type="bool"/>
-        <property name="cursorVisible" type="bool"/>
-        <property name="cursorPosition" type="int"/>
+        <property name="text" type="string" isWritable="true"/>
+        <property name="color" type="QColor" isWritable="true"/>
+        <property name="selectionColor" type="QColor" isWritable="true"/>
+        <property name="selectedTextColor" type="QColor" isWritable="true"/>
+        <property name="font" type="QFont" isWritable="true"/>
+        <property name="horizontalAlignment" type="HAlignment" isWritable="true"/>
+        <property name="readOnly" type="bool" isWritable="true"/>
+        <property name="cursorVisible" type="bool" isWritable="true"/>
+        <property name="cursorPosition" type="int" isWritable="true"/>
         <property name="cursorRectangle" type="QRect"/>
-        <property name="cursorDelegate" type="QDeclarativeComponent"/>
+        <property name="cursorDelegate" type="QDeclarativeComponent" isWritable="true" isPointer="true"/>
         <property name="selectionStart" type="int"/>
         <property name="selectionEnd" type="int"/>
         <property name="selectedText" type="string"/>
-        <property name="maximumLength" type="int"/>
-        <property name="validator" type="QValidator"/>
-        <property name="inputMask" type="string"/>
-        <property name="inputMethodHints" type="Qt.InputMethodHints"/>
+        <property name="maximumLength" type="int" isWritable="true"/>
+        <property name="validator" type="QValidator" isWritable="true" isPointer="true"/>
+        <property name="inputMask" type="string" isWritable="true"/>
+        <property name="inputMethodHints" type="Qt.InputMethodHints" isWritable="true"/>
         <property name="acceptableInput" type="bool"/>
-        <property name="echoMode" type="EchoMode"/>
-        <property name="activeFocusOnPress" type="bool"/>
-        <property name="passwordCharacter" type="string"/>
+        <property name="echoMode" type="EchoMode" isWritable="true"/>
+        <property name="activeFocusOnPress" type="bool" isWritable="true"/>
+        <property name="passwordCharacter" type="string" isWritable="true"/>
         <property name="displayText" type="string"/>
-        <property name="autoScroll" type="bool"/>
-        <property name="selectByMouse" type="bool"/>
+        <property name="autoScroll" type="bool" isWritable="true"/>
+        <property name="selectByMouse" type="bool" isWritable="true"/>
         <signal name="textChanged"/>
         <signal name="cursorPositionChanged"/>
         <signal name="selectionStartChanged"/>
@@ -2046,11 +2063,11 @@
             <export module="QtQuick" version="1.0" type="Timer"/>
             <export module="Qt" version="4.7" type="Timer"/>
         </exports>
-        <property name="interval" type="int"/>
-        <property name="running" type="bool"/>
-        <property name="repeat" type="bool"/>
-        <property name="triggeredOnStart" type="bool"/>
-        <property name="parent" type="QObject"/>
+        <property name="interval" type="int" isWritable="true"/>
+        <property name="running" type="bool" isWritable="true"/>
+        <property name="repeat" type="bool" isWritable="true"/>
+        <property name="triggeredOnStart" type="bool" isWritable="true"/>
+        <property name="parent" type="QObject" isPointer="true"/>
         <signal name="triggered"/>
         <signal name="runningChanged"/>
         <signal name="intervalChanged"/>
@@ -2065,9 +2082,9 @@
             <export module="Qt" version="4.7" type="Transition"/>
             <export module="QtQuick" version="1.0" type="Transition"/>
         </exports>
-        <property name="from" type="string"/>
-        <property name="to" type="string"/>
-        <property name="reversible" type="bool"/>
+        <property name="from" type="string" isWritable="true"/>
+        <property name="to" type="string" isWritable="true"/>
+        <property name="reversible" type="bool" isWritable="true"/>
         <property name="animations" type="QDeclarativeAbstractAnimation" isList="true"/>
         <signal name="fromChanged"/>
         <signal name="toChanged"/>
@@ -2078,8 +2095,8 @@
             <export module="Qt" version="4.7" type="Translate"/>
             <export module="QtQuick" version="1.0" type="Translate"/>
         </exports>
-        <property name="x" type="qreal"/>
-        <property name="y" type="qreal"/>
+        <property name="x" type="qreal" isWritable="true"/>
+        <property name="y" type="qreal" isWritable="true"/>
         <signal name="xChanged"/>
         <signal name="yChanged"/>
     </type>
@@ -2089,8 +2106,8 @@
             <export module="QtQuick" version="1.0" type="Vector3dAnimation"/>
             <export module="Qt" version="4.7" type="Vector3dAnimation"/>
         </exports>
-        <property name="from" type="QVector3D"/>
-        <property name="to" type="QVector3D"/>
+        <property name="from" type="QVector3D" isWritable="true"/>
+        <property name="to" type="QVector3D" isWritable="true"/>
     </type>
     <type name="QDeclarativeViewSection" extends="QObject">
         <exports>
@@ -2101,9 +2118,9 @@
             <enumerator name="FullString" value="0"/>
             <enumerator name="FirstCharacter" value="1"/>
         </enum>
-        <property name="property" type="string"/>
-        <property name="criteria" type="SectionCriteria"/>
-        <property name="delegate" type="QDeclarativeComponent"/>
+        <property name="property" type="string" isWritable="true"/>
+        <property name="criteria" type="SectionCriteria" isWritable="true"/>
+        <property name="delegate" type="QDeclarativeComponent" isWritable="true" isPointer="true"/>
         <signal name="propertyChanged"/>
         <signal name="criteriaChanged"/>
         <signal name="delegateChanged"/>
@@ -2113,17 +2130,17 @@
             <export module="QtQuick" version="1.0" type="VisualDataModel"/>
             <export module="Qt" version="4.7" type="VisualDataModel"/>
         </exports>
-        <property name="model" type="QVariant"/>
-        <property name="delegate" type="QDeclarativeComponent"/>
-        <property name="part" type="string"/>
-        <property name="parts" type="QObject"/>
-        <property name="rootIndex" type="QVariant"/>
+        <property name="model" type="QVariant" isWritable="true"/>
+        <property name="delegate" type="QDeclarativeComponent" isWritable="true" isPointer="true"/>
+        <property name="part" type="string" isWritable="true"/>
+        <property name="parts" type="QObject" isPointer="true"/>
+        <property name="rootIndex" type="QVariant" isWritable="true"/>
         <signal name="createdPackage">
             <param name="index" type="int"/>
-            <param name="package" type="QDeclarativePackage"/>
+            <param name="package" type="QDeclarativePackage" isPointer="true"/>
         </signal>
         <signal name="destroyingPackage">
-            <param name="package" type="QDeclarativePackage"/>
+            <param name="package" type="QDeclarativePackage" isPointer="true"/>
         </signal>
         <signal name="rootIndexChanged"/>
         <method name="modelIndex" type="QVariant">
@@ -2156,41 +2173,45 @@
             <param name="to" type="int"/>
             <param name="count" type="int"/>
         </signal>
+        <signal name="itemsChanged">
+            <param name="index" type="int"/>
+            <param name="count" type="int"/>
+        </signal>
         <signal name="modelReset"/>
         <signal name="createdItem">
             <param name="index" type="int"/>
-            <param name="item" type="QDeclarativeItem"/>
+            <param name="item" type="QDeclarativeItem" isPointer="true"/>
         </signal>
         <signal name="destroyingItem">
-            <param name="item" type="QDeclarativeItem"/>
+            <param name="item" type="QDeclarativeItem" isPointer="true"/>
         </signal>
     </type>
     <type name="QDeclarativeWebSettings" extends="QObject">
-        <property name="standardFontFamily" type="string"/>
-        <property name="fixedFontFamily" type="string"/>
-        <property name="serifFontFamily" type="string"/>
-        <property name="sansSerifFontFamily" type="string"/>
-        <property name="cursiveFontFamily" type="string"/>
-        <property name="fantasyFontFamily" type="string"/>
-        <property name="minimumFontSize" type="int"/>
-        <property name="minimumLogicalFontSize" type="int"/>
-        <property name="defaultFontSize" type="int"/>
-        <property name="defaultFixedFontSize" type="int"/>
-        <property name="autoLoadImages" type="bool"/>
-        <property name="javascriptEnabled" type="bool"/>
-        <property name="javaEnabled" type="bool"/>
-        <property name="pluginsEnabled" type="bool"/>
-        <property name="privateBrowsingEnabled" type="bool"/>
-        <property name="javascriptCanOpenWindows" type="bool"/>
-        <property name="javascriptCanAccessClipboard" type="bool"/>
-        <property name="developerExtrasEnabled" type="bool"/>
-        <property name="linksIncludedInFocusChain" type="bool"/>
-        <property name="zoomTextOnly" type="bool"/>
-        <property name="printElementBackgrounds" type="bool"/>
-        <property name="offlineStorageDatabaseEnabled" type="bool"/>
-        <property name="offlineWebApplicationCacheEnabled" type="bool"/>
-        <property name="localStorageDatabaseEnabled" type="bool"/>
-        <property name="localContentCanAccessRemoteUrls" type="bool"/>
+        <property name="standardFontFamily" type="string" isWritable="true"/>
+        <property name="fixedFontFamily" type="string" isWritable="true"/>
+        <property name="serifFontFamily" type="string" isWritable="true"/>
+        <property name="sansSerifFontFamily" type="string" isWritable="true"/>
+        <property name="cursiveFontFamily" type="string" isWritable="true"/>
+        <property name="fantasyFontFamily" type="string" isWritable="true"/>
+        <property name="minimumFontSize" type="int" isWritable="true"/>
+        <property name="minimumLogicalFontSize" type="int" isWritable="true"/>
+        <property name="defaultFontSize" type="int" isWritable="true"/>
+        <property name="defaultFixedFontSize" type="int" isWritable="true"/>
+        <property name="autoLoadImages" type="bool" isWritable="true"/>
+        <property name="javascriptEnabled" type="bool" isWritable="true"/>
+        <property name="javaEnabled" type="bool" isWritable="true"/>
+        <property name="pluginsEnabled" type="bool" isWritable="true"/>
+        <property name="privateBrowsingEnabled" type="bool" isWritable="true"/>
+        <property name="javascriptCanOpenWindows" type="bool" isWritable="true"/>
+        <property name="javascriptCanAccessClipboard" type="bool" isWritable="true"/>
+        <property name="developerExtrasEnabled" type="bool" isWritable="true"/>
+        <property name="linksIncludedInFocusChain" type="bool" isWritable="true"/>
+        <property name="zoomTextOnly" type="bool" isWritable="true"/>
+        <property name="printElementBackgrounds" type="bool" isWritable="true"/>
+        <property name="offlineStorageDatabaseEnabled" type="bool" isWritable="true"/>
+        <property name="offlineWebApplicationCacheEnabled" type="bool" isWritable="true"/>
+        <property name="localStorageDatabaseEnabled" type="bool" isWritable="true"/>
+        <property name="localContentCanAccessRemoteUrls" type="bool" isWritable="true"/>
     </type>
     <type name="QDeclarativeWebView" defaultProperty="data" extends="QDeclarativeItem">
         <exports>
@@ -2205,24 +2226,24 @@
         <property name="title" type="string"/>
         <property name="icon" type="QPixmap"/>
         <property name="statusText" type="string"/>
-        <property name="html" type="string"/>
-        <property name="pressGrabTime" type="int"/>
-        <property name="preferredWidth" type="int"/>
-        <property name="preferredHeight" type="int"/>
-        <property name="url" type="QUrl"/>
+        <property name="html" type="string" isWritable="true"/>
+        <property name="pressGrabTime" type="int" isWritable="true"/>
+        <property name="preferredWidth" type="int" isWritable="true"/>
+        <property name="preferredHeight" type="int" isWritable="true"/>
+        <property name="url" type="QUrl" isWritable="true"/>
         <property name="progress" type="qreal"/>
         <property name="status" type="Status"/>
-        <property name="reload" type="QAction"/>
-        <property name="back" type="QAction"/>
-        <property name="forward" type="QAction"/>
-        <property name="stop" type="QAction"/>
-        <property name="settings" type="QDeclarativeWebSettings"/>
+        <property name="reload" type="QAction" isPointer="true"/>
+        <property name="back" type="QAction" isPointer="true"/>
+        <property name="forward" type="QAction" isPointer="true"/>
+        <property name="stop" type="QAction" isPointer="true"/>
+        <property name="settings" type="QDeclarativeWebSettings" isPointer="true"/>
         <property name="javaScriptWindowObjects" type="QObject" isList="true"/>
-        <property name="newWindowComponent" type="QDeclarativeComponent"/>
-        <property name="newWindowParent" type="QDeclarativeItem"/>
-        <property name="renderingEnabled" type="bool"/>
+        <property name="newWindowComponent" type="QDeclarativeComponent" isWritable="true" isPointer="true"/>
+        <property name="newWindowParent" type="QDeclarativeItem" isWritable="true" isPointer="true"/>
+        <property name="renderingEnabled" type="bool" isWritable="true"/>
         <property name="contentsSize" type="QSize"/>
-        <property name="contentsScale" type="qreal"/>
+        <property name="contentsScale" type="qreal" isWritable="true"/>
         <signal name="preferredWidthChanged"/>
         <signal name="preferredHeightChanged"/>
         <signal name="urlChanged"/>
@@ -2273,7 +2294,7 @@
             <export module="QtQuick" version="1.0" type="WorkerScript"/>
             <export module="Qt" version="4.7" type="WorkerScript"/>
         </exports>
-        <property name="source" type="QUrl"/>
+        <property name="source" type="QUrl" isWritable="true"/>
         <signal name="sourceChanged"/>
         <signal name="message">
             <param name="messageObject" type="QScriptValue"/>
@@ -2295,10 +2316,10 @@
         </enum>
         <property name="status" type="Status"/>
         <property name="progress" type="qreal"/>
-        <property name="source" type="QUrl"/>
-        <property name="xml" type="string"/>
-        <property name="query" type="string"/>
-        <property name="namespaceDeclarations" type="string"/>
+        <property name="source" type="QUrl" isWritable="true"/>
+        <property name="xml" type="string" isWritable="true"/>
+        <property name="query" type="string" isWritable="true"/>
+        <property name="namespaceDeclarations" type="string" isWritable="true"/>
         <property name="roles" type="QDeclarativeXmlListModelRole" isList="true"/>
         <property name="count" type="int"/>
         <signal name="statusChanged">
@@ -2323,9 +2344,9 @@
             <export module="Qt" version="4.7" type="XmlRole"/>
             <export module="QtQuick" version="1.0" type="XmlRole"/>
         </exports>
-        <property name="name" type="string"/>
-        <property name="query" type="string"/>
-        <property name="isKey" type="bool"/>
+        <property name="name" type="string" isWritable="true"/>
+        <property name="query" type="string" isWritable="true"/>
+        <property name="isKey" type="bool" isWritable="true"/>
         <signal name="nameChanged"/>
         <signal name="queryChanged"/>
         <signal name="isKeyChanged"/>
@@ -2339,10 +2360,10 @@
             <enumerator name="StandardNotation" value="0"/>
             <enumerator name="ScientificNotation" value="1"/>
         </enum>
-        <property name="bottom" type="double"/>
-        <property name="top" type="double"/>
-        <property name="decimals" type="int"/>
-        <property name="notation" type="Notation"/>
+        <property name="bottom" type="double" isWritable="true"/>
+        <property name="top" type="double" isWritable="true"/>
+        <property name="decimals" type="int" isWritable="true"/>
+        <property name="notation" type="Notation" isWritable="true"/>
     </type>
     <type name="QGesture" extends="QObject">
         <exports>
@@ -2350,26 +2371,26 @@
         </exports>
         <property name="state" type="Qt.GestureState"/>
         <property name="gestureType" type="Qt.GestureType"/>
-        <property name="gestureCancelPolicy" type="QGesture.GestureCancelPolicy"/>
-        <property name="hotSpot" type="QPointF"/>
+        <property name="gestureCancelPolicy" type="QGesture.GestureCancelPolicy" isWritable="true"/>
+        <property name="hotSpot" type="QPointF" isWritable="true"/>
         <property name="hasHotSpot" type="bool"/>
     </type>
     <type name="QGraphicsObject" defaultProperty="children" extends="QObject">
-        <property name="parent" type="QGraphicsObject"/>
-        <property name="opacity" type="qreal"/>
-        <property name="enabled" type="bool"/>
-        <property name="visible" type="bool"/>
-        <property name="pos" type="QPointF"/>
-        <property name="x" type="qreal"/>
-        <property name="y" type="qreal"/>
-        <property name="z" type="qreal"/>
-        <property name="rotation" type="qreal"/>
-        <property name="scale" type="qreal"/>
-        <property name="transformOriginPoint" type="QPointF"/>
-        <property name="effect" type="QGraphicsEffect"/>
+        <property name="parent" type="QGraphicsObject" isWritable="true" isPointer="true"/>
+        <property name="opacity" type="qreal" isWritable="true"/>
+        <property name="enabled" type="bool" isWritable="true"/>
+        <property name="visible" type="bool" isWritable="true"/>
+        <property name="pos" type="QPointF" isWritable="true"/>
+        <property name="x" type="qreal" isWritable="true"/>
+        <property name="y" type="qreal" isWritable="true"/>
+        <property name="z" type="qreal" isWritable="true"/>
+        <property name="rotation" type="qreal" isWritable="true"/>
+        <property name="scale" type="qreal" isWritable="true"/>
+        <property name="transformOriginPoint" type="QPointF" isWritable="true"/>
+        <property name="effect" type="QGraphicsEffect" isWritable="true" isPointer="true"/>
         <property name="children" type="QGraphicsObject" isList="true"/>
-        <property name="width" type="qreal"/>
-        <property name="height" type="qreal"/>
+        <property name="width" type="qreal" isWritable="true"/>
+        <property name="height" type="qreal" isWritable="true"/>
         <signal name="parentChanged"/>
         <signal name="opacityChanged"/>
         <signal name="visibleChanged"/>
@@ -2388,9 +2409,9 @@
             <export module="Qt" version="4.7" type="Rotation"/>
             <export module="QtQuick" version="1.0" type="Rotation"/>
         </exports>
-        <property name="origin" type="QVector3D"/>
-        <property name="angle" type="qreal"/>
-        <property name="axis" type="QVector3D"/>
+        <property name="origin" type="QVector3D" isWritable="true"/>
+        <property name="angle" type="qreal" isWritable="true"/>
+        <property name="axis" type="QVector3D" isWritable="true"/>
         <signal name="originChanged"/>
         <signal name="angleChanged"/>
         <signal name="axisChanged"/>
@@ -2400,10 +2421,10 @@
             <export module="Qt" version="4.7" type="Scale"/>
             <export module="QtQuick" version="1.0" type="Scale"/>
         </exports>
-        <property name="origin" type="QVector3D"/>
-        <property name="xScale" type="qreal"/>
-        <property name="yScale" type="qreal"/>
-        <property name="zScale" type="qreal"/>
+        <property name="origin" type="QVector3D" isWritable="true"/>
+        <property name="xScale" type="qreal" isWritable="true"/>
+        <property name="yScale" type="qreal" isWritable="true"/>
+        <property name="zScale" type="qreal" isWritable="true"/>
         <signal name="originChanged"/>
         <signal name="xScaleChanged"/>
         <signal name="yScaleChanged"/>
@@ -2416,7 +2437,7 @@
             <export module="Qt" version="4.7" type="QGraphicsWidget"/>
             <export module="QtQuick" version="1.0" type="QGraphicsWidget"/>
         </exports>
-        <property name="anchors" type="QDeclarativeAnchors"/>
+        <property name="anchors" type="QDeclarativeAnchors" isPointer="true"/>
         <property name="left" type="QDeclarativeAnchorLine"/>
         <property name="right" type="QDeclarativeAnchorLine"/>
         <property name="horizontalCenter" type="QDeclarativeAnchorLine"/>
@@ -2429,8 +2450,8 @@
             <export module="Qt" version="4.7" type="IntValidator"/>
             <export module="QtQuick" version="1.0" type="IntValidator"/>
         </exports>
-        <property name="bottom" type="int"/>
-        <property name="top" type="int"/>
+        <property name="bottom" type="int" isWritable="true"/>
+        <property name="top" type="int" isWritable="true"/>
     </type>
     <type name="QListModelInterface" extends="QObject">
         <signal name="itemsInserted">
@@ -2457,9 +2478,9 @@
             <export module="QtQuick" version="1.0" type="QtObject"/>
             <export module="Qt" version="4.7" type="QtObject"/>
         </exports>
-        <property name="objectName" type="string"/>
+        <property name="objectName" type="string" isWritable="true"/>
         <signal name="destroyed">
-            <param type="QObject"/>
+            <param type="QObject" isPointer="true"/>
         </signal>
         <signal name="destroyed"/>
         <method name="deleteLater"/>
@@ -2468,12 +2489,12 @@
         <exports>
             <export module="Qt.labs.gestures" version="1.0" type="PanGesture"/>
         </exports>
-        <property name="lastOffset" type="QPointF"/>
-        <property name="offset" type="QPointF"/>
+        <property name="lastOffset" type="QPointF" isWritable="true"/>
+        <property name="offset" type="QPointF" isWritable="true"/>
         <property name="delta" type="QPointF"/>
-        <property name="acceleration" type="qreal"/>
-        <property name="horizontalVelocity" type="qreal"/>
-        <property name="verticalVelocity" type="qreal"/>
+        <property name="acceleration" type="qreal" isWritable="true"/>
+        <property name="horizontalVelocity" type="qreal" isWritable="true"/>
+        <property name="verticalVelocity" type="qreal" isWritable="true"/>
     </type>
     <type name="QPinchGesture" extends="QGesture">
         <exports>
@@ -2489,24 +2510,24 @@
             <enumerator name="RotationAngleChanged" value="2"/>
             <enumerator name="CenterPointChanged" value="4"/>
         </enum>
-        <property name="totalChangeFlags" type="ChangeFlags"/>
-        <property name="changeFlags" type="ChangeFlags"/>
-        <property name="totalScaleFactor" type="qreal"/>
-        <property name="lastScaleFactor" type="qreal"/>
-        <property name="scaleFactor" type="qreal"/>
-        <property name="totalRotationAngle" type="qreal"/>
-        <property name="lastRotationAngle" type="qreal"/>
-        <property name="rotationAngle" type="qreal"/>
-        <property name="startCenterPoint" type="QPointF"/>
-        <property name="lastCenterPoint" type="QPointF"/>
-        <property name="centerPoint" type="QPointF"/>
+        <property name="totalChangeFlags" type="ChangeFlags" isWritable="true"/>
+        <property name="changeFlags" type="ChangeFlags" isWritable="true"/>
+        <property name="totalScaleFactor" type="qreal" isWritable="true"/>
+        <property name="lastScaleFactor" type="qreal" isWritable="true"/>
+        <property name="scaleFactor" type="qreal" isWritable="true"/>
+        <property name="totalRotationAngle" type="qreal" isWritable="true"/>
+        <property name="lastRotationAngle" type="qreal" isWritable="true"/>
+        <property name="rotationAngle" type="qreal" isWritable="true"/>
+        <property name="startCenterPoint" type="QPointF" isWritable="true"/>
+        <property name="lastCenterPoint" type="QPointF" isWritable="true"/>
+        <property name="centerPoint" type="QPointF" isWritable="true"/>
     </type>
     <type name="QRegExpValidator" extends="QValidator">
         <exports>
             <export module="QtQuick" version="1.0" type="RegExpValidator"/>
             <export module="Qt" version="4.7" type="RegExpValidator"/>
         </exports>
-        <property name="regExp" type="QRegExp"/>
+        <property name="regExp" type="QRegExp" isWritable="true"/>
     </type>
     <type name="QSwipeGesture" extends="QGesture">
         <exports>
@@ -2521,20 +2542,20 @@
         </enum>
         <property name="horizontalDirection" type="SwipeDirection"/>
         <property name="verticalDirection" type="SwipeDirection"/>
-        <property name="swipeAngle" type="qreal"/>
-        <property name="velocity" type="qreal"/>
+        <property name="swipeAngle" type="qreal" isWritable="true"/>
+        <property name="velocity" type="qreal" isWritable="true"/>
     </type>
     <type name="QTapAndHoldGesture" extends="QGesture">
         <exports>
             <export module="Qt.labs.gestures" version="1.0" type="TapAndHoldGesture"/>
         </exports>
-        <property name="position" type="QPointF"/>
+        <property name="position" type="QPointF" isWritable="true"/>
     </type>
     <type name="QTapGesture" extends="QGesture">
         <exports>
             <export module="Qt.labs.gestures" version="1.0" type="TapGesture"/>
         </exports>
-        <property name="position" type="QPointF"/>
+        <property name="position" type="QPointF" isWritable="true"/>
     </type>
     <type name="QValidator" extends="QObject"/>
     <type name="Qt">
@@ -2654,6 +2675,44 @@
             <enumerator name="WindowCancelButtonHint" value="1048576"/>
             <enumerator name="WindowSoftkeysVisibleHint" value="1073741824"/>
             <enumerator name="WindowSoftkeysRespondHint" value="-2147483648"/>
+            <enumerator name="WMouseNoMask" value="524288"/>
+            <enumerator name="WDestructiveClose" value="1048576"/>
+            <enumerator name="WStaticContents" value="2097152"/>
+            <enumerator name="WGroupLeader" value="4194304"/>
+            <enumerator name="WShowModal" value="8388608"/>
+            <enumerator name="WNoMousePropagation" value="16777216"/>
+            <enumerator name="WType_TopLevel" value="1"/>
+            <enumerator name="WType_Dialog" value="3"/>
+            <enumerator name="WType_Popup" value="9"/>
+            <enumerator name="WType_Desktop" value="17"/>
+            <enumerator name="WType_Mask" value="255"/>
+            <enumerator name="WStyle_Customize" value="0"/>
+            <enumerator name="WStyle_NormalBorder" value="0"/>
+            <enumerator name="WStyle_DialogBorder" value="256"/>
+            <enumerator name="WStyle_NoBorder" value="2048"/>
+            <enumerator name="WStyle_Title" value="4096"/>
+            <enumerator name="WStyle_SysMenu" value="8192"/>
+            <enumerator name="WStyle_Minimize" value="16384"/>
+            <enumerator name="WStyle_Maximize" value="32768"/>
+            <enumerator name="WStyle_MinMax" value="49152"/>
+            <enumerator name="WStyle_Tool" value="11"/>
+            <enumerator name="WStyle_StaysOnTop" value="262144"/>
+            <enumerator name="WStyle_ContextHelp" value="65536"/>
+            <enumerator name="WPaintDesktop" value="0"/>
+            <enumerator name="WPaintClever" value="0"/>
+            <enumerator name="WX11BypassWM" value="1024"/>
+            <enumerator name="WWinOwnDC" value="512"/>
+            <enumerator name="WMacSheet" value="5"/>
+            <enumerator name="WMacDrawer" value="7"/>
+            <enumerator name="WStyle_Splash" value="15"/>
+            <enumerator name="WNoAutoErase" value="0"/>
+            <enumerator name="WRepaintNoErase" value="0"/>
+            <enumerator name="WNorthWestGravity" value="2097152"/>
+            <enumerator name="WType_Modal" value="8388611"/>
+            <enumerator name="WStyle_Dialog" value="3"/>
+            <enumerator name="WStyle_NoBorderEx" value="2048"/>
+            <enumerator name="WResizeNoErase" value="0"/>
+            <enumerator name="WMacNoSheet" value="0"/>
         </enum>
         <enum name="WindowFlags">
             <enumerator name="Widget" value="0"/>
@@ -2689,6 +2748,44 @@
             <enumerator name="WindowCancelButtonHint" value="1048576"/>
             <enumerator name="WindowSoftkeysVisibleHint" value="1073741824"/>
             <enumerator name="WindowSoftkeysRespondHint" value="-2147483648"/>
+            <enumerator name="WMouseNoMask" value="524288"/>
+            <enumerator name="WDestructiveClose" value="1048576"/>
+            <enumerator name="WStaticContents" value="2097152"/>
+            <enumerator name="WGroupLeader" value="4194304"/>
+            <enumerator name="WShowModal" value="8388608"/>
+            <enumerator name="WNoMousePropagation" value="16777216"/>
+            <enumerator name="WType_TopLevel" value="1"/>
+            <enumerator name="WType_Dialog" value="3"/>
+            <enumerator name="WType_Popup" value="9"/>
+            <enumerator name="WType_Desktop" value="17"/>
+            <enumerator name="WType_Mask" value="255"/>
+            <enumerator name="WStyle_Customize" value="0"/>
+            <enumerator name="WStyle_NormalBorder" value="0"/>
+            <enumerator name="WStyle_DialogBorder" value="256"/>
+            <enumerator name="WStyle_NoBorder" value="2048"/>
+            <enumerator name="WStyle_Title" value="4096"/>
+            <enumerator name="WStyle_SysMenu" value="8192"/>
+            <enumerator name="WStyle_Minimize" value="16384"/>
+            <enumerator name="WStyle_Maximize" value="32768"/>
+            <enumerator name="WStyle_MinMax" value="49152"/>
+            <enumerator name="WStyle_Tool" value="11"/>
+            <enumerator name="WStyle_StaysOnTop" value="262144"/>
+            <enumerator name="WStyle_ContextHelp" value="65536"/>
+            <enumerator name="WPaintDesktop" value="0"/>
+            <enumerator name="WPaintClever" value="0"/>
+            <enumerator name="WX11BypassWM" value="1024"/>
+            <enumerator name="WWinOwnDC" value="512"/>
+            <enumerator name="WMacSheet" value="5"/>
+            <enumerator name="WMacDrawer" value="7"/>
+            <enumerator name="WStyle_Splash" value="15"/>
+            <enumerator name="WNoAutoErase" value="0"/>
+            <enumerator name="WRepaintNoErase" value="0"/>
+            <enumerator name="WNorthWestGravity" value="2097152"/>
+            <enumerator name="WType_Modal" value="8388611"/>
+            <enumerator name="WStyle_Dialog" value="3"/>
+            <enumerator name="WStyle_NoBorderEx" value="2048"/>
+            <enumerator name="WResizeNoErase" value="0"/>
+            <enumerator name="WMacNoSheet" value="0"/>
         </enum>
         <enum name="WindowState">
             <enumerator name="WindowNoState" value="0"/>
@@ -3433,6 +3530,28 @@
             <enumerator name="ScrollBarAlwaysOff" value="1"/>
             <enumerator name="ScrollBarAlwaysOn" value="2"/>
         </enum>
+        <enum name="BackgroundMode">
+            <enumerator name="FixedColor" value="0"/>
+            <enumerator name="FixedPixmap" value="1"/>
+            <enumerator name="NoBackground" value="2"/>
+            <enumerator name="PaletteForeground" value="3"/>
+            <enumerator name="PaletteButton" value="4"/>
+            <enumerator name="PaletteLight" value="5"/>
+            <enumerator name="PaletteMidlight" value="6"/>
+            <enumerator name="PaletteDark" value="7"/>
+            <enumerator name="PaletteMid" value="8"/>
+            <enumerator name="PaletteText" value="9"/>
+            <enumerator name="PaletteBrightText" value="10"/>
+            <enumerator name="PaletteBase" value="11"/>
+            <enumerator name="PaletteBackground" value="12"/>
+            <enumerator name="PaletteShadow" value="13"/>
+            <enumerator name="PaletteHighlight" value="14"/>
+            <enumerator name="PaletteHighlightedText" value="15"/>
+            <enumerator name="PaletteButtonText" value="16"/>
+            <enumerator name="PaletteLink" value="17"/>
+            <enumerator name="PaletteLinkVisited" value="18"/>
+            <enumerator name="X11ParentRelative" value="19"/>
+        </enum>
         <enum name="CaseSensitivity">
             <enumerator name="CaseInsensitive" value="0"/>
             <enumerator name="CaseSensitive" value="1"/>
@@ -3632,20 +3751,20 @@
         </enum>
     </type>
     <type name="__extended__.QGraphicsWidget" defaultProperty="children" extends="QGraphicsObject">
-        <property name="palette" type="QPalette"/>
-        <property name="font" type="QFont"/>
-        <property name="layoutDirection" type="Qt.LayoutDirection"/>
-        <property name="size" type="QSizeF"/>
-        <property name="minimumSize" type="QSizeF"/>
-        <property name="preferredSize" type="QSizeF"/>
-        <property name="maximumSize" type="QSizeF"/>
-        <property name="sizePolicy" type="QSizePolicy"/>
-        <property name="focusPolicy" type="Qt.FocusPolicy"/>
-        <property name="windowFlags" type="Qt.WindowFlags"/>
-        <property name="windowTitle" type="string"/>
-        <property name="geometry" type="QRectF"/>
-        <property name="autoFillBackground" type="bool"/>
-        <property name="layout" type="QGraphicsLayout"/>
+        <property name="palette" type="QPalette" isWritable="true"/>
+        <property name="font" type="QFont" isWritable="true"/>
+        <property name="layoutDirection" type="Qt.LayoutDirection" isWritable="true"/>
+        <property name="size" type="QSizeF" isWritable="true"/>
+        <property name="minimumSize" type="QSizeF" isWritable="true"/>
+        <property name="preferredSize" type="QSizeF" isWritable="true"/>
+        <property name="maximumSize" type="QSizeF" isWritable="true"/>
+        <property name="sizePolicy" type="QSizePolicy" isWritable="true"/>
+        <property name="focusPolicy" type="Qt.FocusPolicy" isWritable="true"/>
+        <property name="windowFlags" type="Qt.WindowFlags" isWritable="true"/>
+        <property name="windowTitle" type="string" isWritable="true"/>
+        <property name="geometry" type="QRectF" isWritable="true"/>
+        <property name="autoFillBackground" type="bool" isWritable="true"/>
+        <property name="layout" type="QGraphicsLayout" isWritable="true" isPointer="true"/>
         <signal name="geometryChanged"/>
         <signal name="layoutChanged"/>
         <method name="close" type="bool"/>
