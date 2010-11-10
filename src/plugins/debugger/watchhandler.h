@@ -157,9 +157,6 @@ public:
     static void saveSessionData();
     void removeTooltip();
 
-    void initializeFromTemplate(WatchHandler *other);
-    void storeToTemplate(WatchHandler *other);
-
     bool isExpandedIName(const QByteArray &iname) const
         { return m_expandedINames.contains(iname); }
     QSet<QByteArray> expandedINames() const

@@ -575,31 +575,6 @@ bool BreakHandler::isActive() const
     return true; // FIXME m_engine->isActive();
 }
 
-void BreakHandler::initializeFromTemplate(BreakHandler *other)
-{
-    Q_UNUSED(other)
-    m_inserted.clear();
-    foreach (BreakpointData *data, m_bp) {
-        if (true /* FIXME m_engine->acceptsBreakpoint(data) */) {
-            BreakpointMarker *marker = m_markers.value(data->id);
-            if (marker)
-                marker->m_handler = this;
-            m_inserted.append(data);
-        }
-    }
-}
-
-void BreakHandler::storeToTemplate(BreakHandler *other)
-{
-    foreach (BreakpointData *data, m_bp) {
-        BreakpointMarker *marker = m_markers.value(data->id);
-        if (marker)
-            marker->m_handler = other;
-        data->clear();
-    }
-    other->saveSessionData();
-}
-
 int BreakHandler::size() const
 {
     return m_bp.size();

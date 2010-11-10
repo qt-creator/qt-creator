@@ -1557,21 +1557,6 @@ void WatchHandler::synchronizeWatchers()
     }
 }
 
-void WatchHandler::initializeFromTemplate(WatchHandler *other)
-{
-    m_watcherNames = other->m_watcherNames;
-    m_typeFormats = other->m_typeFormats;
-    m_individualFormats = other->m_individualFormats;
-}
-
-void WatchHandler::storeToTemplate(WatchHandler *other)
-{
-    other->m_watcherNames = m_watcherNames;
-    other->m_typeFormats = m_typeFormats;
-    other->m_individualFormats = m_individualFormats;
-}
-
-
 WatchModel *WatchHandler::model(WatchType type) const
 {
     switch (type) {

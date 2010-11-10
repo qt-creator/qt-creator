@@ -152,7 +152,6 @@ public:
 
     virtual void setToolTipExpression(const QPoint & mousePos,
         TextEditor::ITextEditor *editor, int cursorPos);
-    void initializeFromTemplate(DebuggerEngine *other);
 
     virtual void updateWatchData(const Internal::WatchData &data,
         const Internal::WatchUpdateFlags & flags = Internal::WatchUpdateFlags());

@@ -88,8 +88,6 @@ public:
     QIcon pendingBreakPointIcon() const { return m_pendingBreakPointIcon; }
     QIcon emptyIcon() const { return m_emptyIcon; }
 
-    void initializeFromTemplate(BreakHandler *other);
-    void storeToTemplate(BreakHandler *other);
     void toggleBreakpoint(const QString &fileName, int lineNumber, quint64 address = 0);
     void toggleBreakpointEnabled(const QString &fileName, int lineNumber);
     BreakpointData *findBreakpoint(const QString &fileName, int lineNumber,

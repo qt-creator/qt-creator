@@ -443,11 +443,11 @@ namespace Internal {
 // of the engine. That's good for not enabling the related ActiveX control
 // unnecessarily.
 
-void addGdbOptionPages(QList<Core::IOptionsPage*> *opts);
-void addScriptOptionPages(QList<Core::IOptionsPage*> *opts);
-void addTcfOptionPages(QList<Core::IOptionsPage*> *opts);
+void addGdbOptionPages(QList<IOptionsPage*> *opts);
+void addScriptOptionPages(QList<IOptionsPage*> *opts);
+void addTcfOptionPages(QList<IOptionsPage*> *opts);
 #ifdef CDB_ENABLED
-void addCdbOptionPages(QList<Core::IOptionsPage*> *opts);
+void addCdbOptionPages(QList<IOptionsPage*> *opts);
 #endif
 
 
@@ -480,7 +480,7 @@ public:
     DebugMode(QObject *parent = 0) : BaseMode(parent)
     {
         setDisplayName(QCoreApplication::translate("Debugger::Internal::DebugMode", "Debug"));
-        setType(Core::Constants::MODE_EDIT_TYPE);
+        setType(CC::MODE_EDIT_TYPE);
         setId(MODE_DEBUG);
         setIcon(QIcon(__(":/fancyactionbar/images/mode_Debug.png")));
         setPriority(P_MODE_DEBUG);
@@ -656,7 +656,7 @@ QWidget *DebuggingHelperOptionPage::createPage(QWidget *parent)
     m_ui.dumperLocationChooser->setExpectedKind(Utils::PathChooser::Command);
     m_ui.dumperLocationChooser->setPromptDialogTitle(tr("Choose DebuggingHelper Location"));
     m_ui.dumperLocationChooser->setInitialBrowsePathBackup(
-        Core::ICore::instance()->resourcePath() + "../../lib");
+        ICore::instance()->resourcePath() + "../../lib");
 
     m_group.clear();
     m_group.insert(theDebuggerAction(UseDebuggingHelpers),
@@ -811,13 +811,12 @@ static bool parseArguments(const QStringList &args,
 //
 ///////////////////////////////////////////////////////////////////////
 
-static bool isDebuggable(Core::IEditor *editor)
+static bool isDebuggable(IEditor *editor)
 {
     // Only blacklist Qml. Whitelisting would fail on C++ code in files
     // with strange names, more harm would be done this way.
-    //Core::IFile *file = editor->file();
-    //return !(file && file->mimeType() == "application/x-qml");
-
+    //   IFile *file = editor->file();
+    //   return !(file && file->mimeType() == "application/x-qml");
     // Nowadays, even Qml is debuggable.
     Q_UNUSED(editor);
     return true;
@@ -1126,7 +1125,7 @@ public slots:
         const QVariant data = act->data();
         QTC_ASSERT(qVariantCanConvert<BreakpointData *>(data), return);
         BreakpointData *breakPointData = qvariant_cast<BreakpointData *>(data);
-        BreakWindow::editBreakpoint(breakPointData, ICore::instance()->mainWindow());
+        BreakWindow::editBreakpoint(breakPointData, mainWindow());
     }
 
     void slotRunToLine()
@@ -1219,11 +1218,11 @@ public:
 
     QString m_previousMode;
     QScopedPointer<TextEditor::BaseTextMark> m_locationMark;
-    Core::Context m_continuableContext;
-    Core::Context m_interruptibleContext;
-    Core::Context m_undisturbableContext;
-    Core::Context m_finishedContext;
-    Core::Context m_anyContext;
+    Context m_continuableContext;
+    Context m_interruptibleContext;
+    Context m_undisturbableContext;
+    Context m_finishedContext;
+    Context m_anyContext;
     AttachRemoteParameters m_attachRemoteParameters;
 
     QAction *m_startExternalAction;
@@ -1324,11 +1323,11 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
 
     m_debugMode = 0;
 
-    m_continuableContext = Core::Context(0);
-    m_interruptibleContext = Core::Context(0);
-    m_undisturbableContext = Core::Context(0);
-    m_finishedContext = Core::Context(0);
-    m_anyContext = Core::Context(0);
+    m_continuableContext = Context(0);
+    m_interruptibleContext = Context(0);
+    m_undisturbableContext = Context(0);
+    m_finishedContext = Context(0);
+    m_anyContext = Context(0);
 
     m_debugMode = 0;
     m_uiSwitcher = 0;
@@ -1359,10 +1358,10 @@ DebuggerCore *debuggerCore()
 bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     QString *errorMessage)
 {
-    m_continuableContext = Core::Context("Gdb.Continuable");
-    m_interruptibleContext = Core::Context("Gdb.Interruptible");
-    m_undisturbableContext = Core::Context("Gdb.Undisturbable");
-    m_finishedContext = Core::Context("Gdb.Finished");
+    m_continuableContext = Context("Gdb.Continuable");
+    m_interruptibleContext = Context("Gdb.Interruptible");
+    m_undisturbableContext = Context("Gdb.Undisturbable");
+    m_finishedContext = Context("Gdb.Finished");
     m_anyContext.add(m_continuableContext);
     m_anyContext.add(m_interruptibleContext);
     m_anyContext.add(m_undisturbableContext);
@@ -1376,10 +1375,10 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     Core::ActionManager *am = core->actionManager();
     QTC_ASSERT(am, return false);
 
-    const Core::Context globalcontext(CC::C_GLOBAL);
-    const Core::Context cppDebuggercontext(C_CPPDEBUGGER);
-    const Core::Context qmlDebuggerContext(C_QMLDEBUGGER);
-    const Core::Context cppeditorcontext(CppEditor::Constants::C_CPPEDITOR);
+    const Context globalcontext(CC::C_GLOBAL);
+    const Context cppDebuggercontext(C_CPPDEBUGGER);
+    const Context qmlDebuggerContext(C_QMLDEBUGGER);
+    const Context cppeditorcontext(CppEditor::Constants::C_CPPEDITOR);
 
     m_startIcon = QIcon(_(":/debugger/images/debugger_start_small.png"));
     m_startIcon.addFile(__(":/debugger/images/debugger_start.png"));
@@ -1608,7 +1607,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_plugin->addAutoReleasedObject(m_debuggerRunControlFactory);
 
     m_debugMode->setContext(
-        Core::Context(CC::C_EDITORMANAGER, C_DEBUGMODE, CC::C_NAVIGATION_PANE));
+        Context(CC::C_EDITORMANAGER, C_DEBUGMODE, CC::C_NAVIGATION_PANE));
 
     m_reverseToolButton = 0;
 
@@ -1667,7 +1666,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     cmd = am->registerAction(m_attachTcfAction,
         Constants::ATTACHTCF, globalcontext);
-    mstart->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
+    mstart->addAction(cmd, CC::G_DEFAULT_ONE);
 
     cmd = am->registerAction(m_startRemoteAction,
         Constants::ATTACHREMOTE, globalcontext);
@@ -2775,7 +2774,7 @@ void DebuggerPluginPrivate::onModeChanged(IMode *mode)
 
 void DebuggerPluginPrivate::showSettingsDialog()
 {
-    Core::ICore::instance()->showOptionsDialog(
+    ICore::instance()->showOptionsDialog(
         _(DEBUGGER_SETTINGS_CATEGORY),
         _(DEBUGGER_COMMON_SETTINGS_ID));
 }
@@ -2803,7 +2802,7 @@ void DebuggerPluginPrivate::clearStatusMessage()
 /*! Activates the previous mode when the current mode is the debug mode. */
 void DebuggerPluginPrivate::activatePreviousMode()
 {
-    Core::ModeManager *modeManager = ICore::instance()->modeManager();
+    ModeManager *modeManager = ICore::instance()->modeManager();
 
     if (modeManager->currentMode() == modeManager->mode(MODE_DEBUG)
             && !m_previousMode.isEmpty()) {
@@ -2941,7 +2940,7 @@ void DebuggerPluginPrivate::openTextEditor(const QString &titlePattern0,
     EditorManager *editorManager = EditorManager::instance();
     QTC_ASSERT(editorManager, return);
     IEditor *editor = editorManager->openEditorWithContents(
-        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &titlePattern, contents);
+        CC::K_DEFAULT_TEXT_EDITOR_ID, &titlePattern, contents);
     QTC_ASSERT(editor, return);
     editorManager->activateEditor(editor, EditorManager::IgnoreNavigationHistory);
 }
@@ -3010,7 +3009,7 @@ void DebuggerPluginPrivate::showQtDumperLibraryWarning(const QString &details)
         dialog.setDetailedText(details);
     dialog.exec();
     if (dialog.clickedButton() == qtPref) {
-        Core::ICore::instance()->showOptionsDialog(
+        ICore::instance()->showOptionsDialog(
             _(Qt4ProjectManager::Constants::QT_SETTINGS_CATEGORY),
             _(Qt4ProjectManager::Constants::QTVERSION_SETTINGS_PAGE_ID));
     } else if (dialog.clickedButton() == helperOff) {
