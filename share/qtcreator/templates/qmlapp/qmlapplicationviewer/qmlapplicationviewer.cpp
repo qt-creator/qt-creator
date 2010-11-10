@@ -59,8 +59,8 @@ class QmlApplicationViewerPrivate
 
 QString QmlApplicationViewerPrivate::adjustPath(const QString &path)
 {
-#if defined(Q_OS_UNIX)
-#if defined(Q_OS_MAC)
+#ifdef Q_OS_UNIX
+#ifdef Q_OS_MAC
     if (!QDir::isAbsolutePath(path))
         return QCoreApplication::applicationDirPath()
                 + QLatin1String("/../Resources/") + path;
@@ -95,16 +95,6 @@ QmlApplicationViewer::~QmlApplicationViewer()
     delete m_d;
 }
 
-QmlApplicationViewer *QmlApplicationViewer::create()
-{
-#if defined(QMLJSDEBUGGER)
-    QDeclarativeDebugHelper::enableDebugging();
-#endif
-    QmlApplicationViewer *viewer = new QmlApplicationViewer();
-    viewer->setAttribute(Qt::WA_DeleteOnClose);
-    return viewer;
-}
-
 void QmlApplicationViewer::setMainQmlFile(const QString &file)
 {
     m_d->mainQmlFile = QmlApplicationViewerPrivate::adjustPath(file);
@@ -118,7 +108,7 @@ void QmlApplicationViewer::addImportPath(const QString &path)
 
 void QmlApplicationViewer::setOrientation(ScreenOrientation orientation)
 {
-#if defined(Q_OS_SYMBIAN)
+#ifdef Q_OS_SYMBIAN
     if (orientation != ScreenOrientationAuto) {
 #if defined(ORIENTATIONLOCK)
         const CAknAppUiBase::TAppUiOrientation uiOrientation =
@@ -156,7 +146,7 @@ void QmlApplicationViewer::setOrientation(ScreenOrientation orientation)
 
 void QmlApplicationViewer::showExpanded()
 {
-#if defined(Q_OS_SYMBIAN)
+#ifdef Q_OS_SYMBIAN
     showFullScreen();
 #elif defined(Q_WS_MAEMO_5) || defined(Q_WS_MAEMO_6)
     showMaximized();

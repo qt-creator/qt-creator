@@ -23,9 +23,8 @@ public:
         ScreenOrientationAuto
     };
 
+    explicit QmlApplicationViewer(QWidget *parent = 0);
     virtual ~QmlApplicationViewer();
-
-    static QmlApplicationViewer *create();
 
     void setMainQmlFile(const QString &file);
     void addImportPath(const QString &path);
@@ -33,8 +32,6 @@ public:
     void showExpanded();
 
 private:
-    explicit QmlApplicationViewer(QWidget *parent = 0);
-
     class QmlApplicationViewerPrivate *m_d;
 };
 
