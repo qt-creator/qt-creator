@@ -1,0 +1,134 @@
+#include "glsllexer.h"
+#include "glslparser.h"
+
+%no-enums
+%token-prefix=T_
+%toupper
+%namespace=Parser
+%lexer-class=Lexer
+%variant-prefix=Lexer::Variant_
+
+using namespace GLSL;
+
+%%
+
+attribute                   %variant VertexShader
+bool
+break
+bvec2
+bvec3
+bvec4
+case                        %variant GLSL_150
+centroid                    %variant GLSL_120
+const
+continue
+default                     %variant GLSL_150
+discard                     %variant FragmentShader
+dmat2                       %variant GLSL_400
+dmat2x2                     %variant GLSL_400
+dmat2x3                     %variant GLSL_400
+dmat2x4                     %variant GLSL_400
+dmat3                       %variant GLSL_400
+dmat3x2                     %variant GLSL_400
+dmat3x3                     %variant GLSL_400
+dmat3x4                     %variant GLSL_400
+dmat4                       %variant GLSL_400
+dmat4x2                     %variant GLSL_400
+dmat4x3                     %variant GLSL_400
+dmat4x4                     %variant GLSL_400
+do
+double                      %variant GLSL_400
+dvec2                       %variant GLSL_400
+dvec3                       %variant GLSL_400
+dvec4                       %variant GLSL_400
+else
+flat                        %variant GLSL_150
+float
+for
+highp                       %variant GLSL_Qt | GLSL_ES_100 | GLSL_400
+if
+in
+inout
+int
+invariant
+isampler1D                  %variant GLSL_150
+isampler1DArray             %variant GLSL_150
+isampler2D                  %variant GLSL_150
+isampler2DArray             %variant GLSL_150
+isampler2DMS                %variant GLSL_150
+isampler2DMSArray           %variant GLSL_150
+isampler2DRect              %variant GLSL_150
+isampler3D                  %variant GLSL_150
+isamplerBuffer              %variant GLSL_150
+isamplerCube                %variant GLSL_150
+isamplerCubeArray           %variant GLSL_400
+ivec2
+ivec3
+ivec4
+layout                      %variant GLSL_150
+lowp                        %variant GLSL_Qt | GLSL_ES_100 | GLSL_400
+mat2
+mat2x2                      %variant GLSL_120
+mat2x3                      %variant GLSL_120
+mat2x4                      %variant GLSL_120
+mat3
+mat3x2                      %variant GLSL_120
+mat3x3                      %variant GLSL_120
+mat3x4                      %variant GLSL_120
+mat4
+mat4x2                      %variant GLSL_120
+mat4x3                      %variant GLSL_120
+mat4x4                      %variant GLSL_120
+mediump                     %variant GLSL_Qt | GLSL_ES_100 | GLSL_400
+noperspective               %variant GLSL_150
+out
+patch                       %variant GLSL_400
+precision                   %variant GLSL_ES_100
+return
+sample                      %variant Reserved
+sampler1D                   %variant GLSL_120
+sampler1DArray              %variant GLSL_150
+sampler1DArrayShadow        %variant GLSL_150
+sampler1DShadow             %variant GLSL_120
+sampler2D
+sampler2DArray              %variant GLSL_150
+sampler2DArrayShadow        %variant GLSL_150
+sampler2DMS                 %variant GLSL_150
+sampler2DMSArray            %variant GLSL_150
+sampler2DRect               %variang GLSL_150
+sampler2DRectShadow         %variang GLSL_150
+sampler2DShadow             %variant GLSL_120
+sampler3D                   %variant GLSL_120
+samplerBuffer               %variant GLSL_150
+samplerCube
+samplerCubeArray            %variant GLSL_400
+samplerCubeArrayShadow      %variant GLSL_400
+samplerCubeShadow           %variant GLSL_400
+smooth                      %variant GLSL_150
+struct
+subroutine                  %variant GLSL_400
+switch                      %variant GLSL_150
+uint                        %variant GLSL_150
+uniform
+usampler1D                  %variant GLSL_150
+usampler1DArray             %variant GLSL_150
+usampler2D                  %variant GLSL_150
+usampler2DArray             %variant GLSL_150
+usampler2DMS                %variant GLSL_150
+usampler2DMSarray           %variant GLSL_150
+usampler2DRect              %variant GLSL_150
+usampler3D                  %variant GLSL_150
+usamplerBuffer              %variant GLSL_150
+usamplerCube                %variant GLSL_150
+usamplerCubeArray           %variant GLSL_400
+uvec2                       %variant GLSL_150
+uvec3                       %variant GLSL_150
+uvec4                       %variant GLSL_150
+varying
+vec2
+vec3
+vec4
+void
+while
+true
+false

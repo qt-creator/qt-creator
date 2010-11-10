@@ -10,6 +10,7 @@ SUBDIRS   = \
     utils/process_stub.pro \
     cplusplus \
     qmljs \
+    glsl \
     qmleditorwidgets \
     symbianutils \
     3rdparty
