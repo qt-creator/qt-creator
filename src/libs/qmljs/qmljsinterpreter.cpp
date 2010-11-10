@@ -870,13 +870,13 @@ const Value *QmlObjectValue::propertyValue(const FakeMetaProperty &prop) const
     } else if (typeName == QLatin1String("bool")) {
         value = engine()->booleanValue();
     } else if (typeName == QLatin1String("int")
-            || typeName == QLatin1String("float")
-            || typeName == QLatin1String("double")
-            || typeName == QLatin1String("qreal")
-            || typeName == QLatin1String("long")
-            // ### Review: more types here?
-            ) {
-        value = engine()->numberValue();
+               || typeName == QLatin1String("long")) {
+               value = engine()->intValue();
+    }  else if (typeName == QLatin1String("float")
+                || typeName == QLatin1String("double")
+                || typeName == QLatin1String("qreal")) {
+                // ### Review: more types here?
+               value = engine()->realValue();
     } else if (typeName == QLatin1String("QFont")) {
         value = engine()->qmlFontObject();
     } else if (typeName == QLatin1String("QPoint")
@@ -1318,6 +1318,17 @@ const NumberValue *Value::asNumberValue() const
     return 0;
 }
 
+const IntValue *Value::asIntValue() const
+{
+    return 0;
+}
+
+const RealValue *Value::asRealValue() const
+{
+    return 0;
+}
+
+
 const BooleanValue *Value::asBooleanValue() const
 {
     return 0;
@@ -1377,6 +1388,17 @@ void UndefinedValue::accept(ValueVisitor *visitor) const
 }
 
 const NumberValue *NumberValue::asNumberValue() const
+{
+    return this;
+}
+
+const RealValue *RealValue::asRealValue() const
+{
+    return this;
+
+}
+
+const IntValue *IntValue::asIntValue() const
 {
     return this;
 }
@@ -2524,6 +2546,15 @@ const UndefinedValue *Engine::undefinedValue() const
 const NumberValue *Engine::numberValue() const
 {
     return &_numberValue;
+}
+
+const RealValue *Engine::realValue() const
+{
+    return &_realValue;
+}
+const IntValue *Engine::intValue() const
+{
+    return &_intValue;
 }
 
 const BooleanValue *Engine::booleanValue() const

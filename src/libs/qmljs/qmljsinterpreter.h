@@ -57,6 +57,8 @@ class Value;
 class NullValue;
 class UndefinedValue;
 class NumberValue;
+class IntValue;
+class RealValue;
 class BooleanValue;
 class StringValue;
 class ObjectValue;
@@ -109,6 +111,8 @@ public:
     virtual const NullValue *asNullValue() const;
     virtual const UndefinedValue *asUndefinedValue() const;
     virtual const NumberValue *asNumberValue() const;
+    virtual const IntValue *asIntValue() const;
+    virtual const RealValue *asRealValue() const;
     virtual const BooleanValue *asBooleanValue() const;
     virtual const StringValue *asStringValue() const;
     virtual const ObjectValue *asObjectValue() const;
@@ -139,6 +143,18 @@ template <> Q_INLINE_TEMPLATE const UndefinedValue *value_cast(const Value *v)
 template <> Q_INLINE_TEMPLATE const NumberValue *value_cast(const Value *v)
 {
     if (v) return v->asNumberValue();
+    else   return 0;
+}
+
+template <> Q_INLINE_TEMPLATE const IntValue *value_cast(const Value *v)
+{
+    if (v) return v->asIntValue();
+    else   return 0;
+}
+
+template <> Q_INLINE_TEMPLATE const RealValue *value_cast(const Value *v)
+{
+    if (v) return v->asRealValue();
     else   return 0;
 }
 
@@ -207,6 +223,19 @@ public:
     virtual const NumberValue *asNumberValue() const;
     virtual void accept(ValueVisitor *visitor) const;
 };
+
+class QMLJS_EXPORT RealValue: public NumberValue
+{
+public:
+    virtual const RealValue *asRealValue() const;
+};
+
+class QMLJS_EXPORT IntValue: public NumberValue
+{
+public:
+    virtual const IntValue *asIntValue() const;
+};
+
 
 class QMLJS_EXPORT BooleanValue: public Value
 {
@@ -649,6 +678,8 @@ public:
     const NullValue *nullValue() const;
     const UndefinedValue *undefinedValue() const;
     const NumberValue *numberValue() const;
+    const RealValue *realValue() const;
+    const IntValue *intValue() const;
     const BooleanValue *booleanValue() const;
     const StringValue *stringValue() const;
     const ColorValue *colorValue() const;
@@ -747,6 +778,8 @@ private:
     NullValue _nullValue;
     UndefinedValue _undefinedValue;
     NumberValue _numberValue;
+    RealValue _realValue;
+    IntValue _intValue;
     BooleanValue _booleanValue;
     StringValue _stringValue;
     ColorValue _colorValue;
