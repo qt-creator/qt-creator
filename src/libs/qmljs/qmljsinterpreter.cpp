@@ -931,21 +931,23 @@ QString QmlObjectValue::defaultPropertyName() const
 QString QmlObjectValue::propertyType(const QString &propertyName) const
 {
     for (const FakeMetaObject *iter = _metaObject; iter; iter = iter->superClass()) {
-        int propIdx = _metaObject->propertyIndex(propertyName);
+        int propIdx = iter->propertyIndex(propertyName);
         if (propIdx != -1) {
-            return _metaObject->property(propIdx).typeName();
+            return iter->property(propIdx).typeName();
         }
     }
     return QString();
 }
 
-bool QmlObjectValue::isListProperty(const QString &name) const
+bool QmlObjectValue::isListProperty(const QString &propertyName) const
 {
-    int idx = _metaObject->propertyIndex(name);
-    if (idx == -1)
-        return false;
-    FakeMetaProperty prop = _metaObject->property(idx);
-    return prop.isList();
+  for (const FakeMetaObject *iter = _metaObject; iter; iter = iter->superClass()) {
+        int propIdx = iter->propertyIndex(propertyName);
+        if (propIdx != -1) {
+            return iter->property(propIdx).isList();
+        }
+    }
+    return false;
 }
 
 bool QmlObjectValue::isEnum(const QString &typeName) const
