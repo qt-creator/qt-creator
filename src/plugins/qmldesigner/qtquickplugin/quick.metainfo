@@ -21,6 +21,7 @@
       <property name="width" type="int" value="80"/>
       <property name="height" type="int" value="20"/>
       <property name="text" type="QString" value="text"/>
+      <property name="font.pixelSize" type="int" value="12"/>
     </itemlibraryentry>
   </node>
   <node name="Qt/TextEdit" isContainer="false" icon=":/qtquickplugin/images/text-edit-icon16.png">
@@ -30,6 +31,7 @@
       <property name="width" type="int" value="80"/>
       <property name="height" type="int" value="20"/>
       <property name="text" type="QString" value="textEdit"/>
+      <property name="font.pixelSize" type="int" value="12"/>
     </itemlibraryentry>
   </node>
   <node name="Qt/TextInput" isContainer="false" icon=":/qtquickplugin/images/text-input-icon16.png">
@@ -39,6 +41,7 @@
       <property name="width" type="int" value="80"/>
       <property name="height" type="int" value="20"/>
       <property name="text" type="QString" value="textInput"/>
+      <property name="font.pixelSize" type="int" value="12"/>
     </itemlibraryentry>
   </node>
   <node name="Qt/MouseArea" icon=":/qtquickplugin/images/mouse-area-icon16.png">
