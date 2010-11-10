@@ -92,6 +92,8 @@ public:
         bool setMarker = false) = 0;
 
     virtual void resetLocation() = 0;
+    virtual void removeLocationMark() = 0;
+
     virtual void readSettings() = 0;
     virtual void writeSettings() const = 0;
 

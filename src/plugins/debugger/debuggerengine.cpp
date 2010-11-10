@@ -516,7 +516,7 @@ void DebuggerEngine::resetLocation()
 {
     d->m_disassemblerViewAgent.resetLocation();
     d->m_stackHandler.setCurrentIndex(-1);
-    debuggerCore()->resetLocation();
+    debuggerCore()->removeLocationMark();
 }
 
 void DebuggerEngine::gotoLocation(const QString &fileName, int lineNumber, bool setMarker)
@@ -531,7 +531,7 @@ void DebuggerEngine::gotoLocation(const StackFrame &frame, bool setMarker)
 {
     if (theDebuggerBoolSetting(OperateByInstruction) || !frame.isUsable()) {
         if (setMarker)
-            debuggerCore()->resetLocation();
+            resetLocation();
         d->m_disassemblerViewAgent.setFrame(frame);
     } else {
         debuggerCore()->gotoLocation(frame.file, frame.line, setMarker);

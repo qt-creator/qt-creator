@@ -1201,6 +1201,7 @@ public slots:
     }
 
     void resetLocation();
+    void removeLocationMark();
     QVariant sessionValue(const QString &name);
     void setSessionValue(const QString &name, const QVariant &value);
     QIcon locationMarkIcon() const { return m_locationMarkIcon; }
@@ -2910,9 +2911,10 @@ const CPlusPlus::Snapshot &DebuggerPluginPrivate::cppCodeModelSnapshot() const
 void DebuggerPluginPrivate::resetLocation()
 {
     currentEngine()->resetLocation();
-    // FIXME: code should be moved here from the engine implementation.
-    //d->m_disassemblerViewAgent.resetLocation();
-    //d->m_stackHandler.setCurrentIndex(-1);
+}
+
+void DebuggerPluginPrivate::removeLocationMark()
+{
     m_locationMark.reset();
 }
 
