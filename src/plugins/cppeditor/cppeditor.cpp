@@ -415,9 +415,9 @@ CPPEditor::CPPEditor(QWidget *parent)
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
     setCodeFoldingSupported(true);
-    setCodeFoldingVisible(true);
     setIndenter(new CppQtStyleIndenter);
     setAutoCompleter(new CppAutoCompleter);
+
     baseTextDocument()->setSyntaxHighlighter(new CppHighlighter);
 
     m_modelManager = CppTools::CppModelManagerInterface::instance();

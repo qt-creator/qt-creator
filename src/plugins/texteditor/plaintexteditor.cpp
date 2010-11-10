@@ -164,7 +164,6 @@ void PlainTextEditor::configure(const Core::MimeType &mimeType)
     baseTextDocument()->setSyntaxHighlighter(highlighter);
 
     setCodeFoldingSupported(false);
-    setCodeFoldingVisible(false);
 
     if (!mimeType.isNull()) {
         m_isMissingSyntaxDefinition = true;
@@ -189,7 +188,6 @@ void PlainTextEditor::configure(const Core::MimeType &mimeType)
                 m_commentDefinition.setMultiLineEnd(definition->multiLineCommentEnd());
 
                 setCodeFoldingSupported(true);
-                setCodeFoldingVisible(true);
             }
         } else if (file()) {
             const QString &fileName = file()->fileName();

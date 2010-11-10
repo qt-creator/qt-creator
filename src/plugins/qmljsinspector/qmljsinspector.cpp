@@ -566,6 +566,13 @@ QString InspectorUi::filenameForShadowBuildFile(const QString &filename) const
     if (projectDir.exists() && buildDir.exists() && fileInfo.exists()) {
         if (fileInfo.absoluteFilePath().startsWith(buildDir.canonicalPath())) {
             QString fileRelativePath = fileInfo.canonicalFilePath().mid(debugProjectBuildDirectory().length());
+
+#ifdef Q_OS_MACX
+            // Qt Quick Applications by default copy the qml directory to buildDir()/X.app/Contents/Resources
+            static QRegExp resourceBundlePattern(QLatin1String("^.*\\.app/Contents/Resources/"));
+            fileRelativePath.remove(resourceBundlePattern);
+#endif
+
             QFileInfo projectFile(projectDir.canonicalPath() + QLatin1Char('/') + fileRelativePath);
 
             if (projectFile.exists())

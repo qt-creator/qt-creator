@@ -171,7 +171,7 @@ void HighlighterSettingsPage::settingsToUI()
 
 void HighlighterSettingsPage::resetDefinitionsLocation()
 {
-    const QString &location = findDefinitionsLocation();
+    const QString &location = findFallbackDefinitionsLocation();
     if (location.isEmpty())
         QMessageBox::information(0, tr("Autodetect Definitions"),
                                  tr("No pre-installed definitions could be found."));

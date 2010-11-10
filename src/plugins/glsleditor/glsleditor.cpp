@@ -80,7 +80,6 @@ GLSLTextEditor::GLSLTextEditor(QWidget *parent) :
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
     setCodeFoldingSupported(true);
-    setCodeFoldingVisible(true);
     //setIndenter(new Indenter);
 
     m_updateDocumentTimer = new QTimer(this);

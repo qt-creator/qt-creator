@@ -22,7 +22,6 @@ MaemoDeployStepWidget::MaemoDeployStepWidget(MaemoDeployStep *step) :
     m_step(step)
 {
     ui->setupUi(this);
-    ui->tableView->setTextElideMode(Qt::ElideMiddle);
     ui->modelComboBox->setModel(m_step->deployables().data());
     connect(m_step->deployables().data(), SIGNAL(modelAboutToBeReset()),
         SLOT(handleModelListToBeReset()));

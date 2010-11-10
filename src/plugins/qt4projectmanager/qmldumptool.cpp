@@ -279,7 +279,7 @@ void QmlDumpTool::pathAndEnvironment(ProjectExplorer::Project *project, QString 
     path = Qt4ProjectManager::QmlDumpTool::toolForProject(project);
 
     QtVersion *version = qtVersionForProject(project);
-    if (version && path.isEmpty()) {
+    if (version && path.isEmpty() && QmlDumpTool::canBuild(version)) {
         QmlDumpBuildTask *qmlDumpBuildTask = qmlDumpBuilds()->value(version->uniqueId());
         if (qmlDumpBuildTask) {
             if (!qmlDumpBuildTask->hasFailed())

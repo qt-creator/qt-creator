@@ -168,18 +168,6 @@ void MaemoRemoteMounter::handleUnmountProcessFinished(int exitStatus)
 void MaemoRemoteMounter::stop()
 {
     setState(Inactive);
-    if (m_utfsClientUploader) {
-        disconnect(m_utfsClientUploader.data(), 0, this, 0);
-        m_utfsClientUploader->closeChannel();
-    }
-    if (m_mountProcess) {
-        disconnect(m_mountProcess.data(), 0, this, 0);
-        m_mountProcess->closeChannel();
-    }
-    if (m_unmountProcess) {
-        disconnect(m_unmountProcess.data(), 0, this, 0);
-        m_unmountProcess->closeChannel();
-    }
 }
 
 void MaemoRemoteMounter::deployUtfsClient()
@@ -449,8 +437,21 @@ void MaemoRemoteMounter::handleUtfsServerTimeout()
 
 void MaemoRemoteMounter::setState(State newState)
 {
-    if (newState == Inactive)
+    if (newState == Inactive) {
         m_utfsServerTimer->stop();
+        if (m_utfsClientUploader) {
+            disconnect(m_utfsClientUploader.data(), 0, this, 0);
+            m_utfsClientUploader->closeChannel();
+        }
+        if (m_mountProcess) {
+            disconnect(m_mountProcess.data(), 0, this, 0);
+            m_mountProcess->closeChannel();
+        }
+        if (m_unmountProcess) {
+            disconnect(m_unmountProcess.data(), 0, this, 0);
+            m_unmountProcess->closeChannel();
+        }
+    }
     m_state = newState;
 }
 

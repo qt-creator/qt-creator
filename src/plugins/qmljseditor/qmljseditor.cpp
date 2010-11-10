@@ -613,7 +613,6 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
     setCodeFoldingSupported(true);
-    setCodeFoldingVisible(true);
     setIndenter(new Indenter);
     setAutoCompleter(new AutoCompleter);
 

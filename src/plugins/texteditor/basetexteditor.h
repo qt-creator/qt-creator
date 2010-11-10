@@ -186,7 +186,7 @@ public:
     void setLineSeparatorsAllowed(bool b);
     bool lineSeparatorsAllowed() const;
 
-    void setCodeFoldingVisible(bool b);
+    void updateCodeFoldingVisible();
     bool codeFoldingVisible() const;
 
     void setCodeFoldingSupported(bool b);
