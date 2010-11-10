@@ -191,9 +191,41 @@ QString LineInfo::trimmedCodeLine(const QString &t)
             needSemicolon = true;
             break;
 
-        case Token::Identifier:
+        case Token::Identifier: {
+            // need to disambiguate
+            // "Rectangle\n{" in a QML context from
+            // "a = Somevar\n{" in a JS context
+            // What's done here does not cover all cases, but goes as far as possible
+            // with the limited information that's available.
+            const QStringRef text = tokenText(last);
+            if (yyLinizerState.leftBraceFollows && !text.isEmpty() && text.at(0).isUpper()) {
+                int i = index;
+
+                // skip any preceeding 'identifier.'; these could appear in both cases
+                while (i >= 2) {
+                    const Token &prev = yyLinizerState.tokens.at(i-1);
+                    const Token &prevPrev = yyLinizerState.tokens.at(i-2);
+                    if (prev.kind == Token::Dot && prevPrev.kind == Token::Identifier) {
+                        i -= 2;
+                    } else {
+                        break;
+                    }
+                }
+
+                // it could also be 'a = \n Foo \n {', but that sounds unlikely
+                if (i == 0)
+                    break;
+
+                // these indicate a QML context
+                const Token &prev = yyLinizerState.tokens.at(i-1);
+                if (prev.kind == Token::Semicolon || prev.kind == Token::Identifier
+                        || prev.kind == Token::RightBrace || prev.kind == Token::RightBracket) {
+                    break;
+                }
+            }
             needSemicolon = true;
             break;
+        }
 
         case Token::Keyword:
             if (tokenText(last) != QLatin1String("else"))
