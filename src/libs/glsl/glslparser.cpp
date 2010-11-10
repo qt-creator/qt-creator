@@ -30,6 +30,7 @@
 
 #include "glslparser.h"
 #include <iostream>
+#include <cstdio>
 
 using namespace GLSL;
 
