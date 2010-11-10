@@ -36,7 +36,7 @@
 #include "debuggerdialogs.h"
 #include "debuggerplugin.h"
 #include "debuggerstringutils.h"
-#include "icore.h"
+#include "coreplugin/icore.h"
 
 #include "breakhandler.h"
 #include "breakpoint.h"
