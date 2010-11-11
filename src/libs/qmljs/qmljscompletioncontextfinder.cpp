@@ -47,6 +47,7 @@ CompletionContextFinder::CompletionContextFinder(const QTextCursor &cursor)
     : m_cursor(cursor)
     , m_colonCount(-1)
     , m_behaviorBinding(false)
+    , m_inStringLiteral(false)
 {
     QTextBlock lastBlock = cursor.block();
     if (lastBlock.next().isValid())
@@ -57,11 +58,14 @@ CompletionContextFinder::CompletionContextFinder(const QTextCursor &cursor)
 
     // Initialize calls readLine - which skips empty lines. We should only adjust
     // the start token index if the linizer still is in the same block as the cursor.
+    const int cursorPos = cursor.positionInBlock();
     if (yyLinizerState.iter == cursor.block()) {
         for (; m_startTokenIndex >= 0; --m_startTokenIndex) {
             const Token &token = yyLinizerState.tokens.at(m_startTokenIndex);
-            if (token.end() <= cursor.positionInBlock())
+            if (token.end() <= cursorPos)
                 break;
+            if (token.begin() < cursorPos && token.is(Token::String))
+                m_inStringLiteral = true;
         }
 
         if (m_startTokenIndex == yyLinizerState.tokens.size() - 1 && yyLinizerState.insertedSemicolon)
@@ -226,6 +230,11 @@ QStringList CompletionContextFinder::bindingPropertyName() const
 bool CompletionContextFinder::isAfterOnInLhsOfBinding() const
 {
     return isInLhsOfBinding() && m_behaviorBinding;
+}
+
+bool QmlJS::CompletionContextFinder::isInStringLiteral() const
+{
+    return m_inStringLiteral;
 }
 
 int CompletionContextFinder::findOpeningBrace(int startTokenIndex)

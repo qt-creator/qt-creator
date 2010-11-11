@@ -52,6 +52,8 @@ public:
     bool isAfterOnInLhsOfBinding() const;
     QStringList bindingPropertyName() const;
 
+    bool isInStringLiteral() const;
+
 private:
     int findOpeningBrace(int startTokenIndex);
     void getQmlObjectTypeName(int startTokenIndex);
@@ -63,6 +65,7 @@ private:
     int m_startTokenIndex;
     int m_colonCount;
     bool m_behaviorBinding;
+    bool m_inStringLiteral;
 };
 
 } // namespace QmlJS
