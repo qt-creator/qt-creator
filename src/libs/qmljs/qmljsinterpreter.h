@@ -653,7 +653,7 @@ private:
     const Value *_result;
 };
 
-class TypeId: protected ValueVisitor
+class QMLJS_EXPORT TypeId: protected ValueVisitor
 {
     QString _result;
 

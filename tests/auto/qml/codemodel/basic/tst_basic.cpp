@@ -28,13 +28,19 @@
 **************************************************************************/
 
 
+#include "metainfo.h"
 #include <QScopedPointer>
 #include <QLatin1String>
 #include <QGraphicsObject>
+#include <QApplication>
+#include <QSettings>
+#include <QFileInfo>
 
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljsdocument.h>
+#include <qmljs/qmljsbind.h>
 #include <qmljs/qmljslookupcontext.h>
+#include <qmljs/parser/qmljsast_p.h>
 #include <qmljstools/qmljsrefactoringchanges.h>
 #include <qmljstools/qmljsmodelmanager.h>
 
@@ -53,13 +59,30 @@ private slots:
     void initTestCase();
     void cleanupTestCase();
 
+    void basicObjectTests();
     void testMetaInfo();
 };
+
+
+#ifdef Q_OS_MAC
+#  define SHARE_PATH "/Resources"
+#else
+#  define SHARE_PATH "/share/qtcreator"
+#endif
+
+
+QString resourcePath()
+{
+    return QDir::cleanPath(QTCREATORDIR + QLatin1String(SHARE_PATH));
+}
 
 class TestModelManager : public Internal::ModelManager
 {
 public:
-    virtual ~TestModelManager() {}
+    TestModelManager() : Internal::ModelManager()
+    {
+        loadQmlTypeDescriptions(resourcePath());
+    }
     void loadFile(QString fileName)
     {
         refreshSourceFiles(QStringList() << fileName, false).waitForFinished();
@@ -68,7 +91,6 @@ public:
 
 tst_Basic::tst_Basic()
 {
-
 }
 
 void tst_Basic::initTestCase()
@@ -79,31 +101,142 @@ void tst_Basic::cleanupTestCase()
 {
 }
 
-void tst_Basic::testMetaInfo()
+void tst_Basic::basicObjectTests()
 {
     TestModelManager modelManager;
+
     modelManager.loadFile(QString(QTCREATORDIR) + "/tests/auto/qml/qmldesigner/data/fx/usingmybutton.qml");
 
     Snapshot snapshot = modelManager.snapshot();
     Document::Ptr doc = snapshot.document(QString(QTCREATORDIR) + "/tests/auto/qml/qmldesigner/data/fx/usingmybutton.qml");
     QVERIFY(doc && doc->isQmlDocument());
 
-    LookupContext::Ptr lookupContext = LookupContext::create(doc, snapshot, QList<AST::Node>());
+    LookupContext::Ptr lookupContext = LookupContext::create(doc, snapshot, QList<AST::Node*>());
+    QVERIFY(lookupContext);
 
-    Interpreter::Value *v = lookupContext->evaluate();
-    Interpreter::ObjectValue *ov = lookupContext->context()->lookupType(doc, QStringList() << "Qt" << "Rectangle");
-    qDebug() << ov->className();
-    doc->bind(); // per-doc data
+    QVERIFY(lookupContext->engine()->cppQmlTypes().types().value("QtQuick.Rectangle 1.0"));
+    QVERIFY(!lookupContext->engine()->cppQmlTypes().types().value("QtQuick.Rectangle 1.0")->isWritable("border"));
+    QVERIFY(lookupContext->engine()->cppQmlTypes().types().value("QtQuick.Rectangle 1.0")->hasProperty("border"));
+    QVERIFY(lookupContext->engine()->cppQmlTypes().types().value("QtQuick.Rectangle 1.0")->isPointer("border"));
+    QVERIFY(lookupContext->engine()->cppQmlTypes().types().value("QtQuick.Rectangle 1.0")->isWritable("color"));
+    QVERIFY(!lookupContext->engine()->cppQmlTypes().types().value("QtQuick.Rectangle 1.0")->isPointer("color"));
 
-    qDebug() << lookupContext->context()->scopeChain().qmlTypes->importInfo("Rectangle", lookupContext->context()).name();
+    const Interpreter::ObjectValue *ovItem = lookupContext->context()->lookupType(doc.data(), QStringList() << "Item");
+    QCOMPARE(ovItem->className(), QString("Item"));
+    QCOMPARE(lookupContext->context()->scopeChain().qmlTypes->importInfo("Item", lookupContext->context()).name(), QString("Qt"));
+    const Interpreter::ObjectValue *ovButton = lookupContext->context()->lookupType(doc.data(), QStringList() << "MyButton");
+    QCOMPARE(ovButton->className(), QString("MyButton"));
+    QCOMPARE(ovButton->prototype(lookupContext->context())->className(), QString("Rectangle"));
 
-//    Snapshot snapshot;
-//    QmlJSRefactoringChanges changes(&modelManager, snapshot);
-//    QmlJSRefactoringFile file = changes.file(QString(QTCREATORDIR) + "/tests/auto/qml/qmldesigner/data/fx/usingmybutton.qml");
-//    QVERIFY(file.isValid());
+    const Interpreter::ObjectValue *ovProperty = lookupContext->context()->lookupType(doc.data(), QStringList() << "Item" << "states");
+    QVERIFY(ovProperty);
+    QCOMPARE(ovProperty->className(), QString("State"));
 
-//    snapshot.insert(file.qmljsDocument());
+    const Interpreter::QmlObjectValue * qmlItemValue = dynamic_cast<const Interpreter::QmlObjectValue *>(ovItem);
+    QVERIFY(qmlItemValue);
+    QCOMPARE(qmlItemValue->defaultPropertyName(), QString("data"));
+    QCOMPARE(qmlItemValue->propertyType("state"), QString("string"));
 
+    const Interpreter::ObjectValue *ovState = lookupContext->context()->lookupType(doc.data(), QStringList() << "State");
+    const Interpreter::QmlObjectValue * qmlState2Value = dynamic_cast<const Interpreter::QmlObjectValue *>(ovState);
+    QCOMPARE(qmlState2Value->className(), QString("State"));
+
+    const Interpreter::ObjectValue *ovImage = lookupContext->context()->lookupType(doc.data(), QStringList() << "Image");
+    const Interpreter::QmlObjectValue * qmlImageValue = dynamic_cast<const Interpreter::QmlObjectValue *>(ovImage);
+    QCOMPARE(qmlImageValue->className(), QString("Image"));
+    QCOMPARE(qmlImageValue->propertyType("source"), QString("QUrl"));
+}
+
+void tst_Basic::testMetaInfo()
+{
+    TestModelManager modelManager;
+
+    modelManager.loadFile(QString(QTCREATORDIR) + "/tests/auto/qml/qmldesigner/data/fx/usingmybutton.qml");
+
+    Snapshot snapshot = modelManager.snapshot();
+    Document::Ptr doc = snapshot.document(QString(QTCREATORDIR) + "/tests/auto/qml/qmldesigner/data/fx/usingmybutton.qml");
+    QVERIFY(doc && doc->isQmlDocument());
+
+    LookupContext::Ptr lookupContext = LookupContext::create(doc, snapshot, QList<AST::Node*>());
+
+    MetaInfo::setDocument(doc);
+    MetaInfo::setLookupContext(lookupContext);
+
+    MetaInfo item("Qt/Item", 4, 7);
+    MetaInfo myButton("MyButton");
+    MetaInfo textEdit("TextEdit");
+    MetaInfo super("Qt/Super", 4, 7);
+    MetaInfo maniac("Maniac");
+
+    QVERIFY(item.isValid());
+    QVERIFY(myButton.isValid());
+    QVERIFY(textEdit.isValid());
+
+    QVERIFY(!super.isValid());
+    QVERIFY(!maniac.isValid());
+
+    QVERIFY(textEdit.localProperties().contains("color"));
+    QVERIFY(textEdit.isPropertyWritable("color"));
+    MetaInfo text("Qt/Text", 4, 7);
+
+    QVERIFY(item.isValid());
+    QVERIFY(myButton.isValid());
+
+    QVERIFY(!item.isComponent());
+    QVERIFY(myButton.isComponent());
+
+    QVERIFY(myButton.properties().contains("text"));
+    QVERIFY(myButton.properties().contains("myNumber"));
+    QVERIFY(myButton.properties().contains("gradient"));
+    QVERIFY(myButton.properties().contains("border.width"));
+    QVERIFY(myButton.properties().contains("anchors.bottomMargin"));
+    QVERIFY(myButton.localProperties().contains("text"));
+    QVERIFY(myButton.localProperties().contains("myNumber"));
+    QVERIFY(!myButton.localProperties().contains("border.width"));
+
+    QVERIFY(!item.properties().contains("text"));
+    QVERIFY(!item.properties().contains("myNumber"));
+    QVERIFY(item.properties().contains("anchors.bottomMargin"));
+    QVERIFY(item.properties().contains("x"));
+    QVERIFY(!item.localProperties().contains("x"));
+    QVERIFY(!item.localProperties().contains("enabled"));
+    QVERIFY(item.localProperties().contains("anchors.bottomMargin"));
+    QVERIFY(item.localProperties().contains("states"));
+    QVERIFY(item.localProperties().contains("parent"));
+
+    QCOMPARE(myButton.propertyTypeName("text"), QString("string"));
+    QCOMPARE(myButton.propertyTypeName("myNumber"), QString("real"));
+    QCOMPARE(myButton.propertyTypeName("x"), QString("qreal"));
+    QCOMPARE(myButton.propertyTypeName("border.width"), QString("int"));
+    QCOMPARE(myButton.propertyTypeName("gradient"), QString("Qt/Gradient"));
+
+    QCOMPARE(myButton.defaultPropertyName(), QString("content"));
+    QCOMPARE(item.defaultPropertyName(), QString("data"));
+
+    QVERIFY(item.isPropertyList("children"));
+    QVERIFY(myButton.isPropertyList("children"));
+    QVERIFY(item.isPropertyList("data"));
+    QVERIFY(myButton.isPropertyList("data"));
+    QVERIFY(item.isPropertyList("states"));
+    QVERIFY(myButton.isPropertyList("states"));
+
+    QVERIFY(!item.isPropertyList("x"));
+    QVERIFY(!myButton.isPropertyList("x"));
+    QVERIFY(!item.isPropertyList("state"));
+    QVERIFY(!myButton.isPropertyList("state"));
+
+    QVERIFY(myButton.isPropertyPointer("parent"));
+    QVERIFY(text.localProperties().contains("font"));
+    QVERIFY(!text.isPropertyPointer("font"));
+    QVERIFY(myButton.isPropertyWritable("state"));
+    QVERIFY(!myButton.isPropertyWritable("border"));
+
+    QVERIFY(text.localProperties().contains("horizontalAlignment"));
+    QVERIFY(text.isPropertyEnum("horizontalAlignment"));
+
+    foreach (Interpreter::ImportInfo import, doc->bind()->imports()) {
+        QCOMPARE(import.name(), QString("Qt"));
+    }
 }
 
 QTEST_MAIN(tst_Basic);

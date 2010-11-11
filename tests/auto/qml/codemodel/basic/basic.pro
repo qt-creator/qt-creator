@@ -12,7 +12,9 @@ OUT_PWD=QTCREATOR_BUILD
 include($$QTCREATOR_SOURCE/qtcreator.pri)
 OUT_PWD=$$OUT_PWD_SAVE
 
+
 LIBS += -L$$IDE_PLUGIN_PATH/Nokia
+
 unix: QMAKE_LFLAGS += \'-Wl,-rpath,$${IDE_LIBRARY_PATH}\' \'-Wl,-rpath,$${IDE_PLUGIN_PATH}/Nokia\'
 
 QT += core network
@@ -23,15 +25,21 @@ CONFIG += qtestlib testcase
 DEFINES+=QTCREATORDIR=\\\"$$IDE_SOURCE_TREE\\\"
 DEFINES+=QT_CREATOR QTCREATOR_TEST
 
-DEPENDPATH += ..
+DEPENDPATH += .
 
-include($$IDE_SOURCE_TREE/src/libs/utils/utils-lib.pri)
+include($$IDE_SOURCE_TREE/src/libs/utils/utils.pri)
 include($$IDE_SOURCE_TREE/src/plugins/qmljstools/qmljstools.pri)
 
+
 TARGET = tst_codemodel_basic
-win32: TARGET = $$IDE_APP_PATH/$$TARGET
+win32: DESTDIR = $$IDE_APP_PATH
+
 
 CONFIG += console
 CONFIG -= app_bundle
+HEADERS += \
+    metainfo.h
+
 SOURCES += \
-    tst_basic.cpp
+    tst_basic.cpp \
+    metainfo.cpp
