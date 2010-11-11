@@ -30,6 +30,8 @@
 #ifndef QMLJSMODELMANAGER_H
 #define QMLJSMODELMANAGER_H
 
+#include "qmljstools_global.h"
+
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsdocument.h>
 
@@ -43,10 +45,10 @@ class ICore;
 class MimeType;
 }
 
-namespace QmlJSEditor {
+namespace QmlJSTools {
 namespace Internal {
 
-class ModelManager: public QmlJS::ModelManagerInterface
+class QMLJSTOOLS_EXPORT ModelManager: public QmlJS::ModelManagerInterface
 {
     Q_OBJECT
 
@@ -113,6 +115,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace QmlJSEditor
+} // namespace QmlJSTools
 
 #endif // QMLJSMODELMANAGER_H

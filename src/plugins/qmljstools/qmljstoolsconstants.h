@@ -27,41 +27,20 @@
 **
 **************************************************************************/
 
-#ifndef QMLJSEDITOR_CONSTANTS_H
-#define QMLJSEDITOR_CONSTANTS_H
+#ifndef QMLJSTOOLS_CONSTANTS_H
+#define QMLJSTOOLS_CONSTANTS_H
 
 #include <QtCore/QtGlobal>
 
-namespace QmlJSEditor {
+namespace QmlJSTools {
 namespace Constants {
-
-// menus
-const char * const M_CONTEXT = "QML JS Editor.ContextMenu";
-const char * const M_TOOLS_QML = "QmlJSEditor.Tools.Menu";
-
-const char * const SEPARATOR1 = "QmlJSEditor.Separator1";
-const char * const SEPARATOR2 = "QmlJSEditor.Separator2";
-const char * const M_REFACTORING_MENU_INSERTION_POINT = "QmlJSEditor.RefactorGroup";
-
-const char * const RUN_SEP = "QmlJSEditor.Run.Separator";
-const char * const C_QMLJSEDITOR_ID = "QMLProjectManager.QMLJSEditor";
-const char * const C_QMLJSEDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("OpenWith::Editors", "QMLJS Editor");
-const char * const TASK_SEARCH = "QmlJSEditor.TaskSearch";
-
-const char * const FOLLOW_SYMBOL_UNDER_CURSOR = "QmlJSEditor.FollowSymbolUnderCursor";
-const char * const FIND_USAGES = "QmlJSEditor.FindUsages";
-const char * const SHOW_QT_QUICK_HELPER = "QmlJSEditor.ShowQtQuickHelper";
 
 const char * const QML_MIMETYPE = "application/x-qml";
 const char * const JS_MIMETYPE = "application/javascript";
 
-const char *const TASK_CATEGORY_QML = "Task.Category.Qml";
-
-const char * const WIZARD_CATEGORY_QML = "S.Qml";
-const char * const WIZARD_TR_CATEGORY_QML = QT_TRANSLATE_NOOP("QmlJsEditor", "QML");
-
+const char * const TASK_INDEX = "QmlJSEditor.TaskIndex";
 
 } // namespace Constants
 } // namespace QmlJSEditor
 
-#endif // QMLJSEDITOR_CONSTANTS_H
+#endif // QMLJSTOOLS_CONSTANTS_H

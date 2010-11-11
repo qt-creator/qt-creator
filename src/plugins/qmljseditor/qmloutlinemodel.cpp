@@ -1,12 +1,12 @@
 #include "qmloutlinemodel.h"
 #include "qmljseditor.h"
-#include "qmljsrefactoringchanges.h"
 
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljslookupcontext.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsrewriter.h>
+#include <qmljstools/qmljsrefactoringchanges.h>
 
 #include <utils/qtcassert.h>
 
@@ -17,6 +17,7 @@
 
 using namespace QmlJS;
 using namespace QmlJSEditor::Internal;
+using namespace QmlJSTools;
 
 enum {
     debug = false

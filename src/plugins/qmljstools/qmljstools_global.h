@@ -27,48 +27,17 @@
 **
 **************************************************************************/
 
-#include "qmljsindenter.h"
+#ifndef QMLJSTOOLS_GLOBAL_H
+#define QMLJSTOOLS_GLOBAL_H
 
-#include <qmljstools/qmljsqtstylecodeformatter.h>
-#include <texteditor/basetexteditor.h>
-#include <texteditor/tabsettings.h>
+#include <QtGlobal>
 
-#include <QtCore/QChar>
-#include <QtGui/QTextDocument>
-#include <QtGui/QTextBlock>
-#include <QtGui/QTextCursor>
+#if defined(QMLJSTOOLS_LIBRARY)
+#  define QMLJSTOOLS_EXPORT Q_DECL_EXPORT
+#elif defined(QMLJSTOOLS_STATIC)
+#  define QMLJSTOOLS_EXPORT
+#else
+#  define QMLJSTOOLS_EXPORT Q_DECL_IMPORT
+#endif
 
-using namespace QmlJSEditor;
-using namespace Internal;
-
-Indenter::Indenter()
-{}
-
-Indenter::~Indenter()
-{}
-
-bool Indenter::doIsElectricalCharacter(const QChar &ch) const
-{
-    if (ch == QLatin1Char('}')
-            || ch == QLatin1Char(']')
-            || ch == QLatin1Char(':'))
-        return true;
-    return false;
-}
-
-void Indenter::doIndentBlock(QTextDocument *doc,
-                             const QTextBlock &block,
-                             const QChar &typedChar,
-                             TextEditor::BaseTextEditor *editor)
-{
-    Q_UNUSED(doc)
-    Q_UNUSED(typedChar)
-    Q_UNUSED(editor)
-
-    const TextEditor::TabSettings &ts = editor->tabSettings();
-    QmlJSTools::QtStyleCodeFormatter codeFormatter(ts);
-
-    codeFormatter.updateStateUntil(block);
-    const int depth = codeFormatter.indentFor(block);
-    ts.indentLine(block, depth);
-}
+#endif // QMLJSTOOLS_GLOBAL_H

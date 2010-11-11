@@ -42,6 +42,8 @@ ModelManagerInterface::ModelManagerInterface(QObject *parent)
 
 ModelManagerInterface::~ModelManagerInterface()
 {
+    Q_ASSERT(g_instance == this);
+    g_instance = 0;
 }
 
 ModelManagerInterface *ModelManagerInterface::instance()

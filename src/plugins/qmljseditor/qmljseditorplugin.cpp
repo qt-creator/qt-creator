@@ -34,15 +34,16 @@
 #include "qmljseditorfactory.h"
 #include "qmljscodecompletion.h"
 #include "qmljshoverhandler.h"
-#include "qmljsmodelmanager.h"
 #include "qmlfilewizard.h"
 #include "qmljsoutline.h"
 #include "qmljspreviewrunner.h"
 #include "qmljsquickfix.h"
-#include "qmljs/qmljsicons.h"
 #include "qmltaskmanager.h"
 #include "quicktoolbar.h"
 #include "quicktoolbarsettingspage.h"
+
+#include <qmljs/qmljsicons.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <qmldesigner/qmldesignerconstants.h>
 
@@ -125,8 +126,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/qmljseditor/QmlJSEditor.mimetypes.xml"), error_message))
         return false;
 
-    m_modelManager = new ModelManager(this);
-    addAutoReleasedObject(m_modelManager);
+    m_modelManager = QmlJS::ModelManagerInterface::instance();
 
     Core::Context context(QmlJSEditor::Constants::C_QMLJSEDITOR_ID);
 

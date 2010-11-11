@@ -29,12 +29,12 @@
 
 #include "qmljscomponentfromobjectdef.h"
 #include "qmljscomponentnamedialog.h"
-#include "qmljsrefactoringchanges.h"
 
 #include <coreplugin/ifile.h>
 
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsdocument.h>
+#include <qmljstools/qmljsrefactoringchanges.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
@@ -43,6 +43,7 @@
 using namespace QmlJS::AST;
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
+using namespace QmlJSTools;
 
 namespace {
 

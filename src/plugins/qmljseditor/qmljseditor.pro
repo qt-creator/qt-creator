@@ -19,15 +19,12 @@ HEADERS += \
     qmlfilewizard.h \
     qmljshighlighter.h \
     qmljshoverhandler.h \
-    qmljsmodelmanager.h \
     qmljspreviewrunner.h \
     qmljsquickfix.h \
-    qmljsrefactoringchanges.h \
     qmljscomponentfromobjectdef.h \
     qmljsoutline.h \
     qmloutlinemodel.h \
     qmltaskmanager.h \
-    qmljseditorcodeformatter.h \
     qmljsoutlinetreeview.h \
     quicktoolbarsettingspage.h \
     quicktoolbar.h \
@@ -48,16 +45,13 @@ SOURCES += \
     qmlfilewizard.cpp \
     qmljshighlighter.cpp \
     qmljshoverhandler.cpp \
-    qmljsmodelmanager.cpp \
     qmljspreviewrunner.cpp \
     qmljsquickfix.cpp \
-    qmljsrefactoringchanges.cpp \
     qmljscomponentfromobjectdef.cpp \
     qmljsoutline.cpp \
     qmloutlinemodel.cpp \
     qmltaskmanager.cpp \
     qmljsquickfixes.cpp \
-    qmljseditorcodeformatter.cpp \
     qmljsoutlinetreeview.cpp \
     quicktoolbarsettingspage.cpp \
     quicktoolbar.cpp \

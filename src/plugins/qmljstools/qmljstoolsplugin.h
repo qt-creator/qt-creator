@@ -27,48 +27,47 @@
 **
 **************************************************************************/
 
-#ifndef QMLJSEDITORCODEFORMATTER_H
-#define QMLJSEDITORCODEFORMATTER_H
+#ifndef QMLJSTOOLS_H
+#define QMLJSTOOLS_H
 
-#include "qmljseditor_global.h"
+#include <extensionsystem/iplugin.h>
+#include <projectexplorer/projectexplorer.h>
 
-#include <texteditor/basetextdocumentlayout.h>
-#include <qmljs/qmljscodeformatter.h>
+#include <QtGui/QTextDocument>
+#include <QtCore/QSharedPointer>
 
-namespace TextEditor {
-    class TabSettings;
-}
+QT_BEGIN_NAMESPACE
+class QFileInfo;
+class QDir;
+QT_END_NAMESPACE
 
-namespace QmlJSEditor {
+namespace QmlJSTools {
+namespace Internal {
 
-class QMLJSEDITOR_EXPORT QtStyleCodeFormatter : public QmlJS::CodeFormatter
+class ModelManager;
+
+class QmlJSToolsPlugin : public ExtensionSystem::IPlugin
 {
+    Q_DISABLE_COPY(QmlJSToolsPlugin)
+    Q_OBJECT
 public:
-    QtStyleCodeFormatter();
-    explicit QtStyleCodeFormatter(const TextEditor::TabSettings &tabSettings);
+    static QmlJSToolsPlugin *instance() { return m_instance; }
 
-    void setIndentSize(int size);
+    QmlJSToolsPlugin();
+    ~QmlJSToolsPlugin();
 
-protected:
-    virtual void onEnter(int newState, int *indentDepth, int *savedIndentDepth) const;
-    virtual void adjustIndent(const QList<QmlJS::Token> &tokens, int lexerState, int *indentDepth) const;
-
-    virtual void saveBlockData(QTextBlock *block, const BlockData &data) const;
-    virtual bool loadBlockData(const QTextBlock &block, BlockData *data) const;
-
-    virtual void saveLexerState(QTextBlock *block, int state) const;
-    virtual int loadLexerState(const QTextBlock &block) const;
+    bool initialize(const QStringList &arguments, QString *error_message);
+    void extensionsInitialized();
+    ShutdownFlag aboutToShutdown();
+    ModelManager *modelManager() { return m_modelManager; }
 
 private:
-    int m_indentSize;
+    ModelManager *m_modelManager;
 
-    class QmlJSCodeFormatterData: public TextEditor::CodeFormatterData
-    {
-    public:
-        QmlJS::CodeFormatter::BlockData m_data;
-    };
+    static QmlJSToolsPlugin *m_instance;
 };
 
-} // namespace QmlJSEditor
+} // namespace Internal
+} // namespace CppTools
 
-#endif // QMLJSEDITORCODEFORMATTER_H
+#endif // QMLJSTOOLS_H

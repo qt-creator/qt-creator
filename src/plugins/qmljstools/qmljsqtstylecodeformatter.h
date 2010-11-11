@@ -27,48 +27,48 @@
 **
 **************************************************************************/
 
-#include "qmljsindenter.h"
+#ifndef QMLJSQTSTYLECODEFORMATTER_H
+#define QMLJSQTSTYLECODEFORMATTER_H
 
-#include <qmljstools/qmljsqtstylecodeformatter.h>
-#include <texteditor/basetexteditor.h>
-#include <texteditor/tabsettings.h>
+#include "qmljstools_global.h"
 
-#include <QtCore/QChar>
-#include <QtGui/QTextDocument>
-#include <QtGui/QTextBlock>
-#include <QtGui/QTextCursor>
+#include <texteditor/basetextdocumentlayout.h>
+#include <qmljs/qmljscodeformatter.h>
 
-using namespace QmlJSEditor;
-using namespace Internal;
-
-Indenter::Indenter()
-{}
-
-Indenter::~Indenter()
-{}
-
-bool Indenter::doIsElectricalCharacter(const QChar &ch) const
-{
-    if (ch == QLatin1Char('}')
-            || ch == QLatin1Char(']')
-            || ch == QLatin1Char(':'))
-        return true;
-    return false;
+namespace TextEditor {
+    class TabSettings;
 }
 
-void Indenter::doIndentBlock(QTextDocument *doc,
-                             const QTextBlock &block,
-                             const QChar &typedChar,
-                             TextEditor::BaseTextEditor *editor)
+namespace QmlJSTools {
+
+class QMLJSTOOLS_EXPORT QtStyleCodeFormatter : public QmlJS::CodeFormatter
 {
-    Q_UNUSED(doc)
-    Q_UNUSED(typedChar)
-    Q_UNUSED(editor)
+public:
+    QtStyleCodeFormatter();
+    explicit QtStyleCodeFormatter(const TextEditor::TabSettings &tabSettings);
 
-    const TextEditor::TabSettings &ts = editor->tabSettings();
-    QmlJSTools::QtStyleCodeFormatter codeFormatter(ts);
+    void setIndentSize(int size);
 
-    codeFormatter.updateStateUntil(block);
-    const int depth = codeFormatter.indentFor(block);
-    ts.indentLine(block, depth);
-}
+protected:
+    virtual void onEnter(int newState, int *indentDepth, int *savedIndentDepth) const;
+    virtual void adjustIndent(const QList<QmlJS::Token> &tokens, int lexerState, int *indentDepth) const;
+
+    virtual void saveBlockData(QTextBlock *block, const BlockData &data) const;
+    virtual bool loadBlockData(const QTextBlock &block, BlockData *data) const;
+
+    virtual void saveLexerState(QTextBlock *block, int state) const;
+    virtual int loadLexerState(const QTextBlock &block) const;
+
+private:
+    int m_indentSize;
+
+    class QmlJSCodeFormatterData: public TextEditor::CodeFormatterData
+    {
+    public:
+        QmlJS::CodeFormatter::BlockData m_data;
+    };
+};
+
+} // namespace QmlJSTools
+
+#endif // QMLJSQTSTYLECODEFORMATTER_H

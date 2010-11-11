@@ -30,7 +30,6 @@
 #include "qmljsquickfix.h"
 #include "qmljscomponentfromobjectdef.h"
 #include "qmljseditor.h"
-#include "qmljsrefactoringchanges.h"
 #include "qmljs/parser/qmljsast_p.h"
 
 #include <extensionsystem/iplugin.h>
@@ -44,6 +43,7 @@ using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
+using namespace QmlJSTools;
 using namespace TextEditor;
 using TextEditor::RefactoringChanges;
 

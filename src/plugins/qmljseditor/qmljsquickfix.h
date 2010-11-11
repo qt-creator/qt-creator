@@ -31,11 +31,11 @@
 #define QMLJSQUICKFIX_H
 
 #include "qmljseditor.h"
-#include "qmljsrefactoringchanges.h"
 
 #include <texteditor/quickfix.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
 #include <qmljs/qmljsdocument.h>
+#include <qmljstools/qmljsrefactoringchanges.h>
 
 namespace ExtensionSystem {
 class IPlugin;
@@ -73,7 +73,7 @@ public:
     /// \returns the document of the editor
     QmlJS::Document::Ptr document() const;
 
-    const QmlJSRefactoringFile currentFile() const;
+    const QmlJSTools::QmlJSRefactoringFile currentFile() const;
 
 private:
     SemanticInfo _semanticInfo;
@@ -105,7 +105,8 @@ public:
 protected:
     typedef Utils::ChangeSet::Range Range;
 
-    virtual void performChanges(QmlJSRefactoringFile *currentFile, QmlJSRefactoringChanges *refactoring) = 0;
+    virtual void performChanges(QmlJSTools::QmlJSRefactoringFile *currentFile,
+                                QmlJSTools::QmlJSRefactoringChanges *refactoring) = 0;
 
     /// \returns A const-reference to the state of the operation.
     const QmlJSQuickFixState &state() const;

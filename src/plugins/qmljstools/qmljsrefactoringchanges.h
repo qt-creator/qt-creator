@@ -30,6 +30,8 @@
 #ifndef QMLREFACTORINGCHANGES_H
 #define QMLREFACTORINGCHANGES_H
 
+#include "qmljstools_global.h"
+
 #include <qmljs/qmljsdocument.h>
 
 #include <texteditor/refactoringchanges.h>
@@ -38,11 +40,11 @@ namespace QmlJS {
 class ModelManagerInterface;
 } // namespace QmlJS
 
-namespace QmlJSEditor {
+namespace QmlJSTools {
 
 class QmlJSRefactoringChanges;
 
-class QmlJSRefactoringFile: public TextEditor::RefactoringFile
+class QMLJSTOOLS_EXPORT QmlJSRefactoringFile: public TextEditor::RefactoringFile
 {
 public:
     QmlJSRefactoringFile();
@@ -67,7 +69,7 @@ private:
 };
 
 
-class QmlJSRefactoringChanges: public TextEditor::RefactoringChanges
+class QMLJSTOOLS_EXPORT QmlJSRefactoringChanges: public TextEditor::RefactoringChanges
 {
 public:
     QmlJSRefactoringChanges(QmlJS::ModelManagerInterface *modelManager,
@@ -86,6 +88,6 @@ private:
     QmlJS::Snapshot m_snapshot;
 };
 
-} // namespace QmlJSEditor
+} // namespace QmlJSTools
 
 #endif // QMLREFACTORINGCHANGES_H

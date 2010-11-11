@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "qmljsrefactoringchanges.h"
-#include "qmljseditorcodeformatter.h"
+#include "qmljsqtstylecodeformatter.h"
 
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -36,7 +36,7 @@
 #include <texteditor/tabsettings.h>
 
 using namespace QmlJS;
-using namespace QmlJSEditor;
+using namespace QmlJSTools;
 
 QmlJSRefactoringChanges::QmlJSRefactoringChanges(ModelManagerInterface *modelManager,
                                                  const Snapshot &snapshot)

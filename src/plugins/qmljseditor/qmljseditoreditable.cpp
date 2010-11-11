@@ -33,6 +33,7 @@
 
 #include <texteditor/texteditorconstants.h>
 #include <qmldesigner/qmldesignerconstants.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/icore.h>
@@ -48,6 +49,7 @@ QmlJSEditorEditable::QmlJSEditorEditable(QmlJSTextEditor *editor)
 {
     m_context.add(QmlJSEditor::Constants::C_QMLJSEDITOR_ID);
     m_context.add(TextEditor::Constants::C_TEXTEDITOR);
+    m_context.add(ProjectExplorer::Constants::LANG_QMLJS);
 }
 
 // Use preferred mode from Bauhaus settings

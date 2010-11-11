@@ -27,9 +27,9 @@
 **
 **************************************************************************/
 
-#include "qmljseditorconstants.h"
 #include "qmljsmodelmanager.h"
-#include "qmljseditor.h"
+#include "qmljstoolsconstants.h"
+//#include "qmljseditor.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -40,8 +40,10 @@
 #include <qmljs/qmljsbind.h>
 #include <qmljs/parser/qmldirparser_p.h>
 #include <texteditor/itexteditor.h>
+#include <texteditor/basetexteditor.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QDir>
 #include <QFile>
@@ -55,8 +57,8 @@
 #include <QDebug>
 
 using namespace QmlJS;
-using namespace QmlJSEditor;
-using namespace QmlJSEditor::Internal;
+using namespace QmlJSTools;
+using namespace QmlJSTools::Internal;
 
 static QStringList environmentImportPaths();
 
@@ -108,8 +110,10 @@ ModelManagerInterface::WorkingCopy ModelManager::workingCopy() const
         const QString key = editor->file()->fileName();
 
         if (TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor)) {
-            if (QmlJSTextEditor *ed = qobject_cast<QmlJSTextEditor *>(textEditor->widget())) {
-                workingCopy.insert(key, ed->toPlainText(), ed->document()->revision());
+            if (textEditor->context().contains(ProjectExplorer::Constants::LANG_QMLJS)) {
+                if (TextEditor::BaseTextEditor *ed = qobject_cast<TextEditor::BaseTextEditor *>(textEditor->widget())) {
+                    workingCopy.insert(key, ed->toPlainText(), ed->document()->revision());
+                }
             }
         }
     }
@@ -157,7 +161,7 @@ QFuture<void> ModelManager::refreshSourceFiles(const QStringList &sourceFiles,
 
     if (sourceFiles.count() > 1) {
         m_core->progressManager()->addTask(result, tr("Indexing"),
-                        QmlJSEditor::Constants::TASK_INDEX);
+                        Constants::TASK_INDEX);
     }
 
     return result;
@@ -255,8 +259,8 @@ static QStringList qmlFilesInDirectory(const QString &path)
 {
     // ### It would suffice to build pattern once. This function needs to be thread-safe.
     Core::MimeDatabase *db = Core::ICore::instance()->mimeDatabase();
-    Core::MimeType jsSourceTy = db->findByType(QmlJSEditor::Constants::JS_MIMETYPE);
-    Core::MimeType qmlSourceTy = db->findByType(QmlJSEditor::Constants::QML_MIMETYPE);
+    Core::MimeType jsSourceTy = db->findByType(Constants::JS_MIMETYPE);
+    Core::MimeType qmlSourceTy = db->findByType(Constants::QML_MIMETYPE);
 
     QStringList pattern;
     foreach (const Core::MimeGlobPattern &glob, jsSourceTy.globPatterns())

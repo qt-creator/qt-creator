@@ -104,6 +104,7 @@ const char * const C_PROJECTEXPLORER    = "Project Explorer";
 
 // languages
 const char * const LANG_CXX             = "CXX";
+const char * const LANG_QMLJS           = "QMLJS";
 
 // menus
 const char * const M_RECENTPROJECTS     = "ProjectExplorer.Menu.Recent";

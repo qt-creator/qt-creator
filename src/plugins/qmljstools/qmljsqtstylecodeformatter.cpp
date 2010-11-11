@@ -27,14 +27,14 @@
 **
 **************************************************************************/
 
-#include "qmljseditorcodeformatter.h"
+#include "qmljsqtstylecodeformatter.h"
 
 #include <texteditor/tabsettings.h>
 
 #include <QtCore/QDebug>
 
 using namespace QmlJS;
-using namespace QmlJSEditor;
+using namespace QmlJSTools;
 using namespace TextEditor;
 
 QtStyleCodeFormatter::QtStyleCodeFormatter()

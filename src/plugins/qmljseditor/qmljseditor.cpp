@@ -32,8 +32,6 @@
 #include "qmljseditorconstants.h"
 #include "qmljshighlighter.h"
 #include "qmljseditorplugin.h"
-#include "qmljsmodelmanager.h"
-#include "qmljseditorcodeformatter.h"
 #include "qmljsquickfix.h"
 #include "qmloutlinemodel.h"
 #include "qmljsfindreferences.h"
@@ -45,9 +43,12 @@
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsicontextpane.h>
 #include <qmljs/qmljslookupcontext.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsengine_p.h>
+
+#include <qmljstools/qmljsqtstylecodeformatter.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -66,6 +67,7 @@
 #include <texteditor/refactoroverlay.h>
 #include <texteditor/tooltip/tooltip.h>
 #include <qmldesigner/qmldesignerconstants.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <utils/changeset.h>
 #include <utils/uncommentselection.h>
 

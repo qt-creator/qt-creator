@@ -36,6 +36,7 @@ SUBDIRS   = plugin_coreplugin \
             plugin_mercurial \
             plugin_classview \
             plugin_tasklist \
+            plugin_qmljstools \
             debugger/dumper.pro
 
 include(../../qtcreator.pri)
@@ -192,6 +193,7 @@ plugin_qmljseditor.subdir = qmljseditor
 plugin_qmljseditor.depends = plugin_texteditor
 plugin_qmljseditor.depends += plugin_coreplugin
 plugin_qmljseditor.depends += plugin_projectexplorer
+plugin_qmljseditor.depends += plugin_qmljstools
 
 plugin_glsleditor.subdir = glsleditor
 plugin_glsleditor.depends = plugin_texteditor
@@ -229,3 +231,8 @@ plugin_classview.depends += plugin_texteditor
 plugin_tasklist.subdir = tasklist
 plugin_tasklist.depends = plugin_coreplugin
 plugin_tasklist.depends += plugin_projectexplorer
+
+plugin_qmljstools.subdir = qmljstools
+plugin_qmljstools.depends = plugin_projectexplorer
+plugin_qmljstools.depends += plugin_coreplugin
+plugin_qmljstools.depends += plugin_texteditor

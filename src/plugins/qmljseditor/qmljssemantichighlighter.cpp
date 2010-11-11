@@ -28,8 +28,8 @@
 **************************************************************************/
 
 #include "qmljssemantichighlighter.h"
-#include "qmljsmodelmanager.h"
 
+#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljscheck.h>
 #include <qmljs/qmljsinterpreter.h>
