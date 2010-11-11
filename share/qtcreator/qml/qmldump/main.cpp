@@ -82,13 +82,17 @@ void processDeclarativeType(const QDeclarativeType *ty, QSet<const QMetaObject *
     processMetaObject(ty->metaObject(), metas);
 }
 
-void writeType(QXmlStreamAttributes *attrs, QByteArray typeName)
+void writeType(QXmlStreamAttributes *attrs, QByteArray typeName, bool isWritable = false)
 {
     bool isList = false, isPointer = false;
     erasure(&typeName, &isList, &isPointer);
     attrs->append(QXmlStreamAttribute("type", typeName));
     if (isList)
         attrs->append(QXmlStreamAttribute("isList", "true"));
+    if (isWritable)
+        attrs->append(QXmlStreamAttribute("isWritable", "true"));
+    if (isPointer)
+        attrs->append(QXmlStreamAttribute("isPointer", "true"));
 }
 
 void dump(const QMetaProperty &prop, QXmlStreamWriter *xml)
@@ -98,7 +102,7 @@ void dump(const QMetaProperty &prop, QXmlStreamWriter *xml)
     QXmlStreamAttributes attributes;
     attributes.append(QXmlStreamAttribute("name", QString::fromUtf8(prop.name())));
 
-    writeType(&attributes, prop.typeName());
+    writeType(&attributes, prop.typeName(), prop.isWritable());
 
     xml->writeAttributes(attributes);
     xml->writeEndElement();

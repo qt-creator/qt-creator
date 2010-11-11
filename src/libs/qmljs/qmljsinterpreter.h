@@ -395,6 +395,8 @@ public:
     QString defaultPropertyName() const;
     QString propertyType(const QString &propertyName) const;
     bool isListProperty(const QString &name) const;
+    bool isWritable(const QString &propertyName) const;
+    bool isPointer(const QString &propertyName) const;
     bool isEnum(const QString &typeName) const;
     bool enumContainsKey(const QString &enumName, const QString &enumKeyName) const;
     bool hasChildInPackage() const;

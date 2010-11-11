@@ -182,10 +182,12 @@ class FakeMetaProperty {
     QString m_propertyName;
     QString m_type;
     bool m_isList;
+    bool m_isWritable;
+    bool m_isPointer;
 
 public:
-    FakeMetaProperty(const QString &name, const QString &type, bool isList)
-        : m_propertyName(name), m_type(type), m_isList(isList)
+    FakeMetaProperty(const QString &name, const QString &type, bool isList, bool isWritable, bool isPointer)
+        : m_propertyName(name), m_type(type), m_isList(isList), m_isWritable(isWritable), m_isPointer(isPointer)
     {}
 
     QString name() const
@@ -196,6 +198,12 @@ public:
 
     bool isList() const
     { return m_isList; }
+
+    bool isWritable() const
+    { return m_isWritable; }
+
+    bool isPointer() const
+    { return m_isPointer; }
 };
 
 class FakeMetaObject {
@@ -490,6 +498,8 @@ private:
 
         QString name, type;
         bool isList = false;
+        bool isWritable = false;
+        bool isPointer = false;
         foreach (const QXmlStreamAttribute &attr, _xml.attributes()) {
             if (attr.name() == QLatin1String("name")) {
                 name = attr.value().toString();
@@ -501,7 +511,25 @@ private:
                 } else if (attr.value() == QLatin1String("false")) {
                     isList = false;
                 } else {
-                    invalidAttr(attr.value().toString(), QLatin1String("idList"), tag);
+                    invalidAttr(attr.value().toString(), QLatin1String("isList"), tag);
+                    return;
+                }
+            } else if (attr.name() == QLatin1String("isWritable")) {
+                if (attr.value() == QLatin1String("true")) {
+                    isWritable = true;
+                } else if (attr.value() == QLatin1String("false")) {
+                    isWritable = false;
+                } else {
+                    invalidAttr(attr.value().toString(), QLatin1String("isWritable"), tag);
+                    return;
+                }
+            } else if (attr.name() == QLatin1String("isPointer")) {
+                if (attr.value() == QLatin1String("true")) {
+                    isPointer = true;
+                } else if (attr.value() == QLatin1String("false")) {
+                    isPointer = false;
+                } else {
+                    invalidAttr(attr.value().toString(), QLatin1String("isPointer"), tag);
                     return;
                 }
             } else {
@@ -514,7 +542,7 @@ private:
         else if (type.isEmpty())
             noValidAttr(QLatin1String("type"), tag);
         else
-            createProperty(metaObject, name, type, isList);
+            createProperty(metaObject, name, type, isList, isWritable, isPointer);
 
         while (_xml.readNextStartElement()) {
             unexpectedElement(_xml.name(), tag);
@@ -522,10 +550,10 @@ private:
     }
 
     void createProperty(FakeMetaObject *metaObject, const QString &name,
-                        const QString &type, bool isList) {
+                        const QString &type, bool isList, bool isWritable, bool isPointer) {
         Q_ASSERT(metaObject);
 
-        metaObject->addProperty(FakeMetaProperty(name, type, isList));
+        metaObject->addProperty(FakeMetaProperty(name, type, isList, isWritable, isPointer));
     }
 
     void readEnum(FakeMetaObject *metaObject)
@@ -641,6 +669,7 @@ private:
                 name = attr.value().toString();
             } else if (attr.name() == QLatin1String("type")) {
                 type = attr.value().toString();
+            } else if (attr.name() == QLatin1String("isPointer")) {
             } else {
                 ignoreAttr(attr);
             }
@@ -910,6 +939,28 @@ bool QmlObjectValue::isListProperty(const QString &name) const
 bool QmlObjectValue::isEnum(const QString &typeName) const
 {
     return _metaObject->enumeratorIndex(typeName) != -1;
+}
+
+bool QmlObjectValue::isWritable(const QString &propertyName) const
+{
+    for (const FakeMetaObject *iter = _metaObject; iter; iter = iter->superClass()) {
+        int propIdx = iter->propertyIndex(propertyName);
+        if (propIdx != -1) {
+            return iter->property(propIdx).isWritable();
+        }
+    }
+    return false;
+}
+
+bool QmlObjectValue::isPointer(const QString &propertyName) const
+{
+    for (const FakeMetaObject *iter = _metaObject; iter; iter = iter->superClass()) {
+        int propIdx = iter->propertyIndex(propertyName);
+        if (propIdx != -1) {
+            return iter->property(propIdx).isPointer();
+        }
+    }
+    return false;
 }
 
 bool QmlObjectValue::enumContainsKey(const QString &enumName, const QString &enumKeyName) const
