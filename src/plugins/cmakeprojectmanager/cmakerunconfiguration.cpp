@@ -52,8 +52,6 @@ namespace {
 const char * const CMAKE_RC_ID("CMakeProjectManager.CMakeRunConfiguration");
 const char * const CMAKE_RC_PREFIX("CMakeProjectManager.CMakeRunConfiguration.");
 
-const char * const TARGET_KEY("CMakeProjectManager.CMakeRunConfiguration.Target");
-const char * const WORKING_DIRECTORY_KEY("CMakeProjectManager.CMakeRunConfiguration.WorkingDirectory");
 const char * const USER_WORKING_DIRECTORY_KEY("CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory");
 const char * const USE_TERMINAL_KEY("CMakeProjectManager.CMakeRunConfiguration.UseTerminal");
 const char * const TITLE_KEY("CMakeProjectManager.CMakeRunConfiguation.Title");
@@ -189,8 +187,6 @@ QVariantMap CMakeRunConfiguration::toMap() const
 {
     QVariantMap map(ProjectExplorer::LocalApplicationRunConfiguration::toMap());
 
-    map.insert(QLatin1String(TARGET_KEY), m_buildTarget);
-    map.insert(QLatin1String(WORKING_DIRECTORY_KEY), m_workingDirectory);
     map.insert(QLatin1String(USER_WORKING_DIRECTORY_KEY), m_userWorkingDirectory);
     map.insert(QLatin1String(USE_TERMINAL_KEY), m_runMode == Console);
     map.insert(QLatin1String(TITLE_KEY), m_title);
@@ -203,8 +199,6 @@ QVariantMap CMakeRunConfiguration::toMap() const
 
 bool CMakeRunConfiguration::fromMap(const QVariantMap &map)
 {
-    m_buildTarget = map.value(QLatin1String(TARGET_KEY)).toString();
-    m_workingDirectory = map.value(QLatin1String(WORKING_DIRECTORY_KEY)).toString();
     m_userWorkingDirectory = map.value(QLatin1String(USER_WORKING_DIRECTORY_KEY)).toString();
     m_runMode = map.value(QLatin1String(USE_TERMINAL_KEY)).toBool() ? Console : Gui;
     m_title = map.value(QLatin1String(TITLE_KEY)).toString();
