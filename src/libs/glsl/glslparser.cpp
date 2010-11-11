@@ -192,19 +192,19 @@ case 3: {
 #line 494 "./glsl.g"
 
 case 4: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 
 #line 501 "./glsl.g"
 
 case 5: {
-    // ast(1) = new ...AST(...);
+    ast(1) = ast(2);
 }   break;
 
 #line 508 "./glsl.g"
 
 case 6: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 
 #line 515 "./glsl.g"

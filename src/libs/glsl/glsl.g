@@ -493,21 +493,21 @@ case $rule_number: {
 primary_expression ::= variable_identifier ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
 primary_expression ::= LEFT_PAREN expression RIGHT_PAREN ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = ast(2);
 }   break;
 ./
 
 postfix_expression ::= primary_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
