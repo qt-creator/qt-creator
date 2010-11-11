@@ -125,7 +125,6 @@ QString QmlObserverTool::copy(const QString &qtInstallData, QString *errorMessag
 
     QStringList files;
     files << QLatin1String("main.cpp") << QLatin1String("qmlobserver.pro")
-          << QLatin1String("crumblepath.cpp") << QLatin1String("crumblepath.h")
           << QLatin1String("deviceorientation.cpp") << QLatin1String("deviceorientation.h")
           << QLatin1String("deviceorientation_maemo5.cpp") << QLatin1String("Info_mac.plist")
           << QLatin1String("loggerwidget.cpp") << QLatin1String("loggerwidget.h")
@@ -140,11 +139,7 @@ QString QmlObserverTool::copy(const QString &qtInstallData, QString *errorMessag
           << QLatin1String("content/Browser.qml") << QLatin1String("content/images/folder.png")
           << QLatin1String("content/images/titlebar.png") << QLatin1String("content/images/titlebar.sci")
           << QLatin1String("content/images/up.png")
-          << QLatin1String("LICENSE.LGPL") << QLatin1String("LGPL_EXCEPTION.TXT")
-          << QLatin1String("crumblepath.qrc") << QLatin1String("images/crumblepath-segment-end.png")
-          << QLatin1String("images/crumblepath-segment-hover-end.png") << QLatin1String("images/crumblepath-segment-hover.png")
-          << QLatin1String("images/crumblepath-segment-selected-end.png") << QLatin1String("images/crumblepath-segment-selected.png")
-          << QLatin1String("images/crumblepath-segment.png");
+          << QLatin1String("LICENSE.LGPL") << QLatin1String("LGPL_EXCEPTION.TXT");
 
     QStringList debuggerLibFiles;
     debuggerLibFiles << QLatin1String("jsdebuggeragent.cpp")

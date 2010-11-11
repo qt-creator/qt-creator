@@ -57,7 +57,6 @@
 #include <qdeclarativeviewobserver.h>
 #include <qdeclarativeobserverservice.h>
 
-#include "crumblepath.h"
 #include "qmlruntime.h"
 #include <qdeclarativecontext.h>
 #include <qdeclarativeengine.h>
@@ -534,32 +533,6 @@ QNetworkAccessManager *NetworkAccessManagerFactory::create(QObject *parent)
     return manager;
 }
 
-//
-// Event filter that ensures the crumble path width is always the canvas width
-//
-class CrumblePathResizer : public QObject
-{
-    Q_OBJECT
-public:
-    CrumblePathResizer(CrumblePath *crumblePathWidget, QObject *parent = 0) :
-        QObject(parent),
-        m_crumblePathWidget(crumblePathWidget)
-    {
-    }
-
-    bool eventFilter(QObject *obj, QEvent *event)
-    {
-        if (event->type() == QEvent::Resize) {
-            QResizeEvent *resizeEvent = static_cast<QResizeEvent *>(event);
-            m_crumblePathWidget->resize(resizeEvent->size().width(), m_crumblePathWidget->height());
-        }
-        return QObject::eventFilter(obj, event);
-    }
-
-private:
-    QWidget *m_crumblePathWidget;
-};
-
 QString QDeclarativeViewer::getVideoFileName()
 {
     QString title = convertAvailable || ffmpegAvailable ? tr("Save Video File") : tr("Save PNG Frames");
@@ -582,7 +555,6 @@ QDeclarativeViewer::QDeclarativeViewer(QWidget *parent, Qt::WindowFlags flags)
       , tester(0)
       , useQmlFileBrowser(true)
       , m_centralWidget(0)
-      , m_crumblePathWidget(0)
       , translator(0)
 {
     QDeclarativeViewer::registerTypes();
@@ -620,18 +592,6 @@ QDeclarativeViewer::QDeclarativeViewer(QWidget *parent, Qt::WindowFlags flags)
     canvas = new QDeclarativeView(this);
     observer = new QmlJSDebugger::QDeclarativeViewObserver(canvas, this);
     new QmlJSDebugger::JSDebuggerAgent(canvas->engine());
-    if (!(flags & Qt::FramelessWindowHint)) {
-        m_crumblePathWidget = new CrumblePath(canvas);
-#ifndef Q_WS_MAC
-        m_crumblePathWidget->setStyleSheet("QWidget { border-bottom: 1px solid black; }");
-#endif
-        m_crumblePathWidget->setVisible(observer->designModeBehavior());
-
-        // CrumblePath is not in a layout, so that it overlays the central widget
-        // The event filter ensures that its width stays in sync nevertheless
-        CrumblePathResizer *resizer = new CrumblePathResizer(m_crumblePathWidget, m_crumblePathWidget);
-        canvas->installEventFilter(resizer);
-    }
 
     m_centralWidget = new QWidget(this);
     QVBoxLayout *layout = new QVBoxLayout(m_centralWidget);
@@ -650,13 +610,6 @@ QDeclarativeViewer::QDeclarativeViewer(QWidget *parent, Qt::WindowFlags flags)
     QObject::connect(observer, SIGNAL(reloadRequested()), this, SLOT(reload()));
     QObject::connect(canvas, SIGNAL(sceneResized(QSize)), this, SLOT(sceneResized(QSize)));
     QObject::connect(canvas, SIGNAL(statusChanged(QDeclarativeView::Status)), this, SLOT(statusChanged()));
-    if (m_crumblePathWidget) {
-        QObject::connect(observer, SIGNAL(inspectorContextCleared()), m_crumblePathWidget, SLOT(clear()));
-        QObject::connect(observer, SIGNAL(inspectorContextPushed(QString)), m_crumblePathWidget, SLOT(pushElement(QString)));
-        QObject::connect(observer, SIGNAL(inspectorContextPopped()), m_crumblePathWidget, SLOT(popElement()));
-        QObject::connect(m_crumblePathWidget, SIGNAL(elementClicked(int)), observer, SLOT(setObserverContext(int)));
-        QObject::connect(observer, SIGNAL(designModeBehaviorChanged(bool)), m_crumblePathWidget, SLOT(setVisible(bool)));
-    }
     QObject::connect(canvas->engine(), SIGNAL(quit()), QCoreApplication::instance (), SLOT(quit()));
 
     QObject::connect(warningsWidget(), SIGNAL(opened()), this, SLOT(warningsWidgetOpened()));

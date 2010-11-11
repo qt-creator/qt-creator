@@ -53,8 +53,6 @@ namespace QmlJSDebugger {
     class QDeclarativeViewObserver;
 }
 
-class CrumblePath;
-
 QT_BEGIN_NAMESPACE
 
 class QDeclarativeView;
@@ -215,7 +213,6 @@ private:
     bool useQmlFileBrowser;
 
     QWidget *m_centralWidget;
-    CrumblePath *m_crumblePathWidget;
 
     QTranslator *translator;
     void loadTranslationFile(const QString& directory);
