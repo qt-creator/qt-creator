@@ -167,7 +167,7 @@ switch(ruleno) {
 #line 461 "./glsl.g"
 
 case 0: {
-    ast(1) = new IdentifierExpression(*sym(1).string);
+    ast(1) = new IdentifierExpression(sym(1).string);
 }   break;
 
 #line 468 "./glsl.g"

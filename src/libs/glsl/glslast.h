@@ -286,7 +286,7 @@ public:
 class GLSL_EXPORT IdentifierExpression: public Expression
 {
 public:
-    IdentifierExpression(const std::string &_name)
+    IdentifierExpression(const std::string *_name)
         : Expression(Kind_Identifier), name(_name) {}
     ~IdentifierExpression();
 
@@ -295,13 +295,13 @@ public:
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
-    std::string name;
+    const std::string *name;
 };
 
 class GLSL_EXPORT LiteralExpression: public Expression
 {
 public:
-    LiteralExpression(const std::string &_value)
+    LiteralExpression(const std::string *_value)
         : Expression(Kind_Literal), value(_value) {}
     ~LiteralExpression();
 
@@ -310,7 +310,7 @@ public:
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
-    std::string value;
+    const std::string *value;
 };
 
 class GLSL_EXPORT BinaryExpression: public Expression
@@ -380,7 +380,7 @@ public: // attributes
 class GLSL_EXPORT MemberAccessExpression: public Expression
 {
 public:
-    MemberAccessExpression(Expression *_expr, const std::string &_field)
+    MemberAccessExpression(Expression *_expr, const std::string *_field)
         : Expression(Kind_MemberAccess), expr(_expr), field(_field) {}
     ~MemberAccessExpression();
 
@@ -390,15 +390,15 @@ public:
 
 public: // attributes
     Expression *expr;
-    std::string field;
+    const std::string *field;
 };
 
 class GLSL_EXPORT FunctionCallExpression: public Expression
 {
 public:
-    FunctionCallExpression(const std::string &_name)
+    FunctionCallExpression(const std::string *_name)
         : Expression(Kind_FunctionCall), expr(0), name(_name) {}
-    FunctionCallExpression(Expression *_expr, const std::string &_name)
+    FunctionCallExpression(Expression *_expr, const std::string *_name)
         : Expression(Kind_MemberFunctionCall), expr(_expr), name(_name) {}
     ~FunctionCallExpression();
 
@@ -410,7 +410,7 @@ public:
 
 public: // attributes
     Expression *expr;
-    std::string name;
+    const std::string *name;
     std::vector<Expression *> arguments;
 };
 
@@ -632,7 +632,7 @@ public: // attributes
 class GLSL_EXPORT NamedType: public Type
 {
 public:
-    NamedType(const std::string &_name) : Type(Kind_NamedType), name(_name) {}
+    NamedType(const std::string *_name) : Type(Kind_NamedType), name(_name) {}
     ~NamedType();
 
     virtual NamedType *asNamedType() { return this; }
@@ -645,7 +645,7 @@ public:
     virtual Type *clone() const;
 
 public: // attributes
-    std::string name;
+    const std::string *name;
 };
 
 class GLSL_EXPORT ArrayType: public Type
@@ -675,7 +675,7 @@ class GLSL_EXPORT StructType: public Type
 {
 public:
     StructType() : Type(Kind_AnonymousStructType) {}
-    StructType(const std::string &_name)
+    StructType(const std::string *_name)
         : Type(Kind_StructType), name(_name) {}
     ~StructType();
 
@@ -691,13 +691,13 @@ public:
     class Field: public AST
     {
     public:
-        Field(const std::string &_name)
+        Field(const std::string *_name)
             : AST(Kind_StructField), name(_name), type(0) {}
 
         // Takes the outer shell of an array type with the innermost
         // element type set to null.  The fixInnerTypes() method will
         // set the innermost element type to a meaningful value.
-        Field(const std::string &_name, Type *_type)
+        Field(const std::string *_name, Type *_type)
             : AST(Kind_StructField), name(_name), type(_type) {}
 
         ~Field();
@@ -706,7 +706,7 @@ public:
 
         void setInnerType(Type *innerType);
 
-        std::string name;
+        const std::string *name;
         Type *type;
     };
 
@@ -717,7 +717,7 @@ public:
     void addFields(const std::vector<Field *> &list);
 
 public: // attributes
-    std::string name;
+    const std::string *name;
     std::vector<Field *> fields;
 };
 

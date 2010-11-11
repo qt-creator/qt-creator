@@ -460,7 +460,7 @@ switch(ruleno) {
 variable_identifier ::= IDENTIFIER ;
 /.
 case $rule_number: {
-    ast(1) = new IdentifierExpression(*sym(1).string);
+    ast(1) = new IdentifierExpression(sym(1).string);
 }   break;
 ./
 
