@@ -207,7 +207,6 @@ ExternalTool * ExternalTool::createFromXml(const QString &xml, QString *errorMes
     if (reader.hasError()) {
         if (errorMessage)
             *errorMessage = reader.errorString();
-        qDebug() << reader.errorString();
         delete tool;
         return 0;
     }
