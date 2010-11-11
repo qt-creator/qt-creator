@@ -57,7 +57,7 @@ public:
     QString arguments() const;
     QString workingDirectory() const;
 
-    static ExternalTool *createFromXml(const QString &xml, QString *errorMessage = 0);
+    static ExternalTool *createFromXml(const QString &xml, QString *errorMessage = 0, const QString &locale = QString());
 
 private:
     QString m_description;

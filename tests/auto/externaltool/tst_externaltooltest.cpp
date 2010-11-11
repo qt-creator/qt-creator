@@ -53,6 +53,22 @@ static const char * const TEST_XML3 =
 "    </executable>"
 "</externaltool>";
 
+static const char * const TEST_XML_LANG =
+"<externaltool>"
+"    <description>Hi</description>"
+"    <description xml:lang=\"de\">Hallo</description>"
+"    <description xml:lang=\"de_CH\">Grüezi</description>"
+"    <displayname xml:lang=\"de\">Hallo</displayname>"
+"    <displayname>Hi</displayname>"
+"    <displayname xml:lang=\"de_CH\">Grüezi</displayname>"
+"    <category xml:lang=\"de_CH\">Grüezi</category>"
+"    <category>Hi</category>"
+"    <category xml:lang=\"de\">Hallo</category>"
+"    <executable>"
+"        <path>foo</path>"
+"    </executable>"
+"</externaltool>";
+
 class ExternaltoolTest : public QObject
 {
     Q_OBJECT
@@ -61,6 +77,7 @@ private Q_SLOTS:
     void testRead1();
     void testRead2();
     void testRead3();
+    void testReadLocale();
 };
 
 void ExternaltoolTest::testRead1()
@@ -79,6 +96,7 @@ void ExternaltoolTest::testRead1()
     QCOMPARE(tool->arguments(), QString::fromLatin1("%{CurrentProjectFilePath}"));
     QCOMPARE(tool->workingDirectory(), QString::fromLatin1("%{CurrentProjectPath}"));
     QCOMPARE(tool->outputHandling(), ExternalTool::ShowInPane);
+    delete tool;
 }
 
 void ExternaltoolTest::testRead2()
@@ -96,6 +114,7 @@ void ExternaltoolTest::testRead2()
     QCOMPARE(tool->arguments(), QString::fromLatin1("%{CurrentSelectionFilePath}"));
     QCOMPARE(tool->workingDirectory(), QString::fromLatin1("%{CurrentPath}"));
     QCOMPARE(tool->outputHandling(), ExternalTool::ReplaceSelection);
+    delete tool;
 }
 
 void ExternaltoolTest::testRead3()
@@ -113,7 +132,45 @@ void ExternaltoolTest::testRead3()
     QVERIFY(tool->arguments().startsWith(QLatin1String("-geom %{")));
     QCOMPARE(tool->workingDirectory(), QString::fromLatin1("%{CurrentPath}"));
     QCOMPARE(tool->outputHandling(), ExternalTool::ReloadDocument);
+    delete tool;
 }
+
+void ExternaltoolTest::testReadLocale()
+{
+    QString error;
+    ExternalTool *tool;
+
+    tool = ExternalTool::createFromXml(QLatin1String(TEST_XML_LANG), &error);
+    QVERIFY(tool != 0);
+    QVERIFY(error.isEmpty());
+    QCOMPARE(tool->description(), QString::fromLatin1("Hi"));
+    QCOMPARE(tool->displayName(), QString::fromLatin1("Hi"));
+    QCOMPARE(tool->displayCategory(), QString::fromLatin1("Hi"));
+    delete tool;
+
+    tool = ExternalTool::createFromXml(QLatin1String(TEST_XML_LANG), &error, QLatin1String("uk"));
+    QVERIFY(tool != 0);
+    QVERIFY(error.isEmpty());
+    QCOMPARE(tool->description(), QString::fromLatin1("Hi"));
+    QCOMPARE(tool->displayName(), QString::fromLatin1("Hi"));
+    QCOMPARE(tool->displayCategory(), QString::fromLatin1("Hi"));
+    delete tool;
+
+    tool = ExternalTool::createFromXml(QLatin1String(TEST_XML_LANG), &error, QLatin1String("de_DE.UTF-8"));
+    QVERIFY(tool != 0);
+    QVERIFY(error.isEmpty());
+    QCOMPARE(tool->description(), QString::fromLatin1("Hallo"));
+    QCOMPARE(tool->displayName(), QString::fromLatin1("Hallo"));
+    QCOMPARE(tool->displayCategory(), QString::fromLatin1("Hallo"));
+    delete tool;
+
+    tool = ExternalTool::createFromXml(QLatin1String(TEST_XML_LANG), &error, QLatin1String("de_CH"));
+    QVERIFY(tool != 0);
+    QVERIFY(error.isEmpty());
+    QCOMPARE(tool->description(), QString::fromLatin1("Grüezi"));
+    QCOMPARE(tool->displayName(), QString::fromLatin1("Grüezi"));
+    QCOMPARE(tool->displayCategory(), QString::fromLatin1("Grüezi"));
+    delete tool;}
 
 QTEST_APPLESS_MAIN(ExternaltoolTest);
 

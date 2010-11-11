@@ -99,37 +99,67 @@ ExternalTool::OutputHandling ExternalTool::outputHandling() const
     return m_outputHandling;
 }
 
-ExternalTool * ExternalTool::createFromXml(const QString &xml, QString *errorMessage)
+static QStringList splitLocale(const QString &locale)
 {
+    QString value = locale;
+    QStringList values;
+    if (!value.isEmpty())
+        values << value;
+    int index = value.indexOf(QLatin1Char('.'));
+    if (index >= 0) {
+        value = value.left(index);
+        if (!value.isEmpty())
+            values << value;
+    }
+    index = value.indexOf(QLatin1Char('_'));
+    if (index >= 0) {
+        value = value.left(index);
+        if (!value.isEmpty())
+            values << value;
+    }
+    return values;
+}
+
+static void localizedText(const QStringList &locales, QXmlStreamReader *reader, int *currentLocale, QString *currentText)
+{
+    Q_ASSERT(reader);
+    Q_ASSERT(currentLocale);
+    Q_ASSERT(currentText);
+    if (reader->attributes().hasAttribute(QLatin1String(kXmlLang))) {
+        int index = locales.indexOf(reader->attributes().value(QLatin1String(kXmlLang)).toString());
+        if (index >= 0 && (index < *currentLocale || *currentLocale < 0)) {
+            *currentText = reader->readElementText();
+            *currentLocale = index;
+        } else {
+            reader->skipCurrentElement();
+        }
+    } else {
+        if (*currentLocale < 0 && currentText->isEmpty()) {
+            *currentText = reader->readElementText();
+        } else {
+            reader->skipCurrentElement();
+        }
+    }
+}
+
+ExternalTool * ExternalTool::createFromXml(const QString &xml, QString *errorMessage, const QString &locale)
+{
+    int descriptionLocale = -1;
+    int nameLocale = -1;
+    int categoryLocale = -1;
+    const QStringList &locales = splitLocale(locale);
     ExternalTool *tool = new ExternalTool;
     QXmlStreamReader reader(xml);
+
     if (!reader.readNextStartElement() || reader.name() != QLatin1String(kExternalTool))
         reader.raiseError(QLatin1String("Missing start element <externaltool>"));
     while (reader.readNextStartElement()) {
         if (reader.name() == QLatin1String(kDescription)) {
-            // TODO locale check
-            if (!reader.attributes().hasAttribute(QLatin1String(kXmlLang))
-                    && tool->m_description.isEmpty()) {
-                tool->m_description = reader.readElementText();
-            } else {
-                reader.skipCurrentElement();
-            }
+            localizedText(locales, &reader, &descriptionLocale, &tool->m_description);
         } else if (reader.name() == QLatin1String(kDisplayName)) {
-            // TODO locale check
-            if (!reader.attributes().hasAttribute(QLatin1String(kXmlLang))
-                    && tool->m_displayName.isEmpty()) {
-                tool->m_displayName = reader.readElementText();
-            } else {
-                reader.skipCurrentElement();
-            }
+            localizedText(locales, &reader, &nameLocale, &tool->m_displayName);
         } else if (reader.name() == QLatin1String(kCategory)) {
-            // TODO locale check
-            if (!reader.attributes().hasAttribute(QLatin1String(kXmlLang))
-                    && tool->m_displayCategory.isEmpty()) {
-                tool->m_displayCategory = reader.readElementText();
-            } else {
-                reader.skipCurrentElement();
-            }
+            localizedText(locales, &reader, &categoryLocale, &tool->m_displayCategory);
         } else if (reader.name() == QLatin1String(kOrder)) {
             if (tool->m_order >= 0) {
                 reader.raiseError(QLatin1String("only one <order> element allowed"));
