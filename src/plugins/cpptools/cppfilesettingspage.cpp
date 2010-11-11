@@ -45,6 +45,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDate>
 #include <QtCore/QLocale>
+#include <QtCore/QTextCodec>
 #include <QtCore/QTextStream>
 
 #include <QtGui/QFileDialog>
@@ -208,7 +209,13 @@ QString CppFileSettings::licenseTemplate(const QString &fileName, const QString 
         qWarning("Unable to open the license template %s: %s", qPrintable(path), qPrintable(file.errorString()));
         return QString();
     }
-    QString license = QString::fromUtf8(file.readAll());
+
+    QTextCodec *codec = Core::EditorManager::instance()->defaultTextEncoding();
+    QTextStream licenseStream(&file);
+    licenseStream.setCodec(codec);
+    licenseStream.setAutoDetectUnicode(true);
+    QString license = licenseStream.readAll();
+
     parseLicenseTemplatePlaceholders(&license, fileName, className);
     // Ensure exactly one additional new line separating stuff
     const QChar newLine = QLatin1Char('\n');
