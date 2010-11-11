@@ -53,9 +53,7 @@ using ProjectExplorer::RunConfiguration;
 
 MaemoRunControl::MaemoRunControl(RunConfiguration *rc)
     : RunControl(rc, ProjectExplorer::Constants::RUNMODE)
-    , m_runConfig(qobject_cast<MaemoRunConfiguration *>(rc))
-    , m_devConfig(m_runConfig ? m_runConfig->deviceConfig() : MaemoDeviceConfig())
-    , m_runner(new MaemoSshRunner(this, m_runConfig, false))
+    , m_runner(new MaemoSshRunner(this, qobject_cast<MaemoRunConfiguration *>(rc), false))
     , m_running(false)
 {
 }
@@ -67,32 +65,24 @@ MaemoRunControl::~MaemoRunControl()
 
 void MaemoRunControl::start()
 {
-    if (!m_devConfig.isValid()) {
-        handleError(tr("No device configuration set for run configuration."));
-    } else if (!m_runConfig) {
-        handleError(tr("Run configuration no longer available."));
-    } else {
-        m_running = true;
-        emit started();
-        disconnect(m_runner, 0, this, 0);
-        connect(m_runner, SIGNAL(error(QString)), this,
-            SLOT(handleSshError(QString)));
-        connect(m_runner, SIGNAL(readyForExecution()), this,
-            SLOT(startExecution()));
-        connect(m_runner, SIGNAL(remoteErrorOutput(QByteArray)), this,
-            SLOT(handleRemoteErrorOutput(QByteArray)));
-        connect(m_runner, SIGNAL(remoteOutput(QByteArray)), this,
-            SLOT(handleRemoteOutput(QByteArray)));
-        connect(m_runner, SIGNAL(remoteProcessStarted()), this,
-            SLOT(handleRemoteProcessStarted()));
-        connect(m_runner, SIGNAL(remoteProcessFinished(qint64)), this,
-            SLOT(handleRemoteProcessFinished(qint64)));
-        connect(m_runner, SIGNAL(reportProgress(QString)), this,
-            SLOT(handleProgressReport(QString)));
-        connect(m_runner, SIGNAL(mountDebugOutput(QString)), this,
-            SLOT(handleMountDebugOutput(QString)));
-        m_runner->start();
-    }
+    m_running = true;
+    emit started();
+    disconnect(m_runner, 0, this, 0);
+    connect(m_runner, SIGNAL(error(QString)), SLOT(handleSshError(QString)));
+    connect(m_runner, SIGNAL(readyForExecution()), SLOT(startExecution()));
+    connect(m_runner, SIGNAL(remoteErrorOutput(QByteArray)),
+        SLOT(handleRemoteErrorOutput(QByteArray)));
+    connect(m_runner, SIGNAL(remoteOutput(QByteArray)),
+        SLOT(handleRemoteOutput(QByteArray)));
+    connect(m_runner, SIGNAL(remoteProcessStarted()),
+        SLOT(handleRemoteProcessStarted()));
+    connect(m_runner, SIGNAL(remoteProcessFinished(qint64)),
+        SLOT(handleRemoteProcessFinished(qint64)));
+    connect(m_runner, SIGNAL(reportProgress(QString)),
+        SLOT(handleProgressReport(QString)));
+    connect(m_runner, SIGNAL(mountDebugOutput(QString)),
+        SLOT(handleMountDebugOutput(QString)));
+    m_runner->start();
 }
 
 ProjectExplorer::RunControl::StopResult MaemoRunControl::stop()
@@ -110,12 +100,11 @@ void MaemoRunControl::handleSshError(const QString &error)
 void MaemoRunControl::startExecution()
 {
     emit appendMessage(this, tr("Starting remote process ..."), false);
-    const QString &remoteExe = m_runConfig->remoteExecutableFilePath();
     m_runner->startExecution(QString::fromLocal8Bit("%1 %2 %3 %4")
-        .arg(MaemoGlobal::remoteCommandPrefix(remoteExe))
-        .arg(MaemoGlobal::remoteEnvironment(m_runConfig->userEnvironmentChanges()))
-        .arg(remoteExe)
-        .arg(m_runConfig->arguments().join(QLatin1String(" "))).toUtf8());
+        .arg(MaemoGlobal::remoteCommandPrefix(m_runner->remoteExecutable()))
+        .arg(MaemoGlobal::remoteEnvironment(m_runner->userEnvChanges()))
+        .arg(m_runner->remoteExecutable())
+        .arg(m_runner->arguments().join(QLatin1String(" "))).toUtf8());
 }
 
 void MaemoRunControl::handleRemoteProcessFinished(qint64 exitCode)

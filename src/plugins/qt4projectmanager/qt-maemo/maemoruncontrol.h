@@ -35,11 +35,8 @@
 #ifndef MAEMORUNCONTROL_H
 #define MAEMORUNCONTROL_H
 
-#include "maemodeviceconfigurations.h"
-
 #include <projectexplorer/runconfiguration.h>
 
-#include <QtCore/QPointer>
 #include <QtCore/QString>
 
 namespace Qt4ProjectManager {
@@ -72,8 +69,6 @@ private:
     void setFinished();
     void handleError(const QString &errString);
 
-    QPointer<MaemoRunConfiguration> m_runConfig;
-    const MaemoDeviceConfig m_devConfig;
     MaemoSshRunner * const m_runner;
     bool m_running;
 };

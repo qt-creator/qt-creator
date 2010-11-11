@@ -60,7 +60,11 @@ class MaemoRemoteMounter : public QObject
 public:
     MaemoRemoteMounter(QObject *parent);
     ~MaemoRemoteMounter();
-    void setToolchain(const MaemoToolChain *toolchain) { m_toolChain = toolchain; }
+
+    // Must already be connected.
+    void setConnection(const QSharedPointer<Core::SshConnection> &connection);
+
+    void setToolchain(const MaemoToolChain *toolChain);
     void addMountSpecification(const MaemoMountSpecification &mountSpec,
         bool mountAsRoot);
     bool hasValidMountSpecifications() const;
@@ -69,9 +73,6 @@ public:
         const MaemoUsedPortsGatherer *portsGatherer);
     void unmount();
     void stop();
-
-    // Must be connected already.
-    void setConnection(const QSharedPointer<Core::SshConnection> &connection);
 
 signals:
     void mounted();
@@ -111,7 +112,6 @@ private:
     QString utfsClientOnDevice() const;
     QString utfsServer() const;
 
-    const MaemoToolChain *m_toolChain;
     QTimer * const m_utfsServerTimer;
 
     struct MountInfo {
@@ -136,6 +136,8 @@ private:
     QByteArray m_umountStderr;
     MaemoPortList *m_freePorts;
     const MaemoUsedPortsGatherer *m_portsGatherer;
+    bool m_remoteMountsAllowed;
+    QString m_maddeRoot;
 
     State m_state;
 };

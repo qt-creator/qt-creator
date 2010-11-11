@@ -48,7 +48,7 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 MaemoRemoteMounter::MaemoRemoteMounter(QObject *parent)
-    : QObject(parent), m_toolChain(0), m_utfsServerTimer(new QTimer(this)),
+    : QObject(parent), m_utfsServerTimer(new QTimer(this)),
       m_uploadJobId(SftpInvalidJob), m_state(Inactive)
 {
     connect(m_utfsServerTimer, SIGNAL(timeout()), this,
@@ -60,20 +60,25 @@ MaemoRemoteMounter::~MaemoRemoteMounter()
     killAllUtfsServers();
 }
 
-void MaemoRemoteMounter::setConnection(const Core::SshConnection::Ptr &connection)
+void MaemoRemoteMounter::setConnection(const SshConnection::Ptr &connection)
 {
     ASSERT_STATE(Inactive);
-
     m_connection = connection;
+}
+
+void MaemoRemoteMounter::setToolchain(const MaemoToolChain *toolChain)
+{
+    ASSERT_STATE(Inactive);
+    m_remoteMountsAllowed = toolChain->allowsRemoteMounts();
+    m_maddeRoot = toolChain->maddeRoot();
 }
 
 void MaemoRemoteMounter::addMountSpecification(const MaemoMountSpecification &mountSpec,
     bool mountAsRoot)
 {
-    Q_ASSERT(m_toolChain);
     ASSERT_STATE(Inactive);
 
-    if (m_toolChain->allowsRemoteMounts() && mountSpec.isValid())
+    if (m_remoteMountsAllowed && mountSpec.isValid())
         m_mountSpecs << MountInfo(mountSpec, mountAsRoot);
 }
 
@@ -204,7 +209,7 @@ void MaemoRemoteMounter::handleUploaderInitialized()
         SIGNAL(finished(Core::SftpJobId, QString)), this,
         SLOT(handleUploadFinished(Core::SftpJobId, QString)));
     const QString localFile
-        = m_toolChain->maddeRoot() + QLatin1String("/madlib/armel/utfs-client");
+        = m_maddeRoot + QLatin1String("/madlib/armel/utfs-client");
     m_uploadJobId = m_utfsClientUploader->uploadFile(localFile,
         utfsClientOnDevice(), SftpOverwriteExisting);
     if (m_uploadJobId == SftpInvalidJob) {
@@ -405,7 +410,7 @@ QString MaemoRemoteMounter::utfsClientOnDevice() const
 
 QString MaemoRemoteMounter::utfsServer() const
 {
-    return m_toolChain->maddeRoot() + QLatin1String("/madlib/utfs-server");
+    return m_maddeRoot + QLatin1String("/madlib/utfs-server");
 }
 
 void MaemoRemoteMounter::killAllUtfsServers()

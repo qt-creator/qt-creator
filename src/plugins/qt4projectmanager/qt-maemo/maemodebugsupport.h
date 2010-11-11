@@ -35,10 +35,10 @@
 #ifndef MAEMODEBUGSUPPORT_H
 #define MAEMODEBUGSUPPORT_H
 
-#include "maemodeviceconfigurations.h"
 #include "maemorunconfiguration.h"
 
 #include <coreplugin/ssh/sftpdefs.h>
+#include <utils/environment.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
@@ -88,7 +88,8 @@ private:
         DumpersUploaded, StartingRemoteProcess, Debugging
     };
 
-    static QString environment(const MaemoRunConfiguration *rc);
+    static QString environment(MaemoRunConfiguration::DebuggingType debuggingType,
+        const QList<Utils::EnvironmentItem> &userEnvChanges);
 
     void handleAdapterSetupFailed(const QString &error);
     void handleAdapterSetupDone();
@@ -98,10 +99,10 @@ private:
     bool setPort(int &port);
 
     const QPointer<Debugger::DebuggerRunControl> m_runControl;
-    MaemoRunConfiguration * const m_runConfig;
-    const MaemoDeviceConfig m_deviceConfig;
+    const QPointer<MaemoRunConfiguration> m_runConfig;
     MaemoSshRunner * const m_runner;
     const MaemoRunConfiguration::DebuggingType m_debuggingType;
+    const QString m_dumperLib;
 
     QSharedPointer<Core::SftpChannel> m_uploader;
     Core::SftpJobId m_uploadJob;

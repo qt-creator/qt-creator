@@ -49,6 +49,7 @@ public:
     int validMountSpecificationCount() const;
     MaemoMountSpecification mountSpecificationAt(int pos) const { return m_mountSpecs.at(pos); }
     bool hasValidMountSpecifications() const;
+    const QList<MaemoMountSpecification> &mountSpecs() const { return m_mountSpecs; }
 
     void addMountSpecification(const QString &localDir);
     void removeMountSpecificationAt(int pos);

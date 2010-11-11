@@ -38,6 +38,8 @@
 #include "maemodeviceconfigurations.h"
 #include "maemomountspecification.h"
 
+#include <utils/environment.h>
+
 #include <QtCore/QObject>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QStringList>
@@ -70,6 +72,10 @@ public:
 
     const MaemoUsedPortsGatherer *usedPortsGatherer() const { return m_portsGatherer; }
     MaemoPortList *freePorts() { return &m_freePorts; }
+    MaemoDeviceConfig deviceConfig() const { return m_devConfig; }
+    QString remoteExecutable() const { return m_remoteExecutable; }
+    QStringList arguments() const { return m_appArguments; }
+    QList<Utils::EnvironmentItem> userEnvChanges() const { return m_userEnvChanges; }
 
     static const qint64 InvalidExitCode;
 
@@ -108,10 +114,14 @@ private:
     void mount();
     void unmount();
 
-    MaemoRunConfiguration * const m_runConfig; // TODO this pointer can be invalid
     MaemoRemoteMounter * const m_mounter;
     MaemoUsedPortsGatherer * const m_portsGatherer;
     const MaemoDeviceConfig m_devConfig;
+    const QString m_remoteExecutable;
+    const QStringList m_appArguments;
+    const QList<Utils::EnvironmentItem> m_userEnvChanges;
+    const MaemoPortList m_initialFreePorts;
+    QList<MaemoMountSpecification> m_mountSpecs;
 
     QSharedPointer<Core::SshConnection> m_connection;
     QSharedPointer<Core::SshRemoteProcess> m_runner;
@@ -120,7 +130,6 @@ private:
     MaemoPortList m_freePorts;
 
     int m_exitStatus;
-    const bool m_debugging;
     State m_state;
 };
 

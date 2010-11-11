@@ -83,7 +83,8 @@ RunControl *MaemoDebugSupport::createDebugRunControl(MaemoRunConfiguration *runC
             params.executable = runConfig->remoteExecutableFilePath();
             params.debuggerCommand
                 = MaemoGlobal::remoteCommandPrefix(runConfig->remoteExecutableFilePath())
-                    + environment(runConfig) + QLatin1String(" /usr/bin/gdb");
+                    + environment(runConfig->debuggingType(), runConfig->userEnvironmentChanges())
+                    + QLatin1String(" /usr/bin/gdb");
             params.connParams = devConf.server;
             params.localMountDir = runConfig->localDirToMountForRemoteGdb();
             params.remoteMountPoint
@@ -116,9 +117,9 @@ RunControl *MaemoDebugSupport::createDebugRunControl(MaemoRunConfiguration *runC
 MaemoDebugSupport::MaemoDebugSupport(MaemoRunConfiguration *runConfig,
     DebuggerRunControl *runControl)
     : QObject(runControl), m_runControl(runControl), m_runConfig(runConfig),
-      m_deviceConfig(m_runConfig->deviceConfig()),
-      m_runner(new MaemoSshRunner(this, m_runConfig, true)),
-      m_debuggingType(m_runConfig->debuggingType()),
+      m_runner(new MaemoSshRunner(this, runConfig, true)),
+      m_debuggingType(runConfig->debuggingType()),
+      m_dumperLib(runConfig->dumperLib()),
       m_state(Inactive), m_gdbServerPort(-1), m_qmlPort(-1)
 {
     connect(m_runControl, SIGNAL(engineRequestSetup()), this,
@@ -136,10 +137,6 @@ void MaemoDebugSupport::handleAdapterSetupRequested()
 {
     ASSERT_STATE(Inactive);
 
-    if (!m_deviceConfig.isValid()) {
-        handleAdapterSetupFailed(tr("No device configuration set for run configuration."));
-        return;
-    }
     setState(StartingRunner);
     m_runControl->showMessage(tr("Preparing remote side ..."), AppStuff);
     disconnect(m_runner, 0, this, 0);
@@ -178,11 +175,11 @@ void MaemoDebugSupport::startExecution()
             return;
     }
 
-    const QString &dumperLib = m_runConfig->dumperLib();
     if (m_debuggingType != MaemoRunConfiguration::DebugQmlOnly
-            && !dumperLib.isEmpty()
-        && m_runConfig->deployStep()->currentlyNeedsDeployment(m_deviceConfig.server.host,
-               MaemoDeployable(dumperLib, uploadDir(m_deviceConfig)))) {
+            && !m_dumperLib.isEmpty()
+            && m_runConfig
+            && m_runConfig->deployStep()->currentlyNeedsDeployment(m_runner->deviceConfig().server.host,
+                   MaemoDeployable(m_dumperLib, uploadDir(m_runner->deviceConfig())))) {
         setState(InitializingUploader);
         m_uploader = m_runner->connection()->createSftpChannel();
         connect(m_uploader.data(), SIGNAL(initialized()), this,
@@ -205,18 +202,18 @@ void MaemoDebugSupport::handleSftpChannelInitialized()
 
     ASSERT_STATE(InitializingUploader);
 
-    const QString dumperLib = m_runConfig->dumperLib();
-    const QString fileName = QFileInfo(dumperLib).fileName();
-    const QString remoteFilePath = uploadDir(m_deviceConfig) + '/' + fileName;
-    m_uploadJob = m_uploader->uploadFile(dumperLib, remoteFilePath,
+    const QString fileName = QFileInfo(m_dumperLib).fileName();
+    const QString remoteFilePath
+        = uploadDir(m_runner->deviceConfig()) + '/' + fileName;
+    m_uploadJob = m_uploader->uploadFile(m_dumperLib, remoteFilePath,
         SftpOverwriteExisting);
     if (m_uploadJob == SftpInvalidJob) {
         handleAdapterSetupFailed(tr("Upload failed: Could not open file '%1'")
-            .arg(dumperLib));
+            .arg(m_dumperLib));
     } else {
         setState(UploadingDumpers);
         m_runControl->showMessage(tr("Started uploading debugging helpers ('%1').")
-            .arg(dumperLib), AppStuff);
+            .arg(m_dumperLib), AppStuff);
     }
 }
 
@@ -246,8 +243,10 @@ void MaemoDebugSupport::handleSftpJobFinished(Core::SftpJobId job,
             .arg(error));
     } else {
         setState(DumpersUploaded);
-        m_runConfig->deployStep()->setDeployed(m_deviceConfig.server.host,
-            MaemoDeployable(m_runConfig->dumperLib(), uploadDir(m_deviceConfig)));
+        if (m_runConfig) {
+            m_runConfig->deployStep()->setDeployed(m_runner->deviceConfig().server.host,
+                MaemoDeployable(m_dumperLib, uploadDir(m_runner->deviceConfig())));
+        }
         m_runControl->showMessage(tr("Finished uploading debugging helpers."), AppStuff);
         startDebugging();
     }
@@ -267,10 +266,11 @@ void MaemoDebugSupport::startDebugging()
             SLOT(handleRemoteErrorOutput(QByteArray)));
         connect(m_runner, SIGNAL(remoteOutput(QByteArray)), this,
             SLOT(handleRemoteOutput(QByteArray)));
-        const QString &remoteExe = m_runConfig->remoteExecutableFilePath();
+        const QString &remoteExe = m_runner->remoteExecutable();
         const QString cmdPrefix = MaemoGlobal::remoteCommandPrefix(remoteExe);
-        const QString env = environment(m_runConfig);
-        const QString args = m_runConfig->arguments().join(QLatin1String(" "));
+        const QString env
+            = environment(m_debuggingType, m_runner->userEnvChanges());
+        const QString args = m_runner->arguments().join(QLatin1String(" "));
         const QString remoteCommandLine
             = m_debuggingType == MaemoRunConfiguration::DebugQmlOnly
                 ? QString::fromLocal8Bit("%1 %2 %3 %4").arg(cmdPrefix).arg(env)
@@ -344,15 +344,15 @@ void MaemoDebugSupport::setState(State newState)
     }
 }
 
-QString MaemoDebugSupport::environment(const MaemoRunConfiguration *rc)
+QString MaemoDebugSupport::environment(MaemoRunConfiguration::DebuggingType debuggingType,
+    const QList<Utils::EnvironmentItem> &userEnvChanges)
 {
-    QList<Utils::EnvironmentItem> env = rc->userEnvironmentChanges();
     // FIXME: this must use command line argument instead: -qmljsdebugger=port:1234.
-    if (rc->debuggingType() != MaemoRunConfiguration::DebugCppOnly) {
+    if (debuggingType != MaemoRunConfiguration::DebugCppOnly) {
 //        env << Utils::EnvironmentItem(QLatin1String(Debugger::Constants::E_QML_DEBUG_SERVER_PORT),
 //            QString::number(qmlServerPort(rc)));
     }
-    return MaemoGlobal::remoteEnvironment(env);
+    return MaemoGlobal::remoteEnvironment(userEnvChanges);
 }
 
 QString MaemoDebugSupport::uploadDir(const MaemoDeviceConfig &devConf)

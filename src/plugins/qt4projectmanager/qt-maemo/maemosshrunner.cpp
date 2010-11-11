@@ -58,14 +58,25 @@ namespace Internal {
 
 MaemoSshRunner::MaemoSshRunner(QObject *parent,
     MaemoRunConfiguration *runConfig, bool debugging)
-    : QObject(parent), m_runConfig(runConfig),
+    : QObject(parent),
       m_mounter(new MaemoRemoteMounter(this)),
       m_portsGatherer(new MaemoUsedPortsGatherer(this)),
       m_devConfig(runConfig->deviceConfig()),
-      m_freePorts(runConfig->freePorts()),
-      m_debugging(debugging), m_state(Inactive)
+      m_remoteExecutable(runConfig->remoteExecutableFilePath()),
+      m_appArguments(runConfig->arguments()),
+      m_userEnvChanges(runConfig->userEnvironmentChanges()),
+      m_initialFreePorts(runConfig->freePorts()),
+      m_mountSpecs(runConfig->remoteMounts()->mountSpecs()),
+      m_state(Inactive)
 {
-    m_procsToKill << QFileInfo(m_runConfig->localExecutableFilePath()).fileName();
+    m_connection = runConfig->deployStep()->sshConnection();
+    m_mounter->setToolchain(runConfig->toolchain());
+    if (debugging && runConfig->useRemoteGdb()) {
+        m_mountSpecs << MaemoMountSpecification(runConfig->localDirToMountForRemoteGdb(),
+            runConfig->remoteProjectSourcesMountPoint());
+    }
+
+    m_procsToKill << QFileInfo(m_remoteExecutable).fileName();
     connect(m_mounter, SIGNAL(mounted()), this, SLOT(handleMounted()));
     connect(m_mounter, SIGNAL(unmounted()), this, SLOT(handleUnmounted()));
     connect(m_mounter, SIGNAL(error(QString)), this,
@@ -86,11 +97,20 @@ void MaemoSshRunner::start()
 {
     ASSERT_STATE(QList<State>() << Inactive << StopRequested);
 
+    if (m_remoteExecutable.isEmpty()) {
+        emitError(tr("Cannot run: No remote executable set."));
+        return;
+    }
+    if (!m_devConfig.isValid()) {
+        emitError(tr("Cannot run: No device configuration set."));
+        return;
+    }
+
     setState(Connecting);
     m_exitStatus = -1;
+    m_freePorts = m_initialFreePorts;
     if (m_connection)
         disconnect(m_connection.data(), 0, this, 0);
-    m_connection = m_runConfig->deployStep()->sshConnection();
     const bool reUse = isConnectionUsable();
     if (!reUse)
         m_connection = SshConnection::create();
@@ -193,17 +213,8 @@ void MaemoSshRunner::handleUnmounted()
 
     switch (m_state) {
     case PreRunCleaning: {
-        m_mounter->resetMountSpecifications();
-        m_mounter->setToolchain(m_runConfig->toolchain());
-        const MaemoRemoteMountsModel * const remoteMounts
-            = m_runConfig->remoteMounts();
-        for (int i = 0; i < remoteMounts->mountSpecificationCount(); ++i)
-            m_mounter->addMountSpecification(remoteMounts->mountSpecificationAt(i), false);
-        if (m_debugging && m_runConfig->useRemoteGdb()) {
-            m_mounter->addMountSpecification(MaemoMountSpecification(
-                m_runConfig->localDirToMountForRemoteGdb(),
-                m_runConfig->remoteProjectSourcesMountPoint()), false);
-        }
+        for (int i = 0; i < m_mountSpecs.count(); ++i)
+            m_mounter->addMountSpecification(m_mountSpecs.at(i), false);
         setState(PreMountUnmounting);
         unmount();
         break;
@@ -252,11 +263,6 @@ void MaemoSshRunner::handleMounterError(const QString &errorMsg)
 void MaemoSshRunner::startExecution(const QByteArray &remoteCall)
 {
     ASSERT_STATE(ReadyForExecution);
-
-    if (m_runConfig->remoteExecutableFilePath().isEmpty()) {
-        emitError(tr("Cannot run: No remote executable set."));
-        return;
-    }
 
     m_runner = m_connection->createRemoteProcess(remoteCall);
     connect(m_runner.data(), SIGNAL(started()), this,
