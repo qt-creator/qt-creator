@@ -81,6 +81,11 @@ void RemoteGdbProcess::realStart(const QString &cmd, const QStringList &args,
     m_appOutputFileName = "app_output_"
         + QFileInfo(executableFilePath).fileName().toUtf8();
     m_error.clear();
+    m_lastSeqNr.clear();
+    m_currentGdbOutput.clear();
+    m_gdbOutput.clear();
+    m_errorOutput.clear();
+    m_inputToSend.clear();
     m_conn = SshConnection::create();
     connect(m_conn.data(), SIGNAL(connected()), this, SLOT(handleConnected()));
     connect(m_conn.data(), SIGNAL(error(Core::SshError)), this,
