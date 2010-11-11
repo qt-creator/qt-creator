@@ -31,7 +31,6 @@
 
 #include "glsl.h"
 #include "glslmemorypool.h"
-#include <vector>
 #include <string>
 
 namespace GLSL {
@@ -91,7 +90,22 @@ public:
     List *next;
 };
 
-class GLSL_EXPORT AST  // : public Managed
+// Append two lists, which are assumed to still be circular, pre-finish.
+template <typename T>
+List<T> *appendLists(List<T> *first, List<T> *second)
+{
+    if (!first)
+        return second;
+    else if (!second)
+        return first;
+    List<T> *firstHead = first->next;
+    List<T> *secondHead = second->next;
+    first->next = secondHead;
+    second->next = firstHead;
+    return second;
+}
+
+class GLSL_EXPORT AST: public Managed
 {
 public:
     enum Kind {
@@ -183,9 +197,6 @@ public:
         Kind_StructField
     };
 
-    AST() : kind(Kind_Undefined), lineno(0) {}
-    virtual ~AST();
-
     virtual TranslationUnit *asTranslationUnit() { return 0; }
 
     virtual Declaration *asDeclaration() { return 0; }
@@ -230,14 +241,9 @@ public:
 
     virtual void accept0(Visitor *visitor) = 0;
 
-    // Efficiently make a compound statement out of "left" and "right",
-    // removing left-recursion in the process.
-    static Statement *makeCompound(Statement *left, Statement *right);
-
 protected:
     AST(Kind _kind) : kind(_kind), lineno(0) {}
 
-protected:
     template <typename T>
     static List<T> *finish(List<T> *list)
     {
@@ -249,14 +255,16 @@ protected:
 public: // attributes
     int kind;
     int lineno;
+
+protected:
+    ~AST() {}       // Managed types cannot be deleted.
 };
 
 class GLSL_EXPORT TranslationUnit: public AST
 {
 public:
     TranslationUnit(List<Declaration *> *declarations)
-        : declarations(finish(declarations))
-    { kind = Kind_TranslationUnit; }
+        : AST(Kind_TranslationUnit), declarations(finish(declarations)) {}
 
     virtual TranslationUnit *asTranslationUnit() { return this; }
 
@@ -269,7 +277,7 @@ public: // attributes
 class GLSL_EXPORT Declaration: public AST
 {
 protected:
-    Declaration(Kind _kind) { kind = _kind; }
+    Declaration(Kind _kind) : AST(_kind) {}
 
 public:
     virtual Declaration *asDeclaration() { return this; }
@@ -278,7 +286,7 @@ public:
 class GLSL_EXPORT Expression: public AST
 {
 protected:
-    Expression(Kind _kind) { kind = _kind; }
+    Expression(Kind _kind) : AST(_kind) {}
 
 public:
     virtual Expression *asExpression() { return this; }
@@ -289,7 +297,6 @@ class GLSL_EXPORT IdentifierExpression: public Expression
 public:
     IdentifierExpression(const std::string *_name)
         : Expression(Kind_Identifier), name(_name) {}
-    ~IdentifierExpression();
 
     virtual IdentifierExpression *asIdentifierExpression() { return this; }
 
@@ -304,7 +311,6 @@ class GLSL_EXPORT LiteralExpression: public Expression
 public:
     LiteralExpression(const std::string *_value)
         : Expression(Kind_Literal), value(_value) {}
-    ~LiteralExpression();
 
     virtual LiteralExpression *asLiteralExpression() { return this; }
 
@@ -319,7 +325,6 @@ class GLSL_EXPORT BinaryExpression: public Expression
 public:
     BinaryExpression(Kind _kind, Expression *_left, Expression *_right)
         : Expression(_kind), left(_left), right(_right) {}
-    ~BinaryExpression();
 
     virtual BinaryExpression *asBinaryExpression() { return this; }
 
@@ -335,7 +340,6 @@ class GLSL_EXPORT UnaryExpression: public Expression
 public:
     UnaryExpression(Kind _kind, Expression *_expr)
         : Expression(_kind), expr(_expr) {}
-    ~UnaryExpression();
 
     virtual UnaryExpression *asUnaryExpression() { return this; }
 
@@ -350,7 +354,6 @@ class GLSL_EXPORT TernaryExpression: public Expression
 public:
     TernaryExpression(Kind _kind, Expression *_first, Expression *_second, Expression *_third)
         : Expression(_kind), first(_first), second(_second), third(_third) {}
-    ~TernaryExpression();
 
     virtual TernaryExpression *asTernaryExpression() { return this; }
 
@@ -367,7 +370,6 @@ class GLSL_EXPORT AssignmentExpression: public Expression
 public:
     AssignmentExpression(Kind _kind, Expression *_variable, Expression *_value)
         : Expression(_kind), variable(_variable), value(_value) {}
-    ~AssignmentExpression();
 
     virtual AssignmentExpression *asAssignmentExpression() { return this; }
 
@@ -383,7 +385,6 @@ class GLSL_EXPORT MemberAccessExpression: public Expression
 public:
     MemberAccessExpression(Expression *_expr, const std::string *_field)
         : Expression(Kind_MemberAccess), expr(_expr), field(_field) {}
-    ~MemberAccessExpression();
 
     virtual MemberAccessExpression *asMemberAccessExpression() { return this; }
 
@@ -397,13 +398,14 @@ public: // attributes
 class GLSL_EXPORT FunctionCallExpression: public Expression
 {
 public:
-    FunctionCallExpression(const std::string *_name)
-        : Expression(Kind_FunctionCall), expr(0), name(_name) {}
-    FunctionCallExpression(Expression *_expr, const std::string *_name)
-        : Expression(Kind_MemberFunctionCall), expr(_expr), name(_name) {}
-    ~FunctionCallExpression();
-
-    void addArgument(Expression *expr) { arguments.push_back(expr); }
+    FunctionCallExpression(const std::string *_name,
+                           List<Expression *> *_arguments)
+        : Expression(Kind_FunctionCall), expr(0), name(_name)
+        , arguments(finish(_arguments)) {}
+    FunctionCallExpression(Expression *_expr, const std::string *_name,
+                           List<Expression *> *_arguments)
+        : Expression(Kind_MemberFunctionCall), expr(_expr), name(_name)
+        , arguments(finish(_arguments)) {}
 
     virtual FunctionCallExpression *asFunctionCallExpression() { return this; }
 
@@ -412,7 +414,7 @@ public:
 public: // attributes
     Expression *expr;
     const std::string *name;
-    std::vector<Expression *> arguments;
+    List<Expression *> *arguments;
 };
 
 class GLSL_EXPORT Statement: public AST
@@ -429,7 +431,6 @@ class GLSL_EXPORT ExpressionStatement: public Statement
 public:
     ExpressionStatement(Expression *_expr)
         : Statement(Kind_ExpressionStatement), expr(_expr) {}
-    ~ExpressionStatement();
 
     virtual ExpressionStatement *asExpressionStatement() { return this; }
 
@@ -442,15 +443,15 @@ public: // attributes
 class GLSL_EXPORT CompoundStatement: public Statement
 {
 public:
-    CompoundStatement() : Statement(Kind_CompoundStatement) {}
-    ~CompoundStatement();
+    CompoundStatement(List<Statement *> *_statements)
+        : Statement(Kind_CompoundStatement), statements(finish(_statements)) {}
 
     virtual CompoundStatement *asCompoundStatement() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
-    std::vector<Statement *> statements;
+    List<Statement *> *statements;
 };
 
 class GLSL_EXPORT IfStatement: public Statement
@@ -459,7 +460,6 @@ public:
     IfStatement(Expression *_condition, Statement *_thenClause, Statement *_elseClause)
         : Statement(Kind_If), condition(_condition)
         , thenClause(_thenClause), elseClause(_elseClause) {}
-    ~IfStatement();
 
     virtual IfStatement *asIfStatement() { return this; }
 
@@ -476,7 +476,6 @@ class GLSL_EXPORT WhileStatement: public Statement
 public:
     WhileStatement(Expression *_condition, Statement *_body)
         : Statement(Kind_While), condition(_condition), body(_body) {}
-    ~WhileStatement();
 
     virtual WhileStatement *asWhileStatement() { return this; }
 
@@ -492,7 +491,6 @@ class GLSL_EXPORT DoStatement: public Statement
 public:
     DoStatement(Statement *_body, Expression *_condition)
         : Statement(Kind_Do), body(_body), condition(_condition) {}
-    ~DoStatement();
 
     virtual DoStatement *asDoStatement() { return this; }
 
@@ -508,7 +506,6 @@ class GLSL_EXPORT ForStatement: public Statement
 public:
     ForStatement(Statement *_init, Expression *_condition, Expression *_increment, Statement *_body)
         : Statement(Kind_For), init(_init), condition(_condition), increment(_increment), body(_body) {}
-    ~ForStatement();
 
     virtual ForStatement *asForStatement() { return this; }
 
@@ -525,7 +522,6 @@ class GLSL_EXPORT JumpStatement: public Statement
 {
 public:
     JumpStatement(Kind _kind) : Statement(_kind) {}
-    ~JumpStatement();
 
     virtual JumpStatement *asJumpStatement() { return this; }
 
@@ -538,7 +534,6 @@ public:
     ReturnStatement() : Statement(Kind_Return), expr(0) {}
     ReturnStatement(Expression *_expr)
         : Statement(Kind_ReturnExpression), expr(_expr) {}
-    ~ReturnStatement();
 
     virtual ReturnStatement *asReturnStatement() { return this; }
 
@@ -553,7 +548,6 @@ class GLSL_EXPORT SwitchStatement: public Statement
 public:
     SwitchStatement(Expression *_expr, Statement *_body)
         : Statement(Kind_Switch), expr(_expr), body(_body) {}
-    ~SwitchStatement();
 
     virtual SwitchStatement *asSwitchStatement() { return this; }
 
@@ -570,7 +564,6 @@ public:
     CaseLabelStatement() : Statement(Kind_DefaultLabel), expr(0) {}
     CaseLabelStatement(Expression *_expr)
         : Statement(Kind_CaseLabel), expr(_expr) {}
-    ~CaseLabelStatement();
 
     virtual CaseLabelStatement *asCaseLabelStatement() { return this; }
 
@@ -602,9 +595,6 @@ public:
     // Set the precision for the innermost basic type.  Returns false if it
     // is not valid to set a precision (e.g. structs, samplers, etc).
     virtual bool setPrecision(Precision precision) = 0;
-
-    virtual Type *clone() const = 0;
-    static Type *clone(Type *type);
 };
 
 class GLSL_EXPORT BasicType: public Type
@@ -614,7 +604,6 @@ public:
     BasicType(int _token);
     BasicType(int _token, Precision _prec)
         : Type(Kind_BasicType), prec(_prec), token(_token) {}
-    ~BasicType();
 
     virtual BasicType *asBasicType() { return this; }
 
@@ -622,8 +611,6 @@ public:
 
     virtual Precision precision() const;
     virtual bool setPrecision(Precision precision);
-
-    virtual Type *clone() const;
 
 public: // attributes
     Precision prec;
@@ -634,7 +621,6 @@ class GLSL_EXPORT NamedType: public Type
 {
 public:
     NamedType(const std::string *_name) : Type(Kind_NamedType), name(_name) {}
-    ~NamedType();
 
     virtual NamedType *asNamedType() { return this; }
 
@@ -642,8 +628,6 @@ public:
 
     virtual Precision precision() const;
     virtual bool setPrecision(Precision precision);
-
-    virtual Type *clone() const;
 
 public: // attributes
     const std::string *name;
@@ -656,7 +640,6 @@ public:
         : Type(Kind_OpenArrayType), elementType(_elementType), size(0) {}
     ArrayType(Type *_elementType, Expression *_size)
         : Type(Kind_ArrayType), elementType(_elementType), size(_size) {}
-    ~ArrayType();
 
     virtual ArrayType *asArrayType() { return this; }
 
@@ -664,8 +647,6 @@ public:
 
     virtual Precision precision() const;
     virtual bool setPrecision(Precision precision);
-
-    virtual Type *clone() const;
 
 public: // attributes
     Type *elementType;
@@ -675,20 +656,6 @@ public: // attributes
 class GLSL_EXPORT StructType: public Type
 {
 public:
-    StructType() : Type(Kind_AnonymousStructType) {}
-    StructType(const std::string *_name)
-        : Type(Kind_StructType), name(_name) {}
-    ~StructType();
-
-    virtual StructType *asStructType() { return this; }
-
-    virtual void accept0(Visitor *visitor);
-
-    virtual Precision precision() const;
-    virtual bool setPrecision(Precision precision);
-
-    virtual Type *clone() const;
-
     class Field: public AST
     {
     public:
@@ -701,8 +668,6 @@ public:
         Field(const std::string *_name, Type *_type)
             : AST(Kind_StructField), name(_name), type(_type) {}
 
-        ~Field();
-
         virtual void accept0(Visitor *visitor);
 
         void setInnerType(Type *innerType);
@@ -711,15 +676,31 @@ public:
         Type *type;
     };
 
-    // Fix the inner types of a field list.  The "innerType" will
-    // be cloned into all the fields and then deleted.
-    static void fixInnerTypes(Type *innerType, std::vector<Field *> &fields);
+    StructType(List<Field *> *_fields)
+        : Type(Kind_AnonymousStructType), fields(finish(_fields)) {}
+    StructType(const std::string *_name, List<Field *> *_fields)
+        : Type(Kind_StructType), name(_name), fields(finish(_fields)) {}
 
-    void addFields(const std::vector<Field *> &list);
+    virtual StructType *asStructType() { return this; }
+
+    virtual void accept0(Visitor *visitor);
+
+    virtual Precision precision() const;
+    virtual bool setPrecision(Precision precision);
+
+    // Fix the inner types of a field list.  The "innerType" will
+    // be copied into the "array holes" of all fields.
+    static void fixInnerTypes(Type *innerType, List<Field *> *fields);
+
+    // Add a new group of fields after having their inner types fixed.
+    void addFields(List<Field *> *list)
+    {
+        fields = appendLists(fields, list);
+    }
 
 public: // attributes
     const std::string *name;
-    std::vector<Field *> fields;
+    List<Field *> *fields;
 };
 
 } // namespace GLSL

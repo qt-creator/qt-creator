@@ -465,7 +465,7 @@ switch(ruleno) {
 variable_identifier ::= IDENTIFIER ;
 /.
 case $rule_number: {
-    ast(1) = new IdentifierExpression(sym(1).string);
+    ast(1) = new (_engine->pool()) IdentifierExpression(sym(1).string);
 }   break;
 ./
 
@@ -703,7 +703,7 @@ case $rule_number: {
 multiplicative_expression ::= multiplicative_expression STAR unary_expression ;
 /.
 case $rule_number: {
-    ast(1) = new BinaryExpression(AST::Kind_Multiply, sym(1).expression, sym(3).expression);
+    ast(1) = new (_engine->pool()) BinaryExpression(AST::Kind_Multiply, sym(1).expression, sym(3).expression);
 }   break;
 ./
 
@@ -2600,7 +2600,7 @@ case $rule_number: {
 translation_unit ::= external_declaration_list ;
 /.
 case $rule_number: {
-    ast(1) = new TranslationUnit(sym(1).declaration_list);
+    ast(1) = new (_engine->pool()) TranslationUnit(sym(1).declaration_list);
 }   break;
 ./
 

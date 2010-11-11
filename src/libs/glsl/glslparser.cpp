@@ -168,7 +168,7 @@ switch(ruleno) {
 #line 466 "./glsl.g"
 
 case 0: {
-    ast(1) = new IdentifierExpression(sym(1).string);
+    ast(1) = new (_engine->pool()) IdentifierExpression(sym(1).string);
 }   break;
 
 #line 473 "./glsl.g"
@@ -372,7 +372,7 @@ case 33: {
 #line 704 "./glsl.g"
 
 case 34: {
-    ast(1) = new BinaryExpression(AST::Kind_Multiply, sym(1).expression, sym(3).expression);
+    ast(1) = new (_engine->pool()) BinaryExpression(AST::Kind_Multiply, sym(1).expression, sym(3).expression);
 }   break;
 
 #line 711 "./glsl.g"
@@ -1998,7 +1998,7 @@ case 304: {
 #line 2601 "./glsl.g"
 
 case 305: {
-    ast(1) = new TranslationUnit(sym(1).declaration_list);
+    ast(1) = new (_engine->pool()) TranslationUnit(sym(1).declaration_list);
 }   break;
 
 #line 2608 "./glsl.g"
