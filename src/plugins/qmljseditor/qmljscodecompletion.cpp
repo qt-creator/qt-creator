@@ -46,11 +46,13 @@
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <utils/faketooltip.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
 #include <QtCore/QDebug>
+#include <QtCore/QDirIterator>
 
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopWidget>
@@ -520,6 +522,7 @@ bool CodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
             QTextCursor tc = ed->textCursor();
             QTextBlock block = tc.block();
             const int column = tc.positionInBlock();
+            const QChar ch = block.text().at(column - 1);
             const int blockState = qMax(0, block.previous().userState()) & 0xff;
             const QString blockText = block.text();
 
@@ -527,10 +530,11 @@ bool CodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
             const QList<Token> tokens = scanner(blockText, blockState);
             foreach (const Token &tk, tokens) {
                 if (column >= tk.begin() && column <= tk.end()) {
+                    if (ch == QLatin1Char('/') && tk.is(Token::String))
+                        return true; // path completion inside string literals
                     if (tk.is(Token::Comment) || tk.is(Token::String))
                         return false;
-                    else
-                        break;
+                    break;
                 }
             }
         }
@@ -545,7 +549,7 @@ bool CodeCompletion::maybeTriggersCompletion(TextEditor::ITextEditable *editor)
     const int cursorPosition = editor->position();
     const QChar ch = editor->characterAt(cursorPosition - 1);
 
-    if (ch == QLatin1Char('(') || ch == QLatin1Char('.'))
+    if (ch == QLatin1Char('(') || ch == QLatin1Char('.') || ch == QLatin1Char('/'))
         return true;
     if (completionSettings().m_completionTrigger != TextEditor::AutomaticCompletion)
         return false;
@@ -609,6 +613,42 @@ static bool isLiteral(AST::Node *ast)
         return false;
 }
 
+bool CodeCompletion::completeUrl(const QString &relativeBasePath, const QString &urlString)
+{
+    const QUrl url(urlString);
+    QString fileName = url.toLocalFile();
+    if (fileName.isEmpty())
+        return false;
+
+    const QFileInfo fileInfo(fileName);
+    QString directoryPrefix;
+    if (fileInfo.isRelative()) {
+        directoryPrefix = relativeBasePath;
+        directoryPrefix += QDir::separator();
+        directoryPrefix += fileInfo.path();
+    } else {
+        directoryPrefix = fileInfo.path();
+    }
+    if (!QFileInfo(directoryPrefix).exists())
+        return false;
+
+    QDirIterator dirIterator(directoryPrefix);
+    while (dirIterator.hasNext()) {
+        dirIterator.next();
+        const QString fileName = dirIterator.fileName();
+        if (fileName == QLatin1String(".") || fileName == QLatin1String(".."))
+            continue;
+
+        TextEditor::CompletionItem item(this);
+        item.text += fileName;
+        // ### Icon for file completions
+        item.icon = iconForColor(Qt::darkBlue);
+        m_completions.append(item);
+    }
+
+    return !m_completions.isEmpty();
+}
+
 void CodeCompletion::addCompletions(const QHash<QString, const Interpreter::Value *> &newCompletions,
                                     const QIcon &icon, int order)
 {
@@ -662,6 +702,27 @@ void CodeCompletion::addCompletionsPropertyLhs(
     }
 }
 
+static const Interpreter::Value *getPropertyValue(
+    const Interpreter::ObjectValue *object,
+    const QStringList &propertyNames,
+    const Interpreter::Context *context)
+{
+    if (propertyNames.isEmpty())
+        return 0;
+
+    const Interpreter::Value *value = object;
+    foreach (const QString &name, propertyNames) {
+        if (const Interpreter::ObjectValue *objectValue = value->asObjectValue()) {
+            value = objectValue->property(name, context);
+            if (!value)
+                return 0;
+        } else {
+            return 0;
+        }
+    }
+    return value;
+}
+
 int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 {
     m_restartCompletion = false;
@@ -713,8 +774,29 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     if (contextFinder.isInQmlContext())
          qmlScopeType = context->lookupType(document.data(), contextFinder.qmlObjectTypeName());
 
-    if (completionOperator.isSpace() || completionOperator.isNull() || isDelimiter(completionOperator) ||
-            (completionOperator == QLatin1Char('(') && m_startPosition != editor->position())) {
+    if (contextFinder.isInStringLiteral()) {
+        const Interpreter::Value *value = getPropertyValue(qmlScopeType, contextFinder.bindingPropertyName(), context);
+
+        if (value->asUrlValue()) {
+            QTextCursor tc = edit->textCursor();
+            QmlExpressionUnderCursor expressionUnderCursor;
+            expressionUnderCursor(tc);
+            QString text = expressionUnderCursor.text();
+            QTC_ASSERT(!text.isEmpty() && text.at(0) == QLatin1Char('"'), return -1);
+            text = text.mid(1);
+
+            if (completeUrl(document->path(), text))
+                return m_startPosition;
+        }
+
+        // ### enum completion?
+
+        // completion gets triggered for / in string literals, if we don't
+        // return here, this will mean the snippet completion pops up for
+        // each / in a string literal that is not triggering file completion
+        return -1;
+    } else if (completionOperator.isSpace() || completionOperator.isNull() || isDelimiter(completionOperator) ||
+               (completionOperator == QLatin1Char('(') && m_startPosition != editor->position())) {
 
         bool doGlobalCompletion = true;
         bool doQmlKeywordCompletion = true;
@@ -748,28 +830,16 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         if (contextFinder.isInRhsOfBinding() && qmlScopeType) {
             doQmlKeywordCompletion = false;
 
-            if (!contextFinder.bindingPropertyName().isEmpty()) {
-                const Interpreter::Value *value = qmlScopeType;
-                foreach (const QString &name, contextFinder.bindingPropertyName()) {
-                    if (const Interpreter::ObjectValue *objectValue = value->asObjectValue()) {
-                        value = objectValue->property(name, context);
-                        if (!value)
-                            break;
-                    } else {
-                        value = 0;
-                        break;
-                    }
-                }
-
-                if (const Interpreter::QmlEnumValue *enumValue = dynamic_cast<const Interpreter::QmlEnumValue *>(value)) {
-                    foreach (const QString &key, enumValue->keys()) {
-                        TextEditor::CompletionItem item(this);
-                        item.text = key;
-                        item.data = QString("\"%1\"").arg(key);
-                        item.icon = symbolIcon;
-                        item.order = EnumValueOrder;
-                        m_completions.append(item);
-                    }
+            // complete enum values for enum properties
+            const Interpreter::Value *value = getPropertyValue(qmlScopeType, contextFinder.bindingPropertyName(), context);
+            if (const Interpreter::QmlEnumValue *enumValue = dynamic_cast<const Interpreter::QmlEnumValue *>(value)) {
+                foreach (const QString &key, enumValue->keys()) {
+                    TextEditor::CompletionItem item(this);
+                    item.text = key;
+                    item.data = QString("\"%1\"").arg(key);
+                    item.icon = symbolIcon;
+                    item.order = EnumValueOrder;
+                    m_completions.append(item);
                 }
             }
         }

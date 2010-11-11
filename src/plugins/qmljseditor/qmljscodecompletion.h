@@ -81,6 +81,8 @@ private:
     bool maybeTriggersCompletion(TextEditor::ITextEditable *editor);
     bool isDelimiter(QChar ch) const;
 
+    bool completeUrl(const QString &relativeBasePath, const QString &name);
+
     void addCompletions(const QHash<QString, const QmlJS::Interpreter::Value *> &newCompletions,
                         const QIcon &icon, int relevance);
     void addCompletions(const QStringList &newCompletions,
