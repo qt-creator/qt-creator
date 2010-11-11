@@ -33,6 +33,7 @@
 #include "glslparsertable_p.h"
 #include "glsllexer.h"
 #include "glslast.h"
+#include "glslengine.h"
 #include <vector>
 #include <stack>
 
@@ -70,10 +71,51 @@ private:
     inline int tokenKind(int index) const { return _tokens.at(index).kind; }
     void reduce(int ruleno);
 
+    template <typename T>
+    T *makeAstNode()
+    {
+        T *node = new (_engine->pool()) T ();
+        node->lineno = yyloc >= 0 ? (_tokens[yyloc].line + 1) : 0;
+        return node;
+    }
+
+    template <typename T, typename A1>
+    T *makeAstNode(A1 a1)
+    {
+        T *node = new (_engine->pool()) T (a1);
+        node->lineno = yyloc >= 0 ? (_tokens[yyloc].line + 1) : 0;
+        return node;
+    }
+
+    template <typename T, typename A1, typename A2>
+    T *makeAstNode(A1 a1, A2 a2)
+    {
+        T *node = new (_engine->pool()) T (a1, a2);
+        node->lineno = yyloc >= 0 ? (_tokens[yyloc].line + 1) : 0;
+        return node;
+    }
+
+    template <typename T, typename A1, typename A2, typename A3>
+    T *makeAstNode(A1 a1, A2 a2, A3 a3)
+    {
+        T *node = new (_engine->pool()) T (a1, a2, a3);
+        node->lineno = yyloc >= 0 ? (_tokens[yyloc].line + 1) : 0;
+        return node;
+    }
+
+    template <typename T, typename A1, typename A2, typename A3, typename A4>
+    T *makeAstNode(A1 a1, A2 a2, A3 a3, A4 a4)
+    {
+        T *node = new (_engine->pool()) T (a1, a2, a3, a4);
+        node->lineno = yyloc >= 0 ? (_tokens[yyloc].line + 1) : 0;
+        return node;
+    }
+
 private:
     Engine *_engine;
     int _tos;
     int _index;
+    int yyloc;
     std::vector<int> _stateStack;
     std::vector<int> _locationStack;
     std::vector<Value> _symStack;

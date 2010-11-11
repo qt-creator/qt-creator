@@ -242,6 +242,7 @@
 #include "$header"
 #include "glsllexer.h"
 #include "glslast.h"
+#include "glslengine.h"
 #include <vector>
 #include <stack>
 
@@ -279,10 +280,51 @@ private:
     inline int tokenKind(int index) const { return _tokens.at(index).kind; }
     void reduce(int ruleno);
 
+    template <typename T>
+    T *makeAstNode()
+    {
+        T *node = new (_engine->pool()) T ();
+        node->lineno = yyloc >= 0 ? (_tokens[yyloc].line + 1) : 0;
+        return node;
+    }
+
+    template <typename T, typename A1>
+    T *makeAstNode(A1 a1)
+    {
+        T *node = new (_engine->pool()) T (a1);
+        node->lineno = yyloc >= 0 ? (_tokens[yyloc].line + 1) : 0;
+        return node;
+    }
+
+    template <typename T, typename A1, typename A2>
+    T *makeAstNode(A1 a1, A2 a2)
+    {
+        T *node = new (_engine->pool()) T (a1, a2);
+        node->lineno = yyloc >= 0 ? (_tokens[yyloc].line + 1) : 0;
+        return node;
+    }
+
+    template <typename T, typename A1, typename A2, typename A3>
+    T *makeAstNode(A1 a1, A2 a2, A3 a3)
+    {
+        T *node = new (_engine->pool()) T (a1, a2, a3);
+        node->lineno = yyloc >= 0 ? (_tokens[yyloc].line + 1) : 0;
+        return node;
+    }
+
+    template <typename T, typename A1, typename A2, typename A3, typename A4>
+    T *makeAstNode(A1 a1, A2 a2, A3 a3, A4 a4)
+    {
+        T *node = new (_engine->pool()) T (a1, a2, a3, a4);
+        node->lineno = yyloc >= 0 ? (_tokens[yyloc].line + 1) : 0;
+        return node;
+    }
+
 private:
     Engine *_engine;
     int _tos;
     int _index;
+    int yyloc;
     std::vector<int> _stateStack;
     std::vector<int> _locationStack;
     std::vector<Value> _symStack;
@@ -331,7 +373,7 @@ private:
 using namespace GLSL;
 
 Parser::Parser(Engine *engine, const char *source, unsigned size, int variant)
-    : _engine(engine), _tos(-1), _index(0)
+    : _engine(engine), _tos(-1), _index(0), yyloc(-1)
 {
     _tokens.reserve(1024);
 
@@ -398,7 +440,7 @@ TranslationUnit *Parser::parse()
 {
     int action = 0;
     int yytoken = -1;
-    int yyloc = -1;
+    yyloc = -1;
     void *yyval = 0; // value of the current token.
 
     _tos = -1;
@@ -465,7 +507,7 @@ switch(ruleno) {
 variable_identifier ::= IDENTIFIER ;
 /.
 case $rule_number: {
-    ast(1) = new (_engine->pool()) IdentifierExpression(sym(1).string);
+    ast(1) = makeAstNode<IdentifierExpression>(sym(1).string);
 }   break;
 ./
 
@@ -703,7 +745,7 @@ case $rule_number: {
 multiplicative_expression ::= multiplicative_expression STAR unary_expression ;
 /.
 case $rule_number: {
-    ast(1) = new (_engine->pool()) BinaryExpression(AST::Kind_Multiply, sym(1).expression, sym(3).expression);
+    ast(1) = makeAstNode<BinaryExpression>(AST::Kind_Multiply, sym(1).expression, sym(3).expression);
 }   break;
 ./
 
@@ -2600,21 +2642,21 @@ case $rule_number: {
 translation_unit ::= external_declaration_list ;
 /.
 case $rule_number: {
-    ast(1) = new (_engine->pool()) TranslationUnit(sym(1).declaration_list);
+    ast(1) = makeAstNode<TranslationUnit>(sym(1).declaration_list);
 }   break;
 ./
 
 external_declaration_list ::= external_declaration ;
 /.
 case $rule_number: {
-    sym(1).declaration_list = new (_engine->pool()) List<Declaration *>(sym(1).declaration);
+    sym(1).declaration_list = makeAstNode< List<Declaration *> >(sym(1).declaration);
 }   break;
 ./
 
 external_declaration_list ::= external_declaration_list external_declaration ;
 /.
 case $rule_number: {
-    sym(1).declaration_list = new (_engine->pool())  List<Declaration *>(sym(1).declaration_list, sym(2).declaration);
+    sym(1).declaration_list = makeAstNode< List<Declaration *> >(sym(1).declaration_list, sym(2).declaration);
 }   break;
 ./
 

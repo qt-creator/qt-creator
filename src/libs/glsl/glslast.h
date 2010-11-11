@@ -70,10 +70,10 @@ class GLSL_EXPORT List: public Managed
 {
 public:
     List(const T &value)
-        : value(value), next(this) {}
+        : value(value), next(this), lineno(0) {}
 
     List(List *previous, const T &value)
-        : value(value)
+        : value(value), lineno(0)
     {
         next = previous->next;
         previous->next = this;
@@ -88,6 +88,7 @@ public:
 
     T value;
     List *next;
+    int lineno;
 };
 
 // Append two lists, which are assumed to still be circular, pre-finish.
