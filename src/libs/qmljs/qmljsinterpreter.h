@@ -61,6 +61,7 @@ class IntValue;
 class RealValue;
 class BooleanValue;
 class StringValue;
+class UrlValue;
 class ObjectValue;
 class FunctionValue;
 class Reference;
@@ -115,6 +116,7 @@ public:
     virtual const RealValue *asRealValue() const;
     virtual const BooleanValue *asBooleanValue() const;
     virtual const StringValue *asStringValue() const;
+    virtual const UrlValue *asUrlValue() const;
     virtual const ObjectValue *asObjectValue() const;
     virtual const FunctionValue *asFunctionValue() const;
     virtual const Reference *asReference() const;
@@ -167,6 +169,12 @@ template <> Q_INLINE_TEMPLATE const BooleanValue *value_cast(const Value *v)
 template <> Q_INLINE_TEMPLATE const StringValue *value_cast(const Value *v)
 {
     if (v) return v->asStringValue();
+    else   return 0;
+}
+
+template <> Q_INLINE_TEMPLATE const UrlValue *value_cast(const Value *v)
+{
+    if (v) return v->asUrlValue();
     else   return 0;
 }
 
@@ -236,7 +244,6 @@ public:
     virtual const IntValue *asIntValue() const;
 };
 
-
 class QMLJS_EXPORT BooleanValue: public Value
 {
 public:
@@ -249,6 +256,12 @@ class QMLJS_EXPORT StringValue: public Value
 public:
     virtual const StringValue *asStringValue() const;
     virtual void accept(ValueVisitor *visitor) const;
+};
+
+class QMLJS_EXPORT UrlValue: public StringValue
+{
+public:
+    virtual const UrlValue *asUrlValue() const;
 };
 
 class QMLJS_EXPORT MemberProcessor
@@ -687,6 +700,7 @@ public:
     const IntValue *intValue() const;
     const BooleanValue *booleanValue() const;
     const StringValue *stringValue() const;
+    const UrlValue *urlValue() const;
     const ColorValue *colorValue() const;
     const AnchorLineValue *anchorLineValue() const;
 
@@ -787,6 +801,7 @@ private:
     IntValue _intValue;
     BooleanValue _booleanValue;
     StringValue _stringValue;
+    UrlValue _urlValue;
     ColorValue _colorValue;
     AnchorLineValue _anchorLineValue;
     QList<Value *> _registeredValues;

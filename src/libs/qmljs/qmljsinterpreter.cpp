@@ -868,19 +868,20 @@ const Value *QmlObjectValue::propertyValue(const FakeMetaProperty &prop) const
     const Value *value = engine()->undefinedValue();
     if (typeName == QLatin1String("QByteArray")
             || typeName == QLatin1String("string")
-            || typeName == QLatin1String("QString")
-            || typeName == QLatin1String("QUrl")) {
+            || typeName == QLatin1String("QString")) {
         value = engine()->stringValue();
+    } else if (typeName == QLatin1String("QUrl")) {
+        value = engine()->urlValue();
     } else if (typeName == QLatin1String("bool")) {
         value = engine()->booleanValue();
     } else if (typeName == QLatin1String("int")
                || typeName == QLatin1String("long")) {
-               value = engine()->intValue();
+        value = engine()->intValue();
     }  else if (typeName == QLatin1String("float")
                 || typeName == QLatin1String("double")
                 || typeName == QLatin1String("qreal")) {
-                // ### Review: more types here?
-               value = engine()->realValue();
+        // ### Review: more types here?
+        value = engine()->realValue();
     } else if (typeName == QLatin1String("QFont")) {
         value = engine()->qmlFontObject();
     } else if (typeName == QLatin1String("QPoint")
@@ -1370,13 +1371,17 @@ const RealValue *Value::asRealValue() const
     return 0;
 }
 
-
 const BooleanValue *Value::asBooleanValue() const
 {
     return 0;
 }
 
 const StringValue *Value::asStringValue() const
+{
+    return 0;
+}
+
+const UrlValue *Value::asUrlValue() const
 {
     return 0;
 }
@@ -1437,7 +1442,6 @@ const NumberValue *NumberValue::asNumberValue() const
 const RealValue *RealValue::asRealValue() const
 {
     return this;
-
 }
 
 const IntValue *IntValue::asIntValue() const
@@ -1461,6 +1465,11 @@ void BooleanValue::accept(ValueVisitor *visitor) const
 }
 
 const StringValue *StringValue::asStringValue() const
+{
+    return this;
+}
+
+const UrlValue *UrlValue::asUrlValue() const
 {
     return this;
 }
@@ -2597,6 +2606,7 @@ const RealValue *Engine::realValue() const
 {
     return &_realValue;
 }
+
 const IntValue *Engine::intValue() const
 {
     return &_intValue;
@@ -2610,6 +2620,11 @@ const BooleanValue *Engine::booleanValue() const
 const StringValue *Engine::stringValue() const
 {
     return &_stringValue;
+}
+
+const UrlValue *Engine::urlValue() const
+{
+    return &_urlValue;
 }
 
 const ColorValue *Engine::colorValue() const
@@ -3147,12 +3162,16 @@ const ObjectValue *Engine::qmlVector3DObject()
 
 const Value *Engine::defaultValueForBuiltinType(const QString &typeName) const
 {
-    if (typeName == QLatin1String("string") || typeName == QLatin1String("url"))
+    if (typeName == QLatin1String("string"))
         return stringValue();
+    else if (typeName == QLatin1String("url"))
+        return urlValue();
     else if (typeName == QLatin1String("bool"))
         return booleanValue();
-    else if (typeName == QLatin1String("int") || typeName == QLatin1String("real"))
-        return numberValue();
+    else if (typeName == QLatin1String("int"))
+        return intValue();
+    else if (typeName == QLatin1String("real"))
+        return realValue();
     else if (typeName == QLatin1String("color"))
         return colorValue();
     // ### more types...
