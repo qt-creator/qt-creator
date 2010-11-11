@@ -92,6 +92,13 @@ tests/manual/gdbdebugger/simple/libsimple_gdbtest_plugin.*dylib
 tests/manual/plain-cplusplus/plain-c++
 tests/manual/preprocessor/pp
 tests/auto/cplusplus/codegen/tst_codegen
+tests/auto/cplusplus/ast/tst_ast
+tests/auto/cplusplus/codeformatter/tst_codeformatter
+tests/auto/cplusplus/findusages/tst_findusages
+tests/auto/cplusplus/lookup/tst_lookup
+tests/auto/cplusplus/preprocessor/tst_preprocessor
+tests/auto/cplusplus/semantic/tst_semantic
+tests/auto/cplusplus/typeprettyprinter/tst_typeprettyprinter
 tests/auto/qml/qmldesigner/bauhaustests/tst_bauhaus
 tests/auto/qml/qmldesigner/coretests/tst_qmldesigner_core
 tests/auto/qml/qmldesigner/propertyeditortests/tst_propertyeditor
