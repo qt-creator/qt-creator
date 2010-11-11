@@ -2,6 +2,7 @@
 #define GLSLENGINE_H
 
 #include "glsl.h"
+#include "glslmemorypool.h"
 #include <set>
 #include <string>
 
@@ -16,8 +17,11 @@ public:
     const std::string *identifier(const std::string &s);
     const std::string *identifier(const char *s, int n);
 
+    MemoryPool *pool();
+
 private:
     std::set<std::string> _identifiers;
+    MemoryPool _pool;
 };
 
 } // namespace GLSL

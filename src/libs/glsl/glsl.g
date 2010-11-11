@@ -277,6 +277,7 @@ private:
     void reduce(int ruleno);
 
 private:
+    Engine *_engine;
     int _tos;
     int _index;
     std::vector<int> _stateStack;
@@ -319,6 +320,7 @@ private:
 **************************************************************************/
 
 #include "glslparser.h"
+#include "glslengine.h"
 #include <iostream>
 #include <cstdio>
 #include <cassert>
@@ -326,7 +328,7 @@ private:
 using namespace GLSL;
 
 Parser::Parser(Engine *engine, const char *source, unsigned size, int variant)
-    : _tos(-1), _index(0)
+    : _engine(engine), _tos(-1), _index(0)
 {
     _tokens.reserve(1024);
 
@@ -2602,14 +2604,14 @@ case $rule_number: {
 external_declaration_list ::= external_declaration ;
 /.
 case $rule_number: {
-    sym(1).declaration_list = new List<Declaration *>(sym(1).declaration);
+    sym(1).declaration_list = new (_engine->pool()) List<Declaration *>(sym(1).declaration);
 }   break;
 ./
 
 external_declaration_list ::= external_declaration_list external_declaration ;
 /.
 case $rule_number: {
-    sym(1).declaration_list = new List<Declaration *>(sym(1).declaration_list, sym(2).declaration);
+    sym(1).declaration_list = new (_engine->pool())  List<Declaration *>(sym(1).declaration_list, sym(2).declaration);
 }   break;
 ./
 

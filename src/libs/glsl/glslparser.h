@@ -68,6 +68,7 @@ private:
     void reduce(int ruleno);
 
 private:
+    Engine *_engine;
     int _tos;
     int _index;
     std::vector<int> _stateStack;

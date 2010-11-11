@@ -46,6 +46,7 @@ namespace GLSL {
 class Engine;
 class Lexer;
 class Parser;
+class MemoryPool;
 class AST;
 template <typename T> class List;
 }

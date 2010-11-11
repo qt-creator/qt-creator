@@ -19,3 +19,8 @@ const std::string *Engine::identifier(const char *s, int n)
 {
     return &*_identifiers.insert(std::string(s, n)).first;
 }
+
+MemoryPool *Engine::pool()
+{
+    return &_pool;
+}

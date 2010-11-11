@@ -30,6 +30,7 @@
 #define GLSLAST_H
 
 #include "glsl.h"
+#include "glslmemorypool.h"
 #include <vector>
 #include <string>
 
@@ -66,7 +67,7 @@ class StructType;
 class Visitor;
 
 template <typename T>
-class GLSL_EXPORT List
+class GLSL_EXPORT List: public Managed
 {
 public:
     List(const T &value)
@@ -90,7 +91,7 @@ public:
     List *next;
 };
 
-class GLSL_EXPORT AST
+class GLSL_EXPORT AST  // : public Managed
 {
 public:
     enum Kind {
