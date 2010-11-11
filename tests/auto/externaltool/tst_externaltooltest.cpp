@@ -6,6 +6,7 @@
 using namespace Core::Internal;
 
 static const char * const TEST_XML1 =
+"<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 "<externaltool id=\"lupdate\">"
 "    <description>Synchronizes translator's ts files with the program code</description>"
 "    <description xml:lang=\"de\">Synchronisiert die ts-Übersetzungsdateien mit dem Programmcode</description>"
@@ -24,6 +25,7 @@ static const char * const TEST_XML1 =
 ;
 
 static const char * const TEST_XML2 =
+"<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 "<externaltool id=\"sort\">"
 "    <description>Sorts the selected text</description>"
 "    <description xml:lang=\"de\">Sortiert den ausgewählten Text</description>"
@@ -39,6 +41,7 @@ static const char * const TEST_XML2 =
 "</externaltool>";
 
 static const char * const TEST_XML3 =
+"<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 "<externaltool id=\"vi\">"
 "    <description>Opens the current file in vi</description>"
 "    <description xml:lang=\"de\">Öffnet die aktuelle Datei in vi</description>"
@@ -54,6 +57,7 @@ static const char * const TEST_XML3 =
 "</externaltool>";
 
 static const char * const TEST_XML_LANG =
+"<?xml version=\"1.0\" encoding=\"Latin-1\"?>"
 "<externaltool id=\"temp\">"
 "    <description>Hi</description>"
 "    <description xml:lang=\"de\">Hallo</description>"
@@ -83,7 +87,7 @@ private Q_SLOTS:
 void ExternaltoolTest::testRead1()
 {
     QString error;
-    ExternalTool *tool = ExternalTool::createFromXml(QLatin1String(TEST_XML1), &error);
+    ExternalTool *tool = ExternalTool::createFromXml(QByteArray(TEST_XML1), &error);
     QVERIFY(tool != 0);
     QVERIFY(error.isEmpty());
     QCOMPARE(tool->id(), QString::fromLatin1("lupdate"));
@@ -103,7 +107,7 @@ void ExternaltoolTest::testRead1()
 void ExternaltoolTest::testRead2()
 {
     QString error;
-    ExternalTool *tool = ExternalTool::createFromXml(QLatin1String(TEST_XML2), &error);
+    ExternalTool *tool = ExternalTool::createFromXml(QByteArray(TEST_XML2), &error);
     QVERIFY(tool != 0);
     QVERIFY(error.isEmpty());
     QCOMPARE(tool->id(), QString::fromLatin1("sort"));
@@ -122,7 +126,7 @@ void ExternaltoolTest::testRead2()
 void ExternaltoolTest::testRead3()
 {
     QString error;
-    ExternalTool *tool = ExternalTool::createFromXml(QLatin1String(TEST_XML3), &error);
+    ExternalTool *tool = ExternalTool::createFromXml(QByteArray(TEST_XML3), &error);
     QVERIFY(tool != 0);
     QVERIFY(error.isEmpty());
     QCOMPARE(tool->id(), QString::fromLatin1("vi"));
@@ -143,7 +147,7 @@ void ExternaltoolTest::testReadLocale()
     QString error;
     ExternalTool *tool;
 
-    tool = ExternalTool::createFromXml(QLatin1String(TEST_XML_LANG), &error);
+    tool = ExternalTool::createFromXml(QByteArray(TEST_XML_LANG), &error);
     QVERIFY(tool != 0);
     QVERIFY(error.isEmpty());
     QCOMPARE(tool->description(), QString::fromLatin1("Hi"));
@@ -151,7 +155,7 @@ void ExternaltoolTest::testReadLocale()
     QCOMPARE(tool->displayCategory(), QString::fromLatin1("Hi"));
     delete tool;
 
-    tool = ExternalTool::createFromXml(QLatin1String(TEST_XML_LANG), &error, QLatin1String("uk"));
+    tool = ExternalTool::createFromXml(QByteArray(TEST_XML_LANG), &error, QLatin1String("uk"));
     QVERIFY(tool != 0);
     QVERIFY(error.isEmpty());
     QCOMPARE(tool->description(), QString::fromLatin1("Hi"));
@@ -159,7 +163,7 @@ void ExternaltoolTest::testReadLocale()
     QCOMPARE(tool->displayCategory(), QString::fromLatin1("Hi"));
     delete tool;
 
-    tool = ExternalTool::createFromXml(QLatin1String(TEST_XML_LANG), &error, QLatin1String("de_DE.UTF-8"));
+    tool = ExternalTool::createFromXml(QByteArray(TEST_XML_LANG), &error, QLatin1String("de_DE.UTF-8"));
     QVERIFY(tool != 0);
     QVERIFY(error.isEmpty());
     QCOMPARE(tool->description(), QString::fromLatin1("Hallo"));
@@ -167,7 +171,7 @@ void ExternaltoolTest::testReadLocale()
     QCOMPARE(tool->displayCategory(), QString::fromLatin1("Hallo"));
     delete tool;
 
-    tool = ExternalTool::createFromXml(QLatin1String(TEST_XML_LANG), &error, QLatin1String("de_CH"));
+    tool = ExternalTool::createFromXml(QByteArray(TEST_XML_LANG), &error, QLatin1String("de_CH"));
     QVERIFY(tool != 0);
     QVERIFY(error.isEmpty());
     QCOMPARE(tool->description(), QString::fromLatin1("Grüezi"));

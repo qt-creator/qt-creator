@@ -36,6 +36,7 @@
 
 #include "coreplugin/core_global.h"
 #include "coreplugin/uniqueidmanager.h"
+#include <coreplugin/actionmanager/command.h>
 #include "coreplugin/icontext.h"
 
 #include <QtCore/QObject>
@@ -50,7 +51,6 @@ QT_END_NAMESPACE
 namespace Core {
 
 class ActionContainer;
-class Command;
 
 class CORE_EXPORT ActionManager : public QObject
 {

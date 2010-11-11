@@ -30,6 +30,9 @@
 #ifndef EXTERNALTOOL_H
 #define EXTERNALTOOL_H
 
+#include "icore.h"
+
+#include <QtCore/QObject>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 
@@ -58,7 +61,7 @@ public:
     QString arguments() const;
     QString workingDirectory() const;
 
-    static ExternalTool *createFromXml(const QString &xml, QString *errorMessage = 0, const QString &locale = QString());
+    static ExternalTool *createFromXml(const QByteArray &xml, QString *errorMessage = 0, const QString &locale = QString());
 
 private:
     QString m_id;
@@ -70,6 +73,24 @@ private:
     QString m_arguments;
     QString m_workingDirectory;
     OutputHandling m_outputHandling;
+};
+
+class ExternalToolManager : public QObject
+{
+    Q_OBJECT
+
+public:
+    ExternalToolManager(Core::ICore *core);
+    ~ExternalToolManager();
+
+    void initialize();
+
+private slots:
+    void menuActivated();
+
+private:
+    Core::ICore *m_core;
+    QMap<QString, ExternalTool *> m_tools;
 };
 
 } // Internal

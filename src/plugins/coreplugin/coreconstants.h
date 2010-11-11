@@ -91,6 +91,7 @@ const char * const M_FILE_RECENTFILES    = "QtCreator.Menu.File.RecentFiles";
 const char * const M_EDIT                = "QtCreator.Menu.Edit";
 const char * const M_EDIT_ADVANCED       = "QtCreator.Menu.Edit.Advanced";
 const char * const M_TOOLS               = "QtCreator.Menu.Tools";
+const char * const M_TOOLS_EXTERNAL      = "QtCreator.Menu.Tools.External";
 const char * const M_WINDOW              = "QtCreator.Menu.Window";
 const char * const M_WINDOW_PANES        = "QtCreator.Menu.Window.Panes";
 const char * const M_WINDOW_VIEWS        = "QtCreator.Menu.Window.Views";

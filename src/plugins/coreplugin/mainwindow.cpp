@@ -38,10 +38,12 @@
 #include "coreimpl.h"
 #include "coreconstants.h"
 #include "editormanager.h"
+#include "externaltool.h"
 #include "fancytabwidget.h"
 #include "filemanager.h"
 #include "generalsettings.h"
 #include "helpmanager.h"
+#include "ieditor.h"
 #include "ifilefactory.h"
 #include "messagemanager.h"
 #include "modemanager.h"
@@ -54,7 +56,6 @@
 #include "progressview.h"
 #include "shortcutsettings.h"
 #include "vcsmanager.h"
-#include "ieditor.h"
 
 #include "scriptmanager_p.h"
 #include "settingsdialog.h"
@@ -205,6 +206,7 @@ MainWindow::MainWindow() :
     m_messageManager = new MessageManager;
     m_editorManager = new EditorManager(m_coreImpl, this);
     m_editorManager->hide();
+    new ExternalToolManager(m_coreImpl);
     setCentralWidget(m_modeStack);
 
     connect(QApplication::instance(), SIGNAL(focusChanged(QWidget*,QWidget*)),
