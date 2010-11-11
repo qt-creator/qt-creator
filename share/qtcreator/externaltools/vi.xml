@@ -29,7 +29,7 @@
 **
 **************************************************************************/
 -->
-<externaltool>
+<externaltool id="vi">
     <description>Opens the current file in vi</description>
     <description xml:lang="de">Öffnet die aktuelle Datei in vi</description>
     <displayname>Edit with vi</displayname>

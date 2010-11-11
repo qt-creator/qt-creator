@@ -59,6 +59,11 @@ ExternalTool::ExternalTool() :
 {
 }
 
+QString ExternalTool::id() const
+{
+    return m_id;
+}
+
 QString ExternalTool::description() const
 {
     return m_description;
@@ -153,6 +158,9 @@ ExternalTool * ExternalTool::createFromXml(const QString &xml, QString *errorMes
 
     if (!reader.readNextStartElement() || reader.name() != QLatin1String(kExternalTool))
         reader.raiseError(QLatin1String("Missing start element <externaltool>"));
+    tool->m_id = reader.attributes().value(QLatin1String("id")).toString();
+    if (tool->m_id.isEmpty())
+        reader.raiseError(QLatin1String("Missing or empty id attribute for <externaltool>"));
     while (reader.readNextStartElement()) {
         if (reader.name() == QLatin1String(kDescription)) {
             localizedText(locales, &reader, &descriptionLocale, &tool->m_description);

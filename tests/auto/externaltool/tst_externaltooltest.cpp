@@ -6,7 +6,7 @@
 using namespace Core::Internal;
 
 static const char * const TEST_XML1 =
-"<externaltool>"
+"<externaltool id=\"lupdate\">"
 "    <description>Synchronizes translator's ts files with the program code</description>"
 "    <description xml:lang=\"de\">Synchronisiert die ts-Übersetzungsdateien mit dem Programmcode</description>"
 "    <displayname>Update translations (lupdate)</displayname>"
@@ -24,7 +24,7 @@ static const char * const TEST_XML1 =
 ;
 
 static const char * const TEST_XML2 =
-"<externaltool>"
+"<externaltool id=\"sort\">"
 "    <description>Sorts the selected text</description>"
 "    <description xml:lang=\"de\">Sortiert den ausgewählten Text</description>"
 "    <displayname>Sort</displayname>"
@@ -39,7 +39,7 @@ static const char * const TEST_XML2 =
 "</externaltool>";
 
 static const char * const TEST_XML3 =
-"<externaltool>"
+"<externaltool id=\"vi\">"
 "    <description>Opens the current file in vi</description>"
 "    <description xml:lang=\"de\">Öffnet die aktuelle Datei in vi</description>"
 "    <displayname>Edit with vi</displayname>"
@@ -54,7 +54,7 @@ static const char * const TEST_XML3 =
 "</externaltool>";
 
 static const char * const TEST_XML_LANG =
-"<externaltool>"
+"<externaltool id=\"temp\">"
 "    <description>Hi</description>"
 "    <description xml:lang=\"de\">Hallo</description>"
 "    <description xml:lang=\"de_CH\">Grüezi</description>"
@@ -86,6 +86,7 @@ void ExternaltoolTest::testRead1()
     ExternalTool *tool = ExternalTool::createFromXml(QLatin1String(TEST_XML1), &error);
     QVERIFY(tool != 0);
     QVERIFY(error.isEmpty());
+    QCOMPARE(tool->id(), QString::fromLatin1("lupdate"));
     QVERIFY(tool->description().startsWith(QLatin1String("Synchronizes tran")));
     QCOMPARE(tool->displayName(), QString::fromLatin1("Update translations (lupdate)"));
     QCOMPARE(tool->displayCategory(), QString::fromLatin1("Linguist"));
@@ -105,6 +106,7 @@ void ExternaltoolTest::testRead2()
     ExternalTool *tool = ExternalTool::createFromXml(QLatin1String(TEST_XML2), &error);
     QVERIFY(tool != 0);
     QVERIFY(error.isEmpty());
+    QCOMPARE(tool->id(), QString::fromLatin1("sort"));
     QVERIFY(tool->description().startsWith(QLatin1String("Sorts the")));
     QCOMPARE(tool->displayName(), QString::fromLatin1("Sort"));
     QCOMPARE(tool->displayCategory(), QString::fromLatin1("Text"));
@@ -123,6 +125,7 @@ void ExternaltoolTest::testRead3()
     ExternalTool *tool = ExternalTool::createFromXml(QLatin1String(TEST_XML3), &error);
     QVERIFY(tool != 0);
     QVERIFY(error.isEmpty());
+    QCOMPARE(tool->id(), QString::fromLatin1("vi"));
     QVERIFY(tool->description().startsWith(QLatin1String("Opens the")));
     QCOMPARE(tool->displayName(), QString::fromLatin1("Edit with vi"));
     QCOMPARE(tool->displayCategory(), QString::fromLatin1("Text"));

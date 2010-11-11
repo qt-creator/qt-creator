@@ -29,7 +29,7 @@
 **
 **************************************************************************/
 -->
-<externaltool>
+<externaltool id="lupdate">
     <description>Synchronizes translator's ts files with the program code</description>
     <description xml:lang="de">Synchronisiert die ts-Übersetzungsdateien mit dem Programmcode</description>
     <displayname>Update translations (lupdate)</displayname>

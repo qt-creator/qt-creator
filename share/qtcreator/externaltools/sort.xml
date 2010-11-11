@@ -29,7 +29,7 @@
 **
 **************************************************************************/
 -->
-<externaltool>
+<externaltool id="sort">
     <description>Sorts the selected text</description>
     <description xml:lang="de">Sortiert den ausgewählten Text</description>
     <displayname>Sort</displayname>

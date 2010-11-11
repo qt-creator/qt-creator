@@ -47,6 +47,7 @@ public:
 
     ExternalTool();
 
+    QString id() const;
     QString description() const;
     QString displayName() const;
     QString displayCategory() const;
@@ -60,6 +61,7 @@ public:
     static ExternalTool *createFromXml(const QString &xml, QString *errorMessage = 0, const QString &locale = QString());
 
 private:
+    QString m_id;
     QString m_description;
     QString m_displayName;
     QString m_displayCategory;
