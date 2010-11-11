@@ -36,13 +36,21 @@ void QmlJSOutlineItemDelegate::paint(QPainter *painter, const QStyleOptionViewIt
         painter->fillRect(opt.rect, option.palette.highlight());
 
     const QString typeString = index.data(Qt::DisplayRole).toString();
-    const QString annotationString = index.data(QmlOutlineModel::AnnotationRole).toString();
+    QString annotationString = index.data(QmlOutlineModel::AnnotationRole).toString();
 
     QStyle *style = QApplication::style();
 
     style->drawControl(QStyle::CE_ItemViewItem, &opt, painter, 0);
 
     if (!annotationString.isEmpty()) {
+
+        int newlinePos = annotationString.indexOf(QLatin1Char('\n'));
+        if (newlinePos != -1) {
+            // print first line with '...' at end
+            const QChar ellipsisChar(0x2026);
+            annotationString = annotationString.left(newlinePos) + ellipsisChar;
+        }
+
         QPalette::ColorRole textColorRole = QPalette::Text;
         if (option.state & QStyle::State_Selected) {
             textColorRole = QPalette::HighlightedText;
