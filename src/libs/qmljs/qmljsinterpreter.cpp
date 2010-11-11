@@ -858,8 +858,12 @@ const Value *QmlObjectValue::propertyValue(const FakeMetaProperty &prop) const
 
     // ### Verify type resolving.
     QmlObjectValue *objectValue = engine()->cppQmlTypes().typeForImport(typeName);
-    if (objectValue)
+    if (objectValue) {
+        QString packageClassName = objectValue->nameInPackage(packageName());
+        if (!packageClassName.isEmpty())
+            objectValue = engine()->cppQmlTypes().typeForImport(packageName() + '.' + packageClassName);
         return objectValue;
+    }
 
     const Value *value = engine()->undefinedValue();
     if (typeName == QLatin1String("QByteArray")
@@ -909,6 +913,14 @@ const Value *QmlObjectValue::propertyValue(const FakeMetaProperty &prop) const
 
 QString QmlObjectValue::packageName() const
 { return _packageName; }
+
+QString QmlObjectValue::nameInPackage(const QString &packageName) const
+{
+    foreach (const FakeMetaObject::Export &exp, _metaObject->exports())
+        if (exp.package == packageName)
+            return exp.type;
+    return QString();
+}
 
 QmlJS::ComponentVersion QmlObjectValue::version() const
 { return _componentVersion; }
@@ -2190,7 +2202,8 @@ QList<QmlObjectValue *> CppQmlTypes::typesForImport(const QString &packageName, 
     return objectValuesByName.values();
 }
 
-QmlObjectValue *CppQmlTypes::typeForImport(const QString &qualifiedName) const
+QmlObjectValue *CppQmlTypes::typeForImport(const QString &qualifiedName,
+                                           QmlJS::ComponentVersion version) const
 {
     QString name = qualifiedName;
     QString packageName;
@@ -2204,6 +2217,8 @@ QmlObjectValue *CppQmlTypes::typeForImport(const QString &qualifiedName) const
     foreach (QmlObjectValue *qmlObjectValue, _typesByPackage.value(packageName)) {
         const QString typeName = qmlObjectValue->className();
         if (typeName != name)
+            continue;
+        if (version.isValid() && version < qmlObjectValue->version())
             continue;
 
         if (previousCandidate) {

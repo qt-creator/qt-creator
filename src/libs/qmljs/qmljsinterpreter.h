@@ -420,6 +420,7 @@ public:
     const Value *propertyValue(const FakeMetaProperty &prop) const;
 
     QString packageName() const;
+    QString nameInPackage(const QString &packageName) const;
     ComponentVersion version() const;
     QString defaultPropertyName() const;
     QString propertyType(const QString &propertyName) const;
@@ -563,7 +564,8 @@ public:
     void load(Interpreter::Engine *interpreter, const QList<const FakeMetaObject *> &objects);
 
     QList<Interpreter::QmlObjectValue *> typesForImport(const QString &prefix, ComponentVersion version) const;
-    Interpreter::QmlObjectValue *typeForImport(const QString &qualifiedName) const;
+    Interpreter::QmlObjectValue *typeForImport(const QString &qualifiedName,
+                                               ComponentVersion version = ComponentVersion()) const;
 
     bool hasPackage(const QString &package) const;
 
