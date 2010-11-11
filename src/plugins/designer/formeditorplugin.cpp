@@ -86,7 +86,7 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
     addAutoReleasedObject(new FormEditorFactory);
 
     // Ensure that loading designer translations is done before FormEditorW is instantiated
-    const QString locale = qApp->property("qtc_locale").toString();
+    const QString locale = Core::ICore::instance()->userInterfaceLanguage();
     if (!locale.isEmpty()) {
         QTranslator *qtr = new QTranslator(this);
         const QString &creatorTrPath =

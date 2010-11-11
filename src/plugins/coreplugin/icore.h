@@ -101,6 +101,7 @@ public:
     virtual QSettings *settings(QSettings::Scope scope = QSettings::UserScope) const = 0;
     virtual SettingsDatabase *settingsDatabase() const = 0;
     virtual QPrinter *printer() const = 0;
+    virtual QString userInterfaceLanguage() const = 0;
 
     virtual QString resourcePath() const = 0;
     virtual QString userResourcePath() const = 0;

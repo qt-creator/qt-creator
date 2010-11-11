@@ -507,10 +507,9 @@ static inline QString attributeValue(const QXmlStreamReader &r, const char *name
 }
 
 // Return locale language attribute "de_UTF8" -> "de", empty string for "C"
-static inline QString localeLanguage()
+static inline QString languageSetting()
 {
-    QLocale loc;
-    QString name = loc.name();
+    QString name = Core::ICore::instance()->userInterfaceLanguage();
     const int underScorePos = name.indexOf(QLatin1Char('_'));
     if (underScorePos != -1)
         name.truncate(underScorePos);
@@ -538,7 +537,7 @@ CustomWizardParameters::ParseResult
     clear();
     bp->clear();
     bp->setKind(Core::IWizard::ProjectWizard);
-    const QString language = localeLanguage();
+    const QString language = languageSetting();
     CustomWizardField field;
     do {
         token = reader.readNext();

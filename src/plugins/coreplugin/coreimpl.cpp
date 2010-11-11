@@ -164,6 +164,11 @@ QPrinter *CoreImpl::printer() const
     return m_mainwindow->printer();
 }
 
+QString CoreImpl::userInterfaceLanguage() const
+{
+    return qApp->property("qtc_locale").toString();
+}
+
 #ifdef Q_OS_MAC
 #  define SHARE_PATH "/../Resources"
 #else

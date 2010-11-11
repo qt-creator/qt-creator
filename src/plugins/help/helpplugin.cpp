@@ -151,7 +151,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     Core::Context globalcontext(Core::Constants::C_GLOBAL);
     Core::Context modecontext(Constants::C_MODE_HELP);
 
-    const QString &locale = qApp->property("qtc_locale").toString();
+    const QString &locale = m_core->userInterfaceLanguage();
     if (!locale.isEmpty()) {
         QTranslator *qtr = new QTranslator(this);
         QTranslator *qhelptr = new QTranslator(this);

@@ -72,6 +72,7 @@ public:
     QSettings *settings(QSettings::Scope scope = QSettings::UserScope) const;
     SettingsDatabase *settingsDatabase() const;
     QPrinter *printer() const;
+    QString userInterfaceLanguage() const;
 
     QString resourcePath() const;
     QString userResourcePath() const;
