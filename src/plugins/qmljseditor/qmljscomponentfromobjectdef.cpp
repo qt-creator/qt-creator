@@ -87,7 +87,7 @@ static QString getIdProperty(UiObjectDefinition *def)
 class Operation: public QmlJSQuickFixOperation
 {
     UiObjectDefinition *m_objDef;
-    QString m_componentName;
+    QString m_idName, m_componentName;
 
 public:
     Operation(const QmlJSQuickFixState &state, UiObjectDefinition *objDef)
@@ -96,12 +96,13 @@ public:
     {
         Q_ASSERT(m_objDef != 0);
 
-        m_componentName = getIdProperty(m_objDef);
+        m_idName = getIdProperty(m_objDef);
 
-        if (m_componentName.isEmpty()) {
+        if (m_idName.isEmpty()) {
             setDescription(QCoreApplication::translate("QmlJSEditor::ComponentFromObjectDef",
                                                        "Move Component into separate file"));
         } else {
+            m_componentName = m_idName;
             m_componentName[0] = m_componentName.at(0).toUpper();
             setDescription(QCoreApplication::translate("QmlJSEditor::ComponentFromObjectDef",
                                                        "Move Component into '%1.qml'").arg(m_componentName));
@@ -139,8 +140,13 @@ public:
         if (!refactoring->createFile(newFileName, txt))
             return;
 
+        QString replacement = componentName + QLatin1String(" {\n");
+        if (!m_idName.isEmpty())
+                replacement += QLatin1String("id: ") + m_idName
+                        + QLatin1Char('\n');
+
         Utils::ChangeSet changes;
-        changes.replace(start, end, componentName + QLatin1String(" {\n"));
+        changes.replace(start, end, replacement);
         currentFile->change(changes);
         currentFile->indent(Range(start, end + 1));
     }
