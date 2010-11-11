@@ -79,8 +79,10 @@ QDeclarativeViewObserver::QDeclarativeViewObserver(QDeclarativeView *view, QObje
     data->subcomponentEditorTool = new SubcomponentEditorTool(this);
     data->currentTool = data->selectionTool;
 
-    data->view->setMouseTracking(true);
-    data->view->viewport()->installEventFilter(this);
+    // to capture ChildRemoved event when viewport changes
+    data->view->installEventFilter(this);
+
+    data->setViewport(data->view->viewport());
 
     data->debugService = QDeclarativeObserverService::instance();
     connect(data->debugService, SIGNAL(designModeBehaviorChanged(bool)), SLOT(setDesignModeBehavior(bool)));
@@ -137,6 +139,22 @@ void QDeclarativeViewObserverPrivate::_q_reloadView()
     emit q->reloadRequested();
 }
 
+void QDeclarativeViewObserverPrivate::setViewport(QWidget *widget)
+{
+    if (viewport.data() == widget)
+        return;
+
+    if (viewport) {
+        viewport->removeEventFilter(q);
+    }
+    viewport = widget;
+    if (viewport) {
+        // make sure we get mouse move events
+        viewport->setMouseTracking(true);
+        viewport->installEventFilter(q);
+    }
+}
+
 void QDeclarativeViewObserverPrivate::clearEditorItems()
 {
     clearHighlight();
@@ -145,6 +163,17 @@ void QDeclarativeViewObserverPrivate::clearEditorItems()
 
 bool QDeclarativeViewObserver::eventFilter(QObject *obj, QEvent *event)
  {
+     if (obj == data->view) {
+         // Event from view
+         if (event->type() == QEvent::ChildRemoved) {
+             // Might mean that viewport has changed
+             if (data->view->viewport() != data->viewport.data())
+                 data->setViewport(data->view->viewport());
+         }
+         return QObject::eventFilter(obj, event);
+     }
+
+     //Event from viewport
      switch (event->type()) {
      case QEvent::Leave: {
          if (leaveEvent(event))
