@@ -427,7 +427,10 @@ public:
     bool isWritable(const QString &propertyName) const;
     bool isPointer(const QString &propertyName) const;
     bool isEnum(const QString &typeName) const;
+    bool hasLocalProperty(const QString &typeName) const;
+    bool hasProperty(const QString &typeName) const;
     bool enumContainsKey(const QString &enumName, const QString &enumKeyName) const;
+    QStringList keysForEnum(const QString &enumName) const;
     bool hasChildInPackage() const;
 
 protected:

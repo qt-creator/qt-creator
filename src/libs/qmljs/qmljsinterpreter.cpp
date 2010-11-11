@@ -963,6 +963,25 @@ bool QmlObjectValue::isPointer(const QString &propertyName) const
     return false;
 }
 
+bool QmlObjectValue::hasLocalProperty(const QString &typeName) const
+{
+    int idx = _metaObject->propertyIndex(typeName);
+    if (idx == -1)
+        return false;
+    return true;
+}
+
+bool QmlObjectValue::hasProperty(const QString &propertyName) const
+{
+    for (const FakeMetaObject *iter = _metaObject; iter; iter = iter->superClass()) {
+        int propIdx = iter->propertyIndex(propertyName);
+        if (propIdx != -1) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool QmlObjectValue::enumContainsKey(const QString &enumName, const QString &enumKeyName) const
 {
     int idx = _metaObject->enumeratorIndex(enumName);
@@ -974,6 +993,15 @@ bool QmlObjectValue::enumContainsKey(const QString &enumName, const QString &enu
             return true;
     }
     return false;
+}
+
+QStringList QmlObjectValue::keysForEnum(const QString &enumName) const
+{
+    int idx = _metaObject->enumeratorIndex(enumName);
+    if (idx == -1)
+        return QStringList();
+    const FakeMetaEnum &fme = _metaObject->enumerator(idx);
+    return fme.keys();
 }
 
 // Returns true if this object is in a package or if there is an object that
