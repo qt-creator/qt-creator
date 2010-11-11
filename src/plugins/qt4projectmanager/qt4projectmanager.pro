@@ -53,8 +53,6 @@ HEADERS += \
     projectloadwizard.h \
     qtuicodemodelsupport.h \
     externaleditors.h \
-    gettingstartedwelcomepagewidget.h \
-    gettingstartedwelcomepage.h \
     qt4buildconfiguration.h \
     qt4target.h \
     qmakeparser.h \
@@ -116,8 +114,6 @@ SOURCES += qt4projectmanagerplugin.cpp \
     projectloadwizard.cpp \
     qtuicodemodelsupport.cpp \
     externaleditors.cpp \
-    gettingstartedwelcomepagewidget.cpp \
-    gettingstartedwelcomepage.cpp \
     qt4buildconfiguration.cpp \
     qt4target.cpp \
     qmakeparser.cpp \
@@ -132,9 +128,9 @@ SOURCES += qt4projectmanagerplugin.cpp \
 FORMS += makestep.ui \
     qmakestep.ui \
     qt4projectconfigwidget.ui \
-    gettingstartedwelcomepagewidget.ui \
     showbuildlog.ui \
     librarydetailswidget.ui \
+    showbuildlog.ui \
     wizards/testwizardpage.ui \
     wizards/targetsetuppage.ui \
     wizards/qtquickappwizardsourcespage.ui \

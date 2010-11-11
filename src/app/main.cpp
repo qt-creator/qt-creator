@@ -193,11 +193,15 @@ int main(int argc, char **argv)
     setrlimit(RLIMIT_NOFILE, &rl);
 #endif
 
+#ifdef Q_WS_X11
+    // QML is unusable with the xlib backend
+    QApplication::setGraphicsSystem("raster");
+#endif
+
     SharedTools::QtSingleApplication app((QLatin1String(appNameC)), argc, argv);
 
     const int threadCount = QThreadPool::globalInstance()->maxThreadCount();
     QThreadPool::globalInstance()->setMaxThreadCount(qMax(4, 2 * threadCount));
-
 
 #ifdef ENABLE_QT_BREAKPAD
     QtSystemExceptionHandler systemExceptionHandler;

@@ -32,15 +32,17 @@
 
 #include "welcomeplugin.h"
 
-#include "communitywelcomepage.h"
-#include "ui_welcomemode.h"
-
 #include <extensionsystem/pluginmanager.h>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/networkaccessmanager.h>
+#include <coreplugin/dialogs/iwizard.h>
+
+#include <projectexplorer/projectexplorer.h>
 
 #include <utils/styledbar.h>
 #include <utils/welcomemodetreewidget.h>
@@ -48,82 +50,84 @@
 
 #include <QtGui/QScrollArea>
 #include <QtGui/QDesktopServices>
-#include <QtGui/QToolButton>
 #include <QtGui/QPainter>
+#include <QtGui/QHBoxLayout>
 
 #include <QtCore/QSettings>
 #include <QtCore/QDebug>
 #include <QtCore/QUrl>
 #include <QtCore/QtPlugin>
 
+#include <QtDeclarative/QDeclarativeView>
+#include <QtDeclarative/QDeclarativeContext>
+#include <QtDeclarative/QDeclarativeEngine>
+#include <QtDeclarative/QDeclarativeNetworkAccessManagerFactory>
+
 enum { debug = 0 };
 
 using namespace ExtensionSystem;
 
+static const char currentPageSettingsKeyC[] = "WelcomeTab";
+
 namespace Welcome {
 namespace Internal {
 
-// Helper class introduced to cache the scaled background image
-// so we avoid re-scaling for every repaint.
-class ImageWidget : public QWidget
+class NetworkAccessManagerFactory : public QDeclarativeNetworkAccessManagerFactory
 {
 public:
-    explicit ImageWidget(QWidget *parent)
-        : QWidget(parent),
-          m_bg(":/welcome/images/welcomebg.png")
-    {}
+    NetworkAccessManagerFactory(): QDeclarativeNetworkAccessManagerFactory() {}
+    QNetworkAccessManager* create(QObject *parent) { return new Core::NetworkAccessManager(parent); }
+};
 
-    void paintEvent(QPaintEvent *e)
-    {
-        if (!m_bg.isNull()) {
-            QPainter painter(this);
-            if (m_stretch.size() != size())
-                m_stretch = QPixmap::fromImage(m_bg.scaled(size(),
-                    Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
-            if (!m_stretch.size().isEmpty())
-                painter.drawPixmap(rect(), m_stretch);
-        }
-        QWidget::paintEvent(e);
-    }
 
-private:
-    QImage m_bg;
-    QPixmap m_stretch;
+struct WelcomeModePrivate
+{
+
 };
 
 class WelcomeMode : public Core::IMode
 {
     Q_OBJECT
-
+    Q_PROPERTY(int activePlugin READ activePlugin WRITE setActivePlugin NOTIFY activePluginChanged)
 public:
     WelcomeMode();
     ~WelcomeMode();
 
     void activated();
     void initPlugins();
+    int activePlugin() const { return m_activePlugin; }
+
+public slots:
+    void sendFeedback();
+    void newProject();
+    void openProject();
+
+    void setActivePlugin(int pos)
+    {
+        if (m_activePlugin != pos) {
+            m_activePlugin = pos;
+            emit activePluginChanged(pos);
+        }
+    }
+
+signals:
+    void activePluginChanged(int pos);
 
 private slots:
-    void slotFeedback();
     void welcomePluginAdded(QObject*);
-    void showClickedPage();
+    void modeChanged(Core::IMode*);
 
 private:
-    void addPageToolButton(Utils::IWelcomePage *plugin, int position = -1);
-
-    typedef QMap<QToolButton *, QWidget *> ToolButtonWidgetMap;
-
-    QScrollArea m_scrollArea;
-    QWidget m_outerWidget;
-    ImageWidget *m_welcomePage;
-    ToolButtonWidgetMap buttonMap;
-    QHBoxLayout *buttonLayout;
-    Ui::WelcomeMode ui;
+    QScrollArea *m_scrollArea;
+    QDeclarativeView *m_welcomePage;
+    QHBoxLayout * buttonLayout;
+    QList<QObject*> m_pluginList;
+    int m_activePlugin;
 };
 
-static const char currentPageSettingsKeyC[] = "General/WelcomeTab";
-
 // ---  WelcomeMode
-WelcomeMode::WelcomeMode()
+WelcomeMode::WelcomeMode() :
+    m_activePlugin(0)
 {
     setDisplayName(tr("Welcome"));
     setIcon(QIcon(QLatin1String(Core::Constants::ICON_QTLOGO_32)));
@@ -132,118 +136,111 @@ WelcomeMode::WelcomeMode()
     setType(QLatin1String(Core::Constants::MODE_WELCOME_TYPE));
     setContextHelpId(QLatin1String("Qt Creator Manual"));
     setContext(Core::Context(Core::Constants::C_WELCOME_MODE));
-    setWidget(&m_scrollArea);
 
-    QVBoxLayout *l = new QVBoxLayout(&m_outerWidget);
-    l->setMargin(0);
-    l->setSpacing(0);
-    l->addWidget(new Utils::StyledBar(&m_outerWidget));
-    m_welcomePage = new ImageWidget(&m_outerWidget);
-    ui.setupUi(m_welcomePage);
-    ui.helpUsLabel->setAttribute(Qt::WA_LayoutUsesWidgetRect);
-    ui.feedbackButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
-    l->addWidget(m_welcomePage);
+    m_welcomePage = new QDeclarativeView;
+    m_welcomePage->setResizeMode(QDeclarativeView::SizeRootObjectToView);
 
-    m_scrollArea.setFrameStyle(QFrame::NoFrame);
-    m_scrollArea.setWidget(&m_outerWidget);
-    m_scrollArea.setWidgetResizable(true);
+    m_scrollArea = new QScrollArea;
+    m_scrollArea->setFrameStyle(QFrame::NoFrame|QFrame::Plain);
+    m_scrollArea->setWidget(m_welcomePage);
+    m_scrollArea->setWidgetResizable(true);
 
     PluginManager *pluginManager = PluginManager::instance();
     connect(pluginManager, SIGNAL(objectAdded(QObject*)), SLOT(welcomePluginAdded(QObject*)));
 
-    connect(ui.feedbackButton, SIGNAL(clicked()), SLOT(slotFeedback()));
+    Core::ModeManager *modeManager = Core::ICore::instance()->modeManager();
+    connect(modeManager, SIGNAL(currentModeChanged(Core::IMode*)), SLOT(modeChanged(Core::IMode*)));
+
+    setWidget(m_scrollArea);
 }
 
 WelcomeMode::~WelcomeMode()
 {
     QSettings *settings = Core::ICore::instance()->settings();
-    settings->setValue(QLatin1String(currentPageSettingsKeyC), ui.stackedWidget->currentIndex());
+    settings->setValue(QLatin1String(currentPageSettingsKeyC), activePlugin());
+    delete m_scrollArea;
 }
 
-bool sortFunction(Utils::IWelcomePage *a, Utils::IWelcomePage *b)
+bool sortFunction(Utils::IWelcomePage * a, Utils::IWelcomePage *b)
 {
     return a->priority() < b->priority();
 }
 
-// Create a QToolButton for a page
-void WelcomeMode::addPageToolButton(Utils::IWelcomePage *plugin, int position)
-{
-    QToolButton *btn = new QToolButton;
-    btn->setCheckable(true);
-    btn->setText(plugin->title());
-    btn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    btn->setAutoExclusive(true);
-    connect(btn, SIGNAL(clicked()), SLOT(showClickedPage()));
-    buttonMap.insert(btn, plugin->page());
-    if (position >= 0)
-        buttonLayout->insertWidget(position, btn);
-    else
-        buttonLayout->addWidget(btn);
-}
-
 void WelcomeMode::initPlugins()
 {
-    buttonLayout = new QHBoxLayout(ui.navFrame);
-    buttonLayout->setMargin(0);
-    buttonLayout->setSpacing(0);
+    QSettings *settings = Core::ICore::instance()->settings();
+    setActivePlugin(settings->value(QLatin1String(currentPageSettingsKeyC)).toInt());
+
+    QDeclarativeContext *ctx = m_welcomePage->rootContext();
+    ctx->setContextProperty("welcomeMode", this);
+
     QList<Utils::IWelcomePage*> plugins = PluginManager::instance()->getObjects<Utils::IWelcomePage>();
     qSort(plugins.begin(), plugins.end(), &sortFunction);
-    foreach (Utils::IWelcomePage *plugin, plugins) {
-        ui.stackedWidget->addWidget(plugin->page());
-        addPageToolButton(plugin);
-        if (debug)
-            qDebug() << "WelcomeMode::initPlugins" << plugin->title();
-    }
-    QSettings *settings = Core::ICore::instance()->settings();
-    const int tabId = settings->value(QLatin1String(currentPageSettingsKeyC), 0).toInt();
 
-    const int pluginCount = ui.stackedWidget->count();
-    if (tabId >= 0 && tabId < pluginCount) {
-        ui.stackedWidget->setCurrentIndex(tabId);
-        if (QToolButton *btn = buttonMap.key(ui.stackedWidget->currentWidget()))
-            btn->setChecked(true);
+    QDeclarativeEngine *engine = m_welcomePage->engine();
+    engine->setNetworkAccessManagerFactory(new NetworkAccessManagerFactory);
+    foreach (Utils::IWelcomePage *plugin, plugins) {
+        plugin->facilitateQml(engine);
+        m_pluginList.append(plugin);
     }
+
+    ctx->setContextProperty("pagesModel", QVariant::fromValue(m_pluginList));
+
+    // finally, load the root page
+    m_welcomePage->setSource(
+            QUrl::fromLocalFile(Core::ICore::instance()->resourcePath() + "/welcomescreen/welcomescreen.qml"));
 }
 
 void WelcomeMode::welcomePluginAdded(QObject *obj)
 {
-    Utils::IWelcomePage *plugin = qobject_cast<Utils::IWelcomePage*>(obj);
-    if (!plugin)
-        return;
-
-    int insertPos = 0;
-    QList<Utils::IWelcomePage *> pages
-        = PluginManager::instance()->getObjects<Utils::IWelcomePage>();
-    foreach (Utils::IWelcomePage *p, pages) {
-        if (plugin->priority() >= p->priority())
-            break;
-        insertPos++;
+    if (Utils::IWelcomePage *plugin = qobject_cast<Utils::IWelcomePage*>(obj)) {
+        int insertPos = 0;
+        foreach (Utils::IWelcomePage* p, PluginManager::instance()->getObjects<Utils::IWelcomePage>()) {
+            if (plugin->priority() < p->priority())
+                insertPos++;
+            else
+                break;
+        }
+        m_pluginList.insert(insertPos, plugin);
+        // update model through reset
+        QDeclarativeContext *ctx = m_welcomePage->rootContext();
+        ctx->setContextProperty("pagesModel", QVariant::fromValue(m_pluginList));
     }
-    ui.stackedWidget->insertWidget(insertPos, plugin->page());
-    addPageToolButton(plugin, insertPos);
-    if (debug)
-        qDebug() << "welcomePluginAdded" << plugin->title() << "at" << insertPos
-                 << " of " << buttonMap.size();
 }
 
-void WelcomeMode::showClickedPage()
-{
-    QToolButton *btn = qobject_cast<QToolButton*>(sender());
-    const ToolButtonWidgetMap::const_iterator it = buttonMap.constFind(btn);
-    if (it != buttonMap.constEnd())
-        ui.stackedWidget->setCurrentWidget(it.value());
-}
-
-void WelcomeMode::slotFeedback()
+void WelcomeMode::sendFeedback()
 {
     QDesktopServices::openUrl(QUrl(QLatin1String(
         "http://qt.nokia.com/forms/feedback-forms/qt-creator-user-feedback/view")));
 }
 
+void WelcomeMode::newProject()
+{
+    Core::ICore::instance()->showNewItemDialog(tr("New Project"),
+                                               Core::IWizard::wizardsOfKind(Core::IWizard::ProjectWizard));
+}
+
+void WelcomeMode::openProject()
+{
+    ProjectExplorer::ProjectExplorerPlugin::instance()->openOpenProjectDialog();
+}
+
+void WelcomeMode::modeChanged(Core::IMode *mode)
+{
+    Q_UNUSED(mode)
+
+// Eike doesn't like this, but I do...
+
+//    ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
+//    Core::ModeManager *modeManager = Core::ICore::instance()->modeManager();
+//    Core::EditorManager *editorManager = Core::ICore::instance()->editorManager();
+//    if (mode->id() == id() && (!projectExplorer->currentProject() && editorManager->openedEditors().isEmpty()))
+//        modeManager->setModeBarHidden(true);
+//    else
+//        modeManager->setModeBarHidden(false);
+}
 
 //
-
-
 
 WelcomePlugin::WelcomePlugin()
   : m_welcomeMode(0)
@@ -258,8 +255,6 @@ WelcomePlugin::WelcomePlugin()
 */
 bool WelcomePlugin::initialize(const QStringList & /* arguments */, QString * /* error_message */)
 {
-    addAutoReleasedObject(new Internal::CommunityWelcomePage);
-
     m_welcomeMode = new WelcomeMode;
     addAutoReleasedObject(m_welcomeMode);
 
@@ -283,8 +278,8 @@ void WelcomePlugin::extensionsInitialized()
     Core::ModeManager::instance()->activateMode(m_welcomeMode->id());
 }
 
-} // namespace Welcome
 } // namespace Internal
+} // namespace Welcome
 
 
 Q_EXPORT_PLUGIN(Welcome::Internal::WelcomePlugin)

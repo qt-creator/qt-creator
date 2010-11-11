@@ -1,6 +1,9 @@
 TEMPLATE = lib
 TARGET = ProjectExplorer
-QT += network script
+QT += xml \
+    script \
+    network \
+    declarative
 include(../../qtcreatorplugin.pri)
 include(projectexplorer_dependencies.pri)
 include(../../libs/utils/utils.pri)
@@ -78,7 +81,6 @@ HEADERS += projectexplorer.h \
     debugginghelper.h \
     projectexplorersettingspage.h \
     projectwelcomepage.h \
-    projectwelcomepagewidget.h \
     baseprojectwizarddialog.h \
     miniprojecttargetselector.h \
     targetselector.h \
@@ -169,7 +171,6 @@ SOURCES += projectexplorer.cpp \
     debugginghelper.cpp \
     projectexplorersettingspage.cpp \
     projectwelcomepage.cpp \
-    projectwelcomepagewidget.cpp \
     corelistenercheckingforrunningbuild.cpp \
     baseprojectwizarddialog.cpp \
     miniprojecttargetselector.cpp \
@@ -198,7 +199,6 @@ FORMS += processstep.ui \
     projectwizardpage.ui \
     removefiledialog.ui \
     projectexplorersettingspage.ui \
-    projectwelcomepagewidget.ui \
     targetsettingswidget.ui \
     doubletabwidget.ui \
     publishing/publishingwizardselectiondialog.ui \

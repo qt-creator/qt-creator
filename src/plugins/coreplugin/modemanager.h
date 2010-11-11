@@ -70,6 +70,7 @@ public:
     void addWidget(QWidget *widget);
 
     void activateModeType(const QString &type);
+    void setModeBarHidden(bool hidden);
 
 signals:
     void currentModeAboutToChange(Core::IMode *mode);

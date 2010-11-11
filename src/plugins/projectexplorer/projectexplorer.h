@@ -33,6 +33,8 @@
 #ifndef PROJECTEXPLORER_H
 #define PROJECTEXPLORER_H
 
+#include <QtCore/QPair>
+
 #include "projectexplorer_export.h"
 
 #include <extensionsystem/iplugin.h>
@@ -116,6 +118,7 @@ public:
     void renameFile(Node *node, const QString &to);
     static QStringList projectFilePatterns();
     bool coreAboutToClose();
+    QList<QPair<QString, QString> > recentProjects();
 
     bool canRun(Project *pro, const QString &runMode);
     QString cannotRunReason(Project *project, const QString &runMode);
@@ -138,6 +141,7 @@ signals:
     void currentProjectChanged(ProjectExplorer::Project *project);
     void currentNodeChanged(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
     void aboutToExecuteProject(ProjectExplorer::Project *project, const QString &runMode);
+    void recentProjectsChanged();
 
     void settingsChanged();
 

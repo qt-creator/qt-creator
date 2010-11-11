@@ -34,9 +34,9 @@
 #include <cpptools/cpptoolsconstants.h>
 #include <qmljseditor/qmljseditorconstants.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/networkaccessmanager.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkReply>
 
@@ -193,7 +193,7 @@ QNetworkReply *NetworkAccessManagerProxy::httpPost(const QString &link, const QB
 QNetworkAccessManager *NetworkAccessManagerProxy::networkAccessManager()
 {
     if (m_networkAccessManager.isNull())
-        m_networkAccessManager.reset(new QNetworkAccessManager);
+        m_networkAccessManager.reset(new Core::NetworkAccessManager);
     return m_networkAccessManager.data();
 }
 

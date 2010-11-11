@@ -432,6 +432,10 @@ FancyTabWidget::FancyTabWidget(QWidget *parent)
     connect(m_tabBar, SIGNAL(currentChanged(int)), this, SLOT(showWidget(int)));
 }
 
+void FancyTabWidget::setSelectionWidgetHidden(bool hidden) {
+    m_selectionWidget->setHidden(hidden);
+}
+
 void FancyTabWidget::insertTab(int index, QWidget *tab, const QIcon &icon, const QString &label)
 {
     m_modesStack->insertWidget(index, tab);

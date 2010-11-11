@@ -76,7 +76,6 @@
 #include "target.h"
 #include "projectexplorersettingspage.h"
 #include "projectwelcomepage.h"
-#include "projectwelcomepagewidget.h"
 #include "corelistenercheckingforrunningbuild.h"
 #include "buildconfiguration.h"
 #include "miniprojecttargetselector.h"
@@ -1305,7 +1304,7 @@ Project *ProjectExplorerPlugin::startupProject() const
 
 void ProjectExplorerPlugin::updateWelcomePage()
 {
-    ProjectWelcomePageWidget::WelcomePageData welcomePageData;
+    WelcomePageData welcomePageData;
     welcomePageData.sessionList =  d->m_session->sessions();
     welcomePageData.activeSession = d->m_session->activeSession();
     welcomePageData.previousSession = d->m_session->lastSession();
@@ -2202,6 +2201,7 @@ void ProjectExplorerPlugin::addToRecentProjects(const QString &fileName, const Q
     d->m_recentProjects.prepend(qMakePair(prettyFileName, displayName));
     QFileInfo fi(prettyFileName);
     d->m_lastOpenDirectory = fi.absolutePath();
+    emit recentProjectsChanged();
 }
 
 void ProjectExplorerPlugin::updateRecentProjectMenu()
@@ -2236,6 +2236,7 @@ void ProjectExplorerPlugin::updateRecentProjectMenu()
                                           "Core", Core::Constants::TR_CLEAR_MENU));
         connect(action, SIGNAL(triggered()), this, SLOT(clearRecentProjects()));
     }
+    emit recentProjectsChanged();
 }
 
 void ProjectExplorerPlugin::clearRecentProjects()
@@ -2754,6 +2755,11 @@ void ProjectExplorerPlugin::openOpenProjectDialog()
     const QStringList files = fileMananger->getOpenFileNames(d->m_projectFilterString, path);
     if (!files.isEmpty())
         Core::ICore::instance()->openFiles(files, Core::ICore::SwitchMode);
+}
+
+QList<QPair<QString, QString> > ProjectExplorerPlugin::recentProjects()
+{
+    return d->m_recentProjects;
 }
 
 Q_EXPORT_PLUGIN(ProjectExplorerPlugin)

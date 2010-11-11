@@ -1,21 +1,14 @@
 TEMPLATE = lib
 TARGET = Welcome
-QT += network
+QT += network declarative
 
 include(../../qtcreatorplugin.pri)
 include(welcome_dependencies.pri)
 
 HEADERS += welcomeplugin.h \
-    communitywelcomepagewidget.h \
-    communitywelcomepage.h \
     welcome_global.h
 
-SOURCES += welcomeplugin.cpp \
-    communitywelcomepagewidget.cpp \
-    communitywelcomepage.cpp
-
-FORMS += welcomemode.ui \
-    communitywelcomepagewidget.ui
+SOURCES += welcomeplugin.cpp
 
 RESOURCES += welcome.qrc
 

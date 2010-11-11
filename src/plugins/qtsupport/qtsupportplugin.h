@@ -38,8 +38,9 @@
 
 
 namespace QtSupport {
-
 namespace Internal {
+
+class GettingStartedWelcomePage;
 
 class QtSupportPlugin : public ExtensionSystem::IPlugin
 {
@@ -55,6 +56,8 @@ private slots:
     void testQtOutputParser_data();
     void testQtOutputParser();
 #endif
+private:
+    GettingStartedWelcomePage *m_welcomePage;
 };
 
 } // namespace Internal

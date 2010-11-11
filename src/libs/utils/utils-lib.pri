@@ -48,7 +48,6 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/checkablemessagebox.cpp \
     $$PWD/styledbar.cpp \
     $$PWD/stylehelper.cpp \
-    $$PWD/welcomemodetreewidget.cpp \
     $$PWD/iwelcomepage.cpp \
     $$PWD/fancymainwindow.cpp \
     $$PWD/detailsbutton.cpp \
@@ -141,7 +140,6 @@ HEADERS += $$PWD/environment.h \
     $$PWD/qtcassert.h \
     $$PWD/styledbar.h \
     $$PWD/stylehelper.h \
-    $$PWD/welcomemodetreewidget.h \
     $$PWD/iwelcomepage.h \
     $$PWD/fancymainwindow.h \
     $$PWD/detailsbutton.h \

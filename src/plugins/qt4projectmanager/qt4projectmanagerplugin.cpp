@@ -50,7 +50,6 @@
 #include "qt4project.h"
 #include "profileeditor.h"
 #include "externaleditors.h"
-#include "gettingstartedwelcomepage.h"
 #include "profilecompletionassist.h"
 
 #include "qt-s60/s60manager.h"
@@ -99,8 +98,6 @@ Qt4ProjectManagerPlugin::~Qt4ProjectManagerPlugin()
     delete m_proFileEditorFactory;
     removeObject(m_qt4ProjectManager);
     delete m_qt4ProjectManager;
-    removeObject(m_welcomePage);
-    delete m_welcomePage;
 }
 
 bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
@@ -115,12 +112,6 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     m_projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
     Core::ActionManager *am = core->actionManager();
-
-
-    m_welcomePage = new GettingStartedWelcomePage;
-    addObject(m_welcomePage);
-    connect(QtSupport::QtVersionManager::instance(), SIGNAL(updateExamples(QString,QString,QString)),
-            m_welcomePage, SLOT(updateExamples(QString,QString,QString)));
 
     //create and register objects
     m_qt4ProjectManager = new Qt4Manager(this);

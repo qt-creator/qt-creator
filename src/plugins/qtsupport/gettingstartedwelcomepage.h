@@ -30,57 +30,54 @@
 **
 **************************************************************************/
 
-#ifndef PROJECTWELCOMEPAGEWIDGET_H
-#define PROJECTWELCOMEPAGEWIDGET_H
+#ifndef GETTINGSTARTEDWELCOMEPLUGIN_H
+#define GETTINGSTARTEDWELCOMEPLUGIN_H
 
-#include <QtGui/QWidget>
+#include <utils/iwelcomepage.h>
+#include <coreplugin/icore.h>
 
+#include <QtGui/QStringListModel>
+#include <QtDeclarative/QDeclarativeItem>
 
-namespace ProjectExplorer {
+QT_BEGIN_NAMESPACE
+class QDeclarativeEngine;
+QT_END_NAMESPACE
+
+namespace QtSupport {
 namespace Internal {
 
+class ExamplesListModel;
+class GettingStartedWelcomePageWidget;
 
-namespace Ui {
-    class ProjectWelcomePageWidget;
-}
 
-// Documentation inside.
-class ProjectWelcomePageWidget : public QWidget
+class GettingStartedWelcomePage : public Utils::IWelcomePage
 {
     Q_OBJECT
 public:
-    ProjectWelcomePageWidget(QWidget *parent = 0);
-    ~ProjectWelcomePageWidget();
+    GettingStartedWelcomePage();
 
-    struct WelcomePageData {
-        bool operator==(const WelcomePageData &rhs) const;
-        bool operator!=(const WelcomePageData &rhs) const;
-
-        QString previousSession;
-        QString activeSession;
-        QStringList sessionList;
-        QList<QPair<QString, QString> > projectList; // pair of filename, displayname
-    };
-
-    void updateWelcomePage(const WelcomePageData &welcomePageData);
+    QString pageLocation() const { return Core::ICore::instance()->resourcePath() + QLatin1String("/welcomescreen/gettingstarted.qml"); }
+    QString title() const { return tr("Getting Started");}
+    int priority() const { return 10; }
+    void facilitateQml(QDeclarativeEngine *);
+    Q_INVOKABLE QStringList tagList() const;
 
 signals:
-    void requestProject(const QString &project);
-    void requestSession(const QString &session);
-    void manageSessions();
+    void tagsUpdated();
 
-private slots:
-    void slotSessionClicked(const QString &data);
-    void slotProjectClicked(const QString &data);
-    void slotCreateNewProject();
+public slots:
+    void openSplitHelp(const QUrl &help);
+    void openProject(const QString& projectFile, const QStringList& additionalFilesToOpen, const QUrl& help);
+
+public slots:
+    void updateTagsModel();
 
 private:
-    void activateEditMode();
-    Ui::ProjectWelcomePageWidget *ui;
-    WelcomePageData lastData;
+    ExamplesListModel *m_examplesModel;
+    QDeclarativeEngine *m_engine;
 };
 
 } // namespace Internal
-} // namespace ProjectExplorer
+} // namespace QtSupport
 
-#endif // PROJECTWELCOMEPAGEWIDGET_H
+#endif // GETTINGSTARTEDWELCOMEPLUGIN_H

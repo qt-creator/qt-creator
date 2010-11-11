@@ -37,8 +37,9 @@
 #include <QtCore/QXmlStreamReader>
 #include <QtCore/QSettings>
 
-#include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkReply>
+
+#include <coreplugin/networkaccessmanager.h>
 
 enum { debug = 0 };
 
@@ -528,7 +529,7 @@ void Gitorious::slotReplyFinished()
 QNetworkReply *Gitorious::createRequest(const QUrl &url, int protocol, int hostIndex, int page)
 {
     if (!m_networkManager)
-        m_networkManager = new QNetworkAccessManager(this);
+        m_networkManager = new Core::NetworkAccessManager(this);
     QNetworkReply *reply = m_networkManager->get(QNetworkRequest(url));
     connect(reply, SIGNAL(finished()), this, SLOT(slotReplyFinished()));
     reply->setProperty(protocolPropertyC, QVariant(protocol));

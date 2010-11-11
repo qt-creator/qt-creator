@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET = QtSupport
 DEFINES += QT_CREATOR QTSUPPORT_LIBRARY
-QT += network
+QT += network declarative
 include(../../qtcreatorplugin.pri)
 include(qtsupport_dependencies.pri)
 DEFINES += \
@@ -23,7 +23,9 @@ HEADERS += \
     debugginghelperbuildtask.h \
     qtsupportconstants.h \
     profilereader.h \
-    qtparser.h
+    qtparser.h \
+    gettingstartedwelcomepage.h \
+    exampleslistmodel.h
 
 SOURCES += \
     qtsupportplugin.cpp \
@@ -37,7 +39,9 @@ SOURCES += \
     qtoptionspage.cpp \
     debugginghelperbuildtask.cpp \
     profilereader.cpp \
-    qtparser.cpp
+    qtparser.cpp \
+    gettingstartedwelcomepage.cpp \
+    exampleslistmodel.cpp
 
 FORMS   +=  \
     showbuildlog.ui \

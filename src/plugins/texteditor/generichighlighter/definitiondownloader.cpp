@@ -38,9 +38,10 @@
 #include <QtCore/QEventLoop>
 #include <QtCore/QFile>
 #include <QtCore/QScopedPointer>
-#include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkReply>
+
+#include <coreplugin/networkaccessmanager.h>
 
 using namespace TextEditor;
 using namespace Internal;
@@ -51,7 +52,7 @@ DefinitionDownloader::DefinitionDownloader(const QUrl &url, const QString &local
 
 void DefinitionDownloader::run()
 {
-    QNetworkAccessManager manager;
+    Core::NetworkAccessManager manager;
 
     int currentAttempt = 0;
     const int maxAttempts = 5;

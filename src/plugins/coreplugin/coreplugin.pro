@@ -84,14 +84,15 @@ SOURCES += mainwindow.cpp \
     outputpanemanager.cpp \
     navigationsubwidget.cpp \
     sidebarwidget.cpp \
-    rssfetcher.cpp \
     externaltool.cpp \
     dialogs/externaltoolconfig.cpp \
     toolsettings.cpp \
     variablechooser.cpp \
     mimetypemagicdialog.cpp \
     mimetypesettings.cpp \
-    dialogs/promptoverwritedialog.cpp
+    dialogs/promptoverwritedialog.cpp \
+    multifeedrssmodel.cpp \
+    networkaccessmanager.cpp
 
 HEADERS += mainwindow.h \
     editmode.h \
@@ -177,14 +178,15 @@ HEADERS += mainwindow.h \
     outputpanemanager.h \
     navigationsubwidget.h \
     sidebarwidget.h \
-    rssfetcher.h \
     externaltool.h \
     dialogs/externaltoolconfig.h \
     toolsettings.h \
     variablechooser.h \
     mimetypemagicdialog.h \
     mimetypesettings.h \
-    dialogs/promptoverwritedialog.h
+    dialogs/promptoverwritedialog.h \
+    multifeedrssmodel.h \
+    networkaccessmanager.h
 
 FORMS += dialogs/newdialog.ui \
     actionmanager/commandmappings.ui \

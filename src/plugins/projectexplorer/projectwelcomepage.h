@@ -33,12 +33,68 @@
 #ifndef PROJECTWELCOMEPAGE_H
 #define PROJECTWELCOMEPAGE_H
 
-#include <utils/iwelcomepage.h>
+#include <QtCore/QAbstractListModel>
+#include <QtCore/QStringList>
 
-#include "projectwelcomepagewidget.h"
+#include <utils/iwelcomepage.h>
+#include <coreplugin/icore.h>
+
+QT_BEGIN_NAMESPACE
+class QDeclarativeEngine;
+QT_END_NAMESPACE
 
 namespace ProjectExplorer {
+
+class ProjectExplorerPlugin;
+class SessionManager;
+
 namespace Internal {
+
+struct WelcomePageData {
+    bool operator==(const WelcomePageData &rhs) const;
+    bool operator!=(const WelcomePageData &rhs) const;
+
+    QString previousSession;
+    QString activeSession;
+    QStringList sessionList;
+    QList<QPair<QString, QString> > projectList; // pair of filename, displayname
+};
+
+
+class SessionModel : public QAbstractListModel
+{
+    Q_OBJECT
+public:
+    enum { DefaultSessionRole = Qt::UserRole+1, CurrentSessionRole };
+
+    SessionModel(SessionManager* manager, QObject* parent = 0);
+    int rowCount(const QModelIndex &parent) const;
+    QVariant data(const QModelIndex &index, int role) const;
+
+public slots:
+    void resetSessions();
+
+private:
+    SessionManager *m_manager;
+};
+
+
+class ProjectModel : public QAbstractListModel
+{
+    Q_OBJECT
+public:
+    enum { FilePathRole = Qt::UserRole+1, PrettyFilePathRole };
+
+    ProjectModel(ProjectExplorerPlugin* plugin, QObject* parent = 0);
+    int rowCount(const QModelIndex &parent) const;
+    QVariant data(const QModelIndex &index, int role) const;
+
+public slots:
+    void resetProjects();
+
+private:
+    ProjectExplorerPlugin *m_plugin;
+};
 
 class ProjectWelcomePage : public Utils::IWelcomePage
 {
@@ -46,11 +102,13 @@ class ProjectWelcomePage : public Utils::IWelcomePage
 public:
     ProjectWelcomePage();
 
-    QWidget *page();
+    void facilitateQml(QDeclarativeEngine *engine);
+    QString pageLocation() const { return Core::ICore::instance()->resourcePath() + QLatin1String("/welcomescreen/develop.qml"); }
+    QWidget *page() { return 0; }
     QString title() const { return tr("Develop"); }
     int priority() const { return 20; }
 
-    void setWelcomePageData(const ProjectWelcomePageWidget::WelcomePageData &welcomePageData);
+    void setWelcomePageData(const WelcomePageData &welcomePageData);
 
 signals:
     void requestProject(const QString &project);
@@ -58,8 +116,7 @@ signals:
     void manageSessions();
 
 private:
-    ProjectWelcomePageWidget *m_page;
-    ProjectWelcomePageWidget::WelcomePageData m_welcomePageData;
+    WelcomePageData m_welcomePageData;
 };
 
 } // namespace Internal

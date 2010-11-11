@@ -36,6 +36,7 @@
 #include "welcome_global.h"
 
 #include <utils/iwelcomepage.h>
+#include <coreplugin/icore.h>
 
 namespace Welcome {
 namespace Internal {
@@ -48,6 +49,7 @@ class CommunityWelcomePage : public Utils::IWelcomePage
 public:
     CommunityWelcomePage();
 
+    QString pageLocation() const { return Core::ICore::instance()->resourcePath() + QLatin1String("/welcomescreen/newssupport.qml"); }
     QWidget *page();
     QString title() const { return tr("News && Support"); }
     int priority() const { return 30; }

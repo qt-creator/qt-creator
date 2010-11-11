@@ -24,6 +24,7 @@ isEmpty(vcproj) {
 }
 
 DATA_DIRS = \
+    welcomescreen \
     examplebrowser \
     snippets \
     templates \

@@ -20,5 +20,10 @@
         <file>images/arrow-left.png</file>
         <file>images/arrow-right.png</file>
         <file>images/welcomebg.png</file>
+        <file>images/tab_active.png</file>
+        <file>images/tab_inactive.png</file>
+        <file>images/background_center_frame_v1.png</file>
+        <file>images/background_center_frame_v2.png</file>
+        <file>images/tab_hover.png</file>
     </qresource>
 </RCC>

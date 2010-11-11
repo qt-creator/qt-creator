@@ -168,6 +168,7 @@ signals:
 
 public slots:
     void setCurrentIndex(int index);
+    void setSelectionWidgetHidden(bool hidden);
 
 private slots:
     void showWidget(int index);

@@ -53,7 +53,6 @@ class QtVersionManager;
 namespace Internal {
 
 class ProFileEditorFactory;
-class GettingStartedWelcomePage;
 
 class Qt4ProjectManagerPlugin : public ExtensionSystem::IPlugin
 {
@@ -96,7 +95,6 @@ private:
     QAction *m_cleanSubProjectContextMenu;
     QAction *m_addLibraryAction;
     QAction *m_addLibraryActionContextMenu;
-    GettingStartedWelcomePage *m_welcomePage;
     Core::Context m_projectContext;
 };
 

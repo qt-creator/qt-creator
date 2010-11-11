@@ -256,6 +256,19 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     am->actionContainer(M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
 #endif
 
+    action = new QAction(tr("Technical Support"), this);
+    cmd = am->registerAction(action, Core::Id("Help.TechSupport"), globalcontext);
+    am->actionContainer(M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
+    connect(action, SIGNAL(triggered()), this, SLOT(slotOpenSupportPage()));
+
+#ifndef Q_WS_MAC
+    action = new QAction(this);
+    action->setSeparator(true);
+    cmd = am->registerAction(action, Core::Id("Help.Separator2"), globalcontext);
+    am->actionContainer(M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
+    connect(action, SIGNAL(triggered()), this, SLOT(activateContext()));
+#endif
+
     action = new QAction(this);
     am->registerAction(action, Core::Constants::PRINT, modecontext);
     connect(action, SIGNAL(triggered()), m_centralWidget, SLOT(print()));
@@ -1121,7 +1134,7 @@ void HelpPlugin::handleHelpRequest(const QUrl &url)
         if (address.startsWith(HelpViewer::NsNokia)
             || address.startsWith(HelpViewer::NsTrolltech)) {
                 // local help not installed, resort to external web help
-                QString urlPrefix = QLatin1String("http://doc.trolltech.com/");
+                QString urlPrefix = QLatin1String("http://doc.qt.nokia.com/");
                 if (url.authority() == QLatin1String("com.nokia.qtcreator")) {
                     urlPrefix.append(QString::fromLatin1("qtcreator"));
                 } else {
@@ -1190,6 +1203,11 @@ void HelpPlugin::slotOpenActionUrl(QAction *action)
 #else
     Q_UNUSED(action)
 #endif
+}
+
+void HelpPlugin::slotOpenSupportPage()
+{
+    switchToHelpMode(QUrl("qthelp://com.nokia.qtcreator/doc/technical-support.html"));
 }
 
 void HelpPlugin::openFindToolBar()

@@ -37,6 +37,8 @@
 
 #include "profilereader.h"
 
+#include "gettingstartedwelcomepage.h"
+
 #include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QtPlugin>
@@ -47,6 +49,8 @@ using namespace QtSupport::Internal;
 
 QtSupportPlugin::~QtSupportPlugin()
 {
+    removeObject(m_welcomePage);
+    delete m_welcomePage;
 }
 
 bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMessage)
@@ -60,12 +64,17 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
     QtVersionManager *mgr = new QtVersionManager;
     addAutoReleasedObject(mgr);
     addAutoReleasedObject(new QtOptionsPage);
+
+    m_welcomePage = new GettingStartedWelcomePage;
+    addObject(m_welcomePage);
+
     return true;
 }
 
 void QtSupportPlugin::extensionsInitialized()
 {
     QtVersionManager::instance()->extensionsInitialized();
+
 }
 
 Q_EXPORT_PLUGIN(QtSupportPlugin)
