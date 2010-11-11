@@ -257,7 +257,10 @@ public:
         List<AST *> *ast_list;
         Declaration *declaration;
         List<Declaration *> *declaration_list;
+        Expression *expression;
+        List<Expression *> *expression_list;
         TranslationUnit *translation_unit;
+        // ### ast nodes...
     };
 
     Parser(Engine *engine, const char *source, unsigned size, int variant);
@@ -700,7 +703,7 @@ case $rule_number: {
 multiplicative_expression ::= multiplicative_expression STAR unary_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = new BinaryExpression(AST::Kind_Multiply, sym(1).expression, sym(3).expression);
 }   break;
 ./
 

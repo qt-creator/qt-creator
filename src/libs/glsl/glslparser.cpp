@@ -1,5 +1,5 @@
 
-#line 292 "./glsl.g"
+#line 295 "./glsl.g"
 
 /**************************************************************************
 **
@@ -159,1891 +159,1891 @@ TranslationUnit *Parser::parse()
     return 0;
 }
 
-#line 454 "./glsl.g"
+#line 457 "./glsl.g"
 
 void Parser::reduce(int ruleno)
 {
 switch(ruleno) {
 
-#line 463 "./glsl.g"
+#line 466 "./glsl.g"
 
 case 0: {
     ast(1) = new IdentifierExpression(sym(1).string);
 }   break;
 
-#line 470 "./glsl.g"
+#line 473 "./glsl.g"
 
 case 1: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 477 "./glsl.g"
+#line 480 "./glsl.g"
 
 case 2: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 484 "./glsl.g"
+#line 487 "./glsl.g"
 
 case 3: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 491 "./glsl.g"
+#line 494 "./glsl.g"
 
 case 4: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 498 "./glsl.g"
+#line 501 "./glsl.g"
 
 case 5: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 505 "./glsl.g"
+#line 508 "./glsl.g"
 
 case 6: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 512 "./glsl.g"
+#line 515 "./glsl.g"
 
 case 7: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 519 "./glsl.g"
+#line 522 "./glsl.g"
 
 case 8: {
     // nothing to do.
 }   break;
 
-#line 526 "./glsl.g"
+#line 529 "./glsl.g"
 
 case 9: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 533 "./glsl.g"
+#line 536 "./glsl.g"
 
 case 10: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 540 "./glsl.g"
+#line 543 "./glsl.g"
 
 case 11: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 547 "./glsl.g"
+#line 550 "./glsl.g"
 
 case 12: {
     // nothing to do.
 }   break;
 
-#line 554 "./glsl.g"
+#line 557 "./glsl.g"
 
 case 13: {
     // nothing to do.
 }   break;
 
-#line 561 "./glsl.g"
+#line 564 "./glsl.g"
 
 case 14: {
     // nothing to do.
 }   break;
 
-#line 568 "./glsl.g"
+#line 571 "./glsl.g"
 
 case 15: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 575 "./glsl.g"
+#line 578 "./glsl.g"
 
 case 16: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 582 "./glsl.g"
+#line 585 "./glsl.g"
 
 case 17: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 589 "./glsl.g"
+#line 592 "./glsl.g"
 
 case 18: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 596 "./glsl.g"
+#line 599 "./glsl.g"
 
 case 19: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 603 "./glsl.g"
+#line 606 "./glsl.g"
 
 case 20: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 610 "./glsl.g"
+#line 613 "./glsl.g"
 
 case 21: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 617 "./glsl.g"
+#line 620 "./glsl.g"
 
 case 22: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 624 "./glsl.g"
+#line 627 "./glsl.g"
 
 case 23: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 631 "./glsl.g"
+#line 634 "./glsl.g"
 
 case 24: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 638 "./glsl.g"
+#line 641 "./glsl.g"
 
 case 25: {
     // nothing to do.
 }   break;
 
-#line 645 "./glsl.g"
+#line 648 "./glsl.g"
 
 case 26: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 652 "./glsl.g"
+#line 655 "./glsl.g"
 
 case 27: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 659 "./glsl.g"
+#line 662 "./glsl.g"
 
 case 28: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 666 "./glsl.g"
+#line 669 "./glsl.g"
 
 case 29: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 673 "./glsl.g"
+#line 676 "./glsl.g"
 
 case 30: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 680 "./glsl.g"
+#line 683 "./glsl.g"
 
 case 31: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 687 "./glsl.g"
+#line 690 "./glsl.g"
 
 case 32: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 694 "./glsl.g"
+#line 697 "./glsl.g"
 
 case 33: {
     // nothing to do.
 }   break;
 
-#line 701 "./glsl.g"
+#line 704 "./glsl.g"
 
 case 34: {
-    // ast(1) = new ...AST(...);
+    ast(1) = new BinaryExpression(AST::Kind_Multiply, sym(1).expression, sym(3).expression);
 }   break;
 
-#line 708 "./glsl.g"
+#line 711 "./glsl.g"
 
 case 35: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 715 "./glsl.g"
+#line 718 "./glsl.g"
 
 case 36: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 722 "./glsl.g"
+#line 725 "./glsl.g"
 
 case 37: {
     // nothing to do.
 }   break;
 
-#line 729 "./glsl.g"
+#line 732 "./glsl.g"
 
 case 38: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 736 "./glsl.g"
+#line 739 "./glsl.g"
 
 case 39: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 743 "./glsl.g"
+#line 746 "./glsl.g"
 
 case 40: {
     // nothing to do.
 }   break;
 
-#line 750 "./glsl.g"
+#line 753 "./glsl.g"
 
 case 41: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 757 "./glsl.g"
+#line 760 "./glsl.g"
 
 case 42: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 764 "./glsl.g"
+#line 767 "./glsl.g"
 
 case 43: {
     // nothing to do.
 }   break;
 
-#line 771 "./glsl.g"
+#line 774 "./glsl.g"
 
 case 44: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 778 "./glsl.g"
+#line 781 "./glsl.g"
 
 case 45: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 785 "./glsl.g"
+#line 788 "./glsl.g"
 
 case 46: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 792 "./glsl.g"
+#line 795 "./glsl.g"
 
 case 47: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 799 "./glsl.g"
+#line 802 "./glsl.g"
 
 case 48: {
     // nothing to do.
 }   break;
 
-#line 806 "./glsl.g"
+#line 809 "./glsl.g"
 
 case 49: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 813 "./glsl.g"
+#line 816 "./glsl.g"
 
 case 50: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 820 "./glsl.g"
+#line 823 "./glsl.g"
 
 case 51: {
     // nothing to do.
 }   break;
 
-#line 827 "./glsl.g"
+#line 830 "./glsl.g"
 
 case 52: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 834 "./glsl.g"
+#line 837 "./glsl.g"
 
 case 53: {
     // nothing to do.
 }   break;
 
-#line 841 "./glsl.g"
+#line 844 "./glsl.g"
 
 case 54: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 848 "./glsl.g"
+#line 851 "./glsl.g"
 
 case 55: {
     // nothing to do.
 }   break;
 
-#line 855 "./glsl.g"
+#line 858 "./glsl.g"
 
 case 56: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 862 "./glsl.g"
+#line 865 "./glsl.g"
 
 case 57: {
     // nothing to do.
 }   break;
 
-#line 869 "./glsl.g"
+#line 872 "./glsl.g"
 
 case 58: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 876 "./glsl.g"
+#line 879 "./glsl.g"
 
 case 59: {
     // nothing to do.
 }   break;
 
-#line 883 "./glsl.g"
+#line 886 "./glsl.g"
 
 case 60: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 890 "./glsl.g"
+#line 893 "./glsl.g"
 
 case 61: {
     // nothing to do.
 }   break;
 
-#line 897 "./glsl.g"
+#line 900 "./glsl.g"
 
 case 62: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 904 "./glsl.g"
+#line 907 "./glsl.g"
 
 case 63: {
     // nothing to do.
 }   break;
 
-#line 911 "./glsl.g"
+#line 914 "./glsl.g"
 
 case 64: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 918 "./glsl.g"
+#line 921 "./glsl.g"
 
 case 65: {
     // nothing to do.
 }   break;
 
-#line 925 "./glsl.g"
+#line 928 "./glsl.g"
 
 case 66: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 932 "./glsl.g"
+#line 935 "./glsl.g"
 
 case 67: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 939 "./glsl.g"
+#line 942 "./glsl.g"
 
 case 68: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 946 "./glsl.g"
+#line 949 "./glsl.g"
 
 case 69: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 953 "./glsl.g"
+#line 956 "./glsl.g"
 
 case 70: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 960 "./glsl.g"
+#line 963 "./glsl.g"
 
 case 71: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 967 "./glsl.g"
+#line 970 "./glsl.g"
 
 case 72: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 974 "./glsl.g"
+#line 977 "./glsl.g"
 
 case 73: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 981 "./glsl.g"
+#line 984 "./glsl.g"
 
 case 74: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 988 "./glsl.g"
+#line 991 "./glsl.g"
 
 case 75: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 995 "./glsl.g"
+#line 998 "./glsl.g"
 
 case 76: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1002 "./glsl.g"
+#line 1005 "./glsl.g"
 
 case 77: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1009 "./glsl.g"
+#line 1012 "./glsl.g"
 
 case 78: {
     // nothing to do.
 }   break;
 
-#line 1016 "./glsl.g"
+#line 1019 "./glsl.g"
 
 case 79: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1023 "./glsl.g"
+#line 1026 "./glsl.g"
 
 case 80: {
     // nothing to do.
 }   break;
 
-#line 1030 "./glsl.g"
+#line 1033 "./glsl.g"
 
 case 81: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1037 "./glsl.g"
+#line 1040 "./glsl.g"
 
 case 82: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1044 "./glsl.g"
+#line 1047 "./glsl.g"
 
 case 83: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1051 "./glsl.g"
+#line 1054 "./glsl.g"
 
 case 84: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1058 "./glsl.g"
+#line 1061 "./glsl.g"
 
 case 85: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1065 "./glsl.g"
+#line 1068 "./glsl.g"
 
 case 86: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1072 "./glsl.g"
+#line 1075 "./glsl.g"
 
 case 87: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1079 "./glsl.g"
+#line 1082 "./glsl.g"
 
 case 88: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1086 "./glsl.g"
+#line 1089 "./glsl.g"
 
 case 89: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1093 "./glsl.g"
+#line 1096 "./glsl.g"
 
 case 90: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1100 "./glsl.g"
+#line 1103 "./glsl.g"
 
 case 91: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1107 "./glsl.g"
+#line 1110 "./glsl.g"
 
 case 92: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1114 "./glsl.g"
+#line 1117 "./glsl.g"
 
 case 93: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1121 "./glsl.g"
+#line 1124 "./glsl.g"
 
 case 94: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1128 "./glsl.g"
+#line 1131 "./glsl.g"
 
 case 95: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1135 "./glsl.g"
+#line 1138 "./glsl.g"
 
 case 96: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1142 "./glsl.g"
+#line 1145 "./glsl.g"
 
 case 97: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1149 "./glsl.g"
+#line 1152 "./glsl.g"
 
 case 98: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1156 "./glsl.g"
+#line 1159 "./glsl.g"
 
 case 99: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1163 "./glsl.g"
+#line 1166 "./glsl.g"
 
 case 100: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1170 "./glsl.g"
+#line 1173 "./glsl.g"
 
 case 101: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1177 "./glsl.g"
+#line 1180 "./glsl.g"
 
 case 102: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1184 "./glsl.g"
+#line 1187 "./glsl.g"
 
 case 103: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1191 "./glsl.g"
+#line 1194 "./glsl.g"
 
 case 104: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1198 "./glsl.g"
+#line 1201 "./glsl.g"
 
 case 105: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1205 "./glsl.g"
+#line 1208 "./glsl.g"
 
 case 106: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1212 "./glsl.g"
+#line 1215 "./glsl.g"
 
 case 107: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1219 "./glsl.g"
+#line 1222 "./glsl.g"
 
 case 108: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1226 "./glsl.g"
+#line 1229 "./glsl.g"
 
 case 109: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1233 "./glsl.g"
+#line 1236 "./glsl.g"
 
 case 110: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1240 "./glsl.g"
+#line 1243 "./glsl.g"
 
 case 111: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1247 "./glsl.g"
+#line 1250 "./glsl.g"
 
 case 112: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1254 "./glsl.g"
+#line 1257 "./glsl.g"
 
 case 113: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1261 "./glsl.g"
+#line 1264 "./glsl.g"
 
 case 114: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1268 "./glsl.g"
+#line 1271 "./glsl.g"
 
 case 115: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1275 "./glsl.g"
+#line 1278 "./glsl.g"
 
 case 116: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1282 "./glsl.g"
+#line 1285 "./glsl.g"
 
 case 117: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1289 "./glsl.g"
+#line 1292 "./glsl.g"
 
 case 118: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1296 "./glsl.g"
+#line 1299 "./glsl.g"
 
 case 119: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1303 "./glsl.g"
+#line 1306 "./glsl.g"
 
 case 120: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1310 "./glsl.g"
+#line 1313 "./glsl.g"
 
 case 121: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1317 "./glsl.g"
+#line 1320 "./glsl.g"
 
 case 122: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1324 "./glsl.g"
+#line 1327 "./glsl.g"
 
 case 123: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1331 "./glsl.g"
+#line 1334 "./glsl.g"
 
 case 124: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1338 "./glsl.g"
+#line 1341 "./glsl.g"
 
 case 125: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1345 "./glsl.g"
+#line 1348 "./glsl.g"
 
 case 126: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1352 "./glsl.g"
+#line 1355 "./glsl.g"
 
 case 127: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1359 "./glsl.g"
+#line 1362 "./glsl.g"
 
 case 128: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1366 "./glsl.g"
+#line 1369 "./glsl.g"
 
 case 129: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1373 "./glsl.g"
+#line 1376 "./glsl.g"
 
 case 130: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1380 "./glsl.g"
+#line 1383 "./glsl.g"
 
 case 131: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1387 "./glsl.g"
+#line 1390 "./glsl.g"
 
 case 132: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1394 "./glsl.g"
+#line 1397 "./glsl.g"
 
 case 133: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1401 "./glsl.g"
+#line 1404 "./glsl.g"
 
 case 134: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1408 "./glsl.g"
+#line 1411 "./glsl.g"
 
 case 135: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1415 "./glsl.g"
+#line 1418 "./glsl.g"
 
 case 136: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1422 "./glsl.g"
+#line 1425 "./glsl.g"
 
 case 137: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1429 "./glsl.g"
+#line 1432 "./glsl.g"
 
 case 138: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1436 "./glsl.g"
+#line 1439 "./glsl.g"
 
 case 139: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1443 "./glsl.g"
+#line 1446 "./glsl.g"
 
 case 140: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1450 "./glsl.g"
+#line 1453 "./glsl.g"
 
 case 141: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1457 "./glsl.g"
+#line 1460 "./glsl.g"
 
 case 142: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1464 "./glsl.g"
+#line 1467 "./glsl.g"
 
 case 143: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1471 "./glsl.g"
+#line 1474 "./glsl.g"
 
 case 144: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1478 "./glsl.g"
+#line 1481 "./glsl.g"
 
 case 145: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1485 "./glsl.g"
+#line 1488 "./glsl.g"
 
 case 146: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1492 "./glsl.g"
+#line 1495 "./glsl.g"
 
 case 147: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1499 "./glsl.g"
+#line 1502 "./glsl.g"
 
 case 148: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1506 "./glsl.g"
+#line 1509 "./glsl.g"
 
 case 149: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1513 "./glsl.g"
+#line 1516 "./glsl.g"
 
 case 150: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1520 "./glsl.g"
+#line 1523 "./glsl.g"
 
 case 151: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1527 "./glsl.g"
+#line 1530 "./glsl.g"
 
 case 152: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1534 "./glsl.g"
+#line 1537 "./glsl.g"
 
 case 153: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1541 "./glsl.g"
+#line 1544 "./glsl.g"
 
 case 154: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1548 "./glsl.g"
+#line 1551 "./glsl.g"
 
 case 155: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1555 "./glsl.g"
+#line 1558 "./glsl.g"
 
 case 156: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1562 "./glsl.g"
+#line 1565 "./glsl.g"
 
 case 157: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1569 "./glsl.g"
+#line 1572 "./glsl.g"
 
 case 158: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1576 "./glsl.g"
+#line 1579 "./glsl.g"
 
 case 159: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1583 "./glsl.g"
+#line 1586 "./glsl.g"
 
 case 160: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1590 "./glsl.g"
+#line 1593 "./glsl.g"
 
 case 161: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1597 "./glsl.g"
+#line 1600 "./glsl.g"
 
 case 162: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1604 "./glsl.g"
+#line 1607 "./glsl.g"
 
 case 163: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1611 "./glsl.g"
+#line 1614 "./glsl.g"
 
 case 164: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1618 "./glsl.g"
+#line 1621 "./glsl.g"
 
 case 165: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1625 "./glsl.g"
+#line 1628 "./glsl.g"
 
 case 166: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1632 "./glsl.g"
+#line 1635 "./glsl.g"
 
 case 167: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1639 "./glsl.g"
+#line 1642 "./glsl.g"
 
 case 168: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1646 "./glsl.g"
+#line 1649 "./glsl.g"
 
 case 169: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1653 "./glsl.g"
+#line 1656 "./glsl.g"
 
 case 170: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1660 "./glsl.g"
+#line 1663 "./glsl.g"
 
 case 171: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1667 "./glsl.g"
+#line 1670 "./glsl.g"
 
 case 172: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1674 "./glsl.g"
+#line 1677 "./glsl.g"
 
 case 173: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1681 "./glsl.g"
+#line 1684 "./glsl.g"
 
 case 174: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1688 "./glsl.g"
+#line 1691 "./glsl.g"
 
 case 175: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1695 "./glsl.g"
+#line 1698 "./glsl.g"
 
 case 176: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1702 "./glsl.g"
+#line 1705 "./glsl.g"
 
 case 177: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1709 "./glsl.g"
+#line 1712 "./glsl.g"
 
 case 178: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1716 "./glsl.g"
+#line 1719 "./glsl.g"
 
 case 179: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1723 "./glsl.g"
+#line 1726 "./glsl.g"
 
 case 180: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1730 "./glsl.g"
+#line 1733 "./glsl.g"
 
 case 181: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1737 "./glsl.g"
+#line 1740 "./glsl.g"
 
 case 182: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1744 "./glsl.g"
+#line 1747 "./glsl.g"
 
 case 183: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1751 "./glsl.g"
+#line 1754 "./glsl.g"
 
 case 184: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1758 "./glsl.g"
+#line 1761 "./glsl.g"
 
 case 185: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1765 "./glsl.g"
+#line 1768 "./glsl.g"
 
 case 186: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1772 "./glsl.g"
+#line 1775 "./glsl.g"
 
 case 187: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1779 "./glsl.g"
+#line 1782 "./glsl.g"
 
 case 188: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1786 "./glsl.g"
+#line 1789 "./glsl.g"
 
 case 189: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1793 "./glsl.g"
+#line 1796 "./glsl.g"
 
 case 190: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1800 "./glsl.g"
+#line 1803 "./glsl.g"
 
 case 191: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1807 "./glsl.g"
+#line 1810 "./glsl.g"
 
 case 192: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1814 "./glsl.g"
+#line 1817 "./glsl.g"
 
 case 193: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1821 "./glsl.g"
+#line 1824 "./glsl.g"
 
 case 194: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1828 "./glsl.g"
+#line 1831 "./glsl.g"
 
 case 195: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1835 "./glsl.g"
+#line 1838 "./glsl.g"
 
 case 196: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1842 "./glsl.g"
+#line 1845 "./glsl.g"
 
 case 197: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1849 "./glsl.g"
+#line 1852 "./glsl.g"
 
 case 198: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1856 "./glsl.g"
+#line 1859 "./glsl.g"
 
 case 199: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1863 "./glsl.g"
+#line 1866 "./glsl.g"
 
 case 200: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1870 "./glsl.g"
+#line 1873 "./glsl.g"
 
 case 201: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1877 "./glsl.g"
+#line 1880 "./glsl.g"
 
 case 202: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1884 "./glsl.g"
+#line 1887 "./glsl.g"
 
 case 203: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1891 "./glsl.g"
+#line 1894 "./glsl.g"
 
 case 204: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1898 "./glsl.g"
+#line 1901 "./glsl.g"
 
 case 205: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1905 "./glsl.g"
+#line 1908 "./glsl.g"
 
 case 206: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1912 "./glsl.g"
+#line 1915 "./glsl.g"
 
 case 207: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1919 "./glsl.g"
+#line 1922 "./glsl.g"
 
 case 208: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1926 "./glsl.g"
+#line 1929 "./glsl.g"
 
 case 209: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1933 "./glsl.g"
+#line 1936 "./glsl.g"
 
 case 210: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1940 "./glsl.g"
+#line 1943 "./glsl.g"
 
 case 211: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1947 "./glsl.g"
+#line 1950 "./glsl.g"
 
 case 212: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1954 "./glsl.g"
+#line 1957 "./glsl.g"
 
 case 213: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1961 "./glsl.g"
+#line 1964 "./glsl.g"
 
 case 214: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1968 "./glsl.g"
+#line 1971 "./glsl.g"
 
 case 215: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1975 "./glsl.g"
+#line 1978 "./glsl.g"
 
 case 216: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1982 "./glsl.g"
+#line 1985 "./glsl.g"
 
 case 217: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1989 "./glsl.g"
+#line 1992 "./glsl.g"
 
 case 218: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 1996 "./glsl.g"
+#line 1999 "./glsl.g"
 
 case 219: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2003 "./glsl.g"
+#line 2006 "./glsl.g"
 
 case 220: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2010 "./glsl.g"
+#line 2013 "./glsl.g"
 
 case 221: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2017 "./glsl.g"
+#line 2020 "./glsl.g"
 
 case 222: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2024 "./glsl.g"
+#line 2027 "./glsl.g"
 
 case 223: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2031 "./glsl.g"
+#line 2034 "./glsl.g"
 
 case 224: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2038 "./glsl.g"
+#line 2041 "./glsl.g"
 
 case 225: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2045 "./glsl.g"
+#line 2048 "./glsl.g"
 
 case 226: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2052 "./glsl.g"
+#line 2055 "./glsl.g"
 
 case 227: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2059 "./glsl.g"
+#line 2062 "./glsl.g"
 
 case 228: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2066 "./glsl.g"
+#line 2069 "./glsl.g"
 
 case 229: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2073 "./glsl.g"
+#line 2076 "./glsl.g"
 
 case 230: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2080 "./glsl.g"
+#line 2083 "./glsl.g"
 
 case 231: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2087 "./glsl.g"
+#line 2090 "./glsl.g"
 
 case 232: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2094 "./glsl.g"
+#line 2097 "./glsl.g"
 
 case 233: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2101 "./glsl.g"
+#line 2104 "./glsl.g"
 
 case 234: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2108 "./glsl.g"
+#line 2111 "./glsl.g"
 
 case 235: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2115 "./glsl.g"
+#line 2118 "./glsl.g"
 
 case 236: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2122 "./glsl.g"
+#line 2125 "./glsl.g"
 
 case 237: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2129 "./glsl.g"
+#line 2132 "./glsl.g"
 
 case 238: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2136 "./glsl.g"
+#line 2139 "./glsl.g"
 
 case 239: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2143 "./glsl.g"
+#line 2146 "./glsl.g"
 
 case 240: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2150 "./glsl.g"
+#line 2153 "./glsl.g"
 
 case 241: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2157 "./glsl.g"
+#line 2160 "./glsl.g"
 
 case 242: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2164 "./glsl.g"
+#line 2167 "./glsl.g"
 
 case 243: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2171 "./glsl.g"
+#line 2174 "./glsl.g"
 
 case 244: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2178 "./glsl.g"
+#line 2181 "./glsl.g"
 
 case 245: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2185 "./glsl.g"
+#line 2188 "./glsl.g"
 
 case 246: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2192 "./glsl.g"
+#line 2195 "./glsl.g"
 
 case 247: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2199 "./glsl.g"
+#line 2202 "./glsl.g"
 
 case 248: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2206 "./glsl.g"
+#line 2209 "./glsl.g"
 
 case 249: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2213 "./glsl.g"
+#line 2216 "./glsl.g"
 
 case 250: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2220 "./glsl.g"
+#line 2223 "./glsl.g"
 
 case 251: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2227 "./glsl.g"
+#line 2230 "./glsl.g"
 
 case 252: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2234 "./glsl.g"
+#line 2237 "./glsl.g"
 
 case 253: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2241 "./glsl.g"
+#line 2244 "./glsl.g"
 
 case 254: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2248 "./glsl.g"
+#line 2251 "./glsl.g"
 
 case 255: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2255 "./glsl.g"
+#line 2258 "./glsl.g"
 
 case 256: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2262 "./glsl.g"
+#line 2265 "./glsl.g"
 
 case 257: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2269 "./glsl.g"
+#line 2272 "./glsl.g"
 
 case 258: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2276 "./glsl.g"
+#line 2279 "./glsl.g"
 
 case 259: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2283 "./glsl.g"
+#line 2286 "./glsl.g"
 
 case 260: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2290 "./glsl.g"
+#line 2293 "./glsl.g"
 
 case 261: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2297 "./glsl.g"
+#line 2300 "./glsl.g"
 
 case 262: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2304 "./glsl.g"
+#line 2307 "./glsl.g"
 
 case 263: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2311 "./glsl.g"
+#line 2314 "./glsl.g"
 
 case 264: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2318 "./glsl.g"
+#line 2321 "./glsl.g"
 
 case 265: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2325 "./glsl.g"
+#line 2328 "./glsl.g"
 
 case 266: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2332 "./glsl.g"
+#line 2335 "./glsl.g"
 
 case 267: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2339 "./glsl.g"
+#line 2342 "./glsl.g"
 
 case 268: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2346 "./glsl.g"
+#line 2349 "./glsl.g"
 
 case 269: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2353 "./glsl.g"
+#line 2356 "./glsl.g"
 
 case 270: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2360 "./glsl.g"
+#line 2363 "./glsl.g"
 
 case 271: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2367 "./glsl.g"
+#line 2370 "./glsl.g"
 
 case 272: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2374 "./glsl.g"
+#line 2377 "./glsl.g"
 
 case 273: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2381 "./glsl.g"
+#line 2384 "./glsl.g"
 
 case 274: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2388 "./glsl.g"
+#line 2391 "./glsl.g"
 
 case 275: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2395 "./glsl.g"
+#line 2398 "./glsl.g"
 
 case 276: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2402 "./glsl.g"
+#line 2405 "./glsl.g"
 
 case 277: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2409 "./glsl.g"
+#line 2412 "./glsl.g"
 
 case 278: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2416 "./glsl.g"
+#line 2419 "./glsl.g"
 
 case 279: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2423 "./glsl.g"
+#line 2426 "./glsl.g"
 
 case 280: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2430 "./glsl.g"
+#line 2433 "./glsl.g"
 
 case 281: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2437 "./glsl.g"
+#line 2440 "./glsl.g"
 
 case 282: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2444 "./glsl.g"
+#line 2447 "./glsl.g"
 
 case 283: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2451 "./glsl.g"
+#line 2454 "./glsl.g"
 
 case 284: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2458 "./glsl.g"
+#line 2461 "./glsl.g"
 
 case 285: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2465 "./glsl.g"
+#line 2468 "./glsl.g"
 
 case 286: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2472 "./glsl.g"
+#line 2475 "./glsl.g"
 
 case 287: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2479 "./glsl.g"
+#line 2482 "./glsl.g"
 
 case 288: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2486 "./glsl.g"
+#line 2489 "./glsl.g"
 
 case 289: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2493 "./glsl.g"
+#line 2496 "./glsl.g"
 
 case 290: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2500 "./glsl.g"
+#line 2503 "./glsl.g"
 
 case 291: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2507 "./glsl.g"
+#line 2510 "./glsl.g"
 
 case 292: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2514 "./glsl.g"
+#line 2517 "./glsl.g"
 
 case 293: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2521 "./glsl.g"
+#line 2524 "./glsl.g"
 
 case 294: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2528 "./glsl.g"
+#line 2531 "./glsl.g"
 
 case 295: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2535 "./glsl.g"
+#line 2538 "./glsl.g"
 
 case 296: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2542 "./glsl.g"
+#line 2545 "./glsl.g"
 
 case 297: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2549 "./glsl.g"
+#line 2552 "./glsl.g"
 
 case 298: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2556 "./glsl.g"
+#line 2559 "./glsl.g"
 
 case 299: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2563 "./glsl.g"
+#line 2566 "./glsl.g"
 
 case 300: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2570 "./glsl.g"
+#line 2573 "./glsl.g"
 
 case 301: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2577 "./glsl.g"
+#line 2580 "./glsl.g"
 
 case 302: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2584 "./glsl.g"
+#line 2587 "./glsl.g"
 
 case 303: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2591 "./glsl.g"
+#line 2594 "./glsl.g"
 
 case 304: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2598 "./glsl.g"
+#line 2601 "./glsl.g"
 
 case 305: {
     ast(1) = new TranslationUnit(sym(1).declaration_list);
 }   break;
 
-#line 2605 "./glsl.g"
+#line 2608 "./glsl.g"
 
 case 306: {
     sym(1).declaration_list = new (_engine->pool()) List<Declaration *>(sym(1).declaration);
 }   break;
 
-#line 2612 "./glsl.g"
+#line 2615 "./glsl.g"
 
 case 307: {
     sym(1).declaration_list = new (_engine->pool())  List<Declaration *>(sym(1).declaration_list, sym(2).declaration);
 }   break;
 
-#line 2619 "./glsl.g"
+#line 2622 "./glsl.g"
 
 case 308: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2626 "./glsl.g"
+#line 2629 "./glsl.g"
 
 case 309: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2633 "./glsl.g"
+#line 2636 "./glsl.g"
 
 case 310: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2640 "./glsl.g"
+#line 2643 "./glsl.g"
 
 case 311: {
     // ast(1) = new ...AST(...);
 }   break;
 
-#line 2647 "./glsl.g"
+#line 2650 "./glsl.g"
 
 case 312: {
     ast(1) = 0;
 }   break;
 
-#line 2655 "./glsl.g"
+#line 2658 "./glsl.g"
 
 } // end switch
 } // end Parser::reduce()

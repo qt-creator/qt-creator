@@ -48,7 +48,10 @@ public:
         List<AST *> *ast_list;
         Declaration *declaration;
         List<Declaration *> *declaration_list;
+        Expression *expression;
+        List<Expression *> *expression_list;
         TranslationUnit *translation_unit;
+        // ### ast nodes...
     };
 
     Parser(Engine *engine, const char *source, unsigned size, int variant);
