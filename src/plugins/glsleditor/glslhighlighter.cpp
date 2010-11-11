@@ -53,7 +53,7 @@ void Highlighter::setFormats(const QVector<QTextCharFormat> &formats)
 void Highlighter::highlightBlock(const QString &text)
 {
     const QByteArray data = text.toLatin1();
-    GLSL::Lexer lex(data.constData(), data.size());
+    GLSL::Lexer lex(/*engine=*/ 0, data.constData(), data.size());
     lex.setState(qMax(0, previousBlockState()));
     lex.setScanKeywords(false);
     lex.setScanComments(true);

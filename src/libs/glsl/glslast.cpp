@@ -66,17 +66,10 @@ Statement *AST::makeCompound(Statement *left, Statement *right)
     return compound;
 }
 
-void Operand::accept0(Visitor *visitor)
-{
-    visitor->visit(this);
-    visitor->endVisit(this);
-}
-
-void Operator::accept0(Visitor *visitor)
+void TranslationUnit::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (_Base::iterator it = begin(); it != end(); ++it)
-            accept(*it, visitor);
+        accept(declarations, visitor);
     }
     visitor->endVisit(this);
 }

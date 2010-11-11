@@ -36,8 +36,8 @@
 namespace GLSL {
 
 class AST;
-class Operand;
-class Operator;
+class TranslationUnit;
+class Declaration;
 class Expression;
 class IdentifierExpression;
 class LiteralExpression;
@@ -65,11 +65,39 @@ class ArrayType;
 class StructType;
 class Visitor;
 
+template <typename T>
+class GLSL_EXPORT List
+{
+public:
+    List(const T &value)
+        : value(value), next(this) {}
+
+    List(List *previous, const T &value)
+        : value(value)
+    {
+        next = previous->next;
+        previous->next = this;
+    }
+
+    List *finish()
+    {
+        List *head = next;
+        next = 0;
+        return head;
+    }
+
+    T value;
+    List *next;
+};
+
 class GLSL_EXPORT AST
 {
 public:
     enum Kind {
         Kind_Undefined,
+
+        // Translation unit
+        Kind_TranslationUnit,
 
         // Primary expressions
         Kind_Identifier,
@@ -157,8 +185,9 @@ public:
     AST() : kind(Kind_Undefined), lineno(0) {}
     virtual ~AST();
 
-    virtual Operand *asOperand() { return 0; }
-    virtual Operator *asOperator() { return 0; }
+    virtual TranslationUnit *asTranslationUnit() { return 0; }
+
+    virtual Declaration *asDeclaration() { return 0; }
 
     virtual Expression *asExpression() { return 0; }
     virtual IdentifierExpression *asIdentifierExpression() { return 0; }
@@ -191,6 +220,13 @@ public:
     void accept(Visitor *visitor);
     static void accept(AST *ast, Visitor *visitor);
 
+    template <typename T>
+    static void accept(List<T> *it, Visitor *visitor)
+    {
+        for (; it; it = it->next)
+            accept(it->value, visitor);
+    }
+
     virtual void accept0(Visitor *visitor) = 0;
 
     // Efficiently make a compound statement out of "left" and "right",
@@ -200,40 +236,42 @@ public:
 protected:
     AST(Kind _kind) : kind(_kind), lineno(0) {}
 
+protected:
+    template <typename T>
+    static List<T> *finish(List<T> *list)
+    {
+        if (! list)
+            return 0;
+        return list->finish(); // convert the circular list with a linked list.
+    }
+
 public: // attributes
     int kind;
     int lineno;
 };
 
-class GLSL_EXPORT Operand: public AST
+class GLSL_EXPORT TranslationUnit: public AST
 {
 public:
-    Operand(int location)
-        : location(location) {}
+    TranslationUnit(List<Declaration *> *declarations)
+        : declarations(finish(declarations))
+    { kind = Kind_TranslationUnit; }
 
-    virtual Operand *asOperand() { return this; }
+    virtual TranslationUnit *asTranslationUnit() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
-    int location;
+    List<Declaration *> *declarations;
 };
 
-class GLSL_EXPORT Operator: public AST, public std::vector<AST *>
+class GLSL_EXPORT Declaration: public AST
 {
-    typedef std::vector<AST *> _Base;
+protected:
+    Declaration(Kind _kind) { kind = _kind; }
 
 public:
-    template <typename It>
-    Operator(int ruleno, It begin, It end)
-        : _Base(begin, end), ruleno(ruleno) {}
-
-    virtual Operator *asOperator() { return this; }
-
-    virtual void accept0(Visitor *visitor);
-
-public: // attributes
-    int ruleno;
+    virtual Declaration *asDeclaration() { return this; }
 };
 
 class GLSL_EXPORT Expression: public AST

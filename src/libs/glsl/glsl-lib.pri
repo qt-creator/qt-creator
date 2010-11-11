@@ -1,8 +1,8 @@
-HEADERS += $$PWD/glsl.h $$PWD/glsllexer.h $$PWD/glslparser.h glslparsertable_p.h $$PWD/glslast.h \
-    $$PWD/glslastvisitor.h
+HEADERS += $$PWD/glsl.h $$PWD/glsllexer.h $$PWD/glslparser.h $$PWD/glslparsertable_p.h $$PWD/glslast.h \
+    $$PWD/glslastvisitor.h $$PWD/glslengine.h
 SOURCES += $$PWD/glslkeywords.cpp $$PWD/glslparser.cpp $$PWD/glslparsertable.cpp \
-    $$PWD/glsllexer.cpp $$PWD/glslast.cpp $$PWD/glsldump.cpp $$PWD/glsldelete.cpp \
-        $$PWD/glslastvisitor.cpp
+    $$PWD/glsllexer.cpp $$PWD/glslast.cpp \
+    $$PWD/glslastvisitor.cpp $$PWD/glslengine.cpp
 
-OTHER_FILES = $$PWD/specs/glsl.g.in \
+OTHER_FILES = $$PWD/glsl.g \
     $$PWD/specs/grammar.txt

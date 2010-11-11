@@ -42,11 +42,8 @@ public:
     virtual bool preVisit(AST *) { return true; }
     virtual void postVisit(AST *) {}
 
-    virtual bool visit(Operand *) { return true; }
-    virtual void endVisit(Operand *) {}
-
-    virtual bool visit(Operator *) { return true; }
-    virtual void endVisit(Operator *) {}
+    virtual bool visit(TranslationUnit *) { return true; }
+    virtual void endVisit(TranslationUnit *) {}
 
     virtual bool visit(IdentifierExpression *) { return true; }
     virtual void endVisit(IdentifierExpression *) {}

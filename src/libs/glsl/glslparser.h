@@ -1,4 +1,6 @@
 
+#line 212 "./glsl.g"
+
 /**************************************************************************
 **
 ** This file is part of Qt Creator
@@ -36,26 +38,41 @@
 
 namespace GLSL {
 
-class Parser: public GLSLParserTable
+class GLSL_EXPORT Parser: public GLSLParserTable
 {
 public:
-    Parser(const char *source, unsigned size, int variant);
+    union Value {
+        void *ptr;
+        const std::string *string;
+        AST *ast;
+        List<AST *> *ast_list;
+        Declaration *declaration;
+        List<Declaration *> *declaration_list;
+        TranslationUnit *translation_unit;
+    };
+
+    Parser(Engine *engine, const char *source, unsigned size, int variant);
     ~Parser();
 
-    bool parse();
+    TranslationUnit *parse();
 
 private:
+    // 1-based
+    Value &sym(int n) { return _symStack[_tos + n - 1]; }
+    AST *&ast(int n) { return _symStack[_tos + n - 1].ast; }
+    const std::string *&string(int n) { return _symStack[_tos + n - 1].string; }
+
     inline int consumeToken() { return _index++; }
     inline const Token &tokenAt(int index) const { return _tokens.at(index); }
     inline int tokenKind(int index) const { return _tokens.at(index).kind; }
-    void dump(AST *ast);
+    void reduce(int ruleno);
 
 private:
     int _tos;
     int _index;
     std::vector<int> _stateStack;
     std::vector<int> _locationStack;
-    std::vector<AST *> _astStack;
+    std::vector<Value> _symStack;
     std::vector<Token> _tokens;
 };
 

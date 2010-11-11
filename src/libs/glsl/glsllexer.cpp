@@ -29,16 +29,17 @@
 
 #include "glsllexer.h"
 #include "glslparser.h"
+#include "glslengine.h"
 #include <cctype>
 #include <iostream>
 #include <cstdio>
 
 using namespace GLSL;
 
-Lexer::Lexer(const char *source, unsigned size)
-    : _source(source),
+Lexer::Lexer(Engine *engine, const char *source, unsigned size)
+    : _engine(engine),
+      _source(source),
       _it(source),
-      _end(source + size),
       _size(size),
       _yychar('\n'),
       _lineno(0),
@@ -64,12 +65,13 @@ int Lexer::yylex(Token *tk)
 {
     const char *pos = 0;
     int line = 0;
+    _yyval.ptr = 0;
     const int kind = yylex_helper(&pos, &line);
     tk->kind = kind;
     tk->position = pos - _source;
     tk->length = _it - pos - 1;
     tk->line = line;
-    tk->matchingBrace = 0;
+    tk->ptr = _yyval.ptr;
     return kind;
 }
 
@@ -360,8 +362,14 @@ int Lexer::yylex_helper(const char **position, int *line)
             while (std::isalnum(_yychar) || _yychar == '_') {
                 yyinp();
             }
-            if (_scanKeywords)
-                return findKeyword(word, _it - word - 1);
+            if (_scanKeywords) {
+                const int k = findKeyword(word, _it - word - 1);
+
+                if (k != Parser::T_IDENTIFIER)
+                    return k;
+            }
+            if (_engine)
+                _yyval.string = _engine->identifier(word, _it - word - 1);
             return Parser::T_IDENTIFIER;
         } else if (std::isdigit(ch)) {
             while (std::isalnum(_yychar) || _yychar == '.') {

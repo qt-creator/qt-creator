@@ -1,6 +1,7 @@
 
-#include "glslparser.h"
-#include "glsllexer.h"
+#include <glslengine.h>
+#include <glslparser.h>
+#include <glsllexer.h>
 #include <iostream>
 #include <fstream>
 #include <string.h>
@@ -15,7 +16,7 @@ using namespace GLSL;
 #endif
 
 int main(int argc, char *argv[])
-{    
+{
     int variant = 0;
 
     while (argc > 1 && argv[1][0] == '-' && argv[1][1] == '-') {
@@ -62,7 +63,8 @@ int main(int argc, char *argv[])
         variant = Lexer::Variant_Mask & ~Lexer::Variant_Reserved;
     else if ((variant & (Lexer::Variant_VertexShader | Lexer::Variant_FragmentShader)) == 0)
         variant |= Lexer::Variant_VertexShader | Lexer::Variant_FragmentShader;
-    Parser parser(source, size, variant);
+    Engine engine;
+    Parser parser(&engine, source, size, variant);
     std::cout << argv[1] << (parser.parse() ? " OK " : " KO ") << std::endl;
     delete source;
 

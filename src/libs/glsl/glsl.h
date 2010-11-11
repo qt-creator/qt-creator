@@ -42,4 +42,12 @@
 #  define GLSL_EXPORT Q_DECL_IMPORT
 #endif
 
+namespace GLSL {
+class Engine;
+class Lexer;
+class Parser;
+class AST;
+template <typename T> class List;
+}
+
 #endif // GLSL_H

@@ -31,6 +31,7 @@
 #define GLSLLEXER_H
 
 #include "glsl.h"
+#include <string>
 
 namespace GLSL {
 
@@ -44,6 +45,8 @@ public:
 
     union {
         int matchingBrace;
+        int i; // integer value
+        const std::string *string; // string value
         void *ptr;
     };
 
@@ -57,7 +60,7 @@ public:
 class GLSL_EXPORT Lexer
 {
 public:
-    Lexer(const char *source, unsigned size);
+    Lexer(Engine *engine, const char *source, unsigned size);
     ~Lexer();
 
     enum
@@ -75,6 +78,14 @@ public:
         Variant_Mask                = 0xFFFF0000
     };
 
+    union Value {
+        int i;
+        const std::string *string;
+        void *ptr;
+    };
+
+    Engine *engine() const { return _engine; }
+
     int state() const { return _state; }
     void setState(int state) { _state = state; }
 
@@ -90,6 +101,8 @@ public:
     int yylex(Token *tk);
     int findKeyword(const char *word, int length) const;
 
+    void *yyval() const { return _yyval.ptr; }
+
 private:
     static int classify(const char *s, int len);
 
@@ -97,9 +110,9 @@ private:
     int yylex_helper(const char **position, int *line);
 
 private:
+    Engine *_engine;
     const char *_source;
     const char *_it;
-    const char *_end;
     int _size;
     int _yychar;
     int _lineno;
@@ -107,6 +120,7 @@ private:
     int _variant;
     unsigned _scanKeywords: 1;
     unsigned _scanComments: 1;
+    Value _yyval;
 };
 
 } // end of namespace GLSL
