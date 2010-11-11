@@ -4,7 +4,8 @@
 #include <glsllexer.h>
 #include <iostream>
 #include <fstream>
-#include <string.h>
+#include <cstring>
+#include <cassert>
 
 using namespace GLSL;
 
@@ -65,8 +66,22 @@ int main(int argc, char *argv[])
         variant |= Lexer::Variant_VertexShader | Lexer::Variant_FragmentShader;
     Engine engine;
     Parser parser(&engine, source, size, variant);
-    std::cout << argv[1] << (parser.parse() ? " OK " : " KO ") << std::endl;
+    TranslationUnit *ast = parser.parse();
+    std::cout << argv[1] << (ast ? " OK " : " KO ") << std::endl;
+
+    if (ast) {
+        assert(ast->asTranslationUnit() != 0);
+        int n = 0;
+        for (List<Declaration *> *it = ast->declarations; it; it = it->next, ++n) {
+            Declaration *decl = it->value;
+            // ### do something with decl
+            (void) decl;
+        }
+        std::cout << "found " << n << " level declarations" << std::endl;
+    }
+
     delete source;
+    delete ast;
 
     return EXIT_SUCCESS;
 }
