@@ -77,7 +77,7 @@ private:
                           const QString &baseName);
     QString resolvePlugin(const QDir &qmldirPath, const QString &qmldirPluginPath,
                           const QString &baseName, const QStringList &suffixes,
-                          const QString &prefix);
+                          const QString &prefix = QString());
 
 private:
     ModelManager *m_modelManager;
