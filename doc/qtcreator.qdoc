@@ -3527,6 +3527,11 @@
 
     \endlist
 
+    \note Opening a socket at a well-known port presents a security risk. Anyone
+    on the Internet could connect to the application that you are debugging and
+    execute any JavaScript functions. Therefore, you must make sure that the port
+    is properly protected by a firewall.
+
     \image qmldesigner-run-settings.png "Run settings for Qt Quick projects"
 
 */
