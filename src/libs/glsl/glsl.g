@@ -518,7 +518,7 @@ case $rule_number: {
 postfix_expression ::= function_call ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
@@ -546,21 +546,21 @@ case $rule_number: {
 integer_expression ::= expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
 function_call ::= function_call_or_method ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
 function_call_or_method ::= function_call_generic ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
@@ -637,7 +637,7 @@ case $rule_number: {
 unary_expression ::= postfix_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
@@ -693,7 +693,7 @@ case $rule_number: {
 multiplicative_expression ::= unary_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
@@ -721,7 +721,7 @@ case $rule_number: {
 additive_expression ::= multiplicative_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
@@ -742,7 +742,7 @@ case $rule_number: {
 shift_expression ::= additive_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
@@ -763,7 +763,7 @@ case $rule_number: {
 relational_expression ::= shift_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
@@ -798,7 +798,7 @@ case $rule_number: {
 equality_expression ::= relational_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
@@ -819,7 +819,7 @@ case $rule_number: {
 and_expression ::= equality_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
@@ -833,7 +833,7 @@ case $rule_number: {
 exclusive_or_expression ::= and_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
@@ -847,7 +847,7 @@ case $rule_number: {
 inclusive_or_expression ::= exclusive_or_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
@@ -861,7 +861,7 @@ case $rule_number: {
 logical_and_expression ::= inclusive_or_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
@@ -875,7 +875,7 @@ case $rule_number: {
 logical_xor_expression ::= logical_and_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
@@ -889,7 +889,7 @@ case $rule_number: {
 logical_or_expression ::= logical_xor_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
@@ -903,7 +903,7 @@ case $rule_number: {
 conditional_expression ::= logical_or_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
@@ -917,7 +917,7 @@ case $rule_number: {
 assignment_expression ::= conditional_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
@@ -1008,7 +1008,7 @@ case $rule_number: {
 expression ::= assignment_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
@@ -1022,7 +1022,7 @@ case $rule_number: {
 constant_expression ::= conditional_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 

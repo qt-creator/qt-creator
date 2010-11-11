@@ -216,7 +216,7 @@ case 7: {
 #line 519 "./glsl.g"
 
 case 8: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 
 #line 526 "./glsl.g"
@@ -240,19 +240,19 @@ case 11: {
 #line 547 "./glsl.g"
 
 case 12: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 
 #line 554 "./glsl.g"
 
 case 13: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 
 #line 561 "./glsl.g"
 
 case 14: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 
 #line 568 "./glsl.g"
@@ -318,7 +318,7 @@ case 24: {
 #line 638 "./glsl.g"
 
 case 25: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 
 #line 645 "./glsl.g"
@@ -366,7 +366,7 @@ case 32: {
 #line 694 "./glsl.g"
 
 case 33: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 
 #line 701 "./glsl.g"
@@ -390,7 +390,7 @@ case 36: {
 #line 722 "./glsl.g"
 
 case 37: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 
 #line 729 "./glsl.g"
@@ -408,7 +408,7 @@ case 39: {
 #line 743 "./glsl.g"
 
 case 40: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 
 #line 750 "./glsl.g"
@@ -426,7 +426,7 @@ case 42: {
 #line 764 "./glsl.g"
 
 case 43: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 
 #line 771 "./glsl.g"
@@ -456,7 +456,7 @@ case 47: {
 #line 799 "./glsl.g"
 
 case 48: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 
 #line 806 "./glsl.g"
@@ -474,7 +474,7 @@ case 50: {
 #line 820 "./glsl.g"
 
 case 51: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 
 #line 827 "./glsl.g"
@@ -486,7 +486,7 @@ case 52: {
 #line 834 "./glsl.g"
 
 case 53: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 
 #line 841 "./glsl.g"
@@ -498,7 +498,7 @@ case 54: {
 #line 848 "./glsl.g"
 
 case 55: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 
 #line 855 "./glsl.g"
@@ -510,7 +510,7 @@ case 56: {
 #line 862 "./glsl.g"
 
 case 57: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 
 #line 869 "./glsl.g"
@@ -522,7 +522,7 @@ case 58: {
 #line 876 "./glsl.g"
 
 case 59: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 
 #line 883 "./glsl.g"
@@ -534,7 +534,7 @@ case 60: {
 #line 890 "./glsl.g"
 
 case 61: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 
 #line 897 "./glsl.g"
@@ -546,7 +546,7 @@ case 62: {
 #line 904 "./glsl.g"
 
 case 63: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 
 #line 911 "./glsl.g"
@@ -558,7 +558,7 @@ case 64: {
 #line 918 "./glsl.g"
 
 case 65: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 
 #line 925 "./glsl.g"
@@ -636,7 +636,7 @@ case 77: {
 #line 1009 "./glsl.g"
 
 case 78: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 
 #line 1016 "./glsl.g"
@@ -648,7 +648,7 @@ case 79: {
 #line 1023 "./glsl.g"
 
 case 80: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 
 #line 1030 "./glsl.g"
