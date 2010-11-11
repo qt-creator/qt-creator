@@ -62,11 +62,12 @@ QString QmlFileWizard::fileContents(const QString &fileName) const
     QTextStream str(&contents);
 //    str << CppTools::AbstractEditorSupport::licenseTemplate();
 
+    // 100:62 is the 'golden ratio'
     str << QLatin1String("import Qt 4.7\n")
         << QLatin1String("\n")
         << QLatin1String("Rectangle {\n")
-        << QLatin1String("    width: 640\n")
-        << QLatin1String("    height: 480\n")
+        << QLatin1String("    width: 100\n")
+        << QLatin1String("    height: 62\n")
         << QLatin1String("}\n");
 
     return contents;
