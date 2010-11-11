@@ -2,6 +2,8 @@ TEMPLATE = lib
 TARGET = Help
 QT += network
 
+INCLUDEPATH += $$PWD
+
 include(../../qtcreatorplugin.pri)
 include(help_dependencies.pri)
 
@@ -57,8 +59,6 @@ FORMS += docsettingspage.ui \
     filtersettingspage.ui \
     generalsettingspage.ui \
     remotehelpfilter.ui
-
-INCLUDEPATH += $$PWD
 
 RESOURCES += help.qrc
 include(../../shared/help/help.pri)
