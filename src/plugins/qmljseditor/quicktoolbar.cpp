@@ -157,6 +157,13 @@ void QuickToolBar::apply(TextEditor::BaseTextEditorEditable *editor, Document::P
             end = objectBinding->lastSourceLocation().end();
         }
 
+        if (lookupContext.isNull()) {
+            if (name != m_oldType)
+                m_prototypes.clear();
+        }
+
+        m_oldType = name;
+
         m_prototypes.append(name);
 
         int line1;

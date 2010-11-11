@@ -53,6 +53,7 @@ private:
     bool m_blockWriting;
     QStringList m_propertyOrder;
     QStringList m_prototypes;
+    QString m_oldType;
 };
 
 } //QmlDesigner
