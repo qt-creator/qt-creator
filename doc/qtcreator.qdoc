@@ -3217,9 +3217,6 @@
     referenced using the platform's native syntax: $VARNAME or ${VARNAME} on
     Unix and %VARNAME% on Windows.
 
-    \note Qt Creator sets SOURCEDIR and BUILDDIR as part of the build environment.
-    For more information, see \l{Build Environment}.
-
     \section1 Clean Steps
 
     You can use the cleaning process to remove intermediate files. This process

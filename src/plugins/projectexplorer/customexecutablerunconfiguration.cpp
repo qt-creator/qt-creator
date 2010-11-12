@@ -36,6 +36,8 @@
 #include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/target.h>
 
+#include <utils/qtcprocess.h>
+
 #include <QtGui/QDialog>
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QLabel>
@@ -56,12 +58,6 @@ const char * const WORKING_DIRECTORY_KEY("ProjectExplorer.CustomExecutableRunCon
 const char * const USE_TERMINAL_KEY("ProjectExplorer.CustomExecutableRunConfiguration.UseTerminal");
 const char * const USER_ENVIRONMENT_CHANGES_KEY("ProjectExplorer.CustomExecutableRunConfiguration.UserEnvironmentChanges");
 const char * const BASE_ENVIRONMENT_BASE_KEY("ProjectExplorer.CustomExecutableRunConfiguration.BaseEnvironmentBase");
-
-#ifdef Q_OS_WIN
-const char * const DEFAULT_WORKING_DIR("%BUILDDIR%");
-#else
-const char * const DEFAULT_WORKING_DIR("$BUILDDIR");
-#endif
 }
 
 void CustomExecutableRunConfiguration::ctor()
@@ -121,7 +117,8 @@ void CustomExecutableRunConfiguration::activeBuildConfigurationChanged()
 QString CustomExecutableRunConfiguration::executable() const
 {
     Utils::Environment env = environment();
-    QString exec = env.searchInPath(m_executable, QStringList() << workingDirectory());
+    QString exec = env.searchInPath(Utils::expandMacros(m_executable, macroExpander()),
+                                    QStringList() << workingDirectory());
 
     if (exec.isEmpty() || !QFileInfo(exec).exists()) {
         // Oh the executable doesn't exists, ask the user.
@@ -154,7 +151,7 @@ QString CustomExecutableRunConfiguration::executable() const
             return QString();
         }
     }
-    return exec;
+    return QDir::cleanPath(exec);
 }
 
 QString CustomExecutableRunConfiguration::rawExecutable() const
@@ -174,7 +171,8 @@ LocalApplicationRunConfiguration::RunMode CustomExecutableRunConfiguration::runM
 
 QString CustomExecutableRunConfiguration::workingDirectory() const
 {
-    return environment().expandVariables(baseWorkingDirectory());
+    return QDir::cleanPath(environment().expandVariables(
+                Utils::expandMacros(baseWorkingDirectory(), macroExpander())));
 }
 
 QString CustomExecutableRunConfiguration::baseWorkingDirectory() const
@@ -184,6 +182,11 @@ QString CustomExecutableRunConfiguration::baseWorkingDirectory() const
 
 
 QString CustomExecutableRunConfiguration::commandLineArguments() const
+{
+    return Utils::QtcProcess::expandMacros(m_cmdArguments, macroExpander());
+}
+
+QString CustomExecutableRunConfiguration::rawCommandLineArguments() const
 {
     return m_cmdArguments;
 }

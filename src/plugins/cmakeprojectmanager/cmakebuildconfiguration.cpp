@@ -83,8 +83,6 @@ bool CMakeBuildConfiguration::fromMap(const QVariantMap &map)
     m_msvcVersion = map.value(QLatin1String(MSVC_VERSION_KEY)).toString();
     m_buildDirectory = map.value(QLatin1String(BUILD_DIRECTORY_KEY), cmakeTarget()->defaultBuildDirectory()).toString();
 
-    environment().set("BUILDDIR", m_buildDirectory);
-
     return true;
 }
 
@@ -143,7 +141,6 @@ void CMakeBuildConfiguration::setBuildDirectory(const QString &buildDirectory)
     if (m_buildDirectory == buildDirectory)
         return;
     m_buildDirectory = buildDirectory;
-    environment().set("BUILDDIR", m_buildDirectory);
     emit buildDirectoryChanged();
     emit environmentChanged();
 }

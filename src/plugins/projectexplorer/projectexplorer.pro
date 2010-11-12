@@ -91,6 +91,7 @@ HEADERS += projectexplorer.h \
     outputformatter.h \
     runconfigurationmodel.h \
     buildconfigurationmodel.h \
+    processparameters.h \
     abstractprocessstep.h \
     taskhub.h \
     localapplicationruncontrol.h \
@@ -173,6 +174,7 @@ SOURCES += projectexplorer.cpp \
     runconfigurationmodel.cpp \
     buildconfigurationmodel.cpp \
     taskhub.cpp \
+    processparameters.cpp \
     localapplicationruncontrol.cpp \
     customexecutableconfigurationwidget.cpp \
     sessionnodeimpl.cpp

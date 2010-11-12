@@ -129,18 +129,20 @@ bool MakeStep::init()
 {
     CMakeBuildConfiguration *bc = cmakeBuildConfiguration();
 
-    setEnabled(true);
-    setWorkingDirectory(bc->buildDirectory());
-
-    setCommand(bc->toolChain()->makeCommand());
-
     QString arguments = Utils::QtcProcess::joinArgs(m_buildTargets);
     Utils::QtcProcess::addArgs(&arguments, additionalArguments());
-    setArguments(arguments);
-    setEnvironment(bc->environment());
+
+    setEnabled(true);
     setIgnoreReturnValue(m_clean);
 
-    setOutputParser(new ProjectExplorer::GnuMakeParser(workingDirectory()));
+    ProcessParameters *pp = processParameters();
+    pp->setMacroExpander(bc->macroExpander());
+    pp->setEnvironment(bc->environment());
+    pp->setWorkingDirectory(bc->buildDirectory());
+    pp->setCommand(bc->toolChain()->makeCommand());
+    pp->setArguments(arguments);
+
+    setOutputParser(new ProjectExplorer::GnuMakeParser(pp->effectiveWorkingDirectory()));
     if (bc->toolChain())
         appendOutputParser(bc->toolChain()->outputParser());
 
@@ -292,15 +294,22 @@ void MakeStepConfigWidget::buildTargetsChanged()
 
 void MakeStepConfigWidget::updateDetails()
 {
-    QString arguments = Utils::QtcProcess::joinArgs(m_makeStep->m_buildTargets);
-    Utils::QtcProcess::addArgs(&arguments, m_makeStep->additionalArguments());
-
     CMakeBuildConfiguration *bc = m_makeStep->cmakeBuildConfiguration();
     ProjectExplorer::ToolChain *tc = bc->toolChain();
-    if (tc)
-        m_summaryText = tr("<b>Make:</b> %1 %2").arg(tc->makeCommand(), arguments);
-    else
+    if (tc) {
+        QString arguments = Utils::QtcProcess::joinArgs(m_makeStep->m_buildTargets);
+        Utils::QtcProcess::addArgs(&arguments, m_makeStep->additionalArguments());
+
+        ProcessParameters param;
+        param.setMacroExpander(bc->macroExpander());
+        param.setEnvironment(bc->environment());
+        param.setWorkingDirectory(bc->buildDirectory());
+        param.setCommand(tc->makeCommand());
+        param.setArguments(arguments);
+        m_summaryText = param.summary(displayName());
+    } else {
         m_summaryText = tr("<b>Unknown Toolchain</b>");
+    }
     emit updateSummary();
 }
 

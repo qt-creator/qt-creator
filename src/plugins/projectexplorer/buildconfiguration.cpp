@@ -36,6 +36,8 @@
 #include "target.h"
 #include "project.h"
 
+#include <coreplugin/variablemanager.h>
+
 #include <QtCore/QProcess>
 
 using namespace ProjectExplorer;
@@ -51,7 +53,8 @@ const char * const USER_ENVIRONMENT_CHANGES_KEY("ProjectExplorer.BuildConfigurat
 
 BuildConfiguration::BuildConfiguration(Target *target, const QString &id) :
     ProjectConfiguration(target, id),
-    m_clearSystemEnvironment(false)
+    m_clearSystemEnvironment(false),
+    m_macroExpander(this)
 {
     Q_ASSERT(target);
     BuildStepList *bsl = new BuildStepList(this, QLatin1String(Constants::BUILDSTEPS_BUILD));
@@ -67,7 +70,8 @@ BuildConfiguration::BuildConfiguration(Target *target, const QString &id) :
 BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *source) :
     ProjectConfiguration(target, source),
     m_clearSystemEnvironment(source->m_clearSystemEnvironment),
-    m_userEnvironmentChanges(source->m_userEnvironmentChanges)
+    m_userEnvironmentChanges(source->m_userEnvironmentChanges),
+    m_macroExpander(this)
 {
     Q_ASSERT(target);
     // Do not clone stepLists here, do that in the derived constructor instead
@@ -148,10 +152,6 @@ Utils::Environment BuildConfiguration::baseEnvironment() const
     Utils::Environment result;
     if (useSystemEnvironment())
         result = Utils::Environment(QProcess::systemEnvironment());
-
-    result.set(QLatin1String("BUILDDIR"), QDir::toNativeSeparators(target()->project()->projectDirectory()));
-    result.set(QLatin1String("SOURCEDIR"), QDir::toNativeSeparators(target()->project()->projectDirectory()));
-
     return result;
 }
 
@@ -205,6 +205,20 @@ void BuildConfiguration::cloneSteps(BuildConfiguration *source)
         newBsl->cloneSteps(bsl);
         m_stepLists.append(newBsl);
     }
+}
+
+bool BuildConfigMacroExpander::resolveMacro(const QString &name, QString *ret)
+{
+    if (name == QLatin1String("sourceDir")) {
+        *ret = QDir::toNativeSeparators(m_bc->target()->project()->projectDirectory());
+        return true;
+    }
+    if (name == QLatin1String("buildDir")) {
+        *ret = QDir::toNativeSeparators(m_bc->buildDirectory());
+        return true;
+    }
+    *ret = Core::VariableManager::instance()->value(name);
+    return !ret->isEmpty();
 }
 
 ///

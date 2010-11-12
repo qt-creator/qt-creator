@@ -256,7 +256,7 @@ void CustomExecutableConfigurationWidget::changed()
         return;
 
     m_executableChooser->setPath(m_runConfiguration->rawExecutable());
-    m_commandLineArgumentsLineEdit->setText(m_runConfiguration->commandLineArguments());
+    m_commandLineArgumentsLineEdit->setText(m_runConfiguration->rawCommandLineArguments());
     m_workingDirectory->setPath(m_runConfiguration->baseWorkingDirectory());
     m_useTerminalCheck->setChecked(m_runConfiguration->runMode() == LocalApplicationRunConfiguration::Console);
 }

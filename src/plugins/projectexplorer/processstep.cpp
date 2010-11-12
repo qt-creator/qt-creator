@@ -49,12 +49,6 @@ const char * const PROCESS_COMMAND_KEY("ProjectExplorer.ProcessStep.Command");
 const char * const PROCESS_WORKINGDIRECTORY_KEY("ProjectExplorer.ProcessStep.WorkingDirectory");
 const char * const PROCESS_ARGUMENTS_KEY("ProjectExplorer.ProcessStep.Arguments");
 const char * const PROCESS_ENABLED_KEY("ProjectExplorer.ProcessStep.Enabled");
-
-#ifdef Q_OS_WIN
-const char * const DEFAULT_WORKING_DIR("%BUILDDIR%");
-#else
-const char * const DEFAULT_WORKING_DIR("$BUILDDIR");
-#endif
 }
 
 ProcessStep::ProcessStep(BuildStepList *bsl) :
@@ -95,12 +89,13 @@ ProcessStep::~ProcessStep()
 bool ProcessStep::init()
 {
     BuildConfiguration *bc = buildConfiguration();
-    setEnvironment(bc->environment());
-
-    AbstractProcessStep::setWorkingDirectory(workingDirectory());
-    AbstractProcessStep::setCommand(m_command);
+    ProcessParameters *pp = processParameters();
+    pp->setMacroExpander(bc->macroExpander());
+    pp->setEnvironment(bc->environment());
+    pp->setWorkingDirectory(workingDirectory());
+    pp->setCommand(m_command);
+    pp->setArguments(m_arguments);
     AbstractProcessStep::setEnabled(m_enabled);
-    AbstractProcessStep::setArguments(m_arguments);
     setOutputParser(bc->createOutputParser());
     return AbstractProcessStep::init();
 }
@@ -274,12 +269,18 @@ void ProcessStepConfigWidget::updateDetails()
 {
     QString displayName = m_step->displayName();
     if (displayName.isEmpty())
-        displayName = "Custom Process Step";
-    m_summaryText = tr("<b>%1</b> %2 %3 %4")
-                    .arg(displayName,
-                         m_step->command(),
-                         m_step->arguments(),
-                         m_step->enabled() ? QString() : tr("(disabled)"));
+        displayName = tr("Custom Process Step");
+    ProcessParameters param;
+    param.setMacroExpander(m_step->buildConfiguration()->macroExpander());
+    param.setEnvironment(m_step->buildConfiguration()->environment());
+    param.setWorkingDirectory(m_step->workingDirectory());
+    param.setCommand(m_step->command());
+    param.setArguments(m_step->arguments());
+    m_summaryText = param.summary(displayName);
+    if (!m_step->enabled()) {
+        //: %1 is the custom process step summary
+        m_summaryText = tr("%1 (disabled)").arg(m_summaryText);
+    }
     emit updateSummary();
 }
 

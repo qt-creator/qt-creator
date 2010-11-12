@@ -36,6 +36,7 @@
 #include "applicationlauncher.h"
 
 namespace Utils {
+class AbstractMacroExpander;
 class Environment;
 }
 
@@ -63,6 +64,8 @@ public:
 protected:
     explicit LocalApplicationRunConfiguration(Target *target, const QString &id);
     explicit LocalApplicationRunConfiguration(Target *target, LocalApplicationRunConfiguration *rc);
+
+    Utils::AbstractMacroExpander *macroExpander() const;
 };
 
 } // namespace ProjectExplorer

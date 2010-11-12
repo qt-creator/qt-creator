@@ -123,29 +123,23 @@ bool MakeStep::fromMap(const QVariantMap &map)
 bool MakeStep::init()
 {
     Qt4BuildConfiguration *bc = qt4BuildConfiguration();
+    ProjectExplorer::ProcessParameters *pp = processParameters();
+    pp->setMacroExpander(bc->macroExpander());
+
     Utils::Environment environment = bc->environment();
-    setEnvironment(environment);
+    pp->setEnvironment(environment);
 
     QString workingDirectory;
     if (bc->subNodeBuild())
         workingDirectory = bc->subNodeBuild()->buildDir();
     else
         workingDirectory = bc->buildDirectory();
-    setWorkingDirectory(workingDirectory);
+    pp->setWorkingDirectory(workingDirectory);
 
     QString makeCmd = bc->makeCommand();
     if (!m_makeCmd.isEmpty())
         makeCmd = m_makeCmd;
-    if (!QFileInfo(makeCmd).isAbsolute()) {
-        // Try to detect command in environment
-        const QString tmp = environment.searchInPath(makeCmd);
-        if (tmp.isEmpty()) {
-            emit addOutput(tr("Could not find make command: %1 in the build environment").arg(makeCmd), BuildStep::ErrorOutput);
-            return false;
-        }
-        makeCmd = tmp;
-    }
-    setCommand(makeCmd);
+    pp->setCommand(makeCmd);
 
     // If we are cleaning, then make can fail with a error code, but that doesn't mean
     // we should stop the clean queue
@@ -187,7 +181,7 @@ bool MakeStep::init()
     }
 
     setEnabled(true);
-    setArguments(args);
+    pp->setArguments(args);
 
     m_gnuMakeParser = 0;
 
@@ -298,21 +292,19 @@ void MakeStepConfigWidget::updateMakeOverrideLabel()
 void MakeStepConfigWidget::updateDetails()
 {
     Qt4BuildConfiguration *bc = m_makeStep->qt4BuildConfiguration();
-    QString workingDirectory = bc->buildDirectory();
 
+    ProjectExplorer::ProcessParameters param;
+    param.setMacroExpander(bc->macroExpander());
+    param.setWorkingDirectory(bc->buildDirectory());
+    param.setEnvironment(bc->environment());
     QString makeCmd = bc->makeCommand();
     if (!m_makeStep->m_makeCmd.isEmpty())
         makeCmd = m_makeStep->m_makeCmd;
-    if (!QFileInfo(makeCmd).isAbsolute()) {
-        Utils::Environment environment = bc->environment();
-        // Try to detect command in environment
-        const QString tmp = environment.searchInPath(makeCmd);
-        if (tmp.isEmpty()) {
-            m_summaryText = tr("<b>Make:</b> %1 not found in the environment.").arg(makeCmd);
-            emit updateSummary();
-            return;
-        }
-        makeCmd = tmp;
+    param.setCommand(makeCmd);
+    if (param.commandMissing()) {
+        m_summaryText = tr("<b>Make:</b> %1 not found in the environment.").arg(makeCmd);
+        emit updateSummary();
+        return;
     }
     // -w option enables "Enter"/"Leaving directory" messages, which we need for detecting the
     // absolute file path
@@ -328,8 +320,8 @@ void MakeStepConfigWidget::updateDetails()
         if (m_makeStep->m_makeCmd.isEmpty())
             Utils::QtcProcess::addArg(&args, QLatin1String("-w"));
     }
-    m_summaryText = tr("<b>Make:</b> %1 %2 in %3").arg(QFileInfo(makeCmd).fileName(), args,
-                                                       QDir::toNativeSeparators(workingDirectory));
+    param.setArguments(args);
+    m_summaryText = param.summaryInWorkdir(displayName());
     emit updateSummary();
 }
 

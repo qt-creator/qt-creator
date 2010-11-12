@@ -67,7 +67,7 @@ public:
     virtual bool immutable() const;
     bool buildsTarget(const QString &target) const;
     void setBuildTarget(const QString &target, bool on);
-    QString replacedArguments() const;
+    QString allArguments() const;
     QString makeCommand() const;
 
     QVariantMap toMap() const;

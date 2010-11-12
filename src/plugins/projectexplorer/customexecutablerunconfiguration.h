@@ -61,7 +61,6 @@ public:
      * ask the user if none is specified
      */
     QString executable() const;
-    QString rawExecutable() const;
 
     /** Returns whether this runconfiguration ever was configured with a executable
      */
@@ -108,9 +107,11 @@ private:
     QList<Utils::EnvironmentItem> userEnvironmentChanges() const;
 
     void setExecutable(const QString &executable);
+    QString rawExecutable() const;
     void setCommandLineArguments(const QString &commandLineArguments);
-    QString baseWorkingDirectory() const;
+    QString rawCommandLineArguments() const;
     void setBaseWorkingDirectory(const QString &workingDirectory);
+    QString baseWorkingDirectory() const;
     void setUserName(const QString &name);
     void setRunMode(RunMode runMode);
 

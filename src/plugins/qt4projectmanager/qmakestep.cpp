@@ -209,10 +209,12 @@ bool QMakeStep::init()
     }
 
     setEnabled(m_needToRunQMake);
-    setWorkingDirectory(workingDirectory);
-    setCommand(program);
-    setArguments(args);
-    setEnvironment(qt4bc->environment());
+    ProcessParameters *pp = processParameters();
+    pp->setMacroExpander(qt4bc->macroExpander());
+    pp->setWorkingDirectory(workingDirectory);
+    pp->setCommand(program);
+    pp->setArguments(args);
+    pp->setEnvironment(qt4bc->environment());
 
     setOutputParser(new QMakeParser);
 

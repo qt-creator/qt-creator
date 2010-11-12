@@ -104,16 +104,14 @@ bool GenericMakeStep::init()
     GenericBuildConfiguration *bc = genericBuildConfiguration();
 
     setEnabled(true);
-    QString buildDir = bc->buildDirectory();
-    Utils::expandMacros(&buildDir, Core::VariableManager::instance()->macroExpander());
-    setWorkingDirectory(buildDir);
+    ProjectExplorer::ProcessParameters *pp = processParameters();
+    pp->setMacroExpander(bc->macroExpander());
+    pp->setWorkingDirectory(bc->buildDirectory());
+    pp->setEnvironment(bc->environment());
+    pp->setCommand(makeCommand());
+    pp->setArguments(allArguments());
 
-    setCommand(makeCommand());
-    setArguments(replacedArguments());
-
-    setEnvironment(bc->environment());
-
-    setOutputParser(new ProjectExplorer::GnuMakeParser(buildDir));
+    setOutputParser(new ProjectExplorer::GnuMakeParser(pp->effectiveWorkingDirectory()));
     if (bc->genericTarget()->genericProject()->toolChain())
         appendOutputParser(bc->genericTarget()->genericProject()->toolChain()->outputParser());
 
@@ -139,13 +137,11 @@ bool GenericMakeStep::fromMap(const QVariantMap &map)
     return BuildStep::fromMap(map);
 }
 
-QString GenericMakeStep::replacedArguments() const
+QString GenericMakeStep::allArguments() const
 {
-    QString replacedArguments = m_makeArguments;
-    Utils::QtcProcess::addArgs(&replacedArguments, m_buildTargets);
-    Utils::QtcProcess::expandMacros(&replacedArguments,
-                                    Core::VariableManager::instance()->macroExpander());
-    return replacedArguments;
+    QString args = m_makeArguments;
+    Utils::QtcProcess::addArgs(&args, m_buildTargets);
+    return args;
 }
 
 QString GenericMakeStep::makeCommand() const
@@ -257,8 +253,15 @@ void GenericMakeStepConfigWidget::init()
 
 void GenericMakeStepConfigWidget::updateDetails()
 {
-    m_summaryText = tr("<b>Make:</b> %1 %2")
-                    .arg(m_makeStep->makeCommand(), m_makeStep->replacedArguments());
+    GenericBuildConfiguration *bc = m_makeStep->genericBuildConfiguration();
+
+    ProjectExplorer::ProcessParameters param;
+    param.setMacroExpander(bc->macroExpander());
+    param.setWorkingDirectory(bc->buildDirectory());
+    param.setEnvironment(bc->environment());
+    param.setCommand(m_makeStep->makeCommand());
+    param.setArguments(m_makeStep->allArguments());
+    m_summaryText = param.summary(displayName());
     emit updateSummary();
 }
 

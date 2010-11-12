@@ -221,7 +221,7 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     toplayout->addRow(tr("Executable:"), m_executableLineEdit);
 
     QLabel *argumentsLabel = new QLabel(tr("Arguments:"), this);
-    m_argumentsLineEdit = new QLineEdit(qt4RunConfiguration->commandLineArguments(), this);
+    m_argumentsLineEdit = new QLineEdit(qt4RunConfiguration->rawCommandLineArguments(), this);
     argumentsLabel->setBuddy(m_argumentsLineEdit);
     toplayout->addRow(argumentsLabel, m_argumentsLineEdit);
 
@@ -557,7 +557,8 @@ void Qt4RunConfiguration::setUsingDyldImageSuffix(bool state)
 
 QString Qt4RunConfiguration::workingDirectory() const
 {
-    return environment().expandVariables(baseWorkingDirectory());
+    return QDir::cleanPath(environment().expandVariables(
+                Utils::expandMacros(baseWorkingDirectory(), macroExpander())));
 }
 
 QString Qt4RunConfiguration::baseWorkingDirectory() const
@@ -575,6 +576,11 @@ QString Qt4RunConfiguration::baseWorkingDirectory() const
 }
 
 QString Qt4RunConfiguration::commandLineArguments() const
+{
+    return Utils::QtcProcess::expandMacros(m_commandLineArguments, macroExpander());
+}
+
+QString Qt4RunConfiguration::rawCommandLineArguments() const
 {
     return m_commandLineArguments;
 }

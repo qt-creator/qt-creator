@@ -131,7 +131,8 @@ ProjectExplorer::LocalApplicationRunConfiguration::RunMode CMakeRunConfiguration
 
 QString CMakeRunConfiguration::workingDirectory() const
 {
-    return environment().expandVariables(baseWorkingDirectory());
+    return QDir::cleanPath(environment().expandVariables(
+                Utils::expandMacros(baseWorkingDirectory(), macroExpander())));
 }
 
 QString CMakeRunConfiguration::baseWorkingDirectory() const
@@ -143,7 +144,7 @@ QString CMakeRunConfiguration::baseWorkingDirectory() const
 
 QString CMakeRunConfiguration::commandLineArguments() const
 {
-    return m_arguments;
+    return Utils::QtcProcess::expandMacros(m_arguments, macroExpander());
 }
 
 QString CMakeRunConfiguration::title() const

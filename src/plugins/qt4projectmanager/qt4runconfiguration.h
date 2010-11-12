@@ -125,6 +125,7 @@ private:
     void setBaseWorkingDirectory(const QString &workingDirectory);
     QString baseWorkingDirectory() const;
     void setCommandLineArguments(const QString &argumentsString);
+    QString rawCommandLineArguments() const;
     enum BaseEnvironmentBase { CleanEnvironmentBase = 0,
                                SystemEnvironmentBase = 1,
                                BuildEnvironmentBase  = 2 };

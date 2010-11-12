@@ -33,6 +33,7 @@
 #include "projectexplorer_export.h"
 #include "projectconfiguration.h"
 
+#include <utils/stringutils.h>
 #include <utils/environment.h>
 
 #include <QtCore/QString>
@@ -42,9 +43,18 @@
 
 namespace ProjectExplorer {
 
+class BuildConfiguration;
 class BuildStepList;
 class Target;
 class IOutputParser;
+
+class BuildConfigMacroExpander : public Utils::AbstractQtcMacroExpander {
+public:
+    BuildConfigMacroExpander(BuildConfiguration *bc) : m_bc(bc) {}
+    virtual bool resolveMacro(const QString &name, QString *ret);
+private:
+    BuildConfiguration *m_bc;
+};
 
 class PROJECTEXPLORER_EXPORT BuildConfiguration : public ProjectConfiguration
 {
@@ -79,6 +89,8 @@ public:
 
     Target *target() const;
 
+    Utils::AbstractMacroExpander *macroExpander() { return &m_macroExpander; }
+
 signals:
     void environmentChanged();
     void buildDirectoryChanged();
@@ -95,6 +107,7 @@ private:
     bool m_clearSystemEnvironment;
     QList<Utils::EnvironmentItem> m_userEnvironmentChanges;
     QList<BuildStepList *> m_stepLists;
+    BuildConfigMacroExpander m_macroExpander;
 };
 
 class PROJECTEXPLORER_EXPORT IBuildConfigurationFactory :
@@ -126,5 +139,8 @@ signals:
 } // namespace ProjectExplorer
 
 Q_DECLARE_METATYPE(ProjectExplorer::BuildConfiguration *);
+
+// Default directory to run custom (build) commands in.
+#define DEFAULT_WORKING_DIR "%{buildDir}"
 
 #endif // BUILDCONFIGURATION_H

@@ -66,21 +66,6 @@ AbstractProcessStep::~AbstractProcessStep()
     delete m_outputParserChain;
 }
 
-void AbstractProcessStep::setCommand(const QString &cmd)
-{
-    m_command = cmd;
-}
-
-QString AbstractProcessStep::command() const
-{
-    return m_command;
-}
-
-QString AbstractProcessStep::workingDirectory() const
-{
-    return m_workingDirectory;
-}
-
 void AbstractProcessStep::setOutputParser(ProjectExplorer::IOutputParser *parser)
 {
     delete m_outputParserChain;
@@ -109,34 +94,9 @@ ProjectExplorer::IOutputParser *AbstractProcessStep::outputParser() const
     return m_outputParserChain;
 }
 
-void AbstractProcessStep::setWorkingDirectory(const QString &workingDirectory)
-{
-    m_workingDirectory = workingDirectory;
-}
-
-void AbstractProcessStep::setArguments(const QString &arguments)
-{
-    m_arguments = arguments;
-}
-
-QString AbstractProcessStep::arguments() const
-{
-    return m_arguments;
-}
-
-void AbstractProcessStep::setEnabled(bool b)
-{
-    m_enabled = b;
-}
-
 void AbstractProcessStep::setIgnoreReturnValue(bool b)
 {
     m_ignoreReturnValue = b;
-}
-
-void AbstractProcessStep::setEnvironment(Utils::Environment env)
-{
-    m_environment = env;
 }
 
 bool AbstractProcessStep::init()
@@ -151,13 +111,13 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
         fi.reportResult(true);
         return;
     }
-    QDir wd(m_environment.expandVariables(m_workingDirectory));
+    QDir wd(m_param.effectiveWorkingDirectory());
     if (!wd.exists())
         wd.mkpath(wd.absolutePath());
 
     m_process = new Utils::QtcProcess();
     m_process->setWorkingDirectory(wd.absolutePath());
-    m_process->setEnvironment(m_environment);
+    m_process->setEnvironment(m_param.environment());
 
     connect(m_process, SIGNAL(readyReadStandardOutput()),
             this, SLOT(processReadyReadStdOutput()),
@@ -170,7 +130,7 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
             this, SLOT(slotProcessFinished(int, QProcess::ExitStatus)),
             Qt::DirectConnection);
 
-    m_process->setCommand(expandedCommand(), m_arguments);
+    m_process->setCommand(m_param.effectiveCommand(), m_param.effectiveArguments());
     m_process->start();
     if (!m_process->waitForStarted()) {
         processStartupFailed();
@@ -212,13 +172,14 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
 void AbstractProcessStep::processStarted()
 {
     emit addOutput(tr("Starting: \"%1\" %2\n")
-                   .arg(QDir::toNativeSeparators(expandedCommand()), expandedArguments()),
+                   .arg(QDir::toNativeSeparators(m_param.effectiveCommand()),
+                        m_param.prettyArguments()),
                    BuildStep::MessageOutput);
 }
 
 void AbstractProcessStep::processFinished(int exitCode, QProcess::ExitStatus status)
 {
-    QString command = QDir::toNativeSeparators(expandedCommand());
+    QString command = QDir::toNativeSeparators(m_param.effectiveCommand());
     if (status == QProcess::NormalExit && exitCode == 0) {
         emit addOutput(tr("The process \"%1\" exited normally.").arg(command),
                        BuildStep::MessageOutput);
@@ -234,7 +195,8 @@ void AbstractProcessStep::processFinished(int exitCode, QProcess::ExitStatus sta
 void AbstractProcessStep::processStartupFailed()
 {
     emit addOutput(tr("Could not start process \"%1\" %2")
-                   .arg(QDir::toNativeSeparators(expandedCommand()), expandedArguments()),
+                   .arg(QDir::toNativeSeparators(m_param.effectiveCommand()),
+                        m_param.prettyArguments()),
                    BuildStep::ErrorMessageOutput);
 }
 
@@ -349,31 +311,4 @@ void AbstractProcessStep::slotProcessFinished(int, QProcess::ExitStatus)
         stdOutput(line);
 
     m_eventLoop->exit(0);
-}
-
-QString AbstractProcessStep::expandedCommand() const
-{
-    QString command = m_environment.searchInPath(
-                m_command, QStringList() << m_environment.expandVariables(m_workingDirectory));
-    if (command.isEmpty())
-        command = m_command;
-    return command;
-}
-
-QString AbstractProcessStep::expandedArguments() const
-{
-#ifdef Q_OS_WIN
-    QString args;
-#else
-    QStringList args;
-#endif
-    Utils::QtcProcess::SplitError err;
-    args = Utils::QtcProcess::prepareArgs(m_arguments, &err, &m_environment);
-    if (err != Utils::QtcProcess::SplitOk)
-        return m_arguments; // Sorry, too complex - just fall back.
-#ifdef Q_OS_WIN
-    return args;
-#else
-    return Utils::QtcProcess::joinArgs(args);
-#endif
 }

@@ -28,6 +28,11 @@
 **************************************************************************/
 
 #include "applicationrunconfiguration.h"
+#include "buildconfiguration.h"
+
+#include <coreplugin/variablemanager.h>
+
+#include <utils/stringutils.h>
 
 namespace ProjectExplorer {
 
@@ -45,6 +50,28 @@ LocalApplicationRunConfiguration::LocalApplicationRunConfiguration(Target *targe
 
 LocalApplicationRunConfiguration::~LocalApplicationRunConfiguration()
 {
+}
+
+namespace Internal {
+
+class VarManMacroExpander : public Utils::AbstractQtcMacroExpander {
+public:
+    virtual bool resolveMacro(const QString &name, QString *ret)
+    {
+        *ret = Core::VariableManager::instance()->value(name);
+        return !ret->isEmpty();
+    }
+};
+
+} // namespace Internal
+
+Utils::AbstractMacroExpander *LocalApplicationRunConfiguration::macroExpander() const
+{
+    if (BuildConfiguration *bc = activeBuildConfiguration())
+        return bc->macroExpander();
+
+    static Internal::VarManMacroExpander mx;
+    return &mx;
 }
 
 } // namespace ProjectExplorer

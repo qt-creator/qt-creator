@@ -31,6 +31,7 @@
 #define ABSTRACTPROCESSSTEP_H
 
 #include "buildstep.h"
+#include "processparameters.h"
 
 #include <utils/environment.h>
 
@@ -52,7 +53,7 @@ class IOutputParser;
   It should be used as a base class if your buildstep just needs to run a process.
 
   Usage:
-    Use setCommand(), setArguments(), setWorkingDirectory() to specify the process you want to run
+    Use processParameters() to configure the process you want to run
     (you need to do that before calling AbstractProcessStep::init()).
     Inside YourBuildStep::init() call AbstractProcessStep::init().
     Inside YourBuildStep::run() call AbstractProcessStep::run(), which automatically starts the proces
@@ -83,34 +84,19 @@ public:
     virtual BuildStepConfigWidget *createConfigWidget() = 0;
     virtual bool immutable() const = 0;
 
-    /// setCommand() sets the executable to run in the \p buildConfiguration
-    /// should be called from init()
-    void setCommand(const QString &cmd);
-    QString command() const;
-
-    /// sets the workingDirectory for the process for a buildConfiguration
-    /// should be called from init()
-    void setWorkingDirectory(const QString &workingDirectory);
-
-    /// sets the command line arguments used by the process for a \p buildConfiguration
-    /// should be called from init()
-    void setArguments(const QString &arguments);
-    QString arguments() const;
-
     /// enables or disables a BuildStep
     /// Disabled BuildSteps immediately return true from their run method
     /// should be called from init()
-    void setEnabled(bool b);
+    void setEnabled(bool b) { m_enabled = b; }
+
+    /// obtain a reference to the parameters for the actual process to run.
+    /// should be used in init()
+    ProcessParameters *processParameters() { return &m_param; }
 
     /// If ignoreReturnValue is set to true, then the abstractprocess step will
     /// return success even if the return value indicates otherwise
     /// should be called from init
     void setIgnoreReturnValue(bool b);
-    /// Set the Environment for running the command
-    /// should be called from init()
-    void setEnvironment(Utils::Environment env);
-
-    QString workingDirectory() const;
 
     // derived classes needs to call this function
     /// Delete all existing output parsers and start a new chain with the
@@ -123,11 +109,6 @@ public:
 protected:
     AbstractProcessStep(BuildStepList *bsl, const QString &id);
     AbstractProcessStep(BuildStepList *bsl, AbstractProcessStep *bs);
-
-    /// Get the fully expanded command name to run:
-    QString expandedCommand() const;
-    /// Get the fully expanded command line args. This is for display purposes only!
-    QString expandedArguments() const;
 
     /// Called after the process is started
     /// the default implementation adds a process started message to the output message
@@ -158,18 +139,15 @@ private slots:
     void taskAdded(const ProjectExplorer::Task &task);
 
     void outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format);
-private:
 
+private:
     QTimer *m_timer;
     QFutureInterface<bool> *m_futureInterface;
-    QString m_workingDirectory;
-    QString m_command;
-    QString m_arguments;
+    ProcessParameters m_param;
     bool m_enabled;
     bool m_ignoreReturnValue;
     Utils::QtcProcess *m_process;
     QEventLoop *m_eventLoop;
-    Utils::Environment m_environment;
     ProjectExplorer::IOutputParser *m_outputParserChain;
 };
 

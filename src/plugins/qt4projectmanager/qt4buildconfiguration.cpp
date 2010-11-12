@@ -213,10 +213,6 @@ Utils::Environment Qt4BuildConfiguration::baseEnvironment() const
     Utils::Environment env = BuildConfiguration::baseEnvironment();
     qtVersion()->addToEnvironment(env);
 
-    // We can't call buildDirectory() since that uses environment() to expand,
-    // thus calling baseEnvironment() again
-    env.set(QLatin1String("BUILDDIR"), QDir::toNativeSeparators(env.expandVariables(rawBuildDirectory())));
-
     ToolChain *tc = toolChain();
     if (tc)
         tc->addToEnvironment(env);
