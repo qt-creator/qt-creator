@@ -112,6 +112,8 @@ public:
     static QStringList projectFilePatterns();
     bool coreAboutToClose();
 
+    void runProject(Project *pro, QString mode);
+
 signals:
     void aboutToShowContextMenu(ProjectExplorer::Project *project,
                                 ProjectExplorer::Node *node);
@@ -224,7 +226,6 @@ private:
     int queue(QList<Project *>, QStringList stepIds);
     void updateContextMenuActions();
     bool parseArguments(const QStringList &arguments, QString *error);
-    void runProjectImpl(Project *pro, QString mode);
     void executeRunConfiguration(RunConfiguration *, const QString &mode);
     bool hasBuildSettings(Project *pro);
     bool hasDeploySettings(Project *pro);

@@ -1680,12 +1680,12 @@ void ProjectExplorerPlugin::cleanSession()
 
 void ProjectExplorerPlugin::runProject()
 {
-    runProjectImpl(startupProject(), ProjectExplorer::Constants::RUNMODE);
+    runProject(startupProject(), ProjectExplorer::Constants::RUNMODE);
 }
 
 void ProjectExplorerPlugin::runProjectContextMenu()
 {
-    runProjectImpl(d->m_currentProject, ProjectExplorer::Constants::RUNMODE);
+    runProject(d->m_currentProject, ProjectExplorer::Constants::RUNMODE);
 }
 
 bool ProjectExplorerPlugin::hasBuildSettings(Project *pro)
@@ -1726,7 +1726,7 @@ bool ProjectExplorerPlugin::hasDeploySettings(Project *pro)
     return false;
 }
 
-void ProjectExplorerPlugin::runProjectImpl(Project *pro, QString mode)
+void ProjectExplorerPlugin::runProject(Project *pro, QString mode)
 {
     if (!pro)
         return;
@@ -1764,7 +1764,7 @@ void ProjectExplorerPlugin::debugProject()
     if (!pro)
         return;
 
-    runProjectImpl(pro, ProjectExplorer::Constants::DEBUGMODE);
+    runProject(pro, ProjectExplorer::Constants::DEBUGMODE);
 }
 
 bool ProjectExplorerPlugin::showBuildConfigDialog()
