@@ -202,13 +202,13 @@
         <key>NSHumanReadableCopyright</key>
         <string>(C) 2008-2010 Nokia Corporation</string>
 	<key>CFBundleIconFile</key>
-	<string>@ICON@</string>
+	<string>$$ICON</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleSignature</key>
-	<string>@TYPEINFO@</string>
+	<string>????</string>
 	<key>CFBundleExecutable</key>
-	<string>@EXECUTABLE@</string>
+	<string>Qt Creator</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.nokia.qtcreator</string>
 	<key>CFBundleVersion</key>
