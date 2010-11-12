@@ -132,7 +132,6 @@ void CompletionContextFinder::checkBinding()
     int i = m_startTokenIndex;
     int colonCount = 0;
     bool delimiterFound = false;
-    bool firstToken = true;
     bool identifierExpected = false;
     bool dotExpected = false;
     while (!delimiterFound) {
@@ -158,19 +157,19 @@ void CompletionContextFinder::checkBinding()
             ++colonCount;
             identifierExpected = true;
             dotExpected = false;
+            m_behaviorBinding = false;
             m_bindingPropertyName.clear();
             break;
 
         case Token::Identifier: {
             QStringRef tokenString = yyLine->midRef(token.begin(), token.length);
-            if (firstToken && tokenString == QLatin1String("on")) {
-                m_behaviorBinding = true;
-            } else if (identifierExpected) {
+            dotExpected = false;
+            if (identifierExpected) {
                 m_bindingPropertyName.prepend(tokenString.toString());
                 identifierExpected = false;
                 dotExpected = true;
-            } else {
-                dotExpected = false;
+            } else if (tokenString == QLatin1String("on")) {
+                m_behaviorBinding = true;
             }
         } break;
 
@@ -190,7 +189,6 @@ void CompletionContextFinder::checkBinding()
         }
 
         --i;
-        firstToken = false;
     }
 
     YY_RESTORE();

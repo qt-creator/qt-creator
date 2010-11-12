@@ -678,7 +678,7 @@ void CodeCompletion::addCompletions(const QStringList &newCompletions,
 
 void CodeCompletion::addCompletionsPropertyLhs(
         const QHash<QString, const Interpreter::Value *> &newCompletions,
-        const QIcon &icon, int order)
+        const QIcon &icon, int order, bool afterOn)
 {
     QHashIterator<QString, const Interpreter::Value *> it(newCompletions);
     while (it.hasNext()) {
@@ -686,15 +686,19 @@ void CodeCompletion::addCompletionsPropertyLhs(
 
         TextEditor::CompletionItem item(this);
         item.text = it.key();
+
+        QLatin1String postfix(": ");
+        if (afterOn)
+            postfix = QLatin1String(" {");
         if (const Interpreter::QmlObjectValue *qmlValue = dynamic_cast<const Interpreter::QmlObjectValue *>(it.value())) {
             // to distinguish "anchors." from "gradient:" we check if the right hand side
             // type is instantiatable or is the prototype of an instantiatable object
             if (qmlValue->hasChildInPackage())
-                item.text.append(QLatin1String(": "));
+                item.text.append(postfix);
             else
                 item.text.append(QLatin1Char('.'));
         } else {
-            item.text.append(QLatin1String(": "));
+            item.text.append(postfix);
         }
         item.icon = icon;
         item.order = order;
@@ -817,7 +821,7 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             idPropertyCompletion.order = PropertyOrder;
             m_completions.append(idPropertyCompletion);
 
-            addCompletionsPropertyLhs(enumerateProperties(qmlScopeType), symbolIcon, PropertyOrder);
+            addCompletionsPropertyLhs(enumerateProperties(qmlScopeType), symbolIcon, PropertyOrder, contextFinder.isAfterOnInLhsOfBinding());
             if (const Interpreter::ObjectValue *qmlTypes = context->scopeChain().qmlTypes)
                 addCompletions(enumerateProperties(qmlTypes), symbolIcon, TypeOrder);
 
@@ -895,7 +899,7 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             if (value && completionOperator == QLatin1Char('.')) { // member completion
                 EnumerateProperties enumerateProperties(context);
                 if (contextFinder.isInLhsOfBinding() && qmlScopeType && expressionUnderCursor.text().at(0).isLower())
-                    addCompletionsPropertyLhs(enumerateProperties(value), symbolIcon, PropertyOrder);
+                    addCompletionsPropertyLhs(enumerateProperties(value), symbolIcon, PropertyOrder, contextFinder.isAfterOnInLhsOfBinding());
                 else
                     addCompletions(enumerateProperties(value), symbolIcon, SymbolOrder);
             } else if (value && completionOperator == QLatin1Char('(') && m_startPosition == editor->position()) {

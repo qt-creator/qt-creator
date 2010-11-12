@@ -89,7 +89,7 @@ private:
                         const QIcon &icon, int relevance);
     void addCompletionsPropertyLhs(
             const QHash<QString, const QmlJS::Interpreter::Value *> &newCompletions,
-            const QIcon &icon, int relevance);
+            const QIcon &icon, int relevance, bool afterOn);
 
     QmlJS::ModelManagerInterface *m_modelManager;
     TextEditor::ITextEditable *m_editor;
