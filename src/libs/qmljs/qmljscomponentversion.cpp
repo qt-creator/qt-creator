@@ -56,19 +56,19 @@ namespace QmlJS {
 
 bool operator<(const ComponentVersion &lhs, const ComponentVersion &rhs)
 {
-    return lhs.major() < rhs.major()
-            || (lhs.major() == rhs.major() && lhs.minor() < rhs.minor());
+    return lhs.majorVersion() < rhs.majorVersion()
+            || (lhs.majorVersion() == rhs.majorVersion() && lhs.minorVersion() < rhs.minorVersion());
 }
 
 bool operator<=(const ComponentVersion &lhs, const ComponentVersion &rhs)
 {
-    return lhs.major() < rhs.major()
-            || (lhs.major() == rhs.major() && lhs.minor() <= rhs.minor());
+    return lhs.majorVersion() < rhs.majorVersion()
+            || (lhs.majorVersion() == rhs.majorVersion() && lhs.minorVersion() <= rhs.minorVersion());
 }
 
 bool operator==(const ComponentVersion &lhs, const ComponentVersion &rhs)
 {
-    return lhs.major() == rhs.major() && lhs.minor() == rhs.minor();
+    return lhs.majorVersion() == rhs.majorVersion() && lhs.minorVersion() == rhs.minorVersion();
 }
 
 bool operator!=(const ComponentVersion &lhs, const ComponentVersion &rhs)

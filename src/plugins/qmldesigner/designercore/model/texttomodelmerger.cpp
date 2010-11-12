@@ -255,8 +255,8 @@ public:
             typeName = fixUpPackeNameForQtQuick(qmlValue->packageName()) + QLatin1String("/") + qmlValue->className();
 
             //### todo this is just a hack to support QtQuick 1.0
-            majorVersion = fixUpMajorVersionForQtQuick(qmlValue->packageName(), qmlValue->version().major());
-            minorVersion = fixUpMinorVersionForQtQuick(qmlValue->packageName(), qmlValue->version().minor());
+            majorVersion = fixUpMajorVersionForQtQuick(qmlValue->packageName(), qmlValue->version().majorVersion());
+            minorVersion = fixUpMinorVersionForQtQuick(qmlValue->packageName(), qmlValue->version().minorVersion());
         } else {
             for (UiQualifiedId *iter = astTypeNode; iter; iter = iter->next)
                 if (!iter->next && iter->name)
