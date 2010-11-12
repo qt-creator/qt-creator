@@ -115,19 +115,21 @@ void QuickToolBar::apply(TextEditor::BaseTextEditorEditable *editor, Document::P
 
     const Interpreter::ObjectValue *scopeObject = document->bind()->findQmlObject(node);
 
-    if (!lookupContext.isNull()) {
+    if (!lookupContext.isNull() && scopeObject) {
         m_prototypes.clear();
-        while (scopeObject) {
-            m_prototypes.append(scopeObject->className());
-            scopeObject =  scopeObject->prototype(lookupContext->context());
+        foreach (const Interpreter::ObjectValue *object,
+                 Interpreter::PrototypeIterator(scopeObject, lookupContext->context()).all()) {
+            m_prototypes.append(object->className());
         }
 
         if (m_prototypes.contains("PropertyChanges")) {
             const Interpreter::ObjectValue *targetObject = getPropertyChangesTarget(node, lookupContext);
             m_prototypes.clear();
-            while (targetObject) {
-                m_prototypes.append(targetObject->className());
-                targetObject =  targetObject->prototype(lookupContext->context());
+            if (targetObject) {
+                foreach (const Interpreter::ObjectValue *object,
+                         Interpreter::PrototypeIterator(targetObject, lookupContext->context()).all()) {
+                    m_prototypes.append(object->className());
+                }
             }
         }
     }

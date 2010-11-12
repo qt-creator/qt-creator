@@ -237,17 +237,19 @@ void HoverHandler::prettyPrintTooltip(const QmlJS::Interpreter::Value *value,
 
     if (const Interpreter::ObjectValue *objectValue = value->asObjectValue()) {
         bool found = false;
-        do {
-            const QString className = objectValue->className();
+        Interpreter::PrototypeIterator iter(objectValue, context);
+        while (iter.hasNext()) {
+            const Interpreter::ObjectValue *prototype = iter.next();
+            const QString className = prototype->className();
 
             if (! className.isEmpty()) {
                 found = !qmlHelpId(className).isEmpty();
                 if (toolTip().isEmpty() || found)
                     setToolTip(className);
             }
-
-            objectValue = objectValue->prototype(context);
-        } while (objectValue && !found);
+            if (found)
+                break;
+        }
     } else if (const Interpreter::QmlEnumValue *enumValue =
                dynamic_cast<const Interpreter::QmlEnumValue *>(value)) {
         setToolTip(enumValue->name());

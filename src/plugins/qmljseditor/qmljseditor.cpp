@@ -1055,11 +1055,13 @@ protected:
     {
         Bind *bind = m_lookupContext->document()->bind();
         const Interpreter::ObjectValue *objValue = bind->findQmlObject(ast);
-        QStringList prototypes;
+        if (!objValue)
+            return false;
 
-        while (objValue) {
-            prototypes.append(objValue->className());
-            objValue = objValue->prototype(m_lookupContext->context());
+        QStringList prototypes;
+        foreach (const Interpreter::ObjectValue *value,
+                 Interpreter::PrototypeIterator(objValue, m_lookupContext->context()).all()) {
+            prototypes.append(value->className());
         }
 
         return prototypes.contains(QString("QGraphicsObject"));

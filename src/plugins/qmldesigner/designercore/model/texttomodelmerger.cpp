@@ -372,10 +372,12 @@ public:
         if (objectValue && objectValue->prototype(m_context) == m_context->engine()->arrayPrototype())
             return true;
 
-        for (const Interpreter::ObjectValue *iter = containingObject; iter; iter = iter->prototype(m_context)) {
-            if (iter->property(name, m_context) == m_context->engine()->arrayPrototype())
+        Interpreter::PrototypeIterator iter(containingObject, m_context);
+        while (iter.hasNext()) {
+            const Interpreter::ObjectValue *proto = iter.next();
+            if (proto->property(name, m_context) == m_context->engine()->arrayPrototype())
                 return true;
-            if (const Interpreter::QmlObjectValue *qmlIter = dynamic_cast<const Interpreter::QmlObjectValue *>(iter)) {
+            if (const Interpreter::QmlObjectValue *qmlIter = dynamic_cast<const Interpreter::QmlObjectValue *>(proto)) {
                 if (qmlIter->isListProperty(name))
                     return true;
             }
@@ -397,9 +399,11 @@ public:
             return hasQuotes ? QVariant(cleanedValue) : cleverConvert(cleanedValue);
         }
 
-        for (const Interpreter::ObjectValue *iter = containingObject; iter; iter = iter->prototype(m_context)) {
-            if (iter->lookupMember(name, m_context, false)) {
-                containingObject = iter;
+        Interpreter::PrototypeIterator iter(containingObject, m_context);
+        while (iter.hasNext()) {
+            const Interpreter::ObjectValue *proto = iter.next();
+            if (proto->lookupMember(name, m_context, false)) {
+                containingObject = proto;
                 break;
             }
         }
@@ -446,9 +450,11 @@ public:
             return QVariant();
         }
 
-        for (const Interpreter::ObjectValue *iter = containingObject; iter; iter = iter->prototype(m_context)) {
-            if (iter->lookupMember(name, m_context, false)) {
-                containingObject = iter;
+        Interpreter::PrototypeIterator iter(containingObject, m_context);
+        while (iter.hasNext()) {
+            const Interpreter::ObjectValue *proto = iter.next();
+            if (proto->lookupMember(name, m_context, false)) {
+                containingObject = proto;
                 break;
             }
         }
@@ -473,12 +479,11 @@ public:
                 rhsValueName = memberExp->name->asString();
         }
 
-        if (!rhsValueObject)
-            return QVariant();
-
-        for (const Interpreter::ObjectValue *iter = rhsValueObject; iter; iter = iter->prototype(m_context)) {
-            if (iter->lookupMember(rhsValueName, m_context, false)) {
-                rhsValueObject = iter;
+        iter = Interpreter::PrototypeIterator(rhsValueObject, m_context);
+        while (iter.hasNext()) {
+            const Interpreter::ObjectValue *proto = iter.next();
+            if (proto->lookupMember(rhsValueName, m_context, false)) {
+                rhsValueObject = proto;
                 break;
             }
         }

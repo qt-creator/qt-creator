@@ -397,6 +397,7 @@ public:
     QString className() const;
     void setClassName(const QString &className);
 
+    // not guaranteed to not recurse, use PrototypeIterator!
     const ObjectValue *prototype(const Context *context) const;
     void setPrototype(const Value *prototype);
 
@@ -420,6 +421,24 @@ private:
     const Value *_prototype;
     QHash<QString, const Value *> _members;
     QString _className;
+};
+
+class QMLJS_EXPORT PrototypeIterator
+{
+public:
+    PrototypeIterator(const ObjectValue *start, const Context *context);
+
+    bool hasNext();
+    const ObjectValue *peekNext();
+    const ObjectValue *next();
+
+    QList<const ObjectValue *> all();
+
+private:
+    const ObjectValue *m_current;
+    const ObjectValue *m_next;
+    QList<const ObjectValue *> m_prototypes;
+    const Context *m_context;
 };
 
 class QMLJS_EXPORT QmlObjectValue: public ObjectValue

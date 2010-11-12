@@ -1675,7 +1675,9 @@ void Context::setProperty(const ObjectValue *object, const QString &name, const 
 
 QString Context::defaultPropertyName(const ObjectValue *object) const
 {
-    for (const ObjectValue *o = object; o; o = o->prototype(this)) {
+    PrototypeIterator iter(object, this);
+    while (iter.hasNext()) {
+        const ObjectValue *o = iter.next();
         if (const ASTObjectValue *astObjValue = dynamic_cast<const ASTObjectValue *>(o)) {
             QString defaultProperty = astObjValue->defaultPropertyName();
             if (!defaultProperty.isEmpty())
@@ -1881,14 +1883,65 @@ const Value *ObjectValue::lookupMember(const QString &name, const Context *conte
     }
 
     if (examinePrototypes) {
-        const ObjectValue *prototypeObject = prototype(context);
-        if (prototypeObject) {
-            if (const Value *m = prototypeObject->lookupMember(name, context))
+        PrototypeIterator iter(this, context);
+        iter.next(); // skip this
+        while (iter.hasNext()) {
+            const ObjectValue *prototypeObject = iter.next();
+            if (const Value *m = prototypeObject->lookupMember(name, context, false))
                 return m;
         }
     }
 
     return 0;
+}
+
+PrototypeIterator::PrototypeIterator(const ObjectValue *start, const Context *context)
+    : m_current(0)
+    , m_next(start)
+    , m_context(context)
+{
+    if (start)
+        m_prototypes.reserve(10);
+}
+
+bool PrototypeIterator::hasNext()
+{
+    if (m_next)
+        return true;
+    if (!m_current)
+        return false;
+    m_next = m_current->prototype(m_context);
+    if (!m_next || m_prototypes.contains(m_next)) {
+        m_next = 0;
+        return false;
+    }
+    return true;
+}
+
+const ObjectValue *PrototypeIterator::next()
+{
+    if (hasNext()) {
+        m_current = m_next;
+        m_prototypes += m_next;
+        m_next = 0;
+        return m_current;
+    }
+    return 0;
+}
+
+const ObjectValue *PrototypeIterator::peekNext()
+{
+    if (hasNext()) {
+        return m_next;
+    }
+    return 0;
+}
+
+QList<const ObjectValue *> PrototypeIterator::all()
+{
+    while (hasNext())
+        next();
+    return m_prototypes;
 }
 
 Activation::Activation(Context *parentContext)

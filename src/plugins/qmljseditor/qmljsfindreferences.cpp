@@ -71,12 +71,16 @@ static const ObjectValue *prototypeWithMember(const Context *context, const Obje
     const Value *value = object->property(name, context);
     if (!value)
         return 0;
-    forever {
-        const ObjectValue *prototype = object->prototype(context);
-        if (!prototype || prototype->property(name, context) != value)
-            return object;
-        object = prototype;
+    const ObjectValue *prev = object;
+    PrototypeIterator iter(object, context);
+    iter.next();
+    while (iter.hasNext()) {
+        const ObjectValue *prototype = iter.next();
+        if (prototype->property(name, context) != value)
+            return prev;
+        prev = prototype;
     }
+    return prev;
 }
 
 namespace {

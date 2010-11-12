@@ -202,8 +202,10 @@ void ScopeBuilder::setQmlScopeObject(Node *node)
 
     // check if the object has a Qt.ListElement or Qt.Connections ancestor
     // ### allow only signal bindings for Connections
-    const ObjectValue *prototype = scopeObject->prototype(_context);
-    while (prototype) {
+    PrototypeIterator iter(scopeObject, _context);
+    iter.next();
+    while (iter.hasNext()) {
+        const ObjectValue *prototype = iter.next();
         if (const QmlObjectValue *qmlMetaObject = dynamic_cast<const QmlObjectValue *>(prototype)) {
             if ((qmlMetaObject->className() == QLatin1String("ListElement")
                     || qmlMetaObject->className() == QLatin1String("Connections")
@@ -213,11 +215,10 @@ void ScopeBuilder::setQmlScopeObject(Node *node)
                 break;
             }
         }
-        prototype = prototype->prototype(_context);
     }
 
     // check if the object has a Qt.PropertyChanges ancestor
-    prototype = scopeObject->prototype(_context);
+    const ObjectValue *prototype = scopeObject->prototype(_context);
     prototype = isPropertyChangesObject(_context, prototype);
     // find the target script binding
     if (prototype) {
@@ -281,15 +282,15 @@ const Value *ScopeBuilder::scopeObjectLookup(AST::UiQualifiedId *id)
 const ObjectValue *ScopeBuilder::isPropertyChangesObject(const Context *context,
                                                    const ObjectValue *object)
 {
-    const ObjectValue *prototype = object;
-    while (prototype) {
+    PrototypeIterator iter(object, context);
+    while (iter.hasNext()) {
+        const ObjectValue *prototype = iter.next();
         if (const QmlObjectValue *qmlMetaObject = dynamic_cast<const QmlObjectValue *>(prototype)) {
             if (qmlMetaObject->className() == QLatin1String("PropertyChanges")
                     && (qmlMetaObject->packageName() == QLatin1String("Qt")
                         || qmlMetaObject->packageName() == QLatin1String("QtQuick")))
                 return prototype;
         }
-        prototype = prototype->prototype(context);
     }
     return 0;
 }
