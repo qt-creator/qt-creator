@@ -163,6 +163,7 @@ struct ProjectExplorerPluginPrivate {
     QAction *m_debugAction;
     QAction *m_addNewFileAction;
     QAction *m_addExistingFilesAction;
+    QAction *m_addNewSubprojectAction;
     QAction *m_removeFileAction;
     QAction *m_removeProjectAction;
     QAction *m_deleteFileAction;
@@ -536,7 +537,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDefaultText(d->m_unloadAction->text());
     mfile->addAction(cmd, Core::Constants::G_FILE_PROJECT);
-    mproject->addAction(cmd, Constants::G_PROJECT_FILES);
 
     // unload session action
     d->m_clearSession = new QAction(tr("Close All Projects"), this);
@@ -715,6 +715,16 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     msubProject->addAction(cmd, Constants::G_PROJECT_FILES);
     mfolder->addAction(cmd, Constants::G_FOLDER_FILES);
 
+    // new subproject action
+    d->m_addNewSubprojectAction = new QAction(tr("New Subproject..."), this);
+    cmd = am->registerAction(d->m_addNewSubprojectAction, ProjectExplorer::Constants::ADDNEWSUBPROJECT,
+                       globalcontext);
+    mproject->addAction(cmd, Constants::G_PROJECT_FILES);
+    msubProject->addAction(cmd, Constants::G_PROJECT_FILES);
+
+    // unload project again, in right position
+    mproject->addAction(am->command(Constants::UNLOAD), Constants::G_PROJECT_FILES);
+
     // remove file action
     d->m_removeFileAction = new QAction(tr("Remove File..."), this);
     cmd = am->registerAction(d->m_removeFileAction, ProjectExplorer::Constants::REMOVEFILE,
@@ -834,6 +844,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(d->m_clearSession, SIGNAL(triggered()), this, SLOT(clearSession()));
     connect(d->m_addNewFileAction, SIGNAL(triggered()), this, SLOT(addNewFile()));
     connect(d->m_addExistingFilesAction, SIGNAL(triggered()), this, SLOT(addExistingFiles()));
+    connect(d->m_addNewSubprojectAction, SIGNAL(triggered()), this, SLOT(addNewSubproject()));
     connect(d->m_removeProjectAction, SIGNAL(triggered()), this, SLOT(removeProject()));
     connect(d->m_openFileAction, SIGNAL(triggered()), this, SLOT(openFile()));
     connect(d->m_showInGraphicalShell, SIGNAL(triggered()), this, SLOT(showInGraphicalShell()));
@@ -2020,6 +2031,7 @@ void ProjectExplorerPlugin::updateContextMenuActions(Node *node)
 {
     d->m_addExistingFilesAction->setEnabled(false);
     d->m_addNewFileAction->setEnabled(false);
+    d->m_addNewSubprojectAction->setEnabled(false);
     d->m_removeFileAction->setEnabled(false);
     d->m_deleteFileAction->setEnabled(false);
 
@@ -2033,6 +2045,8 @@ void ProjectExplorerPlugin::updateContextMenuActions(Node *node)
 
         if (qobject_cast<FolderNode*>(d->m_currentNode)) {
             d->m_addNewFileAction->setEnabled(actions.contains(ProjectNode::AddNewFile));
+            d->m_addNewSubprojectAction->setEnabled(d->m_currentNode->nodeType() == ProjectNodeType
+                                                    && actions.contains(ProjectNode::AddSubProject));
             d->m_addExistingFilesAction->setEnabled(actions.contains(ProjectNode::AddExistingFile));
             d->m_renameFileAction->setEnabled(actions.contains(ProjectNode::Rename));
         } else if (qobject_cast<FileNode*>(d->m_currentNode)) {
@@ -2081,9 +2095,23 @@ void ProjectExplorerPlugin::addNewFile()
     QString location = directoryFor(d->m_currentNode);
 
     Core::ICore::instance()->showNewItemDialog(tr("New File", "Title of dialog"),
-                              Core::IWizard::wizardsOfKind(Core::IWizard::FileWizard)
-                              + Core::IWizard::wizardsOfKind(Core::IWizard::ClassWizard),
+                               Core::IWizard::wizardsOfKind(Core::IWizard::FileWizard)
+                               + Core::IWizard::wizardsOfKind(Core::IWizard::ClassWizard),
+                               location);
+}
+
+void ProjectExplorerPlugin::addNewSubproject()
+{
+    QTC_ASSERT(d->m_currentNode, return)
+    QString location = directoryFor(d->m_currentNode);
+
+    if (d->m_currentNode->nodeType() == ProjectNodeType
+            && d->m_currentNode->projectNode()->supportedActions(
+                d->m_currentNode->projectNode()).contains(ProjectNode::AddSubProject)) {
+        Core::ICore::instance()->showNewItemDialog(tr("New Project", "Title of dialog"),
+                              Core::IWizard::wizardsOfKind(Core::IWizard::ProjectWizard),
                               location);
+    }
 }
 
 void ProjectExplorerPlugin::addExistingFiles()

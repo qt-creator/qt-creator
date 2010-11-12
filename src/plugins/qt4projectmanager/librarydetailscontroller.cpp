@@ -818,6 +818,7 @@ bool PackageLibraryDetailsController::isLinkPackageGenerated() const
     const QStringList configVar = currentProject->variableValue(ConfigVar);
     if (configVar.contains(QLatin1String("link_pkgconfig")))
         return true;
+
     return false;
 }
 

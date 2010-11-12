@@ -70,7 +70,7 @@ Core::GeneratedFiles
     const QString profileName = Core::BaseFileWizard::buildFileName(projectPath, params.fileName, profileSuffix());
 
     Core::GeneratedFile profile(profileName);
-    profile.setAttributes(Core::GeneratedFile::OpenProjectAttribute);
+    profile.setAttributes(Core::GeneratedFile::OpenProjectAttribute | Core::GeneratedFile::OpenEditorAttribute);
     return Core::GeneratedFiles() << profile;
 }
 

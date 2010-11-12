@@ -169,6 +169,7 @@ private slots:
 
     void addNewFile();
     void addExistingFiles();
+    void addNewSubproject();
     void removeProject();
     void openFile();
     void showInGraphicalShell();
