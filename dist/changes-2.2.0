@@ -1,0 +1,46 @@
+The QtCreator 2.2 release contains bug fixes and new features.
+
+Below is a list of relevant changes. You can find a complete list of changes
+within the logs of Qt Creator sources. Simply check it out from the public git
+repository. For example:
+
+git clone git://gitorious.org/qt-creator/qt-creator.git
+git log --cherry-pick --pretty=oneline origin/master...origin/2.1
+
+General
+
+Editing
+   * Add new Inkpot color scheme
+
+Project Support
+
+Debugging
+
+Help
+
+QML/JS Support
+
+FakeVim:
+
+Platform Specific
+
+Mac
+
+Linux (GNOME and KDE)
+
+Windows
+
+Symbian Target
+
+Maemo Target
+
+Designer
+
+Version control plugins
+
+Wizards
+
+Additional credits go to:
+   * The Inkpot color scheme was based on the Vim color scheme by
+     Ciaran McCreesh, adapted for Qt Creator by Jan Kundrát and
+     subsequently updated by Campbell Barton.
