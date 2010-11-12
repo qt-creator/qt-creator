@@ -183,6 +183,10 @@ bool AutoCompleter::doContextAllowsAutoParentheses(const QTextCursor &cursor,
         const QStringRef tokenText = blockText.midRef(token.offset, token.length);
         const QChar quote = tokenText.at(0);
 
+        // never insert ' into string literals, it adds spurious ' when writing contractions
+        if (ch == QLatin1Char('\''))
+            return false;
+
         if (ch != quote || isCompleteStringLiteral(tokenText))
             break;
 
