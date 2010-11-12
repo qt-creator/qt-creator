@@ -31,6 +31,7 @@
 #include "glsleditor.h"
 #include "glsleditorconstants.h"
 #include "glsleditorfactory.h"
+#include "glslcodecompletion.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -107,6 +108,9 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     m_editor = new GLSLEditorFactory(this);
     addObject(m_editor);
 
+    CodeCompletion *completion = new CodeCompletion(this);
+    addAutoReleasedObject(completion);
+
     m_actionHandler = new TextEditor::TextEditorActionHandler(GLSLEditor::Constants::C_GLSLEDITOR_ID,
                                                               TextEditor::TextEditorActionHandler::Format
                                                               | TextEditor::TextEditorActionHandler::UnCommentSelection
@@ -122,7 +126,7 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     menu->setTitle(tr("GLSL"));
     am->actionContainer(Core::Constants::M_TOOLS)->addMenu(glslToolsMenu);
 
-    Core::Command *cmd;
+    Core::Command *cmd = 0;
 
     // Insert marker for "Refactoring" menu:
     Core::Context globalContext(Core::Constants::C_GLOBAL);
@@ -137,10 +141,10 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     contextMenu->addAction(cmd);
 
     // Set completion settings and keep them up to date
-//    TextEditor::TextEditorSettings *textEditorSettings = TextEditor::TextEditorSettings::instance();
-//    completion->setCompletionSettings(textEditorSettings->completionSettings());
-//    connect(textEditorSettings, SIGNAL(completionSettingsChanged(TextEditor::CompletionSettings)),
-//            completion, SLOT(setCompletionSettings(TextEditor::CompletionSettings)));
+    TextEditor::TextEditorSettings *textEditorSettings = TextEditor::TextEditorSettings::instance();
+    completion->setCompletionSettings(textEditorSettings->completionSettings());
+    connect(textEditorSettings, SIGNAL(completionSettingsChanged(TextEditor::CompletionSettings)),
+            completion, SLOT(setCompletionSettings(TextEditor::CompletionSettings)));
 
     error_message->clear();
 
@@ -170,8 +174,8 @@ void GLSLEditorPlugin::initializeEditor(GLSLEditor::GLSLTextEditor *editor)
     TextEditor::TextEditorSettings::instance()->initializeEditor(editor);
 
 //    // auto completion
-//    connect(editor, SIGNAL(requestAutoCompletion(TextEditor::ITextEditable*, bool)),
-//            TextEditor::CompletionSupport::instance(), SLOT(autoComplete(TextEditor::ITextEditable*, bool)));
+    connect(editor, SIGNAL(requestAutoCompletion(TextEditor::ITextEditable*, bool)),
+            TextEditor::CompletionSupport::instance(), SLOT(autoComplete(TextEditor::ITextEditable*, bool)));
 
 //    // quick fix
 //    connect(editor, SIGNAL(requestQuickFix(TextEditor::ITextEditable*)),
