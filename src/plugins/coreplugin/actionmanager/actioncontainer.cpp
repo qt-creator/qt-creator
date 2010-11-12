@@ -150,7 +150,7 @@ using namespace Core::Internal;
 ActionContainerPrivate::ActionContainerPrivate(int id)
     : m_data(0), m_id(id), m_updateRequested(false)
 {
-
+    scheduleUpdate();
 }
 
 void ActionContainerPrivate::setEmptyAction(EmptyAction ea)
@@ -251,6 +251,7 @@ void ActionContainerPrivate::addAction(Command *action, int pos, bool setpos)
     m_posmap.insert(pos, action->id());
     connect(action, SIGNAL(activeStateChanged()), this, SLOT(scheduleUpdate()));
     insertAction(ba, a->action());
+    scheduleUpdate();
 }
 
 void ActionContainerPrivate::addMenu(ActionContainer *menu, int pos, bool setpos)
@@ -271,6 +272,7 @@ void ActionContainerPrivate::addMenu(ActionContainer *menu, int pos, bool setpos
     m_subContainers.append(menu);
     m_posmap.insert(pos, menu->id());
     insertMenu(ba, mc->menu());
+    scheduleUpdate();
 }
 
 QAction *ActionContainerPrivate::beforeAction(int pos, int *prevKey) const
@@ -418,9 +420,9 @@ bool MenuActionContainer::updateInternal()
     }
 
     if (hasEmptyAction(EA_Hide))
-        m_menu->setVisible(hasitems);
+        m_menu->menuAction()->setVisible(hasitems);
     else if (hasEmptyAction(EA_Disable))
-        m_menu->setEnabled(hasitems);
+        m_menu->menuAction()->setEnabled(hasitems);
 
     return hasitems;
 }

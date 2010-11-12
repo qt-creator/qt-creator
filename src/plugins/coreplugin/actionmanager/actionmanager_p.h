@@ -72,7 +72,6 @@ public:
     QList<int> defaultGroups() const;
 
     QList<Command *> commands() const;
-    QList<ActionContainerPrivate *> containers() const;
 
     bool hasContext(int context) const;
 

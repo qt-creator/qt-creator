@@ -255,11 +255,6 @@ QList<Command *> ActionManagerPrivate::commands() const
     return result;
 }
 
-QList<ActionContainerPrivate *> ActionManagerPrivate::containers() const
-{
-    return m_idContainerMap.values();
-}
-
 bool ActionManagerPrivate::hasContext(int context) const
 {
     return m_context.contains(context);
