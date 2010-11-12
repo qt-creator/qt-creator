@@ -620,6 +620,12 @@ bool CodeCompletion::completeUrl(const QString &relativeBasePath, const QString 
     if (fileName.isEmpty())
         return false;
 
+    return completeFileName(relativeBasePath, fileName);
+}
+
+bool CodeCompletion::completeFileName(const QString &relativeBasePath, const QString &fileName,
+                                      const QStringList &patterns)
+{
     const QFileInfo fileInfo(fileName);
     QString directoryPrefix;
     if (fileInfo.isRelative()) {
@@ -632,12 +638,10 @@ bool CodeCompletion::completeUrl(const QString &relativeBasePath, const QString 
     if (!QFileInfo(directoryPrefix).exists())
         return false;
 
-    QDirIterator dirIterator(directoryPrefix);
+    QDirIterator dirIterator(directoryPrefix, patterns, QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
     while (dirIterator.hasNext()) {
         dirIterator.next();
         const QString fileName = dirIterator.fileName();
-        if (fileName == QLatin1String(".") || fileName == QLatin1String(".."))
-            continue;
 
         TextEditor::CompletionItem item(this);
         item.text += fileName;
@@ -779,19 +783,29 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
          qmlScopeType = context->lookupType(document.data(), contextFinder.qmlObjectTypeName());
 
     if (contextFinder.isInStringLiteral()) {
-        const Interpreter::Value *value = getPropertyValue(qmlScopeType, contextFinder.bindingPropertyName(), context);
+        // get the text of the literal up to the cursor position
+        QTextCursor tc = edit->textCursor();
+        QmlExpressionUnderCursor expressionUnderCursor;
+        expressionUnderCursor(tc);
+        QString literalText = expressionUnderCursor.text();
+        QTC_ASSERT(!literalText.isEmpty() && (
+                       literalText.at(0) == QLatin1Char('"')
+                       || literalText.at(0) == QLatin1Char('\'')), return -1);
+        literalText = literalText.mid(1);
 
+        if (contextFinder.isInImport()) {
+            QStringList patterns;
+            patterns << QLatin1String("*.qml") << QLatin1String("*.js");
+            if (completeFileName(document->path(), literalText, patterns))
+                return m_startPosition;
+            return -1;
+        }
+
+        const Interpreter::Value *value = getPropertyValue(qmlScopeType, contextFinder.bindingPropertyName(), context);
         if (!value) {
             // do nothing
         } else if (value->asUrlValue()) {
-            QTextCursor tc = edit->textCursor();
-            QmlExpressionUnderCursor expressionUnderCursor;
-            expressionUnderCursor(tc);
-            QString text = expressionUnderCursor.text();
-            QTC_ASSERT(!text.isEmpty() && text.at(0) == QLatin1Char('"'), return -1);
-            text = text.mid(1);
-
-            if (completeUrl(document->path(), text))
+            if (completeUrl(document->path(), literalText))
                 return m_startPosition;
         }
 
