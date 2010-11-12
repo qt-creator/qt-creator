@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+     This color scheme is based on the vim Inkpot color scheme, originally
+     created by Ciaran McCreesh:
+
+     http://www.vim.org/scripts/script.php?script_id=1143
+
+     It was adapted for use by Qt Creator by Jan Kundrát and subsequently
+     updated by Campbell Barton.
+-->
+<style-scheme version="1.0" name="Inkpot">
+  <style name="AddedLine" foreground="#00aa00"/>
+  <style name="Comment" foreground="#cd8b00"/>
+  <style name="CurrentLine" foreground="#000000" background="#2d2d32"/>
+  <style name="CurrentLineNumber" foreground="#a7a7f5" bold="true"/>
+  <style name="DiffFile" foreground="#8484f3"/>
+  <style name="DiffLocation" foreground="#0084ff"/>
+  <style name="DisabledCode" foreground="#a0a0a4" italic="true"/>
+  <style name="Doxygen.Comment" foreground="#737dd5"/>
+  <style name="Doxygen.Tag" foreground="#4e5ab3"/>
+  <style name="Keyword" foreground="#808bed"/>
+  <style name="Label" foreground="#e76000"/>
+  <style name="LineNumber" foreground="#8b8bcd" background="#2e2e2e"/>
+  <style name="Link" foreground="#0000ff"/>
+  <style name="Number" foreground="#506bbd"/>
+  <style name="Operator" foreground="#409040"/>
+  <style name="Parentheses" foreground="#ffff00"/>
+  <style name="Preprocessor" foreground="#409040"/>
+  <style name="RemovedLine" foreground="#ff0000"/>
+  <style name="SearchResult" foreground="#000000" background="#ffef0b"/>
+  <style name="SearchScope" foreground="#000000" background="#f8fafc"/>
+  <style name="Selection" foreground="#ffffff" background="#678db2"/>
+  <style name="String" foreground="#ffcd8b" background="#404040"/>
+  <style name="Text" foreground="#cfbfad" background="#1e1e27"/>
+  <style name="Type" foreground="#ff8bff"/>
+  <style name="Local" foreground="#ffffff"/>
+  <style name="VirtualMethod" italic="true"/>
+</style-scheme>
