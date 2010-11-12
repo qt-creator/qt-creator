@@ -372,9 +372,12 @@ int Lexer::yylex_helper(const char **position, int *line)
                 _yyval.string = _engine->identifier(word, _it - word - 1);
             return Parser::T_IDENTIFIER;
         } else if (std::isdigit(ch)) {
+            const char *word = _it - 2;
             while (std::isalnum(_yychar) || _yychar == '.') {
                 yyinp();
             }
+            if (_engine)
+                _yyval.string = _engine->identifier(word, _it - word - 1);
             return Parser::T_NUMBER;
         }
 

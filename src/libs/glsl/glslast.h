@@ -37,7 +37,6 @@ namespace GLSL {
 
 class AST;
 class TranslationUnit;
-class Declaration;
 class Expression;
 class IdentifierExpression;
 class LiteralExpression;
@@ -47,6 +46,7 @@ class TernaryExpression;
 class AssignmentExpression;
 class MemberAccessExpression;
 class FunctionCallExpression;
+class FunctionIdentifier;
 class Statement;
 class ExpressionStatement;
 class CompoundStatement;
@@ -63,6 +63,8 @@ class BasicType;
 class NamedType;
 class ArrayType;
 class StructType;
+class Declaration;
+class PrecisionDeclaration;
 class Visitor;
 
 template <typename T>
@@ -145,6 +147,7 @@ public:
         Kind_GreaterEqual,
         Kind_LogicalAnd,
         Kind_LogicalOr,
+        Kind_LogicalXor,
         Kind_BitwiseAnd,
         Kind_BitwiseOr,
         Kind_BitwiseXor,
@@ -156,6 +159,7 @@ public:
         Kind_MemberAccess,
         Kind_FunctionCall,
         Kind_MemberFunctionCall,
+        Kind_FunctionIdentifier,
 
         // Assignment expressions
         Kind_Assign,
@@ -186,8 +190,6 @@ public:
         Kind_CaseLabel,
         Kind_DefaultLabel,
 
-        // Declarations
-
         // Types
         Kind_BasicType,
         Kind_NamedType,
@@ -195,12 +197,13 @@ public:
         Kind_OpenArrayType,
         Kind_StructType,
         Kind_AnonymousStructType,
-        Kind_StructField
+        Kind_StructField,
+
+        // Declarations
+        Kind_PrecisionDeclaration
     };
 
     virtual TranslationUnit *asTranslationUnit() { return 0; }
-
-    virtual Declaration *asDeclaration() { return 0; }
 
     virtual Expression *asExpression() { return 0; }
     virtual IdentifierExpression *asIdentifierExpression() { return 0; }
@@ -211,6 +214,7 @@ public:
     virtual AssignmentExpression *asAssignmentExpression() { return 0; }
     virtual MemberAccessExpression *asMemberAccessExpression() { return 0; }
     virtual FunctionCallExpression *asFunctionCallExpression() { return 0; }
+    virtual FunctionIdentifier *asFunctionIdentifier() { return 0; }
 
     virtual Statement *asStatement() { return 0; }
     virtual ExpressionStatement *asExpressionStatement() { return 0; }
@@ -229,6 +233,9 @@ public:
     virtual NamedType *asNamedType() { return 0; }
     virtual ArrayType *asArrayType() { return 0; }
     virtual StructType *asStructType() { return 0; }
+
+    virtual Declaration *asDeclaration() { return 0; }
+    virtual PrecisionDeclaration *asPrecisionDeclaration() { return 0; }
 
     void accept(Visitor *visitor);
     static void accept(AST *ast, Visitor *visitor);
@@ -273,15 +280,6 @@ public:
 
 public: // attributes
     List<Declaration *> *declarations;
-};
-
-class GLSL_EXPORT Declaration: public AST
-{
-protected:
-    Declaration(Kind _kind) : AST(_kind) {}
-
-public:
-    virtual Declaration *asDeclaration() { return this; }
 };
 
 class GLSL_EXPORT Expression: public AST
@@ -399,13 +397,13 @@ public: // attributes
 class GLSL_EXPORT FunctionCallExpression: public Expression
 {
 public:
-    FunctionCallExpression(const std::string *_name,
+    FunctionCallExpression(FunctionIdentifier *_id,
                            List<Expression *> *_arguments)
-        : Expression(Kind_FunctionCall), expr(0), name(_name)
+        : Expression(Kind_FunctionCall), expr(0), id(_id)
         , arguments(finish(_arguments)) {}
-    FunctionCallExpression(Expression *_expr, const std::string *_name,
+    FunctionCallExpression(Expression *_expr, FunctionIdentifier *_id,
                            List<Expression *> *_arguments)
-        : Expression(Kind_MemberFunctionCall), expr(_expr), name(_name)
+        : Expression(Kind_MemberFunctionCall), expr(_expr), id(_id)
         , arguments(finish(_arguments)) {}
 
     virtual FunctionCallExpression *asFunctionCallExpression() { return this; }
@@ -414,8 +412,25 @@ public:
 
 public: // attributes
     Expression *expr;
-    const std::string *name;
+    FunctionIdentifier *id;
     List<Expression *> *arguments;
+};
+
+class GLSL_EXPORT FunctionIdentifier: public AST
+{
+public:
+    FunctionIdentifier(const std::string *_name)
+        : AST(Kind_FunctionIdentifier), name(_name), type(0) {}
+    FunctionIdentifier(Type *_type)
+        : AST(Kind_FunctionIdentifier), name(0), type(_type) {}
+
+    virtual FunctionIdentifier *asFunctionIdentifier() { return this; }
+
+    virtual void accept0(Visitor *visitor);
+
+public: // attributes
+    const std::string *name;
+    Type *type;
 };
 
 class GLSL_EXPORT Statement: public AST
@@ -444,6 +459,8 @@ public: // attributes
 class GLSL_EXPORT CompoundStatement: public Statement
 {
 public:
+    CompoundStatement()
+        : Statement(Kind_CompoundStatement), statements(0) {}
     CompoundStatement(List<Statement *> *_statements)
         : Statement(Kind_CompoundStatement), statements(finish(_statements)) {}
 
@@ -582,11 +599,41 @@ protected:
 public:
     enum Precision
     {
-        PrecNotValid,       // Precision not valid (e.g. structs and samplers).
+        PrecNotValid,       // Precision not valid (e.g. structs).
         PrecUnspecified,    // Precision not known, but can be validly set.
         Lowp,
         Mediump,
         Highp
+    };
+
+    enum Category
+    {
+        Void,
+        Primitive,
+        Vector2,
+        Vector3,
+        Vector4,
+        Matrix,
+        Sampler1D,
+        Sampler2D,
+        Sampler3D,
+        SamplerCube,
+        Sampler1DShadow,
+        Sampler2DShadow,
+        SamplerCubeShadow,
+        Sampler1DArray,
+        Sampler2DArray,
+        SamplerCubeArray,
+        Sampler1DArrayShadow,
+        Sampler2DArrayShadow,
+        SamplerCubeArrayShadow,
+        Sampler2DRect,
+        Sampler2DRectShadow,
+        Sampler2DMS,
+        Sampler2DMSArray,
+        SamplerBuffer,
+        Array,
+        Struct
     };
 
     virtual Type *asType() { return this; }
@@ -594,17 +641,17 @@ public:
     virtual Precision precision() const = 0;
 
     // Set the precision for the innermost basic type.  Returns false if it
-    // is not valid to set a precision (e.g. structs, samplers, etc).
+    // is not valid to set a precision (e.g. structs).
     virtual bool setPrecision(Precision precision) = 0;
+
+    virtual Category category() const = 0;
 };
 
 class GLSL_EXPORT BasicType: public Type
 {
 public:
     // Pass the parser's token code: T_VOID, T_VEC4, etc.
-    BasicType(int _token);
-    BasicType(int _token, Precision _prec)
-        : Type(Kind_BasicType), prec(_prec), token(_token) {}
+    BasicType(int _token, const char *_name, Category _category);
 
     virtual BasicType *asBasicType() { return this; }
 
@@ -613,9 +660,13 @@ public:
     virtual Precision precision() const;
     virtual bool setPrecision(Precision precision);
 
+    virtual Category category() const { return categ; }
+
 public: // attributes
     Precision prec;
     int token;
+    const char *name;
+    Category categ;
 };
 
 class GLSL_EXPORT NamedType: public Type
@@ -629,6 +680,8 @@ public:
 
     virtual Precision precision() const;
     virtual bool setPrecision(Precision precision);
+
+    virtual Category category() const { return Struct; }
 
 public: // attributes
     const std::string *name;
@@ -648,6 +701,8 @@ public:
 
     virtual Precision precision() const;
     virtual bool setPrecision(Precision precision);
+
+    virtual Category category() const { return Array; }
 
 public: // attributes
     Type *elementType;
@@ -691,17 +746,38 @@ public:
 
     // Fix the inner types of a field list.  The "innerType" will
     // be copied into the "array holes" of all fields.
-    static void fixInnerTypes(Type *innerType, List<Field *> *fields);
+    static List<Field *> *fixInnerTypes(Type *innerType, List<Field *> *fields);
 
-    // Add a new group of fields after having their inner types fixed.
-    void addFields(List<Field *> *list)
-    {
-        fields = appendLists(fields, list);
-    }
+    virtual Category category() const { return Struct; }
 
 public: // attributes
     const std::string *name;
     List<Field *> *fields;
+};
+
+class GLSL_EXPORT Declaration: public AST
+{
+protected:
+    Declaration(Kind _kind) : AST(_kind) {}
+
+public:
+    virtual Declaration *asDeclaration() { return this; }
+};
+
+class GLSL_EXPORT PrecisionDeclaration: public Declaration
+{
+public:
+    PrecisionDeclaration(Type::Precision _precision, Type *_type)
+        : Declaration(Kind_PrecisionDeclaration)
+        , precision(_precision), type(_type) {}
+
+    virtual PrecisionDeclaration *asPrecisionDeclaration() { return this; }
+
+    virtual void accept0(Visitor *visitor);
+
+public: // attributes
+    Type::Precision precision;
+    Type *type;
 };
 
 } // namespace GLSL

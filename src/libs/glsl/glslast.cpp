@@ -111,8 +111,16 @@ void FunctionCallExpression::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(expr, visitor);
+        accept(id, visitor);
         accept(arguments, visitor);
     }
+    visitor->endVisit(this);
+}
+
+void FunctionIdentifier::accept0(Visitor *visitor)
+{
+    if (visitor->visit(this))
+        accept(type, visitor);
     visitor->endVisit(this);
 }
 
@@ -198,8 +206,8 @@ void CaseLabelStatement::accept0(Visitor *visitor)
     visitor->endVisit(this);
 }
 
-BasicType::BasicType(int _token)
-    : Type(Kind_BasicType), token(_token)
+BasicType::BasicType(int _token, const char *_name, Category _category)
+    : Type(Kind_BasicType), token(_token), name(_name), categ(_category)
 {
     switch (token) {
     case GLSLParserTable::T_VOID:
@@ -314,14 +322,22 @@ void StructType::Field::setInnerType(Type *innerType)
     *parent = innerType;
 }
 
-void StructType::fixInnerTypes(Type *innerType, List<Field *> *fields)
+List<StructType::Field *> *StructType::fixInnerTypes(Type *innerType, List<Field *> *fields)
 {
     if (!fields)
-        return;
+        return fields;
     List<Field *> *head = fields->next;
     List<Field *> *current = head;
     do {
         current->value->setInnerType(innerType);
         current = current->next;
     } while (current && current != head);
+    return fields;
+}
+
+void PrecisionDeclaration::accept0(Visitor *visitor)
+{
+    if (visitor->visit(this))
+        accept(type, visitor);
+    visitor->endVisit(this);
 }

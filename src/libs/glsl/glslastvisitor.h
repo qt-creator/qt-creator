@@ -69,6 +69,9 @@ public:
     virtual bool visit(FunctionCallExpression *) { return true; }
     virtual void endVisit(FunctionCallExpression *) {}
 
+    virtual bool visit(FunctionIdentifier *) { return true; }
+    virtual void endVisit(FunctionIdentifier *) {}
+
     virtual bool visit(ExpressionStatement *) { return true; }
     virtual void endVisit(ExpressionStatement *) {}
 
@@ -113,6 +116,9 @@ public:
 
     virtual bool visit(StructType::Field *) { return true; }
     virtual void endVisit(StructType::Field *) {}
+
+    virtual bool visit(PrecisionDeclaration *) { return true; }
+    virtual void endVisit(PrecisionDeclaration *) {}
 };
 
 } // namespace GLSL

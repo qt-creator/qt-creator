@@ -260,7 +260,27 @@ public:
         List<Declaration *> *declaration_list;
         Expression *expression;
         List<Expression *> *expression_list;
+        Statement *statement;
+        List<Statement *> *statement_list;
+        Type *type;
+        StructType::Field *field;
+        List<StructType::Field *> *field_list;
         TranslationUnit *translation_unit;
+        FunctionIdentifier *function_identifier;
+        AST::Kind kind;
+        Type::Precision precision;
+        struct {
+            Statement *thenClause;
+            Statement *elseClause;
+        } ifstmt;
+        struct {
+            Expression *condition;
+            Expression *increment;
+        } forstmt;
+        struct {
+            FunctionIdentifier *id;
+            List<Expression *> *arguments;
+        } function;
         // ### ast nodes...
     };
 
@@ -274,6 +294,9 @@ private:
     Value &sym(int n) { return _symStack[_tos + n - 1]; }
     AST *&ast(int n) { return _symStack[_tos + n - 1].ast; }
     const std::string *&string(int n) { return _symStack[_tos + n - 1].string; }
+    Expression *&expression(int n) { return _symStack[_tos + n - 1].expression; }
+    Statement *&statement(int n) { return _symStack[_tos + n - 1].statement; }
+    Type *&type(int n) { return _symStack[_tos + n - 1].type; }
 
     inline int consumeToken() { return _index++; }
     inline const Token &tokenAt(int index) const { return _tokens.at(index); }
@@ -318,6 +341,13 @@ private:
         T *node = new (_engine->pool()) T (a1, a2, a3, a4);
         node->lineno = yyloc >= 0 ? (_tokens[yyloc].line + 1) : 0;
         return node;
+    }
+
+    Type *makeBasicType(int token, BasicType::Category category)
+    {
+        Type *type = new (_engine->pool()) BasicType(token, spell[token], category);
+        type->lineno = yyloc >= 0 ? (_tokens[yyloc].line + 1) : 0;
+        return type;
     }
 
 private:
@@ -507,28 +537,28 @@ switch(ruleno) {
 variable_identifier ::= IDENTIFIER ;
 /.
 case $rule_number: {
-    ast(1) = makeAstNode<IdentifierExpression>(sym(1).string);
+    ast(1) = makeAstNode<IdentifierExpression>(string(1));
 }   break;
 ./
 
 primary_expression ::= NUMBER ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<LiteralExpression>(string(1));
 }   break;
 ./
 
 primary_expression ::= TRUE ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<LiteralExpression>(_engine->identifier("true", 4));
 }   break;
 ./
 
 primary_expression ::= FALSE ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<LiteralExpression>(_engine->identifier("false", 5));
 }   break;
 ./
 
@@ -556,7 +586,7 @@ case $rule_number: {
 postfix_expression ::= postfix_expression LEFT_BRACKET integer_expression RIGHT_BRACKET ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<BinaryExpression>(AST::Kind_ArrayAccess, expression(1), expression(3));
 }   break;
 ./
 
@@ -570,21 +600,21 @@ case $rule_number: {
 postfix_expression ::= postfix_expression DOT IDENTIFIER ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<MemberAccessExpression>(expression(1), string(3));
 }   break;
 ./
 
 postfix_expression ::= postfix_expression INC_OP ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<UnaryExpression>(AST::Kind_PostIncrement, expression(1));
 }   break;
 ./
 
 postfix_expression ::= postfix_expression DEC_OP ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<UnaryExpression>(AST::Kind_PostDecrement, expression(1));
 }   break;
 ./
 
@@ -605,77 +635,85 @@ case $rule_number: {
 function_call_or_method ::= function_call_generic ;
 /.
 case $rule_number: {
-    // nothing to do.
+    ast(1) = makeAstNode<FunctionCallExpression>
+        (sym(1).function.id, sym(1).function.arguments);
 }   break;
 ./
 
 function_call_or_method ::= postfix_expression DOT function_call_generic ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<FunctionCallExpression>
+        (expression(1), sym(3).function.id, sym(3).function.arguments);
 }   break;
 ./
 
 function_call_generic ::= function_call_header_with_parameters RIGHT_PAREN ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
 function_call_generic ::= function_call_header_no_parameters RIGHT_PAREN ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
 function_call_header_no_parameters ::= function_call_header VOID ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).function.id = sym(1).function_identifier;
+    sym(1).function.arguments = 0;
 }   break;
 ./
 
 function_call_header_no_parameters ::= function_call_header ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).function.id = sym(1).function_identifier;
+    sym(1).function.arguments = 0;
 }   break;
 ./
 
 function_call_header_with_parameters ::= function_call_header assignment_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).function.id = sym(1).function_identifier;
+    sym(1).function.arguments =
+        makeAstNode< List<Expression *> >(expression(2));
 }   break;
 ./
 
 function_call_header_with_parameters ::= function_call_header_with_parameters COMMA assignment_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).function.arguments =
+        makeAstNode< List<Expression *> >
+            (sym(1).function.arguments, expression(3));
 }   break;
 ./
 
 function_call_header ::= function_identifier LEFT_PAREN ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
 function_identifier ::= type_specifier ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<FunctionIdentifier>(type(1));
 }   break;
 ./
 
 function_identifier ::= IDENTIFIER ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<FunctionIdentifier>(string(1));
 }   break;
 ./
 
@@ -689,49 +727,49 @@ case $rule_number: {
 unary_expression ::= INC_OP unary_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<UnaryExpression>(AST::Kind_PreIncrement, expression(1));
 }   break;
 ./
 
 unary_expression ::= DEC_OP unary_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<UnaryExpression>(AST::Kind_PreDecrement, expression(1));
 }   break;
 ./
 
 unary_expression ::= unary_operator unary_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<UnaryExpression>(sym(1).kind, expression(2));
 }   break;
 ./
 
 unary_operator ::= PLUS ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).kind = AST::Kind_UnaryPlus;
 }   break;
 ./
 
 unary_operator ::= DASH ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).kind = AST::Kind_UnaryMinus;
 }   break;
 ./
 
 unary_operator ::= BANG ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).kind = AST::Kind_LogicalNot;
 }   break;
 ./
 
 unary_operator ::= TILDE ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).kind = AST::Kind_BitwiseNot;
 }   break;
 ./
 
@@ -745,21 +783,21 @@ case $rule_number: {
 multiplicative_expression ::= multiplicative_expression STAR unary_expression ;
 /.
 case $rule_number: {
-    ast(1) = makeAstNode<BinaryExpression>(AST::Kind_Multiply, sym(1).expression, sym(3).expression);
+    ast(1) = makeAstNode<BinaryExpression>(AST::Kind_Multiply, expression(1), expression(3));
 }   break;
 ./
 
 multiplicative_expression ::= multiplicative_expression SLASH unary_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<BinaryExpression>(AST::Kind_Divide, expression(1), expression(3));
 }   break;
 ./
 
 multiplicative_expression ::= multiplicative_expression PERCENT unary_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<BinaryExpression>(AST::Kind_Modulus, expression(1), expression(3));
 }   break;
 ./
 
@@ -773,14 +811,14 @@ case $rule_number: {
 additive_expression ::= additive_expression PLUS multiplicative_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<BinaryExpression>(AST::Kind_Plus, expression(1), expression(3));
 }   break;
 ./
 
 additive_expression ::= additive_expression DASH multiplicative_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<BinaryExpression>(AST::Kind_Minus, expression(1), expression(3));
 }   break;
 ./
 
@@ -794,14 +832,14 @@ case $rule_number: {
 shift_expression ::= shift_expression LEFT_OP additive_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<BinaryExpression>(AST::Kind_ShiftLeft, expression(1), expression(3));
 }   break;
 ./
 
 shift_expression ::= shift_expression RIGHT_OP additive_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<BinaryExpression>(AST::Kind_ShiftRight, expression(1), expression(3));
 }   break;
 ./
 
@@ -815,28 +853,28 @@ case $rule_number: {
 relational_expression ::= relational_expression LEFT_ANGLE shift_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<BinaryExpression>(AST::Kind_LessThan, expression(1), expression(3));
 }   break;
 ./
 
 relational_expression ::= relational_expression RIGHT_ANGLE shift_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<BinaryExpression>(AST::Kind_GreaterThan, expression(1), expression(3));
 }   break;
 ./
 
 relational_expression ::= relational_expression LE_OP shift_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<BinaryExpression>(AST::Kind_LessEqual, expression(1), expression(3));
 }   break;
 ./
 
 relational_expression ::= relational_expression GE_OP shift_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<BinaryExpression>(AST::Kind_GreaterEqual, expression(1), expression(3));
 }   break;
 ./
 
@@ -850,14 +888,14 @@ case $rule_number: {
 equality_expression ::= equality_expression EQ_OP relational_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<BinaryExpression>(AST::Kind_Equal, expression(1), expression(3));
 }   break;
 ./
 
 equality_expression ::= equality_expression NE_OP relational_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<BinaryExpression>(AST::Kind_NotEqual, expression(1), expression(3));
 }   break;
 ./
 
@@ -871,7 +909,7 @@ case $rule_number: {
 and_expression ::= and_expression AMPERSAND equality_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<BinaryExpression>(AST::Kind_BitwiseAnd, expression(1), expression(3));
 }   break;
 ./
 
@@ -885,7 +923,7 @@ case $rule_number: {
 exclusive_or_expression ::= exclusive_or_expression CARET and_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<BinaryExpression>(AST::Kind_BitwiseOr, expression(1), expression(3));
 }   break;
 ./
 
@@ -899,7 +937,7 @@ case $rule_number: {
 inclusive_or_expression ::= inclusive_or_expression VERTICAL_BAR exclusive_or_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<BinaryExpression>(AST::Kind_BitwiseXor, expression(1), expression(3));
 }   break;
 ./
 
@@ -913,7 +951,7 @@ case $rule_number: {
 logical_and_expression ::= logical_and_expression AND_OP inclusive_or_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<BinaryExpression>(AST::Kind_LogicalAnd, expression(1), expression(3));
 }   break;
 ./
 
@@ -927,7 +965,7 @@ case $rule_number: {
 logical_xor_expression ::= logical_xor_expression XOR_OP logical_and_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<BinaryExpression>(AST::Kind_LogicalXor, expression(1), expression(3));
 }   break;
 ./
 
@@ -941,7 +979,7 @@ case $rule_number: {
 logical_or_expression ::= logical_or_expression OR_OP logical_xor_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<BinaryExpression>(AST::Kind_LogicalOr, expression(1), expression(3));
 }   break;
 ./
 
@@ -955,7 +993,7 @@ case $rule_number: {
 conditional_expression ::= logical_or_expression QUESTION expression COLON assignment_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<TernaryExpression>(AST::Kind_Conditional, expression(1), expression(3), expression(5));
 }   break;
 ./
 
@@ -969,84 +1007,84 @@ case $rule_number: {
 assignment_expression ::= unary_expression assignment_operator assignment_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<AssignmentExpression>(sym(2).kind, expression(1), expression(3));
 }   break;
 ./
 
 assignment_operator ::= EQUAL ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).kind = AST::Kind_Assign;
 }   break;
 ./
 
 assignment_operator ::= MUL_ASSIGN ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).kind = AST::Kind_AssignMultiply;
 }   break;
 ./
 
 assignment_operator ::= DIV_ASSIGN ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).kind = AST::Kind_AssignDivide;
 }   break;
 ./
 
 assignment_operator ::= MOD_ASSIGN ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).kind = AST::Kind_AssignModulus;
 }   break;
 ./
 
 assignment_operator ::= ADD_ASSIGN ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).kind = AST::Kind_AssignPlus;
 }   break;
 ./
 
 assignment_operator ::= SUB_ASSIGN ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).kind = AST::Kind_AssignMinus;
 }   break;
 ./
 
 assignment_operator ::= LEFT_ASSIGN ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).kind = AST::Kind_AssignShiftLeft;
 }   break;
 ./
 
 assignment_operator ::= RIGHT_ASSIGN ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).kind = AST::Kind_AssignShiftRight;
 }   break;
 ./
 
 assignment_operator ::= AND_ASSIGN ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).kind = AST::Kind_AssignAnd;
 }   break;
 ./
 
 assignment_operator ::= XOR_ASSIGN ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).kind = AST::Kind_AssignXor;
 }   break;
 ./
 
 assignment_operator ::= OR_ASSIGN ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).kind = AST::Kind_AssignOr;
 }   break;
 ./
 
@@ -1060,7 +1098,7 @@ case $rule_number: {
 expression ::= expression COMMA assignment_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<BinaryExpression>(AST::Kind_Comma, expression(1), expression(3));
 }   break;
 ./
 
@@ -1088,7 +1126,7 @@ case $rule_number: {
 declaration ::= PRECISION precision_qualifier type_specifier_no_prec SEMICOLON ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<PrecisionDeclaration>(sym(2).precision, type(3));
 }   break;
 ./
 
@@ -1585,742 +1623,749 @@ case $rule_number: {
 type_specifier ::= type_specifier_no_prec ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
 type_specifier ::= precision_qualifier type_specifier_no_prec ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    if (!type(2)->setPrecision(sym(1).precision)) {
+        // TODO: issue an error about precision not allowed on this type.
+    }
+    ast(1) = type(2);
 }   break;
 ./
 
 type_specifier_no_prec ::= type_specifier_nonarray ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
 type_specifier_no_prec ::= type_specifier_nonarray LEFT_BRACKET RIGHT_BRACKET ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<ArrayType>(type(1));
 }   break;
 ./
 
 type_specifier_no_prec ::= type_specifier_nonarray LEFT_BRACKET constant_expression RIGHT_BRACKET ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<ArrayType>(type(1), expression(3));
 }   break;
 ./
 
 type_specifier_nonarray ::= VOID ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_VOID, Type::Void);
 }   break;
 ./
 
 type_specifier_nonarray ::= FLOAT ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_FLOAT, Type::Primitive);
 }   break;
 ./
 
 type_specifier_nonarray ::= DOUBLE ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_DOUBLE, Type::Primitive);
 }   break;
 ./
 
 type_specifier_nonarray ::= INT ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_INT, Type::Primitive);
 }   break;
 ./
 
 type_specifier_nonarray ::= UINT ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_UINT, Type::Primitive);
 }   break;
 ./
 
 type_specifier_nonarray ::= BOOL ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_BOOL, Type::Primitive);
 }   break;
 ./
 
 type_specifier_nonarray ::= VEC2 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_VEC2, Type::Vector2);
 }   break;
 ./
 
 type_specifier_nonarray ::= VEC3 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_VEC3, Type::Vector3);
 }   break;
 ./
 
 type_specifier_nonarray ::= VEC4 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_VEC4, Type::Vector4);
 }   break;
 ./
 
 type_specifier_nonarray ::= DVEC2 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_DVEC2, Type::Vector2);
 }   break;
 ./
 
 type_specifier_nonarray ::= DVEC3 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_DVEC3, Type::Vector3);
 }   break;
 ./
 
 type_specifier_nonarray ::= DVEC4 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_DVEC4, Type::Vector4);
 }   break;
 ./
 
 type_specifier_nonarray ::= BVEC2 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_BVEC2, Type::Vector2);
 }   break;
 ./
 
 type_specifier_nonarray ::= BVEC3 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_BVEC3, Type::Vector3);
 }   break;
 ./
 
 type_specifier_nonarray ::= BVEC4 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_BVEC4, Type::Vector4);
 }   break;
 ./
 
 type_specifier_nonarray ::= IVEC2 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_IVEC2, Type::Vector2);
 }   break;
 ./
 
 type_specifier_nonarray ::= IVEC3 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_IVEC3, Type::Vector3);
 }   break;
 ./
 
 type_specifier_nonarray ::= IVEC4 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_IVEC4, Type::Vector4);
 }   break;
 ./
 
 type_specifier_nonarray ::= UVEC2 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_UVEC2, Type::Vector2);
 }   break;
 ./
 
 type_specifier_nonarray ::= UVEC3 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_UVEC3, Type::Vector3);
 }   break;
 ./
 
 type_specifier_nonarray ::= UVEC4 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_UVEC4, Type::Vector4);
 }   break;
 ./
 
 type_specifier_nonarray ::= MAT2 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_MAT2, Type::Matrix);
 }   break;
 ./
 
 type_specifier_nonarray ::= MAT3 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_MAT3, Type::Matrix);
 }   break;
 ./
 
 type_specifier_nonarray ::= MAT4 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_MAT4, Type::Matrix);
 }   break;
 ./
 
 type_specifier_nonarray ::= MAT2X2 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_MAT2X2, Type::Matrix);
 }   break;
 ./
 
 type_specifier_nonarray ::= MAT2X3 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_MAT2X3, Type::Matrix);
 }   break;
 ./
 
 type_specifier_nonarray ::= MAT2X4 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_MAT2X4, Type::Matrix);
 }   break;
 ./
 
 type_specifier_nonarray ::= MAT3X2 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_MAT3X2, Type::Matrix);
 }   break;
 ./
 
 type_specifier_nonarray ::= MAT3X3 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_MAT3X3, Type::Matrix);
 }   break;
 ./
 
 type_specifier_nonarray ::= MAT3X4 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_MAT3X4, Type::Matrix);
 }   break;
 ./
 
 type_specifier_nonarray ::= MAT4X2 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_MAT4X2, Type::Matrix);
 }   break;
 ./
 
 type_specifier_nonarray ::= MAT4X3 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_MAT4X3, Type::Matrix);
 }   break;
 ./
 
 type_specifier_nonarray ::= MAT4X4 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_MAT4X4, Type::Matrix);
 }   break;
 ./
 
 type_specifier_nonarray ::= DMAT2 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_DMAT2, Type::Matrix);
 }   break;
 ./
 
 type_specifier_nonarray ::= DMAT3 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_DMAT3, Type::Matrix);
 }   break;
 ./
 
 type_specifier_nonarray ::= DMAT4 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_DMAT4, Type::Matrix);
 }   break;
 ./
 
 type_specifier_nonarray ::= DMAT2X2 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_DMAT2X2, Type::Matrix);
 }   break;
 ./
 
 type_specifier_nonarray ::= DMAT2X3 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_DMAT2X3, Type::Matrix);
 }   break;
 ./
 
 type_specifier_nonarray ::= DMAT2X4 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_DMAT2X4, Type::Matrix);
 }   break;
 ./
 
 type_specifier_nonarray ::= DMAT3X2 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_DMAT3X2, Type::Matrix);
 }   break;
 ./
 
 type_specifier_nonarray ::= DMAT3X3 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_DMAT3X3, Type::Matrix);
 }   break;
 ./
 
 type_specifier_nonarray ::= DMAT3X4 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_DMAT3X4, Type::Matrix);
 }   break;
 ./
 
 type_specifier_nonarray ::= DMAT4X2 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_DMAT4X2, Type::Matrix);
 }   break;
 ./
 
 type_specifier_nonarray ::= DMAT4X3 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_DMAT4X3, Type::Matrix);
 }   break;
 ./
 
 type_specifier_nonarray ::= DMAT4X4 ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_DMAT4X4, Type::Matrix);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLER1D ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_SAMPLER1D, Type::Sampler1D);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLER2D ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_SAMPLER2D, Type::Sampler2D);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLER3D ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_SAMPLER3D, Type::Sampler3D);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLERCUBE ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_SAMPLERCUBE, Type::SamplerCube);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLER1DSHADOW ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_SAMPLER1DSHADOW, Type::Sampler1DShadow);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLER2DSHADOW ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_SAMPLER2DSHADOW, Type::Sampler2DShadow);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLERCUBESHADOW ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_SAMPLERCUBESHADOW, Type::SamplerCubeShadow);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLER1DARRAY ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_SAMPLER1DARRAY, Type::Sampler1DArray);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLER2DARRAY ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_SAMPLER2DARRAY, Type::Sampler2DArray);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLER1DARRAYSHADOW ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_SAMPLER1DARRAYSHADOW, Type::Sampler1DArrayShadow);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLER2DARRAYSHADOW ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_SAMPLER2DARRAYSHADOW, Type::Sampler2DArrayShadow);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLERCUBEARRAY ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_SAMPLERCUBEARRAY, Type::SamplerCubeShadow);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLERCUBEARRAYSHADOW ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_SAMPLERCUBEARRAYSHADOW, Type::SamplerCubeArrayShadow);
 }   break;
 ./
 
 type_specifier_nonarray ::= ISAMPLER1D ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_ISAMPLER1D, Type::Sampler1D);
 }   break;
 ./
 
 type_specifier_nonarray ::= ISAMPLER2D ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_ISAMPLER2D, Type::Sampler2D);
 }   break;
 ./
 
 type_specifier_nonarray ::= ISAMPLER3D ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_ISAMPLER3D, Type::Sampler3D);
 }   break;
 ./
 
 type_specifier_nonarray ::= ISAMPLERCUBE ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_ISAMPLERCUBE, Type::SamplerCube);
 }   break;
 ./
 
 type_specifier_nonarray ::= ISAMPLER1DARRAY ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_ISAMPLER1DARRAY, Type::Sampler1DArray);
 }   break;
 ./
 
 type_specifier_nonarray ::= ISAMPLER2DARRAY ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_ISAMPLER2DARRAY, Type::Sampler2DArray);
 }   break;
 ./
 
 type_specifier_nonarray ::= ISAMPLERCUBEARRAY ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_ISAMPLERCUBEARRAY, Type::SamplerCubeArray);
 }   break;
 ./
 
 type_specifier_nonarray ::= USAMPLER1D ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_USAMPLER1D, Type::Sampler1D);
 }   break;
 ./
 
 type_specifier_nonarray ::= USAMPLER2D ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_USAMPLER2D, Type::Sampler2D);
 }   break;
 ./
 
 type_specifier_nonarray ::= USAMPLER3D ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_USAMPLER3D, Type::Sampler3D);
 }   break;
 ./
 
 type_specifier_nonarray ::= USAMPLERCUBE ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_USAMPLERCUBE, Type::SamplerCube);
 }   break;
 ./
 
 type_specifier_nonarray ::= USAMPLER1DARRAY ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_USAMPLER1DARRAY, Type::Sampler1DArray);
 }   break;
 ./
 
 type_specifier_nonarray ::= USAMPLER2DARRAY ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_USAMPLER2DARRAY, Type::Sampler2DArray);
 }   break;
 ./
 
 type_specifier_nonarray ::= USAMPLERCUBEARRAY ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_USAMPLERCUBEARRAY, Type::SamplerCubeArray);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLER2DRECT ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_SAMPLER2DRECT, Type::Sampler2DRect);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLER2DRECTSHADOW ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_SAMPLER2DRECTSHADOW, Type::Sampler2DRectShadow);
 }   break;
 ./
 
 type_specifier_nonarray ::= ISAMPLER2DRECT ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_ISAMPLER2DRECT, Type::Sampler2DRect);
 }   break;
 ./
 
 type_specifier_nonarray ::= USAMPLER2DRECT ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_USAMPLER2DRECT, Type::Sampler2DRect);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLERBUFFER ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_SAMPLERBUFFER, Type::SamplerBuffer);
 }   break;
 ./
 
 type_specifier_nonarray ::= ISAMPLERBUFFER ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_ISAMPLERBUFFER, Type::SamplerBuffer);
 }   break;
 ./
 
 type_specifier_nonarray ::= USAMPLERBUFFER ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_USAMPLERBUFFER, Type::SamplerBuffer);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLER2DMS ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_SAMPLER2DMS, Type::Sampler2DMS);
 }   break;
 ./
 
 type_specifier_nonarray ::= ISAMPLER2DMS ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_ISAMPLER2DMS, Type::Sampler2DMS);
 }   break;
 ./
 
 type_specifier_nonarray ::= USAMPLER2DMS ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_USAMPLER2DMS, Type::Sampler2DMS);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLER2DMSARRAY ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_SAMPLER2DMSARRAY, Type::Sampler2DMSArray);
 }   break;
 ./
 
 type_specifier_nonarray ::= ISAMPLER2DMSARRAY ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_ISAMPLER2DMSARRAY, Type::Sampler2DMSArray);
 }   break;
 ./
 
 type_specifier_nonarray ::= USAMPLER2DMSARRAY ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeBasicType(T_USAMPLER2DMSARRAY, Type::Sampler2DMSArray);
 }   break;
 ./
 
 type_specifier_nonarray ::= struct_specifier ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
 type_specifier_nonarray ::= TYPE_NAME ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<NamedType>(string(1));
 }   break;
 ./
 
 precision_qualifier ::= HIGHP ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).precision = Type::Highp;
 }   break;
 ./
 
 precision_qualifier ::= MEDIUMP ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).precision = Type::Mediump;
 }   break;
 ./
 
 precision_qualifier ::= LOWP ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).precision = Type::Lowp;
 }   break;
 ./
 
 struct_specifier ::= STRUCT IDENTIFIER LEFT_BRACE struct_declaration_list RIGHT_BRACE ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<StructType>(string(2), sym(4).field_list);
 }   break;
 ./
 
 struct_specifier ::= STRUCT LEFT_BRACE struct_declaration_list RIGHT_BRACE ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<StructType>(sym(3).field_list);
 }   break;
 ./
 
 struct_declaration_list ::= struct_declaration ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
 struct_declaration_list ::= struct_declaration_list struct_declaration ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).field_list = appendLists(sym(1).field_list, sym(2).field_list);
 }   break;
 ./
 
 struct_declaration ::= type_specifier struct_declarator_list SEMICOLON ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).field_list = StructType::fixInnerTypes(type(1), sym(2).field_list);
 }   break;
 ./
 
 struct_declaration ::= type_qualifier type_specifier struct_declarator_list SEMICOLON ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // TODO: type qualifier
+    sym(1).field_list = StructType::fixInnerTypes(type(2), sym(3).field_list);
 }   break;
 ./
 
 struct_declarator_list ::= struct_declarator ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
+    sym(1).field_list = makeAstNode< List<StructType::Field *> >(sym(1).field);
 }   break;
 ./
 
 struct_declarator_list ::= struct_declarator_list COMMA struct_declarator ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).field_list = makeAstNode< List<StructType::Field *> >(sym(1).field_list, sym(3).field);
 }   break;
 ./
 
 struct_declarator ::= IDENTIFIER ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).field = makeAstNode<StructType::Field>(string(1));
 }   break;
 ./
 
 struct_declarator ::= IDENTIFIER LEFT_BRACKET RIGHT_BRACKET ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).field = makeAstNode<StructType::Field>
+        (string(1), makeAstNode<ArrayType>((Type *)0));
 }   break;
 ./
 
 struct_declarator ::= IDENTIFIER LEFT_BRACKET constant_expression RIGHT_BRACKET ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).field = makeAstNode<StructType::Field>
+        (string(1), makeAstNode<ArrayType>((Type *)0, expression(3)));
 }   break;
 ./
 
@@ -2341,161 +2386,163 @@ case $rule_number: {
 statement ::= compound_statement ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
 statement ::= simple_statement ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
 simple_statement ::= declaration_statement ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
 simple_statement ::= expression_statement ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
 simple_statement ::= selection_statement ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
 simple_statement ::= switch_statement ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
 simple_statement ::= case_label ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
 simple_statement ::= iteration_statement ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
 simple_statement ::= jump_statement ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
 compound_statement ::= LEFT_BRACE RIGHT_BRACE ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<CompoundStatement>();
 }   break;
 ./
 
 compound_statement ::= LEFT_BRACE statement_list RIGHT_BRACE ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<CompoundStatement>(sym(2).statement_list);
 }   break;
 ./
 
 statement_no_new_scope ::= compound_statement_no_new_scope ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
 statement_no_new_scope ::= simple_statement ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
 compound_statement_no_new_scope ::= LEFT_BRACE RIGHT_BRACE ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<CompoundStatement>();
 }   break;
 ./
 
 compound_statement_no_new_scope ::= LEFT_BRACE statement_list RIGHT_BRACE ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<CompoundStatement>(sym(2).statement_list);
 }   break;
 ./
 
 statement_list ::= statement ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).statement_list = makeAstNode< List<Statement *> >(sym(1).statement);
 }   break;
 ./
 
 statement_list ::= statement_list statement ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).statement_list = makeAstNode< List<Statement *> >(sym(1).statement_list, sym(2).statement);
 }   break;
 ./
 
 expression_statement ::= SEMICOLON ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<CompoundStatement>();  // Empty statement
 }   break;
 ./
 
 expression_statement ::= expression SEMICOLON ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<ExpressionStatement>(expression(1));
 }   break;
 ./
 
 selection_statement ::= IF LEFT_PAREN expression RIGHT_PAREN selection_rest_statement ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<IfStatement>(expression(3), sym(5).ifstmt.thenClause, sym(5).ifstmt.elseClause);
 }   break;
 ./
 
 selection_rest_statement ::= statement ELSE statement ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).ifstmt.thenClause = statement(1);
+    sym(1).ifstmt.elseClause = statement(3);
 }   break;
 ./
 
 selection_rest_statement ::= statement ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).ifstmt.thenClause = statement(1);
+    sym(1).ifstmt.elseClause = 0;
 }   break;
 ./
 
 condition ::= expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
@@ -2509,133 +2556,135 @@ case $rule_number: {
 switch_statement ::= SWITCH LEFT_PAREN expression RIGHT_PAREN LEFT_BRACE switch_statement_list RIGHT_BRACE ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<SwitchStatement>(expression(3), statement(6));
 }   break;
 ./
 
 switch_statement_list ::= empty ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<CompoundStatement>();
 }   break;
 ./
 
 switch_statement_list ::= statement_list ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<CompoundStatement>(sym(1).statement_list);
 }   break;
 ./
 
 case_label ::= CASE expression COLON ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<CaseLabelStatement>(expression(2));
 }   break;
 ./
 
 case_label ::= DEFAULT COLON ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<CaseLabelStatement>();
 }   break;
 ./
 
 iteration_statement ::= WHILE LEFT_PAREN condition RIGHT_PAREN statement_no_new_scope ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<WhileStatement>(expression(3), statement(5));
 }   break;
 ./
 
 iteration_statement ::= DO statement WHILE LEFT_PAREN expression RIGHT_PAREN SEMICOLON ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<DoStatement>(statement(2), expression(5));
 }   break;
 ./
 
 iteration_statement ::= FOR LEFT_PAREN for_init_statement for_rest_statement RIGHT_PAREN statement_no_new_scope ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<ForStatement>(statement(3), sym(4).forstmt.condition, sym(4).forstmt.increment, statement(6));
 }   break;
 ./
 
 for_init_statement ::= expression_statement ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
 for_init_statement ::= declaration_statement ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
 conditionopt ::= empty ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
 conditionopt ::= condition ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
 for_rest_statement ::= conditionopt SEMICOLON ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).forstmt.condition = expression(1);
+    sym(1).forstmt.increment = 0;
 }   break;
 ./
 
 for_rest_statement ::= conditionopt SEMICOLON expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).forstmt.condition = expression(1);
+    sym(1).forstmt.increment = expression(3);
 }   break;
 ./
 
 jump_statement ::= CONTINUE SEMICOLON ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<JumpStatement>(AST::Kind_Continue);
 }   break;
 ./
 
 jump_statement ::= BREAK SEMICOLON ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<JumpStatement>(AST::Kind_Break);
 }   break;
 ./
 
 jump_statement ::= RETURN SEMICOLON ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<ReturnStatement>();
 }   break;
 ./
 
 jump_statement ::= RETURN expression SEMICOLON ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<ReturnStatement>(expression(2));
 }   break;
 ./
 
 jump_statement ::= DISCARD SEMICOLON ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<JumpStatement>(AST::Kind_Discard);
 }   break;
 ./
 

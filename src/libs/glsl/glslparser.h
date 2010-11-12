@@ -51,7 +51,27 @@ public:
         List<Declaration *> *declaration_list;
         Expression *expression;
         List<Expression *> *expression_list;
+        Statement *statement;
+        List<Statement *> *statement_list;
+        Type *type;
+        StructType::Field *field;
+        List<StructType::Field *> *field_list;
         TranslationUnit *translation_unit;
+        FunctionIdentifier *function_identifier;
+        AST::Kind kind;
+        Type::Precision precision;
+        struct {
+            Statement *thenClause;
+            Statement *elseClause;
+        } ifstmt;
+        struct {
+            Expression *condition;
+            Expression *increment;
+        } forstmt;
+        struct {
+            FunctionIdentifier *id;
+            List<Expression *> *arguments;
+        } function;
         // ### ast nodes...
     };
 
@@ -65,6 +85,9 @@ private:
     Value &sym(int n) { return _symStack[_tos + n - 1]; }
     AST *&ast(int n) { return _symStack[_tos + n - 1].ast; }
     const std::string *&string(int n) { return _symStack[_tos + n - 1].string; }
+    Expression *&expression(int n) { return _symStack[_tos + n - 1].expression; }
+    Statement *&statement(int n) { return _symStack[_tos + n - 1].statement; }
+    Type *&type(int n) { return _symStack[_tos + n - 1].type; }
 
     inline int consumeToken() { return _index++; }
     inline const Token &tokenAt(int index) const { return _tokens.at(index); }
@@ -109,6 +132,13 @@ private:
         T *node = new (_engine->pool()) T (a1, a2, a3, a4);
         node->lineno = yyloc >= 0 ? (_tokens[yyloc].line + 1) : 0;
         return node;
+    }
+
+    Type *makeBasicType(int token, BasicType::Category category)
+    {
+        Type *type = new (_engine->pool()) BasicType(token, spell[token], category);
+        type->lineno = yyloc >= 0 ? (_tokens[yyloc].line + 1) : 0;
+        return type;
     }
 
 private:
