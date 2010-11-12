@@ -781,7 +781,9 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     if (contextFinder.isInStringLiteral()) {
         const Interpreter::Value *value = getPropertyValue(qmlScopeType, contextFinder.bindingPropertyName(), context);
 
-        if (value->asUrlValue()) {
+        if (!value) {
+            // do nothing
+        } else if (value->asUrlValue()) {
             QTextCursor tc = edit->textCursor();
             QmlExpressionUnderCursor expressionUnderCursor;
             expressionUnderCursor(tc);
