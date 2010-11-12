@@ -280,6 +280,7 @@ void ModeManager::addAction(Command *command, int priority)
 void ModeManager::addProjectSelector(QAction *action)
 {
     d->m_actionBar->addProjectSelector(action);
+    d->m_actions.insert(0, INT_MAX);
 }
 
 void ModeManager::currentTabAboutToChange(int index)
