@@ -42,6 +42,7 @@
 #include "maemotoolchain.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
+#include <debugger/debuggerconstants.h>
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 
@@ -174,7 +175,7 @@ bool MaemoRunControlFactory::canRun(RunConfiguration *runConfiguration,
         = maemoRunConfig->toolchain()->allowsRemoteMounts()
             ? maemoRunConfig->remoteMounts()->validMountSpecificationCount()
             : 0;
-    if (mode == ProjectExplorer::Constants::DEBUGMODE)
+    if (mode == Debugger::Constants::DEBUGMODE)
         return freePortCount >= mountDirCount + maemoRunConfig->portsUsedByDebuggers();
     if (mode == ProjectExplorer::Constants::RUNMODE)
         return freePortCount >= mountDirCount;
@@ -185,7 +186,7 @@ RunControl* MaemoRunControlFactory::create(RunConfiguration *runConfig,
     const QString &mode)
 {
     Q_ASSERT(mode == ProjectExplorer::Constants::RUNMODE
-        || mode == ProjectExplorer::Constants::DEBUGMODE);
+        || mode == Debugger::Constants::DEBUGMODE);
     Q_ASSERT(canRun(runConfig, mode));
     MaemoRunConfiguration *rc = qobject_cast<MaemoRunConfiguration *>(runConfig);
     Q_ASSERT(rc);

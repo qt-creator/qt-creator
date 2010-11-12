@@ -122,7 +122,7 @@ DebuggerRunControlFactory::DebuggerRunControlFactory(QObject *parent,
 bool DebuggerRunControlFactory::canRun(RunConfiguration *runConfiguration, const QString &mode) const
 {
 //    return mode == ProjectExplorer::Constants::DEBUGMODE;
-    return mode == ProjectExplorer::Constants::DEBUGMODE
+    return mode == Constants::DEBUGMODE
             && qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
 }
 
@@ -208,7 +208,7 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
 RunControl *DebuggerRunControlFactory::create
     (RunConfiguration *runConfiguration, const QString &mode)
 {
-    QTC_ASSERT(mode == ProjectExplorer::Constants::DEBUGMODE, return 0);
+    QTC_ASSERT(mode == Constants::DEBUGMODE, return 0);
     DebuggerStartParameters sp = localStartParameters(runConfiguration);
     return create(sp, runConfiguration);
 }
@@ -277,7 +277,7 @@ DebuggerRunnerPrivate::DebuggerRunnerPrivate(RunConfiguration *runConfiguration,
 
 DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
         unsigned enabledEngines, const DebuggerStartParameters &sp)
-    : RunControl(runConfiguration, ProjectExplorer::Constants::DEBUGMODE),
+    : RunControl(runConfiguration, Constants::DEBUGMODE),
       d(new DebuggerRunnerPrivate(runConfiguration, enabledEngines))
 {
     connect(this, SIGNAL(finished()), this, SLOT(handleFinished()));

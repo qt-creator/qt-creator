@@ -112,6 +112,7 @@ public:
     static QStringList projectFilePatterns();
     bool coreAboutToClose();
 
+    bool canRun(Project *pro, const QString &runMode);
     void runProject(Project *pro, QString mode);
 
 signals:
@@ -127,6 +128,8 @@ signals:
     void aboutToExecuteProject(ProjectExplorer::Project *project, const QString &runMode);
 
     void settingsChanged();
+
+    void updateRunActions();
 
 public slots:
     void openOpenProjectDialog();
@@ -151,7 +154,6 @@ private slots:
     void cleanProjectContextMenu();
     void cleanSession();
     void cancelBuild();
-    void debugProject();
     void loadAction();
     void unloadProject();
     void clearSession();
@@ -197,7 +199,7 @@ private slots:
     void activeRunConfigurationChanged();
 
     void updateDeployActions();
-    void updateRunActions();
+    void slotUpdateRunActions();
 
     void loadProject(const QString &project) { openProject(project); }
     void currentModeChanged(Core::IMode *mode, Core::IMode *oldMode);

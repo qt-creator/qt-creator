@@ -123,7 +123,7 @@ S60Manager::S60Manager(QObject *parent)
 
     addAutoReleasedObject(new RunControlFactory<S60DeviceDebugRunControl,
                                             S60DeviceRunConfiguration>
-                                            (QLatin1String(ProjectExplorer::Constants::DEBUGMODE),
+                                            (QLatin1String(Debugger::Constants::DEBUGMODE),
                                              tr("Debug on Device"), parent));
     updateQtVersions();
     connect(m_devices, SIGNAL(qtVersionsChanged()),

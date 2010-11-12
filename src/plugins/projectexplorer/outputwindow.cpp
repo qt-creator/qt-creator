@@ -87,9 +87,6 @@ OutputPane::OutputPane() :
     m_runIcon.addFile(Constants::ICON_RUN);
     m_runIcon.addFile(Constants::ICON_RUN_SMALL);
 
-    m_debugIcon.addFile(Constants::ICON_DEBUG);
-    m_debugIcon.addFile(Constants::ICON_DEBUG_SMALL);
-
     // Rerun
     m_reRunButton->setIcon(m_runIcon);
     m_reRunButton->setToolTip(tr("Re-run this run-configuration"));
@@ -394,7 +391,7 @@ void OutputPane::tabChanged(int i)
         RunControl *rc = m_runControlTabs.at(index).runControl;
         m_stopAction->setEnabled(rc->isRunning());
         m_reRunButton->setEnabled(!rc->isRunning());
-        m_reRunButton->setIcon(rc->runMode() == Constants::DEBUGMODE ? m_debugIcon : m_runIcon);
+        m_reRunButton->setIcon(m_runIcon);
     }
 }
 
@@ -404,7 +401,7 @@ void OutputPane::runControlStarted()
     if (current && current == sender()) {
         m_reRunButton->setEnabled(false);
         m_stopAction->setEnabled(true);
-        m_reRunButton->setIcon(current->runMode() == Constants::DEBUGMODE ? m_debugIcon : m_runIcon);
+        m_reRunButton->setIcon(m_runIcon);
     }
 }
 
@@ -425,7 +422,7 @@ void OutputPane::runControlFinished()
     if (current && current == sender()) {
         m_reRunButton->setEnabled(true);
         m_stopAction->setEnabled(false);
-        m_reRunButton->setIcon(current->runMode() == Constants::DEBUGMODE ? m_debugIcon : m_runIcon);
+        m_reRunButton->setIcon(m_runIcon);
     }
     // Check for asynchronous close. Close the tab.
     if (m_runControlTabs.at(senderIndex).asyncClosing)

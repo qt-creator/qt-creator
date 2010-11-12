@@ -160,7 +160,6 @@ struct ProjectExplorerPluginPrivate {
     QAction *m_runAction;
     QAction *m_runActionContextMenu;
     QAction *m_cancelBuildAction;
-    QAction *m_debugAction;
     QAction *m_addNewFileAction;
     QAction *m_addExistingFilesAction;
     QAction *m_addNewSubprojectAction;
@@ -689,18 +688,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd = am->registerAction(d->m_cancelBuildAction, Constants::CANCELBUILD, globalcontext);
     mbuild->addAction(cmd, Constants::G_BUILD_CANCEL);
 
-    // debug action
-    QIcon debuggerIcon(":/projectexplorer/images/debugger_start_small.png");
-    debuggerIcon.addFile(":/projectexplorer/images/debugger_start.png");
-    d->m_debugAction = new QAction(debuggerIcon, tr("Start Debugging"), this);
-    cmd = am->registerAction(d->m_debugAction, Constants::DEBUG, globalcontext);
-    cmd->setAttribute(Core::Command::CA_UpdateText);
-    cmd->setAttribute(Core::Command::CA_UpdateIcon);
-    cmd->setDefaultText(tr("Start Debugging"));
-    cmd->setDefaultKeySequence(QKeySequence(Constants::DEBUG_KEY));
-    mstartdebugging->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
-    modeManager->addAction(cmd, Constants::P_ACTION_DEBUG);
-
     // add new file action
     d->m_addNewFileAction = new QAction(tr("Add New..."), this);
     cmd = am->registerAction(d->m_addNewFileAction, ProjectExplorer::Constants::ADDNEWFILE,
@@ -841,7 +828,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(d->m_runAction, SIGNAL(triggered()), this, SLOT(runProject()));
     connect(d->m_runActionContextMenu, SIGNAL(triggered()), this, SLOT(runProjectContextMenu()));
     connect(d->m_cancelBuildAction, SIGNAL(triggered()), this, SLOT(cancelBuild()));
-    connect(d->m_debugAction, SIGNAL(triggered()), this, SLOT(debugProject()));
     connect(d->m_unloadAction, SIGNAL(triggered()), this, SLOT(unloadProject()));
     connect(d->m_clearSession, SIGNAL(triggered()), this, SLOT(clearSession()));
     connect(d->m_addNewFileAction, SIGNAL(triggered()), this, SLOT(addNewFile()));
@@ -855,6 +841,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(d->m_deleteFileAction, SIGNAL(triggered()), this, SLOT(deleteFile()));
     connect(d->m_renameFileAction, SIGNAL(triggered()), this, SLOT(renameFile()));
     connect(d->m_setStartupProjectAction, SIGNAL(triggered()), this, SLOT(setStartupProject()));
+
+    connect(this, SIGNAL(updateRunActions()), this, SLOT(slotUpdateRunActions()));
 
     updateActions();
 
@@ -1368,7 +1356,7 @@ void ProjectExplorerPlugin::startRunControl(RunControl *runControl, const QStrin
             this, SLOT(runControlFinished()));
 
     runControl->start();
-    updateRunActions();
+    emit updateRunActions();
 }
 
 void ProjectExplorerPlugin::buildQueueFinished(bool success)
@@ -1755,16 +1743,7 @@ void ProjectExplorerPlugin::runProject(Project *pro, QString mode)
     } else {
         executeRunConfiguration(pro->activeTarget()->activeRunConfiguration(), mode);
     }
-    updateRunActions();
-}
-
-void ProjectExplorerPlugin::debugProject()
-{
-    Project *pro = startupProject();
-    if (!pro)
-        return;
-
-    runProject(pro, ProjectExplorer::Constants::DEBUGMODE);
+    emit updateRunActions();
 }
 
 bool ProjectExplorerPlugin::showBuildConfigDialog()
@@ -1794,7 +1773,7 @@ bool ProjectExplorerPlugin::showBuildConfigDialog()
 
 void ProjectExplorerPlugin::runControlFinished()
 {
-    updateRunActions();
+    emit updateRunActions();
 }
 
 void ProjectExplorerPlugin::startupProjectChanged()
@@ -1821,7 +1800,7 @@ void ProjectExplorerPlugin::startupProjectChanged()
 
     activeTargetChanged();
 
-    updateRunActions();
+    emit updateRunActions();
 }
 
 void ProjectExplorerPlugin::activeTargetChanged()
@@ -1857,14 +1836,14 @@ void ProjectExplorerPlugin::activeRunConfigurationChanged()
         return;
     if (previousRunConfiguration) {
         disconnect(previousRunConfiguration, SIGNAL(isEnabledChanged(bool)),
-                   this, SLOT(updateRunActions()));
+                   this, SIGNAL(updateRunActions()));
     }
     previousRunConfiguration = rc;
     if (rc) {
         connect(rc, SIGNAL(isEnabledChanged(bool)),
-                this, SLOT(updateRunActions()));
+                this, SIGNAL(updateRunActions()));
     }
-    updateRunActions();
+    emit updateRunActions();
 }
 
 // NBS TODO implement more than one runner
@@ -1904,43 +1883,28 @@ void ProjectExplorerPlugin::updateDeployActions()
 
     d->m_deploySessionAction->setEnabled(hasProjects && !building);
 
-    updateRunActions();
+    emit updateRunActions();
 }
 
-void ProjectExplorerPlugin::updateRunActions()
+bool ProjectExplorerPlugin::canRun(Project *project, const QString &runMode)
 {
-    const Project *project = startupProject();
-
     if (!project ||
         !project->activeTarget() ||
         !project->activeTarget()->activeRunConfiguration()) {
-
-        d->m_runAction->setToolTip(tr("Cannot run without a project."));
-        d->m_debugAction->setToolTip(tr("Cannot debug without a project."));
-
-        d->m_runAction->setEnabled(false);
-        d->m_debugAction->setEnabled(false);
-        return;
+        return false;
     }
-    d->m_runAction->setToolTip(QString());
-    d->m_debugAction->setToolTip(QString());
-
     RunConfiguration *activeRC = project->activeTarget()->activeRunConfiguration();
 
-    bool canRun = findRunControlFactory(activeRC, ProjectExplorer::Constants::RUNMODE)
+    bool canRun = findRunControlFactory(activeRC, runMode)
                   && activeRC->isEnabled();
-    const bool canDebug = findRunControlFactory(activeRC, ProjectExplorer::Constants::DEBUGMODE)
-                          && activeRC->isEnabled();
     const bool building = d->m_buildManager->isBuilding();
+    return (canRun && !building);
+}
 
-    d->m_runAction->setEnabled(canRun && !building);
-
-    canRun = session()->startupProject() && findRunControlFactory(activeRC, ProjectExplorer::Constants::RUNMODE);
-
-    d->m_runActionContextMenu->setEnabled(canRun && !building);
-
-    d->m_debugAction->setEnabled(canDebug && !building);
-
+void ProjectExplorerPlugin::slotUpdateRunActions()
+{
+    Project *project = startupProject();
+    d->m_runAction->setEnabled(canRun(project, ProjectExplorer::Constants::RUNMODE));
 }
 
 void ProjectExplorerPlugin::cancelBuild()

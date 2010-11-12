@@ -84,6 +84,15 @@ namespace Internal {
 const char * const OPENED_BY_DEBUGGER         = "OpenedByDebugger";
 const char * const OPENED_WITH_DISASSEMBLY    = "DisassemblerView";
 
+const char * const DEBUGMODE            = "Debugger.DebugMode";
+const char * const DEBUG                = "Debugger.Debug";
+const int          P_ACTION_DEBUG       = 90; //priority for the modemanager
+#ifdef Q_OS_MAC
+const char * const DEBUG_KEY = "Ctrl+Y";
+#else
+const char * const DEBUG_KEY = "F5";
+#endif
+
 } // namespace Constants
 
 

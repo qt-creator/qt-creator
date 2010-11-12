@@ -175,7 +175,7 @@ RunControl *QmlRunControlFactory::create(RunConfiguration *runConfiguration,
     RunControl *runControl = 0;
     if (mode == ProjectExplorer::Constants::RUNMODE) {
        runControl = new QmlRunControl(config, mode);
-    } else if (mode == ProjectExplorer::Constants::DEBUGMODE) {
+    } else if (mode == Debugger::Constants::DEBUGMODE) {
         runControl = createDebugRunControl(config);
     }
     return runControl;

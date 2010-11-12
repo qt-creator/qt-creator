@@ -139,7 +139,6 @@ private:
     QToolButton *m_reRunButton;
     QToolButton *m_stopButton;
     QIcon m_runIcon;
-    QIcon m_debugIcon;
 };
 
 

@@ -68,7 +68,6 @@ const char * const RUNCONFIGURATIONMENU = "ProjectExplorer.RunConfigurationMenu"
 const char * const RUN                  = "ProjectExplorer.Run";
 const char * const RUNCONTEXTMENU       = "ProjectExplorer.RunContextMenu";
 const char * const STOP                 = "ProjectExplorer.Stop";
-const char * const DEBUG                = "ProjectExplorer.Debug";
 const char * const DEPENDENCIES         = "ProjectExplorer.Dependencies";
 const char * const FINDINALLPROJECTS    = "ProjectExplorer.FindInAllProjects";
 const char * const SHOWPROPERTIES       = "ProjectExplorer.ShowProperties";
@@ -90,14 +89,12 @@ const char * const SHOW_TASK_OUTPUT     = "ProjectExplorer.ShowTaskOutput";
 
 // Run modes
 const char * const RUNMODE              = "ProjectExplorer.RunMode";
-const char * const DEBUGMODE            = "ProjectExplorer.DebugMode";
 
 const char * const SELECTTARGET         = "ProjectExplorer.SelectTarget";
 
 
 // action priorities
 const int          P_ACTION_RUN            = 100;
-const int          P_ACTION_DEBUG          = 90;
 const int          P_ACTION_BUILDSESSION   = 80;
 
 // context
@@ -228,12 +225,6 @@ const char * const DEFAULT_DEPLOYCONFIGURATION_ID = "ProjectExplorer.DefaultDepl
 
 // Run Configuration defaults:
 const int QML_DEFAULT_DEBUG_SERVER_PORT = 3768;
-
-#ifdef Q_OS_MAC
-const char * const DEBUG_KEY = "Ctrl+Y";
-#else
-const char * const DEBUG_KEY = "F5";
-#endif
 
 } // namespace Constants
 } // namespace ProjectExplorer
