@@ -48,6 +48,7 @@ CompletionContextFinder::CompletionContextFinder(const QTextCursor &cursor)
     , m_colonCount(-1)
     , m_behaviorBinding(false)
     , m_inStringLiteral(false)
+    , m_inImport(false)
 {
     QTextBlock lastBlock = cursor.block();
     if (lastBlock.next().isValid())
@@ -74,6 +75,7 @@ CompletionContextFinder::CompletionContextFinder(const QTextCursor &cursor)
 
     getQmlObjectTypeName(m_startTokenIndex);
     checkBinding();
+    checkImport();
 }
 
 void CompletionContextFinder::getQmlObjectTypeName(int startTokenIndex)
@@ -196,6 +198,92 @@ void CompletionContextFinder::checkBinding()
         m_colonCount = colonCount;
 }
 
+void CompletionContextFinder::checkImport()
+{
+    YY_SAVE();
+
+    //qDebug() << "Start line:" << *yyLine << m_startTokenIndex;
+
+    int i = m_startTokenIndex;
+    bool stop = false;
+    enum State {
+        Unknown,
+        ExpectImport =              1 << 0,
+        ExpectTargetDot =           1 << 1,
+        ExpectTargetIdentifier =    1 << 2,
+        ExpectAnyTarget =           1 << 3,
+        ExpectVersion =             1 << 4,
+        ExpectAs =                  1 << 5
+    };
+    State state = Unknown;
+
+    while (!stop) {
+        if (i < 0) {
+            if (!readLine())
+                break;
+            else
+                i = yyLinizerState.tokens.size() - 1;
+            //qDebug() << "New Line" << *yyLine;
+        }
+
+        const Token &token = yyLinizerState.tokens.at(i);
+        //qDebug() << "Token:" << yyLine->mid(token.begin(), token.length);
+
+        switch (token.kind) {
+        case Token::Identifier: {
+            const QStringRef tokenString = yyLine->midRef(token.begin(), token.length);
+            if (tokenString == QLatin1String("as")) {
+                if (state == Unknown) {
+                    state = State(ExpectAnyTarget | ExpectVersion);
+                    break;
+                }
+            } else if (tokenString == QLatin1String("import")) {
+                if (state == Unknown || (state & ExpectImport)) {
+                    m_inImport = true;
+                }
+            } else {
+                if (state == Unknown || (state & ExpectAnyTarget)
+                        || (state & ExpectTargetIdentifier)) {
+                    state = State(ExpectImport | ExpectTargetDot);
+                    break;
+                }
+            }
+            stop = true;
+            break;
+        }
+        case Token::String:
+            if (state == Unknown || (state & ExpectAnyTarget)) {
+                state = ExpectImport;
+                break;
+            }
+            stop = true;
+            break;
+        case Token::Number:
+            if (state == Unknown || (state & ExpectVersion)) {
+                state = ExpectAnyTarget;
+                break;
+            }
+            stop = true;
+            break;
+        case Token::Dot:
+            if (state == Unknown || (state & ExpectTargetDot)) {
+                state = ExpectTargetIdentifier;
+                break;
+            }
+            stop = true;
+            break;
+
+        default:
+            stop = true;
+            break;
+        }
+
+        --i;
+    }
+
+    YY_RESTORE();
+}
+
 QStringList CompletionContextFinder::qmlObjectTypeName() const
 {
     return m_qmlObjectTypeName;
@@ -233,6 +321,11 @@ bool CompletionContextFinder::isAfterOnInLhsOfBinding() const
 bool QmlJS::CompletionContextFinder::isInStringLiteral() const
 {
     return m_inStringLiteral;
+}
+
+bool QmlJS::CompletionContextFinder::isInImport() const
+{
+    return m_inImport;
 }
 
 int CompletionContextFinder::findOpeningBrace(int startTokenIndex)

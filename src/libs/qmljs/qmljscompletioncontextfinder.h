@@ -53,11 +53,13 @@ public:
     QStringList bindingPropertyName() const;
 
     bool isInStringLiteral() const;
+    bool isInImport() const;
 
 private:
     int findOpeningBrace(int startTokenIndex);
     void getQmlObjectTypeName(int startTokenIndex);
     void checkBinding();
+    void checkImport();
 
     QTextCursor m_cursor;
     QStringList m_qmlObjectTypeName;
@@ -66,6 +68,7 @@ private:
     int m_colonCount;
     bool m_behaviorBinding;
     bool m_inStringLiteral;
+    bool m_inImport;
 };
 
 } // namespace QmlJS
