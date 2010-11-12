@@ -2866,13 +2866,22 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
 
             int count = d->m_highlightBlocksInfo.count();
             if (count) {
-                QRectF rr = r;
-                rr.setWidth(viewport()->width());
-                if (lineX > 0)
-                    rr.setRight(qMin(lineX, rr.right()));
                 for (int i = 0; i <= depth; ++i) {
+                    const QColor &blendedColor = calcBlendColor(baseColor, i, count);
                     int vi = i > 0 ? d->m_highlightBlocksInfo.visualIndent.at(i-1) : 0;
-                    painter.fillRect(rr.adjusted(vi, 0, -8*i, 0), calcBlendColor(baseColor, i, count));
+                    QRectF oneRect = r;
+                    oneRect.setWidth(viewport()->width());
+                    oneRect.adjust(vi, 0, -8*i, 0);
+                    if (oneRect.left() >= oneRect.right())
+                        continue;
+                    if (lineX > 0 && oneRect.left() < lineX && oneRect.right() > lineX) {
+                        QRectF otherRect = r;
+                        otherRect.setLeft(lineX + 1);
+                        otherRect.setRight(oneRect.right());
+                        oneRect.setRight(lineX - 1);
+                        painter.fillRect(otherRect, blendedColor);
+                    }
+                    painter.fillRect(oneRect, blendedColor);
                 }
             }
             offsetFP.ry() += r.height();
