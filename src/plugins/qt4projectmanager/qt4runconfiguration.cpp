@@ -75,7 +75,6 @@ const char * const USE_TERMINAL_KEY("Qt4ProjectManager.Qt4RunConfiguration.UseTe
 const char * const USE_DYLD_IMAGE_SUFFIX_KEY("Qt4ProjectManager.Qt4RunConfiguration.UseDyldImageSuffix");
 const char * const USER_ENVIRONMENT_CHANGES_KEY("Qt4ProjectManager.Qt4RunConfiguration.UserEnvironmentChanges");
 const char * const BASE_ENVIRONMENT_BASE_KEY("Qt4ProjectManager.Qt4RunConfiguration.BaseEnvironmentBase");
-const char * const USER_SET_WORKING_DIRECTORY_KEY("Qt4ProjectManager.Qt4RunConfiguration.UserSetWorkingDirectory");
 const char * const USER_WORKING_DIRECTORY_KEY("Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory");
 
 QString pathFromId(const QString &id)
@@ -101,7 +100,6 @@ Qt4RunConfiguration::Qt4RunConfiguration(Qt4Target *parent, const QString &proFi
     m_proFilePath(proFilePath),
     m_runMode(Gui),
     m_isUsingDyldImageSuffix(false),
-    m_userSetWokingDirectory(false),
     m_baseEnvironmentBase(Qt4RunConfiguration::BuildEnvironmentBase),
     m_parseSuccess(parent->qt4Project()->validParse(m_proFilePath))
 {
@@ -114,7 +112,6 @@ Qt4RunConfiguration::Qt4RunConfiguration(Qt4Target *parent, Qt4RunConfiguration 
     m_proFilePath(source->m_proFilePath),
     m_runMode(source->m_runMode),
     m_isUsingDyldImageSuffix(source->m_isUsingDyldImageSuffix),
-    m_userSetWokingDirectory(source->m_userSetWokingDirectory),
     m_userWorkingDirectory(source->m_userWorkingDirectory),
     m_userEnvironmentChanges(source->m_userEnvironmentChanges),
     m_baseEnvironmentBase(source->m_baseEnvironmentBase),
@@ -510,7 +507,6 @@ QVariantMap Qt4RunConfiguration::toMap() const
     map.insert(QLatin1String(USE_DYLD_IMAGE_SUFFIX_KEY), m_isUsingDyldImageSuffix);
     map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY), Utils::EnvironmentItem::toStringList(m_userEnvironmentChanges));
     map.insert(QLatin1String(BASE_ENVIRONMENT_BASE_KEY), m_baseEnvironmentBase);
-    map.insert(QLatin1String(USER_SET_WORKING_DIRECTORY_KEY), m_userSetWokingDirectory);
     map.insert(QLatin1String(USER_WORKING_DIRECTORY_KEY), m_userWorkingDirectory);
     return map;
 }
@@ -523,7 +519,6 @@ bool Qt4RunConfiguration::fromMap(const QVariantMap &map)
     m_runMode = map.value(QLatin1String(USE_TERMINAL_KEY), false).toBool() ? Console : Gui;
     m_isUsingDyldImageSuffix = map.value(QLatin1String(USE_DYLD_IMAGE_SUFFIX_KEY), false).toBool();
 
-    m_userSetWokingDirectory = map.value(QLatin1String(USER_SET_WORKING_DIRECTORY_KEY), false).toBool();
     m_userWorkingDirectory = map.value(QLatin1String(USER_WORKING_DIRECTORY_KEY)).toString();
 
     m_userEnvironmentChanges = Utils::EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
@@ -567,7 +562,7 @@ QString Qt4RunConfiguration::workingDirectory() const
 QString Qt4RunConfiguration::baseWorkingDirectory() const
 {
     // if the user overrode us, then return his working directory
-    if (m_userSetWokingDirectory)
+    if (!m_userWorkingDirectory.isEmpty())
         return m_userWorkingDirectory;
 
     // else what the pro file reader tells us
@@ -647,15 +642,13 @@ void Qt4RunConfiguration::setUserEnvironmentChanges(const QList<Utils::Environme
 
 void Qt4RunConfiguration::setBaseWorkingDirectory(const QString &wd)
 {
-    if (wd.isEmpty()) {
-        m_userSetWokingDirectory = false;
-        m_userWorkingDirectory.clear();
-        emit baseWorkingDirectoryChanged(workingDirectory());
-    } else {
-        m_userSetWokingDirectory = true;
-        m_userWorkingDirectory = wd;
-        emit baseWorkingDirectoryChanged(m_userWorkingDirectory);
-    }
+    const QString &oldWorkingDirectory = workingDirectory();
+
+    m_userWorkingDirectory = wd;
+
+    const QString &newWorkingDirectory = workingDirectory();
+    if (oldWorkingDirectory != newWorkingDirectory)
+        emit baseWorkingDirectoryChanged(newWorkingDirectory);
 }
 
 void Qt4RunConfiguration::setBaseCommandLineArguments(const QString &argumentsString)

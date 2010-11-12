@@ -148,7 +148,6 @@ private:
     ProjectExplorer::LocalApplicationRunConfiguration::RunMode m_runMode;
     bool m_userSetName;
     bool m_isUsingDyldImageSuffix;
-    bool m_userSetWokingDirectory;
     QString m_userWorkingDirectory;
     QList<Utils::EnvironmentItem> m_userEnvironmentChanges;
     BaseEnvironmentBase m_baseEnvironmentBase;
