@@ -33,6 +33,10 @@
 #include "glsleditorplugin.h"
 #include "glslhighlighter.h"
 
+#include <glsl/glsllexer.h>
+#include <glsl/glslparser.h>
+#include <glsl/glslengine.h>
+
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/uniqueidmanager.h>
@@ -56,6 +60,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QSignalMapper>
 #include <QtCore/QTimer>
+#include <QtCore/QDebug>
 
 #include <QtGui/QMenu>
 #include <QtGui/QComboBox>
@@ -199,10 +204,8 @@ void GLSLTextEditor::createToolBar(GLSLEditorEditable *editable)
 {
     m_outlineCombo = new QComboBox;
     m_outlineCombo->setMinimumContentsLength(22);
-#ifdef __GNUC__
-#warning set up the outline model
-#endif
-    // m_outlineCombo->setModel(m_outlineModel);
+
+    // ### m_outlineCombo->setModel(m_outlineModel);
 
     QTreeView *treeView = new QTreeView;
     treeView->header()->hide();
@@ -236,8 +239,20 @@ void GLSLTextEditor::unCommentSelection()
 
 void GLSLTextEditor::updateDocument()
 {
+    m_updateDocumentTimer->start();
 }
 
 void GLSLTextEditor::updateDocumentNow()
 {
+    m_updateDocumentTimer->stop();
+
+    const int variant = Lexer::Variant_GLSL_Qt; // ### hardcoded
+    const QString contents = toPlainText(); // get the code from the editor
+    const QByteArray preprocessedCode = contents.toLatin1(); // ### use the QtCreator C++ preprocessor.
+
+    Engine engine;
+    Parser parser(&engine, preprocessedCode.constData(), preprocessedCode.size(), variant);
+    TranslationUnit *ast = parser.parse();
+    // ### process the ast
+    (void) ast;
 }
