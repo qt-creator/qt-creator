@@ -222,7 +222,7 @@ private:
     QString directoryFor(Node *node);
     void deploy(QList<Project *>);
     int queue(QList<Project *>, QStringList stepIds);
-    void updateContextMenuActions(Node *node);
+    void updateContextMenuActions();
     bool parseArguments(const QStringList &arguments, QString *error);
     void runProjectImpl(Project *pro, QString mode);
     void executeRunConfiguration(RunConfiguration *, const QString &mode);

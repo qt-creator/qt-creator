@@ -39,6 +39,8 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icontext.h>
+
 #include <utils/qtcassert.h>
 #include <utils/navigationtreeview.h>
 
@@ -69,7 +71,18 @@ public:
         setEditTriggers(QAbstractItemView::EditKeyPressed);
         setContextMenuPolicy(Qt::CustomContextMenu);
 //        setExpandsOnDoubleClick(false);
+        Core::Context context(Constants::C_PROJECT_TREE);
+        m_context = new Core::BaseContext(this, context);
+        Core::ICore::instance()->addContextObject(m_context);
     }
+    ~ProjectTreeView()
+    {
+        Core::ICore::instance()->removeContextObject(m_context);
+        delete m_context;
+    }
+
+private:
+    Core::BaseContext *m_context;
 };
 
 /*!

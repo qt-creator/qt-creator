@@ -102,6 +102,7 @@ const int          P_ACTION_BUILDSESSION   = 80;
 
 // context
 const char * const C_PROJECTEXPLORER    = "Project Explorer";
+const char * const C_PROJECT_TREE       = "ProjectExplorer.ProjectTreeContext";
 
 // languages
 const char * const LANG_CXX             = "CXX";
