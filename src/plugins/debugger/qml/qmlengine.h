@@ -38,7 +38,7 @@
 namespace Debugger {
 class QmlAdapter;
 
-struct QmlEnginePrivate;
+class QmlEnginePrivate;
 
 class DEBUGGER_EXPORT QmlEngine : public DebuggerEngine
 {

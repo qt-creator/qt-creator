@@ -11,7 +11,7 @@ class IEditor;
 
 namespace Debugger {
 
-struct QmlCppEnginePrivate;
+class QmlCppEnginePrivate;
 
 class DEBUGGER_EXPORT QmlCppEngine : public DebuggerEngine
 {

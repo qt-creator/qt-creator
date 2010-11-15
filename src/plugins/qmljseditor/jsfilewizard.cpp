@@ -95,7 +95,7 @@ JsFileWizard::JsFileWizard(const BaseFileWizardParameters &parameters,
 }
 
 Core::GeneratedFiles JsFileWizard::generateFiles(const QWizard *w,
-                                                 QString */*errorMessage*/) const
+                                                 QString * /*errorMessage*/) const
 {
     const JsFileWizardDialog *wizardDialog = qobject_cast<const JsFileWizardDialog *>(w);
     const QString path = wizardDialog->path();
