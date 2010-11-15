@@ -99,7 +99,7 @@ public:
 
     bool isLocatedAt(const QString &fileName, int lineNumber,
         bool useMarkerPosition) const;
-    bool conditionsMatch(const QString &other) const;
+    bool conditionsMatch(const QByteArray &other) const;
     QString functionName() const { return m_functionName; }
     QString markerFileName() const { return m_markerFileName; }
     QString fileName() const { return m_fileName; }

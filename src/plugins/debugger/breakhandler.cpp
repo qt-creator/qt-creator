@@ -489,8 +489,10 @@ void BreakHandler::setter(BreakpointId id, const type &value) \
     Iterator it = m_storage.find(id); \
     QTC_ASSERT(it != m_storage.end(), \
         qDebug() << "ID" << id << "NOT KNOWN"; return); \
-    if (it->data.setter(value)) \
-        scheduleSynchronization(); \
+    if (!it->data.setter(value)) \
+        return; \
+    it->state = BreakpointChangeRequested; \
+    scheduleSynchronization(); \
 }
 
 #define PROPERTY(type, getter, setter) \
@@ -524,6 +526,7 @@ void BreakHandler::setEnabled(BreakpointId id, bool on)
     //qDebug() << "SET ENABLED: " << id << it->data.isEnabled() << on;
     if (it->data.setEnabled(on)) {
         it->destroyMarker();
+        it->state = BreakpointChangeRequested;
         updateMarker(id);
         scheduleSynchronization();
     }
@@ -576,6 +579,14 @@ void BreakHandler::ackIgnoreCount(BreakpointId id)
     Iterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return);
     it->response.bpIgnoreCount = it->data.ignoreCount();
+    updateMarker(id);
+}
+
+void BreakHandler::ackEnabled(BreakpointId id)
+{
+    Iterator it = m_storage.find(id);
+    QTC_ASSERT(it != m_storage.end(), return);
+    it->response.bpEnabled = it->data.isEnabled();
     updateMarker(id);
 }
 
@@ -825,10 +836,11 @@ void BreakHandler::cleanupBreakpoint(BreakpointId id)
     layoutChanged();
 }
 
-BreakpointResponse BreakHandler::response(BreakpointId id) const
+const BreakpointResponse &BreakHandler::response(BreakpointId id) const
 {
+    static BreakpointResponse dummy;
     ConstIterator it = m_storage.find(id);
-    QTC_ASSERT(it != m_storage.end(), return BreakpointResponse());
+    QTC_ASSERT(it != m_storage.end(), return dummy);
     return it->response;
 }
 
@@ -839,25 +851,6 @@ void BreakHandler::setResponse(BreakpointId id, const BreakpointResponse &data)
     it->response = BreakpointResponse(data);
     updateMarker(id);
 }
-#if 0
-void BreakHandler::notifyBreakpointAdjusted(BreakpointId id)
-{
-    QTC_ASSERT(state(id)== BreakpointChangeProceeding, /**/);
-    bp->bpNumber      = rbp.bpNumber;
-    bp->bpCondition   = rbp.bpCondition;
-    bp->bpIgnoreCount = rbp.bpIgnoreCount;
-    bp->bpFileName    = rbp.bpFileName;
-    bp->bpFullName    = rbp.bpFullName;
-    bp->bpLineNumber  = rbp.bpLineNumber;
-    bp->bpCorrectedLineNumber = rbp.bpCorrectedLineNumber;
-    bp->bpThreadSpec  = rbp.bpThreadSpec;
-    bp->bpFuncName    = rbp.bpFuncName;
-    bp->bpAddress     = rbp.bpAddress;
-    bp->bpMultiple    = rbp.bpMultiple;
-    bp->bpEnabled     = rbp.bpEnabled;
-    setState(id, BreakpointOk);
-}
-#endif
 
 void BreakHandler::BreakpointItem::destroyMarker()
 {

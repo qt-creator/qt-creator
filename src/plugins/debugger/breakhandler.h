@@ -124,13 +124,13 @@ public:
 
     DebuggerEngine *engine(BreakpointId id) const;
     void setEngine(BreakpointId id, DebuggerEngine *engine);
-    BreakpointResponse response(BreakpointId id) const;
+    const BreakpointResponse &response(BreakpointId id) const;
     void setResponse(BreakpointId id, const BreakpointResponse &data);
 
     // Incorporate debugger feedback. No synchronization request needed.
-    // Return true if something changed.
     void ackCondition(BreakpointId id);
     void ackIgnoreCount(BreakpointId id);
+    void ackEnabled(BreakpointId id);
 
     void notifyBreakpointInsertOk(BreakpointId id);
     void notifyBreakpointInsertFailed(BreakpointId id);

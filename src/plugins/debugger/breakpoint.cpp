@@ -124,13 +124,13 @@ bool BreakpointData::isLocatedAt(const QString &fileName, int lineNumber,
     return lineNumber == line && fileNameMatch(fileName, m_markerFileName);
 }
 
-bool BreakpointData::conditionsMatch(const QString &other) const
+bool BreakpointData::conditionsMatch(const QByteArray &other) const
 {
     // Some versions of gdb "beautify" the passed condition.
-    QString s1 = m_condition;
-    s1.remove(QChar(' '));
-    QString s2 = other;
-    s2.remove(QChar(' '));
+    QByteArray s1 = m_condition;
+    s1.replace(' ', "");
+    QByteArray s2 = other;
+    s2.replace(' ', "");
     return s1 == s2;
 }
 
