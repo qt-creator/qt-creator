@@ -499,6 +499,7 @@ PROPERTY(QByteArray, threadSpec, setThreadSpec)
 PROPERTY(QByteArray, condition, setCondition)
 PROPERTY(int, lineNumber, setLineNumber)
 PROPERTY(quint64, address, setAddress)
+PROPERTY(int, ignoreCount, setIgnoreCount)
 
 DebuggerEngine *BreakHandler::engine(BreakpointId id) const
 {
