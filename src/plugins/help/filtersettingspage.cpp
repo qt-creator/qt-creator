@@ -247,6 +247,12 @@ void FilterSettingsPage::apply()
     }
 }
 
+void FilterSettingsPage::finish()
+{
+    disconnect(Core::HelpManager::instance(), SIGNAL(documentationChanged()),
+        this, SLOT(updateFilterPage()));
+}
+
 bool FilterSettingsPage::matches(const QString &s) const
 {
     return m_searchKeywords.contains(s, Qt::CaseInsensitive);
