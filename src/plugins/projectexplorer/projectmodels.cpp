@@ -512,6 +512,16 @@ bool FlatModel::filter(Node *node) const
     return isHidden;
 }
 
+bool isSorted(const QList<Node *> &nodes)
+{
+    int size = nodes.size();
+    for (int i = 0; i < size -1; ++i) {
+        if (!sortNodes(nodes.at(i), nodes.at(i+1)))
+            return false;
+    }
+    return true;
+}
+
 /// slots and all the fun
 void FlatModel::added(FolderNode* parentNode, const QList<Node*> &newNodeList)
 {
@@ -525,6 +535,21 @@ void FlatModel::added(FolderNode* parentNode, const QList<Node*> &newNodeList)
     // Compare lists and emit signals, and modify m_childNodes on the fly
     QList<Node *>::const_iterator oldIter = oldNodeList.constBegin();
     QList<Node *>::const_iterator newIter = newNodeList.constBegin();
+
+    Q_ASSERT(isSorted(oldNodeList));
+    Q_ASSERT(isSorted(newNodeList));
+
+    QSet<Node *> emptyDifference;
+    emptyDifference = oldNodeList.toSet();
+    emptyDifference.subtract(newNodeList.toSet());
+    if (!emptyDifference.isEmpty()) {
+        // This should not happen...
+        qDebug() << "FlatModel::added, old Node list should be subset of newNode list, found files in old list which were not part of new list";
+        foreach (Node *n, emptyDifference) {
+            qDebug()<<n->path();
+        }
+        Q_ASSERT(false);
+    }
 
     // optimization, check for old list is empty
     if (oldIter == oldNodeList.constEnd()) {
@@ -591,10 +616,26 @@ void FlatModel::removed(FolderNode* parentNode, const QList<Node*> &newNodeList)
     QHash<FolderNode*, QList<Node*> >::const_iterator it = m_childNodes.constFind(parentNode);
     if (it == m_childNodes.constEnd())
         return;
+
     QList<Node *> oldNodeList = it.value();
     // Compare lists and emit signals, and modify m_childNodes on the fly
     QList<Node *>::const_iterator oldIter = oldNodeList.constBegin();
     QList<Node *>::const_iterator newIter = newNodeList.constBegin();
+
+    Q_ASSERT(isSorted(oldNodeList));
+    Q_ASSERT(isSorted(newNodeList));
+
+    QSet<Node *> emptyDifference;
+    emptyDifference = newNodeList.toSet();
+    emptyDifference.subtract(oldNodeList.toSet());
+    if (!emptyDifference.isEmpty()) {
+        // This should not happen...
+        qDebug() << "FlatModel::removed, new Node list should be subset of oldNode list, found files in new list which were not part of old list";
+        foreach (Node *n, emptyDifference) {
+            qDebug()<<n->path();
+        }
+        Q_ASSERT(false);
+    }
 
     // optimization, check for new list is empty
     if (newIter == newNodeList.constEnd()) {
