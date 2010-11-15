@@ -844,6 +844,23 @@ static void formatAddress(QTextStream &str, quint64 address)
     }
 }
 
+static QString stateToString(BreakpointState state)
+{
+    switch (state) {
+        case BreakpointNew: return "new";
+        case BreakpointInsertRequested: return "insertion requested";
+        case BreakpointInsertProceeding: return "insertion proceeding";
+        case BreakpointChangeRequested: return "change requested";
+        case BreakpointChangeProceeding: return "change proceeding";
+        case BreakpointPending: return "breakpoint pending";
+        case BreakpointInserted: return "breakpoint inserted";
+        case BreakpointRemoveRequested: return "removal requested";
+        case BreakpointRemoveProceeding: return "removal is proceeding";
+        case BreakpointDead: return "dead";
+        default: return "<invalid state>";
+    }
+};
+
 QString BreakHandler::BreakpointItem::toToolTip() const
 {
     QString t;
@@ -870,7 +887,7 @@ QString BreakHandler::BreakpointItem::toToolTip() const
     str << "<html><body><table>"
         //<< "<tr><td>" << tr("Id:") << "</td><td>" << m_id << "</td></tr>"
         << "<tr><td>" << tr("State:")
-        << "</td><td>" << state << "</td></tr>"
+        << "</td><td>" << state << "(" << stateToString(state) << ")</td></tr>"
         << "<tr><td>" << tr("Engine:")
         << "</td><td>" << (engine ? engine->objectName() : "0") << "</td></tr>"
         << "<tr><td>" << tr("Marker File:")
