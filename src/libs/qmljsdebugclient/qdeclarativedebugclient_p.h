@@ -90,7 +90,7 @@ protected:
 private:
     friend class QDeclarativeDebugConnection;
     friend class QDeclarativeDebugConnectionPrivate;
-    QScopedPointer<QDeclarativeDebugClientPrivate> d;
+    QScopedPointer<QDeclarativeDebugClientPrivate> d_ptr;
 };
 
 }

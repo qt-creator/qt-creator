@@ -758,7 +758,7 @@ void DebuggerEngine::notifyEngineRunFailed()
     d->m_progress.reportCanceled();
     d->m_progress.reportFinished();
     setState(EngineRunFailed);
-    d->queueShutdownEngine();
+    d->queueShutdownInferior();
 }
 
 void DebuggerEngine::notifyEngineRunAndInferiorRunOk()
@@ -980,8 +980,8 @@ void DebuggerEngine::notifyInferiorExited()
 
 void DebuggerEngine::setState(DebuggerState state, bool forced)
 {
-    //qDebug() << "STATUS CHANGE: FROM " << stateName(d->m_state)
-    //         << " TO " << stateName(state);
+    qDebug() << "STATUS CHANGE: FROM " << stateName(d->m_state)
+             << " TO " << stateName(state);
 
     DebuggerState oldState = d->m_state;
     d->m_state = state;

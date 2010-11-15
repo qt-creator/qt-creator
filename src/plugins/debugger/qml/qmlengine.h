@@ -51,12 +51,10 @@ public:
     void handleRemoteSetupDone(int port);
     void handleRemoteSetupFailed(const QString &message);
 
-    void setAttachToRunningExternalApp(bool value);
-    void shutdownInferiorAsSlave();
-    void shutdownEngineAsSlave();
-    void pauseConnection();
     void gotoLocation(const QString &fileName, int lineNumber, bool setMarker);
     void gotoLocation(const Internal::StackFrame &frame, bool setMarker);
+
+    void pauseConnection();
 
 public slots:
     void messageReceived(const QByteArray &message);
@@ -127,6 +125,10 @@ private slots:
 private:
     void expandObject(const QByteArray &iname, quint64 objectId);
     void sendPing();
+
+    void closeConnection();
+    void startApplicationLauncher();
+    void stopApplicationLauncher();
 
     bool isShadowBuildProject() const;
     QString fromShadowBuildFilename(const QString &filename) const;

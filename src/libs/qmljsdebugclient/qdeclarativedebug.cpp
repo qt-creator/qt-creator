@@ -49,6 +49,7 @@ class QDeclarativeEngineDebugClient : public QDeclarativeDebugClient
 {
 public:
     QDeclarativeEngineDebugClient(QDeclarativeDebugConnection *client, QDeclarativeEngineDebugPrivate *p);
+    ~QDeclarativeEngineDebugClient();
 
 protected:
     virtual void statusChanged(Status status);
@@ -93,6 +94,10 @@ public:
 QDeclarativeEngineDebugClient::QDeclarativeEngineDebugClient(QDeclarativeDebugConnection *client,
                                            QDeclarativeEngineDebugPrivate *p)
 : QDeclarativeDebugClient(QLatin1String("QDeclarativeEngine"), client), priv(p)
+{
+}
+
+QDeclarativeEngineDebugClient::~QDeclarativeEngineDebugClient()
 {
 }
 

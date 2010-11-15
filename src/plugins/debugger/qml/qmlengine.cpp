@@ -143,26 +143,23 @@ static QDataStream &operator>>(QDataStream &s, StackFrame &frame)
 
 } // namespace Internal
 
+
 using namespace Internal;
 
-struct QmlEnginePrivate
-{
+class QmlEnginePrivate {
+public:
     explicit QmlEnginePrivate(QmlEngine *q);
 
+    friend class QmlEngine;
+private:
     int m_ping;
     QmlAdapter *m_adapter;
     ProjectExplorer::ApplicationLauncher m_applicationLauncher;
-    bool m_addedAdapterToObjectPool;
-    bool m_attachToRunningExternalApp;
-    bool m_hasShutdown;
 };
 
-QmlEnginePrivate::QmlEnginePrivate(QmlEngine *q)
-    : m_ping(0)
-    , m_adapter(new QmlAdapter(q))
-    , m_addedAdapterToObjectPool(false)
-    , m_attachToRunningExternalApp(false)
-    , m_hasShutdown(false)
+QmlEnginePrivate::QmlEnginePrivate(QmlEngine *q) :
+  m_ping(0)
+, m_adapter(new QmlAdapter(q))
 {
 }
 
@@ -180,16 +177,7 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters)
 
 QmlEngine::~QmlEngine()
 {
-}
-
-void QmlEngine::setAttachToRunningExternalApp(bool value)
-{
-    d->m_attachToRunningExternalApp = value;
-}
-
-void QmlEngine::pauseConnection()
-{
-    d->m_adapter->pauseConnection();
+    delete d->m_adapter;
 }
 
 void QmlEngine::gotoLocation(const QString &fileName, int lineNumber, bool setMarker)
@@ -242,11 +230,11 @@ void QmlEngine::connectionEstablished()
         ExtensionSystem::PluginManager::instance();
     pluginManager->addObject(d->m_adapter);
     pluginManager->addObject(this);
-    d->m_addedAdapterToObjectPool = true;
 
     showMessage(tr("QML Debugger connected."), StatusBar);
 
     notifyEngineRunAndInferiorRunOk();
+
 }
 
 void QmlEngine::connectionStartupFailed()
@@ -271,18 +259,51 @@ void QmlEngine::serviceConnectionError(const QString &serviceName)
         .arg(serviceName), StatusBar);
 }
 
+void QmlEngine::pauseConnection()
+{
+    d->m_adapter->pauseConnection();
+}
+
+void QmlEngine::closeConnection()
+{
+    ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
+    if (pluginManager->allObjects().contains(this)) {
+        disconnect(d->m_adapter, SIGNAL(connectionStartupFailed()), this, SLOT(connectionStartupFailed()));
+        d->m_adapter->closeConnection();
+
+        pluginManager->removeObject(d->m_adapter);
+        pluginManager->removeObject(this);
+    }
+}
+
+
 void QmlEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
 
-    if (!d->m_attachToRunningExternalApp) {
-        d->m_applicationLauncher.start(ProjectExplorer::ApplicationLauncher::Gui,
-                                    startParameters().executable,
-                                    startParameters().processArgs);
+    if (!isSlaveEngine()) {
+        startApplicationLauncher();
     }
 
     d->m_adapter->beginConnection();
     showMessage(tr("QML Debugger connecting..."), StatusBar);
+}
+
+void QmlEngine::startApplicationLauncher()
+{
+    if (!d->m_applicationLauncher.isRunning()) {
+        d->m_applicationLauncher.start(ProjectExplorer::ApplicationLauncher::Gui,
+                                    startParameters().executable,
+                                    startParameters().processArgs);
+    }
+}
+
+void QmlEngine::stopApplicationLauncher()
+{
+    if (d->m_applicationLauncher.isRunning()) {
+        disconnect(&d->m_applicationLauncher, SIGNAL(processExited(int)), this, SLOT(disconnected()));
+        d->m_applicationLauncher.stop();
+    }
 }
 
 void QmlEngine::handleRemoteSetupDone(int port)
@@ -299,82 +320,25 @@ void QmlEngine::handleRemoteSetupFailed(const QString &message)
     notifyInferiorSetupFailed();
 }
 
-void QmlEngine::shutdownInferiorAsSlave()
-{
-    resetLocation();
-
-    // This can be issued in almost any state. We assume, though,
-    // that at this point of time the inferior is not running anymore,
-    // even if stop notification were not issued or got lost.
-    if (state() == InferiorRunOk) {
-        setState(InferiorStopRequested);
-        setState(InferiorStopOk);
-        setState(InferiorShutdownRequested);
-        setState(InferiorShutdownOk);
-    } else {
-        // force
-        setState(InferiorShutdownRequested, true);
-        setState(InferiorShutdownOk);
-    }
-}
-
-void QmlEngine::shutdownEngineAsSlave()
-{
-    if (d->m_hasShutdown)
-        return;
-
-    disconnect(d->m_adapter, SIGNAL(connectionStartupFailed()),
-        this, SLOT(connectionStartupFailed()));
-    d->m_adapter->closeConnection();
-
-    if (d->m_addedAdapterToObjectPool) {
-        ExtensionSystem::PluginManager *pluginManager =
-            ExtensionSystem::PluginManager::instance();
-        pluginManager->removeObject(d->m_adapter);
-        pluginManager->removeObject(this);
-    }
-
-    if (d->m_attachToRunningExternalApp) {
-        setState(EngineShutdownRequested, true);
-        setState(EngineShutdownOk, true);
-        setState(DebuggerFinished, true);
-    } else {
-        if (d->m_applicationLauncher.isRunning()) {
-            // should only happen if engine is ill
-            disconnect(&d->m_applicationLauncher, SIGNAL(processExited(int)),
-                this, SLOT(disconnected()));
-            d->m_applicationLauncher.stop();
-        }
-    }
-    d->m_hasShutdown = true;
-}
-
 void QmlEngine::shutdownInferior()
 {
-    // don't do normal shutdown if running as slave engine
-    if (d->m_attachToRunningExternalApp)
-        return;
-
-    QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
-    if (!d->m_applicationLauncher.isRunning()) {
-        showMessage(tr("Trying to stop while process is no longer running."), LogError);
-    } else {
-        disconnect(&d->m_applicationLauncher, SIGNAL(processExited(int)),
-            this, SLOT(disconnected()));
-        if (!d->m_attachToRunningExternalApp)
-            d->m_applicationLauncher.stop();
+    if (isSlaveEngine()) {
+        resetLocation();
     }
+    stopApplicationLauncher();
     notifyInferiorShutdownOk();
 }
 
 void QmlEngine::shutdownEngine()
 {
-    QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
+    closeConnection();
 
-    shutdownEngineAsSlave();
+    // double check (ill engine?):
+    stopApplicationLauncher();
 
     notifyEngineShutdownOk();
-    showMessage(QString(), StatusBar);
+    if (!isSlaveEngine())
+        showMessage(QString(), StatusBar);
 }
 
 void QmlEngine::setupEngine()

@@ -20,6 +20,7 @@ public:
     explicit QmlCppEngine(const DebuggerStartParameters &sp);
     virtual ~QmlCppEngine();
 
+    DebuggerLanguage activeEngine() const;
     void setActiveEngine(DebuggerLanguage language);
 
     virtual void setToolTipExpression(const QPoint &mousePos,
@@ -107,9 +108,9 @@ private slots:
 
 private:
     void setupSlaveEngineOnTimer();
-    void finishDebugger();
-    void handleSlaveEngineStateChange(const DebuggerState &newState);
-    void handleSlaveEngineStateChangeAsActive(const DebuggerState &newState);
+    void initEngineShutdown();
+    bool checkErrorState(const DebuggerState stateToCheck);
+    void engineStateChanged(const DebuggerState &newState);
 
 private:
     QScopedPointer<QmlCppEnginePrivate> d;

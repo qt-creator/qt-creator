@@ -30,27 +30,24 @@ DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &sp)
 
 } // namespace Internal
 
-struct QmlCppEnginePrivate
-{
+class QmlCppEnginePrivate {
+public:
     QmlCppEnginePrivate();
+    ~QmlCppEnginePrivate() {}
 
+    friend class QmlCppEngine;
+private:
     QmlEngine *m_qmlEngine;
     DebuggerEngine *m_cppEngine;
     DebuggerEngine *m_activeEngine;
-    bool m_shutdownOk;
-    bool m_shutdownDeferred;
-    bool m_shutdownDone;
-    bool m_isInitialStartup;
+    DebuggerState m_errorState;
 };
 
-QmlCppEnginePrivate::QmlCppEnginePrivate()
-    : m_qmlEngine(0)
-    , m_cppEngine(0)
-    , m_activeEngine(0)
-    , m_shutdownOk(true)
-    , m_shutdownDeferred(false)
-    , m_shutdownDone(false)
-    , m_isInitialStartup(true)
+QmlCppEnginePrivate::QmlCppEnginePrivate() :
+    m_qmlEngine(0),
+    m_cppEngine(0),
+    m_activeEngine(0),
+    m_errorState(InferiorRunOk)
 {
 }
 
@@ -58,7 +55,6 @@ QmlCppEngine::QmlCppEngine(const DebuggerStartParameters &sp)
     : DebuggerEngine(sp), d(new QmlCppEnginePrivate)
 {
     d->m_qmlEngine = qobject_cast<QmlEngine*>(Internal::createQmlEngine(sp));
-    d->m_qmlEngine->setAttachToRunningExternalApp(true);
 
     if (startParameters().cppEngineType == GdbEngineType) {
         d->m_cppEngine = Internal::createGdbEngine(sp);
@@ -87,10 +83,10 @@ QmlCppEngine::QmlCppEngine(const DebuggerStartParameters &sp)
 
 QmlCppEngine::~QmlCppEngine()
 {
-    delete d->m_qmlEngine;
-    d->m_qmlEngine = 0;
-    delete d->m_cppEngine;
-    d->m_cppEngine = 0;
+    if (d->m_qmlEngine)
+        delete d->m_qmlEngine;
+    if (d->m_cppEngine)
+        delete d->m_cppEngine;
 }
 
 void QmlCppEngine::editorChanged(Core::IEditor *editor)
@@ -126,6 +122,15 @@ void QmlCppEngine::setActiveEngine(DebuggerLanguage language)
         showStatusMessage(tr("%1 debugger activated").arg(engineName));
         Internal::debuggerCore()->displayDebugger(d->m_activeEngine, updateEngine);
     }
+}
+
+DebuggerLanguage QmlCppEngine::activeEngine() const
+{
+    if (d->m_activeEngine == d->m_cppEngine)
+        return CppLanguage;
+    if (d->m_activeEngine == d->m_qmlEngine)
+        return QmlLanguage;
+    return AnyLanguage;
 }
 
 void QmlCppEngine::setToolTipExpression(const QPoint & mousePos,
@@ -332,17 +337,31 @@ void QmlCppEngine::executeReturn()
 
 void QmlCppEngine::continueInferior()
 {
-    d->m_activeEngine->continueInferior();
+    if (d->m_activeEngine->state() == InferiorStopOk) {
+        d->m_activeEngine->continueInferior();
+    } else {
+        notifyInferiorRunRequested();
+    }
 }
 
 void QmlCppEngine::interruptInferior()
 {
-    d->m_activeEngine->interruptInferior();
+    if (d->m_activeEngine->state() == InferiorRunOk) {
+        d->m_activeEngine->requestInterruptInferior();
+    } else {
+        if (d->m_activeEngine->state() == InferiorStopOk && (!checkErrorState(InferiorStopFailed))) {
+            notifyInferiorStopOk();
+        }
+    }
 }
 
 void QmlCppEngine::requestInterruptInferior()
 {
-    d->m_activeEngine->requestInterruptInferior();
+    DebuggerEngine::requestInterruptInferior();
+
+    if (d->m_activeEngine->state() == InferiorRunOk) {
+        d->m_activeEngine->requestInterruptInferior();
+    }
 }
 
 void QmlCppEngine::executeRunToLine(const QString &fileName, int lineNumber)
@@ -375,6 +394,50 @@ void QmlCppEngine::frameDown()
     d->m_activeEngine->frameDown();
 }
 
+/////////////////////////////////////////////////////////
+
+bool QmlCppEngine::checkErrorState(const DebuggerState stateToCheck)
+{
+    if (d->m_errorState != stateToCheck)
+        return false;
+
+    // reset state ( so that more than one error can accumulate over time )
+    d->m_errorState = InferiorRunOk;
+    switch (stateToCheck) {
+    case InferiorRunOk:
+        // nothing to do
+        break;
+    case EngineRunFailed:
+        notifyEngineRunFailed();
+        break;
+    case EngineSetupFailed:
+        notifyEngineSetupFailed();
+        break;
+    case EngineShutdownFailed:
+        notifyEngineShutdownFailed();
+        break;
+    case InferiorSetupFailed:
+        notifyInferiorSetupFailed();
+        break;
+    case InferiorRunFailed:
+        notifyInferiorRunFailed();
+        break;
+    case InferiorUnrunnable:
+        notifyInferiorUnrunnable();
+        break;
+    case InferiorStopFailed:
+        notifyInferiorStopFailed();
+        break;
+    case InferiorShutdownFailed:
+        notifyInferiorShutdownFailed();
+        break;
+    default:
+        // unexpected
+        break;
+    }
+    return true;
+}
+
 void QmlCppEngine::notifyInferiorRunOk()
 {
     DebuggerEngine::notifyInferiorRunOk();
@@ -390,56 +453,68 @@ void QmlCppEngine::setupEngine()
 
 void QmlCppEngine::setupInferior()
 {
-    // called through notifyEngineSetupOk
+    if (!checkErrorState(InferiorSetupFailed)) {
+        notifyInferiorSetupOk();
+    }
 }
 
 void QmlCppEngine::runEngine()
 {
-    // should never happen
-    showMessage(QString(Q_FUNC_INFO), LogError);
+    if (!checkErrorState(EngineRunFailed)) {
+        if (d->m_errorState == InferiorRunOk) {
+            switch (d->m_activeEngine->state()) {
+            case InferiorRunOk:
+                notifyEngineRunAndInferiorRunOk();
+                break;
+            case InferiorStopOk:
+                notifyEngineRunAndInferiorStopOk();
+                break;
+            default: // not supported?
+                notifyEngineRunFailed();
+                break;
+            }
+        } else {
+            notifyEngineRunFailed();
+        }
+    }
 }
 
 void QmlCppEngine::shutdownInferior()
 {
-    // user wants to stop inferior: always use cpp engine for this.
-    if (d->m_activeEngine == d->m_qmlEngine) {
-        d->m_activeEngine = d->m_cppEngine;
-
-        // we end up in this state after trying to shut down while debugging qml.
-        // b/c qml does not shutdown by itself, restore previous state and continue.
-        if (d->m_qmlEngine->state() == InferiorShutdownRequested) {
-            d->m_qmlEngine->setState(InferiorStopOk, true);
-        }
-
-        if (d->m_qmlEngine->state() == InferiorStopOk) {
-            d->m_qmlEngine->continueInferior();
+    if (!checkErrorState(InferiorShutdownFailed)) {
+        if (d->m_cppEngine->state() == InferiorStopOk) {
+            d->m_cppEngine->shutdownInferior();
+        } else {
+            notifyInferiorShutdownOk();
         }
     }
-    if (d->m_cppEngine->state() == InferiorRunOk) {
-        // first interrupt c++ engine; when done, we can shutdown.
-        d->m_shutdownDeferred = true;
-        d->m_cppEngine->requestInterruptInferior();
+}
+
+void QmlCppEngine::initEngineShutdown()
+{
+    if (d->m_qmlEngine->state() != DebuggerFinished) {
+        d->m_qmlEngine->quitDebugger();
+    } else
+    if (d->m_cppEngine->state() != DebuggerFinished) {
+        d->m_cppEngine->quitDebugger();
+    } else
+    if (state() == EngineSetupRequested) {
+        if (!checkErrorState(EngineSetupFailed)) {
+            notifyEngineSetupOk();
+        }
+    } else
+    if (state() == InferiorStopRequested) {
+        checkErrorState(InferiorStopFailed);
+    } else {
+        quitDebugger();
     }
-    if (!d->m_shutdownDeferred)
-        d->m_cppEngine->shutdownInferior();
 }
 
 void QmlCppEngine::shutdownEngine()
 {
-    d->m_cppEngine->shutdownEngine();
-    d->m_qmlEngine->shutdownEngineAsSlave();
-    notifyEngineShutdownOk();
-}
-
-void QmlCppEngine::finishDebugger()
-{
-    if (!d->m_shutdownDone) {
-        d->m_shutdownDone = true;
-        if (d->m_shutdownOk) {
-            notifyEngineShutdownOk();
-        } else {
-            notifyEngineShutdownFailed();
-        }
+    if (!checkErrorState(EngineShutdownFailed)) {
+        showStatusMessage(tr("Debugging finished"));
+        notifyEngineShutdownOk();
     }
 }
 
@@ -450,227 +525,103 @@ void QmlCppEngine::setupSlaveEngineOnTimer()
 
 void QmlCppEngine::setupSlaveEngine()
 {
-    if (state() == InferiorRunRequested)
+    if (d->m_qmlEngine->state() == DebuggerNotReady)
         d->m_qmlEngine->startDebugger(runControl());
 }
 
 void QmlCppEngine::masterEngineStateChanged(const DebuggerState &newState)
 {
-    //qDebug() << "gdb state set to" << newState;
-
-    switch(newState) {
-    case EngineSetupRequested:
-        // go through this state
-        break;
-
-    case EngineSetupFailed:
-        notifyEngineSetupFailed();
-        break;
-
-    case EngineSetupOk:
-        notifyEngineSetupOk();
-        break;
-
-    case InferiorSetupRequested:
-        // go through this state
-        break;
-
-    case InferiorSetupFailed:
-        notifyInferiorSetupFailed();
-        break;
-
-    case EngineRunRequested:
-        setState(newState);
-        break;
-
-    case EngineRunFailed:
-        notifyEngineRunFailed();
-        break;
-
-    case InferiorUnrunnable:
-        setState(newState);
-        break;
-
-    case InferiorRunRequested:
-        setState(newState);
-        break;
-
-    case InferiorRunOk:
-        if (d->m_qmlEngine->state() == DebuggerNotReady) {
-            if (d->m_isInitialStartup) {
-                d->m_isInitialStartup = false;
-                setupSlaveEngineOnTimer();
-            } else {
-                setupSlaveEngine();
-            }
-        } else {
-            notifyInferiorRunOk();
-        }
-        break;
-
-    case InferiorRunFailed:
-        notifyInferiorRunFailed();
-        break;
-
-    case InferiorStopRequested:
-        if (state() == InferiorRunRequested) {
-            // if stopping on startup, move on to normal state
-            // and go forward. Also, stop connection and continue later if needed.
-            d->m_qmlEngine->pauseConnection();
-            setState(EngineRunRequested, true);
-            notifyEngineRunAndInferiorRunOk();
-            setState(newState);
-        } else {
-            setState(newState);
-        }
-        break;
-
-    case InferiorStopOk:
-        // debugger can stop while qml connection is not made yet, so we can
-        // end up in an illegal state transition here.
-        if (state() == InferiorStopRequested
-         || state() == InferiorRunFailed)
-        {
-            setState(newState);
-        } else if (state() == InferiorRunOk) {
-            // if we break on CPP side while running & engine is QML, switch.
-            if (d->m_activeEngine == d->m_qmlEngine) {
-                setActiveEngine(CppLanguage);
-            }
-            setState(newState);
-        } else if (state() == InferiorRunRequested) {
-            setState(newState, true);
-        }
-        if (d->m_shutdownDeferred) {
-            d->m_activeEngine = d->m_cppEngine;
-            d->m_shutdownDeferred = false;
-            shutdownInferior();
-        }
-        break;
-
-    case InferiorStopFailed:
-        setState(newState);
-        if (d->m_shutdownDeferred) {
-            d->m_activeEngine = d->m_cppEngine;
-            d->m_shutdownDeferred = false;
-            shutdownInferior();
-        }
-        break;
-
-    // here, we shut down the qml engine first.
-    // but due to everything being asynchronous, we cannot guarantee
-    // that it is shut down completely before gdb engine is shut down.
-    case InferiorShutdownRequested:
-        if (d->m_activeEngine == d->m_qmlEngine) {
-            d->m_activeEngine = d->m_cppEngine;
-        }
-
-        d->m_qmlEngine->shutdownInferiorAsSlave();
-        setState(newState);
-        break;
-
-    case InferiorShutdownOk:
-        setState(newState);
-        d->m_qmlEngine->shutdownEngineAsSlave();
-        break;
-
-    case InferiorShutdownFailed:
-        setState(newState);
-        d->m_qmlEngine->shutdownEngineAsSlave();
-        break;
-
-    case EngineShutdownRequested:
-        setState(newState);
-        break;
-
-    case EngineShutdownOk:
-        finishDebugger();
-        break;
-
-    case EngineShutdownFailed:
-        d->m_shutdownOk = false;
-        finishDebugger();
-        break;
-
-    default:
-        break;
+    if (newState == InferiorStopOk) {
+        setActiveEngine(CppLanguage);
     }
+    engineStateChanged(newState);
 }
 
 void QmlCppEngine::slaveEngineStateChanged(const DebuggerState &newState)
 {
-    //qDebug() << "  qml engine changed to" << newState;
-
-    if (d->m_activeEngine == d->m_qmlEngine) {
-        handleSlaveEngineStateChangeAsActive(newState);
-    } else {
-        handleSlaveEngineStateChange(newState);
+    if (newState == InferiorStopOk) {
+        setActiveEngine(QmlLanguage);
     }
+    engineStateChanged(newState);
 }
 
-void QmlCppEngine::handleSlaveEngineStateChange(const DebuggerState &newState)
+
+void QmlCppEngine::engineStateChanged(const DebuggerState &newState)
 {
-    switch(newState) {
+    switch (newState) {
     case InferiorRunOk:
-        if (state() == InferiorRunRequested) {
-            // force state back so that the notification will succeed on init
-            setState(EngineRunRequested, true);
-            notifyEngineRunAndInferiorRunOk();
-        } else {
-            // we have to manually override state with current one, because
-            // otherwise we'll have debugger controls in inconsistent state.
-            setState(state(), true);
+        // startup?
+        if (d->m_qmlEngine->state() == DebuggerNotReady) {
+            setupSlaveEngine();
+        } else
+        if (d->m_cppEngine->state() == DebuggerNotReady) {
+            setupEngine();
+        } else
+        if (state() == EngineSetupRequested) {
+            notifyEngineSetupOk();
+        } else
+        // breakpoint?
+        if (state() == InferiorStopOk) {
+            continueInferior();
+        } else
+        if (state() == InferiorStopRequested) {
+            checkErrorState(InferiorStopFailed);
+        } else
+        if (state() == InferiorRunRequested && (!checkErrorState(InferiorRunFailed)) && (!checkErrorState(InferiorUnrunnable))) {
+            notifyInferiorRunOk();
         }
-
         break;
 
-    case InferiorStopOk:
-        if (state() == InferiorRunOk) {
-            // breakpoint was hit while running the app; change the active engine.
-            setActiveEngine(QmlLanguage);
-            setState(InferiorStopOk);
-        }
-        break;
-
-    case InferiorRunFailed:
-        notifyInferiorRunFailed();
-        break;
-
-    case EngineShutdownFailed:
-        d->m_shutdownOk = false;
-        break;
-
-    default:
-        // reset wrapper engine state to current state.
-        setState(state(), true);
-        break;
-    }
-}
-
-void QmlCppEngine::handleSlaveEngineStateChangeAsActive(const DebuggerState &newState)
-{
-    switch(newState) {
     case InferiorRunRequested:
-        setState(newState);
+        // follow the inferior
+        if (state() == InferiorStopOk && checkErrorState(InferiorRunOk)) {
+            continueInferior();
+        }
         break;
 
-    case InferiorRunOk:
-        setState(newState);
+    case InferiorStopRequested:
+        // follow the inferior
+        if (state() == InferiorRunOk && checkErrorState(InferiorRunOk)) {
+            requestInterruptInferior();
+        }
         break;
 
     case InferiorStopOk:
-        setState(newState);
+        // check breakpoints
+        if (state() == InferiorRunRequested) {
+            checkErrorState(InferiorRunFailed);
+        } else
+        if (checkErrorState(InferiorRunOk)) {
+            if (state() == InferiorRunOk) {
+                requestInterruptInferior();
+            } else
+            if (state() == InferiorStopRequested) {
+                interruptInferior();
+            }
+        }
         break;
 
+    case EngineRunFailed:
+    case EngineSetupFailed:
+    case EngineShutdownFailed:
+    case InferiorSetupFailed:
     case InferiorRunFailed:
-        notifyInferiorRunFailed();
+    case InferiorUnrunnable:
+    case InferiorStopFailed:
+    case InferiorShutdownFailed:
+        if (d->m_errorState == InferiorRunOk) {
+            d->m_errorState = newState;
+        }
         break;
 
     case InferiorShutdownRequested:
-        if (d->m_cppEngine->state() == InferiorRunOk) {
-            // occurs when user presses stop button from debugger UI.
-            shutdownInferior();
+        if (activeEngine() == QmlLanguage) {
+            setActiveEngine(CppLanguage);
         }
+        break;
+
+    case DebuggerFinished:
+        initEngineShutdown();
         break;
 
     default:
