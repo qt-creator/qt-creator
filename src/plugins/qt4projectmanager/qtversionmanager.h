@@ -103,6 +103,8 @@ public:
     void setS60SDKDirectory(const QString &directory);
     QString gcceDirectory() const;
     void setGcceDirectory(const QString &directory);
+    QString sbsV2Directory() const;
+    void setSbsV2Directory(const QString &directory);
 
     QString mingwDirectory() const;
     void setMingwDirectory(const QString &directory);
@@ -184,6 +186,7 @@ private:
     QString m_mwcDirectory;
     QString m_s60SDKDirectory;
     QString m_gcceDirectory;
+    QString m_sbsV2Directory;
 
     mutable bool m_toolChainUpToDate;
     mutable QString m_mkspec; // updated lazily

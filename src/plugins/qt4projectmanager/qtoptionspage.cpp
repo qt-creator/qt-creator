@@ -221,6 +221,8 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
             this, SLOT(updateCurrentS60SDKDirectory()));
     connect(m_ui->gccePath, SIGNAL(changed(QString)),
             this, SLOT(updateCurrentGcceDirectory()));
+    connect(m_ui->sbsV2Path, SIGNAL(changed(QString)),
+            this, SLOT(updateCurrentSbsV2Directory()));
 
     connect(m_ui->addButton, SIGNAL(clicked()),
             this, SLOT(addQtDir()));
@@ -540,6 +542,8 @@ void QtOptionsPageWidget::makeS60Visible(bool visible)
     m_ui->s60SDKPath->setVisible(visible);
     m_ui->gcceLabel->setVisible(visible);
     m_ui->gccePath->setVisible(visible);
+    m_ui->sbsV2Label->setVisible(visible);
+    m_ui->sbsV2Path->setVisible(visible);
 }
 
 void QtOptionsPageWidget::makeDebuggingHelperVisible(bool visible)
@@ -608,6 +612,8 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
             m_ui->mwcPath->setPath(QDir::toNativeSeparators(m_versions.at(index)->mwcDirectory()));
             m_ui->s60SDKPath->setPath(QDir::toNativeSeparators(m_versions.at(index)->s60SDKDirectory()));
             m_ui->gccePath->setPath(QDir::toNativeSeparators(m_versions.at(index)->gcceDirectory()));
+            m_ui->sbsV2Path->setPath(m_versions.at(index)->sbsV2Directory());
+            m_ui->sbsV2Path->setEnabled(m_versions.at(index)->isBuildWithSymbianSbsV2());
         } else { //ProjectExplorer::ToolChain::GCC
             makeMSVCVisible(false);
             makeMingwVisible(false);
@@ -832,6 +838,7 @@ void QtOptionsPageWidget::updateCurrentS60SDKDirectory()
     m_versions[currentItemIndex]->setS60SDKDirectory(
             QDir::fromNativeSeparators(m_ui->s60SDKPath->path()));
 }
+
 void QtOptionsPageWidget::updateCurrentGcceDirectory()
 {
     QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
@@ -841,6 +848,17 @@ void QtOptionsPageWidget::updateCurrentGcceDirectory()
         return;
     m_versions[currentItemIndex]->setGcceDirectory(
             QDir::fromNativeSeparators(m_ui->gccePath->path()));
+}
+
+void QtOptionsPageWidget::updateCurrentSbsV2Directory()
+{
+    QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
+    Q_ASSERT(currentItem);
+    int currentItemIndex = indexForTreeItem(currentItem);
+    if (currentItemIndex < 0)
+        return;
+    m_versions[currentItemIndex]->setSbsV2Directory(
+            QDir::fromNativeSeparators(m_ui->sbsV2Path->path()));
 }
 
 QList<QSharedPointerQtVersion> QtOptionsPageWidget::versions() const
