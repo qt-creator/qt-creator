@@ -45,8 +45,8 @@ const char *BreakpointData::throwFunction = "throw";
 const char *BreakpointData::catchFunction = "catch";
 
 BreakpointParameters::BreakpointParameters(BreakpointType t) :
-    type(t), enabled(type), useFullPath(false),
-    ignoreCount(0), lineNumber(0)
+    type(t), enabled(true), useFullPath(false),
+    ignoreCount(0), lineNumber(0), address(0)
 {
 }
 
