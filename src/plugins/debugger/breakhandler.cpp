@@ -376,7 +376,8 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
     switch (mi.column()) {
         case 0:
             if (role == Qt::DisplayRole) {
-                return QString("%1 - %2").arg(id).arg(response.bpNumber);
+                return QString::number(id);
+                //return QString("%1 - %2").arg(id).arg(response.bpNumber);
             }
             if (role == Qt::DecorationRole) {
                 if (data.isWatchpoint())
@@ -543,8 +544,13 @@ void BreakHandler::setState(BreakpointId id, BreakpointState state)
 {
     Iterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return);
+    if (it->state == state) {
+        qDebug() << "STATE UNCHANGED: " << id << state;
+        return;
+    }
     it->state = state;
     updateMarker(id);
+    layoutChanged();
 }
 
 DebuggerEngine *BreakHandler::engine(BreakpointId id) const
@@ -605,15 +611,13 @@ void BreakHandler::removeBreakpoint(BreakpointId id)
     Iterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return);
     if (it->state == BreakpointInserted) {
-        qDebug() << "MARK AS CHANGED: " << id;
-        it->state = BreakpointRemoveRequested;
-        QTC_ASSERT(it->engine, return);
-        debuggerCore()->synchronizeBreakpoints();
+        setState(id, BreakpointRemoveRequested);
     } else if (it->state == BreakpointNew) {
         it->state = BreakpointDead;
         cleanupBreakpoint(id);
     } else {
         qDebug() << "CANNOT REMOVE IN STATE " << it->state;
+        it->state = BreakpointRemoveRequested;
     }
 }
 
@@ -826,6 +830,7 @@ void BreakHandler::notifyBreakpointReleased(BreakpointId id)
     delete it->marker;
     it->marker = 0;
     updateMarker(id);
+    layoutChanged();
 }
 
 void BreakHandler::cleanupBreakpoint(BreakpointId id)

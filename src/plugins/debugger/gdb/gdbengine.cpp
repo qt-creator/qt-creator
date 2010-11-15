@@ -2308,7 +2308,7 @@ void GdbEngine::handleBreakEnable(const GdbResponse &response)
 {
     QTC_ASSERT(response.resultClass == GdbResultDone, /**/)
     const BreakpointId id = response.cookie.toInt();
-    // This should only be the "wish" state.
+    // This should only be the requested state.
     QTC_ASSERT(breakHandler()->isEnabled(id), /* Prevent later recursion */);
     breakHandler()->ackEnabled(id);
 }
