@@ -462,7 +462,9 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
 type BreakHandler::getter(BreakpointId id) const \
 { \
     ConstIterator it = m_storage.find(id); \
-    QTC_ASSERT(it != m_storage.end(), return type()); \
+    QTC_ASSERT(it != m_storage.end(), \
+        qDebug() << "ID" << id << "NOT KNOWN"; \
+        return type()); \
     return it->data.getter(); \
 }
 
@@ -470,7 +472,8 @@ type BreakHandler::getter(BreakpointId id) const \
 void BreakHandler::setter(BreakpointId id, const type &value) \
 { \
     Iterator it = m_storage.find(id); \
-    QTC_ASSERT(it != m_storage.end(), return); \
+    QTC_ASSERT(it != m_storage.end(), \
+        qDebug() << "ID" << id << "NOT KNOWN"; return); \
     if (it->data.setter(value)) \
         scheduleSynchronization(); \
 }
@@ -485,13 +488,31 @@ PROPERTY(QString, markerFileName, setMarkerFileName)
 PROPERTY(QString, fileName, setFileName)
 PROPERTY(QString, functionName, setFunctionName)
 PROPERTY(int, markerLineNumber, setMarkerLineNumber)
-PROPERTY(bool, isEnabled, setEnabled)
 PROPERTY(BreakpointType, type, setType)
 PROPERTY(QByteArray, threadSpec, setThreadSpec)
 PROPERTY(QByteArray, condition, setCondition)
 PROPERTY(int, lineNumber, setLineNumber)
 PROPERTY(quint64, address, setAddress)
 PROPERTY(int, ignoreCount, setIgnoreCount)
+
+bool BreakHandler::isEnabled(BreakpointId id) const
+{
+    ConstIterator it = m_storage.find(id);
+    QTC_ASSERT(it != m_storage.end(), return BreakpointDead);
+    return it->data.isEnabled();
+}
+
+void BreakHandler::setEnabled(BreakpointId id, bool on)
+{
+    Iterator it = m_storage.find(id);
+    QTC_ASSERT(it != m_storage.end(), return);
+    //qDebug() << "SET ENABLED: " << id << it->data.isEnabled() << on;
+    if (it->data.setEnabled(on)) {
+        it->destroyMarker();
+        updateMarker(id);
+        scheduleSynchronization();
+    }
+}
 
 BreakpointState BreakHandler::state(BreakpointId id) const
 {
@@ -644,18 +665,13 @@ void BreakHandler::breakByFunction(const QString &functionName)
 
 QIcon BreakHandler::icon(BreakpointId id) const
 {
-    //if (!m_handler->isActive())
-    //    return m_handler->emptyIcon();
     ConstIterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return pendingBreakPointIcon());
-    //if (!isActive())
-    //    return emptyIcon();
-    switch (it->state) {
-    case BreakpointInserted:
+    if (!it->data.isEnabled())
+        return m_disabledBreakpointIcon;
+    if (it->state == BreakpointInserted)
         return breakpointIcon();
-    default:
-        return pendingBreakPointIcon();
-    }
+    return pendingBreakPointIcon();
 }
 
 void BreakHandler::scheduleSynchronization()
@@ -887,7 +903,7 @@ QString BreakHandler::BreakpointItem::toToolTip() const
     str << "<html><body><table>"
         //<< "<tr><td>" << tr("Id:") << "</td><td>" << m_id << "</td></tr>"
         << "<tr><td>" << tr("State:")
-        << "</td><td>" << state << "(" << stateToString(state) << ")</td></tr>"
+        << "</td><td>" << state << "   (" << stateToString(state) << ")</td></tr>"
         << "<tr><td>" << tr("Engine:")
         << "</td><td>" << (engine ? engine->objectName() : "0") << "</td></tr>"
         << "<tr><td>" << tr("Marker File:")

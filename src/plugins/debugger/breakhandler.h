@@ -116,8 +116,7 @@ public:
     #undef PROPERTY
     BreakpointState state(BreakpointId id) const;
     bool isEnabled(BreakpointId id) const;
-    void setEnabled(BreakpointId id, const bool &on);
-    void updateEnabled(BreakpointId id, const bool &on);
+    void setEnabled(BreakpointId id, bool on);
     void updateLineNumberFromMarker(BreakpointId id, int lineNumber);
 
     DebuggerEngine *engine(BreakpointId id) const;

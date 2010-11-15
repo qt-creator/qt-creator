@@ -937,6 +937,7 @@ public slots:
 
     void synchronizeBreakpoints()
     {
+        showMessage("ATTEMPT SYNC", LogDebug);
         for (int i = 0, n = m_snapshotHandler->size(); i != n; ++i) {
             if (DebuggerRunControl *runControl = m_snapshotHandler->at(i)) {
                 DebuggerEngine *engine = runControl->engine();
@@ -2319,6 +2320,7 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditor::ITextEditor *editor,
 
         // Enable/disable existing breakpoint.
         act = new QAction(menu);
+        act->setData(int(id));
         if (breakHandler()->isEnabled(id)) {
             act->setText(tr("Disable Breakpoint %1").arg(id));
             connect(act, SIGNAL(triggered()),
