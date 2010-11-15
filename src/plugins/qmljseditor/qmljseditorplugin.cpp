@@ -35,6 +35,7 @@
 #include "qmljscodecompletion.h"
 #include "qmljshoverhandler.h"
 #include "qmlfilewizard.h"
+#include "jsfilewizard.h"
 #include "qmljsoutline.h"
 #include "qmljspreviewrunner.h"
 #include "qmljsquickfix.h"
@@ -133,13 +134,21 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     m_editor = new QmlJSEditorFactory(this);
     addObject(m_editor);
 
-    Core::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
-    wizardParameters.setCategory(QLatin1String(Constants::WIZARD_CATEGORY_QML));
-    wizardParameters.setDisplayCategory(QCoreApplication::translate("QmlJsEditor", Constants::WIZARD_TR_CATEGORY_QML));
-    wizardParameters.setDescription(tr("Creates a QML file."));
-    wizardParameters.setDisplayName(tr("QML File"));
-    wizardParameters.setId(QLatin1String("Q.Qml"));
-    addAutoReleasedObject(new QmlFileWizard(wizardParameters, core));
+    Core::BaseFileWizardParameters qmlWizardParameters(Core::IWizard::FileWizard);
+    qmlWizardParameters.setCategory(QLatin1String(Constants::WIZARD_CATEGORY_QML));
+    qmlWizardParameters.setDisplayCategory(QCoreApplication::translate("QmlJsEditor", Constants::WIZARD_TR_CATEGORY_QML));
+    qmlWizardParameters.setDescription(tr("Creates a QML file."));
+    qmlWizardParameters.setDisplayName(tr("QML File"));
+    qmlWizardParameters.setId(QLatin1String("Q.Qml"));
+    addAutoReleasedObject(new QmlFileWizard(qmlWizardParameters, core));
+
+    Core::BaseFileWizardParameters jsWizardParameters(Core::IWizard::FileWizard);
+    jsWizardParameters.setCategory(QLatin1String(Constants::WIZARD_CATEGORY_QML));
+    jsWizardParameters.setDisplayCategory(QCoreApplication::translate("QmlJsEditor", Constants::WIZARD_TR_CATEGORY_QML));
+    jsWizardParameters.setDescription(tr("Creates a JavaScript file."));
+    jsWizardParameters.setDisplayName(tr("JS File"));
+    jsWizardParameters.setId(QLatin1String("Z.Js"));
+    addAutoReleasedObject(new JsFileWizard(jsWizardParameters, core));
 
     m_actionHandler = new TextEditor::TextEditorActionHandler(QmlJSEditor::Constants::C_QMLJSEDITOR_ID,
           TextEditor::TextEditorActionHandler::Format
