@@ -79,7 +79,6 @@ public:
     void setWatchpointByAddress(quint64 address);
     bool hasWatchpointAt(quint64 address) const;
     void updateMarkers();
-    void removeMarker(BreakpointId id);
 
     QIcon breakpointIcon() const { return m_breakpointIcon; }
     QIcon disabledBreakpointIcon() const { return m_disabledBreakpointIcon; }
@@ -139,6 +138,7 @@ public:
     void notifyBreakpointRemoveFailed(BreakpointId id);
     void notifyBreakpointReleased(BreakpointId id);
 
+
 public:
     // FIXME: Make private.
     void setState(BreakpointId id, BreakpointState state);
@@ -171,9 +171,10 @@ private:
     struct BreakpointItem
     {
         BreakpointItem() : state(BreakpointNew), engine(0), marker(0) {}
-        void destroy();
+        void destroyMarker();
         bool isPending() const { return state == BreakpointPending
             || state == BreakpointNew; }
+        QString toToolTip() const;
 
         BreakpointData data;
         BreakpointState state;   // Current state of breakpoint.

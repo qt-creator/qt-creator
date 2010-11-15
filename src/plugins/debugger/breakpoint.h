@@ -95,7 +95,6 @@ public:
     BreakpointType type() const { return m_type; }
     quint64 address() const { return m_address; }
     bool useFullPath() const { return m_useFullPath; }
-    QString toToolTip() const;
     QString toString() const;
 
     bool isLocatedAt(const QString &fileName, int lineNumber,

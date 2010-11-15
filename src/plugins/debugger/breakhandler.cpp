@@ -32,6 +32,7 @@
 
 #include "debuggeractions.h"
 #include "debuggercore.h"
+#include "debuggerengine.h"
 #include "debuggerstringutils.h"
 
 #include <utils/qtcassert.h>
@@ -312,23 +313,13 @@ void BreakHandler::updateMarker(BreakpointId id)
     BreakpointMarker *marker = it->marker;
 
     if (marker && (data.m_markerFileName != marker->fileName()
-                || data.m_markerLineNumber != marker->lineNumber())) {
-        removeMarker(id);
-        marker = 0;
-    }
+                || data.m_markerLineNumber != marker->lineNumber()))
+        it->destroyMarker();
 
     if (!marker && !data.m_markerFileName.isEmpty() && data.m_markerLineNumber > 0) {
         marker = new BreakpointMarker(id, data.m_markerFileName, data.m_markerLineNumber);
         it->marker = marker;
     }
-}
-
-void BreakHandler::removeMarker(BreakpointId id)
-{
-    Iterator it = m_storage.find(id);
-    BreakpointMarker *marker = it->marker;
-    it->marker = 0;
-    delete marker;
 }
 
 QVariant BreakHandler::headerData(int section,
@@ -462,7 +453,7 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
     }
     if (role == Qt::ToolTipRole)
         return debuggerCore()->boolSetting(UseToolTipsInBreakpointsView)
-                ? data.toToolTip() : QVariant();
+                ? QVariant(it->toToolTip()) : QVariant();
 
     return QVariant();
 }
@@ -799,7 +790,7 @@ void BreakHandler::cleanupBreakpoint(BreakpointId id)
 {
     QTC_ASSERT(state(id) == BreakpointDead, /**/);
     BreakpointItem item = m_storage.take(id);
-    item.destroy();
+    item.destroyMarker();
 }
 
 BreakpointResponse BreakHandler::response(BreakpointId id) const
@@ -836,10 +827,110 @@ void BreakHandler::notifyBreakpointAdjusted(BreakpointId id)
 }
 #endif
 
-void BreakHandler::BreakpointItem::destroy()
+void BreakHandler::BreakpointItem::destroyMarker()
 {
-    delete marker;
+    BreakpointMarker *m = marker;
     marker = 0;
+    delete m;
+}
+
+static void formatAddress(QTextStream &str, quint64 address)
+{
+    if (address) {
+        str << "0x";
+        str.setIntegerBase(16);
+        str << address;
+        str.setIntegerBase(10);
+    }
+}
+
+QString BreakHandler::BreakpointItem::toToolTip() const
+{
+    QString t;
+
+    switch (data.type()) {
+        case BreakpointByFileAndLine:
+            t = tr("Breakpoint by File and Line");
+            break;
+        case BreakpointByFunction:
+            t = tr("Breakpoint by Function");
+            break;
+        case BreakpointByAddress:
+            t = tr("Breakpoint by Address");
+            break;
+        case Watchpoint:
+            t = tr("Watchpoint");
+            break;
+        case UnknownType:
+            t = tr("Unknown Breakpoint Type");
+    }
+
+    QString rc;
+    QTextStream str(&rc);
+    str << "<html><body><table>"
+        //<< "<tr><td>" << tr("Id:") << "</td><td>" << m_id << "</td></tr>"
+        << "<tr><td>" << tr("State:")
+        << "</td><td>" << state << "</td></tr>"
+        << "<tr><td>" << tr("Engine:")
+        << "</td><td>" << (engine ? engine->objectName() : "0") << "</td></tr>"
+        << "<tr><td>" << tr("Marker File:")
+        << "</td><td>" << QDir::toNativeSeparators(data.m_markerFileName) << "</td></tr>"
+        << "<tr><td>" << tr("Marker Line:")
+        << "</td><td>" << data.m_markerLineNumber << "</td></tr>"
+        << "<tr><td>" << tr("Breakpoint Number:")
+        << "</td><td>" << response.bpNumber << "</td></tr>"
+        << "<tr><td>" << tr("Breakpoint Type:")
+        << "</td><td>" << t << "</td></tr>"
+        << "<tr><td>" << tr("State:")
+        << "</td><td>" << response.bpState << "</td></tr>"
+        << "</table><br><hr><table>"
+        << "<tr><th>" << tr("Property")
+        << "</th><th>" << tr("Requested")
+        << "</th><th>" << tr("Obtained") << "</th></tr>"
+        << "<tr><td>" << tr("Internal Number:")
+        << "</td><td>&mdash;</td><td>" << response.bpNumber << "</td></tr>"
+        << "<tr><td>" << tr("File Name:")
+        << "</td><td>" << QDir::toNativeSeparators(data.m_fileName)
+        << "</td><td>" << QDir::toNativeSeparators(response.bpFileName)
+        << "</td></tr>"
+        << "<tr><td>" << tr("Function Name:")
+        << "</td><td>" << data.m_functionName
+        << "</td><td>" << response.bpFuncName << "</td></tr>"
+        << "<tr><td>" << tr("Line Number:") << "</td><td>";
+    if (data.m_lineNumber)
+        str << data.m_lineNumber;
+    str << "</td><td>";
+    if (response.bpLineNumber)
+        str << response.bpLineNumber;
+    str << "</td></tr>"
+        << "<tr><td>" << tr("Breakpoint Address:")
+        << "</td><td>";
+    formatAddress(str, data.m_address);
+    str << "</td><td>";
+    formatAddress(str, response.bpAddress);
+    //str <<  "</td></tr>"
+    //    << "<tr><td>" << tr("Corrected Line Number:")
+    //    << "</td><td>-</td><td>";
+    //if (response.bpCorrectedLineNumber > 0)
+    //    str << response.bpCorrectedLineNumber;
+    //else
+    //    str << '-';
+    str << "</td></tr>"
+        << "<tr><td>" << tr("Condition:")
+        << "</td><td>" << data.m_condition
+        << "</td><td>" << response.bpCondition << "</td></tr>"
+        << "<tr><td>" << tr("Ignore Count:") << "</td><td>";
+    if (data.m_ignoreCount)
+        str << data.m_ignoreCount;
+    str << "</td><td>";
+    if (response.bpIgnoreCount)
+        str << response.bpIgnoreCount;
+    str << "</td></tr>"
+        << "<tr><td>" << tr("Thread Specification:")
+        << "</td><td>" << data.m_threadSpec
+        << "</td><td>" << response.bpThreadSpec << "</td></tr>"
+        << "</table></body></html>";
+    return rc;
 }
 
 } // namespace Internal
