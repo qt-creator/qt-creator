@@ -4,23 +4,23 @@
         mainqmlfile="examples/declarative/animation/basics/property-animation.qml"
         projectpath="qtquickexamples/animation/basics"
         projectname="propertyanimation"
-    >
+    />
     <app
         mainqmlfile="examples/declarative/animation/basics/color-animation.qml"
         projectpath="qtquickexamples/animation/basics"
         projectname="coloranimation"
-    >
+    />
     <app
         mainqmlfile="examples/declarative/toys/clocks/clocks.qml"
         projectpath="qtquickexamples/toys"
         projectname="clocks"
         screenorientation="LockLandscape"
-    >
+    />
     <app
         mainqmlfile="demos/declarative/flickr/flickr.qml"
         projectpath="qtquickexamples"
         projectname="flickr"
         screenorientation="LockPortrait"
         networkaccess="true"
-    >
+    />
 </qmlapps>
