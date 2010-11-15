@@ -177,6 +177,13 @@ BreakpointId BreakHandler::findBreakpointByFileAndLine(const QString &fileName,
     return BreakpointId(-1);
 }
 
+const BreakpointData *BreakHandler::breakpointById(BreakpointId id) const
+{
+    ConstIterator it = m_storage.find(id);
+    QTC_ASSERT(it != m_storage.end(), return 0);
+    return &it->data;
+}
+
 BreakpointData *BreakHandler::breakpointById(BreakpointId id)
 {
     Iterator it = m_storage.find(id);

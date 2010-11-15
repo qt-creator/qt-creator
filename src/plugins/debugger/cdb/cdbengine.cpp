@@ -52,6 +52,7 @@
 #include "registerhandler.h"
 #include "moduleshandler.h"
 #include "watchutils.h"
+#include "corebreakpoint.h"
 
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
@@ -1223,21 +1224,61 @@ void CdbEngine::attemptBreakpointSynchronization()
     if (!m_d->m_hDebuggeeProcess) // Sometimes called from the breakpoint Window
         return;
     QString errorMessage;
-    if (!m_d->attemptBreakpointSynchronization(&errorMessage))
+    if (!attemptBreakpointSynchronizationI(&errorMessage))
         warning(msgFunctionFailed(Q_FUNC_INFO, errorMessage));
 }
 
-bool CdbEnginePrivate::attemptBreakpointSynchronization(QString *errorMessage)
+// Figure out what kind of changes are required to synchronize
+enum BreakPointSyncType {
+    BreakpointsUnchanged, BreakpointsAdded, BreakpointsRemovedChanged
+};
+
+static inline BreakPointSyncType breakPointSyncType(const BreakHandler *handler, const BreakpointIds ids)
 {
-    if (!m_hDebuggeeProcess) {
+    bool added = false;
+    foreach (BreakpointId id, ids) {
+        switch (handler->state(id)) {
+        case BreakpointInsertRequested:
+            added = true;
+            break;
+        case BreakpointChangeRequested:
+        case BreakpointRemoveRequested:
+            return BreakpointsRemovedChanged;
+        default:
+            break;
+        }
+    }
+    return added ? BreakpointsAdded : BreakpointsUnchanged;
+}
+
+bool CdbEngine::attemptBreakpointSynchronizationI(QString *errorMessage)
+{
+
+    if (!m_d->m_hDebuggeeProcess) {
         *errorMessage = QLatin1String("attemptBreakpointSynchronization() called while debugger is not running");
         return false;
     }
     // Might be called nested while attempting to stop.
-    if (m_breakEventMode == BreakEventSyncBreakPoints) {
+    if (m_d->m_breakEventMode == CdbEnginePrivate::BreakEventSyncBreakPoints) {
         *errorMessage = QLatin1String("Nested invocation of attemptBreakpointSynchronization.");
         return false;
     }
+
+    // Check if there is anything to be done at all.
+    BreakHandler *handler = breakHandler();
+    // Take ownership of the breakpoint. Requests insertion. TODO: Cpp only?
+    foreach (BreakpointId id, handler->unclaimedBreakpointIds())
+        if (acceptsBreakpoint(id))
+            handler->setEngine(id, this);
+
+    // Find out if there is a need to synchronize again
+    const BreakpointIds ids = handler->engineBreakpointIds(this);
+    const BreakPointSyncType syncType = breakPointSyncType(handler, ids);
+    if (debugBreakpoints)
+        qDebug("attemptBreakpointSynchronizationI %d breakpoints, syncType=%d", ids.size(), syncType);
+    if (syncType == BreakpointsUnchanged)
+        return true;
+
     // This is called from
     // 1) CreateProcessEvent with the halted engine
     // 2) from the break handler, potentially while the debuggee is running
@@ -1245,30 +1286,78 @@ bool CdbEnginePrivate::attemptBreakpointSynchronization(QString *errorMessage)
     // no reliable indicator), we temporarily halt and have ourselves
     // called again from the debug event handler.
 
+    CIDebugControl *control = m_d->interfaces().debugControl;
+    CIDebugSymbols *symbols = m_d->interfaces().debugSymbols;
+
     ULONG dummy;
-    const bool wasRunning = !CdbCore::BreakPoint::getBreakPointCount(interfaces().debugControl, &dummy);
+    const bool wasRunning = !CdbCore::BreakPoint::getBreakPointCount(control, &dummy);
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << "\n  Running=" << wasRunning;
 
     if (wasRunning) {
-        const HandleBreakEventMode oldMode = m_breakEventMode;
-        m_breakEventMode = BreakEventSyncBreakPoints;
-        if (!interruptInterferiorProcess(errorMessage)) {
-            m_breakEventMode = oldMode;
+        const CdbEnginePrivate::HandleBreakEventMode oldMode = m_d->m_breakEventMode;
+        m_d->m_breakEventMode = CdbEnginePrivate::BreakEventSyncBreakPoints;
+        if (!m_d->interruptInterferiorProcess(errorMessage)) {
+            m_d->m_breakEventMode = oldMode;
             return false;
         }
         return true;
     }
 
-    QStringList warnings;
-    const bool ok = synchronizeBreakPoints(interfaces().debugControl,
-                                           interfaces().debugSymbols,
-                                           m_engine->breakHandler(),
-                                           errorMessage, &warnings);
-    if (const int warningsCount = warnings.size())
-        for (int w = 0; w < warningsCount; w++)
-            m_engine->warning(warnings.at(w));
-    return ok;
+    // If there are changes/removals, delete all breakpoints and re-insert
+    // all enabled breakpoints. This is the simplest
+    // way to apply changes since CDB ids shift when removing breakpoints and there is no
+    // easy way to re-match them.
+    if (syncType == BreakpointsRemovedChanged && !deleteCdbBreakpoints(control, errorMessage))
+        return false;
+
+    foreach (BreakpointId id, ids) {
+        BreakpointResponse response;
+        const BreakpointData *data = handler->breakpointById(id);
+        errorMessage->clear();
+        switch (handler->state(id)) {
+        case BreakpointInsertRequested:
+            handler->setState(id, BreakpointInsertProceeding);
+            if (addCdbBreakpoint(control, symbols, data, &response, errorMessage)) {
+                notifyBreakpointInsertOk(id);
+                handler->setResponse(id, response);
+            } else {
+                notifyBreakpointInsertOk(id);
+                showMessage(*errorMessage, LogError);
+            }
+            break;
+        case BreakpointChangeRequested:
+            // Skip disabled breakpoints, else add
+            handler->setState(id, BreakpointChangeProceeding);
+            if (data->isEnabled()) {
+                if (addCdbBreakpoint(control, symbols, data, &response, errorMessage)) {
+                    notifyBreakpointChangeOk(id);
+                    handler->setResponse(id, response);
+                } else {
+                    notifyBreakpointChangeFailed(id);
+                    showMessage(*errorMessage, LogError);
+                }
+            } else {
+                notifyBreakpointChangeOk(id);
+            }
+            break;
+        case BreakpointRemoveRequested:
+            notifyBreakpointRemoveOk(id);
+            break;
+        case BreakpointInserted:
+        case BreakpointPending:
+            // Existing breakpoints were deleted due to change/removal, re-set
+            if (syncType == BreakpointsRemovedChanged
+                && !addCdbBreakpoint(control, symbols, handler->breakpointById(id), &response, errorMessage))
+                showMessage(*errorMessage, LogError);
+            break;
+        default:
+            break;
+        }
+    }
+    if (debugBreakpoints)
+        debugCdbBreakpoints(control);
+    return true;
 }
 
 void CdbEngine::fetchDisassembler(DisassemblerViewAgent *agent)
@@ -1493,7 +1582,7 @@ void CdbEnginePrivate::handleDebugEvent()
             // Temp stop to sync breakpoints (without invoking states).
             // Triggered when the users changes breakpoints while running.
             QString errorMessage;
-            attemptBreakpointSynchronization(&errorMessage);
+            m_engine->attemptBreakpointSynchronizationI(&errorMessage);
             startWatchTimer();
             if (!continueInferiorProcess(&errorMessage)) {
                 STATE_DEBUG(Q_FUNC_INFO, __LINE__, "BreakEventSyncBreakPoints / notifyInferiorSpontaneousStop");

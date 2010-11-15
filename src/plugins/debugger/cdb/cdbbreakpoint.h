@@ -31,12 +31,8 @@
 #define CDBBREAKPOINTS_H
 
 #include "cdbcom.h"
-#include "corebreakpoint.h"
-#include "breakhandler.h"
 
 #include <QtCore/QString>
-#include <QtCore/QList>
-#include <QtCore/QDir>
 
 QT_BEGIN_NAMESPACE
 class QDebug;
@@ -44,14 +40,22 @@ QT_END_NAMESPACE
 
 namespace Debugger {
 namespace Internal {
+class BreakpointData;
+class BreakpointResponse;
 
 // Convert breakpoint structs
-CdbCore::BreakPoint breakPointFromBreakPointData(const Debugger::Internal::BreakpointData &bpd);
+bool addCdbBreakpoint(CIDebugControl* debugControl,
+                      CIDebugSymbols *syms,
+                      const BreakpointData *nbd,
+                      BreakpointResponse *response,
+                      QString *errorMessage);
 
-// Synchronize (halted) engine with BreakHandler.
-bool synchronizeBreakPoints(CIDebugControl* ctl, CIDebugSymbols *syms,
-                            BreakHandler *bh,
-                            QString *errorMessage, QStringList *warnings);
+bool deleteCdbBreakpoints(CIDebugControl* debugControl, QString *errorMessage);
+
+void debugCdbBreakpoints(CIDebugControl* debugControl);
+
+// Set response from data.
+void setBreakpointResponse(const BreakpointData *nbd, int number, BreakpointResponse *response);
 
 } // namespace Internal
 } // namespace Debugger

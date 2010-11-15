@@ -89,6 +89,8 @@ public:
     BreakpointId findBreakpointByFileAndLine(const QString &fileName,
         int lineNumber, bool useMarkerPosition = true);
     BreakpointId findBreakpointByAddress(quint64 address) const;
+    const BreakpointData *breakpointById(BreakpointId id) const;
+    BreakpointData *breakpointById(BreakpointId id); // FIXME: For breakwindow.
 
     void breakByFunction(const QString &functionName);
     void removeBreakpoint(BreakpointId id);
@@ -144,9 +146,6 @@ public:
 
 private:
     friend class BreakpointMarker;
-
-    friend class BreakWindow; // FIXME: remove.
-    BreakpointData *breakpointById(BreakpointId id);
 
     // QAbstractItemModel
     int columnCount(const QModelIndex &parent) const;

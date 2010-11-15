@@ -364,11 +364,13 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
         addBreakpoint();
     else if (act == breakAtThrowAction) {
         BreakpointData data;
+        data.setType(BreakpointByFunction);
         data.setFunctionName(BreakpointData::throwFunction);
         handler->appendBreakpoint(data);
     } else if (act == breakAtCatchAction) {
         // FIXME: Use the proper breakpoint type instead.
         BreakpointData data;
+        data.setType(BreakpointByFunction);
         data.setFunctionName(BreakpointData::catchFunction);
         handler->appendBreakpoint(data);
     }

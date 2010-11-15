@@ -95,7 +95,6 @@ public:
     bool continueInferior(QString *errorMessage);
     bool executeContinueCommand(const QString &command);
 
-    bool attemptBreakpointSynchronization(QString *errorMessage);
     void notifyException(long code, bool fatal, const QString &message);
 
 
@@ -144,6 +143,7 @@ enum { debugCDB = 0 };
 enum { debugCDBExecution = 0 };
 enum { debugCDBWatchHandling = 0 };
 enum { debugToolTips = 0 };
+enum { debugBreakpoints = 0 };
 
 } // namespace Internal
 } // namespace Debugger

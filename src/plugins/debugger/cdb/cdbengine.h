@@ -115,6 +115,7 @@ private:
     void evaluateWatcher(WatchData *wd);
     QString editorToolTip(const QString &exp, const QString &function);
     bool step(unsigned long executionStatus);
+    bool attemptBreakpointSynchronizationI(QString *errorMessage);
 
     CdbEnginePrivate *m_d;
 

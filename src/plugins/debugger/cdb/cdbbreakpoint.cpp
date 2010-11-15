@@ -28,38 +28,39 @@
 **************************************************************************/
 
 #include "cdbbreakpoint.h"
+#include "cdbengine_p.h"
+#include "corebreakpoint.h"
 #include "cdbmodules.h"
+#include "breakhandler.h"
 
 #include <QtCore/QDebug>
+#include <QtCore/QDir>
 
 namespace Debugger {
 namespace Internal {
 
-enum { debugBP = 0 };
-
 // Convert breakpoint structs
-CdbCore::BreakPoint breakPointFromBreakPointData(const BreakpointData &bpd)
+static CdbCore::BreakPoint breakPointFromBreakPointData(const BreakpointData &bpd, const QString &functionName)
 {
     CdbCore::BreakPoint rc;
-    rc.type = bpd.type == Watchpoint ?
+    rc.type = bpd.type() == Watchpoint ?
                   CdbCore::BreakPoint::Data :
                   CdbCore::BreakPoint::Code ;
 
-    rc.address = bpd.address;
-    if (!bpd.threadSpec.isEmpty()) {
+    rc.address = bpd.address();
+    if (!bpd.threadSpec().isEmpty()) {
         bool ok;
-        rc.threadId = bpd.threadSpec.toInt(&ok);
+        rc.threadId = bpd.threadSpec().toInt(&ok);
         if (!ok)
-            qWarning("Cdb: Cannot convert breakpoint thread specification '%s'", bpd.threadSpec.constData());
+            qWarning("Cdb: Cannot convert breakpoint thread specification '%s'", bpd.threadSpec().constData());
     }
-    rc.fileName = QDir::toNativeSeparators(bpd.fileName);
-    rc.condition = bpd.condition;
-    // Resolved function goes to bpd.bpFuncName.
-    rc.funcName = bpd.bpFuncName.isEmpty() ? bpd.funcName : bpd.bpFuncName;
-    rc.ignoreCount = bpd.ignoreCount;
-    rc.lineNumber  = bpd.lineNumber;
+    rc.fileName = QDir::toNativeSeparators(bpd.fileName());
+    rc.condition = bpd.condition();
+    rc.funcName = functionName.isEmpty() ? bpd.functionName() : functionName;
+    rc.ignoreCount = bpd.ignoreCount();
+    rc.lineNumber  = bpd.lineNumber();
     rc.oneShot = false;
-    rc.enabled = bpd.enabled;
+    rc.enabled = bpd.isEnabled();
     return rc;
 }
 
@@ -68,56 +69,63 @@ static inline QString msgCannotSetBreakAtFunction(const QString &func, const QSt
     return QString::fromLatin1("Cannot set a breakpoint at '%1': %2").arg(func, why);
 }
 
-static bool addBreakpoint(CIDebugControl* debugControl,
-                          CIDebugSymbols *syms,
-                          BreakpointData *nbd,
-                          QString *warning)
+void setBreakpointResponse(const BreakpointData *nbd, int number, BreakpointResponse *response)
 {
-    warning->clear();
+    response->bpAddress = nbd->address();
+    response->bpNumber = number;
+    response->bpFuncName = nbd->functionName();
+    response->bpType = nbd->type();
+    response->bpCondition = nbd->condition();
+    response->bpIgnoreCount = nbd->ignoreCount();
+    response->bpFullName = response->bpFileName = nbd->fileName();
+    response->bpLineNumber = nbd->lineNumber();
+    response->bpThreadSpec = nbd->threadSpec();
+    response->bpEnabled = nbd->isEnabled();
+}
+
+bool addCdbBreakpoint(CIDebugControl* debugControl,
+                      CIDebugSymbols *syms,
+                      const BreakpointData *nbd,
+                      BreakpointResponse *response,
+                      QString *errorMessage)
+{
+    errorMessage->clear();
     // Function breakpoints: Are the module names specified?
-    if (!nbd->funcName.isEmpty()) {
-        nbd->bpFuncName = nbd->funcName;
-        switch (resolveSymbol(syms, &nbd->bpFuncName, warning)) {
+    QString resolvedFunction;
+    if (nbd->type() == BreakpointByFunction) {
+        resolvedFunction = nbd->functionName();
+        switch (resolveSymbol(syms, &resolvedFunction, errorMessage)) {
         case ResolveSymbolOk:
             break;
         case ResolveSymbolAmbiguous:
-            *warning = msgCannotSetBreakAtFunction(nbd->funcName, *warning);
             break;
         case ResolveSymbolNotFound:
         case ResolveSymbolError:
-            *warning = msgCannotSetBreakAtFunction(nbd->funcName, *warning);
+            *errorMessage = msgCannotSetBreakAtFunction(nbd->functionName(), *errorMessage);
             return false;
-        };
+        }
+        if (debugBreakpoints)
+            qDebug() << nbd->functionName() << " resolved to " << resolvedFunction;
     } // function breakpoint
     // Now add...
     quint64 address;
     unsigned long id;
-    const CdbCore::BreakPoint ncdbbp = breakPointFromBreakPointData(*nbd);
-    if (!ncdbbp.add(debugControl, warning, &id, &address))
+    const CdbCore::BreakPoint ncdbbp = breakPointFromBreakPointData(*nbd, resolvedFunction);
+    if (!ncdbbp.add(debugControl, errorMessage, &id, &address))
         return false;
-    if (debugBP)
+    if (debugBreakpoints)
         qDebug("Added %lu at 0x%lx %s", id, address, qPrintable(ncdbbp.toString()));
-    nbd->pending = false;
-    nbd->bpNumber = QByteArray::number(uint(id));
-    nbd->bpAddress = address;
-    // Take over rest as is
-    nbd->bpCondition = nbd->condition;
-    nbd->bpIgnoreCount = nbd->ignoreCount;
-    nbd->bpThreadSpec = nbd->threadSpec;
-    nbd->bpFileName = nbd->fileName;
-    nbd->bpLineNumber = nbd->lineNumber;
+    setBreakpointResponse(nbd, id, response);
+    response->bpAddress = address;
+    response->bpFuncName = resolvedFunction;
     return true;
 }
 
-// Synchronize (halted) engine breakpoints with those of the BreakHandler.
-bool synchronizeBreakPoints(CIDebugControl* debugControl,
-                            CIDebugSymbols *syms,
-                            BreakHandler *handler,
-                            QString *errorMessage,
-                            QStringList *warnings)
+// Delete all breakpoints
+bool deleteCdbBreakpoints(CIDebugControl* debugControl,
+                       QString *errorMessage)
 {
     errorMessage->clear();
-    warnings->clear();
     // Do an initial check whether we are in a state that allows
     // for modifying  breakPoints
     ULONG engineCount;
@@ -125,49 +133,27 @@ bool synchronizeBreakPoints(CIDebugControl* debugControl,
         *errorMessage = QString::fromLatin1("Cannot modify breakpoints: %1").arg(*errorMessage);
         return false;
     }
-    // Delete all breakpoints and re-insert all enabled breakpoints. This is the simplest
-    // way to apply changes since CDB ids shift when removing breakpoints and there is no
-    // easy way to re-match them.
+    if (debugBreakpoints)
+        qDebug("Deleting breakpoints 0..%lu", engineCount);
+
     if (engineCount) {
         for (int b = engineCount - 1; b >= 0 ; b--)
             if (!CdbCore::BreakPoint::removeBreakPointById(debugControl, b, errorMessage))
                 return false;
     }
-    qDeleteAll(handler->takeRemovedBreakpoints());
-    // Mark disabled ones
-    foreach(BreakpointData *dbd, handler->takeDisabledBreakpoints())
-        dbd->bpEnabled = false;
-
-    // Insert all enabled ones as new
-    QString warning;
-    bool updateMarkers = false;
-    const int size = handler->size();
-    for (int i = 0; i < size; i++) {
-        BreakpointData *breakpoint = handler->at(i);
-        if (breakpoint->enabled)
-            if (addBreakpoint(debugControl, syms, breakpoint, &warning)) {
-                updateMarkers = true;
-            } else {
-                warnings->push_back(warning);
-            }
-    }
-    // Mark enabled ones
-    foreach(BreakpointData *ebd, handler->takeEnabledBreakpoints())
-        ebd->bpEnabled = true;
-
-    if (updateMarkers)
-        handler->updateMarkers();
-
-    if (debugBP > 1) {
-        QList<CdbCore::BreakPoint> bps;
-        CdbCore::BreakPoint::getBreakPoints(debugControl, &bps, errorMessage);
-        QDebug nsp = qDebug().nospace();
-        const int count = bps.size();
-        nsp <<"### Breakpoints in engine: " << count << '\n';
-        for (int i = 0; i < count; i++)
-            nsp << "  #" << i << ' ' << bps.at(i) << '\n';
-    }
     return true;
+}
+
+void debugCdbBreakpoints(CIDebugControl* debugControl)
+{
+    QString errorMessage;
+    QList<CdbCore::BreakPoint> bps;
+    CdbCore::BreakPoint::getBreakPoints(debugControl, &bps, &errorMessage);
+    QDebug nsp = qDebug().nospace();
+    const int count = bps.size();
+    nsp <<"### Breakpoints in engine: " << count << '\n';
+    for (int i = 0; i < count; i++)
+        nsp << "  #" << i << ' ' << bps.at(i) << '\n';
 }
 
 } // namespace Internal

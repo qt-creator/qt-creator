@@ -34,6 +34,7 @@
 #include "watchutils.h"
 #include "debuggeractions.h"
 #include "coreengine.h"
+#include "debuggercore.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QTextStream>
