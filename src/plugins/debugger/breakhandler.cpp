@@ -39,6 +39,7 @@
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
+#include <QtCore/QTimerEvent>
 
 
 //////////////////////////////////////////////////////////////////

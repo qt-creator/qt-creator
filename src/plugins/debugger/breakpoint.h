@@ -30,7 +30,6 @@
 #ifndef DEBUGGER_BREAKPOINT_H
 #define DEBUGGER_BREAKPOINT_H
 
-#include <QtCore/QCoreApplication>
 #include <QtCore/QList>
 #include <QtCore/QMetaType>
 #include <QtCore/QString>
@@ -150,9 +149,6 @@ private:
 private:
     // This "user requested information" will get stored in the session.
     BreakpointParameters m_parameters;
-
-public:
-    Q_DECLARE_TR_FUNCTIONS(BreakHandler)
 };
 
 // This is what debuggers produced in response to the attempt to
