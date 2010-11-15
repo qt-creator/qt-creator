@@ -46,6 +46,8 @@
 namespace Debugger {
 namespace Internal {
 
+class BreakpointMarker;
+
 class BreakHandler : public QAbstractTableModel
 {
     Q_OBJECT

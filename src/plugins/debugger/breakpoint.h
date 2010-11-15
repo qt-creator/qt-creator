@@ -43,8 +43,12 @@ typedef quint64 BreakpointId; // FIXME: make Internal.
 
 namespace Internal {
 
-class BreakpointMarker;
+class BreakWindow;
+class BreakpointDialog;
 class BreakHandler;
+class BreakpointData;
+
+QDataStream &operator>>(QDataStream& stream, BreakpointData &data);
 
 //////////////////////////////////////////////////////////////////
 //
@@ -78,13 +82,15 @@ enum BreakpointState
 class BreakpointData
 {
 private:
-
-    // Intentionally unimplemented.
-    // Making it copyable is tricky because of the markers.
+    // Intentionally unimplemented. BreakpointData objects are supposed
+    // to be added to the BreakHandler soon after construction.
     BreakpointData(const BreakpointData &);
     void operator=(const BreakpointData &);
 
-    friend class BreakHandler;
+    friend class BreakHandler; // This should be the only class manipulating data.
+    friend class BreakWindow; // FIXME: Remove.
+    friend class BreakpointDialog; // FIXME: Remove.
+    friend QDataStream &operator>>(QDataStream& stream, BreakpointData &data);
 
 public:
     BreakpointData();
@@ -118,7 +124,7 @@ public:
     static const char *throwFunction;
     static const char *catchFunction;
 
-//private:
+private:
      // All setters return true on change.
     bool setUseFullPath(bool on);
     bool setMarkerFileName(const QString &file);
