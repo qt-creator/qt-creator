@@ -740,9 +740,9 @@ void QmlEngine::messageReceived(const QByteArray &message)
                 if (processedFilename == file && handler->lineNumber(id) == line) {
                     handler->setState(id, BreakpointInserted);
                     BreakpointResponse br = handler->response(id);
-                    br.bpFileName = file;
-                    br.bpLineNumber = line;
-                    br.bpFuncName = function;
+                    br.fileName = file;
+                    br.lineNumber = line;
+                    br.functionName = function;
                     handler->setResponse(id, br);
                 }
             }

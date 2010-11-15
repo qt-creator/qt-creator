@@ -2293,8 +2293,8 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditor::ITextEditor *editor,
         QString line = editor->contents()
             .section('\n', lineNumber - 1, lineNumber - 1);
         BreakpointResponse needle;
-        needle.bpAddress = DisassemblerViewAgent::addressFromDisassemblyLine(line);
-        needle.bpLineNumber = -1;
+        needle.address = DisassemblerViewAgent::addressFromDisassemblyLine(line);
+        needle.lineNumber = -1;
         id = breakHandler()->findSimilarBreakpoint(needle);
     } else {
         fileName = editor->file()->fileName();

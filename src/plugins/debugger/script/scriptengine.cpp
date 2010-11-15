@@ -627,9 +627,9 @@ bool ScriptEngine::checkForBreakCondition(bool byFunction)
         BreakpointResponse br;
         // We just run into a breakpoint.
         //SDEBUG("RESOLVING BREAKPOINT AT " << fileName << lineNumber);
-        br.bpLineNumber = lineNumber;
-        br.bpFileName = fileName;
-        br.bpFuncName = functionName;
+        br.lineNumber = lineNumber;
+        br.fileName = fileName;
+        br.functionName = functionName;
         handler->setState(id, BreakpointInserted);
         handler->setResponse(id, br);
     }

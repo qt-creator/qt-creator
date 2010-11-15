@@ -379,9 +379,9 @@ void PdbEngine::handleBreakInsert(const PdbResponse &response)
     QByteArray file = response.data.mid(pos1 + 4, pos2 - pos1 - 4);
     QByteArray line = response.data.mid(pos2 + 1);
     BreakpointResponse br;
-    br.bpNumber = bpnr.toInt();
-    br.bpFileName = _(file);
-    br.bpLineNumber = line.toInt();
+    br.number = bpnr.toInt();
+    br.fileName = _(file);
+    br.lineNumber = line.toInt();
     handler->setResponse(id, br);
 }
 

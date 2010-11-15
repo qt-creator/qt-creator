@@ -136,31 +136,31 @@ QDataStream &operator>>(QDataStream &stream, StackFrames &frames)
 
 QDataStream &operator<<(QDataStream &stream, const BreakpointResponse &s)
 {
-    stream << s.bpNumber;
-    stream << s.bpCondition;
-    stream << s.bpIgnoreCount;
-    stream << s.bpFileName;
-    stream << s.bpFullName;
-    stream << s.bpLineNumber;
+    stream << s.number;
+    stream << s.condition;
+    stream << s.ignoreCount;
+    stream << s.fileName;
+    stream << s.fullName;
+    stream << s.lineNumber;
     //stream << s.bpCorrectedLineNumber;
-    stream << s.bpThreadSpec;
-    stream << s.bpFuncName;
-    stream << s.bpAddress;
+    stream << s.threadSpec;
+    stream << s.functionName;
+    stream << s.address;
     return stream;
 }
 
 QDataStream &operator>>(QDataStream &stream, BreakpointResponse &s)
 {
-    stream >> s.bpNumber;
-    stream >> s.bpCondition;
-    stream >> s.bpIgnoreCount;
-    stream >> s.bpFileName;
-    stream >> s.bpFullName;
-    stream >> s.bpLineNumber;
+    stream >> s.number;
+    stream >> s.condition;
+    stream >> s.ignoreCount;
+    stream >> s.fileName;
+    stream >> s.fullName;
+    stream >> s.lineNumber;
     //stream >> s.bpCorrectedLineNumber;
-    stream >> s.bpThreadSpec;
-    stream >> s.bpFuncName;
-    stream >> s.bpAddress;
+    stream >> s.threadSpec;
+    stream >> s.functionName;
+    stream >> s.address;
     return stream;
 }
 

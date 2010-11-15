@@ -97,26 +97,26 @@ static bool isSimilarTo(const BreakpointData &data, const BreakpointResponse &ne
 {
     // Clear hit.
     // Clear miss.
-    if (needle.bpType != UnknownType && data.type() != UnknownType
-            && data.type() != needle.bpType)
+    if (needle.type != UnknownType && data.type() != UnknownType
+            && data.type() != needle.type)
         return false;
 
     // Clear hit.
-    if (data.address() && data.address() == needle.bpAddress)
+    if (data.address() && data.address() == needle.address)
         return true;
 
     // At least at a position we were looking for.
     // FIXME: breaks multiple breakpoints at the same location
     if (!data.fileName().isEmpty()
-            && fileNameMatch(data.fileName(), needle.bpFileName)
-            && data.lineNumber() == needle.bpLineNumber)
+            && fileNameMatch(data.fileName(), needle.fileName)
+            && data.lineNumber() == needle.lineNumber)
         return true;
 
     // At least at a position we were looking for.
     // FIXME: breaks multiple breakpoints at the same location
     if (!data.fileName().isEmpty()
-            && fileNameMatch(data.fileName(), needle.bpFileName)
-            && data.lineNumber() == needle.bpLineNumber)
+            && fileNameMatch(data.fileName(), needle.fileName)
+            && data.lineNumber() == needle.lineNumber)
         return true;
 
     return false;
@@ -131,7 +131,7 @@ BreakpointId BreakHandler::findSimilarBreakpoint(const BreakpointResponse &needl
         const BreakpointData &data = it->data;
         const BreakpointResponse &response = it->response;
         qDebug() << "COMPARING " << data.toString() << " WITH " << needle.toString();
-        if (response.bpNumber && response.bpNumber == needle.bpNumber)
+        if (response.number && response.number == needle.number)
             return id;
 
         if (isSimilarTo(data, needle))
@@ -144,7 +144,7 @@ BreakpointId BreakHandler::findBreakpointByNumber(int bpNumber) const
 {
     ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
     for ( ; it != et; ++it)
-        if (it->response.bpNumber == bpNumber)
+        if (it->response.number == bpNumber)
             return it.key();
     return BreakpointId(-1);
 }
@@ -377,7 +377,7 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
         case 0:
             if (role == Qt::DisplayRole) {
                 return QString::number(id);
-                //return QString("%1 - %2").arg(id).arg(response.bpNumber);
+                //return QString("%1 - %2").arg(id).arg(response.number);
             }
             if (role == Qt::DecorationRole) {
                 if (data.isWatchpoint())
@@ -390,14 +390,14 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
         case 1:
             if (role == Qt::DisplayRole) {
                 const QString str = it->isPending()
-                    ? data.functionName() : response.bpFuncName;
+                    ? data.functionName() : response.functionName;
                 return str.isEmpty() ? empty : str;
             }
             break;
         case 2:
             if (role == Qt::DisplayRole) {
                 QString str = it->isPending()
-                    ? data.fileName() : response.bpFileName;
+                    ? data.fileName() : response.fileName;
                 str = QFileInfo(str).fileName();
                 // FIXME: better?
                 //if (data.bpMultiple && str.isEmpty() && !data.markerFileName.isEmpty())
@@ -414,7 +414,7 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                 //if (data.bpMultiple && str.isEmpty() && !data.markerFileName.isEmpty())
                 //    str = data.markerLineNumber;
                 const int nr = it->isPending()
-                    ? data.lineNumber() : response.bpLineNumber;
+                    ? data.lineNumber() : response.lineNumber;
                 return nr ? QString::number(nr) : empty;
             }
             if (role == Qt::UserRole + 1)
@@ -422,7 +422,7 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
             break;
         case 4:
             if (role == Qt::DisplayRole)
-                return it->isPending() ? data.condition() : response.bpCondition;
+                return it->isPending() ? data.condition() : response.condition;
             if (role == Qt::ToolTipRole)
                 return tr("Breakpoint will only be hit if this condition is met.");
             if (role == Qt::UserRole + 1)
@@ -431,7 +431,7 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
         case 5:
             if (role == Qt::DisplayRole) {
                 const int ignoreCount =
-                    it->isPending() ? data.ignoreCount() : response.bpIgnoreCount;
+                    it->isPending() ? data.ignoreCount() : response.ignoreCount;
                 return ignoreCount ? QVariant(ignoreCount) : QVariant(QString());
             }
             if (role == Qt::ToolTipRole)
@@ -444,7 +444,7 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                 if (it->isPending())
                     return !data.threadSpec().isEmpty() ? data.threadSpec() : tr("(all)");
                 else
-                    return !response.bpThreadSpec.isEmpty() ? response.bpThreadSpec : tr("(all)");
+                    return !response.threadSpec.isEmpty() ? response.threadSpec : tr("(all)");
             }
             if (role == Qt::ToolTipRole)
                 return tr("Breakpoint will only be hit in the specified thread(s).");
@@ -455,13 +455,13 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
             if (role == Qt::DisplayRole) {
                 QString displayValue;
                 const quint64 address =
-                    data.isWatchpoint() ? data.address() : response.bpAddress;
+                    data.isWatchpoint() ? data.address() : response.address;
                 if (address)
                     displayValue += QString::fromAscii("0x%1").arg(address, 0, 16);
-                if (!response.bpState.isEmpty()) {
+                if (!response.state.isEmpty()) {
                     if (!displayValue.isEmpty())
                         displayValue += QLatin1Char(' ');
-                    displayValue += QString::fromAscii(response.bpState);
+                    displayValue += QString::fromAscii(response.state);
                 }
                 return displayValue;
             }
@@ -516,7 +516,7 @@ PROPERTY(int, ignoreCount, setIgnoreCount)
 bool BreakHandler::isEnabled(BreakpointId id) const
 {
     ConstIterator it = m_storage.find(id);
-    QTC_ASSERT(it != m_storage.end(), return BreakpointDead);
+    QTC_ASSERT(it != m_storage.end(), return false);
     return it->data.isEnabled();
 }
 
@@ -576,7 +576,7 @@ void BreakHandler::ackCondition(BreakpointId id)
 {
     Iterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return);
-    it->response.bpCondition = it->data.condition();
+    it->response.condition = it->data.condition();
     updateMarker(id);
 }
 
@@ -584,7 +584,7 @@ void BreakHandler::ackIgnoreCount(BreakpointId id)
 {
     Iterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return);
-    it->response.bpIgnoreCount = it->data.ignoreCount();
+    it->response.ignoreCount = it->data.ignoreCount();
     updateMarker(id);
 }
 
@@ -592,7 +592,7 @@ void BreakHandler::ackEnabled(BreakpointId id)
 {
     Iterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return);
-    it->response.bpEnabled = it->data.isEnabled();
+    it->response.enabled = it->data.isEnabled();
     updateMarker(id);
 }
 
@@ -751,7 +751,7 @@ void BreakHandler::updateLineNumberFromMarker(BreakpointId id, int lineNumber)
     // running, as this can be triggered by moving the breakpoint to
     // the next line that generated code.
     // FIXME: Do we need yet another data member?
-    if (it->response.bpNumber == 0) {
+    if (it->response.number == 0) {
         it->data.setLineNumber(lineNumber);
         updateMarker(id);
     }
@@ -925,36 +925,36 @@ QString BreakHandler::BreakpointItem::toToolTip() const
         << "<tr><td>" << tr("Marker Line:")
         << "</td><td>" << data.m_markerLineNumber << "</td></tr>"
         << "<tr><td>" << tr("Breakpoint Number:")
-        << "</td><td>" << response.bpNumber << "</td></tr>"
+        << "</td><td>" << response.number << "</td></tr>"
         << "<tr><td>" << tr("Breakpoint Type:")
         << "</td><td>" << t << "</td></tr>"
         << "<tr><td>" << tr("State:")
-        << "</td><td>" << response.bpState << "</td></tr>"
+        << "</td><td>" << response.state << "</td></tr>"
         << "</table><br><hr><table>"
         << "<tr><th>" << tr("Property")
         << "</th><th>" << tr("Requested")
         << "</th><th>" << tr("Obtained") << "</th></tr>"
         << "<tr><td>" << tr("Internal Number:")
-        << "</td><td>&mdash;</td><td>" << response.bpNumber << "</td></tr>"
+        << "</td><td>&mdash;</td><td>" << response.number << "</td></tr>"
         << "<tr><td>" << tr("File Name:")
-        << "</td><td>" << QDir::toNativeSeparators(data.m_fileName)
-        << "</td><td>" << QDir::toNativeSeparators(response.bpFileName)
+        << "</td><td>" << QDir::toNativeSeparators(data.fileName())
+        << "</td><td>" << QDir::toNativeSeparators(response.fileName)
         << "</td></tr>"
         << "<tr><td>" << tr("Function Name:")
-        << "</td><td>" << data.m_functionName
-        << "</td><td>" << response.bpFuncName << "</td></tr>"
+        << "</td><td>" << data.functionName()
+        << "</td><td>" << response.functionName << "</td></tr>"
         << "<tr><td>" << tr("Line Number:") << "</td><td>";
-    if (data.m_lineNumber)
-        str << data.m_lineNumber;
+    if (data.lineNumber())
+        str << data.lineNumber();
     str << "</td><td>";
-    if (response.bpLineNumber)
-        str << response.bpLineNumber;
+    if (response.lineNumber)
+        str << response.lineNumber;
     str << "</td></tr>"
         << "<tr><td>" << tr("Breakpoint Address:")
         << "</td><td>";
-    formatAddress(str, data.m_address);
+    formatAddress(str, data.address());
     str << "</td><td>";
-    formatAddress(str, response.bpAddress);
+    formatAddress(str, response.address);
     //str <<  "</td></tr>"
     //    << "<tr><td>" << tr("Corrected Line Number:")
     //    << "</td><td>-</td><td>";
@@ -964,18 +964,18 @@ QString BreakHandler::BreakpointItem::toToolTip() const
     //    str << '-';
     str << "</td></tr>"
         << "<tr><td>" << tr("Condition:")
-        << "</td><td>" << data.m_condition
-        << "</td><td>" << response.bpCondition << "</td></tr>"
+        << "</td><td>" << data.condition()
+        << "</td><td>" << response.condition << "</td></tr>"
         << "<tr><td>" << tr("Ignore Count:") << "</td><td>";
-    if (data.m_ignoreCount)
-        str << data.m_ignoreCount;
+    if (data.ignoreCount())
+        str << data.ignoreCount();
     str << "</td><td>";
-    if (response.bpIgnoreCount)
-        str << response.bpIgnoreCount;
+    if (response.ignoreCount)
+        str << response.ignoreCount;
     str << "</td></tr>"
         << "<tr><td>" << tr("Thread Specification:")
-        << "</td><td>" << data.m_threadSpec
-        << "</td><td>" << response.bpThreadSpec << "</td></tr>"
+        << "</td><td>" << data.threadSpec()
+        << "</td><td>" << response.threadSpec << "</td></tr>"
         << "</table></body></html>";
     return rc;
 }

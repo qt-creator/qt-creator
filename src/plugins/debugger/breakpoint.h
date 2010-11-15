@@ -81,6 +81,28 @@ enum BreakpointState
     BreakpointDead,
 };
 
+class BreakpointParameters {
+public:
+    explicit BreakpointParameters(BreakpointType = UnknownType);
+    bool equals(const BreakpointParameters &rhs) const;
+
+    BreakpointType type;     // Type of breakpoint.
+    bool enabled;            // Should we talk to the debugger engine?
+    bool useFullPath;        // Should we use the full path when setting the bp?
+    QString fileName;        // Short name of source file.
+    QByteArray condition;    // Condition associated with breakpoint.
+    int ignoreCount;         // Ignore count associated with breakpoint.
+    int lineNumber;          // Line in source file.
+    quint64 address;         // Address for watchpoints.
+    QByteArray threadSpec;   // Thread specification.
+    QString functionName;
+};
+
+inline bool operator==(const BreakpointParameters &p1, const BreakpointParameters &p2)
+{ return p1.equals(p2); }
+inline bool operator!=(const BreakpointParameters &p1, const BreakpointParameters &p2)
+{ return !p1.equals(p2); }
+
 class BreakpointData
 {
 private:
@@ -92,26 +114,27 @@ private:
 public:
     explicit BreakpointData(BreakpointType = UnknownType);
 
-    BreakpointType type() const { return m_type; }
-    quint64 address() const { return m_address; }
-    bool useFullPath() const { return m_useFullPath; }
+    BreakpointType type() const { return m_parameters.type; }
+    quint64 address() const { return m_parameters.address; }
+    bool useFullPath() const { return m_parameters.useFullPath; }
     QString toString() const;
 
     bool isLocatedAt(const QString &fileName, int lineNumber,
         bool useMarkerPosition) const;
     bool conditionsMatch(const QByteArray &other) const;
-    QString functionName() const { return m_functionName; }
+    QString functionName() const { return m_parameters.functionName; }
     QString markerFileName() const { return m_markerFileName; }
-    QString fileName() const { return m_fileName; }
+    QString fileName() const { return m_parameters.fileName; }
     int markerLineNumber() const { return m_markerLineNumber; }
-    int lineNumber() const { return m_lineNumber; }
-    int ignoreCount() const { return m_ignoreCount; }
-    bool isEnabled() const { return m_enabled; }
-    QByteArray threadSpec() const { return m_threadSpec; }
-    QByteArray condition() const { return m_condition; }
+    int lineNumber() const { return m_parameters.lineNumber; }
+    int ignoreCount() const { return m_parameters.ignoreCount; }
+    bool isEnabled() const { return m_parameters.enabled; }
+    QByteArray threadSpec() const { return m_parameters.threadSpec; }
+    QByteArray condition() const { return m_parameters.condition; }
+    const BreakpointParameters &parameters() const { return m_parameters; }
 
-    bool isWatchpoint() const { return m_type == Watchpoint; }
-    bool isBreakpoint() const { return m_type != Watchpoint; } // Enough for now.
+    bool isWatchpoint() const { return type() == Watchpoint; }
+    bool isBreakpoint() const { return type() != Watchpoint; } // Enough for now.
     // Generic name for function to break on 'throw'
     static const char *throwFunction;
     static const char *catchFunction;
@@ -133,18 +156,7 @@ private:
 
 private:
     // This "user requested information" will get stored in the session.
-    BreakpointType m_type;     // Type of breakpoint.
-    bool m_enabled;            // Should we talk to the debugger engine?
-    bool m_useFullPath;        // Should we use the full path when setting the bp?
-    QString m_fileName;        // Short name of source file.
-    QByteArray m_condition;    // Condition associated with breakpoint.
-    int m_ignoreCount;         // Ignore count associated with breakpoint.
-    int m_lineNumber;          // Line in source file.
-    quint64 m_address;         // Address for watchpoints.
-    QByteArray m_threadSpec;   // Thread specification.
-    // Name of containing function, special values:
-    // BreakpointData::throwFunction, BreakpointData::catchFunction
-    QString m_functionName;
+    BreakpointParameters m_parameters;
     QString m_markerFileName; // Used to locate the marker.
     int m_markerLineNumber;
 
@@ -154,27 +166,17 @@ public:
 
 // This is what debuggers produced in response to the attempt to
 // insert a breakpoint. The data might differ from the requested bits.
-class BreakpointResponse
+class BreakpointResponse : public BreakpointParameters
 {
 public:
     BreakpointResponse();
     QString toString() const;
 
 public:
-    int bpNumber;             // Breakpoint number assigned by the debugger engine.
-    BreakpointType bpType;    // Breakpoint type used by debugger engine.
-    QByteArray bpCondition;   // Condition acknowledged by the debugger engine.
-    int bpIgnoreCount;        // Ignore count acknowledged by the debugger engine.
-    QString bpFileName;       // File name acknowledged by the debugger engine.
-    QString bpFullName;       // Full file name acknowledged by the debugger engine.
-    int bpLineNumber;         // Line number acknowledged by the debugger engine.
-    //int bpCorrectedLineNumber; // Acknowledged by the debugger engine.
-    QByteArray bpThreadSpec;  // Thread spec acknowledged by the debugger engine.
-    QString bpFuncName;       // Function name acknowledged by the debugger engine.
-    quint64 bpAddress;        // Address acknowledged by the debugger engine.
-    bool bpMultiple;          // Happens in constructors/gdb.
-    bool bpEnabled;           // Enable/disable command sent.
-    QByteArray bpState;       // gdb: <PENDING>, <MULTIPLE>
+    int number;             // Breakpoint number assigned by the debugger engine.
+    QString fullName;       // Full file name acknowledged by the debugger engine.
+    bool multiple;          // Happens in constructors/gdb.
+    QByteArray state;       // gdb: <PENDING>, <MULTIPLE>
 };
 
 typedef QList<BreakpointId> BreakpointIds;

@@ -2059,24 +2059,24 @@ void GdbEngine::setBreakpointDataFromOutput(BreakpointId id, const GdbMi &bkpt)
 
     BreakpointResponse response;
     //data->pending = false;
-    response.bpMultiple = false;
-    response.bpEnabled = true;
-    response.bpCondition.clear();
+    response.multiple = false;
+    response.enabled = true;
+    response.condition.clear();
     QByteArray file, fullName;
     foreach (const GdbMi &child, bkpt.children()) {
         if (child.hasName("number")) {
-            response.bpNumber = child.data().toInt();
+            response.number = child.data().toInt();
         } else if (child.hasName("func")) {
-            response.bpFuncName = _(child.data());
+            response.functionName = _(child.data());
         } else if (child.hasName("addr")) {
             // <MULTIPLE> happens in constructors. In this case there are
             // _two_ fields named "addr" in the response. On Linux that is...
             if (child.data().startsWith("0x")) {
-                response.bpAddress = child.data().mid(2).toULongLong(0, 16);
+                response.address = child.data().mid(2).toULongLong(0, 16);
             } else {
-                response.bpState = child.data();
+                response.state = child.data();
                 if (child.data() == "<MULTIPLE>")
-                    response.bpMultiple = true;
+                    response.multiple = true;
             }
         } else if (child.hasName("file")) {
             file = child.data();
@@ -2085,17 +2085,17 @@ void GdbEngine::setBreakpointDataFromOutput(BreakpointId id, const GdbMi &bkpt)
         } else if (child.hasName("line")) {
             bool ok;
             const int lineNumber = child.data().toInt(&ok);
-            response.bpLineNumber = lineNumber;
+            response.lineNumber = lineNumber;
             //if (ok && response.bpCorrectedLineNumber <= 0)
             //    data->setMarkerLineNumber(lineNumber);
         } else if (child.hasName("cond")) {
-            response.bpCondition = child.data();
+            response.condition = child.data();
             // gdb 6.3 likes to "rewrite" conditions. Just accept that fact.
             //if (response.bpCondition != data->condition()
             //        && data->conditionsMatch(response.bpCondition))
             //    data->setCondition(response.bpCondition);
         } else if (child.hasName("enabled")) {
-            response.bpEnabled = (child.data() == "y");
+            response.enabled = (child.data() == "y");
         } else if (child.hasName("pending")) {
             //data->setState(BreakpointPending);
             breakHandler()->setState(id, BreakpointPending);
@@ -2106,9 +2106,9 @@ void GdbEngine::setBreakpointDataFromOutput(BreakpointId id, const GdbMi &bkpt)
             QByteArray ba = child.data();
             if (ba.startsWith('<') && ba.endsWith('>'))
                 ba = ba.mid(1, ba.size() - 2);
-            response.bpFuncName = _(ba);
+            response.functionName = _(ba);
         } else if (child.hasName("thread")) {
-            response.bpThreadSpec = child.data();
+            response.threadSpec = child.data();
         } else if (child.hasName("type")) {
             // FIXME: This should not change the type.
             //if (child.data().contains("reakpoint")) // "breakpoint", "hw breakpoint"
@@ -2125,7 +2125,7 @@ void GdbEngine::setBreakpointDataFromOutput(BreakpointId id, const GdbMi &bkpt)
     QString name;
     if (!fullName.isEmpty()) {
         name = cleanupFullName(QFile::decodeName(fullName));
-        response.bpFileName = name;
+        response.fileName = name;
         //if (data->markerFileName().isEmpty())
         //    data->setMarkerFileName(name);
     } else {
@@ -2134,7 +2134,7 @@ void GdbEngine::setBreakpointDataFromOutput(BreakpointId id, const GdbMi &bkpt)
         // gdb's own. No point in assigning markerFileName for now.
     }
     if (!name.isEmpty())
-        response.bpFileName = name;
+        response.fileName = name;
 
     breakHandler()->setResponse(id, response);
 }
@@ -2190,7 +2190,7 @@ void GdbEngine::handleWatchInsert(const GdbResponse &response)
         if (ba.startsWith("Hardware watchpoint ")) {
             const int pos = ba.indexOf(':', 20);
             BreakpointResponse response = breakHandler()->response(id);
-            response.bpNumber = ba.mid(20, pos - 20).toInt();
+            response.number = ba.mid(20, pos - 20).toInt();
             breakHandler()->setResponse(id, response);
         } else {
             showMessage(_("CANNOT PARSE WATCHPOINT FROM" + ba));
@@ -2278,7 +2278,7 @@ void GdbEngine::handleBreakList(const GdbMi &table)
 
     foreach (const GdbMi &bkpt, bkpts) {
         BreakpointResponse needle;
-        needle.bpFileName = _("xx");
+        needle.fileName = _("xx");
         BreakpointId id = breakHandler()->findSimilarBreakpoint(needle);
         //qDebug() << "\n\nGOT: " << bkpt.toString() << '\n' << temp.toString();
         // FIXME: use setBreakpointDataFromOutput(BreakpointId id, const GdbMi &bkpt)
@@ -2374,14 +2374,14 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointId id)
     re.setMinimal(true);
 
     BreakpointResponse response;
-    response.bpFileName = _("<MULTIPLE>");
+    response.fileName = _("<MULTIPLE>");
 
     QString requestedFileName = breakHandler()->fileName(id);
 
     if (re.indexIn(output) != -1) {
-        response.bpAddress = re.cap(1).toULongLong(0, 16);
-        response.bpFuncName = re.cap(2).trimmed();
-        response.bpLineNumber = re.cap(4).toInt();
+        response.address = re.cap(1).toULongLong(0, 16);
+        response.functionName = re.cap(2).trimmed();
+        response.lineNumber = re.cap(4).toInt();
         QString full = fullName(re.cap(3));
         if (full.isEmpty()) {
             // FIXME: This happens without UsePreciseBreakpoints regularly.
@@ -2405,10 +2405,10 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointId id)
         //    qDebug() << "111";
         //    data->setMarkerFileName(full);
         //}
-        response.bpFileName = full;
+        response.fileName = full;
     } else {
         qDebug() << "COULD NOT MATCH " << re.pattern() << " AND " << output;
-        response.bpNumber = -1; // <unavailable>
+        response.number = -1; // <unavailable>
     }
     breakHandler()->setResponse(id, response);
 }
@@ -2437,7 +2437,7 @@ void GdbEngine::handleInfoLine(const GdbResponse &response)
             const int line = ba.mid(5, pos - 5).toInt();
             const BreakpointId id = response.cookie.toInt();
             BreakpointResponse br = breakHandler()->response(id);
-            br.bpLineNumber = line;
+            br.lineNumber = line;
             breakHandler()->setResponse(id, br);
         }
     }
@@ -2619,28 +2619,28 @@ void GdbEngine::changeBreakpoint(BreakpointId id)
     QTC_ASSERT(data0, return);
     const BreakpointData &data = *data0;
     const BreakpointResponse &response = breakHandler()->response(id);
-    QTC_ASSERT(response.bpNumber > 0, return);
-    const QByteArray bpnr = QByteArray::number(response.bpNumber);
+    QTC_ASSERT(response.number > 0, return);
+    const QByteArray bpnr = QByteArray::number(response.number);
 
-    if (data.condition() != response.bpCondition
-        && !data.conditionsMatch(response.bpCondition)) {
+    if (data.condition() != response.condition
+        && !data.conditionsMatch(response.condition)) {
         // Update conditions if needed.
         postCommand("condition " + bpnr + ' '  + data.condition(),
             NeedsStop | RebuildBreakpointModel,
             CB(handleBreakCondition), id);
     }
-    if (data.ignoreCount() != response.bpIgnoreCount) {
+    if (data.ignoreCount() != response.ignoreCount) {
         // Update ignorecount if needed.
         postCommand("ignore " + bpnr + ' ' + QByteArray::number(data.ignoreCount()),
             NeedsStop | RebuildBreakpointModel,
             CB(handleBreakIgnore), id);
     }
-    if (!data.isEnabled() && response.bpEnabled) {
+    if (!data.isEnabled() && response.enabled) {
         postCommand("-break-disable " + bpnr,
             NeedsStop | RebuildBreakpointModel,
             CB(handleBreakDisable), id);
     }
-    if (data.isEnabled() && !response.bpEnabled) {
+    if (data.isEnabled() && !response.enabled) {
         postCommand("-break-enable " + bpnr,
             NeedsStop | RebuildBreakpointModel,
             CB(handleBreakEnable), id);
@@ -2678,9 +2678,9 @@ void GdbEngine::removeBreakpoint(BreakpointId id)
     QTC_ASSERT(handler->state(id) == BreakpointRemoveRequested, /**/);
     handler->setState(id, BreakpointRemoveProceeding);
     BreakpointResponse br = handler->response(id);
-    showMessage(_("DELETING BP %1 IN ").arg(br.bpNumber)
+    showMessage(_("DELETING BP %1 IN ").arg(br.number)
         + handler->markerFileName(id));
-    postCommand("-break-delete " + QByteArray::number(br.bpNumber),
+    postCommand("-break-delete " + QByteArray::number(br.number),
         NeedsStop | RebuildBreakpointModel);
     // Pretend it succeeds without waiting for response. Feels better.
     handler->notifyBreakpointRemoveOk(id);

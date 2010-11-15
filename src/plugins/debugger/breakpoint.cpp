@@ -44,32 +44,36 @@ namespace Internal {
 const char *BreakpointData::throwFunction = "throw";
 const char *BreakpointData::catchFunction = "catch";
 
-BreakpointData::BreakpointData(BreakpointType type)
+BreakpointParameters::BreakpointParameters(BreakpointType t) :
+    type(t), enabled(type), useFullPath(false),
+    ignoreCount(0), lineNumber(0)
 {
-    m_type = type;
-    m_enabled = true;
-    m_ignoreCount = 0;
-    m_lineNumber = 0;
-    m_address = 0;
-    m_useFullPath = false;
-    m_markerLineNumber = 0;
 }
 
-BreakpointResponse::BreakpointResponse()
+bool BreakpointParameters::equals(const BreakpointParameters &rhs) const
 {
-    bpNumber = 0;
-    bpIgnoreCount = 0;
-    bpLineNumber = 0;
-    //bpCorrectedLineNumber = 0;
-    bpAddress = 0;
-    bpMultiple = false;
-    bpEnabled = true;
+    return type != rhs.type && enabled == rhs.enabled
+            && useFullPath == rhs.useFullPath
+            && fileName == rhs.fileName && condition == rhs.condition
+            && ignoreCount == rhs.ignoreCount && lineNumber == rhs.lineNumber
+            && address == rhs.address && threadSpec == rhs.threadSpec
+            && functionName == rhs.functionName;
+}
+
+BreakpointData::BreakpointData(BreakpointType type) :
+    m_parameters(type), m_markerLineNumber(0)
+{
+}
+
+BreakpointResponse::BreakpointResponse() :
+    number(0), multiple(false)
+{
 }
 
 #define SETIT(var, value) return (var != value) && (var = value, true)
 
 bool BreakpointData::setUseFullPath(bool on)
-{ SETIT(m_useFullPath, on); }
+{ SETIT(m_parameters.useFullPath, on); }
 
 bool BreakpointData::setMarkerFileName(const QString &file)
 { SETIT(m_markerFileName, file); }
@@ -78,31 +82,31 @@ bool BreakpointData::setMarkerLineNumber(int line)
 { SETIT(m_markerLineNumber, line); }
 
 bool BreakpointData::setFileName(const QString &file)
-{ SETIT(m_fileName, file); }
+{ SETIT(m_parameters.fileName, file); }
 
 bool BreakpointData::setEnabled(bool on)
-{ SETIT(m_enabled, on); }
+{ SETIT(m_parameters.enabled, on); }
 
 bool BreakpointData::setIgnoreCount(int count)
-{ SETIT(m_ignoreCount, count); }
+{ SETIT(m_parameters.ignoreCount, count); }
 
 bool BreakpointData::setFunctionName(const QString &name)
-{ SETIT(m_functionName, name); }
+{ SETIT(m_parameters.functionName, name); }
 
 bool BreakpointData::setLineNumber(int line)
-{ SETIT(m_lineNumber, line); }
+{ SETIT(m_parameters.lineNumber, line); }
 
 bool BreakpointData::setAddress(quint64 address)
-{ SETIT(m_address, address); }
+{ SETIT(m_parameters.address, address); }
 
 bool BreakpointData::setThreadSpec(const QByteArray &spec)
-{ SETIT(m_threadSpec, spec); }
+{ SETIT(m_parameters.threadSpec, spec); }
 
 bool BreakpointData::setType(BreakpointType type)
-{ SETIT(m_type, type); }
+{ SETIT(m_parameters.type, type); }
 
 bool BreakpointData::setCondition(const QByteArray &cond)
-{ SETIT(m_condition, cond); }
+{ SETIT(m_parameters.condition, cond); }
 
 #undef SETIT
 
@@ -120,14 +124,14 @@ static inline bool fileNameMatch(const QString &f1, const QString &f2)
 bool BreakpointData::isLocatedAt(const QString &fileName, int lineNumber,
     bool useMarkerPosition) const
 {
-    int line = useMarkerPosition ? m_markerLineNumber : m_lineNumber;
+    int line = useMarkerPosition ? m_markerLineNumber : m_parameters.lineNumber;
     return lineNumber == line && fileNameMatch(fileName, m_markerFileName);
 }
 
 bool BreakpointData::conditionsMatch(const QByteArray &other) const
 {
     // Some versions of gdb "beautify" the passed condition.
-    QByteArray s1 = m_condition;
+    QByteArray s1 = m_parameters.condition;
     s1.replace(' ', "");
     QByteArray s2 = other;
     s2.replace(' ', "");
@@ -152,15 +156,15 @@ QString BreakpointResponse::toString() const
 {
     QString result;
     QTextStream ts(&result);
-    ts << bpNumber;
-    ts << bpCondition;
-    ts << bpIgnoreCount;
-    ts << bpFileName;
-    ts << bpFullName;
-    ts << bpLineNumber;
-    ts << bpThreadSpec;
-    ts << bpFuncName;
-    ts << bpAddress;
+    ts << number;
+    ts << condition;
+    ts << ignoreCount;
+    ts << fileName;
+    ts << fullName;
+    ts << lineNumber;
+    ts << threadSpec;
+    ts << functionName;
+    ts << address;
     return result;
 }
 

@@ -71,16 +71,16 @@ static inline QString msgCannotSetBreakAtFunction(const QString &func, const QSt
 
 void setBreakpointResponse(const BreakpointData *nbd, int number, BreakpointResponse *response)
 {
-    response->bpAddress = nbd->address();
-    response->bpNumber = number;
-    response->bpFuncName = nbd->functionName();
-    response->bpType = nbd->type();
-    response->bpCondition = nbd->condition();
-    response->bpIgnoreCount = nbd->ignoreCount();
-    response->bpFullName = response->bpFileName = nbd->fileName();
-    response->bpLineNumber = nbd->lineNumber();
-    response->bpThreadSpec = nbd->threadSpec();
-    response->bpEnabled = nbd->isEnabled();
+    response->address = nbd->address();
+    response->number = number;
+    response->functionName = nbd->functionName();
+    response->type = nbd->type();
+    response->condition = nbd->condition();
+    response->ignoreCount = nbd->ignoreCount();
+    response->fullName = response->fileName = nbd->fileName();
+    response->lineNumber = nbd->lineNumber();
+    response->threadSpec = nbd->threadSpec();
+    response->enabled = nbd->isEnabled();
 }
 
 bool addCdbBreakpoint(CIDebugControl* debugControl,
@@ -116,8 +116,8 @@ bool addCdbBreakpoint(CIDebugControl* debugControl,
     if (debugBreakpoints)
         qDebug("Added %lu at 0x%lx %s", id, address, qPrintable(ncdbbp.toString()));
     setBreakpointResponse(nbd, id, response);
-    response->bpAddress = address;
-    response->bpFuncName = resolvedFunction;
+    response->address = address;
+    response->functionName = resolvedFunction;
     return true;
 }
 
