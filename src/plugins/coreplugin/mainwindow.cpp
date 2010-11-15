@@ -579,6 +579,7 @@ void MainWindow::registerDefaultActions()
     ActionContainer *ac = am->createMenu(Constants::M_FILE_RECENTFILES);
     mfile->addMenu(ac, Constants::G_FILE_OPEN);
     ac->menu()->setTitle(tr("Recent &Files"));
+    ac->setEmptyAction(ActionContainer::EA_None);
 
     // Save Action
     icon = QIcon::fromTheme(QLatin1String("document-save"), QIcon(Constants::ICON_SAVEFILE));
