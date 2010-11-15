@@ -905,19 +905,19 @@ public slots:
 
     void sourceFilesDockToggled(bool on)
     {
-        if (on)
+        if (on && m_currentEngine->state() == InferiorStopOk)
             m_currentEngine->reloadSourceFiles();
     }
 
     void modulesDockToggled(bool on)
     {
-        if (on)
+        if (on && m_currentEngine->state() == InferiorStopOk)
             m_currentEngine->reloadModules();
     }
 
     void registerDockToggled(bool on)
     {
-        if (on)
+        if (on && m_currentEngine->state() == InferiorStopOk)
             m_currentEngine->reloadRegisters();
     }
 
