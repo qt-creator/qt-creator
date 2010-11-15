@@ -267,7 +267,7 @@ void BreakHandler::loadBreakpoints()
     //clear();
     foreach (const QVariant &var, list) {
         const QMap<QString, QVariant> map = var.toMap();
-        BreakpointData data;
+        BreakpointData data(BreakpointByFileAndLine);
         QVariant v = map.value(_("filename"));
         if (v.isValid())
             data.setFileName(v.toString());
