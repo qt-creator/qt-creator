@@ -474,6 +474,7 @@ def listOfLocals(varList):
             warn("BLOCK NOT ACCESSIBLE FOR UNKNOWN REASONS")
             return items
 
+        shadowed = {}
         while True:
             if block is None:
                 warn("UNEXPECTED 'None' BLOCK")
@@ -488,16 +489,27 @@ def listOfLocals(varList):
                 # Python scripts."
                 #warn("SYMBOL %s: " % symbol.value)
                 #warn("SYMBOL %s  (%s): " % (symbol, name))
-                item = Item(0, "local", name, name)
+                if name in shadowed:
+                    level = shadowed[name]
+                    name1 = "%s <shadowed %s>" % (name, level)
+                    shadowed[name] = level + 1
+                else:
+                    name1 = name
+                    shadowed[name] = 1
+                #warn("SYMBOL %s  (%s, %s)): " % (symbol, name, symbol.name))
+                item = Item(0, "local", name1, name1)
                 try:
-                    item.value = frame.read_var(name)  # this is a gdb value
+                    item.value = frame.read_var(name, block)  # this is a gdb value
                 except:
-                    # RuntimeError: happens for
-                    #     void foo() { std::string s; std::wstring w; }
-                    # ValueError: happens for (as of 2010/11/4)
-                    #     a local struct as found e.g. in
-                    #     gcc sources in gcc.c, int execute()
-                    continue
+                    try:
+                        item.value = frame.read_var(name)  # this is a gdb value
+                    except:
+                        # RuntimeError: happens for
+                        #     void foo() { std::string s; std::wstring w; }
+                        # ValueError: happens for (as of 2010/11/4)
+                        #     a local struct as found e.g. in
+                        #     gcc sources in gcc.c, int execute()
+                        continue
                 #warn("ITEM %s: " % item.value)
                 items.append(item)
             # The outermost block in a function has the function member
