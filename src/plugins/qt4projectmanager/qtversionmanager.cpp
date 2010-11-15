@@ -381,6 +381,8 @@ void QtVersionManager::addNewVersionsFromInstaller()
                     version->setMwcDirectory(QDir::fromNativeSeparators(newVersionData[5]));
                 if (newVersionData.count() >= 7)
                     version->setMsvcVersion(newVersionData[6]);
+                if (newVersionData.count() >= 8)
+                    version->setSbsV2Path(QDir::fromNativeSeparators(newVersionData[7]));
 
                 bool versionWasAlreadyInList = false;
                 foreach(const QtVersion * const it, m_versions) {
