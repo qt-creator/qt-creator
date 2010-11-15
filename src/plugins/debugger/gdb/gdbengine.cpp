@@ -2686,7 +2686,7 @@ void GdbEngine::removeBreakpoint(BreakpointId id)
     handler->setState(id, BreakpointRemoveProceeding);
     BreakpointResponse br = handler->response(id);
     showMessage(_("DELETING BP %1 IN ").arg(br.number)
-        + handler->markerFileName(id));
+        + handler->fileName(id));
     postCommand("-break-delete " + QByteArray::number(br.number),
         NeedsStop | RebuildBreakpointModel);
     // Pretend it succeeds without waiting for response. Feels better.

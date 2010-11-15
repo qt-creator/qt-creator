@@ -162,7 +162,7 @@ BreakpointId BreakHandler::findBreakpointByFileAndLine(const QString &fileName,
 {
     ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
     for ( ; it != et; ++it)
-        if (it->data.isLocatedAt(fileName, lineNumber, useMarkerPosition))
+        if (it->isLocatedAt(fileName, lineNumber, useMarkerPosition))
             return it.key();
     return BreakpointId(-1);
 }
@@ -305,15 +305,14 @@ void BreakHandler::updateMarker(BreakpointId id)
 {
     Iterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return);
-    const BreakpointData &data = it->data;
     BreakpointMarker *marker = it->marker;
 
-    if (marker && (data.m_markerFileName != marker->fileName()
-                || data.m_markerLineNumber != marker->lineNumber()))
+    if (marker && (it->markerFileName != marker->fileName()
+                || it->markerLineNumber != marker->lineNumber()))
         it->destroyMarker();
 
-    if (!marker && !data.m_markerFileName.isEmpty() && data.m_markerLineNumber > 0) {
-        marker = new BreakpointMarker(id, data.m_markerFileName, data.m_markerLineNumber);
+    if (!marker && !it->markerFileName.isEmpty() && it->markerLineNumber > 0) {
+        marker = new BreakpointMarker(id, it->markerFileName, it->markerLineNumber);
         it->marker = marker;
     }
 }
@@ -491,10 +490,8 @@ void BreakHandler::setter(BreakpointId id, const type &value) \
 
 
 PROPERTY(bool, useFullPath, setUseFullPath)
-PROPERTY(QString, markerFileName, setMarkerFileName)
 PROPERTY(QString, fileName, setFileName)
 PROPERTY(QString, functionName, setFunctionName)
-PROPERTY(int, markerLineNumber, setMarkerLineNumber)
 PROPERTY(BreakpointType, type, setType)
 PROPERTY(QByteArray, threadSpec, setThreadSpec)
 PROPERTY(QByteArray, condition, setCondition)
@@ -520,6 +517,16 @@ void BreakHandler::setEnabled(BreakpointId id, bool on)
         updateMarker(id);
         scheduleSynchronization();
     }
+}
+
+void BreakHandler::setMarkerFileAndLine(BreakpointId id,
+    const QString &fileName, int lineNumber)
+{
+    Iterator it = m_storage.find(id);
+    QTC_ASSERT(it != m_storage.end(), return);
+    it->markerFileName = fileName;
+    it->markerLineNumber = lineNumber;
+    updateMarker(id);
 }
 
 BreakpointState BreakHandler::state(BreakpointId id) const
@@ -728,8 +735,8 @@ void BreakHandler::updateLineNumberFromMarker(BreakpointId id, int lineNumber)
     QTC_ASSERT(it != m_storage.end(), return);
     //if (data.markerLineNumber == lineNumber)
     //    return;
-    if (it->data.markerLineNumber() != lineNumber) {
-        it->data.setMarkerLineNumber(lineNumber);
+    if (it->markerLineNumber != lineNumber) {
+        it->markerLineNumber = lineNumber;
         // FIXME: Should we tell gdb about the change?
         // Ignore it for now, as we would require re-compilation
         // and debugger re-start anyway.
@@ -849,6 +856,17 @@ void BreakHandler::setResponse(BreakpointId id, const BreakpointResponse &data)
     updateMarker(id);
 }
 
+
+//////////////////////////////////////////////////////////////////
+//
+// Storage
+//
+//////////////////////////////////////////////////////////////////
+
+BreakHandler::BreakpointItem::BreakpointItem()
+  : state(BreakpointNew), engine(0), marker(0), markerLineNumber(0)
+{}
+
 void BreakHandler::BreakpointItem::destroyMarker()
 {
     BreakpointMarker *m = marker;
@@ -882,6 +900,13 @@ static QString stateToString(BreakpointState state)
         default: return "<invalid state>";
     }
 };
+
+bool BreakHandler::BreakpointItem::isLocatedAt
+    (const QString &fileName, int lineNumber, bool useMarkerPosition) const
+{
+    int line = useMarkerPosition ? markerLineNumber : data.lineNumber();
+    return lineNumber == line && fileNameMatch(fileName, markerFileName);
+}
 
 QString BreakHandler::BreakpointItem::toToolTip() const
 {
@@ -923,9 +948,9 @@ QString BreakHandler::BreakpointItem::toToolTip() const
         << "<tr><td>" << tr("Engine:")
         << "</td><td>" << (engine ? engine->objectName() : "0") << "</td></tr>"
         << "<tr><td>" << tr("Marker File:")
-        << "</td><td>" << QDir::toNativeSeparators(data.m_markerFileName) << "</td></tr>"
+        << "</td><td>" << QDir::toNativeSeparators(markerFileName) << "</td></tr>"
         << "<tr><td>" << tr("Marker Line:")
-        << "</td><td>" << data.m_markerLineNumber << "</td></tr>"
+        << "</td><td>" << markerLineNumber << "</td></tr>"
         << "<tr><td>" << tr("Breakpoint Number:")
         << "</td><td>" << response.number << "</td></tr>"
         << "<tr><td>" << tr("Breakpoint Type:")

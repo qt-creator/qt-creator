@@ -57,73 +57,67 @@ bool BreakpointParameters::equals(const BreakpointParameters &rhs) const
             && functionName == rhs.functionName;
 }
 
-BreakpointData::BreakpointData(BreakpointType type) :
-    m_parameters(type), m_markerLineNumber(0)
-{
-}
+BreakpointData::BreakpointData(BreakpointType type)
+    : m_parameters(type)
+{}
 
-BreakpointResponse::BreakpointResponse() :
-    number(0), multiple(false)
-{
-}
+BreakpointResponse::BreakpointResponse()
+    : number(0), multiple(false)
+{}
 
 #define SETIT(var, value) return (var != value) && (var = value, true)
 
 bool BreakpointData::setUseFullPath(bool on)
-{ SETIT(m_parameters.useFullPath, on); }
-
-bool BreakpointData::setMarkerFileName(const QString &file)
-{ SETIT(m_markerFileName, file); }
-
-bool BreakpointData::setMarkerLineNumber(int line)
-{ SETIT(m_markerLineNumber, line); }
+{
+    SETIT(m_parameters.useFullPath, on);
+}
 
 bool BreakpointData::setFileName(const QString &file)
-{ SETIT(m_parameters.fileName, file); }
+{
+    SETIT(m_parameters.fileName, file);
+}
 
 bool BreakpointData::setEnabled(bool on)
-{ SETIT(m_parameters.enabled, on); }
+{
+    SETIT(m_parameters.enabled, on);
+}
 
 bool BreakpointData::setIgnoreCount(int count)
-{ SETIT(m_parameters.ignoreCount, count); }
+{
+    SETIT(m_parameters.ignoreCount, count);
+}
 
 bool BreakpointData::setFunctionName(const QString &name)
-{ SETIT(m_parameters.functionName, name); }
+{
+    SETIT(m_parameters.functionName, name);
+}
 
 bool BreakpointData::setLineNumber(int line)
-{ SETIT(m_parameters.lineNumber, line); }
+{
+    SETIT(m_parameters.lineNumber, line);
+}
 
 bool BreakpointData::setAddress(quint64 address)
-{ SETIT(m_parameters.address, address); }
+{
+    SETIT(m_parameters.address, address);
+}
 
 bool BreakpointData::setThreadSpec(const QByteArray &spec)
-{ SETIT(m_parameters.threadSpec, spec); }
+{
+    SETIT(m_parameters.threadSpec, spec);
+}
 
 bool BreakpointData::setType(BreakpointType type)
-{ SETIT(m_parameters.type, type); }
+{
+    SETIT(m_parameters.type, type);
+}
 
 bool BreakpointData::setCondition(const QByteArray &cond)
-{ SETIT(m_parameters.condition, cond); }
+{
+    SETIT(m_parameters.condition, cond);
+}
 
 #undef SETIT
-
-
-// Compare file names case insensitively on Windows.
-static inline bool fileNameMatch(const QString &f1, const QString &f2)
-{
-#ifdef Q_OS_WIN
-    return f1.compare(f2, Qt::CaseInsensitive) == 0;
-#else
-    return f1 == f2;
-#endif
-}
-
-bool BreakpointData::isLocatedAt(const QString &fileName, int lineNumber,
-    bool useMarkerPosition) const
-{
-    int line = useMarkerPosition ? m_markerLineNumber : m_parameters.lineNumber;
-    return lineNumber == line && fileNameMatch(fileName, m_markerFileName);
-}
 
 bool BreakpointData::conditionsMatch(const QByteArray &other) const
 {

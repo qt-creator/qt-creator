@@ -37,8 +37,6 @@
 
 namespace Debugger {
 
-class DebuggerEngine;
-
 typedef quint64 BreakpointId; // FIXME: make Internal.
 
 namespace Internal {
@@ -82,7 +80,8 @@ enum BreakpointState
     BreakpointDead,
 };
 
-class BreakpointParameters {
+class BreakpointParameters
+{
 public:
     explicit BreakpointParameters(BreakpointType = UnknownType);
     bool equals(const BreakpointParameters &rhs) const;
@@ -113,20 +112,16 @@ private:
     friend QDataStream &operator>>(QDataStream& stream, BreakpointData &data);
 
 public:
-    explicit BreakpointData(BreakpointType = UnknownType);
+    explicit BreakpointData(BreakpointType type = UnknownType);
 
     BreakpointType type() const { return m_parameters.type; }
     quint64 address() const { return m_parameters.address; }
     bool useFullPath() const { return m_parameters.useFullPath; }
     QString toString() const;
 
-    bool isLocatedAt(const QString &fileName, int lineNumber,
-        bool useMarkerPosition) const;
     bool conditionsMatch(const QByteArray &other) const;
     QString functionName() const { return m_parameters.functionName; }
-    QString markerFileName() const { return m_markerFileName; }
     QString fileName() const { return m_parameters.fileName; }
-    int markerLineNumber() const { return m_markerLineNumber; }
     int lineNumber() const { return m_parameters.lineNumber; }
     int ignoreCount() const { return m_parameters.ignoreCount; }
     bool isEnabled() const { return m_parameters.enabled; }
@@ -155,8 +150,6 @@ private:
 private:
     // This "user requested information" will get stored in the session.
     BreakpointParameters m_parameters;
-    QString m_markerFileName; // Used to locate the marker.
-    int m_markerLineNumber;
 
 public:
     Q_DECLARE_TR_FUNCTIONS(BreakHandler)

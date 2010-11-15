@@ -44,6 +44,9 @@
 //////////////////////////////////////////////////////////////////
 
 namespace Debugger {
+
+class DebuggerEngine;
+
 namespace Internal {
 
 class BreakpointMarker;
@@ -105,8 +108,8 @@ public:
         void setter(BreakpointId id, const type &value);
 
     PROPERTY(bool, useFullPath, setUseFullPath)
-    PROPERTY(QString, markerFileName, setMarkerFileName)
-    PROPERTY(int, markerLineNumber, setMarkerLineNumber)
+    //PROPERTY(QString, markerFileName, setMarkerFileName)
+    //PROPERTY(int, markerLineNumber, setMarkerLineNumber)
     PROPERTY(QByteArray, condition, setCondition)
     PROPERTY(int, ignoreCount, setIgnoreCount)
     PROPERTY(QByteArray, threadSpec, setThreadSpec)
@@ -120,6 +123,8 @@ public:
     bool isEnabled(BreakpointId id) const;
     void setEnabled(BreakpointId id, bool on);
     void updateLineNumberFromMarker(BreakpointId id, int lineNumber);
+    void setMarkerFileAndLine(BreakpointId id,
+        const QString &fileName, int lineNumber);
 
     DebuggerEngine *engine(BreakpointId id) const;
     void setEngine(BreakpointId id, DebuggerEngine *engine);
@@ -168,10 +173,13 @@ private:
 
     struct BreakpointItem
     {
-        BreakpointItem() : state(BreakpointNew), engine(0), marker(0) {}
+        BreakpointItem();
+
         void destroyMarker();
         bool isPending() const { return state == BreakpointPending
             || state == BreakpointNew; }
+        bool isLocatedAt(const QString &fileName, int lineNumber,
+            bool useMarkerPosition) const;
         QString toToolTip() const;
 
         BreakpointData data;
@@ -179,6 +187,8 @@ private:
         DebuggerEngine *engine;  // Engine currently handling the breakpoint.
         BreakpointResponse response;
         BreakpointMarker *marker;
+        QString markerFileName; // Used to locate the marker.
+        int markerLineNumber;
     };
     typedef QHash<BreakpointId, BreakpointItem> BreakpointStorage;
     typedef BreakpointStorage::ConstIterator ConstIterator;
