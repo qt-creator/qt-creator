@@ -9,5 +9,6 @@ HEADERS += \
 SOURCES += \
     $$APPSOURCEDIR/qmlstandaloneapp.cpp \
     $$APPSOURCEDIR/abstractmobileapp.cpp \
-    main.cpp
+    main.cpp \
+    helpers.cpp
 INCLUDEPATH += $$APPSOURCEDIR
