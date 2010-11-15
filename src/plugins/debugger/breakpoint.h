@@ -30,10 +30,10 @@
 #ifndef DEBUGGER_BREAKPOINT_H
 #define DEBUGGER_BREAKPOINT_H
 
-#include <QtCore/QMetaType>
-#include <QtCore/QList>
-#include <QtCore/QString>
 #include <QtCore/QCoreApplication>
+#include <QtCore/QList>
+#include <QtCore/QMetaType>
+#include <QtCore/QString>
 
 namespace Debugger {
 
@@ -62,6 +62,8 @@ enum BreakpointType
     BreakpointByFileAndLine,
     BreakpointByFunction,
     BreakpointByAddress,
+    //BreakpointAtThrow, // FIXME: actually use this
+    //BreakpointAtCatch, // FIXME: actually use this
     Watchpoint,
 };
 
@@ -82,21 +84,14 @@ enum BreakpointState
 class BreakpointData
 {
 private:
-    // Intentionally unimplemented. BreakpointData objects are supposed
-    // to be added to the BreakHandler soon after construction.
-    BreakpointData(const BreakpointData &);
-    void operator=(const BreakpointData &);
-
     friend class BreakHandler; // This should be the only class manipulating data.
     friend class BreakWindow; // FIXME: Remove.
     friend class BreakpointDialog; // FIXME: Remove.
     friend QDataStream &operator>>(QDataStream& stream, BreakpointData &data);
 
 public:
-    BreakpointData();
+    explicit BreakpointData(BreakpointType = UnknownType);
 
-    bool isPending() const { return m_state == BreakpointPending
-        || m_state == BreakpointNew; }
     BreakpointType type() const { return m_type; }
     quint64 address() const { return m_address; }
     bool useFullPath() const { return m_useFullPath; }
@@ -106,7 +101,6 @@ public:
     bool isLocatedAt(const QString &fileName, int lineNumber,
         bool useMarkerPosition) const;
     bool conditionsMatch(const QString &other) const;
-    BreakpointState state() const { return m_state; }
     QString functionName() const { return m_functionName; }
     QString markerFileName() const { return m_markerFileName; }
     QString fileName() const { return m_fileName; }
@@ -116,7 +110,6 @@ public:
     bool isEnabled() const { return m_enabled; }
     QByteArray threadSpec() const { return m_threadSpec; }
     QByteArray condition() const { return m_condition; }
-    DebuggerEngine *engine() const { return m_engine; }
 
     bool isWatchpoint() const { return m_type == Watchpoint; }
     bool isBreakpoint() const { return m_type != Watchpoint; } // Enough for now.
@@ -131,21 +124,17 @@ private:
     bool setMarkerLineNumber(int line);
     bool setFileName(const QString &file);
     bool setEnabled(bool on);
-    bool setIgnoreCount(bool count);
+    bool setIgnoreCount(int count);
     bool setFunctionName(const QString &name);
     bool setLineNumber(int line);
     bool setAddress(quint64 address);
     bool setThreadSpec(const QByteArray &spec);
     bool setType(BreakpointType type);
     bool setCondition(const QByteArray &cond);
-    bool setState(BreakpointState state);
-    bool setEngine(DebuggerEngine *engine);
 
 private:
-    DebuggerEngine *m_engine;
-    BreakpointType m_type;     // Type of breakpoint.
-    BreakpointState m_state;   // Current state of breakpoint.
     // This "user requested information" will get stored in the session.
+    BreakpointType m_type;     // Type of breakpoint.
     bool m_enabled;            // Should we talk to the debugger engine?
     bool m_useFullPath;        // Should we use the full path when setting the bp?
     QString m_fileName;        // Short name of source file.

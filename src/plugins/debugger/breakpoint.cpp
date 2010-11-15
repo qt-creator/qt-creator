@@ -50,12 +50,10 @@ namespace Internal {
 const char *BreakpointData::throwFunction = "throw";
 const char *BreakpointData::catchFunction = "catch";
 
-BreakpointData::BreakpointData()
+BreakpointData::BreakpointData(BreakpointType type)
 {
-    m_state = BreakpointNew;
-    m_engine = 0;
+    m_type = type;
     m_enabled = true;
-    m_type = BreakpointByFileAndLine;
     m_ignoreCount = 0;
     m_lineNumber = 0;
     m_address = 0;
@@ -91,7 +89,7 @@ bool BreakpointData::setFileName(const QString &file)
 bool BreakpointData::setEnabled(bool on)
 { SETIT(m_enabled, on); }
 
-bool BreakpointData::setIgnoreCount(bool count)
+bool BreakpointData::setIgnoreCount(int count)
 { SETIT(m_ignoreCount, count); }
 
 bool BreakpointData::setFunctionName(const QString &name)
@@ -111,12 +109,6 @@ bool BreakpointData::setType(BreakpointType type)
 
 bool BreakpointData::setCondition(const QByteArray &cond)
 { SETIT(m_condition, cond); }
-
-bool BreakpointData::setState(BreakpointState state)
-{ SETIT(m_state, state); }
-
-bool BreakpointData::setEngine(DebuggerEngine *engine)
-{ SETIT(m_engine, engine); }
 
 #undef SETIT
 
@@ -156,10 +148,10 @@ QString BreakpointData::toToolTip() const
     str << "<html><body><table>"
         //<< "<tr><td>" << tr("Id:")
         //<< "</td><td>" << m_id << "</td></tr>"
-        << "<tr><td>" << tr("State:")
-        << "</td><td>" << m_state << "</td></tr>"
-        << "<tr><td>" << tr("Engine:")
-        << "</td><td>" << m_engine << "</td></tr>"
+        //<< "<tr><td>" << tr("State:")
+        //<< "</td><td>" << m_state << "</td></tr>"
+        //<< "<tr><td>" << tr("Engine:")
+        //<< "</td><td>" << m_engine << "</td></tr>"
         << "<tr><td>" << tr("Marker File:")
         << "</td><td>" << QDir::toNativeSeparators(m_markerFileName) << "</td></tr>"
         << "<tr><td>" << tr("Marker Line:")

@@ -363,14 +363,13 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     else if (act == addBreakpointAction)
         addBreakpoint();
     else if (act == breakAtThrowAction) {
-        // FIXME: Use the proper breakpoint type instead.
-        BreakpointData *data = new BreakpointData;
-        data->setFunctionName(BreakpointData::throwFunction);
+        BreakpointData data;
+        data.setFunctionName(BreakpointData::throwFunction);
         handler->appendBreakpoint(data);
     } else if (act == breakAtCatchAction) {
         // FIXME: Use the proper breakpoint type instead.
-        BreakpointData *data = new BreakpointData;
-        data->setFunctionName(BreakpointData::catchFunction);
+        BreakpointData data;
+        data.setFunctionName(BreakpointData::catchFunction);
         handler->appendBreakpoint(data);
     }
 }
@@ -396,25 +395,18 @@ void BreakWindow::deleteBreakpoints(const QModelIndexList &list)
        handler->removeBreakpoint(handler->findBreakpointByIndex(index));
 }
 
-static bool editBreakpointInternal(BreakpointData *data, QWidget *parent)
+void BreakWindow::editBreakpoint(BreakpointId id, QWidget *parent)
 {
     BreakpointDialog dialog(parent);
-    return dialog.showDialog(data);
-}
-
-bool BreakWindow::editBreakpoint(BreakpointId id, QWidget *parent)
-{
-    BreakpointDialog dialog(parent);
-    return dialog.showDialog(breakHandler()->breakpointById(id));
+    dialog.showDialog(breakHandler()->breakpointById(id));
 }
 
 void BreakWindow::addBreakpoint()
 {
-    BreakpointData *data = new BreakpointData();
-    if (editBreakpointInternal(data, this))
+    BreakpointData data;
+    BreakpointDialog dialog(this);
+    if (dialog.showDialog(&data))
         breakHandler()->appendBreakpoint(data);
-    else
-        delete data;
 }
 
 void BreakWindow::editBreakpoints(const QModelIndexList &list)

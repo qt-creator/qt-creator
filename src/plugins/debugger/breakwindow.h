@@ -45,7 +45,7 @@ public:
     explicit BreakWindow(QWidget *parent = 0);
     ~BreakWindow();
 
-    static bool editBreakpoint(BreakpointId id, QWidget *parent = 0);
+    static void editBreakpoint(BreakpointId id, QWidget *parent);
 
 private slots:
     void resizeColumnsToContents();

@@ -61,10 +61,12 @@ public:
 
     QAbstractItemModel *model() { return this; }
 
+    // The only way to add a new breakpoint.
+    void appendBreakpoint(const BreakpointData &data);
+
     BreakpointIds allBreakpointIds() const;
     BreakpointIds engineBreakpointIds(DebuggerEngine *engine) const;
     BreakpointIds unclaimedBreakpointIds() const;
-    BreakpointData *breakpointById(BreakpointId id) const;
     int size() const { return m_storage.size(); }
     bool hasPendingBreakpoints() const;
 
@@ -107,13 +109,13 @@ public:
     PROPERTY(QByteArray, condition, setCondition)
     PROPERTY(int, ignoreCount, setIgnoreCount)
     PROPERTY(QByteArray, threadSpec, setThreadSpec)
-    PROPERTY(BreakpointState, state, setState)
     PROPERTY(QString, fileName, setFileName)
     PROPERTY(QString, functionName, setFunctionName)
     PROPERTY(BreakpointType, type, setType);
     PROPERTY(quint64, address, setAddress);
     PROPERTY(int, lineNumber, setLineNumber);
     #undef PROPERTY
+    BreakpointState state(BreakpointId id) const;
     bool isEnabled(BreakpointId id) const;
     void setEnabled(BreakpointId id, const bool &on);
     void updateEnabled(BreakpointId id, const bool &on);
@@ -137,11 +139,15 @@ public:
     void notifyBreakpointRemoveFailed(BreakpointId id);
     void notifyBreakpointReleased(BreakpointId id);
 
-    // This takes ownership.
-    void appendBreakpoint(BreakpointData *data);
+public:
+    // FIXME: Make private.
+    void setState(BreakpointId id, BreakpointState state);
 
 private:
     friend class BreakpointMarker;
+
+    friend class BreakWindow; // FIXME: remove.
+    BreakpointData *breakpointById(BreakpointId id);
 
     // QAbstractItemModel
     int columnCount(const QModelIndex &parent) const;
@@ -164,10 +170,15 @@ private:
 
     struct BreakpointItem
     {
-        BreakpointItem() : data(0), response(0), marker(0) {}
+        BreakpointItem() : state(BreakpointNew), engine(0), marker(0) {}
         void destroy();
-        BreakpointData *data;
-        BreakpointResponse *response;
+        bool isPending() const { return state == BreakpointPending
+            || state == BreakpointNew; }
+
+        BreakpointData data;
+        BreakpointState state;   // Current state of breakpoint.
+        DebuggerEngine *engine;  // Engine currently handling the breakpoint.
+        BreakpointResponse response;
         BreakpointMarker *marker;
     };
     typedef QHash<BreakpointId, BreakpointItem> BreakpointStorage;
