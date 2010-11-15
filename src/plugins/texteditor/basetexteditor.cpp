@@ -2814,7 +2814,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
     qreal lineX = 0;
 
     if (d->m_visibleWrapColumn > 0) {
-        lineX = fontMetrics().averageCharWidth() * d->m_visibleWrapColumn + offset.x() + 4;
+        lineX = QFontMetricsF(font()).averageCharWidth() * d->m_visibleWrapColumn + offset.x() + 4;
 
         if (lineX < viewportRect.width()) {
             const QBrush background = d->m_ifdefedOutFormat.background();
