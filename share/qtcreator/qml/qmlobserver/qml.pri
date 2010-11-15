@@ -15,18 +15,15 @@ HEADERS += $$PWD/qmlruntime.h \
            $$PWD/proxysettings.h \
            $$PWD/qdeclarativetester.h \
            $$PWD/deviceorientation.h \
-           $$PWD/loggerwidget.h \
-           $$PWD/crumblepath.h
+           $$PWD/loggerwidget.h
 
 
 SOURCES += $$PWD/qmlruntime.cpp \
            $$PWD/proxysettings.cpp \
            $$PWD/qdeclarativetester.cpp \
-           $$PWD/loggerwidget.cpp \
-           $$PWD/crumblepath.cpp
+           $$PWD/loggerwidget.cpp
 
-RESOURCES += $$PWD/qmlruntime.qrc \
-    crumblepath.qrc
+RESOURCES += $$PWD/qmlruntime.qrc
 
 OTHER_FILES += toolbarstyle.css
 

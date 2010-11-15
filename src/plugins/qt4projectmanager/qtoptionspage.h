@@ -123,6 +123,7 @@ private slots:
     void updateCurrentMwcDirectory();
     void updateCurrentS60SDKDirectory();
     void updateCurrentGcceDirectory();
+    void updateCurrentSbsV2Directory();
     void msvcVersionChanged();
     void buildDebuggingHelper();
     void slotShowDebuggingBuildLog();

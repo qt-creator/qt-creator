@@ -473,7 +473,8 @@ void QmlProjectRunConfiguration::manageQtVersions()
 bool QmlProjectRunConfiguration::isValidVersion(Qt4ProjectManager::QtVersion *version)
 {
     if (version
-            && version->supportsTargetId(Qt4ProjectManager::Constants::DESKTOP_TARGET_ID)
+            && (version->supportsTargetId(Qt4ProjectManager::Constants::DESKTOP_TARGET_ID)
+                || version->supportsTargetId(Qt4ProjectManager::Constants::QT_SIMULATOR_TARGET_ID))
             && !version->qmlviewerCommand().isEmpty()) {
         return true;
     }

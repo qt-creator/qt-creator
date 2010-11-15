@@ -117,12 +117,17 @@ Core::GeneratedFiles QmlProjectApplicationWizard::generateFiles(const QWizard *w
             << "import Qt 4.7" << endl
             << endl
             << "Rectangle {" << endl
-            << "    width: 200" << endl
-            << "    height: 200" << endl
+            << "    width: 360" << endl
+            << "    height: 360" << endl
             << "    Text {" << endl
-            << "        x: 66" << endl
-            << "        y: 93" << endl
+            << "        anchors.centerIn: parent" << endl
             << "        text: \"Hello World\"" << endl
+            << "    }" << endl
+            << "    MouseArea {" << endl
+            << "        anchors.fill: parent" << endl
+            << "        onClicked: {" << endl
+            << "            Qt.quit();" << endl
+            << "        }" << endl
             << "    }" << endl
             << "}" << endl;
     }

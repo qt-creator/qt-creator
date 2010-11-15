@@ -76,8 +76,16 @@ void AnnotatedItemDelegate::paint(QPainter *painter,
     style->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter, opt.widget);
     style->drawControl(QStyle::CE_ItemViewItem, &opt, painter, opt.widget);
 
-    const QString &annotation = index.data(m_annotationRole).toString();
+    QString annotation = index.data(m_annotationRole).toString();
     if (!annotation.isEmpty()) {
+
+        int newlinePos = annotation.indexOf(QLatin1Char('\n'));
+        if (newlinePos != -1) {
+            // print first line with '...' at end
+            const QChar ellipsisChar(0x2026);
+            annotation = annotation.left(newlinePos) + ellipsisChar;
+        }
+
         QPalette disabled(opt.palette);
         disabled.setCurrentColorGroup(QPalette::Disabled);
 

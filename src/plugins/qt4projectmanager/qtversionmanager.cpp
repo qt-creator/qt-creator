@@ -131,6 +131,7 @@ QtVersionManager::QtVersionManager()
         version->setMwcDirectory(s->value("MwcDirectory").toString());
         version->setS60SDKDirectory(s->value("S60SDKDirectory").toString());
         version->setGcceDirectory(s->value("GcceDirectory").toString());
+        version->setSbsV2Directory(s->value(QLatin1String("SBSv2Directory")).toString());
         m_versions.append(version);
     }
     s->endArray();
@@ -299,6 +300,7 @@ void QtVersionManager::writeVersionsIntoSettings()
         s->setValue("MwcDirectory", version->mwcDirectory());
         s->setValue("S60SDKDirectory", version->s60SDKDirectory());
         s->setValue("GcceDirectory", version->gcceDirectory());
+        s->setValue(QLatin1String("SBSv2Directory"), version->sbsV2Directory());
     }
     s->endArray();
 }
@@ -378,6 +380,8 @@ void QtVersionManager::addNewVersionsFromInstaller()
                     version->setMwcDirectory(QDir::fromNativeSeparators(newVersionData[5]));
                 if (newVersionData.count() >= 7)
                     version->setMsvcVersion(newVersionData[6]);
+                if (newVersionData.count() >= 8)
+                    version->setSbsV2Directory(QDir::fromNativeSeparators(newVersionData[7]));
 
                 bool versionWasAlreadyInList = false;
                 foreach(const QtVersion * const it, m_versions) {
@@ -1289,7 +1293,7 @@ bool QtVersion::supportsMobileTarget() const
     return supportsTargetId(Constants::S60_DEVICE_TARGET_ID) ||
            supportsTargetId(Constants::S60_EMULATOR_TARGET_ID) ||
            supportsTargetId(Constants::MAEMO_DEVICE_TARGET_ID) ||
-	   supportsTargetId(Constants::QT_SIMULATOR_TARGET_ID);
+           supportsTargetId(Constants::QT_SIMULATOR_TARGET_ID);
 }
 
 QList<QSharedPointer<ProjectExplorer::ToolChain> > QtVersion::toolChains() const
@@ -1553,6 +1557,16 @@ void QtVersion::setGcceDirectory(const QString &directory)
     m_toolChainUpToDate = false;
 }
 
+QString QtVersion::sbsV2Directory() const
+{
+    return m_sbsV2Directory;
+}
+
+void QtVersion::setSbsV2Directory(const QString &directory)
+{
+    m_sbsV2Directory = directory;
+}
+
 QString QtVersion::mingwDirectory() const
 {
     return m_mingwDirectory;
@@ -1578,6 +1592,8 @@ void QtVersion::setMsvcVersion(const QString &version)
 void QtVersion::addToEnvironment(Utils::Environment &env) const
 {
     env.set("QTDIR", QDir::toNativeSeparators(versionInfo().value("QT_INSTALL_DATA")));
+    if (isBuildWithSymbianSbsV2() && !m_sbsV2Directory.isEmpty())
+        env.prependOrSetPath(m_sbsV2Directory);
     env.prependOrSetPath(versionInfo().value("QT_INSTALL_BINS"));
 }
 
