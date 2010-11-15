@@ -980,6 +980,9 @@ void DebuggerEngine::notifyInferiorExited()
 
 void DebuggerEngine::setState(DebuggerState state, bool forced)
 {
+//    qDebug() << "STATUS CHANGE: FROM " << stateName(d->m_state)
+//             << " TO " << stateName(state);
+
     DebuggerState oldState = d->m_state;
     d->m_state = state;
 
