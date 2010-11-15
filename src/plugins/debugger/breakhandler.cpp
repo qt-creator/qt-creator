@@ -229,8 +229,8 @@ void BreakHandler::saveBreakpoints()
         const BreakpointData &data = it->data;
         QMap<QString, QVariant> map;
         // Do not persist Watchpoints.
-        //if (data.isWatchpoint())
-        //    continue;
+        if (data.isWatchpoint())
+            continue;
         if (data.type() != BreakpointByFileAndLine)
             map.insert(_("type"), data.type());
         if (!data.fileName().isEmpty())
