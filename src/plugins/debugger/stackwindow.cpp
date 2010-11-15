@@ -102,7 +102,7 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
     const int row = index.row();
     const unsigned engineCapabilities = engine->debuggerCapabilities();
     StackFrame frame;
-    if (row < handler->stackSize())
+    if (row >= 0 && row < handler->stackSize())
         frame = handler->frameAt(row);
     const quint64 address = frame.address;
 
