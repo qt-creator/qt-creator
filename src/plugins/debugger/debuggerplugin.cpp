@@ -888,14 +888,7 @@ public slots:
     {
         const QAction *act = qobject_cast<QAction *>(sender());
         QTC_ASSERT(act, return);
-        const BreakpointId id = act->data().toInt();
-        QTC_ASSERT(id > 0, return);
-
-        QString fileName;
-        int lineNumber;
-        quint64 address;
-        if (positionFromContextActionData(sender(), &fileName, &lineNumber, &address))
-            m_breakHandler->toggleBreakpoint(fileName, lineNumber, address);
+        m_breakHandler->removeBreakpoint(act->data().toInt());
      }
 
     void breakpointEnableMarginActionTriggered()
@@ -2237,17 +2230,16 @@ bool DebuggerPluginPrivate::attachCmdLine()
         return true;
     }
     const QString target = m_attachRemoteParameters.attachTarget;
-    if (!target.isEmpty()) {
-        if (target.indexOf(':') > 0) {
-            showStatusMessage(tr("Attaching to remote server %1.").arg(target));
-            attachRemote(target);
-        } else {
-            showStatusMessage(tr("Attaching to core %1.").arg(target));
-            attachCore(target, QString());
-        }
-        return true;
+    if (target.isEmpty())
+        return false;
+    if (target.indexOf(':') > 0) {
+        showStatusMessage(tr("Attaching to remote server %1.").arg(target));
+        attachRemote(target);
+    } else {
+        showStatusMessage(tr("Attaching to core %1.").arg(target));
+        attachCore(target, QString());
     }
-    return false;
+    return true;
 }
 
 void DebuggerPluginPrivate::editorOpened(Core::IEditor *editor)
@@ -2257,9 +2249,11 @@ void DebuggerPluginPrivate::editorOpened(Core::IEditor *editor)
     ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor);
     if (!textEditor)
         return;
-    connect(textEditor, SIGNAL(markRequested(TextEditor::ITextEditor*,int)),
+    connect(textEditor,
+        SIGNAL(markRequested(TextEditor::ITextEditor*,int)),
         SLOT(requestMark(TextEditor::ITextEditor*,int)));
-    connect(editor, SIGNAL(tooltipRequested(TextEditor::ITextEditor*,QPoint,int)),
+    connect(editor,
+        SIGNAL(tooltipRequested(TextEditor::ITextEditor*,QPoint,int)),
         SLOT(showToolTip(TextEditor::ITextEditor*,QPoint,int)));
     connect(textEditor,
         SIGNAL(markContextMenuRequested(TextEditor::ITextEditor*,int,QMenu*)),
@@ -2273,11 +2267,14 @@ void DebuggerPluginPrivate::editorAboutToClose(Core::IEditor *editor)
     ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor);
     if (!textEditor)
         return;
-    disconnect(textEditor, SIGNAL(markRequested(TextEditor::ITextEditor*,int)),
+    disconnect(textEditor,
+        SIGNAL(markRequested(TextEditor::ITextEditor*,int)),
         this, SLOT(requestMark(TextEditor::ITextEditor*,int)));
-    disconnect(editor, SIGNAL(tooltipRequested(TextEditor::ITextEditor*,QPoint,int)),
+    disconnect(editor,
+        SIGNAL(tooltipRequested(TextEditor::ITextEditor*,QPoint,int)),
         this, SLOT(showToolTip(TextEditor::ITextEditor*,QPoint,int)));
-    disconnect(textEditor, SIGNAL(markContextMenuRequested(TextEditor::ITextEditor*,int,QMenu*)),
+    disconnect(textEditor,
+        SIGNAL(markContextMenuRequested(TextEditor::ITextEditor*,int,QMenu*)),
         this, SLOT(requestContextMenu(TextEditor::ITextEditor*,int,QMenu*)));
 }
 

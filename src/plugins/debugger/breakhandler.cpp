@@ -807,6 +807,7 @@ void BreakHandler::cleanupBreakpoint(BreakpointId id)
     QTC_ASSERT(state(id) == BreakpointDead, /**/);
     BreakpointItem item = m_storage.take(id);
     item.destroyMarker();
+    layoutChanged();
 }
 
 BreakpointResponse BreakHandler::response(BreakpointId id) const
