@@ -63,6 +63,7 @@ class BasicType;
 class NamedType;
 class ArrayType;
 class StructType;
+class QualifiedType;
 class Declaration;
 class PrecisionDeclaration;
 class Visitor;
@@ -198,6 +199,7 @@ public:
         Kind_StructType,
         Kind_AnonymousStructType,
         Kind_StructField,
+        Kind_QualifiedType,
 
         // Declarations
         Kind_PrecisionDeclaration
@@ -233,6 +235,7 @@ public:
     virtual NamedType *asNamedType() { return 0; }
     virtual ArrayType *asArrayType() { return 0; }
     virtual StructType *asStructType() { return 0; }
+    virtual QualifiedType *asQualifiedType() { return 0; }
 
     virtual Declaration *asDeclaration() { return 0; }
     virtual PrecisionDeclaration *asPrecisionDeclaration() { return 0; }
@@ -753,6 +756,65 @@ public:
 public: // attributes
     const std::string *name;
     List<Field *> *fields;
+};
+
+class GLSL_EXPORT LayoutQualifier
+{
+public:
+    LayoutQualifier(const std::string *_name, const std::string *_number)
+        : name(_name), number(_number), lineno(0) {}
+
+public: // attributes
+    const std::string *name;
+    const std::string *number;
+    int lineno;
+};
+
+class GLSL_EXPORT QualifiedType: public Type
+{
+public:
+    QualifiedType(int _qualifiers, Type *_type, List<LayoutQualifier *> *_layout_list)
+        : Type(Kind_QualifiedType), qualifiers(_qualifiers), type(_type)
+        , layout_list(_layout_list) {}
+
+    enum
+    {
+        StorageMask         = 0x000000FF,
+        NoStorage           = 0x00000000,
+        Const               = 0x00000001,
+        Attribute           = 0x00000002,
+        Varying             = 0x00000003,
+        CentroidVarying     = 0x00000004,
+        In                  = 0x00000005,
+        Out                 = 0x00000006,
+        CentroidIn          = 0x00000007,
+        CentroidOut         = 0x00000008,
+        PatchIn             = 0x00000009,
+        PatchOut            = 0x0000000A,
+        SampleIn            = 0x0000000B,
+        SampleOut           = 0x0000000C,
+        Uniform             = 0x0000000D,
+        InterpolationMask   = 0x00000F00,
+        NoInterpolation     = 0x00000000,
+        Smooth              = 0x00000100,
+        Flat                = 0x00000200,
+        NoPerspective       = 0x00000300,
+        Invariant           = 0x00010000
+    };
+
+    virtual QualifiedType *asQualifiedType() { return this; }
+
+    virtual void accept0(Visitor *visitor);
+
+    virtual Precision precision() const { return type->precision(); }
+    virtual bool setPrecision(Precision precision) { return type->setPrecision(precision); }
+
+    virtual Category category() const { return type->category(); }
+
+public: // attributes
+    int qualifiers;
+    Type *type;
+    List<LayoutQualifier *> *layout_list;
 };
 
 class GLSL_EXPORT Declaration: public AST

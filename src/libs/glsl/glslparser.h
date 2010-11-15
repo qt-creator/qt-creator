@@ -72,6 +72,13 @@ public:
             FunctionIdentifier *id;
             List<Expression *> *arguments;
         } function;
+        int qualifier;
+        LayoutQualifier *layout;
+        List<LayoutQualifier *> *layout_list;
+        struct {
+            int qualifier;
+            List<LayoutQualifier *> *layout_list;
+        } type_qualifier;
         // ### ast nodes...
     };
 

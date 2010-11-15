@@ -117,6 +117,9 @@ public:
     virtual bool visit(StructType::Field *) { return true; }
     virtual void endVisit(StructType::Field *) {}
 
+    virtual bool visit(QualifiedType *) { return true; }
+    virtual void endVisit(QualifiedType *) {}
+
     virtual bool visit(PrecisionDeclaration *) { return true; }
     virtual void endVisit(PrecisionDeclaration *) {}
 };

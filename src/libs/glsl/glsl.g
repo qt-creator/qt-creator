@@ -281,6 +281,13 @@ public:
             FunctionIdentifier *id;
             List<Expression *> *arguments;
         } function;
+        int qualifier;
+        LayoutQualifier *layout;
+        List<LayoutQualifier *> *layout_list;
+        struct {
+            int qualifier;
+            List<LayoutQualifier *> *layout_list;
+        } type_qualifier;
         // ### ast nodes...
     };
 
@@ -1392,231 +1399,241 @@ case $rule_number: {
 fully_specified_type ::= type_specifier ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<QualifiedType>(0, type(1), (List<LayoutQualifier *> *)0);
 }   break;
 ./
 
 fully_specified_type ::= type_qualifier type_specifier ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<QualifiedType>
+        (sym(1).type_qualifier.qualifier, type(2),
+         sym(1).type_qualifier.layout_list);
 }   break;
 ./
 
 invariant_qualifier ::= INVARIANT ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).qualifier = QualifiedType::Invariant;
 }   break;
 ./
 
 interpolation_qualifier ::= SMOOTH ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).qualifier = QualifiedType::Smooth;
 }   break;
 ./
 
 interpolation_qualifier ::= FLAT ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).qualifier = QualifiedType::Flat;
 }   break;
 ./
 
 interpolation_qualifier ::= NOPERSPECTIVE ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).qualifier = QualifiedType::NoPerspective;
 }   break;
 ./
 
 layout_qualifier ::= LAYOUT LEFT_PAREN layout_qualifier_id_list RIGHT_PAREN ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1) = sym(3);
 }   break;
 ./
 
 layout_qualifier_id_list ::= layout_qualifier_id ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).layout_list = makeAstNode< List<LayoutQualifier *> >(sym(1).layout);
 }   break;
 ./
 
 layout_qualifier_id_list ::= layout_qualifier_id_list COMMA layout_qualifier_id ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).layout_list = makeAstNode< List<LayoutQualifier *> >(sym(1).layout_list, sym(3).layout);
 }   break;
 ./
 
 layout_qualifier_id ::= IDENTIFIER ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).layout = makeAstNode<LayoutQualifier>(string(1), (const std::string *)0);
 }   break;
 ./
 
 layout_qualifier_id ::= IDENTIFIER EQUAL NUMBER ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).layout = makeAstNode<LayoutQualifier>(string(1), string(3));
 }   break;
 ./
 
 parameter_type_qualifier ::= CONST ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).qualifier = QualifiedType::Const;
 }   break;
 ./
 
 type_qualifier ::= storage_qualifier ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).type_qualifier.qualifier = sym(1).qualifier;
+    sym(1).type_qualifier.layout_list = 0;
 }   break;
 ./
 
 type_qualifier ::= layout_qualifier ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).type_qualifier.layout_list = sym(1).layout_list;
+    sym(1).type_qualifier.qualifier = 0;
 }   break;
 ./
 
 type_qualifier ::= layout_qualifier storage_qualifier ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).type_qualifier.layout_list = sym(1).layout_list;
+    sym(1).type_qualifier.qualifier = sym(2).qualifier;
 }   break;
 ./
 
 type_qualifier ::= interpolation_qualifier storage_qualifier ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).type_qualifier.qualifier = sym(1).qualifier | sym(2).qualifier;
+    sym(1).type_qualifier.layout_list = 0;
 }   break;
 ./
 
 type_qualifier ::= interpolation_qualifier ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).type_qualifier.qualifier = sym(1).qualifier;
+    sym(1).type_qualifier.layout_list = 0;
 }   break;
 ./
 
 type_qualifier ::= invariant_qualifier storage_qualifier ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).type_qualifier.qualifier = sym(1).qualifier | sym(2).qualifier;
+    sym(1).type_qualifier.layout_list = 0;
 }   break;
 ./
 
 type_qualifier ::= invariant_qualifier interpolation_qualifier storage_qualifier ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).type_qualifier.qualifier = sym(1).qualifier | sym(2).qualifier | sym(3).qualifier;
+    sym(1).type_qualifier.layout_list = 0;
 }   break;
 ./
 
 type_qualifier ::= INVARIANT ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).type_qualifier.qualifier = QualifiedType::Invariant;
+    sym(1).type_qualifier.layout_list = 0;
 }   break;
 ./
 
 storage_qualifier ::= CONST ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).qualifier = QualifiedType::Const;
 }   break;
 ./
 
 storage_qualifier ::= ATTRIBUTE ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).qualifier = QualifiedType::Attribute;
 }   break;
 ./
 
 storage_qualifier ::= VARYING ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).qualifier = QualifiedType::Varying;
 }   break;
 ./
 
 storage_qualifier ::= CENTROID VARYING ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).qualifier = QualifiedType::CentroidVarying;
 }   break;
 ./
 
 storage_qualifier ::= IN ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).qualifier = QualifiedType::In;
 }   break;
 ./
 
 storage_qualifier ::= OUT ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).qualifier = QualifiedType::Out;
 }   break;
 ./
 
 storage_qualifier ::= CENTROID IN ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).qualifier = QualifiedType::CentroidIn;
 }   break;
 ./
 
 storage_qualifier ::= CENTROID OUT ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).qualifier = QualifiedType::CentroidOut;
 }   break;
 ./
 
 storage_qualifier ::= PATCH IN ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).qualifier = QualifiedType::PatchIn;
 }   break;
 ./
 
 storage_qualifier ::= PATCH OUT ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).qualifier = QualifiedType::PatchOut;
 }   break;
 ./
 
 storage_qualifier ::= SAMPLE IN ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).qualifier = QualifiedType::SampleIn;
 }   break;
 ./
 
 storage_qualifier ::= SAMPLE OUT ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).qualifier = QualifiedType::SampleOut;
 }   break;
 ./
 
 storage_qualifier ::= UNIFORM ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).qualifier = QualifiedType::Uniform;
 }   break;
 ./
 
@@ -2326,8 +2343,10 @@ case $rule_number: {
 struct_declaration ::= type_qualifier type_specifier struct_declarator_list SEMICOLON ;
 /.
 case $rule_number: {
-    // TODO: type qualifier
-    sym(1).field_list = StructType::fixInnerTypes(type(2), sym(3).field_list);
+    sym(1).field_list = StructType::fixInnerTypes
+        (makeAstNode<QualifiedType>
+            (sym(1).type_qualifier.qualifier, type(2),
+             sym(1).type_qualifier.layout_list), sym(3).field_list);
 }   break;
 ./
 
@@ -2698,14 +2717,31 @@ case $rule_number: {
 external_declaration_list ::= external_declaration ;
 /.
 case $rule_number: {
-    sym(1).declaration_list = makeAstNode< List<Declaration *> >(sym(1).declaration);
+    if (sym(1).declaration) {
+        sym(1).declaration_list = makeAstNode< List<Declaration *> >
+            (sym(1).declaration);
+    } else {
+        sym(1).declaration_list = 0;
+    }
 }   break;
 ./
 
 external_declaration_list ::= external_declaration_list external_declaration ;
 /.
 case $rule_number: {
-    sym(1).declaration_list = makeAstNode< List<Declaration *> >(sym(1).declaration_list, sym(2).declaration);
+    if (sym(1).declaration_list && sym(2).declaration) {
+        sym(1).declaration_list = makeAstNode< List<Declaration *> >
+            (sym(1).declaration_list, sym(2).declaration);
+    } else if (!sym(1).declaration_list) {
+        if (sym(2).declaration) {
+            sym(1).declaration_list = makeAstNode< List<Declaration *> >
+                (sym(2).declaration);
+        } else {
+            sym(1).declaration_list = 0;
+        }
+    } else {
+        sym(1).declaration_list = 0;
+    }
 }   break;
 ./
 
@@ -2726,7 +2762,7 @@ case $rule_number: {
 external_declaration ::= SEMICOLON ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = 0;
 }   break;
 ./
 

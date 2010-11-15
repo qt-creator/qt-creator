@@ -335,6 +335,13 @@ List<StructType::Field *> *StructType::fixInnerTypes(Type *innerType, List<Field
     return fields;
 }
 
+void QualifiedType::accept0(Visitor *visitor)
+{
+    if (visitor->visit(this))
+        accept(type, visitor);
+    visitor->endVisit(this);
+}
+
 void PrecisionDeclaration::accept0(Visitor *visitor)
 {
     if (visitor->visit(this))
