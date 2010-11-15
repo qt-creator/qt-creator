@@ -125,7 +125,7 @@ public:
     static const char *catchFunction;
 
 private:
-     // All setters return true on change.
+    // All setters return true on change.
     bool setUseFullPath(bool on);
     bool setMarkerFileName(const QString &file);
     bool setMarkerLineNumber(int line);
@@ -145,10 +145,9 @@ private:
     DebuggerEngine *m_engine;
     BreakpointType m_type;     // Type of breakpoint.
     BreakpointState m_state;   // Current state of breakpoint.
-    bool m_enabled;            // Should we talk to the debugger engine?
-    bool m_pending;            // Does the debugger engine know about us already?
-    bool m_useFullPath;        // Should we use the full path when setting the bp?
     // This "user requested information" will get stored in the session.
+    bool m_enabled;            // Should we talk to the debugger engine?
+    bool m_useFullPath;        // Should we use the full path when setting the bp?
     QString m_fileName;        // Short name of source file.
     QByteArray m_condition;    // Condition associated with breakpoint.
     int m_ignoreCount;         // Ignore count associated with breakpoint.

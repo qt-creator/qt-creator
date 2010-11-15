@@ -65,7 +65,7 @@ public:
     BreakpointIds engineBreakpointIds(DebuggerEngine *engine) const;
     BreakpointIds unclaimedBreakpointIds() const;
     BreakpointData *breakpointById(BreakpointId id) const;
-    int size() const { return m_bp.size(); }
+    int size() const { return m_storage.size(); }
     bool hasPendingBreakpoints() const;
 
     // Find a breakpoint matching approximately the data in needle.
@@ -162,13 +162,18 @@ private:
     const QIcon m_emptyIcon;
     const QIcon m_watchpointIcon;
 
-    typedef QMap<BreakpointId, BreakpointData *> Breakpoints;
-    typedef QMap<BreakpointId, BreakpointMarker *> Markers;
-    typedef QMap<BreakpointId, BreakpointResponse *> Responses;
-    typedef Breakpoints::ConstIterator ConstIterator;
-    Breakpoints m_bp;
-    Markers m_markers;
-    Responses m_responses;
+    struct BreakpointItem
+    {
+        BreakpointItem() : data(0), response(0), marker(0) {}
+        void destroy();
+        BreakpointData *data;
+        BreakpointResponse *response;
+        BreakpointMarker *marker;
+    };
+    typedef QHash<BreakpointId, BreakpointItem> BreakpointStorage;
+    typedef BreakpointStorage::ConstIterator ConstIterator;
+    typedef BreakpointStorage::Iterator Iterator;
+    BreakpointStorage m_storage;
 
     void scheduleSynchronization();
     void timerEvent(QTimerEvent *event);

@@ -50,14 +50,6 @@ namespace Internal {
 const char *BreakpointData::throwFunction = "throw";
 const char *BreakpointData::catchFunction = "catch";
 
-static quint64 nextBPId()
-{
-    // Ok to be not thread-safe. The order does not matter and only the gui
-    // produces authoritative ids.
-    static quint64 i = 0;
-    return ++i;
-}
-
 BreakpointData::BreakpointData()
 {
     m_state = BreakpointNew;
