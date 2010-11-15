@@ -363,14 +363,12 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     else if (act == addBreakpointAction)
         addBreakpoint();
     else if (act == breakAtThrowAction) {
-        BreakpointData data;
-        data.setType(BreakpointByFunction);
+        BreakpointData data(BreakpointByFunction);
         data.setFunctionName(BreakpointData::throwFunction);
         handler->appendBreakpoint(data);
     } else if (act == breakAtCatchAction) {
         // FIXME: Use the proper breakpoint type instead.
-        BreakpointData data;
-        data.setType(BreakpointByFunction);
+        BreakpointData data(BreakpointByFunction);
         data.setFunctionName(BreakpointData::catchFunction);
         handler->appendBreakpoint(data);
     }
@@ -405,7 +403,7 @@ void BreakWindow::editBreakpoint(BreakpointId id, QWidget *parent)
 
 void BreakWindow::addBreakpoint()
 {
-    BreakpointData data;
+    BreakpointData data(BreakpointByFileAndLine);
     BreakpointDialog dialog(this);
     if (dialog.showDialog(&data))
         breakHandler()->appendBreakpoint(data);

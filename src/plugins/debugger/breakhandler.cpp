@@ -204,8 +204,7 @@ void BreakHandler::setWatchpointByAddress(quint64 address)
 {
     const int id = findWatchpointByAddress(address);
     if (id == -1) {
-        BreakpointData data;
-        data.setType(Watchpoint);
+        BreakpointData data(Watchpoint);
         data.setAddress(address);
         appendBreakpoint(data);
         scheduleSynchronization();
@@ -296,7 +295,7 @@ void BreakHandler::loadBreakpoints()
         if (v.isValid())
             data.setUseFullPath(bool(v.toInt()));
         v = map.value(_("type"));
-        if (v.isValid())
+        if (v.isValid() && v.toInt() != UnknownType)
             data.setType(BreakpointType(v.toInt()));
         data.setMarkerFileName(data.fileName());
         data.setMarkerLineNumber(data.lineNumber());
@@ -623,6 +622,8 @@ void BreakHandler::removeBreakpoint(BreakpointId id)
 
 void BreakHandler::appendBreakpoint(const BreakpointData &data)
 {
+    QTC_ASSERT(data.type() != UnknownType, return);
+
     // Ok to be not thread-safe. The order does not matter and only the gui
     // produces authoritative ids.
     static quint64 currentId = 0;
@@ -652,8 +653,10 @@ void BreakHandler::toggleBreakpoint(const QString &fileName, int lineNumber,
     } else {
         BreakpointData data;
         if (address) {
+            data.setType(BreakpointByAddress);
             data.setAddress(address);
         } else {
+            data.setType(BreakpointByFileAndLine);
             data.setFileName(fileName);
             data.setLineNumber(lineNumber);
         }
@@ -687,8 +690,7 @@ void BreakHandler::breakByFunction(const QString &functionName)
                 && data.ignoreCount() == 0)
             return;
     }
-    BreakpointData data;
-    data.setType(BreakpointByFunction);
+    BreakpointData data(BreakpointByFunction);
     data.setFunctionName(functionName);
     appendBreakpoint(data);
 }
