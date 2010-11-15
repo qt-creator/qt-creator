@@ -6,13 +6,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>327</width>
-    <height>91</height>
+    <width>359</width>
+    <height>115</height>
    </rect>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="sizeConstraint">
-    <enum>QLayout::SetMinAndMaxSize</enum>
+    <enum>QLayout::SetDefaultConstraint</enum>
    </property>
    <item row="0" column="0">
     <widget class="QLabel" name="label">
