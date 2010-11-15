@@ -379,22 +379,22 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
 void BreakWindow::setBreakpointsEnabled(const QModelIndexList &list, bool enabled)
 {
     BreakHandler *handler = breakHandler();
-    foreach (const QModelIndex &index, list)
-        handler->setEnabled(handler->findBreakpointByIndex(index), enabled);
+    foreach (const BreakpointId id, handler->findBreakpointsByIndex(list))
+        handler->setEnabled(id, enabled);
 }
 
 void BreakWindow::setBreakpointsFullPath(const QModelIndexList &list, bool fullpath)
 {
     BreakHandler *handler = breakHandler();
-    foreach (const QModelIndex &index, list)
-       handler->setUseFullPath(handler->findBreakpointByIndex(index), fullpath);
+    foreach (const BreakpointId id, handler->findBreakpointsByIndex(list))
+       handler->setUseFullPath(id, fullpath);
 }
 
 void BreakWindow::deleteBreakpoints(const QModelIndexList &list)
 {
     BreakHandler *handler = breakHandler();
-    foreach (const QModelIndex &index, list)
-       handler->removeBreakpoint(handler->findBreakpointByIndex(index));
+    foreach (const BreakpointId id, handler->findBreakpointsByIndex(list))
+       handler->removeBreakpoint(id);
 }
 
 void BreakWindow::editBreakpoint(BreakpointId id, QWidget *parent)
@@ -416,7 +416,8 @@ void BreakWindow::editBreakpoints(const QModelIndexList &list)
     QTC_ASSERT(!list.isEmpty(), return);
 
     BreakHandler *handler = breakHandler();
-    const BreakpointId id = handler->findBreakpointByIndex(list.at(0));
+    const BreakpointIds ids = handler->findBreakpointsByIndex(list);
+    const BreakpointId id = ids.at(0);
 
     if (list.size() == 1) {
         editBreakpoint(id, this);
@@ -451,8 +452,7 @@ void BreakWindow::editBreakpoints(const QModelIndexList &list)
             && newThreadSpec == oldThreadSpec)
         return;
 
-    foreach (const QModelIndex &idx, list) {
-        BreakpointId id = handler->findBreakpointByIndex(idx);
+    foreach (const BreakpointId id, handler->findBreakpointsByIndex(list)) {
         handler->setCondition(id, newCondition.toLatin1());
         handler->setIgnoreCount(id, newIgnoreCount.toInt());
         handler->setThreadSpec(id, newThreadSpec.toLatin1());
@@ -463,8 +463,8 @@ void BreakWindow::associateBreakpoint(const QModelIndexList &list, int threadId)
 {
     BreakHandler *handler = breakHandler();
     QByteArray spec = QByteArray::number(threadId);
-    foreach (const QModelIndex &index, list)
-        handler->setThreadSpec(handler->findBreakpointByIndex(index), spec);
+    foreach (const BreakpointId id, handler->findBreakpointsByIndex(list))
+        handler->setThreadSpec(id, spec);
 }
 
 void BreakWindow::resizeColumnsToContents()

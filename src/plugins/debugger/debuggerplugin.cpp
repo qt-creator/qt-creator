@@ -1382,7 +1382,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 {
     m_coreSettings = ICore::instance()->settings();
     m_debuggerSettings = new DebuggerSettings(m_coreSettings);
-    
+
     m_continuableContext = Context("Gdb.Continuable");
     m_interruptibleContext = Context("Gdb.Interruptible");
     m_undisturbableContext = Context("Gdb.Undisturbable");

@@ -352,6 +352,14 @@ BreakpointId BreakHandler::findBreakpointByIndex(const QModelIndex &index) const
     return BreakpointId(-1);
 }
 
+BreakpointIds BreakHandler::findBreakpointsByIndex(const QList<QModelIndex> &list) const
+{
+    BreakpointIds ids;
+    foreach (const QModelIndex &index, list)
+        ids.append(findBreakpointByIndex(index));
+    return ids;
+}
+
 QVariant BreakHandler::data(const QModelIndex &mi, int role) const
 {
     static const QString empty = QString(QLatin1Char('-'));
