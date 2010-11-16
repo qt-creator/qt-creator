@@ -1878,6 +1878,9 @@ void testEndlessRecursion()
 int testEndlessLoop()
 {
     qlonglong a = 1;
+    // gdb:
+    // Breakpoint at "while" will stop only once
+    // Hitting "Pause" button might show backtrace of different thread
     while (a > 0)
         ++a;
     return a;
