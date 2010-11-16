@@ -65,7 +65,7 @@ public:
     QAbstractItemModel *model() { return this; }
 
     // The only way to add a new breakpoint.
-    void appendBreakpoint(const BreakpointData &data);
+    void appendBreakpoint(const BreakpointParameters &data);
 
     BreakpointIds allBreakpointIds() const;
     BreakpointIds engineBreakpointIds(DebuggerEngine *engine) const;
@@ -100,6 +100,7 @@ public:
     QIcon icon(BreakpointId id) const;
 
     void gotoLocation(BreakpointId id) const;
+    void setData(BreakpointId id, const BreakpointParameters &data);
 
     // Getter retrieves property value.
     // Setter sets property value and triggers update if changed.

@@ -195,8 +195,8 @@ void BreakHandler::setWatchpointByAddress(quint64 address)
 {
     const int id = findWatchpointByAddress(address);
     if (id == -1) {
-        BreakpointData data(Watchpoint);
-        data.setAddress(address);
+        BreakpointParameters data(Watchpoint);
+        data.address = address;
         appendBreakpoint(data);
         scheduleSynchronization();
     } else {
@@ -257,39 +257,37 @@ void BreakHandler::loadBreakpoints()
     //clear();
     foreach (const QVariant &var, list) {
         const QMap<QString, QVariant> map = var.toMap();
-        BreakpointData data(BreakpointByFileAndLine);
+        BreakpointParameters data(BreakpointByFileAndLine);
         QVariant v = map.value(_("filename"));
         if (v.isValid())
-            data.setFileName(v.toString());
+            data.fileName = v.toString();
         v = map.value(_("linenumber"));
         if (v.isValid())
-            data.setLineNumber(v.toString().toInt());
+            data.lineNumber = v.toString().toInt();
         v = map.value(_("condition"));
         if (v.isValid())
-            data.setCondition(v.toString().toLatin1());
+            data.condition = v.toString().toLatin1();
         v = map.value(_("address"));
         if (v.isValid())
-            data.setAddress(v.toString().toULongLong());
+            data.address = v.toString().toULongLong();
         v = map.value(_("ignorecount"));
         if (v.isValid())
-            data.setIgnoreCount(v.toString().toInt());
+            data.ignoreCount = v.toString().toInt();
         v = map.value(_("threadspec"));
         if (v.isValid())
-            data.setThreadSpec(v.toString().toLatin1());
+            data.threadSpec = v.toString().toLatin1();
         v = map.value(_("funcname"));
         if (v.isValid())
-            data.setFunctionName(v.toString());
+            data.functionName = v.toString();
         v = map.value(_("disabled"));
         if (v.isValid())
-            data.setEnabled(!v.toInt());
+            data.enabled = !v.toInt();
         v = map.value(_("usefullpath"));
         if (v.isValid())
-            data.setUseFullPath(bool(v.toInt()));
+            data.useFullPath = bool(v.toInt());
         v = map.value(_("type"));
         if (v.isValid() && v.toInt() != UnknownType)
-            data.setType(BreakpointType(v.toInt()));
-        data.setMarkerFileName(data.fileName());
-        data.setMarkerLineNumber(data.lineNumber());
+            data.type = BreakpointType(v.toInt());
         appendBreakpoint(data);
     }
     //qDebug() << "LOADED BREAKPOINTS" << this << list.size();
@@ -618,9 +616,9 @@ void BreakHandler::removeBreakpoint(BreakpointId id)
     }
 }
 
-void BreakHandler::appendBreakpoint(const BreakpointData &data)
+void BreakHandler::appendBreakpoint(const BreakpointParameters &data)
 {
-    QTC_ASSERT(data.type() != UnknownType, return);
+    QTC_ASSERT(data.type != UnknownType, return);
 
     // Ok to be not thread-safe. The order does not matter and only the gui
     // produces authoritative ids.
@@ -628,7 +626,9 @@ void BreakHandler::appendBreakpoint(const BreakpointData &data)
 
     BreakpointId id(++currentId);
     BreakpointItem item;
-    item.data = data;
+    BreakpointData d;
+    d.m_parameters = data;
+    item.data = d;
     m_storage.insert(id, item);
     scheduleSynchronization();
 }
@@ -649,17 +649,15 @@ void BreakHandler::toggleBreakpoint(const QString &fileName, int lineNumber,
     if (id != BreakpointId(-1)) {
         removeBreakpoint(id);
     } else {
-        BreakpointData data;
+        BreakpointParameters data;
         if (address) {
-            data.setType(BreakpointByAddress);
-            data.setAddress(address);
+            data.type = BreakpointByAddress;
+            data.address = address;
         } else {
-            data.setType(BreakpointByFileAndLine);
-            data.setFileName(fileName);
-            data.setLineNumber(lineNumber);
+            data.type = BreakpointByFileAndLine;
+            data.fileName = fileName;
+            data.lineNumber = lineNumber;
         }
-        data.setMarkerFileName(fileName);
-        data.setMarkerLineNumber(lineNumber);
         appendBreakpoint(data);
     }
     debuggerCore()->synchronizeBreakpoints();
@@ -688,8 +686,8 @@ void BreakHandler::breakByFunction(const QString &functionName)
                 && data.ignoreCount() == 0)
             return;
     }
-    BreakpointData data(BreakpointByFunction);
-    data.setFunctionName(functionName);
+    BreakpointParameters data(BreakpointByFunction);
+    data.functionName = functionName;
     appendBreakpoint(data);
 }
 
@@ -857,6 +855,16 @@ void BreakHandler::setResponse(BreakpointId id, const BreakpointResponse &data)
     updateMarker(id);
 }
 
+void BreakHandler::setData(BreakpointId id, const BreakpointParameters &data)
+{
+    Iterator it = m_storage.find(id);
+    QTC_ASSERT(it != m_storage.end(), return);
+    if (data == it->data.m_parameters)
+        return;
+    it->data.m_parameters = data;
+    updateMarker(id);
+    layoutChanged();
+}
 
 //////////////////////////////////////////////////////////////////
 //

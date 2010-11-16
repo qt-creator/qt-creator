@@ -62,7 +62,7 @@ IPCEngineHost::IPCEngineHost (const DebuggerStartParameters &startParameters)
     , m_cookie(1)
     , m_device(0)
 {
-    connect(this, SIGNAL(stateChanged(const DebuggerState &)), this, SLOT(m_stateChanged(const DebuggerState &)));
+    connect(this, SIGNAL(stateChanged(DebuggerState)), this, SLOT(m_stateChanged(DebuggerState)));
 }
 
 IPCEngineHost::~IPCEngineHost()

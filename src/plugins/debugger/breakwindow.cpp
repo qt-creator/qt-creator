@@ -67,7 +67,7 @@ class BreakpointDialog : public QDialog, public Ui::BreakpointDialog
     Q_OBJECT
 public:
     explicit BreakpointDialog(QWidget *parent);
-    bool showDialog(BreakpointData *data);
+    bool showDialog(BreakpointParameters *data);
 
     void setParameters(const BreakpointParameters &p);
     BreakpointParameters parameters() const;
@@ -160,28 +160,19 @@ void BreakpointDialog::typeChanged(int)
         lineEditFunction->setText(QLatin1String("main"));
 }
 
-bool BreakpointDialog::showDialog(BreakpointData *data)
+bool BreakpointDialog::showDialog(BreakpointParameters *data)
 {
-    setParameters(data->parameters());
+    setParameters(*data);
     if (exec() != QDialog::Accepted)
         return false;
 
     // Check if changed.
     const BreakpointParameters newParameters = parameters();
-    if (newParameters == data->parameters())
+    if (data->equals(newParameters))
         return false;
 
-    bool result = false;
-    result |= data->setType(newParameters.type);
-    result |= data->setAddress(newParameters.address);
-    result |= data->setFunctionName(newParameters.functionName);
-    result |= data->setUseFullPath(newParameters.useFullPath);
-    result |= data->setFileName(newParameters.fileName);
-    result |= data->setLineNumber(newParameters.lineNumber);
-    result |= data->setCondition(newParameters.condition);
-    result |= data->setIgnoreCount(newParameters.ignoreCount);
-    result |= data->setThreadSpec(newParameters.threadSpec);
-    return result;
+    *data = newParameters;
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -396,11 +387,10 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
         setBreakpointsEnabled(si, !enabled);
     else if (act == addBreakpointAction)
         addBreakpoint();
-    else if (act == breakAtThrowAction) {
-        handler->appendBreakpoint(BreakpointData(BreakpointAtThrow));
-    } else if (act == breakAtCatchAction) {
-        handler->appendBreakpoint(BreakpointData(BreakpointAtCatch));
-    }
+    else if (act == breakAtThrowAction)
+        handler->appendBreakpoint(BreakpointParameters(BreakpointAtThrow));
+    else if (act == breakAtCatchAction)
+        handler->appendBreakpoint(BreakpointParameters(BreakpointAtCatch));
 }
 
 void BreakWindow::setBreakpointsEnabled(const QModelIndexList &list, bool enabled)
@@ -427,12 +417,14 @@ void BreakWindow::deleteBreakpoints(const QModelIndexList &list)
 void BreakWindow::editBreakpoint(BreakpointId id, QWidget *parent)
 {
     BreakpointDialog dialog(parent);
-    dialog.showDialog(breakHandler()->breakpointById(id));
+    BreakpointParameters data = breakHandler()->breakpointById(id)->parameters();
+    if (dialog.showDialog(&data))
+        breakHandler()->setData(id, data);
 }
 
 void BreakWindow::addBreakpoint()
 {
-    BreakpointData data(BreakpointByFileAndLine);
+    BreakpointParameters data(BreakpointByFileAndLine);
     BreakpointDialog dialog(this);
     if (dialog.showDialog(&data))
         breakHandler()->appendBreakpoint(data);
