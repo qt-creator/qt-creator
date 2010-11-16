@@ -1472,6 +1472,12 @@ class Dumper:
                 value = item.value
                 type = value.type
 
+        if type.code == gdb.TYPE_CODE_INT or type.code == gdb.TYPE_CODE_CHAR:
+            self.putType(realtype)
+            self.putValue(int(value))
+            self.putNumChild(0)
+            return
+
         typedefStrippedType = stripTypedefs(type)
 
         if isSimpleType(typedefStrippedType):

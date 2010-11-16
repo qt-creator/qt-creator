@@ -1959,6 +1959,16 @@ void testConditional(const QString &str)
     res += "x";
 }
 
+void testChar()
+{
+    char s[5];
+    s[0] = 0;
+    strcat(s,"\""); // add a quote
+    strcat(s,"\""); // add a quote
+    strcat(s,"\""); // add a quote
+    strcat(s,"\""); // add a quote
+}
+
 void testStuff()
 {
     testConditional("foo");
@@ -2099,6 +2109,7 @@ int main(int argc, char *argv[])
     testColor();
     testQRegion();
     testTypedef();
+    testChar();
     testStuff();
     testPeekAndPoke3();
     testFunctionPointer();
