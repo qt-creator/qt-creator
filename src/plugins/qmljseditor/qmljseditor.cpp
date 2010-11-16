@@ -40,6 +40,7 @@
 #include "qmljsautocompleter.h"
 
 #include <qmljs/qmljsbind.h>
+#include <qmljs/qmljsevaluate.h>
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsicontextpane.h>
 #include <qmljs/qmljslookupcontext.h>
@@ -1310,7 +1311,8 @@ TextEditor::BaseTextEditor::Link QmlJSTextEditor::findLinkAt(const QTextCursor &
     }
 
     LookupContext::Ptr lookupContext = semanticInfo.lookupContext(semanticInfo.astPath(cursorPosition));
-    const Interpreter::Value *value = lookupContext->evaluate(node);
+    Evaluate evaluator(lookupContext->context());
+    const Interpreter::Value *value = evaluator.reference(node);
 
     QString fileName;
     int line = 0, column = 0;
