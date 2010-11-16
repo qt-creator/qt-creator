@@ -42,8 +42,14 @@ QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE
 
+namespace Utils {
+class CheckableMessageBox;
+} // namespace Utils
+
 namespace Qt4ProjectManager {
 namespace Internal {
+
+class S60CreatePackageParser;
 
 class S60CreatePackageStepFactory : public ProjectExplorer::IBuildStepFactory
 {
@@ -71,6 +77,7 @@ class S60CreatePackageStep : public ProjectExplorer::BuildStep
 {
     Q_OBJECT
     friend class S60CreatePackageStepFactory;
+
 public:
     enum SigningMode {
         SignSelf = 0,
@@ -105,6 +112,7 @@ public:
 
 signals:
     void badPassphrase();
+    void warnAboutPatching();
 
 protected:
     S60CreatePackageStep(ProjectExplorer::BuildStepList *bsl, S60CreatePackageStep *bs);
@@ -114,24 +122,22 @@ protected:
     Qt4BuildConfiguration *qt4BuildConfiguration() const;
 
 private slots:
-    void slotProcessFinished(int, QProcess::ExitStatus);
+    void packageWarningDialogDone();
+    void packageDone(int, QProcess::ExitStatus);
     void processReadyReadStdOutput();
     void processReadyReadStdError();
-    void taskAdded(const ProjectExplorer::Task &task);
-    void outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format);
     void checkForCancel();
     void definePassphrase();
 
-private:
-    enum ErrorType {
-        ErrorNone = 0,
-        ErrorUndefined,
-        ErrorBadPassphrase
-    };
+    void packageWasPatched(const QString &, const QStringList &);
+    void handleWarnAboutPatching();
 
+private:
     void stdOutput(const QString &line);
     void stdError(const QString &line);
-    bool startProcess();
+
+    void setupProcess();
+    bool createOnePackage();
 
     QString generateKeyId(const QString &keyPath) const;
     QString loadPassphraseForKey(const QString &keyId);
@@ -159,12 +165,18 @@ private:
     QTimer *m_timer;
     QEventLoop *m_eventLoop;
     QFutureInterface<bool> *m_futureInterface;
-    ErrorType m_errorType;
 
     QWaitCondition m_waitCondition;
     QMutex m_mutex;
 
-    QSettings *m_settings;
+    bool m_cancel;
+
+    QSettings *m_passphrases;
+    S60CreatePackageParser *m_parser;
+    QList<QPair<QString, QStringList> > m_packageChanges;
+
+    bool m_suppressPatchWarningDialog;
+    Utils::CheckableMessageBox *m_patchWarningDialog;
 };
 
 class S60CreatePackageStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget

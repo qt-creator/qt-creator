@@ -33,10 +33,14 @@
 #include "qt4buildconfiguration.h"
 #include "qt4nodes.h"
 #include "qt4project.h"
+#include "s60createpackageparser.h"
 #include "abldparser.h"
 #include "sbsv2parser.h"
-#include "s60createpackageparser.h"
 #include "passphraseforkeydialog.h"
+
+#include <coreplugin/coreconstants.h>
+
+#include <utils/checkablemessagebox.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
@@ -61,6 +65,8 @@ namespace {
     const char * const CERTIFICATE_KEY("Qt4ProjectManager.S60CreatePackageStep.Certificate");
     const char * const KEYFILE_KEY("Qt4ProjectManager.S60CreatePackageStep.Keyfile");
     const char * const SMART_INSTALLER_KEY("Qt4ProjectManager.S60CreatorPackageStep.SmartInstaller");
+    const char * const PATCH_WARNING_SHOWN_KEY("Qt4ProjectManager.S60CreatorPackageStep.PatchWarningShown");
+    const char * const SUPPRESS_PATCH_WARNING_DIALOG_KEY("Qt4ProjectManager.S60CreatorPackageStep.SuppressPatchWarningDialog");
 
     const char * const MAKE_PASSPHRASE_ARGUMENT("QT_SIS_PASSPHRASE=");
     const char * const MAKE_KEY_ARGUMENT("QT_SIS_KEY=");
@@ -76,8 +82,10 @@ S60CreatePackageStep::S60CreatePackageStep(ProjectExplorer::BuildStepList *bsl) 
     m_timer(0),
     m_eventLoop(0),
     m_futureInterface(0),
-    m_errorType(ErrorNone),
-    m_settings(0)
+    m_passphrases(0),
+    m_parser(0),
+    m_suppressPatchWarningDialog(false),
+    m_patchWarningDialog(0)
 {
     ctor_package();
 }
@@ -93,8 +101,10 @@ S60CreatePackageStep::S60CreatePackageStep(ProjectExplorer::BuildStepList *bsl, 
     m_timer(0),
     m_eventLoop(0),
     m_futureInterface(0),
-    m_errorType(ErrorNone),
-    m_settings(0)
+    m_passphrases(0),
+    m_parser(0),
+    m_suppressPatchWarningDialog(false),
+    m_patchWarningDialog(0)
 {
     ctor_package();
 }
@@ -107,8 +117,10 @@ S60CreatePackageStep::S60CreatePackageStep(ProjectExplorer::BuildStepList *bsl, 
     m_timer(0),
     m_eventLoop(0),
     m_futureInterface(0),
-    m_errorType(ErrorNone),
-    m_settings(0)
+    m_passphrases(0),
+    m_parser(0),
+    m_suppressPatchWarningDialog(false),
+    m_patchWarningDialog(0)
 {
     ctor_package();
 }
@@ -119,22 +131,26 @@ void S60CreatePackageStep::ctor_package()
     setDefaultDisplayName(tr("Create SIS Package"));
     connect(this, SIGNAL(badPassphrase()),
             this, SLOT(definePassphrase()), Qt::QueuedConnection);
+    connect(this, SIGNAL(warnAboutPatching()),
+            this, SLOT(handleWarnAboutPatching()), Qt::QueuedConnection);
 
-    m_settings = new QSettings(QSettings::IniFormat, QSettings::UserScope,
+    m_passphrases = new QSettings(QSettings::IniFormat, QSettings::UserScope,
                                  QLatin1String("Nokia"), QLatin1String("QtCreatorKeys"), this);
 }
 
 S60CreatePackageStep::~S60CreatePackageStep()
 {
+    delete m_patchWarningDialog;
 }
 
 QVariantMap S60CreatePackageStep::toMap() const
 {
     QVariantMap map(BuildStep::toMap());
-    map.insert(QLatin1String(SIGNMODE_KEY), (int)m_signingMode);
+    map.insert(QLatin1String(SIGNMODE_KEY), static_cast<int>(m_signingMode));
     map.insert(QLatin1String(CERTIFICATE_KEY), m_customSignaturePath);
     map.insert(QLatin1String(KEYFILE_KEY), m_customKeyPath);
     map.insert(QLatin1String(SMART_INSTALLER_KEY), m_createSmartInstaller);
+    map.insert(QLatin1String(SUPPRESS_PATCH_WARNING_DIALOG_KEY), m_suppressPatchWarningDialog);
     return map;
 }
 
@@ -144,6 +160,8 @@ bool S60CreatePackageStep::fromMap(const QVariantMap &map)
     m_customSignaturePath = map.value(QLatin1String(CERTIFICATE_KEY)).toString();
     setCustomKeyPath(map.value(QLatin1String(KEYFILE_KEY)).toString());
     m_createSmartInstaller = map.value(QLatin1String(SMART_INSTALLER_KEY), false).toBool();
+    m_suppressPatchWarningDialog = map.value(QLatin1String(SUPPRESS_PATCH_WARNING_DIALOG_KEY),
+                                             false).toBool();
     return BuildStep::fromMap(map);
 }
 
@@ -175,75 +193,96 @@ bool S60CreatePackageStep::init()
 
     m_environment = qt4BuildConfiguration()->environment();
 
-    m_args.clear();
-    if (m_createSmartInstaller) {
-        if(signingMode() == NotSigned)
-            m_args << QLatin1String("unsigned_installer_sis");
-        else
-            m_args << QLatin1String("installer_sis");
-    } else if (signingMode() == NotSigned)
-        m_args << QLatin1String("unsigned_sis");
-    else
-        m_args << QLatin1String("sis");
-
-    if (signingMode() == SignCustom) {
-        m_args << QLatin1String(MAKE_CERTIFICATE_ARGUMENT) + QDir::toNativeSeparators(customSignaturePath())
-               << QLatin1String(MAKE_KEY_ARGUMENT) + QDir::toNativeSeparators(customKeyPath());
-
-        setPassphrase(loadPassphraseForKey(m_keyId));
-
-        if (!passphrase().isEmpty()) {
-            m_args << QLatin1String(MAKE_PASSPHRASE_ARGUMENT) + passphrase();
-        }
-    }
-
-    delete m_outputParserChain;
-    if (qt4BuildConfiguration()->qtVersion()->isBuildWithSymbianSbsV2())
-        m_outputParserChain = new Qt4ProjectManager::SbsV2Parser;
-    else
-        m_outputParserChain = new Qt4ProjectManager::AbldParser;
-    m_outputParserChain->appendOutputParser(new ProjectExplorer::GnuMakeParser);
-    m_outputParserChain->appendOutputParser(new Qt4ProjectManager::S60CreatePackageParser);
-
-    connect(m_outputParserChain, SIGNAL(addOutput(QString, ProjectExplorer::BuildStep::OutputFormat)),
-            this, SLOT(outputAdded(QString, ProjectExplorer::BuildStep::OutputFormat)));
-    connect(m_outputParserChain, SIGNAL(addTask(ProjectExplorer::Task)),
-            this, SLOT(taskAdded(ProjectExplorer::Task)), Qt::DirectConnection);
+    m_cancel = false;
 
     return true;
 }
 
 void S60CreatePackageStep::definePassphrase()
 {
+    Q_ASSERT(!m_cancel);
     PassphraseForKeyDialog *passwordDialog
             = new PassphraseForKeyDialog(QFileInfo(customKeyPath()).fileName());
     if (passwordDialog->exec()) {
-        setPassphrase(passwordDialog->passphrase());
+        QString newPassphrase = passwordDialog->passphrase();
+        setPassphrase(newPassphrase);
         if (passwordDialog->savePassphrase())
-            savePassphraseForKey(m_keyId, passphrase());
-    } else
-        m_errorType = ErrorUndefined;
+            savePassphraseForKey(m_keyId, newPassphrase);
+    } else {
+        m_cancel = true;
+    }
     delete passwordDialog;
-    passwordDialog = 0;
 
     m_waitCondition.wakeAll();
 }
 
+void S60CreatePackageStep::packageWasPatched(const QString &package, const QStringList &changes)
+{
+    m_packageChanges.append(qMakePair(package, changes));
+}
+
+void S60CreatePackageStep::handleWarnAboutPatching()
+{
+    if (!m_suppressPatchWarningDialog && !m_packageChanges.isEmpty()) {
+        if (m_patchWarningDialog){
+            m_patchWarningDialog->raise();
+            return;
+        }
+
+        m_patchWarningDialog = new Utils::CheckableMessageBox(0);
+        connect(m_patchWarningDialog, SIGNAL(finished(int)), this, SLOT(packageWarningDialogDone()));
+
+        QString title;
+        QString text;
+        const QString &url = QString::fromLatin1("qthelp://com.nokia.qtcreator.%1%2%3/doc/creator-run-settings.html#capabilities-and-signing").
+                arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR).arg(IDE_VERSION_RELEASE);
+        if (m_packageChanges.count() == 1) {
+            title = tr("A Package was modified");
+            text = tr("<p>Qt modified your package <b>%1</b>.</p>"
+                      "<p><em>These changes were not part of your build system</em> but are required to "
+                      "make sure the <em>self-signed</em> package can be installed successfully on a "
+                      "device.</p>"
+                      "<p>Check the Build Issues for more details on the modifications made.</p>"
+                      "<p>Please see <a href=\"%2\">"
+                      "the documentation</a> for other signing options. These will prevent "
+                      "this patching from happening.</p>").arg(m_packageChanges.at(0).first, url);
+        } else {
+            title = tr("Several Packages were modified");
+            text = tr("<p>Qt modified some of your packages.</p>"
+                      "<p><em>These changes were not part of your build system</em> but are required to "
+                      "make sure the <em>self-signed</em> packages can be installed successfully.</p>"
+                      "<p>Check the Build Issues for more details on the modifications made.</p>"
+                      "<p>Please see <a href=\"%1\">"
+                      "the documentation</a> for other signing options. These will prevent "
+                      "this patching from happening.</p>").arg(url);
+        }
+        m_patchWarningDialog->setWindowTitle(title);
+        m_patchWarningDialog->setText(text);
+        m_patchWarningDialog->setCheckBoxText(tr("Ignore patching for this packaging step."));
+        m_patchWarningDialog->setIconPixmap(QMessageBox::standardIcon(QMessageBox::Warning));
+        m_patchWarningDialog->setChecked(m_suppressPatchWarningDialog);
+        m_patchWarningDialog->setStandardButtons(QDialogButtonBox::Ok);
+        m_patchWarningDialog->open();
+    }
+}
+
 void S60CreatePackageStep::savePassphraseForKey(const QString &keyId, const QString &passphrase)
 {
-    m_settings->beginGroup("keys");
+    m_passphrases->beginGroup("keys");
     if (passphrase.isEmpty())
-        m_settings->remove(keyId);
+        m_passphrases->remove(keyId);
     else
-        m_settings->setValue(keyId, obfuscatePassphrase(passphrase, keyId));
-    m_settings->endGroup();
+        m_passphrases->setValue(keyId, obfuscatePassphrase(passphrase, keyId));
+    m_passphrases->endGroup();
 }
 
 QString S60CreatePackageStep::loadPassphraseForKey(const QString &keyId)
 {
-    m_settings->beginGroup("keys");
-    QString passphrase = elucidatePassphrase(m_settings->value(keyId, QByteArray()).toByteArray(), keyId);
-    m_settings->endGroup();
+    if (keyId.isEmpty())
+        return QString();
+    m_passphrases->beginGroup("keys");
+    QString passphrase = elucidatePassphrase(m_passphrases->value(keyId, QByteArray()).toByteArray(), keyId);
+    m_passphrases->endGroup();
     return passphrase;
 }
 
@@ -261,24 +300,60 @@ QByteArray S60CreatePackageStep::obfuscatePassphrase(const QString &passphrase, 
 QString S60CreatePackageStep::elucidatePassphrase(QByteArray obfuscatedPassphrase, const QString &key) const
 {
     QByteArray byteArray = QByteArray::fromBase64(obfuscatedPassphrase);
+    if (byteArray.isEmpty())
+        return QString();
+
     char *data = byteArray.data();
     const QChar *keyData = key.data();
     int keyDataSize = key.size();
     for (int i = 0; i < byteArray.size(); ++i)
         data[i] = data[i]^keyData[i%keyDataSize].toAscii();
-    return byteArray.data();
+    return QString::fromUtf8(byteArray.data());
 }
 
 void S60CreatePackageStep::run(QFutureInterface<bool> &fi)
 {
-    m_futureInterface = &fi;
-
     if (m_workingDirectories.isEmpty()) {
         fi.reportResult(true);
         return;
     }
 
+    m_timer = new QTimer();
+    connect(m_timer, SIGNAL(timeout()), this, SLOT(checkForCancel()), Qt::DirectConnection);
+    m_timer->start(500);
+    m_eventLoop = new QEventLoop;
+
+    bool returnValue = false;
+    if (!createOnePackage()) {
+        fi.reportResult(false);
+        return;
+    }
+
+    Q_ASSERT(!m_futureInterface);
+    m_futureInterface = &fi;
+    returnValue = m_eventLoop->exec();
+
+    // Finished
+    m_timer->stop();
+    delete m_timer;
+    m_timer = 0;
+
+    delete m_process;
+    m_process = 0;
+    delete m_eventLoop;
+    m_eventLoop = 0;
+
+    m_futureInterface = 0;
+
+    if (returnValue)
+        emit warnAboutPatching();
+    fi.reportResult(returnValue);
+}
+
+bool S60CreatePackageStep::createOnePackage()
+{
     // Setup everything...
+    Q_ASSERT(!m_process);
     m_process = new QProcess();
     m_process->setEnvironment(m_environment.toStringList());
 
@@ -290,102 +365,60 @@ void S60CreatePackageStep::run(QFutureInterface<bool> &fi)
             Qt::DirectConnection);
 
     connect(m_process, SIGNAL(finished(int, QProcess::ExitStatus)),
-            this, SLOT(slotProcessFinished(int, QProcess::ExitStatus)),
+            this, SLOT(packageDone(int, QProcess::ExitStatus)),
             Qt::DirectConnection);
 
-    m_timer = new QTimer();
-    connect(m_timer, SIGNAL(timeout()), this, SLOT(checkForCancel()), Qt::DirectConnection);
-    m_timer->start(500);
-    m_eventLoop = new QEventLoop;
+    // Setup arguments:
+    m_args.clear();
+    if (m_createSmartInstaller) {
+        if(signingMode() == NotSigned)
+            m_args << QLatin1String("unsigned_installer_sis");
+        else
+            m_args << QLatin1String("installer_sis");
+    } else if (signingMode() == NotSigned)
+        m_args << QLatin1String("unsigned_sis");
+    else
+        m_args << QLatin1String("sis");
 
-    bool returnValue = false;
-    if (startProcess())
-        returnValue = m_eventLoop->exec();
+    if (signingMode() == SignCustom
+            && !customSignaturePath().isEmpty() && QFileInfo(customSignaturePath()).exists()
+            && !customKeyPath().isEmpty() && QFileInfo(customKeyPath()).exists()) {
+        m_args << QLatin1String(MAKE_CERTIFICATE_ARGUMENT) + QDir::toNativeSeparators(customSignaturePath())
+               << QLatin1String(MAKE_KEY_ARGUMENT) + QDir::toNativeSeparators(customKeyPath());
 
-    // Finished
-    m_timer->stop();
-    delete m_timer;
-    m_timer = 0;
+        setPassphrase(loadPassphraseForKey(m_keyId));
 
-    delete m_process;
-    m_process = 0;
-    delete m_eventLoop;
-    m_eventLoop = 0;
-    fi.reportResult(returnValue);
-    m_futureInterface = 0;
-
-    return;
-}
-
-void S60CreatePackageStep::slotProcessFinished(int, QProcess::ExitStatus)
-{
-    QString line = QString::fromLocal8Bit(m_process->readAllStandardError());
-    if (!line.isEmpty())
-        stdError(line);
-
-    line = QString::fromLocal8Bit(m_process->readAllStandardOutput());
-    if (!line.isEmpty())
-        stdOutput(line);
-
-    bool returnValue = false;
-    if (m_process->exitStatus() == QProcess::NormalExit && m_process->exitCode() == 0) {
-        emit addOutput(tr("The process \"%1\" exited normally.")
-                       .arg(QDir::toNativeSeparators(m_makeCmd)),
-                       BuildStep::MessageOutput);
-        returnValue = true;
-    } else if (m_process->exitStatus() == QProcess::NormalExit) {
-        emit addOutput(tr("The process \"%1\" exited with code %2.")
-                       .arg(QDir::toNativeSeparators(m_makeCmd), QString::number(m_process->exitCode())),
-                       BuildStep::ErrorMessageOutput);
-    } else {
-        emit addOutput(tr("The process \"%1\" crashed.").arg(QDir::toNativeSeparators(m_makeCmd)), BuildStep::ErrorMessageOutput);
+        if (!passphrase().isEmpty())
+            m_args << QLatin1String(MAKE_PASSPHRASE_ARGUMENT) + passphrase();
     }
 
-    switch (m_errorType) {
-    case ErrorUndefined:
-        m_eventLoop->exit(false);
-        return;
-    case ErrorBadPassphrase: {
-        emit badPassphrase();
-        QMutexLocker locker(&m_mutex);
-        //waiting for the user to input new passphrase or to abort
-        m_waitCondition.wait(&m_mutex);
-        if( m_errorType == ErrorUndefined ) {
-            m_eventLoop->exit(false);
-            return;
-        } else {
-            QRegExp passphraseRegExp("^"+QLatin1String(MAKE_PASSPHRASE_ARGUMENT)+"(.+)$");
-            int index = m_args.indexOf(passphraseRegExp);
-            if (index>=0)
-                m_args.removeAt(index);
-            if (!passphrase().isEmpty())
-                m_args << QLatin1String(MAKE_PASSPHRASE_ARGUMENT) + passphrase();
-        }
-        break;
-    }
-    default:
-        m_workingDirectories.removeFirst();
-        break;
-    }
-
-    if (m_workingDirectories.isEmpty() || !returnValue) {
-        m_eventLoop->exit(returnValue);
-    } else {
-        // Success, do next
-        if (!startProcess())
-            m_eventLoop->exit(returnValue);
-    }
-}
-
-bool S60CreatePackageStep::startProcess()
-{
-    m_errorType = ErrorNone;
+    // Setup working directory:
     QString workingDirectory = m_workingDirectories.first();
     QDir wd(workingDirectory);
     if (!wd.exists())
         wd.mkpath(wd.absolutePath());
 
-    m_process->setWorkingDirectory(workingDirectory);
+    m_process->setWorkingDirectory(wd.absolutePath());
+
+    // Setup parsers:
+    Q_ASSERT(!m_outputParserChain);
+    if (!qt4BuildConfiguration()->qtVersion()->isBuildWithSymbianSbsV2()) {
+        m_outputParserChain = new Qt4ProjectManager::AbldParser;
+        m_outputParserChain->appendOutputParser(new ProjectExplorer::GnuMakeParser);
+    } else {
+        m_outputParserChain = new ProjectExplorer::GnuMakeParser(wd.absolutePath());
+    }
+    Q_ASSERT(!m_parser);
+    m_parser = new S60CreatePackageParser(wd.absolutePath());
+    m_outputParserChain->appendOutputParser(m_parser);
+
+    connect(m_outputParserChain, SIGNAL(addOutput(QString,ProjectExplorer::BuildStep::OutputFormat)),
+            this, SIGNAL(addOutput(QString,ProjectExplorer::BuildStep::OutputFormat)));
+    connect(m_outputParserChain, SIGNAL(addTask(ProjectExplorer::Task)),
+            this, SIGNAL(addTask(ProjectExplorer::Task)), Qt::DirectConnection);
+
+    connect(m_parser, SIGNAL(packageWasPatched(QString,QStringList)),
+            this, SLOT(packageWasPatched(QString,QStringList)), Qt::DirectConnection);
 
     // Go for it!
     m_process->start(m_makeCmd, m_args);
@@ -402,6 +435,69 @@ bool S60CreatePackageStep::startProcess()
                         workingDirectory),
                    BuildStep::MessageOutput);
     return true;
+}
+
+void S60CreatePackageStep::packageWarningDialogDone()
+{
+    if (m_patchWarningDialog)
+        m_suppressPatchWarningDialog = m_patchWarningDialog->isChecked();
+    if (m_suppressPatchWarningDialog) {
+        m_patchWarningDialog->deleteLater();
+        m_patchWarningDialog = 0;
+    }
+}
+
+void S60CreatePackageStep::packageDone(int exitCode, QProcess::ExitStatus status)
+{
+    QString line = QString::fromLocal8Bit(m_process->readAllStandardError());
+    if (!line.isEmpty())
+        stdError(line);
+
+    line = QString::fromLocal8Bit(m_process->readAllStandardOutput());
+    if (!line.isEmpty())
+        stdOutput(line);
+
+    if (status == QProcess::NormalExit && exitCode == 0) {
+        emit addOutput(tr("The process \"%1\" exited normally.")
+                       .arg(QDir::toNativeSeparators(m_makeCmd)),
+                       BuildStep::MessageOutput);
+    } else if (status == QProcess::NormalExit) {
+        emit addOutput(tr("The process \"%1\" exited with code %2.")
+                       .arg(QDir::toNativeSeparators(m_makeCmd), QString::number(exitCode)),
+                       BuildStep::ErrorMessageOutput);
+    } else {
+        emit addOutput(tr("The process \"%1\" crashed.").arg(QDir::toNativeSeparators(m_makeCmd)), BuildStep::ErrorMessageOutput);
+    }
+
+    bool needPassphrase = m_parser->needPassphrase();
+
+    // Clean up:
+    delete m_outputParserChain;
+    m_outputParserChain = 0;
+    m_parser = 0;
+    delete m_process;
+    m_process = 0;
+
+    // Process next directories:
+    if (needPassphrase) {
+        emit badPassphrase();
+        QMutexLocker locker(&m_mutex);
+        m_waitCondition.wait(&m_mutex);
+    } else {
+        if (status != QProcess::NormalExit || exitCode != 0) {
+            m_eventLoop->exit(false);
+            return;
+        }
+
+        m_workingDirectories.removeFirst();
+        if (m_workingDirectories.isEmpty()) {
+            m_eventLoop->exit(true);
+            return;
+        }
+    }
+
+    if (m_cancel || !createOnePackage())
+        m_eventLoop->exit(false);
 }
 
 void S60CreatePackageStep::processReadyReadStdOutput()
@@ -438,35 +534,21 @@ void S60CreatePackageStep::stdError(const QString &line)
 
 void S60CreatePackageStep::checkForCancel()
 {
-    if (m_futureInterface->isCanceled() && m_timer->isActive()) {
+    if (m_futureInterface->isCanceled()
+         && m_timer && m_timer->isActive()) {
         m_timer->stop();
-        m_process->terminate();
-        m_process->waitForFinished(5000);
-        m_process->kill();
+        if (m_process) {
+            m_process->terminate();
+            m_process->waitForFinished(5000);
+            m_process->kill();
+        }
+        m_eventLoop->exit(false);
     }
-}
-
-void S60CreatePackageStep::taskAdded(const ProjectExplorer::Task &task)
-{
-    ProjectExplorer::Task editable(task);
-    QString filePath = QDir::cleanPath(task.file.trimmed());
-    if (!filePath.isEmpty() && !QDir::isAbsolutePath(filePath)) {
-        // TODO which kind of tasks do we get from package building?
-        // No absoulte path
-    }
-    if (task.type == ProjectExplorer::Task::Error) {
-        if (task.description.contains(QLatin1String("bad password"))
-                || task.description.contains(QLatin1String("bad decrypt")))
-            m_errorType = ErrorBadPassphrase;
-        else if (m_errorType == ErrorNone)
-            m_errorType = ErrorUndefined;
-    }
-    emit addTask(editable);
 }
 
 QString S60CreatePackageStep::generateKeyId(const QString &keyPath) const
 {
-    if (keyPath.isEmpty())
+    if (keyPath.isNull())
         return QString();
 
     QFile file(keyPath);
@@ -476,11 +558,6 @@ QString S60CreatePackageStep::generateKeyId(const QString &keyPath) const
     //key file is quite small in size
     return QCryptographicHash::hash(file.readAll(),
                                     QCryptographicHash::Md5).toHex();
-}
-
-void S60CreatePackageStep::outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format)
-{
-    emit addOutput(string, format);
 }
 
 bool S60CreatePackageStep::immutable() const
@@ -531,6 +608,8 @@ QString S60CreatePackageStep::passphrase() const
 
 void S60CreatePackageStep::setPassphrase(const QString &passphrase)
 {
+    if (passphrase.isEmpty())
+        return;
     m_passphrase = passphrase;
 }
 
@@ -557,13 +636,13 @@ void S60CreatePackageStep::setCreatesSmartInstaller(bool value)
 
 void S60CreatePackageStep::resetPassphrases()
 {
-    m_settings->beginGroup("keys");
-    QStringList keys = m_settings->allKeys();
+    m_passphrases->beginGroup("keys");
+    QStringList keys = m_passphrases->allKeys();
     foreach (QString key, keys) {
-        m_settings->setValue(key, "");
+        m_passphrases->setValue(key, "");
     }
-    m_settings->remove("");
-    m_settings->endGroup();
+    m_passphrases->remove("");
+    m_passphrases->endGroup();
 }
 
 // #pragma mark -- S60SignBuildStepFactory
