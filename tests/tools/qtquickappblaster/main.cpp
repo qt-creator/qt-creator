@@ -28,14 +28,12 @@ bool processXmlFile(const QString &xmlFile)
             case QXmlStreamReader::StartElement:
                 if (reader.name() == tag_app) {
                     QmlStandaloneApp qmlApp;
-                    if (!reader.attributes().hasAttribute(attrib_projectName)) {
-                        qDebug() << "Error: Project without name";
+                    QFileInfo projectPath;
+                    if (!reader.attributes().hasAttribute(attrib_projectPath)) {
+                        qDebug() << "Project without path found";
                         continue;
                     }
-                    qmlApp.setProjectName(reader.attributes().value(attrib_projectName).toString());
-                    QFileInfo projectPath;
-                    if (reader.attributes().hasAttribute(attrib_projectPath))
-                        projectPath = qtDir + reader.attributes().value(attrib_projectPath).toString();
+                    projectPath = qtDir + reader.attributes().value(attrib_projectPath).toString();
                     qmlApp.setProjectPath(projectPath.absoluteFilePath());
                     if (reader.attributes().hasAttribute(attrib_mainQmlFile)) {
                         const QFileInfo qmlFileOrigin(
@@ -46,8 +44,8 @@ bool processXmlFile(const QString &xmlFile)
                             continue;
                         }
                         const QFileInfo qmlTargetPath(QString(projectPath.absoluteFilePath()
-                                                              + QLatin1Char('/') + qmlApp.projectName()
-                                                              + QLatin1String("/qml/") + qmlApp.projectName()));
+                                                              + QLatin1Char('/') + qmlFileOrigin.baseName()
+                                                              + QLatin1String("/qml")));
 #ifdef Q_OS_WIN
                         const QString sourcePath =
                                 QDir::toNativeSeparators(qmlFileOrigin.canonicalPath() + QLatin1String("/*"));
@@ -68,6 +66,9 @@ bool processXmlFile(const QString &xmlFile)
                         qmlApp.setMainQmlFile(qmlTargetPath.absoluteFilePath()
                                               + QLatin1Char('/') + qmlFileOrigin.fileName());
                     }
+                    qmlApp.setProjectName(reader.attributes().hasAttribute(attrib_projectName)
+                                            ? reader.attributes().value(attrib_projectName).toString()
+                                            : QFileInfo(qmlApp.mainQmlFile()).baseName());
                     if (reader.attributes().hasAttribute(attrib_screenOrientation)) {
                         const QStringRef orientation = reader.attributes().value(attrib_screenOrientation);
                         qmlApp.setOrientation(orientation == value_screenOrientationLockLandscape ?

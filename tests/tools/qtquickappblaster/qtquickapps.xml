@@ -1,337 +1,225 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <qmlapps>
-  <app
-      mainqmlfile="examples/declarative/animation/basics/property-animation.qml"
-      projectpath="../examples/declarative/animation/basics"
-      projectname="propertyanimation"
+    <app
+        mainqmlfile="examples/declarative/animation/basics/property-animation.qml"
+        projectpath="../examples/declarative/animation/basics"
     />
-  <app
-      mainqmlfile="examples/declarative/animation/basics/color-animation.qml"
-      projectpath="../examples/declarative/animation/basics"
-      projectname="coloranimation"
+    <app
+        mainqmlfile="examples/declarative/animation/basics/color-animation.qml"
+        projectpath="../examples/declarative/animation/basics"
     />
-  <app
-      mainqmlfile="examples/declarative/animation/behaviors/behavior-example.qml"
-      projectpath="../examples/declarative/animation/behaviors"
-      projectname="behaviorExample"
+    <app
+        mainqmlfile="examples/declarative/animation/behaviors/behavior-example.qml"
+        projectpath="../examples/declarative/animation/behaviors"
     />
-  <app
-      mainqmlfile="examples/declarative/animation/easing/easing.qml"
-      projectpath="../examples/declarative/animation/easing"
-      projectname="easing"
-      screenorientation="LockLandscape"
+    <app
+        mainqmlfile="examples/declarative/animation/easing/easing.qml"
+        projectpath="../examples/declarative/animation"
+        screenorientation="LockLandscape"
     />
-  <app
-      mainqmlfile="examples/declarative/animation/states/states.qml"
-      projectpath="../examples/declarative/animation/states"
-      projectname="states"
+    <app
+        mainqmlfile="examples/declarative/animation/states/states.qml"
+        projectpath="../examples/declarative/animation"
     />
-  <app
-      mainqmlfile="examples/declarative/imageelements/borderimage/borderimage.qml"
-      projectpath="../examples/declarative/imageelements"
-      projectname="borderimage"
-      screenorientation="LockLandscape"
+    <app
+        mainqmlfile="examples/declarative/imageelements/borderimage/borderimage.qml"
+        projectpath="../examples/declarative/imageelements"
+        screenorientation="LockLandscape"
     />
-  <app
-      mainqmlfile="examples/declarative/imageelements/borderimage/shadows.qml"
-      projectpath="../examples/declarative/imageelements"
-      projectname="shadows"
-      screenorientation="LockLandscape"
+    <app
+        mainqmlfile="examples/declarative/imageelements/borderimage/shadows.qml"
+        projectpath="../examples/declarative/imageelements"
+        screenorientation="LockLandscape"
     />
-  <app
-      mainqmlfile="examples/declarative/imageelements/image/image.qml"
-      projectpath="../examples/declarative/imageelements"
-      projectname="image"
-      screenorientation="LockLandscape"
+    <app
+        mainqmlfile="examples/declarative/imageelements/image/image.qml"
+        projectpath="../examples/declarative/imageelements"
+        screenorientation="LockLandscape"
     />
-  <app
-      mainqmlfile="examples/declarative/text/fonts/availableFonts.qml"
-      projectpath="../examples/declarative/text/fonts/"
-      projectname="availableFonts"
-  screenorientation="LockLandscape"
+    <app
+        mainqmlfile="examples/declarative/text/fonts/availableFonts.qml"
+        projectpath="../examples/declarative/text/fonts"
+        screenorientation="LockLandscape"
     />
-  <app
-      mainqmlfile="examples/declarative/text/fonts/banner.qml"
-      projectpath="../examples/declarative/text/fonts/"
-      projectname="banner"
-  screenorientation="LockLandscape"
+    <app
+        mainqmlfile="examples/declarative/text/fonts/banner.qml"
+        projectpath="../examples/declarative/text/fonts"
+        screenorientation="LockLandscape"
     />
-  <app
-      mainqmlfile="examples/declarative/text/fonts/fonts.qml"
-      projectpath="../examples/declarative/text/fonts/"
-      projectname="fonts"
-  screenorientation="LockLandscape"
+    <app
+        mainqmlfile="examples/declarative/text/fonts/fonts.qml"
+        projectpath="../examples/declarative/text/fonts/"
+        screenorientation="LockLandscape"
     />
-  <app
-      mainqmlfile="examples/declarative/text/fonts/hello.qml"
-      projectpath="../examples/declarative/text/fonts/"
-      projectname="hello"
-  screenorientation="LockLandscape"
+    <app
+        mainqmlfile="examples/declarative/text/fonts/hello.qml"
+        projectpath="../examples/declarative/text/fonts/"
+        screenorientation="LockLandscape"
     />
-  <app
-      mainqmlfile="examples/declarative/text/textselection/textselection.qml"
-      projectpath="../examples/declarative/text/textselection"
-      projectname="textselection"
+    <app
+        mainqmlfile="examples/declarative/text/textselection/textselection.qml"
+        projectpath="../examples/declarative/text"
     />
-  <app
-      mainqmlfile="examples/declarative/positioners/positioners.qml"
-      projectpath="../examples/declarative/positioners"
-      projectname="positioners"
+    <app
+        mainqmlfile="examples/declarative/positioners/positioners.qml"
+        projectpath="../examples/declarative"
     />
-  <app
-      mainqmlfile="examples/declarative/keyinteraction/focus/focus.qml"
-      projectpath="../examples/declarative/keyinteraction"
-      projectname="focus"
-      screenorientation="LockLandscape"
+    <app
+        mainqmlfile="examples/declarative/keyinteraction/focus/focus.qml"
+        projectpath="../examples/declarative/keyinteraction"
+        screenorientation="LockLandscape"
     />
-  <app
-      mainqmlfile="examples/declarative/touchinteraction/gestures/experimental-gestures.qml"
-      projectpath="../examples/declarative/touchinteraction"
-      projectname="gestures"
+    <app
+        mainqmlfile="examples/declarative/touchinteraction/gestures/experimental-gestures.qml"
+        projectpath="../examples/declarative/touchinteraction/gestures"
     />
-  <app
-      mainqmlfile="examples/declarative/touchinteraction/mousearea/mousearea-example.qml"
-      projectpath="../examples/declarative/touchinteraction"
-      projectname="mousearea"
-  screenorientation="LockLandscape"
+    <app
+        mainqmlfile="examples/declarative/touchinteraction/mousearea/mousearea-example.qml"
+        projectpath="../examples/declarative/touchinteraction/mousearea"
+        screenorientation="LockLandscape"
     />
-  <app
-      mainqmlfile="examples/declarative/ui-components/dialcontrol/dialcontrol.qml"
-      projectpath="../examples/declarative/ui-components"
-      projectname="dialcontrol"
+    <app
+        mainqmlfile="examples/declarative/ui-components/dialcontrol/dialcontrol.qml"
+        projectpath="../examples/declarative/ui-components"
     />
-  <app
-      mainqmlfile="examples/declarative/ui-components/flipable/flipable.qml"
-      projectpath="../examples/declarative/ui-components"
-      projectname="flipable"
+    <app
+        mainqmlfile="examples/declarative/ui-components/flipable/flipable.qml"
+        projectpath="../examples/declarative/ui-components"
     />
-  <app
-      mainqmlfile="examples/declarative/ui-components/progressbar/main.qml"
-      projectpath="../examples/declarative/ui-components"
-      projectname="progressbar"
+    <app
+        mainqmlfile="examples/declarative/ui-components/progressbar/main.qml"
+        projectpath="../examples/declarative/ui-components"
+        projectname="progressbar"
     />
-  <app
-      mainqmlfile="examples/declarative/ui-components/scrollbar/main.qml"
-      projectpath="../examples/declarative/ui-components"
-      projectname="scrollbar"
+    <app
+        mainqmlfile="examples/declarative/ui-components/scrollbar/main.qml"
+        projectpath="../examples/declarative/ui-components"
     />
-  <app
-      mainqmlfile="examples/declarative/ui-components/searchbox/main.qml"
-      projectpath="../examples/declarative/ui-components"
-      projectname="searchbox"
+    <app
+        mainqmlfile="examples/declarative/ui-components/searchbox/main.qml"
+        projectpath="../examples/declarative/ui-components"
     />
-  <app
-      mainqmlfile="examples/declarative/ui-components/slideswitch/slideswitch.qml"
-      projectpath="../examples/declarative/ui-components"
-      projectname="slideswitch"
-  screenorientation="LockLandscape"
+    <app
+        mainqmlfile="examples/declarative/ui-components/slideswitch/slideswitch.qml"
+        projectpath="../examples/declarative/ui-components"
+        screenorientation="LockLandscape"
     />
-  <app
-      mainqmlfile="examples/declarative/ui-components/spinner/main.qml"
-      projectpath="../examples/declarative/ui-components"
-      projectname="spinner"
-  screenorientation="LockPortrait"
+    <app
+        mainqmlfile="examples/declarative/ui-components/spinner/main.qml"
+        projectpath="../examples/declarative/ui-components"
+        screenorientation="LockPortrait"
     />
-  <app
-      mainqmlfile="examples/declarative/ui-components/tabwidget/main.qml"
-      projectpath="../examples/declarative/ui-components"
-      projectname="tabwidget"
-  screenorientation="LockLandscape"
+    <app
+        mainqmlfile="examples/declarative/ui-components/tabwidget/main.qml"
+        projectpath="../examples/declarative/ui-components"
+        screenorientation="LockLandscape"
     />
-  <app
-      mainqmlfile="examples/declarative/toys/clocks/clocks.qml"
-      projectpath="../examples/declarative/toys"
-      projectname="clocks"
-      screenorientation="LockLandscape"
+    <app
+        mainqmlfile="examples/declarative/toys/clocks/clocks.qml"
+        projectpath="../examples/declarative/toys"
+        screenorientation="LockLandscape"
     />
-  <app
-      mainqmlfile="examples/declarative/toys/corkboards/corkboards.qml"
-      projectpath="../examples/declarative/toys"
-      projectname="corkboards"
-  screenorientation="LockLandscape"
+    <app
+        mainqmlfile="examples/declarative/toys/corkboards/corkboards.qml"
+        projectpath="../examples/declarative/toys"
+        screenorientation="LockLandscape"
     />
-  <app
-      mainqmlfile="examples/declarative/toys/dynamicscene/dynamicscene.qml"
-      projectpath="../examples/declarative/toys"
-      projectname="dynamicscene"
-  screenorientation="LockLandscape"
+    <app
+        mainqmlfile="examples/declarative/toys/dynamicscene/dynamicscene.qml"
+        projectpath="../examples/declarative/toys"
+        screenorientation="LockLandscape"
     />
-  <app
-      mainqmlfile="examples/declarative/toys/tic-tac-toe/tic-tac-toe.qml"
-      projectpath="../examples/declarative/toys/"
-      projectname="tic-tac-toe"
-  screenorientation="LockLandscape"
+    <app
+        mainqmlfile="examples/declarative/toys/tic-tac-toe/tic-tac-toe.qml"
+        projectpath="../examples/declarative/toys/"
+        screenorientation="LockLandscape"
     />
-  <app
-      mainqmlfile="examples/declarative/toys/tvtennis/tvtennis.qml"
-      projectpath="../examples/declarative/toys"
-      projectname="tvtennis"
-  screenorientation="LockLandscape"
+    <app
+        mainqmlfile="examples/declarative/toys/tvtennis/tvtennis.qml"
+        projectpath="../examples/declarative/toys"
+        screenorientation="LockLandscape"
     />
-  <app
-      mainqmlfile="examples/declarative/modelviews/gridview/gridview-example.qml"
-      projectpath="../examples/declarative/modelviews"
-      projectname="gridview"
+    <app
+        mainqmlfile="examples/declarative/modelviews/gridview/gridview-example.qml"
+        projectpath="../examples/declarative/modelviews"
     />
-  <app
+    <app
         mainqmlfile="examples/declarative/modelviews/listview/dynamiclist.qml"
         projectpath="../examples/declarative/modelviews/listview"
-        projectname="dynamiclist"
     />
-  <app
+    <app
         mainqmlfile="examples/declarative/modelviews/listview/expandingdelegates.qml"
         projectpath="../examples/declarative/modelviews/listview"
-        projectname="expandingdelegates"
     />
-  <app
+    <app
         mainqmlfile="examples/declarative/modelviews/listview/highlight.qml"
         projectpath="../examples/declarative/modelviews/listview"
-        projectname="highlight"
-		screenorientation="LockPortrait"
+        screenorientation="LockPortrait"
     />
-  <app
+    <app
         mainqmlfile="examples/declarative/modelviews/listview/highlightranges.qml"
         projectpath="../examples/declarative/modelviews/listview"
-        projectname="highlightranges"
-		screenorientation="LockLandscape"
+        screenorientation="LockLandscape"
     />
-  <app
+    <app
         mainqmlfile="examples/declarative/modelviews/listview/sections.qml"
         projectpath="../examples/declarative/modelviews/listview"
-        projectname="sections"
-		screenorientation="LockPortrait"
+        screenorientation="LockPortrait"
     />
-  <app
-      mainqmlfile="examples/declarative/modelviews/pathview/pathview-example.qml"
-      projectpath="../examples/declarative/modelviews"
-      projectname="pathview"
-  screenorientation="LockLandscape"
+    <app
+        mainqmlfile="examples/declarative/modelviews/pathview/pathview-example.qml"
+        projectpath="../examples/declarative/modelviews"
+        screenorientation="LockLandscape"
     />
-  <app
-      mainqmlfile="examples/declarative/modelviews/package/Delegate.qml"
-      projectpath="../examples/declarative/modelviews"
-      projectname="package"
-  screenorientation="LockLandscape"
+    <app
+        mainqmlfile="examples/declarative/modelviews/package/Delegate.qml"
+        projectpath="../examples/declarative/modelviews"
+        screenorientation="LockLandscape"
     />
-  <app
-      mainqmlfile="examples/declarative/modelviews/parallax/parallax.qml"
-      projectpath="../examples/declarative/modelviews"
-      projectname="parallax"
-  screenorientation="LockLandscape"
+    <app
+        mainqmlfile="examples/declarative/modelviews/parallax/parallax.qml"
+        projectpath="../examples/declarative/modelviews"
+        screenorientation="LockLandscape"
     />
-  <app
-      mainqmlfile="examples/declarative/modelviews/visualitemmodel/visualitemmodel.qml"
-      projectpath="../examples/declarative/modelviews"
-      projectname="visualitemmodel"
+    <app
+        mainqmlfile="examples/declarative/modelviews/visualitemmodel/visualitemmodel.qml"
+        projectpath="../examples/declarative/modelviews"
     />
-  <app
-      mainqmlfile="examples/declarative/modelviews/stringlistmodel/view.qml"
-      projectpath="../examples/declarative/modelviews"
-      projectname="stringlistmodel"
+    <app
+        mainqmlfile="examples/declarative/modelviews/webview/alerts.qml"
+        projectpath="../examples/declarative/modelviews/webview"
+        networkaccess="true"
     />
-  <app
-      mainqmlfile="examples/declarative/modelviews/objectlistmodel/view.qml"
-      projectpath="../examples/declarative/modelviews"
-      projectname="objectlistmodel"
+    <app
+        mainqmlfile="examples/declarative/modelviews/webview/autosize.qml"
+        projectpath="../examples/declarative/modelviews/webview"
+        screenorientation="LockPortrait"
+        networkaccess="true"
     />
-  <app
-      mainqmlfile="examples/declarative/modelviews/abstractitemmodel/view.qml"
-      projectpath="../examples/declarative/modelviews"
-      projectname="abstractitemmodel"
+    <app
+        mainqmlfile="examples/declarative/modelviews/webview/googlemaps.qml"
+        projectpath="../examples/declarative/modelviews/webview"
+        networkaccess="true"
     />
-  <app
-      mainqmlfile="examples/declarative/modelviews/webview/alert.qml"
-      projectpath="../examples/declarative/modelviews/webview"
-      projectname="alert"
-    networkaccess="true"
+    <app
+        mainqmlfile="examples/declarative/modelviews/webview/inlinehtml.qml"
+        projectpath="../examples/declarative/modelviews/webview"
+        networkaccess="true"
     />
-  <app
-      mainqmlfile="examples/declarative/modelviews/webview/autosize.qml"
-      projectpath="../examples/declarative/modelviews/webview"
-      projectname="autosize"
-  screenorientation="LockPortrait"
-    networkaccess="true"
+    <app
+        mainqmlfile="examples/declarative/modelviews/webview/newwindows.qml"
+        projectpath="../examples/declarative/modelviews/webview"
+        networkaccess="true"
     />
-  <app
-      mainqmlfile="examples/declarative/modelviews/webview/googlemaps.qml"
-      projectpath="../examples/declarative/modelviews/webview"
-      projectname="googlemaps"
-    networkaccess="true"
+    <app
+        mainqmlfile="examples/declarative/xml/xmlhttprequest/xmlhttprequest-example.qml"
+        projectpath="../examples/declarative/xml"
+        screenorientation="LockLandscape"
+        networkaccess="true"
     />
-  <app
-      mainqmlfile="examples/declarative/modelviews/webview/inlinehtml.qml"
-      projectpath="../examples/declarative/modelviews/webview"
-      projectname="inlinehtml"
-    networkaccess="true"
-	/>
-  <app
-      mainqmlfile="examples/declarative/modelviews/webview/newwindows.qml"
-      projectpath="../examples/declarative/modelviews/webview"
-      projectname="newwindows"
-    networkaccess="true"
+    <app
+        mainqmlfile="examples/declarative/i18n/i18n.qml"
+        projectpath="../examples/declarative"
+        screenorientation="LockLandscape"
     />
-  <app
-      mainqmlfile="examples/declarative/xml/xmlhttprequest/xmlhttprequest-example.qml"
-      projectpath="../examples/declarative/xml"
-      projectname="xmlhttprequest"
-  screenorientation="LockLandscape"
-    networkaccess="true"
-    />
-  <app
-      mainqmlfile="examples/declarative/i18n/i18n.qml"
-      projectpath="../examples/declarative"
-      projectname="i18n"
-  screenorientation="LockLandscape"
-    />
-  <app
-      mainqmlfile="examples/declarative/calculator/calculator.qml"
-      projectpath="../examples/declarative/declarative"
-      projectname="calculator"
-    />
-  <app
-      mainqmlfile="demos/declarative/flickr/flickr.qml"
-      projectpath="../examples/declarative"
-      projectname="flickr"
-      screenorientation="LockPortrait"
-      networkaccess="true"
-    />
-  <app
-      mainqmlfile="examples/declarative/minehunt/minehunt.qml"
-      projectpath="../examples/declarative/"
-      projectname="minehunt"
-	/>
-  <app
-      mainqmlfile="examples/declarative/photoviewer/photoviewer.qml"
-      projectpath="../examples/declarative/"
-      projectname="photoviewer"
-	/>
-  <app
-      mainqmlfile="examples/declarative/rssnews/rssnews.qml"
-      projectpath="../examples/declarative/"
-      projectname="rssnews"
-  networkaccess="true"
-	/>
-  <app
-      mainqmlfile="examples/declarative/samegame/samegame.qml"
-      projectpath="../examples/declarative/"
-      projectname="samegame"
-	/>
-  <app
-      mainqmlfile="examples/declarative/snake/snake.qml"
-      projectpath="../examples/declarative/"
-      projectname="snake"
-	/>
-  <app
-      mainqmlfile="examples/declarative/twitter/twitter.qml"
-      projectpath="../examples/declarative/"
-      projectname="twitter"
-  screenorientation="LockLandscape"
-    networkaccess="true"
-	/>
-  <app
-      mainqmlfile="examples/declarative/webbrowser/webbrowser.qml"
-      projectpath="../examples/declarative/"
-      projectname="webbrowser"
-    networkaccess="true"
-	/>
 </qmlapps>
