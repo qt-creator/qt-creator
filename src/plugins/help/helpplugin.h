@@ -115,6 +115,10 @@ private slots:
 
     void openFindToolBar();
 
+    void scaleRightPaneUp();
+    void scaleRightPaneDown();
+    void resetRightPaneScale();
+
 private:
     void setupUi();
     void resetFilter();

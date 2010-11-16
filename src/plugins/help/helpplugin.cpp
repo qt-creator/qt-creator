@@ -267,23 +267,18 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
         action = new QAction(tr("Increase Font Size"), this);
         cmd = am->registerAction(action, TextEditor::Constants::INCREASE_FONT_SIZE,
             modecontext);
-        cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl++")));
         connect(action, SIGNAL(triggered()), m_centralWidget, SLOT(zoomIn()));
         advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
 
         action = new QAction(tr("Decrease Font Size"), this);
         cmd = am->registerAction(action, TextEditor::Constants::DECREASE_FONT_SIZE,
             modecontext);
-        cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+-")));
         connect(action, SIGNAL(triggered()), m_centralWidget, SLOT(zoomOut()));
         advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
 
         action = new QAction(tr("Reset Font Size"), this);
         cmd = am->registerAction(action, TextEditor::Constants::RESET_FONT_SIZE,
             modecontext);
-#ifndef Q_WS_MAC
-        cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+0")));
-#endif
         connect(action, SIGNAL(triggered()), m_centralWidget, SLOT(resetZoom()));
         advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
     }
@@ -305,14 +300,6 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
         windowMenu->addAction(ctrlShiftTab, Core::Constants::G_WINDOW_NAVIGATE);
         connect(action, SIGNAL(triggered()), &OpenPagesManager::instance(),
             SLOT(gotoNextPage()));
-
-#ifdef Q_WS_MAC
-        ctrlTab->setDefaultKeySequence(QKeySequence(tr("Alt+Tab")));
-        ctrlShiftTab->setDefaultKeySequence(QKeySequence(tr("Alt+Shift+Tab")));
-#else
-        ctrlTab->setDefaultKeySequence(QKeySequence(tr("Ctrl+Tab")));
-        ctrlShiftTab->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+Tab")));
-#endif
     }
 
     Aggregation::Aggregate *agg = new Aggregation::Aggregate;
@@ -583,15 +570,16 @@ void HelpPlugin::createRightPaneContextViewer()
     Aggregation::Aggregate *agg = new Aggregation::Aggregate();
     agg->add(m_helpViewerForSideBar);
     agg->add(new HelpViewerFindSupport(m_helpViewerForSideBar));
+
+    Core::Context context(Constants::C_HELP_SIDEBAR);
     m_core->addContextObject(new Core::BaseContext(m_helpViewerForSideBar,
-        Core::Context(Constants::C_HELP_SIDEBAR), this));
+        context, this));
 
     QAction *copy = new QAction(this);
     Core::Command *cmd = m_core->actionManager()->registerAction(copy,
-        Core::Constants::COPY, Core::Context(Constants::C_HELP_SIDEBAR));
+        Core::Constants::COPY, context);
     copy->setText(cmd->action()->text());
     copy->setIcon(cmd->action()->icon());
-
     connect(copy, SIGNAL(triggered()), m_helpViewerForSideBar, SLOT(copy()));
 
     next->setEnabled(m_helpViewerForSideBar->isForwardAvailable());
@@ -604,9 +592,49 @@ void HelpPlugin::createRightPaneContextViewer()
     connect(m_helpViewerForSideBar, SIGNAL(backwardAvailable(bool)), back,
         SLOT(setEnabled(bool)));
 
+    Core::ActionManager *am = m_core->actionManager();
+    if (Core::ActionContainer *advancedMenu = am->actionContainer(M_EDIT_ADVANCED)) {
+        // reuse TextEditor constants to avoid a second pair of menu actions
+        QAction *action = new QAction(tr("Increase Font Size"), this);
+        cmd = am->registerAction(action, TextEditor::Constants::INCREASE_FONT_SIZE,
+            context);
+        connect(action, SIGNAL(triggered()), this, SLOT(scaleRightPaneUp()));
+        advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
+
+        action = new QAction(tr("Decrease Font Size"), this);
+        cmd = am->registerAction(action, TextEditor::Constants::DECREASE_FONT_SIZE,
+            context);
+        connect(action, SIGNAL(triggered()), this, SLOT(scaleRightPaneDown()));
+        advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
+
+        action = new QAction(tr("Reset Font Size"), this);
+        cmd = am->registerAction(action, TextEditor::Constants::RESET_FONT_SIZE,
+            context);
+        connect(action, SIGNAL(triggered()), this, SLOT(resetRightPaneScale()));
+        advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
+    }
+
     // force setup, as we might have never switched to full help mode
     // thus the help engine might still run without collection file setup
     m_helpManager->setupGuiHelpEngine();
+}
+
+void HelpPlugin::scaleRightPaneUp()
+{
+    if (m_helpViewerForSideBar)
+        m_helpViewerForSideBar->scaleUp();
+}
+
+void HelpPlugin::scaleRightPaneDown()
+{
+    if (m_helpViewerForSideBar)
+        m_helpViewerForSideBar->scaleDown();
+}
+
+void HelpPlugin::resetRightPaneScale()
+{
+    if (m_helpViewerForSideBar)
+        m_helpViewerForSideBar->resetScale();
 }
 
 void HelpPlugin::activateHelpMode()
