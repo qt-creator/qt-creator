@@ -182,13 +182,27 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters)
     setObjectName(QLatin1String("GdbEngine"));
     qRegisterMetaType<WatchData>("WatchData");
 
+    m_busy = false;
+    m_gdbAdapter = 0;
+    m_debuggingHelperState = DebuggingHelperUninitialized;
+    m_gdbVersion = 100;
+    m_gdbBuildVersion = -1;
+    m_isMacGdb = false;
+    m_hasPython = false;
+    m_registerNamesListed = false;
+    m_hasInferiorThreadList = false;
+    m_sourcesListUpdating = false;
+    m_oldestAcceptableToken = -1;
+    m_outputCodec = QTextCodec::codecForLocale();
+    m_pendingWatchRequests = 0;
+    m_pendingBreakpointRequests = 0;
+    m_commandsDoneCallback = 0;
+    invalidateSourcesList();
+
+    m_gdbAdapter = createAdapter();
+
     m_commandTimer.setSingleShot(true);
     connect(&m_commandTimer, SIGNAL(timeout()), SLOT(commandTimeout()));
-
-    // Needs no resetting in initializeVariables()
-    m_busy = false;
-    initializeVariables();
-    m_gdbAdapter = createAdapter();
 
     connect(debuggerCore()->action(AutoDerefPointers), SIGNAL(valueChanged(QVariant)),
             SLOT(reloadLocals()));
@@ -215,49 +229,6 @@ GdbEngine::~GdbEngine()
         disconnect(gdbProc(), 0, this, 0);
     delete m_gdbAdapter;
     m_gdbAdapter = 0;
-}
-
-void GdbEngine::initializeVariables()
-{
-    m_debuggingHelperState = DebuggingHelperUninitialized;
-    m_gdbVersion = 100;
-    m_gdbBuildVersion = -1;
-    m_isMacGdb = false;
-    m_hasPython = false;
-    m_registerNamesListed = false;
-    m_hasInferiorThreadList = false;
-
-    m_fullToShortName.clear();
-    m_shortToFullName.clear();
-
-    invalidateSourcesList();
-    m_sourcesListUpdating = false;
-    m_oldestAcceptableToken = -1;
-    m_outputCodec = QTextCodec::codecForLocale();
-    m_pendingWatchRequests = 0;
-    m_pendingBreakpointRequests = 0;
-    m_commandsDoneCallback = 0;
-    m_commandsToRunOnTemporaryBreak.clear();
-    m_cookieForToken.clear();
-
-    m_pendingConsoleStreamOutput.clear();
-    m_pendingLogStreamOutput.clear();
-
-    m_inbuffer.clear();
-    m_resultVarName.clear();
-
-    m_commandTimer.stop();
-
-    // ConverterState has no reset() function.
-    m_outputCodecState.~ConverterState();
-    new (&m_outputCodecState) QTextCodec::ConverterState();
-
-    m_currentFunctionArgs.clear();
-    m_currentFrame.clear();
-    m_dumperHelper.clear();
-#ifdef Q_OS_LINUX
-    m_entryPoint.clear();
-#endif
 }
 
 QString GdbEngine::errorMessage(QProcess::ProcessError error)
@@ -4313,7 +4284,6 @@ void GdbEngine::handleGdbFinished(int code, QProcess::ExitStatus type)
         showStatusMessage(msg);
         //m_gdbAdapter->shutdownEngine();
     }
-    initializeVariables();
 */
     switch (state()) {
     case EngineShutdownRequested:
@@ -4332,8 +4302,8 @@ void GdbEngine::handleGdbFinished(int code, QProcess::ExitStatus type)
                     tr("The gdb process crashed.") :
                     tr("The gdb process exited unexpectedly (code %1)").arg(code);
         showMessageBox(QMessageBox::Critical, tr("Unexpected Gdb Exit"), msg);
-    }
         break;
+    }
     }
 }
 

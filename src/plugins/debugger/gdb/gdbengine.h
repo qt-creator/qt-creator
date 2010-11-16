@@ -113,7 +113,6 @@ private: ////////// General Interface //////////
 
 private: ////////// General State //////////
 
-    void initializeVariables();
     DebuggerStartMode startMode() const;
     Q_SLOT void reloadLocals();
 
