@@ -1257,11 +1257,8 @@ void DebuggerEngine::attemptBreakpointSynchronization()
             //qDebug() << "BREAKPOINT " << id << " STILL IN PROGRESS, STATE"
             //    << handler->state(id);
             continue;
-        case BreakpointPending:
-            //qDebug() << "BREAKPOINT " << id << " IS GOOD: PENDING";
-            continue;
         case BreakpointInserted:
-            //qDebug() << "BREAKPOINT " << id << " IS GOOD: INSERTED";
+            //qDebug() << "BREAKPOINT " << id << " IS GOOD";
             continue;
         case BreakpointDead:
             // Should not only be visible inside BreakpointHandler.

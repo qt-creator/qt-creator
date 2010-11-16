@@ -92,7 +92,7 @@ QString BreakpointParameters::toString() const
 //////////////////////////////////////////////////////////////////
 
 BreakpointResponse::BreakpointResponse()
-    : number(0), multiple(false)
+    : number(0), pending(true), multiple(false)
 {}
 
 QString BreakpointResponse::toString() const
@@ -100,15 +100,11 @@ QString BreakpointResponse::toString() const
     QString result;
     QTextStream ts(&result);
     ts << number;
-    ts << condition;
-    ts << ignoreCount;
-    ts << fileName;
+    ts << pending;
     ts << fullName;
-    ts << lineNumber;
-    ts << threadSpec;
-    ts << functionName;
-    ts << address;
-    return result;
+    ts << multiple;
+    ts << extra;
+    return result + BreakpointParameters::toString();
 }
 
 void BreakpointResponse::fromParameters(const BreakpointParameters &p)

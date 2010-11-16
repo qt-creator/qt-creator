@@ -569,17 +569,12 @@ static bool isAllowedTransition(BreakpointState from, BreakpointState to)
         return to == BreakpointInsertProceeding;
     case BreakpointInsertProceeding:
         return to == BreakpointInserted
-            || to == BreakpointPending
             || to == BreakpointDead;
     case BreakpointChangeRequested:
         return to == BreakpointChangeProceeding;
     case BreakpointChangeProceeding:
         return to == BreakpointInserted
-            || to == BreakpointPending
             || to == BreakpointDead;
-    case BreakpointPending:
-        return to == BreakpointChangeRequested
-            || to == BreakpointRemoveRequested;
     case BreakpointInserted:
         return to == BreakpointChangeRequested
             || to == BreakpointRemoveRequested;
@@ -610,6 +605,18 @@ void BreakHandler::setState(BreakpointId id, BreakpointState state)
     it->state = state;
 }
 
+static bool needsChange(const BreakpointParameters &data,
+    const BreakpointResponse &response)
+{
+    if (!data.conditionsMatch(response.condition))
+        return true;
+    if (data.ignoreCount != response.ignoreCount)
+        return true;
+    if (data.enabled != response.enabled)
+        return true;
+    return false;
+}
+
 void BreakHandler::notifyBreakpointInsertProceeding(BreakpointId id)
 {
     QTC_ASSERT(state(id)== BreakpointInsertRequested, /**/);
@@ -620,6 +627,12 @@ void BreakHandler::notifyBreakpointInsertOk(BreakpointId id)
 {
     QTC_ASSERT(state(id)== BreakpointInsertProceeding, /**/);
     setState(id, BreakpointInserted);
+    ConstIterator it = m_storage.find(id);
+    QTC_ASSERT(it != m_storage.end(), return);
+    if (needsChange(it->data, it->response)) {
+        setState(id, BreakpointChangeRequested);
+        scheduleSynchronization();
+    }
 }
 
 void BreakHandler::notifyBreakpointInsertFailed(BreakpointId id)
@@ -658,12 +671,6 @@ void BreakHandler::notifyBreakpointChangeFailed(BreakpointId id)
 {
     QTC_ASSERT(state(id) == BreakpointChangeProceeding, /**/);
     setState(id, BreakpointDead);
-}
-
-void BreakHandler::notifyBreakpointPending(BreakpointId id)
-{
-    //QTC_ASSERT(state(id)== BreakpointInsertProceeding, /**/);
-    setState(id, BreakpointPending);
 }
 
 void BreakHandler::notifyBreakpointReleased(BreakpointId id)
@@ -902,7 +909,7 @@ void BreakHandler::setResponse(BreakpointId id, const BreakpointResponse &data)
 {
     Iterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return);
-    it->response = BreakpointResponse(data);
+    it->response = data;
     updateMarker(id);
 }
 
@@ -952,7 +959,6 @@ static QString stateToString(BreakpointState state)
         case BreakpointInsertProceeding: return "insertion proceeding";
         case BreakpointChangeRequested: return "change requested";
         case BreakpointChangeProceeding: return "change proceeding";
-        case BreakpointPending: return "breakpoint pending";
         case BreakpointInserted: return "breakpoint inserted";
         case BreakpointRemoveRequested: return "removal requested";
         case BreakpointRemoveProceeding: return "removal is proceeding";

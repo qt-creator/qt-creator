@@ -65,7 +65,6 @@ enum BreakpointState
     BreakpointInsertProceeding,
     BreakpointChangeRequested,
     BreakpointChangeProceeding,
-    BreakpointPending,
     BreakpointInserted,
     BreakpointRemoveRequested,
     BreakpointRemoveProceeding,
@@ -110,6 +109,7 @@ public:
     void fromParameters(const BreakpointParameters &p);
 
     int number;             // Breakpoint number assigned by the debugger engine.
+    bool pending;           // Breakpoint not fully resolved.
     QString fullName;       // Full file name acknowledged by the debugger engine.
     bool multiple;          // Happens in constructors/gdb.
     QByteArray extra;       // gdb: <PENDING>, <MULTIPLE>

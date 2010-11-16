@@ -2026,7 +2026,6 @@ void GdbEngine::updateBreakpointDataFromOutput(BreakpointId id, const GdbMi &bkp
     QTC_ASSERT(bkpt.isValid(), return);
     BreakpointResponse response = breakHandler()->response(id);
 
-    bool pending = false;
     response.multiple = false;
     response.enabled = true;
     response.condition.clear();
@@ -2065,8 +2064,7 @@ void GdbEngine::updateBreakpointDataFromOutput(BreakpointId id, const GdbMi &bkp
         } else if (child.hasName("enabled")) {
             response.enabled = (child.data() == "y");
         } else if (child.hasName("pending")) {
-            //data->setState(BreakpointPending);
-            pending = true;
+            response.pending = true;
             // Any content here would be interesting only if we did accept
             // spontaneously appearing breakpoints (user using gdb commands).
         } else if (child.hasName("at")) {
@@ -2104,12 +2102,8 @@ void GdbEngine::updateBreakpointDataFromOutput(BreakpointId id, const GdbMi &bkp
     if (!name.isEmpty())
         response.fileName = name;
 
-    // FIXME: Should this honour current state?
-    if (pending)
-        breakHandler()->notifyBreakpointPending(id);
-    else
-        breakHandler()->notifyBreakpointInsertOk(id);
     breakHandler()->setResponse(id, response);
+    breakHandler()->notifyBreakpointInsertOk(id);
 }
 
 QString GdbEngine::breakLocation(const QString &file) const

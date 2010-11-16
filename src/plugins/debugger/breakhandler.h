@@ -176,8 +176,7 @@ private:
         BreakpointItem();
 
         void destroyMarker();
-        bool isPending() const { return state == BreakpointPending
-            || state == BreakpointNew; }
+        bool isPending() const { return response.pending; }
         bool isLocatedAt(const QString &fileName, int lineNumber,
             bool useMarkerPosition) const;
         QString toToolTip() const;
