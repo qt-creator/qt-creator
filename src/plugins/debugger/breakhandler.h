@@ -177,6 +177,7 @@ private:
 
         void destroyMarker();
         bool isPending() const { return response.pending; }
+        bool needsChange() const;
         bool isLocatedAt(const QString &fileName, int lineNumber,
             bool useMarkerPosition) const;
         QString toToolTip() const;

@@ -2103,7 +2103,6 @@ void GdbEngine::updateBreakpointDataFromOutput(BreakpointId id, const GdbMi &bkp
         response.fileName = name;
 
     breakHandler()->setResponse(id, response);
-    breakHandler()->notifyBreakpointInsertOk(id);
 }
 
 QString GdbEngine::breakLocation(const QString &file) const

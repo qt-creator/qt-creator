@@ -592,6 +592,7 @@ static bool isAllowedTransition(BreakpointState from, BreakpointState to)
 void BreakHandler::setState(BreakpointId id, BreakpointState state)
 {
     Iterator it = m_storage.find(id);
+    //qDebug() << "BREAKPOINT STATE TRANSITION" << id << it->state << state;
     QTC_ASSERT(it != m_storage.end(), return);
     QTC_ASSERT(isAllowedTransition(it->state, state),
         qDebug() << "UNEXPECTED BREAKPOINT STATE TRANSITION"
@@ -605,45 +606,33 @@ void BreakHandler::setState(BreakpointId id, BreakpointState state)
     it->state = state;
 }
 
-static bool needsChange(const BreakpointParameters &data,
-    const BreakpointResponse &response)
-{
-    if (!data.conditionsMatch(response.condition))
-        return true;
-    if (data.ignoreCount != response.ignoreCount)
-        return true;
-    if (data.enabled != response.enabled)
-        return true;
-    return false;
-}
-
 void BreakHandler::notifyBreakpointInsertProceeding(BreakpointId id)
 {
-    QTC_ASSERT(state(id)== BreakpointInsertRequested, /**/);
+    QTC_ASSERT(state(id) == BreakpointInsertRequested, /**/);
     setState(id, BreakpointInsertProceeding);
 }
 
 void BreakHandler::notifyBreakpointInsertOk(BreakpointId id)
 {
-    QTC_ASSERT(state(id)== BreakpointInsertProceeding, /**/);
+    QTC_ASSERT(state(id) == BreakpointInsertProceeding, /**/);
     setState(id, BreakpointInserted);
     ConstIterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return);
-    if (needsChange(it->data, it->response)) {
-        setState(id, BreakpointChangeRequested);
-        scheduleSynchronization();
-    }
+    //if (it0->needsChange(it->data, it->response)) {
+    //    setState(id, BreakpointChangeRequested);
+    //    scheduleSynchronization();
+    //}
 }
 
 void BreakHandler::notifyBreakpointInsertFailed(BreakpointId id)
 {
-    QTC_ASSERT(state(id)== BreakpointInsertProceeding, /**/);
+    QTC_ASSERT(state(id) == BreakpointInsertProceeding, /**/);
     setState(id, BreakpointDead);
 }
 
 void BreakHandler::notifyBreakpointRemoveProceeding(BreakpointId id)
 {
-    QTC_ASSERT(state(id)== BreakpointRemoveRequested, /**/);
+    QTC_ASSERT(state(id) == BreakpointRemoveRequested, /**/);
     setState(id, BreakpointRemoveProceeding);
 }
 
@@ -911,6 +900,14 @@ void BreakHandler::setResponse(BreakpointId id, const BreakpointResponse &data)
     QTC_ASSERT(it != m_storage.end(), return);
     it->response = data;
     updateMarker(id);
+    //qDebug() << "SET RESPONSE: " << id << it->state << it->needsChange();
+    if (it->state == BreakpointChangeProceeding
+        || it->state == BreakpointInsertProceeding) {
+        if (it->needsChange())
+            setState(id, BreakpointChangeRequested);
+        else
+            setState(id, BreakpointInserted);
+    }
 }
 
 void BreakHandler::setBreakpointData(BreakpointId id, const BreakpointParameters &data)
@@ -966,6 +963,17 @@ static QString stateToString(BreakpointState state)
         default: return "<invalid state>";
     }
 };
+
+bool BreakHandler::BreakpointItem::needsChange() const
+{
+    if (!data.conditionsMatch(response.condition))
+        return true;
+    if (data.ignoreCount != response.ignoreCount)
+        return true;
+    if (data.enabled != response.enabled)
+        return true;
+    return false;
+}
 
 bool BreakHandler::BreakpointItem::isLocatedAt
     (const QString &fileName, int lineNumber, bool useMarkerPosition) const
