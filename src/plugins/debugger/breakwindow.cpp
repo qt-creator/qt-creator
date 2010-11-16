@@ -58,11 +58,17 @@ namespace Internal {
 
 ///////////////////////////////////////////////////////////////////////
 //
-// BreakpointDialog
+// BreakpointDialog: Show a dialog for editing breakpoints. Shows controls
+// for the file-and-line, function and address parameters depending on the
+// breakpoint type. The controls not applicable to the current type
+// (say function name for file-and-line) are disabled and cleared out.
+// However,the values are saved and restored once the respective mode
+// is again choosen, which is done using m_savedParameters and
+// setters/getters taking the parts mask enumeration parameter.
 //
 ///////////////////////////////////////////////////////////////////////
 
-class BreakpointDialog : public QDialog, public Ui::BreakpointDialog
+class BreakpointDialog : public QDialog
 {
     Q_OBJECT
 public:
@@ -76,88 +82,204 @@ public slots:
     void typeChanged(int index);
 
 private:
+    enum DialogPart { FileAndLinePart = 0x1,
+                      FunctionPart = 0x2,
+                      AddressPart = 0x4,
+                      AllParts = FileAndLinePart|FunctionPart|AddressPart };
+
+    void setPartsEnabled(unsigned partsMask, bool e);
+    void clearParts(unsigned partsMask);
+    void getParts(unsigned partsMask, BreakpointParameters *p) const;
+    void setParts(unsigned partsMask, const BreakpointParameters &p);
+
     void setType(BreakpointType type);
     BreakpointType type() const;
+
+    Ui::BreakpointDialog m_ui;
+    BreakpointParameters m_savedParameters;
+    BreakpointType m_previousType;
 };
 
-BreakpointDialog::BreakpointDialog(QWidget *parent) : QDialog(parent)
+BreakpointDialog::BreakpointDialog(QWidget *parent) :
+    QDialog(parent), m_previousType(UnknownType)
 {
-    // match BreakpointType (except unknown type) with additional item
-    setupUi(this);
+    // match BreakpointType (omitting unknown type)
+    m_ui.setupUi(this);
     QStringList types;
     types << tr("File and Line Number") << tr("Function Name") << tr("Address")
           << tr("throw") << tr("catch") << tr("Function \"main()\"")
           << tr("Address (Watchpoint)");
     QTC_ASSERT(types.size() == Watchpoint, return; )
-    comboBoxType->addItems(types);
-    pathChooserFileName->setExpectedKind(Utils::PathChooser::File);
-    connect(comboBoxType, SIGNAL(activated(int)), SLOT(typeChanged(int)));
-    lineEditIgnoreCount->setValidator(
-        new QIntValidator(0, 2147483647, lineEditIgnoreCount));
+    m_ui.comboBoxType->addItems(types);
+    m_ui.pathChooserFileName->setExpectedKind(Utils::PathChooser::File);
+    connect(m_ui.comboBoxType, SIGNAL(activated(int)), SLOT(typeChanged(int)));
+    m_ui.lineEditIgnoreCount->setValidator(
+        new QIntValidator(0, 2147483647, m_ui.lineEditIgnoreCount));
 }
 
 void BreakpointDialog::setType(BreakpointType type)
 {
     const int comboIndex = type - 1; // Skip UnknownType
-    if (comboIndex != comboBoxType->currentIndex()) {
-        comboBoxType->setCurrentIndex(comboIndex);
+    if (comboIndex != m_ui.comboBoxType->currentIndex()) {
+        m_ui.comboBoxType->setCurrentIndex(comboIndex);
         typeChanged(comboIndex);
     }
 }
 
 BreakpointType BreakpointDialog::type() const
 {
-    const int type = comboBoxType->currentIndex() + 1; // Skip unknown type
+    const int type = m_ui.comboBoxType->currentIndex() + 1; // Skip unknown type
     return static_cast<BreakpointType>(type);
 }
 
 void BreakpointDialog::setParameters(const BreakpointParameters &p)
 {
-    pathChooserFileName->setPath(p.fileName);
-    lineEditLineNumber->setText(QString::number(p.lineNumber));
-    lineEditFunction->setText(p.functionName);
-    lineEditCondition->setText(QString::fromUtf8(p.condition));
-    lineEditIgnoreCount->setText(QString::number(p.ignoreCount));
-    checkBoxUseFullPath->setChecked(p.useFullPath);
-    lineEditThreadSpec->setText(p.threadSpec);
-    const quint64 address = p.address;
-    if (address)
-        lineEditAddress->setText(QString::fromAscii("0x%1").arg(address, 0, 16));
+    m_savedParameters = p;
     setType(p.type);
+    setParts(AllParts, p);
+    m_ui.lineEditCondition->setText(QString::fromUtf8(p.condition));
+    m_ui.lineEditIgnoreCount->setText(QString::number(p.ignoreCount));
+    m_ui.lineEditThreadSpec->setText(p.threadSpec);
 }
 
 BreakpointParameters BreakpointDialog::parameters() const
 {
     BreakpointParameters rc(type());
-    rc.lineNumber = lineEditLineNumber->text().toInt();
-    rc.useFullPath = checkBoxUseFullPath->isChecked();
-    rc.address = lineEditAddress->text().toULongLong(0, 0);
-    rc.functionName = lineEditFunction->text();
-    rc.fileName = pathChooserFileName->path();
-    rc.condition = lineEditCondition->text().toUtf8();
-    rc.ignoreCount = lineEditIgnoreCount->text().toInt();
-    rc.threadSpec = lineEditThreadSpec->text().toUtf8();
+    getParts(AllParts, &rc);
+    rc.condition = m_ui.lineEditCondition->text().toUtf8();
+    rc.ignoreCount = m_ui.lineEditIgnoreCount->text().toInt();
+    rc.threadSpec = m_ui.lineEditThreadSpec->text().toUtf8();
     return rc;
+}
+
+void BreakpointDialog::setPartsEnabled(unsigned partsMask, bool e)
+{
+    if (partsMask & FileAndLinePart) {
+        m_ui.labelFileName->setEnabled(e);
+        m_ui.pathChooserFileName->setEnabled(e);
+        m_ui.labelLineNumber->setEnabled(e);
+        m_ui.lineEditLineNumber->setEnabled(e);
+        m_ui.labelUseFullPath->setEnabled(e);
+        m_ui.checkBoxUseFullPath->setEnabled(e);
+    }
+
+    if (partsMask & FunctionPart) {
+        m_ui.labelFunction->setEnabled(e);
+        m_ui.lineEditFunction->setEnabled(e);
+    }
+
+    if (partsMask & AddressPart) {
+        m_ui.labelAddress->setEnabled(e);
+        m_ui.lineEditAddress->setEnabled(e);
+    }
+}
+
+void BreakpointDialog::clearParts(unsigned partsMask)
+{
+    if (partsMask & FileAndLinePart) {
+        m_ui.pathChooserFileName->setPath(QString());
+        m_ui.lineEditLineNumber->clear();
+        m_ui.checkBoxUseFullPath->setChecked(false);
+    }
+
+    if (partsMask & FunctionPart)
+        m_ui.lineEditFunction->clear();
+
+    if (partsMask & AddressPart)
+        m_ui.lineEditAddress->clear();
+}
+
+void BreakpointDialog::getParts(unsigned partsMask, BreakpointParameters *p) const
+{
+    if (partsMask & FileAndLinePart) {
+        p->lineNumber = m_ui.lineEditLineNumber->text().toInt();
+        p->useFullPath = m_ui.checkBoxUseFullPath->isChecked();
+        p->fileName = m_ui.pathChooserFileName->path();
+    }
+    if (partsMask & FunctionPart)
+        p->functionName = m_ui.lineEditFunction->text();
+
+    if (partsMask & AddressPart)
+        p->address = m_ui.lineEditAddress->text().toULongLong(0, 0);
+}
+
+void BreakpointDialog::setParts(unsigned mask, const BreakpointParameters &p)
+{
+    if (mask & FileAndLinePart) {
+        m_ui.pathChooserFileName->setPath(p.fileName);
+        m_ui.lineEditLineNumber->setText(QString::number(p.lineNumber));
+        m_ui.checkBoxUseFullPath->setChecked(p.useFullPath);
+    }
+
+    if (mask & FunctionPart)
+        m_ui.lineEditFunction->setText(p.functionName);
+
+    if (mask & AddressPart) {
+        if (p.address) {
+            m_ui.lineEditAddress->setText(QString::fromAscii("0x%1").arg(p.address, 0, 16));
+        } else {
+            m_ui.lineEditAddress->clear();
+        }
+    }
 }
 
 void BreakpointDialog::typeChanged(int)
 {
-    const BreakpointType t = type();
-    const bool isLineVisible = t == BreakpointByFileAndLine;
-    const bool isFunctionVisible = t == BreakpointByFunction || t == BreakpointAtMain;
-    const bool isAddressVisible = t == BreakpointByAddress || t == Watchpoint;
-    labelFileName->setEnabled(isLineVisible);
-    pathChooserFileName->setEnabled(isLineVisible);
-    labelLineNumber->setEnabled(isLineVisible);
-    lineEditLineNumber->setEnabled(isLineVisible);
-    labelUseFullPath->setEnabled(isLineVisible);
-    checkBoxUseFullPath->setEnabled(isLineVisible);
-    labelFunction->setEnabled(isFunctionVisible);
-    lineEditFunction->setEnabled(isFunctionVisible);
-    labelAddress->setEnabled(isAddressVisible);
-    lineEditAddress->setEnabled(isAddressVisible);
-    if (t == BreakpointAtMain)
-        lineEditFunction->setText(QLatin1String("main"));
+    BreakpointType previousType = m_previousType;
+    const BreakpointType newType = type();
+    m_previousType = newType;
+    switch(previousType) { // Save current state
+    case UnknownType:
+        break;
+    case BreakpointByFileAndLine:
+        getParts(FileAndLinePart, &m_savedParameters);
+        break;
+    case BreakpointByFunction:
+        getParts(FunctionPart, &m_savedParameters);
+        break;
+    case BreakpointAtThrow:
+    case BreakpointAtCatch:
+    case BreakpointAtMain:
+        break;
+    case BreakpointByAddress:
+    case Watchpoint:
+        getParts(AddressPart, &m_savedParameters);
+        break;
+    }
+
+    switch (newType) { // Enable and set up new state from saved values
+    case UnknownType:
+        break;
+    case BreakpointByFileAndLine:
+        setParts(FileAndLinePart, m_savedParameters);
+        setPartsEnabled(FileAndLinePart, true);
+        clearParts(FunctionPart|AddressPart);
+        setPartsEnabled(FunctionPart|AddressPart, false);
+        break;
+    case BreakpointByFunction:
+        setParts(FunctionPart, m_savedParameters);
+        setPartsEnabled(FunctionPart, true);
+        clearParts(FileAndLinePart|AddressPart);
+        setPartsEnabled(FileAndLinePart|AddressPart, false);
+        break;
+    case BreakpointAtThrow:
+    case BreakpointAtCatch:
+        clearParts(AllParts);
+        setPartsEnabled(AllParts, false);
+        break;
+    case BreakpointAtMain:
+        m_ui.lineEditFunction->setText(QLatin1String("main")); // Just for display
+        clearParts(FileAndLinePart|AddressPart);
+        setPartsEnabled(AllParts, false);
+        break;
+    case BreakpointByAddress:
+    case Watchpoint:
+        setParts(AddressPart, m_savedParameters);
+        setPartsEnabled(AddressPart, true);
+        clearParts(FileAndLinePart|FunctionPart);
+        setPartsEnabled(FileAndLinePart|FunctionPart, false);
+        break;
+    }
 }
 
 bool BreakpointDialog::showDialog(BreakpointParameters *data)
