@@ -160,8 +160,9 @@ bool QmlStandaloneApp::setExternalModules(const QStringList &uris,
 
 QString QmlStandaloneApp::pathExtended(int fileType) const
 {
+    QString cleanProjectName = projectName().replace(QLatin1Char('-'), QString());
     const QString qmlSubDir = QLatin1String("qml/")
-                              + (useExistingMainQml() ? m_mainQmlFile.dir().dirName() : projectName())
+                              + (useExistingMainQml() ? m_mainQmlFile.dir().dirName() : cleanProjectName)
                               + QLatin1Char('/');   
     const QString appViewerTargetSubDir = appViewerOriginsSubDir;
     const QString mainQml = QLatin1String("main.qml");

@@ -157,20 +157,22 @@ QString AbstractMobileApp::path(int fileType) const
     const QString originsRootShared = templatesRoot() + QLatin1String("shared/");
     const QString mainCppFileName = QLatin1String("main.cpp");
     const QString symbianIconFileName = QLatin1String("symbianicon.svg");
+    QString cleanProjectName = m_projectName;
+    cleanProjectName.replace(QLatin1Char('-'), QString());
     switch (fileType) {
         case MainCpp:               return outputPathBase() + mainCppFileName;
         case MainCppOrigin:         return originsRootApp + mainCppFileName;
-        case AppPro:                return outputPathBase() + m_projectName + QLatin1String(".pro");
+        case AppPro:                return outputPathBase() + cleanProjectName + QLatin1String(".pro");
         case AppProOrigin:          return originsRootApp + QLatin1String("app.pro");
         case AppProPath:            return outputPathBase();
-        case Desktop:               return outputPathBase() + m_projectName + QLatin1String(".desktop");
+        case Desktop:               return outputPathBase() + cleanProjectName + QLatin1String(".desktop");
         case DesktopOrigin:         return originsRootShared + QLatin1String("app.desktop");
         case DeploymentPri:         return outputPathBase() + DeploymentPriFileName;
         case DeploymentPriOrigin:   return originsRootShared + DeploymentPriFileName;
-        case SymbianSvgIcon:        return outputPathBase() + projectName() + QLatin1String(".svg");
+        case SymbianSvgIcon:        return outputPathBase() + cleanProjectName + QLatin1String(".svg");
         case SymbianSvgIconOrigin:  return !m_symbianSvgIcon.isEmpty() ? m_symbianSvgIcon
                                         : originsRootShared + symbianIconFileName;
-        case MaemoPngIcon:          return outputPathBase() + projectName() +  QLatin1String(".png");
+        case MaemoPngIcon:          return outputPathBase() + cleanProjectName +  QLatin1String(".png");
         case MaemoPngIconOrigin:    return !m_maemoPngIcon.isEmpty() ? m_maemoPngIcon
                                         : originsRootShared + QLatin1String("maemoicon.png");
         default:                    return pathExtended(fileType);
