@@ -105,8 +105,6 @@ public:
         void setter(BreakpointId id, const type &value);
 
     PROPERTY(bool, useFullPath, setUseFullPath)
-    //PROPERTY(QString, markerFileName, setMarkerFileName)
-    //PROPERTY(int, markerLineNumber, setMarkerLineNumber)
     PROPERTY(QByteArray, condition, setCondition)
     PROPERTY(int, ignoreCount, setIgnoreCount)
     PROPERTY(QByteArray, threadSpec, setThreadSpec)
@@ -134,15 +132,19 @@ public:
     void ackIgnoreCount(BreakpointId id);
     void ackEnabled(BreakpointId id);
 
+    // State transitions.
+    void notifyBreakpointInsertProceeding(BreakpointId id);
     void notifyBreakpointInsertOk(BreakpointId id);
     void notifyBreakpointInsertFailed(BreakpointId id);
     void notifyBreakpointChangeOk(BreakpointId id);
     void notifyBreakpointChangeFailed(BreakpointId id);
+    void notifyBreakpointPending(BreakpointId id);
+    void notifyBreakpointRemoveProceeding(BreakpointId id);
     void notifyBreakpointRemoveOk(BreakpointId id);
     void notifyBreakpointRemoveFailed(BreakpointId id);
     void notifyBreakpointReleased(BreakpointId id);
 
-
+private:
 public:
     // FIXME: Make private.
     void setState(BreakpointId id, BreakpointState state);
@@ -150,7 +152,7 @@ public:
 private:
     friend class BreakpointMarker;
 
-    // QAbstractItemModel
+    // QAbstractItemModel implementation.
     int columnCount(const QModelIndex &parent) const;
     int rowCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;

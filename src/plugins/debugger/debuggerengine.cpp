@@ -685,7 +685,7 @@ static bool isAllowedTransition(DebuggerState from, DebuggerState to)
         return to == EngineSetupRequested; // Happens on restart.
     }
 
-    qDebug() << "UNKNOWN STATE:" << from;
+    qDebug() << "UNKNOWN DEBUGGER STATE:" << from;
     return false;
 }
 

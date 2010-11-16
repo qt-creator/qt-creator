@@ -341,6 +341,16 @@ BreakpointIds BreakHandler::findBreakpointsByIndex(const QList<QModelIndex> &lis
     return ids;
 }
 
+Qt::ItemFlags BreakHandler::flags(const QModelIndex &index) const
+{
+//    switch (index.column()) {
+//        //case 0:
+//        //    return Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
+//        default:
+            return QAbstractTableModel::flags(index);
+//    }
+}
+
 QVariant BreakHandler::data(const QModelIndex &mi, int role) const
 {
     static const QString empty = QString(QLatin1Char('-'));
@@ -531,19 +541,6 @@ BreakpointState BreakHandler::state(BreakpointId id) const
     return it->state;
 }
 
-void BreakHandler::setState(BreakpointId id, BreakpointState state)
-{
-    Iterator it = m_storage.find(id);
-    QTC_ASSERT(it != m_storage.end(), return);
-    if (it->state == state) {
-        qDebug() << "STATE UNCHANGED: " << id << state;
-        return;
-    }
-    it->state = state;
-    updateMarker(id);
-    layoutChanged();
-}
-
 DebuggerEngine *BreakHandler::engine(BreakpointId id) const
 {
     ConstIterator it = m_storage.find(id);
@@ -561,6 +558,124 @@ void BreakHandler::setEngine(BreakpointId id, DebuggerEngine *value)
     it->state = BreakpointInsertRequested;
     updateMarker(id);
     scheduleSynchronization();
+}
+
+static bool isAllowedTransition(BreakpointState from, BreakpointState to)
+{
+    switch (from) {
+    case BreakpointNew:
+        return to == BreakpointInsertRequested;
+    case BreakpointInsertRequested:
+        return to == BreakpointInsertProceeding;
+    case BreakpointInsertProceeding:
+        return to == BreakpointInserted
+            || to == BreakpointPending
+            || to == BreakpointDead;
+    case BreakpointChangeRequested:
+        return to == BreakpointChangeProceeding;
+    case BreakpointChangeProceeding:
+        return to == BreakpointInserted
+            || to == BreakpointPending
+            || to == BreakpointDead;
+    case BreakpointPending:
+        return false;
+    case BreakpointInserted:
+        return false;
+    case BreakpointRemoveRequested:
+        return false;
+    case BreakpointRemoveProceeding:
+        return false;
+    case BreakpointDead:
+        return false;
+    }
+    qDebug() << "UNKNOWN BREAKPOINT STATE:" << from;
+    return false;
+}
+
+void BreakHandler::setState(BreakpointId id, BreakpointState state)
+{
+    Iterator it = m_storage.find(id);
+    QTC_ASSERT(it != m_storage.end(), return);
+    QTC_ASSERT(isAllowedTransition(it->state, state),
+        qDebug() << "UNEXPECTED BREAKPOINT STATE TRANSITION"
+            << it->state << state);
+
+    if (it->state == state) {
+        qDebug() << "STATE UNCHANGED: " << id << state;
+        return;
+    }
+
+    it->state = state;
+}
+
+void BreakHandler::notifyBreakpointInsertProceeding(BreakpointId id)
+{
+    QTC_ASSERT(state(id)== BreakpointInsertRequested, /**/);
+    setState(id, BreakpointInsertProceeding);
+}
+
+void BreakHandler::notifyBreakpointInsertOk(BreakpointId id)
+{
+    QTC_ASSERT(state(id)== BreakpointInsertProceeding, /**/);
+    setState(id, BreakpointInserted);
+}
+
+void BreakHandler::notifyBreakpointInsertFailed(BreakpointId id)
+{
+    QTC_ASSERT(state(id)== BreakpointInsertProceeding, /**/);
+    setState(id, BreakpointDead);
+}
+
+void BreakHandler::notifyBreakpointRemoveProceeding(BreakpointId id)
+{
+    QTC_ASSERT(state(id)== BreakpointRemoveRequested, /**/);
+    setState(id, BreakpointInsertProceeding);
+}
+
+void BreakHandler::notifyBreakpointRemoveOk(BreakpointId id)
+{
+    QTC_ASSERT(state(id) == BreakpointRemoveProceeding, /**/);
+    setState(id, BreakpointDead);
+    cleanupBreakpoint(id);
+}
+
+void BreakHandler::notifyBreakpointRemoveFailed(BreakpointId id)
+{
+    QTC_ASSERT(state(id) == BreakpointRemoveProceeding, /**/);
+    setState(id, BreakpointDead);
+    cleanupBreakpoint(id);
+}
+
+void BreakHandler::notifyBreakpointChangeOk(BreakpointId id)
+{
+    QTC_ASSERT(state(id) == BreakpointChangeProceeding, /**/);
+    setState(id, BreakpointInserted);
+}
+
+void BreakHandler::notifyBreakpointChangeFailed(BreakpointId id)
+{
+    QTC_ASSERT(state(id) == BreakpointChangeProceeding, /**/);
+    setState(id, BreakpointDead);
+}
+
+void BreakHandler::notifyBreakpointPending(BreakpointId id)
+{
+    //QTC_ASSERT(state(id)== BreakpointInsertProceeding, /**/);
+    setState(id, BreakpointPending);
+}
+
+void BreakHandler::notifyBreakpointReleased(BreakpointId id)
+{
+    //QTC_ASSERT(state(id) == BreakpointChangeProceeding, /**/);
+    Iterator it = m_storage.find(id);
+    QTC_ASSERT(it != m_storage.end(), return);
+    it->state = BreakpointNew;
+    it->engine = 0;
+    it->response = BreakpointResponse();
+    delete it->marker;
+    it->marker = 0;
+    updateMarker(id);
+    layoutChanged();
 }
 
 void BreakHandler::ackCondition(BreakpointId id)
@@ -585,16 +700,6 @@ void BreakHandler::ackEnabled(BreakpointId id)
     QTC_ASSERT(it != m_storage.end(), return);
     it->response.enabled = it->data.enabled;
     updateMarker(id);
-}
-
-Qt::ItemFlags BreakHandler::flags(const QModelIndex &index) const
-{
-//    switch (index.column()) {
-//        //case 0:
-//        //    return Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
-//        default:
-            return QAbstractTableModel::flags(index);
-//    }
 }
 
 void BreakHandler::removeBreakpoint(BreakpointId id)
@@ -773,58 +878,6 @@ BreakpointIds BreakHandler::engineBreakpointIds(DebuggerEngine *engine) const
         if (it->engine == engine)
             ids.append(it.key());
     return ids;
-}
-
-void BreakHandler::notifyBreakpointInsertOk(BreakpointId id)
-{
-    QTC_ASSERT(state(id)== BreakpointInsertProceeding, /**/);
-    setState(id, BreakpointInserted);
-}
-
-void BreakHandler::notifyBreakpointInsertFailed(BreakpointId id)
-{
-    QTC_ASSERT(state(id)== BreakpointInsertProceeding, /**/);
-    setState(id, BreakpointDead);
-}
-
-void BreakHandler::notifyBreakpointRemoveOk(BreakpointId id)
-{
-    QTC_ASSERT(state(id) == BreakpointRemoveProceeding, /**/);
-    setState(id, BreakpointDead);
-    cleanupBreakpoint(id);
-}
-
-void BreakHandler::notifyBreakpointRemoveFailed(BreakpointId id)
-{
-    QTC_ASSERT(state(id) == BreakpointRemoveProceeding, /**/);
-    setState(id, BreakpointDead);
-    cleanupBreakpoint(id);
-}
-
-void BreakHandler::notifyBreakpointChangeOk(BreakpointId id)
-{
-    QTC_ASSERT(state(id) == BreakpointChangeProceeding, /**/);
-    setState(id, BreakpointInserted);
-}
-
-void BreakHandler::notifyBreakpointChangeFailed(BreakpointId id)
-{
-    QTC_ASSERT(state(id) == BreakpointChangeProceeding, /**/);
-    setState(id, BreakpointDead);
-}
-
-void BreakHandler::notifyBreakpointReleased(BreakpointId id)
-{
-    //QTC_ASSERT(state(id) == BreakpointChangeProceeding, /**/);
-    Iterator it = m_storage.find(id);
-    QTC_ASSERT(it != m_storage.end(), return);
-    it->state = BreakpointNew;
-    it->engine = 0;
-    it->response = BreakpointResponse();
-    delete it->marker;
-    it->marker = 0;
-    updateMarker(id);
-    layoutChanged();
 }
 
 void BreakHandler::cleanupBreakpoint(BreakpointId id)

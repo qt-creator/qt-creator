@@ -630,7 +630,7 @@ bool ScriptEngine::checkForBreakCondition(bool byFunction)
         br.lineNumber = lineNumber;
         br.fileName = fileName;
         br.functionName = functionName;
-        handler->setState(id, BreakpointInserted);
+        handler->notifyBreakpointInsertOk(id);
         handler->setResponse(id, br);
     }
     notifyInferiorSpontaneousStop();

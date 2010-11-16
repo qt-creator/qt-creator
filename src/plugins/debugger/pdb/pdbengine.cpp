@@ -333,7 +333,7 @@ void PdbEngine::attemptBreakpointSynchronization()
     bool updateNeeded = false;
     foreach (BreakpointId id, handler->engineBreakpointIds(this)) {
         if (handler->state(id) == BreakpointInsertRequested) {
-            handler->setState(id, BreakpointInserted); // FIXME
+            handler->notifyBreakpointInsertOk(id);
             updateNeeded = true;
 
             QByteArray loc;

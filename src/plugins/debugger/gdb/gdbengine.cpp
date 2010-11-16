@@ -427,7 +427,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 const GdbMi bkpt = result.findChild("bkpt");
                 const int number = bkpt.findChild("number").data().toInt();
                 BreakpointId id = breakHandler()->findBreakpointByNumber(number);
-                setBreakpointDataFromOutput(id, bkpt);
+                updateBreakpointDataFromOutput(id, bkpt);
             } else {
                 qDebug() << "IGNORED ASYNC OUTPUT"
                     << asyncClass << result.toString();
@@ -2021,13 +2021,12 @@ void GdbEngine::setTokenBarrier()
 //
 //////////////////////////////////////////////////////////////////////
 
-void GdbEngine::setBreakpointDataFromOutput(BreakpointId id, const GdbMi &bkpt)
+void GdbEngine::updateBreakpointDataFromOutput(BreakpointId id, const GdbMi &bkpt)
 {
-    if (!bkpt.isValid())
-        return;
+    QTC_ASSERT(bkpt.isValid(), return);
+    BreakpointResponse response = breakHandler()->response(id);
 
-    BreakpointResponse response;
-    //data->pending = false;
+    bool pending = false;
     response.multiple = false;
     response.enabled = true;
     response.condition.clear();
@@ -2067,7 +2066,7 @@ void GdbEngine::setBreakpointDataFromOutput(BreakpointId id, const GdbMi &bkpt)
             response.enabled = (child.data() == "y");
         } else if (child.hasName("pending")) {
             //data->setState(BreakpointPending);
-            breakHandler()->setState(id, BreakpointPending);
+            pending = true;
             // Any content here would be interesting only if we did accept
             // spontaneously appearing breakpoints (user using gdb commands).
         } else if (child.hasName("at")) {
@@ -2105,6 +2104,11 @@ void GdbEngine::setBreakpointDataFromOutput(BreakpointId id, const GdbMi &bkpt)
     if (!name.isEmpty())
         response.fileName = name;
 
+    // FIXME: Should this honour current state?
+    if (pending)
+        breakHandler()->notifyBreakpointPending(id);
+    else
+        breakHandler()->notifyBreakpointInsertOk(id);
     breakHandler()->setResponse(id, response);
 }
 
@@ -2178,8 +2182,7 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
     if (response.resultClass == GdbResultDone) {
         // Interesting only on Mac?
         GdbMi bkpt = response.data.findChild("bkpt");
-        setBreakpointDataFromOutput(id, bkpt);
-        notifyBreakpointInsertOk(id);
+        updateBreakpointDataFromOutput(id, bkpt);
     } else {
         // Some versions of gdb like "GNU gdb (GDB) SUSE (6.8.91.20090930-2.4)"
         // know how to do pending breakpoints using CLI but not MI. So try
@@ -2255,10 +2258,10 @@ void GdbEngine::handleBreakList(const GdbMi &table)
         needle.fileName = _("xx");
         BreakpointId id = breakHandler()->findSimilarBreakpoint(needle);
         //qDebug() << "\n\nGOT: " << bkpt.toString() << '\n' << temp.toString();
-        // FIXME: use setBreakpointDataFromOutput(BreakpointId id, const GdbMi &bkpt)
+        // FIXME: use updateBreakpointDataFromOutput()
         if (id != BreakpointId(-1)) {
             //qDebug() << "  FROM: " << data->toString();
-            setBreakpointDataFromOutput(id, bkpt);
+            updateBreakpointDataFromOutput(id, bkpt);
             //qDebug() << "  TO: " << data->toString();
         } else {
             qDebug() << "  NOTHING SUITABLE FOUND";
@@ -2555,7 +2558,7 @@ void GdbEngine::insertBreakpoint(BreakpointId id)
     // by the MI interface.
     BreakHandler *handler = breakHandler();
     QTC_ASSERT(handler->state(id) == BreakpointInsertRequested, /**/);
-    handler->setState(id, BreakpointInsertProceeding);
+    handler->notifyBreakpointInsertProceeding(id);
     if (handler->type(id) == Watchpoint) {
         postCommand("watch " + addressSpec(handler->address(id)),
             NeedsStop | RebuildBreakpointModel,
@@ -2649,13 +2652,14 @@ void GdbEngine::removeBreakpoint(BreakpointId id)
 {
     BreakHandler *handler = breakHandler();
     QTC_ASSERT(handler->state(id) == BreakpointRemoveRequested, /**/);
-    handler->setState(id, BreakpointRemoveProceeding);
+    handler->notifyBreakpointRemoveProceeding(id);
     BreakpointResponse br = handler->response(id);
     showMessage(_("DELETING BP %1 IN ").arg(br.number)
         + handler->fileName(id));
     postCommand("-break-delete " + QByteArray::number(br.number),
         NeedsStop | RebuildBreakpointModel);
     // Pretend it succeeds without waiting for response. Feels better.
+    // FIXME: Really?
     handler->notifyBreakpointRemoveOk(id);
 }
 
