@@ -173,6 +173,9 @@ bool searchSymbols(CIDebugSymbols *syms, const QString &pattern,
     return true;
 }
 
+const char *cdbThrowFunction = "CxxThrowException";
+const char *cdbCatchFunction = "__CxxCallCatchBlock";
+
 // Helper for the resolveSymbol overloads.
 static ResolveSymbolResult resolveSymbol(CIDebugSymbols *syms, QString *symbol,
                                          QStringList *matches,
@@ -182,15 +185,9 @@ static ResolveSymbolResult resolveSymbol(CIDebugSymbols *syms, QString *symbol,
     // Is it an incomplete symbol?
     if (symbol->contains(QLatin1Char('!')))
         return ResolveSymbolOk;
-    // Throw and catch
-    bool withinMSVCRunTime = false;
-    if (*symbol == QLatin1String(BreakpointData::throwFunction)) {
-        *symbol = QLatin1String("CxxThrowException");
-        withinMSVCRunTime = true;
-    } else if (*symbol == QLatin1String(BreakpointData::catchFunction)) {
-        *symbol = QLatin1String("__CxxCallCatchBlock");
-        withinMSVCRunTime = true;
-    } else if (*symbol == QLatin1String("qMain")) // 'main' is a #define for gdb, but not for VS
+    const bool withinMSVCRunTime = *symbol == QLatin1String(cdbThrowFunction)
+            || *symbol == QLatin1String(cdbCatchFunction);
+    if (*symbol == QLatin1String("qMain")) // 'main' is a #define for gdb, but not for VS
         *symbol = QLatin1String("main");
     // resolve
     if (!searchSymbols(syms, *symbol, matches, errorMessage))

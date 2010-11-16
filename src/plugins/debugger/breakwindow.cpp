@@ -69,72 +69,83 @@ public:
     explicit BreakpointDialog(QWidget *parent);
     bool showDialog(BreakpointData *data);
 
+    void setParameters(const BreakpointParameters &p);
+    BreakpointParameters parameters() const;
+
 public slots:
     void typeChanged(int index);
+
+private:
+    void setType(BreakpointType type);
+    BreakpointType type() const;
 };
 
 BreakpointDialog::BreakpointDialog(QWidget *parent) : QDialog(parent)
 {
+    // match BreakpointType (except unknown type) with additional item
     setupUi(this);
-    comboBoxType->insertItem(0, tr("File and Line Number"));
-    comboBoxType->insertItem(1, tr("Function Name"));
-    comboBoxType->insertItem(2, tr("Function \"main()\""));
-    comboBoxType->insertItem(3, tr("Address"));
+    QStringList types;
+    types << tr("File and Line Number") << tr("Function Name") << tr("Address")
+          << tr("throw") << tr("catch") << tr("Function \"main()\"")
+          << tr("Address (Watchpoint)");
+    QTC_ASSERT(types.size() == Watchpoint, return; )
+    comboBoxType->addItems(types);
     pathChooserFileName->setExpectedKind(Utils::PathChooser::File);
     connect(comboBoxType, SIGNAL(activated(int)), SLOT(typeChanged(int)));
     lineEditIgnoreCount->setValidator(
         new QIntValidator(0, 2147483647, lineEditIgnoreCount));
 }
 
-bool BreakpointDialog::showDialog(BreakpointData *data)
+void BreakpointDialog::setType(BreakpointType type)
 {
-    pathChooserFileName->setPath(data->fileName());
-    lineEditLineNumber->setText(QString::number(data->lineNumber()));
-    lineEditFunction->setText(data->functionName());
-    lineEditCondition->setText(QString::fromUtf8(data->condition()));
-    lineEditIgnoreCount->setText(QString::number(data->ignoreCount()));
-    checkBoxUseFullPath->setChecked(data->useFullPath());
-    lineEditThreadSpec->setText(QString::fromUtf8(data->threadSpec()));
-    const quint64 address = data->address();
-    if (address)
-        lineEditAddress->setText(QString::fromAscii("0x%1").arg(address, 0, 16));
-    int initialType = 0;
-    if (!data->functionName().isEmpty())
-        initialType = data->functionName() == QLatin1String("main") ? 2 : 1;
-    if (address)
-        initialType = 3;
-    typeChanged(initialType);
-
-    if (exec() != QDialog::Accepted)
-        return false;
-
-    // Check if changed.
-    const int newLineNumber = lineEditLineNumber->text().toInt();
-    const bool newUseFullPath  = checkBoxUseFullPath->isChecked();
-    const quint64 newAddress = lineEditAddress->text().toULongLong(0, 0);
-    const QString newFunction = lineEditFunction->text();
-    const QString newFileName = pathChooserFileName->path();
-    const QByteArray newCondition = lineEditCondition->text().toUtf8();
-    const int newIgnoreCount = lineEditIgnoreCount->text().toInt();
-    const QByteArray newThreadSpec = lineEditThreadSpec->text().toUtf8();
-   
-    bool result = false; 
-    result |= data->setAddress(newAddress);
-    result |= data->setFunctionName(newFunction);
-    result |= data->setUseFullPath(newUseFullPath);
-    result |= data->setFileName(newFileName);
-    result |= data->setLineNumber(newLineNumber);
-    result |= data->setCondition(newCondition);
-    result |= data->setIgnoreCount(newIgnoreCount);
-    result |= data->setThreadSpec(newThreadSpec);
-    return result;
+    const int comboIndex = type - 1; // Skip UnknownType
+    if (comboIndex != comboBoxType->currentIndex()) {
+        comboBoxType->setCurrentIndex(comboIndex);
+        typeChanged(comboIndex);
+    }
 }
 
-void BreakpointDialog::typeChanged(int index)
+BreakpointType BreakpointDialog::type() const
 {
-    const bool isLineVisible = index == 0;
-    const bool isFunctionVisible = index == 1;
-    const bool isAddressVisible = index == 3;
+    const int type = comboBoxType->currentIndex() + 1; // Skip unknown type
+    return static_cast<BreakpointType>(type);
+}
+
+void BreakpointDialog::setParameters(const BreakpointParameters &p)
+{
+    pathChooserFileName->setPath(p.fileName);
+    lineEditLineNumber->setText(QString::number(p.lineNumber));
+    lineEditFunction->setText(p.functionName);
+    lineEditCondition->setText(QString::fromUtf8(p.condition));
+    lineEditIgnoreCount->setText(QString::number(p.ignoreCount));
+    checkBoxUseFullPath->setChecked(p.useFullPath);
+    lineEditThreadSpec->setText(p.threadSpec);
+    const quint64 address = p.address;
+    if (address)
+        lineEditAddress->setText(QString::fromAscii("0x%1").arg(address, 0, 16));
+    setType(p.type);
+}
+
+BreakpointParameters BreakpointDialog::parameters() const
+{
+    BreakpointParameters rc(type());
+    rc.lineNumber = lineEditLineNumber->text().toInt();
+    rc.useFullPath = checkBoxUseFullPath->isChecked();
+    rc.address = lineEditAddress->text().toULongLong(0, 0);
+    rc.functionName = lineEditFunction->text();
+    rc.fileName = pathChooserFileName->path();
+    rc.condition = lineEditCondition->text().toUtf8();
+    rc.ignoreCount = lineEditIgnoreCount->text().toInt();
+    rc.threadSpec = lineEditThreadSpec->text().toUtf8();
+    return rc;
+}
+
+void BreakpointDialog::typeChanged(int)
+{
+    const BreakpointType t = type();
+    const bool isLineVisible = t == BreakpointByFileAndLine;
+    const bool isFunctionVisible = t == BreakpointByFunction || t == BreakpointAtMain;
+    const bool isAddressVisible = t == BreakpointByAddress || t == Watchpoint;
     labelFileName->setEnabled(isLineVisible);
     pathChooserFileName->setEnabled(isLineVisible);
     labelLineNumber->setEnabled(isLineVisible);
@@ -145,8 +156,32 @@ void BreakpointDialog::typeChanged(int index)
     lineEditFunction->setEnabled(isFunctionVisible);
     labelAddress->setEnabled(isAddressVisible);
     lineEditAddress->setEnabled(isAddressVisible);
-    if (index == 2)
+    if (t == BreakpointAtMain)
         lineEditFunction->setText(QLatin1String("main"));
+}
+
+bool BreakpointDialog::showDialog(BreakpointData *data)
+{
+    setParameters(data->parameters());
+    if (exec() != QDialog::Accepted)
+        return false;
+
+    // Check if changed.
+    const BreakpointParameters newParameters = parameters();
+    if (newParameters == data->parameters())
+        return false;
+
+    bool result = false;
+    result |= data->setType(newParameters.type);
+    result |= data->setAddress(newParameters.address);
+    result |= data->setFunctionName(newParameters.functionName);
+    result |= data->setUseFullPath(newParameters.useFullPath);
+    result |= data->setFileName(newParameters.fileName);
+    result |= data->setLineNumber(newParameters.lineNumber);
+    result |= data->setCondition(newParameters.condition);
+    result |= data->setIgnoreCount(newParameters.ignoreCount);
+    result |= data->setThreadSpec(newParameters.threadSpec);
+    return result;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -292,7 +327,6 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     synchronizeAction->setEnabled(debuggerCore()->hasSnapshots());
 
     QModelIndex idx0 = (si.size() ? si.front() : QModelIndex());
-    QModelIndex idx2 = idx0.sibling(idx0.row(), 2);
     const BreakpointId id = handler->findBreakpointByIndex(idx0);
 
     bool enabled = si.isEmpty() || handler->isEnabled(id);
@@ -363,14 +397,9 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     else if (act == addBreakpointAction)
         addBreakpoint();
     else if (act == breakAtThrowAction) {
-        BreakpointData data(BreakpointByFunction);
-        data.setFunctionName(BreakpointData::throwFunction);
-        handler->appendBreakpoint(data);
+        handler->appendBreakpoint(BreakpointData(BreakpointAtThrow));
     } else if (act == breakAtCatchAction) {
-        // FIXME: Use the proper breakpoint type instead.
-        BreakpointData data(BreakpointByFunction);
-        data.setFunctionName(BreakpointData::catchFunction);
-        handler->appendBreakpoint(data);
+        handler->appendBreakpoint(BreakpointData(BreakpointAtCatch));
     }
 }
 

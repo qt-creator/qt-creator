@@ -74,16 +74,6 @@ int BreakHandler::rowCount(const QModelIndex &parent) const
     return parent.isValid() ? 0 : m_storage.size();
 }
 
-// FIXME: Only used by cdb. Move there?
-bool BreakHandler::hasPendingBreakpoints() const
-{
-    ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
-    for ( ; it != et; ++it)
-        if (it->isPending())
-            return true;
-    return false;
-}
-
 static inline bool fileNameMatch(const QString &f1, const QString &f2)
 {
 #ifdef Q_OS_WIN
@@ -907,11 +897,21 @@ QString BreakHandler::BreakpointItem::toToolTip() const
         case BreakpointByAddress:
             t = tr("Breakpoint by Address");
             break;
+        case BreakpointAtThrow:
+            t = tr("Breakpoint at \"throw\"");
+            break;
+        case BreakpointAtCatch:
+            t = tr("Breakpoint at \"catch\"");
+            break;
+        case BreakpointAtMain:
+            t = tr("Breakpoint at Function \"main()\"");
+            break;
         case Watchpoint:
             t = tr("Watchpoint");
             break;
         case UnknownType:
             t = tr("Unknown Breakpoint Type");
+            break;
     }
 
     QString rc;

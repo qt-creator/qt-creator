@@ -62,8 +62,9 @@ enum BreakpointType
     BreakpointByFileAndLine,
     BreakpointByFunction,
     BreakpointByAddress,
-    //BreakpointAtThrow, // FIXME: actually use this
-    //BreakpointAtCatch, // FIXME: actually use this
+    BreakpointAtThrow,
+    BreakpointAtCatch,
+    BreakpointAtMain,
     Watchpoint,
 };
 
@@ -135,9 +136,6 @@ public:
 
     bool isWatchpoint() const { return type() == Watchpoint; }
     bool isBreakpoint() const { return type() != Watchpoint; } // Enough for now.
-    // Generic name for function to break on 'throw'
-    static const char *throwFunction;
-    static const char *catchFunction;
 
 private:
     // All setters return true on change.
@@ -173,6 +171,8 @@ public:
     QString toString() const;
 
 public:
+    void fromParameters(const BreakpointParameters &p);
+
     int number;             // Breakpoint number assigned by the debugger engine.
     QString fullName;       // Full file name acknowledged by the debugger engine.
     bool multiple;          // Happens in constructors/gdb.

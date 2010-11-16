@@ -531,11 +531,7 @@ void CdbEnginePrivate::processCreatedAttached(ULONG64 processHandle, ULONG64 ini
     }
     // Clear any saved breakpoints and set initial breakpoints
     m_engine->executeDebuggerCommand(QLatin1String("bc"));
-    if (m_engine->breakHandler()->hasPendingBreakpoints()) {
-        if (debugCDBExecution)
-            qDebug("processCreatedAttached: Syncing breakpoints");
-        m_engine->attemptBreakpointSynchronization();
-    }
+    m_engine->attemptBreakpointSynchronization();
     // Attaching to crashed: This handshake (signalling an event) is required for
     // the exception to be delivered to the debugger
     // Also, see special handling in slotModulesLoaded().
@@ -1318,7 +1314,7 @@ bool CdbEngine::attemptBreakpointSynchronizationI(QString *errorMessage)
         switch (handler->state(id)) {
         case BreakpointInsertRequested:
             handler->setState(id, BreakpointInsertProceeding);
-            if (addCdbBreakpoint(control, symbols, data, &response, errorMessage)) {
+            if (addCdbBreakpoint(control, symbols, data->parameters(), &response, errorMessage)) {
                 notifyBreakpointInsertOk(id);
                 handler->setResponse(id, response);
             } else {
@@ -1330,7 +1326,7 @@ bool CdbEngine::attemptBreakpointSynchronizationI(QString *errorMessage)
             // Skip disabled breakpoints, else add
             handler->setState(id, BreakpointChangeProceeding);
             if (data->isEnabled()) {
-                if (addCdbBreakpoint(control, symbols, data, &response, errorMessage)) {
+                if (addCdbBreakpoint(control, symbols, data->parameters(), &response, errorMessage)) {
                     notifyBreakpointChangeOk(id);
                     handler->setResponse(id, response);
                 } else {
@@ -1348,7 +1344,7 @@ bool CdbEngine::attemptBreakpointSynchronizationI(QString *errorMessage)
         case BreakpointPending:
             // Existing breakpoints were deleted due to change/removal, re-set
             if (syncType == BreakpointsRemovedChanged
-                && !addCdbBreakpoint(control, symbols, handler->breakpointById(id), &response, errorMessage))
+                && !addCdbBreakpoint(control, symbols, handler->breakpointById(id)->parameters(), &response, errorMessage))
                 showMessage(*errorMessage, LogError);
             break;
         default:

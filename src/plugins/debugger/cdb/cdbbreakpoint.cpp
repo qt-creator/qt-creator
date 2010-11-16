@@ -40,27 +40,27 @@ namespace Debugger {
 namespace Internal {
 
 // Convert breakpoint structs
-static CdbCore::BreakPoint breakPointFromBreakPointData(const BreakpointData &bpd, const QString &functionName)
+static CdbCore::BreakPoint breakPointFromBreakPointData(const BreakpointParameters &bpd, const QString &functionName)
 {
     CdbCore::BreakPoint rc;
-    rc.type = bpd.type() == Watchpoint ?
+    rc.type = bpd.type == Watchpoint ?
                   CdbCore::BreakPoint::Data :
                   CdbCore::BreakPoint::Code ;
 
-    rc.address = bpd.address();
-    if (!bpd.threadSpec().isEmpty()) {
+    rc.address = bpd.address;
+    if (!bpd.threadSpec.isEmpty()) {
         bool ok;
-        rc.threadId = bpd.threadSpec().toInt(&ok);
+        rc.threadId = bpd.threadSpec.toInt(&ok);
         if (!ok)
-            qWarning("Cdb: Cannot convert breakpoint thread specification '%s'", bpd.threadSpec().constData());
+            qWarning("Cdb: Cannot convert breakpoint thread specification '%s'", bpd.threadSpec.constData());
     }
-    rc.fileName = QDir::toNativeSeparators(bpd.fileName());
-    rc.condition = bpd.condition();
-    rc.funcName = functionName.isEmpty() ? bpd.functionName() : functionName;
-    rc.ignoreCount = bpd.ignoreCount();
-    rc.lineNumber  = bpd.lineNumber();
+    rc.fileName = QDir::toNativeSeparators(bpd.fileName);
+    rc.condition = bpd.condition;
+    rc.funcName = functionName.isEmpty() ? bpd.functionName : functionName;
+    rc.ignoreCount = bpd.ignoreCount;
+    rc.lineNumber  = bpd.lineNumber;
     rc.oneShot = false;
-    rc.enabled = bpd.isEnabled();
+    rc.enabled = bpd.enabled;
     return rc;
 }
 
@@ -69,31 +69,38 @@ static inline QString msgCannotSetBreakAtFunction(const QString &func, const QSt
     return QString::fromLatin1("Cannot set a breakpoint at '%1': %2").arg(func, why);
 }
 
-void setBreakpointResponse(const BreakpointData *nbd, int number, BreakpointResponse *response)
+static inline BreakpointParameters transformBreakpoint(const BreakpointParameters &p)
 {
-    response->address = nbd->address();
-    response->number = number;
-    response->functionName = nbd->functionName();
-    response->type = nbd->type();
-    response->condition = nbd->condition();
-    response->ignoreCount = nbd->ignoreCount();
-    response->fullName = response->fileName = nbd->fileName();
-    response->lineNumber = nbd->lineNumber();
-    response->threadSpec = nbd->threadSpec();
-    response->enabled = nbd->isEnabled();
+    if (p.type == BreakpointAtThrow) {
+        BreakpointParameters rc(BreakpointByFunction);
+        rc.functionName = QLatin1String(cdbThrowFunction);
+        return rc;
+    }
+    if (p.type == BreakpointAtCatch) {
+        BreakpointParameters rc(BreakpointByFunction);
+        rc.functionName = QLatin1String(cdbCatchFunction);
+        return rc;
+    }
+    if (p.type == BreakpointAtMain) {
+        BreakpointParameters rc(BreakpointByFunction);
+        rc.functionName = QLatin1String("main");
+        return rc;
+    }
+    return p;
 }
 
 bool addCdbBreakpoint(CIDebugControl* debugControl,
                       CIDebugSymbols *syms,
-                      const BreakpointData *nbd,
+                      const BreakpointParameters &bpIn,
                       BreakpointResponse *response,
                       QString *errorMessage)
 {
+    const BreakpointParameters bp = transformBreakpoint(bpIn);
     errorMessage->clear();
     // Function breakpoints: Are the module names specified?
     QString resolvedFunction;
-    if (nbd->type() == BreakpointByFunction) {
-        resolvedFunction = nbd->functionName();
+    if (bp.type == BreakpointByFunction) {
+        resolvedFunction = bp.functionName;
         switch (resolveSymbol(syms, &resolvedFunction, errorMessage)) {
         case ResolveSymbolOk:
             break;
@@ -101,21 +108,23 @@ bool addCdbBreakpoint(CIDebugControl* debugControl,
             break;
         case ResolveSymbolNotFound:
         case ResolveSymbolError:
-            *errorMessage = msgCannotSetBreakAtFunction(nbd->functionName(), *errorMessage);
+            *errorMessage = msgCannotSetBreakAtFunction(bp.functionName, *errorMessage);
             return false;
         }
         if (debugBreakpoints)
-            qDebug() << nbd->functionName() << " resolved to " << resolvedFunction;
+            qDebug() << bp.functionName << " resolved to " << resolvedFunction;
     } // function breakpoint
     // Now add...
     quint64 address;
     unsigned long id;
-    const CdbCore::BreakPoint ncdbbp = breakPointFromBreakPointData(*nbd, resolvedFunction);
+    const CdbCore::BreakPoint ncdbbp = breakPointFromBreakPointData(bp, resolvedFunction);
     if (!ncdbbp.add(debugControl, errorMessage, &id, &address))
         return false;
     if (debugBreakpoints)
         qDebug("Added %lu at 0x%lx %s", id, address, qPrintable(ncdbbp.toString()));
-    setBreakpointResponse(nbd, id, response);
+
+    response->fromParameters(bp);
+    response->number = id;
     response->address = address;
     response->functionName = resolvedFunction;
     return true;

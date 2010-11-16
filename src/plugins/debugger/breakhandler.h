@@ -68,7 +68,6 @@ public:
     BreakpointIds engineBreakpointIds(DebuggerEngine *engine) const;
     BreakpointIds unclaimedBreakpointIds() const;
     int size() const { return m_storage.size(); }
-    bool hasPendingBreakpoints() const;
 
     // Find a breakpoint matching approximately the data in needle.
     BreakpointId findSimilarBreakpoint(const BreakpointResponse &needle) const;

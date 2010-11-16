@@ -41,9 +41,6 @@ namespace Internal {
 //
 //////////////////////////////////////////////////////////////////
 
-const char *BreakpointData::throwFunction = "throw";
-const char *BreakpointData::catchFunction = "catch";
-
 BreakpointParameters::BreakpointParameters(BreakpointType t) :
     type(t), enabled(true), useFullPath(false),
     ignoreCount(0), lineNumber(0), address(0)
@@ -52,7 +49,7 @@ BreakpointParameters::BreakpointParameters(BreakpointType t) :
 
 bool BreakpointParameters::equals(const BreakpointParameters &rhs) const
 {
-    return type != rhs.type && enabled == rhs.enabled
+    return type == rhs.type && enabled == rhs.enabled
             && useFullPath == rhs.useFullPath
             && fileName == rhs.fileName && condition == rhs.condition
             && ignoreCount == rhs.ignoreCount && lineNumber == rhs.lineNumber
@@ -166,6 +163,15 @@ QString BreakpointResponse::toString() const
     ts << functionName;
     ts << address;
     return result;
+}
+
+void BreakpointResponse::fromParameters(const BreakpointParameters &p)
+{
+    BreakpointParameters::operator=(p);
+    number = 0;
+    fullName.clear();
+    multiple = false;
+    state.clear();
 }
 
 } // namespace Internal

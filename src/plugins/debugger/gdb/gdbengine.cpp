@@ -2156,25 +2156,32 @@ static QByteArray addressSpec(quint64 address)
 QByteArray GdbEngine::breakpointLocation(BreakpointId id)
 {
     BreakHandler *handler = breakHandler();
-    QByteArray functionName = handler->functionName(id).toUtf8();
-    if (!functionName.isEmpty()) {
-        // FIXME: Use the types.
-        if (functionName == BreakpointData::throwFunction)
-            return "__cxa_throw";
-        if (functionName == BreakpointData::catchFunction)
-            return "__cxa_begin_catch";
+    const BreakpointData *data = handler->breakpointById(id);
+    QTC_ASSERT(data, return QByteArray());
+    const BreakpointParameters parameters = data->parameters();
+    // FIXME: Non-GCC-runtime
+    if (parameters.type == BreakpointAtThrow)
+        return "__cxa_throw";
+    if (parameters.type == BreakpointAtCatch)
+        return "__cxa_begin_catch";
+    if (parameters.type == BreakpointAtMain)
+#ifdef Q_OS_WIN
+        return "qMain";
+#else
+        return "main";
+#endif
+    const QByteArray functionName = parameters.functionName.toUtf8();
+    if (!functionName.isEmpty())
         return functionName;
-    }
-    quint64 address = handler->address(id);
-    if (address)
+    if (const quint64 address = handler->address(id))
         return addressSpec(address);
     // In this case, data->funcName is something like '*0xdeadbeef'
-    int lineNumber = handler->lineNumber(id);
+    const int lineNumber = handler->lineNumber(id);
     if (lineNumber == 0)
         return functionName;
-    QString fileName = handler->fileName(id);
-    if (handler->useFullPath(id))
-        fileName = breakLocation(fileName);
+    const QString fileName = parameters.useFullPath ?
+                             breakLocation(parameters.fileName) :
+                             parameters.fileName;
     // The argument is simply a C-quoted version of the argument to the
     // non-MI "break" command, including the "original" quoting it wants.
     return "\"\\\"" + GdbMi::escapeCString(fileName).toLocal8Bit() + "\\\":"

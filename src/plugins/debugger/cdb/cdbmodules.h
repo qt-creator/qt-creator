@@ -64,6 +64,9 @@ ResolveSymbolResult resolveSymbol(CIDebugSymbols *syms, const QString &pattern, 
 bool getModuleSymbols(CIDebugSymbols *syms, const QString &moduleName,
                       QList<Symbol> *symbols, QString *errorMessage);
 
+extern const char *cdbThrowFunction;
+extern const char *cdbCatchFunction;
+
 } // namespace Internal
 } // namespace Debugger
 

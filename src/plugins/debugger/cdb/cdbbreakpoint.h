@@ -40,22 +40,19 @@ QT_END_NAMESPACE
 
 namespace Debugger {
 namespace Internal {
-class BreakpointData;
+class BreakpointParameters;
 class BreakpointResponse;
 
 // Convert breakpoint structs
 bool addCdbBreakpoint(CIDebugControl* debugControl,
                       CIDebugSymbols *syms,
-                      const BreakpointData *nbd,
+                      const BreakpointParameters &bp,
                       BreakpointResponse *response,
                       QString *errorMessage);
 
 bool deleteCdbBreakpoints(CIDebugControl* debugControl, QString *errorMessage);
 
 void debugCdbBreakpoints(CIDebugControl* debugControl);
-
-// Set response from data.
-void setBreakpointResponse(const BreakpointData *nbd, int number, BreakpointResponse *response);
 
 } // namespace Internal
 } // namespace Debugger
