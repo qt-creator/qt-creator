@@ -1301,20 +1301,20 @@ bool CdbEngine::attemptBreakpointSynchronizationI(QString *errorMessage)
     }
 
     // If there are changes/removals, delete all breakpoints and re-insert
-    // all enabled breakpoints. This is the simplest
-    // way to apply changes since CDB ids shift when removing breakpoints and there is no
+    // all enabled breakpoints. This is the simplest way to apply changes
+    // since CDB ids shift when removing breakpoints and there is no
     // easy way to re-match them.
     if (syncType == BreakpointsRemovedChanged && !deleteCdbBreakpoints(control, errorMessage))
         return false;
 
     foreach (BreakpointId id, ids) {
         BreakpointResponse response;
-        const BreakpointData *data = handler->breakpointById(id);
+        const BreakpointParameters &data = handler->breakpointData(id);
         errorMessage->clear();
         switch (handler->state(id)) {
         case BreakpointInsertRequested:
             handler->setState(id, BreakpointInsertProceeding);
-            if (addCdbBreakpoint(control, symbols, data->parameters(), &response, errorMessage)) {
+            if (addCdbBreakpoint(control, symbols, data, &response, errorMessage)) {
                 notifyBreakpointInsertOk(id);
                 handler->setResponse(id, response);
             } else {
@@ -1323,10 +1323,10 @@ bool CdbEngine::attemptBreakpointSynchronizationI(QString *errorMessage)
             }
             break;
         case BreakpointChangeRequested:
-            // Skip disabled breakpoints, else add
+            // Skip disabled breakpoints, else add.
             handler->setState(id, BreakpointChangeProceeding);
-            if (data->isEnabled()) {
-                if (addCdbBreakpoint(control, symbols, data->parameters(), &response, errorMessage)) {
+            if (data.enabled) {
+                if (addCdbBreakpoint(control, symbols, data, &response, errorMessage)) {
                     notifyBreakpointChangeOk(id);
                     handler->setResponse(id, response);
                 } else {
@@ -1344,7 +1344,7 @@ bool CdbEngine::attemptBreakpointSynchronizationI(QString *errorMessage)
         case BreakpointPending:
             // Existing breakpoints were deleted due to change/removal, re-set
             if (syncType == BreakpointsRemovedChanged
-                && !addCdbBreakpoint(control, symbols, handler->breakpointById(id)->parameters(), &response, errorMessage))
+                && !addCdbBreakpoint(control, symbols, handler->breakpointData(id), &response, errorMessage))
                 showMessage(*errorMessage, LogError);
             break;
         default:
