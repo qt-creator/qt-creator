@@ -2156,32 +2156,30 @@ static QByteArray addressSpec(quint64 address)
 QByteArray GdbEngine::breakpointLocation(BreakpointId id)
 {
     BreakHandler *handler = breakHandler();
-    const BreakpointData *data = handler->breakpointById(id);
-    QTC_ASSERT(data, return QByteArray());
-    const BreakpointParameters parameters = data->parameters();
+    const BreakpointParameters &data = handler->breakpointData(id);
+    QTC_ASSERT(data.type != UnknownType, return QByteArray());
     // FIXME: Non-GCC-runtime
-    if (parameters.type == BreakpointAtThrow)
+    if (data.type == BreakpointAtThrow)
         return "__cxa_throw";
-    if (parameters.type == BreakpointAtCatch)
+    if (data.type == BreakpointAtCatch)
         return "__cxa_begin_catch";
-    if (parameters.type == BreakpointAtMain)
+    if (data.type == BreakpointAtMain)
 #ifdef Q_OS_WIN
         return "qMain";
 #else
         return "main";
 #endif
-    const QByteArray functionName = parameters.functionName.toUtf8();
+    const QByteArray functionName = data.functionName.toUtf8();
     if (!functionName.isEmpty())
         return functionName;
-    if (const quint64 address = handler->address(id))
+    if (const quint64 address = data.address)
         return addressSpec(address);
     // In this case, data->funcName is something like '*0xdeadbeef'
-    const int lineNumber = handler->lineNumber(id);
+    const int lineNumber = data.lineNumber;
     if (lineNumber == 0)
         return functionName;
-    const QString fileName = parameters.useFullPath ?
-                             breakLocation(parameters.fileName) :
-                             parameters.fileName;
+    const QString fileName = data.useFullPath
+        ? breakLocation(data.fileName) : data.fileName;
     // The argument is simply a C-quoted version of the argument to the
     // non-MI "break" command, including the "original" quoting it wants.
     return "\"\\\"" + GdbMi::escapeCString(fileName).toLocal8Bit() + "\\\":"
@@ -2622,32 +2620,31 @@ void GdbEngine::insertBreakpoint(BreakpointId id)
 
 void GdbEngine::changeBreakpoint(BreakpointId id)
 {
-    const BreakpointData *data0 = breakHandler()->breakpointById(id);
-    QTC_ASSERT(data0, return);
-    const BreakpointData &data = *data0;
+    const BreakpointParameters &data = breakHandler()->breakpointData(id);
+    QTC_ASSERT(data.type != UnknownType, return);
     const BreakpointResponse &response = breakHandler()->response(id);
     QTC_ASSERT(response.number > 0, return);
     const QByteArray bpnr = QByteArray::number(response.number);
 
-    if (data.condition() != response.condition
+    if (data.condition != response.condition
         && !data.conditionsMatch(response.condition)) {
         // Update conditions if needed.
-        postCommand("condition " + bpnr + ' '  + data.condition(),
+        postCommand("condition " + bpnr + ' '  + data.condition,
             NeedsStop | RebuildBreakpointModel,
             CB(handleBreakCondition), id);
     }
-    if (data.ignoreCount() != response.ignoreCount) {
+    if (data.ignoreCount != response.ignoreCount) {
         // Update ignorecount if needed.
-        postCommand("ignore " + bpnr + ' ' + QByteArray::number(data.ignoreCount()),
+        postCommand("ignore " + bpnr + ' ' + QByteArray::number(data.ignoreCount),
             NeedsStop | RebuildBreakpointModel,
             CB(handleBreakIgnore), id);
     }
-    if (!data.isEnabled() && response.enabled) {
+    if (!data.enabled && response.enabled) {
         postCommand("-break-disable " + bpnr,
             NeedsStop | RebuildBreakpointModel,
             CB(handleBreakDisable), id);
     }
-    if (data.isEnabled() && !response.enabled) {
+    if (data.enabled && !response.enabled) {
         postCommand("-break-enable " + bpnr,
             NeedsStop | RebuildBreakpointModel,
             CB(handleBreakEnable), id);

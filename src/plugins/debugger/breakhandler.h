@@ -92,15 +92,11 @@ public:
     BreakpointId findBreakpointByFileAndLine(const QString &fileName,
         int lineNumber, bool useMarkerPosition = true);
     BreakpointId findBreakpointByAddress(quint64 address) const;
-    const BreakpointData *breakpointById(BreakpointId id) const;
-    BreakpointData *breakpointById(BreakpointId id); // FIXME: For breakwindow.
 
     void breakByFunction(const QString &functionName);
     void removeBreakpoint(BreakpointId id);
     QIcon icon(BreakpointId id) const;
-
     void gotoLocation(BreakpointId id) const;
-    void setData(BreakpointId id, const BreakpointParameters &data);
 
     // Getter retrieves property value.
     // Setter sets property value and triggers update if changed.
@@ -120,13 +116,14 @@ public:
     PROPERTY(quint64, address, setAddress);
     PROPERTY(int, lineNumber, setLineNumber);
     #undef PROPERTY
+    void setBreakpointData(BreakpointId id, const BreakpointParameters &data);
+    const BreakpointParameters &breakpointData(BreakpointId id) const;
     BreakpointState state(BreakpointId id) const;
     bool isEnabled(BreakpointId id) const;
     void setEnabled(BreakpointId id, bool on);
     void updateLineNumberFromMarker(BreakpointId id, int lineNumber);
     void setMarkerFileAndLine(BreakpointId id,
         const QString &fileName, int lineNumber);
-
     DebuggerEngine *engine(BreakpointId id) const;
     void setEngine(BreakpointId id, DebuggerEngine *engine);
     const BreakpointResponse &response(BreakpointId id) const;

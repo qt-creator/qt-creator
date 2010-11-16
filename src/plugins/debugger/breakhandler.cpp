@@ -168,18 +168,12 @@ BreakpointId BreakHandler::findBreakpointByFileAndLine(const QString &fileName,
     return BreakpointId(-1);
 }
 
-const BreakpointData *BreakHandler::breakpointById(BreakpointId id) const
+const BreakpointParameters &BreakHandler::breakpointData(BreakpointId id) const
 {
+    static BreakpointParameters dummy;
     ConstIterator it = m_storage.find(id);
-    QTC_ASSERT(it != m_storage.end(), return 0);
-    return &it->data;
-}
-
-BreakpointData *BreakHandler::breakpointById(BreakpointId id)
-{
-    Iterator it = m_storage.find(id);
-    QTC_ASSERT(it != m_storage.end(), return 0);
-    return &it->data;
+    QTC_ASSERT(it != m_storage.end(), return dummy);
+    return it->data.parameters();
 }
 
 BreakpointId BreakHandler::findWatchpointByAddress(quint64 address) const
@@ -626,9 +620,9 @@ void BreakHandler::appendBreakpoint(const BreakpointParameters &data)
 
     BreakpointId id(++currentId);
     BreakpointItem item;
-    BreakpointData d;
-    d.m_parameters = data;
-    item.data = d;
+    item.data.m_parameters = data;
+    item.markerFileName = data.fileName;
+    item.markerLineNumber = data.lineNumber;
     m_storage.insert(id, item);
     scheduleSynchronization();
 }
@@ -855,7 +849,7 @@ void BreakHandler::setResponse(BreakpointId id, const BreakpointResponse &data)
     updateMarker(id);
 }
 
-void BreakHandler::setData(BreakpointId id, const BreakpointParameters &data)
+void BreakHandler::setBreakpointData(BreakpointId id, const BreakpointParameters &data)
 {
     Iterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return);

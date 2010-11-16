@@ -84,6 +84,7 @@ class BreakpointParameters
 public:
     explicit BreakpointParameters(BreakpointType = UnknownType);
     bool equals(const BreakpointParameters &rhs) const;
+    bool conditionsMatch(const QByteArray &other) const;
 
     BreakpointType type;     // Type of breakpoint.
     bool enabled;            // Should we talk to the debugger engine?
@@ -118,7 +119,6 @@ public:
     bool useFullPath() const { return m_parameters.useFullPath; }
     QString toString() const;
 
-    bool conditionsMatch(const QByteArray &other) const;
     QString functionName() const { return m_parameters.functionName; }
     QString fileName() const { return m_parameters.fileName; }
     int lineNumber() const { return m_parameters.lineNumber; }

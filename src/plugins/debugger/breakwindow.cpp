@@ -417,9 +417,9 @@ void BreakWindow::deleteBreakpoints(const QModelIndexList &list)
 void BreakWindow::editBreakpoint(BreakpointId id, QWidget *parent)
 {
     BreakpointDialog dialog(parent);
-    BreakpointParameters data = breakHandler()->breakpointById(id)->parameters();
+    BreakpointParameters data = breakHandler()->breakpointData(id);
     if (dialog.showDialog(&data))
-        breakHandler()->setData(id, data);
+        breakHandler()->setBreakpointData(id, data);
 }
 
 void BreakWindow::addBreakpoint()

@@ -119,10 +119,10 @@ bool BreakpointData::setCondition(const QByteArray &cond)
 
 #undef SETIT
 
-bool BreakpointData::conditionsMatch(const QByteArray &other) const
+bool BreakpointParameters::conditionsMatch(const QByteArray &other) const
 {
     // Some versions of gdb "beautify" the passed condition.
-    QByteArray s1 = m_parameters.condition;
+    QByteArray s1 = condition;
     s1.replace(' ', "");
     QByteArray s2 = other;
     s2.replace(' ', "");
