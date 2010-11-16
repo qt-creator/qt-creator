@@ -1280,51 +1280,14 @@ void DebuggerEngine::insertBreakpoint(BreakpointId)
     QTC_ASSERT(false, /**/);
 }
 
-void DebuggerEngine::notifyBreakpointInsertOk(BreakpointId id)
-{
-    breakHandler()->notifyBreakpointInsertOk(id);
-}
-
-void DebuggerEngine::notifyBreakpointInsertFailed(BreakpointId id)
-{
-    breakHandler()->notifyBreakpointInsertFailed(id);
-}
-
 void DebuggerEngine::removeBreakpoint(BreakpointId)
 {
     QTC_ASSERT(false, /**/);
 }
 
-void DebuggerEngine::notifyBreakpointRemoveOk(BreakpointId id)
-{
-    breakHandler()->notifyBreakpointRemoveOk(id);
-}
-
-void DebuggerEngine::notifyBreakpointRemoveFailed(BreakpointId id)
-{
-    breakHandler()->notifyBreakpointRemoveFailed(id);
-}
-
 void DebuggerEngine::changeBreakpoint(BreakpointId)
 {
     QTC_ASSERT(false, /**/);
-}
-
-void DebuggerEngine::notifyBreakpointChangeOk(BreakpointId id)
-{
-    breakHandler()->notifyBreakpointChangeOk(id);
-}
-
-void DebuggerEngine::notifyBreakpointChangeFailed(BreakpointId id)
-{
-    breakHandler()->notifyBreakpointChangeFailed(id);
-}
-
-void DebuggerEngine::notifyBreakpointAdjusted(BreakpointId id,
-    const BreakpointParameters &data)
-{
-    QTC_ASSERT(false, /* FIXME */);
-    breakHandler()->setBreakpointData(id, data);
 }
 
 void DebuggerEngine::selectThread(int)

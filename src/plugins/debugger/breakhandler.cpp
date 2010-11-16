@@ -676,6 +676,18 @@ void BreakHandler::notifyBreakpointReleased(BreakpointId id)
     layoutChanged();
 }
 
+void BreakHandler::notifyBreakpointAdjusted(BreakpointId id,
+        const BreakpointParameters &data)
+{
+    QTC_ASSERT(state(id) == BreakpointInserted, /**/);
+    Iterator it = m_storage.find(id);
+    QTC_ASSERT(it != m_storage.end(), return);
+    it->data = data;
+    if (it->needsChange())
+        setState(id, BreakpointChangeRequested);
+}
+
+
 void BreakHandler::ackCondition(BreakpointId id)
 {
     Iterator it = m_storage.find(id);

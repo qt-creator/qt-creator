@@ -143,6 +143,8 @@ public:
     void notifyBreakpointRemoveOk(BreakpointId id);
     void notifyBreakpointRemoveFailed(BreakpointId id);
     void notifyBreakpointReleased(BreakpointId id);
+    void notifyBreakpointAdjusted(BreakpointId id,
+            const BreakpointParameters &data);
 
 private:
 public:

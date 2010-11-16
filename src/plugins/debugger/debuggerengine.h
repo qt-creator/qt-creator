@@ -187,16 +187,8 @@ public:
     virtual void attemptBreakpointSynchronization();
     virtual bool acceptsBreakpoint(BreakpointId id) const;  // FIXME: make pure
     virtual void insertBreakpoint(BreakpointId id);  // FIXME: make pure
-    virtual void notifyBreakpointInsertOk(BreakpointId id);
-    virtual void notifyBreakpointInsertFailed(BreakpointId id);
     virtual void removeBreakpoint(BreakpointId id);  // FIXME: make pure
-    virtual void notifyBreakpointRemoveOk(BreakpointId id);
-    virtual void notifyBreakpointRemoveFailed(BreakpointId id);
     virtual void changeBreakpoint(BreakpointId id);  // FIXME: make pure
-    virtual void notifyBreakpointChangeOk(BreakpointId id);
-    virtual void notifyBreakpointChangeFailed(BreakpointId id);
-    virtual void notifyBreakpointAdjusted(BreakpointId id,
-        const Internal::BreakpointParameters &data);
 
     virtual void assignValueInDebugger(const Internal::WatchData *data,
         const QString &expr, const QVariant &value);
