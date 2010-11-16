@@ -29,6 +29,8 @@
 
 #include "qmljstoolsplugin.h"
 #include "qmljsmodelmanager.h"
+#include "qmljsfunctionfilter.h"
+#include "qmljslocatordata.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -73,6 +75,10 @@ bool QmlJSToolsPlugin::initialize(const QStringList &arguments, QString *error)
 //    connect(fileManager, SIGNAL(filesChangedInternally(QStringList)),
 //            m_modelManager, SLOT(updateSourceFiles(QStringList)));
     addAutoReleasedObject(m_modelManager);
+
+    LocatorData *locatorData = new LocatorData;
+    addAutoReleasedObject(locatorData);
+    addAutoReleasedObject(new FunctionFilter(locatorData));
 
     return true;
 }

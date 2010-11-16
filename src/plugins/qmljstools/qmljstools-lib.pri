@@ -12,11 +12,15 @@ HEADERS += \
     $$PWD/qmljsmodelmanager.h \
     $$PWD/qmljsqtstylecodeformatter.h \
     $$PWD/qmljsrefactoringchanges.h \
-    $$PWD/qmljsplugindumper.h
+    $$PWD/qmljsplugindumper.h \
+    $$PWD/qmljsfunctionfilter.h \
+    $$PWD/qmljslocatordata.h
 
 SOURCES += \
     $$PWD/qmljstoolsplugin.cpp \
     $$PWD/qmljsmodelmanager.cpp \
     $$PWD/qmljsqtstylecodeformatter.cpp \
     $$PWD/qmljsrefactoringchanges.cpp \
-    $$PWD/qmljsplugindumper.cpp
+    $$PWD/qmljsplugindumper.cpp \
+    $$PWD/qmljsfunctionfilter.cpp \
+    $$PWD/qmljslocatordata.cpp
