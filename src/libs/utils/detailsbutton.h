@@ -42,34 +42,34 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT FadingPanel : public QWidget
 {
 public:
-	FadingPanel(QWidget *parent = 0);
-	void setOpacity(qreal value);
-	void fadeTo(float value);
+    FadingPanel(QWidget *parent = 0);
+    void setOpacity(qreal value);
+    void fadeTo(float value);
 protected:
-	QGraphicsOpacityEffect *m_opacityEffect;
+    QGraphicsOpacityEffect *m_opacityEffect;
 };
 
 class QTCREATOR_UTILS_EXPORT DetailsButton : public QAbstractButton
 {
-	Q_OBJECT
-	Q_PROPERTY(float fader READ fader WRITE setFader)
+    Q_OBJECT
+    Q_PROPERTY(float fader READ fader WRITE setFader)
 
 public:
-	DetailsButton(QWidget *parent = 0);
+    DetailsButton(QWidget *parent = 0);
 
-	QSize sizeHint() const;
-	float fader() { return m_fader; }
-	void setFader(float value) { m_fader = value; update(); }
+    QSize sizeHint() const;
+    float fader() { return m_fader; }
+    void setFader(float value) { m_fader = value; update(); }
 
 protected:
-	void paintEvent(QPaintEvent *e);
-	bool event(QEvent *e);
+    void paintEvent(QPaintEvent *e);
+    bool event(QEvent *e);
 
 private:
-	QPixmap cacheRendering(const QSize &size, bool checked);
-	QPixmap m_checkedPixmap;
-	QPixmap m_uncheckedPixmap;
-	float m_fader;
+    QPixmap cacheRendering(const QSize &size, bool checked);
+    QPixmap m_checkedPixmap;
+    QPixmap m_uncheckedPixmap;
+    float m_fader;
 };
 } // namespace Utils
 #endif // DETAILSBUTTON_H
