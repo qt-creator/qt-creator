@@ -18,7 +18,7 @@ SOURCES += $$PWD/s60devices.cpp \
     $$PWD/winscwparser.cpp \
     $$PWD/s60createpackagestep.cpp \
     $$PWD/s60deploystep.cpp \
-    $$PWD/signsisparser.cpp \
+    $$PWD/s60createpackageparser.cpp \
     $$PWD/passphraseforkeydialog.cpp \
     $$PWD/s60deployconfiguration.cpp \
     $$PWD/s60deployconfigurationwidget.cpp
@@ -39,7 +39,7 @@ HEADERS += $$PWD/s60devices.h \
     $$PWD/winscwparser.h \
     $$PWD/s60createpackagestep.h \
     $$PWD/s60deploystep.h \
-    $$PWD/signsisparser.h \
+    $$PWD/s60createpackageparser.h \
     $$PWD/passphraseforkeydialog.h \
     $$PWD/s60deployconfiguration.h \
     $$PWD/s60deployconfigurationwidget.h

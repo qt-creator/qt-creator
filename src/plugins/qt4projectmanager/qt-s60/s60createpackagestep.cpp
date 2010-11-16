@@ -35,7 +35,7 @@
 #include "qt4project.h"
 #include "abldparser.h"
 #include "sbsv2parser.h"
-#include "signsisparser.h"
+#include "s60createpackageparser.h"
 #include "passphraseforkeydialog.h"
 
 #include <projectexplorer/buildconfiguration.h>
@@ -203,7 +203,7 @@ bool S60CreatePackageStep::init()
     else
         m_outputParserChain = new Qt4ProjectManager::AbldParser;
     m_outputParserChain->appendOutputParser(new ProjectExplorer::GnuMakeParser);
-    m_outputParserChain->appendOutputParser(new Qt4ProjectManager::SignsisParser);
+    m_outputParserChain->appendOutputParser(new Qt4ProjectManager::S60CreatePackageParser);
 
     connect(m_outputParserChain, SIGNAL(addOutput(QString, ProjectExplorer::BuildStep::OutputFormat)),
             this, SLOT(outputAdded(QString, ProjectExplorer::BuildStep::OutputFormat)));

@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -27,43 +27,30 @@
 **
 **************************************************************************/
 
+#ifndef S60CREATEPACKAGEPARSER_H
+#define S60CREATEPACKAGEPARSER_H
 
-#include "signsisparser.h"
+#include <projectexplorer/ioutputparser.h>
 
-#include <projectexplorer/projectexplorerconstants.h>
+#include <QtCore/QRegExp>
 
-using namespace Qt4ProjectManager;
-using namespace ProjectExplorer;
-using namespace ProjectExplorer::Constants;
+namespace Qt4ProjectManager {
 
-SignsisParser::SignsisParser()
+class S60CreatePackageParser : public ProjectExplorer::IOutputParser
 {
-    m_signSis.setPattern("^(error):([A-Z\\d]+):(.+)$");
-    m_signSis.setMinimal(true);
-}
+    Q_OBJECT
 
-void SignsisParser::stdOutput(const QString &line)
-{
-    QString lne = line.trimmed();
+public:
+    S60CreatePackageParser();
 
-    if (m_signSis.indexIn(lne) > -1) {
-        QString errorDescription(m_signSis.cap(3));
-        int index = errorDescription.indexOf(QLatin1String("error:"));
-        if (index >= 0) {
-            stdOutput(errorDescription.mid(index));
-            errorDescription = errorDescription.left(index);
-        }
-        Task task(Task::Error,
-                  errorDescription /* description */,
-                  QString(), -1,
-                  TASK_CATEGORY_BUILDSYSTEM);
-        emit addTask(task);
-    }
-    IOutputParser::stdOutput(line);
-}
+    virtual void stdOutput(const QString & line);
+    virtual void stdError(const QString & line);
 
-void SignsisParser::stdError(const QString &line)
-{
-    stdOutput(line);
-    IOutputParser::stdError(line);
-}
+private:
+    QRegExp m_signSis;
+};
+
+} // namespace Qt4ProjectExplorer
+
+
+#endif // S60CREATEPACKAGEPARSER_H
