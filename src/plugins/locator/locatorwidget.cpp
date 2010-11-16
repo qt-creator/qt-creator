@@ -404,12 +404,15 @@ QList<ILocatorFilter*> LocatorWidget::filtersFor(const QString &text, QString &s
         prefix = text.left(whiteSpace);
     if (!prefix.isEmpty()) {
         prefix = prefix.toLower();
+        QList<ILocatorFilter *> prefixFilters;
         foreach (ILocatorFilter *filter, filters) {
             if (prefix == filter->shortcutString()) {
                 searchText = text.mid(whiteSpace+1);
-                return QList<ILocatorFilter*>() << filter;
+                prefixFilters << filter;
             }
         }
+        if (!prefixFilters.isEmpty())
+            return prefixFilters;
     }
     searchText = text;
     QList<ILocatorFilter*> activeFilters;
