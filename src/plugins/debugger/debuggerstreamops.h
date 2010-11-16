@@ -29,11 +29,13 @@
 
 #ifndef DEBUGGERPLUGIN_STREAMOPS_H
 #define DEBUGGERPLUGIN_STREAMOPS_H
-#include <QtCore/QDataStream>
+
 #include "breakpoint.h"
 #include "stackframe.h"
-#include "watchdata.h"
 #include "threaddata.h"
+#include "watchdata.h"
+
+#include <QtCore/QDataStream>
 #include <QtCore/QVector>
 
 namespace Debugger {
@@ -47,8 +49,8 @@ QDataStream &operator<<(QDataStream& stream, const StackFrame& frame);
 QDataStream &operator>>(QDataStream& stream, StackFrame &frame);
 QDataStream &operator<<(QDataStream& stream, const StackFrames& frames);
 QDataStream &operator>>(QDataStream& stream, StackFrames &frames);
-QDataStream &operator<<(QDataStream& stream, const BreakpointData &data);
-QDataStream &operator>>(QDataStream& stream, BreakpointData &data);
+QDataStream &operator<<(QDataStream& stream, const BreakpointParameters &data);
+QDataStream &operator>>(QDataStream& stream, BreakpointParameters &data);
 QDataStream &operator<<(QDataStream& stream, const BreakpointResponse &data);
 QDataStream &operator>>(QDataStream& stream, BreakpointResponse &data);
 QDataStream &operator<<(QDataStream& stream, const WatchData &data);

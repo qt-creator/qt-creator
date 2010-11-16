@@ -60,7 +60,6 @@ class AbstractGdbProcess;
 class GdbResponse;
 class GdbMi;
 
-class BreakpointData;
 class WatchData;
 class DisassemblerAgentCookie;
 

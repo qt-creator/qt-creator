@@ -228,7 +228,7 @@ void IPCEngineHost::selectThread(int index)
     rpcCall(SelectThread, p);
 }
 
-void IPCEngineHost::fetchDisassembler(Internal::DisassemblerViewAgent *v)
+void IPCEngineHost::fetchDisassembler(DisassemblerViewAgent *v)
 {
     quint64 address = v->frame().address;
     m_frameToDisassemblerAgent.insert(address, v);
@@ -242,7 +242,7 @@ void IPCEngineHost::fetchDisassembler(Internal::DisassemblerViewAgent *v)
 }
 
 
-void IPCEngineHost::addBreakpoint(const Internal::BreakpointData &bp)
+void IPCEngineHost::addBreakpoint(const BreakpointParameters &bp)
 {
     QByteArray p;
     {
@@ -264,7 +264,7 @@ void IPCEngineHost::removeBreakpoint(quint64 id)
     rpcCall(RemoveBreakpoint, p);
 }
 
-void IPCEngineHost::changeBreakpoint(const Internal::BreakpointData &bp)
+void IPCEngineHost::changeBreakpoint(const BreakpointParameters &bp)
 {
     QByteArray p;
     {
@@ -275,8 +275,8 @@ void IPCEngineHost::changeBreakpoint(const Internal::BreakpointData &bp)
     rpcCall(RemoveBreakpoint, p);
 }
 
-void IPCEngineHost::updateWatchData(const Internal::WatchData &data,
-            const Internal::WatchUpdateFlags &flags)
+void IPCEngineHost::updateWatchData(const WatchData &data,
+            const WatchUpdateFlags &flags)
 {
     Q_UNUSED(flags);
     QByteArray p;
@@ -442,7 +442,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 QString da;
                 s >> pc;
                 s >> da;
-                Internal::DisassemblerViewAgent *view = m_frameToDisassemblerAgent.take(pc);
+                DisassemblerViewAgent *view = m_frameToDisassemblerAgent.take(pc);
                 if (view)
                     view->setContents(da);
             }
@@ -473,7 +473,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
             {
                 QDataStream s(payload);
                 SET_NATIVE_BYTE_ORDER(s);
-                quint64 id;
+                BreakpointId id;
                 s >> id;
                 notifyBreakpointInsertOk(id);
             }
@@ -481,7 +481,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
             {
                 QDataStream s(payload);
                 SET_NATIVE_BYTE_ORDER(s);
-                quint64 id;
+                BreakpointId id;
                 s >> id;
                 notifyBreakpointInsertFailed(id);
             }
@@ -489,7 +489,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
             {
                 QDataStream s(payload);
                 SET_NATIVE_BYTE_ORDER(s);
-                quint64 id;
+                BreakpointId id;
                 s >> id;
                 notifyBreakpointRemoveOk(id);
             }
@@ -497,7 +497,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
             {
                 QDataStream s(payload);
                 SET_NATIVE_BYTE_ORDER(s);
-                quint64 id;
+                BreakpointId id;
                 s >> id;
                 notifyBreakpointRemoveFailed(id);
             }
@@ -505,7 +505,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
             {
                 QDataStream s(payload);
                 SET_NATIVE_BYTE_ORDER(s);
-                quint64 id;
+                BreakpointId id;
                 s >> id;
                 notifyBreakpointChangeOk(id);
             }
@@ -513,7 +513,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
             {
                 QDataStream s(payload);
                 SET_NATIVE_BYTE_ORDER(s);
-                quint64 id;
+                BreakpointId id;
                 s >> id;
                 notifyBreakpointChangeFailed(id);
             }
@@ -521,10 +521,10 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
             {
                 QDataStream s(payload);
                 SET_NATIVE_BYTE_ORDER(s);
-                BreakpointData d;
-                s >> d;
-                qDebug() << "FIXME";
-                //notifyBreakpointAdjusted(d);
+                BreakpointId id;
+                BreakpointParameters d;
+                s >> id >> d;
+                notifyBreakpointAdjusted(id, d);
             }
     }
 }

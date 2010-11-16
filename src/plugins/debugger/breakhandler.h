@@ -180,7 +180,7 @@ private:
             bool useMarkerPosition) const;
         QString toToolTip() const;
 
-        BreakpointData data;
+        BreakpointParameters data;
         BreakpointState state;   // Current state of breakpoint.
         DebuggerEngine *engine;  // Engine currently handling the breakpoint.
         BreakpointResponse response;

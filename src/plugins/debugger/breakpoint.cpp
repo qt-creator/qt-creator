@@ -37,12 +37,12 @@ namespace Internal {
 
 //////////////////////////////////////////////////////////////////
 //
-// BreakpointData
+// BreakpointParameters
 //
 //////////////////////////////////////////////////////////////////
 
-BreakpointParameters::BreakpointParameters(BreakpointType t) :
-    type(t), enabled(true), useFullPath(false),
+BreakpointParameters::BreakpointParameters(BreakpointType t)
+  : type(t), enabled(true), useFullPath(false),
     ignoreCount(0), lineNumber(0), address(0)
 {
 }
@@ -57,67 +57,9 @@ bool BreakpointParameters::equals(const BreakpointParameters &rhs) const
             && functionName == rhs.functionName;
 }
 
-BreakpointData::BreakpointData(BreakpointType type)
-    : m_parameters(type)
-{}
-
 BreakpointResponse::BreakpointResponse()
     : number(0), multiple(false)
 {}
-
-#define SETIT(var, value) return (var != value) && (var = value, true)
-
-bool BreakpointData::setUseFullPath(bool on)
-{
-    SETIT(m_parameters.useFullPath, on);
-}
-
-bool BreakpointData::setFileName(const QString &file)
-{
-    SETIT(m_parameters.fileName, file);
-}
-
-bool BreakpointData::setEnabled(bool on)
-{
-    SETIT(m_parameters.enabled, on);
-}
-
-bool BreakpointData::setIgnoreCount(int count)
-{
-    SETIT(m_parameters.ignoreCount, count);
-}
-
-bool BreakpointData::setFunctionName(const QString &name)
-{
-    SETIT(m_parameters.functionName, name);
-}
-
-bool BreakpointData::setLineNumber(int line)
-{
-    SETIT(m_parameters.lineNumber, line);
-}
-
-bool BreakpointData::setAddress(quint64 address)
-{
-    SETIT(m_parameters.address, address);
-}
-
-bool BreakpointData::setThreadSpec(const QByteArray &spec)
-{
-    SETIT(m_parameters.threadSpec, spec);
-}
-
-bool BreakpointData::setType(BreakpointType type)
-{
-    SETIT(m_parameters.type, type);
-}
-
-bool BreakpointData::setCondition(const QByteArray &cond)
-{
-    SETIT(m_parameters.condition, cond);
-}
-
-#undef SETIT
 
 bool BreakpointParameters::conditionsMatch(const QByteArray &other) const
 {
@@ -129,17 +71,17 @@ bool BreakpointParameters::conditionsMatch(const QByteArray &other) const
     return s1 == s2;
 }
 
-QString BreakpointData::toString() const
+QString BreakpointParameters::toString() const
 {
     QString result;
     QTextStream ts(&result);
-    ts << fileName();
-    ts << condition();
-    ts << ignoreCount();
-    ts << lineNumber();
-    ts << address();
-    ts << functionName();
-    ts << useFullPath();
+    ts << fileName;
+    ts << condition;
+    ts << ignoreCount;
+    ts << lineNumber;
+    ts << address;
+    ts << functionName;
+    ts << useFullPath;
     return result;
 }
 

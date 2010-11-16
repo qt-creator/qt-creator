@@ -94,8 +94,8 @@ void IPCEngineGuest::rpcCall(IPCEngineGuest::Function f, QByteArray payload )
             QDataStream s(m_device);
             SET_NATIVE_BYTE_ORDER(s);
             s << m_cookie++;
-            s << (quint64) f;
-            s << (quint64) payload.size();
+            s << quint64(f);
+            s << quint64(payload.size());
         }
         m_device->write(payload);
         m_device->putChar('T');
@@ -136,7 +136,7 @@ void IPCEngineGuest::readyRead()
         QTimer::singleShot(0, this, SLOT(readyRead()));
 }
 
-void IPCEngineGuest::rpcCallback(quint64 f, QByteArray payload )
+void IPCEngineGuest::rpcCallback(quint64 f, QByteArray payload)
 {
     switch (f) {
         default:
@@ -274,7 +274,7 @@ void IPCEngineGuest::rpcCallback(quint64 f, QByteArray payload )
             {
                 QDataStream s(payload);
                 SET_NATIVE_BYTE_ORDER(s);
-                BreakpointData d;
+                BreakpointParameters d;
                 s >> d;
                 addBreakpoint(d);
             }
@@ -292,7 +292,7 @@ void IPCEngineGuest::rpcCallback(quint64 f, QByteArray payload )
             {
                 QDataStream s(payload);
                 SET_NATIVE_BYTE_ORDER(s);
-                BreakpointData d;
+                BreakpointParameters d;
                 s >> d;
                 changeBreakpoint(d);
             }
@@ -511,7 +511,7 @@ void IPCEngineGuest::disassembled(quint64 pc, const QString &da)
     rpcCall(Disassembled, p);
 }
 
-void IPCEngineGuest::notifyAddBreakpointOk(quint64 id)
+void IPCEngineGuest::notifyAddBreakpointOk(BreakpointId id)
 {
     QByteArray p;
     {
@@ -522,7 +522,7 @@ void IPCEngineGuest::notifyAddBreakpointOk(quint64 id)
     rpcCall(NotifyAddBreakpointOk, p);
 }
 
-void IPCEngineGuest::notifyAddBreakpointFailed(quint64 id)
+void IPCEngineGuest::notifyAddBreakpointFailed(BreakpointId id)
 {
     QByteArray p;
     {
@@ -533,7 +533,7 @@ void IPCEngineGuest::notifyAddBreakpointFailed(quint64 id)
     rpcCall(NotifyAddBreakpointFailed, p);
 }
 
-void IPCEngineGuest::notifyRemoveBreakpointOk(quint64 id)
+void IPCEngineGuest::notifyRemoveBreakpointOk(BreakpointId id)
 {
     QByteArray p;
     {
@@ -544,7 +544,7 @@ void IPCEngineGuest::notifyRemoveBreakpointOk(quint64 id)
     rpcCall(NotifyRemoveBreakpointOk, p);
 }
 
-void IPCEngineGuest::notifyRemoveBreakpointFailed(quint64 id)
+void IPCEngineGuest::notifyRemoveBreakpointFailed(BreakpointId id)
 {
     QByteArray p;
     {
@@ -555,7 +555,7 @@ void IPCEngineGuest::notifyRemoveBreakpointFailed(quint64 id)
     rpcCall(NotifyRemoveBreakpointFailed, p);
 }
 
-void IPCEngineGuest::notifyChangeBreakpointOk(quint64 id)
+void IPCEngineGuest::notifyChangeBreakpointOk(BreakpointId id)
 {
     QByteArray p;
     {
@@ -566,7 +566,7 @@ void IPCEngineGuest::notifyChangeBreakpointOk(quint64 id)
     rpcCall(NotifyChangeBreakpointOk, p);
 }
 
-void IPCEngineGuest::notifyChangeBreakpointFailed(quint64 id)
+void IPCEngineGuest::notifyChangeBreakpointFailed(BreakpointId id)
 {
     QByteArray p;
     {
@@ -577,18 +577,19 @@ void IPCEngineGuest::notifyChangeBreakpointFailed(quint64 id)
     rpcCall(NotifyChangeBreakpointFailed, p);
 }
 
-void IPCEngineGuest::notifyBreakpointAdjusted(const Internal::BreakpointData &bp)
+void IPCEngineGuest::notifyBreakpointAdjusted(BreakpointId id,
+    const BreakpointParameters &bp)
 {
     QByteArray p;
     {
         QDataStream s(&p, QIODevice::WriteOnly);
         SET_NATIVE_BYTE_ORDER(s);
-        s << bp;
+        s << id << bp;
     }
     rpcCall(NotifyBreakpointAdjusted, p);
 }
 
-void IPCEngineGuest::updateWatchData(bool fullCycle, const QList<Internal::WatchData> &wd)
+void IPCEngineGuest::updateWatchData(bool fullCycle, const QList<WatchData> &wd)
 {
     QByteArray p;
     {

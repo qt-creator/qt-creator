@@ -40,13 +40,6 @@ typedef quint64 BreakpointId; // FIXME: make Internal.
 
 namespace Internal {
 
-class BreakWindow;
-class BreakpointDialog;
-class BreakHandler;
-class BreakpointData;
-
-QDataStream &operator>>(QDataStream& stream, BreakpointData &data);
-
 //////////////////////////////////////////////////////////////////
 //
 // BreakpointData
@@ -85,6 +78,12 @@ public:
     explicit BreakpointParameters(BreakpointType = UnknownType);
     bool equals(const BreakpointParameters &rhs) const;
     bool conditionsMatch(const QByteArray &other) const;
+    bool isWatchpoint() const { return type == Watchpoint; }
+    bool isBreakpoint() const { return type != Watchpoint; } // Enough for now.
+    QString toString() const;
+
+    bool operator==(const BreakpointParameters &p) const { return equals(p); }
+    bool operator!=(const BreakpointParameters &p) const { return !equals(p); }
 
     BreakpointType type;     // Type of breakpoint.
     bool enabled;            // Should we talk to the debugger engine?
@@ -98,58 +97,6 @@ public:
     QString functionName;
 };
 
-inline bool operator==(const BreakpointParameters &p1, const BreakpointParameters &p2)
-{ return p1.equals(p2); }
-inline bool operator!=(const BreakpointParameters &p1, const BreakpointParameters &p2)
-{ return !p1.equals(p2); }
-
-class BreakpointData
-{
-private:
-    friend class BreakHandler; // This should be the only class manipulating data.
-    friend class BreakWindow; // FIXME: Remove.
-    friend class BreakpointDialog; // FIXME: Remove.
-    friend QDataStream &operator>>(QDataStream& stream, BreakpointData &data);
-
-public:
-    explicit BreakpointData(BreakpointType type = UnknownType);
-
-    BreakpointType type() const { return m_parameters.type; }
-    quint64 address() const { return m_parameters.address; }
-    bool useFullPath() const { return m_parameters.useFullPath; }
-    QString toString() const;
-
-    QString functionName() const { return m_parameters.functionName; }
-    QString fileName() const { return m_parameters.fileName; }
-    int lineNumber() const { return m_parameters.lineNumber; }
-    int ignoreCount() const { return m_parameters.ignoreCount; }
-    bool isEnabled() const { return m_parameters.enabled; }
-    QByteArray threadSpec() const { return m_parameters.threadSpec; }
-    QByteArray condition() const { return m_parameters.condition; }
-    const BreakpointParameters &parameters() const { return m_parameters; }
-
-    bool isWatchpoint() const { return type() == Watchpoint; }
-    bool isBreakpoint() const { return type() != Watchpoint; } // Enough for now.
-
-private:
-    // All setters return true on change.
-    bool setUseFullPath(bool on);
-    bool setMarkerFileName(const QString &file);
-    bool setMarkerLineNumber(int line);
-    bool setFileName(const QString &file);
-    bool setEnabled(bool on);
-    bool setIgnoreCount(int count);
-    bool setFunctionName(const QString &name);
-    bool setLineNumber(int line);
-    bool setAddress(quint64 address);
-    bool setThreadSpec(const QByteArray &spec);
-    bool setType(BreakpointType type);
-    bool setCondition(const QByteArray &cond);
-
-private:
-    // This "user requested information" will get stored in the session.
-    BreakpointParameters m_parameters;
-};
 
 // This is what debuggers produced in response to the attempt to
 // insert a breakpoint. The data might differ from the requested bits.

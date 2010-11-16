@@ -103,12 +103,12 @@ public:
     void executeJumpToLine(const QString &fileName, int lineNumber);
     void activateFrame(int index);
     void selectThread(int index);
-    void fetchDisassembler(Internal::DisassemblerViewAgent *);
-    void addBreakpoint(const Internal::BreakpointData &bp);
+    void fetchDisassembler(DisassemblerViewAgent *);
+    void addBreakpoint(const BreakpointParameters &bp);
     void removeBreakpoint(quint64 id);
-    void changeBreakpoint(const Internal::BreakpointData &bp);
-    void updateWatchData(const Internal::WatchData &data,
-            const Internal::WatchUpdateFlags &flags = Internal::WatchUpdateFlags());
+    void changeBreakpoint(const BreakpointParameters &bp);
+    void updateWatchData(const WatchData &data,
+            const WatchUpdateFlags &flags = WatchUpdateFlags());
 
     void rpcCall(Function f, QByteArray payload = QByteArray());
 public slots:
@@ -123,7 +123,7 @@ private:
     quint64 m_nextMessagePayloadSize;
     quint64 m_cookie;
     QIODevice *m_device;
-    QHash <quint64, Internal::DisassemblerViewAgent *> m_frameToDisassemblerAgent;
+    QHash <quint64, DisassemblerViewAgent *> m_frameToDisassemblerAgent;
 };
 
 } // namespace Internal

@@ -1323,12 +1323,12 @@ void DebuggerEngine::notifyBreakpointChangeFailed(BreakpointId id)
     breakHandler()->notifyBreakpointChangeFailed(id);
 }
 
-/*
-void DebuggerEngine::notifyBreakpointAdjusted(BreakpointId id)
+void DebuggerEngine::notifyBreakpointAdjusted(BreakpointId id,
+    const BreakpointParameters &data)
 {
-    breakHandler()->notifyChangeBreakpointAdjusted(id);
+    QTC_ASSERT(false, /* FIXME */);
+    breakHandler()->setBreakpointData(id, data);
 }
-*/
 
 void DebuggerEngine::selectThread(int)
 {

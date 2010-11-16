@@ -30,14 +30,14 @@
 #ifndef DEBUGGER_IPCENGINE_H
 #define DEBUGGER_IPCENGINE_H
 
-#include "debuggerengine.h"
-#include "threadshandler.h"
-#include "stackhandler.h"
 #include "breakhandler.h"
+#include "debuggerengine.h"
+#include "stackhandler.h"
+#include "threadshandler.h"
 
 #include <QtCore/QQueue>
-#include <QtCore/QVariant>
 #include <QtCore/QThread>
+#include <QtCore/QVariant>
 
 namespace Debugger {
 namespace Internal {
@@ -74,11 +74,11 @@ public:
     virtual void activateFrame(qint64 token) = 0;
     virtual void selectThread(qint64 token) = 0;
     virtual void disassemble(quint64 pc) = 0;
-    virtual void addBreakpoint(const Internal::BreakpointData &bp) = 0;
+    virtual void addBreakpoint(const BreakpointParameters &bp) = 0;
     virtual void removeBreakpoint(quint64 id) = 0;
-    virtual void changeBreakpoint(const Internal::BreakpointData &bp) = 0;
-    virtual void requestUpdateWatchData(const Internal::WatchData &data,
-            const Internal::WatchUpdateFlags & flags = Internal::WatchUpdateFlags()) = 0;
+    virtual void changeBreakpoint(const BreakpointParameters &bp) = 0;
+    virtual void requestUpdateWatchData(const WatchData &data,
+            const WatchUpdateFlags & flags = WatchUpdateFlags()) = 0;
 
     enum Function
     {
@@ -154,15 +154,15 @@ public:
     void listThreads(const Threads &);
     void disassembled(quint64 pc, const QString &da);
 
-    void notifyAddBreakpointOk(quint64 id);
-    void notifyAddBreakpointFailed(quint64 id);
-    void notifyRemoveBreakpointOk(quint64 id);
-    void notifyRemoveBreakpointFailed(quint64 id);
-    void notifyChangeBreakpointOk(quint64 id);
-    void notifyChangeBreakpointFailed(quint64 id);
-    void notifyBreakpointAdjusted(const  Internal::BreakpointData &bp);
+    void notifyAddBreakpointOk(BreakpointId id);
+    void notifyAddBreakpointFailed(BreakpointId id);
+    void notifyRemoveBreakpointOk(BreakpointId id);
+    void notifyRemoveBreakpointFailed(BreakpointId id);
+    void notifyChangeBreakpointOk(BreakpointId id);
+    void notifyChangeBreakpointFailed(BreakpointId id);
+    void notifyBreakpointAdjusted(BreakpointId id, const BreakpointParameters &bp);
 
-    void updateWatchData(bool fullCycle, const QList<Internal::WatchData> &);
+    void updateWatchData(bool fullCycle, const QList<WatchData> &);
 
     void rpcCall(Function f, QByteArray payload = QByteArray());
 public slots:

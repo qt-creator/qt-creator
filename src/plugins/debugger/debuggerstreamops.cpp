@@ -164,31 +164,31 @@ QDataStream &operator>>(QDataStream &stream, BreakpointResponse &s)
     return stream;
 }
 
-QDataStream &operator<<(QDataStream &stream, const BreakpointData &s)
+QDataStream &operator<<(QDataStream &stream, const BreakpointParameters &s)
 {
-    stream << s.fileName();
-    stream << s.condition();
-    stream << quint64(s.ignoreCount());
-    stream << quint64(s.lineNumber());
-    stream << quint64(s.address());
-    stream << s.functionName();
-    stream << s.useFullPath();
+    stream << s.fileName;
+    stream << s.condition;
+    stream << quint64(s.ignoreCount);
+    stream << quint64(s.lineNumber);
+    stream << quint64(s.address);
+    stream << s.functionName;
+    stream << s.useFullPath;
     return stream;
 }
 
-QDataStream &operator>>(QDataStream &stream, BreakpointData &s)
+QDataStream &operator>>(QDataStream &stream, BreakpointParameters &s)
 {
     quint64 t;
     QString str;
     QByteArray ba;
     bool b;
-    stream >> str; s.setFileName(str);
-    stream >> ba; s.setCondition(ba);
-    stream >> t; s.setIgnoreCount(t);
-    stream >> t; s.setLineNumber(t);
-    stream >> t; s.setAddress(t);
-    stream >> str; s.setFunctionName(str);
-    stream >> b; s.setUseFullPath(b);
+    stream >> str; s.fileName = str;
+    stream >> ba; s.condition = ba;
+    stream >> t; s.ignoreCount = t;
+    stream >> t; s.lineNumber = t;
+    stream >> t; s.address = t;
+    stream >> str; s.functionName = str;
+    stream >> b; s.useFullPath = b;
     return stream;
 }
 

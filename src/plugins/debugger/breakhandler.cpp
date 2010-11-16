@@ -84,30 +84,30 @@ static inline bool fileNameMatch(const QString &f1, const QString &f2)
 #endif
 }
 
-static bool isSimilarTo(const BreakpointData &data, const BreakpointResponse &needle)
+static bool isSimilarTo(const BreakpointParameters &data, const BreakpointResponse &needle)
 {
     // Clear hit.
     // Clear miss.
-    if (needle.type != UnknownType && data.type() != UnknownType
-            && data.type() != needle.type)
+    if (needle.type != UnknownType && data.type != UnknownType
+            && data.type != needle.type)
         return false;
 
     // Clear hit.
-    if (data.address() && data.address() == needle.address)
+    if (data.address && data.address == needle.address)
         return true;
 
     // At least at a position we were looking for.
     // FIXME: breaks multiple breakpoints at the same location
-    if (!data.fileName().isEmpty()
-            && fileNameMatch(data.fileName(), needle.fileName)
-            && data.lineNumber() == needle.lineNumber)
+    if (!data.fileName.isEmpty()
+            && fileNameMatch(data.fileName, needle.fileName)
+            && data.lineNumber == needle.lineNumber)
         return true;
 
     // At least at a position we were looking for.
     // FIXME: breaks multiple breakpoints at the same location
-    if (!data.fileName().isEmpty()
-            && fileNameMatch(data.fileName(), needle.fileName)
-            && data.lineNumber() == needle.lineNumber)
+    if (!data.fileName.isEmpty()
+            && fileNameMatch(data.fileName, needle.fileName)
+            && data.lineNumber == needle.lineNumber)
         return true;
 
     return false;
@@ -119,7 +119,7 @@ BreakpointId BreakHandler::findSimilarBreakpoint(const BreakpointResponse &needl
     ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
     for ( ; it != et; ++it) {
         const BreakpointId id = it.key();
-        const BreakpointData &data = it->data;
+        const BreakpointParameters &data = it->data;
         const BreakpointResponse &response = it->response;
         qDebug() << "COMPARING " << data.toString() << " WITH " << needle.toString();
         if (response.number && response.number == needle.number)
@@ -144,7 +144,7 @@ BreakpointId BreakHandler::findBreakpointByFunction(const QString &functionName)
 {
     ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
     for ( ; it != et; ++it)
-        if (it->data.functionName() == functionName)
+        if (it->data.functionName == functionName)
             return it.key();
     return BreakpointId(-1);
 }
@@ -153,7 +153,7 @@ BreakpointId BreakHandler::findBreakpointByAddress(quint64 address) const
 {
     ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
     for ( ; it != et; ++it)
-        if (it->data.address() == address)
+        if (it->data.address == address)
             return it.key();
     return BreakpointId(-1);
 }
@@ -173,14 +173,14 @@ const BreakpointParameters &BreakHandler::breakpointData(BreakpointId id) const
     static BreakpointParameters dummy;
     ConstIterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return dummy);
-    return it->data.parameters();
+    return it->data;
 }
 
 BreakpointId BreakHandler::findWatchpointByAddress(quint64 address) const
 {
     ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
     for ( ; it != et; ++it)
-        if (it->data.isWatchpoint() && it->data.address() == address)
+        if (it->data.isWatchpoint() && it->data.address == address)
             return it.key();
     return BreakpointId(-1);
 }
@@ -211,30 +211,30 @@ void BreakHandler::saveBreakpoints()
     QList<QVariant> list;
     ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
     for ( ; it != et; ++it) {
-        const BreakpointData &data = it->data;
+        const BreakpointParameters &data = it->data;
         QMap<QString, QVariant> map;
         // Do not persist Watchpoints.
         if (data.isWatchpoint())
             continue;
-        if (data.type() != BreakpointByFileAndLine)
-            map.insert(_("type"), data.type());
-        if (!data.fileName().isEmpty())
-            map.insert(_("filename"), data.fileName());
-        if (data.lineNumber())
-            map.insert(_("linenumber"), data.lineNumber());
-        if (!data.functionName().isEmpty())
-            map.insert(_("funcname"), data.functionName());
-        if (data.address())
-            map.insert(_("address"), data.address());
-        if (!data.condition().isEmpty())
-            map.insert(_("condition"), data.condition());
-        if (data.ignoreCount())
-            map.insert(_("ignorecount"), data.ignoreCount());
-        if (!data.threadSpec().isEmpty())
-            map.insert(_("threadspec"), data.threadSpec());
-        if (!data.isEnabled())
+        if (data.type != BreakpointByFileAndLine)
+            map.insert(_("type"), data.type);
+        if (!data.fileName.isEmpty())
+            map.insert(_("filename"), data.fileName);
+        if (data.lineNumber)
+            map.insert(_("linenumber"), data.lineNumber);
+        if (!data.functionName.isEmpty())
+            map.insert(_("funcname"), data.functionName);
+        if (data.address)
+            map.insert(_("address"), data.address);
+        if (!data.condition.isEmpty())
+            map.insert(_("condition"), data.condition);
+        if (data.ignoreCount)
+            map.insert(_("ignorecount"), data.ignoreCount);
+        if (!data.threadSpec.isEmpty())
+            map.insert(_("threadspec"), data.threadSpec);
+        if (!data.enabled)
             map.insert(_("disabled"), _("1"));
-        if (data.useFullPath())
+        if (data.useFullPath)
             map.insert(_("usefullpath"), _("1"));
         list.append(map);
     }
@@ -351,7 +351,7 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
     BreakpointId id = findBreakpointByIndex(mi);
     ConstIterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return QVariant());
-    const BreakpointData &data = it->data;
+    const BreakpointParameters &data = it->data;
     const BreakpointResponse &response = it->response;
 
     switch (mi.column()) {
@@ -363,7 +363,7 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
             if (role == Qt::DecorationRole) {
                 if (data.isWatchpoint())
                     return m_watchpointIcon;
-                if (!data.isEnabled())
+                if (!data.enabled)
                     return m_disabledBreakpointIcon;
                 return it->isPending() ? m_pendingBreakPointIcon : m_breakpointIcon;
             }
@@ -371,20 +371,20 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
         case 1:
             if (role == Qt::DisplayRole) {
                 const QString str = it->isPending()
-                    ? data.functionName() : response.functionName;
+                    ? data.functionName : response.functionName;
                 return str.isEmpty() ? empty : str;
             }
             break;
         case 2:
             if (role == Qt::DisplayRole) {
                 QString str = it->isPending()
-                    ? data.fileName() : response.fileName;
+                    ? data.fileName : response.fileName;
                 str = QFileInfo(str).fileName();
                 // FIXME: better?
                 //if (data.bpMultiple && str.isEmpty() && !data.markerFileName.isEmpty())
                 //    str = data.markerFileName;
                 str = str.isEmpty() ? empty : str;
-                if (data.useFullPath())
+                if (data.useFullPath)
                     str = QDir::toNativeSeparators(QLatin1String("/.../") + str);
                 return str;
             }
@@ -395,48 +395,48 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                 //if (data.bpMultiple && str.isEmpty() && !data.markerFileName.isEmpty())
                 //    str = data.markerLineNumber;
                 const int nr = it->isPending()
-                    ? data.lineNumber() : response.lineNumber;
+                    ? data.lineNumber : response.lineNumber;
                 return nr ? QString::number(nr) : empty;
             }
             if (role == Qt::UserRole + 1)
-                return data.lineNumber();
+                return data.lineNumber;
             break;
         case 4:
             if (role == Qt::DisplayRole)
-                return it->isPending() ? data.condition() : response.condition;
+                return it->isPending() ? data.condition : response.condition;
             if (role == Qt::ToolTipRole)
                 return tr("Breakpoint will only be hit if this condition is met.");
             if (role == Qt::UserRole + 1)
-                return data.condition();
+                return data.condition;
             break;
         case 5:
             if (role == Qt::DisplayRole) {
                 const int ignoreCount =
-                    it->isPending() ? data.ignoreCount() : response.ignoreCount;
+                    it->isPending() ? data.ignoreCount : response.ignoreCount;
                 return ignoreCount ? QVariant(ignoreCount) : QVariant(QString());
             }
             if (role == Qt::ToolTipRole)
                 return tr("Breakpoint will only be hit after being ignored so many times.");
             if (role == Qt::UserRole + 1)
-                return data.ignoreCount();
+                return data.ignoreCount;
             break;
         case 6:
             if (role == Qt::DisplayRole) {
                 if (it->isPending())
-                    return !data.threadSpec().isEmpty() ? data.threadSpec() : tr("(all)");
+                    return !data.threadSpec.isEmpty() ? data.threadSpec : tr("(all)");
                 else
                     return !response.threadSpec.isEmpty() ? response.threadSpec : tr("(all)");
             }
             if (role == Qt::ToolTipRole)
                 return tr("Breakpoint will only be hit in the specified thread(s).");
             if (role == Qt::UserRole + 1)
-                return data.threadSpec();
+                return data.threadSpec;
             break;
         case 7:
             if (role == Qt::DisplayRole) {
                 QString displayValue;
                 const quint64 address =
-                    data.isWatchpoint() ? data.address() : response.address;
+                    data.isWatchpoint() ? data.address : response.address;
                 if (address)
                     displayValue += QString::fromAscii("0x%1").arg(address, 0, 16);
                 if (!response.state.isEmpty()) {
@@ -462,24 +462,25 @@ type BreakHandler::getter(BreakpointId id) const \
     QTC_ASSERT(it != m_storage.end(), \
         qDebug() << "ID" << id << "NOT KNOWN"; \
         return type()); \
-    return it->data.getter(); \
+    return it->data.getter; \
 }
 
-#define SETTER(type, setter) \
+#define SETTER(type, getter, setter) \
 void BreakHandler::setter(BreakpointId id, const type &value) \
 { \
     Iterator it = m_storage.find(id); \
     QTC_ASSERT(it != m_storage.end(), \
         qDebug() << "ID" << id << "NOT KNOWN"; return); \
-    if (!it->data.setter(value)) \
+    if (it->data.getter == value) \
         return; \
+    it->data.getter = value; \
     it->state = BreakpointChangeRequested; \
     scheduleSynchronization(); \
 }
 
 #define PROPERTY(type, getter, setter) \
     GETTER(type, getter) \
-    SETTER(type, setter)
+    SETTER(type, getter, setter)
 
 
 PROPERTY(bool, useFullPath, setUseFullPath)
@@ -496,7 +497,7 @@ bool BreakHandler::isEnabled(BreakpointId id) const
 {
     ConstIterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return false);
-    return it->data.isEnabled();
+    return it->data.enabled;
 }
 
 void BreakHandler::setEnabled(BreakpointId id, bool on)
@@ -504,12 +505,13 @@ void BreakHandler::setEnabled(BreakpointId id, bool on)
     Iterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return);
     //qDebug() << "SET ENABLED: " << id << it->data.isEnabled() << on;
-    if (it->data.setEnabled(on)) {
-        it->destroyMarker();
-        it->state = BreakpointChangeRequested;
-        updateMarker(id);
-        scheduleSynchronization();
-    }
+    if (it->data.enabled == on)
+        return;
+    it->data.enabled = on;
+    it->destroyMarker();
+    it->state = BreakpointChangeRequested;
+    updateMarker(id);
+    scheduleSynchronization();
 }
 
 void BreakHandler::setMarkerFileAndLine(BreakpointId id,
@@ -565,7 +567,7 @@ void BreakHandler::ackCondition(BreakpointId id)
 {
     Iterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return);
-    it->response.condition = it->data.condition();
+    it->response.condition = it->data.condition;
     updateMarker(id);
 }
 
@@ -573,7 +575,7 @@ void BreakHandler::ackIgnoreCount(BreakpointId id)
 {
     Iterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return);
-    it->response.ignoreCount = it->data.ignoreCount();
+    it->response.ignoreCount = it->data.ignoreCount;
     updateMarker(id);
 }
 
@@ -581,7 +583,7 @@ void BreakHandler::ackEnabled(BreakpointId id)
 {
     Iterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return);
-    it->response.enabled = it->data.isEnabled();
+    it->response.enabled = it->data.enabled;
     updateMarker(id);
 }
 
@@ -620,7 +622,7 @@ void BreakHandler::appendBreakpoint(const BreakpointParameters &data)
 
     BreakpointId id(++currentId);
     BreakpointItem item;
-    item.data.m_parameters = data;
+    item.data = data;
     item.markerFileName = data.fileName;
     item.markerLineNumber = data.lineNumber;
     m_storage.insert(id, item);
@@ -674,10 +676,10 @@ void BreakHandler::breakByFunction(const QString &functionName)
     // combinations of multiple conditions and ignore counts, though.
     ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
     for ( ; it != et; ++it) {
-        const BreakpointData &data = it->data;
-        if (data.functionName() == functionName
-                && data.condition().isEmpty()
-                && data.ignoreCount() == 0)
+        const BreakpointParameters &data = it->data;
+        if (data.functionName == functionName
+                && data.condition.isEmpty()
+                && data.ignoreCount == 0)
             return;
     }
     BreakpointParameters data(BreakpointByFunction);
@@ -689,7 +691,7 @@ QIcon BreakHandler::icon(BreakpointId id) const
 {
     ConstIterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return pendingBreakPointIcon());
-    if (!it->data.isEnabled())
+    if (!it->data.enabled)
         return m_disabledBreakpointIcon;
     if (it->state == BreakpointInserted)
         return breakpointIcon();
@@ -719,7 +721,7 @@ void BreakHandler::gotoLocation(BreakpointId id) const
     ConstIterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return);
     debuggerCore()->gotoLocation(
-        it->data.fileName(), it->data.lineNumber(), false);
+        it->data.fileName, it->data.lineNumber, false);
 }
 
 void BreakHandler::updateLineNumberFromMarker(BreakpointId id, int lineNumber)
@@ -744,7 +746,7 @@ void BreakHandler::updateLineNumberFromMarker(BreakpointId id, int lineNumber)
     // the next line that generated code.
     // FIXME: Do we need yet another data member?
     if (it->response.number == 0) {
-        it->data.setLineNumber(lineNumber);
+        it->data.lineNumber = lineNumber;
         updateMarker(id);
     }
 }
@@ -853,9 +855,9 @@ void BreakHandler::setBreakpointData(BreakpointId id, const BreakpointParameters
 {
     Iterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return);
-    if (data == it->data.m_parameters)
+    if (data == it->data)
         return;
-    it->data.m_parameters = data;
+    it->data = data;
     updateMarker(id);
     layoutChanged();
 }
@@ -907,7 +909,7 @@ static QString stateToString(BreakpointState state)
 bool BreakHandler::BreakpointItem::isLocatedAt
     (const QString &fileName, int lineNumber, bool useMarkerPosition) const
 {
-    int line = useMarkerPosition ? markerLineNumber : data.lineNumber();
+    int line = useMarkerPosition ? markerLineNumber : data.lineNumber;
     return lineNumber == line && fileNameMatch(fileName, markerFileName);
 }
 
@@ -915,7 +917,7 @@ QString BreakHandler::BreakpointItem::toToolTip() const
 {
     QString t;
 
-    switch (data.type()) {
+    switch (data.type) {
         case BreakpointByFileAndLine:
             t = tr("Breakpoint by File and Line");
             break;
@@ -967,22 +969,22 @@ QString BreakHandler::BreakpointItem::toToolTip() const
         << "<tr><td>" << tr("Internal Number:")
         << "</td><td>&mdash;</td><td>" << response.number << "</td></tr>"
         << "<tr><td>" << tr("File Name:")
-        << "</td><td>" << QDir::toNativeSeparators(data.fileName())
+        << "</td><td>" << QDir::toNativeSeparators(data.fileName)
         << "</td><td>" << QDir::toNativeSeparators(response.fileName)
         << "</td></tr>"
         << "<tr><td>" << tr("Function Name:")
-        << "</td><td>" << data.functionName()
+        << "</td><td>" << data.functionName
         << "</td><td>" << response.functionName << "</td></tr>"
         << "<tr><td>" << tr("Line Number:") << "</td><td>";
-    if (data.lineNumber())
-        str << data.lineNumber();
+    if (data.lineNumber)
+        str << data.lineNumber;
     str << "</td><td>";
     if (response.lineNumber)
         str << response.lineNumber;
     str << "</td></tr>"
         << "<tr><td>" << tr("Breakpoint Address:")
         << "</td><td>";
-    formatAddress(str, data.address());
+    formatAddress(str, data.address);
     str << "</td><td>";
     formatAddress(str, response.address);
     //str <<  "</td></tr>"
@@ -994,17 +996,17 @@ QString BreakHandler::BreakpointItem::toToolTip() const
     //    str << '-';
     str << "</td></tr>"
         << "<tr><td>" << tr("Condition:")
-        << "</td><td>" << data.condition()
+        << "</td><td>" << data.condition
         << "</td><td>" << response.condition << "</td></tr>"
         << "<tr><td>" << tr("Ignore Count:") << "</td><td>";
-    if (data.ignoreCount())
-        str << data.ignoreCount();
+    if (data.ignoreCount)
+        str << data.ignoreCount;
     str << "</td><td>";
     if (response.ignoreCount)
         str << response.ignoreCount;
     str << "</td></tr>"
         << "<tr><td>" << tr("Thread Specification:")
-        << "</td><td>" << data.threadSpec()
+        << "</td><td>" << data.threadSpec
         << "</td><td>" << response.threadSpec << "</td></tr>"
         << "</table></body></html>";
     return rc;

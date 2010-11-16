@@ -129,7 +129,7 @@ class StackFrame;
 class SourceFilesHandler;
 class ThreadsHandler;
 class WatchHandler;
-class BreakpointData;
+class BreakpointParameters;
 
 struct WatchUpdateFlags
 {
@@ -195,6 +195,8 @@ public:
     virtual void changeBreakpoint(BreakpointId id);  // FIXME: make pure
     virtual void notifyBreakpointChangeOk(BreakpointId id);
     virtual void notifyBreakpointChangeFailed(BreakpointId id);
+    virtual void notifyBreakpointAdjusted(BreakpointId id,
+        const Internal::BreakpointParameters &data);
 
     virtual void assignValueInDebugger(const Internal::WatchData *data,
         const QString &expr, const QVariant &value);
