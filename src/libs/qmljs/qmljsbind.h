@@ -62,7 +62,7 @@ public:
     bool usesQmlPrototype(Interpreter::ObjectValue *prototype,
                           const Interpreter::Context *context) const;
 
-    Interpreter::ObjectValue *findFunctionScope(AST::FunctionDeclaration *node) const;
+    Interpreter::ObjectValue *findFunctionScope(AST::FunctionExpression *node) const;
     bool isGroupedPropertyBinding(AST::Node *node) const;
 
     static QString toString(AST::UiQualifiedId *qualifiedId, QChar delimiter = QChar('.'));
@@ -85,6 +85,7 @@ protected:
 
     // QML/JS
     virtual bool visit(AST::FunctionDeclaration *ast);
+    virtual bool visit(AST::FunctionExpression *ast);
     virtual bool visit(AST::VariableDeclaration *ast);
 
     Interpreter::ObjectValue *switchObjectValue(Interpreter::ObjectValue *newObjectValue);
@@ -102,7 +103,7 @@ private:
 
     QHash<AST::Node *, Interpreter::ObjectValue *> _qmlObjects;
     QSet<AST::Node *> _groupedPropertyBindings;
-    QHash<AST::FunctionDeclaration *, Interpreter::ObjectValue *> _functionScopes;
+    QHash<AST::FunctionExpression *, Interpreter::ObjectValue *> _functionScopes;
     QStringList _includedScripts;
 
     QList<Interpreter::ImportInfo> _imports;

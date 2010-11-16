@@ -866,15 +866,15 @@ private:
 
 class QMLJS_EXPORT ASTFunctionValue: public FunctionValue
 {
-    AST::FunctionDeclaration *_ast;
+    AST::FunctionExpression *_ast;
     const Document *_doc;
     QList<NameId *> _argumentNames;
 
 public:
-    ASTFunctionValue(AST::FunctionDeclaration *ast, const Document *doc, Engine *engine);
+    ASTFunctionValue(AST::FunctionExpression *ast, const Document *doc, Engine *engine);
     virtual ~ASTFunctionValue();
 
-    AST::FunctionDeclaration *ast() const;
+    AST::FunctionExpression *ast() const;
 
     virtual const Value *returnValue() const;
     virtual int argumentCount() const;

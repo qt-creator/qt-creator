@@ -106,7 +106,7 @@ bool Bind::usesQmlPrototype(ObjectValue *prototype,
     return false;
 }
 
-Interpreter::ObjectValue *Bind::findFunctionScope(AST::FunctionDeclaration *node) const
+Interpreter::ObjectValue *Bind::findFunctionScope(AST::FunctionExpression *node) const
 {
     return _functionScopes.value(node);
 }
@@ -278,7 +278,7 @@ bool Bind::visit(UiScriptBinding *ast)
                     _idEnvironment->setProperty(i->name->asString(), _currentObjectValue);
     }
 
-    return false;
+    return true;
 }
 
 bool Bind::visit(UiArrayBinding *)
@@ -298,7 +298,7 @@ bool Bind::visit(VariableDeclaration *ast)
     return false;
 }
 
-bool Bind::visit(FunctionDeclaration *ast)
+bool Bind::visit(FunctionExpression *ast)
 {
     if (!ast->name)
         return false;
@@ -340,4 +340,9 @@ bool Bind::visit(FunctionDeclaration *ast)
     switchObjectValue(parent);
 
     return false;
+}
+
+bool Bind::visit(FunctionDeclaration *ast)
+{
+    return visit(static_cast<FunctionExpression *>(ast));
 }
