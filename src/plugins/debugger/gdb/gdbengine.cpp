@@ -4300,6 +4300,9 @@ void GdbEngine::handleGdbError(QProcess::ProcessError error)
 
 void GdbEngine::handleGdbFinished(int code, QProcess::ExitStatus type)
 {
+    if (m_commandTimer && m_commandTimer->isActive())
+        m_commandTimer->stop();
+
     //qDebug() << "GDB PROCESS FINISHED";
     showMessage(_("GDB PROCESS FINISHED, status %1, code %2").arg(type).arg(code));
 /*
@@ -4314,20 +4317,25 @@ void GdbEngine::handleGdbFinished(int code, QProcess::ExitStatus type)
     }
     initializeVariables();
 */
-    if (state() == EngineShutdownRequested) {
+    switch (state()) {
+    case EngineShutdownRequested:
         notifyEngineShutdownOk();
-    } else if (state() == InferiorRunOk) {
+        break;
+    case InferiorRunOk:
         // This could either be a real gdb crash or a quickly exited inferior
         // in the terminal adapter. In this case the stub proc will die soon,
         // too, so there's no need to act here.
         showMessage(_("The gdb process exited somewhat unexpectedly."));
         notifyEngineSpontaneousShutdown();
-    } else {
-        QString msg = tr("The gdb process exited unexpectedly (%1).")
-          .arg((type == QProcess::CrashExit)
-              ? tr("crashed") : tr("code %1").arg(code));
+        break;
+    default: {
+        notifyEngineIll(); // Initiate shutdown sequence
+        const QString msg = type == QProcess::CrashExit ?
+                    tr("The gdb process crashed.") :
+                    tr("The gdb process exited unexpectedly (code %1)").arg(code);
         showMessageBox(QMessageBox::Critical, tr("Unexpected Gdb Exit"), msg);
-        notifyEngineSpontaneousShutdown();
+    }
+        break;
     }
 }
 
