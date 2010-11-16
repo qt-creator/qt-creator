@@ -578,13 +578,15 @@ static bool isAllowedTransition(BreakpointState from, BreakpointState to)
             || to == BreakpointPending
             || to == BreakpointDead;
     case BreakpointPending:
-        return false;
+        return to == BreakpointChangeRequested
+            || to == BreakpointRemoveRequested;
     case BreakpointInserted:
-        return false;
+        return to == BreakpointChangeRequested
+            || to == BreakpointRemoveRequested;
     case BreakpointRemoveRequested:
-        return false;
+        return to == BreakpointRemoveProceeding;
     case BreakpointRemoveProceeding:
-        return false;
+        return to == BreakpointDead;
     case BreakpointDead:
         return false;
     }
