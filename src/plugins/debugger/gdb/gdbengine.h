@@ -45,12 +45,9 @@
 #include <QtCore/QSet>
 #include <QtCore/QTextCodec>
 #include <QtCore/QTime>
+#include <QtCore/QTimer>
 #include <QtCore/QVariant>
 
-QT_BEGIN_NAMESPACE
-class QMainWindow;
-class QTimer;
-QT_END_NAMESPACE
 
 namespace Debugger {
 namespace Internal {
@@ -257,7 +254,7 @@ private: ////////// Gdb Command Management //////////
 
     QHash<int, GdbCommand> m_cookieForToken;
     int commandTimeoutTime() const;
-    QTimer *m_commandTimer;
+    QTimer m_commandTimer;
 
     QByteArray m_pendingConsoleStreamOutput;
     QByteArray m_pendingLogStreamOutput;

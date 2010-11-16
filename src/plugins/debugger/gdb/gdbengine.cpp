@@ -182,9 +182,8 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters)
     setObjectName(QLatin1String("GdbEngine"));
     qRegisterMetaType<WatchData>("WatchData");
 
-    m_commandTimer = new QTimer(this);
-    m_commandTimer->setSingleShot(true);
-    connect(m_commandTimer, SIGNAL(timeout()), SLOT(commandTimeout()));
+    m_commandTimer.setSingleShot(true);
+    connect(&m_commandTimer, SIGNAL(timeout()), SLOT(commandTimeout()));
 
     // Needs no resetting in initializeVariables()
     m_busy = false;
@@ -247,7 +246,7 @@ void GdbEngine::initializeVariables()
     m_inbuffer.clear();
     m_resultVarName.clear();
 
-    m_commandTimer->stop();
+    m_commandTimer.stop();
 
     // ConverterState has no reset() function.
     m_outputCodecState.~ConverterState();
@@ -594,15 +593,14 @@ void GdbEngine::readGdbStandardError()
 
 void GdbEngine::readGdbStandardOutput()
 {
-    if (m_commandTimer->isActive())
-        m_commandTimer->start(); // Retrigger
+    m_commandTimer.start(); // Restart timer.
 
     int newstart = 0;
     int scan = m_inbuffer.size();
 
     m_inbuffer.append(gdbProc()->readAllStandardOutput());
 
-    // This can trigger when a dialog starts a nested event loop
+    // This can trigger when a dialog starts a nested event loop.
     if (m_busy)
         return;
 
@@ -793,14 +791,14 @@ void GdbEngine::flushCommand(const GdbCommand &cmd0)
     m_gdbAdapter->write(cmd.command + "\r\n");
 
     // Start Watchdog.
-    if (m_commandTimer->interval() <= 20000)
-        m_commandTimer->setInterval(commandTimeoutTime());
+    if (m_commandTimer.interval() <= 20000)
+        m_commandTimer.setInterval(commandTimeoutTime());
     // The process can die for external reason between the "-gdb-exit" was
     // sent and a response could be retrieved. We don't want the watchdog
     // to bark in that case since the only possible outcome is a dead
     // process anyway.
     if (!cmd.command.endsWith("-gdb-exit"))
-        m_commandTimer->start();
+        m_commandTimer.start();
 
     //if (cmd.flags & LosesChild)
     //    notifyInferiorIll();
@@ -828,8 +826,8 @@ void GdbEngine::commandTimeout()
     }
     if (killIt) {
         showMessage(_("TIMED OUT WAITING FOR GDB REPLY. COMMANDS STILL IN PROGRESS:"));
-        int timeOut = m_commandTimer->interval();
-        //m_commandTimer->stop();
+        int timeOut = m_commandTimer.interval();
+        //m_commandTimer.stop();
         const QString msg = tr("The gdb process has not responded "
             "to a command within %1 seconds. This could mean it is stuck "
             "in an endless loop or taking longer than expected to perform "
@@ -1011,7 +1009,7 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
     }
 
     if (m_cookieForToken.isEmpty())
-        m_commandTimer->stop();
+        m_commandTimer.stop();
 }
 
 void GdbEngine::executeDebuggerCommand(const QString &command)
@@ -4300,8 +4298,8 @@ void GdbEngine::handleGdbError(QProcess::ProcessError error)
 
 void GdbEngine::handleGdbFinished(int code, QProcess::ExitStatus type)
 {
-    if (m_commandTimer && m_commandTimer->isActive())
-        m_commandTimer->stop();
+    if (m_commandTimer.isActive())
+        m_commandTimer.stop();
 
     //qDebug() << "GDB PROCESS FINISHED";
     showMessage(_("GDB PROCESS FINISHED, status %1, code %2").arg(type).arg(code));
@@ -4478,7 +4476,7 @@ void GdbEngine::handleCreateFullBacktrace(const GdbResponse &response)
 
 void GdbEngine::resetCommandQueue()
 {
-    m_commandTimer->stop();
+    m_commandTimer.stop();
     if (!m_cookieForToken.isEmpty()) {
         QString msg;
         QTextStream ts(&msg);
