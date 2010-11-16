@@ -631,7 +631,7 @@ void BreakHandler::notifyBreakpointInsertFailed(BreakpointId id)
 void BreakHandler::notifyBreakpointRemoveProceeding(BreakpointId id)
 {
     QTC_ASSERT(state(id)== BreakpointRemoveRequested, /**/);
-    setState(id, BreakpointInsertProceeding);
+    setState(id, BreakpointRemoveProceeding);
 }
 
 void BreakHandler::notifyBreakpointRemoveOk(BreakpointId id)
