@@ -32,8 +32,8 @@
 #include "bookmarkmanager.h"
 #include "centralwidget.h"
 #include "helpconstants.h"
-#include "helpmanager.h"
 #include "helpviewer.h"
+#include "localhelpmanager.h"
 #include "xbelsupport.h"
 
 #include <coreplugin/coreconstants.h>

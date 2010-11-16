@@ -33,7 +33,7 @@
 
 #include "helpconstants.h"
 #include "helpviewer_p.h"
-#include "helpmanager.h"
+#include "localhelpmanager.h"
 
 #include <QtGui/QApplication>
 #include <QtGui/QClipboard>

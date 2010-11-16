@@ -33,7 +33,7 @@
 
 #include "centralwidget.h"
 #include "helpconstants.h"
-#include "helpmanager.h"
+#include "localhelpmanager.h"
 #include "openpagesmanager.h"
 
 #include <QtCore/QFileInfo>

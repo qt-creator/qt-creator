@@ -19,7 +19,7 @@ HEADERS += \
     helpconstants.h \
     helpfindsupport.h \
     helpindexfilter.h \
-    helpmanager.h \
+    localhelpmanager.h \
     helpmode.h \
     helpplugin.h \
     helpviewer.h \
@@ -40,7 +40,7 @@ SOURCES += \
     generalsettingspage.cpp \
     helpfindsupport.cpp \
     helpindexfilter.cpp \
-    helpmanager.cpp \
+    localhelpmanager.cpp \
     helpmode.cpp \
     helpplugin.cpp \
     helpviewer.cpp \

@@ -29,9 +29,9 @@
 
 #include "centralwidget.h"
 
-#include "helpmanager.h"
 #include "helpviewer.h"
 #include "indexwindow.h"
+#include "localhelpmanager.h"
 #include "openpagesmanager.h"
 #include "topicchooser.h"
 

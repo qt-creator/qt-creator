@@ -31,8 +31,8 @@
 
 #include "centralwidget.h"
 #include "helpviewer.h"
+#include "localhelpmanager.h"
 #include "openpagesmanager.h"
-#include <help/helpmanager.h>
 
 #include <QtGui/QLayout>
 #include <QtGui/QFocusEvent>

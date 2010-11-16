@@ -31,8 +31,8 @@
 
 #include "centralwidget.h"
 #include "helpconstants.h"
-#include "helpmanager.h"
 #include "helpviewer.h"
+#include "localhelpmanager.h"
 #include "openpagesmodel.h"
 #include "openpagesswitcher.h"
 #include "openpageswidget.h"

@@ -30,7 +30,7 @@
 #include "bookmarkmanager.h"
 
 #include "centralwidget.h"
-#include "helpmanager.h"
+#include "localhelpmanager.h"
 #include "openpagesmanager.h"
 
 #include <utils/filterlineedit.h>

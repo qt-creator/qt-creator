@@ -48,7 +48,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
 #include <extensionsystem/pluginmanager.h>
-#include <help/helpmanager.h>
 #include <utils/qtcassert.h>
 #ifdef Q_OS_WIN
 #    include <utils/winutils.h>

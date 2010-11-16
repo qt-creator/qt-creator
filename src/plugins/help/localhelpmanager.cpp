@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "helpmanager.h"
+#include "localhelpmanager.h"
 #include "bookmarkmanager.h"
 
 #include <coreplugin/coreconstants.h>

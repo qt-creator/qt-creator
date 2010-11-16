@@ -29,8 +29,8 @@
 
 #include "centralwidget.h"
 
-#include "helpmanager.h"
 #include "helpviewer.h"
+#include "localhelpmanager.h"
 #include "topicchooser.h"
 
 #include <QtCore/QEvent>

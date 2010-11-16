@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "searchwidget.h"
-#include "helpmanager.h"
+#include "localhelpmanager.h"
 #include "openpagesmanager.h"
 
 #include <coreplugin/icore.h>
