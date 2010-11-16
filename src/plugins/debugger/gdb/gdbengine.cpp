@@ -2179,7 +2179,7 @@ QByteArray GdbEngine::breakpointLocation(BreakpointId id)
     if (lineNumber == 0)
         return functionName;
     const QString fileName = data.useFullPath
-        ? breakLocation(data.fileName) : data.fileName;
+        ? data.fileName : breakLocation(data.fileName);
     // The argument is simply a C-quoted version of the argument to the
     // non-MI "break" command, including the "original" quoting it wants.
     return "\"\\\"" + GdbMi::escapeCString(fileName).toLocal8Bit() + "\\\":"
