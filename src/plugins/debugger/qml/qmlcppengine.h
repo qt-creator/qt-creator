@@ -107,7 +107,6 @@ private slots:
     void editorChanged(Core::IEditor *editor);
 
 private:
-    void setupSlaveEngineOnTimer();
     void initEngineShutdown();
     bool checkErrorState(const DebuggerState stateToCheck);
     void engineStateChanged(const DebuggerState &newState);

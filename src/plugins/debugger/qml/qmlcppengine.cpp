@@ -83,10 +83,8 @@ QmlCppEngine::QmlCppEngine(const DebuggerStartParameters &sp)
 
 QmlCppEngine::~QmlCppEngine()
 {
-    if (d->m_qmlEngine)
-        delete d->m_qmlEngine;
-    if (d->m_cppEngine)
-        delete d->m_cppEngine;
+    delete d->m_qmlEngine;
+    delete d->m_cppEngine;
 }
 
 void QmlCppEngine::editorChanged(Core::IEditor *editor)
@@ -483,7 +481,7 @@ void QmlCppEngine::shutdownInferior()
 {
     if (!checkErrorState(InferiorShutdownFailed)) {
         if (d->m_cppEngine->state() == InferiorStopOk) {
-            d->m_cppEngine->shutdownInferior();
+            d->m_cppEngine->quitDebugger();
         } else {
             notifyInferiorShutdownOk();
         }
@@ -499,13 +497,19 @@ void QmlCppEngine::initEngineShutdown()
         d->m_cppEngine->quitDebugger();
     } else
     if (state() == EngineSetupRequested) {
-        if (!checkErrorState(EngineSetupFailed)) {
+        if (!runControl() || d->m_errorState == EngineSetupFailed) {
+            notifyEngineSetupFailed();
+        } else {
             notifyEngineSetupOk();
         }
     } else
     if (state() == InferiorStopRequested) {
         checkErrorState(InferiorStopFailed);
-    } else {
+    } else
+    if (state() == InferiorShutdownRequested && !checkErrorState(InferiorShutdownFailed)) {
+        notifyInferiorShutdownOk();
+    } else
+    if (state() != DebuggerFinished) {
         quitDebugger();
     }
 }
@@ -516,11 +520,6 @@ void QmlCppEngine::shutdownEngine()
         showStatusMessage(tr("Debugging finished"));
         notifyEngineShutdownOk();
     }
-}
-
-void QmlCppEngine::setupSlaveEngineOnTimer()
-{
-    QTimer::singleShot(0, this, SLOT(setupSlaveEngine()));
 }
 
 void QmlCppEngine::setupSlaveEngine()
@@ -618,6 +617,13 @@ void QmlCppEngine::engineStateChanged(const DebuggerState &newState)
         if (activeEngine() == QmlLanguage) {
             setActiveEngine(CppLanguage);
         }
+        break;
+
+    case EngineShutdownRequested:
+        // we have to abort the setup before the sub-engines die
+        // because we depend on an active runcontrol that will be shut down by the dying engine
+        if (state() == EngineSetupRequested)
+            notifyEngineSetupFailed();
         break;
 
     case DebuggerFinished:
