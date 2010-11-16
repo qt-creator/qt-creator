@@ -224,6 +224,9 @@ namespace Utils {
         d->m_toolWidget->adjustSize();
         d->m_grid->addWidget(d->m_toolWidget, 0, 1, 1, 1, Qt::AlignRight);
 
+#ifdef Q_WS_MAC
+        d->m_toolWidget->setOpacity(1.0);
+#endif
         changeHoverState(d->m_hovered);
     }
 
