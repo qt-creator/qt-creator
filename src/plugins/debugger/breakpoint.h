@@ -112,7 +112,7 @@ public:
     int number;             // Breakpoint number assigned by the debugger engine.
     QString fullName;       // Full file name acknowledged by the debugger engine.
     bool multiple;          // Happens in constructors/gdb.
-    QByteArray state;       // gdb: <PENDING>, <MULTIPLE>
+    QByteArray extra;       // gdb: <PENDING>, <MULTIPLE>
 };
 
 typedef QList<BreakpointId> BreakpointIds;

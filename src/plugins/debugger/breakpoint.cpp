@@ -44,22 +44,21 @@ namespace Internal {
 BreakpointParameters::BreakpointParameters(BreakpointType t)
   : type(t), enabled(true), useFullPath(false),
     ignoreCount(0), lineNumber(0), address(0)
-{
-}
+{}
 
 bool BreakpointParameters::equals(const BreakpointParameters &rhs) const
 {
-    return type == rhs.type && enabled == rhs.enabled
-            && useFullPath == rhs.useFullPath
-            && fileName == rhs.fileName && condition == rhs.condition
-            && ignoreCount == rhs.ignoreCount && lineNumber == rhs.lineNumber
-            && address == rhs.address && threadSpec == rhs.threadSpec
-            && functionName == rhs.functionName;
+    return type == rhs.type
+        && enabled == rhs.enabled
+        && useFullPath == rhs.useFullPath
+        && fileName == rhs.fileName
+        && condition == rhs.condition
+        && ignoreCount == rhs.ignoreCount
+        && lineNumber == rhs.lineNumber
+        && address == rhs.address
+        && threadSpec == rhs.threadSpec
+        && functionName == rhs.functionName;
 }
-
-BreakpointResponse::BreakpointResponse()
-    : number(0), multiple(false)
-{}
 
 bool BreakpointParameters::conditionsMatch(const QByteArray &other) const
 {
@@ -85,6 +84,17 @@ QString BreakpointParameters::toString() const
     return result;
 }
 
+
+//////////////////////////////////////////////////////////////////
+//
+// BreakpointParameters
+//
+//////////////////////////////////////////////////////////////////
+
+BreakpointResponse::BreakpointResponse()
+    : number(0), multiple(false)
+{}
+
 QString BreakpointResponse::toString() const
 {
     QString result;
@@ -107,7 +117,7 @@ void BreakpointResponse::fromParameters(const BreakpointParameters &p)
     number = 0;
     fullName.clear();
     multiple = false;
-    state.clear();
+    extra.clear();
 }
 
 } // namespace Internal

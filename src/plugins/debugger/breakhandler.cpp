@@ -439,10 +439,10 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                     data.isWatchpoint() ? data.address : response.address;
                 if (address)
                     displayValue += QString::fromAscii("0x%1").arg(address, 0, 16);
-                if (!response.state.isEmpty()) {
+                if (!response.extra.isEmpty()) {
                     if (!displayValue.isEmpty())
                         displayValue += QLatin1Char(' ');
-                    displayValue += QString::fromAscii(response.state);
+                    displayValue += QString::fromAscii(response.extra);
                 }
                 return displayValue;
             }
@@ -960,8 +960,8 @@ QString BreakHandler::BreakpointItem::toToolTip() const
         << "</td><td>" << response.number << "</td></tr>"
         << "<tr><td>" << tr("Breakpoint Type:")
         << "</td><td>" << t << "</td></tr>"
-        << "<tr><td>" << tr("State:")
-        << "</td><td>" << response.state << "</td></tr>"
+        << "<tr><td>" << tr("Extra Information:")
+        << "</td><td>" << response.extra << "</td></tr>"
         << "</table><br><hr><table>"
         << "<tr><th>" << tr("Property")
         << "</th><th>" << tr("Requested")

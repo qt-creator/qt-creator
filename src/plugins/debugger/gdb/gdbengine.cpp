@@ -2074,7 +2074,7 @@ void GdbEngine::setBreakpointDataFromOutput(BreakpointId id, const GdbMi &bkpt)
             if (child.data().startsWith("0x")) {
                 response.address = child.data().mid(2).toULongLong(0, 16);
             } else {
-                response.state = child.data();
+                response.extra = child.data();
                 if (child.data() == "<MULTIPLE>")
                     response.multiple = true;
             }
