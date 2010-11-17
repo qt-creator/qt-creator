@@ -246,7 +246,10 @@ void GLSLTextEditor::updateDocumentNow()
 {
     m_updateDocumentTimer->stop();
 
-    const int variant = Lexer::Variant_GLSL_Qt; // ### hardcoded
+    const int variant = Lexer::Variant_GLSL_Qt | // ### hardcoded
+                        Lexer::Variant_GLSL_ES_100 |
+                        Lexer::Variant_VertexShader |
+                        Lexer::Variant_FragmentShader;
     const QString contents = toPlainText(); // get the code from the editor
     const QByteArray preprocessedCode = contents.toLatin1(); // ### use the QtCreator C++ preprocessor.
 
