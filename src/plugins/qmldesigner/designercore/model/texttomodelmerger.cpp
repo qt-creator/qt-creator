@@ -399,14 +399,7 @@ public:
             return hasQuotes ? QVariant(cleanedValue) : cleverConvert(cleanedValue);
         }
 
-        Interpreter::PrototypeIterator iter(containingObject, m_context);
-        while (iter.hasNext()) {
-            const Interpreter::ObjectValue *proto = iter.next();
-            if (proto->lookupMember(name, m_context, false)) {
-                containingObject = proto;
-                break;
-            }
-        }
+        containingObject->lookupMember(name, m_context, &containingObject);
 
         if (const Interpreter::QmlObjectValue * qmlObject = dynamic_cast<const Interpreter::QmlObjectValue *>(containingObject)) {
             const QString typeName = qmlObject->propertyType(name);
@@ -450,14 +443,7 @@ public:
             return QVariant();
         }
 
-        Interpreter::PrototypeIterator iter(containingObject, m_context);
-        while (iter.hasNext()) {
-            const Interpreter::ObjectValue *proto = iter.next();
-            if (proto->lookupMember(name, m_context, false)) {
-                containingObject = proto;
-                break;
-            }
-        }
+        containingObject->lookupMember(name, m_context, &containingObject);
         const Interpreter::QmlObjectValue * lhsQmlObject = dynamic_cast<const Interpreter::QmlObjectValue *>(containingObject);
         if (!lhsQmlObject)
             return QVariant();
@@ -479,14 +465,7 @@ public:
                 rhsValueName = memberExp->name->asString();
         }
 
-        iter = Interpreter::PrototypeIterator(rhsValueObject, m_context);
-        while (iter.hasNext()) {
-            const Interpreter::ObjectValue *proto = iter.next();
-            if (proto->lookupMember(rhsValueName, m_context, false)) {
-                rhsValueObject = proto;
-                break;
-            }
-        }
+        rhsValueObject->lookupMember(rhsValueName, m_context, &rhsValueObject);
 
         const Interpreter::QmlObjectValue *rhsQmlObjectValue = dynamic_cast<const Interpreter::QmlObjectValue *>(rhsValueObject);
         if (!rhsQmlObjectValue)

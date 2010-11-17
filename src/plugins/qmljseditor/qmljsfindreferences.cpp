@@ -64,25 +64,6 @@ using namespace QmlJS::Interpreter;
 using namespace QmlJS::AST;
 using namespace QmlJSEditor;
 
-static const ObjectValue *prototypeWithMember(const Context *context, const ObjectValue *object, const QString &name)
-{
-    if (!object)
-        return 0;
-    const Value *value = object->property(name, context);
-    if (!value)
-        return 0;
-    const ObjectValue *prev = object;
-    PrototypeIterator iter(object, context);
-    iter.next();
-    while (iter.hasNext()) {
-        const ObjectValue *prototype = iter.next();
-        if (prototype->property(name, context) != value)
-            return prev;
-        prev = prototype;
-    }
-    return prev;
-}
-
 namespace {
 
 // ### These visitors could be useful in general
@@ -265,7 +246,9 @@ private:
     {
         if (!s)
             return false;
-        return prototypeWithMember(_context, s, _name) == _scope;
+        const ObjectValue *definingObject;
+        s->lookupMember(_name, _context, &definingObject);
+        return definingObject == _scope;
     }
 
     bool checkQmlScope()
@@ -610,7 +593,7 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
     }
     if (!scope)
         return;
-    scope = prototypeWithMember(&context, scope, name);
+    scope->lookupMember(name, &context, &scope);
     if (!scope)
         return;
 

@@ -1871,15 +1871,22 @@ void ObjectValue::processMembers(MemberProcessor *processor) const
     }
 }
 
-const Value *ObjectValue::lookupMember(const QString &name, const Context *context, bool examinePrototypes) const
+const Value *ObjectValue::lookupMember(const QString &name, const Context *context,
+                                       const ObjectValue **foundInObject,
+                                       bool examinePrototypes) const
 {
-    if (const Value *m = _members.value(name))
+    if (const Value *m = _members.value(name)) {
+        if (foundInObject)
+            *foundInObject = this;
         return m;
-    else {
+    } else {
         LookupMember slowLookup(name);
         processMembers(&slowLookup);
-        if (slowLookup.value())
+        if (slowLookup.value()) {
+            if (foundInObject)
+                *foundInObject = this;
             return slowLookup.value();
+        }
     }
 
     if (examinePrototypes) {
@@ -1887,11 +1894,13 @@ const Value *ObjectValue::lookupMember(const QString &name, const Context *conte
         iter.next(); // skip this
         while (iter.hasNext()) {
             const ObjectValue *prototypeObject = iter.next();
-            if (const Value *m = prototypeObject->lookupMember(name, context, false))
+            if (const Value *m = prototypeObject->lookupMember(name, context, foundInObject, false))
                 return m;
         }
     }
 
+    if (foundInObject)
+        *foundInObject = 0;
     return 0;
 }
 
@@ -3501,7 +3510,8 @@ TypeEnvironment::TypeEnvironment(Engine *engine)
 {
 }
 
-const Value *TypeEnvironment::lookupMember(const QString &name, const Context *context, bool) const
+const Value *TypeEnvironment::lookupMember(const QString &name, const Context *context,
+                                           const ObjectValue **foundInObject, bool) const
 {
     QHashIterator<const ObjectValue *, ImportInfo> it(_imports);
     while (it.hasNext()) {
@@ -3510,19 +3520,27 @@ const Value *TypeEnvironment::lookupMember(const QString &name, const Context *c
         const ImportInfo &info = it.value();
 
         if (!info.id().isEmpty()) {
-            if (info.id() == name)
+            if (info.id() == name) {
+                if (foundInObject)
+                    *foundInObject = this;
                 return import;
+            }
             continue;
         }
 
         if (info.type() == ImportInfo::FileImport) {
-            if (import->className() == name)
+            if (import->className() == name) {
+                if (foundInObject)
+                    *foundInObject = this;
                 return import;
+            }
         } else {
-            if (const Value *v = import->property(name, context))
+            if (const Value *v = import->lookupMember(name, context, foundInObject))
                 return v;
         }
     }
+    if (foundInObject)
+        *foundInObject = 0;
     return 0;
 }
 

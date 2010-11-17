@@ -407,7 +407,9 @@ public:
     virtual void setProperty(const QString &name, const Value *value);
     virtual void removeProperty(const QString &name);
 
-    virtual const Value *lookupMember(const QString &name, const Context *context, bool examinePrototypes = true) const;
+    virtual const Value *lookupMember(const QString &name, const Context *context,
+                                      const ObjectValue **foundInObject = 0,
+                                      bool examinePrototypes = true) const;
 
     // Value interface
     virtual const ObjectValue *asObjectValue() const;
@@ -989,7 +991,9 @@ class QMLJS_EXPORT TypeEnvironment: public ObjectValue
 public:
     TypeEnvironment(Engine *engine);
 
-    virtual const Value *lookupMember(const QString &name, const Context *context, bool examinePrototypes) const;
+    virtual const Value *lookupMember(const QString &name, const Context *context,
+                                      const ObjectValue **foundInObject = 0,
+                                      bool examinePrototypes = true) const;
     virtual void processMembers(MemberProcessor *processor) const;
 
     void addImport(const ObjectValue *import, const ImportInfo &info);
