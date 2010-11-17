@@ -536,8 +536,6 @@ bool MaemoPackageCreationStep::preparePackagingProcess(QProcess *proc,
 
     proc->setEnvironment(env.toStringList());
     proc->setWorkingDirectory(workingDir);
-    proc->start("cd " + workingDir);
-    proc->waitForFinished();
     return true;
 }
 
