@@ -109,25 +109,29 @@ void HoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
     if (!qmlEditor)
         return;
 
-    if (!matchDiagnosticMessage(qmlEditor, pos)) {
-        const QmlJSEditor::SemanticInfo &semanticInfo = qmlEditor->semanticInfo();
-        if (! semanticInfo.isValid() || semanticInfo.revision() != qmlEditor->editorRevision())
-            return;
+    if (matchDiagnosticMessage(qmlEditor, pos))
+        return;
 
-        QList<AST::Node *> astPath = semanticInfo.astPath(pos);
-        if (astPath.isEmpty())
-            return;
+    const QmlJSEditor::SemanticInfo &semanticInfo = qmlEditor->semanticInfo();
+    if (! semanticInfo.isValid() || semanticInfo.revision() != qmlEditor->editorRevision())
+        return;
 
-        const Document::Ptr qmlDocument = semanticInfo.document;
-        LookupContext::Ptr lookupContext = semanticInfo.lookupContext(astPath);
+    QList<AST::Node *> astPath = semanticInfo.astPath(pos);
+    if (astPath.isEmpty())
+        return;
 
-        if (!matchColorItem(lookupContext, qmlDocument, astPath, pos)) {
-            handleOrdinaryMatch(lookupContext, semanticInfo.nodeUnderCursor(pos));
-            const QString &helpId = qmlHelpId(toolTip());
-            if (!helpId.isEmpty())
-                setLastHelpItemIdentified(TextEditor::HelpItem(helpId, TextEditor::HelpItem::QML));
-        }
-    }
+    const Document::Ptr qmlDocument = semanticInfo.document;
+    LookupContext::Ptr lookupContext = semanticInfo.lookupContext(astPath);
+
+    if (matchColorItem(lookupContext, qmlDocument, astPath, pos))
+        return;
+
+    AST::Node *node = semanticInfo.nodeUnderCursor(pos);
+    handleOrdinaryMatch(lookupContext, node);
+
+    TextEditor::HelpItem helpItem = qmlHelpItem(lookupContext, node);
+    if (!helpItem.helpId().isEmpty())
+        setLastHelpItemIdentified(helpItem);
 }
 
 bool HoverHandler::matchDiagnosticMessage(QmlJSEditor::QmlJSTextEditor *qmlEditor, int pos)
@@ -236,19 +240,15 @@ void HoverHandler::prettyPrintTooltip(const QmlJS::Interpreter::Value *value,
         return;
 
     if (const Interpreter::ObjectValue *objectValue = value->asObjectValue()) {
-        bool found = false;
         Interpreter::PrototypeIterator iter(objectValue, context);
         while (iter.hasNext()) {
             const Interpreter::ObjectValue *prototype = iter.next();
             const QString className = prototype->className();
 
             if (! className.isEmpty()) {
-                found = !qmlHelpId(className).isEmpty();
-                if (toolTip().isEmpty() || found)
-                    setToolTip(className);
-            }
-            if (found)
+                setToolTip(className);
                 break;
+            }
         }
     } else if (const Interpreter::QmlEnumValue *enumValue =
                dynamic_cast<const Interpreter::QmlEnumValue *>(value)) {
@@ -262,10 +262,74 @@ void HoverHandler::prettyPrintTooltip(const QmlJS::Interpreter::Value *value,
     }
 }
 
-QString HoverHandler::qmlHelpId(const QString &itemName) const
+// if node refers to a property, its name and defining object are returned - otherwise zero
+static const Interpreter::ObjectValue *isMember(const LookupContext::Ptr &lookupContext,
+                                                AST::Node *node, QString *name)
 {
-    QString helpId(QLatin1String("QML.") + itemName);
-    if (!Core::HelpManager::instance()->linksForIdentifier(helpId).isEmpty())
-        return helpId;
-    return QString();
+    const Interpreter::ObjectValue *owningObject = 0;
+    if (AST::IdentifierExpression *identExp = AST::cast<AST::IdentifierExpression *>(node)) {
+        if (!identExp->name)
+            return 0;
+        *name = identExp->name->asString();
+        lookupContext->context()->lookup(*name, &owningObject);
+    } else if (AST::FieldMemberExpression *fme = AST::cast<AST::FieldMemberExpression *>(node)) {
+        if (!fme->base || !fme->name)
+            return 0;
+        *name = fme->name->asString();
+        const Interpreter::Value *base = lookupContext->evaluate(fme->base);
+        if (!base)
+            return 0;
+        owningObject = base->asObjectValue();
+        if (owningObject)
+            owningObject->lookupMember(*name, lookupContext->context(), &owningObject);
+    } else if (AST::UiQualifiedId *qid = AST::cast<AST::UiQualifiedId *>(node)) {
+        if (!qid->name)
+            return 0;
+        *name = qid->name->asString();
+        const Interpreter::Value *value = lookupContext->context()->lookup(*name, &owningObject);
+        for (AST::UiQualifiedId *it = qid->next; it; it = it->next) {
+            if (!value)
+                return 0;
+            const Interpreter::ObjectValue *next = value->asObjectValue();
+            if (!next || !it->name)
+                return 0;
+            *name = it->name->asString();
+            value = next->lookupMember(*name, lookupContext->context(), &owningObject);
+        }
+    }
+    return owningObject;
+}
+
+TextEditor::HelpItem HoverHandler::qmlHelpItem(const LookupContext::Ptr &lookupContext,
+                                               AST::Node *node) const
+{
+    QString name;
+    if (const Interpreter::ObjectValue *scope = isMember(lookupContext, node, &name)) {
+        // maybe it's a type?
+        if (!name.isEmpty() && name.at(0).isUpper()) {
+            const QString maybeHelpId(QLatin1String("QML.") + name);
+            if (!Core::HelpManager::instance()->linksForIdentifier(maybeHelpId).isEmpty())
+                return TextEditor::HelpItem(maybeHelpId, name, TextEditor::HelpItem::QmlComponent);
+        }
+
+        // otherwise, it's probably a property
+        const Interpreter::ObjectValue *lastScope;
+        scope->lookupMember(name, lookupContext->context(), &lastScope);
+        Interpreter::PrototypeIterator iter(scope, lookupContext->context());
+        while (iter.hasNext()) {
+            const Interpreter::ObjectValue *cur = iter.next();
+
+            const QString className = cur->className();
+            if (!className.isEmpty()) {
+                const QString maybeHelpId(className + QLatin1String("::") + name);
+                if (!Core::HelpManager::instance()->linksForIdentifier(maybeHelpId).isEmpty())
+                    return TextEditor::HelpItem(maybeHelpId, name, TextEditor::HelpItem::QmlProperty);
+            }
+
+            if (cur == lastScope)
+                break;
+        }
+    }
+
+    return TextEditor::HelpItem();
 }

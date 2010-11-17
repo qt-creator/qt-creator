@@ -57,7 +57,8 @@ public:
     QString getFunctionDescription(const QString &html,
                                    const QString &mark,
                                    const bool mainOverload = true) const;
-    QString getQMLItemDescription(const QString &html, const QString &mark) const;
+    QString getQmlComponentDescription(const QString &html, const QString &mark) const;
+    QString getQmlPropertyDescription(const QString &html, const QString &mark) const;
 
 private:
     QString getClassOrNamespaceMemberDescription(const QString &html,

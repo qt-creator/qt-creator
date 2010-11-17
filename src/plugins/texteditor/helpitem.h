@@ -46,7 +46,8 @@ public:
         Macro,
         Brief,
         Function,
-        QML,
+        QmlComponent,
+        QmlProperty,
         Unknown
     };
 

@@ -137,9 +137,30 @@ QString HtmlDocExtractor::getFunctionDescription(const QString &html,
     return contents;
 }
 
-QString HtmlDocExtractor::getQMLItemDescription(const QString &html, const QString &mark) const
+QString HtmlDocExtractor::getQmlComponentDescription(const QString &html, const QString &mark) const
 {
     return getClassOrNamespaceDescription(html, mark);
+}
+
+QString HtmlDocExtractor::getQmlPropertyDescription(const QString &html, const QString &mark) const
+{
+    QString startMark = QString("<a name=\"%1-prop\">").arg(mark);
+    int index = html.indexOf(startMark);
+    if (index == -1) {
+        startMark = QString("<a name=\"%1-signal\">").arg(mark);
+        index = html.indexOf(startMark);
+    }
+    if (index == -1)
+        return QString();
+
+    QString contents = html.mid(index + startMark.size());
+    index = contents.indexOf(QLatin1String("<p>"));
+    if (index == -1)
+        return QString();
+    contents = contents.mid(index);
+    processOutput(&contents);
+
+    return contents;
 }
 
 QString HtmlDocExtractor::getClassOrNamespaceMemberDescription(const QString &html,

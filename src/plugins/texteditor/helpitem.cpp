@@ -108,8 +108,11 @@ QString HelpItem::extractContent(bool extended) const
         case Macro:
             contents = htmlExtractor.getMacroDescription(html, m_docMark);
             break;
-        case QML:
-            contents = htmlExtractor.getQMLItemDescription(html, m_docMark);
+        case QmlComponent:
+            contents = htmlExtractor.getQmlComponentDescription(html, m_docMark);
+            break;
+        case QmlProperty:
+            contents = htmlExtractor.getQmlPropertyDescription(html, m_docMark);
             break;
 
         default:

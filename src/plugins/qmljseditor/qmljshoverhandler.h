@@ -79,7 +79,8 @@ private:
     void prettyPrintTooltip(const QmlJS::Interpreter::Value *value,
                             const QmlJS::Interpreter::Context *context);
 
-    QString qmlHelpId(const QString &itemName) const;
+    TextEditor::HelpItem qmlHelpItem(const QmlJS::LookupContext::Ptr &lookupContext,
+                                     QmlJS::AST::Node *node) const;
 
     QmlJS::ModelManagerInterface *m_modelManager;
     QColor m_colorTip;
