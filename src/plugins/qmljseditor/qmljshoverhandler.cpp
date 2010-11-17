@@ -124,7 +124,8 @@ void HoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
             handleOrdinaryMatch(lookupContext, semanticInfo.nodeUnderCursor(pos));
             const QString &helpId = qmlHelpId(toolTip());
             if (!helpId.isEmpty())
-                setLastHelpItemIdentified(TextEditor::HelpItem(helpId, TextEditor::HelpItem::QML));
+                setLastHelpItemIdentified(TextEditor::HelpItem(helpId, toolTip(),
+                                                               TextEditor::HelpItem::QML));
         }
     }
 }
