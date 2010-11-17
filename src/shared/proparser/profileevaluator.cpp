@@ -90,6 +90,18 @@ ProFileOption::ProFileOption()
 #endif
     qmakespec = QString::fromLocal8Bit(qgetenv("QMAKESPEC").data());
 
+    setHostTargetMode();
+#ifdef PROEVALUATOR_THREAD_SAFE
+    base_inProgress = false;
+#endif
+}
+
+ProFileOption::~ProFileOption()
+{
+}
+
+void ProFileOption::setHostTargetMode()
+{
 #if defined(Q_OS_WIN32)
     target_mode = TARG_WIN_MODE;
 #elif defined(Q_OS_MAC)
@@ -99,15 +111,15 @@ ProFileOption::ProFileOption()
 #else
     target_mode = TARG_UNIX_MODE;
 #endif
-
-#ifdef PROEVALUATOR_THREAD_SAFE
-    base_inProgress = false;
-#endif
 }
 
-ProFileOption::~ProFileOption()
-{
-}
+const struct ProFileOption::TargetModeMapElement ProFileOption::modeMap[] = {
+    { "-unix", TARG_UNIX_MODE },
+    { "-macx", TARG_MACX_MODE },
+    { "-win32", TARG_WIN_MODE }
+};
+const int ProFileOption::modeMapSize
+    = sizeof ProFileOption::modeMap / sizeof ProFileOption::modeMap[0];
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -3224,6 +3236,19 @@ void ProFileEvaluator::setOutputDir(const QString &dir)
 void ProFileEvaluator::setCommandLineArguments(const QStringList &args)
 {
     d->m_cmdArgs = args;
+
+    d->m_option->setHostTargetMode();
+    bool targetModeSet = false;
+    for (int i = args.count() - 1; !targetModeSet && i >= 0; --i) {
+        for (int j = 0; j < ProFileOption::modeMapSize; ++j) {
+            const ProFileOption::TargetModeMapElement &mapElem = ProFileOption::modeMap[j];
+            if (args.at(i) == QLatin1String(mapElem.qmakeOption)) {
+                d->m_option->target_mode = mapElem.targetMode;
+                targetModeSet = true;
+                break;
+            }
+        }
+    }
 }
 
 QT_END_NAMESPACE

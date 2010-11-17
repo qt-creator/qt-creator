@@ -175,7 +175,15 @@ struct ProFileOption
     //QString pro_ext;
     //QString res_ext;
 
+    static const struct TargetModeMapElement {
+        const char * const qmakeOption;
+        const TARG_MODE targetMode;
+    } modeMap[];
+    static const int modeMapSize;
+
   private:
+    void setHostTargetMode();
+
     friend class ProFileEvaluator;
     friend class ProFileEvaluator::Private;
     QHash<ProString, ProStringList> base_valuemap; // Cached results of qmake.conf, .qmake.cache & default_pre.prf

@@ -30,6 +30,7 @@
 #include "qmakestep.h"
 
 #include "projectexplorer/projectexplorerconstants.h"
+#include <proparser/profileevaluator.h>
 #include "qmakeparser.h"
 #include "qt4buildconfiguration.h"
 #include "qt4project.h"
@@ -309,9 +310,19 @@ void QMakeStep::setUserArguments(const QString &arguments)
 QStringList QMakeStep::parserArguments()
 {
     QStringList result;
-    for (Utils::QtcProcess::ConstArgIterator ait(allArguments()); ait.next(); )
-        if (ait.value().contains(QLatin1Char('=')))
-            result << ait.value();
+    for (Utils::QtcProcess::ConstArgIterator ait(allArguments()); ait.next(); ) {
+        const QString &arg = ait.value();
+        if (arg.contains(QLatin1Char('='))) {
+            result << arg;
+        } else {
+            for (int i = 0; i < ProFileOption::modeMapSize; ++i) {
+                if (QLatin1String(ProFileOption::modeMap[i].qmakeOption) == arg) {
+                    result << arg;
+                    break;
+                }
+            }
+        }
+    }
     return result;
 }
 
