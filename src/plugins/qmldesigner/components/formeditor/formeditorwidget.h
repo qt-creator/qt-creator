@@ -68,6 +68,7 @@ public:
 
     void setFeedbackNode(const QmlItemNode &node);
 
+    QString contextHelpId() const;
 
 protected:
     void enterEvent(QEvent *event);

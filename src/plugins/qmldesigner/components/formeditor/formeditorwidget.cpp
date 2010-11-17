@@ -261,6 +261,21 @@ void FormEditorWidget::setFeedbackNode(const QmlItemNode &node)
     m_graphicsView->setFeedbackNode(node);
 }
 
+QString FormEditorWidget::contextHelpId() const
+{
+    if (!m_formEditorView)
+        return QString();
+
+    QList<ModelNode> nodes = m_formEditorView->selectedModelNodes();
+    QString helpId;
+    if (!nodes.isEmpty()) {
+        helpId = nodes.first().type();
+        helpId.replace("Qt/", "QML.");
+    }
+
+    return helpId;
+}
+
 }
 
 

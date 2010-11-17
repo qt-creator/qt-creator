@@ -37,7 +37,8 @@ const char * const DELETE               = "QmlDesigner.Delete";
 
 // context
 const char * const C_DESIGN_MODE        = "QmlDesigner::DesignMode";
-const char * const C_FORMEDITOR         = "QmlDesigner::QmlFormEditor";
+const char * const C_QMLDESIGNER         = "QmlDesigner::QmlDesignerMain";
+const char * const C_QMLFORMEDITOR         = "QmlDesigner::FormEditor";
 
 // special context for preview menu, shared b/w designer and text editor
 const char * const C_QT_QUICK_TOOLS_MENU = "QmlDesigner::ToolsMenu";
