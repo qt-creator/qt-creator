@@ -54,10 +54,10 @@
 #include <qt4buildconfiguration.h>
 #include <qt4project.h>
 #include <qt4target.h>
+#include <utils/environment.h>
 
 #include <QtCore/QDateTime>
 #include <QtCore/QProcess>
-#include <QtCore/QProcessEnvironment>
 #include <QtCore/QRegExp>
 #include <QtCore/QStringBuilder>
 #include <QtGui/QWidget>
@@ -503,27 +503,18 @@ bool MaemoPackageCreationStep::preparePackagingProcess(QProcess *proc,
         return false;
     }
 
-    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    Utils::Environment env = bc->environment();
     const QString &path
         = QDir::toNativeSeparators(tc->maddeRoot() + QLatin1Char('/'));
-
-    const QLatin1String key("PATH");
-    QString colon = QLatin1String(":");
 #ifdef Q_OS_WIN
-    colon = QLatin1String(";");
-    env.insert(key, path % QLatin1String("bin") % colon % env.value(key));
+    env.prependOrSetPath(path % QLatin1String("bin"));
 #endif
-
-    env.insert(key, tc->targetRoot() % "/bin" % colon % env.value(key));
-    env.insert(key, path % QLatin1String("madbin") % colon % env.value(key));
+    env.prependOrSetPath(tc->targetRoot() % QLatin1String("/bin"));
+    env.prependOrSetPath(path % QLatin1String("madbin"));
 
     if (bc->qmakeBuildConfiguration() & QtVersion::DebugBuild) {
-        const QLatin1String debOptionsKey("DEB_BUILD_OPTIONS");
-        QString debOptions = env.value(debOptionsKey);
-        if (!debOptions.isEmpty())
-            debOptions += QLatin1Char(' ');
-        debOptions += QLatin1String("nostrip");
-        env.insert(debOptionsKey, debOptions);
+        env.appendOrSet(QLatin1String("DEB_BUILD_OPTIONS"),
+            QLatin1String("nostrip"), QLatin1String(" "));
     }
 
     QString perlLib
@@ -532,18 +523,18 @@ bool MaemoPackageCreationStep::preparePackagingProcess(QProcess *proc,
     perlLib = perlLib.remove(QLatin1Char(':'));
     perlLib = perlLib.prepend(QLatin1Char('/'));
 #endif
-    env.insert(QLatin1String("PERL5LIB"), perlLib);
-    env.insert(QLatin1String("PWD"), workingDir);
+    env.set(QLatin1String("PERL5LIB"), perlLib);
+    env.set(QLatin1String("PWD"), workingDir);
 
     const QRegExp envPattern(QLatin1String("([^=]+)=[\"']?([^;\"']+)[\"']? ;.*"));
     QByteArray line;
     do {
         line = configFile.readLine(200);
         if (envPattern.exactMatch(line))
-            env.insert(envPattern.cap(1), envPattern.cap(2));
+            env.set(envPattern.cap(1), envPattern.cap(2));
     } while (!line.isEmpty());
 
-    proc->setProcessEnvironment(env);
+    proc->setEnvironment(env.toStringList());
     proc->setWorkingDirectory(workingDir);
     proc->start("cd " + workingDir);
     proc->waitForFinished();
