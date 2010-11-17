@@ -47,6 +47,7 @@ class AssignmentExpression;
 class MemberAccessExpression;
 class FunctionCallExpression;
 class FunctionIdentifier;
+class DeclarationExpression;
 class Statement;
 class ExpressionStatement;
 class CompoundStatement;
@@ -58,6 +59,7 @@ class JumpStatement;
 class ReturnStatement;
 class SwitchStatement;
 class CaseLabelStatement;
+class DeclarationStatement;
 class Type;
 class BasicType;
 class NamedType;
@@ -66,6 +68,11 @@ class StructType;
 class QualifiedType;
 class Declaration;
 class PrecisionDeclaration;
+class ParameterDeclaration;
+class VariableDeclaration;
+class TypeDeclaration;
+class InvariantDeclaration;
+class InitDeclaration;
 class Visitor;
 
 template <typename T>
@@ -161,6 +168,7 @@ public:
         Kind_FunctionCall,
         Kind_MemberFunctionCall,
         Kind_FunctionIdentifier,
+        Kind_DeclarationExpression,
 
         // Assignment expressions
         Kind_Assign,
@@ -190,6 +198,7 @@ public:
         Kind_Switch,
         Kind_CaseLabel,
         Kind_DefaultLabel,
+        Kind_DeclarationStatement,
 
         // Types
         Kind_BasicType,
@@ -202,7 +211,12 @@ public:
         Kind_QualifiedType,
 
         // Declarations
-        Kind_PrecisionDeclaration
+        Kind_PrecisionDeclaration,
+        Kind_ParameterDeclaration,
+        Kind_VariableDeclaration,
+        Kind_TypeDeclaration,
+        Kind_InvariantDeclaration,
+        Kind_InitDeclaration
     };
 
     virtual TranslationUnit *asTranslationUnit() { return 0; }
@@ -217,6 +231,7 @@ public:
     virtual MemberAccessExpression *asMemberAccessExpression() { return 0; }
     virtual FunctionCallExpression *asFunctionCallExpression() { return 0; }
     virtual FunctionIdentifier *asFunctionIdentifier() { return 0; }
+    virtual DeclarationExpression *asDeclarationExpression() { return 0; }
 
     virtual Statement *asStatement() { return 0; }
     virtual ExpressionStatement *asExpressionStatement() { return 0; }
@@ -229,6 +244,7 @@ public:
     virtual ReturnStatement *asReturnStatement() { return 0; }
     virtual SwitchStatement *asSwitchStatement() { return 0; }
     virtual CaseLabelStatement *asCaseLabelStatement() { return 0; }
+    virtual DeclarationStatement *asDeclarationStatement() { return 0; }
 
     virtual Type *asType() { return 0; }
     virtual BasicType *asBasicType() { return 0; }
@@ -239,6 +255,11 @@ public:
 
     virtual Declaration *asDeclaration() { return 0; }
     virtual PrecisionDeclaration *asPrecisionDeclaration() { return 0; }
+    virtual ParameterDeclaration *asParameterDeclaration() { return 0; }
+    virtual VariableDeclaration *asVariableDeclaration() { return 0; }
+    virtual TypeDeclaration *asTypeDeclaration() { return 0; }
+    virtual InvariantDeclaration *asInvariantDeclaration() { return 0; }
+    virtual InitDeclaration *asInitDeclaration() { return 0; }
 
     void accept(Visitor *visitor);
     static void accept(AST *ast, Visitor *visitor);
@@ -436,6 +457,24 @@ public: // attributes
     Type *type;
 };
 
+class GLSL_EXPORT DeclarationExpression: public Expression
+{
+public:
+    DeclarationExpression(Type *_type, const std::string *_name,
+                          Expression *_initializer)
+        : Expression(Kind_DeclarationExpression), type(_type)
+        , name(_name), initializer(_initializer) {}
+
+    virtual DeclarationExpression *asDeclarationExpression() { return this; }
+
+    virtual void accept0(Visitor *visitor);
+
+public: // attributes
+    Type *type;
+    const std::string *name;
+    Expression *initializer;
+};
+
 class GLSL_EXPORT Statement: public AST
 {
 protected:
@@ -592,6 +631,20 @@ public:
 
 public: // attributes
     Expression *expr;
+};
+
+class GLSL_EXPORT DeclarationStatement: public Statement
+{
+public:
+    DeclarationStatement(List<Declaration *> *_decls)
+        : Statement(Kind_DeclarationStatement), decls(finish(_decls)) {}
+
+    virtual DeclarationStatement *asDeclarationStatement() { return this; }
+
+    virtual void accept0(Visitor *visitor);
+
+public: // attributes
+    List<Declaration *> *decls;
 };
 
 class GLSL_EXPORT Type: public AST
@@ -775,7 +828,7 @@ class GLSL_EXPORT QualifiedType: public Type
 public:
     QualifiedType(int _qualifiers, Type *_type, List<LayoutQualifier *> *_layout_list)
         : Type(Kind_QualifiedType), qualifiers(_qualifiers), type(_type)
-        , layout_list(_layout_list) {}
+        , layout_list(finish(_layout_list)) {}
 
     enum
     {
@@ -840,6 +893,92 @@ public:
 public: // attributes
     Type::Precision precision;
     Type *type;
+};
+
+class ParameterDeclaration: public Declaration
+{
+public:
+    enum Qualifier
+    {
+        In,
+        Out,
+        InOut
+    };
+    ParameterDeclaration(Type *_type, Qualifier _qualifier,
+                         const std::string *_name)
+        : Declaration(Kind_ParameterDeclaration), type(_type)
+        , qualifier(_qualifier), name(_name) {}
+
+    virtual ParameterDeclaration *asParameterDeclaration() { return this; }
+
+    virtual void accept0(Visitor *visitor);
+
+public: // attributes
+    Type *type;
+    Qualifier qualifier;
+    const std::string *name;
+};
+
+class VariableDeclaration: public Declaration
+{
+public:
+    VariableDeclaration(Type *_type, const std::string *_name,
+                        Expression *_initializer = 0)
+        : Declaration(Kind_VariableDeclaration), type(_type)
+        , name(_name), initializer(_initializer) {}
+
+    virtual VariableDeclaration *asVariableDeclaration() { return this; }
+
+    virtual void accept0(Visitor *visitor);
+
+    static Type *declarationType(List<Declaration *> *decls);
+
+public: // attributes
+    Type *type;
+    const std::string *name;
+    Expression *initializer;
+};
+
+class TypeDeclaration: public Declaration
+{
+public:
+    TypeDeclaration(Type *_type)
+        : Declaration(Kind_TypeDeclaration), type(_type) {}
+
+    virtual TypeDeclaration *asTypeDeclaration() { return this; }
+
+    virtual void accept0(Visitor *visitor);
+
+public: // attributes
+    Type *type;
+};
+
+class InvariantDeclaration: public Declaration
+{
+public:
+    InvariantDeclaration(const std::string *_name)
+        : Declaration(Kind_InvariantDeclaration), name(_name) {}
+
+    virtual InvariantDeclaration *asInvariantDeclaration() { return this; }
+
+    virtual void accept0(Visitor *visitor);
+
+public: // attributes
+    const std::string *name;
+};
+
+class InitDeclaration: public Declaration
+{
+public:
+    InitDeclaration(List<Declaration *> *_decls)
+        : Declaration(Kind_InitDeclaration), decls(finish(_decls)) {}
+
+    virtual InitDeclaration *asInitDeclaration() { return this; }
+
+    virtual void accept0(Visitor *visitor);
+
+public: // attributes
+    List<Declaration *> *decls;
 };
 
 } // namespace GLSL

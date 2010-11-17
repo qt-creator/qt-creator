@@ -288,6 +288,10 @@ public:
             int qualifier;
             List<LayoutQualifier *> *layout_list;
         } type_qualifier;
+        struct {
+            Type *type;
+            const std::string *name;
+        } param_declarator;
         // ### ast nodes...
     };
 
@@ -1126,7 +1130,7 @@ case $rule_number: {
 declaration ::= init_declarator_list SEMICOLON ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<InitDeclaration>(sym(1).declaration_list);
 }   break;
 ./
 
@@ -1217,182 +1221,230 @@ case $rule_number: {
 parameter_declarator ::= type_specifier IDENTIFIER ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).param_declarator.type = type(1);
+    sym(1).param_declarator.name = string(2);
 }   break;
 ./
 
 parameter_declarator ::= type_specifier IDENTIFIER LEFT_BRACKET constant_expression RIGHT_BRACKET ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).param_declarator.type = makeAstNode<ArrayType>(type(1), expression(4));
+    sym(1).param_declarator.name = string(2);
 }   break;
 ./
 
 parameter_declaration ::= parameter_type_qualifier parameter_qualifier parameter_declarator ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<ParameterDeclaration>
+        (makeAstNode<QualifiedType>
+            (sym(1).qualifier, sym(3).param_declarator.type,
+             (List<LayoutQualifier *> *)0),
+         ParameterDeclaration::Qualifier(sym(2).qualifier),
+         sym(3).param_declarator.name);
 }   break;
 ./
 
 parameter_declaration ::= parameter_qualifier parameter_declarator ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<ParameterDeclaration>
+        (sym(2).param_declarator.type,
+         ParameterDeclaration::Qualifier(sym(1).qualifier),
+         sym(2).param_declarator.name);
 }   break;
 ./
 
 parameter_declaration ::= parameter_type_qualifier parameter_qualifier parameter_type_specifier ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<ParameterDeclaration>
+        (makeAstNode<QualifiedType>
+            (sym(1).qualifier, type(3), (List<LayoutQualifier *> *)0),
+         ParameterDeclaration::Qualifier(sym(2).qualifier),
+         (const std::string *)0);
 }   break;
 ./
 
 parameter_declaration ::= parameter_qualifier parameter_type_specifier ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<ParameterDeclaration>
+        (type(2), ParameterDeclaration::Qualifier(sym(1).qualifier),
+         (const std::string *)0);
 }   break;
 ./
 
 parameter_qualifier ::= empty ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).qualifier = ParameterDeclaration::In;
 }   break;
 ./
 
 parameter_qualifier ::= IN ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).qualifier = ParameterDeclaration::In;
 }   break;
 ./
 
 parameter_qualifier ::= OUT ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).qualifier = ParameterDeclaration::Out;
 }   break;
 ./
 
 parameter_qualifier ::= INOUT ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).qualifier = ParameterDeclaration::InOut;
 }   break;
 ./
 
 parameter_type_specifier ::= type_specifier ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
 init_declarator_list ::= single_declaration ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    sym(1).declaration_list = makeAstNode< List<Declaration *> >
+        (sym(1).declaration);
 }   break;
 ./
 
 init_declarator_list ::= init_declarator_list COMMA IDENTIFIER ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    Type *type = VariableDeclaration::declarationType(sym(1).declaration_list);
+    Declaration *decl = makeAstNode<VariableDeclaration>(type, string(3));
+    sym(1).declaration_list = makeAstNode< List<Declaration *> >
+            (sym(1).declaration_list, decl);
 }   break;
 ./
 
 init_declarator_list ::= init_declarator_list COMMA IDENTIFIER LEFT_BRACKET RIGHT_BRACKET ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    Type *type = VariableDeclaration::declarationType(sym(1).declaration_list);
+    type = makeAstNode<ArrayType>(type);
+    Declaration *decl = makeAstNode<VariableDeclaration>(type, string(3));
+    sym(1).declaration_list = makeAstNode< List<Declaration *> >
+            (sym(1).declaration_list, decl);
 }   break;
 ./
 
 init_declarator_list ::= init_declarator_list COMMA IDENTIFIER LEFT_BRACKET constant_expression RIGHT_BRACKET ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    Type *type = VariableDeclaration::declarationType(sym(1).declaration_list);
+    type = makeAstNode<ArrayType>(type, expression(5));
+    Declaration *decl = makeAstNode<VariableDeclaration>(type, string(3));
+    sym(1).declaration_list = makeAstNode< List<Declaration *> >
+            (sym(1).declaration_list, decl);
 }   break;
 ./
 
 init_declarator_list ::= init_declarator_list COMMA IDENTIFIER LEFT_BRACKET RIGHT_BRACKET EQUAL initializer ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    Type *type = VariableDeclaration::declarationType(sym(1).declaration_list);
+    type = makeAstNode<ArrayType>(type);
+    Declaration *decl = makeAstNode<VariableDeclaration>
+            (type, string(3), expression(7));
+    sym(1).declaration_list = makeAstNode< List<Declaration *> >
+            (sym(1).declaration_list, decl);
 }   break;
 ./
 
 init_declarator_list ::= init_declarator_list COMMA IDENTIFIER LEFT_BRACKET constant_expression RIGHT_BRACKET EQUAL initializer ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    Type *type = VariableDeclaration::declarationType(sym(1).declaration_list);
+    type = makeAstNode<ArrayType>(type, expression(5));
+    Declaration *decl = makeAstNode<VariableDeclaration>
+            (type, string(3), expression(8));
+    sym(1).declaration_list = makeAstNode< List<Declaration *> >
+            (sym(1).declaration_list, decl);
 }   break;
 ./
 
 init_declarator_list ::= init_declarator_list COMMA IDENTIFIER EQUAL initializer ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    Type *type = VariableDeclaration::declarationType(sym(1).declaration_list);
+    Declaration *decl = makeAstNode<VariableDeclaration>
+            (type, string(3), expression(5));
+    sym(1).declaration_list = makeAstNode< List<Declaration *> >
+            (sym(1).declaration_list, decl);
 }   break;
 ./
 
 single_declaration ::= fully_specified_type ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<TypeDeclaration>(type(1));
 }   break;
 ./
 
 single_declaration ::= fully_specified_type IDENTIFIER ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<VariableDeclaration>(type(1), string(2));
 }   break;
 ./
 
 single_declaration ::= fully_specified_type IDENTIFIER LEFT_BRACKET RIGHT_BRACKET ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<VariableDeclaration>
+        (makeAstNode<ArrayType>(type(1)), string(2));
 }   break;
 ./
 
 single_declaration ::= fully_specified_type IDENTIFIER LEFT_BRACKET constant_expression RIGHT_BRACKET ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<VariableDeclaration>
+        (makeAstNode<ArrayType>(type(1), expression(4)), string(2));
 }   break;
 ./
 
 single_declaration ::= fully_specified_type IDENTIFIER LEFT_BRACKET RIGHT_BRACKET EQUAL initializer ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<VariableDeclaration>
+        (makeAstNode<ArrayType>(type(1)), string(2), expression(6));
 }   break;
 ./
 
 single_declaration ::= fully_specified_type IDENTIFIER LEFT_BRACKET constant_expression RIGHT_BRACKET EQUAL initializer ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<VariableDeclaration>
+        (makeAstNode<ArrayType>(type(1), expression(4)),
+         string(2), expression(7));
 }   break;
 ./
 
 single_declaration ::= fully_specified_type IDENTIFIER EQUAL initializer ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<VariableDeclaration>
+        (type(1), string(2), expression(4));
 }   break;
 ./
 
 single_declaration ::= INVARIANT IDENTIFIER ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<InvariantDeclaration>(string(2));
 }   break;
 ./
 
@@ -2391,14 +2443,14 @@ case $rule_number: {
 initializer ::= assignment_expression ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
 declaration_statement ::= declaration ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<DeclarationStatement>(sym(1).declaration_list);
 }   break;
 ./
 
@@ -2568,7 +2620,8 @@ case $rule_number: {
 condition ::= fully_specified_type IDENTIFIER EQUAL initializer ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    ast(1) = makeAstNode<DeclarationExpression>
+        (type(1), string(2), expression(4));
 }   break;
 ./
 
@@ -2755,7 +2808,7 @@ case $rule_number: {
 external_declaration ::= declaration ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 

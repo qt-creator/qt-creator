@@ -72,6 +72,9 @@ public:
     virtual bool visit(FunctionIdentifier *) { return true; }
     virtual void endVisit(FunctionIdentifier *) {}
 
+    virtual bool visit(DeclarationExpression *) { return true; }
+    virtual void endVisit(DeclarationExpression *) {}
+
     virtual bool visit(ExpressionStatement *) { return true; }
     virtual void endVisit(ExpressionStatement *) {}
 
@@ -102,6 +105,9 @@ public:
     virtual bool visit(CaseLabelStatement *) { return true; }
     virtual void endVisit(CaseLabelStatement *) {}
 
+    virtual bool visit(DeclarationStatement *) { return true; }
+    virtual void endVisit(DeclarationStatement *) {}
+
     virtual bool visit(BasicType *) { return true; }
     virtual void endVisit(BasicType *) {}
 
@@ -122,6 +128,21 @@ public:
 
     virtual bool visit(PrecisionDeclaration *) { return true; }
     virtual void endVisit(PrecisionDeclaration *) {}
+
+    virtual bool visit(ParameterDeclaration *) { return true; }
+    virtual void endVisit(ParameterDeclaration *) {}
+
+    virtual bool visit(VariableDeclaration *) { return true; }
+    virtual void endVisit(VariableDeclaration *) {}
+
+    virtual bool visit(TypeDeclaration *) { return true; }
+    virtual void endVisit(TypeDeclaration *) {}
+
+    virtual bool visit(InvariantDeclaration *) { return true; }
+    virtual void endVisit(InvariantDeclaration *) {}
+
+    virtual bool visit(InitDeclaration *) { return true; }
+    virtual void endVisit(InitDeclaration *) {}
 };
 
 } // namespace GLSL

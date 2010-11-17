@@ -79,6 +79,10 @@ public:
             int qualifier;
             List<LayoutQualifier *> *layout_list;
         } type_qualifier;
+        struct {
+            Type *type;
+            const std::string *name;
+        } param_declarator;
         // ### ast nodes...
     };
 

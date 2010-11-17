@@ -124,6 +124,15 @@ void FunctionIdentifier::accept0(Visitor *visitor)
     visitor->endVisit(this);
 }
 
+void DeclarationExpression::accept0(Visitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(type, visitor);
+        accept(initializer, visitor);
+    }
+    visitor->endVisit(this);
+}
+
 void ExpressionStatement::accept0(Visitor *visitor)
 {
     if (visitor->visit(this))
@@ -203,6 +212,13 @@ void CaseLabelStatement::accept0(Visitor *visitor)
 {
     if (visitor->visit(this))
         accept(expr, visitor);
+    visitor->endVisit(this);
+}
+
+void DeclarationStatement::accept0(Visitor *visitor)
+{
+    if (visitor->visit(this))
+        accept(decls, visitor);
     visitor->endVisit(this);
 }
 
@@ -346,5 +362,47 @@ void PrecisionDeclaration::accept0(Visitor *visitor)
 {
     if (visitor->visit(this))
         accept(type, visitor);
+    visitor->endVisit(this);
+}
+
+void ParameterDeclaration::accept0(Visitor *visitor)
+{
+    if (visitor->visit(this))
+        accept(type, visitor);
+    visitor->endVisit(this);
+}
+
+void VariableDeclaration::accept0(Visitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(type, visitor);
+        accept(initializer, visitor);
+    }
+    visitor->endVisit(this);
+}
+
+Type *VariableDeclaration::declarationType(List<Declaration *> *decls)
+{
+    VariableDeclaration *var = decls->value->asVariableDeclaration();
+    return var ? var->type : 0;
+}
+
+void TypeDeclaration::accept0(Visitor *visitor)
+{
+    if (visitor->visit(this))
+        accept(type, visitor);
+    visitor->endVisit(this);
+}
+
+void InvariantDeclaration::accept0(Visitor *visitor)
+{
+    visitor->visit(this);
+    visitor->endVisit(this);
+}
+
+void InitDeclaration::accept0(Visitor *visitor)
+{
+    if (visitor->visit(this))
+        accept(decls, visitor);
     visitor->endVisit(this);
 }
