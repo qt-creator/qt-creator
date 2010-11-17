@@ -913,7 +913,8 @@ void SubversionPlugin::vcsAnnotate(const QString &workingDir, const QString &fil
                                 const QString &revision /* = QString() */,
                                 int lineNumber /* = -1 */)
 {
-    QTextCodec *codec = VCSBase::VCSBaseEditor::getCodec(file);
+    const QString source = VCSBase::VCSBaseEditor::getSource(workingDir, file);
+    QTextCodec *codec = VCSBase::VCSBaseEditor::getCodec(source);
 
     QStringList args(QLatin1String("annotate"));
     if (m_settings.spaceIgnorantAnnotation)
@@ -925,13 +926,12 @@ void SubversionPlugin::vcsAnnotate(const QString &workingDir, const QString &fil
 
     const SubversionResponse response =
             runSvn(workingDir, args, m_settings.timeOutMS(),
-                   SshPasswordPrompt, codec);
+                   SshPasswordPrompt|ForceCLocale, codec);
     if (response.error)
         return;
 
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
-    const QString source = workingDir + QLatin1Char('/') + file;
     if (lineNumber <= 0)
         lineNumber = VCSBase::VCSBaseEditor::lineNumberOfCurrentEditor(source);
     // Determine id
