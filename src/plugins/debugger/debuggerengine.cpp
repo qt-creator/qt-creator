@@ -66,6 +66,7 @@
 #include <QtGui/QStandardItemModel>
 #include <QtGui/QAction>
 #include <QtGui/QTreeWidget>
+#include <QtGui/QMessageBox>
 
 using namespace Core;
 using namespace Debugger;
@@ -1364,6 +1365,71 @@ Internal::BreakHandler *DebuggerEngine::breakHandler() const
 bool DebuggerEngine::isDying() const
 {
     return targetState() == DebuggerFinished;
+}
+
+QString DebuggerEngine::msgWatchpointTriggered(BreakpointId id, const int number, quint64 address)
+{
+    return id != BreakpointId(-1) ?
+           tr("Watchpoint %1 (%2) at 0x%3 triggered.").arg(id).arg(number).arg(address, 0, 16) :
+           tr("Internal watchpoint %1 at 0x%2 triggered.").arg(number).arg(address, 0, 16);
+}
+
+QString DebuggerEngine::msgWatchpointTriggered(BreakpointId id, const int number,
+                                               quint64 address, const QString &threadId)
+{
+    return id != BreakpointId(-1) ?
+           tr("Watchpoint %1 (%2) at 0x%3 in thread %4 triggered.").
+               arg(id).arg(number).arg(address, 0, 16).arg(threadId) :
+           tr("Internal watchpoint %1 at 0x%2 in thread %3 triggered.").
+               arg(id).arg(number).arg(address, 0, 16).arg(threadId);
+}
+
+QString DebuggerEngine::msgBreakpointTriggered(BreakpointId id, const int number, const QString &threadId)
+{
+    return id != BreakpointId(-1) ?
+           tr("Stopped at breakpoint %1 (%2) in thread %3.").arg(id).arg(number).arg(threadId) :
+           tr("Stopped at internal breakpoint %1 in thread %2.").arg(number).arg(threadId);
+}
+
+QString DebuggerEngine::msgStopped(const QString &reason)
+{
+    return reason.isEmpty() ? tr("Stopped.") : tr("Stopped: \"%1\"").arg(reason);
+}
+
+QString DebuggerEngine::msgStoppedBySignal(const QString &meaning, const QString &name)
+{
+    return tr("Stopped: %1 by signal %2.").arg(meaning, name);
+}
+
+QString DebuggerEngine::msgStoppedByException(const QString &description, const QString &threadId)
+{
+    return tr("Stopped in thread %1 by: %2.").arg(threadId, description);
+}
+
+QString DebuggerEngine::msgInterrupted()
+{
+    return tr("Interrupted.");
+}
+
+void DebuggerEngine::showStoppedBySignalMessageBox(QString meaning, QString name)
+{
+    if (name.isEmpty())
+        name = tr(" <Unknown> ", "name");
+    if (meaning.isEmpty())
+        meaning = tr(" <Unknown> ", "meaning");
+    const QString msg = tr("<p>The inferior stopped because it received a "
+                           "signal from the Operating System.<p>"
+                           "<table><tr><td>Signal name : </td><td>%1</td></tr>"
+                           "<tr><td>Signal meaning : </td><td>%2</td></tr></table>")
+            .arg(name, meaning);
+    showMessageBox(QMessageBox::Information, tr("Signal received"), msg);
+}
+
+void DebuggerEngine::showStoppedByExceptionMessageBox(const QString &description)
+{
+    const QString msg = tr("<p>The inferior stopped because it triggered an exception.<p>%1").
+                         arg(description);
+    showMessageBox(QMessageBox::Information, tr("Exception Triggered"), msg);
 }
 
 } // namespace Debugger

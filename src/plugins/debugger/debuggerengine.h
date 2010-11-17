@@ -336,6 +336,17 @@ protected:
 protected:
     DebuggerRunControl *runControl() const;
 
+    static QString msgWatchpointTriggered(BreakpointId id, int number, quint64 address);
+    static QString msgWatchpointTriggered(BreakpointId id, int number, quint64 address,
+                                          const QString &threadId);
+    static QString msgBreakpointTriggered(BreakpointId id, int number, const QString &threadId);
+    static QString msgStopped(const QString &reason = QString());
+    static QString msgStoppedBySignal(const QString &meaning, const QString &name);
+    static QString msgStoppedByException(const QString &description, const QString &threadId);
+    static QString msgInterrupted();
+    void showStoppedBySignalMessageBox(QString meaning, QString name);
+    void showStoppedByExceptionMessageBox(const QString &description);
+
 private:
     // wrapper engine needs access to state of its subengines
     friend class QmlCppEngine;

@@ -1372,18 +1372,20 @@ void GdbEngine::handleStop1(const GdbMi &data)
         // {name="p",value="0x0"}],file="x.h",fullname="/home/.../x.h",line="95"},
         // thread-id="1",stopped-threads="all",core="2"
         GdbMi wpt = data.findChild("wpt");
-        QByteArray bpNumber = wpt.findChild("number").data();
-        QByteArray bpAddress = wpt.findChild("exp").data();
-        //QByteArray threadId = data.findChild("thread-id").data();
-        showStatusMessage(tr("Watchpoint %1 at %2 triggered:")
-            .arg(_(bpNumber), _(bpAddress)));
-    } else if (reason == "breakpoint-hit") {
-        QByteArray bpNumber = data.findChild("bkptno").data();
-        QByteArray threadId = data.findChild("thread-id").data();
-        showStatusMessage(tr("Stopped at breakpoint %1 in thread %2")
-            .arg(_(bpNumber), _(threadId)));
+        const int bpNumber = wpt.findChild("number").data().toInt();
+        const BreakpointId id = breakHandler()->findBreakpointByNumber(bpNumber);
+        const quint64 bpAddress = wpt.findChild("exp").data().toULongLong(0, 0);
+        showStatusMessage(msgWatchpointTriggered(id, bpNumber, bpAddress));
+    } else if (reason == "breakpoint-hit") {        
+        GdbMi gNumber = data.findChild("bkptno"); // 'number' or 'bkptno'?
+        if (!gNumber.isValid())
+            gNumber = data.findChild("number");
+        const int bpNumber = gNumber.data().toInt();
+        const QByteArray threadId = data.findChild("thread-id").data();
+        const BreakpointId id = breakHandler()->findBreakpointByNumber(bpNumber);
+        showStatusMessage(msgBreakpointTriggered(id, bpNumber, QString::fromAscii(threadId)));
     } else {
-        QString reasontr = tr("Stopped: \"%1\"").arg(_(reason));
+        QString reasontr = msgStopped(_(reason));
         if (reason == "signal-received"
             && debuggerCore()->boolSetting(UseMessageBoxForSignals)) {
             QByteArray name = data.findChild("signal-name").data();
@@ -1393,22 +1395,14 @@ void GdbEngine::handleStop1(const GdbMi &data)
             if (name != STOP_SIGNAL
                 && (startParameters().startMode != AttachToRemote
                     || name != CROSS_STOP_SIGNAL)) {
-                QString msg = tr("<p>The inferior stopped because it received a "
-                    "signal from the Operating System.<p>"
-                    "<table><tr><td>Signal name : </td><td>%1</td></tr>"
-                    "<tr><td>Signal meaning : </td><td>%2</td></tr></table>")
-                    .arg(name.isEmpty() ? tr(" <Unknown> ", "name") : _(name))
-                    .arg(meaning.isEmpty() ? tr(" <Unknown> ", "meaning") : _(meaning));
-                showMessageBox(QMessageBox::Information,
-                    tr("Signal received"), msg);
+                showStoppedBySignalMessageBox(_(meaning), _(name));
                 if (!name.isEmpty() && !meaning.isEmpty())
-                    reasontr = tr("Stopped: %1 by signal %2")
-                        .arg(_(meaning)).arg(_(name));
+                    reasontr = msgStoppedBySignal(_(meaning), _(name));
             }
         }
 
         if (reason.isEmpty())
-            showStatusMessage(tr("Stopped."));
+            showStatusMessage(msgStopped());
         else
             showStatusMessage(reasontr);
     }
