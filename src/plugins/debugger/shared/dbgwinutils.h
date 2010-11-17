@@ -33,6 +33,7 @@
 #include <QtCore/QList>
 
 QT_FORWARD_DECLARE_CLASS(QString)
+QT_FORWARD_DECLARE_CLASS(QTextStream)
 
 namespace Debugger {
 namespace Internal {
@@ -58,6 +59,29 @@ unsigned long winGetCurrentProcessId();
 QString winNormalizeFileName(const QString &f);
 
 bool isWinProcessBeingDebugged(unsigned long pid);
+
+// Special exception codes.
+enum { winExceptionCppException = 0xe06d7363,
+       winExceptionStartupCompleteTrap = 0x406d1388,
+       winExceptionRpcServerUnavailable = 0x6ba,
+       winExceptionRpcServerInvalid = 0x6a6,
+       winExceptionDllNotFound = 0xc0000135,
+       winExceptionDllEntryPointNoFound = 0xc0000139,
+       winExceptionDllInitFailed = 0xc0000142,
+       winExceptionMissingSystemFile = 0xc0000143,
+       winExceptionAppInitFailed = 0xc0000143
+};
+
+// Format windows Exception
+void formatWindowsException(unsigned long code, quint64 address,
+                            unsigned long flags, quint64 info1, quint64 info2,
+                            QTextStream &str);
+// Check for access violation, etc.
+bool isFatalWinException(long code);
+
+// Check for EXCEPTION_BREAKPOINT, EXCEPTION_SINGLE_STEP
+bool isDebuggerWinException(long code);
+
 
 } // namespace Internal
 } // namespace Debugger

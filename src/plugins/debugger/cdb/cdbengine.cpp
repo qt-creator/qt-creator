@@ -43,6 +43,7 @@
 #include "debuggeragents.h"
 #include "debuggeruiswitcher.h"
 #include "debuggercore.h"
+#include "dbgwinutils.h"
 
 #include "debuggeractions.h"
 #include "breakhandler.h"

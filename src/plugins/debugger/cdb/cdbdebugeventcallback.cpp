@@ -31,6 +31,7 @@
 #include "cdbengine.h"
 #include "cdbexceptionutils.h"
 #include "cdbengine_p.h"
+#include "dbgwinutils.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QTextStream>
@@ -75,7 +76,7 @@ STDMETHODIMP CdbDebugEventCallback::Exception(
         QTextStream str(&msg);
         formatException(Exception, &m_pEngine->m_d->interfaces(), str);
     }
-    const bool fatal = isFatalException(Exception->ExceptionCode);
+    const bool fatal = isFatalWinException(Exception->ExceptionCode);
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << "\nex=" << Exception->ExceptionCode << " fatal=" << fatal << msg;
     m_pEngine->showMessage(msg, AppError);
@@ -226,7 +227,7 @@ STDMETHODIMP CdbExceptionLoggerEventCallback::Exception(
     __in ULONG /* FirstChance */
     )
 {
-    const bool recordException = !m_skipNonFatalExceptions || isFatalException(Exception->ExceptionCode);
+    const bool recordException = !m_skipNonFatalExceptions || isFatalWinException(Exception->ExceptionCode);
     QString msg;
     formatException(Exception, QTextStream(&msg));
     if (recordException) {
