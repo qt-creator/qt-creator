@@ -1315,10 +1315,10 @@ bool CdbEngine::attemptBreakpointSynchronizationI(QString *errorMessage)
         case BreakpointInsertRequested:
             handler->setState(id, BreakpointInsertProceeding);
             if (addCdbBreakpoint(control, symbols, data, &response, errorMessage)) {
-                notifyBreakpointInsertOk(id);
+                handler->notifyBreakpointInsertOk(id);
                 handler->setResponse(id, response);
             } else {
-                notifyBreakpointInsertOk(id);
+                handler->notifyBreakpointInsertOk(id);
                 showMessage(*errorMessage, LogError);
             }
             break;
@@ -1327,21 +1327,20 @@ bool CdbEngine::attemptBreakpointSynchronizationI(QString *errorMessage)
             handler->setState(id, BreakpointChangeProceeding);
             if (data.enabled) {
                 if (addCdbBreakpoint(control, symbols, data, &response, errorMessage)) {
-                    notifyBreakpointChangeOk(id);
+                    handler->notifyBreakpointChangeOk(id);
                     handler->setResponse(id, response);
                 } else {
-                    notifyBreakpointChangeFailed(id);
+                    handler->notifyBreakpointChangeFailed(id);
                     showMessage(*errorMessage, LogError);
                 }
             } else {
-                notifyBreakpointChangeOk(id);
+                handler->notifyBreakpointChangeOk(id);
             }
             break;
         case BreakpointRemoveRequested:
-            notifyBreakpointRemoveOk(id);
+            handler->notifyBreakpointRemoveOk(id);
             break;
         case BreakpointInserted:
-        case BreakpointPending:
             // Existing breakpoints were deleted due to change/removal, re-set
             if (syncType == BreakpointsRemovedChanged
                 && !addCdbBreakpoint(control, symbols, handler->breakpointData(id), &response, errorMessage))
