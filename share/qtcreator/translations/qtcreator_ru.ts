@@ -4158,6 +4158,11 @@ Qt Creator не может подключиться к нему.</translation>
         <translation>Невозможно присвоить &quot;%2&quot; значение &quot;%1&quot; (%3): %4</translation>
     </message>
     <message>
+        <source>The CDB debug engine does not support the %1 toolchain.</source>
+        <extracomment>%1 is something like &quot;GCCE&quot; or &quot;Intel C++ Compiler (Linux)&quot; (see ToolChain context)</extracomment>
+        <translation>Движок отладчика CDB не поддерживает инструментарий %1.</translation>
+    </message>
+    <message>
         <source>Attaching to core files is not supported.</source>
         <translation>Подключение к файлам дампа не поддерживается.</translation>
     </message>
@@ -4224,10 +4229,6 @@ Qt Creator не может подключиться к нему.</translation>
     <message>
         <source>Watchpoint: %1</source>
         <translation>Точка наблюдения: %1</translation>
-    </message>
-    <message>
-        <source>The CDB debug engine does not support the &apos;%1</source>
-        <translation>Движок отладчика CDB не поддерживает &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
@@ -4527,7 +4528,7 @@ Qt Creator не может подключиться к нему.</translation>
     </message>
     <message>
         <source>Create Full Backtrace</source>
-        <translation type="unfinished">Вывести полный стек вызовов</translation>
+        <translation>Вывести полный стек вызовов</translation>
     </message>
     <message>
         <source>Execute Line</source>
@@ -9468,7 +9469,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>Use fallback location</source>
-        <translation>Использовать запасное размещение</translation>
+        <translation>Использовать дополнительный путь</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -9552,7 +9553,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>Switch outline</source>
-        <translation>Включить/отключить контур</translation>
+        <translation>Включить/отключить обзор</translation>
     </message>
     <message>
         <source>Ctrl+]</source>
@@ -9567,7 +9568,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>Show outline</source>
-        <translation>Показывать контур</translation>
+        <translation>Показывать обзор</translation>
     </message>
     <message>
         <source>Fit image in the screen</source>
@@ -9629,6 +9630,14 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <source>Anchors</source>
         <translation>Привязки</translation>
+    </message>
+    <message>
+        <source>Set anchors</source>
+        <translation>Установить привязки</translation>
+    </message>
+    <message>
+        <source>Setting anchors in states is not supported.</source>
+        <translation>Установка привязок на состояния не поддерживается.</translation>
     </message>
     <message>
         <source>Target</source>
@@ -10205,7 +10214,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Working...</source>
-        <translation>Исполнение...</translation>
+        <translation>Выполнение...</translation>
     </message>
 </context>
 <context>
@@ -13441,11 +13450,11 @@ Reason: %2</source>
     <name>ProjectExplorer::RunControl</name>
     <message>
         <source>Application Still Running</source>
-        <translation>Приложение ещё исполняется</translation>
+        <translation>Приложение ещё выполняется</translation>
     </message>
     <message>
         <source>%1 is still running.</source>
-        <translation>%1 ещё исполняется.</translation>
+        <translation>%1 ещё выполняется.</translation>
     </message>
     <message>
         <source>Force it to quit?</source>
@@ -13457,7 +13466,7 @@ Reason: %2</source>
     </message>
     <message>
         <source>Keep Running</source>
-        <translation>Продолжить исполнение</translation>
+        <translation>Продолжить выполнение</translation>
     </message>
 </context>
 <context>
@@ -13601,6 +13610,10 @@ Do you still want to load the settings file?</source>
         <translation>Родительский каталог &quot;%1&quot; файла &quot;%2&quot; не существует.</translation>
     </message>
     <message>
+        <source>Error</source>
+        <translation>Ошибка</translation>
+    </message>
+    <message>
         <source>Cannot write file: &quot;%1&quot;.</source>
         <translation>Не удалось записать файл: &quot;%1&quot;.</translation>
     </message>
@@ -13613,7 +13626,7 @@ Do you still want to load the settings file?</source>
     </message>
     <message>
         <source>Show bounding rectangles (A)</source>
-        <translation type="unfinished">Отображать границы (A)</translation>
+        <translation>Отображать границы (A)</translation>
     </message>
     <message>
         <source>Only select items with content (S)</source>
@@ -14540,7 +14553,7 @@ You can review Qt Quick UI projects in the QML Viewer and you need not build the
         <source>List of plugin directories passed to QML runtime</source>
         <comment>qmlproject Template</comment>
         <extracomment>Comment added to generated .qmlproject file</extracomment>
-        <translation>Список каталогов модулей, передаваемый среде исполнения QML</translation>
+        <translation>Список каталогов модулей, передаваемый среде выполнения QML</translation>
     </message>
 </context>
 <context>
@@ -15265,7 +15278,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Featured</source>
-        <translation type="unfinished">Известное</translation>
+        <translation>Полезное</translation>
     </message>
     <message>
         <source>Explore Qt C++ examples:</source>
@@ -16166,6 +16179,10 @@ stderr was: %1</source>
         <translation>Не выбрана конфигурация устройства для запуска.</translation>
     </message>
     <message>
+        <source>Run configuration no longer available.</source>
+        <translation>Конфигурация запуска больше недоступна.</translation>
+    </message>
+    <message>
         <source>Starting remote process ...</source>
         <translation>Запуск внешнего процесса...</translation>
     </message>
@@ -16175,7 +16192,7 @@ stderr was: %1</source>
     </message>
     <message>
         <source>Remote Execution Failure</source>
-        <translation>Ошибка внешнего исполнения</translation>
+        <translation>Ошибка внешнего выполнения</translation>
     </message>
 </context>
 <context>
@@ -16991,6 +17008,10 @@ You can build the application and deploy it on desktop and mobile target platfor
     <message>
         <source>Debugging helpers:</source>
         <translation>Помощники отладчика:</translation>
+    </message>
+    <message>
+        <source>SBS v2 directory:</source>
+        <translation>Каталог SBS v2:</translation>
     </message>
 </context>
 <context>
@@ -19713,14 +19734,14 @@ Please check the directory&apos;s access rights.</source>
     <name>TextEditor::Internal::OutlineFactory</name>
     <message>
         <source>Outline</source>
-        <translation>Контур</translation>
+        <translation>Обзор</translation>
     </message>
 </context>
 <context>
     <name>TextEditor::Internal::OutlineWidgetStack</name>
     <message>
         <source>No outline available</source>
-        <translation>Контур недоступен</translation>
+        <translation>Обзор недоступен</translation>
     </message>
     <message>
         <source>Synchronize with Editor</source>
@@ -21439,11 +21460,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Clip</source>
-        <translation type="unfinished">Обрезка</translation>
+        <translation>Обрезка</translation>
     </message>
     <message>
         <source>Opacity</source>
-        <translation type="unfinished">Непрозрачность</translation>
+        <translation>Непрозрачность</translation>
     </message>
 </context>
 <context>
