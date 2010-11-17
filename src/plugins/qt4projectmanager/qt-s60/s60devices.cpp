@@ -542,10 +542,23 @@ QList<ProjectExplorer::HeaderPath> S60ToolChainMixin::epocHeaderPaths() const
 
 void S60ToolChainMixin::addEpocToEnvironment(Utils::Environment *env) const
 {
+#if defined(Q_OS_WIN)
+    QString winDir = QLatin1String(qgetenv("WINDIR"));
+    if (!winDir.isEmpty())
+        env->prependOrSetPath(QDir(winDir).filePath(QLatin1String("system32")));
+#endif
+
     QDir epocDir(m_device.epocRoot);
+
     env->prependOrSetPath(epocDir.filePath(QLatin1String("epoc32/tools"))); // e.g. make.exe
-    env->prependOrSetPath(epocDir.filePath(QLatin1String("epoc32/gcc/bin"))); // e.g. gcc.exe
-    env->prependOrSetPath(epocDir.filePath(QLatin1String("perl/bin"))); // e.g. perl.exe (special SDK version)
+
+    if (epocDir.exists(QLatin1String("epoc32/gcc/bin")))
+        env->prependOrSetPath(epocDir.filePath(QLatin1String("epoc32/gcc/bin"))); // e.g. cpp.exe, *NOT* gcc.exe
+    // Find perl in the special Symbian flavour:
+    if (epocDir.exists(QLatin1String("../../tools/perl/bin")))
+        env->prependOrSetPath(epocDir.filePath(QLatin1String("../../tools/perl/bin")));
+    else
+        env->prependOrSetPath(epocDir.filePath(QLatin1String("perl/bin")));
 
     addBaseToEnvironment(env);
 }
@@ -593,13 +606,9 @@ void S60ToolChainMixin::addGnuPocToEnvironment(Utils::Environment *env) const
 
 void S60ToolChainMixin::addBaseToEnvironment(Utils::Environment *env) const
 {
-    QString sbsHome(env->value(QLatin1String("SBS_HOME"))); // Do we use Raptor/SBSv2?
-    if (!sbsHome.isEmpty())
-        env->prependOrSetPath(sbsHome + QDir::separator() + QLatin1String("bin"));
-
     QString epocRootPath(m_device.epocRoot);
-    if (!epocRootPath.endsWith(QChar('/')))
-        epocRootPath.append(QChar('/'));
+    if (!epocRootPath.endsWith(QLatin1Char('/')))
+        epocRootPath.append(QLatin1Char('/'));
     env->set(QLatin1String("EPOCROOT"), QDir::toNativeSeparators(S60Devices::cleanedRootPath(epocRootPath)));
 }
 
