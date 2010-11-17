@@ -695,14 +695,18 @@ typedef struct {
     // complex expressions within the quoted string.
     bool dquote;
 } MxState;
+QT_BEGIN_NAMESPACE
 Q_DECLARE_TYPEINFO(MxState, Q_PRIMITIVE_TYPE);
+QT_END_NAMESPACE
 
 // Pushed state for the case where a $(()) expansion turns out bogus
 typedef struct {
     QString str;
     int pos, varPos;
 } MxSave;
+QT_BEGIN_NAMESPACE
 Q_DECLARE_TYPEINFO(MxSave, Q_MOVABLE_TYPE);
+QT_END_NAMESPACE
 
 #include <QtCore/QStack>
 
