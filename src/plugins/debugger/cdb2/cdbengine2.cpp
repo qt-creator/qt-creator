@@ -104,12 +104,14 @@ enum { debugBreakpoints = 0 };
 namespace Debugger {
 namespace Cdb {
 
+using namespace Debugger::Internal;
+
 struct MemoryViewCookie {
-    explicit MemoryViewCookie(Debugger::Internal::MemoryViewAgent *a = 0, QObject *e = 0,
+    explicit MemoryViewCookie(MemoryViewAgent *a = 0, QObject *e = 0,
                               quint64 addr = 0, quint64 l = 0) :
         agent(a), editorToken(e), address(addr), length(l) {}
 
-    Debugger::Internal::MemoryViewAgent *agent;
+    MemoryViewAgent *agent;
     QObject *editorToken;
     quint64 address;
     quint64 length;
@@ -268,7 +270,7 @@ void addCdb2OptionPages(QList<Core::IOptionsPage *> *opts)
 
 static inline Utils::SavedAction *theAssemblerAction()
 {
-    return Debugger::Internal::debuggerCore()->action(Debugger::Internal::OperateByInstruction);
+    return debuggerCore()->action(OperateByInstruction);
 }
 
 CdbEngine::CdbEngine(const DebuggerStartParameters &sp, const OptionsPtr &options) :
@@ -1539,20 +1541,20 @@ enum BreakPointSyncType {
     BreakpointsUnchanged, BreakpointsAdded, BreakpointsRemovedChanged
 };
 
-static inline BreakPointSyncType breakPointSyncType(const Debugger::Internal::BreakHandler *handler,
-                                                    const Debugger::Internal::BreakpointIds ids)
+static inline BreakPointSyncType breakPointSyncType(const BreakHandler *handler,
+                                                    const BreakpointIds ids)
 {
     bool added = false;
     foreach (BreakpointId id, ids) {
-        const Debugger::Internal::BreakpointState state = handler->state(id);
+        const BreakpointState state = handler->state(id);
         if (debugBreakpoints > 1)
             qDebug("    Checking on breakpoint %llu, state %d\n", id, state);
         switch (state) {
-        case Debugger::Internal::BreakpointInsertRequested:
+        case BreakpointInsertRequested:
             added = true;
             break;
-        case Debugger::Internal::BreakpointChangeRequested:
-        case Debugger::Internal::BreakpointRemoveRequested:
+        case BreakpointChangeRequested:
+        case BreakpointRemoveRequested:
             return BreakpointsRemovedChanged;
         default:
             break;
@@ -1564,14 +1566,14 @@ static inline BreakPointSyncType breakPointSyncType(const Debugger::Internal::Br
 void CdbEngine::attemptBreakpointSynchronization()
 {
     // Check if there is anything to be done at all.
-    Debugger::Internal::BreakHandler *handler = breakHandler();
+    BreakHandler *handler = breakHandler();
     // Take ownership of the breakpoint. Requests insertion. TODO: Cpp only?
-    foreach (Debugger::BreakpointId id, handler->unclaimedBreakpointIds())
+    foreach (BreakpointId id, handler->unclaimedBreakpointIds())
         if (acceptsBreakpoint(id))
             handler->setEngine(id, this);
 
     // Find out if there is a need to synchronize again
-    const Debugger::Internal::BreakpointIds ids = handler->engineBreakpointIds(this);
+    const BreakpointIds ids = handler->engineBreakpointIds(this);
     const BreakPointSyncType syncType = breakPointSyncType(handler, ids);
     if (debugBreakpoints)
         qDebug("attemptBreakpointSynchronizationI %dms accessible=%d, %s %d breakpoints, syncType=%d",
@@ -1597,20 +1599,20 @@ void CdbEngine::attemptBreakpointSynchronization()
     }
 
     foreach (BreakpointId id, ids) {
-        Debugger::Internal::BreakpointResponse response;
-        const Debugger::Internal::BreakpointParameters &p = handler->breakpointData(id);
+        BreakpointResponse response;
+        const BreakpointParameters &p = handler->breakpointData(id);
         response.fromParameters(p);
         switch (handler->state(id)) {
-        case Debugger::Internal::BreakpointInsertRequested:
+        case BreakpointInsertRequested:
             response.number = m_nextBreakpointNumber++;
             postCommand(cdbAddBreakpointCommand(p, false, response.number), 0);
-            handler->setState(id, Debugger::Internal::BreakpointInsertProceeding);
+            handler->setState(id, BreakpointInsertProceeding);
             handler->notifyBreakpointInsertOk(id);
             handler->setResponse(id, response);
             break;
-        case Debugger::Internal::BreakpointChangeRequested:
+        case BreakpointChangeRequested:
             // Skip disabled breakpoints, else add
-            handler->setState(id, Debugger::Internal::BreakpointChangeProceeding);
+            handler->setState(id, BreakpointChangeProceeding);
             if (p.enabled) {
                 response.number = m_nextBreakpointNumber++;
                 postCommand(cdbAddBreakpointCommand(p, false, response.number), 0);
@@ -1618,10 +1620,10 @@ void CdbEngine::attemptBreakpointSynchronization()
                 handler->setResponse(id, response);
             }
             break;
-        case Debugger::Internal::BreakpointRemoveRequested:
+        case BreakpointRemoveRequested:
             handler->notifyBreakpointRemoveOk(id);
             break;
-        case Debugger::Internal::BreakpointInserted:
+        case BreakpointInserted:
             // Existing breakpoints were deleted due to change/removal, re-set
             if (syncType == BreakpointsRemovedChanged) {
                 response.number = m_nextBreakpointNumber++;;
@@ -1642,7 +1644,7 @@ QString CdbEngine::normalizeFileName(const QString &f)
         return it.value();
     const QString winF = QDir::toNativeSeparators(f);
 #ifdef Q_OS_WIN
-    QString normalized = Debugger::Internal::winNormalizeFileName(winF);
+    QString normalized = winNormalizeFileName(winF);
 #else
     QString normalized = winF;
 #endif
@@ -1657,12 +1659,12 @@ QString CdbEngine::normalizeFileName(const QString &f)
 
 void CdbEngine::handleStackTrace(const CdbBuiltinCommandPtr &command)
 {
-    Debugger::Internal::StackFrames frames;
+    StackFrames frames;
     const int current = parseCdbStackTrace(command->reply, &frames);
     if (debug)
         qDebug("handleStackTrace %d of %d", current, frames.size());
-    const Debugger::Internal::StackFrames::iterator end = frames.end();
-    for (Debugger::Internal::StackFrames::iterator it = frames.begin(); it != end; ++it) {
+    const StackFrames::iterator end = frames.end();
+    for (StackFrames::iterator it = frames.begin(); it != end; ++it) {
         if (!it->file.isEmpty())
             it->file = QDir::cleanPath(normalizeFileName(it->file));
     }

@@ -151,6 +151,7 @@ public:
     explicit DebuggerEngine(const DebuggerStartParameters &sp);
     virtual ~DebuggerEngine();
 
+    typedef Internal::BreakpointId BreakpointId;
     virtual void setToolTipExpression(const QPoint & mousePos,
         TextEditor::ITextEditor *editor, int cursorPos);
 

@@ -35,10 +35,9 @@
 #include <QtCore/QString>
 
 namespace Debugger {
-
-typedef quint64 BreakpointId; // FIXME: make Internal.
-
 namespace Internal {
+
+typedef quint64 BreakpointId;
 
 //////////////////////////////////////////////////////////////////
 //
