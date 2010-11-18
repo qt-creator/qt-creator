@@ -14,3 +14,5 @@ SUBDIRS   = \
     qmleditorwidgets \
     symbianutils \
     3rdparty
+
+win32:SUBDIRS += qtcreatorcdbext
