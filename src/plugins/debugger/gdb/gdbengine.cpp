@@ -2036,6 +2036,7 @@ void GdbEngine::updateBreakpointDataFromOutput(BreakpointId id, const GdbMi &bkp
 
     response.multiple = false;
     response.enabled = true;
+    response.pending = false;
     response.condition.clear();
     QByteArray file, fullName;
     foreach (const GdbMi &child, bkpt.children()) {

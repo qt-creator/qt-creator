@@ -83,10 +83,10 @@ public:
     bool hasWatchpointAt(quint64 address) const;
     void updateMarkers();
 
-    QIcon breakpointIcon() const { return m_breakpointIcon; }
-    QIcon disabledBreakpointIcon() const { return m_disabledBreakpointIcon; }
-    QIcon pendingBreakPointIcon() const { return m_pendingBreakPointIcon; }
-    QIcon emptyIcon() const { return m_emptyIcon; }
+    static QIcon breakpointIcon();
+    static QIcon disabledBreakpointIcon();
+    static QIcon pendingBreakPointIcon();
+    static QIcon emptyIcon();
 
     void toggleBreakpoint(const QString &fileName, int lineNumber, quint64 address = 0);
     BreakpointId findBreakpointByFileAndLine(const QString &fileName,
@@ -167,12 +167,6 @@ private:
     void updateMarker(BreakpointId id);
     void cleanupBreakpoint(BreakpointId id);
 
-    const QIcon m_breakpointIcon;
-    const QIcon m_disabledBreakpointIcon;
-    const QIcon m_pendingBreakPointIcon;
-    const QIcon m_emptyIcon;
-    const QIcon m_watchpointIcon;
-
     struct BreakpointItem
     {
         BreakpointItem();
@@ -185,6 +179,7 @@ private:
         QString toToolTip() const;
         QString markerFileName() const;
         int markerLineNumber() const;
+        QIcon icon() const;
 
         BreakpointParameters data;
         BreakpointState state;   // Current state of breakpoint.

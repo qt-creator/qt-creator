@@ -52,18 +52,37 @@ namespace Debugger {
 namespace Internal {
 
 BreakHandler::BreakHandler()
-  : m_breakpointIcon(_(":/debugger/images/breakpoint_16.png")),
-    m_disabledBreakpointIcon(_(":/debugger/images/breakpoint_disabled_16.png")),
-    m_pendingBreakPointIcon(_(":/debugger/images/breakpoint_pending_16.png")),
-    //m_emptyIcon(_(":/debugger/images/watchpoint.png")),
-    m_emptyIcon(_(":/debugger/images/breakpoint_pending_16.png")),
-    //m_emptyIcon(_(":/debugger/images/debugger_empty_14.png")),
-    m_watchpointIcon(_(":/debugger/images/watchpoint.png")),
-    m_syncTimerId(-1)
+  : m_syncTimerId(-1)
 {}
 
 BreakHandler::~BreakHandler()
 {}
+
+QIcon BreakHandler::breakpointIcon()
+{
+    static QIcon icon(_(":/debugger/images/breakpoint_16.png"));
+    return icon;
+}
+
+QIcon BreakHandler::disabledBreakpointIcon()
+{
+    static QIcon icon(_(":/debugger/images/breakpoint_disabled_16.png"));
+    return icon;
+}
+
+QIcon BreakHandler::pendingBreakPointIcon()
+{
+    static QIcon icon(_(":/debugger/images/breakpoint_pending_16.png"));
+    return icon;
+}
+
+QIcon BreakHandler::emptyIcon()
+{
+    static QIcon icon(_(":/debugger/images/breakpoint_pending_16.png"));
+    //static QIcon icon(_(":/debugger/images/watchpoint.png"));
+    //static QIcon icon(_(":/debugger/images/debugger_empty_14.png"));
+    return icon;
+}
 
 int BreakHandler::columnCount(const QModelIndex &parent) const
 {
@@ -358,6 +377,7 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
         return QVariant();
 
     BreakpointId id = findBreakpointByIndex(mi);
+    //qDebug() << "DATA: " << id << role << mi.column();
     ConstIterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return QVariant());
     const BreakpointParameters &data = it->data;
@@ -369,43 +389,45 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                 return QString::number(id);
                 //return QString("%1 - %2").arg(id).arg(response.number);
             }
-            if (role == Qt::DecorationRole) {
-                if (data.isWatchpoint())
-                    return m_watchpointIcon;
-                if (!data.enabled)
-                    return m_disabledBreakpointIcon;
-                return it->isPending() ? m_pendingBreakPointIcon : m_breakpointIcon;
-            }
+            if (role == Qt::DecorationRole)
+                return it->icon();
             break;
         case 1:
             if (role == Qt::DisplayRole) {
-                const QString str = it->isPending()
-                    ? data.functionName : response.functionName;
-                return str.isEmpty() ? empty : str;
+                if (!response.functionName.isEmpty())
+                    return response.functionName;
+                if (!data.functionName.isEmpty())
+                    return data.functionName;
+                return empty;
             }
             break;
         case 2:
             if (role == Qt::DisplayRole) {
-                QString str = it->isPending()
-                    ? data.fileName : response.fileName;
-                str = QFileInfo(str).fileName();
+                QString str;
+                if (!response.fileName.isEmpty())
+                    str = response.fileName;
+                if (str.isEmpty() && !data.fileName.isEmpty())
+                    str = response.fileName;
+                if (str.isEmpty()) {
+                    QString s = QFileInfo(str).fileName();
+                    if (!s.isEmpty())
+                        str = s;
+                }
                 // FIXME: better?
                 //if (data.multiple && str.isEmpty() && !response.fileName.isEmpty())
                 //    str = response.fileName;
-                str = str.isEmpty() ? empty : str;
-                if (data.useFullPath)
-                    str = QDir::toNativeSeparators(QLatin1String("/.../") + str);
-                return str;
+                if (!str.isEmpty())
+                    return str;
+                return empty;
             }
             break;
         case 3:
             if (role == Qt::DisplayRole) {
-                // FIXME: better?
-                //if (data.multiple && str.isEmpty() && !reponse.fileName.isEmpty())
-                //    str = response.lineNumber;
-                const int nr = it->isPending()
-                    ? data.lineNumber : response.lineNumber;
-                return nr ? QString::number(nr) : empty;
+                if (response.lineNumber > 0)
+                    return response.lineNumber;
+                if (data.lineNumber > 0)
+                    return data.lineNumber;
+                return empty;
             }
             if (role == Qt::UserRole + 1)
                 return data.lineNumber;
@@ -532,8 +554,9 @@ void BreakHandler::setMarkerFileAndLine(BreakpointId id,
         return;
     it->response.fileName = fileName;
     it->response.lineNumber = lineNumber;
+    it->destroyMarker();
     updateMarker(id);
-    scheduleSynchronization();
+    emit layoutChanged();
 }
 
 BreakpointState BreakHandler::state(BreakpointId id) const
@@ -558,6 +581,7 @@ void BreakHandler::setEngine(BreakpointId id, DebuggerEngine *value)
     QTC_ASSERT(!it->engine, return);
     it->engine = value;
     it->state = BreakpointInsertRequested;
+    it->response = BreakpointResponse();
     updateMarker(id);
     scheduleSynchronization();
 }
@@ -721,6 +745,7 @@ void BreakHandler::removeBreakpoint(BreakpointId id)
     QTC_ASSERT(it != m_storage.end(), return);
     if (it->state == BreakpointInserted) {
         setState(id, BreakpointRemoveRequested);
+        scheduleSynchronization();
     } else if (it->state == BreakpointNew) {
         it->state = BreakpointDead;
         cleanupBreakpoint(id);
@@ -809,11 +834,7 @@ QIcon BreakHandler::icon(BreakpointId id) const
 {
     ConstIterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return pendingBreakPointIcon());
-    if (!it->data.enabled)
-        return m_disabledBreakpointIcon;
-    if (it->state == BreakpointInserted)
-        return breakpointIcon();
-    return pendingBreakPointIcon();
+    return it->icon();
 }
 
 void BreakHandler::scheduleSynchronization()
@@ -845,6 +866,7 @@ void BreakHandler::gotoLocation(BreakpointId id) const
 void BreakHandler::updateLineNumberFromMarker(BreakpointId id, int lineNumber)
 {
     Iterator it = m_storage.find(id);
+    it->response.pending = false;
     QTC_ASSERT(it != m_storage.end(), return);
     //if (data.markerLineNumber == lineNumber)
     //    return;
@@ -867,6 +889,7 @@ void BreakHandler::updateLineNumberFromMarker(BreakpointId id, int lineNumber)
         it->data.lineNumber = lineNumber;
     }
     updateMarker(id);
+    emit layoutChanged();
 }
 
 BreakpointIds BreakHandler::allBreakpointIds() const
@@ -914,7 +937,6 @@ void BreakHandler::setResponse(BreakpointId id, const BreakpointResponse &data)
     Iterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return);
     it->response = data;
-    updateMarker(id);
     //qDebug() << "SET RESPONSE: " << id << it->state << it->needsChange();
     if (it->state == BreakpointChangeProceeding
         || it->state == BreakpointInsertProceeding) {
@@ -923,6 +945,8 @@ void BreakHandler::setResponse(BreakpointId id, const BreakpointResponse &data)
         else
             setState(id, BreakpointInserted);
     }
+    it->destroyMarker();
+    updateMarker(id);
 }
 
 void BreakHandler::setBreakpointData(BreakpointId id, const BreakpointParameters &data)
@@ -932,6 +956,7 @@ void BreakHandler::setBreakpointData(BreakpointId id, const BreakpointParameters
     if (data == it->data)
         return;
     it->data = data;
+    it->destroyMarker();
     updateMarker(id);
     layoutChanged();
 }
@@ -977,15 +1002,15 @@ static void formatAddress(QTextStream &str, quint64 address)
 static QString stateToString(BreakpointState state)
 {
     switch (state) {
-        case BreakpointNew: return "new";
-        case BreakpointInsertRequested: return "insertion requested";
-        case BreakpointInsertProceeding: return "insertion proceeding";
-        case BreakpointChangeRequested: return "change requested";
-        case BreakpointChangeProceeding: return "change proceeding";
-        case BreakpointInserted: return "breakpoint inserted";
-        case BreakpointRemoveRequested: return "removal requested";
-        case BreakpointRemoveProceeding: return "removal is proceeding";
-        case BreakpointDead: return "dead";
+        case BreakpointNew: return "New";
+        case BreakpointInsertRequested: return "Insertion requested";
+        case BreakpointInsertProceeding: return "Insertion proceeding";
+        case BreakpointChangeRequested: return "Change requested";
+        case BreakpointChangeProceeding: return "Change proceeding";
+        case BreakpointInserted: return "Breakpoint inserted";
+        case BreakpointRemoveRequested: return "Removal requested";
+        case BreakpointRemoveProceeding: return "Removal proceeding";
+        case BreakpointDead: return "Dead";
         default: return "<invalid state>";
     }
 };
@@ -1006,6 +1031,17 @@ bool BreakHandler::BreakpointItem::isLocatedAt
 {
     int line = useMarkerPosition ? response.lineNumber : data.lineNumber;
     return lineNumber == line && fileNameMatch(fileName, response.fileName);
+}
+
+QIcon BreakHandler::BreakpointItem::icon() const
+{
+    // FIXME: This seems to be called on each cursor blink as soon as the
+    // cursor is near a line with a breakpoint marker (+/- 2 lines or so).
+    if (!data.enabled)
+        return BreakHandler::disabledBreakpointIcon();
+    if (state == BreakpointInserted)
+        return BreakHandler::breakpointIcon();
+    return BreakHandler::pendingBreakPointIcon();
 }
 
 QString BreakHandler::BreakpointItem::toToolTip() const
@@ -1053,6 +1089,8 @@ QString BreakHandler::BreakpointItem::toToolTip() const
         << "</td><td>" << t << "</td></tr>"
         << "<tr><td>" << tr("Extra Information:")
         << "</td><td>" << response.extra << "</td></tr>"
+        << "<tr><td>" << tr("Pending:")
+        << "</td><td>" << (response.pending ? "True" : "False") << "</td></tr>"
         << "</table><br><hr><table>"
         << "<tr><th>" << tr("Property")
         << "</th><th>" << tr("Requested")
