@@ -100,20 +100,23 @@ public:
 
     // Getter retrieves property value.
     // Setter sets property value and triggers update if changed.
-    #define PROPERTY(type, getter, setter) \
-        type getter(BreakpointId id) const; \
-        void setter(BreakpointId id, const type &value);
-
-    PROPERTY(bool, useFullPath, setUseFullPath)
-    PROPERTY(QByteArray, condition, setCondition)
-    PROPERTY(int, ignoreCount, setIgnoreCount)
-    PROPERTY(QByteArray, threadSpec, setThreadSpec)
-    PROPERTY(QString, fileName, setFileName)
-    PROPERTY(QString, functionName, setFunctionName)
-    PROPERTY(BreakpointType, type, setType);
-    PROPERTY(quint64, address, setAddress);
-    PROPERTY(int, lineNumber, setLineNumber);
-    #undef PROPERTY
+    bool useFullPath(BreakpointId id) const;
+    void setUseFullPath(BreakpointId, const bool &on);
+    QByteArray condition(BreakpointId id) const;
+    void setCondition(BreakpointId, const QByteArray &condition);
+    int ignoreCount(BreakpointId id) const;
+    void setIgnoreCount(BreakpointId, const int &count);
+    QByteArray threadSpec(BreakpointId id) const;
+    void setThreadSpec(BreakpointId, const QByteArray &spec);
+    QString fileName(BreakpointId id) const;
+    void setFileName(BreakpointId, const QString &fileName);
+    QString functionName(BreakpointId id) const;
+    void setFunctionName(BreakpointId, const QString &functionName);
+    BreakpointType type(BreakpointId id) const;
+    void setType(BreakpointId id, const BreakpointType &type);
+    quint64 address(BreakpointId id) const;
+    void setAddress(BreakpointId id, const quint64 &address);
+    int lineNumber(BreakpointId id) const;
     void setBreakpointData(BreakpointId id, const BreakpointParameters &data);
     const BreakpointParameters &breakpointData(BreakpointId id) const;
     BreakpointState state(BreakpointId id) const;

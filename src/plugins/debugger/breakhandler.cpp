@@ -520,7 +520,7 @@ PROPERTY(QString, functionName, setFunctionName)
 PROPERTY(BreakpointType, type, setType)
 PROPERTY(QByteArray, threadSpec, setThreadSpec)
 PROPERTY(QByteArray, condition, setCondition)
-PROPERTY(int, lineNumber, setLineNumber)
+GETTER(int, lineNumber)
 PROPERTY(quint64, address, setAddress)
 PROPERTY(int, ignoreCount, setIgnoreCount)
 
