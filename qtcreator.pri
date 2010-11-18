@@ -102,6 +102,10 @@ macx {
     contains(QT_CONFIG, ppc):CONFIG += ppc x86
     copydata = 1
     isEmpty(TIGER_COMPAT_MODE):TIGER_COMPAT_MODE=$$(QTC_TIGER_COMPAT)
+    isEmpty(TIGER_COMPAT_MODE) {
+        QMAKE_CXXFLAGS *= -mmacosx-version-min=10.5
+        QMAKE_LFLAGS *= -mmacosx-version-min=10.5
+    }
 } else {
     win32 {
         contains(TEMPLATE, vc.*)|contains(TEMPLATE_PREFIX, vc):vcproj = 1
