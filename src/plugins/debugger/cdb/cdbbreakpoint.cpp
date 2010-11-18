@@ -32,6 +32,7 @@
 #include "corebreakpoint.h"
 #include "cdbmodules.h"
 #include "breakhandler.h"
+#include "shared/dbgwinutils.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -69,33 +70,13 @@ static inline QString msgCannotSetBreakAtFunction(const QString &func, const QSt
     return QString::fromLatin1("Cannot set a breakpoint at '%1': %2").arg(func, why);
 }
 
-static inline BreakpointParameters transformBreakpoint(const BreakpointParameters &p)
-{
-    if (p.type == BreakpointAtThrow) {
-        BreakpointParameters rc(BreakpointByFunction);
-        rc.functionName = QLatin1String(cdbThrowFunction);
-        return rc;
-    }
-    if (p.type == BreakpointAtCatch) {
-        BreakpointParameters rc(BreakpointByFunction);
-        rc.functionName = QLatin1String(cdbCatchFunction);
-        return rc;
-    }
-    if (p.type == BreakpointAtMain) {
-        BreakpointParameters rc(BreakpointByFunction);
-        rc.functionName = QLatin1String("main");
-        return rc;
-    }
-    return p;
-}
-
 bool addCdbBreakpoint(CIDebugControl* debugControl,
                       CIDebugSymbols *syms,
                       const BreakpointParameters &bpIn,
                       BreakpointResponse *response,
                       QString *errorMessage)
 {
-    const BreakpointParameters bp = transformBreakpoint(bpIn);
+    const BreakpointParameters bp = fixWinMSVCBreakpoint(bpIn);
     errorMessage->clear();
     // Function breakpoints: Are the module names specified?
     QString resolvedFunction;

@@ -31,6 +31,7 @@
 #include "moduleshandler.h"
 #include "cdbengine_p.h"
 #include "breakpoint.h"
+#include "shared/dbgwinutils.h"
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QRegExp>
@@ -173,9 +174,6 @@ bool searchSymbols(CIDebugSymbols *syms, const QString &pattern,
     return true;
 }
 
-const char *cdbThrowFunction = "CxxThrowException";
-const char *cdbCatchFunction = "__CxxCallCatchBlock";
-
 // Helper for the resolveSymbol overloads.
 static ResolveSymbolResult resolveSymbol(CIDebugSymbols *syms, QString *symbol,
                                          QStringList *matches,
@@ -185,8 +183,8 @@ static ResolveSymbolResult resolveSymbol(CIDebugSymbols *syms, QString *symbol,
     // Is it an incomplete symbol?
     if (symbol->contains(QLatin1Char('!')))
         return ResolveSymbolOk;
-    const bool withinMSVCRunTime = *symbol == QLatin1String(cdbThrowFunction)
-            || *symbol == QLatin1String(cdbCatchFunction);
+    const bool withinMSVCRunTime = *symbol == QLatin1String(winMSVCThrowFunction)
+            || *symbol == QLatin1String(winMSVCCatchFunction);
     if (*symbol == QLatin1String("qMain")) // 'main' is a #define for gdb, but not for VS
         *symbol = QLatin1String("main");
     // resolve
