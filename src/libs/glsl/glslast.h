@@ -71,8 +71,10 @@ class PrecisionDeclaration;
 class ParameterDeclaration;
 class VariableDeclaration;
 class TypeDeclaration;
+class TypeAndVariableDeclaration;
 class InvariantDeclaration;
 class InitDeclaration;
+class FunctionDeclaration;
 class Visitor;
 
 template <typename T>
@@ -215,8 +217,10 @@ public:
         Kind_ParameterDeclaration,
         Kind_VariableDeclaration,
         Kind_TypeDeclaration,
+        Kind_TypeAndVariableDeclaration,
         Kind_InvariantDeclaration,
-        Kind_InitDeclaration
+        Kind_InitDeclaration,
+        Kind_FunctionDeclaration
     };
 
     virtual TranslationUnit *asTranslationUnit() { return 0; }
@@ -258,8 +262,10 @@ public:
     virtual ParameterDeclaration *asParameterDeclaration() { return 0; }
     virtual VariableDeclaration *asVariableDeclaration() { return 0; }
     virtual TypeDeclaration *asTypeDeclaration() { return 0; }
+    virtual TypeAndVariableDeclaration *asTypeAndVariableDeclaration() { return 0; }
     virtual InvariantDeclaration *asInvariantDeclaration() { return 0; }
     virtual InitDeclaration *asInitDeclaration() { return 0; }
+    virtual FunctionDeclaration *asFunctionDeclaration() { return 0; }
 
     void accept(Visitor *visitor);
     static void accept(AST *ast, Visitor *visitor);
@@ -953,6 +959,23 @@ public: // attributes
     Type *type;
 };
 
+class TypeAndVariableDeclaration: public Declaration
+{
+public:
+    TypeAndVariableDeclaration(TypeDeclaration *_typeDecl,
+                               VariableDeclaration *_varDecl)
+        : Declaration(Kind_TypeAndVariableDeclaration)
+        , typeDecl(_typeDecl), varDecl(_varDecl) {}
+
+    virtual TypeAndVariableDeclaration *asTypeAndVariableDeclaration() { return this; }
+
+    virtual void accept0(Visitor *visitor);
+
+public: // attributes
+    TypeDeclaration *typeDecl;
+    VariableDeclaration *varDecl;
+};
+
 class InvariantDeclaration: public Declaration
 {
 public:
@@ -979,6 +1002,28 @@ public:
 
 public: // attributes
     List<Declaration *> *decls;
+};
+
+class FunctionDeclaration : public Declaration
+{
+public:
+    FunctionDeclaration(Type *_returnType, const std::string *_name)
+        : Declaration(Kind_FunctionDeclaration), returnType(_returnType)
+        , name(_name), params(0), body(0) {}
+
+    virtual FunctionDeclaration *asFunctionDeclaration() { return this; }
+
+    virtual void accept0(Visitor *visitor);
+
+    void finishParams() { params = finish(params); }
+
+    bool isPrototype() const { return body == 0; }
+
+public: // attributes
+    Type *returnType;
+    const std::string *name;
+    List<ParameterDeclaration *> *params;
+    Statement *body;
 };
 
 } // namespace GLSL

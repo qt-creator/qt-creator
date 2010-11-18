@@ -83,7 +83,8 @@ public:
             Type *type;
             const std::string *name;
         } param_declarator;
-        // ### ast nodes...
+        ParameterDeclaration *param_declaration;
+        FunctionDeclaration *function_declaration;
     };
 
     Parser(Engine *engine, const char *source, unsigned size, int variant);
@@ -99,6 +100,7 @@ private:
     Expression *&expression(int n) { return _symStack[_tos + n - 1].expression; }
     Statement *&statement(int n) { return _symStack[_tos + n - 1].statement; }
     Type *&type(int n) { return _symStack[_tos + n - 1].type; }
+    FunctionDeclaration *&function(int n) { return _symStack[_tos + n - 1].function_declaration; }
 
     inline int consumeToken() { return _index++; }
     inline const Token &tokenAt(int index) const { return _tokens.at(index); }

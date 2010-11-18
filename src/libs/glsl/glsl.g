@@ -292,7 +292,8 @@ public:
             Type *type;
             const std::string *name;
         } param_declarator;
-        // ### ast nodes...
+        ParameterDeclaration *param_declaration;
+        FunctionDeclaration *function_declaration;
     };
 
     Parser(Engine *engine, const char *source, unsigned size, int variant);
@@ -308,6 +309,7 @@ private:
     Expression *&expression(int n) { return _symStack[_tos + n - 1].expression; }
     Statement *&statement(int n) { return _symStack[_tos + n - 1].statement; }
     Type *&type(int n) { return _symStack[_tos + n - 1].type; }
+    FunctionDeclaration *&function(int n) { return _symStack[_tos + n - 1].function_declaration; }
 
     inline int consumeToken() { return _index++; }
     inline const Token &tokenAt(int index) const { return _tokens.at(index); }
@@ -1123,7 +1125,7 @@ case $rule_number: {
 declaration ::= function_prototype SEMICOLON ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
@@ -1144,77 +1146,124 @@ case $rule_number: {
 declaration ::= type_qualifier IDENTIFIER LEFT_BRACE struct_declaration_list RIGHT_BRACE SEMICOLON ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    if (sym(1).type_qualifier.qualifier != QualifiedType::Struct) {
+        // TODO: issue an error if the qualifier is not "struct".
+    }
+    Type *type = makeAstNode<StructType>(string(2), sym(4).field_list);
+    ast(1) = makeAstNode<TypeDeclaration>(type);
 }   break;
 ./
 
 declaration ::= type_qualifier IDENTIFIER LEFT_BRACE struct_declaration_list RIGHT_BRACE IDENTIFIER SEMICOLON ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    if ((sym(1).type_qualifier.qualifier & QualifiedType::Struct) == 0) {
+        // TODO: issue an error if the qualifier does not contain "struct".
+    }
+    Type *type = makeAstNode<StructType>(string(2), sym(4).field_list);
+    Type *qualtype = type;
+    if (sym(1).type_qualifier.qualifier != QualifiedType::Struct) {
+        qualtype = makeAstNode<QualifiedType>
+            (sym(1).type_qualifier.qualifier & ~QualifiedType::Struct, qualtype,
+             sym(1).type_qualifier.layout_list);
+    }
+    ast(1) = makeAstNode<TypeAndVariableDeclaration>
+        (makeAstNode<TypeDeclaration>(type),
+         makeAstNode<VariableDeclaration>(qualtype, string(6)));
 }   break;
 ./
 
 declaration ::= type_qualifier IDENTIFIER LEFT_BRACE struct_declaration_list RIGHT_BRACE IDENTIFIER LEFT_BRACKET RIGHT_BRACKET SEMICOLON ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    if ((sym(1).type_qualifier.qualifier & QualifiedType::Struct) == 0) {
+        // TODO: issue an error if the qualifier does not contain "struct".
+    }
+    Type *type = makeAstNode<StructType>(string(2), sym(4).field_list);
+    Type *qualtype = type;
+    if (sym(1).type_qualifier.qualifier != QualifiedType::Struct) {
+        qualtype = makeAstNode<QualifiedType>
+            (sym(1).type_qualifier.qualifier & ~QualifiedType::Struct, qualtype,
+             sym(1).type_qualifier.layout_list);
+    }
+    ast(1) = makeAstNode<TypeAndVariableDeclaration>
+        (makeAstNode<TypeDeclaration>(type),
+         makeAstNode<VariableDeclaration>
+            (makeAstNode<ArrayType>(qualtype), string(6)));
 }   break;
 ./
 
 declaration ::= type_qualifier IDENTIFIER LEFT_BRACE struct_declaration_list RIGHT_BRACE IDENTIFIER LEFT_BRACKET constant_expression RIGHT_BRACKET SEMICOLON ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    if ((sym(1).type_qualifier.qualifier & QualifiedType::Struct) == 0) {
+        // TODO: issue an error if the qualifier does not contain "struct".
+    }
+    Type *type = makeAstNode<StructType>(string(2), sym(4).field_list);
+    Type *qualtype = type;
+    if (sym(1).type_qualifier.qualifier != QualifiedType::Struct) {
+        qualtype = makeAstNode<QualifiedType>
+            (sym(1).type_qualifier.qualifier & ~QualifiedType::Struct, qualtype,
+             sym(1).type_qualifier.layout_list);
+    }
+    ast(1) = makeAstNode<TypeAndVariableDeclaration>
+        (makeAstNode<TypeDeclaration>(type),
+         makeAstNode<VariableDeclaration>
+            (makeAstNode<ArrayType>(qualtype, expression(8)), string(6)));
 }   break;
 ./
 
 declaration ::= type_qualifier SEMICOLON ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    Type *type = makeAstNode<QualifiedType>
+        (sym(1).type_qualifier.qualifier, (Type *)0,
+         sym(1).type_qualifier.layout_list);
+    ast(1) = makeAstNode<TypeDeclaration>(type);
 }   break;
 ./
 
 function_prototype ::= function_declarator RIGHT_PAREN ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    function(1)->finishParams();
 }   break;
 ./
 
 function_declarator ::= function_header ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
 function_declarator ::= function_header_with_parameters ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
 function_header_with_parameters ::= function_header parameter_declaration ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    function(1)->params = makeAstNode< List<ParameterDeclaration *> >
+        (sym(2).param_declaration);
 }   break;
 ./
 
 function_header_with_parameters ::= function_header_with_parameters COMMA parameter_declaration ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    function(1)->params = makeAstNode< List<ParameterDeclaration *> >
+        (function(1)->params, sym(3).param_declaration);
 }   break;
 ./
 
 function_header ::= fully_specified_type IDENTIFIER LEFT_PAREN ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    function(1) = makeAstNode<FunctionDeclaration>(type(1), string(2));
 }   break;
 ./
 
@@ -2801,7 +2850,7 @@ case $rule_number: {
 external_declaration ::= function_definition ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    // nothing to do.
 }   break;
 ./
 
@@ -2822,7 +2871,7 @@ case $rule_number: {
 function_definition ::= function_prototype compound_statement_no_new_scope ;
 /.
 case $rule_number: {
-    // ast(1) = new ...AST(...);
+    function(1)->body = statement(2);
 }   break;
 ./
 

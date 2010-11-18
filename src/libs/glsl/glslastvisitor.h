@@ -138,11 +138,17 @@ public:
     virtual bool visit(TypeDeclaration *) { return true; }
     virtual void endVisit(TypeDeclaration *) {}
 
+    virtual bool visit(TypeAndVariableDeclaration *) { return true; }
+    virtual void endVisit(TypeAndVariableDeclaration *) {}
+
     virtual bool visit(InvariantDeclaration *) { return true; }
     virtual void endVisit(InvariantDeclaration *) {}
 
     virtual bool visit(InitDeclaration *) { return true; }
     virtual void endVisit(InitDeclaration *) {}
+
+    virtual bool visit(FunctionDeclaration *) { return true; }
+    virtual void endVisit(FunctionDeclaration *) {}
 };
 
 } // namespace GLSL

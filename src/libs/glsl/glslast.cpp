@@ -394,6 +394,15 @@ void TypeDeclaration::accept0(Visitor *visitor)
     visitor->endVisit(this);
 }
 
+void TypeAndVariableDeclaration::accept0(Visitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(typeDecl, visitor);
+        accept(varDecl, visitor);
+    }
+    visitor->endVisit(this);
+}
+
 void InvariantDeclaration::accept0(Visitor *visitor)
 {
     visitor->visit(this);
@@ -404,5 +413,15 @@ void InitDeclaration::accept0(Visitor *visitor)
 {
     if (visitor->visit(this))
         accept(decls, visitor);
+    visitor->endVisit(this);
+}
+
+void FunctionDeclaration::accept0(Visitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(returnType, visitor);
+        accept(params, visitor);
+        accept(body, visitor);
+    }
     visitor->endVisit(this);
 }
