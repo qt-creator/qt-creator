@@ -51,9 +51,10 @@ const QString HelpViewer::AboutBlankPage =
     QCoreApplication::translate("HelpViewer", "<title>about:blank</title>");
 
 const QString HelpViewer::PageNotFoundMessage =
-    QCoreApplication::translate("HelpViewer", "<title>Error 404...</title><div "
-    "align=\"center\"><br><br><h1>The page could not be found</h1><br><h3>'%1'"
-    "</h3></div>");
+    QCoreApplication::translate("HelpViewer", "<html><head><meta http-equiv=\""
+    "content-type\" content=\"text/html; charset=UTF-8\"><title>Error 404...</title>"
+    "</head><body><div align=\"center\"><br><br><h1>The page could not be found</h1>"
+    "<br><h3>'%1'</h3></div></body>");
 
 struct ExtensionMap {
     const char *extension;
