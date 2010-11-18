@@ -1,0 +1,15 @@
+EXPORTS
+DebugExtensionInitialize
+DebugExtensionUninitialize
+DebugExtensionNotify
+pid
+expandlocals
+locals
+assign
+threads
+registers
+modules
+idle
+help
+memory
+KnownStructOutput
