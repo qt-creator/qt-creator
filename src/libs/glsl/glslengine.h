@@ -3,8 +3,8 @@
 
 #include "glsl.h"
 #include "glslmemorypool.h"
-#include <set>
-#include <string>
+#include <QtCore/qstring.h>
+#include <QtCore/qset.h>
 
 namespace GLSL {
 
@@ -14,13 +14,13 @@ public:
     Engine();
     ~Engine();
 
-    const std::string *identifier(const std::string &s);
-    const std::string *identifier(const char *s, int n);
+    const QString *identifier(const QString &s);
+    const QString *identifier(const char *s, int n);
 
     MemoryPool *pool();
 
 private:
-    std::set<std::string> _identifiers;
+    QSet<QString> _identifiers;
     MemoryPool _pool;
 };
 

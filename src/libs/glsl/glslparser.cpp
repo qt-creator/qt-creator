@@ -831,7 +831,7 @@ case 99: {
         (makeAstNode<QualifiedType>
             (sym(1).qualifier, type(3), (List<LayoutQualifier *> *)0),
          ParameterDeclaration::Qualifier(sym(2).qualifier),
-         (const std::string *)0);
+         (const QString *)0);
 }   break;
 
 #line 1320 "./glsl.g"
@@ -839,7 +839,7 @@ case 99: {
 case 100: {
     ast(1) = makeAstNode<ParameterDeclaration>
         (type(2), ParameterDeclaration::Qualifier(sym(1).qualifier),
-         (const std::string *)0);
+         (const QString *)0);
 }   break;
 
 #line 1329 "./glsl.g"
@@ -1053,7 +1053,7 @@ case 129: {
 #line 1566 "./glsl.g"
 
 case 130: {
-    sym(1).layout = makeAstNode<LayoutQualifier>(string(1), (const std::string *)0);
+    sym(1).layout = makeAstNode<LayoutQualifier>(string(1), (const QString *)0);
 }   break;
 
 #line 1573 "./glsl.g"

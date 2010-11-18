@@ -31,7 +31,7 @@
 #define GLSLLEXER_H
 
 #include "glsl.h"
-#include <string>
+#include <QtCore/qstring.h>
 
 namespace GLSL {
 
@@ -46,7 +46,7 @@ public:
     union {
         int matchingBrace;
         int i; // integer value
-        const std::string *string; // string value
+        const QString *string; // string value
         void *ptr;
     };
 
@@ -80,7 +80,7 @@ public:
 
     union Value {
         int i;
-        const std::string *string;
+        const QString *string;
         void *ptr;
     };
 

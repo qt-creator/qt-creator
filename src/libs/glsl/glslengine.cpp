@@ -10,14 +10,14 @@ Engine::~Engine()
 {
 }
 
-const std::string *Engine::identifier(const std::string &s)
+const QString *Engine::identifier(const QString &s)
 {
-    return &*_identifiers.insert(s).first;
+    return &(*_identifiers.insert(s));
 }
 
-const std::string *Engine::identifier(const char *s, int n)
+const QString *Engine::identifier(const char *s, int n)
 {
-    return &*_identifiers.insert(std::string(s, n)).first;
+    return &(*_identifiers.insert(QString::fromLatin1(s, n)));
 }
 
 MemoryPool *Engine::pool()

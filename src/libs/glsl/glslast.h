@@ -31,7 +31,7 @@
 
 #include "glsl.h"
 #include "glslmemorypool.h"
-#include <string>
+#include <QtCore/qstring.h>
 
 namespace GLSL {
 
@@ -324,7 +324,7 @@ public:
 class GLSL_EXPORT IdentifierExpression: public Expression
 {
 public:
-    IdentifierExpression(const std::string *_name)
+    IdentifierExpression(const QString *_name)
         : Expression(Kind_Identifier), name(_name) {}
 
     virtual IdentifierExpression *asIdentifierExpression() { return this; }
@@ -332,13 +332,13 @@ public:
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
-    const std::string *name;
+    const QString *name;
 };
 
 class GLSL_EXPORT LiteralExpression: public Expression
 {
 public:
-    LiteralExpression(const std::string *_value)
+    LiteralExpression(const QString *_value)
         : Expression(Kind_Literal), value(_value) {}
 
     virtual LiteralExpression *asLiteralExpression() { return this; }
@@ -346,7 +346,7 @@ public:
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
-    const std::string *value;
+    const QString *value;
 };
 
 class GLSL_EXPORT BinaryExpression: public Expression
@@ -412,7 +412,7 @@ public: // attributes
 class GLSL_EXPORT MemberAccessExpression: public Expression
 {
 public:
-    MemberAccessExpression(Expression *_expr, const std::string *_field)
+    MemberAccessExpression(Expression *_expr, const QString *_field)
         : Expression(Kind_MemberAccess), expr(_expr), field(_field) {}
 
     virtual MemberAccessExpression *asMemberAccessExpression() { return this; }
@@ -421,7 +421,7 @@ public:
 
 public: // attributes
     Expression *expr;
-    const std::string *field;
+    const QString *field;
 };
 
 class GLSL_EXPORT FunctionCallExpression: public Expression
@@ -449,7 +449,7 @@ public: // attributes
 class GLSL_EXPORT FunctionIdentifier: public AST
 {
 public:
-    FunctionIdentifier(const std::string *_name)
+    FunctionIdentifier(const QString *_name)
         : AST(Kind_FunctionIdentifier), name(_name), type(0) {}
     FunctionIdentifier(Type *_type)
         : AST(Kind_FunctionIdentifier), name(0), type(_type) {}
@@ -459,14 +459,14 @@ public:
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
-    const std::string *name;
+    const QString *name;
     Type *type;
 };
 
 class GLSL_EXPORT DeclarationExpression: public Expression
 {
 public:
-    DeclarationExpression(Type *_type, const std::string *_name,
+    DeclarationExpression(Type *_type, const QString *_name,
                           Expression *_initializer)
         : Expression(Kind_DeclarationExpression), type(_type)
         , name(_name), initializer(_initializer) {}
@@ -477,7 +477,7 @@ public:
 
 public: // attributes
     Type *type;
-    const std::string *name;
+    const QString *name;
     Expression *initializer;
 };
 
@@ -734,7 +734,7 @@ public: // attributes
 class GLSL_EXPORT NamedType: public Type
 {
 public:
-    NamedType(const std::string *_name) : Type(Kind_NamedType), name(_name) {}
+    NamedType(const QString *_name) : Type(Kind_NamedType), name(_name) {}
 
     virtual NamedType *asNamedType() { return this; }
 
@@ -746,7 +746,7 @@ public:
     virtual Category category() const { return Struct; }
 
 public: // attributes
-    const std::string *name;
+    const QString *name;
 };
 
 class GLSL_EXPORT ArrayType: public Type
@@ -777,26 +777,26 @@ public:
     class Field: public AST
     {
     public:
-        Field(const std::string *_name)
+        Field(const QString *_name)
             : AST(Kind_StructField), name(_name), type(0) {}
 
         // Takes the outer shell of an array type with the innermost
         // element type set to null.  The fixInnerTypes() method will
         // set the innermost element type to a meaningful value.
-        Field(const std::string *_name, Type *_type)
+        Field(const QString *_name, Type *_type)
             : AST(Kind_StructField), name(_name), type(_type) {}
 
         virtual void accept0(Visitor *visitor);
 
         void setInnerType(Type *innerType);
 
-        const std::string *name;
+        const QString *name;
         Type *type;
     };
 
     StructType(List<Field *> *_fields)
         : Type(Kind_AnonymousStructType), fields(finish(_fields)) {}
-    StructType(const std::string *_name, List<Field *> *_fields)
+    StructType(const QString *_name, List<Field *> *_fields)
         : Type(Kind_StructType), name(_name), fields(finish(_fields)) {}
 
     virtual StructType *asStructType() { return this; }
@@ -813,19 +813,19 @@ public:
     virtual Category category() const { return Struct; }
 
 public: // attributes
-    const std::string *name;
+    const QString *name;
     List<Field *> *fields;
 };
 
 class GLSL_EXPORT LayoutQualifier
 {
 public:
-    LayoutQualifier(const std::string *_name, const std::string *_number)
+    LayoutQualifier(const QString *_name, const QString *_number)
         : name(_name), number(_number), lineno(0) {}
 
 public: // attributes
-    const std::string *name;
-    const std::string *number;
+    const QString *name;
+    const QString *number;
     int lineno;
 };
 
@@ -911,7 +911,7 @@ public:
         InOut
     };
     ParameterDeclaration(Type *_type, Qualifier _qualifier,
-                         const std::string *_name)
+                         const QString *_name)
         : Declaration(Kind_ParameterDeclaration), type(_type)
         , qualifier(_qualifier), name(_name) {}
 
@@ -922,13 +922,13 @@ public:
 public: // attributes
     Type *type;
     Qualifier qualifier;
-    const std::string *name;
+    const QString *name;
 };
 
 class VariableDeclaration: public Declaration
 {
 public:
-    VariableDeclaration(Type *_type, const std::string *_name,
+    VariableDeclaration(Type *_type, const QString *_name,
                         Expression *_initializer = 0)
         : Declaration(Kind_VariableDeclaration), type(_type)
         , name(_name), initializer(_initializer) {}
@@ -941,7 +941,7 @@ public:
 
 public: // attributes
     Type *type;
-    const std::string *name;
+    const QString *name;
     Expression *initializer;
 };
 
@@ -979,7 +979,7 @@ public: // attributes
 class InvariantDeclaration: public Declaration
 {
 public:
-    InvariantDeclaration(const std::string *_name)
+    InvariantDeclaration(const QString *_name)
         : Declaration(Kind_InvariantDeclaration), name(_name) {}
 
     virtual InvariantDeclaration *asInvariantDeclaration() { return this; }
@@ -987,7 +987,7 @@ public:
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
-    const std::string *name;
+    const QString *name;
 };
 
 class InitDeclaration: public Declaration
@@ -1007,7 +1007,7 @@ public: // attributes
 class FunctionDeclaration : public Declaration
 {
 public:
-    FunctionDeclaration(Type *_returnType, const std::string *_name)
+    FunctionDeclaration(Type *_returnType, const QString *_name)
         : Declaration(Kind_FunctionDeclaration), returnType(_returnType)
         , name(_name), params(0), body(0) {}
 
@@ -1021,7 +1021,7 @@ public:
 
 public: // attributes
     Type *returnType;
-    const std::string *name;
+    const QString *name;
     List<ParameterDeclaration *> *params;
     Statement *body;
 };

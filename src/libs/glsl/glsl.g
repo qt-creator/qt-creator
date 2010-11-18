@@ -253,7 +253,7 @@ class GLSL_EXPORT Parser: public $table
 public:
     union Value {
         void *ptr;
-        const std::string *string;
+        const QString *string;
         AST *ast;
         List<AST *> *ast_list;
         Declaration *declaration;
@@ -290,7 +290,7 @@ public:
         } type_qualifier;
         struct {
             Type *type;
-            const std::string *name;
+            const QString *name;
         } param_declarator;
         ParameterDeclaration *param_declaration;
         FunctionDeclaration *function_declaration;
@@ -305,7 +305,7 @@ private:
     // 1-based
     Value &sym(int n) { return _symStack[_tos + n - 1]; }
     AST *&ast(int n) { return _symStack[_tos + n - 1].ast; }
-    const std::string *&string(int n) { return _symStack[_tos + n - 1].string; }
+    const QString *&string(int n) { return _symStack[_tos + n - 1].string; }
     Expression *&expression(int n) { return _symStack[_tos + n - 1].expression; }
     Statement *&statement(int n) { return _symStack[_tos + n - 1].statement; }
     Type *&type(int n) { return _symStack[_tos + n - 1].type; }
@@ -1312,7 +1312,7 @@ case $rule_number: {
         (makeAstNode<QualifiedType>
             (sym(1).qualifier, type(3), (List<LayoutQualifier *> *)0),
          ParameterDeclaration::Qualifier(sym(2).qualifier),
-         (const std::string *)0);
+         (const QString *)0);
 }   break;
 ./
 
@@ -1321,7 +1321,7 @@ parameter_declaration ::= parameter_qualifier parameter_type_specifier ;
 case $rule_number: {
     ast(1) = makeAstNode<ParameterDeclaration>
         (type(2), ParameterDeclaration::Qualifier(sym(1).qualifier),
-         (const std::string *)0);
+         (const QString *)0);
 }   break;
 ./
 
@@ -1565,7 +1565,7 @@ case $rule_number: {
 layout_qualifier_id ::= IDENTIFIER ;
 /.
 case $rule_number: {
-    sym(1).layout = makeAstNode<LayoutQualifier>(string(1), (const std::string *)0);
+    sym(1).layout = makeAstNode<LayoutQualifier>(string(1), (const QString *)0);
 }   break;
 ./
 

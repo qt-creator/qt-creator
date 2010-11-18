@@ -44,7 +44,7 @@ class GLSL_EXPORT Parser: public GLSLParserTable
 public:
     union Value {
         void *ptr;
-        const std::string *string;
+        const QString *string;
         AST *ast;
         List<AST *> *ast_list;
         Declaration *declaration;
@@ -81,7 +81,7 @@ public:
         } type_qualifier;
         struct {
             Type *type;
-            const std::string *name;
+            const QString *name;
         } param_declarator;
         ParameterDeclaration *param_declaration;
         FunctionDeclaration *function_declaration;
@@ -96,7 +96,7 @@ private:
     // 1-based
     Value &sym(int n) { return _symStack[_tos + n - 1]; }
     AST *&ast(int n) { return _symStack[_tos + n - 1].ast; }
-    const std::string *&string(int n) { return _symStack[_tos + n - 1].string; }
+    const QString *&string(int n) { return _symStack[_tos + n - 1].string; }
     Expression *&expression(int n) { return _symStack[_tos + n - 1].expression; }
     Statement *&statement(int n) { return _symStack[_tos + n - 1].statement; }
     Type *&type(int n) { return _symStack[_tos + n - 1].type; }

@@ -30,6 +30,7 @@
 #include "glsllexer.h"
 #include "glslparser.h"
 #include "glslengine.h"
+#include <QtCore/qbytearray.h>
 #include <cctype>
 #include <iostream>
 #include <cstdio>
@@ -393,9 +394,9 @@ int Lexer::findKeyword(const char *word, int length) const
         return t;
     if ((_variant & t & Variant_Mask) == 0) {
         // TODO: issue a proper error for the unsupported keyword
-        std::string keyword(word, length);
+        QByteArray keyword(word, length);
         fprintf(stderr, "unsupported keyword `%s' at line %d\n",
-                keyword.c_str(), _lineno);
+                keyword.constData(), _lineno);
     }
     return t & ~Variant_Mask;
 }
