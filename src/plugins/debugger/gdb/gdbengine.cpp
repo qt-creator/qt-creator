@@ -1171,7 +1171,6 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         const QString fileName =
             QString::fromUtf8(frame.findChild("fullname").data());
         const int lineNumber = frame.findChild("line").data().toInt();
-        qDebug() << "HIT " << fileName << lineNumber;
         if (!fileName.isEmpty()) {
             BreakHandler *handler = breakHandler();
             BreakpointId id = handler->findBreakpointByNumber(bkptno);
@@ -2178,6 +2177,21 @@ void GdbEngine::handleWatchInsert(const GdbResponse &response)
     }
 }
 
+void GdbEngine::attemptAdjustBreakpointLocation(BreakpointId id)
+{
+    if (!debuggerCore()->boolSetting(AdjustBreakpointLocations))
+        return;
+    BreakpointResponse response = breakHandler()->response(id);
+    if (response.address == 0 || response.correctedLineNumber != 0)
+        return;
+    // Prevent endless loop.
+    response.correctedLineNumber = -1;
+    breakHandler()->setResponse(id, response);
+    postCommand("info line *0x" + QByteArray::number(response.address, 16),
+        NeedsStop | RebuildBreakpointModel,
+        CB(handleInfoLine), id);
+}
+
 void GdbEngine::handleBreakInsert1(const GdbResponse &response)
 {
     const int id = response.cookie.toInt();
@@ -2185,7 +2199,7 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
         // Interesting only on Mac?
         GdbMi bkpt = response.data.findChild("bkpt");
         updateBreakpointDataFromOutput(id, bkpt);
-        //attempAdjustBreakpointLocation(id);
+        attemptAdjustBreakpointLocation(id);
     } else {
         // Some versions of gdb like "GNU gdb (GDB) SUSE (6.8.91.20090930-2.4)"
         // know how to do pending breakpoints using CLI but not MI. So try
@@ -2635,18 +2649,7 @@ void GdbEngine::changeBreakpoint(BreakpointId id)
         //continue;
     }
 
-    if (response.address && response.correctedLineNumber == 0) {
-        // Prevent endless loop.
-        BreakpointResponse r = response;
-        r.correctedLineNumber = -1;
-        breakHandler()->setResponse(id, r);
-        if (debuggerCore()->boolSetting(AdjustBreakpointLocations)) {
-            postCommand(
-                "info line *0x" + QByteArray::number(response.address, 16),
-                NeedsStop | RebuildBreakpointModel,
-                CB(handleInfoLine), id);
-        }
-    }
+    attemptAdjustBreakpointLocation(id);
 }
 
 void GdbEngine::removeBreakpoint(BreakpointId id)

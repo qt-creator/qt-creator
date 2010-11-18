@@ -183,14 +183,14 @@ private:
         bool isLocatedAt(const QString &fileName, int lineNumber,
             bool useMarkerPosition) const;
         QString toToolTip() const;
+        QString markerFileName() const;
+        int markerLineNumber() const;
 
         BreakpointParameters data;
         BreakpointState state;   // Current state of breakpoint.
         DebuggerEngine *engine;  // Engine currently handling the breakpoint.
         BreakpointResponse response;
         BreakpointMarker *marker;
-        QString markerFileName; // Used to locate the marker.
-        int markerLineNumber;
     };
     typedef QHash<BreakpointId, BreakpointItem> BreakpointStorage;
     typedef BreakpointStorage::ConstIterator ConstIterator;

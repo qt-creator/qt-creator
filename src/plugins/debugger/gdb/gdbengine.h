@@ -361,6 +361,7 @@ private: ////////// View & Data Stuff //////////
     QByteArray breakpointLocation(BreakpointId id);
     QString breakLocation(const QString &file) const;
     void reloadBreakListInternal();
+    void attemptAdjustBreakpointLocation(BreakpointId id);
 
     //
     // Modules specific stuff
@@ -448,7 +449,8 @@ private: ////////// View & Data Stuff //////////
     virtual void setToolTipExpression(const QPoint &mousePos,
         TextEditor::ITextEditor *editor, int cursorPos);
 
-    virtual void assignValueInDebugger(const Internal::WatchData *w, const QString &expr, const QVariant &value);
+    virtual void assignValueInDebugger(const WatchData *data,
+        const QString &expr, const QVariant &value);
 
     virtual void fetchMemory(MemoryViewAgent *agent, QObject *token,
         quint64 addr, quint64 length);
