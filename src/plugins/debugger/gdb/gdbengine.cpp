@@ -2622,31 +2622,42 @@ void GdbEngine::insertBreakpoint(BreakpointId id)
 
 void GdbEngine::changeBreakpoint(BreakpointId id)
 {
-    const BreakpointParameters &data = breakHandler()->breakpointData(id);
+    BreakHandler *handler = breakHandler();
+    const BreakpointParameters &data = handler->breakpointData(id);
     QTC_ASSERT(data.type != UnknownType, return);
-    const BreakpointResponse &response = breakHandler()->response(id);
+    const BreakpointResponse &response = handler->response(id);
     QTC_ASSERT(response.number > 0, return);
     const QByteArray bpnr = QByteArray::number(response.number);
+    QTC_ASSERT(response.number > 0, return);
 
+    bool finished = true;
     if (data.condition != response.condition
         && !data.conditionsMatch(response.condition)) {
         // Update conditions if needed.
+        handler->notifyBreakpointChangeProceeding(id);
+        finished = false;
         postCommand("condition " + bpnr + ' '  + data.condition,
             NeedsStop | RebuildBreakpointModel,
             CB(handleBreakCondition), id);
     }
     if (data.ignoreCount != response.ignoreCount) {
         // Update ignorecount if needed.
+        handler->notifyBreakpointChangeProceeding(id);
+        finished = false;
         postCommand("ignore " + bpnr + ' ' + QByteArray::number(data.ignoreCount),
             NeedsStop | RebuildBreakpointModel,
             CB(handleBreakIgnore), id);
     }
     if (!data.enabled && response.enabled) {
+        handler->notifyBreakpointChangeProceeding(id);
+        finished = false;
         postCommand("-break-disable " + bpnr,
             NeedsStop | RebuildBreakpointModel,
             CB(handleBreakDisable), id);
     }
     if (data.enabled && !response.enabled) {
+        handler->notifyBreakpointChangeProceeding(id);
+        finished = false;
         postCommand("-break-enable " + bpnr,
             NeedsStop | RebuildBreakpointModel,
             CB(handleBreakEnable), id);
@@ -2663,6 +2674,9 @@ void GdbEngine::changeBreakpoint(BreakpointId id)
     }
 
     attemptAdjustBreakpointLocation(id);
+
+    if (finished)
+        handler->notifyBreakpointChangeOk(id);
 }
 
 void GdbEngine::removeBreakpoint(BreakpointId id)

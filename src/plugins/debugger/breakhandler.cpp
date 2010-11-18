@@ -678,6 +678,12 @@ void BreakHandler::notifyBreakpointRemoveFailed(BreakpointId id)
     cleanupBreakpoint(id);
 }
 
+void BreakHandler::notifyBreakpointChangeProceeding(BreakpointId id)
+{
+    QTC_ASSERT(state(id) == BreakpointChangeRequested, /**/);
+    setState(id, BreakpointChangeProceeding);
+}
+
 void BreakHandler::notifyBreakpointChangeOk(BreakpointId id)
 {
     QTC_ASSERT(state(id) == BreakpointChangeProceeding, /**/);

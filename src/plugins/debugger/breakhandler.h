@@ -132,6 +132,7 @@ public:
     void notifyBreakpointInsertOk(BreakpointId id);
     void notifyBreakpointInsertFailed(BreakpointId id);
     void notifyBreakpointChangeOk(BreakpointId id);
+    void notifyBreakpointChangeProceeding(BreakpointId id);
     void notifyBreakpointChangeFailed(BreakpointId id);
     void notifyBreakpointPending(BreakpointId id);
     void notifyBreakpointRemoveProceeding(BreakpointId id);
