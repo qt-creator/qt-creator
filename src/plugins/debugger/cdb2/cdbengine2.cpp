@@ -401,9 +401,7 @@ bool CdbEngine::doSetupEngine(QString *errorMessage)
     switch (sp.startMode) {
     case StartInternal:
     case StartExternal:
-        arguments << sp.executable;
-        foreach(const QString &arg, sp.processArgs)
-            arguments << arg; // @TODO quoting/env
+        arguments << QDir::toNativeSeparators(sp.executable);
         break;
     case AttachExternal:
     case AttachCrashedExternal:   // @TODO: event handle for crashed?
@@ -425,6 +423,10 @@ bool CdbEngine::doSetupEngine(QString *errorMessage)
 
     m_outputBuffer.clear();
     m_process.setEnvironment(mergeEnvironment(sp.environment.toStringList(), extensionFi.absolutePath()));
+#ifdef Q_OS_WIN
+    if (!sp.processArgs.isEmpty()) // Appends
+        m_process.setNativeArguments(sp.processArgs);
+#endif
     m_process.start(executable, arguments);
     if (!m_process.waitForStarted()) {
         *errorMessage = QString::fromLatin1("Internal error: Cannot start process %1: %2").
