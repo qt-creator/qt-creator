@@ -431,6 +431,9 @@ static bool positionFromContextActionData(const QObject *sender,
 }
 
 namespace Debugger {
+namespace Cdb {
+void addCdb2OptionPages(QList<Core::IOptionsPage*> *);
+} // namespace Cdb
 namespace Internal {
 
 // FIXME: Outdated?
@@ -1863,6 +1866,9 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 #ifdef CDB_ENABLED
     if (cmdLineEnabledEngines & CdbEngineType)
         addCdbOptionPages(&engineOptionPages);
+#endif
+#ifdef Q_OS_WIN
+    Debugger::Cdb::addCdb2OptionPages(&engineOptionPages);
 #endif
     //if (cmdLineEnabledEngines & ScriptEngineType)
     //    addScriptOptionPages(&engineOptionPages);

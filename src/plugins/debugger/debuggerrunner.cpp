@@ -95,6 +95,10 @@ bool checkCdbConfiguration(int, QString *, QString *) { return false; }
 #endif
 
 } // namespace Internal
+namespace Cdb {
+DebuggerEngine *createCdbEngine(const DebuggerStartParameters &, QString *errorMessage);
+bool isCdbEngineEnabled(); // Check the configuration page
+}
 
 static QString toolChainName(int toolChainType)
 {
@@ -261,7 +265,7 @@ unsigned DebuggerRunnerPrivate::enabledEngines() const
 {
     unsigned rc = m_cmdLineEnabledEngines;
 #ifdef CDB_ENABLED
-    if (!Internal::isCdbEngineEnabled())
+    if (!Internal::isCdbEngineEnabled() && !Cdb::isCdbEngineEnabled())
         rc &= ~CdbEngineType;
 #endif
     return rc;
@@ -464,7 +468,12 @@ void DebuggerRunControl::createEngine(const DebuggerStartParameters &startParams
             d->m_engine = Internal::createScriptEngine(sp);
             break;
         case CdbEngineType:
-            d->m_engine = Internal::createCdbEngine(sp, &d->m_errorMessage);
+            // Try new engine, fall back to old.
+            if (Debugger::Cdb::isCdbEngineEnabled()) {
+                d->m_engine = Debugger::Cdb::createCdbEngine(sp, &d->m_errorMessage);
+            } else {
+                d->m_engine = Debugger::Internal::createCdbEngine(sp, &d->m_errorMessage);
+            }
             break;
         case PdbEngineType:
             d->m_engine = Internal::createPdbEngine(sp);

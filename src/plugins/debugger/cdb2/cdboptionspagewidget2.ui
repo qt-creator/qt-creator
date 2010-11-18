@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Debugger::Cdb::CdbOptionsPageWidget2</class>
+ <widget class="QWidget" name="Debugger::Cdb::CdbOptionsPageWidget2">
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QGroupBox" name="cdbPathGroupBox">
+       <property name="toolTip">
+        <string>These options take effect at the next start of Qt Creator.</string>
+       </property>
+       <property name="title">
+        <string extracomment="Placeholder">CDB</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <layout class="QFormLayout" name="formLayout">
+        <item row="1" column="0">
+         <widget class="QLabel" name="pathLabel">
+          <property name="text">
+           <string>Path:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="Utils::PathChooser" name="pathChooser" native="true"/>
+        </item>
+        <item row="0" column="0" colspan="2">
+         <widget class="QLabel" name="noteLabel">
+          <property name="text">
+           <string notr="true" extracomment="Placeholder">Note: bla, blah</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0" colspan="2">
+         <widget class="QCheckBox" name="is64BitCheckBox">
+          <property name="text">
+           <string>64 bit</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="pathGroupBox">
+     <property name="title">
+      <string>Debugger Paths</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout_2">
+      <property name="fieldGrowthPolicy">
+       <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+      </property>
+      <item row="0" column="0">
+       <widget class="QLabel" name="symbolPathLabel">
+        <property name="text">
+         <string>Symbol paths:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="Debugger::Internal::CdbSymbolPathListEditor" name="symbolPathListEditor" native="true"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="sourcePathLabel">
+        <property name="text">
+         <string>Source paths:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="Utils::PathListEditor" name="sourcePathListEditor" native="true"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QLabel" name="failureLabel">
+     <property name="styleSheet">
+      <string notr="true">background-color: 'red';</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Utils::PathListEditor</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathlisteditor.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Debugger::Internal::CdbSymbolPathListEditor</class>
+   <extends>QWidget</extends>
+   <header location="global">cdbsymbolpathlisteditor.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
