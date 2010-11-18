@@ -981,7 +981,23 @@ void BreakHandler::BreakpointItem::destroyMarker()
 
 QString BreakHandler::BreakpointItem::markerFileName() const
 {
-    return !response.fileName.isEmpty() ? response.fileName : data.fileName;
+    // Some heuristics to find a "good" file name.
+    if (!data.fileName.isEmpty()) {
+        QFileInfo fi(data.fileName);
+        if (fi.exists())
+            return fi.absoluteFilePath();
+    }
+    if (!response.fileName.isEmpty()) {
+        QFileInfo fi(response.fileName);
+        if (fi.exists())
+            return fi.absoluteFilePath();
+    }
+    if (response.fileName.endsWith(data.fileName))
+        return response.fileName;
+    if (data.fileName.endsWith(response.fileName))
+        return data.fileName;
+    return response.fileName.size() > data.fileName.size()
+        ? response.fileName : data.fileName;
 }
 
 
@@ -1092,6 +1108,10 @@ QString BreakHandler::BreakpointItem::toToolTip() const
         << "</td><td>" << response.extra << "</td></tr>"
         << "<tr><td>" << tr("Pending:")
         << "</td><td>" << (response.pending ? "True" : "False") << "</td></tr>"
+        << "<tr><td>" << tr("Marker File:")
+        << "</td><td>" << markerFileName() << "</td></tr>"
+        << "<tr><td>" << tr("Marker Line:")
+        << "</td><td>" << markerLineNumber() << "</td></tr>"
         << "</table><br><hr><table>"
         << "<tr><th>" << tr("Property")
         << "</th><th>" << tr("Requested")
