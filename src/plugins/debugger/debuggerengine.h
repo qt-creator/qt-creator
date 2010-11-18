@@ -329,9 +329,6 @@ protected:
     virtual void shutdownInferior() = 0;
     virtual void shutdownEngine() = 0;
 
-    void setState(DebuggerState state, bool forced = false);
-    void setSlaveEngine(bool value);
-
 protected:
     DebuggerRunControl *runControl() const;
 
@@ -347,8 +344,11 @@ protected:
     void showStoppedByExceptionMessageBox(const QString &description);
 
 private:
-    // wrapper engine needs access to state of its subengines
+    // Wrapper engine needs access to state of its subengines.
     friend class QmlCppEngine;
+    void setState(DebuggerState state, bool forced = false);
+    void setSlaveEngine(bool value);
+
 
     friend class DebuggerEnginePrivate;
     DebuggerEnginePrivate *d;
