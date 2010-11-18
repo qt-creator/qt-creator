@@ -145,7 +145,7 @@ FlatModel::FlatModel(SessionNode *rootNode, QObject *parent)
     NodesWatcher *watcher = new NodesWatcher(this);
     m_rootNode->registerWatcher(watcher);
 
-    connect(watcher, SIGNAL(aboutToHasBuildTargetsChanged(ProjectExplorer::ProjectNode*)),
+    connect(watcher, SIGNAL(aboutToChangeHasBuildTargets(ProjectExplorer::ProjectNode*)),
             this, SLOT(aboutToHasBuildTargetsChanged(ProjectExplorer::ProjectNode*)));
 
     connect(watcher, SIGNAL(hasBuildTargetsChanged(ProjectExplorer::ProjectNode*)),

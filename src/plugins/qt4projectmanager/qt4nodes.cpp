@@ -1481,7 +1481,7 @@ void Qt4ProFileNode::applyEvaluate(bool parseResult, bool async)
         Qt4ProjectType oldType = m_projectType;
         // probably all subfiles/projects have changed anyway ...
         clear();
-        bool changesHasBuildTargets = hasBuildTargets() xor hasBuildTargets(projectType);
+        bool changesHasBuildTargets = hasBuildTargets() ^ hasBuildTargets(projectType);
 
         if (changesHasBuildTargets)
             aboutToChangeHasBuildTargets();
