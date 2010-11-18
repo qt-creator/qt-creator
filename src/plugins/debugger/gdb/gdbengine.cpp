@@ -1168,12 +1168,18 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
 
     if (bkptno && frame.isValid()) {
         // Use opportunity to update the marker position.
-        const QString fileName =
-            QString::fromUtf8(frame.findChild("fullname").data());
-        const int lineNumber = frame.findChild("line").data().toInt();
+        BreakHandler *handler = breakHandler();
+        BreakpointId id = handler->findBreakpointByNumber(bkptno);
+        const BreakpointResponse &response = handler->response(id);
+        QString fileName = response.fileName;
+        if (fileName.isEmpty())
+            fileName = handler->fileName(id);
+        if (fileName.isEmpty())
+            fileName = QString::fromUtf8(frame.findChild("fullname").data());
+        if (fileName.isEmpty())
+            fileName = QString::fromUtf8(frame.findChild("file").data());
         if (!fileName.isEmpty()) {
-            BreakHandler *handler = breakHandler();
-            BreakpointId id = handler->findBreakpointByNumber(bkptno);
+            int lineNumber = frame.findChild("line").data().toInt();
             handler->setMarkerFileAndLine(id, fileName, lineNumber);
         }
     }

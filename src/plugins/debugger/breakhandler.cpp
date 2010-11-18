@@ -407,7 +407,7 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                 if (!response.fileName.isEmpty())
                     str = response.fileName;
                 if (str.isEmpty() && !data.fileName.isEmpty())
-                    str = response.fileName;
+                    str = data.fileName;
                 if (str.isEmpty()) {
                     QString s = QFileInfo(str).fileName();
                     if (!s.isEmpty())
@@ -582,6 +582,7 @@ void BreakHandler::setEngine(BreakpointId id, DebuggerEngine *value)
     it->engine = value;
     it->state = BreakpointInsertRequested;
     it->response = BreakpointResponse();
+    it->response.fileName = it->data.fileName;
     updateMarker(id);
     scheduleSynchronization();
 }
