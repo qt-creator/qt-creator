@@ -241,8 +241,15 @@ void QtVersionManager::updateExamples()
     }
 
     // in SDKs, we want to prefer the Qt version shipping with the SDK
-    QString preferred = Core::ICore::instance()->settings()->value("General/PreferredQMakePath").toString();
+    QSettings *settings = Core::ICore::instance()->settings();
+    QString preferred = settings->value(QLatin1String("PreferredQMakePath")).toString();
+    preferred = QDir::fromNativeSeparators(preferred);
     if (!preferred.isEmpty()) {
+#ifdef Q_OS_WIN
+        preferred = preferred.toLower();
+        if (!preferred.endsWith(QLatin1String(".exe")))
+            preferred.append(QLatin1String(".exe"));
+#endif
         foreach (version, candidates) {
             if (version->qmakeCommand() == preferred) {
                 emit updateExamples(version->examplesPath(), version->demosPath(), version->sourcePath());
@@ -1557,8 +1564,13 @@ void QtVersion::setMsvcVersion(const QString &version)
 void QtVersion::addToEnvironment(Utils::Environment &env) const
 {
     env.set("QTDIR", QDir::toNativeSeparators(versionInfo().value("QT_INSTALL_DATA")));
-    if (isBuildWithSymbianSbsV2() && !m_sbsV2Directory.isEmpty())
-        env.prependOrSetPath(m_sbsV2Directory);
+    if (isBuildWithSymbianSbsV2()) {
+        QString sbsHome(env.value(QLatin1String("SBS_HOME")));
+        if (!m_sbsV2Directory.isEmpty())
+            env.prependOrSetPath(m_sbsV2Directory);
+        else if (!sbsHome.isEmpty())
+            env.prependOrSetPath(sbsHome + QLatin1Char('/') + QLatin1String("bin"));
+    }
     env.prependOrSetPath(versionInfo().value("QT_INSTALL_BINS"));
 }
 

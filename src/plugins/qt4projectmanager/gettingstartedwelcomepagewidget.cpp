@@ -65,6 +65,7 @@ namespace Internal {
 
 const char ExamplePathPropertyName[] = "__qt_ExamplePath";
 const char HelpPathPropertyName[] = "__qt_HelpPath";
+const char QmlMainFileName[] = "__qt_QmlMainFileName";
 
 void PixmapDownloader::populatePixmap(QNetworkReply *reply) {
     QImage image;
@@ -191,21 +192,32 @@ void GettingStartedWelcomePageWidget::parseXmlFile(QFile *file, QMenuHash &cppSu
                 const QString name = reader.attributes().value(QLatin1String("name")).toString();
                 const bool isQml = reader.attributes().value(QLatin1String("qml")).toString() == "true";
                 const QString localDir = reader.attributes().value(QLatin1String("filename")).toString();
-                const QString extension = isQml ? QLatin1String(".qmlproject") : QLatin1String(".pro");
-                const QString fileName = localDir.section(',', -1);
-                const QString relativeProPath = slash + dirName + slash + localDir + slash + fileName + extension;
+                const QString fileName = localDir.section('/', -1);
+                QString replacedFileName = fileName;
+                replacedFileName.replace(QLatin1Char('-'), QString());
+                QString relativeProPath = slash + dirName + slash + localDir + slash + replacedFileName;
 
-                QString finaleFileName = examplePath + relativeProPath;
-                if (!QFile::exists(finaleFileName))
-                    finaleFileName = sourcePath + QLatin1String("/examples") + relativeProPath;
+                QString finalFileName = examplePath + relativeProPath + QLatin1String(".pro");
 
-                if (!QFile::exists(finaleFileName))
+                if (!QFile::exists(finalFileName))
+                    finalFileName = sourcePath + QLatin1String("/examples") + relativeProPath  + QLatin1String(".pro");
+
+                if (isQml && !QFile::exists(finalFileName)) {
+                    // maybe it's an old-style QML project?
+                    relativeProPath = slash + dirName + slash + localDir + slash + fileName;
+                    finalFileName = examplePath + relativeProPath + QLatin1String(".qmlproject");
+
+                    if (!QFile::exists(finalFileName))
+                        finalFileName = sourcePath + QLatin1String("/examples") + relativeProPath  + QLatin1String(".qmlproject");;
+                }
+
+                if (!QFile::exists(finalFileName))
                     break;
 
-                QString dirName1 = dirName;
-                dirName1.replace(slash, QLatin1Char('-'));
+                QString dirNameforHelp = dirName;
+                dirNameforHelp.replace(slash, QLatin1Char('-'));
                 QString helpPath = QLatin1String("qthelp://com.trolltech.qt/qdoc/") +
-                        dirName1 +
+                        dirNameforHelp +
                         QLatin1Char('-') + fileName + QLatin1String(".html");
 
                 QAction *exampleAction = 0;
@@ -230,8 +242,10 @@ void GettingStartedWelcomePageWidget::parseXmlFile(QFile *file, QMenuHash &cppSu
                     exampleAction = new QAction(name, subMenu);
                     subMenu->insertAction(beforeAction, exampleAction);
                     connect(exampleAction, SIGNAL(triggered()), SLOT(slotOpenExample()));
-                    exampleAction->setProperty(ExamplePathPropertyName, finaleFileName);
+                    exampleAction->setProperty(ExamplePathPropertyName, finalFileName);
                     exampleAction->setProperty(HelpPathPropertyName, helpPath);
+                    if (isQml)
+                        exampleAction->setProperty(QmlMainFileName, fileName);
                 }
             }
             break;
@@ -338,6 +352,12 @@ void GettingStartedWelcomePageWidget::slotOpenExample()
 
     QString helpFile = action->property(HelpPathPropertyName).toString();
     QString proFile = action->property(ExamplePathPropertyName).toString();
+    QString qmlMainFileName;
+    bool isQmlProject = false;
+    if (action->dynamicPropertyNames().contains(QmlMainFileName)) {
+        qmlMainFileName = action->property(QmlMainFileName).toString();
+        isQmlProject = true;
+    }
     QStringList files;
 
     QFileInfo proFileInfo(proFile);
@@ -398,18 +418,22 @@ void GettingStartedWelcomePageWidget::slotOpenExample()
         }
     }
 
-
-    QString tryFile = proFileInfo.path() + "/main.cpp";
+    QString tryFile;
     files << proFile;
-    if(!QFile::exists(tryFile))
-        tryFile = proFileInfo.path() + '/' + proFileInfo.baseName() + ".cpp";
-    // maybe it's a QML project?
-    if(!QFile::exists(tryFile))
+    if (isQmlProject) {
         tryFile = proFileInfo.path() + '/' + "/main.qml";
-    if(!QFile::exists(tryFile))
-        tryFile = proFileInfo.path() + '/' + proFileInfo.baseName() + ".qml";
-    if(QFile::exists(tryFile))
-        files << tryFile;
+        if(!QFile::exists(tryFile))
+            tryFile = proFileInfo.path() + "/qml/" + qmlMainFileName + ".qml";
+        // legacy qmlproject case
+        if(!QFile::exists(tryFile))
+            tryFile = proFileInfo.path() + '/' + qmlMainFileName + ".qml";
+        if(QFile::exists(tryFile))
+            files << tryFile;
+    } else {
+        tryFile = proFileInfo.path() + "/main.cpp";
+        if(!QFile::exists(tryFile))
+            tryFile = proFileInfo.path() + '/' + proFileInfo.baseName() + ".cpp";
+    }
     Core::ICore::instance()->openFiles(files, static_cast<Core::ICore::OpenFilesFlags>(Core::ICore::SwitchMode | Core::ICore::StopOnLoadFail));
     if (!tryFile.isEmpty() && Core::EditorManager::instance()->hasEditor(tryFile) && !helpFile.isEmpty())
         slotOpenContextHelpPage(helpFile);

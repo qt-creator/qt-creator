@@ -30,6 +30,7 @@
 #include "designmodecontext.h"
 #include "qmldesignerconstants.h"
 #include "designmodewidget.h"
+#include "formeditorwidget.h"
 
 #include <QWidget>
 
@@ -39,7 +40,7 @@ namespace Internal {
 DesignModeContext::DesignModeContext(DesignModeWidget *widget)
   : IContext(widget),
     m_widget(widget),
-    m_context(Constants::C_FORMEDITOR, Constants::C_QT_QUICK_TOOLS_MENU)
+    m_context(Constants::C_QMLDESIGNER, Constants::C_QT_QUICK_TOOLS_MENU)
 {
 }
 
@@ -58,6 +59,33 @@ QWidget *DesignModeContext::widget()
 }
 
 QString DesignModeContext::contextHelpId() const
+{
+    return m_widget->contextHelpId();
+}
+
+
+FormEditorContext::FormEditorContext(FormEditorWidget *widget)
+  : IContext(widget),
+    m_widget(widget),
+    m_context(Constants::C_QMLFORMEDITOR, Constants::C_QT_QUICK_TOOLS_MENU)
+{
+}
+
+FormEditorContext::~FormEditorContext()
+{
+}
+
+Core::Context FormEditorContext::context() const
+{
+    return m_context;
+}
+
+QWidget *FormEditorContext::widget()
+{
+    return m_widget;
+}
+
+QString FormEditorContext::contextHelpId() const
 {
     return m_widget->contextHelpId();
 }

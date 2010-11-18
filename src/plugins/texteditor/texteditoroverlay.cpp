@@ -165,10 +165,12 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
 
             int beginChar = 0;
             if (!inSelection) {
-                beginChar = begin.positionInBlock();
-                line = blockLayout->lineForTextPosition(beginChar);
+                if (block == begin.block()) {
+                    beginChar = begin.positionInBlock();
+                    line = blockLayout->lineForTextPosition(beginChar);
+                    firstOrLastBlock = true;
+                }
                 inSelection = true;
-                firstOrLastBlock = true;
             } else {
 //                while (beginChar < block.length() && document->characterAt(block.position() + beginChar).isSpace())
 //                    ++beginChar;

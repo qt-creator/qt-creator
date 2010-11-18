@@ -250,7 +250,8 @@ static inline void padString(QString *s, int len)
 
 static inline QStringList parseLists(QIODevice *io)
 {
-    enum State { OutsideRecentPostList, InsideRecentPostBox, InsideRecentPost };
+    enum State { OutsideRecentPostList, InsideRecentPostList,
+                 InsideRecentPostBox, InsideRecentPost };
 
     QStringList rc;
     QXmlStreamReader reader(io);
@@ -282,7 +283,13 @@ static inline QStringList parseLists(QIODevice *io)
                 }
             } else if (reader.name() == divElement) { // "<div>" state switching
                 switch (state) {
+                // Check on the contents as there are several lists.
                 case OutsideRecentPostList:
+                    if (reader.attributes().value(classAttribute) == QLatin1String("content_left_title")
+                            && reader.readElementText() == QLatin1String("Recent Posts"))
+                        state = InsideRecentPostList;
+                    break;
+                case InsideRecentPostList:
                     if (reader.attributes().value(classAttribute) == QLatin1String("content_left_box"))
                         state = InsideRecentPostBox;
                     break;

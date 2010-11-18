@@ -30,6 +30,7 @@
 #include "designmodewidget.h"
 #include "qmldesignerconstants.h"
 #include "styledoutputpaneplaceholder.h"
+#include "designmodecontext.h"
 
 #include <model.h>
 #include <rewriterview.h>
@@ -684,6 +685,9 @@ void DesignModeWidget::setup()
         rightLayout->addWidget(m_fakeToolBar);
         //### we now own these here
         rightLayout->addWidget(m_statesEditorWidget.data());
+
+        FormEditorContext *context = new FormEditorContext(m_formEditorView->widget());
+        Core::ICore::instance()->addContextObject(context);
 
         // editor and output panes
         m_outputPlaceholderSplitter->addWidget(m_formEditorView->widget());

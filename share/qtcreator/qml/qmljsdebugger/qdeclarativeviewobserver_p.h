@@ -66,6 +66,7 @@ public:
     QDeclarativeView *view;
     QDeclarativeViewObserver *q;
     QDeclarativeObserverService *debugService;
+    QWeakPointer<QWidget> viewport;
 
     QPointF cursorPos;
     QList<QWeakPointer<QGraphicsObject> > currentSelection;
@@ -87,6 +88,8 @@ public:
     qreal slowdownFactor;
 
     QmlToolbar *toolbar;
+
+    void setViewport(QWidget *widget);
 
     void clearEditorItems();
     void createToolbar();
