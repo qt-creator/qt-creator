@@ -716,30 +716,6 @@ void BreakHandler::notifyBreakpointAdjusted(BreakpointId id,
 }
 
 
-void BreakHandler::ackCondition(BreakpointId id)
-{
-    Iterator it = m_storage.find(id);
-    QTC_ASSERT(it != m_storage.end(), return);
-    it->response.condition = it->data.condition;
-    updateMarker(id);
-}
-
-void BreakHandler::ackIgnoreCount(BreakpointId id)
-{
-    Iterator it = m_storage.find(id);
-    QTC_ASSERT(it != m_storage.end(), return);
-    it->response.ignoreCount = it->data.ignoreCount;
-    updateMarker(id);
-}
-
-void BreakHandler::ackEnabled(BreakpointId id)
-{
-    Iterator it = m_storage.find(id);
-    QTC_ASSERT(it != m_storage.end(), return);
-    it->response.enabled = it->data.enabled;
-    updateMarker(id);
-}
-
 void BreakHandler::removeBreakpoint(BreakpointId id)
 {
     Iterator it = m_storage.find(id);

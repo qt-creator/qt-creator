@@ -2299,10 +2299,12 @@ void GdbEngine::handleBreakList(const GdbMi &table)
 void GdbEngine::handleBreakDisable(const GdbResponse &response)
 {
     QTC_ASSERT(response.resultClass == GdbResultDone, /**/)
-    const BreakpointId id =response.cookie.toInt();
+    const BreakpointId id = response.cookie.toInt();
     // This should only be the requested state.
     QTC_ASSERT(!breakHandler()->isEnabled(id), /* Prevent later recursion */);
-    breakHandler()->ackEnabled(id);
+    BreakpointResponse br = breakHandler()->response(id);
+    br.enabled = false;
+    breakHandler()->setResponse(id, br);
 }
 
 void GdbEngine::handleBreakEnable(const GdbResponse &response)
@@ -2311,7 +2313,9 @@ void GdbEngine::handleBreakEnable(const GdbResponse &response)
     const BreakpointId id = response.cookie.toInt();
     // This should only be the requested state.
     QTC_ASSERT(breakHandler()->isEnabled(id), /* Prevent later recursion */);
-    breakHandler()->ackEnabled(id);
+    BreakpointResponse br = breakHandler()->response(id);
+    br.enabled = true;
+    breakHandler()->setResponse(id, br);
 }
 
 void GdbEngine::handleBreakIgnore(const GdbResponse &response)
@@ -2328,15 +2332,15 @@ void GdbEngine::handleBreakIgnore(const GdbResponse &response)
     // gdb 6.3 does not produce any console output
     QTC_ASSERT(response.resultClass == GdbResultDone, /**/)
     QString msg = _(response.data.findChild("consolestreamoutput").data());
-    //if (msg.contains(__("Will stop next time breakpoint")))
-    //    data->bpIgnoreCount = _("0");
-    //else if (msg.contains(__("Will ignore next")))
-    //    data->bpIgnoreCount = data->ignoreCount;
-    // FIXME: this assumes it is doing the right thing...
     BreakpointId id(response.cookie.toInt());
-    // This should only be the "wish" state.
-    QTC_ASSERT(!breakHandler()->isEnabled(id), /* prevent later recursion */);
-    breakHandler()->ackEnabled(id);
+    BreakpointResponse br = breakHandler()->response(id);
+    //if (msg.contains(__("Will stop next time breakpoint")))
+    //    response.ignoreCount = _("0");
+    //else if (msg.contains(__("Will ignore next")))
+    //    response.ignoreCount = data->ignoreCount;
+    // FIXME: this assumes it is doing the right thing...
+    br.ignoreCount = breakHandler()->ignoreCount(id);
+    breakHandler()->setResponse(id, br);
 }
 
 void GdbEngine::handleBreakCondition(const GdbResponse &response)
@@ -2349,7 +2353,9 @@ void GdbEngine::handleBreakCondition(const GdbResponse &response)
     //   QByteArray msg = response.data.findChild("msg").data();
     //   if (1 || msg.startsWith("Error parsing breakpoint condition. "
     //            " Will try again when we hit the breakpoint.")) {
-    breakHandler()->ackCondition(id);
+    BreakpointResponse br = breakHandler()->response(id);
+    br.condition = breakHandler()->condition(id);
+    breakHandler()->setResponse(id, br);
 }
 
 void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointId id)

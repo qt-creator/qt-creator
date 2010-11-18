@@ -127,11 +127,6 @@ public:
     const BreakpointResponse &response(BreakpointId id) const;
     void setResponse(BreakpointId id, const BreakpointResponse &data);
 
-    // Incorporate debugger feedback. No synchronization request needed.
-    void ackCondition(BreakpointId id);
-    void ackIgnoreCount(BreakpointId id);
-    void ackEnabled(BreakpointId id);
-
     // State transitions.
     void notifyBreakpointInsertProceeding(BreakpointId id);
     void notifyBreakpointInsertOk(BreakpointId id);
