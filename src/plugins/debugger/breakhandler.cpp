@@ -529,9 +529,14 @@ void BreakHandler::setMarkerFileAndLine(BreakpointId id,
 {
     Iterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return);
+    if (it->markerFileName == fileName && it->markerLineNumber == lineNumber)
+        return;
     it->markerFileName = fileName;
     it->markerLineNumber = lineNumber;
+    it->response.fileName = fileName;
+    it->response.lineNumber = lineNumber;
     updateMarker(id);
+    scheduleSynchronization();
 }
 
 BreakpointState BreakHandler::state(BreakpointId id) const
@@ -569,7 +574,8 @@ static bool isAllowedTransition(BreakpointState from, BreakpointState to)
         return to == BreakpointInsertProceeding;
     case BreakpointInsertProceeding:
         return to == BreakpointInserted
-            || to == BreakpointDead;
+            || to == BreakpointDead
+            || to == BreakpointChangeRequested;
     case BreakpointChangeRequested:
         return to == BreakpointChangeProceeding;
     case BreakpointChangeProceeding:

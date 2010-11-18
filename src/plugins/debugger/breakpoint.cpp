@@ -92,7 +92,7 @@ QString BreakpointParameters::toString() const
 //////////////////////////////////////////////////////////////////
 
 BreakpointResponse::BreakpointResponse()
-    : number(0), pending(true), multiple(false)
+    : number(0), pending(true), multiple(false), correctedLineNumber(0)
 {}
 
 QString BreakpointResponse::toString() const
@@ -104,6 +104,7 @@ QString BreakpointResponse::toString() const
     ts << fullName;
     ts << multiple;
     ts << extra;
+    ts << correctedLineNumber;
     return result + BreakpointParameters::toString();
 }
 
@@ -114,6 +115,7 @@ void BreakpointResponse::fromParameters(const BreakpointParameters &p)
     fullName.clear();
     multiple = false;
     extra.clear();
+    correctedLineNumber = 0;
 }
 
 } // namespace Internal

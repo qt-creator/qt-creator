@@ -113,6 +113,7 @@ public:
     QString fullName;       // Full file name acknowledged by the debugger engine.
     bool multiple;          // Happens in constructors/gdb.
     QByteArray extra;       // gdb: <PENDING>, <MULTIPLE>
+    int correctedLineNumber;
 };
 
 typedef QList<BreakpointId> BreakpointIds;

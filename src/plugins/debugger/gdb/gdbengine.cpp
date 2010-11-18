@@ -1163,6 +1163,22 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         return;
     }
 
+    const int bkptno = data.findChild("bkptno").data().toInt();
+    const GdbMi frame = data.findChild("frame");
+
+    if (bkptno && frame.isValid()) {
+        // Use opportunity to update the marker position.
+        const QString fileName =
+            QString::fromUtf8(frame.findChild("fullname").data());
+        const int lineNumber = frame.findChild("line").data().toInt();
+        qDebug() << "HIT " << fileName << lineNumber;
+        if (!fileName.isEmpty()) {
+            BreakHandler *handler = breakHandler();
+            BreakpointId id = handler->findBreakpointByNumber(bkptno);
+            handler->setMarkerFileAndLine(id, fileName, lineNumber);
+        }
+    }
+
     if (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
         QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state())
         notifyInferiorStopOk();
@@ -1226,8 +1242,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     // FIXME: Replace the #ifdef by the "target" architecture
 #ifdef Q_OS_LINUX
     if (!m_entryPoint.isEmpty()) {
-        GdbMi frameData = data.findChild("frame");
-        if (frameData.findChild("addr").data() == m_entryPoint) {
+        if (frame.findChild("addr").data() == m_entryPoint) {
             // There are two expected reasons for getting here:
             // 1) For some reason, attaching to a stopped process causes *two* SIGSTOPs
             //    when trying to continue (kernel i386 2.6.24-23-ubuntu, gdb 6.8).
@@ -2170,6 +2185,7 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
         // Interesting only on Mac?
         GdbMi bkpt = response.data.findChild("bkpt");
         updateBreakpointDataFromOutput(id, bkpt);
+        //attempAdjustBreakpointLocation(id);
     } else {
         // Some versions of gdb like "GNU gdb (GDB) SUSE (6.8.91.20090930-2.4)"
         // know how to do pending breakpoints using CLI but not MI. So try
@@ -2608,31 +2624,29 @@ void GdbEngine::changeBreakpoint(BreakpointId id)
             NeedsStop | RebuildBreakpointModel,
             CB(handleBreakEnable), id);
     }
-/*
-    if (data.threadSpec() != response.bpThreadSpec)
-        // The only way to change this seems to be to re-set the bp completely.
-        //qDebug() << "FIXME: THREAD: " << data.threadSpec << response.bpThreadSpec;
-        FIXME
-        data.setThreadSpec.clear();
-        postCommand("-break-delete " + bpnr,
-            NeedsStop | RebuildBreakpointModel);
-        sendInsertBreakpoint(index);
-        continue;
-    }
-*/
 
-/*
-    if (data->bpAddress && data->bpCorrectedLineNumber == 0) {
+    if (data.threadSpec != response.threadSpec) {
+        // The only way to change this seems to be to re-set the bp completely.
+        qDebug() << "FIXME: THREAD: " << data.threadSpec << response.threadSpec;
+        //response.threadSpec.clear();
+        //postCommand("-break-delete " + bpnr,
+        //    NeedsStop | RebuildBreakpointModel);
+        //sendInsertBreakpoint(index);
+        //continue;
+    }
+
+    if (response.address && response.correctedLineNumber == 0) {
         // Prevent endless loop.
-        data->bpCorrectedLineNumber = -1;
+        BreakpointResponse r = response;
+        r.correctedLineNumber = -1;
+        breakHandler()->setResponse(id, r);
         if (debuggerCore()->boolSetting(AdjustBreakpointLocations)) {
             postCommand(
-                "info line *0x" + QByteArray::number(data->bpAddress, 16),
+                "info line *0x" + QByteArray::number(response.address, 16),
                 NeedsStop | RebuildBreakpointModel,
-                CB(handleInfoLine), id)
+                CB(handleInfoLine), id);
         }
     }
-*/
 }
 
 void GdbEngine::removeBreakpoint(BreakpointId id)
