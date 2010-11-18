@@ -551,6 +551,15 @@ DiagnosticClient *Control::diagnosticClient() const
 void Control::setDiagnosticClient(DiagnosticClient *diagnosticClient)
 { d->diagnosticClient = diagnosticClient; }
 
+const OperatorNameId *Control::findOperatorNameId(OperatorNameId::Kind operatorId) const
+{
+    Table<OperatorNameId>::const_iterator i = d->operatorNameIds.find(operatorId);
+    if (i == d->operatorNameIds.end())
+        return 0;
+    else
+        return &*i;
+}
+
 const Identifier *Control::findIdentifier(const char *chars, unsigned size) const
 { return d->identifiers.findLiteral(chars, size); }
 

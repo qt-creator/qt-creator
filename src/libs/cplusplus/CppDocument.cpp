@@ -687,11 +687,17 @@ namespace {
 class FindMatchingDefinition: public SymbolVisitor
 {
     Symbol *_declaration;
+    const OperatorNameId *_oper;
     QList<Function *> _result;
 
 public:
     FindMatchingDefinition(Symbol *declaration)
-        : _declaration(declaration) {}
+        : _declaration(declaration)
+        , _oper(0)
+    {
+        if (_declaration->name())
+            _oper = _declaration->name()->asOperatorNameId();
+    }
 
     QList<Function *> result() const { return _result; }
 
@@ -699,8 +705,15 @@ public:
 
     virtual bool visit(Function *fun)
     {
-        if (_declaration->identifier()->isEqualTo(fun->identifier()))
-            _result.append(fun);
+        if (_oper) {
+            if (const Name *name = fun->unqualifiedName()) {
+                    if (_oper->isEqualTo(name))
+                        _result.append(fun);
+            }
+        } else if (const Identifier *id = _declaration->identifier()) {
+            if (id->isEqualTo(fun->identifier()))
+                _result.append(fun);
+        }
 
         return false;
     }
@@ -714,7 +727,7 @@ public:
 
 Symbol *Snapshot::findMatchingDefinition(Symbol *declaration) const
 {
-    if (! (declaration && declaration->identifier()))
+    if (!declaration)
         return 0;
 
     Document::Ptr thisDocument = document(QString::fromUtf8(declaration->fileName(), declaration->fileNameLength()));
@@ -730,9 +743,19 @@ Symbol *Snapshot::findMatchingDefinition(Symbol *declaration) const
     }
 
     foreach (Document::Ptr doc, *this) {
-        if (! doc->control()->findIdentifier(declaration->identifier()->chars(),
-                                             declaration->identifier()->size()))
+        const Identifier *id = declaration->identifier();
+        if (id && ! doc->control()->findIdentifier(id->chars(),
+                                                   id->size()))
             continue;
+        if (!id) {
+            if (!declaration->name())
+                continue;
+            const OperatorNameId *oper = declaration->name()->asOperatorNameId();
+            if (!oper)
+                continue;
+            if (!doc->control()->findOperatorNameId(oper->kind()))
+                continue;
+        }
 
         FindMatchingDefinition candidates(declaration);
         candidates.accept(doc->globalNamespace());

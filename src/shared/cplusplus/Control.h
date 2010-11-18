@@ -187,6 +187,8 @@ public:
     const Identifier *objcCopyId() const;
     const Identifier *objcNonatomicId() const;
 
+    const OperatorNameId *findOperatorNameId(OperatorNameId::Kind operatorId) const;
+
     const Identifier *findIdentifier(const char *chars, unsigned size) const;
     const Identifier *identifier(const char *chars, unsigned size);
     const Identifier *identifier(const char *chars);
