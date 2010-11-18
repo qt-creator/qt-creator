@@ -490,8 +490,10 @@ struct QDumper
     void beginItem(const char *name); // start of named item, ready to accept value
     void endItem(); // end of named item, used after value output is complete
 
-    // convienience for putting "<n items>"
+    // convenience for putting "<n items>"
     void putItemCount(const char *name, int count);
+    // convenience for putting "<>n items>" (more than X items)
+    void putTruncatedItemCount(const char *name, int count);
     void putCommaIfNeeded();
     // convienience function for writing the last item of an abbreviated list
     void putEllipsis();
@@ -753,6 +755,11 @@ void QDumper::putItemCount(const char *name, int count)
     put(name).put("=\"<").put(count).put(" items>\"");
 }
 
+void QDumper::putTruncatedItemCount(const char *name, int count)
+{
+    putCommaIfNeeded();
+    put(name).put("=\"<>").put(count).put(" items>\"");
+}
 
 //
 // Some helpers to keep the dumper code short
@@ -3148,16 +3155,18 @@ static void qDumpStdList(QDumper &d)
     p = deref(addOffset(p, sizeof(void*)));
     qCheckAccess(p);
 #endif
-    int nn = 0;
+    std::list<int>::size_type nn = 0;
+    const std::list<int>::size_type maxItems = 100;
     std::list<int>::const_iterator it = list.begin();
     const std::list<int>::const_iterator cend = list.end();
-    for (; nn < 101 && it != cend; ++nn, ++it)
+    for (; nn < maxItems && it != cend; ++nn, ++it)
         qCheckAccess(it.operator->());
 
-    if (nn > 100)
-        d.putItem("value", "<more than 100 items>");
-    else
+    if (it != cend) {
+        d.putTruncatedItemCount("value", nn);
+    } else {
         d.putItemCount("value", nn);
+    }
     d.putItem("numchild", nn);
 
     d.putItem("valueeditable", "false");
@@ -3167,7 +3176,7 @@ static void qDumpStdList(QDumper &d)
             isPointerType(d.innerType) ? strippedInnerType.data() : 0;
         d.beginChildren(d.innerType);
         it = list.begin();
-        for (int i = 0; i < 1000 && it != cend; ++i, ++it) {
+        for (std::list<int>::size_type i = 0; i < maxItems && it != cend; ++i, ++it) {
             d.beginHash();
             qDumpInnerValueOrPointer(d, d.innerType, stripped, it.operator->());
             d.endHash();
@@ -3250,7 +3259,6 @@ static void qDumpStdMapHelper(QDumper &d)
     for (int i = 0; i < nn && i < 10 && it != cend; ++i, ++it)
         qCheckAccess(it.operator->());
 
-    const QByteArray strippedInnerType = stripPointerType(d.innerType);
     d.putItem("numchild", nn);
     d.putItemCount("value", nn);
     d.putItem("valueeditable", "false");
@@ -3399,7 +3407,7 @@ static void qDumpStdSet(QDumper &d)
 #ifdef Q_CC_MSVC
     // As the set implementation inherits from a base class
     // depending on the key, use something equivalent to iterate it.
-    const int innerSize = d.extraInt[0];
+    const size_t innerSize = d.extraInt[0];
     if (innerSize == sizeof(int)) {
         qDumpStdSetHelper<int>(d);
         return;

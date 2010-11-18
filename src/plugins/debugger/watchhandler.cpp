@@ -481,8 +481,15 @@ static inline QString formattedValue(const WatchData &data, int format)
         else if (result == QLatin1String("<not accessible>"))
             result = WatchHandler::tr("<not accessible>");
         else if (result.endsWith(" items>")) {
-            const int size = result.mid(1, result.indexOf(' ') - 1).toInt();
-            result = WatchHandler::tr("<%n items>", 0, size);
+            // '<10 items>' or '<>10 items>' (more than)
+            bool ok;
+            const bool moreThan = result.at(1) == QLatin1Char('>');
+            const int numberPos = moreThan ? 2 : 1;
+            const int size = result.mid(numberPos, result.indexOf(' ') - numberPos).toInt(&ok);
+            QTC_ASSERT(ok, qWarning("WatchHandler: Invalid item count '%s'", qPrintable(result)) ; )
+            result = moreThan ?
+                     WatchHandler::tr("<more than %n items>", 0, size) :
+                     WatchHandler::tr("<%n items>", 0, size);
         }
     }
     return result;
