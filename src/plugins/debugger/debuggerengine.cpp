@@ -181,7 +181,6 @@ public:
     DebuggerEnginePrivate(DebuggerEngine *engine, const DebuggerStartParameters &sp)
       : m_engine(engine),
         m_runControl(0),
-        m_isActive(false),
         m_startParameters(sp),
         m_state(DebuggerNotReady),
         m_lastGoodState(DebuggerNotReady),
@@ -247,7 +246,6 @@ public:
 
     DebuggerEngine *m_engine; // Not owned.
     DebuggerRunControl *m_runControl;  // Not owned.
-    bool m_isActive;
 
     DebuggerStartParameters m_startParameters;
 
@@ -1081,17 +1079,6 @@ qint64 DebuggerEngine::inferiorPid() const
 bool DebuggerEngine::isReverseDebugging() const
 {
     return debuggerCore()->isReverseDebugging();
-}
-
-bool DebuggerEngine::isActive() const
-{
-    return d->m_isActive;
-}
-
-void DebuggerEngine::setActive(bool on)
-{
-    //qDebug() << "SETTING ACTIVE" << this << on;
-    d->m_isActive = on;
 }
 
 // Called by DebuggerRunControl.

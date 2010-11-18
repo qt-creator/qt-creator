@@ -868,7 +868,7 @@ public:
     ~DebuggerPluginPrivate();
 
     bool initialize(const QStringList &arguments, QString *errorMessage);
-    void connectEngine(DebuggerEngine *engine, bool notify = true);
+    void connectEngine(DebuggerEngine *engine);
     void disconnectEngine() { connectEngine(0); }
     DebuggerEngine *currentEngine() const { return m_currentEngine; }
 
@@ -1959,7 +1959,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
         SLOT(languagesChanged(Debugger::DebuggerLanguages)));
 
     setInitialState();
-    connectEngine(0, false);
+    connectEngine(0);
 
     connect(sessionManager(),
         SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
@@ -2446,7 +2446,7 @@ public:
 };
 
 
-void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine, bool notify)
+void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
 {
     static DummyEngine dummyEngine;
 
@@ -2458,9 +2458,6 @@ void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine, bool notify)
 
     m_currentEngine = engine;
 
-    if (notify)
-        engine->setActive(false);
-
     m_localsWindow->setModel(engine->localsModel());
     m_modulesWindow->setModel(engine->modulesModel());
     m_registerWindow->setModel(engine->registerModel());
@@ -2471,9 +2468,6 @@ void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine, bool notify)
     m_threadBox->setModel(engine->threadsModel());
     m_threadBox->setModelColumn(ThreadData::NameColumn);
     m_watchersWindow->setModel(engine->watchersModel());
-
-    if (notify)
-        engine->setActive(true);
 }
 
 static void changeFontSize(QWidget *widget, qreal size)
