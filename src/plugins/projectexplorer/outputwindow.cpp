@@ -390,7 +390,7 @@ void OutputPane::tabChanged(int i)
 
         RunControl *rc = m_runControlTabs.at(index).runControl;
         m_stopAction->setEnabled(rc->isRunning());
-        m_reRunButton->setEnabled(!rc->isRunning() && rc->runMode() == Constants::RUNMODE);
+        m_reRunButton->setEnabled(!rc->isRunning());
         m_reRunButton->setIcon(m_runIcon);
     }
 }
@@ -420,7 +420,7 @@ void OutputPane::runControlFinished()
                     << " current " << current << m_runControlTabs.size();
 
     if (current && current == sender()) {
-        m_reRunButton->setEnabled(current->runMode() == Constants::RUNMODE);
+        m_reRunButton->setEnabled(true);
         m_stopAction->setEnabled(false);
         m_reRunButton->setIcon(m_runIcon);
     }
