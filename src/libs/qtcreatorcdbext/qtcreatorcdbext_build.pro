@@ -17,7 +17,7 @@ QMAKE_CXXFLAGS_DEBUG      += -MTd
 
 BASENAME=qtcreatorcdbext
 
-DEF_FILE=qtcreatorcdbext.def
+DEF_FILE=$$PWD/qtcreatorcdbext.def
 
 IDE_BASE_PATH=$$dirname(IDE_APP_PATH)
 
