@@ -16,7 +16,7 @@ bool processXmlFile(const QString &xmlFile)
     const QLatin1String attrib_screenOrientation("screenorientation");
     const QLatin1String value_screenOrientationLockLandscape("LockLandscape");
     const QLatin1String value_screenOrientationLockPortrait("LockPortrait");
-    const QLatin1String attrib_networkAccess("networkAccess");
+    const QLatin1String attrib_networkAccess("networkaccess");
 
     static const QString qtDir =
             QLibraryInfo::location(QLibraryInfo::PrefixPath) + QLatin1Char('/');
@@ -79,7 +79,7 @@ bool processXmlFile(const QString &xmlFile)
                     }
                     if (reader.attributes().hasAttribute(attrib_networkAccess))
                         qmlApp.setNetworkEnabled(
-                                    reader.attributes().value(attrib_networkAccess) == QLatin1String("true"));
+                                    reader.attributes().value(attrib_networkAccess).toString() == QLatin1String("true"));
                     if (!qmlApp.generateFiles(0))
                         qDebug() << "Unable to generate the files for" << qmlApp.projectName();
                 }

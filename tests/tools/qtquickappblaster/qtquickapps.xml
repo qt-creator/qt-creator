@@ -1,5 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <qmlapps>
+<!--
+    <app
+        mainqmlfile="demos/declarative/calculator/calculator.qml"
+        projectpath="../examples/declarative/demos"
+    />
+    <app
+        mainqmlfile="demos/declarative/flickr/flickr.qml"
+        projectpath="../examples/declarative/demos"
+        networkaccess="true"
+        screenorientation="LockPortrait"
+    />
+    <app
+        mainqmlfile="demos/declarative/photoviewer/photoviewer.qml"
+        projectpath="../examples/declarative/demos"
+        networkaccess="true"
+        screenorientation="LockPortrait"
+    />
+    <app
+        mainqmlfile="demos/declarative/rssnews/rssnews.qml"
+        projectpath="../examples/declarative/demos"
+        networkaccess="true"
+        screenorientation="LockLandscape"
+    />
+    <app
+        mainqmlfile="demos/declarative/samegame/samegame.qml"
+        projectpath="../examples/declarative/demos"
+        screenorientation="LockPortrait"
+    />
+    <app
+        mainqmlfile="demos/declarative/twitter/twitter.qml"
+        projectpath="../examples/declarative/demos"
+        networkaccess="true"
+        screenorientation="LockPortrait"
+    />
+    <app
+        mainqmlfile="demos/declarative/webbrowser/webbrowser.qml"
+        projectpath="../examples/declarative/demos"
+        networkaccess="true"
+        screenorientation="LockPortrait"
+    />
+-->
     <app
         mainqmlfile="examples/declarative/animation/basics/property-animation.qml"
         projectpath="../examples/declarative/animation/basics"
@@ -176,11 +217,13 @@
         projectpath="../examples/declarative/modelviews"
         screenorientation="LockLandscape"
     />
+<!--
     <app
         mainqmlfile="examples/declarative/modelviews/parallax/parallax.qml"
         projectpath="../examples/declarative/modelviews"
         screenorientation="LockLandscape"
     />
+-->
     <app
         mainqmlfile="examples/declarative/modelviews/visualitemmodel/visualitemmodel.qml"
         projectpath="../examples/declarative/modelviews"
