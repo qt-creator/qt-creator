@@ -1296,7 +1296,12 @@ void Qt4ProFileNode::buildStateChanged(ProjectExplorer::Project *project)
 
 bool Qt4ProFileNode::hasBuildTargets() const
 {
-    return (projectType() == ApplicationTemplate) || (projectType() == LibraryTemplate);
+    return hasBuildTargets(projectType());
+}
+
+bool Qt4ProFileNode::hasBuildTargets(Qt4ProjectType projectType) const
+{
+    return (projectType == ApplicationTemplate || projectType == LibraryTemplate);
 }
 
 Qt4ProjectType Qt4ProFileNode::projectType() const
@@ -1476,7 +1481,16 @@ void Qt4ProFileNode::applyEvaluate(bool parseResult, bool async)
         Qt4ProjectType oldType = m_projectType;
         // probably all subfiles/projects have changed anyway ...
         clear();
+        bool changesHasBuildTargets = hasBuildTargets() xor hasBuildTargets(projectType);
+
+        if (changesHasBuildTargets)
+            aboutToChangeHasBuildTargets();
+
         m_projectType = projectType;
+
+        if (changesHasBuildTargets)
+            hasBuildTargetsChanged();
+
         // really emit here? or at the end? Nobody is connected to this signal at the moment
         // so we kind of can ignore that question for now
         foreach (NodesWatcher *watcher, watchers())

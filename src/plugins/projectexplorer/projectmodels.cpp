@@ -145,6 +145,12 @@ FlatModel::FlatModel(SessionNode *rootNode, QObject *parent)
     NodesWatcher *watcher = new NodesWatcher(this);
     m_rootNode->registerWatcher(watcher);
 
+    connect(watcher, SIGNAL(aboutToHasBuildTargetsChanged(ProjectExplorer::ProjectNode*)),
+            this, SLOT(aboutToHasBuildTargetsChanged(ProjectExplorer::ProjectNode*)));
+
+    connect(watcher, SIGNAL(hasBuildTargetsChanged(ProjectExplorer::ProjectNode*)),
+            this, SLOT(hasBuildTargetsChanged(ProjectExplorer::ProjectNode*)));
+
     connect(watcher, SIGNAL(foldersAboutToBeAdded(FolderNode *, const QList<FolderNode*> &)),
             this, SLOT(foldersAboutToBeAdded(FolderNode *, const QList<FolderNode*> &)));
     connect(watcher, SIGNAL(foldersAdded()),
@@ -508,7 +514,6 @@ bool FlatModel::filter(Node *node) const
         if (m_filterGeneratedFiles)
             isHidden = fileNode->isGenerated();
     }
-
     return isHidden;
 }
 
@@ -692,6 +697,31 @@ void FlatModel::removed(FolderNode* parentNode, const QList<Node*> &newNodeList)
         endRemoveRows();
         oldIter = oldNodeList.constBegin() + pos;
     }
+}
+
+void FlatModel::aboutToHasBuildTargetsChanged(ProjectExplorer::ProjectNode* node)
+{
+    if (!m_filterProjects)
+        return;
+    FolderNode *folder = visibleFolderNode(node->parentFolderNode());
+    QList<Node *> newNodeList = childNodes(folder, QSet<Node *>() << node);
+    removed(folder, newNodeList);
+
+    QList<Node *> staleFolders;
+    recursiveAddFolderNodesImpl(node, &staleFolders);
+    foreach (Node *n, staleFolders)
+        if (FolderNode *fn = qobject_cast<FolderNode *>(n))
+            m_childNodes.remove(fn);
+}
+
+void FlatModel::hasBuildTargetsChanged(ProjectExplorer::ProjectNode *node)
+{
+    if (!m_filterProjects)
+        return;
+    // we are only interested if we filter
+    FolderNode *folder = visibleFolderNode(node->parentFolderNode());
+    QList<Node *> newNodeList = childNodes(folder);
+    added(folder, newNodeList);
 }
 
 void FlatModel::foldersAboutToBeAdded(FolderNode *parentFolder, const QList<FolderNode*> &newFolders)

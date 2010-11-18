@@ -78,6 +78,8 @@ public slots:
     void setGeneratedFilesFilterEnabled(bool filter);
 
 private slots:
+    void aboutToHasBuildTargetsChanged(ProjectExplorer::ProjectNode *node);
+    void hasBuildTargetsChanged(ProjectExplorer::ProjectNode *node);
     void foldersAboutToBeAdded(FolderNode *parentFolder, const QList<FolderNode*> &newFolders);
     void foldersAdded();
 

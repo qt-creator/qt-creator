@@ -241,6 +241,18 @@ QList<ProjectNode*> ProjectNode::subProjectNodes() const
     return m_subProjectNodes;
 }
 
+void ProjectNode::aboutToChangeHasBuildTargets()
+{
+    foreach (NodesWatcher *watcher, watchers())
+        emit watcher->aboutToChangeHasBuildTargets(this);
+}
+
+void ProjectNode::hasBuildTargetsChanged()
+{
+    foreach (NodesWatcher *watcher, watchers())
+        emit watcher->hasBuildTargetsChanged(this);
+}
+
 /*!
   \function bool ProjectNode::addSubProjects(const QStringList &)
   */

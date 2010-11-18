@@ -303,6 +303,7 @@ public:
 
     bool validParse() const;
 
+    bool hasBuildTargets(Qt4ProjectType projectType) const;
 public slots:
     void asyncUpdate();
 

@@ -178,6 +178,8 @@ public:
 
     // determines if the project will be shown in the flat view
     // TODO find a better name
+    void aboutToChangeHasBuildTargets();
+    void hasBuildTargetsChanged();
     virtual bool hasBuildTargets() const = 0;
 
     virtual QList<ProjectAction> supportedActions(Node *node) const = 0;
@@ -270,6 +272,10 @@ public:
     explicit NodesWatcher(QObject *parent = 0);
 
 signals:
+    // projects
+    void aboutToChangeHasBuildTargets(ProjectExplorer::ProjectNode*);
+    void hasBuildTargetsChanged(ProjectExplorer::ProjectNode *node);
+
     // folders & projects
     void foldersAboutToBeAdded(FolderNode *parentFolder,
                                const QList<FolderNode*> &newFolders);
