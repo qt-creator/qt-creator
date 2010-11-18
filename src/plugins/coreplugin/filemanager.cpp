@@ -297,34 +297,26 @@ void FileManager::renamedFile(const QString &from, QString &to)
 /// with renamed files and deleted files
 void FileManager::removeFileInfo(IFile *file)
 {
-    QString fileName;
     QMap<QString, Internal::FileState>::const_iterator it, end;
     end = d->m_states.constEnd();
     for (it = d->m_states.constBegin(); it != end; ++it) {
         if (it.value().lastUpdatedState.contains(file)) {
-            fileName = it.key();
+            removeFileInfo(it.key(), file);
             break;
         }
     }
 
-    removeFileInfo(fileName, file);
 }
 
+/* only called from removeFileInfo(IFile*) */
 void FileManager::removeFileInfo(const QString &fileName, IFile *file)
 {
-    const QString &fixedName = fixFileName(fileName);
-    if (d->m_states[fixedName].lastUpdatedState.contains(file)) {
-        d->m_states[fixedName].lastUpdatedState.remove(file);
-
-        if (d->m_states.value(fixedName).lastUpdatedState.isEmpty()) {
-            d->m_states.remove(fixedName);
-            if (!fixedName.isEmpty()) {
-                d->m_fileWatcher->removePath(fixedName);
-            }
-        }
-    } else {
-        // We could not find the fileinfo, try harder to remove it
-        removeFileInfo(file);
+    QTC_ASSERT(d->m_states.value(fileName).lastUpdatedState.contains(file), return);
+    d->m_states[fileName].lastUpdatedState.remove(file);
+    if (d->m_states.value(fileName).lastUpdatedState.isEmpty()) {
+        if (!fileName.isEmpty())
+            d->m_fileWatcher->removePath(fileName);
+        d->m_states.remove(fileName); // this deletes fileName
     }
 }
 
@@ -376,7 +368,7 @@ bool FileManager::removeFile(IFile *file)
     disconnect(file, SIGNAL(changed()), this, SLOT(checkForNewFileName()));
     disconnect(file, SIGNAL(destroyed(QObject *)), this, SLOT(fileDestroyed(QObject *)));
 
-    removeFileInfo(file->fileName(), file);
+    removeFileInfo(file);
     return true;
 }
 
