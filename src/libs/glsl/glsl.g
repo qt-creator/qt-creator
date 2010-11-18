@@ -740,14 +740,14 @@ case $rule_number: {
 unary_expression ::= INC_OP unary_expression ;
 /.
 case $rule_number: {
-    ast(1) = makeAstNode<UnaryExpression>(AST::Kind_PreIncrement, expression(1));
+    ast(1) = makeAstNode<UnaryExpression>(AST::Kind_PreIncrement, expression(2));
 }   break;
 ./
 
 unary_expression ::= DEC_OP unary_expression ;
 /.
 case $rule_number: {
-    ast(1) = makeAstNode<UnaryExpression>(AST::Kind_PreDecrement, expression(1));
+    ast(1) = makeAstNode<UnaryExpression>(AST::Kind_PreDecrement, expression(2));
 }   break;
 ./
 
@@ -936,7 +936,7 @@ case $rule_number: {
 exclusive_or_expression ::= exclusive_or_expression CARET and_expression ;
 /.
 case $rule_number: {
-    ast(1) = makeAstNode<BinaryExpression>(AST::Kind_BitwiseOr, expression(1), expression(3));
+    ast(1) = makeAstNode<BinaryExpression>(AST::Kind_BitwiseXor, expression(1), expression(3));
 }   break;
 ./
 
@@ -950,7 +950,7 @@ case $rule_number: {
 inclusive_or_expression ::= inclusive_or_expression VERTICAL_BAR exclusive_or_expression ;
 /.
 case $rule_number: {
-    ast(1) = makeAstNode<BinaryExpression>(AST::Kind_BitwiseXor, expression(1), expression(3));
+    ast(1) = makeAstNode<BinaryExpression>(AST::Kind_BitwiseOr, expression(1), expression(3));
 }   break;
 ./
 
@@ -1947,7 +1947,7 @@ case $rule_number: {
 type_specifier_nonarray ::= MAT2X2 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_MAT2X2, Type::Matrix);
+    ast(1) = makeBasicType(T_MAT2, Type::Matrix);
 }   break;
 ./
 
@@ -1975,7 +1975,7 @@ case $rule_number: {
 type_specifier_nonarray ::= MAT3X3 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_MAT3X3, Type::Matrix);
+    ast(1) = makeBasicType(T_MAT3, Type::Matrix);
 }   break;
 ./
 
@@ -2003,7 +2003,7 @@ case $rule_number: {
 type_specifier_nonarray ::= MAT4X4 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_MAT4X4, Type::Matrix);
+    ast(1) = makeBasicType(T_MAT4, Type::Matrix);
 }   break;
 ./
 
@@ -2031,7 +2031,7 @@ case $rule_number: {
 type_specifier_nonarray ::= DMAT2X2 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_DMAT2X2, Type::Matrix);
+    ast(1) = makeBasicType(T_DMAT2, Type::Matrix);
 }   break;
 ./
 
@@ -2059,7 +2059,7 @@ case $rule_number: {
 type_specifier_nonarray ::= DMAT3X3 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_DMAT3X3, Type::Matrix);
+    ast(1) = makeBasicType(T_DMAT3, Type::Matrix);
 }   break;
 ./
 
@@ -2087,7 +2087,7 @@ case $rule_number: {
 type_specifier_nonarray ::= DMAT4X4 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_DMAT4X4, Type::Matrix);
+    ast(1) = makeBasicType(T_DMAT4, Type::Matrix);
 }   break;
 ./
 
@@ -2841,8 +2841,6 @@ case $rule_number: {
         } else {
             sym(1).declaration_list = 0;
         }
-    } else {
-        sym(1).declaration_list = 0;
     }
 }   break;
 ./

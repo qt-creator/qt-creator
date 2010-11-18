@@ -332,13 +332,13 @@ case 25: {
 #line 741 "./glsl.g"
 
 case 26: {
-    ast(1) = makeAstNode<UnaryExpression>(AST::Kind_PreIncrement, expression(1));
+    ast(1) = makeAstNode<UnaryExpression>(AST::Kind_PreIncrement, expression(2));
 }   break;
 
 #line 748 "./glsl.g"
 
 case 27: {
-    ast(1) = makeAstNode<UnaryExpression>(AST::Kind_PreDecrement, expression(1));
+    ast(1) = makeAstNode<UnaryExpression>(AST::Kind_PreDecrement, expression(2));
 }   break;
 
 #line 755 "./glsl.g"
@@ -500,7 +500,7 @@ case 53: {
 #line 937 "./glsl.g"
 
 case 54: {
-    ast(1) = makeAstNode<BinaryExpression>(AST::Kind_BitwiseOr, expression(1), expression(3));
+    ast(1) = makeAstNode<BinaryExpression>(AST::Kind_BitwiseXor, expression(1), expression(3));
 }   break;
 
 #line 944 "./glsl.g"
@@ -512,7 +512,7 @@ case 55: {
 #line 951 "./glsl.g"
 
 case 56: {
-    ast(1) = makeAstNode<BinaryExpression>(AST::Kind_BitwiseXor, expression(1), expression(3));
+    ast(1) = makeAstNode<BinaryExpression>(AST::Kind_BitwiseOr, expression(1), expression(3));
 }   break;
 
 #line 958 "./glsl.g"
@@ -1382,7 +1382,7 @@ case 182: {
 #line 1948 "./glsl.g"
 
 case 183: {
-    ast(1) = makeBasicType(T_MAT2X2, Type::Matrix);
+    ast(1) = makeBasicType(T_MAT2, Type::Matrix);
 }   break;
 
 #line 1955 "./glsl.g"
@@ -1406,7 +1406,7 @@ case 186: {
 #line 1976 "./glsl.g"
 
 case 187: {
-    ast(1) = makeBasicType(T_MAT3X3, Type::Matrix);
+    ast(1) = makeBasicType(T_MAT3, Type::Matrix);
 }   break;
 
 #line 1983 "./glsl.g"
@@ -1430,7 +1430,7 @@ case 190: {
 #line 2004 "./glsl.g"
 
 case 191: {
-    ast(1) = makeBasicType(T_MAT4X4, Type::Matrix);
+    ast(1) = makeBasicType(T_MAT4, Type::Matrix);
 }   break;
 
 #line 2011 "./glsl.g"
@@ -1454,7 +1454,7 @@ case 194: {
 #line 2032 "./glsl.g"
 
 case 195: {
-    ast(1) = makeBasicType(T_DMAT2X2, Type::Matrix);
+    ast(1) = makeBasicType(T_DMAT2, Type::Matrix);
 }   break;
 
 #line 2039 "./glsl.g"
@@ -1478,7 +1478,7 @@ case 198: {
 #line 2060 "./glsl.g"
 
 case 199: {
-    ast(1) = makeBasicType(T_DMAT3X3, Type::Matrix);
+    ast(1) = makeBasicType(T_DMAT3, Type::Matrix);
 }   break;
 
 #line 2067 "./glsl.g"
@@ -1502,7 +1502,7 @@ case 202: {
 #line 2088 "./glsl.g"
 
 case 203: {
-    ast(1) = makeBasicType(T_DMAT4X4, Type::Matrix);
+    ast(1) = makeBasicType(T_DMAT4, Type::Matrix);
 }   break;
 
 #line 2095 "./glsl.g"
@@ -2152,42 +2152,40 @@ case 307: {
         } else {
             sym(1).declaration_list = 0;
         }
-    } else {
-        sym(1).declaration_list = 0;
     }
 }   break;
 
-#line 2851 "./glsl.g"
+#line 2849 "./glsl.g"
 
 case 308: {
     // nothing to do.
 }   break;
 
-#line 2858 "./glsl.g"
+#line 2856 "./glsl.g"
 
 case 309: {
     // nothing to do.
 }   break;
 
-#line 2865 "./glsl.g"
+#line 2863 "./glsl.g"
 
 case 310: {
     ast(1) = 0;
 }   break;
 
-#line 2872 "./glsl.g"
+#line 2870 "./glsl.g"
 
 case 311: {
     function(1)->body = statement(2);
 }   break;
 
-#line 2879 "./glsl.g"
+#line 2877 "./glsl.g"
 
 case 312: {
     ast(1) = 0;
 }   break;
 
-#line 2887 "./glsl.g"
+#line 2885 "./glsl.g"
 
 } // end switch
 } // end Parser::reduce()
