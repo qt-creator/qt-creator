@@ -44,6 +44,9 @@
 #include "cdbparsehelpers.h"
 #include "watchutils.h"
 #include "gdb/gdbmi.h"
+#include "shared/cdbsymbolpathlisteditor.h"
+
+#include <coreplugin/icore.h>
 
 #include <utils/winutils.h>
 #include <utils/qtcassert.h>
@@ -316,6 +319,11 @@ void CdbEngine::setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEd
 
 void CdbEngine::setupEngine()
 {
+    // Nag to add symbol server
+    if (Debugger::Internal::CdbSymbolPathListEditor::promptToAddSymbolServer(CdbOptions::settingsGroup(),
+                                                                             &(m_options->symbolPaths)))
+        m_options->toSettings(Core::ICore::instance()->settings());
+
     QString errorMessage;
     if (!doSetupEngine(&errorMessage)) { // Start engine which will run until initial breakpoint
         showMessage(errorMessage, LogError);

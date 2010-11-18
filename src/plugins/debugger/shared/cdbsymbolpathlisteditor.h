@@ -86,6 +86,9 @@ public:
     // Check for symbol server in list of paths.
     static int indexOfSymbolServerPath(const QStringList &paths, QString *cacheDir = 0);
 
+    // Nag user to add a symbol server to the path list on debugger startup.
+    static bool promptToAddSymbolServer(const QString &settingsGroup, QStringList *symbolPaths);
+
 private slots:
     void addSymbolServer();
 };

@@ -109,7 +109,6 @@ private slots:
     void warning(const QString &w);
 
 private:
-    void startupChecks();
     inline bool startAttachDebugger(qint64 pid, DebuggerStartMode sm, QString *errorMessage);
     void processTerminated(unsigned long exitCode);
     void evaluateWatcher(WatchData *wd);

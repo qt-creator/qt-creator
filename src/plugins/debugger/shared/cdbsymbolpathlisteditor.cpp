@@ -29,7 +29,10 @@
 
 #include "cdbsymbolpathlisteditor.h"
 
+#include <coreplugin/icore.h>
+
 #include <utils/pathchooser.h>
+#include <utils/checkablemessagebox.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QDebug>
@@ -39,6 +42,7 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QFormLayout>
 #include <QtGui/QMessageBox>
+#include <QtGui/QMainWindow>
 
 namespace Debugger {
 namespace Internal {
@@ -161,6 +165,42 @@ int CdbSymbolPathListEditor::indexOfSymbolServerPath(const QStringList &paths, Q
         if (CdbSymbolPathListEditor::isSymbolServerPath(paths.at(i), cacheDir))
             return i;
     return -1;
+}
+
+bool CdbSymbolPathListEditor::promptToAddSymbolServer(const QString &settingsGroup, QStringList *symbolPaths)
+{
+    // Check symbol server unless the user has an external/internal setup
+    if (!qgetenv("_NT_SYMBOL_PATH").isEmpty()
+            || CdbSymbolPathListEditor::indexOfSymbolServerPath(*symbolPaths) != -1)
+        return false;
+    // Prompt to use Symbol server unless the user checked "No nagging".
+    Core::ICore *core = Core::ICore::instance();
+    const QString nagSymbolServerKey = settingsGroup + QLatin1String("/NoPromptSymbolServer");
+    bool noFurtherNagging = core->settings()->value(nagSymbolServerKey, false).toBool();
+    if (noFurtherNagging)
+        return false;
+
+    const QString symServUrl = QLatin1String("http://support.microsoft.com/kb/311503");
+    const QString msg = tr("<html><head/><body><p>The debugger is not configured to use the public "
+                           "<a href=\"%1\">Microsoft Symbol Server</a>. This is recommended "
+                           "for retrieval of the symbols of the operating system libraries.</p>"
+                           "<p><i>Note:</i> A fast internet connection is required for this to work smoothly. Also, a delay "
+                           "might occur when connecting for the first time.</p>"
+                           "<p>Would you like to set it up?</p></br>"
+                           "</body></html>").arg(symServUrl);
+    const QDialogButtonBox::StandardButton answer =
+            Utils::CheckableMessageBox::question(core->mainWindow(), tr("Symbol Server"), msg,
+                                                 tr("Do not ask again"), &noFurtherNagging);
+    core->settings()->setValue(nagSymbolServerKey, noFurtherNagging);
+    if (answer == QDialogButtonBox::No)
+        return false;
+    // Prompt for path and add it. Synchronize QSetting and debugger.
+    const QString cacheDir = CdbSymbolPathListEditor::promptCacheDirectory(core->mainWindow());
+    if (cacheDir.isEmpty())
+        return false;
+
+    symbolPaths->push_back(CdbSymbolPathListEditor::symbolServerPath(cacheDir));
+    return true;
 }
 
 } // namespace Internal
