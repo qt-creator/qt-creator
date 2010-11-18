@@ -107,14 +107,12 @@ public:
     QStringList recentFiles() const;
 
 public slots:
-    bool addFiles(const QList<Core::IFile *> &files);
-    bool addFile(Core::IFile *file);
-    bool removeFile(Core::IFile *file);
+    void addFiles(const QList<Core::IFile *> &files);
+    void addFile(Core::IFile *file);
+    void removeFile(Core::IFile *file);
 
     QList<Core::IFile*> saveModifiedFilesSilently(const QList<Core::IFile*> &files);
     QString getSaveAsFileName(Core::IFile *file);
-
-    bool isFileManaged(const QString &fileName) const;
 
     void blockFileChange(Core::IFile *file);
     void unblockFileChange(Core::IFile *file);

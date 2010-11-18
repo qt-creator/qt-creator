@@ -144,19 +144,19 @@ FileManager *FileManagerPrototype::callee() const
     return rc;
 }
 
-bool FileManagerPrototype::addFiles(const QList<Core::IFile *> &files)
+void FileManagerPrototype::addFiles(const QList<Core::IFile *> &files)
 {
-    return callee()->addFiles(files);
+    callee()->addFiles(files);
 }
 
-bool FileManagerPrototype::addFile(Core::IFile *file)
+void FileManagerPrototype::addFile(Core::IFile *file)
 {
-    return callee()->addFile(file);
+    callee()->addFile(file);
 }
 
-bool FileManagerPrototype::removeFile(Core::IFile *file)
+void FileManagerPrototype::removeFile(Core::IFile *file)
 {
-    return callee()->removeFile(file);
+    callee()->removeFile(file);
 }
 
 QList<Core::IFile*>
@@ -168,11 +168,6 @@ FileManagerPrototype::saveModifiedFilesSilently(const QList<Core::IFile*> &files
 QString FileManagerPrototype::getSaveAsFileName(Core::IFile *file)
 {
     return callee()->getSaveAsFileName(file);
-}
-
-bool FileManagerPrototype::isFileManaged(const QString &fileName) const
-{
-    return callee()->isFileManaged(fileName);
 }
 
 void FileManagerPrototype::blockFileChange(Core::IFile *file)

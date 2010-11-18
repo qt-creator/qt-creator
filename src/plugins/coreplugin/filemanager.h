@@ -57,10 +57,9 @@ public:
     virtual ~FileManager();
 
     // file pool to monitor
-    bool addFiles(const QList<IFile *> &files, bool addWatcher = true);
-    bool addFile(IFile *file, bool addWatcher = true);
-    bool removeFile(IFile *file);
-    bool isFileManaged(const QString &fileName) const;
+    void addFiles(const QList<IFile *> &files, bool addWatcher = true);
+    void addFile(IFile *file, bool addWatcher = true);
+    void removeFile(IFile *file);
     QList<IFile *> modifiedFiles() const;
 
     void renamedFile(const QString &from, QString &to);

@@ -176,7 +176,7 @@ FileManager::~FileManager()
 
     Returns true if the file specified by \a files have not been yet part of the file list.
 */
-bool FileManager::addFiles(const QList<IFile *> &files, bool addWatcher)
+void FileManager::addFiles(const QList<IFile *> &files, bool addWatcher)
 {
     if (!addWatcher) {
         // We keep those in a separate list
@@ -185,10 +185,9 @@ bool FileManager::addFiles(const QList<IFile *> &files, bool addWatcher)
             connect(file, SIGNAL(destroyed(QObject *)), this, SLOT(fileDestroyed(QObject *)));
 
         d->m_filesWithoutWatch.append(files);
-        return true;
+        return;
     }
 
-    bool filesAdded = false;
     foreach (IFile *file, files) {
         if (!file)
             continue;
@@ -197,11 +196,9 @@ bool FileManager::addFiles(const QList<IFile *> &files, bool addWatcher)
             continue;
         connect(file, SIGNAL(changed()), this, SLOT(checkForNewFileName()));
         connect(file, SIGNAL(destroyed(QObject *)), this, SLOT(fileDestroyed(QObject *)));
-        filesAdded = true;
 
         addFileInfo(file);
     }
-    return filesAdded;
 }
 
 void FileManager::addFileInfo(IFile *file)
@@ -329,9 +326,9 @@ void FileManager::removeFileInfo(const QString &fileName, IFile *file)
 
     Returns true if the file specified by \a file has not been yet part of the file list.
 */
-bool FileManager::addFile(IFile *file, bool addWatcher)
+void FileManager::addFile(IFile *file, bool addWatcher)
 {
-    return addFiles(QList<IFile *>() << file, addWatcher);
+    addFiles(QList<IFile *>() << file, addWatcher);
 }
 
 void FileManager::fileDestroyed(QObject *obj)
@@ -353,23 +350,22 @@ void FileManager::fileDestroyed(QObject *obj)
 
     Returns true if the file specified by \a file has been part of the file list.
 */
-bool FileManager::removeFile(IFile *file)
+void FileManager::removeFile(IFile *file)
 {
     if (!file)
-        return false;
+        return;
 
     // Special casing unwatched files
     if (d->m_filesWithoutWatch.contains(file)) {
         disconnect(file, SIGNAL(destroyed(QObject *)), this, SLOT(fileDestroyed(QObject *)));
         d->m_filesWithoutWatch.removeOne(file);
-        return true;
+        return;
     }
 
     disconnect(file, SIGNAL(changed()), this, SLOT(checkForNewFileName()));
     disconnect(file, SIGNAL(destroyed(QObject *)), this, SLOT(fileDestroyed(QObject *)));
 
     removeFileInfo(file);
-    return true;
 }
 
 void FileManager::checkForNewFileName()
@@ -410,21 +406,6 @@ QString FileManager::fixFileName(const QString &fileName)
     s = s.toLower();
 #endif
     return s;
-}
-
-/*!
-    \fn bool FileManager::isFileManaged(const QString  &fileName) const
-
-    Returns true if at least one IFile in the set points to \a fileName.
-*/
-bool FileManager::isFileManaged(const QString &fileName) const
-{
-    if (fileName.isEmpty())
-        return false;
-
-    // TOOD check d->m_filesWithoutWatch
-
-    return !d->m_states.contains(fixFileName(fileName));
 }
 
 /*!
