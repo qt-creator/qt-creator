@@ -1029,7 +1029,9 @@ bool BreakHandler::BreakpointItem::isLocatedAt
     (const QString &fileName, int lineNumber, bool useMarkerPosition) const
 {
     int line = useMarkerPosition ? response.lineNumber : data.lineNumber;
-    return lineNumber == line && fileNameMatch(fileName, response.fileName);
+    return lineNumber == line
+        && (fileNameMatch(fileName, response.fileName)
+            || fileNameMatch(fileName, markerFileName()));
 }
 
 QIcon BreakHandler::BreakpointItem::icon() const
