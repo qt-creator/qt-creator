@@ -573,7 +573,7 @@ public:
 
     inline QByteArray saveState() const { return e->saveState(); }
     inline bool restoreState(const QByteArray &state) { return e->restoreState(state); }
-    QWidget *toolBar();
+    virtual QWidget *toolBar();
 
     // ITextEditor
     int find(const QString &string) const;

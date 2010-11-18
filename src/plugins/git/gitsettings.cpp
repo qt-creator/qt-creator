@@ -44,7 +44,8 @@ static const char timeoutKeyC[] = "TimeOut";
 static const char pullRebaseKeyC[] = "PullRebase";
 static const char promptToSubmitKeyC[] = "PromptForSubmit";
 static const char omitAnnotationDateKeyC[] = "OmitAnnotationDate";
-static const char ignoreSpaceChangesC[] = "SpaceIgnorantBlame";
+static const char ignoreSpaceChangesBlameKeyC[] = "SpaceIgnorantBlame";
+static const char ignoreSpaceChangesDiffKeyC[] = "SpaceIgnorantDiff";
 static const char diffPatienceKeyC[] = "DiffPatience";
 static const char winSetHomeEnvironmentKeyC[] = "WinSetHomeEnvironment";
 static const char gitkOptionsKeyC[] = "GitKOptions";
@@ -69,7 +70,8 @@ GitSettings::GitSettings() :
     pullRebase(bool(defaultPullRebase)),
     promptToSubmit(true),
     omitAnnotationDate(false),
-    ignoreSpaceChanges(true),
+    ignoreSpaceChangesInDiff(false),
+    ignoreSpaceChangesInBlame(true),
     diffPatience(true),
     winSetHomeEnvironment(false)
 {
@@ -85,7 +87,8 @@ void GitSettings::fromSettings(QSettings *settings)
     pullRebase = settings->value(QLatin1String(pullRebaseKeyC), bool(defaultPullRebase)).toBool();
     promptToSubmit = settings->value(QLatin1String(promptToSubmitKeyC), true).toBool();
     omitAnnotationDate = settings->value(QLatin1String(omitAnnotationDateKeyC), false).toBool();
-    ignoreSpaceChanges = settings->value(QLatin1String(ignoreSpaceChangesC), true).toBool();
+    ignoreSpaceChangesInDiff = settings->value(QLatin1String(ignoreSpaceChangesDiffKeyC), true).toBool();
+    ignoreSpaceChangesInBlame = settings->value(QLatin1String(ignoreSpaceChangesBlameKeyC), true).toBool();
     diffPatience = settings->value(QLatin1String(diffPatienceKeyC), true).toBool();
     winSetHomeEnvironment = settings->value(QLatin1String(winSetHomeEnvironmentKeyC), false).toBool();
     gitkOptions = settings->value(QLatin1String(gitkOptionsKeyC)).toString();
@@ -102,7 +105,8 @@ void GitSettings::toSettings(QSettings *settings) const
     settings->setValue(QLatin1String(pullRebaseKeyC), pullRebase);
     settings->setValue(QLatin1String(promptToSubmitKeyC), promptToSubmit);
     settings->setValue(QLatin1String(omitAnnotationDateKeyC), omitAnnotationDate);
-    settings->setValue(QLatin1String(ignoreSpaceChangesC), ignoreSpaceChanges);
+    settings->setValue(QLatin1String(ignoreSpaceChangesDiffKeyC), ignoreSpaceChangesInDiff);
+    settings->setValue(QLatin1String(ignoreSpaceChangesBlameKeyC), ignoreSpaceChangesInBlame);
     settings->setValue(QLatin1String(diffPatienceKeyC), diffPatience);
     settings->setValue(QLatin1String(winSetHomeEnvironmentKeyC), winSetHomeEnvironment);
     settings->setValue(QLatin1String(gitkOptionsKeyC), gitkOptions);
@@ -114,7 +118,9 @@ bool GitSettings::equals(const GitSettings &s) const
     return adoptPath == s.adoptPath && path == s.path && logCount == s.logCount
            && timeoutSeconds == s.timeoutSeconds && promptToSubmit == s.promptToSubmit
            && pullRebase == s.pullRebase
-           && omitAnnotationDate == s.omitAnnotationDate && ignoreSpaceChanges == s.ignoreSpaceChanges
+           && omitAnnotationDate == s.omitAnnotationDate
+           && ignoreSpaceChangesInBlame == s.ignoreSpaceChangesInBlame
+           && ignoreSpaceChangesInDiff == s.ignoreSpaceChangesInDiff
            && diffPatience == s.diffPatience && winSetHomeEnvironment == s.winSetHomeEnvironment
            && gitkOptions == s.gitkOptions;
 }

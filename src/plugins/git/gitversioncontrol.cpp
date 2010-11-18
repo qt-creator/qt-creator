@@ -232,7 +232,7 @@ bool GitVersionControl::managesDirectory(const QString &directory, QString *topL
 bool GitVersionControl::vcsAnnotate(const QString &file, int line)
 {
     const QFileInfo fi(file);
-    gitClient()->blame(fi.absolutePath(), fi.fileName(), QString(), line);
+    gitClient()->blame(fi.absolutePath(), QStringList(), fi.fileName(), QString(), line);
     return true;
 }
 

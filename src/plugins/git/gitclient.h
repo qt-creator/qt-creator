@@ -1,4 +1,4 @@
-/**************************************************************************
+ /**************************************************************************
 **
 ** This file is part of Qt Creator
 **
@@ -37,8 +37,10 @@
 
 #include <QtCore/QString>
 #include <QtCore/QStringList>
+#include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
+class QCheckBox;
 class QErrorMessage;
 class QSignalMapper;
 class QDebug;
@@ -91,7 +93,7 @@ public:
     void graphLog(const QString &workingDirectory, const QString &branch);
     void log(const QString &workingDirectory, const QStringList &fileNames,
              bool enableAnnotationContextMenu = false);
-    void blame(const QString &workingDirectory, const QString &fileName,
+    void blame(const QString &workingDirectory, const QStringList &args, const QString &fileName,
                const QString &revision = QString(), int lineNumber = -1);
     void checkout(const QString &workingDirectory, const QString &file);
     void checkoutBranch(const QString &workingDirectory, const QString &branch);
@@ -229,12 +231,15 @@ private slots:
     void slotBlameRevisionRequested(const QString &source, QString change, int lineNumber);
 
 private:
+    VCSBase::VCSBaseEditor *findExistingVCSEditor(const char *registerDynamicProperty,
+                                                  const QString &dynamicPropertyValue) const;
     VCSBase::VCSBaseEditor *createVCSEditor(const QString &kind,
-                                                 QString title,
-                                                 const QString &source,
-                                                 bool setSourceCodec,
-                                                 const char *registerDynamicProperty,
-                                                 const QString &dynamicPropertyValue) const;
+                                            QString title,
+                                            const QString &source,
+                                            bool setSourceCodec,
+                                            const char *registerDynamicProperty,
+                                            const QString &dynamicPropertyValue,
+                                            QWidget *configWidget) const;
 
     GitCommand *createCommand(const QString &workingDirectory,
                              VCSBase::VCSBaseEditor* editor = 0,
@@ -286,6 +291,28 @@ private:
     QSignalMapper *m_repositoryChangedSignalMapper;
     unsigned      m_cachedGitVersion;
     bool          m_hasCachedGitVersion;
+};
+
+class BaseGitArgumentsWidget : public QWidget {
+    Q_OBJECT
+
+public:
+    BaseGitArgumentsWidget(GitSettings *settings,
+                           GitClient *client, const QString &directory,
+                           const QStringList &args);
+
+    virtual QStringList arguments() const = 0;
+    virtual void redoCommand() = 0;
+
+protected slots:
+    virtual void testForArgumentsChanged() = 0;
+
+protected:
+    GitClient *m_client;
+
+    const QString m_workingDirectory;
+    QStringList m_diffArgs;
+    GitSettings *m_settings;
 };
 
 } // namespace Internal

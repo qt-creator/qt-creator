@@ -65,10 +65,232 @@
 
 #include <QtGui/QMainWindow> // for msg box parent
 #include <QtGui/QMessageBox>
-#include <QtGui/QPushButton>
+#include <QtGui/QToolButton>
 
 static const char *const kGitDirectoryC = ".git";
 static const char *const kBranchIndicatorC = "# On branch";
+
+namespace Git {
+namespace Internal {
+
+BaseGitArgumentsWidget::BaseGitArgumentsWidget(GitSettings *settings,
+                                               Git::Internal::GitClient *client,
+                                               const QString &directory,
+                                               const QStringList &args) :
+    QWidget(0),
+    m_client(client),
+    m_workingDirectory(directory),
+    m_diffArgs(args),
+    m_settings(settings)
+{
+    Q_ASSERT(settings);
+    Q_ASSERT(client);
+}
+
+} // namespace Internal
+} // namespace Git
+
+namespace {
+
+class BaseGitDiffArgumentsWidget : public Git::Internal::BaseGitArgumentsWidget
+{
+public:
+    BaseGitDiffArgumentsWidget(Git::Internal::GitSettings *settings,
+                               Git::Internal::GitClient *client,
+                               const QString &directory,
+                               const QStringList &args) :
+        BaseGitArgumentsWidget(settings, client, directory, args),
+        m_patience(0),
+        m_ignoreSpaces(0)
+    {
+        QHBoxLayout * layout = new QHBoxLayout(this);
+        layout->setContentsMargins(3, 0, 3, 0);
+
+        m_patience = new QToolButton;
+        m_patience->setText(tr("Patience"));
+        layout->addWidget(m_patience);
+        m_patience->setCheckable(true);
+        m_patience->setChecked(m_settings->diffPatience);
+        connect(m_patience, SIGNAL(toggled(bool)), this, SLOT(testForArgumentsChanged()));
+
+        m_ignoreSpaces = new QToolButton;
+        m_ignoreSpaces->setText(tr("Ignore Whitespace"));
+        layout->addWidget(m_ignoreSpaces);
+        m_ignoreSpaces->setCheckable(true);
+        m_ignoreSpaces->setChecked(m_settings->ignoreSpaceChangesInDiff);
+        connect(m_ignoreSpaces, SIGNAL(toggled(bool)), this, SLOT(testForArgumentsChanged()));
+    }
+
+    QStringList arguments() const
+    {
+        QStringList args = m_diffArgs;
+
+        args.removeAll(QLatin1String("--patience"));
+        args.removeAll(QLatin1String("--ignore-space-change"));
+
+        if (m_patience->isChecked())
+            args.prepend(QLatin1String("--patience"));
+        if (m_ignoreSpaces->isChecked())
+            args.prepend(QLatin1String("--ignore-space-change"));
+
+        return args;
+    }
+
+    void testForArgumentsChanged() {
+        m_settings->diffPatience = m_patience->isChecked();
+        m_settings->ignoreSpaceChangesInDiff = m_ignoreSpaces->isChecked();
+
+        QStringList newArguments = arguments();
+
+        if (newArguments == m_diffArgs)
+            return;
+
+        m_diffArgs = newArguments;
+        redoCommand();
+    }
+
+private:
+    QToolButton *m_patience;
+    QToolButton *m_ignoreSpaces;
+};
+
+class GitCommitDiffArgumentsWidget : public BaseGitDiffArgumentsWidget
+{
+public:
+    GitCommitDiffArgumentsWidget(Git::Internal::GitSettings *settings,
+                                 Git::Internal::GitClient *client, const QString &directory,
+                                 const QStringList &args, const QStringList &unstaged,
+                                 const QStringList &staged) :
+        BaseGitDiffArgumentsWidget(settings, client, directory, args),
+        m_unstagedFileNames(unstaged),
+        m_stagedFileNames(staged)
+    { }
+
+    void redoCommand()
+    {
+        m_client->diff(m_workingDirectory, m_diffArgs, m_unstagedFileNames, m_stagedFileNames);
+    }
+
+private:
+    const QStringList m_unstagedFileNames;
+    const QStringList m_stagedFileNames;
+};
+
+class GitFileDiffArgumentsWidget : public BaseGitDiffArgumentsWidget
+{
+public:
+    GitFileDiffArgumentsWidget(Git::Internal::GitSettings *settings,
+                               Git::Internal::GitClient *client, const QString &directory,
+                               const QStringList &args, const QString &file) :
+        BaseGitDiffArgumentsWidget(settings, client, directory, args),
+        m_fileName(file)
+    { }
+
+    void redoCommand()
+    {
+        m_client->diff(m_workingDirectory, m_diffArgs, m_fileName);
+    }
+
+private:
+    const QString m_fileName;
+};
+
+class GitBranchDiffArgumentsWidget : public BaseGitDiffArgumentsWidget
+{
+public:
+    GitBranchDiffArgumentsWidget(Git::Internal::GitSettings *settings,
+                                 Git::Internal::GitClient *client, const QString &directory,
+                                 const QStringList &args, const QString &branch) :
+        BaseGitDiffArgumentsWidget(settings, client, directory, args),
+        m_branchName(branch)
+    { }
+
+    void redoCommand()
+    {
+        m_client->diffBranch(m_workingDirectory, m_diffArgs, m_branchName);
+    }
+
+private:
+    const QString m_branchName;
+};
+
+class GitBlameArgumentsWidget : public Git::Internal::BaseGitArgumentsWidget
+{
+public:
+    GitBlameArgumentsWidget(Git::Internal::GitSettings *settings,
+                            Git::Internal::GitClient *client, const QString &directory,
+                            const QStringList &args, const QString &revision,
+                            const QString &fileName) :
+        Git::Internal::BaseGitArgumentsWidget(settings, client, directory, args),
+        m_omitDate(0),
+        m_ignoreSpaces(0),
+        m_editor(0),
+        m_revision(revision),
+        m_fileName(fileName)
+    {
+        QHBoxLayout * layout = new QHBoxLayout(this);
+        layout->setContentsMargins(3, 0, 3, 0);
+
+        m_omitDate = new QToolButton;
+        m_omitDate->setText(tr("Omit Date"));
+        layout->addWidget(m_omitDate);
+        m_omitDate->setCheckable(true);
+        m_omitDate->setChecked(m_settings->omitAnnotationDate);
+        m_omitDate->setMinimumHeight(16);
+        m_omitDate->setMaximumHeight(16);
+        connect(m_omitDate, SIGNAL(toggled(bool)), this, SLOT(testForArgumentsChanged()));
+
+        m_ignoreSpaces = new QToolButton;
+        m_ignoreSpaces->setText(tr("Ignore Whitespace"));
+        layout->addWidget(m_ignoreSpaces);
+        m_ignoreSpaces->setCheckable(true);
+        m_ignoreSpaces->setChecked(m_settings->ignoreSpaceChangesInBlame);
+        m_ignoreSpaces->setMinimumHeight(16);
+        m_ignoreSpaces->setMaximumHeight(16);
+        connect(m_ignoreSpaces, SIGNAL(toggled(bool)), this, SLOT(testForArgumentsChanged()));
+    }
+
+    void setEditor(VCSBase::VCSBaseEditor *editor)
+    {
+        Q_ASSERT(editor);
+        m_editor = editor;
+    }
+
+    QStringList arguments() const
+    {
+        QStringList args = m_diffArgs;
+
+        args.removeAll(QLatin1String("-w"));
+
+        if (m_ignoreSpaces->isChecked())
+            args.prepend(QLatin1String("-w"));
+
+        return args;
+    }
+
+    void testForArgumentsChanged() {
+        m_settings->omitAnnotationDate = m_omitDate->isChecked();
+        m_settings->ignoreSpaceChangesInBlame = m_ignoreSpaces->isChecked();
+
+        m_diffArgs = arguments();
+        redoCommand(); // always redo for omit date
+    }
+
+    void redoCommand()
+    {
+        m_client->blame(m_workingDirectory, m_diffArgs, m_fileName,
+                        m_revision, m_editor->lineNumberOfCurrentEditor());
+    }
+
+private:
+    QToolButton *m_omitDate;
+    QToolButton *m_ignoreSpaces;
+    VCSBase::VCSBaseEditor *m_editor;
+    QString m_revision;
+    QString m_fileName;
+};
+
+} // namespace
 
 inline Core::IEditor* locateEditor(const Core::ICore *core, const char *property, const QString &entry)
 {
@@ -147,41 +369,56 @@ QString GitClient::findRepositoryForDirectory(const QString &dir)
     return VCSBase::VCSBasePlugin::findRepositoryForDirectory(dir, checkFile);
 }
 
+VCSBase::VCSBaseEditor *GitClient::findExistingVCSEditor(const char *registerDynamicProperty,
+                                                         const QString &dynamicPropertyValue) const
+{
+    VCSBase::VCSBaseEditor *rc = 0;
+    Core::IEditor *outputEditor = locateEditor(m_core, registerDynamicProperty, dynamicPropertyValue);
+    if (!outputEditor)
+        return 0;
+
+     // Exists already
+    outputEditor->createNew(m_msgWait);
+    rc = VCSBase::VCSBaseEditor::getVcsBaseEditor(outputEditor);
+
+    return rc;
+}
+
+
 /* Create an editor associated to VCS output of a source file/directory
  * (using the file's codec). Makes use of a dynamic property to find an
  * existing instance and to reuse it (in case, say, 'git diff foo' is
  * already open). */
-VCSBase::VCSBaseEditor
-    *GitClient::createVCSEditor(const QString &id,
-                                QString title,
-                                // Source file or directory
-                                const QString &source,
-                                bool setSourceCodec,
-                                // Dynamic property and value to identify that editor
-                                const char *registerDynamicProperty,
-                                const QString &dynamicPropertyValue) const
+VCSBase::VCSBaseEditor *GitClient::createVCSEditor(const QString &id,
+                                                   QString title,
+                                                   // Source file or directory
+                                                   const QString &source,
+                                                   bool setSourceCodec,
+                                                   // Dynamic property and value to identify that editor
+                                                   const char *registerDynamicProperty,
+                                                   const QString &dynamicPropertyValue,
+                                                   QWidget *configWidget) const
 {
     VCSBase::VCSBaseEditor *rc = 0;
-    Core::IEditor* outputEditor = locateEditor(m_core, registerDynamicProperty, dynamicPropertyValue);
-    if (outputEditor) {
-         // Exists already
-        outputEditor->createNew(m_msgWait);
-        rc = VCSBase::VCSBaseEditor::getVcsBaseEditor(outputEditor);
-        QTC_ASSERT(rc, return 0);
-    } else {
-        // Create new, set wait message, set up with source and codec
-        outputEditor = m_core->editorManager()->openEditorWithContents(id, &title, m_msgWait);
-        outputEditor->file()->setProperty(registerDynamicProperty, dynamicPropertyValue);
-        rc = VCSBase::VCSBaseEditor::getVcsBaseEditor(outputEditor);
-        connect(rc, SIGNAL(annotateRevisionRequested(QString,QString,int)),
-                this, SLOT(slotBlameRevisionRequested(QString,QString,int)));
-        QTC_ASSERT(rc, return 0);
-        rc->setSource(source);
-        if (setSourceCodec)
-            rc->setCodec(VCSBase::VCSBaseEditor::getCodec(source));
-    }
+    Q_ASSERT(!findExistingVCSEditor(registerDynamicProperty, dynamicPropertyValue));
+
+    // Create new, set wait message, set up with source and codec
+    Core::IEditor *outputEditor = m_core->editorManager()->openEditorWithContents(id, &title, m_msgWait);
+    outputEditor->file()->setProperty(registerDynamicProperty, dynamicPropertyValue);
+    rc = VCSBase::VCSBaseEditor::getVcsBaseEditor(outputEditor);
+    connect(rc, SIGNAL(annotateRevisionRequested(QString,QString,int)),
+            this, SLOT(slotBlameRevisionRequested(QString,QString,int)));
+    QTC_ASSERT(rc, return 0);
+    rc->setSource(source);
+    if (setSourceCodec)
+        rc->setCodec(VCSBase::VCSBaseEditor::getCodec(source));
+
     m_core->editorManager()->activateEditor(outputEditor, Core::EditorManager::ModeSwitch);
     rc->setForceReadOnly(true);
+
+    if (configWidget)
+        rc->setConfigurationWidget(configWidget);
+
     return rc;
 }
 
@@ -198,7 +435,17 @@ void GitClient::diff(const QString &workingDirectory,
     const QString editorId = QLatin1String(Git::Constants::GIT_DIFF_EDITOR_ID);
     const QString title = tr("Git Diff");
 
-    VCSBase::VCSBaseEditor *editor = createVCSEditor(editorId, title, workingDirectory, true, "originalFileName", workingDirectory);
+    QStringList userDiffArgs = diffArgs;
+    VCSBase::VCSBaseEditor *editor = findExistingVCSEditor("originalFileName", workingDirectory);
+    if (!editor) {
+        GitCommitDiffArgumentsWidget *argWidget =
+                new GitCommitDiffArgumentsWidget(&m_settings, this, workingDirectory, diffArgs,
+                                                 unstagedFileNames, stagedFileNames);
+        userDiffArgs = argWidget->arguments();
+
+        editor = createVCSEditor(editorId, title,
+                                 workingDirectory, true, "originalFileName", workingDirectory, argWidget);
+    }
     editor->setDiffBaseDirectory(workingDirectory);
 
     // Create a batch of 2 commands to be run after each other in case
@@ -206,27 +453,27 @@ void GitClient::diff(const QString &workingDirectory,
     // when using the submit dialog.
     GitCommand *command = createCommand(workingDirectory, editor);
     // Directory diff?
-    QStringList commonDiffArgs;
-    commonDiffArgs << QLatin1String("diff") << QLatin1String(noColorOption);
-    if (m_settings.diffPatience)
-        commonDiffArgs << QLatin1String("--patience");
-    if (m_settings.ignoreSpaceChanges)
-        commonDiffArgs << QLatin1String("--ignore-space-change");
+
+    QStringList cmdArgs;
+    cmdArgs << QLatin1String("diff") << QLatin1String(noColorOption);
+
     if (unstagedFileNames.empty() && stagedFileNames.empty()) {
-       QStringList arguments(commonDiffArgs);
-       arguments << diffArgs;
+       QStringList arguments(cmdArgs);
+       arguments << userDiffArgs;
        outputWindow()->appendCommand(workingDirectory, binary, arguments);
        command->addJob(arguments, m_settings.timeoutSeconds);
     } else {
         // Files diff.
         if (!unstagedFileNames.empty()) {
-           QStringList arguments(commonDiffArgs);
+           QStringList arguments(cmdArgs);
+           arguments << userDiffArgs;
            arguments << QLatin1String("--") << unstagedFileNames;
            outputWindow()->appendCommand(workingDirectory, binary, arguments);
            command->addJob(arguments, m_settings.timeoutSeconds);
         }
         if (!stagedFileNames.empty()) {
-           QStringList arguments(commonDiffArgs);
+           QStringList arguments(cmdArgs);
+           arguments << userDiffArgs;
            arguments << QLatin1String("--cached") << diffArgs << QLatin1String("--") << stagedFileNames;
            outputWindow()->appendCommand(workingDirectory, binary, arguments);
            command->addJob(arguments, m_settings.timeoutSeconds);
@@ -239,18 +486,32 @@ void GitClient::diff(const QString &workingDirectory,
                      const QStringList &diffArgs,
                      const QString &fileName)
 {
-    if (Git::Constants::debug)
-        qDebug() << "diff" << workingDirectory << fileName;
-    QStringList arguments;
-    arguments << QLatin1String("diff") << QLatin1String(noColorOption)
-              << diffArgs;
-    if (!fileName.isEmpty())
-        arguments << QLatin1String("--") << fileName;
+    // if (Git::Constants::debug)
+        qDebug() << "diff" << workingDirectory << fileName << diffArgs;
+
+
     const QString editorId = QLatin1String(Git::Constants::GIT_DIFF_EDITOR_ID);
     const QString title = tr("Git Diff %1").arg(fileName);
     const QString sourceFile = VCSBase::VCSBaseEditor::getSource(workingDirectory, fileName);
-    VCSBase::VCSBaseEditor *editor = createVCSEditor(editorId, title, sourceFile, true, "originalFileName", sourceFile);
-    executeGit(workingDirectory, arguments, editor);
+
+    QStringList userDiffArgs = diffArgs;
+    VCSBase::VCSBaseEditor *editor = findExistingVCSEditor("originalFileName", sourceFile);
+    if (!editor) {
+        GitFileDiffArgumentsWidget *argWidget =
+                new GitFileDiffArgumentsWidget(&m_settings, this, workingDirectory,
+                                               diffArgs, fileName);
+        userDiffArgs = argWidget->arguments();
+
+        editor = createVCSEditor(editorId, title, sourceFile, true, "originalFileName", sourceFile, argWidget);
+    }
+
+    QStringList cmdArgs;
+    cmdArgs << QLatin1String("diff") << QLatin1String(noColorOption)
+              << userDiffArgs;
+
+    if (!fileName.isEmpty())
+        cmdArgs << QLatin1String("--") << fileName;
+    executeGit(workingDirectory, cmdArgs, editor);
 }
 
 void GitClient::diffBranch(const QString &workingDirectory,
@@ -259,16 +520,27 @@ void GitClient::diffBranch(const QString &workingDirectory,
 {
     if (Git::Constants::debug)
         qDebug() << "diffBranch" << workingDirectory << branchName;
-    QStringList arguments;
-    arguments << QLatin1String("diff") << QLatin1String(noColorOption)
-              << diffArgs  << branchName;
 
     const QString editorId = QLatin1String(Git::Constants::GIT_DIFF_EDITOR_ID);
     const QString title = tr("Git Diff Branch %1").arg(branchName);
     const QString sourceFile = VCSBase::VCSBaseEditor::getSource(workingDirectory, QStringList());
-    VCSBase::VCSBaseEditor *editor = createVCSEditor(editorId, title, sourceFile, true,
-                                                     "BranchName", branchName);
-    executeGit(workingDirectory, arguments, editor);
+
+    QStringList userDiffArgs = diffArgs;
+    VCSBase::VCSBaseEditor *editor = findExistingVCSEditor("BranchName", branchName);
+    if (!editor) {
+        GitBranchDiffArgumentsWidget *argWidget =
+                new GitBranchDiffArgumentsWidget(&m_settings, this, workingDirectory,
+                                                 diffArgs, branchName);
+        userDiffArgs = argWidget->arguments();
+
+        editor = createVCSEditor(editorId, title, sourceFile, true, "BranchName", branchName, argWidget);
+    }
+
+    QStringList cmdArgs;
+    cmdArgs << QLatin1String("diff") << QLatin1String(noColorOption)
+              << diffArgs  << branchName;
+
+    executeGit(workingDirectory, cmdArgs, editor);
 }
 
 void GitClient::status(const QString &workingDirectory)
@@ -308,7 +580,9 @@ void GitClient::graphLog(const QString &workingDirectory, const QString & branch
     }
     const QString editorId = QLatin1String(Git::Constants::GIT_LOG_EDITOR_ID);
     const QString sourceFile = VCSBase::VCSBaseEditor::getSource(workingDirectory, QStringList());
-    VCSBase::VCSBaseEditor *editor = createVCSEditor(editorId, title, sourceFile, false, "logFileName", sourceFile);
+    VCSBase::VCSBaseEditor *editor = findExistingVCSEditor("logFileName", sourceFile);
+    if (!editor)
+        editor = createVCSEditor(editorId, title, sourceFile, false, "logFileName", sourceFile, 0);
     executeGit(workingDirectory, arguments, editor);
 }
 
@@ -331,7 +605,9 @@ void GitClient::log(const QString &workingDirectory, const QStringList &fileName
     const QString title = tr("Git Log %1").arg(msgArg);
     const QString editorId = QLatin1String(Git::Constants::GIT_LOG_EDITOR_ID);
     const QString sourceFile = VCSBase::VCSBaseEditor::getSource(workingDirectory, fileNames);
-    VCSBase::VCSBaseEditor *editor = createVCSEditor(editorId, title, sourceFile, false, "logFileName", sourceFile);
+    VCSBase::VCSBaseEditor *editor = findExistingVCSEditor("logFileName", sourceFile);
+    if (!editor)
+        editor = createVCSEditor(editorId, title, sourceFile, false, "logFileName", sourceFile, 0);
     editor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
     executeGit(workingDirectory, arguments, editor);
 }
@@ -365,7 +641,9 @@ void GitClient::show(const QString &source, const QString &id)
 
     const QString title =  tr("Git Show %1").arg(id);
     const QString editorId = QLatin1String(Git::Constants::GIT_DIFF_EDITOR_ID);
-    VCSBase::VCSBaseEditor *editor = createVCSEditor(editorId, title, source, true, "show", id);
+    VCSBase::VCSBaseEditor *editor = findExistingVCSEditor("show", id);
+    if (!editor)
+        editor = createVCSEditor(editorId, title, source, true, "show", id, 0);
 
     const QFileInfo sourceFi(source);
     const QString workDir = sourceFi.isDir() ? sourceFi.absoluteFilePath() : sourceFi.absolutePath();
@@ -380,29 +658,41 @@ void GitClient::slotBlameRevisionRequested(const QString &source, QString change
     if (blankPos != -1)
         change.truncate(blankPos);
     const QFileInfo fi(source);
-    blame(fi.absolutePath(), fi.fileName(), change, lineNumber);
+    blame(fi.absolutePath(), QStringList(), fi.fileName(), change, lineNumber);
 }
 
 void GitClient::blame(const QString &workingDirectory,
+                      const QStringList &args,
                       const QString &fileName,
                       const QString &revision /* = QString() */,
                       int lineNumber /* = -1 */)
 {
     if (Git::Constants::debug)
-        qDebug() << "blame" << workingDirectory << fileName << lineNumber;
-    QStringList arguments(QLatin1String("blame"));
-    arguments << QLatin1String("--root");
-    if (m_plugin->settings().ignoreSpaceChanges)
-        arguments << QLatin1String("-w");
-    arguments << QLatin1String("--") << fileName;
-    if (!revision.isEmpty())
-        arguments << revision;
+        qDebug() << "blame" << workingDirectory << fileName << lineNumber << args;
+
     const QString editorId = QLatin1String(Git::Constants::GIT_BLAME_EDITOR_ID);
     const QString id = VCSBase::VCSBaseEditor::getTitleId(workingDirectory, QStringList(fileName), revision);
     const QString title = tr("Git Blame %1").arg(id);
     const QString sourceFile = VCSBase::VCSBaseEditor::getSource(workingDirectory, fileName);
 
-    VCSBase::VCSBaseEditor *editor = createVCSEditor(editorId, title, sourceFile, true, "blameFileName", id);
+    QStringList userBlameArgs = args;
+    VCSBase::VCSBaseEditor *editor = findExistingVCSEditor("blameFileName", id);
+    if (!editor) {
+        GitBlameArgumentsWidget *argWidget =
+                new GitBlameArgumentsWidget(&m_settings, this, workingDirectory, userBlameArgs,
+                                            revision, fileName);
+        editor = createVCSEditor(editorId, title, sourceFile, true, "blameFileName", id, argWidget);
+        argWidget->setEditor(editor);
+
+        userBlameArgs = argWidget->arguments();
+    }
+
+    QStringList arguments(QLatin1String("blame"));
+    arguments << QLatin1String("--root");
+    arguments.append(userBlameArgs);
+    arguments << QLatin1String("--") << fileName;
+    if (!revision.isEmpty())
+        arguments << revision;
     executeGit(workingDirectory, arguments, editor, false, GitCommand::NoReport, lineNumber);
 }
 
@@ -1776,7 +2066,9 @@ void GitClient::subversionLog(const QString &workingDirectory)
     const QString title = tr("Git SVN Log");
     const QString editorId = QLatin1String(Git::Constants::C_GIT_COMMAND_LOG_EDITOR);
     const QString sourceFile = VCSBase::VCSBaseEditor::getSource(workingDirectory, QStringList());
-    VCSBase::VCSBaseEditor *editor = createVCSEditor(editorId, title, sourceFile, false, "svnLog", sourceFile);
+    VCSBase::VCSBaseEditor *editor = findExistingVCSEditor("svnLog", sourceFile);
+    if (!editor)
+        editor = createVCSEditor(editorId, title, sourceFile, false, "svnLog", sourceFile, 0);
     executeGit(workingDirectory, arguments, editor);
 }
 

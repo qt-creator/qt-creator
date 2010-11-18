@@ -178,6 +178,10 @@ public:
     static QString getTitleId(const QString &workingDirectory,
                               const QStringList &fileNames,
                               const QString &revision = QString());
+
+    bool setConfigurationWidget(QWidget *w);
+    QWidget *configurationWidget() const;
+
 signals:
     // These signals also exist in the opaque editable (IEditor) that is
     // handled by the editor manager for convenience. They are emitted

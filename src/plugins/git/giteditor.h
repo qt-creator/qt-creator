@@ -47,7 +47,7 @@ class GitEditor : public VCSBase::VCSBaseEditor
 
 public:
     explicit GitEditor(const VCSBase::VCSBaseEditorParameters *type,
-                            QWidget *parent);
+                       QWidget *parent);
 
 public slots:
     void setPlainTextDataFiltered(const QByteArray &a);

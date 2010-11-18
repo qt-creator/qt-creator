@@ -131,7 +131,6 @@ VCSBaseDiffEditorEditable::VCSBaseDiffEditorEditable(VCSBaseEditor *e, const VCS
     m_diffFileBrowseComboBox(new QComboBox(m_toolBar))
 {
     m_diffFileBrowseComboBox->setMinimumContentsLength(20);
-    m_diffFileBrowseComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     // Make the combo box prefer to expand
     QSizePolicy policy = m_diffFileBrowseComboBox->sizePolicy();
     policy.setHorizontalPolicy(QSizePolicy::Expanding);
@@ -163,6 +162,8 @@ struct VCSBaseEditorPrivate
     QString m_annotatePreviousRevisionTextFormat;
     QString m_copyRevisionTextFormat;
     bool m_fileLogAnnotateEnabled;
+    QToolBar *m_toolBar;
+    QWidget *m_configurationWidget;
 };
 
 VCSBaseEditorPrivate::VCSBaseEditorPrivate(const VCSBaseEditorParameters *type)  :
@@ -170,7 +171,9 @@ VCSBaseEditorPrivate::VCSBaseEditorPrivate(const VCSBaseEditorParameters *type) 
     m_cursorLine(-1),
     m_annotateRevisionTextFormat(VCSBaseEditor::tr("Annotate \"%1\"")),
     m_copyRevisionTextFormat(VCSBaseEditor::tr("Copy \"%1\"")),
-    m_fileLogAnnotateEnabled(false)
+    m_fileLogAnnotateEnabled(false),
+    m_toolBar(0),
+    m_configurationWidget(0)
 {
 }
 
@@ -325,6 +328,8 @@ TextEditor::BaseTextEditorEditable *VCSBaseEditor::createEditableInterface()
     } else {
         editable = new VCSBaseEditorEditable(this, d->m_parameters);
     }
+    d->m_toolBar = qobject_cast<QToolBar *>(editable->toolBar());
+
     // Pass on signals.
     connect(this, SIGNAL(describeRequested(QString,QString)),
             editable, SIGNAL(describeRequested(QString,QString)));
@@ -827,6 +832,30 @@ QString VCSBaseEditor::getTitleId(const QString &workingDirectory,
         rc += revision;
     }
     return rc;
+}
+
+bool VCSBaseEditor::setConfigurationWidget(QWidget *w)
+{
+    if (!d->m_toolBar || d->m_configurationWidget)
+        return false;
+
+    d->m_configurationWidget = w;
+    if (contentType() == AnnotateOutput) {
+        QList<QAction *> actions = d->m_toolBar->actions();
+        Q_ASSERT(actions.count() >= 1);
+        QWidget *spacer = new QWidget(d->m_toolBar);
+        spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+        QAction *configAction = d->m_toolBar->insertWidget(actions.at(0), w);
+        d->m_toolBar->insertWidget(configAction, spacer);
+    } else {
+        d->m_toolBar->addWidget(w);
+    }
+    return true;
+}
+
+QWidget *VCSBaseEditor::configurationWidget() const
+{
+    return d->m_configurationWidget;
 }
 
 // Find the complete file from a diff relative specification.

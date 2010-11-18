@@ -59,7 +59,8 @@ struct GitSettings
     bool pullRebase;
     bool promptToSubmit;
     bool omitAnnotationDate;
-    bool ignoreSpaceChanges;
+    bool ignoreSpaceChangesInDiff;
+    bool ignoreSpaceChangesInBlame;
     bool diffPatience;
     bool winSetHomeEnvironment;
     QString gitkOptions;
