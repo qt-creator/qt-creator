@@ -4307,19 +4307,8 @@ void GdbEngine::handleGdbFinished(int code, QProcess::ExitStatus type)
     if (m_commandTimer.isActive())
         m_commandTimer.stop();
 
-    //qDebug() << "GDB PROCESS FINISHED";
     showMessage(_("GDB PROCESS FINISHED, status %1, code %2").arg(type).arg(code));
-/*
-    if (!m_gdbAdapter) {
-        showMessage(_("NO ADAPTER PRESENT"));
-    } else if (state() == EngineShutdownRequested) {
-        showMessage(_("GOING TO SHUT DOWN ADAPTER"));
-        //m_gdbAdapter->shutdownEngine();  FIXME AAA
-    } else if (state() != EngineSetupFailed) {
-        showStatusMessage(msg);
-        //m_gdbAdapter->shutdownEngine();
-    }
-*/
+
     switch (state()) {
     case EngineShutdownRequested:
         notifyEngineShutdownOk();

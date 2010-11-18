@@ -980,8 +980,8 @@ void DebuggerEngine::notifyInferiorExited()
 
 void DebuggerEngine::setState(DebuggerState state, bool forced)
 {
-//    qDebug() << "STATUS CHANGE: FROM " << stateName(d->m_state)
-//             << " TO " << stateName(state);
+    //qDebug() << "STATUS CHANGE: FROM " << stateName(d->m_state)
+    //         << " TO " << stateName(state);
 
     DebuggerState oldState = d->m_state;
     d->m_state = state;
@@ -1092,10 +1092,9 @@ void DebuggerEngine::setActive(bool on)
 {
     //qDebug() << "SETTING ACTIVE" << this << on;
     d->m_isActive = on;
-    //breakHandler()->updateMarkers();
 }
 
-// called by DebuggerRunControl
+// Called by DebuggerRunControl.
 void DebuggerEngine::quitDebugger()
 {
     showMessage("QUIT DEBUGGER REQUESTED");
@@ -1109,7 +1108,7 @@ void DebuggerEngine::quitDebugger()
         d->doInterruptInferior();
         break;
     default:
-        // FIXME: We should disable the actions connected to that
+        // FIXME: We should disable the actions connected to that.
         notifyInferiorIll();
         break;
     }
@@ -1367,28 +1366,34 @@ bool DebuggerEngine::isDying() const
     return targetState() == DebuggerFinished;
 }
 
-QString DebuggerEngine::msgWatchpointTriggered(BreakpointId id, const int number, quint64 address)
+QString DebuggerEngine::msgWatchpointTriggered(BreakpointId id,
+    const int number, quint64 address)
 {
-    return id != BreakpointId(-1) ?
-           tr("Watchpoint %1 (%2) at 0x%3 triggered.").arg(id).arg(number).arg(address, 0, 16) :
-           tr("Internal watchpoint %1 at 0x%2 triggered.").arg(number).arg(address, 0, 16);
+    return id != BreakpointId(-1)
+        ? tr("Watchpoint %1 (%2) at 0x%3 triggered.")
+            .arg(id).arg(number).arg(address, 0, 16)
+        : tr("Internal watchpoint %1 at 0x%2 triggered.")
+            .arg(number).arg(address, 0, 16);
 }
 
-QString DebuggerEngine::msgWatchpointTriggered(BreakpointId id, const int number,
-                                               quint64 address, const QString &threadId)
+QString DebuggerEngine::msgWatchpointTriggered(BreakpointId id,
+    const int number, quint64 address, const QString &threadId)
 {
-    return id != BreakpointId(-1) ?
-           tr("Watchpoint %1 (%2) at 0x%3 in thread %4 triggered.").
-               arg(id).arg(number).arg(address, 0, 16).arg(threadId) :
-           tr("Internal watchpoint %1 at 0x%2 in thread %3 triggered.").
-               arg(id).arg(number).arg(address, 0, 16).arg(threadId);
+    return id != BreakpointId(-1)
+        ? tr("Watchpoint %1 (%2) at 0x%3 in thread %4 triggered.")
+            .arg(id).arg(number).arg(address, 0, 16).arg(threadId)
+        : tr("Internal watchpoint %1 at 0x%2 in thread %3 triggered.")
+            .arg(id).arg(number).arg(address, 0, 16).arg(threadId);
 }
 
-QString DebuggerEngine::msgBreakpointTriggered(BreakpointId id, const int number, const QString &threadId)
+QString DebuggerEngine::msgBreakpointTriggered(BreakpointId id,
+        const int number, const QString &threadId)
 {
-    return id != BreakpointId(-1) ?
-           tr("Stopped at breakpoint %1 (%2) in thread %3.").arg(id).arg(number).arg(threadId) :
-           tr("Stopped at internal breakpoint %1 in thread %2.").arg(number).arg(threadId);
+    return id != BreakpointId(-1)
+        ? tr("Stopped at breakpoint %1 (%2) in thread %3.")
+            .arg(id).arg(number).arg(threadId)
+        : tr("Stopped at internal breakpoint %1 in thread %2.")
+            .arg(number).arg(threadId);
 }
 
 QString DebuggerEngine::msgStopped(const QString &reason)
@@ -1396,12 +1401,14 @@ QString DebuggerEngine::msgStopped(const QString &reason)
     return reason.isEmpty() ? tr("Stopped.") : tr("Stopped: \"%1\"").arg(reason);
 }
 
-QString DebuggerEngine::msgStoppedBySignal(const QString &meaning, const QString &name)
+QString DebuggerEngine::msgStoppedBySignal(const QString &meaning,
+    const QString &name)
 {
     return tr("Stopped: %1 by signal %2.").arg(meaning, name);
 }
 
-QString DebuggerEngine::msgStoppedByException(const QString &description, const QString &threadId)
+QString DebuggerEngine::msgStoppedByException(const QString &description,
+    const QString &threadId)
 {
     return tr("Stopped in thread %1 by: %2.").arg(threadId, description);
 }
@@ -1427,7 +1434,8 @@ void DebuggerEngine::showStoppedBySignalMessageBox(QString meaning, QString name
 
 void DebuggerEngine::showStoppedByExceptionMessageBox(const QString &description)
 {
-    const QString msg = tr("<p>The inferior stopped because it triggered an exception.<p>%1").
+    const QString msg =
+        tr("<p>The inferior stopped because it triggered an exception.<p>%1").
                          arg(description);
     showMessageBox(QMessageBox::Information, tr("Exception Triggered"), msg);
 }
