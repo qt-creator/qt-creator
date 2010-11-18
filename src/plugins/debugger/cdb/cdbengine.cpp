@@ -1294,7 +1294,7 @@ bool CdbEngine::attemptBreakpointSynchronizationI(QString *errorMessage)
         errorMessage->clear();
         switch (handler->state(id)) {
         case BreakpointInsertRequested:
-            handler->setState(id, BreakpointInsertProceeding);
+            handler->notifyBreakpointInsertProceeding(id);
             if (addCdbBreakpoint(control, symbols, data, &response, errorMessage)) {
                 handler->notifyBreakpointInsertOk(id);
                 handler->setResponse(id, response);
@@ -1305,7 +1305,7 @@ bool CdbEngine::attemptBreakpointSynchronizationI(QString *errorMessage)
             break;
         case BreakpointChangeRequested:
             // Skip disabled breakpoints, else add.
-            handler->setState(id, BreakpointChangeProceeding);
+            handler->notifyBreakpointChangeProceeding(id);
             if (data.enabled) {
                 if (addCdbBreakpoint(control, symbols, data, &response, errorMessage)) {
                     handler->notifyBreakpointChangeOk(id);

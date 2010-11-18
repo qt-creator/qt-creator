@@ -143,13 +143,6 @@ public:
             const BreakpointParameters &data);
 
 private:
-public:
-    // FIXME: Make private.
-    void setState(BreakpointId id, BreakpointState state);
-
-private:
-    friend class BreakpointMarker;
-
     // QAbstractItemModel implementation.
     int columnCount(const QModelIndex &parent) const;
     int rowCount(const QModelIndex &parent) const;
@@ -157,7 +150,7 @@ private:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
-    void markerUpdated(BreakpointMarker *marker, int lineNumber);
+    void setState(BreakpointId id, BreakpointState state);
     void loadBreakpoints();
     void saveBreakpoints();
     void updateMarker(BreakpointId id);

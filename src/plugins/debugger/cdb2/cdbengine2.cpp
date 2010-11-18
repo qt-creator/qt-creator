@@ -1606,13 +1606,13 @@ void CdbEngine::attemptBreakpointSynchronization()
         case BreakpointInsertRequested:
             response.number = m_nextBreakpointNumber++;
             postCommand(cdbAddBreakpointCommand(p, false, response.number), 0);
-            handler->setState(id, BreakpointInsertProceeding);
+            handler->notifyBreakpointInsertProceeding(id);
             handler->notifyBreakpointInsertOk(id);
             handler->setResponse(id, response);
             break;
         case BreakpointChangeRequested:
-            // Skip disabled breakpoints, else add
-            handler->setState(id, BreakpointChangeProceeding);
+            // Skip disabled breakpoints, else add.
+            handler->notifyBreakpointChangeProceeding(id);
             if (p.enabled) {
                 response.number = m_nextBreakpointNumber++;
                 postCommand(cdbAddBreakpointCommand(p, false, response.number), 0);
