@@ -27,6 +27,7 @@
 **
 **************************************************************************/
 
+#include "cppcompleteswitch.h"
 #include "cppeditor.h"
 #include "cppquickfix.h"
 #include "cppinsertdecldef.h"
@@ -1279,174 +1280,6 @@ private:
     };
 };
 
-/*
-  Adds missing case statements for "switch (enumVariable)"
-*/
-class CompleteSwitchCaseStatement: public CppQuickFixFactory
-{
-public:
-    virtual QList<CppQuickFixOperation::Ptr> match(const CppQuickFixState &state)
-    {
-        const QList<AST *> &path = state.path();
-
-        if (path.isEmpty())
-            return noResult(); // nothing to do
-
-        // look for switch statement
-        for (int depth = path.size() - 1; depth >= 0; --depth) {
-            AST *ast = path.at(depth);
-            SwitchStatementAST *switchStatement = ast->asSwitchStatement();
-            if (switchStatement) {
-                if (!state.isCursorOn(switchStatement->switch_token) || !switchStatement->statement)
-                    return noResult();
-                CompoundStatementAST *compoundStatement = switchStatement->statement->asCompoundStatement();
-                if (!compoundStatement) // we ignore pathologic case "switch (t) case A: ;"
-                    return noResult();
-                // look if the condition's type is an enum
-                if (Enum *e = conditionEnum(state, switchStatement)) {
-                    // check the possible enum values
-                    QStringList values;
-                    Overview prettyPrint;
-                    for (unsigned i = 0; i < e->memberCount(); ++i) {
-                        if (Declaration *decl = e->memberAt(i)->asDeclaration()) {
-                            values << prettyPrint(LookupContext::fullyQualifiedName(decl));
-                        }
-                    }
-                    // Get the used values
-                    Block *block = switchStatement->symbol;
-                    CaseStatementCollector caseValues(state.document(), state.snapshot(),
-                        state.document()->scopeAt(block->line(), block->column()));
-                    QStringList usedValues = caseValues(switchStatement);
-                    // save the values that would be added
-                    foreach (const QString &usedValue, usedValues)
-                        values.removeAll(usedValue);
-                    if (values.isEmpty())
-                        return noResult();
-                    return singleResult(new Operation(state, depth, compoundStatement, values));
-                }
-                return noResult();
-            }
-        }
-
-        return noResult();
-    }
-
-protected:
-    Enum *conditionEnum(const CppQuickFixState &state, SwitchStatementAST *statement)
-    {
-        Block *block = statement->symbol;
-        Scope *scope = state.document()->scopeAt(block->line(), block->column());
-        TypeOfExpression typeOfExpression;
-        typeOfExpression.init(state.document(), state.snapshot());
-        const QList<LookupItem> results = typeOfExpression(statement->condition,
-                                                           state.document(),
-                                                           scope);
-
-        ///
-        /// \note FIXME: the lookup has at least two problems: the result.declaration()
-        ///       will often be null, (i.e. when the condition is a function call)
-        ///       and the lookups will not look through typedefs.
-        ///
-
-        foreach (LookupItem result, results) {
-            FullySpecifiedType fst = result.type();
-            if (! result.declaration())
-                continue;
-            if (Enum *e = result.declaration()->type()->asEnumType())
-                return e;
-            if (NamedType *namedType = fst->asNamedType()) {
-                QList<LookupItem> candidates =
-                        typeOfExpression.context().lookup(namedType->name(), scope);
-                foreach (const LookupItem &r, candidates) {
-                    if (Symbol *candidate = r.declaration()) {
-                        if (Enum *e = candidate->asEnum()) {
-                            return e;
-                        }
-                    }
-                }
-            }
-        }
-        return 0;
-    }
-
-    class CaseStatementCollector : public ASTVisitor
-    {
-    public:
-        CaseStatementCollector(Document::Ptr document, const Snapshot &snapshot,
-                               Scope *scope)
-            : ASTVisitor(document->translationUnit()),
-            document(document),
-            scope(scope)
-        {
-            typeOfExpression.init(document, snapshot);
-        }
-
-        QStringList operator ()(AST *ast)
-        {
-            values.clear();
-            foundCaseStatementLevel = false;
-            accept(ast);
-            return values;
-        }
-
-        bool preVisit(AST *ast) {
-            if (CaseStatementAST *cs = ast->asCaseStatement()) {
-                foundCaseStatementLevel = true;
-                if (ExpressionAST *expression = cs->expression->asIdExpression()) {
-                    QList<LookupItem> candidates = typeOfExpression(expression,
-                                                                    document,
-                                                                    scope);
-                    if (!candidates .isEmpty() && candidates.first().declaration()) {
-                        Symbol *decl = candidates.first().declaration();
-                        values << prettyPrint(LookupContext::fullyQualifiedName(decl));
-                    }
-                }
-                return true;
-            } else if (foundCaseStatementLevel) {
-                return false;
-            }
-            return true;
-        }
-
-        Overview prettyPrint;
-        bool foundCaseStatementLevel;
-        QStringList values;
-        TypeOfExpression typeOfExpression;
-        Document::Ptr document;
-        Scope *scope;
-    };
-
-private:
-    class Operation: public CppQuickFixOperation
-    {
-    public:
-        Operation(const CppQuickFixState &state, int priority, CompoundStatementAST *compoundStatement, const QStringList &values)
-            : CppQuickFixOperation(state, priority)
-            , compoundStatement(compoundStatement)
-            , values(values)
-        {
-            setDescription(QApplication::translate("CppTools::QuickFix",
-                                                   "Complete Switch Statement"));
-        }
-
-
-        virtual void performChanges(CppRefactoringFile *currentFile, CppRefactoringChanges *)
-        {
-            ChangeSet changes;
-            int start = currentFile->endOf(compoundStatement->lbrace_token);
-            changes.insert(start, QLatin1String("\ncase ")
-                           + values.join(QLatin1String(":\nbreak;\ncase "))
-                           + QLatin1String(":\nbreak;"));
-            currentFile->change(changes);
-            currentFile->indent(currentFile->range(compoundStatement));
-        }
-
-        CompoundStatementAST *compoundStatement;
-        QStringList values;
-    };
-};
-
-
 class FixForwardDeclarationOp: public CppQuickFixFactory
 {
 public:
@@ -1751,8 +1584,7 @@ void CppQuickFixCollector::registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
     plugIn->addAutoReleasedObject(new TranslateStringLiteral);
     plugIn->addAutoReleasedObject(new CStringToNSString);
     plugIn->addAutoReleasedObject(new ConvertNumericLiteral);
-// Disabled for now: see the CompleteSwitchCaseStatement class for the reason.
-//    plugIn->addAutoReleasedObject(new CompleteSwitchCaseStatement);
+    plugIn->addAutoReleasedObject(new Internal::CompleteSwitchCaseStatement);
     plugIn->addAutoReleasedObject(new FixForwardDeclarationOp);
     plugIn->addAutoReleasedObject(new AddLocalDeclarationOp);
     plugIn->addAutoReleasedObject(new ToCamelCaseConverter);
