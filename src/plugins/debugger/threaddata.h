@@ -45,13 +45,9 @@ namespace Internal {
 /*! A structure containing information about a single thread */
 struct ThreadData
 {
-    inline ThreadData(quint64 threadid = 0)
-        : id (threadid)
-        , frameLevel(-1)
-        , address (0)
-        , lineNumber(-1)
-    {
-    }
+    ThreadData(quint64 threadid = 0)
+        : id(threadid), frameLevel(-1), address (0), lineNumber(-1)
+    {}
 
     enum {
         IdColumn,
@@ -65,13 +61,7 @@ struct ThreadData
         ColumnCount = CoreColumn
     };
 
-    // Permanent data.
-    quint64 id;
-    QString targetId;
-    QString core;
-
-    // State information when stopped
-    inline void notifyRunning() // Clear state information
+    void notifyRunning() // Clear state information.
     {
         address = 0;
         function.clear();
@@ -81,6 +71,12 @@ struct ThreadData
         lineNumber = -1;
     }
 
+    // Permanent data.
+    quint64 id;
+    QString targetId;
+    QString core;
+
+    // State information when stopped.
     qint32  frameLevel;
     quint64 address;
     QString function;

@@ -46,30 +46,28 @@ namespace Internal {
 
 static QString threadToolTip(const ThreadData &thread)
 {
-    const char tableRowStartC[] = "<tr><td>";
-    const char tableRowSeparatorC[] = "</td><td>";
-    const char tableRowEndC[] = "</td>";
+    const char start[] = "<tr><td>";
+    const char sep[] = "</td><td>";
+    const char end[] = "</td>";
     QString rc;
     QTextStream str(&rc);
     str << "<html><head/><body><table>"
-        << tableRowStartC << ThreadsHandler::tr("Thread&nbsp;id:")
-        << tableRowSeparatorC << thread.id << tableRowEndC;
+        << start << ThreadsHandler::tr("Thread&nbsp;id:")
+        << sep << thread.id << end;
     if (!thread.targetId.isEmpty())
-        str << tableRowStartC << ThreadsHandler::tr("Target&nbsp;id:")
-        << tableRowSeparatorC << thread.targetId << tableRowEndC;
+        str << start << ThreadsHandler::tr("Target&nbsp;id:")
+            << sep << thread.targetId << end;
     if (!thread.name.isEmpty())
-        str << tableRowStartC << ThreadsHandler::tr("Name:")
-        << tableRowSeparatorC << thread.name << tableRowEndC;
+        str << start << ThreadsHandler::tr("Name:")
+            << sep << thread.name << end;
     if (!thread.state.isEmpty())
-        str << tableRowStartC << ThreadsHandler::tr("State:")
-        << tableRowSeparatorC << thread.state << tableRowEndC;
+        str << start << ThreadsHandler::tr("State:")
+            << sep << thread.state << end;
     if (!thread.core.isEmpty())
-        str << tableRowStartC << ThreadsHandler::tr("Core:")
-        << tableRowSeparatorC << thread.core << tableRowEndC;
-
+        str << start << ThreadsHandler::tr("Core:")
+            << sep << thread.core << end;
     if (thread.address) {
-        str << tableRowStartC << ThreadsHandler::tr("Stopped&nbsp;at:")
-                << tableRowSeparatorC;
+        str << start << ThreadsHandler::tr("Stopped&nbsp;at:") << sep;
         if (!thread.function.isEmpty())
             str << thread.function << "<br>";
         if (!thread.fileName.isEmpty())
@@ -97,7 +95,7 @@ ThreadsHandler::ThreadsHandler()
 
 int ThreadsHandler::rowCount(const QModelIndex &parent) const
 {
-    // Since the stack is not a tree, row count is 0 for any valid parent
+    // Since the stack is not a tree, row count is 0 for any valid parent.
     return parent.isValid() ? 0 : m_threads.size();
 }
 
@@ -136,14 +134,14 @@ QVariant ThreadsHandler::data(const QModelIndex &index, int role) const
         case ThreadData::StateColumn:
             return thread.state;
         case ThreadData::NameColumn:
-            if (thread.name.isEmpty())
-                return thread.id;
-            return thread.name;
+            if (!thread.name.isEmpty())
+                return thread.name;
+            return thread.id;
         }
     case Qt::ToolTipRole:
         return threadToolTip(thread);
     case Qt::DecorationRole:
-        // Return icon that indicates whether this is the active stack frame
+        // Return icon that indicates whether this is the active stack frame.
         if (index.column() == 0)
             return (index.row() == m_currentIndex) ? m_positionIcon : m_emptyIcon;
         break;
@@ -191,7 +189,7 @@ void ThreadsHandler::setCurrentThread(int index)
     if (index == m_currentIndex)
         return;
 
-    // Emit changed for previous frame
+    // Emit changed for previous frame.
     QModelIndex i = ThreadsHandler::index(m_currentIndex, 0);
     emit dataChanged(i, i);
 
@@ -215,7 +213,7 @@ void ThreadsHandler::setCurrentThreadId(int id)
 int ThreadsHandler::indexOf(quint64 threadId) const
 {
     const int count = m_threads.size();
-    for(int i = 0; i < count; i++)
+    for (int i = 0; i < count; ++i)
         if (m_threads.at(i).id == threadId)
             return i;
     return -1;
@@ -279,7 +277,7 @@ Threads ThreadsHandler::parseGdbmiThreads(const GdbMi &data, int *currentThread)
         thread.fileName = QString::fromLatin1(frame.findChild("fullname").data());
         thread.lineNumber = frame.findChild("line").data().toInt();
         // Non-GDB (Cdb2) output name here.
-        thread.name = frame.findChild("name").data().toInt();
+        thread.name = QString::fromLatin1(frame.findChild("name").data());
         threads.append(thread);
     }
     if (currentThread)
