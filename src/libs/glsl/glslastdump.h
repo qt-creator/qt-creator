@@ -27,20 +27,31 @@
 **
 **************************************************************************/
 
+#ifndef GLSLASTDUMP_H
+#define GLSLASTDUMP_H
+
 #include "glslastvisitor.h"
 
-using namespace GLSL;
+QT_FORWARD_DECLARE_CLASS(QTextStream)
 
-Visitor::Visitor()
-{
-}
+namespace GLSL {
 
-Visitor::~Visitor()
+class GLSL_EXPORT ASTDump: protected Visitor
 {
-}
+public:
+    ASTDump(QTextStream &out);
 
-void Visitor::accept(AST *ast)
-{
-    if (ast)
-        ast->accept(this);
-}
+    void operator()(AST *ast);
+
+protected:
+    virtual bool preVisit(AST *);
+    virtual void postVisit(AST *);
+
+private:
+    QTextStream &out;
+    int _depth;
+};
+
+} // namespace GLSL
+
+#endif // GLSLASTDUMP_H

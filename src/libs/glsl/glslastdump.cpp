@@ -27,20 +27,38 @@
 **
 **************************************************************************/
 
-#include "glslastvisitor.h"
+#include "glslastdump.h"
+#include <QtCore/QTextStream>
+
+#ifdef Q_CC_GNU
+#  include <cxxabi.h>
+#endif
 
 using namespace GLSL;
 
-Visitor::Visitor()
+ASTDump::ASTDump(QTextStream &out)
+    : out(out), _depth(0)
 {
 }
 
-Visitor::~Visitor()
+void ASTDump::operator()(AST *ast)
 {
+    _depth = 0;
+    accept(ast);
 }
 
-void Visitor::accept(AST *ast)
+bool ASTDump::preVisit(AST *ast)
 {
-    if (ast)
-        ast->accept(this);
+    const char *id = typeid(*ast).name();
+#ifdef Q_CC_GNU
+    id = abi::__cxa_demangle(id, 0, 0, 0);
+#endif
+    out << QByteArray(_depth, ' ') << id << endl;
+    ++_depth;
+    return true;
+}
+
+void ASTDump::postVisit(AST *)
+{
+    --_depth;
 }

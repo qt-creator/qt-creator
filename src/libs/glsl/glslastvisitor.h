@@ -39,6 +39,8 @@ public:
     Visitor();
     virtual ~Visitor();
 
+    void accept(AST *ast);
+
     virtual bool preVisit(AST *) { return true; }
     virtual void postVisit(AST *) {}
 
