@@ -28,9 +28,42 @@
 **************************************************************************/
 #include "glslcodecompletion.h"
 #include "glsleditor.h"
+#include <QtGui/QIcon>
+#include <QtGui/QPainter>
 #include <QtCore/QDebug>
 
 using namespace GLSLEditor;
+
+// Temporary workaround until we have proper icons for QML completion items
+static QIcon iconForColor(const QColor &color)
+{
+    QPixmap pix(6, 6);
+
+    int pixSize = 20;
+    QBrush br(color);
+
+    QPixmap pm(2 * pixSize, 2 * pixSize);
+    QPainter pmp(&pm);
+    pmp.fillRect(0, 0, pixSize, pixSize, Qt::lightGray);
+    pmp.fillRect(pixSize, pixSize, pixSize, pixSize, Qt::lightGray);
+    pmp.fillRect(0, pixSize, pixSize, pixSize, Qt::darkGray);
+    pmp.fillRect(pixSize, 0, pixSize, pixSize, Qt::darkGray);
+    pmp.fillRect(0, 0, 2 * pixSize, 2 * pixSize, color);
+    br = QBrush(pm);
+
+    QPainter p(&pix);
+    int corr = 1;
+    QRect r = pix.rect().adjusted(corr, corr, -corr, -corr);
+    p.setBrushOrigin((r.width() % pixSize + pixSize) / 2 + corr, (r.height() % pixSize + pixSize) / 2 + corr);
+    p.fillRect(r, br);
+
+    p.fillRect(r.width() / 4 + corr, r.height() / 4 + corr,
+               r.width() / 2, r.height() / 2,
+               QColor(color.rgb()));
+    p.drawRect(pix.rect().adjusted(0, 0, -1, -1));
+
+    return pix;
+}
 
 static const char *glsl_keywords[] =
 { // ### TODO: get the keywords from the lexer
@@ -163,9 +196,11 @@ CodeCompletion::CodeCompletion(QObject *parent)
       m_startPosition(-1),
       m_restartCompletion(false)
 {
+    const QIcon keywordIcon = iconForColor(Qt::darkYellow);
     for (const char **it = glsl_keywords; *it; ++it) {
         TextEditor::CompletionItem item(this);
         item.text = QString::fromLatin1(*it);
+        item.icon = keywordIcon;
         m_keywordCompletions.append(item);
     }
 }
@@ -207,7 +242,17 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     while (ch.isLetterOrNumber())
         ch = editor->characterAt(--pos);
 
+    const QIcon symbolIcon = iconForColor(Qt::darkCyan);
     m_completions += m_keywordCompletions;
+
+    if (GLSLTextEditor *ed = qobject_cast<GLSLTextEditor *>(m_editor->widget())) {
+        foreach (const QString &id, ed->identifiers()) {
+            TextEditor::CompletionItem item(this);
+            item.text = id;
+            item.icon = symbolIcon;
+            m_completions.append(item);
+        }
+    }
 
     m_startPosition = pos + 1;
     return m_startPosition;

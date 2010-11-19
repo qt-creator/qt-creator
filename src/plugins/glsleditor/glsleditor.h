@@ -37,6 +37,7 @@
 #include <texteditor/quickfix.h>
 
 #include <QtCore/QSharedPointer>
+#include <QtCore/QSet>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -62,6 +63,8 @@ public:
     int editorRevision() const;
     bool isOutdated() const;
 
+    QSet<QString> identifiers() const;
+
 public slots:
     virtual void setFontSettings(const TextEditor::FontSettings &);
 
@@ -82,6 +85,7 @@ private:
 
     QTimer *m_updateDocumentTimer;
     QComboBox *m_outlineCombo;
+    QSet<QString> m_identifiers;
 };
 
 } // namespace GLSLEditor

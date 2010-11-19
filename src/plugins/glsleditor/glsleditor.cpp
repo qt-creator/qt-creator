@@ -124,6 +124,11 @@ bool GLSLTextEditor::isOutdated() const
     return false;
 }
 
+QSet<QString> GLSLTextEditor::identifiers() const
+{
+    return m_identifiers;
+}
+
 Core::IEditor *GLSLEditorEditable::duplicate(QWidget *parent)
 {
     GLSLTextEditor *newEditor = new GLSLTextEditor(parent);
@@ -285,4 +290,7 @@ void GLSLTextEditor::updateDocumentNow()
 
     // ### process the ast
     (void) ast;
+
+    // refresh the identifiers.
+    m_identifiers = engine.identifiers();
 }
