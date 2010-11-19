@@ -300,18 +300,20 @@ void DisassemblerViewAgentPrivate::configureMimeType()
 {
     QTC_ASSERT(editor, return);
 
-    TextEditor::BaseTextDocument *doc = qobject_cast<TextEditor::BaseTextDocument *>(editor->file());
+    TextEditor::BaseTextDocument *doc =
+        qobject_cast<TextEditor::BaseTextDocument *>(editor->file());
     QTC_ASSERT(doc, return);
     doc->setMimeType(mimeType);
 
-    TextEditor::PlainTextEditor *pe = qobject_cast<TextEditor::PlainTextEditor *>(editor->widget());
+    TextEditor::PlainTextEditor *pe =
+        qobject_cast<TextEditor::PlainTextEditor *>(editor->widget());
     QTC_ASSERT(pe, return);
 
-    if (const MimeType mtype = ICore::instance()->mimeDatabase()->findByType(mimeType)) {
+    MimeType mtype = ICore::instance()->mimeDatabase()->findByType(mimeType);
+    if (mtype)
         pe->configure(mtype);
-    } else {
+    else
         qWarning("Assembler mimetype '%s' not found.", qPrintable(mimeType));
-    }
 }
 
 QString DisassemblerViewAgent::mimeType() const

@@ -3881,7 +3881,8 @@ static QByteArray parseLine(const GdbMi &line)
     //QByteArray funcName = line.findChild("func-name").data();
     //QByteArray offset = line.findChild("offset").data();
     QByteArray inst = line.findChild("inst").data();
-    ba += address + QByteArray(15 - address.size(), ' ');
+    ba += address;
+    ba += QByteArray(15 - address.size(), ' ');
     //ba += funcName + "+" + offset + "  ";
     //ba += QByteArray(30 - funcName.size() - offset.size(), ' ');
     ba += inst;
@@ -3910,7 +3911,7 @@ QString GdbEngine::parseDisassembler(const GdbMi &lines)
     // FIXME: Performance?
     foreach (const GdbMi &child, lines.children()) {
         if (child.hasName("src_and_asm_line")) {
-            // mixed mode
+            // Mixed mode.
             if (!fileLoaded) {
                 QString fileName = QFile::decodeName(child.findChild("file").data());
                 fileName = cleanupFullName(fileName);
@@ -3926,7 +3927,7 @@ QString GdbEngine::parseDisassembler(const GdbMi &lines)
             foreach (const GdbMi &line, insn.children())
                 ba += parseLine(line);
         } else {
-            // the non-mixed version
+            // The non-mixed version.
             ba += parseLine(child);
         }
     }
@@ -4026,39 +4027,32 @@ void GdbEngine::handleFetchDisassemblerByCli(const GdbResponse &response)
         if (lines.isValid()) {
             ac.agent->setContents(parseDisassembler(lines));
         } else {
-            const QString someSpace = _("        ");
+            const QByteArray someSpace = "        ";
             // First line is something like
             // "Dump of assembler code from 0xb7ff598f to 0xb7ff5a07:"
             GdbMi output = response.data.findChild("consolestreamoutput");
-            QStringList res;
-            foreach (QByteArray line, output.data().split('\n')) {
-                line = line.trimmed();
+            QByteArray res;
+            foreach (const QByteArray &line0, output.data().split('\n')) {
+                QByteArray line = line0.trimmed();
                 if (line.startsWith("=> "))
                     line = line.mid(3);
                 if (line.startsWith("Current language:"))
                     continue;
                 if (line.startsWith("The current source"))
                     continue;
+                if (line.startsWith("End of assembler"))
+                    continue;
                 if (line.startsWith("0x")) {
-                    int pos1 = line.indexOf('<');
-                    int pos2 = line.indexOf('+', pos1);
-                    int pos3 = line.indexOf('>', pos2);
-                    if (pos3 >= 0) {
-                        QByteArray ba = "  <+" + line.mid(pos2 + 1, pos3 - pos2 - 1);
-                        ba = line.left(pos1 - 1) + ba.rightJustified(4)
-                            + ">:            " + line.mid(pos3 + 2);
-                        res.append(_(ba));
-                    } else {
-                        res.append(_(line));
-                    }
+                    res.append(line);
+                    res.append('\n');
                     continue;
                 }
-                res.append(someSpace + _(line));
+                res.append(someSpace);
+                res.append(line);
+                res.append('\n');
             }
-            // Drop "End of assembler dump." line.
-            res.takeLast();
             if (res.size() > 1)
-                ac.agent->setContents(res.join(_("\n")));
+                ac.agent->setContents(_(res));
             else
                 fetchDisassemblerByAddressCli(ac);
         }
