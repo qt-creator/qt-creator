@@ -1517,12 +1517,20 @@ def qdump__QRegion(d, item):
         d.putValue("<empty>")
         d.putNumChild(0)
     else:
-        n = str(p.dereference()["numRects"])
-        d.putItemCount(n)
-        d.putNumChild(n)
-        if d.isExpanded(item):
-            with Children(d):
-                d.putFields(Item(p.dereference(), item.iname))
+        try:
+            # Fails without debug info.
+            n = str(p.dereference()["numRects"])
+            d.putItemCount(n)
+            d.putNumChild(n)
+            if d.isExpanded(item):
+                with Children(d):
+                    d.putFields(Item(p.dereference(), item.iname))
+        except:
+            d.putValue(" ")
+            d.putNumChild(1)
+            if d.isExpanded(item):
+                with Children(d):
+                   d.putFields(item)
 
 # qt_rgn might be 0
 # gdb.parse_and_eval("region")["d"].dereference()["qt_rgn"].dereference()
