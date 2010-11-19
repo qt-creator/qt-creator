@@ -968,19 +968,17 @@ class FrameCommand(gdb.Command):
         super(FrameCommand, self).__init__("bb", gdb.COMMAND_OBSCURE)
 
     def invoke(self, args, from_tty):
-        if args.startswith("options:profile"):
-            if False:
-                import cProfile
-                cProfile.run('bb("%s")' % args, "/tmp/bbprof")
-                # Examine with:
-                # import bstats
-                # pstats.Stats('bbprof').sort_stats('time').print_stats()
-            if True:
-                import timeit
-                print timeit.repeat('bb("%s")' % args,
-                    'from __main__ import bb', number=100)
+        if args.startswith("options:p1"):
+            import cProfile
+            cProfile.run('bb("%s")' % args, "/tmp/bbprof")
+            import pstats
+            pstats.Stats('/tmp/bbprof').sort_stats('time').print_stats()
+        elif args.startswith("options:p2"):
+            import timeit
+            print timeit.repeat('bb("%s")' % args,
+                'from __main__ import bb', number=10)
         else:
-            output =  bb(args)
+            output = bb(args)
             try:
                 print(output)
             except:
