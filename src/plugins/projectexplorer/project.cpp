@@ -260,9 +260,6 @@ bool Project::fromMap(const QVariantMap &map)
         d->m_editorConfiguration->fromMap(values);
     }
 
-    int previousFileVersion = map.value(QLatin1String(Constants::USERFILE_PREVIOUS_VERSION_KEY),
-                                        std::numeric_limits<int>::max()).toInt();
-
     bool ok;
     int maxI(map.value(QLatin1String(TARGET_COUNT_KEY), 0).toInt(&ok));
     if (!ok || maxI < 0)
@@ -279,9 +276,7 @@ bool Project::fromMap(const QVariantMap &map)
             qWarning() << key << "was not found in data.";
             return false;
         }
-        QVariantMap targetMap = map.value(key).toMap();
-        targetMap.insert(Constants::USERFILE_PREVIOUS_VERSION_KEY, previousFileVersion);
-        Target *t(targetFactory()->restore(this, targetMap));
+        Target *t(targetFactory()->restore(this, map.value(key).toMap()));
         if (!t) {
             qWarning() << "Restoration of a target failed! (Continuing)";
             continue;

@@ -215,10 +215,6 @@ const char * const BUILDSTEPS_CLEAN = "ProjectExplorer.BuildSteps.Clean";
 const char * const BUILDSTEPS_BUILD = "ProjectExplorer.BuildSteps.Build";
 const char * const BUILDSTEPS_DEPLOY = "ProjectExplorer.BuildSteps.Deploy";
 
-// .user file accessor keys:
-const char * const USERFILE_PREVIOUS_VERSION_KEY = "ProjectExplorer.Project.Updater.PreviousVersion";
-const char * const USERFILE_VERSION_KEY = "ProjectExplorer.Project.Updater.FileVersion";
-
 // Deploy Configuration id:
 const char * const DEFAULT_DEPLOYCONFIGURATION_ID = "ProjectExplorer.DefaultDeployConfiguration";
 

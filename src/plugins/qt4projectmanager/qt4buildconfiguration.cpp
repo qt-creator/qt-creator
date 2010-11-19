@@ -119,8 +119,6 @@ bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
     if (!BuildConfiguration::fromMap(map))
         return false;
 
-    int fileVersion = map.value(ProjectExplorer::Constants::USERFILE_PREVIOUS_VERSION_KEY,
-                                std::numeric_limits<int>::max()).toInt();
     m_shadowBuild = map.value(QLatin1String(USE_SHADOW_BUILD_KEY), true).toBool();
     m_buildDirectory = map.value(QLatin1String(BUILD_DIRECTORY_KEY), qt4Target()->defaultBuildDirectory()).toString();
     m_qtVersionId = map.value(QLatin1String(QT_VERSION_ID_KEY)).toInt();
@@ -143,7 +141,7 @@ bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
     }
 
     QtVersion *version = qtVersion();
-    if (fileVersion >= 1) { // we are not upgrading from pre-targets!
+    if (!map.contains(QLatin1String("Qt4ProjectManager.Qt4BuildConfiguration.NeedsV0Update"))) { // we are not upgrading from pre-targets!
         if (version->isValid() && !version->supportedTargetIds().contains(target()->id())) {
             qWarning() << "Buildconfiguration" << displayName() << ": Qt" << version->displayName() << "not supported by target" << target()->id();
             return false;

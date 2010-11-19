@@ -52,6 +52,7 @@
 using namespace ProjectExplorer;
 
 namespace {
+const char * const USERFILE_VERSION_KEY = "ProjectExplorer.Project.Updater.FileVersion";
 const char * const USERFILE_ENVIRONMENT_ID_KEY = "ProjectExplorer.Project.Updater.EnvironmentId";
 
 const char * const PROJECT_FILE_POSTFIX(".user");
@@ -388,7 +389,7 @@ QVariantMap UserFileAccessor::restoreSettings(Project *project)
     QVariantMap map(reader.restoreValues());
 
     // Get and verify file version:
-    const int fileVersion = map.value(QLatin1String(Constants::USERFILE_VERSION_KEY), 0).toInt();
+    const int fileVersion = map.value(QLatin1String(USERFILE_VERSION_KEY), 0).toInt();
     if (fileVersion < m_firstVersion || fileVersion > m_lastVersion + 1) {
         qWarning() << "File version" << fileVersion << "is not supported.";
         return QVariantMap();
@@ -425,13 +426,10 @@ QVariantMap UserFileAccessor::restoreSettings(Project *project)
         QFile::remove(backupFileName);  // Remove because copy doesn't overwrite
         QFile::copy(fileName, backupFileName);
     }
-    map.insert(QLatin1String(Constants::USERFILE_PREVIOUS_VERSION_KEY), fileVersion);
 
     // Update:
     for (int i = fileVersion; i <= m_lastVersion; ++i)
         map = m_handlers.value(i)->update(project, map);
-
-    map.insert(QLatin1String(Constants::USERFILE_VERSION_KEY), m_lastVersion + 1);
 
     return map;
 }
@@ -446,7 +444,7 @@ bool UserFileAccessor::saveSettings(Project *project, const QVariantMap &map)
     for (QVariantMap::const_iterator i = map.constBegin(); i != map.constEnd(); ++i)
         writer.saveValue(i.key(), i.value());
 
-    writer.saveValue(QLatin1String(Constants::USERFILE_VERSION_KEY), m_lastVersion + 1);
+    writer.saveValue(QLatin1String(USERFILE_VERSION_KEY), m_lastVersion + 1);
     writer.saveValue(QLatin1String(USERFILE_ENVIRONMENT_ID_KEY),
                      ProjectExplorerPlugin::instance()->projectExplorerSettings().environmentId.toString());
 
@@ -495,15 +493,17 @@ QVariantMap Version0Handler::convertBuildConfigurations(Project *project, const 
 
     // Find a valid Id to use:
     QString id;
-    if (project->id() == QLatin1String("GenericProjectManager.GenericProject"))
+    if (project->id() == QLatin1String("GenericProjectManager.GenericProject")) {
         id = QLatin1String("GenericProjectManager.GenericBuildConfiguration");
-    else if (project->id() == QLatin1String("CMakeProjectManager.CMakeProject"))
+    } else if (project->id() == QLatin1String("CMakeProjectManager.CMakeProject")) {
         id = QLatin1String("CMakeProjectManager.CMakeBuildConfiguration");
-    else if (project->id() == QLatin1String("Qt4ProjectManager.Qt4Project"))
+    } else if (project->id() == QLatin1String("Qt4ProjectManager.Qt4Project")) {
+        result.insert(QLatin1String("Qt4ProjectManager.Qt4BuildConfiguration.NeedsV0Update"), QVariant());
         id = QLatin1String("Qt4ProjectManager.Qt4BuildConfiguration");
-    else
+    } else {
         return QVariantMap(); // QmlProjects do not(/no longer) have BuildConfigurations,
                               // or we do not know how to handle this.
+    }
     result.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"), id);
 
     for (QVariantMap::const_iterator i = map.constBegin(); i != map.constEnd(); ++i) {
