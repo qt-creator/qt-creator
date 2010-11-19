@@ -71,7 +71,7 @@
 
     \if defined(qcmanual)
     To run your applications in the Symbian emulator, you also need
-    to install a Symbian Platform SDK and Carbide.c++ v2.0.0 or higher.
+    to install Carbide.c++ v2.0.0 or higher.
     \endif
 
     \section1 Installing Required Applications on Devices
