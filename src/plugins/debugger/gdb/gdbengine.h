@@ -441,7 +441,6 @@ private: ////////// View & Data Stuff //////////
     int currentFrame() const;
 
     QList<GdbMi> m_currentFunctionArgs;
-    QString m_currentFrame;
 
     //
     // Watch specific stuff

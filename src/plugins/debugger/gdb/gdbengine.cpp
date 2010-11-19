@@ -1427,11 +1427,6 @@ void GdbEngine::handleStop1(const GdbMi &data)
             showStatusMessage(reasontr);
     }
 
-    const GdbMi gdbmiFrame = data.findChild("frame");
-
-    m_currentFrame = _(gdbmiFrame.findChild("addr").data() + '%' +
-         gdbmiFrame.findChild("func").data() + '%');
-
     //
     // Stack
     //
