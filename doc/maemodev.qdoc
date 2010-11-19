@@ -45,10 +45,10 @@
     Maemo is a software platform developed by Nokia for smartphones and
     Internet Tablets. The Maemo SDK provides an open development environment
     for different applications on top of the Maemo platform. The necessary
-    tools from the Maemo SDK are also included in the Nokia Qt SDK.
+    tools from the Maemo SDK are also included in the \QSDK.
     The whole tool chain that you need to create, build, debug, run, and deploy
-    Maemo applictions is installed and configured when you install the Nokia
-    Qt SDK.
+    Maemo applictions is installed and configured when you install the
+    \QSDK.
 
     \if defined(qcmanual)
     Maemo 5 is based on the Linux 2.6 operating system. For more
@@ -70,7 +70,7 @@
 
        \if defined(qcmanual)
        \o  MADDE cross-platform Maemo development
-           tool (installed as part of the Nokia Qt SDK).
+           tool (installed as part of the \QSDK).
 
            For more information about MADDE pertaining to its
            installation, configuration, and deployment on the device, see
@@ -81,7 +81,7 @@
 
        Only needed if you develop on Windows and if you use a USB connection
        to run applications on the device. The drivers are
-       installed as part of the Nokia Qt SDK. You can also download them from
+       installed as part of the \QSDK. You can also download them from
        \l{https://garage.maemo.org/frs/?group_id=801&release_id=2655}{PC Connectivity}
        on the Maemo web site. Download and install the latest
        PC_Connectivity_<version>.exe (at the time of writing,
@@ -232,7 +232,7 @@
     \if defined(qcmanual)
     \section1 Setting Up MADDE
 
-    If you install Nokia Qt SDK, the MADDE package is installed and
+    If you install \QSDK, the MADDE package is installed and
     configured automatically on your development PC and you can omit this task.
 
     \list 1
@@ -275,7 +275,7 @@
     devices, you must set up a connection to the emulator and the device in the
     Qt Creator build and run settings.
     \if defined(qcmanual)
-    If you install Nokia Qt SDK, the
+    If you install \QSDK, the
     necessary software is installed and configured automatically and you
     only need to configure a connection to the device.
 
@@ -353,7 +353,7 @@
 
             \endlist
 
-            If you installed the Nokia Qt SDK, a connection has been configured
+            If you installed the \QSDK, a connection has been configured
             and you only need to specify the password and deploy the SSH key.
 
         \o  To deploy applications and run them remotely, specify parameters
@@ -417,7 +417,7 @@
 
     \else
 
-    The Nokia Qt SDK installation program configured a default connection
+    The \QSDK installation program configured a default connection
     to the Maemo emulator. You only need to specify the
     password and deploy the SSH key.
 
