@@ -1887,6 +1887,7 @@ def qdump__QVariant(d, item):
         "('%sQVariant::Type')%d" % (d.ns, d_member["type"])))
     type = type[type.find('"') + 1 : type.rfind('"')]
     type = type.replace("Q", d.ns + "Q") # HACK!
+    type = type.replace("uint", "unsigned int") # HACK!
     type = type.replace("COMMA", ",") # HACK!
     #warn("TYPE: %s" % type)
     data = call(item.value, "constData")
@@ -1896,7 +1897,6 @@ def qdump__QVariant(d, item):
     d.putNumChild(1)
     if d.isExpanded(item):
         with Children(d):
-            # This fails for templated and namepspaced types.
             tdata = data.cast(lookupType(type).pointer()).dereference()
             #warn("TDATA: %s" % tdata)
             d.putSubItem(Item(tdata, item.iname, "data", "data"))
