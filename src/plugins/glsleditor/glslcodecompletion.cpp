@@ -28,11 +28,52 @@
 **************************************************************************/
 #include "glslcodecompletion.h"
 #include "glsleditor.h"
+#include <texteditor/completionsettings.h>
 #include <QtGui/QIcon>
 #include <QtGui/QPainter>
 #include <QtCore/QDebug>
 
 using namespace GLSLEditor;
+
+static bool isIdentifierChar(QChar ch)
+{
+    return ch.isLetterOrNumber() || ch == QLatin1Char('_');
+}
+
+static bool isDelimiter(QChar ch)
+{
+    switch (ch.unicode()) {
+    case '{':
+    case '}':
+    case '[':
+    case ']':
+    case ')':
+    case '?':
+    case '!':
+    case ':':
+    case ';':
+    case ',':
+    case '+':
+    case '-':
+    case '*':
+    case '/':
+        return true;
+
+    default:
+        return false;
+    }
+}
+
+static bool checkStartOfIdentifier(const QString &word)
+{
+    if (! word.isEmpty()) {
+        const QChar ch = word.at(0);
+        if (ch.isLetter() || ch == QLatin1Char('_'))
+            return true;
+    }
+
+    return false;
+}
 
 // Temporary workaround until we have proper icons for QML completion items
 static QIcon iconForColor(const QColor &color)
@@ -229,7 +270,37 @@ bool CodeCompletion::supportsEditor(TextEditor::ITextEditable *editor)
 
 bool CodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
 {
-    Q_UNUSED(editor);
+    const int cursorPosition = editor->position();
+    const QChar ch = editor->characterAt(cursorPosition - 1);
+
+    if (completionSettings().m_completionTrigger == TextEditor::AutomaticCompletion) {
+        const QChar characterUnderCursor = editor->characterAt(cursorPosition);
+
+        if (isIdentifierChar(ch) && (characterUnderCursor.isSpace() ||
+                                     characterUnderCursor.isNull() ||
+                                     isDelimiter(characterUnderCursor))) {
+            int pos = editor->position() - 1;
+            for (; pos != -1; --pos) {
+                if (! isIdentifierChar(editor->characterAt(pos)))
+                    break;
+            }
+            ++pos;
+
+            const QString word = editor->textAt(pos, cursorPosition - pos);
+            if (word.length() > 2 && checkStartOfIdentifier(word)) {
+                for (int i = 0; i < word.length(); ++i) {
+                    if (! isIdentifierChar(word.at(i)))
+                        return false;
+                }
+                return true;
+            }
+        }
+    }
+
+    //    if (ch == QLatin1Char('(') || ch == QLatin1Char('.') || ch == QLatin1Char('/'))
+    //        return true;
+
+
     return false;
 }
 
