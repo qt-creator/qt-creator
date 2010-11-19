@@ -82,8 +82,12 @@ def qdump__QAbstractItemModel(d, item):
     ri = makeValue(d.ns + "QModelIndex", "-1, -1, 0, 0")
     this_ = makeExpression(item.value)
     ri_ = makeExpression(ri)
-    rowCount = int(parseAndEvaluate("%s.rowCount(%s)" % (this_, ri_)))
-    columnCount = int(parseAndEvaluate("%s.columnCount(%s)" % (this_, ri_)))
+    try:
+        rowCount = int(parseAndEvaluate("%s.rowCount(%s)" % (this_, ri_)))
+        columnCount = int(parseAndEvaluate("%s.columnCount(%s)" % (this_, ri_)))
+    except:
+        d.putPlainChildren(item)
+        return
     d.putValue("%d x %d" % (rowCount, columnCount))
     d.putNumChild(rowCount * columnCount)
     if d.isExpanded(item):
@@ -118,8 +122,12 @@ def qdump__QModelIndex(d, item):
     mi = makeValue(d.ns + "QModelIndex", "%s,%s,%s,%s" % (r, c, p, m))
     mm_ = makeExpression(mm)
     mi_ = makeExpression(mi)
-    rowCount = int(parseAndEvaluate("%s.rowCount(%s)" % (mm_, mi_)))
-    columnCount = int(parseAndEvaluate("%s.columnCount(%s)" % (mm_, mi_)))
+    try:
+        rowCount = int(parseAndEvaluate("%s.rowCount(%s)" % (mm_, mi_)))
+        columnCount = int(parseAndEvaluate("%s.columnCount(%s)" % (mm_, mi_)))
+    except:
+        d.putPlainChildren(item)
+        return
 
     try:
         # Access DisplayRole as value
@@ -208,10 +216,16 @@ def qdump__QTime(d, item):
 
 
 def qdump__QDateTime(d, item):
-    if int(item.value["d"]["d"].dereference()["time"]["mds"]) == -1:
-        d.putValue("(null)")
-        d.putNumChild(0)
+    try:
+        # Fails without debug info.
+        if int(item.value["d"]["d"].dereference()["time"]["mds"]) == -1:
+            d.putValue("(null)")
+            d.putNumChild(0)
+            return
+    except:
+        d.putPlainChildren(item)
         return
+
     d.putStringValue(call(item.value, "toString('%sQt::TextDate')" % d.ns))
     d.putNumChild(1)
     if d.isExpanded(item):
@@ -252,7 +266,11 @@ def qdump__QFile(d, item):
 
 
 def qdump__QFileInfo(d, item):
-    d.putStringValue(item.value["d_ptr"]["d"].dereference()["fileName"])
+    try:
+        d.putStringValue(item.value["d_ptr"]["d"].dereference()["fileName"])
+    except:
+        d.putPlainChildren(item)
+        return
     d.putNumChild(3)
     if d.isExpanded(item):
         with Children(d, 10, lookupType(d.ns + "QString")):
@@ -509,7 +527,11 @@ def qform__QImage():
     return "Normal,Displayed"
 
 def qdump__QImage(d, item):
-    painters = item.value["painters"]
+    try:
+        painters = item.value["painters"]
+    except:
+        d.putPlainChildren(item)
+        return
     check(0 <= painters and painters < 1000)
     d_ptr = item.value["d"]
     if isNull(d_ptr):
@@ -673,7 +695,11 @@ def extractCString(table, offset):
 
 def qdump__QObject(d, item):
     #warn("OBJECT: %s " % item.value)
-    staticMetaObject = item.value["staticMetaObject"]
+    try:
+        staticMetaObject = item.value["staticMetaObject"]
+    except:
+        d.putPlainChildren(item)
+        return
     #warn("SMO: %s " % staticMetaObject)
     #warn("SMO DATA: %s " % staticMetaObject["d"]["stringdata"])
     superData = staticMetaObject["d"]["superdata"]
@@ -1526,11 +1552,8 @@ def qdump__QRegion(d, item):
                 with Children(d):
                     d.putFields(Item(p.dereference(), item.iname))
         except:
-            d.putValue(" ")
-            d.putNumChild(1)
-            if d.isExpanded(item):
-                with Children(d):
-                   d.putFields(item)
+            d.putValue(p)
+            d.putPlainChildren(item)
 
 # qt_rgn might be 0
 # gdb.parse_and_eval("region")["d"].dereference()["qt_rgn"].dereference()
@@ -1613,7 +1636,12 @@ def qdump__QSharedDataPointer(d, item):
     else:
         # This replaces the pointer by the pointee, making the
         # pointer transparent.
-        innerType = item.value.type.template_argument(0)
+        try:
+            innerType = item.value.type.template_argument(0)
+        except:
+            d.putValue(d_ptr)
+            d.putPlainChildren(item)
+            return
         value = gdb.Value(d_ptr.cast(innerType.pointer()))
         d.putType(d.currentType, d.currentTypePriority + 1)
         d.putItem(Item(value.dereference(), item.iname, None))
@@ -1644,7 +1672,10 @@ def qdump__QStack(d, item):
 
 def qdump__QStandardItem(d, item):
     d.putType(d.currentType, d.currentTypePriority + 1)
-    d.putItem(Item(item.value["d_ptr"], item.iname, None, None))
+    try:
+        d.putItem(Item(item.value["d_ptr"], item.iname, None, None))
+    except:
+        d.putPlainChildren(item)
 
 
 def qform__QString():
@@ -1704,8 +1735,12 @@ def qdump__QTextCursor(d, item):
         d.putValue("(invalid)")
         d.putNumChild(0)
     else:
-        p = dd.dereference()
-        d.putValue(p["position"])
+        try:
+            p = dd.dereference()
+            d.putValue(p["position"])
+        except:
+            d.putPlainChildren(item)
+            return
         d.putNumChild(1)
         if d.isExpanded(item):
             with Children(d):
@@ -1727,8 +1762,12 @@ def qdump__QTextDocument(d, item):
 
 
 def qdump__QUrl(d, item):
-    data = item.value["d"].dereference()
-    d.putStringValue(data["encodedOriginal"])
+    try:
+        data = item.value["d"].dereference()
+        d.putStringValue(data["encodedOriginal"])
+    except:
+        d.putPlainChildren(item)
+        return
     d.putNumChild(1)
     if d.isExpanded(item):
         with Children(d):

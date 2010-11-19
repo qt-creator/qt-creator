@@ -1705,6 +1705,14 @@ class Dumper:
                 child = Item(value, item.iname, None, item.name)
                 self.putFields(child)
 
+    def putPlainChildren(self, item):
+        self.putValue(" ", None, -99)
+        self.putNumChild(1)
+        self.putAddress(item.value.address)
+        if self.isExpanded(item):
+            with Children(self):
+               self.putFields(item)
+
     def putFields(self, item):
             value = item.value
             type = stripTypedefs(value.type)
