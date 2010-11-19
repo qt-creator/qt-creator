@@ -421,9 +421,7 @@ QVariantMap UserFileAccessor::restoreSettings(Project *project)
 
     // Do we need to do a update?
     if (fileVersion != m_lastVersion + 1) {
-        map.insert(QLatin1String(Constants::USERFILE_WAS_UPDATED_KEY), true);
         const QString backupFileName = fileName + '.' + m_handlers.value(fileVersion)->displayUserFileVersion();
-        map.insert(QLatin1String(Constants::USERFILE_BACKUP_FILENAME_KEY), backupFileName);
         QFile::remove(backupFileName);  // Remove because copy doesn't overwrite
         QFile::copy(fileName, backupFileName);
     }
