@@ -1432,19 +1432,9 @@ void GdbEngine::handleStop1(const GdbMi &data)
     m_currentFrame = _(gdbmiFrame.findChild("addr").data() + '%' +
          gdbmiFrame.findChild("func").data() + '%');
 
-    // Quick shot: Jump to stack frame #0.
-    StackFrame frame;
-    if (gdbmiFrame.isValid()) {
-        frame = parseStackFrame(gdbmiFrame, 0);
-        gotoLocation(frame, true);
-    }
-
     //
     // Stack
     //
-    stackHandler()->setCurrentIndex(0);
-    updateLocals(qVariantFromValue(frame)); // Quick shot
-
     reloadStack(false);
 
     if (supportsThreads()) {
@@ -3010,15 +3000,8 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
     if (targetFrame == -1)
         targetFrame = 0;
 
-    // Mac gdb does not add the location to the "stopped" message,
-    // so the early gotoLocation() was not triggered. Force it here.
-    // For targetFrame == 0 we already issued a 'gotoLocation'
-    // when reading the *stopped message.
-    bool jump = (m_isMacGdb || targetFrame != 0);
-
     stackHandler()->setCurrentIndex(targetFrame);
-    if (jump || cookie.gotoLocation)
-        activateFrame(targetFrame);
+    activateFrame(targetFrame);
 }
 
 void GdbEngine::activateFrame(int frameIndex)
