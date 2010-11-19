@@ -362,10 +362,8 @@ int main(int argc, char ** argv)
     if (stayOnTop)
         wflags |= Qt::WindowStaysOnTopHint;
 
-#if defined(QMLJSDEBUGGER)
     // enable remote debugging
     QDeclarativeDebugHelper::enableDebugging();
-#endif
 
     QDeclarativeViewer *viewer = new QDeclarativeViewer(0, wflags);
     viewer->setAttribute(Qt::WA_DeleteOnClose, true);
