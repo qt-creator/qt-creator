@@ -1179,7 +1179,7 @@ class Dumper:
                 with SubItem(self):
                     self.put('iname="%s",' % item.iname)
                     self.putName(item.name)
-                    self.putItemCount(select(n <= 100, n, "> 100"))
+                    self.putItemCount(n, 100)
                     self.putType(type)
                     self.putNumChild(n)
                     if self.isExpanded(item):
@@ -1313,9 +1313,12 @@ class Dumper:
         return xrange(qmin(self.currentMaxNumChilds, self.currentNumChilds))
 
     # Convenience function.
-    def putItemCount(self, count):
+    def putItemCount(self, count, maximum = 1000000000):
         # This needs to override the default value, so don't use 'put' directly.
-        self.putValue('<%s items>' % count)
+        if count > maximum:
+            self.putValue('<>%s items>' % maximum)
+        else:
+            self.putValue('<%s items>' % count)
 
     def putEllipsis(self):
         self.put('{name="<incomplete>",value="",type="",numchild="0"},')

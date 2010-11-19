@@ -2048,7 +2048,7 @@ def qdump__std__list(d, item):
         size += 1
         p = p["_M_next"]
 
-    d.putItemCount(select(size <= 1000, size, "> 1000"))
+    d.putItemCount(size, 1000)
     d.putNumChild(size)
 
     if d.isExpanded(item):
