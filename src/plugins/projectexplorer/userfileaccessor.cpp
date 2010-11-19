@@ -55,6 +55,8 @@ namespace {
 const char * const USERFILE_VERSION_KEY = "ProjectExplorer.Project.Updater.FileVersion";
 const char * const USERFILE_ENVIRONMENT_ID_KEY = "ProjectExplorer.Project.Updater.EnvironmentId";
 
+const char * const USERFILE_PROP = "qtcUserFileName";
+
 const char * const PROJECT_FILE_POSTFIX(".user");
 
 // Version 0 is used in Qt Creator 1.3.x and
@@ -379,20 +381,73 @@ QVariantMap UserFileAccessor::restoreSettings(Project *project)
     if (m_lastVersion < 0 || !project)
         return QVariantMap();
 
-    QString fileName = fileNameFor(project->file()->fileName());
-    if (!QFile::exists(fileName))
-        return QVariantMap();
-
     PersistentSettingsReader reader;
-    reader.load(fileName);
+
+    QString fileName = fileNameFor(project->file()->fileName());
+    if (!reader.load(fileName))
+        return QVariantMap();
 
     QVariantMap map(reader.restoreValues());
 
     // Get and verify file version:
-    const int fileVersion = map.value(QLatin1String(USERFILE_VERSION_KEY), 0).toInt();
-    if (fileVersion < m_firstVersion || fileVersion > m_lastVersion + 1) {
-        qWarning() << "File version" << fileVersion << "is not supported.";
+    int fileVersion = map.value(QLatin1String(USERFILE_VERSION_KEY), 0).toInt();
+    if (fileVersion < m_firstVersion) {
+        qWarning() << "File version" << fileVersion << "too old.";
         return QVariantMap();
+    }
+    bool skipBackup = false;
+    if (fileVersion > m_lastVersion + 1) {
+        int oldFileVersion = fileVersion;
+        int newestFileVersion = -1;
+        QString newestFileName;
+        QFileInfo qfi(fileName);
+        foreach (const QString &de, qfi.absoluteDir().entryList(
+                     QStringList() << (qfi.fileName() + ".*"))) {
+            QString extension = de.mid(qfi.fileName().length() + 1);
+            QString oldFileName = fileName + '.' + extension;
+            // This is a quick check to identify old versions.
+            for (fileVersion = m_lastVersion; fileVersion >= m_firstVersion; --fileVersion)
+                if (extension == m_handlers.value(fileVersion)->displayUserFileVersion()) {
+                    if (fileVersion > newestFileVersion) {
+                        newestFileVersion = fileVersion;
+                        newestFileName = oldFileName;
+                    }
+                    goto found;
+                }
+            // This is an expensive check needed to identify our own and newer versions
+            // (as we don't know what extensions will be assigned in the future).
+            if (reader.load(oldFileName)) {
+                map = reader.restoreValues();
+                fileVersion = map.value(QLatin1String(USERFILE_VERSION_KEY), 0).toInt();
+                if (fileVersion == m_lastVersion + 1) {
+                    fileName = oldFileName;
+                    goto gotFile;
+                }
+            }
+          found: ;
+        }
+        if (newestFileVersion < 0) {
+            qWarning() << "File version" << oldFileVersion << "too new.";
+            return QVariantMap();
+        }
+        fileName = newestFileName;
+        if (!reader.load(fileName))
+            return QVariantMap();
+        map = reader.restoreValues();
+      gotFile:
+        QMessageBox::information(Core::ICore::instance()->mainWindow(),
+                QApplication::translate("ProjectExplorer::UserFileAccessor",
+                    "Using Old Project Settings File"),
+                QApplication::translate("ProjectExplorer::UserFileAccessor",
+                    "A versioned backup of the .user settings file will be used, "
+                    "because the non-versioned file was created by an incompatible "
+                    "newer version of Qt Creator.\n"
+                    "Project settings changes made since the last time this version "
+                    "of Qt Creator was used with this project are ignored, and changes "
+                    "made now will <b>not</b> be propagated to the newer version."),
+                QMessageBox::Ok);
+        project->setProperty(USERFILE_PROP, fileName);
+        skipBackup = true;
     }
 
     // Verify environment Id:
@@ -421,7 +476,7 @@ QVariantMap UserFileAccessor::restoreSettings(Project *project)
     }
 
     // Do we need to do a update?
-    if (fileVersion != m_lastVersion + 1) {
+    if (fileVersion != m_lastVersion + 1 && !skipBackup) {
         const QString backupFileName = fileName + '.' + m_handlers.value(fileVersion)->displayUserFileVersion();
         QFile::remove(backupFileName);  // Remove because copy doesn't overwrite
         QFile::copy(fileName, backupFileName);
@@ -448,7 +503,9 @@ bool UserFileAccessor::saveSettings(Project *project, const QVariantMap &map)
     writer.saveValue(QLatin1String(USERFILE_ENVIRONMENT_ID_KEY),
                      ProjectExplorerPlugin::instance()->projectExplorerSettings().environmentId.toString());
 
-    return writer.save(fileNameFor(project->file()->fileName()), "QtCreatorProject");
+    QString fileName = project->property(USERFILE_PROP).toString();
+    return writer.save(fileName.isEmpty() ? fileNameFor(project->file()->fileName()) : fileName,
+                       "QtCreatorProject");
 }
 
 void UserFileAccessor::addVersionHandler(UserFileVersionHandler *handler)
