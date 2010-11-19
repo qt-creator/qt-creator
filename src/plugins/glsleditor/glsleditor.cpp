@@ -256,6 +256,33 @@ void GLSLTextEditor::updateDocumentNow()
     Engine engine;
     Parser parser(&engine, preprocessedCode.constData(), preprocessedCode.size(), variant);
     TranslationUnit *ast = parser.parse();
+
+    QTextCharFormat errorFormat;
+    errorFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+    errorFormat.setUnderlineColor(Qt::red);
+
+    QTextCharFormat warningFormat;
+    warningFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+    warningFormat.setUnderlineColor(Qt::darkYellow);
+
+    QList<QTextEdit::ExtraSelection> sels;
+
+    foreach (const DiagnosticMessage &m, engine.diagnosticMessages()) {
+        if (! m.line())
+            continue;
+
+        QTextCursor cursor(document()->findBlockByNumber(m.line() - 1));
+        cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+
+        QTextEdit::ExtraSelection sel;
+        sel.cursor = cursor;
+        sel.format = m.isError() ? errorFormat : warningFormat;
+        sel.format.setToolTip(m.message());
+        sels.append(sel);
+    }
+
+    setExtraSelections(CodeWarningsSelection, sels);
+
     // ### process the ast
     (void) ast;
 }

@@ -34,6 +34,7 @@
 %impl glslparser.cpp
 %parser GLSLParserTable
 %token_prefix T_
+%expect 1
 
 %token ADD_ASSIGN "+="
 %token AMPERSAND "&"
@@ -316,6 +317,24 @@ private:
     inline int tokenKind(int index) const { return _tokens.at(index).kind; }
     void reduce(int ruleno);
 
+    void warning(int line, const QString &message)
+    {
+        DiagnosticMessage m;
+        m.setKind(DiagnosticMessage::Warning);
+        m.setLine(line);
+        m.setMessage(message);
+        _engine->addDiagnosticMessage(m);
+    }
+
+    void error(int line, const QString &message)
+    {
+        DiagnosticMessage m;
+        m.setKind(DiagnosticMessage::Error);
+        m.setLine(line);
+        m.setMessage(message);
+        _engine->addDiagnosticMessage(m);
+    }
+
     template <typename T>
     T *makeAstNode()
     {
@@ -530,8 +549,17 @@ TranslationUnit *Parser::parse()
         }
     } while (action);
 
-    fprintf(stderr, "unexpected token `%s' at line %d\n", yytoken != -1 ? spell[yytoken] : "",
-        _tokens[yyloc].line + 1);
+    const int line = _tokens[yyloc].line + 1;
+    QString message = QLatin1String("Syntax error");
+    if (yytoken != -1) {
+        const QLatin1String s(yytoken != -1 ? spell[yytoken] : "");
+        message = QString("Unexpected token `%1'").arg(s);
+    }
+
+    error(line, message);
+
+//    fprintf(stderr, "unexpected token `%s' at line %d\n", yytoken != -1 ? spell[yytoken] : "",
+//        _tokens[yyloc].line + 1);
 
     return 0;
 }

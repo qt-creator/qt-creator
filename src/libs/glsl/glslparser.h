@@ -1,5 +1,5 @@
 
-#line 212 "./glsl.g"
+#line 213 "./glsl.g"
 
 /**************************************************************************
 **
@@ -106,6 +106,24 @@ private:
     inline const Token &tokenAt(int index) const { return _tokens.at(index); }
     inline int tokenKind(int index) const { return _tokens.at(index).kind; }
     void reduce(int ruleno);
+
+    void warning(int line, const QString &message)
+    {
+        DiagnosticMessage m;
+        m.setKind(DiagnosticMessage::Warning);
+        m.setLine(line);
+        m.setMessage(message);
+        _engine->addDiagnosticMessage(m);
+    }
+
+    void error(int line, const QString &message)
+    {
+        DiagnosticMessage m;
+        m.setKind(DiagnosticMessage::Error);
+        m.setLine(line);
+        m.setMessage(message);
+        _engine->addDiagnosticMessage(m);
+    }
 
     template <typename T>
     T *makeAstNode()

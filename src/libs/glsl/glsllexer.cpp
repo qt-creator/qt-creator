@@ -400,3 +400,21 @@ int Lexer::findKeyword(const char *word, int length) const
     }
     return t & ~Variant_Mask;
 }
+
+void Lexer::warning(int line, const QString &message)
+{
+    DiagnosticMessage m;
+    m.setKind(DiagnosticMessage::Warning);
+    m.setLine(line);
+    m.setMessage(message);
+    _engine->addDiagnosticMessage(m);
+}
+
+void Lexer::error(int line, const QString &message)
+{
+    DiagnosticMessage m;
+    m.setKind(DiagnosticMessage::Error);
+    m.setLine(line);
+    m.setMessage(message);
+    _engine->addDiagnosticMessage(m);
+}

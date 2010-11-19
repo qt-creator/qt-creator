@@ -99,6 +99,11 @@ MemoryPool *Engine::pool()
     return &_pool;
 }
 
+QList<DiagnosticMessage> Engine::diagnosticMessages() const
+{
+    return _diagnosticMessages;
+}
+
 void Engine::clearDiagnosticMessages()
 {
     _diagnosticMessages.clear();
