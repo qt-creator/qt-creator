@@ -129,7 +129,6 @@ int main(int argc, char *argv[])
 #ifdef Q_WS_X11
     QIcon applicationIcon;
     applicationIcon.addFile(":/16xBauhaus_Log");
-    applicationIcon.addFile(":/32xBauhaus_Logo.png");
     applicationIcon.addFile(":/64xBauhaus_Logo.png");
     applicationIcon.addFile(":/128xBauhaus_Logo.png");
     applicationIcon.addFile(":/256xBauhaus_Logo.png");

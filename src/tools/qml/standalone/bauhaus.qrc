@@ -14,6 +14,5 @@
         <file alias="qmldesigner/templates/General/Empty Fx">templates/fx.qml</file>
         <file>16xBauhaus_Logo.png</file>
         <file>256xBauhaus_Logo.png</file>
-        <file>32xBauhaus_Logo.png</file>
     </qresource>
 </RCC>
