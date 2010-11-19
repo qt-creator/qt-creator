@@ -30,15 +30,23 @@
 #include "cdboptionspage2.h"
 #include "cdboptions2.h"
 #include "debuggerconstants.h"
+#include "cdbengine2.h"
 
 #ifdef Q_OS_WIN
 #    include <utils/winutils.h>
 #endif
+#include <utils/synchronousprocess.h>
+
 #include <coreplugin/icore.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QUrl>
+#include <QtCore/QFileInfo>
+#include <QtCore/QDir>
+#include <QtCore/QDateTime>
 #include <QtCore/QTextStream>
+#include <QtCore/QTimer>
+#include <QtCore/QProcess>
 #include <QtGui/QMessageBox>
 #include <QtGui/QDesktopServices>
 
@@ -66,7 +74,7 @@ static inline QString msgPathConfigNote()
 }
 
 CdbOptionsPageWidget::CdbOptionsPageWidget(QWidget *parent) :
-    QWidget(parent)
+    QWidget(parent), m_reportTimer(0)
 {
     m_ui.setupUi(this);
     m_ui.noteLabel->setText(msgPathConfigNote());
@@ -75,9 +83,8 @@ CdbOptionsPageWidget::CdbOptionsPageWidget(QWidget *parent) :
 
     m_ui.pathChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_ui.pathChooser->addButton(tr("Autodetect"), this, SLOT(autoDetect()));
-    m_ui.failureLabel->setVisible(false);
+    m_ui.cdbPathGroupBox->installEventFilter(this);
 }
-
 
 void CdbOptionsPageWidget::setOptions(CdbOptions &o)
 {
@@ -88,15 +95,31 @@ void CdbOptionsPageWidget::setOptions(CdbOptions &o)
     m_ui.sourcePathListEditor->setPathList(o.sourcePaths);
 }
 
+bool CdbOptionsPageWidget::is64Bit() const
+{
+    return m_ui.is64BitCheckBox->isChecked();
+}
+
+QString CdbOptionsPageWidget::path() const
+{
+    return m_ui.pathChooser->path();
+}
+
 CdbOptions CdbOptionsPageWidget::options() const
 {
     CdbOptions  rc;
-    rc.executable = m_ui.pathChooser->path();
+    rc.executable = path();
     rc.enabled = m_ui.cdbPathGroupBox->isChecked();
-    rc.is64bit = m_ui.is64BitCheckBox->isChecked();
+    rc.is64bit = is64Bit();
     rc.symbolPaths = m_ui.symbolPathListEditor->pathList();
     rc.sourcePaths = m_ui.sourcePathListEditor->pathList();
     return rc;
+}
+
+void CdbOptionsPageWidget::hideReportLabel()
+{
+    m_ui.reportLabel->clear();
+    m_ui.reportLabel->setVisible(false);
 }
 
 void CdbOptionsPageWidget::autoDetect()
@@ -109,6 +132,10 @@ void CdbOptionsPageWidget::autoDetect()
     if (ok) {
         m_ui.is64BitCheckBox->setChecked(is64bit);
         m_ui.pathChooser->setPath(executable);
+        QString report;
+        // Now check for the extension library as well.
+        const bool allOk = checkInstallation(executable, is64Bit(), &report);
+        setReport(report, allOk);
     } else {
         const QString msg = tr("\"Debugging Tools for Windows\" could not be found.");
         const QString details = tr("Checked:\n%1").arg(checkedDirectories.join(QString(QLatin1Char('\n'))));
@@ -118,10 +145,23 @@ void CdbOptionsPageWidget::autoDetect()
     }
 }
 
-void CdbOptionsPageWidget::setFailureMessage(const QString &msg)
+void CdbOptionsPageWidget::setReport(const QString &msg, bool success)
 {
-    m_ui.failureLabel->setText(msg);
-    m_ui.failureLabel->setVisible(!msg.isEmpty());
+    // Hide label after some interval
+    if (!m_reportTimer) {
+        m_reportTimer = new QTimer(this);
+        m_reportTimer->setSingleShot(true);
+        connect(m_reportTimer, SIGNAL(timeout()), this, SLOT(hideReportLabel()));
+    } else {
+        if (m_reportTimer->isActive())
+            m_reportTimer->stop();
+    }
+    m_reportTimer->setInterval(success ? 10000 : 20000);
+    m_reportTimer->start();
+
+    m_ui.reportLabel->setText(msg);
+    m_ui.reportLabel->setStyleSheet(success ? QString() : QString::fromAscii("background-color : 'red'"));
+    m_ui.reportLabel->setVisible(true);
 }
 
 void CdbOptionsPageWidget::downLoadLinkActivated(const QString &link)
@@ -136,6 +176,62 @@ QString CdbOptionsPageWidget::searchKeywords() const
             << ' ' << m_ui.sourcePathLabel->text();
     rc.remove(QLatin1Char('&'));
     return rc;
+}
+
+static QString cdbVersion(const QString &executable)
+{
+    QProcess cdb;
+    cdb.start(executable, QStringList(QLatin1String("-version")));
+    cdb.closeWriteChannel();
+    if (!cdb.waitForStarted())
+        return QString();
+    if (!cdb.waitForFinished()) {
+        Utils::SynchronousProcess::stopProcess(cdb);
+        return QString();
+    }
+    return QString::fromLocal8Bit(cdb.readAllStandardOutput());
+}
+
+bool CdbOptionsPageWidget::checkInstallation(const QString &executable,
+                                             bool is64Bit, QString *message)
+{
+    // 1) Check on executable
+    unsigned checkedItems = 0;
+    QString rc;
+    if (executable.isEmpty()) {
+        message->append(tr("No cdb executable specified.\n"));
+    } else {
+        const QString version = cdbVersion(executable);
+        if (version.isEmpty()) {
+            message->append(tr("Unable to determine version of %1.\n").
+                            arg(executable));
+        } else {
+            message->append(tr("Version: %1").arg(version));
+            checkedItems++;
+        }
+    }
+
+    // 2) Check on extension library
+    const QFileInfo extensionFi(CdbEngine::extensionLibraryName(is64Bit));
+    if (extensionFi.isFile()) {
+        message->append(tr("Extension library: %1, built: %3.\n").
+                        arg(QDir::toNativeSeparators(extensionFi.absoluteFilePath())).
+                        arg(extensionFi.lastModified().toString(Qt::SystemLocaleShortDate)));
+        checkedItems++;
+    } else {
+        message->append("Extension library not found.\n");
+    }
+    return checkedItems == 2u;
+}
+
+bool CdbOptionsPageWidget::eventFilter(QObject *o, QEvent *e)
+{
+    if (o != m_ui.cdbPathGroupBox || e->type() != QEvent::ToolTip)
+        return QWidget::eventFilter(o, e);
+    QString message;
+    checkInstallation(path(), is64Bit(), &message);
+    m_ui.cdbPathGroupBox->setToolTip(message);
+    return false;
 }
 
 // ---------- CdbOptionsPage
@@ -183,7 +279,6 @@ QWidget *CdbOptionsPage::createPage(QWidget *parent)
 {
     m_widget = new CdbOptionsPageWidget(parent);
     m_widget->setOptions(*m_options);
-    m_widget->setFailureMessage(m_failureMessage);
     if (m_searchKeywords.isEmpty())
         m_searchKeywords = m_widget->searchKeywords();
     return m_widget;

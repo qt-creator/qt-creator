@@ -12,4 +12,5 @@ modules
 idle
 help
 memory
+shutdownex
 KnownStructOutput

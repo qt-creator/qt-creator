@@ -61,6 +61,8 @@ public:
     // Call this from the first extension command that gets a client.
     // Does not work when called from initialization.
     void hookCallbacks(CIDebugClient *client);
+    // Undo hooking.
+    void unhookCallbacks();
 
     // Report output in standardized format understood by Qt Creator.
     // '<qtcreatorcdbext>|R|<token>|<serviceName>|<one-line-output>'.
@@ -81,7 +83,6 @@ public:
     void setStopReason(const StopReasonMap &, const std::string &reason = std::string());
 
 private:
-    void unhookCallbacks();
     bool isInitialized() const;
     void discardSymbolGroup();
 

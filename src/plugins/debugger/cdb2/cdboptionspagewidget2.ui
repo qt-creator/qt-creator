@@ -2,14 +2,19 @@
 <ui version="4.0">
  <class>Debugger::Cdb::CdbOptionsPageWidget2</class>
  <widget class="QWidget" name="Debugger::Cdb::CdbOptionsPageWidget2">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>135</width>
+    <height>246</height>
+   </rect>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QGroupBox" name="cdbPathGroupBox">
-       <property name="toolTip">
-        <string>These options take effect at the next start of Qt Creator.</string>
-       </property>
        <property name="title">
         <string extracomment="Placeholder">CDB</string>
        </property>
@@ -92,12 +97,15 @@
     </spacer>
    </item>
    <item>
-    <widget class="QLabel" name="failureLabel">
+    <widget class="QLabel" name="reportLabel">
      <property name="styleSheet">
-      <string notr="true">background-color: 'red';</string>
+      <string notr="true"/>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
+     </property>
+     <property name="textInteractionFlags">
+      <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
      </property>
     </widget>
    </item>

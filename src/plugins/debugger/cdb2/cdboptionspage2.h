@@ -39,6 +39,8 @@
 #include <QtCore/QPointer>
 #include <QtCore/QSharedPointer>
 
+QT_FORWARD_DECLARE_CLASS(QTimer)
+
 namespace Debugger {
 namespace Cdb {
 
@@ -51,16 +53,25 @@ public:
     void setOptions(CdbOptions &o);
     CdbOptions options() const;
 
-    void setFailureMessage(const QString &);
-
     QString searchKeywords() const;
+
+    virtual bool eventFilter(QObject *, QEvent *);
 
 private slots:
     void autoDetect();
     void downLoadLinkActivated(const QString &);
+    void hideReportLabel();
 
 private:
+    void setReport(const QString &, bool success);
+    inline bool is64Bit() const;
+    inline QString path() const;
+
+    static bool checkInstallation(const QString &executable, bool is64Bit,
+                                  QString *message);
+
     Ui::CdbOptionsPageWidget2 m_ui;
+    QTimer *m_reportTimer;
 };
 
 class CdbOptionsPage : public Core::IOptionsPage
@@ -87,15 +98,12 @@ public:
 
     static QString settingsId();
 
-    // Load  failure messages can be displayed here
-    void setFailureMessage(const QString &msg) { m_failureMessage = msg; }
     QSharedPointer<CdbOptions> options() const { return m_options; }
 
 private:
     static CdbOptionsPage *m_instance;
     const QSharedPointer<CdbOptions> m_options;
     QPointer<CdbOptionsPageWidget> m_widget;
-    QString m_failureMessage;
     QString m_searchKeywords;
 };
 

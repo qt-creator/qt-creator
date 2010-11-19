@@ -29,6 +29,7 @@
 
 #include "debuggerdialogs.h"
 #include "debuggerconstants.h"
+#include "cdb2/cdbengine2.h"
 
 #include "ui_attachcoredialog.h"
 #include "ui_attachexternaldialog.h"
@@ -43,9 +44,11 @@
 #include <coreplugin/icore.h>
 #include <utils/synchronousprocess.h>
 #include <utils/historycompleter.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QProcess>
+#include <QtCore/QRegExp>
 #include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QCoreApplication>
@@ -56,6 +59,7 @@
 #include <QtGui/QProxyModel>
 #include <QtGui/QSortFilterProxyModel>
 #include <QtGui/QMessageBox>
+#include <QtGui/QGroupBox>
 
 using namespace Utils;
 
@@ -742,6 +746,97 @@ void StartRemoteDialog::updateState()
     bool enabled = m_ui->useServerStartScriptCheckBox->isChecked();
     m_ui->serverStartScriptLabel->setEnabled(enabled);
     m_ui->serverStartScript->setEnabled(enabled);
+}
+
+// --------- StartRemoteCdbDialog
+static inline QString cdbRemoteHelp()
+{
+    const char *cdbConnectionSyntax =
+            "Server:Port<br>"
+            "tcp:server=Server,port=Port[,password=Password][,ipversion=6]\n"
+            "tcp:clicon=Server,port=Port[,password=Password][,ipversion=6]\n"
+            "npipe:server=Server,pipe=PipeName[,password=Password]\n"
+            "com:port=COMPort,baud=BaudRate,channel=COMChannel[,password=Password]\n"
+            "spipe:proto=Protocol,{certuser=Cert|machuser=Cert},server=Server,pipe=PipeName[,password=Password]\n"
+            "ssl:proto=Protocol,{certuser=Cert|machuser=Cert},server=Server,port=Socket[,password=Password]\n"
+            "ssl:proto=Protocol,{certuser=Cert|machuser=Cert},clicon=Server,port=Socket[,password=Password]";
+
+    const QString ext32 = QDir::toNativeSeparators(Debugger::Cdb::CdbEngine::extensionLibraryName(false));
+    const QString ext64 = QDir::toNativeSeparators(Debugger::Cdb::CdbEngine::extensionLibraryName(true));
+    return  StartRemoteCdbDialog::tr(
+                "<html><body><p>The remote CDB needs to load the matching Qt Creator CDB extension "
+                "(<code>%1</code> or <code>%2</code>, respectively).</p><p>Copy it onto the remote machine and set the "
+                "environment variable <code>%3</code> to point to its folder.</p><p>"
+                "Launch the remote CDB as <code>%4 &lt;executable&gt;</code> "
+                " to use TCP/IP as communication protocol.</p><p>Enter the connection parameters as:</p>"
+                "<pre>%5</pre></body></html>").
+            arg(ext32, ext64, QLatin1String("_NT_DEBUGGER_EXTENSION_PATH"),
+                QLatin1String("cdb.exe -server tcp:port=1234"),
+                QLatin1String(cdbConnectionSyntax));
+}
+
+StartRemoteCdbDialog::StartRemoteCdbDialog(QWidget *parent) :
+    QDialog(parent), m_okButton(0), m_lineEdit(new QLineEdit)
+{
+    setWindowTitle(tr("Start a CDB Remote Session"));
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
+    QGroupBox *groupBox = new QGroupBox;
+    QFormLayout *formLayout = new QFormLayout;
+    QLabel *helpLabel = new QLabel(cdbRemoteHelp());
+    helpLabel->setWordWrap(true);
+    helpLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    formLayout->addRow(helpLabel);
+    QLabel *label = new QLabel(tr("&Connection:"));
+    label->setBuddy(m_lineEdit);
+    m_lineEdit->setMinimumWidth(400);
+    connect(m_lineEdit, SIGNAL(textChanged(QString)), this, SLOT(textChanged(QString)));
+    formLayout->addRow(label, m_lineEdit);
+    groupBox->setLayout(formLayout);
+
+    QVBoxLayout *vLayout = new QVBoxLayout;
+    vLayout->addWidget(groupBox);
+    QDialogButtonBox *box = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
+    vLayout->addWidget(box);
+    m_okButton = box->button(QDialogButtonBox::Ok);
+    connect(m_lineEdit, SIGNAL(returnPressed()), m_okButton, SLOT(animateClick()));
+    m_okButton->setEnabled(false);
+    connect(box, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(box, SIGNAL(rejected()), this, SLOT(reject()));
+
+    setLayout(vLayout);
+}
+
+void StartRemoteCdbDialog::accept()
+{
+    if (!m_lineEdit->text().isEmpty())
+        QDialog::accept();
+}
+
+StartRemoteCdbDialog::~StartRemoteCdbDialog()
+{
+}
+
+void StartRemoteCdbDialog::textChanged(const QString &t)
+{
+    m_okButton->setEnabled(!t.isEmpty());
+}
+
+QString StartRemoteCdbDialog::connection() const
+{
+    const QString rc = m_lineEdit->text();
+    // Transform an IP:POrt ('localhost:1234') specification into full spec
+    QRegExp ipRegexp(QLatin1String("([\\w\\.\\-_]+):([0-9]{1,4})"));
+    QTC_ASSERT(ipRegexp.isValid(), return QString());
+    if (ipRegexp.exactMatch(rc))
+        return QString::fromAscii("tcp:server=%1,port=%2").arg(ipRegexp.cap(1), ipRegexp.cap(2));
+    return rc;
+}
+
+void StartRemoteCdbDialog::setConnection(const QString &c)
+{
+    m_lineEdit->setText(c);
+    m_okButton->setEnabled(!c.isEmpty());
 }
 
 AddressDialog::AddressDialog(QWidget *parent) :

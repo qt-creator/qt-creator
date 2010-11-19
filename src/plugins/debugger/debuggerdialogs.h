@@ -200,6 +200,27 @@ private:
     Ui::StartRemoteDialog *m_ui;
 };
 
+class StartRemoteCdbDialog : public QDialog
+{
+    Q_OBJECT
+
+public:
+    explicit StartRemoteCdbDialog(QWidget *parent);
+    ~StartRemoteCdbDialog();
+
+    QString connection() const;
+    void setConnection(const QString &);
+
+    virtual void accept();
+
+private slots:
+    void textChanged(const QString &);
+
+private:
+    QPushButton *m_okButton;
+    QLineEdit *m_lineEdit;
+};
+
 class AddressDialog : public QDialog {
     Q_OBJECT
 public:

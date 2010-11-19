@@ -343,6 +343,7 @@ const char * const ATTACHEXTERNAL       = "Debugger.AttachExternal";
 const char * const ATTACHCORE           = "Debugger.AttachCore";
 const char * const ATTACHTCF            = "Debugger.AttachTcf";
 const char * const ATTACHREMOTE         = "Debugger.AttachRemote";
+const char * const ATTACHREMOTECDB      = "Debugger.AttachRemoteCDB";
 const char * const DETACH               = "Debugger.Detach";
 
 const char * const RUN_TO_LINE1         = "Debugger.RunToLine1";
@@ -971,6 +972,7 @@ public slots:
 
     void debugProject();
     void startExternalApplication();
+    void startRemoteCdbSession();
     void startRemoteApplication();
     void attachExternalApplication();
     void attachExternalApplication
@@ -1243,6 +1245,7 @@ public:
     QAction *m_debugAction;
     QAction *m_startExternalAction;
     QAction *m_startRemoteAction;
+    QAction *m_startRemoteCdbAction;
     QAction *m_attachExternalAction;
     QAction *m_attachCoreAction;
     QAction *m_attachTcfAction;
@@ -1303,8 +1306,7 @@ public:
     bool m_gdbBinariesChanged;
 };
 
-
-DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
+DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin) : m_startRemoteCdbAction(0)
 {
     QTC_ASSERT(!theDebuggerCore, /**/);
     theDebuggerCore = this;
@@ -1669,10 +1671,14 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     act->setText(tr("Start and Attach to Remote Application..."));
     connect(act, SIGNAL(triggered()), SLOT(startRemoteApplication()));
 
+#ifdef Q_OS_WIN
+    m_startRemoteCdbAction = new QAction(tr("Attach to Remote CDB Session..."), this);
+    connect(m_startRemoteCdbAction, SIGNAL(triggered()), SLOT(startRemoteCdbSession()));
+#endif
+
     act = m_detachAction = new QAction(this);
     act->setText(tr("Detach Debugger"));
     connect(act, SIGNAL(triggered()), SLOT(handleExecDetach()));
-
 
     Core::Command *cmd = 0;
 
@@ -1715,6 +1721,13 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
         Constants::ATTACHREMOTE, globalcontext);
     cmd->setAttribute(Command::CA_Hide);
     mstart->addAction(cmd, CC::G_DEFAULT_ONE);
+
+    if (m_startRemoteCdbAction) {
+        cmd = am->registerAction(m_startRemoteCdbAction,
+                                 Constants::ATTACHREMOTECDB, globalcontext);
+        cmd->setAttribute(Command::CA_Hide);
+        mstart->addAction(cmd, CC::G_DEFAULT_ONE);
+    }
 
     cmd = am->registerAction(m_detachAction,
         Constants::DETACH, globalcontext);
@@ -2121,6 +2134,25 @@ void DebuggerPluginPrivate::attachRemote(const QString &spec)
     sp.displayName = tr("Remote: \"%1\"").arg(sp.remoteChannel);
     sp.startMode = AttachToRemote;
     if (DebuggerRunControl *rc = createDebugger(sp))
+        startDebugger(rc);
+}
+
+void DebuggerPluginPrivate::startRemoteCdbSession()
+{
+    const QString connectionKey = _("CdbRemoteConnection");
+    DebuggerStartParameters sp;
+    sp.toolChainType = ProjectExplorer::ToolChain_MSVC;
+    sp.startMode = AttachToRemote;
+    StartRemoteCdbDialog dlg(mainWindow());
+    QString previousConnection = configValue(connectionKey).toString();
+    if (previousConnection.isEmpty())
+        previousConnection = QLatin1String("localhost:1234");
+    dlg.setConnection(previousConnection);
+    if (dlg.exec() != QDialog::Accepted)
+        return;
+    sp.remoteChannel = dlg.connection();
+    setConfigValue(connectionKey, sp.remoteChannel);
+    if (RunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
 

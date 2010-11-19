@@ -351,6 +351,15 @@ extern "C" HRESULT CALLBACK memory(CIDebugClient *Client, PCSTR argsIn)
     return S_OK;
 }
 
+// Extension command 'shutdownex' (shutdown is reserved):
+// Unhook the output callbacks. This is normally done by the session
+// inaccessible notification, however, this does not work for remote-controlled sessions.
+extern "C" HRESULT CALLBACK shutdownex(CIDebugClient *, PCSTR)
+{
+    ExtensionContext::instance().unhookCallbacks();
+    return S_OK;
+}
+
 // Hook for dumping Known Structs. Not currently used.
 // Shows up in 'dv' as well as IDebugSymbolGroup::GetValueText.
 

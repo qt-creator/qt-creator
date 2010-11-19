@@ -221,9 +221,11 @@ STDMETHODIMP EventCallback::ExitProcess(
 {
     ExtensionContext::instance().report('E', 0, eventContextC, "Process exited (%lu)",
                                         ExitCode);
-
-    dprintf("%s ExitProcess %u\n", creatorOutputPrefixC, ExitCode);
-    return m_wrapped ? m_wrapped->ExitProcess(ExitCode) : S_OK;
+    const HRESULT hr = m_wrapped ? m_wrapped->ExitProcess(ExitCode) : S_OK;
+    // Remotely debugged process exited, there is no session-inactive notification.
+    // Note: We get deleted here, so, order is important.
+    ExtensionContext::instance().unhookCallbacks();
+    return hr;
 }
 
 STDMETHODIMP EventCallback::LoadModule(

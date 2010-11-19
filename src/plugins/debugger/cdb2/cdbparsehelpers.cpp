@@ -154,10 +154,14 @@ QVariant cdbIntegerValue(const QByteArray &t)
     return converted;
 }
 
-/* Parse:
+/* Parse: 64bit:
 \code
 Child-SP          RetAddr           Call Site
 00000000`0012a290 00000000`70deb844 QtCored4!QString::QString+0x18 [c:\qt\src\corelib\tools\qstring.h @ 729]
+\endcode 32bit:
+\code
+ChildEBP RetAddr
+0012cc68 6714d114 QtCored4!QString::QString+0xf [d:\dev\qt4.7-vs8\qt\src\corelib\tools\qstring.h @ 729]
 \endcode */
 
 static inline bool isHexDigit(char c)
@@ -168,7 +172,7 @@ static inline bool isHexDigit(char c)
 static inline bool parseStackFrame(QByteArray line, Debugger::Internal::StackFrame *frame)
 {
     frame->clear();
-    if (line.isEmpty() || line.startsWith("Child-SP") || !isHexDigit(line.at(0)))
+    if (line.isEmpty() || line.startsWith("Child") || !isHexDigit(line.at(0)))
         return false;
     if (line.endsWith(']')) {
         const int sourceFilePos = line.lastIndexOf('[');

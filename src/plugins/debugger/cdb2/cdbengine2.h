@@ -115,7 +115,7 @@ public:
     virtual void reloadSourceFiles();
     virtual void reloadFullStack();
 
-    //virtual bool isSynchronous() const { return true; }
+    static QString extensionLibraryName(bool is64Bit);
 
 private slots:
     void readyReadStandardOut();
@@ -151,6 +151,7 @@ private:
     void doContinueInferior();
     inline void parseOutputLine(QByteArray line);
     inline bool isCdbProcessRunning() const { return m_process.state() != QProcess::NotRunning; }
+    bool canInterruptInferior() const;
 
     // Builtin commands
     void dummyHandler(const CdbBuiltinCommandPtr &);

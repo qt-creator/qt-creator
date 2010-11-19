@@ -48,6 +48,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/synchronousprocess.h>
 #include <utils/winutils.h>
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
@@ -228,7 +229,6 @@ static inline bool validMode(DebuggerStartMode sm)
     case NoStartMode:
     case AttachTcf:
     case AttachCore:
-    case AttachToRemote:
     case StartRemoteGdb:
         return false;
     default:
@@ -334,7 +334,7 @@ void CdbEngine::setupEngine()
 }
 
 // Determine full path to the CDB extension library.
-static inline QString extensionLibraryName(bool is64Bit)
+QString CdbEngine::extensionLibraryName(bool is64Bit)
 {
     // Determine extension lib name and path to use
     QString rc;
@@ -387,18 +387,24 @@ bool CdbEngine::doSetupEngine(QString *errorMessage)
     // Determine extension lib name and path to use
     // The extension is passed as relative name with the path variable set
     //(does not work with absolute path names)
-    const QFileInfo extensionFi(extensionLibraryName(m_options->is64bit));
+    const QFileInfo extensionFi(CdbEngine::extensionLibraryName(m_options->is64bit));
     if (!extensionFi.isFile()) {
         *errorMessage = QString::fromLatin1("Internal error: The extension %1 cannot be found.").
                 arg(QDir::toNativeSeparators(extensionFi.absoluteFilePath()));
         return false;
     }
+    const QString extensionFileName = extensionFi.fileName();
     // Prepare arguments
     const DebuggerStartParameters &sp = startParameters();
     QStringList arguments;
+    const bool isRemote = sp.startMode == AttachToRemote;
+    if (isRemote) { // Must be first
+        arguments << QLatin1String("-remote") << sp.remoteChannel;
+    } else {
+        arguments << (QLatin1String("-a") + extensionFileName);
+    }
     // Source line info/No terminal breakpoint / Pull extension
     arguments << QLatin1String("-lines") << QLatin1String("-G")
-              << (QLatin1String("-a") + extensionFi.fileName())
     // register idle (debuggee stop) notification
               << QLatin1String("-c")
               << QString::fromAscii(".idle_cmd " + m_extensionCommandPrefixBA + "idle");
@@ -413,8 +419,10 @@ bool CdbEngine::doSetupEngine(QString *errorMessage)
     case StartExternal:
         arguments << QDir::toNativeSeparators(sp.executable);
         break;
+    case AttachToRemote:
+        break;
     case AttachExternal:
-    case AttachCrashedExternal:   // @TODO: event handle for crashed?
+    case AttachCrashedExternal:
         arguments << QLatin1String("-p") << QString::number(sp.attachPID);
         if (sp.startMode == AttachCrashedExternal)
             arguments << QLatin1String("-e") << sp.crashParameter << QLatin1String("-g");
@@ -451,17 +459,28 @@ bool CdbEngine::doSetupEngine(QString *errorMessage)
     showMessage(QString::fromLatin1("%1 running as %2").
                 arg(QDir::toNativeSeparators(executable)).arg(pid), LogMisc);
     m_hasDebuggee = true;
+    if (isRemote) { // We do not get an 'idle' in a remote session, but are accessible
+        m_accessible = true;
+        const QByteArray loadCommand = QByteArray(".load ")
+                + extensionFileName.toLocal8Bit();
+        postCommand(loadCommand, 0);
+        notifyEngineSetupOk();
+    }
     return true;
 }
 
 void CdbEngine::setupInferior()
 {
+    if (debug)
+        qDebug("setupInferior");
     attemptBreakpointSynchronization();
     postExtensionCommand("pid", QByteArray(), 0, &CdbEngine::handlePid);
 }
 
 void CdbEngine::runEngine()
 {
+    if (debug)
+        qDebug("runEngine");
     postCommand("g", 0);
 }
 
@@ -477,6 +496,11 @@ void CdbEngine::shutdownInferior()
         notifyInferiorShutdownOk();
         return;
     }
+    if (!canInterruptInferior()) {
+        notifyInferiorShutdownFailed();
+        return;
+    }
+
     if (m_accessible) {
         if (startParameters().startMode == AttachExternal || startParameters().startMode == AttachCrashedExternal)
             detachDebugger();
@@ -513,8 +537,19 @@ void CdbEngine::shutdownEngine()
     if (m_accessible) {
         if (startParameters().startMode == AttachExternal)
             detachDebugger();
-        postCommand("q", 0);
+        // Remote requires a bit more force to quit.
+        if (startParameters().startMode == AttachToRemote) {
+            postCommand(m_extensionCommandPrefixBA + "shutdownex", 0);
+            postCommand("qq", 0);
+        } else {
+            postCommand("q", 0);
+        }
         m_notifyEngineShutdownOnTermination = true;
+        return;
+    } else {
+        // Remote process. No can do, currently
+        m_notifyEngineShutdownOnTermination = true;
+        Utils::SynchronousProcess::stopProcess(m_process);
         return;
     }
     // Lost debuggee, debugger should quit anytime now
@@ -638,9 +673,21 @@ void CdbEngine::doContinueInferior()
     postCommand(QByteArray("g"), 0);
 }
 
+bool CdbEngine::canInterruptInferior() const
+{
+    return startParameters().startMode != AttachToRemote;
+}
+
 void CdbEngine::interruptInferior()
 {
-    doInterruptInferior(NoSpecialStop);
+    if (canInterruptInferior()) {
+        doInterruptInferior(NoSpecialStop);
+    } else {
+        showMessage(tr("Interrupting is not possible in remote sessions."), LogError);
+        notifyInferiorStopOk();
+        notifyInferiorRunRequested();
+        notifyInferiorRunOk();
+    }
 }
 
 void CdbEngine::doInterruptInferior(SpecialStopMode sm)
