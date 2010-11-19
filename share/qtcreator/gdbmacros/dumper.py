@@ -688,13 +688,24 @@ def checkPointerRange(p, n):
         checkPointer(p)
         ++p
 
-def call(value, func):
-    #warn("CALL: %s -> %s" % (value, func))
+def call2(value, func, args):
+    # args is a tuple.
+    arg = ""
+    for i in range(len(args)):
+        if i:
+            arg += ','
+        a = args[i]
+        if (':' in a) and not ("'" in a):
+            arg = "'%s'" % a
+        else:
+            arg += a
+
+    #warn("CALL: %s -> %s(%s)" % (value, func, arg))
     type = stripClassTag(str(value.type))
     if type.find(":") >= 0:
         type = "'" + type + "'"
     # 'class' is needed, see http://sourceware.org/bugzilla/show_bug.cgi?id=11912
-    exp = "((class %s*)%s)->%s" % (type, value.address, func)
+    exp = "((class %s*)%s)->%s(%s)" % (type, value.address, func, arg)
     #warn("CALL: %s" % exp)
     result = None
     try:
@@ -703,6 +714,9 @@ def call(value, func):
         pass
     #warn("  -> %s" % result)
     return result
+
+def call(value, func, *args):
+    return call2(value, func, args)
 
 def makeValue(type, init):
     type = stripClassTag(type)
@@ -1427,8 +1441,8 @@ class Dumper:
         with SubItem(self):
             self.putItem(item)
 
-    def putCallItem(self, name, item, func):
-        result = call(item.value, func)
+    def putCallItem(self, name, item, func, *args):
+        result = call2(item.value, func, args)
         self.putSubItem(Item(result, item.iname, name, name))
 
     def putItem(self, item):

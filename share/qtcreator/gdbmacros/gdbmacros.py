@@ -42,40 +42,6 @@ def qdump__QChar(d, item):
     d.putNumChild(0)
 
 
-def qdump__QAbstractItem(d, item):
-    r = item.value["r"]
-    c = item.value["c"]
-    p = item.value["p"]
-    m = item.value["m"]
-    rowCount = call(m, "rowCount(mi)")
-    if rowCount < 0:
-        return
-    columnCount = call(m, "columnCount(mi)")
-    if columnCount < 0:
-        return
-    d.putStringValue(call(m, "data(mi, Qt::DisplayRole).toString()"))
-    d.putNumChild(rowCount * columnCount)
-    if d.isExpanded(item):
-        with Children(d):
-            innerType = lookupType(d.ns + "QAbstractItem")
-            for row in xrange(rowCount):
-                for column in xrange(columnCount):
-                    with SubItem(d):
-                        child = call(m, "index(row, column, mi)")
-                        d.putName("[%s,%s]" % (row, column))
-                        rr = call(m, "rowCount(child)")
-                        cc = call(m, "columnCount(child)")
-                        d.putNumChild(rr * cc)
-                        d.putValue(
-                            call(m, "data(child, Qt::DisplayRole).toString())"), 6)
-
-            #with SubItem(d):
-            #    d.putNumChild(1)
-            #    d.putName(d.ns + "QObject")
-            #    d.putStringValue(call(item.value, "objectName()"))
-            #    d.putType(d.ns + "QObject")
-            #    d.put('addr="%s",' % cleanAddress(item.value.address))
-
 
 def qdump__QAbstractItemModel(d, item):
     # Create a default-constructed QModelIndex on the stack.
@@ -151,7 +117,7 @@ def qdump__QModelIndex(d, item):
                                 % (mm_, row, column, mi_))
                             d.putItem(Item(mi2, item.iname, i))
                             i = i + 1
-                #d.putCallItem("parent", item, "parent()")
+                #d.putCallItem("parent", item, "parent")
                 #with SubItem(d):
                 #    d.putName("model")
                 #    d.putValue(m)
@@ -171,24 +137,17 @@ def qdump__QDate(d, item):
         d.putValue("(null)")
         d.putNumChild(0)
         return
-    d.putStringValue(call(item.value, "toString('%sQt::TextDate')" % d.ns))
+    qt = d.ns + "Qt::"
+    d.putStringValue(call(item.value, "toString", qt + "TextDate"))
     d.putNumChild(1)
     if d.isExpanded(item):
         # FIXME: This improperly uses complex return values.
-        with Children(d, 8):
-            d.putCallItem("toTime_t", item, "toTime_t()")
-            d.putCallItem("toString",
-                item, "toString('%sQt::TextDate')" % d.ns)
-            d.putCallItem("(ISO)",
-                item, "toString('%sQt::ISODate')" % d.ns)
-            d.putCallItem("(SystemLocale)",
-                item, "toString('%sQt::SystemLocaleDate')" % d.ns)
-            d.putCallItem("(Locale)",
-                item, "toString('%sQt::LocaleDate')" % d.ns)
-            d.putCallItem("toUTC",
-                item, "toTimeSpec('%sQt::UTC')" % d.ns)
-            d.putCallItem("toLocalTime",
-                item, "toTimeSpec('%sQt::LocalTime')" % d.ns)
+        with Children(d, 4):
+            d.putCallItem("toString", item, "toString", qt + "TextDate")
+            d.putCallItem("(ISO)", item, "toString", qt + "ISODate")
+            d.putCallItem("(SystemLocale)", item, "toString",
+                qt + "SystemLocaleDate")
+            d.putCallItem("(Locale)", item, "toString", qt + "LocaleDate")
 
 
 def qdump__QTime(d, item):
@@ -196,23 +155,18 @@ def qdump__QTime(d, item):
         d.putValue("(null)")
         d.putNumChild(0)
         return
-    d.putStringValue(call(item.value, "toString('%sQt::TextDate')" % d.ns))
+    qt = d.ns + "Qt::"
+    d.putStringValue(call(item.value, "toString", qt + "TextDate"))
     d.putNumChild(1)
     if d.isExpanded(item):
         # FIXME: This improperly uses complex return values.
         with Children(d, 8):
-            d.putCallItem("toString",
-                item, "toString('%sQt::TextDate')" % d.ns)
-            d.putCallItem("(ISO)",
-                item, "toString('%sQt::ISODate')" % d.ns)
-            d.putCallItem("(SystemLocale)",
-                item, "toString('%sQt::SystemLocaleDate')" % d.ns)
-            d.putCallItem("(Locale)",
-                item, "toString('%sQt::LocaleDate')" % d.ns)
-            d.putCallItem("toUTC",
-                item, "toTimeSpec('%sQt::UTC')" % d.ns)
-            #d.putCallItem("toLocalTime",
-            #    item, "toTimeSpec('%sQt::LocalTime')" % d.ns)
+            d.putCallItem("toString", item, "toString", qt + "TextDate")
+            d.putCallItem("(ISO)", item, "toString", qt + "ISODate")
+            d.putCallItem("(SystemLocale)", item, "toString",
+                 qt + "SystemLocaleDate")
+            d.putCallItem("(Locale)", item, "toString", qt + "LocaleDate")
+            d.putCallItem("toUTC", item, "toTimeSpec", qt + "UTC")
 
 
 def qdump__QDateTime(d, item):
@@ -225,25 +179,19 @@ def qdump__QDateTime(d, item):
     except:
         d.putPlainChildren(item)
         return
-
-    d.putStringValue(call(item.value, "toString('%sQt::TextDate')" % d.ns))
+    qt = d.ns + "Qt::"
+    d.putStringValue(call(item.value, "toString", qt + "TextDate"))
     d.putNumChild(1)
     if d.isExpanded(item):
         # FIXME: This improperly uses complex return values.
         with Children(d, 8):
-            d.putCallItem("toTime_t", item, "toTime_t()")
-            d.putCallItem("toString",
-                item, "toString('%sQt::TextDate')" % d.ns)
-            d.putCallItem("(ISO)",
-                item, "toString('%sQt::ISODate')" % d.ns)
-            d.putCallItem("(SystemLocale)",
-                item, "toString('%sQt::SystemLocaleDate')" % d.ns)
-            d.putCallItem("(Locale)",
-                item, "toString('%sQt::LocaleDate')" % d.ns)
-            d.putCallItem("toUTC",
-                item, "toTimeSpec('%sQt::UTC')" % d.ns)
-            #d.putCallItem("toLocalTime",
-            #    item, "toTimeSpec('%sQt::LocalTime')" % d.ns)
+            d.putCallItem("toTime_t", item, "toTime_t")
+            d.putCallItem("toString", item, "toString", qt + "TextDate")
+            d.putCallItem("(ISO)", item, "toString", qt + "ISODate")
+            d.putCallItem("(SystemLocale)", item, "toString", qt + "SystemLocaleDate")
+            d.putCallItem("(Locale)", item, "toString", qt + "LocaleDate")
+            d.putCallItem("toUTC", item, "toTimeSpec", qt + "UTC")
+            d.putCallItem("toLocalTime", item, "toTimeSpec", qt + "LocalTime")
 
 
 def qdump__QDir(d, item):
@@ -251,8 +199,8 @@ def qdump__QDir(d, item):
     d.putNumChild(2)
     if d.isExpanded(item):
         with Children(d, 2):
-            d.putCallItem("absolutePath", item, "absolutePath()")
-            d.putCallItem("canonicalPath", item, "canonicalPath()")
+            d.putCallItem("absolutePath", item, "absolutePath")
+            d.putCallItem("canonicalPath", item, "canonicalPath")
 
 
 def qdump__QFile(d, item):
@@ -274,29 +222,29 @@ def qdump__QFileInfo(d, item):
     d.putNumChild(3)
     if d.isExpanded(item):
         with Children(d, 10, lookupType(d.ns + "QString")):
-            d.putCallItem("absolutePath", item, "absolutePath()")
-            d.putCallItem("absoluteFilePath", item, "absoluteFilePath()")
-            d.putCallItem("canonicalPath", item, "canonicalPath()")
-            d.putCallItem("canonicalFilePath", item, "canonicalFilePath()")
-            d.putCallItem("completeBaseName", item, "completeBaseName()")
-            d.putCallItem("completeSuffix", item, "completeSuffix()")
-            d.putCallItem("baseName", item, "baseName()")
+            d.putCallItem("absolutePath", item, "absolutePath")
+            d.putCallItem("absoluteFilePath", item, "absoluteFilePath")
+            d.putCallItem("canonicalPath", item, "canonicalPath")
+            d.putCallItem("canonicalFilePath", item, "canonicalFilePath")
+            d.putCallItem("completeBaseName", item, "completeBaseName")
+            d.putCallItem("completeSuffix", item, "completeSuffix")
+            d.putCallItem("baseName", item, "baseName")
             if False:
                 #ifdef Q_OS_MACX
-                d.putCallItem("isBundle", item, "isBundle()")
-                d.putCallItem("bundleName", item, "bundleName()")
-            d.putCallItem("fileName", item, "fileName()")
-            d.putCallItem("filePath", item, "filePath()")
+                d.putCallItem("isBundle", item, "isBundle")
+                d.putCallItem("bundleName", item, "bundleName")
+            d.putCallItem("fileName", item, "fileName")
+            d.putCallItem("filePath", item, "filePath")
             # Crashes gdb (archer-tromey-python, at dad6b53fe)
-            #d.putCallItem("group", item, "group()")
-            #d.putCallItem("owner", item, "owner()")
-            d.putCallItem("path", item, "path()")
+            #d.putCallItem("group", item, "group")
+            #d.putCallItem("owner", item, "owner")
+            d.putCallItem("path", item, "path")
 
-            d.putCallItem("groupid", item, "groupId()")
-            d.putCallItem("ownerid", item, "ownerId()")
+            d.putCallItem("groupid", item, "groupId")
+            d.putCallItem("ownerid", item, "ownerId")
 
             #QFile::Permissions permissions () const
-            perms = call(item.value, "permissions()")
+            perms = call(item.value, "permissions")
             if perms is None:
                 d.putValue("<not available>")
             else:
@@ -323,21 +271,21 @@ def qdump__QFileInfo(d, item):
 
             #QDir absoluteDir () const
             #QDir dir () const
-            d.putCallItem("caching", item, "caching()")
-            d.putCallItem("exists", item, "exists()")
-            d.putCallItem("isAbsolute", item, "isAbsolute()")
-            d.putCallItem("isDir", item, "isDir()")
-            d.putCallItem("isExecutable", item, "isExecutable()")
-            d.putCallItem("isFile", item, "isFile()")
-            d.putCallItem("isHidden", item, "isHidden()")
-            d.putCallItem("isReadable", item, "isReadable()")
-            d.putCallItem("isRelative", item, "isRelative()")
-            d.putCallItem("isRoot", item, "isRoot()")
-            d.putCallItem("isSymLink", item, "isSymLink()")
-            d.putCallItem("isWritable", item, "isWritable()")
-            d.putCallItem("created", item, "created()")
-            d.putCallItem("lastModified", item, "lastModified()")
-            d.putCallItem("lastRead", item, "lastRead()")
+            d.putCallItem("caching", item, "caching")
+            d.putCallItem("exists", item, "exists")
+            d.putCallItem("isAbsolute", item, "isAbsolute")
+            d.putCallItem("isDir", item, "isDir")
+            d.putCallItem("isExecutable", item, "isExecutable")
+            d.putCallItem("isFile", item, "isFile")
+            d.putCallItem("isHidden", item, "isHidden")
+            d.putCallItem("isReadable", item, "isReadable")
+            d.putCallItem("isRelative", item, "isRelative")
+            d.putCallItem("isRoot", item, "isRoot")
+            d.putCallItem("isSymLink", item, "isSymLink")
+            d.putCallItem("isWritable", item, "isWritable")
+            d.putCallItem("created", item, "created")
+            d.putCallItem("lastModified", item, "lastModified")
+            d.putCallItem("lastRead", item, "lastRead")
 
 
 def qdump__QFixed(d, item):
@@ -595,26 +543,26 @@ def qdump__QLinkedList(d, item):
 
 
 def qdump__QLocale(d, item):
-    d.putStringValue(call(item.value, "name()"))
+    d.putStringValue(call(item.value, "name"))
     d.putNumChild(0)
     return
     # FIXME: Poke back for variants.
     if d.isExpanded(item):
         with Children(d, 1, lookupType(d.ns + "QChar"), 0):
-            d.putCallItem("country", item, "country()")
-            d.putCallItem("language", item, "language()")
-            d.putCallItem("measurementSystem", item, "measurementSystem()")
-            d.putCallItem("numberOptions", item, "numberOptions()")
+            d.putCallItem("country", item, "country")
+            d.putCallItem("language", item, "language")
+            d.putCallItem("measurementSystem", item, "measurementSystem")
+            d.putCallItem("numberOptions", item, "numberOptions")
             d.putCallItem("timeFormat_(short)", item,
-                "timeFormat('" + d.ns + "QLocale::ShortFormat')")
+                "timeFormat", d.ns + "QLocale::ShortFormat")
             d.putCallItem("timeFormat_(long)", item,
-                "timeFormat('" + d.ns + "QLocale::LongFormat')")
-            d.putCallItem("decimalPoint", item, "decimalPoint()")
-            d.putCallItem("exponential", item, "exponential()")
-            d.putCallItem("percent", item, "percent()")
-            d.putCallItem("zeroDigit", item, "zeroDigit()")
-            d.putCallItem("groupSeparator", item, "groupSeparator()")
-            d.putCallItem("negativeSign", item, "negativeSign()")
+                "timeFormat", d.ns + "QLocale::LongFormat")
+            d.putCallItem("decimalPoint", item, "decimalPoint")
+            d.putCallItem("exponential", item, "exponential")
+            d.putCallItem("percent", item, "percent")
+            d.putCallItem("zeroDigit", item, "zeroDigit")
+            d.putCallItem("groupSeparator", item, "groupSeparator")
+            d.putCallItem("negativeSign", item, "negativeSign")
 
 
 def qdump__QMapNode(d, item):
@@ -765,7 +713,7 @@ def qdump__QObject(d, item):
                 namesArray = names["d"]["array"]
                 dynamicPropertyCount = namesEnd - namesBegin
 
-            #staticPropertyCount = call(mo, "propertyCount()")
+            #staticPropertyCount = call(mo, "propertyCount")
             staticPropertyCount = metaData[6]
             #warn("PROPERTY COUNT: %s" % staticPropertyCount)
             propertyCount = staticPropertyCount + dynamicPropertyCount
@@ -825,8 +773,8 @@ def qdump__QObject(d, item):
                             #     % (d.ns, item.value.address, propertyName)
                             #exp = '"((\'%sQObject\'*)%s)"' % (d.ns, item.value.address,)
                             #warn("EXPRESSION:  %s" % exp)
-                            value = call(item.value, 'property(%s)'
-                                % cleanAddress(metaStringData + metaData[offset]))
+                            value = call(item.value, "property",
+                                str(cleanAddress(metaStringData + metaData[offset])))
                             value1 = value["d"]
                             #warn("   CODE: %s" % value1["type"])
                             # Type 1 and 2 are bool and int. Try to save a few cycles in this case:
@@ -850,7 +798,7 @@ def qdump__QObject(d, item):
                            #    type = str(call(item.value, func))
                            #    type = type[type.find('"') + 1 : type.rfind('"')]
                            #    type = type.replace("Q", d.ns + "Q") # HACK!
-                           #    data = call(item.value, "constData()")
+                           #    data = call(item.value, "constData")
                            #    tdata = data.cast(lookupType(type).pointer()).dereference()
                            #    d.putValue("(%s)" % tdata.type)
                            #    d.putType(tdata.type)
@@ -1720,13 +1668,13 @@ def qdump__QTemporaryFile(d, item):
 
 
 def qdump__QTextCodec(d, item):
-    value = call(item.value, "name()")
+    value = call(item.value, "name")
     d.putValue(encodeByteArray(value), 6)
     d.putNumChild(2)
     if d.isExpanded(item):
         with Children(d):
-            d.putCallItem("name", item, "name()")
-            d.putCallItem("mibEnum", item, "mibEnum()")
+            d.putCallItem("name", item, "name")
+            d.putCallItem("mibEnum", item, "mibEnum")
 
 
 def qdump__QTextCursor(d, item):
@@ -1746,7 +1694,7 @@ def qdump__QTextCursor(d, item):
             with Children(d):
                 d.putIntItem("position", p["position"])
                 d.putIntItem("anchor", p["anchor"])
-                d.putCallItem("selected", item, "selectedText()")
+                d.putCallItem("selected", item, "selectedText")
 
 
 def qdump__QTextDocument(d, item):
@@ -1754,11 +1702,11 @@ def qdump__QTextDocument(d, item):
     d.putNumChild(1)
     if d.isExpanded(item):
         with Children(d):
-            d.putCallItem("blockCount", item, "blockCount()")
-            d.putCallItem("characterCount", item, "characterCount()")
-            d.putCallItem("lineCount", item, "lineCount()")
-            d.putCallItem("revision", item, "revision()")
-            d.putCallItem("toPlainText", item, "toPlainText()")
+            d.putCallItem("blockCount", item, "blockCount")
+            d.putCallItem("characterCount", item, "characterCount")
+            d.putCallItem("lineCount", item, "lineCount")
+            d.putCallItem("revision", item, "revision")
+            d.putCallItem("toPlainText", item, "toPlainText")
 
 
 def qdump__QUrl(d, item):
@@ -1932,21 +1880,27 @@ def qdump__QVariant(d, item):
         d.putItem(Item(v, item.iname))
         d.putType("%sQVariant (%s)" % (d.ns, innert), d.currentTypePriority + 1)
         return innert
-    else:
-        # User types.
-        d_member = item.value["d"]
-        func = "typeToName(('%sQVariant::Type')%d)" % (d.ns, d_member["type"])
-        type = str(call(item.value, func))
-        type = type[type.find('"') + 1 : type.rfind('"')]
-        type = type.replace("Q", d.ns + "Q") # HACK!
-        data = call(item.value, "constData()")
-        tdata = data.cast(lookupType(type).pointer()).dereference()
-        d.putType("%sQVariant (%s)" % (d.ns, tdata.type))
-        d.putNumChild(1)
-        if d.isExpanded(item):
-            with Children(d):
-                d.putSubItem(Item(tdata, item.iname, "data", "data"))
-        return tdata.type
+
+    # User types.
+    d_member = item.value["d"]
+    type = str(call(item.value, "typeToName",
+        "('%sQVariant::Type')%d" % (d.ns, d_member["type"])))
+    type = type[type.find('"') + 1 : type.rfind('"')]
+    type = type.replace("Q", d.ns + "Q") # HACK!
+    type = type.replace("COMMA", ",") # HACK!
+    #warn("TYPE: %s" % type)
+    data = call(item.value, "constData")
+    #warn("DATA: %s" % data)
+    d.putValue(" ", None, -99)
+    d.putType("%sQVariant (%s)" % (d.ns, type))
+    d.putNumChild(1)
+    if d.isExpanded(item):
+        with Children(d):
+            # This fails for templated and namepspaced types.
+            tdata = data.cast(lookupType(type).pointer()).dereference()
+            #warn("TDATA: %s" % tdata)
+            d.putSubItem(Item(tdata, item.iname, "data", "data"))
+    return tdata.type
 
 
 def qdump__QVector(d, item):
