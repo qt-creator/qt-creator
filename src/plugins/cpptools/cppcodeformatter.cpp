@@ -1038,12 +1038,13 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
 {
     const State &parentState = state();
     const Token &tk = currentToken();
-    const int tokenPosition = column(tk.begin());
     const bool firstToken = (tokenIndex() == 0);
     const bool lastToken = (tokenIndex() == tokenCount() - 1);
-    int nextTokenStart = 0;
-    if (!lastToken)
-        nextTokenStart = column(tokenAt(tokenIndex() + 1).begin());
+    const int tokenPosition = column(tk.begin());
+    const int nextTokenPosition = lastToken ? tokenPosition + tk.length()
+                                            : column(tokenAt(tokenIndex() + 1).begin());
+    const int spaceOrNextTokenPosition = lastToken ? tokenPosition + tk.length() + 1
+                                                   : nextTokenPosition;
 
     if (shouldClearPaddingOnEnter(newState))
         *paddingDepth = 0;
@@ -1067,7 +1068,7 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
 
     case template_param:
         if (!lastToken)
-            *paddingDepth = tokenPosition-*indentDepth + tk.length();
+            *paddingDepth = nextTokenPosition-*indentDepth;
         else {
             if (*paddingDepth == 0)
                 *paddingDepth = 2*m_indentSize;
@@ -1104,24 +1105,24 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
     case arglist_open:
     case condition_paren_open:
         if (!lastToken)
-            *paddingDepth = tokenPosition-*indentDepth + 1;
+            *paddingDepth = nextTokenPosition-*indentDepth;
         else
             *paddingDepth += m_indentSize;
         break;
 
     case ternary_op:
         if (!lastToken)
-            *paddingDepth = tokenPosition-*indentDepth + tk.length() + 1;
+            *paddingDepth = spaceOrNextTokenPosition-*indentDepth;
         else
             *paddingDepth += m_indentSize;
         break;
 
     case stream_op:
-        *paddingDepth = tokenPosition-*indentDepth + tk.length() + 1;
+        *paddingDepth = spaceOrNextTokenPosition-*indentDepth;
         break;
     case stream_op_cont:
         if (firstToken)
-            *savedPaddingDepth = *paddingDepth = tokenPosition-*indentDepth + tk.length() + 1;
+            *savedPaddingDepth = *paddingDepth = spaceOrNextTokenPosition-*indentDepth;
         break;
 
     case member_init_open:
@@ -1159,7 +1160,7 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
         *indentDepth += m_indentSize;
 
         if (followedByData) {
-            *paddingDepth = column(tokenAt(tokenIndex() + 1).begin()) - *indentDepth;
+            *paddingDepth = nextTokenPosition-*indentDepth;
         }
         break;
     }
@@ -1188,7 +1189,7 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
         if (!lastToken) {
             if (parentState.type == initializer)
                 *savedPaddingDepth = tokenPosition-*indentDepth;
-            *paddingDepth = nextTokenStart-*indentDepth;
+            *paddingDepth = nextTokenPosition-*indentDepth;
         } else {
             // avoid existing continuation indents
             if (parentState.type == initializer)
@@ -1212,10 +1213,10 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
         *savedPaddingDepth = *paddingDepth;
 
         // fixed extra indent when continuing 'if (', but not for 'else if ('
-        if (tokenPosition <= *indentDepth + m_indentSize)
+        if (nextTokenPosition-*indentDepth <= m_indentSize)
             *paddingDepth = 2*m_indentSize;
         else
-            *paddingDepth = tokenPosition-*indentDepth + 1;
+            *paddingDepth = nextTokenPosition-*indentDepth;
         break;
 
     case substatement:
@@ -1235,11 +1236,11 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
     }   break;
 
     case for_statement_paren_open:
-        *paddingDepth = tokenPosition + 1 - *indentDepth;
+        *paddingDepth = nextTokenPosition - *indentDepth;
         break;
 
     case multiline_comment_start:
-        *indentDepth = tokenPosition + 2;
+        *indentDepth = tokenPosition + 2; // nextTokenPosition won't work
         break;
 
     case multiline_comment_cont:

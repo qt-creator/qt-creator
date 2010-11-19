@@ -56,6 +56,7 @@ private Q_SLOTS:
     void cpp0xFor();
     void gnuStyleSwitch();
     void whitesmithsStyleSwitch();
+    void indentToNextToken();
 };
 
 struct Line {
@@ -1096,6 +1097,23 @@ void tst_CodeFormatter::whitesmithsStyleSwitch()
          << Line("    }")
          ;
     checkIndent(data, 2);
+}
+
+void tst_CodeFormatter::indentToNextToken()
+{
+    QList<Line> data;
+    data << Line("void foo( int i,")
+         << Line("~         int j) {")
+         << Line("    a <<     foo + ")
+         << Line("    ~        bar;")
+         << Line("    if (a &&")
+         << Line("    ~       b) {")
+         << Line("        foo; }")
+         << Line("    if ( a &&")
+         << Line("    ~    b) {")
+         << Line("        foo; }")
+         ;
+    checkIndent(data);
 }
 
 QTEST_APPLESS_MAIN(tst_CodeFormatter)
