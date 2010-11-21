@@ -48,7 +48,9 @@ namespace TextEditor {
 
 namespace VCSBase {
 
-struct DiffHighlighterPrivate;
+namespace Internal {
+class DiffHighlighterPrivate;
+} // namespace Internal
 
 /* A highlighter for diffs. Parametrizable by the file indicator,
  *  which is for example '^====' in case of p4:
@@ -81,7 +83,7 @@ public:
     QRegExp filePattern() const;
 
 private:
-    DiffHighlighterPrivate *m_d;
+    Internal::DiffHighlighterPrivate *m_d;
 };
 
 } // namespace VCSBase

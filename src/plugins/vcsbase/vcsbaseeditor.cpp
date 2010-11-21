@@ -201,6 +201,7 @@ void VCSBaseEditor::init()
         break;
     case DiffOutput: {
         DiffHighlighter *dh = createDiffHighlighter();
+        setCodeFoldingSupported(true);
         baseTextDocument()->setSyntaxHighlighter(dh);
         d->m_diffFilePattern = dh->filePattern();
         connect(this, SIGNAL(textChanged()), this, SLOT(slotPopulateDiffBrowser()));

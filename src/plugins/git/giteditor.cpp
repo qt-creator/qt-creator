@@ -114,7 +114,7 @@ QString GitEditor::changeUnderCursor(const QTextCursor &c) const
 
 VCSBase::DiffHighlighter *GitEditor::createDiffHighlighter() const
 {
-    const QRegExp filePattern(QLatin1String("^[-+][-+][-+] [ab].*"));
+    const QRegExp filePattern(QLatin1String("^(diff --git a/|index |[+-][+-][+-] [ab]).*$"));
     return new VCSBase::DiffHighlighter(filePattern);
 }
 
