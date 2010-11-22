@@ -3021,7 +3021,7 @@ void GdbEngine::activateFrame(int frameIndex)
         // after a response to this -stack-select-frame here.
         handler->setCurrentIndex(frameIndex);
         postCommand("-stack-select-frame " + QByteArray::number(frameIndex),
-            CB(handleStackSelectFrame));
+            Discardable, CB(handleStackSelectFrame));
     }
     gotoLocation(handler->currentFrame(), true);
 }
@@ -3035,22 +3035,23 @@ void GdbEngine::handleStackSelectFrame(const GdbResponse &response)
 
 void GdbEngine::handleThreadInfo(const GdbResponse &response)
 {
-    int id = response.cookie.toInt();
+    const int id = response.cookie.toInt();
     if (response.resultClass == GdbResultDone) {
         int currentThreadId;
-        const Threads threads= ThreadsHandler::parseGdbmiThreads(response.data, &currentThreadId);
+        const Threads threads =
+            ThreadsHandler::parseGdbmiThreads(response.data, &currentThreadId);
         threadsHandler()->setThreads(threads);
         threadsHandler()->setCurrentThreadId(currentThreadId);
         updateViews(); // Adjust Threads combobox.
         if (m_hasInferiorThreadList) {
             postCommand("threadnames " +
                 debuggerCore()->action(MaximalStackDepth)->value().toByteArray(),
-                CB(handleThreadNames), id);
+                Discardable, CB(handleThreadNames), id);
         }
     } else {
         // Fall back for older versions: Try to get at least a list
         // of running threads.
-        postCommand("-thread-list-ids", CB(handleThreadListIds), id);
+        postCommand("-thread-list-ids", Discardable, CB(handleThreadListIds), id);
     }
 }
 
