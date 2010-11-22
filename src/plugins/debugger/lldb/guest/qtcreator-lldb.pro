@@ -32,9 +32,9 @@ SOURCES +=  ../ipcengineguest.cpp \
             main.cpp
 
 
-LIBS += -sectcreate __TEXT __info_plist ./qtcreator-lldb.plist
+LIBS += -sectcreate __TEXT __info_plist $$PWD/qtcreator-lldb.plist
 
-POSTL =  rm -rf \'$${IDE_LIBEXEC_PATH}/LLDB.framework\' $$escape_expand(\\n\\t) \
+POSTL = rm -rf \'$${IDE_LIBEXEC_PATH}/LLDB.framework\' $$escape_expand(\\n\\t) \
         $$QMAKE_COPY_DIR lldb/build/Release/* \'$$IDE_LIBEXEC_PATH\' $$escape_expand(\\n\\t) \
         install_name_tool -change '@rpath/LLDB.framework/Versions/A/LLDB' '@executable_path/LLDB.framework/Versions/A/LLDB' $(TARGET)  $$escape_expand(\\n\\t) \
         codesign -s lldb_codesign $(TARGET)
@@ -48,7 +48,7 @@ LIBS +=  -framework Security -framework Python
 DEFINES += __STDC_LIMIT_MACROS __STDC_CONSTANT_MACROS
 
 INCLUDEPATH += lldb/include lldb/llvm/include/
-LIBS += -Flldb/build/Release -framework LLDB
+LIBS += -F$$PWD/lldb/build/Release -framework LLDB
 
 # include (lldb.pri)
 # DEFINES += HAVE_LLDB_PRIVATE
