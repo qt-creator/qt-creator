@@ -34,6 +34,7 @@
 #include <texteditor/normalindenter.h>
 
 #include <QtGui/QTextDocument>
+#include <QtGui/QFocusEvent>
 
 using namespace TextEditor;
 
@@ -68,8 +69,7 @@ void SnippetEditor::setSyntaxHighlighter(TextEditor::SyntaxHighlighter *highligh
 
 void SnippetEditor::focusOutEvent(QFocusEvent *event)
 {
-    Q_UNUSED(event);
-    if (document()->isModified())
+    if (event->reason() != Qt::ActiveWindowFocusReason && document()->isModified())
         emit snippetContentChanged();
 }
 
