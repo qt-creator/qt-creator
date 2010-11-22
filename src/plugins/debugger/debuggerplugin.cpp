@@ -1201,10 +1201,14 @@ public slots:
         currentEngine()->frameUp();
     }
 
-    void handleOperateByInstructionTriggered()
+    void handleOperateByInstructionTriggered(bool operateByInstructionTriggered)
     {
-        currentEngine()->gotoLocation(
-            currentEngine()->stackHandler()->currentFrame(), true);
+        // Go to source only if we have the file.
+        if (currentEngine()->stackHandler()->currentIndex() >= 0) {
+            const StackFrame frame = currentEngine()->stackHandler()->currentFrame();
+            if (operateByInstructionTriggered || frame.isUsable())
+                currentEngine()->gotoLocation(frame, true);
+        }
     }
 
     bool isActiveDebugLanguage(int lang) const
@@ -1547,8 +1551,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     act = m_actions.frameUpAction = new QAction(tr("Move to Calling Frame"), this);
     connect(act, SIGNAL(triggered()), SLOT(handleFrameUp()));
 
-    connect(debuggerCore()->action(OperateByInstruction), SIGNAL(triggered()),
-        SLOT(handleOperateByInstructionTriggered()));
+    connect(debuggerCore()->action(OperateByInstruction), SIGNAL(triggered(bool)),
+        SLOT(handleOperateByInstructionTriggered(bool)));
 
     connect(&m_statusTimer, SIGNAL(timeout()), SLOT(clearStatusMessage()));
 

@@ -511,7 +511,6 @@ void DebuggerEngine::breakByFunction(const QString &functionName)
 void DebuggerEngine::resetLocation()
 {
     d->m_disassemblerViewAgent.resetLocation();
-    d->m_stackHandler.setCurrentIndex(-1);
     debuggerCore()->removeLocationMark();
 }
 
