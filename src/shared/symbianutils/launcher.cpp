@@ -1022,7 +1022,10 @@ Launcher *Launcher::acquireFromDeviceManager(const QString &serverName,
     SymbianUtils::SymbianDeviceManager *sdm = SymbianUtils::SymbianDeviceManager::instance();
     const QSharedPointer<trk::TrkDevice> device = sdm->acquireDevice(serverName);
     if (device.isNull()) {
-        *errorMessage = tr("Unable to acquire a device for port '%1'. It appears to be in use.").arg(serverName);
+        if (serverName.isEmpty())
+            *errorMessage = tr("No device is connected. Please connect a device and try again.");
+        else
+            *errorMessage = tr("Unable to acquire a device for port '%1'. It appears to be in use.").arg(serverName);
         return 0;
     }
     // Wire release signal.
