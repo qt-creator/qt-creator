@@ -1603,10 +1603,12 @@ void QtVersion::addToEnvironment(Utils::Environment &env) const
     env.set("QTDIR", QDir::toNativeSeparators(versionInfo().value("QT_INSTALL_DATA")));
     if (isBuildWithSymbianSbsV2()) {
         QString sbsHome(env.value(QLatin1String("SBS_HOME")));
-        if (!m_sbsV2Directory.isEmpty())
+        if (!m_sbsV2Directory.isEmpty()) {
             env.prependOrSetPath(m_sbsV2Directory);
-        else if (!sbsHome.isEmpty())
+            env.unset(QLatin1String("SBS_HOME")); // unset SBS_HOME to prevent SBS from picking it up
+        } else if (!sbsHome.isEmpty()) {
             env.prependOrSetPath(sbsHome + QLatin1Char('/') + QLatin1String("bin"));
+        }
     }
     env.prependOrSetPath(versionInfo().value("QT_INSTALL_BINS"));
 }
