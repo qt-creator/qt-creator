@@ -36,9 +36,10 @@
 #include <QtNetwork/QAbstractSocket>
 
 namespace Debugger {
-class QmlAdapter;
 
+namespace Internal {
 class QmlEnginePrivate;
+} // namespace Internal
 
 class DEBUGGER_EXPORT QmlEngine : public DebuggerEngine
 {
@@ -140,7 +141,7 @@ private:
 private:
     friend class QmlCppEngine;
 
-    QScopedPointer<QmlEnginePrivate> d;
+    QScopedPointer<Internal::QmlEnginePrivate> d;
 };
 
 } // namespace Debugger

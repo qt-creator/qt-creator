@@ -141,27 +141,27 @@ static QDataStream &operator>>(QDataStream &s, StackFrame &frame)
     return s;
 }
 
-} // namespace Internal
 
-
-using namespace Internal;
-
-class QmlEnginePrivate {
+class QmlEnginePrivate
+{
 public:
     explicit QmlEnginePrivate(QmlEngine *q);
+    ~QmlEnginePrivate() { delete m_adapter; }
 
-    friend class QmlEngine;
+    friend class Debugger::QmlEngine;
 private:
     int m_ping;
     QmlAdapter *m_adapter;
     ProjectExplorer::ApplicationLauncher m_applicationLauncher;
 };
 
-QmlEnginePrivate::QmlEnginePrivate(QmlEngine *q) :
-  m_ping(0)
-, m_adapter(new QmlAdapter(q))
-{
-}
+QmlEnginePrivate::QmlEnginePrivate(QmlEngine *q)
+    : m_ping(0), m_adapter(new QmlAdapter(q))
+{}
+
+} // namespace Internal
+
+using namespace Internal;
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -177,7 +177,6 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters)
 
 QmlEngine::~QmlEngine()
 {
-    delete d->m_adapter;
 }
 
 void QmlEngine::gotoLocation(const QString &fileName, int lineNumber, bool setMarker)

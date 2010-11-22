@@ -10,10 +10,9 @@
 #include <QtCore/QTimer>
 
 namespace Debugger {
+namespace Internal {
 
 const int ConnectionWaitTimeMs = 5000;
-
-namespace Internal {
 
 DebuggerEngine *createCdbEngine(const DebuggerStartParameters &, QString *);
 DebuggerEngine *createGdbEngine(const DebuggerStartParameters &);
@@ -28,14 +27,13 @@ DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &sp)
     return 0;
 }
 
-} // namespace Internal
-
-class QmlCppEnginePrivate {
+class QmlCppEnginePrivate
+{
 public:
     QmlCppEnginePrivate();
     ~QmlCppEnginePrivate() {}
 
-    friend class QmlCppEngine;
+    friend class Debugger::QmlCppEngine;
 private:
     QmlEngine *m_qmlEngine;
     DebuggerEngine *m_cppEngine;
@@ -43,13 +41,16 @@ private:
     DebuggerState m_errorState;
 };
 
-QmlCppEnginePrivate::QmlCppEnginePrivate() :
-    m_qmlEngine(0),
+QmlCppEnginePrivate::QmlCppEnginePrivate()
+  : m_qmlEngine(0),
     m_cppEngine(0),
     m_activeEngine(0),
     m_errorState(InferiorRunOk)
-{
-}
+{}
+
+} // namespace Internal
+
+using namespace Internal;
 
 QmlCppEngine::QmlCppEngine(const DebuggerStartParameters &sp)
     : DebuggerEngine(sp), d(new QmlCppEnginePrivate)
@@ -639,5 +640,6 @@ DebuggerEngine *QmlCppEngine::cppEngine() const
 {
     return d->m_cppEngine;
 }
+
 
 } // namespace Debugger

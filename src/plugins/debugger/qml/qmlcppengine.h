@@ -11,7 +11,9 @@ class IEditor;
 
 namespace Debugger {
 
+namespace Internal {
 class QmlCppEnginePrivate;
+} // namespace Internal
 
 class DEBUGGER_EXPORT QmlCppEngine : public DebuggerEngine
 {
@@ -112,7 +114,7 @@ private:
     void engineStateChanged(const DebuggerState &newState);
 
 private:
-    QScopedPointer<QmlCppEnginePrivate> d;
+    QScopedPointer<Internal::QmlCppEnginePrivate> d;
 };
 
 } // namespace Debugger
