@@ -1096,9 +1096,10 @@ void CdbEngine::assignValueInDebugger(const WatchData *w, const QString &expr, c
                                    v.toString();
         }
         // Update view
-        if (WatchData *fwd = watchHandler()->findItem(w->iname)) {
-            fwd->setValue(newValueObtained);
-            watchHandler()->insertData(*fwd);
+        if (const WatchData *fwd = watchHandler()->findItem(w->iname)) {
+            WatchData modified = *fwd;
+            modified.setValue(newValueObtained);
+            watchHandler()->insertData(modified);
             watchHandler()->updateWatchers();
         }
         success = true;
@@ -1319,6 +1320,7 @@ bool CdbEngine::attemptBreakpointSynchronizationI(QString *errorMessage)
             }
             break;
         case BreakpointRemoveRequested:
+            handler->notifyBreakpointRemoveProceeding(id);
             handler->notifyBreakpointRemoveOk(id);
             break;
         case BreakpointInserted:

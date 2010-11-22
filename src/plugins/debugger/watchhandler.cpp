@@ -1590,11 +1590,27 @@ WatchModel *WatchHandler::modelForIName(const QByteArray &iname) const
     return 0;
 }
 
-WatchData *WatchHandler::findItem(const QByteArray &iname) const
+const WatchData *WatchHandler::watchData(WatchType type, const QModelIndex &index) const
+{
+    if (index.isValid())
+        if (const WatchModel *m = model(type))
+            return m->watchItem(index);
+    return 0;
+}
+
+const WatchData *WatchHandler::findItem(const QByteArray &iname) const
 {
     const WatchModel *model = modelForIName(iname);
     QTC_ASSERT(model, return 0);
     return model->findItem(iname, model->m_root);
+}
+
+QModelIndex WatchHandler::itemIndex(const QByteArray &iname) const
+{
+    if (const WatchModel *model = modelForIName(iname))
+        if (WatchItem *item = model->findItem(iname, model->m_root))
+            return model->watchIndex(item);
+    return QModelIndex();
 }
 
 void WatchHandler::setFormat(const QByteArray &type, int format)

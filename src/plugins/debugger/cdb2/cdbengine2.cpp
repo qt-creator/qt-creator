@@ -41,12 +41,14 @@
 #include "debuggercore.h"
 #include "registerhandler.h"
 #include "debuggeragents.h"
+#include "debuggertooltip.h"
 #include "cdbparsehelpers.h"
 #include "watchutils.h"
 #include "gdb/gdbmi.h"
 #include "shared/cdbsymbolpathlisteditor.h"
 
 #include <coreplugin/icore.h>
+#include <texteditor/itexteditor.h>
 
 #include <utils/synchronousprocess.h>
 #include <utils/winutils.h>
@@ -328,9 +330,26 @@ void CdbEngine::syncOperateByInstruction(bool operateByInstruction)
 
 void CdbEngine::setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos)
 {
+    if (debug)
+        qDebug() << Q_FUNC_INFO;
+    // Need a stopped debuggee and a cpp file in a valid frame
+    if (state() != InferiorStopOk || !isCppEditor(editor) || stackHandler()->currentIndex() < 0)
+        return;
+    // Determine expression and function
+    int line;
+    int column;
+    QString function;
+    const QString exp = cppExpressionAt(editor, cursorPos, &line, &column, &function);
+    // Are we in the current stack frame
+    if (function.isEmpty() || exp.isEmpty() || function != stackHandler()->currentFrame().function)
+        return;
+    // No numerical or any other expressions [yet]
+    if (!(exp.at(0).isLetter() || exp.at(0) == QLatin1Char('_')))
+        return;
+    const QByteArray iname = QByteArray("local.") + exp.toAscii();
+    const QModelIndex index = watchHandler()->itemIndex(iname);
+    Q_UNUSED(index)
     Q_UNUSED(mousePos)
-    Q_UNUSED(editor)
-    Q_UNUSED(cursorPos)
 }
 
 void CdbEngine::setupEngine()
@@ -1678,6 +1697,7 @@ void CdbEngine::attemptBreakpointSynchronization()
             }
             break;
         case BreakpointRemoveRequested:
+            handler->notifyBreakpointRemoveProceeding(id);
             handler->notifyBreakpointRemoveOk(id);
             break;
         case BreakpointInserted:

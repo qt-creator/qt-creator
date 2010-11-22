@@ -87,7 +87,6 @@ private:
     void fetchMore(const QModelIndex &parent);
 
     friend class WatchHandler;
-    friend class GdbEngine;
 
     WatchItem *watchItem(const QModelIndex &) const;
     QModelIndex watchIndex(const WatchItem *needle) const;
@@ -151,7 +150,10 @@ public:
     void insertData(const WatchData &data);
     void insertBulkData(const QList<WatchData> &data);
     void removeData(const QByteArray &iname);
-    WatchData *findItem(const QByteArray &iname) const;
+
+    const WatchData *watchData(WatchType type, const QModelIndex &) const;
+    const WatchData *findItem(const QByteArray &iname) const;
+    QModelIndex itemIndex(const QByteArray &iname) const;
 
     static void loadSessionData();
     static void saveSessionData();

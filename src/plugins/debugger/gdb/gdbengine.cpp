@@ -3268,22 +3268,20 @@ bool GdbEngine::supportsThreads() const
 
 bool GdbEngine::showToolTip()
 {
-    QByteArray iname = tooltipIName(m_toolTipExpression);
+    const QByteArray iname = tooltipIName(m_toolTipExpression);
 
     if (!debuggerCore()->boolSetting(UseToolTipsInMainEditor)) {
         watchHandler()->removeData(iname);
         return true;
     }
 
-    WatchModel *model = watchHandler()->model(TooltipsWatch);
-    WatchItem *item = model->findItem(iname, model->rootItem());
-    if (!item) {
+    const QModelIndex index = watchHandler()->itemIndex(iname);
+    if (!index.isValid()) {
         watchHandler()->removeData(iname);
         hideDebuggerToolTip();
         return false;
     }
-    QModelIndex index = model->watchIndex(item);
-    showDebuggerToolTip(m_toolTipPos, model, index, m_toolTipExpression);
+    showDebuggerToolTip(m_toolTipPos, watchHandler()->model(TooltipsWatch), index, m_toolTipExpression);
     return true;
 }
 
