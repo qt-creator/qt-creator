@@ -64,6 +64,8 @@ contains(QT_CONFIG, declarative) {
     }
 }
 
+include (debugger/lldb/guest/qtcreator-lldb.pri)
+
 plugin_coreplugin.subdir = coreplugin
 
 plugin_welcome.subdir = welcome
