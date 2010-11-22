@@ -128,7 +128,7 @@ QString CloneWizardPage::directoryFromRepository(const QString &urlIn) const
     }
     // fix invalid characters
     const QChar dash = QLatin1Char('-');
-    url.replace(QRegExp(QLatin1String("[^0-9a-zA-Z_-]")), dash);
+    url.replace(QRegExp(QLatin1String("[^0-9a-zA-Z_.-]")), dash);
     // trim leading dashes (they are annoying and get created when using local pathes)
     url.replace(QRegExp(QLatin1String("^-+")), QString());
     return url;

@@ -50,7 +50,7 @@ BaseCheckoutWizardPage::BaseCheckoutWizardPage(QWidget *parent) :
 
     connect(d->ui.repositoryLineEdit, SIGNAL(textChanged(QString)), this, SLOT(slotRepositoryChanged(QString)));
 
-    connect(d->ui.checkoutDirectoryLineEdit, SIGNAL(validChanged()),
+    connect(d->ui.checkoutDirectoryLineEdit, SIGNAL(textChanged(QString)),
             this, SLOT(slotChanged()));
     connect(d->ui.checkoutDirectoryLineEdit, SIGNAL(textEdited(QString)), this, SLOT(slotDirectoryEdited()));
     connect(d->ui.branchComboBox, SIGNAL(currentIndexChanged(int)),
@@ -87,7 +87,7 @@ void BaseCheckoutWizardPage::addRepositoryControl(QWidget *w)
 bool BaseCheckoutWizardPage::checkIsValid() const
 {
     return d->ui.pathChooser->isValid()
-            && d->ui.checkoutDirectoryLineEdit->isValid()
+            && !d->ui.checkoutDirectoryLineEdit->text().isEmpty()
             && !d->ui.repositoryLineEdit->text().isEmpty();
 }
 
