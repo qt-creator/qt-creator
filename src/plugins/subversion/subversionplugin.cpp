@@ -1219,11 +1219,9 @@ bool SubversionPlugin::vcsMove(const QString &workingDir, const QString &from, c
 {
     QStringList args(QLatin1String("move"));
     args << QDir::toNativeSeparators(from) << QDir::toNativeSeparators(to);
-    qDebug()<<args;
     const SubversionResponse response =
             runSvn(workingDir, args, m_settings.timeOutMS(),
-                   SshPasswordPrompt|ShowStdOutInLogWindow);
-    qDebug() << response.stdOut << "\n"<<response.stdErr;
+                   SshPasswordPrompt|ShowStdOutInLogWindow|FullySynchronously);
     return !response.error;
 }
 

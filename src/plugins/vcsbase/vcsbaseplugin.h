@@ -192,7 +192,9 @@ public:
         SuppressFailMessageInLogWindow = 0x10, // No message VCS about failure in VCS output window.
         SuppressCommandLogging = 0x20, // No command log entry in VCS output window.
         ShowSuccessMessage = 0x40,      // Show message about successful completion in VCS output window.
-        ForceCLocale = 0x80             // Force C-locale for commands whose output is parsed.
+        ForceCLocale = 0x80,            // Force C-locale for commands whose output is parsed.
+        FullySynchronously = 0x100      // Suppress local event loop (in case UI actions are
+                                        // triggered by file watchers).
     };
 
     static Utils::SynchronousProcessResponse

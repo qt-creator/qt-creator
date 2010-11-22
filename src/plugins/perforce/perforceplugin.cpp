@@ -934,13 +934,13 @@ bool PerforcePlugin::vcsMove(const QString &workingDir, const QString &from, con
     QStringList args;
     args << QLatin1String("edit") << from;
     const PerforceResponse editResult = runP4Cmd(workingDir, args,
-                                                 CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
+                                                 RunFullySynchronous|CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
     if (editResult.error)
         return false;
     args.clear();
     args << QLatin1String("move") << from << to;
     const PerforceResponse moveResult = runP4Cmd(workingDir, args,
-                                                 CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
+                                                 RunFullySynchronous|CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
     return !moveResult.error;
 }
 

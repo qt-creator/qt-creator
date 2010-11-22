@@ -50,6 +50,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QSharedData>
 #include <QtCore/QScopedPointer>
+#include <QtCore/QSharedPointer>
 #include <QtCore/QProcessEnvironment>
 #include <QtCore/QTextStream>
 #include <QtCore/QTextCodec>
@@ -701,6 +702,72 @@ void VCSBasePlugin::setProcessEnvironment(QProcessEnvironment *e, bool forceCLoc
         e->insert(QLatin1String("SSH_ASKPASS"), sshPromptBinary);
 }
 
+// Run a process fully synchronously, returning Utils::SynchronousProcessResponse
+// response struct and using the VCSBasePlugin flags as applicable
+static Utils::SynchronousProcessResponse
+    runVCS_FullySynchronously(const QString &workingDir,
+                              const QString &binary,
+                              const QStringList &arguments,
+                              int timeOutMS,
+                              QProcessEnvironment env,
+                              unsigned flags,
+                              QTextCodec *outputCodec = 0)
+{
+    VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
+
+    // Set up process
+    unsigned processFlags = 0;
+    if (VCSBasePlugin::isSshPromptConfigured() && (flags & VCSBasePlugin::SshPasswordPrompt))
+        processFlags |= Utils::SynchronousProcess::UnixTerminalDisabled;
+    QSharedPointer<QProcess> process = Utils::SynchronousProcess::createProcess(processFlags);
+    if (!workingDir.isEmpty())
+        process->setWorkingDirectory(workingDir);
+    process->setProcessEnvironment(env);
+    if (flags & VCSBasePlugin::MergeOutputChannels)
+        process->setProcessChannelMode(QProcess::MergedChannels);
+
+    // Start
+    process->start(binary, arguments);
+    Utils::SynchronousProcessResponse response;
+    if (!process->waitForStarted()) {
+        response.result = Utils::SynchronousProcessResponse::StartFailed;
+        return response;
+    }
+
+    // process output
+    QByteArray stdOut;
+    QByteArray stdErr;
+    const bool timedOut =
+            !Utils::SynchronousProcess::readDataFromProcess(*process.data(), timeOutMS,
+                                                            &stdOut, &stdErr, true);
+
+    if (!stdErr.isEmpty()) {
+        response.stdErr = QString::fromLocal8Bit(stdErr).remove('\r');
+        if (!(flags & VCSBasePlugin::SuppressStdErrInLogWindow))
+            outputWindow->append(response.stdErr);
+    }
+
+    if (!stdOut.isEmpty()) {
+        response.stdOut = (outputCodec ? outputCodec->toUnicode(stdOut) : QString::fromLocal8Bit(stdOut))
+                          .remove('\r');
+        if (flags & VCSBasePlugin::ShowStdOutInLogWindow)
+            outputWindow->append(response.stdOut);
+    }
+
+    // Result
+    if (timedOut) {
+        response.result = Utils::SynchronousProcessResponse::Hang;
+    } else if (process->exitStatus() != QProcess::NormalExit) {
+        response.result = Utils::SynchronousProcessResponse::TerminatedAbnormally;
+    } else {
+        response.result = process->exitCode() == 0 ?
+                          Utils::SynchronousProcessResponse::Finished :
+                          Utils::SynchronousProcessResponse::FinishedError;
+    }
+    return response;
+}
+
+
 Utils::SynchronousProcessResponse
         VCSBasePlugin::runVCS(const QString &workingDir,
                               const QString &binary,
@@ -747,56 +814,66 @@ Utils::SynchronousProcessResponse
             nsp << "suppress_log";
         if (flags & ForceCLocale)
             nsp << "c_locale";
+        if (flags & FullySynchronously)
+            nsp << "fully_synchronously";
         if (outputCodec)
             nsp << " Codec: " << outputCodec->name();
     }
 
-    // Run, connect stderr to the output window
-    Utils::SynchronousProcess process;
-    if (!workingDir.isEmpty())
-        process.setWorkingDirectory(workingDir);
-
     VCSBase::VCSBasePlugin::setProcessEnvironment(&env, (flags & ForceCLocale));
-    process.setProcessEnvironment(env);
-    process.setTimeout(timeOutMS);
-    if (outputCodec)
-        process.setStdOutCodec(outputCodec);
 
-    // Suppress terminal on UNIX for ssh prompts if it is configured.
-    if (sshPromptConfigured && (flags & SshPasswordPrompt))
-        process.setFlags(Utils::SynchronousProcess::UnixTerminalDisabled);
+    Utils::SynchronousProcessResponse response;
 
-    // connect stderr to the output window if desired
-    if (flags & MergeOutputChannels) {
-        process.setProcessChannelMode(QProcess::MergedChannels);
+    if (flags & FullySynchronously) {
+        response = runVCS_FullySynchronously(workingDir, binary, arguments, timeOutMS,
+                                             env, flags, outputCodec);
     } else {
-        if (!(flags & SuppressStdErrInLogWindow)) {
-            process.setStdErrBufferedSignalsEnabled(true);
-            connect(&process, SIGNAL(stdErrBuffered(QString,bool)), outputWindow, SLOT(append(QString)));
+        // Run, connect stderr to the output window
+        Utils::SynchronousProcess process;
+        if (!workingDir.isEmpty())
+            process.setWorkingDirectory(workingDir);
+
+        process.setProcessEnvironment(env);
+        process.setTimeout(timeOutMS);
+        if (outputCodec)
+            process.setStdOutCodec(outputCodec);
+
+        // Suppress terminal on UNIX for ssh prompts if it is configured.
+        if (sshPromptConfigured && (flags & SshPasswordPrompt))
+            process.setFlags(Utils::SynchronousProcess::UnixTerminalDisabled);
+
+        // connect stderr to the output window if desired
+        if (flags & MergeOutputChannels) {
+            process.setProcessChannelMode(QProcess::MergedChannels);
+        } else {
+            if (!(flags & SuppressStdErrInLogWindow)) {
+                process.setStdErrBufferedSignalsEnabled(true);
+                connect(&process, SIGNAL(stdErrBuffered(QString,bool)), outputWindow, SLOT(append(QString)));
+            }
         }
+
+        // connect stdout to the output window if desired
+        if (flags & ShowStdOutInLogWindow) {
+            process.setStdOutBufferedSignalsEnabled(true);
+            connect(&process, SIGNAL(stdOutBuffered(QString,bool)), outputWindow, SLOT(append(QString)));
+        }
+
+        process.setTimeOutMessageBoxEnabled(true);
+
+        // Run!
+        response = process.run(binary, arguments);
     }
-
-    // connect stdout to the output window if desired
-    if (flags & ShowStdOutInLogWindow) {
-        process.setStdOutBufferedSignalsEnabled(true);
-        connect(&process, SIGNAL(stdOutBuffered(QString,bool)), outputWindow, SLOT(append(QString)));
-    }
-
-    process.setTimeOutMessageBoxEnabled(true);
-
-    // Run!
-    const Utils::SynchronousProcessResponse sp_resp = process.run(binary, arguments);
 
     // Success/Fail message in appropriate window?
-    if (sp_resp.result == Utils::SynchronousProcessResponse::Finished) {
+    if (response.result == Utils::SynchronousProcessResponse::Finished) {
         if (flags & ShowSuccessMessage)
-            outputWindow->append(sp_resp.exitMessage(binary, timeOutMS));
+            outputWindow->append(response.exitMessage(binary, timeOutMS));
     } else {
         if (!(flags & SuppressFailMessageInLogWindow))
-            outputWindow->appendError(sp_resp.exitMessage(binary, timeOutMS));
+            outputWindow->appendError(response.exitMessage(binary, timeOutMS));
     }
 
-    return sp_resp;
+    return response;
 }
 } // namespace VCSBase
 
