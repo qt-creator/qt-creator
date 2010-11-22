@@ -308,8 +308,22 @@ CdbEngine::~CdbEngine()
 
 void CdbEngine::operateByInstructionTriggered(bool operateByInstruction)
 {
-    // To be set next time session becomes accessible
-    m_operateByInstructionPending = operateByInstruction;
+    if (state() == InferiorStopOk) {
+        syncOperateByInstruction(operateByInstruction);
+    } else {
+        // To be set next time session becomes accessible
+        m_operateByInstructionPending = operateByInstruction;
+    }
+}
+
+void CdbEngine::syncOperateByInstruction(bool operateByInstruction)
+{
+    if (m_operateByInstruction == operateByInstruction)
+        return;
+    QTC_ASSERT(m_accessible, return; )
+    m_operateByInstruction = operateByInstruction;
+    postCommand(m_operateByInstruction ? QByteArray("l-t") : QByteArray("l+t"), 0);
+    postCommand(m_operateByInstruction ? QByteArray("l-s") : QByteArray("l+s"), 0);
 }
 
 void CdbEngine::setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos)
@@ -1197,11 +1211,7 @@ void CdbEngine::handleSessionIdle(const QByteArray &message)
                stateName(state()), m_specialStopMode);
 
     // Switch source level debugging
-    if (m_operateByInstructionPending != m_operateByInstruction) {
-        m_operateByInstruction = m_operateByInstructionPending;
-        postCommand(m_operateByInstruction ? QByteArray("l-t") : QByteArray("l+t"), 0);
-        postCommand(m_operateByInstruction ? QByteArray("l-s") : QByteArray("l+s"), 0);
-    }
+    syncOperateByInstruction(m_operateByInstructionPending);
 
     const SpecialStopMode specialStopMode =  m_specialStopMode;
     m_specialStopMode = NoSpecialStop;
@@ -1704,21 +1714,58 @@ QString CdbEngine::normalizeFileName(const QString &f)
     return normalized;
 }
 
-void CdbEngine::handleStackTrace(const CdbBuiltinCommandPtr &command)
+// Parse frame from GDBMI. Duplicate of the gdb code, but that
+// has more processing.
+static StackFrames parseFrames(const QByteArray &data)
 {
-    StackFrames frames;
-    const int current = parseCdbStackTrace(command->reply, &frames);
-    if (debug)
-        qDebug("handleStackTrace %d of %d", current, frames.size());
-    const StackFrames::iterator end = frames.end();
-    for (StackFrames::iterator it = frames.begin(); it != end; ++it) {
-        if (!it->file.isEmpty())
-            it->file = QDir::cleanPath(normalizeFileName(it->file));
-    }
+    GdbMi gdbmi;
+    gdbmi.fromString(data);
+    if (!gdbmi.isValid())
+        return StackFrames();
 
-    stackHandler()->setFrames(frames);
-    activateFrame(current);
-    postCommandSequence(command->commandSequence);
+    StackFrames rc;
+    const int count = gdbmi.childCount();
+    rc.reserve(count);
+    for (int i = 0; i  < count; i++) {
+        const GdbMi &frameMi = gdbmi.childAt(i);
+        StackFrame frame;
+        frame.level = i;
+        const GdbMi fullName = frameMi.findChild("fullname");
+        if (fullName.isValid()) {
+            frame.file = QFile::decodeName(fullName.data());
+            frame.line = frameMi.findChild("line").data().toInt();
+        }
+        frame.function = QLatin1String(frameMi.findChild("func").data());
+        frame.from = QLatin1String(frameMi.findChild("from").data());
+        frame.address = frameMi.findChild("addr").data().toULongLong(0, 16);
+        rc.push_back(frame);
+    }
+    return rc;
+}
+
+void CdbEngine::handleStackTrace(const CdbExtensionCommandPtr &command)
+{
+    // Parse frames, find current.
+    if (command->success) {
+        int current = -1;
+        StackFrames frames = parseFrames(command->reply);
+        const int count = frames.size();
+        for (int i = 0; i < count; i++) {
+            if (!frames.at(i).file.isEmpty()) {
+                frames[i].file = QDir::cleanPath(normalizeFileName(frames.at(i).file));
+                if (current == -1)
+                    current = i;
+            }
+        }
+        if (count && current == -1) // No usable frame, use assembly.
+            current = 0;
+        // Set
+        stackHandler()->setFrames(frames);
+        activateFrame(current);
+        postCommandSequence(command->commandSequence);
+    } else {
+        showMessage(command->errorMessage, LogError);
+    }
 }
 
 void CdbEngine::dummyHandler(const CdbBuiltinCommandPtr &command)
@@ -1739,7 +1786,7 @@ void CdbEngine::postCommandSequence(unsigned mask)
         return;
     }
     if (mask & CommandListStack) {
-        postBuiltinCommand("k", 0, &CdbEngine::handleStackTrace, mask & ~CommandListStack);
+        postExtensionCommand("stack", QByteArray(), 0, &CdbEngine::handleStackTrace, mask & ~CommandListStack);
         return;
     }
     if (mask & CommandListRegisters) {

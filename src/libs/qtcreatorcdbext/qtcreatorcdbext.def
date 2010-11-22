@@ -13,4 +13,5 @@ idle
 help
 memory
 shutdownex
+stack
 KnownStructOutput

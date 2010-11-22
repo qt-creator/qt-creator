@@ -63,9 +63,6 @@ QByteArray fixCdbIntegerValue(QByteArray t, bool stripLeadingZeros = false, int 
 // Convert a CDB integer value into quint64 or int64
 QVariant cdbIntegerValue(const QByteArray &t);
 
-// Parse stack frames and return current
-int parseCdbStackTrace(const QList<QByteArray> &in, QList<Debugger::Internal::StackFrame> *frames);
-
 QString debugByteArray(const QByteArray &a);
 QString StringFromBase64EncodedUtf16(const QByteArray &a);
 

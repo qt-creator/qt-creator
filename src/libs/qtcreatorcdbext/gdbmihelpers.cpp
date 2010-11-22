@@ -48,8 +48,18 @@ void StackFrame::formatGDBMI(std::ostream &str, unsigned level) const
 {
     str << "frame={level=\"" << level << "\",addr=\"0x"
         << std::hex << address << std::dec << '"';
-    if (!function.empty())
-        str << ",func=\"" << gdbmiWStringFormat(function) << '"';
+    if (!function.empty()) {
+        // Split into module/function
+        const std::wstring::size_type exclPos = function.find('!');
+        if (exclPos == std::wstring::npos) {
+            str << ",func=\"" << gdbmiWStringFormat(function) << '"';
+        } else {
+            const std::wstring module = function.substr(0, exclPos);
+            const std::wstring fn = function.substr(exclPos + 1, function.size() - exclPos - 1);
+            str << ",func=\"" << gdbmiWStringFormat(fn)
+                << "\",from=\"" << gdbmiWStringFormat(module) << '"';
+        }
+    }
     if (!fullPathName.empty()) { // Creator/gdbmi expects 'clean paths'
         std::wstring cleanPath = fullPathName;
         replace(cleanPath, L'\\', L'/');
@@ -557,5 +567,52 @@ std::string memoryToBase64(CIDebugDataSpaces *ds, ULONG64 address, ULONG length,
     std::ostringstream str;
     base64Encode(str, buffer, length);
     delete [] buffer;
+    return str.str();
+}
+
+// Format stack as GDBMI
+static StackFrames getStackTrace(CIDebugControl *debugControl,
+                                 CIDebugSymbols *debugSymbols,
+                                 unsigned maxFrames,
+                                 std::string *errorMessage)
+{
+
+    if (!maxFrames)
+        return StackFrames();
+    DEBUG_STACK_FRAME *frames = new DEBUG_STACK_FRAME[maxFrames];
+    ULONG frameCount = 0;
+    const HRESULT hr = debugControl->GetStackTrace(0, 0, 0, frames, maxFrames, &frameCount);
+    if (FAILED(hr)) {
+        delete [] frames;
+        *errorMessage = msgDebugEngineComFailed("GetStackTrace", hr);
+    }
+    StackFrames rc(frameCount, StackFrame());
+    for (ULONG f = 0; f < frameCount; f++)
+        getFrame(debugSymbols, frames[f], &(rc[f]));
+    delete [] frames;
+    return rc;
+}
+
+std::string gdbmiStack(CIDebugControl *debugControl,
+                       CIDebugSymbols *debugSymbols,
+                       unsigned maxFrames,
+                       bool humanReadable, std::string *errorMessage)
+{
+    const StackFrames frames = getStackTrace(debugControl, debugSymbols,
+                                        maxFrames, errorMessage);
+    if (frames.empty() && maxFrames > 0)
+        return std::string();
+
+    std::ostringstream str;
+    str << '[';
+    const StackFrames::size_type size = frames.size();
+    for (StackFrames::size_type i = 0; i < size; i++) {
+        if (i)
+            str << ',';
+        frames.at(i).formatGDBMI(str, (int)i);
+        if (humanReadable)
+            str << '\n';
+    }
+    str << ']';
     return str.str();
 }

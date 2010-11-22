@@ -351,6 +351,37 @@ extern "C" HRESULT CALLBACK memory(CIDebugClient *Client, PCSTR argsIn)
     return S_OK;
 }
 
+// Extension command 'stack'
+// Report stack correctly as 'k' does not list instruction pointer
+// correctly.
+extern "C" HRESULT CALLBACK stack(CIDebugClient *Client, PCSTR argsIn)
+{
+    ExtensionCommandContext exc(Client);
+    std::string errorMessage;
+
+    int token;
+    bool humanReadable = false;
+    unsigned maxFrames = 1000;
+
+    StringList tokens = commandTokens<StringList>(argsIn, &token);
+    if (!tokens.empty() && tokens.front() == "-h") {
+         humanReadable = true;
+         tokens.pop_front();
+    }
+    if (!tokens.empty())
+        integerFromString(tokens.front(), &maxFrames);
+
+    const std::string stack = gdbmiStack(exc.control(), exc.symbols(),
+                                         maxFrames, humanReadable, &errorMessage);
+
+    if (stack.empty()) {
+        ExtensionContext::instance().report('N', token, "stack", errorMessage.c_str());
+    } else {
+        ExtensionContext::instance().report('R', token, "stack", stack.c_str());
+    }
+    return S_OK;
+}
+
 // Extension command 'shutdownex' (shutdown is reserved):
 // Unhook the output callbacks. This is normally done by the session
 // inaccessible notification, however, this does not work for remote-controlled sessions.

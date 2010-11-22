@@ -33,7 +33,6 @@
 #include "gdbmihelpers.h"
 
 static const char eventContextC[] = "event";
-static const char moduleContextC[] = "module";
 
 // Special exception codes (see dbgwinutils.cpp).
 enum { winExceptionCppException = 0xe06d7363,
@@ -239,9 +238,6 @@ STDMETHODIMP EventCallback::LoadModule(
     __in ULONG TimeDateStamp
     )
 {
-    ExtensionContext::instance().report('E', 0, moduleContextC, "L:%s:%s:0x%llx:0x%llx\n",
-                                        ModuleName, ImageName, BaseOffset, ModuleSize);
-
     return m_wrapped ? m_wrapped->LoadModule(ImageFileHandle, BaseOffset,
                                              ModuleSize, ModuleName, ImageName,
                                              CheckSum, TimeDateStamp) : S_OK;
@@ -253,9 +249,6 @@ STDMETHODIMP EventCallback::UnloadModule(
     __in ULONG64 BaseOffset
     )
 {
-    ExtensionContext::instance().report('U', 0, moduleContextC, "U:%s\n",
-                                        ImageBaseName);
-
     return m_wrapped ? m_wrapped->UnloadModule(ImageBaseName, BaseOffset) : S_OK;
 }
 

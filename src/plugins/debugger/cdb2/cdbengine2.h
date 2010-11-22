@@ -152,10 +152,11 @@ private:
     inline void parseOutputLine(QByteArray line);
     inline bool isCdbProcessRunning() const { return m_process.state() != QProcess::NotRunning; }
     bool canInterruptInferior() const;
+    void syncOperateByInstruction(bool operateByInstruction);
 
     // Builtin commands
     void dummyHandler(const CdbBuiltinCommandPtr &);
-    void handleStackTrace(const CdbBuiltinCommandPtr &);
+    void handleStackTrace(const CdbExtensionCommandPtr &);
     void handleRegisters(const CdbBuiltinCommandPtr &);
     void handleDisassembler(const CdbBuiltinCommandPtr &);
     void handleJumpToLineAddressResolution(const CdbBuiltinCommandPtr &);

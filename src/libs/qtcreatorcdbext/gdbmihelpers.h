@@ -51,6 +51,8 @@ struct StackFrame
     ULONG line;
 };
 
+typedef std::vector<StackFrame> StackFrames;
+
 bool getFrame(unsigned n, StackFrame *f, std::string *errorMessage);
 bool getFrame(CIDebugSymbols *debugSymbols, CIDebugControl *debugControl,
               unsigned n, StackFrame *f, std::string *errorMessage);
@@ -144,5 +146,13 @@ std::string gdbmiRegisters(CIDebugRegisters *regs,
                            std::string *errorMessage);
 
 std::string memoryToBase64(CIDebugDataSpaces *ds, ULONG64 address, ULONG length, std::string *errorMessage);
+
+// Stack helpers
+StackFrames getStackTrace(CIDebugControl *debugControl, CIDebugSymbols *debugSymbols,
+                                 unsigned maxFrames, std::string *errorMessage);
+
+std::string gdbmiStack(CIDebugControl *debugControl, CIDebugSymbols *debugSymbols,
+                       unsigned maxFrames, bool humanReadable,
+                       std::string *errorMessage);
 
 #endif // THREADLIST_H
