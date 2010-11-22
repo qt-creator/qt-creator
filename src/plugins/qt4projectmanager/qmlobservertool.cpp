@@ -157,7 +157,7 @@ QString QmlObserverTool::copy(const QString &qtInstallData, QString *errorMessag
     debuggerLibEditorFiles << QLatin1String("abstractformeditortool.cpp") << QLatin1String("abstractformeditortool.h")
           << QLatin1String("boundingrecthighlighter.cpp") << QLatin1String("boundingrecthighlighter.h")
           << QLatin1String("colorpickertool.cpp") << QLatin1String("colorpickertool.h")
-          << QLatin1String("editor.pri") << QLatin1String("editor.qrc")
+          << QLatin1String("editor.qrc")
           << QLatin1String("layeritem.cpp") << QLatin1String("layeritem.h")
           << QLatin1String("qmltoolbar.cpp") << QLatin1String("qmltoolbar.h")
           << QLatin1String("rubberbandselectionmanipulator.cpp")
