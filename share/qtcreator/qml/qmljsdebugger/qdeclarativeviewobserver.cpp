@@ -146,13 +146,13 @@ void QDeclarativeViewObserverPrivate::setViewport(QWidget *widget)
         return;
 
     if (viewport) {
-        viewport->removeEventFilter(q);
+        viewport.data()->removeEventFilter(q);
     }
     viewport = widget;
     if (viewport) {
         // make sure we get mouse move events
-        viewport->setMouseTracking(true);
-        viewport->installEventFilter(q);
+        viewport.data()->setMouseTracking(true);
+        viewport.data()->installEventFilter(q);
     }
 }
 

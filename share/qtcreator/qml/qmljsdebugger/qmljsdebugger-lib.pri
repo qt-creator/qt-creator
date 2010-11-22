@@ -62,8 +62,6 @@ SOURCES += \
         editor/toolbarcolorbox.cpp
 
     RESOURCES += editor/editor.qrc
-
-    DEFINES += QWEAKPOINTER_ENABLE_ARROW
 }
 
 OTHER_FILES += qmljsdebugger.pri

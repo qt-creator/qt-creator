@@ -66,7 +66,7 @@ void SelectionIndicator::clear()
         QHashIterator<QGraphicsItem*, QGraphicsPolygonItem *> iter(m_indicatorShapeHash);
         while(iter.hasNext()) {
             iter.next();
-            m_layerItem->scene()->removeItem(iter.value());
+            m_layerItem.data()->scene()->removeItem(iter.value());
             delete iter.value();
         }
     }
@@ -111,7 +111,7 @@ void SelectionIndicator::setItems(const QList<QWeakPointer<QGraphicsObject> > &i
             addBoundingRectToPolygon(item, boundingShapeInSceneSpace);
 
             QRectF boundingRect = m_view->adjustToScreenBoundaries(boundingShapeInSceneSpace.boundingRect());
-            QPolygonF boundingRectInLayerItemSpace = m_layerItem->mapFromScene(boundingRect);
+            QPolygonF boundingRectInLayerItemSpace = m_layerItem.data()->mapFromScene(boundingRect);
 
             QPen pen;
             pen.setColor(QColor(108, 141, 221));

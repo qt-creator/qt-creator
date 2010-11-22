@@ -56,7 +56,7 @@ SelectionRectangle::SelectionRectangle(QGraphicsObject *layerItem)
 SelectionRectangle::~SelectionRectangle()
 {
     if (m_layerItem)
-        m_layerItem->scene()->removeItem(m_controlShape);
+        m_layerItem.data()->scene()->removeItem(m_controlShape);
 }
 
 void SelectionRectangle::clear()
