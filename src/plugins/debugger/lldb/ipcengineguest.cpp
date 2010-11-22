@@ -274,27 +274,31 @@ void IPCEngineGuest::rpcCallback(quint64 f, QByteArray payload)
             {
                 QDataStream s(payload);
                 SET_NATIVE_BYTE_ORDER(s);
+                BreakpointId id;
                 BreakpointParameters d;
+                s >> id;
                 s >> d;
-                addBreakpoint(d);
+                addBreakpoint(id, d);
             }
             break;
         case IPCEngineHost::RemoveBreakpoint:
             {
                 QDataStream s(payload);
                 SET_NATIVE_BYTE_ORDER(s);
-                quint64 token;
-                s >> token;
-                removeBreakpoint(token);
+                BreakpointId id;
+                s >> id;
+                removeBreakpoint(id);
             }
             break;
         case IPCEngineHost::ChangeBreakpoint:
             {
                 QDataStream s(payload);
                 SET_NATIVE_BYTE_ORDER(s);
+                BreakpointId id;
                 BreakpointParameters d;
+                s >> id;
                 s >> d;
-                changeBreakpoint(d);
+                changeBreakpoint(id, d);
             }
             break;
         case IPCEngineHost::RequestUpdateWatchData:

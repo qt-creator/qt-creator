@@ -241,20 +241,22 @@ void IPCEngineHost::fetchDisassembler(DisassemblerViewAgent *v)
     rpcCall(Disassemble, p);
 }
 
-
-void IPCEngineHost::addBreakpoint(const BreakpointParameters &bp)
+void IPCEngineHost::insertBreakpoint(BreakpointId id)
 {
+    breakHandler()->notifyBreakpointInsertProceeding(id);
     QByteArray p;
     {
         QDataStream s(&p, QIODevice::WriteOnly);
         SET_NATIVE_BYTE_ORDER(s);
-        s << bp;
+        s << id;
+        s << breakHandler()->breakpointData(id);
     }
     rpcCall(AddBreakpoint, p);
 }
 
-void IPCEngineHost::removeBreakpoint(quint64 id)
+void IPCEngineHost::removeBreakpoint(BreakpointId id)
 {
+    breakHandler()->notifyBreakpointRemoveProceeding(id);
     QByteArray p;
     {
         QDataStream s(&p, QIODevice::WriteOnly);
@@ -264,13 +266,15 @@ void IPCEngineHost::removeBreakpoint(quint64 id)
     rpcCall(RemoveBreakpoint, p);
 }
 
-void IPCEngineHost::changeBreakpoint(const BreakpointParameters &bp)
+void IPCEngineHost::changeBreakpoint(BreakpointId id)
 {
+    breakHandler()->notifyBreakpointChangeProceeding(id);
     QByteArray p;
     {
         QDataStream s(&p, QIODevice::WriteOnly);
         SET_NATIVE_BYTE_ORDER(s);
-        s << bp;
+        s << id;
+        s << breakHandler()->breakpointData(id);
     }
     rpcCall(RemoveBreakpoint, p);
 }

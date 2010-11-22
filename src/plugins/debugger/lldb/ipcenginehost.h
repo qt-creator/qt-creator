@@ -104,9 +104,9 @@ public:
     void activateFrame(int index);
     void selectThread(int index);
     void fetchDisassembler(DisassemblerViewAgent *);
-    void addBreakpoint(const BreakpointParameters &bp);
-    void removeBreakpoint(quint64 id);
-    void changeBreakpoint(const BreakpointParameters &bp);
+    void insertBreakpoint(BreakpointId id);
+    void removeBreakpoint(BreakpointId id);
+    void changeBreakpoint(BreakpointId id);
     void updateWatchData(const WatchData &data,
             const WatchUpdateFlags &flags = WatchUpdateFlags());
 

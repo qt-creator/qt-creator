@@ -74,9 +74,9 @@ public:
     virtual void activateFrame(qint64 token) = 0;
     virtual void selectThread(qint64 token) = 0;
     virtual void disassemble(quint64 pc) = 0;
-    virtual void addBreakpoint(const BreakpointParameters &bp) = 0;
-    virtual void removeBreakpoint(quint64 id) = 0;
-    virtual void changeBreakpoint(const BreakpointParameters &bp) = 0;
+    virtual void addBreakpoint(BreakpointId id, const BreakpointParameters &bp) = 0;
+    virtual void removeBreakpoint(BreakpointId id) = 0;
+    virtual void changeBreakpoint(BreakpointId id, const BreakpointParameters &bp) = 0;
     virtual void requestUpdateWatchData(const WatchData &data,
             const WatchUpdateFlags & flags = WatchUpdateFlags()) = 0;
 
