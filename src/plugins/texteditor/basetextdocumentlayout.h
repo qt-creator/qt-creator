@@ -107,10 +107,19 @@ public:
     static bool findPreviousBlockOpenParenthesis(QTextCursor *cursor, bool checkStartPosition = false);
     static bool findNextBlockClosingParenthesis(QTextCursor *cursor);
 
+    // Get the code folding level
     inline int foldingIndent() const { return m_foldingIndent; }
+    /* Set the code folding level.
+     *
+     * A code folding marker will appear the line *before* the one where the indention
+     * level increases. The code folding reagion will end in the last line that has the same
+     * indention level (or higher).
+     */
     inline void setFoldingIndent(int indent) { m_foldingIndent = indent; }
+    // Set whether the first charater of the folded region will show when the code is folded.
     inline void setFoldingStartIncluded(bool included) { m_foldingStartIncluded = included; }
     inline bool foldingStartIncluded() const { return m_foldingStartIncluded; }
+    // Set whether the last charater of the folded region will show when the code is folded.
     inline void setFoldingEndIncluded(bool included) { m_foldingEndIncluded = included; }
     inline bool foldingEndIncluded() const { return m_foldingEndIncluded; }
     inline int lexerState() const { return m_lexerState; }
