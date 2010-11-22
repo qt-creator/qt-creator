@@ -468,7 +468,6 @@ RunConfiguration *S60DeviceRunConfigurationFactory::clone(Target *parent, RunCon
 S60DeviceRunControl::S60DeviceRunControl(RunConfiguration *runConfiguration, QString mode) :
     RunControl(runConfiguration, mode),
     m_toolChain(ProjectExplorer::ToolChain_INVALID),
-    m_handleDeviceRemoval(true),
     m_launcher(0)
 {
     // connect for automatically reporting the "finished deploy" state to the progress manager
@@ -606,7 +605,6 @@ void S60DeviceRunControl::printConnectFailed(const QString &errorMessage)
 
 void S60DeviceRunControl::launcherFinished()
 {
-    m_handleDeviceRemoval = false;
     trk::Launcher::releaseToDeviceManager(m_launcher);
     m_launcher->deleteLater();
     m_launcher = 0;
@@ -672,7 +670,10 @@ void S60DeviceRunControl::printApplicationOutput(const QString &output, bool onS
 
 void S60DeviceRunControl::deviceRemoved(const SymbianUtils::SymbianDevice &d)
 {
-    if (m_handleDeviceRemoval && d.portName() == m_serialPortName) {
+    if (m_launcher && d.portName() == m_serialPortName) {
+        trk::Launcher::releaseToDeviceManager(m_launcher);
+        m_launcher->deleteLater();
+        m_launcher = 0;
         appendMessage(this, tr("The device '%1' has been disconnected").arg(d.friendlyName()), true);
         emit finished();
     }

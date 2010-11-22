@@ -188,7 +188,6 @@ private:
     QString m_executableFileName;
     QString m_qtDir;
     QString m_qtBinPath;
-    bool m_handleDeviceRemoval;
     trk::Launcher *m_launcher;
     char m_installationDrive;
 };
