@@ -21,7 +21,7 @@ MAINPROFILEPWD = $$PWD
 symbian {
     ICON = $${TARGET}.svg
     TARGET.EPOCHEAPSIZE = 0x20000 0x2000000
-    contains(DEFINES, ORIENTATIONLOCK):LIBS += -lavkon -leikcore -leiksrv -lcone
+    contains(DEFINES, ORIENTATIONLOCK):LIBS += -lavkon -leikcore -lcone
     contains(DEFINES, NETWORKACCESS):TARGET.CAPABILITY += NetworkServices
 } else:win32 {
     !isEqual(PWD,$$OUT_PWD) {
