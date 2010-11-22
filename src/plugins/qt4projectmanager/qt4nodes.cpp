@@ -1154,6 +1154,7 @@ QStringList Qt4PriFileNode::varNames(ProjectExplorer::FileType type)
         break;
     default:
         vars << QLatin1String("OTHER_FILES");
+        vars << QLatin1String("ICON");
         break;
     }
     return vars;
