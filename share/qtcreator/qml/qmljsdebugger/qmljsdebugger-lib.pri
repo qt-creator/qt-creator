@@ -11,14 +11,14 @@ contains(CONFIG, dll) {
     DEFINES += BUILD_QMLJSDEBUGGER_STATIC_LIB
 }
 
-## Input
 !contains(DEFINES, NO_JSDEBUGGER) {
-HEADERS += \
-    include/jsdebuggeragent.h \
-    include/qmljsdebugger_global.h
 
-SOURCES += \
-    jsdebuggeragent.cpp
+    HEADERS += \
+        include/jsdebuggeragent.h \
+        include/qmljsdebugger_global.h
+
+    SOURCES += \
+        jsdebuggeragent.cpp
 }
 
 !contains(DEFINES, NO_QMLOBSERVER) {
