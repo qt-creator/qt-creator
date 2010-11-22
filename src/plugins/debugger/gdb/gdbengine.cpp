@@ -2872,7 +2872,6 @@ void GdbEngine::selectThread(int index)
 void GdbEngine::handleStackSelectThread(const GdbResponse &)
 {
     QTC_ASSERT(state() == InferiorUnrunnable || state() == InferiorStopOk, /**/);
-    //qDebug("FIXME: StackHandler::handleOutput: SelectThread");
     showStatusMessage(tr("Retrieving data for stack view..."), 3000);
     reloadRegisters();
     reloadStack(true);
@@ -3006,7 +3005,6 @@ void GdbEngine::activateFrame(int frameIndex)
         return;
 
     StackHandler *handler = stackHandler();
-    int oldIndex = handler->currentIndex();
 
     if (frameIndex == handler->stackSize()) {
         reloadFullStack();
@@ -3015,22 +3013,20 @@ void GdbEngine::activateFrame(int frameIndex)
 
     QTC_ASSERT(frameIndex < handler->stackSize(), return);
 
-    if (oldIndex != frameIndex) {
-        // Assuming the command always succeeds this saves a roundtrip.
-        // Otherwise the lines below would need to get triggered
-        // after a response to this -stack-select-frame here.
-        handler->setCurrentIndex(frameIndex);
-        postCommand("-stack-select-frame " + QByteArray::number(frameIndex),
-            Discardable, CB(handleStackSelectFrame));
-    }
-    gotoLocation(handler->currentFrame(), true);
+    // Assuming the command always succeeds this saves a roundtrip.
+    // Otherwise the lines below would need to get triggered
+    // after a response to this -stack-select-frame here.
+    handler->setCurrentIndex(frameIndex);
+    postCommand("-stack-select-frame " + QByteArray::number(frameIndex),
+        CB(handleStackSelectFrame));
+    gotoLocation(stackHandler()->currentFrame(), true);
+    updateLocals();
+    reloadRegisters();
 }
 
 void GdbEngine::handleStackSelectFrame(const GdbResponse &response)
 {
     Q_UNUSED(response);
-    updateLocals();
-    reloadRegisters();
 }
 
 void GdbEngine::handleThreadInfo(const GdbResponse &response)
