@@ -1331,7 +1331,8 @@ QByteArray WatchHandler::watcherName(const QByteArray &exp)
 
 void WatchHandler::watchExpression(const QString &exp)
 {
-    QTC_ASSERT(m_engine && (m_engine->debuggerCapabilities() & AddWatcherCapability), return ; );
+    QTC_ASSERT(m_engine, return);
+    QTC_ASSERT(m_engine->debuggerCapabilities() & AddWatcherCapability, return);
     // Do not insert multiple placeholders.
     if (exp.isEmpty() && m_watcherNames.contains(QByteArray()))
         return;
