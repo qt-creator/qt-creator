@@ -31,7 +31,7 @@
 
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QLabel>
-#include <QtGui/QFormLayout>
+#include <QtGui/QVBoxLayout>
 #include <QtGui/QLineEdit>
 #include <QtGui/QCheckBox>
 
@@ -40,14 +40,16 @@ using namespace Qt4ProjectManager;
 PassphraseForKeyDialog::PassphraseForKeyDialog(const QString &keyName, QWidget *parent)
     : QDialog(parent)
 {
-    QFormLayout *formLayout = new QFormLayout(this);
-    setLayout(formLayout);
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    setLayout(layout);
+
+    QHBoxLayout *hPasswordLayout = new QHBoxLayout(this);
 
     QLabel *passphraseLabel = new QLabel(this);
     passphraseLabel->setText(tr("Passphrase:"));
     passphraseLabel->setObjectName(QString::fromUtf8("passphraseLabel"));
 
-    formLayout->setWidget(0, QFormLayout::LabelRole, passphraseLabel);
+    hPasswordLayout->addWidget(passphraseLabel);
 
     QLineEdit *passphraseLineEdit = new QLineEdit(this);
     passphraseLineEdit->setObjectName(QString::fromUtf8("passphraseLineEdit"));
@@ -55,14 +57,12 @@ PassphraseForKeyDialog::PassphraseForKeyDialog(const QString &keyName, QWidget *
 
     connect(passphraseLineEdit, SIGNAL(textChanged(QString)), this, SLOT(setPassphrase(QString)));
 
-    formLayout->setWidget(0, QFormLayout::FieldRole, passphraseLineEdit);
+    hPasswordLayout->addWidget(passphraseLineEdit);
 
     m_checkBox = new QCheckBox(this);
     m_checkBox->setText(tr("Save passphrase"));
     m_checkBox->setObjectName(QString::fromUtf8("checkBox"));
     m_checkBox->setToolTip(tr("This is an insecure option. The password will be saved as a plain text."));
-
-    formLayout->setWidget(1, QFormLayout::LabelRole, m_checkBox);
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox(this);
     buttonBox->setObjectName(QString::fromUtf8("buttonBox"));
@@ -71,7 +71,11 @@ PassphraseForKeyDialog::PassphraseForKeyDialog(const QString &keyName, QWidget *
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
-    formLayout->setWidget(2, QFormLayout::FieldRole, buttonBox);
+    layout->addLayout(hPasswordLayout);
+    layout->addWidget(m_checkBox);
+    layout->addItem(new QSpacerItem(0, 10));
+    layout->addWidget(buttonBox);
+
     setWindowTitle(tr("Passphrase for %1").arg(keyName));
     setFixedSize( sizeHint() );
 }
