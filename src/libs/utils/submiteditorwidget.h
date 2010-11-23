@@ -126,6 +126,8 @@ public:
     void addSubmitFieldWidget(SubmitFieldWidget *f);
     QList<SubmitFieldWidget *> submitFieldWidgets() const;
 
+    virtual bool canSubmit() const;
+
 signals:
     void diffSelected(const QStringList &);
     void fileSelectionChanged(bool someFileSelected);
@@ -139,7 +141,6 @@ public slots:
 protected:
     virtual void changeEvent(QEvent *e);
     void insertTopWidget(QWidget *w);
-    virtual bool canSubmit() const;
 
 protected slots:
     void updateSubmitAction();

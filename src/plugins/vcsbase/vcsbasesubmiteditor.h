@@ -115,7 +115,8 @@ public:
     PromptSubmitResult promptSubmit(const QString &title, const QString &question,
                                     const QString &checkFailureQuestion,
                                     bool *promptSetting,
-                                    bool forcePrompt = false) const;
+                                    bool forcePrompt = false,
+                                    bool canCommitOnFailure = true) const;
 
     int fileNameColumn() const;
     void setFileNameColumn(int c);

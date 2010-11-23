@@ -464,8 +464,12 @@ VCSBaseSubmitEditor::PromptSubmitResult
                                           const QString &question,
                                           const QString &checkFailureQuestion,
                                           bool *promptSetting,
-                                          bool forcePrompt) const
+                                          bool forcePrompt,
+                                          bool canCommitOnFailure) const
 {
+    Utils::SubmitEditorWidget *submitWidget =
+            static_cast<Utils::SubmitEditorWidget *>(const_cast<VCSBaseSubmitEditor *>(this)->widget());
+
     raiseSubmitEditor();
 
     QString errorMessage;
@@ -476,7 +480,8 @@ VCSBaseSubmitEditor::PromptSubmitResult
     QWidget *parent = Core::ICore::instance()->mainWindow();
     // Pop up a message depending on whether the check succeeded and the
     // user wants to be prompted
-    if (checkSubmitMessage(&errorMessage)) {
+    bool canCommit = checkSubmitMessage(&errorMessage) && submitWidget->canSubmit();
+    if (canCommit) {
         // Check ok, do prompt?
         if (prompt) {
             // Provide check box to turn off prompt ONLY if it was not forced
@@ -503,14 +508,26 @@ VCSBaseSubmitEditor::PromptSubmitResult
         msgBox.setMinimumWidth(checkDialogMinimumWidth);
         answer = static_cast<QMessageBox::StandardButton>(msgBox.exec());
     }
-    switch (answer) {
-    case QMessageBox::No:
-        return SubmitDiscarded;
-    case QMessageBox::Yes:
-        return SubmitConfirmed;
-    default:
-        break;
+    if (!canCommit && !canCommitOnFailure) {
+        switch (answer) {
+        case QMessageBox::No:
+                return SubmitDiscarded;
+        case QMessageBox::Yes:
+                return SubmitCanceled;
+        default:
+            break;
+        }
+    } else {
+        switch (answer) {
+        case QMessageBox::No:
+            return SubmitDiscarded;
+        case QMessageBox::Yes:
+            return SubmitConfirmed;
+        default:
+            break;
+        }
     }
+
     return SubmitCanceled;
 }
 

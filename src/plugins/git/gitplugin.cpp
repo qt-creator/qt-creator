@@ -756,8 +756,8 @@ bool GitPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEdi
     const VCSBase::VCSBaseSubmitEditor::PromptSubmitResult answer =
             editor->promptSubmit(tr("Closing Git Editor"),
                                  tr("Do you want to commit the change?"),
-                                 tr("The commit message check failed. Do you want to commit the change?"),
-                                 &settings.promptToSubmit, !m_submitActionTriggered);
+                                 tr("Git will not accept this commit. Do you want to continue to edit it?"),
+                                 &settings.promptToSubmit, !m_submitActionTriggered, false);
     m_submitActionTriggered = false;
     switch (answer) {
     case VCSBase::VCSBaseSubmitEditor::SubmitCanceled:
