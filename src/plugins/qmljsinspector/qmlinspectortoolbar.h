@@ -36,6 +36,7 @@
 QT_FORWARD_DECLARE_CLASS(QAction)
 QT_FORWARD_DECLARE_CLASS(QColor)
 QT_FORWARD_DECLARE_CLASS(QToolButton)
+
 namespace Core {
     class Context;
 }
@@ -81,10 +82,8 @@ public slots:
     void setDesignModeBehavior(bool inDesignMode);
     void setSelectedColor(const QColor &color);
 
-    void setLivePreviewChecked(bool value);
-
 signals:
-    void animationSpeedChanged(qreal slowdownFactor = 1.0f);
+    void applyChangesFromQmlFileTriggered(bool isChecked);
 
     void designModeSelected(bool checked);
     void reloadSelected();
@@ -92,8 +91,7 @@ signals:
     void selectToolSelected();
     void zoomToolSelected();
 
-    void applyChangesToQmlFileSelected();
-    void applyChangesFromQmlFileTriggered(bool isChecked);
+    void animationSpeedChanged(qreal slowdownFactor = 1.0f);
 
 private slots:
     void activateDesignModeOnClick();
@@ -109,20 +107,17 @@ private slots:
     void changeToTenthAnimSpeed();
 
     void activateFromQml();
-    void activateToQml();
 
     void updatePlayAction();
     void updatePauseAction();
 
 private:
+    QAction *m_fromQmlAction;
     QAction *m_observerModeAction;
-//    QAction *m_reloadAction;
     QAction *m_playAction;
     QAction *m_selectAction;
     QAction *m_zoomAction;
     QAction *m_colorPickerAction;
-    QAction *m_toQmlAction;
-    QAction *m_fromQmlAction;
 
     QAction *m_defaultAnimSpeedAction;
     QAction *m_halfAnimSpeedAction;
@@ -145,8 +140,6 @@ private:
     DesignTool m_activeTool;
 
     Utils::StyledBar *m_barWidget;
-    Utils::FilterLineEdit *m_filterLineEdit;
-
 };
 
 } // namespace Internal

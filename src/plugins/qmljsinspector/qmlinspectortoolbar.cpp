@@ -31,21 +31,21 @@
 #include "qmljsinspectorconstants.h"
 #include "qmljstoolbarcolorbox.h"
 
-#include <extensionsystem/pluginmanager.h>
-#include <coreplugin/icore.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/icore.h>
+#include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/styledbar.h>
 #include <utils/filterlineedit.h>
 
-#include <QHBoxLayout>
 #include <QAction>
-#include <QToolButton>
-#include <QMenu>
 #include <QActionGroup>
+#include <QHBoxLayout>
+#include <QMenu>
+#include <QToolButton>
 
 namespace QmlJSInspector {
 namespace Internal {
@@ -59,14 +59,12 @@ static QToolButton *createToolButton(QAction *action)
 
 QmlInspectorToolbar::QmlInspectorToolbar(QObject *parent) :
     QObject(parent),
+    m_fromQmlAction(0),
     m_observerModeAction(0),
-//    m_reloadAction(0),
     m_playAction(0),
     m_selectAction(0),
     m_zoomAction(0),
     m_colorPickerAction(0),
-    m_toQmlAction(0),
-    m_fromQmlAction(0),
     m_defaultAnimSpeedAction(0),
     m_halfAnimSpeedAction(0),
     m_fourthAnimSpeedAction(0),
@@ -83,22 +81,16 @@ QmlInspectorToolbar::QmlInspectorToolbar(QObject *parent) :
     m_activeTool(NoTool),
     m_barWidget(0)
 {
-
 }
 
 void QmlInspectorToolbar::setEnabled(bool value)
 {
-    m_observerModeAction->setEnabled(value);
-    //m_toQmlAction->setEnabled(value);
     m_fromQmlAction->setEnabled(value);
-
-//    m_reloadAction->setEnabled(value);
+    m_observerModeAction->setEnabled(value);
     m_playAction->setEnabled(value);
     m_selectAction->setEnabled(value);
     m_zoomAction->setEnabled(value);
     m_colorPickerAction->setEnabled(value);
-    //m_toQmlAction->setEnabled(value);
-    m_fromQmlAction->setEnabled(value);
     m_colorBox->setEnabled(value);
 }
 
@@ -179,65 +171,71 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *am = core->actionManager();
 
-    m_fromQmlAction = new QAction(QIcon(QLatin1String(":/qml/images/from-qml-small.png")), tr("Apply Changes on Save"), this);
-//    m_reloadAction = new QAction(QIcon(QLatin1String(":/qml/images/reload.png")), tr("Reload QML"), this);
+    m_fromQmlAction =
+            new QAction(QIcon(QLatin1String(":/qml/images/from-qml-small.png")),
+                        tr("Apply Changes on Save"), this);
+    m_observerModeAction =
+            new QAction(QIcon(QLatin1String(":/qml/images/observermode.png")),
+                        tr("Observer Mode"), this);
+    m_playAction =
+            new QAction(m_pauseIcon, tr("Play/Pause Animations"), this);
+    m_selectAction =
+            new QAction(QIcon(QLatin1String(":/qml/images/select-small.png")),
+                        tr("Select"), this);
+    m_zoomAction =
+            new QAction(QIcon(QLatin1String(":/qml/images/zoom-small.png")),
+                        tr("Zoom"), this);
+    m_colorPickerAction =
+            new QAction(QIcon(QLatin1String(":/qml/images/color-picker-small.png")),
+                        tr("Color Picker"), this);
 
-    m_observerModeAction = new QAction(QIcon(QLatin1String(":/qml/images/observermode.png")), tr("Observer Mode"), this);
-    m_playAction = new QAction(m_pauseIcon, tr("Play/Pause Animations"), this);
-    m_selectAction = new QAction(QIcon(QLatin1String(":/qml/images/select-small.png")), tr("Select"), this);
-    m_zoomAction = new QAction(QIcon(QLatin1String(":/qml/images/zoom-small.png")), tr("Zoom"), this);
-    m_colorPickerAction = new QAction(QIcon(QLatin1String(":/qml/images/color-picker-small.png")), tr("Color Picker"), this);
-    m_toQmlAction = new QAction(QIcon(QLatin1String(":/qml/images/to-qml-small.png")), tr("Live Preview Changes in QML Viewer"), this);
-
+    m_fromQmlAction->setCheckable(true);
+    m_fromQmlAction->setChecked(true);
     m_observerModeAction->setCheckable(true);
     m_observerModeAction->setChecked(false);
     m_selectAction->setCheckable(true);
     m_zoomAction->setCheckable(true);
     m_colorPickerAction->setCheckable(true);
 
-    m_fromQmlAction->setCheckable(true);
-    m_fromQmlAction->setChecked(true);
-
     am->registerAction(m_observerModeAction, QmlJSInspector::Constants::DESIGNMODE_ACTION, context);
-//    am->registerAction(m_reloadAction, QmlJSInspector::Constants::RELOAD_ACTION, context);
     am->registerAction(m_playAction, QmlJSInspector::Constants::PLAY_ACTION, context);
     am->registerAction(m_selectAction, QmlJSInspector::Constants::SELECT_ACTION, context);
     am->registerAction(m_zoomAction, QmlJSInspector::Constants::ZOOM_ACTION, context);
     am->registerAction(m_colorPickerAction, QmlJSInspector::Constants::COLOR_PICKER_ACTION, context);
-    am->registerAction(m_toQmlAction, QmlJSInspector::Constants::TO_QML_ACTION, context);
     am->registerAction(m_fromQmlAction, QmlJSInspector::Constants::FROM_QML_ACTION, context);
 
     m_barWidget = new Utils::StyledBar;
     m_barWidget->setSingleRow(true);
     m_barWidget->setProperty("topBorder", true);
 
-    QHBoxLayout *configBarLayout = new QHBoxLayout(m_barWidget);
-    configBarLayout->setMargin(0);
-    configBarLayout->setSpacing(5);
-
     QMenu *playSpeedMenu = new QMenu(m_barWidget);
     QActionGroup *playSpeedMenuActions = new QActionGroup(this);
     playSpeedMenuActions->setExclusive(true);
     playSpeedMenu->addAction(tr("Animation Speed"));
     playSpeedMenu->addSeparator();
-    m_defaultAnimSpeedAction = playSpeedMenu->addAction(tr("1x"), this, SLOT(changeToDefaultAnimSpeed()));
+    m_defaultAnimSpeedAction =
+            playSpeedMenu->addAction(tr("1x"), this, SLOT(changeToDefaultAnimSpeed()));
     m_defaultAnimSpeedAction->setCheckable(true);
     m_defaultAnimSpeedAction->setChecked(true);
     playSpeedMenuActions->addAction(m_defaultAnimSpeedAction);
 
-    m_halfAnimSpeedAction = playSpeedMenu->addAction(tr("0.5x"), this, SLOT(changeToHalfAnimSpeed()));
+    m_halfAnimSpeedAction =
+            playSpeedMenu->addAction(tr("0.5x"), this, SLOT(changeToHalfAnimSpeed()));
     m_halfAnimSpeedAction->setCheckable(true);
     playSpeedMenuActions->addAction(m_halfAnimSpeedAction);
 
-    m_fourthAnimSpeedAction = playSpeedMenu->addAction(tr("0.25x"), this, SLOT(changeToFourthAnimSpeed()));
+    m_fourthAnimSpeedAction =
+            playSpeedMenu->addAction(tr("0.25x"), this, SLOT(changeToFourthAnimSpeed()));
     m_fourthAnimSpeedAction->setCheckable(true);
     playSpeedMenuActions->addAction(m_fourthAnimSpeedAction);
 
-    m_eighthAnimSpeedAction = playSpeedMenu->addAction(tr("0.125x"), this, SLOT(changeToEighthAnimSpeed()));
+    m_eighthAnimSpeedAction =
+            playSpeedMenu->addAction(tr("0.125x"), this, SLOT(changeToEighthAnimSpeed()));
     m_eighthAnimSpeedAction->setCheckable(true);
     playSpeedMenuActions->addAction(m_eighthAnimSpeedAction);
 
-    m_tenthAnimSpeedAction = playSpeedMenu->addAction(tr("0.1x"), this, SLOT(changeToTenthAnimSpeed()));
+    m_tenthAnimSpeedAction =
+            playSpeedMenu->addAction(tr("0.1x"), this, SLOT(changeToTenthAnimSpeed()));
     m_tenthAnimSpeedAction->setCheckable(true);
     playSpeedMenuActions->addAction(m_tenthAnimSpeedAction);
 
@@ -246,22 +244,27 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     m_menuPauseAction->setIcon(m_pauseIcon);
     playSpeedMenuActions->addAction(m_menuPauseAction);
 
-//    configBarLayout->addWidget(createToolButton(am->command(ProjectExplorer::Constants::DEBUG)->action()));
-//    configBarLayout->addWidget(createToolButton(am->command(ProjectExplorer::Constants::STOP)->action()));
-    configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::FROM_QML_ACTION)->action()));
-//    configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::RELOAD_ACTION)->action()));
+    QHBoxLayout *configBarLayout = new QHBoxLayout(m_barWidget);
+    configBarLayout->setMargin(0);
+    configBarLayout->setSpacing(5);
+
+    configBarLayout->addWidget(
+                createToolButton(am->command(QmlJSInspector::Constants::FROM_QML_ACTION)->action()));
     configBarLayout->addSpacing(10);
 
-    configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::DESIGNMODE_ACTION)->action()));
+    configBarLayout->addWidget(
+                createToolButton(
+                    am->command(QmlJSInspector::Constants::DESIGNMODE_ACTION)->action()));
     m_playButton = createToolButton(am->command(QmlJSInspector::Constants::PLAY_ACTION)->action());
     m_playButton->setMenu(playSpeedMenu);
     configBarLayout->addWidget(m_playButton);
-    //configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::PAUSE_ACTION)->action()));
-
-    configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::SELECT_ACTION)->action()));
-
-    configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::ZOOM_ACTION)->action()));
-    configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::COLOR_PICKER_ACTION)->action()));
+    configBarLayout->addWidget(
+                createToolButton(am->command(QmlJSInspector::Constants::SELECT_ACTION)->action()));
+    configBarLayout->addWidget(
+                createToolButton(am->command(QmlJSInspector::Constants::ZOOM_ACTION)->action()));
+    configBarLayout->addWidget(
+                createToolButton(
+                    am->command(QmlJSInspector::Constants::COLOR_PICKER_ACTION)->action()));
 
     m_colorBox = new ToolBarColorBox(m_barWidget);
     m_colorBox->setMinimumSize(20, 20);
@@ -269,28 +272,17 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     m_colorBox->setInnerBorderColor(QColor(192,192,192));
     m_colorBox->setOuterBorderColor(QColor(58,58,58));
     configBarLayout->addWidget(m_colorBox);
-    //configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::TO_QML_ACTION)->action()));
-
-    //m_filterLineEdit = new Utils::FilterLineEdit(m_barWidget);
-
     configBarLayout->addStretch();
-    //configBarLayout->addWidget(m_filterLineEdit);
 
     setEnabled(false);
 
+    connect(m_fromQmlAction, SIGNAL(triggered()), SLOT(activateFromQml()));
     connect(m_observerModeAction, SIGNAL(triggered()), SLOT(activateDesignModeOnClick()));
-//    connect(m_reloadAction, SIGNAL(triggered()), SIGNAL(reloadSelected()));
-
-    connect(m_colorPickerAction, SIGNAL(triggered()), SLOT(activateColorPickerOnClick()));
-
     connect(m_playAction, SIGNAL(triggered()), SLOT(activatePlayOnClick()));
-
-    connect(m_zoomAction, SIGNAL(triggered()), SLOT(activateZoomOnClick()));
     connect(m_colorPickerAction, SIGNAL(triggered()), SLOT(activateColorPickerOnClick()));
     connect(m_selectAction, SIGNAL(triggered()), SLOT(activateSelectToolOnClick()));
-
-    //connect(m_toQmlAction, SIGNAL(triggered()), SLOT(activateToQml()));
-    connect(m_fromQmlAction, SIGNAL(triggered()), SLOT(activateFromQml()));
+    connect(m_zoomAction, SIGNAL(triggered()), SLOT(activateZoomOnClick()));
+    connect(m_colorPickerAction, SIGNAL(triggered()), SLOT(activateColorPickerOnClick()));
 }
 
 QWidget *QmlInspectorToolbar::widget() const
@@ -332,7 +324,6 @@ void QmlInspectorToolbar::activateDesignModeOnClick()
 {
     bool checked = m_observerModeAction->isChecked();
 
-//    m_reloadAction->setEnabled(true);
     m_playAction->setEnabled(checked);
     m_selectAction->setEnabled(checked);
     m_zoomAction->setEnabled(checked);
@@ -413,11 +404,6 @@ void QmlInspectorToolbar::activateZoomOnClick()
     }
 }
 
-void QmlInspectorToolbar::setLivePreviewChecked(bool value)
-{
-    m_fromQmlAction->setChecked(value);
-}
-
 void QmlInspectorToolbar::setSelectedColor(const QColor &color)
 {
     m_colorBox->setColor(color);
@@ -427,12 +413,6 @@ void QmlInspectorToolbar::activateFromQml()
 {
     if (m_emitSignals)
         emit applyChangesFromQmlFileTriggered(m_fromQmlAction->isChecked());
-}
-
-void QmlInspectorToolbar::activateToQml()
-{
-    if (m_emitSignals)
-        emit applyChangesToQmlFileSelected();
 }
 
 } // namespace Internal
