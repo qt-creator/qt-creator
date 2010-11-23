@@ -207,6 +207,7 @@
 %token PREPROC "preprocessor directive"
 %token COMMENT "comment"
 %token ERROR "error"
+%token RESERVED "reserved word"
 
 %start translation_unit
 

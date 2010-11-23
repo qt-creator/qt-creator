@@ -172,6 +172,7 @@ public:
     T_PRECISION = 104,
     T_PREPROC = 169,
     T_QUESTION = 105,
+    T_RESERVED = 172,
     T_RETURN = 106,
     T_RIGHT_ANGLE = 107,
     T_RIGHT_ASSIGN = 108,
@@ -238,12 +239,12 @@ public:
     ACCEPT_STATE = 440,
     RULE_COUNT = 314,
     STATE_COUNT = 459,
-    TERMINAL_COUNT = 172,
+    TERMINAL_COUNT = 173,
     NON_TERMINAL_COUNT = 84,
 
     GOTO_INDEX_OFFSET = 459,
-    GOTO_INFO_OFFSET = 4728,
-    GOTO_CHECK_OFFSET = 4728
+    GOTO_INFO_OFFSET = 4757,
+    GOTO_CHECK_OFFSET = 4757
   };
 
   static const char  *const    spell [];

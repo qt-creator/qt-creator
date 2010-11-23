@@ -51,6 +51,7 @@ public:
         GLSLDoxygenCommentFormat,
         GLSLDoxygenTagFormat,
         GLSLVisualWhitespace,
+        GLSLReservedKeyword,
         NumGLSLFormats
     };
 

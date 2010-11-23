@@ -57,6 +57,10 @@ void Highlighter::highlightBlock(const QString &text)
     lex.setState(qMax(0, previousBlockState()));
     lex.setScanKeywords(false);
     lex.setScanComments(true);
+    const int variant = GLSL::Lexer::Variant_GLSL_Qt | // ### FIXME: hardcoded
+                        GLSL::Lexer::Variant_VertexShader |
+                        GLSL::Lexer::Variant_FragmentShader;
+    lex.setVariant(variant);
     GLSL::Token tk;
     do {
         lex.yylex(&tk);
@@ -66,7 +70,10 @@ void Highlighter::highlightBlock(const QString &text)
         else if (tk.is(GLSL::Parser::T_COMMENT))
             setFormat(tk.position, tk.length, Qt::darkGreen); // ### FIXME: m_formats[GLSLCommentFormat]);
         else if (tk.is(GLSL::Parser::T_IDENTIFIER)) {
-            if (lex.findKeyword(data.constData() + tk.position, tk.length) != GLSL::Parser::T_IDENTIFIER)
+            int kind = lex.findKeyword(data.constData() + tk.position, tk.length);
+            if (kind == GLSL::Parser::T_RESERVED)
+                setFormat(tk.position, tk.length, m_formats[GLSLReservedKeyword]);
+            else if (kind != GLSL::Parser::T_IDENTIFIER)
                 setFormat(tk.position, tk.length, m_formats[GLSLKeywordFormat]);
         }
     } while (tk.isNot(GLSL::Parser::EOF_SYMBOL));

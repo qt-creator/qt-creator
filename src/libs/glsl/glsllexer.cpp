@@ -393,10 +393,11 @@ int Lexer::findKeyword(const char *word, int length) const
     if (!(t & Variant_Mask))
         return t;
     if ((_variant & t & Variant_Mask) == 0) {
-        // TODO: issue a proper error for the unsupported keyword
-        QByteArray keyword(word, length);
-        fprintf(stderr, "unsupported keyword `%s' at line %d\n",
-                keyword.constData(), _lineno);
+        // Return a "reserved word" token if this keyword is not permitted
+        // in the current language variant so that the syntax highlighter
+        // can warn the user about the word.
+        if (!_scanKeywords)
+            return Parser::T_RESERVED;
     }
     return t & ~Variant_Mask;
 }

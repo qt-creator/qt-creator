@@ -176,9 +176,14 @@ void GLSLTextEditor::setFontSettings(const TextEditor::FontSettings &fs)
                    << QLatin1String(TextEditor::Constants::C_STRING)
                    << QLatin1String(TextEditor::Constants::C_TYPE)
                    << QLatin1String(TextEditor::Constants::C_KEYWORD)
-                   << QLatin1String(TextEditor::Constants::C_FIELD)
+                   << QLatin1String(TextEditor::Constants::C_OPERATOR)
+                   << QLatin1String(TextEditor::Constants::C_PREPROCESSOR)
+                   << QLatin1String(TextEditor::Constants::C_LABEL)
                    << QLatin1String(TextEditor::Constants::C_COMMENT)
-                   << QLatin1String(TextEditor::Constants::C_VISUAL_WHITESPACE);
+                   << QLatin1String(TextEditor::Constants::C_DOXYGEN_COMMENT)
+                   << QLatin1String(TextEditor::Constants::C_DOXYGEN_TAG)
+                   << QLatin1String(TextEditor::Constants::C_VISUAL_WHITESPACE)
+                   << QLatin1String(TextEditor::Constants::C_REMOVED_LINE);
     }
 
     highlighter->setFormats(fs.toTextCharFormats(categories));
@@ -252,7 +257,6 @@ void GLSLTextEditor::updateDocumentNow()
     m_updateDocumentTimer->stop();
 
     const int variant = Lexer::Variant_GLSL_Qt | // ### hardcoded
-                        Lexer::Variant_GLSL_ES_100 |
                         Lexer::Variant_VertexShader |
                         Lexer::Variant_FragmentShader;
     const QString contents = toPlainText(); // get the code from the editor
