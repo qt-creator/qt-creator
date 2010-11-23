@@ -1261,7 +1261,8 @@ void WatchHandler::insertData(const WatchData &data)
         if (!m_engine->isSynchronous()) {
             m_engine->updateWatchData(data);
         } else {
-            qDebug() << "ENDLESS LOOP: SOMETHING NEEDED: " << data.toString();
+            m_engine->showMessage(QLatin1String("ENDLESS LOOP: SOMETHING NEEDED: ")
+                + data.toString());
             WatchData data1 = data;
             data1.setAllUnneeded();
             data1.setValue(QLatin1String("<unavailable synchronous data>"));
@@ -1720,5 +1721,6 @@ void WatchHandler::removeTooltip()
     m_tooltips->reinitialize();
     m_tooltips->emitAllChanged();
 }
+
 } // namespace Internal
 } // namespace Debugger
