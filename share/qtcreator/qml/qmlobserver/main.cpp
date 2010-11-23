@@ -422,6 +422,7 @@ int main(int argc, char ** argv)
         viewer->enableExperimentalGestures();
 
     viewer->setDesignModeBehavior(designModeBehavior);
+    viewer->setStayOnTop(stayOnTop);
 
     foreach (QString lib, imports)
         viewer->addLibraryPath(lib);

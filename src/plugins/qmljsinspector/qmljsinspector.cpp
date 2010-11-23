@@ -768,9 +768,9 @@ void InspectorUi::setupToolbar(bool doConnect)
                 m_clientProxy, SLOT(changeToSelectTool()));
         connect(m_toolbar, SIGNAL(applyChangesFromQmlFileTriggered(bool)),
                 this, SLOT(setApplyChangesToQmlObserver(bool)));
+        connect(m_toolbar, SIGNAL(showAppOnTopSelected(bool)),
+                m_clientProxy, SLOT(showAppOnTop(bool)));
 
-        connect(this, SIGNAL(livePreviewActivated(bool)),
-                m_toolbar, SLOT(setLivePreviewChecked(bool)));
         connect(m_clientProxy, SIGNAL(colorPickerActivated()),
                 m_toolbar, SLOT(activateColorPicker()));
         connect(m_clientProxy, SIGNAL(selectToolActivated()),
@@ -779,6 +779,8 @@ void InspectorUi::setupToolbar(bool doConnect)
                 m_toolbar, SLOT(activateZoomTool()));
         connect(m_clientProxy, SIGNAL(designModeBehaviorChanged(bool)),
                 m_toolbar, SLOT(setDesignModeBehavior(bool)));
+        connect(m_clientProxy, SIGNAL(showAppOnTopChanged(bool)),
+                m_toolbar, SLOT(setShowAppOnTop(bool)));
         connect(m_clientProxy, SIGNAL(selectedColorChanged(QColor)),
                 m_toolbar, SLOT(setSelectedColor(QColor)));
 
@@ -804,9 +806,9 @@ void InspectorUi::setupToolbar(bool doConnect)
                    m_clientProxy, SLOT(changeToSelectTool()));
         disconnect(m_toolbar, SIGNAL(applyChangesFromQmlFileTriggered(bool)),
                    this, SLOT(setApplyChangesToQmlObserver(bool)));
+        disconnect(m_toolbar, SIGNAL(showAppOnTopSelected(bool)),
+                   m_clientProxy, SLOT(showAppOnTop(bool)));
 
-        disconnect(this, SIGNAL(livePreviewActivated(bool)),
-                   m_toolbar, SLOT(setLivePreviewChecked(bool)));
         disconnect(m_clientProxy, SIGNAL(colorPickerActivated()),
                    m_toolbar, SLOT(activateColorPicker()));
         disconnect(m_clientProxy, SIGNAL(selectToolActivated()),
@@ -815,6 +817,8 @@ void InspectorUi::setupToolbar(bool doConnect)
                    m_toolbar, SLOT(activateZoomTool()));
         disconnect(m_clientProxy, SIGNAL(designModeBehaviorChanged(bool)),
                    m_toolbar, SLOT(setDesignModeBehavior(bool)));
+        disconnect(m_clientProxy, SIGNAL(showAppOnTopChanged(bool)),
+                   m_toolbar, SLOT(setShowAppOnTop(bool)));
         disconnect(m_clientProxy, SIGNAL(selectedColorChanged(QColor)),
                    m_toolbar, SLOT(setSelectedColor(QColor)));
 

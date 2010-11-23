@@ -107,6 +107,7 @@ public:
     void setUseGL(bool use);
     void setUseNativeFileBrowser(bool);
     void setSizeToView(bool sizeToView);
+    void setStayOnTop(bool stayOnTop);
 
     QDeclarativeView *view() const;
     LoggerWidget *warningsWidget() const;
@@ -201,6 +202,7 @@ private:
     QActionGroup *orientation;
     QAction *showWarningsWindow;
     QAction *designModeBehaviorAction;
+    QAction *appOnTopAction;
 
     QString m_script;
     ScriptOptions m_scriptOptions;

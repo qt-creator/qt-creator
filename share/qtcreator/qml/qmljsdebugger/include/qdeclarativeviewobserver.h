@@ -61,9 +61,13 @@ public:
     static QString idStringForObject(QObject *obj);
     QRectF adjustToScreenBoundaries(const QRectF &boundingRectInSceneSpace);
 
+    bool showAppOnTop() const;
+
 public Q_SLOTS:
     void setDesignModeBehavior(bool value);
     bool designModeBehavior();
+
+    void setShowAppOnTop(bool appOnTop);
 
     void changeAnimationSpeed(qreal slowdownFactor);
     void continueExecution(qreal slowdownFactor = 1.0f);
@@ -73,6 +77,7 @@ public Q_SLOTS:
 
 Q_SIGNALS:
     void designModeBehaviorChanged(bool inDesignMode);
+    void showAppOnTopChanged(bool showAppOnTop);
     void reloadRequested();
     void marqueeSelectToolActivated();
     void selectToolActivated();

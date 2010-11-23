@@ -57,6 +57,7 @@ const int SceneChangeUpdateInterval = 5000;
 QDeclarativeViewObserverPrivate::QDeclarativeViewObserverPrivate(QDeclarativeViewObserver *q) :
     q(q),
     designModeBehavior(false),
+    showAppOnTop(false),
     executionPaused(false),
     slowdownFactor(1.0f),
     toolbar(0)
@@ -87,6 +88,8 @@ QDeclarativeViewObserver::QDeclarativeViewObserver(QDeclarativeView *view, QObje
     data->debugService = QDeclarativeObserverService::instance();
     connect(data->debugService, SIGNAL(designModeBehaviorChanged(bool)),
             SLOT(setDesignModeBehavior(bool)));
+    connect(data->debugService, SIGNAL(showAppOnTopChanged(bool)),
+            SLOT(setShowAppOnTop(bool)));
     connect(data->debugService, SIGNAL(reloadRequested()), SLOT(_q_reloadView()));
     connect(data->debugService, SIGNAL(currentObjectsChanged(QList<QObject*>)),
             SLOT(_q_onCurrentObjectsChanged(QList<QObject*>)));
@@ -473,6 +476,33 @@ void QDeclarativeViewObserver::setDesignModeBehavior(bool value)
 bool QDeclarativeViewObserver::designModeBehavior()
 {
     return data->designModeBehavior;
+}
+
+bool QDeclarativeViewObserver::showAppOnTop() const
+{
+    return data->showAppOnTop;
+}
+
+void QDeclarativeViewObserver::setShowAppOnTop(bool appOnTop)
+{
+    if (data->view) {
+        QWidget *rootWidget = data->view;
+        while (rootWidget->parentWidget())
+            rootWidget = rootWidget->parentWidget();
+        Qt::WindowFlags flags = rootWidget->windowFlags();
+        if (appOnTop) {
+            flags |= Qt::WindowStaysOnTopHint;
+        } else {
+            flags &= ~Qt::WindowStaysOnTopHint;
+        }
+        rootWidget->setWindowFlags(flags);
+        rootWidget->show();
+    }
+
+    data->showAppOnTop = appOnTop;
+    data->debugService->setShowAppOnTop(appOnTop);
+
+    emit showAppOnTopChanged(appOnTop);
 }
 
 void QDeclarativeViewObserverPrivate::changeTool(Constants::DesignTool tool,

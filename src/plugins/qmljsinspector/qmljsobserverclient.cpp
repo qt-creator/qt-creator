@@ -107,6 +107,10 @@ void QmlJSObserverClient::messageReceived(const QByteArray &message)
         bool inDesignMode;
         ds >> inDesignMode;
         emit designModeBehaviorChanged(inDesignMode);
+    } else if (type == "SHOW_APP_ON_TOP") {
+        bool showAppOnTop;
+        ds >> showAppOnTop;
+        emit showAppOnTopChanged(showAppOnTop);
     } else if (type == "RELOADED") {
         emit reloaded();
     } else if (type == "COLOR_CHANGED") {
@@ -333,6 +337,23 @@ void QmlJSObserverClient::changeToZoomTool()
 
     if (debug)
         qDebug() << "QmlJSObserverClient: Sending" <<"CHANGE_TOOL" << "ZOOM";
+
+    sendMessage(message);
+}
+
+void QmlJSObserverClient::showAppOnTop(bool showOnTop)
+{
+    if (!m_connection || !m_connection->isConnected())
+        return;
+
+    QByteArray message;
+    QDataStream ds(&message, QIODevice::WriteOnly);
+
+    ds << QByteArray("SHOW_APP_ON_TOP")
+       << showOnTop;
+
+    if (debug)
+        qDebug() << "QmlJSObserverClient: Sending" <<"SHOWONTOP" << showOnTop;
 
     sendMessage(message);
 }

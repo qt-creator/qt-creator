@@ -62,6 +62,7 @@ public:
     void changeToSelectTool();
     void changeToSelectMarqueeTool();
     void changeToZoomTool();
+    void showAppOnTop(bool showOnTop);
 
     void createQmlObject(const QString &qmlText, int parentDebugId,
                          const QStringList &imports, const QString &filename);
@@ -90,6 +91,7 @@ signals:
     void zoomToolActivated();
     void animationSpeedChanged(qreal slowdownFactor);
     void designModeBehaviorChanged(bool inDesignMode);
+    void showAppOnTopChanged(bool showAppOnTop);
     void reloaded(); // the server has reloaded the document
     void contextPathUpdated(const QStringList &path);
 

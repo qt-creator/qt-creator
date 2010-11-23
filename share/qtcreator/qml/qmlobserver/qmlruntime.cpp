@@ -755,6 +755,13 @@ void QDeclarativeViewer::createMenu()
     connect(observer, SIGNAL(designModeBehaviorChanged(bool)), designModeBehaviorAction, SLOT(setChecked(bool)));
     connect(QmlJSDebugger::QDeclarativeObserverService::instance(), SIGNAL(debuggingClientChanged(bool)), designModeBehaviorAction, SLOT(setEnabled(bool)));
 
+    appOnTopAction = new QAction(tr("Keep Window on Top"), this);
+    appOnTopAction->setCheckable(true);
+    appOnTopAction->setChecked(observer->showAppOnTop());
+
+    connect(appOnTopAction, SIGNAL(triggered(bool)), observer, SLOT(setShowAppOnTop(bool)));
+    connect(observer, SIGNAL(showAppOnTopChanged(bool)), appOnTopAction, SLOT(setChecked(bool)));
+
     QAction *proxyAction = new QAction(tr("HTTP &Proxy..."), this);
     connect(proxyAction, SIGNAL(triggered()), this, SLOT(showProxySettings()));
 
@@ -825,6 +832,7 @@ void QDeclarativeViewer::createMenu()
     debugMenu->addAction(playSpeedAction);
     debugMenu->addAction(showWarningsWindow);
     debugMenu->addAction(designModeBehaviorAction);
+    debugMenu->addAction(appOnTopAction);
 #endif // ! Q_OS_SYMBIAN
 
     QMenu *settingsMenu = menu->addMenu(tr("S&ettings"));
@@ -1485,6 +1493,11 @@ void QDeclarativeViewer::setSizeToView(bool sizeToView)
         canvas->setResizeMode(resizeMode);
         updateSizeHints();
     }
+}
+
+void QDeclarativeViewer::setStayOnTop(bool stayOnTop)
+{
+    appOnTopAction->setChecked(stayOnTop);
 }
 
 void QDeclarativeViewer::setAnimationSpeed(float f)

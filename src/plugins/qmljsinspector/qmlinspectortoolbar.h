@@ -80,6 +80,7 @@ public slots:
     void activateZoomTool();
     void setAnimationSpeed(qreal slowdownFactor);
     void setDesignModeBehavior(bool inDesignMode);
+    void setShowAppOnTop(bool showAppOnTop);
     void setSelectedColor(const QColor &color);
 
 signals:
@@ -91,6 +92,7 @@ signals:
     void selectToolSelected();
     void zoomToolSelected();
 
+    void showAppOnTopSelected(bool isChecked);
     void animationSpeedChanged(qreal slowdownFactor = 1.0f);
 
 private slots:
@@ -99,6 +101,8 @@ private slots:
     void activateColorPickerOnClick();
     void activateSelectToolOnClick();
     void activateZoomOnClick();
+
+    void showAppOnTopClick();
 
     void changeToDefaultAnimSpeed();
     void changeToHalfAnimSpeed();
@@ -118,6 +122,8 @@ private:
     QAction *m_selectAction;
     QAction *m_zoomAction;
     QAction *m_colorPickerAction;
+
+    QAction *m_showAppOnTopAction;
 
     QAction *m_defaultAnimSpeedAction;
     QAction *m_halfAnimSpeedAction;

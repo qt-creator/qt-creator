@@ -89,6 +89,8 @@ void ClientProxy::connectToServer()
         SIGNAL(animationSpeedChanged(qreal)));
     connect(m_observerClient, SIGNAL(designModeBehaviorChanged(bool)),
         SIGNAL(designModeBehaviorChanged(bool)));
+    connect(m_observerClient, SIGNAL(showAppOnTopChanged(bool)),
+        SIGNAL(showAppOnTopChanged(bool)));
     connect(m_observerClient, SIGNAL(reloaded()), this,
         SIGNAL(serverReloaded()));
     connect(m_observerClient, SIGNAL(selectedColorChanged(QColor)),
@@ -482,6 +484,12 @@ void ClientProxy::changeToSelectMarqueeTool()
 {
     if (isConnected())
         m_observerClient->changeToSelectMarqueeTool();
+}
+
+void ClientProxy::showAppOnTop(bool showOnTop)
+{
+    if (isConnected())
+        m_observerClient->showAppOnTop(showOnTop);
 }
 
 void ClientProxy::createQmlObject(const QString &qmlText, int parentDebugId,

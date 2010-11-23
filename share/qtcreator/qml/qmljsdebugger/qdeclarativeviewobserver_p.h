@@ -83,6 +83,7 @@ public:
     BoundingRectHighlighter *boundingRectHighlighter;
 
     bool designModeBehavior;
+    bool showAppOnTop;
 
     bool executionPaused;
     qreal slowdownFactor;

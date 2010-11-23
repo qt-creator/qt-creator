@@ -100,6 +100,7 @@ signals:
     void zoomToolActivated();
     void animationSpeedChanged(qreal slowdownFactor);
     void designModeBehaviorChanged(bool inDesignMode);
+    void showAppOnTopChanged(bool showAppOnTop);
     void serverReloaded();
     void selectedColorChanged(const QColor &color);
     void contextPathUpdated(const QStringList &contextPath);
@@ -115,6 +116,7 @@ public slots:
     void changeToZoomTool();
     void changeToSelectTool();
     void changeToSelectMarqueeTool();
+    void showAppOnTop(bool showOnTop);
     void createQmlObject(const QString &qmlText, int parentDebugId,
                          const QStringList &imports, const QString &filename = QString());
     void destroyQmlObject(int debugId);

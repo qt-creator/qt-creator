@@ -68,6 +68,8 @@ public:
     void setAnimationSpeed(qreal slowdownFactor);
     void setCurrentTool(QmlJSDebugger::Constants::DesignTool toolId);
     void reloaded();
+    void setShowAppOnTop(bool showAppOnTop);
+
     QString idStringForObject(QObject *obj) const;
 
     void sendMessage(const QByteArray &message);
@@ -81,6 +83,7 @@ Q_SIGNALS:
 
     void currentObjectsChanged(const QList<QObject*> &objects);
     void designModeBehaviorChanged(bool inDesignMode);
+    void showAppOnTopChanged(bool showAppOnTop);
     void reloadRequested();
     void selectToolRequested();
     void selectMarqueeToolRequested();

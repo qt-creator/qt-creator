@@ -50,6 +50,7 @@ const char * const ZOOM_ACTION = "QmlInspector.Zoom";
 const char * const COLOR_PICKER_ACTION = "QmlInspector.ColorPicker";
 const char * const TO_QML_ACTION = "QmlInspector.ToQml";
 const char * const FROM_QML_ACTION = "QmlInspector.FromQml";
+const char * const SHOW_APP_ON_TOP_ACTION = "QmlInspector.ShowAppOnTop";
 
 // settings
 const char * const S_QML_INSPECTOR    = "QML.Inspector";

@@ -65,6 +65,7 @@ QmlInspectorToolbar::QmlInspectorToolbar(QObject *parent) :
     m_selectAction(0),
     m_zoomAction(0),
     m_colorPickerAction(0),
+    m_showAppOnTopAction(0),
     m_defaultAnimSpeedAction(0),
     m_halfAnimSpeedAction(0),
     m_fourthAnimSpeedAction(0),
@@ -86,6 +87,7 @@ QmlInspectorToolbar::QmlInspectorToolbar(QObject *parent) :
 void QmlInspectorToolbar::setEnabled(bool value)
 {
     m_fromQmlAction->setEnabled(value);
+    m_showAppOnTopAction->setEnabled(value);
     m_observerModeAction->setEnabled(value);
     m_playAction->setEnabled(value);
     m_selectAction->setEnabled(value);
@@ -166,6 +168,13 @@ void QmlInspectorToolbar::setDesignModeBehavior(bool inDesignMode)
     m_emitSignals = true;
 }
 
+void QmlInspectorToolbar::setShowAppOnTop(bool showAppOnTop)
+{
+    m_emitSignals = false;
+    m_showAppOnTopAction->setChecked(showAppOnTop);
+    m_emitSignals = true;
+}
+
 void QmlInspectorToolbar::createActions(const Core::Context &context)
 {
     Core::ICore *core = Core::ICore::instance();
@@ -174,6 +183,9 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     m_fromQmlAction =
             new QAction(QIcon(QLatin1String(":/qml/images/from-qml-small.png")),
                         tr("Apply Changes on Save"), this);
+    m_showAppOnTopAction =
+            new QAction(QIcon(QLatin1String(":/qml/images/app-on-top.png")),
+                        tr("Show application on top"), this);
     m_observerModeAction =
             new QAction(QIcon(QLatin1String(":/qml/images/observermode.png")),
                         tr("Observer Mode"), this);
@@ -191,6 +203,8 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
 
     m_fromQmlAction->setCheckable(true);
     m_fromQmlAction->setChecked(true);
+    m_showAppOnTopAction->setCheckable(true);
+    m_showAppOnTopAction->setChecked(false);
     m_observerModeAction->setCheckable(true);
     m_observerModeAction->setChecked(false);
     m_selectAction->setCheckable(true);
@@ -203,6 +217,8 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     am->registerAction(m_zoomAction, QmlJSInspector::Constants::ZOOM_ACTION, context);
     am->registerAction(m_colorPickerAction, QmlJSInspector::Constants::COLOR_PICKER_ACTION, context);
     am->registerAction(m_fromQmlAction, QmlJSInspector::Constants::FROM_QML_ACTION, context);
+    am->registerAction(m_showAppOnTopAction,
+                       QmlJSInspector::Constants::SHOW_APP_ON_TOP_ACTION, context);
 
     m_barWidget = new Utils::StyledBar;
     m_barWidget->setSingleRow(true);
@@ -250,6 +266,9 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
 
     configBarLayout->addWidget(
                 createToolButton(am->command(QmlJSInspector::Constants::FROM_QML_ACTION)->action()));
+    configBarLayout->addWidget(
+                createToolButton(
+                    am->command(QmlJSInspector::Constants::SHOW_APP_ON_TOP_ACTION)->action()));
     configBarLayout->addSpacing(10);
 
     configBarLayout->addWidget(
@@ -277,6 +296,7 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     setEnabled(false);
 
     connect(m_fromQmlAction, SIGNAL(triggered()), SLOT(activateFromQml()));
+    connect(m_showAppOnTopAction, SIGNAL(triggered()), SLOT(showAppOnTopClick()));
     connect(m_observerModeAction, SIGNAL(triggered()), SLOT(activateDesignModeOnClick()));
     connect(m_playAction, SIGNAL(triggered()), SLOT(activatePlayOnClick()));
     connect(m_colorPickerAction, SIGNAL(triggered()), SLOT(activateColorPickerOnClick()));
@@ -402,6 +422,12 @@ void QmlInspectorToolbar::activateZoomOnClick()
         if (m_emitSignals)
             emit zoomToolSelected();
     }
+}
+
+void QmlInspectorToolbar::showAppOnTopClick()
+{
+    if (m_emitSignals)
+        emit showAppOnTopSelected(m_showAppOnTopAction->isChecked());
 }
 
 void QmlInspectorToolbar::setSelectedColor(const QColor &color)

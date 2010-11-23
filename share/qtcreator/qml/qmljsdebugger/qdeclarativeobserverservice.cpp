@@ -110,6 +110,10 @@ void QDeclarativeObserverService::messageReceived(const QByteArray &message)
         bool inDesignMode;
         ds >> inDesignMode;
         emit designModeBehaviorChanged(inDesignMode);
+    } else if (type == "SHOW_APP_ON_TOP") {
+        bool showOnTop;
+        ds >> showOnTop;
+        emit showAppOnTopChanged(showOnTop);
     } else if (type == "CREATE_OBJECT") {
         QString qml;
         int parentId;
@@ -203,6 +207,16 @@ void QDeclarativeObserverService::reloaded()
     QDataStream ds(&message, QIODevice::WriteOnly);
 
     ds << QByteArray("RELOADED");
+
+    sendMessage(message);
+}
+
+void QDeclarativeObserverService::setShowAppOnTop(bool showAppOnTop)
+{
+    QByteArray message;
+    QDataStream ds(&message, QIODevice::WriteOnly);
+
+    ds << QByteArray("SHOW_APP_ON_TOP") << showAppOnTop;
 
     sendMessage(message);
 }
