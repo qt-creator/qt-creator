@@ -1409,7 +1409,7 @@ void GdbEngine::handleStop1(const GdbMi &data)
         const BreakpointId id = breakHandler()->findBreakpointByNumber(bpNumber);
         const quint64 bpAddress = wpt.findChild("exp").data().toULongLong(0, 0);
         showStatusMessage(msgWatchpointTriggered(id, bpNumber, bpAddress));
-    } else if (reason == "breakpoint-hit") {        
+    } else if (reason == "breakpoint-hit") {
         GdbMi gNumber = data.findChild("bkptno"); // 'number' or 'bkptno'?
         if (!gNumber.isValid())
             gNumber = data.findChild("number");
@@ -1797,7 +1797,9 @@ void GdbEngine::autoContinueInferior()
 void GdbEngine::continueInferior()
 {
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
-    resetLocation();
+    // Not doing it here makes it appear "snappier" as the time
+    // when there is no location marker is shorter.
+    //resetLocation();
     setTokenBarrier();
     continueInferiorInternal();
 }
@@ -3014,7 +3016,7 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
 
 void GdbEngine::activateFrame(int frameIndex)
 {
-    resetLocation();
+    //resetLocation();
     if (state() != InferiorStopOk && state() != InferiorUnrunnable)
         return;
 
