@@ -66,6 +66,7 @@ ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
     m_d->m_ui.nameLineEdit->setFocus();
     connect(m_d->m_ui.pathChooser, SIGNAL(changed(QString)), this, SLOT(slotChanged()));
     connect(m_d->m_ui.nameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(slotChanged()));
+    connect(m_d->m_ui.pathChooser, SIGNAL(validChanged()), this, SLOT(slotChanged()));
     connect(m_d->m_ui.pathChooser, SIGNAL(returnPressed()), this, SLOT(slotActivated()));
     connect(m_d->m_ui.nameLineEdit, SIGNAL(validReturnPressed()), this, SLOT(slotActivated()));
 }

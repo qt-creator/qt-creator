@@ -270,6 +270,7 @@ void PathChooser::slotBrowse()
     }
 
     emit browsingFinished();
+    m_d->m_lineEdit->triggerChanged();
 }
 
 bool PathChooser::isValid() const
