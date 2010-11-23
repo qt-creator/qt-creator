@@ -3937,13 +3937,13 @@
 
     \section1 Creating the Main View
 
-    The main view of the application displays a user icon in the top left corner of the
+    The main view of the application displays a Qt logo in the top left corner of the
     screen and two empty rectangles.
 
-    To use the user.png image in your application, you must copy it to the project
-    directory from the \c {\qt\examples\declarative\animation\states} directory in the
+    To use the states.png image in your application, you must copy it to the project
+    directory from the examples directory in the
     Qt installation directory. For example:
-    \c {C:\Qt\2010.05\qt\examples\declarative\animation\states}. The image appears
+    \c {C:\QtSDK\Examples\4.7\declarative\animation\states}. The image appears
     in the \gui Resources pane. You can also use any other image or a QML element, instead.
 
     \list 1
