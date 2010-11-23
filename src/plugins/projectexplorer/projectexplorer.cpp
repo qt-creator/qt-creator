@@ -2262,7 +2262,7 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &to)
     FileNode *fileNode = qobject_cast<FileNode *>(node);
     if (!fileNode)
         return;
-    QString orgFilePath = node->path();
+    QString orgFilePath = QFileInfo(node->path()).absoluteFilePath();
     QString dir = QFileInfo(orgFilePath).absolutePath();
     QString newFilePath = dir + "/" + to;
     Core::ICore *core = Core::ICore::instance();

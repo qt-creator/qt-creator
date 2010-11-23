@@ -53,6 +53,11 @@ class CORE_EXPORT FileManager : public QObject
 {
     Q_OBJECT
 public:
+    enum FixMode {
+        ResolveLinks,
+        KeepLinks
+    };
+
     explicit FileManager(QMainWindow *ew);
     virtual ~FileManager();
 
@@ -80,7 +85,7 @@ public:
     QString currentFile() const;
 
     // helper methods
-    static QString fixFileName(const QString &fileName);
+    static QString fixFileName(const QString &fileName, FixMode fixmode);
 
     QStringList getOpenFileNames(const QString &filters,
                                  const QString path = QString(),
@@ -134,11 +139,9 @@ private:
     void readSettings();
     void dump();
     void addFileInfo(IFile *file);
+    void addFileInfo(const QString &fileName, IFile *file, bool isLink);
     void removeFileInfo(IFile *file);
-    void removeFileInfo(const QString &fileName, IFile *file);
 
-    void addWatch(const QString &filename);
-    void removeWatch(const QString &filename);
     void updateFileInfo(IFile *file);
     void updateExpectedState(const QString &fileName);
 

@@ -578,9 +578,9 @@ Core::Internal::EditorView *EditorManager::currentEditorView() const
 QList<IEditor *> EditorManager::editorsForFileName(const QString &filename) const
 {
     QList<IEditor *> found;
-    QString fixedname = FileManager::fixFileName(filename);
+    QString fixedname = FileManager::fixFileName(filename, FileManager::KeepLinks);
     foreach (IEditor *editor, openedEditors()) {
-        if (fixedname == FileManager::fixFileName(editor->file()->fileName()))
+        if (fixedname == FileManager::fixFileName(editor->file()->fileName(), FileManager::KeepLinks))
             found << editor;
     }
     return found;
