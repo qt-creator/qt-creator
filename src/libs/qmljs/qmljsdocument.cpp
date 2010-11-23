@@ -159,6 +159,11 @@ AST::Node *Document::ast() const
     return _ast;
 }
 
+const QmlJS::Engine *Document::engine() const
+{
+    return _engine;
+}
+
 QList<DiagnosticMessage> Document::diagnosticMessages() const
 {
     return _diagnosticMessages;

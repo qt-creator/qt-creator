@@ -1584,14 +1584,14 @@ const TypeEnvironment *Context::typeEnvironment(const QmlJS::Document *doc) cons
 {
     if (!doc)
         return 0;
-    return _typeEnvironments.value(doc->fileName(), 0);
+    return _typeEnvironments.value(doc, 0);
 }
 
 void Context::setTypeEnvironment(const QmlJS::Document *doc, const TypeEnvironment *typeEnvironment)
 {
     if (!doc)
         return;
-    _typeEnvironments[doc->fileName()] = typeEnvironment;
+    _typeEnvironments[doc] = typeEnvironment;
 }
 
 const Value *Context::lookup(const QString &name, const ObjectValue **foundInScope) const

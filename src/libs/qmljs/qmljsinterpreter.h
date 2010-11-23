@@ -342,7 +342,7 @@ private:
 
     QSharedPointer<Engine> _engine;
     QHash<const ObjectValue *, Properties> _properties;
-    QHash<QString, const TypeEnvironment *> _typeEnvironments;
+    QHash<const Document *, const TypeEnvironment *> _typeEnvironments;
     ScopeChain _scopeChain;
     int _qmlScopeObjectIndex;
     bool _qmlScopeObjectSet;

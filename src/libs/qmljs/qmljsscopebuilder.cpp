@@ -97,6 +97,11 @@ void ScopeBuilder::pop()
 void ScopeBuilder::initializeScopeChain()
 {
     ScopeChain &scopeChain = _context->scopeChain();
+    if (scopeChain.qmlComponentScope
+            && scopeChain.qmlComponentScope->document == _doc) {
+        return;
+    }
+
     scopeChain = ScopeChain(); // reset
 
     Interpreter::Engine *engine = _context->engine();

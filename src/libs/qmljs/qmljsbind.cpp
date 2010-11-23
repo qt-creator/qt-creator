@@ -93,12 +93,71 @@ Interpreter::ObjectValue *Bind::findQmlObject(AST::Node *node) const
 bool Bind::usesQmlPrototype(ObjectValue *prototype,
                             const Context *context) const
 {
-    // ### This function is disabled for performance reasons.
-    return false;
+    if (!prototype)
+        return false;
 
-    foreach (ObjectValue *object, _qmlObjects.values()) {
+    const QString componentName = prototype->className();
+
+    // all component objects have classname set
+    if (componentName.isEmpty())
+        return false;
+
+    // get a list of all the names that may refer to this component
+    // this can only happen for file imports with an 'as' clause
+    // if there aren't any, possibleNames will be left empty
+    QSet<QString> possibleNames;
+    foreach (const ImportInfo &import, imports()) {
+        if (import.type() == ImportInfo::FileImport
+                && !import.id().isEmpty()
+                && import.name().contains(componentName)) {
+            possibleNames.insert(import.id());
+        }
+    }
+    if (!possibleNames.isEmpty())
+        possibleNames.insert(componentName);
+
+    // if there are no renamed imports and the document does not use
+    // the className string anywhere, it's out
+    if (possibleNames.isEmpty()) {
+        NameId nameId(componentName.data(), componentName.size());
+        if (!_doc->engine()->literals().contains(nameId))
+            return false;
+    }
+
+    QHashIterator<Node *, ObjectValue *> it(_qmlObjects);
+    while (it.hasNext()) {
+        it.next();
+
+        // if the type id does not contain one of the possible names, skip
+        Node *node = it.key();
+        UiQualifiedId *id = 0;
+        if (UiObjectDefinition *n = cast<UiObjectDefinition *>(node)) {
+            id = n->qualifiedTypeNameId;
+        } else if (UiObjectBinding *n = cast<UiObjectBinding *>(node)) {
+            id = n->qualifiedTypeNameId;
+        }
+        if (!id)
+            continue;
+
+        bool skip = false;
+        // optimize the common case of no renamed imports
+        if (possibleNames.isEmpty()) {
+            for (UiQualifiedId *idIt = id; idIt; idIt = idIt->next) {
+                if (!idIt->next && idIt->name->asString() != componentName)
+                    skip = true;
+            }
+        } else {
+            for (UiQualifiedId *idIt = id; idIt; idIt = idIt->next) {
+                if (!idIt->next && !possibleNames.contains(idIt->name->asString()))
+                    skip = true;
+            }
+        }
+        if (skip)
+            continue;
+
+        // resolve and check the prototype
+        const ObjectValue *object = it.value();
         const ObjectValue *resolvedPrototype = object->prototype(context);
-
         if (resolvedPrototype == prototype)
             return true;
     }

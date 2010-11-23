@@ -71,6 +71,8 @@ public:
     AST::ExpressionNode *expression() const;
     AST::Node *ast() const;
 
+    const QmlJS::Engine *engine() const;
+
     QList<DiagnosticMessage> diagnosticMessages() const;
 
     QString source() const;
