@@ -474,13 +474,10 @@
 
          \omit  ## Are the Xcode tools still needed separately? \endomit
 
-    \section1 Build Environment
+    \section1 Compiling Qt Creator from Source
 
-    To build Qt Creator itself from the source, you need:
-    \list
-        \o Qt 4.7 or later
-        \o On Windows, MinGW 4.4 or Microsoft Visual Studio 2008
-    \endlist
+    To build Qt Creator itself from the source, see the requirements and
+    instructions in the readme file that is located in the source repository.
 
     \section1 Supported Mobile Device Platforms
     You can develop applications for the following mobile device
