@@ -180,4 +180,4 @@ private:
 } // Internal
 } // QmlJSInspector
 
-#endif
+#endif // QMLJSINSPECTOR_H
