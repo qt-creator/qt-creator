@@ -1166,8 +1166,13 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     const int bkptno = data.findChild("bkptno").data().toInt();
     const GdbMi frame = data.findChild("frame");
 
+    const int lineNumber = frame.findChild("line").data().toInt();
+    QString fullName = QString::fromUtf8(frame.findChild("fullname").data());
+    if (fullName.isEmpty())
+        fullName = QString::fromUtf8(frame.findChild("file").data());
+
     if (bkptno && frame.isValid()) {
-        // Use opportunity to update the marker position.
+        // Use opportunity to update the breakpoint marker position.
         BreakHandler *handler = breakHandler();
         BreakpointId id = handler->findBreakpointByNumber(bkptno);
         const BreakpointResponse &response = handler->response(id);
@@ -1175,14 +1180,14 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         if (fileName.isEmpty())
             fileName = handler->fileName(id);
         if (fileName.isEmpty())
-            fileName = QString::fromUtf8(frame.findChild("fullname").data());
-        if (fileName.isEmpty())
-            fileName = QString::fromUtf8(frame.findChild("file").data());
-        if (!fileName.isEmpty()) {
-            int lineNumber = frame.findChild("line").data().toInt();
+            fileName = fullName;
+        if (!fileName.isEmpty())
             handler->setMarkerFileAndLine(id, fileName, lineNumber);
-        }
     }
+
+    // Quickly set the location marker.
+    if (lineNumber && QFileInfo(fullName).exists())
+        debuggerCore()->gotoLocation(fullName, lineNumber, true);
 
     if (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
         QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state())
@@ -1296,7 +1301,6 @@ void GdbEngine::handleStop0(const GdbMi &data)
     static int stepCounter = 0;
     if (debuggerCore()->boolSetting(SkipKnownFrames)) {
         if (reason == "end-stepping-range" || reason == "function-finished") {
-            GdbMi frame = data.findChild("frame");
             //showMessage(frame.toString());
             QString funcName = _(frame.findChild("func").data());
             QString fileName = QString::fromLocal8Bit(frame.findChild("file").data());
