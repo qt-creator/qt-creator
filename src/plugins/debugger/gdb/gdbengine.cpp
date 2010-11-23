@@ -1797,9 +1797,6 @@ void GdbEngine::autoContinueInferior()
 void GdbEngine::continueInferior()
 {
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
-    // Not doing it here makes it appear "snappier" as the time
-    // when there is no location marker is shorter.
-    //resetLocation();
     setTokenBarrier();
     continueInferiorInternal();
 }
@@ -3016,7 +3013,6 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
 
 void GdbEngine::activateFrame(int frameIndex)
 {
-    //resetLocation();
     if (state() != InferiorStopOk && state() != InferiorUnrunnable)
         return;
 
