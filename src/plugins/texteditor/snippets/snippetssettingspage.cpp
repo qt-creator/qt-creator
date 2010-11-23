@@ -360,14 +360,16 @@ void SnippetsSettingsPagePrivate::apply()
     if (settingsChanged())
         writeSettings();
 
-    if (m_snippetsCollectionChanged)
-        SnippetsManager::instance()->persistSnippetsCollection();
+    if (m_snippetsCollectionChanged) {
+        SnippetsManager::instance()->snippetsCollection()->synchronize();
+        m_snippetsCollectionChanged = false;
+    }
 }
 
 void SnippetsSettingsPagePrivate::finish()
 {
     if (m_snippetsCollectionChanged) {
-        SnippetsManager::instance()->reloadSnippetsCollection();
+        SnippetsManager::instance()->snippetsCollection()->reload();
         m_snippetsCollectionChanged = false;
     }
 }

@@ -30,13 +30,7 @@
 #ifndef SNIPPETSMANAGER_H
 #define SNIPPETSMANAGER_H
 
-#include "snippet.h"
-
-#include <QtCore/QString>
 #include <QtCore/QSharedPointer>
-#include <QtCore/QList>
-
-QT_FORWARD_DECLARE_CLASS(QXmlStreamWriter)
 
 namespace TextEditor {
 namespace Internal {
@@ -54,30 +48,10 @@ public:
 
     static SnippetsManager *instance();
 
-    void reloadSnippetsCollection();
-    void persistSnippetsCollection();
-    QSharedPointer<SnippetsCollection> snippetsCollection();
+    QSharedPointer<SnippetsCollection> snippetsCollection() const;
 
 private:
-    void loadSnippetsCollection();
-
-    static QList<Snippet> readXML(const QString &fileName);
-    static void writeSnippetXML(const Snippet &snippet, QXmlStreamWriter *writer);
-
-    static const QLatin1String kSnippet;
-    static const QLatin1String kSnippets;
-    static const QLatin1String kTrigger;
-    static const QLatin1String kId;
-    static const QLatin1String kComplement;
-    static const QLatin1String kGroup;
-    static const QLatin1String kRemoved;
-    static const QLatin1String kModified;
-
-    bool m_collectionLoaded;
     QSharedPointer<SnippetsCollection> m_collection;
-    QString m_builtInSnippetsPath;
-    QString m_userSnippetsPath;
-    QString m_snippetsFileName;
 };
 
 } // Internal

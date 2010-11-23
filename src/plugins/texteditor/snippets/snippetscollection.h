@@ -35,6 +35,8 @@
 #include <QtCore/QVector>
 #include <QtCore/QList>
 
+QT_FORWARD_DECLARE_CLASS(QXmlStreamWriter)
+
 namespace TextEditor {
 namespace Internal {
 
@@ -82,13 +84,31 @@ public:
     int totalActiveSnippets(Snippet::Group group) const;
     int totalSnippets(Snippet::Group group) const;
 
-    void clear();
+    void reload();
+    void synchronize();
 
 private:
+    void clear();
     void updateActiveSnippetsEnd(Snippet::Group group);
+
+    static QList<Snippet> readXML(const QString &fileName);
+    static void writeSnippetXML(const Snippet &snippet, QXmlStreamWriter *writer);
+
+    static const QLatin1String kSnippet;
+    static const QLatin1String kSnippets;
+    static const QLatin1String kTrigger;
+    static const QLatin1String kId;
+    static const QLatin1String kComplement;
+    static const QLatin1String kGroup;
+    static const QLatin1String kRemoved;
+    static const QLatin1String kModified;
 
     QVector<QList<Snippet> > m_snippets;
     QVector<QList<Snippet>::iterator> m_activeSnippetsEnd;
+
+    QString m_builtInSnippetsPath;
+    QString m_userSnippetsPath;
+    QString m_snippetsFileName;
 };
 
 } // Internal

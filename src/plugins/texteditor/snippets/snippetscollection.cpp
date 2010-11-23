@@ -28,7 +28,18 @@
 **************************************************************************/
 
 #include "snippetscollection.h"
+#include "reuse.h"
 
+#include <coreplugin/icore.h>
+
+#include <QtCore/QLatin1String>
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
+#include <QtCore/QDir>
+#include <QtCore/QHash>
+#include <QtCore/QDebug>
+#include <QtCore/QXmlStreamReader>
+#include <QtCore/QXmlStreamWriter>
 #include <QtAlgorithms>
 
 #include <iterator>
@@ -65,6 +76,15 @@ RemovedSnippetPred removedSnippetPred;
 
 } // Anonymous
 
+const QLatin1String SnippetsCollection::kSnippet("snippet");
+const QLatin1String SnippetsCollection::kSnippets("snippets");
+const QLatin1String SnippetsCollection::kTrigger("trigger");
+const QLatin1String SnippetsCollection::kId("id");
+const QLatin1String SnippetsCollection::kComplement("complement");
+const QLatin1String SnippetsCollection::kGroup("group");
+const QLatin1String SnippetsCollection::kRemoved("removed");
+const QLatin1String SnippetsCollection::kModified("modified");
+
 // Hint
 SnippetsCollection::Hint::Hint(int index) : m_index(index)
 {}
@@ -80,7 +100,10 @@ int SnippetsCollection::Hint::index() const
 // SnippetsCollection
 SnippetsCollection::SnippetsCollection() :
     m_snippets(Snippet::GroupSize),
-    m_activeSnippetsEnd(Snippet::GroupSize)
+    m_activeSnippetsEnd(Snippet::GroupSize),
+    m_builtInSnippetsPath(QLatin1String(":/texteditor/snippets/")),
+    m_userSnippetsPath(Core::ICore::instance()->userResourcePath() + QLatin1String("/snippets/")),
+    m_snippetsFileName(QLatin1String("snippets.xml"))
 {
     for (Snippet::Group group = Snippet::Cpp; group < Snippet::GroupSize; ++group)
         m_activeSnippetsEnd[group] = m_snippets[group].end();
@@ -209,4 +232,112 @@ void SnippetsCollection::updateActiveSnippetsEnd(Snippet::Group group)
     m_activeSnippetsEnd[group] = std::find_if(m_snippets[group].begin(),
                                               m_snippets[group].end(),
                                               removedSnippetPred);
+}
+
+void SnippetsCollection::reload()
+{
+    clear();
+
+    QHash<QString, Snippet> activeBuiltInSnippets;
+    const QList<Snippet> &builtInSnippets = readXML(m_builtInSnippetsPath + m_snippetsFileName);
+    foreach (const Snippet &snippet, builtInSnippets)
+        activeBuiltInSnippets.insert(snippet.id(), snippet);
+
+    const QList<Snippet> &userSnippets = readXML(m_userSnippetsPath + m_snippetsFileName);
+    foreach (const Snippet &snippet, userSnippets) {
+        if (snippet.isBuiltIn())
+            // This user snippet overrides the corresponding built-in snippet.
+            activeBuiltInSnippets.remove(snippet.id());
+        insertSnippet(snippet, snippet.group());
+    }
+
+    foreach (const Snippet &snippet, activeBuiltInSnippets)
+        insertSnippet(snippet, snippet.group());
+}
+
+void SnippetsCollection::synchronize()
+{
+    if (QFile::exists(m_userSnippetsPath) || QDir().mkpath(m_userSnippetsPath)) {
+        QFile file(m_userSnippetsPath + m_snippetsFileName);
+        if (file.open(QFile::WriteOnly | QFile::Truncate)) {
+            QXmlStreamWriter writer(&file);
+            writer.setAutoFormatting(true);
+            writer.writeStartDocument();
+            writer.writeStartElement(kSnippets);
+            for (Snippet::Group group = Snippet::Cpp; group < Snippet::GroupSize; ++group) {
+                const int size = totalSnippets(group);
+                for (int i = 0; i < size; ++i) {
+                    const Snippet &current = snippet(i, group);
+                    if (!current.isBuiltIn() ||
+                       (current.isBuiltIn() && (current.isRemoved() || current.isModified()))) {
+                        writeSnippetXML(current, &writer);
+                    }
+                }
+            }
+            writer.writeEndElement();
+            writer.writeEndDocument();
+            file.close();
+        }
+    }
+
+    reload();
+}
+
+void SnippetsCollection::writeSnippetXML(const Snippet &snippet, QXmlStreamWriter *writer)
+{
+    writer->writeStartElement(kSnippet);
+    writer->writeAttribute(kGroup, fromSnippetGroup(snippet.group()));
+    writer->writeAttribute(kTrigger, snippet.trigger());
+    writer->writeAttribute(kId, snippet.id());
+    writer->writeAttribute(kComplement, snippet.complement());
+    writer->writeAttribute(kRemoved, fromBool(snippet.isRemoved()));
+    writer->writeAttribute(kModified, fromBool(snippet.isModified()));
+    writer->writeCharacters(snippet.content());
+    writer->writeEndElement();
+}
+
+QList<Snippet> SnippetsCollection::readXML(const QString &fileName)
+{
+    QList<Snippet> snippets;
+    QFile file(fileName);
+    if (file.exists() && file.open(QIODevice::ReadOnly)) {
+        QXmlStreamReader xml(&file);
+        if (xml.readNextStartElement()) {
+            if (xml.name() == kSnippets) {
+                while (xml.readNextStartElement()) {
+                    if (xml.name() == kSnippet) {
+                        const QXmlStreamAttributes &atts = xml.attributes();
+
+                        Snippet snippet(atts.value(kId).toString());
+                        snippet.setTrigger(atts.value(kTrigger).toString());
+                        snippet.setComplement(atts.value(kComplement).toString());
+                        snippet.setGroup(toSnippetGroup(atts.value(kGroup).toString()));
+                        snippet.setIsRemoved(toBool(atts.value(kRemoved).toString()));
+                        snippet.setIsModified(toBool(atts.value(kModified).toString()));
+
+                        QString content;
+                        while (!xml.atEnd()) {
+                            xml.readNext();
+                            if (xml.isCharacters()) {
+                                content += xml.text();
+                            } else if (xml.isEndElement()) {
+                                snippet.setContent(content);
+                                snippets.append(snippet);
+                                break;
+                            }
+                        }
+                    } else {
+                        xml.skipCurrentElement();
+                    }
+                }
+            } else {
+                xml.skipCurrentElement();
+            }
+        }
+        if (xml.hasError())
+            qWarning() << fileName << xml.errorString() << xml.lineNumber() << xml.columnNumber();
+        file.close();
+    }
+
+    return snippets;
 }
