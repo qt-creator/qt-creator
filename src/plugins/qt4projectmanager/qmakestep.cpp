@@ -146,8 +146,7 @@ QStringList QMakeStep::moreArguments()
     if (type == ProjectExplorer::ToolChain_GCC_MAEMO)
         arguments << QLatin1String("-unix");
 #endif
-    if (bc->target()->id() == Constants::S60_DEVICE_TARGET_ID
-        || bc->target()->id() == Constants::S60_EMULATOR_TARGET_ID) {
+    if (!bc->qtVersion()->supportsShadowBuilds()) {
         // We have a target which does not allow shadow building.
         // But we really don't want to have the build artefacts in the source dir
         // so we try to hack around it, to make the common cases work.
