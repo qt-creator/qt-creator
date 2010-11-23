@@ -1409,9 +1409,16 @@ static bool gdbMiGetBoolValue(bool *target,
 
 struct GdbMiRecursionContext
 {
-    GdbMiRecursionContext(int recursionLevelIn = 0) :
-            recursionLevel(recursionLevelIn), childNumChild(-1), childIndex(0) {}
+    enum Type
+    {
+        Debugger,    // Debugger symbol dump, recursive/symmetrical
+        GdbMacrosCpp // old gdbmacros.cpp format, unsymmetrical
+    };
 
+    GdbMiRecursionContext(Type t, int recursionLevelIn = 0) :
+            type(t), recursionLevel(recursionLevelIn), childNumChild(-1), childIndex(0) {}
+
+    const Type type;
     int recursionLevel;
     int childNumChild;
     int childIndex;
@@ -1429,31 +1436,41 @@ static void gbdMiToWatchData(const GdbMi &root,
     QString v;
     QByteArray b;
     // Check for name/iname and use as expression default
-    if (ctx.recursionLevel == 0) {
-        // parents have only iname, from which name is derived
-        QString iname;
-        if (!gdbMiGetStringValue(&iname, root, "iname"))
-            qWarning("Internal error: iname missing");
-        w.iname = iname.toLatin1();
-        w.name = iname;
-        const int lastDotPos = w.name.lastIndexOf(QLatin1Char('.'));
-        if (lastDotPos != -1)
-            w.name.remove(0, lastDotPos + 1);
-        w.exp = w.name.toLatin1();
+    w.sortId = ctx.childIndex;
+    // Fully symmetrical
+    if (ctx.type == GdbMiRecursionContext::Debugger) {
+        gdbMiGetByteArrayValue(&w.iname, root, "iname");
+        gdbMiGetStringValue(&w.name, root, "name");
+        gdbMiGetByteArrayValue(&w.exp, root, "exp");
     } else {
-        // Children can have a 'name' attribute. If missing, assume array index
-        // For display purposes, it can be overridden by "key"
-        if (!gdbMiGetStringValue(&w.name, root, "name")) {
-            w.name = QString::number(ctx.childIndex);
-        }
-        // Set iname
-        w.iname = ctx.parentIName;
-        w.iname += '.';
-        w.iname += w.name.toLatin1();
-        // Key?
-        QString key;
-        if (gdbMiGetStringValue(&key, root, "key", "keyencoded")) {
-            w.name = key.size() > 13 ? key.mid(0, 13) + QLatin1String("...") : key;
+        // gdbmacros.cpp: iname/name present according to recursion level
+        // Check for name/iname and use as expression default
+        if (ctx.recursionLevel == 0) {
+            // parents have only iname, from which name is derived
+            QString iname;
+            if (!gdbMiGetStringValue(&iname, root, "iname"))
+                qWarning("Internal error: iname missing");
+            w.iname = iname.toLatin1();
+            w.name = iname;
+            const int lastDotPos = w.name.lastIndexOf(QLatin1Char('.'));
+            if (lastDotPos != -1)
+                w.name.remove(0, lastDotPos + 1);
+            w.exp = w.name.toLatin1();
+        } else {
+            // Children can have a 'name' attribute. If missing, assume array index
+            // For display purposes, it can be overridden by "key"
+            if (!gdbMiGetStringValue(&w.name, root, "name")) {
+                w.name = QString::number(ctx.childIndex);
+            }
+            // Set iname
+            w.iname = ctx.parentIName;
+            w.iname += '.';
+            w.iname += w.name.toLatin1();
+            // Key?
+            QString key;
+            if (gdbMiGetStringValue(&key, root, "key", "keyencoded")) {
+                w.name = key.size() > 13 ? key.mid(0, 13) + QLatin1String("...") : key;
+            }
         }
     }
     if (w.name.isEmpty()) {
@@ -1507,7 +1524,7 @@ static void gbdMiToWatchData(const GdbMi &root,
     if (children.empty())
         return;
     wl->back().setChildrenUnneeded();
-    GdbMiRecursionContext nextLevelContext(ctx.recursionLevel + 1);
+    GdbMiRecursionContext nextLevelContext(ctx.type, ctx.recursionLevel + 1);
     nextLevelContext.parentIName = w.iname;
     gdbMiGetStringValue(&nextLevelContext.childType, root, "childtype");
     if (!gdbMiGetIntValue(&nextLevelContext.childNumChild, root, "childnumchild"))
@@ -1528,12 +1545,12 @@ bool QtDumperHelper::parseValue(const char *data, QList<WatchData> *l)
         if (!root.isValid())
             return false;
         foreach(const GdbMi &child, root.children())
-            gbdMiToWatchData(child, GdbMiRecursionContext(), l);
+            gbdMiToWatchData(child, GdbMiRecursionContext(GdbMiRecursionContext::Debugger), l);
     } else {
         root.fromStringMultiple(QByteArray(data));
         if (!root.isValid())
             return false;
-        gbdMiToWatchData(root, GdbMiRecursionContext(), l);
+        gbdMiToWatchData(root, GdbMiRecursionContext(GdbMiRecursionContext::GdbMacrosCpp), l);
     }
     return true;
 }

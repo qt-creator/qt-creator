@@ -134,7 +134,11 @@ extern "C" HRESULT CALLBACK expandlocals(CIDebugClient *client, PCSTR args)
 static inline std::string msgLocalsUsage(PCSTR args)
 {
     std::ostringstream str;
-    str << "Invalid parameter: '" << args << "' (usage: locals [-d] <frame> [iname]).";
+    str << "Invalid parameter: '" << args
+        << "'\nUsage: locals [-t token] [-h] [-d] [-e expandset] [-u uninitializedset] <frame> [iname]).\n"
+           "-h human-readable ouput\n"
+           "-d debug output\n-e expandset Comma-separated list of expanded inames\n"
+           "-u uninitializedset Comma-separated list of uninitialized inames\n";
     return str.str();
 }
 
@@ -150,18 +154,38 @@ static std::string commmandLocals(ExtensionCommandContext &exc,PCSTR args, int *
     std::string iname;
 
     StringList tokens = commandTokens<StringList>(args, token);
+    StringVector expandedInames;
+    StringVector uninitializedInames;
+    // Parse away options
     while (!tokens.empty() && tokens.front().size() == 2 && tokens.front().at(0) == '-') {
-        // Parse options -d (debug)/- humanreadable GDBMI
-        switch (tokens.front().at(1)) {
+        const char option = tokens.front().at(1);
+        tokens.pop_front();
+        switch (option) {
         case 'd':
             debugOutput++;
             break;
         case 'h':
             humanReadableGdbmi = true;
             break;
+        case 'u':
+            if (tokens.empty()) {
+                *errorMessage = msgLocalsUsage(args);
+                return std::string();
+            }
+            split(tokens.front(), ',', std::back_inserter(uninitializedInames));
+            tokens.pop_front();
+            break;
+        case 'e':
+            if (tokens.empty()) {
+                *errorMessage = msgLocalsUsage(args);
+                return std::string();
+            }
+            split(tokens.front(), ',', std::back_inserter(expandedInames));
+            tokens.pop_front();
+            break;
         }
-        tokens.pop_front();
     }
+    // Frame and iname
     unsigned frame;
     if (tokens.empty() || sscanf(tokens.front().c_str(), "%u", &frame) != 1) {
         *errorMessage = msgLocalsUsage(args);
@@ -175,7 +199,10 @@ static std::string commmandLocals(ExtensionCommandContext &exc,PCSTR args, int *
     SymbolGroup * const symGroup = ExtensionContext::instance().symbolGroup(exc.symbols(), exc.threadId(), frame, errorMessage);
     if (!symGroup)
         return std::string();
-
+    if (!expandedInames.empty())
+        symGroup->expandList(expandedInames, errorMessage);
+    if (!uninitializedInames.empty())
+        symGroup->markUninitialized(uninitializedInames);
     // Complete dump
     if (iname.empty())
         return debugOutput ? symGroup->debug(debugOutput - 1) : symGroup->dump(humanReadableGdbmi);

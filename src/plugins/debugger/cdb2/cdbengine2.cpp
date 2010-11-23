@@ -61,6 +61,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QTextStream>
 #include <QtCore/QDateTime>
+#include <QtGui/QToolTip>
 
 #ifdef Q_OS_WIN
 #    include <utils/winutils.h>
@@ -73,6 +74,7 @@ Q_DECLARE_METATYPE(Debugger::Internal::DisassemblerViewAgent*)
 Q_DECLARE_METATYPE(Debugger::Internal::MemoryViewAgent*)
 
 enum { debug = 0 };
+enum { debugLocals = 0 };
 enum { debugBreakpoints = 0 };
 
 #if 0
@@ -106,6 +108,8 @@ enum { debugBreakpoints = 0 };
 
 namespace Debugger {
 namespace Cdb {
+
+static const char localsPrefixC[] = "local.";
 
 using namespace Debugger::Internal;
 
@@ -346,10 +350,11 @@ void CdbEngine::setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEd
     // No numerical or any other expressions [yet]
     if (!(exp.at(0).isLetter() || exp.at(0) == QLatin1Char('_')))
         return;
-    const QByteArray iname = QByteArray("local.") + exp.toAscii();
-    const QModelIndex index = watchHandler()->itemIndex(iname);
-    Q_UNUSED(index)
-    Q_UNUSED(mousePos)
+    const QByteArray iname = QByteArray(localsPrefixC) + exp.toAscii();
+    if (const WatchData *data = watchHandler()->findItem(iname)) {
+        QToolTip::hideText();
+        QToolTip::showText(mousePos, data->toToolTip());
+    }
 }
 
 void CdbEngine::setupEngine()
@@ -903,8 +908,6 @@ void CdbEngine::postExtensionCommand(const QByteArray &cmd,
         showMessage(msg, LogError);
         return;
     }
-    if (!flags & QuietCommand)
-        showMessage(QString::fromLocal8Bit(cmd), LogInput);
 
     const int token = m_nextCommandToken++;
 
@@ -914,6 +917,9 @@ void CdbEngine::postExtensionCommand(const QByteArray &cmd,
     str << m_extensionCommandPrefixBA << cmd << " -t " << token;
     if (!arguments.isEmpty())
         str <<  ' ' << arguments;
+
+    if (!flags & QuietCommand)
+        showMessage(QString::fromLocal8Bit(fullCmd), LogInput);
 
     CdbExtensionCommandPtr pendingCommand(new CdbExtensionCommand(fullCmd, token, flags, handler, nextCommandFlag, cookie));
 
@@ -934,9 +940,10 @@ void CdbEngine::activateFrame(int index)
     const Debugger::Internal::StackFrames &frames = stackHandler()->frames();
     QTC_ASSERT(index < frames.size(), return; )
 
-    if (debug)
+    const StackFrame frame = frames.at(index);
+    if (debug || debugLocals)
         qDebug("activateFrame idx=%d '%s' %d", index,
-               qPrintable(frames.at(index).file), frames.at(index).line);
+               qPrintable(frame.file), frame.line);
     stackHandler()->setCurrentIndex(index);
     const bool showAssembler = !frames.at(index).isUsable();
     if (showAssembler) { // Assembly code: Clean out model and force instruction mode.
@@ -944,30 +951,46 @@ void CdbEngine::activateFrame(int index)
         watchHandler()->endCycle();
         QAction *assemblerAction = theAssemblerAction();
         if (assemblerAction->isChecked()) {
-            gotoLocation(frames.at(index), true);
+            gotoLocation(frame, true);
         } else {
             assemblerAction->trigger(); // Seems to trigger update
         }
         return;
     }
-    gotoLocation(frames.at(index), true);
-    // Watchers: Initial expand and query
+    gotoLocation(frame, true);
+    // Watchers: Initial expand, get uninitialized and query
+    QByteArray arguments;
+    ByteArrayInputStream str(arguments);
+    // Pre-expand
     const QSet<QByteArray> expanded = watchHandler()->expandedINames();
     if (!expanded.isEmpty()) {
-        QByteArray expandArguments;
-        ByteArrayInputStream expandStr(expandArguments);
-        expandStr << index << ' ';
+        str << blankSeparator << "-e ";
         int i = 0;
         foreach(const QByteArray &e, expanded) {
             if (i++)
-                expandStr << ',';
-            expandStr << e;
+                str << ',';
+            str << e;
         }
-        postExtensionCommand("expandlocals", expandArguments, 0, &CdbEngine::handleExpandLocals);
     }
-
+    // Uninitialized variables if desired
+    if (debuggerCore()->boolSetting(UseCodeModel)) {
+        QStringList uninitializedVariables;
+        getUninitializedVariables(debuggerCore()->cppCodeModelSnapshot(),
+                                  frame.function, frame.file, frame.line, &uninitializedVariables);
+        if (!uninitializedVariables.isEmpty()) {
+            str << blankSeparator << "-u ";
+            int i = 0;
+            foreach(const QString &u, uninitializedVariables) {
+                if (i++)
+                    str << ',';
+                str << localsPrefixC << u;
+            }
+        }
+    }
+    // Required arguments: frame
+    str << blankSeparator << index;
     watchHandler()->beginCycle();
-    postExtensionCommand("locals", QByteArray::number(index), 0, &CdbEngine::handleLocals);
+    postExtensionCommand("locals", arguments, 0, &CdbEngine::handleLocals);
 }
 
 void CdbEngine::selectThread(int index)

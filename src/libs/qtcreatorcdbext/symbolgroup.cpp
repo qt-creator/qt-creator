@@ -40,6 +40,7 @@
 enum { debug = 0 };
 
 typedef std::vector<int>::size_type VectorIndexType;
+typedef std::vector<std::string> StringVector;
 
 const char rootNameC[] = "local";
 
@@ -207,9 +208,10 @@ SymbolGroup *SymbolGroup::create(CIDebugControl *control, CIDebugSymbols *debugS
 
 // ------- SymbolGroupNode
 SymbolGroupNode::SymbolGroupNode(CIDebugSymbolGroup *symbolGroup,
-                                 const std::string &n,
+                                 const std::string &name,
+                                 const std::string &iname,
                                  SymbolGroupNode *parent) :
-    m_symbolGroup(symbolGroup), m_parent(parent), m_name(n)
+    m_symbolGroup(symbolGroup), m_parent(parent), m_name(name), m_iname(iname), m_flags(0)
 {
     memset(&m_parameters, 0, sizeof(DEBUG_SYMBOL_PARAMETERS));
     m_parameters.ParentSymbol = DEBUG_ANY_ID;
@@ -230,23 +232,6 @@ bool SymbolGroupNode::isArrayElement() const
     return m_parent && (m_parent->m_parameters.Flags & DEBUG_SYMBOL_IS_ARRAY);
 }
 
-// iName: Fix array elements to be named 'array.0' instead of 'array.[0]' so
-// that sorting in Qt Creator works.
-std::string SymbolGroupNode::iName() const
-{
-    std::string rc = m_name;
-
-    //rc += isArrayElement() ? 'a' : 'n';
-    if (isArrayElement() && !rc.empty() && rc.at(0) == '[') {
-        const std::string::size_type last = rc.size() - 1;
-        if (rc.at(last) == ']') {
-            rc.erase(last, 1);
-            rc.erase(0, 1);
-        }
-    }
-    return rc;
-}
-
 // Return full iname as 'locals.this.m_sth'.
 std::string SymbolGroupNode::fullIName() const
 {
@@ -256,6 +241,58 @@ std::string SymbolGroupNode::fullIName() const
         rc.insert(0, p->iName());
     }
     return rc;
+}
+
+// Fix an array iname "[0]" -> "0" for sorting to work correctly
+static inline void fixArrayIname(std::string *iname)
+{
+    if (!iname->empty() && iname->at(0) == '[') {
+        const std::string::size_type last = iname->size() - 1;
+        if (iname->at(last) == ']') {
+            iname->erase(last, 1);
+            iname->erase(0, 1);
+        }
+    }
+}
+
+// Fix up names and inames
+static inline void fixNames(bool isTopLevel, StringVector *names, StringVector *inames)
+{
+    if (names->empty())
+        return;
+    unsigned unnamedId = 1;
+    /* 1) Fix name="__formal", which occurs when someone writes "void foo(int /* x * /)..."
+     * 2) Fix array inames for sorting: "[6]" -> name="[6]",iname="6"
+     * 3) For toplevels: Fix shadowed variables in the order the debugger expects them:
+       \code
+       int x;             // Occurrence (1), should be reported as name="x <shadowed 1>"/iname="x#1"
+       if (true) {
+          int x = 5; (2)  // Occurrence (2), should be reported as name="x"/iname="x"
+       }
+      \endcode */
+    StringVector::iterator nameIt = names->begin();
+    const StringVector::iterator namesEnd = names->end();
+    for (StringVector::iterator iNameIt = inames->begin(); nameIt != namesEnd ; ++nameIt, ++iNameIt) {
+        std::string &name = *nameIt;
+        std::string &iname = *iNameIt;
+        if (name.empty() || name == "__formal") {
+            const std::string number = toString(unnamedId++);
+            name = "<unnamed "  + number + '>';
+            iname = "unnamed#" + number;
+        } else {
+            fixArrayIname(&iname);
+        }
+        if (isTopLevel) {
+            if (const StringVector::size_type shadowCount = std::count(nameIt + 1, namesEnd, name)) {
+                const std::string number = toString(shadowCount);
+                name += " <shadowed ";
+                name += number;
+                name += '>';
+                iname += '#';
+                iname += number;
+            }
+        }
+    }
 }
 
 // Index: Index of symbol, parameterOffset: Looking only at a part of the symbol array, offset
@@ -279,15 +316,31 @@ void SymbolGroupNode::parseParameters(VectorIndexType index,
 
     const VectorIndexType size = vec.size();
     // Scan the top level elements
+    StringVector names;
+    names.reserve(size);
+    // Pass 1) Determine names. We need the complete set first in order to do some corrections.
     const VectorIndexType startIndex = isTopLevel ? 0 : index + 1;
     for (VectorIndexType pos = startIndex - parameterOffset; pos < size ; pos++ ) {
         if (vec.at(pos).ParentSymbol == index) {
             const VectorIndexType symbolGroupIndex = pos + parameterOffset;
-            HRESULT hr = m_symbolGroup->GetSymbolName(ULONG(symbolGroupIndex), buf, BufSize, &obtainedSize);
-            const std::string name = SUCCEEDED(hr) ? std::string(buf) : std::string("unnamed");
-            SymbolGroupNode *child = new SymbolGroupNode(m_symbolGroup, name, this);
+            if (FAILED(m_symbolGroup->GetSymbolName(ULONG(symbolGroupIndex), buf, BufSize, &obtainedSize)))
+                buf[0] = '\0';
+            names.push_back(std::string(buf));
+        }
+    }
+    // 2) Fix names
+    StringVector inames = names;
+    fixNames(isTopLevel, &names, &inames);
+    // Pass 3): Add nodes with fixed names
+    StringVector::size_type nameIndex = 0;
+    for (VectorIndexType pos = startIndex - parameterOffset; pos < size ; pos++ ) {
+        if (vec.at(pos).ParentSymbol == index) {
+            const VectorIndexType symbolGroupIndex = pos + parameterOffset;
+            SymbolGroupNode *child = new SymbolGroupNode(m_symbolGroup, names.at(nameIndex),
+                                                         inames.at(nameIndex), this);
             child->parseParameters(symbolGroupIndex, parameterOffset, vec);
             m_children.push_back(child);
+            nameIndex++;
         }
     }
     if (isTopLevel)
@@ -296,7 +349,7 @@ void SymbolGroupNode::parseParameters(VectorIndexType index,
 
 SymbolGroupNode *SymbolGroupNode::create(CIDebugSymbolGroup *sg, const std::string &name, const SymbolGroup::SymbolParameterVector &vec)
 {
-    SymbolGroupNode *rc = new SymbolGroupNode(sg, name);
+    SymbolGroupNode *rc = new SymbolGroupNode(sg, name, name);
     rc->parseParameters(DEBUG_ANY_ID, 0, vec);
     return rc;
 }
@@ -436,28 +489,40 @@ void SymbolGroupNode::dump(std::ostream &str, unsigned child, unsigned depth,
         str << ",addr=\"" << std::hex << std::showbase << addr << std::noshowbase << std::dec
                << '"';
 
-    ULONG obtainedSize = 0;
-    if (const wchar_t *wbuf = getValue(index, &obtainedSize)) {
-        const ULONG valueSize = obtainedSize - 1;
-        // ASCII or base64?
-        if (isSevenBitClean(wbuf, valueSize)) {
-            std::wstring value = wbuf;
-            fixValue(type, &value);
-            str << ",valueencoded=\"0\",value=\"" << gdbmiWStringFormat(value) << '"';
-        } else {
-            str << ",valueencoded=\"2\",value=\"";
-            base64Encode(str, reinterpret_cast<const unsigned char *>(wbuf), valueSize * sizeof(wchar_t));
-            str << '"';
+    bool valueEditable = true;
+    bool valueEnabled = true;
+
+    const bool uninitialized = m_flags & Uninitialized;
+    if (uninitialized) {
+        valueEditable = valueEnabled = false;
+        str << ",valueencoded=\"0\",value=\"<not in scope>\"";
+    } else {
+        ULONG obtainedSize = 0;
+        if (const wchar_t *wbuf = getValue(index, &obtainedSize)) {
+            const ULONG valueSize = obtainedSize - 1;
+            // ASCII or base64?
+            if (isSevenBitClean(wbuf, valueSize)) {
+                std::wstring value = wbuf;
+                fixValue(type, &value);
+                str << ",valueencoded=\"0\",value=\"" << gdbmiWStringFormat(value) << '"';
+            } else {
+                str << ",valueencoded=\"2\",value=\"";
+                base64Encode(str, reinterpret_cast<const unsigned char *>(wbuf), valueSize * sizeof(wchar_t));
+                str << '"';
+            }
+            delete [] wbuf;
         }
-        delete [] wbuf;
     }
     // Children: Dump all known or subelements (guess).
-    const VectorIndexType childCountGuess = m_children.empty() ? m_parameters.SubElements : m_children.size();
+    const VectorIndexType childCountGuess = uninitialized ? 0 :
+             (m_children.empty() ? m_parameters.SubElements : m_children.size());
     // No children..suppose we are editable and enabled
-    if (childCountGuess == 0)
-        str << ",valueenabled=\"true\",valueeditable=\"true\"";
-    str << ",numchild=\"" << childCountGuess << '"';
-    if (!m_children.empty()) {
+    if (childCountGuess != 0)
+        valueEditable = false;
+    str << ",valueenabled=\"" << (valueEnabled ? "true" : "false") << '"'
+        << ",valueeditable=\"" << (valueEditable ? "true" : "false") << '"'
+        << ",numchild=\"" << childCountGuess << '"';
+    if (!uninitialized && !m_children.empty()) {
         str << ",children=[";
         if (humanReadable)
             str << '\n';
@@ -501,9 +566,14 @@ bool SymbolGroupNode::accept(SymbolGroupNodeVisitor &visitor, unsigned child, un
 void SymbolGroupNode::debug(std::ostream &str, unsigned verbosity, unsigned depth, ULONG index) const
 {
     indentStream(str, depth);
-    str << '"' << m_name << "\" Children=" << m_children.size() << ' ' << m_parameters;
-    if (verbosity)
-        str << " Address=0x" << std::hex << address(index) << std::dec << " Type=\"" << getType(index) << "\" Value=\"" << gdbmiWStringFormat(rawValue(index)) << '"';
+    str << '"' << m_name << "\" Children=" << m_children.size() << ' ' << m_parameters
+           << " flags=" << m_flags;
+    if (verbosity) {
+        str << " Address=0x" << std::hex << address(index) << std::dec
+            << " Type=\"" << getType(index) << '"';
+        if (!(m_flags & Uninitialized))
+            str << "\" Value=\"" << gdbmiWStringFormat(rawValue(index)) << '"';
+    }
     str << '\n';
 }
 
@@ -529,6 +599,10 @@ bool SymbolGroupNode::expand(ULONG index, std::string *errorMessage)
         return true;
     if (m_parameters.SubElements == 0) {
         *errorMessage = "No subelements to expand in node: " + fullIName();
+        return false;
+    }
+    if (m_flags & Uninitialized) {
+        *errorMessage = "Refusing to expand uninitialized node: " + fullIName();
         return false;
     }
 
@@ -626,7 +700,7 @@ unsigned SymbolGroup::expandList(const std::vector<std::string> &nodes, std::str
 {
     if (nodes.empty())
         return 0;
-    // Create a set with a key <level, name>. Also required for 1 node.
+    // Create a set with a key <level, name>. Also required for 1 node (see above).
     InamePathEntrySet pathEntries;
     const VectorIndexType nodeCount = nodes.size();
     for (VectorIndexType i= 0; i < nodeCount; i++) {
@@ -668,6 +742,21 @@ bool SymbolGroup::expand(const std::string &nodeName, std::string *errorMessage)
     if (node == m_root) // Shouldn't happen, still, all happy
         return true;
     return node->expand(index, errorMessage);
+}
+
+// Mark uninitialized (top level only)
+void SymbolGroup::markUninitialized(const std::vector<std::string> &uniniNodes)
+{
+    if (m_root && !m_root->children().empty() && !uniniNodes.empty()) {
+        const std::vector<std::string>::const_iterator unIniNodesBegin = uniniNodes.begin();
+        const std::vector<std::string>::const_iterator unIniNodesEnd = uniniNodes.end();
+
+        const SymbolGroupNodePtrVector::const_iterator childrenEnd = m_root->children().end();
+        for (SymbolGroupNodePtrVector::const_iterator it = m_root->children().begin(); it != childrenEnd; ++it) {
+            if (std::find(unIniNodesBegin, unIniNodesEnd, (*it)->fullIName()) != unIniNodesEnd)
+                (*it)->setFlags((*it)->flags() | SymbolGroupNode::Uninitialized);
+        }
+    }
 }
 
 static inline std::string msgAssignError(const std::string &nodeName,

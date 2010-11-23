@@ -61,6 +61,8 @@ public:
     bool hexPrefix() const     { return  m_hexPrefix; }
     void setIntegerBase(int b) { m_integerBase = b; }
     int integerBase() const    { return m_integerBase; }
+    // Append a separator if required (target does not end with it)
+    void appendSeparator(char c = ' ');
 
 private:
     template <class IntType> void appendInt(IntType i);
@@ -93,6 +95,7 @@ void hexPrefixOn(ByteArrayInputStream &bs);
 void hexPrefixOff(ByteArrayInputStream &bs);
 void hex(ByteArrayInputStream &bs);
 void dec(ByteArrayInputStream &bs);
+void blankSeparator(ByteArrayInputStream &bs);
 
 // Bytearray parse helpers
 QByteArray trimFront(QByteArray in);

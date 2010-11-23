@@ -45,6 +45,9 @@ class SymbolGroupNode {
     SymbolGroupNode(const SymbolGroupNode&);
     SymbolGroupNode& operator=(const SymbolGroupNode&);
 public:
+    enum Flags {
+        Uninitialized = 0x1
+    };
     typedef std::vector<DEBUG_SYMBOL_PARAMETERS> SymbolParameterVector;
     typedef std::vector<SymbolGroupNode *> SymbolGroupNodePtrVector;
     typedef SymbolGroupNodePtrVector::iterator SymbolGroupNodePtrVectorIterator;
@@ -52,6 +55,7 @@ public:
 
     explicit SymbolGroupNode(CIDebugSymbolGroup *symbolGroup,
                              const std::string &name,
+                             const std::string &iname,
                              SymbolGroupNode *parent = 0);
 
     ~SymbolGroupNode() { removeChildren(); }
@@ -65,7 +69,7 @@ public:
 
     const std::string &name() const { return m_name; }
     std::string fullIName() const;
-    std::string iName() const;
+    const std::string &iName() const { return m_iname; }
 
     const SymbolGroupNodePtrVector &children() const { return m_children; }
     SymbolGroupNode *childAt(unsigned) const;
@@ -91,6 +95,9 @@ public:
 
     ULONG subElements() const { return m_parameters.SubElements; }
 
+    unsigned flags() const     { return m_flags; }
+    void setFlags(unsigned f)  { m_flags = f; }
+
 private:
     // Return allocated wide string array of value
     wchar_t *getValue(ULONG index, ULONG *obtainedSize = 0) const;
@@ -102,6 +109,8 @@ private:
     DEBUG_SYMBOL_PARAMETERS m_parameters; // Careful when using ParentSymbol. It might not be correct.
     SymbolGroupNodePtrVector m_children;
     const std::string m_name;
+    const std::string m_iname;
+    unsigned m_flags;
 };
 
 /* Visitor that takes care of iterating over the nodes and the index bookkeeping.
@@ -165,6 +174,8 @@ public:
     // Expand a node list "locals.i1,locals.i2", expanding all nested child nodes
     // (think mkdir -p).
     unsigned expandList(const std::vector<std::string> &nodes, std::string *errorMessage);
+    // Mark uninitialized (top level only)
+    void markUninitialized(const std::vector<std::string> &nodes);
 
     // Expand a single node "locals.A.B" requiring that "locals.A.B" is already visible
     // (think mkdir without -p).

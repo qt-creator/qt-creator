@@ -37,6 +37,12 @@ ByteArrayInputStream::ByteArrayInputStream(QByteArray &ba) :
 {
 }
 
+void ByteArrayInputStream::appendSeparator(char c)
+{
+    if (!m_target.isEmpty() && !m_target.endsWith(c))
+        m_target.append(c);
+}
+
 void hexPrefixOn(ByteArrayInputStream &bs)
 {
     bs.setHexPrefix(true);
@@ -55,6 +61,11 @@ void hex(ByteArrayInputStream &bs)
 void dec(ByteArrayInputStream &bs)
 {
     bs.setIntegerBase(10);
+}
+
+void blankSeparator(ByteArrayInputStream &bs)
+{
+    bs.appendSeparator();
 }
 
 QByteArray trimFront(QByteArray in)
