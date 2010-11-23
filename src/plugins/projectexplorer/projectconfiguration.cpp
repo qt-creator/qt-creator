@@ -99,7 +99,9 @@ bool ProjectConfiguration::fromMap(const QVariantMap &map)
 {
     m_id = map.value(QLatin1String(CONFIGURATION_ID_KEY), QString()).toString();
     m_displayName = map.value(QLatin1String(DISPLAY_NAME_KEY), QString()).toString();
-    m_defaultDisplayName = map.value(QLatin1String(DEFAULT_DISPLAY_NAME_KEY), m_displayName).toString();
+    m_defaultDisplayName = map.value(QLatin1String(DEFAULT_DISPLAY_NAME_KEY),
+                                     m_defaultDisplayName.isEmpty() ?
+                                         m_displayName : m_defaultDisplayName).toString();
     return !m_id.isEmpty();
 }
 
