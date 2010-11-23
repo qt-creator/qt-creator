@@ -460,6 +460,13 @@ void QmlEngine::selectThread(int index)
 void QmlEngine::attemptBreakpointSynchronization()
 {
     BreakHandler *handler = breakHandler();
+
+    foreach (BreakpointId id, handler->unclaimedBreakpointIds()) {
+        // Take ownership of the breakpoint. Requests insertion.
+        if (acceptsBreakpoint(id))
+            handler->setEngine(id, this);
+    }
+
     //bool updateNeeded = false;
     JSAgentBreakpoints breakpoints;
     foreach (BreakpointId id, handler->engineBreakpointIds(this)) {
