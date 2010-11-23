@@ -6,6 +6,7 @@
         <comment>GLSL file</comment>
         <glob pattern="*.glsl"/>
         <glob pattern="*.frag"/>
+        <glob pattern="*.vert"/>
         <glob pattern="*.fsh"/>
         <glob pattern="*.vsh"/>
     </mime-type>
