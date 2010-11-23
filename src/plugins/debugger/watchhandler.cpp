@@ -1387,8 +1387,9 @@ void WatchHandler::showEditValue(const WatchData &data)
             delete w;
             l = new QLabel;
             const QString title = data.address ?
-                        tr("%1 Object at %2").arg(QLatin1String(data.type), QLatin1String(data.hexAddress())) :
-                        tr("%1 Object at Unknown Address").arg(QLatin1String(data.type));
+                tr("%1 Object at %2").arg(QLatin1String(data.type),
+                    QLatin1String(data.hexAddress())) :
+                tr("%1 Object at Unknown Address").arg(QLatin1String(data.type));
             l->setWindowTitle(title);
             m_editHandlers[key] = l;
         }
@@ -1415,7 +1416,7 @@ void WatchHandler::showEditValue(const WatchData &data)
         QImage im(bits, width, height, QImage::Format(format));
 
 #if 1
-        // enforcing copy of image data
+        // Qt bug. Enforce copy of image data.
         QImage im2(im);
         im.detach();
 #endif
@@ -1424,7 +1425,7 @@ void WatchHandler::showEditValue(const WatchData &data)
         l->resize(width, height);
         l->show();
     } else if (data.editformat == 2) {
-        // QString
+        // Display QString in a separate widget.
         QTextEdit *t = qobject_cast<QTextEdit *>(w);
         if (!t) {
             delete w;
@@ -1478,8 +1479,7 @@ void WatchHandler::updateWatchersWindow()
 
 void WatchHandler::updateWatchers()
 {
-    //qDebug() << "UPDATE WATCHERS";
-    // copy over all watchers and mark all watchers as incomplete
+    // Copy over all watchers and mark all watchers as incomplete.
     foreach (const QByteArray &exp, m_watcherNames.keys()) {
         WatchData data;
         data.iname = watcherName(exp);
@@ -1496,7 +1496,6 @@ void WatchHandler::loadWatchers()
     QVariant value = debuggerCore()->sessionValue("Watchers");
     foreach (const QString &exp, value.toStringList())
         watchExpression(exp);
-    //qDebug() << "LOAD WATCHERS: " << m_watchers;
 }
 
 QStringList WatchHandler::watchedExpressions()
@@ -1515,7 +1514,6 @@ QStringList WatchHandler::watchedExpressions()
 
 void WatchHandler::saveWatchers()
 {
-    //qDebug() << "SAVE WATCHERS: " << m_watchers;
     debuggerCore()->setSessionValue("Watchers", QVariant(watchedExpressions()));
 }
 
