@@ -238,16 +238,13 @@ void ScopeBuilder::setQmlScopeObject(Node *node)
                     if (scriptBinding->qualifiedId && scriptBinding->qualifiedId->name
                             && scriptBinding->qualifiedId->name->asString() == QLatin1String("target")
                             && ! scriptBinding->qualifiedId->next) {
-                        // ### make Evaluate understand statements.
-                        if (ExpressionStatement *expStmt = cast<ExpressionStatement *>(scriptBinding->statement)) {
-                            Evaluate evaluator(_context);
-                            const Value *targetValue = evaluator(expStmt->expression);
+                        Evaluate evaluator(_context);
+                        const Value *targetValue = evaluator(scriptBinding->statement);
 
-                            if (const ObjectValue *target = value_cast<const ObjectValue *>(targetValue)) {
-                                scopeChain.qmlScopeObjects.prepend(target);
-                            } else {
-                                scopeChain.qmlScopeObjects.clear();
-                            }
+                        if (const ObjectValue *target = value_cast<const ObjectValue *>(targetValue)) {
+                            scopeChain.qmlScopeObjects.prepend(target);
+                        } else {
+                            scopeChain.qmlScopeObjects.clear();
                         }
                     }
                 }

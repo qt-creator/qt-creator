@@ -197,14 +197,6 @@ QString Bind::toString(UiQualifiedId *qualifiedId, QChar delimiter)
     return result;
 }
 
-ExpressionNode *Bind::expression(UiScriptBinding *ast) const
-{
-    if (ExpressionStatement *statement = cast<ExpressionStatement *>(ast->statement))
-        return statement->expression;
-
-    return 0;
-}
-
 ObjectValue *Bind::bindObject(UiQualifiedId *qualifiedTypeNameId, UiObjectInitializer *initializer)
 {
     ObjectValue *parentObjectValue = 0;

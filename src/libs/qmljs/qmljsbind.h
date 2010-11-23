@@ -91,8 +91,6 @@ protected:
     Interpreter::ObjectValue *switchObjectValue(Interpreter::ObjectValue *newObjectValue);
     Interpreter::ObjectValue *bindObject(AST::UiQualifiedId *qualifiedTypeNameId, AST::UiObjectInitializer *initializer);
 
-    AST::ExpressionNode *expression(AST::UiScriptBinding *ast) const;
-
 private:
     Document *_doc;
     Interpreter::Engine _engine;

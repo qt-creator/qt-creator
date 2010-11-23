@@ -43,16 +43,14 @@ static inline const Interpreter::ObjectValue * getPropertyChangesTarget(Node *no
         for (UiObjectMemberList *members = initializer->members; members; members = members->next) {
             if (UiScriptBinding *scriptBinding = cast<UiScriptBinding *>(members->member)) {
                 if (scriptBinding->qualifiedId
-                    && scriptBinding->qualifiedId->name->asString() == QLatin1String("target")
-                    && ! scriptBinding->qualifiedId->next) {
-                    if (ExpressionStatement *expressionStatement = cast<ExpressionStatement *>(scriptBinding->statement)) {
-                        Evaluate evaluator(lookupContext->context());
-                        const Interpreter::Value *targetValue = evaluator(expressionStatement->expression);
-                        if (const Interpreter::ObjectValue *targetObject = Interpreter::value_cast<const Interpreter::ObjectValue *>(targetValue)) {
-                            return targetObject;
-                        } else {
-                            return 0;
-                        }
+                        && scriptBinding->qualifiedId->name->asString() == QLatin1String("target")
+                        && ! scriptBinding->qualifiedId->next) {
+                    Evaluate evaluator(lookupContext->context());
+                    const Interpreter::Value *targetValue = evaluator(scriptBinding->statement);
+                    if (const Interpreter::ObjectValue *targetObject = Interpreter::value_cast<const Interpreter::ObjectValue *>(targetValue)) {
+                        return targetObject;
+                    } else {
+                        return 0;
                     }
                 }
             }

@@ -450,7 +450,7 @@ bool Evaluate::visit(AST::EmptyStatement *)
 
 bool Evaluate::visit(AST::ExpressionStatement *)
 {
-    return false;
+    return true;
 }
 
 bool Evaluate::visit(AST::IfStatement *)
