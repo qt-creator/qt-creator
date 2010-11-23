@@ -1269,7 +1269,6 @@ public slots:
     }
 
     void resetLocation();
-    void resetLocationTimeout();
     void removeLocationMark();
     void doRemoveLocationMark();
     QVariant sessionValue(const QString &name);
