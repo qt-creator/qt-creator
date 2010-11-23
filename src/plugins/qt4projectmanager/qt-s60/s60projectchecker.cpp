@@ -67,16 +67,27 @@ S60ProjectChecker::reportIssues(const QString &proFile, const QtVersion *version
                                                         "The \"Open C/C++ plugin\" is not installed in the Symbian SDK or the Symbian SDK path is misconfigured for Qt version %1.").arg(version->displayName()),
                             QString(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
     }
-    // Warn of strange characters in project name:
-    QString projectPath = proFile;
+
+    // Warn of strange characters in project name and path:
+    const QString projectName = proFile.mid(proFile.lastIndexOf(QLatin1Char('/')) + 1);
+    QString projectPath = proFile.left(proFile.lastIndexOf(QLatin1Char('/')));
 #if defined (Q_OS_WIN)
     if (projectPath.at(1) == QChar(':') && projectPath.at(0).toUpper() >= QChar('A') && projectPath.at(0).toUpper() <= QChar('Z'))
         projectPath = projectPath.mid(2);
 #endif
-    if (projectPath.contains(QRegExp("[^a-zA-Z0-9./]"))) {
+    if (projectPath.contains(QLatin1Char(' '))) {
         results.append(Task(Task::Warning,
                             QCoreApplication::translate("ProjectExplorer::Internal::S60ProjectChecker",
-                                                        "The Symbian toolchain does not handle special characters in a project path well."),
+                                                        "The Symbian toolchain does not handle spaces "
+                                                        "in the project path '%1'.").arg(projectPath),
+                            QString(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+    }
+    if (projectName.contains(QRegExp("[^a-zA-Z0-9.]"))) {
+        results.append(Task(Task::Warning,
+                            QCoreApplication::translate("ProjectExplorer::Internal::S60ProjectChecker",
+                                                        "The Symbian toolchain does not handle special "
+                                                        "characters in the project name '%1' well.")
+                            .arg(projectName),
                             QString(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
     }
     return results;
