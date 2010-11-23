@@ -467,6 +467,37 @@ void AttachRemoteParameters::clear()
     attachTarget.clear();
 }
 
+
+///////////////////////////////////////////////////////////////////////
+//
+// DummyEngine
+//
+///////////////////////////////////////////////////////////////////////
+
+class DummyEngine : public DebuggerEngine
+{
+    Q_OBJECT
+
+public:
+    DummyEngine() : DebuggerEngine(DebuggerStartParameters()) {}
+    virtual ~DummyEngine() {}
+
+    virtual void setupEngine() {}
+    virtual void setupInferior() {}
+    virtual void runEngine() {}
+    virtual void shutdownEngine() {}
+    virtual void shutdownInferior() {}
+    virtual void executeDebuggerCommand(const QString &) {}
+    virtual unsigned debuggerCapabilities() const { return 0; }
+};
+
+static DebuggerEngine *dummyEngine()
+{
+    static DummyEngine dummy;
+    return &dummy;
+}
+
+
 ///////////////////////////////////////////////////////////////////////
 //
 // DebugMode
@@ -2463,30 +2494,10 @@ void DebuggerPluginPrivate::startDebugger(RunControl *rc)
 }
 
 
-class DummyEngine : public DebuggerEngine
-{
-    Q_OBJECT
-
-public:
-    DummyEngine() : DebuggerEngine(DebuggerStartParameters()) {}
-    virtual ~DummyEngine() {}
-
-    virtual void setupEngine() {}
-    virtual void setupInferior() {}
-    virtual void runEngine() {}
-    virtual void shutdownEngine() {}
-    virtual void shutdownInferior() {}
-    virtual void executeDebuggerCommand(const QString &) {}
-    virtual unsigned debuggerCapabilities() const { return 0; }
-};
-
-
 void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
 {
-    static DummyEngine dummyEngine;
-
     if (!engine)
-        engine = &dummyEngine;
+        engine = dummyEngine();
 
     if (m_currentEngine == engine)
         return;
@@ -2914,7 +2925,7 @@ void DebuggerPluginPrivate::activateDebugMode()
 void DebuggerPluginPrivate::sessionLoaded()
 {
     m_breakHandler->loadSessionData();
-    WatchHandler::loadSessionData();
+    dummyEngine()->watchHandler()->loadSessionData();
     synchronizeWatchers();
 }
 
@@ -2931,7 +2942,7 @@ void DebuggerPluginPrivate::aboutToUnloadSession()
 
 void DebuggerPluginPrivate::aboutToSaveSession()
 {
-    WatchHandler::saveSessionData();
+    dummyEngine()->watchHandler()->loadSessionData();
     m_breakHandler->saveSessionData();
 }
 

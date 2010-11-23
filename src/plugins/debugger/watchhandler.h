@@ -155,8 +155,8 @@ public:
     const WatchData *findItem(const QByteArray &iname) const;
     QModelIndex itemIndex(const QByteArray &iname) const;
 
-    static void loadSessionData();
-    static void saveSessionData();
+    void loadSessionData();
+    void saveSessionData();
     void removeTooltip();
 
     bool isExpandedIName(const QByteArray &iname) const
@@ -182,8 +182,8 @@ public:
 private:
     friend class WatchModel;
 
-    static void loadWatchers();
-    static void saveWatchers();
+    void loadWatchers();
+    void saveWatchers();
     static void loadTypeFormats();
     static void saveTypeFormats();
 

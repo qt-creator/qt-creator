@@ -1492,10 +1492,10 @@ void WatchHandler::updateWatchers()
 
 void WatchHandler::loadWatchers()
 {
+    m_watcherNames.clear();
     QVariant value = debuggerCore()->sessionValue("Watchers");
     foreach (const QString &exp, value.toStringList())
-        m_watcherNames[exp.toLatin1()] = watcherCounter++;
-
+        watchExpression(exp);
     //qDebug() << "LOAD WATCHERS: " << m_watchers;
 }
 
