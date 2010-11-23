@@ -6275,7 +6275,12 @@
 
     \c {DEFINES += QMLJSDEBUGGER}.
 
-    Then you must rebuild the project.
+    Then you must rebuild the project in debug mode. Select a debug configuration for
+    the target in the \gui {Target selector}.
+
+    \image qtcreator-target-selector-debug.png "Target selector"
+
+    You can create debug configurations for project targets in the \gui Projects mode.
 
     To enable QML debugging for  both types of projects, select \gui Projects, and
     then select the \gui QML check box in the run settings.
