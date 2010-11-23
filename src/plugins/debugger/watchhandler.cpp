@@ -56,7 +56,7 @@
 #include <ctype.h>
 #include <utils/qtcassert.h>
 
-// creates debug output for accesses to the model
+// Creates debug output for accesses to the model.
 //#define DEBUG_MODEL 1
 
 #if DEBUG_MODEL
@@ -1333,7 +1333,6 @@ QByteArray WatchHandler::watcherName(const QByteArray &exp)
 void WatchHandler::watchExpression(const QString &exp)
 {
     QTC_ASSERT(m_engine, return);
-    QTC_ASSERT(m_engine->debuggerCapabilities() & AddWatcherCapability, return);
     // Do not insert multiple placeholders.
     if (exp.isEmpty() && m_watcherNames.contains(QByteArray()))
         return;
@@ -1346,10 +1345,16 @@ void WatchHandler::watchExpression(const QString &exp)
     if (exp.isEmpty())
         data.setAllUnneeded();
     data.iname = watcherName(data.exp);
-    if (m_engine->isSynchronous())
-        m_engine->updateWatchData(data);
-    else
+    if (m_engine->state() == DebuggerNotReady) {
+        data.setAllUnneeded();
+        data.setValue(" ");
+        data.setHasChildren(false);
         insertData(data);
+    } else if (m_engine->isSynchronous()) {
+        m_engine->updateWatchData(data);
+    } else {
+        insertData(data);
+    }
     updateWatchersWindow();
     saveWatchers();
     emitAllChanged();
@@ -1468,7 +1473,7 @@ void WatchHandler::removeWatchExpression(const QString &exp0)
 void WatchHandler::updateWatchersWindow()
 {
     // Force show/hide of watchers and return view.
-    debuggerCore()->updateState(m_engine);
+    debuggerCore()->updateWatchersWindow();
 }
 
 void WatchHandler::updateWatchers()

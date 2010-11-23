@@ -1030,6 +1030,7 @@ public slots:
     DebuggerState state() const { return m_state; }
 
     void updateState(DebuggerEngine *engine);
+    void updateWatchersWindow();
     void onCurrentProjectChanged(ProjectExplorer::Project *project);
 
     void gotoLocation(const QString &file, int line, bool setMarker);
@@ -1919,8 +1920,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
         SLOT(aboutToSaveSession()));
     connect(sessionManager(), SIGNAL(aboutToUnloadSession()),
         SLOT(aboutToUnloadSession()));
-    connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(updateRunActions()),
-            this, SLOT(updateDebugActions()));
+    connect(ProjectExplorerPlugin::instance(), SIGNAL(updateRunActions()),
+        SLOT(updateDebugActions()));
 
     // EditorManager
     QObject *editorManager = core->editorManager();
@@ -2039,12 +2040,10 @@ void DebuggerPluginPrivate::languagesChanged(const DebuggerLanguages &languages)
 
 void DebuggerPluginPrivate::debugProject()
 {
-    Project *pro = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
-    if (!pro)
-        return;
-
-    ProjectExplorer::ProjectExplorerPlugin::instance()->runProject(pro, Constants::DEBUGMODE);
- }
+    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
+    if (Project *pro = pe->startupProject())
+        pe->runProject(pro, Constants::DEBUGMODE);
+}
 
 void DebuggerPluginPrivate::startExternalApplication()
 {
@@ -2073,7 +2072,7 @@ void DebuggerPluginPrivate::startExternalApplication()
         sp.processArgs = dlg.executableArguments();
     // Fixme: 1 of 3 testing hacks.
     if (sp.processArgs.startsWith(__("@tcf@ ")) || sp.processArgs.startsWith(__("@sym@ ")))
-        sp.toolChainType = ProjectExplorer::ToolChain_RVCT_ARMV5;
+        sp.toolChainType = ToolChain_RVCT_ARMV5;
 
 
     if (RunControl *rc = m_debuggerRunControlFactory->create(sp))
@@ -2145,7 +2144,7 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
 {
     const QString connectionKey = _("CdbRemoteConnection");
     DebuggerStartParameters sp;
-    sp.toolChainType = ProjectExplorer::ToolChain_MSVC;
+    sp.toolChainType = ToolChain_MSVC;
     sp.startMode = AttachToRemote;
     StartRemoteCdbDialog dlg(mainWindow());
     QString previousConnection = configValue(connectionKey).toString();
@@ -2211,7 +2210,7 @@ void DebuggerPluginPrivate::startRemoteApplication()
     sp.displayName = dlg.localExecutable();
     sp.debuggerCommand = dlg.debugger(); // Override toolchain-detection.
     if (!sp.debuggerCommand.isEmpty())
-        sp.toolChainType = ProjectExplorer::ToolChain_INVALID;
+        sp.toolChainType = ToolChain_INVALID;
     sp.startMode = AttachToRemote;
     sp.useServerStartScript = dlg.useServerStartScript();
     sp.serverStartScript = dlg.serverStartScript();
@@ -2678,6 +2677,14 @@ void DebuggerPluginPrivate::setInitialState()
     //emit m_plugin->stateChanged(m_state);
 }
 
+void DebuggerPluginPrivate::updateWatchersWindow()
+{
+    m_watchersWindow->setVisible(
+        m_watchersWindow->model()->rowCount(QModelIndex()) > 0);
+    m_returnWindow->setVisible(
+        m_returnWindow->model()->rowCount(QModelIndex()) > 0);
+}
+
 void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
 {
     QTC_ASSERT(engine, return);
@@ -2687,10 +2694,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
 
     m_threadBox->setCurrentIndex(engine->threadsHandler()->currentThread());
 
-    m_watchersWindow->setVisible(
-        m_watchersWindow->model()->rowCount(QModelIndex()) > 0);
-    m_returnWindow->setVisible(
-        m_returnWindow->model()->rowCount(QModelIndex()) > 0);
+    updateWatchersWindow();
 
     //m_plugin->showMessage(QString("PLUGIN SET STATE: ")
     //    + DebuggerEngine::stateName(engine->state()), LogStatus);
@@ -2820,9 +2824,9 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
 
 void DebuggerPluginPrivate::updateDebugActions()
 {
-    ProjectExplorer::ProjectExplorerPlugin *peplugin = ProjectExplorer::ProjectExplorerPlugin::instance();
-    Project *project = peplugin->startupProject();
-    m_debugAction->setEnabled(peplugin->canRun(project, Constants::DEBUGMODE));
+    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
+    Project *project = pe->startupProject();
+    m_debugAction->setEnabled(pe->canRun(project, Constants::DEBUGMODE));
 }
 
 void DebuggerPluginPrivate::gotoLocation(const QString &file, int line, bool setMarker)
