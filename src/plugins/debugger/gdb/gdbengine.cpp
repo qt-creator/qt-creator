@@ -2873,8 +2873,9 @@ void GdbEngine::selectThread(int index)
     Threads threads = threadsHandler()->threads();
     QTC_ASSERT(index < threads.size(), return);
     const int id = threads.at(index).id;
-    showStatusMessage(tr("Retrieving data for stack view thread 0x%1...").arg(id, 0, 16), 10000);
-    postCommand("-thread-select " + QByteArray::number(id),
+    showStatusMessage(tr("Retrieving data for stack view thread 0x%1...")
+        .arg(id, 0, 16), 10000);
+    postCommand("-thread-select " + QByteArray::number(id), Discardable,
         CB(handleStackSelectThread));
 }
 
@@ -3027,7 +3028,7 @@ void GdbEngine::activateFrame(int frameIndex)
     // after a response to this -stack-select-frame here.
     handler->setCurrentIndex(frameIndex);
     postCommand("-stack-select-frame " + QByteArray::number(frameIndex),
-        CB(handleStackSelectFrame));
+        Discardable, CB(handleStackSelectFrame));
     gotoLocation(stackHandler()->currentFrame(), true);
     updateLocals();
     reloadRegisters();
