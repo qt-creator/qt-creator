@@ -151,10 +151,33 @@ void GitSubmitEditorWidget::setPanelData(const GitSubmitEditorPanelData &data)
 
 bool GitSubmitEditorWidget::canSubmit() const
 {
+    QString message = cleanupDescription(descriptionText()).trimmed();
+
     if (m_gitSubmitPanelUi.invalidAuthorLabel->isVisible()
-        || m_gitSubmitPanelUi.invalidEmailLabel->isVisible())
+        || m_gitSubmitPanelUi.invalidEmailLabel->isVisible()
+        || message.isEmpty())
         return false;
     return SubmitEditorWidget::canSubmit();
+}
+
+QString GitSubmitEditorWidget::cleanupDescription(const QString &input) const
+{
+    // We need to manually purge out comment lines starting with
+    // hash '#' since git does not do that when using -F.
+    const QChar newLine = QLatin1Char('\n');
+    const QChar hash = QLatin1Char('#');
+    QString message = input;
+    for (int pos = 0; pos < message.size(); ) {
+        const int newLinePos = message.indexOf(newLine, pos);
+        const int startOfNextLine = newLinePos == -1 ? message.size() : newLinePos + 1;
+        if (message.at(pos) == hash) {
+            message.remove(pos, startOfNextLine - pos);
+        } else {
+            pos = startOfNextLine;
+        }
+    }
+    return message;
+
 }
 
 void GitSubmitEditorWidget::authorInformationChanged()

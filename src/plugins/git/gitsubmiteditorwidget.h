@@ -67,6 +67,7 @@ public:
 
 protected:
     bool canSubmit() const;
+    QString cleanupDescription(const QString &) const;
 
 private slots:
     void authorInformationChanged();

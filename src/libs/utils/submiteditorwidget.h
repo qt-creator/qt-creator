@@ -139,6 +139,7 @@ public slots:
     void uncheckAll();
 
 protected:
+    virtual QString cleanupDescription(const QString &) const;
     virtual void changeEvent(QEvent *e);
     void insertTopWidget(QWidget *w);
 

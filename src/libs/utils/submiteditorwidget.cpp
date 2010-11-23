@@ -172,6 +172,8 @@ SubmitEditorWidget::SubmitEditorWidget(QWidget *parent) :
     m_d->m_ui.description->setWordWrapMode(QTextOption::WordWrap);
     connect(m_d->m_ui.description, SIGNAL(customContextMenuRequested(QPoint)),
             this, SLOT(editorCustomContextMenuRequested(QPoint)));
+    connect(m_d->m_ui.description, SIGNAL(textChanged()),
+            this, SLOT(updateSubmitAction()));
 
     // File List
     m_d->m_ui.fileView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -291,11 +293,12 @@ static QString wrappedText(const QTextEdit *e)
 
 QString SubmitEditorWidget::descriptionText() const
 {
-    QString rc = trimMessageText(lineWrap() ? wrappedText(m_d->m_ui.description) : m_d->m_ui.description->toPlainText());
+    QString rc = trimMessageText(lineWrap() ? wrappedText(m_d->m_ui.description) :
+                                              m_d->m_ui.description->toPlainText());
     // append field entries
     foreach(const SubmitFieldWidget *fw, m_d->m_fieldWidgets)
         rc += fw->fieldValues();
-    return rc;
+    return cleanupDescription(rc);
 }
 
 void SubmitEditorWidget::setDescriptionText(const QString &text)
@@ -493,6 +496,11 @@ unsigned SubmitEditorWidget::checkedFilesCount() const
                 checkedCount++;
     }
     return checkedCount;
+}
+
+QString SubmitEditorWidget::cleanupDescription(const QString &input) const
+{
+    return input;
 }
 
 void SubmitEditorWidget::changeEvent(QEvent *e)
