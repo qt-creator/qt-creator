@@ -338,8 +338,6 @@ QString Qt4BuildConfiguration::defaultMakeTarget() const
 
 QString Qt4BuildConfiguration::makefile() const
 {
-    if (qt4Target()->id() == Constants::S60_DEVICE_TARGET_ID)
-        return QString();
     return qt4Target()->qt4Project()->rootProjectNode()->makefile();
 }
 
