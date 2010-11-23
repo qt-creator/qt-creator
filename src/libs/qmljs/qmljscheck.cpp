@@ -34,6 +34,7 @@
 #include "parser/qmljsast_p.h"
 
 #include <QtCore/QDebug>
+#include <QtCore/QDir>
 #include <QtGui/QColor>
 #include <QtGui/QApplication>
 
@@ -82,11 +83,13 @@ class AssignmentCheck : public ValueVisitor
 {
 public:
     DiagnosticMessage operator()(
+            const Document::Ptr &document,
             const SourceLocation &location,
             const Interpreter::Value *lhsValue,
             const Interpreter::Value *rhsValue,
             ExpressionNode *ast)
     {
+        _doc = document;
         _message = DiagnosticMessage(DiagnosticMessage::Error, location, QString());
         _rhsValue = rhsValue;
         _ast = ast;
@@ -132,7 +135,7 @@ public:
         }
     }
 
-    virtual void visit(const StringValue *)
+    virtual void visit(const StringValue *value)
     {
         UnaryMinusExpression *unaryMinus = cast<UnaryMinusExpression *>(_ast);
 
@@ -141,6 +144,25 @@ public:
                 || _ast->kind == Node::Kind_TrueLiteral
                 || _ast->kind == Node::Kind_FalseLiteral) {
             _message.message = Check::tr("string value expected");
+        }
+
+        if (value && value->asUrlValue()) {
+            if (StringLiteral *literal = cast<StringLiteral *>(_ast)) {
+                QUrl url(literal->value->asString());
+                if (!url.isValid() && !url.isEmpty()) {
+                    _message.message = Check::tr("not a valid url");
+                } else {
+                    QString fileName = url.toLocalFile();
+                    if (!fileName.isEmpty()) {
+                        if (url.isRelative()) {
+                            fileName.prepend(QDir::separator());
+                            fileName.prepend(_doc->path());
+                        }
+                        if (!QFileInfo(fileName).exists())
+                            _message.message = Check::tr("file or directory does not exist");
+                    }
+                }
+            }
         }
     }
 
@@ -160,6 +182,7 @@ public:
             _message.message = Check::tr("expected anchor line");
     }
 
+    Document::Ptr _doc;
     DiagnosticMessage _message;
     const Value *_rhsValue;
     ExpressionNode *_ast;
@@ -281,7 +304,7 @@ bool Check::visit(UiScriptBinding *ast)
             const SourceLocation loc = locationFromRange(expStmt->firstSourceLocation(),
                                                          expStmt->lastSourceLocation());
             AssignmentCheck assignmentCheck;
-            DiagnosticMessage message = assignmentCheck(loc, lhsValue, rhsValue, expr);
+            DiagnosticMessage message = assignmentCheck(_doc, loc, lhsValue, rhsValue, expr);
             if (! message.message.isEmpty())
                 _messages += message;
         }
