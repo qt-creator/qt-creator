@@ -8,7 +8,10 @@ FileFilterBaseItem::FileFilterBaseItem(QObject *parent) :
         QmlProjectContentItem(parent),
         m_recurse(RecurseDefault)
 {
+    m_updateFileListTimer.setSingleShot(true);
+    m_updateFileListTimer.setInterval(50);
     connect(&m_dirWatcher, SIGNAL(directoryChanged(QString)), this, SLOT(updateFileList()));
+    connect(&m_updateFileListTimer, SIGNAL(timeout()), this, SLOT(updateFileListNow()));
 }
 
 QString FileFilterBaseItem::directory() const
@@ -32,7 +35,7 @@ void FileFilterBaseItem::setDefaultDirectory(const QString &dirPath)
         return;
     m_defaultDir = dirPath;
 
-    updateFileList();
+    updateFileListNow();
 }
 
 QString FileFilterBaseItem::filter() const
@@ -162,6 +165,15 @@ QString FileFilterBaseItem::absoluteDir() const
 
 void FileFilterBaseItem::updateFileList()
 {
+    if (!m_updateFileListTimer.isActive())
+        m_updateFileListTimer.start();
+}
+
+void FileFilterBaseItem::updateFileListNow()
+{
+    if (m_updateFileListTimer.isActive())
+        m_updateFileListTimer.stop();
+
     const QString projectDir = absoluteDir();
     if (projectDir.isEmpty())
         return;

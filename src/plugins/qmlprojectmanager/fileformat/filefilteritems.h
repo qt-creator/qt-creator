@@ -6,6 +6,7 @@
 #include <QSet>
 #include <qdeclarative.h>
 #include <QFileSystemWatcher>
+#include <QTimer>
 
 #include "qmlprojectitem.h"
 #include "filesystemwatcher.h"
@@ -49,6 +50,7 @@ signals:
 
 private slots:
     void updateFileList();
+    void updateFileListNow();
 
 private:
     QString absolutePath(const QString &path) const;
@@ -77,6 +79,7 @@ private:
 
     QSet<QString> m_files;
     FileSystemWatcher m_dirWatcher;
+    QTimer m_updateFileListTimer;
 
 
     friend class ProjectItem;

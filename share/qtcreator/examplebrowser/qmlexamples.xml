@@ -19,7 +19,16 @@
   </category>
   <category dirname="declarative/text" name="Text">
     <example filename="fonts" name="Fonts" executable="false" qml="true" />
+    <example filename="fonts/banner" name="Available Fonts" executable="false" qml="true" />
+    <example filename="fonts/availableFonts" name="Available Fonts" executable="false" qml="true" />
+    <example filename="fonts/hello" name="Hello" executable="false" qml="true" />
+    <example filename="fonts/fonts" name="Fonts" executable="false" qml="true" />
     <example filename="textselection" name="Text selection" executable="false" qml="true" />
+  </category>
+  <category dirname="declarative/modelviews/webview" name="WebView">
+    <example filename="googlemaps" name="Google Maps" executable="false" qml="true" />
+    <example filename="autosize" name="Autosize" executable="false" qml="true" />
+    <example filename="inlinehtml" name="Inline HTML" executable="false" qml="true" />
   </category>
   <category dirname="declarative/modelviews" name="Models and Views">
     <example filename="package" name="Package" executable="false" qml="true" />
@@ -27,8 +36,15 @@
     <example filename="visualitemmodel" name="VisualItemModel" executable="false" qml="true" />
     <example filename="webview" name="WebView" executable="false" qml="true" />
     <example filename="pathview" name="PathView" executable="false" qml="true" />
+    <example filename="webview-examples" name="WebView" executable="false" qml="true" />
+    <example filename="pathview-example" name="PathView" executable="false" qml="true" />
     <example filename="parallax" name="Parallax Sliding" executable="false" qml="true" />
     <example filename="listview" name="ListView" executable="false" qml="true" />
+    <example filename="listview/sections" name="Sections in ListView" executable="false" qml="true" />
+    <example filename="listview/expandingdelegates" name="Expanding delegates in ListView" executable="false" qml="true" />
+    <example filename="listview/highlight" name="Highlight in ListView" executable="false" qml="true" />
+    <example filename="listview/highlightranges" name="Highlight ranges in ListView" executable="false" qml="true" />
+    <example filename="listview/dynamiclist" name="Dynamic list with ListView" executable="false" qml="true" />
     <example filename="objectlistmodel" name="Object List Model" executable="false" qml="true" />
   </category>
   <category dirname="declarative/threading" name="Threading">
@@ -36,6 +52,8 @@
     <example filename="workerscript" name="WorkerScript" executable="false" qml="true" />
   </category>
   <category dirname="declarative/animation" name="Animation">
+    <example filename="basics/color-animation" name="Color animation" executable="false" qml="true" />
+    <example filename="basics/propery-animation" name="Property animation" executable="false" qml="true" />
     <example filename="basics" name="Basics" executable="false" qml="true" />
     <example filename="behaviors" name="Behaviors" executable="false" qml="true" />
     <example filename="easing" name="Easing Curves" executable="false" qml="true" />
@@ -44,12 +62,24 @@
   <category dirname="declarative/imageelements" name="Image elements">
     <example filename="image" name="Image" executable="false" qml="true" />
     <example filename="borderimage" name="Border Image" executable="false" qml="true" />
+    <example filename="shadows" name="Shadows" executable="false" qml="true" />
   </category>
   <category dirname="declarative/touchinteraction" name="Touch interaction">
     <example filename="gestures" name="Gestures" executable="false" qml="true" />
     <example filename="mousearea" name="MouseArea" executable="false" qml="true" />
+    <example filename="gestures/experimental-gestures" name="Gestures" executable="false" qml="true" />
+    <example filename="mousearea/mousearea-example" name="MouseArea" executable="false" qml="true" />
   </category>
- <category dirname="declarative" name="Miscellaneous">
+  <category dirname="declarative/demos" name="Demos">
+    <example filename="calculator" name="Calculator" executable="false" qml="true" />
+    <example filename="flickr" name="Flickr" executable="false" qml="true" />
+    <example filename="photoviewer" name="Photo viewer" executable="false" qml="true" />
+    <example filename="rssnews" name="RSS news" executable="false" qml="true" />
+    <example filename="samegame" name="Same Game" executable="false" qml="true" />
+    <example filename="twitter" name="Twitter" executable="false" qml="true" />
+    <example filename="webbrowser" name="Web browser" executable="false" qml="true" />
+  </category>
+  <category dirname="declarative" name="Miscellaneous">
     <example filename="positioners" name="Positioners" executable="false" qml="true" />
     <example filename="screenorientation" name="Screen Orientation" executable="false" qml="true" />
     <example filename="xml/xmlhttprequest" name="XmlHttpRequest" executable="false" qml="true" />

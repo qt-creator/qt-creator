@@ -48,6 +48,13 @@ RemovePropertyVisitor::RemovePropertyVisitor(QmlDesigner::TextModifier &modifier
 bool RemovePropertyVisitor::visit(QmlJS::AST::UiObjectBinding *ast)
 {
     if (ast->firstSourceLocation().offset == parentLocation) {
+        //this condition is wrong for the UiObjectBinding case, but we keep it
+        //since we are paranoid until the release is done.
+        // FIXME: change this to use the QmlJS::Rewriter class
+        removeFrom(ast->initializer);
+    }
+
+    if (ast->qualifiedTypeNameId && ast->qualifiedTypeNameId->identifierToken.offset == parentLocation) {
         // FIXME: change this to use the QmlJS::Rewriter class
         removeFrom(ast->initializer);
     }

@@ -67,7 +67,7 @@
            \list
                \o \l{Building and Running an Example Application}
                \o \l{Creating a Qt C++ Application}
-               \o \l{Creating a Mobile Application with Nokia Qt SDK}
+               \o \l{Creating a Mobile Application with Qt SDK}
                \o \l{Creating a Qt Quick Application}
            \endlist
        \o \l{Managing Projects}
@@ -196,7 +196,7 @@
     system that you use.
 
     Qt Creator provides support for building and running Qt applications for
-    desktop environment and mobile devices. When you install the Nokia Qt SDK,
+    desktop environment and mobile devices. When you install the \QSDK,
     the build and run settings for the Maemo and Symbian targets are set up
     automatically. However, you need to install and configure some additional software
     on the devices.
@@ -372,7 +372,7 @@
     can change the information that the device has about its configuration
     and environment.
 
-    The Qt Simulator is installed as part of the Nokia Qt SDK. After it is
+    The Qt Simulator is installed as part of the \QSDK. After it is
     installed, you can select it as a build target in Qt Creator.
 
     \section1 Debuggers
@@ -422,7 +422,7 @@
     deeper understanding is used to present objects of such classes in
     a useful way.
 
-    If you install Qt Creator as part of a Qt SDK, the GNU Symbolic Debugger
+    If you install Qt Creator as part of a \QSDK, the GNU Symbolic Debugger
     is installed automatically and you should be ready to start debugging after
     you create a new project. However, you can change the setup to use debugging
     tools for Windows, for example.
@@ -797,7 +797,7 @@
 
     \section1 Finding Information in Qt Documentation
 
-    Qt Creator, Qt SDK, Nokia Qt SDK and other Qt deliverables contain documentation
+    Qt Creator, \QSDK and other Qt deliverables contain documentation
     as .qch files. All the documentation is accessible in the \gui Help mode.
 
     To find information in the documentation, select:
@@ -2635,7 +2635,7 @@
     \section3 Troubleshooting MinGW Compilation Errors
 
     If error messages displayed in the \gui {Compile Output} pane contain
-    paths where slashes are missing (for example, C:NokiaQtSDK),
+    paths where slashes are missing (for example, C:QtSDK),
     check your PATH variable. At the command line, enter the following commands:
 
     \code
@@ -2874,7 +2874,7 @@
     \title Building and Running Applications
 
     Qt Creator provides support for building and running Qt applications for
-    desktop environment and mobile devices. When you install the Nokia Qt SDK,
+    desktop environment and mobile devices. When you install the \QSDK,
     the build and run settings for the Maemo and Symbian targets are
     set up automatically.
 
@@ -3112,11 +3112,11 @@
     devices, such as S60 3rd Edition or S60 5th Edition devices.
 
     \note Remote Compiler is an experimental component that you must install
-    separately from the package that is included in the Nokia Qt SDK.
+    separately from the package that is included in the \QSDK.
 
     \list 1
 
-        \o In the Nokia Qt SDK installation directory, double-click
+        \o In the \QSDK installation directory, double-click
         SDKMaintenanceTool.exe to install \gui {Experimental APIs}.
 
         \o In Qt Creator, choose \gui {Tools > Options > Projects > Remote Compiler}
@@ -3594,7 +3594,7 @@
     \list
         \o \l{Building and Running an Example Application}
         \o \l{Creating a Qt C++ Application}
-        \o \l{Creating a Mobile Application with Nokia Qt SDK}
+        \o \l{Creating a Mobile Application with Qt SDK}
         \o \l{Creating a Qt Quick Application}
     \endlist
 
@@ -3607,9 +3607,9 @@
     \page creator-mobile-example.html
     \nextpage creator-qml-application.html
 
-    \title Creating a Mobile Application with Nokia Qt SDK
+    \title Creating a Mobile Application with Qt SDK
 
-    \note To complete this tutorial, you must install Nokia Qt SDK.
+    \note To complete this tutorial, you must install \QSDK.
     The installation program installs and configures the necessary tool chains
     for mobile application development.
 
@@ -3648,7 +3648,7 @@
         and click \gui{Next}.
 
         \note Targets are listed if you installed the appropriate development
-        environment, for example, as part of the Nokia Qt SDK. You can add targets
+        environment, for example, as part of the \QSDK. You can add targets
         later in the \gui Projects mode.
 
         The \gui {Application Options} dialog opens.
@@ -5406,7 +5406,7 @@
                \note Visual Studio does not include the Debugging tools needed,
                and therefore, you must install them separately.
 
-               The pre-built \e{Qt SDK for Windows} makes use
+               The pre-built \QSDK for Windows makes use
                of the library if it is present on the system. When manually building Qt
                Creator using the Microsoft Visual C++ Compiler, the build process checks
                for the required files in \c{"%ProgramFiles%\Debugging Tools for Windows"}.
@@ -5852,7 +5852,7 @@
     During debugging with the C++ based debugging helpers,
     Qt Creator dynamically loads a helper library in form of a DLL or a
     shared object into the debugged process.
-    The Qt SDK package already contains a prebuilt debugging helper
+    The \QSDK package already contains a prebuilt debugging helper
     library. To create your own debugging helper library, select \gui{Tools} >
     \gui{Options...} > \gui{Qt4} > \gui{Qt Versions}. As the internal data
     structures of Qt can change between versions, the debugging helper
@@ -7267,7 +7267,7 @@
     instead. For more information, see the
     \l{http://doc.qt.nokia.com/qt-simulator-beta/index.html}{Qt Simulator Manual}.
 
-    The Maemo emulator is installed and configured as part of the Nokia Qt SDK
+    The Maemo emulator is installed and configured as part of the \QSDK
     package. You can also install and configure the MADDE environment and
     Maemo emulator separately. For more information, see
     \l{Setting Up Development Environment for Maemo}.
@@ -8413,10 +8413,10 @@
         \o Building and packaging subprojects is not supported for Maemo devices.
 
         \o You must create projects for Maemo targets on the same partition where
-        you installed Nokia Qt SDK, Qt Creator, and MADDE.
+        you installed \QSDK, Qt Creator, and MADDE.
 
         \o If error messages displayed in the \gui {Compile Output} pane contain
-        paths where slashes are missing (for example, C:NokiaQtSDK),
+        paths where slashes are missing (for example, C:QtSDK),
         check your PATH variable. For more information, see
         \l{Troubleshooting MinGW Compilation Errors}.
 

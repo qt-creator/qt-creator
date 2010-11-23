@@ -73,17 +73,14 @@ QString AbstractEditorSupport::functionAt(const CppModelManagerInterface *modelM
                     const CPlusPlus::Overview o;
                     QString rc = o.prettyName(function->name());
                     // Prepend namespace "Foo::Foo::foo()" up to empty root namespace
-                    for (const CPlusPlus::Symbol *owner = function; ; ) {
-                        if (const CPlusPlus::Scope *nameSpace = owner->enclosingNamespace()) {
-                            const QString name = o.prettyName(nameSpace->name());
-                            if (name.isEmpty()) {
-                                break;
-                            } else {
-                                rc.prepend(QLatin1String("::"));
-                                rc.prepend(name);
-                            }
-                        } else {
+                    for (const CPlusPlus::Symbol *owner = function->enclosingNamespace();
+                         owner; owner = owner->enclosingNamespace()) {
+                        const QString name = o.prettyName(owner->name());
+                        if (name.isEmpty()) {
                             break;
+                        } else {
+                            rc.prepend(QLatin1String("::"));
+                            rc.prepend(name);
                         }
                     }
                     return rc;

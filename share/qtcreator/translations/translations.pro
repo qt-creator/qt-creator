@@ -13,6 +13,8 @@ LUPDATE = $$targetPath($$[QT_INSTALL_BINS]/lupdate) -locations relative -no-ui-l
 LRELEASE = $$targetPath($$[QT_INSTALL_BINS]/lrelease)
 LCONVERT = $$targetPath($$[QT_INSTALL_BINS]/lconvert)
 
+wd = $$replace(IDE_SOURCE_TREE, /, $$QMAKE_DIR_SEP)
+
 TRANSLATIONS = $$prependAll(LANGUAGES, $$PWD/qtcreator_,.ts)
 
 MIME_TR_H = $$OUT_PWD/mime_tr.h
@@ -30,7 +32,8 @@ extract.commands += \
 QMAKE_EXTRA_TARGETS += extract
 
 plugin_sources = $$files($$IDE_SOURCE_TREE/src/plugins/*)
-plugin_sources ~= s,^$$re_escape($$IDE_SOURCE_TREE/),,g
+win32:plugin_sources ~= s,\\\\,/,g
+plugin_sources ~= s,^$$re_escape($$IDE_SOURCE_TREE/),,g$$i_flag
 plugin_sources -= src/plugins/plugins.pro \
     src/plugins/helloworld \ # just an example
     # the following ones are dead
@@ -43,28 +46,27 @@ files = $$files($$PWD/*_??.ts) $$PWD/qtcreator_untranslated.ts
 for(file, files) {
     lang = $$replace(file, .*_([^/]*)\\.ts, \\1)
     v = ts-$${lang}.commands
-    $$v = cd $$IDE_SOURCE_TREE && $$LUPDATE $$sources $$MIME_TR_H $$CUSTOMWIZARD_TR_H -ts $$file
+    $$v = cd $$wd && $$LUPDATE $$sources $$MIME_TR_H $$CUSTOMWIZARD_TR_H -ts $$file
     v = ts-$${lang}.depends
     $$v = extract
     QMAKE_EXTRA_TARGETS += ts-$$lang
 }
-ts-all.commands = cd $$IDE_SOURCE_TREE && $$LUPDATE $$sources $$MIME_TR_H $$CUSTOMWIZARD_TR_H -ts $$files
+ts-all.commands = cd $$wd && $$LUPDATE $$sources $$MIME_TR_H $$CUSTOMWIZARD_TR_H -ts $$files
 ts-all.depends = extract
 QMAKE_EXTRA_TARGETS += ts-all
 
-check-ts.commands = (cd $$PWD && perl check-ts.pl)
+check-ts.commands = (cd $$replace(PWD, /, $$QMAKE_DIR_SEP) && perl check-ts.pl)
 check-ts.depends = ts-all
 QMAKE_EXTRA_TARGETS += check-ts
 
 isEqual(QMAKE_DIR_SEP, /) {
     commit-ts.commands = \
-        cd $$IDE_SOURCE_TREE; \
+        cd $$wd; \
         for f in `git diff-files --name-only share/qtcreator/translations/*_??.ts`; do \
             $$LCONVERT -locations none -i \$\$f -o \$\$f; \
         done; \
         git add share/qtcreator/translations/*_??.ts && git commit
 } else {
-    wd = $$replace(IDE_SOURCE_TREE, /, \\)
     commit-ts.commands = \
         cd $$wd && \
         for /f usebackq %%f in (`git diff-files --name-only share/qtcreator/translations/*_??.ts`) do \

@@ -30,7 +30,7 @@
     \if defined(qcmanual)
     \previouspage creator-developing-maemo.html
     \else
-    \previouspage nokiaqtsdk-gs.html
+    \previouspage sdk-gs.html
     \endif
     \page creator-developing-symbian.html
     \if defined(qcmanual)
@@ -44,7 +44,7 @@
     For more information about developing applications for the Symbian
     platform, select \gui {Help > Index} and look for \gui {Platform Notes},
     or see
-    \l{http://doc.qt.nokia.com/4.6/platform-notes-symbian.html}{Platform Notes - Symbian}.
+    \l{http://doc.qt.nokia.com/4.7/platform-notes-symbian.html}{Platform Notes - Symbian}.
 
     \section1 Hardware and Software Requirements
 
@@ -63,19 +63,20 @@
             \endif
             application for your device
         \o The \e{qt_installer.sis} package installed on the device, that is
-         delivered with the Qt SDK
+         delivered with the \QSDK
          \o \e {Qt Mobility APIs} installed on the device, if you use them in
          applications
+         \o \QQV to run Qt Quick applications on Symbian^3 devices.
     \endlist
 
     \if defined(qcmanual)
     To run your applications in the Symbian emulator, you also need
-    to install a Symbian Platform SDK and Carbide.c++ v2.0.0 or higher.
+    to install Carbide.c++ v2.0.0 or higher.
     \endif
 
     \section1 Installing Required Applications on Devices
 
-    The Nokia Qt SDK installation program creates shortcuts for installing
+    The \QSDK installation program creates shortcuts for installing
     the required applications on Symbian devices (you can also use any of
     the standard methods for installing applications on devices):
 
@@ -86,17 +87,24 @@
         or PC Suite, all the necessary drivers are installed automatically.
         This takes approximately one minute.
 
-        \o Choose \gui {Start > Nokia Qt SDK > Symbian > Install Qt to Symbian
-        device} and follow the instructions on the screen to install Qt 4.6.2
-        libraries on the device.
+        \o Choose \gui {Start > Qt SDK > Symbian > Install Qt 4.7.1 to Symbian^1
+        Device} or \gui {Install Qt 4.7.1 to Symbian^3 Device}, depending on the
+        device type. Follow the instructions on the screen to install Qt
+        libraries to the device.
 
-        \o Choose \gui {Start > Nokia Qt SDK > Symbian > Install QtMobility to Symbian
-        device} and follow the instructions on the screen to install Qt
-        mobility libraries on the device.
+        \o Choose \gui {Start > Qt SDK > Symbian > Install QtMobility 1.1.0 to
+        Symbian^1 Device} or \gui {Install QtMobility 1.1.0 to Symbian^3 Device}
+        and follow the instructions on the screen to install Qt
+        mobility libraries to the device.
 
-        \o Choose \gui {Start > Nokia Qt SDK > Symbian > Install TRK to Symbian
-        device} and follow the instructions on the screen to install the TRK
-        debugging application on the device.
+        \o Choose \gui {Start > Qt SDK > Symbian > Install TRK (Debug Agent)
+        to Symbian^1 Device} or \gui {Install TRK (Debug Agent) to Symbian^3
+        Device} and follow the instructions on the screen to install the TRK
+        debugging application to the device.
+
+        \o Choose \gui {Start > Qt SDK > Symbian > Install QML Viewer
+        to Symbian^3 Device} and follow the instructions on the screen to
+        install \QQV to the device.
 
         \note To check the Symbian platform version of your device, see
         \l{http://www.forum.nokia.com/devices}{Device Details}.
@@ -104,13 +112,13 @@
     \endlist
 
     \note If errors occur during the installation, copy the .sis files from
-    \c {<NokiaQtSDK_install_path>\Symbian\sis} to the device using USB storage
+    \c {<QtSDK_install_path>\Symbian\sis} to the device using USB storage
     mode. Then install them from the file manager on the device.
 
     \if defined(qcmanual)
     \section1 Adding Symbian Platform SDKs
 
-    Nokia Qt SDK contains all the tools you need for developing Qt applications for
+    \QSDK contains all the tools you need for developing Qt applications for
     Symbian devices. To use Symbian APIs directly in your applications, you can
     install additional Symbian Platform SDKs:
 
