@@ -28,7 +28,6 @@
 **************************************************************************/
 
 #include "itemutilfunctions.h"
-#include <modelutilities.h>
 #include <formeditorscene.h>
 
 #include <QRectF>

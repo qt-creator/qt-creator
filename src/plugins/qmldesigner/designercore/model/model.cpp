@@ -47,7 +47,6 @@
 #include "nodeinstanceview.h"
 #include "metainfo.h"
 #include "model_p.h"
-#include "modelutilities.h"
 #include "subcomponentmanager.h"
 #include "variantparser.h"
 #include "internalproperty.h"

@@ -31,7 +31,6 @@
 
 #include "formeditorscene.h"
 #include "formeditorview.h"
-#include "modelutilities.h"
 #include "itemutilfunctions.h"
 #include <customdraganddrop.h>
 #include <metainfo.h>

@@ -32,7 +32,6 @@
 #include "formeditorscene.h"
 #include "formeditorview.h"
 #include "formeditorwidget.h"
-#include "modelutilities.h"
 #include "itemutilfunctions.h"
 
 #include "resizehandleitem.h"

@@ -31,7 +31,6 @@
 #include "qmlobjectnode.h"
 #include "qmlitemnode.h"
 #include "itemlibraryinfo.h"
-#include "modelutilities.h"
 #include "mathutils.h"
 #include "invalididexception.h"
 #include <QDir>
