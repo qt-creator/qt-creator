@@ -346,19 +346,18 @@ bool Bind::visit(VariableDeclaration *ast)
 
     ASTVariableReference *ref = new ASTVariableReference(ast, &_engine);
     _currentObjectValue->setProperty(ast->name->asString(), ref);
-    return false;
+    return true;
 }
 
 bool Bind::visit(FunctionExpression *ast)
 {
-    if (!ast->name)
-        return false;
     // ### FIXME: the first declaration counts
     //if (_currentObjectValue->property(ast->name->asString(), 0))
     //    return false;
 
     ASTFunctionValue *function = new ASTFunctionValue(ast, _doc, &_engine);
-    _currentObjectValue->setProperty(ast->name->asString(), function);
+    if (ast->name && cast<FunctionDeclaration *>(ast))
+        _currentObjectValue->setProperty(ast->name->asString(), function);
 
     // build function scope
     ObjectValue *functionScope = _engine.newObject(/*prototype=*/0);

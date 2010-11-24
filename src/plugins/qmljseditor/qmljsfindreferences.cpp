@@ -202,6 +202,11 @@ protected:
 
     virtual bool visit(AST::FunctionDeclaration *node)
     {
+        return visit(static_cast<FunctionExpression *>(node));
+    }
+
+    virtual bool visit(AST::FunctionExpression *node)
+    {
         if (node->name && node->name->asString() == _name) {
             if (checkLookup())
                 _usages.append(node->identifierToken);
@@ -329,6 +334,11 @@ protected:
 
     virtual bool visit(AST::FunctionDeclaration *node)
     {
+        return visit(static_cast<FunctionExpression *>(node));
+    }
+
+    virtual bool visit(AST::FunctionExpression *node)
+    {
         Node::accept(node->formals, this);
         _result.append(node);
         Node::accept(node->body, this);
@@ -422,9 +432,12 @@ protected:
         return true;
     }
 
-    // ### Misses function declaration, var declaration
-
     virtual bool visit(FunctionDeclaration *node)
+    {
+        return visit(static_cast<FunctionExpression *>(node));
+    }
+
+    virtual bool visit(FunctionExpression *node)
     {
         if (containsOffset(node->identifierToken)) {
             _result.second = node->name->asString();

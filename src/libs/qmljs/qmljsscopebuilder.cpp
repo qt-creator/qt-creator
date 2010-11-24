@@ -61,8 +61,8 @@ void ScopeBuilder::push(AST::Node *node)
     if (qmlObject)
         setQmlScopeObject(qmlObject);
 
-    // JS scopes
-    if (FunctionDeclaration *fun = cast<FunctionDeclaration *>(node)) {
+    // JS scopes (catch both, FunctionExpression and FunctionDeclaration)
+    if (FunctionExpression *fun = dynamic_cast<FunctionExpression *>(node)) {
         ObjectValue *functionScope = _doc->bind()->findFunctionScope(fun);
         if (functionScope)
             _context->scopeChain().jsScopes += functionScope;
@@ -83,8 +83,10 @@ void ScopeBuilder::pop()
     _nodes.removeLast();
 
     // JS scopes
-    if (cast<FunctionDeclaration *>(toRemove))
-        _context->scopeChain().jsScopes.removeLast();
+    if (FunctionExpression *fun = dynamic_cast<FunctionExpression *>(toRemove)) {
+        if (_doc->bind()->findFunctionScope(fun))
+            _context->scopeChain().jsScopes.removeLast();
+    }
 
     // QML scope object
     if (! _nodes.isEmpty()
