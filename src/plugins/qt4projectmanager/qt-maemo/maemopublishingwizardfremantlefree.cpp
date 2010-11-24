@@ -61,7 +61,7 @@ MaemoPublishingWizardFremantleFree::MaemoPublishingWizardFremantleFree(const Pro
 {
     setOption(NoCancelButton, false);
     const QString titleText
-        = tr("Publishing to Fremantle's \"Extras-devel/free\" Repository");
+        = tr("Publishing to Fremantle's \"Extras-devel free\" Repository");
     m_buildSettingsPage
         = new MaemoPublishingBuildSettingsPageFremantleFree(project, m_publisher);
     m_buildSettingsPage->setTitle(titleText);

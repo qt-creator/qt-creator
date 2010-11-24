@@ -33,13 +33,13 @@
 
 namespace Qt4ProjectManager {
 namespace Internal {
-typedef MaemoPublisherFremantleFree MPSFF;
+typedef MaemoPublisherFremantleFree MPFF;
 
-MaemoPublishingResultPageFremantleFree::MaemoPublishingResultPageFremantleFree(MPSFF *publisher,
+MaemoPublishingResultPageFremantleFree::MaemoPublishingResultPageFremantleFree(MPFF *publisher,
     QWidget *parent) : QWizardPage(parent), m_publisher(publisher),
     ui(new Ui::MaemoPublishingResultPageFremantleFree)
 {
-    m_lastOutputType = MPSFF::StatusOutput;
+    m_lastOutputType = MPFF::StatusOutput;
     ui->setupUi(this);
 }
 
@@ -61,27 +61,27 @@ void MaemoPublishingResultPageFremantleFree::initializePage()
 
 void MaemoPublishingResultPageFremantleFree::handleFinished()
 {
-    handleProgress(m_publisher->resultString(), MPSFF::StatusOutput);
+    handleProgress(m_publisher->resultString(), MPFF::StatusOutput);
     m_isComplete = true;
     cancelButton()->setEnabled(false);
     emit completeChanged();
 }
 
 void MaemoPublishingResultPageFremantleFree::handleProgress(const QString &text,
-    MPSFF::OutputType type)
+    MPFF::OutputType type)
 {
-    const QString color = QLatin1String(type == MPSFF::StatusOutput
-        || type == MPSFF::ToolStatusOutput ? "blue" : "red");
+    const QString color = QLatin1String(type == MPFF::StatusOutput
+        || type == MPFF::ToolStatusOutput ? "blue" : "red");
     ui->progressTextEdit->setTextColor(QColor(color));
-    const bool bold = type == MPSFF::StatusOutput
-            || type == MPSFF::ErrorOutput ? true : false;
+    const bool bold = type == MPFF::StatusOutput
+            || type == MPFF::ErrorOutput ? true : false;
     QFont font = ui->progressTextEdit->currentFont();
     font.setBold(bold);
     ui->progressTextEdit->setCurrentFont(font);
 
-    if (type == MPSFF::StatusOutput || type == MPSFF::ErrorOutput
-            || m_lastOutputType == MPSFF::StatusOutput
-            || m_lastOutputType == MPSFF::ErrorOutput) {
+    if (type == MPFF::StatusOutput || type == MPFF::ErrorOutput
+            || m_lastOutputType == MPFF::StatusOutput
+            || m_lastOutputType == MPFF::ErrorOutput) {
         ui->progressTextEdit->append(text);
     } else {
         ui->progressTextEdit->insertPlainText(text);
@@ -92,7 +92,6 @@ void MaemoPublishingResultPageFremantleFree::handleProgress(const QString &text,
 
 void MaemoPublishingResultPageFremantleFree::handleCancelRequest()
 {
-    qDebug("Calling cancel()");
     cancelButton()->setEnabled(false);
     m_publisher->cancel();
 }

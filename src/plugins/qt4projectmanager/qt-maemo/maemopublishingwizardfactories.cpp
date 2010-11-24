@@ -57,8 +57,8 @@ QString MaemoPublishingWizardFactoryFremantleFree::description() const
               "it to a build server, where the project will be compiled and "
               "packaged and then moved to the \"Extras-devel free\" "
               "repository, from where users can install it onto their N900 "
-              "devices. For the upload part, an account at garage.maemo.org "
-              "is required.");
+              "devices. For the upload functionality, an account at "
+              "garage.maemo.org is required.");
 }
 
 bool MaemoPublishingWizardFactoryFremantleFree::canCreateWizard(const Project *project) const

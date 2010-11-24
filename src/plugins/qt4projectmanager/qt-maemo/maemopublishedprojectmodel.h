@@ -41,7 +41,6 @@
 #ifndef MAEMOPUBLISHEDPROJECTMODEL_H
 #define MAEMOPUBLISHEDPROJECTMODEL_H
 
-#include <QtCore/QPersistentModelIndex>
 #include <QtCore/QSet>
 #include <QtCore/QStringList>
 #include <QtGui/QFileSystemModel>
@@ -67,7 +66,6 @@ private:
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 
     QSet<QString> m_filesToExclude;
-    QPersistentModelIndex m_rootIndex;
 };
 
 } // namespace Internal

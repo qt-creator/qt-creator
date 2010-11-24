@@ -210,6 +210,7 @@ bool MaemoPublisherFremantleFree::copyRecursively(const QString &srcFilePath,
                      QDir::toNativeSeparators(tgtFilePath)));
             return false;
         }
+        QCoreApplication::processEvents();
 
         if (tgtFilePath == m_tmpProjectDir + QLatin1String("/debian/rules")) {
             QFile rulesFile(tgtFilePath);
@@ -520,6 +521,9 @@ void MaemoPublisherFremantleFree::setState(State newState)
         case StartingScp:
         case PreparingToUploadFile:
         case UploadingFile:
+            // TODO: Can we ensure the remote scp exits, e.g. by sending
+            //       an illegal sequence of bytes? (Probably not, if
+            //       we are currently uploading a file.)
             disconnect(m_uploader.data(), 0, this, 0);
             m_uploader = SshRemoteProcessRunner::Ptr();
             break;

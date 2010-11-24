@@ -76,7 +76,7 @@ Qt::ItemFlags MaemoPublishedProjectModel::flags(const QModelIndex &index) const
 {
     if (index.column() != IncludeColumn)
         return QFileSystemModel::flags(index);
-    return Qt::ItemIsEnabled | Qt::ItemIsUserCheckable | Qt::ItemIsSelectable;
+    return Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
 }
 
 QVariant MaemoPublishedProjectModel::data(const QModelIndex &index,
