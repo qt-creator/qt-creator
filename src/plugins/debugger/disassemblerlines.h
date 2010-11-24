@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_disassemblerlines_H
-#define DEBUGGER_disassemblerlines_H
+#ifndef DEBUGGER_DISASSEMBLERLINES_H
+#define DEBUGGER_DISASSEMBLERLINES_H
 
 #include <QtCore/QString>
 #include <QtCore/QHash>
@@ -43,6 +43,7 @@ public:
     DisassemblerLine() : address(0) {}
     DisassemblerLine(const QString &unparsed);
 
+public:
     quint64 address;
     QString data;
 };
@@ -60,12 +61,11 @@ public:
     int lineForAddress(quint64 address) const;
 
 private:
-    friend class DisassemblerViewAgent;
     QVector<DisassemblerLine> m_data;
     QHash<quint64, int> m_rowCache;
 };
 
-}
-}
+} // namespace Internal
+} // namespace Debugger
 
-#endif
+#endif // DEBUGGER_DISASSEMBLERLINES_H

@@ -389,7 +389,7 @@ void DisassemblerViewAgent::setContents(const DisassemblerLines &contents)
     d->editor->setDisplayName(_("Disassembler (%1)").arg(d->frame.function));
     d->cache.insert(frameKey(d->frame), contents);
 
-    int lineNumber = contents.m_rowCache[d->frame.address];
+    int lineNumber = contents.lineForAddress(d->frame.address);
     if (lineNumber && d->setMarker)
         d->editor->markableInterface()->addMark(d->locationMark, lineNumber);
 
