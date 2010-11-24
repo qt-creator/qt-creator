@@ -27,34 +27,45 @@
 **
 **************************************************************************/
 
-#ifndef GLSLEDITOR_CONSTANTS_H
-#define GLSLEDITOR_CONSTANTS_H
+#ifndef GLSLFILEWIZARD_H
+#define GLSLFILEWIZARD_H
 
-#include <QtCore/QtGlobal>
+#include <coreplugin/basefilewizard.h>
 
 namespace GLSLEditor {
-namespace Constants {
 
-// menus
-const char * const M_CONTEXT = "GLSL Editor.ContextMenu";
-const char * const M_TOOLS_GLSL = "GLSLEditor.Tools.Menu";
+class GLSLFileWizard: public Core::BaseFileWizard
+{
+    Q_OBJECT
 
-const char * const SEPARATOR1 = "GLSLEditor.Separator1";
-const char * const SEPARATOR2 = "GLSLEditor.Separator2";
-const char * const M_REFACTORING_MENU_INSERTION_POINT = "GLSLEditor.RefactorGroup";
+public:
+    typedef Core::BaseFileWizardParameters BaseFileWizardParameters;
 
-const char * const RUN_SEP = "GLSLEditor.Run.Separator";
-const char * const C_GLSLEDITOR_ID = "GLSLEditor.GLSLEditor";
-const char * const C_GLSLEDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("OpenWith::Editors", "GLSL Editor");
-const char * const TASK_INDEX = "GLSLEditor.TaskIndex";
-const char * const TASK_SEARCH = "GLSLEditor.TaskSearch";
+    enum ShaderType
+    {
+        VertexShader,
+        FragmentShader
+    };
 
-const char * const GLSL_MIMETYPE = "application/x-glsl";
+    explicit GLSLFileWizard(const BaseFileWizardParameters &parameters,
+                            ShaderType shaderType, QObject *parent = 0);
 
-const char * const WIZARD_CATEGORY_GLSL = "U.GLSL";
-const char * const WIZARD_TR_CATEGORY_GLSL = QT_TRANSLATE_NOOP("GLSLEditor", "GLSL");
+protected:
+    QString fileContents(const QString &baseName, ShaderType shaderType) const;
 
-} // namespace Constants
+    virtual QWizard *createWizardDialog(QWidget *parent,
+                                        const QString &defaultPath,
+                                        const WizardPageList &extensionPages) const;
+
+    virtual Core::GeneratedFiles generateFiles(const QWizard *w,
+                                               QString *errorMessage) const;
+
+    virtual QString preferredSuffix(ShaderType shaderType) const;
+
+private:
+    ShaderType m_shaderType;
+};
+
 } // namespace GLSLEditor
 
-#endif // GLSLEDITOR_CONSTANTS_H
+#endif // GLSLFILEWIZARD_H

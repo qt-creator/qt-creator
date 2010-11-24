@@ -32,6 +32,7 @@
 #include "glsleditorconstants.h"
 #include "glsleditorfactory.h"
 #include "glslcodecompletion.h"
+#include "glslfilewizard.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -150,6 +151,30 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
 
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
     iconProvider->registerIconOverlayForSuffix(QIcon(QLatin1String(":/glsleditor/images/glslfile.png")), "glsl");
+
+    Core::BaseFileWizardParameters fragWizardParameters(Core::IWizard::FileWizard);
+    fragWizardParameters.setCategory(QLatin1String(Constants::WIZARD_CATEGORY_GLSL));
+    fragWizardParameters.setDisplayCategory(QCoreApplication::translate("GLSLEditor", Constants::WIZARD_TR_CATEGORY_GLSL));
+    fragWizardParameters.setDescription
+        (tr("Creates a fragment shader in the OpenGL/ES 2.0 Shading "
+            "Language (GLSL/ES).  Fragment shaders generate the final "
+            "pixel colors for triangles, points, and lines rendered "
+            "with OpenGL."));
+    fragWizardParameters.setDisplayName(tr("Fragment shader"));
+    fragWizardParameters.setId(QLatin1String("F.GLSL"));
+    addAutoReleasedObject(new GLSLFileWizard(fragWizardParameters, GLSLFileWizard::FragmentShader, core));
+
+    Core::BaseFileWizardParameters vertWizardParameters(Core::IWizard::FileWizard);
+    vertWizardParameters.setCategory(QLatin1String(Constants::WIZARD_CATEGORY_GLSL));
+    vertWizardParameters.setDisplayCategory(QCoreApplication::translate("GLSLEditor", Constants::WIZARD_TR_CATEGORY_GLSL));
+    vertWizardParameters.setDescription
+        (tr("Creates a vertex shader in the OpenGL/ES 2.0 Shading "
+            "Language (GLSL/ES).  Vertex shaders transform the "
+            "positions, normals, and texture co-ordinates of "
+            "triangles, points, and lines rendered with OpenGL."));
+    vertWizardParameters.setDisplayName(tr("Vertex shader"));
+    vertWizardParameters.setId(QLatin1String("V.GLSL"));
+    addAutoReleasedObject(new GLSLFileWizard(vertWizardParameters, GLSLFileWizard::VertexShader, core));
 
     return true;
 }

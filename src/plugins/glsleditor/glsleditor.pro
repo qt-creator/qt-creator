@@ -15,6 +15,7 @@ glsleditorconstants.h \
 glsleditoreditable.h \
 glsleditorfactory.h \
 glsleditorplugin.h \
+glslfilewizard.h \
     glslhighlighter.h \
     glslcodecompletion.h
 
@@ -24,6 +25,7 @@ glsleditoractionhandler.cpp \
 glsleditoreditable.cpp \
 glsleditorfactory.cpp \
 glsleditorplugin.cpp \
+glslfilewizard.cpp \
     glslhighlighter.cpp \
     glslcodecompletion.cpp
 
