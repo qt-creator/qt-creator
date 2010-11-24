@@ -1021,7 +1021,10 @@ void CdbEngine::handleDisassembler(const CdbBuiltinCommandPtr &command)
 {
     QTC_ASSERT(qVariantCanConvert<Debugger::Internal::DisassemblerViewAgent*>(command->cookie), return;)
     Debugger::Internal::DisassemblerViewAgent *agent = qvariant_cast<Debugger::Internal::DisassemblerViewAgent*>(command->cookie);
-    agent->setContents(formatCdbDisassembler(command->reply));
+    DisassemblerLines disassemblerLines;
+    foreach(const QByteArray &line, command->reply)
+        disassemblerLines.appendLine(DisassemblerLine(QString::fromLatin1(line)));
+    agent->setContents(disassemblerLines);
 }
 
 void CdbEngine::fetchMemory(Debugger::Internal::MemoryViewAgent *agent, QObject *editor, quint64 addr, quint64 length)

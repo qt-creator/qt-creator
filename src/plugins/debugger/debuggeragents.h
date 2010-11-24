@@ -90,6 +90,7 @@ class DisassemblerLines
 {
 public:
     DisassemblerLines() {}
+
     bool coversAddress(quint64 address) const;
     void appendLine(const DisassemblerLine &dl);
     void appendComment(const QString &comment);

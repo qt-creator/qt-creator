@@ -1346,8 +1346,9 @@ void CdbEngine::fetchDisassembler(DisassemblerViewAgent *agent)
     if (debugCDB)
         qDebug() << "fetchDisassembler" << address << " Agent: " << agent->address();
 
+    DisassemblerLines lines;
     if (address == 0) { // Clear window
-        agent->setContents(QString());
+        agent->setContents(lines);
         return;
     }
     QString disassembly;
@@ -1355,11 +1356,12 @@ void CdbEngine::fetchDisassembler(DisassemblerViewAgent *agent)
     const bool ok = disassemble(m_d, address, ContextLines, ContextLines, QTextStream(&disassembly), &errorMessage);
     QApplication::restoreOverrideCursor();
     if (ok) {
-        agent->setContents(disassembly);
+        foreach(const QString &line, disassembly.remove(QLatin1Char('\r')).split(QLatin1Char('\n')))
+            lines.appendLine(DisassemblerLine(line));
     } else {
-        agent->setContents(QString());
         warning(errorMessage);
     }
+    agent->setContents(lines);
 }
 
 void CdbEngine::fetchMemory(MemoryViewAgent *agent, QObject *token, quint64 addr, quint64 length)

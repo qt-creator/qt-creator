@@ -44,7 +44,6 @@ namespace Debugger {
 namespace Internal {
 class BreakpointData;
 class BreakpointParameters;
-class DisassemblerLines;
 class StackFrame;
 struct ThreadData;
 class Register;
@@ -55,9 +54,6 @@ namespace Cdb {
 
 // Convert breakpoint in CDB syntax.
 QByteArray cdbAddBreakpointCommand(const Debugger::Internal::BreakpointParameters &d, bool oneshot = false, int id = -1);
-
-// Format CDB Dissambler output.
-Internal::DisassemblerLines formatCdbDisassembler(const QList<QByteArray> &in);
 
 // Convert a CDB integer value: '00000000`0012a290' -> '12a290', '0n10' ->'10'
 QByteArray fixCdbIntegerValue(QByteArray t, bool stripLeadingZeros = false, int *basePtr = 0);

@@ -416,6 +416,10 @@ DisassemblerLine::DisassemblerLine(const QString &unparsed)
         return;
     }
     QString addr = unparsed.left(pos);
+    // MSVC 64bit: Remove 64bit separator 00000000`00a45000'.
+    if (addr.size() >= 9 && addr.at(8) == QLatin1Char('`'))
+        addr.remove(8, 1);
+
     if (addr.endsWith(':')) // clang
         addr.chop(1);
     if (addr.startsWith(QLatin1String("0x")))
