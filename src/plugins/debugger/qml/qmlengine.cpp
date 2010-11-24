@@ -449,8 +449,15 @@ void QmlEngine::attemptBreakpointSynchronization()
     for (int index = 0; index != handler->size(); ++index) {
         Internal::BreakpointData *data = handler->at(index);
         QString processedFilename = data->fileName;
+#ifdef Q_OS_MACX
+        // Qt Quick Applications by default copy the qml directory to buildDir()/X.app/Contents/Resources
+        const QString applicationBundleDir
+                = QFileInfo(startParameters().executable).absolutePath() + "/../..";
+        processedFilename = mangleFilenamePaths(data->fileName, startParameters().projectDir, applicationBundleDir + "/Contents/Resources");
+#endif
         if (isShadowBuildProject())
-            processedFilename = toShadowBuildFilename(data->fileName);
+            processedFilename = toShadowBuildFilename(processedFilename);
+
         breakList << qMakePair(processedFilename, data->lineNumber);
     }
 
