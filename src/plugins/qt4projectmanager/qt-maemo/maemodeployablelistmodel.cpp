@@ -333,16 +333,16 @@ const MaemoToolChain *MaemoDeployableListModel::maemoToolchain() const
 {
     const ProjectExplorer::Project *const activeProject
         = ProjectExplorer::ProjectExplorerPlugin::instance()->session()->startupProject();
-    QTC_ASSERT(activeProject, return false);
+    QTC_ASSERT(activeProject, return 0);
     const Qt4Target *const activeTarget
         = qobject_cast<Qt4Target *>(activeProject->activeTarget());
-    QTC_ASSERT(activeTarget, return false);
+    QTC_ASSERT(activeTarget, return 0);
     const Qt4BuildConfiguration *const bc
         = activeTarget->activeBuildConfiguration();
-    QTC_ASSERT(bc, return false);
+    QTC_ASSERT(bc, return 0);
     const MaemoToolChain *const tc
         = dynamic_cast<MaemoToolChain *>(bc->toolChain());
-    QTC_ASSERT(tc, return false);
+    QTC_ASSERT(tc, return 0);
     return tc;
 }
 
