@@ -124,7 +124,12 @@ private:
     const Qt4BuildConfiguration *qt4BuildConfiguration() const;
     MaemoDeployStep * deployStep() const;
     void checkProjectName();
-    void addWorkaroundForHarmattanBug(const QString &rulesFilePath);
+    void updateDesktopFiles(const QString &rulesFilePath);
+    void addWorkaroundForHarmattanBug(QByteArray &rulesFileContent,
+        int &insertPos, const QString &appName, const QString &desktopFileDir);
+    void addSedCmdToRulesFile(QByteArray &rulesFileContent, int &insertPos,
+        const QString &desktopFilePath, const QByteArray &oldString,
+        const QByteArray &newString);
 
     static const QLatin1String CreatePackageId;
 

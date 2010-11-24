@@ -245,10 +245,6 @@ bool MaemoPackageCreationStep::copyDebianFiles(bool inSourceBuild)
         ->debianDirPath(buildConfiguration()->target()->project());
     QDir templatesDir(templatesDirPath);
     const QStringList &files = templatesDir.entryList(QDir::Files);
-    const bool harmattanWorkaroundNeeded
-        = maemoToolChain()->version() == MaemoToolChain::Maemo6
-            && !qt4BuildConfiguration()->qt4Target()->qt4Project()
-                   ->applicationProFiles().isEmpty();
     foreach (const QString &fileName, files) {
         const QString srcFile
                 = templatesDirPath + QLatin1Char('/') + fileName;
@@ -261,9 +257,8 @@ bool MaemoPackageCreationStep::copyDebianFiles(bool inSourceBuild)
             return false;
         }
 
-        // Workaround for Harmattan icon bug
-        if (harmattanWorkaroundNeeded && fileName == QLatin1String("rules"))
-            addWorkaroundForHarmattanBug(destFile);
+        if (fileName == QLatin1String("rules"))
+            updateDesktopFiles(destFile);
     }
 
     QFile magicFile(magicFilePath);
@@ -580,7 +575,7 @@ QString MaemoPackageCreationStep::packageFileName(const ProjectExplorer::Project
         % QLatin1String("_armel.deb");
 }
 
-void MaemoPackageCreationStep::addWorkaroundForHarmattanBug(const QString &rulesFilePath)
+void MaemoPackageCreationStep::updateDesktopFiles(const QString &rulesFilePath)
 {
     QFile rulesFile(rulesFilePath);
     if (!rulesFile.open(QIODevice::ReadWrite)) {
@@ -597,6 +592,8 @@ void MaemoPackageCreationStep::addWorkaroundForHarmattanBug(const QString &rules
     QString desktopFileDir = QFileInfo(rulesFile).dir().path()
         + QLatin1Char('/') + projectName()
         + QLatin1String("/usr/share/applications/");
+    if (maemoToolChain()->version() == MaemoToolChain::Maemo5)
+        desktopFileDir += QLatin1String("hildon/");
 #ifdef Q_OS_WIN
     desktopFileDir.remove(QLatin1Char(':'));
     desktopFileDir.prepend(QLatin1Char('/'));
@@ -606,25 +603,62 @@ void MaemoPackageCreationStep::addWorkaroundForHarmattanBug(const QString &rules
     int insertPos = makeInstallEol + 1;
     foreach (const Qt4ProFileNode * const proFile, proFiles) {
         const QString appName = proFile->targetInformation().target;
-        const QByteArray lineBefore("Icon=" + appName.toUtf8());
-        const QByteArray lineAfter("Icon=/usr/share/icons/hicolor/64x64/apps/"
-            + appName.toUtf8() + ".png");
+        if (maemoToolChain()->version() == MaemoToolChain::Maemo6) {
+            addWorkaroundForHarmattanBug(content, insertPos,
+                appName, desktopFileDir);
+        }
+
+        QString executableFilePath;
+        for (int i = 0; i < deployStep()->deployables()->modelCount(); ++i) {
+            const MaemoDeployableListModel * const model
+                = deployStep()->deployables()->modelAt(i);
+            if (model->proFilePath() == proFile->path()) {
+                executableFilePath = model->remoteExecutableFilePath();
+                break;
+            }
+        }
+        if (executableFilePath.isEmpty()) {
+            qDebug("%s: Skipping subproject %s with missing deployment information.",
+                Q_FUNC_INFO, qPrintable(proFile->path()));
+            continue;
+        }
+        const QByteArray lineBefore("Exec=.*");
+        const QByteArray lineAfter("Exec=" + executableFilePath.toUtf8());
         const QString desktopFilePath
             = desktopFileDir + appName + QLatin1String(".desktop");
-        const QString tmpFile
-            = desktopFileDir + appName + QLatin1String(".sed");
-        const QByteArray sedCmd = "\tsed 's:" + lineBefore + ':' + lineAfter
-            + ":' " + desktopFilePath.toLocal8Bit() + " > "
-            + tmpFile.toLocal8Bit() + " || echo -n\n";
-        const QByteArray mvCmd = "\tmv " + tmpFile.toLocal8Bit() + ' '
-            + desktopFilePath.toLocal8Bit() + " || echo -n\n";
-        content.insert(insertPos, sedCmd);
-        insertPos += sedCmd.length();
-        content.insert(insertPos, mvCmd);
-        insertPos += mvCmd.length();
+        addSedCmdToRulesFile(content, insertPos, desktopFilePath, lineBefore,
+            lineAfter);
     }
     rulesFile.resize(0);
     rulesFile.write(content);
+}
+
+void MaemoPackageCreationStep::addWorkaroundForHarmattanBug(QByteArray &rulesFileContent,
+    int &insertPos, const QString &appName, const QString &desktopFileDir)
+{
+    const QByteArray lineBefore("Icon=" + appName.toUtf8());
+    const QByteArray lineAfter("Icon=/usr/share/icons/hicolor/64x64/apps/"
+        + appName.toUtf8() + ".png");
+    const QString desktopFilePath
+        = desktopFileDir + appName + QLatin1String(".desktop");
+    addSedCmdToRulesFile(rulesFileContent, insertPos, desktopFilePath,
+        lineBefore, lineAfter);
+}
+
+void MaemoPackageCreationStep::addSedCmdToRulesFile(QByteArray &rulesFileContent,
+    int &insertPos, const QString &desktopFilePath, const QByteArray &oldString,
+    const QByteArray &newString)
+{
+    const QString tmpFilePath = desktopFilePath + QLatin1String(".sed");
+    const QByteArray sedCmd = "\tsed 's:" + oldString + ':' + newString
+        + ":' " + desktopFilePath.toLocal8Bit() + " > "
+        + tmpFilePath.toLocal8Bit() + " || echo -n\n";
+    const QByteArray mvCmd = "\tmv " + tmpFilePath.toLocal8Bit() + ' '
+        + desktopFilePath.toLocal8Bit() + " || echo -n\n";
+    rulesFileContent.insert(insertPos, sedCmd);
+    insertPos += sedCmd.length();
+    rulesFileContent.insert(insertPos, mvCmd);
+    insertPos += mvCmd.length();
 }
 
 const QLatin1String MaemoPackageCreationStep::CreatePackageId("Qt4ProjectManager.MaemoPackageCreationStep");
