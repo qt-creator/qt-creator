@@ -197,7 +197,6 @@ QList<ModelNode> BindingProperty::resolveToModelNodeList() const
 }
 
 void BindingProperty::setDynamicTypeNameAndExpression(const QString &typeName, const QString &expression)
-
 {
     Internal::WriteLocker locker(model());
     if (!isValid())

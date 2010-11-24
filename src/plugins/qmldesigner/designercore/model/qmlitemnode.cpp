@@ -213,7 +213,7 @@ bool QmlItemNode::instanceIsResizable() const
 
 bool QmlItemNode::instanceIsInPositioner() const
 {
-    return nodeInstance().isInPositioner();
+     return nodeInstance().isInPositioner();
 }
 
 QRectF  QmlItemNode::instanceBoundingRect() const
