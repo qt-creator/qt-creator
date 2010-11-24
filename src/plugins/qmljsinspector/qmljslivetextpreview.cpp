@@ -517,12 +517,6 @@ void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
     if (doc->fileName() != m_previousDoc->fileName() || m_clientProxy.isNull())
         return;
 
-    Core::ICore *core = Core::ICore::instance();
-    const int dbgcontext = core->uniqueIDManager()->uniqueIdentifier(Debugger::Constants::C_DEBUGMODE);
-
-    if (!core->hasContext(dbgcontext))
-        return;
-
     bool experimentalWarningShown = false;
 
     if (m_applyChangesToQmlObserver) {
