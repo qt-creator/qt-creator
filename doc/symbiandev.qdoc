@@ -66,7 +66,6 @@
          delivered with the \QSDK
          \o \e {Qt Mobility APIs} installed on the device, if you use them in
          applications
-         \o \QQV to run Qt Quick applications on Symbian^3 devices.
     \endlist
 
     \if defined(qcmanual)
@@ -87,24 +86,18 @@
         or PC Suite, all the necessary drivers are installed automatically.
         This takes approximately one minute.
 
-        \o Choose \gui {Start > Qt SDK > Symbian > Install Qt 4.7.1 to Symbian^1
-        Device} or \gui {Install Qt 4.7.1 to Symbian^3 Device}, depending on the
-        device type. Follow the instructions on the screen to install Qt
+        \o Choose \gui {Start > Qt SDK > Symbian > Install Qt to Symbian
+        Device}. Follow the instructions on the screen to install Qt
         libraries to the device.
 
-        \o Choose \gui {Start > Qt SDK > Symbian > Install QtMobility 1.1.0 to
-        Symbian^1 Device} or \gui {Install QtMobility 1.1.0 to Symbian^3 Device}
+        \o Choose \gui {Start > Qt SDK > Symbian > Install QtMobility to
+        Symbian 1 Device}
         and follow the instructions on the screen to install Qt
         mobility libraries to the device.
 
         \o Choose \gui {Start > Qt SDK > Symbian > Install TRK (Debug Agent)
-        to Symbian^1 Device} or \gui {Install TRK (Debug Agent) to Symbian^3
-        Device} and follow the instructions on the screen to install the TRK
+        to Symbian Device} and follow the instructions on the screen to install the TRK
         debugging application to the device.
-
-        \o Choose \gui {Start > Qt SDK > Symbian > Install QML Viewer
-        to Symbian^3 Device} and follow the instructions on the screen to
-        install \QQV to the device.
 
         \note To check the Symbian platform version of your device, see
         \l{http://www.forum.nokia.com/devices}{Device Details}.
