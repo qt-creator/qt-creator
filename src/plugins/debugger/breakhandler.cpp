@@ -756,36 +756,6 @@ void BreakHandler::appendBreakpoint(const BreakpointParameters &data)
     scheduleSynchronization();
 }
 
-void BreakHandler::toggleBreakpoint(const QString &fileName, int lineNumber,
-                                    quint64 address /* = 0 */)
-{
-    BreakpointId id(-1);
-
-    if (address) {
-        id = findBreakpointByAddress(address);
-    } else {
-        id = findBreakpointByFileAndLine(fileName, lineNumber, true);
-        if (id == BreakpointId(-1))
-            id = findBreakpointByFileAndLine(fileName, lineNumber, false);
-    }
-
-    if (id != BreakpointId(-1)) {
-        removeBreakpoint(id);
-    } else {
-        BreakpointParameters data;
-        if (address) {
-            data.type = BreakpointByAddress;
-            data.address = address;
-        } else {
-            data.type = BreakpointByFileAndLine;
-            data.fileName = fileName;
-            data.lineNumber = lineNumber;
-        }
-        appendBreakpoint(data);
-    }
-    debuggerCore()->synchronizeBreakpoints();
-}
-
 void BreakHandler::saveSessionData()
 {
     saveBreakpoints();

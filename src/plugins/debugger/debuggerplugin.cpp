@@ -431,8 +431,8 @@ static QToolButton *toolButton(QAction *action)
 
 // Retrieve file name and line and optionally address
 // from the data set on the text editor context menu action.
-static bool positionFromContextActionData(const QObject *sender,
-    QString *fileName, int *lineNumber, quint64 *address = 0)
+static bool positionFromActionData(const QObject *sender,
+    QString *fileName, int *lineNumber, quint64 *address)
 {
     const QAction *action = qobject_cast<const QAction *>(sender);
     QTC_ASSERT(action, return false);
@@ -440,8 +440,7 @@ static bool positionFromContextActionData(const QObject *sender,
     QTC_ASSERT(data.size() == 3, return false);
     *fileName = data.front().toString();
     *lineNumber = data.at(1).toInt();
-    if (address)
-        *address = data.at(2).toULongLong();
+    *address = data.at(2).toULongLong();
     return true;
 }
 
@@ -910,8 +909,12 @@ public slots:
         QString fileName;
         int lineNumber;
         quint64 address;
-        if (positionFromContextActionData(sender(), &fileName, &lineNumber, &address))
-            m_breakHandler->toggleBreakpoint(fileName, lineNumber, address);
+        if (positionFromActionData(sender(), &fileName, &lineNumber, &address)) {
+            if (address)
+                toggleBreakpointByAddress(address);
+            else
+                toggleBreakpointByFileAndLine(fileName, lineNumber);
+        }
     }
 
     void breakpointRemoveMarginActionTriggered()
@@ -992,7 +995,8 @@ public slots:
     void activatePreviousMode();
     void activateDebugMode();
     void toggleBreakpoint();
-    void toggleBreakpoint(const QString &fileName, int lineNumber);
+    void toggleBreakpointByFileAndLine(const QString &fileName, int lineNumber);
+    void toggleBreakpointByAddress(quint64 address);
     void onModeChanged(Core::IMode *mode);
     void showSettingsDialog();
 
@@ -1193,7 +1197,8 @@ public slots:
         // Run to line, file name and line number set as list.
         QString fileName;
         int lineNumber;
-        if (positionFromContextActionData(sender(), &fileName, &lineNumber))
+        quint64 address;
+        if (positionFromActionData(sender(), &fileName, &lineNumber, &address))
             handleExecRunToLine();
     }
 
@@ -1201,7 +1206,8 @@ public slots:
     {
         QString fileName;
         int lineNumber;
-        if (positionFromContextActionData(sender(), &fileName, &lineNumber))
+        quint64 address;
+        if (positionFromActionData(sender(), &fileName, &lineNumber, &address))
             currentEngine()->executeJumpToLine(fileName, lineNumber);
     }
 
@@ -2466,20 +2472,62 @@ void DebuggerPluginPrivate::toggleBreakpoint()
 {
     ITextEditor *textEditor = currentTextEditor();
     QTC_ASSERT(textEditor, return);
-    int lineNumber = textEditor->currentLine();
-    if (lineNumber >= 0)
-        toggleBreakpoint(textEditor->file()->fileName(), lineNumber);
+    const int lineNumber = textEditor->currentLine();
+    if (textEditor->property("DisassemblerView").toBool()) {
+        QString line = textEditor->contents()
+            .section('\n', lineNumber - 1, lineNumber - 1);
+        quint64 address = DisassemblerViewAgent::addressFromDisassemblyLine(line);
+        toggleBreakpointByAddress(address);
+    } else if (lineNumber >= 0) {
+        toggleBreakpointByFileAndLine(textEditor->file()->fileName(), lineNumber);
+    }
 }
 
-void DebuggerPluginPrivate::toggleBreakpoint(const QString &fileName, int lineNumber)
+void DebuggerPluginPrivate::toggleBreakpointByFileAndLine(const QString &fileName,
+    int lineNumber)
 {
-    m_breakHandler->toggleBreakpoint(fileName, lineNumber);
+    BreakHandler *handler = m_breakHandler;
+    BreakpointId id =
+        handler->findBreakpointByFileAndLine(fileName, lineNumber, true);
+    if (id == BreakpointId(-1))
+        id = handler->findBreakpointByFileAndLine(fileName, lineNumber, false);
+
+    if (id != BreakpointId(-1)) {
+        handler->removeBreakpoint(id);
+    } else {
+        BreakpointParameters data(BreakpointByFileAndLine);
+        data.fileName = fileName;
+        data.lineNumber = lineNumber;
+        handler->appendBreakpoint(data);
+    }
+    synchronizeBreakpoints();
+}
+
+void DebuggerPluginPrivate::toggleBreakpointByAddress(quint64 address)
+{
+    BreakHandler *handler = m_breakHandler;
+    BreakpointId id = handler->findBreakpointByAddress(address);
+
+    if (id != BreakpointId(-1)) {
+        handler->removeBreakpoint(id);
+    } else {
+        BreakpointParameters data(BreakpointByAddress);
+        data.address = address;
+        handler->appendBreakpoint(data);
+    }
+    synchronizeBreakpoints();
 }
 
 void DebuggerPluginPrivate::requestMark(ITextEditor *editor, int lineNumber)
 {
-    if (isDebuggable(editor) && editor->file())
-        toggleBreakpoint(editor->file()->fileName(), lineNumber);
+    if (editor->property("DisassemblerView").toBool()) {
+        QString line = editor->contents()
+            .section('\n', lineNumber - 1, lineNumber - 1);
+        quint64 address = DisassemblerViewAgent::addressFromDisassemblyLine(line);
+        toggleBreakpointByAddress(address);
+    } else if (editor->file()) {
+        toggleBreakpointByFileAndLine(editor->file()->fileName(), lineNumber);
+    }
 }
 
 void DebuggerPluginPrivate::showToolTip(ITextEditor *editor,

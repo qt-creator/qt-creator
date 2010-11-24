@@ -40,11 +40,11 @@
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/icore.h>
 
-#include <texteditor/basetexteditor.h>
-#include <texteditor/plaintexteditor.h>
-#include <texteditor/basetextmark.h>
-#include <texteditor/texteditorconstants.h>
 #include <texteditor/basetextdocument.h>
+#include <texteditor/basetexteditor.h>
+#include <texteditor/basetextmark.h>
+#include <texteditor/plaintexteditor.h>
+#include <texteditor/texteditorconstants.h>
 
 #include <utils/qtcassert.h>
 
@@ -357,6 +357,11 @@ void DisassemblerViewAgent::setContents(const DisassemblerLines &contents)
         d->editor->setProperty(Debugger::Constants::OPENED_BY_DEBUGGER, true);
         d->editor->setProperty(Debugger::Constants::OPENED_WITH_DISASSEMBLY, true);
         d->configureMimeType();
+
+        BaseTextEditor *baseTextEdit =
+                qobject_cast<BaseTextEditor *>(d->editor->widget());
+        if (baseTextEdit)
+            baseTextEdit->setRequestMarkEnabled(true);
     }
 
     editorManager->activateEditor(d->editor);

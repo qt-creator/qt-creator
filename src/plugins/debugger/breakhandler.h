@@ -88,7 +88,6 @@ public:
     static QIcon pendingBreakPointIcon();
     static QIcon emptyIcon();
 
-    void toggleBreakpoint(const QString &fileName, int lineNumber, quint64 address = 0);
     BreakpointId findBreakpointByFileAndLine(const QString &fileName,
         int lineNumber, bool useMarkerPosition = true);
     BreakpointId findBreakpointByAddress(quint64 address) const;
