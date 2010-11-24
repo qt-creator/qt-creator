@@ -67,7 +67,7 @@
            \list
                \o \l{Building and Running an Example Application}
                \o \l{Creating a Qt C++ Application}
-               \o \l{Creating a Mobile Application with Qt SDK}
+               \o \l{Creating a Mobile Application with Nokia Qt SDK}
                \o \l{Creating a Qt Quick Application}
            \endlist
        \o \l{Managing Projects}
@@ -2632,7 +2632,7 @@
     \section3 Troubleshooting MinGW Compilation Errors
 
     If error messages displayed in the \gui {Compile Output} pane contain
-    paths where slashes are missing (for example, C:QtSDK),
+    paths where slashes are missing (for example, C:NokiaQtSDK),
     check your PATH variable. At the command line, enter the following commands:
 
     \code
@@ -3593,7 +3593,7 @@
     \list
         \o \l{Building and Running an Example Application}
         \o \l{Creating a Qt C++ Application}
-        \o \l{Creating a Mobile Application with Qt SDK}
+        \o \l{Creating a Mobile Application with Nokia Qt SDK}
         \o \l{Creating a Qt Quick Application}
     \endlist
 
@@ -3606,7 +3606,7 @@
     \page creator-mobile-example.html
     \nextpage creator-qml-application.html
 
-    \title Creating a Mobile Application with Qt SDK
+    \title Creating a Mobile Application with Nokia Qt SDK
 
     \note To complete this tutorial, you must install \QSDK.
     The installation program installs and configures the necessary tool chains
@@ -3940,7 +3940,7 @@
     To use the states.png image in your application, you must copy it to the project
     directory from the examples directory in the
     Qt installation directory. For example:
-    \c {C:\QtSDK\Examples\4.7\declarative\animation\states}. The image appears
+    \c {C:\NokiaQtSDK\Examples\4.7\declarative\animation\states}. The image appears
     in the \gui Resources pane. You can also use any other image or a QML element, instead.
 
     \list 1
@@ -6182,7 +6182,7 @@
     \c{PATH} environment variable to include the bin folders of \c mingw and
     Qt Creator in the SDK.
 
-    For instance, if you have the Qt Creator SDK installed in your C drive,
+    For instance, if you have the Qt SDK installed in your C drive,
     use the following command to set the environment variables in
     the command line prompt:
     \code
@@ -8428,7 +8428,7 @@
         you installed \QSDK, Qt Creator, and MADDE.
 
         \o If error messages displayed in the \gui {Compile Output} pane contain
-        paths where slashes are missing (for example, C:QtSDK),
+        paths where slashes are missing (for example, C:NokiaQtSDK),
         check your PATH variable. For more information, see
         \l{Troubleshooting MinGW Compilation Errors}.
 

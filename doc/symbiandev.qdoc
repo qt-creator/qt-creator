@@ -112,7 +112,7 @@
     \endlist
 
     \note If errors occur during the installation, copy the .sis files from
-    \c {<QtSDK_install_path>\Symbian\sis} to the device using USB storage
+    \c {<NokiaQtSDK_install_path>\Symbian\sis} to the device using USB storage
     mode. Then install them from the file manager on the device.
 
     \if defined(qcmanual)
