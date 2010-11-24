@@ -503,7 +503,7 @@ void IPCEngineGuest::listThreads(const Threads &threads)
     rpcCall(ListThreads, p);
 }
 
-void IPCEngineGuest::disassembled(quint64 pc, const QString &da)
+void IPCEngineGuest::disassembled(quint64 pc, const DisassemblerLines &da)
 {
     QByteArray p;
     {

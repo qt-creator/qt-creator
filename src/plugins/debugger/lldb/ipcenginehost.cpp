@@ -31,6 +31,7 @@
 #include "ipcengineguest.h"
 #include "breakhandler.h"
 #include "breakpoint.h"
+#include "disassemblerlines.h"
 #include "moduleshandler.h"
 #include "registerhandler.h"
 #include "stackhandler.h"
@@ -443,12 +444,12 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 QDataStream s(payload);
                 SET_NATIVE_BYTE_ORDER(s);
                 quint64 pc;
-                QString da;
+                DisassemblerLines lines;
                 s >> pc;
-                s >> da;
-                //DisassemblerViewAgent *view = m_frameToDisassemblerAgent.take(pc);
-                //if (view)
-                //    view->setContents(da);
+                s >> lines;
+                DisassemblerViewAgent *view = m_frameToDisassemblerAgent.take(pc);
+                if (view)
+                    view->setContents(lines);
             }
             break;
         case IPCEngineGuest::UpdateWatchData:

@@ -21,6 +21,7 @@ HEADERS += ../ipcengineguest.h \
             ../breakpoint.h \
             ../watchdata.h \
             ../stackframe.h \
+            ../disassemblerlines.h \
             lldbengineguest.h
 
 SOURCES +=  ../ipcengineguest.cpp \
@@ -28,6 +29,7 @@ SOURCES +=  ../ipcengineguest.cpp \
             ../breakpoint.cpp \
             ../watchdata.cpp \
             ../stackframe.cpp \
+            ../disassemblerlines.cpp \
             lldbengineguest.cpp \
             main.cpp
 

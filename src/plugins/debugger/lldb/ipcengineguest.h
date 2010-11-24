@@ -32,6 +32,7 @@
 
 #include "breakhandler.h"
 #include "debuggerengine.h"
+#include "disassemblerlines.h"
 #include "stackhandler.h"
 #include "threadshandler.h"
 
@@ -152,7 +153,7 @@ public:
     void currentThreadChanged(qint64 token);
     void listFrames(const StackFrames &);
     void listThreads(const Threads &);
-    void disassembled(quint64 pc, const QString &da);
+    void disassembled(quint64 pc, const DisassemblerLines &da);
 
     void notifyAddBreakpointOk(BreakpointId id);
     void notifyAddBreakpointFailed(BreakpointId id);

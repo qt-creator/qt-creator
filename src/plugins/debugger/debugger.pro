@@ -35,6 +35,7 @@ HEADERS += breakhandler.h \
     debuggerstringutils.h \
     debuggertooltip.h \
     debuggeruiswitcher.h \
+    disassemblerlines.h \
     logwindow.h \
     moduleshandler.h \
     moduleswindow.h \
@@ -73,6 +74,7 @@ SOURCES += breakhandler.cpp \
     debuggerstreamops.cpp \
     debuggertooltip.cpp \
     debuggeruiswitcher.cpp \
+    disassemblerlines.cpp \
     logwindow.cpp \
     moduleshandler.cpp \
     moduleswindow.cpp \

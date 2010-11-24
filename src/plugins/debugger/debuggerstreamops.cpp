@@ -242,6 +242,47 @@ QDataStream &operator>>(QDataStream &stream, WatchData &wd)
     return stream;
 }
 
+QDataStream &operator<<(QDataStream& stream, const DisassemblerLine &o)
+{
+    stream << o.address;
+    stream << o.data;
+    return stream;
+}
+
+QDataStream &operator>>(QDataStream& stream, DisassemblerLine &o)
+{
+    stream >> o.address;
+    stream >> o.data;
+    return stream;
+}
+
+QDataStream &operator<<(QDataStream& stream, const DisassemblerLines &o)
+{
+    stream << quint64(o.size());
+    for (int i = 0; i < o.size(); i++)
+    {
+        stream << o.at(i);
+    }
+    return stream;
+}
+
+QDataStream &operator>>(QDataStream& stream, DisassemblerLines &o)
+{
+    DisassemblerLines r;
+    quint64 count;
+    stream >> count;
+    for (quint64 i = 0; i < count; i++)
+    {
+        DisassemblerLine line;
+        stream >> line;
+        r.appendLine(line);
+    }
+    o = r;
+    return stream;
+}
+
+
+
 } // namespace Internal
 } // namespace Debugger
 

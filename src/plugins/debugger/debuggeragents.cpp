@@ -405,55 +405,5 @@ quint64 DisassemblerViewAgent::addressFromDisassemblyLine(const QString &line)
     return DisassemblerLine(line).address;
 }
 
-DisassemblerLine::DisassemblerLine(const QString &unparsed)
-{
-    // Mac gdb has an overflow reporting 64bit addresses causing the instruction
-    // to follow the last digit "0x000000013fff4810mov 1,1". Truncate here.
-    const int pos = qMin(unparsed.indexOf(QLatin1Char(' ')), 19);
-    if (pos < 0) {
-        address = 0;
-        data = unparsed;
-        return;
-    }
-    QString addr = unparsed.left(pos);
-    // MSVC 64bit: Remove 64bit separator 00000000`00a45000'.
-    if (addr.size() >= 9 && addr.at(8) == QLatin1Char('`'))
-        addr.remove(8, 1);
-
-    if (addr.endsWith(':')) // clang
-        addr.chop(1);
-    if (addr.startsWith(QLatin1String("0x")))
-        addr.remove(0, 2);
-    bool ok;
-    address = addr.toULongLong(&ok, 16);
-    if (address)
-        data = unparsed.mid(pos + 1);
-    else
-        data = unparsed;
-}
-
-int DisassemblerLines::lineForAddress(quint64 address) const
-{
-    return m_rowCache.value(address);
-}
-
-bool DisassemblerLines::coversAddress(quint64 address) const
-{
-    return m_rowCache.value(address) != 0;
-}
-
-void DisassemblerLines::appendComment(const QString &comment)
-{
-    DisassemblerLine dl;
-    dl.data = comment;
-    m_data.append(dl);
-}
-
-void DisassemblerLines::appendLine(const DisassemblerLine &dl)
-{
-    m_data.append(dl);
-    m_rowCache[dl.address] = m_data.size();
-}
-
 } // namespace Internal
 } // namespace Debugger

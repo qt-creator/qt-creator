@@ -34,6 +34,7 @@
 #include "stackframe.h"
 #include "threaddata.h"
 #include "watchdata.h"
+#include "disassemblerlines.h"
 
 #include <QtCore/QDataStream>
 #include <QtCore/QVector>
@@ -55,6 +56,10 @@ QDataStream &operator<<(QDataStream& stream, const BreakpointResponse &data);
 QDataStream &operator>>(QDataStream& stream, BreakpointResponse &data);
 QDataStream &operator<<(QDataStream& stream, const WatchData &data);
 QDataStream &operator>>(QDataStream& stream, WatchData &data);
+QDataStream &operator<<(QDataStream& stream, const DisassemblerLine &o);
+QDataStream &operator>>(QDataStream& stream, DisassemblerLine &o);
+QDataStream &operator<<(QDataStream& stream, const DisassemblerLines &o);
+QDataStream &operator>>(QDataStream& stream, DisassemblerLines &o);
 
 } // namespace Internal
 } // namespace Debugger

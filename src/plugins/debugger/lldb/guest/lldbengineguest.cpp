@@ -376,8 +376,12 @@ void LLDBEngineGuest::disassemble(quint64 pc)
     for (uint j = 0; j < m_currentThread.GetNumFrames(); j++) {
         lldb::SBFrame fr = m_currentThread.GetFrameAtIndex(j);
         if (pc == fr.GetPCAddress().GetLoadAddress(*m_target)) {
-            disassembled(pc, QString::fromLocal8Bit(fr.Disassemble()));
-            return;
+            QString linesStr = QString::fromLocal8Bit(fr.Disassemble());
+            DisassemblerLines lines;
+            foreach (const QString &lineStr, linesStr.split(QLatin1Char('\n'))) {
+                lines.appendLine(DisassemblerLine(lineStr));
+            }
+            disassembled(pc, lines);
         }
     }
 }

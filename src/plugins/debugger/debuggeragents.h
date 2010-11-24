@@ -35,6 +35,8 @@
 #include <QtCore/QPointer>
 #include <QtCore/QVector>
 
+#include "disassemblerlines.h"
+
 namespace Core {
 class IEditor;
 }
@@ -74,34 +76,6 @@ private:
 
     QList<QPointer<Core::IEditor> > m_editors;
     QPointer<Debugger::DebuggerEngine> m_engine;
-};
-
-class DisassemblerLine
-{
-public:
-    DisassemblerLine() : address(0) {}
-    DisassemblerLine(const QString &unparsed);
-
-    quint64 address;
-    QString data;
-};
-
-class DisassemblerLines
-{
-public:
-    DisassemblerLines() {}
-
-    bool coversAddress(quint64 address) const;
-    void appendLine(const DisassemblerLine &dl);
-    void appendComment(const QString &comment);
-    int size() const { return m_data.size(); }
-    const DisassemblerLine &at(int i) const { return m_data.at(i); }
-    int lineForAddress(quint64 address) const;
-
-private:
-    friend class DisassemblerViewAgent;
-    QVector<DisassemblerLine> m_data;
-    QHash<quint64, int> m_rowCache;
 };
 
 class DisassemblerViewAgent : public QObject
