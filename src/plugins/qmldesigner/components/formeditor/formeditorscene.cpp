@@ -144,7 +144,6 @@ void FormEditorScene::synchronizeTransformation(const QmlItemNode &qmlItemNode)
 {
     FormEditorItem *item = itemForQmlItemNode(qmlItemNode);
     item->updateGeometry();
-    item->update();
 
     if (qmlItemNode.isRootNode()) {
         QRectF sceneRect(qmlItemNode.instanceBoundingRect());
@@ -175,8 +174,6 @@ void FormEditorScene::synchronizeOtherProperty(const QmlItemNode &qmlItemNode, c
         if (propertyName == "visible")
             item->setContentVisible(qmlItemNode.instanceValue("visible").toBool());
 
-        if (item)
-            item->update();
     }
 }
 
@@ -344,13 +341,6 @@ void FormEditorScene::reparentItem(const QmlItemNode &node, const QmlItemNode &n
 
     if (item->parentItem() != parentItem) {
         item->setParentItem(parentItem);
-        if (parentItem) {
-            item->setVisible(true);
-        } else {
-            item->setVisible(false);
-        }
-
-        item->update();
     }
 }
 
@@ -380,7 +370,6 @@ void FormEditorScene::clearFormEditorItems()
     foreach (QGraphicsItem *item, itemList) {
         if (qgraphicsitem_cast<FormEditorItem* >(item)) {
             item->setParentItem(0);
-            item->setVisible(false);
         }
     }
 

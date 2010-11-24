@@ -5,8 +5,8 @@
 namespace QmlDesigner {
 namespace Internal {
 
-PositionerNodeInstance::PositionerNodeInstance(QDeclarativeBasePositioner *item, bool hasContent)
-    : QmlGraphicsItemNodeInstance(item, hasContent)
+PositionerNodeInstance::PositionerNodeInstance(QDeclarativeBasePositioner *item)
+    : QmlGraphicsItemNodeInstance(item)
 {
 }
 
@@ -36,26 +36,19 @@ void PositionerNodeInstance::setPropertyBinding(const QString &name, const QStri
     QmlGraphicsItemNodeInstance::setPropertyBinding(name, expression);
 }
 
-PositionerNodeInstance::Pointer PositionerNodeInstance::create(const NodeMetaInfo &metaInfo, QDeclarativeContext *context, QObject *objectToBeWrapped)
-{
-    QPair<QGraphicsObject*, bool> objectPair;
-
-    if (objectToBeWrapped)
-        objectPair = qMakePair(qobject_cast<QGraphicsObject*>(objectToBeWrapped), false);
-    else
-        objectPair = GraphicsObjectNodeInstance::createGraphicsObject(metaInfo, context);
-
-    QDeclarativeBasePositioner *positioner = dynamic_cast<QDeclarativeBasePositioner*>(objectPair.first);
+PositionerNodeInstance::Pointer PositionerNodeInstance::create(QObject *object)
+{ 
+    QDeclarativeBasePositioner *positioner = qobject_cast<QDeclarativeBasePositioner*>(object);
 
     if (positioner == 0)
         throw InvalidNodeInstanceException(__LINE__, __FUNCTION__, __FILE__);
 
-    Pointer instance(new PositionerNodeInstance(positioner, objectPair.second));
+    Pointer instance(new PositionerNodeInstance(positioner));
+
+    instance->setHasContent(!positioner->flags().testFlag(QGraphicsItem::ItemHasNoContents));
+    positioner->setFlag(QGraphicsItem::ItemHasNoContents, false);
 
     static_cast<QDeclarativeParserStatus*>(positioner)->classBegin();
-
-    if (objectToBeWrapped)
-        instance->setDeleteHeldInstance(false); // the object isn't owned
 
     instance->populateResetValueHash();
 

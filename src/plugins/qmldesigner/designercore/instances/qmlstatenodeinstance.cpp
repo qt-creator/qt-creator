@@ -35,6 +35,8 @@
 #include "qmlpropertychangesnodeinstance.h"
 #include <private/qdeclarativestateoperations_p.h>
 
+#include <invalidnodeinstanceexception.h>
+
 namespace QmlDesigner {
 namespace Internal {
 
@@ -50,14 +52,12 @@ QmlStateNodeInstance::QmlStateNodeInstance(QDeclarativeState *object) :
 }
 
 QmlStateNodeInstance::Pointer
-        QmlStateNodeInstance::create(const NodeMetaInfo &metaInfo,
-                                               QDeclarativeContext *context,
-                                               QObject *objectToBeWrapped)
+        QmlStateNodeInstance::create(QObject *object)
 {
-    Q_ASSERT(!objectToBeWrapped);
-    QObject *object = createObject(metaInfo, context);
     QDeclarativeState *stateObject = qobject_cast<QDeclarativeState*>(object);
-    Q_ASSERT(stateObject);
+
+    if (stateObject == 0)
+        throw InvalidNodeInstanceException(__LINE__, __FUNCTION__, __FILE__);
 
     Pointer instance(new QmlStateNodeInstance(stateObject));
 
@@ -70,7 +70,7 @@ void QmlStateNodeInstance::activateState()
 {
     if (stateGroup()) {
         if (!isStateActive()) {
-            nodeInstanceView()->setStateInstance(nodeInstanceView()->instanceForNode(modelNode()));
+            nodeInstanceServer()->setStateInstance(nodeInstanceServer()->instanceForObject(object()));
             stateGroup()->setState(property("name").toString());
         }
     }
@@ -80,7 +80,7 @@ void QmlStateNodeInstance::deactivateState()
 {
     if (stateGroup()) {
         if (isStateActive()) {
-            nodeInstanceView()->clearStateInstance();
+            nodeInstanceServer()->clearStateInstance();
             stateGroup()->setState(QString());
         }
     }
@@ -100,14 +100,19 @@ QDeclarativeStateGroup *QmlStateNodeInstance::stateGroup() const
 
 bool QmlStateNodeInstance::isStateActive() const
 {
+    qDebug() << stateObject();
+    qDebug() << stateGroup();
+    if (stateGroup())
+        qDebug() << "state name" << stateGroup()->state() << property("name");
     return stateObject() && stateGroup() && stateGroup()->state() == property("name");
 }
 
 void QmlStateNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
 {
-    bool hasParent = modelNode().hasParentProperty();
-    bool isStateOfTheRootModelNode = !hasParent || (hasParent && modelNode().parentProperty().parentModelNode().isRootNode());
-    if (name == "when" && isStateOfTheRootModelNode)
+    qDebug() << __FUNCTION__ << stateObject() << name << value;
+    bool hasParent = parent();
+    bool isStateOfTheRootModelNode = parentInstance() && parentInstance()->isRootNodeInstance();
+    if (name == "when" && (!hasParent || isStateOfTheRootModelNode))
         return;
 
     ObjectNodeInstance::setPropertyVariant(name, value);
@@ -115,27 +120,27 @@ void QmlStateNodeInstance::setPropertyVariant(const QString &name, const QVarian
 
 void QmlStateNodeInstance::setPropertyBinding(const QString &name, const QString &expression)
 {
-    bool hasParent = modelNode().hasParentProperty();
-    bool isStateOfTheRootModelNode = !hasParent || (hasParent && modelNode().parentProperty().parentModelNode().isRootNode());
-    if (name == "when" && isStateOfTheRootModelNode)
+    bool hasParent = parent();
+    bool isStateOfTheRootModelNode = parentInstance() && parentInstance()->isRootNodeInstance();
+    if (name == "when" && (!hasParent || isStateOfTheRootModelNode))
         return;
 
     ObjectNodeInstance::setPropertyBinding(name, expression);
 }
 
-bool QmlStateNodeInstance::updateStateVariant(const NodeInstance &target, const QString &propertyName, const QVariant &value)
+bool QmlStateNodeInstance::updateStateVariant(const ObjectNodeInstance::Pointer &target, const QString &propertyName, const QVariant &value)
 {
-    return stateObject()->changeValueInRevertList(target.internalObject(), propertyName.toLatin1(), value);
+    return stateObject()->changeValueInRevertList(target->object(), propertyName.toLatin1(), value);
 }
 
-bool QmlStateNodeInstance::updateStateBinding(const NodeInstance &target, const QString &propertyName, const QString &expression)
+bool QmlStateNodeInstance::updateStateBinding(const ObjectNodeInstance::Pointer &target, const QString &propertyName, const QString &expression)
 {
-    return stateObject()->changeValueInRevertList(target.internalObject(), propertyName.toLatin1(), expression);
+    return stateObject()->changeValueInRevertList(target->object(), propertyName.toLatin1(), expression);
 }
 
-bool QmlStateNodeInstance::resetStateProperty(const NodeInstance &target, const QString &propertyName, const QVariant & /* resetValue */)
+bool QmlStateNodeInstance::resetStateProperty(const ObjectNodeInstance::Pointer &target, const QString &propertyName, const QVariant & /* resetValue */)
 {
-    return stateObject()->removeEntryFromRevertList(target.internalObject(), propertyName.toLatin1());
+    return stateObject()->removeEntryFromRevertList(target->object(), propertyName.toLatin1());
 }
 
 } // namespace Internal

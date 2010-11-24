@@ -11,7 +11,7 @@ namespace Internal {
 NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstance::Pointer &nodeInstance, QDeclarativeEngine *engine)
     : QDeclarativeOpenMetaObject(nodeInstance->object(), new QDeclarativeOpenMetaObjectType(nodeInstance->object()->metaObject(), engine)),
     m_nodeInstance(nodeInstance),
-    m_context(nodeInstance->modelNode().isRootNode() ? nodeInstance->context() : 0)
+    m_context(nodeInstance->isRootNodeInstance() ? nodeInstance->context() : 0)
 {
     setCached(true);
 }
@@ -59,55 +59,29 @@ int NodeInstanceMetaObject::metaCall(QMetaObject::Call call, int id, void **a)
         oldValue = property(id).read(m_nodeInstance->object());
     }
 
-    if (( call == QMetaObject::ReadProperty || call == QMetaObject::WriteProperty)
-        && id >= type()->propertyOffset()) {
-        int propId = id - type()->propertyOffset();
-        if (call == QMetaObject::ReadProperty) {
-            propertyRead(propId);
-            *reinterpret_cast<QVariant *>(a[0]) = value(propId);
-        } else if (call == QMetaObject::WriteProperty) {
-            if (value(propId) != *reinterpret_cast<QVariant *>(a[0]))  {
-                propertyWrite(propId);
-                setValue(propId, *reinterpret_cast<QVariant *>(a[0]));
-                dynamicPropertyWritten(propId);
-                notifyPropertyChange(id);
-                activate(object(), type()->signalOffset() + propId, 0);
-            }
-        }
-    } else {
-        if (!QObjectPrivate::get(object())->wasDeleted) {
-            if (parent())
-                metaCallReturnValue = parent()->metaCall(call, id, a);
-            else
-                metaCallReturnValue = object()->qt_metacall(call, id, a);
-        }
+    if (parent() && id < parent()->propertyOffset())
+        metaCallReturnValue = parent()->metaCall(call, id, a);
+    else
+        metaCallReturnValue = QDeclarativeOpenMetaObject::metaCall(call, id, a);
 
-        if (call == QMetaObject::WriteProperty
+    if (metaCallReturnValue >= 0
+            && call == QMetaObject::WriteProperty
             && !property(id).hasNotifySignal()
             && oldValue != property(id).read(m_nodeInstance->object()))
-            notifyPropertyChange(id);
-    }
+        notifyPropertyChange(id);
 
     return metaCallReturnValue;
-
-}
-
-void NodeInstanceMetaObject::dynamicPropertyWritten(int propertyId)
-{
-
-    if (m_context)
-        m_context->setContextProperty(name(propertyId), value(propertyId));
 }
 
 void NodeInstanceMetaObject::notifyPropertyChange(int id)
 {
     ObjectNodeInstance::Pointer objectNodeInstance = m_nodeInstance.toStrongRef();
 
-    if (objectNodeInstance && objectNodeInstance->nodeInstanceView()) {
+    if (objectNodeInstance && objectNodeInstance->nodeInstanceServer()) {
         if (id < type()->propertyOffset()) {
-            objectNodeInstance->nodeInstanceView()->notifyPropertyChange(objectNodeInstance->modelNode(), m_prefix + property(id).name());
+            objectNodeInstance->nodeInstanceServer()->notifyPropertyChange(objectNodeInstance->instanceId(), m_prefix + property(id).name());
         } else {
-            objectNodeInstance->nodeInstanceView()->notifyPropertyChange(objectNodeInstance->modelNode(), m_prefix + name(id - type()->propertyOffset()));
+            objectNodeInstance->nodeInstanceServer()->notifyPropertyChange(objectNodeInstance->instanceId(), m_prefix + name(id - type()->propertyOffset()));
         }
     }
 }

@@ -34,7 +34,8 @@
 
 #include <modelnode.h>
 #include <nodemetainfo.h>
-#include <widgetqueryview.h>
+#include <qmlanchors.h>
+
 
 #include <QGraphicsSceneMouseEvent>
 #include <QDebug>
@@ -72,10 +73,7 @@ void FormEditorItem::setup()
 {
     if (qmlItemNode().hasInstanceParent()) {
         setParentItem(scene()->itemForQmlItemNode(qmlItemNode().instanceParent().toQmlItemNode()));
-        setVisible(true);
         setOpacity(qmlItemNode().instanceValue("opacity").toDouble());
-    } else if (!qmlItemNode().isRootNode()){
-        setVisible(false);
     }
 
     setFlag(QGraphicsItem::ItemClipsChildrenToShape, qmlItemNode().instanceValue("clip").toBool());

@@ -42,11 +42,9 @@ namespace Internal {
 class GraphicsObjectNodeInstance : public ObjectNodeInstance
 {
 public:
-    GraphicsObjectNodeInstance(QGraphicsObject *graphicsObject, bool hasContent);
+    GraphicsObjectNodeInstance(QGraphicsObject *graphicsObject);
+    QImage renderImage() const;
 
-    void paint(QPainter *painter);
-
-    bool isTopLevel() const;
     bool isGraphicsObject() const;
 
     QRectF boundingRect() const;
@@ -68,27 +66,26 @@ public:
     bool equalGraphicsItem(QGraphicsItem *item) const;
 
     void setPropertyVariant(const QString &name, const QVariant &value);
+    void setPropertyBinding(const QString &name, const QString &expression);
     QVariant property(const QString &name) const;
 
     bool hasContent() const;
+
 
     void paintUpdate();
 
     bool isMovable() const;
     void setMovable(bool movable);
 
-    void renderPixmapNextPaint();
 
 protected:
-    void renderPixmap();
+    void setHasContent(bool hasContent);
     QGraphicsObject *graphicsObject() const;
     void paintRecursively(QGraphicsItem *graphicsItem, QPainter *painter) const;
-    static QPair<QGraphicsObject*, bool> createGraphicsObject(const NodeMetaInfo &metaInfo, QDeclarativeContext *context);
+
 private: // variables
     bool m_hasContent;
     bool m_isMovable;
-    QPixmap m_renderPixmap;
-    bool m_renderPixmapIsDirty;
 };
 
 } // namespace Internal

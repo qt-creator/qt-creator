@@ -31,12 +31,6 @@
 
 #include "qmlgraphicsitemnodeinstance.h"
 #include "graphicsobjectnodeinstance.h"
-#include "graphicsviewnodeinstance.h"
-#include "graphicsscenenodeinstance.h"
-#include "graphicswidgetnodeinstance.h"
-#include "qmlviewnodeinstance.h"
-#include "widgetnodeinstance.h"
-#include "proxywidgetnodeinstance.h"
 
 #include <invalidreparentingexception.h>
 #include <invalidnodeinstanceexception.h>
@@ -61,6 +55,7 @@
 #ifndef QT_NO_WEBKIT
 #include <QGraphicsWebView>
 #endif
+#include <QGraphicsObject>
 
 #include <QTextDocument>
 
@@ -76,30 +71,9 @@
 namespace QmlDesigner {
 namespace Internal {
 
-
-ChildrenChangeEventFilter::ChildrenChangeEventFilter(QObject *parent)
-    : QObject(parent)
-{
-}
-
-
-bool ChildrenChangeEventFilter::eventFilter(QObject * /*object*/, QEvent *event)
-{
-    switch (event->type()) {
-        case QEvent::ChildAdded:
-        case QEvent::ChildRemoved:
-            {
-                QChildEvent *childEvent = static_cast<QChildEvent*>(event);
-                emit childrenChanged(childEvent->child()); break;
-            }
-        default: break;
-    }
-
-    return false;
-}
-
 ObjectNodeInstance::ObjectNodeInstance(QObject *object)
-    : m_deleteHeldInstance(true),
+    : m_instanceId(-1),
+    m_deleteHeldInstance(true),
     m_object(object),
     m_metaObject(0),
     m_isInPositioner(false)
@@ -118,13 +92,8 @@ void ObjectNodeInstance::destroy()
         // Remove from old property
         if (object()) {
             setId(QString());
-            if (modelNode().isValid() && modelNode().parentProperty().isValid()) {
-                NodeAbstractProperty parentProperty = modelNode().parentProperty();
-                ModelNode parentNode = parentProperty.parentModelNode();
-                if (parentNode.isValid() && nodeInstanceView()->hasInstanceForNode(parentNode)) {
-                    NodeInstance parentInstance = nodeInstanceView()->instanceForNode(parentNode);
-                    reparent(parentInstance, parentProperty.name(), NodeInstance() , QString());
-                }
+            if (m_instanceId >= 0) {
+                reparent(parentInstance(), m_parentProperty, ObjectNodeInstance::Pointer(), QString());
             }
         }
 
@@ -136,28 +105,29 @@ void ObjectNodeInstance::destroy()
     }
 
     m_metaObject = 0;
+    m_instanceId = -1;
 }
 
-ModelNode ObjectNodeInstance::modelNode() const
+void ObjectNodeInstance::setInstanceId(qint32 id)
 {
-    return m_modelNode;
+    m_instanceId = id;
 }
 
-void ObjectNodeInstance::setModelNode(const ModelNode &node)
+qint32 ObjectNodeInstance::instanceId() const
 {
-    m_modelNode = node;
+    return m_instanceId;
 }
 
-NodeInstanceView *ObjectNodeInstance::nodeInstanceView() const
+NodeInstanceServer *ObjectNodeInstance::nodeInstanceServer() const
 {
-    return m_nodeInstanceView.data();
+    return m_nodeInstanceServer.data();
 }
 
-void ObjectNodeInstance::setNodeInstanceView(NodeInstanceView *view)
+void ObjectNodeInstance::setNodeInstanceServer(NodeInstanceServer *server)
 {
-    Q_ASSERT(!m_nodeInstanceView.data());
+    Q_ASSERT(!m_nodeInstanceServer.data());
 
-    m_nodeInstanceView = view;
+    m_nodeInstanceServer = server;
 }
 
 static bool hasPropertiesWitoutNotifications(const QMetaObject *metaObject)
@@ -172,19 +142,15 @@ static bool hasPropertiesWitoutNotifications(const QMetaObject *metaObject)
 
 void ObjectNodeInstance::initializePropertyWatcher(const ObjectNodeInstance::Pointer &objectNodeInstance)
 {
-    if (!objectNodeInstance->modelNode().metaInfo().isComponent()) { // TODO: this is a nasty workaround which needs to be removed
-        const QMetaObject *metaObject = objectNodeInstance->object()->metaObject();
-        m_metaObject = new NodeInstanceMetaObject(objectNodeInstance, nodeInstanceView()->engine());
-        for(int propertyIndex = QObject::staticMetaObject.propertyCount(); propertyIndex < metaObject->propertyCount(); propertyIndex++) {
-            if (QDeclarativeMetaType::isQObject(metaObject->property(propertyIndex).userType())) {
-                QObject *propertyObject = QDeclarativeMetaType::toQObject(metaObject->property(propertyIndex).read(objectNodeInstance->object()));
-                if (propertyObject && hasPropertiesWitoutNotifications(propertyObject->metaObject())) {
-                    new NodeInstanceMetaObject(objectNodeInstance, propertyObject, metaObject->property(propertyIndex).name(), nodeInstanceView()->engine());
-                }
+    const QMetaObject *metaObject = objectNodeInstance->object()->metaObject();
+    m_metaObject = new NodeInstanceMetaObject(objectNodeInstance, nodeInstanceServer()->engine());
+    for(int propertyIndex = QObject::staticMetaObject.propertyCount(); propertyIndex < metaObject->propertyCount(); propertyIndex++) {
+        if (QDeclarativeMetaType::isQObject(metaObject->property(propertyIndex).userType())) {
+            QObject *propertyObject = QDeclarativeMetaType::toQObject(metaObject->property(propertyIndex).read(objectNodeInstance->object()));
+            if (propertyObject && hasPropertiesWitoutNotifications(propertyObject->metaObject())) {
+                new NodeInstanceMetaObject(objectNodeInstance, propertyObject, metaObject->property(propertyIndex).name(), nodeInstanceServer()->engine());
             }
         }
-    } else {
-        qWarning() << "dynamic properties are not supported for components";
     }
 
     m_signalSpy.setObjectNodeInstance(objectNodeInstance);
@@ -213,35 +179,6 @@ bool ObjectNodeInstance::isQmlGraphicsItem() const
     return false;
 }
 
-bool ObjectNodeInstance::isGraphicsScene() const
-{
-    return false;
-}
-
-bool ObjectNodeInstance::isGraphicsView() const
-{
-    return false;
-}
-
-bool ObjectNodeInstance::isGraphicsWidget() const
-{
-    return false;
-}
-
-bool ObjectNodeInstance::isProxyWidget() const
-{
-    return false;
-}
-
-bool ObjectNodeInstance::isWidget() const
-{
-    return false;
-}
-
-bool ObjectNodeInstance::isQDeclarativeView() const
-{
-    return false;
-}
 
 bool ObjectNodeInstance::isGraphicsObject() const
 {
@@ -325,9 +262,9 @@ bool ObjectNodeInstance::isAnchoredByChildren() const
     return false;
 }
 
-QPair<QString, NodeInstance> ObjectNodeInstance::anchor(const QString &/*name*/) const
+QPair<QString, ServerNodeInstance> ObjectNodeInstance::anchor(const QString &/*name*/) const
 {
-    return qMakePair(QString(), NodeInstance());
+    return qMakePair(QString(), ServerNodeInstance());
 }
 
 
@@ -384,10 +321,10 @@ void ObjectNodeInstance::removeFromOldProperty(QObject *object, QObject *oldPare
         return;
 
     if (isList(property)) {
-        removeObjectFromList(property, object, nodeInstanceView()->engine());
+        removeObjectFromList(property, object, nodeInstanceServer()->engine());
     } else if (isObject(property)) {
-        if (nodeInstanceView()->hasInstanceForObject(oldParent)) {
-            nodeInstanceView()->instanceForObject(oldParent).resetProperty(oldParentProperty);
+        if (nodeInstanceServer()->hasInstanceForObject(oldParent)) {
+            nodeInstanceServer()->instanceForObject(oldParent).resetProperty(oldParentProperty);
         }
     }
 
@@ -420,14 +357,16 @@ void ObjectNodeInstance::addToNewProperty(QObject *object, QObject *newParent, c
     Q_ASSERT(objectToVariant(object).isValid());
 }
 
-void ObjectNodeInstance::reparent(const NodeInstance &oldParentInstance, const QString &oldParentProperty, const NodeInstance &newParentInstance, const QString &newParentProperty)
+void ObjectNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const QString &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const QString &newParentProperty)
 {
-    if (oldParentInstance.isValid()) {
-        removeFromOldProperty(object(), oldParentInstance.internalObject(), oldParentProperty);
+    if (oldParentInstance) {
+        removeFromOldProperty(object(), oldParentInstance->object(), oldParentProperty);
+        m_parentProperty.clear();
     }
 
-    if (newParentInstance.isValid()) {
-        addToNewProperty(object(), newParentInstance.internalObject(), newParentProperty);
+    if (newParentInstance) {
+        m_parentProperty = newParentProperty;
+        addToNewProperty(object(), newParentInstance->object(), newParentProperty);
     }
 
     refreshBindings(context()->engine()->rootContext());
@@ -444,22 +383,23 @@ void ObjectNodeInstance::setPropertyVariant(const QString &name, const QVariant 
     if (oldValue.type() == QVariant::Url) {
         QUrl url = oldValue.toUrl();
         QString path = url.toLocalFile();
-        if (QFileInfo(path).exists() && nodeInstanceView() && !path.isEmpty())
-            nodeInstanceView()->removeFilePropertyFromFileSystemWatcher(object(), name, path);
+        if (QFileInfo(path).exists() && nodeInstanceServer() && !path.isEmpty())
+            nodeInstanceServer()->removeFilePropertyFromFileSystemWatcher(object(), name, path);
     }
 
 
-    property.write(value);
+    bool isWritten = property.write(value);
+
+    if (!isWritten)
+        qDebug() << "ObjectNodeInstance.setPropertyVariant: Cannot be written: " << object() << name << value;
 
     QVariant newValue = property.read();
     if (newValue.type() == QVariant::Url) {
         QUrl url = newValue.toUrl();
         QString path = url.toLocalFile();
-        if (QFileInfo(path).exists() && nodeInstanceView() && !path.isEmpty())
-            nodeInstanceView()->addFilePropertyToFileSystemWatcher(object(), name, path);
+        if (QFileInfo(path).exists() && nodeInstanceServer() && !path.isEmpty())
+            nodeInstanceServer()->addFilePropertyToFileSystemWatcher(object(), name, path);
     }
-
-
 }
 
 void ObjectNodeInstance::setPropertyBinding(const QString &name, const QString &expression)
@@ -470,16 +410,17 @@ void ObjectNodeInstance::setPropertyBinding(const QString &name, const QString &
         return;
 
     if (property.isProperty()) {
-        QDeclarativeBinding *binding = new QDeclarativeBinding(expression, object(), context());
+        QDeclarativeBinding *binding = new QDeclarativeBinding(expression, object(), context(), object());
         binding->setTarget(property);
         binding->setNotifyOnValueChanged(true);
         QDeclarativeAbstractBinding *oldBinding = QDeclarativePropertyPrivate::setBinding(property, binding);
         if (oldBinding)
             oldBinding->destroy();
         binding->update();
+        if (binding->hasError())
+            qDebug() <<" ObjectNodeInstance.setPropertyBinding has Error: " << object() << name << expression;
     } else {
-        qWarning() << "Cannot set binding for property" << name << ": property is unknown for type"
-                   << (modelNode().isValid() ? modelNode().type() : "unknown");
+        qWarning() << "ObjectNodeInstance.setPropertyBinding: Cannot set binding for property" << name << ": property is unknown for type";
     }
 }
 
@@ -511,17 +452,6 @@ void ObjectNodeInstance::resetProperty(const QString &name)
         doResetProperty("font.pixelSize");
 }
 
-NodeInstance ObjectNodeInstance::instanceForNode(const ModelNode &node, const QString &fullname)
-{
-    if (nodeInstanceView()->hasInstanceForNode(node)) {
-        return nodeInstanceView()->instanceForNode(node);
-    } else {
-        NodeInstance instance(nodeInstanceView()->loadNode(node));
-        m_modelAbstractPropertyHash.insert(fullname, instance);
-        return instance;
-    }
-}
-
 void ObjectNodeInstance::refreshProperty(const QString &name)
 {
     QDeclarativeProperty property(object(), name, context());
@@ -545,9 +475,17 @@ void ObjectNodeInstance::refreshProperty(const QString &name)
     property.write(oldValue);
 }
 
-bool ObjectNodeInstance::hasBindingForProperty(const QString &name) const
+bool ObjectNodeInstance::hasBindingForProperty(const QString &name, bool *hasChanged) const
 {
     QDeclarativeProperty property(object(), name, context());
+
+    bool hasBinding = QDeclarativePropertyPrivate::binding(property);
+
+    if (hasChanged) {
+        *hasChanged = hasBinding != m_hasBindingHash.value(name, false);
+        if (*hasChanged)
+            m_hasBindingHash.insert(name, hasBinding);
+    }
 
     return QDeclarativePropertyPrivate::binding(property);
 }
@@ -565,8 +503,8 @@ void ObjectNodeInstance::doResetProperty(const QString &propertyName)
     if (oldValue.type() == QVariant::Url) {
         QUrl url = oldValue.toUrl();
         QString path = url.toLocalFile();
-        if (QFileInfo(path).exists() && nodeInstanceView())
-            nodeInstanceView()->removeFilePropertyFromFileSystemWatcher(object(), propertyName, path);
+        if (QFileInfo(path).exists() && nodeInstanceServer())
+            nodeInstanceServer()->removeFilePropertyFromFileSystemWatcher(object(), propertyName, path);
     }
 
 
@@ -590,6 +528,7 @@ void ObjectNodeInstance::doResetProperty(const QString &propertyName)
     } else if (property.isWritable()) {
         if (property.read() == resetValue(propertyName))
             return;
+
         property.write(resetValue(propertyName));
     }
 }
@@ -613,12 +552,48 @@ QVariant ObjectNodeInstance::property(const QString &name) const
             return QVariant();
 
         if (url.scheme() == "file") {
-            int basePathLength = nodeInstanceView()->model()->fileUrl().toLocalFile().lastIndexOf('/');
+            int basePathLength = nodeInstanceServer()->fileUrl().toLocalFile().lastIndexOf('/');
             return QUrl(url.toLocalFile().mid(basePathLength + 1));
         }
     }
 
     return property.read();
+}
+
+QStringList allPropertyNames(QObject *object, const QString &baseName = QString(), QObjectList *inspectedObjects = new QObjectList)
+{
+    QStringList propertyNameList;
+
+
+    if (inspectedObjects->contains(object))
+        return propertyNameList;
+
+    inspectedObjects->append(object);
+
+
+    const QMetaObject *metaObject = object->metaObject();
+    for (int index = 0; index < metaObject->propertyCount(); ++index) {
+        QMetaProperty metaProperty = metaObject->property(index);
+        QDeclarativeProperty declarativeProperty(object, QLatin1String(metaProperty.name()));
+        if (declarativeProperty.isValid() && declarativeProperty.propertyTypeCategory() == QDeclarativeProperty::Object) {
+            QObject *childObject = QDeclarativeMetaType::toQObject(declarativeProperty.read());
+            if (childObject)
+                propertyNameList.append(allPropertyNames(childObject, baseName +  QString::fromUtf8(metaProperty.name()) + '.', inspectedObjects));
+        } else if (QDeclarativeValueTypeFactory::valueType(metaProperty.userType())) {
+            QDeclarativeValueType *valueType = QDeclarativeValueTypeFactory::valueType(metaProperty.userType());
+            valueType->setValue(metaProperty.read(object));
+            propertyNameList.append(allPropertyNames(valueType, baseName +  QString::fromUtf8(metaProperty.name()) + '.', inspectedObjects));
+        } else  {
+            propertyNameList.append(baseName + QString::fromUtf8(metaProperty.name()));
+        }
+    }
+
+    return propertyNameList;
+}
+
+QStringList ObjectNodeInstance::propertyNames() const
+{
+    return allPropertyNames(object());
 }
 
 QString ObjectNodeInstance::instanceType(const QString &name) const
@@ -640,18 +615,9 @@ bool ObjectNodeInstance::deleteHeldInstance() const
     return m_deleteHeldInstance;
 }
 
-ObjectNodeInstance::Pointer ObjectNodeInstance::create(const NodeMetaInfo &nodeMetaInfo, QDeclarativeContext *context, QObject *objectToBeWrapped)
+ObjectNodeInstance::Pointer ObjectNodeInstance::create(QObject *object)
 {
-    QObject *object = 0;
-    if (objectToBeWrapped)
-        object = objectToBeWrapped;
-    else
-        object = createObject(nodeMetaInfo, context);
-
     Pointer instance(new ObjectNodeInstance(object));
-
-    if (objectToBeWrapped)
-        instance->setDeleteHeldInstance(false); // the object isn't owned
 
     instance->populateResetValueHash();
 
@@ -744,7 +710,7 @@ static void disableTiledBackingStore(QObject *object)
 #endif
 }
 
-void ObjectNodeInstance::tweakObjects(QObject *object)
+void tweakObjects(QObject *object)
 {
     QObjectList objectList;
     allSubObject(object, objectList);
@@ -754,53 +720,49 @@ void ObjectNodeInstance::tweakObjects(QObject *object)
     }
 }
 
-/*!
-  \brief Creates an instance of the qml type in the given qml context.
 
-  \throws InvalidArgumentException when the context argument is a null pointer
-  \throws InvalidMetaInfoException if the object is not valid
-  */
-QObject *ObjectNodeInstance::createInstance(const NodeMetaInfo &metaInfo, QDeclarativeContext *context)
+QObject *createComponent(const QString &componentPath, QDeclarativeContext *context)
 {
-    if (!metaInfo.isValid()) {
-        qWarning() << "NodeMetaInfo is invalid";
-        return 0; // maybe we should return a new QObject?
-    }
-
-    QObject *object = 0;
-    if (metaInfo.isComponent()) {
-        // qml component
-        // TODO: This is maybe expensive ...
-        QDeclarativeComponent component(context->engine(), QUrl::fromLocalFile(metaInfo.componentString()));
-        QDeclarativeContext *newContext =  new QDeclarativeContext(context);
-        object = component.beginCreate(newContext);
-        component.completeCreate();
-        newContext->setParent(object);
-    } else {
-        // primitive
-        QDeclarativeType *type = QDeclarativeMetaType::qmlType(metaInfo.typeName().toAscii(), metaInfo.majorVersion(), metaInfo.minorVersion());
-        if (type)  {
-            object = type->create();
-        } else {
-            qWarning() << "QuickDesigner: Cannot create an object of type"
-                       << QString("%1 %2,%3").arg(metaInfo.typeName(), metaInfo.majorVersion(), metaInfo.minorVersion())
-                       << "- type isn't known to declarative meta type system";
-        }
-
-        if (object && context)
-            QDeclarativeEngine::setContextForObject(object, context);
-    }
-
-    QDeclarativeEngine::setObjectOwnership(object, QDeclarativeEngine::CppOwnership);
-
+    QDeclarativeComponent component(context->engine(), QUrl::fromLocalFile(componentPath));
+    QDeclarativeContext *newContext =  new QDeclarativeContext(context);
+    QObject *object = component.beginCreate(newContext);
     tweakObjects(object);
+    component.completeCreate();
+    newContext->setParent(object);
 
     return object;
 }
 
-QObject* ObjectNodeInstance::createObject(const NodeMetaInfo &metaInfo, QDeclarativeContext *context)
+QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QDeclarativeContext *context)
 {
-    QObject *object = createInstance(metaInfo, context);
+    QObject *object = 0;
+    QDeclarativeType *type = QDeclarativeMetaType::qmlType(typeName.toUtf8(), majorNumber, minorNumber);
+    if (type)  {
+        object = type->create();
+    } else {
+        qWarning() << "QuickDesigner: Cannot create an object of type"
+                   << QString("%1 %2,%3").arg(typeName).arg(majorNumber).arg(minorNumber)
+                   << "- type isn't known to declarative meta type system";
+    }
+
+    tweakObjects(object);
+
+    if (object && context)
+        QDeclarativeEngine::setContextForObject(object, context);
+
+    return object;
+}
+
+QObject* ObjectNodeInstance::createObject(const QString &typeName, int majorNumber, int minorNumber, const QString &componentPath, QDeclarativeContext *context)
+{
+    QObject *object = 0;
+    if (componentPath.isEmpty()) {
+        object = createPrimitive(typeName, majorNumber, minorNumber, context);
+    } else {
+        object = createComponent(componentPath, context);
+    }
+
+    QDeclarativeEngine::setObjectOwnership(object, QDeclarativeEngine::CppOwnership);
 
     if (object == 0)
         throw InvalidNodeInstanceException(__LINE__, __FUNCTION__, __FILE__);
@@ -849,15 +811,15 @@ QDeclarativeContext *ObjectNodeInstance::context() const
     QDeclarativeContext *context = QDeclarativeEngine::contextForObject(object());
     if (context)
         return context;
-    else if (nodeInstanceView())
-        return nodeInstanceView()->engine()->rootContext();
+    else if (nodeInstanceServer())
+        return nodeInstanceServer()->engine()->rootContext();
 
     return 0;
 }
 
 QDeclarativeEngine *ObjectNodeInstance::engine() const
 {
-    return nodeInstanceView()->engine();
+    return nodeInstanceServer()->engine();
 }
 
 void ObjectNodeInstance::paintUpdate()
@@ -872,9 +834,14 @@ void ObjectNodeInstance::deactivateState()
 {
 }
 
-QStringList propertyNameForWritableProperties(QObject *object, const QString &baseName = QString())
+QStringList propertyNameForWritableProperties(QObject *object, const QString &baseName = QString(), QObjectList *inspectedObjects = new QObjectList())
 {
     QStringList propertyNameList;
+
+    if (inspectedObjects->contains(object))
+        return propertyNameList;
+
+    inspectedObjects->append(object);
 
     const QMetaObject *metaObject = object->metaObject();
     for (int index = 0; index < metaObject->propertyCount(); ++index) {
@@ -883,11 +850,11 @@ QStringList propertyNameForWritableProperties(QObject *object, const QString &ba
         if (declarativeProperty.isValid() && declarativeProperty.isWritable() && declarativeProperty.propertyTypeCategory() == QDeclarativeProperty::Object) {
             QObject *childObject = QDeclarativeMetaType::toQObject(declarativeProperty.read());
             if (childObject)
-                propertyNameList.append(propertyNameForWritableProperties(childObject, baseName +  QString::fromUtf8(metaProperty.name()) + '.'));
+                propertyNameList.append(propertyNameForWritableProperties(childObject, baseName +  QString::fromUtf8(metaProperty.name()) + '.', inspectedObjects));
         } else if (QDeclarativeValueTypeFactory::valueType(metaProperty.userType())) {
             QDeclarativeValueType *valueType = QDeclarativeValueTypeFactory::valueType(metaProperty.userType());
             valueType->setValue(metaProperty.read(object));
-            propertyNameList.append(propertyNameForWritableProperties(valueType, baseName +  QString::fromUtf8(metaProperty.name()) + '.'));
+            propertyNameList.append(propertyNameForWritableProperties(valueType, baseName +  QString::fromUtf8(metaProperty.name()) + '.', inspectedObjects));
         } else if (metaProperty.isReadable() && metaProperty.isWritable()) {
             propertyNameList.append(baseName + QString::fromUtf8(metaProperty.name()));
         }
@@ -916,9 +883,9 @@ void ObjectNodeInstance::paint(QPainter * /*painter*/)
 {
 }
 
-bool ObjectNodeInstance::isTopLevel() const
+QImage ObjectNodeInstance::renderImage() const
 {
-    return false;
+    return QImage();
 }
 
 QObject *ObjectNodeInstance::parent() const
@@ -927,6 +894,31 @@ QObject *ObjectNodeInstance::parent() const
         return 0;
 
     return object()->parent();
+}
+
+QObject *parentObject(QObject *object)
+{
+    QGraphicsObject *graphicsObject = qobject_cast<QGraphicsObject*>(object);
+    if (graphicsObject)
+        return graphicsObject->parentObject();
+
+    return object->parent();
+}
+
+ObjectNodeInstance::Pointer ObjectNodeInstance::parentInstance() const
+{
+    QObject *parentHolder = parent();
+    if (!nodeInstanceServer())
+        return Pointer();
+
+    while (parentHolder) {
+        if (nodeInstanceServer()->hasInstanceForObject(parentHolder))
+            return nodeInstanceServer()->instanceForObject(parentHolder).internalInstance();
+
+        parentHolder = parentObject(parentHolder);
+    }
+
+    return Pointer();
 }
 
 QRectF ObjectNodeInstance::boundingRect() const
@@ -962,13 +954,11 @@ static bool metaObjectHasNotPropertyName(NodeInstanceMetaObject *metaObject, con
 void ObjectNodeInstance::createDynamicProperty(const QString &name, const QString &/*typeName*/)
 {
     if (m_metaObject == 0) {
-        qWarning() << "dynamic properties are not supported for components";
+        qWarning() << "ObjectNodeInstance.createDynamicProperty: No Metaobject.";
         return;
     }
 
-
-    if (metaObjectHasNotPropertyName(m_metaObject, name))
-        m_metaObject->createNewProperty(name);
+    m_metaObject->createNewProperty(name);
 }
 
 /**
@@ -982,43 +972,19 @@ void ObjectNodeInstance::refreshBindings(QDeclarativeContext *context)
     context->setContextProperty(QString("__dummy_%1").arg(i++), true);
 }
 
-bool ObjectNodeInstance::updateStateVariant(const NodeInstance &/*target*/, const QString &/*propertyName*/, const QVariant &/*value*/)
+bool ObjectNodeInstance::updateStateVariant(const ObjectNodeInstance::Pointer &/*target*/, const QString &/*propertyName*/, const QVariant &/*value*/)
 {
     return false;
 }
 
-bool ObjectNodeInstance::updateStateBinding(const NodeInstance &/*target*/, const QString &/*propertyName*/, const QString &/*expression*/)
+bool ObjectNodeInstance::updateStateBinding(const ObjectNodeInstance::Pointer &/*target*/, const QString &/*propertyName*/, const QString &/*expression*/)
 {
     return false;
 }
 
-bool ObjectNodeInstance::resetStateProperty(const NodeInstance &/*target*/, const QString &/*propertyName*/, const QVariant &/*resetValue*/)
+bool ObjectNodeInstance::resetStateProperty(const ObjectNodeInstance::Pointer &/*target*/, const QString &/*propertyName*/, const QVariant &/*resetValue*/)
 {
     return false;
-}
-
-
-NodeInstance ObjectNodeInstance::nodeInstanceParentForObject(QObject *currentObject) const
-{
-    if (!currentObject) //this should not happen! warning?
-        return NodeInstance();
-
-    if (nodeInstanceView()->hasInstanceForObject(currentObject))
-        return nodeInstanceView()->instanceForObject(currentObject);
-
-    //Maybe the object has been reparented inside a component and we
-    //do not keep track of the parent?
-    //In this case we iterate until we find a parent we keep track of,
-    //parent() gets 0
-
-    QObject* parentObject;
-    QGraphicsObject *graphicsObject = qobject_cast<QGraphicsObject*>(currentObject);
-    if (graphicsObject)
-        parentObject = graphicsObject->parentItem()->toGraphicsObject();
-    else
-        parentObject = currentObject->parent();
-
-    return nodeInstanceParentForObject(parentObject);
 }
 
 void ObjectNodeInstance::doComponentComplete()
@@ -1026,10 +992,16 @@ void ObjectNodeInstance::doComponentComplete()
 
 }
 
-void ObjectNodeInstance::renderPixmapNextPaint()
+bool ObjectNodeInstance::isRootNodeInstance() const
 {
-
+    return nodeInstanceServer()->rootNodeInstance().isWrappingThisObject(object());
 }
+
+bool ObjectNodeInstance::isValid() const
+{
+    return instanceId() >= 0 && object();
+}
+
 }
 }
 

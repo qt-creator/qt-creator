@@ -40,22 +40,13 @@ QmlTransitionNodeInstance::QmlTransitionNodeInstance(QDeclarativeTransition *tra
 {
 }
 
-QmlTransitionNodeInstance::Pointer QmlTransitionNodeInstance::create(const NodeMetaInfo &nodeMetaInfo, QDeclarativeContext *context, QObject *objectToBeWrapped)
+QmlTransitionNodeInstance::Pointer QmlTransitionNodeInstance::create(QObject *object)
 {
-     QObject *object = 0;
-     if (objectToBeWrapped)
-         object = objectToBeWrapped;
-     else
-         object = createObject(nodeMetaInfo, context);
-
      QDeclarativeTransition *transition = qobject_cast<QDeclarativeTransition*>(object);
      if (transition == 0)
          throw InvalidNodeInstanceException(__LINE__, __FUNCTION__, __FILE__);
 
      Pointer instance(new QmlTransitionNodeInstance(transition));
-
-     if (objectToBeWrapped)
-         instance->setDeleteHeldInstance(false); // the object isn't owned
 
      instance->populateResetValueHash();
 

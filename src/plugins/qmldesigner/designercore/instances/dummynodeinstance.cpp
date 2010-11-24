@@ -51,11 +51,6 @@ void DummyNodeInstance::paint(QPainter * /*painter*/) const
 {
 }
 
-bool DummyNodeInstance::isTopLevel() const
-{
-    return false;
-}
-
 QRectF DummyNodeInstance::boundingRect() const
 {
     return QRectF();

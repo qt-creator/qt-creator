@@ -27,49 +27,25 @@
 **
 **************************************************************************/
 
-#ifndef WIDGETNODEINSTANCE_H
-#define WIDGETNODEINSTANCE_H
+#include <QtDebug>
 
-#include "objectnodeinstance.h"
-#include <QWeakPointer>
+#include <QApplication>
+#include <QStringList>
 
-namespace QmlDesigner {
-namespace Internal {
+#include <nodeinstanceclientproxy.h>
 
-class WidgetNodeInstance : public ObjectNodeInstance
+int main(int argc, char *argv[])
 {
-public:
-    ~WidgetNodeInstance();
-    typedef QSharedPointer<WidgetNodeInstance> Pointer;
-    typedef QWeakPointer<WidgetNodeInstance> WeakPointer;
+    QApplication application(argc, argv);
 
-    static Pointer create(const NodeMetaInfo &metaInfo, QDeclarativeContext *context, QObject  *objectToBeWrapped);
+    if (application.arguments().count() != 2)
+        return -1;
 
-    void paint(QPainter *painter) const;
+    QCoreApplication::setOrganizationName("Nokia");
+    QCoreApplication::setOrganizationDomain("nokia.com");
+    QCoreApplication::setApplicationName("QmlPuppet");
 
-    bool isTopLevel() const;
+    new QmlDesigner::NodeInstanceClientProxy(&application);
 
-    bool isWidget() const;
-
-    QRectF boundingRect() const;
-    QPointF position() const;
-    QSizeF size() const;
-
-    void setPropertyVariant(const QString &name, const QVariant &value);
-    QVariant property(const QString &name) const;
-
-    bool isVisible() const;
-    void setVisible(bool isVisible);
-
-    QWidget *widget() const;
-
-    void updateProperties();
-
-protected:
-    WidgetNodeInstance(QWidget* widget);
-
-};
-
+    return application.exec();
 }
-}
-#endif // WIDGETNODEINSTANCE_H

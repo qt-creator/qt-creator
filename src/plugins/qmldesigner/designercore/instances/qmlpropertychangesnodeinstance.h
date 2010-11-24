@@ -124,14 +124,14 @@ public:
     typedef QSharedPointer<QmlPropertyChangesNodeInstance> Pointer;
     typedef QWeakPointer<QmlPropertyChangesNodeInstance> WeakPointer;
 
-    static Pointer create(const NodeMetaInfo &metaInfo, QDeclarativeContext *context, QObject *objectToBeWrapped);
+    static Pointer create(QObject *objectToBeWrapped);
 
     virtual void setPropertyVariant(const QString &name, const QVariant &value);
     virtual void setPropertyBinding(const QString &name, const QString &expression);
     virtual QVariant property(const QString &name) const;
     virtual void resetProperty(const QString &name);
 
-    void reparent(const NodeInstance &oldParentInstance, const QString &oldParentProperty, const NodeInstance &newParentInstance, const QString &newParentProperty);
+    void reparent(const ServerNodeInstance &oldParentInstance, const QString &oldParentProperty, const ServerNodeInstance &newParentInstance, const QString &newParentProperty);
 
 protected:
     QmlPropertyChangesNodeInstance(QDeclarativePropertyChanges *object);

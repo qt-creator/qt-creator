@@ -310,10 +310,10 @@ AnchorLine::Type QmlAnchors::possibleAnchorLines(AnchorLine::Type sourceAnchorLi
 
 AnchorLine QmlAnchors::instanceAnchor(AnchorLine::Type sourceAnchorLine) const
 {
-    QPair<QString, NodeInstance> targetAnchorLinePair;
+    QPair<QString, qint32> targetAnchorLinePair;
     if (qmlItemNode().nodeInstance().hasAnchor("anchors.fill") && (sourceAnchorLine & AnchorLine::Fill)) {
         targetAnchorLinePair = qmlItemNode().nodeInstance().anchor("anchors.fill");
-        targetAnchorLinePair.first = lineTypeToString(sourceAnchorLine);
+        targetAnchorLinePair.first = lineTypeToString(sourceAnchorLine); // TODO: looks wrong
     } else if (qmlItemNode().nodeInstance().hasAnchor("anchors.centerIn") && (sourceAnchorLine & AnchorLine::Center)) {
         targetAnchorLinePair = qmlItemNode().nodeInstance().anchor("anchors.centerIn");
         targetAnchorLinePair.first = lineTypeToString(sourceAnchorLine);
@@ -326,10 +326,10 @@ AnchorLine QmlAnchors::instanceAnchor(AnchorLine::Type sourceAnchorLine) const
     if (targetAnchorLine == AnchorLine::Invalid )
         return AnchorLine();
 
-    if (!targetAnchorLinePair.second.isValid()) //there might be no node instance for the parent
+    if (!targetAnchorLinePair.second >= 0) //there might be no node instance for the parent
         return AnchorLine();
 
-    return AnchorLine(QmlItemNode(qmlItemNode().nodeForInstance(targetAnchorLinePair.second)), targetAnchorLine);
+    return AnchorLine(QmlItemNode(qmlItemNode().nodeForInstance(qmlItemNode().qmlModelView()->nodeInstanceView()->instanceForId(targetAnchorLinePair.second))), targetAnchorLine);
 }
 
 void QmlAnchors::removeAnchor(AnchorLine::Type sourceAnchorLine)

@@ -48,22 +48,14 @@ QDeclarativeComponent *ComponentNodeInstance::component() const
     return static_cast<QDeclarativeComponent*>(object());
 }
 
-ComponentNodeInstance::Pointer ComponentNodeInstance::create(const NodeMetaInfo &/*metaInfo*/, QDeclarativeContext *context, QObject  *objectToBeWrapped)
+ComponentNodeInstance::Pointer ComponentNodeInstance::create(QObject  *object)
 {
-    QDeclarativeComponent *component = 0;
-    if (objectToBeWrapped)
-        component = qobject_cast<QDeclarativeComponent *>(objectToBeWrapped);
-    else
-        component = new QDeclarativeComponent(context->engine());
+    QDeclarativeComponent *component = component = qobject_cast<QDeclarativeComponent *>(object);
 
     if (component == 0)
         throw InvalidNodeInstanceException(__LINE__, __FUNCTION__, __FILE__);
 
-
     Pointer instance(new ComponentNodeInstance(component));
-
-    if (objectToBeWrapped)
-        instance->setDeleteHeldInstance(false); // the object isn't owned
 
     instance->populateResetValueHash();
 
@@ -77,24 +69,25 @@ bool ComponentNodeInstance::hasContent() const
 
 void ComponentNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
 {
-    if (name == "__component_data") {
-        QByteArray data(value.toByteArray());
-        QByteArray imports;
-        foreach(const Import &import, modelNode().model()->imports()) {
-            imports.append(import.toString(true).toLatin1());
-        }
+//    if (name == "__component_data") {
+//        QByteArray data(value.toByteArray());
+//        QByteArray imports;
+//        foreach(const Import &import, nodeInstanceServer()->imports()) {
+//            imports.append(import.toString(true).toLatin1());
+//        }
 
-        data.prepend(imports);
+//        data.prepend(imports);
 
-        component()->setData(data, nodeInstanceView()->model()->fileUrl());
+//        component()->setData(data, nodeInstanceView()->model()->fileUrl());
 
-    }
-    if (component()->isError()) {
-        qDebug() << value;
-        foreach(const QDeclarativeError &error, component()->errors())
-            qDebug() << error;
-    }
+//    }
+//    if (component()->isError()) {
+//        qDebug() << value;
+//        foreach(const QDeclarativeError &error, component()->errors())
+//            qDebug() << error;
+//    }
 
 }
+
 } // Internal
 } // QmlDesigner

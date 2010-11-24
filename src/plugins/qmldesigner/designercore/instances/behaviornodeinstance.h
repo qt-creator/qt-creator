@@ -14,7 +14,7 @@ public:
 
     BehaviorNodeInstance(QObject *object);
 
-    static Pointer create(const NodeMetaInfo &metaInfo, QDeclarativeContext *context, QObject *objectToBeWrapped);
+    static Pointer create(QObject *objectToBeWrapped);
 
     void setPropertyVariant(const QString &name, const QVariant &value);
     void setPropertyBinding(const QString &name, const QString &expression);

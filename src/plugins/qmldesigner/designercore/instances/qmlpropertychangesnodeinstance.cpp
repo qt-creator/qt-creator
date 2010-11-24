@@ -36,6 +36,8 @@
 #include <metainfo.h>
 #include <QMutableListIterator>
 
+#include "invalidnodeinstanceexception.h"
+
 #include <private/qdeclarativestate_p_p.h>
 #include <private/qdeclarativepropertychanges_p.h>
 #include <private/qdeclarativeproperty_p.h>
@@ -176,16 +178,17 @@ QmlPropertyChangesNodeInstance::QmlPropertyChangesNodeInstance(QDeclarativePrope
 {
 }
 
-QmlPropertyChangesNodeInstance::Pointer
-        QmlPropertyChangesNodeInstance::create(const NodeMetaInfo & /*metaInfo*/,
-                                               QDeclarativeContext *context,
-                                               QObject *objectToBeWrapped)
+QmlPropertyChangesNodeInstance::Pointer QmlPropertyChangesNodeInstance::create(QObject *object)
 {
-    Q_ASSERT(!objectToBeWrapped);
+    QDeclarativePropertyChanges *propertyChange = qobject_cast<QDeclarativePropertyChanges*>(object);
 
-    QDeclarativePropertyChanges *object = new QDeclarativePropertyChanges;
-    QDeclarativeEngine::setContextForObject(object, context);
-    Pointer instance(new QmlPropertyChangesNodeInstance(object));
+    if (propertyChange == 0)
+        throw InvalidNodeInstanceException(__LINE__, __FUNCTION__, __FILE__);
+
+    Pointer instance(new QmlPropertyChangesNodeInstance(propertyChange));
+
+    instance->populateResetValueHash();
+
     return instance;
 }
 
@@ -198,8 +201,8 @@ void QmlPropertyChangesNodeInstance::setPropertyVariant(const QString &name, con
     } else {
         changesObject()->changeValue(name.toLatin1(), value);
         QObject *targetObject = changesObject()->object();
-        if (targetObject && nodeInstanceView()->activeStateInstance().isWrappingThisObject(changesObject()->state())) {
-            NodeInstance targetInstance = nodeInstanceView()->instanceForObject(targetObject);
+        if (targetObject && nodeInstanceServer()->activeStateInstance().isWrappingThisObject(changesObject()->state())) {
+            ServerNodeInstance targetInstance = nodeInstanceServer()->instanceForObject(targetObject);
             targetInstance.setPropertyVariant(name, value);
         }
     }
@@ -227,11 +230,11 @@ void QmlPropertyChangesNodeInstance::resetProperty(const QString &name)
 }
 
 
-void QmlPropertyChangesNodeInstance::reparent(const NodeInstance &oldParentInstance, const QString &oldParentProperty, const NodeInstance &newParentInstance, const QString &newParentProperty)
+void QmlPropertyChangesNodeInstance::reparent(const ServerNodeInstance &oldParentInstance, const QString &oldParentProperty, const ServerNodeInstance &newParentInstance, const QString &newParentProperty)
 {
     changesObject()->detachFromState();
 
-    ObjectNodeInstance::reparent(oldParentInstance, oldParentProperty, newParentInstance, newParentProperty);
+    ObjectNodeInstance::reparent(oldParentInstance.internalInstance(), oldParentProperty, newParentInstance.internalInstance(), newParentProperty);
 
     changesObject()->attachToState();
 }

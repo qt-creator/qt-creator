@@ -30,7 +30,6 @@
 #include "nodemetainfo.h"
 #include "model.h"
 #include "widgetqueryview.h"
-#include "nodeinstance.h"
 #include "invalidargumentexception.h"
 
 #include "metainfo.h"

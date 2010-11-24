@@ -35,6 +35,8 @@
 #include "qmlstate.h"
 #include "qmlchangeset.h"
 
+#include <nodeinstance.h>
+
 namespace QmlDesigner {
 
 class QmlItemNode;

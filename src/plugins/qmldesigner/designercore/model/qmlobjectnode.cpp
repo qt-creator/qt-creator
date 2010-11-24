@@ -420,7 +420,7 @@ bool QmlObjectNode::hasNodeParent() const
 
 bool QmlObjectNode::hasInstanceParent() const
 {
-    return nodeInstance().hasParent();
+    return nodeInstance().parentId() >= 0 && qmlModelView()->nodeInstanceView()->hasInstanceForId(nodeInstance().parentId());
 }
 
 
@@ -431,7 +431,10 @@ void QmlObjectNode::setParentProperty(const NodeAbstractProperty &parentProeprty
 
 QmlObjectNode QmlObjectNode::instanceParent() const
 {
-    return nodeForInstance(nodeInstance().parent());
+    if (hasInstanceParent())
+        return nodeForInstance(qmlModelView()->nodeInstanceView()->instanceForId(nodeInstance().parentId()));
+
+    return QmlObjectNode();
 }
 
 void QmlObjectNode::setId(const QString &id)

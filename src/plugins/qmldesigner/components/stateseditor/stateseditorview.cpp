@@ -81,11 +81,7 @@ void StatesEditorView::setCurrentStateSilent(int index)
         return;
     }
 
-    nodeInstanceView()->setBlockStatePropertyChanges(true);
-
     QmlModelView::activateState(state);
-
-    nodeInstanceView()->setBlockStatePropertyChanges(false);
 
     m_settingSilentState = false;
 }
@@ -478,45 +474,47 @@ void StatesEditorView::selectedNodesChanged(const QList<ModelNode> &/*selectedNo
 
 QPixmap StatesEditorView::renderState(int i)
 {
-    if (debug)
-        qDebug() << __FUNCTION__ << i;
+    return QPixmap();
 
-    if (!m_attachedToModel)
-        return QPixmap();
+//    if (debug)
+//        qDebug() << __FUNCTION__ << i;
 
-    Q_ASSERT(i >= 0 && i < m_modelStates.size());
-    QmlModelState oldState = currentState();
-    setCurrentStateSilent(i);
+//    if (!m_attachedToModel)
+//        return QPixmap();
 
-    Q_ASSERT(nodeInstanceView());
+//    Q_ASSERT(i >= 0 && i < m_modelStates.size());
+//    QmlModelState oldState = currentState();
+//    setCurrentStateSilent(i);
 
-    const int checkerbordSize= 10;
-    QPixmap tilePixmap(checkerbordSize * 2, checkerbordSize * 2);
-    tilePixmap.fill(Qt::white);
-    QPainter tilePainter(&tilePixmap);
-    QColor color(220, 220, 220);
-    tilePainter.fillRect(0, 0, checkerbordSize, checkerbordSize, color);
-    tilePainter.fillRect(checkerbordSize, checkerbordSize, checkerbordSize, checkerbordSize, color);
-    tilePainter.end();
+//    Q_ASSERT(nodeInstanceView());
+
+//    const int checkerbordSize= 10;
+//    QPixmap tilePixmap(checkerbordSize * 2, checkerbordSize * 2);
+//    tilePixmap.fill(Qt::white);
+//    QPainter tilePainter(&tilePixmap);
+//    QColor color(220, 220, 220);
+//    tilePainter.fillRect(0, 0, checkerbordSize, checkerbordSize, color);
+//    tilePainter.fillRect(checkerbordSize, checkerbordSize, checkerbordSize, checkerbordSize, color);
+//    tilePainter.end();
 
 
-    QSizeF pixmapSize(nodeInstanceView()->sceneRect().size());
-    if (pixmapSize.width() > 100 || pixmapSize.height() > 100) // sensible maximum size
-        pixmapSize.scale(QSize(100, 100), Qt::KeepAspectRatio);
-    QSize cutSize(floor(pixmapSize.width()),floor(pixmapSize.height()));
-    pixmapSize.setWidth(ceil(pixmapSize.width()));
-    pixmapSize.setHeight(ceil(pixmapSize.height()));
-    QPixmap pixmap(pixmapSize.toSize());
+//    QSizeF pixmapSize(nodeInstanceView()->sceneRect().size());
+//    if (pixmapSize.width() > 100 || pixmapSize.height() > 100) // sensible maximum size
+//        pixmapSize.scale(QSize(100, 100), Qt::KeepAspectRatio);
+//    QSize cutSize(floor(pixmapSize.width()),floor(pixmapSize.height()));
+//    pixmapSize.setWidth(ceil(pixmapSize.width()));
+//    pixmapSize.setHeight(ceil(pixmapSize.height()));
+//    QPixmap pixmap(pixmapSize.toSize());
 
-    QPainter painter(&pixmap);
-    painter.drawTiledPixmap(pixmap.rect(), tilePixmap);
-    nodeInstanceView()->render(&painter, pixmap.rect(), nodeInstanceView()->sceneRect());
+//    QPainter painter(&pixmap);
+//    painter.drawTiledPixmap(pixmap.rect(), tilePixmap);
+//    nodeInstanceView()->render(&painter, pixmap.rect(), nodeInstanceView()->sceneRect());
 
-    setCurrentStateSilent(m_modelStates.indexOf(oldState));
+//    setCurrentStateSilent(m_modelStates.indexOf(oldState));
 
-    Q_ASSERT(oldState == currentState());
+//    Q_ASSERT(oldState == currentState());
 
-    return pixmap.copy(0,0,cutSize.width(),cutSize.height());
+//    return pixmap.copy(0,0,cutSize.width(),cutSize.height());
 }
 
 void StatesEditorView::sceneChanged()

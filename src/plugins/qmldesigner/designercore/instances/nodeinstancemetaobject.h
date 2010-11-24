@@ -20,7 +20,6 @@ public:
 
 protected:
     int metaCall(QMetaObject::Call _c, int _id, void **_a);
-    void dynamicPropertyWritten(int);
     void notifyPropertyChange(int id);
 
 private:

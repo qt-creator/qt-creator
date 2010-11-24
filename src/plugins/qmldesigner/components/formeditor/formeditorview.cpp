@@ -40,7 +40,6 @@
 #include "formeditorscene.h"
 #include <rewritertransaction.h>
 #include <modelnode.h>
-#include <modelutilities.h>
 #include <itemlibraryinfo.h>
 #include <metainfo.h>
 #include <model.h>
@@ -451,6 +450,33 @@ void FormEditorView::customNotification(const AbstractView *view, const QString 
             m_formEditorWidget->setFeedbackNode(QmlItemNode());
     }
 
+    if (identifier == "__instance information changed__") {
+        QList<FormEditorItem*> itemNodeList;
+
+        foreach (const ModelNode &node, nodeList) {
+            QmlItemNode qmlItemNode(node);
+            if (qmlItemNode.isValid() && scene()->hasItemForQmlItemNode(qmlItemNode)) {
+                scene()->synchronizeParent(qmlItemNode);
+                scene()->synchronizeTransformation(qmlItemNode);
+               itemNodeList.append(scene()->itemForQmlItemNode(qmlItemNode));
+            }
+        }
+
+        m_currentTool->formEditorItemsChanged(itemNodeList);
+
+    }
+
+    if (identifier == "__instance render pixmap changed__") {
+        QList<FormEditorItem*> itemNodeList;
+
+        foreach (const ModelNode &node, nodeList) {
+            QmlItemNode qmlItemNode(node);
+            if (qmlItemNode.isValid() && scene()->hasItemForQmlItemNode(qmlItemNode)) {
+               scene()->itemForQmlItemNode(qmlItemNode)->update();
+            }
+        }
+    }
+
     QmlModelView::customNotification(view, identifier, nodeList, data);
 }
 
@@ -509,26 +535,6 @@ QmlItemNode findRecursiveQmlItemNode(const QmlObjectNode &firstQmlObjectNode)
     return QmlItemNode();
 }
 
-void FormEditorView::transformChanged(const QmlObjectNode &qmlObjectNode, const QString &/*propertyName*/)
-{
-    QmlItemNode itemNode = qmlObjectNode.toQmlItemNode();
-    if (itemNode.isValid() && scene()->hasItemForQmlItemNode(itemNode)) {
-        m_scene->synchronizeTransformation(itemNode);
-        m_currentTool->formEditorItemsChanged(QList<FormEditorItem*>() << m_scene->itemForQmlItemNode(itemNode));
-    }
-
-    scene()->update();
-}
-
-void FormEditorView::parentChanged(const QmlObjectNode &qmlObjectNode)
-{
-    QmlItemNode itemNode = qmlObjectNode.toQmlItemNode();
-    if (itemNode.isValid() && scene()->hasItemForQmlItemNode(itemNode)) {
-        scene()->synchronizeParent(itemNode);
-        m_currentTool->formEditorItemsChanged(QList<FormEditorItem*>() << m_scene->itemForQmlItemNode(itemNode));
-    }
-}
-
 void FormEditorView::otherPropertyChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName)
 {
     Q_ASSERT(qmlObjectNode.isValid());
@@ -555,7 +561,6 @@ void FormEditorView::setSelectOnlyContentItemsAction(bool selectOnlyContentItems
 void FormEditorView::stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState)
 {
     QmlModelView::stateChanged(newQmlModelState, oldQmlModelState);
-
 
     m_formEditorWidget->anchorToolAction()->setEnabled(newQmlModelState.isBaseState());
 

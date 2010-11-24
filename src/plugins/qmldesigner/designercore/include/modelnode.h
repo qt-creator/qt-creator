@@ -61,7 +61,6 @@ class AbstractView;
 class NodeListProperty;
 class NodeProperty;
 class NodeAbstractProperty;
-class NodeInstance;
 class ModelNode;
 
 CORESHARED_EXPORT QList<Internal::InternalNodePointer> toInternalNodeList(const QList<ModelNode> &nodeList);

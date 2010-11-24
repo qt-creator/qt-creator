@@ -47,7 +47,7 @@ public:
     typedef QSharedPointer<QmlStateNodeInstance> Pointer;
     typedef QWeakPointer<QmlStateNodeInstance> WeakPointer;
 
-    static Pointer create(const NodeMetaInfo &metaInfo, QDeclarativeContext *context, QObject *objectToBeWrapped);
+    static Pointer create(QObject *objectToBeWrapped);
 
     void setPropertyVariant(const QString &name, const QVariant &value);
     void setPropertyBinding(const QString &name, const QString &expression);
@@ -55,9 +55,9 @@ public:
     void activateState();
     void deactivateState();
 
-    bool updateStateVariant(const NodeInstance &target, const QString &propertyName, const QVariant &value);
-    bool updateStateBinding(const NodeInstance &target, const QString &propertyName, const QString &expression);
-    bool resetStateProperty(const NodeInstance &target, const QString &propertyName, const QVariant &resetValue);
+    bool updateStateVariant(const ObjectNodeInstance::Pointer &target, const QString &propertyName, const QVariant &value);
+    bool updateStateBinding(const ObjectNodeInstance::Pointer &target, const QString &propertyName, const QString &expression);
+    bool resetStateProperty(const ObjectNodeInstance::Pointer &target, const QString &propertyName, const QVariant &resetValue);
 
 
 protected:

@@ -16,7 +16,7 @@ public:
     typedef QSharedPointer<PositionerNodeInstance> Pointer;
     typedef QWeakPointer<PositionerNodeInstance> WeakPointer;
 
-    static Pointer create(const NodeMetaInfo &metaInfo, QDeclarativeContext *context, QObject *objectToBeWrapped);
+    static Pointer create(QObject *objectToBeWrapped);
 
     void setPropertyVariant(const QString &name, const QVariant &value);
     void setPropertyBinding(const QString &name, const QString &expression);
@@ -27,7 +27,7 @@ public:
 
 
 protected:
-    PositionerNodeInstance(QDeclarativeBasePositioner *item, bool hasContent);
+    PositionerNodeInstance(QDeclarativeBasePositioner *item);
 };
 
 } // namespace Internal

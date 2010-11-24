@@ -45,7 +45,7 @@ public:
     typedef QSharedPointer<ComponentNodeInstance> Pointer;
     typedef QWeakPointer<ComponentNodeInstance> WeakPointer;
     ComponentNodeInstance(QDeclarativeComponent *component);
-    static Pointer create(const NodeMetaInfo &metaInfo, QDeclarativeContext *context, QObject *objectToBeWrapped);
+    static Pointer create(QObject *objectToBeWrapped);
 
     void setPropertyVariant(const QString &name, const QVariant &value);
 

@@ -78,6 +78,8 @@ bin/*.dll
 bin/qtcreator
 bin/qtcreator_process_stub*
 bin/qtcreator.exe
+bin/qmlpuppet
+bin/qmlpuppet.exe
 share/doc/qtcreator/qtcreator.qch
 src/tools/gen-cpp-ast/generate-ast
 src/tools/mkvisitor/cplusplus0

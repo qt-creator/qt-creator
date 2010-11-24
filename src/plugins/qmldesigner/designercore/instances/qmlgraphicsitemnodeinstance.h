@@ -46,7 +46,7 @@ public:
 
     ~QmlGraphicsItemNodeInstance();
 
-    static Pointer create(const NodeMetaInfo &metaInfo, QDeclarativeContext *context, QObject *objectToBeWrapped);
+    static Pointer create(QObject *objectToBeWrapped);
 
     bool isQmlGraphicsItem() const;
 
@@ -60,12 +60,12 @@ public:
     QVariant property(const QString &name) const;
     void resetProperty(const QString &name);
 
-    void reparent(const NodeInstance &oldParentInstance, const QString &oldParentProperty, const NodeInstance &newParentInstance, const QString &newParentProperty);
+    void reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const QString &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const QString &newParentProperty);
 
     int penWidth() const;
 
     bool hasAnchor(const QString &name) const;
-    QPair<QString, NodeInstance> anchor(const QString &name) const;
+    QPair<QString, ServerNodeInstance> anchor(const QString &name) const;
     bool isAnchoredBySibling() const;
     bool isAnchoredByChildren() const;
     void doComponentComplete();
@@ -74,7 +74,7 @@ public:
     void setResizable(bool resizeable);
 
 protected:
-    QmlGraphicsItemNodeInstance(QDeclarativeItem *item, bool hasContent);
+    QmlGraphicsItemNodeInstance(QDeclarativeItem *item);
     QDeclarativeItem *qmlGraphicsItem() const;
     QDeclarativeAnchors *anchors() const;
     void resetHorizontal();

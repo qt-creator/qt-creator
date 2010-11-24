@@ -40,11 +40,9 @@
 namespace QmlDesigner {
 namespace Internal {
 
-GraphicsObjectNodeInstance::GraphicsObjectNodeInstance(QGraphicsObject *graphicsObject, bool hasContent)
+GraphicsObjectNodeInstance::GraphicsObjectNodeInstance(QGraphicsObject *graphicsObject)
    : ObjectNodeInstance(graphicsObject),
-   m_hasContent(hasContent),
-   m_isMovable(true),
-   m_renderPixmapIsDirty(true)
+   m_isMovable(true)
 {
 }
 
@@ -62,6 +60,11 @@ bool GraphicsObjectNodeInstance::hasContent() const
     return m_hasContent;
 }
 
+void GraphicsObjectNodeInstance::setHasContent(bool hasContent)
+{
+    m_hasContent = hasContent;
+}
+
 QPointF GraphicsObjectNodeInstance::position() const
 {
     return graphicsObject()->pos();
@@ -74,10 +77,10 @@ QSizeF GraphicsObjectNodeInstance::size() const
 
 QTransform GraphicsObjectNodeInstance::transform() const
 {
-    if (!nodeInstanceView()->hasInstanceForNode(modelNode()))
+    if (!nodeInstanceServer()->hasInstanceForObject(object()))
         return sceneTransform();
 
-    NodeInstance nodeInstanceParent = nodeInstanceView()->instanceForNode(modelNode()).parent();
+    ServerNodeInstance nodeInstanceParent = nodeInstanceServer()->instanceForObject(object()).parent();
 
     if (!nodeInstanceParent.isValid())
         return sceneTransform();
@@ -142,12 +145,6 @@ QRectF GraphicsObjectNodeInstance::boundingRect() const
     return graphicsObject()->boundingRect();
 }
 
-bool GraphicsObjectNodeInstance::isTopLevel() const
-{
-    Q_ASSERT(graphicsObject());
-    return !graphicsObject()->parentItem();
-}
-
 bool GraphicsObjectNodeInstance::isGraphicsObject() const
 {
     return true;
@@ -156,6 +153,11 @@ bool GraphicsObjectNodeInstance::isGraphicsObject() const
 void GraphicsObjectNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
 {
     ObjectNodeInstance::setPropertyVariant(name, value);
+}
+
+void GraphicsObjectNodeInstance::setPropertyBinding(const QString &name, const QString &expression)
+{
+    ObjectNodeInstance::setPropertyBinding(name, expression);
 }
 
 QVariant GraphicsObjectNodeInstance::property(const QString &name) const
@@ -174,21 +176,19 @@ void initOption(QGraphicsItem *item, QStyleOptionGraphicsItem *option, const QTr
     privateItem->initStyleOption(option, transform, QRegion());
 }
 
-void GraphicsObjectNodeInstance::renderPixmap()
+QImage GraphicsObjectNodeInstance::renderImage() const
 {
     QRectF boundingRect = graphicsObject()->boundingRect();
     QSize boundingSize = boundingRect.size().toSize();
 
-    if (m_renderPixmap.size() != boundingSize) {
-        m_renderPixmap = QPixmap(boundingSize);
-    }
+    QImage image(boundingSize, QImage::Format_ARGB32);
 
-    if (m_renderPixmap.isNull())
-        return;
+    if (image.isNull())
+        return image;
 
-    m_renderPixmap.fill(Qt::transparent);
+    image.fill(Qt::transparent);
 
-    QPainter painter(&m_renderPixmap);
+    QPainter painter(&image);
     painter.translate(-boundingRect.topLeft());
 
     if (hasContent()) {
@@ -200,13 +200,15 @@ void GraphicsObjectNodeInstance::renderPixmap()
 
     foreach(QGraphicsItem *graphicsItem, graphicsObject()->childItems())
         paintRecursively(graphicsItem, &painter);
+
+    return image;
 }
 
 void GraphicsObjectNodeInstance::paintRecursively(QGraphicsItem *graphicsItem, QPainter *painter) const
 {
     QGraphicsObject *graphicsObject = graphicsItem->toGraphicsObject();
     if (graphicsObject) {
-        if (nodeInstanceView()->hasInstanceForObject(graphicsObject))
+        if (nodeInstanceServer()->hasInstanceForObject(graphicsObject))
             return; //we already keep track of this object elsewhere
     }
 
@@ -224,31 +226,6 @@ void GraphicsObjectNodeInstance::paintRecursively(QGraphicsItem *graphicsItem, Q
     }
 }
 
-void GraphicsObjectNodeInstance::paint(QPainter *painter)
-{
-    if (graphicsObject()) {
-        if (m_renderPixmapIsDirty)
-            renderPixmap();
-        if (!m_renderPixmap.isNull())
-            painter->drawPixmap(graphicsObject()->boundingRect().topLeft(), m_renderPixmap);
-    }
-}
-
-QPair<QGraphicsObject*, bool> GraphicsObjectNodeInstance::createGraphicsObject(const NodeMetaInfo &metaInfo, QDeclarativeContext *context)
-{
-    QObject *object = ObjectNodeInstance::createObject(metaInfo, context);
-    QGraphicsObject *graphicsObject = qobject_cast<QGraphicsObject*>(object);
-
-    if (graphicsObject == 0)
-        throw InvalidNodeInstanceException(__LINE__, __FUNCTION__, __FILE__);
-
-//    graphicsObject->setCacheMode(QGraphicsItem::ItemCoordinateCache);
-    bool hasContent = !graphicsObject->flags().testFlag(QGraphicsItem::ItemHasNoContents) || metaInfo.isComponent();
-    graphicsObject->setFlag(QGraphicsItem::ItemHasNoContents, false);
-
-    return qMakePair(graphicsObject, hasContent);
-}
-
 void GraphicsObjectNodeInstance::paintUpdate()
 {
     graphicsObject()->update();
@@ -262,12 +239,6 @@ bool GraphicsObjectNodeInstance::isMovable() const
 void GraphicsObjectNodeInstance::setMovable(bool movable)
 {
     m_isMovable = movable;
-}
-
-void GraphicsObjectNodeInstance::renderPixmapNextPaint()
-{
-    if (graphicsObject() && QGraphicsItemPrivate::get(graphicsObject())->dirty /*|| QGraphicsItemPrivate::get(graphicsObject())->dirtyChildren*/)
-        m_renderPixmapIsDirty = true;
 }
 
 } // namespace Internal

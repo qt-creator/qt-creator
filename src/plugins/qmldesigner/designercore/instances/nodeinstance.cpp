@@ -1,697 +1,311 @@
-/**************************************************************************
-**
-** This file is part of Qt Creator
-**
-** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
-**
-** Contact: Nokia Corporation (qt-info@nokia.com)
-**
-** Commercial Usage
-**
-** Licensees holding valid Qt Commercial licenses may use this file in
-** accordance with the Qt Commercial License Agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Nokia.
-**
-** GNU Lesser General Public License Usage
-**
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** If you are unsure which license is appropriate for your use, please
-** contact the sales department at http://qt.nokia.com/contact.
-**
-**************************************************************************/
-
 #include "nodeinstance.h"
 
-#include "objectnodeinstance.h"
-#include "metainfo.h"
-#include "graphicswidgetnodeinstance.h"
-#include "widgetnodeinstance.h"
-#include "qmlgraphicsitemnodeinstance.h"
-#include "graphicsscenenodeinstance.h"
-#include "graphicsviewnodeinstance.h"
-#include "nodeinstanceview.h"
-#include "qmlviewnodeinstance.h"
-#include "dummynodeinstance.h"
-#include "componentnodeinstance.h"
-#include "qmltransitionnodeinstance.h"
-#include "qmlpropertychangesnodeinstance.h"
-#include "positionernodeinstance.h"
-#include "behaviornodeinstance.h"
-#include "qmlstatenodeinstance.h"
-#include "nodeabstractproperty.h"
-#include "variantproperty.h"
+#include <QPainter>
+#include <modelnode.h>
+#include "commondefines.h"
 
-#include <invalidnodeinstanceexception.h>
-
-#include <QHash>
-#include <QSet>
-
-#include <QtDeclarative/QDeclarativeEngine>
-
-/*!
-  \class QmlDesigner::NodeInstance
-  \ingroup CoreInstance
-  \brief NodeInstance is a common handle for the actual object representation of a ModelNode.
-
-   NodeInstance abstracts away the differences e.g. in terms of position and size
-   for QWidget, QGraphicsView, QLayout etc objects. Multiple NodeInstance objects can share
-   the pointer to the same instance object. The actual instance will be deleted when
-   the last NodeInstance object referencing to it is deleted. This can be disabled by
-   setDeleteHeldInstance().
-
-   \see QmlDesigner::NodeInstanceView
-*/
+#include <QtDebug>
 
 namespace QmlDesigner {
 
-/*!
-\brief Constructor - creates a invalid NodeInstance
+class ProxyNodeInstanceData
+{
+public:
+    ProxyNodeInstanceData()
+        : instanceId(-1),
+          parentInstanceId(-1),
+          penWidth(1),
+          isAnchoredBySibling(false),
+          isAnchoredByChildren(false),
+          hasContent(false),
+          isMovable(false),
+          isResizable(false),
+          isInPositioner(false)
+    {}
+
+    qint32 instanceId;
+    qint32 parentInstanceId;
+    ModelNode modelNode;
+    QRectF boundingRect;
+    QPointF position;
+    QSizeF size;
+    QTransform transform;
+    QTransform sceneTransform;
+    int penWidth;
+    bool isAnchoredBySibling;
+    bool isAnchoredByChildren;
+    bool hasContent;
+    bool isMovable;
+    bool isResizable;
+    bool isInPositioner;
 
 
-\see NodeInstanceView
-*/
+    QHash<QString, QVariant> propertyValues;
+    QHash<QString, bool> hasBindingForProperty;
+    QHash<QString, bool> hasAnchors;
+    QHash<QString, QString> instanceTypes;
+
+    QImage renderImage;
+    QHash<QString, QPair<QString, qint32> > anchors;
+};
+
 NodeInstance::NodeInstance()
 {
 }
 
-/*!
-\brief Destructor
+NodeInstance::NodeInstance(ProxyNodeInstanceData *dPointer)
+    : d(dPointer)
+{
+}
 
-*/
+NodeInstance NodeInstance::create(const ModelNode &node, qint32 instanceId)
+{
+    ProxyNodeInstanceData *d = new ProxyNodeInstanceData;
+
+    d->modelNode = node;
+    d->instanceId = instanceId;
+
+    return NodeInstance(d);
+}
+
 NodeInstance::~NodeInstance()
 {
 }
 
-/*!
-\brief Constructor - creates a valid NodeInstance
-
-*/
-NodeInstance::NodeInstance(const Internal::ObjectNodeInstance::Pointer &abstractInstance)
-  : m_nodeInstance(abstractInstance)
-{
-
-}
-
-
 NodeInstance::NodeInstance(const NodeInstance &other)
-  : m_nodeInstance(other.m_nodeInstance)
+  : d(other.d)
 {
 }
 
 NodeInstance &NodeInstance::operator=(const NodeInstance &other)
 {
-    m_nodeInstance = other.m_nodeInstance;
+    d = other.d;
     return *this;
 }
 
-/*!
-\brief Paints the NodeInstance with this painter.
-\param painter used QPainter
-*/
-void NodeInstance::paint(QPainter *painter)
-{
-    m_nodeInstance->paint(painter);
-}
-
-/*!
-\brief Creates a new NodeInstace for this NodeMetaInfo
-
-\param metaInfo MetaInfo for which a Instance should be created
-\param context QDeclarativeContext which should be used
-\returns Internal Pointer of a NodeInstance
-\see NodeMetaInfo
-*/
-Internal::ObjectNodeInstance::Pointer NodeInstance::createInstance(const NodeMetaInfo &metaInfo,
-                                                                     QDeclarativeContext *context, QObject *objectToBeWrapped)
-{
-    Internal::ObjectNodeInstance::Pointer instance;
-
-    qDebug() << __FUNCTION__ << metaInfo.typeName() << metaInfo.directSuperClass().typeName();
-
-    if (!metaInfo.isValid())
-        instance = Internal::DummyNodeInstance::create();
-    else if (metaInfo.isSubclassOf("Qt/QWidget", 4, 7))
-        instance = Internal::DummyNodeInstance::create();
-    else if (metaInfo.isSubclassOf("Qt/QGraphicsView", 4, 7))
-        instance = Internal::GraphicsViewNodeInstance::create(metaInfo, context, objectToBeWrapped);
-    else if (metaInfo.isSubclassOf("Qt/QDeclarativeView", 4, 7))
-        instance = Internal::QDeclarativeViewNodeInstance::create(metaInfo, context, objectToBeWrapped);
-    else if (metaInfo.isSubclassOf("Qt/QGraphicsWidget", 4, 7))
-        instance = Internal::GraphicsWidgetNodeInstance::create(metaInfo, context, objectToBeWrapped);
-    else if (metaInfo.isSubclassOf("QDeclarativeBasePositioner", 4, 7))
-        instance = Internal::PositionerNodeInstance::create(metaInfo, context, objectToBeWrapped);
-    else if (metaInfo.isSubclassOf("Qt/Item", 4, 7))
-        instance = Internal::QmlGraphicsItemNodeInstance::create(metaInfo, context, objectToBeWrapped);
-    else if (metaInfo.isSubclassOf("Qt/QGraphicsScene", 4, 7))
-        instance = Internal::GraphicsSceneNodeInstance::create(metaInfo, context, objectToBeWrapped);
-    else if (metaInfo.isSubclassOf("Qt/Component", 4, 7))
-        instance = Internal::ComponentNodeInstance::create(metaInfo, context, objectToBeWrapped);
-    else if (metaInfo.isSubclassOf("Qt/PropertyChanges", 4, 7))
-        instance = Internal::QmlPropertyChangesNodeInstance::create(metaInfo, context, objectToBeWrapped);
-    else if (metaInfo.isSubclassOf("Qt/State", 4, 7))
-        instance = Internal::QmlStateNodeInstance::create(metaInfo, context, objectToBeWrapped);
-    else if (metaInfo.isSubclassOf("Qt/Transition", 4, 7))
-        instance = Internal::QmlTransitionNodeInstance::create(metaInfo, context, objectToBeWrapped);
-    else if (metaInfo.isSubclassOf("Qt/Behavior", 4, 7))
-        instance = Internal::BehaviorNodeInstance::create(metaInfo, context, objectToBeWrapped);
-    else if (metaInfo.isSubclassOf("Qt/QtObject", 4, 7))
-        instance = Internal::ObjectNodeInstance::create(metaInfo, context, objectToBeWrapped);
-    else
-        instance = Internal::DummyNodeInstance::create();
-
-
-    return instance;
-}
-
-
-
-NodeInstance NodeInstance::create(NodeInstanceView *nodeInstanceView, const ModelNode &node, QObject *objectToBeWrapped)
-{
-    Q_ASSERT(node.isValid());
-    Q_ASSERT(nodeInstanceView);
-
-    // For the moment just use the root context of the engine
-    // for all items. However, this is a hack ... ideally we should
-    // rebuild the same context hierarchy as the qml compiler does
-
-    QDeclarativeContext *context = nodeInstanceView->engine()->rootContext();
-
-    NodeInstance instance(createInstance(node.metaInfo(), context, objectToBeWrapped));
-
-    instance.m_nodeInstance->setModelNode(node);
-
-    instance.m_nodeInstance->setNodeInstanceView(nodeInstanceView);
-
-    instance.m_nodeInstance->initializePropertyWatcher(instance.m_nodeInstance);
-
-    instance.setId(node.id());
-
-    //QObject::connect(instance.internalObject(), SIGNAL(destroyed(QObject*)), nodeInstanceView, SLOT(removeIdFromContext(QObject*)));
-
-    foreach (const VariantProperty &property, node.variantProperties()) {
-        if (property.isDynamic())
-            instance.setPropertyDynamicVariant(property.name(), property.dynamicTypeName(), property.value());
-        else
-            instance.setPropertyVariant(property.name(), property.value());
-    }
-
-    return instance;
-}
-
-NodeInstance NodeInstance::create(NodeInstanceView *nodeInstanceView, const NodeMetaInfo &metaInfo, QDeclarativeContext *context)
-{
-    NodeInstance instance(createInstance(metaInfo, context, 0));
-    instance.m_nodeInstance->setNodeInstanceView(nodeInstanceView);
-
-    return instance;
-}
-
-/*!
-\brief Returns the ModelNode of this NodeInstance.
-\returns ModelNode of this NodeState
-*/
 ModelNode NodeInstance::modelNode() const
 {
-    if (m_nodeInstance.isNull())
+    if (isValid()) {
+        return  d->modelNode;
+    } else {
         return ModelNode();
-
-    return m_nodeInstance->modelNode();
+    }
 }
 
-
-/*!
-\brief Changes the NodeState of the ModelNode of this NodeInstance.
-    All properties are updated.
-\param state NodeState of this NodeInstance
-*/
-void NodeInstance::setModelNode(const ModelNode &node)
+qint32 NodeInstance::instanceId() const
 {
-    Q_ASSERT(node.isValid());
-    if (m_nodeInstance->modelNode() == node)
-        return;
-
-    m_nodeInstance->setModelNode(node);
+    if (d) {
+        return d->instanceId;
+    } else {
+        return -1;
+    }
 }
 
-/*!
-\brief Returns if the NodeInstance is a top level item.
-\returns true if this NodeInstance is a top level item
-*/
-bool NodeInstance::isTopLevel() const
-{
-    return m_nodeInstance->isTopLevel();
-}
-
-void NodeInstance::reparent(const NodeInstance &oldParentInstance, const QString &oldParentProperty, const NodeInstance &newParentInstance, const QString &newParentProperty)
-{
-    m_nodeInstance->reparent(oldParentInstance, oldParentProperty, newParentInstance, newParentProperty);
-}
-
-/*!
-\brief Returns the parent NodeInstance of this NodeInstance.
-
-    If there is not parent than the parent is invalid.
-
-\returns Parent NodeInstance.
-*/
-NodeInstance NodeInstance::parent() const
-{
-    return m_nodeInstance->nodeInstanceParentForObject(m_nodeInstance->parent());
-}
-
-bool NodeInstance::hasParent() const
-{
-    return m_nodeInstance->parent();
-}
-
-/*!
-\brief Returns if the NodeInstance is a QDeclarativeItem.
-\returns true if this NodeInstance is a QDeclarativeItem
-*/
-bool NodeInstance::isQmlGraphicsItem() const
-{
-    return m_nodeInstance->isQmlGraphicsItem();
-}
-
-/*!
-\brief Returns if the NodeInstance is a QGraphicsScene.
-\returns true if this NodeInstance is a QGraphicsScene
-*/
-bool NodeInstance::isGraphicsScene() const
-{
-    return m_nodeInstance->isGraphicsScene();
-}
-
-/*!
-\brief Returns if the NodeInstance is a QGraphicsView.
-\returns true if this NodeInstance is a QGraphicsView
-*/
-bool NodeInstance::isGraphicsView() const
-{
-    return m_nodeInstance->isGraphicsView();
-}
-
-/*!
-\brief Returns if the NodeInstance is a QGraphicsWidget.
-\returns true if this NodeInstance is a QGraphicsWidget
-*/
-bool NodeInstance::isGraphicsWidget() const
-{
-    return m_nodeInstance->isGraphicsWidget();
-}
-
-/*!
-\brief Returns if the NodeInstance is a QGraphicsProxyWidget.
-\returns true if this NodeInstance is a QGraphicsProxyWidget
-*/
-bool NodeInstance::isProxyWidget() const
-{
-    return m_nodeInstance->isProxyWidget();
-}
-
-/*!
-\brief Returns if the NodeInstance is a QWidget.
-\returns true if this NodeInstance is a QWidget
-*/
-bool NodeInstance::isWidget() const
-{
-    return m_nodeInstance->isWidget();
-}
-
-/*!
-\brief Returns if the NodeInstance is a QDeclarativeView.
-\returns true if this NodeInstance is a QDeclarativeView
-*/
-bool NodeInstance::isQDeclarativeView() const
-{
-    return m_nodeInstance->isQDeclarativeView();
-}
-
-bool NodeInstance::isGraphicsObject() const
-{
-    return m_nodeInstance->isGraphicsObject();
-}
-
-bool NodeInstance::isTransition() const
-{
-    return m_nodeInstance->isTransition();
-}
-
-bool NodeInstance::isPositioner() const
-{
-    return m_nodeInstance->isPositioner();
-}
-
-/*!
-\brief Returns if the NodeInstance is a QGraphicsItem.
-\returns true if this NodeInstance is a QGraphicsItem
-*/
-bool NodeInstance::equalGraphicsItem(QGraphicsItem *item) const
-{
-    return m_nodeInstance->equalGraphicsItem(item);
-}
-
-/*!
-\brief Returns the bounding rect of the NodeInstance.
-\returns QRectF of the NodeInstance
-*/
-QRectF NodeInstance::boundingRect() const
-{
-    QRectF boundingRect(m_nodeInstance->boundingRect());
-
-//
-//    if (modelNode().isValid()) { // TODO implement recursiv stuff
-//        if (qFuzzyIsNull(boundingRect.width()))
-//            boundingRect.setWidth(nodeState().property("width").value().toDouble());
-//
-//        if (qFuzzyIsNull(boundingRect.height()))
-//            boundingRect.setHeight(nodeState().property("height").value().toDouble());
-//    }
-
-    return boundingRect;
-}
-
-void NodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
-{
-    m_nodeInstance->setPropertyVariant(name, value);
-
-}
-
-void NodeInstance::setPropertyDynamicVariant(const QString &name, const QString &typeName, const QVariant &value)
-{
-    m_nodeInstance->createDynamicProperty(name, typeName);
-    m_nodeInstance->setPropertyVariant(name, value);
-}
-
-void NodeInstance::setPropertyBinding(const QString &name, const QString &expression)
-{
-    m_nodeInstance->setPropertyBinding(name, expression);
-}
-
-void NodeInstance::setPropertyDynamicBinding(const QString &name, const QString &typeName, const QString &expression)
-{
-    m_nodeInstance->createDynamicProperty(name, typeName);
-    m_nodeInstance->setPropertyBinding(name, expression);
-}
-
-void NodeInstance::resetProperty(const QString &name)
-{
-    m_nodeInstance->resetProperty(name);
-}
-
-void NodeInstance::refreshProperty(const QString &name)
-{
-    m_nodeInstance->refreshProperty(name);
-}
-
-void NodeInstance::setId(const QString &id)
-{
-    m_nodeInstance->setId(id);
-}
-
-/*!
-\brief Returns the property value of the property of this NodeInstance.
-\returns QVariant value
-*/
-QVariant NodeInstance::property(const QString &name) const
-{
-    return m_nodeInstance->property(name);
-}
-
-bool NodeInstance::hasBindingForProperty(const QString &name) const
-{
-    return m_nodeInstance->hasBindingForProperty(name);
-}
-
-/*!
-\brief Returns the property default value of the property of this NodeInstance.
-\returns QVariant default value which is the reset value to
-*/
-QVariant NodeInstance::defaultValue(const QString &name) const
-{
-    return m_nodeInstance->resetValue(name);
-}
-
-/*!
-\brief Returns the type of the property of this NodeInstance.
-*/
-QString NodeInstance::instanceType(const QString &name) const
-{
-    return m_nodeInstance->instanceType(name);
-}
-
-/*!
-\brief Returns if the NodeInstance is valid.
-\returns true if the NodeInstance is valid
-*/
 bool NodeInstance::isValid() const
 {
-    return m_nodeInstance && internalObject();
+    return instanceId() >= 0;
 }
 
 void NodeInstance::makeInvalid()
 {
-    if (m_nodeInstance)
-        m_nodeInstance->destroy();
-    m_nodeInstance.clear();
+    if (d)
+        d->instanceId = -1;
 }
 
-void NodeInstance::renderPixmapNextPaint()
+QRectF NodeInstance::boundingRect() const
 {
-    m_nodeInstance->renderPixmapNextPaint();
+    if (isValid()) {
+        return  d->boundingRect;
+    } else {
+        return QRectF();
+    }
 }
 
 bool NodeInstance::hasContent() const
 {
-    return m_nodeInstance->hasContent();
-}
-
-bool NodeInstance::isResizable() const
-{
-    return m_nodeInstance->isResizable();
-}
-
-bool NodeInstance::isMovable() const
-{
-    return m_nodeInstance->isMovable();
-}
-
-bool NodeInstance::isInPositioner() const
-{
-    return m_nodeInstance->isInPositioner();
-}
-
-bool NodeInstance::hasAnchor(const QString &name) const
-{
-    return m_nodeInstance->hasAnchor(name);
-}
-
-int NodeInstance::penWidth() const
-{
-    return m_nodeInstance->penWidth();
+    if (isValid()) {
+        return d->hasContent;
+    } else {
+        return false;
+    }
 }
 
 bool NodeInstance::isAnchoredBySibling() const
 {
-    return m_nodeInstance->isAnchoredBySibling();
+    if (isValid()) {
+        return d->isAnchoredBySibling;
+    } else {
+        return false;
+    }
 }
 
 bool NodeInstance::isAnchoredByChildren() const
 {
-    return m_nodeInstance->isAnchoredByChildren();
+    if (isValid()) {
+        return d->isAnchoredByChildren;
+    } else {
+        return false;
+    }
 }
 
-QPair<QString, NodeInstance> NodeInstance::anchor(const QString &name) const
+bool NodeInstance::isMovable() const
 {
-    return m_nodeInstance->anchor(name);
+    if (isValid()) {
+        return d->isMovable;
+    } else {
+        return false;
+    }
 }
 
-uint qHash(const NodeInstance &instance)
+bool NodeInstance::isResizable() const
 {
-    return ::qHash(instance.m_nodeInstance.data());
-}
-
-bool operator==(const NodeInstance &first, const NodeInstance &second)
-{
-    return first.m_nodeInstance.data() == second.m_nodeInstance.data();
-}
-
-bool NodeInstance::isWrappingThisObject(QObject *object) const
-{
-    return internalObject() && internalObject() == object;
-}
-
-/*!
-\brief Returns the position in parent coordiantes.
-\returns QPointF of the position of the instance.
-*/
-QPointF NodeInstance::position() const
-{
-    return m_nodeInstance->position();
-}
-
-/*!
-\brief Returns the size in local coordiantes.
-\returns QSizeF of the size of the instance.
-*/
-QSizeF NodeInstance::size() const
-{
-    QSizeF instanceSize = m_nodeInstance->size();
-
-//    if (nodeState().isValid()) {
-//        if (qFuzzyIsNull(instanceSize.width()))
-//            instanceSize.setWidth(nodeState().property("width").value().toDouble());
-//
-//        if (qFuzzyIsNull(instanceSize.height()))
-//            instanceSize.setHeight(nodeState().property("height").value().toDouble());
-//    }
-    return instanceSize;
+    if (isValid()) {
+        return d->isResizable;
+    } else {
+        return false;
+    }
 }
 
 QTransform NodeInstance::transform() const
 {
-    return m_nodeInstance->transform();
+    if (isValid()) {
+        return d->transform;
+    } else {
+        return QTransform();
+    }
 }
-
-/*!
-\brief Returns the transform matrix of the instance.
-\returns QTransform of the instance.
-*/
-QTransform NodeInstance::customTransform() const
-{
-    return m_nodeInstance->customTransform();
-}
-
 QTransform NodeInstance::sceneTransform() const
 {
-    return m_nodeInstance->sceneTransform();
+    if (isValid()) {
+        return d->sceneTransform;
+    } else {
+        return QTransform();
+    }
 }
-
-double NodeInstance::rotation() const
+bool NodeInstance::isInPositioner() const
 {
-    return m_nodeInstance->rotation();
+    if (isValid()) {
+        return d->isInPositioner;
+    } else {
+        return false;
+    }
 }
 
-double NodeInstance::scale() const
+QPointF NodeInstance::position() const
 {
-    return m_nodeInstance->scale();
+    if (isValid()) {
+        return d->position;
+    } else {
+        return QPointF();
+    }
 }
 
-QList<QGraphicsTransform *> NodeInstance::transformations() const
+QSizeF NodeInstance::size() const
 {
-    return m_nodeInstance->transformations();
+    if (isValid()) {
+        return d->size;
+    } else {
+        return QSizeF();
+    }
 }
 
-QPointF NodeInstance::transformOriginPoint() const
+int NodeInstance::penWidth() const
 {
-    return m_nodeInstance->transformOriginPoint();
+    if (isValid()) {
+        return d->penWidth;
+    } else {
+        return 1;
+    }
 }
 
-double NodeInstance::zValue() const
+void NodeInstance::paint(QPainter *painter)
 {
-    return m_nodeInstance->zValue();
+    if (isValid() && !d->renderImage.isNull())
+        painter->drawImage(boundingRect().topLeft(), d->renderImage);
 }
 
-/*!
-\brief Returns the opacity of the instance.
-\returns 0.0 mean transparent and 1.0 opaque.
-*/
-double NodeInstance::opacity() const
+QVariant NodeInstance::property(const QString &name) const
 {
-    return m_nodeInstance->opacity();
+    if (isValid())
+        return d->propertyValues.value(name);
+
+    return QVariant();
 }
 
-
-void NodeInstance::setDeleteHeldInstance(bool deleteInstance)
+bool NodeInstance::hasBindingForProperty(const QString &name) const
 {
-    m_nodeInstance->setDeleteHeldInstance(deleteInstance);
+    if (isValid())
+        return d->hasBindingForProperty.value(name, false);
+
+    return false;
 }
 
-
-void NodeInstance::paintUpdate()
+QString NodeInstance::instanceType(const QString &name) const
 {
-    m_nodeInstance->paintUpdate();
+    if (isValid())
+        return d->instanceTypes.value(name);
+
+    return QString();
 }
 
-
-Internal::QmlGraphicsItemNodeInstance::Pointer NodeInstance::qmlGraphicsItemNodeInstance() const
+qint32 NodeInstance::parentId() const
 {
-    return m_nodeInstance.dynamicCast<Internal::QmlGraphicsItemNodeInstance>();
+    if (isValid()) {
+        return d->parentInstanceId;
+    } else {
+        return false;
+    }
 }
 
-QObject *NodeInstance::internalObject() const
+bool NodeInstance::hasAnchor(const QString &name) const
 {
-    if (m_nodeInstance.isNull())
-        return 0;
+    if (isValid())
+        return d->hasAnchors.value(name, false);
 
-    return m_nodeInstance->object();
+    return false;
 }
 
-void NodeInstance::activateState()
+QPair<QString, qint32> NodeInstance::anchor(const QString &name) const
 {
-    m_nodeInstance->activateState();
+    if (isValid())
+        return d->anchors.value(name, QPair<QString, qint32>(QString(), qint32(-1)));
+
+    return QPair<QString, qint32>(QString(), -1);
 }
 
-void NodeInstance::deactivateState()
+void NodeInstance::setProperty(const QString &name, const QVariant &value)
 {
-    m_nodeInstance->deactivateState();
+    d->propertyValues.insert(name, value);
 }
 
-bool NodeInstance::updateStateVariant(const NodeInstance &target, const QString &propertyName, const QVariant &value)
+void NodeInstance::setRenderImage(const QImage &image)
 {
-    return m_nodeInstance->updateStateVariant(target, propertyName, value);
+    d->renderImage = image;
 }
 
-bool NodeInstance::updateStateBinding(const NodeInstance &target, const QString &propertyName, const QString &expression)
+void NodeInstance::setInformation(InformationName name, const QVariant &information, const QVariant &secondInformation, const QVariant &thirdInformation)
 {
-    return m_nodeInstance->updateStateBinding(target, propertyName, expression);
+    switch (name) {
+    case Size: d->size = information.toSizeF(); break;
+    case BoundingRect: d->boundingRect = information.toRectF(); break;
+    case Transform: d->transform = information.value<QTransform>(); break;
+    case PenWidth: d->penWidth = information.toInt(); break;
+    case Position: d->position = information.toPointF(); break;
+    case IsInPositioner: d->isInPositioner = information.toBool(); break;
+    case SceneTransform: d->sceneTransform = information.value<QTransform>(); break;
+    case IsResizable: d->isResizable = information.toBool(); break;
+    case IsMovable: d->isMovable = information.toBool(); break;
+    case IsAnchoredByChildren: d->isAnchoredByChildren  = information.toBool(); break;
+    case IsAnchoredBySibling: d->isAnchoredBySibling = information.toBool(); break;
+    case HasContent: d->hasContent = information.toBool(); break;
+    case HasAnchor: d->hasAnchors.insert(information.toString(), secondInformation.toBool());break;
+    case Anchor: d->anchors.insert(information.toString(), qMakePair(secondInformation.toString(), thirdInformation.value<qint32>())); break;
+    case InstanceTypeForProperty: d->instanceTypes.insert(information.toString(), secondInformation.toString()); break;
+    case HasBindingForProperty: d->hasBindingForProperty.insert(information.toString(), secondInformation.toBool()); break;
+    case Parent: d->parentInstanceId = information.toInt();
+    case NoName:
+    default: break;
+    }
 }
 
-QVariant NodeInstance::resetVariant(const QString &propertyName) const
-{
-    return m_nodeInstance->resetValue(propertyName);
 }
-
-bool NodeInstance::resetStateProperty(const NodeInstance &target, const QString &propertyName, const QVariant &resetValue)
-{
-    return m_nodeInstance->resetStateProperty(target, propertyName, resetValue);
-}
-
-/*!
- Makes types used in node instances known to the Qml engine. To be called once at initialization time.
-*/
-void NodeInstance::registerDeclarativeTypes()
-{
-//    qmlRegisterType<QmlDesigner::Internal::QmlPropertyChangesObject>();
-}
-
-void NodeInstance::doComponentComplete()
-{
-    m_nodeInstance->doComponentComplete();
-}
-
-QString NodeInstance::id() const
-{
-    return m_nodeInstance->id();
-}
-
-#ifdef QTCREATOR_TEST
-QObject* NodeInstance::testHandle() const
-{
-    return internalObject();
-}
-Internal::ObjectNodeInstance* NodeInstance::internalInstance() const
-{
-    return m_nodeInstance.data();
-}
-
-#endif
-
-} // namespace QmlDesigner

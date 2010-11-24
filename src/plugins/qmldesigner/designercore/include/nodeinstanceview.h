@@ -35,35 +35,42 @@
 
 #include <modelnode.h>
 #include <nodeinstance.h>
+#include <nodeinstanceclientinterface.h>
 
 #include <QHash>
+#include <QSet>
 #include <QWeakPointer>
+#include <QRectF>
 
 QT_BEGIN_NAMESPACE
 class QDeclarativeEngine;
 class QGraphicsView;
 class QFileSystemWatcher;
+class QPainter;
 QT_END_NAMESPACE
-
 
 namespace QmlDesigner {
 
-namespace Internal {
-    class ChildrenChangeEventFilter;
-    class QmlStateNodeInstance;
-}
+class NodeInstanceServerInterface;
+class CreateSceneCommand;
+class CreateInstancesCommand;
+class ClearSceneCommand;
+class ReparentInstancesCommand;
+class ChangeFileUrlCommand;
+class ChangeValuesCommand;
+class ChangeBindingsCommand;
+class ChangeIdsCommand;
+class RemoveInstancesCommand;
+class RemovePropertiesCommand;
 
-class CORESHARED_EXPORT NodeInstanceView : public AbstractView
+class CORESHARED_EXPORT NodeInstanceView : public AbstractView, public NodeInstanceClientInterface
 {
     Q_OBJECT
 
     friend class NodeInstance;
-    friend class Internal::ObjectNodeInstance;
-    friend class Internal::QmlStateNodeInstance;
 
 public:
     typedef QWeakPointer<NodeInstanceView> Pointer;
-    typedef QPair<QWeakPointer<QObject>, QString> ObjectPropertyPair;
 
     NodeInstanceView(QObject *parent = 0);
     ~NodeInstanceView();
@@ -73,7 +80,6 @@ public:
     void nodeCreated(const ModelNode &createdNode);
     void nodeAboutToBeRemoved(const ModelNode &removedNode);
     void nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty, PropertyChangeFlags propertyChange);
-    void propertiesAdded(const ModelNode &node, const QList<AbstractProperty>& propertyList);
     void propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList);
     void propertiesRemoved(const QList<AbstractProperty>& propertyList);
     void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange);
@@ -89,79 +95,87 @@ public:
 
 
     QList<NodeInstance> instances() const;
-    NodeInstance instanceForNode(const ModelNode &node);
-    bool hasInstanceForNode(const ModelNode &node);
+    NodeInstance instanceForNode(const ModelNode &node) const ;
+    bool hasInstanceForNode(const ModelNode &node) const;
 
-    NodeInstance instanceForObject(QObject *object);
-    bool hasInstanceForObject(QObject *object);
+    NodeInstance instanceForId(qint32 id) const;
+    bool hasInstanceForId(qint32 id) const;
 
     void render(QPainter *painter, const QRectF &target=QRectF(), const QRectF &source=QRect(), Qt::AspectRatioMode aspectRatioMode=Qt::KeepAspectRatio);
 
     QRectF sceneRect() const;
 
-    void notifyPropertyChange(const ModelNode &modelNode, const QString &propertyName);
-
-    void setBlockStatePropertyChanges(bool block);
+    void setBlockUpdates(bool block);
 
     NodeInstance activeStateInstance() const;
 
     void activateState(const NodeInstance &instance);
     void activateBaseState();
 
-private slots:
-    void emitParentChanged(QObject *child);
-    void refreshLocalFileProperty(const QString &path);
+    void valuesChanged(const ValuesChangedCommand &command);
+    void pixmapChanged(const PixmapChangedCommand &command);
+    void informationChanged(const InformationChangedCommand &command);
 
 private: // functions
     NodeInstance rootNodeInstance() const;
 
-    NodeInstance loadNode(const ModelNode &rootNode, QObject *objectToBeWrapped = 0);
-    void loadModel(Model *model);
+    NodeInstance loadNode(const ModelNode &node);
+
     void loadNodes(const QList<ModelNode> &nodeList);
 
     void removeAllInstanceNodeRelationships();
 
     void removeRecursiveChildRelationship(const ModelNode &removedNode);
 
-    void insertInstanceNodeRelationship(const ModelNode &node, const NodeInstance &instance);
+    void insertInstanceRelationships(const NodeInstance &instance);
     void removeInstanceNodeRelationship(const ModelNode &node);
 
-    QDeclarativeEngine *engine();
-    Internal::ChildrenChangeEventFilter *childrenChangeEventFilter();
     void removeInstanceAndSubInstances(const ModelNode &node);
-
-    void setInstancePropertyVariant(const VariantProperty &property);
-    void setInstancePropertyBinding(const BindingProperty &property);
-    void resetInstanceProperty(const AbstractProperty &property);
 
     void setStateInstance(const NodeInstance &stateInstance);
     void clearStateInstance();
 
-    QFileSystemWatcher *fileSystemWatcher();
+    NodeInstanceServerInterface *nodeInstanceServer() const;
 
-    void addFilePropertyToFileSystemWatcher(QObject *object, const QString &propertyName, const QString &path);
-    void removeFilePropertyFromFileSystemWatcher(QObject *object, const QString &propertyName, const QString &path);
+    CreateSceneCommand createCreateSceneCommand() const;
+    ClearSceneCommand createClearSceneCommand() const;
+    CreateInstancesCommand createCreateInstancesCommand(const QList<NodeInstance> &instanceList) const;
+    ReparentInstancesCommand createReparentInstancesCommand(const QList<NodeInstance> &instanceList) const;
+    ReparentInstancesCommand createReparentInstancesCommand(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent) const;
+    ChangeFileUrlCommand createChangeFileUrlCommand(const QUrl &fileUrl) const;
+    ChangeValuesCommand createChangeValueCommand(const QList<VariantProperty> &propertyList) const;
+    ChangeBindingsCommand createChangeBindingCommand(const QList<BindingProperty> &propertyList) const;
+    ChangeIdsCommand createChangeIdsCommand(const QList<NodeInstance> &instanceList) const;
+    RemoveInstancesCommand createRemoveInstancesCommand(const QList<ModelNode> &nodeList) const;
+    RemoveInstancesCommand createRemoveInstancesCommand(const ModelNode &node) const;
+    RemovePropertiesCommand createRemovePropertiesCommand(const QList<AbstractProperty> &propertyList) const;
+
+    qint32 generateInstanceId();
+
+    void resetHorizontalAnchors(const ModelNode &node);
+    void resetVerticalAnchors(const ModelNode &node);
+
+private slots:
+    void restartProcess();
 
 private: //variables
     NodeInstance m_rootNodeInstance;
     NodeInstance m_activeStateInstance;
-    QScopedPointer<QGraphicsView> m_graphicsView;
 
     QHash<ModelNode, NodeInstance> m_nodeInstanceHash;
-    QHash<QObject*, NodeInstance> m_objectInstanceHash; // This is purely internal. Might contain dangling pointers!
-    QMultiHash<QString, ObjectPropertyPair> m_fileSystemWatcherHash;
-    QWeakPointer<QDeclarativeEngine> m_engine;
-    QWeakPointer<Internal::ChildrenChangeEventFilter> m_childrenChangeEventFilter;
+    QHash<qint32, NodeInstance> m_idInstanceHash; // This is purely internal. Might contain dangling pointers!
 
-    QWeakPointer<QmlModelView> m_qmlModelView;
+    QList<QPair<ModelNode, QString> > m_valuePropertyChangeList;
 
-    QWeakPointer<QFileSystemWatcher> m_fileSystemWatcher;
+    QSet<ModelNode> m_renderImageChangeSet;
+    QSet<ModelNode> m_informationChangeSet;
 
-    bool m_blockStatePropertyChanges;
-
-
+    uint m_blockUpdates;
+    QWeakPointer<NodeInstanceServerInterface> m_nodeInstanceServer;
+    qint32 m_instanceIdCounter;
+;
 };
 
-} // namespace NodeInstanceView
+} // namespace ProxyNodeInstanceView
 
 #endif // NODEINSTANCEVIEW_H

@@ -32,12 +32,10 @@
 
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
-#include "modelnode.h"
 #include <QSharedPointer>
 #include <QScopedPointer>
 #include <QWeakPointer>
-#include <propertymetainfo.h>
-#include <nodeinstanceview.h>
+#include "nodeinstanceserver.h"
 #include "nodeinstancemetaobject.h"
 #include "nodeinstancesignalspy.h"
 
@@ -52,6 +50,8 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
+class NodeInstanceServer;
+
 
 namespace Internal {
 
@@ -61,22 +61,6 @@ class GraphicsViewNodeInstance;
 class GraphicsSceneNodeInstance;
 class ProxyWidgetNodeInstance;
 class WidgetNodeInstance;
-class QDeclarativeViewNodeInstance;
-
-class ChildrenChangeEventFilter : public QObject
-{
-    Q_OBJECT
-public:
-    ChildrenChangeEventFilter(QObject *parent);
-
-
-signals:
-    void childrenChanged(QObject *object);
-
-protected:
-    bool eventFilter(QObject *object, QEvent *event);
-
-};
 
 class ObjectNodeInstance
 {
@@ -89,32 +73,28 @@ public:
     void destroy();
     //void setModelNode(const ModelNode &node);
 
-    static Pointer create(const NodeMetaInfo &metaInfo, QDeclarativeContext *context, QObject *objectToBeWrapped);
+    static Pointer create(QObject *objectToBeWrapped);
+    static QObject* createObject(const QString &typeName, int majorNumber, int minorNumber, const QString &componentPath, QDeclarativeContext *context);
 
-    ModelNode modelNode() const;
-    void setModelNode(const ModelNode &node);
+    void setInstanceId(qint32 id);
+    qint32 instanceId() const;
 
-    NodeInstanceView *nodeInstanceView() const;
-    void setNodeInstanceView(NodeInstanceView *view);
+    NodeInstanceServer *nodeInstanceServer() const;
+    void setNodeInstanceServer(NodeInstanceServer *server);
     virtual void initializePropertyWatcher(const Pointer &objectNodeInstance);
     virtual void paint(QPainter *painter);
-
-    virtual bool isTopLevel() const;
+    virtual QImage renderImage() const;
 
     virtual QObject *parent() const;
 
-    virtual void reparent(const NodeInstance &oldParentInstance, const QString &oldParentProperty, const NodeInstance &newParentInstance, const QString &newParentProperty);
+    Pointer parentInstance() const;
+
+    virtual void reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const QString &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const QString &newParentProperty);
 
     void setId(const QString &id);
     QString id() const;
 
     virtual bool isQmlGraphicsItem() const;
-    virtual bool isGraphicsScene() const;
-    virtual bool isGraphicsView() const;
-    virtual bool isGraphicsWidget() const;
-    virtual bool isProxyWidget() const;
-    virtual bool isWidget() const;
-    virtual bool isQDeclarativeView() const;
     virtual bool isGraphicsObject() const;
     virtual bool isTransition() const;
     virtual bool isPositioner() const;
@@ -134,7 +114,7 @@ public:
     virtual int penWidth() const;
 
     virtual bool hasAnchor(const QString &name) const;
-    virtual QPair<QString, NodeInstance> anchor(const QString &name) const;
+    virtual QPair<QString, ServerNodeInstance> anchor(const QString &name) const;
     virtual bool isAnchoredBySibling() const;
     virtual bool isAnchoredByChildren() const;
 
@@ -150,6 +130,8 @@ public:
     virtual void resetProperty(const QString &name);
     virtual void refreshProperty(const QString &name);
     virtual QString instanceType(const QString &name) const;
+    QStringList propertyNames() const;
+
 
     void createDynamicProperty(const QString &name, const QString &typeName);
     void setDeleteHeldInstance(bool deleteInstance);
@@ -172,32 +154,24 @@ public:
     bool isInPositioner() const;
     void setInPositioner(bool isInPositioner);
 
-    bool hasBindingForProperty(const QString &name) const;
+    bool hasBindingForProperty(const QString &name, bool *hasChanged = 0) const;
 
     QDeclarativeContext *context() const;
     QDeclarativeEngine *engine() const;
 
-    virtual bool updateStateVariant(const NodeInstance &target, const QString &propertyName, const QVariant &value);
-    virtual bool updateStateBinding(const NodeInstance &target, const QString &propertyName, const QString &expression);
-    virtual bool resetStateProperty(const NodeInstance &target, const QString &propertyName, const QVariant &resetValue);
+    virtual bool updateStateVariant(const ObjectNodeInstance::Pointer &target, const QString &propertyName, const QVariant &value);
+    virtual bool updateStateBinding(const ObjectNodeInstance::Pointer &target, const QString &propertyName, const QString &expression);
+    virtual bool resetStateProperty(const ObjectNodeInstance::Pointer &target, const QString &propertyName, const QVariant &resetValue);
 
-    static void tweakObjects(QObject *object);
 
-    NodeInstance nodeInstanceParentForObject(QObject *currentObject) const;
-
+    bool isValid() const;
+    bool isRootNodeInstance() const;
 
     virtual void doComponentComplete();
 
-    virtual void renderPixmapNextPaint();
 
 protected:
-    static QObject *createInstance(const NodeMetaInfo &metaInfo, QDeclarativeContext *parentContext);
-
-    static QObject* createObject(const NodeMetaInfo &metaInfo, QDeclarativeContext *context);
-
     void doResetProperty(const QString &propertyName);
-    NodeInstance instanceForNode(const ModelNode &node, const QString &fullname);
-
     void removeFromOldProperty(QObject *object, QObject *oldParent, const QString &oldParentProperty);
     void addToNewProperty(QObject *object, QObject *newParent, const QString &newParentProperty);
     void deleteObjectsInList(const QDeclarativeProperty &metaProperty);
@@ -206,11 +180,13 @@ private:
     static void refreshBindings(QDeclarativeContext *context);
 
     QHash<QString, QVariant> m_resetValueHash;
-    QHash<QString, NodeInstance> m_modelAbstractPropertyHash;
-    ModelNode m_modelNode;
+    QHash<QString, ServerNodeInstance> m_modelAbstractPropertyHash;
+    mutable QHash<QString, bool> m_hasBindingHash;
+    qint32 m_instanceId;
     QString m_id;
 
-    QWeakPointer<NodeInstanceView> m_nodeInstanceView;
+    QWeakPointer<NodeInstanceServer> m_nodeInstanceServer;
+    QString m_parentProperty;
     bool m_deleteHeldInstance;
     QWeakPointer<QObject> m_object;
     NodeInstanceMetaObject *m_metaObject;

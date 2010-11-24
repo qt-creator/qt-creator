@@ -13,22 +13,14 @@ BehaviorNodeInstance::BehaviorNodeInstance(QObject *object)
 {
 }
 
-BehaviorNodeInstance::Pointer BehaviorNodeInstance::create(const NodeMetaInfo &nodeMetaInfo, QDeclarativeContext *context, QObject *objectToBeWrapped)
+BehaviorNodeInstance::Pointer BehaviorNodeInstance::create(QObject *object)
 {
-    QObject *object = 0;
-    if (objectToBeWrapped)
-        object = objectToBeWrapped;
-    else
-        object = createObject(nodeMetaInfo, context);
-
     QDeclarativeBehavior* behavior = qobject_cast<QDeclarativeBehavior*>(object);
+
     if (behavior == 0)
         throw InvalidNodeInstanceException(__LINE__, __FUNCTION__, __FILE__);
 
     Pointer instance(new BehaviorNodeInstance(behavior));
-
-    if (objectToBeWrapped)
-        instance->setDeleteHeldInstance(false); // the object isn't owned
 
     instance->populateResetValueHash();
 

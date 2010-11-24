@@ -47,8 +47,6 @@ public:
 
     void paint(QPainter *painter) const;
 
-    bool isTopLevel() const;
-
     QRectF boundingRect() const;
     QPointF position() const;
     QSizeF size() const;
