@@ -197,6 +197,7 @@ Check::Check(Document::Ptr doc, const Snapshot &snapshot, const Context *linkedC
     , _context(*linkedContextNoScope)
     , _scopeBuilder(&_context, doc, snapshot)
     , _ignoreTypeErrors(false)
+    , _lastValue(0)
 {
 }
 
@@ -319,6 +320,63 @@ bool Check::visit(UiArrayBinding *ast)
     checkScopeObjectMember(ast->qualifiedId);
 
     return true;
+}
+
+bool Check::visit(IdentifierExpression *ast)
+{
+    // currently disabled: too many false negatives
+    return true;
+
+    _lastValue = 0;
+    if (ast->name) {
+        Evaluate evaluator(&_context);
+        _lastValue = evaluator.reference(ast);
+        if (!_lastValue)
+            error(ast->identifierToken, tr("unknown identifier"));
+        if (const Reference *ref = value_cast<const Reference *>(_lastValue)) {
+            _lastValue = _context.lookupReference(ref);
+            if (!_lastValue)
+                error(ast->identifierToken, tr("could not resolve"));
+        }
+    }
+    return false;
+}
+
+bool Check::visit(FieldMemberExpression *ast)
+{
+    // currently disabled: too many false negatives
+    return true;
+
+    Node::accept(ast->base, this);
+    if (!_lastValue)
+        return false;
+    const ObjectValue *obj = _lastValue->asObjectValue();
+    if (!obj) {
+        error(locationFromRange(ast->base->firstSourceLocation(), ast->base->lastSourceLocation()),
+              tr("does not have members"));
+    }
+    if (!obj || !ast->name) {
+        _lastValue = 0;
+        return false;
+    }
+    _lastValue = obj->lookupMember(ast->name->asString(), &_context);
+    if (!_lastValue)
+        error(ast->identifierToken, tr("unknown member"));
+    return false;
+}
+
+bool Check::visit(FunctionDeclaration *ast)
+{
+    return visit(static_cast<FunctionExpression *>(ast));
+}
+
+bool Check::visit(FunctionExpression *ast)
+{
+    Node::accept(ast->formals, this);
+    _scopeBuilder.push(ast);
+    Node::accept(ast->body, this);
+    _scopeBuilder.pop();
+    return false;
 }
 
 /// When something is changed here, also change ReadingContext::lookupProperty in

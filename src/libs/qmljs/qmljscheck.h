@@ -56,6 +56,10 @@ protected:
     virtual bool visit(AST::UiObjectBinding *ast);
     virtual bool visit(AST::UiScriptBinding *ast);
     virtual bool visit(AST::UiArrayBinding *ast);
+    virtual bool visit(AST::IdentifierExpression *ast);
+    virtual bool visit(AST::FieldMemberExpression *ast);
+    virtual bool visit(AST::FunctionDeclaration *ast);
+    virtual bool visit(AST::FunctionExpression *ast);
 
 private:
     void visitQmlObject(AST::Node *ast, AST::UiQualifiedId *typeId,
@@ -74,6 +78,8 @@ private:
     QList<DiagnosticMessage> _messages;
 
     bool _ignoreTypeErrors;
+
+    const Interpreter::Value *_lastValue;
 };
 
 QMLJS_EXPORT QColor toQColor(const QString &qmlColorString);
