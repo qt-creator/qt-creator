@@ -57,6 +57,7 @@ const char * const DEPLOYPROJECTONLY    = "ProjectExplorer.DeployProjectOnly";
 const char * const DEPLOY               = "ProjectExplorer.Deploy";
 const char * const DEPLOYCM             = "ProjectExplorer.DeployCM";
 const char * const DEPLOYSESSION        = "ProjectExplorer.DeploySession";
+const char * const PUBLISH              = "ProjectExplorer.Publish";
 const char * const CLEANPROJECTONLY     = "ProjectExplorer.CleanProjectOnly";
 const char * const CLEAN                = "ProjectExplorer.Clean";
 const char * const CLEANCM              = "ProjectExplorer.CleanCM";

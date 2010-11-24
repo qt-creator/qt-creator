@@ -206,6 +206,8 @@ private slots:
     void updateActions();
     void loadCustomWizards();
 
+    void publishProject();
+
 #ifdef WITH_TESTS
     void testGccOutputParsers_data();
     void testGccOutputParsers();

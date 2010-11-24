@@ -76,6 +76,8 @@
 #include "buildconfigdialog.h"
 #include "miniprojecttargetselector.h"
 #include "taskhub.h"
+#include "publishing/ipublishingwizardfactory.h"
+#include "publishing/publishingwizardselectiondialog.h"
 
 #include <coreplugin/basemode.h>
 #include <coreplugin/coreconstants.h>
@@ -114,6 +116,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
 #include <QtGui/QMainWindow>
+#include <QtGui/QWizard>
 
 Q_DECLARE_METATYPE(Core::IEditorFactory*);
 Q_DECLARE_METATYPE(Core::IExternalEditor*);
@@ -154,6 +157,7 @@ struct ProjectExplorerPluginPrivate {
     Utils::ParameterAction *m_deployAction;
     Utils::ParameterAction *m_deployActionContextMenu;
     QAction *m_deploySessionAction;
+    Utils::ParameterAction *m_publishAction;
     Utils::ParameterAction *m_cleanAction;
     Utils::ParameterAction *m_cleanActionContextMenu;
     QAction *m_cleanSessionAction;
@@ -613,6 +617,14 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd->setDefaultText(d->m_deployAction->text());
     mbuild->addAction(cmd, Constants::G_BUILD_PROJECT);
 
+    // Publish action
+    d->m_publishAction = new Utils::ParameterAction(tr("Publish Project..."), tr("Publish Project \"%1\"..."),
+                                                    Utils::ParameterAction::AlwaysEnabled, this);
+    cmd = am->registerAction(d->m_publishAction, Constants::PUBLISH, globalcontext);
+    cmd->setAttribute(Core::Command::CA_UpdateText);
+    cmd->setDefaultText(d->m_publishAction->text());
+    mbuild->addAction(cmd, Constants::G_BUILD_PROJECT);
+
     // clean action
     d->m_cleanAction = new Utils::ParameterAction(tr("Clean Project"), tr("Clean Project \"%1\""),
                                                      Utils::ParameterAction::AlwaysEnabled, this);
@@ -823,6 +835,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(d->m_deployAction, SIGNAL(triggered()), this, SLOT(deployProject()));
     connect(d->m_deployActionContextMenu, SIGNAL(triggered()), this, SLOT(deployProjectContextMenu()));
     connect(d->m_deploySessionAction, SIGNAL(triggered()), this, SLOT(deploySession()));
+    connect(d->m_publishAction, SIGNAL(triggered()), this, SLOT(publishProject()));
     connect(d->m_cleanProjectOnlyAction, SIGNAL(triggered()), this, SLOT(cleanProjectOnly()));
     connect(d->m_cleanAction, SIGNAL(triggered()), this, SLOT(cleanProject()));
     connect(d->m_cleanActionContextMenu, SIGNAL(triggered()), this, SLOT(cleanProjectContextMenu()));
@@ -1021,6 +1034,19 @@ void ProjectExplorerPlugin::setStartupProject(Project *project)
         return;
     d->m_session->setStartupProject(project);
     updateActions();
+}
+
+void ProjectExplorerPlugin::publishProject()
+{
+    const Project * const project = d->m_session->startupProject();
+    QTC_ASSERT(project, return);
+    PublishingWizardSelectionDialog selectionDialog(project);
+    if (selectionDialog.exec() == QDialog::Accepted) {
+        QWizard * const publishingWizard
+            = selectionDialog.createSelectedWizard();
+        publishingWizard->exec();
+        delete publishingWizard;
+    }
 }
 
 void ProjectExplorerPlugin::savePersistentSettings()
@@ -1478,6 +1504,8 @@ void ProjectExplorerPlugin::updateActions()
     d->m_rebuildSessionAction->setEnabled(hasProjects && !building);
     d->m_cleanSessionAction->setEnabled(hasProjects && !building);
     d->m_cancelBuildAction->setEnabled(building);
+
+    d->m_publishAction->setEnabled(hasProjects);
 
     d->m_projectSelectorAction->setEnabled(!session()->projects().isEmpty());
     d->m_projectSelectorActionMenu->setEnabled(!session()->projects().isEmpty());
