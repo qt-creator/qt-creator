@@ -601,14 +601,14 @@ void NodeInstanceView::setBlockUpdates(bool block)
 
     if (m_blockUpdates == 0) {
         m_nodeInstanceServer->setBlockUpdates(false);
-        if (!m_valuePropertyChangeList.isEmpty()) {
-            emitInstancePropertyChange(m_valuePropertyChangeList);
-            m_valuePropertyChangeList.clear();
-        }
-
         if (!m_informationChangeSet.isEmpty()) {
             emitCustomNotification("__instance information changed__", m_informationChangeSet.toList());
             m_informationChangeSet.clear();
+        }
+
+        if (!m_valuePropertyChangeList.isEmpty()) {
+            emitInstancePropertyChange(m_valuePropertyChangeList);
+            m_valuePropertyChangeList.clear();
         }
 
         if (!m_renderImageChangeSet.isEmpty()) {
