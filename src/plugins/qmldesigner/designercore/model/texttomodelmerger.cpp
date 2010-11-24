@@ -744,7 +744,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                 const QVariant variantValue = convertDynamicPropertyValueToVariant(astValue, astType);
                 syncVariantProperty(modelProperty, variantValue, astType, differenceHandler);
             } else {
-                syncExpressionProperty(modelProperty, astValue, differenceHandler);
+                syncExpressionProperty(modelProperty, astValue, astType, differenceHandler);
             }
             modelPropertyNames.remove(astName);
         } else {
@@ -836,12 +836,12 @@ QString TextToModelMerger::syncScriptBinding(ModelNode &modelNode,
     const QVariant enumValue = context->convertToEnum(script->statement, prefix, script->qualifiedId);
     if (enumValue.isValid()) { // It is a qualified enum:
         AbstractProperty modelProperty = modelNode.property(astPropertyName);
-        syncVariantProperty(modelProperty, enumValue, QString(), differenceHandler);
+        syncVariantProperty(modelProperty, enumValue, QString(), differenceHandler); // TODO: parse type
         return astPropertyName;
     } else { // Not an enum, so:
         if (modelNode.type() == QLatin1String("Qt/PropertyChanges") || context->lookupProperty(prefix, script->qualifiedId)) {
             AbstractProperty modelProperty = modelNode.property(astPropertyName);
-            syncExpressionProperty(modelProperty, astValue, differenceHandler);
+            syncExpressionProperty(modelProperty, astValue, QString(), differenceHandler); // TODO: parse type
             return astPropertyName;
         } else {
             qWarning() << "Skipping invalid expression property" << astPropertyName
@@ -900,15 +900,18 @@ void TextToModelMerger::syncNodeProperty(AbstractProperty &modelProperty,
 
 void TextToModelMerger::syncExpressionProperty(AbstractProperty &modelProperty,
                                                const QString &javascript,
+                                               const QString &astType,
                                                DifferenceHandler &differenceHandler)
 {
     if (modelProperty.isBindingProperty()) {
         BindingProperty bindingProperty = modelProperty.toBindingProperty();
-        if (bindingProperty.expression() != javascript) {
-            differenceHandler.bindingExpressionsDiffer(bindingProperty, javascript);
+        if (bindingProperty.expression() != javascript
+                || !astType.isEmpty() != bindingProperty.isDynamic()
+                || astType != bindingProperty.dynamicTypeName()) {
+            differenceHandler.bindingExpressionsDiffer(bindingProperty, javascript, astType);
         }
     } else {
-        differenceHandler.shouldBeBindingProperty(modelProperty, javascript);
+        differenceHandler.shouldBeBindingProperty(modelProperty, javascript, astType);
     }
 }
 
@@ -1025,14 +1028,17 @@ void ModelValidator::importAbsentInQMl(const Import &import)
 }
 
 void ModelValidator::bindingExpressionsDiffer(BindingProperty &modelProperty,
-                                              const QString &javascript)
+                                              const QString &javascript,
+                                              const QString &astType)
 {
     Q_ASSERT(modelProperty.expression() == javascript);
+    Q_ASSERT(modelProperty.dynamicTypeName() == astType);
     Q_ASSERT(0);
 }
 
 void ModelValidator::shouldBeBindingProperty(AbstractProperty &modelProperty,
-                                             const QString &/*javascript*/)
+                                             const QString &/*javascript*/,
+                                             const QString &/*astType*/)
 {
     Q_ASSERT(modelProperty.isBindingProperty());
     Q_ASSERT(0);
@@ -1125,17 +1131,27 @@ void ModelAmender::importAbsentInQMl(const Import &import)
 }
 
 void ModelAmender::bindingExpressionsDiffer(BindingProperty &modelProperty,
-                                            const QString &javascript)
+                                            const QString &javascript,
+                                            const QString &astType)
 {
-    modelProperty.toBindingProperty().setExpression(javascript);
+    if (astType.isEmpty()) {
+        modelProperty.setExpression(javascript);
+    } else {
+        modelProperty.setDynamicTypeNameAndExpression(astType, javascript);
+    }
 }
 
 void ModelAmender::shouldBeBindingProperty(AbstractProperty &modelProperty,
-                                           const QString &javascript)
+                                           const QString &javascript,
+                                           const QString &astType)
 {
     ModelNode theNode = modelProperty.parentModelNode();
     BindingProperty newModelProperty = theNode.bindingProperty(modelProperty.name());
-    newModelProperty.setExpression(javascript);
+    if (astType.isEmpty()) {
+        newModelProperty.setExpression(javascript);
+    } else {
+        newModelProperty.setDynamicTypeNameAndExpression(astType, javascript);
+    }
 }
 
 void ModelAmender::shouldBeNodeListProperty(AbstractProperty &modelProperty,
