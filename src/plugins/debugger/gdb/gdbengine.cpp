@@ -874,6 +874,23 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
                 //shutdown();
                 //showMessageBox(QMessageBox::Critical,
                 //    tr("Executable failed"), QString::fromLocal8Bit(msg));
+            } else if (msg.contains("Cannot insert breakpoint")) {
+                // For breakpoints set by address to non-existent addresses we
+                // might get something like "6^error,msg="Warning:\nCannot insert
+                // breakpoint 3.\nError accessing memory address 0x34592327:
+                // Input/output error.\nCannot insert breakpoint 4.\nError
+                // accessing memory address 0x34592335: Input/output error.\n".
+                // This should not stop us from proceeding.
+                // Most notably, that happens after a "6^running" and "*running"
+                // We are probably sitting at _start and can't proceed as
+                // long as the breakpoints are enabled.
+                // FIXME: Should we silently disable the offending breakpoints?
+                showMessage(_("APPLYING WORKAROUND #5"));
+                showMessageBox(QMessageBox::Critical,
+                    tr("Setting breakpoints failed"), QString::fromLocal8Bit(msg));
+                QTC_ASSERT(state() == InferiorRunOk, /**/);
+                notifyInferiorSpontaneousStop();
+                notifyEngineIll();
             } else {
                 showMessageBox(QMessageBox::Critical,
                     tr("Executable failed"), QString::fromLocal8Bit(msg));
@@ -3876,24 +3893,20 @@ void GdbEngine::fetchDisassemblerByAddressCli(const DisassemblerAgentCookie &ac0
         QVariant::fromValue(ac));
 }
 
-static QByteArray parseLine(const GdbMi &line)
+static DisassemblerLine parseLine(const GdbMi &line)
 {
-    QByteArray ba;
-    ba.reserve(200);
+    DisassemblerLine dl;
     QByteArray address = line.findChild("address").data();
     //QByteArray funcName = line.findChild("func-name").data();
     //QByteArray offset = line.findChild("offset").data();
-    QByteArray inst = line.findChild("inst").data();
-    ba += address;
-    ba += QByteArray(15 - address.size(), ' ');
+    dl.address = address.toULongLong();
     //ba += funcName + "+" + offset + "  ";
     //ba += QByteArray(30 - funcName.size() - offset.size(), ' ');
-    ba += inst;
-    ba += '\n';
-    return ba;
+    dl.data = _(line.findChild("inst").data());
+    return dl;
 }
 
-QString GdbEngine::parseDisassembler(const GdbMi &lines)
+DisassemblerLines GdbEngine::parseDisassembler(const GdbMi &lines)
 {
     // ^done,data={asm_insns=[src_and_asm_line={line="1243",file=".../app.cpp",
     // line_asm_insn=[{address="0x08054857",func-name="main",offset="27",
@@ -3906,10 +3919,9 @@ QString GdbEngine::parseDisassembler(const GdbMi &lines)
     // {address="0x0805acf8",func-name="...",offset="25",inst="and $0xe8,%al"},
     // {address="0x0805acfa",func-name="...",offset="27",inst="pop %esp"},
 
-    QList<QByteArray> fileContents;
+    QStringList fileContents;
     bool fileLoaded = false;
-    QByteArray ba;
-    ba.reserve(200 * lines.children().size());
+    DisassemblerLines result;
 
     // FIXME: Performance?
     foreach (const GdbMi &child, lines.children()) {
@@ -3920,21 +3932,22 @@ QString GdbEngine::parseDisassembler(const GdbMi &lines)
                 fileName = cleanupFullName(fileName);
                 QFile file(fileName);
                 file.open(QIODevice::ReadOnly);
-                fileContents = file.readAll().split('\n');
+                QTextStream ts(&file);
+                fileContents = ts.readAll().split(QLatin1Char('\n'));
                 fileLoaded = true;
             }
             int line = child.findChild("line").data().toInt();
             if (line >= 1 && line <= fileContents.size())
-                ba += "    " + fileContents.at(line - 1) + '\n';
+                result.appendComment(fileContents.at(line - 1));
             GdbMi insn = child.findChild("line_asm_insn");
-            foreach (const GdbMi &line, insn.children())
-                ba += parseLine(line);
+            foreach (const GdbMi &item, insn.children())
+                result.appendLine(parseLine(item));
         } else {
             // The non-mixed version.
-            ba += parseLine(child);
+            result.appendLine(parseLine(child));
         }
     }
-    return _(ba);
+    return result;
 }
 
 void GdbEngine::handleFetchDisassemblerByLine(const GdbResponse &response)
@@ -3950,10 +3963,10 @@ void GdbEngine::handleFetchDisassemblerByLine(const GdbResponse &response)
                     && lines.childAt(0).findChild("line").data() == "0")
             fetchDisassemblerByAddress(ac, true);
         else {
-            QString contents = parseDisassembler(lines);
-            if (ac.agent->contentsCoversAddress(contents)) {
+            DisassemblerLines dlines = parseDisassembler(lines);
+            if (dlines.coversAddress(ac.agent->address())) {
                 // All is well.
-                ac.agent->setContents(contents);
+                ac.agent->setContents(dlines);
             } else {
                 // Can happen e.g. for initializer list on symbian/rvct where
                 // we get a file name and line number but where the 'fully
@@ -3985,9 +3998,9 @@ void GdbEngine::handleFetchDisassemblerByAddress1(const GdbResponse &response)
         if (lines.children().isEmpty())
             fetchDisassemblerByAddress(ac, false);
         else {
-            QString contents = parseDisassembler(lines);
-            if (ac.agent->contentsCoversAddress(contents)) {
-                ac.agent->setContents(parseDisassembler(lines));
+            DisassemblerLines dlines = parseDisassembler(lines);
+            if (dlines.coversAddress(ac.agent->address())) {
+                ac.agent->setContents(dlines);
             } else {
                 showMessage(_("FALL BACK TO NON-MIXED"));
                 fetchDisassemblerByAddress(ac, false);
@@ -4030,11 +4043,11 @@ void GdbEngine::handleFetchDisassemblerByCli(const GdbResponse &response)
         if (lines.isValid()) {
             ac.agent->setContents(parseDisassembler(lines));
         } else {
-            const QByteArray someSpace = "        ";
+            const QString someSpace = _("        ");
             // First line is something like
             // "Dump of assembler code from 0xb7ff598f to 0xb7ff5a07:"
             GdbMi output = response.data.findChild("consolestreamoutput");
-            QByteArray res;
+            DisassemblerLines dlines;
             QByteArray lastFunction;
             foreach (const QByteArray &line0, output.data().split('\n')) {
                 QByteArray line = line0.trimmed();
@@ -4057,23 +4070,19 @@ void GdbEngine::handleFetchDisassemblerByCli(const GdbResponse &response)
                     if (pos1 < pos2 && pos2 < pos3) {
                         QByteArray function = line.mid(pos1, pos2 - pos1);
                         if (function != lastFunction) {
-                            res.append("\nFunction: ");
-                            res.append(function);
-                            res.append('\n');
+                            dlines.appendComment(QString());
+                            dlines.appendComment(_("Function: ") + _(function));
                             lastFunction = function;
                         }
                         line.replace(pos1, pos2 - pos1, "");
                     }
-                    res.append(line);
-                    res.append('\n');
+                    dlines.appendLine(DisassemblerLine(_(line)));
                     continue;
                 }
-                res.append(someSpace);
-                res.append(line);
-                res.append('\n');
+                dlines.appendComment(someSpace + _(line));
             }
-            if (res.size() > 1)
-                ac.agent->setContents(_(res));
+            if (dlines.size())
+                ac.agent->setContents(dlines);
             else
                 fetchDisassemblerByAddressCli(ac);
         }

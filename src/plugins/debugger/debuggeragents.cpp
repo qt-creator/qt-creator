@@ -50,9 +50,11 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QMetaObject>
+#include <QtCore/QTimer>
 
 #include <QtGui/QMessageBox>
 #include <QtGui/QPlainTextEdit>
+#include <QtGui/QTextBlock>
 #include <QtGui/QTextCursor>
 #include <QtGui/QIcon>
 
@@ -202,29 +204,32 @@ public:
     void documentClosing() {}
 };
 
-struct DisassemblerViewAgentPrivate
+class DisassemblerViewAgentPrivate
 {
+public:
     DisassemblerViewAgentPrivate();
     void configureMimeType();
 
+public:
     QPointer<TextEditor::ITextEditor> editor;
     StackFrame frame;
     bool tryMixed;
     bool setMarker;
     QPointer<DebuggerEngine> engine;
     LocationMark2 *locationMark;
-    QHash<QString, QString> cache;
+    QHash<QString, DisassemblerLines> cache;
     QString mimeType;
 };
 
-DisassemblerViewAgentPrivate::DisassemblerViewAgentPrivate() :
-    editor(0),
+DisassemblerViewAgentPrivate::DisassemblerViewAgentPrivate()
+  : editor(0),
     tryMixed(true),
     setMarker(true),
     locationMark(new LocationMark2),
     mimeType(_("text/x-qtcreator-generic-asm"))
 {
 }
+
 
 /*!
     \class DisassemblerViewAgent
@@ -288,7 +293,8 @@ void DisassemblerViewAgent::setFrame(const StackFrame &frame, bool tryMixed,
     d->setMarker = setMarker;
     d->tryMixed = tryMixed;
     if (isMixed()) {
-        QHash<QString, QString>::ConstIterator it = d->cache.find(frameKey(frame));
+        QHash<QString, DisassemblerLines>::ConstIterator it =
+            d->cache.find(frameKey(frame));
         if (it != d->cache.end()) {
             QString msg = _("Use cache disassembler for '%1' in '%2'")
                 .arg(frame.function).arg(frame.file);
@@ -334,37 +340,12 @@ void DisassemblerViewAgent::setMimeType(const QString &mt)
        d->configureMimeType();
 }
 
-// Return a pair of <linenumber [1..n], character position> of an address
-// in assembly code, assuming lines start with a sane hex address.
-static QPair<int, int> lineNumberOfAddress(const QString &disassembly, quint64 address)
-{
-    if (disassembly.isEmpty())
-        return QPair<int, int>(-1, -1);
-
-    int pos = 0;
-    const QChar newLine = QLatin1Char('\n');
-
-    const int size = disassembly.size();
-    for (int lineNumber = 1; pos < size; lineNumber++) {
-        int endOfLinePos = disassembly.indexOf(newLine, pos);
-        if (endOfLinePos == -1)
-            endOfLinePos = size;
-        const QString line = disassembly.mid(pos, endOfLinePos - pos);
-        if (DisassemblerViewAgent::addressFromDisassemblyLine(line) == address)
-            return QPair<int, int>(lineNumber, pos);
-        pos = endOfLinePos + 1;
-    }
-    return QPair<int, int>(-1, -1);;
-}
-
-void DisassemblerViewAgent::setContents(const QString &contents)
+void DisassemblerViewAgent::setContents(const DisassemblerLines &contents)
 {
     QTC_ASSERT(d, return);
     using namespace Core;
     using namespace TextEditor;
 
-    d->cache.insert(frameKey(d->frame), contents);
-    QPlainTextEdit *plainTextEdit = 0;
     EditorManager *editorManager = EditorManager::instance();
     if (!d->editor) {
         QString titlePattern = "Disassembler";
@@ -380,33 +361,37 @@ void DisassemblerViewAgent::setContents(const QString &contents)
 
     editorManager->activateEditor(d->editor);
 
-    plainTextEdit = qobject_cast<QPlainTextEdit *>(d->editor->widget());
-    if (plainTextEdit) {
-        plainTextEdit->setPlainText(contents);
-        plainTextEdit->setReadOnly(true);
+    QPlainTextEdit *plainTextEdit =
+        qobject_cast<QPlainTextEdit *>(d->editor->widget());
+    QTC_ASSERT(plainTextEdit, return);
+
+    QString str;
+    for (int i = 0, n = contents.size(); i != n; ++i) {
+        const DisassemblerLine &dl = contents.at(i);
+        if (dl.address) {
+            str += QString("0x");
+            str += QString::number(dl.address, 16);
+            str += "  ";
+        }
+        str += dl.data;
+        str += "\n";
     }
+    plainTextEdit->setPlainText(str);
+    plainTextEdit->setReadOnly(true);
 
     if (d->setMarker)
         d->editor->markableInterface()->removeMark(d->locationMark);
     d->editor->setDisplayName(_("Disassembler (%1)").arg(d->frame.function));
+    d->cache.insert(frameKey(d->frame), contents);
 
-    const QPair<int, int> lineNumberPos =
-        lineNumberOfAddress(contents, d->frame.address);
-    if (lineNumberPos.first > 0) {
-        if (d->setMarker)
-            d->editor->markableInterface()->addMark(d->locationMark, lineNumberPos.first);
-        if (plainTextEdit) {
-            QTextCursor tc = plainTextEdit->textCursor();
-            tc.setPosition(lineNumberPos.second);
-            plainTextEdit->setTextCursor(tc);
-        }
-    }
-}
+    int lineNumber = contents.m_rowCache[d->frame.address];
+    if (lineNumber && d->setMarker)
+        d->editor->markableInterface()->addMark(d->locationMark, lineNumber);
 
-bool DisassemblerViewAgent::contentsCoversAddress(const QString &contents) const
-{
-    QTC_ASSERT(d, return false);
-    return lineNumberOfAddress(contents, d->frame.address).first > 0;
+    QTextCursor tc = plainTextEdit->textCursor();
+    QTextBlock block = tc.document()->findBlockByNumber(lineNumber - 1);
+    tc.setPosition(block.position());
+    plainTextEdit->setTextCursor(tc);
 }
 
 quint64 DisassemblerViewAgent::address() const
@@ -417,19 +402,53 @@ quint64 DisassemblerViewAgent::address() const
 // Return address of an assembly line "0x0dfd  bla"
 quint64 DisassemblerViewAgent::addressFromDisassemblyLine(const QString &line)
 {
+    return DisassemblerLine(line).address;
+}
+
+DisassemblerLine::DisassemblerLine(const QString &unparsed)
+{
     // Mac gdb has an overflow reporting 64bit addresses causing the instruction
     // to follow the last digit "0x000000013fff4810mov 1,1". Truncate here.
-    const int pos = qMin(line.indexOf(QLatin1Char(' ')), 19);
-    if (pos < 0)
-        return 0;
-    QString addressS = line.left(pos);
-    if (addressS.endsWith(':')) // clang
-        addressS.chop(1);
-    if (addressS.startsWith(QLatin1String("0x")))
-        addressS.remove(0, 2);
+    const int pos = qMin(unparsed.indexOf(QLatin1Char(' ')), 19);
+    if (pos < 0) {
+        address = 0;
+        data = unparsed;
+        return;
+    }
+    QString addr = unparsed.left(pos);
+    if (addr.endsWith(':')) // clang
+        addr.chop(1);
+    if (addr.startsWith(QLatin1String("0x")))
+        addr.remove(0, 2);
     bool ok;
-    const quint64 address = addressS.toULongLong(&ok, 16);
-    return ok ? address : quint64(0);
+    address = addr.toULongLong(&ok, 16);
+    if (address)
+        data = unparsed.mid(pos + 1);
+    else
+        data = unparsed;
+}
+
+int DisassemblerLines::lineForAddress(quint64 address) const
+{
+    return m_rowCache.value(address);
+}
+
+bool DisassemblerLines::coversAddress(quint64 address) const
+{
+    return m_rowCache.value(address) != 0;
+}
+
+void DisassemblerLines::appendComment(const QString &comment)
+{
+    DisassemblerLine dl;
+    dl.data = comment;
+    m_data.append(dl);
+}
+
+void DisassemblerLines::appendLine(const DisassemblerLine &dl)
+{
+    m_data.append(dl);
+    m_rowCache[dl.address] = m_data.size();
 }
 
 } // namespace Internal

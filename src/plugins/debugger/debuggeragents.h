@@ -31,7 +31,9 @@
 #define DEBUGGER_AGENTS_H
 
 #include <QtCore/QObject>
+#include <QtCore/QHash>
 #include <QtCore/QPointer>
+#include <QtCore/QVector>
 
 namespace Core {
 class IEditor;
@@ -44,6 +46,8 @@ class DebuggerEngine;
 namespace Internal {
 
 class StackFrame;
+class DisassemblerViewAgent;
+class DisassemblerViewAgentPrivate;
 
 class MemoryViewAgent : public QObject
 {
@@ -72,7 +76,32 @@ private:
     QPointer<Debugger::DebuggerEngine> m_engine;
 };
 
-struct DisassemblerViewAgentPrivate;
+class DisassemblerLine
+{
+public:
+    DisassemblerLine() : address(0) {}
+    DisassemblerLine(const QString &unparsed);
+
+    quint64 address;
+    QString data;
+};
+
+class DisassemblerLines
+{
+public:
+    DisassemblerLines() {}
+    bool coversAddress(quint64 address) const;
+    void appendLine(const DisassemblerLine &dl);
+    void appendComment(const QString &comment);
+    int size() const { return m_data.size(); }
+    const DisassemblerLine &at(int i) const { return m_data.at(i); }
+    int lineForAddress(quint64 address) const;
+
+private:
+    friend class DisassemblerViewAgent;
+    QVector<DisassemblerLine> m_data;
+    QHash<quint64, int> m_rowCache;
+};
 
 class DisassemblerViewAgent : public QObject
 {
@@ -86,7 +115,7 @@ public:
     void setFrame(const StackFrame &frame, bool tryMixed, bool setMarker);
     const StackFrame &frame() const;
     void resetLocation();
-    Q_SLOT void setContents(const QString &contents);
+    void setContents(const DisassemblerLines &contents);
 
     // Mimetype: "text/a-asm" or some specialized architecture
     QString mimeType() const;
@@ -98,8 +127,7 @@ public:
     bool isMixed() const;
 
     // Return address of an assembly line "0x0dfd  bla"
-    static quint64 addressFromDisassemblyLine(const QString &line);
-
+    static quint64 addressFromDisassemblyLine(const QString &data);
 private:
     DisassemblerViewAgentPrivate *d;
 };

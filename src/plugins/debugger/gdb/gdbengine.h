@@ -59,6 +59,7 @@ class GdbMi;
 
 class WatchData;
 class DisassemblerAgentCookie;
+class DisassemblerLines;
 
 class AttachGdbAdapter;
 class CoreGdbAdapter;
@@ -404,7 +405,7 @@ private: ////////// View & Data Stuff //////////
     void handleFetchDisassemblerByLine(const GdbResponse &response);
     void handleFetchDisassemblerByAddress1(const GdbResponse &response);
     void handleFetchDisassemblerByAddress0(const GdbResponse &response);
-    QString parseDisassembler(const GdbMi &lines);
+    DisassemblerLines parseDisassembler(const GdbMi &lines);
 
     //
     // Source file specific stuff

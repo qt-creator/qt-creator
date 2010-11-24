@@ -33,6 +33,7 @@
 #include "threadshandler.h"
 #include "registerhandler.h"
 #include "bytearrayinputstream.h"
+#include "debuggeragents.h"
 #include "gdb/gdbmi.h"
 #ifdef Q_OS_WIN
 #    include "shared/dbgwinutils.h"
@@ -99,19 +100,17 @@ QByteArray cdbAddBreakpointCommand(const Debugger::Internal::BreakpointParameter
 
 // Remove the address separator. Format the address exactly as
 // the agent does (0xhex, as taken from frame) for the location mark to trigger.
-QString formatCdbDisassembler(const QList<QByteArray> &in)
+Internal::DisassemblerLines formatCdbDisassembler(const QList<QByteArray> &in)
 {
-    QString disassembly;
-    const QChar newLine = QLatin1Char('\n');
+    Internal::DisassemblerLines result;
     foreach(QByteArray line, in) {
         // Remove 64bit separator.
         if (line.size() >= 9 && line.at(8) == '`')
             line.remove(8, 1);
         // Ensure address is as wide as agent's address.
-        disassembly += QString::fromLatin1(line);
-        disassembly += newLine;
+        result.appendLine(Internal::DisassemblerLine(line));
     }
-    return disassembly;
+    return result;
 }
 
 // Fix a CDB integer value: '00000000`0012a290' -> '12a290', '0n10' ->'10'

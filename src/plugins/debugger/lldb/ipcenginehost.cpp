@@ -446,9 +446,9 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 QString da;
                 s >> pc;
                 s >> da;
-                DisassemblerViewAgent *view = m_frameToDisassemblerAgent.take(pc);
-                if (view)
-                    view->setContents(da);
+                //DisassemblerViewAgent *view = m_frameToDisassemblerAgent.take(pc);
+                //if (view)
+                //    view->setContents(da);
             }
             break;
         case IPCEngineGuest::UpdateWatchData:
