@@ -137,8 +137,6 @@ void MetaInfoPrivate::loadPlugins(QDeclarativeEngine *engine)
     pluginList += "import Qt.labs.gestures 1.0";
     pluginList += "import Qt.labs.particles 1.0";
     pluginList += "import Qt.labs.components 1.0";
-    pluginList += "import com.meego.themebridge 1.0";
-    pluginList += "import com.meego 1.0";
 
     QString componentString = QString("%1\n Item {}\n").arg(pluginList.join("\n"));
 

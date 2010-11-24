@@ -1,6 +1,6 @@
 TARGET = qtquickplugin
 TEMPLATE = lib
-CONFIG += plugin meegotouch
+CONFIG += plugin
 
 QT += script \
       declarative
