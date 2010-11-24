@@ -34,6 +34,7 @@
 #include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggerstringutils.h"
+#include "stackframe.h"
 
 #include <utils/qtcassert.h>
 
@@ -140,7 +141,7 @@ BreakpointId BreakHandler::findSimilarBreakpoint(const BreakpointResponse &needl
         const BreakpointId id = it.key();
         const BreakpointParameters &data = it->data;
         const BreakpointResponse &response = it->response;
-        qDebug() << "COMPARING " << data.toString() << " WITH " << needle.toString();
+        //qDebug() << "COMPARING " << data.toString() << " WITH " << needle.toString();
         if (response.number && response.number == needle.number)
             return id;
 
@@ -353,10 +354,10 @@ BreakpointId BreakHandler::findBreakpointByIndex(const QModelIndex &index) const
 
 BreakpointIds BreakHandler::findBreakpointsByIndex(const QList<QModelIndex> &list) const
 {
-    BreakpointIds ids;
+    QSet<BreakpointId> ids;
     foreach (const QModelIndex &index, list)
-        ids.append(findBreakpointByIndex(index));
-    return ids;
+        ids.insert(findBreakpointByIndex(index));
+    return ids.toList();
 }
 
 Qt::ItemFlags BreakHandler::flags(const QModelIndex &index) const
@@ -467,7 +468,7 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
             if (role == Qt::DisplayRole) {
                 QString displayValue;
                 const quint64 address =
-                    data.isWatchpoint() ? data.address : response.address;
+                    it->isPending() ? data.address : response.address;
                 if (address)
                     displayValue += QString::fromAscii("0x%1").arg(address, 0, 16);
                 if (!response.extra.isEmpty()) {
@@ -842,8 +843,17 @@ void BreakHandler::gotoLocation(BreakpointId id) const
 {
     ConstIterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return);
-    debuggerCore()->gotoLocation(
-        it->data.fileName, it->data.lineNumber, false);
+    if (it->data.type == BreakpointByAddress) {
+        StackFrame frame;
+        frame.address = it->data.address;
+        DebuggerEngine *engine = debuggerCore()->currentEngine();
+        if (engine)
+            engine->gotoLocation(frame, false);
+    } else {
+        const QString fileName = it->markerFileName();
+        const int lineNumber = it->markerLineNumber();
+        debuggerCore()->gotoLocation(fileName, lineNumber, false);
+    }
 }
 
 void BreakHandler::updateLineNumberFromMarker(BreakpointId id, int lineNumber)

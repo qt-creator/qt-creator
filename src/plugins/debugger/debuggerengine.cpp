@@ -516,21 +516,15 @@ void DebuggerEngine::resetLocation()
 
 void DebuggerEngine::gotoLocation(const QString &fileName, int lineNumber, bool setMarker)
 {
-    StackFrame frame;
-    frame.file = fileName;
-    frame.line = lineNumber;
-    gotoLocation(frame, setMarker);
+    debuggerCore()->gotoLocation(fileName, lineNumber, setMarker);
 }
 
 void DebuggerEngine::gotoLocation(const StackFrame &frame, bool setMarker)
 {
-    if (debuggerCore()->boolSetting(OperateByInstruction) || !frame.isUsable()) {
-        if (setMarker)
-            resetLocation();
-        d->m_disassemblerViewAgent.setFrame(frame);
-    } else {
+    if (debuggerCore()->boolSetting(OperateByInstruction) || !frame.isUsable())
+        d->m_disassemblerViewAgent.setFrame(frame, true, setMarker);
+    else
         debuggerCore()->gotoLocation(frame.file, frame.line, setMarker);
-    }
 }
 
 // Called from RunControl.

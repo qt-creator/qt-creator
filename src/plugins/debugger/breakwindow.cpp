@@ -335,15 +335,6 @@ void BreakWindow::showAddressColumn(bool on)
     setColumnHidden(7, !on);
 }
 
-static QModelIndexList normalizeIndexes(const QModelIndexList &list)
-{
-    QModelIndexList res;
-    foreach (const QModelIndex &index, list)
-        if (index.column() == 0)
-            res.append(index);
-    return res;
-}
-
 void BreakWindow::keyPressEvent(QKeyEvent *ev)
 {
     if (ev->key() == Qt::Key_Delete) {
@@ -351,8 +342,11 @@ void BreakWindow::keyPressEvent(QKeyEvent *ev)
         QTC_ASSERT(sm, return);
         QModelIndexList si = sm->selectedIndexes();
         if (si.isEmpty())
-            si.append(currentIndex().sibling(currentIndex().row(), 0));
-        deleteBreakpoints(normalizeIndexes(si));
+            si.append(currentIndex());
+        const BreakpointIds ids = breakHandler()->findBreakpointsByIndex(si);
+        int row = qMin(model()->rowCount() - ids.size() - 1, currentIndex().row());
+        deleteBreakpoints(ids);
+        setCurrentIndex(si.at(0).sibling(row, 0));
     }
     QTreeView::keyPressEvent(ev);
 }
@@ -365,8 +359,10 @@ void BreakWindow::resizeEvent(QResizeEvent *ev)
 void BreakWindow::mouseDoubleClickEvent(QMouseEvent *ev)
 {
     QModelIndex indexUnderMouse = indexAt(ev->pos());
-    if (indexUnderMouse.isValid() && indexUnderMouse.column() >= 4)
-        editBreakpoints(QModelIndexList() << indexUnderMouse);
+    if (indexUnderMouse.isValid() && indexUnderMouse.column() >= 4) {
+        BreakpointId id = breakHandler()->findBreakpointByIndex(indexUnderMouse);
+        editBreakpoints(BreakpointIds() << id);
+    }
     QTreeView::mouseDoubleClickEvent(ev);
 }
 
@@ -375,34 +371,35 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     QMenu menu;
     QItemSelectionModel *sm = selectionModel();
     QTC_ASSERT(sm, return);
-    QModelIndexList si = sm->selectedIndexes();
+    QModelIndexList selectedIndices = sm->selectedIndexes();
     QModelIndex indexUnderMouse = indexAt(ev->pos());
-    if (si.isEmpty() && indexUnderMouse.isValid())
-        si.append(indexUnderMouse.sibling(indexUnderMouse.row(), 0));
-    si = normalizeIndexes(si);
+    if (selectedIndices.isEmpty() && indexUnderMouse.isValid())
+        selectedIndices.append(indexUnderMouse);
+
+    BreakHandler *handler = breakHandler();
+    BreakpointIds selectedIds = handler->findBreakpointsByIndex(selectedIndices);
 
     const int rowCount = model()->rowCount();
     const unsigned engineCapabilities = BreakOnThrowAndCatchCapability;
-    BreakHandler *handler = breakHandler();
     // FIXME BP:    model()->data(QModelIndex(), EngineCapabilitiesRole).toUInt();
 
     QAction *deleteAction = new QAction(tr("Delete Breakpoint"), &menu);
-    deleteAction->setEnabled(si.size() > 0);
+    deleteAction->setEnabled(!selectedIds.isEmpty());
 
     QAction *deleteAllAction = new QAction(tr("Delete All Breakpoints"), &menu);
     deleteAllAction->setEnabled(model()->rowCount() > 0);
 
     // Delete by file: Find indices of breakpoints of the same file.
     QAction *deleteByFileAction = 0;
-    QList<QModelIndex> breakPointsOfFile;
+    BreakpointIds breakpointsInFile;
     if (indexUnderMouse.isValid()) {
         const QModelIndex index = indexUnderMouse.sibling(indexUnderMouse.row(), 2);
-        const QString file = model()->data(index).toString();
+        const QString file = index.data().toString();
         if (!file.isEmpty()) {
             for (int i = 0; i < rowCount; i++)
-                if (model()->data(model()->index(i, 2)).toString() == file)
-                    breakPointsOfFile.push_back(model()->index(i, 2));
-            if (breakPointsOfFile.size() > 1) {
+                if (index.data().toString() == file)
+                    breakpointsInFile.append(handler->findBreakpointByIndex(index));
+            if (breakpointsInFile.size() > 1) {
                 deleteByFileAction =
                     new QAction(tr("Delete Breakpoints of \"%1\"").arg(file), &menu);
                 deleteByFileAction->setEnabled(true);
@@ -425,7 +422,7 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QAction *editBreakpointAction =
         new QAction(tr("Edit Breakpoint..."), &menu);
-    editBreakpointAction->setEnabled(si.size() > 0);
+    editBreakpointAction->setEnabled(!selectedIds.isEmpty());
 
     int threadId = 0;
     // FIXME BP: m_engine->threadsHandler()->currentThreadId();
@@ -433,18 +430,15 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
         ?  tr("Associate Breakpoint With All Threads")
         :  tr("Associate Breakpoint With Thread %1").arg(threadId);
     QAction *associateBreakpointAction = new QAction(associateTitle, &menu);
-    associateBreakpointAction->setEnabled(si.size() > 0);
+    associateBreakpointAction->setEnabled(!selectedIds.isEmpty());
 
     QAction *synchronizeAction =
         new QAction(tr("Synchronize Breakpoints"), &menu);
     synchronizeAction->setEnabled(debuggerCore()->hasSnapshots());
 
-    QModelIndex idx0 = (si.size() ? si.front() : QModelIndex());
-    const BreakpointId id = handler->findBreakpointByIndex(idx0);
+    bool enabled = selectedIds.isEmpty() || handler->isEnabled(selectedIds.at(0));
 
-    bool enabled = si.isEmpty() || handler->isEnabled(id);
-
-    const QString str5 = si.size() > 1
+    const QString str5 = selectedIds.size() > 1
         ? enabled
             ? tr("Disable Selected Breakpoints")
             : tr("Enable Selected Breakpoints")
@@ -452,7 +446,7 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
             ? tr("Disable Breakpoint")
             : tr("Enable Breakpoint");
     QAction *toggleEnabledAction = new QAction(str5, &menu);
-    toggleEnabledAction->setEnabled(si.size() > 0);
+    toggleEnabledAction->setEnabled(!selectedIds.isEmpty());
 
     QAction *addBreakpointAction =
         new QAction(tr("Add Breakpoint..."), this);
@@ -486,27 +480,24 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QAction *act = menu.exec(ev->globalPos());
 
-    if (act == deleteAction) {
-        deleteBreakpoints(si);
-    } else if (act == deleteAllAction) {
-        QList<QModelIndex> allRows;
-        for (int i = 0; i < rowCount; i++)
-            allRows.push_back(model()->index(i, 0));
-        deleteBreakpoints(allRows);
-    }  else if (act == deleteByFileAction)
-        deleteBreakpoints(breakPointsOfFile);
+    if (act == deleteAction)
+        deleteBreakpoints(selectedIds);
+    else if (act == deleteAllAction)
+        deleteBreakpoints(handler->allBreakpointIds());
+    else if (act == deleteByFileAction)
+        deleteBreakpoints(breakpointsInFile);
     else if (act == adjustColumnAction)
         resizeColumnsToContents();
     else if (act == alwaysAdjustAction)
         setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
     else if (act == editBreakpointAction)
-        editBreakpoints(si);
+        editBreakpoints(selectedIds);
     else if (act == associateBreakpointAction)
-        associateBreakpoint(si, threadId);
+        associateBreakpoint(selectedIds, threadId);
     else if (act == synchronizeAction)
         ; //synchronizeBreakpoints();
     else if (act == toggleEnabledAction)
-        setBreakpointsEnabled(si, !enabled);
+        setBreakpointsEnabled(selectedIds, !enabled);
     else if (act == addBreakpointAction)
         addBreakpoint();
     else if (act == breakAtThrowAction)
@@ -515,24 +506,17 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
         handler->appendBreakpoint(BreakpointParameters(BreakpointAtCatch));
 }
 
-void BreakWindow::setBreakpointsEnabled(const QModelIndexList &list, bool enabled)
+void BreakWindow::setBreakpointsEnabled(const BreakpointIds &ids, bool enabled)
 {
     BreakHandler *handler = breakHandler();
-    foreach (const BreakpointId id, handler->findBreakpointsByIndex(list))
+    foreach (const BreakpointId id, ids)
         handler->setEnabled(id, enabled);
 }
 
-void BreakWindow::setBreakpointsFullPath(const QModelIndexList &list, bool fullpath)
+void BreakWindow::deleteBreakpoints(const BreakpointIds &ids)
 {
     BreakHandler *handler = breakHandler();
-    foreach (const BreakpointId id, handler->findBreakpointsByIndex(list))
-       handler->setUseFullPath(id, fullpath);
-}
-
-void BreakWindow::deleteBreakpoints(const QModelIndexList &list)
-{
-    BreakHandler *handler = breakHandler();
-    foreach (const BreakpointId id, handler->findBreakpointsByIndex(list))
+    foreach (const BreakpointId id, ids)
        handler->removeBreakpoint(id);
 }
 
@@ -552,15 +536,13 @@ void BreakWindow::addBreakpoint()
         breakHandler()->appendBreakpoint(data);
 }
 
-void BreakWindow::editBreakpoints(const QModelIndexList &list)
+void BreakWindow::editBreakpoints(const BreakpointIds &ids)
 {
-    QTC_ASSERT(!list.isEmpty(), return);
+    QTC_ASSERT(!ids.isEmpty(), return);
 
-    BreakHandler *handler = breakHandler();
-    const BreakpointIds ids = handler->findBreakpointsByIndex(list);
     const BreakpointId id = ids.at(0);
 
-    if (list.size() == 1) {
+    if (ids.size() == 1) {
         editBreakpoint(id, this);
         return;
     }
@@ -573,6 +555,7 @@ void BreakWindow::editBreakpoints(const QModelIndexList &list)
     ui.lineEditIgnoreCount->setValidator(
         new QIntValidator(0, 2147483647, ui.lineEditIgnoreCount));
 
+    BreakHandler *handler = breakHandler();
     const QString oldCondition = QString::fromLatin1(handler->condition(id));
     const QString oldIgnoreCount = QString::number(handler->ignoreCount(id));
     const QString oldThreadSpec = QString::fromLatin1(handler->threadSpec(id));
@@ -588,23 +571,22 @@ void BreakWindow::editBreakpoints(const QModelIndexList &list)
     const QString newIgnoreCount = ui.lineEditIgnoreCount->text();
     const QString newThreadSpec = ui.lineEditThreadSpec->text();
 
-    // Unchanged -> cancel
     if (newCondition == oldCondition && newIgnoreCount == oldIgnoreCount
             && newThreadSpec == oldThreadSpec)
         return;
 
-    foreach (const BreakpointId id, handler->findBreakpointsByIndex(list)) {
+    foreach (const BreakpointId id, ids) {
         handler->setCondition(id, newCondition.toLatin1());
         handler->setIgnoreCount(id, newIgnoreCount.toInt());
         handler->setThreadSpec(id, newThreadSpec.toLatin1());
     }
 }
 
-void BreakWindow::associateBreakpoint(const QModelIndexList &list, int threadId)
+void BreakWindow::associateBreakpoint(const BreakpointIds &ids, int threadId)
 {
     BreakHandler *handler = breakHandler();
     QByteArray spec = QByteArray::number(threadId);
-    foreach (const BreakpointId id, handler->findBreakpointsByIndex(list))
+    foreach (const BreakpointId id, ids)
         handler->setThreadSpec(id, spec);
 }
 

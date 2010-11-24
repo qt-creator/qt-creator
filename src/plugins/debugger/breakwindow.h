@@ -61,12 +61,11 @@ private:
     void keyPressEvent(QKeyEvent *ev);
     void mouseDoubleClickEvent(QMouseEvent *ev);
 
-    void deleteBreakpoints(const QModelIndexList &list);
+    void deleteBreakpoints(const BreakpointIds &ids);
     void addBreakpoint();
-    void editBreakpoints(const QModelIndexList &list);
-    void associateBreakpoint(const QModelIndexList &list, int thread);
-    void setBreakpointsEnabled(const QModelIndexList &list, bool enabled);
-    void setBreakpointsFullPath(const QModelIndexList &list, bool fullpath);
+    void editBreakpoints(const BreakpointIds &ids);
+    void associateBreakpoint(const BreakpointIds &ids, int thread);
+    void setBreakpointsEnabled(const BreakpointIds &ids, bool enabled);
 
     bool m_alwaysResizeColumnsToContents;
 };

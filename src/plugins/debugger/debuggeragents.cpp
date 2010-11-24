@@ -210,6 +210,7 @@ struct DisassemblerViewAgentPrivate
     QPointer<TextEditor::ITextEditor> editor;
     StackFrame frame;
     bool tryMixed;
+    bool setMarker;
     QPointer<DebuggerEngine> engine;
     LocationMark2 *locationMark;
     QHash<QString, QString> cache;
@@ -219,6 +220,7 @@ struct DisassemblerViewAgentPrivate
 DisassemblerViewAgentPrivate::DisassemblerViewAgentPrivate() :
     editor(0),
     tryMixed(true),
+    setMarker(true),
     locationMark(new LocationMark2),
     mimeType(_("text/x-qtcreator-generic-asm"))
 {
@@ -279,9 +281,11 @@ bool DisassemblerViewAgent::isMixed() const
         && d->frame.function != _("??");
 }
 
-void DisassemblerViewAgent::setFrame(const StackFrame &frame, bool tryMixed)
+void DisassemblerViewAgent::setFrame(const StackFrame &frame, bool tryMixed,
+    bool setMarker)
 {
     d->frame = frame;
+    d->setMarker = setMarker;
     d->tryMixed = tryMixed;
     if (isMixed()) {
         QHash<QString, QString>::ConstIterator it = d->cache.find(frameKey(frame));
@@ -342,7 +346,7 @@ static QPair<int, int> lineNumberOfAddress(const QString &disassembly, quint64 a
 
     const int size = disassembly.size();
     for (int lineNumber = 1; pos < size; lineNumber++) {
-        int endOfLinePos = disassembly.indexOf(newLine, pos + 1);
+        int endOfLinePos = disassembly.indexOf(newLine, pos);
         if (endOfLinePos == -1)
             endOfLinePos = size;
         const QString line = disassembly.mid(pos, endOfLinePos - pos);
@@ -382,12 +386,15 @@ void DisassemblerViewAgent::setContents(const QString &contents)
         plainTextEdit->setReadOnly(true);
     }
 
-    d->editor->markableInterface()->removeMark(d->locationMark);
+    if (d->setMarker)
+        d->editor->markableInterface()->removeMark(d->locationMark);
     d->editor->setDisplayName(_("Disassembler (%1)").arg(d->frame.function));
 
-    const QPair<int, int> lineNumberPos = lineNumberOfAddress(contents, d->frame.address);
+    const QPair<int, int> lineNumberPos =
+        lineNumberOfAddress(contents, d->frame.address);
     if (lineNumberPos.first > 0) {
-        d->editor->markableInterface()->addMark(d->locationMark, lineNumberPos.first);
+        if (d->setMarker)
+            d->editor->markableInterface()->addMark(d->locationMark, lineNumberPos.first);
         if (plainTextEdit) {
             QTextCursor tc = plainTextEdit->textCursor();
             tc.setPosition(lineNumberPos.second);
@@ -399,7 +406,6 @@ void DisassemblerViewAgent::setContents(const QString &contents)
 bool DisassemblerViewAgent::contentsCoversAddress(const QString &contents) const
 {
     QTC_ASSERT(d, return false);
-
     return lineNumberOfAddress(contents, d->frame.address).first > 0;
 }
 

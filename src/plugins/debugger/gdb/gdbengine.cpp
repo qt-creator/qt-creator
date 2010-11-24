@@ -1186,8 +1186,9 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     }
 
     // Quickly set the location marker.
-    if (lineNumber && QFileInfo(fullName).exists())
-        debuggerCore()->gotoLocation(fullName, lineNumber, true);
+    if (lineNumber && !debuggerCore()->boolSetting(OperateByInstruction)
+            && QFileInfo(fullName).exists())
+        gotoLocation(fullName, lineNumber, true);
 
     if (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
         QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state())
@@ -1443,7 +1444,7 @@ void GdbEngine::handleStop1(const GdbMi &data)
     //
     // Stack
     //
-    reloadStack(false);
+    reloadStack(false); // Will trigger register reload.
 
     if (supportsThreads()) {
         int currentId = data.findChild("thread-id").data().toInt();
@@ -1458,11 +1459,6 @@ void GdbEngine::handleStop1(const GdbMi &data)
                 CB(handleThreadInfo), currentId);
         }
     }
-
-    //
-    // Registers
-    //
-    reloadRegisters();
 }
 
 void GdbEngine::handleInfoProc(const GdbResponse &response)
@@ -2886,8 +2882,7 @@ void GdbEngine::handleStackSelectThread(const GdbResponse &)
 {
     QTC_ASSERT(state() == InferiorUnrunnable || state() == InferiorStopOk, /**/);
     showStatusMessage(tr("Retrieving data for stack view..."), 3000);
-    reloadRegisters();
-    reloadStack(true);
+    reloadStack(true); // Will reload registers.
     updateLocals();
 }
 
@@ -2943,6 +2938,7 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
         // ^error,data={msg="Previous frame identical to this frame (corrupt stack?)"
         // logstreamoutput="Previous frame identical to this frame (corrupt stack?)\n"
         //qDebug() << "LISTING STACK FAILED: " << response.toString();
+        reloadRegisters();
         return;
     }
 
@@ -4039,17 +4035,35 @@ void GdbEngine::handleFetchDisassemblerByCli(const GdbResponse &response)
             // "Dump of assembler code from 0xb7ff598f to 0xb7ff5a07:"
             GdbMi output = response.data.findChild("consolestreamoutput");
             QByteArray res;
+            QByteArray lastFunction;
             foreach (const QByteArray &line0, output.data().split('\n')) {
                 QByteArray line = line0.trimmed();
                 if (line.startsWith("=> "))
                     line = line.mid(3);
+                if (line.isEmpty())
+                    continue;
                 if (line.startsWith("Current language:"))
+                    continue;
+                if (line.startsWith("Dump of assembler"))
                     continue;
                 if (line.startsWith("The current source"))
                     continue;
                 if (line.startsWith("End of assembler"))
                     continue;
                 if (line.startsWith("0x")) {
+                    int pos1 = line.indexOf('<') + 1;
+                    int pos2 = line.indexOf('+', pos1);
+                    int pos3 = line.indexOf('>', pos1);
+                    if (pos1 < pos2 && pos2 < pos3) {
+                        QByteArray function = line.mid(pos1, pos2 - pos1);
+                        if (function != lastFunction) {
+                            res.append("\nFunction: ");
+                            res.append(function);
+                            res.append('\n');
+                            lastFunction = function;
+                        }
+                        line.replace(pos1, pos2 - pos1, "");
+                    }
                     res.append(line);
                     res.append('\n');
                     continue;

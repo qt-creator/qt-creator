@@ -83,7 +83,7 @@ public:
     explicit DisassemblerViewAgent(Debugger::DebuggerEngine *engine);
     ~DisassemblerViewAgent();
 
-    void setFrame(const StackFrame &frame, bool tryMixed = true);
+    void setFrame(const StackFrame &frame, bool tryMixed, bool setMarker);
     const StackFrame &frame() const;
     void resetLocation();
     Q_SLOT void setContents(const QString &contents);

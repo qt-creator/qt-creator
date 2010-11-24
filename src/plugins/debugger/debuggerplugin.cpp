@@ -395,9 +395,27 @@ const char * const SNAPSHOT_KEY             = "Ctrl+D,Ctrl+S";
 #endif
 
 } // namespace Constants
-} // namespace Debugger
 
 
+namespace Cdb {
+void addCdb2OptionPages(QList<Core::IOptionsPage*> *);
+} // namespace Cdb
+
+
+namespace Internal {
+
+// FIXME: Outdated?
+// The createCdbEngine function takes a list of options pages it can add to.
+// This allows for having a "enabled" toggle on the page independently
+// of the engine. That's good for not enabling the related ActiveX control
+// unnecessarily.
+
+void addGdbOptionPages(QList<IOptionsPage*> *opts);
+void addScriptOptionPages(QList<IOptionsPage*> *opts);
+void addTcfOptionPages(QList<IOptionsPage*> *opts);
+#ifdef CDB_ENABLED
+void addCdbOptionPages(QList<IOptionsPage*> *opts);
+#endif
 
 static SessionManager *sessionManager()
 {
@@ -414,41 +432,18 @@ static QToolButton *toolButton(QAction *action)
 // Retrieve file name and line and optionally address
 // from the data set on the text editor context menu action.
 static bool positionFromContextActionData(const QObject *sender,
-                                          QString *fileName,
-                                          int *lineNumber,
-                                          quint64 *address = 0)
+    QString *fileName, int *lineNumber, quint64 *address = 0)
 {
-    if (const QAction *action = qobject_cast<const QAction *>(sender)) {
-        const QVariantList data = action->data().toList();
-        if (data.size() >= (address ? 3 : 2)) {
-            *fileName = data.front().toString();
-            *lineNumber = data.at(1).toInt();
-            if (address)
-                *address = data.at(2).toULongLong();
-            return true;
-        }
-    }
-    return false;
+    const QAction *action = qobject_cast<const QAction *>(sender);
+    QTC_ASSERT(action, return false);
+    const QVariantList data = action->data().toList();
+    QTC_ASSERT(data.size() == 3, return false);
+    *fileName = data.front().toString();
+    *lineNumber = data.at(1).toInt();
+    if (address)
+        *address = data.at(2).toULongLong();
+    return true;
 }
-
-namespace Debugger {
-namespace Cdb {
-void addCdb2OptionPages(QList<Core::IOptionsPage*> *);
-} // namespace Cdb
-namespace Internal {
-
-// FIXME: Outdated?
-// The createCdbEngine function takes a list of options pages it can add to.
-// This allows for having a "enabled" toggle on the page independently
-// of the engine. That's good for not enabling the related ActiveX control
-// unnecessarily.
-
-void addGdbOptionPages(QList<IOptionsPage*> *opts);
-void addScriptOptionPages(QList<IOptionsPage*> *opts);
-void addTcfOptionPages(QList<IOptionsPage*> *opts);
-#ifdef CDB_ENABLED
-void addCdbOptionPages(QList<IOptionsPage*> *opts);
-#endif
 
 struct AttachRemoteParameters
 {
@@ -917,7 +912,7 @@ public slots:
         quint64 address;
         if (positionFromContextActionData(sender(), &fileName, &lineNumber, &address))
             m_breakHandler->toggleBreakpoint(fileName, lineNumber, address);
-     }
+    }
 
     void breakpointRemoveMarginActionTriggered()
     {
@@ -2391,7 +2386,9 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditor::ITextEditor *editor,
         QString line = editor->contents()
             .section('\n', lineNumber - 1, lineNumber - 1);
         BreakpointResponse needle;
+        needle.type = BreakpointByAddress;
         needle.address = DisassemblerViewAgent::addressFromDisassemblyLine(line);
+        address = needle.address;
         needle.lineNumber = -1;
         id = breakHandler()->findSimilarBreakpoint(needle);
     } else {

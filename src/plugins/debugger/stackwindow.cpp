@@ -162,7 +162,7 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
         (void) new MemoryViewAgent(currentEngine(), address);
     else if (act == actShowDisassembler) {
         DisassemblerViewAgent *agent = new DisassemblerViewAgent(engine);
-        agent->setFrame(frame);
+        agent->setFrame(frame, true, false);
     }
 }
 
