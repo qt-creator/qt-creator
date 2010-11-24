@@ -371,7 +371,7 @@ bool S60CreatePackageStep::createOnePackage()
     // Setup arguments:
     m_args.clear();
     if (m_createSmartInstaller) {
-        if(signingMode() == NotSigned)
+        if (signingMode() == NotSigned)
             m_args << QLatin1String("unsigned_installer_sis");
         else
             m_args << QLatin1String("installer_sis");
