@@ -328,7 +328,7 @@
     desktop environment (Windows, Linux, and Mac OS) and mobile devices (Symbian, Maemo,
     and MeeGo). Build settings allow you to quickly switch between build targets.
 
-    When you build an application for a mobile device target with a device
+    When you run an application for a mobile device target with a device
     connected to the development PC, Qt Creator generates an installation package,
     installs in on the device, and executes it.
 
@@ -3039,7 +3039,7 @@
     In the details of the run configuration for the \gui{Symbian Device} target,
     select the device to run your application on.
 
-    When you build the application for the \gui{Symbian Device} target, Qt
+    When you run the application for the \gui{Symbian Device} target, Qt
     Creator automatically generates a Symbian installation system (SIS) file
     in the project folder. You can deliver the installation file to users for
     installation on Symbian devices.
@@ -3307,7 +3307,7 @@
 
     \section3 Creating SIS Installation Packages
 
-    When you build the application for the \gui{Symbian Device} target, Qt
+    When you run the application for the \gui{Symbian Device} target, Qt
     Creator automatically generates a Symbian installation system (SIS) file
     in the project folder. You can deliver the installation file to users for
     installation on Symbian devices.
