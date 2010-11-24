@@ -579,7 +579,7 @@ QStringList NavigatorTreeModel::visibleProperties(const ModelNode &node) const
 
             QString qmlType = qmlTypeInQtContainer(node.metaInfo().propertyType(propertyName));
             if (node.metaInfo().metaInfo().hasNodeMetaInfo(qmlType) &&
-                node.metaInfo().metaInfo().nodeMetaInfo(qmlType).isSubclassOf("Qt/QtObject", 4, 7)) {
+                node.metaInfo().metaInfo().nodeMetaInfo(qmlType).isSubclassOf("QGraphicsObject", -1, -1)) {
                 propertyList.append(propertyName);
             }
         }
