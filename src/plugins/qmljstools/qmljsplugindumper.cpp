@@ -65,7 +65,7 @@ void PluginDumper::onLoadPluginTypes(const QString &libraryPath, const QString &
     if (m_runningQmldumps.values().contains(canonicalLibraryPath))
         return;
     const Snapshot snapshot = m_modelManager->snapshot();
-    if (snapshot.libraryInfo(canonicalLibraryPath).isDumped())
+    if (snapshot.libraryInfo(canonicalLibraryPath).dumpStatus() != LibraryInfo::DumpNotStartedOrRunning)
         return;
 
     // avoid inserting the same plugin twice
@@ -91,9 +91,25 @@ void PluginDumper::onLoadPluginTypes(const QString &libraryPath, const QString &
     dump(plugin);
 }
 
+void PluginDumper::scheduleCompleteRedump()
+{
+    metaObject()->invokeMethod(this, "dumpAllPlugins", Qt::QueuedConnection);
+}
+
+void PluginDumper::dumpAllPlugins()
+{
+    foreach (const Plugin &plugin, m_plugins)
+        dump(plugin);
+}
+
 static QString qmldumpErrorMessage(const QString &libraryPath, const QString &error)
 {
     return PluginDumper::tr("Type dump of QML plugin in %0 failed.\nErrors:\n%1\n").arg(libraryPath, error);
+}
+
+static QString qmldumpFailedMessage()
+{
+    return PluginDumper::tr("Type dump of C++ plugin failed.\nCheck 'General Messages' output pane for details.");
 }
 
 void PluginDumper::qmlPluginTypeDumpDone(int exitCode)
@@ -106,16 +122,19 @@ void PluginDumper::qmlPluginTypeDumpDone(int exitCode)
     const QString libraryPath = m_runningQmldumps.take(process);
     const Snapshot snapshot = m_modelManager->snapshot();
     LibraryInfo libraryInfo = snapshot.libraryInfo(libraryPath);
-    libraryInfo.setDumped(true);
 
     if (exitCode != 0) {
         Core::MessageManager *messageManager = Core::MessageManager::instance();
         messageManager->printToOutputPane(qmldumpErrorMessage(libraryPath, process->readAllStandardError()));
+        libraryInfo.setDumpStatus(LibraryInfo::DumpError, qmldumpFailedMessage());
     }
 
     const QByteArray output = process->readAllStandardOutput();
     QMap<QString, Interpreter::FakeMetaObject *> newObjects;
     const QString error = Interpreter::CppQmlTypesLoader::parseQmlTypeXml(output, &newObjects);
+    if (!error.isEmpty()) {
+        libraryInfo.setDumpStatus(LibraryInfo::DumpError, tr("Type dump of C++ plugin failed. Parse error:\n'%1'").arg(error));
+    }
 
     if (exitCode == 0 && error.isEmpty()) {
         // convert from QList<T *> to QList<const T *>
@@ -128,6 +147,7 @@ void PluginDumper::qmlPluginTypeDumpDone(int exitCode)
         libraryInfo.setMetaObjects(objectsList);
         if (libraryPath.isEmpty())
             Interpreter::CppQmlTypesLoader::builtinObjects.append(objectsList);
+        libraryInfo.setDumpStatus(LibraryInfo::DumpDone);
     }
 
     if (!libraryPath.isEmpty())
@@ -149,7 +169,7 @@ void PluginDumper::qmlPluginTypeDumpError(QProcess::ProcessError)
     if (!libraryPath.isEmpty()) {
         const Snapshot snapshot = m_modelManager->snapshot();
         LibraryInfo libraryInfo = snapshot.libraryInfo(libraryPath);
-        libraryInfo.setDumped(true);
+        libraryInfo.setDumpStatus(LibraryInfo::DumpError, qmldumpFailedMessage());
         m_modelManager->updateLibraryInfo(libraryPath, libraryInfo);
     }
 }
@@ -172,8 +192,18 @@ void PluginDumper::dump(const Plugin &plugin)
 
     ModelManagerInterface::ProjectInfo info = m_modelManager->projectInfo(activeProject);
 
-    if (info.qmlDumpPath.isEmpty())
+    if (info.qmlDumpPath.isEmpty()) {
+        const Snapshot snapshot = m_modelManager->snapshot();
+        LibraryInfo libraryInfo = snapshot.libraryInfo(plugin.qmldirPath);
+        if (!libraryInfo.isValid())
+            return;
+
+        libraryInfo.setDumpStatus(LibraryInfo::DumpError,
+                                  tr("Could not locate the helper application for dumping type information from C++ plugins.\n"
+                                     "Please build the debugging helpers on the Qt version options page."));
+        m_modelManager->updateLibraryInfo(plugin.qmldirPath, libraryInfo);
         return;
+    }
 
     QProcess *process = new QProcess(this);
     process->setEnvironment(info.qmlDumpEnvironment.toStringList());

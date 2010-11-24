@@ -356,6 +356,7 @@ void Document::extractPragmas(QString *source)
 
 LibraryInfo::LibraryInfo()
     : _valid(false)
+    , _dumpStatus(DumpNotStartedOrRunning)
 {
 }
 
@@ -363,7 +364,7 @@ LibraryInfo::LibraryInfo(const QmlDirParser &parser)
     : _valid(true)
     , _components(parser.components())
     , _plugins(parser.plugins())
-    , _dumped(false)
+    , _dumpStatus(DumpNotStartedOrRunning)
 {
 }
 

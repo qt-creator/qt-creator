@@ -73,6 +73,7 @@ private:
     void importObject(Bind *bind, const QString &name, Interpreter::ObjectValue *object, NameId *targetNamespace);
 
     void error(const Document::Ptr &doc, const AST::SourceLocation &loc, const QString &message);
+    void warning(const Document::Ptr &doc, const AST::SourceLocation &loc, const QString &message);
 
 private:
     QScopedPointer<LinkPrivate> d_ptr;

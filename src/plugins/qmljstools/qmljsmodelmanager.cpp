@@ -215,6 +215,9 @@ void ModelManager::updateProjectInfo(const ProjectInfo &pinfo)
         oldInfo = m_projects.value(pinfo.project);
         m_projects.insert(pinfo.project, pinfo);
         snapshot = _snapshot;
+
+        if (oldInfo.qmlDumpPath != pinfo.qmlDumpPath)
+            m_pluginDumper->scheduleCompleteRedump();
     }
 
     updateImportPaths();

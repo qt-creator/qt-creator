@@ -256,10 +256,17 @@ ObjectValue *Link::importNonFile(Document::Ptr doc, const ImportInfo &importInfo
         importFound = true;
 
         if (!libraryInfo.plugins().isEmpty()) {
-            if (libraryInfo.metaObjects().isEmpty()) {
+            if (libraryInfo.dumpStatus() == LibraryInfo::DumpNotStartedOrRunning) {
                 ModelManagerInterface *modelManager = ModelManagerInterface::instance();
                 if (modelManager)
                     modelManager->loadPluginTypes(libraryPath, importPath, packageName);
+                warning(doc, locationFromRange(importInfo.ast()->firstSourceLocation(),
+                                               importInfo.ast()->lastSourceLocation()),
+                        tr("Library contains C++ plugins, type dump is in progress."));
+            } else if (libraryInfo.dumpStatus() == LibraryInfo::DumpError) {
+                error(doc, locationFromRange(importInfo.ast()->firstSourceLocation(),
+                                             importInfo.ast()->lastSourceLocation()),
+                      libraryInfo.dumpError());
             } else {
                 engine()->cppQmlTypes().load(engine(), libraryInfo.metaObjects());
             }
@@ -320,4 +327,12 @@ void Link::error(const Document::Ptr &doc, const AST::SourceLocation &loc, const
 
     if (doc->fileName() == d->doc->fileName())
         d->diagnosticMessages.append(DiagnosticMessage(DiagnosticMessage::Error, loc, message));
+}
+
+void Link::warning(const Document::Ptr &doc, const AST::SourceLocation &loc, const QString &message)
+{
+    Q_D(Link);
+
+    if (doc->fileName() == d->doc->fileName())
+        d->diagnosticMessages.append(DiagnosticMessage(DiagnosticMessage::Warning, loc, message));
 }

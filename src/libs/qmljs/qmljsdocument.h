@@ -119,12 +119,22 @@ private:
 
 class QMLJS_EXPORT LibraryInfo
 {
+public:
+    enum DumpStatus {
+        DumpNotStartedOrRunning,
+        DumpDone,
+        DumpError
+    };
+
+private:
     bool _valid;
     QList<QmlDirParser::Component> _components;
     QList<QmlDirParser::Plugin> _plugins;
     typedef QList<const Interpreter::FakeMetaObject *> FakeMetaObjectList;
     FakeMetaObjectList _metaObjects;
-    bool _dumped;
+
+    DumpStatus _dumpStatus;
+    QString _dumpError;
 
 public:
     LibraryInfo();
@@ -146,11 +156,14 @@ public:
     bool isValid() const
     { return _valid; }
 
-    bool isDumped() const
-    { return _dumped; }
+    DumpStatus dumpStatus() const
+    { return _dumpStatus; }
 
-    void setDumped(bool dumped)
-    { _dumped = dumped; }
+    QString dumpError() const
+    { return _dumpError; }
+
+    void setDumpStatus(DumpStatus dumped, const QString &error = QString())
+    { _dumpStatus = dumped; _dumpError = error; }
 };
 
 class QMLJS_EXPORT Snapshot
