@@ -84,6 +84,8 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
             this, SLOT(handleDoubleClicks(QTreeWidgetItem*,int)));
     connect(m_ui->versionTree, SIGNAL(customContextMenuRequested(QPoint)),
             this, SLOT(contextMenuRequested(QPoint)));
+
+    setTitle(tr("Qt Versions"));
 }
 
 void TargetSetupPage::initializePage()

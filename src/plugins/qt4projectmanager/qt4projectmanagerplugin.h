@@ -50,12 +50,6 @@ class QtVersionManager;
 namespace Internal {
 
 class ProFileEditorFactory;
-class ConsoleAppWizard;
-class GuiAppWizard;
-class EmptyProjectWizard;
-class QMakeStepFactory;
-class MakeStepFactory;
-class EmbeddedPropertiesPage;
 class GettingStartedWelcomePage;
 
 class Qt4ProjectManagerPlugin : public ExtensionSystem::IPlugin

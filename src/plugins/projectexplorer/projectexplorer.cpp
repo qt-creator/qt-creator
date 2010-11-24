@@ -2106,7 +2106,7 @@ void ProjectExplorerPlugin::addNewSubproject()
     if (d->m_currentNode->nodeType() == ProjectNodeType
             && d->m_currentNode->projectNode()->supportedActions(
                 d->m_currentNode->projectNode()).contains(ProjectNode::AddSubProject)) {
-        Core::ICore::instance()->showNewItemDialog(tr("New Project", "Title of dialog"),
+        Core::ICore::instance()->showNewItemDialog(tr("New Subproject", "Title of dialog"),
                               Core::IWizard::wizardsOfKind(Core::IWizard::ProjectWizard),
                               location);
     }
