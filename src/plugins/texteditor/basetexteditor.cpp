@@ -1787,10 +1787,16 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         if (!autoText.isEmpty()) {
             int pos = cursor.position();
             cursor.insertText(autoText);
-            cursor.setPosition(pos);
+            //Select the inserted text, to be able to re-indent the inserted text
+            cursor.setPosition(pos, QTextCursor::KeepAnchor);
         }
         if (!electricChar.isNull() && d->m_autoCompleter->contextAllowsElectricCharacters(cursor))
             indent(document(), cursor, electricChar);
+        if (!autoText.isEmpty()) {
+            if (d->m_document->tabSettings().m_autoIndent)
+                reindent(document(), cursor);
+            cursor.setPosition(autoText.length() == 1 ? cursor.position() : cursor.anchor());
+        }
 
         if (doEditBlock)
             cursor.endEditBlock();
@@ -2181,6 +2187,16 @@ bool BaseTextEditor::isAutoParenthesesEnabled() const
     return d->m_autoParenthesesEnabled;
 }
 
+void BaseTextEditor::setSurroundWithEnabled(bool b)
+{
+    d->m_surroundWithEnabled= b;
+}
+
+bool BaseTextEditor::isSurroundWithEnabled() const
+{
+    return d->m_surroundWithEnabled;
+}
+
 void BaseTextEditor::setHighlightCurrentLine(bool b)
 {
     d->m_highlightCurrentLine = b;
@@ -2346,6 +2362,7 @@ BaseTextEditorPrivate::BaseTextEditorPrivate()
     m_document(new BaseTextDocument),
     m_parenthesesMatchingEnabled(false),
     m_autoParenthesesEnabled(true),
+    m_surroundWithEnabled(true),
     m_updateTimer(0),
     m_formatRange(false),
     m_parenthesesMatchingTimer(0),
@@ -4505,6 +4522,34 @@ QString BaseTextEditor::autoComplete(QTextCursor &cursor, const QString &textToI
 {
     const bool checkBlockEnd = d->m_allowSkippingOfBlockEnd;
     d->m_allowSkippingOfBlockEnd = false; // consume blockEnd.
+
+    if (d->m_surroundWithEnabled && cursor.hasSelection()) {
+        if (textToInsert == QLatin1String("("))
+            return cursor.selectedText() + QLatin1String(")");
+        if (textToInsert == QLatin1String("{")) {
+            //If the text span multiple lines, insert on different lines
+            QString str = cursor.selectedText();
+            if (str.contains(QChar::ParagraphSeparator)) {
+                //Also, try to simulate auto-indent
+                str = (str.startsWith(QChar::ParagraphSeparator) ? QString() : QString(QChar::ParagraphSeparator)) +
+                      str;
+                if (str.endsWith(QChar::ParagraphSeparator))
+                    str += QLatin1String("}") + QString(QChar::ParagraphSeparator);
+                else
+                    str += QString(QChar::ParagraphSeparator) + QLatin1String("}");
+            }
+            else {
+                str += QLatin1String("}");
+            }
+            return str;
+        }
+        if (textToInsert == QLatin1String("["))
+            return cursor.selectedText() + QLatin1String("]");
+        if (textToInsert == QLatin1String("\""))
+            return cursor.selectedText() + QLatin1String("\"");
+        if (textToInsert == QLatin1String("'"))
+            return cursor.selectedText() + QLatin1String("'");
+    }
 
     if (!d->m_autoParenthesesEnabled)
         return QString();

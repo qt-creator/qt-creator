@@ -171,6 +171,9 @@ public:
     void setAutoParenthesesEnabled(bool b);
     bool isAutoParenthesesEnabled() const;
 
+    void setSurroundWithEnabled(bool b);
+    bool isSurroundWithEnabled() const;
+
     void setHighlightCurrentLine(bool b);
     bool highlightCurrentLine() const;
 

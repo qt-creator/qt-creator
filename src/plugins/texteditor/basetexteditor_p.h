@@ -192,6 +192,7 @@ public:
     QString m_displayName;
     bool m_parenthesesMatchingEnabled;
     bool m_autoParenthesesEnabled;
+    bool m_surroundWithEnabled;
     QTimer *m_updateTimer;
 
     Utils::ChangeSet m_changeSet;
