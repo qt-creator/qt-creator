@@ -29,78 +29,68 @@
 
 #include "passphraseforkeydialog.h"
 
+#include <QtGui/QCheckBox>
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QLabel>
-#include <QtGui/QVBoxLayout>
 #include <QtGui/QLineEdit>
-#include <QtGui/QCheckBox>
+#include <QtGui/QPushButton>
+#include <QtGui/QVBoxLayout>
 
 using namespace Qt4ProjectManager;
 
-PassphraseForKeyDialog::PassphraseForKeyDialog(const QString &keyName, QWidget *parent)
-    : QDialog(parent)
+PassphraseForKeyDialog::PassphraseForKeyDialog(const QString &keyName, QWidget *parent) :
+    QDialog(parent),
+    m_buttonBox(0),
+    m_passphraseEdit(0),
+    m_saveCheckBox(0)
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
-    setLayout(layout);
 
-    QHBoxLayout *hPasswordLayout = new QHBoxLayout(this);
+    QHBoxLayout *hPasswordLayout = new QHBoxLayout;
 
     QLabel *passphraseLabel = new QLabel(this);
     passphraseLabel->setText(tr("Passphrase:"));
-    passphraseLabel->setObjectName(QString::fromUtf8("passphraseLabel"));
-
     hPasswordLayout->addWidget(passphraseLabel);
 
-    QLineEdit *passphraseLineEdit = new QLineEdit(this);
-    passphraseLineEdit->setObjectName(QString::fromUtf8("passphraseLineEdit"));
-    passphraseLineEdit->setEchoMode(QLineEdit::Password);
+    m_passphraseEdit = new QLineEdit(this);
+    m_passphraseEdit->setEchoMode(QLineEdit::Password);
+    connect(m_passphraseEdit, SIGNAL(textChanged(QString)), this, SLOT(passphraseChanged()));
+    hPasswordLayout->addWidget(m_passphraseEdit);
 
-    connect(passphraseLineEdit, SIGNAL(textChanged(QString)), this, SLOT(setPassphrase(QString)));
+    m_saveCheckBox = new QCheckBox(this);
+    m_saveCheckBox->setText(tr("Save passphrase"));
+    m_saveCheckBox->setToolTip(tr("This is an insecure option. The password will be saved as plain text."));
 
-    hPasswordLayout->addWidget(passphraseLineEdit);
+    m_buttonBox = new QDialogButtonBox(this);
+    m_buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
-    m_checkBox = new QCheckBox(this);
-    m_checkBox->setText(tr("Save passphrase"));
-    m_checkBox->setObjectName(QString::fromUtf8("checkBox"));
-    m_checkBox->setToolTip(tr("This is an insecure option. The password will be saved as a plain text."));
-
-    QDialogButtonBox *buttonBox = new QDialogButtonBox(this);
-    buttonBox->setObjectName(QString::fromUtf8("buttonBox"));
-    buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
-
-    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(m_buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
     layout->addLayout(hPasswordLayout);
-    layout->addWidget(m_checkBox);
+    layout->addWidget(m_saveCheckBox);
     layout->addItem(new QSpacerItem(0, 10));
-    layout->addWidget(buttonBox);
+    layout->addWidget(m_buttonBox);
 
     setWindowTitle(tr("Passphrase for %1").arg(keyName));
-    setFixedSize( sizeHint() );
+    setFixedSize(sizeHint());
+
+    passphraseChanged();
 }
 
-void PassphraseForKeyDialog::accept()
+void PassphraseForKeyDialog::passphraseChanged()
 {
-    done(1);
-}
-
-void PassphraseForKeyDialog::reject()
-{
-    done(0);
-}
-
-void PassphraseForKeyDialog::setPassphrase(const QString &passphrase)
-{
-    m_passphrase = passphrase;
+    // We tried the empty passphrase when we get here, so disallow it
+    Q_ASSERT(m_buttonBox->button(QDialogButtonBox::Ok));
+    m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(!m_passphraseEdit->text().isEmpty());
 }
 
 QString PassphraseForKeyDialog::passphrase() const
 {
-    return m_passphrase;
+    return m_passphraseEdit->text();
 }
 
 bool PassphraseForKeyDialog::savePassphrase() const
 {
-    return m_checkBox->isChecked();
+    return m_saveCheckBox->isChecked();
 }

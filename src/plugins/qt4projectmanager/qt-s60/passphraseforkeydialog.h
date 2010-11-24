@@ -33,6 +33,8 @@
 #include <QtGui/QDialog>
 
 QT_FORWARD_DECLARE_CLASS(QCheckBox);
+QT_FORWARD_DECLARE_CLASS(QDialogButtonBox);
+QT_FORWARD_DECLARE_CLASS(QLineEdit);
 
 namespace Qt4ProjectManager {
 
@@ -46,14 +48,12 @@ public:
     bool savePassphrase() const;
 
 protected slots:
-    void accept();
-    void reject();
-    void setPassphrase(const QString &passphrase);
+    void passphraseChanged();
 
 private:
-    QCheckBox *m_checkBox;
-
-    QString m_passphrase;
+    QDialogButtonBox *m_buttonBox;
+    QCheckBox *m_saveCheckBox;
+    QLineEdit *m_passphraseEdit;
 };
 
 } // namespace Qt4ProjectManager
