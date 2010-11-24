@@ -33,7 +33,15 @@ HEADERS += \
     $$PWD/maemoprofilesupdatedialog.h \
     $$PWD/maemousedportsgatherer.h \
     $$PWD/maemoremoteprocesslist.h \
-    $$PWD/maemoremoteprocessesdialog.h
+    $$PWD/maemoremoteprocessesdialog.h \
+    $$PWD/maemopublishingwizardfactories.h \
+    $$PWD/maemopublishingbuildsettingspagefremantlefree.h \
+    $$PWD/maemopublishingfileselectiondialog.h \
+    $$PWD/maemopublishedprojectmodel.h \
+    $$PWD/maemopublishinguploadsettingspagefremantlefree.h \
+    $$PWD/maemopublishingwizardfremantlefree.h \
+    $$PWD/maemopublishingresultpagefremantlefree.h \
+    $$PWD/maemopublisherfremantlefree.h
 
 SOURCES += \
     $$PWD/maemoconfigtestdialog.cpp \
@@ -68,7 +76,15 @@ SOURCES += \
     $$PWD/maemoprofilesupdatedialog.cpp \
     $$PWD/maemousedportsgatherer.cpp \
     $$PWD/maemoremoteprocesslist.cpp \
-    $$PWD/maemoremoteprocessesdialog.cpp
+    $$PWD/maemoremoteprocessesdialog.cpp \
+    $$PWD/maemopublishingwizardfactories.cpp \
+    $$PWD/maemopublishingbuildsettingspagefremantlefree.cpp \
+    $$PWD/maemopublishingfileselectiondialog.cpp \
+    $$PWD/maemopublishedprojectmodel.cpp \
+    $$PWD/maemopublishinguploadsettingspagefremantlefree.cpp \
+    $$PWD/maemopublishingwizardfremantlefree.cpp \
+    $$PWD/maemopublishingresultpagefremantlefree.cpp \
+    $$PWD/maemopublisherfremantlefree.cpp
 
 FORMS += \
     $$PWD/maemoconfigtestdialog.ui \
@@ -77,6 +93,10 @@ FORMS += \
     $$PWD/maemopackagecreationwidget.ui \
     $$PWD/maemodeploystepwidget.ui \
     $$PWD/maemoprofilesupdatedialog.ui \
-    $$PWD/maemoremoteprocessesdialog.ui
+    $$PWD/maemoremoteprocessesdialog.ui \
+    $$PWD/maemopublishingbuildsettingspagefremantlefree.ui \
+    $$PWD/maemopublishingfileselectiondialog.ui \
+    $$PWD/maemopublishinguploadsettingspagefremantlefree.ui \
+    $$PWD/maemopublishingresultpagefremantlefree.ui
 
 RESOURCES += $$PWD/qt-maemo.qrc

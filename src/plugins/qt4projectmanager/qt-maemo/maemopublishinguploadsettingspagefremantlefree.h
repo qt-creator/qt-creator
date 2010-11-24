@@ -23,59 +23,41 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
+#ifndef MAEMOPUBLISHINGUPLOADSETTINGSWIZARDPAGE_H
+#define MAEMOPUBLISHINGUPLOADSETTINGSWIZARDPAGE_H
 
-#ifndef MAEMOMANAGER_H
-#define MAEMOMANAGER_H
+#include <QtGui/QWizardPage>
 
-#include <QtCore/QObject>
-
-namespace ProjectExplorer {
-    class ToolChain;
+QT_BEGIN_NAMESPACE
+namespace Ui {
+    class MaemoPublishingUploadSettingsPageFremantleFree;
 }
-using ProjectExplorer::ToolChain;
+QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
-    class QtVersion;
 namespace Internal {
+class MaemoPublisherFremantleFree;
 
-class MaemoDeployStepFactory;
-class MaemoPackageCreationFactory;
-class MaemoPublishingWizardFactoryFremantleFree;
-class MaemoRunControlFactory;
-class MaemoRunConfigurationFactory;
-class MaemoSettingsPage;
-class MaemoQemuManager;
-
-class MaemoManager : public QObject
+class MaemoPublishingUploadSettingsPageFremantleFree : public QWizardPage
 {
     Q_OBJECT
 
 public:
-    MaemoManager();
-    ~MaemoManager();
-    static MaemoManager &instance();
-
-    bool isValidMaemoQtVersion(const Qt4ProjectManager::QtVersion *version) const;
-    ToolChain *maemoToolChain(const Qt4ProjectManager::QtVersion *version) const;
-
-    MaemoSettingsPage *settingsPage() const { return m_settingsPage; }
+    explicit MaemoPublishingUploadSettingsPageFremantleFree(MaemoPublisherFremantleFree *publisher,
+        QWidget *parent = 0);
+    ~MaemoPublishingUploadSettingsPageFremantleFree();
 
 private:
-    static MaemoManager *m_instance;
+    virtual bool validatePage();
 
-    MaemoRunControlFactory *m_runControlFactory;
-    MaemoRunConfigurationFactory *m_runConfigurationFactory;
-    MaemoPackageCreationFactory *m_packageCreationFactory;
-    MaemoDeployStepFactory *m_deployStepFactory;
-    MaemoSettingsPage *m_settingsPage;
-    MaemoQemuManager *m_qemuRuntimeManager;
-    MaemoPublishingWizardFactoryFremantleFree *m_publishingFactoryFremantleFree;
+    MaemoPublisherFremantleFree * const m_publisher;
+    Ui::MaemoPublishingUploadSettingsPageFremantleFree *ui;
 };
 
-    } // namespace Internal
+} // namespace Internal
 } // namespace Qt4ProjectManager
 
-#endif // MAEMOMANAGER_H
+#endif // MAEMOPUBLISHINGUPLOADSETTINGSWIZARDPAGE_H

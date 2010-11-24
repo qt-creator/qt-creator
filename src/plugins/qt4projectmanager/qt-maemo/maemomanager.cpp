@@ -33,6 +33,7 @@
 #include "maemodeploystepfactory.h"
 #include "maemodeviceconfigurations.h"
 #include "maemopackagecreationfactory.h"
+#include "maemopublishingwizardfactories.h"
 #include "maemoqemumanager.h"
 #include "maemorunfactories.h"
 #include "maemosettingspage.h"
@@ -61,6 +62,7 @@ MaemoManager::MaemoManager()
     , m_packageCreationFactory(new MaemoPackageCreationFactory(this))
     , m_deployStepFactory(new MaemoDeployStepFactory(this))
     , m_settingsPage(new MaemoSettingsPage(this))
+    , m_publishingFactoryFremantleFree(new MaemoPublishingWizardFactoryFremantleFree(this))
 {
     Q_ASSERT(!m_instance);
 
@@ -75,6 +77,7 @@ MaemoManager::MaemoManager()
     pluginManager->addObject(m_packageCreationFactory);
     pluginManager->addObject(m_deployStepFactory);
     pluginManager->addObject(m_settingsPage);
+    pluginManager->addObject(m_publishingFactoryFremantleFree);
 }
 
 MaemoManager::~MaemoManager()
@@ -85,6 +88,7 @@ MaemoManager::~MaemoManager()
     pluginManager->removeObject(m_deployStepFactory);
     pluginManager->removeObject(m_packageCreationFactory);
     pluginManager->removeObject(m_settingsPage);
+    pluginManager->removeObject(m_publishingFactoryFremantleFree);
 
     m_instance = 0;
 }
