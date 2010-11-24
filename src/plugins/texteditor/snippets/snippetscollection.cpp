@@ -221,10 +221,14 @@ int SnippetsCollection::totalSnippets(Snippet::Group group) const
 
 void SnippetsCollection::clear()
 {
-    for (Snippet::Group group = Snippet::Cpp; group < Snippet::GroupSize; ++group) {
-        m_snippets[group].clear();
-        m_activeSnippetsEnd[group] = m_snippets[group].end();
-    }
+    for (Snippet::Group group = Snippet::Cpp; group < Snippet::GroupSize; ++group)
+        clear(group);
+}
+
+void SnippetsCollection::clear(Snippet::Group group)
+{
+    m_snippets[group].clear();
+    m_activeSnippetsEnd[group] = m_snippets[group].end();
 }
 
 void SnippetsCollection::updateActiveSnippetsEnd(Snippet::Group group)
@@ -232,6 +236,41 @@ void SnippetsCollection::updateActiveSnippetsEnd(Snippet::Group group)
     m_activeSnippetsEnd[group] = std::find_if(m_snippets[group].begin(),
                                               m_snippets[group].end(),
                                               removedSnippetPred);
+}
+
+void SnippetsCollection::restoreRemovedSnippets(Snippet::Group group)
+{
+    // The version restored contains the last modifications (if any) by the user.
+    // Reverting the snippet can still bring it to the original version.
+    QVector<Snippet> toRestore(std::distance(m_activeSnippetsEnd[group], m_snippets[group].end()));
+    qCopy(m_activeSnippetsEnd[group], m_snippets[group].end(), toRestore.begin());
+    m_snippets[group].erase(m_activeSnippetsEnd[group], m_snippets[group].end());
+    foreach (Snippet snippet, toRestore) {
+        snippet.setIsRemoved(false);
+        insertSnippet(snippet, group);
+    }
+}
+
+Snippet SnippetsCollection::revertedSnippet(int index, Snippet::Group group) const
+{
+    const Snippet &candidate = snippet(index, group);
+    Q_ASSERT(candidate.isBuiltIn());
+
+    const QList<Snippet> &builtIn =
+        readXML(m_builtInSnippetsPath + m_snippetsFileName, candidate.id());
+    if (builtIn.size() == 1)
+        return builtIn.at(0);
+    return Snippet();
+}
+
+void SnippetsCollection::reset(Snippet::Group group)
+{
+    clear(group);
+
+    const QList<Snippet> &builtInSnippets = readXML(m_builtInSnippetsPath + m_snippetsFileName);
+    foreach (const Snippet &snippet, builtInSnippets)
+        if (group == snippet.group())
+            insertSnippet(snippet, snippet.group());
 }
 
 void SnippetsCollection::reload()
@@ -268,10 +307,8 @@ void SnippetsCollection::synchronize()
                 const int size = totalSnippets(group);
                 for (int i = 0; i < size; ++i) {
                     const Snippet &current = snippet(i, group);
-                    if (!current.isBuiltIn() ||
-                       (current.isBuiltIn() && (current.isRemoved() || current.isModified()))) {
+                    if (!current.isBuiltIn() || current.isRemoved() || current.isModified())
                         writeSnippetXML(current, &writer);
-                    }
                 }
             }
             writer.writeEndElement();
@@ -296,7 +333,7 @@ void SnippetsCollection::writeSnippetXML(const Snippet &snippet, QXmlStreamWrite
     writer->writeEndElement();
 }
 
-QList<Snippet> SnippetsCollection::readXML(const QString &fileName)
+QList<Snippet> SnippetsCollection::readXML(const QString &fileName, const QString &snippetId)
 {
     QList<Snippet> snippets;
     QFile file(fileName);
@@ -307,31 +344,36 @@ QList<Snippet> SnippetsCollection::readXML(const QString &fileName)
                 while (xml.readNextStartElement()) {
                     if (xml.name() == kSnippet) {
                         const QXmlStreamAttributes &atts = xml.attributes();
+                        const QString &id = atts.value(kId).toString();
+                        if (snippetId.isEmpty() || snippetId == id) {
+                            Snippet snippet(id);
+                            snippet.setTrigger(atts.value(kTrigger).toString());
+                            snippet.setComplement(atts.value(kComplement).toString());
+                            snippet.setGroup(toSnippetGroup(atts.value(kGroup).toString()));
+                            snippet.setIsRemoved(toBool(atts.value(kRemoved).toString()));
+                            snippet.setIsModified(toBool(atts.value(kModified).toString()));
 
-                        Snippet snippet(atts.value(kId).toString());
-                        snippet.setTrigger(atts.value(kTrigger).toString());
-                        snippet.setComplement(atts.value(kComplement).toString());
-                        snippet.setGroup(toSnippetGroup(atts.value(kGroup).toString()));
-                        snippet.setIsRemoved(toBool(atts.value(kRemoved).toString()));
-                        snippet.setIsModified(toBool(atts.value(kModified).toString()));
-
-                        QString content;
-                        while (!xml.atEnd()) {
-                            xml.readNext();
-                            if (xml.isCharacters()) {
-                                content += xml.text();
-                            } else if (xml.isEndElement()) {
-                                snippet.setContent(content);
-                                snippets.append(snippet);
-                                break;
+                            QString content;
+                            while (!xml.atEnd()) {
+                                xml.readNext();
+                                if (xml.isCharacters()) {
+                                    content += xml.text();
+                                } else if (xml.isEndElement()) {
+                                    snippet.setContent(content);
+                                    snippets.append(snippet);
+                                    break;
+                                }
                             }
+
+                            if (!snippetId.isEmpty())
+                                break;
+                        } else {
+                            xml.skipCurrentElement();
                         }
                     } else {
                         xml.skipCurrentElement();
                     }
                 }
-            } else {
-                xml.skipCurrentElement();
             }
         }
         if (xml.hasError())

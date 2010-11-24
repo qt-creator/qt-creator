@@ -75,8 +75,12 @@ public:
     void removeSnippet(const QModelIndex &modelIndex);
     const Snippet &snippetAt(const QModelIndex &modelIndex) const;
     void setSnippetContent(const QModelIndex &modelIndex, const QString &content);
+    void revertBuitInSnippet(const QModelIndex &modelIndex);
+    void restoreRemovedBuiltInSnippets();
+    void resetSnippets();
 
 private:
+    void replaceSnippet(const Snippet &snippet, const QModelIndex &modelIndex);
     static bool isValidTrigger(const QString &s);
 
     Snippet::Group m_activeGroup;
@@ -130,8 +134,7 @@ QVariant SnippetsTableModel::data(const QModelIndex &modelIndex, int role) const
 bool SnippetsTableModel::setData(const QModelIndex &modelIndex, const QVariant &value, int role)
 {
     if (modelIndex.isValid() && role == Qt::EditRole) {
-        const int row = modelIndex.row();
-        Snippet snippet(m_collection->snippet(row, m_activeGroup));
+        Snippet snippet(m_collection->snippet(modelIndex.row(), m_activeGroup));
         if (modelIndex.column() == 0) {
             const QString &s = value.toString();
             if (!isValidTrigger(s)) {
@@ -145,21 +148,7 @@ bool SnippetsTableModel::setData(const QModelIndex &modelIndex, const QVariant &
             snippet.setComplement(value.toString());
         }
 
-        const SnippetsCollection::Hint &hint =
-            m_collection->computeReplacementHint(row, snippet, m_activeGroup);
-        if (modelIndex.row() == hint.index()) {
-            m_collection->replaceSnippet(row, snippet, m_activeGroup, hint);
-            emit dataChanged(modelIndex, modelIndex);
-        } else {
-            if (row < hint.index())
-                // Rows will be moved down.
-                beginMoveRows(QModelIndex(), row, row, QModelIndex(), hint.index() + 1);
-            else
-                beginMoveRows(QModelIndex(), row, row, QModelIndex(), hint.index());
-            m_collection->replaceSnippet(row, snippet, m_activeGroup, hint);
-            endMoveRows();
-        }
-
+        replaceSnippet(snippet, modelIndex);
         return true;
     }
     return false;
@@ -217,6 +206,47 @@ void SnippetsTableModel::setSnippetContent(const QModelIndex &modelIndex, const 
     m_collection->setSnippetContent(modelIndex.row(), m_activeGroup, content);
 }
 
+void SnippetsTableModel::revertBuitInSnippet(const QModelIndex &modelIndex)
+{
+    const Snippet &snippet = m_collection->revertedSnippet(modelIndex.row(), m_activeGroup);
+    if (snippet.id().isEmpty()) {
+        QMessageBox::critical(0, tr("Error"), tr("Error reverting snippet."));
+        return;
+    }
+    replaceSnippet(snippet, modelIndex);
+}
+
+void SnippetsTableModel::restoreRemovedBuiltInSnippets()
+{
+    m_collection->restoreRemovedSnippets(m_activeGroup);
+    reset();
+}
+
+void SnippetsTableModel::resetSnippets()
+{
+    m_collection->reset(m_activeGroup);
+    reset();
+}
+
+void SnippetsTableModel::replaceSnippet(const Snippet &snippet, const QModelIndex &modelIndex)
+{
+    const int row = modelIndex.row();
+    const SnippetsCollection::Hint &hint =
+        m_collection->computeReplacementHint(row, snippet, m_activeGroup);
+    if (modelIndex.row() == hint.index()) {
+        m_collection->replaceSnippet(row, snippet, m_activeGroup, hint);
+        emit dataChanged(modelIndex, modelIndex);
+    } else {
+        if (row < hint.index())
+            // Rows will be moved down.
+            beginMoveRows(QModelIndex(), row, row, QModelIndex(), hint.index() + 1);
+        else
+            beginMoveRows(QModelIndex(), row, row, QModelIndex(), hint.index());
+        m_collection->replaceSnippet(row, snippet, m_activeGroup, hint);
+        endMoveRows();
+    }
+}
+
 bool SnippetsTableModel::isValidTrigger(const QString &s)
 {
     if (s.isEmpty())
@@ -248,10 +278,13 @@ private slots:
     void markSnippetsCollection();
     void addSnippet();
     void removeSnippet();
+    void revertBuiltInSnippet();
+    void restoreRemovedBuiltInSnippets();
+    void resetAllSnippets();
     void selectSnippet(const QModelIndex &parent, int row);
     void selectMovedSnippet(const QModelIndex &, int, int, const QModelIndex &, int row);
-    void previewSnippet(const QModelIndex &modelIndex);
-    void updateSnippetContent();
+    void setSnippetContent();
+    void updateCurrentSnippetDependent(const QModelIndex &modelIndex = QModelIndex());
 
 private:
     SnippetEditor *currentEditor() const;
@@ -314,17 +347,19 @@ void SnippetsSettingsPagePrivate::configureUi(QWidget *w)
     decorateEditor(editorAt(Snippet::Qml), Snippet::Qml);
     decorateEditor(editorAt(Snippet::PlainText), Snippet::PlainText);
 
+    m_ui.revertButton->setEnabled(false);
+
     QTextStream(&m_keywords) << m_displayName;
 
     loadSettings();
     loadSnippetGroup(m_ui.groupCombo->currentIndex());
 
     connect(editorAt(Snippet::Cpp), SIGNAL(snippetContentChanged()),
-            this, SLOT(updateSnippetContent()));
+            this, SLOT(setSnippetContent()));
     connect(editorAt(Snippet::Qml), SIGNAL(snippetContentChanged()),
-            this, SLOT(updateSnippetContent()));
+            this, SLOT(setSnippetContent()));
     connect(editorAt(Snippet::PlainText), SIGNAL(snippetContentChanged()),
-            this, SLOT(updateSnippetContent()));
+            this, SLOT(setSnippetContent()));
 
     connect(m_model, SIGNAL(rowsInserted(QModelIndex, int, int)),
             this, SLOT(selectSnippet(QModelIndex,int)));
@@ -338,12 +373,18 @@ void SnippetsSettingsPagePrivate::configureUi(QWidget *w)
             this, SLOT(markSnippetsCollection()));
     connect(m_model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             this, SLOT(markSnippetsCollection()));
+    connect(m_model, SIGNAL(modelReset()), this, SLOT(updateCurrentSnippetDependent()));
+    connect(m_model, SIGNAL(modelReset()), this, SLOT(markSnippetsCollection()));
 
     connect(m_ui.groupCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(loadSnippetGroup(int)));
     connect(m_ui.addButton, SIGNAL(clicked()), this, SLOT(addSnippet()));
     connect(m_ui.removeButton, SIGNAL(clicked()), this, SLOT(removeSnippet()));
+    connect(m_ui.resetAllButton, SIGNAL(clicked()), this, SLOT(resetAllSnippets()));
+    connect(m_ui.restoreRemovedButton, SIGNAL(clicked()),
+            this, SLOT(restoreRemovedBuiltInSnippets()));
+    connect(m_ui.revertButton, SIGNAL(clicked()), this, SLOT(revertBuiltInSnippet()));
     connect(m_ui.snippetsTable->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(previewSnippet(QModelIndex)));
+            this, SLOT(updateCurrentSnippetDependent(QModelIndex)));
 }
 
 void SnippetsSettingsPagePrivate::decorateEditor(SnippetEditor *editor, Snippet::Group group)
@@ -427,6 +468,21 @@ void SnippetsSettingsPagePrivate::removeSnippet()
     m_model->removeSnippet(modelIndex);
 }
 
+void SnippetsSettingsPagePrivate::restoreRemovedBuiltInSnippets()
+{
+    m_model->restoreRemovedBuiltInSnippets();
+}
+
+void SnippetsSettingsPagePrivate::revertBuiltInSnippet()
+{
+    m_model->revertBuitInSnippet(m_ui.snippetsTable->selectionModel()->currentIndex());
+}
+
+void SnippetsSettingsPagePrivate::resetAllSnippets()
+{
+    m_model->resetSnippets();
+}
+
 void SnippetsSettingsPagePrivate::selectSnippet(const QModelIndex &parent, int row)
 {
     QModelIndex topLeft = m_model->index(row, 0, parent);
@@ -449,14 +505,22 @@ void SnippetsSettingsPagePrivate::selectMovedSnippet(const QModelIndex &,
     else
         modelIndex = m_model->index(destinationRow, 0, destinationParent);
     m_ui.snippetsTable->scrollTo(modelIndex);
-}
-
-void SnippetsSettingsPagePrivate::previewSnippet(const QModelIndex &modelIndex)
-{
     currentEditor()->setPlainText(m_model->snippetAt(modelIndex).content());
 }
 
-void SnippetsSettingsPagePrivate::updateSnippetContent()
+void SnippetsSettingsPagePrivate::updateCurrentSnippetDependent(const QModelIndex &modelIndex)
+{
+    if (modelIndex.isValid()) {
+        const Snippet &snippet = m_model->snippetAt(modelIndex);
+        currentEditor()->setPlainText(snippet.content());
+        m_ui.revertButton->setEnabled(snippet.isBuiltIn());
+    } else {
+        currentEditor()->clear();
+        m_ui.revertButton->setEnabled(false);
+    }
+}
+
+void SnippetsSettingsPagePrivate::setSnippetContent()
 {
     const QModelIndex &modelIndex = m_ui.snippetsTable->selectionModel()->currentIndex();
     if (modelIndex.isValid()) {

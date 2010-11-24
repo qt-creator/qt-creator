@@ -80,6 +80,27 @@
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="revertButton">
+         <property name="text">
+          <string>Revert Built-in</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="restoreRemovedButton">
+         <property name="text">
+          <string>Restore Removed Built-ins</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="resetAllButton">
+         <property name="text">
+          <string>Reset All</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>

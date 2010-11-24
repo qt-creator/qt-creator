@@ -80,7 +80,7 @@ public:
 private:
     bool m_isRemoved;
     bool m_isModified;
-    QString m_id;
+    QString m_id; // Only built-in snippets have an id.
     QString m_trigger;
     QString m_content;
     QString m_complement;
