@@ -134,29 +134,7 @@ bool Qt4RunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *configu
 {
     if (!m_parseSuccess)
         return false;
-    Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration *>(configuration);
-    QTC_ASSERT(qt4bc, return false);
-
-    using namespace ProjectExplorer;
-    const ToolChainType type = qt4bc->toolChainType();
-    bool enabled;
-    switch (type) {
-    case ProjectExplorer::ToolChain_MSVC:        case ProjectExplorer::ToolChain_WINCE:
-    case ProjectExplorer::ToolChain_GCC:         case ProjectExplorer::ToolChain_MinGW:
-    case ProjectExplorer::ToolChain_GCCE_GNUPOC: case ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC:
-    case ProjectExplorer::ToolChain_OTHER:       case ProjectExplorer::ToolChain_UNKNOWN:
-    case ProjectExplorer::ToolChain_LINUX_ICC:
-    case ProjectExplorer::ToolChain_INVALID:
-        enabled = true;
-        break;
-    case ProjectExplorer::ToolChain_WINSCW:      case ProjectExplorer::ToolChain_GCCE:
-    case ProjectExplorer::ToolChain_RVCT2_ARMV5: case ProjectExplorer::ToolChain_RVCT2_ARMV6:
-    case ProjectExplorer::ToolChain_RVCT4_ARMV5: case ProjectExplorer::ToolChain_RVCT4_ARMV6:
-    case ProjectExplorer::ToolChain_GCC_MAEMO:
-        enabled = false;
-        break;
-    }
-    return enabled;
+    return true;
 }
 
 void Qt4RunConfiguration::handleParseState(bool success)
