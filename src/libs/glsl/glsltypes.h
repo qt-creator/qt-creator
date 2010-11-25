@@ -29,29 +29,9 @@
 #ifndef GLSLTYPES_H
 #define GLSLTYPES_H
 
-#include "glsl.h"
+#include "glsltype.h"
 
 namespace GLSL {
-
-class GLSL_EXPORT Type
-{
-public:
-    virtual ~Type() {}
-
-    virtual const UndefinedType *asUndefinedType() const { return 0; }
-    virtual const VoidType *asVoidType() const { return 0; }
-    virtual const BoolType *asBoolType() const { return 0; }
-    virtual const IntType *asIntType() const { return 0; }
-    virtual const UIntType *asUIntType() const { return 0; }
-    virtual const FloatType *asFloatType() const { return 0; }
-    virtual const DoubleType *asDoubleType() const { return 0; }
-    virtual const OpaqueType *asOpaqueType() const { return 0; }
-    virtual const VectorType *asVectorType() const { return 0; }
-    virtual const MatrixType *asMatrixType() const { return 0; }
-
-    virtual bool isEqualTo(const Type *other) const = 0;
-    virtual bool isLessThan(const Type *other) const = 0;
-};
 
 class GLSL_EXPORT OpaqueType: public Type
 {
