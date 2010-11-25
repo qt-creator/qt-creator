@@ -163,23 +163,21 @@ Internal::ObjectNodeInstance::Pointer ServerNodeInstance::createInstance(QObject
 
     if (objectToBeWrapped == 0)
         instance = Internal::DummyNodeInstance::create();
-    else if (isSubclassOf(objectToBeWrapped, "QtWebKit/WebView"))
-        instance = Internal::DummyNodeInstance::create();
     else if (isSubclassOf(objectToBeWrapped, "QDeclarativeBasePositioner"))
         instance = Internal::PositionerNodeInstance::create(objectToBeWrapped);
-    else if (isSubclassOf(objectToBeWrapped, "Qt/Item"))
+    else if (isSubclassOf(objectToBeWrapped, "QDeclarativeItem"))
         instance = Internal::QmlGraphicsItemNodeInstance::create(objectToBeWrapped);
-    else if (isSubclassOf(objectToBeWrapped, "Qt/Component"))
+    else if (isSubclassOf(objectToBeWrapped, "QDeclarativeComponent"))
         instance = Internal::ComponentNodeInstance::create(objectToBeWrapped);
-    else if (isSubclassOf(objectToBeWrapped, "Qt/PropertyChanges"))
+    else if (isSubclassOf(objectToBeWrapped, "QDeclarativePropertyChanges"))
         instance = Internal::QmlPropertyChangesNodeInstance::create(objectToBeWrapped);
-    else if (isSubclassOf(objectToBeWrapped, "Qt/State"))
+    else if (isSubclassOf(objectToBeWrapped, "QDeclarativeState"))
         instance = Internal::QmlStateNodeInstance::create(objectToBeWrapped);
-    else if (isSubclassOf(objectToBeWrapped, "Qt/Transition"))
+    else if (isSubclassOf(objectToBeWrapped, "QDeclarativeTransition"))
         instance = Internal::QmlTransitionNodeInstance::create(objectToBeWrapped);
-    else if (isSubclassOf(objectToBeWrapped, "Qt/Behavior"))
+    else if (isSubclassOf(objectToBeWrapped, "QDeclarativeBehavior"))
         instance = Internal::BehaviorNodeInstance::create(objectToBeWrapped);
-    else if (isSubclassOf(objectToBeWrapped, "Qt/QtObject"))
+    else if (isSubclassOf(objectToBeWrapped, "QObject"))
         instance = Internal::ObjectNodeInstance::create(objectToBeWrapped);
     else
         instance = Internal::DummyNodeInstance::create();
