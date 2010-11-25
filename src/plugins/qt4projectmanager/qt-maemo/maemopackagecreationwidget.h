@@ -57,6 +57,7 @@ class MaemoPackageCreationWidget : public ProjectExplorer::BuildStepConfigWidget
     Q_OBJECT
 public:
     MaemoPackageCreationWidget(MaemoPackageCreationStep *step);
+    ~MaemoPackageCreationWidget();
 
     virtual void init();
     virtual QString summaryText() const;

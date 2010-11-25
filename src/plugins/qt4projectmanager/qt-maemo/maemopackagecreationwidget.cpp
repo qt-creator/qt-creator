@@ -71,6 +71,11 @@ MaemoPackageCreationWidget::MaemoPackageCreationWidget(MaemoPackageCreationStep 
     QTimer::singleShot(0, this, SLOT(initGui()));
 }
 
+MaemoPackageCreationWidget::~MaemoPackageCreationWidget()
+{
+    delete m_ui;
+}
+
 void MaemoPackageCreationWidget::init()
 {
 }
