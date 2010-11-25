@@ -29,6 +29,8 @@
 
 #include "glslsemantic.h"
 #include "glslengine.h"
+#include "glslparser.h"
+#include <QtCore/QDebug>
 
 using namespace GLSL;
 
@@ -262,7 +264,185 @@ bool Semantic::visit(DeclarationStatementAST *ast)
 // types
 bool Semantic::visit(BasicTypeAST *ast)
 {
-    Q_UNUSED(ast);
+    switch (ast->token) {
+    case Parser::T_VOID:
+        _type = _engine->voidType();
+        break;
+
+    case Parser::T_BOOL:
+        _type = _engine->boolType();
+        break;
+
+    case Parser::T_INT:
+        _type = _engine->intType();
+        break;
+
+    case Parser::T_UINT:
+        _type = _engine->uintType();
+        break;
+
+    case Parser::T_FLOAT:
+        _type = _engine->floatType();
+        break;
+
+    case Parser::T_DOUBLE:
+        _type = _engine->doubleType();
+        break;
+
+    // bvec
+    case Parser::T_BVEC2:
+        _type = _engine->vectorType(_engine->boolType(), 2);
+        break;
+
+    case Parser::T_BVEC3:
+        _type = _engine->vectorType(_engine->boolType(), 3);
+        break;
+
+    case Parser::T_BVEC4:
+        _type = _engine->vectorType(_engine->boolType(), 4);
+        break;
+
+    // ivec
+    case Parser::T_IVEC2:
+        _type = _engine->vectorType(_engine->intType(), 2);
+        break;
+
+    case Parser::T_IVEC3:
+        _type = _engine->vectorType(_engine->intType(), 3);
+        break;
+
+    case Parser::T_IVEC4:
+        _type = _engine->vectorType(_engine->intType(), 4);
+        break;
+
+    // uvec
+    case Parser::T_UVEC2:
+        _type = _engine->vectorType(_engine->uintType(), 2);
+        break;
+
+    case Parser::T_UVEC3:
+        _type = _engine->vectorType(_engine->uintType(), 3);
+        break;
+
+    case Parser::T_UVEC4:
+        _type = _engine->vectorType(_engine->uintType(), 4);
+        break;
+
+    // vec
+    case Parser::T_VEC2:
+        _type = _engine->vectorType(_engine->floatType(), 2);
+        break;
+
+    case Parser::T_VEC3:
+        _type = _engine->vectorType(_engine->floatType(), 3);
+        break;
+
+    case Parser::T_VEC4:
+        _type = _engine->vectorType(_engine->floatType(), 4);
+        break;
+
+    // dvec
+    case Parser::T_DVEC2:
+        _type = _engine->vectorType(_engine->doubleType(), 2);
+        break;
+
+    case Parser::T_DVEC3:
+        _type = _engine->vectorType(_engine->doubleType(), 3);
+        break;
+
+    case Parser::T_DVEC4:
+        _type = _engine->vectorType(_engine->doubleType(), 4);
+        break;
+
+    // mat2
+    case Parser::T_MAT2:
+    case Parser::T_MAT2X2:
+        _type = _engine->matrixType(_engine->floatType(), 2, 2);
+        break;
+
+    case Parser::T_MAT2X3:
+        _type = _engine->matrixType(_engine->floatType(), 2, 3);
+        break;
+
+    case Parser::T_MAT2X4:
+        _type = _engine->matrixType(_engine->floatType(), 2, 4);
+        break;
+
+    // mat3
+    case Parser::T_MAT3X2:
+        _type = _engine->matrixType(_engine->floatType(), 3, 2);
+        break;
+
+    case Parser::T_MAT3:
+    case Parser::T_MAT3X3:
+        _type = _engine->matrixType(_engine->floatType(), 3, 3);
+        break;
+
+    case Parser::T_MAT3X4:
+        _type = _engine->matrixType(_engine->floatType(), 3, 4);
+        break;
+
+    // mat4
+    case Parser::T_MAT4X2:
+        _type = _engine->matrixType(_engine->floatType(), 4, 2);
+        break;
+
+    case Parser::T_MAT4X3:
+        _type = _engine->matrixType(_engine->floatType(), 4, 3);
+        break;
+
+    case Parser::T_MAT4:
+    case Parser::T_MAT4X4:
+        _type = _engine->matrixType(_engine->floatType(), 4, 4);
+        break;
+
+
+    // dmat2
+    case Parser::T_DMAT2:
+    case Parser::T_DMAT2X2:
+        _type = _engine->matrixType(_engine->doubleType(), 2, 2);
+        break;
+
+    case Parser::T_DMAT2X3:
+        _type = _engine->matrixType(_engine->doubleType(), 2, 3);
+        break;
+
+    case Parser::T_DMAT2X4:
+        _type = _engine->matrixType(_engine->doubleType(), 2, 4);
+        break;
+
+    // dmat3
+    case Parser::T_DMAT3X2:
+        _type = _engine->matrixType(_engine->doubleType(), 3, 2);
+        break;
+
+    case Parser::T_DMAT3:
+    case Parser::T_DMAT3X3:
+        _type = _engine->matrixType(_engine->doubleType(), 3, 3);
+        break;
+
+    case Parser::T_DMAT3X4:
+        _type = _engine->matrixType(_engine->doubleType(), 3, 4);
+        break;
+
+    // dmat4
+    case Parser::T_DMAT4X2:
+        _type = _engine->matrixType(_engine->doubleType(), 4, 2);
+        break;
+
+    case Parser::T_DMAT4X3:
+        _type = _engine->matrixType(_engine->doubleType(), 4, 3);
+        break;
+
+    case Parser::T_DMAT4:
+    case Parser::T_DMAT4X4:
+        _type = _engine->matrixType(_engine->doubleType(), 4, 4);
+        break;
+
+    default:
+        qDebug() << "unknown type:" << GLSLParserTable::spell[ast->token];
+    }
+
     return false;
 }
 

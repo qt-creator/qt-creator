@@ -3,6 +3,7 @@
 #include <glslparser.h>
 #include <glsllexer.h>
 #include <glslastdump.h>
+#include <glslsemantic.h>
 
 #include <QtCore/QTextStream>
 
@@ -80,6 +81,9 @@ int main(int argc, char *argv[])
 
     ASTDump dump(qout);
     dump(ast);
+
+    Semantic sem(&engine);
+    sem.translationUnit(ast);
 
     delete source;
     delete ast;
