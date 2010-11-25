@@ -565,7 +565,7 @@ QStringList allPropertyNames(QObject *object, const QString &baseName = QString(
     QStringList propertyNameList;
 
 
-    if (inspectedObjects->contains(object))
+    if (inspectedObjects== 0 || inspectedObjects->contains(object))
         return propertyNameList;
 
     inspectedObjects->append(object);
@@ -835,7 +835,7 @@ QStringList propertyNameForWritableProperties(QObject *object, const QString &ba
 {
     QStringList propertyNameList;
 
-    if (inspectedObjects->contains(object))
+    if (inspectedObjects == 0 || inspectedObjects->contains(object))
         return propertyNameList;
 
     inspectedObjects->append(object);
