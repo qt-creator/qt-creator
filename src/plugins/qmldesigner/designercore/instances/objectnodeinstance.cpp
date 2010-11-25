@@ -764,9 +764,6 @@ QObject* ObjectNodeInstance::createObject(const QString &typeName, int majorNumb
 
     QDeclarativeEngine::setObjectOwnership(object, QDeclarativeEngine::CppOwnership);
 
-    if (object == 0)
-        throw InvalidNodeInstanceException(__LINE__, __FUNCTION__, __FILE__);
-
     return object;
 }
 
