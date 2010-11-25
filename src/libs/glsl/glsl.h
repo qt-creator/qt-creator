@@ -47,6 +47,20 @@ class Engine;
 class Lexer;
 class Parser;
 class MemoryPool;
+
+// types
+class Type;
+class UndefinedType;
+class VoidType;
+class BoolType;
+class IntType;
+class UIntType;
+class FloatType;
+class DoubleType;
+class OpaqueType;
+class VectorType;
+class MatrixType;
+
 class AST;
 template <typename T> class List;
 }

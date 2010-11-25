@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
         variant |= Lexer::Variant_VertexShader | Lexer::Variant_FragmentShader;
     Engine engine;
     Parser parser(&engine, source, size, variant);
-    TranslationUnit *ast = parser.parse();
+    TranslationUnitAST *ast = parser.parse();
     std::cout << argv[1] << (ast ? " OK " : " KO ") << std::endl;
 
     ASTDump dump(qout);

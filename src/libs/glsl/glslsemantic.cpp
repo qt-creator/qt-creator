@@ -39,58 +39,58 @@ Semantic::~Semantic()
 {
 }
 
-void Semantic::expression(Expression *ast)
+void Semantic::expression(ExpressionAST *ast)
 {
     accept(ast);
 }
 
-void Semantic::statement(Statement *ast)
+void Semantic::statement(StatementAST *ast)
 {
     accept(ast);
 }
 
-void Semantic::type(Type *ast)
+void Semantic::type(TypeAST *ast)
 {
     accept(ast);
 }
 
-void Semantic::declaration(Declaration *ast)
+void Semantic::declaration(DeclarationAST *ast)
 {
     accept(ast);
 }
 
-void Semantic::translationUnit(TranslationUnit *ast)
+void Semantic::translationUnit(TranslationUnitAST *ast)
 {
     accept(ast);
 }
 
-void Semantic::functionIdentifier(FunctionIdentifier *ast)
+void Semantic::functionIdentifier(FunctionIdentifierAST *ast)
 {
     accept(ast);
 }
 
-void Semantic::field(StructType::Field *ast)
+void Semantic::field(StructTypeAST::Field *ast)
 {
     accept(ast);
 }
 
-bool Semantic::visit(TranslationUnit *ast)
+bool Semantic::visit(TranslationUnitAST *ast)
 {
-    for (List<Declaration *> *it = ast->declarations; it; it = it->next) {
-        Declaration *decl = it->value;
+    for (List<DeclarationAST *> *it = ast->declarations; it; it = it->next) {
+        DeclarationAST *decl = it->value;
         declaration(decl);
     }
     return false;
 }
 
-bool Semantic::visit(FunctionIdentifier *ast)
+bool Semantic::visit(FunctionIdentifierAST *ast)
 {
     // ast->name
     type(ast->type);
     return false;
 }
 
-bool Semantic::visit(StructType::Field *ast)
+bool Semantic::visit(StructTypeAST::Field *ast)
 {
     // ast->name
     type(ast->type);
@@ -99,32 +99,32 @@ bool Semantic::visit(StructType::Field *ast)
 
 
 // expressions
-bool Semantic::visit(IdentifierExpression *ast)
+bool Semantic::visit(IdentifierExpressionAST *ast)
 {
     Q_UNUSED(ast);
     return false;
 }
 
-bool Semantic::visit(LiteralExpression *ast)
+bool Semantic::visit(LiteralExpressionAST *ast)
 {
     Q_UNUSED(ast);
     return false;
 }
 
-bool Semantic::visit(BinaryExpression *ast)
+bool Semantic::visit(BinaryExpressionAST *ast)
 {
     expression(ast->left);
     expression(ast->right);
     return false;
 }
 
-bool Semantic::visit(UnaryExpression *ast)
+bool Semantic::visit(UnaryExpressionAST *ast)
 {
     expression(ast->expr);
     return false;
 }
 
-bool Semantic::visit(TernaryExpression *ast)
+bool Semantic::visit(TernaryExpressionAST *ast)
 {
     expression(ast->first);
     expression(ast->second);
@@ -132,33 +132,33 @@ bool Semantic::visit(TernaryExpression *ast)
     return false;
 }
 
-bool Semantic::visit(AssignmentExpression *ast)
+bool Semantic::visit(AssignmentExpressionAST *ast)
 {
     expression(ast->variable);
     expression(ast->value);
     return false;
 }
 
-bool Semantic::visit(MemberAccessExpression *ast)
+bool Semantic::visit(MemberAccessExpressionAST *ast)
 {
     expression(ast->expr);
     // ast->field
     return false;
 }
 
-bool Semantic::visit(FunctionCallExpression *ast)
+bool Semantic::visit(FunctionCallExpressionAST *ast)
 {
     expression(ast->expr);
     functionIdentifier(ast->id);
-    for (List<Expression *> *it = ast->arguments; it; it = it->next) {
-        Expression *arg = it->value;
+    for (List<ExpressionAST *> *it = ast->arguments; it; it = it->next) {
+        ExpressionAST *arg = it->value;
         expression(arg);
     }
 
     return false;
 }
 
-bool Semantic::visit(DeclarationExpression *ast)
+bool Semantic::visit(DeclarationExpressionAST *ast)
 {
     type(ast->type);
     // ast->name
@@ -168,22 +168,22 @@ bool Semantic::visit(DeclarationExpression *ast)
 
 
 // statements
-bool Semantic::visit(ExpressionStatement *ast)
+bool Semantic::visit(ExpressionStatementAST *ast)
 {
     expression(ast->expr);
     return false;
 }
 
-bool Semantic::visit(CompoundStatement *ast)
+bool Semantic::visit(CompoundStatementAST *ast)
 {
-    for (List<Statement *> *it = ast->statements; it; it = it->next) {
-        Statement *stmt = it->value;
+    for (List<StatementAST *> *it = ast->statements; it; it = it->next) {
+        StatementAST *stmt = it->value;
         statement(stmt);
     }
     return false;
 }
 
-bool Semantic::visit(IfStatement *ast)
+bool Semantic::visit(IfStatementAST *ast)
 {
     expression(ast->condition);
     statement(ast->thenClause);
@@ -191,21 +191,21 @@ bool Semantic::visit(IfStatement *ast)
     return false;
 }
 
-bool Semantic::visit(WhileStatement *ast)
+bool Semantic::visit(WhileStatementAST *ast)
 {
     expression(ast->condition);
     statement(ast->body);
     return false;
 }
 
-bool Semantic::visit(DoStatement *ast)
+bool Semantic::visit(DoStatementAST *ast)
 {
     statement(ast->body);
     expression(ast->condition);
     return false;
 }
 
-bool Semantic::visit(ForStatement *ast)
+bool Semantic::visit(ForStatementAST *ast)
 {
     statement(ast->init);
     expression(ast->condition);
@@ -214,35 +214,35 @@ bool Semantic::visit(ForStatement *ast)
     return false;
 }
 
-bool Semantic::visit(JumpStatement *ast)
+bool Semantic::visit(JumpStatementAST *ast)
 {
     Q_UNUSED(ast);
     return false;
 }
 
-bool Semantic::visit(ReturnStatement *ast)
+bool Semantic::visit(ReturnStatementAST *ast)
 {
     expression(ast->expr);
     return false;
 }
 
-bool Semantic::visit(SwitchStatement *ast)
+bool Semantic::visit(SwitchStatementAST *ast)
 {
     expression(ast->expr);
     statement(ast->body);
     return false;
 }
 
-bool Semantic::visit(CaseLabelStatement *ast)
+bool Semantic::visit(CaseLabelStatementAST *ast)
 {
     expression(ast->expr);
     return false;
 }
 
-bool Semantic::visit(DeclarationStatement *ast)
+bool Semantic::visit(DeclarationStatementAST *ast)
 {
-    for (List<Declaration *> *it = ast->decls; it; it = it->next) {
-        Declaration *decl = it->value;
+    for (List<DeclarationAST *> *it = ast->decls; it; it = it->next) {
+        DeclarationAST *decl = it->value;
         declaration(decl);
     }
     return false;
@@ -250,36 +250,36 @@ bool Semantic::visit(DeclarationStatement *ast)
 
 
 // types
-bool Semantic::visit(BasicType *ast)
+bool Semantic::visit(BasicTypeAST *ast)
 {
     Q_UNUSED(ast);
     return false;
 }
 
-bool Semantic::visit(NamedType *ast)
+bool Semantic::visit(NamedTypeAST *ast)
 {
     Q_UNUSED(ast);
     return false;
 }
 
-bool Semantic::visit(ArrayType *ast)
+bool Semantic::visit(ArrayTypeAST *ast)
 {
     type(ast->elementType);
     expression(ast->size);
     return false;
 }
 
-bool Semantic::visit(StructType *ast)
+bool Semantic::visit(StructTypeAST *ast)
 {
     // ast->name
-    for (List<StructType::Field *> *it = ast->fields; it; it = it->next) {
-        StructType::Field *f = it->value;
+    for (List<StructTypeAST::Field *> *it = ast->fields; it; it = it->next) {
+        StructTypeAST::Field *f = it->value;
         field(f);
     }
     return false;
 }
 
-bool Semantic::visit(QualifiedType *ast)
+bool Semantic::visit(QualifiedTypeAST *ast)
 {
     accept(ast->type);
     for (List<LayoutQualifier *> *it = ast->layout_list; it; it = it->next) {
@@ -293,58 +293,58 @@ bool Semantic::visit(QualifiedType *ast)
 
 
 // declarations
-bool Semantic::visit(PrecisionDeclaration *ast)
+bool Semantic::visit(PrecisionDeclarationAST *ast)
 {
     type(ast->type);
     return false;
 }
 
-bool Semantic::visit(ParameterDeclaration *ast)
+bool Semantic::visit(ParameterDeclarationAST *ast)
 {
     type(ast->type);
     return false;
 }
 
-bool Semantic::visit(VariableDeclaration *ast)
+bool Semantic::visit(VariableDeclarationAST *ast)
 {
     type(ast->type);
     expression(ast->initializer);
     return false;
 }
 
-bool Semantic::visit(TypeDeclaration *ast)
+bool Semantic::visit(TypeDeclarationAST *ast)
 {
     type(ast->type);
     return false;
 }
 
-bool Semantic::visit(TypeAndVariableDeclaration *ast)
+bool Semantic::visit(TypeAndVariableDeclarationAST *ast)
 {
     declaration(ast->typeDecl);
     declaration(ast->varDecl);
     return false;
 }
 
-bool Semantic::visit(InvariantDeclaration *ast)
+bool Semantic::visit(InvariantDeclarationAST *ast)
 {
     Q_UNUSED(ast);
     return false;
 }
 
-bool Semantic::visit(InitDeclaration *ast)
+bool Semantic::visit(InitDeclarationAST *ast)
 {
-    for (List<Declaration *> *it = ast->decls; it; it = it->next) {
-        Declaration *decl = it->value;
+    for (List<DeclarationAST *> *it = ast->decls; it; it = it->next) {
+        DeclarationAST *decl = it->value;
         declaration(decl);
     }
     return false;
 }
 
-bool Semantic::visit(FunctionDeclaration *ast)
+bool Semantic::visit(FunctionDeclarationAST *ast)
 {
     type(ast->returnType);
-    for (List<ParameterDeclaration *> *it = ast->params; it; it = it->next) {
-        ParameterDeclaration *decl = it->value;
+    for (List<ParameterDeclarationAST *> *it = ast->params; it; it = it->next) {
+        ParameterDeclarationAST *decl = it->value;
         declaration(decl);
     }
     statement(ast->body);

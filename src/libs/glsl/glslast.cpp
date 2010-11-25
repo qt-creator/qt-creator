@@ -45,7 +45,7 @@ void AST::accept(AST *ast, Visitor *visitor)
         ast->accept(visitor);
 }
 
-void TranslationUnit::accept0(Visitor *visitor)
+void TranslationUnitAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(declarations, visitor);
@@ -53,19 +53,19 @@ void TranslationUnit::accept0(Visitor *visitor)
     visitor->endVisit(this);
 }
 
-void IdentifierExpression::accept0(Visitor *visitor)
+void IdentifierExpressionAST::accept0(Visitor *visitor)
 {
     visitor->visit(this);
     visitor->endVisit(this);
 }
 
-void LiteralExpression::accept0(Visitor *visitor)
+void LiteralExpressionAST::accept0(Visitor *visitor)
 {
     visitor->visit(this);
     visitor->endVisit(this);
 }
 
-void BinaryExpression::accept0(Visitor *visitor)
+void BinaryExpressionAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(left, visitor);
@@ -74,14 +74,14 @@ void BinaryExpression::accept0(Visitor *visitor)
     visitor->endVisit(this);
 }
 
-void UnaryExpression::accept0(Visitor *visitor)
+void UnaryExpressionAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this))
         accept(expr, visitor);
     visitor->endVisit(this);
 }
 
-void TernaryExpression::accept0(Visitor *visitor)
+void TernaryExpressionAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(first, visitor);
@@ -91,7 +91,7 @@ void TernaryExpression::accept0(Visitor *visitor)
     visitor->endVisit(this);
 }
 
-void AssignmentExpression::accept0(Visitor *visitor)
+void AssignmentExpressionAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(variable, visitor);
@@ -100,14 +100,14 @@ void AssignmentExpression::accept0(Visitor *visitor)
     visitor->endVisit(this);
 }
 
-void MemberAccessExpression::accept0(Visitor *visitor)
+void MemberAccessExpressionAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this))
         accept(expr, visitor);
     visitor->endVisit(this);
 }
 
-void FunctionCallExpression::accept0(Visitor *visitor)
+void FunctionCallExpressionAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(expr, visitor);
@@ -117,14 +117,14 @@ void FunctionCallExpression::accept0(Visitor *visitor)
     visitor->endVisit(this);
 }
 
-void FunctionIdentifier::accept0(Visitor *visitor)
+void FunctionIdentifierAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this))
         accept(type, visitor);
     visitor->endVisit(this);
 }
 
-void DeclarationExpression::accept0(Visitor *visitor)
+void DeclarationExpressionAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(type, visitor);
@@ -133,21 +133,21 @@ void DeclarationExpression::accept0(Visitor *visitor)
     visitor->endVisit(this);
 }
 
-void ExpressionStatement::accept0(Visitor *visitor)
+void ExpressionStatementAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this))
         accept(expr, visitor);
     visitor->endVisit(this);
 }
 
-void CompoundStatement::accept0(Visitor *visitor)
+void CompoundStatementAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this))
         accept(statements, visitor);
     visitor->endVisit(this);
 }
 
-void IfStatement::accept0(Visitor *visitor)
+void IfStatementAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(condition, visitor);
@@ -157,7 +157,7 @@ void IfStatement::accept0(Visitor *visitor)
     visitor->endVisit(this);
 }
 
-void WhileStatement::accept0(Visitor *visitor)
+void WhileStatementAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(condition, visitor);
@@ -166,7 +166,7 @@ void WhileStatement::accept0(Visitor *visitor)
     visitor->endVisit(this);
 }
 
-void DoStatement::accept0(Visitor *visitor)
+void DoStatementAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(body, visitor);
@@ -175,7 +175,7 @@ void DoStatement::accept0(Visitor *visitor)
     visitor->endVisit(this);
 }
 
-void ForStatement::accept0(Visitor *visitor)
+void ForStatementAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(init, visitor);
@@ -186,20 +186,20 @@ void ForStatement::accept0(Visitor *visitor)
     visitor->endVisit(this);
 }
 
-void JumpStatement::accept0(Visitor *visitor)
+void JumpStatementAST::accept0(Visitor *visitor)
 {
     visitor->visit(this);
     visitor->endVisit(this);
 }
 
-void ReturnStatement::accept0(Visitor *visitor)
+void ReturnStatementAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this))
         accept(expr, visitor);
     visitor->endVisit(this);
 }
 
-void SwitchStatement::accept0(Visitor *visitor)
+void SwitchStatementAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(expr, visitor);
@@ -208,22 +208,22 @@ void SwitchStatement::accept0(Visitor *visitor)
     visitor->endVisit(this);
 }
 
-void CaseLabelStatement::accept0(Visitor *visitor)
+void CaseLabelStatementAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this))
         accept(expr, visitor);
     visitor->endVisit(this);
 }
 
-void DeclarationStatement::accept0(Visitor *visitor)
+void DeclarationStatementAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this))
         accept(decls, visitor);
     visitor->endVisit(this);
 }
 
-BasicType::BasicType(int _token, const char *_name, Category _category)
-    : Type(Kind_BasicType), token(_token), name(_name), categ(_category)
+BasicTypeAST::BasicTypeAST(int _token, const char *_name, Category _category)
+    : TypeAST(Kind_BasicType), token(_token), name(_name), categ(_category)
 {
     switch (token) {
     case GLSLParserTable::T_VOID:
@@ -239,18 +239,18 @@ BasicType::BasicType(int _token, const char *_name, Category _category)
     }
 }
 
-void BasicType::accept0(Visitor *visitor)
+void BasicTypeAST::accept0(Visitor *visitor)
 {
     visitor->visit(this);
     visitor->endVisit(this);
 }
 
-Type::Precision BasicType::precision() const
+TypeAST::Precision BasicTypeAST::precision() const
 {
     return prec;
 }
 
-bool BasicType::setPrecision(Precision precision)
+bool BasicTypeAST::setPrecision(Precision precision)
 {
     if (prec == PrecNotValid)
         return false;
@@ -258,24 +258,24 @@ bool BasicType::setPrecision(Precision precision)
     return true;
 }
 
-void NamedType::accept0(Visitor *visitor)
+void NamedTypeAST::accept0(Visitor *visitor)
 {
     visitor->visit(this);
     visitor->endVisit(this);
 }
 
-Type::Precision NamedType::precision() const
+TypeAST::Precision NamedTypeAST::precision() const
 {
     // Named types are typically structs, which cannot have their precision set.
     return PrecNotValid;
 }
 
-bool NamedType::setPrecision(Precision)
+bool NamedTypeAST::setPrecision(Precision)
 {
     return false;
 }
 
-void ArrayType::accept0(Visitor *visitor)
+void ArrayTypeAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(elementType, visitor);
@@ -284,12 +284,12 @@ void ArrayType::accept0(Visitor *visitor)
     visitor->endVisit(this);
 }
 
-Type::Precision ArrayType::precision() const
+TypeAST::Precision ArrayTypeAST::precision() const
 {
     return elementType ? elementType->precision() : PrecNotValid;
 }
 
-bool ArrayType::setPrecision(Precision precision)
+bool ArrayTypeAST::setPrecision(Precision precision)
 {
     if (elementType)
         return elementType->setPrecision(precision);
@@ -297,39 +297,39 @@ bool ArrayType::setPrecision(Precision precision)
         return false;
 }
 
-void StructType::accept0(Visitor *visitor)
+void StructTypeAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this))
         accept(fields, visitor);
     visitor->endVisit(this);
 }
 
-Type::Precision StructType::precision() const
+TypeAST::Precision StructTypeAST::precision() const
 {
     return PrecNotValid;
 }
 
-bool StructType::setPrecision(Precision)
+bool StructTypeAST::setPrecision(Precision)
 {
     // Structs cannot have a precision set.
     return false;
 }
 
-void StructType::Field::accept0(Visitor *visitor)
+void StructTypeAST::Field::accept0(Visitor *visitor)
 {
     if (visitor->visit(this))
         accept(type, visitor);
     visitor->endVisit(this);
 }
 
-void StructType::Field::setInnerType(Type *innerType)
+void StructTypeAST::Field::setInnerType(TypeAST *innerType)
 {
     if (!innerType)
         return;
-    Type **parent = &type;
-    Type *inner = type;
+    TypeAST **parent = &type;
+    TypeAST *inner = type;
     while (inner != 0) {
-        ArrayType *array = inner->asArrayType();
+        ArrayTypeAST *array = inner->asArrayType();
         if (!array)
             break;
         parent = &(array->elementType);
@@ -338,7 +338,7 @@ void StructType::Field::setInnerType(Type *innerType)
     *parent = innerType;
 }
 
-List<StructType::Field *> *StructType::fixInnerTypes(Type *innerType, List<Field *> *fields)
+List<StructTypeAST::Field *> *StructTypeAST::fixInnerTypes(TypeAST *innerType, List<Field *> *fields)
 {
     if (!fields)
         return fields;
@@ -351,28 +351,28 @@ List<StructType::Field *> *StructType::fixInnerTypes(Type *innerType, List<Field
     return fields;
 }
 
-void QualifiedType::accept0(Visitor *visitor)
+void QualifiedTypeAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this))
         accept(type, visitor);
     visitor->endVisit(this);
 }
 
-void PrecisionDeclaration::accept0(Visitor *visitor)
+void PrecisionDeclarationAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this))
         accept(type, visitor);
     visitor->endVisit(this);
 }
 
-void ParameterDeclaration::accept0(Visitor *visitor)
+void ParameterDeclarationAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this))
         accept(type, visitor);
     visitor->endVisit(this);
 }
 
-void VariableDeclaration::accept0(Visitor *visitor)
+void VariableDeclarationAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(type, visitor);
@@ -381,20 +381,20 @@ void VariableDeclaration::accept0(Visitor *visitor)
     visitor->endVisit(this);
 }
 
-Type *VariableDeclaration::declarationType(List<Declaration *> *decls)
+TypeAST *VariableDeclarationAST::declarationType(List<DeclarationAST *> *decls)
 {
-    VariableDeclaration *var = decls->value->asVariableDeclaration();
+    VariableDeclarationAST *var = decls->value->asVariableDeclaration();
     return var ? var->type : 0;
 }
 
-void TypeDeclaration::accept0(Visitor *visitor)
+void TypeDeclarationAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this))
         accept(type, visitor);
     visitor->endVisit(this);
 }
 
-void TypeAndVariableDeclaration::accept0(Visitor *visitor)
+void TypeAndVariableDeclarationAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(typeDecl, visitor);
@@ -403,20 +403,20 @@ void TypeAndVariableDeclaration::accept0(Visitor *visitor)
     visitor->endVisit(this);
 }
 
-void InvariantDeclaration::accept0(Visitor *visitor)
+void InvariantDeclarationAST::accept0(Visitor *visitor)
 {
     visitor->visit(this);
     visitor->endVisit(this);
 }
 
-void InitDeclaration::accept0(Visitor *visitor)
+void InitDeclarationAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this))
         accept(decls, visitor);
     visitor->endVisit(this);
 }
 
-void FunctionDeclaration::accept0(Visitor *visitor)
+void FunctionDeclarationAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(returnType, visitor);

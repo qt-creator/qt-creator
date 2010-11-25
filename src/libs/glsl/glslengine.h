@@ -32,8 +32,11 @@
 
 #include "glsl.h"
 #include "glslmemorypool.h"
+#include "glsltypes.h"
 #include <QtCore/qstring.h>
 #include <QtCore/qset.h>
+#include <functional>
+#include <set>
 
 namespace GLSL {
 
@@ -69,6 +72,21 @@ private:
     int _line;
 };
 
+template <typename _Type>
+class TypeTable
+{
+public:
+    struct Compare: std::binary_function<_Type, _Type, bool> {
+        bool operator()(const _Type &value, const _Type &other) const {
+            return value.isLessThan(&other);
+        }
+    };
+
+    const _Type *intern(const _Type &ty) { return &*_entries.insert(ty).first; }
+
+private:
+    std::set<_Type, Compare> _entries;
+};
 
 class GLSL_EXPORT Engine
 {
@@ -80,6 +98,16 @@ public:
     const QString *identifier(const char *s, int n);
     QSet<QString> identifiers() const;
 
+    const UndefinedType *undefinedType();
+    const VoidType *voidType();
+    const BoolType *boolType();
+    const IntType *intType();
+    const UIntType *uintType();
+    const FloatType *floatType();
+    const DoubleType *doubleType();
+    const VectorType *vectorType(const Type *elementType, int dimension);
+    const MatrixType *matrixType(const Type *elementType, int columns, int rows);
+
     MemoryPool *pool();
 
     QList<DiagnosticMessage> diagnosticMessages() const;
@@ -88,6 +116,8 @@ public:
 
 private:
     QSet<QString> _identifiers;
+    TypeTable<VectorType> _vectorTypes;
+    TypeTable<MatrixType> _matrixTypes;
     MemoryPool _pool;
     QList<DiagnosticMessage> _diagnosticMessages;
 };

@@ -44,113 +44,113 @@ public:
     virtual bool preVisit(AST *) { return true; }
     virtual void postVisit(AST *) {}
 
-    virtual bool visit(TranslationUnit *) { return true; }
-    virtual void endVisit(TranslationUnit *) {}
+    virtual bool visit(TranslationUnitAST *) { return true; }
+    virtual void endVisit(TranslationUnitAST *) {}
 
-    virtual bool visit(IdentifierExpression *) { return true; }
-    virtual void endVisit(IdentifierExpression *) {}
+    virtual bool visit(IdentifierExpressionAST *) { return true; }
+    virtual void endVisit(IdentifierExpressionAST *) {}
 
-    virtual bool visit(LiteralExpression *) { return true; }
-    virtual void endVisit(LiteralExpression *) {}
+    virtual bool visit(LiteralExpressionAST *) { return true; }
+    virtual void endVisit(LiteralExpressionAST *) {}
 
-    virtual bool visit(BinaryExpression *) { return true; }
-    virtual void endVisit(BinaryExpression *) {}
+    virtual bool visit(BinaryExpressionAST *) { return true; }
+    virtual void endVisit(BinaryExpressionAST *) {}
 
-    virtual bool visit(UnaryExpression *) { return true; }
-    virtual void endVisit(UnaryExpression *) {}
+    virtual bool visit(UnaryExpressionAST *) { return true; }
+    virtual void endVisit(UnaryExpressionAST *) {}
 
-    virtual bool visit(TernaryExpression *) { return true; }
-    virtual void endVisit(TernaryExpression *) {}
+    virtual bool visit(TernaryExpressionAST *) { return true; }
+    virtual void endVisit(TernaryExpressionAST *) {}
 
-    virtual bool visit(AssignmentExpression *) { return true; }
-    virtual void endVisit(AssignmentExpression *) {}
+    virtual bool visit(AssignmentExpressionAST *) { return true; }
+    virtual void endVisit(AssignmentExpressionAST *) {}
 
-    virtual bool visit(MemberAccessExpression *) { return true; }
-    virtual void endVisit(MemberAccessExpression *) {}
+    virtual bool visit(MemberAccessExpressionAST *) { return true; }
+    virtual void endVisit(MemberAccessExpressionAST *) {}
 
-    virtual bool visit(FunctionCallExpression *) { return true; }
-    virtual void endVisit(FunctionCallExpression *) {}
+    virtual bool visit(FunctionCallExpressionAST *) { return true; }
+    virtual void endVisit(FunctionCallExpressionAST *) {}
 
-    virtual bool visit(FunctionIdentifier *) { return true; }
-    virtual void endVisit(FunctionIdentifier *) {}
+    virtual bool visit(FunctionIdentifierAST *) { return true; }
+    virtual void endVisit(FunctionIdentifierAST *) {}
 
-    virtual bool visit(DeclarationExpression *) { return true; }
-    virtual void endVisit(DeclarationExpression *) {}
+    virtual bool visit(DeclarationExpressionAST *) { return true; }
+    virtual void endVisit(DeclarationExpressionAST *) {}
 
-    virtual bool visit(ExpressionStatement *) { return true; }
-    virtual void endVisit(ExpressionStatement *) {}
+    virtual bool visit(ExpressionStatementAST *) { return true; }
+    virtual void endVisit(ExpressionStatementAST *) {}
 
-    virtual bool visit(CompoundStatement *) { return true; }
-    virtual void endVisit(CompoundStatement *) {}
+    virtual bool visit(CompoundStatementAST *) { return true; }
+    virtual void endVisit(CompoundStatementAST *) {}
 
-    virtual bool visit(IfStatement *) { return true; }
-    virtual void endVisit(IfStatement *) {}
+    virtual bool visit(IfStatementAST *) { return true; }
+    virtual void endVisit(IfStatementAST *) {}
 
-    virtual bool visit(WhileStatement *) { return true; }
-    virtual void endVisit(WhileStatement *) {}
+    virtual bool visit(WhileStatementAST *) { return true; }
+    virtual void endVisit(WhileStatementAST *) {}
 
-    virtual bool visit(DoStatement *) { return true; }
-    virtual void endVisit(DoStatement *) {}
+    virtual bool visit(DoStatementAST *) { return true; }
+    virtual void endVisit(DoStatementAST *) {}
 
-    virtual bool visit(ForStatement *) { return true; }
-    virtual void endVisit(ForStatement *) {}
+    virtual bool visit(ForStatementAST *) { return true; }
+    virtual void endVisit(ForStatementAST *) {}
 
-    virtual bool visit(JumpStatement *) { return true; }
-    virtual void endVisit(JumpStatement *) {}
+    virtual bool visit(JumpStatementAST *) { return true; }
+    virtual void endVisit(JumpStatementAST *) {}
 
-    virtual bool visit(ReturnStatement *) { return true; }
-    virtual void endVisit(ReturnStatement *) {}
+    virtual bool visit(ReturnStatementAST *) { return true; }
+    virtual void endVisit(ReturnStatementAST *) {}
 
-    virtual bool visit(SwitchStatement *) { return true; }
-    virtual void endVisit(SwitchStatement *) {}
+    virtual bool visit(SwitchStatementAST *) { return true; }
+    virtual void endVisit(SwitchStatementAST *) {}
 
-    virtual bool visit(CaseLabelStatement *) { return true; }
-    virtual void endVisit(CaseLabelStatement *) {}
+    virtual bool visit(CaseLabelStatementAST *) { return true; }
+    virtual void endVisit(CaseLabelStatementAST *) {}
 
-    virtual bool visit(DeclarationStatement *) { return true; }
-    virtual void endVisit(DeclarationStatement *) {}
+    virtual bool visit(DeclarationStatementAST *) { return true; }
+    virtual void endVisit(DeclarationStatementAST *) {}
 
-    virtual bool visit(BasicType *) { return true; }
-    virtual void endVisit(BasicType *) {}
+    virtual bool visit(BasicTypeAST *) { return true; }
+    virtual void endVisit(BasicTypeAST *) {}
 
-    virtual bool visit(NamedType *) { return true; }
-    virtual void endVisit(NamedType *) {}
+    virtual bool visit(NamedTypeAST *) { return true; }
+    virtual void endVisit(NamedTypeAST *) {}
 
-    virtual bool visit(ArrayType *) { return true; }
-    virtual void endVisit(ArrayType *) {}
+    virtual bool visit(ArrayTypeAST *) { return true; }
+    virtual void endVisit(ArrayTypeAST *) {}
 
-    virtual bool visit(StructType *) { return true; }
-    virtual void endVisit(StructType *) {}
+    virtual bool visit(StructTypeAST *) { return true; }
+    virtual void endVisit(StructTypeAST *) {}
 
-    virtual bool visit(StructType::Field *) { return true; }
-    virtual void endVisit(StructType::Field *) {}
+    virtual bool visit(StructTypeAST::Field *) { return true; }
+    virtual void endVisit(StructTypeAST::Field *) {}
 
-    virtual bool visit(QualifiedType *) { return true; }
-    virtual void endVisit(QualifiedType *) {}
+    virtual bool visit(QualifiedTypeAST *) { return true; }
+    virtual void endVisit(QualifiedTypeAST *) {}
 
-    virtual bool visit(PrecisionDeclaration *) { return true; }
-    virtual void endVisit(PrecisionDeclaration *) {}
+    virtual bool visit(PrecisionDeclarationAST *) { return true; }
+    virtual void endVisit(PrecisionDeclarationAST *) {}
 
-    virtual bool visit(ParameterDeclaration *) { return true; }
-    virtual void endVisit(ParameterDeclaration *) {}
+    virtual bool visit(ParameterDeclarationAST *) { return true; }
+    virtual void endVisit(ParameterDeclarationAST *) {}
 
-    virtual bool visit(VariableDeclaration *) { return true; }
-    virtual void endVisit(VariableDeclaration *) {}
+    virtual bool visit(VariableDeclarationAST *) { return true; }
+    virtual void endVisit(VariableDeclarationAST *) {}
 
-    virtual bool visit(TypeDeclaration *) { return true; }
-    virtual void endVisit(TypeDeclaration *) {}
+    virtual bool visit(TypeDeclarationAST *) { return true; }
+    virtual void endVisit(TypeDeclarationAST *) {}
 
-    virtual bool visit(TypeAndVariableDeclaration *) { return true; }
-    virtual void endVisit(TypeAndVariableDeclaration *) {}
+    virtual bool visit(TypeAndVariableDeclarationAST *) { return true; }
+    virtual void endVisit(TypeAndVariableDeclarationAST *) {}
 
-    virtual bool visit(InvariantDeclaration *) { return true; }
-    virtual void endVisit(InvariantDeclaration *) {}
+    virtual bool visit(InvariantDeclarationAST *) { return true; }
+    virtual void endVisit(InvariantDeclarationAST *) {}
 
-    virtual bool visit(InitDeclaration *) { return true; }
-    virtual void endVisit(InitDeclaration *) {}
+    virtual bool visit(InitDeclarationAST *) { return true; }
+    virtual void endVisit(InitDeclarationAST *) {}
 
-    virtual bool visit(FunctionDeclaration *) { return true; }
-    virtual void endVisit(FunctionDeclaration *) {}
+    virtual bool visit(FunctionDeclarationAST *) { return true; }
+    virtual void endVisit(FunctionDeclarationAST *) {}
 };
 
 } // namespace GLSL

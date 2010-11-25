@@ -99,6 +99,59 @@ MemoryPool *Engine::pool()
     return &_pool;
 }
 
+const UndefinedType *Engine::undefinedType()
+{
+    static UndefinedType t;
+    return &t;
+}
+
+const VoidType *Engine::voidType()
+{
+    static VoidType t;
+    return &t;
+}
+
+const BoolType *Engine::boolType()
+{
+    static BoolType t;
+    return &t;
+}
+
+const IntType *Engine::intType()
+{
+    static IntType t;
+    return &t;
+}
+
+const UIntType *Engine::uintType()
+{
+    static UIntType t;
+    return &t;
+}
+
+const FloatType *Engine::floatType()
+{
+    static FloatType t;
+    return &t;
+}
+
+const DoubleType *Engine::doubleType()
+{
+    static DoubleType t;
+    return &t;
+}
+
+
+const VectorType *Engine::vectorType(const Type *elementType, int dimension)
+{
+    return _vectorTypes.intern(VectorType(elementType, dimension));
+}
+
+const MatrixType *Engine::matrixType(const Type *elementType, int columns, int rows)
+{
+    return _matrixTypes.intern(MatrixType(elementType, columns, rows));
+}
+
 QList<DiagnosticMessage> Engine::diagnosticMessages() const
 {
     return _diagnosticMessages;

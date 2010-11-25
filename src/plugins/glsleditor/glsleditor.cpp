@@ -264,7 +264,7 @@ void GLSLTextEditor::updateDocumentNow()
 
     Engine engine;
     Parser parser(&engine, preprocessedCode.constData(), preprocessedCode.size(), variant);
-    TranslationUnit *ast = parser.parse();
+    TranslationUnitAST *ast = parser.parse();
 
     QTextCharFormat errorFormat;
     errorFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);

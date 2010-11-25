@@ -39,59 +39,59 @@ public:
     Semantic();
     virtual ~Semantic();
 
-    void expression(Expression *ast);
-    void statement(Statement *ast);
-    void type(Type *ast);
-    void declaration(Declaration *ast);
-    void translationUnit(TranslationUnit *ast);
-    void functionIdentifier(FunctionIdentifier *ast);
-    void field(StructType::Field *ast);
+    void expression(ExpressionAST *ast);
+    void statement(StatementAST *ast);
+    void type(TypeAST *ast);
+    void declaration(DeclarationAST *ast);
+    void translationUnit(TranslationUnitAST *ast);
+    void functionIdentifier(FunctionIdentifierAST *ast);
+    void field(StructTypeAST::Field *ast);
 
 protected:
-    virtual bool visit(TranslationUnit *ast);
-    virtual bool visit(FunctionIdentifier *ast);
-    virtual bool visit(StructType::Field *ast);
+    virtual bool visit(TranslationUnitAST *ast);
+    virtual bool visit(FunctionIdentifierAST *ast);
+    virtual bool visit(StructTypeAST::Field *ast);
 
     // expressions
-    virtual bool visit(IdentifierExpression *ast);
-    virtual bool visit(LiteralExpression *ast);
-    virtual bool visit(BinaryExpression *ast);
-    virtual bool visit(UnaryExpression *ast);
-    virtual bool visit(TernaryExpression *ast);
-    virtual bool visit(AssignmentExpression *ast);
-    virtual bool visit(MemberAccessExpression *ast);
-    virtual bool visit(FunctionCallExpression *ast);
-    virtual bool visit(DeclarationExpression *ast);
+    virtual bool visit(IdentifierExpressionAST *ast);
+    virtual bool visit(LiteralExpressionAST *ast);
+    virtual bool visit(BinaryExpressionAST *ast);
+    virtual bool visit(UnaryExpressionAST *ast);
+    virtual bool visit(TernaryExpressionAST *ast);
+    virtual bool visit(AssignmentExpressionAST *ast);
+    virtual bool visit(MemberAccessExpressionAST *ast);
+    virtual bool visit(FunctionCallExpressionAST *ast);
+    virtual bool visit(DeclarationExpressionAST *ast);
 
     // statements
-    virtual bool visit(ExpressionStatement *ast);
-    virtual bool visit(CompoundStatement *ast);
-    virtual bool visit(IfStatement *ast);
-    virtual bool visit(WhileStatement *ast);
-    virtual bool visit(DoStatement *ast);
-    virtual bool visit(ForStatement *ast);
-    virtual bool visit(JumpStatement *ast);
-    virtual bool visit(ReturnStatement *ast);
-    virtual bool visit(SwitchStatement *ast);
-    virtual bool visit(CaseLabelStatement *ast);
-    virtual bool visit(DeclarationStatement *ast);
+    virtual bool visit(ExpressionStatementAST *ast);
+    virtual bool visit(CompoundStatementAST *ast);
+    virtual bool visit(IfStatementAST *ast);
+    virtual bool visit(WhileStatementAST *ast);
+    virtual bool visit(DoStatementAST *ast);
+    virtual bool visit(ForStatementAST *ast);
+    virtual bool visit(JumpStatementAST *ast);
+    virtual bool visit(ReturnStatementAST *ast);
+    virtual bool visit(SwitchStatementAST *ast);
+    virtual bool visit(CaseLabelStatementAST *ast);
+    virtual bool visit(DeclarationStatementAST *ast);
 
     // types
-    virtual bool visit(BasicType *ast);
-    virtual bool visit(NamedType *ast);
-    virtual bool visit(ArrayType *ast);
-    virtual bool visit(StructType *ast);
-    virtual bool visit(QualifiedType *ast);
+    virtual bool visit(BasicTypeAST *ast);
+    virtual bool visit(NamedTypeAST *ast);
+    virtual bool visit(ArrayTypeAST *ast);
+    virtual bool visit(StructTypeAST *ast);
+    virtual bool visit(QualifiedTypeAST *ast);
 
     // declarations
-    virtual bool visit(PrecisionDeclaration *ast);
-    virtual bool visit(ParameterDeclaration *ast);
-    virtual bool visit(VariableDeclaration *ast);
-    virtual bool visit(TypeDeclaration *ast);
-    virtual bool visit(TypeAndVariableDeclaration *ast);
-    virtual bool visit(InvariantDeclaration *ast);
-    virtual bool visit(InitDeclaration *ast);
-    virtual bool visit(FunctionDeclaration *ast);
+    virtual bool visit(PrecisionDeclarationAST *ast);
+    virtual bool visit(ParameterDeclarationAST *ast);
+    virtual bool visit(VariableDeclarationAST *ast);
+    virtual bool visit(TypeDeclarationAST *ast);
+    virtual bool visit(TypeAndVariableDeclarationAST *ast);
+    virtual bool visit(InvariantDeclarationAST *ast);
+    virtual bool visit(InitDeclarationAST *ast);
+    virtual bool visit(FunctionDeclarationAST *ast);
 };
 
 } // namespace GLSL

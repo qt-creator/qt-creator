@@ -36,45 +36,45 @@
 namespace GLSL {
 
 class AST;
-class TranslationUnit;
-class Expression;
-class IdentifierExpression;
-class LiteralExpression;
-class BinaryExpression;
-class UnaryExpression;
-class TernaryExpression;
-class AssignmentExpression;
-class MemberAccessExpression;
-class FunctionCallExpression;
-class FunctionIdentifier;
-class DeclarationExpression;
-class Statement;
-class ExpressionStatement;
-class CompoundStatement;
-class IfStatement;
-class WhileStatement;
-class DoStatement;
-class ForStatement;
-class JumpStatement;
-class ReturnStatement;
-class SwitchStatement;
-class CaseLabelStatement;
-class DeclarationStatement;
-class Type;
-class BasicType;
-class NamedType;
-class ArrayType;
-class StructType;
-class QualifiedType;
-class Declaration;
-class PrecisionDeclaration;
-class ParameterDeclaration;
-class VariableDeclaration;
-class TypeDeclaration;
-class TypeAndVariableDeclaration;
-class InvariantDeclaration;
-class InitDeclaration;
-class FunctionDeclaration;
+class TranslationUnitAST;
+class ExpressionAST;
+class IdentifierExpressionAST;
+class LiteralExpressionAST;
+class BinaryExpressionAST;
+class UnaryExpressionAST;
+class TernaryExpressionAST;
+class AssignmentExpressionAST;
+class MemberAccessExpressionAST;
+class FunctionCallExpressionAST;
+class FunctionIdentifierAST;
+class DeclarationExpressionAST;
+class StatementAST;
+class ExpressionStatementAST;
+class CompoundStatementAST;
+class IfStatementAST;
+class WhileStatementAST;
+class DoStatementAST;
+class ForStatementAST;
+class JumpStatementAST;
+class ReturnStatementAST;
+class SwitchStatementAST;
+class CaseLabelStatementAST;
+class DeclarationStatementAST;
+class TypeAST;
+class BasicTypeAST;
+class NamedTypeAST;
+class ArrayTypeAST;
+class StructTypeAST;
+class QualifiedTypeAST;
+class DeclarationAST;
+class PrecisionDeclarationAST;
+class ParameterDeclarationAST;
+class VariableDeclarationAST;
+class TypeDeclarationAST;
+class TypeAndVariableDeclarationAST;
+class InvariantDeclarationAST;
+class InitDeclarationAST;
+class FunctionDeclarationAST;
 class Visitor;
 
 template <typename T>
@@ -223,49 +223,49 @@ public:
         Kind_FunctionDeclaration
     };
 
-    virtual TranslationUnit *asTranslationUnit() { return 0; }
+    virtual TranslationUnitAST *asTranslationUnit() { return 0; }
 
-    virtual Expression *asExpression() { return 0; }
-    virtual IdentifierExpression *asIdentifierExpression() { return 0; }
-    virtual LiteralExpression *asLiteralExpression() { return 0; }
-    virtual BinaryExpression *asBinaryExpression() { return 0; }
-    virtual UnaryExpression *asUnaryExpression() { return 0; }
-    virtual TernaryExpression *asTernaryExpression() { return 0; }
-    virtual AssignmentExpression *asAssignmentExpression() { return 0; }
-    virtual MemberAccessExpression *asMemberAccessExpression() { return 0; }
-    virtual FunctionCallExpression *asFunctionCallExpression() { return 0; }
-    virtual FunctionIdentifier *asFunctionIdentifier() { return 0; }
-    virtual DeclarationExpression *asDeclarationExpression() { return 0; }
+    virtual ExpressionAST *asExpression() { return 0; }
+    virtual IdentifierExpressionAST *asIdentifierExpression() { return 0; }
+    virtual LiteralExpressionAST *asLiteralExpression() { return 0; }
+    virtual BinaryExpressionAST *asBinaryExpression() { return 0; }
+    virtual UnaryExpressionAST *asUnaryExpression() { return 0; }
+    virtual TernaryExpressionAST *asTernaryExpression() { return 0; }
+    virtual AssignmentExpressionAST *asAssignmentExpression() { return 0; }
+    virtual MemberAccessExpressionAST *asMemberAccessExpression() { return 0; }
+    virtual FunctionCallExpressionAST *asFunctionCallExpression() { return 0; }
+    virtual FunctionIdentifierAST *asFunctionIdentifier() { return 0; }
+    virtual DeclarationExpressionAST *asDeclarationExpression() { return 0; }
 
-    virtual Statement *asStatement() { return 0; }
-    virtual ExpressionStatement *asExpressionStatement() { return 0; }
-    virtual CompoundStatement *asCompoundStatement() { return 0; }
-    virtual IfStatement *asIfStatement() { return 0; }
-    virtual WhileStatement *asWhileStatement() { return 0; }
-    virtual DoStatement *asDoStatement() { return 0; }
-    virtual ForStatement *asForStatement() { return 0; }
-    virtual JumpStatement *asJumpStatement() { return 0; }
-    virtual ReturnStatement *asReturnStatement() { return 0; }
-    virtual SwitchStatement *asSwitchStatement() { return 0; }
-    virtual CaseLabelStatement *asCaseLabelStatement() { return 0; }
-    virtual DeclarationStatement *asDeclarationStatement() { return 0; }
+    virtual StatementAST *asStatement() { return 0; }
+    virtual ExpressionStatementAST *asExpressionStatement() { return 0; }
+    virtual CompoundStatementAST *asCompoundStatement() { return 0; }
+    virtual IfStatementAST *asIfStatement() { return 0; }
+    virtual WhileStatementAST *asWhileStatement() { return 0; }
+    virtual DoStatementAST *asDoStatement() { return 0; }
+    virtual ForStatementAST *asForStatement() { return 0; }
+    virtual JumpStatementAST *asJumpStatement() { return 0; }
+    virtual ReturnStatementAST *asReturnStatement() { return 0; }
+    virtual SwitchStatementAST *asSwitchStatement() { return 0; }
+    virtual CaseLabelStatementAST *asCaseLabelStatement() { return 0; }
+    virtual DeclarationStatementAST *asDeclarationStatement() { return 0; }
 
-    virtual Type *asType() { return 0; }
-    virtual BasicType *asBasicType() { return 0; }
-    virtual NamedType *asNamedType() { return 0; }
-    virtual ArrayType *asArrayType() { return 0; }
-    virtual StructType *asStructType() { return 0; }
-    virtual QualifiedType *asQualifiedType() { return 0; }
+    virtual TypeAST *asType() { return 0; }
+    virtual BasicTypeAST *asBasicType() { return 0; }
+    virtual NamedTypeAST *asNamedType() { return 0; }
+    virtual ArrayTypeAST *asArrayType() { return 0; }
+    virtual StructTypeAST *asStructType() { return 0; }
+    virtual QualifiedTypeAST *asQualifiedType() { return 0; }
 
-    virtual Declaration *asDeclaration() { return 0; }
-    virtual PrecisionDeclaration *asPrecisionDeclaration() { return 0; }
-    virtual ParameterDeclaration *asParameterDeclaration() { return 0; }
-    virtual VariableDeclaration *asVariableDeclaration() { return 0; }
-    virtual TypeDeclaration *asTypeDeclaration() { return 0; }
-    virtual TypeAndVariableDeclaration *asTypeAndVariableDeclaration() { return 0; }
-    virtual InvariantDeclaration *asInvariantDeclaration() { return 0; }
-    virtual InitDeclaration *asInitDeclaration() { return 0; }
-    virtual FunctionDeclaration *asFunctionDeclaration() { return 0; }
+    virtual DeclarationAST *asDeclaration() { return 0; }
+    virtual PrecisionDeclarationAST *asPrecisionDeclaration() { return 0; }
+    virtual ParameterDeclarationAST *asParameterDeclaration() { return 0; }
+    virtual VariableDeclarationAST *asVariableDeclaration() { return 0; }
+    virtual TypeDeclarationAST *asTypeDeclaration() { return 0; }
+    virtual TypeAndVariableDeclarationAST *asTypeAndVariableDeclaration() { return 0; }
+    virtual InvariantDeclarationAST *asInvariantDeclaration() { return 0; }
+    virtual InitDeclarationAST *asInitDeclaration() { return 0; }
+    virtual FunctionDeclarationAST *asFunctionDeclaration() { return 0; }
 
     void accept(Visitor *visitor);
     static void accept(AST *ast, Visitor *visitor);
@@ -298,36 +298,36 @@ protected:
     ~AST() {}       // Managed types cannot be deleted.
 };
 
-class GLSL_EXPORT TranslationUnit: public AST
+class GLSL_EXPORT TranslationUnitAST: public AST
 {
 public:
-    TranslationUnit(List<Declaration *> *declarations)
+    TranslationUnitAST(List<DeclarationAST *> *declarations)
         : AST(Kind_TranslationUnit), declarations(finish(declarations)) {}
 
-    virtual TranslationUnit *asTranslationUnit() { return this; }
+    virtual TranslationUnitAST *asTranslationUnit() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
-    List<Declaration *> *declarations;
+    List<DeclarationAST *> *declarations;
 };
 
-class GLSL_EXPORT Expression: public AST
+class GLSL_EXPORT ExpressionAST: public AST
 {
 protected:
-    Expression(Kind _kind) : AST(_kind) {}
+    ExpressionAST(Kind _kind) : AST(_kind) {}
 
 public:
-    virtual Expression *asExpression() { return this; }
+    virtual ExpressionAST *asExpression() { return this; }
 };
 
-class GLSL_EXPORT IdentifierExpression: public Expression
+class GLSL_EXPORT IdentifierExpressionAST: public ExpressionAST
 {
 public:
-    IdentifierExpression(const QString *_name)
-        : Expression(Kind_Identifier), name(_name) {}
+    IdentifierExpressionAST(const QString *_name)
+        : ExpressionAST(Kind_Identifier), name(_name) {}
 
-    virtual IdentifierExpression *asIdentifierExpression() { return this; }
+    virtual IdentifierExpressionAST *asIdentifierExpression() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
@@ -335,13 +335,13 @@ public: // attributes
     const QString *name;
 };
 
-class GLSL_EXPORT LiteralExpression: public Expression
+class GLSL_EXPORT LiteralExpressionAST: public ExpressionAST
 {
 public:
-    LiteralExpression(const QString *_value)
-        : Expression(Kind_Literal), value(_value) {}
+    LiteralExpressionAST(const QString *_value)
+        : ExpressionAST(Kind_Literal), value(_value) {}
 
-    virtual LiteralExpression *asLiteralExpression() { return this; }
+    virtual LiteralExpressionAST *asLiteralExpression() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
@@ -349,314 +349,314 @@ public: // attributes
     const QString *value;
 };
 
-class GLSL_EXPORT BinaryExpression: public Expression
+class GLSL_EXPORT BinaryExpressionAST: public ExpressionAST
 {
 public:
-    BinaryExpression(Kind _kind, Expression *_left, Expression *_right)
-        : Expression(_kind), left(_left), right(_right) {}
+    BinaryExpressionAST(Kind _kind, ExpressionAST *_left, ExpressionAST *_right)
+        : ExpressionAST(_kind), left(_left), right(_right) {}
 
-    virtual BinaryExpression *asBinaryExpression() { return this; }
+    virtual BinaryExpressionAST *asBinaryExpression() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
-    Expression *left;
-    Expression *right;
+    ExpressionAST *left;
+    ExpressionAST *right;
 };
 
-class GLSL_EXPORT UnaryExpression: public Expression
+class GLSL_EXPORT UnaryExpressionAST: public ExpressionAST
 {
 public:
-    UnaryExpression(Kind _kind, Expression *_expr)
-        : Expression(_kind), expr(_expr) {}
+    UnaryExpressionAST(Kind _kind, ExpressionAST *_expr)
+        : ExpressionAST(_kind), expr(_expr) {}
 
-    virtual UnaryExpression *asUnaryExpression() { return this; }
+    virtual UnaryExpressionAST *asUnaryExpression() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
-    Expression *expr;
+    ExpressionAST *expr;
 };
 
-class GLSL_EXPORT TernaryExpression: public Expression
+class GLSL_EXPORT TernaryExpressionAST: public ExpressionAST
 {
 public:
-    TernaryExpression(Kind _kind, Expression *_first, Expression *_second, Expression *_third)
-        : Expression(_kind), first(_first), second(_second), third(_third) {}
+    TernaryExpressionAST(Kind _kind, ExpressionAST *_first, ExpressionAST *_second, ExpressionAST *_third)
+        : ExpressionAST(_kind), first(_first), second(_second), third(_third) {}
 
-    virtual TernaryExpression *asTernaryExpression() { return this; }
+    virtual TernaryExpressionAST *asTernaryExpression() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
-    Expression *first;
-    Expression *second;
-    Expression *third;
+    ExpressionAST *first;
+    ExpressionAST *second;
+    ExpressionAST *third;
 };
 
-class GLSL_EXPORT AssignmentExpression: public Expression
+class GLSL_EXPORT AssignmentExpressionAST: public ExpressionAST
 {
 public:
-    AssignmentExpression(Kind _kind, Expression *_variable, Expression *_value)
-        : Expression(_kind), variable(_variable), value(_value) {}
+    AssignmentExpressionAST(Kind _kind, ExpressionAST *_variable, ExpressionAST *_value)
+        : ExpressionAST(_kind), variable(_variable), value(_value) {}
 
-    virtual AssignmentExpression *asAssignmentExpression() { return this; }
+    virtual AssignmentExpressionAST *asAssignmentExpression() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
-    Expression *variable;
-    Expression *value;
+    ExpressionAST *variable;
+    ExpressionAST *value;
 };
 
-class GLSL_EXPORT MemberAccessExpression: public Expression
+class GLSL_EXPORT MemberAccessExpressionAST: public ExpressionAST
 {
 public:
-    MemberAccessExpression(Expression *_expr, const QString *_field)
-        : Expression(Kind_MemberAccess), expr(_expr), field(_field) {}
+    MemberAccessExpressionAST(ExpressionAST *_expr, const QString *_field)
+        : ExpressionAST(Kind_MemberAccess), expr(_expr), field(_field) {}
 
-    virtual MemberAccessExpression *asMemberAccessExpression() { return this; }
+    virtual MemberAccessExpressionAST *asMemberAccessExpression() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
-    Expression *expr;
+    ExpressionAST *expr;
     const QString *field;
 };
 
-class GLSL_EXPORT FunctionCallExpression: public Expression
+class GLSL_EXPORT FunctionCallExpressionAST: public ExpressionAST
 {
 public:
-    FunctionCallExpression(FunctionIdentifier *_id,
-                           List<Expression *> *_arguments)
-        : Expression(Kind_FunctionCall), expr(0), id(_id)
+    FunctionCallExpressionAST(FunctionIdentifierAST *_id,
+                           List<ExpressionAST *> *_arguments)
+        : ExpressionAST(Kind_FunctionCall), expr(0), id(_id)
         , arguments(finish(_arguments)) {}
-    FunctionCallExpression(Expression *_expr, FunctionIdentifier *_id,
-                           List<Expression *> *_arguments)
-        : Expression(Kind_MemberFunctionCall), expr(_expr), id(_id)
+    FunctionCallExpressionAST(ExpressionAST *_expr, FunctionIdentifierAST *_id,
+                           List<ExpressionAST *> *_arguments)
+        : ExpressionAST(Kind_MemberFunctionCall), expr(_expr), id(_id)
         , arguments(finish(_arguments)) {}
 
-    virtual FunctionCallExpression *asFunctionCallExpression() { return this; }
+    virtual FunctionCallExpressionAST *asFunctionCallExpression() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
-    Expression *expr;
-    FunctionIdentifier *id;
-    List<Expression *> *arguments;
+    ExpressionAST *expr;
+    FunctionIdentifierAST *id;
+    List<ExpressionAST *> *arguments;
 };
 
-class GLSL_EXPORT FunctionIdentifier: public AST
+class GLSL_EXPORT FunctionIdentifierAST: public AST
 {
 public:
-    FunctionIdentifier(const QString *_name)
+    FunctionIdentifierAST(const QString *_name)
         : AST(Kind_FunctionIdentifier), name(_name), type(0) {}
-    FunctionIdentifier(Type *_type)
+    FunctionIdentifierAST(TypeAST *_type)
         : AST(Kind_FunctionIdentifier), name(0), type(_type) {}
 
-    virtual FunctionIdentifier *asFunctionIdentifier() { return this; }
+    virtual FunctionIdentifierAST *asFunctionIdentifier() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
     const QString *name;
-    Type *type;
+    TypeAST *type;
 };
 
-class GLSL_EXPORT DeclarationExpression: public Expression
+class GLSL_EXPORT DeclarationExpressionAST: public ExpressionAST
 {
 public:
-    DeclarationExpression(Type *_type, const QString *_name,
-                          Expression *_initializer)
-        : Expression(Kind_DeclarationExpression), type(_type)
+    DeclarationExpressionAST(TypeAST *_type, const QString *_name,
+                          ExpressionAST *_initializer)
+        : ExpressionAST(Kind_DeclarationExpression), type(_type)
         , name(_name), initializer(_initializer) {}
 
-    virtual DeclarationExpression *asDeclarationExpression() { return this; }
+    virtual DeclarationExpressionAST *asDeclarationExpression() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
-    Type *type;
+    TypeAST *type;
     const QString *name;
-    Expression *initializer;
+    ExpressionAST *initializer;
 };
 
-class GLSL_EXPORT Statement: public AST
+class GLSL_EXPORT StatementAST: public AST
 {
 protected:
-    Statement(Kind _kind) : AST(_kind) {}
+    StatementAST(Kind _kind) : AST(_kind) {}
 
 public:
-    virtual Statement *asStatement() { return this; }
+    virtual StatementAST *asStatement() { return this; }
 };
 
-class GLSL_EXPORT ExpressionStatement: public Statement
+class GLSL_EXPORT ExpressionStatementAST: public StatementAST
 {
 public:
-    ExpressionStatement(Expression *_expr)
-        : Statement(Kind_ExpressionStatement), expr(_expr) {}
+    ExpressionStatementAST(ExpressionAST *_expr)
+        : StatementAST(Kind_ExpressionStatement), expr(_expr) {}
 
-    virtual ExpressionStatement *asExpressionStatement() { return this; }
+    virtual ExpressionStatementAST *asExpressionStatement() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
-    Expression *expr;
+    ExpressionAST *expr;
 };
 
-class GLSL_EXPORT CompoundStatement: public Statement
+class GLSL_EXPORT CompoundStatementAST: public StatementAST
 {
 public:
-    CompoundStatement()
-        : Statement(Kind_CompoundStatement), statements(0) {}
-    CompoundStatement(List<Statement *> *_statements)
-        : Statement(Kind_CompoundStatement), statements(finish(_statements)) {}
+    CompoundStatementAST()
+        : StatementAST(Kind_CompoundStatement), statements(0) {}
+    CompoundStatementAST(List<StatementAST *> *_statements)
+        : StatementAST(Kind_CompoundStatement), statements(finish(_statements)) {}
 
-    virtual CompoundStatement *asCompoundStatement() { return this; }
+    virtual CompoundStatementAST *asCompoundStatement() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
-    List<Statement *> *statements;
+    List<StatementAST *> *statements;
 };
 
-class GLSL_EXPORT IfStatement: public Statement
+class GLSL_EXPORT IfStatementAST: public StatementAST
 {
 public:
-    IfStatement(Expression *_condition, Statement *_thenClause, Statement *_elseClause)
-        : Statement(Kind_If), condition(_condition)
+    IfStatementAST(ExpressionAST *_condition, StatementAST *_thenClause, StatementAST *_elseClause)
+        : StatementAST(Kind_If), condition(_condition)
         , thenClause(_thenClause), elseClause(_elseClause) {}
 
-    virtual IfStatement *asIfStatement() { return this; }
+    virtual IfStatementAST *asIfStatement() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
-    Expression *condition;
-    Statement *thenClause;
-    Statement *elseClause;
+    ExpressionAST *condition;
+    StatementAST *thenClause;
+    StatementAST *elseClause;
 };
 
-class GLSL_EXPORT WhileStatement: public Statement
+class GLSL_EXPORT WhileStatementAST: public StatementAST
 {
 public:
-    WhileStatement(Expression *_condition, Statement *_body)
-        : Statement(Kind_While), condition(_condition), body(_body) {}
+    WhileStatementAST(ExpressionAST *_condition, StatementAST *_body)
+        : StatementAST(Kind_While), condition(_condition), body(_body) {}
 
-    virtual WhileStatement *asWhileStatement() { return this; }
+    virtual WhileStatementAST *asWhileStatement() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
-    Expression *condition;
-    Statement *body;
+    ExpressionAST *condition;
+    StatementAST *body;
 };
 
-class GLSL_EXPORT DoStatement: public Statement
+class GLSL_EXPORT DoStatementAST: public StatementAST
 {
 public:
-    DoStatement(Statement *_body, Expression *_condition)
-        : Statement(Kind_Do), body(_body), condition(_condition) {}
+    DoStatementAST(StatementAST *_body, ExpressionAST *_condition)
+        : StatementAST(Kind_Do), body(_body), condition(_condition) {}
 
-    virtual DoStatement *asDoStatement() { return this; }
+    virtual DoStatementAST *asDoStatement() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
-    Statement *body;
-    Expression *condition;
+    StatementAST *body;
+    ExpressionAST *condition;
 };
 
-class GLSL_EXPORT ForStatement: public Statement
+class GLSL_EXPORT ForStatementAST: public StatementAST
 {
 public:
-    ForStatement(Statement *_init, Expression *_condition, Expression *_increment, Statement *_body)
-        : Statement(Kind_For), init(_init), condition(_condition), increment(_increment), body(_body) {}
+    ForStatementAST(StatementAST *_init, ExpressionAST *_condition, ExpressionAST *_increment, StatementAST *_body)
+        : StatementAST(Kind_For), init(_init), condition(_condition), increment(_increment), body(_body) {}
 
-    virtual ForStatement *asForStatement() { return this; }
+    virtual ForStatementAST *asForStatement() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
-    Statement *init;
-    Expression *condition;
-    Expression *increment;
-    Statement *body;
+    StatementAST *init;
+    ExpressionAST *condition;
+    ExpressionAST *increment;
+    StatementAST *body;
 };
 
-class GLSL_EXPORT JumpStatement: public Statement
+class GLSL_EXPORT JumpStatementAST: public StatementAST
 {
 public:
-    JumpStatement(Kind _kind) : Statement(_kind) {}
+    JumpStatementAST(Kind _kind) : StatementAST(_kind) {}
 
-    virtual JumpStatement *asJumpStatement() { return this; }
+    virtual JumpStatementAST *asJumpStatement() { return this; }
 
     virtual void accept0(Visitor *visitor);
 };
 
-class GLSL_EXPORT ReturnStatement: public Statement
+class GLSL_EXPORT ReturnStatementAST: public StatementAST
 {
 public:
-    ReturnStatement() : Statement(Kind_Return), expr(0) {}
-    ReturnStatement(Expression *_expr)
-        : Statement(Kind_ReturnExpression), expr(_expr) {}
+    ReturnStatementAST() : StatementAST(Kind_Return), expr(0) {}
+    ReturnStatementAST(ExpressionAST *_expr)
+        : StatementAST(Kind_ReturnExpression), expr(_expr) {}
 
-    virtual ReturnStatement *asReturnStatement() { return this; }
-
-    virtual void accept0(Visitor *visitor);
-
-public: // attributes
-    Expression *expr;
-};
-
-class GLSL_EXPORT SwitchStatement: public Statement
-{
-public:
-    SwitchStatement(Expression *_expr, Statement *_body)
-        : Statement(Kind_Switch), expr(_expr), body(_body) {}
-
-    virtual SwitchStatement *asSwitchStatement() { return this; }
+    virtual ReturnStatementAST *asReturnStatement() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
-    Expression *expr;
-    Statement *body;
+    ExpressionAST *expr;
 };
 
-class GLSL_EXPORT CaseLabelStatement: public Statement
+class GLSL_EXPORT SwitchStatementAST: public StatementAST
 {
 public:
-    CaseLabelStatement() : Statement(Kind_DefaultLabel), expr(0) {}
-    CaseLabelStatement(Expression *_expr)
-        : Statement(Kind_CaseLabel), expr(_expr) {}
+    SwitchStatementAST(ExpressionAST *_expr, StatementAST *_body)
+        : StatementAST(Kind_Switch), expr(_expr), body(_body) {}
 
-    virtual CaseLabelStatement *asCaseLabelStatement() { return this; }
+    virtual SwitchStatementAST *asSwitchStatement() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
-    Expression *expr;
+    ExpressionAST *expr;
+    StatementAST *body;
 };
 
-class GLSL_EXPORT DeclarationStatement: public Statement
+class GLSL_EXPORT CaseLabelStatementAST: public StatementAST
 {
 public:
-    DeclarationStatement(List<Declaration *> *_decls)
-        : Statement(Kind_DeclarationStatement), decls(finish(_decls)) {}
+    CaseLabelStatementAST() : StatementAST(Kind_DefaultLabel), expr(0) {}
+    CaseLabelStatementAST(ExpressionAST *_expr)
+        : StatementAST(Kind_CaseLabel), expr(_expr) {}
 
-    virtual DeclarationStatement *asDeclarationStatement() { return this; }
+    virtual CaseLabelStatementAST *asCaseLabelStatement() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
-    List<Declaration *> *decls;
+    ExpressionAST *expr;
 };
 
-class GLSL_EXPORT Type: public AST
+class GLSL_EXPORT DeclarationStatementAST: public StatementAST
+{
+public:
+    DeclarationStatementAST(List<DeclarationAST *> *_decls)
+        : StatementAST(Kind_DeclarationStatement), decls(finish(_decls)) {}
+
+    virtual DeclarationStatementAST *asDeclarationStatement() { return this; }
+
+    virtual void accept0(Visitor *visitor);
+
+public: // attributes
+    List<DeclarationAST *> *decls;
+};
+
+class GLSL_EXPORT TypeAST: public AST
 {
 protected:
-    Type(Kind _kind) : AST(_kind) {}
+    TypeAST(Kind _kind) : AST(_kind) {}
 
 public:
     enum Precision
@@ -698,7 +698,7 @@ public:
         Struct
     };
 
-    virtual Type *asType() { return this; }
+    virtual TypeAST *asType() { return this; }
 
     virtual Precision precision() const = 0;
 
@@ -709,13 +709,13 @@ public:
     virtual Category category() const = 0;
 };
 
-class GLSL_EXPORT BasicType: public Type
+class GLSL_EXPORT BasicTypeAST: public TypeAST
 {
 public:
     // Pass the parser's token code: T_VOID, T_VEC4, etc.
-    BasicType(int _token, const char *_name, Category _category);
+    BasicTypeAST(int _token, const char *_name, Category _category);
 
-    virtual BasicType *asBasicType() { return this; }
+    virtual BasicTypeAST *asBasicType() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
@@ -731,12 +731,12 @@ public: // attributes
     Category categ;
 };
 
-class GLSL_EXPORT NamedType: public Type
+class GLSL_EXPORT NamedTypeAST: public TypeAST
 {
 public:
-    NamedType(const QString *_name) : Type(Kind_NamedType), name(_name) {}
+    NamedTypeAST(const QString *_name) : TypeAST(Kind_NamedType), name(_name) {}
 
-    virtual NamedType *asNamedType() { return this; }
+    virtual NamedTypeAST *asNamedType() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
@@ -749,15 +749,15 @@ public: // attributes
     const QString *name;
 };
 
-class GLSL_EXPORT ArrayType: public Type
+class GLSL_EXPORT ArrayTypeAST: public TypeAST
 {
 public:
-    ArrayType(Type *_elementType)
-        : Type(Kind_OpenArrayType), elementType(_elementType), size(0) {}
-    ArrayType(Type *_elementType, Expression *_size)
-        : Type(Kind_ArrayType), elementType(_elementType), size(_size) {}
+    ArrayTypeAST(TypeAST *_elementType)
+        : TypeAST(Kind_OpenArrayType), elementType(_elementType), size(0) {}
+    ArrayTypeAST(TypeAST *_elementType, ExpressionAST *_size)
+        : TypeAST(Kind_ArrayType), elementType(_elementType), size(_size) {}
 
-    virtual ArrayType *asArrayType() { return this; }
+    virtual ArrayTypeAST *asArrayType() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
@@ -767,11 +767,11 @@ public:
     virtual Category category() const { return Array; }
 
 public: // attributes
-    Type *elementType;
-    Expression *size;
+    TypeAST *elementType;
+    ExpressionAST *size;
 };
 
-class GLSL_EXPORT StructType: public Type
+class GLSL_EXPORT StructTypeAST: public TypeAST
 {
 public:
     class Field: public AST
@@ -783,23 +783,23 @@ public:
         // Takes the outer shell of an array type with the innermost
         // element type set to null.  The fixInnerTypes() method will
         // set the innermost element type to a meaningful value.
-        Field(const QString *_name, Type *_type)
+        Field(const QString *_name, TypeAST *_type)
             : AST(Kind_StructField), name(_name), type(_type) {}
 
         virtual void accept0(Visitor *visitor);
 
-        void setInnerType(Type *innerType);
+        void setInnerType(TypeAST *innerType);
 
         const QString *name;
-        Type *type;
+        TypeAST *type;
     };
 
-    StructType(List<Field *> *_fields)
-        : Type(Kind_AnonymousStructType), fields(finish(_fields)) {}
-    StructType(const QString *_name, List<Field *> *_fields)
-        : Type(Kind_StructType), name(_name), fields(finish(_fields)) {}
+    StructTypeAST(List<Field *> *_fields)
+        : TypeAST(Kind_AnonymousStructType), fields(finish(_fields)) {}
+    StructTypeAST(const QString *_name, List<Field *> *_fields)
+        : TypeAST(Kind_StructType), name(_name), fields(finish(_fields)) {}
 
-    virtual StructType *asStructType() { return this; }
+    virtual StructTypeAST *asStructType() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
@@ -808,7 +808,7 @@ public:
 
     // Fix the inner types of a field list.  The "innerType" will
     // be copied into the "array holes" of all fields.
-    static List<Field *> *fixInnerTypes(Type *innerType, List<Field *> *fields);
+    static List<Field *> *fixInnerTypes(TypeAST *innerType, List<Field *> *fields);
 
     virtual Category category() const { return Struct; }
 
@@ -829,11 +829,11 @@ public: // attributes
     int lineno;
 };
 
-class GLSL_EXPORT QualifiedType: public Type
+class GLSL_EXPORT QualifiedTypeAST: public TypeAST
 {
 public:
-    QualifiedType(int _qualifiers, Type *_type, List<LayoutQualifier *> *_layout_list)
-        : Type(Kind_QualifiedType), qualifiers(_qualifiers), type(_type)
+    QualifiedTypeAST(int _qualifiers, TypeAST *_type, List<LayoutQualifier *> *_layout_list)
+        : TypeAST(Kind_QualifiedType), qualifiers(_qualifiers), type(_type)
         , layout_list(finish(_layout_list)) {}
 
     enum
@@ -861,7 +861,7 @@ public:
         Invariant           = 0x00010000
     };
 
-    virtual QualifiedType *asQualifiedType() { return this; }
+    virtual QualifiedTypeAST *asQualifiedType() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
@@ -872,36 +872,36 @@ public:
 
 public: // attributes
     int qualifiers;
-    Type *type;
+    TypeAST *type;
     List<LayoutQualifier *> *layout_list;
 };
 
-class GLSL_EXPORT Declaration: public AST
+class GLSL_EXPORT DeclarationAST: public AST
 {
 protected:
-    Declaration(Kind _kind) : AST(_kind) {}
+    DeclarationAST(Kind _kind) : AST(_kind) {}
 
 public:
-    virtual Declaration *asDeclaration() { return this; }
+    virtual DeclarationAST *asDeclaration() { return this; }
 };
 
-class GLSL_EXPORT PrecisionDeclaration: public Declaration
+class GLSL_EXPORT PrecisionDeclarationAST: public DeclarationAST
 {
 public:
-    PrecisionDeclaration(Type::Precision _precision, Type *_type)
-        : Declaration(Kind_PrecisionDeclaration)
+    PrecisionDeclarationAST(TypeAST::Precision _precision, TypeAST *_type)
+        : DeclarationAST(Kind_PrecisionDeclaration)
         , precision(_precision), type(_type) {}
 
-    virtual PrecisionDeclaration *asPrecisionDeclaration() { return this; }
+    virtual PrecisionDeclarationAST *asPrecisionDeclaration() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
-    Type::Precision precision;
-    Type *type;
+    TypeAST::Precision precision;
+    TypeAST *type;
 };
 
-class GLSL_EXPORT ParameterDeclaration: public Declaration
+class GLSL_EXPORT ParameterDeclarationAST: public DeclarationAST
 {
 public:
     enum Qualifier
@@ -910,79 +910,79 @@ public:
         Out,
         InOut
     };
-    ParameterDeclaration(Type *_type, Qualifier _qualifier,
+    ParameterDeclarationAST(TypeAST *_type, Qualifier _qualifier,
                          const QString *_name)
-        : Declaration(Kind_ParameterDeclaration), type(_type)
+        : DeclarationAST(Kind_ParameterDeclaration), type(_type)
         , qualifier(_qualifier), name(_name) {}
 
-    virtual ParameterDeclaration *asParameterDeclaration() { return this; }
+    virtual ParameterDeclarationAST *asParameterDeclaration() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
-    Type *type;
+    TypeAST *type;
     Qualifier qualifier;
     const QString *name;
 };
 
-class GLSL_EXPORT VariableDeclaration: public Declaration
+class GLSL_EXPORT VariableDeclarationAST: public DeclarationAST
 {
 public:
-    VariableDeclaration(Type *_type, const QString *_name,
-                        Expression *_initializer = 0)
-        : Declaration(Kind_VariableDeclaration), type(_type)
+    VariableDeclarationAST(TypeAST *_type, const QString *_name,
+                        ExpressionAST *_initializer = 0)
+        : DeclarationAST(Kind_VariableDeclaration), type(_type)
         , name(_name), initializer(_initializer) {}
 
-    virtual VariableDeclaration *asVariableDeclaration() { return this; }
+    virtual VariableDeclarationAST *asVariableDeclaration() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
-    static Type *declarationType(List<Declaration *> *decls);
+    static TypeAST *declarationType(List<DeclarationAST *> *decls);
 
 public: // attributes
-    Type *type;
+    TypeAST *type;
     const QString *name;
-    Expression *initializer;
+    ExpressionAST *initializer;
 };
 
-class GLSL_EXPORT TypeDeclaration: public Declaration
+class GLSL_EXPORT TypeDeclarationAST: public DeclarationAST
 {
 public:
-    TypeDeclaration(Type *_type)
-        : Declaration(Kind_TypeDeclaration), type(_type) {}
+    TypeDeclarationAST(TypeAST *_type)
+        : DeclarationAST(Kind_TypeDeclaration), type(_type) {}
 
-    virtual TypeDeclaration *asTypeDeclaration() { return this; }
+    virtual TypeDeclarationAST *asTypeDeclaration() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
-    Type *type;
+    TypeAST *type;
 };
 
-class GLSL_EXPORT TypeAndVariableDeclaration: public Declaration
+class GLSL_EXPORT TypeAndVariableDeclarationAST: public DeclarationAST
 {
 public:
-    TypeAndVariableDeclaration(TypeDeclaration *_typeDecl,
-                               VariableDeclaration *_varDecl)
-        : Declaration(Kind_TypeAndVariableDeclaration)
+    TypeAndVariableDeclarationAST(TypeDeclarationAST *_typeDecl,
+                               VariableDeclarationAST *_varDecl)
+        : DeclarationAST(Kind_TypeAndVariableDeclaration)
         , typeDecl(_typeDecl), varDecl(_varDecl) {}
 
-    virtual TypeAndVariableDeclaration *asTypeAndVariableDeclaration() { return this; }
+    virtual TypeAndVariableDeclarationAST *asTypeAndVariableDeclaration() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
-    TypeDeclaration *typeDecl;
-    VariableDeclaration *varDecl;
+    TypeDeclarationAST *typeDecl;
+    VariableDeclarationAST *varDecl;
 };
 
-class GLSL_EXPORT InvariantDeclaration: public Declaration
+class GLSL_EXPORT InvariantDeclarationAST: public DeclarationAST
 {
 public:
-    InvariantDeclaration(const QString *_name)
-        : Declaration(Kind_InvariantDeclaration), name(_name) {}
+    InvariantDeclarationAST(const QString *_name)
+        : DeclarationAST(Kind_InvariantDeclaration), name(_name) {}
 
-    virtual InvariantDeclaration *asInvariantDeclaration() { return this; }
+    virtual InvariantDeclarationAST *asInvariantDeclaration() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
@@ -990,28 +990,28 @@ public: // attributes
     const QString *name;
 };
 
-class GLSL_EXPORT InitDeclaration: public Declaration
+class GLSL_EXPORT InitDeclarationAST: public DeclarationAST
 {
 public:
-    InitDeclaration(List<Declaration *> *_decls)
-        : Declaration(Kind_InitDeclaration), decls(finish(_decls)) {}
+    InitDeclarationAST(List<DeclarationAST *> *_decls)
+        : DeclarationAST(Kind_InitDeclaration), decls(finish(_decls)) {}
 
-    virtual InitDeclaration *asInitDeclaration() { return this; }
+    virtual InitDeclarationAST *asInitDeclaration() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
-    List<Declaration *> *decls;
+    List<DeclarationAST *> *decls;
 };
 
-class GLSL_EXPORT FunctionDeclaration : public Declaration
+class GLSL_EXPORT FunctionDeclarationAST : public DeclarationAST
 {
 public:
-    FunctionDeclaration(Type *_returnType, const QString *_name)
-        : Declaration(Kind_FunctionDeclaration), returnType(_returnType)
+    FunctionDeclarationAST(TypeAST *_returnType, const QString *_name)
+        : DeclarationAST(Kind_FunctionDeclaration), returnType(_returnType)
         , name(_name), params(0), body(0) {}
 
-    virtual FunctionDeclaration *asFunctionDeclaration() { return this; }
+    virtual FunctionDeclarationAST *asFunctionDeclaration() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
@@ -1020,10 +1020,10 @@ public:
     bool isPrototype() const { return body == 0; }
 
 public: // attributes
-    Type *returnType;
+    TypeAST *returnType;
     const QString *name;
-    List<ParameterDeclaration *> *params;
-    Statement *body;
+    List<ParameterDeclarationAST *> *params;
+    StatementAST *body;
 };
 
 } // namespace GLSL

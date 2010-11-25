@@ -47,30 +47,30 @@ public:
         const QString *string;
         AST *ast;
         List<AST *> *ast_list;
-        Declaration *declaration;
-        List<Declaration *> *declaration_list;
-        Expression *expression;
-        List<Expression *> *expression_list;
-        Statement *statement;
-        List<Statement *> *statement_list;
-        Type *type;
-        StructType::Field *field;
-        List<StructType::Field *> *field_list;
-        TranslationUnit *translation_unit;
-        FunctionIdentifier *function_identifier;
+        DeclarationAST *declaration;
+        List<DeclarationAST *> *declaration_list;
+        ExpressionAST *expression;
+        List<ExpressionAST *> *expression_list;
+        StatementAST *statement;
+        List<StatementAST *> *statement_list;
+        TypeAST *type;
+        StructTypeAST::Field *field;
+        List<StructTypeAST::Field *> *field_list;
+        TranslationUnitAST *translation_unit;
+        FunctionIdentifierAST *function_identifier;
         AST::Kind kind;
-        Type::Precision precision;
+        TypeAST::Precision precision;
         struct {
-            Statement *thenClause;
-            Statement *elseClause;
+            StatementAST *thenClause;
+            StatementAST *elseClause;
         } ifstmt;
         struct {
-            Expression *condition;
-            Expression *increment;
+            ExpressionAST *condition;
+            ExpressionAST *increment;
         } forstmt;
         struct {
-            FunctionIdentifier *id;
-            List<Expression *> *arguments;
+            FunctionIdentifierAST *id;
+            List<ExpressionAST *> *arguments;
         } function;
         int qualifier;
         LayoutQualifier *layout;
@@ -80,27 +80,27 @@ public:
             List<LayoutQualifier *> *layout_list;
         } type_qualifier;
         struct {
-            Type *type;
+            TypeAST *type;
             const QString *name;
         } param_declarator;
-        ParameterDeclaration *param_declaration;
-        FunctionDeclaration *function_declaration;
+        ParameterDeclarationAST *param_declaration;
+        FunctionDeclarationAST *function_declaration;
     };
 
     Parser(Engine *engine, const char *source, unsigned size, int variant);
     ~Parser();
 
-    TranslationUnit *parse();
+    TranslationUnitAST *parse();
 
 private:
     // 1-based
     Value &sym(int n) { return _symStack[_tos + n - 1]; }
     AST *&ast(int n) { return _symStack[_tos + n - 1].ast; }
     const QString *&string(int n) { return _symStack[_tos + n - 1].string; }
-    Expression *&expression(int n) { return _symStack[_tos + n - 1].expression; }
-    Statement *&statement(int n) { return _symStack[_tos + n - 1].statement; }
-    Type *&type(int n) { return _symStack[_tos + n - 1].type; }
-    FunctionDeclaration *&function(int n) { return _symStack[_tos + n - 1].function_declaration; }
+    ExpressionAST *&expression(int n) { return _symStack[_tos + n - 1].expression; }
+    StatementAST *&statement(int n) { return _symStack[_tos + n - 1].statement; }
+    TypeAST *&type(int n) { return _symStack[_tos + n - 1].type; }
+    FunctionDeclarationAST *&function(int n) { return _symStack[_tos + n - 1].function_declaration; }
 
     inline int consumeToken() { return _index++; }
     inline const Token &tokenAt(int index) const { return _tokens.at(index); }
@@ -165,9 +165,9 @@ private:
         return node;
     }
 
-    Type *makeBasicType(int token, BasicType::Category category)
+    TypeAST *makeBasicType(int token, BasicTypeAST::Category category)
     {
-        Type *type = new (_engine->pool()) BasicType(token, spell[token], category);
+        TypeAST *type = new (_engine->pool()) BasicTypeAST(token, spell[token], category);
         type->lineno = yyloc >= 0 ? (_tokens[yyloc].line + 1) : 0;
         return type;
     }
