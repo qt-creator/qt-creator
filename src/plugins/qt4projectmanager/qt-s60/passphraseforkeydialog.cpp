@@ -41,8 +41,8 @@ using namespace Qt4ProjectManager;
 PassphraseForKeyDialog::PassphraseForKeyDialog(const QString &keyName, QWidget *parent) :
     QDialog(parent),
     m_buttonBox(0),
-    m_passphraseEdit(0),
-    m_saveCheckBox(0)
+    m_saveCheckBox(0),
+    m_passphraseEdit(0)
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
 
