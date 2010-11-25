@@ -2855,9 +2855,9 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
 #endif
     m_startRemoteAction->setEnabled(true);
 
+    const bool isCore = engine->startParameters().startMode == AttachCore;
     const bool stopped = m_state == InferiorStopOk;
-    const bool detachable = stopped
-        && engine->startParameters().startMode != AttachCore;
+    const bool detachable = stopped && !isCore;
     m_detachAction->setEnabled(detachable);
 
     if (stopped)
@@ -2873,7 +2873,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     m_actions.breakAction->setEnabled(true);
     //m_actions.snapshotAction->setEnabled(stopped && (caps & SnapshotCapability));
 
-    action(OperateByInstruction)->setEnabled(stopped);
+    action(OperateByInstruction)->setEnabled(stopped || isCore);
 
     m_actions.resetAction->setEnabled(m_state != DebuggerNotReady
                                       && m_state != DebuggerFinished);

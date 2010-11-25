@@ -91,6 +91,8 @@ public:
     const StackFrame &frame() const;
     void resetLocation();
     void setContents(const DisassemblerLines &contents);
+    void updateLocationMarker();
+    void updateBreakpointMarkers();
 
     // Mimetype: "text/a-asm" or some specialized architecture
     QString mimeType() const;

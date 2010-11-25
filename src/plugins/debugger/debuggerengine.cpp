@@ -1217,6 +1217,7 @@ void DebuggerEngine::attemptBreakpointSynchronization()
             handler->setEngine(id, this);
     }
 
+    bool done = true;
     foreach (BreakpointId id, handler->engineBreakpointIds(this)) {
         switch (handler->state(id)) {
         case BreakpointNew:
@@ -1224,17 +1225,21 @@ void DebuggerEngine::attemptBreakpointSynchronization()
             QTC_ASSERT(false, /**/);
             continue;
         case BreakpointInsertRequested:
+            done = false;
             insertBreakpoint(id);
             continue;
         case BreakpointChangeRequested:
+            done = false;
             changeBreakpoint(id);
             continue;
         case BreakpointRemoveRequested:
+            done = false;
             removeBreakpoint(id);
             continue;
         case BreakpointChangeProceeding:
         case BreakpointInsertProceeding:
         case BreakpointRemoveProceeding:
+            done = false;
             //qDebug() << "BREAKPOINT " << id << " STILL IN PROGRESS, STATE"
             //    << handler->state(id);
             continue;
@@ -1249,6 +1254,8 @@ void DebuggerEngine::attemptBreakpointSynchronization()
         QTC_ASSERT(false, qDebug() << "UNKNOWN STATE"  << id << state());
     }
 
+    if (done)
+        d->m_disassemblerViewAgent.updateBreakpointMarkers();
 }
 
 bool DebuggerEngine::acceptsBreakpoint(BreakpointId) const
