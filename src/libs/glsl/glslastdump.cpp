@@ -51,9 +51,13 @@ bool ASTDump::preVisit(AST *ast)
 {
     const char *id = typeid(*ast).name();
 #ifdef Q_CC_GNU
-    id = abi::__cxa_demangle(id, 0, 0, 0);
+    char *cppId = abi::__cxa_demangle(id, 0, 0, 0);
+    id = cppId;
 #endif
     out << QByteArray(_depth, ' ') << id << endl;
+#ifdef Q_CC_GNU
+    free(cppId);
+#endif
     ++_depth;
     return true;
 }
