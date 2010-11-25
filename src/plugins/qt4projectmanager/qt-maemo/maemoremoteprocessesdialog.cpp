@@ -60,7 +60,11 @@ MaemoRemoteProcessesDialog::MaemoRemoteProcessesDialog(const Core::SshConnection
     m_ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_proxyModel->setSourceModel(m_processList);
     m_proxyModel->setDynamicSortFilter(true);
+    m_proxyModel->setFilterKeyColumn(1);
     m_ui->tableView->setModel(m_proxyModel);
+    connect(m_ui->processFilterLineEdit, SIGNAL(textChanged(QString)),
+        m_proxyModel, SLOT(setFilterRegExp(QString)));
+    m_ui->processFilterLineEdit->setText(QLatin1String("[^ ]+"));
     connect(m_ui->tableView->selectionModel(),
         SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
         SLOT(handleSelectionChanged()));
