@@ -9,5 +9,8 @@ win32 {
         !exists($$CDB_PATH):CDB_PATH="$$(ProgramFiles)/Debugging Tools For Windows (x86)/sdk"
         !exists($$CDB_PATH):CDB_PATH="$$(ProgramFiles)/Debugging Tools For Windows (x64)/sdk"
         !exists($$CDB_PATH):CDB_PATH="$$(ProgramFiles)/Debugging Tools For Windows 64-bit/sdk"
+        !exists($$CDB_PATH):CDB_PATH="$$(%ProgramW6432%)/Debugging Tools For Windows (x86)/sdk"
+        !exists($$CDB_PATH):CDB_PATH="$$(%ProgramW6432%)/Debugging Tools For Windows (x64)/sdk"
+        !exists($$CDB_PATH):CDB_PATH="$$(%ProgramW6432%)/Debugging Tools For Windows 64-bit/sdk"
     }
 }
