@@ -93,111 +93,94 @@ bool QmlGraphicsItemNodeInstance::isQmlGraphicsItem() const
 
 QSizeF QmlGraphicsItemNodeInstance::size() const
 {
-//    if (modelNode().isValid()) {
-//        double implicitWidth = qmlGraphicsItem()->implicitWidth();
-//        if (!m_hasWidth
-//            && implicitWidth // WORKAROUND
-//            && implicitWidth != qmlGraphicsItem()->width()
-//            && !modelNode().hasBindingProperty("width")) {
-//            qmlGraphicsItem()->blockSignals(true);
-//            qmlGraphicsItem()->setWidth(implicitWidth);
-//            qmlGraphicsItem()->blockSignals(false);
-//        }
+    if (isValid()) {
+        double implicitWidth = qmlGraphicsItem()->implicitWidth();
+        if (!m_hasWidth
+            && implicitWidth // WORKAROUND
+            && implicitWidth != qmlGraphicsItem()->width()
+            && !hasBindingProperty("width")) {
+            qmlGraphicsItem()->blockSignals(true);
+            qmlGraphicsItem()->setWidth(implicitWidth);
+            qmlGraphicsItem()->blockSignals(false);
+        }
 
-//        double implicitHeight = qmlGraphicsItem()->implicitHeight();
-//        if (!m_hasHeight
-//            && implicitWidth // WORKAROUND
-//            && implicitHeight != qmlGraphicsItem()->height()
-//            && !modelNode().hasBindingProperty("height")) {
-//            qmlGraphicsItem()->blockSignals(true);
-//            qmlGraphicsItem()->setHeight(implicitHeight);
-//            qmlGraphicsItem()->blockSignals(false);
-//        }
+        double implicitHeight = qmlGraphicsItem()->implicitHeight();
+        if (!m_hasHeight
+            && implicitWidth // WORKAROUND
+            && implicitHeight != qmlGraphicsItem()->height()
+            && !hasBindingProperty("height")) {
+            qmlGraphicsItem()->blockSignals(true);
+            qmlGraphicsItem()->setHeight(implicitHeight);
+            qmlGraphicsItem()->blockSignals(false);
+        }
 
-//    }
+    }
 
-//    if (modelNode().isRootNode()) {
-//        if (!m_hasWidth) {
-//            qmlGraphicsItem()->blockSignals(true);
-//            if (qmlGraphicsItem()->width() < 10.)
-//                qmlGraphicsItem()->setWidth(100.);
-//            qmlGraphicsItem()->blockSignals(false);
-//        }
+    if (isRootNodeInstance()) {
+        if (!m_hasWidth) {
+            qmlGraphicsItem()->blockSignals(true);
+            if (qmlGraphicsItem()->width() < 10.)
+                qmlGraphicsItem()->setWidth(100.);
+            qmlGraphicsItem()->blockSignals(false);
+        }
 
-//        if (!m_hasHeight) {
-//            qmlGraphicsItem()->blockSignals(true);
-//            if (qmlGraphicsItem()->height() < 10.)
-//                qmlGraphicsItem()->setHeight(100.);
-//            qmlGraphicsItem()->blockSignals(false);
-//        }
-//    }
+        if (!m_hasHeight) {
+            qmlGraphicsItem()->blockSignals(true);
+            if (qmlGraphicsItem()->height() < 10.)
+                qmlGraphicsItem()->setHeight(100.);
+            qmlGraphicsItem()->blockSignals(false);
+        }
+    }
 
     return QSizeF(qmlGraphicsItem()->width(), qmlGraphicsItem()->height());
 }
 
 QRectF QmlGraphicsItemNodeInstance::boundingRect() const
 {
-//    if (modelNode().isValid()) {
-//        double implicitWidth = qmlGraphicsItem()->implicitWidth();
-//        if (!m_hasWidth
-//            && implicitWidth // WORKAROUND
-//            && implicitWidth != qmlGraphicsItem()->width()
-//            && !modelNode().hasBindingProperty("width")) {
-//            qmlGraphicsItem()->blockSignals(true);
-//            qmlGraphicsItem()->setWidth(implicitWidth);
-//            qmlGraphicsItem()->blockSignals(false);
-//        }
+    if (isValid()) {
+        double implicitWidth = qmlGraphicsItem()->implicitWidth();
+        if (!m_hasWidth
+            && implicitWidth // WORKAROUND
+            && implicitWidth != qmlGraphicsItem()->width()
+            && !hasBindingProperty("width")) {
+            qmlGraphicsItem()->blockSignals(true);
+            qmlGraphicsItem()->setWidth(implicitWidth);
+            qmlGraphicsItem()->blockSignals(false);
+        }
 
-//        double implicitHeight = qmlGraphicsItem()->implicitHeight();
-//        if (!m_hasHeight
-//            && implicitHeight // WORKAROUND
-//            && implicitHeight != qmlGraphicsItem()->height()
-//            && !modelNode().hasBindingProperty("height")) {
-//            qmlGraphicsItem()->blockSignals(true);
-//            qmlGraphicsItem()->setHeight(implicitHeight);
-//            qmlGraphicsItem()->blockSignals(false);
-//        }
+        double implicitHeight = qmlGraphicsItem()->implicitHeight();
+        if (!m_hasHeight
+            && implicitWidth // WORKAROUND
+            && implicitHeight != qmlGraphicsItem()->height()
+            && !hasBindingProperty("height")) {
+            qmlGraphicsItem()->blockSignals(true);
+            qmlGraphicsItem()->setHeight(implicitHeight);
+            qmlGraphicsItem()->blockSignals(false);
+        }
 
-//    }
+    }
 
-//    if (modelNode().isRootNode()) {
-//        if (!m_hasWidth) {
-//            qmlGraphicsItem()->blockSignals(true);
-//            if (qmlGraphicsItem()->width() < 10.)
-//                qmlGraphicsItem()->setWidth(100.);
-//            qmlGraphicsItem()->blockSignals(false);
-//        }
+    if (isRootNodeInstance()) {
+        if (!m_hasWidth) {
+            qmlGraphicsItem()->blockSignals(true);
+            if (qmlGraphicsItem()->width() < 10.)
+                qmlGraphicsItem()->setWidth(100.);
+            qmlGraphicsItem()->blockSignals(false);
+        }
 
-//        if (!m_hasHeight) {
-//            qmlGraphicsItem()->blockSignals(true);
-//            if (qmlGraphicsItem()->height() < 10.)
-//                qmlGraphicsItem()->setHeight(100.);
-//            qmlGraphicsItem()->blockSignals(false);
-//        }
-//    }
+        if (!m_hasHeight) {
+            qmlGraphicsItem()->blockSignals(true);
+            if (qmlGraphicsItem()->height() < 10.)
+                qmlGraphicsItem()->setHeight(100.);
+            qmlGraphicsItem()->blockSignals(false);
+        }
+    }
 
     if (qmlGraphicsItem())
         return qmlGraphicsItem()->boundingRect();
 
     return QRectF();
 }
-
-//QVariant anchorLineFor(QDeclarativeItem *item, const AnchorLine &anchorLine)
-//{
-//    switch(anchorLine.type()) {
-//        case AnchorLine::Top : return item->property("top");
-//        case AnchorLine::Bottom : return item->property("bottom");
-//        case AnchorLine::Left : return item->property("left");
-//        case AnchorLine::Right : return item->property("right");
-//        case AnchorLine::HorizontalCenter : return item->property("horizontalCenter");
-//        case AnchorLine::VerticalCenter : return item->property("verticalCenter");
-//        case AnchorLine::Baseline : return item->property("baseline");
-//        default: QVariant();
-//        }
-//
-//    Q_ASSERT_X(false, Q_FUNC_INFO, QString::number(anchorLine.type()).toLatin1());
-//    return QVariant();
-//}
 
 void QmlGraphicsItemNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
 {
@@ -233,27 +216,27 @@ void QmlGraphicsItemNodeInstance::setPropertyBinding(const QString &name, const 
 
 QVariant QmlGraphicsItemNodeInstance::property(const QString &name) const
 {
-//   if (name == "width" && modelNode().isValid() && !modelNode().hasBindingProperty("width")) {
-//        double implicitWidth = qmlGraphicsItem()->implicitWidth();
-//        if (!m_hasWidth
-//            && implicitWidth // WORKAROUND
-//            && implicitWidth != qmlGraphicsItem()->width()) {
-//                qmlGraphicsItem()->blockSignals(true);
-//                qmlGraphicsItem()->setWidth(implicitWidth);
-//                qmlGraphicsItem()->blockSignals(false);
-//        }
-//    }
+   if (name == "width" && !hasBindingProperty("width")) {
+        double implicitWidth = qmlGraphicsItem()->implicitWidth();
+        if (!m_hasWidth
+            && implicitWidth // WORKAROUND
+            && implicitWidth != qmlGraphicsItem()->width()) {
+                qmlGraphicsItem()->blockSignals(true);
+                qmlGraphicsItem()->setWidth(implicitWidth);
+                qmlGraphicsItem()->blockSignals(false);
+        }
+    }
 
-//    if (name == "height" && modelNode().isValid() && !modelNode().hasBindingProperty("height")) {
-//        double implicitHeight = qmlGraphicsItem()->implicitHeight();
-//        if (!m_hasHeight
-//            && implicitHeight // WORKAROUND
-//            && implicitHeight != qmlGraphicsItem()->height()) {
-//                qmlGraphicsItem()->blockSignals(true);
-//                qmlGraphicsItem()->setHeight(implicitHeight);
-//                qmlGraphicsItem()->blockSignals(false);
-//            }
-//    }
+    if (name == "height" && !hasBindingProperty("height")) {
+        double implicitHeight = qmlGraphicsItem()->implicitHeight();
+        if (!m_hasHeight
+            && implicitHeight // WORKAROUND
+            && implicitHeight != qmlGraphicsItem()->height()) {
+                qmlGraphicsItem()->blockSignals(true);
+                qmlGraphicsItem()->setHeight(implicitHeight);
+                qmlGraphicsItem()->blockSignals(false);
+            }
+    }
 
     return GraphicsObjectNodeInstance::property(name);
 }
