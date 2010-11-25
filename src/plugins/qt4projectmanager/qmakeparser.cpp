@@ -69,9 +69,17 @@ void QMakeParser::stdError(const QString &line)
         return;
     }
     if (m_error.indexIn(lne) > -1) {
-       emit addTask(Task(Task::Error,
+        QString fileName = QDir::fromNativeSeparators(m_error.cap(1));
+        Task::TaskType type = Task::Error;
+        if (fileName.startsWith("WARNING: ")) {
+            type = Task::Warning;
+            fileName = fileName.mid(9);
+        } else if (fileName.startsWith("ERROR: ")) {
+            fileName = fileName.mid(7);
+        }
+        emit addTask(Task(type,
                           m_error.cap(3) /* description */,
-                          QDir::fromNativeSeparators(m_error.cap(1)) /* file */,
+                          fileName,
                           m_error.cap(2).toInt() /* line */,
                           ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
         return;
@@ -144,6 +152,17 @@ void Qt4ProjectManagerPlugin::testQmakeOutputParsers_data()
                 << Task(Task::Warning,
                         QLatin1String("bearer module might require ReadUserData capability"),
                         QString(), -1,
+                        ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM))
+            << QString();
+
+    QTest::newRow("qMake warning with location")
+            << QString::fromLatin1("WARNING: e:\\NokiaQtSDK\\Simulator\\Qt\\msvc2008\\lib\\qtmaind.prl:1: Unescaped backslashes are deprecated.")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Warning,
+                        QLatin1String("Unescaped backslashes are deprecated."),
+                        QLatin1String("e:/NokiaQtSDK/Simulator/Qt/msvc2008/lib/qtmaind.prl"), 1,
                         ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM))
             << QString();
 }
