@@ -11,7 +11,9 @@
 #include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
 
+#include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
+#include <QtGui/QPixmap>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -35,6 +37,7 @@ MaemoDeployStepWidget::MaemoDeployStepWidget(MaemoDeployStep *step) :
         SLOT(setModel(int)));
     connect(ui->addDesktopFileButton, SIGNAL(clicked()),
         SLOT(addDesktopFile()));
+    connect(ui->addIconButton, SIGNAL(clicked()), SLOT(addIcon()));
     handleModelListReset();
 }
 
@@ -104,6 +107,7 @@ void MaemoDeployStepWidget::handleModelListToBeReset()
     ui->tableView->reset(); // Otherwise we'll crash if the user is currently editing.
     ui->tableView->setModel(0);
     ui->addDesktopFileButton->setEnabled(false);
+    ui->addIconButton->setEnabled(false);
 }
 
 void MaemoDeployStepWidget::handleModelListReset()
@@ -120,14 +124,17 @@ void MaemoDeployStepWidget::handleModelListReset()
 void MaemoDeployStepWidget::setModel(int row)
 {
     bool canAddDesktopFile = false;
+    bool canAddIconFile = false;
     if (row != -1) {
         MaemoDeployableListModel *const model
             = m_step->deployables()->modelAt(row);
         ui->tableView->setModel(model);
         ui->tableView->resizeRowsToContents();
         canAddDesktopFile = model->canAddDesktopFile();
+        canAddIconFile = model->canAddIcon();
     }
     ui->addDesktopFileButton->setEnabled(canAddDesktopFile);
+    ui->addIconButton->setEnabled(canAddIconFile);
 }
 
 void MaemoDeployStepWidget::addDesktopFile()
@@ -143,6 +150,47 @@ void MaemoDeployStepWidget::addDesktopFile()
              tr("Error creating desktop file: %1").arg(error));
     }
     ui->addDesktopFileButton->setEnabled(model->canAddDesktopFile());
+    ui->tableView->resizeRowsToContents();
+}
+
+void MaemoDeployStepWidget::addIcon()
+{
+    const int modelRow = ui->modelComboBox->currentIndex();
+    if (modelRow == -1)
+        return;
+
+    MaemoDeployableListModel *const model
+        = m_step->deployables()->modelAt(modelRow);
+    const QString origFilePath = QFileDialog::getOpenFileName(this,
+        tr("Choose Icon (will be scaled to 64x64 pixels, if necessary)"),
+        model->projectDir(), QLatin1String("(*.png)"));
+    if (origFilePath.isEmpty())
+        return;
+    QPixmap pixmap(origFilePath);
+    if (pixmap.isNull()) {
+        QMessageBox::critical(this, tr("Invalid Icon"),
+            tr("Unable to read image"));
+        return;
+    }
+    const QSize iconSize(64, 64);
+    if (pixmap.size() != iconSize)
+        pixmap = pixmap.scaled(iconSize);
+    const QString newFileName = model->projectName() + QLatin1Char('.')
+            + QFileInfo(origFilePath).suffix();
+    const QString newFilePath = model->projectDir() + QLatin1Char('/')
+        + newFileName;
+    if (!pixmap.save(newFilePath)) {
+        QMessageBox::critical(this, tr("Failed to Save Icon"),
+            tr("Could not save icon to '%1'.").arg(newFilePath));
+        return;
+    }
+
+    QString error;
+    if (!model->addIcon(newFileName, error)) {
+        QMessageBox::critical(this, tr("Could Not Add Icon"),
+             tr("Error adding icon: %1").arg(error));
+    }
+    ui->addIconButton->setEnabled(model->canAddIcon());
     ui->tableView->resizeRowsToContents();
 }
 

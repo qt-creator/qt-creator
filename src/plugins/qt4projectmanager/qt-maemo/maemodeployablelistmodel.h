@@ -68,7 +68,9 @@ public:
     QString proFilePath() const { return m_proFilePath; }
     bool hasTargetPath() const { return m_hasTargetPath; }
     bool canAddDesktopFile() const;
+    bool canAddIcon() const;
     bool addDesktopFile(QString &error);
+    bool addIcon(const QString &fileName, QString &error);
     ProFileUpdateSetting proFileUpdateSetting() const {
         return m_proFileUpdateSetting;
     }

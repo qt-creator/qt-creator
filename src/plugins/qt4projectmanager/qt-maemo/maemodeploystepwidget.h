@@ -30,6 +30,7 @@ private:
     Q_SLOT void handleModelListToBeReset();
     Q_SLOT void handleModelListReset();
     Q_SLOT void addDesktopFile();
+    Q_SLOT void addIcon();
 
     virtual void init();
     virtual QString summaryText() const;

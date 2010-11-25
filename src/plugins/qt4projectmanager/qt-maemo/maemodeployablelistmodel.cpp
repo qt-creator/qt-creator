@@ -41,9 +41,13 @@
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtGui/QBrush>
+#include <QtGui/QImageReader>
 
 namespace Qt4ProjectManager {
 namespace Internal {
+namespace {
+const QLatin1String RemoteIconPath("/usr/share/icons/hicolor/64x64/apps");
+} // anonymous namespace
 
 MaemoDeployableListModel::MaemoDeployableListModel(const Qt4ProFileNode *proFileNode,
     ProFileUpdateSetting updateSetting, QObject *parent)
@@ -232,6 +236,21 @@ bool MaemoDeployableListModel::canAddDesktopFile() const
     return true;
 }
 
+bool MaemoDeployableListModel::canAddIcon() const
+{
+    if (m_projectType == LibraryTemplate)
+        return false;
+    const QList<QByteArray> &imageTypes = QImageReader::supportedImageFormats();
+    foreach (const MaemoDeployable &d, m_deployables) {
+        const QByteArray extension
+            = QFileInfo(d.localFilePath).suffix().toLocal8Bit();
+        if (d.remoteDir.startsWith(RemoteIconPath)
+                && imageTypes.contains(extension))
+            return false;
+    }
+    return true;
+}
+
 bool MaemoDeployableListModel::addDesktopFile(QString &error)
 {
     if (!canAddDesktopFile())
@@ -279,6 +298,28 @@ bool MaemoDeployableListModel::addDesktopFile(QString &error)
 
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     m_deployables << MaemoDeployable(desktopFilePath, remoteDir);
+    endInsertRows();
+    return true;
+}
+
+bool MaemoDeployableListModel::addIcon(const QString &fileName, QString &error)
+{
+    if (!canAddIcon())
+        return true;
+
+    const QString filesLine = QLatin1String("icon.files = ") + fileName;
+    const QString pathLine = QLatin1String("icon.path = ") + RemoteIconPath;
+    const QLatin1String installsLine("INSTALLS += icon");
+    if (!addLinesToProFile(QStringList() << filesLine << pathLine
+            << installsLine)) {
+        error = tr("Error writing project file.");
+        return false;
+    }
+
+    beginInsertRows(QModelIndex(), rowCount(), rowCount());
+    const QString filePath = QFileInfo(m_proFilePath).path()
+        + QLatin1Char('/') + fileName;
+    m_deployables << MaemoDeployable(filePath, RemoteIconPath);
     endInsertRows();
     return true;
 }
