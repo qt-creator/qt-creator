@@ -42,7 +42,6 @@
 #include <coreplugin/coreconstants.h>
 
 namespace QmlJSEditor {
-namespace Internal {
 
 QmlJSEditorEditable::QmlJSEditorEditable(QmlJSTextEditor *editor)
     : BaseTextEditorEditable(editor)
@@ -90,5 +89,4 @@ QString QmlJSEditorEditable::preferredModeType() const
     return QString();
 }
 
-} // namespace Internal
 } // namespace QmlJSEditor

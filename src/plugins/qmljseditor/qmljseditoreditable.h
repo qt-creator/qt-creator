@@ -30,14 +30,13 @@
 #ifndef QMLJSEDITOREDITABLE_H
 #define QMLJSEDITOREDITABLE_H
 
+#include "qmljseditor_global.h"
 #include <texteditor/basetexteditor.h>
 
 namespace QmlJSEditor {
 class QmlJSTextEditor;
 
-namespace Internal {
-
-class QmlJSEditorEditable : public TextEditor::BaseTextEditorEditable
+class QMLJSEDITOR_EXPORT QmlJSEditorEditable : public TextEditor::BaseTextEditorEditable
 {
     Q_OBJECT
 
@@ -56,7 +55,6 @@ private:
     Core::Context m_context;
 };
 
-} // namespace Internal
 } // namespace QmlJSEditor
 
 #endif // QMLJSEDITOREDITABLE_H

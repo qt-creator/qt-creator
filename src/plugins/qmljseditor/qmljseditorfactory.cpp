@@ -78,6 +78,7 @@ namespace {
     }
 }
 
+using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
 using namespace QmlJSEditor::Constants;
 
