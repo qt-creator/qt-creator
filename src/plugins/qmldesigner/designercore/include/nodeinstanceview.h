@@ -102,8 +102,6 @@ public:
     NodeInstance instanceForId(qint32 id) const;
     bool hasInstanceForId(qint32 id) const;
 
-    void render(QPainter *painter, const QRectF &target=QRectF(), const QRectF &source=QRect(), Qt::AspectRatioMode aspectRatioMode=Qt::KeepAspectRatio);
-
     QRectF sceneRect() const;
 
     void setBlockUpdates(bool block);

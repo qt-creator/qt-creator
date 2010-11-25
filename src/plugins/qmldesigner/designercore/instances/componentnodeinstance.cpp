@@ -50,7 +50,7 @@ QDeclarativeComponent *ComponentNodeInstance::component() const
 
 ComponentNodeInstance::Pointer ComponentNodeInstance::create(QObject  *object)
 {
-    QDeclarativeComponent *component = component = qobject_cast<QDeclarativeComponent *>(object);
+    QDeclarativeComponent *component = qobject_cast<QDeclarativeComponent *>(object);
 
     if (component == 0)
         throw InvalidNodeInstanceException(__LINE__, __FUNCTION__, __FILE__);
@@ -69,23 +69,24 @@ bool ComponentNodeInstance::hasContent() const
 
 void ComponentNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
 {
-//    if (name == "__component_data") {
-//        QByteArray data(value.toByteArray());
-//        QByteArray imports;
-//        foreach(const Import &import, nodeInstanceServer()->imports()) {
-//            imports.append(import.toString(true).toLatin1());
-//        }
+    if (name == "__component_data") {
+        QByteArray data(value.toByteArray());
+        QByteArray importArray;
+        foreach(const QString &import, nodeInstanceServer()->imports()) {
+            importArray.append(import.toUtf8());
+        }
 
-//        data.prepend(imports);
+        data.prepend(importArray);
 
-//        component()->setData(data, nodeInstanceView()->model()->fileUrl());
+        component()->setData(data, nodeInstanceServer()->fileUrl());
 
-//    }
-//    if (component()->isError()) {
-//        qDebug() << value;
-//        foreach(const QDeclarativeError &error, component()->errors())
-//            qDebug() << error;
-//    }
+    }
+
+    if (component()->isError()) {
+        qDebug() << value;
+        foreach(const QDeclarativeError &error, component()->errors())
+            qDebug() << error;
+    }
 
 }
 

@@ -3,6 +3,7 @@
 
 #include <QUrl>
 #include <QVector>
+#include <QStringList>
 
 #include <nodeinstanceserverinterface.h>
 #include "servernodeinstance.h"
@@ -73,6 +74,8 @@ public:
 
     void notifyPropertyChange(qint32 instanceid, const QString &propertyName);
 
+    QStringList imports() const;
+
 public slots:
     void refreshLocalFileProperty(const QString &path);
     void emitParentChanged(QObject *child);
@@ -120,6 +123,7 @@ private:
     int m_timer;
     bool m_slowRenderTimer;
     QVector<InstancePropertyPair> m_changedPropertyList;
+    QStringList m_importList;
 };
 
 }

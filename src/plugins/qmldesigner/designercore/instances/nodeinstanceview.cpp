@@ -691,21 +691,6 @@ void NodeInstanceView::removeRecursiveChildRelationship(const ModelNode &removed
     removeInstanceNodeRelationship(removedNode);
 }
 
-void NodeInstanceView::render(QPainter * painter, const QRectF &target, const QRectF &source, Qt::AspectRatioMode aspectRatioMode)
-{
-//    if (m_graphicsView) {
-//        painter->save();
-//        painter->setRenderHint(QPainter::Antialiasing, true);
-//        painter->setRenderHint(QPainter::TextAntialiasing, true);
-//        painter->setRenderHint(QPainter::SmoothPixmapTransform, true);
-//        painter->setRenderHint(QPainter::HighQualityAntialiasing, true);
-//        painter->setRenderHint(QPainter::NonCosmeticDefaultPen, true);
-//        m_graphicsView->scene()->render(painter, target, source, aspectRatioMode);
-//        painter->restore();
-//    }
-}
-
-
 QRectF NodeInstanceView::sceneRect() const
 {
     if (rootNodeInstance().isValid())

@@ -41,7 +41,7 @@ public:
     virtual void changeState(const ChangeStateCommand &command) = 0;
     virtual void addImport(const AddImportCommand &command) = 0;
 
-    virtual void setBlockUpdates(bool block) {}
+    virtual void setBlockUpdates(bool /*block*/) {}
 
     static void registerCommands();
 };

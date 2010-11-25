@@ -234,6 +234,8 @@ void NodeInstanceServer::addImport(const AddImportCommand &command)
     if (!command.alias().isEmpty())
         importStatement += " as " + command.alias();
 
+    m_importList.append(importStatement);
+
     QDeclarativeComponent importComponent(engine(), 0);
     QString componentString = QString("import Qt 4.7\n%1\n Item{}\n").arg(importStatement);
 
@@ -614,6 +616,11 @@ ValuesChangedCommand NodeInstanceServer::createValuesChangedCommand(const QVecto
     }
 
     return ValuesChangedCommand(valueVector);
+}
+
+QStringList NodeInstanceServer::imports() const
+{
+    return m_importList;
 }
 
 void NodeInstanceServer::notifyPropertyChange(qint32 instanceid, const QString &propertyName)

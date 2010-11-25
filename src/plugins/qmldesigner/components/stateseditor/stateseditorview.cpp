@@ -472,7 +472,7 @@ void StatesEditorView::selectedNodesChanged(const QList<ModelNode> &/*selectedNo
 }
 
 
-QPixmap StatesEditorView::renderState(int i)
+QPixmap StatesEditorView::renderState(int /*i*/)
 {
     return QPixmap();
 

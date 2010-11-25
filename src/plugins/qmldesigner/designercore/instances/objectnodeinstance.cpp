@@ -938,16 +938,6 @@ int ObjectNodeInstance::penWidth() const
     return 0;
 }
 
-static bool metaObjectHasNotPropertyName(NodeInstanceMetaObject *metaObject, const QString &propertyName)
-{
-    for (int i = 0; i < metaObject->count(); i++) {
-        if (metaObject->name(i) == propertyName)
-            return false;
-    }
-
-    return true;
-}
-
 void ObjectNodeInstance::createDynamicProperty(const QString &name, const QString &/*typeName*/)
 {
     if (m_metaObject == 0) {
