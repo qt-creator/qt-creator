@@ -1064,6 +1064,7 @@ void stringRefTest(const QString &refstring)
 
 void testStdDeque()
 {
+    // This is not supposed to work with the compiled dumpers.
     std::deque<int *> plist1;
     plist1.push_back(new int(1));
     plist1.push_back(0);
@@ -1087,6 +1088,7 @@ void testStdDeque()
 
 void testStdHashSet()
 {
+    // This is not supposed to work with the compiled dumpers.
 #if USE_GCC_EXT
     using namespace __gnu_cxx;
     hash_set<int> h;
@@ -1101,6 +1103,7 @@ void testStdHashSet()
 
 std::list<int> testStdList()
 {
+    // This is not supposed to work with the compiled dumpers.
     std::list<int> big;
     for (int i = 0; i < 10000; ++i)
         big.push_back(i);
@@ -1145,6 +1148,7 @@ std::list<int> testStdList()
 
 void testStdMap()
 {
+    // This is not supposed to work with the compiled dumpers.
 #if 0
     std::map<QString, Foo> gg3;
     gg3["22.0"] = Foo(22);
@@ -1203,6 +1207,7 @@ void testStdMap()
 
 std::set<int> testStdSet()
 {
+    // This is not supposed to work with the compiled dumpers.
     std::set<int> hgg0;
     hgg0.insert(11);
     hgg0.insert(22);
@@ -1221,7 +1226,7 @@ std::set<int> testStdSet()
 
 std::stack<int> testStdStack()
 {
-    // only works with Python dumper
+    // This is not supposed to work with the compiled dumpers.
     std::stack<int *> plist1;
     plist1.push(new int(1));
     plist1.push(0);
