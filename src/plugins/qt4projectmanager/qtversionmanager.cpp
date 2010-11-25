@@ -990,17 +990,19 @@ QStringList QtVersionManager::splitLine(const QString &line)
             escape = !escape;
         } else if (escape || line.at(i) != ' ') {
             currentWord += line.at(i);
-        } else {
+        } else if (!currentWord.isEmpty()) {
             results << currentWord;
-            currentWord.clear();;
+            currentWord.clear();
         }
 #else
         if (escape) {
             currentWord += line.at(i);
             escape = false;
         } else if (line.at(i) == ' ') {
-            results << currentWord;
-            currentWord.clear();
+            if (!currentWord.iSEmpty()) {
+                results << currentWord;
+                currentWord.clear();
+            }
         } else if (line.at(i) == '\\') {
             escape = true;
         } else {
