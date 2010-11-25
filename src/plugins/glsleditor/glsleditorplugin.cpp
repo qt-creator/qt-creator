@@ -150,7 +150,9 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     error_message->clear();
 
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
-    iconProvider->registerIconOverlayForSuffix(QIcon(QLatin1String(":/glsleditor/images/glslfile.png")), "glsl");
+    Core::MimeDatabase *mimeDatabase = Core::ICore::instance()->mimeDatabase();
+    iconProvider->registerIconOverlayForMimeType(QIcon(QLatin1String(":/glsleditor/images/glslfile.png")),
+                                                 mimeDatabase->findByType(QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE)));
 
     Core::BaseFileWizardParameters fragWizardParameters(Core::IWizard::FileWizard);
     fragWizardParameters.setCategory(QLatin1String(Constants::WIZARD_CATEGORY_GLSL));
