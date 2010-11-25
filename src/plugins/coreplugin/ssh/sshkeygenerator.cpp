@@ -67,7 +67,7 @@ bool SshKeyGenerator::generateKeys(KeyType type, PrivateKeyFormat format,
         if (m_type == Rsa)
             key = KeyPtr(new RSA_PrivateKey(rng, keySize));
         else
-            key = KeyPtr(new DSA_PrivateKey(rng, DL_Group(rng, DL_Group::Strong,
+            key = KeyPtr(new DSA_PrivateKey(rng, DL_Group(rng, DL_Group::DSA_Kosherizer,
                 keySize)));
         return m_format == Pkcs8
             ? generatePkcs8Keys(key) : generateOpenSslKeys(key);

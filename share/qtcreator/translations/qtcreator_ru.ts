@@ -141,7 +141,7 @@ Decimal signed value (big endian): %4</source>
     </message>
     <message>
         <source>SpringFollow</source>
-        <translation type="unfinished">Упругое изменение</translation>
+        <translation>Упругое изменение</translation>
     </message>
     <message>
         <source>Settings</source>
@@ -1610,7 +1610,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>When Triggered</source>
-        <translation type="unfinished">При срабатывании</translation>
+        <translation>По необходимости</translation>
     </message>
     <message>
         <source>Always</source>
@@ -15864,9 +15864,9 @@ Remote stderr was: &apos;%1&apos;</source>
         <source>Your project name contains characters not allowed in Debian packages.
 They must only use lower-case letters, numbers, &apos;-&apos;, &apos;+&apos; and &apos;.&apos;.
 We will try to work around that, but you may experience problems.</source>
-        <translation type="unfinished">Название проекта содержит недопустимые для пакетов Debian символы.
+        <translation>Название проекта содержит недопустимые для пакетов Debian символы.
 Допустимы только буквы в нижнем регистре, числа, &quot;-&quot;, &quot;+&quot; и &quot;.&quot;.
-Будет предпринята попытка обойти это, но, возможно, имеется недостаток опыта.</translation>
+Будет предпринята попытка обойти это, но возможны проблемы.</translation>
     </message>
 </context>
 <context>
@@ -16310,19 +16310,19 @@ stderr was: %1</source>
     </message>
     <message>
         <source>Mounting host directories...</source>
-        <translation type="unfinished">Монтирование каталогов узла...</translation>
+        <translation>Монтирование каталогов компьютера...</translation>
     </message>
     <message>
         <source>Unmounting left-over host directory mounts...</source>
-        <translation type="unfinished">Отмонтирование оставшихся каталогов узла...</translation>
+        <translation>Отмонтирование оставшихся каталогов компьютера...</translation>
     </message>
     <message>
         <source>Potentially unmounting left-over host directory mounts...</source>
-        <translation type="unfinished">Потенциальное отмонтирование оставшихся каталогов узла...</translation>
+        <translation>Потенциальное отмонтирование оставшихся каталогов компьютера...</translation>
     </message>
     <message>
         <source>Unmounting host directories...</source>
-        <translation type="unfinished">Отмонтирование каталогов узла...</translation>
+        <translation>Отмонтирование каталогов компьютера...</translation>
     </message>
     <message>
         <source>Cannot run: No remote executable set.</source>
@@ -18603,7 +18603,7 @@ Server list was %2.</source>
     </message>
     <message>
         <source>Wrap Mode</source>
-        <translation type="unfinished">Режим переноса</translation>
+        <translation>Режим переноса</translation>
     </message>
     <message>
         <source></source>
@@ -18611,11 +18611,11 @@ Server list was %2.</source>
     </message>
     <message>
         <source>Aliasing</source>
-        <translation type="unfinished">Ступенчатость</translation>
+        <translation>Сглаживание</translation>
     </message>
     <message>
         <source>Smooth</source>
-        <translation type="unfinished">Гладкий</translation>
+        <translation>Использовать</translation>
     </message>
     <message>
         <source>Alignment</source>

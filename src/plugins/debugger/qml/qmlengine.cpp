@@ -471,8 +471,14 @@ void QmlEngine::attemptBreakpointSynchronization()
     JSAgentBreakpoints breakpoints;
     foreach (BreakpointId id, handler->engineBreakpointIds(this)) {
         QString processedFilename = handler->fileName(id);
+#ifdef Q_OS_MACX
+        // Qt Quick Applications by default copy the qml directory to buildDir()/X.app/Contents/Resources
+        const QString applicationBundleDir
+                = QFileInfo(startParameters().executable).absolutePath() + "/../..";
+        processedFilename = mangleFilenamePaths(handler->fileName(id), startParameters().projectDir, applicationBundleDir + "/Contents/Resources");
+#endif
         if (isShadowBuildProject())
-            processedFilename = toShadowBuildFilename(handler->fileName(id));
+            processedFilename = toShadowBuildFilename(processedFilename);
         JSAgentBreakpointData bp;
         bp.fileName = processedFilename.toUtf8();
         bp.lineNumber = handler->lineNumber(id);
@@ -822,7 +828,7 @@ QString QmlEngine::mangleFilenamePaths(const QString &filename,
 
     if (oldBaseDir.exists() && newBaseDir.exists() && fileInfo.exists()) {
         if (fileInfo.absoluteFilePath().startsWith(oldBaseDir.canonicalPath())) {
-            QString fileRelativePath = fileInfo.canonicalFilePath().mid(oldBasePath.length());
+            QString fileRelativePath = fileInfo.canonicalFilePath().mid(oldBaseDir.canonicalPath().length());
             QFileInfo projectFile(newBaseDir.canonicalPath() + QLatin1Char('/') + fileRelativePath);
 
             if (projectFile.exists())
@@ -837,7 +843,14 @@ QString QmlEngine::fromShadowBuildFilename(const QString &filename) const
     QString newFilename = filename;
     QString importPath = qmlImportPath();
 
-    newFilename = mangleFilenamePaths(filename, startParameters().projectBuildDir, startParameters().projectDir);
+#ifdef Q_OS_MACX
+    // Qt Quick Applications by default copy the qml directory to buildDir()/X.app/Contents/Resources
+    const QString applicationBundleDir
+                = QFileInfo(startParameters().executable).absolutePath() + "/../..";
+    newFilename = mangleFilenamePaths(newFilename, applicationBundleDir + "/Contents/Resources", startParameters().projectDir);
+#endif
+    newFilename = mangleFilenamePaths(newFilename, startParameters().projectBuildDir, startParameters().projectDir);
+
     if (newFilename == filename && !importPath.isEmpty()) {
         newFilename = mangleFilenamePaths(filename, startParameters().projectBuildDir, importPath);
     }

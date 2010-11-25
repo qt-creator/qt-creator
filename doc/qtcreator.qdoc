@@ -67,7 +67,7 @@
            \list
                \o \l{Building and Running an Example Application}
                \o \l{Creating a Qt C++ Application}
-               \o \l{Creating a Mobile Application with Qt SDK}
+               \o \l{Creating a Mobile Application with Nokia Qt SDK}
                \o \l{Creating a Qt Quick Application}
            \endlist
        \o \l{Managing Projects}
@@ -328,7 +328,7 @@
     desktop environment (Windows, Linux, and Mac OS) and mobile devices (Symbian, Maemo,
     and MeeGo). Build settings allow you to quickly switch between build targets.
 
-    When you build an application for a mobile device target with a device
+    When you run an application for a mobile device target with a device
     connected to the development PC, Qt Creator generates an installation package,
     installs in on the device, and executes it.
 
@@ -474,13 +474,10 @@
 
          \omit  ## Are the Xcode tools still needed separately? \endomit
 
-    \section1 Build Environment
+    \section1 Compiling Qt Creator from Source
 
-    To build Qt Creator itself from the source, you need:
-    \list
-        \o Qt 4.7 or later
-        \o On Windows, MinGW 4.4 or Microsoft Visual Studio 2008
-    \endlist
+    To build Qt Creator itself from the source, see the requirements and
+    instructions in the readme file that is located in the source repository.
 
     \section1 Supported Mobile Device Platforms
     You can develop applications for the following mobile device
@@ -2635,7 +2632,7 @@
     \section3 Troubleshooting MinGW Compilation Errors
 
     If error messages displayed in the \gui {Compile Output} pane contain
-    paths where slashes are missing (for example, C:QtSDK),
+    paths where slashes are missing (for example, C:NokiaQtSDK),
     check your PATH variable. At the command line, enter the following commands:
 
     \code
@@ -3042,7 +3039,7 @@
     In the details of the run configuration for the \gui{Symbian Device} target,
     select the device to run your application on.
 
-    When you build the application for the \gui{Symbian Device} target, Qt
+    When you run the application for the \gui{Symbian Device} target, Qt
     Creator automatically generates a Symbian installation system (SIS) file
     in the project folder. You can deliver the installation file to users for
     installation on Symbian devices.
@@ -3308,7 +3305,7 @@
 
     \section3 Creating SIS Installation Packages
 
-    When you build the application for the \gui{Symbian Device} target, Qt
+    When you run the application for the \gui{Symbian Device} target, Qt
     Creator automatically generates a Symbian installation system (SIS) file
     in the project folder. You can deliver the installation file to users for
     installation on Symbian devices.
@@ -3594,7 +3591,7 @@
     \list
         \o \l{Building and Running an Example Application}
         \o \l{Creating a Qt C++ Application}
-        \o \l{Creating a Mobile Application with Qt SDK}
+        \o \l{Creating a Mobile Application with Nokia Qt SDK}
         \o \l{Creating a Qt Quick Application}
     \endlist
 
@@ -3607,7 +3604,7 @@
     \page creator-mobile-example.html
     \nextpage creator-qml-application.html
 
-    \title Creating a Mobile Application with Qt SDK
+    \title Creating a Mobile Application with Nokia Qt SDK
 
     \note To complete this tutorial, you must install \QSDK.
     The installation program installs and configures the necessary tool chains
@@ -3905,13 +3902,13 @@
 
     \note To complete this tutorial, you must have Qt 4.7 or later installed.
 
-    This tutorial uses basic elements and illustrates basic concepts of the
-    \l {http://doc.qt.nokia.com/4.7/qtquick.html}{QML declarative language}.
+    This tutorial uses basic elements and illustrates basic concepts of
+    \l {http://doc.qt.nokia.com/4.7/qtquick.html}{Qt Quick}.
 
     This tutorial describes how to use the Qt Creator to implement the
     \l{http://doc.qt.nokia.com/4.7-snapshot/declarative-animation-states.html}
-    {states and transitions example application}. The example application displays a user
-    icon that moves between three rectangles on the page when you click them.
+    {states and transitions example application}. The example application displays a
+    Qt logo that moves between three rectangles on the page when you click them.
 
     \image qmldesigner-tutorial.png "States and transitions example"
 
@@ -3935,13 +3932,13 @@
 
     \section1 Creating the Main View
 
-    The main view of the application displays a user icon in the top left corner of the
+    The main view of the application displays a Qt logo in the top left corner of the
     screen and two empty rectangles.
 
-    To use the user.png image in your application, you must copy it to the project
-    directory from the \c {\qt\examples\declarative\animation\states} directory in the
+    To use the states.png image in your application, you must copy it to the project
+    directory from the examples directory in the
     Qt installation directory. For example:
-    \c {C:\Qt\2010.05\qt\examples\declarative\animation\states}. The image appears
+    \c {C:\NokiaQtSDK\Examples\4.7\declarative\animation\states}. The image appears
     in the \gui Resources pane. You can also use any other image or a QML element, instead.
 
     \list 1
@@ -3964,19 +3961,27 @@
             \o In the \gui Id field, enter \e page, to be able to reference the rectangle
             from other places.
 
-            \o In the \gui Size field, set \gui W to 640 and \gui H to 480.
-
             \o In the \gui Colors tab, \gui Rectangle field, set the color to #343434.
 
         \endlist
 
-        \o Drag and drop user.png from \gui Resources to the canvas.
+        \o In the \gui Library view, \gui Resources tab, select states.png and
+        drag and drop it to the canvas.
 
-        \o In the \gui Id field, enter \e userIcon.
+        \image qmldesigner-tutorial-user-icon.png "Image properties"
 
-        \image qmldesigner-tutorial-user-icon.png "User icon properties"
+        \list a
 
-        \o Drag and drop a \gui Rectangle element to the canvas, and edit its properties.
+            \o In the \gui Id field, enter \e icon.
+
+            \o In the \gui Position field, set \gui X to 10 and \gui Y to 20.
+
+        \endlist
+
+
+
+        \o In the \gui Library view, \gui Items tab, select \gui Rectangle,
+         drag and drop it to the canvas, and edit its properties.
 
         \image qmldesigner-tutorial-topleftrect.png "Rectangle properties"
 
@@ -3996,6 +4001,11 @@
             \o In the \gui Rectangle tab, \gui Border field, set the border width to
             1.
 
+            \note If the \gui Border field does not appear after you set the border
+            color, try setting the border color to solid by clicking the
+            \inlineimage qmldesigner-solid-color-button.png
+            button.
+
             \o In the \gui Radius field, select 6 to create rounded corners for the
             rectangle.
 
@@ -4004,12 +4014,16 @@
 
             \image qmldesigner-tutorial-topleftrect-layout.png "Layout tab"
 
-            \o In the \gui Margin field for the top anchor, select 20.
+            \o In the \gui Margin field, select 20 for the top anchor and 10 for
+            the left anchor.
 
         \endlist
 
-        \o Drag and drop a \gui {Mouse Area} element on top of the rectangle,
-        and edit its properties:
+        \o In the \gui Navigator pane, drag and drop the \gui {Mouse Area} element from
+        \e page to \e topLeftRect to make it apply only to the rectangle and not to the whole
+        page.
+
+        \o Edit \gui {Mouse Area} properties:
 
         \list a
 
@@ -4017,13 +4031,12 @@
             \inlineimage qmldesigner-anchor-fill-screen.png
             button to anchor the mouse area to the rectangle.
 
-            \o In the code editor, add a pointer to a clicked expression to the mouse
+            \o In the code editor, edit the pointer to the clicked expression in the mouse
             area element, as illustrated by the following code snippet:
 
             \code
 
             MouseArea {
-                id: mouse_area1
                 anchors.fill: parent
                 onClicked: page.state = ''
             }
@@ -4035,23 +4048,8 @@
 
         \endlist
 
-    \o To make sure that the user icon appears within the rectangle even if the screen
-    size changes, you can anchor the icon to the x and y coordinates of the rectangle:
-
-        \list a
-
-        \o In the \gui Navigator, select userIcon.
-
-        \o In the \gui Geometry tab, \gui {Position X} field, open the menu and select
-        \gui {Set Expression}.
-
-        \o Enter the following expression: \c {topLeftRect.x}
-
-        \o In the \gui Y field, set the following expression: \c {topLeftRect.y}
-
-        \endlist
-
-    \o Copy topLeftRect (by pressing \key {Ctrl+C}) and paste it to the canvas twice
+    \o In the \gui Navigator pane, copy topLeftRect (by pressing \key {Ctrl+C}) and
+    paste it to the canvas twice
     (by pressing \key {Ctrl+V}). Qt Creator renames the new instances of the element
     topLeftRect1 and topLeftRect2.
 
@@ -4064,7 +4062,10 @@
             \o In \gui {Layout}, select the right and vertical center anchor buttons to
             anchor the rectangle to the middle right margin of the screen.
 
-            \o In the code editor, modify the pointer to the clicked expression in the
+            \o In the \gui Margin field, select 10 for the right anchor and 0 for
+            the vertical center anchor.
+
+            \o In the code editor,add a pointer to a clicked expression to the
             mouse area element. The following expression sets the state to \e State1:
 
             \c {onClicked: page.state = 'State1'}
@@ -4082,7 +4083,10 @@
             \o In \gui {Layout}, select the bottom and left anchor buttons to
             anchor the rectangle to the bottom left margin of the screen.
 
-            \o In the code editor, modify the pointer to a clicked expression in the
+            \o In the \gui Margin field, select 20 for the bottom anchor and 10 for
+            the left anchor.
+
+            \o In the code editor, add a pointer to a clicked expression to the
             mouse area element. The following expression sets the state to \e State2:
 
             \c {onClicked: page.state = 'State2'}
@@ -4091,13 +4095,15 @@
 
         \endlist
 
+    \o Press \key {Ctrl+S} to save the changes.
+
     \o Press \key {Ctrl+R} to run the application in the QML Viewer.
 
     \endlist
 
     \image qmldesigner-tutorial.png "States and transitions example"
 
-    You should see the user icon in the top left rectangle, and two additional
+    You should see the Qt logo in the top left rectangle, and two additional
     rectangles in the center right and bottom left of the screen.
 
     You can now create additional states to add views to the application.
@@ -4111,31 +4117,31 @@
 
         \o Click the empty slot in the \gui States pane to create State1.
 
-        \o Drag and drop the user icon on top of middleRightRect.
+        \o Drag and drop the Qt logo on top of middleRightRect.
 
         \image qmldesigner-tutorial-state1.png "State 1"
 
         \o Click the empty slot in the \gui States pane to create State2.
 
-        \o Drag and drop the user icon on top of bottomLeftRect.
+        \o Drag and drop the Qt logo on top of bottomLeftRect.
 
     \o Press \key {Ctrl+R} to run the application in the QML Viewer.
 
     \endlist
 
-    Click the rectangles to move the user icon from one rectangle to another.
+    Click the rectangles to move the Qt logo from one rectangle to another.
 
     \section1 Adding Animation to the View
 
-    Add transitions to define how the properties change when the user icon moves
-    between states. The transitions apply animations to the user icon. For example,
-    the user icon bounces back when it moves to the middleRightRect and eases into
+    Add transitions to define how the properties change when the Qt logo moves
+    between states. The transitions apply animations to the Qt logo. For example,
+    the Qt logo bounces back when it moves to the middleRightRect and eases into
     bottomLeftRect. Add the transitions in the code editor.
 
     \list 1
 
         \o In the code editor, add the following code to specify that when moving to
-        State1, the x and y coordinates of the user icon change linearly over a duration
+        State1, the x and y coordinates of the Qt logo change linearly over a duration
         of 1 second:
 
         \code
@@ -4156,9 +4162,9 @@
 
         \list a
 
-            \o Select NumberAnimation and click
+            \o Click \gui NumberAnimation in the code editor to display the
             \inlineimage qml-toolbar-indicator.png
-            to open the toolbar:
+            icon, and then click the icon to open the toolbar:
 
             \image qmldesigner-tutorial-quick-toolbar.png "Qt Quick toolbar for animation"
 
@@ -4169,7 +4175,7 @@
         \endlist
 
         \o Add the following code to specify that when moving to State2, the x and y
-        coordinates of the user icon change over a duration of 2 seconds,
+        coordinates of the Qt logo change over a duration of 2 seconds,
         and an InOutQuad easing function is used:
 
         \code
@@ -4186,7 +4192,7 @@
         \endcode
 
         \o Add the following code to specify that for any other state changes, the x
-        and y coordinates of the user icon change linearly over a duration of 200
+        and y coordinates of the Qt logo change linearly over a duration of 200
         milliseconds:
 
         \code
@@ -4197,6 +4203,7 @@
                 duration: 200
             }
         }
+        ]
 
         \endcode
 
@@ -6173,7 +6180,7 @@
     \c{PATH} environment variable to include the bin folders of \c mingw and
     Qt Creator in the SDK.
 
-    For instance, if you have the Qt Creator SDK installed in your C drive,
+    For instance, if you have the Qt SDK installed in your C drive,
     use the following command to set the environment variables in
     the command line prompt:
     \code
@@ -6273,7 +6280,12 @@
 
     \c {DEFINES += QMLJSDEBUGGER}.
 
-    Then you must rebuild the project.
+    Then you must rebuild the project in debug mode. Select a debug configuration for
+    the target in the \gui {Target selector}.
+
+    \image qtcreator-target-selector-debug.png "Target selector"
+
+    You can create debug configurations for project targets in the \gui Projects mode.
 
     To enable QML debugging for  both types of projects, select \gui Projects, and
     then select the \gui QML check box in the run settings.
@@ -8416,7 +8428,7 @@
         you installed \QSDK, Qt Creator, and MADDE.
 
         \o If error messages displayed in the \gui {Compile Output} pane contain
-        paths where slashes are missing (for example, C:QtSDK),
+        paths where slashes are missing (for example, C:NokiaQtSDK),
         check your PATH variable. For more information, see
         \l{Troubleshooting MinGW Compilation Errors}.
 
