@@ -414,6 +414,8 @@ static void throwit()
 
 int testCatchThrow()
 {
+    // Set a breakpoint on "throw" in the BreakWindow context menu
+    // before stepping further.
     int gotit = 0;
     try {
         throwit();
@@ -1664,6 +1666,7 @@ typedef QList<Goo> GooList;
 
 void testNoArgumentName(int i, int, int k)
 {
+    // This is not supposed to work with the compiled dumpers.
     GooList list;
     list.append(Goo("Hello", 1));
     list.append(Goo("World", 2));
