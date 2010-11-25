@@ -818,7 +818,7 @@ QString QmlEngine::mangleFilenamePaths(const QString &filename, const QString &o
 
     if (oldBaseDir.exists() && newBaseDir.exists() && fileInfo.exists()) {
         if (fileInfo.absoluteFilePath().startsWith(oldBaseDir.canonicalPath())) {
-            QString fileRelativePath = fileInfo.canonicalFilePath().mid(oldBasePath.length());
+            QString fileRelativePath = fileInfo.canonicalFilePath().mid(oldBaseDir.canonicalPath().length());
             QFileInfo projectFile(newBaseDir.canonicalPath() + QLatin1Char('/') + fileRelativePath);
 
             if (projectFile.exists())
@@ -833,7 +833,14 @@ QString QmlEngine::fromShadowBuildFilename(const QString &filename) const
     QString newFilename = filename;
     QString importPath = qmlImportPath();
 
-    newFilename = mangleFilenamePaths(filename, startParameters().projectBuildDir, startParameters().projectDir);
+#ifdef Q_OS_MACX
+    // Qt Quick Applications by default copy the qml directory to buildDir()/X.app/Contents/Resources
+    const QString applicationBundleDir
+                = QFileInfo(startParameters().executable).absolutePath() + "/../..";
+    newFilename = mangleFilenamePaths(newFilename, applicationBundleDir + "/Contents/Resources", startParameters().projectDir);
+#endif
+    newFilename = mangleFilenamePaths(newFilename, startParameters().projectBuildDir, startParameters().projectDir);
+
     if (newFilename == filename && !importPath.isEmpty()) {
         newFilename = mangleFilenamePaths(filename, startParameters().projectBuildDir, importPath);
     }
