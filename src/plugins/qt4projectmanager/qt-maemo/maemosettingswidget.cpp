@@ -41,11 +41,13 @@
 #include "maemoremoteprocessesdialog.h"
 #include "maemosshconfigdialog.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/ssh/sshremoteprocessrunner.h>
 
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QRegExp>
+#include <QtCore/QSettings>
 #include <QtCore/QTextStream>
 
 #include <QtGui/QFileDialog>
@@ -58,6 +60,9 @@ using namespace Core;
 
 namespace Qt4ProjectManager {
 namespace Internal {
+namespace {
+const QLatin1String LastDeviceConfigIndexKey("LastDisplayedMaemoDeviceConfig");
+} // anonymous namespace
 
 bool configNameExists(const QList<MaemoDeviceConfig> &devConfs,
                       const QString &name)
@@ -109,8 +114,11 @@ MaemoSettingsWidget::MaemoSettingsWidget(QWidget *parent)
 
 MaemoSettingsWidget::~MaemoSettingsWidget()
 {
-    if (m_saveSettingsRequested)
+    if (m_saveSettingsRequested) {
+        Core::ICore::instance()->settings()->setValue(LastDeviceConfigIndexKey,
+            m_ui->configurationComboBox->currentIndex());
         MaemoDeviceConfigurations::instance().setDevConfigs(m_devConfs);
+    }
     delete m_ui;
 }
 
@@ -153,6 +161,10 @@ void MaemoSettingsWidget::initGui()
         m_ui->configurationComboBox->addItem(devConf.name);
     connect(m_ui->configurationComboBox, SIGNAL(currentIndexChanged(int)),
         SLOT(currentConfigChanged(int)));
+    const int lastIndex = Core::ICore::instance()->settings()
+        ->value(LastDeviceConfigIndexKey, 0).toInt();
+    if (lastIndex < m_ui->configurationComboBox->count())
+        m_ui->configurationComboBox->setCurrentIndex(lastIndex);
     currentConfigChanged(m_ui->configurationComboBox->currentIndex());
 }
 
