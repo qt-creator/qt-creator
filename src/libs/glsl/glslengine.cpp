@@ -28,6 +28,8 @@
 **************************************************************************/
 
 #include "glslengine.h"
+#include "glslsymbols.h"
+#include "glsltypes.h"
 
 using namespace GLSL;
 
@@ -82,6 +84,7 @@ Engine::Engine()
 
 Engine::~Engine()
 {
+    qDeleteAll(_symbols);
 }
 
 const QString *Engine::identifier(const QString &s)
@@ -180,4 +183,43 @@ bool DiagnosticMessage::isError() const
 bool GLSL::DiagnosticMessage::isWarning() const
 {
     return _kind == Warning;
+}
+
+Struct *Engine::newStruct(Scope *scope)
+{
+    Struct *s = new Struct(scope);
+    _symbols.append(s);
+    return s;
+}
+
+Block *Engine::newBlock(Scope *scope)
+{
+    Block *s = new Block(scope);
+    _symbols.append(s);
+    return s;
+}
+
+Function *Engine::newFunction(Scope *scope)
+{
+    Function *s = new Function(scope);
+    _symbols.append(s);
+    return s;
+}
+
+Argument *Engine::newArgument(Function *function, const QString &name, const Type *type)
+{
+    Argument *a = new Argument(function);
+    a->setName(name);
+    a->setType(type);
+    _symbols.append(a);
+    return a;
+}
+
+Variable *Engine::newVariable(Scope *scope, const QString &name, const Type *type)
+{
+    Variable *var = new Variable(scope);
+    var->setName(name);
+    var->setType(type);
+    _symbols.append(var);
+    return var;
 }

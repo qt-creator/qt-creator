@@ -42,16 +42,12 @@ class GLSL_EXPORT Argument: public Symbol
 public:
     Argument(Function *scope);
 
-    QString name() const;
-    void setName(const QString &name);
-
     virtual const Type *type() const;
     void setType(const Type *type);
 
     virtual Argument *asArgument() { return this; }
 
 private:
-    QString _name;
     const Type *_type;
 };
 
@@ -60,16 +56,12 @@ class GLSL_EXPORT Variable: public Symbol
 public:
     Variable(Scope *scope);
 
-    QString name() const;
-    void setName(const QString &name);
-
     virtual const Type *type() const;
     void setType(const Type *type);
 
     virtual Variable *asVariable() { return this; }
 
 private:
-    QString _name;
     const Type *_type;
 };
 
@@ -78,7 +70,7 @@ class GLSL_EXPORT Block: public Scope
 public:
     Block(Scope *enclosingScope = 0);
 
-    void addMember(const QString &name, Symbol *symbol);
+    void add(Symbol *symbol);
 
     virtual Block *asBlock() { return this; }
 

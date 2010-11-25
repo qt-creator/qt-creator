@@ -43,11 +43,14 @@ public:
     void statement(StatementAST *ast);
     const Type *type(TypeAST *ast);
     void declaration(DeclarationAST *ast);
-    void translationUnit(TranslationUnitAST *ast);
+    Scope *translationUnit(TranslationUnitAST *ast);
     void functionIdentifier(FunctionIdentifierAST *ast);
-    void field(StructTypeAST::Field *ast);
+    Symbol *field(StructTypeAST::Field *ast);
+    void parameterDeclaration(ParameterDeclarationAST *ast, Function *fun);
 
 protected:
+    Scope *switchScope(Scope *scope);
+
     virtual bool visit(TranslationUnitAST *ast);
     virtual bool visit(FunctionIdentifierAST *ast);
     virtual bool visit(StructTypeAST::Field *ast);
@@ -96,6 +99,7 @@ protected:
 private:
     Engine *_engine;
     const Type *_type;
+    Scope *_scope;
 };
 
 } // namespace GLSL

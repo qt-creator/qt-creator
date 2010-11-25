@@ -195,8 +195,18 @@ bool MatrixType::isLessThan(const Type *other) const
     return false;
 }
 
-Struct::Struct(Scope *scope) : Symbol(scope)
+void Struct::add(Symbol *member)
 {
+    _members.append(member);
+}
+
+Symbol *Struct::find(const QString &name) const
+{
+    foreach (Symbol *s, _members) {
+        if (s->name() == name)
+            return s;
+    }
+    return 0;
 }
 
 bool Struct::isEqualTo(const Type *other) const
@@ -209,21 +219,6 @@ bool Struct::isLessThan(const Type *other) const
 {
     Q_UNUSED(other);
     return false;
-}
-
-Function::Function(Scope *scope) : Scope(scope)
-{
-}
-
-QString Function::name() const
-{
-    return _name;
-
-}
-
-void Function::setName(const QString &name)
-{
-    _name = name;
 }
 
 const Type *Function::returnType() const

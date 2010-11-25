@@ -39,16 +39,6 @@ Argument::Argument(Function *scope)
 {
 }
 
-QString Argument::name() const
-{
-    return _name;
-}
-
-void Argument::setName(const QString &name)
-{
-    _name = name;
-}
-
 const Type *Argument::type() const
 {
     return _type;
@@ -64,9 +54,9 @@ Block::Block(Scope *enclosingScope)
 {
 }
 
-void Block::addMember(const QString &name, Symbol *symbol)
+void Block::add(Symbol *symbol)
 {
-    _members.insert(name, symbol);
+    _members.insert(symbol->name(), symbol);
 }
 
 const Type *Block::type() const
@@ -84,16 +74,6 @@ Variable::Variable(Scope *scope)
     : Symbol(scope)
     , _type(0)
 {
-}
-
-QString Variable::name() const
-{
-    return _name;
-}
-
-void Variable::setName(const QString &name)
-{
-    _name = name;
 }
 
 const Type *Variable::type() const

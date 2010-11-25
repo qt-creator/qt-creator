@@ -136,10 +136,14 @@ private:
     int _rows;
 };
 
-class GLSL_EXPORT Struct: public Type, public Symbol
+class GLSL_EXPORT Struct: public Type, public Scope
 {
 public:
-    Struct(Scope *scope = 0);
+    Struct(Scope *scope = 0)
+        : Scope(scope) {}
+
+    virtual void add(Symbol *member);
+    virtual Symbol *find(const QString &name) const;
 
     // as Type
     virtual const Struct *asStructType() const { return this; }
@@ -148,15 +152,17 @@ public:
 
     // as Symbol
     virtual Struct *asStruct() { return this; } // as Symbol
+    virtual const Type *type() const { return this; }
+
+private:
+    QVector<Symbol *> _members;
 };
 
 class GLSL_EXPORT Function: public Type, public Scope
 {
 public:
-    Function(Scope *scope = 0);
-
-    QString name() const;
-    void setName(const QString &name);
+    Function(Scope *scope = 0)
+        : Scope(scope) {}
 
     const Type *returnType() const;
     void setReturnType(const Type *returnType);
@@ -177,8 +183,14 @@ public:
 
     virtual Symbol *find(const QString &name) const;
 
+    virtual void add(Symbol *symbol) {
+        if (! symbol)
+            return;
+        else if (Argument *arg = symbol->asArgument())
+            addArgument(arg);
+    }
+
 private:
-    QString _name;
     const Type *_returnType;
     QVector<Argument *> _arguments;
 };

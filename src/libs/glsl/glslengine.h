@@ -98,6 +98,7 @@ public:
     const QString *identifier(const char *s, int n);
     QSet<QString> identifiers() const;
 
+    // types
     const UndefinedType *undefinedType();
     const VoidType *voidType();
     const BoolType *boolType();
@@ -107,6 +108,13 @@ public:
     const DoubleType *doubleType();
     const VectorType *vectorType(const Type *elementType, int dimension);
     const MatrixType *matrixType(const Type *elementType, int columns, int rows);
+
+    // symbols
+    Struct *newStruct(Scope *scope = 0);
+    Block *newBlock(Scope *scope = 0);
+    Function *newFunction(Scope *scope = 0);
+    Argument *newArgument(Function *function, const QString &name, const Type *type);
+    Variable *newVariable(Scope *scope, const QString &name, const Type *type);
 
     MemoryPool *pool();
 
@@ -120,6 +128,7 @@ private:
     TypeTable<MatrixType> _matrixTypes;
     MemoryPool _pool;
     QList<DiagnosticMessage> _diagnosticMessages;
+    QList<Symbol *> _symbols;
 };
 
 } // namespace GLSL

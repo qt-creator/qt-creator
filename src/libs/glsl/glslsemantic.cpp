@@ -30,6 +30,8 @@
 #include "glslsemantic.h"
 #include "glslengine.h"
 #include "glslparser.h"
+#include "glslsymbols.h"
+#include "glsltypes.h"
 #include <QtCore/QDebug>
 
 using namespace GLSL;
@@ -37,11 +39,19 @@ using namespace GLSL;
 Semantic::Semantic(Engine *engine)
     : _engine(engine)
     , _type(0)
+    , _scope(0)
 {
 }
 
 Semantic::~Semantic()
 {
+}
+
+Scope *Semantic::switchScope(Scope *scope)
+{
+    Scope *previousScope = _scope;
+    _scope = scope;
+    return previousScope;
 }
 
 void Semantic::expression(ExpressionAST *ast)
@@ -68,9 +78,15 @@ void Semantic::declaration(DeclarationAST *ast)
     accept(ast);
 }
 
-void Semantic::translationUnit(TranslationUnitAST *ast)
+Scope *Semantic::translationUnit(TranslationUnitAST *ast)
 {
-    accept(ast);
+    Block *globalScope = _engine->newBlock();
+    Scope *previousScope = switchScope(globalScope);
+    for (List<DeclarationAST *> *it = ast->declarations; it; it = it->next) {
+        DeclarationAST *decl = it->value;
+        declaration(decl);
+    }
+    return switchScope(previousScope);
 }
 
 void Semantic::functionIdentifier(FunctionIdentifierAST *ast)
@@ -78,17 +94,30 @@ void Semantic::functionIdentifier(FunctionIdentifierAST *ast)
     accept(ast);
 }
 
-void Semantic::field(StructTypeAST::Field *ast)
+Symbol *Semantic::field(StructTypeAST::Field *ast)
 {
-    accept(ast);
+    // ast->name
+    const Type *ty = type(ast->type);
+    QString name;
+    if (ast->name)
+        name = *ast->name;
+    return _engine->newVariable(_scope, name, ty);
+}
+
+void Semantic::parameterDeclaration(ParameterDeclarationAST *ast, Function *fun)
+{
+    const Type *ty = type(ast->type);
+    QString name;
+    if (ast->name)
+        name = *ast->name;
+    Argument *arg = _engine->newArgument(fun, name, ty);
+    fun->addArgument(arg);
 }
 
 bool Semantic::visit(TranslationUnitAST *ast)
 {
-    for (List<DeclarationAST *> *it = ast->declarations; it; it = it->next) {
-        DeclarationAST *decl = it->value;
-        declaration(decl);
-    }
+    Q_UNUSED(ast);
+    Q_ASSERT(!"unreachable");
     return false;
 }
 
@@ -102,9 +131,8 @@ bool Semantic::visit(FunctionIdentifierAST *ast)
 
 bool Semantic::visit(StructTypeAST::Field *ast)
 {
-    // ast->name
-    const Type *ty = type(ast->type);
-    Q_UNUSED(ty);
+    Q_UNUSED(ast);
+    Q_ASSERT(!"unreachable");
     return false;
 }
 
@@ -462,11 +490,16 @@ bool Semantic::visit(ArrayTypeAST *ast)
 
 bool Semantic::visit(StructTypeAST *ast)
 {
-    // ast->name
+    Struct *s = _engine->newStruct(_scope);
+    if (ast->name)
+        s->setName(*ast->name);
+    Scope *previousScope = switchScope(s);
     for (List<StructTypeAST::Field *> *it = ast->fields; it; it = it->next) {
         StructTypeAST::Field *f = it->value;
-        field(f);
+        if (Symbol *member = field(f))
+            s->add(member);
     }
+    (void) switchScope(previousScope);
     return false;
 }
 
@@ -493,8 +526,8 @@ bool Semantic::visit(PrecisionDeclarationAST *ast)
 
 bool Semantic::visit(ParameterDeclarationAST *ast)
 {
-    const Type *ty = type(ast->type);
-    Q_UNUSED(ty);
+    Q_UNUSED(ast);
+    Q_ASSERT(!"unreachable");
     return false;
 }
 
@@ -537,13 +570,23 @@ bool Semantic::visit(InitDeclarationAST *ast)
 
 bool Semantic::visit(FunctionDeclarationAST *ast)
 {
-    const Type *returnType = type(ast->returnType);
-    Q_UNUSED(returnType);
+    Function *fun = _engine->newFunction(_scope);
+    if (ast->name)
+        fun->setName(*ast->name);
+
+    fun->setReturnType(type(ast->returnType));
+
     for (List<ParameterDeclarationAST *> *it = ast->params; it; it = it->next) {
         ParameterDeclarationAST *decl = it->value;
-        declaration(decl);
+        parameterDeclaration(decl, fun);
     }
+
+    if (Scope *enclosingScope = fun->scope())
+        enclosingScope->add(fun);
+
+    Scope *previousScope = switchScope(fun);
     statement(ast->body);
+    (void) switchScope(previousScope);
     return false;
 }
 

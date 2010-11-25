@@ -62,6 +62,8 @@ class VectorType;
 class MatrixType;
 
 // symbols
+class Symbol;
+class Scope;
 class Struct;
 class Function;
 class Argument;

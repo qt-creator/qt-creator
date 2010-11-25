@@ -31,6 +31,7 @@
 #define GLSLSYMBOL_H
 
 #include "glsl.h"
+#include <QtCore/QString>
 
 namespace GLSL {
 
@@ -46,6 +47,9 @@ public:
     Scope *scope() const;
     void setScope(Scope *scope);
 
+    QString name() const;
+    void setName(const QString &name);
+
     virtual Scope *asScope() { return 0; }
     virtual Struct *asStruct() { return 0; }
     virtual Function *asFunction() { return 0; }
@@ -57,6 +61,7 @@ public:
 
 private:
     Scope *_scope;
+    QString _name;
 };
 
 class GLSL_EXPORT Scope: public Symbol
@@ -65,6 +70,8 @@ public:
     Scope(Scope *sscope = 0);
 
     Symbol *lookup(const QString &name) const;
+
+    virtual void add(Symbol *symbol) = 0;
     virtual Symbol *find(const QString &name) const = 0;
 
     virtual Scope *asScope() { return this; }

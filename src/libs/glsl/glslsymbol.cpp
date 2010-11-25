@@ -50,6 +50,16 @@ void Symbol::setScope(Scope *scope)
     _scope = scope;
 }
 
+QString Symbol::name() const
+{
+    return _name;
+}
+
+void Symbol::setName(const QString &name)
+{
+    _name = name;
+}
+
 Scope::Scope(Scope *enclosingScope)
     : Symbol(enclosingScope)
 {
