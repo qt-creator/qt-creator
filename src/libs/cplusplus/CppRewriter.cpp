@@ -37,11 +37,12 @@
 #include <Overview.h>
 
 #include <QtCore/QVarLengthArray>
+#include <QtCore/QRegExp>
 #include <QtCore/QDebug>
 
-using namespace CPlusPlus;
+namespace CPlusPlus {
 
-class CPlusPlus::Rewrite
+class Rewrite
 {
 public:
     Rewrite(Control *control, SubstitutionEnvironment *env)
@@ -414,18 +415,187 @@ FullySpecifiedType UseQualifiedNames::apply(const Name *name, Rewrite *rewrite) 
 }
 
 
-FullySpecifiedType CPlusPlus::rewriteType(const FullySpecifiedType &type,
-                                          SubstitutionEnvironment *env,
-                                          Control *control)
+FullySpecifiedType rewriteType(const FullySpecifiedType &type,
+                               SubstitutionEnvironment *env,
+                               Control *control)
 {
     Rewrite rewrite(control, env);
     return rewrite.rewriteType(type);
 }
 
-const Name *CPlusPlus::rewriteName(const Name *name,
-                                   SubstitutionEnvironment *env,
-                                   Control *control)
+const Name *rewriteName(const Name *name,
+                        SubstitutionEnvironment *env,
+                        Control *control)
 {
     Rewrite rewrite(control, env);
     return rewrite.rewriteName(name);
 }
+
+// Simplify complicated STL template types,
+// such as 'std::basic_string<char,std::char_traits<char>,std::allocator<char> >'
+// -> 'std::string' and helpers.
+
+static QString chopConst(QString type)
+{
+   while (1) {
+        if (type.startsWith(QLatin1String("const")))
+            type = type.mid(5);
+        else if (type.startsWith(QLatin1Char(' ')))
+            type = type.mid(1);
+        else if (type.endsWith(QLatin1String("const")))
+            type.chop(5);
+        else if (type.endsWith(QLatin1Char(' ')))
+            type.chop(1);
+        else
+            break;
+    }
+    return type;
+}
+
+static inline QRegExp stdStringRegExp(const QString &charType)
+{
+    QString rc = QLatin1String("basic_string<");
+    rc += charType;
+    rc += QLatin1String(",[ ]?std::char_traits<");
+    rc += charType;
+    rc += QLatin1String(">,[ ]?std::allocator<");
+    rc += charType;
+    rc += QLatin1String("> >");
+    const QRegExp re(rc);
+    Q_ASSERT(re.isValid());
+    return re;
+}
+
+// Simplify string types in a type
+// 'std::set<std::basic_string<char... > >' -> std::set<std::string>'
+static inline void simplifyStdString(const QString &charType, const QString &replacement,
+                                     QString *type)
+{
+    QRegExp stringRegexp = stdStringRegExp(charType);
+    const int replacementSize = replacement.size();
+    for (int pos = 0; pos < type->size(); ) {
+        // Check next match
+        const int matchPos = stringRegexp.indexIn(*type, pos);
+        if (matchPos == -1)
+            break;
+        const int matchedLength = stringRegexp.matchedLength();
+        type->replace(matchPos, matchedLength, replacement);
+        pos = matchPos + replacementSize;
+        // If we were inside an 'allocator<std::basic_string..char > >'
+        // kill the following blank -> 'allocator<std::string>'
+        if (pos + 1 < type->size() && type->at(pos) == QLatin1Char(' ')
+                && type->at(pos + 1) == QLatin1Char('>'))
+            type->remove(pos, 1);
+    }
+}
+
+// Fix 'std::allocator<std::string >' -> 'std::allocator<std::string>',
+// which can happen when replacing/simplifying
+static inline QString fixNestedTemplates(QString s)
+{
+    const int size = s.size();
+    if (size > 3
+            && s.at(size - 1) == QLatin1Char('>')
+            && s.at(size - 2) == QLatin1Char(' ')
+            && s.at(size - 3) != QLatin1Char('>'))
+            s.remove(size - 2, 1);
+    return s;
+}
+
+CPLUSPLUS_EXPORT QString simplifySTLType(const QString &typeIn)
+{
+    QString type = typeIn;
+    if (type.startsWith("class ")) // MSVC prepends class,struct
+        type.remove(0, 6);
+    if (type.startsWith("struct "))
+        type.remove(0, 7);
+
+    type.replace(QLatin1Char('*'), QLatin1Char('@'));
+
+    for (int i = 0; i < 10; ++i) {
+        int start = type.indexOf("std::allocator<");
+        if (start == -1)
+            break;
+        // search for matching '>'
+        int pos;
+        int level = 0;
+        for (pos = start + 12; pos < type.size(); ++pos) {
+            int c = type.at(pos).unicode();
+            if (c == '<') {
+                ++level;
+            } else if (c == '>') {
+                --level;
+                if (level == 0)
+                    break;
+            }
+        }
+        const QString alloc = fixNestedTemplates(type.mid(start, pos + 1 - start).trimmed());
+        const QString inner = fixNestedTemplates(alloc.mid(15, alloc.size() - 16).trimmed());
+        if (inner == QLatin1String("char")) { // std::string
+            simplifyStdString(QLatin1String("char"), QLatin1String("string"), &type);
+        } else if (inner == QLatin1String("wchar_t")) { // std::wstring
+            simplifyStdString(QLatin1String("wchar_t"), QLatin1String("wstring"), &type);
+        } else if (inner == QLatin1String("unsigned short")) { // std::wstring/MSVC
+            simplifyStdString(QLatin1String("unsigned short"), QLatin1String("wstring"), &type);
+        }
+        // std::vector, std::deque, std::list
+        const QRegExp re1(QString::fromLatin1("(vector|list|deque)<%1, ?%2\\s*>").arg(inner, alloc));
+        Q_ASSERT(re1.isValid());
+        if (re1.indexIn(type) != -1)
+            type.replace(re1.cap(0), QString::fromLatin1("%1<%2>").arg(re1.cap(1), inner));
+
+        // std::stack
+        QRegExp stackRE(QString::fromLatin1("stack<%1, ?std::deque<%2> >").arg(inner, inner));
+        stackRE.setMinimal(true);
+        Q_ASSERT(stackRE.isValid());
+        if (stackRE.indexIn(type) != -1)
+            type.replace(stackRE.cap(0), QString::fromLatin1("stack<%1>").arg(inner));
+
+        // std::set
+        QRegExp setRE(QString::fromLatin1("set<%1, ?std::less<%2>, ?%3\\s*>").arg(inner, inner, alloc));
+        setRE.setMinimal(true);
+        Q_ASSERT(setRE.isValid());
+        if (setRE.indexIn(type) != -1)
+            type.replace(setRE.cap(0), QString::fromLatin1("set<%1>").arg(inner));
+
+        // std::map
+        if (inner.startsWith("std::pair<")) {
+            // search for outermost ',', split key and value
+            int pos;
+            int level = 0;
+            for (pos = 10; pos < inner.size(); ++pos) {
+                int c = inner.at(pos).unicode();
+                if (c == '<')
+                    ++level;
+                else if (c == '>')
+                    --level;
+                else if (c == ',' && level == 0)
+                    break;
+            }
+            const QString key = chopConst(inner.mid(10, pos - 10));
+            // Get value: MSVC: 'pair<a const ,b>', gcc: 'pair<const a, b>'
+            if (inner.at(++pos) == QLatin1Char(' '))
+                pos++;
+            QString value = inner.mid(pos, inner.size() - pos - 1).trimmed();
+            QRegExp mapRE1(QString("map<%1, ?%2, ?std::less<%3 ?>, ?%4\\s*>")
+                .arg(key, value, key, alloc));
+            mapRE1.setMinimal(true);
+            Q_ASSERT(mapRE1.isValid());
+            if (mapRE1.indexIn(type) != -1) {
+                type.replace(mapRE1.cap(0), QString("map<%1, %2>").arg(key, value));
+            } else {
+                QRegExp mapRE2(QString("map<const %1, ?%2, ?std::less<const %3>, ?%4\\s*>")
+                    .arg(key, value, key, alloc));
+                mapRE2.setMinimal(true);
+                if (mapRE2.indexIn(type) != -1) {
+                    type.replace(mapRE2.cap(0), QString("map<const %1, %2>").arg(key, value));
+                }
+            }
+        }
+    }
+    type.replace(QLatin1Char('@'), QLatin1Char('*'));
+    type.replace(QLatin1String(" >"), QLatin1String(">"));
+    return type;
+}
+
+} // namespace CPlusPlus

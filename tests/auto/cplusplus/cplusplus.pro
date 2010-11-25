@@ -9,4 +9,6 @@ SUBDIRS = \
     lookup \
     preprocessor \
     semantic \
-    typeprettyprinter
+    typeprettyprinter \
+    simplifytypes
+    

@@ -104,6 +104,11 @@ CPLUSPLUS_EXPORT const Name *rewriteName(const Name *name,
                                          SubstitutionEnvironment *env,
                                          Control *control);
 
+// Simplify complicated STL template types, such as
+// 'std::basic_string<char,std::char_traits<char>,std::allocator<char> > '->
+// 'std::string'.
+CPLUSPLUS_EXPORT QString simplifySTLType(const QString &typeIn);
+
 } // end of namespace CPlusPlus
 
 #endif

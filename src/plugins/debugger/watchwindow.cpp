@@ -228,6 +228,30 @@ void WatchWindow::mouseDoubleClickEvent(QMouseEvent *ev)
     QTreeView::mouseDoubleClickEvent(ev);
 }
 
+// Text for add watch action with truncated expression
+static inline QString addWatchActionText(QString exp)
+{
+    if (exp.isEmpty())
+        return WatchWindow::tr("Watch Expression");
+    if (exp.size() > 30) {
+        exp.truncate(30);
+        exp.append(QLatin1String("..."));
+    }
+    return WatchWindow::tr("Watch Expression \"%1\"").arg(exp);
+}
+
+// Text for add watch action with truncated expression
+static inline QString removeWatchActionText(QString exp)
+{
+    if (exp.isEmpty())
+        return WatchWindow::tr("Remove Watch Expression");
+    if (exp.size() > 30) {
+        exp.truncate(30);
+        exp.append(QLatin1String("..."));
+    }
+    return WatchWindow::tr("Remove Watch Expression \"%1\"").arg(exp);
+}
+
 void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
     DebuggerEngine *engine = currentEngine();
@@ -369,15 +393,11 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         tr("Setting a watchpoint on an address will cause the program "
            "to stop when the data at the address it modified."));
 
-    QString actionName = exp.isEmpty() ? tr("Watch Expression")
-        : tr("Watch Expression \"%1\"").arg(exp);
-    QAction *actWatchExpression = new QAction(actionName, &menu);
+    QAction *actWatchExpression = new QAction(addWatchActionText(exp), &menu);
     actWatchExpression->setEnabled(canHandleWatches && !exp.isEmpty());
 
     // Can remove watch if engine can handle it or session engine.
-    actionName = exp.isEmpty() ? tr("Remove Watch Expression")
-        : tr("Remove Watch Expression \"%1\"").arg(exp);
-    QAction *actRemoveWatchExpression = new QAction(actionName, &menu);
+    QAction *actRemoveWatchExpression = new QAction(removeWatchActionText(exp), &menu);
     actRemoveWatchExpression->setEnabled(
         (canHandleWatches || state == DebuggerNotReady) && !exp.isEmpty());
 
