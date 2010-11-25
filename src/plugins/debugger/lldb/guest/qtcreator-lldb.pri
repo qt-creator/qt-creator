@@ -1,1 +1,1 @@
-macx: exists($$PWD/lldb) : SUBDIRS += $$PWD/qtcreator-lldb.pro
+macx: exists($$PWD/lldb/include/lldb/lldb-enumerations.h) : SUBDIRS += $$PWD/qtcreator-lldb.pro
