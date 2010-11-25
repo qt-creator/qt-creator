@@ -457,7 +457,7 @@ static bool isSevenBitClean(const wchar_t *buf, ULONG size)
     return true;
 }
 
-std::string SymbolGroupNode::getType() const
+std::string SymbolGroupNode::type() const
 {
     static char buf[BufSize];
     const HRESULT hr = m_symbolGroup->debugSymbolGroup()->GetSymbolTypeName(m_index, buf, BufSize, NULL);
@@ -509,13 +509,22 @@ std::wstring SymbolGroupNode::rawValue() const
 std::wstring SymbolGroupNode::fixedValue() const
 {
     std::wstring value = rawValue();
-    fixValue(getType(), &value);
+    fixValue(type(), &value);
     return value;
 }
 
 SymbolGroupNode *SymbolGroupNode::childAt(unsigned i) const
 {
     return i < m_children.size() ? m_children.at(i) : static_cast<SymbolGroupNode *>(0);
+}
+
+SymbolGroupNode *SymbolGroupNode::childByIName(const char *n) const
+{
+    const SymbolGroupNodePtrVector::const_iterator childrenEnd = m_children.end();
+    for (SymbolGroupNodePtrVector::const_iterator it = m_children.begin(); it != childrenEnd; ++it)
+        if ( (*it)->iName() == n )
+            return *it;
+    return 0;
 }
 
 static inline void indentStream(std::ostream &str, unsigned depth)
@@ -528,7 +537,7 @@ void SymbolGroupNode::dump(std::ostream &str, unsigned child, unsigned depth,
                            bool humanReadable) const
 {
     const std::string iname = fullIName();
-    const std::string type = getType();
+    const std::string t = type();
 
     if (child) { // Separate list of children
         str << ',';
@@ -539,7 +548,7 @@ void SymbolGroupNode::dump(std::ostream &str, unsigned child, unsigned depth,
     if (humanReadable)
         indentStream(str, depth);
     str << "{iname=\"" << iname << "\",exp=\"" << iname << "\",name=\"" << m_name
-        << "\",type=\"" << type << '"';
+        << "\",type=\"" << t << '"';
 
     if (const ULONG64 addr = address())
         str << ",addr=\"" << std::hex << std::showbase << addr << std::noshowbase << std::dec
@@ -559,7 +568,7 @@ void SymbolGroupNode::dump(std::ostream &str, unsigned child, unsigned depth,
             // ASCII or base64?
             if (isSevenBitClean(wbuf, valueSize)) {
                 std::wstring value = wbuf;
-                fixValue(type, &value);
+                fixValue(t, &value);
                 str << ",valueencoded=\"0\",value=\"" << gdbmiWStringFormat(value) << '"';
             } else {
                 str << ",valueencoded=\"2\",value=\"";
@@ -625,7 +634,7 @@ void SymbolGroupNode::debug(std::ostream &str, unsigned verbosity, unsigned dept
         str << " node-flags=" << m_flags;
     if (verbosity) {
         str << ",name=\"" << m_name << "\", Address=0x" << std::hex << address() << std::dec
-            << " Type=\"" << getType() << '"';
+            << " Type=\"" << type() << '"';
         if (!(m_flags & Uninitialized))
             str << "\" Value=\"" << gdbmiWStringFormat(rawValue()) << '"';
     }

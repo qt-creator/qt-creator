@@ -5,6 +5,7 @@ DebugExtensionNotify
 pid
 expandlocals
 locals
+dumplocal
 assign
 threads
 registers

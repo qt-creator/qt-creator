@@ -75,6 +75,8 @@ public:
 
     const SymbolGroupNodePtrVector &children() const { return m_children; }
     SymbolGroupNode *childAt(unsigned) const;
+    SymbolGroupNode *childByIName(const char *) const;
+
     const SymbolGroupNode *parent() const { return m_parent; }
 
     // I/O: Gdbmi dump for Visitors
@@ -86,6 +88,7 @@ public:
 
     std::wstring rawValue() const;
     std::wstring fixedValue() const;
+    std::string type() const;
     ULONG64 address() const;
 
     bool accept(SymbolGroupNodeVisitor &visitor, unsigned child, unsigned depth) const;
@@ -101,7 +104,6 @@ public:
 private:
     // Return allocated wide string array of value
     wchar_t *getValue(ULONG *obtainedSize = 0) const;
-    std::string getType() const;
     bool isArrayElement() const;
     // Notify about expansion of a node, shift indexes
     bool notifyExpanded(ULONG index, ULONG insertedCount);
@@ -174,6 +176,7 @@ public:
     ULONG threadId() const { return m_threadId; }
     SymbolGroupNode *root() { return m_root; }
     const SymbolGroupNode *root() const { return m_root; }
+    SymbolGroupNode *find(const std::string &iname) const;
 
     // Expand a node list "locals.i1,locals.i2", expanding all nested child nodes
     // (think mkdir -p).
@@ -201,7 +204,6 @@ public:
                                     std::string *errorMessage);
 
 private:
-    SymbolGroupNode *find(const std::string &iname) const;
     inline SymbolGroupNode *findI(const std::string &iname) const;
     static bool getSymbolParameters(CIDebugSymbolGroup *m_symbolGroup,
                                     SymbolParameterVector *vec,
