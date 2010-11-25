@@ -487,6 +487,8 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
 
     QTC_ASSERT(state() == DebuggerNotReady || state() == DebuggerFinished,
          qDebug() << state());
+    d->m_lastGoodState = DebuggerNotReady;
+    d->m_targetState = DebuggerNotReady;
     setState(EngineSetupRequested);
 
     d->m_progress.setProgressValue(200);
