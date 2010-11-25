@@ -195,6 +195,10 @@ bool MatrixType::isLessThan(const Type *other) const
     return false;
 }
 
+Struct::Struct(Scope *scope) : Symbol(scope)
+{
+}
+
 bool Struct::isEqualTo(const Type *other) const
 {
     Q_UNUSED(other);
@@ -205,6 +209,10 @@ bool Struct::isLessThan(const Type *other) const
 {
     Q_UNUSED(other);
     return false;
+}
+
+Function::Function(Scope *scope) : Scope(scope)
+{
 }
 
 QString Function::name() const
