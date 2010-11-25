@@ -399,7 +399,8 @@ public:
             return hasQuotes ? QVariant(cleanedValue) : cleverConvert(cleanedValue);
         }
 
-        containingObject->lookupMember(name, m_context, &containingObject);
+        if (containingObject)
+            containingObject->lookupMember(name, m_context, &containingObject);
 
         if (const Interpreter::QmlObjectValue * qmlObject = dynamic_cast<const Interpreter::QmlObjectValue *>(containingObject)) {
             const QString typeName = qmlObject->propertyType(name);
@@ -443,7 +444,8 @@ public:
             return QVariant();
         }
 
-        containingObject->lookupMember(name, m_context, &containingObject);
+        if (containingObject)
+            containingObject->lookupMember(name, m_context, &containingObject);
         const Interpreter::QmlObjectValue * lhsQmlObject = dynamic_cast<const Interpreter::QmlObjectValue *>(containingObject);
         if (!lhsQmlObject)
             return QVariant();
@@ -465,7 +467,8 @@ public:
                 rhsValueName = memberExp->name->asString();
         }
 
-        rhsValueObject->lookupMember(rhsValueName, m_context, &rhsValueObject);
+        if (rhsValueObject)
+            rhsValueObject->lookupMember(rhsValueName, m_context, &rhsValueObject);
 
         const Interpreter::QmlObjectValue *rhsQmlObjectValue = dynamic_cast<const Interpreter::QmlObjectValue *>(rhsValueObject);
         if (!rhsQmlObjectValue)
