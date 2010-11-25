@@ -2508,7 +2508,7 @@ void DebuggerPluginPrivate::displayDebugger(DebuggerEngine *engine, bool updateE
     connectEngine(engine);
     if (updateEngine)
         engine->updateAll();
-    updateState(engine);
+    engine->updateViews();
 }
 
 void DebuggerPluginPrivate::startDebugger(RunControl *rc)

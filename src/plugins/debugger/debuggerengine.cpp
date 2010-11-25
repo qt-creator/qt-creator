@@ -914,8 +914,10 @@ void DebuggerEnginePrivate::doFinishDebugger()
     m_engine->showMessage(_("NOTE: FINISH DEBUGGER"));
     QTC_ASSERT(state() == DebuggerFinished, qDebug() << state());
     m_engine->resetLocation();
-    QTC_ASSERT(m_runControl, return);
-    m_runControl->debuggingFinished();
+    if (!m_engine->isSlaveEngine()) {
+        QTC_ASSERT(m_runControl, return);
+        m_runControl->debuggingFinished();
+    }
 }
 
 void DebuggerEngine::notifyEngineIll()
