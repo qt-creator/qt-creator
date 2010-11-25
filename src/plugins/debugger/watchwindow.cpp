@@ -551,21 +551,27 @@ void WatchWindow::setUpdatesEnabled(bool enable)
 
 void WatchWindow::resetHelper()
 {
+    bool old = updatesEnabled();
+    setUpdatesEnabled(false);
     resetHelper(model()->index(0, 0));
+    setUpdatesEnabled(old);
 }
 
 void WatchWindow::resetHelper(const QModelIndex &idx)
 {
     if (idx.data(LocalsExpandedRole).toBool()) {
         //qDebug() << "EXPANDING " << model()->data(idx, INameRole);
-        expand(idx);
-        for (int i = 0, n = model()->rowCount(idx); i != n; ++i) {
-            QModelIndex idx1 = model()->index(i, 0, idx);
-            resetHelper(idx1);
+        if (!isExpanded(idx)) {
+            expand(idx);
+            for (int i = 0, n = model()->rowCount(idx); i != n; ++i) {
+                QModelIndex idx1 = model()->index(i, 0, idx);
+                resetHelper(idx1);
+            }
         }
     } else {
         //qDebug() << "COLLAPSING " << model()->data(idx, INameRole);
-        collapse(idx);
+        if (isExpanded(idx))
+            collapse(idx);
     }
 }
 
