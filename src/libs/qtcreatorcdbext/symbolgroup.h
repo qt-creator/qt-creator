@@ -39,6 +39,7 @@
 std::ostream &operator<<(std::ostream &, const DEBUG_SYMBOL_PARAMETERS&p);
 
 class SymbolGroupNodeVisitor;
+class SymbolGroup;
 
 // Thin wrapper around a symbol group entry.
 class SymbolGroupNode {
@@ -53,7 +54,8 @@ public:
     typedef SymbolGroupNodePtrVector::iterator SymbolGroupNodePtrVectorIterator;
     typedef SymbolGroupNodePtrVector::const_iterator SymbolGroupNodePtrVectorConstIterator;
 
-    explicit SymbolGroupNode(CIDebugSymbolGroup *symbolGroup,
+    explicit SymbolGroupNode(SymbolGroup *symbolGroup,
+                             ULONG index,
                              const std::string &name,
                              const std::string &iname,
                              SymbolGroupNode *parent = 0);
@@ -65,7 +67,7 @@ public:
                          SymbolParameterVector::size_type parameterOffset,
                          const SymbolParameterVector &vec);
 
-    static SymbolGroupNode *create(CIDebugSymbolGroup *sg, const std::string &name, const SymbolParameterVector &vec);
+    static SymbolGroupNode *create(SymbolGroup *sg, const std::string &name, const SymbolParameterVector &vec);
 
     const std::string &name() const { return m_name; }
     std::string fullIName() const;
@@ -77,35 +79,36 @@ public:
 
     // I/O: Gdbmi dump for Visitors
     void dump(std::ostream &str, unsigned child, unsigned depth,
-              bool humanReadable, ULONG &index) const;
+              bool humanReadable) const;
     void dumpChildrenVisited(std::ostream &str, bool humanReadable) const;
     // I/O: debug for Visitors
-    void debug(std::ostream &os, unsigned verbosity, unsigned depth, ULONG index) const;
+    void debug(std::ostream &os, unsigned verbosity, unsigned depth) const;
 
-    std::wstring rawValue(ULONG index) const;
-    std::wstring fixedValue(ULONG index) const;
-    ULONG64 address(ULONG index) const;
+    std::wstring rawValue() const;
+    std::wstring fixedValue() const;
+    ULONG64 address() const;
 
-    bool accept(SymbolGroupNodeVisitor &visitor, unsigned child, unsigned depth, ULONG &index) const;
+    bool accept(SymbolGroupNodeVisitor &visitor, unsigned child, unsigned depth) const;
 
-    // Skip indexes of all children
-    ULONG recursiveIndexOffset() const;
-
-    bool expand(ULONG index, std::string *errorMessage);
+    bool expand(std::string *errorMessage);
 
     ULONG subElements() const { return m_parameters.SubElements; }
+    ULONG index() const { return m_index; }
 
     unsigned flags() const     { return m_flags; }
     void setFlags(unsigned f)  { m_flags = f; }
 
 private:
     // Return allocated wide string array of value
-    wchar_t *getValue(ULONG index, ULONG *obtainedSize = 0) const;
-    std::string getType(ULONG index) const;
+    wchar_t *getValue(ULONG *obtainedSize = 0) const;
+    std::string getType() const;
     bool isArrayElement() const;
+    // Notify about expansion of a node, shift indexes
+    bool notifyExpanded(ULONG index, ULONG insertedCount);
 
-    CIDebugSymbolGroup *const m_symbolGroup;
+    SymbolGroup *const m_symbolGroup;
     SymbolGroupNode *m_parent;
+    ULONG m_index;
     DEBUG_SYMBOL_PARAMETERS m_parameters; // Careful when using ParentSymbol. It might not be correct.
     SymbolGroupNodePtrVector m_children;
     const std::string m_name;
@@ -113,7 +116,7 @@ private:
     unsigned m_flags;
 };
 
-/* Visitor that takes care of iterating over the nodes and the index bookkeeping.
+/* Visitor that takes care of iterating over the nodes
  * visit() is not called for the (invisible) root node, but starting with the
  * root's children with depth=0.
  * Return true from visit() to terminate the recursion. */
@@ -129,7 +132,7 @@ public:
     virtual ~SymbolGroupNodeVisitor() {}
 
 private:
-    virtual bool visit(const SymbolGroupNode *node, unsigned child, unsigned depth, ULONG index) = 0;
+    virtual bool visit(const SymbolGroupNode *node, unsigned child, unsigned depth) = 0;
     // Helper for formatting output.
     virtual void childrenVisited(const SymbolGroupNode * /* node */, unsigned /* depth */) {}
 };
@@ -169,7 +172,8 @@ public:
 
     unsigned frame() const { return m_frame; }
     ULONG threadId() const { return m_threadId; }
-    const SymbolGroupNode *root() { return m_root; }
+    SymbolGroupNode *root() { return m_root; }
+    const SymbolGroupNode *root() const { return m_root; }
 
     // Expand a node list "locals.i1,locals.i2", expanding all nested child nodes
     // (think mkdir -p).
@@ -188,6 +192,8 @@ public:
                 const std::string &value,
                 std::string *errorMessage);
 
+    CIDebugSymbolGroup *debugSymbolGroup() const { return m_symbolGroup; }
+
     static bool getSymbolParameters(CIDebugSymbolGroup *m_symbolGroup,
                                     unsigned long start,
                                     unsigned long count,
@@ -195,8 +201,8 @@ public:
                                     std::string *errorMessage);
 
 private:
-    SymbolGroupNode *find(const std::string &iname, ULONG *index = 0) const;
-    inline SymbolGroupNode *findI(const std::string &iname, ULONG *index = 0) const;
+    SymbolGroupNode *find(const std::string &iname) const;
+    inline SymbolGroupNode *findI(const std::string &iname) const;
     static bool getSymbolParameters(CIDebugSymbolGroup *m_symbolGroup,
                                     SymbolParameterVector *vec,
                                     std::string *errorMessage);
@@ -204,7 +210,7 @@ private:
     CIDebugSymbolGroup * const m_symbolGroup;
     const unsigned m_frame;
     const ULONG m_threadId;
-    SymbolGroupNode *const m_root;
+    SymbolGroupNode *m_root;
 };
 
 // Debug output visitor.
@@ -213,7 +219,7 @@ public:
     explicit DebugSymbolGroupNodeVisitor(std::ostream &os, unsigned verbosity = 0);
 
 private:
-    virtual bool visit(const SymbolGroupNode *node, unsigned child, unsigned depth, ULONG index);
+    virtual bool visit(const SymbolGroupNode *node, unsigned child, unsigned depth);
 
     std::ostream &m_os;
     const unsigned m_verbosity;
@@ -225,7 +231,7 @@ public:
     explicit DumpSymbolGroupNodeVisitor(std::ostream &os, bool humanReadable);
 
 private:
-    virtual bool visit(const SymbolGroupNode *node, unsigned child, unsigned depth, ULONG index);
+    virtual bool visit(const SymbolGroupNode *node, unsigned child, unsigned depth);
     virtual void childrenVisited(const SymbolGroupNode *  node, unsigned depth);
 
     std::ostream &m_os;

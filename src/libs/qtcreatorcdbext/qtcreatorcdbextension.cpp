@@ -67,7 +67,7 @@ static inline StringContainer commandTokens(PCSTR args, int *token = 0)
     typedef StringContainer::iterator ContainerIterator;
 
     if (token)
-        *token = 0;
+        *token = -1; // Handled as 'display' in engine, so that user can type commands
     std::string cmd(args);
     simplify(cmd);
     StringContainer tokens;

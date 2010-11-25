@@ -1420,6 +1420,10 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QByteArray &what
 
     // Is there a reply expected, some command queued?
     if (t == 'R' || t == 'N') {
+        if (token == -1) { // Default token, user typed in extension command
+            showMessage(QString::fromLatin1(message), LogMisc);
+            return;
+        }
         const int index = indexOfCommand(m_extensionCommandQueue, token);
         if (index != -1) {
             // Did the command finish? Take off queue and complete, invoke CB

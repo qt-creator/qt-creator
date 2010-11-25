@@ -54,7 +54,8 @@ std::ostream &operator<<(std::ostream &str, const DEBUG_SYMBOL_PARAMETERS &param
     } else {
         str << parameters.ParentSymbol ;
     }
-    str << " flags=" << parameters.Flags;
+    if (parameters.Flags != 0 && parameters.Flags != 1)
+        str << " flags=" << parameters.Flags;
     // Detailed flags:
     if (parameters.Flags & DEBUG_SYMBOL_EXPANDED)
         str << " EXPANDED";
@@ -68,8 +69,9 @@ std::ostream &operator<<(std::ostream &str, const DEBUG_SYMBOL_PARAMETERS &param
         str << " ARGUMENT";
     if (parameters.Flags & DEBUG_SYMBOL_IS_LOCAL)
         str << " LOCAL";
-    str << " typeId=" << parameters.TypeId << " subElements="
-              << parameters.SubElements;
+    str << " typeId=" << parameters.TypeId;
+    if (parameters.SubElements)
+        str << " subElements=" << parameters.SubElements;
     return str;
 }
 
@@ -80,8 +82,9 @@ SymbolGroup::SymbolGroup(IDebugSymbolGroup2 *sg,
     m_symbolGroup(sg),
     m_threadId(threadId),
     m_frame(frame),
-    m_root(SymbolGroupNode::create(sg, rootNameC, vec))
+    m_root(0)
 {
+    m_root = SymbolGroupNode::create(this, rootNameC, vec);
 }
 
 SymbolGroup::~SymbolGroup()
@@ -207,11 +210,13 @@ SymbolGroup *SymbolGroup::create(CIDebugControl *control, CIDebugSymbols *debugS
 }
 
 // ------- SymbolGroupNode
-SymbolGroupNode::SymbolGroupNode(CIDebugSymbolGroup *symbolGroup,
+SymbolGroupNode::SymbolGroupNode(SymbolGroup *symbolGroup,
+                                 ULONG index,
                                  const std::string &name,
                                  const std::string &iname,
                                  SymbolGroupNode *parent) :
-    m_symbolGroup(symbolGroup), m_parent(parent), m_name(name), m_iname(iname), m_flags(0)
+    m_symbolGroup(symbolGroup), m_parent(parent), m_index(index),
+    m_name(name), m_iname(iname), m_flags(0)
 {
     memset(&m_parameters, 0, sizeof(DEBUG_SYMBOL_PARAMETERS));
     m_parameters.ParentSymbol = DEBUG_ANY_ID;
@@ -232,6 +237,30 @@ bool SymbolGroupNode::isArrayElement() const
     return m_parent && (m_parent->m_parameters.Flags & DEBUG_SYMBOL_IS_ARRAY);
 }
 
+// Notify about expansion of a node:
+// Adapt our index and those of our children if we are behind it.
+// Return true if a modification was required to be able to terminate the
+// recursion.
+bool SymbolGroupNode::notifyExpanded(ULONG index, ULONG insertedCount)
+{
+    typedef SymbolGroupNodePtrVector::reverse_iterator ReverseIt;
+    // Looping backwards over the children. If a subtree has no modifications,
+    // (meaning all other indexes are smaller) we can stop.
+    const ReverseIt rend = m_children.rend();
+    for (ReverseIt it = m_children.rbegin(); it != rend; ++it)
+        if (!(*it)->notifyExpanded(index, insertedCount))
+            return false;
+
+    // Correct our own + parent index if applicable.
+    if (m_index == DEBUG_ANY_ID || m_index < index)
+        return false;
+
+    m_index += insertedCount;
+    if (m_parameters.ParentSymbol != DEBUG_ANY_ID && m_parameters.ParentSymbol >= index)
+        m_parameters.ParentSymbol += insertedCount;
+    return true;
+}
+
 // Return full iname as 'locals.this.m_sth'.
 std::string SymbolGroupNode::fullIName() const
 {
@@ -243,15 +272,39 @@ std::string SymbolGroupNode::fullIName() const
     return rc;
 }
 
-// Fix an array iname "[0]" -> "0" for sorting to work correctly
-static inline void fixArrayIname(std::string *iname)
+// Fix names: fix complicated template base names
+static inline void fixName(std::string *name)
 {
+    // Long template base classes 'std::tree_base<Key....>' -> 'std::tree<>'
+    // for nice display
+    const std::string::size_type templatePos = name->find('<');
+    if (templatePos != std::string::npos) {
+        name->erase(templatePos + 1, name->size() - templatePos - 1);
+        name->push_back('>');
+    }
+}
+
+// Fix inames: arrays and long, complicated template base names
+static inline void fixIname(unsigned &id, std::string *iname)
+{
+    // Fix array iname "[0]" -> "0" for sorting to work correctly
     if (!iname->empty() && iname->at(0) == '[') {
         const std::string::size_type last = iname->size() - 1;
         if (iname->at(last) == ']') {
             iname->erase(last, 1);
             iname->erase(0, 1);
+            return;
         }
+    }
+    // Long template base classes 'std::tree_base<Key....' -> 'tree@t1',
+    // usable as identifier and command line parameter
+    const std::string::size_type templatePos = iname->find('<');
+    if (templatePos != std::string::npos) {
+        iname->erase(templatePos, iname->size() - templatePos);
+        if (iname->compare(0, 5, "std::") == 0)
+            iname->erase(0, 5);
+        iname->append("@t");
+        iname->append(toString(id++));
     }
 }
 
@@ -261,6 +314,7 @@ static inline void fixNames(bool isTopLevel, StringVector *names, StringVector *
     if (names->empty())
         return;
     unsigned unnamedId = 1;
+    unsigned templateId = 1;
     /* 1) Fix name="__formal", which occurs when someone writes "void foo(int /* x * /)..."
      * 2) Fix array inames for sorting: "[6]" -> name="[6]",iname="6"
      * 3) For toplevels: Fix shadowed variables in the order the debugger expects them:
@@ -280,7 +334,8 @@ static inline void fixNames(bool isTopLevel, StringVector *names, StringVector *
             name = "<unnamed "  + number + '>';
             iname = "unnamed#" + number;
         } else {
-            fixArrayIname(&iname);
+            fixName(&name);
+            fixIname(templateId, &iname);
         }
         if (isTopLevel) {
             if (const StringVector::size_type shadowCount = std::count(nameIt + 1, namesEnd, name)) {
@@ -323,7 +378,7 @@ void SymbolGroupNode::parseParameters(VectorIndexType index,
     for (VectorIndexType pos = startIndex - parameterOffset; pos < size ; pos++ ) {
         if (vec.at(pos).ParentSymbol == index) {
             const VectorIndexType symbolGroupIndex = pos + parameterOffset;
-            if (FAILED(m_symbolGroup->GetSymbolName(ULONG(symbolGroupIndex), buf, BufSize, &obtainedSize)))
+            if (FAILED(m_symbolGroup->debugSymbolGroup()->GetSymbolName(ULONG(symbolGroupIndex), buf, BufSize, &obtainedSize)))
                 buf[0] = '\0';
             names.push_back(std::string(buf));
         }
@@ -336,7 +391,9 @@ void SymbolGroupNode::parseParameters(VectorIndexType index,
     for (VectorIndexType pos = startIndex - parameterOffset; pos < size ; pos++ ) {
         if (vec.at(pos).ParentSymbol == index) {
             const VectorIndexType symbolGroupIndex = pos + parameterOffset;
-            SymbolGroupNode *child = new SymbolGroupNode(m_symbolGroup, names.at(nameIndex),
+            SymbolGroupNode *child = new SymbolGroupNode(m_symbolGroup,
+                                                         ULONG(symbolGroupIndex),
+                                                         names.at(nameIndex),
                                                          inames.at(nameIndex), this);
             child->parseParameters(symbolGroupIndex, parameterOffset, vec);
             m_children.push_back(child);
@@ -347,9 +404,9 @@ void SymbolGroupNode::parseParameters(VectorIndexType index,
         m_parameters.SubElements = ULONG(m_children.size());
 }
 
-SymbolGroupNode *SymbolGroupNode::create(CIDebugSymbolGroup *sg, const std::string &name, const SymbolGroup::SymbolParameterVector &vec)
+SymbolGroupNode *SymbolGroupNode::create(SymbolGroup *sg, const std::string &name, const SymbolGroup::SymbolParameterVector &vec)
 {
-    SymbolGroupNode *rc = new SymbolGroupNode(sg, name, name);
+    SymbolGroupNode *rc = new SymbolGroupNode(sg, DEBUG_ANY_ID, name, name);
     rc->parseParameters(DEBUG_ANY_ID, 0, vec);
     return rc;
 }
@@ -400,28 +457,27 @@ static bool isSevenBitClean(const wchar_t *buf, ULONG size)
     return true;
 }
 
-std::string SymbolGroupNode::getType(ULONG index) const
+std::string SymbolGroupNode::getType() const
 {
     static char buf[BufSize];
-    const HRESULT hr = m_symbolGroup->GetSymbolTypeName(index, buf, BufSize, NULL);
+    const HRESULT hr = m_symbolGroup->debugSymbolGroup()->GetSymbolTypeName(m_index, buf, BufSize, NULL);
     return SUCCEEDED(hr) ? std::string(buf) : std::string();
 }
 
-wchar_t *SymbolGroupNode::getValue(ULONG index,
-                                   ULONG *obtainedSizeIn /* = 0 */) const
+wchar_t *SymbolGroupNode::getValue(ULONG *obtainedSizeIn /* = 0 */) const
 {
     // Determine size and return allocated buffer
     if (obtainedSizeIn)
         *obtainedSizeIn = 0;
     const ULONG maxValueSize = 262144;
     ULONG obtainedSize = 0;
-    HRESULT hr = m_symbolGroup->GetSymbolValueTextWide(index, NULL, maxValueSize, &obtainedSize);
+    HRESULT hr = m_symbolGroup->debugSymbolGroup()->GetSymbolValueTextWide(m_index, NULL, maxValueSize, &obtainedSize);
     if (FAILED(hr))
         return 0;
     if (obtainedSize > maxValueSize)
         obtainedSize = maxValueSize;
     wchar_t *buffer = new wchar_t[obtainedSize];
-    hr = m_symbolGroup->GetSymbolValueTextWide(index, buffer, obtainedSize, &obtainedSize);
+    hr = m_symbolGroup->debugSymbolGroup()->GetSymbolValueTextWide(m_index, buffer, obtainedSize, &obtainedSize);
     if (FAILED(hr)) { // Whoops, should not happen
         delete [] buffer;
         return 0;
@@ -431,29 +487,29 @@ wchar_t *SymbolGroupNode::getValue(ULONG index,
     return buffer;
 }
 
-ULONG64 SymbolGroupNode::address(ULONG index) const
+ULONG64 SymbolGroupNode::address() const
 {
     ULONG64 address = 0;
-    const HRESULT hr = m_symbolGroup->GetSymbolOffset(index, &address);
+    const HRESULT hr = m_symbolGroup->debugSymbolGroup()->GetSymbolOffset(m_index, &address);
     if (SUCCEEDED(hr))
         return address;
     return 0;
 }
 
-std::wstring SymbolGroupNode::rawValue(ULONG index) const
+std::wstring SymbolGroupNode::rawValue() const
 {
     std::wstring rc;
-    if (const wchar_t *wbuf = getValue(index)) {
+    if (const wchar_t *wbuf = getValue()) {
         rc = wbuf;
         delete[] wbuf;
     }
     return rc;
 }
 
-std::wstring SymbolGroupNode::fixedValue(ULONG index) const
+std::wstring SymbolGroupNode::fixedValue() const
 {
-    std::wstring value = rawValue(index);
-    fixValue(getType(index), &value);
+    std::wstring value = rawValue();
+    fixValue(getType(), &value);
     return value;
 }
 
@@ -469,10 +525,10 @@ static inline void indentStream(std::ostream &str, unsigned depth)
 }
 
 void SymbolGroupNode::dump(std::ostream &str, unsigned child, unsigned depth,
-                           bool humanReadable, ULONG &index) const
+                           bool humanReadable) const
 {
     const std::string iname = fullIName();
-    const std::string type = getType(index);
+    const std::string type = getType();
 
     if (child) { // Separate list of children
         str << ',';
@@ -485,7 +541,7 @@ void SymbolGroupNode::dump(std::ostream &str, unsigned child, unsigned depth,
     str << "{iname=\"" << iname << "\",exp=\"" << iname << "\",name=\"" << m_name
         << "\",type=\"" << type << '"';
 
-    if (const ULONG64 addr = address(index))
+    if (const ULONG64 addr = address())
         str << ",addr=\"" << std::hex << std::showbase << addr << std::noshowbase << std::dec
                << '"';
 
@@ -498,7 +554,7 @@ void SymbolGroupNode::dump(std::ostream &str, unsigned child, unsigned depth,
         str << ",valueencoded=\"0\",value=\"<not in scope>\"";
     } else {
         ULONG obtainedSize = 0;
-        if (const wchar_t *wbuf = getValue(index, &obtainedSize)) {
+        if (const wchar_t *wbuf = getValue(&obtainedSize)) {
             const ULONG valueSize = obtainedSize - 1;
             // ASCII or base64?
             if (isSevenBitClean(wbuf, valueSize)) {
@@ -538,63 +594,49 @@ void SymbolGroupNode::dumpChildrenVisited(std::ostream &str, bool humanReadable)
         str << '\n';
 
 }
-bool SymbolGroupNode::accept(SymbolGroupNodeVisitor &visitor, unsigned child, unsigned depth, ULONG &index) const
+bool SymbolGroupNode::accept(SymbolGroupNodeVisitor &visitor, unsigned child, unsigned depth) const
 {
     // If we happen to be the root node, just skip over
-
-    const bool invisibleRoot = index == DEBUG_ANY_ID;
+    const bool invisibleRoot = m_index == DEBUG_ANY_ID;
     const unsigned childDepth = invisibleRoot ? 0 : depth + 1;
 
-    if (invisibleRoot) {
-        index = 0;
-    } else {
-        // Visit us and move index forward.
-        if (visitor.visit(this, child, depth, index))
+    if (!invisibleRoot) { // Visit us and move index forward.
+        if (visitor.visit(this, child, depth))
             return true;
-        index++;
     }
 
     const unsigned childCount = unsigned(m_children.size());
     for (unsigned c = 0; c < childCount; c++)
-        if (m_children.at(c)->accept(visitor, c, childDepth, index))
+        if (m_children.at(c)->accept(visitor, c, childDepth))
             return true;
     if (!invisibleRoot)
         visitor.childrenVisited(this, depth);
     return false;
 }
 
-void SymbolGroupNode::debug(std::ostream &str, unsigned verbosity, unsigned depth, ULONG index) const
+void SymbolGroupNode::debug(std::ostream &str, unsigned verbosity, unsigned depth) const
 {
     indentStream(str, depth);
-    str << '"' << m_name << "\" Children=" << m_children.size() << ' ' << m_parameters
-           << " flags=" << m_flags;
+    str << '"' << fullIName() << "\",index=" << m_index;
+    if (const VectorIndexType childCount = m_children.size())
+        str << ", Children=" << childCount;
+    str << ' ' << m_parameters;
+    if (m_flags)
+        str << " node-flags=" << m_flags;
     if (verbosity) {
-        str << " Address=0x" << std::hex << address(index) << std::dec
-            << " Type=\"" << getType(index) << '"';
+        str << ",name=\"" << m_name << "\", Address=0x" << std::hex << address() << std::dec
+            << " Type=\"" << getType() << '"';
         if (!(m_flags & Uninitialized))
-            str << "\" Value=\"" << gdbmiWStringFormat(rawValue(index)) << '"';
+            str << "\" Value=\"" << gdbmiWStringFormat(rawValue()) << '"';
     }
     str << '\n';
 }
 
-// Index offset when stepping past this node in a symbol parameter array. Basically
-// self + recursive all child counts.
-ULONG SymbolGroupNode::recursiveIndexOffset() const
-{
-    ULONG rc = 1u;
-    if (!m_children.empty()) {
-        const SymbolGroupNodePtrVectorConstIterator cend = m_children.end();
-        for (SymbolGroupNodePtrVectorConstIterator it = m_children.begin(); it != cend; ++it)
-            rc += (*it)->recursiveIndexOffset();
-    }
-    return rc;
-}
-
 // Expand!
-bool SymbolGroupNode::expand(ULONG index, std::string *errorMessage)
+bool SymbolGroupNode::expand(std::string *errorMessage)
 {
     if (::debug > 1)
-        DebugPrint() << "SymbolGroupNode::expand "  << m_name << ' ' << index;
+        DebugPrint() << "SymbolGroupNode::expand "  << m_name << ' ' << m_index;
     if (!m_children.empty())
         return true;
     if (m_parameters.SubElements == 0) {
@@ -606,7 +648,7 @@ bool SymbolGroupNode::expand(ULONG index, std::string *errorMessage)
         return false;
     }
 
-    const HRESULT hr = m_symbolGroup->ExpandSymbol(index, TRUE);
+    const HRESULT hr = m_symbolGroup->debugSymbolGroup()->ExpandSymbol(m_index, TRUE);
 
     if (FAILED(hr)) {
         *errorMessage = msgDebugEngineComFailed("ExpandSymbol", hr);
@@ -614,12 +656,15 @@ bool SymbolGroupNode::expand(ULONG index, std::string *errorMessage)
     }
     SymbolGroup::SymbolParameterVector parameters;
     // Retrieve parameters (including self, re-retrieve symbol parameters to get new 'expanded' flag
-    // and corrected SubElement count (might be estimate)) and create child nodes.
-    if (!SymbolGroup::getSymbolParameters(m_symbolGroup,
-                                          index, m_parameters.SubElements + 1,
+    // and corrected SubElement count (might be estimate))
+    if (!SymbolGroup::getSymbolParameters(m_symbolGroup->debugSymbolGroup(),
+                                          m_index, m_parameters.SubElements + 1,
                                           &parameters, errorMessage))
         return false;
-    parseParameters(index, index, parameters);
+    // Before inserting children, correct indexes on whole group
+    m_symbolGroup->root()->notifyExpanded(m_index + 1, parameters.at(0).SubElements);
+    // Parse parameters, correct our own) and create child nodes.
+    parseParameters(m_index, m_index, parameters);
     return true;
 }
 
@@ -645,8 +690,7 @@ std::string SymbolGroup::dump(bool humanReadable) const
 // Dump a node, potentially expand
 std::string SymbolGroup::dump(const std::string &name, bool humanReadable, std::string *errorMessage)
 {
-    ULONG index;
-    SymbolGroupNode *const node = find(name, &index);
+    SymbolGroupNode *const node = find(name);
     if (node == 0) {
         *errorMessage = msgNotFound(name);
         return std::string();
@@ -660,7 +704,7 @@ std::string SymbolGroup::dump(const std::string &name, bool humanReadable, std::
         str << '\n';
     DumpSymbolGroupNodeVisitor visitor(str, humanReadable);
     str << '[';
-    node->accept(visitor, 0, 0, index);
+    node->accept(visitor, 0, 0);
     str << ']';
     return str.str();
 }
@@ -668,6 +712,7 @@ std::string SymbolGroup::dump(const std::string &name, bool humanReadable, std::
 std::string SymbolGroup::debug(unsigned verbosity) const
 {
     std::ostringstream str;
+    str << '\n';
     DebugSymbolGroupNodeVisitor visitor(str, verbosity);
     accept(visitor);
     return str.str();
@@ -731,17 +776,16 @@ unsigned SymbolGroup::expandList(const std::vector<std::string> &nodes, std::str
 
 bool SymbolGroup::expand(const std::string &nodeName, std::string *errorMessage)
 {
-    ULONG index = DEBUG_ANY_ID;
-    SymbolGroupNode *node = find(nodeName, &index);
+    SymbolGroupNode *node = find(nodeName);
     if (::debug)
-        DebugPrint() << "expand: " << nodeName << " found=" << (node != 0) << " index= " << index << '\n';
+        DebugPrint() << "expand: " << nodeName << " found=" << (node != 0) << '\n';
     if (!node) {
         *errorMessage = msgNotFound(nodeName);
         return false;
     }
     if (node == m_root) // Shouldn't happen, still, all happy
         return true;
-    return node->expand(index, errorMessage);
+    return node->expand(errorMessage);
 }
 
 // Mark uninitialized (top level only)
@@ -771,13 +815,12 @@ static inline std::string msgAssignError(const std::string &nodeName,
 bool SymbolGroup::assign(const std::string &nodeName, const std::string &value,
                          std::string *errorMessage)
 {
-    ULONG index;
-    SymbolGroupNode *node = find(nodeName, &index);
+    SymbolGroupNode *node = find(nodeName);
     if (node == 0) {
         *errorMessage = msgAssignError(nodeName, value, "No such node");
         return false;
     }
-    const HRESULT hr = m_symbolGroup->WriteSymbol(index, const_cast<char *>(value.c_str()));
+    const HRESULT hr = m_symbolGroup->WriteSymbol(node->index(), const_cast<char *>(value.c_str()));
     if (FAILED(hr)) {
         *errorMessage = msgAssignError(nodeName, value, msgDebugEngineComFailed("WriteSymbol", hr));
         return false;
@@ -789,22 +832,20 @@ bool SymbolGroup::accept(SymbolGroupNodeVisitor &visitor) const
 {
     if (!m_root || m_root->children().empty())
         return false;
-    ULONG index = DEBUG_ANY_ID;
-    return m_root->accept(visitor, 0, 0, index);
+    return m_root->accept(visitor, 0, 0);
 }
 
 // Find  "locals.this.i1" and move index recursively
 static SymbolGroupNode *findNodeRecursion(const std::vector<std::string> &iname,
                                           unsigned depth,
-                                          std::vector<SymbolGroupNode *> nodes,
-                                          ULONG *index = 0)
+                                          std::vector<SymbolGroupNode *> nodes)
 {
     typedef std::vector<SymbolGroupNode *>::const_iterator ConstIt;
 
-    if (::debug > 1)
-        DebugPrint() << "findNodeRecursion " << iname.size() << '/'
-                     << iname.back() << " depth="  << depth
-                     << " nodes=" << nodes.size() << " index=" << (index ? *index : ULONG(0));
+    if (debug > 1) {
+        DebugPrint() <<"findNodeRecursion: Looking for " << iname.back() << " (" << iname.size()
+           << "),depth="  << depth << ",matching=" << iname.at(depth) << " in " << nodes.size();
+    }
 
     if (nodes.empty())
         return 0;
@@ -812,28 +853,20 @@ static SymbolGroupNode *findNodeRecursion(const std::vector<std::string> &iname,
     const ConstIt cend = nodes.end();
     for (ConstIt it = nodes.begin(); it != cend; ++it) {
         SymbolGroupNode *c = *it;
-        if (c->name() == iname.at(depth)) {
+        if (c->iName() == iname.at(depth)) {
             if (depth == iname.size() - 1) { // Complete iname matched->happy.
                 return c;
             } else {
                 // Sub-part of iname matched. Forward index and check children.
-                if (index)
-                    (*index)++; // Skip ourselves
-                return findNodeRecursion(iname, depth + 1, c->children(), index);
+                return findNodeRecursion(iname, depth + 1, c->children());
             }
-        } else {
-            if (index) // No match for this child, forward the index past all expanded children
-                *index += c->recursiveIndexOffset();
         }
     }
     return 0;
 }
 
-SymbolGroupNode *SymbolGroup::findI(const std::string &iname, ULONG *index) const
+SymbolGroupNode *SymbolGroup::findI(const std::string &iname) const
 {
-    if (index)
-        *index = DEBUG_ANY_ID;
-
     if (iname.empty())
         return 0;
     // Match the root element only: Shouldn't happen, still, all happy
@@ -848,16 +881,14 @@ SymbolGroupNode *SymbolGroup::findI(const std::string &iname, ULONG *index) cons
         return 0;
 
     // Start with index = 0 at root's children
-    if (index)
-        *index = 0;
-    return findNodeRecursion(inameTokens, 1, m_root->children(), index);
+    return findNodeRecursion(inameTokens, 1, m_root->children());
 }
 
-SymbolGroupNode *SymbolGroup::find(const std::string &iname, ULONG *index) const
+SymbolGroupNode *SymbolGroup::find(const std::string &iname) const
 {
-    SymbolGroupNode *rc = findI(iname, index);
+    SymbolGroupNode *rc = findI(iname);
     if (::debug > 1)
-        DebugPrint() << "SymbolGroup::find " << iname << ' ' << rc << ' ' << (index ? *index : ULONG(0));
+        DebugPrint() << "SymbolGroup::find " << iname << ' ' << rc;
     return rc;
 }
 
@@ -868,9 +899,9 @@ DebugSymbolGroupNodeVisitor::DebugSymbolGroupNodeVisitor(std::ostream &os, unsig
 }
 
 bool DebugSymbolGroupNodeVisitor::visit(const SymbolGroupNode *node,
-                                        unsigned /* child */, unsigned depth, ULONG index)
+                                        unsigned /* child */, unsigned depth)
 {
-    node->debug(m_os, m_verbosity, depth, index);
+    node->debug(m_os, m_verbosity, depth);
     return false;
 }
 
@@ -881,9 +912,9 @@ DumpSymbolGroupNodeVisitor::DumpSymbolGroupNodeVisitor(std::ostream &os,
 {
 }
 
-bool DumpSymbolGroupNodeVisitor::visit(const SymbolGroupNode *node, unsigned child, unsigned depth, ULONG index)
+bool DumpSymbolGroupNodeVisitor::visit(const SymbolGroupNode *node, unsigned child, unsigned depth)
 {
-    node->dump(m_os, child, depth, m_humanReadable, index);
+    node->dump(m_os, child, depth, m_humanReadable);
     return false;
 }
 
