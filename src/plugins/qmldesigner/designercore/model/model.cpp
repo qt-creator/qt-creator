@@ -147,7 +147,6 @@ void ModelPrivate::notifyImportAdded(const Import &import)
         resetModel = true;
     }
 
-    if (rewriterView())
     foreach (const QWeakPointer<AbstractView> &view, m_viewList)
         view->importAdded(import);
 
