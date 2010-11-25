@@ -70,6 +70,7 @@
 #include "pixmapchangedcommand.h"
 #include "informationchangedcommand.h"
 #include "changestatecommand.h"
+#include "addimportcommand.h"
 
 #include "nodeinstanceserverproxy.h"
 
@@ -139,6 +140,8 @@ void NodeInstanceView::modelAttached(Model *model)
     nodeInstanceServer()->createScene(createCreateSceneCommand());
 
     nodeInstanceServer()->changeFileUrl(createChangeFileUrlCommand(model->fileUrl()));
+    foreach(const Import &import, model->imports())
+        nodeInstanceServer()->addImport(createImportCommand(import));
 
     loadNodes(allModelNodes());
     setBlockUpdates(false);
@@ -422,6 +425,10 @@ void NodeInstanceView::instancePropertyChange(const QList<QPair<ModelNode, QStri
 
 }
 
+void NodeInstanceView::importAdded(const Import &import)
+{
+    nodeInstanceServer()->addImport(createImportCommand(import));
+}
 
 //\}
 
@@ -859,6 +866,11 @@ RemovePropertiesCommand NodeInstanceView::createRemovePropertiesCommand(const QL
     }
 
     return RemovePropertiesCommand(containerList);
+}
+
+AddImportCommand NodeInstanceView::createImportCommand(const Import &import)
+{
+    return AddImportCommand(import.url(), import.file(), import.version(), import.alias(), import.importPaths());
 }
 
 void NodeInstanceView::valuesChanged(const ValuesChangedCommand &command)

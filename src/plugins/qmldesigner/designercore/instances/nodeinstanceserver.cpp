@@ -10,6 +10,7 @@
 #include <QSet>
 #include <QVariant>
 #include <QMetaType>
+#include <QDeclarativeComponent>
 
 #include "servernodeinstance.h"
 #include "childrenchangeeventfilter.h"
@@ -33,6 +34,7 @@
 #include "commondefines.h"
 #include "childrenchangeeventfilter.h"
 #include "changestatecommand.h"
+#include "addimportcommand.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -44,7 +46,8 @@ NodeInstanceServer::NodeInstanceServer(NodeInstanceClientInterface *nodeInstance
     NodeInstanceServerInterface(),
     m_childrenChangeEventFilter(new Internal::ChildrenChangeEventFilter(this)),
     m_nodeInstanceClient(nodeInstanceClient),
-    m_timer(0)
+    m_timer(0),
+    m_slowRenderTimer(false)
 {
     connect(m_childrenChangeEventFilter.data(), SIGNAL(childrenChanged(QObject*)), this, SLOT(emitParentChanged(QObject*)));
 }
@@ -117,8 +120,24 @@ bool NodeInstanceServer::hasInstanceForObject(QObject *object) const
 
 void NodeInstanceServer::startRenderTimer()
 {
+    if (m_slowRenderTimer)
+        stopRenderTimer();
+
     if (m_timer == 0)
         m_timer = startTimer(16);
+
+    m_slowRenderTimer = false;
+}
+
+void NodeInstanceServer::slowDownRenderTimer()
+{
+    if (!m_slowRenderTimer)
+        stopRenderTimer();
+
+    if (m_timer == 0)
+        m_timer = startTimer(1000);
+
+    m_slowRenderTimer = true;
 }
 
 void NodeInstanceServer::stopRenderTimer()
@@ -135,7 +154,6 @@ void NodeInstanceServer::createScene(const CreateSceneCommand &/*command*/)
     m_declarativeView = new QDeclarativeView;
     m_declarativeView->setAttribute(Qt::WA_DontShowOnScreen, true);
     m_declarativeView->setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
-    m_declarativeView->viewport()->setUpdatesEnabled(false);
     m_declarativeView->show();
 
     if (!m_fileUrl.isEmpty())
@@ -199,6 +217,35 @@ void NodeInstanceServer::changeState(const ChangeStateCommand &command)
     }
 
     startRenderTimer();
+}
+
+void NodeInstanceServer::addImport(const AddImportCommand &command)
+{
+    QString importStatement = QString("import ");
+
+    if (!command.fileName().isEmpty())
+        importStatement += '"' + command.fileName() + '"';
+    else if (!command.url().isEmpty())
+        importStatement += command.url().toString();
+
+    if (!command.version().isEmpty())
+        importStatement += " " + command.version();
+
+    if (!command.alias().isEmpty())
+        importStatement += " as " + command.alias();
+
+    QDeclarativeComponent importComponent(engine(), 0);
+    QString componentString = QString("import Qt 4.7\n%1\n Item{}\n").arg(importStatement);
+
+    foreach(const QString &importPath, command.importPaths()) {
+        engine()->addImportPath(importPath);
+        engine()->addPluginPath(importPath);
+    }
+
+    importComponent.setData(componentString.toLatin1(), QUrl());
+
+    if (!importComponent.errorString().isEmpty())
+        qDebug() << "QmlDesigner.NodeInstances: import wrong: " << importComponent.errorString();
 }
 
 void NodeInstanceServer::changeFileUrl(const ChangeFileUrlCommand &command)
@@ -598,6 +645,7 @@ void NodeInstanceServer::removeInstanceRelationsip(qint32 instanceId)
 
 PixmapChangedCommand NodeInstanceServer::createPixmapChangedCommand(const ServerNodeInstance &instance) const
 {
+    qDebug() << __FUNCTION__ << instance.internalObject();
     return PixmapChangedCommand(instance.instanceId(), instance.renderImage());
 }
 
@@ -653,8 +701,6 @@ void NodeInstanceServer::findItemChangesAndSendChangeCommands()
                     if((d->dirty && d->notifyBoundingRectChanged)|| (d->dirty && !d->dirtySceneTransform) || nonInstanceChildIsDirty(graphicsObject))
                         dirtyInstanceSet.insert(instance);
 
-
-
                     if (d->geometryChanged) {
                         if (instance.isRootNodeInstance())
                             m_declarativeView->scene()->setSceneRect(item->boundingRect());
@@ -702,7 +748,7 @@ void NodeInstanceServer::findItemChangesAndSendChangeCommands()
                 }
             }
 
-            stopRenderTimer();
+            slowDownRenderTimer();
             nodeInstanceClient()->flush();
         }
 

@@ -22,6 +22,7 @@
 #include "reparentinstancescommand.h"
 #include "changeidscommand.h"
 #include "changestatecommand.h"
+#include "addimportcommand.h"
 
 #include "informationchangedcommand.h"
 #include "pixmapchangedcommand.h"
@@ -127,6 +128,7 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
     static const int reparentInstancesCommandType = QMetaType::type("ReparentInstancesCommand");
     static const int changeIdsCommandType = QMetaType::type("ChangeIdsCommand");
     static const int changeStateCommandType = QMetaType::type("ChangeStateCommand");
+    static const int addImportCommandType = QMetaType::type("AddImportCommand");
 
     if (command.userType() ==  createInstancesCommandType)
         nodeInstanceServer()->createInstances(command.value<CreateInstancesCommand>());
@@ -150,6 +152,8 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
         nodeInstanceServer()->changeIds(command.value<ChangeIdsCommand>());
     else if (command.userType() ==  changeStateCommandType)
         nodeInstanceServer()->changeState(command.value<ChangeStateCommand>());
+    else if (command.userType() ==  addImportCommandType)
+        nodeInstanceServer()->addImport(command.value<AddImportCommand>());
     else
         Q_ASSERT(false);
 }

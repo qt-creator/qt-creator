@@ -62,6 +62,7 @@ class ChangeBindingsCommand;
 class ChangeIdsCommand;
 class RemoveInstancesCommand;
 class RemovePropertiesCommand;
+class AddImportCommand;
 
 class CORESHARED_EXPORT NodeInstanceView : public AbstractView, public NodeInstanceClientInterface
 {
@@ -92,7 +93,7 @@ public:
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList, const QList<ModelNode> &lastSelectedNodeList);
     void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
     void instancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList);
-
+    void importAdded(const Import &import);
 
     QList<NodeInstance> instances() const;
     NodeInstance instanceForNode(const ModelNode &node) const ;
@@ -149,6 +150,7 @@ private: // functions
     RemoveInstancesCommand createRemoveInstancesCommand(const QList<ModelNode> &nodeList) const;
     RemoveInstancesCommand createRemoveInstancesCommand(const ModelNode &node) const;
     RemovePropertiesCommand createRemovePropertiesCommand(const QList<AbstractProperty> &propertyList) const;
+    AddImportCommand createImportCommand(const Import &import);
 
     qint32 generateInstanceId();
 

@@ -21,6 +21,7 @@
 #include "reparentinstancescommand.h"
 #include "changeidscommand.h"
 #include "changestatecommand.h"
+#include "addimportcommand.h"
 
 #include "informationchangedcommand.h"
 #include "pixmapchangedcommand.h"
@@ -199,4 +200,8 @@ void NodeInstanceServerProxy::changeState(const ChangeStateCommand &command)
     writeCommand(QVariant::fromValue(command));
 }
 
+void NodeInstanceServerProxy::addImport(const AddImportCommand &command)
+{
+    writeCommand(QVariant::fromValue(command));
+}
 } // namespace QmlDesigner

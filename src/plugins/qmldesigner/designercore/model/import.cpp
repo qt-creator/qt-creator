@@ -33,26 +33,27 @@
 
 namespace QmlDesigner {
 
-Import Import::createLibraryImport(const QString &url, const QString &version, const QString &alias)
+Import Import::createLibraryImport(const QString &url, const QString &version, const QString &alias, const QStringList &importPaths)
 {
-    return Import(url, QString(), version, alias);
+    return Import(url, QString(), version, alias, importPaths);
 }
 
-Import Import::createFileImport(const QString &file, const QString &version, const QString &alias)
+Import Import::createFileImport(const QString &file, const QString &version, const QString &alias, const QStringList &importPaths)
 {
-    return Import(QString(), file, version, alias);
+    return Import(QString(), file, version, alias, importPaths);
 }
 
 Import Import::empty()
 {
-    return Import(QString(), QString(), QString(), QString());
+    return Import(QString(), QString(), QString(), QString(), QStringList());
 }
 
-Import::Import(const QString &url, const QString &file, const QString &version, const QString &alias):
+Import::Import(const QString &url, const QString &file, const QString &version, const QString &alias, const QStringList &importPaths):
         m_url(url),
         m_file(file),
         m_version(version),
-        m_alias(alias)
+        m_alias(alias),
+        m_importPathList(importPaths)
 {
 }
 

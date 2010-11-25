@@ -46,7 +46,7 @@ public:
     void removeProperties(const RemovePropertiesCommand &command);
     void reparentInstances(const ReparentInstancesCommand &command);
     void changeState(const ChangeStateCommand &command);
-
+    void addImport(const AddImportCommand &command);
 
     ServerNodeInstance instanceForId(qint32 id) const;
     bool hasInstanceForId(qint32 id) const;
@@ -103,6 +103,7 @@ protected:
     void addChangedProperty(const InstancePropertyPair &property);
 
     void startRenderTimer();
+    void slowDownRenderTimer();
     void stopRenderTimer();
 
 private:
@@ -117,6 +118,7 @@ private:
     QUrl m_fileUrl;
     NodeInstanceClientInterface *m_nodeInstanceClient;
     int m_timer;
+    bool m_slowRenderTimer;
     QVector<InstancePropertyPair> m_changedPropertyList;
 };
 

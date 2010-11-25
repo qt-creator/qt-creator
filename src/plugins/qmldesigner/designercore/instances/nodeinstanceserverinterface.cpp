@@ -20,7 +20,7 @@
 #include "informationchangedcommand.h"
 #include "pixmapchangedcommand.h"
 #include "valueschangedcommand.h"
-
+#include "addimportcommand.h"
 
 namespace QmlDesigner {
 
@@ -101,6 +101,9 @@ void NodeInstanceServerInterface::registerCommands()
 
     qRegisterMetaType<IdContainer>("IdContainer");
     qRegisterMetaTypeStreamOperators<IdContainer>("IdContainer");
+
+    qRegisterMetaType<AddImportCommand>("AddImportCommand");
+    qRegisterMetaTypeStreamOperators<AddImportCommand>("AddImportCommand");
 }
 
 }

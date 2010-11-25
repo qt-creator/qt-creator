@@ -36,6 +36,7 @@ public:
     void reparentInstances(const ReparentInstancesCommand &command);
     void changeIds(const ChangeIdsCommand &command);
     void changeState(const ChangeStateCommand &command);
+    void addImport(const AddImportCommand &command);
 
     void setBlockUpdates(bool block);
 

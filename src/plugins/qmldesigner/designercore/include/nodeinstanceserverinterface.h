@@ -20,6 +20,7 @@ class ChangeIdsCommand;
 class RemoveInstancesCommand;
 class RemovePropertiesCommand;
 class ChangeStateCommand;
+class AddImportCommand;
 
 class NodeInstanceServerInterface : public QObject
 {
@@ -38,6 +39,7 @@ public:
     virtual void reparentInstances(const ReparentInstancesCommand &command) = 0;
     virtual void changeIds(const ChangeIdsCommand &command) = 0;
     virtual void changeState(const ChangeStateCommand &command) = 0;
+    virtual void addImport(const AddImportCommand &command) = 0;
 
     virtual void setBlockUpdates(bool block) {}
 

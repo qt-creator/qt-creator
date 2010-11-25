@@ -3,6 +3,7 @@ INCLUDEPATH += $$PWD/../include
 
 
 HEADERS += $$PWD/behaviornodeinstance.h
+HEADERS += $$PWD/addimportcommand.h
 HEADERS += $$PWD/changebindingscommand.h
 HEADERS += $$PWD/changefileurlcommand.h
 HEADERS += $$PWD/changeidscommand.h
@@ -41,6 +42,7 @@ HEADERS += $$PWD/../include/nodeinstanceserverinterface.h
 
 
 SOURCES +=  $$PWD/behaviornodeinstance.cpp
+SOURCES +=  $$PWD/addimportcommand.cpp
 SOURCES +=  $$PWD/changebindingscommand.cpp
 SOURCES +=  $$PWD/changefileurlcommand.cpp
 SOURCES +=  $$PWD/changeidscommand.cpp

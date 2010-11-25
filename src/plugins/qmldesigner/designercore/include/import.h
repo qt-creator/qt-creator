@@ -31,6 +31,7 @@
 #define IMPORT_H
 
 #include <QtCore/QString>
+#include <QStringList>
 
 #include "corelib_global.h"
 
@@ -39,8 +40,8 @@ namespace QmlDesigner {
 class CORESHARED_EXPORT Import
 {
 public:
-    static Import createLibraryImport(const QString &url, const QString &version = QString(), const QString &alias = QString());
-    static Import createFileImport(const QString &file, const QString &version = QString(), const QString &alias = QString());
+    static Import createLibraryImport(const QString &url, const QString &version = QString(), const QString &alias = QString(), const QStringList &importPaths = QStringList());
+    static Import createFileImport(const QString &file, const QString &version = QString(), const QString &alias = QString(), const QStringList &importPaths = QStringList());
     static Import empty();
 
     bool isEmpty() const { return m_url.isEmpty() && m_file.isEmpty(); }
@@ -53,19 +54,21 @@ public:
     QString file() const { return m_file; }
     QString version() const { return m_version; }
     QString alias() const { return m_alias; }
+    QStringList importPaths() const { return m_importPathList; }
 
     QString toString(bool addSemicolon = false) const;
 
     bool operator==(const Import &other) const;
 
 private:
-    Import(const QString &url, const QString &file, const QString &version, const QString &alias);
+    Import(const QString &url, const QString &file, const QString &version, const QString &alias, const QStringList &importPaths);
 
 private:
     QString m_url;
     QString m_file;
     QString m_version;
     QString m_alias;
+    QStringList m_importPathList;
 };
 
 CORESHARED_EXPORT uint qHash(const Import &import);

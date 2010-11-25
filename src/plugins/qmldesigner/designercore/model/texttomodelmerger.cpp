@@ -536,13 +536,13 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
         if (import->fileName) {
             const QString strippedFileName = stripQuotes(import->fileName->asString());
             const Import newImport = Import::createFileImport(strippedFileName,
-                                                              version, as);
+                                                              version, as, m_rewriterView->textModifier()->importPaths());
 
             if (!existingImports.removeOne(newImport))
                 differenceHandler.modelMissesImport(newImport);
         } else {
             const Import newImport =
-                    Import::createLibraryImport(flatten(import->importUri), version, as);
+                    Import::createLibraryImport(flatten(import->importUri), version, as, m_rewriterView->textModifier()->importPaths());
 
             if (!existingImports.removeOne(newImport))
                 differenceHandler.modelMissesImport(newImport);
