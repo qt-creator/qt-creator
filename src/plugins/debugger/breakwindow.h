@@ -43,7 +43,6 @@ class BreakWindow : public QTreeView
 
 public:
     explicit BreakWindow(QWidget *parent = 0);
-    ~BreakWindow();
 
     static void editBreakpoint(BreakpointId id, QWidget *parent);
 
