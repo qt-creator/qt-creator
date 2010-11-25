@@ -256,7 +256,7 @@ QHash<QString,PropertyMetaInfo> NodeMetaInfo::dotProperties() const
 
     foreach (const QString &propertyName, properties(false).keys()) {
         if (property(propertyName).hasDotSubProperties()) {
-                QString propertyType = property(propertyName, false).type();
+            QString propertyType = property(propertyName, false).isValid() ? property(propertyName, false).type() : QString();
                 if (propertyType.right(1) == "*")
                     propertyType = propertyType.left(propertyType.size() - 1).trimmed();
 
