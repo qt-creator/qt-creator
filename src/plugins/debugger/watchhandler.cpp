@@ -580,17 +580,6 @@ static inline QString expression(const WatchItem *item)
 
 QVariant WatchModel::data(const QModelIndex &idx, int role) const
 {
-    switch (role) {
-        case EngineCapabilitiesRole:
-            return engine()->debuggerCapabilities();
-
-        case EngineActionsEnabledRole:
-            return engine()->debuggerActionsEnabled();
-
-       case EngineStateRole:
-            return QVariant(int(engine()->state()));
-    }
-
     const WatchItem *item = watchItem(idx);
     const WatchItem &data = *item;
 

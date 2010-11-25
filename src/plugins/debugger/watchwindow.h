@@ -79,7 +79,6 @@ private:
 
     void setModelData(int role, const QVariant &value = QVariant(),
         const QModelIndex &index = QModelIndex());
-    QVariant modelData(int role, const QModelIndex &index = QModelIndex());
 
     bool m_alwaysResizeColumnsToContents;
     Type m_type;

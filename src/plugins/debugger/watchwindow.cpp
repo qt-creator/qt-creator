@@ -334,12 +334,11 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         individualFormatMenu.setEnabled(false);
     }
 
-    const bool actionsEnabled = modelData(EngineActionsEnabledRole).toBool();
-    const unsigned engineCapabilities = modelData(EngineCapabilitiesRole).toUInt();
+    const bool actionsEnabled = engine->debuggerActionsEnabled();
+    const unsigned engineCapabilities = engine->debuggerCapabilities();
     const bool canHandleWatches =
         actionsEnabled && (engineCapabilities & AddWatcherCapability);
-    const DebuggerState state =
-        static_cast<DebuggerState>(modelData(EngineStateRole).toInt());
+    const DebuggerState state = engine->state();
 
     QMenu menu;
     QAction *actInsertNewWatchItem = menu.addAction(tr("Insert New Watch Item"));
@@ -590,12 +589,6 @@ void WatchWindow::setModelData
 {
     QTC_ASSERT(model(), return);
     model()->setData(index, value, role);
-}
-
-QVariant WatchWindow::modelData(int role, const QModelIndex &index)
-{
-    QTC_ASSERT(model(), return QVariant());
-    return model()->data(index, role);
 }
 
 void WatchWindow::setWatchpoint(quint64 address)
