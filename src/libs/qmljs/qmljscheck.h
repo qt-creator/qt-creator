@@ -50,7 +50,26 @@ public:
 
     QList<DiagnosticMessage> operator()();
 
+    enum Option {
+        WarnDangerousNonStrictEqualityChecks = 1 << 0,
+        WarnAllNonStrictEqualityChecks       = 1 << 1,
+        WarnBlocks                           = 1 << 2,
+        WarnWith                             = 1 << 3,
+        WarnVoid                             = 1 << 4,
+        WarnCommaExpression                  = 1 << 5,
+        WarnExpressionStatement              = 1 << 6,
+        WarnAssignInCondition                = 1 << 7,
+        WarnUseBeforeDeclaration             = 1 << 8,
+        WarnDuplicateDeclaration             = 1 << 9,
+        WarnDeclarationsNotStartOfFunction   = 1 << 10,
+        WarnCaseWithoutFlowControlEnd        = 1 << 11,
+    };
+    Q_DECLARE_FLAGS(Options, Option);
+
 protected:
+    virtual bool preVisit(AST::Node *ast);
+    virtual void postVisit(AST::Node *ast);
+
     virtual bool visit(AST::UiProgram *ast);
     virtual bool visit(AST::UiObjectDefinition *ast);
     virtual bool visit(AST::UiObjectBinding *ast);
@@ -61,13 +80,30 @@ protected:
     virtual bool visit(AST::FunctionDeclaration *ast);
     virtual bool visit(AST::FunctionExpression *ast);
 
+    virtual bool visit(AST::BinaryExpression *ast);
+    virtual bool visit(AST::Block *ast);
+    virtual bool visit(AST::WithStatement *ast);
+    virtual bool visit(AST::VoidExpression *ast);
+    virtual bool visit(AST::Expression *ast);
+    virtual bool visit(AST::ExpressionStatement *ast);
+    virtual bool visit(AST::IfStatement *ast);
+    virtual bool visit(AST::ForStatement *ast);
+    virtual bool visit(AST::WhileStatement *ast);
+    virtual bool visit(AST::DoWhileStatement *ast);
+    virtual bool visit(AST::CaseClause *ast);
+    virtual bool visit(AST::DefaultClause *ast);
+
 private:
     void visitQmlObject(AST::Node *ast, AST::UiQualifiedId *typeId,
                         AST::UiObjectInitializer *initializer);
     const Interpreter::Value *checkScopeObjectMember(const AST::UiQualifiedId *id);
+    void checkAssignInCondition(AST::ExpressionNode *condition);
+    void checkEndsWithControlFlow(AST::StatementList *statements, AST::SourceLocation errorLoc);
 
     void warning(const AST::SourceLocation &loc, const QString &message);
     void error(const AST::SourceLocation &loc, const QString &message);
+
+    AST::Node *parent(int distance = 0);
 
     Document::Ptr _doc;
     Snapshot _snapshot;
@@ -78,8 +114,10 @@ private:
     QList<DiagnosticMessage> _messages;
 
     bool _ignoreTypeErrors;
+    Options _options;
 
     const Interpreter::Value *_lastValue;
+    QList<AST::Node *> _chain;
 };
 
 QMLJS_EXPORT QColor toQColor(const QString &qmlColorString);

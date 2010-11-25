@@ -188,6 +188,151 @@ public:
     ExpressionNode *_ast;
 };
 
+class FunctionBodyCheck : protected Visitor
+{
+public:
+    QList<DiagnosticMessage> operator()(FunctionExpression *function, Check::Options options)
+    {
+        _options = options;
+        _messages.clear();
+        _declaredFunctions.clear();
+        _declaredVariables.clear();
+        _possiblyUndeclaredUses.clear();
+        _seenNonDeclarationStatement = false;
+
+        _formalParameterNames.clear();
+        for (FormalParameterList *plist = function->formals; plist; plist = plist->next) {
+            if (plist->name)
+                _formalParameterNames += plist->name->asString();
+        }
+
+        Node::accept(function->body, this);
+        return _messages;
+    }
+
+protected:
+    void postVisit(Node *ast)
+    {
+        if (!_seenNonDeclarationStatement && ast->statementCast()
+                && !cast<VariableStatement *>(ast)) {
+            _seenNonDeclarationStatement = true;
+        }
+    }
+
+    bool visit(IdentifierExpression *ast)
+    {
+        if (!ast->name)
+            return false;
+        const QString name = ast->name->asString();
+        if (!_declaredFunctions.contains(name) && !_declaredVariables.contains(name))
+            _possiblyUndeclaredUses[name].append(ast->identifierToken);
+        return false;
+    }
+
+    bool visit(VariableStatement *ast)
+    {
+        if (_options & Check::WarnDeclarationsNotStartOfFunction && _seenNonDeclarationStatement) {
+            warning(ast->declarationKindToken, Check::tr("declarations should be at the start of a function"));
+        }
+        return true;
+    }
+
+    bool visit(VariableDeclaration *ast)
+    {
+        if (!ast->name)
+            return true;
+        const QString name = ast->name->asString();
+
+        if (_formalParameterNames.contains(name)) {
+            if (_options & Check::WarnDuplicateDeclaration)
+                warning(ast->identifierToken, Check::tr("already a formal parameter"));
+            return true;
+        }
+        if (_declaredFunctions.contains(name)) {
+            if (_options & Check::WarnDuplicateDeclaration)
+                warning(ast->identifierToken, Check::tr("already declared as function"));
+            return true;
+        }
+        if (_declaredVariables.contains(name)) {
+            if (_options & Check::WarnDuplicateDeclaration)
+                warning(ast->identifierToken, Check::tr("duplicate declaration"));
+            return true;
+        }
+
+        if (_possiblyUndeclaredUses.contains(name)) {
+            if (_options & Check::WarnUseBeforeDeclaration) {
+                foreach (const SourceLocation &loc, _possiblyUndeclaredUses.value(name)) {
+                    warning(loc, Check::tr("variable is used before being declared"));
+                }
+            }
+            _possiblyUndeclaredUses.remove(name);
+        }
+        _declaredVariables[name] = ast;
+
+        return true;
+    }
+
+    bool visit(FunctionDeclaration *ast)
+    {
+        if (_options & Check::WarnDeclarationsNotStartOfFunction &&_seenNonDeclarationStatement) {
+            warning(ast->functionToken, Check::tr("declarations should be at the start of a function"));
+        }
+
+        return visit(static_cast<FunctionExpression *>(ast));
+    }
+
+    bool visit(FunctionExpression *ast)
+    {
+        if (!ast->name)
+            return false;
+        const QString name = ast->name->asString();
+
+        if (_formalParameterNames.contains(name)) {
+            if (_options & Check::WarnDuplicateDeclaration)
+                warning(ast->identifierToken, Check::tr("already a formal parameter"));
+            return false;
+        }
+        if (_declaredVariables.contains(name)) {
+            if (_options & Check::WarnDuplicateDeclaration)
+                warning(ast->identifierToken, Check::tr("already declared as var"));
+            return false;
+        }
+        if (_declaredFunctions.contains(name)) {
+            if (_options & Check::WarnDuplicateDeclaration)
+                warning(ast->identifierToken, Check::tr("duplicate declaration"));
+            return false;
+        }
+
+        if (FunctionDeclaration *decl = cast<FunctionDeclaration *>(ast)) {
+            if (_possiblyUndeclaredUses.contains(name)) {
+                if (_options & Check::WarnUseBeforeDeclaration) {
+                    foreach (const SourceLocation &loc, _possiblyUndeclaredUses.value(name)) {
+                        warning(loc, Check::tr("function is used before being declared"));
+                    }
+                }
+                _possiblyUndeclaredUses.remove(name);
+            }
+            _declaredFunctions[name] = decl;
+        }
+
+        return false;
+    }
+
+private:
+    void warning(const SourceLocation &loc, const QString &message)
+    {
+        _messages.append(DiagnosticMessage(DiagnosticMessage::Warning, loc, message));
+    }
+
+    Check::Options _options;
+    QList<DiagnosticMessage> _messages;
+    QStringList _formalParameterNames;
+    QHash<QString, VariableDeclaration *> _declaredVariables;
+    QHash<QString, FunctionDeclaration *> _declaredFunctions;
+    QHash<QString, QList<SourceLocation> > _possiblyUndeclaredUses;
+    bool _seenNonDeclarationStatement;
+};
+
 } // end of anonymous namespace
 
 
@@ -197,6 +342,10 @@ Check::Check(Document::Ptr doc, const Snapshot &snapshot, const Context *linkedC
     , _context(*linkedContextNoScope)
     , _scopeBuilder(&_context, doc, snapshot)
     , _ignoreTypeErrors(false)
+    , _options(WarnDangerousNonStrictEqualityChecks | WarnBlocks | WarnWith
+          | WarnVoid | WarnCommaExpression | WarnExpressionStatement
+          | WarnAssignInCondition | WarnUseBeforeDeclaration | WarnDuplicateDeclaration
+          | WarnCaseWithoutFlowControlEnd)
     , _lastValue(0)
 {
 }
@@ -210,6 +359,17 @@ QList<DiagnosticMessage> Check::operator()()
     _messages.clear();
     Node::accept(_doc->ast(), this);
     return _messages;
+}
+
+bool Check::preVisit(Node *ast)
+{
+    _chain.append(ast);
+    return true;
+}
+
+void Check::postVisit(Node *)
+{
+    _chain.removeLast();
 }
 
 bool Check::visit(UiProgram *)
@@ -372,11 +532,165 @@ bool Check::visit(FunctionDeclaration *ast)
 
 bool Check::visit(FunctionExpression *ast)
 {
+    FunctionBodyCheck bodyCheck;
+    _messages.append(bodyCheck(ast, _options));
+
     Node::accept(ast->formals, this);
     _scopeBuilder.push(ast);
     Node::accept(ast->body, this);
     _scopeBuilder.pop();
     return false;
+}
+
+static bool shouldAvoidNonStrictEqualityCheck(ExpressionNode *exp)
+{
+    if (NumericLiteral *literal = cast<NumericLiteral *>(exp)) {
+        if (literal->value == 0)
+            return true;
+    } else if (cast<TrueLiteral *>(exp) || cast<FalseLiteral *>(exp) || cast<NullExpression *>(exp)) {
+        return true;
+    } else if (IdentifierExpression *ident = cast<IdentifierExpression *>(exp)) {
+        if (ident->name && ident->name->asString() == QLatin1String("undefined"))
+            return true;
+    } else if (StringLiteral *literal = cast<StringLiteral *>(exp)) {
+        if (!literal->value || literal->value->asString().isEmpty())
+            return true;
+    }
+    return false;
+}
+
+bool Check::visit(BinaryExpression *ast)
+{
+    if (ast->op == QSOperator::Equal || ast->op == QSOperator::NotEqual) {
+        if (_options & WarnAllNonStrictEqualityChecks
+                || (_options & WarnDangerousNonStrictEqualityChecks
+                    && (shouldAvoidNonStrictEqualityCheck(ast->left)
+                        || shouldAvoidNonStrictEqualityCheck(ast->right)))) {
+            warning(ast->operatorToken, tr("== and != perform type coercion, use === or !== instead to avoid"));
+        }
+    }
+    return true;
+}
+
+bool Check::visit(Block *ast)
+{
+    if (Node *p = parent()) {
+        if (_options & WarnBlocks
+                && !cast<UiScriptBinding *>(p)
+                && !cast<TryStatement *>(p)
+                && !cast<Catch *>(p)
+                && !cast<Finally *>(p)
+                && !cast<ForStatement *>(p)
+                && !cast<ForEachStatement *>(p)
+                && !cast<DoWhileStatement *>(p)
+                && !cast<WhileStatement *>(p)
+                && !cast<IfStatement *>(p)
+                && !cast<SwitchStatement *>(p)
+                && !cast<WithStatement *>(p)) {
+            warning(ast->lbraceToken, tr("blocks do not introduce a new scope, avoid"));
+        }
+    }
+    return true;
+}
+
+bool Check::visit(WithStatement *ast)
+{
+    if (_options & WarnWith)
+        warning(ast->withToken, tr("use of the with statement is not recommended, use a var instead"));
+    return true;
+}
+
+bool Check::visit(VoidExpression *ast)
+{
+    if (_options & WarnVoid)
+        warning(ast->voidToken, tr("use of void is usually confusing and not recommended"));
+    return true;
+}
+
+bool Check::visit(Expression *ast)
+{
+    if (_options & WarnCommaExpression && ast->left && ast->right) {
+        if (!cast<ForStatement *>(parent()))
+            warning(ast->commaToken, tr("avoid comma expressions"));
+    }
+    return true;
+}
+
+bool Check::visit(ExpressionStatement *ast)
+{
+    if (_options & WarnExpressionStatement && ast->expression) {
+        bool ok = cast<CallExpression *>(ast->expression)
+                || cast<DeleteExpression *>(ast->expression)
+                || cast<PreDecrementExpression *>(ast->expression)
+                || cast<PreIncrementExpression *>(ast->expression)
+                || cast<PostIncrementExpression *>(ast->expression)
+                || cast<PostDecrementExpression *>(ast->expression)
+                || cast<UiScriptBinding *>(parent());
+        if (BinaryExpression *binary = cast<BinaryExpression *>(ast->expression)) {
+            switch (binary->op) {
+            case QSOperator::Assign:
+            case QSOperator::InplaceAdd:
+            case QSOperator::InplaceAnd:
+            case QSOperator::InplaceDiv:
+            case QSOperator::InplaceLeftShift:
+            case QSOperator::InplaceRightShift:
+            case QSOperator::InplaceMod:
+            case QSOperator::InplaceMul:
+            case QSOperator::InplaceOr:
+            case QSOperator::InplaceSub:
+            case QSOperator::InplaceURightShift:
+            case QSOperator::InplaceXor:
+                ok = true;
+            default: break;
+            }
+        }
+
+        if (!ok) {
+            warning(locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()),
+                    tr("expression statements should be assignments, calls or delete expressions only"));
+        }
+    }
+    return true;
+}
+
+bool Check::visit(IfStatement *ast)
+{
+    if (ast->expression)
+        checkAssignInCondition(ast->expression);
+    return true;
+}
+
+bool Check::visit(ForStatement *ast)
+{
+    if (ast->condition)
+        checkAssignInCondition(ast->condition);
+    return true;
+}
+
+bool Check::visit(WhileStatement *ast)
+{
+    if (ast->expression)
+        checkAssignInCondition(ast->expression);
+    return true;
+}
+
+bool Check::visit(DoWhileStatement *ast)
+{
+    if (ast->expression)
+        checkAssignInCondition(ast->expression);
+    return true;
+}
+
+bool Check::visit(CaseClause *ast)
+{
+    checkEndsWithControlFlow(ast->statements, ast->caseToken);
+    return true;
+}
+
+bool Check::visit(DefaultClause *ast)
+{
+    checkEndsWithControlFlow(ast->statements, ast->defaultToken);
+    return true;
 }
 
 /// When something is changed here, also change ReadingContext::lookupProperty in
@@ -457,6 +771,34 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
     return value;
 }
 
+void Check::checkAssignInCondition(AST::ExpressionNode *condition)
+{
+    if (_options & WarnAssignInCondition) {
+        if (BinaryExpression *binary = cast<BinaryExpression *>(condition)) {
+            if (binary->op == QSOperator::Assign)
+                warning(binary->operatorToken, tr("avoid assignments in conditions"));
+        }
+    }
+}
+
+void Check::checkEndsWithControlFlow(StatementList *statements, SourceLocation errorLoc)
+{
+    // full flow analysis would be neat
+    if (!statements || !(_options & WarnCaseWithoutFlowControlEnd))
+        return;
+
+    Statement *lastStatement = 0;
+    for (StatementList *slist = statements; slist; slist = slist->next)
+        lastStatement = slist->statement;
+
+    if (!cast<ReturnStatement *>(lastStatement)
+            && !cast<ThrowStatement *>(lastStatement)
+            && !cast<BreakStatement *>(lastStatement)
+            && !cast<ContinueStatement *>(lastStatement)) {
+        warning(errorLoc, tr("case does not end with return, break, continue or throw"));
+    }
+}
+
 void Check::error(const AST::SourceLocation &loc, const QString &message)
 {
     _messages.append(DiagnosticMessage(DiagnosticMessage::Error, loc, message));
@@ -465,4 +807,12 @@ void Check::error(const AST::SourceLocation &loc, const QString &message)
 void Check::warning(const AST::SourceLocation &loc, const QString &message)
 {
     _messages.append(DiagnosticMessage(DiagnosticMessage::Warning, loc, message));
+}
+
+Node *Check::parent(int distance)
+{
+    const int index = _chain.size() - 2 - distance;
+    if (index < 0)
+        return 0;
+    return _chain.at(index);
 }
