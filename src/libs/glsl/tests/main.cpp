@@ -2,10 +2,15 @@
 #include <glslengine.h>
 #include <glslparser.h>
 #include <glsllexer.h>
+#include <glslastdump.h>
+
+#include <QtCore/QTextStream>
+
 #include <iostream>
 #include <fstream>
 #include <cstring>
 #include <cassert>
+#include <cstdio>
 
 using namespace GLSL;
 
@@ -15,6 +20,10 @@ using namespace GLSL;
 #ifndef EXIT_SUCCESS
 #define EXIT_SUCCESS 0
 #endif
+
+namespace {
+QTextStream qout(stdout, QIODevice::WriteOnly);
+}
 
 int main(int argc, char *argv[])
 {
@@ -69,16 +78,8 @@ int main(int argc, char *argv[])
     TranslationUnit *ast = parser.parse();
     std::cout << argv[1] << (ast ? " OK " : " KO ") << std::endl;
 
-    if (ast) {
-        assert(ast->asTranslationUnit() != 0);
-        int n = 0;
-        for (List<Declaration *> *it = ast->declarations; it; it = it->next, ++n) {
-            Declaration *decl = it->value;
-            // ### do something with decl
-            (void) decl;
-        }
-        std::cout << "found " << n << " level declarations" << std::endl;
-    }
+    ASTDump dump(qout);
+    dump(ast);
 
     delete source;
     delete ast;
