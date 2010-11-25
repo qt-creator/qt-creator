@@ -31,31 +31,36 @@
 
 using namespace GLSL;
 
+Symbol::Symbol(Scope *scope)
+    : _scope(scope)
+{
+}
+
 Symbol::~Symbol()
 {
 }
 
+Scope *Symbol::scope() const
+{
+    return _scope;
+}
+
+void Symbol::setScope(Scope *scope)
+{
+    _scope = scope;
+}
+
 Scope::Scope(Scope *enclosingScope)
-    : _enclosingScope(enclosingScope)
+    : Symbol(enclosingScope)
 {
-}
-
-Scope *Scope::enclosingScope() const
-{
-    return _enclosingScope;
-}
-
-void Scope::setEnclosingScope(Scope *enclosingScope)
-{
-    _enclosingScope = enclosingScope;
 }
 
 Symbol *Scope::lookup(const QString &name) const
 {
     if (Symbol *s = find(name))
         return s;
-    else if (Scope *e = enclosingScope())
-        return e->lookup(name);
+    else if (Scope *s = scope())
+        return s->lookup(name);
     else
         return 0;
 }

@@ -37,31 +37,37 @@ namespace GLSL {
 class Symbol;
 class Scope;
 
-class Symbol
+class GLSL_EXPORT Symbol
 {
 public:
+    Symbol(Scope *scope = 0);
     virtual ~Symbol();
 
-    virtual Scope *asScope() { return 0; }
+    Scope *scope() const;
+    void setScope(Scope *scope);
 
-    virtual Type *type() const = 0;
+    virtual Scope *asScope() { return 0; }
+    virtual Struct *asStruct() { return 0; }
+    virtual Function *asFunction() { return 0; }
+    virtual Argument *asArgument() { return 0; }
+    virtual Block *asBlock() { return 0; }
+    virtual Variable *asVariable() { return 0; }
+
+    virtual const Type *type() const = 0;
+
+private:
+    Scope *_scope;
 };
 
-class Scope: public Symbol
+class GLSL_EXPORT Scope: public Symbol
 {
 public:
-    Scope(Scope *enclosingScope = 0);
-
-    Scope *enclosingScope() const;
-    void setEnclosingScope(Scope *enclosingScope);
+    Scope(Scope *sscope = 0);
 
     Symbol *lookup(const QString &name) const;
     virtual Symbol *find(const QString &name) const = 0;
 
     virtual Scope *asScope() { return this; }
-
-private:
-    Scope *_enclosingScope;
 };
 
 } // end of namespace GLSL

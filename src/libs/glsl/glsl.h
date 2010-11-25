@@ -61,6 +61,13 @@ class OpaqueType;
 class VectorType;
 class MatrixType;
 
+// symbols
+class Struct;
+class Function;
+class Argument;
+class Block;
+class Variable;
+
 class AST;
 template <typename T> class List;
 }

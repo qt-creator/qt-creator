@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "glsltypes.h"
-#include <QtCore/qglobal.h>
+#include "glslsymbols.h"
 
 using namespace GLSL;
 
@@ -195,3 +195,76 @@ bool MatrixType::isLessThan(const Type *other) const
     return false;
 }
 
+bool Struct::isEqualTo(const Type *other) const
+{
+    Q_UNUSED(other);
+    return false;
+}
+
+bool Struct::isLessThan(const Type *other) const
+{
+    Q_UNUSED(other);
+    return false;
+}
+
+QString Function::name() const
+{
+    return _name;
+
+}
+
+void Function::setName(const QString &name)
+{
+    _name = name;
+}
+
+const Type *Function::returnType() const
+{
+    return _returnType;
+}
+
+void Function::setReturnType(const Type *returnType)
+{
+    _returnType = returnType;
+}
+
+QVector<Argument *> Function::arguments() const
+{
+    return _arguments;
+}
+
+void Function::addArgument(Argument *arg)
+{
+    _arguments.append(arg);
+}
+
+int Function::argumentCount() const
+{
+    return _arguments.size();
+}
+
+Argument *Function::argumentAt(int index) const
+{
+    return _arguments.at(index);
+}
+
+bool Function::isEqualTo(const Type *other) const
+{
+    Q_UNUSED(other);
+    return false;
+}
+
+bool Function::isLessThan(const Type *other) const
+{
+    Q_UNUSED(other);
+    return false;
+}
+
+Symbol *Function::find(const QString &name) const
+{
+    foreach (Argument *arg, _arguments) {
+        if (arg->name() == name)
+            return arg;
+    }
+    return 0;
+}

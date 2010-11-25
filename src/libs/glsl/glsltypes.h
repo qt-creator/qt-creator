@@ -30,6 +30,9 @@
 #define GLSLTYPES_H
 
 #include "glsltype.h"
+#include "glslsymbol.h"
+#include <QtCore/QVector>
+#include <QtCore/QString>
 
 namespace GLSL {
 
@@ -131,6 +134,53 @@ private:
     const Type *_elementType;
     int _columns;
     int _rows;
+};
+
+class GLSL_EXPORT Struct: public Type, public Symbol
+{
+public:
+    Struct(Scope *scope = 0);
+
+    // as Type
+    virtual const Struct *asStructType() const { return this; }
+    virtual bool isEqualTo(const Type *other) const;
+    virtual bool isLessThan(const Type *other) const;
+
+    // as Symbol
+    virtual Struct *asStruct() { return this; } // as Symbol
+};
+
+class GLSL_EXPORT Function: public Type, public Scope
+{
+public:
+    Function(Scope *scope = 0);
+
+    QString name() const;
+    void setName(const QString &name);
+
+    const Type *returnType() const;
+    void setReturnType(const Type *returnType);
+
+    QVector<Argument *> arguments() const;
+    void addArgument(Argument *arg);
+    int argumentCount() const;
+    Argument *argumentAt(int index) const;
+
+    // as Type
+    virtual const Function *asFunctionType() const { return this; }
+    virtual bool isEqualTo(const Type *other) const;
+    virtual bool isLessThan(const Type *other) const;
+
+    // as Symbol
+    virtual Function *asFunction() { return this; }
+    virtual const Type *type() const { return this; }
+
+    virtual Symbol *find(const QString &name) const;
+
+private:
+    QString _name;
+    const Type *_returnType;
+    QVector<Argument *> _arguments;
 };
 
 } // end of namespace GLSL

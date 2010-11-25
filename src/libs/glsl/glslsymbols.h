@@ -26,36 +26,69 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-#ifndef GLSLTYPE_H
-#define GLSLTYPE_H
+#ifndef GLSLSYMBOLS_H
+#define GLSLSYMBOLS_H
 
-#include "glsl.h"
+#include "glsltype.h"
+#include "glslsymbol.h"
+#include <QtCore/QVector>
+#include <QtCore/QString>
+#include <QtCore/QHash>
 
 namespace GLSL {
 
-class GLSL_EXPORT Type
+class GLSL_EXPORT Argument: public Symbol
 {
 public:
-    virtual ~Type();
+    Argument(Function *scope);
 
-    virtual const UndefinedType *asUndefinedType() const { return 0; }
-    virtual const VoidType *asVoidType() const { return 0; }
-    virtual const BoolType *asBoolType() const { return 0; }
-    virtual const IntType *asIntType() const { return 0; }
-    virtual const UIntType *asUIntType() const { return 0; }
-    virtual const FloatType *asFloatType() const { return 0; }
-    virtual const DoubleType *asDoubleType() const { return 0; }
-    virtual const OpaqueType *asOpaqueType() const { return 0; }
-    virtual const VectorType *asVectorType() const { return 0; }
-    virtual const MatrixType *asMatrixType() const { return 0; }
+    QString name() const;
+    void setName(const QString &name);
 
-    virtual const Struct *asStructType() const { return 0; }
-    virtual const Function *asFunctionType() const { return 0; }
+    virtual const Type *type() const;
+    void setType(const Type *type);
 
-    virtual bool isEqualTo(const Type *other) const = 0;
-    virtual bool isLessThan(const Type *other) const = 0;
+    virtual Argument *asArgument() { return this; }
+
+private:
+    QString _name;
+    const Type *_type;
+};
+
+class GLSL_EXPORT Variable: public Symbol
+{
+public:
+    Variable(Scope *scope);
+
+    QString name() const;
+    void setName(const QString &name);
+
+    virtual const Type *type() const;
+    void setType(const Type *type);
+
+    virtual Variable *asVariable() { return this; }
+
+private:
+    QString _name;
+    const Type *_type;
+};
+
+class GLSL_EXPORT Block: public Scope
+{
+public:
+    Block(Scope *enclosingScope = 0);
+
+    void addMember(const QString &name, Symbol *symbol);
+
+    virtual Block *asBlock() { return this; }
+
+    virtual const Type *type() const;
+    virtual Symbol *find(const QString &name) const;
+
+private:
+    QHash<QString, Symbol *> _members;
 };
 
 } // end of namespace GLSL
 
-#endif // GLSLTYPE_H
+#endif // GLSLSYMBOLS_H

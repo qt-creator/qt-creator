@@ -26,36 +26,82 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-#ifndef GLSLTYPE_H
-#define GLSLTYPE_H
 
-#include "glsl.h"
+#include "glsltypes.h"
+#include "glslsymbols.h"
+#include <QtCore/qglobal.h>
 
-namespace GLSL {
+using namespace GLSL;
 
-class GLSL_EXPORT Type
+Argument::Argument(Function *scope)
+    : Symbol(scope)
+    , _type(0)
 {
-public:
-    virtual ~Type();
+}
 
-    virtual const UndefinedType *asUndefinedType() const { return 0; }
-    virtual const VoidType *asVoidType() const { return 0; }
-    virtual const BoolType *asBoolType() const { return 0; }
-    virtual const IntType *asIntType() const { return 0; }
-    virtual const UIntType *asUIntType() const { return 0; }
-    virtual const FloatType *asFloatType() const { return 0; }
-    virtual const DoubleType *asDoubleType() const { return 0; }
-    virtual const OpaqueType *asOpaqueType() const { return 0; }
-    virtual const VectorType *asVectorType() const { return 0; }
-    virtual const MatrixType *asMatrixType() const { return 0; }
+QString Argument::name() const
+{
+    return _name;
+}
 
-    virtual const Struct *asStructType() const { return 0; }
-    virtual const Function *asFunctionType() const { return 0; }
+void Argument::setName(const QString &name)
+{
+    _name = name;
+}
 
-    virtual bool isEqualTo(const Type *other) const = 0;
-    virtual bool isLessThan(const Type *other) const = 0;
-};
+const Type *Argument::type() const
+{
+    return _type;
+}
 
-} // end of namespace GLSL
+void Argument::setType(const Type *type)
+{
+    _type = type;
+}
 
-#endif // GLSLTYPE_H
+Block::Block(Scope *enclosingScope)
+    : Scope(enclosingScope)
+{
+}
+
+void Block::addMember(const QString &name, Symbol *symbol)
+{
+    _members.insert(name, symbol);
+}
+
+const Type *Block::type() const
+{
+    // ### assert?
+    return 0;
+}
+
+Symbol *Block::find(const QString &name) const
+{
+    return _members.value(name);
+}
+
+Variable::Variable(Scope *scope)
+    : Symbol(scope)
+    , _type(0)
+{
+}
+
+QString Variable::name() const
+{
+    return _name;
+}
+
+void Variable::setName(const QString &name)
+{
+    _name = name;
+}
+
+const Type *Variable::type() const
+{
+    return _type;
+}
+
+void Variable::setType(const Type *type)
+{
+    _type = type;
+}
