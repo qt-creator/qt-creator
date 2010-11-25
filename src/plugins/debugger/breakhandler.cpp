@@ -384,6 +384,22 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
     const BreakpointParameters &data = it->data;
     const BreakpointResponse &response = it->response;
 
+    bool orig = false;
+    switch (it->state) {
+        case BreakpointInsertRequested:
+        case BreakpointInsertProceeding:
+        case BreakpointChangeRequested:
+        case BreakpointChangeProceeding:
+        case BreakpointInserted:
+        case BreakpointRemoveRequested:
+        case BreakpointRemoveProceeding:
+            break;
+        case BreakpointNew:
+        case BreakpointDead:
+            orig = true;
+            break;
+    };
+
     switch (mi.column()) {
         case 0:
             if (role == Qt::DisplayRole) {
@@ -435,7 +451,7 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
             break;
         case 4:
             if (role == Qt::DisplayRole)
-                return it->isPending() ? data.condition : response.condition;
+                return orig ? data.condition : response.condition;
             if (role == Qt::ToolTipRole)
                 return tr("Breakpoint will only be hit if this condition is met.");
             if (role == Qt::UserRole + 1)
@@ -444,7 +460,7 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
         case 5:
             if (role == Qt::DisplayRole) {
                 const int ignoreCount =
-                    it->isPending() ? data.ignoreCount : response.ignoreCount;
+                    orig ? data.ignoreCount : response.ignoreCount;
                 return ignoreCount ? QVariant(ignoreCount) : QVariant(QString());
             }
             if (role == Qt::ToolTipRole)
@@ -454,10 +470,9 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
             break;
         case 6:
             if (role == Qt::DisplayRole) {
-                if (it->isPending())
+                if (orig)
                     return !data.threadSpec.isEmpty() ? data.threadSpec : tr("(all)");
-                else
-                    return !response.threadSpec.isEmpty() ? response.threadSpec : tr("(all)");
+                return !response.threadSpec.isEmpty() ? response.threadSpec : tr("(all)");
             }
             if (role == Qt::ToolTipRole)
                 return tr("Breakpoint will only be hit in the specified thread(s).");
@@ -467,8 +482,7 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
         case 7:
             if (role == Qt::DisplayRole) {
                 QString displayValue;
-                const quint64 address =
-                    it->isPending() ? data.address : response.address;
+                const quint64 address = orig ? data.address : response.address;
                 if (address)
                     displayValue += QString::fromAscii("0x%1").arg(address, 0, 16);
                 if (!response.extra.isEmpty()) {
@@ -922,6 +936,9 @@ void BreakHandler::setBreakpointData(BreakpointId id, const BreakpointParameters
     it->destroyMarker();
     updateMarker(id);
     layoutChanged();
+    if (it->state == BreakpointInserted)
+        setState(id, BreakpointChangeRequested);
+    scheduleSynchronization();
 }
 
 //////////////////////////////////////////////////////////////////
