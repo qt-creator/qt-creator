@@ -36,12 +36,12 @@ namespace GLSL {
 class GLSL_EXPORT Semantic: protected Visitor
 {
 public:
-    Semantic();
+    Semantic(Engine *engine);
     virtual ~Semantic();
 
     void expression(ExpressionAST *ast);
     void statement(StatementAST *ast);
-    void type(TypeAST *ast);
+    const Type *type(TypeAST *ast);
     void declaration(DeclarationAST *ast);
     void translationUnit(TranslationUnitAST *ast);
     void functionIdentifier(FunctionIdentifierAST *ast);
@@ -92,6 +92,10 @@ protected:
     virtual bool visit(InvariantDeclarationAST *ast);
     virtual bool visit(InitDeclarationAST *ast);
     virtual bool visit(FunctionDeclarationAST *ast);
+
+private:
+    Engine *_engine;
+    const Type *_type;
 };
 
 } // namespace GLSL

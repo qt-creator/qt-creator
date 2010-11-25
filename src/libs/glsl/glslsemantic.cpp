@@ -28,10 +28,13 @@
 **************************************************************************/
 
 #include "glslsemantic.h"
+#include "glslengine.h"
 
 using namespace GLSL;
 
-Semantic::Semantic()
+Semantic::Semantic(Engine *engine)
+    : _engine(engine)
+    , _type(0)
 {
 }
 
@@ -49,9 +52,13 @@ void Semantic::statement(StatementAST *ast)
     accept(ast);
 }
 
-void Semantic::type(TypeAST *ast)
+const Type *Semantic::type(TypeAST *ast)
 {
+    const Type *t = _engine->undefinedType();
+    std::swap(_type, t);
     accept(ast);
+    std::swap(_type, t);
+    return t;
 }
 
 void Semantic::declaration(DeclarationAST *ast)
@@ -86,14 +93,16 @@ bool Semantic::visit(TranslationUnitAST *ast)
 bool Semantic::visit(FunctionIdentifierAST *ast)
 {
     // ast->name
-    type(ast->type);
+    const Type *ty = type(ast->type);
+    Q_UNUSED(ty);
     return false;
 }
 
 bool Semantic::visit(StructTypeAST::Field *ast)
 {
     // ast->name
-    type(ast->type);
+    const Type *ty = type(ast->type);
+    Q_UNUSED(ty);
     return false;
 }
 
@@ -160,7 +169,8 @@ bool Semantic::visit(FunctionCallExpressionAST *ast)
 
 bool Semantic::visit(DeclarationExpressionAST *ast)
 {
-    type(ast->type);
+    const Type *ty = type(ast->type);
+    Q_UNUSED(ty);
     // ast->name
     expression(ast->initializer);
     return false;
@@ -264,7 +274,8 @@ bool Semantic::visit(NamedTypeAST *ast)
 
 bool Semantic::visit(ArrayTypeAST *ast)
 {
-    type(ast->elementType);
+    const Type *elementType = type(ast->elementType);
+    Q_UNUSED(elementType);
     expression(ast->size);
     return false;
 }
@@ -295,26 +306,30 @@ bool Semantic::visit(QualifiedTypeAST *ast)
 // declarations
 bool Semantic::visit(PrecisionDeclarationAST *ast)
 {
-    type(ast->type);
+    const Type *ty = type(ast->type);
+    Q_UNUSED(ty);
     return false;
 }
 
 bool Semantic::visit(ParameterDeclarationAST *ast)
 {
-    type(ast->type);
+    const Type *ty = type(ast->type);
+    Q_UNUSED(ty);
     return false;
 }
 
 bool Semantic::visit(VariableDeclarationAST *ast)
 {
-    type(ast->type);
+    const Type *ty = type(ast->type);
+    Q_UNUSED(ty);
     expression(ast->initializer);
     return false;
 }
 
 bool Semantic::visit(TypeDeclarationAST *ast)
 {
-    type(ast->type);
+    const Type *ty = type(ast->type);
+    Q_UNUSED(ty);
     return false;
 }
 
@@ -342,7 +357,8 @@ bool Semantic::visit(InitDeclarationAST *ast)
 
 bool Semantic::visit(FunctionDeclarationAST *ast)
 {
-    type(ast->returnType);
+    const Type *returnType = type(ast->returnType);
+    Q_UNUSED(returnType);
     for (List<ParameterDeclarationAST *> *it = ast->params; it; it = it->next) {
         ParameterDeclarationAST *decl = it->value;
         declaration(decl);
