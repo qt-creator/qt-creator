@@ -31,6 +31,7 @@
 #include "outputcallback.h"
 #include "eventcallback.h"
 #include "symbolgroup.h"
+#include "symbolgroupvalue.h"
 #include "stringutils.h"
 #include "gdbmihelpers.h"
 
@@ -220,6 +221,59 @@ extern "C" HRESULT CALLBACK locals(CIDebugClient *client, PCSTR args)
         ExtensionContext::instance().report('N', token, "locals", errorMessage.c_str());
     } else {
         ExtensionContext::instance().report('R', token, "locals", "%s", output.c_str());
+    }
+    return S_OK;
+}
+
+// Extension command 'dumplocal':
+// Dump a local variable using dumpers (testing command).
+
+const char dumpLocalUsageC[] = "Usage: dumplocal <frame> <iname>";
+
+static std::string dumplocalHelper(ExtensionCommandContext &exc,PCSTR args, int *token, std::string *errorMessage)
+{
+    // Parse the command
+    StringList tokens = commandTokens<StringList>(args, token);
+    // Frame and iname
+    unsigned frame;
+    if (tokens.empty() || sscanf(tokens.front().c_str(), "%u", &frame) != 1) {
+        *errorMessage = dumpLocalUsageC;
+        return std::string();
+    }
+    tokens.pop_front();
+    if (tokens.empty()) {
+        *errorMessage = dumpLocalUsageC;
+        return std::string();
+    }
+    const std::string iname = tokens.front();
+
+    SymbolGroup * const symGroup = ExtensionContext::instance().symbolGroup(exc.symbols(), exc.threadId(), frame, errorMessage);
+    if (!symGroup)
+        return std::string();
+
+    SymbolGroupNode *n = symGroup->find(iname);
+    if (!n) {
+        *errorMessage = "No such iname " + iname;
+        return std::string();
+    }
+    std::wstring value;
+    if (!dumpSimpleType(n, SymbolGroupValueContext(exc.dataSpaces()), &value)) {
+        *errorMessage = "Cannot dump " + iname;
+        return std::string();
+    }
+    return wStringToString(value);
+}
+
+extern "C" HRESULT CALLBACK dumplocal(CIDebugClient *client, PCSTR  argsIn)
+{
+    ExtensionCommandContext exc(client);
+    std::string errorMessage;
+    int token = 0;
+    const std::string value = dumplocalHelper(exc,argsIn, &token, &errorMessage);
+    if (value.empty()) {
+        ExtensionContext::instance().report('N', token, "dumplocal", errorMessage.c_str());
+    } else {
+        ExtensionContext::instance().report('R', token, "dumplocal", value.c_str());
     }
     return S_OK;
 }

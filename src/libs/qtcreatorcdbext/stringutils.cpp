@@ -97,6 +97,15 @@ void replace(std::wstring &s, wchar_t before, wchar_t after)
             s[i] = after;
 }
 
+bool endsWith(const std::string &haystack, const char *needle)
+{
+    const size_t needleLen = strlen(needle);
+    const size_t haystackLen = haystack.size();
+    if (needleLen > haystackLen)
+        return false;
+    return haystack.compare(haystackLen - needleLen, needleLen, needle) == 0;
+}
+
 static inline void formatGdbmiChar(std::ostream &str, wchar_t c)
 {
     switch (c) {
@@ -161,6 +170,18 @@ std::string wStringToString(const std::wstring &w)
     rc.reserve(size);
     for (std::string::size_type i = 0; i < size; i++)
         rc.push_back(char(w.at(i)));
+    return rc;
+}
+
+std::wstring stringToWString(const std::string &w)
+{
+    if (w.empty())
+        return std::wstring();
+    const std::wstring::size_type size = w.size();
+    std::wstring rc;
+    rc.reserve(size);
+    for (std::wstring::size_type i = 0; i < size; i++)
+        rc.push_back(w.at(i));
     return rc;
 }
 

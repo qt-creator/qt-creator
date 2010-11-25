@@ -781,6 +781,15 @@ void BreakHandler::loadSessionData()
     loadBreakpoints();
 }
 
+void BreakHandler::removeSessionData()
+{
+    Iterator it = m_storage.begin(), et = m_storage.end();
+    for ( ; it != et; ++it)
+        it->destroyMarker();
+    m_storage.clear();
+    layoutChanged();
+}
+
 void BreakHandler::breakByFunction(const QString &functionName)
 {
     // One breakpoint per function is enough for now. This does not handle
@@ -801,7 +810,9 @@ void BreakHandler::breakByFunction(const QString &functionName)
 QIcon BreakHandler::icon(BreakpointId id) const
 {
     ConstIterator it = m_storage.find(id);
-    QTC_ASSERT(it != m_storage.end(), return pendingBreakPointIcon());
+    QTC_ASSERT(it != m_storage.end(),
+        qDebug() << "NO ICON FOR ID" << id;
+        return pendingBreakPointIcon());
     return it->icon();
 }
 

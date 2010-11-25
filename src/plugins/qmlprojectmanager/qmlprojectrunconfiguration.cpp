@@ -336,11 +336,13 @@ void QmlProjectRunConfiguration::onViewerArgsChanged()
 void QmlProjectRunConfiguration::useCppDebuggerToggled(bool toggled)
 {
     setUseCppDebugger(toggled);
+    updateEnabled();
 }
 
 void QmlProjectRunConfiguration::useQmlDebuggerToggled(bool toggled)
 {
     setUseQmlDebugger(toggled);
+    updateEnabled();
 }
 
 void QmlProjectRunConfiguration::qmlDebugServerPortChanged(uint port)

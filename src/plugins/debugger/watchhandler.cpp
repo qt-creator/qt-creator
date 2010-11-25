@@ -1212,8 +1212,8 @@ QByteArray WatchHandler::watcherName(const QByteArray &exp)
 void WatchHandler::watchExpression(const QString &exp)
 {
     QTC_ASSERT(m_engine, return);
-    // Do not insert multiple placeholders.
-    if (exp.isEmpty() && m_watcherNames.contains(QByteArray()))
+    // Do not insert the same entry more then once.
+    if (m_watcherNames.value(exp.toLatin1()))
         return;
 
     // FIXME: 'exp' can contain illegal characters
@@ -1343,38 +1343,17 @@ void WatchHandler::removeWatchExpression(const QString &exp0)
         if (item->exp == exp) {
             m_watchers->destroyItem(item);
             saveWatchers();
+            updateWatchersWindow();
+            emitAllChanged();
             break;
         }
     }
-    emitAllChanged();
-    updateWatchersWindow();
 }
 
 void WatchHandler::updateWatchersWindow()
 {
     // Force show/hide of watchers and return view.
     debuggerCore()->updateWatchersWindow();
-}
-
-void WatchHandler::updateWatchers()
-{
-    // Copy over all watchers and mark all watchers as incomplete.
-    foreach (const QByteArray &exp, m_watcherNames.keys()) {
-        WatchData data;
-        data.iname = watcherName(exp);
-        data.setAllNeeded();
-        data.name = exp;
-        data.exp = exp;
-        insertData(data);
-    }
-}
-
-void WatchHandler::loadWatchers()
-{
-    m_watcherNames.clear();
-    QVariant value = debuggerCore()->sessionValue("Watchers");
-    foreach (const QString &exp, value.toStringList())
-        watchExpression(exp);
 }
 
 QStringList WatchHandler::watchedExpressions()
@@ -1432,16 +1411,26 @@ void WatchHandler::saveSessionData()
 
 void WatchHandler::loadSessionData()
 {
-    loadWatchers();
     loadTypeFormats();
+    m_watcherNames.clear();
+    QVariant value = debuggerCore()->sessionValue("Watchers");
+    foreach (WatchItem *item, m_watchers->rootItem()->children)
+        m_watchers->destroyItem(item);
+    foreach (const QString &exp, value.toStringList())
+        watchExpression(exp);
+    updateWatchersWindow();
+    emitAllChanged();
 }
 
-void WatchHandler::synchronizeWatchers()
+void WatchHandler::updateWatchers()
 {
+    foreach (WatchItem *item, m_watchers->rootItem()->children)
+        m_watchers->destroyItem(item);
+    // Copy over all watchers and mark all watchers as incomplete.
     foreach (const QByteArray &exp, m_watcherNames.keys()) {
         WatchData data;
         data.iname = watcherName(exp);
-        data.setAllUnneeded();
+        data.setAllNeeded();
         data.name = exp;
         data.exp = exp;
         insertData(data);

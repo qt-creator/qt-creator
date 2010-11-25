@@ -63,6 +63,8 @@ std::string toString(const Streamable s)
     return str.str();
 }
 
+bool endsWith(const std::string &haystack, const char *needle);
+
 // Read an integer from a string as '10' or '0xA'
 template <class Integer>
 bool integerFromString(const std::string &s, Integer *v)
@@ -115,6 +117,7 @@ inline std::ostream &operator<<(std::ostream &str, const gdbmiWStringFormat &wsf
 
 std::string wStringToGdbmiString(const std::wstring &w);
 std::string wStringToString(const std::wstring &w);
+std::wstring stringToWString(const std::string &w);
 
 // Format a map as a GDBMI hash {key="value",..}
 void formatGdbmiHash(std::ostream &os, const std::map<std::string, std::string> &);

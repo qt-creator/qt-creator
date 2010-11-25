@@ -61,6 +61,7 @@ public:
 
     void loadSessionData();
     void saveSessionData();
+    void removeSessionData();
 
     QAbstractItemModel *model() { return this; }
 
