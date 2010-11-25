@@ -3,6 +3,7 @@
     <type name="QmlProject.Project">
         <exports>
             <export module="QmlProject" version="1.0" type="Project"/>
+            <export module="QmlProject" version="1.1" type="Project"/>
         </exports>
         <property name="sourceDirectory" type="string"/>
         <property name="importPaths" type="string" isList="true"/>
@@ -19,24 +20,34 @@
     <type name="QmlProject.QmlFiles" extends="FileFilterBaseItem">
         <exports>
             <export module="QmlProject" version="1.0" type="QmlFiles"/>
+            <export module="QmlProject" version="1.1" type="QmlFiles"/>
         </exports>
     </type>
     <type name="QmlProject.JavaScriptFiles" extends="FileFilterBaseItem">
         <exports>
             <export module="QmlProject" version="1.0" type="JavaScriptFiles"/>
+            <export module="QmlProject" version="1.1" type="JavaScriptFiles"/>
         </exports>
 	<property name="filter" type="string"/>
     </type>
     <type name="QmlProject.ImageFiles" extends="FileFilterBaseItem">
         <exports>
             <export module="QmlProject" version="1.0" type="ImageFiles"/>
+            <export module="QmlProject" version="1.1" type="ImageFiles"/>
         </exports>
 	<property name="filter" type="string"/>
     </type>
     <type name="QmlProject.CssFiles" extends="FileFilterBaseItem">
         <exports>
             <export module="QmlProject" version="1.0" type="CssFiles"/>
+            <export module="QmlProject" version="1.1" type="CssFiles"/>
         </exports>
 	<property name="filter" type="string"/>
+    </type>
+    <type name="QmlProject.Files" extends="FileFilterBaseItem">
+        <exports>
+            <export module="QmlProject" version="1.1" type="Files"/>
+        </exports>
+        <property name="filter" type="string"/>
     </type>
 </module>

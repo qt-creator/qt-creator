@@ -131,11 +131,25 @@ public:
     CssFileFilterItem(QObject *parent = 0);
 };
 
+class OtherFileFilterItem : public FileFilterBaseItem {
+    Q_OBJECT
+    Q_PROPERTY(QString filter READ filter WRITE setFilter NOTIFY filterChanged)
+
+    void setFilter(const QString &filter);
+
+signals:
+    void filterChanged();
+
+public:
+    OtherFileFilterItem(QObject *parent = 0);
+};
+
 } // namespace QmlProjectManager
 
 QML_DECLARE_TYPE(QmlProjectManager::QmlFileFilterItem)
 QML_DECLARE_TYPE(QmlProjectManager::JsFileFilterItem)
 QML_DECLARE_TYPE(QmlProjectManager::ImageFileFilterItem)
 QML_DECLARE_TYPE(QmlProjectManager::CssFileFilterItem)
+QML_DECLARE_TYPE(QmlProjectManager::OtherFileFilterItem)
 
 #endif // FILEFILTERITEMS_HPROJECTITEM_H

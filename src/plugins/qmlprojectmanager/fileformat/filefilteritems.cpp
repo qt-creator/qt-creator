@@ -296,5 +296,16 @@ void CssFileFilterItem::setFilter(const QString &filter)
     emit filterChanged();
 }
 
+OtherFileFilterItem::OtherFileFilterItem(QObject *parent)
+    : FileFilterBaseItem(parent)
+{
+}
+
+void OtherFileFilterItem::setFilter(const QString &filter)
+{
+    FileFilterBaseItem::setFilter(filter);
+    emit filterChanged();
+}
+
 } // namespace QmlProjectManager
 
