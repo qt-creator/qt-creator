@@ -1004,7 +1004,7 @@ public: // attributes
     List<Declaration *> *decls;
 };
 
-class FunctionDeclaration : public Declaration
+class GLSL_EXPORT FunctionDeclaration : public Declaration
 {
 public:
     FunctionDeclaration(Type *_returnType, const QString *_name)
