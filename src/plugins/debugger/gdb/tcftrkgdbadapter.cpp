@@ -242,7 +242,7 @@ void TcfTrkGdbAdapter::handleTcfTrkRunControlModuleLoadContextSuspendedEvent(con
 
 	    const QByteArray symbolFile = m_symbolFile.toLocal8Bit();
             if (symbolFile.isEmpty()) {
-                logMessage(_("WARNING: No symbol file available."), LogWarning);
+                logMessage(_("WARNING: No symbol file available."), LogError);
             } else {
                 // Does not seem to be necessary anymore.
                 // FIXME: Startup sequence can be streamlined now as we do not

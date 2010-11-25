@@ -251,18 +251,18 @@ QString S60DeviceRunConfiguration::symbianTarget() const
     return isDebug() ? QLatin1String("udeb") : QLatin1String("urel");
 }
 
-QString S60DeviceRunConfiguration::symbianPlatform() const
+static inline QString symbianPlatformForToolChain(ProjectExplorer::ToolChain::ToolChainType t)
 {
-    const Qt4BuildConfiguration *qt4bc = qt4Target()->activeBuildConfiguration();
-    switch (qt4bc->toolChainType()) {
-    case ToolChain::GCCE:
-    case ToolChain::GCCE_GNUPOC:
+    switch (t) {
+    case ProjectExplorer::ToolChain::GCCE:
+    case ProjectExplorer::ToolChain::GCCE_GNUPOC:
         return QLatin1String("gcce");
-    case ToolChain::RVCT_ARMV5:
+    case ProjectExplorer::ToolChain::RVCT_ARMV5:
         return QLatin1String("armv5");
-    default: // including ToolChain::RVCT_ARMV6_GNUPOC:
-        return QLatin1String("armv6");
+    default: // including ProjectExplorer::RVCT_ARMV6_GNUPOC:
+        break;
     }
+    return QLatin1String("armv6");
 }
 
 /* Grep a package file for the '.exe' file. Curently for use on Linux only
@@ -293,29 +293,52 @@ static inline QString executableFromPackageUnix(const QString &packageFileName)
     return QString();
 }
 
+// ABLD/Raptor: Return executable from device/EPOC
+static inline QString localExecutableFromDevice(const QtVersion *qtv,
+                                                const QString &symbianTarget, /* udeb/urel */
+                                                const QString &targetName,
+                                                ProjectExplorer::ToolChain::ToolChainType t)
+{
+    QTC_ASSERT(qtv, return QString(); )
+
+            const S60Devices::Device device = S60Manager::instance()->deviceForQtVersion(qtv);
+    QString localExecutable;
+    QTextStream(&localExecutable) << device.epocRoot << "/epoc32/release/"
+                                  << symbianPlatformForToolChain(t)
+                                  << '/' << symbianTarget << '/' << targetName
+                                  << ".exe";
+    return localExecutable;
+}
+
 QString S60DeviceRunConfiguration::localExecutableFileName() const
 {
-    QString localExecutable;
-    switch (toolChainType()) {
+    const ProjectExplorer::ToolChain::ToolChainType toolChain = toolChainType();
+    switch (toolChain) {
     case ToolChain::GCCE_GNUPOC:
     case ToolChain::RVCT_ARMV5_GNUPOC: {
         TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()->targetInformation(projectFilePath());
         if (!ti.valid)
             return QString();
-        localExecutable = executableFromPackageUnix(ti.buildDir + QLatin1Char('/') + ti.target + QLatin1String("_template.pkg"));
-        }
+        return executableFromPackageUnix(ti.buildDir + QLatin1Char('/') + ti.target + QLatin1String("_template.pkg"));
+    }
         break;
-    default: {
-            const QtVersion *qtv = qtVersion();
-            QTC_ASSERT(qtv, return QString());
-            const S60Devices::Device device = S60Manager::instance()->deviceForQtVersion(qtv);
-            QTextStream(&localExecutable) << device.epocRoot << "/epoc32/release/"
-                    << symbianPlatform() << '/' << symbianTarget() << '/' << targetName()
-                    << ".exe";
-        }
+    case ProjectExplorer::ToolChain::RVCT_ARMV5:
+    case ProjectExplorer::ToolChain::RVCT_ARMV6:
+        return localExecutableFromDevice(qtVersion(), symbianTarget(), targetName(), toolChain);
+        break;
+    case ProjectExplorer::ToolChain::GCCE: {
+        // As of 4.7.0, qmake-gcce-Raptor builds were changed to put all executables into 'armv5'
+        const QtVersion *qtv = qtVersion();
+        QTC_ASSERT(qtv, return QString(); )
+        return qtv->isBuildWithSymbianSbsV2() ?
+            localExecutableFromDevice(qtv, symbianTarget(), targetName(), ProjectExplorer::ToolChain::RVCT_ARMV5) :
+            localExecutableFromDevice(qtv, symbianTarget(), targetName(), toolChain);
+    }
+        break;
+    default:
         break;
     }
-    return QDir::toNativeSeparators(localExecutable);
+    return QString();
 }
 
 quint32 S60DeviceRunConfiguration::executableUid() const
@@ -703,6 +726,25 @@ static inline QString localExecutable(const S60DeviceRunConfiguration *rc)
     return QString();
 }
 
+// Return symbol file which should co-exist with the executable.
+// location in debug builds. This can be 'foo.sym' (ABLD) or 'foo.exe.sym' (Raptor)
+static inline QString symbolFileFromExecutable(const QString &executable)
+{
+    // 'foo.exe.sym' (Raptor)
+    const QFileInfo raptorSymFi(executable + QLatin1String(".sym"));
+    if (raptorSymFi.isFile())
+        return raptorSymFi.absoluteFilePath();
+    // 'foo.sym' (ABLD)
+    const int lastDotPos = executable.lastIndexOf(QLatin1Char('.'));
+    if (lastDotPos != -1) {
+        const QString symbolFileName = executable.mid(0, lastDotPos) + QLatin1String(".sym");
+        const QFileInfo symbolFileNameFi(symbolFileName);
+        if (symbolFileNameFi.isFile())
+            return symbolFileNameFi.absoluteFilePath();
+    }
+    return QString();
+}
+
 // Create start parameters from run configuration
 Debugger::DebuggerStartParameters S60DeviceDebugRunControl::s60DebuggerStartParams(const S60DeviceRunConfiguration *rc)
 {
@@ -724,15 +766,8 @@ Debugger::DebuggerStartParameters S60DeviceDebugRunControl::s60DebuggerStartPara
     QTC_ASSERT(sp.executableUid, return sp);
 
     // Prefer the '*.sym' file over the '.exe', which should exist at the same
-    // location in debug builds
-    const QString localExecutableFileName = localExecutable(rc);
-    const int lastDotPos = localExecutableFileName.lastIndexOf(QLatin1Char('.'));
-    if (lastDotPos != -1) {
-        const QString symbolFileName = localExecutableFileName.mid(0, lastDotPos) + QLatin1String(".sym");
-        if (QFileInfo(symbolFileName).isFile())
-            sp.symbolFileName = symbolFileName;
-    }
-
+    // location in debug builds. This can be 'foo.exe' (ABLD) or 'foo.exe.sym' (Raptor)
+    sp.symbolFileName = symbolFileFromExecutable(localExecutable(rc));
     return sp;
 }
 

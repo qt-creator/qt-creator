@@ -93,7 +93,6 @@ public:
 
     bool isDebug() const;
     QString symbianTarget() const;
-    QString symbianPlatform() const;
 
     QVariantMap toMap() const;
 
