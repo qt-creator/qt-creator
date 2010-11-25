@@ -430,6 +430,11 @@ void NodeInstanceView::importAdded(const Import &import)
     nodeInstanceServer()->addImport(createImportCommand(import));
 }
 
+void NodeInstanceView::importRemoved(const Import &/*import*/)
+{
+    restartProcess();
+}
+
 //\}
 
 

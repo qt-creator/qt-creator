@@ -94,6 +94,7 @@ public:
     void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
     void instancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList);
     void importAdded(const Import &import);
+    void importRemoved(const Import &import);
 
     QList<NodeInstance> instances() const;
     NodeInstance instanceForNode(const ModelNode &node) const ;
