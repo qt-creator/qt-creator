@@ -326,43 +326,26 @@ void PdbEngine::selectThread(int index)
     Q_UNUSED(index)
 }
 
-void PdbEngine::attemptBreakpointSynchronization()
+bool PdbEngine::acceptsBreakpoint(BreakpointId id) const
+{
+    const QString fileName = breakHandler()->fileName(id);
+    return fileName.endsWith(QLatin1String(".py"));
+}
+
+void PdbEngine::insertBreakpoint(BreakpointId id)
 {
     BreakHandler *handler = breakHandler();
-    //qDebug() << "ATTEMPT BP SYNC";
-    bool updateNeeded = false;
-    foreach (BreakpointId id, handler->engineBreakpointIds(this)) {
-        if (handler->state(id) == BreakpointInsertRequested) {
-            handler->notifyBreakpointInsertOk(id);
-            updateNeeded = true;
+    QTC_ASSERT(handler->state(id) == BreakpointInsertRequested, /**/);
+    handler->notifyBreakpointInsertProceeding(id);
 
-            QByteArray loc;
-            if (!handler->functionName(id).isEmpty())
-                loc = handler->functionName(id).toLatin1();
-            // The argument is simply a C-quoted version of the argument to the
-            // non-MI "break" command, including the "original" quoting it wants.
-            //return "\"\\\"" + GdbMi::escapeCString(data->fileName).toLocal8Bit()
-            // + "\\\":" + data->lineNumber + '"';
-            else 
-                loc = handler->fileName(id).toLocal8Bit() + ':'
-                 + QByteArray::number(handler->lineNumber(id));
+    QByteArray loc;
+    if (handler->type(id) == BreakpointByFunction)
+        loc = handler->functionName(id).toLatin1();
+    else
+        loc = handler->fileName(id).toLocal8Bit() + ':'
+         + QByteArray::number(handler->lineNumber(id));
 
-            postCommand("break " + loc, CB(handleBreakInsert), QVariant(id));
-        }
-/*
-        if (data->bpNumber.isEmpty()) {
-            data->bpNumber = QByteArray::number(index + 1);
-            updateNeeded = true;
-        }
-        if (!data->fileName.isEmpty() && data->markerFileName().isEmpty()) {
-            data->setMarkerFileName(data->fileName);
-            data->setMarkerLineNumber(data->lineNumber.toInt());
-            updateNeeded = true;
-        }
-*/
-    }
-    //if (updateNeeded)
-    //    handler->updateMarkers();
+    postCommand("break " + loc, CB(handleBreakInsert), QVariant(id));
 }
 
 void PdbEngine::handleBreakInsert(const PdbResponse &response)
@@ -383,6 +366,19 @@ void PdbEngine::handleBreakInsert(const PdbResponse &response)
     br.fileName = _(file);
     br.lineNumber = line.toInt();
     handler->setResponse(id, br);
+}
+
+void PdbEngine::removeBreakpoint(BreakpointId id)
+{
+    BreakHandler *handler = breakHandler();
+    QTC_ASSERT(handler->state(id) == BreakpointRemoveRequested, /**/);
+    handler->notifyBreakpointRemoveProceeding(id);
+    BreakpointResponse br = handler->response(id);
+    showMessage(_("DELETING BP %1 IN %2").arg(br.number)
+        .arg(handler->fileName(id)));
+    postCommand("clear " + QByteArray::number(br.number));
+    // Pretend it succeeds without waiting for response.
+    handler->notifyBreakpointRemoveOk(id);
 }
 
 void PdbEngine::loadSymbols(const QString &moduleName)

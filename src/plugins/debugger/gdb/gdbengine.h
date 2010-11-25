@@ -302,7 +302,6 @@ private: ////////// Gdb Output, State & Capability Handling //////////
 private: ////////// Inferior Management //////////
 
     // This should be always the last call in a function.
-    //Q_SLOT virtual void attemptBreakpointSynchronization();
     bool stateAcceptsBreakpointChanges() const;
     bool acceptsBreakpoint(BreakpointId id) const;
     void insertBreakpoint(BreakpointId id);

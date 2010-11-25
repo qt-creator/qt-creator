@@ -2156,25 +2156,22 @@ QByteArray GdbEngine::breakpointLocation(BreakpointId id)
         return "__cxa_begin_catch";
     if (data.type == BreakpointAtMain)
 #ifdef Q_OS_WIN
+        // FIXME: Should be target specific.
         return "qMain";
 #else
         return "main";
 #endif
-    const QByteArray functionName = data.functionName.toUtf8();
-    if (!functionName.isEmpty())
-        return functionName;
-    if (const quint64 address = data.address)
-        return addressSpec(address);
-    // In this case, data->funcName is something like '*0xdeadbeef'
-    const int lineNumber = data.lineNumber;
-    if (lineNumber == 0)
-        return functionName;
+    if (data.type == BreakpointByFunction)
+        return data.functionName.toUtf8();
+    if (data.type == BreakpointByAddress)
+        return addressSpec(data.address);
+
     const QString fileName = data.useFullPath
         ? data.fileName : breakLocation(data.fileName);
     // The argument is simply a C-quoted version of the argument to the
     // non-MI "break" command, including the "original" quoting it wants.
     return "\"\\\"" + GdbMi::escapeCString(fileName).toLocal8Bit() + "\\\":"
-        + QByteArray::number(lineNumber) + '"';
+        + QByteArray::number(data.lineNumber) + '"';
 }
 
 void GdbEngine::handleWatchInsert(const GdbResponse &response)
@@ -2211,7 +2208,7 @@ void GdbEngine::attemptAdjustBreakpointLocation(BreakpointId id)
 
 void GdbEngine::handleBreakInsert1(const GdbResponse &response)
 {
-    const int id = response.cookie.toInt();
+    BreakpointId id(response.cookie.toInt());
     if (response.resultClass == GdbResultDone) {
         // Interesting only on Mac?
         GdbMi bkpt = response.data.findChild("bkpt");
@@ -2695,8 +2692,8 @@ void GdbEngine::removeBreakpoint(BreakpointId id)
     QTC_ASSERT(handler->state(id) == BreakpointRemoveRequested, /**/);
     handler->notifyBreakpointRemoveProceeding(id);
     BreakpointResponse br = handler->response(id);
-    showMessage(_("DELETING BP %1 IN ").arg(br.number)
-        + handler->fileName(id));
+    showMessage(_("DELETING BP %1 IN %2").arg(br.number)
+        .arg(handler->fileName(id)));
     postCommand("-break-delete " + QByteArray::number(br.number),
         NeedsStop | RebuildBreakpointModel);
     // Pretend it succeeds without waiting for response. Feels better.

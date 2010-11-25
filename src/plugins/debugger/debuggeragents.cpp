@@ -457,6 +457,8 @@ void DisassemblerViewAgent::updateBreakpointMarkers()
         if (!address)
             continue;
         const int lineNumber = contents.lineForAddress(address);
+        if (!lineNumber)
+            continue;
         BreakpointMarker2 *marker = new BreakpointMarker2(handler->icon(id));
         d->breakpointMarks.append(marker);
         d->editor->markableInterface()->addMark(marker, lineNumber);

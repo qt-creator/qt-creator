@@ -1539,7 +1539,9 @@ QVariant testQVariant2()
     *(QString*)value.data() = QString("XXX");
 
     int i = 1;
-    Q_UNUSED(i);
+    ++i;
+    ++i;
+    ++i;
 #if 1
     QVariant var;
     var.setValue(1);

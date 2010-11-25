@@ -88,9 +88,12 @@ private:
     void activateFrame(int index);
     void selectThread(int index);
 
-    void attemptBreakpointSynchronization();
+    bool acceptsBreakpoint(BreakpointId id) const;
+    void insertBreakpoint(BreakpointId id);
+    void removeBreakpoint(BreakpointId id);
 
-    void assignValueInDebugger(const Internal::WatchData *w, const QString &expr, const QVariant &value);
+    void assignValueInDebugger(const WatchData *data,
+        const QString &expr, const QVariant &value);
     void executeDebuggerCommand(const QString &command);
 
     void loadSymbols(const QString &moduleName);
