@@ -81,6 +81,7 @@ void MainWindow::simpleBP(int inc, const QString &inx)
     QString x = "h\"allo";
     QString *xp = &x;
     qDebug() << inc << inx << *xp;
+    Q_UNUSED(array)
 }
 
 void MainWindow::on_actionDialog_triggered()
@@ -148,6 +149,22 @@ void MainWindow::complexBP(int *inc, QString inx)
 
     qDebug() << inc << inx << dir.absoluteFilePath();
     //statusBar()->showMessage(x);
+    Q_UNUSED(cc)
+    Q_UNUSED(np)
+    Q_UNUSED(c)
+    Q_UNUSED(uc)
+    Q_UNUSED(s)
+    Q_UNUSED(us)
+    Q_UNUSED(ip)
+    Q_UNUSED(ipc)
+    Q_UNUSED(ui)
+    Q_UNUSED(l)
+    Q_UNUSED(ul)
+    Q_UNUSED(i64)
+    Q_UNUSED(iu64)
+    Q_UNUSED(r)
+    Q_UNUSED(d)
+    Q_UNUSED(xr)
 }
 
 void MainWindow::on_actionCrash_triggered()
@@ -305,6 +322,7 @@ void MainWindow::on_actionExtTypes_triggered()
     stringSet.insert("S1");
     stringSet.insert("S2");
     qDebug() << *(spsl.front()) << hidden;
+    Q_UNUSED(wwr)
 }
 
 void MainWindow::on_actionForeach_triggered()
@@ -329,10 +347,12 @@ void Foo::MainWindow::on_actionScopes_triggered()
     int x = 0;
     if (x == 0) {
         int x = 1;
+        Q_UNUSED(x)
     } else {
         int x = 2;
+        Q_UNUSED(x)
     }
-    qDebug() << x;
+    qDebug() << x;    
 }
 
 void Foo::MainWindow::on_actionLongString_triggered()
@@ -343,4 +363,19 @@ void Foo::MainWindow::on_actionLongString_triggered()
         s += incr;
         qDebug() <<s;
     }
+
+}
+
+void Foo::MainWindow::on_actionStdTypes_triggered()
+{
+    std::string stdString = "s";
+    std::wstring stdWString = L"ws";
+    std::map<std::string, std::string> stdStringStringMap;
+    stdStringStringMap.insert(std::map<std::string, std::string>::value_type(stdString, stdString));
+    std::map<std::wstring, std::wstring> stdStringWStringMap;
+    stdStringWStringMap.insert(std::map<std::wstring, std::wstring>::value_type(stdWString, stdWString));
+    std::set<std::string> stringSet;
+    std::list<std::string> stringList;
+    std::vector<std::string> stringVector(1, "bla");
+    std::vector<std::wstring> wStringVector(1, L"bla");
 }
