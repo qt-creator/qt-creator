@@ -32,6 +32,9 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskwindow.h>
 
+
+#include <QDebug>
+
 using namespace Qt4ProjectManager::Internal;
 
 S60CreatePackageParser::S60CreatePackageParser(const QString &packageName) :
@@ -39,8 +42,9 @@ S60CreatePackageParser::S60CreatePackageParser(const QString &packageName) :
     m_needPassphrase(false)
 {
     setObjectName(QLatin1String("S60CreatePackageParser"));
-    m_signSis.setPattern("^(error:\\s?)+(.+)$");
+    m_signSis.setPattern("^\\s*(error\\s?:\\s?)+(.+)$");
     m_signSis.setMinimal(true);
+    m_signSis.setCaseSensitivity(Qt::CaseInsensitive);
 }
 
 bool S60CreatePackageParser::parseLine(const QString &line)
@@ -72,11 +76,20 @@ bool S60CreatePackageParser::parseLine(const QString &line)
     }
 
     if (m_signSis.indexIn(line) > -1) {
-        if (m_signSis.cap(2).contains(QLatin1String("bad password"))
-            || m_signSis.cap(2).contains(QLatin1String("bad decrypt")))
+        QString errorMessage(m_signSis.cap(2));
+        if (errorMessage.contains(QLatin1String("bad password"))
+            || errorMessage.contains(QLatin1String("bad decrypt")))
             m_needPassphrase = true;
+        else if (errorMessage.contains(QLatin1String("Cannot open file"))
+                 && errorMessage.contains(QLatin1String("smartinstaller")))
+            emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error,
+                                               tr("Cannot create Smart Installer package "
+                                                  "as the Smart Installer's base file is missing. "
+                                                  "Please ensure that it is located in the SDK."),
+                                               QString(), -1,
+                                               ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
         else
-            emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error, m_signSis.cap(2), QString(), -1,
+            emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error, errorMessage, QString(), -1,
                                                ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
         return true;
     }
