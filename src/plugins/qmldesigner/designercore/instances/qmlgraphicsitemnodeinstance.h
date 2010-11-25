@@ -85,7 +85,10 @@ private: //variables
     bool m_hasHeight;
     bool m_hasWidth;
     bool m_isResizable;
-
+    double m_x;
+    double m_y;
+    double m_width;
+    double m_height;
 };
 
 }
