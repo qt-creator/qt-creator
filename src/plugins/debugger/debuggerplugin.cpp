@@ -977,7 +977,7 @@ public slots:
         for (int i = 0, n = m_snapshotHandler->size(); i != n; ++i) {
             if (DebuggerRunControl *runControl = m_snapshotHandler->at(i)) {
                 DebuggerEngine *engine = runControl->engine();
-                engine->watchHandler()->synchronizeWatchers();
+                engine->watchHandler()->updateWatchers();
             }
         }
     }
@@ -3000,11 +3000,11 @@ void DebuggerPluginPrivate::sessionLoaded()
 {
     m_breakHandler->loadSessionData();
     dummyEngine()->watchHandler()->loadSessionData();
-    synchronizeWatchers();
 }
 
 void DebuggerPluginPrivate::aboutToUnloadSession()
 {
+    m_breakHandler->removeSessionData();
     // Stop debugging the active project when switching sessions.
     // Note that at startup, session switches may occur, which interfere
     // with command-line debugging startup.

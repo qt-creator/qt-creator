@@ -182,7 +182,6 @@ public:
 private:
     friend class WatchModel;
 
-    void loadWatchers();
     void saveWatchers();
     static void loadTypeFormats();
     static void saveTypeFormats();
