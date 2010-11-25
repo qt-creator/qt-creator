@@ -269,7 +269,8 @@ PropertyEditor::PropertyEditor(QWidget *parent) :
         m_timerId(0),
         m_stackedWidget(new StackedWidget(parent)),
         m_currentType(0),
-        m_locked(false)
+        m_locked(false),
+        m_setupCompleted(false)
 {
     m_updateShortcut = new QShortcut(QKeySequence("F5"), m_stackedWidget);
     connect(m_updateShortcut, SIGNAL(activated()), this, SLOT(reloadQml()));
@@ -334,7 +335,6 @@ void PropertyEditor::setupPane(const QString &typeName)
         type->initialSetup(typeName, qmlSpecificsFile, this);
         ctxt->setContextProperty("finishedNotify", QVariant(true) );
     }
-    m_stackedWidget->setCurrentWidget(type->m_view);
 }
 
 void PropertyEditor::changeValue(const QString &propertyName)
@@ -499,6 +499,22 @@ void PropertyEditor::updateSize()
     QWidget* frame = m_currentType->m_view->findChild<QWidget*>("propertyEditorFrame");
     if (frame)
         frame->resize(m_stackedWidget->size());
+}
+
+void PropertyEditor::setupPanes()
+{
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    setupPane("Qt/Rectangle");
+    QApplication::processEvents();
+    setupPane("Qt/Text");
+    QApplication::processEvents();
+    setupPane("Qt/TextInput");
+    QApplication::processEvents();
+    setupPane("Qt/TextEdit");
+    QApplication::processEvents();
+    resetView();
+    m_setupCompleted = true;
+    QApplication::restoreOverrideCursor();
 }
 
 void PropertyEditor::otherPropertyChanged(const QmlObjectNode &fxObjectNode, const QString &propertyName)
@@ -723,11 +739,9 @@ void PropertyEditor::modelAttached(Model *model)
 
     m_locked = true;
 
-    setupPane("Qt/Rectangle");
-    setupPane("Qt/Text");
-    setupPane("Qt/TextInput");
-    setupPane("Qt/TextEdit");
     resetView();
+    if (!m_setupCompleted)
+        QTimer::singleShot(1000, this, SLOT(setupPanes()));
 
     m_locked = false;
 }
