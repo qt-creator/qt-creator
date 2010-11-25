@@ -901,7 +901,7 @@ public: // attributes
     Type *type;
 };
 
-class ParameterDeclaration: public Declaration
+class GLSL_EXPORT ParameterDeclaration: public Declaration
 {
 public:
     enum Qualifier
@@ -925,7 +925,7 @@ public: // attributes
     const QString *name;
 };
 
-class VariableDeclaration: public Declaration
+class GLSL_EXPORT VariableDeclaration: public Declaration
 {
 public:
     VariableDeclaration(Type *_type, const QString *_name,
@@ -945,7 +945,7 @@ public: // attributes
     Expression *initializer;
 };
 
-class TypeDeclaration: public Declaration
+class GLSL_EXPORT TypeDeclaration: public Declaration
 {
 public:
     TypeDeclaration(Type *_type)
@@ -959,7 +959,7 @@ public: // attributes
     Type *type;
 };
 
-class TypeAndVariableDeclaration: public Declaration
+class GLSL_EXPORT TypeAndVariableDeclaration: public Declaration
 {
 public:
     TypeAndVariableDeclaration(TypeDeclaration *_typeDecl,
@@ -976,7 +976,7 @@ public: // attributes
     VariableDeclaration *varDecl;
 };
 
-class InvariantDeclaration: public Declaration
+class GLSL_EXPORT InvariantDeclaration: public Declaration
 {
 public:
     InvariantDeclaration(const QString *_name)
@@ -990,7 +990,7 @@ public: // attributes
     const QString *name;
 };
 
-class InitDeclaration: public Declaration
+class GLSL_EXPORT InitDeclaration: public Declaration
 {
 public:
     InitDeclaration(List<Declaration *> *_decls)
