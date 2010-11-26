@@ -78,6 +78,8 @@ QString MaemoGlobal::remoteEnvironment(const QList<Utils::EnvironmentItem> &list
 bool MaemoGlobal::removeRecursively(const QString &filePath, QString &error)
 {
     QFileInfo fileInfo(filePath);
+    if (!fileInfo.exists())
+        return true;
     if (fileInfo.isDir()) {
         QDir dir(filePath);
         QStringList fileNames = dir.entryList(QDir::Files | QDir::Hidden
