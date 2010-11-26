@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "symbolgroup.h"
+#include "symbolgroupvalue.h"
 #include "stringutils.h"
 #include "base64.h"
 
@@ -443,10 +444,18 @@ static void fixValue(const std::string &type, std::wstring *value)
         value->erase(0, 2);
         return;
     }
+    // Fix long class names on std containers 'class std::tree<...>' -> 'class std::tree<>'
+    if (value->compare(0, 6, L"class ") == 0) {
+        const std::string::size_type openTemplate = value->find(L'<');
+        if (openTemplate != std::string::npos) {
+            value->erase(openTemplate + 1, value->size() - openTemplate - 2);
+            return;
+        }
+    }
 }
 
 // Check for ASCII-encode-able stuff. Plain characters + tabs at the most, no newline.
-static bool isSevenBitClean(const wchar_t *buf, ULONG size)
+static bool isSevenBitClean(const wchar_t *buf, size_t size)
 {
     const wchar_t *bufEnd = buf + size;
     for (const wchar_t *bufPtr = buf; bufPtr < bufEnd; bufPtr++) {
@@ -464,29 +473,6 @@ std::string SymbolGroupNode::type() const
     return SUCCEEDED(hr) ? std::string(buf) : std::string();
 }
 
-wchar_t *SymbolGroupNode::getValue(ULONG *obtainedSizeIn /* = 0 */) const
-{
-    // Determine size and return allocated buffer
-    if (obtainedSizeIn)
-        *obtainedSizeIn = 0;
-    const ULONG maxValueSize = 262144;
-    ULONG obtainedSize = 0;
-    HRESULT hr = m_symbolGroup->debugSymbolGroup()->GetSymbolValueTextWide(m_index, NULL, maxValueSize, &obtainedSize);
-    if (FAILED(hr))
-        return 0;
-    if (obtainedSize > maxValueSize)
-        obtainedSize = maxValueSize;
-    wchar_t *buffer = new wchar_t[obtainedSize];
-    hr = m_symbolGroup->debugSymbolGroup()->GetSymbolValueTextWide(m_index, buffer, obtainedSize, &obtainedSize);
-    if (FAILED(hr)) { // Whoops, should not happen
-        delete [] buffer;
-        return 0;
-    }
-    if (obtainedSizeIn)
-        *obtainedSizeIn = obtainedSize;
-    return buffer;
-}
-
 ULONG64 SymbolGroupNode::address() const
 {
     ULONG64 address = 0;
@@ -496,21 +482,42 @@ ULONG64 SymbolGroupNode::address() const
     return 0;
 }
 
-std::wstring SymbolGroupNode::rawValue() const
+std::wstring SymbolGroupNode::symbolGroupRawValue() const
 {
-    std::wstring rc;
-    if (const wchar_t *wbuf = getValue()) {
-        rc = wbuf;
-        delete[] wbuf;
-    }
+    // Determine size and return allocated buffer
+    const ULONG maxValueSize = 262144;
+    ULONG obtainedSize = 0;
+    HRESULT hr = m_symbolGroup->debugSymbolGroup()->GetSymbolValueTextWide(m_index, NULL, maxValueSize, &obtainedSize);
+    if (FAILED(hr))
+        return std::wstring();
+    if (obtainedSize > maxValueSize)
+        obtainedSize = maxValueSize;
+    wchar_t *buffer = new wchar_t[obtainedSize];
+    hr = m_symbolGroup->debugSymbolGroup()->GetSymbolValueTextWide(m_index, buffer, obtainedSize, &obtainedSize);
+    if (FAILED(hr)) // Whoops, should not happen
+        buffer[0] = 0;
+    const std::wstring rc(buffer);
+    delete [] buffer;
     return rc;
 }
 
-std::wstring SymbolGroupNode::fixedValue() const
+std::wstring SymbolGroupNode::symbolGroupFixedValue() const
 {
-    std::wstring value = rawValue();
+    std::wstring value = symbolGroupRawValue();
     fixValue(type(), &value);
     return value;
+}
+
+// Value to be reported to debugger
+std::wstring SymbolGroupNode::displayValue(const SymbolGroupValueContext &ctx)
+{
+    if (m_flags & Uninitialized)
+        return L"<not in scope>";
+    if ((m_flags & DumperMask) == 0)
+        m_flags |= dumpSimpleType(this , ctx, &m_dumperValue);
+    if (m_flags & DumperOk)
+        return m_dumperValue;
+    return symbolGroupFixedValue();
 }
 
 SymbolGroupNode *SymbolGroupNode::childAt(unsigned i) const
@@ -518,12 +525,20 @@ SymbolGroupNode *SymbolGroupNode::childAt(unsigned i) const
     return i < m_children.size() ? m_children.at(i) : static_cast<SymbolGroupNode *>(0);
 }
 
+unsigned SymbolGroupNode::indexByIName(const char *n) const
+{
+    const VectorIndexType size = m_children.size();
+    for (VectorIndexType i = 0; i < size; i++)
+        if ( m_children.at(i)->iName() == n )
+            return unsigned(i);
+    return unsigned(-1);
+}
+
 SymbolGroupNode *SymbolGroupNode::childByIName(const char *n) const
 {
-    const SymbolGroupNodePtrVector::const_iterator childrenEnd = m_children.end();
-    for (SymbolGroupNodePtrVector::const_iterator it = m_children.begin(); it != childrenEnd; ++it)
-        if ( (*it)->iName() == n )
-            return *it;
+    const unsigned index = indexByIName(n);
+    if (index != unsigned(-1))
+        return m_children.at(index);
     return 0;
 }
 
@@ -533,51 +548,32 @@ static inline void indentStream(std::ostream &str, unsigned depth)
         str << "  ";
 }
 
-void SymbolGroupNode::dump(std::ostream &str, unsigned child, unsigned depth,
-                           bool humanReadable) const
+void SymbolGroupNode::dump(std::ostream &str, const SymbolGroupValueContext &ctx)
 {
     const std::string iname = fullIName();
     const std::string t = type();
 
-    if (child) { // Separate list of children
-        str << ',';
-        if (humanReadable)
-            str << '\n';
-    }
-
-    if (humanReadable)
-        indentStream(str, depth);
-    str << "{iname=\"" << iname << "\",exp=\"" << iname << "\",name=\"" << m_name
+    str << "iname=\"" << iname << "\",exp=\"" << iname << "\",name=\"" << m_name
         << "\",type=\"" << t << '"';
 
     if (const ULONG64 addr = address())
         str << ",addr=\"" << std::hex << std::showbase << addr << std::noshowbase << std::dec
                << '"';
 
-    bool valueEditable = true;
-    bool valueEnabled = true;
-
     const bool uninitialized = m_flags & Uninitialized;
-    if (uninitialized) {
-        valueEditable = valueEnabled = false;
-        str << ",valueencoded=\"0\",value=\"<not in scope>\"";
+    bool valueEditable = !uninitialized;
+    bool valueEnabled = !uninitialized;
+
+    const std::wstring value = displayValue(ctx);
+    // ASCII or base64?
+    if (isSevenBitClean(value.c_str(), value.size())) {
+        str << ",valueencoded=\"0\",value=\"" << gdbmiWStringFormat(value) << '"';
     } else {
-        ULONG obtainedSize = 0;
-        if (const wchar_t *wbuf = getValue(&obtainedSize)) {
-            const ULONG valueSize = obtainedSize - 1;
-            // ASCII or base64?
-            if (isSevenBitClean(wbuf, valueSize)) {
-                std::wstring value = wbuf;
-                fixValue(t, &value);
-                str << ",valueencoded=\"0\",value=\"" << gdbmiWStringFormat(value) << '"';
-            } else {
-                str << ",valueencoded=\"2\",value=\"";
-                base64Encode(str, reinterpret_cast<const unsigned char *>(wbuf), valueSize * sizeof(wchar_t));
-                str << '"';
-            }
-            delete [] wbuf;
-        }
+        str << ",valueencoded=\"2\",value=\"";
+        base64Encode(str, reinterpret_cast<const unsigned char *>(value.c_str()), value.size() * sizeof(wchar_t));
+        str << '"';
     }
+
     // Children: Dump all known or subelements (guess).
     const VectorIndexType childCountGuess = uninitialized ? 0 :
              (m_children.empty() ? m_parameters.SubElements : m_children.size());
@@ -587,39 +583,32 @@ void SymbolGroupNode::dump(std::ostream &str, unsigned child, unsigned depth,
     str << ",valueenabled=\"" << (valueEnabled ? "true" : "false") << '"'
         << ",valueeditable=\"" << (valueEditable ? "true" : "false") << '"'
         << ",numchild=\"" << childCountGuess << '"';
-    if (!uninitialized && !m_children.empty()) {
-        str << ",children=[";
-        if (humanReadable)
-            str << '\n';
-    }
 }
 
-void SymbolGroupNode::dumpChildrenVisited(std::ostream &str, bool humanReadable) const
-{
-    if (!m_children.empty())
-        str << ']';
-    str << '}';
-    if (humanReadable)
-        str << '\n';
-
-}
-bool SymbolGroupNode::accept(SymbolGroupNodeVisitor &visitor, unsigned child, unsigned depth) const
+bool SymbolGroupNode::accept(SymbolGroupNodeVisitor &visitor, unsigned child, unsigned depth)
 {
     // If we happen to be the root node, just skip over
     const bool invisibleRoot = m_index == DEBUG_ANY_ID;
     const unsigned childDepth = invisibleRoot ? 0 : depth + 1;
 
-    if (!invisibleRoot) { // Visit us and move index forward.
-        if (visitor.visit(this, child, depth))
-            return true;
+    const SymbolGroupNodeVisitor::VisitResult vr =
+            invisibleRoot ? SymbolGroupNodeVisitor::VisitContinue :
+                            visitor.visit(this, child, depth);
+    switch (vr) {
+    case SymbolGroupNodeVisitor::VisitStop:
+        return true;
+    case SymbolGroupNodeVisitor::VisitSkipChildren:
+        break;
+    case SymbolGroupNodeVisitor::VisitContinue: {
+        const unsigned childCount = unsigned(m_children.size());
+        for (unsigned c = 0; c < childCount; c++)
+            if (m_children.at(c)->accept(visitor, c, childDepth))
+                return true;
+        if (!invisibleRoot)
+            visitor.childrenVisited(this, depth);
     }
-
-    const unsigned childCount = unsigned(m_children.size());
-    for (unsigned c = 0; c < childCount; c++)
-        if (m_children.at(c)->accept(visitor, c, childDepth))
-            return true;
-    if (!invisibleRoot)
-        visitor.childrenVisited(this, depth);
+        break;
+    }
     return false;
 }
 
@@ -630,13 +619,25 @@ void SymbolGroupNode::debug(std::ostream &str, unsigned verbosity, unsigned dept
     if (const VectorIndexType childCount = m_children.size())
         str << ", Children=" << childCount;
     str << ' ' << m_parameters;
-    if (m_flags)
+    if (m_flags) {
         str << " node-flags=" << m_flags;
+        if (m_flags & Uninitialized)
+            str << " UNINITIALIZED";
+        if (m_flags & DumperNotApplicable)
+            str << " DumperNotApplicable";
+        if (m_flags & DumperOk)
+            str << " DumperOk";
+        if (m_flags & DumperFailed)
+            str << " DumperFailed";
+        if (m_flags & ExpandedByDumper)
+            str << " ExpandedByDumper";
+        str << ' ';
+    }
     if (verbosity) {
         str << ",name=\"" << m_name << "\", Address=0x" << std::hex << address() << std::dec
             << " Type=\"" << type() << '"';
         if (!(m_flags & Uninitialized))
-            str << "\" Value=\"" << gdbmiWStringFormat(rawValue()) << '"';
+            str << "\" Value=\"" << gdbmiWStringFormat(symbolGroupRawValue()) << '"';
     }
     str << '\n';
 }
@@ -646,9 +647,12 @@ bool SymbolGroupNode::expand(std::string *errorMessage)
 {
     if (::debug > 1)
         DebugPrint() << "SymbolGroupNode::expand "  << m_name << ' ' << m_index;
-    if (!m_children.empty())
+    if (isExpanded()) {
+        // Clear the flag indication dumper expansion on a second, explicit request
+        clearFlags(ExpandedByDumper);
         return true;
-    if (m_parameters.SubElements == 0) {
+    }
+    if (!canExpand()) {
         *errorMessage = "No subelements to expand in node: " + fullIName();
         return false;
     }
@@ -684,10 +688,10 @@ static inline std::string msgNotFound(const std::string &nodeName)
     return str.str();
 }
 
-std::string SymbolGroup::dump(bool humanReadable) const
+std::string SymbolGroup::dump(const SymbolGroupValueContext &ctx, bool humanReadable) const
 {
     std::ostringstream str;
-    DumpSymbolGroupNodeVisitor visitor(str, humanReadable);
+    DumpSymbolGroupNodeVisitor visitor(str, ctx, humanReadable);
     if (humanReadable)
         str << '\n';
     str << '[';
@@ -697,33 +701,43 @@ std::string SymbolGroup::dump(bool humanReadable) const
 }
 
 // Dump a node, potentially expand
-std::string SymbolGroup::dump(const std::string &name, bool humanReadable, std::string *errorMessage)
+std::string SymbolGroup::dump(const std::string &iname, const SymbolGroupValueContext &ctx, bool humanReadable, std::string *errorMessage)
 {
-    SymbolGroupNode *const node = find(name);
+    SymbolGroupNode *const node = find(iname);
     if (node == 0) {
-        *errorMessage = msgNotFound(name);
+        *errorMessage = msgNotFound(iname);
         return std::string();
     }
-    if (node->subElements() && node->children().empty()) {
-        if (!expand(name, errorMessage))
+    if (node->isExpanded()) { // Mark expand request by watch model
+        node->clearFlags(SymbolGroupNode::ExpandedByDumper);
+    } else {
+        if (node->canExpand() && !node->expand(errorMessage))
             return false;
     }
     std::ostringstream str;
     if (humanReadable)
         str << '\n';
-    DumpSymbolGroupNodeVisitor visitor(str, humanReadable);
+    DumpSymbolGroupNodeVisitor visitor(str, ctx, humanReadable);
     str << '[';
     node->accept(visitor, 0, 0);
     str << ']';
     return str.str();
 }
 
-std::string SymbolGroup::debug(unsigned verbosity) const
+std::string SymbolGroup::debug(const std::string &iname, unsigned verbosity) const
 {
     std::ostringstream str;
     str << '\n';
     DebugSymbolGroupNodeVisitor visitor(str, verbosity);
-    accept(visitor);
+    if (iname.empty()) {
+        accept(visitor);
+    } else {
+        if (SymbolGroupNode *const node = find(iname)) {
+            node->accept(visitor, 0, 0);
+        } else {
+            str << msgNotFound(iname);
+        }
+    }
     return str.str();
 }
 
@@ -807,7 +821,7 @@ void SymbolGroup::markUninitialized(const std::vector<std::string> &uniniNodes)
         const SymbolGroupNodePtrVector::const_iterator childrenEnd = m_root->children().end();
         for (SymbolGroupNodePtrVector::const_iterator it = m_root->children().begin(); it != childrenEnd; ++it) {
             if (std::find(unIniNodesBegin, unIniNodesEnd, (*it)->fullIName()) != unIniNodesEnd)
-                (*it)->setFlags((*it)->flags() | SymbolGroupNode::Uninitialized);
+                (*it)->addFlags(SymbolGroupNode::Uninitialized);
         }
     }
 }
@@ -907,27 +921,53 @@ DebugSymbolGroupNodeVisitor::DebugSymbolGroupNodeVisitor(std::ostream &os, unsig
 {
 }
 
-bool DebugSymbolGroupNodeVisitor::visit(const SymbolGroupNode *node,
-                                        unsigned /* child */, unsigned depth)
+SymbolGroupNodeVisitor::VisitResult
+    DebugSymbolGroupNodeVisitor::visit(SymbolGroupNode *node,
+                                       unsigned /* child */, unsigned depth)
 {
     node->debug(m_os, m_verbosity, depth);
-    return false;
+    return VisitContinue;
 }
 
 // --------------------- DumpSymbolGroupNodeVisitor
 DumpSymbolGroupNodeVisitor::DumpSymbolGroupNodeVisitor(std::ostream &os,
+                                                       const SymbolGroupValueContext &context,
                                                        bool humanReadable) :
-    m_os(os), m_humanReadable(humanReadable)
+    m_os(os), m_humanReadable(humanReadable),m_context(context), m_visitChildren(false)
 {
 }
 
-bool DumpSymbolGroupNodeVisitor::visit(const SymbolGroupNode *node, unsigned child, unsigned depth)
+SymbolGroupNodeVisitor::VisitResult
+    DumpSymbolGroupNodeVisitor::visit(SymbolGroupNode *node, unsigned child, unsigned depth)
 {
-    node->dump(m_os, child, depth, m_humanReadable);
-    return false;
+    // Recurse to children if expanded by explicit watchmodel request
+    // and initialized.
+    const unsigned flags = node->flags();
+    m_visitChildren = node->isExpanded()
+            && (flags & (SymbolGroupNode::Uninitialized|SymbolGroupNode::ExpandedByDumper)) == 0;
+
+    // Do not recurse into children unless the node was expanded by the watch model
+    if (child)
+        m_os << ','; // Separator in parents list
+    if (m_humanReadable) {
+        m_os << '\n';
+        indentStream(m_os, depth * 2);
+    }
+    m_os << '{';
+    node->dump(m_os, m_context);
+    if (m_visitChildren) { // open children array
+        m_os << ",children=[";
+    } else {               // No children, close array.
+        m_os << '}';
+    }
+    if (m_humanReadable)
+        m_os << '\n';
+    return m_visitChildren ? VisitContinue : VisitSkipChildren;
 }
 
-void DumpSymbolGroupNodeVisitor::childrenVisited(const SymbolGroupNode *node, unsigned)
+void DumpSymbolGroupNodeVisitor::childrenVisited(const SymbolGroupNode *, unsigned)
 {
-    node->dumpChildrenVisited(m_os, m_humanReadable);
+    m_os << "]}"; // Close children array and self
+    if (m_humanReadable)
+        m_os << '\n';
 }

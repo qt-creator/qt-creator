@@ -204,11 +204,14 @@ static std::string commmandLocals(ExtensionCommandContext &exc,PCSTR args, int *
         symGroup->expandList(expandedInames, errorMessage);
     if (!uninitializedInames.empty())
         symGroup->markUninitialized(uninitializedInames);
-    // Complete dump
-    if (iname.empty())
-        return debugOutput ? symGroup->debug(debugOutput - 1) : symGroup->dump(humanReadableGdbmi);
-    // Look up iname
-    return symGroup->dump(iname, humanReadableGdbmi, errorMessage);
+
+    if (debugOutput)
+        return symGroup->debug(iname, debugOutput - 1);
+
+    const SymbolGroupValueContext dumpContext(exc.dataSpaces());
+    return iname.empty() ?
+           symGroup->dump(dumpContext, humanReadableGdbmi) :
+           symGroup->dump(iname, dumpContext, humanReadableGdbmi, errorMessage);
 }
 
 extern "C" HRESULT CALLBACK locals(CIDebugClient *client, PCSTR args)

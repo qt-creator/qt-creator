@@ -39,8 +39,8 @@ class SymbolGroupNode;
 // Structure to pass all IDebug interfaces used for SymbolGroupValue
 struct SymbolGroupValueContext
 {
-    SymbolGroupValueContext(CIDebugDataSpaces *ds);
-    SymbolGroupValueContext();
+    SymbolGroupValueContext(CIDebugDataSpaces *ds) : dataspaces(ds) {}
+    SymbolGroupValueContext::SymbolGroupValueContext() : dataspaces(0) {}
 
     CIDebugDataSpaces *dataspaces;
 };
@@ -58,11 +58,14 @@ public:
     operator bool() const { return isValid(); }
     bool isValid() const;
 
+    // Access children by name or index (0-based)
     SymbolGroupValue operator[](const char *name) const;
+    SymbolGroupValue operator[](unsigned) const;
 
     std::string type() const;
     std::wstring value() const;
     int intValue(int defaultValue = -1) const;
+    double floatValue(double defaultValue = -999) const;
     ULONG64 pointerValue(ULONG64 defaultValue = 0) const;
     // Return allocated array of data pointed to
     unsigned char *pointerData(unsigned length) const;
@@ -72,12 +75,15 @@ public:
     std::string error() const;
 
 private:
+    bool ensureExpanded() const;
+
     SymbolGroupNode *m_node;
     SymbolGroupValueContext m_context;
     mutable std::string m_errorMessage;
 };
 
-// Dump builtin simple types using SymbolGroupValue expressions.
-bool dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx, std::wstring *s);
+// Dump builtin simple types using SymbolGroupValue expressions,
+// returning SymbolGroupNode dumper flags.
+unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx, std::wstring *s);
 
 #endif // SYMBOLGROUPVALUE_H

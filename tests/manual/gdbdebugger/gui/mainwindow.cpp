@@ -33,9 +33,17 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <QDebug>
+#include <QRect>
+#include <QRectF>
+#include <QLine>
+#include <QLineF>
+#include <QPoint>
+#include <QPointF>
+#include <QSize>
+#include <QSizeF>
+
 #include <QThread>
 #include <string>
-#include <list>
 #include <set>
 #include <QLibrary>
 #include <QLibraryInfo>
@@ -78,7 +86,7 @@ void MainWindow::simpleBP(int inc, const QString &inx)
 {    
     int array[2] = {1,2};
     m_w++;
-    QString x = "h\"allo";
+    QString x = QLatin1String("h\344all\366");
     QString *xp = &x;
     qDebug() << inc << inx << *xp;
     Q_UNUSED(array)
@@ -378,4 +386,21 @@ void Foo::MainWindow::on_actionStdTypes_triggered()
     std::list<std::string> stringList;
     std::vector<std::string> stringVector(1, "bla");
     std::vector<std::wstring> wStringVector(1, L"bla");
+}
+
+void Foo::MainWindow::on_actionVariousQtTypes_triggered()
+{
+    const QByteArray ba = "hallo\t";
+    QSize size = QSize(42, 43);
+    QSizeF sizeF(size);
+    QPoint p1 = QPoint(42, 43);
+    QPoint p2 = QPoint(100, 100);
+    QLine line(p1, p2);
+    QPointF p1f(p1);
+    QPointF p2f(p2);
+    QLineF linef(p1f, p2f);
+    QRect rect(p1, p2);
+    QRectF rectf(rect);
+    qDebug() << sizeF << linef << rectf;
+
 }

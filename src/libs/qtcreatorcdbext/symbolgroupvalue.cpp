@@ -31,15 +31,6 @@
 #include "symbolgroup.h"
 #include "stringutils.h"
 
-SymbolGroupValueContext::SymbolGroupValueContext(CIDebugDataSpaces *ds)
-    : dataspaces(ds)
-{
-}
-
-SymbolGroupValueContext::SymbolGroupValueContext() : dataspaces(0)
-{
-}
-
 SymbolGroupValue::SymbolGroupValue(SymbolGroupNode *node,
                                    const SymbolGroupValueContext &ctx) :
     m_node(node), m_context(ctx)
@@ -56,9 +47,34 @@ bool SymbolGroupValue::isValid() const
     return m_node != 0 && m_context.dataspaces != 0;
 }
 
+SymbolGroupValue SymbolGroupValue::operator[](unsigned index) const
+{
+    if (ensureExpanded())
+        if (index < m_node->children().size())
+            return SymbolGroupValue(m_node->children().at(index), m_context);
+    return SymbolGroupValue();
+}
+
+bool SymbolGroupValue::ensureExpanded() const
+{
+    if (!isValid() || !m_node->canExpand())
+        return false;
+
+    if (m_node->isExpanded())
+        return true;
+
+    // Set a flag indicating the node was expanded by SymbolGroupValue
+    // and not by an explicit request from the watch model.
+    if (m_node->expand(&m_errorMessage)) {
+        m_node->addFlags(SymbolGroupNode::ExpandedByDumper);
+        return true;
+    }
+    return false;
+}
+
 SymbolGroupValue SymbolGroupValue::operator[](const char *name) const
 {
-    if (isValid() && m_node->expand(&m_errorMessage))
+    if (ensureExpanded())
         if (SymbolGroupNode *child = m_node->childByIName(name))
             return SymbolGroupValue(child, m_context);
     return SymbolGroupValue();
@@ -71,7 +87,19 @@ std::string SymbolGroupValue::type() const
 
 std::wstring SymbolGroupValue::value() const
 {
-    return isValid() ? m_node->fixedValue() : std::wstring();
+    return isValid() ? m_node->symbolGroupFixedValue() : std::wstring();
+}
+
+double SymbolGroupValue::floatValue(double defaultValue) const
+{
+    double f = defaultValue;
+    if (isValid()) {
+        std::wistringstream str(value());
+        str >> f;
+        if (str.fail())
+            f = defaultValue;
+    }
+    return f;
 }
 
 int SymbolGroupValue::intValue(int defaultValue) const
@@ -136,26 +164,138 @@ std::string SymbolGroupValue::error() const
     return m_errorMessage;
 }
 
+static const char stdStringTypeC[] = "class std::basic_string<char,std::char_traits<char>,std::allocator<char> >";
+static const char stdWStringTypeC[] = "class std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> >";
+
 // Dump a QString.
-static bool dumpQString(const SymbolGroupValue &v, std::wstring *s)
+static unsigned dumpQString(const std::string &type, const SymbolGroupValue &v, std::wstring *s)
 {
-    if (endsWith(v.type(), "QString")) {
-        if (SymbolGroupValue d = v["d"]) {
-            if (SymbolGroupValue sizeValue = d["size"]) {
-                const int size = sizeValue.intValue();
-                if (size >= 0) {
-                    *s = d["data"].wcharPointerData(size);
-                    return true;
-                }
+    if (!endsWith(type, "QString")) // namespaced Qt?
+        return SymbolGroupNode::DumperNotApplicable;
+
+    if (SymbolGroupValue d = v["d"]) {
+        if (SymbolGroupValue sizeValue = d["size"]) {
+            const int size = sizeValue.intValue();
+            if (size >= 0) {
+                *s = d["data"].wcharPointerData(size);
+                return SymbolGroupNode::DumperOk;
             }
         }
     }
-    return false;
+    return SymbolGroupNode::DumperFailed;
+}
+
+// Dump a QByteArray
+static unsigned dumpQByteArray(const std::string &type, const SymbolGroupValue &v, std::wstring *s)
+{
+    if (!endsWith(type, "QByteArray")) // namespaced Qt?
+        return SymbolGroupNode::DumperNotApplicable;
+    // TODO: More sophisticated dumping of binary data?
+    if (SymbolGroupValue data = v["d"]["data"]) {
+        *s = data.value();
+        return SymbolGroupNode::DumperOk;
+    }
+    return SymbolGroupNode::DumperFailed;
+}
+
+// Dump a rectangle in X11 syntax
+template <class T>
+inline void dumpRect(std::wostringstream &str, T x, T y, T width, T height)
+{
+    str << width << 'x' << height;
+    if (x >= 0)
+        str << '+';
+    str << x;
+    if (y >= 0)
+        str << '+';
+    str << y;
+}
+
+template <class T>
+inline void dumpRectPoints(std::wostringstream &str, T x1, T y1, T x2, T y2)
+{
+    dumpRect(str, x1, y1, (x2 - x1), (y2 - y1));
+}
+
+// Dump Qt's simple geometrical types
+static unsigned dumpQtGeometryTypes(const std::string &type, const SymbolGroupValue &v, std::wstring *s)
+{
+    if (endsWith(type, "QSize") || endsWith(type, "QSizeF")) { // namespaced Qt?
+        std::wostringstream str;
+        str << '(' << v["wd"].value() << ", " << v["ht"].value() << ')';
+        *s = str.str();
+        return SymbolGroupNode::DumperOk;
+    }
+    if (endsWith(type, "QPoint") || endsWith(type, "QPointF")) { // namespaced Qt?
+        std::wostringstream str;
+        str << '(' << v["xp"].value() << ", " << v["yp"].value() << ')';
+        *s = str.str();
+        return SymbolGroupNode::DumperOk;
+    }
+    if (endsWith(type, "QLine") || endsWith(type, "QLineF")) { // namespaced Qt?
+        const SymbolGroupValue p1 = v["pt1"];
+        const SymbolGroupValue p2 = v["pt2"];
+        if (p1 && p2) {
+            std::wostringstream str;
+            str << '(' << p1["xp"].value() << ", " << p1["yp"].value() << ") ("
+                 << p2["xp"].value() << ", " << p2["yp"].value() << ')';
+            *s = str.str();
+            return SymbolGroupNode::DumperOk;
+        }
+        return SymbolGroupNode::DumperFailed;
+    }
+    if (endsWith(type, "QRect")) {
+        std::wostringstream str;
+        dumpRectPoints(str, v["x1"].intValue(), v["y1"].intValue(), v["x2"].intValue(), v["y2"].intValue());
+        *s = str.str();
+        return SymbolGroupNode::DumperOk;
+    }
+    if (endsWith(type, "QRectF")) {
+        std::wostringstream str;
+        dumpRect(str, v["xp"].floatValue(), v["yp"].floatValue(), v["w"].floatValue(), v["h"].floatValue());
+        *s = str.str();
+        return SymbolGroupNode::DumperOk;
+    }
+    return SymbolGroupNode::DumperNotApplicable;
+}
+
+// Dump a std::string.
+static unsigned dumpStdString(const std::string &type, const SymbolGroupValue &v, std::wstring *s)
+{
+    if (type != stdStringTypeC && type != stdWStringTypeC)
+        return SymbolGroupNode::DumperNotApplicable;
+    // MSVC 2010: Access Bx/_Buf in base class
+    SymbolGroupValue buf = v[unsigned(0)]["_Bx"]["_Buf"];
+    if (!buf) // MSVC2008: Bx/Buf are members
+        buf = v["_Bx"]["_Buf"];
+    if (buf) {
+        *s = buf.value();
+        return SymbolGroupNode::DumperOk;
+    }
+    return SymbolGroupNode::DumperFailed;
 }
 
 // Dump builtin simple types using SymbolGroupValue expressions.
-bool dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx, std::wstring *s)
+unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx, std::wstring *s)
 {
+    // Check for class types and strip pointer types (references appear as pointers as well)
+    std::string type = n->type();
+    if (type.compare(0, 6, "class ") != 0)
+        return SymbolGroupNode::DumperNotApplicable;
+    if (endsWith(type, " *"))
+        type.erase(type.size() - 2, 2);
     const SymbolGroupValue v(n, ctx);
-    return dumpQString(v, s);
+    unsigned rc = dumpQString(type, v, s);
+    if (rc != SymbolGroupNode::DumperNotApplicable)
+        return rc;
+    rc = dumpQByteArray(type, v, s);
+    if (rc != SymbolGroupNode::DumperNotApplicable)
+        return rc;
+    rc = dumpStdString(type, v, s);
+    if (rc != SymbolGroupNode::DumperNotApplicable)
+        return rc;
+    rc = dumpQtGeometryTypes(type, v, s);
+    if (rc != SymbolGroupNode::DumperNotApplicable)
+        return rc;
+    return rc;
 }

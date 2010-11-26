@@ -40,14 +40,27 @@ std::ostream &operator<<(std::ostream &, const DEBUG_SYMBOL_PARAMETERS&p);
 
 class SymbolGroupNodeVisitor;
 class SymbolGroup;
+struct SymbolGroupValueContext;
 
-// Thin wrapper around a symbol group entry.
+// Thin wrapper around a symbol group entry. Provides accessors for fixed-up
+// symbol group value and a dumping facility triggered by dump()/displayValue()
+// calling dumpSimpleType() based on SymbolGroupValue expressions. These values
+// values should be displayed, still allowing for expansion of the structure
+// in the debugger. Evaluating the dumpers might expand symbol nodes, which are
+// then marked as 'ExpandedByDumper'. This stops the dump recursion to prevent
+// outputting data that were not explicitly expanded by the watch handler.
+
 class SymbolGroupNode {
     SymbolGroupNode(const SymbolGroupNode&);
     SymbolGroupNode& operator=(const SymbolGroupNode&);
 public:
     enum Flags {
-        Uninitialized = 0x1
+        Uninitialized = 0x1,
+        DumperNotApplicable = 0x2, // No dumper available for type
+        DumperOk = 0x4,     // Internal dumper ran, value set
+        DumperFailed = 0x8, // Internal dumper failed
+        DumperMask = DumperNotApplicable|DumperOk|DumperFailed,
+        ExpandedByDumper = 0x10
     };
     typedef std::vector<DEBUG_SYMBOL_PARAMETERS> SymbolParameterVector;
     typedef std::vector<SymbolGroupNode *> SymbolGroupNodePtrVector;
@@ -75,35 +88,39 @@ public:
 
     const SymbolGroupNodePtrVector &children() const { return m_children; }
     SymbolGroupNode *childAt(unsigned) const;
+
+    unsigned indexByIName(const char *) const; // (unsigned(-1) on failure
     SymbolGroupNode *childByIName(const char *) const;
 
     const SymbolGroupNode *parent() const { return m_parent; }
 
     // I/O: Gdbmi dump for Visitors
-    void dump(std::ostream &str, unsigned child, unsigned depth,
-              bool humanReadable) const;
-    void dumpChildrenVisited(std::ostream &str, bool humanReadable) const;
+    void dump(std::ostream &str, const SymbolGroupValueContext &ctx);
     // I/O: debug for Visitors
     void debug(std::ostream &os, unsigned verbosity, unsigned depth) const;
 
-    std::wstring rawValue() const;
-    std::wstring fixedValue() const;
+    std::wstring symbolGroupRawValue() const;
+    std::wstring symbolGroupFixedValue() const;
+    std::wstring displayValue(const SymbolGroupValueContext &ctx);
+
     std::string type() const;
     ULONG64 address() const;
 
-    bool accept(SymbolGroupNodeVisitor &visitor, unsigned child, unsigned depth) const;
+    bool accept(SymbolGroupNodeVisitor &visitor, unsigned child, unsigned depth);
 
     bool expand(std::string *errorMessage);
+    bool isExpanded() const { return !m_children.empty(); }
+    bool canExpand() const { return m_parameters.SubElements > 0; }
 
     ULONG subElements() const { return m_parameters.SubElements; }
     ULONG index() const { return m_index; }
 
     unsigned flags() const     { return m_flags; }
     void setFlags(unsigned f)  { m_flags = f; }
+    void addFlags(unsigned f)  { m_flags |= f; }
+    void clearFlags(unsigned f)  { m_flags &= ~f; }
 
 private:
-    // Return allocated wide string array of value
-    wchar_t *getValue(ULONG *obtainedSize = 0) const;
     bool isArrayElement() const;
     // Notify about expansion of a node, shift indexes
     bool notifyExpanded(ULONG index, ULONG insertedCount);
@@ -116,6 +133,7 @@ private:
     const std::string m_name;
     const std::string m_iname;
     unsigned m_flags;
+    std::wstring m_dumperValue;
 };
 
 /* Visitor that takes care of iterating over the nodes
@@ -133,8 +151,15 @@ protected:
 public:
     virtual ~SymbolGroupNodeVisitor() {}
 
+protected:
+    enum VisitResult {
+        VisitContinue,
+        VisitSkipChildren,
+        VisitStop
+    };
+
 private:
-    virtual bool visit(const SymbolGroupNode *node, unsigned child, unsigned depth) = 0;
+    virtual VisitResult visit(SymbolGroupNode *node, unsigned child, unsigned depth) = 0;
     // Helper for formatting output.
     virtual void childrenVisited(const SymbolGroupNode * /* node */, unsigned /* depth */) {}
 };
@@ -167,10 +192,11 @@ public:
     ~SymbolGroup();
 
     // Dump all
-    std::string dump(bool humanReadable = false) const;
+    std::string dump(const SymbolGroupValueContext &ctx, bool humanReadable = false) const;
     // Expand node and dump
-    std::string dump(const std::string &name, bool humanReadable, std::string *errorMessage);
-    std::string debug(unsigned verbosity = 0) const;
+    std::string dump(const std::string &iname, const SymbolGroupValueContext &ctx,
+                     bool humanReadable, std::string *errorMessage);
+    std::string debug(const std::string &iname = std::string(), unsigned verbosity = 0) const;
 
     unsigned frame() const { return m_frame; }
     ULONG threadId() const { return m_threadId; }
@@ -221,7 +247,7 @@ public:
     explicit DebugSymbolGroupNodeVisitor(std::ostream &os, unsigned verbosity = 0);
 
 private:
-    virtual bool visit(const SymbolGroupNode *node, unsigned child, unsigned depth);
+    virtual VisitResult visit(SymbolGroupNode *node, unsigned child, unsigned depth);
 
     std::ostream &m_os;
     const unsigned m_verbosity;
@@ -230,14 +256,18 @@ private:
 // Gdbmi dump output visitor.
 class DumpSymbolGroupNodeVisitor : public SymbolGroupNodeVisitor {
 public:
-    explicit DumpSymbolGroupNodeVisitor(std::ostream &os, bool humanReadable);
+    explicit DumpSymbolGroupNodeVisitor(std::ostream &os,
+                                        const SymbolGroupValueContext &context,
+                                        bool humanReadable);
 
 private:
-    virtual bool visit(const SymbolGroupNode *node, unsigned child, unsigned depth);
+    virtual VisitResult visit(SymbolGroupNode *node, unsigned child, unsigned depth);
     virtual void childrenVisited(const SymbolGroupNode *  node, unsigned depth);
 
     std::ostream &m_os;
     const bool m_humanReadable;
+    const SymbolGroupValueContext &m_context;
+    bool m_visitChildren;
 };
 
 #endif // SYMBOLGROUP_H

@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>600</width>
-     <height>27</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -47,6 +47,7 @@
    <addaction name="actionScopes"/>
    <addaction name="actionLongString"/>
    <addaction name="actionStdTypes"/>
+   <addaction name="actionVariousQtTypes"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="toolBar">
@@ -155,6 +156,11 @@
   <action name="actionStdTypes">
    <property name="text">
     <string>stdTypes</string>
+   </property>
+  </action>
+  <action name="actionVariousQtTypes">
+   <property name="text">
+    <string>variousQtTypes</string>
    </property>
   </action>
  </widget>
