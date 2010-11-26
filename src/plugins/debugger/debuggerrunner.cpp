@@ -86,19 +86,30 @@ extern QString msgNoBinaryForToolChain(int tc);
 // unnecessarily.
 
 #ifdef CDB_ENABLED
-DebuggerEngine *createCdbEngine(const DebuggerStartParameters &, QString *errorMessage);
+
+DebuggerEngine *createCdbEngine(const DebuggerStartParameters &, QString *error);
 bool checkCdbConfiguration(int toolChain, QString *errorMsg, QString *settingsPage);
 bool isCdbEngineEnabled(); // Check the configuration page
+
 #else
-DebuggerEngine *createCdbEngine(const DebuggerStartParameters &, QString *) { return 0; }
-bool checkCdbConfiguration(int, QString *, QString *) { return false; }
+
+DebuggerEngine *createCdbEngine(const DebuggerStartParameters &, QString *)
+{
+    return 0;
+}
+
+bool checkCdbConfiguration(int, QString *, QString *)
+{
+    return false;
+}
+
 #endif
 
 } // namespace Internal
 
 
 namespace Cdb {
-DebuggerEngine *createCdbEngine(const DebuggerStartParameters &, QString *errorMessage);
+DebuggerEngine *createCdbEngine(const DebuggerStartParameters &, QString *error);
 bool isCdbEngineEnabled(); // Check the configuration page
 }
 
