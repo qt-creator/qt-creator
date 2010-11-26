@@ -119,7 +119,7 @@ void QmlCppEngine::setActiveEngine(DebuggerLanguage language)
     }
     if (previousEngine != d->m_activeEngine) {
         showStatusMessage(tr("%1 debugger activated").arg(engineName));
-        Internal::debuggerCore()->displayDebugger(d->m_activeEngine, updateEngine);
+        debuggerCore()->displayDebugger(d->m_activeEngine, updateEngine);
     }
 }
 
@@ -138,8 +138,8 @@ void QmlCppEngine::setToolTipExpression(const QPoint & mousePos,
     d->m_activeEngine->setToolTipExpression(mousePos, editor, cursorPos);
 }
 
-void QmlCppEngine::updateWatchData(const Internal::WatchData &data,
-    const Internal::WatchUpdateFlags &flags)
+void QmlCppEngine::updateWatchData(const WatchData &data,
+    const WatchUpdateFlags &flags)
 {
     d->m_activeEngine->updateWatchData(data, flags);
 }
@@ -149,13 +149,13 @@ void QmlCppEngine::watchPoint(const QPoint &point)
     d->m_cppEngine->watchPoint(point);
 }
 
-void QmlCppEngine::fetchMemory(Internal::MemoryViewAgent *mva, QObject *obj,
+void QmlCppEngine::fetchMemory(MemoryViewAgent *mva, QObject *obj,
         quint64 addr, quint64 length)
 {
     d->m_cppEngine->fetchMemory(mva, obj, addr, length);
 }
 
-void QmlCppEngine::fetchDisassembler(Internal::DisassemblerViewAgent *dva)
+void QmlCppEngine::fetchDisassembler(DisassemblerViewAgent *dva)
 {
     d->m_cppEngine->fetchDisassembler(dva);
 }
@@ -253,9 +253,10 @@ void QmlCppEngine::selectThread(int index)
     d->m_cppEngine->selectThread(index);
 }
 
-void QmlCppEngine::assignValueInDebugger(const Internal::WatchData *w, const QString &expr, const QVariant &value)
+void QmlCppEngine::assignValueInDebugger(const WatchData *data,
+    const QString &expr, const QVariant &value)
 {
-    d->m_activeEngine->assignValueInDebugger(w, expr, value);
+    d->m_activeEngine->assignValueInDebugger(data, expr, value);
 }
 
 QAbstractItemModel *QmlCppEngine::modulesModel() const

@@ -60,23 +60,23 @@
 namespace Debugger {
 namespace Internal {
 
-LLDBEngineHost::LLDBEngineHost(const DebuggerStartParameters &startParameters)
+LldbEngineHost::LldbEngineHost(const DebuggerStartParameters &startParameters)
     :IPCEngineHost(startParameters)
 {
     QLocalServer *s = new QLocalServer(this);
-    s->removeServer (QLatin1String("/tmp/qtcreator-debuggeripc"));
-    s->listen (QLatin1String("/tmp/qtcreator-debuggeripc"));
+    s->removeServer(QLatin1String("/tmp/qtcreator-debuggeripc"));
+    s->listen(QLatin1String("/tmp/qtcreator-debuggeripc"));
 
-    m_guestp = new QProcess(this);
-    m_guestp->setProcessChannelMode(QProcess::ForwardedChannels);
+    m_guestProcess = new QProcess(this);
+    m_guestProcess->setProcessChannelMode(QProcess::ForwardedChannels);
 
-    connect(m_guestp, SIGNAL(finished(int, QProcess::ExitStatus)),
-            this, SLOT(finished (int, QProcess::ExitStatus)));
+    connect(m_guestProcess, SIGNAL(finished(int, QProcess::ExitStatus)),
+            this, SLOT(finished(int, QProcess::ExitStatus)));
 
-    QString a(Core::ICore::instance()->resourcePath() + QLatin1String("/qtcreator-lldb"));
-    m_guestp->start(a,QStringList());
+    QString a = Core::ICore::instance()->resourcePath() + QLatin1String("/qtcreator-lldb");
+    m_guestProcess->start(a, QStringList());
 
-    if (!m_guestp->waitForStarted()) {
+    if (!m_guestProcess->waitForStarted()) {
         showStatusMessage(tr("lldb failed to start"));
         notifyEngineIll();
         return;
@@ -88,23 +88,23 @@ LLDBEngineHost::LLDBEngineHost(const DebuggerStartParameters &startParameters)
     setGuestDevice(f);
 }
 
-LLDBEngineHost::~LLDBEngineHost()
+LldbEngineHost::~LldbEngineHost()
 {
-    disconnect(m_guestp, SIGNAL(finished(int, QProcess::ExitStatus)),
+    disconnect(m_guestProcess, SIGNAL(finished(int, QProcess::ExitStatus)),
             this, SLOT(finished (int, QProcess::ExitStatus)));
-    m_guestp->terminate();
-    m_guestp->kill();
+    m_guestProcess->terminate();
+    m_guestProcess->kill();
 }
 
-void LLDBEngineHost::finished(int, QProcess::ExitStatus)
+void LldbEngineHost::finished(int, QProcess::ExitStatus)
 {
     showStatusMessage(QLatin1String("lldb crashed"));
     notifyEngineIll();
 }
 
-DebuggerEngine *createLLDBEngine(const DebuggerStartParameters &startParameters)
+DebuggerEngine *createLldbEngine(const DebuggerStartParameters &startParameters)
 {
-    return new LLDBEngineHost(startParameters);
+    return new LldbEngineHost(startParameters);
 }
 
 } // namespace Internal

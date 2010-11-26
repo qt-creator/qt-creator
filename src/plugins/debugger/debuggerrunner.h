@@ -44,9 +44,8 @@ class Environment;
 namespace Debugger {
 class DebuggerEngine;
 class DebuggerRunControl;
-class QmlEngine;
+class DebuggerRunControlPrivate;
 class DebuggerStartParameters;
-struct DebuggerRunnerPrivate;
 
 namespace Internal {
 class GdbEngine;
@@ -101,9 +100,7 @@ public:
     QString displayName() const;
 
     void createEngine(const DebuggerStartParameters &startParameters);
-
     void setCustomEnvironment(Utils::Environment env);
-
     void startFailed();
     void debuggingFinished();
     RunConfiguration *runConfiguration() const;
@@ -136,13 +133,7 @@ protected:
     const DebuggerStartParameters &startParameters() const;
 
 private:
-    DebuggerEngineType engineForExecutable(unsigned enabledEngineTypes, const QString &executable);
-    DebuggerEngineType engineForMode(unsigned enabledEngineTypes, DebuggerStartMode mode);
-    void initGdbEngine(Internal::GdbEngine *engine);
-    Internal::GdbEngine *gdbEngine() const;
-    Internal::AbstractGdbAdapter *gdbAdapter() const;
-
-    QScopedPointer<DebuggerRunnerPrivate> d;
+    QScopedPointer<DebuggerRunControlPrivate> d;
 };
 
 } // namespace Debugger

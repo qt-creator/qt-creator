@@ -16,7 +16,7 @@ int main(int argc, char **argv)
     QCoreApplication app(argc, argv);
 
 
-    Debugger::Internal::LLDBEngineGuest lldb;
+    Debugger::Internal::LldbEngineGuest lldb;
 
     QLocalSocket s;
     if (argc > 1) {

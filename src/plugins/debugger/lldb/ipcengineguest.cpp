@@ -62,23 +62,23 @@ IPCEngineGuest::~IPCEngineGuest()
 {
 }
 
-void IPCEngineGuest::setLocalHost(IPCEngineHost * h)
+void IPCEngineGuest::setLocalHost(IPCEngineHost *host)
 {
-    m_local_host = h;
+    m_local_host = host;
 }
 
-void IPCEngineGuest::setHostDevice(QIODevice * d)
+void IPCEngineGuest::setHostDevice(QIODevice *device)
 {
     if (m_device) {
-        disconnect(m_device, SIGNAL(readyRead()), this, SLOT(readyRead()));
+        disconnect(m_device, SIGNAL(readyRead()), SLOT(readyRead()));
         delete m_device;
     }
-    m_device = d;
+    m_device = device;
     if (m_device)
-        connect(m_device, SIGNAL(readyRead()), this, SLOT(readyRead()));
+        connect(m_device, SIGNAL(readyRead()), SLOT(readyRead()));
 }
 
-void IPCEngineGuest::rpcCall(IPCEngineGuest::Function f, QByteArray payload )
+void IPCEngineGuest::rpcCall(Function f, QByteArray payload)
 {
 #if 0
     if (m_local_host) {
@@ -105,7 +105,7 @@ void IPCEngineGuest::rpcCall(IPCEngineGuest::Function f, QByteArray payload )
 void IPCEngineGuest::readyRead()
 {
     if (!m_nextMessagePayloadSize) {
-        if (quint64(m_device->bytesAvailable()) < (sizeof(quint64) * 3))
+        if (quint64(m_device->bytesAvailable()) < 3 * sizeof(quint64))
             return;
         QDataStream s(m_device);
         SET_NATIVE_BYTE_ORDER(s);
@@ -119,7 +119,7 @@ void IPCEngineGuest::readyRead()
     if (ba < m_nextMessagePayloadSize)
         return;
 
-    qint64 rrr = (m_nextMessagePayloadSize);
+    qint64 rrr = m_nextMessagePayloadSize;
     QByteArray payload = m_device->read(rrr);
     if (quint64(payload.size()) != m_nextMessagePayloadSize || !payload.endsWith('T')) {
         showMessage(QLatin1String("IPC Error: corrupted frame"));
@@ -132,7 +132,7 @@ void IPCEngineGuest::readyRead()
     rpcCallback(m_nextMessageFunction, payload);
     m_nextMessagePayloadSize = 0;
 
-    if (quint64(m_device->bytesAvailable ()) >= (sizeof(quint64) * 3))
+    if (quint64(m_device->bytesAvailable ()) >= 3 * sizeof(quint64) * 3)
         QTimer::singleShot(0, this, SLOT(readyRead()));
 }
 
@@ -601,7 +601,7 @@ void IPCEngineGuest::updateWatchData(bool fullCycle, const QList<WatchData> &wd)
         SET_NATIVE_BYTE_ORDER(s);
         s << fullCycle;
         s << quint64(wd.count());
-        for (int i = 0; i < wd.count(); i++)
+        for (int i = 0; i < wd.count(); ++i)
             s << wd.at(i);
     }
     rpcCall(UpdateWatchData, p);

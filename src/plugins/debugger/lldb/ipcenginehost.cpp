@@ -58,12 +58,12 @@ namespace Internal {
 
 IPCEngineHost::IPCEngineHost (const DebuggerStartParameters &startParameters)
     : DebuggerEngine(startParameters)
-    , m_local_guest(0)
+    , m_localGuest(0)
     , m_nextMessagePayloadSize(0)
     , m_cookie(1)
     , m_device(0)
 {
-    connect(this, SIGNAL(stateChanged(DebuggerState)), this, SLOT(m_stateChanged(DebuggerState)));
+    connect(this, SIGNAL(stateChanged(DebuggerState)), SLOT(m_stateChanged(DebuggerState)));
 }
 
 IPCEngineHost::~IPCEngineHost()
@@ -71,18 +71,18 @@ IPCEngineHost::~IPCEngineHost()
     delete m_device;
 }
 
-void IPCEngineHost::setLocalGuest(IPCEngineGuest *g)
+void IPCEngineHost::setLocalGuest(IPCEngineGuest *guest)
 {
-    m_local_guest = g;
+    m_localGuest = guest;
 }
 
-void IPCEngineHost::setGuestDevice(QIODevice *d)
+void IPCEngineHost::setGuestDevice(QIODevice *device)
 {
     if (m_device) {
         disconnect(m_device, SIGNAL(readyRead()), this, SLOT(readyRead()));
         delete m_device;
     }
-    m_device = d;
+    m_device = device;
     if (m_device)
         connect(m_device, SIGNAL(readyRead()), this, SLOT(readyRead()));
 }
@@ -461,7 +461,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 QList<WatchData> wd;
                 s >> fullCycle;
                 s >> count;
-                for (qint64 i = 0; i < count; i++) {
+                for (qint64 i = 0; i < count; ++i) {
                     WatchData d;
                     s >> d;
                     wd.append(d);
@@ -548,8 +548,8 @@ void IPCEngineHost::m_stateChanged(const DebuggerState &state)
 
 void IPCEngineHost::rpcCall(Function f, QByteArray payload)
 {
-    if (m_local_guest) {
-        QMetaObject::invokeMethod(m_local_guest,
+    if (m_localGuest) {
+        QMetaObject::invokeMethod(m_localGuest,
                 "rpcCallback",
                 Qt::QueuedConnection,
                 Q_ARG(quint64, f),
@@ -574,12 +574,12 @@ void IPCEngineHost::readyRead()
     QDataStream s(m_device);
     SET_NATIVE_BYTE_ORDER(s);
     if (!m_nextMessagePayloadSize) {
-        if (quint64(m_device->bytesAvailable ()) < (sizeof(quint64) * 3))
+        if (quint64(m_device->bytesAvailable ()) < 3 * sizeof(quint64))
             return;
         s >> m_nextMessageCookie;
         s >> m_nextMessageFunction;
         s >> m_nextMessagePayloadSize;
-        m_nextMessagePayloadSize += 1; // terminator and "got header" marker
+        m_nextMessagePayloadSize += 1; // Terminator and "got header" marker.
     }
 
     quint64 ba = m_device->bytesAvailable();
@@ -598,10 +598,9 @@ void IPCEngineHost::readyRead()
     }
     rpcCallback(m_nextMessageFunction, payload);
     m_nextMessagePayloadSize = 0;
-    if (quint64(m_device->bytesAvailable()) >= (sizeof(quint64) * 3))
+    if (quint64(m_device->bytesAvailable()) >= 3 * sizeof(quint64))
         QTimer::singleShot(0, this, SLOT(readyRead()));
 }
-
 
 } // namespace Internal
 } // namespace Debugger

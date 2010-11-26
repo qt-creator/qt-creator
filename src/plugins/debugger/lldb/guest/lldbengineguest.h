@@ -50,7 +50,7 @@ Q_DECLARE_METATYPE (lldb::SBEvent *)
 namespace Debugger {
 namespace Internal {
 
-class LLDBEventListener : public QObject
+class LldbEventListener : public QObject
 {
 Q_OBJECT
 public slots:
@@ -63,13 +63,13 @@ signals:
 };
 
 
-class LLDBEngineGuest : public IPCEngineGuest
+class LldbEngineGuest : public IPCEngineGuest
 {
     Q_OBJECT
 
 public:
-    explicit LLDBEngineGuest();
-    ~LLDBEngineGuest();
+    explicit LldbEngineGuest();
+    ~LldbEngineGuest();
 
     void setupEngine();
     void setupInferior(const QString &executable, const QStringList &arguments,
@@ -95,9 +95,8 @@ public:
     void removeBreakpoint(BreakpointId id);
     void changeBreakpoint(BreakpointId id, const BreakpointParameters &bp);
 
-    void requestUpdateWatchData(const Internal::WatchData &data,
-            const Internal::WatchUpdateFlags & flags = Internal::WatchUpdateFlags());
-
+    void requestUpdateWatchData(const WatchData &data,
+            const WatchUpdateFlags &flags);
 
 private:
     QMutex m_runLock;
@@ -106,7 +105,7 @@ private:
     QList<QByteArray> m_arguments;
     QList<QByteArray> m_environment;
     QThread m_wThread;
-    LLDBEventListener *m_worker;
+    LldbEventListener *m_worker;
     lldb::SBDebugger *m_lldb;
     lldb::SBTarget   *m_target;
     lldb::SBProcess  *m_process;
@@ -129,8 +128,6 @@ private:
 private slots:
     void lldbEvent(lldb::SBEvent *ev);
 };
-
-
 
 } // namespace Internal
 } // namespace Debugger

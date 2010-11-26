@@ -37,19 +37,22 @@
 namespace Debugger {
 namespace Internal {
 
-class LLDBEngineHost : public IPCEngineHost
+class LldbEngineHost : public IPCEngineHost
 {
     Q_OBJECT
+
 public:
-    explicit LLDBEngineHost(const DebuggerStartParameters &startParameters);
-    ~LLDBEngineHost();
+    explicit LldbEngineHost(const DebuggerStartParameters &startParameters);
+    ~LldbEngineHost();
+
 private:
-    QProcess *m_guestp;
+    QProcess *m_guestProcess;
+
 private slots:
-    void finished (int, QProcess::ExitStatus);
+    void finished(int, QProcess::ExitStatus);
 };
 
 } // namespace Internal
 } // namespace Debugger
 
-#endif // DEBUGGER_LLDBENGINE_H
+#endif // DEBUGGER_LLDBENGINE_HOST_H

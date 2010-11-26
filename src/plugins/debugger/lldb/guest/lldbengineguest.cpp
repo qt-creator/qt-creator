@@ -68,7 +68,7 @@
 namespace Debugger {
 namespace Internal {
 
-void LLDBEventListener::listen(lldb::SBListener *listener)
+void LldbEventListener::listen(lldb::SBListener *listener)
 {
     while (true) {
         lldb::SBEvent event;
@@ -77,11 +77,11 @@ void LLDBEventListener::listen(lldb::SBListener *listener)
     }
 }
 
-LLDBEngineGuest::LLDBEngineGuest()
+LldbEngineGuest::LldbEngineGuest()
     : IPCEngineGuest()
     , m_runLock (QMutex::Recursive)
     , m_running (false)
-    , m_worker  (new LLDBEventListener)
+    , m_worker  (new LldbEventListener)
     , m_lldb    (new lldb::SBDebugger)
     , m_target  (new lldb::SBTarget)
     , m_process (new lldb::SBProcess)
@@ -101,7 +101,7 @@ LLDBEngineGuest::LLDBEngineGuest()
     setObjectName(QLatin1String("LLDBEngineGuest"));
 }
 
-LLDBEngineGuest::~LLDBEngineGuest()
+LldbEngineGuest::~LldbEngineGuest()
 {
     delete m_lldb;
     delete m_target;
@@ -109,7 +109,7 @@ LLDBEngineGuest::~LLDBEngineGuest()
     delete m_listener;
 }
 
-void LLDBEngineGuest::setupEngine()
+void LldbEngineGuest::setupEngine()
 {
     DEBUG_FUNC_ENTER;
 
@@ -124,7 +124,7 @@ void LLDBEngineGuest::setupEngine()
 
 }
 
-void LLDBEngineGuest::setupInferior(const QString &executable,
+void LldbEngineGuest::setupInferior(const QString &executable,
         const QStringList &args, const QStringList &env)
 {
     DEBUG_FUNC_ENTER;
@@ -146,17 +146,17 @@ void LLDBEngineGuest::setupInferior(const QString &executable,
     notifyInferiorSetupOk();
 }
 
-void LLDBEngineGuest::runEngine()
+void LldbEngineGuest::runEngine()
 {
     DEBUG_FUNC_ENTER;
 
-    const char **argp = new const char * [m_arguments.count() + 1];
+    const char **argp = new const char *[m_arguments.count() + 1];
     argp[m_arguments.count()] = 0;
     for (int i = 0; i < m_arguments.count(); i++) {
         argp[i] = m_arguments[i].data();
     }
 
-    const char **envp = new const char * [m_environment.count() + 1];
+    const char **envp = new const char *[m_environment.count() + 1];
     envp[m_environment.count()] = 0;
     for (int i = 0; i < m_environment.count(); i++) {
         envp[i] = m_environment[i].data();
@@ -178,13 +178,13 @@ void LLDBEngineGuest::runEngine()
             Q_ARG(lldb::SBListener *, m_listener));
 }
 
-void LLDBEngineGuest::shutdownInferior()
+void LldbEngineGuest::shutdownInferior()
 {
     DEBUG_FUNC_ENTER;
     m_process->Kill();
 }
 
-void LLDBEngineGuest::shutdownEngine()
+void LldbEngineGuest::shutdownEngine()
 {
     DEBUG_FUNC_ENTER;
     m_currentFrame = lldb::SBFrame();
@@ -202,12 +202,12 @@ void LLDBEngineGuest::shutdownEngine()
     notifyEngineShutdownOk();
 }
 
-void LLDBEngineGuest::detachDebugger()
+void LldbEngineGuest::detachDebugger()
 {
     DEBUG_FUNC_ENTER;
 }
 
-void LLDBEngineGuest::executeStep()
+void LldbEngineGuest::executeStep()
 {
     DEBUG_FUNC_ENTER;
 
@@ -216,7 +216,7 @@ void LLDBEngineGuest::executeStep()
     m_currentThread.StepInto();
 }
 
-void LLDBEngineGuest::executeStepOut()
+void LldbEngineGuest::executeStepOut()
 {
     DEBUG_FUNC_ENTER;
 
@@ -227,7 +227,7 @@ void LLDBEngineGuest::executeStepOut()
     notifyInferiorRunOk();
 }
 
-void LLDBEngineGuest::executeNext()
+void LldbEngineGuest::executeNext()
 {
     DEBUG_FUNC_ENTER;
 
@@ -238,7 +238,7 @@ void LLDBEngineGuest::executeNext()
     notifyInferiorRunOk();
 }
 
-void LLDBEngineGuest::executeStepI()
+void LldbEngineGuest::executeStepI()
 {
     DEBUG_FUNC_ENTER;
 
@@ -247,7 +247,7 @@ void LLDBEngineGuest::executeStepI()
     m_currentThread.StepInstruction(false);
 }
 
-void LLDBEngineGuest::executeNextI()
+void LldbEngineGuest::executeNextI()
 {
     DEBUG_FUNC_ENTER;
 
@@ -258,7 +258,7 @@ void LLDBEngineGuest::executeNextI()
     notifyInferiorRunOk();
 }
 
-void LLDBEngineGuest::continueInferior()
+void LldbEngineGuest::continueInferior()
 {
     DEBUG_FUNC_ENTER;
 
@@ -266,7 +266,7 @@ void LLDBEngineGuest::continueInferior()
     m_process->Continue();
     showStatusMessage(QLatin1String("resuming inferior"));
 }
-void LLDBEngineGuest::interruptInferior()
+void LldbEngineGuest::interruptInferior()
 {
     DEBUG_FUNC_ENTER;
 
@@ -276,7 +276,7 @@ void LLDBEngineGuest::interruptInferior()
     updateThreads();
 }
 
-void LLDBEngineGuest::executeRunToLine(const QString &fileName, int lineNumber)
+void LldbEngineGuest::executeRunToLine(const QString &fileName, int lineNumber)
 {
     DEBUG_FUNC_ENTER;
 
@@ -285,14 +285,14 @@ void LLDBEngineGuest::executeRunToLine(const QString &fileName, int lineNumber)
     Q_UNUSED(lineNumber);
 }
 
-void LLDBEngineGuest::executeRunToFunction(const QString &functionName)
+void LldbEngineGuest::executeRunToFunction(const QString &functionName)
 {
     DEBUG_FUNC_ENTER;
 
     // TODO
     Q_UNUSED(functionName);
 }
-void LLDBEngineGuest::executeJumpToLine(const QString &fileName, int lineNumber)
+void LldbEngineGuest::executeJumpToLine(const QString &fileName, int lineNumber)
 {
     DEBUG_FUNC_ENTER;
 
@@ -301,7 +301,7 @@ void LLDBEngineGuest::executeJumpToLine(const QString &fileName, int lineNumber)
     Q_UNUSED(lineNumber);
 }
 
-void LLDBEngineGuest::activateFrame(qint64 token)
+void LldbEngineGuest::activateFrame(qint64 token)
 {
     DEBUG_FUNC_ENTER;
     SYNC_INFERIOR;
@@ -324,7 +324,7 @@ void LLDBEngineGuest::activateFrame(qint64 token)
     updateWatchData(true, wd);
 }
 
-void LLDBEngineGuest::requestUpdateWatchData(const Internal::WatchData &data,
+void LldbEngineGuest::requestUpdateWatchData(const Internal::WatchData &data,
         const Internal::WatchUpdateFlags &)
 {
     DEBUG_FUNC_ENTER;
@@ -339,7 +339,7 @@ void LLDBEngineGuest::requestUpdateWatchData(const Internal::WatchData &data,
     updateWatchData(false, wd);
 }
 
-void LLDBEngineGuest::getWatchDataR(lldb::SBValue v, int level,
+void LldbEngineGuest::getWatchDataR(lldb::SBValue v, int level,
         const QByteArray &p_iname, QList<WatchData> &wd)
 {
     QByteArray iname = p_iname + "." + QByteArray(v.GetName());
@@ -366,7 +366,7 @@ void LLDBEngineGuest::getWatchDataR(lldb::SBValue v, int level,
     }
 }
 
-void LLDBEngineGuest::disassemble(quint64 pc)
+void LldbEngineGuest::disassemble(quint64 pc)
 {
     DEBUG_FUNC_ENTER;
     SYNC_INFERIOR_OR(return);
@@ -386,7 +386,7 @@ void LLDBEngineGuest::disassemble(quint64 pc)
     }
 }
 
-void LLDBEngineGuest::addBreakpoint(BreakpointId id,
+void LldbEngineGuest::addBreakpoint(BreakpointId id,
         const Internal::BreakpointParameters &bp_)
 {
     DEBUG_FUNC_ENTER;
@@ -422,7 +422,7 @@ void LLDBEngineGuest::addBreakpoint(BreakpointId id,
     }
 }
 
-void LLDBEngineGuest::removeBreakpoint(BreakpointId id)
+void LldbEngineGuest::removeBreakpoint(BreakpointId id)
 {
     DEBUG_FUNC_ENTER;
     SYNC_INFERIOR_OR(notifyRemoveBreakpointFailed(id); return);
@@ -432,7 +432,7 @@ void LLDBEngineGuest::removeBreakpoint(BreakpointId id)
     notifyRemoveBreakpointOk(id);
 }
 
-void LLDBEngineGuest::changeBreakpoint(BreakpointId id,
+void LldbEngineGuest::changeBreakpoint(BreakpointId id,
         const Internal::BreakpointParameters &bp)
 {
     DEBUG_FUNC_ENTER;
@@ -442,7 +442,7 @@ void LLDBEngineGuest::changeBreakpoint(BreakpointId id,
     Q_UNUSED(bp);
 }
 
-void LLDBEngineGuest::selectThread(qint64 token)
+void LldbEngineGuest::selectThread(qint64 token)
 {
     DEBUG_FUNC_ENTER;
     SYNC_INFERIOR_OR(return);
@@ -535,7 +535,7 @@ void LLDBEngineGuest::selectThread(qint64 token)
     }
 }
 
-void LLDBEngineGuest::updateThreads()
+void LldbEngineGuest::updateThreads()
 {
     DEBUG_FUNC_ENTER;
     SYNC_INFERIOR_OR(return);
@@ -646,7 +646,7 @@ void LLDBEngineGuest::updateThreads()
     }
 }
 
-void LLDBEngineGuest::lldbEvent(lldb::SBEvent *ev)
+void LldbEngineGuest::lldbEvent(lldb::SBEvent *ev)
 {
     qDebug() << "lldbevent" << ev->GetType() <<
         ev->GetDataFlavor() << m_process->GetState() << (int)state();

@@ -118,13 +118,13 @@ private slots:
     void m_stateChanged(const DebuggerState &state);
     void readyRead();
 private:
-    IPCEngineGuest *m_local_guest;
+    IPCEngineGuest *m_localGuest;
     quint64 m_nextMessageCookie;
     quint64 m_nextMessageFunction;
     quint64 m_nextMessagePayloadSize;
     quint64 m_cookie;
     QIODevice *m_device;
-    QHash <quint64, DisassemblerViewAgent *> m_frameToDisassemblerAgent;
+    QHash<quint64, DisassemblerViewAgent *> m_frameToDisassemblerAgent;
 };
 
 } // namespace Internal
