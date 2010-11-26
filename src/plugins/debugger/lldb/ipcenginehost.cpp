@@ -483,6 +483,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 s >> id;
                 breakHandler()->notifyBreakpointInsertOk(id);
             }
+            break;
         case IPCEngineGuest::NotifyAddBreakpointFailed:
             {
                 QDataStream s(payload);
@@ -491,6 +492,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 s >> id;
                 breakHandler()->notifyBreakpointInsertFailed(id);
             }
+            break;
         case IPCEngineGuest::NotifyRemoveBreakpointOk:
             {
                 QDataStream s(payload);
@@ -499,6 +501,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 s >> id;
                 breakHandler()->notifyBreakpointRemoveOk(id);
             }
+            break;
         case IPCEngineGuest::NotifyRemoveBreakpointFailed:
             {
                 QDataStream s(payload);
@@ -507,6 +510,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 s >> id;
                 breakHandler()->notifyBreakpointRemoveFailed(id);
             }
+            break;
         case IPCEngineGuest::NotifyChangeBreakpointOk:
             {
                 QDataStream s(payload);
@@ -515,6 +519,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 s >> id;
                 breakHandler()->notifyBreakpointChangeOk(id);
             }
+            break;
         case IPCEngineGuest::NotifyChangeBreakpointFailed:
             {
                 QDataStream s(payload);
@@ -523,6 +528,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 s >> id;
                 breakHandler()->notifyBreakpointChangeFailed(id);
             }
+            break;
         case IPCEngineGuest::NotifyBreakpointAdjusted:
             {
                 QDataStream s(payload);
@@ -532,6 +538,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 s >> id >> d;
                 breakHandler()->notifyBreakpointAdjusted(id, d);
             }
+            break;
     }
 }
 
