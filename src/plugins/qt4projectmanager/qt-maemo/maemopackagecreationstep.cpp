@@ -598,28 +598,21 @@ void MaemoPackageCreationStep::updateDesktopFiles(const QString &rulesFilePath)
     desktopFileDir.remove(QLatin1Char(':'));
     desktopFileDir.prepend(QLatin1Char('/'));
 #endif
-    const QList<Qt4ProFileNode *> &proFiles = qt4BuildConfiguration()
-        ->qt4Target()->qt4Project()->applicationProFiles();
-    int insertPos = makeInstallEol + 1;
-    foreach (const Qt4ProFileNode * const proFile, proFiles) {
-        const QString appName = proFile->targetInformation().target;
+    int insertPos = makeInstallEol + 1;    
+    for (int i = 0; i < deployStep()->deployables()->modelCount(); ++i) {
+        const MaemoDeployableListModel * const model
+            = deployStep()->deployables()->modelAt(i);
+        if (!model->isApplicationProject())
+            continue;
+        const QString appName = model->applicationName();
         if (maemoToolChain()->version() == MaemoToolChain::Maemo6) {
             addWorkaroundForHarmattanBug(content, insertPos,
                 appName, desktopFileDir);
         }
-
-        QString executableFilePath;
-        for (int i = 0; i < deployStep()->deployables()->modelCount(); ++i) {
-            const MaemoDeployableListModel * const model
-                = deployStep()->deployables()->modelAt(i);
-            if (model->proFilePath() == proFile->path()) {
-                executableFilePath = model->remoteExecutableFilePath();
-                break;
-            }
-        }
+        const QString executableFilePath = model->remoteExecutableFilePath();
         if (executableFilePath.isEmpty()) {
             qDebug("%s: Skipping subproject %s with missing deployment information.",
-                Q_FUNC_INFO, qPrintable(proFile->path()));
+                Q_FUNC_INFO, qPrintable(model->proFilePath()));
             continue;
         }
         const QByteArray lineBefore("Exec=.*");

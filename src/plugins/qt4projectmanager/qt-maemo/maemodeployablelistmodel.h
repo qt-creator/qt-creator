@@ -66,6 +66,8 @@ public:
     QString projectName() const { return m_projectName; }
     QString projectDir() const;
     QString proFilePath() const { return m_proFilePath; }
+    bool isApplicationProject() const { return m_projectType == ApplicationTemplate; }
+    QString applicationName() const { return m_targetInfo.target; }
     bool hasTargetPath() const { return m_hasTargetPath; }
     bool canAddDesktopFile() const;
     bool canAddIcon() const;
