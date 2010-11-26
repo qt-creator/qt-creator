@@ -96,6 +96,7 @@ LldbEngineHost::LldbEngineHost(const DebuggerStartParameters &startParameters)
 
 LldbEngineHost::~LldbEngineHost()
 {
+    showMessage(QLatin1String("tear down qtcreator-lldb"));
     disconnect(m_guestProcess, SIGNAL(finished(int, QProcess::ExitStatus)),
             this, SLOT(finished (int, QProcess::ExitStatus)));
     m_guestProcess->terminate();

@@ -35,7 +35,6 @@
 #include <QtCore/QQueue>
 #include <QtCore/QVariant>
 #include <QtCore/QThread>
-#include <QtCore/QMutex>
 #include <QtCore/QStringList>
 
 #include <lldb/API/LLDB.h>
@@ -99,7 +98,6 @@ public:
             const WatchUpdateFlags &flags);
 
 private:
-    QMutex m_runLock;
     bool m_running;
 
     QList<QByteArray> m_arguments;
@@ -133,3 +131,4 @@ private slots:
 } // namespace Debugger
 
 #endif // DEBUGGER_LLDBENGINE_H
+#define SYNC_INFERIOR

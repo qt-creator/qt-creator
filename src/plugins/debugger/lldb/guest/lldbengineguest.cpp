@@ -61,8 +61,7 @@
     .arg(QLatin1String(Q_FUNC_INFO))); \
     qDebug("%s", Q_FUNC_INFO)
 
-#define SYNC_INFERIOR QMutexLocker locker(&m_runLock)
-#define SYNC_INFERIOR_OR(x)  if (!m_runLock.tryLock()) { x; } else { m_runLock.unlock(); }; SYNC_INFERIOR
+#define SYNC_INFERIOR_OR(x)  if (m_running) { x; }
 
 
 namespace Debugger {
@@ -79,7 +78,6 @@ void LldbEventListener::listen(lldb::SBListener *listener)
 
 LldbEngineGuest::LldbEngineGuest()
     : IPCEngineGuest()
-    , m_runLock (QMutex::Recursive)
     , m_running (false)
     , m_worker  (new LldbEventListener)
     , m_lldb    (new lldb::SBDebugger)
@@ -304,7 +302,8 @@ void LldbEngineGuest::executeJumpToLine(const QString &fileName, int lineNumber)
 void LldbEngineGuest::activateFrame(qint64 token)
 {
     DEBUG_FUNC_ENTER;
-    SYNC_INFERIOR;
+    SYNC_INFERIOR_OR(showMessage(QLatin1String(
+        "activateFrame called while inferior running")); return);
 
     currentFrameChanged(token);
     m_localesCache.clear();
@@ -658,7 +657,6 @@ void LldbEngineGuest::lldbEvent(lldb::SBEvent *ev)
             switch (m_process->GetState()) {
                 case lldb::eStateRunning: // 5
                     if (!m_running) {
-                        m_runLock.lock();
                         m_running = true;
                     }
                     notifyInferiorPid(m_process->GetProcessID());
@@ -679,7 +677,6 @@ void LldbEngineGuest::lldbEvent(lldb::SBEvent *ev)
                     break;
                 case lldb::eStateExited: // 9
                     if (m_running) {
-                        m_runLock.unlock();
                         m_running = false;
                     }
                     switch (state()) {
@@ -700,7 +697,6 @@ void LldbEngineGuest::lldbEvent(lldb::SBEvent *ev)
                     break;
                 case lldb::eStateStopped: // 4
                     if (m_running) {
-                        m_runLock.unlock();
                         m_running = false;
                     }
                     switch (state()) {
@@ -720,7 +716,6 @@ void LldbEngineGuest::lldbEvent(lldb::SBEvent *ev)
                     break;
                 case lldb::eStateCrashed: // 7
                     if (m_running) {
-                        m_runLock.unlock();
                         m_running = false;
                     }
                     switch (state()) {
