@@ -152,7 +152,7 @@ public:
 
     bool closeEditors(const QList<IEditor *> &editorsToClose, bool askAboutModifiedEditors = true);
 
-    MakeWritableResult makeEditorWritable(IEditor *editor);
+    MakeWritableResult makeFileWritable(IFile *file);
 
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);
@@ -197,15 +197,6 @@ public:
 
     QTextCodec *defaultTextEncoding() const;
 
-    // Helper to display a message dialog when encountering a read-only
-    // file, prompting the user about how to make it writeable.
-    enum ReadOnlyAction { RO_Cancel, RO_OpenVCS, RO_MakeWriteable, RO_SaveAs };
-
-    static ReadOnlyAction promptReadOnlyFile(const QString &fileName,
-                                             const IVersionControl *versionControl,
-                                             QWidget *parent,
-                                             bool displaySaveAsButton = false);
-
     static qint64 maxTextFileSize();
 
     void setWindowTitleAddition(const QString &addition);
@@ -222,8 +213,8 @@ public slots:
     bool closeAllEditors(bool askAboutModifiedEditors = true);
     void openInExternalEditor();
 
-    bool saveFile(Core::IEditor *editor = 0);
-    bool saveFileAs(Core::IEditor *editor = 0);
+    bool saveFile(Core::IFile *file = 0);
+    bool saveFileAs(Core::IFile *file = 0);
     void revertToSaved();
     void closeEditor();
     void closeOtherEditors();
@@ -272,6 +263,7 @@ private:
     void emptyView(Core::Internal::EditorView *view);
     Core::Internal::EditorView *currentEditorView() const;
     IEditor *pickUnusedEditor() const;
+    void addFileToRecentFiles(IFile *file);
 
     static EditorManager *m_instance;
     EditorManagerPrivate *m_d;

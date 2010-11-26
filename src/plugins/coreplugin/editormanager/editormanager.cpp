@@ -1161,30 +1161,6 @@ QString EditorManager::getOpenWithEditorId(const QString &fileName,
     return selectedId;
 }
 
-static QString formatFileFilters(const Core::ICore *core, QString *selectedFilter = 0)
-{
-    if (selectedFilter)
-        selectedFilter->clear();
-
-    // Compile list of filter strings, sort, and remove duplicates (different mime types might
-    // generate the same filter).
-    QStringList filters = core->mimeDatabase()->filterStrings();
-    if (filters.empty())
-        return QString();
-    filters.sort();
-    filters.erase(std::unique(filters.begin(), filters.end()), filters.end());
-
-    static const QString allFilesFilter =
-        QCoreApplication::translate("Core", Constants::ALL_FILES_FILTER);
-    if (selectedFilter)
-        *selectedFilter = allFilesFilter;
-
-    // Prepend all files filter (instead of appending to work around a bug in Qt/Mac).
-    filters.prepend(allFilesFilter);
-
-    return filters.join(QLatin1String(";;"));
-}
-
 IEditor *EditorManager::openEditor(const QString &fileName, const QString &editorId,
                                    OpenEditorFlags flags, bool *newEditor)
 {
@@ -1279,7 +1255,7 @@ bool EditorManager::openExternalEditor(const QString &fileName, const QString &e
 QStringList EditorManager::getOpenFileNames() const
 {
     QString selectedFilter;
-    const QString &fileFilters = formatFileFilters(m_d->m_core, &selectedFilter);
+    const QString &fileFilters = m_d->m_core->mimeDatabase()->allFiltersString(&selectedFilter);
     return ICore::instance()->fileManager()->getOpenFileNames(fileFilters,
                                                               QString(), &selectedFilter);
 }
@@ -1379,23 +1355,23 @@ void EditorManager::restoreEditorState(IEditor *editor)
 
 bool EditorManager::saveEditor(IEditor *editor)
 {
-    return saveFile(editor);
+    return saveFile(editor->file());
 }
 
-bool EditorManager::saveFile(IEditor *editor)
+bool EditorManager::saveFile(IFile *fileParam)
 {
-    if (!editor)
-        editor = currentEditor();
-    if (!editor)
+    IFile *file = fileParam;
+    if (!file && currentEditor())
+        file = currentEditor()->file();
+    if (!file)
         return false;
 
-    IFile *file = editor->file();
     file->checkPermissions();
 
     const QString &fileName = file->fileName();
 
     if (fileName.isEmpty())
-        return saveFileAs(editor);
+        return saveFileAs(file);
 
     bool success = false;
 
@@ -1406,7 +1382,7 @@ bool EditorManager::saveFile(IEditor *editor)
 
     if (!success) {
         MakeWritableResult answer =
-                makeEditorWritable(editor);
+                makeFileWritable(file);
         if (answer == Failed)
             return false;
         if (answer == SavedAs)
@@ -1419,74 +1395,31 @@ bool EditorManager::saveFile(IEditor *editor)
         m_d->m_core->fileManager()->unblockFileChange(file);
     }
 
-    if (success && !editor->isTemporary())
-        m_d->m_core->fileManager()->addToRecentFiles(editor->file()->fileName());
+    if (success) {
+        addFileToRecentFiles(file);
+    }
 
     return success;
 }
 
-EditorManager::ReadOnlyAction
-    EditorManager::promptReadOnlyFile(const QString &fileName,
-                                      const IVersionControl *versionControl,
-                                      QWidget *parent,
-                                      bool displaySaveAsButton)
-{
-    // Version Control: If automatic open is desired, open right away.
-    bool promptVCS = false;
-    if (versionControl && versionControl->supportsOperation(IVersionControl::OpenOperation)) {
-        if (versionControl->settingsFlags() & IVersionControl::AutoOpen)
-            return RO_OpenVCS;
-        promptVCS = true;
-    }
-
-    // Create message box.
-    QMessageBox msgBox(QMessageBox::Question, tr("File is Read Only"),
-                       tr("The file <i>%1</i> is read only.").arg(QDir::toNativeSeparators(fileName)),
-                       QMessageBox::Cancel, parent);
-
-    QPushButton *vcsButton = 0;
-    if (promptVCS)
-        vcsButton = msgBox.addButton(tr("Open with VCS (%1)").arg(versionControl->displayName()), QMessageBox::AcceptRole);
-
-    QPushButton *makeWritableButton =  msgBox.addButton(tr("Make writable"), QMessageBox::AcceptRole);
-
-    QPushButton *saveAsButton = 0;
-    if (displaySaveAsButton)
-        saveAsButton = msgBox.addButton(tr("Save as ..."), QMessageBox::ActionRole);
-
-    msgBox.setDefaultButton(vcsButton ? vcsButton : makeWritableButton);
-    msgBox.exec();
-
-    QAbstractButton *clickedButton = msgBox.clickedButton();
-    if (clickedButton == vcsButton)
-        return RO_OpenVCS;
-    if (clickedButton == makeWritableButton)
-        return RO_MakeWriteable;
-    if (clickedButton == saveAsButton)
-        return RO_SaveAs;
-    return  RO_Cancel;
-}
-
-
 MakeWritableResult
-EditorManager::makeEditorWritable(IEditor *editor)
+EditorManager::makeFileWritable(IFile *file)
 {
-    if (!editor || !editor->file())
+    if (!file)
         return Failed;
-    QString directory = QFileInfo(editor->file()->fileName()).absolutePath();
+    QString directory = QFileInfo(file->fileName()).absolutePath();
     IVersionControl *versionControl = m_d->m_core->vcsManager()->findVersionControlForDirectory(directory);
-    IFile *file = editor->file();
     const QString &fileName = file->fileName();
 
-    switch (promptReadOnlyFile(fileName, versionControl, m_d->m_core->mainWindow(), true)) {
-    case RO_OpenVCS:
+    switch (FileManager::promptReadOnlyFile(fileName, versionControl, m_d->m_core->mainWindow(), true)) {
+    case FileManager::RO_OpenVCS:
         if (!versionControl->vcsOpen(fileName)) {
             QMessageBox::warning(m_d->m_core->mainWindow(), tr("Failed!"), tr("Could not open the file for editing with SCC."));
             return Failed;
         }
         file->checkPermissions();
         return OpenedWithVersionControl;
-    case RO_MakeWriteable: {
+    case FileManager::RO_MakeWriteable: {
         const bool permsOk = QFile::setPermissions(fileName, QFile::permissions(fileName) | QFile::WriteUser);
         if (!permsOk) {
             QMessageBox::warning(m_d->m_core->mainWindow(), tr("Failed!"),  tr("Could not set permissions to writable."));
@@ -1495,23 +1428,23 @@ EditorManager::makeEditorWritable(IEditor *editor)
     }
         file->checkPermissions();
         return MadeWritable;
-    case RO_SaveAs :
-        return saveFileAs(editor) ? SavedAs : Failed;
-    case RO_Cancel:
+    case FileManager::RO_SaveAs :
+        return saveFileAs(file) ? SavedAs : Failed;
+    case FileManager::RO_Cancel:
         break;
     }
     return Failed;
 }
 
-bool EditorManager::saveFileAs(IEditor *editor)
+bool EditorManager::saveFileAs(IFile *fileParam)
 {
-    if (!editor)
-        editor = currentEditor();
-    if (!editor)
+    IFile *file = fileParam;
+    if (!file && currentEditor())
+        file = currentEditor()->file();
+    if (!file)
         return false;
 
-    IFile *file = editor->file();
-    const QString &filter = formatFileFilters(m_d->m_core);
+    const QString &filter = m_d->m_core->mimeDatabase()->allFiltersString();
     QString selectedFilter =
         m_d->m_core->mimeDatabase()->findByFile(QFileInfo(file->fileName())).filterString();
     const QString &absoluteFilePath =
@@ -1519,7 +1452,9 @@ bool EditorManager::saveFileAs(IEditor *editor)
 
     if (absoluteFilePath.isEmpty())
         return false;
+
     if (absoluteFilePath != file->fileName()) {
+        // close existing editors for the new file name
         const QList<IEditor *> existList = editorsForFileName(absoluteFilePath);
         if (!existList.isEmpty()) {
             closeEditors(existList, false);
@@ -1537,11 +1472,25 @@ bool EditorManager::saveFileAs(IEditor *editor)
     // a good way out either (also the undo stack would be lost). Perhaps the best is to
     // re-think part of the editors design.
 
-    if (success && !editor->isTemporary())
-        m_d->m_core->fileManager()->addToRecentFiles(file->fileName());
-
+    if (success) {
+        addFileToRecentFiles(file);
+    }
     updateActions();
     return success;
+}
+
+void EditorManager::addFileToRecentFiles(IFile *file)
+{
+    bool isTemporary = true;
+    QList<IEditor *> editors = editorsForFile(file);
+    foreach (IEditor *editor, editors) {
+        if (!editor->isTemporary()) {
+            isTemporary = false;
+            break;
+        }
+    }
+    if (!isTemporary)
+        m_d->m_core->fileManager()->addToRecentFiles(file->fileName());
 }
 
 void EditorManager::gotoNextDocHistory()
@@ -1573,7 +1522,7 @@ void EditorManager::gotoPreviousDocHistory()
 void EditorManager::makeCurrentEditorWritable()
 {
     if (IEditor* curEditor = currentEditor())
-        makeEditorWritable(curEditor);
+        makeFileWritable(curEditor->file());
 }
 
 void EditorManager::updateWindowTitle()

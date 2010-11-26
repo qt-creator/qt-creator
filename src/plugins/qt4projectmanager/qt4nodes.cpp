@@ -937,14 +937,14 @@ bool Qt4PriFileNode::priFileWritable(const QString &path)
     const QString dir = QFileInfo(path).dir().path();
     Core::ICore *core = Core::ICore::instance();
     Core::IVersionControl *versionControl = core->vcsManager()->findVersionControlForDirectory(dir);
-    switch (Core::EditorManager::promptReadOnlyFile(path, versionControl, core->mainWindow(), false)) {
-    case Core::EditorManager::RO_OpenVCS:
+    switch (Core::FileManager::promptReadOnlyFile(path, versionControl, core->mainWindow(), false)) {
+    case Core::FileManager::RO_OpenVCS:
         if (!versionControl->vcsOpen(path)) {
             QMessageBox::warning(core->mainWindow(), tr("Failed!"), tr("Could not open the file for edit with VCS."));
             return false;
         }
         break;
-    case Core::EditorManager::RO_MakeWriteable: {
+    case Core::FileManager::RO_MakeWriteable: {
         const bool permsOk = QFile::setPermissions(path, QFile::permissions(path) | QFile::WriteUser);
         if (!permsOk) {
             QMessageBox::warning(core->mainWindow(), tr("Failed!"),  tr("Could not set permissions to writable."));
@@ -952,8 +952,8 @@ bool Qt4PriFileNode::priFileWritable(const QString &path)
         }
         break;
     }
-    case Core::EditorManager::RO_SaveAs:
-    case Core::EditorManager::RO_Cancel:
+    case Core::FileManager::RO_SaveAs:
+    case Core::FileManager::RO_Cancel:
         return false;
     }
     return true;

@@ -44,6 +44,7 @@ namespace Core {
 class ICore;
 class IContext;
 class IFile;
+class IVersionControl;
 
 namespace Internal {
 struct FileManagerPrivate;
@@ -61,13 +62,15 @@ public:
     explicit FileManager(QMainWindow *ew);
     virtual ~FileManager();
 
+    static FileManager *instance();
+
     // file pool to monitor
     void addFiles(const QList<IFile *> &files, bool addWatcher = true);
     void addFile(IFile *file, bool addWatcher = true);
     void removeFile(IFile *file);
     QList<IFile *> modifiedFiles() const;
 
-    void renamedFile(const QString &from, QString &to);
+    void renamedFile(const QString &from, const QString &to);
 
     void blockFileChange(IFile *file);
     void unblockFileChange(IFile *file);
@@ -104,6 +107,14 @@ public:
                                      const QString &alwaysSaveMessage = QString::null,
                                      bool *alwaysSave = 0);
 
+
+    // Helper to display a message dialog when encountering a read-only
+    // file, prompting the user about how to make it writeable.
+    enum ReadOnlyAction { RO_Cancel, RO_OpenVCS, RO_MakeWriteable, RO_SaveAs };
+    static ReadOnlyAction promptReadOnlyFile(const QString &fileName,
+                                             const IVersionControl *versionControl,
+                                             QWidget *parent,
+                                             bool displaySaveAsButton = false);
 
     QString fileDialogLastVisitedDirectory() const;
     void setFileDialogLastVisitedDirectory(const QString &);

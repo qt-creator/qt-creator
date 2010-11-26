@@ -271,6 +271,8 @@ public:
 
     friend QDebug operator<<(QDebug d, const MimeDatabase &mt);
 
+    // returns a string with all the possible file filters, for use with file dialogs
+    QString allFiltersString(QString *allFilesFilter = 0) const;
 private:
     MimeType findByFileUnlocked(const QFileInfo &f) const;
 

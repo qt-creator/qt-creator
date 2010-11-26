@@ -53,6 +53,7 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 #include <QtGui/QMainWindow>
+#include <QtGui/QPushButton>
 
 /*!
   \class Core::FileManager
@@ -107,8 +108,9 @@ struct FileState
 
 
 struct FileManagerPrivate {
-    explicit FileManagerPrivate(QObject *q, QMainWindow *mw);
+    explicit FileManagerPrivate(FileManager *q, QMainWindow *mw);
 
+    static FileManager *m_instance;
     QMap<QString, FileState> m_states;
     QStringList m_changedFiles;
     QList<IFile *> m_filesWithoutWatch;
@@ -133,7 +135,9 @@ struct FileManagerPrivate {
     IFile *m_blockedIFile;
 };
 
-FileManagerPrivate::FileManagerPrivate(QObject *q, QMainWindow *mw) :
+FileManager *FileManagerPrivate::m_instance = 0;
+
+FileManagerPrivate::FileManagerPrivate(FileManager *q, QMainWindow *mw) :
     m_mainWindow(mw),
     m_fileWatcher(new QFileSystemWatcher(q)),
     m_blockActivated(false),
@@ -145,6 +149,7 @@ FileManagerPrivate::FileManagerPrivate(QObject *q, QMainWindow *mw) :
 #endif
     m_blockedIFile(0)
 {
+    m_instance = q;
     q->connect(m_fileWatcher, SIGNAL(fileChanged(QString)),
         q, SLOT(changedFile(QString)));
 #ifdef Q_OS_UNIX
@@ -177,6 +182,11 @@ FileManager::~FileManager()
     delete d;
 }
 
+FileManager *FileManager::instance()
+{
+    return Internal::FileManagerPrivate::m_instance;
+}
+
 /*!
     \fn bool FileManager::addFiles(const QList<IFile *> &files, bool addWatcher)
 
@@ -189,7 +199,7 @@ void FileManager::addFiles(const QList<IFile *> &files, bool addWatcher)
     if (!addWatcher) {
         // We keep those in a separate list
 
-        foreach(IFile *file, files) {
+        foreach (IFile *file, files) {
             if (file && !d->m_filesWithoutWatch.contains(file)) {
                 connect(file, SIGNAL(destroyed(QObject *)), this, SLOT(fileDestroyed(QObject *)));
                 d->m_filesWithoutWatch.append(file);
@@ -300,7 +310,7 @@ void FileManager::dump()
     information to avoid annoying the user with "file has been removed"
     popups.
 */
-void FileManager::renamedFile(const QString &from, QString &to)
+void FileManager::renamedFile(const QString &from, const QString &to)
 {
     const QString &fixedFrom = fixFileName(from, KeepLinks);
 
@@ -793,6 +803,47 @@ QStringList FileManager::getOpenFileNames(const QString &filters,
     return files;
 }
 
+FileManager::ReadOnlyAction
+    FileManager::promptReadOnlyFile(const QString &fileName,
+                                      const IVersionControl *versionControl,
+                                      QWidget *parent,
+                                      bool displaySaveAsButton)
+{
+    // Version Control: If automatic open is desired, open right away.
+    bool promptVCS = false;
+    if (versionControl && versionControl->supportsOperation(IVersionControl::OpenOperation)) {
+        if (versionControl->settingsFlags() & IVersionControl::AutoOpen)
+            return RO_OpenVCS;
+        promptVCS = true;
+    }
+
+    // Create message box.
+    QMessageBox msgBox(QMessageBox::Question, tr("File is Read Only"),
+                       tr("The file <i>%1</i> is read only.").arg(QDir::toNativeSeparators(fileName)),
+                       QMessageBox::Cancel, parent);
+
+    QPushButton *vcsButton = 0;
+    if (promptVCS)
+        vcsButton = msgBox.addButton(tr("Open with VCS (%1)").arg(versionControl->displayName()), QMessageBox::AcceptRole);
+
+    QPushButton *makeWritableButton =  msgBox.addButton(tr("Make writable"), QMessageBox::AcceptRole);
+
+    QPushButton *saveAsButton = 0;
+    if (displaySaveAsButton)
+        saveAsButton = msgBox.addButton(tr("Save as ..."), QMessageBox::ActionRole);
+
+    msgBox.setDefaultButton(vcsButton ? vcsButton : makeWritableButton);
+    msgBox.exec();
+
+    QAbstractButton *clickedButton = msgBox.clickedButton();
+    if (clickedButton == vcsButton)
+        return RO_OpenVCS;
+    if (clickedButton == makeWritableButton)
+        return RO_MakeWriteable;
+    if (clickedButton == saveAsButton)
+        return RO_SaveAs;
+    return  RO_Cancel;
+}
 
 void FileManager::changedFile(const QString &fileName)
 {

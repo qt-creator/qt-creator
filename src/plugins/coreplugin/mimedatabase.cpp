@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "mimedatabase.h"
+#include "coreconstants.h"
 
 #include <utils/qtcassert.h>
 
@@ -1302,6 +1303,29 @@ QStringList MimeDatabase::filterStrings() const
     const  QStringList rc = m_d->filterStrings();
     m_mutex.unlock();
     return rc;
+}
+QString MimeDatabase::allFiltersString(QString *allFilesFilter) const
+{
+    if (allFilesFilter)
+        allFilesFilter->clear();
+
+    // Compile list of filter strings, sort, and remove duplicates (different mime types might
+    // generate the same filter).
+    QStringList filters = filterStrings();
+    if (filters.empty())
+        return QString();
+    filters.sort();
+    filters.erase(std::unique(filters.begin(), filters.end()), filters.end());
+
+    static const QString allFiles =
+        QCoreApplication::translate("Core", Constants::ALL_FILES_FILTER);
+    if (allFilesFilter)
+        *allFilesFilter = allFiles;
+
+    // Prepend all files filter (instead of appending to work around a bug in Qt/Mac).
+    filters.prepend(allFiles);
+
+    return filters.join(QLatin1String(";;"));
 }
 
 QString MimeDatabase::preferredSuffixByType(const QString &type) const

@@ -311,7 +311,7 @@ void EditorToolBar::listContextMenu(QPoint pos)
 void EditorToolBar::makeEditorWritable()
 {
     if (currentEditor())
-        ICore::instance()->editorManager()->makeEditorWritable(currentEditor());
+        ICore::instance()->editorManager()->makeFileWritable(currentEditor()->file());
 }
 
 void EditorToolBar::setCanGoBack(bool canGoBack)
