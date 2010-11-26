@@ -373,6 +373,11 @@ bool CodeCompletion::partiallyComplete(const QList<TextEditor::CompletionItem> &
     return ICompletionCollector::partiallyComplete(completionItems);
 }
 
+bool CodeCompletion::shouldRestartCompletion()
+{
+    return m_restartCompletion;
+}
+
 void CodeCompletion::cleanup()
 {
     m_editor = 0;

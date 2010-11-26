@@ -86,6 +86,8 @@ public:
      */
     virtual bool partiallyComplete(const QList<TextEditor::CompletionItem> &completionItems);
 
+    virtual bool shouldRestartCompletion();
+
     /* Called when it's safe to clean up the completion items.
      */
     virtual void cleanup();
