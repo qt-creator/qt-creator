@@ -162,7 +162,7 @@ void VectorType::populateMembers(Engine *engine, const char *components)
     // Single component swizzles.
     for (int x = 0; x < _dimension; ++x) {
         const QString *name = engine->identifier(components + x, 1);
-        add(engine->newVariable(this, *name, _elementType));
+        add(engine->newVariable(this, *name, elementType()));
     }
 
     // Two component swizzles.
@@ -170,7 +170,7 @@ void VectorType::populateMembers(Engine *engine, const char *components)
     if (_dimension == 2)
         vec2Type = this;
     else
-        vec2Type = engine->vectorType(_elementType, 2);
+        vec2Type = engine->vectorType(elementType(), 2);
     for (int x = 0; x < _dimension; ++x) {
         for (int y = 0; y < _dimension; ++y) {
             QString name;
@@ -188,7 +188,7 @@ void VectorType::populateMembers(Engine *engine, const char *components)
     else if (_dimension < 3)
         return;
     else
-        vec3Type = engine->vectorType(_elementType, 3);
+        vec3Type = engine->vectorType(elementType(), 3);
     for (int x = 0; x < _dimension; ++x) {
         for (int y = 0; y < _dimension; ++y) {
             for (int z = 0; z < _dimension; ++z) {
@@ -228,7 +228,7 @@ bool VectorType::isEqualTo(const Type *other) const
         if (const VectorType *v = other->asVectorType()) {
             if (_dimension != v->dimension())
                 return false;
-            else if (_elementType != v->elementType())
+            else if (elementType() != v->elementType())
                 return false;
             return true;
         }
@@ -243,7 +243,7 @@ bool VectorType::isLessThan(const Type *other) const
     Q_ASSERT(vec != 0);
     if (_dimension < vec->dimension())
         return true;
-    else if (_dimension == vec->dimension() && _elementType < vec->elementType())
+    else if (_dimension == vec->dimension() && elementType() < vec->elementType())
         return true;
     return false;
 }
@@ -278,6 +278,23 @@ bool MatrixType::isLessThan(const Type *other) const
             return true;
     }
     return false;
+}
+
+bool ArrayType::isEqualTo(const Type *other) const
+{
+    if (other) {
+        if (const ArrayType *array = other->asArrayType())
+            return elementType()->isEqualTo(array->elementType());
+    }
+    return false;
+}
+
+bool ArrayType::isLessThan(const Type *other) const
+{
+    Q_ASSERT(other != 0);
+    const ArrayType *array = other->asArrayType();
+    Q_ASSERT(array != 0);
+    return elementType() < array->elementType();
 }
 
 void Struct::add(Symbol *member)

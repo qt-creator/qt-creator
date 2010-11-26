@@ -155,7 +155,8 @@ const VectorType *Engine::vectorType(const Type *elementType, int dimension)
 
 const MatrixType *Engine::matrixType(const Type *elementType, int columns, int rows)
 {
-    return _matrixTypes.intern(MatrixType(elementType, columns, rows));
+    return _matrixTypes.intern(MatrixType(elementType, columns, rows,
+                                          vectorType(elementType, rows)));
 }
 
 QList<DiagnosticMessage> Engine::diagnosticMessages() const

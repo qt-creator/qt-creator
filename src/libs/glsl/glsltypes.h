@@ -99,13 +99,27 @@ public:
     virtual bool isLessThan(const Type *other) const;
 };
 
-class GLSL_EXPORT VectorType: public Type, public Scope
+// Type that can be indexed with the [] operator.
+class GLSL_EXPORT IndexType: public Type
+{
+public:
+    IndexType(const Type *indexElementType) : _indexElementType(indexElementType) {}
+
+    const Type *indexElementType() const { return _indexElementType; }
+
+    virtual const IndexType *asIndexType() const { return this; }
+
+private:
+    const Type *_indexElementType;
+};
+
+class GLSL_EXPORT VectorType: public IndexType, public Scope
 {
 public:
     VectorType(const Type *elementType, int dimension)
-        : _elementType(elementType), _dimension(dimension) {}
+        : IndexType(elementType), _dimension(dimension) {}
 
-    const Type *elementType() const { return _elementType; }
+    const Type *elementType() const { return indexElementType(); }
     int dimension() const { return _dimension; }
 
     virtual void add(Symbol *symbol);
@@ -117,7 +131,6 @@ public:
     virtual bool isLessThan(const Type *other) const;
 
 private:
-    const Type *_elementType;
     int _dimension;
     QHash<QString, Symbol *> _members;
 
@@ -127,13 +140,14 @@ private:
     void populateMembers(Engine *engine, const char *components);
 };
 
-class GLSL_EXPORT MatrixType: public Type
+class GLSL_EXPORT MatrixType: public IndexType
 {
 public:
-    MatrixType(const Type *elementType, int columns, int rows)
-        : _elementType(elementType), _columns(columns), _rows(rows) {}
+    MatrixType(const Type *elementType, int columns, int rows, const Type *columnType)
+        : IndexType(columnType), _elementType(elementType), _columns(columns), _rows(rows) {}
 
     const Type *elementType() const { return _elementType; }
+    const Type *columnType() const { return indexElementType(); }
     int columns() const { return _columns; }
     int rows() const { return _rows; }
 
@@ -145,6 +159,19 @@ private:
     const Type *_elementType;
     int _columns;
     int _rows;
+};
+
+class GLSL_EXPORT ArrayType: public IndexType
+{
+public:
+    explicit ArrayType(const Type *elementType)
+        : IndexType(elementType) {}
+
+    const Type *elementType() const { return indexElementType(); }
+
+    virtual const ArrayType *asArrayType() const { return this; }
+    virtual bool isEqualTo(const Type *other) const;
+    virtual bool isLessThan(const Type *other) const;
 };
 
 class GLSL_EXPORT Struct: public Type, public Scope

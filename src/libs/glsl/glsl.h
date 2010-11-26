@@ -58,8 +58,10 @@ class UIntType;
 class FloatType;
 class DoubleType;
 class OpaqueType;
+class IndexType;
 class VectorType;
 class MatrixType;
+class ArrayType;
 
 // symbols
 class Symbol;
