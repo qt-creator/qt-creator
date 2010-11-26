@@ -514,7 +514,7 @@ bool Semantic::visit(BasicTypeAST *ast)
         break;
 
     default:
-        qDebug() << "unknown type:" << GLSLParserTable::spell[ast->token];
+        _engine->error(ast->lineno, QString("Unknown type `%1'").arg(QLatin1String(GLSLParserTable::spell[ast->token])));
     }
 
     return false;
@@ -522,7 +522,17 @@ bool Semantic::visit(BasicTypeAST *ast)
 
 bool Semantic::visit(NamedTypeAST *ast)
 {
-    Q_UNUSED(ast);
+    if (ast->name) {
+        if (Symbol *s = _scope->lookup(*ast->name)) {
+            if (Struct *ty = s->asStruct()) {
+                _expr.type = ty;
+                _expr.isConstant = false;
+                return false;
+            }
+        }
+        _engine->error(ast->lineno, QString("Undefined type `%1'").arg(*ast->name));
+    }
+
     return false;
 }
 
@@ -539,6 +549,8 @@ bool Semantic::visit(StructTypeAST *ast)
     Struct *s = _engine->newStruct(_scope);
     if (ast->name)
         s->setName(*ast->name);
+    if (Scope *e = s->scope())
+        e->add(s);
     Scope *previousScope = switchScope(s);
     for (List<StructTypeAST::Field *> *it = ast->fields; it; it = it->next) {
         StructTypeAST::Field *f = it->value;
