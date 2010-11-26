@@ -464,6 +464,50 @@ bool Semantic::visit(BasicTypeAST *ast)
         _type = _engine->matrixType(_engine->doubleType(), 4, 4);
         break;
 
+    // samplers
+    case Parser::T_SAMPLER1D:
+    case Parser::T_SAMPLER2D:
+    case Parser::T_SAMPLER3D:
+    case Parser::T_SAMPLERCUBE:
+    case Parser::T_SAMPLER1DSHADOW:
+    case Parser::T_SAMPLER2DSHADOW:
+    case Parser::T_SAMPLERCUBESHADOW:
+    case Parser::T_SAMPLER1DARRAY:
+    case Parser::T_SAMPLER2DARRAY:
+    case Parser::T_SAMPLER1DARRAYSHADOW:
+    case Parser::T_SAMPLER2DARRAYSHADOW:
+    case Parser::T_SAMPLERCUBEARRAY:
+    case Parser::T_SAMPLERCUBEARRAYSHADOW:
+    case Parser::T_SAMPLER2DRECT:
+    case Parser::T_SAMPLER2DRECTSHADOW:
+    case Parser::T_SAMPLERBUFFER:
+    case Parser::T_SAMPLER2DMS:
+    case Parser::T_SAMPLER2DMSARRAY:
+    case Parser::T_ISAMPLER1D:
+    case Parser::T_ISAMPLER2D:
+    case Parser::T_ISAMPLER3D:
+    case Parser::T_ISAMPLERCUBE:
+    case Parser::T_ISAMPLER1DARRAY:
+    case Parser::T_ISAMPLER2DARRAY:
+    case Parser::T_ISAMPLERCUBEARRAY:
+    case Parser::T_ISAMPLER2DRECT:
+    case Parser::T_ISAMPLERBUFFER:
+    case Parser::T_ISAMPLER2DMS:
+    case Parser::T_ISAMPLER2DMSARRAY:
+    case Parser::T_USAMPLER1D:
+    case Parser::T_USAMPLER2D:
+    case Parser::T_USAMPLER3D:
+    case Parser::T_USAMPLERCUBE:
+    case Parser::T_USAMPLER1DARRAY:
+    case Parser::T_USAMPLER2DARRAY:
+    case Parser::T_USAMPLERCUBEARRAY:
+    case Parser::T_USAMPLER2DRECT:
+    case Parser::T_USAMPLERBUFFER:
+    case Parser::T_USAMPLER2DMS:
+    case Parser::T_USAMPLER2DMSARRAY:
+        _type = _engine->samplerType(ast->token);
+        break;
+
     default:
         qDebug() << "unknown type:" << GLSLParserTable::spell[ast->token];
     }

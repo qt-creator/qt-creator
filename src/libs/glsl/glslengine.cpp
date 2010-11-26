@@ -30,6 +30,7 @@
 #include "glslengine.h"
 #include "glslsymbols.h"
 #include "glsltypes.h"
+#include "glslparser.h"
 
 using namespace GLSL;
 
@@ -144,6 +145,10 @@ const DoubleType *Engine::doubleType()
     return &t;
 }
 
+const SamplerType *Engine::samplerType(int kind)
+{
+    return _samplerTypes.intern(SamplerType(kind));
+}
 
 const VectorType *Engine::vectorType(const Type *elementType, int dimension)
 {

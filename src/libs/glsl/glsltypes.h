@@ -233,6 +233,22 @@ private:
     QVector<Argument *> _arguments;
 };
 
+class GLSL_EXPORT SamplerType: public Type
+{
+public:
+    explicit SamplerType(int kind) : _kind(kind) {}
+
+    // Kind of sampler as a token code; e.g. T_SAMPLER2D.
+    int kind() const { return _kind; }
+
+    virtual const SamplerType *asSamplerType() const { return this; }
+    virtual bool isEqualTo(const Type *other) const;
+    virtual bool isLessThan(const Type *other) const;
+
+private:
+    int _kind;
+};
+
 } // end of namespace GLSL
 
 #endif // GLSLTYPES_H

@@ -106,6 +106,7 @@ public:
     const UIntType *uintType();
     const FloatType *floatType();
     const DoubleType *doubleType();
+    const SamplerType *samplerType(int kind);
     const VectorType *vectorType(const Type *elementType, int dimension);
     const MatrixType *matrixType(const Type *elementType, int columns, int rows);
 
@@ -126,6 +127,7 @@ private:
     QSet<QString> _identifiers;
     TypeTable<VectorType> _vectorTypes;
     TypeTable<MatrixType> _matrixTypes;
+    TypeTable<SamplerType> _samplerTypes;
     MemoryPool _pool;
     QList<DiagnosticMessage> _diagnosticMessages;
     QList<Symbol *> _symbols;

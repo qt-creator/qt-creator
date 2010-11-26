@@ -373,3 +373,20 @@ Symbol *Function::find(const QString &name) const
     }
     return 0;
 }
+
+bool SamplerType::isEqualTo(const Type *other) const
+{
+    if (other) {
+        if (const SamplerType *samp = other->asSamplerType())
+            return _kind == samp->kind();
+    }
+    return false;
+}
+
+bool SamplerType::isLessThan(const Type *other) const
+{
+    Q_ASSERT(other != 0);
+    const SamplerType *samp = other->asSamplerType();
+    Q_ASSERT(samp != 0);
+    return _kind < samp->kind();
+}

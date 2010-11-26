@@ -62,6 +62,7 @@ class IndexType;
 class VectorType;
 class MatrixType;
 class ArrayType;
+class SamplerType;
 
 // symbols
 class Symbol;
