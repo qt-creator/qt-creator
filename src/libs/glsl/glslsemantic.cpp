@@ -160,7 +160,18 @@ bool Semantic::visit(IdentifierExpressionAST *ast)
 
 bool Semantic::visit(LiteralExpressionAST *ast)
 {
-    Q_UNUSED(ast);
+    if (ast->value) {
+        _expr.isConstant = true;
+
+        if (ast->value->endsWith(QLatin1Char('u')) || ast->value->endsWith(QLatin1Char('U')))
+            _expr.type = _engine->uintType();
+        else if (ast->value->endsWith(QLatin1Char('d')) || ast->value->endsWith(QLatin1Char('d')))
+            _expr.type = _engine->doubleType();
+        else if (ast->value->endsWith(QLatin1Char('f')) || ast->value->endsWith(QLatin1Char('f')) || ast->value->contains(QLatin1Char('.')))
+            _expr.type = _engine->floatType();
+        else
+            _expr.type = _engine->intType();
+    }
     return false;
 }
 
