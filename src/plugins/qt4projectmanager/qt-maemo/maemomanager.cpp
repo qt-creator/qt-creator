@@ -32,6 +32,7 @@
 #include "maemoconstants.h"
 #include "maemodeploystepfactory.h"
 #include "maemodeviceconfigurations.h"
+#include "maemoglobal.h"
 #include "maemopackagecreationfactory.h"
 #include "maemopublishingwizardfactories.h"
 #include "maemoqemumanager.h"
@@ -106,25 +107,14 @@ bool MaemoManager::isValidMaemoQtVersion(const QtVersion *version) const
     QDir dir(path);
     const QByteArray target = dir.dirName().toAscii();
     dir.cdUp(); dir.cdUp();
-    QString madAdminCommand(dir.absolutePath() + QLatin1String("/bin/mad-admin"));
+    const QString madAdminCommand(dir.absolutePath() + QLatin1String("/bin/mad-admin"));
     if (!QFileInfo(madAdminCommand).exists())
         return false;
 
     QProcess madAdminProc;
-    QStringList arguments(QLatin1String("list"));
-
-#ifdef Q_OS_WIN
-    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    env.insert(QLatin1String("PATH"),
-        QDir::toNativeSeparators(dir.absolutePath() % QLatin1String("/bin"))
-        % QLatin1Char(';') % env.value(QLatin1String("PATH")));
-    madAdminProc.setProcessEnvironment(env);
-
-    arguments.prepend(madAdminCommand);
-    madAdminCommand = dir.absolutePath() + QLatin1String("/bin/sh.exe");
-#endif
-
-    madAdminProc.start(madAdminCommand, arguments);
+    const QStringList arguments(QLatin1String("list"));
+    MaemoGlobal::callMaddeShellScript(madAdminProc, dir.absolutePath(),
+        madAdminCommand, arguments);
     if (!madAdminProc.waitForStarted() || !madAdminProc.waitForFinished())
         return false;
 

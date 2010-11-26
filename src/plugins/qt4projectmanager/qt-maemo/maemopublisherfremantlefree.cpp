@@ -315,16 +315,11 @@ void MaemoPublisherFremantleFree::runDpkgBuildPackage()
     emit progressReport(tr("Building source package..."));
     const MaemoToolChain * const tc
         = dynamic_cast<MaemoToolChain *>(m_buildConfig->toolChain());
-    QStringList args = QStringList() << QLatin1String("-t")
+    const QStringList args = QStringList() << QLatin1String("-t")
         << tc->targetName() << QLatin1String("dpkg-buildpackage")
         << QLatin1String("-S") << QLatin1String("-us") << QLatin1String("-uc");
-    QString madCommand = tc->maddeRoot() + QLatin1String("/bin/mad");
-
-#ifdef Q_OS_WIN
-    args.prepend(madCommand);
-    madCommand = tc->maddeRoot() + QLatin1String("/bin/sh.exe");
-#endif
-    m_process->start(madCommand, args);
+    const QString madCommand = tc->maddeRoot() + QLatin1String("/bin/mad");
+    MaemoGlobal::callMaddeShellScript(*m_process, tc->maddeRoot(), madCommand, args);
 }
 
 // We have to implement the SCP protocol, because the maemo.org

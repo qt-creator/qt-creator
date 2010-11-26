@@ -29,6 +29,7 @@
 
 #include "maemoqemumanager.h"
 
+#include "maemoglobal.h"
 #include "maemorunconfiguration.h"
 #include "maemotoolchain.h"
 #include "qtversionmanager.h"
@@ -224,7 +225,7 @@ void MaemoQemuManager::projectChanged(ProjectExplorer::Project *project)
 
 bool targetIsMaemo(const QString &id)
 {
-    return id == QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID);
+    return id == QLatin1String(Qt4ProjectManager::Constants::MAEMO_DEVICE_TARGET_ID);
 }
 
 void MaemoQemuManager::targetAdded(ProjectExplorer::Target *target)
@@ -680,28 +681,14 @@ QString MaemoQemuManager::runtimeForQtVersion(const QString &qmakeCommand) const
     const QString &target = targetRoot(qmakeCommand);
     const QString &madRoot = maddeRoot(qmakeCommand);
 
-    QString madCommand = madRoot + QLatin1String("/bin/mad");
+    const QString madCommand = madRoot + QLatin1String("/bin/mad");
     if (!QFileInfo(madCommand).exists())
         return QString();
 
     QProcess madProc;
-    QStringList arguments(QLatin1String("info"));
+    const QStringList arguments(QLatin1String("info"));
 
-#ifdef Q_OS_WIN
-    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    env.insert("HOME",
-        QDesktopServices::storageLocation(QDesktopServices::HomeLocation));
-    env.insert(QLatin1String("PATH"),
-        QDir::toNativeSeparators(madRoot % QLatin1String("/bin"))
-        % QLatin1Char(';') % env.value(QLatin1String("PATH")));
-
-    madProc.setProcessEnvironment(env);
-
-    arguments.prepend(madCommand);
-    madCommand = madRoot + QLatin1String("/bin/sh.exe");
-#endif
-
-    madProc.start(madCommand, arguments);
+    MaemoGlobal::callMaddeShellScript(madProc, madRoot, madCommand, arguments);
     if (!madProc.waitForStarted() || !madProc.waitForFinished())
         return QString();
 

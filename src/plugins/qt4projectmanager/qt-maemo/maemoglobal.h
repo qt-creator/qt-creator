@@ -42,6 +42,7 @@
     MaemoGlobal::assertState<State>(expected, actual, Q_FUNC_INFO)
 
 QT_BEGIN_NAMESPACE
+class QProcess;
 class QString;
 QT_END_NAMESPACE
 
@@ -58,6 +59,8 @@ public:
     static QString remoteSourceProfilesCommand();
 
     static bool removeRecursively(const QString &filePath, QString &error);
+    static void callMaddeShellScript(QProcess &proc, const QString &maddeRoot,
+        const QString &command, const QStringList &args);
 
     template<class T> static T *buildStep(const ProjectExplorer::DeployConfiguration *dc)
     {

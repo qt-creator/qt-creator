@@ -29,8 +29,12 @@
 
 #include "maemoglobal.h"
 
+#include <utils/environment.h>
+
 #include <QtCore/QCoreApplication>
+#include <QtGui/QDesktopServices>
 #include <QtCore/QDir>
+#include <QtCore/QProcess>
 #include <QtCore/QString>
 
 #define TR(text) QCoreApplication::translate("Qt4ProjectManager::Internal::MaemoGlobal", text)
@@ -102,6 +106,25 @@ bool MaemoGlobal::removeRecursively(const QString &filePath, QString &error)
         }
     }
     return true;
+}
+
+void MaemoGlobal::callMaddeShellScript(QProcess &proc, const QString &maddeRoot,
+    const QString &command, const QStringList &args)
+{
+    QString actualCommand = command;
+    QStringList actualArgs = args;
+#ifdef Q_OS_WIN
+    Utils::Environment env(proc.environment());
+    env.prependOrSetPath(maddeRoot + QLatin1String("/bin"));
+    env.prependOrSet(QLatin1String("HOME"),
+        QDesktopServices::storageLocation(QDesktopServices::HomeLocation));
+    proc.setEnvironment(env.toStringList());
+    actualArgs.prepend(command);
+    actualCommand = maddeRoot + QLatin1String("/bin/sh.exe");
+#else
+    Q_UNUSED(maddeRoot);
+#endif
+    proc.start(actualCommand, actualArgs);
 }
 
 } // namespace Internal
