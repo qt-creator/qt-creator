@@ -38,8 +38,8 @@ using namespace GLSL;
 
 Semantic::Semantic(Engine *engine)
     : _engine(engine)
-    , _type(0)
     , _scope(0)
+    , _type(0)
 {
 }
 
@@ -54,9 +54,13 @@ Scope *Semantic::switchScope(Scope *scope)
     return previousScope;
 }
 
-void Semantic::expression(ExpressionAST *ast)
+Semantic::ExprResult Semantic::expression(ExpressionAST *ast)
 {
+    Semantic::ExprResult r(_engine->undefinedType());
+    std::swap(_expr, r);
     accept(ast);
+    std::swap(_expr, r);
+    return r;
 }
 
 void Semantic::statement(StatementAST *ast)
@@ -152,46 +156,45 @@ bool Semantic::visit(LiteralExpressionAST *ast)
 
 bool Semantic::visit(BinaryExpressionAST *ast)
 {
-    expression(ast->left);
-    expression(ast->right);
+    ExprResult left = expression(ast->left);
+    ExprResult right = expression(ast->right);
     return false;
 }
 
 bool Semantic::visit(UnaryExpressionAST *ast)
 {
-    expression(ast->expr);
+    ExprResult expr = expression(ast->expr);
     return false;
 }
 
 bool Semantic::visit(TernaryExpressionAST *ast)
 {
-    expression(ast->first);
-    expression(ast->second);
-    expression(ast->third);
+    ExprResult first = expression(ast->first);
+    ExprResult second = expression(ast->second);
+    ExprResult third = expression(ast->third);
     return false;
 }
 
 bool Semantic::visit(AssignmentExpressionAST *ast)
 {
-    expression(ast->variable);
-    expression(ast->value);
+    ExprResult variable = expression(ast->variable);
+    ExprResult value = expression(ast->value);
     return false;
 }
 
 bool Semantic::visit(MemberAccessExpressionAST *ast)
 {
-    expression(ast->expr);
+    ExprResult expr = expression(ast->expr);
     // ast->field
     return false;
 }
 
 bool Semantic::visit(FunctionCallExpressionAST *ast)
 {
-    expression(ast->expr);
+    ExprResult expr = expression(ast->expr);
     functionIdentifier(ast->id);
     for (List<ExpressionAST *> *it = ast->arguments; it; it = it->next) {
-        ExpressionAST *arg = it->value;
-        expression(arg);
+        ExprResult arg = expression(it->value);
     }
 
     return false;
@@ -202,7 +205,7 @@ bool Semantic::visit(DeclarationExpressionAST *ast)
     const Type *ty = type(ast->type);
     Q_UNUSED(ty);
     // ast->name
-    expression(ast->initializer);
+    ExprResult initializer = expression(ast->initializer);
     return false;
 }
 
@@ -210,7 +213,7 @@ bool Semantic::visit(DeclarationExpressionAST *ast)
 // statements
 bool Semantic::visit(ExpressionStatementAST *ast)
 {
-    expression(ast->expr);
+    ExprResult expr = expression(ast->expr);
     return false;
 }
 
@@ -227,7 +230,7 @@ bool Semantic::visit(CompoundStatementAST *ast)
 
 bool Semantic::visit(IfStatementAST *ast)
 {
-    expression(ast->condition);
+    ExprResult condition = expression(ast->condition);
     statement(ast->thenClause);
     statement(ast->elseClause);
     return false;
@@ -235,7 +238,7 @@ bool Semantic::visit(IfStatementAST *ast)
 
 bool Semantic::visit(WhileStatementAST *ast)
 {
-    expression(ast->condition);
+    ExprResult condition = expression(ast->condition);
     statement(ast->body);
     return false;
 }
@@ -243,15 +246,15 @@ bool Semantic::visit(WhileStatementAST *ast)
 bool Semantic::visit(DoStatementAST *ast)
 {
     statement(ast->body);
-    expression(ast->condition);
+    ExprResult condition = expression(ast->condition);
     return false;
 }
 
 bool Semantic::visit(ForStatementAST *ast)
 {
     statement(ast->init);
-    expression(ast->condition);
-    expression(ast->increment);
+    ExprResult condition = expression(ast->condition);
+    ExprResult increment = expression(ast->increment);
     statement(ast->body);
     return false;
 }
@@ -264,20 +267,20 @@ bool Semantic::visit(JumpStatementAST *ast)
 
 bool Semantic::visit(ReturnStatementAST *ast)
 {
-    expression(ast->expr);
+    ExprResult expr = expression(ast->expr);
     return false;
 }
 
 bool Semantic::visit(SwitchStatementAST *ast)
 {
-    expression(ast->expr);
+    ExprResult expr = expression(ast->expr);
     statement(ast->body);
     return false;
 }
 
 bool Semantic::visit(CaseLabelStatementAST *ast)
 {
-    expression(ast->expr);
+    ExprResult expr = expression(ast->expr);
     return false;
 }
 
@@ -527,7 +530,7 @@ bool Semantic::visit(ArrayTypeAST *ast)
 {
     const Type *elementType = type(ast->elementType);
     Q_UNUSED(elementType);
-    expression(ast->size);
+    ExprResult size = expression(ast->size);
     return false;
 }
 
@@ -578,7 +581,7 @@ bool Semantic::visit(VariableDeclarationAST *ast)
 {
     const Type *ty = type(ast->type);
     Q_UNUSED(ty);
-    expression(ast->initializer);
+    ExprResult initializer = expression(ast->initializer);
     return false;
 }
 

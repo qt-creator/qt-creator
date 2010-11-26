@@ -39,7 +39,18 @@ public:
     Semantic(Engine *engine);
     virtual ~Semantic();
 
-    void expression(ExpressionAST *ast);
+    struct ExprResult {
+        ExprResult(const Type *type = 0, bool isConstant = false)
+            : type(type), isConstant(isConstant) {}
+
+        bool isValid() const { return type != 0; }
+        operator bool() const { return type != 0; }
+
+        const Type *type;
+        bool isConstant;
+    };
+
+    ExprResult expression(ExpressionAST *ast);
     void statement(StatementAST *ast);
     const Type *type(TypeAST *ast);
     void declaration(DeclarationAST *ast);
@@ -98,8 +109,9 @@ protected:
 
 private:
     Engine *_engine;
-    const Type *_type;
     Scope *_scope;
+    const Type *_type;
+    ExprResult _expr;
 };
 
 } // namespace GLSL
