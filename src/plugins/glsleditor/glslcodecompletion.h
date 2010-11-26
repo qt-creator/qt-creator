@@ -32,6 +32,7 @@
 #include <texteditor/icompletioncollector.h>
 
 namespace GLSLEditor {
+namespace Internal {
 
 class CodeCompletion: public TextEditor::ICompletionCollector
 {
@@ -100,6 +101,7 @@ private:
     bool m_restartCompletion;
 };
 
+} // namespace Internal
 } // namespace GLSLEditor
 
 #endif // GLSLCODECOMPLETION_H

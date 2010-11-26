@@ -98,6 +98,10 @@ public:
     const QString *identifier(const char *s, int n);
     QSet<QString> identifiers() const;
 
+    const QString *number(const QString &s);
+    const QString *number(const char *s, int n);
+    QSet<QString> numbers() const;
+
     // types
     const UndefinedType *undefinedType();
     const VoidType *voidType();
@@ -129,6 +133,7 @@ public:
 
 private:
     QSet<QString> _identifiers;
+    QSet<QString> _numbers;
     TypeTable<VectorType> _vectorTypes;
     TypeTable<MatrixType> _matrixTypes;
     TypeTable<SamplerType> _samplerTypes;

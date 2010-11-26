@@ -99,6 +99,26 @@ const QString *Engine::identifier(const char *s, int n)
     return &(*_identifiers.insert(QString::fromLatin1(s, n)));
 }
 
+QSet<QString> Engine::identifiers() const
+{
+    return _identifiers;
+}
+
+const QString *Engine::number(const QString &s)
+{
+    return &(*_numbers.insert(s));
+}
+
+const QString *Engine::number(const char *s, int n)
+{
+    return &(*_numbers.insert(QString::fromLatin1(s, n)));
+}
+
+QSet<QString> Engine::numbers() const
+{
+    return _numbers;
+}
+
 MemoryPool *Engine::pool()
 {
     return &_pool;
@@ -197,11 +217,6 @@ void Engine::error(int line, const QString &message)
     m.setLine(line);
     m.setMessage(message);
     addDiagnosticMessage(m);
-}
-
-QSet<QString> Engine::identifiers() const
-{
-    return _identifiers;
 }
 
 bool DiagnosticMessage::isError() const

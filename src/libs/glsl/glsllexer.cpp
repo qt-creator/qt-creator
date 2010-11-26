@@ -207,9 +207,12 @@ int Lexer::yylex_helper(const char **position, int *line)
         // float constant
     case '.':
         if (std::isdigit(_yychar)) {
+            const char *word = _it - 2;
             while (std::isalnum(_yychar)) {
                 yyinp();
             }
+            if (_engine)
+                _yyval.string = _engine->number(word, _it - word - 1);
             return Parser::T_NUMBER;
         }
         return Parser::T_DOT;
@@ -378,7 +381,7 @@ int Lexer::yylex_helper(const char **position, int *line)
                 yyinp();
             }
             if (_engine)
-                _yyval.string = _engine->identifier(word, _it - word - 1);
+                _yyval.string = _engine->number(word, _it - word - 1);
             return Parser::T_NUMBER;
         }
 

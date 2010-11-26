@@ -28,12 +28,15 @@
 **************************************************************************/
 #include "glslcodecompletion.h"
 #include "glsleditor.h"
+#include "glsleditorplugin.h"
+#include <glsl/glslengine.h>
 #include <texteditor/completionsettings.h>
 #include <QtGui/QIcon>
 #include <QtGui/QPainter>
 #include <QtCore/QDebug>
 
 using namespace GLSLEditor;
+using namespace GLSLEditor::Internal;
 
 static bool isIdentifierChar(QChar ch)
 {
@@ -310,14 +313,24 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
     int pos = editor->position() - 1;
     QChar ch = editor->characterAt(pos);
-    while (ch.isLetterOrNumber())
+    while (ch.isLetterOrNumber() || ch == QLatin1Char('_'))
         ch = editor->characterAt(--pos);
 
     const QIcon symbolIcon = iconForColor(Qt::darkCyan);
     m_completions += m_keywordCompletions;
 
     if (GLSLTextEditor *ed = qobject_cast<GLSLTextEditor *>(m_editor->widget())) {
-        foreach (const QString &id, ed->identifiers()) {
+        QSet<QString> identifiers = ed->identifiers();
+
+        identifiers += GLSLEditorPlugin::instance()->shaderInit()->engine->identifiers();
+
+        if (ed->isVertexShader())
+            identifiers += GLSLEditorPlugin::instance()->vertexShaderInit()->engine->identifiers();
+
+        if (ed->isFragmentShader())
+            identifiers += GLSLEditorPlugin::instance()->fragmentShaderInit()->engine->identifiers();
+
+        foreach (const QString &id, identifiers) {
             TextEditor::CompletionItem item(this);
             item.text = id;
             item.icon = symbolIcon;
