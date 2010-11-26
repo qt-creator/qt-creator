@@ -2135,7 +2135,7 @@ void DebuggerPluginPrivate::startExternalApplication()
         sp.processArgs = dlg.executableArguments();
     // Fixme: 1 of 3 testing hacks.
     if (sp.processArgs.startsWith(__("@tcf@ ")) || sp.processArgs.startsWith(__("@sym@ ")))
-        sp.toolChainType = ToolChain_RVCT_ARMV5;
+        sp.toolChainType = ToolChain_RVCT2_ARMV5;
 
 
     if (RunControl *rc = m_debuggerRunControlFactory->create(sp))

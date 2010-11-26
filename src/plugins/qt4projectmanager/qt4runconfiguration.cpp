@@ -150,7 +150,7 @@ bool Qt4RunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *configu
         enabled = true;
         break;
     case ProjectExplorer::ToolChain_WINSCW:      case ProjectExplorer::ToolChain_GCCE:
-    case ProjectExplorer::ToolChain_RVCT_ARMV5:  case ProjectExplorer::ToolChain_RVCT_ARMV6:
+    case ProjectExplorer::ToolChain_RVCT2_ARMV5:  case ProjectExplorer::ToolChain_RVCT2_ARMV6:
     case ProjectExplorer::ToolChain_GCC_MAEMO:
         enabled = false;
         break;

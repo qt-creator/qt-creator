@@ -1728,8 +1728,8 @@ AbstractGdbAdapter *GdbEngine::createAdapter()
     switch (sp.toolChainType) {
         case ProjectExplorer::ToolChain_WINSCW: // S60
         case ProjectExplorer::ToolChain_GCCE:
-        case ProjectExplorer::ToolChain_RVCT_ARMV5:
-        case ProjectExplorer::ToolChain_RVCT_ARMV6:
+        case ProjectExplorer::ToolChain_RVCT2_ARMV5:
+        case ProjectExplorer::ToolChain_RVCT2_ARMV6:
         case ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC:
         case ProjectExplorer::ToolChain_GCCE_GNUPOC:
             // FIXME: 1 of 3 testing hacks.

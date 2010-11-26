@@ -74,8 +74,8 @@ static QList<int> allGdbToolChains()
        << ProjectExplorer::ToolChain_MinGW
        << ProjectExplorer::ToolChain_WINSCW
        << ProjectExplorer::ToolChain_GCCE
-       << ProjectExplorer::ToolChain_RVCT_ARMV5
-       << ProjectExplorer::ToolChain_RVCT_ARMV6
+       << ProjectExplorer::ToolChain_RVCT2_ARMV5
+       << ProjectExplorer::ToolChain_RVCT2_ARMV6
 #endif
        << ProjectExplorer::ToolChain_GCC_MAEMO
 #ifdef Q_OS_UNIX
@@ -451,8 +451,8 @@ ToolChainSelectorWidget::ToolChainSelectorWidget(QWidget *parent) :
             break;
         case ProjectExplorer::ToolChain_WINSCW:
         case ProjectExplorer::ToolChain_GCCE:
-        case ProjectExplorer::ToolChain_RVCT_ARMV5:
-        case ProjectExplorer::ToolChain_RVCT_ARMV6:
+        case ProjectExplorer::ToolChain_RVCT2_ARMV5:
+        case ProjectExplorer::ToolChain_RVCT2_ARMV6:
         case ProjectExplorer::ToolChain_GCCE_GNUPOC:
         case ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC:
             symbianLayout->addWidget(createToolChainCheckBox(tc));

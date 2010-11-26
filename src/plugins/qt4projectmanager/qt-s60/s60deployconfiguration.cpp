@@ -243,7 +243,7 @@ QString S60DeployConfiguration::symbianPlatform() const
     case ProjectExplorer::ToolChain_GCCE:
     case ProjectExplorer::ToolChain_GCCE_GNUPOC:
         return QLatin1String("gcce");
-    case ProjectExplorer::ToolChain_RVCT_ARMV5:
+    case ProjectExplorer::ToolChain_RVCT2_ARMV5:
         return QLatin1String("armv5");
     default: // including ProjectExplorer::RVCT_ARMV6_GNUPOC:
         return QLatin1String("armv6");

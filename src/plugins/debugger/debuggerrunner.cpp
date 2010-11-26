@@ -455,8 +455,8 @@ static DebuggerEngineType engineForToolChain(int toolChainType)
         case ProjectExplorer::ToolChain_GCC:
         case ProjectExplorer::ToolChain_WINSCW: // S60
         case ProjectExplorer::ToolChain_GCCE:
-        case ProjectExplorer::ToolChain_RVCT_ARMV5:
-        case ProjectExplorer::ToolChain_RVCT_ARMV6:
+        case ProjectExplorer::ToolChain_RVCT2_ARMV5:
+        case ProjectExplorer::ToolChain_RVCT2_ARMV6:
         case ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC:
         case ProjectExplorer::ToolChain_GCCE_GNUPOC:
         case ProjectExplorer::ToolChain_GCC_MAEMO:
@@ -607,8 +607,8 @@ bool DebuggerRunControl::checkDebugConfiguration(int toolChain,
     case ProjectExplorer::ToolChain_WINCE: // S60
     case ProjectExplorer::ToolChain_WINSCW:
     case ProjectExplorer::ToolChain_GCCE:
-    case ProjectExplorer::ToolChain_RVCT_ARMV5:
-    case ProjectExplorer::ToolChain_RVCT_ARMV6:
+    case ProjectExplorer::ToolChain_RVCT2_ARMV5:
+    case ProjectExplorer::ToolChain_RVCT2_ARMV6:
         if (debuggerCore()->gdbBinaryForToolChain(toolChain).isEmpty()) {
             *errorMessage = msgNoBinaryForToolChain(toolChain);
             *settingsPage = GdbOptionsPage::settingsId();
