@@ -83,7 +83,13 @@ public:
 
     void initializeEditor(GLSLEditor::GLSLTextEditor *editor);
 
+    QByteArray fragmentShaderInit() const;
+    QByteArray vertexShaderInit() const;
+    QByteArray shaderInit() const;
+
 private:
+    QByteArray glslFile(const QString &fileName);
+
     Core::Command *addToolAction(QAction *a, Core::ActionManager *am, Core::Context &context, const QString &name,
                                  Core::ActionContainer *c1, const QString &keySequence);
 
@@ -93,6 +99,9 @@ private:
     TextEditor::TextEditorActionHandler *m_actionHandler;
 
     QPointer<TextEditor::ITextEditable> m_currentTextEditable;
+    QByteArray m_glsl_120_frag;
+    QByteArray m_glsl_120_vert;
+    QByteArray m_glsl_120_common;
 };
 
 } // namespace Internal

@@ -102,6 +102,10 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/glsleditor/GLSLEditor.mimetypes.xml"), error_message))
         return false;
 
+    m_glsl_120_frag = glslFile(QLatin1String("glsl_120.frag"));
+    m_glsl_120_vert = glslFile(QLatin1String("glsl_120.vert"));
+    m_glsl_120_common = glslFile(QLatin1String("glsl_120_common.glsl"));
+
 //    m_modelManager = new ModelManager(this);
 //    addAutoReleasedObject(m_modelManager);
 
@@ -222,6 +226,32 @@ Core::Command *GLSLEditorPlugin::addToolAction(QAction *a, Core::ActionManager *
         command->setDefaultKeySequence(QKeySequence(keySequence));
     c1->addAction(command);
     return command;
+}
+
+QByteArray GLSLEditorPlugin::glslFile(const QString &fileName)
+{
+    QString path = Core::ICore::instance()->resourcePath();
+    path += QLatin1String("/glsl/");
+    path += fileName;
+    QFile file(path);
+    if (file.open(QFile::ReadOnly))
+        return file.readAll();
+    return QByteArray();
+}
+
+QByteArray GLSLEditorPlugin::fragmentShaderInit() const
+{
+    return m_glsl_120_frag;
+}
+
+QByteArray GLSLEditorPlugin::vertexShaderInit() const
+{
+    return m_glsl_120_vert;
+}
+
+QByteArray GLSLEditorPlugin::shaderInit() const
+{
+    return m_glsl_120_common;
 }
 
 Q_EXPORT_PLUGIN(GLSLEditorPlugin)
