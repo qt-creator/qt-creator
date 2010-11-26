@@ -261,9 +261,12 @@ void GLSLTextEditor::updateDocumentNow()
 {
     m_updateDocumentTimer->stop();
 
-    const int variant = Lexer::Variant_GLSL_Qt | // ### hardcoded
-                        Lexer::Variant_VertexShader |
-                        Lexer::Variant_FragmentShader;
+    int variant = Lexer::Variant_GLSL_Qt; // ### hardcoded
+
+    if (isVertexShader())
+        variant |= Lexer::Variant_VertexShader;
+    if (isFragmentShader())
+        variant |= Lexer::Variant_FragmentShader;
     const QString contents = toPlainText(); // get the code from the editor
     const QByteArray preprocessedCode = contents.toLatin1(); // ### use the QtCreator C++ preprocessor.
 
@@ -276,9 +279,9 @@ void GLSLTextEditor::updateDocumentNow()
     Semantic sem;
     Scope *globalScope = engine.newNamespace();
     sem.translationUnit(plugin->shaderInit()->ast, globalScope, plugin->shaderInit()->engine);
-    if (isVertexShader())
+    if (variant & Lexer::Variant_VertexShader)
         sem.translationUnit(plugin->vertexShaderInit()->ast, globalScope, plugin->vertexShaderInit()->engine);
-    if (isFragmentShader())
+    if (variant & Lexer::Variant_FragmentShader)
         sem.translationUnit(plugin->fragmentShaderInit()->ast, globalScope, plugin->fragmentShaderInit()->engine);
     sem.translationUnit(ast, globalScope, &engine);
 
