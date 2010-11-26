@@ -220,18 +220,16 @@ RunControl *DebuggerRunControlFactory::create
     return create(sp, runConfiguration);
 }
 
-DebuggerRunControl *DebuggerRunControlFactory::create(
-    const DebuggerStartParameters &sp,
-    RunConfiguration *runConfiguration)
+DebuggerRunControl *DebuggerRunControlFactory::create
+    (const DebuggerStartParameters &sp, RunConfiguration *runConfiguration)
 {
     DebuggerRunControl *runControl =
         new DebuggerRunControl(runConfiguration, m_enabledEngines, sp);
-    if (!runControl->engine()) {
-        qDebug() << "FAILED TO CREATE ENGINE";
-        delete runControl;
-        return 0;
-    }
-    return runControl;
+    if (runControl->engine())
+        return runControl;
+    qDebug() << "FAILED TO CREATE ENGINE";
+    delete runControl;
+    return 0;
 }
 
 QWidget *DebuggerRunControlFactory::createConfigurationWidget
@@ -522,11 +520,10 @@ void DebuggerRunControl::createEngine(const DebuggerStartParameters &startParams
             break;
         case CdbEngineType:
             // Try new engine, fall back to old.
-            if (Debugger::Cdb::isCdbEngineEnabled()) {
-                d->m_engine = Debugger::Cdb::createCdbEngine(sp, &d->m_errorMessage);
-            } else {
-                d->m_engine = Debugger::Internal::createCdbEngine(sp, &d->m_errorMessage);
-            }
+            if (Cdb::isCdbEngineEnabled())
+                d->m_engine = Cdb::createCdbEngine(sp, &d->m_errorMessage);
+            else
+                d->m_engine = Internal::createCdbEngine(sp, &d->m_errorMessage);
             break;
         case PdbEngineType:
             d->m_engine = createPdbEngine(sp);
@@ -555,12 +552,12 @@ void DebuggerRunControl::createEngine(const DebuggerStartParameters &startParams
     if (!d->m_engine) {
         // Could not find anything suitable.
         debuggingFinished();
-        // Create Message box with possibility to go to settings
+        // Create Message box with possibility to go to settings.
         const QString msg = tr("Cannot debug '%1' (tool chain: '%2'): %3")
-                .arg(sp.executable, toolChainName(sp.toolChainType), d->m_errorMessage);
+            .arg(sp.executable, toolChainName(sp.toolChainType), d->m_errorMessage);
         Core::ICore::instance()->showWarningWithOptions(tr("Warning"),
-                                                        msg, QString(), QLatin1String(Constants::DEBUGGER_SETTINGS_CATEGORY),
-                                                        d->m_settingsIdHint);
+            msg, QString(), QLatin1String(Constants::DEBUGGER_SETTINGS_CATEGORY),
+            d->m_settingsIdHint);
     }
 }
 

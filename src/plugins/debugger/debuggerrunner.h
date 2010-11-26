@@ -47,11 +47,6 @@ class DebuggerRunControl;
 class DebuggerRunControlPrivate;
 class DebuggerStartParameters;
 
-namespace Internal {
-class GdbEngine;
-class AbstractGdbAdapter;
-}
-
 class DEBUGGER_EXPORT DebuggerRunControlFactory
     : public ProjectExplorer::IRunControlFactory
 {
