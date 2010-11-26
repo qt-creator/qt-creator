@@ -116,7 +116,7 @@ public:
     virtual QWidget *mainWindow() const = 0;
     virtual QString gdbBinaryForToolChain(int toolChain) const = 0;
     virtual void showModuleSymbols(const QString &moduleName,
-        const QVector<Symbol> &symbols);
+        const QVector<Symbol> &symbols) = 0;
 
     virtual Utils::SavedAction *action(int code) const = 0;
     virtual bool boolSetting(int code) const = 0;
