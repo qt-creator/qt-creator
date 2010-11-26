@@ -2568,9 +2568,7 @@ void GdbEngine::attemptBreakpointSynchronization()
 
 bool GdbEngine::acceptsBreakpoint(BreakpointId id) const
 {
-    const QString fileName = breakHandler()->fileName(id);
-    return !fileName.endsWith(QLatin1String("js"))
-        && !fileName.endsWith(QLatin1String("qml"));
+    return DebuggerEngine::isCppBreakpoint(breakHandler()->breakpointData(id));
 }
 
 void GdbEngine::insertBreakpoint(BreakpointId id)
@@ -2733,7 +2731,7 @@ void GdbEngine::handleShowModuleSymbols(const GdbResponse &response)
         foreach (const QByteArray &line, file.readAll().split('\n')) {
             if (line.isEmpty())
                 continue;
-            if (!line.at(0) == '[')
+            if (line.at(0) != '[')
                 continue;
             int posCode = line.indexOf(']') + 2;
             int posAddress = line.indexOf("0x", posCode);

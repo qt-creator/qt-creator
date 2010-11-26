@@ -83,6 +83,8 @@ public:
     virtual void activateFrame(int index);
     virtual void selectThread(int index);
 
+    virtual bool stateAcceptsBreakpointChanges() const;
+    virtual bool acceptsBreakpoint(BreakpointId id) const;
     virtual void attemptBreakpointSynchronization();
 
     virtual void setRegisterValue(int regnr, const QString &value);

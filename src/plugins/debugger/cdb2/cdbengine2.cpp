@@ -1669,6 +1669,23 @@ static inline BreakPointSyncType breakPointSyncType(const BreakHandler *handler,
     return added ? BreakpointsAdded : BreakpointsUnchanged;
 }
 
+bool CdbEngine::stateAcceptsBreakpointChanges() const
+{
+    switch (state()) {
+    case InferiorRunOk:
+    case InferiorStopOk:
+    return true;
+    default:
+        break;
+    }
+    return false;
+}
+
+bool CdbEngine::acceptsBreakpoint(BreakpointId id) const
+{
+    return DebuggerEngine::isCppBreakpoint(breakHandler()->breakpointData(id));
+}
+
 void CdbEngine::attemptBreakpointSynchronization()
 {
     // Check if there is anything to be done at all.

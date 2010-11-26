@@ -1197,6 +1197,23 @@ void CdbEngine::selectThread(int index)
     }
 }
 
+bool CdbEngine::stateAcceptsBreakpointChanges() const
+{
+    switch (state()) {
+    case InferiorRunOk:
+    case InferiorStopOk:
+    return true;
+    default:
+        break;
+    }
+    return false;
+}
+
+bool CdbEngine::acceptsBreakpoint(BreakpointId id) const
+{
+    return DebuggerEngine::isCppBreakpoint(breakHandler()->breakpointData(id));
+}
+
 void CdbEngine::attemptBreakpointSynchronization()
 {
     if (!m_d->m_hDebuggeeProcess) // Sometimes called from the breakpoint Window
@@ -1751,7 +1768,7 @@ void CdbEnginePrivate::updateStackTrace()
 
 void CdbEnginePrivate::updateModules()
 {
-    QList<Module> modules;
+    Modules modules;
     QString errorMessage;
     if (!getModuleList(interfaces().debugSymbols, &modules, &errorMessage))
         m_engine->warning(msgFunctionFailed(Q_FUNC_INFO, errorMessage));

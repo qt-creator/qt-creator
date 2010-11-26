@@ -345,6 +345,8 @@ protected:
     void showStoppedBySignalMessageBox(const QString meaning, QString name);
     void showStoppedByExceptionMessageBox(const QString &description);
 
+    static bool isCppBreakpoint(const Internal::BreakpointParameters &p);
+
 private:
     // Wrapper engine needs access to state of its subengines.
     friend class QmlCppEngine;

@@ -496,9 +496,7 @@ void QmlEngine::attemptBreakpointSynchronization()
 
 bool QmlEngine::acceptsBreakpoint(BreakpointId id) const
 {
-    const QString fileName = breakHandler()->fileName(id);
-    return fileName.endsWith(QLatin1String(".qml"))
-        || fileName.endsWith(QLatin1String(".js"));
+    return !DebuggerEngine::isCppBreakpoint(breakHandler()->breakpointData(id));
 }
 
 void QmlEngine::loadSymbols(const QString &moduleName)

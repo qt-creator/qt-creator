@@ -344,7 +344,7 @@ DebuggerEngineType DebuggerRunControlPrivate::engineForExecutable
 
     // We need the CDB debugger in order to be able to debug VS
     // executables.
-    if (d->checkDebugConfiguration(ProjectExplorer::ToolChain_MSVC,
+   if (DebuggerRunControl::checkDebugConfiguration(ProjectExplorer::ToolChain_MSVC,
             &m_errorMessage, 0, &m_settingsIdHint)) {
         if (enabledEngineTypes & CdbEngineType)
             return CdbEngineType;
@@ -372,7 +372,7 @@ DebuggerEngineType DebuggerRunControlPrivate::engineForMode
     if (startMode != AttachToRemote && (enabledEngineTypes & CdbEngineType))
         return CdbEngineType;
     if (startMode == AttachCrashedExternal) {
-        m_errorMessage = tr("There is no debugging engine available for post-mortem debugging.");
+        m_errorMessage = DebuggerRunControl::tr("There is no debugging engine available for post-mortem debugging.");
         return NoEngineType;
     }
     return GdbEngineType;

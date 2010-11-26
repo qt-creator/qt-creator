@@ -1403,6 +1403,15 @@ void DebuggerEngine::showStoppedByExceptionMessageBox(const QString &description
     showMessageBox(QMessageBox::Information, tr("Exception Triggered"), msg);
 }
 
+bool DebuggerEngine::isCppBreakpoint(const BreakpointParameters &p)
+{
+    // Qml is currently only file
+    if (p.type != BreakpointByFileAndLine)
+        return true;
+    return !p.fileName.endsWith(QLatin1String(".qml"), Qt::CaseInsensitive)
+            && !p.fileName.endsWith(QLatin1String(".js"), Qt::CaseInsensitive);
+}
+
 } // namespace Debugger
 
 #include "debuggerengine.moc"
