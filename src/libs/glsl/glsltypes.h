@@ -32,6 +32,7 @@
 #include "glsltype.h"
 #include "glslsymbol.h"
 #include <QtCore/QVector>
+#include <QtCore/QHash>
 #include <QtCore/QString>
 
 namespace GLSL {
@@ -98,7 +99,7 @@ public:
     virtual bool isLessThan(const Type *other) const;
 };
 
-class GLSL_EXPORT VectorType: public Type
+class GLSL_EXPORT VectorType: public Type, public Scope
 {
 public:
     VectorType(const Type *elementType, int dimension)
@@ -107,6 +108,10 @@ public:
     const Type *elementType() const { return _elementType; }
     int dimension() const { return _dimension; }
 
+    virtual void add(Symbol *symbol);
+    virtual Symbol *find(const QString &name) const;
+    virtual const Type *type() const { return this; }
+
     virtual const VectorType *asVectorType() const { return this; }
     virtual bool isEqualTo(const Type *other) const;
     virtual bool isLessThan(const Type *other) const;
@@ -114,6 +119,12 @@ public:
 private:
     const Type *_elementType;
     int _dimension;
+    QHash<QString, Symbol *> _members;
+
+    friend class Engine;
+
+    void populateMembers(Engine *engine);
+    void populateMembers(Engine *engine, const char *components);
 };
 
 class GLSL_EXPORT MatrixType: public Type

@@ -29,6 +29,7 @@
 
 #include "glsltypes.h"
 #include "glslsymbols.h"
+#include "glslengine.h"
 
 using namespace GLSL;
 
@@ -135,6 +136,90 @@ bool DoubleType::isLessThan(const Type *other) const
     Q_ASSERT(other != 0);
     Q_ASSERT(other->asDoubleType() != 0);
     return false;
+}
+
+void VectorType::add(Symbol *symbol)
+{
+    _members.insert(symbol->name(), symbol);
+}
+
+Symbol *VectorType::find(const QString &name) const
+{
+    return _members.value(name);
+}
+
+void VectorType::populateMembers(Engine *engine)
+{
+    if (_members.isEmpty()) {
+        populateMembers(engine, "xyzw");
+        populateMembers(engine, "rgba");
+        populateMembers(engine, "stpq");
+    }
+}
+
+void VectorType::populateMembers(Engine *engine, const char *components)
+{
+    // Single component swizzles.
+    for (int x = 0; x < _dimension; ++x) {
+        const QString *name = engine->identifier(components + x, 1);
+        add(engine->newVariable(this, *name, _elementType));
+    }
+
+    // Two component swizzles.
+    const Type *vec2Type;
+    if (_dimension == 2)
+        vec2Type = this;
+    else
+        vec2Type = engine->vectorType(_elementType, 2);
+    for (int x = 0; x < _dimension; ++x) {
+        for (int y = 0; y < _dimension; ++y) {
+            QString name;
+            name += QLatin1Char(components[x]);
+            name += QLatin1Char(components[y]);
+            add(engine->newVariable
+                    (this, *engine->identifier(name), vec2Type));
+        }
+    }
+
+    // Three component swizzles.
+    const Type *vec3Type;
+    if (_dimension == 3)
+        vec3Type = this;
+    else if (_dimension < 3)
+        return;
+    else
+        vec3Type = engine->vectorType(_elementType, 3);
+    for (int x = 0; x < _dimension; ++x) {
+        for (int y = 0; y < _dimension; ++y) {
+            for (int z = 0; z < _dimension; ++z) {
+                QString name;
+                name += QLatin1Char(components[x]);
+                name += QLatin1Char(components[y]);
+                name += QLatin1Char(components[z]);
+                add(engine->newVariable
+                        (this, *engine->identifier(name), vec3Type));
+            }
+        }
+    }
+
+    // Four component swizzles.
+    if (_dimension != 4)
+        return;
+    for (int x = 0; x < _dimension; ++x) {
+        for (int y = 0; y < _dimension; ++y) {
+            for (int z = 0; z < _dimension; ++z) {
+                for (int w = 0; w < _dimension; ++w) {
+                    QString name;
+                    name += QLatin1Char(components[x]);
+                    name += QLatin1Char(components[y]);
+                    name += QLatin1Char(components[z]);
+                    name += QLatin1Char(components[w]);
+                    add(engine->newVariable
+                            (this, *engine->identifier(name), this));
+                }
+            }
+        }
+    }
 }
 
 bool VectorType::isEqualTo(const Type *other) const

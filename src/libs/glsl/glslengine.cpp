@@ -147,7 +147,10 @@ const DoubleType *Engine::doubleType()
 
 const VectorType *Engine::vectorType(const Type *elementType, int dimension)
 {
-    return _vectorTypes.intern(VectorType(elementType, dimension));
+    VectorType *type = const_cast<VectorType *>
+        (_vectorTypes.intern(VectorType(elementType, dimension)));
+    type->populateMembers(this);
+    return type;
 }
 
 const MatrixType *Engine::matrixType(const Type *elementType, int columns, int rows)
