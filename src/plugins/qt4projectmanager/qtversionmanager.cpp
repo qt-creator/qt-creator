@@ -1439,8 +1439,8 @@ void QtVersion::updateToolChainAndMkspec() const
                 m_targetIds.insert(QLatin1String(Constants::S60_EMULATOR_TARGET_ID));
             }
 #    else
-            if (S60Manager::hasRvctCompiler())
-                m_toolChains << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain_RVCT2_ARMV5_GNUPOC));
+            if (S60Manager::hasRvct2Compiler())
+                m_toolChains << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC));
             m_toolChains << ToolChainPtr(s60mgr->createGCCE_GnuPocToolChain(this));
             m_targetIds.insert(QLatin1String(Constants::S60_DEVICE_TARGET_ID));
 #    endif
