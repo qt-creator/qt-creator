@@ -65,6 +65,9 @@ public:
 
     QSet<QString> identifiers() const;
 
+    bool isVertexShader() const;
+    bool isFragmentShader() const;
+
 public slots:
     virtual void setFontSettings(const TextEditor::FontSettings &);
 

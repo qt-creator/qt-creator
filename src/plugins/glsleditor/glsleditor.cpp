@@ -276,8 +276,10 @@ void GLSLTextEditor::updateDocumentNow()
     Semantic sem;
     Scope *globalScope = engine.newNamespace();
     sem.translationUnit(plugin->shaderInit()->ast, globalScope, plugin->shaderInit()->engine);
-    sem.translationUnit(plugin->vertexShaderInit()->ast, globalScope, plugin->vertexShaderInit()->engine);
-    sem.translationUnit(plugin->fragmentShaderInit()->ast, globalScope, plugin->fragmentShaderInit()->engine);
+    if (isVertexShader())
+        sem.translationUnit(plugin->vertexShaderInit()->ast, globalScope, plugin->vertexShaderInit()->engine);
+    if (isFragmentShader())
+        sem.translationUnit(plugin->fragmentShaderInit()->ast, globalScope, plugin->fragmentShaderInit()->engine);
     sem.translationUnit(ast, globalScope, &engine);
 
     QTextCharFormat errorFormat;
@@ -313,4 +315,14 @@ void GLSLTextEditor::updateDocumentNow()
 
     // refresh the identifiers.
     m_identifiers = engine.identifiers();
+}
+
+bool GLSLTextEditor::isVertexShader() const
+{
+    return mimeType() == QLatin1String("text/x-glsl-vert");
+}
+
+bool GLSLTextEditor::isFragmentShader() const
+{
+    return mimeType() == QLatin1String("text/x-glsl-frag");
 }
