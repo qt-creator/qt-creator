@@ -72,6 +72,9 @@ private:
         QString qmldirPath;
         QString importPath;
         QString importUri;
+
+        bool hasPredumpedXmlFile() const;
+        QString predumpedXmlFilePath() const;
     };
 
     void dump(const Plugin &plugin);
