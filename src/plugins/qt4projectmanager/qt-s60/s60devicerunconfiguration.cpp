@@ -348,8 +348,8 @@ QString S60DeviceRunConfiguration::localExecutableFileName() const
             return QString();
         return executableFromPackageUnix(ti.buildDir + QLatin1Char('/') + ti.target + QLatin1String("_template.pkg"));
     }
-    case ProjectExplorer::ToolChain_RVCT_ARMV5:
-    case ProjectExplorer::ToolChain_RVCT_ARMV6:
+    case ProjectExplorer::ToolChain_RVCT2_ARMV5:
+    case ProjectExplorer::ToolChain_RVCT2_ARMV6:
         return localExecutableFromDevice(qtVersion(), symbianTarget(), targetName(), toolChain);
         break;
     case ProjectExplorer::ToolChain_GCCE: {
@@ -357,7 +357,7 @@ QString S60DeviceRunConfiguration::localExecutableFileName() const
         const QtVersion *qtv = qtVersion();
         QTC_ASSERT(qtv, return QString(); )
         return qtv->isBuildWithSymbianSbsV2() ?
-            localExecutableFromDevice(qtv, symbianTarget(), targetName(), ProjectExplorer::ToolChain_RVCT_ARMV5) :
+            localExecutableFromDevice(qtv, symbianTarget(), targetName(), ProjectExplorer::ToolChain_RVCT2_ARMV5) :
             localExecutableFromDevice(qtv, symbianTarget(), targetName(), toolChain);
     }
         break;
