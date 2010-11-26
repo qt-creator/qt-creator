@@ -1425,7 +1425,7 @@ void GdbEngine::handleStop1(const GdbMi &data)
         GdbMi wpt = data.findChild("wpt");
         const int bpNumber = wpt.findChild("number").data().toInt();
         const BreakpointId id = breakHandler()->findBreakpointByNumber(bpNumber);
-        const quint64 bpAddress = wpt.findChild("exp").data().toULongLong(0, 0);
+        const quint64 bpAddress = wpt.findChild("exp").data().mid(1).toULongLong(0, 0);
         showStatusMessage(msgWatchpointTriggered(id, bpNumber, bpAddress));
     } else if (reason == "breakpoint-hit") {
         GdbMi gNumber = data.findChild("bkptno"); // 'number' or 'bkptno'?
@@ -1601,7 +1601,7 @@ QString GdbEngine::cleanupFullName(const QString &fileName)
 #ifdef Q_OS_WIN
     QTC_ASSERT(!fileName.isEmpty(), return QString())
     // Gdb on windows often delivers "fullnames" which
-    // a) have no drive letter and b) are not normalized.
+    // (a) have no drive letter and (b) are not normalized.
     QFileInfo fi(fileName);
     if (fi.isReadable())
         cleanFilePath = QDir::cleanPath(fi.absoluteFilePath());
@@ -1669,7 +1669,8 @@ void GdbEngine::notifyAdapterShutdownOk()
     case QProcess::Running:
         postCommand("-gdb-exit", GdbEngine::ExitRequest, CB(handleGdbExit));
         break;
-    case QProcess::NotRunning: // Cannot find executable
+    case QProcess::NotRunning:
+        // Cannot find executable.
         notifyEngineShutdownOk();
         break;
     case QProcess::Starting:
@@ -1724,7 +1725,6 @@ QString msgNoBinaryForToolChain(int tc)
 AbstractGdbAdapter *GdbEngine::createAdapter()
 {
     const DebuggerStartParameters &sp = startParameters();
-    //qDebug() << "CREATE ADAPTER: " << sp.toolChainType;
     switch (sp.toolChainType) {
         case ProjectExplorer::ToolChain_WINSCW: // S60
         case ProjectExplorer::ToolChain_GCCE:
@@ -1732,7 +1732,7 @@ AbstractGdbAdapter *GdbEngine::createAdapter()
         case ProjectExplorer::ToolChain_RVCT_ARMV6:
         case ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC:
         case ProjectExplorer::ToolChain_GCCE_GNUPOC:
-            // fixme: 1 of 3 testing hacks
+            // FIXME: 1 of 3 testing hacks.
             if (sp.processArgs.startsWith(__("@tcf@ ")))
                 return new TcfTrkGdbAdapter(this);
             return new TrkGdbAdapter(this);
@@ -2080,25 +2080,18 @@ void GdbEngine::updateBreakpointDataFromOutput(BreakpointId id, const GdbMi &bkp
         } else if (child.hasName("fullname")) {
             fullName = child.data();
         } else if (child.hasName("line")) {
-            bool ok;
-            const int lineNumber = child.data().toInt(&ok);
-            response.lineNumber = lineNumber;
-            //if (ok && response.bpCorrectedLineNumber <= 0)
-            //    data->setMarkerLineNumber(lineNumber);
+            response.lineNumber = child.data().toInt();
         } else if (child.hasName("cond")) {
-            response.condition = child.data();
             // gdb 6.3 likes to "rewrite" conditions. Just accept that fact.
-            //if (response.bpCondition != data->condition()
-            //        && data->conditionsMatch(response.bpCondition))
-            //    data->setCondition(response.bpCondition);
+            response.condition = child.data();
         } else if (child.hasName("enabled")) {
             response.enabled = (child.data() == "y");
         } else if (child.hasName("pending")) {
-            response.pending = true;
             // Any content here would be interesting only if we did accept
             // spontaneously appearing breakpoints (user using gdb commands).
+            response.pending = true;
         } else if (child.hasName("at")) {
-            // Happens with (e.g.?) gdb 6.4 symbianelf
+            // Happens with gdb 6.4 symbianelf.
             QByteArray ba = child.data();
             if (ba.startsWith('<') && ba.endsWith('>'))
                 ba = ba.mid(1, ba.size() - 2);
@@ -2106,16 +2099,13 @@ void GdbEngine::updateBreakpointDataFromOutput(BreakpointId id, const GdbMi &bkp
         } else if (child.hasName("thread")) {
             response.threadSpec = child.data();
         } else if (child.hasName("type")) {
-            // FIXME: This should not change the type.
-            //if (child.data().contains("reakpoint")) // "breakpoint", "hw breakpoint"
-            //    ; // data->type = BreakpointData::BreakpointType;
-            //else // FIXME: Incomplete list of cases.
-            //    data->type = Watchpoint;
+            if (!child.data().contains("reakpoint")) // "breakpoint", "hw breakpoint"
+                response.type = Watchpoint;
         }
         // This field is not present.  Contents needs to be parsed from
         // the plain "ignore" response.
         //else if (child.hasName("ignore"))
-        //    data->bpIgnoreCount = child.data();
+        //    response.ignoreCount = child.data();
     }
 
     QString name;
@@ -2185,13 +2175,17 @@ void GdbEngine::handleWatchInsert(const GdbResponse &response)
     if (response.resultClass == GdbResultDone) {
         // "Hardware watchpoint 2: *0xbfffed40\n"
         QByteArray ba = response.data.findChild("consolestreamoutput").data();
-        if (ba.startsWith("Hardware watchpoint ")) {
-            const int pos = ba.indexOf(':', 20);
+        if (ba.startsWith("Hardware watchpoint ")
+                || ba.startsWith("Watchpoint ")) {
+            const int end = ba.indexOf(':');
+            const int begin = ba.lastIndexOf(' ', end) + 1;
+            const QByteArray address = ba.mid(end + 3).trimmed();
             BreakpointResponse response = breakHandler()->response(id);
-            response.number = ba.mid(20, pos - 20).toInt();
+            response.number = ba.mid(begin, end - begin).toInt();
+            response.address = address.toULongLong(0, 0);
             breakHandler()->setResponse(id, response);
         } else {
-            showMessage(_("CANNOT PARSE WATCHPOINT FROM" + ba));
+            showMessage(_("CANNOT PARSE WATCHPOINT FROM " + ba));
         }
     }
 }
@@ -2419,11 +2413,6 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointId id)
         // the marker in more cases.
         if (requestedFileName.endsWith(full))
             full = requestedFileName;
-        //response.bpCorrectedLineNumber = breakHandler()->lineNumber();
-        //if (data->markerFileName().isEmpty()) {
-        //    qDebug() << "111";
-        //    data->setMarkerFileName(full);
-        //}
         response.fileName = full;
     } else {
         qDebug() << "COULD NOT MATCH " << re.pattern() << " AND " << output;
@@ -2568,16 +2557,6 @@ void GdbEngine::attemptBreakpointSynchronization()
                     NeedsStop | RebuildBreakpointModel);
                 sendInsertBreakpoint(index);
                 continue;
-            }
-            if (data->bpAddress && data->bpCorrectedLineNumber == 0) {
-                // Prevent endless loop.
-                data->bpCorrectedLineNumber = -1;
-                if (debuggerCore()->boolSetting(AdjustBreakpointLocations)) {
-                    postCommand(
-                        "info line *0x" + QByteArray::number(data->bpAddress, 16),
-                        NeedsStop | RebuildBreakpointModel,
-                        CB(handleInfoLine), id)
-                }
             }
         }
     }

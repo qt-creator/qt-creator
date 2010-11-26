@@ -71,9 +71,15 @@ QIcon BreakHandler::disabledBreakpointIcon()
     return icon;
 }
 
-QIcon BreakHandler::pendingBreakPointIcon()
+QIcon BreakHandler::pendingBreakpointIcon()
 {
     static QIcon icon(_(":/debugger/images/breakpoint_pending_16.png"));
+    return icon;
+}
+
+QIcon BreakHandler::watchpointIcon()
+{
+    static QIcon icon(_(":/debugger/images/watchpoint.png"));
     return icon;
 }
 
@@ -335,7 +341,7 @@ QVariant BreakHandler::headerData(int section,
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         static QString headers[] = {
             tr("Number"),  tr("Function"), tr("File"), tr("Line"),
-            tr("Condition"), tr("Ignore"), tr("Threads"), tr("Address")
+            tr("Address"), tr("Condition"), tr("Ignore"), tr("Threads")
         };
         return headers[section];
     }
@@ -450,36 +456,6 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                 return data.lineNumber;
             break;
         case 4:
-            if (role == Qt::DisplayRole)
-                return orig ? data.condition : response.condition;
-            if (role == Qt::ToolTipRole)
-                return tr("Breakpoint will only be hit if this condition is met.");
-            if (role == Qt::UserRole + 1)
-                return data.condition;
-            break;
-        case 5:
-            if (role == Qt::DisplayRole) {
-                const int ignoreCount =
-                    orig ? data.ignoreCount : response.ignoreCount;
-                return ignoreCount ? QVariant(ignoreCount) : QVariant(QString());
-            }
-            if (role == Qt::ToolTipRole)
-                return tr("Breakpoint will only be hit after being ignored so many times.");
-            if (role == Qt::UserRole + 1)
-                return data.ignoreCount;
-            break;
-        case 6:
-            if (role == Qt::DisplayRole) {
-                if (orig)
-                    return !data.threadSpec.isEmpty() ? data.threadSpec : tr("(all)");
-                return !response.threadSpec.isEmpty() ? response.threadSpec : tr("(all)");
-            }
-            if (role == Qt::ToolTipRole)
-                return tr("Breakpoint will only be hit in the specified thread(s).");
-            if (role == Qt::UserRole + 1)
-                return data.threadSpec;
-            break;
-        case 7:
             if (role == Qt::DisplayRole) {
                 QString displayValue;
                 const quint64 address = orig ? data.address : response.address;
@@ -492,6 +468,36 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                 }
                 return displayValue;
             }
+            break;
+        case 5:
+            if (role == Qt::DisplayRole)
+                return orig ? data.condition : response.condition;
+            if (role == Qt::ToolTipRole)
+                return tr("Breakpoint will only be hit if this condition is met.");
+            if (role == Qt::UserRole + 1)
+                return data.condition;
+            break;
+        case 6:
+            if (role == Qt::DisplayRole) {
+                const int ignoreCount =
+                    orig ? data.ignoreCount : response.ignoreCount;
+                return ignoreCount ? QVariant(ignoreCount) : QVariant(QString());
+            }
+            if (role == Qt::ToolTipRole)
+                return tr("Breakpoint will only be hit after being ignored so many times.");
+            if (role == Qt::UserRole + 1)
+                return data.ignoreCount;
+            break;
+        case 7:
+            if (role == Qt::DisplayRole) {
+                if (orig)
+                    return !data.threadSpec.isEmpty() ? data.threadSpec : tr("(all)");
+                return !response.threadSpec.isEmpty() ? response.threadSpec : tr("(all)");
+            }
+            if (role == Qt::ToolTipRole)
+                return tr("Breakpoint will only be hit in the specified thread(s).");
+            if (role == Qt::UserRole + 1)
+                return data.threadSpec;
             break;
     }
     if (role == Qt::ToolTipRole)
@@ -812,7 +818,7 @@ QIcon BreakHandler::icon(BreakpointId id) const
     ConstIterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(),
         qDebug() << "NO ICON FOR ID" << id;
-        return pendingBreakPointIcon());
+        return pendingBreakpointIcon());
     return it->icon();
 }
 
@@ -1046,11 +1052,13 @@ QIcon BreakHandler::BreakpointItem::icon() const
 {
     // FIXME: This seems to be called on each cursor blink as soon as the
     // cursor is near a line with a breakpoint marker (+/- 2 lines or so).
+    if (data.type == Watchpoint)
+        return BreakHandler::watchpointIcon();
     if (!data.enabled)
         return BreakHandler::disabledBreakpointIcon();
     if (state == BreakpointInserted)
         return BreakHandler::breakpointIcon();
-    return BreakHandler::pendingBreakPointIcon();
+    return BreakHandler::pendingBreakpointIcon();
 }
 
 QString BreakHandler::BreakpointItem::toToolTip() const

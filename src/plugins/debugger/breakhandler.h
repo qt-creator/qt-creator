@@ -86,8 +86,9 @@ public:
 
     static QIcon breakpointIcon();
     static QIcon disabledBreakpointIcon();
-    static QIcon pendingBreakPointIcon();
+    static QIcon pendingBreakpointIcon();
     static QIcon emptyIcon();
+    static QIcon watchpointIcon();
 
     BreakpointId findBreakpointByFileAndLine(const QString &fileName,
         int lineNumber, bool useMarkerPosition = true);
