@@ -1,5 +1,7 @@
+WITH_LLDB = $$(WITH_LLDB)
+
 !macx: error (This can only be built on mac)
-!exists($$PWD/lldb): error(please see the README for build instructions)
+!exists($${WITH_LLDB}/include/lldb/lldb-enumerations.h): error(please see the README for build instructions)
 
 include(../../../../../qtcreator.pri)
 TEMPLATE = app
@@ -8,7 +10,6 @@ CONFIG += debug
 TARGET = qtcreator-lldb
 DEPENDPATH += . .. ../.. ../../..  ../../../../libs
 INCLUDEPATH += . .. ../.. ../../.. ../../../../libs
-DEFINES += IPC_STANDALONE_GUEST
 DESTDIR  = $$IDE_LIBEXEC_PATH
 
 QT = core network
@@ -37,7 +38,7 @@ SOURCES +=  ../ipcengineguest.cpp \
 LIBS += -sectcreate __TEXT __info_plist $$PWD/qtcreator-lldb.plist
 
 POSTL = rm -rf \'$${IDE_LIBEXEC_PATH}/LLDB.framework\' $$escape_expand(\\n\\t) \
-        $$QMAKE_COPY_DIR lldb/build/Release/* \'$$IDE_LIBEXEC_PATH\' $$escape_expand(\\n\\t) \
+        $$QMAKE_COPY_DIR $${WITH_LLDB}/build/Release/* \'$$IDE_LIBEXEC_PATH\' $$escape_expand(\\n\\t) \
         install_name_tool -change '@rpath/LLDB.framework/Versions/A/LLDB' '@executable_path/LLDB.framework/Versions/A/LLDB' $(TARGET)  $$escape_expand(\\n\\t) \
         codesign -s lldb_codesign $(TARGET)
 
@@ -49,8 +50,8 @@ LIBS +=  -framework Security -framework Python
 
 DEFINES += __STDC_LIMIT_MACROS __STDC_CONSTANT_MACROS
 
-INCLUDEPATH += lldb/include lldb/llvm/include/
-LIBS += -F$$PWD/lldb/build/Release -framework LLDB
+INCLUDEPATH += $${WITH_LLDB}/include $${WITH_LLDB}/llvm/include/
+LIBS += -F$${WITH_LLDB}/build/Release -framework LLDB
 
 # include (lldb.pri)
 # DEFINES += HAVE_LLDB_PRIVATE

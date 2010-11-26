@@ -1,3 +1,5 @@
+WITH_LLDB = $$(WITH_LLDB)
+
 HEADERS += $$PWD/ipcenginehost.h \
            $$PWD/lldbenginehost.h
 
@@ -6,8 +8,10 @@ SOURCES +=  $$PWD/ipcenginehost.cpp \
 
 INCLUDEPATH+=
 
-DEFINES += IPC_STANDALONE_HOST
-
 FORMS +=
 
 RESOURCES +=
+
+!isEmpty(WITH_LLDB) {
+    DEFINES += WITH_LLDB
+}

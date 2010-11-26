@@ -70,7 +70,7 @@ void IPCEngineGuest::setLocalHost(IPCEngineHost *host)
 void IPCEngineGuest::setHostDevice(QIODevice *device)
 {
     if (m_device) {
-        disconnect(m_device, SIGNAL(readyRead()), SLOT(readyRead()));
+        disconnect(m_device, SIGNAL(readyRead()), this, SLOT(readyRead()));
         delete m_device;
     }
     m_device = device;

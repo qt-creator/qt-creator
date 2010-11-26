@@ -12,18 +12,19 @@ On Mac OS X, this requires code signing.
 
 To enable LLDB debugger support in Qt Creator:
 
-1. Change to the directory this readme is located in.
-
-2. To download the LLDB debugger, enter the following command:
+1. To download the LLDB debugger, enter the following command:
    svn co http://llvm.org/svn/llvm-project/lldb/trunk lldb
 
-3. To sign the code, follow the instructions in lldb/docs/code-signing.txt.
+2. To sign the code, follow the instructions in lldb/docs/code-signing.txt.
 
-4. To open LLDB in Xcode for building, enter the following command:
+3. To open LLDB in Xcode for building, enter the following command:
    open lldb.xcodeproj
    then select the Release target and press the build button.
 
-5. In Xcode, press the build button.
+4. In Xcode, press the build button.
+
+5. type the following to have the qt creator build system find your lldb build:
+   export WITH_LLDB=/path/to/lldb
 
 6. To rebuild Qt Creator, change back to the top level directory of
    the Qt Creator source, and enter the following command:
