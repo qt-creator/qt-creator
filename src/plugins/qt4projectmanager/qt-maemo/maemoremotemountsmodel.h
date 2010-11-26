@@ -43,7 +43,7 @@ namespace Internal {
 class MaemoRemoteMountsModel : public QAbstractTableModel
 {
     Q_OBJECT
-public:   
+public:
     explicit MaemoRemoteMountsModel(QObject *parent = 0);
     int mountSpecificationCount() const { return m_mountSpecs.count(); }
     int validMountSpecificationCount() const;

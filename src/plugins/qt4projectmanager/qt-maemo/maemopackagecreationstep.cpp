@@ -598,7 +598,7 @@ void MaemoPackageCreationStep::updateDesktopFiles(const QString &rulesFilePath)
     desktopFileDir.remove(QLatin1Char(':'));
     desktopFileDir.prepend(QLatin1Char('/'));
 #endif
-    int insertPos = makeInstallEol + 1;    
+    int insertPos = makeInstallEol + 1;
     for (int i = 0; i < deployStep()->deployables()->modelCount(); ++i) {
         const MaemoDeployableListModel * const model
             = deployStep()->deployables()->modelAt(i);

@@ -139,7 +139,7 @@ private:
     {
         const int startPort = parsePort();
         if (atEnd() || nextChar() != '-') {
-            m_portList.addPort(startPort);            
+            m_portList.addPort(startPort);
             return;
         }
         ++m_pos;

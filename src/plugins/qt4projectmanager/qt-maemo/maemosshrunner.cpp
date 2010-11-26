@@ -118,7 +118,7 @@ void MaemoSshRunner::start()
         SLOT(handleConnected()));
     connect(m_connection.data(), SIGNAL(error(Core::SshError)), this,
         SLOT(handleConnectionFailure()));
-    if (reUse) {        
+    if (reUse) {
         handleConnected();
     } else {
         emit reportProgress(tr("Connecting to device..."));
