@@ -283,10 +283,15 @@ void GLSLTextEditor::updateDocumentNow()
     warningFormat.setUnderlineColor(Qt::darkYellow);
 
     QList<QTextEdit::ExtraSelection> sels;
+    QSet<int> errors;
 
     foreach (const DiagnosticMessage &m, engine.diagnosticMessages()) {
         if (! m.line())
             continue;
+        else if (errors.contains(m.line()))
+            continue;
+
+        errors.insert(m.line());
 
         QTextCursor cursor(document()->findBlockByNumber(m.line() - 1));
         cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
