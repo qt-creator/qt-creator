@@ -273,9 +273,21 @@ void RemoteGdbServerAdapter::runEngine()
 
 void RemoteGdbServerAdapter::interruptInferior()
 {
-    // FIXME: On some gdb versions like git 170ffa5d7dd this produces
-    // >810^error,msg="mi_cmd_exec_interrupt: Inferior not executing."
-    m_engine->postCommand("-exec-interrupt", GdbEngine::Immediate);
+    QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state());
+    m_engine->postCommand("-exec-interrupt", GdbEngine::Immediate,
+        CB(handleInterruptInferior));
+}
+
+void RemoteGdbServerAdapter::handleInterruptInferior(const GdbResponse &response)
+{
+    if (response.resultClass == GdbResultDone) {
+        // The gdb server will trigger extra output that we will pick up
+        // to do a proper state transition.
+    } else {
+        // FIXME: On some gdb versions like git 170ffa5d7dd this produces
+        // >810^error,msg="mi_cmd_exec_interrupt: Inferior not executing."
+        m_engine->notifyInferiorStopOk();
+    }
 }
 
 void RemoteGdbServerAdapter::shutdownInferior()

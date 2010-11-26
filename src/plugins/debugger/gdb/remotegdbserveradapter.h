@@ -86,6 +86,7 @@ private:
     void handleFileExecAndSymbols(const GdbResponse &response);
     void callTargetRemote();
     void handleTargetRemote(const GdbResponse &response);
+    void handleInterruptInferior(const GdbResponse &response);
 
     const int m_toolChainType;
 
