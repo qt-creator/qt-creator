@@ -236,21 +236,6 @@ bool MaemoDeployableListModel::hasDesktopFile() const
     return false;
 }
 
-bool MaemoDeployableListModel::canAddIcon() const
-{
-    if (m_projectType == LibraryTemplate)
-        return false;
-    const QList<QByteArray> &imageTypes = QImageReader::supportedImageFormats();
-    foreach (const MaemoDeployable &d, m_deployables) {
-        const QByteArray extension
-            = QFileInfo(d.localFilePath).suffix().toLocal8Bit();
-        if (d.remoteDir.startsWith(RemoteIconPath)
-                && imageTypes.contains(extension))
-            return false;
-    }
-    return true;
-}
-
 bool MaemoDeployableListModel::addDesktopFile(QString &error)
 {
     if (!canAddDesktopFile())
@@ -322,6 +307,22 @@ bool MaemoDeployableListModel::addIcon(const QString &fileName, QString &error)
     m_deployables << MaemoDeployable(filePath, RemoteIconPath);
     endInsertRows();
     return true;
+}
+
+QString MaemoDeployableListModel::remoteIconFilePath() const
+{
+    if (m_projectType == LibraryTemplate)
+        return QString();
+    const QList<QByteArray> &imageTypes = QImageReader::supportedImageFormats();
+    foreach (const MaemoDeployable &d, m_deployables) {
+        const QByteArray extension
+            = QFileInfo(d.localFilePath).suffix().toLocal8Bit();
+        if (d.remoteDir.startsWith(RemoteIconPath)
+                && imageTypes.contains(extension))
+            return d.remoteDir + QLatin1Char('/')
+                + QFileInfo(d.localFilePath).fileName();
+    }
+    return QString();
 }
 
 bool MaemoDeployableListModel::addLinesToProFile(const QStringList &lines)

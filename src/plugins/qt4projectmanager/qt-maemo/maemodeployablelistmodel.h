@@ -71,9 +71,10 @@ public:
     bool hasTargetPath() const { return m_hasTargetPath; }
     bool canAddDesktopFile() const { return isApplicationProject() && !hasDesktopFile(); }
     bool hasDesktopFile() const;
-    bool canAddIcon() const;
     bool addDesktopFile(QString &error);
+    bool canAddIcon() const { return isApplicationProject() && remoteIconFilePath().isEmpty(); }
     bool addIcon(const QString &fileName, QString &error);
+    QString remoteIconFilePath() const;
     ProFileUpdateSetting proFileUpdateSetting() const {
         return m_proFileUpdateSetting;
     }

@@ -53,6 +53,7 @@ QT_END_NAMESPACE
 namespace Qt4ProjectManager {
 namespace Internal {
 
+class MaemoDeployableListModel;
 class MaemoDeployStep;
 class MaemoToolChain;
 class MaemoProFileWrapper;
@@ -126,7 +127,8 @@ private:
     void checkProjectName();
     void updateDesktopFiles(const QString &rulesFilePath);
     void addWorkaroundForHarmattanBug(QByteArray &rulesFileContent,
-        int &insertPos, const QString &appName, const QString &desktopFileDir);
+        int &insertPos, const MaemoDeployableListModel *model,
+        const QString &desktopFileDir);
     void addSedCmdToRulesFile(QByteArray &rulesFileContent, int &insertPos,
         const QString &desktopFilePath, const QByteArray &oldString,
         const QByteArray &newString);

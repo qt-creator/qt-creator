@@ -604,10 +604,9 @@ void MaemoPackageCreationStep::updateDesktopFiles(const QString &rulesFilePath)
             = deployStep()->deployables()->modelAt(i);
         if (!model->hasDesktopFile())
             continue;
-        const QString appName = model->applicationName();
         if (maemoToolChain()->version() == MaemoToolChain::Maemo6) {
             addWorkaroundForHarmattanBug(content, insertPos,
-                appName, desktopFileDir);
+                model, desktopFileDir);
         }
         const QString executableFilePath = model->remoteExecutableFilePath();
         if (executableFilePath.isEmpty()) {
@@ -617,8 +616,8 @@ void MaemoPackageCreationStep::updateDesktopFiles(const QString &rulesFilePath)
         }
         const QByteArray lineBefore("Exec=.*");
         const QByteArray lineAfter("Exec=" + executableFilePath.toUtf8());
-        const QString desktopFilePath
-            = desktopFileDir + appName + QLatin1String(".desktop");
+        const QString desktopFilePath = desktopFileDir
+            + model->applicationName() + QLatin1String(".desktop");
         addSedCmdToRulesFile(content, insertPos, desktopFilePath, lineBefore,
             lineAfter);
     }
@@ -627,13 +626,16 @@ void MaemoPackageCreationStep::updateDesktopFiles(const QString &rulesFilePath)
 }
 
 void MaemoPackageCreationStep::addWorkaroundForHarmattanBug(QByteArray &rulesFileContent,
-    int &insertPos, const QString &appName, const QString &desktopFileDir)
+    int &insertPos, const MaemoDeployableListModel *model,
+    const QString &desktopFileDir)
 {
-    const QByteArray lineBefore("Icon=" + appName.toUtf8());
-    const QByteArray lineAfter("Icon=/usr/share/icons/hicolor/64x64/apps/"
-        + appName.toUtf8() + ".png");
+    const QString iconFilePath = model->remoteIconFilePath();
+    if (iconFilePath.isEmpty())
+        return;
+    const QByteArray lineBefore("^Icon=.*");
+    const QByteArray lineAfter("Icon=" + iconFilePath.toUtf8());
     const QString desktopFilePath
-        = desktopFileDir + appName + QLatin1String(".desktop");
+        = desktopFileDir + model->applicationName() + QLatin1String(".desktop");
     addSedCmdToRulesFile(rulesFileContent, insertPos, desktopFilePath,
         lineBefore, lineAfter);
 }
