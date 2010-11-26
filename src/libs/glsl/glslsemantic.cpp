@@ -179,12 +179,14 @@ bool Semantic::visit(BinaryExpressionAST *ast)
 {
     ExprResult left = expression(ast->left);
     ExprResult right = expression(ast->right);
+    _expr.isConstant = left.isConstant && right.isConstant;
     return false;
 }
 
 bool Semantic::visit(UnaryExpressionAST *ast)
 {
     ExprResult expr = expression(ast->expr);
+    _expr.isConstant = expr.isConstant;
     return false;
 }
 
@@ -193,6 +195,7 @@ bool Semantic::visit(TernaryExpressionAST *ast)
     ExprResult first = expression(ast->first);
     ExprResult second = expression(ast->second);
     ExprResult third = expression(ast->third);
+    _expr.isConstant = first.isConstant && second.isConstant && third.isConstant;
     return false;
 }
 
