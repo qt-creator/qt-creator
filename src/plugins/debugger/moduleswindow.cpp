@@ -95,9 +95,9 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
     actUpdateModuleList
         ->setEnabled(enabled && (capabilities & ReloadModuleCapability));
 
-    QAction *actShowSourceFiles
+    QAction *actShowModuleSources
         = new QAction(tr("Show Source Files for Module \"%1\"").arg(name), &menu);
-    actShowSourceFiles
+    actShowModuleSources
         ->setEnabled(enabled && (capabilities & ReloadModuleCapability));
 
     QAction *actLoadSymbolsForAllModules
@@ -112,14 +112,14 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QAction *actLoadSymbolsForModule = 0;
     QAction *actEditFile = 0;
-    QAction *actShowSymbols = 0;
+    QAction *actShowModuleSymbols = 0;
     if (name.isEmpty()) {
         actLoadSymbolsForModule = new QAction(tr("Load Symbols for Module"), &menu);
         actLoadSymbolsForModule->setEnabled(false);
         actEditFile = new QAction(tr("Edit File"), &menu);
         actEditFile->setEnabled(false);
-        actShowSymbols = new QAction(tr("Show Symbols"), &menu);
-        actShowSymbols->setEnabled(false);
+        actShowModuleSymbols = new QAction(tr("Show Symbols"), &menu);
+        actShowModuleSymbols->setEnabled(false);
     } else {
         actLoadSymbolsForModule
             = new QAction(tr("Load Symbols for Module \"%1\"").arg(name), &menu);
@@ -127,17 +127,19 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
             ->setEnabled(capabilities & ReloadModuleSymbolsCapability);
         actEditFile
             = new QAction(tr("Edit File \"%1\"").arg(name), &menu);
-        actShowSymbols
+        actShowModuleSymbols
             = new QAction(tr("Show Symbols in File \"%1\"").arg(name), &menu);
+        actShowModuleSymbols
+            ->setEnabled(capabilities & ShowModuleSymbolsCapability);
     }
 
     menu.addAction(actUpdateModuleList);
-    //menu.addAction(actShowSourceFiles); // FIXME
+    //menu.addAction(actShowModuleSources);  // FIXME
     menu.addAction(actLoadSymbolsForAllModules);
     menu.addAction(actExamineAllModules);
     menu.addAction(actLoadSymbolsForModule);
     menu.addAction(actEditFile);
-    //menu.addAction(actShowSymbols); // FIXME
+    menu.addAction(actShowModuleSymbols);
     menu.addSeparator();
     QAction *actAdjustColumnWidths =
         menu.addAction(tr("Adjust Column Widths to Contents"));
@@ -150,25 +152,24 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QAction *act = menu.exec(ev->globalPos());
 
-    if (act == actUpdateModuleList) {
+    if (act == actUpdateModuleList)
         engine->reloadModules();
-    } else if (act == actAdjustColumnWidths) {
-        resizeColumnsToContents();
-    } else if (act == actAlwaysAdjustColumnWidth) {
-        setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
-    //} else if (act == actShowSourceFiles) {
-    //    emit displaySourceRequested(name);
-    } else if (act == actLoadSymbolsForAllModules) {
-        engine->loadAllSymbols();
-    } else if (act == actExamineAllModules) {
-        engine->examineModules();
-    } else if (act == actLoadSymbolsForModule) {
-        engine->loadSymbols(name);
-    } else if (act == actEditFile) {
-        debuggerCore()->gotoLocation(name);
-    } else if (act == actShowSymbols) {
-        // FIXME setModelData(RequestModuleSymbolsRole, name);
-    }
+    else if (act == actAdjustColumnWidths)
+      resizeColumnsToContents();
+    else if (act == actAlwaysAdjustColumnWidth)
+      setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
+    else if (act == actShowModuleSources)
+      engine->loadSymbols(name);
+    else if (act == actLoadSymbolsForAllModules)
+      engine->loadAllSymbols();
+    else if (act == actExamineAllModules)
+      engine->examineModules();
+    else if (act == actLoadSymbolsForModule)
+      engine->loadSymbols(name);
+    else if (act == actEditFile)
+      debuggerCore()->gotoLocation(name);
+    else if (act == actShowModuleSymbols)
+      engine->requestModuleSymbols(name);
 }
 
 void ModulesWindow::resizeColumnsToContents()

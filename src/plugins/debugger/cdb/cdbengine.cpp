@@ -1399,7 +1399,7 @@ void CdbEngine::loadAllSymbols()
 
 void CdbEngine::requestModuleSymbols(const QString &moduleName)
 {
-    QList<Symbol> rc;
+    Symbols rc;
     QString errorMessage;
     bool success = false;
     do {
@@ -1413,7 +1413,7 @@ void CdbEngine::requestModuleSymbols(const QString &moduleName)
     } while (false);
     if (!success)
         warning(errorMessage);
-    showModuleSymbols(moduleName, rc);
+    debuggerCore()->showModuleSymbols(moduleName, rc);
 }
 
 void CdbEngine::reloadRegisters()

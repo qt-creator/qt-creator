@@ -314,6 +314,7 @@ void DisassemblerViewAgent::setFrame(const StackFrame &frame,
 {
     d->frame = frame;
     d->tryMixed = tryMixed;
+    d->setMarker = setMarker;
     if (isMixed()) {
         QHash<QString, DisassemblerLines>::ConstIterator it =
             d->cache.find(frameKey(frame));

@@ -113,7 +113,7 @@ bool getModuleByOffset(CIDebugSymbols *syms, quint64 offset,
     return getModuleName(syms, index, &(module->moduleName), errorMessage);
 }
 
-bool getModuleList(CIDebugSymbols *syms, QList<Module> *modules, QString *errorMessage)
+bool getModuleList(CIDebugSymbols *syms, Modules *modules, QString *errorMessage)
 {
     ULONG count;
     modules->clear();
@@ -261,7 +261,7 @@ ResolveSymbolResult resolveSymbol(CIDebugSymbols *syms, const QString &pattern, 
 
 // List symbols of a module
 bool getModuleSymbols(CIDebugSymbols *syms, const QString &moduleName,
-                      QList<Symbol> *symbols, QString *errorMessage)
+                      Symbols *symbols, QString *errorMessage)
 {
     // Search all symbols and retrieve addresses
     symbols->clear();

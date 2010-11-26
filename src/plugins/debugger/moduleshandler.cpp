@@ -148,7 +148,7 @@ void ModulesModel::removeModule(const QString &moduleName)
     const int index = indexOfModule(moduleName);
     QTC_ASSERT(index != -1, return);
     beginRemoveRows(QModelIndex(), index, index);
-    m_modules.removeAt(index);
+    m_modules.remove(index);
     endRemoveRows();
 }
 

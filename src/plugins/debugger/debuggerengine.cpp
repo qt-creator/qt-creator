@@ -63,9 +63,6 @@
 #include <QtCore/QTimer>
 #include <QtCore/QFutureInterface>
 
-#include <QtGui/QStandardItemModel>
-#include <QtGui/QAction>
-#include <QtGui/QTreeWidget>
 #include <QtGui/QMessageBox>
 
 using namespace Core;
@@ -299,26 +296,6 @@ void DebuggerEngine::removeTooltip()
 {
     watchHandler()->removeTooltip();
     hideDebuggerToolTip();
-}
-
-void DebuggerEngine::showModuleSymbols
-    (const QString &moduleName, const Symbols &symbols)
-{
-    QTreeWidget *w = new QTreeWidget;
-    w->setColumnCount(3);
-    w->setRootIsDecorated(false);
-    w->setAlternatingRowColors(true);
-    w->setSortingEnabled(true);
-    w->setHeaderLabels(QStringList() << tr("Symbol") << tr("Address") << tr("Code"));
-    w->setWindowTitle(tr("Symbols in \"%1\"").arg(moduleName));
-    foreach (const Symbol &s, symbols) {
-        QTreeWidgetItem *it = new QTreeWidgetItem;
-        it->setData(0, Qt::DisplayRole, s.name);
-        it->setData(1, Qt::DisplayRole, s.address);
-        it->setData(2, Qt::DisplayRole, s.state);
-        w->addTopLevelItem(it);
-    }
-    debuggerCore()->createNewDock(w);
 }
 
 void DebuggerEngine::frameUp()

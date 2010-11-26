@@ -436,7 +436,7 @@ void PdbEngine::handleListSymbols(const PdbResponse &response)
         symbol.name = _(item.findChild("name").data());
         symbols.append(symbol);
     }
-    showModuleSymbols(moduleName, symbols);
+   debuggerCore()->showModuleSymbols(moduleName, symbols);
 }
 
 //////////////////////////////////////////////////////////////////////

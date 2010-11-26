@@ -30,7 +30,7 @@
 #ifndef DEBUGGER_MODULESHANDLER_H
 #define DEBUGGER_MODULESHANDLER_H
 
-#include <QtCore/QList>
+#include <QtCore/QVector>
 #include <QtCore/QObject>
 #include <QtGui/QSortFilterProxyModel>
 
@@ -54,9 +54,11 @@ public:
     QString address;
     QString state;
     QString name;
+    QString section;
+    QString demangled;
 };
 
-typedef QList<Symbol> Symbols;
+typedef QVector<Symbol> Symbols;
 
 //////////////////////////////////////////////////////////////////
 //
@@ -88,7 +90,7 @@ public:
     QString endAddress;
 };
 
-typedef QList<Module> Modules;
+typedef QVector<Module> Modules;
 
 
 //////////////////////////////////////////////////////////////////

@@ -117,6 +117,7 @@
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextCursor>
 #include <QtGui/QToolButton>
+#include <QtGui/QTreeWidget>
 
 #include <climits>
 
@@ -848,7 +849,7 @@ static bool isDebuggable(IEditor *editor)
 
 ///////////////////////////////////////////////////////////////////////
 //
-// DebuggerPluginPrivate
+// Debugger Actions
 //
 ///////////////////////////////////////////////////////////////////////
 
@@ -1283,6 +1284,8 @@ public slots:
     Utils::SavedAction *action(int code) const;
     bool boolSetting(int code) const;
     QString stringSetting(int code) const;
+
+    void showModuleSymbols(const QString &moduleName, const Symbols &symbols);
 
 public:
     DebuggerState m_state;
@@ -3324,15 +3327,44 @@ QString DebuggerPluginPrivate::stringSetting(int code) const
     return m_debuggerSettings->item(code)->value().toString();
 }
 
+void DebuggerPluginPrivate::showModuleSymbols(const QString &moduleName,
+    const Symbols &symbols)
+{
+    QTreeWidget *w = new QTreeWidget;
+    w->setColumnCount(5);
+    w->setRootIsDecorated(false);
+    w->setAlternatingRowColors(true);
+    w->setSortingEnabled(true);
+    QStringList header;
+    header.append(tr("Symbol"));
+    header.append(tr("Address"));
+    header.append(tr("Code"));
+    header.append(tr("Section"));
+    header.append(tr("Name"));
+    w->setHeaderLabels(header);
+    w->setWindowTitle(tr("Symbols in \"%1\"").arg(moduleName));
+    foreach (const Symbol &s, symbols) {
+        QTreeWidgetItem *it = new QTreeWidgetItem;
+        it->setData(0, Qt::DisplayRole, s.name);
+        it->setData(1, Qt::DisplayRole, s.address);
+        it->setData(2, Qt::DisplayRole, s.state);
+        it->setData(3, Qt::DisplayRole, s.section);
+        it->setData(4, Qt::DisplayRole, s.demangled);
+        w->addTopLevelItem(it);
+    }
+    createNewDock(w);
+}
+
 } // namespace Internal
 
-using namespace Debugger::Internal;
 
 ///////////////////////////////////////////////////////////////////////
 //
 // DebuggerPlugin
 //
 ///////////////////////////////////////////////////////////////////////
+
+using namespace Debugger::Internal;
 
 DebuggerPlugin::DebuggerPlugin()
 {

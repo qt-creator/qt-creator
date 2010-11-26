@@ -31,6 +31,7 @@
 #define CDBMODULES_H
 
 #include <QtCore/QStringList>
+#include <QtCore/QVector>
 
 #include "cdbcom.h"
 
@@ -39,8 +40,10 @@ namespace Internal {
 
 class Module;
 class Symbol;
+typedef QVector<Module> Modules;
+typedef QVector<Symbol> Symbols;
 
-bool getModuleList(CIDebugSymbols *syms, QList<Module> *modules, QString *errorMessage);
+bool getModuleList(CIDebugSymbols *syms, Modules *modules, QString *errorMessage);
 bool getModuleNameList(CIDebugSymbols *syms, QStringList *modules, QString *errorMessage);
 bool getModuleByOffset(CIDebugSymbols *syms, quint64 offset, Module *module, QString *errorMessage);
 
@@ -62,7 +65,7 @@ ResolveSymbolResult resolveSymbol(CIDebugSymbols *syms, const QString &pattern, 
 
 // List symbols of a module
 bool getModuleSymbols(CIDebugSymbols *syms, const QString &moduleName,
-                      QList<Symbol> *symbols, QString *errorMessage);
+                      Symbols *symbols, QString *errorMessage);
 
 } // namespace Internal
 } // namespace Debugger

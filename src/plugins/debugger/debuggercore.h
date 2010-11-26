@@ -35,6 +35,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QMultiMap>
+#include <QtCore/QVector>
 
 QT_BEGIN_NAMESPACE
 class QIcon;
@@ -60,6 +61,7 @@ namespace Internal {
 
 class BreakHandler;
 class SnapshotHandler;
+class Symbol;
 
 // This is the "internal" interface of the debugger plugin that's
 // used by debugger views and debugger engines. The interface is
@@ -104,7 +106,6 @@ public:
     virtual void writeSettings() const = 0;
 
     virtual bool isReverseDebugging() const = 0;
-    virtual void createNewDock(QWidget *widget) = 0;
     virtual void runControlStarted(DebuggerRunControl *runControl) = 0;
     virtual void runControlFinished(DebuggerRunControl *runControl) = 0;
     virtual void displayDebugger(DebuggerEngine *engine, bool updateEngine) = 0;
@@ -114,6 +115,8 @@ public:
     virtual bool initialize(const QStringList &arguments, QString *errorMessage) = 0;
     virtual QWidget *mainWindow() const = 0;
     virtual QString gdbBinaryForToolChain(int toolChain) const = 0;
+    virtual void showModuleSymbols(const QString &moduleName,
+        const QVector<Symbol> &symbols);
 
     virtual Utils::SavedAction *action(int code) const = 0;
     virtual bool boolSetting(int code) const = 0;

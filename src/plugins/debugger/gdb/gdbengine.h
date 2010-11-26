@@ -374,6 +374,7 @@ private: ////////// View & Data Stuff //////////
     void examineModules();
     void reloadModulesInternal();
     void handleModulesList(const GdbResponse &response);
+    void handleShowModuleSymbols(const GdbResponse &response);
 
     bool m_modulesListOutdated;
 

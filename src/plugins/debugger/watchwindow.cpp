@@ -385,7 +385,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         }
     } else {
         actSetWatchpointAtVariableAddress =
-            new QAction(tr("At Watchpoint"), &menu);
+            new QAction(tr("Add Watchpoint"), &menu);
         actSetWatchpointAtVariableAddress->setEnabled(false);
     }
     actSetWatchpointAtVariableAddress->setToolTip(

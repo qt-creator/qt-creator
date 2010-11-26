@@ -158,7 +158,8 @@ enum DebuggerCapabilities
     ReturnFromFunctionCapability = 0x400,
     CreateFullBacktraceCapability = 0x800,
     AddWatcherCapability = 0x1000,
-    WatchpointCapability = 0x2000
+    WatchpointCapability = 0x2000,
+    ShowModuleSymbolsCapability = 0x4000,
 };
 
 enum LogChannel

@@ -247,7 +247,6 @@ public:
     void handleStartFailed();
     bool debuggerActionsEnabled() const;
     static bool debuggerActionsEnabled(DebuggerState state);
-    void showModuleSymbols(const QString &moduleName, const Internal::Symbols &symbols);
 
     void breakByFunction(const QString &functionName);
     void breakByFunctionMain();
@@ -332,15 +331,18 @@ protected:
 protected:
     DebuggerRunControl *runControl() const;
 
-    static QString msgWatchpointTriggered(BreakpointId id, int number, quint64 address);
-    static QString msgWatchpointTriggered(BreakpointId id, int number, quint64 address,
-                                          const QString &threadId);
-    static QString msgBreakpointTriggered(BreakpointId id, int number, const QString &threadId);
+    static QString msgWatchpointTriggered(BreakpointId id,
+        int number, quint64 address);
+    static QString msgWatchpointTriggered(BreakpointId id,
+        int number, quint64 address, const QString &threadId);
+    static QString msgBreakpointTriggered(BreakpointId id,
+        int number, const QString &threadId);
     static QString msgStopped(const QString &reason = QString());
     static QString msgStoppedBySignal(const QString &meaning, const QString &name);
-    static QString msgStoppedByException(const QString &description, const QString &threadId);
+    static QString msgStoppedByException(const QString &description,
+        const QString &threadId);
     static QString msgInterrupted();
-    void showStoppedBySignalMessageBox(QString meaning, QString name);
+    void showStoppedBySignalMessageBox(const QString meaning, QString name);
     void showStoppedByExceptionMessageBox(const QString &description);
 
 private:
@@ -348,7 +350,6 @@ private:
     friend class QmlCppEngine;
     void setState(DebuggerState state, bool forced = false);
     void setSlaveEngine(bool value);
-
 
     friend class DebuggerEnginePrivate;
     DebuggerEnginePrivate *d;

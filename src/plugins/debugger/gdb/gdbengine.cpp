@@ -1777,14 +1777,19 @@ void GdbEngine::setupEngine()
 unsigned GdbEngine::debuggerCapabilities() const
 {
     unsigned caps = ReverseSteppingCapability
-        | AutoDerefPointersCapability | DisassemblerCapability
-        | RegisterCapability | ShowMemoryCapability
-        | JumpToLineCapability | ReloadModuleCapability
-        | ReloadModuleSymbolsCapability | BreakOnThrowAndCatchCapability
+        | AutoDerefPointersCapability
+        | DisassemblerCapability
+        | RegisterCapability
+        | ShowMemoryCapability
+        | JumpToLineCapability
+        | ReloadModuleCapability
+        | ReloadModuleSymbolsCapability
+        | BreakOnThrowAndCatchCapability
         | ReturnFromFunctionCapability
         | CreateFullBacktraceCapability
         | WatchpointCapability
-        | AddWatcherCapability;
+        | AddWatcherCapability
+        | ShowModuleSymbolsCapability;
 
     if (startParameters().startMode == AttachCore)
         return caps;
@@ -2723,36 +2728,76 @@ void GdbEngine::loadAllSymbols()
 
 void GdbEngine::requestModuleSymbols(const QString &moduleName)
 {
-    QList<Symbol> rc;
-    bool success = false;
-    QString errorMessage;
-    do {
-        const QString nmBinary = _("nm");
-        QProcess proc;
-        proc.start(nmBinary, QStringList() << _("-D") << moduleName);
-        if (!proc.waitForFinished()) {
-            errorMessage = tr("Unable to run '%1': %2").arg(nmBinary, proc.errorString());
-            break;
-        }
-        const QString contents = QString::fromLocal8Bit(proc.readAllStandardOutput());
-        const QRegExp re(_("([0-9a-f]+)?\\s+([^\\s]+)\\s+([^\\s]+)"));
-        Q_ASSERT(re.isValid());
-        foreach (const QString &line, contents.split(_c('\n'))) {
-            if (re.indexIn(line) != -1) {
-                Symbol symbol;
-                symbol.address = re.cap(1);
-                symbol.state = re.cap(2);
-                symbol.name = re.cap(3);
-                rc.push_back(symbol);
+    QTemporaryFile tf(QDir::tempPath() + _("/gdbsymbols"));
+    if (!tf.open())
+        return;
+    QString fileName = tf.fileName();
+    tf.close();
+    postCommand("maint print msymbols " + fileName.toLocal8Bit()
+            + " " + moduleName.toLocal8Bit(),
+        NeedsStop, CB(handleShowModuleSymbols),
+        QVariant(moduleName + QLatin1Char('@') +  fileName));
+}
+
+void GdbEngine::handleShowModuleSymbols(const GdbResponse &response)
+{
+    const QString cookie = response.cookie.toString();
+    const QString moduleName = cookie.section(QLatin1Char('@'), 0, 0);
+    const QString fileName = cookie.section(QLatin1Char('@'), 1, 1);
+    if (response.resultClass == GdbResultDone) {
+        Symbols rc;
+        QFile file(fileName);
+        file.open(QIODevice::ReadOnly);
+        // Object file /opt/dev/qt/lib/libQtNetworkMyns.so.4: 
+        // [ 0] A 0x16bd64 _DYNAMIC  moc_qudpsocket.cpp
+        // [12] S 0xe94680 _ZN4myns5QFileC1Ev section .plt  myns::QFile::QFile()  
+        foreach (const QByteArray &line, file.readAll().split('\n')) {
+            if (line.isEmpty())
+                continue;
+            if (!line.at(0) == '[')
+                continue;
+            int posCode = line.indexOf(']') + 2;
+            int posAddress = line.indexOf("0x", posCode);
+            if (posAddress == -1)
+                continue;
+            int posName = line.indexOf(" ", posAddress);
+            int lenAddress = posName - posAddress - 1;
+            int posSection = line.indexOf(" section ");
+            int lenName = 0;
+            int lenSection = 0;
+            int posDemangled = 0;
+            if (posSection == -1) {
+                lenName = line.size() - posName;
+                posDemangled = posName;
             } else {
-                qWarning("moduleSymbols: unhandled: %s", qPrintable(line));
+                lenName = posSection - posName;
+                posSection += 10;
+                posDemangled = line.indexOf(' ', posSection + 1);
+                if (posDemangled == -1) {
+                    lenSection = line.size() - posSection;
+                } else {
+                    lenSection = posDemangled - posSection;
+                    posDemangled += 1;
+                }
             }
+            int lenDemangled = 0;
+            if (posDemangled != -1)
+                lenDemangled = line.size() - posDemangled;
+            Symbol symbol;
+            symbol.state = _(line.mid(posCode, 1));
+            symbol.address = _(line.mid(posAddress, lenAddress));
+            symbol.name = _(line.mid(posName, lenName));
+            symbol.section = _(line.mid(posSection, lenSection));
+            symbol.demangled = _(line.mid(posDemangled, lenDemangled));
+            rc.push_back(symbol);
         }
-        success = true;
-    } while (false);
-    if (!success)
-        qWarning("moduleSymbols: %s\n", qPrintable(errorMessage));
-    showModuleSymbols(moduleName, rc);
+        file.close();
+        file.remove();
+        debuggerCore()->showModuleSymbols(moduleName, rc);
+    } else {
+        showMessageBox(QMessageBox::Critical, tr("Cannot Read Symbols"),
+            tr("Cannot read symbols for module \"%1\".").arg(fileName));
+    }
 }
 
 void GdbEngine::reloadModules()
@@ -2773,7 +2818,7 @@ void GdbEngine::reloadModulesInternal()
 
 void GdbEngine::handleModulesList(const GdbResponse &response)
 {
-    QList<Module> modules;
+    Modules modules;
     if (response.resultClass == GdbResultDone) {
         // That's console-based output, likely Linux or Windows,
         // but we can avoid the #ifdef here.
