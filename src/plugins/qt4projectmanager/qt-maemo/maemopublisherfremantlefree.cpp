@@ -105,8 +105,9 @@ void MaemoPublisherFremantleFree::createPackage()
         + m_project->displayName();
     if (QFileInfo(tmpDirContainer()).exists()) {
         emit progressReport(tr("Removing left-over temporary directory ..."));
-        if (!removeRecursively(tmpDirContainer())) {
-            finishWithFailure(tr("Error: Could not remove temporary directory."),
+        QString error;
+        if (!MaemoGlobal::removeRecursively(tmpDirContainer(), error)) {
+            finishWithFailure(tr("Error removing temporary directory: %1").arg(error),
                 tr("Publishing failed: Could not create source package."));
             return;
         }
@@ -138,34 +139,6 @@ void MaemoPublisherFremantleFree::createPackage()
         = m_buildConfig->qmakeStep()->processParameters();
     m_process->start(pp->effectiveCommand() + QLatin1String(" ")
         + pp->effectiveArguments());
-}
-
-// TODO: The same exists in packaging step. Move to MaemoGlobal.
-bool MaemoPublisherFremantleFree::removeRecursively(const QString &filePath)
-{
-    QFileInfo fileInfo(filePath);
-    if (fileInfo.isDir()) {
-        QDir dir(filePath);
-        QStringList fileNames = dir.entryList(QDir::Files | QDir::Hidden
-            | QDir::System | QDir::Dirs | QDir::NoDotAndDotDot);
-        foreach (const QString &fileName, fileNames) {
-            if (!removeRecursively(filePath + QLatin1Char('/') + fileName))
-                return false;
-        }
-        dir.cdUp();
-        if (!dir.rmdir(fileInfo.fileName())) {
-            emit progressReport(tr("Failed to remove directory '%1'.")
-                .arg(QDir::toNativeSeparators(filePath)));
-            return false;
-        }
-    } else {
-        if (!QFile::remove(filePath)) {
-            emit progressReport(tr("Failed to remove file '%1'.")
-                .arg(QDir::toNativeSeparators(filePath)), ErrorOutput);
-            return false;
-        }
-    }
-    return true;
 }
 
 bool MaemoPublisherFremantleFree::copyRecursively(const QString &srcFilePath,
@@ -329,9 +302,11 @@ void MaemoPublisherFremantleFree::runDpkgBuildPackage()
         return;
     }
     foreach (const QString &filePath, d.filesToExclude()) {
-        if (!removeRecursively(filePath))
-            finishWithFailure(QString(),
+        QString error;
+        if (!MaemoGlobal::removeRecursively(filePath, error)) {
+            finishWithFailure(error,
                 tr("Publishing failed: Could not create package."));
+        }
     }
 
     if (m_state == Inactive)

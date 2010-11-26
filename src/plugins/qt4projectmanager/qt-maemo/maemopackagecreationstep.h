@@ -84,7 +84,6 @@ public:
     static QString packageName(const ProjectExplorer::Project *project);
     static QString packageFileName(const ProjectExplorer::Project *project,
         const QString &version);
-    static bool removeDirectory(const QString &dirPath);
 
     QString projectName() const;
 

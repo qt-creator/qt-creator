@@ -230,9 +230,10 @@ bool MaemoPackageCreationStep::copyDebianFiles(bool inSourceBuild)
                    .arg(QDir::toNativeSeparators(debianDirPath)));
         return false;
     }
-    if (!removeDirectory(debianDirPath)) {
+    QString error;
+    if (!MaemoGlobal::removeRecursively(debianDirPath, error)) {
         raiseError(tr("Packaging failed."),
-            tr("Could not remove directory '%1'.").arg(debianDirPath));
+            tr("Could not remove directory '%1': %2").arg(debianDirPath, error));
         return false;
     }
     QDir buildDir(buildDirectory());
@@ -269,29 +270,6 @@ bool MaemoPackageCreationStep::copyDebianFiles(bool inSourceBuild)
     }
 
     return true;
-}
-
-bool MaemoPackageCreationStep::removeDirectory(const QString &dirPath)
-{
-    QDir dir(dirPath);
-    if (!dir.exists())
-        return true;
-
-    const QStringList &files
-        = dir.entryList(QDir::Files | QDir::Hidden | QDir::System);
-    foreach (const QString &fileName, files) {
-        if (!dir.remove(fileName))
-            return false;
-    }
-
-    const QStringList &subDirs
-        = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-    foreach (const QString &subDirName, subDirs) {
-        if (!removeDirectory(dirPath + QLatin1Char('/') + subDirName))
-            return false;
-    }
-
-    return dir.rmdir(dirPath);
 }
 
 bool MaemoPackageCreationStep::runCommand(QProcess *buildProc,

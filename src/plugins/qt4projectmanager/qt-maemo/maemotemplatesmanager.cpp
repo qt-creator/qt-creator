@@ -171,7 +171,8 @@ bool MaemoTemplatesManager::createDebianTemplatesIfNecessary(const ProjectExplor
 
     const QString dhMakeDebianDir = projectDir.path() + QLatin1Char('/')
         + PackagingDirName + QLatin1String("/debian");
-    MaemoPackageCreationStep::removeDirectory(dhMakeDebianDir);
+    QString removeError;
+    MaemoGlobal::removeRecursively(dhMakeDebianDir, removeError);
     const QString command = QLatin1String("dh_make -s -n -p ")
         + MaemoPackageCreationStep::packageName(project) + QLatin1Char('_')
         + MaemoPackageCreationStep::DefaultVersionNumber;
@@ -193,7 +194,7 @@ bool MaemoTemplatesManager::createDebianTemplatesIfNecessary(const ProjectExplor
     if (!QFile::rename(dhMakeDebianDir, debianDirPath(project))) {
         raiseError(tr("Unable to move new debian directory to '%1'.")
             .arg(QDir::toNativeSeparators(debianDirPath(project))));
-        MaemoPackageCreationStep::removeDirectory(dhMakeDebianDir);
+        MaemoGlobal::removeRecursively(dhMakeDebianDir, removeError);
         return false;
     }
 

@@ -57,6 +57,8 @@ public:
     static QString remoteEnvironment(const QList<Utils::EnvironmentItem> &list);
     static QString remoteSourceProfilesCommand();
 
+    static bool removeRecursively(const QString &filePath, QString &error);
+
     template<class T> static T *buildStep(const ProjectExplorer::DeployConfiguration *dc)
     {
         ProjectExplorer::BuildStepList *bsl = dc->stepList();

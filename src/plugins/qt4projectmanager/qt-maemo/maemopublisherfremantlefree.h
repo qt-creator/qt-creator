@@ -88,7 +88,6 @@ private:
     void setState(State newState);
     void createPackage();
     void uploadPackage();
-    bool removeRecursively(const QString &filePath);
     bool copyRecursively(const QString &srcFilePath,
         const QString &tgtFilePath);
     void handleProcessFinished(bool failedToStart);

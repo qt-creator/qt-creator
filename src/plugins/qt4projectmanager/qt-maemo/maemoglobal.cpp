@@ -29,7 +29,11 @@
 
 #include "maemoglobal.h"
 
+#include <QtCore/QCoreApplication>
+#include <QtCore/QDir>
 #include <QtCore/QString>
+
+#define TR(text) QCoreApplication::translate("Qt4ProjectManager::Internal::MaemoGlobal", text)
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -69,6 +73,33 @@ QString MaemoGlobal::remoteEnvironment(const QList<Utils::EnvironmentItem> &list
     foreach (const Utils::EnvironmentItem &item, list)
         env.append(placeHolder.arg(item.name).arg(item.value));
     return env.mid(0, env.size() - 1);
+}
+
+bool MaemoGlobal::removeRecursively(const QString &filePath, QString &error)
+{
+    QFileInfo fileInfo(filePath);
+    if (fileInfo.isDir()) {
+        QDir dir(filePath);
+        QStringList fileNames = dir.entryList(QDir::Files | QDir::Hidden
+            | QDir::System | QDir::Dirs | QDir::NoDotAndDotDot);
+        foreach (const QString &fileName, fileNames) {
+            if (!removeRecursively(filePath + QLatin1Char('/') + fileName, error))
+                return false;
+        }
+        dir.cdUp();
+        if (!dir.rmdir(fileInfo.fileName())) {
+            error = TR("Failed to remove directory '%1'.")
+                .arg(QDir::toNativeSeparators(filePath));
+            return false;
+        }
+    } else {
+        if (!QFile::remove(filePath)) {
+            error = TR("Failed to remove file '%1'.")
+                .arg(QDir::toNativeSeparators(filePath));
+            return false;
+        }
+    }
+    return true;
 }
 
 } // namespace Internal
