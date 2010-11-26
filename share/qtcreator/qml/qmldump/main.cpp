@@ -14,6 +14,9 @@
 #include <QtDeclarative/private/qdeclarativemetatype_p.h>
 #include <QtDeclarative/private/qdeclarativeopenmetaobject_p.h>
 #include <QtDeclarative/QDeclarativeView>
+#ifdef QT_SIMULATOR
+#include <QtGui/private/qsimulatorconnection_p.h>
+#endif
 
 static QHash<QByteArray, QList<const QDeclarativeType *> > qmlTypesByCppName;
 static QHash<QByteArray, QByteArray> cppToId;
@@ -254,6 +257,9 @@ void writeEasingCurve(QXmlStreamWriter *xml)
 
 int main(int argc, char *argv[])
 {
+#ifdef QT_SIMULATOR
+    QtSimulatorPrivate::SimulatorConnection::createStubInstance();
+#endif
     QApplication app(argc, argv);
 
     if (argc != 1 && argc != 3) {

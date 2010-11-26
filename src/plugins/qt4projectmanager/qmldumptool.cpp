@@ -141,8 +141,10 @@ bool QmlDumpTool::canBuild(const QtVersion *qtVersion)
 {
     const QString installHeaders = qtVersion->versionInfo().value("QT_INSTALL_HEADERS");
     const QString header = installHeaders + QLatin1String("/QtDeclarative/private/qdeclarativemetatype_p.h");
-    return qtVersion->supportsTargetId(Constants::DESKTOP_TARGET_ID)
-            && QFile::exists(header);
+    return (qtVersion->supportsTargetId(Constants::DESKTOP_TARGET_ID)
+            || (qtVersion->supportsTargetId(Constants::QT_SIMULATOR_TARGET_ID)
+                && checkMinimumQtVersion(qtVersion->qtVersionString(), 4, 7, 1)))
+           && QFile::exists(header);
 }
 
 static QtVersion *qtVersionForProject(ProjectExplorer::Project *project)
@@ -170,24 +172,25 @@ static QtVersion *qtVersionForProject(ProjectExplorer::Project *project)
         return 0;
     }
 
-    // else, find any desktop Qt version that has qmldump, or - if there isn't any -
-    // one that could build it
-    QtVersion *desktopQt = 0;
+    // else, find any desktop or simulator Qt version that has qmldump, or
+    // - if there isn't any - one that could build it
+    QtVersion *canBuildQmlDump = 0;
     QtVersionManager *qtVersions = QtVersionManager::instance();
     foreach (QtVersion *version, qtVersions->validVersions()) {
-        if (version->supportsTargetId(Constants::DESKTOP_TARGET_ID)) {
+        if (version->supportsTargetId(Constants::DESKTOP_TARGET_ID)
+                || version->supportsTargetId(Constants::QT_SIMULATOR_TARGET_ID)) {
             const QString qtInstallData = version->versionInfo().value("QT_INSTALL_DATA");
             const QString path = QmlDumpTool::toolByInstallData(qtInstallData);
             if (!path.isEmpty())
                 return version;
 
-            if (!desktopQt && QmlDumpTool::canBuild(version)) {
-                desktopQt = version;
+            if (!canBuildQmlDump && QmlDumpTool::canBuild(version)) {
+                canBuildQmlDump = version;
             }
         }
     }
 
-    return desktopQt;
+    return canBuildQmlDump;
 }
 
 QString QmlDumpTool::toolForProject(ProjectExplorer::Project *project)
