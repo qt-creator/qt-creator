@@ -69,7 +69,8 @@ public:
     bool isApplicationProject() const { return m_projectType == ApplicationTemplate; }
     QString applicationName() const { return m_targetInfo.target; }
     bool hasTargetPath() const { return m_hasTargetPath; }
-    bool canAddDesktopFile() const;
+    bool canAddDesktopFile() const { return isApplicationProject() && !hasDesktopFile(); }
+    bool hasDesktopFile() const;
     bool canAddIcon() const;
     bool addDesktopFile(QString &error);
     bool addIcon(const QString &fileName, QString &error);

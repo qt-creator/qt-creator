@@ -225,15 +225,15 @@ bool MaemoDeployableListModel::isEditable(const QModelIndex &index) const
         && m_deployables.first().remoteDir.isEmpty();
 }
 
-bool MaemoDeployableListModel::canAddDesktopFile() const
+bool MaemoDeployableListModel::hasDesktopFile() const
 {
     if (m_projectType == LibraryTemplate)
         return false;
     foreach (const MaemoDeployable &d, m_deployables) {
         if (QFileInfo(d.localFilePath).fileName() == m_projectName + QLatin1String(".desktop"))
-            return false;
+            return true;
     }
-    return true;
+    return false;
 }
 
 bool MaemoDeployableListModel::canAddIcon() const

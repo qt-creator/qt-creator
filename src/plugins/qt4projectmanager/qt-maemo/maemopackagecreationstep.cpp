@@ -602,7 +602,7 @@ void MaemoPackageCreationStep::updateDesktopFiles(const QString &rulesFilePath)
     for (int i = 0; i < deployStep()->deployables()->modelCount(); ++i) {
         const MaemoDeployableListModel * const model
             = deployStep()->deployables()->modelAt(i);
-        if (!model->isApplicationProject())
+        if (!model->hasDesktopFile())
             continue;
         const QString appName = model->applicationName();
         if (maemoToolChain()->version() == MaemoToolChain::Maemo6) {
