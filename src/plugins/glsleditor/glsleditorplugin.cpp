@@ -55,6 +55,10 @@
 #include <texteditor/completionsupport.h>
 #include <utils/qtcassert.h>
 
+#include <glsl/glslengine.h>
+#include <glsl/glslparser.h>
+#include <glsl/glsllexer.h>
+
 #include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
@@ -69,6 +73,11 @@ using namespace GLSLEditor::Internal;
 using namespace GLSLEditor::Constants;
 
 GLSLEditorPlugin *GLSLEditorPlugin::m_instance = 0;
+
+GLSLEditorPlugin::InitFile::~InitFile()
+{
+    delete engine;
+}
 
 GLSLEditorPlugin::GLSLEditorPlugin() :
     m_editor(0),
@@ -102,9 +111,10 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/glsleditor/GLSLEditor.mimetypes.xml"), error_message))
         return false;
 
-    m_glsl_120_frag = glslFile(QLatin1String("glsl_120.frag"));
-    m_glsl_120_vert = glslFile(QLatin1String("glsl_120.vert"));
-    m_glsl_120_common = glslFile(QLatin1String("glsl_120_common.glsl"));
+    parseGlslFile(QLatin1String("glsl_120.frag"), &m_glsl_120_frag);
+    parseGlslFile(QLatin1String("glsl_120.vert"), &m_glsl_120_vert);
+    parseGlslFile(QLatin1String("glsl_120_common.glsl"), &m_glsl_120_common);
+
 
 //    m_modelManager = new ModelManager(this);
 //    addAutoReleasedObject(m_modelManager);
@@ -239,19 +249,31 @@ QByteArray GLSLEditorPlugin::glslFile(const QString &fileName)
     return QByteArray();
 }
 
-QByteArray GLSLEditorPlugin::fragmentShaderInit() const
+void GLSLEditorPlugin::parseGlslFile(const QString &fileName, InitFile *initFile)
 {
-    return m_glsl_120_frag;
+    const int variant = GLSL::Lexer::Variant_GLSL_Qt | // ### hardcoded
+                        GLSL::Lexer::Variant_VertexShader |
+                        GLSL::Lexer::Variant_FragmentShader;
+
+    const QByteArray code = glslFile(fileName);
+    initFile->engine = new GLSL::Engine();
+    GLSL::Parser parser(initFile->engine, code.constData(), code.size(), variant);
+    initFile->ast = parser.parse();
 }
 
-QByteArray GLSLEditorPlugin::vertexShaderInit() const
+const GLSLEditorPlugin::InitFile *GLSLEditorPlugin::fragmentShaderInit() const
 {
-    return m_glsl_120_vert;
+    return &m_glsl_120_frag;
 }
 
-QByteArray GLSLEditorPlugin::shaderInit() const
+const GLSLEditorPlugin::InitFile *GLSLEditorPlugin::vertexShaderInit() const
 {
-    return m_glsl_120_common;
+    return &m_glsl_120_vert;
+}
+
+const GLSLEditorPlugin::InitFile *GLSLEditorPlugin::shaderInit() const
+{
+    return &m_glsl_120_common;
 }
 
 Q_EXPORT_PLUGIN(GLSLEditorPlugin)

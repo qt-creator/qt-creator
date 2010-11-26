@@ -39,6 +39,7 @@
 #include <glsl/glslparser.h>
 #include <glsl/glslengine.h>
 #include <glsl/glslsemantic.h>
+#include <glsl/glslsymbols.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -270,9 +271,14 @@ void GLSLTextEditor::updateDocumentNow()
     Parser parser(&engine, preprocessedCode.constData(), preprocessedCode.size(), variant);
     TranslationUnitAST *ast = parser.parse();
 
-    Semantic sem(&engine);
-    Scope *globalScope = sem.translationUnit(ast);
-    Q_UNUSED(globalScope);
+    GLSLEditorPlugin *plugin = GLSLEditorPlugin::instance();
+
+    Semantic sem;
+    Scope *globalScope = engine.newNamespace();
+    sem.translationUnit(plugin->shaderInit()->ast, globalScope, plugin->shaderInit()->engine);
+    sem.translationUnit(plugin->vertexShaderInit()->ast, globalScope, plugin->vertexShaderInit()->engine);
+    sem.translationUnit(plugin->fragmentShaderInit()->ast, globalScope, plugin->fragmentShaderInit()->engine);
+    sem.translationUnit(ast, globalScope, &engine);
 
     QTextCharFormat errorFormat;
     errorFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);

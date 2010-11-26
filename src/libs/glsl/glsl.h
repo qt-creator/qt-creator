@@ -76,6 +76,7 @@ class OverloadSet;
 class Namespace;
 
 class AST;
+class TranslationUnitAST;
 template <typename T> class List;
 }
 

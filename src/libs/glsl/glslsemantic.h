@@ -36,7 +36,7 @@ namespace GLSL {
 class GLSL_EXPORT Semantic: protected Visitor
 {
 public:
-    Semantic(Engine *engine);
+    Semantic();
     virtual ~Semantic();
 
     struct ExprResult {
@@ -50,17 +50,19 @@ public:
         bool isConstant;
     };
 
+    void translationUnit(TranslationUnitAST *ast, Scope *globalScope, Engine *engine);
+
+protected:
+    Engine *switchEngine(Engine *engine);
+    Scope *switchScope(Scope *scope);
+
     ExprResult expression(ExpressionAST *ast);
     void statement(StatementAST *ast);
     const Type *type(TypeAST *ast);
     void declaration(DeclarationAST *ast);
-    Scope *translationUnit(TranslationUnitAST *ast);
     ExprResult functionIdentifier(FunctionIdentifierAST *ast);
     Symbol *field(StructTypeAST::Field *ast);
     void parameterDeclaration(ParameterDeclarationAST *ast, Function *fun);
-
-protected:
-    Scope *switchScope(Scope *scope);
 
     virtual bool visit(TranslationUnitAST *ast);
     virtual bool visit(FunctionIdentifierAST *ast);

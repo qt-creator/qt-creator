@@ -36,8 +36,8 @@
 
 using namespace GLSL;
 
-Semantic::Semantic(Engine *engine)
-    : _engine(engine)
+Semantic::Semantic()
+    : _engine(0)
     , _scope(0)
     , _type(0)
 {
@@ -45,6 +45,13 @@ Semantic::Semantic(Engine *engine)
 
 Semantic::~Semantic()
 {
+}
+
+Engine *Semantic::switchEngine(Engine *engine)
+{
+    Engine *previousEngine = _engine;
+    _engine = engine;
+    return previousEngine;
 }
 
 Scope *Semantic::switchScope(Scope *scope)
@@ -82,9 +89,9 @@ void Semantic::declaration(DeclarationAST *ast)
     accept(ast);
 }
 
-Scope *Semantic::translationUnit(TranslationUnitAST *ast)
+void Semantic::translationUnit(TranslationUnitAST *ast, Scope *globalScope, Engine *engine)
 {
-    Namespace *globalScope = _engine->newNamespace();
+    Engine *previousEngine = switchEngine(engine);
     Scope *previousScope = switchScope(globalScope);
     if (ast) {
         for (List<DeclarationAST *> *it = ast->declarations; it; it = it->next) {
@@ -92,7 +99,8 @@ Scope *Semantic::translationUnit(TranslationUnitAST *ast)
             declaration(decl);
         }
     }
-    return switchScope(previousScope);
+    (void) switchScope(previousScope);
+    (void) switchEngine(previousEngine);
 }
 
 Semantic::ExprResult Semantic::functionIdentifier(FunctionIdentifierAST *ast)
@@ -106,7 +114,7 @@ Semantic::ExprResult Semantic::functionIdentifier(FunctionIdentifierAST *ast)
                 else
                     _engine->error(ast->lineno, QString("`%1' cannot be used as a function").arg(*ast->name));
             } else {
-                // ### _engine->error(ast->lineno, QString("`%1' was not declared in this scope").arg(*ast->name));
+                _engine->error(ast->lineno, QString("`%1' was not declared in this scope").arg(*ast->name));
             }
         } else if (ast->type) {
             const Type *ty = type(ast->type);
