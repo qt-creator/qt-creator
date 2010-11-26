@@ -343,8 +343,9 @@ DebuggerEngineType DebuggerRunControlPrivate::engineForExecutable
         return GdbEngineType;
 
     // We need the CDB debugger in order to be able to debug VS
-    // executables
-    if (checkDebugConfiguration(ProjectExplorer::ToolChain_MSVC, &m_errorMessage, 0, &m_settingsIdHint)) {
+    // executables.
+    if (d->checkDebugConfiguration(ProjectExplorer::ToolChain_MSVC,
+            &m_errorMessage, 0, &m_settingsIdHint)) {
         if (enabledEngineTypes & CdbEngineType)
             return CdbEngineType;
         m_errorMessage = msgEngineNotAvailable("Cdb Engine");
