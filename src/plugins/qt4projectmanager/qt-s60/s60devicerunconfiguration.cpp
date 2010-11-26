@@ -190,6 +190,8 @@ bool S60DeviceRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *c
     case ProjectExplorer::ToolChain_GCCE:
     case ProjectExplorer::ToolChain_RVCT2_ARMV5:
     case ProjectExplorer::ToolChain_RVCT2_ARMV6:
+    case ProjectExplorer::ToolChain_RVCT4_ARMV5:
+    case ProjectExplorer::ToolChain_RVCT4_ARMV6:
     case ProjectExplorer::ToolChain_GCCE_GNUPOC:
     case ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC:
         return true;
@@ -282,6 +284,7 @@ static inline QString symbianPlatformForToolChain(ProjectExplorer::ToolChainType
     case ProjectExplorer::ToolChain_GCCE_GNUPOC:
         return QLatin1String("gcce");
     case ProjectExplorer::ToolChain_RVCT2_ARMV5:
+    case ProjectExplorer::ToolChain_RVCT4_ARMV5:
         return QLatin1String("armv5");
     default: // including ProjectExplorer::RVCT_ARMV6_GNUPOC:
         break;

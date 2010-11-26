@@ -46,7 +46,9 @@ enum ToolChainType
     ToolChain_GCC_MAEMO = 9,
     ToolChain_GCCE_GNUPOC = 10,
     ToolChain_RVCT_ARMV5_GNUPOC = 11,
-    ToolChain_LAST_VALID = 11,
+    ToolChain_RVCT4_ARMV5 = 12,
+    ToolChain_RVCT4_ARMV6 = 13,
+    ToolChain_LAST_VALID = 13,
     ToolChain_OTHER = 200,
     ToolChain_UNKNOWN = 201,
     ToolChain_INVALID = 202

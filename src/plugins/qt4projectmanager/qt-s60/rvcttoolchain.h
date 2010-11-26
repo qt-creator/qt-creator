@@ -37,32 +37,44 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
+// ==========================================================================
+// RVCTToolChain
+// ==========================================================================
+
 class RVCTToolChain : public ProjectExplorer::ToolChain
 {
 public:
     explicit RVCTToolChain(const S60Devices::Device &device,
                            ProjectExplorer::ToolChainType type);
-    virtual QByteArray predefinedMacros();
+    QByteArray predefinedMacros();
     QList<ProjectExplorer::HeaderPath> systemHeaderPaths();
     void addToEnvironment(Utils::Environment &env);
     ProjectExplorer::ToolChainType type() const;
     QString makeCommand() const;
     ProjectExplorer::IOutputParser *outputParser() const;
 
+    static QSet<QPair<int, int> > configuredRvctVersions();
+
     // Return the environment variable indicating the RVCT version
-    // 'RVCT<major><minor>BIN' and its setting
-    static QByteArray rvctBinEnvironmentVariable();
-    static QString rvctBinPath();
-    static QString rvctBinary();
+    // 'RVCT2<minor>BIN' and its setting
+    virtual QByteArray rvctBinEnvironmentVariable() = 0;
+
+    QString rvctBinPath();
+    QString rvctBinary();
 
 protected:
-    bool equals(const ToolChain *other) const;
+    bool equals(const ToolChain *other) const = 0;
 
-private:
+    QStringList configuredEnvironment();
+
+    QByteArray rvctBinEnvironmentVariableForVersion(int major);
     void addToRVCTPathVariable(const QString &postfix, const QStringList &values,
                                Utils::Environment &env) const;
-    static QStringList libPaths();
+    QStringList libPaths();
     void updateVersion();
+
+    QByteArray m_predefinedMacros;
+    QList<ProjectExplorer::HeaderPath> m_systemHeaderPaths;
 
     const S60ToolChainMixin m_mixin;
     const ProjectExplorer::ToolChainType m_type;
@@ -71,8 +83,44 @@ private:
     int m_minor;
     int m_build;
 
-    QByteArray m_predefinedMacros;
-    QList<ProjectExplorer::HeaderPath> m_systemHeaderPaths;
+private:
+    QString m_binPath;
+    QStringList m_additionalEnvironment;
+};
+
+// ==========================================================================
+// RVCT2ToolChain
+// ==========================================================================
+
+class RVCT2ToolChain : public RVCTToolChain
+{
+public:
+    explicit RVCT2ToolChain(const S60Devices::Device &device,
+                            ProjectExplorer::ToolChainType type);
+    QByteArray rvctBinEnvironmentVariable();
+
+    QByteArray predefinedMacros();
+
+protected:
+    bool equals(const ToolChain *other) const;
+};
+
+// ==========================================================================
+// RVCT4ToolChain
+// ==========================================================================
+
+class RVCT4ToolChain : public RVCT2ToolChain
+{
+public:
+    explicit RVCT4ToolChain(const S60Devices::Device &device,
+                            ProjectExplorer::ToolChainType type);
+
+    QByteArray rvctBinEnvironmentVariable();
+
+    QByteArray predefinedMacros();
+
+protected:
+    bool equals(const ToolChain *other) const;
 };
 
 } // namespace Internal

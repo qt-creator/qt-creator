@@ -1428,9 +1428,12 @@ void QtVersion::updateToolChainAndMkspec() const
 #    ifdef Q_OS_WIN
             m_targetIds.insert(QLatin1String(Constants::S60_DEVICE_TARGET_ID));
             m_toolChains << ToolChainPtr(s60mgr->createGCCEToolChain(this));
-            if (S60Manager::hasRvctCompiler())
+            if (S60Manager::hasRvct2Compiler())
                 m_toolChains << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain_RVCT2_ARMV5))
                              << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain_RVCT2_ARMV6));
+            if (S60Manager::hasRvct4Compiler())
+                m_toolChains << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain_RVCT4_ARMV5))
+                             << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain_RVCT4_ARMV6));
             if (!mwcDirectory().isEmpty()) {
                 m_toolChains << ToolChainPtr(s60mgr->createWINSCWToolChain(this));
                 m_targetIds.insert(QLatin1String(Constants::S60_EMULATOR_TARGET_ID));
@@ -1704,6 +1707,8 @@ bool QtVersion::supportsBinaryDebuggingHelper() const
         case ProjectExplorer::ToolChain_GCCE :
         case ProjectExplorer::ToolChain_RVCT2_ARMV5:
         case ProjectExplorer::ToolChain_RVCT2_ARMV6:
+        case ProjectExplorer::ToolChain_RVCT4_ARMV5:
+        case ProjectExplorer::ToolChain_RVCT4_ARMV6:
         case ProjectExplorer::ToolChain_GCCE_GNUPOC:
         case ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC:
         case ProjectExplorer::ToolChain_INVALID:

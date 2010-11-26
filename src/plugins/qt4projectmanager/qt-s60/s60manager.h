@@ -63,7 +63,8 @@ public:
     S60Devices::Device deviceForQtVersion(const Qt4ProjectManager::QtVersion *version) const;
     QString deviceIdFromDetectionSource(const QString &autoDetectionSource) const;
 
-    static bool hasRvctCompiler();
+    static bool hasRvct2Compiler();
+    static bool hasRvct4Compiler();
 
 private slots:
     void updateQtVersions();

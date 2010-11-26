@@ -141,9 +141,14 @@ S60Manager::~S60Manager()
     }
 }
 
-bool S60Manager::hasRvctCompiler()
+bool S60Manager::hasRvct2Compiler()
 {
-    return !RVCTToolChain::rvctBinEnvironmentVariable().isEmpty();
+    return RVCT2ToolChain::configuredRvctVersions().contains(qMakePair(2, 2));
+}
+
+bool S60Manager::hasRvct4Compiler()
+{
+    return RVCT2ToolChain::configuredRvctVersions().contains(qMakePair(2, 2));
 }
 
 void S60Manager::addAutoReleasedObject(QObject *o)
@@ -237,7 +242,14 @@ ProjectExplorer::ToolChain *S60Manager::createRVCTToolChain(
         ProjectExplorer::ToolChainType type) const
 {
     Q_ASSERT(version);
-    return new RVCTToolChain(deviceForQtVersion(version), type);
+    if (type == ProjectExplorer::ToolChain_RVCT2_ARMV5
+            || type == ProjectExplorer::ToolChain_RVCT2_ARMV6
+            || type == ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC)
+        return new RVCT2ToolChain(deviceForQtVersion(version), type);
+    if (type == ProjectExplorer::ToolChain_RVCT4_ARMV5
+            || type == ProjectExplorer::ToolChain_RVCT4_ARMV6)
+        return new RVCT4ToolChain(deviceForQtVersion(version), type);
+    return 0;
 }
 
 S60Devices::Device S60Manager::deviceForQtVersion(const Qt4ProjectManager::QtVersion *version) const

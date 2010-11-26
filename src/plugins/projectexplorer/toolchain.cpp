@@ -153,6 +153,10 @@ QString ToolChain::toolChainName(ToolChainType tc)
         return QCoreApplication::translate("ToolChain", "RVCT 2 (ARMV5)");
     case ToolChain_RVCT2_ARMV6:
         return QCoreApplication::translate("ToolChain", "RVCT 2 (ARMV6)");
+    case ToolChain_RVCT4_ARMV5:
+        return QCoreApplication::translate("ToolChain", "RVCT 4 (ARMV5)");
+    case ToolChain_RVCT4_ARMV6:
+        return QCoreApplication::translate("ToolChain", "RVCT 4 (ARMV6)");
     case ToolChain_GCC_MAEMO:
         return QCoreApplication::translate("ToolChain", "GCC for Maemo");
     case ToolChain_OTHER:
