@@ -592,8 +592,11 @@ bool Semantic::visit(ParameterDeclarationAST *ast)
 bool Semantic::visit(VariableDeclarationAST *ast)
 {
     const Type *ty = type(ast->type);
-    Q_UNUSED(ty);
     ExprResult initializer = expression(ast->initializer);
+    if (ast->name) {
+        Variable *var = _engine->newVariable(_scope, *ast->name, ty);
+        _scope->add(var);
+    }
     return false;
 }
 
