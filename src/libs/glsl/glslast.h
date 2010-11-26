@@ -642,15 +642,15 @@ public: // attributes
 class GLSL_EXPORT DeclarationStatementAST: public StatementAST
 {
 public:
-    DeclarationStatementAST(List<DeclarationAST *> *_decls)
-        : StatementAST(Kind_DeclarationStatement), decls(finish(_decls)) {}
+    DeclarationStatementAST(DeclarationAST *_decl)
+        : StatementAST(Kind_DeclarationStatement), decl(_decl) {}
 
     virtual DeclarationStatementAST *asDeclarationStatement() { return this; }
 
     virtual void accept0(Visitor *visitor);
 
 public: // attributes
-    List<DeclarationAST *> *decls;
+    DeclarationAST *decl;
 };
 
 class GLSL_EXPORT TypeAST: public AST

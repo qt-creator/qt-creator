@@ -281,10 +281,7 @@ bool Semantic::visit(CaseLabelStatementAST *ast)
 
 bool Semantic::visit(DeclarationStatementAST *ast)
 {
-    for (List<DeclarationAST *> *it = ast->decls; it; it = it->next) {
-        DeclarationAST *decl = it->value;
-        declaration(decl);
-    }
+    declaration(ast->decl);
     return false;
 }
 

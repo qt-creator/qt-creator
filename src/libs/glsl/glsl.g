@@ -2528,7 +2528,7 @@ case $rule_number: {
 declaration_statement ::= declaration ;
 /.
 case $rule_number: {
-    ast(1) = makeAstNode<DeclarationStatementAST>(sym(1).declaration_list);
+    ast(1) = makeAstNode<DeclarationStatementAST>(sym(1).declaration);
 }   break;
 ./
 

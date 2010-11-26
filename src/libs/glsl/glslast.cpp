@@ -218,7 +218,7 @@ void CaseLabelStatementAST::accept0(Visitor *visitor)
 void DeclarationStatementAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this))
-        accept(decls, visitor);
+        accept(decl, visitor);
     visitor->endVisit(this);
 }
 

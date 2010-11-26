@@ -1865,7 +1865,7 @@ case 260: {
 #line 2529 "./glsl.g"
 
 case 261: {
-    ast(1) = makeAstNode<DeclarationStatementAST>(sym(1).declaration_list);
+    ast(1) = makeAstNode<DeclarationStatementAST>(sym(1).declaration);
 }   break;
 
 #line 2536 "./glsl.g"
