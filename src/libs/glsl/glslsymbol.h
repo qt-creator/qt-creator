@@ -56,6 +56,8 @@ public:
     virtual Argument *asArgument() { return 0; }
     virtual Block *asBlock() { return 0; }
     virtual Variable *asVariable() { return 0; }
+    virtual OverloadSet *asOverloadSet() { return 0; }
+    virtual Namespace *asNamespace() { return 0; }
 
     virtual const Type *type() const = 0;
 

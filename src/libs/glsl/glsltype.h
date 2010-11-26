@@ -51,6 +51,7 @@ public:
     virtual const MatrixType *asMatrixType() const { return 0; }
     virtual const ArrayType *asArrayType() const { return 0; }
     virtual const SamplerType *asSamplerType() const { return 0; }
+    virtual const OverloadSet *asOverloadSetType() const { return 0; }
 
     virtual const Struct *asStructType() const { return 0; }
     virtual const Function *asFunctionType() const { return 0; }

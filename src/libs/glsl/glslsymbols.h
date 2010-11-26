@@ -81,6 +81,24 @@ private:
     QHash<QString, Symbol *> _members;
 };
 
+class GLSL_EXPORT Namespace: public Scope
+{
+public:
+    Namespace();
+    virtual ~Namespace();
+
+    void add(Symbol *symbol);
+
+    virtual Namespace *asNamespace() { return this; }
+
+    virtual const Type *type() const;
+    virtual Symbol *find(const QString &name) const;
+
+private:
+    QHash<QString, Symbol *> _members;
+    QVector<OverloadSet *> _overloadSets;
+};
+
 } // end of namespace GLSL
 
 #endif // GLSLSYMBOLS_H

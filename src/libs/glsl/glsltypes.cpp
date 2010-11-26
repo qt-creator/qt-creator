@@ -390,3 +390,48 @@ bool SamplerType::isLessThan(const Type *other) const
     Q_ASSERT(samp != 0);
     return _kind < samp->kind();
 }
+
+OverloadSet::OverloadSet(Scope *enclosingScope)
+    : Scope(enclosingScope)
+{
+}
+
+QVector<Function *> OverloadSet::functions() const
+{
+    return _functions;
+}
+
+void OverloadSet::addFunction(Function *function)
+{
+    _functions.append(function);
+}
+
+const Type *OverloadSet::type() const
+{
+    return this;
+}
+
+Symbol *OverloadSet::find(const QString &) const
+{
+    return 0;
+}
+
+void OverloadSet::add(Symbol *symbol)
+{
+    if (symbol) {
+        if (Function *fun = symbol->asFunction())
+            addFunction(fun);
+    }
+}
+
+bool OverloadSet::isEqualTo(const Type *other) const
+{
+    Q_UNUSED(other);
+    return false;
+}
+
+bool OverloadSet::isLessThan(const Type *other) const
+{
+    Q_UNUSED(other);
+    return false;
+}

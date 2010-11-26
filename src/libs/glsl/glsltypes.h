@@ -249,6 +249,29 @@ private:
     int _kind;
 };
 
+class GLSL_EXPORT OverloadSet: public Type, public Scope
+{
+public:
+    OverloadSet(Scope *enclosingScope = 0);
+
+    QVector<Function *> functions() const;
+    void addFunction(Function *function);
+
+    // as symbol
+    virtual OverloadSet *asOverloadSet() { return this; }
+    virtual const Type *type() const;
+    virtual Symbol *find(const QString &name) const;
+    virtual void add(Symbol *symbol);
+
+    // as type
+    virtual const OverloadSet *asOverloadSetType() const { return this; }
+    virtual bool isEqualTo(const Type *other) const;
+    virtual bool isLessThan(const Type *other) const;
+
+private:
+    QVector<Function *> _functions;
+};
+
 } // end of namespace GLSL
 
 #endif // GLSLTYPES_H

@@ -111,6 +111,7 @@ public:
     const MatrixType *matrixType(const Type *elementType, int columns, int rows);
 
     // symbols
+    Namespace *newNamespace();
     Struct *newStruct(Scope *scope = 0);
     Block *newBlock(Scope *scope = 0);
     Function *newFunction(Scope *scope = 0);
@@ -122,6 +123,8 @@ public:
     QList<DiagnosticMessage> diagnosticMessages() const;
     void clearDiagnosticMessages();
     void addDiagnosticMessage(const DiagnosticMessage &m);
+    void warning(int line, const QString &message);
+    void error(int line, const QString &message);
 
 private:
     QSet<QString> _identifiers;

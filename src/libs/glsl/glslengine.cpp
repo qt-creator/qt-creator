@@ -179,6 +179,24 @@ void Engine::addDiagnosticMessage(const DiagnosticMessage &m)
     _diagnosticMessages.append(m);
 }
 
+void Engine::warning(int line, const QString &message)
+{
+    DiagnosticMessage m;
+    m.setKind(DiagnosticMessage::Warning);
+    m.setLine(line);
+    m.setMessage(message);
+    addDiagnosticMessage(m);
+}
+
+void Engine::error(int line, const QString &message)
+{
+    DiagnosticMessage m;
+    m.setKind(DiagnosticMessage::Error);
+    m.setLine(line);
+    m.setMessage(message);
+    addDiagnosticMessage(m);
+}
+
 QSet<QString> Engine::identifiers() const
 {
     return _identifiers;
@@ -192,6 +210,13 @@ bool DiagnosticMessage::isError() const
 bool GLSL::DiagnosticMessage::isWarning() const
 {
     return _kind == Warning;
+}
+
+Namespace *Engine::newNamespace()
+{
+    Namespace *s = new Namespace();
+    _symbols.append(s);
+    return s;
 }
 
 Struct *Engine::newStruct(Scope *scope)
@@ -232,3 +257,4 @@ Variable *Engine::newVariable(Scope *scope, const QString &name, const Type *typ
     _symbols.append(var);
     return var;
 }
+

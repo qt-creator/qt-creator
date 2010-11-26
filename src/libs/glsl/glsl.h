@@ -72,6 +72,8 @@ class Function;
 class Argument;
 class Block;
 class Variable;
+class OverloadSet;
+class Namespace;
 
 class AST;
 template <typename T> class List;

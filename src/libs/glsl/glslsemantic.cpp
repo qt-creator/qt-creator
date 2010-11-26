@@ -80,7 +80,7 @@ void Semantic::declaration(DeclarationAST *ast)
 
 Scope *Semantic::translationUnit(TranslationUnitAST *ast)
 {
-    Block *globalScope = _engine->newBlock();
+    Namespace *globalScope = _engine->newNamespace();
     Scope *previousScope = switchScope(globalScope);
     for (List<DeclarationAST *> *it = ast->declarations; it; it = it->next) {
         DeclarationAST *decl = it->value;
@@ -216,10 +216,12 @@ bool Semantic::visit(ExpressionStatementAST *ast)
 
 bool Semantic::visit(CompoundStatementAST *ast)
 {
+    Scope *previousScope = switchScope(_engine->newBlock(_scope));
     for (List<StatementAST *> *it = ast->statements; it; it = it->next) {
         StatementAST *stmt = it->value;
         statement(stmt);
     }
+    (void) switchScope(previousScope);
     return false;
 }
 

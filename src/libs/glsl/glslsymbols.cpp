@@ -29,7 +29,7 @@
 
 #include "glsltypes.h"
 #include "glslsymbols.h"
-#include <QtCore/qglobal.h>
+#include <QtCore/QDebug>
 
 using namespace GLSL;
 
@@ -84,4 +84,46 @@ const Type *Variable::type() const
 void Variable::setType(const Type *type)
 {
     _type = type;
+}
+
+Namespace::Namespace()
+{
+}
+
+Namespace::~Namespace()
+{
+    qDeleteAll(_overloadSets);
+}
+
+void Namespace::add(Symbol *symbol)
+{
+    Symbol *&sym = _members[symbol->name()];
+    if (! sym)
+        sym = symbol;
+    else if (Function *fun = symbol->asFunction()) {
+        if (OverloadSet *o = sym->asOverloadSet()) {
+            o->addFunction(fun);
+        } else if (Function *firstFunction = sym->asFunction()) {
+            OverloadSet *o = new OverloadSet(this);
+            _overloadSets.append(o);
+            o->addFunction(firstFunction);
+            o->addFunction(fun);
+            sym = o;
+        }
+        else {
+            // ### warning? return false?
+        }
+    } else {
+        // ### warning? return false?
+    }
+}
+
+const Type *Namespace::type() const
+{
+    return 0;
+}
+
+Symbol *Namespace::find(const QString &name) const
+{
+    return _members.value(name);
 }
