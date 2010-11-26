@@ -144,7 +144,17 @@ bool Semantic::visit(StructTypeAST::Field *ast)
 // expressions
 bool Semantic::visit(IdentifierExpressionAST *ast)
 {
-    Q_UNUSED(ast);
+    if (ast->name) {
+        if (Symbol *s = _scope->lookup(*ast->name)) {
+            _expr.type = s->type();
+        } else {
+            if (ast->name->startsWith(QLatin1String("gl_")) || ast->name->startsWith(QLatin1String("qgl_"))) {
+                // ### well, at least for now.
+            } else {
+                _engine->error(ast->lineno, QString("Undefined symbol `%1'").arg(*ast->name));
+            }
+        }
+    }
     return false;
 }
 
