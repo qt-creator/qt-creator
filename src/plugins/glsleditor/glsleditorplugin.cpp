@@ -33,6 +33,7 @@
 #include "glsleditorfactory.h"
 #include "glslcodecompletion.h"
 #include "glslfilewizard.h"
+#include "glslhoverhandler.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -103,6 +104,8 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
 
 //    m_modelManager = new ModelManager(this);
 //    addAutoReleasedObject(m_modelManager);
+
+    addAutoReleasedObject(new GLSLHoverHandler(this));
 
     Core::Context context(GLSLEditor::Constants::C_GLSLEDITOR_ID);
 

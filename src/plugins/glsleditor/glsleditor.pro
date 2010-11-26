@@ -19,7 +19,8 @@ glslfilewizard.h \
 glslhighlighter.h \
 glslcodecompletion.h \
 glslautocompleter.h \
-glslindenter.h
+glslindenter.h \
+glslhoverhandler.h
 
 SOURCES += \
 glsleditor.cpp \
@@ -31,7 +32,8 @@ glslfilewizard.cpp \
 glslhighlighter.cpp \
 glslcodecompletion.cpp \
 glslautocompleter.cpp \
-glslindenter.cpp
+glslindenter.cpp \
+glslhoverhandler.cpp
 
 OTHER_FILES += GLSLEditor.mimetypes.xml
 RESOURCES += glsleditor.qrc
