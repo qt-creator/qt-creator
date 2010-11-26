@@ -1,5 +1,7 @@
 include(../../plugins/coreplugin/coreplugin.pri)
 include(../../plugins/texteditor/texteditor.pri)
 include(../../plugins/projectexplorer/projectexplorer.pri)
+include(../../plugins/cpptools/cpptools.pri)
 include(../../libs/glsl/glsl.pri)
 include(../../libs/utils/utils.pri)
+include(../../libs/cplusplus/cplusplus.pri)

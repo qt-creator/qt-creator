@@ -32,6 +32,8 @@
 #include "glsleditorconstants.h"
 #include "glsleditorplugin.h"
 #include "glslhighlighter.h"
+#include "glslautocompleter.h"
+#include "glslindenter.h"
 
 #include <glsl/glsllexer.h>
 #include <glsl/glslparser.h>
@@ -85,7 +87,8 @@ GLSLTextEditor::GLSLTextEditor(QWidget *parent) :
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
     setCodeFoldingSupported(true);
-    //setIndenter(new Indenter);
+    setIndenter(new GLSLIndenter());
+    setAutoCompleter(new GLSLCompleter());
 
     m_updateDocumentTimer = new QTimer(this);
     m_updateDocumentTimer->setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);

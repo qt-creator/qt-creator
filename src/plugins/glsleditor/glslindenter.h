@@ -26,50 +26,35 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-#ifndef GLSLHIGHLIGHTER_H
-#define GLSLHIGHLIGHTER_H
 
-#include <texteditor/syntaxhighlighter.h>
+#ifndef GLSLINDENTER_H
+#define GLSLINDENTER_H
+
+#include <texteditor/indenter.h>
 
 namespace GLSLEditor {
 namespace Internal {
 
-class Highlighter : public TextEditor::SyntaxHighlighter
+class GLSLIndenter : public TextEditor::Indenter
 {
-    Q_OBJECT
-
 public:
-    enum Formats {
-        GLSLNumberFormat,
-        GLSLStringFormat,
-        GLSLTypeFormat,
-        GLSLKeywordFormat,
-        GLSLOperatorFormat,
-        GLSLPreprocessorFormat,
-        GLSLLabelFormat,
-        GLSLCommentFormat,
-        GLSLDoxygenCommentFormat,
-        GLSLDoxygenTagFormat,
-        GLSLVisualWhitespace,
-        GLSLReservedKeyword,
-        NumGLSLFormats
-    };
-
-    explicit Highlighter(QTextDocument *parent);
-    virtual ~Highlighter();
-
-    void setFormats(const QVector<QTextCharFormat> &formats);
-
-protected:
-    void highlightBlock(const QString &text);
-    void highlightLine(const QString &text, int position, int length, const QTextCharFormat &format);
-    bool isPPKeyword(const QStringRef &text) const;
+    GLSLIndenter();
+    virtual ~GLSLIndenter();
 
 private:
-    QTextCharFormat m_formats[NumGLSLFormats];
+    virtual bool doIsElectricalCharacter(const QChar &ch) const;
+    virtual void doIndentBlock(QTextDocument *doc,
+                               const QTextBlock &block,
+                               const QChar &typedChar,
+                               TextEditor::BaseTextEditor *editor);
+
+    virtual void doIndent(QTextDocument *doc,
+                          const QTextCursor &cursor,
+                          const QChar &typedChar,
+                          TextEditor::BaseTextEditor *editor);
 };
 
-} // namespace Internal
-} // namespace GLSLEditor
+} // Internal
+} // GLSLEditor
 
-#endif // GLSLHIGHLIGHTER_H
+#endif // GLSLINDENTER_H

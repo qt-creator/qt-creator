@@ -55,6 +55,9 @@ public:
 
     bool is(int k) const { return k == kind; }
     bool isNot(int k) const { return k != kind; }
+
+    int begin() const { return position; }
+    int end() const { return position + length; }
 };
 
 class GLSL_EXPORT Lexer

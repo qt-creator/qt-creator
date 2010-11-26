@@ -50,7 +50,7 @@ contains(QT_CONFIG, declarative) {
     exists($${QT_PRIVATE_HEADERS}/QtDeclarative/private/qdeclarativecontext_p.h) {
 
         minQtVersion(4, 7, 1) {
-            SUBDIRS += plugin_qmldesigner 
+            SUBDIRS += plugin_qmldesigner
         } else {
             warning()
             warning("QmlDesigner plugin has been disabled.")
@@ -201,6 +201,7 @@ plugin_glsleditor.subdir = glsleditor
 plugin_glsleditor.depends = plugin_texteditor
 plugin_glsleditor.depends += plugin_coreplugin
 plugin_glsleditor.depends += plugin_projectexplorer
+plugin_glsleditor.depends += plugin_cpptools
 
 plugin_qmlprojectmanager.subdir = qmlprojectmanager
 plugin_qmlprojectmanager.depends = plugin_texteditor

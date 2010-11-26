@@ -26,50 +26,34 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-#ifndef GLSLHIGHLIGHTER_H
-#define GLSLHIGHLIGHTER_H
 
-#include <texteditor/syntaxhighlighter.h>
+#ifndef GLSLAUTOCOMPLETER_H
+#define GLSLAUTOCOMPLETER_H
+
+#include <texteditor/autocompleter.h>
 
 namespace GLSLEditor {
 namespace Internal {
 
-class Highlighter : public TextEditor::SyntaxHighlighter
+class GLSLCompleter : public TextEditor::AutoCompleter
 {
-    Q_OBJECT
-
 public:
-    enum Formats {
-        GLSLNumberFormat,
-        GLSLStringFormat,
-        GLSLTypeFormat,
-        GLSLKeywordFormat,
-        GLSLOperatorFormat,
-        GLSLPreprocessorFormat,
-        GLSLLabelFormat,
-        GLSLCommentFormat,
-        GLSLDoxygenCommentFormat,
-        GLSLDoxygenTagFormat,
-        GLSLVisualWhitespace,
-        GLSLReservedKeyword,
-        NumGLSLFormats
-    };
-
-    explicit Highlighter(QTextDocument *parent);
-    virtual ~Highlighter();
-
-    void setFormats(const QVector<QTextCharFormat> &formats);
-
-protected:
-    void highlightBlock(const QString &text);
-    void highlightLine(const QString &text, int position, int length, const QTextCharFormat &format);
-    bool isPPKeyword(const QStringRef &text) const;
+    GLSLCompleter();
+    virtual ~GLSLCompleter();
 
 private:
-    QTextCharFormat m_formats[NumGLSLFormats];
+    virtual bool doContextAllowsAutoParentheses(const QTextCursor &cursor,
+                                                const QString &textToInsert = QString()) const;
+    virtual bool doContextAllowsElectricCharacters(const QTextCursor &cursor) const;
+    virtual bool doIsInComment(const QTextCursor &cursor) const;
+    virtual QString doInsertMatchingBrace(const QTextCursor &cursor,
+                                          const QString &text,
+                                          QChar la,
+                                          int *skippedChars) const;
+    virtual QString doInsertParagraphSeparator(const QTextCursor &cursor) const;
 };
 
-} // namespace Internal
-} // namespace GLSLEditor
+} // Internal
+} // GLSLEditor
 
-#endif // GLSLHIGHLIGHTER_H
+#endif // GLSLAUTOCOMPLETER_H

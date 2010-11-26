@@ -5,6 +5,7 @@
         <sub-class-of type="text/plain"/>
         <comment>GLSL file</comment>
         <glob pattern="*.glsl"/>
+        <glob pattern="*.shader"/>
         <glob pattern="*.frag"/>
         <glob pattern="*.vert"/>
         <glob pattern="*.fsh"/>
