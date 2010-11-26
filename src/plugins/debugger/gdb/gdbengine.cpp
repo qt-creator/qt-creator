@@ -1443,9 +1443,13 @@ void GdbEngine::handleStop1(const GdbMi &data)
             QByteArray meaning = data.findChild("signal-meaning").data();
             // Ignore these as they are showing up regularly when
             // stopping debugging.
-            if (name != STOP_SIGNAL
-                && (startParameters().startMode != AttachToRemote
-                    || name != CROSS_STOP_SIGNAL)) {
+            if (name == STOP_SIGNAL) {
+                showMessage(_(STOP_SIGNAL " CONSIDERED HARMLESS. CONTINUING."));
+            } else if (startParameters().startMode == AttachToRemote
+                    && name == CROSS_STOP_SIGNAL) {
+                showMessage(_(CROSS_STOP_SIGNAL " CONSIDERED HARMLESS. CONTINUING."));
+            } else {
+                showMessage(_("HANDLING SIGNAL" + name));
                 showStoppedBySignalMessageBox(_(meaning), _(name));
                 if (!name.isEmpty() && !meaning.isEmpty())
                     reasontr = msgStoppedBySignal(_(meaning), _(name));
