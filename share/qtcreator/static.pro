@@ -36,7 +36,8 @@ DATA_DIRS = \
     qmlicons \
     qml \
     qml-type-descriptions \
-    generic-highlighter
+    generic-highlighter \
+    glsl
 
 !isEmpty(copydata) {
 
