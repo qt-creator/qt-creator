@@ -148,7 +148,11 @@ void GCCEToolChain::addToEnvironment(Utils::Environment &env)
 
 QString GCCEToolChain::makeCommand() const
 {
+#if defined (Q_OS_WIN)
+    return QLatin1String("make.exe");
+#else
     return QLatin1String("make");
+#endif
 }
 
 bool GCCEToolChain::equals(const ToolChain *otherIn) const
