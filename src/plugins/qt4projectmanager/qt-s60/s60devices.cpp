@@ -554,10 +554,12 @@ void S60ToolChainMixin::addEpocToEnvironment(Utils::Environment *env) const
     if (epocDir.exists(QLatin1String("epoc32/gcc/bin")))
         env->prependOrSetPath(epocDir.filePath(QLatin1String("epoc32/gcc/bin"))); // e.g. cpp.exe, *NOT* gcc.exe
     // Find perl in the special Symbian flavour:
-    if (epocDir.exists(QLatin1String("../../tools/perl/bin")))
-        env->prependOrSetPath(epocDir.filePath(QLatin1String("../../tools/perl/bin")));
-    else
+    if (epocDir.exists(QLatin1String("../../tools/perl/bin"))) {
+        epocDir.cd(QLatin1String("../../tools/perl/bin"));
+        env->prependOrSetPath(epocDir.absolutePath());
+    } else {
         env->prependOrSetPath(epocDir.filePath(QLatin1String("perl/bin")));
+    }
 
     addBaseToEnvironment(env);
 }
