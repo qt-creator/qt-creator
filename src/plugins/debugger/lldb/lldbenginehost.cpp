@@ -63,6 +63,8 @@ namespace Internal {
 LldbEngineHost::LldbEngineHost(const DebuggerStartParameters &startParameters)
     :IPCEngineHost(startParameters)
 {
+    showMessage(QLatin1String("setting up coms"));
+
     QLocalServer *s = new QLocalServer(this);
     s->removeServer(QLatin1String("/tmp/qtcreator-debuggeripc"));
     s->listen(QLatin1String("/tmp/qtcreator-debuggeripc"));
@@ -73,18 +75,22 @@ LldbEngineHost::LldbEngineHost(const DebuggerStartParameters &startParameters)
     connect(m_guestProcess, SIGNAL(finished(int, QProcess::ExitStatus)),
             this, SLOT(finished(int, QProcess::ExitStatus)));
 
+    showStatusMessage(QLatin1String("starting qtcreator-lldb"));
+
     QString a = Core::ICore::instance()->resourcePath() + QLatin1String("/qtcreator-lldb");
     m_guestProcess->start(a, QStringList());
 
     if (!m_guestProcess->waitForStarted()) {
-        showStatusMessage(tr("lldb failed to start"));
+        showStatusMessage(tr("qtcreator-lldb failed to start"));
         notifyEngineIll();
         return;
     }
 
+    showMessage(QLatin1String("connecting"));
     s->waitForNewConnection(-1);
     QLocalSocket *f = s->nextPendingConnection();
     s->close(); // wtf race in accept
+    showMessage(QLatin1String("connected"));
     setGuestDevice(f);
 }
 
@@ -98,7 +104,7 @@ LldbEngineHost::~LldbEngineHost()
 
 void LldbEngineHost::finished(int, QProcess::ExitStatus)
 {
-    showStatusMessage(QLatin1String("lldb crashed"));
+    showStatusMessage(tr("lldb crashed"));
     notifyEngineIll();
 }
 

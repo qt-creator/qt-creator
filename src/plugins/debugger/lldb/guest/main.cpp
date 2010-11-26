@@ -15,7 +15,6 @@ int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
 
-
     Debugger::Internal::LldbEngineGuest lldb;
 
     QLocalSocket s;
@@ -34,8 +33,10 @@ int main(int argc, char **argv)
         lldb.addBreakpoint(0, bp);
         lldb.runEngine();
     }else {
+        qDebug() << "guest connected";
         s.connectToServer(QLatin1String("/tmp/qtcreator-debuggeripc"));
         s.waitForConnected();
+        qDebug() << "guest connected";
         app.connect(&s, SIGNAL(disconnected ()), &app, SLOT(quit()));
         lldb.setHostDevice(&s);
     }

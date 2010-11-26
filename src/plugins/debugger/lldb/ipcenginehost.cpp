@@ -46,6 +46,7 @@
 #include <QFileInfo>
 #include <QTimer>
 #include <utils/qtcassert.h>
+#include <QLocalSocket>
 
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
 #define SET_NATIVE_BYTE_ORDER(x) x.setByteOrder(QDataStream::LittleEndian)
@@ -566,6 +567,9 @@ void IPCEngineHost::rpcCall(Function f, QByteArray payload)
         m_device->write(header);
         m_device->write(payload);
         m_device->putChar('T');
+        QLocalSocket *sock = qobject_cast<QLocalSocket *>(m_device);
+        if (sock)
+            sock->flush();
     }
 }
 
