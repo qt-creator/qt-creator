@@ -14,4 +14,7 @@ RESOURCES +=
 
 !isEmpty(WITH_LLDB) {
     DEFINES += WITH_LLDB
+    HEADERS += $$PWD/lldboptionspage.h
+    SOURCES += $$PWD/lldboptionspage.cpp
+    FORMS += $$PWD/lldboptionspagewidget.ui
 }

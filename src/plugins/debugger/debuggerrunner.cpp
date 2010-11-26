@@ -460,7 +460,13 @@ static DebuggerEngineType engineForToolChain(int toolChainType)
         case ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC:
         case ProjectExplorer::ToolChain_GCCE_GNUPOC:
         case ProjectExplorer::ToolChain_GCC_MAEMO:
+#ifdef WITH_LLDB
+            // lldb override
+            if (Core::ICore::instance()->settings()->value("LLDB/enabled").toBool())
+                return LldbEngineType;
+#endif
             return GdbEngineType;
+
 
         case ProjectExplorer::ToolChain_MSVC:
         case ProjectExplorer::ToolChain_WINCE:
@@ -498,9 +504,6 @@ void DebuggerRunControl::createEngine(const DebuggerStartParameters &startParams
     // Fixme: 1 of 3 testing hacks.
     if (sp.processArgs.startsWith(__("@tcf@ ")))
         engineType = GdbEngineType;
-
-    if (sp.processArgs.contains( _("@lldb@")))
-        engineType = LldbEngineType;
 
     if (engineType == NoEngineType
             && sp.startMode != AttachToRemote

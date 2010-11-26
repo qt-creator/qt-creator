@@ -418,6 +418,10 @@ void addTcfOptionPages(QList<IOptionsPage*> *opts);
 void addCdbOptionPages(QList<IOptionsPage*> *opts);
 #endif
 
+#ifdef WITH_LLDB
+void addLldbOptionPages(QList<IOptionsPage*> *opts);
+#endif
+
 static SessionManager *sessionManager()
 {
     return ProjectExplorerPlugin::instance()->session();
@@ -806,6 +810,10 @@ static bool parseArgument(QStringList::const_iterator &it,
     }
     if (option == _("-disable-tcf")) {
         *enabledEngines &= ~TcfEngineType;
+        return true;
+    }
+    if (option == _("-disable-lldb")) {
+        *enabledEngines &= ~LldbEngineType;
         return true;
     }
 
@@ -1947,6 +1955,11 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 #ifdef Q_OS_WIN
     Debugger::Cdb::addCdb2OptionPages(&engineOptionPages);
 #endif
+#ifdef WITH_LLDB
+    if (cmdLineEnabledEngines & LldbEngineType)
+        addLldbOptionPages(&engineOptionPages);
+#endif
+
     //if (cmdLineEnabledEngines & ScriptEngineType)
     //    addScriptOptionPages(&engineOptionPages);
     //if (cmdLineEnabledEngines & TcfEngineType)
