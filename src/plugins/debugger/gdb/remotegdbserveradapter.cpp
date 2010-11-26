@@ -59,12 +59,12 @@ RemoteGdbServerAdapter::RemoteGdbServerAdapter(GdbEngine *engine, int toolChainT
     m_toolChainType(toolChainType)
 {
     connect(&m_uploadProc, SIGNAL(error(QProcess::ProcessError)),
-        this, SLOT(uploadProcError(QProcess::ProcessError)));
+        SLOT(uploadProcError(QProcess::ProcessError)));
     connect(&m_uploadProc, SIGNAL(readyReadStandardOutput()),
-        this, SLOT(readUploadStandardOutput()));
+        SLOT(readUploadStandardOutput()));
     connect(&m_uploadProc, SIGNAL(readyReadStandardError()),
-        this, SLOT(readUploadStandardError()));
-    connect(&m_uploadProc, SIGNAL(finished(int)), this,
+        SLOT(readUploadStandardError()));
+    connect(&m_uploadProc, SIGNAL(finished(int)),
         SLOT(uploadProcFinished()));
 }
 
