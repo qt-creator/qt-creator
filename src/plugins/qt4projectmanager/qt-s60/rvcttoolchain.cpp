@@ -94,7 +94,8 @@ QStringList RVCTToolChain::configuredEnvironment()
         const QString varName = binVarName.left(binVarName.count() - 3 /* BIN */);
         QStringList environment = QProcessEnvironment::systemEnvironment().toStringList();
         foreach (const QString &v, environment) {
-            if (v.startsWith(varName) && !v.startsWith(binVarName)) {
+            if ((v.startsWith(varName) && !v.startsWith(binVarName))
+                 || v.startsWith(QLatin1String("ARMLMD_LICENSE_FILE="))) {
                 m_additionalEnvironment.append(v);
             }
         }
