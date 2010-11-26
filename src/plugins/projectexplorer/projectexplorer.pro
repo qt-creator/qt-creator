@@ -85,7 +85,6 @@ HEADERS += projectexplorer.h \
     targetsettingswidget.h \
     doubletabwidget.h \
     buildenvironmentwidget.h \
-    buildconfigdialog.h \
     ldparser.h \
     linuxiccparser.h \
     outputformatter.h \
@@ -170,7 +169,6 @@ SOURCES += projectexplorer.cpp \
     targetsettingswidget.cpp \
     doubletabwidget.cpp \
     buildenvironmentwidget.cpp \
-    buildconfigdialog.cpp \
     ldparser.cpp \
     linuxiccparser.cpp \
     outputformatter.cpp \

@@ -234,8 +234,6 @@ private:
     bool hasBuildSettings(Project *pro);
     bool hasDeploySettings(Project *pro);
 
-    bool showBuildConfigDialog();
-
     void setCurrent(Project *project, QString filePath, Node *node);
 
     QStringList allFilesWithDependencies(Project *pro);

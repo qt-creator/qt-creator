@@ -73,7 +73,6 @@
 #include "projectwelcomepagewidget.h"
 #include "corelistenercheckingforrunningbuild.h"
 #include "buildconfiguration.h"
-#include "buildconfigdialog.h"
 #include "miniprojecttargetselector.h"
 #include "taskhub.h"
 #include "publishing/ipublishingwizardfactory.h"
@@ -1749,10 +1748,8 @@ void ProjectExplorerPlugin::runProject(Project *pro, QString mode)
     if (!pro)
         return;
 
-    if (!pro->activeTarget()->activeRunConfiguration()->isEnabled()) {
-        if (!showBuildConfigDialog())
-            return;
-    }
+    if (!pro->activeTarget()->activeRunConfiguration()->isEnabled())
+        return;
 
     QStringList stepIds;
     if (d->m_projectExplorerSettings.deployBeforeRun) {
@@ -1774,31 +1771,6 @@ void ProjectExplorerPlugin::runProject(Project *pro, QString mode)
         executeRunConfiguration(pro->activeTarget()->activeRunConfiguration(), mode);
     }
     emit updateRunActions();
-}
-
-bool ProjectExplorerPlugin::showBuildConfigDialog()
-{
-    Project *pro = startupProject();
-    BuildConfigDialog *dialog = new BuildConfigDialog(pro,
-                                                      Core::ICore::instance()->mainWindow());
-    dialog->exec();
-    BuildConfiguration *otherConfig = dialog->selectedBuildConfiguration();
-    int result = dialog->result();
-    dialog->deleteLater();
-    switch (result) {
-    case BuildConfigDialog::ChangeBuild:
-        if (otherConfig) {
-            pro->activeTarget()->setActiveBuildConfiguration(otherConfig);
-            return true;
-        }
-        return false;
-    case BuildConfigDialog::Cancel:
-        return false;
-    case BuildConfigDialog::Continue:
-        return true;
-    default:
-        return false;
-    }
 }
 
 void ProjectExplorerPlugin::runControlFinished()
