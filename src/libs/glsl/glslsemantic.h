@@ -55,7 +55,7 @@ public:
     const Type *type(TypeAST *ast);
     void declaration(DeclarationAST *ast);
     Scope *translationUnit(TranslationUnitAST *ast);
-    void functionIdentifier(FunctionIdentifierAST *ast);
+    ExprResult functionIdentifier(FunctionIdentifierAST *ast);
     Symbol *field(StructTypeAST::Field *ast);
     void parameterDeclaration(ParameterDeclarationAST *ast, Function *fun);
 

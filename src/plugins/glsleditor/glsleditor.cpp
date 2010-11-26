@@ -38,6 +38,7 @@
 #include <glsl/glsllexer.h>
 #include <glsl/glslparser.h>
 #include <glsl/glslengine.h>
+#include <glsl/glslsemantic.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -269,6 +270,10 @@ void GLSLTextEditor::updateDocumentNow()
     Parser parser(&engine, preprocessedCode.constData(), preprocessedCode.size(), variant);
     TranslationUnitAST *ast = parser.parse();
 
+    Semantic sem(&engine);
+    Scope *globalScope = sem.translationUnit(ast);
+    Q_UNUSED(globalScope);
+
     QTextCharFormat errorFormat;
     errorFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
     errorFormat.setUnderlineColor(Qt::red);
@@ -294,9 +299,6 @@ void GLSLTextEditor::updateDocumentNow()
     }
 
     setExtraSelections(CodeWarningsSelection, sels);
-
-    // ### process the ast
-    (void) ast;
 
     // refresh the identifiers.
     m_identifiers = engine.identifiers();

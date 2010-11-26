@@ -86,16 +86,35 @@ Scope *Semantic::translationUnit(TranslationUnitAST *ast)
 {
     Namespace *globalScope = _engine->newNamespace();
     Scope *previousScope = switchScope(globalScope);
-    for (List<DeclarationAST *> *it = ast->declarations; it; it = it->next) {
-        DeclarationAST *decl = it->value;
-        declaration(decl);
+    if (ast) {
+        for (List<DeclarationAST *> *it = ast->declarations; it; it = it->next) {
+            DeclarationAST *decl = it->value;
+            declaration(decl);
+        }
     }
     return switchScope(previousScope);
 }
 
-void Semantic::functionIdentifier(FunctionIdentifierAST *ast)
+Semantic::ExprResult Semantic::functionIdentifier(FunctionIdentifierAST *ast)
 {
-    accept(ast);
+    ExprResult result;
+    if (ast) {
+        if (ast->name) {
+            if (Symbol *s = _scope->lookup(*ast->name)) {
+                if (s->asOverloadSet() != 0 || s->asFunction() != 0)
+                    result.type = s->type();
+                else
+                    _engine->error(ast->lineno, QString("`%1' cannot be used as a function").arg(*ast->name));
+            } else {
+                // ### _engine->error(ast->lineno, QString("`%1' was not declared in this scope").arg(*ast->name));
+            }
+        } else if (ast->type) {
+            const Type *ty = type(ast->type);
+            result.type = ty;
+        }
+    }
+
+    return result;
 }
 
 Symbol *Semantic::field(StructTypeAST::Field *ast)
@@ -127,9 +146,8 @@ bool Semantic::visit(TranslationUnitAST *ast)
 
 bool Semantic::visit(FunctionIdentifierAST *ast)
 {
-    // ast->name
-    const Type *ty = type(ast->type);
-    Q_UNUSED(ty);
+    Q_UNUSED(ast);
+    Q_ASSERT(!"unreachable");
     return false;
 }
 
@@ -151,7 +169,7 @@ bool Semantic::visit(IdentifierExpressionAST *ast)
             if (ast->name->startsWith(QLatin1String("gl_")) || ast->name->startsWith(QLatin1String("qgl_"))) {
                 // ### well, at least for now.
             } else {
-                _engine->error(ast->lineno, QString("Undefined symbol `%1'").arg(*ast->name));
+                _engine->error(ast->lineno, QString("`%1' was not declared in this scope").arg(*ast->name));
             }
         }
     }
@@ -216,7 +234,7 @@ bool Semantic::visit(MemberAccessExpressionAST *ast)
 bool Semantic::visit(FunctionCallExpressionAST *ast)
 {
     ExprResult expr = expression(ast->expr);
-    functionIdentifier(ast->id);
+    ExprResult id = functionIdentifier(ast->id);
     for (List<ExpressionAST *> *it = ast->arguments; it; it = it->next) {
         ExprResult arg = expression(it->value);
     }
