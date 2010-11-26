@@ -93,7 +93,7 @@ private:
     void selectThread(int index);
 
     void attemptBreakpointSynchronization();
-    bool acceptsBreakpoint(BreakpointId id);
+    bool acceptsBreakpoint(BreakpointId id) const;
 
     void assignValueInDebugger(const Internal::WatchData *data,
         const QString &expr, const QVariant &value);

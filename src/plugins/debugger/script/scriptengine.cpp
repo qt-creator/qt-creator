@@ -447,6 +447,12 @@ void ScriptEngine::selectThread(int index)
     Q_UNUSED(index)
 }
 
+bool ScriptEngine::acceptsBreakpoint(BreakpointId id) const
+{
+    const QString fileName = breakHandler()->fileName(id);
+    return fileName.endsWith(QLatin1String(".js"));
+}
+
 void ScriptEngine::attemptBreakpointSynchronization()
 {
     QTC_ASSERT(false, /* FIXME */);

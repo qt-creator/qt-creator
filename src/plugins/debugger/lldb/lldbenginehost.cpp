@@ -96,7 +96,7 @@ LLDBEngineHost::~LLDBEngineHost()
     m_guestp->kill();
 }
 
-void LLDBEngineHost::finished (int, QProcess::ExitStatus)
+void LLDBEngineHost::finished(int, QProcess::ExitStatus)
 {
     showStatusMessage(QLatin1String("lldb crashed"));
     notifyEngineIll();

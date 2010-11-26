@@ -56,10 +56,10 @@ public:
     virtual void updateAll();
 
     virtual void attemptBreakpointSynchronization();
-    virtual bool acceptsBreakpoint(BreakpointId id);
+    virtual bool acceptsBreakpoint(BreakpointId id) const;
     virtual void selectThread(int index);
 
-    virtual void assignValueInDebugger(const Internal::WatchData *w,
+    virtual void assignValueInDebugger(const Internal::WatchData *data,
         const QString &expr, const QVariant &value);
 
     QAbstractItemModel *modulesModel() const;

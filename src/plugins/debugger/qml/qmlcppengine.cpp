@@ -242,7 +242,7 @@ void QmlCppEngine::attemptBreakpointSynchronization()
     static_cast<DebuggerEngine*>(d->m_qmlEngine)->attemptBreakpointSynchronization();
 }
 
-bool QmlCppEngine::acceptsBreakpoint(BreakpointId id)
+bool QmlCppEngine::acceptsBreakpoint(BreakpointId id) const
 {
     return d->m_cppEngine->acceptsBreakpoint(id)
         || d->m_qmlEngine->acceptsBreakpoint(id);

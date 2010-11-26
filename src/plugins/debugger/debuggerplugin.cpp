@@ -475,15 +475,16 @@ class DummyEngine : public DebuggerEngine
 
 public:
     DummyEngine() : DebuggerEngine(DebuggerStartParameters()) {}
-    virtual ~DummyEngine() {}
+    ~DummyEngine() {}
 
-    virtual void setupEngine() {}
-    virtual void setupInferior() {}
-    virtual void runEngine() {}
-    virtual void shutdownEngine() {}
-    virtual void shutdownInferior() {}
-    virtual void executeDebuggerCommand(const QString &) {}
-    virtual unsigned debuggerCapabilities() const { return 0; }
+    void setupEngine() {}
+    void setupInferior() {}
+    void runEngine() {}
+    void shutdownEngine() {}
+    void shutdownInferior() {}
+    void executeDebuggerCommand(const QString &) {}
+    unsigned debuggerCapabilities() const { return 0; }
+    bool acceptsBreakpoint(BreakpointId) const { return false; }
 };
 
 static DebuggerEngine *dummyEngine()

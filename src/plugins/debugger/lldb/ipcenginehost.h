@@ -104,6 +104,7 @@ public:
     void activateFrame(int index);
     void selectThread(int index);
     void fetchDisassembler(DisassemblerViewAgent *);
+    bool acceptsBreakpoint(BreakpointId) const { return true; } // FIXME
     void insertBreakpoint(BreakpointId id);
     void removeBreakpoint(BreakpointId id);
     void changeBreakpoint(BreakpointId id);

@@ -494,7 +494,7 @@ void QmlEngine::attemptBreakpointSynchronization()
     sendMessage(reply);
 }
 
-bool QmlEngine::acceptsBreakpoint(BreakpointId id)
+bool QmlEngine::acceptsBreakpoint(BreakpointId id) const
 {
     const QString fileName = breakHandler()->fileName(id);
     return fileName.endsWith(QLatin1String(".qml"))

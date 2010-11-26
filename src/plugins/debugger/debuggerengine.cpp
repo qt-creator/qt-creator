@@ -1237,11 +1237,6 @@ void DebuggerEngine::attemptBreakpointSynchronization()
         d->m_disassemblerViewAgent.updateBreakpointMarkers();
 }
 
-bool DebuggerEngine::acceptsBreakpoint(BreakpointId) const
-{
-    return true;
-}
-
 void DebuggerEngine::insertBreakpoint(BreakpointId)
 {
     QTC_ASSERT(false, /**/);

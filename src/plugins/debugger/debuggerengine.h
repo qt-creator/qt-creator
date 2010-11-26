@@ -188,7 +188,7 @@ public:
 
     virtual bool stateAcceptsBreakpointChanges() const { return true; }
     virtual void attemptBreakpointSynchronization();
-    virtual bool acceptsBreakpoint(BreakpointId id) const;  // FIXME: make pure
+    virtual bool acceptsBreakpoint(BreakpointId id) const = 0;
     virtual void insertBreakpoint(BreakpointId id);  // FIXME: make pure
     virtual void removeBreakpoint(BreakpointId id);  // FIXME: make pure
     virtual void changeBreakpoint(BreakpointId id);  // FIXME: make pure
