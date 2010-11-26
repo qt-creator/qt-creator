@@ -107,6 +107,7 @@ public:
         layout->setContentsMargins(3, 0, 3, 0);
 
         m_patience = new QToolButton;
+        m_patience->setToolTip(tr("Use the patience algorithmn for calculating the diff"));
         m_patience->setText(tr("Patience"));
         layout->addWidget(m_patience);
         m_patience->setCheckable(true);
@@ -114,6 +115,7 @@ public:
         connect(m_patience, SIGNAL(toggled(bool)), this, SLOT(testForArgumentsChanged()));
 
         m_ignoreSpaces = new QToolButton;
+        m_ignoreSpaces->setToolTip(tr("Ignore whitespaces only changes"));
         m_ignoreSpaces->setText(tr("Ignore Whitespace"));
         layout->addWidget(m_ignoreSpaces);
         m_ignoreSpaces->setCheckable(true);
@@ -232,6 +234,7 @@ public:
         layout->setContentsMargins(3, 0, 3, 0);
 
         m_omitDate = new QToolButton;
+        m_omitDate->setToolTip(tr("Do not show the date a change was made in the output"));
         m_omitDate->setText(tr("Omit Date"));
         layout->addWidget(m_omitDate);
         m_omitDate->setCheckable(true);
@@ -241,6 +244,7 @@ public:
         connect(m_omitDate, SIGNAL(toggled(bool)), this, SLOT(testForArgumentsChanged()));
 
         m_ignoreSpaces = new QToolButton;
+        m_ignoreSpaces->setToolTip(tr("Ignore whitespace only changes"));
         m_ignoreSpaces->setText(tr("Ignore Whitespace"));
         layout->addWidget(m_ignoreSpaces);
         m_ignoreSpaces->setCheckable(true);
