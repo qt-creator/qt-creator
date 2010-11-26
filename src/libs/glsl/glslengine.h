@@ -120,6 +120,7 @@ public:
 
     MemoryPool *pool();
 
+    bool blockDiagnosticMessages(bool block);
     QList<DiagnosticMessage> diagnosticMessages() const;
     void clearDiagnosticMessages();
     void addDiagnosticMessage(const DiagnosticMessage &m);
@@ -134,6 +135,7 @@ private:
     MemoryPool _pool;
     QList<DiagnosticMessage> _diagnosticMessages;
     QList<Symbol *> _symbols;
+    bool _blockDiagnosticMessages;
 };
 
 } // namespace GLSL

@@ -404,18 +404,10 @@ int Lexer::findKeyword(const char *word, int length) const
 
 void Lexer::warning(int line, const QString &message)
 {
-    DiagnosticMessage m;
-    m.setKind(DiagnosticMessage::Warning);
-    m.setLine(line);
-    m.setMessage(message);
-    _engine->addDiagnosticMessage(m);
+    _engine->warning(line, message);
 }
 
 void Lexer::error(int line, const QString &message)
 {
-    DiagnosticMessage m;
-    m.setKind(DiagnosticMessage::Error);
-    m.setLine(line);
-    m.setMessage(message);
-    _engine->addDiagnosticMessage(m);
+    _engine->error(line, message);
 }

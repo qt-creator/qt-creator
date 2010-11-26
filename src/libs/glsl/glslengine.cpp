@@ -80,6 +80,7 @@ void DiagnosticMessage::setMessage(const QString &message)
 }
 
 Engine::Engine()
+    : _blockDiagnosticMessages(false)
 {
 }
 
@@ -176,7 +177,8 @@ void Engine::clearDiagnosticMessages()
 
 void Engine::addDiagnosticMessage(const DiagnosticMessage &m)
 {
-    _diagnosticMessages.append(m);
+    if (! _blockDiagnosticMessages)
+        _diagnosticMessages.append(m);
 }
 
 void Engine::warning(int line, const QString &message)
@@ -256,5 +258,12 @@ Variable *Engine::newVariable(Scope *scope, const QString &name, const Type *typ
     var->setType(type);
     _symbols.append(var);
     return var;
+}
+
+bool Engine::blockDiagnosticMessages(bool block)
+{
+    bool previous = _blockDiagnosticMessages;
+    _blockDiagnosticMessages = block;
+    return previous;
 }
 

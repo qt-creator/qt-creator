@@ -109,20 +109,12 @@ private:
 
     void warning(int line, const QString &message)
     {
-        DiagnosticMessage m;
-        m.setKind(DiagnosticMessage::Warning);
-        m.setLine(line);
-        m.setMessage(message);
-        _engine->addDiagnosticMessage(m);
+        _engine->warning(line, message);
     }
 
     void error(int line, const QString &message)
     {
-        DiagnosticMessage m;
-        m.setKind(DiagnosticMessage::Error);
-        m.setLine(line);
-        m.setMessage(message);
-        _engine->addDiagnosticMessage(m);
+        _engine->error(line, message);
     }
 
     template <typename T>
