@@ -575,8 +575,7 @@ bool Semantic::visit(NamedTypeAST *ast)
     if (ast->name) {
         if (Symbol *s = _scope->lookup(*ast->name)) {
             if (Struct *ty = s->asStruct()) {
-                _expr.type = ty;
-                _expr.isConstant = false;
+                _type = ty;
                 return false;
             }
         }
@@ -613,7 +612,7 @@ bool Semantic::visit(StructTypeAST *ast)
 
 bool Semantic::visit(QualifiedTypeAST *ast)
 {
-    accept(ast->type);
+    _type = type(ast->type);
     for (List<LayoutQualifier *> *it = ast->layout_list; it; it = it->next) {
         LayoutQualifier *q = it->value;
         // q->name;
