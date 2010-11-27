@@ -70,6 +70,7 @@ const char * const INSERT_LINE_BELOW     = "TextEditor.InsertLineBelowCurrentLin
 const char * const UPPERCASE_SELECTION   = "TextEditor.UppercaseSelection";
 const char * const LOWERCASE_SELECTION   = "TextEditor.LowercaseSelection";
 const char * const CUT_LINE              = "TextEditor.CutLine";
+const char * const COPY_LINE             = "TextEditor.CopyLine";
 const char * const DELETE_LINE           = "TextEditor.DeleteLine";
 const char * const DELETE_WORD           = "TextEditor.DeleteWord";
 const char * const SELECT_ENCODING       = "TextEditor.SelectEncoding";

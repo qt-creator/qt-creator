@@ -247,6 +247,7 @@ public slots:
     void zoomReset();
 
     void cutLine();
+    void copyLine();
     void deleteLine();
     void unfoldAll();
     void fold();

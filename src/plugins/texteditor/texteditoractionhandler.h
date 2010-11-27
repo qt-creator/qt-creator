@@ -102,6 +102,7 @@ private slots:
     void fold();
     void unfold();
     void cutLine();
+    void copyLine();
     void deleteLine();
     void selectEncoding();
     void increaseFontSize();
@@ -165,6 +166,7 @@ private:
     QAction *m_foldAction;
     QAction *m_unfoldAction;
     QAction *m_cutLineAction;
+    QAction *m_copyLineAction;
     QAction *m_deleteLineAction;
     QAction *m_selectEncodingAction;
     QAction *m_increaseFontSizeAction;

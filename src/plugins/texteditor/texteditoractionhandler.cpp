@@ -77,6 +77,7 @@ TextEditorActionHandler::TextEditorActionHandler(const char *context,
     m_foldAction(0),
     m_unfoldAction(0),
     m_cutLineAction(0),
+    m_copyLineAction(0),
     m_deleteLineAction(0),
     m_selectEncodingAction(0),
     m_increaseFontSizeAction(0),
@@ -200,6 +201,11 @@ void TextEditorActionHandler::createActions()
     command = am->registerAction(m_cutLineAction, Constants::CUT_LINE, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Shift+Del")));
     connect(m_cutLineAction, SIGNAL(triggered()), this, SLOT(cutLine()));
+
+    m_copyLineAction = new QAction(tr("Copy &Line"), this);
+    command = am->registerAction(m_copyLineAction, Constants::COPY_LINE, m_contextId);
+    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+Ins")));
+    connect(m_copyLineAction, SIGNAL(triggered()), this, SLOT(copyLine()));
 
     m_deleteLineAction = new QAction(tr("Delete &Line"), this);
     command = am->registerAction(m_deleteLineAction, Constants::DELETE_LINE, m_contextId, true);
@@ -527,6 +533,7 @@ FUNCTION2(selectAllAction, selectAll)
 FUNCTION(cleanWhitespace)
 FUNCTION(unCommentSelection)
 FUNCTION(cutLine)
+FUNCTION(copyLine)
 FUNCTION(deleteLine)
 FUNCTION(unfoldAll)
 FUNCTION(fold)
