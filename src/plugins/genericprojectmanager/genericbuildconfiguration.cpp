@@ -85,11 +85,6 @@ bool GenericBuildConfiguration::fromMap(const QVariantMap &map)
     return BuildConfiguration::fromMap(map);
 }
 
-Utils::Environment GenericBuildConfiguration::environment() const
-{
-    return Utils::Environment::systemEnvironment();
-}
-
 QString GenericBuildConfiguration::buildDirectory() const
 {
     // Convert to absolute path when necessary
