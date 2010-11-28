@@ -28,126 +28,22 @@
 **************************************************************************/
 
 // Built-in constants.
-const int gl_MaxLights = 8;
-const int gl_MaxClipPlanes = 6;
-const int gl_MaxTextureUnits = 2;
-const int gl_MaxTextureCoords = 2;
-const int gl_MaxVertexAttribs = 16;
-const int gl_MaxVertexUniformComponents = 512;
-const int gl_MaxVaryingFloats = 32;
-const int gl_MaxVertexTextureImageUnits = 0;
-const int gl_MaxCombinedTextureImageUnits = 2;
-const int gl_MaxTextureImageUnits = 2;
-const int gl_MaxFragmentUniformComponents = 64;
-const int gl_MaxDrawBuffers = 1;
+const mediump int gl_MaxVertexAttribs = 8;
+const mediump int gl_MaxVertexUniformVectors = 128;
+const mediump int gl_MaxVaryingVectors = 8;
+const mediump int gl_MaxVertexTextureImageUnits = 0;
+const mediump int gl_MaxCombinedTextureImageUnits = 8;
+const mediump int gl_MaxTextureImageUnits = 8;
+const mediump int gl_MaxFragmentUniformVectors = 16;
+const mediump int gl_MaxDrawBuffers = 1;
 
 // Built-in uniform state.
-uniform mat4 gl_ModelViewMatrix;
-uniform mat4 gl_ProjectionMatrix;
-uniform mat4 gl_ModelViewProjectionMatrix;
-uniform mat4 gl_TextureMatrix[gl_MaxTextureCoords];
-uniform mat3 gl_NormalMatrix;
-
-uniform mat4 gl_ModelViewMatrixInverse;
-uniform mat4 gl_ProjectionMatrixInverse;
-uniform mat4 gl_ModelViewProjectionMatrixInverse;
-uniform mat4 gl_TextureMatrixInverse[gl_MaxTextureCoords];
-
-uniform mat4 gl_ModelViewMatrixTranspose;
-uniform mat4 gl_ProjectionMatrixTranspose;
-uniform mat4 gl_ModelViewProjectionMatrixTranspose;
-uniform mat4 gl_TextureMatrixTranspose[gl_MaxTextureCoords];
-
-uniform mat4 gl_ModelViewMatrixInverseTranspose;
-uniform mat4 gl_ProjectionMatrixInverseTranspose;
-uniform mat4 gl_ModelViewProjectionMatrixInverseTranspose;
-uniform mat4 gl_TextureMatrixInverseTranspose[gl_MaxTextureCoords];
-
-uniform float gl_NormalScale;
-
 struct gl_DepthRangeParameters {
-    float near;
-    float far;
-    float diff;
+    highp float near;
+    highp float far;
+    highp float diff;
 };
 uniform gl_DepthRangeParameters gl_DepthRange;
-
-uniform vec4 gl_ClipPlane[gl_MaxClipPlanes];
-
-struct gl_PointParameters {
-    float size;
-    float sizeMin;
-    float sizeMax;
-    float fadeThresholdSize;
-    float distanceConstantAttenuation;
-    float distanceLinearAttenuation;
-    float distanceQuadraticAttenuation;
-};
-uniform gl_PointParameters gl_Point;
-
-struct gl_MaterialParameters {
-    vec4  emission;
-    vec4  ambient;
-    vec4  diffuse;
-    vec4  specular;
-    float shininess;
-};
-uniform gl_MaterialParameters gl_FrontMaterial;
-uniform gl_MaterialParameters gl_BackMaterial;
-
-struct gl_LightSourceParameters {
-    vec4  ambient;
-    vec4  diffuse;
-    vec4  specular;
-    vec4  position;
-    vec4  halfVector;
-    vec3  spotDirection;
-    float spotExponent;
-    float spotCutoff;
-    float spotCosCutoff;
-    float constantAttenuation;
-    float linearAttenuation;
-    float quadraticAttenuation;
-};
-uniform gl_LightSourceParameters gl_LightSource[gl_MaxLights];
-
-struct gl_LightModelParameters {
-    vec4  ambient;
-};
-uniform gl_LightModelParameters gl_LightModel;
-
-struct gl_LightModelProducts {
-    vec4  sceneColor;
-};
-uniform gl_LightModelProducts gl_FrontLightModelProduct;
-uniform gl_LightModelProducts gl_BackLightModelProduct;
-
-struct gl_LightProducts {
-    vec4  ambient;
-    vec4  diffuse;
-    vec4  specular;
-};
-uniform gl_LightProducts gl_FrontLightProduct[gl_MaxLights];
-uniform gl_LightProducts gl_BackLightProduct[gl_MaxLights];
-
-uniform vec4 gl_TextureEnvColor[gl_MaxTextureUnits];
-uniform vec4 gl_EyePlaneS[gl_MaxTextureUnits];
-uniform vec4 gl_EyePlaneT[gl_MaxTextureUnits];
-uniform vec4 gl_EyePlaneR[gl_MaxTextureUnits];
-uniform vec4 gl_EyePlaneQ[gl_MaxTextureUnits];
-uniform vec4 gl_ObjectPlaneS[gl_MaxTextureUnits];
-uniform vec4 gl_ObjectPlaneT[gl_MaxTextureUnits];
-uniform vec4 gl_ObjectPlaneR[gl_MaxTextureUnits];
-uniform vec4 gl_ObjectPlaneQ[gl_MaxTextureUnits];
-
-struct gl_FogParameters {
-    vec4  color;
-    float density;
-    float start;
-    float end;
-    float scale;
-};
-uniform gl_FogParameters gl_Fog;
 
 // Angle and trigonometry functions.
 float radians(float degress);
@@ -330,30 +226,6 @@ vec4 refract(vec4 I, vec4 N, float eta);
 mat2 matrixCompMult(mat2 x, mat2 y);
 mat3 matrixCompMult(mat3 x, mat3 y);
 mat4 matrixCompMult(mat4 x, mat4 y);
-mat2x4 matrixCompMult(mat2x4 x, mat2x4 y);
-mat4x2 matrixCompMult(mat4x2 x, mat4x2 y);
-mat2x3 matrixCompMult(mat2x3 x, mat2x3 y);
-mat3x2 matrixCompMult(mat3x2 x, mat3x2 y);
-mat3x4 matrixCompMult(mat3x4 x, mat3x4 y);
-mat4x3 matrixCompMult(mat4x3 x, mat4x3 y);
-mat2 outerProduct(vec2 c, vec2 r);
-mat3 outerProduct(vec3 c, vec3 r);
-mat4 outerProduct(vec4 c, vec4 r);
-mat2x3 outerProduct(vec3 c, vec2 r);
-mat3x2 outerProduct(vec2 c, vec3 r);
-mat2x4 outerProduct(vec4 c, vec2 r);
-mat4x2 outerProduct(vec2 c, vec4 r);
-mat3x4 outerProduct(vec4 c, vec3 r);
-mat4x3 outerProduct(vec3 c, vec4 r);
-mat2 transpose(mat2 m);
-mat3 transpose(mat3 m);
-mat4 transpose(mat4 m);
-mat2x3 transpose(mat3x2 m);
-mat3x2 transpose(mat2x3 m);
-mat2x4 transpose(mat4x2 m);
-mat4x2 transpose(mat2x4 m);
-mat3x4 transpose(mat4x3 m);
-mat4x3 transpose(mat3x4 m);
 
 // Vector relational functions.
 bvec2 lessThan(vec2 x, vec2 y);
@@ -409,13 +281,6 @@ bvec3 not(bvec3 x);
 bvec4 not(bvec4 x);
 
 // Texture lookup functions.
-vec4 texture1D(sampler1D sampler, float coord);
-vec4 texture1D(sampler1D sampler, float coord, float bias);
-vec4 texture1DProj(sampler1D sampler, vec2 coord);
-vec4 texture1DProj(sampler1D sampler, vec2 coord, float bias);
-vec4 texture1DProj(sampler1D sampler, vec4 coord);
-vec4 texture1DProj(sampler1D sampler, vec4 coord, float bias);
-
 vec4 texture2D(sampler2D sampler, vec2 coord);
 vec4 texture2D(sampler2D sampler, vec2 coord, float bias);
 vec4 texture2DProj(sampler2D sampler, vec3 coord);
@@ -423,37 +288,5 @@ vec4 texture2DProj(sampler2D sampler, vec3 coord, float bias);
 vec4 texture2DProj(sampler2D sampler, vec4 coord);
 vec4 texture2DProj(sampler2D sampler, vec4 coord, float bias);
 
-vec4 texture3D(sampler3D sampler, vec3 coord);
-vec4 texture3D(sampler3D sampler, vec3 coord, float bias);
-vec4 texture3DProj(sampler3D sampler, vec4 coord);
-vec4 texture3DProj(sampler3D sampler, vec4 coord, float bias);
-
 vec4 textureCube(samplerCube sampler, vec3 coord);
 vec4 textureCube(samplerCube sampler, vec3 coord, float bias);
-
-vec4 shadow1D(sampler1DShadow sampler, vec3 coord);
-vec4 shadow1D(sampler1DShadow sampler, vec3 coord, float bias);
-vec4 shadow2D(sampler2DShadow sampler, vec3 coord);
-vec4 shadow2D(sampler2DShadow sampler, vec3 coord, float bias);
-vec4 shadow1DProj(sampler1DShadow sampler, vec4 coord);
-vec4 shadow1DProj(sampler1DShadow sampler, vec4 coord, float bias);
-vec4 shadow2DProj(sampler2DShadow sampler, vec4 coord);
-vec4 shadow2DProj(sampler2DShadow sampler, vec4 coord, float bias);
-
-// Noise functions.
-float noise1(float x);
-float noise1(vec2 x);
-float noise1(vec3 x);
-float noise1(vec4 x);
-vec2 noise2(float x);
-vec2 noise2(vec2 x);
-vec2 noise2(vec3 x);
-vec2 noise2(vec4 x);
-vec3 noise3(float x);
-vec3 noise3(vec2 x);
-vec3 noise3(vec3 x);
-vec3 noise3(vec4 x);
-vec4 noise4(float x);
-vec4 noise4(vec2 x);
-vec4 noise4(vec3 x);
-vec4 noise4(vec4 x);
