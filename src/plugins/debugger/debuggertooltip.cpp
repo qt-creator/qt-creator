@@ -178,13 +178,6 @@ void ToolTipWidget::run(const QPoint &point, QAbstractItemModel *model,
     setModel(model);
     computeSize();
     setRootIsDecorated(model->hasChildren(index));
-    // FIXME: use something more sensible
-    QPalette pal = palette();
-    QColor bg = pal.color(QPalette::Base);
-    bg.setAlpha(20);
-    pal.setColor(QPalette::Base, bg);
-    setPalette(pal);
-    //viewport()->setPalette(pal);
 }
 
 void ToolTipWidget::leaveEvent(QEvent *ev)
