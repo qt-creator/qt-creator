@@ -63,6 +63,15 @@ std::string toString(const Streamable s)
     return str.str();
 }
 
+// Format numbers, etc, as a wstring.
+template <class Streamable>
+std::wstring toWString(const Streamable s)
+{
+    std::wostringstream str;
+    str << s;
+    return str.str();
+}
+
 bool endsWith(const std::string &haystack, const char *needle);
 
 // Read an integer from a string as '10' or '0xA'

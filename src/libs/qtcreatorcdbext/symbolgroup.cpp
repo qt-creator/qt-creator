@@ -413,11 +413,17 @@ SymbolGroupNode *SymbolGroupNode::create(SymbolGroup *sg, const std::string &nam
 }
 
 // Fix some oddities in CDB values
+
+static inline bool isHexDigit(wchar_t c)
+{
+    return (c >= L'0' && c <= L'9') || (c >= L'a' && c <= L'f') || (c >= L'A' && c <= L'F');
+}
+
 static void fixValue(const std::string &type, std::wstring *value)
 {
-    // Pointers: fix '0x00000000`00000AD class bla' ... to "0xAD", but leave
-    // 'const char *' values as is.
-    if (!type.empty() && type.at(type.size() - 1) == L'*' && value->compare(0, 2, L"0x") == 0) {
+    // Pointers/Unsigned integers: fix '0x00000000`00000AD bla' ... to "0xAD bla"
+    const bool isHexNumber = value->size() > 3 && value->compare(0, 2, L"0x") == 0 && isHexDigit(value->at(2));
+    if (isHexNumber) {
         // Remove dumb 64bit separator
         if (value->size() > 10 && value->at(10) == L'`')
             value->erase(10, 1);
@@ -425,11 +431,16 @@ static void fixValue(const std::string &type, std::wstring *value)
         // No on-null digits: plain null ptr.
         if (firstNonNullDigit == std::string::npos || value->at(firstNonNullDigit) == ' ') {
             *value = L"0x0";
-            return;
-        }
+        } else {
         // Strip
-        if (firstNonNullDigit > 2)
-            value->erase(2, firstNonNullDigit - 2);
+            if (firstNonNullDigit > 2)
+                value->erase(2, firstNonNullDigit - 2);
+        }
+    }
+
+    // Pointers: fix '0x00000000`00000AD class bla' ... to "0xAD", but leave
+    // 'const char *' values as is ('0x00000000`00000AD "hallo").
+    if (!type.empty() && type.at(type.size() - 1) == L'*') {
         // Strip ' Class bla"
         std::wstring::size_type classPos = value->find(L" struct", 2);
         if (classPos == std::string::npos)
@@ -438,6 +449,18 @@ static void fixValue(const std::string &type, std::wstring *value)
             value->erase(classPos, value->size() - classPos);
         return;
     }
+
+    // unsigned hex ints that are not pointers: Convert to decimal as not to confuse watch model:
+    if (isHexNumber) {
+        ULONG64 uv;
+        std::wistringstream str(*value);
+        str >> std::hex >> uv;
+        if (!str.fail()) {
+            *value = toWString(uv);
+            return;
+        }
+    }
+
     // Integers: fix '0n10' -> '10'
     if (value->size() >= 3 && value->compare(0, 2, L"0n") == 0
         && (isdigit(value->at(2)) || value->at(2) == L'-')) {

@@ -31,6 +31,8 @@
 #include "symbolgroup.h"
 #include "stringutils.h"
 
+#include <iomanip>
+
 SymbolGroupValue::SymbolGroupValue(SymbolGroupNode *node,
                                    const SymbolGroupValueContext &ctx) :
     m_node(node), m_context(ctx)
@@ -106,7 +108,12 @@ int SymbolGroupValue::intValue(int defaultValue) const
 {
     if (isValid()) {
         int rc = 0;
-        if (integerFromString(wStringToString(value()), &rc))
+        // Is this an enumeration "EnumValue (0n12)", -> convert to integer
+        std::wstring v = value();
+        const std::wstring::size_type enPos = v.find(L"(0n");
+        if (enPos != std::wstring::npos && v.at(v.size() - 1) == L')')
+            v = v.substr(enPos + 3, v.size() - 4);
+        if (integerFromString(wStringToString(v), &rc))
             return rc;
     }
     return defaultValue;
@@ -164,6 +171,75 @@ std::string SymbolGroupValue::error() const
     return m_errorMessage;
 }
 
+// -------------------- Simple dumping helpers
+
+// Courtesy of qdatetime.cpp
+static inline void getDateFromJulianDay(unsigned julianDay, int *year, int *month, int *day)
+{
+    int y, m, d;
+
+    if (julianDay >= 2299161) {
+        typedef unsigned long long qulonglong;
+        // Gregorian calendar starting from October 15, 1582
+        // This algorithm is from Henry F. Fliegel and Thomas C. Van Flandern
+        qulonglong ell, n, i, j;
+        ell = qulonglong(julianDay) + 68569;
+        n = (4 * ell) / 146097;
+        ell = ell - (146097 * n + 3) / 4;
+        i = (4000 * (ell + 1)) / 1461001;
+        ell = ell - (1461 * i) / 4 + 31;
+        j = (80 * ell) / 2447;
+        d = int(ell - (2447 * j) / 80);
+        ell = j / 11;
+        m = int(j + 2 - (12 * ell));
+        y = int(100 * (n - 49) + i + ell);
+    } else {
+        // Julian calendar until October 4, 1582
+        // Algorithm from Frequently Asked Questions about Calendars by Claus Toendering
+        julianDay += 32082;
+        int dd = (4 * julianDay + 3) / 1461;
+        int ee = julianDay - (1461 * dd) / 4;
+        int mm = ((5 * ee) + 2) / 153;
+        d = ee - (153 * mm + 2) / 5 + 1;
+        m = mm + 3 - 12 * (mm / 10);
+        y = dd - 4800 + (mm / 10);
+        if (y <= 0)
+            --y;
+    }
+    if (year)
+        *year = y;
+    if (month)
+        *month = m;
+    if (day)
+        *day = d;
+}
+
+// Convert and format Julian Date as used in QDate
+static inline void formatJulianDate(std::wostringstream &str, unsigned julianDate)
+{
+    int y, m, d;
+    getDateFromJulianDay(julianDate, &y, &m, &d);
+    str << d << '.' << m << '.' << y;
+}
+
+// Format time in milliseconds as "hh:dd:ss:mmm"
+static inline void formatMilliSeconds(std::wostringstream &str, int milliSecs)
+{
+    const int hourFactor = 1000 * 3600;
+    const int hours = milliSecs / hourFactor;
+    milliSecs = milliSecs % hourFactor;
+    const int minFactor = 1000 * 60;
+    const int minutes = milliSecs / minFactor;
+    milliSecs = milliSecs % minFactor;
+    const int secs = milliSecs / 1000;
+    milliSecs = milliSecs % 1000;
+    str.fill('0');
+    str << std::setw(2) << hours << ':' << std::setw(2)
+        << minutes << ':' << std::setw(2) << secs
+        << '.' << std::setw(3) << milliSecs;
+}
+
+
 static const char stdStringTypeC[] = "class std::basic_string<char,std::char_traits<char>,std::allocator<char> >";
 static const char stdWStringTypeC[] = "class std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> >";
 
@@ -183,6 +259,123 @@ static unsigned dumpQString(const std::string &type, const SymbolGroupValue &v, 
         }
     }
     return SymbolGroupNode::DumperFailed;
+}
+
+// Dump QColor
+static unsigned dumpQColor(const std::string &type, const SymbolGroupValue &v, std::wstring *s)
+{
+    if (!endsWith(type, "QColor")) // namespaced Qt?
+        return SymbolGroupNode::DumperNotApplicable;
+    const SymbolGroupValue specV = v["cspec"];
+    if (!specV)
+        return SymbolGroupNode::DumperFailed;
+    const int spec = specV.intValue();
+    if (spec == 0) {
+        *s = L"<Invalid color>";
+        return SymbolGroupNode::DumperOk;
+    }
+    if (spec < 1 || spec > 4)
+        return SymbolGroupNode::DumperFailed;
+    const SymbolGroupValue arrayV = v["ct"]["array"];
+    if (!arrayV)
+        return SymbolGroupNode::DumperFailed;
+    const int a0 = arrayV["0"].intValue();
+    const int a1 = arrayV["1"].intValue();
+    const int a2 = arrayV["2"].intValue();
+    const int a3 = arrayV["3"].intValue();
+    const int a4 = arrayV["4"].intValue();
+    if (a0 < 0 || a1 < 0 || a2 < 0 || a3 < 0 || a4 < 0)
+        return SymbolGroupNode::DumperFailed;
+    std::wostringstream str;
+    switch (spec) {
+    case 1: // Rgb
+        str << L"RGB alpha=" << (a0 / 0x101) << L", red=" << (a1 / 0x101)
+            << L", green=" << (a2 / 0x101) << ", blue=" << (a3 / 0x101);
+        break;
+    case 2: // Hsv
+        str << L"HSV alpha=" << (a0 / 0x101) << L", hue=" << (a1 / 100)
+            << L", sat=" << (a2 / 0x101) << ", value=" << (a3 / 0x101);
+        break;
+    case 3: // Cmyk
+        str << L"CMYK alpha=" << (a0 / 0x101) << L", cyan=" << (a1 / 100)
+            << L", magenta=" << (a2 / 0x101) << ", yellow=" << (a3 / 0x101)
+            << ", black=" << (a4 / 0x101);
+        break;
+    case 4: // Hsl
+        str << L"HSL alpha=" << (a0 / 0x101) << L", hue=" << (a1 / 100)
+            << L", sat=" << (a2 / 0x101) << ", lightness=" << (a3 / 0x101);
+        break;
+    }
+    *s = str.str();
+    return SymbolGroupNode::DumperOk;
+}
+
+// Dump Qt's core types
+static unsigned dumpQtCoreTypes(const std::string &type, const SymbolGroupValue &v, std::wstring *s)
+{
+    if (endsWith(type, "QAtomicInt")) { // namespaced Qt?
+        if (SymbolGroupValue iValue = v[unsigned(0)]["_q_value"]) {
+            *s = iValue.value();
+            return SymbolGroupNode::DumperOk;
+        }
+        return SymbolGroupNode::DumperFailed;
+    }
+
+    if (endsWith(type, "QChar")) {
+        if (SymbolGroupValue cValue = v["ucs"]) {
+            const int utf16 = cValue.intValue();
+            if (utf16 >= 0) {
+                // Print code = character,
+                // exclude control characters and Pair indicator
+                std::wostringstream str;
+                str << utf16;
+                if (utf16 >= 32 && (utf16 < 0xD800 || utf16 > 0xDBFF))
+                    str << " '" << wchar_t(utf16) << '\'';
+                *s = str.str();
+            }
+            return SymbolGroupNode::DumperOk;
+        }
+        return SymbolGroupNode::DumperFailed;
+    }
+
+    if (type.find("QFlags") != std::wstring::npos) {
+        if (SymbolGroupValue iV = v["i"]) {
+            const int i = iV.intValue();
+            if (i >= 0) {
+                *s = toWString(i);
+                return SymbolGroupNode::DumperOk;
+            }
+        }
+        return SymbolGroupNode::DumperFailed;
+    }
+
+    if (endsWith(type, "QDate")) {
+        if (SymbolGroupValue julianDayV = v["jd"]) {
+            const int julianDay = julianDayV.intValue();
+            if (julianDay > 0) {
+                std::wostringstream str;
+                formatJulianDate(str, julianDay);
+                *s = str.str();
+                return SymbolGroupNode::DumperOk;
+            }
+        return SymbolGroupNode::DumperFailed;
+        }
+    }
+
+    if (endsWith(type, "QTime")) {
+        if (SymbolGroupValue milliSecsV = v["mds"]) {
+            int milliSecs = milliSecsV.intValue();
+            if (milliSecs >= 0) {
+                std::wostringstream str;
+                formatMilliSeconds(str, milliSecs);
+                *s = str.str();
+                return SymbolGroupNode::DumperOk;
+            }
+        return SymbolGroupNode::DumperFailed;
+        }
+    }
+
+    return SymbolGroupNode::DumperNotApplicable;
 }
 
 // Dump a QByteArray
@@ -291,10 +484,16 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
     rc = dumpQByteArray(type, v, s);
     if (rc != SymbolGroupNode::DumperNotApplicable)
         return rc;
+    rc = dumpQtCoreTypes(type, v, s);
+    if (rc != SymbolGroupNode::DumperNotApplicable)
+        return rc;
     rc = dumpStdString(type, v, s);
     if (rc != SymbolGroupNode::DumperNotApplicable)
         return rc;
     rc = dumpQtGeometryTypes(type, v, s);
+    if (rc != SymbolGroupNode::DumperNotApplicable)
+        return rc;
+    rc = dumpQColor(type, v, s);
     if (rc != SymbolGroupNode::DumperNotApplicable)
         return rc;
     return rc;
