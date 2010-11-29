@@ -35,6 +35,12 @@
 QT_FORWARD_DECLARE_CLASS(QComboBox);
 QT_FORWARD_DECLARE_CLASS(QStringListModel);
 
+namespace ProjectExplorer {
+
+class EnvironmentWidget;
+
+} // namespace Qt4ProjectManager
+
 namespace QmlProjectManager {
 
 class QmlProjectRunConfiguration;
@@ -51,6 +57,8 @@ public:
 
 public slots:
     void updateQtVersionComboBox();
+    void baseEnvironmentChanged();
+    void userEnvironmentChangesChanged();
 
 private slots:
     void updateFileComboBox();
@@ -62,14 +70,23 @@ private slots:
     void useQmlDebuggerToggled(bool toggled);
     void qmlDebugServerPortChanged(uint port);
 
+    void userChangesChanged();
+    void baseEnvironmentSelected(int index);
+
     void manageQtVersions();
 
 private:
+    QString baseEnvironmentText() const;
+
+
     QmlProjectRunConfiguration *m_runConfiguration;
 
     QComboBox *m_qtVersionComboBox;
     QComboBox *m_fileListCombo;
     QStringListModel *m_fileListModel;
+
+    ProjectExplorer::EnvironmentWidget *m_environmentWidget;
+    QComboBox *m_baseEnvironmentComboBox;
 };
 
 } // namespace Internal

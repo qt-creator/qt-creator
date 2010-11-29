@@ -64,10 +64,7 @@ namespace Internal {
 QmlRunControl::QmlRunControl(QmlProjectRunConfiguration *runConfiguration, QString mode)
     : RunControl(runConfiguration, mode)
 {
-    if (Qt4ProjectManager::QtVersion *qtVersion = runConfiguration->qtVersion())
-        m_applicationLauncher.setEnvironment(qtVersion->qmlToolsEnvironment());
-    else
-        m_applicationLauncher.setEnvironment(Utils::Environment::systemEnvironment());
+    m_applicationLauncher.setEnvironment(runConfiguration->environment());
     m_applicationLauncher.setWorkingDirectory(runConfiguration->workingDirectory());
 
     if (mode == ProjectExplorer::Constants::RUNMODE) {
@@ -206,8 +203,7 @@ ProjectExplorer::RunControl *QmlRunControlFactory::createDebugRunControl(QmlProj
     Utils::QtcProcess::addArg(&params.processArgs,
             QLatin1String("-qmljsdebugger=port:") + QString::number(runConfig->qmlDebugServerPort()));
     params.workingDirectory = runConfig->workingDirectory();
-    if (Qt4ProjectManager::QtVersion *qtVersion = runConfig->qtVersion())
-        params.environment = qtVersion->qmlToolsEnvironment();
+    params.environment = runConfig->environment();
     params.displayName = runConfig->displayName();
 
     if (params.executable.isEmpty()) {

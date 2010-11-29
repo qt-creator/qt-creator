@@ -57,7 +57,8 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(QmlProjectTarget *parent)
     m_qtVersionId(-1),
     m_projectTarget(parent),
     m_usingCurrentFile(true),
-    m_isEnabled(false)
+    m_isEnabled(false),
+    m_baseEnvironmentBase(BuildEnvironmentBase)
 {
     ctor();
     updateQtVersions();
@@ -68,7 +69,9 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(QmlProjectTarget *parent,
     ProjectExplorer::RunConfiguration(parent, source),
     m_qtVersionId(source->m_qtVersionId),
     m_qmlViewerArgs(source->m_qmlViewerArgs),
-    m_projectTarget(parent)
+    m_projectTarget(parent),
+    m_userEnvironmentChanges(source->m_userEnvironmentChanges),
+    m_baseEnvironmentBase(source->m_baseEnvironmentBase)
 {
     ctor();
     setMainScript(source->m_scriptFile);
@@ -215,6 +218,13 @@ void QmlProjectRunConfiguration::setMainScript(const QString &scriptFile)
     }
 }
 
+Utils::Environment QmlProjectRunConfiguration::environment() const
+{
+    Utils::Environment env = baseEnvironment();
+    env.modify(userEnvironmentChanges());
+    return env;
+}
+
 QVariantMap QmlProjectRunConfiguration::toMap() const
 {
     QVariantMap map(ProjectExplorer::RunConfiguration::toMap());
@@ -222,6 +232,10 @@ QVariantMap QmlProjectRunConfiguration::toMap() const
     map.insert(QLatin1String(Constants::QML_VIEWER_QT_KEY), m_qtVersionId);
     map.insert(QLatin1String(Constants::QML_VIEWER_ARGUMENTS_KEY), m_qmlViewerArgs);
     map.insert(QLatin1String(Constants::QML_MAINSCRIPT_KEY),  m_scriptFile);
+    map.insert(QLatin1String(Constants::USER_ENVIRONMENT_CHANGES_KEY),
+               Utils::EnvironmentItem::toStringList(m_userEnvironmentChanges));
+    map.insert(QLatin1String(Constants::BASE_ENVIRONMENT_BASE_KEY),
+               static_cast<int>(m_baseEnvironmentBase));
     return map;
 }
 
@@ -230,6 +244,14 @@ bool QmlProjectRunConfiguration::fromMap(const QVariantMap &map)
     setQtVersionId(map.value(QLatin1String(Constants::QML_VIEWER_QT_KEY), -1).toInt());
     m_qmlViewerArgs = map.value(QLatin1String(Constants::QML_VIEWER_ARGUMENTS_KEY)).toString();
     m_scriptFile = map.value(QLatin1String(Constants::QML_MAINSCRIPT_KEY), M_CURRENT_FILE).toString();
+    m_userEnvironmentChanges = Utils::EnvironmentItem::fromStringList(
+                map.value(QLatin1String(Constants::USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
+    m_baseEnvironmentBase
+            = static_cast<BaseEnvironmentBase>(
+                map.value(QLatin1String(Constants::BASE_ENVIRONMENT_BASE_KEY),
+                          static_cast<int>(BuildEnvironmentBase)).toInt());
+
+
 
     updateQtVersions();
     setMainScript(m_scriptFile);
@@ -316,5 +338,49 @@ bool QmlProjectRunConfiguration::isValidVersion(Qt4ProjectManager::QtVersion *ve
     }
     return false;
 }
+
+Utils::Environment QmlProjectRunConfiguration::baseEnvironment() const
+{
+    Utils::Environment env;
+
+    if (m_baseEnvironmentBase == QmlProjectRunConfiguration::CleanEnvironmentBase) {
+        // Nothing
+    } else  if (m_baseEnvironmentBase == QmlProjectRunConfiguration::SystemEnvironmentBase) {
+        env = Utils::Environment::systemEnvironment();
+    } else if (m_baseEnvironmentBase == QmlProjectRunConfiguration::BuildEnvironmentBase) {
+        env = qtVersion()->qmlToolsEnvironment();
+    }
+    return env;
+}
+
+void QmlProjectRunConfiguration::setBaseEnvironmentBase(BaseEnvironmentBase env)
+{
+    if (m_baseEnvironmentBase == env)
+        return;
+    m_baseEnvironmentBase = env;
+    if (m_configurationWidget)
+        m_configurationWidget.data()->baseEnvironmentChanged();
+}
+
+QmlProjectRunConfiguration::BaseEnvironmentBase
+QmlProjectRunConfiguration::baseEnvironmentBase() const
+{
+    return m_baseEnvironmentBase;
+}
+
+void QmlProjectRunConfiguration::setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff)
+{
+    if (m_userEnvironmentChanges != diff) {
+        m_userEnvironmentChanges = diff;
+        if (m_configurationWidget)
+            m_configurationWidget.data()->userEnvironmentChangesChanged();
+    }
+}
+
+QList<Utils::EnvironmentItem> QmlProjectRunConfiguration::userEnvironmentChanges() const
+{
+    return m_userEnvironmentChanges;
+}
+
 
 } // namespace QmlProjectManager

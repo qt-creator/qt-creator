@@ -42,6 +42,11 @@ namespace Core {
     class IEditor;
 }
 
+namespace Utils {
+    class Environment;
+    class EnvironmentItem;
+}
+
 namespace Qt4ProjectManager {
     class QtVersion;
 }
@@ -79,6 +84,8 @@ public:
     QString mainScript() const;
     void setMainScript(const QString &scriptFile);
 
+    Utils::Environment environment() const;
+
     // RunConfiguration
     bool isEnabled(ProjectExplorer::BuildConfiguration *bc) const;
     virtual QWidget *createConfigurationWidget();
@@ -103,6 +110,16 @@ private:
     static bool isValidVersion(Qt4ProjectManager::QtVersion *version);
     void setQtVersionId(int id);
 
+    Utils::Environment baseEnvironment() const;
+    enum BaseEnvironmentBase { CleanEnvironmentBase = 0,
+                               SystemEnvironmentBase = 1,
+                               BuildEnvironmentBase = 2};
+
+    void setBaseEnvironmentBase(BaseEnvironmentBase env);
+    BaseEnvironmentBase baseEnvironmentBase() const;
+    void setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff);
+    QList<Utils::EnvironmentItem> userEnvironmentChanges() const;
+
     // absolute path to current file (if being used)
     QString m_currentFileFilename;
     // absolute path to selected main script (if being used)
@@ -117,6 +134,9 @@ private:
 
     bool m_usingCurrentFile;
     bool m_isEnabled;
+
+    QList<Utils::EnvironmentItem> m_userEnvironmentChanges;
+    BaseEnvironmentBase m_baseEnvironmentBase;
 };
 
 } // namespace QmlProjectManager

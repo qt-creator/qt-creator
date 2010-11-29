@@ -33,6 +33,7 @@
 #include "qmlproject.h"
 
 #include <coreplugin/icore.h>
+#include <projectexplorer/environmenteditmodel.h>
 #include <projectexplorer/projectexplorer.h>
 #include <utils/debuggerlanguagechooser.h>
 #include <utils/detailswidget.h>
@@ -58,6 +59,12 @@ QmlProjectRunConfigurationWidget::QmlProjectRunConfigurationWidget(QmlProjectRun
     m_fileListCombo(0),
     m_fileListModel(new QStringListModel(this))
 {
+    QVBoxLayout *layout = new QVBoxLayout(this);
+
+    //
+    // Qt Version, Arguments
+    //
+
     Utils::DetailsWidget *detailsWidget = new Utils::DetailsWidget();
     detailsWidget->setState(Utils::DetailsWidget::NoSummary);
 
@@ -68,7 +75,6 @@ QmlProjectRunConfigurationWidget::QmlProjectRunConfigurationWidget(QmlProjectRun
 
     m_fileListCombo = new QComboBox;
     m_fileListCombo->setModel(m_fileListModel);
-    updateFileComboBox();
 
     connect(m_fileListCombo, SIGNAL(activated(QString)), this, SLOT(setMainScript(QString)));
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(fileListChanged()),
@@ -93,6 +99,16 @@ QmlProjectRunConfigurationWidget::QmlProjectRunConfigurationWidget(QmlProjectRun
 
     form->addRow(tr("Qt version:"), qtVersionLayout);
     form->addRow(tr("Arguments:"), qmlViewerArgs);
+    form->addRow(tr("Main QML file:"), m_fileListCombo);
+
+    layout->addWidget(detailsWidget);
+
+    updateFileComboBox();
+    updateQtVersionComboBox();
+
+    //
+    // Debugging
+    //
 
     QWidget *debuggerLabelWidget = new QWidget;
     QVBoxLayout *debuggerLabelLayout = new QVBoxLayout(debuggerLabelWidget);
@@ -104,8 +120,6 @@ QmlProjectRunConfigurationWidget::QmlProjectRunConfigurationWidget(QmlProjectRun
     debuggerLabelLayout->addStretch(10);
 
     DebuggerLanguageChooser *debuggerLanguageChooser = new DebuggerLanguageChooser(formWidget);
-
-    form->addRow(tr("Main QML file:"), m_fileListCombo);
     form->addRow(debuggerLabelWidget, debuggerLanguageChooser);
 
     debuggerLanguageChooser->setCppChecked(rc->useCppDebugger());
@@ -123,10 +137,45 @@ QmlProjectRunConfigurationWidget::QmlProjectRunConfigurationWidget(QmlProjectRun
     connect(qtVersions, SIGNAL(qtVersionsChanged(QList<int>)),
             this, SLOT(updateQtVersionComboBox()));
 
-    updateQtVersionComboBox();
+    //
+    // Environment
+    //
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->addWidget(detailsWidget);
+    QLabel *environmentLabel = new QLabel(this);
+    environmentLabel->setText(tr("Run Environment"));
+    QFont f = environmentLabel->font();
+    f.setBold(true);
+    f.setPointSizeF(f.pointSizeF() *1.2);
+    environmentLabel->setFont(f);
+
+    layout->addWidget(environmentLabel);
+
+    QWidget *baseEnvironmentWidget = new QWidget;
+    QHBoxLayout *baseEnvironmentLayout = new QHBoxLayout(baseEnvironmentWidget);
+    baseEnvironmentLayout->setMargin(0);
+    QLabel *label = new QLabel(tr("Base environment for this runconfiguration:"), this);
+    baseEnvironmentLayout->addWidget(label);
+    m_baseEnvironmentComboBox = new QComboBox(this);
+    m_baseEnvironmentComboBox->addItems(QStringList()
+                                        << tr("Clean Environment")
+                                        << tr("System Environment")
+                                        << tr("Build Environment"));
+    m_baseEnvironmentComboBox->setCurrentIndex(rc->baseEnvironmentBase());
+    connect(m_baseEnvironmentComboBox, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(baseEnvironmentSelected(int)));
+    baseEnvironmentLayout->addWidget(m_baseEnvironmentComboBox);
+    baseEnvironmentLayout->addStretch(10);
+
+    m_environmentWidget = new ProjectExplorer::EnvironmentWidget(this, baseEnvironmentWidget);
+    m_environmentWidget->setBaseEnvironment(rc->baseEnvironment());
+    m_environmentWidget->setBaseEnvironmentText(baseEnvironmentText());
+    m_environmentWidget->setUserChanges(rc->userEnvironmentChanges());
+
+    connect(m_environmentWidget, SIGNAL(userChangesChanged()),
+            this, SLOT(userChangesChanged()));
+
+
+    layout->addWidget(m_environmentWidget);
 }
 
 static bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
@@ -228,6 +277,51 @@ void QmlProjectRunConfigurationWidget::updateQtVersionComboBox()
     }
 }
 
+void QmlProjectRunConfigurationWidget::userChangesChanged()
+{
+    m_runConfiguration->setUserEnvironmentChanges(m_environmentWidget->userChanges());
+}
+
+void QmlProjectRunConfigurationWidget::baseEnvironmentChanged()
+{
+//    if (m_ignoreChange)
+//        return;
+
+    int index = QmlProjectRunConfiguration::BaseEnvironmentBase(
+            m_runConfiguration->baseEnvironmentBase());
+    m_baseEnvironmentComboBox->setCurrentIndex(index);
+    m_environmentWidget->setBaseEnvironment(m_runConfiguration->baseEnvironment());
+    m_environmentWidget->setBaseEnvironmentText(baseEnvironmentText());
+}
+
+void QmlProjectRunConfigurationWidget::userEnvironmentChangesChanged()
+{
+    m_environmentWidget->setUserChanges(m_runConfiguration->userEnvironmentChanges());
+}
+
+void QmlProjectRunConfigurationWidget::baseEnvironmentSelected(int index)
+{
+//    m_ignoreChange = true;
+    m_runConfiguration->setBaseEnvironmentBase(
+                QmlProjectRunConfiguration::BaseEnvironmentBase(index));
+
+    m_environmentWidget->setBaseEnvironment(m_runConfiguration->baseEnvironment());
+    m_environmentWidget->setBaseEnvironmentText(baseEnvironmentText());
+//    m_ignoreChange = false;
+}
+
+QString QmlProjectRunConfigurationWidget::baseEnvironmentText() const
+{
+    if (m_runConfiguration->m_baseEnvironmentBase
+            == QmlProjectRunConfiguration::CleanEnvironmentBase) {
+        return tr("Clean Environment");
+    } else if (m_runConfiguration->m_baseEnvironmentBase
+             == QmlProjectRunConfiguration::SystemEnvironmentBase) {
+        return tr("System Environment");
+    } else {
+        return tr("Build Environment");
+    }
+}
 
 } // namespace Internal
 } // namespace QmlProjectManager
