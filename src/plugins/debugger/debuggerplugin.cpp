@@ -188,7 +188,7 @@
 //            | (core)   | (attach)   |           |                         +
 //            |          |            |           |                         +
 //      {notify-    {notifyER&- {notifyER&-  {notify-                       +
-//      Inferior-     Inferior-   Inferior-  RunEngine-                     +
+//      Inferior-     Inferior-   Inferior-  EngineRun-                     +
 //     Unrunnable}     StopOk}     RunOk}     Failed}                       +
 //           +           +            +           +                         +
 //   InferiorUnrunnable  +     InferiorRunOk      +                         +
@@ -198,7 +198,7 @@
 //                                                 `-+-+-+-+-+-+-+-+-+-+-+>-+
 //                                                                          +
 //                                                                          +
-//                       #Interrupt@InferiorRunOk#                           +
+//                       #Interrupt@InferiorRunOk#                          +
 //                                  +                                       +
 //                          InferiorStopRequested                           +
 //  #SpontaneousStop                +                                       +
