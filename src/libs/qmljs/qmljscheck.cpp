@@ -540,10 +540,10 @@ bool Check::visit(FunctionExpression *ast)
     return false;
 }
 
-static bool shouldAvoidNonStrictEqualityCheck(ExpressionNode *exp)
+static bool shouldAvoidNonStrictEqualityCheck(ExpressionNode *exp, const Value *other)
 {
     if (NumericLiteral *literal = cast<NumericLiteral *>(exp)) {
-        if (literal->value == 0)
+        if (literal->value == 0 && !other->asNumberValue())
             return true;
     } else if (cast<TrueLiteral *>(exp) || cast<FalseLiteral *>(exp) || cast<NullExpression *>(exp)) {
         return true;
@@ -560,10 +560,15 @@ static bool shouldAvoidNonStrictEqualityCheck(ExpressionNode *exp)
 bool Check::visit(BinaryExpression *ast)
 {
     if (ast->op == QSOperator::Equal || ast->op == QSOperator::NotEqual) {
-        if (_options & WarnAllNonStrictEqualityChecks
-                || (_options & WarnDangerousNonStrictEqualityChecks
-                    && (shouldAvoidNonStrictEqualityCheck(ast->left)
-                        || shouldAvoidNonStrictEqualityCheck(ast->right)))) {
+        bool warn = _options & WarnAllNonStrictEqualityChecks;
+        if (!warn && _options & WarnDangerousNonStrictEqualityChecks) {
+            Evaluate eval(&_context);
+            const Value *lhs = eval(ast->left);
+            const Value *rhs = eval(ast->right);
+            warn = shouldAvoidNonStrictEqualityCheck(ast->left, rhs)
+                    || shouldAvoidNonStrictEqualityCheck(ast->right, lhs);
+        }
+        if (warn) {
             warning(ast->operatorToken, tr("== and != perform type coercion, use === or !== instead to avoid"));
         }
     }
