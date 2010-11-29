@@ -43,6 +43,10 @@
 #include <modelnode.h>
 #include <QScopedPointer>
 
+namespace QmlJS {
+class DiagnosticMessage;
+}
+
 
 namespace QmlDesigner {
 
@@ -77,7 +81,7 @@ public:
 
     public:
         Error();
-        Error(const QDeclarativeError &qmlError);
+        Error(const QmlJS::DiagnosticMessage &qmlError, const QUrl &document);
         Error(const QString &shortDescription);
         Error(Exception *exception);
 

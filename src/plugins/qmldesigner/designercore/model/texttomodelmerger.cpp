@@ -46,8 +46,6 @@
 #include <qmljs/qmljsscopebuilder.h>
 #include <qmljs/parser/qmljsast_p.h>
 
-#include <QtDeclarative/QDeclarativeComponent>
-#include <QtDeclarative/QDeclarativeEngine>
 #include <QtCore/QSet>
 #include <QtGui/QMessageBox>
 
@@ -564,27 +562,6 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
     const QStringList importPaths = m_rewriterView->textModifier()->importPaths();
     setActive(true);
 
-    { // Have the QML engine check if the document is valid:
-        QDeclarativeEngine engine;
-        engine.setOutputWarningsToStandardError(false);
-        QDeclarativeComponent comp(&engine);
-        comp.setData(data.toUtf8(), url);
-        if (comp.status() == QDeclarativeComponent::Error) {
-            QList<RewriterView::Error> errors;
-            foreach (const QDeclarativeError &error, comp.errors())
-                errors.append(RewriterView::Error(error));
-            m_rewriterView->setErrors(errors);
-            setActive(false);
-            return false;
-        } else if (comp.status() == QDeclarativeComponent::Loading) {
-            // Probably loading remote components. Previous DOM behaviour was:
-            QList<RewriterView::Error> errors;
-            errors.append(RewriterView::Error());
-            m_rewriterView->setErrors(errors);
-            setActive(false);
-            return false;
-        }
-    }
 
     try {
         Snapshot snapshot = m_rewriterView->textModifier()->getSnapshot();
@@ -592,6 +569,16 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         Document::Ptr doc = Document::create(fileName.isEmpty() ? QLatin1String("<internal>") : fileName);
         doc->setSource(data);
         doc->parseQml();
+
+        if (!doc->isParsedCorrectly()) {
+            QList<RewriterView::Error> errors;
+            foreach (const QmlJS::DiagnosticMessage &message, doc->diagnosticMessages())
+                errors.append(RewriterView::Error(message, QUrl::fromLocalFile(doc->fileName())));
+            m_rewriterView->setErrors(errors);
+            setActive(false);
+            return false;
+        }
+
         snapshot.insert(doc);
         ReadingContext ctxt(snapshot, doc, importPaths);
 

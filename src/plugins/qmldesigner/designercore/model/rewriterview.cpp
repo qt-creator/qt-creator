@@ -32,6 +32,8 @@
 #include <filemanager/firstdefinitionfinder.h>
 #include <customnotifications.h>
 
+#include <qmljs/parser/qmljsengine_p.h>
+
 #include "rewriterview.h"
 #include "rewritingexception.h"
 #include "textmodifier.h"
@@ -41,6 +43,8 @@
 #include "nodelistproperty.h"
 #include "nodeproperty.h"
 #include "invalidmodelnodeexception.h"
+
+
 
 using namespace QmlDesigner::Internal;
 
@@ -62,12 +66,12 @@ RewriterView::Error::Error(Exception *exception):
 {
 }
 
-RewriterView::Error::Error(const QDeclarativeError &qmlError):
+RewriterView::Error::Error(const QmlJS::DiagnosticMessage &qmlError, const QUrl &document):
         m_type(ParseError),
-        m_line(qmlError.line()),
-        m_column(qmlError.column()),
-        m_description(qmlError.description()),
-        m_url(qmlError.url())
+        m_line(qmlError.loc.startLine),
+        m_column(qmlError.loc.startColumn),
+        m_description(qmlError.message),
+        m_url(document)
 {
 }
 
