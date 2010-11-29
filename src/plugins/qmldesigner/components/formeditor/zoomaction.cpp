@@ -99,6 +99,7 @@ QWidget *ZoomAction::createWidget(QWidget *parent)
     connect(comboBox, SIGNAL(currentIndexChanged(int)), SLOT(emitZoomLevelChanged(int)));
     connect(this, SIGNAL(indexChanged(int)), comboBox, SLOT(setCurrentIndex(int)));
 
+    comboBox->setProperty("hideborder", true);
     return comboBox;
 }
 
