@@ -111,12 +111,6 @@ private:
     void setQtVersionId(int id);
 
     Utils::Environment baseEnvironment() const;
-    enum BaseEnvironmentBase { CleanEnvironmentBase = 0,
-                               SystemEnvironmentBase = 1,
-                               BuildEnvironmentBase = 2};
-
-    void setBaseEnvironmentBase(BaseEnvironmentBase env);
-    BaseEnvironmentBase baseEnvironmentBase() const;
     void setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff);
     QList<Utils::EnvironmentItem> userEnvironmentChanges() const;
 
@@ -136,7 +130,6 @@ private:
     bool m_isEnabled;
 
     QList<Utils::EnvironmentItem> m_userEnvironmentChanges;
-    BaseEnvironmentBase m_baseEnvironmentBase;
 };
 
 } // namespace QmlProjectManager

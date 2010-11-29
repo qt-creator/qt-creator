@@ -153,22 +153,9 @@ QmlProjectRunConfigurationWidget::QmlProjectRunConfigurationWidget(QmlProjectRun
     QWidget *baseEnvironmentWidget = new QWidget;
     QHBoxLayout *baseEnvironmentLayout = new QHBoxLayout(baseEnvironmentWidget);
     baseEnvironmentLayout->setMargin(0);
-    QLabel *label = new QLabel(tr("Base environment for this runconfiguration:"), this);
-    baseEnvironmentLayout->addWidget(label);
-    m_baseEnvironmentComboBox = new QComboBox(this);
-    m_baseEnvironmentComboBox->addItems(QStringList()
-                                        << tr("Clean Environment")
-                                        << tr("System Environment")
-                                        << tr("Build Environment"));
-    m_baseEnvironmentComboBox->setCurrentIndex(rc->baseEnvironmentBase());
-    connect(m_baseEnvironmentComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(baseEnvironmentSelected(int)));
-    baseEnvironmentLayout->addWidget(m_baseEnvironmentComboBox);
-    baseEnvironmentLayout->addStretch(10);
-
     m_environmentWidget = new ProjectExplorer::EnvironmentWidget(this, baseEnvironmentWidget);
     m_environmentWidget->setBaseEnvironment(rc->baseEnvironment());
-    m_environmentWidget->setBaseEnvironmentText(baseEnvironmentText());
+    m_environmentWidget->setBaseEnvironmentText(tr("System Environment"));
     m_environmentWidget->setUserChanges(rc->userEnvironmentChanges());
 
     connect(m_environmentWidget, SIGNAL(userChangesChanged()),
@@ -282,46 +269,11 @@ void QmlProjectRunConfigurationWidget::userChangesChanged()
     m_runConfiguration->setUserEnvironmentChanges(m_environmentWidget->userChanges());
 }
 
-void QmlProjectRunConfigurationWidget::baseEnvironmentChanged()
-{
-//    if (m_ignoreChange)
-//        return;
-
-    int index = QmlProjectRunConfiguration::BaseEnvironmentBase(
-            m_runConfiguration->baseEnvironmentBase());
-    m_baseEnvironmentComboBox->setCurrentIndex(index);
-    m_environmentWidget->setBaseEnvironment(m_runConfiguration->baseEnvironment());
-    m_environmentWidget->setBaseEnvironmentText(baseEnvironmentText());
-}
-
 void QmlProjectRunConfigurationWidget::userEnvironmentChangesChanged()
 {
     m_environmentWidget->setUserChanges(m_runConfiguration->userEnvironmentChanges());
 }
 
-void QmlProjectRunConfigurationWidget::baseEnvironmentSelected(int index)
-{
-//    m_ignoreChange = true;
-    m_runConfiguration->setBaseEnvironmentBase(
-                QmlProjectRunConfiguration::BaseEnvironmentBase(index));
-
-    m_environmentWidget->setBaseEnvironment(m_runConfiguration->baseEnvironment());
-    m_environmentWidget->setBaseEnvironmentText(baseEnvironmentText());
-//    m_ignoreChange = false;
-}
-
-QString QmlProjectRunConfigurationWidget::baseEnvironmentText() const
-{
-    if (m_runConfiguration->m_baseEnvironmentBase
-            == QmlProjectRunConfiguration::CleanEnvironmentBase) {
-        return tr("Clean Environment");
-    } else if (m_runConfiguration->m_baseEnvironmentBase
-             == QmlProjectRunConfiguration::SystemEnvironmentBase) {
-        return tr("System Environment");
-    } else {
-        return tr("Build Environment");
-    }
-}
 
 } // namespace Internal
 } // namespace QmlProjectManager

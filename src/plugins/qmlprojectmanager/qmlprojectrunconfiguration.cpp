@@ -57,8 +57,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(QmlProjectTarget *parent)
     m_qtVersionId(-1),
     m_projectTarget(parent),
     m_usingCurrentFile(true),
-    m_isEnabled(false),
-    m_baseEnvironmentBase(BuildEnvironmentBase)
+    m_isEnabled(false)
 {
     ctor();
     updateQtVersions();
@@ -70,8 +69,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(QmlProjectTarget *parent,
     m_qtVersionId(source->m_qtVersionId),
     m_qmlViewerArgs(source->m_qmlViewerArgs),
     m_projectTarget(parent),
-    m_userEnvironmentChanges(source->m_userEnvironmentChanges),
-    m_baseEnvironmentBase(source->m_baseEnvironmentBase)
+    m_userEnvironmentChanges(source->m_userEnvironmentChanges)
 {
     ctor();
     setMainScript(source->m_scriptFile);
@@ -234,8 +232,6 @@ QVariantMap QmlProjectRunConfiguration::toMap() const
     map.insert(QLatin1String(Constants::QML_MAINSCRIPT_KEY),  m_scriptFile);
     map.insert(QLatin1String(Constants::USER_ENVIRONMENT_CHANGES_KEY),
                Utils::EnvironmentItem::toStringList(m_userEnvironmentChanges));
-    map.insert(QLatin1String(Constants::BASE_ENVIRONMENT_BASE_KEY),
-               static_cast<int>(m_baseEnvironmentBase));
     return map;
 }
 
@@ -246,11 +242,6 @@ bool QmlProjectRunConfiguration::fromMap(const QVariantMap &map)
     m_scriptFile = map.value(QLatin1String(Constants::QML_MAINSCRIPT_KEY), M_CURRENT_FILE).toString();
     m_userEnvironmentChanges = Utils::EnvironmentItem::fromStringList(
                 map.value(QLatin1String(Constants::USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
-    m_baseEnvironmentBase
-            = static_cast<BaseEnvironmentBase>(
-                map.value(QLatin1String(Constants::BASE_ENVIRONMENT_BASE_KEY),
-                          static_cast<int>(BuildEnvironmentBase)).toInt());
-
 
 
     updateQtVersions();
@@ -342,30 +333,8 @@ bool QmlProjectRunConfiguration::isValidVersion(Qt4ProjectManager::QtVersion *ve
 Utils::Environment QmlProjectRunConfiguration::baseEnvironment() const
 {
     Utils::Environment env;
-
-    if (m_baseEnvironmentBase == QmlProjectRunConfiguration::CleanEnvironmentBase) {
-        // Nothing
-    } else  if (m_baseEnvironmentBase == QmlProjectRunConfiguration::SystemEnvironmentBase) {
-        env = Utils::Environment::systemEnvironment();
-    } else if (m_baseEnvironmentBase == QmlProjectRunConfiguration::BuildEnvironmentBase) {
-        env = qtVersion()->qmlToolsEnvironment();
-    }
+    env = qtVersion()->qmlToolsEnvironment();
     return env;
-}
-
-void QmlProjectRunConfiguration::setBaseEnvironmentBase(BaseEnvironmentBase env)
-{
-    if (m_baseEnvironmentBase == env)
-        return;
-    m_baseEnvironmentBase = env;
-    if (m_configurationWidget)
-        m_configurationWidget.data()->baseEnvironmentChanged();
-}
-
-QmlProjectRunConfiguration::BaseEnvironmentBase
-QmlProjectRunConfiguration::baseEnvironmentBase() const
-{
-    return m_baseEnvironmentBase;
 }
 
 void QmlProjectRunConfiguration::setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff)

@@ -40,7 +40,6 @@ const char * const QML_VIEWER_TARGET_ID = "QmlProjectManager.QmlTarget";
 const char * const QML_VIEWER_TARGET_DISPLAY_NAME = "QML Viewer";
 const char * const QML_MAINSCRIPT_KEY = "QmlProjectManager.QmlRunConfiguration.MainScript";
 const char * const USER_ENVIRONMENT_CHANGES_KEY("QmlProjectManager.QmlRunConfiguration.UserEnvironmentChanges");
-const char * const BASE_ENVIRONMENT_BASE_KEY("QmlProjectManager.QmlRunConfiguration.BaseEnvironmentBase");
 
 
 } // namespace Constants

@@ -57,7 +57,6 @@ public:
 
 public slots:
     void updateQtVersionComboBox();
-    void baseEnvironmentChanged();
     void userEnvironmentChangesChanged();
 
 private slots:
@@ -71,14 +70,10 @@ private slots:
     void qmlDebugServerPortChanged(uint port);
 
     void userChangesChanged();
-    void baseEnvironmentSelected(int index);
 
     void manageQtVersions();
 
 private:
-    QString baseEnvironmentText() const;
-
-
     QmlProjectRunConfiguration *m_runConfiguration;
 
     QComboBox *m_qtVersionComboBox;
@@ -86,7 +81,6 @@ private:
     QStringListModel *m_fileListModel;
 
     ProjectExplorer::EnvironmentWidget *m_environmentWidget;
-    QComboBox *m_baseEnvironmentComboBox;
 };
 
 } // namespace Internal
