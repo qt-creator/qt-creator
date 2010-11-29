@@ -629,8 +629,7 @@ bool Check::visit(ExpressionStatement *ast)
                 || cast<PreDecrementExpression *>(ast->expression)
                 || cast<PreIncrementExpression *>(ast->expression)
                 || cast<PostIncrementExpression *>(ast->expression)
-                || cast<PostDecrementExpression *>(ast->expression)
-                || cast<UiScriptBinding *>(parent());
+                || cast<PostDecrementExpression *>(ast->expression);
         if (BinaryExpression *binary = cast<BinaryExpression *>(ast->expression)) {
             switch (binary->op) {
             case QSOperator::Assign:
@@ -647,6 +646,16 @@ bool Check::visit(ExpressionStatement *ast)
             case QSOperator::InplaceXor:
                 ok = true;
             default: break;
+            }
+        }
+        if (!ok) {
+            for (int i = 0; Node *p = parent(i); ++i) {
+                if (UiScriptBinding *binding = cast<UiScriptBinding *>(p)) {
+                    if (!cast<Block *>(binding->statement)) {
+                        ok = true;
+                        break;
+                    }
+                }
             }
         }
 
