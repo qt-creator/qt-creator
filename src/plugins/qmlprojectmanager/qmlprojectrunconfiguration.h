@@ -43,19 +43,15 @@ namespace Core {
 }
 
 namespace Qt4ProjectManager {
-class QtVersion;
+    class QtVersion;
 }
 
 namespace QmlProjectManager {
 
 namespace Internal {
-class QmlProjectTarget;
-class QmlProjectRunConfigurationFactory;
+    class QmlProjectTarget;
+    class QmlProjectRunConfigurationFactory;
 }
-
-const char * const CURRENT_FILE  = QT_TRANSLATE_NOOP("QmlManager", "<Current File>");
-const char * const M_CURRENT_FILE  = "CurrentFile";
-
 
 class QMLPROJECTMANAGER_EXPORT QmlProjectRunConfiguration : public ProjectExplorer::RunConfiguration
 {
@@ -106,7 +102,8 @@ private slots:
     void manageQtVersions();
 
 protected:
-    QmlProjectRunConfiguration(Internal::QmlProjectTarget *parent, QmlProjectRunConfiguration *source);
+    QmlProjectRunConfiguration(Internal::QmlProjectTarget *parent,
+                               QmlProjectRunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
     void setEnabled(bool value);
 
