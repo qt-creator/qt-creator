@@ -545,13 +545,15 @@ static bool shouldAvoidNonStrictEqualityCheck(ExpressionNode *exp, const Value *
     if (NumericLiteral *literal = cast<NumericLiteral *>(exp)) {
         if (literal->value == 0 && !other->asNumberValue())
             return true;
-    } else if (cast<TrueLiteral *>(exp) || cast<FalseLiteral *>(exp) || cast<NullExpression *>(exp)) {
+    } else if ((cast<TrueLiteral *>(exp) || cast<FalseLiteral *>(exp)) && !other->asBooleanValue()) {
+        return true;
+    } else if (cast<NullExpression *>(exp)) {
         return true;
     } else if (IdentifierExpression *ident = cast<IdentifierExpression *>(exp)) {
         if (ident->name && ident->name->asString() == QLatin1String("undefined"))
             return true;
     } else if (StringLiteral *literal = cast<StringLiteral *>(exp)) {
-        if (!literal->value || literal->value->asString().isEmpty())
+        if ((!literal->value || literal->value->asString().isEmpty()) && !other->asStringValue())
             return true;
     }
     return false;
