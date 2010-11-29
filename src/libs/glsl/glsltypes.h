@@ -34,6 +34,7 @@
 #include <QtCore/QVector>
 #include <QtCore/QHash>
 #include <QtCore/QString>
+#include <QtCore/QStringList>
 
 namespace GLSL {
 
@@ -122,6 +123,8 @@ public:
     const Type *elementType() const { return indexElementType(); }
     int dimension() const { return _dimension; }
 
+    QStringList members() const { return _members.keys(); }
+
     virtual void add(Symbol *symbol);
     virtual Symbol *find(const QString &name) const;
     virtual const Type *type() const { return this; }
@@ -180,6 +183,7 @@ public:
     Struct(Scope *scope = 0)
         : Scope(scope) {}
 
+    QStringList members() const;
     virtual void add(Symbol *member);
     virtual Symbol *find(const QString &name) const;
 
@@ -221,6 +225,7 @@ public:
 
     virtual Symbol *find(const QString &name) const;
 
+    virtual QStringList members() const;
     virtual void add(Symbol *symbol) {
         if (! symbol)
             return;

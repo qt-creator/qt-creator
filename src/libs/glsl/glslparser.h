@@ -1,5 +1,5 @@
 
-#line 214 "glsl.g"
+#line 217 "./glsl.g"
 
 /**************************************************************************
 **
@@ -90,10 +90,23 @@ public:
     Parser(Engine *engine, const char *source, unsigned size, int variant);
     ~Parser();
 
-    TranslationUnitAST *parse();
+    TranslationUnitAST *parse() {
+        if (AST *u = parse(T_FEED_GLSL))
+            return u->asTranslationUnit();
+        return 0;
+    }
+
+    ExpressionAST *parseExpression() {
+        if (AST *u = parse(T_FEED_EXPRESSION))
+            return u->asExpression();
+        return 0;
+    }
+
+    AST *parse(int startToken);
 
 private:
     // 1-based
+    int &location(int n) { return _locationStack[_tos + n - 1]; }
     Value &sym(int n) { return _symStack[_tos + n - 1]; }
     AST *&ast(int n) { return _symStack[_tos + n - 1].ast; }
     const QString *&string(int n) { return _symStack[_tos + n - 1].string; }
@@ -107,8 +120,16 @@ private:
             return _index++;
         return _tokens.size() - 1;
     }
-    inline const Token &tokenAt(int index) const { return _tokens.at(index); }
-    inline int tokenKind(int index) const { return _tokens.at(index).kind; }
+    inline const Token &tokenAt(int index) const {
+        if (index == 0)
+            return _startToken;
+        return _tokens.at(index);
+    }
+    inline int tokenKind(int index) const {
+        if (index == 0)
+            return _startToken.kind;
+        return _tokens.at(index).kind;
+    }
     void reduce(int ruleno);
 
     void warning(int line, const QString &message)
@@ -176,6 +197,7 @@ private:
     int yytoken;
     int yyrecovering;
     bool _recovered;
+    Token _startToken;
     std::vector<int> _stateStack;
     std::vector<int> _locationStack;
     std::vector<Value> _symStack;

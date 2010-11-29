@@ -103,6 +103,19 @@ void Semantic::translationUnit(TranslationUnitAST *ast, Scope *globalScope, Engi
     (void) switchEngine(previousEngine);
 }
 
+Semantic::ExprResult Semantic::expression(ExpressionAST *ast, Scope *scope, Engine *engine)
+{
+    ExprResult result(engine->undefinedType());
+    if (ast && scope) {
+        Engine *previousEngine = switchEngine(engine);
+        Scope *previousScope = switchScope(scope);
+        result = expression(ast);
+        (void) switchScope(previousScope);
+        (void) switchEngine(previousEngine);
+    }
+    return result;
+}
+
 Semantic::ExprResult Semantic::functionIdentifier(FunctionIdentifierAST *ast)
 {
     ExprResult result;
@@ -269,7 +282,9 @@ bool Semantic::visit(ExpressionStatementAST *ast)
 
 bool Semantic::visit(CompoundStatementAST *ast)
 {
-    Scope *previousScope = switchScope(_engine->newBlock(_scope));
+    Block *block = _engine->newBlock(_scope);
+    Scope *previousScope = switchScope(block);
+    ast->symbol = block;
     for (List<StatementAST *> *it = ast->statements; it; it = it->next) {
         StatementAST *stmt = it->value;
         statement(stmt);

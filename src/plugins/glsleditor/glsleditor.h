@@ -33,6 +33,8 @@
 #include "glsleditor_global.h"
 #include "glsleditoreditable.h"
 
+#include <glsl/glsl.h>
+
 #include <texteditor/basetexteditor.h>
 #include <texteditor/quickfix.h>
 
@@ -49,6 +51,36 @@ class ICore;
 }
 
 namespace GLSLEditor {
+class GLSLTextEditor;
+
+class GLSLEDITOR_EXPORT Document
+{
+public:
+    typedef QSharedPointer<Document> Ptr;
+
+    Document();
+    ~Document();
+
+    GLSL::Engine *engine() const { return _engine; }
+    GLSL::TranslationUnitAST *ast() const { return _ast; }
+    GLSL::Scope *globalScope() const { return _globalScope; }
+
+    GLSL::Scope *scopeAt(int position) const;
+    void addRange(const QTextCursor &cursor, GLSL::Scope *scope);
+
+private:
+    struct Range {
+        QTextCursor cursor;
+        GLSL::Scope *scope;
+    };
+
+    GLSL::Engine *_engine;
+    GLSL::TranslationUnitAST *_ast;
+    GLSL::Scope *_globalScope;
+    QList<Range> _cursors;
+
+    friend class GLSLTextEditor;
+};
 
 class GLSLEDITOR_EXPORT GLSLTextEditor : public TextEditor::BaseTextEditor
 {
@@ -67,6 +99,8 @@ public:
 
     bool isVertexShader() const;
     bool isFragmentShader() const;
+
+    Document::Ptr glslDocument() const;
 
 public slots:
     virtual void setFontSettings(const TextEditor::FontSettings &);
@@ -88,7 +122,7 @@ private:
 
     QTimer *m_updateDocumentTimer;
     QComboBox *m_outlineCombo;
-    QSet<QString> m_identifiers;
+    Document::Ptr m_glslDocument;
 };
 
 } // namespace GLSLEditor

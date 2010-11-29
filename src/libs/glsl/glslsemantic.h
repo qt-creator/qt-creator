@@ -51,6 +51,7 @@ public:
     };
 
     void translationUnit(TranslationUnitAST *ast, Scope *globalScope, Engine *engine);
+    ExprResult expression(ExpressionAST *ast, Scope *scope, Engine *engine);
 
 protected:
     Engine *switchEngine(Engine *engine);

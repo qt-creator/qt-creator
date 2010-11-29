@@ -82,6 +82,66 @@ enum {
     UPDATE_DOCUMENT_DEFAULT_INTERVAL = 150
 };
 
+namespace {
+
+class CreateRanges: protected GLSL::Visitor
+{
+    QTextDocument *textDocument;
+    Document::Ptr glslDocument;
+
+public:
+    CreateRanges(QTextDocument *textDocument, Document::Ptr glslDocument)
+        : textDocument(textDocument), glslDocument(glslDocument) {}
+
+    void operator()(GLSL::AST *ast) { accept(ast); }
+
+protected:
+    using GLSL::Visitor::visit;
+
+    virtual void endVisit(GLSL::CompoundStatementAST *ast)
+    {
+        if (ast->symbol) {
+            QTextCursor tc(textDocument);
+            tc.setPosition(ast->start);
+            tc.setPosition(ast->end, QTextCursor::KeepAnchor);
+            glslDocument->addRange(tc, ast->symbol);
+        }
+    }
+};
+
+} // end of anonymous namespace
+
+Document::Document()
+    : _engine(0)
+    , _ast(0)
+    , _globalScope(0)
+{
+
+}
+
+Document::~Document()
+{
+    delete _globalScope;
+    delete _engine;
+}
+
+GLSL::Scope *Document::scopeAt(int position) const
+{
+    foreach (const Range &c, _cursors) {
+        if (position >= c.cursor.selectionStart() && position <= c.cursor.selectionEnd())
+            return c.scope;
+    }
+    return _globalScope;
+}
+
+void Document::addRange(const QTextCursor &cursor, GLSL::Scope *scope)
+{
+    Range c;
+    c.cursor = cursor;
+    c.scope = scope;
+    _cursors.append(c);
+}
+
 GLSLTextEditor::GLSLTextEditor(QWidget *parent) :
     TextEditor::BaseTextEditor(parent),
     m_outlineCombo(0)
@@ -127,11 +187,6 @@ bool GLSLTextEditor::isOutdated() const
 //        return true;
 
     return false;
-}
-
-QSet<QString> GLSLTextEditor::identifiers() const
-{
-    return m_identifiers;
 }
 
 Core::IEditor *GLSLEditorEditable::duplicate(QWidget *parent)
@@ -270,20 +325,26 @@ void GLSLTextEditor::updateDocumentNow()
     const QString contents = toPlainText(); // get the code from the editor
     const QByteArray preprocessedCode = contents.toLatin1(); // ### use the QtCreator C++ preprocessor.
 
-    Engine engine;
-    Parser parser(&engine, preprocessedCode.constData(), preprocessedCode.size(), variant);
+    Document::Ptr doc(new Document());
+    GLSL::Engine *engine = new GLSL::Engine();
+    doc->_engine = new GLSL::Engine();
+    Parser parser(doc->_engine, preprocessedCode.constData(), preprocessedCode.size(), variant);
     TranslationUnitAST *ast = parser.parse();
     if (ast != 0 || extraSelections(CodeWarningsSelection).isEmpty()) {
         GLSLEditorPlugin *plugin = GLSLEditorPlugin::instance();
 
         Semantic sem;
-        Scope *globalScope = engine.newNamespace();
+        Scope *globalScope = engine->newNamespace();
+        doc->_globalScope = globalScope;
         sem.translationUnit(plugin->shaderInit()->ast, globalScope, plugin->shaderInit()->engine);
         if (variant & Lexer::Variant_VertexShader)
             sem.translationUnit(plugin->vertexShaderInit()->ast, globalScope, plugin->vertexShaderInit()->engine);
         if (variant & Lexer::Variant_FragmentShader)
             sem.translationUnit(plugin->fragmentShaderInit()->ast, globalScope, plugin->fragmentShaderInit()->engine);
-        sem.translationUnit(ast, globalScope, &engine);
+        sem.translationUnit(ast, globalScope, engine);
+
+        CreateRanges createRanges(document(), doc);
+        createRanges(ast);
 
         QTextCharFormat errorFormat;
         errorFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
@@ -296,7 +357,7 @@ void GLSLTextEditor::updateDocumentNow()
         QList<QTextEdit::ExtraSelection> sels;
         QSet<int> errors;
 
-        foreach (const DiagnosticMessage &m, engine.diagnosticMessages()) {
+        foreach (const DiagnosticMessage &m, engine->diagnosticMessages()) {
             if (! m.line())
                 continue;
             else if (errors.contains(m.line()))
@@ -315,10 +376,8 @@ void GLSLTextEditor::updateDocumentNow()
         }
 
         setExtraSelections(CodeWarningsSelection, sels);
+        m_glslDocument = doc;
     }
-
-    // refresh the identifiers.
-    m_identifiers = engine.identifiers();
 }
 
 bool GLSLTextEditor::isVertexShader() const
@@ -329,4 +388,9 @@ bool GLSLTextEditor::isVertexShader() const
 bool GLSLTextEditor::isFragmentShader() const
 {
     return mimeType() == QLatin1String("text/x-glsl-frag");
+}
+
+Document::Ptr GLSLTextEditor::glslDocument() const
+{
+    return m_glslDocument;
 }

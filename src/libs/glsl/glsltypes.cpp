@@ -297,6 +297,16 @@ bool ArrayType::isLessThan(const Type *other) const
     return elementType() < array->elementType();
 }
 
+QStringList Struct::members() const
+{
+    QStringList m;
+    foreach (Symbol *s, _members) {
+        if (! s->name().isEmpty())
+            m.append(s->name());
+    }
+    return m;
+}
+
 void Struct::add(Symbol *member)
 {
     _members.append(member);
@@ -363,6 +373,16 @@ bool Function::isLessThan(const Type *other) const
 {
     Q_UNUSED(other);
     return false;
+}
+
+QStringList Function::members() const
+{
+    QStringList m;
+    foreach (Argument *arg, _arguments) {
+        if (! arg->name().isEmpty())
+            m.append(arg->name());
+    }
+    return m;
 }
 
 Symbol *Function::find(const QString &name) const

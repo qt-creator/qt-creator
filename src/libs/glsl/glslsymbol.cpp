@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "glslsymbol.h"
+#include <QtCore/QStringList>
 
 using namespace GLSL;
 
@@ -73,4 +74,9 @@ Symbol *Scope::lookup(const QString &name) const
         return s->lookup(name);
     else
         return 0;
+}
+
+QStringList Scope::members() const
+{
+    return QStringList();
 }

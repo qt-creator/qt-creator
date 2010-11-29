@@ -54,6 +54,11 @@ Block::Block(Scope *enclosingScope)
 {
 }
 
+QStringList Block::members() const
+{
+    return _members.keys();
+}
+
 void Block::add(Symbol *symbol)
 {
     _members.insert(symbol->name(), symbol);
@@ -93,6 +98,11 @@ Namespace::Namespace()
 Namespace::~Namespace()
 {
     qDeleteAll(_overloadSets);
+}
+
+QStringList Namespace::members() const
+{
+    return _members.keys();
 }
 
 void Namespace::add(Symbol *symbol)

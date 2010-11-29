@@ -30,6 +30,11 @@
 #include "glsleditor.h"
 #include "glsleditorplugin.h"
 #include <glsl/glslengine.h>
+#include <glsl/glslengine.h>
+#include <glsl/glslparser.h>
+#include <glsl/glslsemantic.h>
+#include <glsl/glslastdump.h>
+#include <cplusplus/ExpressionUnderCursor.h>
 #include <texteditor/completionsettings.h>
 #include <QtGui/QIcon>
 #include <QtGui/QPainter>
@@ -300,9 +305,8 @@ bool CodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
         }
     }
 
-    //    if (ch == QLatin1Char('(') || ch == QLatin1Char('.') || ch == QLatin1Char('/'))
-    //        return true;
-
+    if (ch == QLatin1Char('(') || ch == QLatin1Char('.'))
+        return true;
 
     return false;
 }
@@ -316,26 +320,78 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     while (ch.isLetterOrNumber() || ch == QLatin1Char('_'))
         ch = editor->characterAt(--pos);
 
+    CPlusPlus::ExpressionUnderCursor expressionUnderCursor;
+    GLSLTextEditor *edit = qobject_cast<GLSLTextEditor *>(editor->widget());
+
     const QIcon symbolIcon = iconForColor(Qt::darkCyan);
-    m_completions += m_keywordCompletions;
 
-    if (GLSLTextEditor *ed = qobject_cast<GLSLTextEditor *>(m_editor->widget())) {
-        QSet<QString> identifiers = ed->identifiers();
+    QStringList members;
 
-        identifiers += GLSLEditorPlugin::instance()->shaderInit()->engine->identifiers();
+    if (ch == QLatin1Char('.')) {
+        QTextCursor tc(edit->document());
+        tc.setPosition(pos);
 
-        if (ed->isVertexShader())
-            identifiers += GLSLEditorPlugin::instance()->vertexShaderInit()->engine->identifiers();
+        // get the expression under cursor
+        const QByteArray code = expressionUnderCursor(tc).toLatin1();
+        //qDebug() << endl << "expression:" << code;
 
-        if (ed->isFragmentShader())
-            identifiers += GLSLEditorPlugin::instance()->fragmentShaderInit()->engine->identifiers();
+        // parse the expression
+        GLSL::Engine engine;
+        GLSL::Parser parser(&engine, code, code.size(), GLSL::Lexer::Variant_GLSL_Qt);
+        GLSL::ExpressionAST *expr = parser.parseExpression();
 
-        foreach (const QString &id, identifiers) {
-            TextEditor::CompletionItem item(this);
-            item.text = id;
-            item.icon = symbolIcon;
-            m_completions.append(item);
+#if 0
+        // dump it!
+        QTextStream qout(stdout, QIODevice::WriteOnly);
+        GLSL::ASTDump dump(qout);
+        dump(expr);
+#endif
+
+        if (Document::Ptr doc = edit->glslDocument()) {
+            // TODO: ### find the enclosing scope in the previously parsed `doc'.
+            // let's use the global scope for now. This should be good enough
+            // to get some basic completion for the global variables.
+            GLSL::Scope *currentScope = doc->scopeAt(pos);
+
+            GLSL::Semantic sem;
+            GLSL::Semantic::ExprResult exprTy = sem.expression(expr, currentScope, doc->engine());
+            if (exprTy.type) {
+                if (const GLSL::VectorType *vecTy = exprTy.type->asVectorType()) {
+                    members = vecTy->members();
+
+                } else if (const GLSL::Struct *structTy = exprTy.type->asStructType()) {
+                    members = structTy->members();
+
+                } else {
+                    // some other type
+                }
+            } else {
+                // undefined
+
+            }
+
+        } else {
+            // sorry, there's no document
         }
+
+    } else {
+        // it's a global completion
+        if (Document::Ptr doc = edit->glslDocument()) {
+            GLSL::Scope *currentScope = doc->scopeAt(pos);
+
+            // add the members from the scope chain
+            for (; currentScope; currentScope = currentScope->scope())
+                members += currentScope->members();
+        }
+
+        m_completions += m_keywordCompletions;
+    }
+
+    foreach (const QString &s, members) {
+        TextEditor::CompletionItem item(this);
+        item.icon = symbolIcon;
+        item.text = s;
+        m_completions.append(item);
     }
 
     m_startPosition = pos + 1;

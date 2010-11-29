@@ -508,9 +508,11 @@ class GLSL_EXPORT CompoundStatementAST: public StatementAST
 {
 public:
     CompoundStatementAST()
-        : StatementAST(Kind_CompoundStatement), statements(0) {}
+        : StatementAST(Kind_CompoundStatement), statements(0)
+        , start(0), end(0), symbol(0) {}
     CompoundStatementAST(List<StatementAST *> *_statements)
-        : StatementAST(Kind_CompoundStatement), statements(finish(_statements)) {}
+        : StatementAST(Kind_CompoundStatement), statements(finish(_statements))
+        , start(0), end(0), symbol(0) {}
 
     virtual CompoundStatementAST *asCompoundStatement() { return this; }
 
@@ -518,6 +520,9 @@ public:
 
 public: // attributes
     List<StatementAST *> *statements;
+    int start;
+    int end;
+    Block *symbol; // decoration
 };
 
 class GLSL_EXPORT IfStatementAST: public StatementAST

@@ -36,6 +36,9 @@
 %token_prefix T_
 %expect 1
 
+%token FEED_GLSL "feed GLSL"
+%token FEED_EXPRESSION "feed expression"
+
 %token ADD_ASSIGN "+="
 %token AMPERSAND "&"
 %token AND_ASSIGN "&="
@@ -209,7 +212,7 @@
 %token ERROR "error"
 %token RESERVED "reserved word"
 
-%start translation_unit
+%start toplevel
 
 /:
 /**************************************************************************
@@ -301,10 +304,23 @@ public:
     Parser(Engine *engine, const char *source, unsigned size, int variant);
     ~Parser();
 
-    TranslationUnitAST *parse();
+    TranslationUnitAST *parse() {
+        if (AST *u = parse(T_FEED_GLSL))
+            return u->asTranslationUnit();
+        return 0;
+    }
+
+    ExpressionAST *parseExpression() {
+        if (AST *u = parse(T_FEED_EXPRESSION))
+            return u->asExpression();
+        return 0;
+    }
+
+    AST *parse(int startToken);
 
 private:
     // 1-based
+    int &location(int n) { return _locationStack[_tos + n - 1]; }
     Value &sym(int n) { return _symStack[_tos + n - 1]; }
     AST *&ast(int n) { return _symStack[_tos + n - 1].ast; }
     const QString *&string(int n) { return _symStack[_tos + n - 1].string; }
@@ -318,8 +334,16 @@ private:
             return _index++;
         return _tokens.size() - 1;
     }
-    inline const Token &tokenAt(int index) const { return _tokens.at(index); }
-    inline int tokenKind(int index) const { return _tokens.at(index).kind; }
+    inline const Token &tokenAt(int index) const {
+        if (index == 0)
+            return _startToken;
+        return _tokens.at(index);
+    }
+    inline int tokenKind(int index) const {
+        if (index == 0)
+            return _startToken.kind;
+        return _tokens.at(index).kind;
+    }
     void reduce(int ruleno);
 
     void warning(int line, const QString &message)
@@ -387,6 +411,7 @@ private:
     int yytoken;
     int yyrecovering;
     bool _recovered;
+    Token _startToken;
     std::vector<int> _stateStack;
     std::vector<int> _locationStack;
     std::vector<Value> _symStack;
@@ -492,14 +517,14 @@ Parser::Parser(Engine *engine, const char *source, unsigned size, int variant)
         _tokens.push_back(tk);
     } while (tk.isNot(EOF_SYMBOL));
 
-    _index = 1;
+    _index = 0;
 }
 
 Parser::~Parser()
 {
 }
 
-TranslationUnitAST *Parser::parse()
+AST *Parser::parse(int startToken)
 {
     int action = 0;
     yytoken = -1;
@@ -508,6 +533,7 @@ TranslationUnitAST *Parser::parse()
 
     _recovered = false;
     _tos = -1;
+    _startToken.kind = startToken;
 
     do {
     again:
@@ -2641,14 +2667,20 @@ case $rule_number: {
 compound_statement ::= LEFT_BRACE RIGHT_BRACE ;
 /.
 case $rule_number: {
-    ast(1) = makeAstNode<CompoundStatementAST>();
+    CompoundStatementAST *stmt = makeAstNode<CompoundStatementAST>();
+    stmt->start = tokenAt(location(1)).begin();
+    stmt->end = tokenAt(location(2)).end();
+    ast(1) = stmt;
 }   break;
 ./
 
 compound_statement ::= LEFT_BRACE statement_list RIGHT_BRACE ;
 /.
 case $rule_number: {
-    ast(1) = makeAstNode<CompoundStatementAST>(sym(2).statement_list);
+    CompoundStatementAST *stmt = makeAstNode<CompoundStatementAST>(sym(2).statement_list);
+    stmt->start = tokenAt(location(1)).begin();
+    stmt->end = tokenAt(location(3)).end();
+    ast(1) = stmt;
 }   break;
 ./
 
@@ -2669,14 +2701,20 @@ case $rule_number: {
 compound_statement_no_new_scope ::= LEFT_BRACE RIGHT_BRACE ;
 /.
 case $rule_number: {
-    ast(1) = makeAstNode<CompoundStatementAST>();
+    CompoundStatementAST *stmt = makeAstNode<CompoundStatementAST>();
+    stmt->start = tokenAt(location(1)).begin();
+    stmt->end = tokenAt(location(2)).end();
+    ast(1) = stmt;
 }   break;
 ./
 
 compound_statement_no_new_scope ::= LEFT_BRACE statement_list RIGHT_BRACE ;
 /.
 case $rule_number: {
-    ast(1) = makeAstNode<CompoundStatementAST>(sym(2).statement_list);
+    CompoundStatementAST *stmt = makeAstNode<CompoundStatementAST>(sym(2).statement_list);
+    stmt->start = tokenAt(location(1)).begin();
+    stmt->end = tokenAt(location(3)).end();
+    ast(1) = stmt;
 }   break;
 ./
 
@@ -2953,6 +2991,19 @@ case $rule_number: {
 ./
 
 
+toplevel ::= FEED_GLSL translation_unit ;
+/.
+case $rule_number: {
+    ast(1) = ast(2);
+}   break;
+./
+
+toplevel ::= FEED_EXPRESSION expression ;
+/.
+case $rule_number: {
+    ast(1) = ast(2);
+}   break;
+./
 
 /.
 } // end switch
