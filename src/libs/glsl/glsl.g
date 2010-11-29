@@ -594,6 +594,7 @@ AST *Parser::parse(int startToken)
                     T_SEMICOLON, T_COMMA, T_COLON,
                     T_NUMBER, T_TYPE_NAME, T_IDENTIFIER,
                     T_LEFT_BRACE, T_LEFT_PAREN, T_LEFT_BRACKET,
+                    T_WHILE,
                     0
                 };
 
