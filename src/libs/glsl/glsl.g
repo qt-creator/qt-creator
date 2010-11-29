@@ -313,7 +313,11 @@ private:
     TypeAST *&type(int n) { return _symStack[_tos + n - 1].type; }
     FunctionDeclarationAST *&function(int n) { return _symStack[_tos + n - 1].function_declaration; }
 
-    inline int consumeToken() { return _index++; }
+    inline int consumeToken() {
+        if (_index < int(_tokens.size()))
+            return _index++;
+        return _tokens.size() - 1;
+    }
     inline const Token &tokenAt(int index) const { return _tokens.at(index); }
     inline int tokenKind(int index) const { return _tokens.at(index).kind; }
     void reduce(int ruleno);
@@ -380,6 +384,9 @@ private:
     int _tos;
     int _index;
     int yyloc;
+    int yytoken;
+    int yyrecovering;
+    bool _recovered;
     std::vector<int> _stateStack;
     std::vector<int> _locationStack;
     std::vector<Value> _symStack;
@@ -424,11 +431,12 @@ private:
 #include <iostream>
 #include <cstdio>
 #include <cassert>
+#include <QtCore/QDebug>
 
 using namespace GLSL;
 
 Parser::Parser(Engine *engine, const char *source, unsigned size, int variant)
-    : _engine(engine), _tos(-1), _index(0), yyloc(-1)
+    : _engine(engine), _tos(-1), _index(0), yyloc(-1), yytoken(-1), yyrecovering(0), _recovered(false)
 {
     _tokens.reserve(1024);
 
@@ -494,16 +502,28 @@ Parser::~Parser()
 TranslationUnitAST *Parser::parse()
 {
     int action = 0;
-    int yytoken = -1;
+    yytoken = -1;
     yyloc = -1;
     void *yyval = 0; // value of the current token.
 
+    _recovered = false;
     _tos = -1;
 
     do {
+    again:
+        if (unsigned(++_tos) == _stateStack.size()) {
+            _stateStack.resize(_tos * 2);
+            _locationStack.resize(_tos * 2);
+            _symStack.resize(_tos * 2);
+        }
+
+        _stateStack[_tos] = action;
+
         if (yytoken == -1 && -TERMINAL_COUNT != action_index[action]) {
             yyloc = consumeToken();
             yytoken = tokenKind(yyloc);
+            if (yyrecovering)
+                --yyrecovering;
             if (yytoken == T_IDENTIFIER && t_action(action, T_TYPE_NAME) != 0) {
                 const Token &la = tokenAt(_index);
 
@@ -517,13 +537,6 @@ TranslationUnitAST *Parser::parse()
             yyval = _tokens.at(yyloc).ptr;
         }
 
-        if (unsigned(++_tos) == _stateStack.size()) {
-            _stateStack.resize(_tos * 2);
-            _locationStack.resize(_tos * 2);
-            _symStack.resize(_tos * 2);
-        }
-
-        _stateStack[_tos] = action;
         action = t_action(action, yytoken);
         if (action > 0) {
             if (action == ACCEPT_STATE) {
@@ -539,20 +552,58 @@ TranslationUnitAST *Parser::parse()
             _tos -= N;
             reduce(ruleno);
             action = nt_action(_stateStack[_tos], lhs[ruleno] - TERMINAL_COUNT);
+        } else if (action == 0) {
+            const int line = _tokens[yyloc].line + 1;
+            QString message = QLatin1String("Syntax error");
+            if (yytoken != -1) {
+                const QLatin1String s(spell[yytoken]);
+                message = QString("Unexpected token `%1'").arg(s);
+            }
+
+            for (; _tos; --_tos) {
+                const int state = _stateStack[_tos];
+
+                static int tks[] = {
+                    T_RIGHT_BRACE, T_RIGHT_PAREN, T_RIGHT_BRACKET,
+                    T_SEMICOLON, T_COMMA, T_COLON,
+                    T_NUMBER, T_TYPE_NAME, T_IDENTIFIER,
+                    T_LEFT_BRACE, T_LEFT_PAREN, T_LEFT_BRACKET,
+                    0
+                };
+
+                for (int *tptr = tks; *tptr; ++tptr) {
+                    const int next = t_action(state, *tptr);
+                    if (next > 0) {
+                        if (! yyrecovering && ! _recovered) {
+                            _recovered = true;
+                            error(line, QString("Expected `%1'").arg(QLatin1String(spell[*tptr])));
+                        }
+
+                        yyrecovering = 3;
+                        if (*tptr == T_IDENTIFIER)
+                            yyval = (void *) _engine->identifier(QLatin1String("$identifier"));
+                        else if (*tptr == T_NUMBER || *tptr == T_TYPE_NAME)
+                            yyval = (void *) _engine->identifier(QLatin1String("$0"));
+                        else
+                            yyval = 0;
+
+                        _symStack[_tos].ptr = yyval;
+                        _locationStack[_tos] = yyloc;
+                        yytoken = -1;
+
+                        action = next;
+                        goto again;
+                    }
+                }
+            }
+
+            if (! _recovered) {
+                _recovered = true;
+                error(line, message);
+            }
         }
+
     } while (action);
-
-    const int line = _tokens[yyloc].line + 1;
-    QString message = QLatin1String("Syntax error");
-    if (yytoken != -1) {
-        const QLatin1String s(yytoken != -1 ? spell[yytoken] : "");
-        message = QString("Unexpected token `%1'").arg(s);
-    }
-
-    error(line, message);
-
-//    fprintf(stderr, "unexpected token `%s' at line %d\n", yytoken != -1 ? spell[yytoken] : "",
-//        _tokens[yyloc].line + 1);
 
     return 0;
 }

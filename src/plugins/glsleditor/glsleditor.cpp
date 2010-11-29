@@ -273,48 +273,49 @@ void GLSLTextEditor::updateDocumentNow()
     Engine engine;
     Parser parser(&engine, preprocessedCode.constData(), preprocessedCode.size(), variant);
     TranslationUnitAST *ast = parser.parse();
+    if (ast != 0 || extraSelections(CodeWarningsSelection).isEmpty()) {
+        GLSLEditorPlugin *plugin = GLSLEditorPlugin::instance();
 
-    GLSLEditorPlugin *plugin = GLSLEditorPlugin::instance();
+        Semantic sem;
+        Scope *globalScope = engine.newNamespace();
+        sem.translationUnit(plugin->shaderInit()->ast, globalScope, plugin->shaderInit()->engine);
+        if (variant & Lexer::Variant_VertexShader)
+            sem.translationUnit(plugin->vertexShaderInit()->ast, globalScope, plugin->vertexShaderInit()->engine);
+        if (variant & Lexer::Variant_FragmentShader)
+            sem.translationUnit(plugin->fragmentShaderInit()->ast, globalScope, plugin->fragmentShaderInit()->engine);
+        sem.translationUnit(ast, globalScope, &engine);
 
-    Semantic sem;
-    Scope *globalScope = engine.newNamespace();
-    sem.translationUnit(plugin->shaderInit()->ast, globalScope, plugin->shaderInit()->engine);
-    if (variant & Lexer::Variant_VertexShader)
-        sem.translationUnit(plugin->vertexShaderInit()->ast, globalScope, plugin->vertexShaderInit()->engine);
-    if (variant & Lexer::Variant_FragmentShader)
-        sem.translationUnit(plugin->fragmentShaderInit()->ast, globalScope, plugin->fragmentShaderInit()->engine);
-    sem.translationUnit(ast, globalScope, &engine);
+        QTextCharFormat errorFormat;
+        errorFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+        errorFormat.setUnderlineColor(Qt::red);
 
-    QTextCharFormat errorFormat;
-    errorFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
-    errorFormat.setUnderlineColor(Qt::red);
+        QTextCharFormat warningFormat;
+        warningFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+        warningFormat.setUnderlineColor(Qt::darkYellow);
 
-    QTextCharFormat warningFormat;
-    warningFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
-    warningFormat.setUnderlineColor(Qt::darkYellow);
+        QList<QTextEdit::ExtraSelection> sels;
+        QSet<int> errors;
 
-    QList<QTextEdit::ExtraSelection> sels;
-    QSet<int> errors;
+        foreach (const DiagnosticMessage &m, engine.diagnosticMessages()) {
+            if (! m.line())
+                continue;
+            else if (errors.contains(m.line()))
+                continue;
 
-    foreach (const DiagnosticMessage &m, engine.diagnosticMessages()) {
-        if (! m.line())
-            continue;
-        else if (errors.contains(m.line()))
-            continue;
+            errors.insert(m.line());
 
-        errors.insert(m.line());
+            QTextCursor cursor(document()->findBlockByNumber(m.line() - 1));
+            cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
 
-        QTextCursor cursor(document()->findBlockByNumber(m.line() - 1));
-        cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+            QTextEdit::ExtraSelection sel;
+            sel.cursor = cursor;
+            sel.format = m.isError() ? errorFormat : warningFormat;
+            sel.format.setToolTip(m.message());
+            sels.append(sel);
+        }
 
-        QTextEdit::ExtraSelection sel;
-        sel.cursor = cursor;
-        sel.format = m.isError() ? errorFormat : warningFormat;
-        sel.format.setToolTip(m.message());
-        sels.append(sel);
+        setExtraSelections(CodeWarningsSelection, sels);
     }
-
-    setExtraSelections(CodeWarningsSelection, sels);
 
     // refresh the identifiers.
     m_identifiers = engine.identifiers();

@@ -1,5 +1,5 @@
 
-#line 214 "./glsl.g"
+#line 214 "glsl.g"
 
 /**************************************************************************
 **
@@ -102,7 +102,11 @@ private:
     TypeAST *&type(int n) { return _symStack[_tos + n - 1].type; }
     FunctionDeclarationAST *&function(int n) { return _symStack[_tos + n - 1].function_declaration; }
 
-    inline int consumeToken() { return _index++; }
+    inline int consumeToken() {
+        if (_index < int(_tokens.size()))
+            return _index++;
+        return _tokens.size() - 1;
+    }
     inline const Token &tokenAt(int index) const { return _tokens.at(index); }
     inline int tokenKind(int index) const { return _tokens.at(index).kind; }
     void reduce(int ruleno);
@@ -169,6 +173,9 @@ private:
     int _tos;
     int _index;
     int yyloc;
+    int yytoken;
+    int yyrecovering;
+    bool _recovered;
     std::vector<int> _stateStack;
     std::vector<int> _locationStack;
     std::vector<Value> _symStack;
