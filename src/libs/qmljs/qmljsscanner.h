@@ -79,7 +79,9 @@ class QMLJS_EXPORT Scanner
 public:
     enum {
         Normal = 0,
-        MultiLineComment = 1
+        MultiLineComment = 1,
+        MultiLineStringDQuote = 2,
+        MultiLineStringSQuote = 3
     };
 
     Scanner();

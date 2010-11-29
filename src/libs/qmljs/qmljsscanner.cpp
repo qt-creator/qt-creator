@@ -152,6 +152,25 @@ QList<Token> Scanner::operator()(const QString &text, int startState)
 
         if (_scanComments && start != -1)
             tokens.append(Token(start, index - start, Token::Comment));
+    } else if (_state == MultiLineStringDQuote || _state == MultiLineStringSQuote) {
+        const QChar quote = (_state == MultiLineStringDQuote ? QLatin1Char('"') : QLatin1Char('\''));
+        const int start = index;
+        while (index < text.length()) {
+            const QChar ch = text.at(index);
+
+            if (ch == quote)
+                break;
+            else if (index + 1 < text.length() && ch == QLatin1Char('\\'))
+                index += 2;
+            else
+                ++index;
+        }
+        if (index < text.length()) {
+            ++index;
+            _state = Normal;
+        }
+        if (start < index)
+            tokens.append(Token(start, index - start, Token::String));
     }
 
     while (index < text.length()) {
@@ -212,7 +231,10 @@ QList<Token> Scanner::operator()(const QString &text, int startState)
                 ++index;
                 // good one
             } else {
-                // unfinished
+                if (quote.unicode() == '"')
+                    _state = MultiLineStringDQuote;
+                else
+                    _state = MultiLineStringSQuote;
             }
 
             tokens.append(Token(start, index - start, Token::String));
