@@ -248,7 +248,19 @@ bool Semantic::visit(AssignmentExpressionAST *ast)
 bool Semantic::visit(MemberAccessExpressionAST *ast)
 {
     ExprResult expr = expression(ast->expr);
-    // ast->field
+    if (expr.type && ast->field) {
+        if (const VectorType *vecTy = expr.type->asVectorType()) {
+            if (Symbol *s = vecTy->find(*ast->field)) {
+                _expr.type = s->type();
+            }
+        } else if (const Struct *structTy = expr.type->asStructType()) {
+            if (Symbol *s = structTy->find(*ast->field)) {
+                _expr.type = s->type();
+            }
+        } else {
+            // error(ast->lineno, QString("Requested for member `%1', in a non class or vec instance").arg(*ast->field));
+        }
+    }
     return false;
 }
 
