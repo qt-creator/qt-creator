@@ -368,9 +368,9 @@ private:
         return node;
     }
 
-    TypeAST *makeBasicType(int token, BasicTypeAST::Category category)
+    TypeAST *makeBasicType(int token)
     {
-        TypeAST *type = new (_engine->pool()) BasicTypeAST(token, spell[token], category);
+        TypeAST *type = new (_engine->pool()) BasicTypeAST(token, spell[token]);
         type->lineno = yyloc >= 0 ? (_tokens[yyloc].line + 1) : 0;
         return type;
     }
@@ -1800,595 +1800,595 @@ case $rule_number: {
 type_specifier_nonarray ::= VOID ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_VOID, TypeAST::Void);
+    ast(1) = makeBasicType(T_VOID);
 }   break;
 ./
 
 type_specifier_nonarray ::= FLOAT ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_FLOAT, TypeAST::Primitive);
+    ast(1) = makeBasicType(T_FLOAT);
 }   break;
 ./
 
 type_specifier_nonarray ::= DOUBLE ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_DOUBLE, TypeAST::Primitive);
+    ast(1) = makeBasicType(T_DOUBLE);
 }   break;
 ./
 
 type_specifier_nonarray ::= INT ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_INT, TypeAST::Primitive);
+    ast(1) = makeBasicType(T_INT);
 }   break;
 ./
 
 type_specifier_nonarray ::= UINT ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_UINT, TypeAST::Primitive);
+    ast(1) = makeBasicType(T_UINT);
 }   break;
 ./
 
 type_specifier_nonarray ::= BOOL ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_BOOL, TypeAST::Primitive);
+    ast(1) = makeBasicType(T_BOOL);
 }   break;
 ./
 
 type_specifier_nonarray ::= VEC2 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_VEC2, TypeAST::Vector2);
+    ast(1) = makeBasicType(T_VEC2);
 }   break;
 ./
 
 type_specifier_nonarray ::= VEC3 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_VEC3, TypeAST::Vector3);
+    ast(1) = makeBasicType(T_VEC3);
 }   break;
 ./
 
 type_specifier_nonarray ::= VEC4 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_VEC4, TypeAST::Vector4);
+    ast(1) = makeBasicType(T_VEC4);
 }   break;
 ./
 
 type_specifier_nonarray ::= DVEC2 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_DVEC2, TypeAST::Vector2);
+    ast(1) = makeBasicType(T_DVEC2);
 }   break;
 ./
 
 type_specifier_nonarray ::= DVEC3 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_DVEC3, TypeAST::Vector3);
+    ast(1) = makeBasicType(T_DVEC3);
 }   break;
 ./
 
 type_specifier_nonarray ::= DVEC4 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_DVEC4, TypeAST::Vector4);
+    ast(1) = makeBasicType(T_DVEC4);
 }   break;
 ./
 
 type_specifier_nonarray ::= BVEC2 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_BVEC2, TypeAST::Vector2);
+    ast(1) = makeBasicType(T_BVEC2);
 }   break;
 ./
 
 type_specifier_nonarray ::= BVEC3 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_BVEC3, TypeAST::Vector3);
+    ast(1) = makeBasicType(T_BVEC3);
 }   break;
 ./
 
 type_specifier_nonarray ::= BVEC4 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_BVEC4, TypeAST::Vector4);
+    ast(1) = makeBasicType(T_BVEC4);
 }   break;
 ./
 
 type_specifier_nonarray ::= IVEC2 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_IVEC2, TypeAST::Vector2);
+    ast(1) = makeBasicType(T_IVEC2);
 }   break;
 ./
 
 type_specifier_nonarray ::= IVEC3 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_IVEC3, TypeAST::Vector3);
+    ast(1) = makeBasicType(T_IVEC3);
 }   break;
 ./
 
 type_specifier_nonarray ::= IVEC4 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_IVEC4, TypeAST::Vector4);
+    ast(1) = makeBasicType(T_IVEC4);
 }   break;
 ./
 
 type_specifier_nonarray ::= UVEC2 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_UVEC2, TypeAST::Vector2);
+    ast(1) = makeBasicType(T_UVEC2);
 }   break;
 ./
 
 type_specifier_nonarray ::= UVEC3 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_UVEC3, TypeAST::Vector3);
+    ast(1) = makeBasicType(T_UVEC3);
 }   break;
 ./
 
 type_specifier_nonarray ::= UVEC4 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_UVEC4, TypeAST::Vector4);
+    ast(1) = makeBasicType(T_UVEC4);
 }   break;
 ./
 
 type_specifier_nonarray ::= MAT2 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_MAT2, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_MAT2);
 }   break;
 ./
 
 type_specifier_nonarray ::= MAT3 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_MAT3, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_MAT3);
 }   break;
 ./
 
 type_specifier_nonarray ::= MAT4 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_MAT4, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_MAT4);
 }   break;
 ./
 
 type_specifier_nonarray ::= MAT2X2 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_MAT2, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_MAT2);
 }   break;
 ./
 
 type_specifier_nonarray ::= MAT2X3 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_MAT2X3, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_MAT2X3);
 }   break;
 ./
 
 type_specifier_nonarray ::= MAT2X4 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_MAT2X4, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_MAT2X4);
 }   break;
 ./
 
 type_specifier_nonarray ::= MAT3X2 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_MAT3X2, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_MAT3X2);
 }   break;
 ./
 
 type_specifier_nonarray ::= MAT3X3 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_MAT3, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_MAT3);
 }   break;
 ./
 
 type_specifier_nonarray ::= MAT3X4 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_MAT3X4, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_MAT3X4);
 }   break;
 ./
 
 type_specifier_nonarray ::= MAT4X2 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_MAT4X2, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_MAT4X2);
 }   break;
 ./
 
 type_specifier_nonarray ::= MAT4X3 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_MAT4X3, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_MAT4X3);
 }   break;
 ./
 
 type_specifier_nonarray ::= MAT4X4 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_MAT4, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_MAT4);
 }   break;
 ./
 
 type_specifier_nonarray ::= DMAT2 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_DMAT2, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_DMAT2);
 }   break;
 ./
 
 type_specifier_nonarray ::= DMAT3 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_DMAT3, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_DMAT3);
 }   break;
 ./
 
 type_specifier_nonarray ::= DMAT4 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_DMAT4, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_DMAT4);
 }   break;
 ./
 
 type_specifier_nonarray ::= DMAT2X2 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_DMAT2, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_DMAT2);
 }   break;
 ./
 
 type_specifier_nonarray ::= DMAT2X3 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_DMAT2X3, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_DMAT2X3);
 }   break;
 ./
 
 type_specifier_nonarray ::= DMAT2X4 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_DMAT2X4, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_DMAT2X4);
 }   break;
 ./
 
 type_specifier_nonarray ::= DMAT3X2 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_DMAT3X2, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_DMAT3X2);
 }   break;
 ./
 
 type_specifier_nonarray ::= DMAT3X3 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_DMAT3, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_DMAT3);
 }   break;
 ./
 
 type_specifier_nonarray ::= DMAT3X4 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_DMAT3X4, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_DMAT3X4);
 }   break;
 ./
 
 type_specifier_nonarray ::= DMAT4X2 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_DMAT4X2, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_DMAT4X2);
 }   break;
 ./
 
 type_specifier_nonarray ::= DMAT4X3 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_DMAT4X3, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_DMAT4X3);
 }   break;
 ./
 
 type_specifier_nonarray ::= DMAT4X4 ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_DMAT4, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_DMAT4);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLER1D ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_SAMPLER1D, TypeAST::Sampler1D);
+    ast(1) = makeBasicType(T_SAMPLER1D);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLER2D ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_SAMPLER2D, TypeAST::Sampler2D);
+    ast(1) = makeBasicType(T_SAMPLER2D);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLER3D ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_SAMPLER3D, TypeAST::Sampler3D);
+    ast(1) = makeBasicType(T_SAMPLER3D);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLERCUBE ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_SAMPLERCUBE, TypeAST::SamplerCube);
+    ast(1) = makeBasicType(T_SAMPLERCUBE);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLER1DSHADOW ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_SAMPLER1DSHADOW, TypeAST::Sampler1DShadow);
+    ast(1) = makeBasicType(T_SAMPLER1DSHADOW);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLER2DSHADOW ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_SAMPLER2DSHADOW, TypeAST::Sampler2DShadow);
+    ast(1) = makeBasicType(T_SAMPLER2DSHADOW);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLERCUBESHADOW ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_SAMPLERCUBESHADOW, TypeAST::SamplerCubeShadow);
+    ast(1) = makeBasicType(T_SAMPLERCUBESHADOW);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLER1DARRAY ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_SAMPLER1DARRAY, TypeAST::Sampler1DArray);
+    ast(1) = makeBasicType(T_SAMPLER1DARRAY);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLER2DARRAY ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_SAMPLER2DARRAY, TypeAST::Sampler2DArray);
+    ast(1) = makeBasicType(T_SAMPLER2DARRAY);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLER1DARRAYSHADOW ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_SAMPLER1DARRAYSHADOW, TypeAST::Sampler1DArrayShadow);
+    ast(1) = makeBasicType(T_SAMPLER1DARRAYSHADOW);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLER2DARRAYSHADOW ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_SAMPLER2DARRAYSHADOW, TypeAST::Sampler2DArrayShadow);
+    ast(1) = makeBasicType(T_SAMPLER2DARRAYSHADOW);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLERCUBEARRAY ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_SAMPLERCUBEARRAY, TypeAST::SamplerCubeShadow);
+    ast(1) = makeBasicType(T_SAMPLERCUBEARRAY);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLERCUBEARRAYSHADOW ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_SAMPLERCUBEARRAYSHADOW, TypeAST::SamplerCubeArrayShadow);
+    ast(1) = makeBasicType(T_SAMPLERCUBEARRAYSHADOW);
 }   break;
 ./
 
 type_specifier_nonarray ::= ISAMPLER1D ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_ISAMPLER1D, TypeAST::Sampler1D);
+    ast(1) = makeBasicType(T_ISAMPLER1D);
 }   break;
 ./
 
 type_specifier_nonarray ::= ISAMPLER2D ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_ISAMPLER2D, TypeAST::Sampler2D);
+    ast(1) = makeBasicType(T_ISAMPLER2D);
 }   break;
 ./
 
 type_specifier_nonarray ::= ISAMPLER3D ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_ISAMPLER3D, TypeAST::Sampler3D);
+    ast(1) = makeBasicType(T_ISAMPLER3D);
 }   break;
 ./
 
 type_specifier_nonarray ::= ISAMPLERCUBE ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_ISAMPLERCUBE, TypeAST::SamplerCube);
+    ast(1) = makeBasicType(T_ISAMPLERCUBE);
 }   break;
 ./
 
 type_specifier_nonarray ::= ISAMPLER1DARRAY ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_ISAMPLER1DARRAY, TypeAST::Sampler1DArray);
+    ast(1) = makeBasicType(T_ISAMPLER1DARRAY);
 }   break;
 ./
 
 type_specifier_nonarray ::= ISAMPLER2DARRAY ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_ISAMPLER2DARRAY, TypeAST::Sampler2DArray);
+    ast(1) = makeBasicType(T_ISAMPLER2DARRAY);
 }   break;
 ./
 
 type_specifier_nonarray ::= ISAMPLERCUBEARRAY ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_ISAMPLERCUBEARRAY, TypeAST::SamplerCubeArray);
+    ast(1) = makeBasicType(T_ISAMPLERCUBEARRAY);
 }   break;
 ./
 
 type_specifier_nonarray ::= USAMPLER1D ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_USAMPLER1D, TypeAST::Sampler1D);
+    ast(1) = makeBasicType(T_USAMPLER1D);
 }   break;
 ./
 
 type_specifier_nonarray ::= USAMPLER2D ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_USAMPLER2D, TypeAST::Sampler2D);
+    ast(1) = makeBasicType(T_USAMPLER2D);
 }   break;
 ./
 
 type_specifier_nonarray ::= USAMPLER3D ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_USAMPLER3D, TypeAST::Sampler3D);
+    ast(1) = makeBasicType(T_USAMPLER3D);
 }   break;
 ./
 
 type_specifier_nonarray ::= USAMPLERCUBE ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_USAMPLERCUBE, TypeAST::SamplerCube);
+    ast(1) = makeBasicType(T_USAMPLERCUBE);
 }   break;
 ./
 
 type_specifier_nonarray ::= USAMPLER1DARRAY ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_USAMPLER1DARRAY, TypeAST::Sampler1DArray);
+    ast(1) = makeBasicType(T_USAMPLER1DARRAY);
 }   break;
 ./
 
 type_specifier_nonarray ::= USAMPLER2DARRAY ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_USAMPLER2DARRAY, TypeAST::Sampler2DArray);
+    ast(1) = makeBasicType(T_USAMPLER2DARRAY);
 }   break;
 ./
 
 type_specifier_nonarray ::= USAMPLERCUBEARRAY ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_USAMPLERCUBEARRAY, TypeAST::SamplerCubeArray);
+    ast(1) = makeBasicType(T_USAMPLERCUBEARRAY);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLER2DRECT ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_SAMPLER2DRECT, TypeAST::Sampler2DRect);
+    ast(1) = makeBasicType(T_SAMPLER2DRECT);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLER2DRECTSHADOW ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_SAMPLER2DRECTSHADOW, TypeAST::Sampler2DRectShadow);
+    ast(1) = makeBasicType(T_SAMPLER2DRECTSHADOW);
 }   break;
 ./
 
 type_specifier_nonarray ::= ISAMPLER2DRECT ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_ISAMPLER2DRECT, TypeAST::Sampler2DRect);
+    ast(1) = makeBasicType(T_ISAMPLER2DRECT);
 }   break;
 ./
 
 type_specifier_nonarray ::= USAMPLER2DRECT ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_USAMPLER2DRECT, TypeAST::Sampler2DRect);
+    ast(1) = makeBasicType(T_USAMPLER2DRECT);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLERBUFFER ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_SAMPLERBUFFER, TypeAST::SamplerBuffer);
+    ast(1) = makeBasicType(T_SAMPLERBUFFER);
 }   break;
 ./
 
 type_specifier_nonarray ::= ISAMPLERBUFFER ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_ISAMPLERBUFFER, TypeAST::SamplerBuffer);
+    ast(1) = makeBasicType(T_ISAMPLERBUFFER);
 }   break;
 ./
 
 type_specifier_nonarray ::= USAMPLERBUFFER ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_USAMPLERBUFFER, TypeAST::SamplerBuffer);
+    ast(1) = makeBasicType(T_USAMPLERBUFFER);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLER2DMS ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_SAMPLER2DMS, TypeAST::Sampler2DMS);
+    ast(1) = makeBasicType(T_SAMPLER2DMS);
 }   break;
 ./
 
 type_specifier_nonarray ::= ISAMPLER2DMS ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_ISAMPLER2DMS, TypeAST::Sampler2DMS);
+    ast(1) = makeBasicType(T_ISAMPLER2DMS);
 }   break;
 ./
 
 type_specifier_nonarray ::= USAMPLER2DMS ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_USAMPLER2DMS, TypeAST::Sampler2DMS);
+    ast(1) = makeBasicType(T_USAMPLER2DMS);
 }   break;
 ./
 
 type_specifier_nonarray ::= SAMPLER2DMSARRAY ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_SAMPLER2DMSARRAY, TypeAST::Sampler2DMSArray);
+    ast(1) = makeBasicType(T_SAMPLER2DMSARRAY);
 }   break;
 ./
 
 type_specifier_nonarray ::= ISAMPLER2DMSARRAY ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_ISAMPLER2DMSARRAY, TypeAST::Sampler2DMSArray);
+    ast(1) = makeBasicType(T_ISAMPLER2DMSARRAY);
 }   break;
 ./
 
 type_specifier_nonarray ::= USAMPLER2DMSARRAY ;
 /.
 case $rule_number: {
-    ast(1) = makeBasicType(T_USAMPLER2DMSARRAY, TypeAST::Sampler2DMSArray);
+    ast(1) = makeBasicType(T_USAMPLER2DMSARRAY);
 }   break;
 ./
 

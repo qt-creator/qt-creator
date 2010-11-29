@@ -222,8 +222,8 @@ void DeclarationStatementAST::accept0(Visitor *visitor)
     visitor->endVisit(this);
 }
 
-BasicTypeAST::BasicTypeAST(int _token, const char *_name, Category _category)
-    : TypeAST(Kind_BasicType), token(_token), name(_name), categ(_category)
+BasicTypeAST::BasicTypeAST(int _token, const char *_name)
+    : TypeAST(Kind_BasicType), token(_token), name(_name)
 {
     switch (token) {
     case GLSLParserTable::T_VOID:

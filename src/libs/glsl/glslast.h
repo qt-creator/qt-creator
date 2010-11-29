@@ -668,36 +668,6 @@ public:
         Highp
     };
 
-    enum Category
-    {
-        Void,
-        Primitive,
-        Vector2,
-        Vector3,
-        Vector4,
-        Matrix,
-        Sampler1D,
-        Sampler2D,
-        Sampler3D,
-        SamplerCube,
-        Sampler1DShadow,
-        Sampler2DShadow,
-        SamplerCubeShadow,
-        Sampler1DArray,
-        Sampler2DArray,
-        SamplerCubeArray,
-        Sampler1DArrayShadow,
-        Sampler2DArrayShadow,
-        SamplerCubeArrayShadow,
-        Sampler2DRect,
-        Sampler2DRectShadow,
-        Sampler2DMS,
-        Sampler2DMSArray,
-        SamplerBuffer,
-        Array,
-        Struct
-    };
-
     virtual TypeAST *asType() { return this; }
 
     virtual Precision precision() const = 0;
@@ -705,15 +675,13 @@ public:
     // Set the precision for the innermost basic type.  Returns false if it
     // is not valid to set a precision (e.g. structs).
     virtual bool setPrecision(Precision precision) = 0;
-
-    virtual Category category() const = 0;
 };
 
 class GLSL_EXPORT BasicTypeAST: public TypeAST
 {
 public:
     // Pass the parser's token code: T_VOID, T_VEC4, etc.
-    BasicTypeAST(int _token, const char *_name, Category _category);
+    BasicTypeAST(int _token, const char *_name);
 
     virtual BasicTypeAST *asBasicType() { return this; }
 
@@ -722,13 +690,10 @@ public:
     virtual Precision precision() const;
     virtual bool setPrecision(Precision precision);
 
-    virtual Category category() const { return categ; }
-
 public: // attributes
     Precision prec;
     int token;
     const char *name;
-    Category categ;
 };
 
 class GLSL_EXPORT NamedTypeAST: public TypeAST
@@ -742,8 +707,6 @@ public:
 
     virtual Precision precision() const;
     virtual bool setPrecision(Precision precision);
-
-    virtual Category category() const { return Struct; }
 
 public: // attributes
     const QString *name;
@@ -763,8 +726,6 @@ public:
 
     virtual Precision precision() const;
     virtual bool setPrecision(Precision precision);
-
-    virtual Category category() const { return Array; }
 
 public: // attributes
     TypeAST *elementType;
@@ -809,8 +770,6 @@ public:
     // Fix the inner types of a field list.  The "innerType" will
     // be copied into the "array holes" of all fields.
     static List<Field *> *fixInnerTypes(TypeAST *innerType, List<Field *> *fields);
-
-    virtual Category category() const { return Struct; }
 
 public: // attributes
     const QString *name;
@@ -858,7 +817,8 @@ public:
         Smooth              = 0x00000100,
         Flat                = 0x00000200,
         NoPerspective       = 0x00000300,
-        Invariant           = 0x00010000
+        Invariant           = 0x00010000,
+        Struct              = 0x00020000
     };
 
     virtual QualifiedTypeAST *asQualifiedType() { return this; }
@@ -867,8 +827,6 @@ public:
 
     virtual Precision precision() const { return type->precision(); }
     virtual bool setPrecision(Precision precision) { return type->setPrecision(precision); }
-
-    virtual Category category() const { return type->category(); }
 
 public: // attributes
     int qualifiers;

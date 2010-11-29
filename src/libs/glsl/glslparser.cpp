@@ -1247,511 +1247,511 @@ case 158: {
 #line 1801 "./glsl.g"
 
 case 159: {
-    ast(1) = makeBasicType(T_VOID, TypeAST::Void);
+    ast(1) = makeBasicType(T_VOID);
 }   break;
 
 #line 1808 "./glsl.g"
 
 case 160: {
-    ast(1) = makeBasicType(T_FLOAT, TypeAST::Primitive);
+    ast(1) = makeBasicType(T_FLOAT);
 }   break;
 
 #line 1815 "./glsl.g"
 
 case 161: {
-    ast(1) = makeBasicType(T_DOUBLE, TypeAST::Primitive);
+    ast(1) = makeBasicType(T_DOUBLE);
 }   break;
 
 #line 1822 "./glsl.g"
 
 case 162: {
-    ast(1) = makeBasicType(T_INT, TypeAST::Primitive);
+    ast(1) = makeBasicType(T_INT);
 }   break;
 
 #line 1829 "./glsl.g"
 
 case 163: {
-    ast(1) = makeBasicType(T_UINT, TypeAST::Primitive);
+    ast(1) = makeBasicType(T_UINT);
 }   break;
 
 #line 1836 "./glsl.g"
 
 case 164: {
-    ast(1) = makeBasicType(T_BOOL, TypeAST::Primitive);
+    ast(1) = makeBasicType(T_BOOL);
 }   break;
 
 #line 1843 "./glsl.g"
 
 case 165: {
-    ast(1) = makeBasicType(T_VEC2, TypeAST::Vector2);
+    ast(1) = makeBasicType(T_VEC2);
 }   break;
 
 #line 1850 "./glsl.g"
 
 case 166: {
-    ast(1) = makeBasicType(T_VEC3, TypeAST::Vector3);
+    ast(1) = makeBasicType(T_VEC3);
 }   break;
 
 #line 1857 "./glsl.g"
 
 case 167: {
-    ast(1) = makeBasicType(T_VEC4, TypeAST::Vector4);
+    ast(1) = makeBasicType(T_VEC4);
 }   break;
 
 #line 1864 "./glsl.g"
 
 case 168: {
-    ast(1) = makeBasicType(T_DVEC2, TypeAST::Vector2);
+    ast(1) = makeBasicType(T_DVEC2);
 }   break;
 
 #line 1871 "./glsl.g"
 
 case 169: {
-    ast(1) = makeBasicType(T_DVEC3, TypeAST::Vector3);
+    ast(1) = makeBasicType(T_DVEC3);
 }   break;
 
 #line 1878 "./glsl.g"
 
 case 170: {
-    ast(1) = makeBasicType(T_DVEC4, TypeAST::Vector4);
+    ast(1) = makeBasicType(T_DVEC4);
 }   break;
 
 #line 1885 "./glsl.g"
 
 case 171: {
-    ast(1) = makeBasicType(T_BVEC2, TypeAST::Vector2);
+    ast(1) = makeBasicType(T_BVEC2);
 }   break;
 
 #line 1892 "./glsl.g"
 
 case 172: {
-    ast(1) = makeBasicType(T_BVEC3, TypeAST::Vector3);
+    ast(1) = makeBasicType(T_BVEC3);
 }   break;
 
 #line 1899 "./glsl.g"
 
 case 173: {
-    ast(1) = makeBasicType(T_BVEC4, TypeAST::Vector4);
+    ast(1) = makeBasicType(T_BVEC4);
 }   break;
 
 #line 1906 "./glsl.g"
 
 case 174: {
-    ast(1) = makeBasicType(T_IVEC2, TypeAST::Vector2);
+    ast(1) = makeBasicType(T_IVEC2);
 }   break;
 
 #line 1913 "./glsl.g"
 
 case 175: {
-    ast(1) = makeBasicType(T_IVEC3, TypeAST::Vector3);
+    ast(1) = makeBasicType(T_IVEC3);
 }   break;
 
 #line 1920 "./glsl.g"
 
 case 176: {
-    ast(1) = makeBasicType(T_IVEC4, TypeAST::Vector4);
+    ast(1) = makeBasicType(T_IVEC4);
 }   break;
 
 #line 1927 "./glsl.g"
 
 case 177: {
-    ast(1) = makeBasicType(T_UVEC2, TypeAST::Vector2);
+    ast(1) = makeBasicType(T_UVEC2);
 }   break;
 
 #line 1934 "./glsl.g"
 
 case 178: {
-    ast(1) = makeBasicType(T_UVEC3, TypeAST::Vector3);
+    ast(1) = makeBasicType(T_UVEC3);
 }   break;
 
 #line 1941 "./glsl.g"
 
 case 179: {
-    ast(1) = makeBasicType(T_UVEC4, TypeAST::Vector4);
+    ast(1) = makeBasicType(T_UVEC4);
 }   break;
 
 #line 1948 "./glsl.g"
 
 case 180: {
-    ast(1) = makeBasicType(T_MAT2, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_MAT2);
 }   break;
 
 #line 1955 "./glsl.g"
 
 case 181: {
-    ast(1) = makeBasicType(T_MAT3, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_MAT3);
 }   break;
 
 #line 1962 "./glsl.g"
 
 case 182: {
-    ast(1) = makeBasicType(T_MAT4, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_MAT4);
 }   break;
 
 #line 1969 "./glsl.g"
 
 case 183: {
-    ast(1) = makeBasicType(T_MAT2, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_MAT2);
 }   break;
 
 #line 1976 "./glsl.g"
 
 case 184: {
-    ast(1) = makeBasicType(T_MAT2X3, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_MAT2X3);
 }   break;
 
 #line 1983 "./glsl.g"
 
 case 185: {
-    ast(1) = makeBasicType(T_MAT2X4, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_MAT2X4);
 }   break;
 
 #line 1990 "./glsl.g"
 
 case 186: {
-    ast(1) = makeBasicType(T_MAT3X2, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_MAT3X2);
 }   break;
 
 #line 1997 "./glsl.g"
 
 case 187: {
-    ast(1) = makeBasicType(T_MAT3, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_MAT3);
 }   break;
 
 #line 2004 "./glsl.g"
 
 case 188: {
-    ast(1) = makeBasicType(T_MAT3X4, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_MAT3X4);
 }   break;
 
 #line 2011 "./glsl.g"
 
 case 189: {
-    ast(1) = makeBasicType(T_MAT4X2, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_MAT4X2);
 }   break;
 
 #line 2018 "./glsl.g"
 
 case 190: {
-    ast(1) = makeBasicType(T_MAT4X3, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_MAT4X3);
 }   break;
 
 #line 2025 "./glsl.g"
 
 case 191: {
-    ast(1) = makeBasicType(T_MAT4, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_MAT4);
 }   break;
 
 #line 2032 "./glsl.g"
 
 case 192: {
-    ast(1) = makeBasicType(T_DMAT2, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_DMAT2);
 }   break;
 
 #line 2039 "./glsl.g"
 
 case 193: {
-    ast(1) = makeBasicType(T_DMAT3, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_DMAT3);
 }   break;
 
 #line 2046 "./glsl.g"
 
 case 194: {
-    ast(1) = makeBasicType(T_DMAT4, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_DMAT4);
 }   break;
 
 #line 2053 "./glsl.g"
 
 case 195: {
-    ast(1) = makeBasicType(T_DMAT2, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_DMAT2);
 }   break;
 
 #line 2060 "./glsl.g"
 
 case 196: {
-    ast(1) = makeBasicType(T_DMAT2X3, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_DMAT2X3);
 }   break;
 
 #line 2067 "./glsl.g"
 
 case 197: {
-    ast(1) = makeBasicType(T_DMAT2X4, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_DMAT2X4);
 }   break;
 
 #line 2074 "./glsl.g"
 
 case 198: {
-    ast(1) = makeBasicType(T_DMAT3X2, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_DMAT3X2);
 }   break;
 
 #line 2081 "./glsl.g"
 
 case 199: {
-    ast(1) = makeBasicType(T_DMAT3, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_DMAT3);
 }   break;
 
 #line 2088 "./glsl.g"
 
 case 200: {
-    ast(1) = makeBasicType(T_DMAT3X4, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_DMAT3X4);
 }   break;
 
 #line 2095 "./glsl.g"
 
 case 201: {
-    ast(1) = makeBasicType(T_DMAT4X2, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_DMAT4X2);
 }   break;
 
 #line 2102 "./glsl.g"
 
 case 202: {
-    ast(1) = makeBasicType(T_DMAT4X3, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_DMAT4X3);
 }   break;
 
 #line 2109 "./glsl.g"
 
 case 203: {
-    ast(1) = makeBasicType(T_DMAT4, TypeAST::Matrix);
+    ast(1) = makeBasicType(T_DMAT4);
 }   break;
 
 #line 2116 "./glsl.g"
 
 case 204: {
-    ast(1) = makeBasicType(T_SAMPLER1D, TypeAST::Sampler1D);
+    ast(1) = makeBasicType(T_SAMPLER1D);
 }   break;
 
 #line 2123 "./glsl.g"
 
 case 205: {
-    ast(1) = makeBasicType(T_SAMPLER2D, TypeAST::Sampler2D);
+    ast(1) = makeBasicType(T_SAMPLER2D);
 }   break;
 
 #line 2130 "./glsl.g"
 
 case 206: {
-    ast(1) = makeBasicType(T_SAMPLER3D, TypeAST::Sampler3D);
+    ast(1) = makeBasicType(T_SAMPLER3D);
 }   break;
 
 #line 2137 "./glsl.g"
 
 case 207: {
-    ast(1) = makeBasicType(T_SAMPLERCUBE, TypeAST::SamplerCube);
+    ast(1) = makeBasicType(T_SAMPLERCUBE);
 }   break;
 
 #line 2144 "./glsl.g"
 
 case 208: {
-    ast(1) = makeBasicType(T_SAMPLER1DSHADOW, TypeAST::Sampler1DShadow);
+    ast(1) = makeBasicType(T_SAMPLER1DSHADOW);
 }   break;
 
 #line 2151 "./glsl.g"
 
 case 209: {
-    ast(1) = makeBasicType(T_SAMPLER2DSHADOW, TypeAST::Sampler2DShadow);
+    ast(1) = makeBasicType(T_SAMPLER2DSHADOW);
 }   break;
 
 #line 2158 "./glsl.g"
 
 case 210: {
-    ast(1) = makeBasicType(T_SAMPLERCUBESHADOW, TypeAST::SamplerCubeShadow);
+    ast(1) = makeBasicType(T_SAMPLERCUBESHADOW);
 }   break;
 
 #line 2165 "./glsl.g"
 
 case 211: {
-    ast(1) = makeBasicType(T_SAMPLER1DARRAY, TypeAST::Sampler1DArray);
+    ast(1) = makeBasicType(T_SAMPLER1DARRAY);
 }   break;
 
 #line 2172 "./glsl.g"
 
 case 212: {
-    ast(1) = makeBasicType(T_SAMPLER2DARRAY, TypeAST::Sampler2DArray);
+    ast(1) = makeBasicType(T_SAMPLER2DARRAY);
 }   break;
 
 #line 2179 "./glsl.g"
 
 case 213: {
-    ast(1) = makeBasicType(T_SAMPLER1DARRAYSHADOW, TypeAST::Sampler1DArrayShadow);
+    ast(1) = makeBasicType(T_SAMPLER1DARRAYSHADOW);
 }   break;
 
 #line 2186 "./glsl.g"
 
 case 214: {
-    ast(1) = makeBasicType(T_SAMPLER2DARRAYSHADOW, TypeAST::Sampler2DArrayShadow);
+    ast(1) = makeBasicType(T_SAMPLER2DARRAYSHADOW);
 }   break;
 
 #line 2193 "./glsl.g"
 
 case 215: {
-    ast(1) = makeBasicType(T_SAMPLERCUBEARRAY, TypeAST::SamplerCubeShadow);
+    ast(1) = makeBasicType(T_SAMPLERCUBEARRAY);
 }   break;
 
 #line 2200 "./glsl.g"
 
 case 216: {
-    ast(1) = makeBasicType(T_SAMPLERCUBEARRAYSHADOW, TypeAST::SamplerCubeArrayShadow);
+    ast(1) = makeBasicType(T_SAMPLERCUBEARRAYSHADOW);
 }   break;
 
 #line 2207 "./glsl.g"
 
 case 217: {
-    ast(1) = makeBasicType(T_ISAMPLER1D, TypeAST::Sampler1D);
+    ast(1) = makeBasicType(T_ISAMPLER1D);
 }   break;
 
 #line 2214 "./glsl.g"
 
 case 218: {
-    ast(1) = makeBasicType(T_ISAMPLER2D, TypeAST::Sampler2D);
+    ast(1) = makeBasicType(T_ISAMPLER2D);
 }   break;
 
 #line 2221 "./glsl.g"
 
 case 219: {
-    ast(1) = makeBasicType(T_ISAMPLER3D, TypeAST::Sampler3D);
+    ast(1) = makeBasicType(T_ISAMPLER3D);
 }   break;
 
 #line 2228 "./glsl.g"
 
 case 220: {
-    ast(1) = makeBasicType(T_ISAMPLERCUBE, TypeAST::SamplerCube);
+    ast(1) = makeBasicType(T_ISAMPLERCUBE);
 }   break;
 
 #line 2235 "./glsl.g"
 
 case 221: {
-    ast(1) = makeBasicType(T_ISAMPLER1DARRAY, TypeAST::Sampler1DArray);
+    ast(1) = makeBasicType(T_ISAMPLER1DARRAY);
 }   break;
 
 #line 2242 "./glsl.g"
 
 case 222: {
-    ast(1) = makeBasicType(T_ISAMPLER2DARRAY, TypeAST::Sampler2DArray);
+    ast(1) = makeBasicType(T_ISAMPLER2DARRAY);
 }   break;
 
 #line 2249 "./glsl.g"
 
 case 223: {
-    ast(1) = makeBasicType(T_ISAMPLERCUBEARRAY, TypeAST::SamplerCubeArray);
+    ast(1) = makeBasicType(T_ISAMPLERCUBEARRAY);
 }   break;
 
 #line 2256 "./glsl.g"
 
 case 224: {
-    ast(1) = makeBasicType(T_USAMPLER1D, TypeAST::Sampler1D);
+    ast(1) = makeBasicType(T_USAMPLER1D);
 }   break;
 
 #line 2263 "./glsl.g"
 
 case 225: {
-    ast(1) = makeBasicType(T_USAMPLER2D, TypeAST::Sampler2D);
+    ast(1) = makeBasicType(T_USAMPLER2D);
 }   break;
 
 #line 2270 "./glsl.g"
 
 case 226: {
-    ast(1) = makeBasicType(T_USAMPLER3D, TypeAST::Sampler3D);
+    ast(1) = makeBasicType(T_USAMPLER3D);
 }   break;
 
 #line 2277 "./glsl.g"
 
 case 227: {
-    ast(1) = makeBasicType(T_USAMPLERCUBE, TypeAST::SamplerCube);
+    ast(1) = makeBasicType(T_USAMPLERCUBE);
 }   break;
 
 #line 2284 "./glsl.g"
 
 case 228: {
-    ast(1) = makeBasicType(T_USAMPLER1DARRAY, TypeAST::Sampler1DArray);
+    ast(1) = makeBasicType(T_USAMPLER1DARRAY);
 }   break;
 
 #line 2291 "./glsl.g"
 
 case 229: {
-    ast(1) = makeBasicType(T_USAMPLER2DARRAY, TypeAST::Sampler2DArray);
+    ast(1) = makeBasicType(T_USAMPLER2DARRAY);
 }   break;
 
 #line 2298 "./glsl.g"
 
 case 230: {
-    ast(1) = makeBasicType(T_USAMPLERCUBEARRAY, TypeAST::SamplerCubeArray);
+    ast(1) = makeBasicType(T_USAMPLERCUBEARRAY);
 }   break;
 
 #line 2305 "./glsl.g"
 
 case 231: {
-    ast(1) = makeBasicType(T_SAMPLER2DRECT, TypeAST::Sampler2DRect);
+    ast(1) = makeBasicType(T_SAMPLER2DRECT);
 }   break;
 
 #line 2312 "./glsl.g"
 
 case 232: {
-    ast(1) = makeBasicType(T_SAMPLER2DRECTSHADOW, TypeAST::Sampler2DRectShadow);
+    ast(1) = makeBasicType(T_SAMPLER2DRECTSHADOW);
 }   break;
 
 #line 2319 "./glsl.g"
 
 case 233: {
-    ast(1) = makeBasicType(T_ISAMPLER2DRECT, TypeAST::Sampler2DRect);
+    ast(1) = makeBasicType(T_ISAMPLER2DRECT);
 }   break;
 
 #line 2326 "./glsl.g"
 
 case 234: {
-    ast(1) = makeBasicType(T_USAMPLER2DRECT, TypeAST::Sampler2DRect);
+    ast(1) = makeBasicType(T_USAMPLER2DRECT);
 }   break;
 
 #line 2333 "./glsl.g"
 
 case 235: {
-    ast(1) = makeBasicType(T_SAMPLERBUFFER, TypeAST::SamplerBuffer);
+    ast(1) = makeBasicType(T_SAMPLERBUFFER);
 }   break;
 
 #line 2340 "./glsl.g"
 
 case 236: {
-    ast(1) = makeBasicType(T_ISAMPLERBUFFER, TypeAST::SamplerBuffer);
+    ast(1) = makeBasicType(T_ISAMPLERBUFFER);
 }   break;
 
 #line 2347 "./glsl.g"
 
 case 237: {
-    ast(1) = makeBasicType(T_USAMPLERBUFFER, TypeAST::SamplerBuffer);
+    ast(1) = makeBasicType(T_USAMPLERBUFFER);
 }   break;
 
 #line 2354 "./glsl.g"
 
 case 238: {
-    ast(1) = makeBasicType(T_SAMPLER2DMS, TypeAST::Sampler2DMS);
+    ast(1) = makeBasicType(T_SAMPLER2DMS);
 }   break;
 
 #line 2361 "./glsl.g"
 
 case 239: {
-    ast(1) = makeBasicType(T_ISAMPLER2DMS, TypeAST::Sampler2DMS);
+    ast(1) = makeBasicType(T_ISAMPLER2DMS);
 }   break;
 
 #line 2368 "./glsl.g"
 
 case 240: {
-    ast(1) = makeBasicType(T_USAMPLER2DMS, TypeAST::Sampler2DMS);
+    ast(1) = makeBasicType(T_USAMPLER2DMS);
 }   break;
 
 #line 2375 "./glsl.g"
 
 case 241: {
-    ast(1) = makeBasicType(T_SAMPLER2DMSARRAY, TypeAST::Sampler2DMSArray);
+    ast(1) = makeBasicType(T_SAMPLER2DMSARRAY);
 }   break;
 
 #line 2382 "./glsl.g"
 
 case 242: {
-    ast(1) = makeBasicType(T_ISAMPLER2DMSARRAY, TypeAST::Sampler2DMSArray);
+    ast(1) = makeBasicType(T_ISAMPLER2DMSARRAY);
 }   break;
 
 #line 2389 "./glsl.g"
 
 case 243: {
-    ast(1) = makeBasicType(T_USAMPLER2DMSARRAY, TypeAST::Sampler2DMSArray);
+    ast(1) = makeBasicType(T_USAMPLER2DMSARRAY);
 }   break;
 
 #line 2396 "./glsl.g"

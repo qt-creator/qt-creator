@@ -157,9 +157,9 @@ private:
         return node;
     }
 
-    TypeAST *makeBasicType(int token, BasicTypeAST::Category category)
+    TypeAST *makeBasicType(int token)
     {
-        TypeAST *type = new (_engine->pool()) BasicTypeAST(token, spell[token], category);
+        TypeAST *type = new (_engine->pool()) BasicTypeAST(token, spell[token]);
         type->lineno = yyloc >= 0 ? (_tokens[yyloc].line + 1) : 0;
         return type;
     }
