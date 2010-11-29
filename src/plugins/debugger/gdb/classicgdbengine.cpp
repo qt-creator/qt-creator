@@ -586,26 +586,11 @@ void GdbEngine::updateAllClassic()
     updateLocals();
 }
 
-void GdbEngine::setDebugDebuggingHelpersClassic(const QVariant &on)
-{
-    PRECONDITION;
-    if (on.toBool()) {
-        showMessage(_("SWITCHING ON DUMPER DEBUGGING"));
-        postCommand("set unwindonsignal off");
-        //FIXME BP: breakByFunction(_("qDumpObjectData440"));
-        //updateLocals();
-    } else {
-        showMessage(_("SWITCHING OFF DUMPER DEBUGGING"));
-        postCommand("set unwindonsignal on");
-    }
-}
-
 void GdbEngine::setDebuggingHelperStateClassic(DebuggingHelperState s)
 {
     PRECONDITION;
     m_debuggingHelperState = s;
 }
-
 
 void GdbEngine::handleStackListArgumentsClassic(const GdbResponse &response)
 {

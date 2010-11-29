@@ -85,7 +85,6 @@ enum DebuggerActionCode
     UseDebuggingHelpers,
     UseCustomDebuggingHelperLocation,
     CustomDebuggingHelperLocation,
-    DebugDebuggingHelpers,
 
     UseCodeModel,
 

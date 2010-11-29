@@ -70,16 +70,6 @@
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QCheckBox" name="checkBoxDebugDebuggingHelpers">
-        <property name="toolTip">
-         <string notr="true">This is an internal tool to make debugging the debugging helper code easier. Using this action is in general not needed unless you want do debug Qt Creator itself.</string>
-        </property>
-        <property name="text">
-         <string>Debug debugging helper</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>

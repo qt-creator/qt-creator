@@ -1769,9 +1769,6 @@ void GdbEngine::setupEngine()
         connect(debuggerCore()->action(UseDebuggingHelpers),
             SIGNAL(valueChanged(QVariant)),
             SLOT(setUseDebuggingHelpers(QVariant)));
-        connect(debuggerCore()->action(DebugDebuggingHelpers),
-            SIGNAL(valueChanged(QVariant)),
-            SLOT(setDebugDebuggingHelpersClassic(QVariant)));
     }
 
     QTC_ASSERT(state() == EngineSetupRequested, /**/);
@@ -3338,10 +3335,6 @@ void GdbEngine::setToolTipExpression(const QPoint &mousePos,
         return;
     }
 
-    // Minimize interference.
-    if (debuggerCore()->boolSetting(DebugDebuggingHelpers))
-        return;
-
     m_toolTipPos = mousePos;
     int line, column;
     QString exp = cppExpressionAt(editor, cursorPos, &line, &column);
@@ -3459,19 +3452,15 @@ bool GdbEngine::hasDebuggingHelperForType(const QByteArray &type) const
         return false;
 
     if (m_gdbAdapter->dumperHandling() == AbstractGdbAdapter::DumperNotAvailable) {
-        // "call" is not possible in gdb when looking at core files
+        // Inferior calls are not possible in gdb when looking at core files.
         return type == "QString" || type.endsWith("::QString")
             || type == "QStringList" || type.endsWith("::QStringList");
     }
 
-    if (debuggerCore()->boolSetting(DebugDebuggingHelpers)
-            && stackHandler()->isDebuggingDebuggingHelpers())
-        return false;
-
     if (m_debuggingHelperState != DebuggingHelperAvailable)
         return false;
 
-    // simple types
+    // Simple types.
     return m_dumperHelper.type(type) != QtDumperHelper::UnknownType;
 }
 
