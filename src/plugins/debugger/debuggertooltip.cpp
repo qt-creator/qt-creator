@@ -34,12 +34,10 @@
 
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopWidget>
-#include <QtGui/QHBoxLayout>
 #include <QtGui/QHeaderView>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QScrollBar>
 #include <QtGui/QTreeView>
-#include <QtGui/QVBoxLayout>
 
 namespace Debugger {
 namespace Internal {
@@ -55,8 +53,7 @@ public:
     QSize sizeHint() const { return m_size; }
 
     void done();
-    void run(const QPoint &point, QAbstractItemModel *model,
-        const QModelIndex &index, const QString &msg);
+    void run(const QPoint &point, const QModelIndex &index);
     int computeHeight(const QModelIndex &index) const;
     Q_SLOT void computeSize();
 
@@ -171,9 +168,9 @@ void ToolTipWidget::done()
     deleteLater();
 }
 
-void ToolTipWidget::run(const QPoint &point, QAbstractItemModel *model,
-    const QModelIndex &index, const QString & /* msg */)
+void ToolTipWidget::run(const QPoint &point, const QModelIndex &index)
 {
+    QAbstractItemModel *model = const_cast<QAbstractItemModel *>(index.model());
     move(point);
     setModel(model);
     computeSize();
@@ -187,13 +184,12 @@ void ToolTipWidget::leaveEvent(QEvent *ev)
         hide();
 }
 
-void showDebuggerToolTip(const QPoint &point, QAbstractItemModel *model,
-        const QModelIndex &index, const QString &msg)
+void showDebuggerToolTip(const QPoint &point, const QModelIndex &index)
 {
-    if (model) {
+    if (index.model()) {
         if (!theToolTipWidget)
             theToolTipWidget = new ToolTipWidget(0);
-        theToolTipWidget->run(point, model, index, msg);
+        theToolTipWidget->run(point, index);
         theToolTipWidget->show();
     } else if (theToolTipWidget) {
         theToolTipWidget->done();

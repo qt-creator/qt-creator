@@ -3325,7 +3325,7 @@ bool GdbEngine::showToolTip()
         hideDebuggerToolTip();
         return false;
     }
-    showDebuggerToolTip(m_toolTipPos, watchHandler()->model(TooltipsWatch), index, m_toolTipExpression);
+    showDebuggerToolTip(m_toolTipPos, index);
     return true;
 }
 
@@ -3333,14 +3333,14 @@ void GdbEngine::setToolTipExpression(const QPoint &mousePos,
     TextEditor::ITextEditor *editor, int cursorPos)
 {
     if (state() != InferiorStopOk || !isCppEditor(editor)) {
-        //qDebug() << "SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED/Non Cpp editor";
+        //qDebug() << "SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED "
+        // " OR NOT A CPPEDITOR";
         return;
     }
 
-    if (debuggerCore()->boolSetting(DebugDebuggingHelpers)) {
-        // minimize interference
+    // Minimize interference.
+    if (debuggerCore()->boolSetting(DebugDebuggingHelpers))
         return;
-    }
 
     m_toolTipPos = mousePos;
     int line, column;

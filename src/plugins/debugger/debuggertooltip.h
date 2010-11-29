@@ -33,18 +33,14 @@
 #include <QtCore/QtGlobal>
 
 QT_BEGIN_NAMESPACE
-class QAbstractItemModel;
 class QModelIndex;
 class QPoint;
-class QString;
 QT_END_NAMESPACE
 
 namespace Debugger {
 namespace Internal {
 
-void showDebuggerToolTip(const QPoint &point, QAbstractItemModel *model,
-        const QModelIndex &rootIndex, const QString &msg);
-
+void showDebuggerToolTip(const QPoint &point, const QModelIndex &rootIndex);
 void hideDebuggerToolTip(int delay = 0);
 
 } // namespace Internal
