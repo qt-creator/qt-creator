@@ -63,6 +63,7 @@
 #include <QtCore/QFileSystemWatcher>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
+#include <QtCore/QTimer>
 #include <QtDeclarative/QDeclarativeView>
 #include <QtDeclarative/QDeclarativeContext>
 #include <QtGui/QVBoxLayout>
