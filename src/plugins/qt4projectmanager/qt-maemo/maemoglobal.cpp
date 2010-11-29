@@ -114,7 +114,7 @@ void MaemoGlobal::callMaddeShellScript(QProcess &proc, const QString &maddeRoot,
     QString actualCommand = command;
     QStringList actualArgs = args;
 #ifdef Q_OS_WIN
-    Utils::Environment env(proc.environment());
+    Utils::Environment env(proc.systemEnvironment());
     env.prependOrSetPath(maddeRoot + QLatin1String("/bin"));
     env.prependOrSet(QLatin1String("HOME"),
         QDesktopServices::storageLocation(QDesktopServices::HomeLocation));
