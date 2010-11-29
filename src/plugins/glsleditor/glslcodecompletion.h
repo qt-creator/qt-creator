@@ -87,6 +87,7 @@ public:
      */
     virtual bool partiallyComplete(const QList<TextEditor::CompletionItem> &completionItems);
 
+    virtual QList<TextEditor::CompletionItem> getCompletions();
     virtual bool shouldRestartCompletion();
 
     /* Called when it's safe to clean up the completion items.
@@ -99,6 +100,8 @@ private:
     TextEditor::ITextEditable *m_editor;
     int m_startPosition;
     bool m_restartCompletion;
+
+    static bool glslCompletionItemLessThan(const TextEditor::CompletionItem &l, const TextEditor::CompletionItem &r);
 };
 
 } // namespace Internal

@@ -43,6 +43,10 @@
 using namespace GLSLEditor;
 using namespace GLSLEditor::Internal;
 
+enum CompletionOrder {
+    SpecialMemberOrder = -5
+};
+
 static bool isIdentifierChar(QChar ch)
 {
     return ch.isLetterOrNumber() || ch == QLatin1Char('_');
@@ -326,6 +330,7 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     const QIcon symbolIcon = iconForColor(Qt::darkCyan);
 
     QStringList members;
+    QStringList specialMembers;
 
     if (ch == QLatin1Char('.')) {
         QTextCursor tc(edit->document());
@@ -359,6 +364,16 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
                 if (const GLSL::VectorType *vecTy = exprTy.type->asVectorType()) {
                     members = vecTy->members();
 
+                    // Sort the most relevant swizzle orderings to the top.
+                    specialMembers += QLatin1String("xy");
+                    specialMembers += QLatin1String("xyz");
+                    specialMembers += QLatin1String("xyzw");
+                    specialMembers += QLatin1String("rgb");
+                    specialMembers += QLatin1String("rgba");
+                    specialMembers += QLatin1String("st");
+                    specialMembers += QLatin1String("stp");
+                    specialMembers += QLatin1String("stpq");
+
                 } else if (const GLSL::Struct *structTy = exprTy.type->asStructType()) {
                     members = structTy->members();
 
@@ -391,6 +406,8 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         TextEditor::CompletionItem item(this);
         item.icon = symbolIcon;
         item.text = s;
+        if (specialMembers.contains(s))
+            item.order = SpecialMemberOrder;
         m_completions.append(item);
     }
 
@@ -440,6 +457,37 @@ void CodeCompletion::complete(const TextEditor::CompletionItem &item, QChar type
 bool CodeCompletion::partiallyComplete(const QList<TextEditor::CompletionItem> &completionItems)
 {
     return ICompletionCollector::partiallyComplete(completionItems);
+}
+
+bool CodeCompletion::glslCompletionItemLessThan(const TextEditor::CompletionItem &l, const TextEditor::CompletionItem &r)
+{
+    if (l.order != r.order)
+        return l.order < r.order;
+    return completionItemLessThan(l, r);
+}
+
+QList<TextEditor::CompletionItem> CodeCompletion::getCompletions()
+{
+    QList<TextEditor::CompletionItem> completionItems;
+
+    completions(&completionItems);
+
+    qStableSort(completionItems.begin(), completionItems.end(), glslCompletionItemLessThan);
+
+    // Remove duplicates
+    QString lastKey;
+    QVariant lastData;
+    QList<TextEditor::CompletionItem> uniquelist;
+
+    foreach (const TextEditor::CompletionItem &item, completionItems) {
+        if (item.text != lastKey || item.data.type() != lastData.type()) {
+            uniquelist.append(item);
+            lastKey = item.text;
+            lastData = item.data;
+        }
+    }
+
+    return uniquelist;
 }
 
 bool CodeCompletion::shouldRestartCompletion()
