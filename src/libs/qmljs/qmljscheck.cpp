@@ -109,10 +109,8 @@ public:
                 if (!enumValue->keys().contains(valueName)) {
                     _message.message = Check::tr("unknown value for enum");
                 }
-            } else if (_rhsValue->asUndefinedValue()) {
-                _message.kind = DiagnosticMessage::Warning;
-                _message.message = Check::tr("value might be 'undefined'");
-            } else if (! _rhsValue->asStringValue() && ! _rhsValue->asNumberValue()) {
+            } else if (! _rhsValue->asStringValue() && ! _rhsValue->asNumberValue()
+                       && ! _rhsValue->asUndefinedValue()) {
                 _message.message = Check::tr("enum value is not a string or number");
             }
         } else {
