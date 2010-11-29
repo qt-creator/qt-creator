@@ -43,6 +43,7 @@ TextEditorOverlay::TextEditorOverlay(BaseTextEditor *editor) :
     m_borderWidth(1),
     m_dropShadowWidth(2),
     m_alpha(true),
+    m_firstSelectionOriginalBegin(-1),
     m_editor(editor),
     m_viewport(editor->viewport())
 {
@@ -69,6 +70,7 @@ void TextEditorOverlay::clear()
     if (m_selections.isEmpty())
         return;
     m_selections.clear();
+    m_firstSelectionOriginalBegin = -1;
     update();
 }
 
@@ -94,12 +96,15 @@ void TextEditorOverlay::addOverlaySelection(int begin, int end,
         }
     }
 
-
     if (overlaySelectionFlags & LockSize)
         selection.m_fixedLength = (end - begin);
 
-
     selection.m_dropShadow = (overlaySelectionFlags & DropShadow);
+
+    if (m_selections.isEmpty())
+        m_firstSelectionOriginalBegin = begin;
+    else if (begin < m_firstSelectionOriginalBegin)
+        qWarning() << "overlay selections not in order";
 
     m_selections.append(selection);
     update();
@@ -524,4 +529,11 @@ void TextEditorOverlay::updateEquivalentSelections(const QTextCursor &cursor)
             selectionCursor.endEditBlock();
         }
     }
+}
+
+bool TextEditorOverlay::hasFirstSelectionBeginMoved() const
+{
+    if (m_firstSelectionOriginalBegin == -1 || m_selections.isEmpty())
+        return false;
+    return m_selections.at(0).m_cursor_begin.position() != m_firstSelectionOriginalBegin;
 }

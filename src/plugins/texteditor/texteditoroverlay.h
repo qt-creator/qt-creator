@@ -101,6 +101,8 @@ public:
     void mapEquivalentSelections();
     void updateEquivalentSelections(const QTextCursor &cursor);
 
+    bool hasFirstSelectionBeginMoved() const;
+
 private:
     QPainterPath createSelectionPath(const QTextCursor &begin, const QTextCursor &end, const QRect& clip);
     void paintSelection(QPainter *painter, const OverlaySelection &selection);
@@ -113,6 +115,7 @@ private:
     int m_borderWidth;
     int m_dropShadowWidth;
     bool m_alpha;
+    int m_firstSelectionOriginalBegin;
     BaseTextEditor *m_editor;
     QWidget *m_viewport;
     QList<OverlaySelection> m_selections;

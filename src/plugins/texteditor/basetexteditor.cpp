@@ -670,10 +670,7 @@ void BaseTextEditor::editorContentsChange(int position, int charsRemoved, int ch
     if (d->m_snippetOverlay->isVisible()) {
         QTextCursor cursor = textCursor();
         cursor.setPosition(position);
-        if (!d->m_snippetOverlay->hasCursorInSelection(cursor)) {
-            d->m_snippetOverlay->hide();
-            d->m_snippetOverlay->clear();
-        }
+        d->snippetCheckCursor(cursor);
     }
 
     if (doc->isRedoAvailable())
@@ -2455,7 +2452,8 @@ bool BaseTextEditorPrivate::snippetCheckCursor(const QTextCursor &cursor)
     QTextCursor end = cursor;
     end.setPosition(cursor.selectionEnd());
     if (!m_snippetOverlay->hasCursorInSelection(start)
-        || !m_snippetOverlay->hasCursorInSelection(end)) {
+        || !m_snippetOverlay->hasCursorInSelection(end)
+        || m_snippetOverlay->hasFirstSelectionBeginMoved()) {
         m_snippetOverlay->setVisible(false);
         m_snippetOverlay->clear();
         return false;
