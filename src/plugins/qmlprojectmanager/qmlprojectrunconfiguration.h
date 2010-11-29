@@ -51,12 +51,14 @@ namespace QmlProjectManager {
 namespace Internal {
     class QmlProjectTarget;
     class QmlProjectRunConfigurationFactory;
+    class QmlProjectRunConfigurationWidget;
 }
 
 class QMLPROJECTMANAGER_EXPORT QmlProjectRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
     friend class Internal::QmlProjectRunConfigurationFactory;
+    friend class Internal::QmlProjectRunConfigurationWidget;
 
     // used in qmldumptool.cpp
     Q_PROPERTY(int qtVersionId READ qtVersionId)
@@ -67,8 +69,6 @@ public:
 
     Internal::QmlProjectTarget *qmlTarget() const;
 
-    bool isEnabled(ProjectExplorer::BuildConfiguration *bc) const;
-
     QString viewerPath() const;
     QString observerPath() const;
     QString viewerArguments() const;
@@ -76,30 +76,21 @@ public:
     int qtVersionId() const;
     Qt4ProjectManager::QtVersion *qtVersion() const;
 
+    QString mainScript() const;
+    void setMainScript(const QString &scriptFile);
+
     // RunConfiguration
+    bool isEnabled(ProjectExplorer::BuildConfiguration *bc) const;
     virtual QWidget *createConfigurationWidget();
-
     ProjectExplorer::OutputFormatter *createOutputFormatter() const;
-
     QVariantMap toMap() const;
 
 public slots:
     void changeCurrentFile(Core::IEditor*);
 
 private slots:
-    QString mainScript() const;
-    void setMainScript(const QString &scriptFile);
-    void updateFileComboBox();
-
     void updateEnabled();
-
-    void onQtVersionSelectionChanged();
-    void onViewerArgsChanged();
-    void useCppDebuggerToggled(bool toggled);
-    void useQmlDebuggerToggled(bool toggled);
-    void qmlDebugServerPortChanged(uint port);
     void updateQtVersions();
-    void manageQtVersions();
 
 protected:
     QmlProjectRunConfiguration(Internal::QmlProjectTarget *parent,
@@ -121,13 +112,8 @@ private:
     QString m_scriptFile;
     QString m_qmlViewerArgs;
 
-    QStringListModel *m_fileListModel;
-    // weakpointer is used to make sure we don't try to manipulate
-    // widget which was deleted already, as can be the case here.
-    QWeakPointer<QComboBox> m_qtVersionComboBox;
-    QWeakPointer<QComboBox> m_fileListCombo;
-
     Internal::QmlProjectTarget *m_projectTarget;
+    QWeakPointer<Internal::QmlProjectRunConfigurationWidget> m_configurationWidget;
 
     bool m_usingCurrentFile;
     bool m_isEnabled;
