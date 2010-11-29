@@ -107,6 +107,12 @@ LldbEngineGuest::~LldbEngineGuest()
     delete m_listener;
 }
 
+
+void LldbEngineGuest::nuke()
+{
+    ::exit(4);
+}
+
 void LldbEngineGuest::setupEngine()
 {
     DEBUG_FUNC_ENTER;
@@ -159,8 +165,15 @@ void LldbEngineGuest::runEngine()
     for (int i = 0; i < m_environment.count(); i++) {
         envp[i] = m_environment[i].data();
     }
+    lldb::SBError err;
+    *m_process = m_target->Launch(argp, envp, NULL, NULL, false, err);
 
-    *m_process = m_target->LaunchProcess(argp, envp, NULL, NULL, false);
+
+    if (!err.Success()) {
+        showMessage(QString::fromLocal8Bit(err.GetCString()));
+        qDebug() << err.GetCString();
+        notifyEngineRunFailed();
+    }
 
     /*
      * note, the actual string ptrs are still valid. They are in m_environment.
@@ -170,7 +183,7 @@ void LldbEngineGuest::runEngine()
 
     if (!m_process->IsValid())
         notifyEngineRunFailed();
-    QTC_ASSERT(m_listener->IsValid(), qDebug()<<false);
+    QTC_ASSERT(m_listener->IsValid(), qDebug() << false);
     m_listener->StartListeningForEvents(m_process->GetBroadcaster(), UINT32_MAX);
     QMetaObject::invokeMethod(m_worker, "listen", Qt::QueuedConnection,
             Q_ARG(lldb::SBListener *, m_listener));
@@ -648,7 +661,7 @@ void LldbEngineGuest::updateThreads()
 void LldbEngineGuest::lldbEvent(lldb::SBEvent *ev)
 {
     qDebug() << "lldbevent" << ev->GetType() <<
-        ev->GetDataFlavor() << m_process->GetState() << (int)state();
+         m_process->GetState() << (int)state();
 
     uint32_t etype = ev->GetType();
     switch (etype) {

@@ -55,6 +55,7 @@ public:
     void setLocalHost(IPCEngineHost *);
     void setHostDevice(QIODevice *);
 
+    virtual void nuke() = 0;
     virtual void setupEngine() = 0;
     virtual void setupInferior(const QString &executeable,
             const QStringList &arguments, const QStringList &environment) = 0;

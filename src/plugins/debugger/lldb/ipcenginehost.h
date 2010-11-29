@@ -112,6 +112,8 @@ public:
             const WatchUpdateFlags &flags = WatchUpdateFlags());
 
     void rpcCall(Function f, QByteArray payload = QByteArray());
+protected:
+    virtual void nuke() = 0;
 public slots:
     void rpcCallback(quint64 f, QByteArray payload = QByteArray());
 private slots:

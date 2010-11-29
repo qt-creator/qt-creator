@@ -301,7 +301,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
             showMessage(QLatin1String("IPC Error: unhandled id in guest to host call"));
             showMessage(tr("Fatal engine shutdown. Incompatible binary or ipc error."), LogError);
             showStatusMessage(tr("Fatal engine shutdown. Incompatible binary or ipc error."));
-            notifyEngineSpontaneousShutdown();
+            nuke();
             break;
         case IPCEngineGuest::NotifyEngineSetupOk:
             notifyEngineSetupOk();
@@ -604,7 +604,7 @@ void IPCEngineHost::readyRead()
     if (terminator != 'T') {
         showStatusMessage(tr("Fatal engine shutdown. Incompatible binary or ipc error."));
         showMessage(QLatin1String("IPC Error: terminator missing"));
-        notifyEngineSpontaneousShutdown();
+        nuke();
         return;
     }
     rpcCallback(m_nextMessageFunction, payload);

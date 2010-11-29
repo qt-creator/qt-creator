@@ -126,17 +126,16 @@ void IPCEngineGuest::readyRead()
     qint64 rrr = m_nextMessagePayloadSize;
     QByteArray payload = m_device->read(rrr);
     if (quint64(payload.size()) != m_nextMessagePayloadSize || !payload.endsWith('T')) {
-        showMessage(QLatin1String("IPC Error: corrupted frame"));
-        showMessage(tr("Fatal engine shutdown. Incompatible binary or ipc error."), LogError);
-        showStatusMessage(tr("Fatal engine shutdown. Incompatible binary or ipc error."));
-        notifyEngineIll();
+        qDebug("IPC Error: corrupted frame");
+        showMessage(QLatin1String("[guest] IPC Error: corrupted frame"), LogError);
+        nuke();
         return;
     }
     payload.chop(1);
     rpcCallback(m_nextMessageFunction, payload);
     m_nextMessagePayloadSize = 0;
 
-    if (quint64(m_device->bytesAvailable ()) >= 3 * sizeof(quint64) * 3)
+    if (quint64(m_device->bytesAvailable ()) >= 3 * sizeof(quint64))
         QTimer::singleShot(0, this, SLOT(readyRead()));
 }
 
@@ -144,10 +143,9 @@ void IPCEngineGuest::rpcCallback(quint64 f, QByteArray payload)
 {
     switch (f) {
         default:
-            showMessage(QLatin1String("IPC Error: unhandled id in host to guest call"));
-            showMessage(tr("Fatal engine shutdown. Incompatible binary or ipc error."), LogError);
-            showStatusMessage(tr("Fatal engine shutdown. Incompatible binary or ipc error."));
-            notifyEngineIll();
+            qDebug("IPC Error: unhandled id in host to guest call");
+            showMessage(QLatin1String("IPC Error: unhandled id in host to guest call"), LogError);
+            nuke();
             break;
         case IPCEngineHost::SetupIPC:
             {

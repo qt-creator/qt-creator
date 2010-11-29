@@ -70,6 +70,7 @@ public:
     explicit LldbEngineGuest();
     ~LldbEngineGuest();
 
+    void nuke();
     void setupEngine();
     void setupInferior(const QString &executable, const QStringList &arguments,
             const QStringList &environment);

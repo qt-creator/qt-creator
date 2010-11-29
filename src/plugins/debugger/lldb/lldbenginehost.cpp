@@ -54,8 +54,6 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QThread>
 #include <QtCore/QCoreApplication>
-#include <QtNetwork/QLocalSocket>
-#include <QtNetwork/QLocalServer>
 
 namespace Debugger {
 namespace Internal {
@@ -65,33 +63,31 @@ LldbEngineHost::LldbEngineHost(const DebuggerStartParameters &startParameters)
 {
     showMessage(QLatin1String("setting up coms"));
 
-    QLocalServer *s = new QLocalServer(this);
-    s->removeServer(QLatin1String("/tmp/qtcreator-debuggeripc"));
-    s->listen(QLatin1String("/tmp/qtcreator-debuggeripc"));
-
     m_guestProcess = new QProcess(this);
-    m_guestProcess->setProcessChannelMode(QProcess::ForwardedChannels);
 
     connect(m_guestProcess, SIGNAL(finished(int, QProcess::ExitStatus)),
             this, SLOT(finished(int, QProcess::ExitStatus)));
 
-    showStatusMessage(QLatin1String("starting qtcreator-lldb"));
+    connect(m_guestProcess, SIGNAL(readyReadStandardError()), this,
+            SLOT(stderrReady()));
+
 
     QString a = Core::ICore::instance()->resourcePath() + QLatin1String("/qtcreator-lldb");
+    if(getenv("QTC_LLDB_GUEST") != 0)
+        a = QString::fromLocal8Bit(getenv("QTC_LLDB_GUEST"));
+
+    showStatusMessage(QString(QLatin1String("starting %1")).arg(a));
+
     m_guestProcess->start(a, QStringList());
+    m_guestProcess->setReadChannel(QProcess::StandardOutput);
 
     if (!m_guestProcess->waitForStarted()) {
-        showStatusMessage(tr("qtcreator-lldb failed to start"));
-        notifyEngineIll();
+        showStatusMessage(tr("qtcreator-lldb failed to start %1").arg(m_guestProcess->error()));
+        notifyEngineSpontaneousShutdown();
         return;
     }
 
-    showMessage(QLatin1String("connecting"));
-    s->waitForNewConnection(-1);
-    QLocalSocket *f = s->nextPendingConnection();
-    s->close(); // wtf race in accept
-    showMessage(QLatin1String("connected"));
-    setGuestDevice(f);
+    setGuestDevice(m_guestProcess);
 }
 
 LldbEngineHost::~LldbEngineHost()
@@ -103,10 +99,26 @@ LldbEngineHost::~LldbEngineHost()
     m_guestProcess->kill();
 }
 
-void LldbEngineHost::finished(int, QProcess::ExitStatus)
+void LldbEngineHost::nuke()
 {
-    showStatusMessage(tr("lldb crashed"));
-    notifyEngineIll();
+    stderrReady();
+    showMessage(QLatin1String("Nuke engaged. Bug in Engine/IPC or incompatible IPC versions. "), LogError);
+    showStatusMessage(tr("Fatal engine shutdown. Consult debugger log for details."));
+    m_guestProcess->terminate();
+    m_guestProcess->kill();
+    notifyEngineSpontaneousShutdown();
+}
+
+void LldbEngineHost::finished(int, QProcess::ExitStatus status)
+{
+    showMessage(QString(QLatin1String("guest went bye bye. exit status: %1 and code: %2"))
+            .arg(status).arg(m_guestProcess->exitCode()), LogError);
+    nuke();
+}
+
+void LldbEngineHost::stderrReady()
+{
+    fprintf(stderr,"%s", m_guestProcess->readAllStandardError().data());
 }
 
 DebuggerEngine *createLldbEngine(const DebuggerStartParameters &startParameters)

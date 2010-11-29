@@ -47,9 +47,11 @@ public:
 
 private:
     QProcess *m_guestProcess;
-
+protected:
+    void nuke();
 private slots:
     void finished(int, QProcess::ExitStatus);
+    void stderrReady();
 };
 
 } // namespace Internal
