@@ -115,6 +115,9 @@ private:
     InitFile m_glsl_120_frag;
     InitFile m_glsl_120_vert;
     InitFile m_glsl_120_common;
+    InitFile m_glsl_es_100_frag;
+    InitFile m_glsl_es_100_vert;
+    InitFile m_glsl_es_100_common;
 };
 
 } // namespace Internal

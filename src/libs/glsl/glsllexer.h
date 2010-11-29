@@ -78,7 +78,8 @@ public:
         Variant_VertexShader        = 0x00200000,
         Variant_FragmentShader      = 0x00400000,
         Variant_Reserved            = 0x80000000,
-        Variant_Mask                = 0xFFFF0000
+        Variant_Mask                = 0xFFFF0000,
+        Variant_All                 = 0xFFFF0000
     };
 
     union Value {

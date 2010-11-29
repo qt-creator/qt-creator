@@ -114,6 +114,9 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     parseGlslFile(QLatin1String("glsl_120.frag"), &m_glsl_120_frag);
     parseGlslFile(QLatin1String("glsl_120.vert"), &m_glsl_120_vert);
     parseGlslFile(QLatin1String("glsl_120_common.glsl"), &m_glsl_120_common);
+    parseGlslFile(QLatin1String("glsl_es_100.frag"), &m_glsl_es_100_frag);
+    parseGlslFile(QLatin1String("glsl_es_100.vert"), &m_glsl_es_100_vert);
+    parseGlslFile(QLatin1String("glsl_es_100_common.glsl"), &m_glsl_es_100_common);
 
 
 //    m_modelManager = new ModelManager(this);
@@ -251,9 +254,8 @@ QByteArray GLSLEditorPlugin::glslFile(const QString &fileName)
 
 void GLSLEditorPlugin::parseGlslFile(const QString &fileName, InitFile *initFile)
 {
-    const int variant = GLSL::Lexer::Variant_GLSL_Qt | // ### hardcoded
-                        GLSL::Lexer::Variant_VertexShader |
-                        GLSL::Lexer::Variant_FragmentShader;
+    // Parse the builtins for any langugage variant so we can use all keywords.
+    const int variant = GLSL::Lexer::Variant_All;
 
     const QByteArray code = glslFile(fileName);
     initFile->engine = new GLSL::Engine();
@@ -263,17 +265,21 @@ void GLSLEditorPlugin::parseGlslFile(const QString &fileName, InitFile *initFile
 
 const GLSLEditorPlugin::InitFile *GLSLEditorPlugin::fragmentShaderInit() const
 {
-    return &m_glsl_120_frag;
+    // TODO: select the correct language variant
+    //return &m_glsl_120_frag;
+    return &m_glsl_es_100_frag;
 }
 
 const GLSLEditorPlugin::InitFile *GLSLEditorPlugin::vertexShaderInit() const
 {
-    return &m_glsl_120_vert;
+    //return &m_glsl_120_vert;
+    return &m_glsl_es_100_vert;
 }
 
 const GLSLEditorPlugin::InitFile *GLSLEditorPlugin::shaderInit() const
 {
-    return &m_glsl_120_common;
+    //return &m_glsl_120_common;
+    return &m_glsl_es_100_common;
 }
 
 Q_EXPORT_PLUGIN(GLSLEditorPlugin)
