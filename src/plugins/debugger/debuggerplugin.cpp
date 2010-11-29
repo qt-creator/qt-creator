@@ -645,11 +645,10 @@ bool CommonOptionsPage::matches(const QString &s) const
 //
 ///////////////////////////////////////////////////////////////////////
 
-static inline bool oxygenStyle()
+static bool oxygenStyle()
 {
-    if (const ManhattanStyle *ms = qobject_cast<const ManhattanStyle *>(qApp->style()))
-        return !qstrcmp("OxygenStyle", ms->baseStyle()->metaObject()->className());
-    return false;
+    const ManhattanStyle *ms = qobject_cast<const ManhattanStyle *>(qApp->style());
+    return ms && !qstrcmp("OxygenStyle", ms->baseStyle()->metaObject()->className());
 }
 
 class DebuggingHelperOptionPage : public Core::IOptionsPage
