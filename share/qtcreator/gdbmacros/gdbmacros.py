@@ -318,8 +318,7 @@ def qdump__QFixed(d, item):
 def qdump__QFlags(d, item):
     i = item.value["i"]
     try:
-        enumType = templateArgument(item.value.type.unqualified(), 0,
-            len(d.ns) + len('QFlags'))
+        enumType = templateArgument(item.value.type.unqualified(), 0)
         d.putValue("%s (%s)" % (i.cast(enumType), i))
     except:
         d.putValue("%s" % i)
@@ -437,7 +436,7 @@ def qdump__QList(d, item):
     checkRef(d_ptr["ref"])
 
     # Additional checks on pointer arrays.
-    innerType = templateArgument(item.value.type, 0, len(d.ns) + len('QList'))
+    innerType = templateArgument(item.value.type, 0)
     innerTypeIsPointer = innerType.code == gdb.TYPE_CODE_PTR \
         and str(innerType.target().unqualified()) != "char"
     if innerTypeIsPointer:
@@ -536,8 +535,7 @@ def qdump__QLinkedList(d, item):
     d.putItemCount(n)
     d.putNumChild(n)
     if d.isExpanded(item):
-        innerType = templateArgument(item.value.type, 0,
-            len(d.ns) + len('QLinkedList'))
+        innerType = templateArgument(item.value.type, 0)
         with Children(d, [n, 1000], innerType):
             p = e_ptr["n"]
             for i in d.childRange():
@@ -1588,8 +1586,7 @@ def qdump__QSharedDataPointer(d, item):
         # This replaces the pointer by the pointee, making the
         # pointer transparent.
         try:
-            innerType = templateArgument(item.value.type, 0,
-                len(d.ns) + len('QSharedDataPointer'))
+            innerType = templateArgument(item.value.type, 0)
         except:
             d.putValue(d_ptr)
             d.putPlainChildren(item)
@@ -1917,7 +1914,7 @@ def qdump__QVector(d, item):
     check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
     checkRef(d_ptr["ref"])
 
-    innerType = templateArgument(item.value.type, 0, len(d.ns) + len('QVector'))
+    innerType = templateArgument(item.value.type, 0)
     d.putItemCount(size)
     d.putNumChild(size)
     if d.isExpanded(item):
@@ -1949,7 +1946,7 @@ def qdump__QWeakPointer(d, item):
     check(int(strongref) <= int(weakref))
     check(int(weakref) <= 10*1000*1000)
 
-    innerType = templateArgument(item.value.type, 0, len(d.ns) + len('QWeakPointer'))
+    innerType = templateArgument(item.value.type, 0)
     if isSimpleType(value.dereference().type):
         d.putItem(Item(value.dereference(), item.iname, None))
     else:
