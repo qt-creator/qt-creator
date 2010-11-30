@@ -581,7 +581,7 @@ bool CodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
         }
     }
 
-    if (ch == QLatin1Char('(') || ch == QLatin1Char('.'))
+    if (ch == QLatin1Char('(') || ch == QLatin1Char('.') || ch == QLatin1Char(','))
         return true;
 
     return false;
@@ -604,8 +604,24 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     QStringList members;
     QStringList specialMembers;
 
-    if (ch == QLatin1Char('.') || (ch == QLatin1Char('(') && pos == editor->position() - 1)) {
-        const bool memberCompletion = (ch == QLatin1Char('.'));
+    bool functionCall = (ch == QLatin1Char('(') && pos == editor->position() - 1);
+
+    if (ch == QLatin1Char(',')) {
+        QTextCursor tc(edit->document());
+        tc.setPosition(pos);
+        const int start = expressionUnderCursor.startOfFunctionCall(tc);
+        if (start == -1)
+            return -1;
+
+        if (edit->characterAt(start) == QLatin1Char('(')) {
+            pos = start;
+            ch = QLatin1Char('(');
+            functionCall = true;
+        }
+    }
+
+    if (ch == QLatin1Char('.') || functionCall) {
+        const bool memberCompletion = ! functionCall;
         QTextCursor tc(edit->document());
         tc.setPosition(pos);
 
