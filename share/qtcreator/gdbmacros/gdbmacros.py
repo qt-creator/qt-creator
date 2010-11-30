@@ -1877,6 +1877,7 @@ def qdump__QVariant(d, item):
                 .cast(innerType.pointer()).dereference()
         else:
             v = item.value["d"]["data"].cast(innerType)
+        d.putValue(" ", None, -99)
         d.putItem(Item(v, item.iname))
         d.putType("%sQVariant (%s)" % (d.ns, innert), d.currentTypePriority + 1)
         return innert
