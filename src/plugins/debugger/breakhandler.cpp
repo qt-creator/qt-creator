@@ -783,6 +783,7 @@ void BreakHandler::appendBreakpoint(const BreakpointParameters &data)
     item.response.fileName = data.fileName;
     item.response.lineNumber = data.lineNumber;
     m_storage.insert(id, item);
+    updateMarker(id);
     scheduleSynchronization();
 }
 
