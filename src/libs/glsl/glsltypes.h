@@ -225,6 +225,7 @@ public:
     Argument *argumentAt(int index) const;
 
     // as Type
+    QString prettyPrint(int currentArgument) const;
     virtual QString toString() const;
     virtual const Function *asFunctionType() const { return this; }
     virtual bool isEqualTo(const Type *other) const;

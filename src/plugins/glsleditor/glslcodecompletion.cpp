@@ -469,7 +469,7 @@ bool FunctionArgumentWidget::eventFilter(QObject *obj, QEvent *e)
 
 void FunctionArgumentWidget::updateHintText()
 {
-    setText(currentFunction()->toString());
+    setText(currentFunction()->prettyPrint(m_currentarg));
 
     m_numberLabel->setText(tr("%1 of %2").arg(m_current + 1).arg(m_items.size()));
 
