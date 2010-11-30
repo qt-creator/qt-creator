@@ -259,7 +259,7 @@ bool Semantic::visit(BinaryExpressionAST *ast)
 bool Semantic::visit(UnaryExpressionAST *ast)
 {
     ExprResult expr = expression(ast->expr);
-    _expr.isConstant = expr.isConstant;
+    _expr = expr;
     return false;
 }
 
@@ -345,6 +345,10 @@ bool Semantic::visit(FunctionCallExpressionAST *ast)
                 _expr.type = candidates.first()->returnType();
             else
                 _expr.type = overloads->functions().first()->returnType();
+
+        } else {
+            // called as constructor, e.g. vec2(a, b)
+            _expr.type = id.type;
         }
     }
 
@@ -693,6 +697,7 @@ bool Semantic::visit(ArrayTypeAST *ast)
     const Type *elementType = type(ast->elementType);
     Q_UNUSED(elementType);
     ExprResult size = expression(ast->size);
+    // ### array type
     return false;
 }
 
