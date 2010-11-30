@@ -537,6 +537,8 @@ bool CodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
                     break;
                 }
             }
+            if (ch == QLatin1Char('/'))
+                return false;
         }
         return true;
     }
