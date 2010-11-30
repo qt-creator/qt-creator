@@ -61,7 +61,7 @@ const char *const GLSLParserTable::spell [] = {
   "samplerCube", "samplerCubeArray", "samplerCubeArrayShadow", "samplerCubeShadow", ";", "/", "smooth", "*", "struct", "subroutine", 
   "-=", "switch", "~", "type_name", "uint", "uniform", "usampler1D", "usampler1DArray", "usampler2D", "usampler2DArray", 
   "usampler2DMS", "usampler2DMSarray", "usampler2DRect", "usampler3D", "usamplerBuffer", "usamplerCube", "usamplerCubeArray", "uvec2", "uvec3", "uvec4", 
-  "varying", "vec2", "vec3", "vec4", "|", "void", "while", "^=", "^", "true", 
+  "varying", "vec2", "vec3", "vec4", "|", "void", "while", "^=", "^^", "true", 
   "false", "preprocessor directive", "comment", "error", "reserved word"};
 
 const short GLSLParserTable::lhs [] = {

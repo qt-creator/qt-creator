@@ -331,8 +331,11 @@ int Lexer::yylex_helper(const char **position, int *line)
         if (_yychar == '=') {
             yyinp();
             return Parser::T_XOR_ASSIGN;
+        } else if (_yychar == '^') {
+            yyinp();
+            return Parser::T_XOR_OP;
         }
-        return Parser::T_XOR_OP;
+        return Parser::T_CARET;
 
         // {
     case '{':

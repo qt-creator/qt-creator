@@ -26,10 +26,6 @@
 -- contact the sales department at http://qt.nokia.com/contact.
 ---------------------------------------------------------------------------
 
---
--- todo:
---    spelling of XOR_OP and CARET
-
 %decl glslparser.h
 %impl glslparser.cpp
 %parser GLSLParserTable
@@ -204,7 +200,7 @@
 %token VOID "void"
 %token WHILE "while"
 %token XOR_ASSIGN "^="
-%token XOR_OP "^"
+%token XOR_OP "^^"
 %token TRUE "true"
 %token FALSE "false"
 %token PREPROC "preprocessor directive"
