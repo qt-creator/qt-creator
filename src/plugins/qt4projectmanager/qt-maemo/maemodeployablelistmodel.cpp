@@ -76,27 +76,11 @@ bool MaemoDeployableListModel::buildModel()
         const QString remoteDirSuffix
             = QLatin1String(m_projectType == LibraryTemplate
                 ? "/lib" : "/bin");
-        const QString remoteDirMaemo5
-            = QLatin1String("/opt/usr") + remoteDirSuffix;
-        const QString remoteDirMaemo6
-            = QLatin1String("/usr/local") + remoteDirSuffix;
-        m_deployables.prepend(MaemoDeployable(localExecutableFilePath(),
-            remoteDirMaemo5));
-        QFile projectFile(m_proFilePath);
-        if (!projectFile.open(QIODevice::WriteOnly | QIODevice::Append)) {
-            qWarning("Error updating .pro file.");
-            return false;
-        }
-        QString proFileTemplate = QLatin1String("\nunix:!symbian {\n"
-            "    maemo5 {\n        target.path = maemo5path\n    } else {\n"
-            "        target.path = maemo6path\n    }\n"
-            "    INSTALLS += target\n}");
-        proFileTemplate.replace(QLatin1String("maemo5path"), remoteDirMaemo5);
-        proFileTemplate.replace(QLatin1String("maemo6path"), remoteDirMaemo6);
-        if (!projectFile.write(proFileTemplate.toLocal8Bit())) {
-            qWarning("Error updating .pro file.");
-            return false;
-        }
+        const QString remoteDir = QLatin1String("target.path = ")
+            + installPrefix() + remoteDirSuffix;
+        const QStringList deployInfo = QStringList() << remoteDir
+            << QLatin1String("INSTALLS += target");
+        return addLinesToProFile(deployInfo);
     } else {
         m_deployables.prepend(MaemoDeployable(localExecutableFilePath(),
             m_installsList.targetPath));
@@ -368,6 +352,14 @@ QString MaemoDeployableListModel::proFileScope() const
     QTC_ASSERT(tc, return QString());
     return QLatin1String(tc->version() == MaemoToolChain::Maemo5
         ? "maemo5" : "unix:!symbian:!maemo5");
+}
+
+QString MaemoDeployableListModel::installPrefix() const
+{
+    const MaemoToolChain *const tc = maemoToolchain();
+    QTC_ASSERT(tc, return QString());
+    return QLatin1String(tc->version() == MaemoToolChain::Maemo5
+        ? "/opt/usr" : "/usr/local");
 }
 
 } // namespace Qt4ProjectManager

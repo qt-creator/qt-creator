@@ -95,6 +95,7 @@ private:
     bool addLinesToProFile(const QStringList &lines);
     const MaemoToolChain *maemoToolchain() const;
     QString proFileScope() const;
+    QString installPrefix() const;
 
     const Qt4ProjectType m_projectType;
     const QString m_proFilePath;
