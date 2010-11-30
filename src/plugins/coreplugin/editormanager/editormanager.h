@@ -208,6 +208,9 @@ public:
 
     static qint64 maxTextFileSize();
 
+    void setWindowTitleAddition(const QString &addition);
+    QString windowTitleAddition() const;
+
 signals:
     void currentEditorChanged(Core::IEditor *editor);
     void editorCreated(Core::IEditor *editor, const QString &fileName);
@@ -231,6 +234,7 @@ private slots:
     void handleContextChange(Core::IContext *context);
     void updateActions();
     void makeCurrentEditorWritable();
+    void updateWindowTitle();
 
 public slots:
     void goBackInNavigationHistory();
@@ -268,7 +272,6 @@ private:
     void emptyView(Core::Internal::EditorView *view);
     Core::Internal::EditorView *currentEditorView() const;
     IEditor *pickUnusedEditor() const;
-
 
     static EditorManager *m_instance;
     EditorManagerPrivate *m_d;

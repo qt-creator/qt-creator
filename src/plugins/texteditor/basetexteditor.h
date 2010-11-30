@@ -572,7 +572,7 @@ public:
         return e->open(fileName);
     }
     inline QString displayName() const { return e->displayName(); }
-    inline void setDisplayName(const QString &title) { e->setDisplayName(title); }
+    inline void setDisplayName(const QString &title) { e->setDisplayName(title); emit changed(); }
 
     inline QByteArray saveState() const { return e->saveState(); }
     inline bool restoreState(const QByteArray &state) { return e->restoreState(state); }

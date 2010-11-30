@@ -329,6 +329,7 @@ QString VCSBaseSubmitEditor::displayName() const
 void VCSBaseSubmitEditor::setDisplayName(const QString &title)
 {
     m_d->m_displayName = title;
+    emit changed();
 }
 
 QString VCSBaseSubmitEditor::checkScriptWorkingDirectory() const

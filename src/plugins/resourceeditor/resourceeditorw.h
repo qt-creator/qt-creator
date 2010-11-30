@@ -89,7 +89,7 @@ public:
     Core::IFile *file() { return m_resourceFile; }
     QString id() const;
     QString displayName() const { return m_displayName; }
-    void setDisplayName(const QString &title) { m_displayName = title; }
+    void setDisplayName(const QString &title) { m_displayName = title; emit changed(); }
     QWidget *toolBar() { return 0; }
     QByteArray saveState() const { return QByteArray(); }
     bool restoreState(const QByteArray &/*state*/) { return true; }

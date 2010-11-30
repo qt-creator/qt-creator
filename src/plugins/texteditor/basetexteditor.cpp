@@ -2050,6 +2050,7 @@ QString BaseTextEditor::displayName() const
 void BaseTextEditor::setDisplayName(const QString &title)
 {
     d->m_displayName = title;
+    emit changed();
 }
 
 BaseTextDocument *BaseTextEditor::baseTextDocument() const

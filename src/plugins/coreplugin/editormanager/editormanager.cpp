@@ -218,6 +218,8 @@ struct EditorManagerPrivate {
 
     IFile::ReloadSetting m_reloadSetting;
     IFile::Utf8BomSetting m_utf8BomSetting;
+
+    QString m_titleAddition;
 };
 }
 
@@ -530,13 +532,17 @@ void EditorManager::setCurrentEditor(IEditor *editor, bool ignoreNavigationHisto
     if (m_d->m_currentEditor && !ignoreNavigationHistory)
         addCurrentPositionToNavigationHistory();
 
+    if (m_d->m_currentEditor)
+        disconnect(m_d->m_currentEditor, SIGNAL(changed()), this, SLOT(updateWindowTitle()));
     m_d->m_currentEditor = editor;
     if (editor) {
         if (SplitterOrView *splitterOrView = m_d->m_splitter->findView(editor))
             splitterOrView->view()->setCurrentEditor(editor);
         m_d->m_view->updateEditorHistory(editor); // the global view should have a complete history
+        connect(m_d->m_currentEditor, SIGNAL(changed()), this, SLOT(updateWindowTitle()));
     }
     updateActions();
+    updateWindowTitle();
     emit currentEditorChanged(editor);
 }
 
@@ -847,6 +853,7 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
     if (!currentEditor()) {
         emit currentEditorChanged(0);
         updateActions();
+        updateWindowTitle();
     }
 
     return !closingFailed;
@@ -1569,6 +1576,26 @@ void EditorManager::makeCurrentEditorWritable()
         makeEditorWritable(curEditor);
 }
 
+void EditorManager::updateWindowTitle()
+{
+    QString windowTitle = tr("Qt Creator");
+    if (!m_d->m_titleAddition.isEmpty()) {
+        windowTitle.prepend(m_d->m_titleAddition + " - ");
+    }
+    IEditor *curEditor = currentEditor();
+    if (curEditor) {
+        QString editorName = curEditor->displayName();
+        if (!editorName.isEmpty())
+            windowTitle.prepend(editorName + " - ");
+        QString filePath = QFileInfo(curEditor->file()->fileName()).absoluteFilePath();
+        if (!filePath.isEmpty())
+            m_d->m_core->mainWindow()->setWindowFilePath(filePath);
+    } else {
+        m_d->m_core->mainWindow()->setWindowFilePath(QString());
+    }
+    m_d->m_core->mainWindow()->setWindowTitle(windowTitle);
+}
+
 void EditorManager::updateActions()
 {
     QString fName;
@@ -2069,7 +2096,12 @@ void EditorManager::removeAllSplits()
     if (!m_d->m_splitter->isSplitter())
         return;
     IEditor *editor = m_d->m_currentEditor;
-    m_d->m_currentEditor = 0; // trigger update below
+    {
+        // trigger update below
+        disconnect(m_d->m_currentEditor, SIGNAL(changed()),
+                   this, SLOT(updateWindowTitle()));
+        m_d->m_currentEditor = 0;
+    }
     if (editor && m_d->m_editorModel->isDuplicate(editor))
         m_d->m_editorModel->makeOriginal(editor);
     m_d->m_splitter->unsplitAll();
@@ -2104,5 +2136,15 @@ qint64 EditorManager::maxTextFileSize()
 {
     return (qint64(3) << 24);
 }
-//===================EditorClosingCoreListener======================
+
+void EditorManager::setWindowTitleAddition(const QString &addition)
+{
+    m_d->m_titleAddition = addition;
+    updateWindowTitle();
+}
+
+QString EditorManager::windowTitleAddition() const
+{
+    return m_d->m_titleAddition;
+}
 

@@ -212,6 +212,7 @@ QString FormWindowEditor::displayName() const
 void FormWindowEditor::setDisplayName(const QString &title)
 {
     d->m_textEditable.setDisplayName(title);
+    emit changed();
 }
 
 bool FormWindowEditor::duplicateSupported() const

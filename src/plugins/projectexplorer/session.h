@@ -155,7 +155,6 @@ private slots:
     void saveActiveMode(Core::IMode *mode);
     void clearProjectFileCache();
     void setEditorCodec(Core::IEditor *editor, const QString &fileName);
-    void handleCurrentEditorChange(Core::IEditor *editor);
     void updateWindowTitle();
 
     void markSessionFileDirty(bool makeDefaultVirginDirty = true);
@@ -176,7 +175,6 @@ private:
 
     Internal::SessionFile *m_file;
     Internal::SessionNodeImpl *m_sessionNode;
-    QPointer<Core::IEditor> m_currentEditor;
     QString m_sessionName;
     bool m_virginSession;
 

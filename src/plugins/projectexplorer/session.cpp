@@ -312,7 +312,6 @@ SessionManager::SessionManager(QObject *parent)
     m_core(Core::ICore::instance()),
     m_file(new SessionFile),
     m_sessionNode(new Internal::SessionNodeImpl(this)),
-    m_currentEditor(0),
     m_virginSession(true)
 {
     connect(m_core->modeManager(), SIGNAL(currentModeChanged(Core::IMode*)),
@@ -324,8 +323,6 @@ SessionManager::SessionManager(QObject *parent)
             this, SLOT(setEditorCodec(Core::IEditor *, QString)));
     connect(ProjectExplorerPlugin::instance(), SIGNAL(currentProjectChanged(ProjectExplorer::Project *)),
             this, SLOT(updateWindowTitle()));
-    connect(em, SIGNAL(currentEditorChanged(Core::IEditor*)),
-            this, SLOT(handleCurrentEditorChange(Core::IEditor*)));
     connect(em, SIGNAL(editorOpened(Core::IEditor*)),
             this, SLOT(markSessionFileDirty()));
     connect(em, SIGNAL(editorsClosed(QList<Core::IEditor*>)),
@@ -839,40 +836,17 @@ QString SessionManager::currentSession() const
     return m_file->fileName();
 }
 
-void SessionManager::handleCurrentEditorChange(Core::IEditor *editor)
-{
-    if (editor != m_currentEditor) {
-        if (m_currentEditor)
-            disconnect(m_currentEditor, SIGNAL(changed()), this, SLOT(updateWindowTitle()));
-        if (editor)
-            connect(editor, SIGNAL(changed()), this, SLOT(updateWindowTitle()));
-        m_currentEditor = editor;
-    }
-    updateWindowTitle();
-}
-
 void SessionManager::updateWindowTitle()
 {
-    QString windowTitle = tr("Qt Creator");
     if (isDefaultSession(m_sessionName)) {
         if (Project *currentProject = ProjectExplorerPlugin::instance()->currentProject())
-            windowTitle.prepend(currentProject->displayName() + " - ");
+            m_core->editorManager()->setWindowTitleAddition(currentProject->displayName());
     } else {
         QString sessionName = m_sessionName;
         if (sessionName.isEmpty())
             sessionName = tr("Untitled");
-        windowTitle.prepend(sessionName + " - ");
+        m_core->editorManager()->setWindowTitleAddition(sessionName);
     }
-    if (m_core->editorManager()->currentEditor()) {
-        QFileInfo fi(m_core->editorManager()->currentEditor()->file()->fileName());
-        QString fileName = fi.fileName();
-        if (!fileName.isEmpty())
-            windowTitle.prepend(fileName + " - ");
-        m_core->mainWindow()->setWindowFilePath(fi.absoluteFilePath());
-    } else {
-        m_core->mainWindow()->setWindowFilePath(QString());
-    }
-    m_core->mainWindow()->setWindowTitle(windowTitle);
 }
 
 void SessionManager::updateName(const QString &session)
