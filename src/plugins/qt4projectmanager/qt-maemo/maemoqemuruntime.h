@@ -31,7 +31,7 @@
 
 #include "maemodeviceconfigurations.h"
 
-#include <QtCore/QHash>
+#include <QtCore/QProcessEnvironment>
 #include <QtCore/QString>
 
 namespace Qt4ProjectManager {
@@ -59,7 +59,7 @@ struct MaemoQemuRuntime
     QString m_args;
     QString m_sshPort;
     QString m_watchPath;
-    QHash<QString, QString> m_environment;
+    QProcessEnvironment m_environment;
     MaemoPortList m_freePorts;
 };
 

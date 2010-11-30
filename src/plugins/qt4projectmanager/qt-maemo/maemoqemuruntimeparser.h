@@ -45,13 +45,11 @@ public:
 
 protected:
     MaemoQemuRuntimeParser(const QString &madInfoOutput,
-        const QString &targetName);
-    const QString &targetName() const { return m_targetName; }
+        const QString &targetName, const QString &maddeRoot);
 
-    QXmlStreamReader m_madInfoReader;
-
-private:
     const QString m_targetName;
+    const QString m_maddeRoot;
+    QXmlStreamReader m_madInfoReader;
 };
 
 }   // namespace Internal

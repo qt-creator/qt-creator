@@ -50,29 +50,29 @@ public:
 private:
     void fillRuntimeInformation(MaemoQemuRuntime *runtime) const;
     void setEnvironment(MaemoQemuRuntime *runTime, const QString &envSpec) const;
-
-    const QString m_maddeRoot;
 };
 
 class MaemoQemuRuntimeParserV2 : public MaemoQemuRuntimeParser
 {
 public:
     MaemoQemuRuntimeParserV2(const QString &madInfoOutput,
-        const QString &targetName);
+        const QString &targetName, const QString &maddeRoot);
     MaemoQemuRuntime parseRuntime();
 
 private:
     void handleTargetTag(QString &runtimeName);
     MaemoQemuRuntime handleRuntimeTag();
-    QHash<QString, QString> handleEnvironmentTag();
+    QProcessEnvironment handleEnvironmentTag();
     QPair<QString, QString> handleVariableTag();
     MaemoPortList handleTcpPortListTag();
     int handlePortTag();
 };
 
 MaemoQemuRuntimeParser::MaemoQemuRuntimeParser(const QString &madInfoOutput,
-    const QString &targetName)
-    : m_madInfoReader(madInfoOutput), m_targetName(targetName)
+    const QString &targetName, const QString &maddeRoot)
+    : m_targetName(targetName),
+      m_maddeRoot(maddeRoot),
+      m_madInfoReader(madInfoOutput)
 {
 }
 
@@ -92,7 +92,8 @@ MaemoQemuRuntime MaemoQemuRuntimeParser::parseRuntime(const QtVersion *qtVersion
     const QByteArray &madInfoOutput = madProc.readAllStandardOutput();
     const QString &targetName
         = MaemoGlobal::targetName(qtVersion->qmakeCommand());
-    runtime = MaemoQemuRuntimeParserV2(madInfoOutput, targetName).parseRuntime();
+    runtime = MaemoQemuRuntimeParserV2(madInfoOutput, targetName, maddeRootPath)
+        .parseRuntime();
     if (!runtime.m_name.isEmpty()) {
         runtime.m_root = maddeRootPath + QLatin1String("/runtimes/")
             + runtime.m_name;
@@ -111,7 +112,7 @@ MaemoQemuRuntime MaemoQemuRuntimeParser::parseRuntime(const QtVersion *qtVersion
 
 MaemoQemuRuntimeParserV1::MaemoQemuRuntimeParserV1(const QString &madInfoOutput,
     const QString &targetName, const QString &maddeRoot)
-    : MaemoQemuRuntimeParser(madInfoOutput, targetName), m_maddeRoot(maddeRoot)
+    : MaemoQemuRuntimeParser(madInfoOutput, targetName, maddeRoot)
 {
 }
 
@@ -124,7 +125,7 @@ MaemoQemuRuntime MaemoQemuRuntimeParserV1::parseRuntime()
             if (targetRuntime.isEmpty()
                 && m_madInfoReader.name() == QLatin1String("target")) {
                 const QXmlStreamAttributes &attrs = m_madInfoReader.attributes();
-                if (attrs.value(QLatin1String("target_id")) == targetName())
+                if (attrs.value(QLatin1String("target_id")) == m_targetName)
                     targetRuntime = attrs.value("runtime_id").toString();
             } else if (m_madInfoReader.name() == QLatin1String("runtime")) {
                 const QXmlStreamAttributes attrs = m_madInfoReader.attributes();
@@ -216,6 +217,7 @@ void MaemoQemuRuntimeParserV1::setEnvironment(MaemoQemuRuntime *runTime,
 {
     QString remainingEnvSpec = envSpec;
     QString currentKey;
+    runTime->m_environment = QProcessEnvironment::systemEnvironment();
     while (true) {
         const int nextEqualsSignPos
             = remainingEnvSpec.indexOf(QLatin1Char('='));
@@ -242,8 +244,8 @@ void MaemoQemuRuntimeParserV1::setEnvironment(MaemoQemuRuntime *runTime,
 
 
 MaemoQemuRuntimeParserV2::MaemoQemuRuntimeParserV2(const QString &madInfoOutput,
-    const QString &targetName)
-    : MaemoQemuRuntimeParser(madInfoOutput, targetName)
+    const QString &targetName, const QString &maddeRoot)
+    : MaemoQemuRuntimeParser(madInfoOutput, targetName, maddeRoot)
 {
 }
 
@@ -282,7 +284,7 @@ void MaemoQemuRuntimeParserV2::handleTargetTag(QString &runtimeName)
 {
     const QXmlStreamAttributes &attrs = m_madInfoReader.attributes();
     if (m_madInfoReader.name() == QLatin1String("target") && runtimeName.isEmpty()
-            && attrs.value(QLatin1String("name")) == targetName()
+            && attrs.value(QLatin1String("name")) == m_targetName
             && attrs.value(QLatin1String("installed")) == QLatin1String("true")) {
         while (m_madInfoReader.readNextStartElement()) {
             if (m_madInfoReader.name() == QLatin1String("runtime"))
@@ -321,14 +323,22 @@ MaemoQemuRuntime MaemoQemuRuntimeParserV2::handleRuntimeTag()
     return runtime;
 }
 
-QHash<QString, QString> MaemoQemuRuntimeParserV2::handleEnvironmentTag()
+QProcessEnvironment MaemoQemuRuntimeParserV2::handleEnvironmentTag()
 {
-    QHash<QString, QString> env;
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     while (m_madInfoReader.readNextStartElement()) {
         const QPair<QString, QString> &var = handleVariableTag();
         if (!var.first.isEmpty())
             env.insert(var.first, var.second);
     }
+#ifdef Q_OS_WIN
+    const QString root = QDir::toNativeSeparators(m_maddeRoot)
+        + QLatin1Char('/');
+    const QLatin1Char colon(';');
+    const QLatin1String key("PATH");
+    env.insert(key, root + QLatin1String("bin") + colon + env.value(key));
+    env.insert(key, root + QLatin1String("madlib") + colon + env.value(key));
+#endif
     return env;
 }
 

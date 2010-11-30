@@ -353,22 +353,8 @@ void MaemoQemuManager::startRuntime()
 
     m_runningQtId = version->uniqueId();
     const MaemoQemuRuntime rt = m_runtimes.value(version->uniqueId());
-    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-#ifdef Q_OS_WIN
-    const QString root
-        = QDir::toNativeSeparators(MaemoGlobal::maddeRoot(version->qmakeCommand())
-            + QLatin1Char('/'));
-    const QLatin1Char colon(';');
-    const QLatin1String key("PATH");
-    env.insert(key, root % QLatin1String("bin") % colon % env.value(key));
-    env.insert(key, root % QLatin1String("madlib") % colon % env.value(key));
-#endif
-    for (QHash<QString, QString>::ConstIterator it = rt.m_environment.constBegin();
-        it != rt.m_environment.constEnd(); ++it)
-        env.insert(it.key(), it.value());
-    m_qemuProcess->setProcessEnvironment(env);
+    m_qemuProcess->setProcessEnvironment(rt.m_environment);
     m_qemuProcess->setWorkingDirectory(rt.m_root);
-
     m_qemuProcess->start(rt.m_bin % QLatin1Char(' ') % rt.m_args);
     if (!m_qemuProcess->waitForStarted())
         return;
