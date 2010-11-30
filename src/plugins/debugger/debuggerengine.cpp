@@ -1237,18 +1237,24 @@ void DebuggerEngine::attemptBreakpointSynchronization()
         d->m_disassemblerViewAgent.updateBreakpointMarkers();
 }
 
-void DebuggerEngine::insertBreakpoint(BreakpointId)
+void DebuggerEngine::insertBreakpoint(BreakpointId id)
 {
+    BreakpointState state = breakHandler()->state(id);
+    QTC_ASSERT(state == BreakpointInsertRequested, qDebug() << state);
     QTC_ASSERT(false, /**/);
 }
 
-void DebuggerEngine::removeBreakpoint(BreakpointId)
+void DebuggerEngine::removeBreakpoint(BreakpointId id)
 {
+    BreakpointState state = breakHandler()->state(id);
+    QTC_ASSERT(state == BreakpointRemoveRequested, qDebug() << state);
     QTC_ASSERT(false, /**/);
 }
 
-void DebuggerEngine::changeBreakpoint(BreakpointId)
+void DebuggerEngine::changeBreakpoint(BreakpointId id)
 {
+    BreakpointState state = breakHandler()->state(id);
+    QTC_ASSERT(state == BreakpointChangeRequested, qDebug() << state);
     QTC_ASSERT(false, /**/);
 }
 

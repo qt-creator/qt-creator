@@ -862,24 +862,15 @@ void BreakHandler::updateLineNumberFromMarker(BreakpointId id, int lineNumber)
     Iterator it = m_storage.find(id);
     it->response.pending = false;
     QTC_ASSERT(it != m_storage.end(), return);
-    //if (data.markerLineNumber == lineNumber)
-    //    return;
     if (it->response.lineNumber != lineNumber) {
-        it->response.lineNumber = lineNumber;
         // FIXME: Should we tell gdb about the change?
-        // Ignore it for now, as we would require re-compilation
-        // and debugger re-start anyway.
-        //if (0 && data.bpLineNumber) {
-        //    if (!data.bpNumber.trimmed().isEmpty()) {
-        //        data.pending = true;
-        //    }
-        //}
+        it->response.lineNumber = lineNumber;
     }
     // Ignore updates to the "real" line number while the debugger is
     // running, as this can be triggered by moving the breakpoint to
     // the next line that generated code.
-    // FIXME: Do we need yet another data member?
     if (it->response.number == 0) {
+        // FIXME: Do we need yet another data member?
         it->data.lineNumber = lineNumber;
     }
     updateMarker(id);
