@@ -604,7 +604,7 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     QStringList members;
     QStringList specialMembers;
 
-    if (ch == QLatin1Char('.') || ch == QLatin1Char('(')) {
+    if (ch == QLatin1Char('.') || (ch == QLatin1Char('(') && pos == editor->position() - 1)) {
         const bool memberCompletion = (ch == QLatin1Char('.'));
         QTextCursor tc(edit->document());
         tc.setPosition(pos);
