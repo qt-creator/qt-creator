@@ -101,7 +101,7 @@ protected:
 
     ValuesChangedCommand createValuesChangedCommand(const QList<ServerNodeInstance> &instanceList) const;
     ValuesChangedCommand createValuesChangedCommand(const QVector<InstancePropertyPair> &propertyList) const;
-    PixmapChangedCommand createPixmapChangedCommand(const ServerNodeInstance &instance) const;
+    PixmapChangedCommand createPixmapChangedCommand(const QList<ServerNodeInstance> &instanceList) const;
     InformationChangedCommand createAllInformationChangedCommand(const QList<ServerNodeInstance> &instanceList, bool initial = false) const;
     ChildrenChangedCommand createChildrenChangedCommand(const ServerNodeInstance &parentInstance, const QList<ServerNodeInstance> &instanceList) const;
 

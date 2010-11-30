@@ -22,6 +22,9 @@
 #include "valueschangedcommand.h"
 #include "addimportcommand.h"
 #include "childrenchangedcommand.h"
+#include "imagecontainer.h"
+#include "statepreviewimagechangedcommand.h"
+
 
 namespace QmlDesigner {
 
@@ -108,6 +111,12 @@ void NodeInstanceServerInterface::registerCommands()
 
     qRegisterMetaType<ChildrenChangedCommand>("ChildrenChangedCommand");
     qRegisterMetaTypeStreamOperators<ChildrenChangedCommand>("ChildrenChangedCommand");
+
+    qRegisterMetaType<ImageContainer>("ImageContainer");
+    qRegisterMetaTypeStreamOperators<ImageContainer>("ImageContainer");
+
+    qRegisterMetaType<StatePreviewImageChangedCommand>("StatePreviewImageChangedCommand");
+    qRegisterMetaTypeStreamOperators<StatePreviewImageChangedCommand>("StatePreviewImageChangedCommand");
 }
 
 }

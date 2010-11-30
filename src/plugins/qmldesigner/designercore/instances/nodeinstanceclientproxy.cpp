@@ -28,6 +28,8 @@
 #include "pixmapchangedcommand.h"
 #include "valueschangedcommand.h"
 #include "childrenchangedcommand.h"
+#include "imagecontainer.h"
+#include "statepreviewimagechangedcommand.h"
 
 namespace QmlDesigner {
 
@@ -74,6 +76,11 @@ void NodeInstanceClientProxy::pixmapChanged(const PixmapChangedCommand &command)
 void NodeInstanceClientProxy::childrenChanged(const ChildrenChangedCommand &command)
 {
   writeCommand(QVariant::fromValue(command));
+}
+
+void NodeInstanceClientProxy::statePreviewImagesChanged(const StatePreviewImageChangedCommand &command)
+{
+    writeCommand(QVariant::fromValue(command));
 }
 
 void NodeInstanceClientProxy::flush()

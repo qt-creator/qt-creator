@@ -27,6 +27,8 @@
 #include "pixmapchangedcommand.h"
 #include "valueschangedcommand.h"
 #include "childrenchangedcommand.h"
+#include "imagecontainer.h"
+#include "statepreviewimagechangedcommand.h"
 
 #include "nodeinstanceview.h"
 #include "nodeinstanceclientproxy.h"
@@ -75,6 +77,7 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
     static const int valuesChangedCommandType = QMetaType::type("ValuesChangedCommand");
     static const int pixmapChangedCommandType = QMetaType::type("PixmapChangedCommand");
     static const int childrenChangedCommandType = QMetaType::type("ChildrenChangedCommand");
+    static const int statePreviewImageChangedCommandType = QMetaType::type("StatePreviewImageChangedCommand");
 
     if (command.userType() ==  informationChangedCommandType)
         nodeInstanceClient()->informationChanged(command.value<InformationChangedCommand>());
@@ -84,6 +87,8 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
         nodeInstanceClient()->pixmapChanged(command.value<PixmapChangedCommand>());
     else if (command.userType() == childrenChangedCommandType)
         nodeInstanceClient()->childrenChanged(command.value<ChildrenChangedCommand>());
+    else if (command.userType() == statePreviewImageChangedCommandType)
+        nodeInstanceClient()->statePreviewImagesChanged(command.value<StatePreviewImageChangedCommand>());
     else
         Q_ASSERT(false);
 }

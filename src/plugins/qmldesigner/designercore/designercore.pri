@@ -119,7 +119,9 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/instances/nodeinstanceserverproxy.cpp \
     $$PWD/instances/nodeinstanceclientproxy.cpp \
     $$PWD/instances/addimportcommand.cpp \
-    $$PWD/instances/childrenchangedcommand.cpp
+    $$PWD/instances/childrenchangedcommand.cpp \
+    $$PWD/instances/statepreviewimagechangedcommand.cpp \
+    $$PWD/instances/imagecontainer.cpp
 HEADERS += $$PWD/include/corelib_global.h \
     $$PWD/include/abstractview.h \
     $$PWD/include/nodeinstanceview.h \
@@ -237,8 +239,9 @@ HEADERS += $$PWD/include/corelib_global.h \
     $$PWD/instances/nodeinstanceserverproxy.h \
     $$PWD/instances/nodeinstanceclientproxy.h \
     $$PWD/instances/addimportcommand.h \
-    $$PWD/instances/childrenchangedcommand.h
-
+    $$PWD/instances/childrenchangedcommand.h \
+    $$PWD/instances/statepreviewimagechangedcommand.h \
+    $$PWD/instances/imagecontainer.h
 contains(CONFIG, plugin) {
   # If core.pri has been included in the qmldesigner plugin
   SOURCES += $$PWD/model/basetexteditmodifier.cpp

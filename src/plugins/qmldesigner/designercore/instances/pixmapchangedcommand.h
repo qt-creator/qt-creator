@@ -2,7 +2,7 @@
 #define PIXMAPCHANGEDCOMMAND_H
 
 #include <QMetaType>
-#include <QImage>
+#include "imagecontainer.h"
 
 namespace QmlDesigner {
 
@@ -11,14 +11,12 @@ class PixmapChangedCommand
     friend QDataStream &operator>>(QDataStream &in, PixmapChangedCommand &command);
 public:
     PixmapChangedCommand();
-    PixmapChangedCommand(qint32 instanceId, const QImage &image);
+    PixmapChangedCommand(const QVector<ImageContainer> &imageVector);
 
-    qint32 instanceId() const;
-    QImage renderImage() const;
+    QVector<ImageContainer> images() const;
 
 private:
-    QImage m_image;
-    qint32 m_instanceId;
+    QVector<ImageContainer> m_imageVector;
 };
 
 QDataStream &operator<<(QDataStream &out, const PixmapChangedCommand &command);

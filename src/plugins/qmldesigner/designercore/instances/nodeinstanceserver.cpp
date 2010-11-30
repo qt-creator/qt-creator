@@ -82,8 +82,7 @@ void NodeInstanceServer::createInstances(const CreateInstancesCommand &command)
 
     nodeInstanceClient()->valuesChanged(createValuesChangedCommand(instanceList));
     nodeInstanceClient()->informationChanged(createAllInformationChangedCommand(instanceList, true));
-    foreach(const ServerNodeInstance &instance, instanceList)
-        nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(instance));
+    nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(instanceList));
 
     startRenderTimer();
 }
@@ -682,10 +681,14 @@ void NodeInstanceServer::removeInstanceRelationsip(qint32 instanceId)
     }
 }
 
-PixmapChangedCommand NodeInstanceServer::createPixmapChangedCommand(const ServerNodeInstance &instance) const
+PixmapChangedCommand NodeInstanceServer::createPixmapChangedCommand(const QList<ServerNodeInstance> &instanceList) const
 {
-    qDebug() << __FUNCTION__ << instance.internalObject();
-    return PixmapChangedCommand(instance.instanceId(), instance.renderImage());
+    QVector<ImageContainer> imageVector;
+
+    foreach (const ServerNodeInstance &instance, instanceList)
+        imageVector.append(ImageContainer(instance.instanceId(), instance.renderImage()));
+
+    return PixmapChangedCommand(imageVector);
 }
 
 bool NodeInstanceServer::nonInstanceChildIsDirty(QGraphicsObject *graphicsObject) const
@@ -783,8 +786,8 @@ void NodeInstanceServer::findItemChangesAndSendChangeCommands()
             if (!propertyChangedList.isEmpty())
                 nodeInstanceClient()->valuesChanged(createValuesChangedCommand(propertyChangedList));
 
-            foreach(const ServerNodeInstance &instance, dirtyInstanceSet)
-                nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(instance));
+            if (!dirtyInstanceSet.isEmpty())
+                nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(dirtyInstanceSet.toList()));
 
             if (adjustSceneRect) {
                 QRectF boundingRect = m_rootNodeInstance.boundingRect();

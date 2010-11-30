@@ -116,6 +116,7 @@ public:
     void pixmapChanged(const PixmapChangedCommand &command);
     void informationChanged(const InformationChangedCommand &command);
     void childrenChanged(const ChildrenChangedCommand &command);
+    void statePreviewImagesChanged(const StatePreviewImageChangedCommand &command);
 
 private: // functions
     NodeInstance rootNodeInstance() const;

@@ -72,6 +72,8 @@
 #include "changestatecommand.h"
 #include "addimportcommand.h"
 #include "childrenchangedcommand.h"
+#include "imagecontainer.h"
+#include "statepreviewimagechangedcommand.h"
 
 #include "nodeinstanceserverproxy.h"
 
@@ -864,11 +866,13 @@ void NodeInstanceView::pixmapChanged(const PixmapChangedCommand &command)
 {            
     QSet<ModelNode> renderImageChangeSet;
 
-    if (hasInstanceForId(command.instanceId())) {
-        NodeInstance instance = instanceForId(command.instanceId());
-        if (instance.isValid()) {
-            instance.setRenderImage(command.renderImage());
-            renderImageChangeSet.insert(instance.modelNode());
+    foreach (const ImageContainer &container, command.images()) {
+        if (hasInstanceForId(container.instanceId())) {
+            NodeInstance instance = instanceForId(container.instanceId());
+            if (instance.isValid()) {
+                instance.setRenderImage(container.image());
+                renderImageChangeSet.insert(instance.modelNode());
+            }
         }
     }
 
@@ -892,6 +896,11 @@ void NodeInstanceView::informationChanged(const InformationChangedCommand &comma
 
     if (!informationChangedList.isEmpty())
         emitCustomNotification("__instance information changed__", informationChangedList);
+}
+
+void NodeInstanceView::statePreviewImagesChanged(const StatePreviewImageChangedCommand &/*command*/)
+{
+
 }
 
 void NodeInstanceView::childrenChanged(const ChildrenChangedCommand &command)
