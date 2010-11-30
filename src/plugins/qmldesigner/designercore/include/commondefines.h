@@ -23,8 +23,7 @@ enum InformationName
     IsAnchoredByChildren,
     IsAnchoredBySibling,
     HasContent,
-    HasBindingForProperty,
-    Parent
+    HasBindingForProperty
 };
 
 }

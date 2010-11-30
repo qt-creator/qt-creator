@@ -564,6 +564,11 @@ void ServerNodeInstance::doComponentComplete()
     m_nodeInstance->doComponentComplete();
 }
 
+QList<ServerNodeInstance> ServerNodeInstance::childItems() const
+{
+    return m_nodeInstance->childItems();
+}
+
 QString ServerNodeInstance::id() const
 {
     return m_nodeInstance->id();

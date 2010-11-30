@@ -339,9 +339,8 @@ void FormEditorScene::reparentItem(const QmlItemNode &node, const QmlItemNode &n
     if (newParent.isValid() && hasItemForQmlItemNode(newParent))
         parentItem = itemForQmlItemNode(newParent);
 
-    if (item->parentItem() != parentItem) {
-        item->setParentItem(parentItem);
-    }
+    item->setParentItem(0);
+    item->setParentItem(parentItem);
 }
 
 FormEditorItem* FormEditorScene::rootFormEditorItem() const

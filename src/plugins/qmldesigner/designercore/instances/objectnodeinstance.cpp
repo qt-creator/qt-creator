@@ -604,6 +604,10 @@ QString ObjectNodeInstance::instanceType(const QString &name) const
     return property.propertyTypeName();
 }
 
+QList<ServerNodeInstance> ObjectNodeInstance::childItems() const
+{
+    return QList<ServerNodeInstance>();
+}
 
 void ObjectNodeInstance::setDeleteHeldInstance(bool deleteInstance)
 {

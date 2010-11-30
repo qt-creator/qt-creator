@@ -60,6 +60,20 @@ bool GraphicsObjectNodeInstance::hasContent() const
     return m_hasContent;
 }
 
+QList<ServerNodeInstance> GraphicsObjectNodeInstance::childItems() const
+{
+    QList<ServerNodeInstance> instanceList;
+    foreach(QGraphicsItem *item, graphicsObject()->childItems())
+    {
+        QGraphicsObject *childObject = item->toGraphicsObject();
+        if (childObject && nodeInstanceServer()->hasInstanceForObject(childObject)) {
+            instanceList.append(nodeInstanceServer()->instanceForObject(childObject));
+        }
+    }
+
+    return instanceList;
+}
+
 void GraphicsObjectNodeInstance::setHasContent(bool hasContent)
 {
     m_hasContent = hasContent;

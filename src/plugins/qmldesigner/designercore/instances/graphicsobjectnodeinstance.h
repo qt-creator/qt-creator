@@ -71,6 +71,7 @@ public:
 
     bool hasContent() const;
 
+    QList<ServerNodeInstance> childItems() const;
 
     void paintUpdate();
 

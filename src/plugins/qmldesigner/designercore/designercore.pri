@@ -118,7 +118,8 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/instances/changestatecommand.cpp \
     $$PWD/instances/nodeinstanceserverproxy.cpp \
     $$PWD/instances/nodeinstanceclientproxy.cpp \
-    $$PWD/instances/addimportcommand.cpp
+    $$PWD/instances/addimportcommand.cpp \
+    $$PWD/instances/childrenchangedcommand.cpp
 HEADERS += $$PWD/include/corelib_global.h \
     $$PWD/include/abstractview.h \
     $$PWD/include/nodeinstanceview.h \
@@ -235,7 +236,8 @@ HEADERS += $$PWD/include/corelib_global.h \
     $$PWD/instances/changestatecommand.h \
     $$PWD/instances/nodeinstanceserverproxy.h \
     $$PWD/instances/nodeinstanceclientproxy.h \
-    $$PWD/instances/addimportcommand.h
+    $$PWD/instances/addimportcommand.h \
+    $$PWD/instances/childrenchangedcommand.h
 
 contains(CONFIG, plugin) {
   # If core.pri has been included in the qmldesigner plugin

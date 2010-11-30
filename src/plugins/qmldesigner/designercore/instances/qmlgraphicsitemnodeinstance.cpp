@@ -389,6 +389,14 @@ void QmlGraphicsItemNodeInstance::reparent(const ObjectNodeInstance::Pointer &ol
         setMovable(false);
     }
 
+    if (oldParentInstance && oldParentInstance->isPositioner() && !(newParentInstance && newParentInstance->isPositioner())) {
+        if (!hasBindingForProperty("x"))
+            setPropertyVariant("x", m_x);
+
+        if (!hasBindingForProperty("y"))
+            setPropertyVariant("y", m_y);
+    }
+
     refresh();
 }
 

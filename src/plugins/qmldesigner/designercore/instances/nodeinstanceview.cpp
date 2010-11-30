@@ -71,6 +71,7 @@
 #include "informationchangedcommand.h"
 #include "changestatecommand.h"
 #include "addimportcommand.h"
+#include "childrenchangedcommand.h"
 
 #include "nodeinstanceserverproxy.h"
 
@@ -105,8 +106,7 @@ d too.
 \see ~NodeInstanceView setRenderOffScreen
 */
 NodeInstanceView::NodeInstanceView(QObject *parent)
-        : AbstractView(parent),
-          m_blockUpdates(false)
+        : AbstractView(parent)
 {
 }
 
@@ -162,9 +162,6 @@ void NodeInstanceView::restartProcess()
     Model *oldModel = model();
     if (oldModel) {
         oldModel->detachView(this);
-        m_valuePropertyChangeList.clear();
-        m_renderImageChangeSet.clear();
-        m_informationChangeSet.clear();
         oldModel->attachView(this);
     }
     setBlockUpdates(false);
@@ -610,24 +607,6 @@ void NodeInstanceView::setBlockUpdates(bool block)
     } else if (m_blockUpdates > 0) {
         m_blockUpdates--;
     }
-
-    if (m_blockUpdates == 0) {
-        m_nodeInstanceServer->setBlockUpdates(false);
-        if (!m_informationChangeSet.isEmpty()) {
-            emitCustomNotification("__instance information changed__", m_informationChangeSet.toList());
-            m_informationChangeSet.clear();
-        }
-
-        if (!m_valuePropertyChangeList.isEmpty()) {
-            emitInstancePropertyChange(m_valuePropertyChangeList);
-            m_valuePropertyChangeList.clear();
-        }
-
-        if (!m_renderImageChangeSet.isEmpty()) {
-            emitCustomNotification("__instance render pixmap changed__", m_renderImageChangeSet.toList());
-            m_renderImageChangeSet.clear();
-        }
-    }
 }
 
 void NodeInstanceView::setStateInstance(const NodeInstance &stateInstance)
@@ -865,57 +844,71 @@ AddImportCommand NodeInstanceView::createImportCommand(const Import &import)
 
 void NodeInstanceView::valuesChanged(const ValuesChangedCommand &command)
 {
+    QList<QPair<ModelNode, QString> > valuePropertyChangeList;
+
     foreach(const PropertyValueContainer &container, command.valueChanges()) {
         if (hasInstanceForId(container.instanceId())) {
             NodeInstance instance = instanceForId(container.instanceId());
             if (instance.isValid()) {
                 instance.setProperty(container.name(), container.value());
-                m_valuePropertyChangeList.append(qMakePair(instance.modelNode(), container.name()));
+                valuePropertyChangeList.append(qMakePair(instance.modelNode(), container.name()));
             }
         }
     }
 
-    if (!m_blockUpdates && !m_valuePropertyChangeList.isEmpty()) {
-        emitInstancePropertyChange(m_valuePropertyChangeList);
-        m_valuePropertyChangeList.clear();
-    }
+    if (!valuePropertyChangeList.isEmpty())
+        emitInstancePropertyChange(valuePropertyChangeList);
 }
 
 void NodeInstanceView::pixmapChanged(const PixmapChangedCommand &command)
 {            
+    QSet<ModelNode> renderImageChangeSet;
 
     if (hasInstanceForId(command.instanceId())) {
         NodeInstance instance = instanceForId(command.instanceId());
         if (instance.isValid()) {
             instance.setRenderImage(command.renderImage());
-            m_renderImageChangeSet.insert(instance.modelNode());
+            renderImageChangeSet.insert(instance.modelNode());
         }
     }
 
-    if (!m_blockUpdates && !m_renderImageChangeSet.isEmpty()) {
-         emitCustomNotification("__instance render pixmap changed__", m_renderImageChangeSet.toList());
-         m_renderImageChangeSet.clear();
-    }
+    if (!renderImageChangeSet.isEmpty())
+         emitCustomNotification("__instance render pixmap changed__", renderImageChangeSet.toList());
 }
 
 void NodeInstanceView::informationChanged(const InformationChangedCommand &command)
 {
+    QList<ModelNode> informationChangedList;
+
     foreach(const InformationContainer &container, command.informations()) {
         if (hasInstanceForId(container.instanceId())) {
             NodeInstance instance = instanceForId(container.instanceId());
             if (instance.isValid()) {
                 instance.setInformation(container.name(), container.information(), container.secondInformation(), container.thirdInformation());
-                m_informationChangeSet.insert(instance.modelNode());
+                informationChangedList.append(instance.modelNode());
             }
         }
     }
 
-    if (!m_blockUpdates && !m_informationChangeSet.isEmpty()) {
-        emitCustomNotification("__instance information changed__", m_informationChangeSet.toList());
-        m_informationChangeSet.clear();
-    }
+    if (!informationChangedList.isEmpty())
+        emitCustomNotification("__instance information changed__", informationChangedList);
 }
 
+void NodeInstanceView::childrenChanged(const ChildrenChangedCommand &command)
+{
+    QList<ModelNode> childNodeList;
+
+    foreach(qint32 instanceId, command.childrenInstances()) {
+        if (hasInstanceForId(instanceId)) {
+            NodeInstance instance = instanceForId(instanceId);
+            instance.setParentId(command.parentInstanceId());
+            childNodeList.append(instance.modelNode());
+        }
+    }
+
+    if (!childNodeList.isEmpty())
+        emitCustomNotification("__instance children changed__", childNodeList);
+}
 
 qint32 NodeInstanceView::generateInstanceId()
 {

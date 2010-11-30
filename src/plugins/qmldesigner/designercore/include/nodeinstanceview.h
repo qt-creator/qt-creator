@@ -115,6 +115,7 @@ public:
     void valuesChanged(const ValuesChangedCommand &command);
     void pixmapChanged(const PixmapChangedCommand &command);
     void informationChanged(const InformationChangedCommand &command);
+    void childrenChanged(const ChildrenChangedCommand &command);
 
 private: // functions
     NodeInstance rootNodeInstance() const;
@@ -165,11 +166,6 @@ private: //variables
 
     QHash<ModelNode, NodeInstance> m_nodeInstanceHash;
     QHash<qint32, NodeInstance> m_idInstanceHash; // This is purely internal. Might contain dangling pointers!
-
-    QList<QPair<ModelNode, QString> > m_valuePropertyChangeList;
-
-    QSet<ModelNode> m_renderImageChangeSet;
-    QSet<ModelNode> m_informationChangeSet;
 
     uint m_blockUpdates;
     QWeakPointer<NodeInstanceServerInterface> m_nodeInstanceServer;

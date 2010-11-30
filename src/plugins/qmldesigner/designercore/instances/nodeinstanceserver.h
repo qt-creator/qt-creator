@@ -21,6 +21,7 @@ class NodeInstanceClientInterface;
 class ValuesChangedCommand;
 class PixmapChangedCommand;
 class InformationChangedCommand;
+class ChildrenChangedCommand;
 
 namespace Internal {
     class ChildrenChangeEventFilter;
@@ -102,6 +103,9 @@ protected:
     ValuesChangedCommand createValuesChangedCommand(const QVector<InstancePropertyPair> &propertyList) const;
     PixmapChangedCommand createPixmapChangedCommand(const ServerNodeInstance &instance) const;
     InformationChangedCommand createAllInformationChangedCommand(const QList<ServerNodeInstance> &instanceList, bool initial = false) const;
+    ChildrenChangedCommand createChildrenChangedCommand(const ServerNodeInstance &parentInstance, const QList<ServerNodeInstance> &instanceList) const;
+
+    void sendChildrenChangedCommand(const QList<ServerNodeInstance> childList);
 
     void addChangedProperty(const InstancePropertyPair &property);
 

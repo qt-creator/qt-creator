@@ -456,9 +456,8 @@ void FormEditorView::customNotification(const AbstractView *view, const QString 
         foreach (const ModelNode &node, nodeList) {
             QmlItemNode qmlItemNode(node);
             if (qmlItemNode.isValid() && scene()->hasItemForQmlItemNode(qmlItemNode)) {
-                scene()->synchronizeParent(qmlItemNode);
                 scene()->synchronizeTransformation(qmlItemNode);
-               itemNodeList.append(scene()->itemForQmlItemNode(qmlItemNode));
+                itemNodeList.append(scene()->itemForQmlItemNode(qmlItemNode));
             }
         }
 
@@ -475,6 +474,20 @@ void FormEditorView::customNotification(const AbstractView *view, const QString 
                scene()->itemForQmlItemNode(qmlItemNode)->update();
             }
         }
+    }
+
+    if (identifier == "__instance children changed__") {
+        QList<FormEditorItem*> itemNodeList;
+
+        foreach (const ModelNode &node, nodeList) {
+            QmlItemNode qmlItemNode(node);
+            if (qmlItemNode.isValid() && scene()->hasItemForQmlItemNode(qmlItemNode)) {
+                scene()->synchronizeParent(qmlItemNode);
+                itemNodeList.append(scene()->itemForQmlItemNode(qmlItemNode));
+            }
+        }
+
+        m_currentTool->formEditorItemsChanged(itemNodeList);
     }
 
     QmlModelView::customNotification(view, identifier, nodeList, data);

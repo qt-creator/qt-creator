@@ -56,6 +56,8 @@ protected:
                         const QVariant &information,
                         const QVariant &secondInformation,
                         const QVariant &thirdInformation);
+
+    void setParentId(qint32 instanceId);
     void setRenderImage(const QImage &image);
     NodeInstance(ProxyNodeInstanceData *d);
     qint32 instanceId() const;

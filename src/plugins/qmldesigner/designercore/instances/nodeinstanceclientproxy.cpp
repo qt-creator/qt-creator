@@ -27,6 +27,7 @@
 #include "informationchangedcommand.h"
 #include "pixmapchangedcommand.h"
 #include "valueschangedcommand.h"
+#include "childrenchangedcommand.h"
 
 namespace QmlDesigner {
 
@@ -66,6 +67,11 @@ void NodeInstanceClientProxy::valuesChanged(const ValuesChangedCommand &command)
 }
 
 void NodeInstanceClientProxy::pixmapChanged(const PixmapChangedCommand &command)
+{
+  writeCommand(QVariant::fromValue(command));
+}
+
+void NodeInstanceClientProxy::childrenChanged(const ChildrenChangedCommand &command)
 {
   writeCommand(QVariant::fromValue(command));
 }

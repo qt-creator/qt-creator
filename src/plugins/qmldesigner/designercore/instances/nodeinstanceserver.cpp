@@ -35,6 +35,7 @@
 #include "childrenchangeeventfilter.h"
 #include "changestatecommand.h"
 #include "addimportcommand.h"
+#include "childrenchangedcommand.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -244,7 +245,9 @@ void NodeInstanceServer::addImport(const AddImportCommand &command)
         engine()->addPluginPath(importPath);
     }
 
-    importComponent.setData(componentString.toLatin1(), QUrl());
+    qDebug() << __FUNCTION__ << fileUrl().resolved(QUrl("content/samegame.js")) << componentString;
+
+    importComponent.setData(componentString.toUtf8(), QUrl());
 
     if (!importComponent.errorString().isEmpty())
         qDebug() << "QmlDesigner.NodeInstances: import wrong: " << importComponent.errorString();
@@ -509,6 +512,36 @@ NodeInstanceClientInterface *NodeInstanceServer::nodeInstanceClient() const
     return m_nodeInstanceClient;
 }
 
+void NodeInstanceServer::sendChildrenChangedCommand(const QList<ServerNodeInstance> childList)
+{
+    QSet<ServerNodeInstance> parentSet;
+    QList<ServerNodeInstance> noParentList;
+
+    foreach (const ServerNodeInstance &child, childList) {
+        if (!child.hasParent())
+            noParentList.append(child);
+        parentSet.insert(child.parent());
+    }
+
+
+    foreach (const ServerNodeInstance &parent, parentSet)
+        nodeInstanceClient()->childrenChanged(createChildrenChangedCommand(parent, parent.childItems()));
+
+    if (!noParentList.isEmpty())
+        nodeInstanceClient()->childrenChanged(createChildrenChangedCommand(ServerNodeInstance(), noParentList));
+
+}
+
+ChildrenChangedCommand NodeInstanceServer::createChildrenChangedCommand(const ServerNodeInstance &parentInstance, const QList<ServerNodeInstance> &instanceList) const
+{
+    QVector<qint32> instanceVector;
+
+    foreach(const ServerNodeInstance &instance, instanceList)
+        instanceVector.append(instance.instanceId());
+
+    return ChildrenChangedCommand(parentInstance.instanceId(), instanceVector);
+}
+
 InformationChangedCommand NodeInstanceServer::createAllInformationChangedCommand(const QList<ServerNodeInstance> &instanceList, bool initial) const
 {
     QVector<InformationContainer> informationVector;
@@ -525,7 +558,6 @@ InformationChangedCommand NodeInstanceServer::createAllInformationChangedCommand
         informationVector.append(InformationContainer(instance.instanceId(), IsResizable, instance.isResizable()));
         informationVector.append(InformationContainer(instance.instanceId(), IsInPositioner, instance.isInPositioner()));
         informationVector.append(InformationContainer(instance.instanceId(), PenWidth, instance.penWidth()));
-        informationVector.append(InformationContainer(instance.instanceId(), Parent, instance.parent().instanceId()));
         informationVector.append(InformationContainer(instance.instanceId(), IsAnchoredByChildren, instance.isAnchoredByChildren()));
         informationVector.append(InformationContainer(instance.instanceId(), IsAnchoredBySibling, instance.isAnchoredBySibling()));
 
@@ -666,7 +698,7 @@ bool NodeInstanceServer::nonInstanceChildIsDirty(QGraphicsObject *graphicsObject
                 continue;
 
             QGraphicsItemPrivate *childPrivate = QGraphicsItemPrivate::get(child);
-            if (childPrivate->dirty || childPrivate->dirtyChildren || nonInstanceChildIsDirty(childGraphicsObject))
+            if (childPrivate->dirty || nonInstanceChildIsDirty(childGraphicsObject))
                 return true;
         }
     }
@@ -693,6 +725,7 @@ void NodeInstanceServer::findItemChangesAndSendChangeCommands()
         QSet<ServerNodeInstance> dirtyInstanceSet;
         QSet<ServerNodeInstance> informationChangedInstanceSet;
         QVector<InstancePropertyPair> propertyChangedList;
+        QSet<ServerNodeInstance> parentChangedSet;
         bool adjustSceneRect = false;
 
         if (m_declarativeView) {
@@ -731,6 +764,7 @@ void NodeInstanceServer::findItemChangesAndSendChangeCommands()
 
                 if (propertyName == "parent") {
                     informationChangedInstanceSet.insert(instance);
+                    parentChangedSet.insert(instance);
                 } else {
                     propertyChangedList.append(property);
                 }
@@ -739,8 +773,12 @@ void NodeInstanceServer::findItemChangesAndSendChangeCommands()
             m_changedPropertyList.clear();
             resetAllItems();
 
+            if (!parentChangedSet.isEmpty())
+                sendChildrenChangedCommand(parentChangedSet.toList());
+
             if (!informationChangedInstanceSet.isEmpty())
                 nodeInstanceClient()->informationChanged(createAllInformationChangedCommand(informationChangedInstanceSet.toList()));
+
 
             if (!propertyChangedList.isEmpty())
                 nodeInstanceClient()->valuesChanged(createValuesChangedCommand(propertyChangedList));

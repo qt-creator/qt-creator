@@ -133,6 +133,8 @@ public:
 
     void doComponentComplete();
 
+    QList<ServerNodeInstance> childItems() const;
+
     QString id() const;
     qint32 instanceId() const;
 

@@ -283,6 +283,11 @@ void NodeInstance::setRenderImage(const QImage &image)
     d->renderImage = image;
 }
 
+void NodeInstance::setParentId(qint32 instanceId)
+{
+    d->parentInstanceId = instanceId;
+}
+
 void NodeInstance::setInformation(InformationName name, const QVariant &information, const QVariant &secondInformation, const QVariant &thirdInformation)
 {
     switch (name) {
@@ -302,7 +307,6 @@ void NodeInstance::setInformation(InformationName name, const QVariant &informat
     case Anchor: d->anchors.insert(information.toString(), qMakePair(secondInformation.toString(), thirdInformation.value<qint32>())); break;
     case InstanceTypeForProperty: d->instanceTypes.insert(information.toString(), secondInformation.toString()); break;
     case HasBindingForProperty: d->hasBindingForProperty.insert(information.toString(), secondInformation.toBool()); break;
-    case Parent: d->parentInstanceId = information.toInt();
     case NoName:
     default: break;
     }

@@ -23,6 +23,7 @@ public:
     void informationChanged(const InformationChangedCommand &command);
     void valuesChanged(const ValuesChangedCommand &command);
     void pixmapChanged(const PixmapChangedCommand &command);
+    void childrenChanged(const ChildrenChangedCommand &command);
     void flush();
     qint64 bytesToWrite() const;
 

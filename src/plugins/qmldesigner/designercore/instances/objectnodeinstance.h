@@ -132,6 +132,7 @@ public:
     virtual QString instanceType(const QString &name) const;
     QStringList propertyNames() const;
 
+    virtual QList<ServerNodeInstance> childItems() const;
 
     void createDynamicProperty(const QString &name, const QString &typeName);
     void setDeleteHeldInstance(bool deleteInstance);
