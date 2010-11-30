@@ -47,6 +47,7 @@ public:
 class GLSL_EXPORT UndefinedType: public Type
 {
 public:
+    virtual QString toString() const { return QLatin1String("undefined"); }
     virtual const UndefinedType *asUndefinedType() const { return this; }
     virtual bool isEqualTo(const Type *other) const;
     virtual bool isLessThan(const Type *other) const;
@@ -55,6 +56,7 @@ public:
 class GLSL_EXPORT VoidType: public Type
 {
 public:
+    virtual QString toString() const { return QLatin1String("void"); }
     virtual const VoidType *asVoidType() const { return this; }
     virtual bool isEqualTo(const Type *other) const;
     virtual bool isLessThan(const Type *other) const;
@@ -63,6 +65,7 @@ public:
 class GLSL_EXPORT BoolType: public Type
 {
 public:
+    virtual QString toString() const { return QLatin1String("bool"); }
     virtual const BoolType *asBoolType() const { return this; }
     virtual bool isEqualTo(const Type *other) const;
     virtual bool isLessThan(const Type *other) const;
@@ -71,6 +74,7 @@ public:
 class GLSL_EXPORT IntType: public Type
 {
 public:
+    virtual QString toString() const { return QLatin1String("int"); }
     virtual const IntType *asIntType() const { return this; }
     virtual bool isEqualTo(const Type *other) const;
     virtual bool isLessThan(const Type *other) const;
@@ -79,6 +83,7 @@ public:
 class GLSL_EXPORT UIntType: public Type
 {
 public:
+    virtual QString toString() const { return QLatin1String("uint"); }
     virtual const UIntType *asUIntType() const { return this; }
     virtual bool isEqualTo(const Type *other) const;
     virtual bool isLessThan(const Type *other) const;
@@ -87,6 +92,7 @@ public:
 class GLSL_EXPORT FloatType: public Type
 {
 public:
+    virtual QString toString() const { return QLatin1String("float"); }
     virtual const FloatType *asFloatType() const { return this; }
     virtual bool isEqualTo(const Type *other) const;
     virtual bool isLessThan(const Type *other) const;
@@ -95,6 +101,7 @@ public:
 class GLSL_EXPORT DoubleType: public Type
 {
 public:
+    virtual QString toString() const { return QLatin1String("double"); }
     virtual const DoubleType *asDoubleType() const { return this; }
     virtual bool isEqualTo(const Type *other) const;
     virtual bool isLessThan(const Type *other) const;
@@ -120,6 +127,7 @@ public:
     VectorType(const Type *elementType, int dimension)
         : IndexType(elementType), _dimension(dimension) {}
 
+    virtual QString toString() const;
     const Type *elementType() const { return indexElementType(); }
     int dimension() const { return _dimension; }
 
@@ -154,6 +162,7 @@ public:
     int columns() const { return _columns; }
     int rows() const { return _rows; }
 
+    virtual QString toString() const;
     virtual const MatrixType *asMatrixType() const { return this; }
     virtual bool isEqualTo(const Type *other) const;
     virtual bool isLessThan(const Type *other) const;
@@ -188,6 +197,7 @@ public:
     virtual Symbol *find(const QString &name) const;
 
     // as Type
+    virtual QString toString() const { return name(); }
     virtual const Struct *asStructType() const { return this; }
     virtual bool isEqualTo(const Type *other) const;
     virtual bool isLessThan(const Type *other) const;
@@ -215,6 +225,7 @@ public:
     Argument *argumentAt(int index) const;
 
     // as Type
+    virtual QString toString() const;
     virtual const Function *asFunctionType() const { return this; }
     virtual bool isEqualTo(const Type *other) const;
     virtual bool isLessThan(const Type *other) const;
@@ -246,6 +257,7 @@ public:
     // Kind of sampler as a token code; e.g. T_SAMPLER2D.
     int kind() const { return _kind; }
 
+    virtual QString toString() const;
     virtual const SamplerType *asSamplerType() const { return this; }
     virtual bool isEqualTo(const Type *other) const;
     virtual bool isLessThan(const Type *other) const;
@@ -269,6 +281,7 @@ public:
     virtual void add(Symbol *symbol);
 
     // as type
+    virtual QString toString() const { return QLatin1String("overload"); }
     virtual const OverloadSet *asOverloadSetType() const { return this; }
     virtual bool isEqualTo(const Type *other) const;
     virtual bool isLessThan(const Type *other) const;

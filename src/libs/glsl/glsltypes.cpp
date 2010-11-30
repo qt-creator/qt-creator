@@ -30,6 +30,7 @@
 #include "glsltypes.h"
 #include "glslsymbols.h"
 #include "glslengine.h"
+#include "glslparser.h"
 
 using namespace GLSL;
 
@@ -136,6 +137,20 @@ bool DoubleType::isLessThan(const Type *other) const
     Q_ASSERT(other != 0);
     Q_ASSERT(other->asDoubleType() != 0);
     return false;
+}
+
+QString VectorType::toString() const
+{
+    QChar prefix;
+    if (elementType()->asBoolType() != 0)
+        prefix = QLatin1Char('b');
+    else if (elementType()->asIntType() != 0)
+        prefix = QLatin1Char('i');
+    else if (elementType()->asUIntType() != 0)
+        prefix = QLatin1Char('u');
+    else if (elementType()->asDoubleType() != 0)
+        prefix = QLatin1Char('d');
+    return QString("%1vec%2").arg(prefix).arg(_dimension);
 }
 
 void VectorType::add(Symbol *symbol)
@@ -248,6 +263,20 @@ bool VectorType::isLessThan(const Type *other) const
     return false;
 }
 
+QString MatrixType::toString() const
+{
+    QChar prefix;
+    if (elementType()->asBoolType() != 0)
+        prefix = QLatin1Char('b');
+    else if (elementType()->asIntType() != 0)
+        prefix = QLatin1Char('i');
+    else if (elementType()->asUIntType() != 0)
+        prefix = QLatin1Char('u');
+    else if (elementType()->asDoubleType() != 0)
+        prefix = QLatin1Char('d');
+    return QString("%1mat%2x%3").arg(prefix, _columns, _rows);
+}
+
 bool MatrixType::isEqualTo(const Type *other) const
 {
     if (other) {
@@ -333,6 +362,25 @@ bool Struct::isLessThan(const Type *other) const
     return false;
 }
 
+QString Function::toString() const
+{
+    QString proto;
+    proto += _returnType->toString();
+    proto += QLatin1Char(' ');
+    proto += name();
+    proto += QLatin1Char('(');
+    for (int i = 0; i < _arguments.size(); ++i) {
+        if (i != 0)
+            proto += QLatin1String(", ");
+        Argument *arg = _arguments.at(i);
+        proto += arg->type()->toString();
+        proto += QLatin1Char(' ');
+        proto += arg->name();
+    }
+    proto += QLatin1Char(')');
+    return proto;
+}
+
 const Type *Function::returnType() const
 {
     return _returnType;
@@ -392,6 +440,11 @@ Symbol *Function::find(const QString &name) const
             return arg;
     }
     return 0;
+}
+
+QString SamplerType::toString() const
+{
+    return QLatin1String(Parser::spell[_kind]);
 }
 
 bool SamplerType::isEqualTo(const Type *other) const

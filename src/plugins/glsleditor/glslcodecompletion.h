@@ -30,9 +30,12 @@
 #define GLSLCODECOMPLETION_H
 
 #include <texteditor/icompletioncollector.h>
+#include <QtCore/QPointer>
 
 namespace GLSLEditor {
 namespace Internal {
+
+class FunctionArgumentWidget;
 
 class CodeCompletion: public TextEditor::ICompletionCollector
 {
@@ -100,6 +103,7 @@ private:
     TextEditor::ITextEditable *m_editor;
     int m_startPosition;
     bool m_restartCompletion;
+    QPointer<FunctionArgumentWidget> m_functionArgumentWidget;
 
     static bool glslCompletionItemLessThan(const TextEditor::CompletionItem &l, const TextEditor::CompletionItem &r);
 };

@@ -38,6 +38,8 @@ class GLSL_EXPORT Type
 public:
     virtual ~Type();
 
+    virtual QString toString() const = 0;
+
     virtual const UndefinedType *asUndefinedType() const { return 0; }
     virtual const VoidType *asVoidType() const { return 0; }
     virtual const BoolType *asBoolType() const { return 0; }
