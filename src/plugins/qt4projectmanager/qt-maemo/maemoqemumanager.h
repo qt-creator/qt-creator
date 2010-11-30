@@ -43,6 +43,7 @@
 QT_FORWARD_DECLARE_CLASS(QAction);
 QT_FORWARD_DECLARE_CLASS(QFileSystemWatcher)
 QT_FORWARD_DECLARE_CLASS(QStringList);
+QT_FORWARD_DECLARE_CLASS(QXmlStreamReader);
 
 namespace ProjectExplorer {
     class BuildConfiguration;
@@ -56,6 +57,7 @@ namespace Qt4ProjectManager {
     namespace Internal {
     class MaemoRunConfiguration;
 
+// TODO: Rename to something more unique
 struct Runtime
 {
     Runtime() {}
@@ -65,6 +67,7 @@ struct Runtime
         return !m_bin.isEmpty();
     }
 
+    QString m_name;
     QString m_bin;
     QString m_root;
     QString m_args;
@@ -133,9 +136,20 @@ private:
     QString maddeRoot(const QString &qmake) const;
     QString targetRoot(const QString &qmake) const;
 
-    bool fillRuntimeInformation(Runtime *runtime) const;
+    bool fillRuntimeInformationForOldMadInfo(Runtime *runtime) const;
     void setEnvironment(Runtime *runTime, const QString &envSpec) const;
-    QString runtimeForQtVersion(const QString &qmakeCommand) const;
+    Runtime createRuntime(const QtVersion *qtVersion) const;
+    Runtime parseRuntimeFromMadInfo(const QByteArray &output,
+        const QString &targetName) const;
+    Runtime parseRuntimeFromOldMadInfo(const QString &output,
+        const QString &maddeRootPath, const QString &targetName) const;
+    void handleMadInfoTargetTag(QXmlStreamReader &infoReader,
+        QString &runtimeName, const QString &targetName) const;
+    Runtime handleMadInfoRuntimeTag(QXmlStreamReader &infoReader) const;
+    QHash<QString, QString> handleMadInfoEnvironmentTag(QXmlStreamReader &infoReader) const;
+    QPair<QString, QString> handleMadInfoVariableTag(QXmlStreamReader &infoReader) const;
+    MaemoPortList handleMadInfoTcpPortListTag(QXmlStreamReader &infoReader) const;
+    int handleMadInfoPortTag(QXmlStreamReader &infoReader) const;
 
     void notify(const QList<int> uniqueIds);
     void toggleDeviceConnections(MaemoRunConfiguration *mrc, bool connect);
