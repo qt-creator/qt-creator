@@ -333,7 +333,8 @@ bool QmlProjectRunConfiguration::isValidVersion(Qt4ProjectManager::QtVersion *ve
 Utils::Environment QmlProjectRunConfiguration::baseEnvironment() const
 {
     Utils::Environment env;
-    env = qtVersion()->qmlToolsEnvironment();
+    if (qtVersion())
+        env = qtVersion()->qmlToolsEnvironment();
     return env;
 }
 
