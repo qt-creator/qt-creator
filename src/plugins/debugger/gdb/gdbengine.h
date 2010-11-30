@@ -355,6 +355,7 @@ private: ////////// View & Data Stuff //////////
     void handleBreakInsert2(const GdbResponse &response);
     void handleBreakCondition(const GdbResponse &response);
     void handleBreakInfo(const GdbResponse &response);
+    void handleBreakThreadSpec(const GdbResponse &response);
     void handleWatchInsert(const GdbResponse &response);
     void handleInfoLine(const GdbResponse &response);
     void extractDataFromInfoBreak(const QString &output, BreakpointId);

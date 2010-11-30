@@ -482,7 +482,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             // On Windows, the contents seem to depend on the debugger
             // version and/or OS version used.
             if (data.startsWith("warning:"))
-                showMessage(_(data.mid(9)), AppStuff); // cut "warning: "
+                showMessage(_(data.mid(9)), AppStuff); // Cut "warning: "
             break;
         }
 
@@ -499,14 +499,6 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             if (resultClass == "done") {
                 response.resultClass = GdbResultDone;
             } else if (resultClass == "running") {
-                // FIXME: Handle this in the individual result handlers.
-                //if (state() == InferiorStopOk) { // Result of manual command.
-                //    resetLocation();
-                //    setTokenBarrier();
-                //    notifyInferiorRunRequested();
-                //}
-                //notifyInferiorRunOk();
-                //showStatusMessage(tr("Running..."));
                 response.resultClass = GdbResultRunning;
             } else if (resultClass == "connected") {
                 response.resultClass = GdbResultConnected;
@@ -526,7 +518,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                     response.data.m_type = GdbMi::Tuple;
                     response.data.m_name = "data";
                 } else {
-                    // Archer has this
+                    // Archer has this.
                     response.data.m_type = GdbMi::Tuple;
                     response.data.m_name = "data";
                 }
@@ -2182,10 +2174,13 @@ void GdbEngine::handleWatchInsert(const GdbResponse &response)
             const int end = ba.indexOf(':');
             const int begin = ba.lastIndexOf(' ', end) + 1;
             const QByteArray address = ba.mid(end + 3).trimmed();
-            BreakpointResponse response = breakHandler()->response(id);
+            BreakHandler *handler = breakHandler();
+            BreakpointResponse response = handler->response(id);
             response.number = ba.mid(begin, end - begin).toInt();
             response.address = address.toULongLong(0, 0);
-            breakHandler()->setResponse(id, response);
+            handler->setResponse(id, response);
+            QTC_ASSERT(!handler->needsChange(id), /**/);
+            handler->notifyBreakpointInsertOk(id);
         } else {
             showMessage(_("CANNOT PARSE WATCHPOINT FROM " + ba));
         }
@@ -2214,7 +2209,14 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
         // Interesting only on Mac?
         GdbMi bkpt = response.data.findChild("bkpt");
         updateBreakpointDataFromOutput(id, bkpt);
-        attemptAdjustBreakpointLocation(id);
+        BreakHandler *handler = breakHandler();
+        if (handler->needsChange(id)) {
+            handler->notifyBreakpointChangeAfterInsertNeeded(id);
+            changeBreakpoint(id);
+        } else {
+            handler->notifyBreakpointInsertOk(id);
+            attemptAdjustBreakpointLocation(id);
+        }
     } else {
         // Some versions of gdb like "GNU gdb (GDB) SUSE (6.8.91.20090930-2.4)"
         // know how to do pending breakpoints using CLI but not MI. So try
@@ -2308,22 +2310,39 @@ void GdbEngine::handleBreakDisable(const GdbResponse &response)
 {
     QTC_ASSERT(response.resultClass == GdbResultDone, /**/)
     const BreakpointId id = response.cookie.toInt();
+    BreakHandler *handler = breakHandler();
     // This should only be the requested state.
-    QTC_ASSERT(!breakHandler()->isEnabled(id), /* Prevent later recursion */);
-    BreakpointResponse br = breakHandler()->response(id);
+    QTC_ASSERT(!handler->isEnabled(id), /* Prevent later recursion */);
+    BreakpointResponse br = handler->response(id);
     br.enabled = false;
-    breakHandler()->setResponse(id, br);
+    handler->setResponse(id, br);
+    changeBreakpoint(id); // Maybe there's more to do.
 }
 
 void GdbEngine::handleBreakEnable(const GdbResponse &response)
 {
     QTC_ASSERT(response.resultClass == GdbResultDone, /**/)
     const BreakpointId id = response.cookie.toInt();
+    BreakHandler *handler = breakHandler();
     // This should only be the requested state.
-    QTC_ASSERT(breakHandler()->isEnabled(id), /* Prevent later recursion */);
-    BreakpointResponse br = breakHandler()->response(id);
+    QTC_ASSERT(handler->isEnabled(id), /* Prevent later recursion */);
+    BreakpointResponse br = handler->response(id);
     br.enabled = true;
-    breakHandler()->setResponse(id, br);
+    handler->setResponse(id, br);
+    changeBreakpoint(id); // Maybe there's more to do.
+}
+
+void GdbEngine::handleBreakThreadSpec(const GdbResponse &response)
+{
+    QTC_ASSERT(response.resultClass == GdbResultDone, /**/)
+    const BreakpointId id = response.cookie.toInt();
+    BreakHandler *handler = breakHandler();
+    handler->notifyBreakpointChangeOk(id);
+    handler->notifyBreakpointNeedsReinsertion(id);
+    BreakpointResponse br = handler->response(id);
+    br.threadSpec = handler->threadSpec(id);
+    handler->setResponse(id, br);
+    changeBreakpoint(id); // Maybe there's more to do.
 }
 
 void GdbEngine::handleBreakIgnore(const GdbResponse &response)
@@ -2340,30 +2359,36 @@ void GdbEngine::handleBreakIgnore(const GdbResponse &response)
     // gdb 6.3 does not produce any console output
     QTC_ASSERT(response.resultClass == GdbResultDone, /**/)
     QString msg = _(response.data.findChild("consolestreamoutput").data());
-    BreakpointId id(response.cookie.toInt());
-    BreakpointResponse br = breakHandler()->response(id);
+    BreakpointId id = response.cookie.toInt();
+    BreakHandler *handler = breakHandler();
+    BreakpointResponse br = handler->response(id);
     //if (msg.contains(__("Will stop next time breakpoint")))
     //    response.ignoreCount = _("0");
     //else if (msg.contains(__("Will ignore next")))
     //    response.ignoreCount = data->ignoreCount;
     // FIXME: this assumes it is doing the right thing...
-    br.ignoreCount = breakHandler()->ignoreCount(id);
-    breakHandler()->setResponse(id, br);
+    br.ignoreCount = handler->ignoreCount(id);
+    handler->setResponse(id, br);
+    changeBreakpoint(id); // Maybe there's more to do.
 }
 
 void GdbEngine::handleBreakCondition(const GdbResponse &response)
 {
-    QTC_ASSERT(response.resultClass == GdbResultDone, /**/)
+    // Can happen at invalid condition strings.
+    //QTC_ASSERT(response.resultClass == GdbResultDone, /**/)
     const BreakpointId id = response.cookie.toInt();
+    qDebug() << "CONDITION FOR" << id;
+    BreakHandler *handler = breakHandler();
     // We just assume it was successful. Otherwise we had to parse
     // the output stream data.
     // The following happens on Mac:
     //   QByteArray msg = response.data.findChild("msg").data();
     //   if (1 || msg.startsWith("Error parsing breakpoint condition. "
     //            " Will try again when we hit the breakpoint.")) {
-    BreakpointResponse br = breakHandler()->response(id);
-    br.condition = breakHandler()->condition(id);
-    breakHandler()->setResponse(id, br);
+    BreakpointResponse br = handler->response(id);
+    br.condition = handler->condition(id);
+    handler->setResponse(id, br);
+    changeBreakpoint(id); // Maybe there's more to do.
 }
 
 void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointId id)
@@ -2442,10 +2467,10 @@ void GdbEngine::handleInfoLine(const GdbResponse &response)
         // at address 0x80526aa <_Z10...+131> and ends at 0x80526b5
         // <_Z10testQStackv+142>.\n"
         QByteArray ba = response.data.findChild("consolestreamoutput").data();
+        const BreakpointId id = response.cookie.toInt();
         const int pos = ba.indexOf(' ', 5);
         if (ba.startsWith("Line ") && pos != -1) {
             const int line = ba.mid(5, pos - 5).toInt();
-            const BreakpointId id = response.cookie.toInt();
             BreakpointResponse br = breakHandler()->response(id);
             br.lineNumber = line;
             breakHandler()->setResponse(id, br);
@@ -2620,54 +2645,46 @@ void GdbEngine::changeBreakpoint(BreakpointId id)
     QTC_ASSERT(response.number > 0, return);
     const QByteArray bpnr = QByteArray::number(response.number);
     QTC_ASSERT(response.number > 0, return);
-
-    bool finished = true;
-    if (data.condition != response.condition
-        && !data.conditionsMatch(response.condition)) {
-        // Update conditions if needed.
+    const BreakpointState state = handler->state(id);
+    if (state == BreakpointChangeRequested)
         handler->notifyBreakpointChangeProceeding(id);
-        finished = false;
+    const BreakpointState state2 = handler->state(id);
+    QTC_ASSERT(state2 == BreakpointChangeProceeding, qDebug() << state2);
+
+    if (!data.conditionsMatch(response.condition)) {
         postCommand("condition " + bpnr + ' '  + data.condition,
             NeedsStop | RebuildBreakpointModel,
             CB(handleBreakCondition), id);
+        return;
     }
     if (data.ignoreCount != response.ignoreCount) {
-        // Update ignorecount if needed.
-        handler->notifyBreakpointChangeProceeding(id);
-        finished = false;
         postCommand("ignore " + bpnr + ' ' + QByteArray::number(data.ignoreCount),
             NeedsStop | RebuildBreakpointModel,
             CB(handleBreakIgnore), id);
+        return;
     }
     if (!data.enabled && response.enabled) {
-        handler->notifyBreakpointChangeProceeding(id);
-        finished = false;
         postCommand("-break-disable " + bpnr,
             NeedsStop | RebuildBreakpointModel,
             CB(handleBreakDisable), id);
+        return;
     }
     if (data.enabled && !response.enabled) {
-        handler->notifyBreakpointChangeProceeding(id);
-        finished = false;
         postCommand("-break-enable " + bpnr,
             NeedsStop | RebuildBreakpointModel,
             CB(handleBreakEnable), id);
+        return;
     }
-
     if (data.threadSpec != response.threadSpec) {
         // The only way to change this seems to be to re-set the bp completely.
-        qDebug() << "FIXME: THREAD: " << data.threadSpec << response.threadSpec;
-        //response.threadSpec.clear();
-        //postCommand("-break-delete " + bpnr,
-        //    NeedsStop | RebuildBreakpointModel);
-        //sendInsertBreakpoint(index);
-        //continue;
+        postCommand("-break-delete " + bpnr,
+            NeedsStop | RebuildBreakpointModel,
+            CB(handleBreakThreadSpec), id);
+        return;
     }
 
+    handler->notifyBreakpointChangeOk(id);
     attemptAdjustBreakpointLocation(id);
-
-    if (finished)
-        handler->notifyBreakpointChangeOk(id);
 }
 
 void GdbEngine::removeBreakpoint(BreakpointId id)

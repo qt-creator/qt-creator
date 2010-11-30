@@ -218,7 +218,6 @@ void BreakHandler::setWatchpointByAddress(quint64 address)
         BreakpointParameters data(Watchpoint);
         data.address = address;
         appendBreakpoint(data);
-        scheduleSynchronization();
     } else {
         qDebug() << "WATCHPOINT EXISTS";
      //   removeBreakpoint(index);
@@ -655,71 +654,73 @@ void BreakHandler::setState(BreakpointId id, BreakpointState state)
     it->state = state;
 }
 
+void BreakHandler::notifyBreakpointChangeAfterInsertNeeded(BreakpointId id)
+{
+    QTC_ASSERT(state(id) == BreakpointInsertProceeding, qDebug() << state(id));
+    setState(id, BreakpointChangeRequested);
+}
+
 void BreakHandler::notifyBreakpointInsertProceeding(BreakpointId id)
 {
-    QTC_ASSERT(state(id) == BreakpointInsertRequested, /**/);
+    QTC_ASSERT(state(id) == BreakpointInsertRequested, qDebug() << state(id));
     setState(id, BreakpointInsertProceeding);
 }
 
 void BreakHandler::notifyBreakpointInsertOk(BreakpointId id)
 {
-    QTC_ASSERT(state(id) == BreakpointInsertProceeding, /**/);
+    QTC_ASSERT(state(id) == BreakpointInsertProceeding, qDebug() << state(id));
     setState(id, BreakpointInserted);
     ConstIterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return);
-    //if (it0->needsChange(it->data, it->response)) {
-    //    setState(id, BreakpointChangeRequested);
-    //    scheduleSynchronization();
-    //}
 }
 
 void BreakHandler::notifyBreakpointInsertFailed(BreakpointId id)
 {
-    QTC_ASSERT(state(id) == BreakpointInsertProceeding, /**/);
+    QTC_ASSERT(state(id) == BreakpointInsertProceeding, qDebug() << state(id));
     setState(id, BreakpointDead);
 }
 
 void BreakHandler::notifyBreakpointRemoveProceeding(BreakpointId id)
 {
-    QTC_ASSERT(state(id) == BreakpointRemoveRequested, /**/);
+    QTC_ASSERT(state(id) == BreakpointRemoveRequested, qDebug() << state(id));
     setState(id, BreakpointRemoveProceeding);
 }
 
 void BreakHandler::notifyBreakpointRemoveOk(BreakpointId id)
 {
-    QTC_ASSERT(state(id) == BreakpointRemoveProceeding, /**/);
+    QTC_ASSERT(state(id) == BreakpointRemoveProceeding, qDebug() << state(id));
     setState(id, BreakpointDead);
     cleanupBreakpoint(id);
 }
 
 void BreakHandler::notifyBreakpointRemoveFailed(BreakpointId id)
 {
-    QTC_ASSERT(state(id) == BreakpointRemoveProceeding, /**/);
+    QTC_ASSERT(state(id) == BreakpointRemoveProceeding, qDebug() << state(id));
     setState(id, BreakpointDead);
     cleanupBreakpoint(id);
 }
 
 void BreakHandler::notifyBreakpointChangeProceeding(BreakpointId id)
 {
-    QTC_ASSERT(state(id) == BreakpointChangeRequested, /**/);
+    QTC_ASSERT(state(id) == BreakpointChangeRequested, qDebug() << state(id));
     setState(id, BreakpointChangeProceeding);
 }
 
 void BreakHandler::notifyBreakpointChangeOk(BreakpointId id)
 {
-    QTC_ASSERT(state(id) == BreakpointChangeProceeding, /**/);
+    QTC_ASSERT(state(id) == BreakpointChangeProceeding, qDebug() << state(id));
     setState(id, BreakpointInserted);
 }
 
 void BreakHandler::notifyBreakpointChangeFailed(BreakpointId id)
 {
-    QTC_ASSERT(state(id) == BreakpointChangeProceeding, /**/);
+    QTC_ASSERT(state(id) == BreakpointChangeProceeding, qDebug() << state(id));
     setState(id, BreakpointDead);
 }
 
 void BreakHandler::notifyBreakpointReleased(BreakpointId id)
 {
-    //QTC_ASSERT(state(id) == BreakpointChangeProceeding, /**/);
+    //QTC_ASSERT(state(id) == BreakpointChangeProceeding, qDebug() << state(id));
     Iterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return);
     it->state = BreakpointNew;
@@ -734,14 +735,21 @@ void BreakHandler::notifyBreakpointReleased(BreakpointId id)
 void BreakHandler::notifyBreakpointAdjusted(BreakpointId id,
         const BreakpointParameters &data)
 {
-    QTC_ASSERT(state(id) == BreakpointInserted, /**/);
+    QTC_ASSERT(state(id) == BreakpointInserted, qDebug() << state(id));
     Iterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return);
     it->data = data;
-    if (it->needsChange())
-        setState(id, BreakpointChangeRequested);
+    //if (it->needsChange())
+    //    setState(id, BreakpointChangeRequested);
 }
 
+void BreakHandler::notifyBreakpointNeedsReinsertion(BreakpointId id)
+{
+    QTC_ASSERT(state(id) == BreakpointInserted, qDebug() << state(id));
+    Iterator it = m_storage.find(id);
+    QTC_ASSERT(it != m_storage.end(), return);
+    it->state = BreakpointNew;
+}
 
 void BreakHandler::removeBreakpoint(BreakpointId id)
 {
@@ -833,11 +841,8 @@ void BreakHandler::timerEvent(QTimerEvent *event)
     QTC_ASSERT(event->timerId() == m_syncTimerId, return);
     killTimer(m_syncTimerId);
     m_syncTimerId = -1;
-    //qDebug() << "BREAKPOINT SYNCRONIZATION STARTED";
-    debuggerCore()->synchronizeBreakpoints();
-    updateMarkers();
-    emit layoutChanged();
     saveBreakpoints();  // FIXME: remove?
+    debuggerCore()->synchronizeBreakpoints();
 }
 
 void BreakHandler::gotoLocation(BreakpointId id) const
@@ -903,7 +908,7 @@ BreakpointIds BreakHandler::engineBreakpointIds(DebuggerEngine *engine) const
 
 void BreakHandler::cleanupBreakpoint(BreakpointId id)
 {
-    QTC_ASSERT(state(id) == BreakpointDead, /**/);
+    QTC_ASSERT(state(id) == BreakpointDead, qDebug() << state(id));
     BreakpointItem item = m_storage.take(id);
     item.destroyMarker();
     layoutChanged();
@@ -917,19 +922,18 @@ const BreakpointResponse &BreakHandler::response(BreakpointId id) const
     return it->response;
 }
 
+bool BreakHandler::needsChange(BreakpointId id) const
+{
+    ConstIterator it = m_storage.find(id);
+    QTC_ASSERT(it != m_storage.end(), return false);
+    return it->needsChange();
+}
+
 void BreakHandler::setResponse(BreakpointId id, const BreakpointResponse &data)
 {
     Iterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return);
     it->response = data;
-    //qDebug() << "SET RESPONSE: " << id << it->state << it->needsChange();
-    if (it->state == BreakpointChangeProceeding
-        || it->state == BreakpointInsertProceeding) {
-        if (it->needsChange())
-            setState(id, BreakpointChangeRequested);
-        else
-            setState(id, BreakpointInserted);
-    }
     it->destroyMarker();
     updateMarker(id);
 }
@@ -941,12 +945,14 @@ void BreakHandler::setBreakpointData(BreakpointId id, const BreakpointParameters
     if (data == it->data)
         return;
     it->data = data;
-    it->destroyMarker();
-    updateMarker(id);
-    layoutChanged();
-    if (it->state == BreakpointInserted)
+    if (it->needsChange()) {
         setState(id, BreakpointChangeRequested);
-    scheduleSynchronization();
+        scheduleSynchronization();
+    } else {
+        it->destroyMarker();
+        updateMarker(id);
+        layoutChanged();
+    }
 }
 
 //////////////////////////////////////////////////////////////////
@@ -1026,6 +1032,8 @@ bool BreakHandler::BreakpointItem::needsChange() const
     if (data.ignoreCount != response.ignoreCount)
         return true;
     if (data.enabled != response.enabled)
+        return true;
+    if (data.threadSpec != response.threadSpec)
         return true;
     return false;
 }

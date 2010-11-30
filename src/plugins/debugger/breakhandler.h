@@ -130,8 +130,10 @@ public:
     void setEngine(BreakpointId id, DebuggerEngine *engine);
     const BreakpointResponse &response(BreakpointId id) const;
     void setResponse(BreakpointId id, const BreakpointResponse &data);
+    bool needsChange(BreakpointId id) const;
 
     // State transitions.
+    void notifyBreakpointChangeAfterInsertNeeded(BreakpointId id);
     void notifyBreakpointInsertProceeding(BreakpointId id);
     void notifyBreakpointInsertOk(BreakpointId id);
     void notifyBreakpointInsertFailed(BreakpointId id);
@@ -143,6 +145,7 @@ public:
     void notifyBreakpointRemoveOk(BreakpointId id);
     void notifyBreakpointRemoveFailed(BreakpointId id);
     void notifyBreakpointReleased(BreakpointId id);
+    void notifyBreakpointNeedsReinsertion(BreakpointId id);
     void notifyBreakpointAdjusted(BreakpointId id,
             const BreakpointParameters &data);
 

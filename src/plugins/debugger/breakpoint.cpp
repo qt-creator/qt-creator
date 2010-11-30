@@ -52,7 +52,7 @@ bool BreakpointParameters::equals(const BreakpointParameters &rhs) const
         && enabled == rhs.enabled
         && useFullPath == rhs.useFullPath
         && fileName == rhs.fileName
-        && condition == rhs.condition
+        && conditionsMatch(rhs.condition)
         && ignoreCount == rhs.ignoreCount
         && lineNumber == rhs.lineNumber
         && address == rhs.address
