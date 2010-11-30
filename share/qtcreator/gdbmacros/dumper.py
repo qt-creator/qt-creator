@@ -144,6 +144,11 @@ def lookupType(typestring):
         #if not type is None:
         #    warn("  FIELDS: '%s'" % type.fields())
         typeCache[typestring] = type
+    if type is None and typestring.endswith('*'):
+        type = lookupType(typestring[0:-1])
+        if not type is None:
+            type = type.pointer()
+            typeCache[typestring] = type
     if type is None:
         # could be gdb.lookup_type("char[3]") generating
         # "RuntimeError: No type named char[3]"

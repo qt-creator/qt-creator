@@ -436,7 +436,15 @@ def qdump__QList(d, item):
     checkRef(d_ptr["ref"])
 
     # Additional checks on pointer arrays.
-    innerType = item.value.type.template_argument(0)
+    try:
+        # This fails on stock 7.2 with
+        # "RuntimeError: No type named myns::QObject.\n"
+        innerType = item.value.type.template_argument(0)
+    except:
+        # That's something like "myns::QList<...>"
+        innerString = str(item.value.type.strip_typedefs())
+        innerType = lookupType(innerString[len(d.ns) + 6 : -1])
+
     innerTypeIsPointer = innerType.code == gdb.TYPE_CODE_PTR \
         and str(innerType.target().unqualified()) != "char"
     if innerTypeIsPointer:
