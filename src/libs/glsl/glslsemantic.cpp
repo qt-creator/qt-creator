@@ -219,6 +219,40 @@ bool Semantic::visit(BinaryExpressionAST *ast)
     ExprResult left = expression(ast->left);
     ExprResult right = expression(ast->right);
     _expr.isConstant = left.isConstant && right.isConstant;
+    switch (ast->kind) {
+    case AST::Kind_ArrayAccess:
+        break;
+
+    case AST::Kind_Multiply:
+    case AST::Kind_Divide:
+    case AST::Kind_Modulus:
+    case AST::Kind_Plus:
+    case AST::Kind_Minus:
+    case AST::Kind_ShiftLeft:
+    case AST::Kind_ShiftRight:
+        _expr.type = left.type; // ### not exactly
+        break;
+
+    case AST::Kind_LessThan:
+    case AST::Kind_GreaterThan:
+    case AST::Kind_LessEqual:
+    case AST::Kind_GreaterEqual:
+    case AST::Kind_Equal:
+    case AST::Kind_NotEqual:
+    case AST::Kind_BitwiseAnd:
+    case AST::Kind_BitwiseXor:
+    case AST::Kind_BitwiseOr:
+    case AST::Kind_LogicalAnd:
+    case AST::Kind_LogicalXor:
+    case AST::Kind_LogicalOr:
+        _expr.type = _engine->boolType();
+        break;
+
+    case AST::Kind_Comma:
+        _expr = right;
+        break;
+    }
+
     return false;
 }
 
@@ -235,6 +269,7 @@ bool Semantic::visit(TernaryExpressionAST *ast)
     ExprResult second = expression(ast->second);
     ExprResult third = expression(ast->third);
     _expr.isConstant = first.isConstant && second.isConstant && third.isConstant;
+    _expr.type = second.type;
     return false;
 }
 
@@ -252,24 +287,65 @@ bool Semantic::visit(MemberAccessExpressionAST *ast)
         if (const VectorType *vecTy = expr.type->asVectorType()) {
             if (Symbol *s = vecTy->find(*ast->field)) {
                 _expr.type = s->type();
+            } else {
+                _engine->error(ast->lineno, QString("`%1' has no member named `%2'").arg(vecTy->name()).arg(*ast->field));
             }
         } else if (const Struct *structTy = expr.type->asStructType()) {
             if (Symbol *s = structTy->find(*ast->field)) {
                 _expr.type = s->type();
+            } else {
+                _engine->error(ast->lineno, QString("`%1' has no member named `%2'").arg(structTy->name()).arg(*ast->field));
             }
         } else {
-            // error(ast->lineno, QString("Requested for member `%1', in a non class or vec instance").arg(*ast->field));
+            _engine->error(ast->lineno, QString("Requested for member `%1', in a non class or vec instance").arg(*ast->field));
         }
     }
     return false;
+}
+
+bool Semantic::implicitCast(const Type *type, const Type *target) const
+{
+    // ### implement me
+    return type->isEqualTo(target);
 }
 
 bool Semantic::visit(FunctionCallExpressionAST *ast)
 {
     ExprResult expr = expression(ast->expr);
     ExprResult id = functionIdentifier(ast->id);
+    QVector<ExprResult> actuals;
     for (List<ExpressionAST *> *it = ast->arguments; it; it = it->next) {
         ExprResult arg = expression(it->value);
+        actuals.append(arg);
+    }
+    if (id.isValid()) {
+        if (const Function *funTy = id.type->asFunctionType()) {
+            if (actuals.size() < funTy->argumentCount())
+                _engine->error(ast->lineno, QString("not enough arguments"));
+            else if (actuals.size() > funTy->argumentCount())
+                _engine->error(ast->lineno, QString("too many arguments"));
+            _expr.type = funTy->returnType();
+        } else if (const OverloadSet *overloads = id.type->asOverloadSetType()) {
+            QVector<GLSL::Function *> candidates;
+            foreach (GLSL::Function *f, overloads->functions()) {
+                if (f->argumentCount() == actuals.size()) {
+                    int argc = 0;
+                    for (; argc < actuals.size(); ++argc) {
+                        const Type *actualTy = actuals.at(argc).type;
+                        const Type *argumentTy = f->argumentAt(argc)->type();
+                        if (! implicitCast(actualTy, argumentTy))
+                            break;
+                    }
+
+                    if (argc == actuals.size())
+                        candidates.append(f);
+                }
+            }
+            if (candidates.size() == 1)
+                _expr.type = candidates.first()->returnType();
+            else
+                _expr.type = overloads->functions().first()->returnType();
+        }
     }
 
     return false;

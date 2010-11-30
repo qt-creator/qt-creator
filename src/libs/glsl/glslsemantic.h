@@ -57,6 +57,8 @@ protected:
     Engine *switchEngine(Engine *engine);
     Scope *switchScope(Scope *scope);
 
+    bool implicitCast(const Type *type, const Type *target) const;
+
     ExprResult expression(ExpressionAST *ast);
     void statement(StatementAST *ast);
     const Type *type(TypeAST *ast);
