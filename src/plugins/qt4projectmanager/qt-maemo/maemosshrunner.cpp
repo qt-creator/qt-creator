@@ -152,9 +152,10 @@ void MaemoSshRunner::handleConnectionFailure()
     if (m_state == Inactive)
         qWarning("Unexpected state %d in %s.", m_state, Q_FUNC_INFO);
 
-    const QString errorTemplate = m_state == Connecting
-        ? tr("Could not connect to host: %1") : tr("Connection failed: %1");
-    emitError(errorTemplate.arg(m_connection->errorString()));
+    const QString errorMsg = m_state == Connecting
+        ? MaemoGlobal::failedToConnectToServerMessage(m_connection, m_devConfig)
+        : tr("Connection error: %1").arg(m_connection->errorString());
+    emitError(errorMsg);
 }
 
 void MaemoSshRunner::cleanup()

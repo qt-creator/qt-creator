@@ -29,6 +29,9 @@
 
 #include "maemoglobal.h"
 
+#include "maemodeviceconfigurations.h"
+
+#include <coreplugin/ssh/sshconnection.h>
 #include <utils/environment.h>
 
 #include <QtCore/QCoreApplication>
@@ -77,6 +80,23 @@ QString MaemoGlobal::remoteEnvironment(const QList<Utils::EnvironmentItem> &list
     foreach (const Utils::EnvironmentItem &item, list)
         env.append(placeHolder.arg(item.name).arg(item.value));
     return env.mid(0, env.size() - 1);
+}
+
+QString MaemoGlobal::failedToConnectToServerMessage(const Core::SshConnection::Ptr &connection,
+    const MaemoDeviceConfig &deviceConfig)
+{
+    QString errorMsg = TR("Could not connect to host: %1")
+        .arg(connection->errorString());
+
+    if (deviceConfig.type == MaemoDeviceConfig::Simulator) {
+        if (connection->errorState() == Core::SshTimeoutError
+                || connection->errorState() == Core::SshSocketError) {
+            errorMsg += TR("\nDid you start Qemu?");
+        }
+    } else if (connection->errorState() == Core::SshTimeoutError) {
+        errorMsg += TR("\nIs the device connected and set up for network access?");
+    }
+    return errorMsg;
 }
 
 bool MaemoGlobal::removeRecursively(const QString &filePath, QString &error)

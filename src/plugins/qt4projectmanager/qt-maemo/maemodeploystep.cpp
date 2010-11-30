@@ -335,11 +335,14 @@ void MaemoDeployStep::start()
 
 void MaemoDeployStep::handleConnectionFailure()
 {
-    if (m_state != Inactive) {
-        raiseError(tr("Could not connect to host: %1")
-            .arg(m_connection->errorString()));
-        setState(Inactive);
-    }
+    if (m_state == Inactive)
+        return;
+
+    const QString errorMsg = m_state == Connecting
+        ? MaemoGlobal::failedToConnectToServerMessage(m_connection, deviceConfig())
+        : tr("Connection error: %1").arg(m_connection->errorString());
+    raiseError(errorMsg);
+    setState(Inactive);
 }
 
 void MaemoDeployStep::handleSftpChannelInitialized()

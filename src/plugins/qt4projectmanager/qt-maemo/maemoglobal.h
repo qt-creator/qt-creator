@@ -37,6 +37,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <QtCore/QList>
+#include <QtCore/QSharedPointer>
 
 #define ASSERT_STATE_GENERIC(State, expected, actual)                         \
     MaemoGlobal::assertState<State>(expected, actual, Q_FUNC_INFO)
@@ -46,8 +47,11 @@ class QProcess;
 class QString;
 QT_END_NAMESPACE
 
+namespace Core { class SshConnection; }
+
 namespace Qt4ProjectManager {
 namespace Internal {
+class MaemoDeviceConfig;
 
 class MaemoGlobal
 {
@@ -57,6 +61,8 @@ public:
     static QString remoteCommandPrefix(const QString &commandFilePath);
     static QString remoteEnvironment(const QList<Utils::EnvironmentItem> &list);
     static QString remoteSourceProfilesCommand();
+    static QString failedToConnectToServerMessage(const QSharedPointer<Core::SshConnection> &connection,
+        const MaemoDeviceConfig &deviceConfig);
 
     static bool removeRecursively(const QString &filePath, QString &error);
     static void callMaddeShellScript(QProcess &proc, const QString &maddeRoot,
