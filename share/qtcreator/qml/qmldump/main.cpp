@@ -211,7 +211,7 @@ void dump(const QMetaObject *meta, QXmlStreamWriter *xml)
 
     xml->writeAttributes(attributes);
 
-    QList<const QDeclarativeType *> qmlTypes = qmlTypesByCppName.value(id);
+    QList<const QDeclarativeType *> qmlTypes = qmlTypesByCppName.value(meta->className());
     if (!qmlTypes.isEmpty()) {
         xml->writeStartElement("exports");
         foreach (const QDeclarativeType *qmlTy, qmlTypes) {
