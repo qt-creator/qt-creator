@@ -145,7 +145,7 @@ bool S60DeployStep::init()
         delete m_launcher;
         m_launcher = 0;
         appendMessage(message, true);
-        return false;
+        return true;
     }
     // Prompt the user to start up the Blue tooth connection
     const trk::PromptStartCommunicationResult src =
@@ -157,7 +157,7 @@ bool S60DeployStep::init()
         delete m_launcher;
         m_launcher = 0;
         appendMessage(message, true);
-        return false;
+        return true;
     }
     return true;
 }
@@ -212,7 +212,7 @@ bool S60DeployStep::processPackageName(QString &errorMessage)
 void S60DeployStep::start()
 {
     if (m_serialPortName.isEmpty()) {
-        appendMessage(tr("There is no device plugged in."), true);
+        appendMessage(tr("No device is connected. Please connect a device and try again."), true);
         emit finished();
         return;
     }

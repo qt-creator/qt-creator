@@ -539,7 +539,7 @@ void S60DeviceRunControl::start()
     emit started();
     if (m_serialPortName.isEmpty()) {
         m_launchProgress->reportCanceled();
-        appendMessage(this, tr("There is no device plugged in."), true);
+        appendMessage(this, tr("No device is connected. Please connect a device and try again."), true);
         emit finished();
         return;
     }
