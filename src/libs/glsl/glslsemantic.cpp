@@ -187,7 +187,7 @@ bool Semantic::visit(IdentifierExpressionAST *ast)
         if (Symbol *s = _scope->lookup(*ast->name)) {
             _expr.type = s->type();
         } else {
-            if (ast->name->startsWith(QLatin1String("gl_")) || ast->name->startsWith(QLatin1String("qgl_"))) {
+            if (ast->name->startsWith(QLatin1String("qgl_"))) {
                 // ### well, at least for now.
             } else {
                 _engine->error(ast->lineno, QString("`%1' was not declared in this scope").arg(*ast->name));
