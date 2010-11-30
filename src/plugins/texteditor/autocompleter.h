@@ -47,30 +47,45 @@ public:
     AutoCompleter();
     virtual ~AutoCompleter();
 
-    bool contextAllowsAutoParentheses(const QTextCursor &cursor,
-                                      const QString &textToInsert = QString()) const;
-    bool contextAllowsElectricCharacters(const QTextCursor &cursor) const;
+    void setAutoParenthesesEnabled(bool b);
+    bool isAutoParenthesesEnabled() const;
+
+    void setSurroundWithEnabled(bool b);
+    bool isSurroundWithEnabled() const;
+
+    // Returns the text to complete at the cursor position, or an empty string
+    virtual QString autoComplete(QTextCursor &cursor, const QString &text) const;
+
+    // Handles backspace. When returning true, backspace processing is stopped
+    virtual bool autoBackspace(QTextCursor &cursor);
+
+    // Hook to insert special characters on enter. Returns the number of extra blocks inserted.
+    virtual int paragraphSeparatorAboutToBeInserted(QTextCursor &cursor);
+
+    virtual bool contextAllowsAutoParentheses(const QTextCursor &cursor,
+                                              const QString &textToInsert = QString()) const;
+    virtual bool contextAllowsElectricCharacters(const QTextCursor &cursor) const;
 
     // Returns true if the cursor is inside a comment.
-    bool isInComment(const QTextCursor &cursor) const;
+    virtual bool isInComment(const QTextCursor &cursor) const;
 
-    QString insertMatchingBrace(const QTextCursor &cursor, const
-                                QString &text,
-                                QChar la,
-                                int *skippedChars) const;
+    virtual QString insertMatchingBrace(const QTextCursor &cursor, const
+                                        QString &text,
+                                        QChar la,
+                                        int *skippedChars) const;
+
     // Returns the text that needs to be inserted
-    QString insertParagraphSeparator(const QTextCursor &cursor) const;
+    virtual QString insertParagraphSeparator(const QTextCursor &cursor) const;
+
+protected:
+    static void countBracket(QChar open, QChar close, QChar c, int *errors, int *stillopen);
+    static void countBrackets(QTextCursor cursor, int from, int end, QChar open, QChar close,
+                              int *errors, int *stillopen);
 
 private:
-    virtual bool doContextAllowsAutoParentheses(const QTextCursor &cursor,
-                                                const QString &textToInsert = QString()) const;
-    virtual bool doContextAllowsElectricCharacters(const QTextCursor &cursor) const;
-    virtual bool doIsInComment(const QTextCursor &cursor) const;
-    virtual QString doInsertMatchingBrace(const QTextCursor &cursor,
-                                          const QString &text,
-                                          QChar la,
-                                          int *skippedChars) const;
-    virtual QString doInsertParagraphSeparator(const QTextCursor &cursor) const;
+    mutable bool m_allowSkippingOfBlockEnd;
+    bool m_surroundWithEnabled;
+    bool m_autoParenthesesEnabled;
 };
 
 } // TextEditor

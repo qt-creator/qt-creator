@@ -51,32 +51,23 @@ public:
     virtual ~Indenter();
 
     // Returns true if key triggers an indent.
-    bool isElectricCharacter(const QChar &ch) const;
+    virtual bool isElectricCharacter(const QChar &ch) const;
+
     // Indent a text block based on previous line. Default does nothing
-    void indentBlock(QTextDocument *doc,
-                     const QTextBlock &block,
-                     const QChar &typedChar,
-                     BaseTextEditor *editor);
+    virtual void indentBlock(QTextDocument *doc,
+                             const QTextBlock &block,
+                             const QChar &typedChar,
+                             BaseTextEditor *editor);
+
     // Indent at cursor. Calls indentBlock for selection or current line.
-    void indent(QTextDocument *doc,
-                const QTextCursor &cursor,
-                const QChar &typedChar,
-                BaseTextEditor *editor);
+    virtual void indent(QTextDocument *doc,
+                        const QTextCursor &cursor,
+                        const QChar &typedChar,
+                        BaseTextEditor *editor);
+
     // Reindent at cursor. Selection will be adjusted according to the indentation
     // change of the first block.
-    void reindent(QTextDocument *doc, const QTextCursor &cursor, BaseTextEditor *editor);
-
-private:
-    virtual bool doIsElectricalCharacter(const QChar &ch) const;
-    virtual void doIndentBlock(QTextDocument *doc,
-                               const QTextBlock &block,
-                               const QChar &typedChar,
-                               BaseTextEditor *editor);
-    virtual void doIndent(QTextDocument *doc,
-                          const QTextCursor &cursor,
-                          const QChar &typedChar,
-                          BaseTextEditor *editor);
-    virtual void doReindent(QTextDocument *doc, const QTextCursor &cursor, BaseTextEditor *editor);
+    virtual void reindent(QTextDocument *doc, const QTextCursor &cursor, BaseTextEditor *editor);
 };
 
 } // namespace TextEditor

@@ -40,11 +40,10 @@ public:
     NormalIndenter();
     virtual ~NormalIndenter();
 
-private:
-    virtual void doIndentBlock(QTextDocument *doc,
-                               const QTextBlock &block,
-                               const QChar &typedChar,
-                               BaseTextEditor *editor);
+    virtual void indentBlock(QTextDocument *doc,
+                             const QTextBlock &block,
+                             const QChar &typedChar,
+                             BaseTextEditor *editor);
 };
 
 } // namespace TextEditor

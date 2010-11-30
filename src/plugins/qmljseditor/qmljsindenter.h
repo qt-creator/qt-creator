@@ -41,12 +41,11 @@ public:
     Indenter();
     virtual ~Indenter();
 
-private:
-    virtual bool doIsElectricalCharacter(const QChar &ch) const;
-    virtual void doIndentBlock(QTextDocument *doc,
-                               const QTextBlock &block,
-                               const QChar &typedChar,
-                               TextEditor::BaseTextEditor *editor);
+    virtual bool isElectricCharacter(const QChar &ch) const;
+    virtual void indentBlock(QTextDocument *doc,
+                             const QTextBlock &block,
+                             const QChar &typedChar,
+                             TextEditor::BaseTextEditor *editor);
 };
 
 } // Internal

@@ -143,8 +143,8 @@ AutoCompleter::AutoCompleter()
 AutoCompleter::~AutoCompleter()
 {}
 
-bool AutoCompleter::doContextAllowsAutoParentheses(const QTextCursor &cursor,
-                                                   const QString &textToInsert) const
+bool AutoCompleter::contextAllowsAutoParentheses(const QTextCursor &cursor,
+                                                 const QString &textToInsert) const
 {
     QChar ch;
 
@@ -200,7 +200,7 @@ bool AutoCompleter::doContextAllowsAutoParentheses(const QTextCursor &cursor,
     return true;
 }
 
-bool AutoCompleter::doContextAllowsElectricCharacters(const QTextCursor &cursor) const
+bool AutoCompleter::contextAllowsElectricCharacters(const QTextCursor &cursor) const
 {
     Token token = tokenUnderCursor(cursor);
     switch (token.kind) {
@@ -212,15 +212,15 @@ bool AutoCompleter::doContextAllowsElectricCharacters(const QTextCursor &cursor)
     }
 }
 
-bool AutoCompleter::doIsInComment(const QTextCursor &cursor) const
+bool AutoCompleter::isInComment(const QTextCursor &cursor) const
 {
     return tokenUnderCursor(cursor).is(Token::Comment);
 }
 
-QString AutoCompleter::doInsertMatchingBrace(const QTextCursor &cursor,
-                                             const QString &text,
-                                             QChar,
-                                             int *skippedChars) const
+QString AutoCompleter::insertMatchingBrace(const QTextCursor &cursor,
+                                           const QString &text,
+                                           QChar,
+                                           int *skippedChars) const
 {
     if (text.length() != 1)
         return QString();
@@ -268,7 +268,7 @@ QString AutoCompleter::doInsertMatchingBrace(const QTextCursor &cursor,
     return QString();
 }
 
-QString AutoCompleter::doInsertParagraphSeparator(const QTextCursor &cursor) const
+QString AutoCompleter::insertParagraphSeparator(const QTextCursor &cursor) const
 {
     if (shouldInsertNewline(cursor)) {
         QTextCursor cursor = cursor;

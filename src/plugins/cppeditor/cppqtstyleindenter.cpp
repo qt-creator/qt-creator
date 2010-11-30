@@ -47,7 +47,7 @@ CppQtStyleIndenter::CppQtStyleIndenter()
 CppQtStyleIndenter::~CppQtStyleIndenter()
 {}
 
-bool CppQtStyleIndenter::doIsElectricalCharacter(const QChar &ch) const
+bool CppQtStyleIndenter::isElectricCharacter(const QChar &ch) const
 {
     if (ch == QLatin1Char('{') ||
         ch == QLatin1Char('}') ||
@@ -58,10 +58,10 @@ bool CppQtStyleIndenter::doIsElectricalCharacter(const QChar &ch) const
     return false;
 }
 
-void CppQtStyleIndenter::doIndentBlock(QTextDocument *doc,
-                                       const QTextBlock &block,
-                                       const QChar &typedChar,
-                                       TextEditor::BaseTextEditor *editor)
+void CppQtStyleIndenter::indentBlock(QTextDocument *doc,
+                                     const QTextBlock &block,
+                                     const QChar &typedChar,
+                                     TextEditor::BaseTextEditor *editor)
 {
     Q_UNUSED(doc)
 
@@ -86,10 +86,10 @@ void CppQtStyleIndenter::doIndentBlock(QTextDocument *doc,
     ts.indentLine(block, indent + padding, padding);
 }
 
-void CppQtStyleIndenter::doIndent(QTextDocument *doc,
-                                  const QTextCursor &cursor,
-                                  const QChar &typedChar,
-                                  TextEditor::BaseTextEditor *editor)
+void CppQtStyleIndenter::indent(QTextDocument *doc,
+                                const QTextCursor &cursor,
+                                const QChar &typedChar,
+                                TextEditor::BaseTextEditor *editor)
 {
     if (cursor.hasSelection()) {
         QTextBlock block = doc->findBlock(cursor.selectionStart());

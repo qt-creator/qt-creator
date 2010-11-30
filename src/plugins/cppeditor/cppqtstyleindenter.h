@@ -41,17 +41,16 @@ public:
     CppQtStyleIndenter();
     virtual ~CppQtStyleIndenter();
 
-private:
-    virtual bool doIsElectricalCharacter(const QChar &ch) const;
-    virtual void doIndentBlock(QTextDocument *doc,
-                               const QTextBlock &block,
-                               const QChar &typedChar,
-                               TextEditor::BaseTextEditor *editor);
+    virtual bool isElectricCharacter(const QChar &ch) const;
+    virtual void indentBlock(QTextDocument *doc,
+                             const QTextBlock &block,
+                             const QChar &typedChar,
+                             TextEditor::BaseTextEditor *editor);
 
-    virtual void doIndent(QTextDocument *doc,
-                          const QTextCursor &cursor,
-                          const QChar &typedChar,
-                          TextEditor::BaseTextEditor *editor);
+    virtual void indent(QTextDocument *doc,
+                        const QTextCursor &cursor,
+                        const QChar &typedChar,
+                        TextEditor::BaseTextEditor *editor);
 };
 
 } // Internal

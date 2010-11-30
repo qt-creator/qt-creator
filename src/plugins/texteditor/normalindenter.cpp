@@ -60,10 +60,10 @@ NormalIndenter::~NormalIndenter()
 // for additional block being inserted. It might be possible
 // to do in 2 steps (indenting/wrapping)}
 //
-void NormalIndenter::doIndentBlock(QTextDocument *doc,
-                                   const QTextBlock &block,
-                                   const QChar &typedChar,
-                                   BaseTextEditor *editor)
+void NormalIndenter::indentBlock(QTextDocument *doc,
+                                 const QTextBlock &block,
+                                 const QChar &typedChar,
+                                 BaseTextEditor *editor)
 {
     Q_UNUSED(typedChar)
 

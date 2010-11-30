@@ -47,7 +47,7 @@ Indenter::Indenter()
 Indenter::~Indenter()
 {}
 
-bool Indenter::doIsElectricalCharacter(const QChar &ch) const
+bool Indenter::isElectricCharacter(const QChar &ch) const
 {
     if (ch == QLatin1Char('}')
             || ch == QLatin1Char(']')
@@ -56,10 +56,10 @@ bool Indenter::doIsElectricalCharacter(const QChar &ch) const
     return false;
 }
 
-void Indenter::doIndentBlock(QTextDocument *doc,
-                             const QTextBlock &block,
-                             const QChar &typedChar,
-                             TextEditor::BaseTextEditor *editor)
+void Indenter::indentBlock(QTextDocument *doc,
+                           const QTextBlock &block,
+                           const QChar &typedChar,
+                           TextEditor::BaseTextEditor *editor)
 {
     Q_UNUSED(doc)
     Q_UNUSED(typedChar)

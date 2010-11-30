@@ -48,8 +48,8 @@ CppAutoCompleter::CppAutoCompleter()
 CppAutoCompleter::~CppAutoCompleter()
 {}
 
-bool CppAutoCompleter::doContextAllowsAutoParentheses(const QTextCursor &cursor,
-                                                      const QString &textToInsert) const
+bool CppAutoCompleter::contextAllowsAutoParentheses(const QTextCursor &cursor,
+                                                    const QString &textToInsert) const
 {
     QChar ch;
 
@@ -66,7 +66,7 @@ bool CppAutoCompleter::doContextAllowsAutoParentheses(const QTextCursor &cursor,
     return true;
 }
 
-bool CppAutoCompleter::doContextAllowsElectricCharacters(const QTextCursor &cursor) const
+bool CppAutoCompleter::contextAllowsElectricCharacters(const QTextCursor &cursor) const
 {
     const Token tk = SimpleLexer::tokenAt(cursor.block().text(), cursor.positionInBlock(),
                                           BackwardsScanner::previousBlockState(cursor.block()));
@@ -98,7 +98,7 @@ bool CppAutoCompleter::doContextAllowsElectricCharacters(const QTextCursor &curs
     return true;
 }
 
-bool CppAutoCompleter::doIsInComment(const QTextCursor &cursor) const
+bool CppAutoCompleter::isInComment(const QTextCursor &cursor) const
 {
     const Token tk = SimpleLexer::tokenAt(cursor.block().text(), cursor.positionInBlock(),
                                           BackwardsScanner::previousBlockState(cursor.block()));
@@ -122,7 +122,7 @@ bool CppAutoCompleter::doIsInComment(const QTextCursor &cursor) const
     return false;
 }
 
-QString CppAutoCompleter::doInsertMatchingBrace(const QTextCursor &cursor,
+QString CppAutoCompleter::insertMatchingBrace(const QTextCursor &cursor,
                                                 const QString &text,
                                                 QChar la,
                                                 int *skippedChars) const
@@ -131,7 +131,7 @@ QString CppAutoCompleter::doInsertMatchingBrace(const QTextCursor &cursor,
     return m.insertMatchingBrace(cursor, text, la, skippedChars);
 }
 
-QString CppAutoCompleter::doInsertParagraphSeparator(const QTextCursor &cursor) const
+QString CppAutoCompleter::insertParagraphSeparator(const QTextCursor &cursor) const
 {
     MatchingText m;
     return m.insertParagraphSeparator(cursor);

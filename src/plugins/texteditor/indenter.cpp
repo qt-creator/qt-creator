@@ -39,38 +39,12 @@ Indenter::Indenter()
 Indenter::~Indenter()
 {}
 
-bool Indenter::isElectricCharacter(const QChar &ch) const
-{
-    return doIsElectricalCharacter(ch);
-}
-
-void Indenter::indentBlock(QTextDocument *doc,
-                           const QTextBlock &block,
-                           const QChar &typedChar,
-                           BaseTextEditor *editor)
-{
-    doIndentBlock(doc, block, typedChar, editor);
-}
-
-void Indenter::indent(QTextDocument *doc,
-                      const QTextCursor &cursor,
-                      const QChar &typedChar,
-                      BaseTextEditor *editor)
-{
-    doIndent(doc, cursor, typedChar, editor);
-}
-
-void Indenter::reindent(QTextDocument *doc, const QTextCursor &cursor, BaseTextEditor *editor)
-{
-    doReindent(doc, cursor, editor);
-}
-
-bool Indenter::doIsElectricalCharacter(const QChar &) const
+bool Indenter::isElectricCharacter(const QChar &) const
 {
     return false;
 }
 
-void Indenter::doIndentBlock(QTextDocument *doc,
+void Indenter::indentBlock(QTextDocument *doc,
                              const QTextBlock &block,
                              const QChar &typedChar,
                              BaseTextEditor *editor)
@@ -81,7 +55,10 @@ void Indenter::doIndentBlock(QTextDocument *doc,
     Q_UNUSED(editor);
 }
 
-void Indenter::doIndent(QTextDocument *doc, const QTextCursor &cursor, const QChar &typedChar, BaseTextEditor *editor)
+void Indenter::indent(QTextDocument *doc,
+                      const QTextCursor &cursor,
+                      const QChar &typedChar,
+                      BaseTextEditor *editor)
 {
     if (cursor.hasSelection()) {
         QTextBlock block = doc->findBlock(cursor.selectionStart());
@@ -95,7 +72,7 @@ void Indenter::doIndent(QTextDocument *doc, const QTextCursor &cursor, const QCh
     }
 }
 
-void Indenter::doReindent(QTextDocument *doc, const QTextCursor &cursor, BaseTextEditor *editor)
+void Indenter::reindent(QTextDocument *doc, const QTextCursor &cursor, BaseTextEditor *editor)
 {
     if (cursor.hasSelection()) {
         QTextBlock block = doc->findBlock(cursor.selectionStart());

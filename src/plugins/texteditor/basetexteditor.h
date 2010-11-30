@@ -168,12 +168,6 @@ public:
     void setParenthesesMatchingEnabled(bool b);
     bool isParenthesesMatchingEnabled() const;
 
-    void setAutoParenthesesEnabled(bool b);
-    bool isAutoParenthesesEnabled() const;
-
-    void setSurroundWithEnabled(bool b);
-    bool isSurroundWithEnabled() const;
-
     void setHighlightCurrentLine(bool b);
     bool highlightCurrentLine() const;
 
@@ -424,24 +418,10 @@ protected:
     void dragEnterEvent(QDragEnterEvent *e);
 
 public:
-    // Returns the text to complete at the cursor position, or an empty string
-    virtual QString autoComplete(QTextCursor &cursor, const QString &text) const;
-    // Handles backspace. When returning true, backspace processing is stopped
-    virtual bool autoBackspace(QTextCursor &cursor);
-    // Hook to insert special characters on enter. Returns the number of extra blocks inserted.
-    virtual int paragraphSeparatorAboutToBeInserted(QTextCursor &cursor);
-
     void indentInsertedText(const QTextCursor &tc);
     void indent(QTextDocument *doc, const QTextCursor &cursor, QChar typedChar);
     void reindent(QTextDocument *doc, const QTextCursor &cursor);
 
-protected:
-    static void countBracket(QChar open, QChar close, QChar c, int *errors, int *stillopen);
-
-    static void countBrackets(QTextCursor cursor, int from, int end, QChar open, QChar close,
-                              int *errors, int *stillopen);
-
-public:
     struct Link
     {
         Link(const QString &fileName = QString(),
