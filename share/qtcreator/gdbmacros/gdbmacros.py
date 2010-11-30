@@ -318,7 +318,8 @@ def qdump__QFixed(d, item):
 def qdump__QFlags(d, item):
     i = item.value["i"]
     try:
-        enumType = item.value.type.unqualified().template_argument(0)
+        enumType = templateArgument(item.value.type.unqualified(), 0,
+            len(d.ns) + len('QFlags'))
         d.putValue("%s (%s)" % (i.cast(enumType), i))
     except:
         d.putValue("%s" % i)
@@ -436,15 +437,7 @@ def qdump__QList(d, item):
     checkRef(d_ptr["ref"])
 
     # Additional checks on pointer arrays.
-    try:
-        # This fails on stock 7.2 with
-        # "RuntimeError: No type named myns::QObject.\n"
-        innerType = item.value.type.template_argument(0)
-    except:
-        # That's something like "myns::QList<...>"
-        innerString = str(item.value.type.strip_typedefs())
-        innerType = lookupType(innerString[len(d.ns) + 6 : -1])
-
+    innerType = templateArgument(item.value.type, 0, len(d.ns) + len('QList'))
     innerTypeIsPointer = innerType.code == gdb.TYPE_CODE_PTR \
         and str(innerType.target().unqualified()) != "char"
     if innerTypeIsPointer:
@@ -543,7 +536,9 @@ def qdump__QLinkedList(d, item):
     d.putItemCount(n)
     d.putNumChild(n)
     if d.isExpanded(item):
-        with Children(d, [n, 1000], item.value.type.template_argument(0)):
+        innerType = templateArgument(item.value.type, 0,
+            len(d.ns) + len('QLinkedList'))
+        with Children(d, [n, 1000], innerType):
             p = e_ptr["n"]
             for i in d.childRange():
                 d.putSubItem(Item(p["t"], item.iname, i))
@@ -1593,7 +1588,8 @@ def qdump__QSharedDataPointer(d, item):
         # This replaces the pointer by the pointee, making the
         # pointer transparent.
         try:
-            innerType = item.value.type.template_argument(0)
+            innerType = templateArgument(item.value.type, 0,
+                len(d.ns) + len('QSharedDataPointer'))
         except:
             d.putValue(d_ptr)
             d.putPlainChildren(item)
@@ -1921,7 +1917,7 @@ def qdump__QVector(d, item):
     check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
     checkRef(d_ptr["ref"])
 
-    innerType = item.value.type.template_argument(0)
+    innerType = templateArgument(item.value.type, 0, len(d.ns) + len('QVector'))
     d.putItemCount(size)
     d.putNumChild(size)
     if d.isExpanded(item):
@@ -1953,7 +1949,7 @@ def qdump__QWeakPointer(d, item):
     check(int(strongref) <= int(weakref))
     check(int(weakref) <= 10*1000*1000)
 
-    innerType = item.value.type.template_argument(0)
+    innerType = templateArgument(item.value.type, 0, len(d.ns) + len('QWeakPointer'))
     if isSimpleType(value.dereference().type):
         d.putItem(Item(value.dereference(), item.iname, None))
     else:

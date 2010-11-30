@@ -162,6 +162,16 @@ def cleanAddress(addr):
     # that might trigger Unicode encoding errors.
     return addr.cast(lookupType("void").pointer())
 
+def templateArgument(type, position, outerLen):
+    try:
+        # This fails on stock 7.2 with
+        # "RuntimeError: No type named myns::QObject.\n"
+        return type.template_argument(position)
+    except:
+        # That's something like "myns::QList<...>"
+        innerString = str(type.strip_typedefs())
+        return lookupType(innerString[outerLen + 1 : -1])
+
 # Workaround for gdb < 7.1
 def numericTemplateArgument(type, position):
     try:
