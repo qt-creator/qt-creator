@@ -468,7 +468,7 @@ static void fixValue(const std::string &type, std::wstring *value)
         return;
     }
     // Fix long class names on std containers 'class std::tree<...>' -> 'class std::tree<>'
-    if (value->compare(0, 6, L"class ") == 0) {
+    if (value->compare(0, 6, L"class ") == 0 || value->compare(0, 7, L"struct ") == 0) {
         const std::string::size_type openTemplate = value->find(L'<');
         if (openTemplate != std::string::npos) {
             value->erase(openTemplate + 1, value->size() - openTemplate - 2);
@@ -665,6 +665,17 @@ void SymbolGroupNode::debug(std::ostream &str, unsigned verbosity, unsigned dept
     str << '\n';
 }
 
+static inline std::string msgCannotCast(const std::string &nodeName,
+                                        const std::string &fromType,
+                                        const std::string &toType,
+                                        const std::string &why)
+{
+    std::ostringstream str;
+    str << "Cannot cast node '" << nodeName << "' from '" << fromType
+        << "' to '" << toType << "': " << why;
+    return str.str();
+}
+
 // Expand!
 bool SymbolGroupNode::expand(std::string *errorMessage)
 {
@@ -701,6 +712,65 @@ bool SymbolGroupNode::expand(std::string *errorMessage)
     m_symbolGroup->root()->notifyExpanded(m_index + 1, parameters.at(0).SubElements);
     // Parse parameters, correct our own) and create child nodes.
     parseParameters(m_index, m_index, parameters);
+    return true;
+}
+
+bool SymbolGroupNode::typeCast(const std::string &desiredType, std::string *errorMessage)
+{
+    const std::string fromType = type();
+    if (fromType == desiredType)
+        return true;
+    if (isExpanded()) {
+        *errorMessage = msgCannotCast(fullIName(), fromType, desiredType, "Already expanded");
+        return false;
+    }
+    HRESULT hr = m_symbolGroup->debugSymbolGroup()->OutputAsType(m_index, desiredType.c_str());
+    if (FAILED(hr)) {
+        *errorMessage = msgCannotCast(fullIName(), fromType, desiredType, msgDebugEngineComFailed("OutputAsType", hr));
+        return false;
+    }
+    hr = m_symbolGroup->debugSymbolGroup()->GetSymbolParameters(m_index, 1, &m_parameters);
+    if (FAILED(hr)) { // Should never fail
+        *errorMessage = msgCannotCast(fullIName(), fromType, desiredType, msgDebugEngineComFailed("GetSymbolParameters", hr));
+        return false;
+    }
+    return true;
+}
+
+static inline std::string msgCannotAddSymbol(const std::string &name, const std::string &why)
+{
+    std::ostringstream str;
+    str << "Cannot add symbol '" << name << "': " << why;
+    return str.str();
+}
+
+// For root nodes, only: Add a new symbol by name
+bool SymbolGroupNode::addSymbolByName(const std::string &name,
+                                      const std::string &iname,
+                                      std::string *errorMessage)
+{
+    ULONG index = DEBUG_ANY_ID; // Append
+    HRESULT hr = m_symbolGroup->debugSymbolGroup()->AddSymbol(name.c_str(), &index);
+    if (FAILED(hr)) {
+        *errorMessage = msgCannotAddSymbol(name, msgDebugEngineComFailed("AddSymbol", hr));
+        return false;
+    }
+    SymbolParameterVector parameters(1, DEBUG_SYMBOL_PARAMETERS());
+    hr = m_symbolGroup->debugSymbolGroup()->GetSymbolParameters(index, 1, &(*parameters.begin()));
+    if (FAILED(hr)) { // Should never fail
+        *errorMessage = msgCannotAddSymbol(name, msgDebugEngineComFailed("GetSymbolParameters", hr));
+        return false;
+    }
+    // Paranoia: Check for cuckoo's eggs (which should not happen)
+    if (parameters.front().ParentSymbol != m_index) {
+        *errorMessage = msgCannotAddSymbol(name, "Parent id mismatch");
+        return false;
+    }
+    SymbolGroupNode *node = new SymbolGroupNode(m_symbolGroup, index,
+                                                name, iname.empty() ? name : iname,
+                                                this);
+    node->parseParameters(0, 0, parameters);
+    m_children.push_back(node);
     return true;
 }
 
@@ -832,6 +902,26 @@ bool SymbolGroup::expand(const std::string &nodeName, std::string *errorMessage)
     if (node == m_root) // Shouldn't happen, still, all happy
         return true;
     return node->expand(errorMessage);
+}
+
+// Cast an (unexpanded) node
+bool SymbolGroup::typeCast(const std::string &iname, const std::string &desiredType, std::string *errorMessage)
+{
+    SymbolGroupNode *node = find(iname);
+    if (!node) {
+        *errorMessage = msgNotFound(iname);
+        return false;
+    }
+    if (node == m_root) {
+        *errorMessage = "Cannot cast root node";
+        return false;
+    }
+    return node->typeCast(desiredType, errorMessage);
+}
+
+bool SymbolGroup::addSymbol(const std::string &name, const std::string &iname, std::string *errorMessage)
+{
+    return m_root->addSymbolByName(name, iname, errorMessage);
 }
 
 // Mark uninitialized (top level only)

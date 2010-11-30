@@ -53,6 +53,13 @@ struct SymbolGroupValueContext;
 class SymbolGroupNode {
     SymbolGroupNode(const SymbolGroupNode&);
     SymbolGroupNode& operator=(const SymbolGroupNode&);
+
+    explicit SymbolGroupNode(SymbolGroup *symbolGroup,
+                             ULONG index,
+                             const std::string &name,
+                             const std::string &iname,
+                             SymbolGroupNode *parent = 0);
+
 public:
     enum Flags {
         Uninitialized = 0x1,
@@ -67,12 +74,6 @@ public:
     typedef SymbolGroupNodePtrVector::iterator SymbolGroupNodePtrVectorIterator;
     typedef SymbolGroupNodePtrVector::const_iterator SymbolGroupNodePtrVectorConstIterator;
 
-    explicit SymbolGroupNode(SymbolGroup *symbolGroup,
-                             ULONG index,
-                             const std::string &name,
-                             const std::string &iname,
-                             SymbolGroupNode *parent = 0);
-
     ~SymbolGroupNode() { removeChildren(); }
 
     void removeChildren();
@@ -81,6 +82,10 @@ public:
                          const SymbolParameterVector &vec);
 
     static SymbolGroupNode *create(SymbolGroup *sg, const std::string &name, const SymbolParameterVector &vec);
+    // For root nodes, only: Add a new symbol by name
+    bool addSymbolByName(const std::string &name,  // Expression like 'myarray[1]'
+                         const std::string &iname, // Desired iname, defaults to name
+                         std::string *errorMessage);
 
     const std::string &name() const { return m_name; }
     std::string fullIName() const;
@@ -111,6 +116,8 @@ public:
     bool expand(std::string *errorMessage);
     bool isExpanded() const { return !m_children.empty(); }
     bool canExpand() const { return m_parameters.SubElements > 0; }
+    // Cast to a different type. Works only on unexpanded nodes
+    bool typeCast(const std::string &desiredType, std::string *errorMessage);
 
     ULONG subElements() const { return m_parameters.SubElements; }
     ULONG index() const { return m_index; }
@@ -213,6 +220,12 @@ public:
     // Expand a single node "locals.A.B" requiring that "locals.A.B" is already visible
     // (think mkdir without -p).
     bool expand(const std::string &node, std::string *errorMessage);
+    // Cast an (unexpanded) node
+    bool typeCast(const std::string &iname, const std::string &desiredType, std::string *errorMessage);
+    // Add a symbol by name expression
+    bool addSymbol(const std::string &name, // Expression like 'myarray[1]'
+                   const std::string &iname, // Desired iname, defaults to name
+                   std::string *errorMessage);
 
     bool accept(SymbolGroupNodeVisitor &visitor) const;
 

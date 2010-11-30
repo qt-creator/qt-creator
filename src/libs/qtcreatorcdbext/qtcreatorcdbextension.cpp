@@ -49,13 +49,148 @@
  * - Hook up with output/event callbacks and produce formatted output
  * - Provide some extension commands that produce output in a standardized (GDBMI)
  *   format that ends up in handleExtensionMessage().
- *   + pid     Return debuggee pid for interrupting.
- *   + locals  Print locals from SymbolGroup
- *   + expandLocals Expand locals in symbol group
- *   + registers, modules, threads */
+ */
+
+// Data struct and helpers for formatting help
+struct CommandDescription {
+    const char *name;
+    const char *description;
+    const char *usage;
+};
+
+// Single line of usage: For reporting usage errors back as a single line
+static std::string singleLineUsage(const CommandDescription &d)
+{
+    std::string rc = "Usage: ";
+    const char *endOfLine = strchr(d.usage, '\n');
+    rc += endOfLine ? std::string(d.usage, endOfLine -  d.usage) : std::string(d.usage);
+    return rc;
+}
+
+// Format description of a command
+std::ostream &operator<<(std::ostream &str, const CommandDescription &d)
+{
+    str << "Command '" << d.name << "': " << d.description << '\n';
+    if (d.usage[0])
+        str << "Usage: " << d.name << ' ' << d.usage << '\n';
+    str << '\n';
+    return str;
+}
+
+enum Command {
+    CmdPid,
+    CmdExpandlocals,
+    CmdLocals,
+    CmdDumplocal,
+    CmdTypecast,
+    CmdAddsymbol,
+    CmdAssign,
+    CmdThreads,
+    CmdRegisters,
+    CmdModules,
+    CmdIdle,
+    CmdHelp,
+    CmdMemory,
+    CmdStack,
+    CmdShutdownex
+};
+
+static const CommandDescription commandDescriptions[] = {
+{"pid",
+ "Prints inferior process id and hooks up output callbacks.",
+ "[-t token]"},
+{"expandlocals", "Expands local variables by iname in symbol group.",
+ "[-t token] <frame-number> <iname1-list>\n"
+ "iname1-list: Comma-separated list of inames"},
+{"locals",
+ "Prints local variables of symbol group in GDBMI or debug format",
+ "[-t token] [-h] [-d] [-e expand-list] [-u uninitialized-list]\n<frame-number> [iname]\n"
+ "-h human-readable ouput\n"
+ "-d debug output\n"
+ "-e expand-list        Comma-separated list of inames to be expanded beforehand\n"
+ "-u uninitialized-list Comma-separated list of uninitialized inames"},
+{"dumplocal", "Dumps local variable using simple dumpers (testing command).",
+ "[-t token] <frame-number> <iname>"},
+{"typecast","Performs a type cast on an unexpanded iname of symbol group.",
+ "[-t token] <frame-number> <iname> <desired-type>"},
+{"addsymbol","Adds a symbol to symbol group (testing command).",
+ "[-t token] <frame-number> <name-expression> [optional-iname]"},
+{"assign","Assigns a value to a variable in current symbol group.",
+ "[-t token] <iname=value>"},
+{"threads","Lists threads in GDBMI format.","[-t token]"},
+{"registers","Lists registers in GDBMI format","[-t token]"},
+{"modules","Lists modules in GDBMI format.","[-t token]"},
+{"idle",
+ "Reports stop reason in GDBMI format.\n"
+ "Intended to be used with .idle_cmd to obtain proper stop notification.",""},
+{"help","Prints help.",""},
+{"memory","Prints memory contents in Base64 encoding.","[-t token] <address> <length>"},
+{"stack","Prints stack in GDBMI format.","[-t token] [max-frames]"},
+{"shutdownex","Unhooks output callbacks.\nNeeds to be called explicitly only in case of remote debugging.",""}
+};
 
 typedef std::vector<std::string> StringVector;
 typedef std::list<std::string> StringList;
+
+// Helper for commandTokens() below:
+// Simple splitting of command lines allowing for '"'-quoted tokens
+// 'typecast local.i "class QString *"' -> ('typecast','local.i','class QString *')
+template<class Inserter>
+static inline void splitCommand(PCSTR args, Inserter it)
+{
+    enum State { WhiteSpace, WithinToken, WithinQuoted };
+
+    State state = WhiteSpace;
+    std::string current;
+    for (PCSTR p = args; *p; p++) {
+        char c = *p;
+        switch (state) {
+        case WhiteSpace:
+            switch (c) {
+            case ' ':
+                break;
+            case '"':
+                state = WithinQuoted;
+                current.clear();
+                break;
+            default:
+                state = WithinToken;
+                current.clear();
+                current.push_back(c);
+                break;
+            }
+            break;
+        case WithinToken:
+            switch (c) {
+            case ' ':
+                state = WhiteSpace;
+                *it = current;
+                ++it;
+                break;
+            default:
+                current.push_back(c);
+                break;
+            }
+            break;
+        case WithinQuoted:
+            switch (c) {
+            case '"':
+                state = WhiteSpace;
+                *it = current;
+                ++it;
+                break;
+            default:
+                current.push_back(c);
+                break;
+            }
+            break;
+        }
+    }
+    if (state == WithinToken) {
+        *it = current;
+        ++it;
+    }
+}
 
 // Split & Parse the arguments of a command and extract the
 // optional first integer token argument ('command -t <number> remaining arguments')
@@ -69,11 +204,8 @@ static inline StringContainer commandTokens(PCSTR args, int *token = 0)
 
     if (token)
         *token = -1; // Handled as 'display' in engine, so that user can type commands
-    std::string cmd(args);
-    simplify(cmd);
     StringContainer tokens;
-    split(cmd, ' ', std::back_inserter(tokens));
-
+    splitCommand(args, std::back_inserter(tokens));
     // Check for token
     ContainerIterator it = tokens.begin();
     if (it != tokens.end() && *it == "-t" && ++it != tokens.end()) {
@@ -114,13 +246,11 @@ extern "C" HRESULT CALLBACK expandlocals(CIDebugClient *client, PCSTR args)
     int token;
     const StringVector tokens = commandTokens<StringVector>(args, &token);
     StringVector inames;
-    if (tokens.size() == 2u && sscanf(tokens.front().c_str(), "%u", &frame) ==  1) {
+    if (tokens.size() == 2u && integerFromString(tokens.front(), &frame)) {
         symGroup = ExtensionContext::instance().symbolGroup(exc.symbols(), exc.threadId(), frame, &errorMessage);
         split(tokens.at(1), ',', std::back_inserter(inames));
     } else {
-        std::ostringstream str;
-        str << "Invalid parameter: '" << args << "' (usage expand <frame> iname1,iname2..).";
-        errorMessage = str.str();
+        errorMessage = singleLineUsage(commandDescriptions[CmdExpandlocals]);
     }
     if (symGroup) {
         const unsigned succeeded = symGroup->expandList(inames, &errorMessage);
@@ -130,17 +260,6 @@ extern "C" HRESULT CALLBACK expandlocals(CIDebugClient *client, PCSTR args)
         ExtensionContext::instance().report('N', token, "expandlocals", errorMessage.c_str());
     }
     return S_OK;
-}
-
-static inline std::string msgLocalsUsage(PCSTR args)
-{
-    std::ostringstream str;
-    str << "Invalid parameter: '" << args
-        << "'\nUsage: locals [-t token] [-h] [-d] [-e expandset] [-u uninitializedset] <frame> [iname]).\n"
-           "-h human-readable ouput\n"
-           "-d debug output\n-e expandset Comma-separated list of expanded inames\n"
-           "-u uninitializedset Comma-separated list of uninitialized inames\n";
-    return str.str();
 }
 
 // Extension command 'locals':
@@ -170,7 +289,7 @@ static std::string commmandLocals(ExtensionCommandContext &exc,PCSTR args, int *
             break;
         case 'u':
             if (tokens.empty()) {
-                *errorMessage = msgLocalsUsage(args);
+                *errorMessage = singleLineUsage(commandDescriptions[CmdLocals]);
                 return std::string();
             }
             split(tokens.front(), ',', std::back_inserter(uninitializedInames));
@@ -178,7 +297,7 @@ static std::string commmandLocals(ExtensionCommandContext &exc,PCSTR args, int *
             break;
         case 'e':
             if (tokens.empty()) {
-                *errorMessage = msgLocalsUsage(args);
+                *errorMessage = singleLineUsage(commandDescriptions[CmdLocals]);
                 return std::string();
             }
             split(tokens.front(), ',', std::back_inserter(expandedInames));
@@ -188,8 +307,8 @@ static std::string commmandLocals(ExtensionCommandContext &exc,PCSTR args, int *
     }
     // Frame and iname
     unsigned frame;
-    if (tokens.empty() || sscanf(tokens.front().c_str(), "%u", &frame) != 1) {
-        *errorMessage = msgLocalsUsage(args);
+    if (tokens.empty() || !integerFromString(tokens.front(), &frame)) {
+        *errorMessage = singleLineUsage(commandDescriptions[CmdLocals]);
         return std::string();
     }
 
@@ -231,21 +350,19 @@ extern "C" HRESULT CALLBACK locals(CIDebugClient *client, PCSTR args)
 // Extension command 'dumplocal':
 // Dump a local variable using dumpers (testing command).
 
-const char dumpLocalUsageC[] = "Usage: dumplocal <frame> <iname>";
-
 static std::string dumplocalHelper(ExtensionCommandContext &exc,PCSTR args, int *token, std::string *errorMessage)
 {
     // Parse the command
     StringList tokens = commandTokens<StringList>(args, token);
     // Frame and iname
     unsigned frame;
-    if (tokens.empty() || sscanf(tokens.front().c_str(), "%u", &frame) != 1) {
-        *errorMessage = dumpLocalUsageC;
+    if (tokens.empty() || integerFromString(tokens.front(), &frame)) {
+        *errorMessage = singleLineUsage(commandDescriptions[CmdDumplocal]);
         return std::string();
     }
     tokens.pop_front();
     if (tokens.empty()) {
-        *errorMessage = dumpLocalUsageC;
+        *errorMessage = singleLineUsage(commandDescriptions[CmdDumplocal]);
         return std::string();
     }
     const std::string iname = tokens.front();
@@ -281,6 +398,65 @@ extern "C" HRESULT CALLBACK dumplocal(CIDebugClient *client, PCSTR  argsIn)
     return S_OK;
 }
 
+// Extension command 'typecast':
+// Change the type of a symbol group entry (testing purposes)
+
+extern "C" HRESULT CALLBACK typecast(CIDebugClient *client, PCSTR args)
+{
+    ExtensionCommandContext exc(client);
+    unsigned frame = 0;
+    SymbolGroup *symGroup = 0;
+    std::string errorMessage;
+
+    int token;
+    const StringVector tokens = commandTokens<StringVector>(args, &token);
+    std::string iname;
+    std::string desiredType;
+    if (tokens.size() == 3u && integerFromString(tokens.front(), &frame)) {
+        symGroup = ExtensionContext::instance().symbolGroup(exc.symbols(), exc.threadId(), frame, &errorMessage);
+        iname = tokens.at(1);
+        desiredType = tokens.at(2);
+    } else {
+        errorMessage = singleLineUsage(commandDescriptions[CmdTypecast]);
+    }
+    if (symGroup != 0 && symGroup->typeCast(iname, desiredType, &errorMessage)) {
+        ExtensionContext::instance().report('R', token, "typecast", "OK");
+    } else {
+        ExtensionContext::instance().report('N', token, "typecast", errorMessage.c_str());
+    }
+    return S_OK;
+}
+
+// Extension command 'addsymbol':
+// Adds a symbol to a symbol group by name (testing purposes)
+
+extern "C" HRESULT CALLBACK addsymbol(CIDebugClient *client, PCSTR args)
+{
+    ExtensionCommandContext exc(client);
+    unsigned frame = 0;
+    SymbolGroup *symGroup = 0;
+    std::string errorMessage;
+
+    int token;
+    const StringVector tokens = commandTokens<StringVector>(args, &token);
+    std::string name;
+    std::string iname;
+    if (tokens.size() >= 2u && integerFromString(tokens.front(), &frame)) {
+        symGroup = ExtensionContext::instance().symbolGroup(exc.symbols(), exc.threadId(), frame, &errorMessage);
+        name = tokens.at(1);
+        if (tokens.size() >= 3)
+            iname = tokens.at(2);
+    } else {
+        errorMessage = singleLineUsage(commandDescriptions[CmdAddsymbol]);
+    }
+    if (symGroup != 0 && symGroup->addSymbol(name, iname, &errorMessage)) {
+        ExtensionContext::instance().report('R', token, "addsymbol", "OK");
+    } else {
+        ExtensionContext::instance().report('N', token, "addsymbol", errorMessage.c_str());
+    }
+    return S_OK;
+}
+
 // Extension command 'assign':
 // Assign locals by iname: 'assign locals.x=5'
 
@@ -297,7 +473,7 @@ extern "C" HRESULT CALLBACK assign(CIDebugClient *client, PCSTR argsIn)
         // Parse 'assign locals.x=5'
         const std::string::size_type equalsPos = tokens.size() == 1 ? tokens.front().find('=') : std::string::npos;
         if (equalsPos == std::string::npos) {
-            errorMessage = "Syntax error, expecting 'locals.x=5'.";
+            errorMessage = singleLineUsage(commandDescriptions[CmdAssign]);
             break;
         }
         const std::string iname = tokens.front().substr(0, equalsPos);
@@ -399,7 +575,13 @@ extern "C" HRESULT CALLBACK idle(CIDebugClient *, PCSTR)
 
 extern "C" HRESULT CALLBACK help(CIDebugClient *, PCSTR)
 {
-    dprintf("Qt Creator CDB extension built %s\n", __DATE__);
+    std::ostringstream str;
+    str << "### Qt Creator CDB extension built " << __DATE__ << "\n\n";
+
+    const size_t commandCount = sizeof(commandDescriptions)/sizeof(CommandDescription);
+    std::copy(commandDescriptions, commandDescriptions + commandCount,
+              std::ostream_iterator<CommandDescription>(str));
+    dprintf("%s\n", str.str().c_str());
     return S_OK;
 }
 
@@ -422,7 +604,7 @@ extern "C" HRESULT CALLBACK memory(CIDebugClient *Client, PCSTR argsIn)
             && integerFromString(tokens.at(1), &length)) {
         memory = memoryToBase64(exc.dataSpaces(), address, length, &errorMessage);
     } else {
-        errorMessage = "Invalid parameters to memory command.";
+        errorMessage = singleLineUsage(commandDescriptions[CmdMemory]);
     }
 
     if (memory.empty()) {
