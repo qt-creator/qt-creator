@@ -470,6 +470,8 @@ void QmlEngine::attemptBreakpointSynchronization()
     //bool updateNeeded = false;
     JSAgentBreakpoints breakpoints;
     foreach (BreakpointId id, handler->engineBreakpointIds(this)) {
+        if (handler->state(id) == BreakpointInsertRequested)
+            handler->notifyBreakpointInsertProceeding(id);
         QString processedFilename = handler->fileName(id);
 #ifdef Q_OS_MACX
         // Qt Quick Applications by default copy the qml directory to buildDir()/X.app/Contents/Resources
