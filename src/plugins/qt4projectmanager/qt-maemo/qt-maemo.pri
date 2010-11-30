@@ -42,7 +42,8 @@ HEADERS += \
     $$PWD/maemopublishingwizardfremantlefree.h \
     $$PWD/maemopublishingresultpagefremantlefree.h \
     $$PWD/maemopublisherfremantlefree.h \
-    $$PWD/maemoqemuruntime.h
+    $$PWD/maemoqemuruntime.h \
+    qt-maemo/maemoqemuruntimeparser.h
 
 SOURCES += \
     $$PWD/maemoconfigtestdialog.cpp \
@@ -85,7 +86,8 @@ SOURCES += \
     $$PWD/maemopublishinguploadsettingspagefremantlefree.cpp \
     $$PWD/maemopublishingwizardfremantlefree.cpp \
     $$PWD/maemopublishingresultpagefremantlefree.cpp \
-    $$PWD/maemopublisherfremantlefree.cpp
+    $$PWD/maemopublisherfremantlefree.cpp \
+    qt-maemo/maemoqemuruntimeparser.cpp
 
 FORMS += \
     $$PWD/maemoconfigtestdialog.ui \

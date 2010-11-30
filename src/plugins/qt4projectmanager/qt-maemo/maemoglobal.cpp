@@ -29,6 +29,7 @@
 
 #include "maemoglobal.h"
 
+#include "maemoconstants.h"
 #include "maemodeviceconfigurations.h"
 
 #include <coreplugin/ssh/sshconnection.h>
@@ -44,6 +45,9 @@
 
 namespace Qt4ProjectManager {
 namespace Internal {
+namespace {
+static const QLatin1String binQmake("/bin/qmake" EXEC_SUFFIX);
+}
 
 QString MaemoGlobal::homeDirOnDevice(const QString &uname)
 {
@@ -97,6 +101,19 @@ QString MaemoGlobal::failedToConnectToServerMessage(const Core::SshConnection::P
         errorMsg += TR("\nIs the device connected and set up for network access?");
     }
     return errorMsg;
+}
+
+QString MaemoGlobal::maddeRoot(const QString &qmakePath)
+{
+    QDir dir(QDir::cleanPath(qmakePath).remove(binQmake));
+    dir.cdUp(); dir.cdUp();
+    return dir.absolutePath();
+}
+
+QString MaemoGlobal::targetName(const QString &qmakePath)
+{
+    const QString target = QDir::cleanPath(qmakePath).remove(binQmake);
+    return target.mid(target.lastIndexOf(QLatin1Char('/')) + 1);
 }
 
 bool MaemoGlobal::removeRecursively(const QString &filePath, QString &error)

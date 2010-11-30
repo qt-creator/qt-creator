@@ -63,6 +63,8 @@ public:
     static QString remoteSourceProfilesCommand();
     static QString failedToConnectToServerMessage(const QSharedPointer<Core::SshConnection> &connection,
         const MaemoDeviceConfig &deviceConfig);
+    static QString maddeRoot(const QString &qmakePath);
+    static QString targetName(const QString &qmakePath);
 
     static bool removeRecursively(const QString &filePath, QString &error);
     static void callMaddeShellScript(QProcess &proc, const QString &maddeRoot,

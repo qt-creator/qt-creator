@@ -42,7 +42,6 @@
 QT_FORWARD_DECLARE_CLASS(QAction);
 QT_FORWARD_DECLARE_CLASS(QFileSystemWatcher)
 QT_FORWARD_DECLARE_CLASS(QStringList);
-QT_FORWARD_DECLARE_CLASS(QXmlStreamReader);
 
 namespace ProjectExplorer {
     class BuildConfiguration;
@@ -112,24 +111,6 @@ private:
     void toggleStarterButton(ProjectExplorer::Target *target);
     bool targetUsesMatchingRuntimeConfig(ProjectExplorer::Target *target,
         QtVersion **qtVersion = 0);
-
-    QString maddeRoot(const QString &qmake) const;
-    QString targetRoot(const QString &qmake) const;
-
-    bool fillRuntimeInformationForOldMadInfo(MaemoQemuRuntime *runtime) const;
-    void setEnvironment(MaemoQemuRuntime *runTime, const QString &envSpec) const;
-    MaemoQemuRuntime createRuntime(const QtVersion *qtVersion) const;
-    MaemoQemuRuntime parseRuntimeFromMadInfo(const QByteArray &output,
-        const QString &targetName) const;
-    MaemoQemuRuntime parseRuntimeFromOldMadInfo(const QString &output,
-        const QString &maddeRootPath, const QString &targetName) const;
-    void handleMadInfoTargetTag(QXmlStreamReader &infoReader,
-        QString &runtimeName, const QString &targetName) const;
-    MaemoQemuRuntime handleMadInfoRuntimeTag(QXmlStreamReader &infoReader) const;
-    QHash<QString, QString> handleMadInfoEnvironmentTag(QXmlStreamReader &infoReader) const;
-    QPair<QString, QString> handleMadInfoVariableTag(QXmlStreamReader &infoReader) const;
-    MaemoPortList handleMadInfoTcpPortListTag(QXmlStreamReader &infoReader) const;
-    int handleMadInfoPortTag(QXmlStreamReader &infoReader) const;
 
     void notify(const QList<int> uniqueIds);
     void toggleDeviceConnections(MaemoRunConfiguration *mrc, bool connect);
