@@ -47,67 +47,81 @@
       <widget class="QLineEdit" name="lineEditLineNumber"/>
      </item>
      <item row="3" column="1">
-      <widget class="QCheckBox" name="checkBoxUseFullPath">
+      <widget class="QCheckBox" name="checkBoxEnabled">
        <property name="text">
         <string/>
        </property>
       </widget>
      </item>
      <item row="3" column="0">
+      <widget class="QLabel" name="labelEnabled">
+       <property name="text">
+        <string>Enabled:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QCheckBox" name="checkBoxUseFullPath">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
       <widget class="QLabel" name="labelUseFullPath">
        <property name="text">
         <string>Use full path:</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="0">
+     <item row="5" column="0">
       <widget class="QLabel" name="labelAddress">
        <property name="text">
         <string>Address:</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
+     <item row="5" column="1">
       <widget class="QLineEdit" name="lineEditAddress"/>
      </item>
-     <item row="5" column="0">
+     <item row="6" column="0">
       <widget class="QLabel" name="labelFunction">
        <property name="text">
         <string>Function:</string>
        </property>
       </widget>
      </item>
-     <item row="5" column="1">
+     <item row="6" column="1">
       <widget class="QLineEdit" name="lineEditFunction"/>
      </item>
-     <item row="6" column="0">
+     <item row="7" column="0">
       <widget class="QLabel" name="labelCondition">
        <property name="text">
         <string>Condition:</string>
        </property>
       </widget>
      </item>
-     <item row="6" column="1">
+     <item row="7" column="1">
       <widget class="QLineEdit" name="lineEditCondition"/>
      </item>
-     <item row="7" column="0">
+     <item row="8" column="0">
       <widget class="QLabel" name="labelIgnoreCount">
        <property name="text">
         <string>Ignore count:</string>
        </property>
       </widget>
      </item>
-     <item row="7" column="1">
+     <item row="8" column="1">
       <widget class="QLineEdit" name="lineEditIgnoreCount"/>
      </item>
-     <item row="8" column="0">
+     <item row="9" column="0">
       <widget class="QLabel" name="labelThreadSpec">
        <property name="text">
         <string>Thread specification:</string>
        </property>
       </widget>
      </item>
-     <item row="8" column="1">
+     <item row="9" column="1">
       <widget class="QLineEdit" name="lineEditThreadSpec"/>
      </item>
     </layout>

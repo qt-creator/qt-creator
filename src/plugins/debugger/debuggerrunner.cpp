@@ -460,8 +460,6 @@ static DebuggerEngineType engineForToolChain(int toolChainType)
         case ProjectExplorer::ToolChain_RVCT_ARMV5_GNUPOC:
         case ProjectExplorer::ToolChain_GCCE_GNUPOC:
         case ProjectExplorer::ToolChain_GCC_MAEMO:
-            if (getenv("QTC_LLDB_GUEST"))
-                return LldbEngineType;
 #ifdef WITH_LLDB
             // lldb override
             if (Core::ICore::instance()->settings()->value("LLDB/enabled").toBool())
@@ -501,6 +499,12 @@ void DebuggerRunControl::createEngine(const DebuggerStartParameters &startParams
             d->m_errorMessage = msgEngineNotAvailable("Cdb Engine");
             engineType = NoEngineType;
         }
+    }
+
+    if (getenv("QTC_LLDB_GUEST")) {
+        engineType = LldbEngineType;
+        sp.executable = sp.processArgs;
+        qDebug() << "DEBUGGING" << sp.executable;
     }
 
     // Fixme: 1 of 3 testing hacks.
@@ -561,8 +565,8 @@ void DebuggerRunControl::createEngine(const DebuggerStartParameters &startParams
             break;
         case LldbEngineType:
             d->m_engine = createLldbEngine(sp);
-       case NoEngineType:
-       case AllEngineTypes:
+        case NoEngineType:
+        case AllEngineTypes:
             break;
     }
 

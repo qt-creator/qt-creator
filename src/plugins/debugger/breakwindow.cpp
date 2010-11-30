@@ -193,6 +193,8 @@ void BreakpointDialog::clearParts(unsigned partsMask)
 
 void BreakpointDialog::getParts(unsigned partsMask, BreakpointParameters *data) const
 {
+    data->enabled = m_ui.checkBoxEnabled->isChecked();
+
     if (partsMask & FileAndLinePart) {
         data->lineNumber = m_ui.lineEditLineNumber->text().toInt();
         data->useFullPath = m_ui.checkBoxUseFullPath->isChecked();
@@ -207,6 +209,8 @@ void BreakpointDialog::getParts(unsigned partsMask, BreakpointParameters *data) 
 
 void BreakpointDialog::setParts(unsigned mask, const BreakpointParameters &data)
 {
+    m_ui.checkBoxEnabled->setChecked(data.enabled);
+
     if (mask & FileAndLinePart) {
         m_ui.pathChooserFileName->setPath(data.fileName);
         m_ui.lineEditLineNumber->setText(QString::number(data.lineNumber));

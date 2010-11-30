@@ -1809,6 +1809,7 @@ void GdbEngine::continueInferiorInternal()
 
 void GdbEngine::autoContinueInferior()
 {
+    resetLocation();
     continueInferiorInternal();
     showStatusMessage(tr("Continuing after temporary stop..."), 1000);
 }
