@@ -352,12 +352,12 @@ void MaemoQemuManager::startRuntime()
     }
 
     m_runningQtId = version->uniqueId();
-    const QString root
-        = QDir::toNativeSeparators(MaemoGlobal::maddeRoot(version->qmakeCommand())
-            + QLatin1Char('/'));
     const MaemoQemuRuntime rt = m_runtimes.value(version->uniqueId());
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
 #ifdef Q_OS_WIN
+    const QString root
+        = QDir::toNativeSeparators(MaemoGlobal::maddeRoot(version->qmakeCommand())
+            + QLatin1Char('/'));
     const QLatin1Char colon(';');
     const QLatin1String key("PATH");
     env.insert(key, root % QLatin1String("bin") % colon % env.value(key));
@@ -369,22 +369,7 @@ void MaemoQemuManager::startRuntime()
     m_qemuProcess->setProcessEnvironment(env);
     m_qemuProcess->setWorkingDirectory(rt.m_root);
 
-    // This is complex because of extreme MADDE weirdness.
-    const bool pathIsRelative = QFileInfo(rt.m_bin).isRelative();
-    const QString app =
-#ifdef Q_OS_WIN
-        root % (pathIsRelative
-            ? QLatin1String("madlib/") % rt.m_bin // Fremantle.
-            : rt.m_bin)                           // Haramattan.
-            % QLatin1String(".exe");
-#else
-        pathIsRelative
-            ? root % QLatin1String("madlib/") % rt.m_bin // Fremantle.
-            : rt.m_bin;                                  // Haramattan.
-#endif
-
-    m_qemuProcess->start(app % QLatin1Char(' ') % rt.m_args,
-        QIODevice::ReadWrite);
+    m_qemuProcess->start(rt.m_bin % QLatin1Char(' ') % rt.m_args);
     if (!m_qemuProcess->waitForStarted())
         return;
 

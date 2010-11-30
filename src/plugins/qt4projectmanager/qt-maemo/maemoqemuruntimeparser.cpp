@@ -192,7 +192,21 @@ void MaemoQemuRuntimeParserV1::fillRuntimeInformation(MaemoQemuRuntime *runtime)
                     break;
                 runtime->m_freePorts.addPort(port.toInt());
             }
-            return;
+
+            // This is complex because of extreme MADDE weirdness.
+            const QString root = m_maddeRoot + QLatin1Char('/');
+            const bool pathIsRelative = QFileInfo(runtime->m_bin).isRelative();
+            runtime->m_bin =
+        #ifdef Q_OS_WIN
+                root + (pathIsRelative
+                    ? QLatin1String("madlib/") + runtime->m_bin // Fremantle.
+                    : runtime->m_bin)                           // Harmattan.
+                    + QLatin1String(".exe");
+        #else
+                pathIsRelative
+                    ? root + QLatin1String("madlib/") + runtime->m_bin // Fremantle.
+                    : runtime->m_bin;                                  // Harmattan.
+        #endif
         }
     }
 }
