@@ -322,7 +322,7 @@ MaemoPortList MaemoRunConfiguration::freePorts() const
     const MaemoDeviceConfig &devConfig = deviceConfig();
     const Qt4BuildConfiguration * const qt4bc = activeQt4BuildConfiguration();
     if (devConfig.type == MaemoDeviceConfig::Simulator && qt4bc) {
-        Runtime rt;
+        MaemoQemuRuntime rt;
         const int id = qt4bc->qtVersion()->uniqueId();
         if (MaemoQemuManager::instance().runtimeForQtVersion(id, &rt))
             return rt.m_freePorts;

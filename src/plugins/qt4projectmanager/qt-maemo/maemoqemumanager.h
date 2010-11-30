@@ -57,11 +57,10 @@ namespace Qt4ProjectManager {
     namespace Internal {
     class MaemoRunConfiguration;
 
-// TODO: Rename to something more unique
-struct Runtime
+struct MaemoQemuRuntime
 {
-    Runtime() {}
-    Runtime(const QString &root)
+    MaemoQemuRuntime() {}
+    MaemoQemuRuntime(const QString &root)
         : m_root(root) {}
     bool isValid() const {
         return !m_bin.isEmpty();
@@ -84,7 +83,7 @@ class MaemoQemuManager : public QObject
 public:
     static MaemoQemuManager& instance(QObject *parent = 0);
 
-    bool runtimeForQtVersion(int uniqueId, Runtime *rt) const;
+    bool runtimeForQtVersion(int uniqueId, MaemoQemuRuntime *rt) const;
 
 signals:
     void qemuProcessStatus(QemuStatus, const QString &error = QString());
@@ -136,16 +135,16 @@ private:
     QString maddeRoot(const QString &qmake) const;
     QString targetRoot(const QString &qmake) const;
 
-    bool fillRuntimeInformationForOldMadInfo(Runtime *runtime) const;
-    void setEnvironment(Runtime *runTime, const QString &envSpec) const;
-    Runtime createRuntime(const QtVersion *qtVersion) const;
-    Runtime parseRuntimeFromMadInfo(const QByteArray &output,
+    bool fillRuntimeInformationForOldMadInfo(MaemoQemuRuntime *runtime) const;
+    void setEnvironment(MaemoQemuRuntime *runTime, const QString &envSpec) const;
+    MaemoQemuRuntime createRuntime(const QtVersion *qtVersion) const;
+    MaemoQemuRuntime parseRuntimeFromMadInfo(const QByteArray &output,
         const QString &targetName) const;
-    Runtime parseRuntimeFromOldMadInfo(const QString &output,
+    MaemoQemuRuntime parseRuntimeFromOldMadInfo(const QString &output,
         const QString &maddeRootPath, const QString &targetName) const;
     void handleMadInfoTargetTag(QXmlStreamReader &infoReader,
         QString &runtimeName, const QString &targetName) const;
-    Runtime handleMadInfoRuntimeTag(QXmlStreamReader &infoReader) const;
+    MaemoQemuRuntime handleMadInfoRuntimeTag(QXmlStreamReader &infoReader) const;
     QHash<QString, QString> handleMadInfoEnvironmentTag(QXmlStreamReader &infoReader) const;
     QPair<QString, QString> handleMadInfoVariableTag(QXmlStreamReader &infoReader) const;
     MaemoPortList handleMadInfoTcpPortListTag(QXmlStreamReader &infoReader) const;
@@ -161,7 +160,7 @@ private:
     int m_runningQtId;
     bool m_userTerminated;
     QIcon m_qemuStarterIcon;
-    QMap<int, Runtime> m_runtimes;
+    QMap<int, MaemoQemuRuntime> m_runtimes;
     static MaemoQemuManager *m_instance;
     QFileSystemWatcher *m_runtimeRootWatcher;
     QFileSystemWatcher *m_runtimeFolderWatcher;

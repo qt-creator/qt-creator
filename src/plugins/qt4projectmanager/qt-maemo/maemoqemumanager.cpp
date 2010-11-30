@@ -144,9 +144,9 @@ MaemoQemuManager &MaemoQemuManager::instance(QObject *parent)
     return *m_instance;
 }
 
-bool MaemoQemuManager::runtimeForQtVersion(int uniqueId, Runtime *rt) const
+bool MaemoQemuManager::runtimeForQtVersion(int uniqueId, MaemoQemuRuntime *rt) const
 {
-    *rt = m_runtimes.value(uniqueId, Runtime());
+    *rt = m_runtimes.value(uniqueId, MaemoQemuRuntime());
     return rt->isValid();
 }
 
@@ -157,7 +157,7 @@ void MaemoQemuManager::qtVersionsChanged(const QList<int> &uniqueIds)
         if (manager->isValidId(uniqueId)) {
             QtVersion *version = manager->version(uniqueId);
             if (version->supportsTargetId(Constants::MAEMO_DEVICE_TARGET_ID)) {
-                Runtime runtime = createRuntime(version);
+                MaemoQemuRuntime runtime = createRuntime(version);
                 if (runtime.isValid()) {
                     runtime.m_watchPath =
                         runtime.m_root.left(runtime.m_root.lastIndexOf(QLatin1Char('/')));
@@ -359,7 +359,7 @@ void MaemoQemuManager::startRuntime()
     const QString root
         = QDir::toNativeSeparators(maddeRoot(version->qmakeCommand())
             + QLatin1Char('/'));
-    const Runtime rt = m_runtimes.value(version->uniqueId());
+    const MaemoQemuRuntime rt = m_runtimes.value(version->uniqueId());
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
 #ifdef Q_OS_WIN
     const QLatin1Char colon(';');
@@ -475,14 +475,14 @@ void MaemoQemuManager::qemuOutput()
 void MaemoQemuManager::runtimeRootChanged(const QString &directory)
 {
     QList<int> uniqueIds;
-    QMap<int, Runtime>::const_iterator it;
+    QMap<int, MaemoQemuRuntime>::const_iterator it;
     for (it = m_runtimes.constBegin(); it != m_runtimes.constEnd(); ++it) {
         if (QDir(it.value().m_watchPath) == QDir(directory))
             uniqueIds.append(it.key());
     }
 
     foreach (int uniqueId, uniqueIds) {
-        Runtime runtime = m_runtimes.value(uniqueId, Runtime());
+        MaemoQemuRuntime runtime = m_runtimes.value(uniqueId, MaemoQemuRuntime());
         if (runtime.isValid()) {
             if (QFile::exists(runtime.m_root)) {
                 // nothing changed, so we can remove it
@@ -505,7 +505,7 @@ void MaemoQemuManager::runtimeFolderChanged(const QString &directory)
 {
     if (QFile::exists(directory + QLatin1String("/information"))) {
         QList<int> uniqueIds;
-        QMap<int, Runtime>::const_iterator it;
+        QMap<int, MaemoQemuRuntime>::const_iterator it;
         for (it = m_runtimes.constBegin(); it != m_runtimes.constEnd(); ++it) {
             if (QDir(it.value().m_root) == QDir(directory))
                 uniqueIds.append(it.key());
@@ -553,7 +553,7 @@ void MaemoQemuManager::toggleStarterButton(Target *target)
     if (m_runningQtId == uniqueId)
         isRunning = false;
 
-    m_qemuAction->setEnabled(m_runtimes.value(uniqueId, Runtime()).isValid()
+    m_qemuAction->setEnabled(m_runtimes.value(uniqueId, MaemoQemuRuntime()).isValid()
         && targetUsesMatchingRuntimeConfig(target) && !isRunning);
     m_qemuAction->setVisible(!m_runtimes.isEmpty() && sessionHasMaemoTarget());
 }
@@ -583,7 +583,7 @@ bool MaemoQemuManager::targetUsesMatchingRuntimeConfig(Target *target,
     if (!bc)
         return false;
     QtVersion *version = bc->qtVersion();
-    if (!version || !m_runtimes.value(version->uniqueId(), Runtime()).isValid())
+    if (!version || !m_runtimes.value(version->uniqueId(), MaemoQemuRuntime()).isValid())
         return false;
 
     if (qtVersion)
@@ -605,7 +605,7 @@ QString MaemoQemuManager::targetRoot(const QString &qmake) const
     return target.mid(target.lastIndexOf(QLatin1Char('/')) + 1);
 }
 
-bool MaemoQemuManager::fillRuntimeInformationForOldMadInfo(Runtime *runtime) const
+bool MaemoQemuManager::fillRuntimeInformationForOldMadInfo(MaemoQemuRuntime *runtime) const
 {
     const QStringList files = QDir(runtime->m_root).entryList(QDir::Files
         | QDir::NoSymLinks | QDir::NoDotAndDotDot);
@@ -643,7 +643,7 @@ bool MaemoQemuManager::fillRuntimeInformationForOldMadInfo(Runtime *runtime) con
     return false;
 }
 
-void MaemoQemuManager::setEnvironment(Runtime *runTime,
+void MaemoQemuManager::setEnvironment(MaemoQemuRuntime *runTime,
     const QString &envSpec) const
 {
     QString remainingEnvSpec = envSpec;
@@ -672,9 +672,9 @@ void MaemoQemuManager::setEnvironment(Runtime *runTime,
     }
 }
 
-Runtime MaemoQemuManager::createRuntime(const QtVersion *qtVersion) const
+MaemoQemuRuntime MaemoQemuManager::createRuntime(const QtVersion *qtVersion) const
 {
-    Runtime runtime;
+    MaemoQemuRuntime runtime;
     const QString maddeRootPath = maddeRoot(qtVersion->qmakeCommand());
     const QString madCommand = maddeRootPath + QLatin1String("/bin/mad");
     if (!QFileInfo(madCommand).exists())
@@ -700,12 +700,12 @@ Runtime MaemoQemuManager::createRuntime(const QtVersion *qtVersion) const
     }
 }
 
-Runtime MaemoQemuManager::parseRuntimeFromMadInfo(const QByteArray &output,
+MaemoQemuRuntime MaemoQemuManager::parseRuntimeFromMadInfo(const QByteArray &output,
     const QString &targetName) const
 {
     QXmlStreamReader infoReader(output);
     QString runtimeName;
-    QList<Runtime> runtimes;
+    QList<MaemoQemuRuntime> runtimes;
     while (infoReader.readNextStartElement()) {
         if (infoReader.name() == QLatin1String("madde")) {
             while (infoReader.readNextStartElement()) {
@@ -714,7 +714,7 @@ Runtime MaemoQemuManager::parseRuntimeFromMadInfo(const QByteArray &output,
                         handleMadInfoTargetTag(infoReader, runtimeName, targetName);
                 } else if (infoReader.name() == QLatin1String("runtimes")) {
                     while (infoReader.readNextStartElement()) {
-                        const Runtime &rt = handleMadInfoRuntimeTag(infoReader);
+                        const MaemoQemuRuntime &rt = handleMadInfoRuntimeTag(infoReader);
                         if (!rt.m_name.isEmpty() && !rt.m_bin.isEmpty()
                                 && !rt.m_args.isEmpty()) {
                             runtimes << rt;
@@ -726,14 +726,14 @@ Runtime MaemoQemuManager::parseRuntimeFromMadInfo(const QByteArray &output,
             }
         }
     }
-    foreach (const Runtime &rt, runtimes) {
+    foreach (const MaemoQemuRuntime &rt, runtimes) {
         if (rt.m_name == runtimeName)
             return rt;
     }
-    return Runtime();
+    return MaemoQemuRuntime();
 }
 
-Runtime MaemoQemuManager::parseRuntimeFromOldMadInfo(const QString &output,
+MaemoQemuRuntime MaemoQemuManager::parseRuntimeFromOldMadInfo(const QString &output,
     const QString &maddeRootPath, const QString &targetName) const
 {
     QXmlStreamReader infoReader(output);
@@ -770,7 +770,7 @@ Runtime MaemoQemuManager::parseRuntimeFromOldMadInfo(const QString &output,
         }
     }
 
-    Runtime runtime;
+    MaemoQemuRuntime runtime;
     if (installedRuntimes.contains(targetRuntime)) {
         runtime.m_name = targetRuntime;
         runtime.m_root = maddeRootPath + QLatin1String("/runtimes/")
@@ -799,9 +799,9 @@ void MaemoQemuManager::handleMadInfoTargetTag(QXmlStreamReader &infoReader,
     }
 }
 
-Runtime MaemoQemuManager::handleMadInfoRuntimeTag(QXmlStreamReader &infoReader) const
+MaemoQemuRuntime MaemoQemuManager::handleMadInfoRuntimeTag(QXmlStreamReader &infoReader) const
 {
-    Runtime runtime;
+    MaemoQemuRuntime runtime;
     const QXmlStreamAttributes &attrs = infoReader.attributes();
     if (infoReader.name() != QLatin1String("runtime")
             || attrs.value(QLatin1String("installed")) != QLatin1String("true")) {
