@@ -467,25 +467,33 @@ void QmlEngine::attemptBreakpointSynchronization()
             handler->setEngine(id, this);
     }
 
-    //bool updateNeeded = false;
     JSAgentBreakpoints breakpoints;
     foreach (BreakpointId id, handler->engineBreakpointIds(this)) {
-        if (handler->state(id) == BreakpointInsertRequested)
-            handler->notifyBreakpointInsertProceeding(id);
-        QString processedFilename = handler->fileName(id);
+        if (handler->state(id) == BreakpointRemoveRequested) {
+            handler->notifyBreakpointRemoveProceeding(id);
+            handler->notifyBreakpointRemoveOk(id);
+        } else {
+            if (handler->state(id) == BreakpointInsertRequested) {
+                handler->notifyBreakpointInsertProceeding(id);
+            }
+            QString processedFilename = handler->fileName(id);
 #ifdef Q_OS_MACX
-        // Qt Quick Applications by default copy the qml directory to buildDir()/X.app/Contents/Resources
-        const QString applicationBundleDir
-                = QFileInfo(startParameters().executable).absolutePath() + "/../..";
-        processedFilename = mangleFilenamePaths(handler->fileName(id), startParameters().projectDir, applicationBundleDir + "/Contents/Resources");
+            // Qt Quick Applications by default copy the qml directory to buildDir()/X.app/Contents/Resources
+            const QString applicationBundleDir
+                    = QFileInfo(startParameters().executable).absolutePath() + "/../..";
+            processedFilename = mangleFilenamePaths(handler->fileName(id), startParameters().projectDir, applicationBundleDir + "/Contents/Resources");
 #endif
-        if (isShadowBuildProject())
-            processedFilename = toShadowBuildFilename(processedFilename);
-        JSAgentBreakpointData bp;
-        bp.fileName = processedFilename.toUtf8();
-        bp.lineNumber = handler->lineNumber(id);
-        bp.functionName = handler->functionName(id).toUtf8();
-        breakpoints.insert(bp);
+            if (isShadowBuildProject())
+                processedFilename = toShadowBuildFilename(processedFilename);
+            JSAgentBreakpointData bp;
+            bp.fileName = processedFilename.toUtf8();
+            bp.lineNumber = handler->lineNumber(id);
+            bp.functionName = handler->functionName(id).toUtf8();
+            breakpoints.insert(bp);
+            if (handler->state(id) == BreakpointInsertProceeding) {
+                handler->notifyBreakpointInsertOk(id);
+            }
+        }
     }
 
     QByteArray reply;
@@ -714,7 +722,7 @@ void QmlEngine::messageReceived(const QByteArray &message)
             foreach (BreakpointId id, handler->engineBreakpointIds(this)) {
                 QString processedFilename = handler->fileName(id);
                 if (processedFilename == file && handler->lineNumber(id) == line) {
-                    handler->notifyBreakpointInsertOk(id);
+                    QTC_ASSERT(handler->state(id) == BreakpointInserted,/**/);
                     BreakpointResponse br = handler->response(id);
                     br.fileName = file;
                     br.lineNumber = line;
