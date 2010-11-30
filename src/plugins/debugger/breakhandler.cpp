@@ -255,7 +255,7 @@ void BreakHandler::saveBreakpoints()
             map.insert(_("condition"), data.condition);
         if (data.ignoreCount)
             map.insert(_("ignorecount"), data.ignoreCount);
-        if (!data.threadSpec.isEmpty())
+        if (data.threadSpec)
             map.insert(_("threadspec"), data.threadSpec);
         if (!data.enabled)
             map.insert(_("disabled"), _("1"));
@@ -294,7 +294,7 @@ void BreakHandler::loadBreakpoints()
             data.ignoreCount = v.toString().toInt();
         v = map.value(_("threadspec"));
         if (v.isValid())
-            data.threadSpec = v.toString().toLatin1();
+            data.threadSpec = v.toString().toInt();
         v = map.value(_("funcname"));
         if (v.isValid())
             data.functionName = v.toString();
@@ -373,6 +373,11 @@ Qt::ItemFlags BreakHandler::flags(const QModelIndex &index) const
 //        default:
             return QAbstractTableModel::flags(index);
 //    }
+}
+
+static QString threadString(int spec)
+{
+    return spec == 0 ? BreakHandler::tr("(all)") : QString::number(spec);
 }
 
 QVariant BreakHandler::data(const QModelIndex &mi, int role) const
@@ -488,11 +493,8 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                 return data.ignoreCount;
             break;
         case 7:
-            if (role == Qt::DisplayRole) {
-                if (orig)
-                    return !data.threadSpec.isEmpty() ? data.threadSpec : tr("(all)");
-                return !response.threadSpec.isEmpty() ? response.threadSpec : tr("(all)");
-            }
+            if (role == Qt::DisplayRole)
+                return threadString(orig ? data.threadSpec : response.threadSpec);
             if (role == Qt::ToolTipRole)
                 return tr("Breakpoint will only be hit in the specified thread(s).");
             if (role == Qt::UserRole + 1)
@@ -538,7 +540,7 @@ PROPERTY(bool, useFullPath, setUseFullPath)
 PROPERTY(QString, fileName, setFileName)
 PROPERTY(QString, functionName, setFunctionName)
 PROPERTY(BreakpointType, type, setType)
-PROPERTY(QByteArray, threadSpec, setThreadSpec)
+PROPERTY(int, threadSpec, setThreadSpec)
 PROPERTY(QByteArray, condition, setCondition)
 GETTER(int, lineNumber)
 PROPERTY(quint64, address, setAddress)
@@ -745,10 +747,10 @@ void BreakHandler::notifyBreakpointAdjusted(BreakpointId id,
 
 void BreakHandler::notifyBreakpointNeedsReinsertion(BreakpointId id)
 {
-    QTC_ASSERT(state(id) == BreakpointInserted, qDebug() << state(id));
+    QTC_ASSERT(state(id) == BreakpointChangeProceeding, qDebug() << state(id));
     Iterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return);
-    it->state = BreakpointNew;
+    it->state = BreakpointInsertRequested;
 }
 
 void BreakHandler::removeBreakpoint(BreakpointId id)

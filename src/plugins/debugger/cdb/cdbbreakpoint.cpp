@@ -49,12 +49,7 @@ static CdbCore::BreakPoint breakPointFromBreakPointData(const BreakpointParamete
                   CdbCore::BreakPoint::Code ;
 
     rc.address = bpd.address;
-    if (!bpd.threadSpec.isEmpty()) {
-        bool ok;
-        rc.threadId = bpd.threadSpec.toInt(&ok);
-        if (!ok)
-            qWarning("Cdb: Cannot convert breakpoint thread specification '%s'", bpd.threadSpec.constData());
-    }
+    rc.threadId = bpd.threadSpec;
     rc.fileName = QDir::toNativeSeparators(bpd.fileName);
     rc.condition = bpd.condition;
     rc.funcName = functionName.isEmpty() ? bpd.functionName : functionName;

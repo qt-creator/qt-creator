@@ -91,7 +91,7 @@ public:
     int ignoreCount;         // Ignore count associated with breakpoint.
     int lineNumber;          // Line in source file.
     quint64 address;         // Address for watchpoints.
-    QByteArray threadSpec;   // Thread specification.
+    int threadSpec;          // Thread specification.
     QString functionName;
 };
 

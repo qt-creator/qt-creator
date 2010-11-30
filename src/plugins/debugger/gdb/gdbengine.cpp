@@ -2091,7 +2091,7 @@ void GdbEngine::updateBreakpointDataFromOutput(BreakpointId id, const GdbMi &bkp
                 ba = ba.mid(1, ba.size() - 2);
             response.functionName = _(ba);
         } else if (child.hasName("thread")) {
-            response.threadSpec = child.data();
+            response.threadSpec = child.data().toInt();
         } else if (child.hasName("type")) {
             if (!child.data().contains("reakpoint")) // "breakpoint", "hw breakpoint"
                 response.type = Watchpoint;
@@ -2337,12 +2337,11 @@ void GdbEngine::handleBreakThreadSpec(const GdbResponse &response)
     QTC_ASSERT(response.resultClass == GdbResultDone, /**/)
     const BreakpointId id = response.cookie.toInt();
     BreakHandler *handler = breakHandler();
-    handler->notifyBreakpointChangeOk(id);
-    handler->notifyBreakpointNeedsReinsertion(id);
     BreakpointResponse br = handler->response(id);
     br.threadSpec = handler->threadSpec(id);
     handler->setResponse(id, br);
-    changeBreakpoint(id); // Maybe there's more to do.
+    handler->notifyBreakpointNeedsReinsertion(id);
+    insertBreakpoint(id);
 }
 
 void GdbEngine::handleBreakIgnore(const GdbResponse &response)
@@ -2377,7 +2376,6 @@ void GdbEngine::handleBreakCondition(const GdbResponse &response)
     // Can happen at invalid condition strings.
     //QTC_ASSERT(response.resultClass == GdbResultDone, /**/)
     const BreakpointId id = response.cookie.toInt();
-    qDebug() << "CONDITION FOR" << id;
     BreakHandler *handler = breakHandler();
     // We just assume it was successful. Otherwise we had to parse
     // the output stream data.
@@ -2518,10 +2516,10 @@ void GdbEngine::insertBreakpoint(BreakpointId id)
     } else if (m_gdbAdapter->isTrkAdapter()) {
         cmd = "-break-insert -h -f ";
     } else if (m_gdbVersion >= 70000) {
-        QByteArray spec = handler->threadSpec(id);
+        int spec = handler->threadSpec(id);
         cmd = "-break-insert ";
-        if (!spec.isEmpty())
-            cmd += "-p " + spec;
+        if (spec)
+            cmd += "-p " + QByteArray::number(spec);
         cmd += " -f ";
     } else if (m_gdbVersion >= 60800) {
         // Probably some earlier version would work as well.
@@ -2551,6 +2549,13 @@ void GdbEngine::changeBreakpoint(BreakpointId id)
     const BreakpointState state2 = handler->state(id);
     QTC_ASSERT(state2 == BreakpointChangeProceeding, qDebug() << state2);
 
+    if (data.threadSpec != response.threadSpec) {
+        // The only way to change this seems to be to re-set the bp completely.
+        postCommand("-break-delete " + bpnr,
+            NeedsStop | RebuildBreakpointModel,
+            CB(handleBreakThreadSpec), id);
+        return;
+    }
     if (!data.conditionsMatch(response.condition)) {
         postCommand("condition " + bpnr + ' '  + data.condition,
             NeedsStop | RebuildBreakpointModel,
@@ -2575,14 +2580,6 @@ void GdbEngine::changeBreakpoint(BreakpointId id)
             CB(handleBreakEnable), id);
         return;
     }
-    if (data.threadSpec != response.threadSpec) {
-        // The only way to change this seems to be to re-set the bp completely.
-        postCommand("-break-delete " + bpnr,
-            NeedsStop | RebuildBreakpointModel,
-            CB(handleBreakThreadSpec), id);
-        return;
-    }
-
     handler->notifyBreakpointChangeOk(id);
     attemptAdjustBreakpointLocation(id);
 }

@@ -141,7 +141,7 @@ void BreakpointDialog::setParameters(const BreakpointParameters &data)
     setParts(AllParts, data);
     m_ui.lineEditCondition->setText(QString::fromUtf8(data.condition));
     m_ui.lineEditIgnoreCount->setText(QString::number(data.ignoreCount));
-    m_ui.lineEditThreadSpec->setText(data.threadSpec);
+    m_ui.lineEditThreadSpec->setText(QString::number(data.threadSpec));
 }
 
 BreakpointParameters BreakpointDialog::parameters() const
@@ -150,7 +150,7 @@ BreakpointParameters BreakpointDialog::parameters() const
     getParts(AllParts, &data);
     data.condition = m_ui.lineEditCondition->text().toUtf8();
     data.ignoreCount = m_ui.lineEditIgnoreCount->text().toInt();
-    data.threadSpec = m_ui.lineEditThreadSpec->text().toUtf8();
+    data.threadSpec = m_ui.lineEditThreadSpec->text().toInt();
     return data;
 }
 
@@ -564,7 +564,7 @@ void BreakWindow::editBreakpoints(const BreakpointIds &ids)
     BreakHandler *handler = breakHandler();
     const QString oldCondition = QString::fromLatin1(handler->condition(id));
     const QString oldIgnoreCount = QString::number(handler->ignoreCount(id));
-    const QString oldThreadSpec = QString::fromLatin1(handler->threadSpec(id));
+    const QString oldThreadSpec = QString::number(handler->threadSpec(id));
 
     ui.lineEditCondition->setText(oldCondition);
     ui.lineEditIgnoreCount->setText(oldIgnoreCount);
@@ -584,16 +584,15 @@ void BreakWindow::editBreakpoints(const BreakpointIds &ids)
     foreach (const BreakpointId id, ids) {
         handler->setCondition(id, newCondition.toLatin1());
         handler->setIgnoreCount(id, newIgnoreCount.toInt());
-        handler->setThreadSpec(id, newThreadSpec.toLatin1());
+        handler->setThreadSpec(id, newThreadSpec.toInt());
     }
 }
 
 void BreakWindow::associateBreakpoint(const BreakpointIds &ids, int threadId)
 {
     BreakHandler *handler = breakHandler();
-    QByteArray spec = QByteArray::number(threadId);
     foreach (const BreakpointId id, ids)
-        handler->setThreadSpec(id, spec);
+        handler->setThreadSpec(id, threadId);
 }
 
 void BreakWindow::resizeColumnsToContents()

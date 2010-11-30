@@ -107,8 +107,8 @@ public:
     void setCondition(BreakpointId, const QByteArray &condition);
     int ignoreCount(BreakpointId id) const;
     void setIgnoreCount(BreakpointId, const int &count);
-    QByteArray threadSpec(BreakpointId id) const;
-    void setThreadSpec(BreakpointId, const QByteArray &spec);
+    int threadSpec(BreakpointId id) const;
+    void setThreadSpec(BreakpointId, const int&spec);
     QString fileName(BreakpointId id) const;
     void setFileName(BreakpointId, const QString &fileName);
     QString functionName(BreakpointId id) const;
