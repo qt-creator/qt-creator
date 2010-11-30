@@ -139,8 +139,8 @@ GettingStartedWelcomePageWidget::GettingStartedWelcomePageWidget(QWidget *parent
     const QString featureRssFile = Core::ICore::instance()->resourcePath()+QLatin1String("/rss/featured.rss");
     emit startRssFetching(QUrl::fromLocalFile(featureRssFile));
 
-    ui->nextFeatureBtn->setEnabled(false);
-    ui->prevFeatureBtn->setEnabled(false);
+    ui->nextFeatureBtn->hide();
+    ui->prevFeatureBtn->hide();
     connect(ui->nextFeatureBtn, SIGNAL(clicked()), this, SLOT(slotNextFeature()));
     connect(ui->prevFeatureBtn, SIGNAL(clicked()), this, SLOT(slotPrevFeature()));
 }
@@ -524,8 +524,10 @@ QStringList GettingStartedWelcomePageWidget::tipsOfTheDay()
 void GettingStartedWelcomePageWidget::addToFeatures(const Core::RssItem &feature)
 {
     m_featuredItems.append(feature);
-    ui->nextFeatureBtn->setEnabled(true);
-    ui->prevFeatureBtn->setEnabled(true);
+    if (m_featuredItems.count() > 1) {
+        ui->nextFeatureBtn->show();
+        ui->prevFeatureBtn->show();
+    }
 }
 
 void GettingStartedWelcomePageWidget::showFeature(int feature)
