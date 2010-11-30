@@ -41,7 +41,8 @@ HEADERS += \
     $$PWD/maemopublishinguploadsettingspagefremantlefree.h \
     $$PWD/maemopublishingwizardfremantlefree.h \
     $$PWD/maemopublishingresultpagefremantlefree.h \
-    $$PWD/maemopublisherfremantlefree.h
+    $$PWD/maemopublisherfremantlefree.h \
+    $$PWD/maemoqemuruntime.h
 
 SOURCES += \
     $$PWD/maemoconfigtestdialog.cpp \

@@ -31,9 +31,8 @@
 #define QEMURUNTIMEMANAGER_H
 
 #include "maemoconstants.h"
-#include "maemodeviceconfigurations.h"
+#include "maemoqemuruntime.h"
 
-#include <QtCore/QHash>
 #include <QtCore/QMap>
 #include <QtCore/QObject>
 #include <QtCore/QProcess>
@@ -57,24 +56,6 @@ namespace Qt4ProjectManager {
     namespace Internal {
     class MaemoRunConfiguration;
 
-struct MaemoQemuRuntime
-{
-    MaemoQemuRuntime() {}
-    MaemoQemuRuntime(const QString &root)
-        : m_root(root) {}
-    bool isValid() const {
-        return !m_bin.isEmpty();
-    }
-
-    QString m_name;
-    QString m_bin;
-    QString m_root;
-    QString m_args;
-    QString m_sshPort;
-    QString m_watchPath;
-    QHash<QString, QString> m_environment;
-    MaemoPortList m_freePorts;
-};
 
 class MaemoQemuManager : public QObject
 {
@@ -166,7 +147,7 @@ private:
     QFileSystemWatcher *m_runtimeFolderWatcher;
 };
 
-    }   // namespace Qt4ProjectManager
 }   // namespace Internal
+}   // namespace Qt4ProjectManager
 
 #endif  // QEMURUNTIMEMANAGER_H
