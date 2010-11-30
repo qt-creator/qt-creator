@@ -332,15 +332,8 @@ bool MaemoDeployableListModel::addLinesToProFile(const QStringList &lines)
         qWarning("Error opening .pro file for writing.");
         return false;
     }
-    QString proFileScope;
-    const MaemoToolChain *const tc = maemoToolchain();
-    QTC_ASSERT(tc, return false);
-    if (tc->version() == MaemoToolChain::Maemo5)
-        proFileScope = QLatin1String("maemo5");
-    else
-        proFileScope = QLatin1String("unix:!symbian:!maemo5");
     const QLatin1String separator("\n    ");
-    const QString proFileString = QString(QLatin1Char('\n') + proFileScope
+    const QString proFileString = QString(QLatin1Char('\n') + proFileScope()
         + QLatin1String(" {") + separator + lines.join(separator)
         + QLatin1String("\n}\n"));
     const QByteArray &proFileByteArray = proFileString.toLocal8Bit();
@@ -367,6 +360,14 @@ const MaemoToolChain *MaemoDeployableListModel::maemoToolchain() const
         = dynamic_cast<MaemoToolChain *>(bc->toolChain());
     QTC_ASSERT(tc, return false);
     return tc;
+}
+
+QString MaemoDeployableListModel::proFileScope() const
+{
+    const MaemoToolChain *const tc = maemoToolchain();
+    QTC_ASSERT(tc, return QString());
+    return QLatin1String(tc->version() == MaemoToolChain::Maemo5
+        ? "maemo5" : "unix:!symbian:!maemo5");
 }
 
 } // namespace Qt4ProjectManager
