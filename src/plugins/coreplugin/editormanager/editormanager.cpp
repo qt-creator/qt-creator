@@ -2051,6 +2051,7 @@ Core::IEditor *EditorManager::duplicateEditor(Core::IEditor *editor)
 
     IEditor *duplicate = editor->duplicate(0);
     duplicate->restoreState(editor->saveState());
+    connect(duplicate, SIGNAL(changed()), this, SLOT(updateActions()));
     emit editorCreated(duplicate, duplicate->file()->fileName());
     addEditor(duplicate, true);
     return duplicate;
