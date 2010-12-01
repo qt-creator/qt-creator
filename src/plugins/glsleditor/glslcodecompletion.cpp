@@ -492,6 +492,10 @@ CodeCompletion::CodeCompletion(QObject *parent)
       m_varIcon(":/glsleditor/images/var.png"),
       m_functionIcon(":/glsleditor/images/func.png"),
       m_typeIcon(":/glsleditor/images/type.png"),
+      m_constIcon(":/glsleditor/images/const.png"),
+      m_attributeIcon(":/glsleditor/images/attribute.png"),
+      m_uniformIcon(":/glsleditor/images/uniform.png"),
+      m_varyingIcon(":/glsleditor/images/varying.png"),
       m_otherIcon(":/glsleditor/images/other.png")
 {
     const QIcon keywordIcon(QLatin1String(":/glsleditor/images/keyword.png"));
@@ -678,14 +682,28 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
     foreach (GLSL::Symbol *s, members) {
         TextEditor::CompletionItem item(this);
-        if (s->asVariable() || s->asArgument())
+        GLSL::Variable *var = s->asVariable();
+        if (var) {
+            int storageType = var->qualifiers() & GLSL::QualifiedTypeAST::StorageMask;
+            if (storageType == GLSL::QualifiedTypeAST::Attribute)
+                item.icon = m_attributeIcon;
+            else if (storageType == GLSL::QualifiedTypeAST::Uniform)
+                item.icon = m_uniformIcon;
+            else if (storageType == GLSL::QualifiedTypeAST::Varying)
+                item.icon = m_varyingIcon;
+            else if (storageType == GLSL::QualifiedTypeAST::Const)
+                item.icon = m_constIcon;
+            else
+                item.icon = m_varIcon;
+        } else if (s->asArgument()) {
             item.icon = m_varIcon;
-        else if (s->asFunction() || s->asOverloadSet())
+        } else if (s->asFunction() || s->asOverloadSet()) {
             item.icon = m_functionIcon;
-        else if (s->asStruct())
+        } else if (s->asStruct()) {
             item.icon = m_typeIcon;
-        else
+        } else {
             item.icon = m_otherIcon;
+        }
         item.text = s->name();
         if (specialMembers.contains(item.text))
             item.order = SpecialMemberOrder;

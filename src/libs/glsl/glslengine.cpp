@@ -266,11 +266,12 @@ Argument *Engine::newArgument(Function *function, const QString &name, const Typ
     return a;
 }
 
-Variable *Engine::newVariable(Scope *scope, const QString &name, const Type *type)
+Variable *Engine::newVariable(Scope *scope, const QString &name, const Type *type, int qualifiers)
 {
     Variable *var = new Variable(scope);
     var->setName(name);
     var->setType(type);
+    var->setQualifiers(qualifiers);
     _symbols.append(var);
     return var;
 }

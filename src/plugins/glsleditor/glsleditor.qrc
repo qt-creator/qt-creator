@@ -6,6 +6,10 @@
         <file>images/var.png</file>
         <file>images/func.png</file>
         <file>images/type.png</file>
+        <file>images/const.png</file>
+        <file>images/attribute.png</file>
+        <file>images/uniform.png</file>
+        <file>images/varying.png</file>
         <file>images/other.png</file>
     </qresource>
 </RCC>

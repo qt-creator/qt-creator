@@ -751,7 +751,11 @@ bool Semantic::visit(VariableDeclarationAST *ast)
     const Type *ty = type(ast->type);
     ExprResult initializer = expression(ast->initializer);
     if (ast->name) {
-        Variable *var = _engine->newVariable(_scope, *ast->name, ty);
+        QualifiedTypeAST *qtype = ast->type->asQualifiedType();
+        int qualifiers = 0;
+        if (qtype)
+            qualifiers = qtype->qualifiers;
+        Variable *var = _engine->newVariable(_scope, *ast->name, ty, qualifiers);
         _scope->add(var);
     }
     return false;

@@ -59,10 +59,14 @@ public:
     virtual const Type *type() const;
     void setType(const Type *type);
 
+    int qualifiers() const { return _qualifiers; }
+    void setQualifiers(int qualifiers) { _qualifiers = qualifiers; }
+
     virtual Variable *asVariable() { return this; }
 
 private:
     const Type *_type;
+    int _qualifiers;
 };
 
 class GLSL_EXPORT Block: public Scope

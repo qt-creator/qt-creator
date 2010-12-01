@@ -120,7 +120,7 @@ public:
     Block *newBlock(Scope *scope = 0);
     Function *newFunction(Scope *scope = 0);
     Argument *newArgument(Function *function, const QString &name, const Type *type);
-    Variable *newVariable(Scope *scope, const QString &name, const Type *type);
+    Variable *newVariable(Scope *scope, const QString &name, const Type *type, int qualifiers = 0);
 
     MemoryPool *pool();
 

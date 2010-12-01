@@ -78,6 +78,7 @@ Symbol *Block::find(const QString &name) const
 Variable::Variable(Scope *scope)
     : Symbol(scope)
     , _type(0)
+    , _qualifiers(0)
 {
 }
 
