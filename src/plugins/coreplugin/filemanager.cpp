@@ -840,7 +840,7 @@ FileManager::ReadOnlyAction
         return RO_OpenVCS;
     if (clickedButton == makeWritableButton)
         return RO_MakeWriteable;
-    if (clickedButton == saveAsButton)
+    if (displaySaveAsButton && clickedButton == saveAsButton)
         return RO_SaveAs;
     return  RO_Cancel;
 }

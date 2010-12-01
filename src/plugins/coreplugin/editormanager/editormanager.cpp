@@ -1411,7 +1411,7 @@ EditorManager::makeFileWritable(IFile *file)
     IVersionControl *versionControl = m_d->m_core->vcsManager()->findVersionControlForDirectory(directory);
     const QString &fileName = file->fileName();
 
-    switch (FileManager::promptReadOnlyFile(fileName, versionControl, m_d->m_core->mainWindow(), true)) {
+    switch (FileManager::promptReadOnlyFile(fileName, versionControl, m_d->m_core->mainWindow(), file->isSaveAsAllowed())) {
     case FileManager::RO_OpenVCS:
         if (!versionControl->vcsOpen(fileName)) {
             QMessageBox::warning(m_d->m_core->mainWindow(), tr("Failed!"), tr("Could not open the file for editing with SCC."));
@@ -1479,6 +1479,7 @@ bool EditorManager::saveFileAs(IFile *fileParam)
     return success;
 }
 
+/* Adds the file name to the recent files if there is at least one non-temporary editor for it */
 void EditorManager::addFileToRecentFiles(IFile *file)
 {
     bool isTemporary = true;
