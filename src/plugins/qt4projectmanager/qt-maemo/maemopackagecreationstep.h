@@ -111,7 +111,6 @@ private:
 
     bool createPackage(QProcess *buildProc);
     bool copyDebianFiles(bool inSourceBuild);
-    bool runCommand(QProcess *buildProc, const QString &command);
     QString maddeRoot() const;
     QString targetRoot() const;
     static QString nativePath(const QFile &file);

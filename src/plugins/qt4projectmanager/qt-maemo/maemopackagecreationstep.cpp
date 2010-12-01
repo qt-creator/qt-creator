@@ -172,8 +172,34 @@ bool MaemoPackageCreationStep::createPackage(QProcess *buildProc)
     if (!copyDebianFiles(inSourceBuild))
         return false;
 
-    if (!runCommand(buildProc, QLatin1String("dpkg-buildpackage -nc -uc -us")))
+    const QString maddeRoot = maemoToolChain()->maddeRoot();
+    const QString madCommand = maddeRoot + QLatin1String("/bin/mad");
+    const QStringList args = QStringList() << QLatin1String("-t")
+        << maemoToolChain()->targetName() << QLatin1String("dpkg-buildpackage")
+        << QLatin1String("-nc") << QLatin1String("-uc") << QLatin1String("-us");
+    const QString cmdLine = madCommand + QLatin1Char(' ')
+        + args.join(QLatin1String(" "));
+    emit addOutput(tr("Package Creation: Running command '%1'.").arg(cmdLine),
+        BuildStep::MessageOutput);
+    MaemoGlobal::callMaddeShellScript(*buildProc, maddeRoot, madCommand, args);
+    if (!buildProc->waitForStarted()) {
+        raiseError(tr("Packaging failed."),
+            tr("Packaging error: Could not start command '%1'. Reason: %2")
+            .arg(cmdLine, buildProc->errorString()));
         return false;
+    }
+    buildProc->waitForFinished(-1);
+    if (buildProc->error() != QProcess::UnknownError
+            || buildProc->exitCode() != 0) {
+        QString mainMessage = tr("Packaging Error: Command '%1' failed.")
+            .arg(cmdLine);
+        if (buildProc->error() != QProcess::UnknownError)
+            mainMessage += tr(" Reason: %1").arg(buildProc->errorString());
+        else
+            mainMessage += tr("Exit code: %1").arg(buildProc->exitCode());
+        raiseError(mainMessage);
+        return false;
+    }
 
     // Workaround for non-working dh_builddeb --destdir=.
     if (!QDir(buildDirectory()).isRoot()) {
@@ -269,32 +295,6 @@ bool MaemoPackageCreationStep::copyDebianFiles(bool inSourceBuild)
         return false;
     }
 
-    return true;
-}
-
-bool MaemoPackageCreationStep::runCommand(QProcess *buildProc,
-    const QString &command)
-{
-    emit addOutput(tr("Package Creation: Running command '%1'.").arg(command), BuildStep::MessageOutput);
-    buildProc->start(packagingCommand(maemoToolChain(), command));
-    if (!buildProc->waitForStarted()) {
-        raiseError(tr("Packaging failed."),
-            tr("Packaging error: Could not start command '%1'. Reason: %2")
-            .arg(command).arg(buildProc->errorString()));
-        return false;
-    }
-    buildProc->waitForFinished(-1);
-    if (buildProc->error() != QProcess::UnknownError
-        || buildProc->exitCode() != 0) {
-        QString mainMessage = tr("Packaging Error: Command '%1' failed.")
-            .arg(command);
-        if (buildProc->error() != QProcess::UnknownError)
-            mainMessage += tr(" Reason: %1").arg(buildProc->errorString());
-        else
-            mainMessage += tr("Exit code: %1").arg(buildProc->exitCode());
-        raiseError(mainMessage);
-        return false;
-    }
     return true;
 }
 
