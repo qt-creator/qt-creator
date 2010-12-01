@@ -1272,9 +1272,7 @@ void EditorManager::switchToPreferedMode()
     if (preferedMode.isEmpty())
         preferedMode = Constants::MODE_EDIT_TYPE;
 
-    if (m_d->m_core->modeManager()->currentMode()->type() != preferedMode) {
-        m_d->m_core->modeManager()->activateModeType(preferedMode);
-    }
+    m_d->m_core->modeManager()->activateModeType(preferedMode);
 }
 
 IEditor *EditorManager::openEditorWithContents(const QString &editorId,

@@ -151,6 +151,8 @@ IMode *ModeManager::mode(const QString &id) const
 
 void ModeManager::activateModeType(const QString &type)
 {
+    if (currentMode() && currentMode()->type() == type)
+        return;
     int index = -1;
     for (int i = 0; i < d->m_modes.count(); ++i) {
         if (d->m_modes.at(i)->type() == type) {
