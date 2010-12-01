@@ -316,8 +316,12 @@ void GLSLTextEditor::updateDocumentNow()
 {
     m_updateDocumentTimer->stop();
 
-    int variant = Lexer::Variant_GLSL_Qt; // ### hardcoded
+    int variant = 0;
 
+    if (isDesktopShader())
+        variant |= Lexer::Variant_GLSL_120;
+    else
+        variant |= Lexer::Variant_GLSL_Qt;
     if (isVertexShader())
         variant |= Lexer::Variant_VertexShader;
     if (isFragmentShader())
@@ -336,11 +340,11 @@ void GLSLTextEditor::updateDocumentNow()
         Semantic sem;
         Scope *globalScope = engine->newNamespace();
         doc->_globalScope = globalScope;
-        sem.translationUnit(plugin->shaderInit()->ast, globalScope, plugin->shaderInit()->engine);
+        sem.translationUnit(plugin->shaderInit(variant)->ast, globalScope, plugin->shaderInit(variant)->engine);
         if (variant & Lexer::Variant_VertexShader)
-            sem.translationUnit(plugin->vertexShaderInit()->ast, globalScope, plugin->vertexShaderInit()->engine);
+            sem.translationUnit(plugin->vertexShaderInit(variant)->ast, globalScope, plugin->vertexShaderInit(variant)->engine);
         if (variant & Lexer::Variant_FragmentShader)
-            sem.translationUnit(plugin->fragmentShaderInit()->ast, globalScope, plugin->fragmentShaderInit()->engine);
+            sem.translationUnit(plugin->fragmentShaderInit(variant)->ast, globalScope, plugin->fragmentShaderInit(variant)->engine);
         sem.translationUnit(ast, globalScope, engine);
 
         CreateRanges createRanges(document(), doc);
@@ -380,14 +384,28 @@ void GLSLTextEditor::updateDocumentNow()
     }
 }
 
+bool GLSLTextEditor::isDesktopShader() const
+{
+    return mimeType() == QLatin1String("text/x-glsl-vert") ||
+           mimeType() == QLatin1String("text/x-glsl-frag") ||
+           mimeType() == QLatin1String("text/x-glsl") || // Could be either.
+           mimeType() == QLatin1String("application/x-glsl");
+}
+
 bool GLSLTextEditor::isVertexShader() const
 {
-    return mimeType() == QLatin1String("text/x-glsl-vert");
+    return mimeType() == QLatin1String("text/x-glsl-vert") ||
+           mimeType() == QLatin1String("text/x-glsl-es-vert") ||
+           mimeType() == QLatin1String("text/x-glsl") || // Could be either.
+           mimeType() == QLatin1String("application/x-glsl");
 }
 
 bool GLSLTextEditor::isFragmentShader() const
 {
-    return mimeType() == QLatin1String("text/x-glsl-frag");
+    return mimeType() == QLatin1String("text/x-glsl-frag") ||
+           mimeType() == QLatin1String("text/x-glsl-es-frag") ||
+           mimeType() == QLatin1String("text/x-glsl") || // Could be either.
+           mimeType() == QLatin1String("application/x-glsl");
 }
 
 Document::Ptr GLSLTextEditor::glslDocument() const

@@ -13,13 +13,23 @@
         <sub-class-of type="text/x-glsl"/>
         <comment>GLSL Fragment Shader file</comment>
         <glob pattern="*.frag"/>
+    </mime-type>
+
+    <mime-type type="text/x-glsl-es-frag">
+        <sub-class-of type="text/x-glsl"/>
+        <comment>GLSL/ES Fragment Shader file</comment>
         <glob pattern="*.fsh"/>
     </mime-type>
 
     <mime-type type="text/x-glsl-vert">
         <sub-class-of type="text/x-glsl"/>
-        <comment>GLSL Fragment Shader file</comment>
+        <comment>GLSL Vertex Shader file</comment>
         <glob pattern="*.vert"/>
+    </mime-type>
+
+    <mime-type type="text/x-glsl-es-vert">
+        <sub-class-of type="text/x-glsl"/>
+        <comment>GLSL/ES Vertex Shader file</comment>
         <glob pattern="*.vsh"/>
     </mime-type>
 

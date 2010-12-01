@@ -43,8 +43,10 @@ public:
 
     enum ShaderType
     {
-        VertexShader,
-        FragmentShader
+        VertexShaderES,
+        FragmentShaderES,
+        VertexShaderDesktop,
+        FragmentShaderDesktop
     };
 
     explicit GLSLFileWizard(const BaseFileWizardParameters &parameters,

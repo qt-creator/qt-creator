@@ -173,6 +173,14 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     Core::MimeDatabase *mimeDatabase = Core::ICore::instance()->mimeDatabase();
     iconProvider->registerIconOverlayForMimeType(QIcon(QLatin1String(":/glsleditor/images/glslfile.png")),
                                                  mimeDatabase->findByType(QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE)));
+    iconProvider->registerIconOverlayForMimeType(QIcon(QLatin1String(":/glsleditor/images/glslfile.png")),
+                                                 mimeDatabase->findByType(QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE_VERT)));
+    iconProvider->registerIconOverlayForMimeType(QIcon(QLatin1String(":/glsleditor/images/glslfile.png")),
+                                                 mimeDatabase->findByType(QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE_FRAG)));
+    iconProvider->registerIconOverlayForMimeType(QIcon(QLatin1String(":/glsleditor/images/glslfile.png")),
+                                                 mimeDatabase->findByType(QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE_VERT_ES)));
+    iconProvider->registerIconOverlayForMimeType(QIcon(QLatin1String(":/glsleditor/images/glslfile.png")),
+                                                 mimeDatabase->findByType(QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE_FRAG_ES)));
 
     Core::BaseFileWizardParameters fragWizardParameters(Core::IWizard::FileWizard);
     fragWizardParameters.setCategory(QLatin1String(Constants::WIZARD_CATEGORY_GLSL));
@@ -182,9 +190,9 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
             "Language (GLSL/ES).  Fragment shaders generate the final "
             "pixel colors for triangles, points, and lines rendered "
             "with OpenGL."));
-    fragWizardParameters.setDisplayName(tr("Fragment shader"));
+    fragWizardParameters.setDisplayName(tr("Fragment shader (OpenGL/ES 2.0)"));
     fragWizardParameters.setId(QLatin1String("F.GLSL"));
-    addAutoReleasedObject(new GLSLFileWizard(fragWizardParameters, GLSLFileWizard::FragmentShader, core));
+    addAutoReleasedObject(new GLSLFileWizard(fragWizardParameters, GLSLFileWizard::FragmentShaderES, core));
 
     Core::BaseFileWizardParameters vertWizardParameters(Core::IWizard::FileWizard);
     vertWizardParameters.setCategory(QLatin1String(Constants::WIZARD_CATEGORY_GLSL));
@@ -194,9 +202,27 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
             "Language (GLSL/ES).  Vertex shaders transform the "
             "positions, normals, and texture co-ordinates of "
             "triangles, points, and lines rendered with OpenGL."));
-    vertWizardParameters.setDisplayName(tr("Vertex shader"));
-    vertWizardParameters.setId(QLatin1String("V.GLSL"));
-    addAutoReleasedObject(new GLSLFileWizard(vertWizardParameters, GLSLFileWizard::VertexShader, core));
+    vertWizardParameters.setDisplayName(tr("Vertex shader (OpenGL/ES 2.0)"));
+    vertWizardParameters.setId(QLatin1String("G.GLSL"));
+    addAutoReleasedObject(new GLSLFileWizard(vertWizardParameters, GLSLFileWizard::VertexShaderES, core));
+
+    fragWizardParameters.setDescription
+        (tr("Creates a fragment shader in the Desktop OpenGL Shading "
+            "Language (GLSL).  Fragment shaders generate the final "
+            "pixel colors for triangles, points, and lines rendered "
+            "with OpenGL."));
+    fragWizardParameters.setDisplayName(tr("Fragment shader (Desktop OpenGL)"));
+    fragWizardParameters.setId(QLatin1String("J.GLSL"));
+    addAutoReleasedObject(new GLSLFileWizard(fragWizardParameters, GLSLFileWizard::FragmentShaderDesktop, core));
+
+    vertWizardParameters.setDescription
+        (tr("Creates a vertex shader in the Desktop OpenGL Shading "
+            "Language (GLSL).  Vertex shaders transform the "
+            "positions, normals, and texture co-ordinates of "
+            "triangles, points, and lines rendered with OpenGL."));
+    vertWizardParameters.setDisplayName(tr("Vertex shader (Desktop OpenGL)"));
+    vertWizardParameters.setId(QLatin1String("K.GLSL"));
+    addAutoReleasedObject(new GLSLFileWizard(vertWizardParameters, GLSLFileWizard::VertexShaderDesktop, core));
 
     return true;
 }
@@ -263,23 +289,28 @@ void GLSLEditorPlugin::parseGlslFile(const QString &fileName, InitFile *initFile
     initFile->ast = parser.parse();
 }
 
-const GLSLEditorPlugin::InitFile *GLSLEditorPlugin::fragmentShaderInit() const
+const GLSLEditorPlugin::InitFile *GLSLEditorPlugin::fragmentShaderInit(int variant) const
 {
-    // TODO: select the correct language variant
-    //return &m_glsl_120_frag;
-    return &m_glsl_es_100_frag;
+    if (variant & GLSL::Lexer::Variant_GLSL_120)
+        return &m_glsl_120_frag;
+    else
+        return &m_glsl_es_100_frag;
 }
 
-const GLSLEditorPlugin::InitFile *GLSLEditorPlugin::vertexShaderInit() const
+const GLSLEditorPlugin::InitFile *GLSLEditorPlugin::vertexShaderInit(int variant) const
 {
-    //return &m_glsl_120_vert;
-    return &m_glsl_es_100_vert;
+    if (variant & GLSL::Lexer::Variant_GLSL_120)
+        return &m_glsl_120_vert;
+    else
+        return &m_glsl_es_100_vert;
 }
 
-const GLSLEditorPlugin::InitFile *GLSLEditorPlugin::shaderInit() const
+const GLSLEditorPlugin::InitFile *GLSLEditorPlugin::shaderInit(int variant) const
 {
-    //return &m_glsl_120_common;
-    return &m_glsl_es_100_common;
+    if (variant & GLSL::Lexer::Variant_GLSL_120)
+        return &m_glsl_120_common;
+    else
+        return &m_glsl_es_100_common;
 }
 
 Q_EXPORT_PLUGIN(GLSLEditorPlugin)

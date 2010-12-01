@@ -67,7 +67,6 @@ Core::GeneratedFiles GLSLFileWizard::generateFiles(const QWizard *w,
     const QString path = wizardDialog->path();
     const QString name = wizardDialog->fileName();
 
-    const QString mimeType = QLatin1String(Constants::GLSL_MIMETYPE);
     const QString fileName = Core::BaseFileWizard::buildFileName(path, name, preferredSuffix(m_shaderType));
 
     Core::GeneratedFile file(fileName);
@@ -82,7 +81,7 @@ QString GLSLFileWizard::fileContents(const QString &, ShaderType shaderType) con
     QTextStream str(&contents);
 
     switch (shaderType) {
-    case GLSLFileWizard::VertexShader:
+    case GLSLFileWizard::VertexShaderES:
         str << QLatin1String("attribute highp vec4 qgl_Vertex;\n")
             << QLatin1String("attribute highp vec4 qgl_TexCoord0;\n")
             << QLatin1String("uniform highp mat4 qgl_ModelViewProjectionMatrix;\n")
@@ -94,9 +93,30 @@ QString GLSLFileWizard::fileContents(const QString &, ShaderType shaderType) con
             << QLatin1String("    qTexCoord0 = qgl_TexCoord0;\n")
             << QLatin1String("}\n");
         break;
-    case GLSLFileWizard::FragmentShader:
+    case GLSLFileWizard::FragmentShaderES:
         str << QLatin1String("uniform sampler2D qgl_Texture0;\n")
             << QLatin1String("varying highp vec4 qTexCoord0;\n")
+            << QLatin1String("\n")
+            << QLatin1String("void main(void)\n")
+            << QLatin1String("{\n")
+            << QLatin1String("    gl_FragColor = texture2D(qgl_Texture0, qTexCoord0.st);\n")
+            << QLatin1String("}\n");
+        break;
+    case GLSLFileWizard::VertexShaderDesktop:
+        str << QLatin1String("attribute vec4 qgl_Vertex;\n")
+            << QLatin1String("attribute vec4 qgl_TexCoord0;\n")
+            << QLatin1String("uniform mat4 qgl_ModelViewProjectionMatrix;\n")
+            << QLatin1String("varying vec4 qTexCoord0;\n")
+            << QLatin1String("\n")
+            << QLatin1String("void main(void)\n")
+            << QLatin1String("{\n")
+            << QLatin1String("    gl_Position = qgl_ModelViewProjectionMatrix * qgl_Vertex;\n")
+            << QLatin1String("    qTexCoord0 = qgl_TexCoord0;\n")
+            << QLatin1String("}\n");
+        break;
+    case GLSLFileWizard::FragmentShaderDesktop:
+        str << QLatin1String("uniform sampler2D qgl_Texture0;\n")
+            << QLatin1String("varying vec4 qTexCoord0;\n")
             << QLatin1String("\n")
             << QLatin1String("void main(void)\n")
             << QLatin1String("{\n")
@@ -124,9 +144,13 @@ QWizard *GLSLFileWizard::createWizardDialog(QWidget *parent, const QString &defa
 QString GLSLFileWizard::preferredSuffix(ShaderType shaderType) const
 {
     switch (shaderType) {
-    case GLSLFileWizard::VertexShader:
+    case GLSLFileWizard::VertexShaderES:
+        return QLatin1String("vsh");
+    case GLSLFileWizard::FragmentShaderES:
+        return QLatin1String("fsh");
+    case GLSLFileWizard::VertexShaderDesktop:
         return QLatin1String("vert");
-    case GLSLFileWizard::FragmentShader:
+    case GLSLFileWizard::FragmentShaderDesktop:
         return QLatin1String("frag");
     default:
         return QLatin1String("glsl");

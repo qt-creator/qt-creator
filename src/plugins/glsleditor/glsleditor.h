@@ -97,6 +97,7 @@ public:
 
     QSet<QString> identifiers() const;
 
+    bool isDesktopShader() const;
     bool isVertexShader() const;
     bool isFragmentShader() const;
 

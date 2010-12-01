@@ -94,9 +94,9 @@ public:
         ~InitFile();
     };
 
-    const InitFile *fragmentShaderInit() const;
-    const InitFile *vertexShaderInit() const;
-    const InitFile *shaderInit() const;
+    const InitFile *fragmentShaderInit(int variant) const;
+    const InitFile *vertexShaderInit(int variant) const;
+    const InitFile *shaderInit(int variant) const;
 
 private:
     QByteArray glslFile(const QString &fileName);

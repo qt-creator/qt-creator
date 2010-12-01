@@ -55,6 +55,10 @@ GLSLEditorFactory::GLSLEditorFactory(QObject *parent)
 {
     m_mimeTypes
             << QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE)
+            << QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE_VERT)
+            << QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE_FRAG)
+            << QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE_VERT_ES)
+            << QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE_FRAG_ES)
             ;
 }
 
