@@ -60,7 +60,6 @@ public:
     void insertState(int i, const QString &name);
     void removeState(int i);
     Q_INVOKABLE void renameState(int i, const QString &newName);
-    void updateState(int i);
     void setStatesEditorView(StatesEditorView *statesView);
     void emitChangedToState(int n);
 

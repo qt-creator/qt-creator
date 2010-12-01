@@ -54,36 +54,10 @@ namespace Internal {
   */
 StatesEditorView::StatesEditorView(StatesEditorModel *editorModel, QObject *parent) :
         QmlModelView(parent),
-        m_editorModel(editorModel),
-        m_attachedToModel(false), m_settingSilentState(false)
+        m_editorModel(editorModel)
 {
     Q_ASSERT(m_editorModel);
     // base state
-    m_thumbnailsToUpdate.append(false);
-}
-
-void StatesEditorView::setCurrentStateSilent(int index)
-{
-    m_settingSilentState = true;
-    if (debug)
-        qDebug() << __FUNCTION__ << index;
-
-    Q_ASSERT(index >= 0 && index < m_modelStates.count());
-
-    // TODO
-    QmlModelState state(m_modelStates.at(index));
-    if (!state.isValid()) {
-        m_settingSilentState = false;
-        return;
-    }
-    if (state == currentState()) {
-        m_settingSilentState = false;
-        return;
-    }
-
-    QmlModelView::activateState(state);
-
-    m_settingSilentState = false;
 }
 
 void StatesEditorView::setCurrentState(int index)
@@ -113,7 +87,7 @@ void StatesEditorView::createState(const QString &name)
         qDebug() << __FUNCTION__ << name;
 
     try {
-        model()->addImport(Import::createLibraryImport("Qt", "4.7"));
+        model()->addImport(Import::createLibraryImport("QtQuick", "1.0"));
         stateRootNode().states().addState(name);
     }  catch (RewritingException &e) {
         QMessageBox::warning(0, "Error", e.description());
@@ -134,7 +108,6 @@ void StatesEditorView::removeState(int index)
     try {
         m_modelStates.removeAll(state);
         state.destroy();
-        m_thumbnailsToUpdate.removeAt(index);        
 
         m_editorModel->removeState(index);
 
@@ -158,7 +131,6 @@ void StatesEditorView::renameState(int index, const QString &newName)
         if (state.name() != newName) {
             // Jump to base state for the change
             QmlModelState oldState = currentState();
-            setCurrentStateSilent(0);
             state.setName(newName);
             setCurrentState(m_modelStates.indexOf(oldState));
         }
@@ -208,8 +180,6 @@ void StatesEditorView::modelAttached(Model *model)
         return;
 
     m_modelStates.insert(0, baseState());
-    m_thumbnailsToUpdate.insert(0, false);
-    m_attachedToModel = true;
     m_editorModel->insertState(0, baseState().name());
 
     // Add custom states
@@ -221,17 +191,12 @@ void StatesEditorView::modelAttached(Model *model)
         QmlModelState state = QmlItemNode(rootModelNode()).states().allStates().at(i);
         insertModelState(i, state);
     }
-
-    for (int i = 0; i < m_modelStates.count(); ++i)
-        m_editorModel->updateState(i); //refres all states
 }
 
 void StatesEditorView::modelAboutToBeDetached(Model *model)
 {
     if (debug)
         qDebug() << __FUNCTION__;
-
-    m_attachedToModel = false;
 
     clearModelStates();
 
@@ -250,26 +215,12 @@ void StatesEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty> 
                 if (!state.isBaseState())
                     removeModelState(state);
             }
-        } else {
-            ModelNode node (property.parentModelNode().parentProperty().parentModelNode());
-            if (QmlModelState(node).isValid()) {
-                startUpdateTimer(modelStateIndex(node) + 1, 0);
-            } else { //a change to the base state update all
-                for (int i = 0; i < m_modelStates.count(); ++i)
-                    startUpdateTimer(i, 0);
-            }
         }
     }
+
     QmlModelView::propertiesAboutToBeRemoved(propertyList);
 }
 
-void StatesEditorView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
-{
-    if (debug)
-        qDebug() << __FUNCTION__;
-
-    QmlModelView::propertiesRemoved(propertyList);
-}
 
 void StatesEditorView::variantPropertiesChanged(const QList<VariantProperty> &propertyList, PropertyChangeFlags propertyChange)
 {
@@ -292,19 +243,10 @@ void StatesEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
     if (debug)
         qDebug() << __FUNCTION__;
 
-    if (removedNode.parentProperty().parentModelNode() == m_stateRootNode
-          && QmlModelState(removedNode).isValid()) {
-        removeModelState(removedNode);
-    }
+    removeModelState(removedNode);
+
 
     QmlModelView::nodeAboutToBeRemoved(removedNode);
-
-    if (QmlModelState(removedNode).isValid()) {
-        startUpdateTimer(modelStateIndex(removedNode) + 1, 0);
-    } else { //a change to the base state update all
-        for (int i = 0; i < m_modelStates.count(); ++i)
-            startUpdateTimer(i, 0);
-    }
 }
 
 
@@ -366,22 +308,8 @@ void StatesEditorView::nodeOrderChanged(const NodeListProperty &listProperty, co
 
 void StatesEditorView::nodeInstancePropertyChanged(const ModelNode &node, const QString &propertyName)
 {
-    if (!m_settingSilentState) {
-        QmlModelState state = QmlModelState(node);
-        if (state.isValid())
-        {
-            if (m_modelStates.contains(state))
-                m_thumbnailsToUpdate[m_modelStates.indexOf(state)] = true;
-        } else //a change to the base state update all
-            m_thumbnailsToUpdate[0] = true;
-
-    }
-
     // sets currentState() used in sceneChanged
     QmlModelView::nodeInstancePropertyChanged(node, propertyName);
-
-    if (!m_settingSilentState)
-        sceneChanged();
 }
 
 void StatesEditorView::stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState)
@@ -424,28 +352,27 @@ void StatesEditorView::otherPropertyChanged(const QmlObjectNode &qmlObjectNode, 
 }
 
 
-void StatesEditorView::customNotification(const AbstractView * view, const QString & identifier, const QList<ModelNode> & nodeList, const QList<QVariant> & data)
+void StatesEditorView::customNotification(const AbstractView * view, const QString & identifier, const QList<ModelNode> & nodeList, const QList<QVariant> &imageList)
 {
     if (debug)
         qDebug() << __FUNCTION__;
 
-    if (identifier == "__end rewriter transaction__")
-    {
-        if (m_thumbnailsToUpdate[0])
-        {
-            for (int i = 0; i < m_modelStates.count(); ++i) {
-                m_thumbnailsToUpdate[i] = false;
-                startUpdateTimer(i, 0);
-            }
-        } else
-            for (int i = 1; i< m_thumbnailsToUpdate.count(); i++)
-                if (m_thumbnailsToUpdate[i]) {
-                    m_thumbnailsToUpdate[i] = false;
-                    startUpdateTimer(i,0);
-                }
-    }
+    if (identifier == "__state preview updated__")   {
+        if (nodeList.size() != imageList.size())
+            return;
 
-    QmlModelView::customNotification(view, identifier, nodeList, data);
+//        if (++m_updateCounter == INT_MAX)
+//            m_updateCounter = 0;
+
+        for (int i = 0; i < nodeList.size(); i++) {
+            QmlModelState modelState(nodeList.at(i));            
+        }
+
+     //   emit dataChanged(createIndex(i, 0), createIndex(i, 0));
+
+    } else {
+        QmlModelView::customNotification(view, identifier, nodeList, imageList);
+    }
 }
 
 void StatesEditorView::scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList)
@@ -472,96 +399,6 @@ void StatesEditorView::selectedNodesChanged(const QList<ModelNode> &/*selectedNo
 }
 
 
-QPixmap StatesEditorView::renderState(int /*i*/)
-{
-    return QPixmap();
-
-//    if (debug)
-//        qDebug() << __FUNCTION__ << i;
-
-//    if (!m_attachedToModel)
-//        return QPixmap();
-
-//    Q_ASSERT(i >= 0 && i < m_modelStates.size());
-//    QmlModelState oldState = currentState();
-//    setCurrentStateSilent(i);
-
-//    Q_ASSERT(nodeInstanceView());
-
-//    const int checkerbordSize= 10;
-//    QPixmap tilePixmap(checkerbordSize * 2, checkerbordSize * 2);
-//    tilePixmap.fill(Qt::white);
-//    QPainter tilePainter(&tilePixmap);
-//    QColor color(220, 220, 220);
-//    tilePainter.fillRect(0, 0, checkerbordSize, checkerbordSize, color);
-//    tilePainter.fillRect(checkerbordSize, checkerbordSize, checkerbordSize, checkerbordSize, color);
-//    tilePainter.end();
-
-
-//    QSizeF pixmapSize(nodeInstanceView()->sceneRect().size());
-//    if (pixmapSize.width() > 100 || pixmapSize.height() > 100) // sensible maximum size
-//        pixmapSize.scale(QSize(100, 100), Qt::KeepAspectRatio);
-//    QSize cutSize(floor(pixmapSize.width()),floor(pixmapSize.height()));
-//    pixmapSize.setWidth(ceil(pixmapSize.width()));
-//    pixmapSize.setHeight(ceil(pixmapSize.height()));
-//    QPixmap pixmap(pixmapSize.toSize());
-
-//    QPainter painter(&pixmap);
-//    painter.drawTiledPixmap(pixmap.rect(), tilePixmap);
-//    nodeInstanceView()->render(&painter, pixmap.rect(), nodeInstanceView()->sceneRect());
-
-//    setCurrentStateSilent(m_modelStates.indexOf(oldState));
-
-//    Q_ASSERT(oldState == currentState());
-
-//    return pixmap.copy(0,0,cutSize.width(),cutSize.height());
-}
-
-void StatesEditorView::sceneChanged()
-{
-    if (debug)
-        qDebug() << __FUNCTION__;
-
-    // If we are in base state we have to update the pixmaps of all states,
-    // otherwise only the pixmap for the current state
-
-    // TODO: Since a switch to the base state also results in nodePropertyChanged and
-    // therefore sceneChanged calls, we're rendering too much here
-
-    if (currentState().isValid()) { //during setup we might get sceneChanged signals with an invalid currentState()
-        if (currentState().isBaseState()) {
-            for (int i = 0; i < m_modelStates.count(); ++i)
-                startUpdateTimer(i, i * 80);
-        } else {
-            startUpdateTimer(modelStateIndex(currentState()) + 1, 0);
-        }
-    }
-}
-
-void StatesEditorView::startUpdateTimer(int i, int offset) {
-    if (debug)
-        qDebug() << __FUNCTION__ << i << offset;
-
-    if (i < 0 || i >  m_modelStates.count())
-        return;
-
-    if (i < m_updateTimerIdList.size() && m_updateTimerIdList.at(i) != 0)
-        return;
-    // TODO: Add an offset so not all states are rendered at once
-
-
-    if (i < m_updateTimerIdList.size() && i > 0)
-        if (m_updateTimerIdList.at(i))
-            killTimer(m_updateTimerIdList.at(i));
-    int j = i;
-
-    while (m_updateTimerIdList.size() <= i) {
-        m_updateTimerIdList.insert(j, 0);
-        j++;
-    }
-    m_updateTimerIdList[i] =  startTimer(100 + offset);
-}
-
 // index without base state
 void StatesEditorView::insertModelState(int i, const QmlModelState &state)
 {
@@ -573,7 +410,6 @@ void StatesEditorView::insertModelState(int i, const QmlModelState &state)
     // For m_modelStates / m_editorModel, i=0 is base state
     m_modelStates.insert(i+1, state);
     m_editorModel->insertState(i+1, state.name());
-    m_thumbnailsToUpdate.append(false);
 }
 
 void StatesEditorView::removeModelState(const QmlModelState &state)
@@ -586,12 +422,6 @@ void StatesEditorView::removeModelState(const QmlModelState &state)
     int index = m_modelStates.indexOf(state);
     if (index != -1) {
         m_modelStates.removeOne(state);
-        m_thumbnailsToUpdate.removeAt(index);
-
-        if (m_updateTimerIdList.contains(index)) {
-            killTimer(m_updateTimerIdList[index]);
-            m_updateTimerIdList[index] = 0;
-        }
         m_editorModel->removeState(index);
     }
 }
@@ -606,7 +436,6 @@ void StatesEditorView::clearModelStates()
     const int modelStateCount = m_modelStates.size();
     for (int i=modelStateCount-1; i>=0; --i) {
         m_modelStates.removeAt(i);
-        m_thumbnailsToUpdate.removeAt(i);
         m_editorModel->removeState(i);
     }
 }
@@ -617,23 +446,6 @@ int StatesEditorView::modelStateIndex(const QmlModelState &state)
     return m_modelStates.indexOf(state) - 1;
 }
 
-void StatesEditorView::timerEvent(QTimerEvent *event)
-{
-    if (debug)
-        qDebug() << __FUNCTION__;
-
-    int index = m_updateTimerIdList.indexOf(event->timerId());
-    if (index > -1) {
-        event->accept();
-        Q_ASSERT(index >= 0);
-        if (index < m_modelStates.count()) //there might be updates for a state already deleted 100ms are long
-            m_editorModel->updateState(index);
-        killTimer(m_updateTimerIdList[index]);
-       m_updateTimerIdList[index] = 0;
-    } else {
-        QmlModelView::timerEvent(event);
-    }
-}
 
 } // namespace Internal
 } // namespace QmlDesigner

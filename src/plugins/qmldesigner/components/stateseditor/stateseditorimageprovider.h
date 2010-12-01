@@ -31,8 +31,7 @@
 #define STATESEDITORIMAGEPROVIDER_H
 
 #include <QDeclarativeImageProvider>
-
-#include <QWeakPointer>
+#include <QHash>
 
 namespace QmlDesigner {
 
@@ -43,12 +42,15 @@ class StatesEditorView;
 class StatesEditorImageProvider : public QDeclarativeImageProvider
 {
 public:
-    StatesEditorImageProvider(StatesEditorView *view); 
+    StatesEditorImageProvider();
 
-    QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize);
+    QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize);
+
+    void setImage(const QString &id, const QImage &image);
+    void removeImage(const QString &id);
 
 private:
-    QWeakPointer<StatesEditorView> m_view;
+    QHash<QString, QImage> m_imageHash;
 };
 
 }

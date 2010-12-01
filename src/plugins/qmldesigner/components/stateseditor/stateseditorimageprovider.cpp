@@ -29,34 +29,40 @@
 #include "stateseditorimageprovider.h"
 #include "stateseditorview.h"
 
+#include <QtDebug>
+
 namespace QmlDesigner {
 
 namespace Internal {
 
-StatesEditorImageProvider::StatesEditorImageProvider(StatesEditorView *view) : 
-        QDeclarativeImageProvider(QDeclarativeImageProvider::Pixmap),
-        m_view(view)
+StatesEditorImageProvider::StatesEditorImageProvider() :
+        QDeclarativeImageProvider(QDeclarativeImageProvider::Image)
 {
 }
 
-QPixmap StatesEditorImageProvider::requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
+QImage StatesEditorImageProvider::requestImage(const QString &id, QSize *size, const QSize &requestedSize)
 {
-    if (!m_view.isNull()) {
-        // discard the count number (see StatesEditorModel m_updateCounter)
-        QString s = id.mid(0, id.lastIndexOf(QLatin1Char('-')));
+    QSize newSize = requestedSize;
 
-        bool ok = false;
-        int state = s.toInt(&ok);
-        if (ok) {
-            QPixmap pm = m_view->renderState(state);
-            if (size)
-                *size = pm.size();
-            if (requestedSize.isValid())
-                return pm.scaled(requestedSize);
-            return pm;
-        }
-    }
-    return QPixmap();
+    if (newSize.isEmpty())
+        newSize = QSize (100, 100);
+
+    QImage image = m_imageHash.value(id, QImage(newSize, QImage::Format_ARGB32));
+    image.fill(0xFFFFFFFF);
+
+    *size = image.size();
+
+    return image;
+}
+
+void StatesEditorImageProvider::setImage(const QString &id, const QImage &image)
+{
+    m_imageHash.insert(id, image);
+}
+
+void StatesEditorImageProvider::removeImage(const QString &id)
+{
+    m_imageHash.remove(id);
 }
 
 }

@@ -206,7 +206,7 @@ void StatesEditorWidget::setup(Model *model)
         m_d->statesEditorView = new Internal::StatesEditorView(m_d->statesEditorModel.data(), this);
 
     m_d->listView->engine()->addImageProvider(
-            QLatin1String("qmldesigner_stateseditor"), new Internal::StatesEditorImageProvider(m_d->statesEditorView.data()));
+            QLatin1String("qmldesigner_stateseditor"), new Internal::StatesEditorImageProvider);
 
     m_d->statesEditorModel->setStatesEditorView(m_d->statesEditorView.data());
 

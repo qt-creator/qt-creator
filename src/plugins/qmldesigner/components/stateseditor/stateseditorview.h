@@ -45,13 +45,11 @@ public:
     explicit StatesEditorView(StatesEditorModel *model, QObject *parent = 0);
 
     void setCurrentState(int index);
-    void setCurrentStateSilent(int index);
     void createState(const QString &name);
     void removeState(int index);
     void renameState(int index,const QString &newName);
     void duplicateCurrentState(int index);
 
-    QPixmap renderState(int i);
     QmlItemNode stateRootNode() { return m_stateRootNode; }
     bool isAttachedToModel() const { return m_attachedToModel; }
 
@@ -61,7 +59,6 @@ public:
     void modelAttached(Model *model);
     void modelAboutToBeDetached(Model *model);
     void propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList);
-    void propertiesRemoved(const QList<AbstractProperty>& propertyList);
     void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange);
 
     void nodeAboutToBeRemoved(const ModelNode &removedNode);
@@ -80,31 +77,20 @@ public:
     void bindingPropertiesChanged(const QList<BindingProperty> &propertyList, PropertyChangeFlags propertyChange);
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList, const QList<ModelNode> &lastSelectedNodeList);
 
-
-protected:
-    void timerEvent(QTimerEvent*);
-
-private slots:
-    void sceneChanged();
-
 private:
     void insertModelState(int i, const QmlModelState &state);
     void removeModelState(const QmlModelState &state);
     void clearModelStates();
     int modelStateIndex(const QmlModelState &state);
 
-    void startUpdateTimer(int i, int offset);
 
     QList<QmlModelState> m_modelStates;
     StatesEditorModel *m_editorModel;
     QmlItemNode m_stateRootNode;
 
-    QList<int> m_updateTimerIdList;
     QmlModelState m_oldRewriterAmendState;
     bool m_attachedToModel;
     bool m_settingSilentState;
-
-    QList<bool> m_thumbnailsToUpdate;
 };
 
 } // namespace Internal
