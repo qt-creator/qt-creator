@@ -116,7 +116,7 @@ static inline int classify4(const char *s) {
     if (s[1] == 'o') {
       if (s[2] == 'w') {
         if (s[3] == 'p') {
-          return Parser::T_LOWP | Lexer::Variant_GLSL_Qt | Lexer::Variant_GLSL_ES_100 | Lexer::Variant_GLSL_400;
+          return Parser::T_LOWP | Lexer::Variant_GLSL_ES_100 | Lexer::Variant_GLSL_400;
         }
       }
     }
@@ -274,7 +274,7 @@ static inline int classify5(const char *s) {
       if (s[2] == 'g') {
         if (s[3] == 'h') {
           if (s[4] == 'p') {
-            return Parser::T_HIGHP | Lexer::Variant_GLSL_Qt | Lexer::Variant_GLSL_ES_100 | Lexer::Variant_GLSL_400;
+            return Parser::T_HIGHP | Lexer::Variant_GLSL_ES_100 | Lexer::Variant_GLSL_400;
           }
         }
       }
@@ -563,7 +563,7 @@ static inline int classify7(const char *s) {
           if (s[4] == 'u') {
             if (s[5] == 'm') {
               if (s[6] == 'p') {
-                return Parser::T_MEDIUMP | Lexer::Variant_GLSL_Qt | Lexer::Variant_GLSL_ES_100 | Lexer::Variant_GLSL_400;
+                return Parser::T_MEDIUMP | Lexer::Variant_GLSL_ES_100 | Lexer::Variant_GLSL_400;
               }
             }
           }

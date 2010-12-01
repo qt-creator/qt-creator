@@ -405,7 +405,7 @@ int GLSLTextEditor::languageVariant() const
     if (isDesktop)
         variant |= Lexer::Variant_GLSL_120;
     else
-        variant |= Lexer::Variant_GLSL_Qt;
+        variant |= Lexer::Variant_GLSL_ES_100;
     if (isVertex)
         variant |= Lexer::Variant_VertexShader;
     if (isFragment)

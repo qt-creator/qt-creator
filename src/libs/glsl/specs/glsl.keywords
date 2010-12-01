@@ -45,7 +45,7 @@ else
 flat                        %variant GLSL_150
 float
 for
-highp                       %variant GLSL_Qt | GLSL_ES_100 | GLSL_400
+highp                       %variant GLSL_ES_100 | GLSL_400
 if
 in
 inout
@@ -66,7 +66,7 @@ ivec2
 ivec3
 ivec4
 layout                      %variant GLSL_150
-lowp                        %variant GLSL_Qt | GLSL_ES_100 | GLSL_400
+lowp                        %variant GLSL_ES_100 | GLSL_400
 mat2
 mat2x2                      %variant GLSL_120
 mat2x3                      %variant GLSL_120
@@ -79,7 +79,7 @@ mat4
 mat4x2                      %variant GLSL_120
 mat4x3                      %variant GLSL_120
 mat4x4                      %variant GLSL_120
-mediump                     %variant GLSL_Qt | GLSL_ES_100 | GLSL_400
+mediump                     %variant GLSL_ES_100 | GLSL_400
 noperspective               %variant GLSL_150
 out
 patch                       %variant GLSL_400

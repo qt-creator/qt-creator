@@ -41,9 +41,6 @@ int main(int argc, char *argv[])
             variant |= Lexer::Variant_GLSL_400;
         } else if (!strcmp(argv[1], "--version=es")) {
             variant |= Lexer::Variant_GLSL_ES_100;
-        } else if (!strcmp(argv[1], "--version=qt")) {
-            variant |= Lexer::Variant_GLSL_ES_100 |
-                       Lexer::Variant_GLSL_Qt;
         } else if (!strcmp(argv[1], "--shader=vertex")) {
             variant |= Lexer::Variant_VertexShader;
         } else if (!strcmp(argv[1], "--shader=fragment")) {
