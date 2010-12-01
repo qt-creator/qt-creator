@@ -36,6 +36,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4projectmanager.h>
+#include <qt4projectmanager/qt4projectmanagerconstants.h>
 
 #include <QtGui/QIcon>
 
@@ -48,13 +49,57 @@ AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent)
     m_targetsPage = new TargetSetupPage;
     resize(900, 450);
     m_targetsPage->setImportDirectoryBrowsingEnabled(false);
-    int pageId = addPage(m_targetsPage);
-    wizardProgress()->item(pageId)->setTitle(tr("Qt Versions"));
-    m_optionsPage = new MobileAppWizardOptionsPage;
-    pageId = addPage(m_optionsPage);
-    wizardProgress()->item(pageId)->setTitle(tr("Application Options"));
+    addPageWithTitle(m_targetsPage, tr("Qt Versions"));
+    m_genericOptionsPage = new MobileAppWizardGenericOptionsPage;
+    m_genericOptionsPageId = addPageWithTitle(m_genericOptionsPage,
+        tr("Generic Mobile Application Options"));
+    m_symbianOptionsPage = new MobileAppWizardSymbianOptionsPage;
+    m_symbianOptionsPageId = addPageWithTitle(m_symbianOptionsPage,
+        tr("Symbian-specific Options"));
+    m_maemoOptionsPage = new MobileAppWizardMaemoOptionsPage;
+    m_maemoOptionsPageId = addPageWithTitle(m_maemoOptionsPage,
+        tr("Maemo-specific Options"));
 }
 
+int AbstractMobileAppWizardDialog::addPageWithTitle(QWizardPage *page, const QString &title)
+{
+    const int pageId = addPage(page);
+    wizardProgress()->item(pageId)->setTitle(title);
+    return pageId;
+}
+
+int AbstractMobileAppWizardDialog::nextId() const
+{
+    const bool symbianTargetSelected =
+        m_targetsPage->isTargetSelected(QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
+        || m_targetsPage->isTargetSelected(QLatin1String(Constants::S60_DEVICE_TARGET_ID));
+    const bool maemoTargetSelected =
+        m_targetsPage->isTargetSelected(QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID));
+
+    if (currentPage() == m_targetsPage) {
+        if (symbianTargetSelected || maemoTargetSelected)
+            return m_genericOptionsPageId;
+        else
+            return idOfNextGenericPage();
+    } else if (currentPage() == m_genericOptionsPage) {
+        if (symbianTargetSelected)
+            return m_symbianOptionsPageId;
+        else
+            return m_maemoOptionsPageId;
+    } else if (currentPage() == m_symbianOptionsPage) {
+        if (maemoTargetSelected)
+            return m_maemoOptionsPageId;
+        else
+            return idOfNextGenericPage();
+    } else {
+        return BaseProjectWizardDialog::nextId();
+    }
+}
+
+int AbstractMobileAppWizardDialog::idOfNextGenericPage() const
+{
+    return pageIds().at(pageIds().indexOf(m_maemoOptionsPageId) + 1);
+}
 
 AbstractMobileAppWizard::AbstractMobileAppWizard(const Core::BaseFileWizardParameters &params,
     QObject *parent) : Core::BaseFileWizard(params, parent)
@@ -68,10 +113,10 @@ QWizard *AbstractMobileAppWizard::createWizardDialog(QWidget *parent,
         = createWizardDialogInternal(parent);
     wdlg->setPath(defaultPath);
     wdlg->setProjectName(ProjectExplorer::BaseProjectWizardDialog::uniqueProjectName(defaultPath));
-    wdlg->m_optionsPage->setSymbianSvgIcon(app()->symbianSvgIcon());
-    wdlg->m_optionsPage->setMaemoPngIcon(app()->maemoPngIcon());
-    wdlg->m_optionsPage->setOrientation(app()->orientation());
-    wdlg->m_optionsPage->setNetworkEnabled(app()->networkEnabled());
+    wdlg->m_genericOptionsPage->setOrientation(app()->orientation());
+    wdlg->m_symbianOptionsPage->setSvgIcon(app()->symbianSvgIcon());
+    wdlg->m_symbianOptionsPage->setNetworkEnabled(app()->networkEnabled());
+    wdlg->m_maemoOptionsPage->setPngIcon(app()->maemoPngIcon());
     connect(wdlg, SIGNAL(projectParametersChanged(QString, QString)),
         SLOT(useProjectPath(QString, QString)));
     foreach (QWizardPage *p, extensionPages)
@@ -85,11 +130,11 @@ Core::GeneratedFiles AbstractMobileAppWizard::generateFiles(const QWizard *wizar
     prepareGenerateFiles(wizard, errorMessage);
     const AbstractMobileAppWizardDialog *wdlg
         = qobject_cast<const AbstractMobileAppWizardDialog*>(wizard);
-    app()->setSymbianTargetUid(wdlg->m_optionsPage->symbianUid());
-    app()->setSymbianSvgIcon(wdlg->m_optionsPage->symbianSvgIcon());
-    app()->setMaemoPngIcon(wdlg->m_optionsPage->maemoPngIcon());
-    app()->setOrientation(wdlg->m_optionsPage->orientation());
-    app()->setNetworkEnabled(wdlg->m_optionsPage->networkEnabled());
+    app()->setOrientation(wdlg->m_genericOptionsPage->orientation());
+    app()->setSymbianTargetUid(wdlg->m_symbianOptionsPage->symbianUid());
+    app()->setSymbianSvgIcon(wdlg->m_symbianOptionsPage->svgIcon());
+    app()->setNetworkEnabled(wdlg->m_symbianOptionsPage->networkEnabled());
+    app()->setMaemoPngIcon(wdlg->m_maemoOptionsPage->pngIcon());
     return app()->generateFiles(errorMessage);
 }
 
@@ -112,7 +157,7 @@ bool AbstractMobileAppWizard::postGenerateFiles(const QWizard *w,
 void AbstractMobileAppWizard::useProjectPath(const QString &projectName,
     const QString &projectPath)
 {
-    wizardDialog()->m_optionsPage->setSymbianUid(app()->symbianUidForPath(projectPath + projectName));
+    wizardDialog()->m_symbianOptionsPage->setSymbianUid(app()->symbianUidForPath(projectPath + projectName));
     app()->setProjectName(projectName);
     app()->setProjectPath(projectPath);
     wizardDialog()->m_targetsPage->setProFilePath(app()->path(AbstractMobileApp::AppPro));

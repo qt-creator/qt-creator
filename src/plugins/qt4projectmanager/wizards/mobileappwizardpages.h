@@ -37,32 +37,62 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class MobileAppWizardOptionsPage : public QWizardPage
+class MobileAppWizardGenericOptionsPage : public QWizardPage
 {
     Q_OBJECT
-    Q_DISABLE_COPY(MobileAppWizardOptionsPage)
+    Q_DISABLE_COPY(MobileAppWizardGenericOptionsPage)
 
 public:
-    explicit MobileAppWizardOptionsPage(QWidget *parent = 0);
-    virtual ~MobileAppWizardOptionsPage();
+    explicit MobileAppWizardGenericOptionsPage(QWidget *parent = 0);
+    virtual ~MobileAppWizardGenericOptionsPage();
 
     void setOrientation(AbstractMobileApp::ScreenOrientation orientation);
     AbstractMobileApp::ScreenOrientation orientation() const;
-    QString symbianSvgIcon() const;
-    void setSymbianSvgIcon(const QString &icon);
-    QString maemoPngIcon() const;
-    void setMaemoPngIcon(const QString &icon);
+
+private:
+    class MobileAppWizardGenericOptionsPagePrivate *m_d;
+};
+
+class MobileAppWizardSymbianOptionsPage : public QWizardPage
+{
+    Q_OBJECT
+    Q_DISABLE_COPY(MobileAppWizardSymbianOptionsPage)
+
+public:
+    explicit MobileAppWizardSymbianOptionsPage(QWidget *parent = 0);
+    virtual ~MobileAppWizardSymbianOptionsPage();
+
+    QString svgIcon() const;
+    void setSvgIcon(const QString &icon);
     QString symbianUid() const;
     void setNetworkEnabled(bool enableIt);
     bool networkEnabled() const;
     void setSymbianUid(const QString &uid);
 
 private slots:
-    void openSymbianSvgIcon(); // Via file open dialog
-    void openMaemoPngIcon();
+    void openSvgIcon(); // Via file open dialog
 
 private:
-    class MobileAppWizardOptionsPagePrivate *m_d;
+    class MobileAppWizardSymbianOptionsPagePrivate *m_d;
+};
+
+class MobileAppWizardMaemoOptionsPage : public QWizardPage
+{
+    Q_OBJECT
+    Q_DISABLE_COPY(MobileAppWizardMaemoOptionsPage)
+
+public:
+    explicit MobileAppWizardMaemoOptionsPage(QWidget *parent = 0);
+    virtual ~MobileAppWizardMaemoOptionsPage();
+
+    QString pngIcon() const;
+    void setPngIcon(const QString &icon);
+
+private slots:
+    void openPngIcon();
+
+private:
+    class MobileAppWizardMaemoOptionsPagePrivate *m_d;
 };
 
 } // end of namespace Internal

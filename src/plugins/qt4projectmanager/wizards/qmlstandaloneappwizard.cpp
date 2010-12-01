@@ -67,9 +67,9 @@ QmlStandaloneAppWizardDialog::QmlStandaloneAppWizardDialog(QWidget *parent)
     setIntroDescription(tr("This wizard generates a Qt Quick application project."));
 
     m_qmlSourcesPage = new QmlStandaloneAppWizardSourcesPage;
-    const int qmlSourcesPagePageId = addPage(m_qmlSourcesPage);
-    wizardProgress()->item(qmlSourcesPagePageId)->setTitle(tr("QML Sources"));
+    addPageWithTitle(m_qmlSourcesPage, tr("QML Sources"));
 }
+
 
 class QmlStandaloneAppWizardPrivate
 {

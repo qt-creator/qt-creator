@@ -139,8 +139,10 @@ FORMS += makestep.ui \
     wizards/testwizardpage.ui \
     wizards/targetsetuppage.ui \
     wizards/qmlstandaloneappwizardsourcespage.ui \
-    wizards/mobileappwizardoptionspage.ui \
     wizards/mobilelibrarywizardoptionpage.ui \
+    wizards/mobileappwizardgenericoptionspage.ui \
+    wizards/mobileappwizardsymbianoptionspage.ui \
+    wizards/mobileappwizardmaemooptionspage.ui \
     librarydetailswidget.ui
 RESOURCES += qt4projectmanager.qrc \
     wizards/wizards.qrc
