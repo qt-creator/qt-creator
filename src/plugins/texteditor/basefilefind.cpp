@@ -312,7 +312,7 @@ static void applyChanges(QTextDocument *doc, const QString &text, const QList<Fi
 QStringList BaseFileFind::replaceAll(const QString &text,
                                const QList<Find::SearchResultItem> &items)
 {
-    if (text.isEmpty() || items.isEmpty())
+    if (items.isEmpty())
         return QStringList();
 
     QHash<QString, QList<Find::SearchResultItem> > changes;
