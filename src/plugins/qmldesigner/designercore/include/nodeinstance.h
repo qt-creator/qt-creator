@@ -19,7 +19,7 @@ class NodeInstance
 {
     friend class NodeInstanceView;
 public:
-    static NodeInstance create(const ModelNode &node, qint32 instanceId);
+    static NodeInstance create(const ModelNode &node);
     NodeInstance();
     ~NodeInstance();
     NodeInstance(const NodeInstance &other);

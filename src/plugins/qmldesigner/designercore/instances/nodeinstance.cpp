@@ -12,8 +12,7 @@ class ProxyNodeInstanceData
 {
 public:
     ProxyNodeInstanceData()
-        : instanceId(-1),
-          parentInstanceId(-1),
+        : parentInstanceId(-1),
           penWidth(1),
           isAnchoredBySibling(false),
           isAnchoredByChildren(false),
@@ -23,7 +22,6 @@ public:
           isInPositioner(false)
     {}
 
-    qint32 instanceId;
     qint32 parentInstanceId;
     ModelNode modelNode;
     QRectF boundingRect;
@@ -58,12 +56,11 @@ NodeInstance::NodeInstance(ProxyNodeInstanceData *dPointer)
 {
 }
 
-NodeInstance NodeInstance::create(const ModelNode &node, qint32 instanceId)
+NodeInstance NodeInstance::create(const ModelNode &node)
 {
     ProxyNodeInstanceData *d = new ProxyNodeInstanceData;
 
     d->modelNode = node;
-    d->instanceId = instanceId;
 
     return NodeInstance(d);
 }
@@ -95,7 +92,7 @@ ModelNode NodeInstance::modelNode() const
 qint32 NodeInstance::instanceId() const
 {
     if (d) {
-        return d->instanceId;
+        return d->modelNode.internalId();
     } else {
         return -1;
     }
@@ -109,7 +106,7 @@ bool NodeInstance::isValid() const
 void NodeInstance::makeInvalid()
 {
     if (d)
-        d->instanceId = -1;
+        d->modelNode = ModelNode();
 }
 
 QRectF NodeInstance::boundingRect() const

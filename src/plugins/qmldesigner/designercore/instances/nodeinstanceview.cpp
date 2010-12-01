@@ -135,7 +135,6 @@ void NodeInstanceView::modelAttached(Model *model)
     AbstractView::modelAttached(model);
     m_nodeInstanceServer = new NodeInstanceServerProxy(this);
     connect(m_nodeInstanceServer.data(), SIGNAL(processCrashed()), this, SLOT(restartProcess()));
-    m_instanceIdCounter = 1;
 
     setBlockUpdates(true);
     nodeInstanceServer()->createScene(createCreateSceneCommand());
@@ -633,12 +632,7 @@ NodeInstanceServerInterface *NodeInstanceView::nodeInstanceServer() const
 
 NodeInstance NodeInstanceView::loadNode(const ModelNode &node)
 {
-    qint32 instanceId = 0;
-
-    if (!node.isRootNode())
-        instanceId = generateInstanceId();
-
-    NodeInstance instance(NodeInstance::create(node, instanceId));
+    NodeInstance instance(NodeInstance::create(node));
 
     insertInstanceRelationships(instance);
 
@@ -916,11 +910,6 @@ void NodeInstanceView::childrenChanged(const ChildrenChangedCommand &command)
 
     if (!childNodeList.isEmpty())
         emitCustomNotification("__instance children changed__", childNodeList);
-}
-
-qint32 NodeInstanceView::generateInstanceId()
-{
-    return m_instanceIdCounter++;
 }
 
 }

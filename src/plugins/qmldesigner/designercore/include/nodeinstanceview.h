@@ -153,8 +153,6 @@ private: // functions
     RemovePropertiesCommand createRemovePropertiesCommand(const QList<AbstractProperty> &propertyList) const;
     AddImportCommand createImportCommand(const Import &import);
 
-    qint32 generateInstanceId();
-
     void resetHorizontalAnchors(const ModelNode &node);
     void resetVerticalAnchors(const ModelNode &node);
 
@@ -170,8 +168,6 @@ private: //variables
 
     uint m_blockUpdates;
     QWeakPointer<NodeInstanceServerInterface> m_nodeInstanceServer;
-    qint32 m_instanceIdCounter;
-;
 };
 
 } // namespace ProxyNodeInstanceView
