@@ -945,6 +945,10 @@ public:
     virtual void processMembers(MemberProcessor *processor) const;
 
     QString defaultPropertyName() const;
+
+    AST::UiObjectInitializer *initializer() const;
+    AST::UiQualifiedId *typeName() const;
+    const Document *document() const;
 };
 
 class QMLJS_EXPORT ImportInfo

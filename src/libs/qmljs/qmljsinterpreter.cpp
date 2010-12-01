@@ -3303,6 +3303,21 @@ QString ASTObjectValue::defaultPropertyName() const
     return QString();
 }
 
+UiObjectInitializer *ASTObjectValue::initializer() const
+{
+    return _initializer;
+}
+
+UiQualifiedId *ASTObjectValue::typeName() const
+{
+    return _typeName;
+}
+
+const QmlJS::Document *ASTObjectValue::document() const
+{
+    return _doc;
+}
+
 ASTVariableReference::ASTVariableReference(VariableDeclaration *ast, Engine *engine)
     : Reference(engine), _ast(ast)
 {
