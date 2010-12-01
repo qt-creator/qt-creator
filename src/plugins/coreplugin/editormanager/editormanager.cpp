@@ -1282,28 +1282,11 @@ IEditor *EditorManager::openEditorWithContents(const QString &editorId,
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO << editorId << titlePattern << contents;
 
-    if (editorId.isEmpty())
-        return 0;
-
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    IEditor *edt = createEditor(editorId);
-    if (!edt) {
-        QApplication::restoreOverrideCursor();
-        return 0;
-    }
 
-    if (!edt->createNew(contents)) {
-        QApplication::restoreOverrideCursor();
-        delete edt;
-        edt = 0;
-        return 0;
-    }
-
-    QString title = edt->displayName();
-
+    QString title;
     if (titlePattern) {
         const QChar dollar = QLatin1Char('$');
-        const QChar dot = QLatin1Char('.');
 
         QString base = *titlePattern;
         if (base.isEmpty())
@@ -1315,7 +1298,6 @@ IEditor *EditorManager::openEditorWithContents(const QString &editorId,
                 QString name = editor->file()->fileName();
                 if (name.isEmpty()) {
                     name = editor->displayName();
-                    name.remove(QLatin1Char('*'));
                 } else {
                     name = QFileInfo(name).completeBaseName();
                 }
@@ -1331,6 +1313,23 @@ IEditor *EditorManager::openEditorWithContents(const QString &editorId,
         }
         *titlePattern = title;
     }
+
+    IEditor *edt = createEditor(editorId, title);
+    if (!edt) {
+        QApplication::restoreOverrideCursor();
+        return 0;
+    }
+
+    if (!edt->createNew(contents)) {
+        QApplication::restoreOverrideCursor();
+        delete edt;
+        edt = 0;
+        return 0;
+    }
+
+    if (title.isEmpty())
+        title = edt->displayName();
+
     edt->setDisplayName(title);
     addEditor(edt);
     QApplication::restoreOverrideCursor();
