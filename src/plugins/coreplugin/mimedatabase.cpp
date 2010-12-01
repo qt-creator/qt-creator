@@ -49,6 +49,8 @@
 
 #include <QtXml/QXmlStreamReader>
 
+#include <algorithm>
+
 enum { debugMimeDB = 0 };
 
 // XML tags in mime files
