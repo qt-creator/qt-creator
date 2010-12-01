@@ -1071,24 +1071,6 @@ void GdbEngine::handleExecuteRunToLine(const GdbResponse &response)
     }
 }
 
-/*
-void GdbEngine::handleExecuteRunToFunction(const GdbResponse &response)
-{
-    // FIXME: remove this special case as soon as there's a real
-    // reason given when the temporary breakpoint is hit.
-    // reight now we get:
-    // 14*stopped,thread-id="1",frame={addr="0x0000000000403ce4",
-    // func="foo",args=[{name="str",value="@0x7fff0f450460"}],
-    // file="main.cpp",fullname="/tmp/g/main.cpp",line="37"}
-    QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state())
-    notifyInferiorStopOk();
-    showStatusMessage(tr("Function reached. Stopped"));
-    GdbMi frame = response.data.findChild("frame");
-    StackFrame f = parseStackFrame(frame, 0);
-    gotoLocation(f, true);
-}
-*/
-
 static bool isExitedReason(const QByteArray &reason)
 {
     return reason == "exited-normally"   // inferior exited normally
@@ -1426,7 +1408,7 @@ void GdbEngine::handleStop1(const GdbMi &data)
         const int bpNumber = gNumber.data().toInt();
         const QByteArray threadId = data.findChild("thread-id").data();
         const BreakpointId id = breakHandler()->findBreakpointByNumber(bpNumber);
-        showStatusMessage(msgBreakpointTriggered(id, bpNumber, QString::fromAscii(threadId)));
+        showStatusMessage(msgBreakpointTriggered(id, bpNumber, _(threadId)));
     } else {
         QString reasontr = msgStopped(_(reason));
         if (reason == "signal-received"
@@ -1959,7 +1941,6 @@ void GdbEngine::executeRunToFunction(const QString &functionName)
     postCommand("-break-insert -t " + functionName.toLatin1());
     showStatusMessage(tr("Run to function %1 requested...").arg(functionName), 5000);
     continueInferiorInternal();
-    //postCommand("-exec-continue", handleExecuteRunToFunction);
 }
 
 void GdbEngine::executeJumpToLine(const QString &fileName, int lineNumber)

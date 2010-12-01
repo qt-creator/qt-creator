@@ -331,7 +331,6 @@ private: ////////// Inferior Management //////////
     void handleExecuteReturn(const GdbResponse &response);
     void handleExecuteJumpToLine(const GdbResponse &response);
     void handleExecuteRunToLine(const GdbResponse &response);
-    //void handleExecuteRunToFunction(const GdbResponse &response);
 
     void maybeHandleInferiorPidChanged(const QString &pid);
     void handleInfoProc(const GdbResponse &response);
