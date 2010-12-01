@@ -579,7 +579,7 @@ def qdump__QMapNode(d, item):
                 d.putItem(Item(item.value["value"], item.iname, "value"))
 
 
-def qdump__QMap(d, item):
+def qdumpHelper__QMap(d, item, forceLong):
     d_ptr = item.value["d"].dereference()
     e_ptr = item.value["e"].dereference()
     n = d_ptr["size"]
@@ -620,15 +620,21 @@ def qdump__QMap(d, item):
                     #if isSimpleType(item.value.type): # or isStringType(d, item.value.type):
                     if isSimpleKey and isSimpleValue:
                         #d.putType(valueType)
-                        d.putName(key)
+                        if forceLong:
+                            d.putName("[%s] %s" % (i, key))
+                        else:
+                            d.putName(key)
                         d.putItem(Item(value, item.iname, i))
                     else:
                         d.putItem(Item(node, item.iname, i))
                 it = it.dereference()["forward"].dereference()
 
 
-def qdump__MultiMap(d, item):
-    qdump__Map(d, item)
+def qdump__QMap(d, item):
+    qdumpHelper__QMap(d, item, False)
+
+def qdump__QMultiMap(d, item):
+    qdumpHelper__QMap(d, item, True)
 
 
 def extractCString(table, offset):
