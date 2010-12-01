@@ -88,6 +88,8 @@ private slots:
         QByteArray a;
         a.resize(1000);
         int ret = ::read(fileno(stdin), a.data(), 1000);
+        if (ret == 0)
+            ::exit(0);
         assert(ret <= 1000);
         D_STDIO1("activated %i", ret);
         a.resize(ret);
