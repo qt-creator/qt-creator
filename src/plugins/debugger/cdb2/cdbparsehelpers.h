@@ -44,7 +44,6 @@ namespace Debugger {
 namespace Internal {
 class BreakpointData;
 class BreakpointParameters;
-class StackFrame;
 struct ThreadData;
 class Register;
 class GdbMi;

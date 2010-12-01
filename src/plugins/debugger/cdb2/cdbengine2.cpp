@@ -1801,6 +1801,7 @@ static StackFrames parseFrames(const QByteArray &data)
         if (fullName.isValid()) {
             frame.file = QFile::decodeName(fullName.data());
             frame.line = frameMi.findChild("line").data().toInt();
+            frame.usable = QFileInfo(frame.file).isFile();
         }
         frame.function = QLatin1String(frameMi.findChild("func").data());
         frame.from = QLatin1String(frameMi.findChild("from").data());

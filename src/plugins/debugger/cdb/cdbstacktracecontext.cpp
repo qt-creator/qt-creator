@@ -40,6 +40,7 @@
 #include <utils/savedaction.h>
 
 #include <QtCore/QDebug>
+#include <QtCore/QFileInfo>
 
 enum { debug = 0 };
 
@@ -100,14 +101,14 @@ QList<StackFrame> CdbStackTraceContext::stackFrames() const
     // Convert from Core data structures
     QList<StackFrame> rc;
     const int count = frameCount();
-    const QString hexPrefix = QLatin1String("0x");
     for(int i = 0; i < count; i++) {
         const CdbCore::StackFrame &coreFrame = stackFrameAt(i);
         StackFrame frame;
         frame.level = i;
         frame.file = coreFrame.fileName;
+        frame.usable = !frame.file.isEmpty() && QFileInfo(frame.file).isFile();
         frame.line = coreFrame.line;
-        frame.function =coreFrame.function;
+        frame.function = coreFrame.function;
         frame.from = coreFrame.module;
         frame.address = coreFrame.address;
         rc.push_back(frame);

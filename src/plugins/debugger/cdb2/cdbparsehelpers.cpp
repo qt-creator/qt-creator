@@ -29,7 +29,6 @@
 
 #include "cdbparsehelpers.h"
 #include "breakpoint.h"
-#include "stackframe.h"
 #include "threadshandler.h"
 #include "registerhandler.h"
 #include "bytearrayinputstream.h"
