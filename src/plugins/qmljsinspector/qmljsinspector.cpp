@@ -302,6 +302,7 @@ void InspectorUi::connected(ClientProxy *clientProxy)
     }
 
     connect(m_debugProject, SIGNAL(destroyed()), SLOT(currentDebugProjectRemoved()));
+    m_projectFinder.setProjectDirectory(m_debugProject->projectDirectory());
 
     setupToolbar(true);
     resetViews();
@@ -562,12 +563,7 @@ void InspectorUi::gotoObjectReferenceDefinition(const QDeclarativeDebugObjectRef
     if (source.lineNumber() < 0 || !QFile::exists(fileName))
         return;
 
-
-    // do some extra checking for filenames with shadow builds - we don't want to
-    // open the shadow build file, but the real one by default.
-    if (isShadowBuildProject()) {
-        fileName = filenameForShadowBuildFile(fileName);
-    }
+    fileName = m_projectFinder.findFile(fileName);
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     Core::IEditor *editor = editorManager->openEditor(fileName);
@@ -580,37 +576,6 @@ void InspectorUi::gotoObjectReferenceDefinition(const QDeclarativeDebugObjectRef
         textEditor->gotoLine(source.lineNumber());
         textEditor->widget()->setFocus();
     }
-}
-
-QString InspectorUi::filenameForShadowBuildFile(const QString &filename) const
-{
-    if (!debugProject() || !isShadowBuildProject())
-        return filename;
-
-    QDir projectDir(debugProject()->projectDirectory());
-    QDir buildDir(debugProjectBuildDirectory());
-    QFileInfo fileInfo(filename);
-
-    if (projectDir.exists() && buildDir.exists() && fileInfo.exists()) {
-        if (fileInfo.absoluteFilePath().startsWith(buildDir.canonicalPath())) {
-            QString fileRelativePath
-                    = fileInfo.canonicalFilePath().mid(debugProjectBuildDirectory().length());
-
-#ifdef Q_OS_MACX
-            // Qt Quick Applications by default copy the qml directory to
-            // buildDir()/X.app/Contents/Resources
-            static QRegExp resourceBundlePattern(QLatin1String("^.*\\.app/Contents/Resources/"));
-            fileRelativePath.remove(resourceBundlePattern);
-#endif
-
-            QFileInfo projectFile(projectDir.canonicalPath() + QLatin1Char('/') + fileRelativePath);
-
-            if (projectFile.exists())
-                return projectFile.canonicalFilePath();
-        }
-
-    }
-    return filename;
 }
 
 bool InspectorUi::addQuotesForData(const QVariant &value) const

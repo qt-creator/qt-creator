@@ -27,57 +27,31 @@
 **
 **************************************************************************/
 
-#ifndef QTOUTPUTFORMATTER_H
-#define QTOUTPUTFORMATTER_H
+#ifndef FILEINPROJECTFINDER_H
+#define FILEINPROJECTFINDER_H
 
-#include "qt4projectmanager_global.h"
+#include <utils/utils_global.h>
 
-#include <projectexplorer/outputformatter.h>
-#include <utils/fileinprojectfinder.h>
+#include <QtCore/QHash>
+#include <QtCore/QString>
 
-#include <QtCore/QRegExp>
-#include <QtCore/QWeakPointer>
+namespace Utils {
 
-QT_FORWARD_DECLARE_CLASS(QTextCursor)
-
-namespace ProjectExplorer {
-class Project;
-} // namespace ProjectExplorer
-
-namespace Qt4ProjectManager
-{
-
-struct LinkResult
-{
-    int start;
-    int end;
-    QString href;
-};
-
-class QT4PROJECTMANAGER_EXPORT QtOutputFormatter: public ProjectExplorer::OutputFormatter
+class QTCREATOR_UTILS_EXPORT FileInProjectFinder
 {
 public:
-    QtOutputFormatter(ProjectExplorer::Project *project);
+    FileInProjectFinder();
 
-    virtual void appendApplicationOutput(const QString &text, bool onStdErr);
+    void setProjectDirectory(const QString &absoluteProjectPath);
+    QString projectDirectory() const;
 
-    virtual void handleLink(const QString &href);
+    QString findFile(const QString &originalPath, bool *success = 0) const;
 
 private:
-    LinkResult matchLine(const QString &line) const;
-    void appendLine(QTextCursor & cursor, LinkResult lr, const QString &line, bool onStdError);
-
-    QRegExp m_qmlError;
-    QRegExp m_qtError;
-    QRegExp m_qtAssert;
-    QRegExp m_qtTestFail;
-    QWeakPointer<ProjectExplorer::Project> m_project;
-    QString m_lastLine;
-    QString m_deferedText;
-    Utils::FileInProjectFinder m_projectFinder;
+    QString m_projectDir;
+    QHash<QString,QString> m_cache;
 };
 
+} // namespace Utils
 
-} // namespace Qt4ProjectManager
-
-#endif // QTOUTPUTFORMATTER_H
+#endif // FILEINPROJECTFINDER_H

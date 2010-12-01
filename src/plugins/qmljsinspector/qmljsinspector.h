@@ -35,6 +35,7 @@
 #include <coreplugin/basemode.h>
 #include <debugger/debuggerconstants.h>
 #include <qmlprojectmanager/qmlprojectrunconfiguration.h>
+#include <utils/fileinprojectfinder.h>
 
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
@@ -173,6 +174,7 @@ private:
     QString m_debugProjectBuildDir;
 
     QStringList m_pendingPreviewDocumentNames;
+    Utils::FileInProjectFinder m_projectFinder;
 
     static InspectorUi *m_instance;
 };

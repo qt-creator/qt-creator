@@ -52,6 +52,8 @@ QtOutputFormatter::QtOutputFormatter(ProjectExplorer::Project *project)
     , m_qtTestFail(QLatin1String("^   Loc: \\[(.*)\\]$"))
     , m_project(project)
 {
+    if(project)
+        m_projectFinder.setProjectDirectory(project->projectDirectory());
 }
 
 LinkResult QtOutputFormatter::matchLine(const QString &line) const
@@ -177,48 +179,6 @@ void QtOutputFormatter::appendLine(QTextCursor &cursor, LinkResult lr, const QSt
     cursor.insertText(line.mid(lr.end), normalFormat);
 }
 
-// Map absolute path in shadow build / in the deployment folder to the path in the project directory
-//
-// Input is e.g.
-//      C:/app-build-desktop/qml/app/main.qml (shadow build directory)
-//      C:/Private/e3026d63/qml/app/main.qml  (Application data folder on Symbian device)
-//      /Users/x/app-build-desktop/App.app/Contents/Resources/qml/App/main.qml (folder on Mac OS X)
-// which should be mapped to
-//      $PROJECTDIR/qml/app/main.qml
-QString QtOutputFormatter::pathInSourceDirectory(const QString &originalFilePath)
-{
-    QTC_ASSERT(QFileInfo(originalFilePath).isAbsolute(), return originalFilePath);
-
-    if (!m_project)
-        return originalFilePath;
-
-    const QString projectDirectory = m_project.data()->projectDirectory();
-
-    QTC_ASSERT(!projectDirectory.isEmpty(), return originalFilePath);
-    QTC_ASSERT(!projectDirectory.endsWith(QLatin1Char('/')), return originalFilePath);
-
-    const QChar separator = QLatin1Char('/');
-
-    if (originalFilePath.startsWith(projectDirectory + separator)) {
-        return originalFilePath;
-    }
-
-    // Strip directories one by one from the beginning of the path,
-    // and see if the new relative path exists in the build directory.
-    if (originalFilePath.contains(separator)) {
-        for (int pos = originalFilePath.indexOf(separator); pos != -1; pos = originalFilePath.indexOf(separator, pos + 1)) {
-            QString candidate = originalFilePath;
-            candidate.remove(0, pos);
-            candidate.prepend(projectDirectory);
-            QFileInfo candidateInfo(candidate);
-            if (candidateInfo.exists() && candidateInfo.isFile())
-                return candidate;
-        }
-    }
-
-    return originalFilePath;
-}
-
 void QtOutputFormatter::handleLink(const QString &href)
 {
     if (!href.isEmpty()) {
@@ -230,7 +190,7 @@ void QtOutputFormatter::handleLink(const QString &href)
             const QString fileName = QUrl(qmlLineColumnLink.cap(1)).toLocalFile();
             const int line = qmlLineColumnLink.cap(2).toInt();
             const int column = qmlLineColumnLink.cap(3).toInt();
-            TextEditor::BaseTextEditor::openEditorAt(pathInSourceDirectory(fileName), line, column - 1);
+            TextEditor::BaseTextEditor::openEditorAt(m_projectFinder.findFile(fileName), line, column - 1);
 
             return;
         }
@@ -241,7 +201,7 @@ void QtOutputFormatter::handleLink(const QString &href)
         if (qmlLineLink.indexIn(href) != -1) {
             const QString fileName = QUrl(qmlLineLink.cap(1)).toLocalFile();
             const int line = qmlLineLink.cap(2).toInt();
-            TextEditor::BaseTextEditor::openEditorAt(pathInSourceDirectory(fileName), line);
+            TextEditor::BaseTextEditor::openEditorAt(m_projectFinder.findFile(fileName), line);
             return;
         }
 
@@ -283,7 +243,7 @@ void QtOutputFormatter::handleLink(const QString &href)
                 }
             } else if (!fi.exists()) {
                 // map possible on-device path to source path
-                fileName = pathInSourceDirectory(fileName);
+                fileName = m_projectFinder.findFile(fileName);
             }
             TextEditor::BaseTextEditor::openEditorAt(fileName, line, 0);
             return;

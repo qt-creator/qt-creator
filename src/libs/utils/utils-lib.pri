@@ -52,7 +52,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/debuggerlanguagechooser.cpp \
     $$PWD/historycompleter.cpp \
     $$PWD/buildablehelperlibrary.cpp \
-    $$PWD/annotateditemdelegate.cpp
+    $$PWD/annotateditemdelegate.cpp \
+    $$PWD/fileinprojectfinder.cpp
 
 win32 {
     SOURCES += $$PWD/abstractprocess_win.cpp \
@@ -115,7 +116,8 @@ HEADERS += $$PWD/environment.h \
     $$PWD/debuggerlanguagechooser.h \
     $$PWD/historycompleter.h \
     $$PWD/buildablehelperlibrary.h \
-    $$PWD/annotateditemdelegate.h
+    $$PWD/annotateditemdelegate.h \
+    $$PWD/fileinprojectfinder.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \
