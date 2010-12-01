@@ -106,7 +106,8 @@ FORMS += attachexternaldialog.ui \
     dumperoptionpage.ui \
     commonoptionspage.ui \
     startexternaldialog.ui \
-    startremotedialog.ui
+    startremotedialog.ui \
+    startremoteenginedialog.ui
 
 RESOURCES += debugger.qrc
 

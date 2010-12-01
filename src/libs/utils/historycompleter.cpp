@@ -198,7 +198,7 @@ HistoryCompleter::HistoryCompleter(QObject *parent)
     // make an assumption to allow pressing of the down
     // key, before the first model run:
     // parent is likely the lineedit
-    QWidget *p = qobject_cast<QWidget*>(parent);
+    QWidget *p = qobject_cast<QWidget *>(parent);
     if (p) {
         p->installEventFilter(d_ptr->model);
         QString objectName = p->objectName();
@@ -206,6 +206,11 @@ HistoryCompleter::HistoryCompleter(QObject *parent)
             return;
         d_ptr->model->list = d_ptr->model->settings->value(objectName).toStringList();
     }
+
+    QLineEdit *l = qobject_cast<QLineEdit *>(parent);
+    if (l && d_ptr->model->list.count())
+        l->setText(d_ptr->model->list.at(0));
+
     setModel(d_ptr->model);
     HistoryLineDelegate *delegate = new HistoryLineDelegate;
     HistoryLineView *view = new HistoryLineView(d_ptr, delegate->pixmap.width());

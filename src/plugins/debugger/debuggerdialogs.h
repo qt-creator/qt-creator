@@ -45,6 +45,7 @@ class AttachExternalDialog;
 class AttachTcfDialog;
 class StartExternalDialog;
 class StartRemoteDialog;
+class StartRemoteEngineDialog;
 } // namespace Ui
 
 QT_END_NAMESPACE
@@ -240,6 +241,23 @@ private:
 
      QLineEdit *m_lineEdit;
      QDialogButtonBox *m_box;
+};
+
+class StartRemoteEngineDialog : public QDialog
+{
+    Q_OBJECT
+
+public:
+    explicit StartRemoteEngineDialog(QWidget *parent);
+    ~StartRemoteEngineDialog();
+    QString username() const;
+    QString host() const;
+    QString password() const;
+    QString enginePath() const;
+    QString inferiorPath() const;
+
+private:
+    Ui::StartRemoteEngineDialog *m_ui;
 };
 
 } // namespace Debugger

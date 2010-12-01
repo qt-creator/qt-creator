@@ -501,11 +501,10 @@ void DebuggerRunControl::createEngine(const DebuggerStartParameters &startParams
         }
     }
 
-    if (getenv("QTC_LLDB_GUEST")) {
+    // Fixme: unclean ipc override. Someone please have a better idea
+    if (sp.startMode == StartRemoteEngine)
+        // for now thats the only supported ipc engine
         engineType = LldbEngineType;
-        sp.executable = sp.processArgs;
-        qDebug() << "DEBUGGING" << sp.executable;
-    }
 
     // Fixme: 1 of 3 testing hacks.
     if (sp.processArgs.startsWith(__("@tcf@ ")))

@@ -36,6 +36,7 @@
 #include "ui_attachtcfdialog.h"
 #include "ui_startexternaldialog.h"
 #include "ui_startremotedialog.h"
+#include "ui_startremoteenginedialog.h"
 
 #ifdef Q_OS_WIN
 #  include "shared/dbgwinutils.h"
@@ -895,6 +896,55 @@ bool AddressDialog::isValid() const
     text.toULongLong(&ok, 16);
     return ok;
 }
+
+///////////////////////////////////////////////////////////////////////
+//
+// StartRemoteEngineDialog
+//
+///////////////////////////////////////////////////////////////////////
+
+StartRemoteEngineDialog::StartRemoteEngineDialog(QWidget *parent) :
+    QDialog(parent) ,
+    m_ui(new Ui::StartRemoteEngineDialog)
+{
+     m_ui->setupUi(this);
+     m_ui->host->setCompleter(new HistoryCompleter(m_ui->host));
+     m_ui->username->setCompleter(new HistoryCompleter(m_ui->username));
+     m_ui->enginepath->setCompleter(new HistoryCompleter(m_ui->enginepath));
+     m_ui->inferiorpath->setCompleter(new HistoryCompleter(m_ui->inferiorpath));
+     connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+     connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+}
+
+StartRemoteEngineDialog::~StartRemoteEngineDialog()
+{
+}
+
+QString StartRemoteEngineDialog::host() const
+{
+    return m_ui->host->text();
+}
+
+QString StartRemoteEngineDialog::username() const
+{
+    return m_ui->username->text();
+}
+
+QString StartRemoteEngineDialog::password() const
+{
+    return m_ui->password->text();
+}
+
+QString StartRemoteEngineDialog::inferiorPath() const
+{
+    return m_ui->inferiorpath->text();
+}
+
+QString StartRemoteEngineDialog::enginePath() const
+{
+    return m_ui->enginepath->text();
+}
+
 
 } // namespace Internal
 } // namespace Debugger

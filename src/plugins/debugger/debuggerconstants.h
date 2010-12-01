@@ -140,7 +140,8 @@ enum DebuggerStartMode
     AttachTcf,             // Attach to a running Target Communication Framework agent
     AttachCore,            // Attach to a core file
     AttachToRemote,        // Start and attach to a remote process
-    StartRemoteGdb         // Start gdb itself remotely
+    StartRemoteGdb,        // Start gdb itself remotely
+    StartRemoteEngine      // Start ipc guest engine on other machine
 };
 
 enum DebuggerCapabilities

@@ -345,6 +345,7 @@ const char * const ATTACHCORE           = "Debugger.AttachCore";
 const char * const ATTACHTCF            = "Debugger.AttachTcf";
 const char * const ATTACHREMOTE         = "Debugger.AttachRemote";
 const char * const ATTACHREMOTECDB      = "Debugger.AttachRemoteCDB";
+const char * const STARTREMOTELLDB      = "Debugger.StartRemoteLLDB";
 const char * const DETACH               = "Debugger.Detach";
 
 const char * const RUN_TO_LINE1         = "Debugger.RunToLine1";
@@ -1005,6 +1006,7 @@ public slots:
     void startExternalApplication();
     void startRemoteCdbSession();
     void startRemoteApplication();
+    void startRemoteEngine();
     void attachExternalApplication();
     void attachExternalApplication
         (qint64 pid, const QString &binary, const QString &crashParameter);
@@ -1307,6 +1309,7 @@ public:
     QAction *m_startExternalAction;
     QAction *m_startRemoteAction;
     QAction *m_startRemoteCdbAction;
+    QAction *m_startRemoteLldbAction;
     QAction *m_attachExternalAction;
     QAction *m_attachCoreAction;
     QAction *m_attachTcfAction;
@@ -1716,6 +1719,10 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     act->setText(tr("Start and Debug External Application..."));
     connect(act, SIGNAL(triggered()), SLOT(startExternalApplication()));
 
+    act = m_startRemoteLldbAction = new QAction(this);
+    act->setText(tr("Start and Debug External Application with External Engine..."));
+    connect(act, SIGNAL(triggered()), SLOT(startRemoteEngine()));
+
     act = m_attachExternalAction = new QAction(this);
     act->setText(tr("Attach to Running External Application..."));
     connect(act, SIGNAL(triggered()), SLOT(attachExternalApplication()));
@@ -1762,6 +1769,11 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     cmd = am->registerAction(m_startExternalAction,
         Constants::STARTEXTERNAL, globalcontext);
+    cmd->setAttribute(Command::CA_Hide);
+    mstart->addAction(cmd, CC::G_DEFAULT_ONE);
+
+    cmd = am->registerAction(m_startRemoteLldbAction,
+        Constants::STARTREMOTELLDB, globalcontext);
     cmd->setAttribute(Command::CA_Hide);
     mstart->addAction(cmd, CC::G_DEFAULT_ONE);
 
@@ -2282,6 +2294,32 @@ void DebuggerPluginPrivate::startRemoteApplication()
     sp.useServerStartScript = dlg.useServerStartScript();
     sp.serverStartScript = dlg.serverStartScript();
     sp.sysRoot = dlg.sysRoot();
+    if (RunControl *rc = createDebugger(sp))
+        startDebugger(rc);
+}
+
+void DebuggerPluginPrivate::startRemoteEngine()
+{
+    DebuggerStartParameters sp;
+    StartRemoteEngineDialog dlg(mainWindow());
+    if (dlg.exec() != QDialog::Accepted)
+        return;
+
+    sp.connParams.host = dlg.host();
+    sp.connParams.uname = dlg.username();
+    sp.connParams.pwd = dlg.password();
+
+
+    qDebug() << sp.connParams.host << sp.connParams.uname << sp.connParams.pwd;
+
+    sp.connParams.timeout = 5;
+    sp.connParams.authType = SshConnectionParameters::AuthByPwd;
+    sp.connParams.port = 22;
+    sp.connParams.proxyType = SshConnectionParameters::NoProxy;
+
+    sp.executable = dlg.inferiorPath();
+    sp.serverStartScript = dlg.enginePath();
+    sp.startMode = StartRemoteEngine;
     if (RunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
