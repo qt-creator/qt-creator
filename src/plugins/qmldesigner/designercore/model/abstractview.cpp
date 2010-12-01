@@ -334,6 +334,16 @@ bool AbstractView::hasId(const QString &id) const
     return model()->m_d->hasId(id);
 }
 
+ModelNode AbstractView::modelNodeForInternalId(qint32 internalId)
+{
+     return ModelNode(model()->m_d->nodeForInternalId(internalId), model(), this);
+}
+
+bool AbstractView::hasModelNodeInternalId(qint32 internalId) const
+{
+    return model()->m_d->hasNodeForInternalId(internalId);
+}
+
 QmlModelView *AbstractView::toQmlModelView()
 {
     return qobject_cast<QmlModelView*>(this);

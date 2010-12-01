@@ -629,7 +629,7 @@ bool operator ==(const ModelNode &firstNode, const ModelNode &secondNode)
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
     }
 
-    return firstNode.m_internalNode.data() == secondNode.m_internalNode.data();
+    return firstNode.internalId() == secondNode.internalId();
 }
 
 /*!
@@ -642,7 +642,7 @@ bool operator !=(const ModelNode &firstNode, const ModelNode &secondNode)
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
     }
 
-    return firstNode.m_internalNode != secondNode.m_internalNode;
+    return firstNode.internalId() != secondNode.internalId();
 }
 
 bool operator <(const ModelNode &firstNode, const ModelNode &secondNode)
@@ -652,7 +652,7 @@ bool operator <(const ModelNode &firstNode, const ModelNode &secondNode)
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
     }
 
-    return firstNode.internalNode().data() < secondNode.internalNode().data();
+    return firstNode.internalId() < secondNode.internalId();
 }
 
 
@@ -672,7 +672,7 @@ uint qHash(const ModelNode &node)
 //        Q_ASSERT_X(node.isValid(), Q_FUNC_INFO, "model node is invalid");
 //        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 //    }
-    return ::qHash(node.m_internalNode.data());
+    return ::qHash(node.internalId());
 }
 
 /*!
@@ -923,6 +923,14 @@ void  ModelNode::setScriptFunctions(const QStringList &scriptFunctionList)
 QStringList  ModelNode::scriptFunctions() const
 {
     return internalNode()->scriptFunctions();
+}
+
+qint32 ModelNode::internalId() const
+{
+    if (m_internalNode.isNull())
+        return -1;
+
+    return m_internalNode->internalId();
 }
 
 }

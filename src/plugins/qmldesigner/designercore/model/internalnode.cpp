@@ -50,22 +50,24 @@ namespace Internal {
 InternalNode::InternalNode() :
     m_majorVersion(0),
     m_minorVersion(0),
-    m_valid(false)
+    m_valid(false),
+    m_internalId(-1)
 {
 }
 
-InternalNode::InternalNode(const QString &typeName,int majorVersion, int minorVersion):
+InternalNode::InternalNode(const QString &typeName,int majorVersion, int minorVersion, qint32 internalId):
         m_typeName(typeName),
         m_majorVersion(majorVersion),
         m_minorVersion(minorVersion),
-        m_valid(true)
+        m_valid(true),
+        m_internalId(internalId)
 {
 
 }
 
-InternalNode::Pointer InternalNode::create(const QString &type,int majorVersion, int minorVersion)
+InternalNode::Pointer InternalNode::create(const QString &type,int majorVersion, int minorVersion, qint32 internalId)
 {
-    InternalNode *newPointer(new InternalNode(type, majorVersion, minorVersion));
+    InternalNode *newPointer(new InternalNode(type, majorVersion, minorVersion, internalId));
     InternalNode::Pointer smartPointer(newPointer);
 
     newPointer->setInternalWeakPointer(smartPointer);
@@ -158,7 +160,10 @@ void InternalNode::setId(const QString& id)
 
 uint qHash(const InternalNodePointer& node)
 {
-    return ::qHash(node.data());
+    if (node.isNull())
+        return ::qHash(-1);
+
+    return ::qHash(node->internalId());
 }
 
 QVariant InternalNode::auxiliaryData(const QString &name) const
@@ -310,7 +315,13 @@ QList<InternalNode::Pointer> InternalNode::allDirectSubNodes() const
 
 bool operator <(const InternalNode::Pointer &firstNode, const InternalNode::Pointer &secondNode)
 {
-    return firstNode.data() < secondNode.data();
+    if (firstNode.isNull())
+        return true;
+
+    if (secondNode.isNull())
+        return false;
+
+    return firstNode->internalId() < secondNode->internalId();
 }
 
 void InternalNode::setScriptFunctions(const QStringList &scriptFunctionList)
@@ -321,6 +332,11 @@ void InternalNode::setScriptFunctions(const QStringList &scriptFunctionList)
 QStringList InternalNode::scriptFunctions() const
 {
     return m_scriptFunctionList;
+}
+
+qint32 InternalNode::internalId() const
+{
+    return m_internalId;
 }
 
 }

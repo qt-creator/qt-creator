@@ -165,6 +165,8 @@ public:
     void setAuxiliaryData(const QString &name, const QVariant &data);
     bool hasAuxiliaryData(const QString &name) const;
 
+    qint32 internalId() const;
+
 private: // functions
     Internal::InternalNodePointer internalNode() const;
     QString generateNewId() const;

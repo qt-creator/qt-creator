@@ -97,6 +97,9 @@ public:
     ModelNode modelNodeForId(const QString &id);
     bool hasId(const QString &id) const;
 
+    ModelNode modelNodeForInternalId(qint32 internalId);
+    bool hasModelNodeForInternalId(qint32 internalId) const;
+
     QList<ModelNode> allModelNodes();
 
     void emitCustomNotification(const QString &identifier);

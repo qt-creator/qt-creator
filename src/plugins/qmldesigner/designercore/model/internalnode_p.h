@@ -64,7 +64,7 @@ public:
 
     explicit InternalNode();
 
-    static Pointer create(const QString &typeName, int majorVersion, int minorVersion);
+    static Pointer create(const QString &typeName, int majorVersion, int minorVersion, qint32 internalId);
 
     QString type() const;
     void setType(const QString &newType);
@@ -116,11 +116,13 @@ public:
     void setScriptFunctions(const QStringList &scriptFunctionList);
     QStringList scriptFunctions() const;
 
+    qint32 internalId() const;
+
 protected:
     Pointer internalPointer() const;
     void setInternalWeakPointer(const Pointer &pointer);
     void removeProperty(const QString &name);
-    explicit InternalNode(const QString &type, int majorVersion, int minorVersion);
+    explicit InternalNode(const QString &type, int majorVersion, int minorVersion, qint32 internalId);
 
 private:
     QString m_typeName;
@@ -135,6 +137,7 @@ private:
     int m_minorVersion;
 
     bool m_valid;
+    qint32 m_internalId;
 
     QHash<QString, InternalPropertyPointer> m_namePropertyHash;
     QStringList m_scriptFunctionList;

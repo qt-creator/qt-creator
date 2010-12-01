@@ -88,9 +88,10 @@ namespace Internal {
 
 ModelPrivate::ModelPrivate(Model *model) :
         m_q(model),
-        m_writeLock(false)
+        m_writeLock(false),
+        m_internalIdCounter(1)
 {
-    m_rootInternalNode = createNode("Qt/Item", 4, 7, PropertyListType());
+    m_rootInternalNode = createNode("Qt/Item", 4, 7, PropertyListType(), true);
 }
 
 ModelPrivate::~ModelPrivate()
@@ -204,12 +205,18 @@ void ModelPrivate::setFileUrl(const QUrl &fileUrl)
 InternalNode::Pointer ModelPrivate::createNode(const QString &typeString,
                                                int majorVersion,
                                                int minorVersion,
-                                               const QList<QPair<QString, QVariant> > &propertyList)
+                                               const QList<QPair<QString, QVariant> > &propertyList,
+                                               bool isRootNode)
 {
     if (typeString.isEmpty())
         throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, tr("invalid type"));
 
-    InternalNode::Pointer newInternalNodePointer = InternalNode::create(typeString, majorVersion, minorVersion);
+    qint32 internalId = 0;
+
+    if (!isRootNode)
+        internalId = m_internalIdCounter++;
+
+    InternalNode::Pointer newInternalNodePointer = InternalNode::create(typeString, majorVersion, minorVersion, internalId);
 
     typedef QPair<QString, QVariant> PropertyPair;
 
@@ -219,6 +226,7 @@ InternalNode::Pointer ModelPrivate::createNode(const QString &typeString,
     }
 
     m_nodeSet.insert(newInternalNodePointer);
+    m_internalIdNodeHash.insert(newInternalNodePointer->internalId(), newInternalNodePointer);
 
     notifyNodeCreated(newInternalNodePointer);
 
@@ -235,6 +243,7 @@ void ModelPrivate::removeNodeFromModel(const InternalNodePointer &node)
         m_idNodeHash.remove(node->id());
     node->setValid(false);
     m_nodeSet.remove(node);
+    m_internalIdNodeHash.remove(node->internalId());
 }
 
 void ModelPrivate::removeAllSubNodes(const InternalNode::Pointer &node)
@@ -1156,15 +1165,6 @@ void ModelPrivate::changeNodeOrder(const InternalNode::Pointer &internalParentNo
     notifyNodeOrderChanged(nodeList, internalNode, from);
 }
 
-void ModelPrivate::setRootNode(const InternalNode::Pointer& newRootNode)
-{
-    removeNode(m_rootInternalNode);
-    m_rootInternalNode = newRootNode;
-
-    if (!m_rootInternalNode.isNull() && m_rootInternalNode->isValid())
-        notifyNodeCreated(m_rootInternalNode);
-}
-
 void  ModelPrivate::setRewriterView(RewriterView *rewriterView)
 {
     if (rewriterView == m_rewriterView.data())
@@ -1213,6 +1213,16 @@ InternalNodePointer ModelPrivate::nodeForId(const QString &id) const
 bool ModelPrivate::hasId(const QString &id) const
 {
     return m_idNodeHash.contains(id);
+}
+
+InternalNodePointer ModelPrivate::nodeForInternalId(qint32 internalId) const
+{
+    return m_internalIdNodeHash.value(internalId);
+}
+
+bool ModelPrivate::hasNodeForInternalId(qint32 internalId) const
+{
+    return m_internalIdNodeHash.contains(internalId);
 }
 
 QList<InternalNodePointer> ModelPrivate::allNodes() const

@@ -385,7 +385,6 @@ ModelNode NavigatorTreeModel::nodeForIndex(const QModelIndex &index) const
 {
     Q_ASSERT(index.isValid());
     uint hash = index.data(NavigatorRole).toUInt();
-    Q_ASSERT(hash);
     Q_ASSERT(containsNodeHash(hash));
     return nodeForHash(hash);
 }
