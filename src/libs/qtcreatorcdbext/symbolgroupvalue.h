@@ -61,12 +61,20 @@ public:
     // Access children by name or index (0-based)
     SymbolGroupValue operator[](const char *name) const;
     SymbolGroupValue operator[](unsigned) const;
+    // take address and cast to desired (pointer) type
+    SymbolGroupValue typeCast(const char *type) const;
+    // take pointer value and cast to desired (pointer) type
+    SymbolGroupValue pointerTypeCast(const char *type) const;
 
     std::string type() const;
     std::wstring value() const;
+    unsigned size() const;
+    static inline unsigned sizeOf(const char *type) { return GetTypeSize(type); }
+
     int intValue(int defaultValue = -1) const;
     double floatValue(double defaultValue = -999) const;
     ULONG64 pointerValue(ULONG64 defaultValue = 0) const;
+    ULONG64 address() const;
     // Return allocated array of data pointed to
     unsigned char *pointerData(unsigned length) const;
     // Return data pointed to as wchar_t/std::wstring (UTF16)
@@ -76,11 +84,42 @@ public:
 
 private:
     bool ensureExpanded() const;
+    SymbolGroupValue typeCastedValue(ULONG64 address, const char *type) const;
 
     SymbolGroupNode *m_node;
     SymbolGroupValueContext m_context;
     mutable std::string m_errorMessage;
 };
+
+// Helpers for detecting types
+enum KnownType {
+    KT_Unknown =0,
+    KT_Qt_Type = 0x10000,
+    KT_STL_Type = 0x20000,
+    KT_ContainerType = 0x40000,
+    KT_QChar = KT_Qt_Type + 1,
+    KT_QByteArray = KT_Qt_Type + 2,
+    KT_QString = KT_Qt_Type + 3,
+    KT_QColor = KT_Qt_Type + 4,
+    KT_QFlags = KT_Qt_Type + 5,
+    KT_QDate = KT_Qt_Type + 6,
+    KT_QTime = KT_Qt_Type + 7,
+    KT_QPoint = KT_Qt_Type + 8,
+    KT_QPointF = KT_Qt_Type + 9,
+    KT_QSize = KT_Qt_Type + 11,
+    KT_QSizeF = KT_Qt_Type + 12,
+    KT_QLine = KT_Qt_Type + 13,
+    KT_QLineF = KT_Qt_Type + 14,
+    KT_QRect = KT_Qt_Type + 15,
+    KT_QRectF = KT_Qt_Type + 16,
+    KT_QVariant = KT_Qt_Type + 17,
+    KT_QBasicAtomicInt = KT_Qt_Type + 18,
+    KT_QAtomicInt = KT_Qt_Type + 19,
+    KT_StdString = KT_STL_Type + 1,
+    KT_StdWString = KT_STL_Type + 2
+};
+
+KnownType knownType(const std::string &type);
 
 // Dump builtin simple types using SymbolGroupValue expressions,
 // returning SymbolGroupNode dumper flags.

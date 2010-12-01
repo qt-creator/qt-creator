@@ -496,6 +496,14 @@ std::string SymbolGroupNode::type() const
     return SUCCEEDED(hr) ? std::string(buf) : std::string();
 }
 
+unsigned SymbolGroupNode::size() const
+{
+    DEBUG_SYMBOL_ENTRY entry;
+    if (SUCCEEDED(m_symbolGroup->debugSymbolGroup()->GetSymbolEntryInformation(m_index, &entry)))
+        return entry.Size;
+    return 0;
+}
+
 ULONG64 SymbolGroupNode::address() const
 {
     ULONG64 address = 0;
@@ -654,6 +662,8 @@ void SymbolGroupNode::debug(std::ostream &str, unsigned verbosity, unsigned dept
             str << " DumperFailed";
         if (m_flags & ExpandedByDumper)
             str << " ExpandedByDumper";
+        if (m_flags & AdditionalSymbol)
+            str << " AdditionalSymbol";
         str << ' ';
     }
     if (verbosity) {
@@ -745,33 +755,34 @@ static inline std::string msgCannotAddSymbol(const std::string &name, const std:
 }
 
 // For root nodes, only: Add a new symbol by name
-bool SymbolGroupNode::addSymbolByName(const std::string &name,
-                                      const std::string &iname,
-                                      std::string *errorMessage)
+SymbolGroupNode *SymbolGroupNode::addSymbolByName(const std::string &name,
+                                                  const std::string &iname,
+                                                  std::string *errorMessage)
 {
     ULONG index = DEBUG_ANY_ID; // Append
     HRESULT hr = m_symbolGroup->debugSymbolGroup()->AddSymbol(name.c_str(), &index);
     if (FAILED(hr)) {
         *errorMessage = msgCannotAddSymbol(name, msgDebugEngineComFailed("AddSymbol", hr));
-        return false;
+        return 0;
     }
     SymbolParameterVector parameters(1, DEBUG_SYMBOL_PARAMETERS());
     hr = m_symbolGroup->debugSymbolGroup()->GetSymbolParameters(index, 1, &(*parameters.begin()));
     if (FAILED(hr)) { // Should never fail
         *errorMessage = msgCannotAddSymbol(name, msgDebugEngineComFailed("GetSymbolParameters", hr));
-        return false;
+        return 0;
     }
     // Paranoia: Check for cuckoo's eggs (which should not happen)
     if (parameters.front().ParentSymbol != m_index) {
         *errorMessage = msgCannotAddSymbol(name, "Parent id mismatch");
-        return false;
+        return 0;
     }
     SymbolGroupNode *node = new SymbolGroupNode(m_symbolGroup, index,
                                                 name, iname.empty() ? name : iname,
                                                 this);
     node->parseParameters(0, 0, parameters);
+    node->addFlags(AdditionalSymbol);
     m_children.push_back(node);
-    return true;
+    return node;
 }
 
 static inline std::string msgNotFound(const std::string &nodeName)
@@ -919,7 +930,7 @@ bool SymbolGroup::typeCast(const std::string &iname, const std::string &desiredT
     return node->typeCast(desiredType, errorMessage);
 }
 
-bool SymbolGroup::addSymbol(const std::string &name, const std::string &iname, std::string *errorMessage)
+SymbolGroupNode *SymbolGroup::addSymbol(const std::string &name, const std::string &iname, std::string *errorMessage)
 {
     return m_root->addSymbolByName(name, iname, errorMessage);
 }

@@ -67,7 +67,8 @@ public:
         DumperOk = 0x4,     // Internal dumper ran, value set
         DumperFailed = 0x8, // Internal dumper failed
         DumperMask = DumperNotApplicable|DumperOk|DumperFailed,
-        ExpandedByDumper = 0x10
+        ExpandedByDumper = 0x10,
+        AdditionalSymbol = 0x20 // Introduced by addSymbol, should not be visible
     };
     typedef std::vector<DEBUG_SYMBOL_PARAMETERS> SymbolParameterVector;
     typedef std::vector<SymbolGroupNode *> SymbolGroupNodePtrVector;
@@ -83,9 +84,9 @@ public:
 
     static SymbolGroupNode *create(SymbolGroup *sg, const std::string &name, const SymbolParameterVector &vec);
     // For root nodes, only: Add a new symbol by name
-    bool addSymbolByName(const std::string &name,  // Expression like 'myarray[1]'
-                         const std::string &iname, // Desired iname, defaults to name
-                         std::string *errorMessage);
+    SymbolGroupNode *addSymbolByName(const std::string &name,  // Expression like 'myarray[1]'
+                                     const std::string &iname, // Desired iname, defaults to name
+                                     std::string *errorMessage);
 
     const std::string &name() const { return m_name; }
     std::string fullIName() const;
@@ -98,6 +99,7 @@ public:
     SymbolGroupNode *childByIName(const char *) const;
 
     const SymbolGroupNode *parent() const { return m_parent; }
+    SymbolGroup *symbolGroup() const { return m_symbolGroup; }
 
     // I/O: Gdbmi dump for Visitors
     void dump(std::ostream &str, const SymbolGroupValueContext &ctx);
@@ -109,6 +111,7 @@ public:
     std::wstring displayValue(const SymbolGroupValueContext &ctx);
 
     std::string type() const;
+    unsigned size() const; // Size of value
     ULONG64 address() const;
 
     bool accept(SymbolGroupNodeVisitor &visitor, unsigned child, unsigned depth);
@@ -223,9 +226,9 @@ public:
     // Cast an (unexpanded) node
     bool typeCast(const std::string &iname, const std::string &desiredType, std::string *errorMessage);
     // Add a symbol by name expression
-    bool addSymbol(const std::string &name, // Expression like 'myarray[1]'
-                   const std::string &iname, // Desired iname, defaults to name
-                   std::string *errorMessage);
+    SymbolGroupNode *addSymbol(const std::string &name, // Expression like 'myarray[1]'
+                               const std::string &iname, // Desired iname, defaults to name
+                               std::string *errorMessage);
 
     bool accept(SymbolGroupNodeVisitor &visitor) const;
 

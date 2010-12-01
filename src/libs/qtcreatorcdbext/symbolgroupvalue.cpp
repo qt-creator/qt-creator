@@ -87,6 +87,11 @@ std::string SymbolGroupValue::type() const
     return isValid() ? m_node->type() : std::string();
 }
 
+unsigned SymbolGroupValue::size() const
+{
+    return isValid() ? m_node->size() : 0;
+}
+
 std::wstring SymbolGroupValue::value() const
 {
     return isValid() ? m_node->symbolGroupFixedValue() : std::wstring();
@@ -145,6 +150,45 @@ unsigned char *SymbolGroupValue::pointerData(unsigned length) const
         }
     }
     return 0;
+}
+
+ULONG64 SymbolGroupValue::address() const
+{
+    if (isValid())
+        return m_node->address();
+    return 0;
+}
+
+// Temporary iname
+static inline std::string additionalSymbolIname(const SymbolGroup *g)
+{
+    std::ostringstream str;
+    str << "__additional" << g->root()->children().size();
+    return str.str();
+}
+
+SymbolGroupValue SymbolGroupValue::typeCast(const char *type) const
+{
+    return typeCastedValue(address(), type);
+}
+
+SymbolGroupValue SymbolGroupValue::pointerTypeCast(const char *type) const
+{
+    return typeCastedValue(pointerValue(), type);
+}
+
+SymbolGroupValue SymbolGroupValue::typeCastedValue(ULONG64 address, const char *type) const
+{
+    if (address) {
+        SymbolGroup *sg = m_node->symbolGroup();
+        std::ostringstream str;
+        str << '(' << type << ")(" << std::showbase << std::hex << address << ')';
+        if (SymbolGroupNode *node = sg->addSymbol(str.str(),
+                                                  additionalSymbolIname(sg),
+                                                  &m_errorMessage))
+            return SymbolGroupValue(node, m_context);
+    }
+    return SymbolGroupValue();
 }
 
 std::wstring SymbolGroupValue::wcharPointerData(unsigned charCount, unsigned maxCharCount) const
@@ -215,7 +259,7 @@ static inline void getDateFromJulianDay(unsigned julianDay, int *year, int *mont
 }
 
 // Convert and format Julian Date as used in QDate
-static inline void formatJulianDate(std::wostringstream &str, unsigned julianDate)
+static inline void formatJulianDate(std::wostream &str, unsigned julianDate)
 {
     int y, m, d;
     getDateFromJulianDay(julianDate, &y, &m, &d);
@@ -223,7 +267,7 @@ static inline void formatJulianDate(std::wostringstream &str, unsigned julianDat
 }
 
 // Format time in milliseconds as "hh:dd:ss:mmm"
-static inline void formatMilliSeconds(std::wostringstream &str, int milliSecs)
+static inline void formatMilliSeconds(std::wostream &str, int milliSecs)
 {
     const int hourFactor = 1000 * 3600;
     const int hours = milliSecs / hourFactor;
@@ -244,49 +288,122 @@ static const char stdStringTypeC[] = "class std::basic_string<char,std::char_tra
 static const char stdWStringTypeC[] = "class std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> >";
 
 // Dump a QString.
-static unsigned dumpQString(const std::string &type, const SymbolGroupValue &v, std::wstring *s)
-{
-    if (!endsWith(type, "QString")) // namespaced Qt?
-        return SymbolGroupNode::DumperNotApplicable;
 
-    if (SymbolGroupValue d = v["d"]) {
-        if (SymbolGroupValue sizeValue = d["size"]) {
+KnownType knownType(const std::string &type)
+{
+    // Make sure this is 'class X' or 'struct X'. Strip that and pointer
+    if (type.empty() || (type.at(0) != 'c' && type.at(0) != 's'))
+        return KT_Unknown;
+    const bool isClass = type.compare(0, 6, "class ") != 0;
+    const bool isStruct = isClass ? false : type.compare(0, 7, "struct ") != 0;
+    if (!isClass && !isStruct)
+        return KT_Unknown;
+    // Strip pointer types.
+    const std::wstring::size_type compareLen =
+            endsWith(type, " *") ? type.size() -2 : type.size();
+    // STL ?
+    if (!type.compare(0, 11, "class std::")) {
+        if (!type.compare(0, compareLen, stdStringTypeC))
+            return KT_StdString;
+        if (!type.compare(0, compareLen, stdWStringTypeC))
+            return KT_StdWString;
+    }
+    // Check for a 'Q' (beware of namespaced Qt: 'nsp::QString'). TODO: match QQuark as well?
+    const std::wstring::size_type qPos = type.rfind('Q');
+    if (qPos == std::wstring::npos)
+        return KT_Unknown;
+    // Qt types (templates)
+    if (type.find("QFlags<") != std::wstring::npos)
+        return KT_QFlags;
+    // Remaining types:
+    switch (compareLen - qPos) {
+    case 5:
+        if (!type.compare(qPos, 5, "QChar"))
+            return KT_QChar;
+        if (!type.compare(qPos, 5, "QDate"))
+            return KT_QDate;
+        if (!type.compare(qPos, 5, "QTime"))
+            return KT_QTime;
+        if (!type.compare(qPos, 5, "QSize"))
+            return KT_QSize;
+        if (!type.compare(qPos, 5, "QLine"))
+            return KT_QLine;
+        if (!type.compare(qPos, 5, "QRect"))
+            return KT_QRect;
+        break;
+    case 6:
+        if (!type.compare(qPos, 6, "QColor"))
+            return KT_QColor;
+        if (!type.compare(qPos, 6, "QSizeF"))
+            return KT_QSizeF;
+        if (!type.compare(qPos, 6, "QPoint"))
+            return KT_QPoint;
+        if (!type.compare(qPos, 6, "QLineF"))
+            return KT_QLineF;
+        if (!type.compare(qPos, 6, "QRectF"))
+            return KT_QRectF;
+        break;
+    case 7:
+        if (!type.compare(qPos, 7, "QString"))
+            return KT_QString;
+        if (!type.compare(qPos, 7, "QPointF"))
+            return KT_QPointF;
+        break;
+    case 8:
+        if (!type.compare(qPos, 8, "QVariant"))
+            return KT_QVariant;
+        break;
+    case 10:
+        if (!type.compare(qPos, 10, "QAtomicInt"))
+            return KT_QAtomicInt;
+        if (!type.compare(qPos, 10, "QByteArray"))
+            return KT_QByteArray;
+        break;
+    case 15:
+        if (!type.compare(qPos, 15, "QBasicAtomicInt"))
+            return KT_QBasicAtomicInt;
+        break;
+    }
+    return KT_Unknown;
+}
+
+static inline bool dumpQString(const SymbolGroupValue &v, std::wostream &str)
+{
+    if (const SymbolGroupValue d = v["d"]) {
+        if (const SymbolGroupValue sizeValue = d["size"]) {
             const int size = sizeValue.intValue();
             if (size >= 0) {
-                *s = d["data"].wcharPointerData(size);
-                return SymbolGroupNode::DumperOk;
+                str << d["data"].wcharPointerData(size);
+                return true;
             }
         }
     }
-    return SymbolGroupNode::DumperFailed;
+    return false;
 }
 
 // Dump QColor
-static unsigned dumpQColor(const std::string &type, const SymbolGroupValue &v, std::wstring *s)
+static bool dumpQColor(const SymbolGroupValue &v, std::wostream &str)
 {
-    if (!endsWith(type, "QColor")) // namespaced Qt?
-        return SymbolGroupNode::DumperNotApplicable;
     const SymbolGroupValue specV = v["cspec"];
     if (!specV)
-        return SymbolGroupNode::DumperFailed;
+        return false;
     const int spec = specV.intValue();
     if (spec == 0) {
-        *s = L"<Invalid color>";
-        return SymbolGroupNode::DumperOk;
+        str << L"<Invalid color>";
+        return true;
     }
     if (spec < 1 || spec > 4)
-        return SymbolGroupNode::DumperFailed;
+        return false;
     const SymbolGroupValue arrayV = v["ct"]["array"];
     if (!arrayV)
-        return SymbolGroupNode::DumperFailed;
+        return false;
     const int a0 = arrayV["0"].intValue();
     const int a1 = arrayV["1"].intValue();
     const int a2 = arrayV["2"].intValue();
     const int a3 = arrayV["3"].intValue();
     const int a4 = arrayV["4"].intValue();
     if (a0 < 0 || a1 < 0 || a2 < 0 || a3 < 0 || a4 < 0)
-        return SymbolGroupNode::DumperFailed;
-    std::wostringstream str;
+        return false;
     switch (spec) {
     case 1: // Rgb
         str << L"RGB alpha=" << (a0 / 0x101) << L", red=" << (a1 / 0x101)
@@ -306,94 +423,93 @@ static unsigned dumpQColor(const std::string &type, const SymbolGroupValue &v, s
             << L", sat=" << (a2 / 0x101) << ", lightness=" << (a3 / 0x101);
         break;
     }
-    *s = str.str();
-    return SymbolGroupNode::DumperOk;
+    return true;
 }
 
 // Dump Qt's core types
-static unsigned dumpQtCoreTypes(const std::string &type, const SymbolGroupValue &v, std::wstring *s)
+
+static inline bool dumpQBasicAtomicInt(const SymbolGroupValue &v, std::wostream &str)
 {
-    if (endsWith(type, "QAtomicInt")) { // namespaced Qt?
-        if (SymbolGroupValue iValue = v[unsigned(0)]["_q_value"]) {
-            *s = iValue.value();
-            return SymbolGroupNode::DumperOk;
-        }
-        return SymbolGroupNode::DumperFailed;
+    if (const SymbolGroupValue iValue = v["_q_value"]) {
+        str <<  iValue.value();
+        return true;
     }
+    return false;
+}
 
-    if (endsWith(type, "QChar")) {
-        if (SymbolGroupValue cValue = v["ucs"]) {
-            const int utf16 = cValue.intValue();
-            if (utf16 >= 0) {
-                // Print code = character,
-                // exclude control characters and Pair indicator
-                std::wostringstream str;
-                str << utf16;
-                if (utf16 >= 32 && (utf16 < 0xD800 || utf16 > 0xDBFF))
-                    str << " '" << wchar_t(utf16) << '\'';
-                *s = str.str();
-            }
-            return SymbolGroupNode::DumperOk;
+static inline bool dumpQAtomicInt(const SymbolGroupValue &v, std::wostream &str)
+{
+    if (const SymbolGroupValue base = v[unsigned(0)])
+        return dumpQBasicAtomicInt(base, str);
+    return false;
+}
+
+static bool dumpQChar(const SymbolGroupValue &v, std::wostream &str)
+{
+    if (SymbolGroupValue cValue = v["ucs"]) {
+        const int utf16 = cValue.intValue();
+        if (utf16 >= 0) {
+            // Print code = character,
+            // exclude control characters and Pair indicator
+            str << utf16;
+            if (utf16 >= 32 && (utf16 < 0xD800 || utf16 > 0xDBFF))
+                str << " '" << wchar_t(utf16) << '\'';
         }
-        return SymbolGroupNode::DumperFailed;
+        return true;
     }
+    return false;
+}
 
-    if (type.find("QFlags") != std::wstring::npos) {
-        if (SymbolGroupValue iV = v["i"]) {
-            const int i = iV.intValue();
-            if (i >= 0) {
-                *s = toWString(i);
-                return SymbolGroupNode::DumperOk;
-            }
-        }
-        return SymbolGroupNode::DumperFailed;
-    }
-
-    if (endsWith(type, "QDate")) {
-        if (SymbolGroupValue julianDayV = v["jd"]) {
-            const int julianDay = julianDayV.intValue();
-            if (julianDay > 0) {
-                std::wostringstream str;
-                formatJulianDate(str, julianDay);
-                *s = str.str();
-                return SymbolGroupNode::DumperOk;
-            }
-        return SymbolGroupNode::DumperFailed;
+static inline bool dumpQFlags(const SymbolGroupValue &v, std::wostream &str)
+{
+    if (SymbolGroupValue iV = v["i"]) {
+        const int i = iV.intValue();
+        if (i >= 0) {
+            str << i;
+            return true;
         }
     }
+    return false;
+}
 
-    if (endsWith(type, "QTime")) {
-        if (SymbolGroupValue milliSecsV = v["mds"]) {
-            int milliSecs = milliSecsV.intValue();
-            if (milliSecs >= 0) {
-                std::wostringstream str;
-                formatMilliSeconds(str, milliSecs);
-                *s = str.str();
-                return SymbolGroupNode::DumperOk;
-            }
-        return SymbolGroupNode::DumperFailed;
+static inline bool dumpQDate(const SymbolGroupValue &v, std::wostream &str)
+{
+    if (const SymbolGroupValue julianDayV = v["jd"]) {
+        const int julianDay = julianDayV.intValue();
+        if (julianDay > 0) {
+            formatJulianDate(str, julianDay);
+            return true;
         }
     }
+    return false;
+}
 
-    return SymbolGroupNode::DumperNotApplicable;
+static bool dumpQTime(const SymbolGroupValue &v, std::wostream &str)
+{
+    if (const SymbolGroupValue milliSecsV = v["mds"]) {
+        const int milliSecs = milliSecsV.intValue();
+        if (milliSecs >= 0) {
+            formatMilliSeconds(str, milliSecs);
+            return true;
+        }
+    }
+    return false;
 }
 
 // Dump a QByteArray
-static unsigned dumpQByteArray(const std::string &type, const SymbolGroupValue &v, std::wstring *s)
+static inline bool dumpQByteArray(const SymbolGroupValue &v, std::wostream &str)
 {
-    if (!endsWith(type, "QByteArray")) // namespaced Qt?
-        return SymbolGroupNode::DumperNotApplicable;
     // TODO: More sophisticated dumping of binary data?
-    if (SymbolGroupValue data = v["d"]["data"]) {
-        *s = data.value();
-        return SymbolGroupNode::DumperOk;
+    if (const  SymbolGroupValue data = v["d"]["data"]) {
+        str << data.value();
+        return true;
     }
-    return SymbolGroupNode::DumperFailed;
+    return false;
 }
 
 // Dump a rectangle in X11 syntax
 template <class T>
-inline void dumpRect(std::wostringstream &str, T x, T y, T width, T height)
+inline void dumpRect(std::wostream &str, T x, T y, T width, T height)
 {
     str << width << 'x' << height;
     if (x >= 0)
@@ -405,96 +521,264 @@ inline void dumpRect(std::wostringstream &str, T x, T y, T width, T height)
 }
 
 template <class T>
-inline void dumpRectPoints(std::wostringstream &str, T x1, T y1, T x2, T y2)
+inline void dumpRectPoints(std::wostream &str, T x1, T y1, T x2, T y2)
 {
     dumpRect(str, x1, y1, (x2 - x1), (y2 - y1));
 }
 
 // Dump Qt's simple geometrical types
-static unsigned dumpQtGeometryTypes(const std::string &type, const SymbolGroupValue &v, std::wstring *s)
+static inline bool dumpQSize_F(const SymbolGroupValue &v, std::wostream &str)
 {
-    if (endsWith(type, "QSize") || endsWith(type, "QSizeF")) { // namespaced Qt?
-        std::wostringstream str;
-        str << '(' << v["wd"].value() << ", " << v["ht"].value() << ')';
-        *s = str.str();
-        return SymbolGroupNode::DumperOk;
+    str << '(' << v["wd"].value() << ", " << v["ht"].value() << ')';
+    return true;
+}
+
+static inline bool dumpQPoint_F(const SymbolGroupValue &v, std::wostream &str)
+{
+    str << '(' << v["xp"].value() << ", " << v["yp"].value() << ')';
+    return true;
+}
+
+static inline bool dumpQLine_F(const SymbolGroupValue &v, std::wostream &str)
+{
+    const SymbolGroupValue p1 = v["pt1"];
+    const SymbolGroupValue p2 = v["pt2"];
+    if (p1 && p2) {
+        str << '(' << p1["xp"].value() << ", " << p1["yp"].value() << ") ("
+            << p2["xp"].value() << ", " << p2["yp"].value() << ')';
+        return true;
     }
-    if (endsWith(type, "QPoint") || endsWith(type, "QPointF")) { // namespaced Qt?
-        std::wostringstream str;
-        str << '(' << v["xp"].value() << ", " << v["yp"].value() << ')';
-        *s = str.str();
-        return SymbolGroupNode::DumperOk;
-    }
-    if (endsWith(type, "QLine") || endsWith(type, "QLineF")) { // namespaced Qt?
-        const SymbolGroupValue p1 = v["pt1"];
-        const SymbolGroupValue p2 = v["pt2"];
-        if (p1 && p2) {
-            std::wostringstream str;
-            str << '(' << p1["xp"].value() << ", " << p1["yp"].value() << ") ("
-                 << p2["xp"].value() << ", " << p2["yp"].value() << ')';
-            *s = str.str();
-            return SymbolGroupNode::DumperOk;
-        }
-        return SymbolGroupNode::DumperFailed;
-    }
-    if (endsWith(type, "QRect")) {
-        std::wostringstream str;
-        dumpRectPoints(str, v["x1"].intValue(), v["y1"].intValue(), v["x2"].intValue(), v["y2"].intValue());
-        *s = str.str();
-        return SymbolGroupNode::DumperOk;
-    }
-    if (endsWith(type, "QRectF")) {
-        std::wostringstream str;
-        dumpRect(str, v["xp"].floatValue(), v["yp"].floatValue(), v["w"].floatValue(), v["h"].floatValue());
-        *s = str.str();
-        return SymbolGroupNode::DumperOk;
-    }
-    return SymbolGroupNode::DumperNotApplicable;
+    return false;
+}
+
+static inline bool dumpQRect(const SymbolGroupValue &v, std::wostream &str)
+{
+    dumpRectPoints(str, v["x1"].intValue(), v["y1"].intValue(), v["x2"].intValue(), v["y2"].intValue());
+    return true;
+}
+
+static inline bool dumpQRectF(const SymbolGroupValue &v, std::wostream &str)
+{
+    dumpRect(str, v["xp"].floatValue(), v["yp"].floatValue(), v["w"].floatValue(), v["h"].floatValue());
+    return true;
 }
 
 // Dump a std::string.
-static unsigned dumpStdString(const std::string &type, const SymbolGroupValue &v, std::wstring *s)
+static bool dumpStd_W_String(const SymbolGroupValue &v, std::wostream &str)
 {
-    if (type != stdStringTypeC && type != stdWStringTypeC)
-        return SymbolGroupNode::DumperNotApplicable;
     // MSVC 2010: Access Bx/_Buf in base class
     SymbolGroupValue buf = v[unsigned(0)]["_Bx"]["_Buf"];
     if (!buf) // MSVC2008: Bx/Buf are members
         buf = v["_Bx"]["_Buf"];
     if (buf) {
-        *s = buf.value();
-        return SymbolGroupNode::DumperOk;
+        str << buf.value();
+        return true;
     }
-    return SymbolGroupNode::DumperFailed;
+    return false;
+}
+
+// QVariant employs a template for storage where anything bigger than the data union
+// is pointed to by data.shared.ptr, else it is put into the data struct (pointer size)
+// itself (notably Qt types consisting of a d-ptr only).
+// The layout can vary between 32 /64 bit for some types: QPoint/QSize (of 2 ints) is bigger
+// as a pointer only on 32 bit.
+
+static inline SymbolGroupValue qVariantCast(const SymbolGroupValue &variantData, const char *type)
+{
+    const ULONG typeSize = SymbolGroupValue::sizeOf(type);
+    const std::string ptrType = std::string(type) + " *";
+    if (typeSize > variantData.size())
+        return variantData["shared"]["ptr"].pointerTypeCast(ptrType.c_str());
+    return variantData.typeCast(ptrType.c_str());
+}
+
+static bool dumpQVariant(const SymbolGroupValue &v, std::wostream &str)
+{
+    const SymbolGroupValue dV = v["d"];
+    if (!dV)
+        return false;
+    const SymbolGroupValue typeV = dV["type"];
+    const SymbolGroupValue dataV = dV["data"];
+    if (!typeV || !dataV)
+        return false;
+    const int typeId = typeV.intValue();
+    if (typeId <= 0) {
+        str <<  L"<Invalid>";
+        return true;
+    }
+    switch (typeId) {
+    case 1: // Bool
+        str << L"(bool) " << dataV["b"].value();
+        break;
+    case 2: // Int
+        str << L"(int) " << dataV["i"].value();
+        break;
+    case 3: // UInt
+        str << L"(unsigned) " << dataV["u"].value();
+        break;
+    case 4: // LongLong
+        str << L"(long long) " << dataV["ll"].value();
+        break;
+    case 5: // LongLong
+        str << L"(unsigned long long) " << dataV["ull"].value();
+        break;
+    case 6: // Double
+        str << L"(double) " << dataV["d"].value();
+        break;
+    case 7: // Char
+        str << L"(char) " << dataV["c"].value();
+        break;
+    case 10: // String
+        str << L"(QString) \"";
+        if (const SymbolGroupValue sv = dataV.typeCast("QString *")) {
+            dumpQString(sv, str);
+            str << L'"';
+        }
+        break;
+    case 12: //ByteArray
+        str << L"(QByteArray) ";
+        if (const SymbolGroupValue sv = dataV.typeCast("QByteArray *"))
+            dumpQByteArray(sv, str);
+        break;
+    case 13: // BitArray
+        str << L"(QBitArray)";
+        break;
+    case 14: // Date
+        str << L"(QDate) ";
+        if (const SymbolGroupValue sv = dataV.typeCast("QDate *"))
+            dumpQDate(sv, str);
+        break;
+    case 15: // Time
+        str << L"(QTime) ";
+        if (const SymbolGroupValue sv = dataV.typeCast("QTime *"))
+            dumpQTime(sv, str);
+        break;
+    case 16: // DateTime
+        str << L"(QDateTime)";
+        break;
+    case 17: // Url
+        str << L"(QUrl)";
+        break;
+    case 18: // Locale
+        str << L"(QLocale)";
+        break;
+    case 19: // Rect:
+        str << L"(QRect) ";
+        if (const SymbolGroupValue sv = dataV["shared"]["ptr"].pointerTypeCast("QRect *"))
+            dumpQRect(sv, str);
+        break;
+    case 20: // RectF
+        str << L"(QRectF) ";
+        if (const SymbolGroupValue sv = dataV["shared"]["ptr"].pointerTypeCast("QRectF *"))
+            dumpQRectF(sv, str);
+        break;
+    case 21: // Size
+        // Anything bigger than the data union is a pointer, else the data union is used
+        str << L"(QSize) ";
+        if (const SymbolGroupValue sv = qVariantCast(dataV, "QSize"))
+            dumpQSize_F(sv, str);
+        break;
+    case 22: // SizeF
+        str << L"(QSizeF) ";
+        if (const SymbolGroupValue sv = dataV["shared"]["ptr"].pointerTypeCast("QSizeF *"))
+            dumpQSize_F(sv, str);
+        break;
+    case 23: // Line
+        str << L"(QLine) ";
+        if (const SymbolGroupValue sv = dataV["shared"]["ptr"].pointerTypeCast("QLine *"))
+            dumpQLine_F(sv, str);
+        break;
+    case 24: // LineF
+        str << L"(QLineF) ";
+        if (const SymbolGroupValue sv = dataV["shared"]["ptr"].pointerTypeCast("QLineF *"))
+            dumpQLine_F(sv, str);
+        break;
+    case 25: // Point
+        str << L"(QPoint) ";
+        if (const SymbolGroupValue sv = qVariantCast(dataV, "QPoint"))
+            dumpQPoint_F(sv, str);
+        break;
+    case 26: // PointF
+        str << L"(QPointF) ";
+        if (const SymbolGroupValue sv = dataV["shared"]["ptr"].pointerTypeCast("QPointF *"))
+            dumpQPoint_F(sv, str);
+        break;
+    default:
+        str << L"Type " << typeId;
+        break;
+    }
+    return true;
 }
 
 // Dump builtin simple types using SymbolGroupValue expressions.
 unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx, std::wstring *s)
 {
     // Check for class types and strip pointer types (references appear as pointers as well)
-    std::string type = n->type();
-    if (type.compare(0, 6, "class ") != 0)
+    s->clear();
+    const KnownType kt  = knownType(n->type());
+    if (kt == KT_Unknown)
         return SymbolGroupNode::DumperNotApplicable;
-    if (endsWith(type, " *"))
-        type.erase(type.size() - 2, 2);
+
     const SymbolGroupValue v(n, ctx);
-    unsigned rc = dumpQString(type, v, s);
-    if (rc != SymbolGroupNode::DumperNotApplicable)
-        return rc;
-    rc = dumpQByteArray(type, v, s);
-    if (rc != SymbolGroupNode::DumperNotApplicable)
-        return rc;
-    rc = dumpQtCoreTypes(type, v, s);
-    if (rc != SymbolGroupNode::DumperNotApplicable)
-        return rc;
-    rc = dumpStdString(type, v, s);
-    if (rc != SymbolGroupNode::DumperNotApplicable)
-        return rc;
-    rc = dumpQtGeometryTypes(type, v, s);
-    if (rc != SymbolGroupNode::DumperNotApplicable)
-        return rc;
-    rc = dumpQColor(type, v, s);
-    if (rc != SymbolGroupNode::DumperNotApplicable)
-        return rc;
+    std::wostringstream str;
+    unsigned rc = SymbolGroupNode::DumperNotApplicable;
+    switch (kt) {
+    case KT_QChar:
+        rc = dumpQChar(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        break;
+    case KT_QByteArray:
+        rc = dumpQByteArray(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        break;
+    case KT_QString:
+        rc = dumpQString(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        break;
+    case KT_QColor:
+        rc = dumpQColor(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        break;
+    case KT_QFlags:
+        rc = dumpQFlags(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        break;
+    case KT_QDate:
+        rc = dumpQDate(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        break;
+    case KT_QTime:
+        rc = dumpQTime(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        break;
+    case KT_QPoint:
+    case KT_QPointF:
+        rc = dumpQPoint_F(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        break;
+    case KT_QSize:
+    case KT_QSizeF:
+        rc = dumpQSize_F(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        break;
+    case KT_QLine:
+    case KT_QLineF:
+        rc = dumpQLine_F(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        break;
+    case KT_QRect:
+        rc = dumpQRect(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        break;
+    case KT_QRectF:
+        rc = dumpQRectF(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        break;
+    case KT_QVariant:
+        rc = dumpQVariant(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        break;
+    case KT_QAtomicInt:
+        rc = dumpQAtomicInt(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        break;
+    case KT_QBasicAtomicInt:
+        rc = dumpQBasicAtomicInt(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        break;
+    case KT_StdString:
+    case KT_StdWString:
+        rc = dumpStd_W_String(v, str) ? SymbolGroupNode::DumperOk : SymbolGroupNode::DumperFailed;
+        break;
+    default:
+        break;
+    }
+    if (rc == SymbolGroupNode::DumperOk)
+        *s = str.str();
     return rc;
 }
