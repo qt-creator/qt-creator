@@ -21,7 +21,9 @@ SOURCES += $$PWD/s60devices.cpp \
     $$PWD/s60createpackageparser.cpp \
     $$PWD/passphraseforkeydialog.cpp \
     $$PWD/s60deployconfiguration.cpp \
-    $$PWD/s60deployconfigurationwidget.cpp
+    $$PWD/s60deployconfigurationwidget.cpp \
+    $$PWD/s60certificateinfo.cpp \
+    $$PWD/certificatepathchooser.cpp
 HEADERS += $$PWD/s60devices.h \
     $$PWD/s60devicespreferencepane.h \
     $$PWD/s60manager.h \
@@ -42,6 +44,8 @@ HEADERS += $$PWD/s60devices.h \
     $$PWD/s60createpackageparser.h \
     $$PWD/passphraseforkeydialog.h \
     $$PWD/s60deployconfiguration.h \
-    $$PWD/s60deployconfigurationwidget.h
+    $$PWD/s60deployconfigurationwidget.h \
+    $$PWD/s60certificateinfo.h \
+    $$PWD/certificatepathchooser.h
 FORMS += $$PWD/s60devicespreferencepane.ui \
     $$PWD/s60createpackagestep.ui

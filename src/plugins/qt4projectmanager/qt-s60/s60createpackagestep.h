@@ -138,6 +138,7 @@ private:
 
     void setupProcess();
     bool createOnePackage();
+    bool validateCustomSigningResources();
 
     QString generateKeyId(const QString &keyPath) const;
     QString loadPassphraseForKey(const QString &keyId);

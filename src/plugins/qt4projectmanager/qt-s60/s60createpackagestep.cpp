@@ -37,6 +37,7 @@
 #include "abldparser.h"
 #include "sbsv2parser.h"
 #include "passphraseforkeydialog.h"
+#include "s60certificateinfo.h"
 
 #include <coreplugin/coreconstants.h>
 
@@ -190,6 +191,9 @@ bool S60CreatePackageStep::init()
         }
         m_makeCmd = tmp;
     }
+
+    if (signingMode() == SignCustom && !validateCustomSigningResources())
+        return false;
 
     m_environment = qt4BuildConfiguration()->environment();
 
@@ -352,22 +356,6 @@ void S60CreatePackageStep::run(QFutureInterface<bool> &fi)
 
 bool S60CreatePackageStep::createOnePackage()
 {
-    // Setup everything...
-    Q_ASSERT(!m_process);
-    m_process = new QProcess();
-    m_process->setEnvironment(m_environment.toStringList());
-
-    connect(m_process, SIGNAL(readyReadStandardOutput()),
-            this, SLOT(processReadyReadStdOutput()),
-            Qt::DirectConnection);
-    connect(m_process, SIGNAL(readyReadStandardError()),
-            this, SLOT(processReadyReadStdError()),
-            Qt::DirectConnection);
-
-    connect(m_process, SIGNAL(finished(int, QProcess::ExitStatus)),
-            this, SLOT(packageDone(int, QProcess::ExitStatus)),
-            Qt::DirectConnection);
-
     // Setup arguments:
     m_args.clear();
     if (m_createSmartInstaller) {
@@ -380,9 +368,7 @@ bool S60CreatePackageStep::createOnePackage()
     else
         m_args << QLatin1String("sis");
 
-    if (signingMode() == SignCustom
-            && !customSignaturePath().isEmpty() && QFileInfo(customSignaturePath()).exists()
-            && !customKeyPath().isEmpty() && QFileInfo(customKeyPath()).exists()) {
+    if (signingMode() == SignCustom) {
         m_args << QLatin1String(MAKE_CERTIFICATE_ARGUMENT) + QDir::toNativeSeparators(customSignaturePath())
                << QLatin1String(MAKE_KEY_ARGUMENT) + QDir::toNativeSeparators(customKeyPath());
 
@@ -397,6 +383,23 @@ bool S60CreatePackageStep::createOnePackage()
     QDir wd(workingDirectory);
     if (!wd.exists())
         wd.mkpath(wd.absolutePath());
+
+
+    // Setup process...
+    Q_ASSERT(!m_process);
+    m_process = new QProcess();
+    m_process->setEnvironment(m_environment.toStringList());
+
+    connect(m_process, SIGNAL(readyReadStandardOutput()),
+            this, SLOT(processReadyReadStdOutput()),
+            Qt::DirectConnection);
+    connect(m_process, SIGNAL(readyReadStandardError()),
+            this, SLOT(processReadyReadStdError()),
+            Qt::DirectConnection);
+
+    connect(m_process, SIGNAL(finished(int, QProcess::ExitStatus)),
+            this, SLOT(packageDone(int, QProcess::ExitStatus)),
+            Qt::DirectConnection);
 
     m_process->setWorkingDirectory(wd.absolutePath());
 
@@ -436,6 +439,58 @@ bool S60CreatePackageStep::createOnePackage()
                    BuildStep::MessageOutput);
     return true;
 }
+
+bool S60CreatePackageStep::validateCustomSigningResources()
+{
+    Q_ASSERT(signingMode() == SignCustom);
+
+    QString errorString;
+    if (customSignaturePath().isEmpty())
+        errorString = tr("Certificate file has not heen defined. "
+                         "Please define certificate file in the project's options.");
+    else if (!QFileInfo(customSignaturePath()).exists())
+        errorString = tr("Certificate file \"%1\" does not exist. "
+                         "Please define certificate file in the project's options.").arg(customSignaturePath());
+
+    if (customKeyPath().isEmpty())
+        errorString = tr("Key file has not heen defined. "
+                         "Please define certificate file in the project's options.");
+    else if (!QFileInfo(customKeyPath()).exists())
+        errorString = tr("Key file \"%1\" does not exist. "
+                         "Please define certificate file in the project's options.").arg(customKeyPath());
+
+    if (!errorString.isEmpty()) {
+        emit addOutput(errorString, BuildStep::ErrorMessageOutput);
+        emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error,
+                                           errorString,
+                                           QString(), -1,
+                                           ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        return false;
+    }
+
+    S60CertificateInfo::CertificateState certState = S60CertificateInfo::validateCertificate(customSignaturePath(), &errorString);
+    switch (certState) {
+    case S60CertificateInfo::CertificateError:
+        emit addOutput(errorString, BuildStep::ErrorMessageOutput);
+        emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error,
+                                           errorString,
+                                           QString(), -1,
+                                           ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        return false;
+    case S60CertificateInfo::CertificateWarning:
+        emit addOutput(errorString, BuildStep::MessageOutput);
+        emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Warning,
+                                           errorString,
+                                           QString(), -1,
+                                           ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        break;
+    default:
+        break;
+    }
+    return true;
+}
+
+
 
 void S60CreatePackageStep::packageWarningDialogDone()
 {
@@ -828,8 +883,13 @@ QString S60CreatePackageStepConfigWidget::summaryText() const
     QString text;
     switch(m_signStep->signingMode()) {
     case S60CreatePackageStep::SignCustom:
-        text = tr("signed with certificate %1 and key file %2")
-               .arg(m_signStep->customSignaturePath(), m_signStep->customKeyPath());
+        if (!m_signStep->customSignaturePath().isEmpty()
+                && !m_signStep->customKeyPath().isEmpty())
+            text = tr("signed with \"%1\" certificate and \"%2\" key file")
+               .arg(QFileInfo(m_signStep->customSignaturePath()).fileName(),
+                    QFileInfo(m_signStep->customKeyPath()).fileName());
+        else
+            text = tr("signed with a certificate and a key that need to be defined");
         break;
     case S60CreatePackageStep::NotSigned:
         text = tr("not signed");
