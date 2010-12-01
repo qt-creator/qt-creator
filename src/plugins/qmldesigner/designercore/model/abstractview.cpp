@@ -339,7 +339,7 @@ ModelNode AbstractView::modelNodeForInternalId(qint32 internalId)
      return ModelNode(model()->m_d->nodeForInternalId(internalId), model(), this);
 }
 
-bool AbstractView::hasModelNodeInternalId(qint32 internalId) const
+bool AbstractView::hasModelNodeForInternalId(qint32 internalId) const
 {
     return model()->m_d->hasNodeForInternalId(internalId);
 }
