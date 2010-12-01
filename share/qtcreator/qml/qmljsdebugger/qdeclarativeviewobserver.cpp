@@ -176,66 +176,66 @@ void QDeclarativeViewObserverPrivate::clearEditorItems()
 }
 
 bool QDeclarativeViewObserver::eventFilter(QObject *obj, QEvent *event)
- {
-     if (obj == data->view) {
-         // Event from view
-         if (event->type() == QEvent::ChildRemoved) {
-             // Might mean that viewport has changed
-             if (data->view->viewport() != data->viewport.data())
-                 data->setViewport(data->view->viewport());
-         }
-         return QObject::eventFilter(obj, event);
-     }
+{
+    if (obj == data->view) {
+        // Event from view
+        if (event->type() == QEvent::ChildRemoved) {
+            // Might mean that viewport has changed
+            if (data->view->viewport() != data->viewport.data())
+                data->setViewport(data->view->viewport());
+        }
+        return QObject::eventFilter(obj, event);
+    }
 
-     //Event from viewport
-     switch (event->type()) {
-     case QEvent::Leave: {
-         if (leaveEvent(event))
-             return true;
-         break;
-     }
-     case QEvent::MouseButtonPress: {
-         if (mousePressEvent(static_cast<QMouseEvent*>(event)))
+    //Event from viewport
+    switch (event->type()) {
+    case QEvent::Leave: {
+        if (leaveEvent(event))
             return true;
-         break;
-     }
-     case QEvent::MouseMove: {
-         if (mouseMoveEvent(static_cast<QMouseEvent*>(event)))
-             return true;
-         break;
-     }
-     case QEvent::MouseButtonRelease: {
-         if (mouseReleaseEvent(static_cast<QMouseEvent*>(event)))
-             return true;
-         break;
-     }
-     case QEvent::KeyPress: {
-         if (keyPressEvent(static_cast<QKeyEvent*>(event)))
-             return true;
-         break;
-     }
-     case QEvent::KeyRelease: {
-         if (keyReleaseEvent(static_cast<QKeyEvent*>(event)))
-             return true;
-         break;
-     }
-     case QEvent::MouseButtonDblClick: {
-         if (mouseDoubleClickEvent(static_cast<QMouseEvent*>(event)))
-             return true;
-         break;
-     }
-     case QEvent::Wheel: {
-         if (wheelEvent(static_cast<QWheelEvent*>(event)))
-             return true;
-         break;
-     }
-     default: {
-         break;
-     }
-     } //switch
+        break;
+    }
+    case QEvent::MouseButtonPress: {
+        if (mousePressEvent(static_cast<QMouseEvent*>(event)))
+            return true;
+        break;
+    }
+    case QEvent::MouseMove: {
+        if (mouseMoveEvent(static_cast<QMouseEvent*>(event)))
+            return true;
+        break;
+    }
+    case QEvent::MouseButtonRelease: {
+        if (mouseReleaseEvent(static_cast<QMouseEvent*>(event)))
+            return true;
+        break;
+    }
+    case QEvent::KeyPress: {
+        if (keyPressEvent(static_cast<QKeyEvent*>(event)))
+            return true;
+        break;
+    }
+    case QEvent::KeyRelease: {
+        if (keyReleaseEvent(static_cast<QKeyEvent*>(event)))
+            return true;
+        break;
+    }
+    case QEvent::MouseButtonDblClick: {
+        if (mouseDoubleClickEvent(static_cast<QMouseEvent*>(event)))
+            return true;
+        break;
+    }
+    case QEvent::Wheel: {
+        if (wheelEvent(static_cast<QWheelEvent*>(event)))
+            return true;
+        break;
+    }
+    default: {
+        break;
+    }
+    } //switch
 
-     // standard event processing
-     return QObject::eventFilter(obj, event);
+    // standard event processing
+    return QObject::eventFilter(obj, event);
 }
 
 bool QDeclarativeViewObserver::leaveEvent(QEvent * /*event*/)
@@ -789,8 +789,8 @@ QList<QGraphicsItem*> QDeclarativeViewObserverPrivate::filterForCurrentContext(
 bool QDeclarativeViewObserverPrivate::isEditorItem(QGraphicsItem *item) const
 {
     return (item->type() == Constants::EditorItemType
-         || item->type() == Constants::ResizeHandleItemType
-         || item->data(Constants::EditorItemDataKey).toBool());
+            || item->type() == Constants::ResizeHandleItemType
+            || item->data(Constants::EditorItemDataKey).toBool());
 }
 
 void QDeclarativeViewObserverPrivate::_q_onStatusChanged(QDeclarativeView::Status status)

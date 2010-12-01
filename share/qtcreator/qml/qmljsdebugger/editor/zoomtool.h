@@ -82,7 +82,7 @@ private:
     QAction *m_zoomTo100Action;
     QAction *m_zoomInAction;
     QAction *m_zoomOutAction;
-    RubberBandSelectionManipulator m_rubberbandManipulator;
+    RubberBandSelectionManipulator *m_rubberbandManipulator;
 
     qreal m_smoothZoomMultiplier;
     qreal m_currentScale;

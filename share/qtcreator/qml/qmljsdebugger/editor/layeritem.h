@@ -40,9 +40,10 @@ class FormEditorScene;
 class LayerItem : public QGraphicsObject
 {
 public:
-    LayerItem(QGraphicsScene* scene);
+    LayerItem(QGraphicsScene *scene);
     ~LayerItem();
-    void paint ( QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget = 0 );
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+                QWidget *widget = 0);
     QRectF boundingRect() const;
     int type() const;
 

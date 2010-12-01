@@ -46,8 +46,8 @@ public:
         RemoveFromSelection
     };
 
-
-    RubberBandSelectionManipulator(QGraphicsObject *layerItem, QDeclarativeViewObserver *editorView);
+    RubberBandSelectionManipulator(QGraphicsObject *layerItem,
+                                   QDeclarativeViewObserver *editorView);
 
     void setItems(const QList<QGraphicsItem*> &itemList);
 
@@ -65,7 +65,6 @@ public:
 
 protected:
     QGraphicsItem *topFormEditorItem(const QList<QGraphicsItem*> &itemList);
-
 
 private:
     QList<QGraphicsItem*> m_itemList;

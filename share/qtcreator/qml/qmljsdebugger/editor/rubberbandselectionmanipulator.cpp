@@ -34,11 +34,12 @@
 
 namespace QmlJSDebugger {
 
-RubberBandSelectionManipulator::RubberBandSelectionManipulator(QGraphicsObject *layerItem, QDeclarativeViewObserver *editorView)
+RubberBandSelectionManipulator::RubberBandSelectionManipulator(QGraphicsObject *layerItem,
+                                                               QDeclarativeViewObserver *editorView)
     : m_selectionRectangleElement(layerItem),
-    m_editorView(editorView),
-    m_beginFormEditorItem(0),
-    m_isActive(false)
+      m_editorView(editorView),
+      m_beginFormEditorItem(0),
+      m_isActive(false)
 {
     m_selectionRectangleElement.hide();
 }
@@ -52,7 +53,8 @@ void RubberBandSelectionManipulator::clear()
     m_oldSelectionList.clear();
 }
 
-QGraphicsItem *RubberBandSelectionManipulator::topFormEditorItem(const QList<QGraphicsItem*> &itemList)
+QGraphicsItem *RubberBandSelectionManipulator::topFormEditorItem(const QList<QGraphicsItem*>
+                                                                 &itemList)
 {
     if (itemList.isEmpty())
         return 0;
@@ -66,7 +68,9 @@ void RubberBandSelectionManipulator::begin(const QPointF& beginPoint)
     m_selectionRectangleElement.setRect(m_beginPoint, m_beginPoint);
     m_selectionRectangleElement.show();
     m_isActive = true;
-    m_beginFormEditorItem = topFormEditorItem(QDeclarativeViewObserverPrivate::get(m_editorView)->selectableItems(beginPoint));
+    QDeclarativeViewObserverPrivate *observerPrivate
+            = QDeclarativeViewObserverPrivate::get(m_editorView);
+    m_beginFormEditorItem = topFormEditorItem(observerPrivate->selectableItems(beginPoint));
     m_oldSelectionList = m_editorView->selectedItems();
 }
 
@@ -84,16 +88,19 @@ void RubberBandSelectionManipulator::end()
 
 void RubberBandSelectionManipulator::select(SelectionType selectionType)
 {
-    QList<QGraphicsItem*> itemList = QDeclarativeViewObserverPrivate::get(m_editorView)->selectableItems(m_selectionRectangleElement.rect(),
-                                                                   Qt::IntersectsItemShape);
+    QDeclarativeViewObserverPrivate *observerPrivate
+            = QDeclarativeViewObserverPrivate::get(m_editorView);
+    QList<QGraphicsItem*> itemList
+            = observerPrivate->selectableItems(m_selectionRectangleElement.rect(),
+                                               Qt::IntersectsItemShape);
     QList<QGraphicsItem*> newSelectionList;
 
     foreach (QGraphicsItem* item, itemList) {
         if (item
-            && item->parentItem()
-            && !newSelectionList.contains(item)
-            //&& m_beginFormEditorItem->childItems().contains(item) // TODO activate this test
-            )
+                && item->parentItem()
+                && !newSelectionList.contains(item)
+                //&& m_beginFormEditorItem->childItems().contains(item) // TODO activate this test
+                )
         {
             newSelectionList.append(item);
         }
@@ -106,19 +113,19 @@ void RubberBandSelectionManipulator::select(SelectionType selectionType)
 
     switch(selectionType) {
     case AddToSelection: {
-            resultList.append(m_oldSelectionList);
-            resultList.append(newSelectionList);
-        }
+        resultList.append(m_oldSelectionList);
+        resultList.append(newSelectionList);
+    }
         break;
     case ReplaceSelection: {
-            resultList.append(newSelectionList);
-        }
+        resultList.append(newSelectionList);
+    }
         break;
     case RemoveFromSelection: {
-            QSet<QGraphicsItem*> oldSelectionSet(m_oldSelectionList.toSet());
-            QSet<QGraphicsItem*> newSelectionSet(newSelectionList.toSet());
-            resultList.append(oldSelectionSet.subtract(newSelectionSet).toList());
-        }
+        QSet<QGraphicsItem*> oldSelectionSet(m_oldSelectionList.toSet());
+        QSet<QGraphicsItem*> newSelectionSet(newSelectionList.toSet());
+        resultList.append(oldSelectionSet.subtract(newSelectionSet).toList());
+    }
     }
 
     m_editorView->setSelectedItems(resultList);
@@ -138,7 +145,6 @@ QPointF RubberBandSelectionManipulator::beginPoint() const
 bool RubberBandSelectionManipulator::isActive() const
 {
     return m_isActive;
-
 }
 
-}
+} // namespace QmlJSDebugger

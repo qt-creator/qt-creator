@@ -36,7 +36,7 @@ namespace QmlJSDebugger {
 
 SingleSelectionManipulator::SingleSelectionManipulator(QDeclarativeViewObserver *editorView)
     : m_editorView(editorView),
-    m_isActive(false)
+      m_isActive(false)
 {
 }
 
@@ -66,7 +66,9 @@ void SingleSelectionManipulator::end(const QPointF &/*updatePoint*/)
     m_isActive = false;
 }
 
-void SingleSelectionManipulator::select(SelectionType selectionType, const QList<QGraphicsItem*> &items, bool /*selectOnlyContentItems*/)
+void SingleSelectionManipulator::select(SelectionType selectionType,
+                                        const QList<QGraphicsItem*> &items,
+                                        bool /*selectOnlyContentItems*/)
 {
     QGraphicsItem *selectedItem = 0;
 
@@ -74,8 +76,8 @@ void SingleSelectionManipulator::select(SelectionType selectionType, const QList
     {
         //FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
         if (item
-           /*&& !formEditorItem->qmlItemNode().isRootNode()
-           && (formEditorItem->qmlItemNode().hasShowContent() || !selectOnlyContentItems)*/)
+            /*&& !formEditorItem->qmlItemNode().isRootNode()
+               && (formEditorItem->qmlItemNode().hasShowContent() || !selectOnlyContentItems)*/)
         {
             selectedItem = item;
             break;
@@ -85,30 +87,30 @@ void SingleSelectionManipulator::select(SelectionType selectionType, const QList
     QList<QGraphicsItem*> resultList;
 
     switch(selectionType) {
-        case AddToSelection: {
-            resultList.append(m_oldSelectionList);
-            if (selectedItem && !m_oldSelectionList.contains(selectedItem))
-                resultList.append(selectedItem);
-        }
+    case AddToSelection: {
+        resultList.append(m_oldSelectionList);
+        if (selectedItem && !m_oldSelectionList.contains(selectedItem))
+            resultList.append(selectedItem);
+    }
         break;
-        case ReplaceSelection: {
-            if (selectedItem)
-                resultList.append(selectedItem);
-        }
+    case ReplaceSelection: {
+        if (selectedItem)
+            resultList.append(selectedItem);
+    }
         break;
-        case RemoveFromSelection: {
-            resultList.append(m_oldSelectionList);
-            if (selectedItem)
-                resultList.removeAll(selectedItem);
-        }
+    case RemoveFromSelection: {
+        resultList.append(m_oldSelectionList);
+        if (selectedItem)
+            resultList.removeAll(selectedItem);
+    }
         break;
-        case InvertSelection: {
-            if (selectedItem
+    case InvertSelection: {
+        if (selectedItem
                 && !m_oldSelectionList.contains(selectedItem))
-            {
-                resultList.append(selectedItem);
-            }
+        {
+            resultList.append(selectedItem);
         }
+    }
     }
 
     m_editorView->setSelectedItems(resultList);
@@ -116,7 +118,9 @@ void SingleSelectionManipulator::select(SelectionType selectionType, const QList
 
 void SingleSelectionManipulator::select(SelectionType selectionType, bool selectOnlyContentItems)
 {
-    QList<QGraphicsItem*> itemList = QDeclarativeViewObserverPrivate::get(m_editorView)->selectableItems(m_beginPoint);
+    QDeclarativeViewObserverPrivate *observerPrivate =
+            QDeclarativeViewObserverPrivate::get(m_editorView);
+    QList<QGraphicsItem*> itemList = observerPrivate->selectableItems(m_beginPoint);
     select(selectionType, itemList, selectOnlyContentItems);
 }
 
@@ -131,4 +135,4 @@ QPointF SingleSelectionManipulator::beginPoint() const
     return m_beginPoint;
 }
 
-}
+} // namespace QmlJSDebugger

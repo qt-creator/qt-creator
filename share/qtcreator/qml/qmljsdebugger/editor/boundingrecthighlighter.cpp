@@ -43,7 +43,8 @@ const qreal AnimDelta = 0.025f;
 const int AnimInterval = 30;
 const int AnimFrames = 10;
 
-BoundingBox::BoundingBox(QGraphicsObject *itemToHighlight, QGraphicsItem *parentItem, QObject *parent)
+BoundingBox::BoundingBox(QGraphicsObject *itemToHighlight, QGraphicsItem *parentItem,
+                         QObject *parent)
     : QObject(parent),
       highlightedObject(itemToHighlight),
       highlightPolygon(0),
@@ -243,7 +244,8 @@ void BoundingRectHighlighter::highlightAll(bool animate)
 
         QPolygonF boundingRectInSceneSpace(item->mapToScene(itemAndChildRect));
         QPolygonF boundingRectInLayerItemSpace = mapFromScene(boundingRectInSceneSpace);
-        QRectF bboxRect = m_view->adjustToScreenBoundaries(boundingRectInLayerItemSpace.boundingRect());
+        QRectF bboxRect
+                = m_view->adjustToScreenBoundaries(boundingRectInLayerItemSpace.boundingRect());
         QRectF edgeRect = bboxRect;
         edgeRect.adjust(-1, -1, 1, 1);
 

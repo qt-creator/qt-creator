@@ -47,7 +47,7 @@ public:
 
 SelectionRectangle::SelectionRectangle(QGraphicsObject *layerItem)
     : m_controlShape(new SelectionRectShape(layerItem)),
-    m_layerItem(layerItem)
+      m_layerItem(layerItem)
 {
     m_controlShape->setPen(QPen(Qt::black));
     m_controlShape->setBrush(QColor(128, 128, 128, 50));
@@ -85,8 +85,10 @@ void SelectionRectangle::setRect(const QPointF &firstPoint,
     double firstY = std::floor(firstPoint.y()) + 0.5;
     double secondX = std::floor(secondPoint.x()) + 0.5;
     double secondY = std::floor(secondPoint.y()) + 0.5;
-    QPointF topLeftPoint(firstX < secondX ? firstX : secondX, firstY < secondY ? firstY : secondY);
-    QPointF bottomRightPoint(firstX > secondX ? firstX : secondX, firstY > secondY ? firstY : secondY);
+    QPointF topLeftPoint(firstX < secondX ? firstX : secondX,
+                         firstY < secondY ? firstY : secondY);
+    QPointF bottomRightPoint(firstX > secondX ? firstX : secondX,
+                             firstY > secondY ? firstY : secondY);
 
     QRectF rect(topLeftPoint, bottomRightPoint);
     m_controlShape->setRect(rect);

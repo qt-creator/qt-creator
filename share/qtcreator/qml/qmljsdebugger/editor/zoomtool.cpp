@@ -42,16 +42,22 @@
 namespace QmlJSDebugger {
 
 ZoomTool::ZoomTool(QDeclarativeViewObserver *view) :
-        AbstractFormEditorTool(view),
-        m_rubberbandManipulator(reinterpret_cast<QGraphicsObject *>(QDeclarativeViewObserverPrivate::get(view)->manipulatorLayer), view),
-        m_smoothZoomMultiplier(0.05f),
-        m_currentScale(1.0f)
+    AbstractFormEditorTool(view),
+    m_rubberbandManipulator(),
+    m_smoothZoomMultiplier(0.05f),
+    m_currentScale(1.0f)
 {
     m_zoomTo100Action = new QAction(tr("Zoom to &100%"), this);
     m_zoomInAction = new QAction(tr("Zoom In"), this);
     m_zoomOutAction = new QAction(tr("Zoom Out"), this);
     m_zoomInAction->setShortcut(QKeySequence(Qt::Key_Plus));
     m_zoomOutAction->setShortcut(QKeySequence(Qt::Key_Minus));
+
+
+    LayerItem *layerItem = QDeclarativeViewObserverPrivate::get(view)->manipulatorLayer;
+    QGraphicsObject *layerObject = reinterpret_cast<QGraphicsObject *>(layerItem);
+    m_rubberbandManipulator = new RubberBandSelectionManipulator(layerObject, view);
+
 
     connect(m_zoomTo100Action, SIGNAL(triggered()), SLOT(zoomTo100()));
     connect(m_zoomInAction, SIGNAL(triggered()), SLOT(zoomIn()));
@@ -60,7 +66,7 @@ ZoomTool::ZoomTool(QDeclarativeViewObserver *view) :
 
 ZoomTool::~ZoomTool()
 {
-
+    delete m_rubberbandManipulator;
 }
 
 void ZoomTool::mousePressEvent(QMouseEvent *event)
@@ -89,16 +95,17 @@ void ZoomTool::mouseMoveEvent(QMouseEvent *event)
     QPointF scenePos = view()->mapToScene(event->pos());
 
     if (event->buttons() & Qt::LeftButton
-        && QPointF(scenePos - m_dragBeginPos).manhattanLength() > Constants::DragStartDistance / 3
-        && !m_dragStarted)
+            && (QPointF(scenePos - m_dragBeginPos).manhattanLength()
+                > Constants::DragStartDistance / 3)
+            && !m_dragStarted)
     {
         m_dragStarted = true;
-        m_rubberbandManipulator.begin(m_dragBeginPos);
+        m_rubberbandManipulator->begin(m_dragBeginPos);
         return;
     }
 
     if (m_dragStarted)
-        m_rubberbandManipulator.update(scenePos);
+        m_rubberbandManipulator->update(scenePos);
 
 }
 
@@ -108,12 +115,12 @@ void ZoomTool::mouseReleaseEvent(QMouseEvent *event)
     QPointF scenePos = view()->mapToScene(event->pos());
 
     if (m_dragStarted) {
-        m_rubberbandManipulator.end();
+        m_rubberbandManipulator->end();
 
-        int x1 = qMin(scenePos.x(), m_rubberbandManipulator.beginPoint().x());
-        int x2 = qMax(scenePos.x(), m_rubberbandManipulator.beginPoint().x());
-        int y1 = qMin(scenePos.y(), m_rubberbandManipulator.beginPoint().y());
-        int y2 = qMax(scenePos.y(), m_rubberbandManipulator.beginPoint().y());
+        int x1 = qMin(scenePos.x(), m_rubberbandManipulator->beginPoint().x());
+        int x2 = qMax(scenePos.x(), m_rubberbandManipulator->beginPoint().x());
+        int y1 = qMin(scenePos.y(), m_rubberbandManipulator->beginPoint().y());
+        int y2 = qMax(scenePos.y(), m_rubberbandManipulator->beginPoint().y());
 
         QPointF scenePosTopLeft = QPoint(x1, y1);
         QPointF scenePosBottomRight = QPoint(x2, y2);

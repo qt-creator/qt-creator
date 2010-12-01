@@ -50,14 +50,19 @@ QmlToolbar::QmlToolbar(QWidget *parent)
     ui->playIcon = QIcon(QLatin1String(":/qml/images/play-24.png"));
     ui->pauseIcon = QIcon(QLatin1String(":/qml/images/pause-24.png"));
 
-    ui->designmode = new QAction(QIcon(QLatin1String(":/qml/images/observermode-24.png")), tr("Observer Mode"), this);
+    ui->designmode = new QAction(QIcon(QLatin1String(":/qml/images/observermode-24.png")),
+                                 tr("Observer Mode"), this);
     ui->play = new QAction(ui->pauseIcon, tr("Play/Pause Animations"), this);
     ui->select = new QAction(QIcon(QLatin1String(":/qml/images/select-24.png")), tr("Select"), this);
-    ui->selectMarquee = new QAction(QIcon(QLatin1String(":/qml/images/select-marquee-24.png")), tr("Select (Marquee)"), this);
+    ui->selectMarquee = new QAction(QIcon(QLatin1String(":/qml/images/select-marquee-24.png")),
+                                    tr("Select (Marquee)"), this);
     ui->zoom = new QAction(QIcon(QLatin1String(":/qml/images/zoom-24.png")), tr("Zoom"), this);
-    ui->colorPicker = new QAction(QIcon(QLatin1String(":/qml/images/color-picker-24.png")), tr("Color Picker"), this);
-    ui->toQml = new QAction(QIcon(QLatin1String(":/qml/images/to-qml-24.png")), tr("Apply Changes to QML Viewer"), this);
-    ui->fromQml = new QAction(QIcon(QLatin1String(":/qml/images/from-qml-24.png")), tr("Apply Changes to Document"), this);
+    ui->colorPicker = new QAction(QIcon(QLatin1String(":/qml/images/color-picker-24.png")),
+                                  tr("Color Picker"), this);
+    ui->toQml = new QAction(QIcon(QLatin1String(":/qml/images/to-qml-24.png")),
+                            tr("Apply Changes to QML Viewer"), this);
+    ui->fromQml = new QAction(QIcon(QLatin1String(":/qml/images/from-qml-24.png")),
+                              tr("Apply Changes to Document"), this);
     ui->designmode->setCheckable(true);
     ui->designmode->setChecked(false);
 
@@ -94,24 +99,29 @@ QmlToolbar::QmlToolbar(QWidget *parent)
     playSpeedMenuActions->setExclusive(true);
     playSpeedMenu->addAction(tr("Animation Speed"));
     playSpeedMenu->addSeparator();
-    ui->defaultAnimSpeedAction = playSpeedMenu->addAction(tr("1x"), this, SLOT(changeToDefaultAnimSpeed()));
+    ui->defaultAnimSpeedAction = playSpeedMenu->addAction(tr("1x"), this,
+                                                          SLOT(changeToDefaultAnimSpeed()));
     ui->defaultAnimSpeedAction->setCheckable(true);
     ui->defaultAnimSpeedAction->setChecked(true);
     playSpeedMenuActions->addAction(ui->defaultAnimSpeedAction);
 
-    ui->halfAnimSpeedAction = playSpeedMenu->addAction(tr("0.5x"), this, SLOT(changeToHalfAnimSpeed()));
+    ui->halfAnimSpeedAction = playSpeedMenu->addAction(tr("0.5x"), this,
+                                                       SLOT(changeToHalfAnimSpeed()));
     ui->halfAnimSpeedAction->setCheckable(true);
     playSpeedMenuActions->addAction(ui->halfAnimSpeedAction);
 
-    ui->fourthAnimSpeedAction = playSpeedMenu->addAction(tr("0.25x"), this, SLOT(changeToFourthAnimSpeed()));
+    ui->fourthAnimSpeedAction = playSpeedMenu->addAction(tr("0.25x"), this,
+                                                         SLOT(changeToFourthAnimSpeed()));
     ui->fourthAnimSpeedAction->setCheckable(true);
     playSpeedMenuActions->addAction(ui->fourthAnimSpeedAction);
 
-    ui->eighthAnimSpeedAction = playSpeedMenu->addAction(tr("0.125x"), this, SLOT(changeToEighthAnimSpeed()));
+    ui->eighthAnimSpeedAction = playSpeedMenu->addAction(tr("0.125x"), this,
+                                                         SLOT(changeToEighthAnimSpeed()));
     ui->eighthAnimSpeedAction->setCheckable(true);
     playSpeedMenuActions->addAction(ui->eighthAnimSpeedAction);
 
-    ui->tenthAnimSpeedAction = playSpeedMenu->addAction(tr("0.1x"), this, SLOT(changeToTenthAnimSpeed()));
+    ui->tenthAnimSpeedAction = playSpeedMenu->addAction(tr("0.1x"), this,
+                                                        SLOT(changeToTenthAnimSpeed()));
     ui->tenthAnimSpeedAction->setCheckable(true);
     playSpeedMenuActions->addAction(ui->tenthAnimSpeedAction);
 

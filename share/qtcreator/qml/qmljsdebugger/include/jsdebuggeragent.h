@@ -69,8 +69,8 @@ namespace QmlJSDebugger {
 class JSDebuggerAgentPrivate;
 
 class QMLJSDEBUGGER_EXPORT JSDebuggerAgent
-    : public QDeclarativeDebugService
-    , public QScriptEngineAgent
+        : public QDeclarativeDebugService
+        , public QScriptEngineAgent
 {
     Q_OBJECT
 
@@ -106,11 +106,9 @@ public:
 
     void messageReceived(const QByteArray &);
     void statusChanged(Status status);
-    void baseMessageReceived(const QByteArray &message)
-        { QDeclarativeDebugService::messageReceived(message); }
+    void baseMessageReceived(const QByteArray &message);
 
 public slots:
-//    void pauses();
 
 private:
     JSDebuggerAgentPrivate *d;

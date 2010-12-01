@@ -86,7 +86,8 @@ bool AbstractFormEditorTool::topItemIsMovable(const QList<QGraphicsItem*> & item
     if (firstSelectableItem == 0)
         return false;
 
-    QDeclarativeItem *declarativeItem = dynamic_cast<QDeclarativeItem*>(firstSelectableItem->toGraphicsObject());
+    QDeclarativeItem *declarativeItem
+            = dynamic_cast<QDeclarativeItem*>(firstSelectableItem->toGraphicsObject());
 
     if (declarativeItem != 0)
         return true;
@@ -102,8 +103,8 @@ bool AbstractFormEditorTool::topSelectedItemIsMovable(const QList<QGraphicsItem*
     foreach (QGraphicsItem *item, itemList) {
         QDeclarativeItem *declarativeItem = toQDeclarativeItem(item);
         if (declarativeItem
-            && selectedItems.contains(declarativeItem)
-            /*&& (declarativeItem->qmlItemNode().hasShowContent() || selectNonContentItems)*/)
+                && selectedItems.contains(declarativeItem)
+                /*&& (declarativeItem->qmlItemNode().hasShowContent() || selectNonContentItems)*/)
             return true;
     }
 
@@ -130,7 +131,8 @@ QGraphicsItem *AbstractFormEditorTool::topMovableGraphicsItem(const QList<QGraph
     return 0;
 }
 
-QDeclarativeItem *AbstractFormEditorTool::topMovableDeclarativeItem(const QList<QGraphicsItem*> &itemList)
+QDeclarativeItem *AbstractFormEditorTool::topMovableDeclarativeItem(const QList<QGraphicsItem*>
+                                                                    &itemList)
 {
     foreach (QGraphicsItem *item, itemList) {
         QDeclarativeItem *declarativeItem = toQDeclarativeItem(item);
@@ -141,7 +143,8 @@ QDeclarativeItem *AbstractFormEditorTool::topMovableDeclarativeItem(const QList<
     return 0;
 }
 
-QList<QGraphicsObject*> AbstractFormEditorTool::toGraphicsObjectList(const QList<QGraphicsItem*> &itemList)
+QList<QGraphicsObject*> AbstractFormEditorTool::toGraphicsObjectList(const QList<QGraphicsItem*>
+                                                                     &itemList)
 {
     QList<QGraphicsObject*> gfxObjects;
     foreach(QGraphicsItem *item, itemList) {

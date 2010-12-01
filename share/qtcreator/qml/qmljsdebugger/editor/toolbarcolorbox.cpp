@@ -48,7 +48,8 @@ namespace QmlJSDebugger {
 ToolBarColorBox::ToolBarColorBox(QWidget *parent) :
     QLabel(parent)
 {
-    m_copyHexColor = new QAction(QIcon(QLatin1String(":/qml/images/color-picker-hicontrast.png")), tr("Copy"), this);
+    m_copyHexColor = new QAction(QIcon(QLatin1String(":/qml/images/color-picker-hicontrast.png")),
+                                 tr("Copy"), this);
     connect(m_copyHexColor, SIGNAL(triggered()), SLOT(copyColorToClipboard()));
     setScaledContents(false);
 }
@@ -70,9 +71,11 @@ void ToolBarColorBox::mousePressEvent(QMouseEvent *event)
 
 void ToolBarColorBox::mouseMoveEvent(QMouseEvent *event)
 {
+
     if (event->buttons() & Qt::LeftButton
-        && QPoint(event->pos() - m_dragBeginPoint).manhattanLength() > Constants::DragStartDistance
-        && !m_dragStarted)
+            && (QPoint(event->pos() - m_dragBeginPoint).manhattanLength()
+                > Constants::DragStartDistance)
+            && !m_dragStarted)
     {
         m_dragStarted = true;
         QDrag *drag = new QDrag(this);
@@ -120,6 +123,5 @@ void ToolBarColorBox::copyColorToClipboard()
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(m_color.name());
 }
-
 
 } // namespace QmlJSDebugger

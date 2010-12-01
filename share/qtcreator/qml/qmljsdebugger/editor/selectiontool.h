@@ -64,8 +64,8 @@ public:
     void keyReleaseEvent(QKeyEvent *keyEvent);
     void wheelEvent(QWheelEvent *event);
 
-     void itemsAboutToRemoved(const QList<QGraphicsItem*> &itemList);
-    //    QVariant itemChange(const QList<QGraphicsItem*> &itemList,
+    void itemsAboutToRemoved(const QList<QGraphicsItem*> &itemList);
+//    QVariant itemChange(const QList<QGraphicsItem*> &itemList,
 //                        QGraphicsItem::GraphicsItemChange change,
 //                        const QVariant &value );
 

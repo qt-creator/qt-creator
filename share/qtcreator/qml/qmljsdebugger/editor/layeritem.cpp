@@ -35,7 +35,7 @@
 namespace QmlJSDebugger {
 
 LayerItem::LayerItem(QGraphicsScene* scene)
-            : QGraphicsObject()
+    : QGraphicsObject()
 {
     scene->addItem(this);
     setZValue(1);
@@ -46,7 +46,8 @@ LayerItem::~LayerItem()
 {
 }
 
-void LayerItem::paint(QPainter * /*painter*/, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)
+void LayerItem::paint(QPainter * /*painter*/, const QStyleOptionGraphicsItem * /*option*/,
+                      QWidget * /*widget*/)
 {
 }
 

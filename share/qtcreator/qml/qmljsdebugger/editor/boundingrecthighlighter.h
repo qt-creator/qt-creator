@@ -84,7 +84,8 @@ class BoundingBox : public QObject
 {
     Q_OBJECT
 public:
-    explicit BoundingBox(QGraphicsObject *itemToHighlight, QGraphicsItem *parentItem, QObject *parent = 0);
+    explicit BoundingBox(QGraphicsObject *itemToHighlight, QGraphicsItem *parentItem,
+                         QObject *parent = 0);
     ~BoundingBox();
     QWeakPointer<QGraphicsObject> highlightedObject;
     QGraphicsPolygonItem *highlightPolygon;

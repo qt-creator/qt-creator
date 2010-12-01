@@ -75,7 +75,7 @@ struct JSAgentWatchData
 QDataStream &operator<<(QDataStream &s, const JSAgentWatchData &data)
 {
     return s << data.exp << data.name << data.value
-        << data.type << data.hasChildren << data.objectId;
+             << data.type << data.hasChildren << data.objectId;
 }
 
 struct JSAgentStackData
@@ -173,12 +173,12 @@ private:
 };
 
 static JSAgentWatchData fromScriptValue(const QString &expression,
-    const QScriptValue &value)
+                                        const QScriptValue &value)
 {
     static const QString arrayStr = QCoreApplication::translate
-        ("Debugger::JSAgentWatchData", "[Array of length %1]");
+            ("Debugger::JSAgentWatchData", "[Array of length %1]");
     static const QString undefinedStr = QCoreApplication::translate
-        ("Debugger::JSAgentWatchData", "<undefined>");
+            ("Debugger::JSAgentWatchData", "<undefined>");
 
     JSAgentWatchData data;
     data.exp = expression.toUtf8();
@@ -360,14 +360,12 @@ void JSDebuggerAgent::functionExit(qint64 scriptId, const QScriptValue &returnVa
 /*!
   \reimp
 */
-void JSDebuggerAgent::positionChange
-    (qint64 scriptId, int lineNumber, int columnNumber)
+void JSDebuggerAgent::positionChange(qint64 scriptId, int lineNumber, int columnNumber)
 {
     d->positionChange(scriptId, lineNumber, columnNumber);
 }
 
-void JSDebuggerAgentPrivate::positionChange
-    (qint64 scriptId, int lineNumber, int columnNumber)
+void JSDebuggerAgentPrivate::positionChange(qint64 scriptId, int lineNumber, int columnNumber)
 {
     Q_UNUSED(columnNumber);
 
@@ -422,8 +420,8 @@ void JSDebuggerAgentPrivate::positionChange
   \reimp
 */
 void JSDebuggerAgent::exceptionThrow(qint64 scriptId,
-                                   const QScriptValue &exception,
-                                   bool hasHandler)
+                                     const QScriptValue &exception,
+                                     bool hasHandler)
 {
     Q_UNUSED(scriptId);
     Q_UNUSED(exception);
@@ -629,7 +627,7 @@ void JSDebuggerAgentPrivate::stopped()
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
     rs << QByteArray("STOPPED") << backtrace << watches << locals
-        << becauseOfException << exception.toString();
+       << becauseOfException << exception.toString();
     sendMessage(reply);
 
     loop.exec(QEventLoop::ExcludeUserInputEvents);
@@ -643,6 +641,11 @@ void JSDebuggerAgentPrivate::continueExec()
 void JSDebuggerAgent::statusChanged(Status status)
 {
     engine()->setAgent((status == QDeclarativeDebugService::Enabled) ? this : 0);
+}
+
+void JSDebuggerAgent::baseMessageReceived(const QByteArray &message)
+{
+    QDeclarativeDebugService::messageReceived(message);
 }
 
 } // namespace QmlJSDebugger

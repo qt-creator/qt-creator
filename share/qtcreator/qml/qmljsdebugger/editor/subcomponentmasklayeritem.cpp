@@ -34,7 +34,8 @@
 
 namespace QmlJSDebugger {
 
-SubcomponentMaskLayerItem::SubcomponentMaskLayerItem(QDeclarativeViewObserver *observer, QGraphicsItem *parentItem) :
+SubcomponentMaskLayerItem::SubcomponentMaskLayerItem(QDeclarativeViewObserver *observer,
+                                                     QGraphicsItem *parentItem) :
     QGraphicsPolygonItem(parentItem),
     m_observer(observer),
     m_currentItem(0),

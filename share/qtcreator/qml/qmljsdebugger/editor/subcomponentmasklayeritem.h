@@ -39,7 +39,8 @@ class QDeclarativeViewObserver;
 class SubcomponentMaskLayerItem : public QGraphicsPolygonItem
 {
 public:
-    explicit SubcomponentMaskLayerItem(QDeclarativeViewObserver *observer, QGraphicsItem *parentItem = 0);
+    explicit SubcomponentMaskLayerItem(QDeclarativeViewObserver *observer,
+                                       QGraphicsItem *parentItem = 0);
     int type() const;
     void setCurrentItem(QGraphicsItem *item);
     void setBoundingBox(const QRectF &boundingBox);

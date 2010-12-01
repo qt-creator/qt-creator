@@ -47,10 +47,12 @@ const qreal MaxOpacity = 0.5f;
 
 SubcomponentEditorTool::SubcomponentEditorTool(QDeclarativeViewObserver *view)
     : AbstractFormEditorTool(view),
-    m_animIncrement(0.05f),
-    m_animTimer(new QTimer(this))
+      m_animIncrement(0.05f),
+      m_animTimer(new QTimer(this))
 {
-    m_mask = new SubcomponentMaskLayerItem(view, QDeclarativeViewObserverPrivate::get(view)->manipulatorLayer);
+    QDeclarativeViewObserverPrivate *observerPrivate =
+            QDeclarativeViewObserverPrivate::get(view);
+    m_mask = new SubcomponentMaskLayerItem(view, observerPrivate->manipulatorLayer);
     connect(m_animTimer, SIGNAL(timeout()), SLOT(animate()));
     m_animTimer->setInterval(20);
 }
@@ -76,7 +78,8 @@ bool SubcomponentEditorTool::containsCursor(const QPoint &mousePos) const
         return false;
 
     QPointF scenePos = view()->mapToScene(mousePos);
-    QRectF itemRect = m_currentContext.top()->boundingRect() | m_currentContext.top()->childrenBoundingRect();
+    QRectF itemRect = m_currentContext.top()->boundingRect()
+            | m_currentContext.top()->childrenBoundingRect();
     QRectF polyRect = m_currentContext.top()->mapToScene(itemRect).boundingRect();
 
     return polyRect.contains(scenePos);
@@ -90,8 +93,8 @@ void SubcomponentEditorTool::mouseReleaseEvent(QMouseEvent * /*event*/)
 void SubcomponentEditorTool::mouseDoubleClickEvent(QMouseEvent *event)
 {
     if (event->buttons() & Qt::LeftButton
-        && !containsCursor(event->pos())
-        && m_currentContext.size() > 1)
+            && !containsCursor(event->pos())
+            && m_currentContext.size() > 1)
     {
         aboutToPopContext();
     }
@@ -178,7 +181,7 @@ void SubcomponentEditorTool::setCurrentItem(QGraphicsItem* contextItem)
     bool containsSelectableItems = false;
     foreach(QGraphicsItem *item, gfxObject->childItems()) {
         if (item->type() == Constants::EditorItemType
-         || item->type() == Constants::ResizeHandleItemType)
+                || item->type() == Constants::ResizeHandleItemType)
         {
             continue;
         }
@@ -310,7 +313,8 @@ QGraphicsObject *SubcomponentEditorTool::currentRootItem() const
 
 void SubcomponentEditorTool::contextDestroyed(QObject *contextToDestroy)
 {
-    disconnect(contextToDestroy, SIGNAL(destroyed(QObject*)), this, SLOT(contextDestroyed(QObject*)));
+    disconnect(contextToDestroy, SIGNAL(destroyed(QObject*)),
+               this, SLOT(contextDestroyed(QObject*)));
 
     // pop out the whole context - it might not be safe anymore.
     while (m_currentContext.size() > 1) {
@@ -344,6 +348,5 @@ int SubcomponentEditorTool::contextIndex() const
 {
     return m_currentContext.size() - 1;
 }
-
 
 } // namespace QmlJSDebugger

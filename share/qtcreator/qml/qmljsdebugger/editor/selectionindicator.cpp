@@ -38,7 +38,8 @@
 
 namespace QmlJSDebugger {
 
-SelectionIndicator::SelectionIndicator(QDeclarativeViewObserver *editorView, QGraphicsObject *layerItem)
+SelectionIndicator::SelectionIndicator(QDeclarativeViewObserver *editorView,
+                                       QGraphicsObject *layerItem)
     : m_layerItem(layerItem), m_view(editorView)
 {
 }
@@ -103,19 +104,22 @@ void SelectionIndicator::setItems(const QList<QWeakPointer<QGraphicsObject> > &i
 
         QGraphicsItem *item = object.data();
 
-        QGraphicsPolygonItem *newSelectionIndicatorGraphicsItem = new QGraphicsPolygonItem(m_layerItem.data());
+        QGraphicsPolygonItem *newSelectionIndicatorGraphicsItem
+                = new QGraphicsPolygonItem(m_layerItem.data());
         if (!m_indicatorShapeHash.contains(item)) {
             m_indicatorShapeHash.insert(item, newSelectionIndicatorGraphicsItem);
 
             QPolygonF boundingShapeInSceneSpace;
             addBoundingRectToPolygon(item, boundingShapeInSceneSpace);
 
-            QRectF boundingRect = m_view->adjustToScreenBoundaries(boundingShapeInSceneSpace.boundingRect());
+            QRectF boundingRect
+                    = m_view->adjustToScreenBoundaries(boundingShapeInSceneSpace.boundingRect());
             QPolygonF boundingRectInLayerItemSpace = m_layerItem.data()->mapFromScene(boundingRect);
 
             QPen pen;
             pen.setColor(QColor(108, 141, 221));
-            newSelectionIndicatorGraphicsItem->setData(Constants::EditorItemDataKey, QVariant(true));
+            newSelectionIndicatorGraphicsItem->setData(Constants::EditorItemDataKey,
+                                                       QVariant(true));
             newSelectionIndicatorGraphicsItem->setFlag(QGraphicsItem::ItemIsSelectable, false);
             newSelectionIndicatorGraphicsItem->setPolygon(boundingRectInLayerItemSpace);
             newSelectionIndicatorGraphicsItem->setPen(pen);
