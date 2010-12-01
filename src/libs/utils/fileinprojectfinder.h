@@ -49,7 +49,7 @@ public:
 
 private:
     QString m_projectDir;
-    QHash<QString,QString> m_cache;
+    mutable QHash<QString,QString> m_cache;
 };
 
 } // namespace Utils
