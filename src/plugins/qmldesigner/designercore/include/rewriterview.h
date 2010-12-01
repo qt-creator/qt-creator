@@ -44,7 +44,10 @@
 #include <QScopedPointer>
 
 namespace QmlJS {
+
 class DiagnosticMessage;
+class LookupContext;
+class Document;
 }
 
 
@@ -165,6 +168,9 @@ public:
     bool modificationGroupActive();
 
     bool renameId(const QString& oldId, const QString& newId);
+
+    QmlJS::LookupContext *lookupContext() const;
+    QmlJS::Document *document() const;
 
 signals:
     void errorsChanged(const QList<RewriterView::Error> &errors);

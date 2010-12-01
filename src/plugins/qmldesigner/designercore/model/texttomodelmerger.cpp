@@ -225,6 +225,7 @@ public:
         : m_snapshot(snapshot)
         , m_doc(doc)
         , m_context(new Interpreter::Context)
+        , m_lookupContext(LookupContext::create(doc, snapshot, QList<AST::Node*>()))
         , m_link(m_context, doc, snapshot, importPaths)
         , m_scopeBuilder(m_context, doc, snapshot)
     {
@@ -478,10 +479,15 @@ public:
             return QVariant();
     }
 
+
+    LookupContext::Ptr lookupContext() const
+    { return m_lookupContext; }
+
 private:
     Snapshot m_snapshot;
     Document::Ptr m_doc;
     Interpreter::Context *m_context;
+    LookupContext::Ptr m_lookupContext;
     Link m_link;
     ScopeBuilder m_scopeBuilder;
 };
@@ -581,6 +587,8 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 
         snapshot.insert(doc);
         ReadingContext ctxt(snapshot, doc, importPaths);
+        m_lookupContext = ctxt.lookupContext();
+        m_document = doc;
 
         setupImports(doc, differenceHandler);
 
