@@ -85,6 +85,11 @@ void ItemLibraryEntry::setDragIcon(const QIcon &icon)
     m_data->dragIcon = icon;
 }
 
+void ItemLibraryEntry::setIcon(const QIcon &icon)
+{
+    m_data->icon = icon;
+}
+
 QIcon ItemLibraryEntry::dragIcon() const
 {
     return m_data->dragIcon;

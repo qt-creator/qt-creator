@@ -100,6 +100,8 @@ void MetaInfoParser::handleNodeElement(QXmlStreamReader &reader)
     const QXmlStreamAttributes attributes = reader.attributes();
 
     const QString className = attributes.value("name").toString();
+    const QIcon icon = QIcon(attributes.value("icon").toString());
+
     if (className.isEmpty()) {
         reader.raiseError("Invalid element 'node' - mandatory attribute 'name' is missing");
         return;
@@ -108,11 +110,11 @@ void MetaInfoParser::handleNodeElement(QXmlStreamReader &reader)
     while (!reader.atEnd() && !(reader.isEndElement() && reader.name() == "node")) {
         reader.readNext();
 
-        handleNodeItemLibraryEntryElement(reader, className);
+        handleNodeItemLibraryEntryElement(reader, className, icon);
     }
 }
 
-void MetaInfoParser::handleNodeItemLibraryEntryElement(QXmlStreamReader &reader, const QString &className)
+void MetaInfoParser::handleNodeItemLibraryEntryElement(QXmlStreamReader &reader, const QString &className, const QIcon &icon)
 {
     if (reader.isStartElement() && reader.name() == "itemlibraryentry")
     {
@@ -121,8 +123,9 @@ void MetaInfoParser::handleNodeItemLibraryEntryElement(QXmlStreamReader &reader,
         ItemLibraryEntry entry;
         entry.setType(className, 4, 7);
         entry.setName(name);
+        entry.setIcon(icon);
 
-        QString iconPath = reader.attributes().value("icon").toString();
+        QString iconPath = reader.attributes().value("libraryIcon").toString();
         if (!iconPath.isEmpty()) 
             entry.setIconPath(iconPath);
 

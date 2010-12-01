@@ -41,7 +41,7 @@ namespace Internal {
 
 class ItemLibraryEntryData;
 class ItemLibraryInfoPrivate;
-
+class MetaInfoPrivate;
 }
 
 class ItemLibraryEntry;
@@ -82,6 +82,7 @@ public:
     void addProperty(const Property &p);
     void addProperty(QString &name, QString &type, QString &value);
     void setDragIcon(const QIcon &icon);
+    void setIcon(const QIcon &icon);
     void setCategory(const QString &category);
     void setQml(const QString &qml);
 private:

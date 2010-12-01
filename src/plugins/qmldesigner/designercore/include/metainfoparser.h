@@ -38,8 +38,6 @@
 
 namespace QmlDesigner {
 
-class NodeMetaInfo;
-class EnumeratorMetaInfo;
 class ItemLibraryEntry;
 
 namespace Internal {
@@ -58,7 +56,7 @@ protected:
     void metaInfoHandler(QXmlStreamReader &reader);
     void handleMetaInfoElement(QXmlStreamReader &reader);
     void handleNodeElement(QXmlStreamReader &reader);
-    void handleNodeItemLibraryEntryElement(QXmlStreamReader &reader, const QString &className);
+    void handleNodeItemLibraryEntryElement(QXmlStreamReader &reader, const QString &className, const QIcon &icon);
     void handleItemLibraryEntryPropertyElement(QXmlStreamReader &reader, ItemLibraryEntry &itemLibraryEntry);
 
 private:

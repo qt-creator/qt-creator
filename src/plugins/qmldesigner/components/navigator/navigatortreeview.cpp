@@ -180,28 +180,22 @@ void NameItemDelegate::paint(QPainter *painter,
         ModelNode node = m_TreeModel->nodeForIndex(index);
 
         QIcon icon;
-        if (node.metaInfo().isValid()) {
-            icon=node.metaInfo().icon();
-            if (icon.isNull())
-            {
-                // if node has no own icon, search for it in the itemlibrary
-                const NodeMetaInfo typeInfo = node.metaInfo();
-                const ItemLibraryInfo *libraryInfo = node.metaInfo().metaInfo().itemLibraryInfo();
-                QList <ItemLibraryEntry> infoList = libraryInfo->entriesForType(typeInfo.typeName(),
-                                                                                typeInfo.majorVersion(),
-                                                                                typeInfo.minorVersion());
-                foreach (const ItemLibraryEntry &entry, infoList) {
-                    if (!icon.isNull()) {
-                        icon = entry.icon();
-                        break;
-                    }
+        if (node.isValid()) {
+            // if node has no own icon, search for it in the itemlibrary
+            const ItemLibraryInfo *libraryInfo = node.model()->metaInfo().itemLibraryInfo();
+            QList <ItemLibraryEntry> infoList = libraryInfo->entriesForType(node.type(),
+                                                                            node.majorVersion(),
+                                                                            node.minorVersion());
+            foreach (const ItemLibraryEntry &entry, infoList) {
+                if (icon.isNull()) {
+                    icon = entry.icon();
+                    break;
                 }
             }
         }
-
-    // if the library was also empty, use the default icon
-    if (icon.isNull())
-        icon = QIcon(QLatin1String(":/ItemLibrary/images/item-default-icon.png"));
+        // if the library was also empty, use the default icon
+        if (icon.isNull())
+            icon = QIcon(QLatin1String(":/ItemLibrary/images/item-default-icon.png"));
 
         // If no icon is present, leave an empty space of 24 pixels anyway
         QPixmap pixmap = icon.pixmap(pixmapSide, pixmapSide);
