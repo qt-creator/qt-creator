@@ -638,46 +638,11 @@ QList<IFile *> FileManager::saveModifiedFiles(const QList<IFile *> &files,
             filesToSave = dia.itemsToSave();
         }
 
-        bool yestoall = false;
-        Core::VCSManager *vcsManager = Core::ICore::instance()->vcsManager();
         foreach (IFile *file, filesToSave) {
-            if (file->isReadOnly()) {
-                const QString directory = QFileInfo(file->fileName()).absolutePath();
-                if (IVersionControl *versionControl = vcsManager->findVersionControlForDirectory(directory))
-                    versionControl->vcsOpen(file->fileName());
-            }
-            if (!file->isReadOnly() && !file->fileName().isEmpty()) {
-                blockFileChange(file);
-                const bool ok = file->save();
-                unblockFileChange(file);
-                if (!ok)
-                    notSaved.append(file);
-            } else if (QFile::exists(file->fileName()) && !file->isSaveAsAllowed()) {
-                if (yestoall)
-                    continue;
-                const QFileInfo fi(file->fileName());
-                switch (skipFailedPrompt(d->m_mainWindow, fi.fileName())) {
-                case QMessageBox::YesToAll:
-                    yestoall = true;
-                    break;
-                case QMessageBox::No:
-                    if (cancelled)
-                        *cancelled = true;
-                    return filesToSave;
-                default:
-                    break;
-                }
-            } else {
-                QString fileName = getSaveAsFileName(file);
-                bool ok = false;
-                if (!fileName.isEmpty()) {
-                    blockFileChange(file);
-                    ok = file->save(fileName);
-                    file->checkPermissions();
-                    unblockFileChange(file);
-                }
-                if (!ok)
-                    notSaved.append(file);
+            if (!EditorManager::instance()->saveFile(file)) {
+                if (cancelled)
+                    *cancelled = true;
+                notSaved.append(file);
             }
         }
     }
