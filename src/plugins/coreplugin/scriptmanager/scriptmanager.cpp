@@ -28,7 +28,6 @@
 **************************************************************************/
 
 #include "scriptmanager_p.h"
-#include "qworkbench_wrapper.h"
 #include "metatypedeclarations.h"
 
 #include <utils/qtcassert.h>
@@ -240,25 +239,10 @@ ScriptManager::QScriptEnginePtr ScriptManagerPrivate::ensureEngineInitialized()
     SharedTools::registerQObject<QMainWindow>(m_engine.data());
     SharedTools::registerQObject<QStatusBar>(m_engine.data());
     SharedTools::registerQObject<QSettings>(m_engine.data());
-    // WB interfaces
-    SharedTools::registerQObjectInterface<Core::MessageManager, MessageManagerPrototype>(m_engine.data());
 
-//    SharedTools::registerQObjectInterface<Core::IFile, FilePrototype>(m_engine);
-//    qScriptRegisterSequenceMetaType<QList<Core::IFile *> >(m_engine);
-//    SharedTools::registerQObjectInterface<Core::FileManager, FileManagerPrototype>(m_engine);
-
-//    SharedTools::registerQObjectInterface<Core::IEditor, EditorPrototype>(m_engine);
     qScriptRegisterSequenceMetaType<QList<Core::IEditor *> >(m_engine.data());
 
-//    SharedTools::registerQObjectInterface<Core::EditorGroup, EditorGroupPrototype>(m_engine);
     qScriptRegisterSequenceMetaType<QList<Core::EditorGroup *> >(m_engine.data());
-
-    SharedTools::registerQObjectInterface<Core::EditorManager, EditorManagerPrototype>(m_engine.data());
-
-//    SharedTools::registerQObjectInterface<Core::ICore, CorePrototype>(m_engine);
-
-    // Make "core" available
-    m_engine->globalObject().setProperty(QLatin1String("core"), qScriptValueFromValue(m_engine.data(), Core::ICore::instance()));
 
     // CLASSIC:  registerInterfaceWithDefaultPrototype<Core::MessageManager, MessageManagerPrototype>(m_engine);
 

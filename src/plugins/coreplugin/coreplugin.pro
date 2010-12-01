@@ -56,7 +56,6 @@ SOURCES += mainwindow.cpp \
     progressmanager/progressbar.cpp \
     progressmanager/futureprogress.cpp \
     scriptmanager/scriptmanager.cpp \
-    scriptmanager/qworkbench_wrapper.cpp \
     basemode.cpp \
     statusbarwidget.cpp \
     coreplugin.cpp \
@@ -165,7 +164,6 @@ HEADERS += mainwindow.h \
     icorelistener.h \
     versiondialog.h \
     scriptmanager/metatypedeclarations.h \
-    scriptmanager/qworkbench_wrapper.h \
     scriptmanager/scriptmanager.h \
     scriptmanager/scriptmanager_p.h \
     core_global.h \
