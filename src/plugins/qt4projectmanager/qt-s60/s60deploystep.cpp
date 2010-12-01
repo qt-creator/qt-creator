@@ -211,13 +211,18 @@ bool S60DeployStep::processPackageName(QString &errorMessage)
 
 void S60DeployStep::start()
 {
+    QString errorMessage;
+
     if (m_serialPortName.isEmpty()) {
-        appendMessage(tr("No device is connected. Please connect a device and try again."), true);
+        errorMessage = tr("No device is connected. Please connect a device and try again.");
+        appendMessage(errorMessage, true);
+        emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error,
+                                           errorMessage,
+                                           QString(), -1,
+                                           ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
         emit finished();
         return;
     }
-
-    QString errorMessage;
 
     // make sure we have the right name of the sis package
     if (processPackageName(errorMessage)) {
@@ -225,6 +230,10 @@ void S60DeployStep::start()
     } else {
         errorMessage = tr("Failed to find package %1").arg(errorMessage);
         appendMessage(errorMessage, true);
+        emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error,
+                                           errorMessage,
+                                           QString(), -1,
+                                           ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
         stop();
         emit finished();
     }
