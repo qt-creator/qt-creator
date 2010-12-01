@@ -199,19 +199,24 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
     connect(m_ui.pushButtonSetPlainStyle, SIGNAL(clicked()),
         this, SLOT(setPlainStyle()));
     if (m_searchKeywords.isEmpty()) {
+        QLatin1Char sep(' ');
         QTextStream(&m_searchKeywords)
-            << ' ' << m_ui.checkBoxAutoIndent->text()
-            << ' ' << m_ui.checkBoxExpandTab->text()
-            << ' ' << m_ui.checkBoxShowMarks->text()
-            << ' ' << m_ui.checkBoxSmartIndent->text()
-            << ' ' << m_ui.checkBoxPassControlKey->text()
-            << ' ' << m_ui.checkBoxHlSearch->text()
-            << ' ' << m_ui.checkBoxIncSearch->text()
-            << ' ' << m_ui.checkBoxSmartTab->text()
-            << ' ' << m_ui.checkBoxStartOfLine->text()
-            << ' ' << m_ui.labelShiftWidth->text()
-            << ' ' << m_ui.labelTabulator->text()
-            << ' ' << m_ui.labelBackspace->text();
+                << sep << m_ui.checkBoxUseFakeVim->text()
+                << sep << m_ui.checkBoxReadVimRc->text()
+                << sep << m_ui.checkBoxAutoIndent->text()
+                << sep << m_ui.checkBoxSmartIndent->text()
+                << sep << m_ui.checkBoxExpandTab->text()
+                << sep << m_ui.checkBoxSmartTab->text()
+                << sep << m_ui.checkBoxHlSearch->text()
+                << sep << m_ui.checkBoxIncSearch->text()
+                << sep << m_ui.checkBoxStartOfLine->text()
+                << sep << m_ui.checkBoxUseCoreSearch->text()
+                << sep << m_ui.checkBoxShowMarks->text()
+                << sep << m_ui.checkBoxPassControlKey->text()
+                << sep << m_ui.labelShiftWidth->text()
+                << sep << m_ui.labelTabulator->text()
+                << sep << m_ui.labelBackspace->text()
+                << sep << m_ui.labelIsKeyword->text();
         m_searchKeywords.remove(QLatin1Char('&'));
     }
     return w;

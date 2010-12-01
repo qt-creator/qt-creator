@@ -97,15 +97,27 @@ QWidget *BehaviorSettingsPage::createPage(QWidget *parent)
     m_d->m_page.setupUi(w);
     settingsToUI();
     if (m_d->m_searchKeywords.isEmpty()) {
-        QTextStream(&m_d->m_searchKeywords) << m_d->m_page.insertSpaces->text()
-          << ' ' << m_d->m_page.smartBackspace->text()
-          << ' ' << m_d->m_page.cleanWhitespace->text()
-          << ' ' << m_d->m_page.addFinalNewLine->text()
-          << ' ' << m_d->m_page.mouseNavigation->text()
-          << ' ' << m_d->m_page.scrollWheelZooming->text()
-          << ' ' << m_d->m_page.groupBoxTabAndIndentSettings->title()
-          << ' ' << m_d->m_page.groupBoxStorageSettings->title()
-          << ' ' << m_d->m_page.groupBoxMouse->title();
+        QLatin1Char sep(' ');
+        QTextStream(&m_d->m_searchKeywords)
+          << m_d->m_page.insertSpaces->text()
+          << sep << m_d->m_page.autoInsertSpaces->text()
+          << sep << m_d->m_page.autoIndent->text()
+          << sep << m_d->m_page.smartBackspace->text()
+          << sep << m_d->m_page.indentBlocksLabel->text()
+          << sep << m_d->m_page.continuationAlignLabel->text()
+          << sep << m_d->m_page.tabKeyIndentLabel->text()
+          << sep << m_d->m_page.cleanWhitespace->text()
+          << sep << m_d->m_page.inEntireDocument->text()
+          << sep << m_d->m_page.cleanIndentation->text()
+          << sep << m_d->m_page.addFinalNewLine->text()
+          << sep << m_d->m_page.encodingLabel->text()
+          << sep << m_d->m_page.utf8BomLabel->text()
+          << sep << m_d->m_page.mouseNavigation->text()
+          << sep << m_d->m_page.scrollWheelZooming->text()
+          << sep << m_d->m_page.groupBoxTabAndIndentSettings->title()
+          << sep << m_d->m_page.groupBoxStorageSettings->title()
+          << sep << m_d->m_page.groupBoxEncodings->title()
+          << sep << m_d->m_page.groupBoxMouse->title();
         m_d->m_searchKeywords.remove(QLatin1Char('&'));
     }
 

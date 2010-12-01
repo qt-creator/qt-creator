@@ -82,11 +82,19 @@ void SettingsPageWidget::setSettings(const SubversionSettings &s)
 QString SettingsPageWidget::searchKeywords() const
 {
     QString rc;
-    QTextStream(&rc) << m_ui.commandLabel->text()
-            << ' ' << m_ui.usernameLabel->text()
-            << ' ' << m_ui.passwordLabel->text()
-            << ' ' << m_ui.userGroupBox->title()
-            << ' ' << m_ui.spaceIgnorantAnnotationCheckBox->text();
+    QLatin1Char sep(' ');
+    QTextStream(&rc)
+            << sep << m_ui.generalGroupBox->title()
+            << sep << m_ui.commandLabel->text()
+            << sep << m_ui.userGroupBox->title()
+            << sep << m_ui.usernameLabel->text()
+            << sep << m_ui.passwordLabel->text()
+            << sep << m_ui.miscGroupBox->title()
+            << sep << m_ui.logCountLabel->text()
+            << sep << m_ui.timeOutLabel->text()
+            << sep << m_ui.promptToSubmitCheckBox->text()
+            << sep << m_ui.spaceIgnorantAnnotationCheckBox->text()
+               ;
     rc.remove(QLatin1Char('&'));
     return rc;
 }

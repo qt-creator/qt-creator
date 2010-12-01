@@ -116,7 +116,23 @@ void ProjectExplorerSettingsWidget::slotDirectoryButtonGroupChanged()
 
 QString ProjectExplorerSettingsWidget::searchKeywords() const
 {
-    return QLatin1String("jom") + QLatin1Char(' ') + m_ui.directoryGroupBox->title();
+    if (m_searchKeywords.isEmpty()) {
+        QLatin1Char sep(' ');
+        m_searchKeywords = m_ui.directoryGroupBox->title()
+                + sep + m_ui.currentDirectoryRadioButton->text()
+                + sep + m_ui.directoryRadioButton->text()
+                + sep + m_ui.buildAndRunGroupBox->title()
+                + sep + m_ui.saveAllFilesCheckBox->text()
+                + sep + m_ui.buildProjectBeforeDeployCheckBox->text()
+                + sep + m_ui.deployProjectBeforeRunCheckBox->text()
+                + sep + m_ui.showCompileOutputCheckBox->text()
+                + sep + m_ui.cleanOldAppOutputCheckBox->text()
+                + sep + m_ui.wrapAppOutputCheckBox->text()
+                + sep + m_ui.jomLabel->text()
+                ;
+        m_searchKeywords.remove(QLatin1Char('&'));
+    }
+    return m_searchKeywords;
 }
 
 // ------------------ ProjectExplorerSettingsPage

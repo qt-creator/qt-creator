@@ -106,8 +106,8 @@ QString QuickToolBarSettingsPageWidget::searchKeywords() const
 {
     QString rc;
     QTextStream(&rc)
-            << ' ' << m_ui.textEditHelperCheckBox
-            << ' ' << m_ui.textEditHelperCheckBoxPin;
+            << ' ' << m_ui.textEditHelperCheckBox->text()
+            << ' ' << m_ui.textEditHelperCheckBoxPin->text();
     rc.remove(QLatin1Char('&'));
     return rc;
 }

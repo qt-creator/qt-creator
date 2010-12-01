@@ -117,10 +117,20 @@ void SettingsPageWidget::setStatusError(const QString &t)
 QString SettingsPageWidget::searchKeywords() const
 {
     QString rc;
-    QTextStream(&rc) << m_ui.promptToSubmitCheckBox->text()
-            << ' ' << m_ui.commandLabel << m_ui.environmentGroupBox->title()
-            << ' ' << m_ui.clientLabel->text() << ' ' << m_ui.userLabel->text()
-            << ' ' << m_ui.portLabel->text();
+    QLatin1Char sep(' ');
+    QTextStream(&rc)
+            << sep << m_ui.configGroupBox->title()
+            << sep << m_ui.commandLabel->text()
+            << sep << m_ui.environmentGroupBox->title()
+            << sep << m_ui.portLabel->text()
+            << sep << m_ui.clientLabel->text()
+            << sep << m_ui.userLabel->text()
+            << sep << m_ui.miscGroupBox->title()
+            << sep << m_ui.logCountLabel->text()
+            << sep << m_ui.timeOutLabel->text()
+            << sep << m_ui.promptToSubmitCheckBox->text()
+            << sep << m_ui.autoOpenCheckBox->text()
+               ;
     rc.remove(QLatin1Char('&'));
     return rc;
 }

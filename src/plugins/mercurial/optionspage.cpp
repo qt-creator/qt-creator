@@ -73,12 +73,18 @@ void OptionsPageWidget::setSettings(const MercurialSettings &s)
 QString OptionsPageWidget::searchKeywords() const
 {
     QString rc;
-    QTextStream(&rc)  << ' ' << m_ui.mercurialCommandLabel->text()
-            << ' ' << m_ui.showLogEntriesLabel->text()
-            << ' ' << m_ui.timeoutSecondsLabel->text()
-            << ' ' << m_ui.promptOnSubmitCheckBox->text()
-            << ' ' << m_ui.defaultUsernameLabel->text()
-            << ' ' << m_ui.defaultEmailLabel->text();
+    QLatin1Char sep(' ');
+    QTextStream(&rc)
+            << sep << m_ui.configGroupBox->title()
+            << sep << m_ui.mercurialCommandLabel->text()
+            << sep << m_ui.userGroupBox->title()
+            << sep << m_ui.defaultUsernameLabel->text()
+            << sep << m_ui.defaultEmailLabel->text()
+            << sep << m_ui.miscGroupBox->title()
+            << sep << m_ui.showLogEntriesLabel->text()
+            << sep << m_ui.timeoutSecondsLabel->text()
+            << sep << m_ui.promptOnSubmitCheckBox->text()
+               ;
     rc.remove(QLatin1Char('&'));
     return rc;
 }

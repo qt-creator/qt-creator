@@ -86,11 +86,12 @@ void CommonSettingsWidget::setSettings(const CommonVcsSettings &s)
 QString CommonSettingsWidget::searchKeyWordMatchString() const
 {
     const QChar blank = QLatin1Char(' ');
-    QString rc = m_ui->submitMessageCheckScriptLabel->text();
-    rc += blank;
-    rc += m_ui->nickNameMailMapLabel->text();
-    rc += blank;
-    rc += m_ui->nickNameFieldsFileLabel->text();
+    QString rc = m_ui->lineWrapCheckBox->text()
+            + blank + m_ui->submitMessageCheckScriptLabel->text()
+            + blank + m_ui->nickNameMailMapLabel->text()
+            + blank + m_ui->nickNameFieldsFileLabel->text()
+            + blank + m_ui->sshPromptLabel->text()
+            ;
     rc.remove(QLatin1Char('&')); // Strip buddy markers.
     return rc;
 }

@@ -358,8 +358,17 @@ QWidget *FontSettingsPage::createPage(QWidget *parent)
     updatePointSizes();
     refreshColorSchemeList();
     d_ptr->m_lastValue = d_ptr->m_value;
-    if (d_ptr->m_searchKeywords.isEmpty())
-        d_ptr->m_searchKeywords = d_ptr->ui.fontGroupBox->title() + QLatin1Char(' ') + d_ptr->ui.colorSchemeGroupBox->title();
+    if (d_ptr->m_searchKeywords.isEmpty()) {
+        QLatin1Char sep(' ');
+        d_ptr->m_searchKeywords =
+                d_ptr->ui.fontGroupBox->title() + sep
+                + d_ptr->ui.familyLabel->text() + sep
+                + d_ptr->ui.sizeLabel->text() + sep
+                + d_ptr->ui.zoomLabel->text() + sep
+                + d_ptr->ui.antialias->text() + sep
+                + d_ptr->ui.colorSchemeGroupBox->title();
+        d_ptr->m_searchKeywords.remove(QLatin1Char('&'));
+    }
     return w;
 }
 

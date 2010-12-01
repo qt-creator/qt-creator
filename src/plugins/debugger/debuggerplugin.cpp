@@ -619,14 +619,18 @@ QWidget *CommonOptionsPage::createPage(QWidget *parent)
 #endif
 
     if (m_searchKeywords.isEmpty()) {
-        QTextStream(&m_searchKeywords) << ' '
-                << m_ui.checkBoxListSourceFiles->text()
-                << ' ' << m_ui.checkBoxUseAlternatingRowColors->text()
-                << ' ' << m_ui.checkBoxUseToolTipsInMainEditor->text()
+        QLatin1Char sep(' ');
+        QTextStream(&m_searchKeywords)
+                << sep << m_ui.checkBoxUseAlternatingRowColors->text()
+                << sep << m_ui.checkBoxUseToolTipsInMainEditor->text()
+                << sep << m_ui.checkBoxListSourceFiles->text()
 #ifdef Q_OS_WIN
-                << ' ' << m_ui.checkBoxRegisterForPostMortem->text()
+                << sep << m_ui.checkBoxRegisterForPostMortem->text()
 #endif
-                << ' ' << m_ui.labelMaximalStackDepth->text();
+                << sep << m_ui.checkBoxCloseBuffersOnExit->text()
+                << sep << m_ui.checkBoxSwitchModeOnExit->text()
+                << sep << m_ui.labelMaximalStackDepth->text()
+                   ;
         m_searchKeywords.remove(QLatin1Char('&'));
     }
 #ifndef Q_OS_WIN

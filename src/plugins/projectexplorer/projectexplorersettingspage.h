@@ -63,6 +63,7 @@ private:
     void setJomVisible(bool);
 
     Ui::ProjectExplorerSettingsPageUi m_ui;
+    mutable QString m_searchKeywords;
 };
 
 class ProjectExplorerSettingsPage : public Core::IOptionsPage

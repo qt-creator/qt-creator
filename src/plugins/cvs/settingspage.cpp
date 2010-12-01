@@ -76,10 +76,17 @@ void SettingsPageWidget::setSettings(const CVSSettings &s)
 QString SettingsPageWidget::searchKeywords() const
 {
     QString rc;
-    QTextStream(&rc) << m_ui.promptToSubmitCheckBox->text()
-            << ' ' <<  m_ui.describeByCommitIdCheckBox->text()
-            << ' ' << m_ui.commandLabel->text()
-            << ' ' << m_ui.rootLabel->text() << ' ' << m_ui.diffOptionsLabel->text();
+    QLatin1Char sep(' ');
+    QTextStream(&rc)
+            << sep << m_ui.configGroupBox->title()
+            << sep << m_ui.commandLabel->text()
+            << sep << m_ui.rootLabel->text()
+            << sep << m_ui.miscGroupBox->title()
+            << sep << m_ui.timeOutLabel->text()
+            << sep << m_ui.diffOptionsLabel->text()
+            << sep << m_ui.promptToSubmitCheckBox->text()
+            << sep << m_ui.describeByCommitIdCheckBox->text()
+               ;
     rc.remove(QLatin1Char('&'));
     return rc;
 }

@@ -167,9 +167,15 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
 #endif
 
     if (m_searchKeywords.isEmpty()) {
-        QTextStream(&m_searchKeywords) << m_page->colorLabel->text() << ' '
-                << m_page->terminalLabel->text() << ' ' << m_page->editorLabel->text()
-                << ' '<< m_page->modifiedLabel->text();
+        QLatin1Char sep(' ');
+        QTextStream(&m_searchKeywords)
+                << m_page->interfaceBox->title() << sep
+                << m_page->colorLabel->text() << sep
+                << m_page->languageLabel->text() << sep
+                << m_page->systemBox->title() << sep
+                << m_page->terminalLabel->text() << sep
+                << m_page->editorLabel->text() << sep
+                << m_page->modifiedLabel->text();
         m_searchKeywords.remove(QLatin1Char('&'));
     }
     return w;

@@ -98,11 +98,19 @@ void SettingsPageWidget::setSystemPath()
 QString SettingsPageWidget::searchKeywords() const
 {
     QString rc;
-    QTextStream(&rc) << ' ' << m_ui.pathlabel->text()  <<  ' ' << m_ui.logCountLabel->text()
-        << ' ' << m_ui.timeoutLabel->text()
-        << ' ' << m_ui.promptToSubmitCheckBox->text()
-        << ' ' << m_ui.promptToSubmitCheckBox->text()
-        << ' ' << m_ui.environmentGroupBox->title();
+    QLatin1Char sep(' ');
+    QTextStream(&rc)
+            << sep << m_ui.environmentGroupBox->title()
+            << sep << m_ui.pathlabel->text()
+            << sep << m_ui.winHomeCheckBox->text()
+            << sep << m_ui.groupBox->title()
+            << sep << m_ui.logCountLabel->text()
+            << sep << m_ui.timeoutLabel->text()
+            << sep << m_ui.promptToSubmitCheckBox->text()
+            << sep << m_ui.promptToSubmitCheckBox->text()
+            << sep << m_ui.gitkGroupBox->title()
+            << sep << m_ui.gitkOptionsLabel->text()
+               ;
     rc.remove(QLatin1Char('&'));
     return rc;
 }

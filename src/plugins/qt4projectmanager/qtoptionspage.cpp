@@ -875,11 +875,17 @@ QList<QSharedPointerQtVersion> QtOptionsPageWidget::versions() const
 QString QtOptionsPageWidget::searchKeywords() const
 {
     QString rc;
-    QTextStream(&rc) << ' ' << m_ui->mingwLabel->text()
-            << ' ' << m_ui->msvcLabel->text()
-            << ' ' << m_ui->gcceLabel->text()
-            << ' ' << m_ui->mwcLabel->text()
-            << ' ' << m_ui->debuggingHelperLabel->text();
+    QLatin1Char sep(' ');
+    QTextStream(&rc)
+            << sep << m_ui->versionNameLabel->text()
+            << sep << m_ui->pathLabel->text()
+            << sep << m_ui->mingwLabel->text()
+            << sep << m_ui->msvcLabel->text()
+            << sep << m_ui->s60SDKLabel->text()
+            << sep << m_ui->gcceLabel->text()
+            << sep << m_ui->mwcLabel->text()
+            << sep << m_ui->sbsV2Label->text()
+            << sep << m_ui->debuggingHelperLabel->text();
     rc.remove(QLatin1Char('&'));
     return rc;
 }

@@ -216,13 +216,22 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
     m_ui.labelEnvironment->hide();
 
     if (m_searchKeywords.isEmpty()) {
-        // TODO: Add breakpoints, environment?
-        QTextStream(&m_searchKeywords) << ' ' << QLatin1String("gdb")
-                << ' ' << m_ui.checkBoxSkipKnownFrames->text()
-                << ' ' << m_ui.checkBoxEnableReverseDebugging->text()
-                << ' ' << m_ui.checkBoxUseMessageBoxForSignals->text()
-                << ' ' << m_ui.labelEnvironment->text()
-                << ' ' << m_ui.labelGdbStartupScript->text();
+        QLatin1Char sep(' ');
+        QTextStream(&m_searchKeywords)
+                << sep << m_ui.groupBoxLocations->title()
+                << sep << m_ui.labelEnvironment->text()
+                << sep << m_ui.labelGdbStartupScript->text()
+                << sep << m_ui.labelGdbWatchdogTimeout->text()
+                << sep << m_ui.checkBoxEnableReverseDebugging->text()
+                << sep << m_ui.checkBoxSkipKnownFrames->text()
+                << sep << m_ui.checkBoxUseMessageBoxForSignals->text()
+                << sep << m_ui.checkBoxAdjustBreakpointLocations->text()
+                << sep << m_ui.groupBoxPluginDebugging->title()
+                << sep << m_ui.radioButtonAllPluginBreakpoints->text()
+                << sep << m_ui.radioButtonSelectedPluginBreakpoints->text()
+                << sep << m_ui.labelSelectedPluginBreakpoints->text()
+                << sep << m_ui.radioButtonNoPluginBreakpoints->text()
+                   ;
         m_searchKeywords.remove(QLatin1Char('&'));
     }
     return w;

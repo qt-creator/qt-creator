@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>Perforce::Internal::SettingsPage</class>
  <widget class="QWidget" name="Perforce::Internal::SettingsPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>306</width>
+    <height>516</height>
+   </rect>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="configGroupBox">
@@ -37,12 +45,6 @@
       <bool>false</bool>
      </property>
      <layout class="QGridLayout">
-      <property name="margin">
-       <number>9</number>
-      </property>
-      <property name="spacing">
-       <number>6</number>
-      </property>
       <item row="1" column="1">
        <widget class="QLineEdit" name="clientLineEdit"/>
       </item>
@@ -77,7 +79,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="miscgroupBox">
+    <widget class="QGroupBox" name="miscGroupBox">
      <property name="title">
       <string>Miscellaneous</string>
      </property>

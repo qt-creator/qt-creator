@@ -62,8 +62,8 @@ QString SettingsPageWidget::searchKeywords() const
 {
     QString rc;
     QTextStream(&rc)
-            << ' ' << m_ui.snapMarginLabel
-            << ' ' << m_ui.itemSpacingLabel;
+            << ' ' << m_ui.snapMarginLabel->text()
+            << ' ' << m_ui.itemSpacingLabel->text();
     rc.remove(QLatin1Char('&'));
     return rc;
 }

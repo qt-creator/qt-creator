@@ -12,7 +12,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QGroupBox" name="groupBox_2">
+    <widget class="QGroupBox" name="interfaceBox">
      <property name="title">
       <string>User Interface</string>
      </property>
@@ -115,7 +115,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox">
+    <widget class="QGroupBox" name="systemBox">
      <property name="title">
       <string>System</string>
      </property>
