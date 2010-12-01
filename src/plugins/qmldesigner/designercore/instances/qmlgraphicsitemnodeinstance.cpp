@@ -30,7 +30,6 @@
 #include "qmlgraphicsitemnodeinstance.h"
 
 #include <invalidnodeinstanceexception.h>
-#include <propertymetainfo.h>
 
 #include "bindingproperty.h"
 #include "variantproperty.h"

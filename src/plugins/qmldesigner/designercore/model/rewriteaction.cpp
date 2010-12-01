@@ -31,7 +31,6 @@
 
 #include "nodeabstractproperty.h"
 #include "nodelistproperty.h"
-#include "propertymetainfo.h"
 #include "nodemetainfo.h"
 #include "rewriteaction.h"
 
@@ -327,7 +326,7 @@ bool MoveNodeRewriteAction::execute(QmlRefactoring &refactoring,
     const int newTrailingNodeLocation = m_newTrailingNode.isValid() ? positionStore.nodeOffset(m_newTrailingNode) : -1;
     bool result = false;
 
-    bool inDefaultProperty = (m_movingNode.parentProperty().parentModelNode().metaInfo().defaultProperty() == m_movingNode.parentProperty().name());
+    bool inDefaultProperty = (m_movingNode.parentProperty().parentModelNode().metaInfo().defaultPropertyName() == m_movingNode.parentProperty().name());
 
     result = refactoring.moveObjectBeforeObject(movingNodeLocation, newTrailingNodeLocation, inDefaultProperty);
     if (!result) {

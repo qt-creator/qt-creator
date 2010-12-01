@@ -35,7 +35,7 @@
 #include "nodelistproperty.h"
 #include "qmltextgenerator.h"
 #include "variantproperty.h"
-#include <propertymetainfo.h>
+#include <nodemetainfo.h>
 #include "model.h"
 
 using namespace QmlDesigner;
@@ -95,8 +95,11 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
         if (property.name() == QLatin1String("id"))
             return stringValue;
 
-        if (variantProperty.metaInfo().isValid() && variantProperty.metaInfo().isEnumType()) {
-            return variantProperty.metaInfo().enumerator().scope() + '.' + stringValue;
+          if (false) {
+          }
+        if (variantProperty.parentModelNode().metaInfo().isValid() &&
+            variantProperty.parentModelNode().metaInfo().propertyIsEnumType(variantProperty.name())) {
+            return variantProperty.parentModelNode().metaInfo().propertyEnumScope(variantProperty.name()) + '.' + stringValue;
         } else {
 
             switch (value.type()) {

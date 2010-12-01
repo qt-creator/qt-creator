@@ -45,93 +45,60 @@ QT_END_NAMESPACE
 namespace QmlDesigner {
 
 class MetaInfo;
+class Model;
 class AbstractProperty;
 
 namespace Internal {
     class MetaInfoPrivate;
     class MetaInfoParser;
-    class NodeMetaInfoData;
     class SubComponentManagerPrivate;
     class ItemLibraryEntryData;
+    class NodeMetaInfoPrivate;
 }
-
-class PropertyMetaInfo;
 
 class CORESHARED_EXPORT NodeMetaInfo
 {
-    friend class QmlDesigner::MetaInfo;
-    friend class QmlDesigner::Internal::ItemLibraryEntryData;
-    friend class QmlDesigner::Internal::MetaInfoPrivate;
-    friend class QmlDesigner::Internal::MetaInfoParser;
-    friend class QmlDesigner::Internal::SubComponentManagerPrivate;
-    friend class QmlDesigner::AbstractProperty;
-    friend CORESHARED_EXPORT uint qHash(const NodeMetaInfo &nodeMetaInfo);
-    friend CORESHARED_EXPORT bool operator ==(const NodeMetaInfo &firstNodeInfo, const NodeMetaInfo &secondNodeInfo);
-
 public:
+    NodeMetaInfo();
+    NodeMetaInfo(Model *model, QString type, int maj, int min);
+
     ~NodeMetaInfo();
 
     NodeMetaInfo(const NodeMetaInfo &other);
     NodeMetaInfo &operator=(const NodeMetaInfo &other);
 
     bool isValid() const;
-    MetaInfo metaInfo() const;
+    bool isComponent() const;
+    bool hasProperty(const QString &propertyName) const;
+    QStringList propertyNames() const;
+    QStringList directPropertyNames() const;
+    QString defaultPropertyName() const;
+    bool hasDefaultProperty() const;
+    QString propertyTypeName(const QString &propertyName) const;
+    bool propertyIsWritable(const QString &propertyName) const;
+    bool propertyIsListProperty(const QString &propertyName) const;
+    bool propertyIsEnumType(const QString &propertyName) const;
+    QString propertyEnumScope(const QString &propertyName) const;
+    QStringList propertyKeysForEnum(const QString &propertyName) const;
+    QVariant propertyCastedValue(const QString &propertyName, const QVariant &value) const;
 
     QList<NodeMetaInfo> superClasses() const;
     NodeMetaInfo directSuperClass() const;
-
-
-    QStringList propertyNames() const;
-    QStringList propertyNamesOnlyContainer() const;
-    QString propertyType(const QString &propertyName) const;
-    QVariant nativePropertyValue(const QString &propertyName, const QVariant &value) const;
 
     QString typeName() const;
     int majorVersion() const;
     int minorVersion() const;
 
+    QString componentSource() const;
+    QString componentFileName() const;
+
     bool availableInVersion(int majorVersion, int minorVersion) const;
-
-    bool hasDefaultProperty() const;
-    QString defaultProperty() const;
-
-    bool hasProperty(const QString &propertyName) const;
-    bool isContainer() const;
-    bool isComponent() const;
     bool isSubclassOf(const QString& type, int majorVersion, int minorVersio) const;
 
-    QString componentString() const;
-    QIcon icon() const;
-
 private:
-    NodeMetaInfo();
-    NodeMetaInfo(const MetaInfo &metaInfo);
-
-    void setInvalid();
-    void setType(const QString &typeName, int majorVersion, int minorVersion);
-    void addProperty(const PropertyMetaInfo &property);
-    void setIsContainer(bool isContainer);
-    void setIcon(const QIcon &icon);
-    void setQmlFile(const QString &filePath);
-    void setDefaultProperty(const QString &defaultProperty);
-    void setSuperClass(const QString &typeName, int majorVersion = -1, int minorVersion = -1);
-
-    bool hasLocalProperty(const QString &propertyName, bool resolveDotSyntax = true) const;
-    QHash<QString,PropertyMetaInfo> dotProperties() const;
-    QHash<QString,PropertyMetaInfo> properties(bool resolveDotSyntax = true) const;
-    PropertyMetaInfo property(const QString &propertyName, bool resolveDotSyntax = true) const;
-
-
-private:
-    QExplicitlySharedDataPointer<Internal::NodeMetaInfoData> m_data;
+    QSharedPointer<Internal::NodeMetaInfoPrivate> m_privateData;
 };
 
-CORESHARED_EXPORT uint qHash(const NodeMetaInfo &nodeMetaInfo);
-CORESHARED_EXPORT bool operator ==(const NodeMetaInfo &firstNodeInfo,
-                                           const NodeMetaInfo &secondNodeInfo);
-
-//QDataStream& operator<<(QDataStream& stream, const NodeMetaInfo& nodeMetaInfo);
-//QDataStream& operator>>(QDataStream& stream, NodeMetaInfo& nodeMetaInfo);
-}
+} //QmlDesigner
 
 #endif // NODEMETAINFO_H

@@ -459,7 +459,7 @@ bool QmlObjectNode::hasDefaultProperty() const
 
 QString QmlObjectNode::defaultProperty() const
 {
-    return modelNode().metaInfo().defaultProperty();
+    return modelNode().metaInfo().defaultPropertyName();
 }
 
 void QmlObjectNode::setParent(QmlObjectNode newParent)

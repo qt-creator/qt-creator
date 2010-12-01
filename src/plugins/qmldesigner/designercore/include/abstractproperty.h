@@ -52,7 +52,6 @@ namespace QmlDesigner {
 class Model;
 class ModelNode;
 class AbstractView;
-class PropertyMetaInfo;
 class CORESHARED_EXPORT VariantProperty;
 class CORESHARED_EXPORT NodeListProperty;
 class CORESHARED_EXPORT NodeAbstractProperty;
@@ -88,7 +87,6 @@ public:
     ModelNode parentModelNode() const;
     QmlObjectNode parentQmlObjectNode() const;
 
-    PropertyMetaInfo metaInfo() const;
     bool isDefaultProperty() const;
     VariantProperty toVariantProperty() const;
     NodeListProperty toNodeListProperty() const;

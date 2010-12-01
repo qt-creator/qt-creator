@@ -55,9 +55,11 @@ class AbstractView;
 class WidgetQueryView;
 class NodeStateChangeSet;
 class MetaInfo;
+class NodeMetaInfo;
 class ModelState;
 class NodeAnchors;
 class AbstractProperty;
+class RewriterView;
 
 typedef QList<QPair<QString, QVariant> > PropertyListType;
 
@@ -88,6 +90,7 @@ public:
 
     const MetaInfo metaInfo() const;
     MetaInfo metaInfo();
+    NodeMetaInfo metaInfo(const QString &typeName, int majorVersion = -1, int minorVersion = -1);
     void setMetaInfo(const MetaInfo &metaInfo);
 
     void attachView(AbstractView *view);
@@ -99,6 +102,8 @@ public:
     QList<Import> imports() const;
     void addImport(const Import &import);
     void removeImport(const Import &import);
+
+    RewriterView *rewriterView() const;
 
 protected:
     Model();

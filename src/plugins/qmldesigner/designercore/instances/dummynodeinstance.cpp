@@ -32,7 +32,6 @@
 #include <nodemetainfo.h>
 
 #include <invalidnodeinstanceexception.h>
-#include <propertymetainfo.h>
 
 namespace QmlDesigner {
 namespace Internal {

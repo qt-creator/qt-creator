@@ -34,7 +34,6 @@
 #include <model.h>
 #include <nodemetainfo.h>
 #include <metainfo.h>
-#include <propertymetainfo.h>
 #include <nodeproperty.h>
 #include <qmlobjectnode.h>
 
@@ -54,7 +53,7 @@ QVariant PropertyEditorValue::value() const
 {
     QVariant returnValue = m_value;
     if (modelNode().isValid() && modelNode().metaInfo().isValid() && modelNode().metaInfo().hasProperty(name()))
-        if (modelNode().metaInfo().propertyType(name()) == QLatin1String("QUrl")) {
+        if (modelNode().metaInfo().propertyTypeName(name()) == QLatin1String("QUrl")) {
         returnValue = returnValue.toUrl().toString();
     }
     return returnValue;
@@ -98,7 +97,7 @@ void PropertyEditorValue::setValueWithEmit(const QVariant &value)
     if (m_value != value) {
         QVariant newValue = value;
         if (modelNode().isValid() && modelNode().metaInfo().isValid() && modelNode().metaInfo().hasProperty(name()))
-            if (modelNode().metaInfo().propertyType(name()) == QLatin1String("QUrl")) {
+            if (modelNode().metaInfo().propertyTypeName(name()) == QLatin1String("QUrl")) {
             newValue = QUrl(newValue.toString());
         }
 
@@ -272,7 +271,7 @@ void PropertyEditorNodeWrapper::add(const QString &type)
 
     if ((m_editorValue && m_editorValue->modelNode().isValid())) {
         if (propertyType.isEmpty())
-            propertyType = m_editorValue->modelNode().metaInfo().propertyType(m_editorValue->name());
+            propertyType = m_editorValue->modelNode().metaInfo().propertyTypeName(m_editorValue->name());
         while (propertyType.contains('*')) //strip star
             propertyType.chop(1);
         m_modelNode = m_editorValue->modelNode().view()->createModelNode(propertyType, 4, 7);

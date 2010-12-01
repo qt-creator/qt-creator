@@ -319,11 +319,6 @@ void SubComponentManagerPrivate::unregisterQmlFile(const QFileInfo &fileInfo, co
     QString componentName = fileInfo.baseName();
     if (!qualifier.isEmpty())
         componentName = qualifier + '/' + componentName;
-
-    if (m_metaInfo.hasNodeMetaInfo(componentName)) {
-        NodeMetaInfo nodeInfo = m_metaInfo.nodeMetaInfo(componentName);
-        m_metaInfo.removeNodeInfo(nodeInfo);
-    }
 }
 
 static inline bool isDepricatedQtType(const QString &typeName)
@@ -336,7 +331,7 @@ static inline bool isDepricatedQtType(const QString &typeName)
 
 
 void SubComponentManagerPrivate::registerQmlFile(const QFileInfo &fileInfo, const QString &qualifier,
-                                                 const QDeclarativeDomDocument &document, bool addToLibrary)
+                                                 const QDeclarativeDomDocument &, bool addToLibrary)
 {
     QString componentName = fileInfo.baseName();
 
@@ -350,66 +345,14 @@ void SubComponentManagerPrivate::registerQmlFile(const QFileInfo &fileInfo, cons
     if (debug)
         qDebug() << "SubComponentManager" << __FUNCTION__ << componentName;
 
-    if (m_metaInfo.hasNodeMetaInfo(componentName) && addToLibrary) {
-        NodeMetaInfo nodeInfo = m_metaInfo.nodeMetaInfo(componentName);
-        m_metaInfo.removeNodeInfo(nodeInfo);
-    }
-
-    const QDeclarativeDomObject rootObject = document.rootObject();
-
-    NodeMetaInfo nodeInfo(m_metaInfo);
-    nodeInfo.setType(componentName, -1, -1);
-    nodeInfo.setQmlFile(fileInfo.filePath());
-    if (!isDepricatedQtType(rootObject.objectType())) {
-        nodeInfo.setSuperClass(rootObject.objectType(),
-            rootObject.objectTypeMajorVersion(),
-            rootObject.objectTypeMinorVersion());
-    } else {
-        QString properClassName = rootObject.objectType();
-        properClassName.replace("QtQuick/", "Qt/");
-        nodeInfo.setSuperClass(properClassName,
-            1,
-            0);
-    }
-
     if (addToLibrary) {
         // Add file components to the library
         ItemLibraryEntry itemLibraryEntry;
-        itemLibraryEntry.setType(nodeInfo.typeName(), nodeInfo.majorVersion(), nodeInfo.minorVersion());
+        itemLibraryEntry.setType(componentName, -1, -1);
         itemLibraryEntry.setName(componentName);
         itemLibraryEntry.setCategory(tr("QML Components"));
         m_metaInfo.itemLibraryInfo()->addEntry(itemLibraryEntry);
     }
-
-    m_metaInfo.addNodeInfo(nodeInfo);
-
-    //document.rootObject().d
-
-    foreach (const QDeclarativeDomDynamicProperty &dynamicProperty, document.rootObject().dynamicProperties()) {
-        Q_ASSERT(!dynamicProperty.propertyName().isEmpty());
-        Q_ASSERT(!dynamicProperty.propertyTypeName().isEmpty());
-
-        if (dynamicProperty.isDefaultProperty())
-            nodeInfo.setDefaultProperty(dynamicProperty.propertyName());
-
-        PropertyMetaInfo propertyMetaInfo;
-        propertyMetaInfo.setName(dynamicProperty.propertyName());
-        propertyMetaInfo.setType(dynamicProperty.propertyTypeName());
-        propertyMetaInfo.setValid(true);
-        propertyMetaInfo.setReadable(true);
-        propertyMetaInfo.setWritable(true);
-
-        QDeclarativeDomProperty defaultValue = dynamicProperty.defaultValue();
-        if (defaultValue.value().isLiteral()) {
-            QVariant defaultValueVariant(defaultValue.value().toLiteral().literal());
-            defaultValueVariant.convert((QVariant::Type) dynamicProperty.propertyType());
-            propertyMetaInfo.setDefaultValue(nodeInfo, defaultValueVariant);
-        }
-
-        nodeInfo.addProperty(propertyMetaInfo);
-    }
-    if (!nodeInfo.hasDefaultProperty())
-        nodeInfo.setDefaultProperty(nodeInfo.directSuperClass().defaultProperty());
 }
 
 } // namespace Internal

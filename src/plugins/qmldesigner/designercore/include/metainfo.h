@@ -38,10 +38,7 @@
 #include <QtCore/QSharedPointer>
 
 #include <nodemetainfo.h>
-#include "propertymetainfo.h"
 #include "itemlibraryinfo.h"
-#include "enumeratormetainfo.h"
-
 
 namespace QmlDesigner {
 
@@ -66,7 +63,6 @@ class CORESHARED_EXPORT MetaInfo
     friend class QmlDesigner::Internal::ModelPrivate;
     friend class QmlDesigner::Internal::MetaInfoParser;
     friend class QmlDesigner::Internal::SubComponentManagerPrivate;
-    friend class QmlDesigner::NodeMetaInfo;
     friend bool QmlDesigner::operator==(const MetaInfo &, const MetaInfo &);
 
 public:
@@ -74,17 +70,7 @@ public:
     ~MetaInfo();
     MetaInfo& operator=(const MetaInfo &other);
 
-    bool hasNodeMetaInfo(const QString &typeName, int majorVersion = -1, int minorVersion = -1) const;
-    NodeMetaInfo nodeMetaInfo(const QString &typeName, int majorVersion = -1, int minorVersion = -1) const;
-
-    bool hasEnumerator(const QString &enumeratorName) const;
-    EnumeratorMetaInfo enumerator(const QString &enumeratorName) const;
-
     ItemLibraryInfo *itemLibraryInfo() const;
-
-    QString fromQtTypes(const QString &type) const;
-
-
 public:
     static MetaInfo global();
     static void clearGlobal();
@@ -92,12 +78,6 @@ public:
     static void setPluginPaths(const QStringList &paths);
 
 private:
-    void addNodeInfo(NodeMetaInfo &info);
-    void removeNodeInfo(NodeMetaInfo &info);
-
-    EnumeratorMetaInfo addEnumerator(const QString &enumeratorScope, const QString &enumeratorName);
-    EnumeratorMetaInfo addFlag(const QString &enumeratorScope, const QString &enumeratorName);
-
     bool isGlobal() const;
 
 private:

@@ -32,7 +32,6 @@
 #include "internalvariantproperty.h"
 #include "internalnodelistproperty.h"
 #include "internalnodeproperty.h"
-#include "propertyparser.h"
 #include "internalnode_p.h"
 #include <QVariant>
 #include <QString>

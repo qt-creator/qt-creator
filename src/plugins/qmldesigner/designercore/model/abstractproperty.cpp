@@ -225,20 +225,11 @@ QmlObjectNode AbstractProperty::parentQmlObjectNode() const
     return QmlObjectNode(parentModelNode());
 }
 /*!
- \brief returns the metainfo instance for this property
- \return metainfo instance for this property
-*/
-PropertyMetaInfo AbstractProperty::metaInfo() const
-{
-    return ModelNode(m_internalNode, m_model.data(), view()).metaInfo().property(m_propertyName, true);
-}
-
-/*!
   \brief returns whether the property is the default property for the model node.
 */
 bool AbstractProperty::isDefaultProperty() const
 {
-    return ModelNode(m_internalNode, m_model.data(), view()).metaInfo().defaultProperty() == m_propertyName;
+    return ModelNode(m_internalNode, m_model.data(), view()).metaInfo().defaultPropertyName() == m_propertyName;
 }
 
 VariantProperty AbstractProperty::toVariantProperty() const

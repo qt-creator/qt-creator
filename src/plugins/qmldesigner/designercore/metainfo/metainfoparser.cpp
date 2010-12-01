@@ -30,7 +30,6 @@
 #include "metainfoparser.h"
 #include "metainfo.h"
 
-#include "propertymetainfo.h"
 #include "model/propertyparser.h"
 #include <QXmlStreamReader>
 #include <QString>

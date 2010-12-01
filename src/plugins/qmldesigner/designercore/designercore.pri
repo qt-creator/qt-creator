@@ -11,10 +11,8 @@ DEPENDPATH += $$PWD $$PWD/include
 SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/instances/nodeinstanceview.cpp \
     $$PWD/model/rewriterview.cpp \
-    $$PWD/metainfo/enumeratormetainfo.cpp \
     $$PWD/metainfo/metainfo.cpp \
     $$PWD/metainfo/metainfoparser.cpp \
-    $$PWD/metainfo/propertymetainfo.cpp \
     $$PWD/metainfo/nodemetainfo.cpp \
     $$PWD/metainfo/itemlibraryinfo.cpp \
     $$PWD/metainfo/subcomponentmanager.cpp \
@@ -126,11 +124,9 @@ HEADERS += $$PWD/include/corelib_global.h \
     $$PWD/include/abstractview.h \
     $$PWD/include/nodeinstanceview.h \
     $$PWD/include/rewriterview.h \
-    $$PWD/include/enumeratormetainfo.h \
     $$PWD/include/metainfo.h \
     $$PWD/include/metainfoparser.h \
     $$PWD/include/nodemetainfo.h \
-    $$PWD/include/propertymetainfo.h \
     $$PWD/include/itemlibraryinfo.h \
     $$PWD/model/internalproperty.h \
     $$PWD/include/modelnode.h \

@@ -46,6 +46,7 @@
 #include "abstractview.h"
 #include "nodeinstanceview.h"
 #include "metainfo.h"
+#include "nodemetainfo.h"
 #include "model_p.h"
 #include "subcomponentmanager.h"
 #include "variantparser.h"
@@ -1374,6 +1375,11 @@ void Model::removeImport(const Import &import)
     m_d->removeImport(import);
 }
 
+RewriterView *Model::rewriterView() const
+{
+    return m_d->rewriterView();
+}
+
 #if 0
 /*!
  \brief Creates a new empty model
@@ -1422,6 +1428,11 @@ void Model::setFileUrl(const QUrl &url)
 const MetaInfo Model::metaInfo() const
 {
     return m_d->metaInfo();
+}
+
+NodeMetaInfo Model::metaInfo(const QString &typeName, int majorVersion, int minorVersion)
+{
+    return NodeMetaInfo(this, typeName, majorVersion, minorVersion);
 }
 
 /*!

@@ -63,7 +63,6 @@ class ModelNodePositionStorage;
 
 } //Internal
 
-
 class CORESHARED_EXPORT RewriterView : public AbstractView
 {
     Q_OBJECT

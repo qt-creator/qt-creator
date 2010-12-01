@@ -33,7 +33,6 @@
 #include <nodelistproperty.h>
 #include <nodeproperty.h>
 #include <metainfo.h>
-#include <propertymetainfo.h>
 #include <qgraphicswidget.h>
 #include <abstractview.h>
 #include <rewriterview.h>
@@ -137,7 +136,7 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *data,
         if (!parentNode.metaInfo().hasDefaultProperty())
             return false;
         targetIndex -= visibleProperties(parentNode).count();
-        parentPropertyName = parentNode.metaInfo().defaultProperty();
+        parentPropertyName = parentNode.metaInfo().defaultPropertyName();
     }
     else {
         parentItemIndex = parentIndex.parent();
@@ -482,7 +481,7 @@ void NavigatorTreeModel::removeSubTree(const ModelNode &node)
 void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty parentProperty, const QList<ModelNode> &modelNodes, int targetIndex)
 {
     try {
-        QString propertyQmlType = qmlTypeInQtContainer(parentProperty.metaInfo().type());
+        QString propertyQmlType = qmlTypeInQtContainer(parentProperty.parentModelNode().metaInfo().propertyTypeName(parentProperty.name()));
 
         RewriterTransaction transaction = m_view->beginRewriterTransaction();
         foreach (const ModelNode &node, modelNodes) {
@@ -539,7 +538,7 @@ QList<ModelNode> NavigatorTreeModel::modelNodeChildren(const ModelNode &parentNo
     QStringList properties;
 
     if (parentNode.metaInfo().hasDefaultProperty())
-        properties << parentNode.metaInfo().defaultProperty();
+        properties << parentNode.metaInfo().defaultPropertyName();
 
     properties << visibleProperties(parentNode);
 
@@ -565,7 +564,7 @@ QString NavigatorTreeModel::qmlTypeInQtContainer(const QString &qtContainerType)
     if (typeName.endsWith('*'))
         typeName.chop(1);
 
-    return m_view->model()->metaInfo().fromQtTypes(typeName);
+    return typeName;
 }
 
 
@@ -573,13 +572,13 @@ QStringList NavigatorTreeModel::visibleProperties(const ModelNode &node) const
 {
     QStringList propertyList;
 
-    foreach (const QString &propertyName, node.metaInfo().propertyNamesOnlyContainer()) {
-        if (!m_hiddenProperties.contains(propertyName) &&
-            propertyName != node.metaInfo().defaultProperty()) { // TODO: ask the node instances
+    foreach (const QString &propertyName, node.metaInfo().propertyNames()) {
+        if (node.metaInfo().propertyIsWritable(propertyName) && !m_hiddenProperties.contains(propertyName) &&
+            propertyName != node.metaInfo().defaultPropertyName()) { // TODO: ask the node instances
 
-            QString qmlType = qmlTypeInQtContainer(node.metaInfo().propertyType(propertyName));
-            if (node.metaInfo().metaInfo().hasNodeMetaInfo(qmlType) &&
-                node.metaInfo().metaInfo().nodeMetaInfo(qmlType).isSubclassOf("QGraphicsObject", -1, -1)) {
+            QString qmlType = qmlTypeInQtContainer(node.metaInfo().propertyTypeName(propertyName));
+            if (node.model()->metaInfo(qmlType).isValid() &&
+                node.model()->metaInfo(qmlType).isSubclassOf("QGraphicsObject", -1, -1)) {
                 propertyList.append(propertyName);
             }
         }

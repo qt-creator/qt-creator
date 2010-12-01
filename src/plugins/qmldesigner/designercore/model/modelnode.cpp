@@ -730,16 +730,14 @@ bool ModelNode::hasAnySubModelNodes() const
     return !nodeAbstractProperties().isEmpty();
 }
 
-/*! \brief returns the meta info of the node
-\return meta info of the node
-*/
 const NodeMetaInfo ModelNode::metaInfo() const
 {
     if (!isValid()) {
         Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
     }
-    return model()->metaInfo().nodeMetaInfo(type(), majorVersion(), minorVersion());
+
+    return NodeMetaInfo(model(), type(), majorVersion(), minorVersion());
 }
 
 /*! \brief has a node the selection of the model

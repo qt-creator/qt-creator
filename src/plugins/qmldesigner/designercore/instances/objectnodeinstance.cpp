@@ -40,7 +40,6 @@
 #include <variantproperty.h>
 #include <nodelistproperty.h>
 #include <metainfo.h>
-#include <propertymetainfo.h>
 
 #include <QEvent>
 #include <QGraphicsScene>

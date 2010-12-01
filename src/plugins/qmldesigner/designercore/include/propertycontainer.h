@@ -37,8 +37,6 @@
 #include <QDataStream>
 #include <QVariant>
 
-#include <enumeratormetainfo.h>
-
 namespace QmlDesigner {
 
 class PropertyContainer;

@@ -42,7 +42,6 @@
 
 #include <model.h>
 #include <modelnode.h>
-#include <propertymetainfo.h>
 #include <metainfo.h>
 
 #include <typeinfo>
@@ -698,7 +697,7 @@ CreateInstancesCommand NodeInstanceView::createCreateInstancesCommand(const QLis
 {
     QVector<InstanceContainer> containerList;
     foreach(const NodeInstance &instance, instanceList) {
-        InstanceContainer container(instance.instanceId(), instance.modelNode().type(), instance.modelNode().majorVersion(), instance.modelNode().minorVersion(), instance.modelNode().metaInfo().componentString());
+        InstanceContainer container(instance.instanceId(), instance.modelNode().type(), instance.modelNode().majorVersion(), instance.modelNode().minorVersion(), instance.modelNode().metaInfo().componentFileName());
         containerList.append(container);
     }
 
