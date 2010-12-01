@@ -397,6 +397,13 @@ void LldbEngineGuest::disassemble(quint64 pc)
         }
     }
 }
+void LldbEngineGuest::fetchFrameSource(qint64 frame)
+{
+    QFile f(m_frame_to_file.value(frame));
+    f.open(QFile::ReadOnly);
+    frameSourceFetched(frame, QFileInfo(m_frame_to_file.value(frame)).fileName()
+            , QString::fromLocal8Bit(f.readAll()));
+}
 
 void LldbEngineGuest::addBreakpoint(BreakpointId id,
         const Internal::BreakpointParameters &bp_)
@@ -459,6 +466,7 @@ void LldbEngineGuest::selectThread(qint64 token)
     DEBUG_FUNC_ENTER;
     SYNC_INFERIOR_OR(return);
 
+    m_frame_to_file.clear();
     for (uint i = 0; i < m_process->GetNumThreads(); i++) {
         lldb::SBThread t = m_process->GetThreadAtIndex(i);
         if (t.GetThreadID() == token) {
@@ -537,7 +545,9 @@ void LldbEngineGuest::selectThread(qint64 token)
                 frame.address = fr.GetPCAddress().GetLoadAddress(*m_target);
                 frame.line = lineNumber;
                 frame.file = sourceFilePath;
+                frame.usable = QFileInfo(frame.file).isReadable();
                 frames.append(frame);
+                m_frame_to_file.insert(j, frame.file);
             }
             currentThreadChanged(token);
             listFrames(frames);

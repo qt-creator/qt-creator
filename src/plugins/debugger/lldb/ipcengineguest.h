@@ -81,6 +81,7 @@ public:
     virtual void changeBreakpoint(BreakpointId id, const BreakpointParameters &bp) = 0;
     virtual void requestUpdateWatchData(const WatchData &data,
             const WatchUpdateFlags & flags = WatchUpdateFlags()) = 0;
+    virtual void fetchFrameSource(qint64 frame) = 0;
 
     enum Function
     {
@@ -120,7 +121,8 @@ public:
         NotifyChangeBreakpointOk         = 34,
         NotifyChangeBreakpointFailed     = 35,
         NotifyBreakpointAdjusted         = 36,
-        UpdateWatchData                  = 47
+        UpdateWatchData                  = 47,
+        FrameSourceFetched               = 48
     };
     Q_ENUMS(Function);
 
@@ -165,6 +167,8 @@ public:
     void notifyBreakpointAdjusted(BreakpointId id, const BreakpointParameters &bp);
 
     void updateWatchData(bool fullCycle, const QList<WatchData> &);
+
+    void frameSourceFetched(qint64 frame, const QString &name, const QString &sourceCode);
 
     void rpcCall(Function f, QByteArray payload = QByteArray());
 public slots:

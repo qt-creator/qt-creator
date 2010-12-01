@@ -94,9 +94,9 @@ public:
     void addBreakpoint(BreakpointId id, const BreakpointParameters &bp);
     void removeBreakpoint(BreakpointId id);
     void changeBreakpoint(BreakpointId id, const BreakpointParameters &bp);
-
     void requestUpdateWatchData(const WatchData &data,
             const WatchUpdateFlags &flags);
+    void fetchFrameSource(qint64 frame);
 
 private:
     bool m_running;
@@ -115,6 +115,7 @@ private:
     bool m_relistFrames;
     QHash<QString, lldb::SBValue> m_localesCache;
     QHash<BreakpointId, lldb::SBBreakpoint> m_breakpoints;
+    QHash<qint64, QString> m_frame_to_file;
 
     void updateThreads();
     void getWatchDataR(lldb::SBValue v, int level,

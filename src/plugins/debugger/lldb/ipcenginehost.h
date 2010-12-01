@@ -81,7 +81,8 @@ public:
         AddBreakpoint          = 22,
         RemoveBreakpoint       = 23,
         ChangeBreakpoint       = 24,
-        RequestUpdateWatchData = 25
+        RequestUpdateWatchData = 25,
+        FetchFrameSource       = 26
     };
     Q_ENUMS(Function);
 
@@ -110,6 +111,7 @@ public:
     void changeBreakpoint(BreakpointId id);
     void updateWatchData(const WatchData &data,
             const WatchUpdateFlags &flags = WatchUpdateFlags());
+    void fetchFrameSource(qint64 id);
 
     void rpcCall(Function f, QByteArray payload = QByteArray());
 protected:

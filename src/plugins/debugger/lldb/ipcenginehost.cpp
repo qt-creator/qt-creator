@@ -40,6 +40,9 @@
 #include "threadshandler.h"
 #include "debuggeragents.h"
 #include "debuggerstreamops.h"
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
+#include <cppeditor/cppeditorconstants.h>
 
 #include <QSysInfo>
 #include <QDebug>
@@ -294,6 +297,17 @@ void IPCEngineHost::updateWatchData(const WatchData &data,
     rpcCall(RequestUpdateWatchData, p);
 }
 
+void IPCEngineHost::fetchFrameSource(qint64 id)
+{
+    QByteArray p;
+    {
+        QDataStream s(&p, QIODevice::WriteOnly);
+        SET_NATIVE_BYTE_ORDER(s);
+        s << id;
+    }
+    rpcCall(FetchFrameSource, p);
+}
+
 void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
 {
     switch (f) {
@@ -410,7 +424,10 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 resetLocation();
                 StackHandler *sh = stackHandler();
                 sh->setCurrentIndex(token);
-                gotoLocation(sh->currentFrame(), true);
+                if (QFileInfo(sh->currentFrame().file).exists())
+                    gotoLocation(sh->currentFrame(), true);
+                else
+                    fetchFrameSource(token);
             }
             break;
         case IPCEngineGuest::CurrentThreadChanged:
@@ -537,6 +554,21 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 BreakpointParameters d;
                 s >> id >> d;
                 breakHandler()->notifyBreakpointAdjusted(id, d);
+            }
+            break;
+        case IPCEngineGuest::FrameSourceFetched:
+            {
+                QDataStream s(payload);
+                SET_NATIVE_BYTE_ORDER(s);
+                qint64 token;
+                QString name;
+                QString source;
+                s >> token >> name >> source;
+                Core::EditorManager *editorManager = Core::EditorManager::instance();
+                Core::IEditor *editor = editorManager->openEditorWithContents(CppEditor::Constants::CPPEDITOR_ID, &name, source);
+                editorManager->activateEditor(editor);
+                editor->gotoLine(stackHandler()->currentFrame().line, 0);
+                editor->setProperty(Debugger::Constants::OPENED_BY_DEBUGGER, true);
             }
             break;
     }

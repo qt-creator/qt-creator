@@ -312,6 +312,15 @@ void IPCEngineGuest::rpcCallback(quint64 f, QByteArray payload)
                 requestUpdateWatchData(data);
             }
             break;
+        case IPCEngineHost::FetchFrameSource:
+            {
+                QDataStream s(payload);
+                SET_NATIVE_BYTE_ORDER(s);
+                qint64 id;
+                s >> id;
+                fetchFrameSource(id);
+            }
+            break;
     };
 }
 
@@ -607,6 +616,19 @@ void IPCEngineGuest::updateWatchData(bool fullCycle, const QList<WatchData> &wd)
             s << wd.at(i);
     }
     rpcCall(UpdateWatchData, p);
+}
+
+void IPCEngineGuest::frameSourceFetched(qint64 id, const QString &name, const QString &source)
+{
+    QByteArray p;
+    {
+        QDataStream s(&p, QIODevice::WriteOnly);
+        SET_NATIVE_BYTE_ORDER(s);
+        s << id;
+        s << name;
+        s << source;
+    }
+    rpcCall(FrameSourceFetched, p);
 }
 
 } // namespace Internal
