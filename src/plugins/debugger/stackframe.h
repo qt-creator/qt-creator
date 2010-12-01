@@ -59,6 +59,7 @@ public:
     QString to;    // Used in ScriptEngine only.
     qint32 line;
     quint64 address;
+    bool usable;
 
     Q_DECLARE_TR_FUNCTIONS(StackHandler)
 };

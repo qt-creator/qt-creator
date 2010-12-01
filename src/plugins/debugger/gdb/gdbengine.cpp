@@ -2853,6 +2853,7 @@ StackFrame GdbEngine::parseStackFrame(const GdbMi &frameMi, int level)
     frame.from = _(frameMi.findChild("from").data());
     frame.line = frameMi.findChild("line").data().toInt();
     frame.address = frameMi.findChild("addr").data().toULongLong(0, 16);
+    frame.usable = QFileInfo(frame.file).isReadable();
     return frame;
 }
 

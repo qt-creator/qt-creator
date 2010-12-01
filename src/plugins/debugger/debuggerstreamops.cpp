@@ -92,6 +92,7 @@ QDataStream &operator<<(QDataStream &stream, const StackFrame &s)
     stream << s.to;
     stream << s.line;
     stream << s.address;
+    stream << s.usable;
     return stream;
 }
 
@@ -106,6 +107,7 @@ QDataStream &operator>>(QDataStream &stream, StackFrame &s)
     stream >> s.to;
     stream >> s.line;
     stream >> s.address;
+    stream >> s.usable;
     return stream;
 }
 

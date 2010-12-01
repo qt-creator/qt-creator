@@ -138,6 +138,7 @@ static QDataStream &operator>>(QDataStream &s, StackFrame &frame)
     s >> function >> file >> frame.line;
     frame.function = QString::fromUtf8(function);
     frame.file = QString::fromUtf8(file);
+    frame.usable = QFileInfo(frame.file).isReadable();
     return s;
 }
 

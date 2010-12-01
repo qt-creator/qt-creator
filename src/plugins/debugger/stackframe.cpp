@@ -45,7 +45,7 @@ namespace Internal {
 ////////////////////////////////////////////////////////////////////////
 
 StackFrame::StackFrame()
-  : level(-1), line(-1), address(0)
+  : level(-1), line(-1), address(0), usable(false)
 {}
 
 void StackFrame::clear()
@@ -60,7 +60,7 @@ void StackFrame::clear()
 
 bool StackFrame::isUsable() const
 {
-    return !file.isEmpty() && QFileInfo(file).isReadable();
+    return usable;
 }
 
 QString StackFrame::toString() const
