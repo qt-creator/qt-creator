@@ -1338,7 +1338,7 @@ bool DebuggerEngine::isDying() const
 QString DebuggerEngine::msgWatchpointTriggered(BreakpointId id,
     const int number, quint64 address)
 {
-    return id != BreakpointId(-1)
+    return id
         ? tr("Watchpoint %1 (%2) at 0x%3 triggered.")
             .arg(id).arg(number).arg(address, 0, 16)
         : tr("Internal watchpoint %1 at 0x%2 triggered.")
@@ -1348,7 +1348,7 @@ QString DebuggerEngine::msgWatchpointTriggered(BreakpointId id,
 QString DebuggerEngine::msgWatchpointTriggered(BreakpointId id,
     const int number, quint64 address, const QString &threadId)
 {
-    return id != BreakpointId(-1)
+    return id
         ? tr("Watchpoint %1 (%2) at 0x%3 in thread %4 triggered.")
             .arg(id).arg(number).arg(address, 0, 16).arg(threadId)
         : tr("Internal watchpoint %1 at 0x%2 in thread %3 triggered.")
@@ -1358,7 +1358,7 @@ QString DebuggerEngine::msgWatchpointTriggered(BreakpointId id,
 QString DebuggerEngine::msgBreakpointTriggered(BreakpointId id,
         const int number, const QString &threadId)
 {
-    return id != BreakpointId(-1)
+    return id
         ? tr("Stopped at breakpoint %1 (%2) in thread %3.")
             .arg(id).arg(number).arg(threadId)
         : tr("Stopped at internal breakpoint %1 in thread %2.")

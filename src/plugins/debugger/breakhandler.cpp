@@ -154,7 +154,7 @@ BreakpointId BreakHandler::findSimilarBreakpoint(const BreakpointResponse &needl
         if (isSimilarTo(data, needle))
             return id;
     }
-    return BreakpointId(-1);
+    return BreakpointId();
 }
 
 BreakpointId BreakHandler::findBreakpointByNumber(int bpNumber) const
@@ -163,7 +163,7 @@ BreakpointId BreakHandler::findBreakpointByNumber(int bpNumber) const
     for ( ; it != et; ++it)
         if (it->response.number == bpNumber)
             return it.key();
-    return BreakpointId(-1);
+    return BreakpointId();
 }
 
 BreakpointId BreakHandler::findBreakpointByFunction(const QString &functionName) const
@@ -172,7 +172,7 @@ BreakpointId BreakHandler::findBreakpointByFunction(const QString &functionName)
     for ( ; it != et; ++it)
         if (it->data.functionName == functionName)
             return it.key();
-    return BreakpointId(-1);
+    return BreakpointId();
 }
 
 BreakpointId BreakHandler::findBreakpointByAddress(quint64 address) const
@@ -181,7 +181,7 @@ BreakpointId BreakHandler::findBreakpointByAddress(quint64 address) const
     for ( ; it != et; ++it)
         if (it->data.address == address)
             return it.key();
-    return BreakpointId(-1);
+    return BreakpointId();
 }
 
 BreakpointId BreakHandler::findBreakpointByFileAndLine(const QString &fileName,
@@ -191,7 +191,7 @@ BreakpointId BreakHandler::findBreakpointByFileAndLine(const QString &fileName,
     for ( ; it != et; ++it)
         if (it->isLocatedAt(fileName, lineNumber, useMarkerPosition))
             return it.key();
-    return BreakpointId(-1);
+    return BreakpointId();
 }
 
 const BreakpointParameters &BreakHandler::breakpointData(BreakpointId id) const
@@ -208,25 +208,25 @@ BreakpointId BreakHandler::findWatchpointByAddress(quint64 address) const
     for ( ; it != et; ++it)
         if (it->data.isWatchpoint() && it->data.address == address)
             return it.key();
-    return BreakpointId(-1);
+    return BreakpointId();
 }
 
 void BreakHandler::setWatchpointByAddress(quint64 address)
 {
     const int id = findWatchpointByAddress(address);
-    if (id == -1) {
-        BreakpointParameters data(Watchpoint);
-        data.address = address;
-        appendBreakpoint(data);
-    } else {
+    if (id) {
         qDebug() << "WATCHPOINT EXISTS";
-     //   removeBreakpoint(index);
+        //   removeBreakpoint(index);
+        return;
     }
+    BreakpointParameters data(Watchpoint);
+    data.address = address;
+    appendBreakpoint(data);
 }
 
 bool BreakHandler::hasWatchpointAt(quint64 address) const
 {
-    return findWatchpointByAddress(address) != BreakpointId(-1);
+    return findWatchpointByAddress(address);
 }
 
 void BreakHandler::saveBreakpoints()
@@ -354,7 +354,7 @@ BreakpointId BreakHandler::findBreakpointByIndex(const QModelIndex &index) const
     for (int i = 0; it != et; ++it, ++i)
         if (i == r)
             return it.key();
-    return BreakpointId(-1);
+    return BreakpointId();
 }
 
 BreakpointIds BreakHandler::findBreakpointsByIndex(const QList<QModelIndex> &list) const

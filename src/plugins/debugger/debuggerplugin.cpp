@@ -2391,7 +2391,7 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditor::ITextEditor *editor,
     if (!isDebuggable(editor))
         return;
 
-    BreakpointId id = -1;
+    BreakpointId id = BreakpointId();
     QString fileName;
     quint64 address = 0;
 
@@ -2415,7 +2415,7 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditor::ITextEditor *editor,
     args.append(lineNumber);
     args.append(address);
 
-    if (id != BreakpointId(-1)) {
+    if (id) {
         // Remove existing breakpoint.
         QAction *act = new QAction(menu);
         act->setData(int(id));
@@ -2497,10 +2497,10 @@ void DebuggerPluginPrivate::toggleBreakpointByFileAndLine(const QString &fileNam
     BreakHandler *handler = m_breakHandler;
     BreakpointId id =
         handler->findBreakpointByFileAndLine(fileName, lineNumber, true);
-    if (id == BreakpointId(-1))
+    if (!id)
         id = handler->findBreakpointByFileAndLine(fileName, lineNumber, false);
 
-    if (id != BreakpointId(-1)) {
+    if (id) {
         handler->removeBreakpoint(id);
     } else {
         BreakpointParameters data(BreakpointByFileAndLine);
@@ -2516,7 +2516,7 @@ void DebuggerPluginPrivate::toggleBreakpointByAddress(quint64 address)
     BreakHandler *handler = m_breakHandler;
     BreakpointId id = handler->findBreakpointByAddress(address);
 
-    if (id != BreakpointId(-1)) {
+    if (id) {
         handler->removeBreakpoint(id);
     } else {
         BreakpointParameters data(BreakpointByAddress);

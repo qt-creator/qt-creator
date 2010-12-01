@@ -1316,7 +1316,7 @@ void CdbEngine::handleSessionIdle(const QByteArray &message)
     if (reason == "breakpoint") {
         const int number = stopReason.findChild("breakpointId").data().toInt();
         const BreakpointId id = breakHandler()->findBreakpointByNumber(number);
-        if (id != BreakpointId(-1) && breakHandler()->type(id) == Debugger::Internal::Watchpoint) {
+        if (id && breakHandler()->type(id) == Debugger::Internal::Watchpoint) {
             showStatusMessage(msgWatchpointTriggered(id, number, breakHandler()->address(id), QString::number(threadId)));
         } else {
             showStatusMessage(msgBreakpointTriggered(id, number, QString::number(threadId)));
