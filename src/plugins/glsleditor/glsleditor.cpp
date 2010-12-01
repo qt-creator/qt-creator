@@ -159,7 +159,7 @@ GLSLTextEditor::GLSLTextEditor(QWidget *parent) :
 
     connect(this, SIGNAL(textChanged()), this, SLOT(updateDocument()));
 
-    baseTextDocument()->setSyntaxHighlighter(new Highlighter(document()));
+    baseTextDocument()->setSyntaxHighlighter(new Highlighter(this, document()));
 
 //    if (m_modelManager) {
 //        m_semanticHighlighter->setModelManager(m_modelManager);
@@ -204,8 +204,8 @@ QString GLSLEditorEditable::id() const
 
 bool GLSLEditorEditable::open(const QString &fileName)
 {
-    bool b = TextEditor::BaseTextEditorEditable::open(fileName);
     editor()->setMimeType(Core::ICore::instance()->mimeDatabase()->findByFile(QFileInfo(fileName)).type());
+    bool b = TextEditor::BaseTextEditorEditable::open(fileName);
     return b;
 }
 
@@ -316,16 +316,7 @@ void GLSLTextEditor::updateDocumentNow()
 {
     m_updateDocumentTimer->stop();
 
-    int variant = 0;
-
-    if (isDesktopShader())
-        variant |= Lexer::Variant_GLSL_120;
-    else
-        variant |= Lexer::Variant_GLSL_Qt;
-    if (isVertexShader())
-        variant |= Lexer::Variant_VertexShader;
-    if (isFragmentShader())
-        variant |= Lexer::Variant_FragmentShader;
+    int variant = languageVariant();
     const QString contents = toPlainText(); // get the code from the editor
     const QByteArray preprocessedCode = contents.toLatin1(); // ### use the QtCreator C++ preprocessor.
 
@@ -384,28 +375,42 @@ void GLSLTextEditor::updateDocumentNow()
     }
 }
 
-bool GLSLTextEditor::isDesktopShader() const
+int GLSLTextEditor::languageVariant() const
 {
-    return mimeType() == QLatin1String("text/x-glsl-vert") ||
-           mimeType() == QLatin1String("text/x-glsl-frag") ||
-           mimeType() == QLatin1String("text/x-glsl") || // Could be either.
-           mimeType() == QLatin1String("application/x-glsl");
-}
-
-bool GLSLTextEditor::isVertexShader() const
-{
-    return mimeType() == QLatin1String("text/x-glsl-vert") ||
-           mimeType() == QLatin1String("text/x-glsl-es-vert") ||
-           mimeType() == QLatin1String("text/x-glsl") || // Could be either.
-           mimeType() == QLatin1String("application/x-glsl");
-}
-
-bool GLSLTextEditor::isFragmentShader() const
-{
-    return mimeType() == QLatin1String("text/x-glsl-frag") ||
-           mimeType() == QLatin1String("text/x-glsl-es-frag") ||
-           mimeType() == QLatin1String("text/x-glsl") || // Could be either.
-           mimeType() == QLatin1String("application/x-glsl");
+    int variant = 0;
+    QString type = mimeType();
+    bool isVertex = false;
+    bool isFragment = false;
+    bool isDesktop = false;
+    if (type.isEmpty()) {
+        // ### Before file has been opened, so don't know the mime type.
+        isVertex = true;
+        isFragment = true;
+    } else if (type == QLatin1String("text/x-glsl") ||
+               type == QLatin1String("application/x-glsl")) {
+        isVertex = true;
+        isFragment = true;
+        isDesktop = true;
+    } else if (type == QLatin1String("text/x-glsl-vert")) {
+        isVertex = true;
+        isDesktop = true;
+    } else if (type == QLatin1String("text/x-glsl-frag")) {
+        isFragment = true;
+        isDesktop = true;
+    } else if (type == QLatin1String("text/x-glsl-es-vert")) {
+        isVertex = true;
+    } else if (type == QLatin1String("text/x-glsl-es-frag")) {
+        isFragment = true;
+    }
+    if (isDesktop)
+        variant |= Lexer::Variant_GLSL_120;
+    else
+        variant |= Lexer::Variant_GLSL_Qt;
+    if (isVertex)
+        variant |= Lexer::Variant_VertexShader;
+    if (isFragment)
+        variant |= Lexer::Variant_FragmentShader;
+    return variant;
 }
 
 Document::Ptr GLSLTextEditor::glslDocument() const

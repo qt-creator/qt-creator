@@ -27,6 +27,7 @@
 **
 **************************************************************************/
 #include "glslhighlighter.h"
+#include "glsleditor.h"
 #include <glsl/glsllexer.h>
 #include <glsl/glslparser.h>
 #include <texteditor/basetextdocumentlayout.h>
@@ -37,8 +38,8 @@ using namespace GLSLEditor;
 using namespace GLSLEditor::Internal;
 using namespace TextEditor;
 
-Highlighter::Highlighter(QTextDocument *parent)
-    : TextEditor::SyntaxHighlighter(parent)
+Highlighter::Highlighter(GLSLTextEditor *editor, QTextDocument *parent)
+    : TextEditor::SyntaxHighlighter(parent), m_editor(editor)
 {
 }
 
@@ -68,9 +69,7 @@ void Highlighter::highlightBlock(const QString &text)
     lex.setState(state);
     lex.setScanKeywords(false);
     lex.setScanComments(true);
-    const int variant = GLSL::Lexer::Variant_GLSL_Qt | // ### FIXME: hardcoded
-                        GLSL::Lexer::Variant_VertexShader |
-                        GLSL::Lexer::Variant_FragmentShader;
+    const int variant = m_editor->languageVariant();
     lex.setVariant(variant);
 
     int initialState = state;
@@ -341,9 +340,7 @@ void Highlighter::highlightBlock(const QString &text)
     lex.setState(qMax(0, previousState));
     lex.setScanKeywords(false);
     lex.setScanComments(true);
-    const int variant = GLSL::Lexer::Variant_GLSL_Qt | // ### FIXME: hardcoded
-                        GLSL::Lexer::Variant_VertexShader |
-                        GLSL::Lexer::Variant_FragmentShader;
+    const int variant = m_editor->languageVariant();
     lex.setVariant(variant);
 
     int foldingIndent = initialBraceDepth;

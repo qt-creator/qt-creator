@@ -97,9 +97,7 @@ public:
 
     QSet<QString> identifiers() const;
 
-    bool isDesktopShader() const;
-    bool isVertexShader() const;
-    bool isFragmentShader() const;
+    int languageVariant() const;
 
     Document::Ptr glslDocument() const;
 
