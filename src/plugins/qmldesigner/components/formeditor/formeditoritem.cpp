@@ -356,7 +356,7 @@ QList<FormEditorItem*> FormEditorItem::childFormEditorItems() const
 
 bool FormEditorItem::isContainer() const
 {
-    return qmlItemNode().modelNode().metaInfo().isContainer();
+    return true;
 }
 
 QmlItemNode FormEditorItem::qmlItemNode() const
