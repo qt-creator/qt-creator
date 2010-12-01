@@ -359,7 +359,7 @@ QString MaemoDeployableListModel::installPrefix() const
     const MaemoToolChain *const tc = maemoToolchain();
     QTC_ASSERT(tc, return QString());
     return QLatin1String(tc->version() == MaemoToolChain::Maemo5
-        ? "/opt/usr" : "/usr/local");
+        ? "/opt/usr" : "/usr");
 }
 
 } // namespace Qt4ProjectManager

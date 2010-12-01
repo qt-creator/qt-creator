@@ -41,7 +41,7 @@ symbian {
         installPrefix = /opt/usr
         desktopfile.path = /usr/share/applications/hildon       
     } else {
-        installPrefix = /usr/local
+        installPrefix = /usr
         desktopfile.path = /usr/share/applications
         !isEqual(PWD,$$OUT_PWD) {
             copyCommand = @echo Copying application data...

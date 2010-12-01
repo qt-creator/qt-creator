@@ -112,7 +112,7 @@ void MobileLibraryParameters::writeMaemoProFile(QTextStream &str) const
            "    maemo5 {\n"
            "        target.path = /opt/usr/lib\n"
            "    } else {\n"
-           "        target.path = /usr/local/lib\n"
+           "        target.path = /usr/lib\n"
            "    }\n"
            "    INSTALLS += target\n"
            "}\n";
