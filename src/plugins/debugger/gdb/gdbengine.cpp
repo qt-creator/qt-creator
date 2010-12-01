@@ -2224,11 +2224,9 @@ void GdbEngine::handleBreakInsert2(const GdbResponse &response)
 
 void GdbEngine::reloadBreakListInternal()
 {
-/*
     postCommand("-break-list",
         NeedsStop | RebuildBreakpointModel,
         CB(handleBreakList));
-*/
 }
 
 void GdbEngine::handleBreakList(const GdbResponse &response)
@@ -2265,19 +2263,14 @@ void GdbEngine::handleBreakList(const GdbMi &table)
             if (num <= 0)
                 bkpts.removeAt(i);
         }
-        //qDebug() << "LEFT" << bkpts.size() << "BREAKPOINTS";
     }
 
     foreach (const GdbMi &bkpt, bkpts) {
         BreakpointResponse needle;
-        needle.fileName = _("xx");
+        needle.number = bkpt.findChild("number").data().toInt();
         BreakpointId id = breakHandler()->findSimilarBreakpoint(needle);
-        //qDebug() << "\n\nGOT: " << bkpt.toString() << '\n' << temp.toString();
-        // FIXME: use updateBreakpointDataFromOutput()
         if (id != BreakpointId(-1)) {
-            //qDebug() << "  FROM: " << data->toString();
             updateBreakpointDataFromOutput(id, bkpt);
-            //qDebug() << "  TO: " << data->toString();
         } else {
             qDebug() << "  NOTHING SUITABLE FOUND";
             showMessage(_("CANNOT FIND BP: " + bkpt.toString()));
