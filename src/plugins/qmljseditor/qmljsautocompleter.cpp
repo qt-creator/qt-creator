@@ -279,9 +279,9 @@ QString AutoCompleter::insertMatchingBrace(const QTextCursor &cursor,
 QString AutoCompleter::insertParagraphSeparator(const QTextCursor &cursor) const
 {
     if (shouldInsertNewline(cursor)) {
-        QTextCursor cursor = cursor;
-        cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-        if (! cursor.selectedText().trimmed().isEmpty())
+        QTextCursor selCursor = cursor;
+        selCursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+        if (! selCursor.selectedText().trimmed().isEmpty())
             return QString();
 
         return QLatin1String("}\n");
