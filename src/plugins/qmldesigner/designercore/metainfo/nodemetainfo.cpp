@@ -386,9 +386,10 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate() : m_isValid(false)
 
 }
 
-NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, QString type, int maj, int min) : m_model(model),
+NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, QString type, int maj, int min) :
                                         m_qualfiedTypeName(type), m_majorVersion(maj),
-                                        m_minorVersion(min), m_isValid(true), m_isComponent(false)
+                                        m_minorVersion(min), m_isValid(true), m_isComponent(false),
+                                        m_model(model)
 {
     if (!lookupContext()) {
         m_isValid = false;

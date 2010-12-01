@@ -40,14 +40,6 @@
 namespace QmlDesigner {
 namespace Internal {
 
-static bool stringToBool(const QString &boolString)
-{
-    QString lowerString(boolString.toLower());
-    if (lowerString == "true" || lowerString == "1")
-        return true;
-
-    return false;
-}
 
 MetaInfoParser::MetaInfoParser(const MetaInfo &metaInfo)
         : m_metaInfo(metaInfo)

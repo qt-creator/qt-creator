@@ -40,14 +40,6 @@ namespace QmlDesigner {
 namespace Internal {
 namespace PropertyParser {
 
-static QVariant fromEnum(const QString &string, const QString &, const MetaInfo &)
-{
-    if (string.isEmpty())
-        return QVariant();
-
-    return QVariant(string);
-}
-
 QVariant read(const QString &typeStr, const QString &str, const MetaInfo &)
 {
     return read(typeStr, str);
