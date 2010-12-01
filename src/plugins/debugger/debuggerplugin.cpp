@@ -3240,9 +3240,15 @@ void DebuggerPluginPrivate::runControlStarted(DebuggerRunControl *runControl)
 void DebuggerPluginPrivate::runControlFinished(DebuggerRunControl *runControl)
 {
     m_snapshotHandler->removeSnapshot(runControl);
-    disconnectEngine();
-    if (boolSetting(SwitchModeOnExit) && m_snapshotHandler->size() == 0)
-        activatePreviousMode();
+    if (m_snapshotHandler->size() == 0) {
+        // Last engine quits.
+        disconnectEngine();
+        if (boolSetting(SwitchModeOnExit))
+            activatePreviousMode();
+    } else {
+        // Connect to some existing engine.
+        m_snapshotHandler->activateSnapshot(0);
+    }
 }
 
 void DebuggerPluginPrivate::remoteCommand(const QStringList &options,
