@@ -141,16 +141,16 @@ bool DoubleType::isLessThan(const Type *other) const
 
 QString VectorType::toString() const
 {
-    QChar prefix;
+    const char *prefix = "";
     if (elementType()->asBoolType() != 0)
-        prefix = QLatin1Char('b');
+        prefix = "b";
     else if (elementType()->asIntType() != 0)
-        prefix = QLatin1Char('i');
+        prefix = "i'";
     else if (elementType()->asUIntType() != 0)
-        prefix = QLatin1Char('u');
+        prefix = "u";
     else if (elementType()->asDoubleType() != 0)
-        prefix = QLatin1Char('d');
-    return QString("%1vec%2").arg(prefix).arg(_dimension);
+        prefix = "d";
+    return QString("%1vec%2").arg(QLatin1String(prefix)).arg(_dimension);
 }
 
 void VectorType::add(Symbol *symbol)
@@ -265,16 +265,16 @@ bool VectorType::isLessThan(const Type *other) const
 
 QString MatrixType::toString() const
 {
-    QChar prefix;
+    const char *prefix = "";
     if (elementType()->asBoolType() != 0)
-        prefix = QLatin1Char('b');
+        prefix = "b";
     else if (elementType()->asIntType() != 0)
-        prefix = QLatin1Char('i');
+        prefix = "i";
     else if (elementType()->asUIntType() != 0)
-        prefix = QLatin1Char('u');
+        prefix = "u";
     else if (elementType()->asDoubleType() != 0)
-        prefix = QLatin1Char('d');
-    return QString("%1mat%2x%3").arg(prefix, _columns, _rows);
+        prefix = "d";
+    return QString("%1mat%2x%3").arg(QLatin1String(prefix)).arg(_columns).arg(_rows);
 }
 
 bool MatrixType::isEqualTo(const Type *other) const
