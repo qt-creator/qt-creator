@@ -309,6 +309,11 @@ bool MatrixType::isLessThan(const Type *other) const
     return false;
 }
 
+QString ArrayType::toString() const
+{
+    return elementType()->toString() + QLatin1String("[]");
+}
+
 bool ArrayType::isEqualTo(const Type *other) const
 {
     if (other) {

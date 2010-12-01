@@ -181,6 +181,7 @@ public:
 
     const Type *elementType() const { return indexElementType(); }
 
+    virtual QString toString() const;
     virtual const ArrayType *asArrayType() const { return this; }
     virtual bool isEqualTo(const Type *other) const;
     virtual bool isLessThan(const Type *other) const;
