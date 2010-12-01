@@ -43,7 +43,7 @@ using namespace QmlJS;
 
 static int blockStartState(const QTextBlock &block)
 {
-    int state = block.userState();
+    int state = block.previous().userState();
 
     if (state == -1)
         return 0;
@@ -181,7 +181,15 @@ bool AutoCompleter::contextAllowsAutoParentheses(const QTextCursor &cursor,
     case Token::String: {
         const QString blockText = cursor.block().text();
         const QStringRef tokenText = blockText.midRef(token.offset, token.length);
-        const QChar quote = tokenText.at(0);
+        QChar quote = tokenText.at(0);
+        // if a string literal doesn't start with a quote, it must be multiline
+        if (quote != QLatin1Char('"') && quote != QLatin1Char('\'')) {
+            const int startState = blockStartState(cursor.block());
+            if (startState == Scanner::MultiLineStringDQuote)
+                quote = QLatin1Char('"');
+            else if (startState == Scanner::MultiLineStringSQuote)
+                quote = QLatin1Char('\'');
+        }
 
         // never insert ' into string literals, it adds spurious ' when writing contractions
         if (ch == QLatin1Char('\''))
