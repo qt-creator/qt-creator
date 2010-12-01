@@ -106,6 +106,11 @@ private:
     QPointer<FunctionArgumentWidget> m_functionArgumentWidget;
 
     static bool glslCompletionItemLessThan(const TextEditor::CompletionItem &l, const TextEditor::CompletionItem &r);
+
+    QIcon m_varIcon;
+    QIcon m_functionIcon;
+    QIcon m_typeIcon;
+    QIcon m_otherIcon;
 };
 
 } // namespace Internal

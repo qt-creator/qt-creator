@@ -76,7 +76,7 @@ Symbol *Scope::lookup(const QString &name) const
         return 0;
 }
 
-QStringList Scope::members() const
+QList<Symbol *> Scope::members() const
 {
-    return QStringList();
+    return QList<Symbol *>();
 }

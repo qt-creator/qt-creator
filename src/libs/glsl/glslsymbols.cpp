@@ -54,9 +54,9 @@ Block::Block(Scope *enclosingScope)
 {
 }
 
-QStringList Block::members() const
+QList<Symbol *> Block::members() const
 {
-    return _members.keys();
+    return _members.values();
 }
 
 void Block::add(Symbol *symbol)
@@ -100,9 +100,9 @@ Namespace::~Namespace()
     qDeleteAll(_overloadSets);
 }
 
-QStringList Namespace::members() const
+QList<Symbol *> Namespace::members() const
 {
-    return _members.keys();
+    return _members.values();
 }
 
 void Namespace::add(Symbol *symbol)
@@ -116,6 +116,7 @@ void Namespace::add(Symbol *symbol)
         } else if (Function *firstFunction = sym->asFunction()) {
             OverloadSet *o = new OverloadSet(this);
             _overloadSets.append(o);
+            o->setName(symbol->name());
             o->addFunction(firstFunction);
             o->addFunction(fun);
             sym = o;

@@ -73,7 +73,7 @@ public:
 
     Symbol *lookup(const QString &name) const;
 
-    virtual QStringList members() const;
+    virtual QList<Symbol *> members() const;
     virtual void add(Symbol *symbol) = 0;
     virtual Symbol *find(const QString &name) const = 0;
 

@@ -331,12 +331,12 @@ bool ArrayType::isLessThan(const Type *other) const
     return elementType() < array->elementType();
 }
 
-QStringList Struct::members() const
+QList<Symbol *> Struct::members() const
 {
-    QStringList m;
+    QList<Symbol *> m;
     foreach (Symbol *s, _members) {
         if (! s->name().isEmpty())
-            m.append(s->name());
+            m.append(s);
     }
     return m;
 }
@@ -438,12 +438,12 @@ bool Function::isLessThan(const Type *other) const
     return false;
 }
 
-QStringList Function::members() const
+QList<Symbol *> Function::members() const
 {
-    QStringList m;
+    QList<Symbol *> m;
     foreach (Argument *arg, _arguments) {
         if (! arg->name().isEmpty())
-            m.append(arg->name());
+            m.append(arg);
     }
     return m;
 }

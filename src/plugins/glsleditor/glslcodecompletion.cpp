@@ -95,37 +95,6 @@ static bool checkStartOfIdentifier(const QString &word)
     return false;
 }
 
-// Temporary workaround until we have proper icons for QML completion items
-static QIcon iconForColor(const QColor &color)
-{
-    QPixmap pix(6, 6);
-
-    int pixSize = 20;
-    QBrush br(color);
-
-    QPixmap pm(2 * pixSize, 2 * pixSize);
-    QPainter pmp(&pm);
-    pmp.fillRect(0, 0, pixSize, pixSize, Qt::lightGray);
-    pmp.fillRect(pixSize, pixSize, pixSize, pixSize, Qt::lightGray);
-    pmp.fillRect(0, pixSize, pixSize, pixSize, Qt::darkGray);
-    pmp.fillRect(pixSize, 0, pixSize, pixSize, Qt::darkGray);
-    pmp.fillRect(0, 0, 2 * pixSize, 2 * pixSize, color);
-    br = QBrush(pm);
-
-    QPainter p(&pix);
-    int corr = 1;
-    QRect r = pix.rect().adjusted(corr, corr, -corr, -corr);
-    p.setBrushOrigin((r.width() % pixSize + pixSize) / 2 + corr, (r.height() % pixSize + pixSize) / 2 + corr);
-    p.fillRect(r, br);
-
-    p.fillRect(r.width() / 4 + corr, r.height() / 4 + corr,
-               r.width() / 2, r.height() / 2,
-               QColor(color.rgb()));
-    p.drawRect(pix.rect().adjusted(0, 0, -1, -1));
-
-    return pix;
-}
-
 static const char *glsl_keywords[] =
 { // ### TODO: get the keywords from the lexer
   "attribute",
@@ -519,9 +488,13 @@ CodeCompletion::CodeCompletion(QObject *parent)
     : ICompletionCollector(parent),
       m_editor(0),
       m_startPosition(-1),
-      m_restartCompletion(false)
+      m_restartCompletion(false),
+      m_varIcon(":/glsleditor/images/var.png"),
+      m_functionIcon(":/glsleditor/images/func.png"),
+      m_typeIcon(":/glsleditor/images/type.png"),
+      m_otherIcon(":/glsleditor/images/other.png")
 {
-    const QIcon keywordIcon = iconForColor(Qt::darkYellow);
+    const QIcon keywordIcon(QLatin1String(":/glsleditor/images/keyword.png"));
     for (const char **it = glsl_keywords; *it; ++it) {
         TextEditor::CompletionItem item(this);
         item.text = QString::fromLatin1(*it);
@@ -599,9 +572,7 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     CPlusPlus::ExpressionUnderCursor expressionUnderCursor;
     GLSLTextEditor *edit = qobject_cast<GLSLTextEditor *>(editor->widget());
 
-    const QIcon symbolIcon = iconForColor(Qt::darkCyan);
-
-    QStringList members;
+    QList<GLSL::Symbol *> members;
     QStringList specialMembers;
 
     bool functionCall = (ch == QLatin1Char('(') && pos == editor->position() - 1);
@@ -705,11 +676,18 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         m_completions += m_keywordCompletions;
     }
 
-    foreach (const QString &s, members) {
+    foreach (GLSL::Symbol *s, members) {
         TextEditor::CompletionItem item(this);
-        item.icon = symbolIcon;
-        item.text = s;
-        if (specialMembers.contains(s))
+        if (s->asVariable() || s->asArgument())
+            item.icon = m_varIcon;
+        else if (s->asFunction() || s->asOverloadSet())
+            item.icon = m_functionIcon;
+        else if (s->asStruct())
+            item.icon = m_typeIcon;
+        else
+            item.icon = m_otherIcon;
+        item.text = s->name();
+        if (specialMembers.contains(item.text))
             item.order = SpecialMemberOrder;
         m_completions.append(item);
     }

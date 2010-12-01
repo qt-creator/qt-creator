@@ -70,7 +70,7 @@ class GLSL_EXPORT Block: public Scope
 public:
     Block(Scope *enclosingScope = 0);
 
-    virtual QStringList members() const;
+    virtual QList<Symbol *> members() const;
     virtual void add(Symbol *symbol);
 
     virtual Block *asBlock() { return this; }
@@ -92,7 +92,7 @@ public:
 
     virtual Namespace *asNamespace() { return this; }
 
-    virtual QStringList members() const;
+    virtual QList<Symbol *> members() const;
     virtual const Type *type() const;
     virtual Symbol *find(const QString &name) const;
 
