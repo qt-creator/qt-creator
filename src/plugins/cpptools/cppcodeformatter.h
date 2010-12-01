@@ -112,6 +112,7 @@ public: // must be public to make Q_GADGET introspection work
         cpp_macro_cont, // Subsequent lines of a multi-line C preprocessor macro definition.
         cpp_macro_conditional, // Special marker used for separating saved from current state when dealing with #ifdef
         qt_like_macro, // after an identifier starting with Q_ or QT_ at the beginning of the line
+        label, // after an identifier followed by a colon
 
         defun_open, // Brace that opens a top-level function definition.
         using_start, // right after the "using" token

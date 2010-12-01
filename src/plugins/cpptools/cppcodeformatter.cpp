@@ -382,6 +382,12 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             default:            leave(); continue;
             } break;
 
+        case label:
+            switch (kind) {
+            case T_COLON:       leave(); break;
+            default:            leave(); continue; // shouldn't happen
+            } break;
+
         case multiline_comment_start:
         case multiline_comment_cont:
             if (kind != T_COMMENT && kind != T_DOXY_COMMENT) {
@@ -708,6 +714,10 @@ bool CodeFormatter::tryDeclaration()
                     || tokenText.startsWith(QLatin1String("QML_"))
                     || tokenText.startsWith(QLatin1String("QDOC_"))) {
                 enter(qt_like_macro);
+                return true;
+            }
+            if (m_tokens.size() > 1 && m_tokens.at(1).kind() == T_COLON) {
+                enter(label);
                 return true;
             }
         }
@@ -1425,6 +1435,16 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
             if (*indentDepth >= m_indentSize)
                 *indentDepth -= m_indentSize;
             else
+                *indentDepth = 0;
+        }
+        break;
+    case T_IDENTIFIER:
+        if (topState.type == substatement
+                || topState.type == substatement_open
+                || topState.type == case_cont
+                || topState.type == block_open
+                || topState.type == defun_open) {
+            if (tokens.size() > 1 && tokens.at(1).kind() == T_COLON) // label?
                 *indentDepth = 0;
         }
         break;
