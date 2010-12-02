@@ -82,45 +82,45 @@ QString GLSLFileWizard::fileContents(const QString &, ShaderType shaderType) con
 
     switch (shaderType) {
     case GLSLFileWizard::VertexShaderES:
-        str << QLatin1String("attribute highp vec4 qgl_Vertex;\n")
-            << QLatin1String("attribute highp vec4 qgl_TexCoord0;\n")
-            << QLatin1String("uniform highp mat4 qgl_ModelViewProjectionMatrix;\n")
-            << QLatin1String("varying highp vec4 qTexCoord0;\n")
+        str << QLatin1String("attribute highp vec4 qt_Vertex;\n")
+            << QLatin1String("attribute highp vec4 qt_MultiTexCoord0;\n")
+            << QLatin1String("uniform highp mat4 qt_ModelViewProjectionMatrix;\n")
+            << QLatin1String("varying highp vec4 qt_TexCoord0;\n")
             << QLatin1String("\n")
             << QLatin1String("void main(void)\n")
             << QLatin1String("{\n")
-            << QLatin1String("    gl_Position = qgl_ModelViewProjectionMatrix * qgl_Vertex;\n")
-            << QLatin1String("    qTexCoord0 = qgl_TexCoord0;\n")
+            << QLatin1String("    gl_Position = qt_ModelViewProjectionMatrix * qt_Vertex;\n")
+            << QLatin1String("    qt_TexCoord0 = qt_MultiTexCoord0;\n")
             << QLatin1String("}\n");
         break;
     case GLSLFileWizard::FragmentShaderES:
-        str << QLatin1String("uniform sampler2D qgl_Texture0;\n")
-            << QLatin1String("varying highp vec4 qTexCoord0;\n")
+        str << QLatin1String("uniform sampler2D qt_Texture0;\n")
+            << QLatin1String("varying highp vec4 qt_TexCoord0;\n")
             << QLatin1String("\n")
             << QLatin1String("void main(void)\n")
             << QLatin1String("{\n")
-            << QLatin1String("    gl_FragColor = texture2D(qgl_Texture0, qTexCoord0.st);\n")
+            << QLatin1String("    gl_FragColor = texture2D(qt_Texture0, qt_TexCoord0.st);\n")
             << QLatin1String("}\n");
         break;
     case GLSLFileWizard::VertexShaderDesktop:
-        str << QLatin1String("attribute vec4 qgl_Vertex;\n")
-            << QLatin1String("attribute vec4 qgl_TexCoord0;\n")
-            << QLatin1String("uniform mat4 qgl_ModelViewProjectionMatrix;\n")
-            << QLatin1String("varying vec4 qTexCoord0;\n")
+        str << QLatin1String("attribute vec4 qt_Vertex;\n")
+            << QLatin1String("attribute vec4 qt_MultiTexCoord0;\n")
+            << QLatin1String("uniform mat4 qt_ModelViewProjectionMatrix;\n")
+            << QLatin1String("varying vec4 qt_TexCoord0;\n")
             << QLatin1String("\n")
             << QLatin1String("void main(void)\n")
             << QLatin1String("{\n")
-            << QLatin1String("    gl_Position = qgl_ModelViewProjectionMatrix * qgl_Vertex;\n")
-            << QLatin1String("    qTexCoord0 = qgl_TexCoord0;\n")
+            << QLatin1String("    gl_Position = qt_ModelViewProjectionMatrix * qt_Vertex;\n")
+            << QLatin1String("    qt_TexCoord0 = qt_MultiTexCoord0;\n")
             << QLatin1String("}\n");
         break;
     case GLSLFileWizard::FragmentShaderDesktop:
-        str << QLatin1String("uniform sampler2D qgl_Texture0;\n")
-            << QLatin1String("varying vec4 qTexCoord0;\n")
+        str << QLatin1String("uniform sampler2D qt_Texture0;\n")
+            << QLatin1String("varying vec4 qt_TexCoord0;\n")
             << QLatin1String("\n")
             << QLatin1String("void main(void)\n")
             << QLatin1String("{\n")
-            << QLatin1String("    gl_FragColor = texture2D(qgl_Texture0, qTexCoord0.st);\n")
+            << QLatin1String("    gl_FragColor = texture2D(qt_Texture0, qt_TexCoord0.st);\n")
             << QLatin1String("}\n");
         break;
     default: break;
