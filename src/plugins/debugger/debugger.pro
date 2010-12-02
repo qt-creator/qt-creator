@@ -28,7 +28,6 @@ HEADERS += breakhandler.h \
     debuggerconstants.h \
     debuggerdialogs.h \
     debuggerengine.h \
-    debuggermainwindow.h \
     debuggerplugin.h \
     debuggerrunner.h \
     debuggerstreamops.h \
@@ -69,7 +68,6 @@ SOURCES += breakhandler.cpp \
     debuggeragents.cpp \
     debuggerdialogs.cpp \
     debuggerengine.cpp \
-    debuggermainwindow.cpp \
     debuggerplugin.cpp \
     debuggerrunner.cpp \
     debuggerstreamops.cpp \

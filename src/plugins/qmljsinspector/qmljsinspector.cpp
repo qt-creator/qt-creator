@@ -488,8 +488,7 @@ void InspectorUi::reloadQmlViewer()
 
 void InspectorUi::setSimpleDockWidgetArrangement(const Debugger::DebuggerLanguages &activeLanguages)
 {
-    Debugger::DebuggerUISwitcher *uiSwitcher = Debugger::DebuggerPlugin::uiSwitcher();
-    Utils::FancyMainWindow *mw = uiSwitcher->mainWindow();
+    Debugger::DebuggerMainWindow *mw = Debugger::DebuggerPlugin::mainWindow();
 
     mw->setTrackingEnabled(false);
 
@@ -502,7 +501,7 @@ void InspectorUi::setSimpleDockWidgetArrangement(const Debugger::DebuggerLanguag
             mw->removeDockWidget(dockWidget);
         }
         foreach (QDockWidget *dockWidget, dockWidgets) {
-            if (dockWidget == uiSwitcher->outputWindow()) {
+            if (dockWidget == mw->outputWindow()) {
                 mw->addDockWidget(Qt::TopDockWidgetArea, dockWidget);
             } else {
                 mw->addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
@@ -515,17 +514,17 @@ void InspectorUi::setSimpleDockWidgetArrangement(const Debugger::DebuggerLanguag
             }
         }
 
-        uiSwitcher->stackWindow()->show();
-        uiSwitcher->watchWindow()->show();
-        uiSwitcher->breakWindow()->show();
-        uiSwitcher->threadsWindow()->show();
-        uiSwitcher->snapshotsWindow()->show();
+        mw->stackWindow()->show();
+        mw->watchWindow()->show();
+        mw->breakWindow()->show();
+        mw->threadsWindow()->show();
+        mw->snapshotsWindow()->show();
         m_inspectorDockWidget->show();
 
-        mw->splitDockWidget(mw->toolBarDockWidget(), uiSwitcher->stackWindow(), Qt::Vertical);
-        mw->splitDockWidget(uiSwitcher->stackWindow(), uiSwitcher->watchWindow(), Qt::Horizontal);
-        mw->tabifyDockWidget(uiSwitcher->watchWindow(), uiSwitcher->breakWindow());
-        mw->tabifyDockWidget(uiSwitcher->watchWindow(), m_inspectorDockWidget);
+        mw->splitDockWidget(mw->toolBarDockWidget(), mw->stackWindow(), Qt::Vertical);
+        mw->splitDockWidget(mw->stackWindow(), mw->watchWindow(), Qt::Horizontal);
+        mw->tabifyDockWidget(mw->watchWindow(), mw->breakWindow());
+        mw->tabifyDockWidget(mw->watchWindow(), m_inspectorDockWidget);
 
     }
 
@@ -594,8 +593,6 @@ bool InspectorUi::addQuotesForData(const QVariant &value) const
 
 void InspectorUi::setupDockWidgets()
 {
-    Debugger::DebuggerUISwitcher *uiSwitcher = Debugger::DebuggerPlugin::uiSwitcher();
-
     m_toolbar->createActions(Core::Context(Debugger::Constants::C_QMLDEBUGGER));
     m_toolbar->setObjectName("QmlInspectorToolbar");
 
@@ -618,9 +615,9 @@ void InspectorUi::setupDockWidgets()
     wlay->addWidget(m_objectTreeWidget);
     wlay->addWidget(m_crumblePath);
 
-
-    m_inspectorDockWidget = uiSwitcher->createDockWidget(Debugger::QmlLanguage,
-                                                         observerWidget, Qt::BottomDockWidgetArea);
+    Debugger::DebuggerMainWindow *mw = Debugger::DebuggerPlugin::mainWindow();
+    m_inspectorDockWidget = mw->createDockWidget(Debugger::QmlLanguage,
+        observerWidget, Qt::BottomDockWidgetArea);
     m_inspectorDockWidget->setObjectName(Debugger::Constants::DOCKWIDGET_QML_INSPECTOR);
     m_inspectorDockWidget->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
     m_inspectorDockWidget->setTitleBarWidget(new QWidget(m_inspectorDockWidget));

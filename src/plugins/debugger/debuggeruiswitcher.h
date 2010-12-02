@@ -33,21 +33,20 @@
 #include "debugger_global.h"
 #include "debuggerconstants.h"
 
+#include <utils/fancymainwindow.h>
+
 #include <QtCore/QObject>
 
 QT_BEGIN_NAMESPACE
 class QDockWidget;
 class QSettings;
+class QMenu;
 QT_END_NAMESPACE
 
 namespace Core {
 class Command;
 class Context;
 class IMode;
-}
-
-namespace Utils {
-class FancyMainWindow;
 }
 
 namespace ProjectExplorer {
@@ -57,19 +56,18 @@ class RunConfiguration;
 }
 
 namespace Debugger {
-struct DebuggerUISwitcherPrivate;
 
 namespace Internal {
-class DebuggerMainWindow;
-};
+class DebuggerMainWindowPrivate;
+}
 
-class DEBUGGER_EXPORT DebuggerUISwitcher : public QObject
+class DEBUGGER_EXPORT DebuggerMainWindow : public Utils::FancyMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit DebuggerUISwitcher(QObject *parent = 0);
-    ~DebuggerUISwitcher();
+    DebuggerMainWindow();
+    ~DebuggerMainWindow();
 
     // debuggable languages are registered with this function.
     void addLanguage(const DebuggerLanguage &language, const Core::Context &context);
@@ -107,8 +105,8 @@ public:
     QDockWidget *createDockWidget(const DebuggerLanguage &language, QWidget *widget,
                                   Qt::DockWidgetArea area = Qt::TopDockWidgetArea);
 
-    Utils::FancyMainWindow *mainWindow() const;
     QWidget *createContents(Core::IMode *mode);
+    QMenu *createPopupMenu();
 
 signals:
     // emit when user changes active languages from the menu.
@@ -134,10 +132,6 @@ public slots:
     void writeSettings() const;
 
 private:
-    // Used by MainWindow
-    friend class Internal::DebuggerMainWindow;
-    QList<QDockWidget *> dockWidgets() const;
-
     void activateQmlCppLayout();
     void activateCppLayout();
 
@@ -146,7 +140,7 @@ private:
     bool isQmlCppActive() const;
     bool isQmlActive() const;
 
-    DebuggerUISwitcherPrivate *d;
+    Internal::DebuggerMainWindowPrivate *d;
 };
 
 } // namespace Debugger

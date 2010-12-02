@@ -45,7 +45,7 @@ namespace Debugger {
 
 class DebuggerRunControl;
 class DebuggerStartParameters;
-class DebuggerUISwitcher;
+class DebuggerMainWindow;
 
 // This is the "external" interface of the debugger plugin that's
 // visible from Creator core. The internal interfact to global
@@ -65,7 +65,7 @@ public:
     static void startDebugger(ProjectExplorer::RunControl *runControl);
     static void displayDebugger(ProjectExplorer::RunControl *runControl);
     static bool isActiveDebugLanguage(int language);
-    static DebuggerUISwitcher *uiSwitcher();
+    static DebuggerMainWindow *mainWindow();
 
 private:
     // IPlugin implementation.

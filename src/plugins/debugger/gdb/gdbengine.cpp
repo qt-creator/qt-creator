@@ -33,7 +33,6 @@
 
 #include "gdboptionspage.h"
 #include "debuggeruiswitcher.h"
-#include "debuggermainwindow.h"
 #include "debuggercore.h"
 #include "debuggerplugin.h"
 #include "debuggerrunner.h"
