@@ -445,6 +445,7 @@
     Qt Creator is available in binary packages for the following operating
     systems:
     \list
+        \o Windows 7
         \o Windows XP Service Pack 2
         \o Windows Vista
         \o (K)Ubuntu Linux 8.04 (32-bit and 64-bit) or later, with the following:
