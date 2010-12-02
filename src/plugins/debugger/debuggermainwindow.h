@@ -49,12 +49,6 @@ class Context;
 class IMode;
 }
 
-namespace ProjectExplorer {
-class Project;
-class Target;
-class RunConfiguration;
-}
-
 namespace Debugger {
 
 namespace Internal {
@@ -69,28 +63,28 @@ public:
     DebuggerMainWindow();
     ~DebuggerMainWindow();
 
-    // debuggable languages are registered with this function.
+    // Debuggable languages are registered with this function.
     void addLanguage(const DebuggerLanguage &language, const Core::Context &context);
 
-    // debugger toolbars are registered  with this function
+    // Debugger toolbars are registered  with this function
     void setToolbar(const DebuggerLanguage &language, QWidget *widget);
 
-    // menu actions are registered with this function
+    // Menu actions are registered with this function
     void addMenuAction(Core::Command *command, const DebuggerLanguage &language,
                        const QString &group = QString());
 
-    // all supported languages
+    // All supported languages
     DebuggerLanguages supportedLanguages() const;
 
-    // active languages to be debugged.
+    // Active languages to be debugged.
     DebuggerLanguages activeDebugLanguages() const;
 
-    // called when all dependent plugins have loaded
+    // Called when all dependent plugins have loaded
     void initialize(QSettings *settings);
 
     void onModeChanged(Core::IMode *mode);
 
-    // most common debugger windows
+    // Most common debugger windows
     QDockWidget *breakWindow() const;
     QDockWidget *stackWindow() const;
     QDockWidget *watchWindow() const;
@@ -101,7 +95,7 @@ public:
 
     QDockWidget *dockWidget(const QString &objectName) const;
 
-    // dockwidgets are registered to the main window
+    // Dockwidgets are registered to the main window.
     QDockWidget *createDockWidget(const DebuggerLanguage &language, QWidget *widget,
                                   Qt::DockWidgetArea area = Qt::TopDockWidgetArea);
 
@@ -109,21 +103,11 @@ public:
     QMenu *createPopupMenu();
 
 signals:
-    // emit when user changes active languages from the menu.
+    // Emit when user changes active languages from the menu.
     // Both UI and debugger startup are affected.
     void activeLanguagesChanged(Debugger::DebuggerLanguages activeLanguages);
     void dockResetRequested(Debugger::DebuggerLanguages activeLanguages);
     void memoryEditorRequested();
-
-private slots:
-    void updateUi();
-    void resetDebuggerLayout();
-
-    void updateUiForProject(ProjectExplorer::Project *project);
-    void updateUiForTarget(ProjectExplorer::Target *target);
-    void updateUiForRunConfiguration(ProjectExplorer::RunConfiguration *rc);
-    void updateUiForCurrentRunConfiguration();
-    void updateUiOnFileListChange();
 
 public slots:
     void updateActiveLanguages();
@@ -132,14 +116,7 @@ public slots:
     void writeSettings() const;
 
 private:
-    void activateQmlCppLayout();
-    void activateCppLayout();
-
-    void hideInactiveWidgets();
-    void createViewsMenuItems();
-    bool isQmlCppActive() const;
-    bool isQmlActive() const;
-
+    friend class Internal::DebuggerMainWindowPrivate;
     Internal::DebuggerMainWindowPrivate *d;
 };
 
