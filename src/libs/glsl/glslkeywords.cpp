@@ -1664,3 +1664,210 @@ int Lexer::classify(const char *s, int n) {
   } // switch
 }
 
+QStringList Lexer::keywords(int variant) {
+  QStringList list;
+  list += QLatin1String("do");
+  list += QLatin1String("if");
+  list += QLatin1String("in");
+  list += QLatin1String("for");
+  list += QLatin1String("int");
+  list += QLatin1String("out");
+  list += QLatin1String("bool");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("case");
+  list += QLatin1String("else");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("flat");
+  if (variant & (Lexer::Variant_GLSL_ES_100 | Lexer::Variant_GLSL_400))
+    list += QLatin1String("lowp");
+  list += QLatin1String("mat2");
+  list += QLatin1String("mat3");
+  list += QLatin1String("mat4");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("uint");
+  list += QLatin1String("vec2");
+  list += QLatin1String("vec3");
+  list += QLatin1String("vec4");
+  list += QLatin1String("void");
+  list += QLatin1String("true");
+  list += QLatin1String("break");
+  list += QLatin1String("bvec2");
+  list += QLatin1String("bvec3");
+  list += QLatin1String("bvec4");
+  list += QLatin1String("const");
+  if (variant & (Lexer::Variant_GLSL_400))
+    list += QLatin1String("dmat2");
+  if (variant & (Lexer::Variant_GLSL_400))
+    list += QLatin1String("dmat3");
+  if (variant & (Lexer::Variant_GLSL_400))
+    list += QLatin1String("dmat4");
+  if (variant & (Lexer::Variant_GLSL_400))
+    list += QLatin1String("dvec2");
+  if (variant & (Lexer::Variant_GLSL_400))
+    list += QLatin1String("dvec3");
+  if (variant & (Lexer::Variant_GLSL_400))
+    list += QLatin1String("dvec4");
+  list += QLatin1String("float");
+  if (variant & (Lexer::Variant_GLSL_ES_100 | Lexer::Variant_GLSL_400))
+    list += QLatin1String("highp");
+  list += QLatin1String("inout");
+  list += QLatin1String("ivec2");
+  list += QLatin1String("ivec3");
+  list += QLatin1String("ivec4");
+  if (variant & (Lexer::Variant_GLSL_400))
+    list += QLatin1String("patch");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("uvec2");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("uvec3");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("uvec4");
+  list += QLatin1String("while");
+  list += QLatin1String("false");
+  if (variant & (Lexer::Variant_GLSL_400))
+    list += QLatin1String("double");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("layout");
+  if (variant & (Lexer::Variant_GLSL_120))
+    list += QLatin1String("mat2x2");
+  if (variant & (Lexer::Variant_GLSL_120))
+    list += QLatin1String("mat2x3");
+  if (variant & (Lexer::Variant_GLSL_120))
+    list += QLatin1String("mat2x4");
+  if (variant & (Lexer::Variant_GLSL_120))
+    list += QLatin1String("mat3x2");
+  if (variant & (Lexer::Variant_GLSL_120))
+    list += QLatin1String("mat3x3");
+  if (variant & (Lexer::Variant_GLSL_120))
+    list += QLatin1String("mat3x4");
+  if (variant & (Lexer::Variant_GLSL_120))
+    list += QLatin1String("mat4x2");
+  if (variant & (Lexer::Variant_GLSL_120))
+    list += QLatin1String("mat4x3");
+  if (variant & (Lexer::Variant_GLSL_120))
+    list += QLatin1String("mat4x4");
+  list += QLatin1String("return");
+  if (variant & (Lexer::Variant_Reserved))
+    list += QLatin1String("sample");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("smooth");
+  list += QLatin1String("struct");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("switch");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("default");
+  if (variant & (Lexer::Variant_FragmentShader))
+    list += QLatin1String("discard");
+  if (variant & (Lexer::Variant_GLSL_400))
+    list += QLatin1String("dmat2x2");
+  if (variant & (Lexer::Variant_GLSL_400))
+    list += QLatin1String("dmat2x3");
+  if (variant & (Lexer::Variant_GLSL_400))
+    list += QLatin1String("dmat2x4");
+  if (variant & (Lexer::Variant_GLSL_400))
+    list += QLatin1String("dmat3x2");
+  if (variant & (Lexer::Variant_GLSL_400))
+    list += QLatin1String("dmat3x3");
+  if (variant & (Lexer::Variant_GLSL_400))
+    list += QLatin1String("dmat3x4");
+  if (variant & (Lexer::Variant_GLSL_400))
+    list += QLatin1String("dmat4x2");
+  if (variant & (Lexer::Variant_GLSL_400))
+    list += QLatin1String("dmat4x3");
+  if (variant & (Lexer::Variant_GLSL_400))
+    list += QLatin1String("dmat4x4");
+  if (variant & (Lexer::Variant_GLSL_ES_100 | Lexer::Variant_GLSL_400))
+    list += QLatin1String("mediump");
+  list += QLatin1String("uniform");
+  list += QLatin1String("varying");
+  if (variant & (Lexer::Variant_GLSL_120))
+    list += QLatin1String("centroid");
+  list += QLatin1String("continue");
+  if (variant & (Lexer::Variant_VertexShader))
+    list += QLatin1String("attribute");
+  list += QLatin1String("invariant");
+  if (variant & (Lexer::Variant_GLSL_ES_100))
+    list += QLatin1String("precision");
+  if (variant & (Lexer::Variant_GLSL_120))
+    list += QLatin1String("sampler1D");
+  list += QLatin1String("sampler2D");
+  if (variant & (Lexer::Variant_GLSL_120))
+    list += QLatin1String("sampler3D");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("isampler1D");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("isampler2D");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("isampler3D");
+  if (variant & (Lexer::Variant_GLSL_400))
+    list += QLatin1String("subroutine");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("usampler1D");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("usampler2D");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("usampler3D");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("sampler2DMS");
+  list += QLatin1String("samplerCube");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("isampler2DMS");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("isamplerCube");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("usampler2DMS");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("usamplerCube");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("noperspective");
+  list += QLatin1String("sampler2DRect");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("samplerBuffer");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("isampler2DRect");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("isamplerBuffer");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("sampler1DArray");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("sampler2DArray");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("usampler2DRect");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("usamplerBuffer");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("isampler1DArray");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("isampler2DArray");
+  if (variant & (Lexer::Variant_GLSL_120))
+    list += QLatin1String("sampler1DShadow");
+  if (variant & (Lexer::Variant_GLSL_120))
+    list += QLatin1String("sampler2DShadow");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("usampler1DArray");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("usampler2DArray");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("sampler2DMSArray");
+  if (variant & (Lexer::Variant_GLSL_400))
+    list += QLatin1String("samplerCubeArray");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("isampler2DMSArray");
+  if (variant & (Lexer::Variant_GLSL_400))
+    list += QLatin1String("isamplerCubeArray");
+  if (variant & (Lexer::Variant_GLSL_400))
+    list += QLatin1String("samplerCubeShadow");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("usampler2DMSarray");
+  if (variant & (Lexer::Variant_GLSL_400))
+    list += QLatin1String("usamplerCubeArray");
+  list += QLatin1String("sampler2DRectShadow");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("sampler1DArrayShadow");
+  if (variant & (Lexer::Variant_GLSL_150))
+    list += QLatin1String("sampler2DArrayShadow");
+  if (variant & (Lexer::Variant_GLSL_400))
+    list += QLatin1String("samplerCubeArrayShadow");
+  return list;
+}
+

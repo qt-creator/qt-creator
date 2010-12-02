@@ -107,6 +107,9 @@ private:
 
     static bool glslCompletionItemLessThan(const TextEditor::CompletionItem &l, const TextEditor::CompletionItem &r);
 
+    int m_keywordVariant;
+
+    QIcon m_keywordIcon;
     QIcon m_varIcon;
     QIcon m_functionIcon;
     QIcon m_typeIcon;

@@ -95,131 +95,6 @@ static bool checkStartOfIdentifier(const QString &word)
     return false;
 }
 
-static const char *glsl_keywords[] =
-{ // ### TODO: get the keywords from the lexer
-  "attribute",
-  "bool",
-  "break",
-  "bvec2",
-  "bvec3",
-  "bvec4",
-  "case",
-  "centroid",
-  "const",
-  "continue",
-  "default",
-  "discard",
-  "dmat2",
-  "dmat2x2",
-  "dmat2x3",
-  "dmat2x4",
-  "dmat3",
-  "dmat3x2",
-  "dmat3x3",
-  "dmat3x4",
-  "dmat4",
-  "dmat4x2",
-  "dmat4x3",
-  "dmat4x4",
-  "do",
-  "double",
-  "dvec2",
-  "dvec3",
-  "dvec4",
-  "else",
-  "false",
-  "flat",
-  "float",
-  "for",
-  "highp",
-  "if",
-  "in",
-  "inout",
-  "int",
-  "invariant",
-  "isampler1D",
-  "isampler1DArray",
-  "isampler2D",
-  "isampler2DArray",
-  "isampler2DMS",
-  "isampler2DMSArray",
-  "isampler2DRect",
-  "isampler3D",
-  "isamplerBuffer",
-  "isamplerCube",
-  "isamplerCubeArray",
-  "ivec2",
-  "ivec3",
-  "ivec4",
-  "layout",
-  "lowp",
-  "mat2",
-  "mat2x2",
-  "mat2x3",
-  "mat2x4",
-  "mat3",
-  "mat3x2",
-  "mat3x3",
-  "mat3x4",
-  "mat4",
-  "mat4x2",
-  "mat4x3",
-  "mat4x4",
-  "mediump",
-  "noperspective",
-  "out",
-  "patch",
-  "precision",
-  "return",
-  "sample",
-  "sampler1D",
-  "sampler1DArray",
-  "sampler1DArrayShadow",
-  "sampler1DShadow",
-  "sampler2D",
-  "sampler2DArray",
-  "sampler2DArrayShadow",
-  "sampler2DMS",
-  "sampler2DMSArray",
-  "sampler2DRect",
-  "sampler2DRectShadow",
-  "sampler2DShadow",
-  "sampler3D",
-  "samplerBuffer",
-  "samplerCube",
-  "samplerCubeArray",
-  "samplerCubeArrayShadow",
-  "samplerCubeShadow",
-  "smooth",
-  "struct",
-  "subroutine",
-  "switch",
-  "true",
-  "uint",
-  "uniform",
-  "usampler1D",
-  "usampler1DArray",
-  "usampler2D",
-  "usampler2DArray",
-  "usampler2DMS",
-  "usampler2DMSarray",
-  "usampler2DRect",
-  "usampler3D",
-  "usamplerBuffer",
-  "usamplerCube",
-  "usamplerCubeArray",
-  "uvec2",
-  "uvec3",
-  "uvec4",
-  "varying",
-  "vec2",
-  "vec3",
-  "vec4",
-  "void",
-  "while",
-  0
-};
-
 namespace GLSLEditor {
 namespace Internal {
 class FunctionArgumentWidget : public QLabel
@@ -489,6 +364,8 @@ CodeCompletion::CodeCompletion(QObject *parent)
       m_editor(0),
       m_startPosition(-1),
       m_restartCompletion(false),
+      m_keywordVariant(-1),
+      m_keywordIcon(":/glsleditor/images/keyword.png"),
       m_varIcon(":/glsleditor/images/var.png"),
       m_functionIcon(":/glsleditor/images/func.png"),
       m_typeIcon(":/glsleditor/images/type.png"),
@@ -498,13 +375,6 @@ CodeCompletion::CodeCompletion(QObject *parent)
       m_varyingIcon(":/glsleditor/images/varying.png"),
       m_otherIcon(":/glsleditor/images/other.png")
 {
-    const QIcon keywordIcon(QLatin1String(":/glsleditor/images/keyword.png"));
-    for (const char **it = glsl_keywords; *it; ++it) {
-        TextEditor::CompletionItem item(this);
-        item.text = QString::fromLatin1(*it);
-        item.icon = keywordIcon;
-        m_keywordCompletions.append(item);
-    }
 }
 
 CodeCompletion::~CodeCompletion()
@@ -675,6 +545,18 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             // add the members from the scope chain
             for (; currentScope; currentScope = currentScope->scope())
                 members += currentScope->members();
+        }
+
+        if (m_keywordVariant != edit->languageVariant()) {
+            QStringList keywords = GLSL::Lexer::keywords(edit->languageVariant());
+            m_keywordCompletions.clear();
+            for (int index = 0; index < keywords.size(); ++index) {
+                TextEditor::CompletionItem item(this);
+                item.text = keywords.at(index);
+                item.icon = m_keywordIcon;
+                m_keywordCompletions.append(item);
+            }
+            m_keywordVariant = edit->languageVariant();
         }
 
         m_completions += m_keywordCompletions;

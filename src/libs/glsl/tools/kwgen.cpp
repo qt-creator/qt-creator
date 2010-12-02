@@ -249,6 +249,25 @@ void gen_classify(const std::multimap<size_t, std::string> &keywords)
             << "}" << std::endl << std::endl;
 }
 
+void gen_keyword_list(const std::multimap<size_t, std::string> &keywords)
+{
+  std::cout << "QStringList " << option_class_name << "keywords(int variant) {" << std::endl
+            << "  QStringList list;" << std::endl;
+  std::multimap<size_t, std::string>::const_iterator it = keywords.begin();
+  for (; it != keywords.end(); ++it) {
+    std::string varid = variant_id(it->second);
+    if (varid.empty()) {
+      std::cout << "  list += QLatin1String(\"" << it->second << "\");" << std::endl;
+    } else {
+      varid = varid.substr(3);
+      std::cout << "  if (variant & (" << varid << "))" << std::endl;
+      std::cout << "    list += QLatin1String(\"" << it->second << "\");" << std::endl;
+    }
+  }
+  std::cout << "  return list;" << std::endl
+            << "}" << std::endl << std::endl;
+}
+
 void gen_enums(const std::multimap<size_t, std::string> &keywords)
 {
   std::cout << "enum {" << std::endl;
@@ -382,4 +401,6 @@ int main(int argc, char *argv[]) {
   }  
   
   gen_classify(keywords);
+
+  gen_keyword_list(keywords);
 }

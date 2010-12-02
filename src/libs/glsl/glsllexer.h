@@ -32,6 +32,7 @@
 
 #include "glsl.h"
 #include <QtCore/qstring.h>
+#include <QtCore/qstringlist.h>
 
 namespace GLSL {
 
@@ -105,6 +106,8 @@ public:
     int findKeyword(const char *word, int length) const;
 
     void *yyval() const { return _yyval.ptr; }
+
+    static QStringList keywords(int variant);
 
 private:
     static int classify(const char *s, int len);
