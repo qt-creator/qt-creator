@@ -424,7 +424,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 resetLocation();
                 StackHandler *sh = stackHandler();
                 sh->setCurrentIndex(token);
-                if (QFileInfo(sh->currentFrame().file).exists())
+                if (!sh->currentFrame().isUsable() || QFileInfo(sh->currentFrame().file).exists())
                     gotoLocation(sh->currentFrame(), true);
                 else
                     fetchFrameSource(token);
