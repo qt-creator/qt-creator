@@ -39,7 +39,6 @@
 
 QT_BEGIN_NAMESPACE
 class QDockWidget;
-class QSettings;
 class QMenu;
 QT_END_NAMESPACE
 
@@ -65,17 +64,14 @@ public:
     // Debuggable languages are registered with this function.
     void addLanguage(const DebuggerLanguage &language, const Core::Context &context);
 
-    // Debugger toolbars are registered  with this function
+    // Debugger toolbars are registered  with this function.
     void setToolbar(const DebuggerLanguage &language, QWidget *widget);
-
-    // All supported languages
-    DebuggerLanguages supportedLanguages() const;
 
     // Active languages to be debugged.
     DebuggerLanguages activeDebugLanguages() const;
 
-    // Called when all dependent plugins have loaded
-    void initialize(QSettings *settings);
+    // Called when all dependent plugins have loaded.
+    void initialize();
 
     void onModeChanged(Core::IMode *mode);
 

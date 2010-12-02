@@ -737,7 +737,7 @@ QWidget *DebuggingHelperOptionPage::createPage(QWidget *parent)
 
 #ifndef QT_DEBUG
 #if 0
-    cmd = am->registerAction(m_manager->m_dumpLogAction,
+    cmd = am->registerAction(m_dumpLogAction,
         DUMP_LOG, globalcontext);
     //cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+D,Ctrl+L")));
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+F11")));
@@ -1324,7 +1324,6 @@ public slots:
 public:
     DebuggerState m_state;
     DebuggerMainWindow *m_mainWindow;
-    DebuggerPlugin *m_manager;
     DebugMode *m_debugMode;
     DebuggerRunControlFactory *m_debuggerRunControlFactory;
 
@@ -2949,7 +2948,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     ExtensionSystem::PluginManager::instance()->addObject(m_mainWindow);
     m_mainWindow->addLanguage(CppLanguage, cppDebuggercontext);
     m_mainWindow->addLanguage(QmlLanguage, qmlDebuggerContext);
-    m_mainWindow->initialize(m_coreSettings);
+    m_mainWindow->initialize();
 
     readSettings();
 

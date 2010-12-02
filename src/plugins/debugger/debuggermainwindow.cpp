@@ -48,12 +48,12 @@
 #include <coreplugin/outputpane.h>
 #include <coreplugin/rightpane.h>
 
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/target.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/session.h>
+#include <projectexplorer/target.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QList>
@@ -158,7 +158,6 @@ public:
     QWeakPointer<RunConfiguration> m_previousRunConfiguration;
 
     bool m_initialized;
-    QSettings *m_settings;
 };
 
 DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *mw)
@@ -173,9 +172,7 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *mw)
     , m_activeDebugLanguages(AnyLanguage)
     , m_viewsMenu(0)
     , m_initialized(false)
-    , m_settings(0)
-{
-}
+{}
 
 void DebuggerMainWindowPrivate::updateUiOnFileListChange()
 {
@@ -268,11 +265,6 @@ void DebuggerMainWindow::updateActiveLanguages()
     }
 
     d->updateUi();
-}
-
-DebuggerLanguages DebuggerMainWindow::supportedLanguages() const
-{
-    return d->m_supportedLanguages;
 }
 
 DebuggerLanguages DebuggerMainWindow::activeDebugLanguages() const
@@ -585,37 +577,47 @@ QWidget *DebuggerMainWindow::createContents(IMode *mode)
 
 void DebuggerMainWindow::writeSettings() const
 {
-    d->m_settings->beginGroup(QLatin1String("DebugMode.CppMode"));
+    ICore *core = ICore::instance();
+    QTC_ASSERT(core, return);
+    QSettings *settings = core->settings();
+    QTC_ASSERT(settings, return);
+
+    settings->beginGroup(QLatin1String("DebugMode.CppMode"));
     QHashIterator<QString, QVariant> it(d->m_dockWidgetActiveStateCpp);
     while (it.hasNext()) {
         it.next();
-        d->m_settings->setValue(it.key(), it.value());
+        settings->setValue(it.key(), it.value());
     }
-    d->m_settings->endGroup();
+    settings->endGroup();
 
-    d->m_settings->beginGroup(QLatin1String("DebugMode.CppQmlMode"));
+    settings->beginGroup(QLatin1String("DebugMode.CppQmlMode"));
     it = QHashIterator<QString, QVariant>(d->m_dockWidgetActiveStateQmlCpp);
     while (it.hasNext()) {
         it.next();
-        d->m_settings->setValue(it.key(), it.value());
+        settings->setValue(it.key(), it.value());
     }
-    d->m_settings->endGroup();
+    settings->endGroup();
 }
 
 void DebuggerMainWindow::readSettings()
 {
+    ICore *core = ICore::instance();
+    QTC_ASSERT(core, return);
+    QSettings *settings = core->settings();
+    QTC_ASSERT(settings, return);
+
     d->m_dockWidgetActiveStateCpp.clear();
     d->m_dockWidgetActiveStateQmlCpp.clear();
 
-    d->m_settings->beginGroup(QLatin1String("DebugMode.CppMode"));
-    foreach (const QString &key, d->m_settings->childKeys())
-        d->m_dockWidgetActiveStateCpp.insert(key, d->m_settings->value(key));
-    d->m_settings->endGroup();
+    settings->beginGroup(QLatin1String("DebugMode.CppMode"));
+    foreach (const QString &key, settings->childKeys())
+        d->m_dockWidgetActiveStateCpp.insert(key, settings->value(key));
+    settings->endGroup();
 
-    d->m_settings->beginGroup(QLatin1String("DebugMode.CppQmlMode"));
-    foreach (const QString &key, d->m_settings->childKeys())
-        d->m_dockWidgetActiveStateQmlCpp.insert(key, d->m_settings->value(key));
-    d->m_settings->endGroup();
+    settings->beginGroup(QLatin1String("DebugMode.CppQmlMode"));
+    foreach (const QString &key, settings->childKeys())
+        d->m_dockWidgetActiveStateQmlCpp.insert(key, settings->value(key));
+    settings->endGroup();
 
     // reset initial settings when there are none yet
     DebuggerLanguages langs = d->m_activeDebugLanguages;
@@ -630,9 +632,8 @@ void DebuggerMainWindow::readSettings()
     d->m_activeDebugLanguages = langs;
 }
 
-void DebuggerMainWindow::initialize(QSettings *settings)
+void DebuggerMainWindow::initialize()
 {
-    d->m_settings = settings;
     d->createViewsMenuItems();
 
     emit dockResetRequested(AnyLanguage);
