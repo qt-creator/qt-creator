@@ -57,9 +57,6 @@ public:
     bool initialize(const QStringList &arguments, QString *error_message = 0);
     void extensionsInitialized();
 
-public slots:
-    void ensurePluginInitialized();
-
 private:
 
     void initializeTemplates();

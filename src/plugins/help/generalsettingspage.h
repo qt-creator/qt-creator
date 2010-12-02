@@ -53,7 +53,7 @@ public:
 
     QWidget *createPage(QWidget *parent);
     void apply();
-    void finish() {}
+    void finish();
     virtual bool matches(const QString &s) const;
 
 signals:
@@ -85,7 +85,7 @@ private:
     bool m_returnOnClose;
 
     QString m_searchKeywords;
-    Ui::GeneralSettingsPage m_ui;
+    Ui::GeneralSettingsPage *m_ui;
 };
 
     }   // Internal

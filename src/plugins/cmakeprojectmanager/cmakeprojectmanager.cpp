@@ -315,6 +315,8 @@ void CMakeSettingsPage::saveSettings() const
 
 void CMakeSettingsPage::apply()
 {
+    if (!m_pathchooser) // page was never shown
+        return;
     if (m_cmakeExecutable == m_pathchooser->path())
         return;
     m_cmakeExecutable = m_pathchooser->path();

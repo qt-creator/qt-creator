@@ -93,6 +93,7 @@ private:
     void showCategory(int index);
     void showPage(const QString &categoryId, const QString &pageId);
     void updateEnabledTabs(Category *category, const QString &searchText);
+    void ensureCategoryWidget(Category *category);
 
     const QList<Core::IOptionsPage*> m_pages;
 

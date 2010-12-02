@@ -54,7 +54,7 @@ using namespace Core;
 using namespace Core::Internal;
 
 CommandMappings::CommandMappings(QObject *parent)
-    : IOptionsPage(parent)
+    : IOptionsPage(parent), m_page(0)
 {
 }
 
@@ -140,7 +140,10 @@ void CommandMappings::setTargetHeader(const QString &s)
 
 void CommandMappings::finish()
 {
+    if (!m_page) // page was never shown
+        return;
     delete m_page;
+    m_page = 0;
 }
 
 void CommandMappings::commandChanged(QTreeWidgetItem *current)

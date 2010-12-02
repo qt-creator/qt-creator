@@ -53,7 +53,7 @@ using namespace Core::Internal;
 
 
 GeneralSettings::GeneralSettings():
-    m_dialog(0)
+    m_page(0), m_dialog(0)
 {
 }
 
@@ -188,6 +188,8 @@ bool GeneralSettings::matches(const QString &s) const
 
 void GeneralSettings::apply()
 {
+    if (!m_page) // wasn't shown, can't be changed
+        return;
     int currentIndex = m_page->languageBox->currentIndex();
     setLanguage(m_page->languageBox->itemData(currentIndex, Qt::UserRole).toString());
     // Apply the new base color if accepted
@@ -205,7 +207,10 @@ void GeneralSettings::apply()
 
 void GeneralSettings::finish()
 {
+    if (!m_page) // page was never shown
+        return;
     delete m_page;
+    m_page = 0;
 }
 
 void GeneralSettings::resetInterfaceColor()

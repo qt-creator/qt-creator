@@ -133,6 +133,8 @@ QWidget *QtOptionsPage::createPage(QWidget *parent)
 
 void QtOptionsPage::apply()
 {
+    if (!m_widget) // page was never shown
+        return;
     m_widget->finish();
 
     QtVersionManager *vm = QtVersionManager::instance();

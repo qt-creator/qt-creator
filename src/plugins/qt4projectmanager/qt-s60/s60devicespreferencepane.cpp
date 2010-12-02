@@ -411,7 +411,8 @@ QWidget *S60DevicesPreferencePane::createPage(QWidget *parent)
 
 void S60DevicesPreferencePane::apply()
 {
-    QTC_ASSERT(m_widget, return)
+    if (!m_widget) // page was never shown
+        return;
 
     m_devices->setDevices(m_widget->devices());
 }

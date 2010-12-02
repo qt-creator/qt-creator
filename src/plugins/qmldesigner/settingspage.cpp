@@ -109,6 +109,8 @@ QWidget *SettingsPage::createPage(QWidget *parent)
 
 void SettingsPage::apply()
 {
+    if (!m_widget) // page was never shown
+        return;
     BauhausPlugin::pluginInstance()->setSettings(m_widget->settings());
 }
 

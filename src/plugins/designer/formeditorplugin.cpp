@@ -37,6 +37,7 @@
 #  include "cppsettingspage.h"
 #endif
 
+#include "settingspage.h"
 #include "designerconstants.h"
 
 #include <coreplugin/icore.h>
@@ -84,6 +85,7 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
     initializeTemplates();
 
     addAutoReleasedObject(new FormEditorFactory);
+    addAutoReleasedObject(new SettingsPageProvider);
 
     // Ensure that loading designer translations is done before FormEditorW is instantiated
     const QString locale = Core::ICore::instance()->userInterfaceLanguage();
@@ -97,16 +99,7 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
             qApp->installTranslator(qtr);
     }
     error->clear();
-    // Delayed loading: Make sure settings pages are there if options
-    // dialog is requested.
-    connect(Core::ICore::instance(), SIGNAL(optionsDialogRequested()),
-            this, SLOT(ensurePluginInitialized()));
     return true;
-}
-
-void FormEditorPlugin::ensurePluginInitialized()
-{
-    FormEditorW::instance()->ensureInitStage(FormEditorW::RegisterPlugins);
 }
 
 void FormEditorPlugin::extensionsInitialized()

@@ -60,6 +60,29 @@ public:
     virtual void finish() = 0;
 };
 
+/*
+    Alternative way for providing option pages instead of adding IOptionsPage
+    objects into the plugin manager pool. Should only be used if creation of the
+    actual option pages is not possible or too expensive at Qt Creator startup.
+    (Like the designer integration, which needs to initialize designer plugins
+    before the options pages get available.)
+*/
+
+class CORE_EXPORT IOptionsPageProvider : public QObject
+{
+    Q_OBJECT
+
+public:
+    IOptionsPageProvider(QObject *parent = 0) : QObject(parent) {}
+    virtual ~IOptionsPageProvider() {}
+
+    virtual QString category() const = 0;
+    virtual QString displayCategory() const = 0;
+    virtual QIcon categoryIcon() const = 0;
+
+    virtual QList<IOptionsPage *> pages() const = 0;
+};
+
 } // namespace Core
 
 #endif // IOPTIONSPAGE_H

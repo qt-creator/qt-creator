@@ -161,6 +161,8 @@ QWidget *QuickToolBarSettingsPage::createPage(QWidget *parent)
 
 void QuickToolBarSettingsPage::apply()
 {
+    if (!m_widget) // page was never shown
+        return;
     m_widget->settings().set();
 }
 
