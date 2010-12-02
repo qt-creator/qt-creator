@@ -150,7 +150,6 @@ public:
 
     DebuggerLanguages m_previousDebugLanguages;
     DebuggerLanguages m_activeDebugLanguages;
-    QAction *m_openMemoryEditorAction;
 
     ActionContainer *m_viewsMenu;
     ActionContainer *m_debugMenu;
@@ -175,7 +174,6 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *mw)
     , m_changingUI(false)
     , m_previousDebugLanguages(AnyLanguage)
     , m_activeDebugLanguages(AnyLanguage)
-    , m_openMemoryEditorAction(0)
     , m_viewsMenu(0)
     , m_debugMenu(0)
     , m_initialized(false)
@@ -324,14 +322,14 @@ void DebuggerMainWindowPrivate::createViewsMenuItems()
     ActionManager *am = core->actionManager();
     Context globalcontext(Core::Constants::C_GLOBAL);
 
-    m_openMemoryEditorAction = new QAction(this);
-    m_openMemoryEditorAction->setText(tr("Memory..."));
-    connect(m_openMemoryEditorAction, SIGNAL(triggered()),
+    QAction *openMemoryEditorAction = new QAction(this);
+    openMemoryEditorAction->setText(tr("Memory..."));
+    connect(openMemoryEditorAction, SIGNAL(triggered()),
        q, SIGNAL(memoryEditorRequested()));
 
     // Add menu items
     Command *cmd = 0;
-    cmd = am->registerAction(m_openMemoryEditorAction,
+    cmd = am->registerAction(openMemoryEditorAction,
         Core::Id("Debugger.Views.OpenMemoryEditor"),
         Core::Context(Constants::C_DEBUGMODE));
     m_viewsMenu->addAction(cmd);
