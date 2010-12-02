@@ -187,11 +187,7 @@ bool Semantic::visit(IdentifierExpressionAST *ast)
         if (Symbol *s = _scope->lookup(*ast->name)) {
             _expr.type = s->type();
         } else {
-            if (ast->name->startsWith(QLatin1String("qt_"))) {
-                // ### well, at least for now.
-            } else {
-                _engine->error(ast->lineno, QString("`%1' was not declared in this scope").arg(*ast->name));
-            }
+            _engine->error(ast->lineno, QString("`%1' was not declared in this scope").arg(*ast->name));
         }
     }
     return false;

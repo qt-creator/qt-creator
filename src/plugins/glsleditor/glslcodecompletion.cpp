@@ -541,10 +541,49 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         // it's a global completion
         if (Document::Ptr doc = edit->glslDocument()) {
             GLSL::Scope *currentScope = doc->scopeAt(pos);
+            bool isGlobal = !currentScope || !currentScope->scope();
 
             // add the members from the scope chain
             for (; currentScope; currentScope = currentScope->scope())
                 members += currentScope->members();
+
+            // if this is the global scope, then add some standard Qt attribute
+            // and uniform names for autocompleting variable declarations
+            // this isn't a complete list, just the most common
+            if (isGlobal) {
+                static const char * const attributeNames[] = {
+                    "qt_Vertex",
+                    "qt_Normal",
+                    "qt_MultiTexCoord0",
+                    "qt_MultiTexCoord1",
+                    "qt_MultiTexCoord2",
+                    0
+                };
+                static const char * const uniformNames[] = {
+                    "qt_ModelViewProjectionMatrix",
+                    "qt_ModelViewMatrix",
+                    "qt_ProjectionMatrix",
+                    "qt_NormalMatrix",
+                    "qt_Texture0",
+                    "qt_Texture1",
+                    "qt_Texture2",
+                    "qt_Color",
+                    "qt_Opacity",
+                    0
+                };
+                for (int index = 0; attributeNames[index]; ++index) {
+                    TextEditor::CompletionItem item(this);
+                    item.text = QString::fromLatin1(attributeNames[index]);
+                    item.icon = m_attributeIcon;
+                    m_completions.append(item);
+                }
+                for (int index = 0; uniformNames[index]; ++index) {
+                    TextEditor::CompletionItem item(this);
+                    item.text = QString::fromLatin1(uniformNames[index]);
+                    item.icon = m_uniformIcon;
+                    m_completions.append(item);
+                }
+            }
         }
 
         if (m_keywordVariant != edit->languageVariant()) {
