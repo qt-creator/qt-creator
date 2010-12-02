@@ -606,7 +606,7 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
         // parse the expression
         GLSL::Engine engine;
-        GLSL::Parser parser(&engine, code, code.size(), GLSL::Lexer::Variant_All);
+        GLSL::Parser parser(&engine, code, code.size(), edit->languageVariant());
         GLSL::ExpressionAST *expr = parser.parseExpression();
 
 #if 0
