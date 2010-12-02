@@ -30,6 +30,10 @@
 #ifndef S60CERTIFICATEINFO_H
 #define S60CERTIFICATEINFO_H
 
+#include <QtCore/QtGlobal>
+
+QT_FORWARD_DECLARE_CLASS(QString)
+
 class S60CertificateInfo
 {
 public:
