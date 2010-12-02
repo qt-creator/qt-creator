@@ -38,7 +38,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/basemode.h>
+#include <coreplugin/imode.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/findplaceholder.h>
@@ -160,25 +160,9 @@ DebuggerUISwitcherPrivate::DebuggerUISwitcherPrivate(DebuggerUISwitcher *q)
 {
 }
 
-DebuggerUISwitcher::DebuggerUISwitcher(BaseMode *mode, QObject* parent)
+DebuggerUISwitcher::DebuggerUISwitcher(QObject *parent)
   : QObject(parent), d(new DebuggerUISwitcherPrivate(this))
-{
-    mode->setWidget(createContents(mode));
-
-    ICore *core = ICore::instance();
-    ActionManager *am = core->actionManager();
-
-    ProjectExplorer::ProjectExplorerPlugin *pe =
-        ProjectExplorer::ProjectExplorerPlugin::instance();
-    connect(pe->session(), SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
-        SLOT(updateUiForProject(ProjectExplorer::Project*)));
-    connect(d->m_resizeEventFilter, SIGNAL(widgetResized()),
-        SLOT(updateDockWidgetSettings()));
-
-    d->m_debugMenu = am->actionContainer(ProjectExplorer::Constants::M_DEBUG);
-    d->m_viewsMenu = am->actionContainer(Core::Id(Core::Constants::M_WINDOW_VIEWS));
-    QTC_ASSERT(d->m_viewsMenu, return)
-}
+{}
 
 DebuggerUISwitcher::~DebuggerUISwitcher()
 {
@@ -427,7 +411,7 @@ Utils::FancyMainWindow *DebuggerUISwitcher::mainWindow() const
     return d->m_mainWindow;
 }
 
-QWidget *DebuggerUISwitcher::createMainWindow(BaseMode *mode)
+QWidget *DebuggerUISwitcher::createMainWindow(IMode *mode)
 {
     d->m_mainWindow = new Internal::DebuggerMainWindow(this);
     d->m_mainWindow->setDocumentMode(true);
@@ -566,8 +550,22 @@ QDockWidget *DebuggerUISwitcher::createDockWidget(const DebuggerLanguage &langua
     return dockWidget;
 }
 
-QWidget *DebuggerUISwitcher::createContents(BaseMode *mode)
+QWidget *DebuggerUISwitcher::createContents(IMode *mode)
 {
+    ICore *core = ICore::instance();
+    ActionManager *am = core->actionManager();
+
+    ProjectExplorer::ProjectExplorerPlugin *pe =
+        ProjectExplorer::ProjectExplorerPlugin::instance();
+    connect(pe->session(), SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
+        SLOT(updateUiForProject(ProjectExplorer::Project*)));
+    connect(d->m_resizeEventFilter, SIGNAL(widgetResized()),
+        SLOT(updateDockWidgetSettings()));
+
+    d->m_debugMenu = am->actionContainer(ProjectExplorer::Constants::M_DEBUG);
+    d->m_viewsMenu = am->actionContainer(Core::Id(Core::Constants::M_WINDOW_VIEWS));
+    QTC_ASSERT(d->m_viewsMenu, return 0)
+
     // right-side window with editor, output etc.
     MiniSplitter *mainWindowSplitter = new MiniSplitter;
     mainWindowSplitter->addWidget(createMainWindow(mode));

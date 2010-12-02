@@ -68,7 +68,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/basemode.h>
+#include <coreplugin/imode.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -505,10 +505,10 @@ static DebuggerEngine *dummyEngine()
 //
 ///////////////////////////////////////////////////////////////////////
 
-class DebugMode : public Core::BaseMode
+class DebugMode : public IMode
 {
 public:
-    DebugMode(QObject *parent = 0) : BaseMode(parent)
+    DebugMode(QObject *parent = 0) : IMode(parent)
     {
         setDisplayName(QCoreApplication::translate("Debugger::Internal::DebugMode", "Debug"));
         setType(CC::MODE_EDIT_TYPE);
@@ -522,6 +522,35 @@ public:
         // Make sure the editor manager does not get deleted.
         EditorManager::instance()->setParent(0);
     }
+
+    // IMode
+    QString displayName() const { return m_displayName; }
+    QIcon icon() const { return m_icon; }
+    int priority() const { return m_priority; }
+    QWidget *widget() { return m_widget; }
+    QString id() const { return m_id; }
+    QString type() const { return m_type; }
+    Context context() const { return m_context; }
+    QString contextHelpId() const { return m_helpId; }
+
+    void setDisplayName(const QString &name) { m_displayName = name; }
+    void setIcon(const QIcon &icon) { m_icon = icon; }
+    void setPriority(int priority) { m_priority = priority; }
+    void setWidget(QWidget *widget) { m_widget = widget; }
+    void setId(const QString &id) { m_id = id; }
+    void setType(const QString &type) { m_type = type; }
+    void setContextHelpId(const QString &helpId) { m_helpId = helpId; }
+    void setContext(const Context &context) { m_context = context; }
+
+private:
+    QString m_displayName;
+    QIcon m_icon;
+    int m_priority;
+    QWidget *m_widget;
+    QString m_id;
+    QString m_type;
+    QString m_helpId;
+    Context m_context;
 };
 
 
@@ -2914,7 +2943,8 @@ void DebuggerPluginPrivate::extensionsInitialized()
         SLOT(executeDebuggerCommand()));
 
     // Cpp/Qml ui setup
-    m_uiSwitcher = new DebuggerUISwitcher(m_debugMode, this);
+    m_uiSwitcher = new DebuggerUISwitcher(this);
+    m_debugMode->setWidget(m_uiSwitcher->createContents(m_debugMode));
     ExtensionSystem::PluginManager::instance()->addObject(m_uiSwitcher);
     m_uiSwitcher->addLanguage(CppLanguage, cppDebuggercontext);
     m_uiSwitcher->addLanguage(QmlLanguage, qmlDebuggerContext);

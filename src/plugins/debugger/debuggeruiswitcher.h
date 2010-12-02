@@ -44,7 +44,6 @@ namespace Core {
 class Command;
 class Context;
 class IMode;
-class BaseMode;
 }
 
 namespace Utils {
@@ -69,8 +68,8 @@ class DEBUGGER_EXPORT DebuggerUISwitcher : public QObject
     Q_OBJECT
 
 public:
-    explicit DebuggerUISwitcher(Core::BaseMode *mode, QObject *parent = 0);
-    virtual ~DebuggerUISwitcher();
+    explicit DebuggerUISwitcher(QObject *parent = 0);
+    ~DebuggerUISwitcher();
 
     // debuggable languages are registered with this function.
     void addLanguage(const DebuggerLanguage &language, const Core::Context &context);
@@ -109,6 +108,8 @@ public:
                                   Qt::DockWidgetArea area = Qt::TopDockWidgetArea);
 
     Utils::FancyMainWindow *mainWindow() const;
+    QWidget *createContents(Core::IMode *mode);
+    QWidget *createMainWindow(Core::IMode *mode);
 
 signals:
     // emit when user changes active languages from the menu.
@@ -145,9 +146,6 @@ private:
     void createViewsMenuItems();
     bool isQmlCppActive() const;
     bool isQmlActive() const;
-
-    QWidget *createContents(Core::BaseMode *mode);
-    QWidget *createMainWindow(Core::BaseMode *mode);
 
     DebuggerUISwitcherPrivate *d;
 };
