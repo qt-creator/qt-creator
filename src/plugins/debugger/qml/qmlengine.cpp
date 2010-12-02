@@ -34,10 +34,10 @@
 #include "debuggerconstants.h"
 #include "debuggercore.h"
 #include "debuggerdialogs.h"
+#include "debuggermainwindow.h"
 #include "debuggerrunner.h"
 #include "debuggerstringutils.h"
 #include "debuggertooltip.h"
-#include "debuggeruiswitcher.h"
 
 #include "breakhandler.h"
 #include "moduleshandler.h"

@@ -42,7 +42,6 @@
 #include <debugger/debuggerrunner.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerconstants.h>
-#include <debugger/debuggeruiswitcher.h>
 #include <debugger/debuggerengine.h>
 #include <qmljsinspector/qmljsinspectorconstants.h>
 #include <qt4projectmanager/qtversionmanager.h>

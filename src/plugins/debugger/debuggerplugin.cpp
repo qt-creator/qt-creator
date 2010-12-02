@@ -35,10 +35,10 @@
 #include "debuggercore.h"
 #include "debuggerdialogs.h"
 #include "debuggerengine.h"
+#include "debuggermainwindow.h"
 #include "debuggerrunner.h"
 #include "debuggerstringutils.h"
 #include "debuggertooltip.h"
-#include "debuggeruiswitcher.h"
 
 #include "breakpoint.h"
 #include "breakhandler.h"

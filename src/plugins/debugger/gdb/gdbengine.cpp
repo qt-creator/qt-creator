@@ -32,7 +32,6 @@
 #include "gdbengine.h"
 
 #include "gdboptionspage.h"
-#include "debuggeruiswitcher.h"
 #include "debuggercore.h"
 #include "debuggerplugin.h"
 #include "debuggerrunner.h"
@@ -4025,35 +4024,45 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
     gdbArgs << _("-i");
     gdbArgs << _("mi");
     gdbArgs += args;
+
 #ifdef Q_OS_WIN
     // Set python path. By convention, python is located below gdb executable.
     // Extend the environment set on the process in startAdapter().
     const QFileInfo fi(m_gdb);
-    bool foundPython = false;
-    if (fi.isAbsolute()) {
-        const QString winPythonVersion = QLatin1String(winPythonVersionC);
-        const QDir dir = fi.absoluteDir();
-        if (dir.exists(winPythonVersion)) {
-            QProcessEnvironment environment = gdbProc()->processEnvironment();
-            const QString pythonPathVariable = QLatin1String("PYTHONPATH");
-            // Check for existing values.
-            if (environment.contains(pythonPathVariable)) {
-                const QString oldPythonPath = environment.value(pythonPathVariable);
-                showMessage(_("Using existing python path: %1")
-                    .arg(oldPythonPath), LogMisc);
-            } else {
-                const QString pythonPath =
-                    QDir::toNativeSeparators(dir.absoluteFilePath(winPythonVersion));
-                environment.insert(pythonPathVariable, pythonPath);
-                showMessage(_("Python path: %1").arg(pythonPath), LogMisc);
-                gdbProc()->setProcessEnvironment(environment);
-            }
-            foundPython = true;
-        }
+    if (!fi.isAbsolute()) {
+        showMessage(_("GDB %1 DOES NOT HAVE ABSOLUTE LOCATION.").arg(m_gdb));
+        const QString msg = tr("The gdb location must be given as an "
+            "absolute path in the debugger settings.");
+        handleAdapterStartFailed(msg, settingsIdHint);
+        return false;
     }
-    if (!foundPython) {
-        showMessage(_("UNSUPPORTED GDB %1 DOES NOT HAVE PYTHON.").arg(m_gdb));
-        showStatusMessage(_("Gdb at %1 does not have python").arg(m_gdb));
+
+    const QString winPythonVersion = QLatin1String(winPythonVersionC);
+    const QDir dir = fi.absoluteDir();
+    if (!dir.exists(winPythonVersion)) {
+        showMessage(_("GDB %1 CANNOT FIND PYTHON INSTALLATION.").arg(m_gdb));
+        showStatusMessage(_("Gdb at %1 cannot find python").arg(m_gdb));
+        const QString msg = tr("The gdb installed at %1 cannot "
+            "find a valid python installation in its %2 subdirectory.\n"
+            "You may set the PYTHONPATH to your installation.")
+                .arg(m_gdb).arg(winPythonVersion);
+        handleAdapterStartFailed(msg, settingsIdHint);
+        return false;
+    }
+
+    QProcessEnvironment environment = gdbProc()->processEnvironment();
+    const QString pythonPathVariable = QLatin1String("PYTHONPATH");
+    // Check for existing values.
+    if (environment.contains(pythonPathVariable)) {
+        const QString oldPythonPath = environment.value(pythonPathVariable);
+        showMessage(_("Using existing python path: %1")
+            .arg(oldPythonPath), LogMisc);
+    } else {
+        const QString pythonPath =
+            QDir::toNativeSeparators(dir.absoluteFilePath(winPythonVersion));
+        environment.insert(pythonPathVariable, pythonPath);
+        showMessage(_("Python path: %1").arg(pythonPath), LogMisc);
+        gdbProc()->setProcessEnvironment(environment);
     }
 #endif
 

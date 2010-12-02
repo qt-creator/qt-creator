@@ -28,12 +28,12 @@ HEADERS += breakhandler.h \
     debuggerconstants.h \
     debuggerdialogs.h \
     debuggerengine.h \
+    debuggermainwindow.h \
     debuggerplugin.h \
     debuggerrunner.h \
     debuggerstreamops.h \
     debuggerstringutils.h \
     debuggertooltip.h \
-    debuggeruiswitcher.h \
     disassemblerlines.h \
     logwindow.h \
     moduleshandler.h \
@@ -68,11 +68,11 @@ SOURCES += breakhandler.cpp \
     debuggeragents.cpp \
     debuggerdialogs.cpp \
     debuggerengine.cpp \
+    debuggermainwindow.cpp \
     debuggerplugin.cpp \
     debuggerrunner.cpp \
     debuggerstreamops.cpp \
     debuggertooltip.cpp \
-    debuggeruiswitcher.cpp \
     disassemblerlines.cpp \
     logwindow.cpp \
     moduleshandler.cpp \

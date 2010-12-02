@@ -26,6 +26,7 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
+
 #include "qmljsinspectorconstants.h"
 #include "qmljsinspector.h"
 #include "qmlinspectortoolbar.h"
@@ -41,19 +42,15 @@
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljseditor/qmljseditor.h>
-#include <debugger/debuggerrunner.h>
 #include <debugger/debuggerconstants.h>
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggermainwindow.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerrunner.h>
-#include <debugger/debuggeruiswitcher.h>
-#include <debugger/debuggerconstants.h>
 #include <debugger/qml/qmlengine.h>
 
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
-#include <utils/fancymainwindow.h>
 
 #include <coreplugin/icontext.h>
 #include <coreplugin/basemode.h>

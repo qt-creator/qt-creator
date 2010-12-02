@@ -1,6 +1,6 @@
 #include "qmlcppengine.h"
 #include "qmlengine.h"
-#include "debuggeruiswitcher.h"
+#include "debuggermainwindow.h"
 #include "debuggercore.h"
 
 #include <qmljseditor/qmljseditorconstants.h>
