@@ -359,14 +359,20 @@ QPair<QString, QString> MaemoQemuRuntimeParserV2::handleVariableTag()
         return var;
     }
 
-    // TODO: Check for "purpose" attribute and handle "glbackend" in a special way
+    const bool isGlBackend = m_madInfoReader.attributes().value(QLatin1String("purpose"))
+        == QLatin1String("glbackend");
     while (m_madInfoReader.readNextStartElement()) {
-        if (m_madInfoReader.name() == QLatin1String("name"))
+        const QXmlStreamAttributes &attrs = m_madInfoReader.attributes();
+        if (m_madInfoReader.name() == QLatin1String("name")) {
             var.first = m_madInfoReader.readElementText();
-        else if (m_madInfoReader.name() == QLatin1String("value"))
+        } else if (m_madInfoReader.name() == QLatin1String("value")
+                   && attrs.value(QLatin1String("set")) != QLatin1String("false")
+                   && (!isGlBackend || attrs.value(QLatin1String("option"))
+                   == QLatin1String("software-rendering"))) {
             var.second = m_madInfoReader.readElementText();
-        else
+        } else {
             m_madInfoReader.skipCurrentElement();
+        }
     }
     return var;
 }
