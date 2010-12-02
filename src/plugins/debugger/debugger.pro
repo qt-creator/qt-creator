@@ -46,6 +46,7 @@ HEADERS += breakhandler.h \
     registerwindow.h \
     snapshothandler.h \
     snapshotwindow.h \
+    sourceagent.h \
     sourcefileshandler.h \
     sourcefileswindow.h \
     stackframe.h \
@@ -85,6 +86,7 @@ SOURCES += breakhandler.cpp \
     registerwindow.cpp \
     snapshothandler.cpp \
     snapshotwindow.cpp \
+    sourceagent.cpp \
     sourcefileshandler.cpp \
     sourcefileswindow.cpp \
     stackhandler.cpp \

@@ -40,9 +40,7 @@
 #include "threadshandler.h"
 #include "debuggeragents.h"
 #include "debuggerstreamops.h"
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
-#include <cppeditor/cppeditorconstants.h>
+#include "debuggercore.h"
 
 #include <QSysInfo>
 #include <QDebug>
@@ -426,8 +424,10 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 sh->setCurrentIndex(token);
                 if (!sh->currentFrame().isUsable() || QFileInfo(sh->currentFrame().file).exists())
                     gotoLocation(sh->currentFrame(), true);
-                else
+                else if (!m_sourceAgents.contains(sh->currentFrame().file))
                     fetchFrameSource(token);
+                foreach(SourceAgent *agent, m_sourceAgents.values())
+                    agent->updateLocationMarker();
             }
             break;
         case IPCEngineGuest::CurrentThreadChanged:
@@ -562,14 +562,14 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 QDataStream s(payload);
                 SET_NATIVE_BYTE_ORDER(s);
                 qint64 token;
-                QString name;
+                QString path;
                 QString source;
-                s >> token >> name >> source;
-                Core::EditorManager *editorManager = Core::EditorManager::instance();
-                Core::IEditor *editor = editorManager->openEditorWithContents(CppEditor::Constants::CPPEDITOR_ID, &name, source);
-                editorManager->activateEditor(editor);
-                editor->gotoLine(stackHandler()->currentFrame().line, 0);
-                editor->setProperty(Debugger::Constants::OPENED_BY_DEBUGGER, true);
+                s >> token >> path >> source;
+                SourceAgent *agent = new SourceAgent(this);
+                agent->setSourceProducerName(startParameters().connParams.host);
+                agent->setContent(path, source);
+                m_sourceAgents.insert(path, agent);
+                agent->updateLocationMarker();
             }
             break;
     }

@@ -2313,9 +2313,6 @@ void DebuggerPluginPrivate::startRemoteEngine()
     sp.connParams.uname = dlg.username();
     sp.connParams.pwd = dlg.password();
 
-
-    qDebug() << sp.connParams.host << sp.connParams.uname << sp.connParams.pwd;
-
     sp.connParams.timeout = 5;
     sp.connParams.authType = SshConnectionParameters::AuthByPwd;
     sp.connParams.port = 22;

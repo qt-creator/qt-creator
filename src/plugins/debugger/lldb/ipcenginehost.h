@@ -34,6 +34,7 @@
 #include "threadshandler.h"
 #include "stackhandler.h"
 #include "breakhandler.h"
+#include "sourceagent.h"
 
 #include <QtCore/QQueue>
 #include <QtCore/QVariant>
@@ -129,6 +130,7 @@ private:
     quint64 m_cookie;
     QIODevice *m_device;
     QHash<quint64, DisassemblerViewAgent *> m_frameToDisassemblerAgent;
+    QHash<QString, SourceAgent *> m_sourceAgents;
 };
 
 } // namespace Internal
