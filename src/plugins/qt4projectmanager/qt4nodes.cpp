@@ -2015,8 +2015,8 @@ void Qt4ProFileNode::setupInstallsList(const ProFileReader *reader)
             qDebug("Invalid RHS: Variable '%s' has %d values.",
                 qPrintable(pathVar), itemPaths.count());
             if (itemPaths.isEmpty()) {
-                qDebug("Ignoring INSTALLS item '%s', because it has no path.",
-                    qPrintable(item));
+                qDebug("%s: Ignoring INSTALLS item '%s', because it has no path.",
+                    qPrintable(m_projectFilePath), qPrintable(item));
                 continue;
             }
         }
@@ -2027,14 +2027,15 @@ void Qt4ProFileNode::setupInstallsList(const ProFileReader *reader)
                   m_projectDir, QStringList() << m_projectDir, 0);
         if (item == QLatin1String("target")) {
             if (!m_installsList.targetPath.isEmpty())
-                qDebug("Overwriting existing target.path in INSTALLS list.");
+                qDebug("%s: Overwriting existing target.path in INSTALLS list.",
+                    qPrintable(m_projectFilePath));
             m_installsList.targetPath = itemPath;
         } else {
             if (itemFiles.isEmpty()) {
                 if (!reader->values(item + QLatin1String(".CONFIG"))
                     .contains(QLatin1String("no_check_exist"))) {
-                    qDebug("Ignoring INSTALLS item '%s', because it has no files.",
-                        qPrintable(item));
+                    qDebug("%s: Ignoring INSTALLS item '%s', because it has no files.",
+                        qPrintable(m_projectFilePath), qPrintable(item));
                 }
                 continue;
             }
