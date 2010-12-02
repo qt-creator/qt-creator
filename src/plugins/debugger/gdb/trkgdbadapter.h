@@ -135,6 +135,7 @@ private:
     Q_SLOT void handleTrkResult(const trk::TrkResult &data);
     Q_SLOT void handleTrkError(const QString &msg);
     void trkContinueAll(const char *why);
+    void trkKill();
     void handleTrkContinueNext(const TrkResult &result);
     void trkContinueNext(int threadIndex);
 

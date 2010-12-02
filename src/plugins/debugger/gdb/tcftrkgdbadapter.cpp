@@ -639,11 +639,7 @@ void TcfTrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
     else if (cmd == "k" || cmd.startsWith("vKill")) {
         // Kill inferior process
         logMessage(msgGdbPacket(QLatin1String("kill")));
-        // Requires id of main thread to terminate.
-        // Note that calling 'Settings|set|removeExecutable' crashes TCF TRK,
-        // so, it is apparently not required.
-        m_trkDevice->sendRunControlTerminateCommand(TcfTrkCallback(),
-                                                    mainThreadContextId());
+        sendRunControlTerminateCommand();
     }
 
     else if (cmd.startsWith('m')) {
@@ -952,6 +948,28 @@ void TcfTrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
     }
 }
 
+void TcfTrkGdbAdapter::sendRunControlTerminateCommand()
+{
+    // Requires id of main thread to terminate.
+    // Note that calling 'Settings|set|removeExecutable' crashes TCF TRK,
+    // so, it is apparently not required.
+    m_trkDevice->sendRunControlTerminateCommand(TcfTrkCallback(this, &TcfTrkGdbAdapter::handleRunControlTerminate),
+                                                mainThreadContextId());
+}
+
+void TcfTrkGdbAdapter::handleRunControlTerminate(const tcftrk::TcfTrkCommandResult &)
+{
+    QString msg = QString::fromLatin1("CODA disconnected");
+    const bool emergencyShutdown = m_gdbProc.state() != QProcess::Running;
+    if (emergencyShutdown)
+        msg += QString::fromLatin1(" (emergency shutdown");
+    logMessage(msg);
+    if (emergencyShutdown) {
+        cleanup();
+        m_engine->notifyAdapterShutdownOk();
+    }
+}
+
 void TcfTrkGdbAdapter::gdbSetCurrentThread(const QByteArray &cmd, const char *why)
 {
     // Thread ID from Hg/Hc commands: '-1': All, '0': arbitrary, else hex thread id.
@@ -1168,8 +1186,16 @@ void TcfTrkGdbAdapter::shutdownInferior()
 
 void TcfTrkGdbAdapter::shutdownAdapter()
 {
-    cleanup();
-    m_engine->notifyAdapterShutdownOk();
+    if (m_gdbProc.state() == QProcess::Running) {
+        cleanup();
+        m_engine->notifyAdapterShutdownOk();
+    } else {
+        // Something is wrong, gdb crashed. Kill debuggee (see handleDeleteProcess2)
+        if (m_trkDevice->device()->isOpen()) {
+            logMessage("Emergency shutdown of CODA", LogError);
+            sendRunControlTerminateCommand();
+        }
+    }
 }
 
 void TcfTrkGdbAdapter::trkReloadRegisters()

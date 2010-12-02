@@ -558,10 +558,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
     }
 
     else if (cmd == "k" || cmd.startsWith("vKill")) {
-        // Kill inferior process
-        logMessage(msgGdbPacket(QLatin1String("kill")));
-        sendTrkMessage(0x41, TrkCB(handleDeleteProcess),
-            trkDeleteProcessMessage(), "Delete process");
+        trkKill();
     }
 
     else if (cmd.startsWith('m')) {
@@ -864,6 +861,14 @@ void TrkGdbAdapter::gdbSetCurrentThread(const QByteArray &cmd, const char *why)
     sendGdbServerMessage("OK", message);
 }
 
+void TrkGdbAdapter::trkKill()
+{
+    // Kill inferior process
+    logMessage(msgGdbPacket(QLatin1String("kill")));
+    sendTrkMessage(0x41, TrkCB(handleDeleteProcess),
+        trkDeleteProcessMessage(), "Delete process");
+}
+
 void TrkGdbAdapter::trkContinueAll(const char *why)
 {
     if (why)
@@ -1148,9 +1153,19 @@ void TrkGdbAdapter::handleDeleteProcess(const TrkResult &result)
 void TrkGdbAdapter::handleDeleteProcess2(const TrkResult &result)
 {
     Q_UNUSED(result);
-    logMessage("App TRK disconnected");
-    sendGdbServerAck();
-    sendGdbServerMessage("", "process killed");
+    QString msg = QString::fromLatin1("App TRK disconnected");
+
+    const bool emergencyShutdown = m_gdbProc.state() != QProcess::Running;
+    if (emergencyShutdown)
+        msg += QString::fromLatin1(" (emergency shutdown");
+    logMessage(msg);
+    if (emergencyShutdown) {
+        cleanup();
+        m_engine->notifyAdapterShutdownOk();
+    } else {
+        sendGdbServerAck();
+        sendGdbServerMessage("", "process killed");
+    }
 }
 
 void TrkGdbAdapter::handleReadRegisters(const TrkResult &result)
@@ -1945,8 +1960,16 @@ void TrkGdbAdapter::shutdownInferior()
 
 void TrkGdbAdapter::shutdownAdapter()
 {
-    cleanup();
-    m_engine->notifyAdapterShutdownOk();
+    if (m_gdbProc.state() == QProcess::Running) {
+        cleanup();
+        m_engine->notifyAdapterShutdownOk();
+    } else {
+        // Something is wrong, gdb crashed. Kill debuggee (see handleDeleteProcess2)
+        if (m_trkDevice->isOpen()) {
+            logMessage("Emergency shutdown of TRK", LogError);
+            trkKill();
+        }
+    }
 }
 
 void TrkGdbAdapter::trkReloadRegisters()

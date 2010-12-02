@@ -108,6 +108,8 @@ private:
     void interruptInferior();
     void shutdownInferior();
     void shutdownAdapter();
+    void sendRunControlTerminateCommand();
+    void handleRunControlTerminate(const tcftrk::TcfTrkCommandResult &);
     void sendRegistersGetMCommand();
     void handleWriteRegister(const tcftrk::TcfTrkCommandResult &result);
     void reportRegisters();
