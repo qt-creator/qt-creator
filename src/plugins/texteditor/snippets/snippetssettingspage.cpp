@@ -239,7 +239,10 @@ void SnippetsTableModel::replaceSnippet(const Snippet &snippet, const QModelInde
         m_collection->computeReplacementHint(row, snippet);
     if (modelIndex.row() == hint.index()) {
         m_collection->replaceSnippet(row, snippet, hint);
-        emit dataChanged(modelIndex, modelIndex);
+        if (modelIndex.column() == 0)
+            emit dataChanged(modelIndex, modelIndex.sibling(row, 1));
+        else
+            emit dataChanged(modelIndex.sibling(row, 0), modelIndex);
     } else {
         if (row < hint.index())
             // Rows will be moved down.
