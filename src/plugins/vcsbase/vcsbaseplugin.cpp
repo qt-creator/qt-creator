@@ -127,6 +127,7 @@ bool State::equals(const State &rhs) const
     return currentFile == rhs.currentFile
             && currentFileName == rhs.currentFileName
             && currentPatchFile == rhs.currentPatchFile
+            && currentPatchFileDisplayName == rhs.currentPatchFileDisplayName
             && currentFileTopLevel == rhs.currentFileTopLevel
             && currentProjectPath == rhs.currentProjectPath
             && currentProjectName == rhs.currentProjectName
@@ -181,6 +182,8 @@ StateListener::StateListener(QObject *parent) :
     Core::ICore *core = Core::ICore::instance();
     connect(core->fileManager(), SIGNAL(currentFileChanged(QString)),
             this, SLOT(slotStateChanged()));
+    connect(core->editorManager()->instance(), SIGNAL(currentEditorStateChanged(Core::IEditor*)),
+            this, SLOT(slotStateChanged()));
 
     if (ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance())
         connect(pe, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
@@ -228,6 +231,7 @@ void StateListener::slotStateChanged()
         if (isTempFile || state.currentFile.contains(QLatin1Char('#')))
             state.currentFile.clear();
     }
+
     // Get the file and its control. Do not use the file unless we find one
     Core::IVersionControl *fileControl = 0;
     if (!state.currentFile.isEmpty()) {
