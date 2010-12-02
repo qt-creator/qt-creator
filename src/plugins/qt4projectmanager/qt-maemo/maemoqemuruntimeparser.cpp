@@ -60,12 +60,18 @@ public:
     MaemoQemuRuntime parseRuntime();
 
 private:
+    struct Port {
+        Port() : port(-1) {}
+        int port;
+        bool ssh;
+    };
+
     void handleTargetTag(QString &runtimeName);
     MaemoQemuRuntime handleRuntimeTag();
     QProcessEnvironment handleEnvironmentTag();
     QPair<QString, QString> handleVariableTag();
-    MaemoPortList handleTcpPortListTag();
-    int handlePortTag();
+    QList<Port> handleTcpPortListTag();
+    Port handlePortTag();
 };
 
 MaemoQemuRuntimeParser::MaemoQemuRuntimeParser(const QString &madInfoOutput,
@@ -97,9 +103,6 @@ MaemoQemuRuntime MaemoQemuRuntimeParser::parseRuntime(const QtVersion *qtVersion
     if (!runtime.m_name.isEmpty()) {
         runtime.m_root = maddeRootPath + QLatin1String("/runtimes/")
             + runtime.m_name;
-
-        // TODO: Workaround for missing ssh tag. Fix once MADDE is ready.
-        runtime.m_sshPort = QLatin1String("6666");
     } else {
         runtime = MaemoQemuRuntimeParserV1(madInfoOutput, targetName,
             maddeRootPath).parseRuntime();
@@ -315,7 +318,13 @@ MaemoQemuRuntime MaemoQemuRuntimeParserV2::handleRuntimeTag()
         } else if (m_madInfoReader.name() == QLatin1String("environment")) {
             runtime.m_environment = handleEnvironmentTag();
         } else if (m_madInfoReader.name() == QLatin1String("tcpportmap")) {
-            runtime.m_freePorts = handleTcpPortListTag();
+            const QList<Port> &ports = handleTcpPortListTag();
+            foreach (const Port &port, ports) {
+                if (port.ssh)
+                    runtime.m_sshPort = QString::number(port.port);
+                else
+                    runtime.m_freePorts.addPort(port.port);
+            }
         } else {
             m_madInfoReader.skipCurrentElement();
         }
@@ -362,24 +371,26 @@ QPair<QString, QString> MaemoQemuRuntimeParserV2::handleVariableTag()
     return var;
 }
 
-MaemoPortList MaemoQemuRuntimeParserV2::handleTcpPortListTag()
+QList<MaemoQemuRuntimeParserV2::Port> MaemoQemuRuntimeParserV2::handleTcpPortListTag()
 {
-    MaemoPortList ports;
+    QList<Port> ports;
     while (m_madInfoReader.readNextStartElement()) {
-        const int port = handlePortTag();
-        if (port != -1 && port != 6666) // TODO: Remove second condition once MADDE has ssh tag
-            ports.addPort(port);
+        const Port &port = handlePortTag();
+        if (port.port != -1)
+            ports << port;
     }
     return ports;
 }
 
-int MaemoQemuRuntimeParserV2::handlePortTag()
+MaemoQemuRuntimeParserV2::Port MaemoQemuRuntimeParserV2::handlePortTag()
 {
-    int port = -1;
+    Port port;
     if (m_madInfoReader.name() == QLatin1String("port")) {
+        const QXmlStreamAttributes &attrs = m_madInfoReader.attributes();
+        port.ssh = attrs.value(QLatin1String("service")) == QLatin1String("ssh");
         while (m_madInfoReader.readNextStartElement()) {
             if (m_madInfoReader.name() == QLatin1String("host"))
-                port = m_madInfoReader.readElementText().toInt();
+                port.port = m_madInfoReader.readElementText().toInt();
             else
                 m_madInfoReader.skipCurrentElement();
         }
