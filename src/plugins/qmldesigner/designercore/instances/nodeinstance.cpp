@@ -135,6 +135,8 @@ Internal::ObjectNodeInstance::Pointer NodeInstance::createInstance(const NodeMet
 
     if (!metaInfo.isValid())
         instance = Internal::DummyNodeInstance::create();
+    else if (metaInfo.isSubclassOf("Qt/PathView", 4, 7))
+        instance = Internal::DummyNodeInstance::create();
     else if (metaInfo.isSubclassOf("Qt/QWidget", 4, 7))
         instance = Internal::DummyNodeInstance::create();
     else if (metaInfo.isSubclassOf("Qt/QGraphicsView", 4, 7))
