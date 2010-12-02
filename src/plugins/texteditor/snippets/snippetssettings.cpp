@@ -57,8 +57,7 @@ void SnippetsSettings::fromSettings(const QString &category, QSettings *s)
 {
     const QString &group = category + kGroupPostfix;
     s->beginGroup(group);
-    m_lastUsedSnippetGroup =
-        s->value(kLastUsedSnippetGroup, fromSnippetGroup(Snippet::Cpp)).toString();
+    m_lastUsedSnippetGroup = s->value(kLastUsedSnippetGroup, QString()).toString();
     s->endGroup();
 }
 

@@ -30,20 +30,21 @@
 #ifndef QMLJSSNIPPETEDITORDECORATOR_H
 #define QMLJSSNIPPETEDITORDECORATOR_H
 
-#include <texteditor/snippets/isnippeteditordecorator.h>
+#include <texteditor/snippets/isnippetprovider.h>
 
 namespace QmlJSEditor {
 namespace Internal {
 
-class QmlJSSnippetEditorDecorator : public TextEditor::ISnippetEditorDecorator
+class QmlJSSnippetProvider : public TextEditor::ISnippetProvider
 {
 public:
-    QmlJSSnippetEditorDecorator();
-    virtual ~QmlJSSnippetEditorDecorator();
+    QmlJSSnippetProvider();
+    virtual ~QmlJSSnippetProvider();
 
 public:
-    virtual bool supports(TextEditor::Snippet::Group group) const;
-    virtual void apply(TextEditor::SnippetEditor *editor) const;
+    virtual QString groupId() const;
+    virtual QString displayName() const;
+    virtual void decorateEditor(TextEditor::SnippetEditor *editor) const;
 };
 
 } // Internal

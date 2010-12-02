@@ -27,9 +27,11 @@
 **
 **************************************************************************/
 
-#include "snippetprovider.h"
+#include "snippetcollector.h"
 #include "snippetsmanager.h"
 #include "snippetscollection.h"
+
+#include <texteditor/texteditorconstants.h>
 
 using namespace TextEditor;
 using namespace Internal;
@@ -38,15 +40,15 @@ namespace {
 
 void appendSnippets(ICompletionCollector *collector,
                     QList<CompletionItem> *completionItems,
-                    Snippet::Group group,
+                    const QString &groupId,
                     const QIcon &icon,
                     int order)
 {
     QSharedPointer<SnippetsCollection> collection =
         SnippetsManager::instance()->snippetsCollection();
-    const int size = collection->totalActiveSnippets(group);
+    const int size = collection->totalActiveSnippets(groupId);
     for (int i = 0; i < size; ++i) {
-        const Snippet &snippet = collection->snippet(i, group);
+        const Snippet &snippet = collection->snippet(i, groupId);
         CompletionItem item(collector);
         item.text = snippet.trigger() + QLatin1Char(' ') + snippet.complement();
         item.data = snippet.content();
@@ -60,17 +62,17 @@ void appendSnippets(ICompletionCollector *collector,
 
 } // anonymous
 
-SnippetProvider::SnippetProvider(Snippet::Group group, const QIcon &icon, int order) :
-    m_group(group), m_icon(icon), m_order(order)
+SnippetCollector::SnippetCollector(const QString &groupId, const QIcon &icon, int order) :
+    m_groupId(groupId), m_icon(icon), m_order(order)
 {}
 
-SnippetProvider::~SnippetProvider()
+SnippetCollector::~SnippetCollector()
 {}
 
-QList<CompletionItem> SnippetProvider::getSnippets(ICompletionCollector *collector) const
+QList<CompletionItem> SnippetCollector::getSnippets(ICompletionCollector *collector) const
 {
     QList<CompletionItem> completionItems;
-    appendSnippets(collector, &completionItems, m_group, m_icon, m_order);
-    appendSnippets(collector, &completionItems, Snippet::PlainText, m_icon, m_order);
+    appendSnippets(collector, &completionItems, m_groupId, m_icon, m_order);
+    appendSnippets(collector, &completionItems, Constants::TEXT_SNIPPET_GROUP_ID, m_icon, m_order);
     return completionItems;
 }

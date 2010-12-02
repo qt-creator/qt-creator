@@ -30,7 +30,7 @@
 #include "snippetssettingspage.h"
 #include "snippetsmanager.h"
 #include "snippeteditor.h"
-#include "isnippeteditordecorator.h"
+#include "isnippetprovider.h"
 #include "snippet.h"
 #include "snippetscollection.h"
 #include "snippetssettings.h"
@@ -46,6 +46,7 @@
 #include <QtCore/QList>
 #include <QtCore/QSettings>
 #include <QtCore/QTextStream>
+#include <QtCore/QHash>
 #include <QtGui/QMessageBox>
 
 namespace TextEditor {
@@ -68,7 +69,8 @@ public:
     virtual QVariant headerData(int section, Qt::Orientation orientation,
                                 int role = Qt::DisplayRole) const;
 
-    void load(Snippet::Group group);
+    QList<QString> groupIds() const;
+    void load(const QString &groupId);
 
     QModelIndex createSnippet();
     QModelIndex insertSnippet(const Snippet &snippet);
@@ -83,13 +85,12 @@ private:
     void replaceSnippet(const Snippet &snippet, const QModelIndex &modelIndex);
     static bool isValidTrigger(const QString &s);
 
-    Snippet::Group m_activeGroup;
     QSharedPointer<SnippetsCollection> m_collection;
+    QString m_activeGroupId;
 };
 
 SnippetsTableModel::SnippetsTableModel(QObject *parent) :
     QAbstractTableModel(parent),
-    m_activeGroup(Snippet::Cpp),
     m_collection(SnippetsManager::instance()->snippetsCollection())
 {}
 
@@ -97,7 +98,7 @@ int SnippetsTableModel::rowCount(const QModelIndex &) const
 {
     if (m_collection.isNull())
         return 0;
-    return m_collection->totalActiveSnippets(m_activeGroup);
+    return m_collection->totalActiveSnippets(m_activeGroupId);
 }
 
 int SnippetsTableModel::columnCount(const QModelIndex &) const
@@ -121,7 +122,7 @@ QVariant SnippetsTableModel::data(const QModelIndex &modelIndex, int role) const
         return QVariant();
 
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
-        const Snippet &snippet = m_collection->snippet(modelIndex.row(), m_activeGroup);
+        const Snippet &snippet = m_collection->snippet(modelIndex.row(), m_activeGroupId);
         if (modelIndex.column() == 0)
             return snippet.trigger();
         else
@@ -134,7 +135,7 @@ QVariant SnippetsTableModel::data(const QModelIndex &modelIndex, int role) const
 bool SnippetsTableModel::setData(const QModelIndex &modelIndex, const QVariant &value, int role)
 {
     if (modelIndex.isValid() && role == Qt::EditRole) {
-        Snippet snippet(m_collection->snippet(modelIndex.row(), m_activeGroup));
+        Snippet snippet(m_collection->snippet(modelIndex.row(), m_activeGroupId));
         if (modelIndex.column() == 0) {
             const QString &s = value.toString();
             if (!isValidTrigger(s)) {
@@ -165,25 +166,28 @@ QVariant SnippetsTableModel::headerData(int section, Qt::Orientation orientation
         return tr("Complement");
 }
 
-void SnippetsTableModel::load(Snippet::Group group)
+void SnippetsTableModel::load(const QString &groupId)
 {
-    m_activeGroup = group;
+    m_activeGroupId = groupId;
     reset();
+}
+
+QList<QString> SnippetsTableModel::groupIds() const
+{
+    return m_collection->groupIds();
 }
 
 QModelIndex SnippetsTableModel::createSnippet()
 {
-    Snippet snippet;
-    snippet.setGroup(m_activeGroup);
+    Snippet snippet(m_activeGroupId);
     return insertSnippet(snippet);
 }
 
 QModelIndex SnippetsTableModel::insertSnippet(const Snippet &snippet)
 {
-    const SnippetsCollection::Hint &hint =
-        m_collection->computeInsertionHint(snippet, m_activeGroup);
+    const SnippetsCollection::Hint &hint = m_collection->computeInsertionHint(snippet);
     beginInsertRows(QModelIndex(), hint.index(), hint.index());
-    m_collection->insertSnippet(snippet, m_activeGroup, hint);
+    m_collection->insertSnippet(snippet, hint);
     endInsertRows();
 
     return index(hint.index(), 0);
@@ -192,23 +196,23 @@ QModelIndex SnippetsTableModel::insertSnippet(const Snippet &snippet)
 void SnippetsTableModel::removeSnippet(const QModelIndex &modelIndex)
 {
     beginRemoveRows(QModelIndex(), modelIndex.row(), modelIndex.row());
-    m_collection->removeSnippet(modelIndex.row(), m_activeGroup);
+    m_collection->removeSnippet(modelIndex.row(), m_activeGroupId);
     endRemoveRows();
 }
 
 const Snippet &SnippetsTableModel::snippetAt(const QModelIndex &modelIndex) const
 {
-    return m_collection->snippet(modelIndex.row(), m_activeGroup);
+    return m_collection->snippet(modelIndex.row(), m_activeGroupId);
 }
 
 void SnippetsTableModel::setSnippetContent(const QModelIndex &modelIndex, const QString &content)
 {
-    m_collection->setSnippetContent(modelIndex.row(), m_activeGroup, content);
+    m_collection->setSnippetContent(modelIndex.row(), m_activeGroupId, content);
 }
 
 void SnippetsTableModel::revertBuitInSnippet(const QModelIndex &modelIndex)
 {
-    const Snippet &snippet = m_collection->revertedSnippet(modelIndex.row(), m_activeGroup);
+    const Snippet &snippet = m_collection->revertedSnippet(modelIndex.row(), m_activeGroupId);
     if (snippet.id().isEmpty()) {
         QMessageBox::critical(0, tr("Error"), tr("Error reverting snippet."));
         return;
@@ -218,13 +222,13 @@ void SnippetsTableModel::revertBuitInSnippet(const QModelIndex &modelIndex)
 
 void SnippetsTableModel::restoreRemovedBuiltInSnippets()
 {
-    m_collection->restoreRemovedSnippets(m_activeGroup);
+    m_collection->restoreRemovedSnippets(m_activeGroupId);
     reset();
 }
 
 void SnippetsTableModel::resetSnippets()
 {
-    m_collection->reset(m_activeGroup);
+    m_collection->reset(m_activeGroupId);
     reset();
 }
 
@@ -232,9 +236,9 @@ void SnippetsTableModel::replaceSnippet(const Snippet &snippet, const QModelInde
 {
     const int row = modelIndex.row();
     const SnippetsCollection::Hint &hint =
-        m_collection->computeReplacementHint(row, snippet, m_activeGroup);
+        m_collection->computeReplacementHint(row, snippet);
     if (modelIndex.row() == hint.index()) {
-        m_collection->replaceSnippet(row, snippet, m_activeGroup, hint);
+        m_collection->replaceSnippet(row, snippet, hint);
         emit dataChanged(modelIndex, modelIndex);
     } else {
         if (row < hint.index())
@@ -242,7 +246,7 @@ void SnippetsTableModel::replaceSnippet(const Snippet &snippet, const QModelInde
             beginMoveRows(QModelIndex(), row, row, QModelIndex(), hint.index() + 1);
         else
             beginMoveRows(QModelIndex(), row, row, QModelIndex(), hint.index());
-        m_collection->replaceSnippet(row, snippet, m_activeGroup, hint);
+        m_collection->replaceSnippet(row, snippet, hint);
         endMoveRows();
     }
 }
@@ -290,8 +294,6 @@ private:
     SnippetEditor *currentEditor() const;
     SnippetEditor *editorAt(int i) const;
 
-    static void decorateEditor(SnippetEditor *editor, Snippet::Group group);
-
     void loadSettings();
     bool settingsChanged() const;
     void writeSettings();
@@ -328,9 +330,15 @@ void SnippetsSettingsPagePrivate::configureUi(QWidget *w)
 {
     m_ui.setupUi(w);
 
-    m_ui.groupCombo->insertItem(Snippet::Cpp, fromSnippetGroup(Snippet::Cpp));
-    m_ui.groupCombo->insertItem(Snippet::Qml, fromSnippetGroup(Snippet::Qml));
-    m_ui.groupCombo->insertItem(Snippet::PlainText, fromSnippetGroup(Snippet::PlainText));
+    const QList<ISnippetProvider *> &providers =
+        ExtensionSystem::PluginManager::instance()->getObjects<ISnippetProvider>();
+    foreach (ISnippetProvider *provider, providers) {
+        m_ui.groupCombo->addItem(provider->displayName(), provider->groupId());
+        SnippetEditor *snippetEditor = new SnippetEditor(w);
+        provider->decorateEditor(snippetEditor);
+        m_ui.snippetsEditorStack->insertWidget(m_ui.groupCombo->count() - 1, snippetEditor);
+        connect(snippetEditor, SIGNAL(snippetContentChanged()), this, SLOT(setSnippetContent()));
+    }
 
     m_ui.snippetsTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_ui.snippetsTable->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -340,26 +348,12 @@ void SnippetsSettingsPagePrivate::configureUi(QWidget *w)
     m_ui.snippetsTable->verticalHeader()->setDefaultSectionSize(20);
     m_ui.snippetsTable->setModel(m_model);
 
-    m_ui.snippetsEditorStack->insertWidget(Snippet::Cpp, new SnippetEditor(w));
-    m_ui.snippetsEditorStack->insertWidget(Snippet::Qml, new SnippetEditor(w));
-    m_ui.snippetsEditorStack->insertWidget(Snippet::PlainText, new SnippetEditor(w));
-    decorateEditor(editorAt(Snippet::Cpp), Snippet::Cpp);
-    decorateEditor(editorAt(Snippet::Qml), Snippet::Qml);
-    decorateEditor(editorAt(Snippet::PlainText), Snippet::PlainText);
-
     m_ui.revertButton->setEnabled(false);
 
     QTextStream(&m_keywords) << m_displayName;
 
     loadSettings();
     loadSnippetGroup(m_ui.groupCombo->currentIndex());
-
-    connect(editorAt(Snippet::Cpp), SIGNAL(snippetContentChanged()),
-            this, SLOT(setSnippetContent()));
-    connect(editorAt(Snippet::Qml), SIGNAL(snippetContentChanged()),
-            this, SLOT(setSnippetContent()));
-    connect(editorAt(Snippet::PlainText), SIGNAL(snippetContentChanged()),
-            this, SLOT(setSnippetContent()));
 
     connect(m_model, SIGNAL(rowsInserted(QModelIndex, int, int)),
             this, SLOT(selectSnippet(QModelIndex,int)));
@@ -387,15 +381,6 @@ void SnippetsSettingsPagePrivate::configureUi(QWidget *w)
             this, SLOT(updateCurrentSnippetDependent(QModelIndex)));
 }
 
-void SnippetsSettingsPagePrivate::decorateEditor(SnippetEditor *editor, Snippet::Group group)
-{
-    const QList<ISnippetEditorDecorator *> &decorators =
-        ExtensionSystem::PluginManager::instance()->getObjects<ISnippetEditorDecorator>();
-    foreach (ISnippetEditorDecorator *decorator, decorators)
-        if (decorator->supports(group))
-            decorator->apply(editor);
-}
-
 void SnippetsSettingsPagePrivate::apply()
 {
     if (settingsChanged())
@@ -417,14 +402,25 @@ void SnippetsSettingsPagePrivate::finish()
 
 void SnippetsSettingsPagePrivate::loadSettings()
 {
+    if (m_ui.groupCombo->count() == 0)
+        return;
+
     if (QSettings *s = Core::ICore::instance()->settings()) {
         m_settings.fromSettings(m_settingsPrefix, s);
-        m_ui.groupCombo->setCurrentIndex(toSnippetGroup(m_settings.lastUsedSnippetGroup()));
+        const QString &lastGroupName = m_settings.lastUsedSnippetGroup();
+        const int index = m_ui.groupCombo->findText(lastGroupName);
+        if (index != -1)
+            m_ui.groupCombo->setCurrentIndex(index);
+        else
+            m_ui.groupCombo->setCurrentIndex(0);
     }
 }
 
 void SnippetsSettingsPagePrivate::writeSettings()
 {
+    if (m_ui.groupCombo->count() == 0)
+        return;
+
     if (QSettings *s = Core::ICore::instance()->settings()) {
         m_settings.setLastUsedSnippetGroup(m_ui.groupCombo->currentText());
         m_settings.toSettings(m_settingsPrefix, s);
@@ -440,9 +436,12 @@ bool SnippetsSettingsPagePrivate::settingsChanged() const
 
 void SnippetsSettingsPagePrivate::loadSnippetGroup(int index)
 {
+    if (index == -1)
+        return;
+
     m_ui.snippetsEditorStack->setCurrentIndex(index);
     currentEditor()->clear();
-    m_model->load(Snippet::Group(index));
+    m_model->load(m_ui.groupCombo->itemData(index).toString());
 }
 
 void SnippetsSettingsPagePrivate::markSnippetsCollection()

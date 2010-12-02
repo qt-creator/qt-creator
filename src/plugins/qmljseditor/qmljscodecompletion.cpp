@@ -30,6 +30,7 @@
 #include "qmljscodecompletion.h"
 #include "qmlexpressionundercursor.h"
 #include "qmljseditor.h"
+#include "qmljseditorconstants.h"
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/parser/qmljsast_p.h>
@@ -487,7 +488,7 @@ CodeCompletion::CodeCompletion(ModelManagerInterface *modelManager, QObject *par
       m_editor(0),
       m_startPosition(0),
       m_restartCompletion(false),
-      m_snippetProvider(TextEditor::Snippet::Qml, iconForColor(Qt::red), SnippetOrder)
+      m_snippetProvider(Constants::QML_SNIPPETS_GROUP_ID, iconForColor(Qt::red), SnippetOrder)
 {
     Q_ASSERT(modelManager);
 }

@@ -27,26 +27,30 @@
 **
 **************************************************************************/
 
-#ifndef CPPSNIPPETEDITORDECORATOR_H
-#define CPPSNIPPETEDITORDECORATOR_H
+#include "plaintextsnippetprovider.h"
 
-#include <texteditor/snippets/isnippeteditordecorator.h>
+#include <texteditor/texteditorconstants.h>
 
-namespace CppEditor {
-namespace Internal {
+#include <QtCore/QLatin1String>
 
-class CppSnippetEditorDecorator : public TextEditor::ISnippetEditorDecorator
+using namespace TextEditor;
+using namespace Internal;
+
+PlainTextSnippetProvider::PlainTextSnippetProvider()
+{}
+
+PlainTextSnippetProvider::~PlainTextSnippetProvider()
+{}
+
+QString PlainTextSnippetProvider::groupId() const
 {
-public:
-    CppSnippetEditorDecorator();
-    virtual ~CppSnippetEditorDecorator();
+    return QLatin1String(Constants::TEXT_SNIPPET_GROUP_ID);
+}
 
-public:
-    virtual bool supports(TextEditor::Snippet::Group group) const;
-    virtual void apply(TextEditor::SnippetEditor *editor) const;
-};
+QString PlainTextSnippetProvider::displayName() const
+{
+    return tr("Text");
+}
 
-} // Internal
-} // CppEditor
-
-#endif // CPPSNIPPETEDITORDECORATOR_H
+void PlainTextSnippetProvider::decorateEditor(TextEditor::SnippetEditor *) const
+{}

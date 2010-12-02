@@ -30,26 +30,25 @@
 #ifndef SNIPPETPROVIDER_H
 #define SNIPPETPROVIDER_H
 
-#include "snippet.h"
-
 #include <texteditor/texteditor_global.h>
 #include <texteditor/icompletioncollector.h>
 
+#include <QtCore/QString>
 #include <QtCore/QList>
 #include <QtGui/QIcon>
 
 namespace TextEditor {
 
-class TEXTEDITOR_EXPORT SnippetProvider
+class TEXTEDITOR_EXPORT SnippetCollector
 {
 public:
-    SnippetProvider(Snippet::Group group, const QIcon &icon, int order = 0);
-    ~SnippetProvider();
+    SnippetCollector(const QString &groupId, const QIcon &icon, int order = 0);
+    ~SnippetCollector();
 
     QList<CompletionItem> getSnippets(ICompletionCollector *collector) const;
 
 private:
-    Snippet::Group m_group;
+    QString m_groupId;
     QIcon m_icon;
     int m_order;
 };

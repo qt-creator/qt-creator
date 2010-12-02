@@ -40,18 +40,11 @@ namespace TextEditor {
 class TEXTEDITOR_EXPORT Snippet
 {
 public:
-    Snippet(const QString &id = QString());
+    Snippet(const QString &groupId = QString(), const QString &id = QString());
     ~Snippet();
 
-    // Values from this enumeration need to be contiguous (they are used as indexes).
-    enum Group {
-        Cpp = 0,
-        Qml,
-        PlainText,
-        GroupSize
-    };
-
     const QString &id() const;
+    const QString &groupId() const;
 
     bool isBuiltIn() const;
 
@@ -70,9 +63,6 @@ public:
     void setIsModified(bool modified);
     bool isModified() const;
 
-    void setGroup(Group group);
-    Group group() const;
-
     QString generateTip() const;
 
     static const QChar kVariableDelimiter;
@@ -80,18 +70,12 @@ public:
 private:
     bool m_isRemoved;
     bool m_isModified;
+    QString m_groupId;
     QString m_id; // Only built-in snippets have an id.
     QString m_trigger;
     QString m_content;
     QString m_complement;
-    Group m_group;
 };
-
-inline Snippet::Group& operator++(Snippet::Group& group)
-{
-    group = Snippet::Group(group + 1);
-    return group;
-}
 
 } // TextEditor
 

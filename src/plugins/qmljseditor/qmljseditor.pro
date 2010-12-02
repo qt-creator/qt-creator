@@ -35,7 +35,7 @@ HEADERS += \
     qmljsindenter.h \
     qmljsautocompleter.h \
     jsfilewizard.h \
-    qmljssnippeteditordecorator.h
+    qmljssnippetprovider.h
 
 SOURCES += \
     qmljscodecompletion.cpp \
@@ -64,7 +64,7 @@ SOURCES += \
     qmljsindenter.cpp \
     qmljsautocompleter.cpp \
     jsfilewizard.cpp \
-    qmljssnippeteditordecorator.cpp
+    qmljssnippetprovider.cpp
 
 RESOURCES += qmljseditor.qrc
 OTHER_FILES += QmlJSEditor.mimetypes.xml

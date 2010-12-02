@@ -34,6 +34,7 @@
 
 #include <QtCore/QVector>
 #include <QtCore/QList>
+#include <QtCore/QHash>
 
 QT_FORWARD_DECLARE_CLASS(QXmlStreamWriter)
 
@@ -49,8 +50,9 @@ namespace Internal {
 // - Provide fast index access.
 // - Not thread-safe.
 
-class SnippetsCollection
+class SnippetsCollection : public QObject
 {
+    Q_OBJECT
 public:
     SnippetsCollection();
     ~SnippetsCollection();
@@ -61,43 +63,52 @@ public:
     public:
         int index() const;
     private:
-        Hint(int index);
+        explicit Hint(int index);
         Hint(int index, QList<Snippet>::iterator it);
         int m_index;
         QList<Snippet>::iterator m_it;
     };
 
-    void insertSnippet(const Snippet &snippet, Snippet::Group group);
-    void insertSnippet(const Snippet &snippet, Snippet::Group group, const Hint &hint);
-    Hint computeInsertionHint(const Snippet &snippet, Snippet::Group group);
+    void insertSnippet(const Snippet &snippet);
+    void insertSnippet(const Snippet &snippet, const Hint &hint);
+    Hint computeInsertionHint(const Snippet &snippet);
 
-    void replaceSnippet(int index, const Snippet &snippet, Snippet::Group group);
-    void replaceSnippet(int index, const Snippet &snippet, Snippet::Group group, const Hint &hint);
-    Hint computeReplacementHint(int index, const Snippet &snippet, Snippet::Group group);
+    // Replace snippets only within the same group.
+    void replaceSnippet(int index, const Snippet &snippet);
+    void replaceSnippet(int index, const Snippet &snippet, const Hint &hint);
+    Hint computeReplacementHint(int index, const Snippet &snippet);
 
-    void removeSnippet(int index, Snippet::Group group);
-    void restoreRemovedSnippets(Snippet::Group group);
+    void removeSnippet(int index, const QString &groupId);
+    void restoreRemovedSnippets(const QString &groupId);
 
-    void setSnippetContent(int index, Snippet::Group group, const QString &content);
+    void setSnippetContent(int index, const QString &groupId, const QString &content);
 
-    const Snippet &snippet(int index, Snippet::Group group) const;
-    Snippet revertedSnippet(int index, Snippet::Group group) const;
+    const Snippet &snippet(int index, const QString &groupId) const;
+    Snippet revertedSnippet(int index, const QString &groupId) const;
 
-    void reset(Snippet::Group group);
+    void reset(const QString &groupId);
 
-    int totalActiveSnippets(Snippet::Group group) const;
-    int totalSnippets(Snippet::Group group) const;
+    int totalActiveSnippets(const QString &groupId) const;
+    int totalSnippets(const QString &groupId) const;
+
+    QList<QString> groupIds() const;
 
     void reload();
     void synchronize();
 
-private:
-    void clear();
-    void clear(Snippet::Group group);
-    void updateActiveSnippetsEnd(Snippet::Group group);
+private slots:
+    void identifyGroups();
 
-    static QList<Snippet> readXML(const QString &fileName, const QString &snippetId = QString());
-    static void writeSnippetXML(const Snippet &snippet, QXmlStreamWriter *writer);
+private:
+    int groupIndex(const QString &groupId) const;
+
+    void clearSnippets();
+    void clearSnippets(int groupIndex);
+
+    void updateActiveSnippetsEnd(int groupIndex);
+
+    QList<Snippet> readXML(const QString &fileName, const QString &snippetId = QString()) const;
+    void writeSnippetXML(const Snippet &snippet, QXmlStreamWriter *writer) const;
 
     static const QLatin1String kSnippet;
     static const QLatin1String kSnippets;
@@ -108,11 +119,7 @@ private:
     static const QLatin1String kRemoved;
     static const QLatin1String kModified;
 
-    // Snippets for each group are kept in a list. However, not all of them are necessarily
-    // active. Specifically, removed built-in snippets are kept as the last ones (for each
-    // group there is a iterator that marks the logical end).
-    QVector<QList<Snippet> > m_snippets;
-    QVector<QList<Snippet>::iterator> m_activeSnippetsEnd;
+    bool isGroupKnown(const QString &groupId) const;
 
     // Built-in snippets are specified in an XML embedded as a resource. Snippets created/
     // modified/removed by the user are stored in another XML created dynamically in the
@@ -120,6 +127,14 @@ private:
     QString m_builtInSnippetsPath;
     QString m_userSnippetsPath;
     QString m_snippetsFileName;
+
+    // Snippets for each group are kept in a list. However, not all of them are necessarily
+    // active. Specifically, removed built-in snippets are kept as the last ones (for each
+    // group there is a iterator that marks the logical end).
+    QVector<QList<Snippet> > m_snippets;
+    QVector<QList<Snippet>::iterator> m_activeSnippetsEnd;
+
+    QHash<QString, int> m_groupIndexById;
 };
 
 } // Internal

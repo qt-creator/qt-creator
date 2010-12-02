@@ -30,40 +30,14 @@
 #ifndef REUSE_H
 #define REUSE_H
 
-#include "snippet.h"
-
 #include <QtCore/QString>
 #include <QtCore/QLatin1String>
 
 namespace TextEditor {
 namespace Internal {
 
-const QLatin1String kCpp("C++");
-const QLatin1String kQml("QML");
-const QLatin1String kText("Text");
 const QLatin1String kTrue("true");
 const QLatin1String kFalse("false");
-
-inline Snippet::Group toSnippetGroup(const QString &s)
-{
-    const QString &upper = s.toUpper();
-    if (upper == kCpp)
-        return Snippet::Cpp;
-    else if (upper == kQml)
-        return Snippet::Qml;
-    else
-        return Snippet::PlainText;
-}
-
-inline QString fromSnippetGroup(Snippet::Group group)
-{
-    if (group == Snippet::Cpp)
-        return kCpp;
-    else if (group == Snippet::Qml)
-        return kQml;
-    else
-        return kText;
-}
 
 inline bool toBool(const QString &s)
 {

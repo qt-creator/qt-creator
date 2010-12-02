@@ -143,6 +143,7 @@ const char * const TEXT_EDITOR_HIGHLIGHTER_SETTINGS = "E.HighlighterSettings";
 const char * const TEXT_EDITOR_SNIPPETS_SETTINGS = "F.SnippetsSettings";
 
 const char * const SNIPPET_EDITOR_ID     = "TextEditor.SnippetEditor";
+const char * const TEXT_SNIPPET_GROUP_ID = "Text";
 
 } // namespace Constants
 } // namespace TextEditor

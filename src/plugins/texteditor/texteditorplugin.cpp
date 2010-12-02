@@ -41,6 +41,7 @@
 #include "storagesettings.h"
 #include "manager.h"
 #include "outlinefactory.h"
+#include "snippets/plaintextsnippetprovider.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -143,6 +144,9 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     // Generic highlighter.
     connect(Core::ICore::instance(), SIGNAL(coreOpened()),
             Manager::instance(), SLOT(registerMimeTypes()));
+
+    // Add text snippet provider.
+    addAutoReleasedObject(new PlainTextSnippetProvider);
 
     m_outlineFactory = new OutlineFactory;
     addAutoReleasedObject(m_outlineFactory);

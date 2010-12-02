@@ -27,42 +27,46 @@
 **
 **************************************************************************/
 
-#include "cppsnippeteditordecorator.h"
-#include "cpphighlighter.h"
-#include "cppeditor.h"
-#include "cppqtstyleindenter.h"
-#include "cppautocompleter.h"
+#include "qmljssnippetprovider.h"
+#include "qmljshighlighter.h"
+#include "qmljseditor.h"
+#include "qmljsindenter.h"
+#include "qmljsautocompleter.h"
+#include "qmljseditorconstants.h"
 
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/snippets/snippeteditor.h>
 
-using namespace CppEditor;
+#include <QtCore/QLatin1String>
+
+using namespace QmlJSEditor;
 using namespace Internal;
 
-CppSnippetEditorDecorator::CppSnippetEditorDecorator() :
-    TextEditor::ISnippetEditorDecorator()
+QmlJSSnippetProvider::QmlJSSnippetProvider() :
+    TextEditor::ISnippetProvider()
 {}
 
-CppSnippetEditorDecorator::~CppSnippetEditorDecorator()
+QmlJSSnippetProvider::~QmlJSSnippetProvider()
 {}
 
-bool CppSnippetEditorDecorator::supports(TextEditor::Snippet::Group group) const
+QString QmlJSSnippetProvider::groupId() const
 {
-    if (group == TextEditor::Snippet::Cpp)
-        return true;
-    return false;
+    return QLatin1String(Constants::QML_SNIPPETS_GROUP_ID);
 }
 
-void CppSnippetEditorDecorator::apply(TextEditor::SnippetEditor *editor) const
+QString QmlJSSnippetProvider::displayName() const
 {
-    CppHighlighter *highlighter = new CppHighlighter;
+    return tr("QML");
+}
+
+void QmlJSSnippetProvider::decorateEditor(TextEditor::SnippetEditor *editor) const
+{
+    Highlighter *highlighter = new Highlighter;
     const TextEditor::FontSettings &fs = TextEditor::TextEditorSettings::instance()->fontSettings();
-    const QVector<QTextCharFormat> &formats =
-        fs.toTextCharFormats(CPPEditor::highlighterFormatCategories());
-    highlighter->setFormats(formats.constBegin(), formats.constEnd());
+    highlighter->setFormats(fs.toTextCharFormats(QmlJSTextEditor::highlighterFormatCategories()));
     editor->setSyntaxHighlighter(highlighter);
-    editor->setIndenter(new CppQtStyleIndenter);
-    editor->setAutoCompleter(new CppAutoCompleter);
+    editor->setIndenter(new Indenter);
+    editor->setAutoCompleter(new AutoCompleter);
 }

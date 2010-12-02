@@ -27,37 +27,12 @@
 **
 **************************************************************************/
 
-#ifndef SNIPPETSMANAGER_H
-#define SNIPPETSMANAGER_H
+#include "isnippetprovider.h"
 
-#include <QtCore/QSharedPointer>
+using namespace TextEditor;
 
-namespace TextEditor {
+ISnippetProvider::ISnippetProvider() : QObject()
+{}
 
-class ISnippetProvider;
-
-namespace Internal {
-
-class SnippetsCollection;
-
-class SnippetsManager
-{
-private:
-    SnippetsManager();
-    Q_DISABLE_COPY(SnippetsManager)
-
-public:
-    ~SnippetsManager();
-
-    static SnippetsManager *instance();
-
-    QSharedPointer<SnippetsCollection> snippetsCollection() const;
-
-private:
-    QSharedPointer<SnippetsCollection> m_collection;
-};
-
-} // Internal
-} // TextEditor
-
-#endif // SNIPPETSMANAGER_H
+ISnippetProvider::~ISnippetProvider()
+{}

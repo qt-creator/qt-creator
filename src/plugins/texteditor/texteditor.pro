@@ -77,10 +77,11 @@ SOURCES += texteditorplugin.cpp \
     snippets/snippet.cpp \
     snippets/snippetsmanager.cpp \
     snippets/snippeteditor.cpp \
-    snippets/isnippeteditordecorator.cpp \
     snippets/snippetscollection.cpp \
     snippets/snippetssettings.cpp \
-    snippets/snippetprovider.cpp
+    snippets/isnippetprovider.cpp \
+    snippets/snippetcollector.cpp \
+    snippets/plaintextsnippetprovider.cpp
 
 HEADERS += texteditorplugin.h \
     textfilewizard.h \
@@ -159,11 +160,12 @@ HEADERS += texteditorplugin.h \
     snippets/snippet.h \
     snippets/snippetsmanager.h \
     snippets/snippeteditor.h \
-    snippets/isnippeteditordecorator.h \
     snippets/snippetscollection.h \
     snippets/reuse.h \
     snippets/snippetssettings.h \
-    snippets/snippetprovider.h
+    snippets/isnippetprovider.h \
+    snippets/snippetcollector.h \
+    snippets/plaintextsnippetprovider.h
 
 FORMS += behaviorsettingspage.ui \
     displaysettingspage.ui \

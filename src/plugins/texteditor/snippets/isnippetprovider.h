@@ -27,12 +27,33 @@
 **
 **************************************************************************/
 
-#include "isnippeteditordecorator.h"
+#ifndef ISNIPPETEDITORDECORATOR_H
+#define ISNIPPETEDITORDECORATOR_H
 
-using namespace TextEditor;
+#include "snippet.h"
 
-ISnippetEditorDecorator::ISnippetEditorDecorator() : QObject()
-{}
+#include <texteditor/texteditor_global.h>
 
-ISnippetEditorDecorator::~ISnippetEditorDecorator()
-{}
+#include <QtCore/QObject>
+
+namespace TextEditor {
+
+class SnippetEditor;
+
+class TEXTEDITOR_EXPORT ISnippetProvider : public QObject
+{
+    Q_OBJECT
+public:
+    virtual ~ISnippetProvider();
+
+    virtual QString groupId() const = 0;
+    virtual QString displayName() const = 0;
+    virtual void decorateEditor(SnippetEditor *editor) const = 0;
+
+protected:
+    ISnippetProvider();
+};
+
+} // TextEditor
+
+#endif // ISNIPPETEDITORDECORATOR_H

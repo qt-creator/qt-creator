@@ -37,7 +37,8 @@ using namespace TextEditor;
 
 const QChar Snippet::kVariableDelimiter(QLatin1Char('$'));
 
-Snippet::Snippet(const QString &id) : m_isRemoved(false), m_isModified(false), m_id(id)
+Snippet::Snippet(const QString &groupId, const QString &id) :
+    m_isRemoved(false), m_isModified(false), m_groupId(groupId), m_id(id)
 {}
 
 Snippet::~Snippet()
@@ -46,6 +47,11 @@ Snippet::~Snippet()
 const QString &Snippet::id() const
 {
     return m_id;
+}
+
+const QString &Snippet::groupId() const
+{
+    return m_groupId;
 }
 
 bool Snippet::isBuiltIn() const
@@ -101,16 +107,6 @@ void Snippet::setIsModified(bool modified)
 bool Snippet::isModified() const
 {
     return m_isModified;
-}
-
-void Snippet::setGroup(Group group)
-{
-    m_group = group;
-}
-
-Snippet::Group Snippet::group() const
-{
-    return m_group;
 }
 
 QString Snippet::generateTip() const

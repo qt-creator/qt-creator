@@ -52,6 +52,8 @@
 #include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/LookupContext.h>
 
+#include <cppeditor/cppeditorconstants.h>
+
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -463,7 +465,7 @@ CppCodeCompletion::CppCodeCompletion(CppModelManager *manager)
       m_automaticCompletion(false),
       m_completionOperator(T_EOF_SYMBOL),
       m_objcEnabled(true),
-      m_snippetProvider(TextEditor::Snippet::Cpp,
+      m_snippetProvider(CppEditor::Constants::CPP_SNIPPETS_GROUP_ID,
                         QIcon(QLatin1String(":/texteditor/images/snippet.png")))
 {
 }

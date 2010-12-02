@@ -117,4 +117,5 @@ public:
 <snippet group="QML" trigger="PropertyAction" id="propertyactionwithtarget" complement="with target">PropertyAction { target: $name$; property: "$name$"; value: $value$ }</snippet>
 <snippet group="QML" trigger="PauseAnimation" id="pauseanimation">PauseAnimation { duration: $200$ }</snippet>
 <snippet group="QML" trigger="ColorAnimation" id="coloranimation">ColorAnimation { from: $"white"$; to: $"black"$; duration: $200$ }</snippet>
+<snippet group="Text" trigger="global" id="global" complement="example">// This is available in all editors.</snippet>
 </snippets>

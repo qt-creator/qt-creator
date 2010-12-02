@@ -28,15 +28,16 @@
 **************************************************************************/
 
 #include "snippetscollection.h"
+#include "isnippetprovider.h"
 #include "reuse.h"
 
 #include <coreplugin/icore.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QLatin1String>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
-#include <QtCore/QHash>
 #include <QtCore/QDebug>
 #include <QtCore/QXmlStreamReader>
 #include <QtCore/QXmlStreamWriter>
@@ -99,28 +100,24 @@ int SnippetsCollection::Hint::index() const
 
 // SnippetsCollection
 SnippetsCollection::SnippetsCollection() :
-    m_snippets(Snippet::GroupSize),
-    m_activeSnippetsEnd(Snippet::GroupSize),
     m_builtInSnippetsPath(QLatin1String(":/texteditor/snippets/")),
     m_userSnippetsPath(Core::ICore::instance()->userResourcePath() + QLatin1String("/snippets/")),
     m_snippetsFileName(QLatin1String("snippets.xml"))
 {
-    for (Snippet::Group group = Snippet::Cpp; group < Snippet::GroupSize; ++group)
-        m_activeSnippetsEnd[group] = m_snippets[group].end();
+    connect(Core::ICore::instance(), SIGNAL(coreOpened()), this, SLOT(identifyGroups()));
 }
 
 SnippetsCollection::~SnippetsCollection()
 {}
 
-void SnippetsCollection::insertSnippet(const Snippet &snippet, Snippet::Group group)
+void SnippetsCollection::insertSnippet(const Snippet &snippet)
 {
-    insertSnippet(snippet, group, computeInsertionHint(snippet, group));
+    insertSnippet(snippet, computeInsertionHint(snippet));
 }
 
-void SnippetsCollection::insertSnippet(const Snippet &snippet,
-                                       Snippet::Group group,
-                                       const Hint &hint)
+void SnippetsCollection::insertSnippet(const Snippet &snippet, const Hint &hint)
 {
+    const int group = groupIndex(snippet.groupId());
     if (snippet.isBuiltIn() && snippet.isRemoved()) {
         m_activeSnippetsEnd[group] = m_snippets[group].insert(m_activeSnippetsEnd[group], snippet);
     } else {
@@ -129,25 +126,23 @@ void SnippetsCollection::insertSnippet(const Snippet &snippet,
     }
 }
 
-SnippetsCollection::Hint SnippetsCollection::computeInsertionHint(const Snippet &snippet,
-                                                                  Snippet::Group group)
+SnippetsCollection::Hint SnippetsCollection::computeInsertionHint(const Snippet &snippet)
 {
+    const int group = groupIndex(snippet.groupId());
     QList<Snippet> &snippets = m_snippets[group];
     QList<Snippet>::iterator it = qUpperBound(
         snippets.begin(), m_activeSnippetsEnd.at(group), snippet, snippetComp);
     return Hint(static_cast<int>(std::distance(snippets.begin(), it)), it);
 }
 
-void SnippetsCollection::replaceSnippet(int index, const Snippet &snippet, Snippet::Group group)
+void SnippetsCollection::replaceSnippet(int index, const Snippet &snippet)
 {
-    replaceSnippet(index, snippet, group, computeReplacementHint(index, snippet, group));
+    replaceSnippet(index, snippet, computeReplacementHint(index, snippet));
 }
 
-void SnippetsCollection::replaceSnippet(int index,
-                                        const Snippet &snippet,
-                                        Snippet::Group group,
-                                        const Hint &hint)
+void SnippetsCollection::replaceSnippet(int index, const Snippet &snippet, const Hint &hint)
 {
+    const int group = groupIndex(snippet.groupId());
     Snippet replacement(snippet);
     if (replacement.isBuiltIn() && !replacement.isModified())
         replacement.setIsModified(true);
@@ -155,7 +150,7 @@ void SnippetsCollection::replaceSnippet(int index,
     if (index == hint.index()) {
         m_snippets[group][index] = replacement;
     } else {
-        insertSnippet(replacement, group, hint);
+        insertSnippet(replacement, hint);
         // Consider whether the row moved up towards the beginning or down towards the end.
         if (index < hint.index())
             m_snippets[group].removeAt(index);
@@ -166,9 +161,9 @@ void SnippetsCollection::replaceSnippet(int index,
 }
 
 SnippetsCollection::Hint SnippetsCollection::computeReplacementHint(int index,
-                                                                    const Snippet &snippet,
-                                                                    Snippet::Group group)
+                                                                    const Snippet &snippet)
 {
+    const int group = groupIndex(snippet.groupId());
     QList<Snippet> &snippets = m_snippets[group];
     QList<Snippet>::iterator it = qLowerBound(
         snippets.begin(), m_activeSnippetsEnd.at(group), snippet, snippetComp);
@@ -183,8 +178,9 @@ SnippetsCollection::Hint SnippetsCollection::computeReplacementHint(int index,
     return Hint(index);
 }
 
-void SnippetsCollection::removeSnippet(int index, Snippet::Group group)
+void SnippetsCollection::removeSnippet(int index, const QString &groupId)
 {
+    const int group = groupIndex(groupId);
     Snippet snippet(m_snippets.at(group).at(index));
     m_snippets[group].removeAt(index);
     if (snippet.isBuiltIn()) {
@@ -195,90 +191,99 @@ void SnippetsCollection::removeSnippet(int index, Snippet::Group group)
     }
 }
 
-const Snippet &SnippetsCollection::snippet(int index, Snippet::Group group) const
+const Snippet &SnippetsCollection::snippet(int index, const QString &groupId) const
 {
-    return m_snippets.at(group).at(index);
+    return m_snippets.at(groupIndex(groupId)).at(index);
 }
 
-void SnippetsCollection::setSnippetContent(int index, Snippet::Group group, const QString &content)
+void SnippetsCollection::setSnippetContent(int index,
+                                           const QString &groupId,
+                                           const QString &content)
 {
-    Snippet &snippet = m_snippets[group][index];
+    Snippet &snippet = m_snippets[groupIndex(groupId)][index];
     snippet.setContent(content);
     if (snippet.isBuiltIn() && !snippet.isModified())
         snippet.setIsModified(true);
 }
 
-int SnippetsCollection::totalActiveSnippets(Snippet::Group group) const
+int SnippetsCollection::totalActiveSnippets(const QString &groupId) const
 {
+    const int group = groupIndex(groupId);
     return std::distance<QList<Snippet>::const_iterator>(m_snippets.at(group).begin(),
                                                          m_activeSnippetsEnd.at(group));
 }
 
-int SnippetsCollection::totalSnippets(Snippet::Group group) const
+int SnippetsCollection::totalSnippets(const QString &groupId) const
 {
-    return m_snippets.at(group).size();
+    return m_snippets.at(groupIndex(groupId)).size();
 }
 
-void SnippetsCollection::clear()
+QList<QString> SnippetsCollection::groupIds() const
 {
-    for (Snippet::Group group = Snippet::Cpp; group < Snippet::GroupSize; ++group)
-        clear(group);
+    return m_groupIndexById.keys();
 }
 
-void SnippetsCollection::clear(Snippet::Group group)
+void SnippetsCollection::clearSnippets()
 {
-    m_snippets[group].clear();
-    m_activeSnippetsEnd[group] = m_snippets[group].end();
+    for (int group = 0; group < m_groupIndexById.size(); ++group)
+        clearSnippets(group);
 }
 
-void SnippetsCollection::updateActiveSnippetsEnd(Snippet::Group group)
+void SnippetsCollection::clearSnippets(int groupIndex)
 {
-    m_activeSnippetsEnd[group] = std::find_if(m_snippets[group].begin(),
-                                              m_snippets[group].end(),
-                                              removedSnippetPred);
+    m_snippets[groupIndex].clear();
+    m_activeSnippetsEnd[groupIndex] = m_snippets[groupIndex].end();
 }
 
-void SnippetsCollection::restoreRemovedSnippets(Snippet::Group group)
+void SnippetsCollection::updateActiveSnippetsEnd(int groupIndex)
+{
+    m_activeSnippetsEnd[groupIndex] = std::find_if(m_snippets[groupIndex].begin(),
+                                                   m_snippets[groupIndex].end(),
+                                                   removedSnippetPred);
+}
+
+void SnippetsCollection::restoreRemovedSnippets(const QString &groupId)
 {
     // The version restored contains the last modifications (if any) by the user.
-    // Reverting the snippet can still bring it to the original version.
+    // Reverting the snippet can still bring it to the original version
+    const int group = groupIndex(groupId);
     QVector<Snippet> toRestore(std::distance(m_activeSnippetsEnd[group], m_snippets[group].end()));
     qCopy(m_activeSnippetsEnd[group], m_snippets[group].end(), toRestore.begin());
     m_snippets[group].erase(m_activeSnippetsEnd[group], m_snippets[group].end());
     foreach (Snippet snippet, toRestore) {
         snippet.setIsRemoved(false);
-        insertSnippet(snippet, group);
+        insertSnippet(snippet);
     }
 }
 
-Snippet SnippetsCollection::revertedSnippet(int index, Snippet::Group group) const
+Snippet SnippetsCollection::revertedSnippet(int index, const QString &groupId) const
 {
-    const Snippet &candidate = snippet(index, group);
+    const Snippet &candidate = snippet(index, groupId);
     Q_ASSERT(candidate.isBuiltIn());
 
     const QList<Snippet> &builtIn =
         readXML(m_builtInSnippetsPath + m_snippetsFileName, candidate.id());
     if (builtIn.size() == 1)
         return builtIn.at(0);
-    return Snippet();
+    return Snippet(groupId);
 }
 
-void SnippetsCollection::reset(Snippet::Group group)
+void SnippetsCollection::reset(const QString &groupId)
 {
-    clear(group);
+    clearSnippets(groupIndex(groupId));
 
     const QList<Snippet> &builtInSnippets = readXML(m_builtInSnippetsPath + m_snippetsFileName);
     foreach (const Snippet &snippet, builtInSnippets)
-        if (group == snippet.group())
-            insertSnippet(snippet, snippet.group());
+        if (groupId == snippet.groupId())
+            insertSnippet(snippet);
 }
 
 void SnippetsCollection::reload()
 {
-    clear();
+    clearSnippets();
 
-    QHash<QString, Snippet> activeBuiltInSnippets;
     const QList<Snippet> &builtInSnippets = readXML(m_builtInSnippetsPath + m_snippetsFileName);
+    QHash<QString, Snippet> activeBuiltInSnippets;
     foreach (const Snippet &snippet, builtInSnippets)
         activeBuiltInSnippets.insert(snippet.id(), snippet);
 
@@ -287,11 +292,11 @@ void SnippetsCollection::reload()
         if (snippet.isBuiltIn())
             // This user snippet overrides the corresponding built-in snippet.
             activeBuiltInSnippets.remove(snippet.id());
-        insertSnippet(snippet, snippet.group());
+        insertSnippet(snippet);
     }
 
     foreach (const Snippet &snippet, activeBuiltInSnippets)
-        insertSnippet(snippet, snippet.group());
+        insertSnippet(snippet);
 }
 
 void SnippetsCollection::synchronize()
@@ -303,10 +308,10 @@ void SnippetsCollection::synchronize()
             writer.setAutoFormatting(true);
             writer.writeStartDocument();
             writer.writeStartElement(kSnippets);
-            for (Snippet::Group group = Snippet::Cpp; group < Snippet::GroupSize; ++group) {
-                const int size = totalSnippets(group);
+            foreach (const QString &groupId, m_groupIndexById.keys()) {
+                const int size = m_snippets.at(groupIndex(groupId)).size();
                 for (int i = 0; i < size; ++i) {
-                    const Snippet &current = snippet(i, group);
+                    const Snippet &current = snippet(i, groupId);
                     if (!current.isBuiltIn() || current.isRemoved() || current.isModified())
                         writeSnippetXML(current, &writer);
                 }
@@ -320,10 +325,10 @@ void SnippetsCollection::synchronize()
     reload();
 }
 
-void SnippetsCollection::writeSnippetXML(const Snippet &snippet, QXmlStreamWriter *writer)
+void SnippetsCollection::writeSnippetXML(const Snippet &snippet, QXmlStreamWriter *writer) const
 {
     writer->writeStartElement(kSnippet);
-    writer->writeAttribute(kGroup, fromSnippetGroup(snippet.group()));
+    writer->writeAttribute(kGroup, snippet.groupId());
     writer->writeAttribute(kTrigger, snippet.trigger());
     writer->writeAttribute(kId, snippet.id());
     writer->writeAttribute(kComplement, snippet.complement());
@@ -333,7 +338,7 @@ void SnippetsCollection::writeSnippetXML(const Snippet &snippet, QXmlStreamWrite
     writer->writeEndElement();
 }
 
-QList<Snippet> SnippetsCollection::readXML(const QString &fileName, const QString &snippetId)
+QList<Snippet> SnippetsCollection::readXML(const QString &fileName, const QString &snippetId) const
 {
     QList<Snippet> snippets;
     QFile file(fileName);
@@ -345,11 +350,11 @@ QList<Snippet> SnippetsCollection::readXML(const QString &fileName, const QStrin
                     if (xml.name() == kSnippet) {
                         const QXmlStreamAttributes &atts = xml.attributes();
                         const QString &id = atts.value(kId).toString();
-                        if (snippetId.isEmpty() || snippetId == id) {
-                            Snippet snippet(id);
+                        const QString &groupId = atts.value(kGroup).toString();
+                        if (isGroupKnown(groupId) && (snippetId.isEmpty() || snippetId == id)) {
+                            Snippet snippet(groupId, id);
                             snippet.setTrigger(atts.value(kTrigger).toString());
                             snippet.setComplement(atts.value(kComplement).toString());
-                            snippet.setGroup(toSnippetGroup(atts.value(kGroup).toString()));
                             snippet.setIsRemoved(toBool(atts.value(kRemoved).toString()));
                             snippet.setIsModified(toBool(atts.value(kModified).toString()));
 
@@ -382,4 +387,29 @@ QList<Snippet> SnippetsCollection::readXML(const QString &fileName, const QStrin
     }
 
     return snippets;
+}
+
+int SnippetsCollection::groupIndex(const QString &groupId) const
+{
+    return m_groupIndexById.value(groupId);
+}
+
+void SnippetsCollection::identifyGroups()
+{
+    const QList<ISnippetProvider *> &providers =
+        ExtensionSystem::PluginManager::instance()->getObjects<ISnippetProvider>();
+    foreach (ISnippetProvider *provider, providers) {
+        const int groupIndex = m_groupIndexById.size();
+        m_groupIndexById.insert(provider->groupId(), groupIndex);
+        m_snippets.resize(groupIndex + 1);
+        m_activeSnippetsEnd.resize(groupIndex + 1);
+        m_activeSnippetsEnd[groupIndex] = m_snippets[groupIndex].end();
+    }
+
+    reload();
+}
+
+bool SnippetsCollection::isGroupKnown(const QString &groupId) const
+{
+    return m_groupIndexById.value(groupId, -1) != -1;
 }

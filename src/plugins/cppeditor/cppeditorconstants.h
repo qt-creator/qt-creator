@@ -68,6 +68,8 @@ const char * const CPP_HEADER_MIMETYPE = "text/x-c++hdr";
 const char * const WIZARD_CATEGORY = "O.C++";
 const char * const WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("CppEditor", "C++");
 
+const char * const CPP_SNIPPETS_GROUP_ID = "C++";
+
 } // namespace Constants
 } // namespace CppEditor
 

@@ -27,40 +27,27 @@
 **
 **************************************************************************/
 
-#include "qmljssnippeteditordecorator.h"
-#include "qmljshighlighter.h"
-#include "qmljseditor.h"
-#include "qmljsindenter.h"
-#include "qmljsautocompleter.h"
+#ifndef PLAINTEXTSNIPPETPROVIDER_H
+#define PLAINTEXTSNIPPETPROVIDER_H
 
-#include <texteditor/texteditorsettings.h>
-#include <texteditor/fontsettings.h>
-#include <texteditor/texteditorconstants.h>
-#include <texteditor/snippets/snippeteditor.h>
+#include "isnippetprovider.h"
 
-using namespace QmlJSEditor;
-using namespace Internal;
+namespace TextEditor {
+namespace Internal {
 
-QmlJSSnippetEditorDecorator::QmlJSSnippetEditorDecorator() :
-    TextEditor::ISnippetEditorDecorator()
-{}
-
-QmlJSSnippetEditorDecorator::~QmlJSSnippetEditorDecorator()
-{}
-
-bool QmlJSSnippetEditorDecorator::supports(TextEditor::Snippet::Group group) const
+class PlainTextSnippetProvider : public ISnippetProvider
 {
-    if (group == TextEditor::Snippet::Qml)
-        return true;
-    return false;
-}
+public:
+    PlainTextSnippetProvider();
+    virtual ~PlainTextSnippetProvider();
 
-void QmlJSSnippetEditorDecorator::apply(TextEditor::SnippetEditor *editor) const
-{
-    Highlighter *highlighter = new Highlighter;
-    const TextEditor::FontSettings &fs = TextEditor::TextEditorSettings::instance()->fontSettings();
-    highlighter->setFormats(fs.toTextCharFormats(QmlJSTextEditor::highlighterFormatCategories()));
-    editor->setSyntaxHighlighter(highlighter);
-    editor->setIndenter(new Indenter);
-    editor->setAutoCompleter(new AutoCompleter);
-}
+public:
+    virtual QString groupId() const;
+    virtual QString displayName() const;
+    virtual void decorateEditor(TextEditor::SnippetEditor *editor) const;
+};
+
+} // Internal
+} // TextEditor
+
+#endif // PLAINTEXTSNIPPETPROVIDER_H
