@@ -109,7 +109,6 @@ public:
 
     Utils::FancyMainWindow *mainWindow() const;
     QWidget *createContents(Core::IMode *mode);
-    QWidget *createMainWindow(Core::IMode *mode);
 
 signals:
     // emit when user changes active languages from the menu.
@@ -137,7 +136,7 @@ public slots:
 private:
     // Used by MainWindow
     friend class Internal::DebuggerMainWindow;
-    QList<QDockWidget *> i_mw_dockWidgets() const;
+    QList<QDockWidget *> dockWidgets() const;
 
     void activateQmlCppLayout();
     void activateCppLayout();

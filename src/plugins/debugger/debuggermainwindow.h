@@ -44,7 +44,6 @@ class DebuggerMainWindow : public Utils::FancyMainWindow
     Q_OBJECT
 public:
     explicit DebuggerMainWindow(DebuggerUISwitcher *uiSwitcher, QWidget *parent = 0);
-    virtual ~DebuggerMainWindow();
 
 protected:
     virtual QMenu *createPopupMenu();

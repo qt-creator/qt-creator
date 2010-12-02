@@ -411,63 +411,6 @@ Utils::FancyMainWindow *DebuggerUISwitcher::mainWindow() const
     return d->m_mainWindow;
 }
 
-QWidget *DebuggerUISwitcher::createMainWindow(IMode *mode)
-{
-    d->m_mainWindow = new Internal::DebuggerMainWindow(this);
-    d->m_mainWindow->setDocumentMode(true);
-    d->m_mainWindow->setDockNestingEnabled(true);
-    connect(d->m_mainWindow, SIGNAL(resetLayout()),
-        SLOT(resetDebuggerLayout()));
-    connect(d->m_mainWindow->toggleLockedAction(), SIGNAL(triggered()),
-        SLOT(updateDockWidgetSettings()));
-
-    QBoxLayout *editorHolderLayout = new QVBoxLayout;
-    editorHolderLayout->setMargin(0);
-    editorHolderLayout->setSpacing(0);
-
-    QWidget *editorAndFindWidget = new QWidget;
-    editorAndFindWidget->setLayout(editorHolderLayout);
-    editorHolderLayout->addWidget(new EditorManagerPlaceHolder(mode));
-    editorHolderLayout->addWidget(new FindToolBarPlaceHolder(editorAndFindWidget));
-
-    MiniSplitter *documentAndRightPane = new MiniSplitter;
-    documentAndRightPane->addWidget(editorAndFindWidget);
-    documentAndRightPane->addWidget(new RightPanePlaceHolder(mode));
-    documentAndRightPane->setStretchFactor(0, 1);
-    documentAndRightPane->setStretchFactor(1, 0);
-
-    Utils::StyledBar *debugToolBar = new Utils::StyledBar;
-    debugToolBar->setProperty("topBorder", true);
-    QHBoxLayout *debugToolBarLayout = new QHBoxLayout(debugToolBar);
-    debugToolBarLayout->setMargin(0);
-    debugToolBarLayout->setSpacing(0);
-    debugToolBarLayout->addWidget(d->m_toolbarStack);
-    debugToolBarLayout->addStretch();
-    debugToolBarLayout->addWidget(new Utils::StyledSeparator);
-
-    QDockWidget *dock = new QDockWidget(tr("Debugger Toolbar"));
-    dock->setObjectName(QLatin1String("Debugger Toolbar"));
-    dock->setWidget(debugToolBar);
-    dock->setFeatures(QDockWidget::NoDockWidgetFeatures);
-    dock->setAllowedAreas(Qt::BottomDockWidgetArea);
-    dock->setTitleBarWidget(new QWidget(dock));
-    d->m_mainWindow->addDockWidget(Qt::BottomDockWidgetArea, dock);
-    d->m_mainWindow->setToolBarDockWidget(dock);
-
-    QWidget *centralWidget = new QWidget;
-    d->m_mainWindow->setCentralWidget(centralWidget);
-
-    QVBoxLayout *centralLayout = new QVBoxLayout(centralWidget);
-    centralWidget->setLayout(centralLayout);
-    centralLayout->setMargin(0);
-    centralLayout->setSpacing(0);
-    centralLayout->addWidget(documentAndRightPane);
-    centralLayout->setStretch(0, 1);
-    centralLayout->setStretch(1, 0);
-
-    return d->m_mainWindow;
-}
-
 QDockWidget *DebuggerUISwitcher::breakWindow() const
 {
     return dockWidget(Constants::DOCKWIDGET_BREAK);
@@ -566,15 +509,67 @@ QWidget *DebuggerUISwitcher::createContents(IMode *mode)
     d->m_viewsMenu = am->actionContainer(Core::Id(Core::Constants::M_WINDOW_VIEWS));
     QTC_ASSERT(d->m_viewsMenu, return 0)
 
-    // right-side window with editor, output etc.
+    d->m_mainWindow = new Internal::DebuggerMainWindow(this);
+    d->m_mainWindow->setDocumentMode(true);
+    d->m_mainWindow->setDockNestingEnabled(true);
+    connect(d->m_mainWindow, SIGNAL(resetLayout()),
+        SLOT(resetDebuggerLayout()));
+    connect(d->m_mainWindow->toggleLockedAction(), SIGNAL(triggered()),
+        SLOT(updateDockWidgetSettings()));
+
+    QBoxLayout *editorHolderLayout = new QVBoxLayout;
+    editorHolderLayout->setMargin(0);
+    editorHolderLayout->setSpacing(0);
+
+    QWidget *editorAndFindWidget = new QWidget;
+    editorAndFindWidget->setLayout(editorHolderLayout);
+    editorHolderLayout->addWidget(new EditorManagerPlaceHolder(mode));
+    editorHolderLayout->addWidget(new FindToolBarPlaceHolder(editorAndFindWidget));
+
+    MiniSplitter *documentAndRightPane = new MiniSplitter;
+    documentAndRightPane->addWidget(editorAndFindWidget);
+    documentAndRightPane->addWidget(new RightPanePlaceHolder(mode));
+    documentAndRightPane->setStretchFactor(0, 1);
+    documentAndRightPane->setStretchFactor(1, 0);
+
+    Utils::StyledBar *debugToolBar = new Utils::StyledBar;
+    debugToolBar->setProperty("topBorder", true);
+    QHBoxLayout *debugToolBarLayout = new QHBoxLayout(debugToolBar);
+    debugToolBarLayout->setMargin(0);
+    debugToolBarLayout->setSpacing(0);
+    debugToolBarLayout->addWidget(d->m_toolbarStack);
+    debugToolBarLayout->addStretch();
+    debugToolBarLayout->addWidget(new Utils::StyledSeparator);
+
+    QDockWidget *dock = new QDockWidget(tr("Debugger Toolbar"));
+    dock->setObjectName(QLatin1String("Debugger Toolbar"));
+    dock->setWidget(debugToolBar);
+    dock->setFeatures(QDockWidget::NoDockWidgetFeatures);
+    dock->setAllowedAreas(Qt::BottomDockWidgetArea);
+    dock->setTitleBarWidget(new QWidget(dock));
+    d->m_mainWindow->addDockWidget(Qt::BottomDockWidgetArea, dock);
+    d->m_mainWindow->setToolBarDockWidget(dock);
+
+    QWidget *centralWidget = new QWidget;
+    d->m_mainWindow->setCentralWidget(centralWidget);
+
+    QVBoxLayout *centralLayout = new QVBoxLayout(centralWidget);
+    centralWidget->setLayout(centralLayout);
+    centralLayout->setMargin(0);
+    centralLayout->setSpacing(0);
+    centralLayout->addWidget(documentAndRightPane);
+    centralLayout->setStretch(0, 1);
+    centralLayout->setStretch(1, 0);
+
+    // Right-side window with editor, output etc.
     MiniSplitter *mainWindowSplitter = new MiniSplitter;
-    mainWindowSplitter->addWidget(createMainWindow(mode));
+    mainWindowSplitter->addWidget(d->m_mainWindow);
     mainWindowSplitter->addWidget(new OutputPanePlaceHolder(mode, mainWindowSplitter));
     mainWindowSplitter->setStretchFactor(0, 10);
     mainWindowSplitter->setStretchFactor(1, 0);
     mainWindowSplitter->setOrientation(Qt::Vertical);
 
-    // navigation + right-side window
+    // Navigation and right-side window.
     MiniSplitter *splitter = new MiniSplitter;
     splitter->addWidget(new NavigationWidgetPlaceHolder(mode));
     splitter->addWidget(mainWindowSplitter);
@@ -649,11 +644,10 @@ void DebuggerUISwitcher::resetDebuggerLayout()
 {
     emit dockResetRequested(d->m_activeDebugLanguages);
 
-    if (isQmlActive()) {
+    if (isQmlActive())
         d->m_dockWidgetActiveStateQmlCpp = d->m_mainWindow->saveSettings();
-    } else {
+    else
         d->m_dockWidgetActiveStateCpp = d->m_mainWindow->saveSettings();
-    }
 
     updateActiveLanguages();
 }
@@ -663,11 +657,10 @@ void DebuggerUISwitcher::updateDockWidgetSettings()
     if (!d->m_inDebugMode || d->m_changingUI)
         return;
 
-    if (isQmlActive()) {
+    if (isQmlActive())
         d->m_dockWidgetActiveStateQmlCpp = d->m_mainWindow->saveSettings();
-    } else {
+    else
         d->m_dockWidgetActiveStateCpp = d->m_mainWindow->saveSettings();
-    }
 }
 
 bool DebuggerUISwitcher::isQmlCppActive() const
@@ -681,7 +674,7 @@ bool DebuggerUISwitcher::isQmlActive() const
     return (d->m_activeDebugLanguages & QmlLanguage);
 }
 
-QList<QDockWidget* > DebuggerUISwitcher::i_mw_dockWidgets() const
+QList<QDockWidget *> DebuggerUISwitcher::dockWidgets() const
 {
     return d->m_dockWidgets;
 }

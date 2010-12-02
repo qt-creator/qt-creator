@@ -55,16 +55,11 @@ DebuggerMainWindow::DebuggerMainWindow(DebuggerUISwitcher *uiSwitcher, QWidget *
     */
 }
 
-DebuggerMainWindow::~DebuggerMainWindow()
-{
-
-}
-
-QMenu* DebuggerMainWindow::createPopupMenu()
+QMenu *DebuggerMainWindow::createPopupMenu()
 {
     QMenu *menu = 0;
 
-    const QList<QDockWidget* > dockwidgets = m_uiSwitcher->i_mw_dockWidgets();
+    const QList<QDockWidget* > dockwidgets = m_uiSwitcher->dockWidgets();
 
     if (!dockwidgets.isEmpty()) {
         menu = FancyMainWindow::createPopupMenu();
