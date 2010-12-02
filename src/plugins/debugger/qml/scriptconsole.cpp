@@ -38,7 +38,6 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
-#include <debuggeruiswitcher.h>
 
 namespace Debugger {
 namespace Internal {
