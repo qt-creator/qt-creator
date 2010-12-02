@@ -530,14 +530,11 @@ void EditorManager::setCurrentEditor(IEditor *editor, bool ignoreNavigationHisto
     if (m_d->m_currentEditor && !ignoreNavigationHistory)
         addCurrentPositionToNavigationHistory();
 
-    if (m_d->m_currentEditor)
-        disconnect(m_d->m_currentEditor, SIGNAL(changed()), this, SLOT(updateWindowTitle()));
     m_d->m_currentEditor = editor;
     if (editor) {
         if (SplitterOrView *splitterOrView = m_d->m_splitter->findView(editor))
             splitterOrView->view()->setCurrentEditor(editor);
         m_d->m_view->updateEditorHistory(editor); // the global view should have a complete history
-        connect(m_d->m_currentEditor, SIGNAL(changed()), this, SLOT(updateWindowTitle()));
     }
     updateActions();
     updateWindowTitle();
@@ -1098,7 +1095,7 @@ IEditor *EditorManager::createEditor(const QString &editorId,
 
     IEditor *editor = factories.front()->createEditor(this);
     if (editor)
-        connect(editor, SIGNAL(changed()), this, SLOT(updateActions()));
+        connect(editor, SIGNAL(changed()), this, SLOT(handleEditorStateChange()));
     if (editor)
         emit editorCreated(editor, fileName);
     return editor;
@@ -1539,6 +1536,16 @@ void EditorManager::updateWindowTitle()
         m_d->m_core->mainWindow()->setWindowFilePath(QString());
     }
     m_d->m_core->mainWindow()->setWindowTitle(windowTitle);
+}
+
+void EditorManager::handleEditorStateChange()
+{
+    updateActions();
+    IEditor *currEditor = currentEditor();
+    if (qobject_cast<IEditor *>(sender()) == currEditor) {
+        updateWindowTitle();
+        emit currentEditorStateChanged(currEditor);
+    }
 }
 
 void EditorManager::updateActions()
@@ -1996,7 +2003,7 @@ Core::IEditor *EditorManager::duplicateEditor(Core::IEditor *editor)
 
     IEditor *duplicate = editor->duplicate(0);
     duplicate->restoreState(editor->saveState());
-    connect(duplicate, SIGNAL(changed()), this, SLOT(updateActions()));
+    connect(duplicate, SIGNAL(changed()), this, SLOT(handleEditorStateChange()));
     emit editorCreated(duplicate, duplicate->file()->fileName());
     addEditor(duplicate, true);
     return duplicate;
@@ -2042,12 +2049,8 @@ void EditorManager::removeAllSplits()
     if (!m_d->m_splitter->isSplitter())
         return;
     IEditor *editor = m_d->m_currentEditor;
-    {
-        // trigger update below
-        disconnect(m_d->m_currentEditor, SIGNAL(changed()),
-                   this, SLOT(updateWindowTitle()));
-        m_d->m_currentEditor = 0;
-    }
+    // trigger update below
+    m_d->m_currentEditor = 0;
     if (editor && m_d->m_editorModel->isDuplicate(editor))
         m_d->m_editorModel->makeOriginal(editor);
     m_d->m_splitter->unsplitAll();

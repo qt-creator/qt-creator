@@ -204,6 +204,7 @@ public:
 
 signals:
     void currentEditorChanged(Core::IEditor *editor);
+    void currentEditorStateChanged(Core::IEditor *editor);
     void editorCreated(Core::IEditor *editor, const QString &fileName);
     void editorOpened(Core::IEditor *editor);
     void editorAboutToClose(Core::IEditor *editor);
@@ -226,6 +227,7 @@ private slots:
     void updateActions();
     void makeCurrentEditorWritable();
     void updateWindowTitle();
+    void handleEditorStateChange();
 
 public slots:
     void goBackInNavigationHistory();
