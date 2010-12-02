@@ -494,6 +494,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
             break;
         case IPCEngineGuest::NotifyAddBreakpointOk:
             {
+                attemptBreakpointSynchronization();
                 QDataStream s(payload);
                 SET_NATIVE_BYTE_ORDER(s);
                 BreakpointId id;

@@ -147,11 +147,6 @@ void LldbEngineGuest::setupInferior(const QString &executable,
         notifyInferiorSetupFailed();
         return;
     }
-    notifyInferiorSetupOk();
-}
-
-void LldbEngineGuest::runEngine()
-{
     DEBUG_FUNC_ENTER;
 
     const char **argp = new const char *[m_arguments.count() + 1];
@@ -166,13 +161,12 @@ void LldbEngineGuest::runEngine()
         envp[i] = m_environment[i].data();
     }
     lldb::SBError err;
-    *m_process = m_target->Launch(argp, envp, NULL, NULL, false, err);
-
+    *m_process = m_target->Launch(argp, envp, NULL, NULL, true, err);
 
     if (!err.Success()) {
         showMessage(QString::fromLocal8Bit(err.GetCString()));
         qDebug() << err.GetCString();
-        notifyEngineRunFailed();
+        notifyInferiorSetupFailed();
     }
 
     /*
@@ -187,6 +181,13 @@ void LldbEngineGuest::runEngine()
     m_listener->StartListeningForEvents(m_process->GetBroadcaster(), UINT32_MAX);
     QMetaObject::invokeMethod(m_worker, "listen", Qt::QueuedConnection,
             Q_ARG(lldb::SBListener *, m_listener));
+    notifyInferiorSetupOk();
+}
+
+void LldbEngineGuest::runEngine()
+{
+    DEBUG_FUNC_ENTER;
+    m_process->Continue();
 }
 
 void LldbEngineGuest::shutdownInferior()
@@ -430,10 +431,13 @@ void LldbEngineGuest::addBreakpoint(BreakpointId id,
             bp.lineNumber = bp.lineNumber;
             bp.fileName = bp.fileName;
             notifyAddBreakpointOk(id);
+            showMessage(QLatin1String("[BB] ok."));
             notifyBreakpointAdjusted(id, bp);
         } else {
             m_breakpoints.take(id);
-            notifyAddBreakpointFailed(id);
+            showMessage(QLatin1String("[BB] failed. cant resolve yet"));
+//            notifyAddBreakpointFailed(id);
+//            notifyAddBreakpointOk(id);
         }
     } else {
         showMessage(QLatin1String("[BB] failed. dunno."));
