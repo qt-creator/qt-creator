@@ -44,7 +44,6 @@ class QMenu;
 QT_END_NAMESPACE
 
 namespace Core {
-class Command;
 class Context;
 class IMode;
 }
@@ -68,10 +67,6 @@ public:
 
     // Debugger toolbars are registered  with this function
     void setToolbar(const DebuggerLanguage &language, QWidget *widget);
-
-    // Menu actions are registered with this function
-    void addMenuAction(Core::Command *command, const DebuggerLanguage &language,
-                       const QString &group = QString());
 
     // All supported languages
     DebuggerLanguages supportedLanguages() const;

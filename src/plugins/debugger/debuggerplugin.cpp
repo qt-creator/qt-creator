@@ -1402,6 +1402,7 @@ public:
     QSettings *m_coreSettings;
     bool m_gdbBinariesChanged;
     uint m_cmdLineEnabledEngines;
+    ActionContainer *m_debugMenu;
 };
 
 DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
@@ -1456,6 +1457,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
 
     m_gdbBinariesChanged = true;
     m_cmdLineEnabledEngines = AllEngineTypes;
+    m_debugMenu = 0;
 }
 
 DebuggerPluginPrivate::~DebuggerPluginPrivate()
@@ -2940,6 +2942,8 @@ void DebuggerPluginPrivate::extensionsInitialized()
     connect(action(ExecuteCommand), SIGNAL(triggered()),
         SLOT(executeDebuggerCommand()));
 
+    m_debugMenu = am->actionContainer(ProjectExplorer::Constants::M_DEBUG);
+
     // Cpp/Qml ui setup
     m_mainWindow = new DebuggerMainWindow;
     m_debugMode->setWidget(m_mainWindow->createContents(m_debugMode));
@@ -3060,10 +3064,8 @@ void DebuggerPluginPrivate::extensionsInitialized()
     act->setText(tr("Detach Debugger"));
     connect(act, SIGNAL(triggered()), SLOT(handleExecDetach()));
 
-    Core::Command *cmd = 0;
-
-    Core::ActionContainer *mstart =
-        am->actionContainer(PE::M_DEBUG_STARTDEBUGGING);
+    Command *cmd = 0;
+    ActionContainer *mstart = am->actionContainer(PE::M_DEBUG_STARTDEBUGGING);
 
     cmd = am->registerAction(m_debugAction, Constants::DEBUG, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
@@ -3117,13 +3119,13 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd = am->registerAction(m_detachAction,
         Constants::DETACH, globalcontext);
     cmd->setAttribute(Command::CA_Hide);
-    m_mainWindow->addMenuAction(cmd, AnyLanguage, CC::G_DEFAULT_ONE);
+    m_debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
 
     cmd = am->registerAction(m_actions.exitAction,
         Constants::STOP, globalcontext);
     //cmd->setDefaultKeySequence(QKeySequence(Constants::STOP_KEY));
     cmd->setDefaultText(tr("Stop Debugger"));
-    m_mainWindow->addMenuAction(cmd, AnyLanguage, CC::G_DEFAULT_ONE);
+    m_debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
 
     cmd = am->registerAction(m_actions.interruptAction,
         Constants::DEBUG, m_interruptibleContext);
@@ -3137,77 +3139,77 @@ void DebuggerPluginPrivate::extensionsInitialized()
         Constants::RESET, globalcontext);
     //cmd->setDefaultKeySequence(QKeySequence(Constants::RESET_KEY));
     cmd->setDefaultText(tr("Reset Debugger"));
-    m_mainWindow->addMenuAction(cmd, AnyLanguage, CC::G_DEFAULT_ONE);
+    m_debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
 
     QAction *sep = new QAction(this);
     sep->setSeparator(true);
     cmd = am->registerAction(sep, _("Debugger.Sep.Step"), globalcontext);
-    m_mainWindow->addMenuAction(cmd, CppLanguage);
+    m_debugMenu->addAction(cmd);
 
     cmd = am->registerAction(m_actions.nextAction,
         Constants::NEXT, cppDebuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::NEXT_KEY));
     cmd->setAttribute(Command::CA_Hide);
-    m_mainWindow->addMenuAction(cmd, CppLanguage);
+    m_debugMenu->addAction(cmd);
 
     cmd = am->registerAction(m_actions.stepAction,
         Constants::STEP, cppDebuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::STEP_KEY));
     cmd->setAttribute(Command::CA_Hide);
-    m_mainWindow->addMenuAction(cmd, CppLanguage);
+    m_debugMenu->addAction(cmd);
 
 
     cmd = am->registerAction(m_actions.stepOutAction,
         Constants::STEPOUT, cppDebuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::STEPOUT_KEY));
     cmd->setAttribute(Command::CA_Hide);
-    m_mainWindow->addMenuAction(cmd, CppLanguage);
+    m_debugMenu->addAction(cmd);
 
 
     cmd = am->registerAction(m_actions.runToLineAction,
         Constants::RUN_TO_LINE1, cppDebuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::RUN_TO_LINE_KEY));
     cmd->setAttribute(Command::CA_Hide);
-    m_mainWindow->addMenuAction(cmd, CppLanguage);
+    m_debugMenu->addAction(cmd);
 
 
     cmd = am->registerAction(m_actions.runToFunctionAction,
         Constants::RUN_TO_FUNCTION, cppDebuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::RUN_TO_FUNCTION_KEY));
     cmd->setAttribute(Command::CA_Hide);
-    m_mainWindow->addMenuAction(cmd, CppLanguage);
+    m_debugMenu->addAction(cmd);
 
 
     cmd = am->registerAction(m_actions.jumpToLineAction,
         Constants::JUMP_TO_LINE1, cppDebuggercontext);
     cmd->setAttribute(Command::CA_Hide);
-    m_mainWindow->addMenuAction(cmd, CppLanguage);
+    m_debugMenu->addAction(cmd);
 
 
     cmd = am->registerAction(m_actions.returnFromFunctionAction,
         Constants::RETURN_FROM_FUNCTION, cppDebuggercontext);
     cmd->setAttribute(Command::CA_Hide);
-    m_mainWindow->addMenuAction(cmd, CppLanguage);
+    m_debugMenu->addAction(cmd);
 
 
     cmd = am->registerAction(m_actions.reverseDirectionAction,
         Constants::REVERSE, cppDebuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::REVERSE_KEY));
     cmd->setAttribute(Command::CA_Hide);
-    m_mainWindow->addMenuAction(cmd, CppLanguage);
+    m_debugMenu->addAction(cmd);
 
 
     sep = new QAction(this);
     sep->setSeparator(true);
     cmd = am->registerAction(sep, _("Debugger.Sep.Break"), globalcontext);
-    m_mainWindow->addMenuAction(cmd, CppLanguage);
+    m_debugMenu->addAction(cmd);
 
 
     //cmd = am->registerAction(m_actions.snapshotAction,
     //    Constants::SNAPSHOT, cppDebuggercontext);
     //cmd->setDefaultKeySequence(QKeySequence(Constants::SNAPSHOT_KEY));
     //cmd->setAttribute(Command::CA_Hide);
-    //m_mainWindow->addMenuAction(cmd, CppLanguage);
+    //m_debugMenu->addAction(cmd);
 
     cmd = am->registerAction(m_actions.frameDownAction,
         Constants::FRAME_DOWN, cppDebuggercontext);
@@ -3218,13 +3220,13 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd = am->registerAction(action(OperateByInstruction),
         Constants::OPERATE_BY_INSTRUCTION, cppDebuggercontext);
     cmd->setAttribute(Command::CA_Hide);
-    m_mainWindow->addMenuAction(cmd, CppLanguage);
+    m_debugMenu->addAction(cmd);
 
 
     cmd = am->registerAction(m_actions.breakAction,
         Constants::TOGGLE_BREAK, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::TOGGLE_BREAK_KEY));
-    m_mainWindow->addMenuAction(cmd, CppLanguage);
+    m_debugMenu->addAction(cmd);
     connect(m_actions.breakAction, SIGNAL(triggered()),
         SLOT(toggleBreakpoint()));
 
@@ -3233,14 +3235,14 @@ void DebuggerPluginPrivate::extensionsInitialized()
     sep = new QAction(this);
     sep->setSeparator(true);
     cmd = am->registerAction(sep, _("Debugger.Sep.Watch"), globalcontext);
-    m_mainWindow->addMenuAction(cmd, CppLanguage);
+    m_debugMenu->addAction(cmd);
 
 
     cmd = am->registerAction(m_actions.watchAction1,
         Constants::ADD_TO_WATCH1, cppeditorcontext);
     cmd->action()->setEnabled(true);
     //cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+D,Ctrl+W")));
-    m_mainWindow->addMenuAction(cmd, CppLanguage);
+    m_debugMenu->addAction(cmd);
 
 
     // Editor context menu

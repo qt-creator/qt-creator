@@ -152,9 +152,6 @@ public:
     DebuggerLanguages m_activeDebugLanguages;
 
     ActionContainer *m_viewsMenu;
-    ActionContainer *m_debugMenu;
-
-    QMultiHash<DebuggerLanguage, Command *> m_menuCommands;
 
     QWeakPointer<Project> m_previousProject;
     QWeakPointer<Target> m_previousTarget;
@@ -175,7 +172,6 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *mw)
     , m_previousDebugLanguages(AnyLanguage)
     , m_activeDebugLanguages(AnyLanguage)
     , m_viewsMenu(0)
-    , m_debugMenu(0)
     , m_initialized(false)
     , m_settings(0)
 {
@@ -277,13 +273,6 @@ void DebuggerMainWindow::updateActiveLanguages()
 DebuggerLanguages DebuggerMainWindow::supportedLanguages() const
 {
     return d->m_supportedLanguages;
-}
-
-void DebuggerMainWindow::addMenuAction(Command *command,
-    const DebuggerLanguage &language, const QString &group)
-{
-    d->m_debugMenu->addAction(command, group);
-    d->m_menuCommands.insert(language, command);
 }
 
 DebuggerLanguages DebuggerMainWindow::activeDebugLanguages() const
@@ -522,7 +511,6 @@ QWidget *DebuggerMainWindow::createContents(IMode *mode)
     connect(d->m_resizeEventFilter, SIGNAL(widgetResized()),
         SLOT(updateDockWidgetSettings()));
 
-    d->m_debugMenu = am->actionContainer(ProjectExplorer::Constants::M_DEBUG);
     d->m_viewsMenu = am->actionContainer(Core::Id(Core::Constants::M_WINDOW_VIEWS));
     QTC_ASSERT(d->m_viewsMenu, return 0)
 
