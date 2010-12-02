@@ -1649,6 +1649,8 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
         logMessage(warnMessage, LogError);
     }
 
+    m_engine->postCommand("set gnutarget arm-none-symbianelf");
+
     const QByteArray symbolFile = m_symbolFile.toLocal8Bit();
     if (symbolFile.isEmpty()) {
         logMessage(_("WARNING: No symbol file available."), LogError);
